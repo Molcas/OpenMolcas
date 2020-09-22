@@ -58,6 +58,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: iOper
+      use Sizes_of_Seward, only:S
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
@@ -159,12 +160,12 @@ C     Call QEnter('DeDe')
 *
 *---------- Scratch area for contraction step
 *
-            nScr1 =  MaxPrm(iAng)*MaxPrm(jAng) *
+            nScr1 =  S%MaxPrm(iAng)*S%MaxPrm(jAng) *
      &               nElem(iAng)*nElem(jAng)
 *
 *---------- Scratch area for the transformation to spherical gaussians
 *
-            nScr2=MaxPrm(iAng)*MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+            nScr2=S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
 *
             Call mma_allocate(DAO,Max(iBas*jBas,iPrim*jPrim)*iCmp*jCmp,
      &                        label='DAO')

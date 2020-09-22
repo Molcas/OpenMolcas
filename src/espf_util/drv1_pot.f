@@ -143,7 +143,7 @@ c           Call NAMem(nOrder,MemKer,iAng,jAng,nOrdOp)
 *
             lFinal=1
             if(nOrdOp.ne.0) then
-              lFinal = MaxPrm(iAng) * MaxPrm(jAng)
+              lFinal = S%MaxPrm(iAng) * S%MaxPrm(jAng)
      &               * nElem(iAng)*nElem(jAng)
      &               * nComp
             end if
@@ -151,13 +151,13 @@ c           Call NAMem(nOrder,MemKer,iAng,jAng,nOrdOp)
 *
 *           Scratch area for contraction step
 *
-            nScr1 =  MaxPrm(iAng)*MaxPrm(jAng) *
+            nScr1 =  S%MaxPrm(iAng)*S%MaxPrm(jAng) *
      &               nElem(iAng)*nElem(jAng)
             Call GetMem('Scrtch','ALLO','REAL',iScrt1,nScr1)
 *
 *           Scratch area for the transformation to spherical gaussians
 *
-            nScr2=MaxPrm(iAng)*MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+            nScr2=S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
             Call GetMem('ScrSph','Allo','Real',iScrt2,nScr2)
 *
             nDAO =iPrim*jPrim*nElem(iAng)*nElem(jAng)

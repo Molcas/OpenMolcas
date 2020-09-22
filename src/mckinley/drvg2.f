@@ -49,6 +49,7 @@
       use pso_stuff
       use Basis_Info
       use Symmetry_Info, only: iOper
+      use Sizes_of_Seward, only:S
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
 #include "real.fh"
@@ -192,7 +193,7 @@
       MxDij = 0
       MxBsC = 0
       Do iAng = 0, iAngMx
-         MxPrm = Max(MxPrm,MaxPrm(iAng))
+         MxPrm = Max(MxPrm,S%MaxPrm(iAng))
          Do 2900 iCnttp = 1,nCnttp
             iShll = dbsc(iCnttp)%iVal + iAng
             iPrim = Shells(iShll)%nExp

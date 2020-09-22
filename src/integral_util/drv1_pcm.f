@@ -146,20 +146,20 @@
 *           primitive basis.
 *
             nComp = (nOrdOp+1)*(nOrdOp+2)/2
-            lFinal = MaxPrm(iAng) * MaxPrm(jAng)
+            lFinal = S%MaxPrm(iAng) * S%MaxPrm(jAng)
      &             * nElem(iAng)*nElem(jAng)
      &             * nComp
             Call mma_allocate(Fnl,lFinal,Label='Fnl')
 *
 *           Scratch area for contraction step
 *
-            nScr1 =  MaxPrm(iAng)*MaxPrm(jAng) *
+            nScr1 =  S%MaxPrm(iAng)*S%MaxPrm(jAng) *
      &               nElem(iAng)*nElem(jAng)
             Call mma_allocate(Scr1,nScr1,Label='Scr1')
 *
 *           Scratch area for the transformation to spherical gaussians
 *
-            nScr2=MaxPrm(iAng)*MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+            nScr2=S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
             Call mma_allocate(Scr2,nScr2,Label='Scr2')
 *
             nDAO =iPrim*jPrim*nElem(iAng)*nElem(jAng)

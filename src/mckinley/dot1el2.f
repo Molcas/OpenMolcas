@@ -149,13 +149,13 @@ C        Do jS = 1, iS
 *
 *       Scratch area for contraction step
 *
-        nScr1 =  MaxPrm(iAng)*MaxPrm(jAng) *
+        nScr1 =  S%MaxPrm(iAng)*S%MaxPrm(jAng) *
      &           nElem(iAng)*nElem(jAng)
         Call GetMem('Scrtch','ALLO','REAL',iScrt1,nScr1)
 *
 *       Scratch area for the transformation to spherical gaussians
 *
-        nScr2=MaxPrm(iAng)*MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+        nScr2=S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
         Call GetMem('ScrSph','Allo','Real',iScrt2,nScr2)
 *
           Call GetMem(' DAO ','Allo','Real',ipDAO,

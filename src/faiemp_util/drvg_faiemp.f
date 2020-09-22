@@ -42,7 +42,7 @@
       use iSD_data
       use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
       use Basis_Info
-
+      use Sizes_of_Seward, only:S
       Implicit None
       External King, Rsv_GTList, MPP
 #include "real.fh"
@@ -150,7 +150,7 @@
 *                                                                      *
       MxPrm = 0
       Do iAng = 0, iAngMx
-         MxPrm = Max(MxPrm,MaxPrm(iAng))
+         MxPrm = Max(MxPrm,S%MaxPrm(iAng))
       End Do
       nZeta = MxPrm * MxPrm
       nEta  = MxPrm * MxPrm

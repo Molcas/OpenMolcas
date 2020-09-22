@@ -10,6 +10,7 @@
 ************************************************************************
        Subroutine Flip_Flop(Primitive)
        use Basis_Info
+       use Sizes_of_Seward, only:S
        Implicit Real*8 (a-h,o-z)
        Logical Primitive
 #include "itmax.fh"
@@ -18,8 +19,8 @@
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
 *
-      MaxBas(:)=0
-      MaxPrm(:)=0
+      S%MaxBas(:)=0
+      S%MaxPrm(:)=0
 *
       Do iCnttp = 1, nCnttp
          nTest = dbsc(iCnttp)%nVal-1
@@ -49,8 +50,8 @@
      &                              Shells(iShll)%nBasis,Label='pCff')
                   Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
                End If
-               MaxPrm(iAng) = Max(MaxPrm(iAng),nExpi)
-               MaxBas(iAng) = Max(MaxBas(iAng),Shells(iShll)%nBasis)
+               S%MaxPrm(iAng) = Max(S%MaxPrm(iAng),nExpi)
+               S%MaxBas(iAng) = Max(S%MaxBas(iAng),Shells(iShll)%nBasis)
 *
             End Do ! iAng
 *        End Do    ! iCnt

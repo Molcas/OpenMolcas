@@ -352,7 +352,7 @@ C     write(6,'(20i4)') (mval(i),i=1,k)
                         Type(iIrrep)=.False.
                      End If
 *
-                     If (MaxBas(iAng).gt.0) iAOtSO(iAO,iIrrep) = jSO + 1
+                     If (S%MaxBas(iAng).gt.0) iAOtSO(iAO,iIrrep) = jSO+1
                      S%m2Max = Max(S%m2Max,nExpi**2)
                      Do 205 iCntrc = 1, nBasisi
                         iSO_Tot = iSO_Tot + 1
@@ -698,7 +698,7 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                         Type(iIrrep)=.False.
                      End If
 *
-                     If (MaxBas(iAng).gt.0) iAOtSO(iAO,iIrrep) = jSO + 1
+                     If (S%MaxBas(iAng).gt.0) iAOtSO(iAO,iIrrep) = jSO+1
                      S%m2Max = Max(S%m2Max,nExpi**2)
                      If(.not.Shells(iSh)%Frag .and.
      &                  .not.dbsc(iCnttp)%Aux)
@@ -889,7 +889,7 @@ CSVC: basis IDs of non-symmetric case
                      Call Abend
                   End If
                   lComp = kComp + iComp
-                  If (MaxBas(iAng).gt.0) Then
+                  If (S%MaxBas(iAng).gt.0) Then
 *
                      Do 408 imc = 0, (nIrrep/dc(mdc)%nStab)-1
                         itest1 = iAnd(dc(mdc)%iCoSet(imc,0),iChxyz)

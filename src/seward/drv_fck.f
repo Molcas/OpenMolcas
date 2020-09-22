@@ -16,6 +16,7 @@
      &                   opmol,ipad,opnuc,iopadr,idirect,isyop,
      &                   PtChrg,nGrid,iAddPot)
       use PAM2
+      use Sizes_of_Seward, only:S
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -304,7 +305,7 @@ c        Write(6,*) ' oneel *',Label,'*'
 *                                                                      *
 *           Allocate memory for the final integrals all in the
 *           primitive basis.
-            lFinal = nIC * MaxPrm(iAng) * MaxPrm(jAng) *
+            lFinal = nIC * S%MaxPrm(iAng) * S%MaxPrm(jAng) *
      &               nElem(iAng)*nElem(jAng)
             Call mma_allocate(Fnl,lFinal)
             Call dCopy_(lFinal,[Zero],0,Fnl,1)

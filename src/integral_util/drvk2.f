@@ -132,7 +132,7 @@
 *                                                                      *
       MemTmp=0
       Do iAng = 0, iAngMx
-         MemTmp=Max(MemTmp,(MaxPrm(iAng)*nElem(iAng))**2)
+         MemTmp=Max(MemTmp,(S%MaxPrm(iAng)*nElem(iAng))**2)
       End Do
       Call mma_allocate(Scr,MemTmp,3,Label='Scr')
       Call mma_allocate(Knew,S%m2Max,Label='Knew')

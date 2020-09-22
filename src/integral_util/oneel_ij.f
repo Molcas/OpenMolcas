@@ -29,6 +29,7 @@
       use iSD_data
       use Basis_Info
       use Center_Info
+      use Sizes_of_Seward, only:S
       Implicit Real*8 (a-h,o-z)
 *     External Kernel, KrnlMm
       External KrnlMm
@@ -114,7 +115,7 @@
           Write (6,'(A,A,A,A,A)')
      &   ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
        endif
-      lFinal = nIC*MaxPrm(iAng)*MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+      lFinal = nIC*S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
       If (lFinal.gt.nFinal) Then
          Call WarningMessage(2,'lFinal.gt.nFinal')
          Call Abend()

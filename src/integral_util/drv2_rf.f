@@ -158,20 +158,20 @@
 *           Allocate memory for the final integrals all in the
 *           primitive basis.
             nComp = (lMax+1)*(lMax+2)*(lMax+3)/6
-            lFinal = MaxPrm(iAng) * MaxPrm(jAng) *
+            lFinal = S%MaxPrm(iAng) * S%MaxPrm(jAng) *
      &               nElem(iAng)*nElem(jAng)
             Call mma_allocate(Fnl,lFinal,nComp+1,Label='Fnl')
 *
 *           Scratch area for contraction step
 *
-            nScr1 =  Max(MaxPrm(iAng),MaxPrm(jAng)) *
-     &               Max(MaxBas(iAng),MaxBas(jAng)) *
+            nScr1 =  Max(S%MaxPrm(iAng),S%MaxPrm(jAng)) *
+     &               Max(S%MaxBas(iAng),S%MaxBas(jAng)) *
      &               nComp*nElem(iAng)*nElem(jAng)
             Call mma_allocate(Scr1,nScr1,Label='Scr1')
 *
 *           Scratch area for the transformation to spherical gaussians
 *
-            nScr2=nComp*MaxBas(iAng)*MaxBas(jAng)
+            nScr2=nComp*S%MaxBas(iAng)*S%MaxBas(jAng)
      &           *nElem(iAng)*nElem(jAng)
             Call mma_allocate(Scr2,nScr2,Label='Scr2')
 *

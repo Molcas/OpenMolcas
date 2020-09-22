@@ -93,7 +93,7 @@
 *                                                                      *
       MemTmp=0
       Do iAng = 0, iAngMx
-         MemTmp=Max(MemTmp,(MaxPrm(iAng)*nElem(iAng))**2)
+         MemTmp=Max(MemTmp,(S%MaxPrm(iAng)*nElem(iAng))**2)
       End Do
       Call GetMem('Temp1','Allo','Real',ipTmp1,MemTmp )
       Call GetMem('Temp2','Allo','Real',ipTmp2,MemTmp )

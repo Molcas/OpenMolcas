@@ -13,6 +13,8 @@ Module Sizes_of_Seward
 Implicit None
 Private
 Public:: S, Size_Dmp, Size_Get
+#include  "itmax.fh"
+Integer i
 Type Sizes_of_Stuff
      Sequence
      Integer :: Low_Anchor
@@ -24,6 +26,8 @@ Type Sizes_of_Stuff
      Integer :: Mx_Shll     =0
      Integer :: n2Tot       =0
      Integer :: jMax        =5
+     Integer :: MaxPrm(0:iTabMx)=[(0,i=0,iTabMx)]
+     Integer :: MaxBas(0:iTabMx)=[(0,i=0,iTabMx)]
      Integer :: High_Anchor
 End Type Sizes_of_Stuff
 !

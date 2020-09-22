@@ -828,14 +828,14 @@
 *                                                                      *
                   lAng=iAng+jAng
                   iAngMx=Max(iAngMx,lAng)
-                  MaxPrm(lAng)=Max(MaxPrm(lAng),nPrim)
+                  S%MaxPrm(lAng)=Max(S%MaxPrm(lAng),nPrim)
 *
 #ifdef _DEBUG_
                   Write (6,*)
                   Write (6,*) 'iShll=',iShll
                   Write (6,*) 'nPrim,nCntrc=',nPrim,nCntrc
                   Write (6,*) 'lAng=',lAng
-                  Write (6,*) 'MaxPrm(lAng)=',MaxPrm(lAng)
+                  Write (6,*) 'S%MaxPrm(lAng)=',S%MaxPrm(lAng)
 #endif
 *
                   Shells(iShll)%nBasis_c=nCntrc

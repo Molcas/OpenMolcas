@@ -196,18 +196,18 @@ C        Do jS = 1, iS
 *           Allocate memory for the final integrals, all in the
 *           primitive basis.
 *
-            lFinal = 6 * MaxPrm(iAng) * MaxPrm(jAng) *
+            lFinal = 6 * S%MaxPrm(iAng) * S%MaxPrm(jAng) *
      &               nElem(iAng)*nElem(jAng) * nComp
             Call mma_allocate(Final,lFinal,Label='Final')
 *
 *           Scratch area for contraction step
 *
-            nScr1 =  MaxPrm(iAng)*MaxPrm(jAng) * nElem(iAng)*nElem(jAng)
+            nScr1 =S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
             Call mma_allocate(Scr1,nScr1,Label='Scr1')
 *
 *           Scratch area for the transformation to spherical gaussians
 *
-            nScr2=MaxPrm(iAng)*MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+            nScr2=S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
             Call mma_allocate(Scr2,nScr2,Label='Scr2')
 *
             Call mma_allocate(DAO,iPrim*jPrim*nElem(iAng)*nElem(jAng),

@@ -34,6 +34,7 @@
       use Basis_Info
       use Center_Info
       use Phase_Info
+      use Sizes_of_Seward, only:S
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -67,17 +68,17 @@
 
       Do iAng = iAngMx , 0, -1
 
-         If (MaxPrm(iAng).eq.0) goto 100
-         If (MaxBas(iAng).eq.0) goto 100
+         If (S%MaxPrm(iAng).eq.0) goto 100
+         If (S%MaxBas(iAng).eq.0) goto 100
 *
 *        Scratch area for contraction step
 *
-         nScr1 =  MaxPrm(iAng)* nElem(iAng)
+         nScr1 =  S%MaxPrm(iAng)* nElem(iAng)
          Call GetMem('Scrtch','ALLO','REAL',iScrt1,nScr1)
 *
 *        Scratch area for the transformation to spherical gaussians
 *
-         nScr2=MaxPrm(iAng)*nElem(iAng)
+         nScr2=S%MaxPrm(iAng)*nElem(iAng)
          Call GetMem('ScrSph','Allo','Real',iScrt2,nScr2)
 *
 *        Loop over basis sets. Skip if basis set do not include

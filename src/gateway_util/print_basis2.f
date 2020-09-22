@@ -11,6 +11,7 @@
       Subroutine Print_Basis2()
       use Basis_Info
       use Center_Info
+      use Sizes_of_Seward, only:S
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
@@ -98,7 +99,7 @@
                iShell = iShell + 1
                nExpj=Shells(jSh)%nExp
                nBasisj=Shells(jSh)%nBasis
-               If (MaxPrm(iAng).gt.0 .and. nExpj.gt.0 .and.
+               If (S%MaxPrm(iAng).gt.0 .and. nExpj.gt.0 .and.
      &             nBasisj.gt.0 .and. output .and.
      &             iCnt.eq.1) Then
                   Write (LuWr,*)
