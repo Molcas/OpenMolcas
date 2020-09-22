@@ -140,18 +140,18 @@
 *     Compute distances
 *
       If (S%mCentr.le.2) Go To 55
-      Call Dstncs(lblxxx,Centr,nc,angstr,Max_Center,6)
+      Call Dstncs(lblxxx,Centr,nc,angstr,S%Max_Center,6)
       If (.Not.Expert) Call DstChk(Centr,lblxxx,nc)
 *
 *     Compute valence bond angels
 *
       If (iPrint.lt.5.or.S%mCentr.lt.3.or.iOpt.eq.1) Go To 55
-      Call Angles(lblxxx,Centr,nc,rtrnc,Max_Center)
+      Call Angles(lblxxx,Centr,nc,rtrnc,S%Max_Center)
 *
 *     Compute dihedral angles
 *
       If (iPrint.lt.5.or.S%mCentr.lt.4) Go To 55
-      Call Dihedr(lblxxx,Centr,nc,rtrnc,Max_Center)
+      Call Dihedr(lblxxx,Centr,nc,rtrnc,S%Max_Center)
 *                                                                      *
 ************************************************************************
 *                                                                      *

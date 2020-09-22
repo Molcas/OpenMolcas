@@ -30,6 +30,7 @@ Type Sizes_of_Stuff
      Integer :: MaxBas(0:iTabMx)=[(0,i=0,iTabMx)]
      Integer :: nDim        =0
      Integer :: nShlls      =0
+     Integer :: Max_Center  =15
      Integer :: High_Anchor
 End Type Sizes_of_Stuff
 !

@@ -1558,7 +1558,7 @@ c Simplistic validity check for value
 *
  950  KWord = Get_Ln(LuRd)
       Call Upcase(KWord)
-      Call Get_I1(1,Max_Center)
+      Call Get_I1(1,S%Max_Center)
       Call Get_F1(2,rtrnc)
       If (Index(KWord,'ANGSTROM').ne.0)
      &    Rtrnc = Rtrnc/angstr
