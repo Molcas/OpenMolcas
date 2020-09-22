@@ -18,20 +18,14 @@
 ************************************************************************
 * -> Integer   <-                                                      *
 *     iAngMx: higest angular momentum specified in the input           *
-*     MaxPrm: max number of primitives in a shell for a given angular  *
-*             momentum                                                 *
-*     MaxBas: Dito contracted functions                                *
-*     Mx_Shll: max number of shells defined.                           *
 *     iRI_Type: type of RI auxiliary basis set                         *
-*     nCtrLD: number of centers in the LDKH procedure                  *
-*     iCtrLD: ith center for the LDKH procedure                        *
 ************************************************************************
       Integer   ixStrt, ixEnd,
      &          nIrrep,nMltpl,iAngMx, Max_Center,IsChi,
-     &          kCentr, iRelae_Info,iRI_Type, nPSOI
+     &          kCentr, iRI_Type, nPSOI
 *
       Common /Info/ ixStrt,
-     &              iAngMx,  nIrrep, nMltpl, IsChi, iRelae_info,
+     &              iAngMx,  nIrrep, nMltpl, IsChi,
      &              iRI_Type, kCentr, Max_Center, nPSOI,
      &              ixEnd    ! Put never ever anything after ixEnd!!!
 *                                                                      *

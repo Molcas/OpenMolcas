@@ -210,7 +210,7 @@ c mess started here :)
          RecLab( 51)='RCTFLD          '
          RecLab( 52)='RFrInfo         '
          RecLab( 53)='SewRInfo        '
-         RecLab( 54)='                ' ! unused
+         RecLab( 54)='DKH_Info        '
          RecLab( 55)='                ' ! unused
          RecLab( 56)='Last orbitals_ab'
          RecLab( 57)='SCFInfoI_ab     '

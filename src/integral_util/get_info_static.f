@@ -30,6 +30,7 @@
 ************************************************************************
       use Symmetry_Info, only: Symmetry_Info_Get
       use Sizes_of_Seward, only: Size_Get
+      use DKH_Info, only: DKH_Info_Get
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -44,6 +45,7 @@
 *
       Call Get_Info_Static_Internal(ixStrt,lxStrt,rxStrt)
       Call Size_Get()
+      Call DKH_Info_Get()
       Return
 *
 *     This is to allow type punning without an explicit interface
@@ -61,8 +63,6 @@
       Len = (Len+nbyte_i)/nbyte_i
       Call C_F_Pointer(C_Loc(ixStrt),p_ix,[Len])
       Call Get_iArray('SewIInfo',p_ix,Len)
-*
-      iRELAE=iRELAE_Info
 *
 *     Load the common LINFO
 *
