@@ -128,14 +128,8 @@ C
 *
       Thrshld_CD=1.0D-4
       Delta_RICD=0.0D0
-      E1=0.0D0
-      E2=0.0D0
       SadStep=0.1d0
       ChiI2=0.0D0
-*
-*     Flags to control build of FMM short-range integral components
-*
-      RPQMIN = 0.4d0
 *
 *-----PStat
 *

@@ -86,11 +86,11 @@
 *     KVector: the k-vector of the EMFR                                *
 ************************************************************************
       Real*8         CoM(3), rMI(6), Dxyz(3),Prin(3),PAx(9), CoC(3),
-     &               E1, E2, Thrshld_CD, RPQMin,SadStep, Delta_RICD,
+     &               Thrshld_CD, SadStep, Delta_RICD,
      &               CLight_Info, Shake, KVector(3), ChiI2
       Real*8         rxStrt, rxEnd
       Common /RInfo/ rxStrt,  ! Put never ever anything before rxStrt!!!
      &               CoM, rMI, Prin, PAx, CoC, Dxyz,
-     &               Thrshld_CD, RPQMin, Delta_RICD, CLight_Info,
-     &               E1, E2, SadStep, Shake, KVector, ChiI2,
+     &               Thrshld_CD, Delta_RICD, CLight_Info,
+     &               SadStep, Shake, KVector, ChiI2,
      &               rxEnd      ! Put never ever anything after rxEnd!!!

@@ -11,6 +11,7 @@
       Subroutine Int_Setup(iSD,nSkal,iS,jS,kS,lS,Coor,Shijij,
      &                     iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs)
       Use Basis_Info
+      use Real_Info, only: RPQMin
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"
