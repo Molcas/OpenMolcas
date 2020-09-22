@@ -13,6 +13,7 @@
       use Center_Info
       use external_centers
       use Temporary_Parameters, only: Primitive_pass
+      use Real_Info, only: PotNuc
       Implicit Real*8 (a-h,o-z)
 *
 #include "espf.fh"

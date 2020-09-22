@@ -13,6 +13,7 @@
 C
 C     Purpose: read integral prescreening thresholds from common block.
 C
+      Real*8 Thr1, Thr2
       Thr1 = CutInt
       Thr2 = ThrInt
 

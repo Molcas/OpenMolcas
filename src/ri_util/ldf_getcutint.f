@@ -16,6 +16,7 @@ C     Thomas Bondo Pedersen, November 2010.
 C
 C     Returns the value of CutInt.
 C
+      Real*8 Value
       use Real_Info, only: CutInt
       Value=CutInt
       End
