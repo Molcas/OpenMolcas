@@ -126,8 +126,6 @@ C
 *
 *-----RInfo
 *
-      RadMax=0.00d+00
-*
       Thrshld_CD=1.0D-4
       Delta_RICD=0.0D0
       E1=0.0D0

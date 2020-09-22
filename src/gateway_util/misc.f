@@ -12,6 +12,7 @@
       use Basis_Info
       use Center_Info
       use Sizes_of_Seward, only: S
+      use Real_Info, only: RadMax, cdMax, EtMax
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

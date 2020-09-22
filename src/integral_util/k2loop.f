@@ -55,7 +55,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: iOper
-      use Real_Info, only: CutInt
+      use Real_Info, only: CutInt, RadMax, cdMax, EtMax
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External TERIS, ModU2, Cmpct, Cff2DS, Rys2D

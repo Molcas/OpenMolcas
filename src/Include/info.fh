@@ -83,17 +83,14 @@
 *     CoC   : center of charge of the nuclear charges                  *
 *     Dxyz  : coordinates of the gauge origin in the calculation of the*
 *             magnetic shielding integrals                             *
-*     RadMax: the largest of a contraction coefficient and prefactor   *
 *     KVector: the k-vector of the EMFR                                *
 ************************************************************************
-      Real*8         CoM(3), rMI(6), Dxyz(3), RadMax , cdMax, EtMax,
-     &               Prin(3),PAx(9), CoC(3),
+      Real*8         CoM(3), rMI(6), Dxyz(3),Prin(3),PAx(9), CoC(3),
      &               E1, E2, Thrshld_CD, RPQMin,SadStep, Delta_RICD,
      &               CLight_Info, Shake, KVector(3), ChiI2
       Real*8         rxStrt, rxEnd
       Common /RInfo/ rxStrt,  ! Put never ever anything before rxStrt!!!
-     &               CoM, rMI, Prin, PAx, CoC,
-     &               Dxyz, RadMax, cdMax, EtMax,
+     &               CoM, rMI, Prin, PAx, CoC, Dxyz,
      &               Thrshld_CD, RPQMin, Delta_RICD, CLight_Info,
      &               E1, E2, SadStep, Shake, KVector, ChiI2,
      &               rxEnd      ! Put never ever anything after rxEnd!!!
