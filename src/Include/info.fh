@@ -28,11 +28,11 @@
 ************************************************************************
       Integer   ixStrt, ixEnd,
      &          nIrrep,nMltpl,iAngMx, Max_Center,IsChi,
-     &          kCentr, iRelae_Info,iRI_Type, nCtrLD,iCtrLD(10), nPSOI
+     &          kCentr, iRelae_Info,iRI_Type, nPSOI
 *
       Common /Info/ ixStrt,
      &              iAngMx,  nIrrep, nMltpl, IsChi, iRelae_info,
-     &              iRI_Type, kCentr, Max_Center, nCtrLD,iCtrLD, nPSOI,
+     &              iRI_Type, kCentr, Max_Center, nPSOI,
      &              ixEnd    ! Put never ever anything after ixEnd!!!
 *                                                                      *
 ************************************************************************
@@ -56,26 +56,24 @@
 *     Do_FckInt: logical flag for FckInt                               *
 *     Do_GuessOrb: logical flag for GuessOrb                           *
 *     DiagCheck : logical flag for diagonal ERI check in Cholesky/RI   *
-*     LDKroll : logical for the local Douglas-Kroll-Hess               *
 *     VART: Forced variant to translations                             *
 *     VARR: Forced variant to rotations                                *
 *     EMFR: Electromagnetic field radiation                            *
 *     FNMC: finite nuclear mass correction                             *
 ************************************************************************
       Logical   DirInt, Vlct, lRel, Do_RI, UnNorm, lSchw, lAMFI,
-     &          BSS, DKroll, LDKroll, NEMO,
-     &          Do_GuessOrb, Cholesky, Do_FckInt, Align_Only,
+     &          NEMO, Do_GuessOrb, Cholesky, Do_FckInt, Align_Only,
      &          Do_acCD_Basis, Skip_High_AC, DoFMM, Cho_OneCenter, LDF,
      &          DiagCheck, lRP, lRP_Post, Fake_ERIs, LocalDF,
      &          Do_nacCD_Basis, Do_Align, VarT, VarR, EMFR, GIAO,
      &          lUPONLY, lDOWNONLY, FNMC, lPSOI
       Integer lxStrt, lxEnd
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
-     &               DirInt, DKroll, BSS, NEMO, LDF, Do_RI, lAMFI,
+     &               DirInt, NEMO, LDF, Do_RI, lAMFI,
      &               Do_GuessOrb, Vlct, lRel, UnNorm, lSchw,
      &               GIAO, Do_FckInt, Cholesky, Do_acCD_Basis,
      &               Skip_High_AC, lRP, lRP_Post, DoFMM, Cho_OneCenter,
-     &               DiagCheck, LDKroll, Align_Only, Fake_ERIs, LocalDF,
+     &               DiagCheck, Align_Only, Fake_ERIs, LocalDF,
      &               Do_nacCD_Basis, Do_Align, VarR, VarT,
      &               EMFR, lUPONLY, lDOWNONLY, FNMC, lPSOI,
      &               lxEnd      ! Put never ever anything after lxEnd!!!
@@ -112,12 +110,12 @@
      &               Prin(3),PAx(9), CoC(3), qNuc, PkAcc,  Thrs,
      &               Dxyz(3), RadMax , cdMax, EtMax,
      &               E1, E2, Thrshld_CD, RPQMin,SadStep, Delta_RICD,
-     &               CLight_Info, radiLD, Shake, KVector(3), ChiI2
+     &               CLight_Info, Shake, KVector(3), ChiI2
       Real*8         rxStrt, rxEnd
       Common /RInfo/ rxStrt,  ! Put never ever anything before rxStrt!!!
      &               AccMch, ThrInt, PotNuc, CutInt, TMass, CoM, rMI,
      &               Prin, PAx, CoC, qNuc, PkAcc, Thrs,
      &               Dxyz, RadMax, cdMax, EtMax, Rtrnc,
      &               Thrshld_CD, RPQMin, Delta_RICD, CLight_Info,
-     &               E1, E2, radiLD, SadStep, Shake, KVector, ChiI2,
+     &               E1, E2, SadStep, Shake, KVector, ChiI2,
      &               rxEnd      ! Put never ever anything after rxEnd!!!

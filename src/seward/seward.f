@@ -57,6 +57,7 @@
       use LundIO
       use Temporary_Parameters
       use Integral_parameters, only: iPack, iWROpt
+      use DKH_Info, only: DKroll
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_WrOut2, Integral_RI_3
 #include "real.fh"

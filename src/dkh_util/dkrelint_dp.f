@@ -12,6 +12,7 @@
 ************************************************************************
       Subroutine DKRelint_DP
       Use Basis_Info
+      use DKH_Info
 *
 *     modified by D. Peng, ETH Zurich, October 2011
 *
@@ -312,7 +313,6 @@ c     &                            " exact decoupling BSS Hamiltonian"
          If (LDKroll) Then
            Call GetMem('Index  ','ALLO','INTE',indx,iibas+4)
            Call xdr_indx(iibas,iWork(indx))
-CDP           write(6,*) "radild : ",radild
            DoFullLT=.true.
            if(radiLD.eq.0.d0) DoFullLT=.false.
            if(DoFullLT)then

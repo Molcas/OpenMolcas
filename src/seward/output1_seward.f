@@ -32,6 +32,7 @@
       use EFP_Module
       use External_centers
       use Temporary_Parameters
+      use DKH_Info
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

@@ -12,6 +12,7 @@
      &                    Charge2)
       use iSD_data
       use Basis_Info
+      use DKH_Info, only: DKroll
       Implicit Real*8 (a-h,o-z)
       External Rsv_Tsk
 #include "angtp.fh"

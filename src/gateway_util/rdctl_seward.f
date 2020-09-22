@@ -25,6 +25,7 @@
       use Temporary_Parameters
       use Integral_Parameters
       use Sizes_of_Seward, Only: S
+      use DKH_Info
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif

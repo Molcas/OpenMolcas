@@ -348,6 +348,7 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      use DKH_Info
       Integer indx2(nAtom,4),indx(N),N,Nsm,nblock,itmp1,itmp2
       Real*8 Coord(3*nAtom),distce
 #include "itmax.fh"
@@ -513,6 +514,7 @@ c Avoid unused argument warnings
 *                                                                      *
 *                                                                      *
 ************************************************************************
+      use DKH_Info
       Implicit real*8(a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"

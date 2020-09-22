@@ -22,7 +22,6 @@
       use EFP_Module
       use k2_arrays
       use Basis_Info
-      use Sizes_of_Seward, only:S
       implicit real*8 (a-h,o-z)
       External Reduce_Prt
       Logical Reduce_Prt
@@ -83,10 +82,7 @@ C
 *
       NEMO=.False.
       Do_RI=.False.
-      DKroll=.False.
-      LDKroll=.False.
       IRFLAG1=0
-      BSS   =.False.
       DirInt=.False.
       EMFR  =.False.
       UnNorm=.False.

@@ -33,6 +33,7 @@
       use Her_RW
       use External_Centers
       use Temporary_Parameters, only: Test
+      use DKH_Info, only: DKroll
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
