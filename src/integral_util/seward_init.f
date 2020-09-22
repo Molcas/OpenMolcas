@@ -118,8 +118,6 @@ C
          iRI_Type=4
       End If
 *
-      Shake=-One
-*
 *     Flags to control build of FMM short-range integral components
 *
       DoFMM = .False.
@@ -128,8 +126,6 @@ C
 *
       Thrshld_CD=1.0D-4
       Delta_RICD=0.0D0
-      SadStep=0.1d0
-      ChiI2=0.0D0
 *
 *-----PStat
 *

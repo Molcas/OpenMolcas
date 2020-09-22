@@ -26,7 +26,7 @@
       use Integral_Parameters
       use Sizes_of_Seward, Only: S
       use Real_Info, only: ThrInt, Rtrnc, CutInt, PkAcc, Thrs, E1, E2,
-     &                     RPQMin
+     &                     RPQMin, SadStep, Shake
       use DKH_Info
 #ifndef _HAVE_EXTRA_
       use XYZ

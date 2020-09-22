@@ -12,7 +12,8 @@
 Module Real_Info
 Private
 Public :: AccMch, ThrInt, PotNuc, Rtrnc, CutInt, TMass, qNuc, PkAcc, &
-          Thrs, RadMax, cdMax, EtMax, E1, E2, RPQMin, &
+          Thrs, RadMax, cdMax, EtMax, E1, E2, RPQMin, SadStep, Shake,&
+          ChiI2, &
           Real_Info_Dmp, Real_Info_Get
 
 #include "stdalloc.fh"
