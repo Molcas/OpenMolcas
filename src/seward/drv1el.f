@@ -38,6 +38,7 @@
       use Temporary_Parameters, only: PrPrt, Short, Primitive_Pass
       use PAM2
       use DKH_Info, only: BSS, DKroll
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
       External MltInt, KnEInt, MVeInt,  VeInt,  D1Int,  NAInt,  EFInt,
      &         OAMInt, OMQInt, DMSInt, WelInt, XFdInt,  PrjInt,
@@ -218,8 +219,7 @@
  12         Continue
  11      Continue
 *
-         Call MltNuc(CoorO,Chrg,Centr,kCentr,
-     &               Nuc,iMltpl,nComp)
+         Call MltNuc(CoorO,Chrg,Centr,S%kCentr,Nuc,iMltpl,nComp)
 *--- pow hack
          If(iMltpl.eq.0) Then
             Call Put_dScalar('Total Nuclear Charge',Nuc(1))
@@ -725,8 +725,7 @@ c           iPAMcount=iPAMcount+1
             End Do
          End Do
 *
-         Call EFNuc(CoorO,Chrg,Centr,kCentr,
-     &               Nuc,nOrdOp)
+         Call EFNuc(CoorO,Chrg,Centr,S%kCentr,Nuc,nOrdOp)
          Call OneEl(EFInt,EFMem,Label,ipList,OperI,nComp,
      &              CoorO,nOrdOp,Nuc,rHrmt,OperC,
      &              dum,1,dum,idum,0,0,
@@ -1934,8 +1933,7 @@ c        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
                   End Do
                End Do
 *
-*              Call EFNuc(CoorO,Chrg,Centr,kCentr,
-*    &                    Nuc,nOrdOp)
+*              Call EFNuc(CoorO,Chrg,Centr,S%kCentr,Nuc,nOrdOp)
 *
 
                Call OneEl(dTdmu_Int,dTdmu_Mem,Label,ipList,

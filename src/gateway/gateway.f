@@ -142,7 +142,7 @@ C     Call Gateway_banner()
       Call Print_Geometry(0)
       Call Print_Isotopes()
       If (nPrint(2).gt.0) nPrint(117)=6
-      Call RigRot(Centr,Mass,kCentr)
+      Call RigRot(Centr,Mass,S%kCentr)
       Call Print_Basis2()
       Call Print_OpInfo()
 *                                                                      *

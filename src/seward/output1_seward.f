@@ -33,6 +33,7 @@
       use External_centers
       use Temporary_Parameters
       use DKH_Info
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -54,7 +55,6 @@
 *                                                                      *
       iRout=2
       iPrint=nPrint(iRout)
-      Call QEnter('Output1_Seward')
       LuWr=6
 *                                                                      *
 ************************************************************************
@@ -556,7 +556,7 @@
 *                                                                      *
 *     Rigid Rotor analysis etc.
 *
-         Call RigRot(Centr,Mass,kCentr)
+         Call RigRot(Centr,Mass,S%kCentr)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -569,6 +569,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Output1_Seward')
       Return
       End

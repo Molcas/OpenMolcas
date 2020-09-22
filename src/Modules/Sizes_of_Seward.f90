@@ -31,6 +31,7 @@ Type Sizes_of_Stuff
      Integer :: nDim        =0
      Integer :: nShlls      =0
      Integer :: Max_Center  =15
+     Integer :: kCentr      =0
      Integer :: High_Anchor
 End Type Sizes_of_Stuff
 !

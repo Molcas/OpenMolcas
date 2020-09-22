@@ -30,7 +30,7 @@
 *                                                                      *
 *     Generate the center list.
 *
-      kCentr=0
+      S%kCentr=0
 *
       nc = 1
       Do jCnttp = 1, nCnttp
@@ -64,7 +64,7 @@
                End If
                nc = nc + 1
             End Do
-            kCentr = kCentr + nIrrep/dc(ndc)%nStab
+            S%kCentr = S%kCentr + nIrrep/dc(ndc)%nStab
          End Do
       End Do
 *                                                                      *
@@ -72,7 +72,7 @@
 *                                                                      *
 *     Compute Total Charge and Center of Charge centroid
 *
-      Call CoW(Centr,CoC,Chrg,kCentr,qNuc)
+      Call CoW(Centr,CoC,Chrg,S%kCentr,qNuc)
       If (iChCar(1).ne.0) CoC(1)=Zero
       If (iChCar(2).ne.0) CoC(2)=Zero
       If (iChCar(3).ne.0) CoC(3)=Zero
@@ -100,7 +100,7 @@
 *                                                                      *
 *     Compute Total Mass and Center of Mass
 *
-      Call CoW(Centr,CoM,Mass,kCentr,TMass)
+      Call CoW(Centr,CoM,Mass,S%kCentr,TMass)
       If (iChCar(1).ne.0) CoM(1)=Zero
       If (iChCar(2).ne.0) CoM(2)=Zero
       If (iChCar(3).ne.0) CoM(3)=Zero

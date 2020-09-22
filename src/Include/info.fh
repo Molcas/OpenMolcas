@@ -21,10 +21,10 @@
 *     iRI_Type: type of RI auxiliary basis set                         *
 ************************************************************************
       Integer   ixStrt, ixEnd,
-     &          nIrrep,nMltpl,iAngMx, IsChi, kCentr, iRI_Type
+     &          nIrrep,nMltpl,iAngMx, IsChi, iRI_Type
 *
       Common /Info/ ixStrt,
-     &              iAngMx,  nIrrep, nMltpl, IsChi, iRI_Type, kCentr,
+     &              iAngMx,  nIrrep, nMltpl, IsChi, iRI_Type,
      &              ixEnd
 *                                                                      *
 ************************************************************************
