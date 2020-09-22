@@ -22,7 +22,6 @@
       use EFP_Module
       use k2_arrays
       use Basis_Info
-      use Real_Info, only: ThrInt
       implicit real*8 (a-h,o-z)
       External Reduce_Prt
       Logical Reduce_Prt
