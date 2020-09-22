@@ -60,7 +60,7 @@
       Len = iiLoc(ixEnd)-iiLoc(ixStrt)
       Len = (Len+nbyte_i)/nbyte_i
       Call C_F_Pointer(C_Loc(ixStrt),p_ix,[Len])
-      Call Get_iArray('SewIInfo',p_ix,Len) ! temporarely deactivated
+      Call Get_iArray('SewIInfo',p_ix,Len)
 *
       iRELAE=iRELAE_Info
 *

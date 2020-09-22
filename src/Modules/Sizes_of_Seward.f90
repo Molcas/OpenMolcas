@@ -10,7 +10,6 @@
 !***********************************************************************
 !
 Module Sizes_of_Seward
-Use Iso_C_Binding
 Implicit None
 Private
 Public:: S, Size_Dmp, Size_Get
@@ -61,6 +60,7 @@ End Interface
 Contains
 
 Subroutine Size_Init()
+Use Iso_C_Binding
   nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
   Len = iiLoc(S%High_Anchor)-iiLoc(S%Low_Anchor)
   Len = (Len+nByte_i)/nByte_i
