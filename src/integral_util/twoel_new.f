@@ -61,6 +61,7 @@
       use Basis_Info
       use Center_Info
       use Phase_Info
+      use Real_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -832,6 +833,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
       use Real_Spherical
       use Basis_Info
       use Center_Info
+      use Real_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"

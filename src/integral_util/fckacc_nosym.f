@@ -55,6 +55,7 @@
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: nBas
+      use Real_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
       Intrinsic Max, Min
 #include "itmax.fh"

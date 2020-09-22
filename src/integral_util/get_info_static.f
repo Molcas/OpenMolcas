@@ -31,6 +31,7 @@
       use Symmetry_Info, only: Symmetry_Info_Get
       use Sizes_of_Seward, only: Size_Get
       use DKH_Info, only: DKH_Info_Get
+      use Real_Info, only: Real_Info_Get
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -46,6 +47,7 @@
       Call Get_Info_Static_Internal(ixStrt,lxStrt,rxStrt)
       Call Size_Get()
       Call DKH_Info_Get()
+      Call Real_Info_Get()
       Return
 *
 *     This is to allow type punning without an explicit interface

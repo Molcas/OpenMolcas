@@ -36,6 +36,7 @@
 *                                                                      *
 ************************************************************************
       use Sizes_of_Seward, only: S
+      use Real_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
       External EFP_On
 #include "itmax.fh"
@@ -86,17 +87,15 @@ c Avoid unused argument warnings
       End If
       End
       Function Get_ThrInt()
+      use Real_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
       Real*8 Get_ThrInt
-#include "itmax.fh"
-#include "info.fh"
       Get_ThrInt=ThrInt
       Return
       End
       Subroutine xSet_ThrInt(tmp)
+      use Real_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
       ThrInt=tmp
       Return
       End

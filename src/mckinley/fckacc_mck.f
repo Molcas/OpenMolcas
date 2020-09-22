@@ -705,6 +705,7 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
       use Symmetry_Info, only: iChTbl, iChBas
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
+      use Real_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

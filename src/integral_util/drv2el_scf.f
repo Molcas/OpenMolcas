@@ -55,6 +55,7 @@
 ************************************************************************
       use k2_arrays, only: pDq, pFq
       use IOBUF
+      use Real_Info, only: ThrInt
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
 #include "itmax.fh"

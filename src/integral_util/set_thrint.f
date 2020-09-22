@@ -15,6 +15,7 @@
 ************************************************************************
       subroutine set_thrint(thr,cut)
 c-----------------------------------------------------------------------
+      use Real_Info, only: ThrInt
       implicit real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"

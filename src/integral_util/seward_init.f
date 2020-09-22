@@ -22,6 +22,7 @@
       use EFP_Module
       use k2_arrays
       use Basis_Info
+      use Real_Info, only: ThrInt
       implicit real*8 (a-h,o-z)
       External Reduce_Prt
       Logical Reduce_Prt
@@ -127,11 +128,9 @@ C
 *-----RInfo
 *
       RadMax=0.00d+00
-      AccMch=1.d-15
 *
 *     Integral thresholds
 *
-      ThrInt=1.d-14
       CutInt=1.d-16
 *
 *     Two-electron integral packing threshold
