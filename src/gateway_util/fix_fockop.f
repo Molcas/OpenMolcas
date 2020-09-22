@@ -30,7 +30,7 @@
       use Her_RW
       use Real_Spherical
       use Basis_Info
-      use Sizes, only: S
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

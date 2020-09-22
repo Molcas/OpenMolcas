@@ -35,7 +35,7 @@
       use pso_stuff
       use index_arrays, only: iSO2Sh
       use Basis_Info, only: nBas
-      use Sizes, only: S
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

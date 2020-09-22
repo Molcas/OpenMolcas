@@ -11,7 +11,7 @@
       Subroutine Def_Shells(iSD,nSD,mSkal)
       use Basis_Info
       use Center_Info
-      use Sizes, only: S
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"

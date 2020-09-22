@@ -23,7 +23,7 @@
       use SOAO_Info, only: iAOtSO, nSOInf, SOAO_Info_Init,
      &                                     SOAO_Info_Free
       Use Basis_Info
-      Use Sizes, only: S
+      Use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
       External Integral_RICD
 #include "itmax.fh"

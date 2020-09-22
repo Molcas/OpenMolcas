@@ -43,7 +43,7 @@
       use iSD_data
       use Basis_Info
       use Symmetry_Info, only: iOper
-      use Sizes, only: S
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"

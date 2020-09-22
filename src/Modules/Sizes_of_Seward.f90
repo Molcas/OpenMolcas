@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !
-Module Sizes
+Module Sizes_of_Seward
 Use Iso_C_Binding
 Implicit None
 Private
@@ -88,4 +88,4 @@ Subroutine Size_Get()
   Nullify(p_ix)
 End Subroutine Size_Get
 
-End Module Sizes
+End Module Sizes_of_Seward

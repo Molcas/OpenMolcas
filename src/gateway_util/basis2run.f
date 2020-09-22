@@ -11,7 +11,7 @@
       Subroutine basis2run()
       use Basis_Info
       use Center_Info
-      use Sizes, only: S
+      use Sizes_of_Seward, only: S
       Implicit None
 #include "itmax.fh"
 #include "info.fh"

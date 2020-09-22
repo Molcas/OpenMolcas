@@ -36,7 +36,7 @@
       use Center_Info, only: Center_Info_Dmp
       use Symmetry_Info, only: Symmetry_Info_Dmp
       use SOAO_Info, only: SOAO_Info_Dmp
-      use Sizes, only: Size_Dmp
+      use Sizes_of_Seward, only: Size_Dmp
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine D1Mem(nHer,MemD1,la,lb,lr)
-      use Sizes, only: S
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
 *
       nHer=S%mCentr

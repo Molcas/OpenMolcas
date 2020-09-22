@@ -37,9 +37,6 @@
      &              nMltpl, IsChi,  nShlls, iRelae_info, iRI_Type,
      &              kCentr, Max_Center, nCtrLD,iCtrLD, nPSOI,
      &              ixEnd    ! Put never ever anything after ixEnd!!!
-*
-      Integer          kCnttpPAM, iPAMPrim, iPAMCount
-      Common /InfoPAM/ kCnttpPAM, iPAMPrim, iPAMCount
 *                                                                      *
 ************************************************************************
 *                                                                      *

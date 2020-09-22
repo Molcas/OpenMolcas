@@ -24,7 +24,7 @@
      &                         iSkip
       use Temporary_Parameters
       use Integral_Parameters
-      use Sizes, Only: S
+      use Sizes_of_Seward, Only: S
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif

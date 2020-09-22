@@ -28,7 +28,7 @@
       use Center_Info
       use Period
       use Temporary_Parameters, only: Expert
-      use Sizes, only: S
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

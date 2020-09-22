@@ -212,7 +212,7 @@ c        Write(6,*) ' oneel *',Label,'*'
       use iSD_data
       use Basis_Info
       use Center_Info
-      use Sizes, only: S
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"

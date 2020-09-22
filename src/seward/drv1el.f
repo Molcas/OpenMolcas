@@ -36,6 +36,7 @@
       Use SW_file
       use Symmetry_Info, only: iChBas
       use Temporary_Parameters, only: PrPrt, Short, Primitive_Pass
+      use PAM2
       Implicit Real*8 (A-H,O-Z)
       External MltInt, KnEInt, MVeInt,  VeInt,  D1Int,  NAInt,  EFInt,
      &         OAMInt, OMQInt, DMSInt, WelInt, XFdInt,  PrjInt,

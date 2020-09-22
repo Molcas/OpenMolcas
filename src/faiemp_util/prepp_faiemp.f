@@ -35,7 +35,7 @@
       use aces_stuff, only: Gamma_On
       use pso_stuff
       use Basis_Info
-      use Sizes, only: S
+      use Sizes_of_Seward, only: S
       Implicit None
 #include "itmax.fh"
 #include "info.fh"

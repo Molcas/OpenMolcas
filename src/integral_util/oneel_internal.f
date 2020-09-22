@@ -72,7 +72,7 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info, only: dbsc
-      use Sizes, only: S
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm, Rsv_Tsk
 #include "itmax.fh"

@@ -17,7 +17,7 @@
      &                     iOffSO
       use real_spherical, only: iSphCr, LblCBs, LblSBs
       use Temporary_Parameters, only: Primitive_Pass
-      use Sizes, only: S
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"
