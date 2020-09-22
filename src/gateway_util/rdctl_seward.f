@@ -25,7 +25,7 @@
       use Temporary_Parameters
       use Integral_Parameters
       use Sizes_of_Seward, Only: S
-      use Real_Info, only: ThrInt
+      use Real_Info, only: ThrInt, Rtrnc, CutInt, PkAcc, Thrs
       use DKH_Info
 #ifndef _HAVE_EXTRA_
       use XYZ

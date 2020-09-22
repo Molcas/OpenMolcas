@@ -19,6 +19,7 @@
       use PrpPnt
       use Temporary_Parameters, only: PrPrt, Short, IfAllOrb
       use Sizes_of_Seward, only: S
+      use Real_Info, only: Thrs
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
 #include "itmax.fh"

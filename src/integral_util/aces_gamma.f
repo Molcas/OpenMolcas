@@ -12,6 +12,7 @@
       use Basis_Info, only: nBas
       use Aces_Stuff
       use Index_arrays, only: iSO2Sh
+      use Real_Info, only: CutInt
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"

@@ -76,34 +76,24 @@
 *                                                                      *
 ************************************************************************
 * -> Real*8 <-                                                         *
-*     CutInt: threshold for ignoring the computation of integrals      *
-*     TMass : the total mass of the molecule                           *
 *     CoM   : cartesian coordinates of the center of mass              *
 *     rMI   : lower triangular form for the moment of inertia tensor   *
 *     Prin  : moment of inertia of the principle axis                  *
 *     PAx   : vector of the principle axis                             *
 *     CoC   : center of charge of the nuclear charges                  *
-*     qNuc  : total nuclear charge                                     *
-*     PkAcc : packing accuracy                                         *
-*     Thrs  : threshold of occupation number of an orbital for which   *
-*             orbital contribution to a property will be lised in a    *
-*             propert calculation                                      *
 *     Dxyz  : coordinates of the gauge origin in the calculation of the*
 *             magnetic shielding integrals                             *
 *     RadMax: the largest of a contraction coefficient and prefactor   *
-*     radiLD: cutoff radius for LDKH procedure                         *
 *     KVector: the k-vector of the EMFR                                *
 ************************************************************************
-      Real*8         Rtrnc, CutInt, TMass,  CoM(3), rMI(6),
-     &               Prin(3),PAx(9), CoC(3), qNuc, PkAcc,  Thrs,
-     &               Dxyz(3), RadMax , cdMax, EtMax,
+      Real*8         CoM(3), rMI(6), Dxyz(3), RadMax , cdMax, EtMax,
+     &               Prin(3),PAx(9), CoC(3),
      &               E1, E2, Thrshld_CD, RPQMin,SadStep, Delta_RICD,
      &               CLight_Info, Shake, KVector(3), ChiI2
       Real*8         rxStrt, rxEnd
       Common /RInfo/ rxStrt,  ! Put never ever anything before rxStrt!!!
-     &               CutInt, TMass, CoM, rMI,
-     &               Prin, PAx, CoC, qNuc, PkAcc, Thrs,
-     &               Dxyz, RadMax, cdMax, EtMax, Rtrnc,
+     &               CoM, rMI, Prin, PAx, CoC,
+     &               Dxyz, RadMax, cdMax, EtMax,
      &               Thrshld_CD, RPQMin, Delta_RICD, CLight_Info,
      &               E1, E2, SadStep, Shake, KVector, ChiI2,
      &               rxEnd      ! Put never ever anything after rxEnd!!!

@@ -48,6 +48,7 @@
       use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
       use Basis_Info
       use Sizes_of_Seward, only:S
+      use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
       External Rsv_GTList
 #include "real.fh"

@@ -770,6 +770,7 @@
 #include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
+      Real*8 TMass
       Real*8, Dimension(:), Allocatable :: W
 ************************************************************************
 *                                                                      *

@@ -85,6 +85,7 @@
       use srt2
       use Symmetry_Info, only: iSkip
       use Integral_parameters, only: iPack
+      Use Real_Info, only: PkAcc
       Implicit Integer (A-Z)
 *
 #include "itmax.fh"

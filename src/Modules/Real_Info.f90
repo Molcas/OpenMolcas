@@ -11,7 +11,8 @@
 !
 Module Real_Info
 Private
-Public :: AccMch, ThrInt, PotNuc, &
+Public :: AccMch, ThrInt, PotNuc, Rtrnc, CutInt, TMass, qNuc, PkAcc, &
+          Thrs, &
           Real_Info_Dmp, Real_Info_Get
 
 #include "stdalloc.fh"

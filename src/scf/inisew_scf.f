@@ -36,7 +36,7 @@
 *                                                                      *
 ************************************************************************
       use Sizes_of_Seward, only: S
-      use Real_Info, only: ThrInt
+      use Real_Info, only: ThrInt, CutInt
       Implicit Real*8 (A-H,O-Z)
       External EFP_On
 #include "itmax.fh"
@@ -68,7 +68,7 @@
       If (DSCF) Then
 C        CutInt=Min(EThr,DThr,FThr,DltNTh)*1.0d-5
          CutInt=EThr*Min(1.0D-7,1.0D0/DBLE(S%nDim)**2)
-         Thrint=Cutint
+         ThrInt=Cutint
          SIntTh=CutInt
       End If
       i=1

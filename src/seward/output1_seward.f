@@ -34,7 +34,7 @@
       use Temporary_Parameters
       use DKH_Info
       use Sizes_of_Seward, only: S
-      use Real_Info, only: ThrInt
+      use Real_Info, only: ThrInt, CutInt
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

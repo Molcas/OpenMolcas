@@ -37,6 +37,7 @@
       use Center_Info
       use Symmetry_Info, only: iChTbl, iOper, lIrrep, lBsFnc
       use Temporary_Parameters
+      use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

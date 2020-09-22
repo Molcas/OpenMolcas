@@ -26,6 +26,7 @@
 *             University of Lund, Sweden. Januar '96                   *
 ************************************************************************
       use Symmetry_Info, only: iChTbl, iOper
+      use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

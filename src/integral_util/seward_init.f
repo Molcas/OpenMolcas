@@ -129,15 +129,6 @@ C
 *
       RadMax=0.00d+00
 *
-*     Integral thresholds
-*
-      CutInt=1.d-16
-*
-*     Two-electron integral packing threshold
-*
-      PkAcc=ThrInt
-*
-      Rtrnc = Three
       Thrshld_CD=1.0D-4
       Delta_RICD=0.0D0
       E1=0.0D0
@@ -148,8 +139,6 @@ C
 *     Flags to control build of FMM short-range integral components
 *
       RPQMIN = 0.4d0
-*
-      Thrs=1.d-6
 *
 *-----PStat
 *

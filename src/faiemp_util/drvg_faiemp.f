@@ -43,6 +43,7 @@
       use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
       use Basis_Info
       use Sizes_of_Seward, only:S
+      use Real_Info, only: CutInt
       Implicit None
       External King, Rsv_GTList, MPP
 #include "real.fh"

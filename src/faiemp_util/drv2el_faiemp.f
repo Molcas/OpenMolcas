@@ -33,7 +33,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: iOper
-      use Real_Info, only: ThrInt
+      use Real_Info, only: ThrInt, CutInt
       Implicit None
       External No_Routine
 #include "itmax.fh"

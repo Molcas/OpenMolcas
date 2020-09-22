@@ -16,10 +16,7 @@ C     Thomas Bondo Pedersen, November 2010.
 C
 C     Returns the value of CutInt.
 C
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Value
-#include "itmax.fh"
-#include "info.fh"
+      use Real_Info, only: CutInt
       Value=CutInt
       End
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -31,9 +28,6 @@ C     Thomas Bondo Pedersen, November 2010.
 C
 C     Sets the value of CutInt.
 C
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Value
-#include "itmax.fh"
-#include "info.fh"
+      use Real_Info, only: CutInt
       CutInt=Value
       End

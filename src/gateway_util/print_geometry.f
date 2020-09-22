@@ -29,6 +29,7 @@
       use Period
       use Temporary_Parameters, only: Expert
       use Sizes_of_Seward, only: S
+      use Real_Info, only: Rtrnc
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
