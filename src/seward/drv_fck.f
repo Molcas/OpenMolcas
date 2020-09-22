@@ -15,6 +15,7 @@
      &                   nOrdOp,rNuc,rHrmt,iChO,
      &                   opmol,ipad,opnuc,iopadr,idirect,isyop,
      &                   PtChrg,nGrid,iAddPot)
+      use PAM2
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
