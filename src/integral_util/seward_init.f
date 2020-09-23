@@ -66,16 +66,13 @@ C
 *
 *-----LInfo
 *
-      NEMO=.False.
       IRFLAG1=0
       EMFR  =.False.
       lUPONLY=.False.
       lDOWNONLY=.False.
-      lAMFI=.False.
       lGENINT=.False.
       GIAO=.False.
       Do_FckInt=.True.
-      Do_GuessOrb=.True.
 *
       Align_Only=.False.
       Do_Align=.True.

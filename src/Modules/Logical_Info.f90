@@ -27,7 +27,7 @@
 !     FNMC: finite nuclear mass correction
 Module Logical_Info
 Private
-Public :: Vlct, lRel, UnNorm, lSchw, &
+Public :: Vlct, lRel, UnNorm, lSchw, lAMFI, NEMO, Do_GuessOrb, &
           Logical_Info_Dmp, Logical_Info_Get
 
 #include "stdalloc.fh"
