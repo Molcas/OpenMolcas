@@ -22,6 +22,7 @@
       use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
       External Integral_RICD, Integral_RI_2
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "SysDef.fh"
