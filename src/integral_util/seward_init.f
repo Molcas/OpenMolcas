@@ -96,10 +96,6 @@ C
 *
       DoFMM = .False.
 *
-*-----RInfo
-*
-      KVector(:)=Zero
-*
 *-----PStat
 *
       r1=0.d0

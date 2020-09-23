@@ -39,7 +39,7 @@
       use PAM2
       use DKH_Info, only: BSS, DKroll
       use Sizes_of_Seward, only: S
-      use Real_Info, only: PotNuc
+      use Real_Info, only: PotNuc, kVector
       Implicit Real*8 (A-H,O-Z)
       External MltInt, KnEInt, MVeInt,  VeInt,  D1Int,  NAInt,  EFInt,
      &         OAMInt, OMQInt, DMSInt, WelInt, XFdInt,  PrjInt,

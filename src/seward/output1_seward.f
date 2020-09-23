@@ -34,7 +34,7 @@
       use Temporary_Parameters
       use DKH_Info
       use Sizes_of_Seward, only: S
-      use Real_Info, only: ThrInt, CutInt, RPQMin
+      use Real_Info, only: ThrInt, CutInt, RPQMin, kVector
       use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky,
      &                     Do_acCD_Basis, Skip_High_AC, Cho_OneCenter,
      &                     LocalDF, Do_nacCD_Basis, Thrshld_CD

@@ -26,7 +26,7 @@
       use Integral_Parameters
       use Sizes_of_Seward, Only: S
       use Real_Info, only: ThrInt, Rtrnc, CutInt, PkAcc, Thrs, E1, E2,
-     &                     RPQMin, SadStep, Shake
+     &                     RPQMin, SadStep, Shake, kVector
       use DKH_Info
       use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky,
      &                     Do_acCD_Basis, Skip_High_AC, DiagCheck,
