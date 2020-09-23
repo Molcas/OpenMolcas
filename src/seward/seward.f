@@ -457,8 +457,7 @@ C     Call Seward_Banner()
 *     corruption of the memory.
 *
 
- 9999 Call DumpSagit()
-      Call ClsSew()
+ 9999 Call ClsSew()
       If (Allocated(AdCell)) Call mma_deallocate(AdCell)
       Call mma_deallocate(Coor_MPM)
       Call mma_deallocate(Chrg)

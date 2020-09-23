@@ -258,7 +258,6 @@ C     Call Gateway_banner()
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call DumpSagit()
       Call ClsSew()
       If (Allocated(AdCell)) Call mma_deallocate(AdCell)
       Call mma_deallocate(Coor_MPM)

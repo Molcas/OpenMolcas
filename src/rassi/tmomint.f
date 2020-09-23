@@ -15,9 +15,9 @@
 *                                                                      *
 ************************************************************************
       Use MpmC
-      use Sizes_of_Seward, only: S
 !#define _DEBUG_
 #ifdef _DEBUG_
+      use Sizes_of_Seward, only: S
       use Basis_Info, only: nBas
 #endif
       Implicit Real*8 (A-H,O-Z)

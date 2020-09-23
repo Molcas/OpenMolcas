@@ -87,7 +87,6 @@
       COMMON  / ADDcorr_L   / Do_Addc
       Logical Do_Tw
       COMMON  / Tw_corr_L   / Do_Tw
-      Common /Sagit/ isSagit
 #ifdef _EFP_
       Logical EFP_On
 #endif
@@ -122,14 +121,7 @@
       Call qEnter('Final')
 #endif
 *
-         call getenvf('MOLCAS_SAGIT',Value)
-         if(Value(1:1).eq.'Y'.or.Value(1:1).eq.'y') iSagit=1
-c
-         if(iSagit.eq.1) then
-             What='COEKBI'
-         Else
-             What='COEI'
-         endif
+         What='COEI'
 
       Call SorbCMOs(CMO,mBB,nD,EOrb,OccNo,mmB,nBas,nOrb,nSym)
 *
