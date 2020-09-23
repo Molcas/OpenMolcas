@@ -11,13 +11,14 @@
 !
 Module RICD_Info
 Private
-Public :: iRI_Type, LDF, Do_RI, Cholesky, Do_acCD_Basis, &
+Public :: iRI_Type, LDF, Do_RI, Cholesky, Do_acCD_Basis, Skip_High_AC, &
           RICD_Info_Dmp, RICD_Info_Get
 Integer :: iRI_Type=-1
 Logical :: LDF=.False.
 Logical :: Do_RI=.False.
 Logical :: Cholesky=.False.
 Logical :: Do_acCD_Basis=.True.
+Logical :: Skip_High_AC=.False.
 #include "stdalloc.fh"
 
 Contains
@@ -25,7 +26,7 @@ Contains
 Subroutine RICD_Info_Dmp()
   Real*8, Allocatable:: rDmp(:)
   Integer i
-  Integer:: Len=5
+  Integer:: Len=6
 
   Call mma_allocate(rDmp,Len,Label='rDmp:RICD')
 
@@ -42,6 +43,9 @@ Subroutine RICD_Info_Dmp()
   i = 0
   If (Do_acCD_Basis) i = 1
   rDmp(5) = i
+  i = 0
+  If (Skip_High_AC) i = 1
+  rDmp(6) = i
 
 
   Call Put_dArray('RICD_Info',rDmp,Len)
@@ -51,7 +55,7 @@ End Subroutine RICD_Info_Dmp
 
 Subroutine RICD_Info_Get()
   Real*8, Allocatable:: rDmp(:)
-  Integer:: Len=5
+  Integer:: Len=6
 
   Call mma_allocate(rDmp,Len,Label='rDmp:RICD')
   Call Get_dArray('RICD_Info',rDmp,Len)
@@ -61,6 +65,7 @@ Subroutine RICD_Info_Get()
   Do_RI = NINT(rDmp(3)).eq.1
   Cholesky = NINT(rDmp(4)).eq.1
   Do_acCD_Basis = NINT(rDmp(5)).eq.1
+  Skip_High_AC = NINT(rDmp(6)).eq.1
 
   Call mma_deallocate(rDmp)
 End Subroutine RICD_Info_Get

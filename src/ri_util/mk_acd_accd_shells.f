@@ -24,7 +24,7 @@
      &                                     SOAO_Info_Free
       Use Basis_Info
       Use Sizes_of_Seward, only: S
-      use RICD_Info, only: Do_acCD_Basis
+      use RICD_Info, only: Do_acCD_Basis, Skip_High_AC
       Implicit Real*8 (A-H,O-Z)
       External Integral_RICD
 #include "itmax.fh"
