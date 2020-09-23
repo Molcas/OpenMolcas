@@ -153,7 +153,7 @@
          RecLab( 48)='nBas_Prim       '
          RecLab( 49)='IsMM            '
          RecLab( 50)='Atom -> Basis   '
-         RecLab( 51)='                ' !Free slot
+         RecLab( 51)='Logical_Info    ' !Free slot
          RecLab( 52)='                ' !Free slot
          RecLab( 53)='                ' !Free slot
          RecLab( 54)='SCF nOcc        '

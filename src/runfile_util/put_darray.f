@@ -209,7 +209,7 @@ c mess started here :)
          RecLab( 50)='Quad_r          '
          RecLab( 51)='RCTFLD          '
          RecLab( 52)='RFrInfo         '
-         RecLab( 53)='SewRInfo        '
+         RecLab( 53)='                '
          RecLab( 54)='DKH_Info        '
          RecLab( 55)='Real_Info       '
          RecLab( 56)='Last orbitals_ab'

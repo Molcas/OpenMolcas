@@ -71,7 +71,6 @@ C
       EMFR  =.False.
       UnNorm=.False.
       lSchw=.True.
-      Vlct=.True.
       lUPONLY=.False.
       lDOWNONLY=.False.
       lRel=.False.
