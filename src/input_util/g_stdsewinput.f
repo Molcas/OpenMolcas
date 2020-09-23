@@ -18,6 +18,7 @@
       use Basis_Info
       use Center_Info
       use Sizes_of_Seward, only: S
+      use Logical_Info, only: UnNorm
       Implicit Real*8 (a-h,o-z)
 *
 #include "Molcas.fh"

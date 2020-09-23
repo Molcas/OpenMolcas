@@ -49,6 +49,7 @@
       Character*(storageSize) sBasis
       Equivalence( sBasis, eqBasis)
       Character *256 Basis_lib, Fname
+      Logical UnNorm
 !#define _DEBUG_
 #ifdef _DEBUG_
       Integer i

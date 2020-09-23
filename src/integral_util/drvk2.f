@@ -45,6 +45,7 @@
       use Symmetry_Info, only: iOper
       use Temporary_parameters, only: force_part_c
       use Sizes_of_Seward, only: S
+      use Logical_Info, only: lSchw
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External Cmpct

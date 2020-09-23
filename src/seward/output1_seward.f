@@ -38,7 +38,7 @@
       use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky,
      &                     Do_acCD_Basis, Skip_High_AC, Cho_OneCenter,
      &                     LocalDF, Do_nacCD_Basis, Thrshld_CD
-      use Logical_Info, only: Vlct
+      use Logical_Info, only: Vlct, lRel
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "itmax.fh"

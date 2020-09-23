@@ -25,6 +25,7 @@
       use Basis_Info
       use Sizes_of_Seward, only: S
       use RICD_Info, only: iRI_Type
+      use Logical_Info, only: UnNorm
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "itmax.fh"

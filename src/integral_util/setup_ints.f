@@ -30,6 +30,7 @@
       use LundIO
       use Basis_Info, only: nBas, nBas_Aux
       use Real_Info, only: CutInt
+      use Logical_info, only: lSchw
       Implicit Real*8 (a-h,o-z)
       External CmpctR, CmpctS
 #include "itmax.fh"

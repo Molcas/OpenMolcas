@@ -23,12 +23,6 @@
 *                                                                      *
 ************************************************************************
 * -> Logical <-                                                        *
-*     lRel  : logical flag to indicate that the 1-electron Darwin and  *
-*             mass-velocity integrals should be computed               *
-*     UnNorm: logical flag to indicate that the primitive basis        *
-*             functions should not be normalized                       *
-*     lSchw : logical flag to indicate that the Cauchy-Schwartz        *
-*             inequality should be used in the prescreening            *
 *     lAMFI : logical flag for Atomic Mean Field Integrals             *
 *     GIAO: integrals for first derivative with respect to B           *
 *     Do_FckInt: logical flag for FckInt                               *
@@ -37,12 +31,11 @@
 *     FNMC: finite nuclear mass correction                             *
 ************************************************************************
       Integer lxStrt, lxEnd
-      Logical lRel, UnNorm, lSchw, lAMFI,
-     &        NEMO, Do_GuessOrb, Do_FckInt, Align_Only,DoFMM,
+      Logical lAMFI, NEMO, Do_GuessOrb, Do_FckInt, Align_Only,DoFMM,
      &        lRP, lRP_Post, Do_Align, EMFR, GIAO,
      &        lUPONLY, lDOWNONLY, FNMC, lPSOI
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
-     &               NEMO, lAMFI, Do_GuessOrb, lRel, UnNorm,lSchw,
+     &               NEMO, lAMFI, Do_GuessOrb,
      &               GIAO, Do_FckInt, lRP, lRP_Post, DoFMM,
      &               Align_Only, Do_Align,
      &               EMFR, lUPONLY, lDOWNONLY, FNMC, lPSOI,

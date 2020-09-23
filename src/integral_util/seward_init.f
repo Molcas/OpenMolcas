@@ -69,11 +69,8 @@ C
       NEMO=.False.
       IRFLAG1=0
       EMFR  =.False.
-      UnNorm=.False.
-      lSchw=.True.
       lUPONLY=.False.
       lDOWNONLY=.False.
-      lRel=.False.
       lAMFI=.False.
       lGENINT=.False.
       GIAO=.False.
