@@ -55,8 +55,8 @@
       Integer iAnga(4), iShll(4),iShell(4),jShell(4),
      &        jOp(6), iCmp(4),icmpa(4),
      &        nop(4),Index(3,4),iuvwx(4),
-     &        moip(0:nIrrep-1),
-     &        IndGrd(3,4,0:nIrrep-1),iAO(4),iAOst(4)
+     &        moip(0:7),
+     &        IndGrd(3,4,0:7),iAO(4),iAOst(4)
       Real*8 Dij1(mDij,nDij),Dkl1(mDkl,nDkl),
      &       Dik1(mDik,nDik),Dil1(mDil,nDil),
      &       Djk1(mDjk,nDjk),Djl1(mDjl,nDjl),

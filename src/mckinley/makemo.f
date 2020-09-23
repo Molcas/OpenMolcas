@@ -38,7 +38,7 @@
       Integer iCmpa(4),
      &         index(3,4),ipPert(0:7),icmp(4),ibas(4),
      &         indgrd2(3,4,0:7),indgrd(3,4,0:nirrep-1),
-     &         moip(0:nIrrep-1),nop(4),ishell(4),iuvwx(4),
+     &         moip(0:7),nop(4),ishell(4),iuvwx(4),
      &         iao(4),iAOST(4),ianga(4),ishll(4)
       Real*8 Temp(nTemp),AOInt(nInt),rmoin(nmoin),MOInt(nMOInt),
      &       C(12),buffer(*)

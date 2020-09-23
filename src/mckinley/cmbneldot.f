@@ -35,7 +35,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-      Integer nOp(2),indgrd(2,3,3,0:nirrep-1)
+      Integer nOp(2),indgrd(2,3,3,0:7)
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp,6),
      &       Zeta(nZeta), rKappa(nZeta), Fact(nZeta), Temp(nZeta),
      &       Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr),

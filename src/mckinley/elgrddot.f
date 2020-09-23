@@ -42,10 +42,9 @@
 ************************************************************************
       use Her_RW
       use Center_Info
-      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-      Integer IndGrd(2,3,3,0:nirrep-1), nOp(2), iStabM(0:nStabM-1)
+      Integer IndGrd(2,3,3,0:7), nOp(2), iStabM(0:nStabM-1)
       Real*8
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
      &       rKappa(nZeta), P(nZeta,3), A(3), B(3),
