@@ -175,7 +175,7 @@ c              ! position in fragment density matrix
  1000   Continue
       End Do
 #ifdef _DEBUG_
-      FD = 1
+      iFD = 1
       Do iIrrep = 0, nIrrep - 1
          Call TriPrt('Combined density',' ',Dens(iFD),nBas(iIrrep))
          iFD = iFD + nBas(iIrrep)*(nBas(iIrrep)+1)/2
