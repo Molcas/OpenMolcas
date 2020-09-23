@@ -82,7 +82,6 @@ C
       Do_GuessOrb=.True.
 *
       Do_nacCD_Basis=.False.
-      LocalDF=.False.
 *
       Align_Only=.False.
       Do_Align=.True.
