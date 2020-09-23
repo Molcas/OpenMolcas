@@ -135,9 +135,7 @@ C
             iChO=Mod(ix,2)*iChBas(2)
      &          +Mod(iy,2)*iChBas(3)
      &          +Mod(iz,2)*iChBas(4)
-            iWork(ip_lOper+iComp)=MltLbl(iSymX,
-     &                                   MltLbl(iSymY,iSymZ,nIrrep),
-     &                                   nIrrep)
+            iWork(ip_lOper+iComp)=MltLbl(iSymX,MltLbl(iSymY,iSymZ))
             iWork(ip_kOper+iComp)=iChO
             Call dCopy_(3,Coor_MPM(1,iMltpl+1),1,
      &                   Work(ip_CCoor+3*iComp),1)

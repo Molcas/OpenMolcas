@@ -252,7 +252,7 @@ c     and: RepNuc = RepNuc + Eself + Half*Edip2 + Half*Enucdip
                If (Mod(iz,2).ne.0) ixyz=iOr(ixyz,4)
                iSym = 2**IrrFnc(ixyz)
                If (Ccoor(iComp).ne.Zero ) iSym = iOr(iSym,1)
-               lOper(iComp) = MltLbl(iSymC,iSym,nIrrep)
+               lOper(iComp) = MltLbl(iSymC,iSym)
                kOper(iComp) = iChBas(iComp+1)
                call dcopy_(3,Ccoor,1,C_Coor(1,iComp),1)
             End Do

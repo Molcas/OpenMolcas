@@ -258,8 +258,7 @@
                   If (Origin(3).ne.Zero) iSymZ = iOr(iSymZ,1)
                End If
 *
-               iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ,
-     &                            nIrrep),nIrrep)
+               iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
                lOper(1)=iOr(lOper(1),iTemp)
             End Do
          End Do

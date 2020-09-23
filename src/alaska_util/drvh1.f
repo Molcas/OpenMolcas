@@ -343,8 +343,7 @@ CAOM>
                      ixyz=4
                      iSymZ=2**IrrFnc(ixyz)
                   End If
-*                 lOper(iComp) = MltLbl(iSymX,MltLbl(iSymY,iSymZ,
-*    &                                      nIrrep),nIrrep)
+*                 lOper(iComp) = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
 *-----------------Compute only total symmetric contributions
                   lOper(iComp) = 1
                   iComp = iComp + 1
