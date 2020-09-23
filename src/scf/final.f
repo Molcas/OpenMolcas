@@ -99,7 +99,6 @@
       Logical RF_On,Langevin_On,PCM_On
       Character*80 Note
       Character*8 What
-      Character*16 Value
       Integer IndType(7,8)
       Real*8, Dimension(:), Allocatable:: Temp, CMOn, Etan, Epsn
       Real*8, Dimension(:,:), Allocatable:: GVFck, Scrt1, Scrt2, DMat,
