@@ -41,7 +41,7 @@
 *
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
 *
-      Call Get_Info_Static_Internal(ixStrt,lxStrt)
+      Call Get_Info_Static_Internal(ixStrt)
       Call Symmetry_Info_Get()
       Call Size_Get()
       Call DKH_Info_Get()
@@ -53,10 +53,10 @@
 *
       Contains
 
-      SubRoutine Get_Info_Static_Internal(ixStrt,lxStrt)
+      SubRoutine Get_Info_Static_Internal(ixStrt)
       Use Iso_C_Binding
-      Integer, Target :: ixStrt,lxStrt
-      Integer, Pointer :: p_ix(:),p_lx(:)
+      Integer, Target :: ixStrt
+      Integer, Pointer :: p_ix(:)
 *
 *     Load the common INFO
 *
@@ -65,14 +65,7 @@
       Call C_F_Pointer(C_Loc(ixStrt),p_ix,[Len])
       Call Get_iArray('SewIInfo',p_ix,Len)
 *
-*     Load the common LINFO
-*
-      Len = iiLoc(lxEnd)-iiLoc(lxStrt)
-      Len = (Len+nbyte_i)/nbyte_i
-      Call C_F_Pointer(C_Loc(lxStrt),p_lx,[Len])
-      Call Get_iArray('SewLInfo',p_lx,Len)
-*
-      Nullify(p_ix,p_lx)
+      Nullify(p_ix)
 *
       Return
       End SubRoutine Get_Info_Static_Internal

@@ -53,18 +53,18 @@
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
 *
-      Call DmpInf_Internal(ixStrt,lxStrt,
+      Call DmpInf_Internal(ixStrt,
      & cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
 *
 *     This is to allow type punning without an explicit interface
       Contains
-      SubRoutine DmpInf_Internal(ixStrt,lxStrt,
+      SubRoutine DmpInf_Internal(ixStrt,
      & cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
       Use Iso_C_Binding
-      Integer, Target :: ixStrt,lxStrt,cRFStrt,iRFStrt,lRFStrt,
+      Integer, Target :: ixStrt,cRFStrt,iRFStrt,lRFStrt,
      &                   cQStrt,iQStrt
       Real*8, Target :: rRFStrt,rQStrt
-      Integer, Pointer :: p_ix(:),p_lx(:),p_cRF(:),p_iRF(:),
+      Integer, Pointer :: p_ix(:),p_cRF(:),p_iRF(:),
      &                    p_lRF(:),p_cQ(:),p_iQ(:)
       Real*8, Pointer :: p_rRF(:),p_rQ(:)
 *
@@ -74,20 +74,10 @@
       Len = (Len+nByte_i)/nByte_i
       Call C_F_Pointer(C_Loc(ixStrt),p_ix,[Len])
       Call Put_iArray('SewIInfo',p_ix,Len)
-*
-      Call SOAO_Info_Dmp()
-*
-*     Save the common LINFO
-*
-      Len = iiLoc(lxEnd)-iiLoc(lxStrt)
-      Len = (Len+nByte_i)/nByte_i
-      Call C_F_Pointer(C_Loc(lxStrt),p_lx,[Len])
-      Call Put_iArray('SewLInfo',p_lx,Len)
-*
-      Nullify(p_ix,p_lx)
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call SOAO_Info_Dmp()
       Call Basis_Info_Dmp()
       Call Center_Info_Dmp()
       Call Symmetry_Info_Dmp()

@@ -16,12 +16,3 @@
       Integer   nIrrep
 *
       Common /Info/ ixStrt, nIrrep, ixEnd
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Definitions and common for LOGICAL                               *
-*                                                                      *
-************************************************************************
-      Integer lxStrt, lxEnd
-      Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
-     &               lxEnd      ! Put never ever anything after lxEnd!!!
