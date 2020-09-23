@@ -32,6 +32,7 @@
       use Sizes_of_Seward, only: S
       use RICD_Info, only: Do_RI, Cholesky, Cho_OneCenter, LocalDF
       use Real_Info, only: CoC, CoM
+      use Logical_Info, only: DoFMM
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "Molcas.fh"

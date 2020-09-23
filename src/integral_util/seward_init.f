@@ -72,10 +72,7 @@ C
       lDOWNONLY=.False.
       lGENINT=.False.
       GIAO=.False.
-      Do_FckInt=.True.
 *
-      Align_Only=.False.
-      Do_Align=.True.
       FNMC=.False.
 *
       Call GetEnvF('MOLCAS_NEW_DEFAULTS', Env)
@@ -84,10 +81,6 @@ C
          Do_RI=.True.
          iRI_Type=4
       End If
-*
-*     Flags to control build of FMM short-range integral components
-*
-      DoFMM = .False.
 *
 *-----PStat
 *

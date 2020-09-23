@@ -60,7 +60,7 @@
       use DKH_Info, only: DKroll
       use Real_Info, only: PkAcc
       use RICD_Info, only: Do_RI, Cholesky, DiagCheck, LocalDF
-      use Logical_Info, only: NEMO, Do_GuessOrb
+      use Logical_Info, only: NEMO, Do_GuessOrb, Do_FckInt
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_WrOut2, Integral_RI_3
 #include "real.fh"
