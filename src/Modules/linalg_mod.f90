@@ -741,7 +741,7 @@ contains
             call mult(basis, basis, S_transf, transpA=.true.)
         end if
 
-        call diagonalize(S_transf, U, s_diag)
+        call sym_diagonalize(S_transf, U, s_diag)
         call canonicalize(U, s_diag)
 
         idx(:) = argsort(s_diag, geq_r)
