@@ -17,7 +17,7 @@
 #endif
       use definitions, only: wp, MPIInt, int64, real64
       use filesystem, only: chdir_, getcwd_, get_errno_, strerror_,
-     &    real_path
+     &    real_path, basename
       use fortran_strings, only: str
       use stdalloc, only : mma_allocate, mma_deallocate, mxMem
 
@@ -197,7 +197,8 @@
           NECIen = previous_NECIen
         else
           if (DoEmbdNECI) then
-            call make_inp(input_name, doGAS=doGAS_, readpops=reuse_pops)
+            call make_inp(input_name, basename(real_path(ascii_fcidmp)),
+     &                    doGAS=doGAS_, readpops=reuse_pops)
 #ifdef _NECI_
             write(6,*) 'NECI called automatically within Molcas!'
             if (myrank /= 0) call chdir_('..')
@@ -212,7 +213,8 @@
      &'for compiling or use an external NECI.')
 #endif
           else
-            call make_inp(input_name, doGAS=doGAS_)
+            call make_inp(input_name, basename(real_path(ascii_fcidmp)),
+     &                    doGAS=doGAS_)
             if (myrank == 0) then
               call write_ExNECI_message(input_name, ascii_fcidmp,
      &                                  h5_fcidmp, energy_file)
