@@ -15,6 +15,7 @@
       use DKH_Info, only: DKroll
       Implicit Real*8 (a-h,o-z)
       External Rsv_Tsk
+#include "Molcas.fh"
 #include "angtp.fh"
 #include "info.fh"
 #include "real.fh"
