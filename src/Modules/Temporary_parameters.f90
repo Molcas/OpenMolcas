@@ -23,4 +23,7 @@ Module Temporary_Parameters
       Logical :: Expert=.True.
       Logical :: VarT=.False.
       Logical :: VarR=.False.
+      Integer :: IsChi=0
+      Logical :: DirInt=.False.
+      Logical :: Fake_ERIs=.False.
 End Module Temporary_Parameters

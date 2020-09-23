@@ -29,7 +29,7 @@
       use Center_Info
       use external_centers, only: iXPolType, XF
       use Temporary_parameters, only: Primitive_Pass, Expert, VarR,
-     &                                VarT
+     &                                VarT, DirInt
       use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
       Integer AixRm

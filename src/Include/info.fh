@@ -19,9 +19,10 @@
 * -> Integer   <-                                                      *
 *     iRI_Type: type of RI auxiliary basis set                         *
 ************************************************************************
-      Integer   ixStrt, ixEnd, nIrrep, IsChi, iRI_Type
+      Integer   ixStrt, ixEnd
+      Integer   nIrrep, iRI_Type
 *
-      Common /Info/ ixStrt, nIrrep, IsChi, iRI_Type, ixEnd
+      Common /Info/ ixStrt, nIrrep, iRI_Type, ixEnd
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -47,19 +48,19 @@
 *     EMFR: Electromagnetic field radiation                            *
 *     FNMC: finite nuclear mass correction                             *
 ************************************************************************
-      Logical   DirInt, Vlct, lRel, Do_RI, UnNorm, lSchw, lAMFI,
-     &          NEMO, Do_GuessOrb, Cholesky, Do_FckInt, Align_Only,
-     &          Do_acCD_Basis, Skip_High_AC, DoFMM, Cho_OneCenter, LDF,
-     &          DiagCheck, lRP, lRP_Post, Fake_ERIs, LocalDF,
-     &          Do_nacCD_Basis, Do_Align, EMFR, GIAO,
-     &          lUPONLY, lDOWNONLY, FNMC, lPSOI
       Integer lxStrt, lxEnd
+      Logical Vlct, lRel, Do_RI, UnNorm, lSchw, lAMFI,
+     &        NEMO, Do_GuessOrb, Cholesky, Do_FckInt, Align_Only,
+     &        Do_acCD_Basis, Skip_High_AC, DoFMM, Cho_OneCenter, LDF,
+     &        DiagCheck, lRP, lRP_Post, LocalDF,
+     &        Do_nacCD_Basis, Do_Align, EMFR, GIAO,
+     &        lUPONLY, lDOWNONLY, FNMC, lPSOI
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
-     &               DirInt, NEMO, LDF, Do_RI, lAMFI,
+     &               NEMO, LDF, Do_RI, lAMFI,
      &               Do_GuessOrb, Vlct, lRel, UnNorm, lSchw,
      &               GIAO, Do_FckInt, Cholesky, Do_acCD_Basis,
      &               Skip_High_AC, lRP, lRP_Post, DoFMM, Cho_OneCenter,
-     &               DiagCheck, Align_Only, Fake_ERIs, LocalDF,
+     &               DiagCheck, Align_Only, LocalDF,
      &               Do_nacCD_Basis, Do_Align,
      &               EMFR, lUPONLY, lDOWNONLY, FNMC, lPSOI,
      &               lxEnd      ! Put never ever anything after lxEnd!!!
@@ -79,10 +80,10 @@
 *             magnetic shielding integrals                             *
 *     KVector: the k-vector of the EMFR                                *
 ************************************************************************
-      Real*8         CoM(3), rMI(6), Dxyz(3),Prin(3),PAx(9), CoC(3),
-     &               Thrshld_CD, Delta_RICD,CLight_Info, KVector(3)
       Real*8         rxStrt, rxEnd
+      Real*8         CoM(3), rMI(6), Dxyz(3),Prin(3),PAx(9), CoC(3),
+     &               Thrshld_CD, Delta_RICD, KVector(3)
       Common /RInfo/ rxStrt,  ! Put never ever anything before rxStrt!!!
      &               CoM, rMI, Prin, PAx, CoC, Dxyz,
-     &               Thrshld_CD, Delta_RICD, CLight_Info, KVector,
+     &               Thrshld_CD, Delta_RICD, KVector,
      &               rxEnd      ! Put never ever anything after rxEnd!!!

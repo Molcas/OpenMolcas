@@ -69,10 +69,6 @@
      &                    p_lRF(:),p_cQ(:),p_iQ(:)
       Real*8, Pointer :: p_rx(:),p_rRF(:),p_rQ(:)
 *
-*     Prologue
-*
-      CLight_Info=CLightAU
-*
 *     Save the common INFO
 *
       Len = iiLoc(ixEnd)-iiLoc(ixStrt)

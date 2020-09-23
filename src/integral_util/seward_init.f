@@ -65,23 +65,14 @@ C
 *
 *     Info
 *
-      nWel=0
       iRI_type=0
-      Max_Center=15
 
-      KVector(:)=Zero
-
-      nRP=0
-      iPAMcount=1
-
-      IsChi=0
 *
 *-----LInfo
 *
       NEMO=.False.
       Do_RI=.False.
       IRFLAG1=0
-      DirInt=.False.
       EMFR  =.False.
       UnNorm=.False.
       lSchw=.True.
@@ -102,7 +93,6 @@ C
       LDF=.False.
       LocalDF=.False.
 *
-      lRP=.False.
       Align_Only=.False.
       Do_Align=.True.
       FNMC=.False.
@@ -120,6 +110,7 @@ C
 *
 *-----RInfo
 *
+      KVector(:)=Zero
       Thrshld_CD=1.0D-4
       Delta_RICD=0.0D0
 *

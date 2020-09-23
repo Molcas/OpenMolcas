@@ -44,6 +44,7 @@
 ************************************************************************
       use vRys_RW
       use Real_Info, only: ChiI2
+      use Temporary_parameters, only: IsChi
       Implicit Real*8 (A-H,O-Z)
       External Tvalue, ModU2, Cff2D, Rys2D
 #include "itmax.fh"

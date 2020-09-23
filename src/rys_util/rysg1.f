@@ -45,6 +45,7 @@
       use vRys_RW
       use Symmetry_Info, only: iOper
       use Real_Info, only: ChiI2
+      use Temporary_Parameters, only: IsChi
       Implicit Real*8 (A-H,O-Z)
       External Tvalue, ModU2, Cff2D
       External Exp_1, Exp_2

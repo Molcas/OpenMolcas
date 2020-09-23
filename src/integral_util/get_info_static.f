@@ -45,13 +45,16 @@
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
 *
       Call Get_Info_Static_Internal(ixStrt,lxStrt,rxStrt)
+      Call Symmetry_Info_Get()
       Call Size_Get()
       Call DKH_Info_Get()
       Call Real_Info_Get()
       Return
 *
 *     This is to allow type punning without an explicit interface
+*
       Contains
+
       SubRoutine Get_Info_Static_Internal(ixStrt,lxStrt,rxStrt)
       Use Iso_C_Binding
       Integer, Target :: ixStrt,lxStrt
@@ -79,11 +82,8 @@
       Len = (Len+nByte_r)/nByte_r
       Call C_F_Pointer(C_Loc(rxStrt),p_rx,[Len])
       Call Get_dArray('SewRInfo',p_rx,Len)
-      CLightAU=CLight_Info
 *
       Nullify(p_ix,p_lx,p_rx)
-*
-      Call Symmetry_Info_Get()
 *
       Return
       End SubRoutine Get_Info_Static_Internal

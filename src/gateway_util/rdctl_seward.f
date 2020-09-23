@@ -196,7 +196,6 @@
       MolWgh_UsrDef=.False.
       APThr_UsrDef=.False.
       NoAMFI=.False.
-      Fake_ERIs=.False.
       Cholesky=.False.
 *
       iChk_RI=0
