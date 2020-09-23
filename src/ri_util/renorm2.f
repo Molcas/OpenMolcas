@@ -40,6 +40,7 @@
       use Real_Spherical
       use Basis_Info
       use Sizes_of_Seward, only: S
+      use RICD_Info, only: Thrshld_CD
       Implicit Real*8 (A-H,O-Z)
       External Integral_RI_2
 #include "itmax.fh"

@@ -26,6 +26,7 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
+      use RICD_Info, only: Thrshld_CD
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "info.fh"
