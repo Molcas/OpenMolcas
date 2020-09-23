@@ -49,18 +49,3 @@
      &               Align_Only, Do_Align,
      &               EMFR, lUPONLY, lDOWNONLY, FNMC, lPSOI,
      &               lxEnd      ! Put never ever anything after lxEnd!!!
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Definitions and common for REAL*8                                *
-*                                                                      *
-************************************************************************
-* -> Real*8 <-                                                         *
-*     Dxyz  : coordinates of the gauge origin in the calculation of the*
-*             magnetic shielding integrals                             *
-************************************************************************
-      Real*8         rxStrt, rxEnd
-      Real*8         Dxyz(3)
-      Common /RInfo/ rxStrt,  ! Put never ever anything before rxStrt!!!
-     &               Dxyz,
-     &               rxEnd      ! Put never ever anything after rxEnd!!!

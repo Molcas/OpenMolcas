@@ -37,15 +37,11 @@
 #include "itmax.fh"
 #include "info.fh"
 #include "stdalloc.fh"
-#include "relae.fh"
-#include "RelLight.fh"
       Integer iix(2)
-      Real*8 rix(2)
 *
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
-      nbyte_r = idloc(rix(2)) - idloc(rix(1))
 *
-      Call Get_Info_Static_Internal(ixStrt,lxStrt,rxStrt)
+      Call Get_Info_Static_Internal(ixStrt,lxStrt)
       Call Symmetry_Info_Get()
       Call Size_Get()
       Call DKH_Info_Get()
@@ -57,12 +53,10 @@
 *
       Contains
 
-      SubRoutine Get_Info_Static_Internal(ixStrt,lxStrt,rxStrt)
+      SubRoutine Get_Info_Static_Internal(ixStrt,lxStrt)
       Use Iso_C_Binding
       Integer, Target :: ixStrt,lxStrt
-      Real*8, Target :: rxStrt
       Integer, Pointer :: p_ix(:),p_lx(:)
-      Real*8, Pointer :: p_rx(:)
 *
 *     Load the common INFO
 *
@@ -78,14 +72,7 @@
       Call C_F_Pointer(C_Loc(lxStrt),p_lx,[Len])
       Call Get_iArray('SewLInfo',p_lx,Len)
 *
-*     Load the common RINFO
-*
-      Len = idLoc(rxEnd)-idLoc(rxStrt)
-      Len = (Len+nByte_r)/nByte_r
-      Call C_F_Pointer(C_Loc(rxStrt),p_rx,[Len])
-      Call Get_dArray('SewRInfo',p_rx,Len)
-*
-      Nullify(p_ix,p_lx,p_rx)
+      Nullify(p_ix,p_lx)
 *
       Return
       End SubRoutine Get_Info_Static_Internal

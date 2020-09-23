@@ -14,6 +14,7 @@
       use Sizes_of_Seward, only: S
       use Real_Info, only: RadMax, cdMax, EtMax
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
 *                                                                      *

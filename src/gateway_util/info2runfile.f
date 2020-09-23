@@ -31,7 +31,7 @@
       use Temporary_Parameters, only: Expert, VarR, VarT, DirInt
       use Sizes_of_Seward, only: S
       use RICD_Info, only: Do_RI, Cholesky, Cho_OneCenter, LocalDF
-      use Real_Info, only: CoC
+      use Real_Info, only: CoC, CoM
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "Molcas.fh"

@@ -18,6 +18,7 @@ C     Set multipole centers.
 C
       use MpmC
       use Sizes_of_Seward, only: S
+      use Real_Info, only: CoM
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"

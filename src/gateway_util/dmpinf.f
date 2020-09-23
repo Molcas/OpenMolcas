@@ -48,27 +48,25 @@
 #include "real.fh"
 #include "rctfld.fh"
 #include "nq_info.fh"
-#include "relae.fh"
-#include "RelLight.fh"
       Integer  iix(2)
       Real*8   rix(2)
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
 *
-      Call DmpInf_Internal(ixStrt,lxStrt,rxStrt,
+      Call DmpInf_Internal(ixStrt,lxStrt,
      & cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
 *
 *     This is to allow type punning without an explicit interface
       Contains
-      SubRoutine DmpInf_Internal(ixStrt,lxStrt,rxStrt,
+      SubRoutine DmpInf_Internal(ixStrt,lxStrt,
      & cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
       Use Iso_C_Binding
       Integer, Target :: ixStrt,lxStrt,cRFStrt,iRFStrt,lRFStrt,
      &                   cQStrt,iQStrt
-      Real*8, Target :: rxStrt,rRFStrt,rQStrt
+      Real*8, Target :: rRFStrt,rQStrt
       Integer, Pointer :: p_ix(:),p_lx(:),p_cRF(:),p_iRF(:),
      &                    p_lRF(:),p_cQ(:),p_iQ(:)
-      Real*8, Pointer :: p_rx(:),p_rRF(:),p_rQ(:)
+      Real*8, Pointer :: p_rRF(:),p_rQ(:)
 *
 *     Save the common INFO
 *
@@ -86,14 +84,7 @@
       Call C_F_Pointer(C_Loc(lxStrt),p_lx,[Len])
       Call Put_iArray('SewLInfo',p_lx,Len)
 *
-*     Save the common RINFO
-*
-      Len = idLoc(rxEnd)-idLoc(rxStrt)
-      Len = (Len+nByte_r)/nByte_r
-      Call C_F_Pointer(C_Loc(rxStrt),p_rx,[Len])
-      Call Put_dArray('SewRInfo',p_rx,Len)
-*
-      Nullify(p_ix,p_lx,p_rx)
+      Nullify(p_ix,p_lx)
 *                                                                      *
 ************************************************************************
 *                                                                      *
