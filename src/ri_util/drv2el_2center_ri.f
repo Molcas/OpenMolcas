@@ -43,6 +43,7 @@
       use Wrj12
       use Index_arrays, only: iSO2Sh, nShBF
       use Real_Info, only: CutInt
+      use RICD_Info, only: LDF
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut
 #include "itmax.fh"

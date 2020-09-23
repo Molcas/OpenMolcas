@@ -865,6 +865,7 @@ C     ------------
 *                                                                      *
 ************************************************************************
       Subroutine Put_thr_Cho(ThrCom)
+      use RICD_Info, only: Do_RI
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"

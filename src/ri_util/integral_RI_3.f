@@ -17,6 +17,7 @@
 *     calls the proper routines IndSft/PLF
 *     if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 *                      else  integral order within symblk: ijkl
+      Use RICD_Info, only: LDF
       Implicit Real*8 (A-H,O-Z)
 *
 #include "itmax.fh"

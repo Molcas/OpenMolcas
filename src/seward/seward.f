@@ -59,6 +59,7 @@
       use Integral_parameters, only: iPack, iWROpt
       use DKH_Info, only: DKroll
       use Real_Info, only: PkAcc
+      use RICD_Info, only: Do_RI, Cholesky
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_WrOut2, Integral_RI_3
 #include "real.fh"

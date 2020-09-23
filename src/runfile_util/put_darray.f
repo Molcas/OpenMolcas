@@ -236,7 +236,7 @@ c mess started here :)
          RecLab( 77)='MpProp Orb Ener '
          RecLab( 78)='LoProp H0       '
          RecLab( 79)='Dipole moment   '
-         RecLab( 80)='                ' ! Unused
+         RecLab( 80)='RICD_Info       '
          RecLab( 81)='BMtrx           '
          RecLab( 82)='CList           '
          RecLab( 83)='DList           '

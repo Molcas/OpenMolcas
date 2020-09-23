@@ -43,6 +43,7 @@
       use Real_Spherical
       use Basis_Info
       use Temporary_Parameters
+      use RICD_Info, only: Do_RI, Cholesky
       Implicit Real*8 (A-H,O-Z)
       External RF_On
 #include "real.fh"

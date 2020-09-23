@@ -22,6 +22,7 @@
       use EFP_Module
       use k2_arrays
       use Basis_Info
+      use RICD_Info, only: iRI_Type, Do_RI
       implicit real*8 (a-h,o-z)
       External Reduce_Prt
       Logical Reduce_Prt
@@ -63,15 +64,9 @@ C
 *
       Seward_Status=InActive
 *
-*     Info
-*
-      iRI_type=0
-
-*
 *-----LInfo
 *
       NEMO=.False.
-      Do_RI=.False.
       IRFLAG1=0
       EMFR  =.False.
       UnNorm=.False.
@@ -83,14 +78,12 @@ C
       lAMFI=.False.
       lGENINT=.False.
       GIAO=.False.
-      Cholesky=.False.
       Do_FckInt=.True.
       Do_GuessOrb=.True.
 *
       Do_acCD_Basis=.True.
       Do_nacCD_Basis=.False.
       Skip_High_AC = .False.
-      LDF=.False.
       LocalDF=.False.
 *
       Align_Only=.False.

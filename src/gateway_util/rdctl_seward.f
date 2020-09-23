@@ -28,6 +28,7 @@
       use Real_Info, only: ThrInt, Rtrnc, CutInt, PkAcc, Thrs, E1, E2,
      &                     RPQMin, SadStep, Shake
       use DKH_Info
+      use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif
@@ -196,7 +197,6 @@
       MolWgh_UsrDef=.False.
       APThr_UsrDef=.False.
       NoAMFI=.False.
-      Cholesky=.False.
 *
       iChk_RI=0
       iChk_CH=0

@@ -39,6 +39,7 @@
       use Sizes_of_Seward, only: Size_Dmp
       use DKH_Info, only: DKH_Info_Dmp
       use Real_Info, only: Real_Info_Dmp
+      use RICD_Info, only: RICD_Info_Dmp
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -102,6 +103,7 @@
       Call Size_Dmp()
       Call DKH_Info_Dmp()
       Call Real_Info_Dmp()
+      Call RICD_Info_Dmp()
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -16,13 +16,10 @@
 *     Definitions and common for INTEGER                               *
 *                                                                      *
 ************************************************************************
-* -> Integer   <-                                                      *
-*     iRI_Type: type of RI auxiliary basis set                         *
-************************************************************************
       Integer   ixStrt, ixEnd
-      Integer   nIrrep, iRI_Type
+      Integer   nIrrep
 *
-      Common /Info/ ixStrt, nIrrep, iRI_Type, ixEnd
+      Common /Info/ ixStrt, nIrrep, ixEnd
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -40,8 +37,6 @@
 *             inequality should be used in the prescreening            *
 *     lAMFI : logical flag for Atomic Mean Field Integrals             *
 *     GIAO: integrals for first derivative with respect to B           *
-*     Cholesky: logical flag for Cholesky decomposition.               *
-*     Do_RI: logical flag for RI apporach                              *
 *     Do_FckInt: logical flag for FckInt                               *
 *     Do_GuessOrb: logical flag for GuessOrb                           *
 *     DiagCheck : logical flag for diagonal ERI check in Cholesky/RI   *
@@ -49,16 +44,15 @@
 *     FNMC: finite nuclear mass correction                             *
 ************************************************************************
       Integer lxStrt, lxEnd
-      Logical Vlct, lRel, Do_RI, UnNorm, lSchw, lAMFI,
-     &        NEMO, Do_GuessOrb, Cholesky, Do_FckInt, Align_Only,
-     &        Do_acCD_Basis, Skip_High_AC, DoFMM, Cho_OneCenter, LDF,
+      Logical Vlct, lRel, UnNorm, lSchw, lAMFI,
+     &        NEMO, Do_GuessOrb, Do_FckInt, Align_Only,
+     &        Do_acCD_Basis, Skip_High_AC, DoFMM, Cho_OneCenter,
      &        DiagCheck, lRP, lRP_Post, LocalDF,
      &        Do_nacCD_Basis, Do_Align, EMFR, GIAO,
      &        lUPONLY, lDOWNONLY, FNMC, lPSOI
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
-     &               NEMO, LDF, Do_RI, lAMFI,
-     &               Do_GuessOrb, Vlct, lRel, UnNorm, lSchw,
-     &               GIAO, Do_FckInt, Cholesky, Do_acCD_Basis,
+     &               NEMO, lAMFI, Do_GuessOrb, Vlct, lRel, UnNorm,lSchw,
+     &               GIAO, Do_FckInt, Do_acCD_Basis,
      &               Skip_High_AC, lRP, lRP_Post, DoFMM, Cho_OneCenter,
      &               DiagCheck, Align_Only, LocalDF,
      &               Do_nacCD_Basis, Do_Align,

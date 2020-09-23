@@ -38,6 +38,7 @@
       use pso_stuff
       use Index_arrays, only: iSO2Sh
       use Sizes_of_Seward, only: S
+      use RICD_Info, only: Do_RI
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

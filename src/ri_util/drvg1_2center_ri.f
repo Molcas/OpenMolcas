@@ -50,6 +50,7 @@
       use Basis_Info
       use Sizes_of_Seward, only:S
       use Real_Info, only: CutInt
+      use RICD_Info, only: Do_RI
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
 #include "real.fh"

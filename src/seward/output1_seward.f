@@ -35,6 +35,7 @@
       use DKH_Info
       use Sizes_of_Seward, only: S
       use Real_Info, only: ThrInt, CutInt, RPQMin
+      use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
