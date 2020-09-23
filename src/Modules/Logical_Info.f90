@@ -54,10 +54,23 @@ Logical :: lDOWNONLY=.False.
 Logical :: FNMC=.False.
 Logical :: lPSOI=.False.
 
+Interface
+   Subroutine Put_iArray(Label,Data,nData)
+   Character*(*) Label
+   Integer       nData
+   Integer       Data(nData)
+   End Subroutine Put_iArray
+   Subroutine Get_iArray(Label,Data,nData)
+   Character*(*) Label
+   Integer       nData
+   Integer       Data(nData)
+   End Subroutine Get_iArray
+End Interface
+
 Contains
 
 Subroutine Logical_Info_Dmp()
-  Real*8, Allocatable:: iDmp(:)
+  Integer, Allocatable:: iDmp(:)
   Integer:: Len=19
 
   Call mma_allocate(iDmp,Len,Label='iDmp:Logical')
@@ -125,7 +138,7 @@ Subroutine Logical_Info_Dmp()
 End Subroutine Logical_Info_Dmp
 
 Subroutine Logical_Info_Get()
-  Real*8, Allocatable:: iDmp(:)
+  Integer, Allocatable:: iDmp(:)
   Integer:: Len=19
 
   Call mma_allocate(iDmp,Len,Label='iDmp:Logical')

@@ -33,6 +33,7 @@
       use DKH_Info, only: DKH_Info_Get
       use Real_Info, only: Real_Info_Get
       use RICD_Info, only: RICD_Info_Get
+      use Logical_Info, only: Logical_Info_Get
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -47,6 +48,7 @@
       Call DKH_Info_Get()
       Call Real_Info_Get()
       Call RICD_Info_Get()
+      Call Logical_Info_Get()
       Return
 *
 *     This is to allow type punning without an explicit interface

@@ -40,6 +40,7 @@
       use DKH_Info, only: DKH_Info_Dmp
       use Real_Info, only: Real_Info_Dmp
       use RICD_Info, only: RICD_Info_Dmp
+      use Logical_Info, only: Logical_Info_Dmp
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -85,6 +86,7 @@
       Call DKH_Info_Dmp()
       Call Real_Info_Dmp()
       Call RICD_Info_Dmp()
+      Call Logical_Info_Dmp()
 *                                                                      *
 ************************************************************************
 *                                                                      *
