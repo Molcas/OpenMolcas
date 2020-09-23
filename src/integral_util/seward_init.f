@@ -67,10 +67,7 @@ C
 *-----LInfo
 *
       IRFLAG1=0
-      lDOWNONLY=.False.
       lGENINT=.False.
-*
-      FNMC=.False.
 *
       Call GetEnvF('MOLCAS_NEW_DEFAULTS', Env)
       Call UpCase(Env)

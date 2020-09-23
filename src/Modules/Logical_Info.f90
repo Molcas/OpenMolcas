@@ -28,7 +28,8 @@
 Module Logical_Info
 Private
 Public :: Vlct, lRel, UnNorm, lSchw, lAMFI, NEMO, Do_GuessOrb, Do_FckInt, &
-  Align_Only, DoFMM,  lRP, lRP_Post, EMFR, Do_Align, GIAO, lUPONLY, &
+          Align_Only, DoFMM,  lRP, lRP_Post, EMFR, Do_Align, GIAO, lUPONLY, &
+          lDOWNONLY, FNMC, lPSOI, &
           Logical_Info_Dmp, Logical_Info_Get
 
 #include "stdalloc.fh"

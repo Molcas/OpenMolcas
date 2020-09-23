@@ -22,12 +22,6 @@
 *     Definitions and common for LOGICAL                               *
 *                                                                      *
 ************************************************************************
-* -> Logical <-                                                        *
-*     GIAO: integrals for first derivative with respect to B           *
-*     FNMC: finite nuclear mass correction                             *
-************************************************************************
       Integer lxStrt, lxEnd
-      Logical lDOWNONLY, FNMC, lPSOI
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
-     &               lDOWNONLY, FNMC, lPSOI,
      &               lxEnd      ! Put never ever anything after lxEnd!!!
