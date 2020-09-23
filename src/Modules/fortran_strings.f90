@@ -15,7 +15,7 @@
 
 module fortran_strings
     use, intrinsic :: iso_c_binding, only: c_ptr, MOLCAS_C_INT, c_f_pointer
-    implicit none(type, external)
+    implicit none
     save
     private
     public :: str, to_lower, to_upper, operator(.in.), split, &
