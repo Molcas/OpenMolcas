@@ -64,10 +64,11 @@
 !>    G. Li Manni, Oskar Weser
 !>
 !>  @paramin[in] readpops  If true the readpops option for NECI is set.
-      subroutine make_inp(path, readpops, doGAS)
+      subroutine make_inp(path, FCIDUMP_name, readpops, doGAS)
       use general_data, only : nActEl, iSpin
       use stdalloc, only : mma_deallocate
       use fortran_strings, only : str
+      character(*), intent(in) :: FCIDUMP_name
       character(*), intent(in) :: path
       logical, intent(in), optional :: readpops, doGAS
       logical :: readpops_, doGAS_
@@ -103,6 +104,7 @@
         write(file_id, I_fmt()) 'electrons ', nActEl
         write(file_id,A_fmt()) 'nonuniformrandexcits 4ind-weighted-2'
         write(file_id,A_fmt()) 'nobrillouintheorem'
+        write(file_id,A_fmt()) 'FCIDUMP-name', FCIDUMP_name
         if(iSpin /= 1) then
           write(file_id, I_fmt()) 'spin-restrict', iSpin - 1
         end if
