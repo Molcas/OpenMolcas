@@ -25,6 +25,7 @@
       use pso_stuff
       use RICD_Info, only: Do_RI, Cholesky
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "disp.fh"

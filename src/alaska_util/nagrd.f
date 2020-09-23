@@ -37,6 +37,7 @@
       External TNAI1, Fake, Cff2D
 *     Finite nuclei
       External TERI1, ModU2, vCff2D
+#include "Molcas.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"

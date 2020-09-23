@@ -11,6 +11,7 @@
       Subroutine NEMO_Opt1()
       use Basis_Info
       Implicit real*8(a-h,o-z)
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "warnings.fh"

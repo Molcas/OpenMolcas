@@ -123,6 +123,7 @@
       use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
       External TERI1, ModU2, Cff2D
+#include "Molcas.fh"
 #include "ndarray.fh"
 #include "real.fh"
 #include "itmax.fh"

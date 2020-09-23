@@ -35,11 +35,11 @@
       use Basis_Info
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
-c#include "print.fh"
 #include "disp.fh"
 #include "disp2.fh"
 
@@ -59,10 +59,6 @@ c#include "print.fh"
       IX(i1,i2)=i1*(i1-1)/2+i2
       TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
      &                              iIrrep,iComp,dc(mdc)%nStab)
-*
-c     iRout = 150
-c     iPrint = nPrint(iRout)
-c     Call qEnter('M1Hss')
 *
 c     If (iPrint.ge.99) Then
 c        Write (6,*) ' In M1Hss: nArr=',nArr
@@ -292,7 +288,6 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
  111     kdc = kdc + dbsc(kCnttp)%nCntr
  100  Continue
 *
-c     Call qExit('M1Hss')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

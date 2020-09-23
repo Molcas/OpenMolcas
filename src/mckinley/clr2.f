@@ -19,6 +19,7 @@
       use Symmetry_Info, only: iOper
       use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "etwas.fh"

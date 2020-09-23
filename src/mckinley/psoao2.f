@@ -96,6 +96,7 @@ c     use Temporary_parameters, only: force_part_c, force_part_p
       use pso_stuff
       use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"

@@ -33,6 +33,7 @@
       use External_Centers
       use Symmetry_Info, only: iChBas
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "SysDef.fh"
 #include "print.fh"
 #include "real.fh"

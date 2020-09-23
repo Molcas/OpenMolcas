@@ -34,7 +34,7 @@
       use PCM_arrays
       use Symmetry_Info, only: iChTbl
       Implicit Real*8 (A-H,O-Z)
-c#include "print.fh"
+#include "Molcas.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"

@@ -38,6 +38,7 @@ C***********************************************************************C
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='COMP_NAC')
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"
@@ -171,6 +172,7 @@ C                                                                       C
 C***********************************************************************C
       IMPLICIT REAL*8 (A-H,O-Z)
 
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "WrkSpc.fh"

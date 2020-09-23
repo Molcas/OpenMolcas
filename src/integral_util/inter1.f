@@ -13,6 +13,7 @@
       Use Center_Info
       Implicit Real*8(a-h,o-z)
 #include "itmax.fh"
+#include "Molcas.fh"
 #include "info.fh"
       Real*8 A(3),Coor(3,*),ZNUC(*)
       integer Ibas_Lab(*)

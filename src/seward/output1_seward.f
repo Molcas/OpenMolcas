@@ -39,6 +39,7 @@
      &                     Do_acCD_Basis, Skip_High_AC, Cho_OneCenter,
      &                     LocalDF, Do_nacCD_Basis, Thrshld_CD
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "rinfo.fh"

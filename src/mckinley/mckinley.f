@@ -50,6 +50,7 @@
       use Temporary_Parameters
       Implicit Real*8 (A-H,O-Z)
 *
+#include "Molcas.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"

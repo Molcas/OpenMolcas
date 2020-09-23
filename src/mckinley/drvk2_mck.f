@@ -45,6 +45,7 @@
       use Symmetry_Info, only: iOper
       use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "ndarray.fh"
 #include "real.fh"
 #include "itmax.fh"

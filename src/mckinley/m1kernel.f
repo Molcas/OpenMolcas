@@ -21,6 +21,7 @@
       use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
+#include "Molcas.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"

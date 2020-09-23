@@ -34,6 +34,7 @@
 *     External Kernel, KrnlMm
       External KrnlMm
 #include "angtp.fh"
+#include "Molcas.fh"
 #include "info.fh"
 #include "real.fh"
 #include "rmat_option.fh"

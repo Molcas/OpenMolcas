@@ -31,6 +31,7 @@
       use Symmetry_Info, only: lIrrep
       use Sizes_of_Seward, only: S
       implicit real*8 (a-h,o-z)
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"

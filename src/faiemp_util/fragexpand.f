@@ -28,6 +28,7 @@
       Use Center_Info
       use Sizes_of_Seward, only: S
       Implicit None
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "stdalloc.fh"

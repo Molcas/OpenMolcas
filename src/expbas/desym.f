@@ -42,6 +42,7 @@
       use Center_Info
       use Symmetry_Info, only: lIrrep
       Implicit Real*8 (a-h,o-z)
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"

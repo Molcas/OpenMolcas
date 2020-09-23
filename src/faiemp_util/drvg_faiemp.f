@@ -46,6 +46,7 @@
       use Real_Info, only: CutInt
       Implicit None
       External King, Rsv_GTList, MPP
+#include "Molcas.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"

@@ -52,6 +52,7 @@
 *             By Anders Bernhardsson                                   *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "ndarray.fh"
 #include "real.fh"
 #include "itmax.fh"

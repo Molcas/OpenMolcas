@@ -11,6 +11,7 @@
       Subroutine BSSint
       use Basis_Info
       Implicit real*8(a-h,o-z)
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "rinfo.fh"

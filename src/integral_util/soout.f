@@ -11,6 +11,7 @@
       Subroutine SOOUT(label,cnt_ico,phase_ico)
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
+#include "Molcas.fh"
 #include "info.fh"
       Integer cnt_ico(0:7,*),phase_ico(0:7,*)
       Character Label(MaxBfn+MaxBfn_Aux)*(LENIN8)
@@ -28,6 +29,7 @@
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"
+#include "Molcas.fh"
 #include "info.fh"
 #include "real.fh"
 *

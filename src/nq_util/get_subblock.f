@@ -46,6 +46,7 @@ cGLM     &                        Temp,mGrad,F_xc,F_xca,F_xcb,dF_dRho,
       External Kernel
 #include "itmax.fh"
 #include "nq_info.fh"
+#include "Molcas.fh"
 #include "info.fh"
 #include "nsd.fh"
 #include "setup.fh"

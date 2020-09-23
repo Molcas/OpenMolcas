@@ -21,6 +21,7 @@
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='INPCTL')
+#include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "rassi.fh"

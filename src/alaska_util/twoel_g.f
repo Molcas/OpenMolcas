@@ -63,6 +63,7 @@
       use Temporary_Parameters, only: IsChi
       Implicit Real*8 (A-H,O-Z)
       External TERI1, ModU2, vCff2D
+#include "Molcas.fh"
 #include "ndarray.fh"
 #include "real.fh"
 #include "itmax.fh"

@@ -51,6 +51,7 @@
       use RICD_Info, only: LDF
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_RI_2, Rsv_Tsk
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "j12.fh"

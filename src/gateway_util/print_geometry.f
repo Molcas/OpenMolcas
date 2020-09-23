@@ -32,6 +32,7 @@
       use Real_Info, only: Rtrnc
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
+#include "Molcas.fh"
 #include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"

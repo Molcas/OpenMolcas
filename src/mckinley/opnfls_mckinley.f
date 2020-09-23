@@ -12,6 +12,7 @@
       use Basis_Info, only: nBas
       use Symmetry_Info, only: lIrrep
       Implicit Real*8(a-h,o-z)
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "disp.fh"

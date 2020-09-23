@@ -53,6 +53,7 @@
       use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
+#include "Molcas.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"

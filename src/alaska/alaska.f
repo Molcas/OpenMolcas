@@ -46,6 +46,7 @@
       use RICD_Info, only: Do_RI, Cholesky
       Implicit Real*8 (A-H,O-Z)
       External RF_On
+#include "Molcas.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"

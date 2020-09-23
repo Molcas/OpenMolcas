@@ -22,6 +22,7 @@
 *           exact decoupling BSS method.
 *
       Implicit real*8(a-h,o-z)
+#include "Molcas.fh"
 #include "warnings.fh"
 #include "itmax.fh"
 #include "info.fh"

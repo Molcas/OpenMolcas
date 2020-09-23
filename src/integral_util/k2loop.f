@@ -60,6 +60,7 @@
 #include "ndarray.fh"
       External TERIS, ModU2, Cmpct, Cff2DS, Rys2D
 #include "real.fh"
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "disp.fh"

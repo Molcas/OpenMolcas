@@ -22,6 +22,7 @@ c       NB: If the standard 2nd order DKH is wanted,
 c           the original routines by Hess are called!
 c
       Implicit real*8(a-h,o-z)
+#include "Molcas.fh"
 #include "warnings.fh"
 #include "itmax.fh"
 #include "info.fh"

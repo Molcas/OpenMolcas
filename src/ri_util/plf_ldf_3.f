@@ -31,6 +31,7 @@
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "lRI.fh"

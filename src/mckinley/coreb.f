@@ -36,6 +36,7 @@
       use Her_RW
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"

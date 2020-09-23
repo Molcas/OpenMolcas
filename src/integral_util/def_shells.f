@@ -14,6 +14,7 @@
       use Sizes_of_Seward, only: S
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
+#include "Molcas.fh"
 #include "info.fh"
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"

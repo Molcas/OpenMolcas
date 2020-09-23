@@ -35,6 +35,7 @@
       Implicit Real*8 (A-H,O-Z)
       Integer AixRm
       External Get_Cho_1Center,AixRm
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "status.fh"

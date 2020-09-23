@@ -62,6 +62,7 @@
       use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "real.fh"

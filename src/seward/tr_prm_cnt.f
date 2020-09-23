@@ -11,6 +11,7 @@
       subroutine Tr_prm_cnt(idbg,nBas_Cont,nBas_Prim)
       use Basis_Info
       implicit real*8(a-h,o-z)
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "rinfo.fh"

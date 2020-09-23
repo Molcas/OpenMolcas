@@ -28,6 +28,7 @@
       use PCM_arrays
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
+#include "Molcas.fh"
 #include "info.fh"
 #include "angstr.fh"
 #include "print.fh"

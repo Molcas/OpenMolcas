@@ -22,6 +22,7 @@
       use Basis_Info
       use Center_Info
       Implicit Real*8(a-h,o-z)
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
       Real*8 A(3),COOR(3,*), B(3)

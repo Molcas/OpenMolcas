@@ -36,6 +36,7 @@
 #endif
       Implicit Real*8 (a-h,o-z)
       External NucExp
+#include "Molcas.fh"
 #include "para_info.fh"
 *
 #include "angtp.fh"

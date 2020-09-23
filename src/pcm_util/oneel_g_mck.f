@@ -62,6 +62,7 @@
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
 #include "angtp.fh"
+#include "Molcas.fh"
 #include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"

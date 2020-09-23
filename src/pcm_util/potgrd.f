@@ -13,6 +13,7 @@
       Implicit Real*8 (A-H,O-Z)
       External PCMGrd1,PCMMmg
 #include "itmax.fh"
+#include "Molcas.fh"
 #include "info.fh"
 #include "print.fh"
 #include "real.fh"

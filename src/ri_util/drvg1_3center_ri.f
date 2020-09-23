@@ -59,6 +59,7 @@
       use RICD_Info, only: Do_RI
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk2
+#include "Molcas.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"

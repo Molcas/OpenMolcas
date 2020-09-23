@@ -33,6 +33,7 @@
       use RICD_Info, only: Do_RI, Cholesky, Cho_OneCenter, LocalDF
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
+#include "Molcas.fh"
 #include "info.fh"
 #include "cholesky.fh"
 #include "real.fh"

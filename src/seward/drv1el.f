@@ -79,6 +79,7 @@
       logical lECPnp,lECP
       logical lPAM2np,lPAM2
       logical lPP, lFAIEMP
+#include "Molcas.fh"
 #include "itmax.fh"
 #include "info.fh"
 #include "print.fh"
