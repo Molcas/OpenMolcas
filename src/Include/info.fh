@@ -71,8 +71,7 @@
 ************************************************************************
       Real*8         rxStrt, rxEnd
       Real*8         CoM(3), rMI(6), Dxyz(3),Prin(3),PAx(9), CoC(3),
-     &               Delta_RICD, KVector(3)
+     &               KVector(3)
       Common /RInfo/ rxStrt,  ! Put never ever anything before rxStrt!!!
-     &               CoM, rMI, Prin, PAx, CoC, Dxyz,
-     &               Delta_RICD, KVector,
+     &               CoM, rMI, Prin, PAx, CoC, Dxyz, KVector,
      &               rxEnd      ! Put never ever anything after rxEnd!!!

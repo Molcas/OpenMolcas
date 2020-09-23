@@ -99,7 +99,6 @@ C
 *-----RInfo
 *
       KVector(:)=Zero
-      Delta_RICD=0.0D0
 *
 *-----PStat
 *
