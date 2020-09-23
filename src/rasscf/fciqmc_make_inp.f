@@ -68,8 +68,8 @@
       use general_data, only : nActEl, iSpin
       use stdalloc, only : mma_deallocate
       use fortran_strings, only : str
-      character(*), intent(in) :: FCIDUMP_name
       character(*), intent(in) :: path
+      character(*), intent(in) :: FCIDUMP_name
       logical, intent(in), optional :: readpops, doGAS
       logical :: readpops_, doGAS_
       integer :: i, isFreeUnit, file_id, indentlevel
