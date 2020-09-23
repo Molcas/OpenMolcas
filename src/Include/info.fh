@@ -56,7 +56,6 @@
 *                                                                      *
 ************************************************************************
 * -> Real*8 <-                                                         *
-*     Prin  : moment of inertia of the principle axis                  *
 *     PAx   : vector of the principle axis                             *
 *     CoC   : center of charge of the nuclear charges                  *
 *     Dxyz  : coordinates of the gauge origin in the calculation of the*
@@ -64,7 +63,7 @@
 *     KVector: the k-vector of the EMFR                                *
 ************************************************************************
       Real*8         rxStrt, rxEnd
-      Real*8         Dxyz(3),Prin(3),PAx(9), CoC(3), KVector(3)
+      Real*8         Dxyz(3),PAx(9), CoC(3), KVector(3)
       Common /RInfo/ rxStrt,  ! Put never ever anything before rxStrt!!!
-     &               Prin, PAx, CoC, Dxyz, KVector,
+     &               PAx, CoC, Dxyz, KVector,
      &               rxEnd      ! Put never ever anything after rxEnd!!!
