@@ -171,7 +171,7 @@
 ************************************************************************
 *                                                                      *
       MxPrm = 0
-      Do iAng = 0, iAngMx
+      Do iAng = 0, S%iAngMx
          MxPrm = Max(MxPrm,S%MaxPrm(iAng))
       End Do
       nZeta = MxPrm * MxPrm
@@ -206,8 +206,6 @@
             ip_Out=ip_Tmp + (jS-1)*nSkal + iS -1
             ip_In =ipTMax + (jS-1)*nSkal_Valence + iS -1
             Work(ip_In)=Work(ip_Out)
-cVV: ifort 11 can't handle the code without this dummy print.
-            if(iPrint.gt.100) write(6,*) ip_In, ip_Out
             ip_In =ipTMax + (iS-1)*nSkal_Valence + jS -1
             Work(ip_In)=Work(ip_Out)
             TMax_all=Max(TMax_all,Work(ip_Out))
@@ -539,7 +537,7 @@ cVV: ifort 11 can't handle the code without this dummy print.
 *                                                                      *
 *-------Compute FLOP's for the transfer equation.
 *
-      Do iAng = 0, iAngMx
+      Do iAng = 0, S%iAngMx
          Do jAng = 0, iAng
             nHrrab = 0
             Do i = 0, iAng+1

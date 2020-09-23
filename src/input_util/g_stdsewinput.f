@@ -17,6 +17,7 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (a-h,o-z)
 *
 #include "itmax.fh"
@@ -189,7 +190,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       lAng=Max(dbsc(nCnttp)%nVal,
      &         dbsc(nCnttp)%nSRO,
      &         dbsc(nCnttp)%nPrj)-1
-      iAngMx=Max(iAngMx,lAng)
+      S%iAngMx=Max(S%iAngMx,lAng)
 *     No transformation needed for s and p shells
       Shells(jShll+1)%Transf=.False.
       Shells(jShll+1)%Prjct =.False.
@@ -275,9 +276,9 @@ C      print *,line
 900   iSTDINP = iSTDINP + 2
       If (iSTDINP.LT.lSTDINP) Go to 10
 
-      If (iAngMx.lt.0) Then
+      If (S%iAngMx.lt.0) Then
          Write (6,*) ' There is an error somewhere in the input!'
-         Write (6,*) 'iAngMx.lt.'
+         Write (6,*) 'S%iAngMx.lt.'
          iErr=1
          Return
       End If

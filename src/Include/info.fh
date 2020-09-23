@@ -17,15 +17,11 @@
 *                                                                      *
 ************************************************************************
 * -> Integer   <-                                                      *
-*     iAngMx: higest angular momentum specified in the input           *
 *     iRI_Type: type of RI auxiliary basis set                         *
 ************************************************************************
-      Integer   ixStrt, ixEnd,
-     &          nIrrep,nMltpl,iAngMx, IsChi, iRI_Type
+      Integer   ixStrt, ixEnd, nIrrep, IsChi, iRI_Type
 *
-      Common /Info/ ixStrt,
-     &              iAngMx,  nIrrep, nMltpl, IsChi, iRI_Type,
-     &              ixEnd
+      Common /Info/ ixStrt, nIrrep, IsChi, iRI_Type, ixEnd
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -48,8 +44,6 @@
 *     Do_FckInt: logical flag for FckInt                               *
 *     Do_GuessOrb: logical flag for GuessOrb                           *
 *     DiagCheck : logical flag for diagonal ERI check in Cholesky/RI   *
-*     VART: Forced variant to translations                             *
-*     VARR: Forced variant to rotations                                *
 *     EMFR: Electromagnetic field radiation                            *
 *     FNMC: finite nuclear mass correction                             *
 ************************************************************************
@@ -57,7 +51,7 @@
      &          NEMO, Do_GuessOrb, Cholesky, Do_FckInt, Align_Only,
      &          Do_acCD_Basis, Skip_High_AC, DoFMM, Cho_OneCenter, LDF,
      &          DiagCheck, lRP, lRP_Post, Fake_ERIs, LocalDF,
-     &          Do_nacCD_Basis, Do_Align, VarT, VarR, EMFR, GIAO,
+     &          Do_nacCD_Basis, Do_Align, EMFR, GIAO,
      &          lUPONLY, lDOWNONLY, FNMC, lPSOI
       Integer lxStrt, lxEnd
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
@@ -66,7 +60,7 @@
      &               GIAO, Do_FckInt, Cholesky, Do_acCD_Basis,
      &               Skip_High_AC, lRP, lRP_Post, DoFMM, Cho_OneCenter,
      &               DiagCheck, Align_Only, Fake_ERIs, LocalDF,
-     &               Do_nacCD_Basis, Do_Align, VarR, VarT,
+     &               Do_nacCD_Basis, Do_Align,
      &               EMFR, lUPONLY, lDOWNONLY, FNMC, lPSOI,
      &               lxEnd      ! Put never ever anything after lxEnd!!!
 *                                                                      *
@@ -86,7 +80,7 @@
 *     KVector: the k-vector of the EMFR                                *
 ************************************************************************
       Real*8         CoM(3), rMI(6), Dxyz(3),Prin(3),PAx(9), CoC(3),
-     &               Thrshld_CD, Delta_RICD,CLight_Info, KVector(3),
+     &               Thrshld_CD, Delta_RICD,CLight_Info, KVector(3)
       Real*8         rxStrt, rxEnd
       Common /RInfo/ rxStrt,  ! Put never ever anything before rxStrt!!!
      &               CoM, rMI, Prin, PAx, CoC, Dxyz,

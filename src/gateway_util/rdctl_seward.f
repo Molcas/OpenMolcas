@@ -1247,7 +1247,7 @@ c Simplistic validity check for value
       lAng=Max(dbsc(nCnttp)%nVal,
      &         dbsc(nCnttp)%nSRO,
      &         dbsc(nCnttp)%nPrj)-1
-      iAngMx=Max(iAngMx,lAng)
+      S%iAngMx=Max(S%iAngMx,lAng)
 *     No transformation needed for s and p shells
       Shells(jShll+1)%Transf=.False.
       Shells(jShll+1)%Prjct =.False.
@@ -1648,7 +1648,7 @@ c Simplistic validity check for value
 *     Read order of highest multipole to be computed
 *
  972  KWord = Get_Ln(LuRd)
-      Call Get_I1(1,nMltpl)
+      Call Get_I1(1,S%nMltpl)
       Go To 998
 *                                                                      *
 ****** CENT ************************************************************
@@ -3948,12 +3948,12 @@ c      endif
          Call WarningMessage(2,'Input does not contain coordinates')
          Call Quit_OnUserError()
       End If
-      If (iAngMx.lt.0) Then
+      If (S%iAngMx.lt.0) Then
          Call WarningMessage(2,
-     &     ' There is an error somewhere in the input!;iAngMx.lt.0')
+     &     ' There is an error somewhere in the input!;S%iAngMx.lt.0')
          Call Quit_OnUserError()
       End If
-      If (iAngMx.gt.iTabMx) Then
+      If (S%iAngMx.gt.iTabMx) Then
          Call WarningMessage(2,' Too High angular momentum !!!')
          Call Quit_OnUserError()
       End If
@@ -4272,7 +4272,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     If no multipole moment integrals are requested turn also of the
 *     computation of the velocity integrals.
 *
-      If (nMltpl.eq.0) Vlct=.False.
+      If (S%nMltpl.eq.0) Vlct=.False.
 *
 *     But turn it on again if explicitly requested
 *
@@ -4282,12 +4282,12 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     The default value of 4 is due to the mass-velocity operator
 *     which is computed by default.
 *
-      nPrp = Max(4,nMltpl)
+      nPrp = Max(4,S%nMltpl)
 *
 *     Setup of tables for coefficients of the Rys roots and weights.
 *
       nDiff=0
-      If (iAngMx.eq.0) nDiff=2
+      If (S%iAngMx.eq.0) nDiff=2
       DoRys=.True.
       If (DKroll.and.nOrdEF.gt.0) nDiff=nDiff+nOrdEF
       If (.Not.Test.and.Run_Mode.ne.S_Mode) Call SetUp_RW(DoRys,nDiff)
@@ -4311,7 +4311,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     and contaminants. This has to be done after adding auxiliary or
 *     fragment basis sets.
 *
-      Call Sphere(iAngMx)
+      Call Sphere(S%iAngMx)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -4319,7 +4319,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 *     Set up Symmetry_Info
 *
-      Call Symmetry_Info_Setup(nOper,Oper,Max(iAngMx,3))
+      Call Symmetry_Info_Setup(nOper,Oper,Max(S%iAngMx,3))
 
 * temporary back port while nIrrep is still available in info.fh
 
@@ -4507,14 +4507,14 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       If (lMltpl) Then
          Do i = 1, nTemp
             iMltpl = ITmp(i)
-            If (iMltpl.le.nMltpl) call dcopy_(3,RTmp(1,i),1,
+            If (iMltpl.le.S%nMltpl) call dcopy_(3,RTmp(1,i),1,
      &                                         Coor_MPM(1,iMltpl+1),1)
          End Do
          Call mma_deallocate(RTmp)
          Call mma_deallocate(ITmp)
       End If
 #ifdef _DEBUG_
-       Call RecPrt(' Multipole centers',' ',Coor_MPM,3,nMltpl+1)
+       Call RecPrt(' Multipole centers',' ',Coor_MPM,3,S%nMltpl+1)
 #endif
 *                                                                      *
 ************************************************************************

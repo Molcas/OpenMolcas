@@ -28,7 +28,8 @@
       use Basis_Info
       use Center_Info
       use external_centers, only: iXPolType, XF
-      use Temporary_Parameters, only: Expert
+      use Temporary_Parameters, only: Expert, VarR, VarT
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
@@ -112,7 +113,7 @@
       Cho_OneCenter=Cho_1Center
       Call Put_iScalar('System BitSwitch',iOption)
 
-      Call Put_iScalar('Highest Mltpl',nMltpl)
+      Call Put_iScalar('Highest Mltpl',S%nMltpl)
       iGO = 0
       Call Put_iScalar('Grad ready',iGO)
       iFMM = 0

@@ -66,7 +66,7 @@
       iSkal=0
       Thr=0.0D0
 
-      Do iAng = iAngMx , 0, -1
+      Do iAng = S%iAngMx , 0, -1
 
          If (S%MaxPrm(iAng).eq.0) goto 100
          If (S%MaxBas(iAng).eq.0) goto 100

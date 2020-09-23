@@ -191,7 +191,7 @@
          lAng=Max(dbsc(nCnttp)%nVal,
      &            dbsc(nCnttp)%nSRO,
      &            dbsc(nCnttp)%nPrj)-1
-         iAngMx=Max(iAngMx,lAng)
+         S%iAngMx=Max(S%iAngMx,lAng)
 *        No transformation needed for s and p shells
          Shells(jShll+1)%Transf=.False.
          Shells(jShll+1)%Prjct =.False.
@@ -440,7 +440,7 @@
             End Do ! iAng
 *
             dbsc(nCnttp)%Aux=.True.
-            iAngMx=Max(iAngMx,lAng)
+            S%iAngMx=Max(S%iAngMx,lAng)
 *
             dbsc(nCnttp)%iVal = jShll + 1
             dbsc(nCnttp)%nVal = lAng+1

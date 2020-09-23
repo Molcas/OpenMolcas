@@ -25,6 +25,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: lIrrep
+      use Sizes_of_Seward, only: S
       implicit real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
@@ -274,9 +275,9 @@ c      End If
  99     Format(A,2(3x,I4),5x,3F16.8,3I4)
       End Do
       If (.not.y_cart) Then
-        If (iAngMx.gt.1) Write (MF,'(A)') '[5D]'
-        If (iAngMx.gt.2) Write (MF,'(A)') '[7F]'
-        If (iAngMx.gt.3) Write (MF,'(A)') '[9G]'
+        If (S%iAngMx.gt.1) Write (MF,'(A)') '[5D]'
+        If (S%iAngMx.gt.2) Write (MF,'(A)') '[7F]'
+        If (S%iAngMx.gt.3) Write (MF,'(A)') '[9G]'
       End If
 *                                                                      *
 ************************************************************************

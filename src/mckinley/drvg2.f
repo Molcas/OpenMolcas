@@ -193,7 +193,7 @@
       MxPrm = 0
       MxDij = 0
       MxBsC = 0
-      Do iAng = 0, iAngMx
+      Do iAng = 0, S%iAngMx
          MxPrm = Max(MxPrm,S%MaxPrm(iAng))
          Do 2900 iCnttp = 1,nCnttp
             iShll = dbsc(iCnttp)%iVal + iAng

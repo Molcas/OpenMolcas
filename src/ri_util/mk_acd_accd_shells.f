@@ -827,7 +827,7 @@
 ************************************************************************
 *                                                                      *
                   lAng=iAng+jAng
-                  iAngMx=Max(iAngMx,lAng)
+                  S%iAngMx=Max(S%iAngMx,lAng)
                   S%MaxPrm(lAng)=Max(S%MaxPrm(lAng),nPrim)
 *
 #ifdef _DEBUG_

@@ -179,7 +179,7 @@
            lAng=Max(dbsc(nCnttp)%nVal,
      &         dbsc(nCnttp)%nSRO,
      &         dbsc(nCnttp)%nPrj)-1
-            iAngMx=Max(iAngMx,lAng)
+            S%iAngMx=Max(S%iAngMx,lAng)
             Shells(jShll+1)%Transf=.False.
             Shells(jShll+1)%Prjct =.False.
             Shells(jShll+2)%Transf=.False.

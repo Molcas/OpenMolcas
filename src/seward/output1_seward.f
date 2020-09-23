@@ -94,7 +94,7 @@
 *
       Write (LuWr,'(15X,A)') 'SEWARD will generate:'
       Write (LuWr,'(15X,A,I2)')
-     &        '   Multipole Moment integrals up to order ',nMltpl
+     &        '   Multipole Moment integrals up to order ',S%nMltpl
       If (.Not.Prprt) Then
          Write (LuWr,'(15X,A)')    '   Kinetic Energy integrals'
          If (Nuclear_Model.eq.Gaussian_Type) Then
@@ -296,7 +296,7 @@
       If (Allocated(OMQ_Center)) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
      &                       '   Orbital magnetic quadrupole around (',
      &   (OMQ_Center(i),i=1,3),')'
-      If (Vlct.and.(nMltpl.ge.2)) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
+      If (Vlct.and.(S%nMltpl.ge.2)) Write (LuWr,'(15X,A,3(F7.4,1X),A)')
      &                       '   Velocity quadrupole around (',
      &   (Coor_MPM(i,3),i=1,3),')'
       If (Allocated(AMP_Center)) Write (LuWr,'(15X,A,3(F7.4,1X),A)')

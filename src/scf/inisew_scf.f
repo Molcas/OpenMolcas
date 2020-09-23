@@ -61,7 +61,7 @@
      &                                    .or.Do_OFemb
      &                                    .or.EFP_On()) Then
          nDiff=0
-         If (Langevin_On().and.iAngMx.eq.0) nDiff=1
+         If (Langevin_On().and.S%iAngMx.eq.0) nDiff=1
          Call IniSew(DSCF.or.Langevin_On().or.PCM_On(),nDiff)
       End If
 *

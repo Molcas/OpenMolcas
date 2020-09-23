@@ -167,7 +167,7 @@
       PLabel=' '
       rHrmt=One
       iLow = 0
-      mMltpl=nMltpl
+      mMltpl=S%nMltpl
       If (Prprt) iLow = 1
 *
 *     If not Douglas-Kroll and primitive pass do no property integrals
@@ -177,7 +177,7 @@
          If (.Not. DKroll) mMltpl=-1
       End If
 *
-      Do 10 iMltpl = iLow, nMltpl
+      Do 10 iMltpl = iLow, S%nMltpl
          Write (Label,'(A,I2)') 'Mltpl ', iMltpl
          nComp = (iMltpl+1)*(iMltpl+2)/2
          Call DCopy_(3,Coor_MPM(1,iMltpl+1),1,Ccoor,1)
@@ -854,7 +854,7 @@ c           iPAMcount=iPAMcount+1
 ************************************************************************
       PLabel=' '
       rHrmt=-One
-      If (Vlct.and.(nMltpl.ge.2).and..Not.Primitive_Pass) Then
+      If (Vlct.and.(S%nMltpl.ge.2).and..Not.Primitive_Pass) Then
          Label='MLTPV  2'
          nComp = 6
          nOrdOp = 2
@@ -907,7 +907,7 @@ c           iPAMcount=iPAMcount+1
      &              dum,1,0)
 *
          Call Deallocate_Auxiliary()
-      End If   ! Vlct.and.(nMltpl.ge.2)
+      End If   ! Vlct.and.(S%nMltpl.ge.2)
 ************************************************************************
 ************************************************************************
 *12c)                                                                  *

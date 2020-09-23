@@ -28,7 +28,7 @@
      &       iCnttp.eq.iCnttp_Dummy) nTest=-1
 *        Do iCnt = 1, dbsc(iCnttp)%nCntr
 *
-            Do iAng=0, iAngMx
+            Do iAng=0, S%iAngMx
                If (iAng.gt.nTest)  Cycle
                iShll = dbsc(iCnttp)%iVal + iAng
                nExpi=Shells(iShll)%nExp

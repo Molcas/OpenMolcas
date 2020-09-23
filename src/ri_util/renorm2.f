@@ -82,7 +82,7 @@
 *     Set up transformation matrix from Cartesian to real spherical
 *     harmonics.
 *
-      Call Sphere(iAngMx)
+      Call Sphere(S%iAngMx)
 *
       Call Flip_Flop(.False.) ! Contracted mode.
 *

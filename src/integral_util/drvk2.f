@@ -96,7 +96,7 @@
 *                                                                      *
       DoGrad_=DoGrad
       DoHess_=.False.
-      la_=iAngMx
+      la_=S%iAngMx
       mabMin_=nabSz(Max(la_,la_)-1)+1
       mabMax_=nabSz(la_+la_)
       ne_=(mabMax_-mabMin_+1)
@@ -131,7 +131,7 @@
 ************************************************************************
 *                                                                      *
       MemTmp=0
-      Do iAng = 0, iAngMx
+      Do iAng = 0, S%iAngMx
          MemTmp=Max(MemTmp,(S%MaxPrm(iAng)*nElem(iAng))**2)
       End Do
       Call mma_allocate(Scr,MemTmp,3,Label='Scr')

@@ -15,6 +15,7 @@
 *                                                                      *
 ************************************************************************
       Use MpmC
+      use Sizes_of_Seward, only: S
 !#define _DEBUG_
 #ifdef _DEBUG_
       use Basis_Info, only: nBas
@@ -147,10 +148,10 @@
       Int_I(:)=0.0D0
       Int_I(nInts_TMOM+1:nInts_TMOM+3)=CoorO
 *
-      nMltpl=9
+      S%nMltpl=9
       iCase=1
       Phase=1.0D0
-      Do iMltpl= 0, nMltpl
+      Do iMltpl= 0, S%nMltpl
          Write (Label,'(A,I2)') 'Mltpl ',iMltpl
          nComp=(iMltpl+1)*(iMltpl+2)/2
          iComp=0

@@ -71,12 +71,12 @@ C      iPrint=99
 *     Set up transformation matrix from Cartesian to real spherical
 *     harmonics.
 *
-      Call Sphere(iAngMx)
+      Call Sphere(S%iAngMx)
 *
 *     Setup of tables for coefficients for the Rys roots and weights.
 *
       nDiff=0
-      If (iAngMx.eq.0) nDiff=2
+      If (S%iAngMx.eq.0) nDiff=2
       DoRys=.True.
       Call SetUp_RW(DoRys,nDiff)
 *

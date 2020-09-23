@@ -17,29 +17,30 @@ C
 C     Set multipole centers.
 C
       use MpmC
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"
 #include "stdalloc.fh"
 
       ! Check
-      If (nMltpl.lt.0) Then
+      If (S%nMltpl.lt.0) Then
          Call WarningMessage(2,'SetMltplCenters: illegal input')
-         Write(6,'(A,I10)') 'nMltpl=',nMltpl
+         Write(6,'(A,I10)') 'S%nMltpl=',S%nMltpl
          Call Abend()
       End If
 
       ! Allocate center array
-      Call mma_allocate(Coor_MPM,3,nMltpl+1,label='Coor_MPM')
+      Call mma_allocate(Coor_MPM,3,S%nMltpl+1,label='Coor_MPM')
 
       ! Set origin as center for overlap (0th order)
       Call fZero(Coor_MPM(1,1),3)
 
       ! Set origin as center for dipole (1st order) and
       ! center of mass as center for higher-order multipoles
-      If (nMltpl.gt.0) Then
+      If (S%nMltpl.gt.0) Then
          Call fZero(Coor_MPM(1,2),3)
-         Do i=2,nMltpl
+         Do i=2,S%nMltpl
             Call dCopy_(3,CoM,1,Coor_MPM(1,i+1),1)
          End Do
       End If

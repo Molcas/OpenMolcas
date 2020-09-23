@@ -97,7 +97,7 @@
       nOrdOp=2
       iComp = 1
 *
-      nPrp=Max(4,nMltpl)
+      nPrp=Max(4,S%nMltpl)
       nDiff = 0
 *
       List   (:)=0

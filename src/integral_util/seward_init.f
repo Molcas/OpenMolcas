@@ -65,8 +65,6 @@ C
 *
 *     Info
 *
-      nMltpl=2
-      iAngMx=-1
       nWel=0
       iRI_type=0
       Max_Center=15
@@ -107,8 +105,6 @@ C
       lRP=.False.
       Align_Only=.False.
       Do_Align=.True.
-      VarT=.False.
-      VarR=.False.
       FNMC=.False.
 *
       Call GetEnvF('MOLCAS_NEW_DEFAULTS', Env)
