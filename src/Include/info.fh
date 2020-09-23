@@ -45,15 +45,13 @@
 ************************************************************************
       Integer lxStrt, lxEnd
       Logical Vlct, lRel, UnNorm, lSchw, lAMFI,
-     &        NEMO, Do_GuessOrb, Do_FckInt, Align_Only,
-     &        DoFMM, Cho_OneCenter,
+     &        NEMO, Do_GuessOrb, Do_FckInt, Align_Only,DoFMM,
      &        DiagCheck, lRP, lRP_Post, LocalDF,
      &        Do_nacCD_Basis, Do_Align, EMFR, GIAO,
      &        lUPONLY, lDOWNONLY, FNMC, lPSOI
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
      &               NEMO, lAMFI, Do_GuessOrb, Vlct, lRel, UnNorm,lSchw,
-     &               GIAO, Do_FckInt,
-     &               lRP, lRP_Post, DoFMM, Cho_OneCenter,
+     &               GIAO, Do_FckInt, lRP, lRP_Post, DoFMM,
      &               DiagCheck, Align_Only, LocalDF,
      &               Do_nacCD_Basis, Do_Align,
      &               EMFR, lUPONLY, lDOWNONLY, FNMC, lPSOI,

@@ -31,7 +31,7 @@
       use Temporary_parameters, only: Primitive_Pass, Expert, VarR,
      &                                VarT, DirInt
       use Sizes_of_Seward, only: S
-      use RICD_Info, only: Do_RI, Cholesky
+      use RICD_Info, only: Do_RI, Cholesky, Cho_OneCenter
       Implicit Real*8 (A-H,O-Z)
       Integer AixRm
       External Get_Cho_1Center,AixRm
