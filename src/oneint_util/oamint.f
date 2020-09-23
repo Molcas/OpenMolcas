@@ -34,6 +34,7 @@
 *             of Lund, Sweden, February '91                            *
 *             Placed restrictions on the differentiation. Lasse '16    *
 ************************************************************************
+      use Logical_Info, only: lUPONLY
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

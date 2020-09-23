@@ -67,10 +67,8 @@ C
 *-----LInfo
 *
       IRFLAG1=0
-      lUPONLY=.False.
       lDOWNONLY=.False.
       lGENINT=.False.
-      GIAO=.False.
 *
       FNMC=.False.
 *

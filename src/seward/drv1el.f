@@ -41,7 +41,7 @@
       use Sizes_of_Seward, only: S
       use Real_Info, only: PotNuc, kVector
       use Logical_Info, only: Vlct, lRel, lAMFI, NEMO, Do_FckInt,
-     &                        DoFMM, EMFR
+     &                        DoFMM, EMFR, GIAO
       Implicit Real*8 (A-H,O-Z)
       External MltInt, KnEInt, MVeInt,  VeInt,  D1Int,  NAInt,  EFInt,
      &         OAMInt, OMQInt, DMSInt, WelInt, XFdInt,  PrjInt,

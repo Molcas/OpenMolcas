@@ -27,7 +27,7 @@
 *     FNMC: finite nuclear mass correction                             *
 ************************************************************************
       Integer lxStrt, lxEnd
-      Logical Do_Align, GIAO, lUPONLY, lDOWNONLY, FNMC, lPSOI
+      Logical lDOWNONLY, FNMC, lPSOI
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
-     &               GIAO,  Do_Align, lUPONLY, lDOWNONLY, FNMC, lPSOI,
+     &               lDOWNONLY, FNMC, lPSOI,
      &               lxEnd      ! Put never ever anything after lxEnd!!!
