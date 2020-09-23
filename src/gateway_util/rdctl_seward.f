@@ -30,7 +30,7 @@
       use DKH_Info
       use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky,
      &                     Do_acCD_Basis, Skip_High_AC, DiagCheck,
-     &                     LocalDF
+     &                     LocalDF, Do_nacCD_Basis
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif

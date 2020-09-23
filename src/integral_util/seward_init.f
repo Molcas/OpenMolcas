@@ -81,8 +81,6 @@ C
       Do_FckInt=.True.
       Do_GuessOrb=.True.
 *
-      Do_nacCD_Basis=.False.
-*
       Align_Only=.False.
       Do_Align=.True.
       FNMC=.False.

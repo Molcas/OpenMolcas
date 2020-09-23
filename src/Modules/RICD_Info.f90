@@ -12,7 +12,7 @@
 Module RICD_Info
 Private
 Public :: iRI_Type, LDF, Do_RI, Cholesky, Do_acCD_Basis, Skip_High_AC, &
-          Cho_OneCenter,  DiagCheck, LocalDF, &
+           Cho_OneCenter,  DiagCheck, LocalDF, Do_nacCD_Basis, &
           RICD_Info_Dmp, RICD_Info_Get
 Integer :: iRI_Type=-1
 Logical :: LDF=.False.
@@ -23,6 +23,7 @@ Logical :: Skip_High_AC=.False.
 Logical :: Cho_OneCenter=.False.
 Logical :: DiagCheck=.False.
 Logical :: LocalDF=.False.
+Logical :: Do_nacCD_Basis=.False.
 #include "stdalloc.fh"
 
 Contains
@@ -30,7 +31,7 @@ Contains
 Subroutine RICD_Info_Dmp()
   Real*8, Allocatable:: rDmp(:)
   Integer i
-  Integer:: Len=9
+  Integer:: Len=10
 
   Call mma_allocate(rDmp,Len,Label='rDmp:RICD')
 
@@ -59,6 +60,9 @@ Subroutine RICD_Info_Dmp()
   i = 0
   If (LocalDF) i = 1
   rDmp(9) = DBLE(i)
+  i = 0
+  If (Do_nacCD_Basis) i = 1
+  rDmp(10) = DBLE(i)
 
 
   Call Put_dArray('RICD_Info',rDmp,Len)
@@ -68,7 +72,7 @@ End Subroutine RICD_Info_Dmp
 
 Subroutine RICD_Info_Get()
   Real*8, Allocatable:: rDmp(:)
-  Integer:: Len=9
+  Integer:: Len=10
 
   Call mma_allocate(rDmp,Len,Label='rDmp:RICD')
   Call Get_dArray('RICD_Info',rDmp,Len)
@@ -82,6 +86,7 @@ Subroutine RICD_Info_Get()
   Cho_OneCenter = NINT(rDmp(7)).eq.1
   DiagCheck = NINT(rDmp(8)).eq.1
   LocalDF = NINT(rDmp(9)).eq.1
+  Do_nacCD_Basis = NINT(rDmp(10)).eq.1
 
   Call mma_deallocate(rDmp)
 End Subroutine RICD_Info_Get

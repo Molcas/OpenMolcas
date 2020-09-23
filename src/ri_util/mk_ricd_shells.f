@@ -32,7 +32,7 @@
       use Real_Spherical
       use Basis_Info
       use Sizes_of_Seward, only: S
-      use RICD_Info, only: Do_acCD_Basis, Skip_High_AC
+      use RICD_Info, only: Do_acCD_Basis, Skip_High_AC, Do_nacCD_Basis
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"
