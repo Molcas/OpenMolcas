@@ -65,7 +65,6 @@
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"

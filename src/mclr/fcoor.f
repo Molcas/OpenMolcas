@@ -24,8 +24,6 @@
       use Symmetry_Info, only: nIrrep
       Implicit Real*8(a-h,o-z)
 #include "Molcas.fh"
-#include "itmax.fh"
-#include "info.fh"
       Real*8 A(3),COOR(3,*), B(3)
       Character*(LENIN) Lab
       mdc=0

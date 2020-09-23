@@ -47,8 +47,6 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "nq_info.fh"
 #include "grid_on_disk.fh"
 #include "debug.fh"

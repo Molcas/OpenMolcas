@@ -38,8 +38,6 @@
       use Sizes_of_Seward, only: S
       use Symmetry_Info, only: nIrrep
       Implicit None
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -470,8 +468,6 @@
       use Symmetry_Info, only: nIrrep, iOper
       Implicit None
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
       Integer nDens,nDens_Valence
       Real*8  Array(nDens)

@@ -25,9 +25,7 @@
       use Symmetry_Info, only: nIrrep
       Implicit Real*8(a-h,o-z)
       parameter (tol=1d-8)
-#include "itmax.fh"
 #include "Molcas.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "real.fh"
 #include "WrkSpc.fh"

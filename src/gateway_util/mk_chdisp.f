@@ -27,9 +27,7 @@
       use Center_Info
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
 #include "Molcas.fh"
-#include "info.fh"
       Integer nDisp(0:7), DegDisp(MxAtom*3)
       Character ChDisp(MxAtom*3)*(LENIN6)
       Logical TstFnc

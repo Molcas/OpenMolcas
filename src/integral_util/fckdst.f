@@ -19,8 +19,6 @@
       Implicit Real*8 (a-h,o-z)
       integer jirr(0:7)
 *
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 *
       Real*8 Fij(0:iBas-1,0:jBas-1,iCmp,jCmp),TwoHam(nDens)

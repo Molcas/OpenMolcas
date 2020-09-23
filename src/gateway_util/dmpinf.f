@@ -42,10 +42,7 @@
       use RICD_Info, only: RICD_Info_Dmp
       use Logical_Info, only: Logical_Info_Dmp
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
-#include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
 #include "nq_info.fh"
@@ -54,27 +51,20 @@
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
 *
-      Call DmpInf_Internal(ixStrt,
+      Call DmpInf_Internal(
      & cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
 *
 *     This is to allow type punning without an explicit interface
       Contains
-      SubRoutine DmpInf_Internal(ixStrt,
+      SubRoutine DmpInf_Internal(
      & cRFStrt,iRFStrt,lRFStrt,rRFStrt,cQStrt,iQStrt,rQStrt)
       Use Iso_C_Binding
-      Integer, Target :: ixStrt,cRFStrt,iRFStrt,lRFStrt,
+      Integer, Target :: cRFStrt,iRFStrt,lRFStrt,
      &                   cQStrt,iQStrt
       Real*8, Target :: rRFStrt,rQStrt
-      Integer, Pointer :: p_ix(:),p_cRF(:),p_iRF(:),
+      Integer, Pointer :: p_cRF(:),p_iRF(:),
      &                    p_lRF(:),p_cQ(:),p_iQ(:)
       Real*8, Pointer :: p_rRF(:),p_rQ(:)
-*
-*     Save the common INFO
-*
-      Len = iiLoc(ixEnd)-iiLoc(ixStrt)
-      Len = (Len+nByte_i)/nByte_i
-      Call C_F_Pointer(C_Loc(ixStrt),p_ix,[Len])
-      Call Put_iArray('SewIInfo',p_ix,Len)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -48,8 +48,6 @@
 #include "Molcas.fh"
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "WrkSpc.fh"

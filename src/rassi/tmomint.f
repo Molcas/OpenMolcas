@@ -38,8 +38,6 @@
       Real*8, Allocatable :: Int_R_O(:), Int_I_O(:)
       Integer IOFF(8,8)
 #endif
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "nq_info.fh"
 #include "real.fh"

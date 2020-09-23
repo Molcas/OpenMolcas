@@ -92,8 +92,6 @@
       Implicit Real*8 (A-H,O-Z)
       External Tvalue, ModU2, Cff2D
       External Exp_1, Exp_2
-#include "itmax.fh"
-#include "info.fh"
 #include "notab.fh"
 #include "real.fh"
       Real*8 Zeta(nZeta), ZInv(nZeta), P(lP,3),

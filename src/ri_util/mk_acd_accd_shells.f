@@ -27,9 +27,8 @@
       use RICD_Info, only: Do_acCD_Basis, Skip_High_AC, Thrshld_CD
       Implicit Real*8 (A-H,O-Z)
       External Integral_RICD
-#include "Molcas.fh"
 #include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "SysDef.fh"
 #include "real.fh"
 #include "print.fh"

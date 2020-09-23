@@ -16,8 +16,6 @@
       use Sizes_of_Seward, only: S
       use Real_Info, only: TMass, qNuc, CoM, CoC
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 *                                                                      *

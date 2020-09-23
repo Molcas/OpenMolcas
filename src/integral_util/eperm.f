@@ -33,8 +33,6 @@
       use Temporary_Parameters, only: PrPrt
       Implicit Real*8 (a-h,o-z)
       External EFInt, EFMem
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "rctfld.fh"
 #include "print.fh"

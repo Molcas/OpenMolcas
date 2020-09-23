@@ -26,8 +26,6 @@
       use Symmetry_Info, only: nIrrep, iChBas
       Implicit Real*8 (A-H,O-Z)
       External NAInt, MltInt, EFInt, CntInt
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "property_label.fh"
 

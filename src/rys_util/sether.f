@@ -23,8 +23,6 @@
       use Her_RW
       use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "real.fh"
 #include "status.fh"

@@ -14,8 +14,6 @@
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "setup.fh"
       Real*8 Dens(nDens,nr_of_Densities)

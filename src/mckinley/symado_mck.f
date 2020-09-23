@@ -13,8 +13,6 @@
       use Symmetry_Info, only: nIrrep, iChTbl, iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
       Real*8 ArrIn (nB,2), ArrOut(nB,nrOp)
       Integer IndGrd(0:nIrrep-1),nop(2)
       Logical IfGrd(3,2),trans(2)

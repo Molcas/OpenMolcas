@@ -72,8 +72,6 @@
 *     External Kernel, KrnlMm
       External KrnlMm
 #include "Molcas.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"

@@ -35,9 +35,7 @@
       use Logical_Info, only: DoFMM
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
 #include "Molcas.fh"
-#include "info.fh"
 #include "cholesky.fh"
 #include "real.fh"
 #include "rctfld.fh"

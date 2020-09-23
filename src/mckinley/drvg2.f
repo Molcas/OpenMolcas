@@ -55,8 +55,6 @@
       External Rsv_Tsk
 #include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "disp.fh"

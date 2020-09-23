@@ -26,8 +26,6 @@
       use Real_Spherical, only: iSphCr
       use Symmetry_Info, only: nIrrep, iOper, iChBas
       Implicit Real*8(a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 c#include "print.fh"
 *

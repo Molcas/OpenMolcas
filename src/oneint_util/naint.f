@@ -45,8 +45,6 @@
 *     Used for finite nuclei
       External TERI, ModU2, vCff2D, vRys2D
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "oneswi.fh"
 #include "print.fh"

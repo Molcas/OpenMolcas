@@ -17,8 +17,6 @@
       External OvrMmG, KneMmG, NAMmG, PrjMmG, M1MmG, M2MmG, SROMmG,
      &         WelMmg, XFdMmg, RFMmg, PCMMmg, PPMmG, FragPMmG
 #include "Molcas.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"

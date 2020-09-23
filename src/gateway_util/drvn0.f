@@ -34,8 +34,6 @@
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
       Real*8 A(3), B(3), RB(3)
       Integer iDCRR(0:7), jCoSet(8,8), iStb(0:7), jStb(0:7)

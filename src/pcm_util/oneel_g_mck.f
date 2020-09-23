@@ -64,7 +64,6 @@
       External Kernel, KrnlMm
 #include "angtp.fh"
 #include "Molcas.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"

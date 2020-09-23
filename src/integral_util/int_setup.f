@@ -15,10 +15,6 @@
       use Logical_Info, only: DoFMM
       Implicit Real*8 (a-h,o-z)
 *
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
-*
 #include "nsd.fh"
 #include "FMM.fh"
       Integer iSD(0:nSD,nSkal)

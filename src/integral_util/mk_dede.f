@@ -61,7 +61,6 @@
       use Sizes_of_Seward, only:S
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"

@@ -29,8 +29,6 @@
       use SOAO_Info, only: iAOtSO
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 *
       MemSO2_P = 0
 *

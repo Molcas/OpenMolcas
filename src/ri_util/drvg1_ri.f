@@ -27,8 +27,6 @@
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "print.fh"
 #include "para_info.fh"

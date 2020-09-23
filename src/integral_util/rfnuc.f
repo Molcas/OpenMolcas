@@ -33,8 +33,6 @@
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
       Real*8  rNucMm((ir+1)*(ir+2)/2), CoOp(3), A(3), RA(3)

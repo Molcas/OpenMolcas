@@ -41,8 +41,6 @@ c----------------------------------------------------------------------
       Dimension Tessera(4,*)
       Dimension AtmC(3,*)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
@@ -149,7 +147,6 @@ c----------------------------------------------------------------------
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"

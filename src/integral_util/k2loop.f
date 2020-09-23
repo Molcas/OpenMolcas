@@ -61,8 +61,6 @@
       External TERIS, ModU2, Cmpct, Cff2DS, Rys2D
 #include "real.fh"
 #include "Molcas.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "print.fh"
       Real*8 Coor(3,4), CoorM(3,4), Coori(3,4), Coora(3,4), CoorAC(3,2),

@@ -44,7 +44,6 @@
       Implicit Real*8 (A-H,O-Z)
       External Integral_RI_2
 #include "itmax.fh"
-#include "info.fh"
 #include "SysDef.fh"
 #include "real.fh"
 #include "print.fh"

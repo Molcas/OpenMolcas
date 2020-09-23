@@ -32,7 +32,6 @@
 #include "itmax.fh"
 #include "nq_info.fh"
 #include "setup.fh"
-#include "info.fh"
 #include "nsd.fh"
 #include "debug.fh"
 #include "grid_on_disk.fh"

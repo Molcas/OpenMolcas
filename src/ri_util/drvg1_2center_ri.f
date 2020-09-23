@@ -54,10 +54,9 @@
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
+#include "itmax.fh"
 #include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"

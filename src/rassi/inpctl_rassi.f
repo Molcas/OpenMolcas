@@ -26,8 +26,6 @@
 #include "stdalloc.fh"
 #include "rassi.fh"
 #include "symmul.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "centra.fh"
 #include "rasdef.fh"
 #include "cntrl.fh"

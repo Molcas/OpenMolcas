@@ -56,8 +56,6 @@
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "lCache.fh"
 #include "pstat.fh"

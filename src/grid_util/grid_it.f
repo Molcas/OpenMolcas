@@ -49,8 +49,6 @@ c  iRun =1 normal run, 0=trancated from scf
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
 c      Character*120 Lines(17)

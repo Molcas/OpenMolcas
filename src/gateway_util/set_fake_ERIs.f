@@ -13,8 +13,6 @@
       use RICD_Info, only: Do_RI, Cholesky
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "cholesky.fh"
       Character*16 NamRfil

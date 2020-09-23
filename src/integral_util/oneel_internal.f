@@ -75,8 +75,6 @@
       use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm, Rsv_Tsk
-#include "itmax.fh"
-#include "info.fh"
 C     Logical Addpot
 #include "real.fh"
 #include "rmat_option.fh"

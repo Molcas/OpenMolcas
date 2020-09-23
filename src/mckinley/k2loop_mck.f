@@ -55,8 +55,6 @@
 #include "Molcas.fh"
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "disp2.fh"
       Real*8 Coor(3,2), CoorM(3,4), Alpha(nAlpha), Beta(nBeta),

@@ -30,8 +30,6 @@
       use lw_Info
       use REal_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "srt0.fh"

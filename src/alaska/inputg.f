@@ -39,9 +39,8 @@
       use Temporary_Parameters
       use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
-#include "Molcas.fh"
 #include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "print.fh"
 #include "real.fh"
 #include "disp.fh"

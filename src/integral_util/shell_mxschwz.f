@@ -27,10 +27,8 @@ c----------------------------------------------------------------------
 *
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 *
       nElem(i)=(i+1)*(i+2)/2

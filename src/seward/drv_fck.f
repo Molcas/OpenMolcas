@@ -18,8 +18,6 @@
       use PAM2
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "real.fh"
@@ -218,7 +216,6 @@ c        Write(6,*) ' oneel *',Label,'*'
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "info.fh"
 #include "real.fh"
 #include "rmat_option.fh"
 #include "stdalloc.fh"

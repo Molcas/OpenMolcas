@@ -38,8 +38,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "nsd.fh"
 #include "setup.fh"

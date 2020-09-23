@@ -50,8 +50,6 @@
       External Tvalue, ModU2, Cff2D
       External Exp_1, Exp_2
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "notab.fh"
 #include "print.fh"
       Real*8 Zeta(nZeta), ZInv(nZeta), P(lP,3),

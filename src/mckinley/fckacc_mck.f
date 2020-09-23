@@ -66,8 +66,6 @@
       use Real_Spherical, only: iSphCr
       use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "disp2.fh"
       Real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), TwoHam(nDens),
@@ -708,8 +706,6 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
       use Real_Spherical, only: iSphCr
       use Real_Info, only: ThrInt, CutInt
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "disp2.fh"
 #include "print.fh"

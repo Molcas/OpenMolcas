@@ -56,8 +56,6 @@ C
       use Symmetry_Info, only: nIrrep, iChBas
       use Sizes_of_Seward, only: S
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
 #include "rmat_option.fh"

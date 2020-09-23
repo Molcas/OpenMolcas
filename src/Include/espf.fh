@@ -10,7 +10,6 @@
 ************************************************************************
 #include "itmax.fh"
 #include "Molcas.fh"
-#include "info.fh"
 #include "constants2.fh"
 #include "qmmm.fh"
 #include "WrkSpc.fh"

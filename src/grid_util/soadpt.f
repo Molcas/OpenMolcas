@@ -14,8 +14,6 @@
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: MolWgh
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
       Real*8 AOValue(mAO,nCoor,mBas,nCmp),

@@ -36,8 +36,6 @@
      &         srogrd_mck, nona2
       External OvrMem_mck,KneMem_mck,namem_mck,prjmm1,m1mm1, na2mem,
      &         sromm1
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"

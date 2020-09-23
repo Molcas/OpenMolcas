@@ -64,8 +64,6 @@
       use Symmetry_Info, only: nIrrep, iOper, iChBas
       use Real_Info, only: ThrInt, CutInt
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 *

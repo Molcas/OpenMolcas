@@ -40,8 +40,6 @@
       use Basis_Info, only: nBas, nBas_Aux
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
 #include "print.fh"

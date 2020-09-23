@@ -39,8 +39,6 @@
       use Real_Info, only: ThrInt, CutInt
       Implicit Real*8 (A-H,O-Z)
       External EFP_On
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "iprlv.fh"
       Logical Do_OFemb,KEonly,OFE_first

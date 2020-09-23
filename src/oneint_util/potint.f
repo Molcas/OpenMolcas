@@ -37,8 +37,6 @@
       Implicit Real*8 (A-H,O-Z)
 *     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "oneswi.fh"
 #include "print.fh"
@@ -148,8 +146,6 @@ c Avoid unused argument warnings
       use Basis_Info
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8  CCoor(3,nGrid),pot(nGrid)

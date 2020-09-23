@@ -28,8 +28,6 @@
 #include "SysDef.fh"
 #include "print.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"

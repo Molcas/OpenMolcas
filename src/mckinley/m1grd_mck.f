@@ -40,8 +40,6 @@
       External TNAI1, Fake, Cff2D
 #include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "disp.fh"
 #include "disp2.fh"

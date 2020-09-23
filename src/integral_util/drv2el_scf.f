@@ -58,8 +58,6 @@
       use Real_Info, only: ThrInt, CutInt
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "real.fh"

@@ -14,8 +14,6 @@
       use Symmetry_Info, only: nIrrep, iChTbl, iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 c#include "print.fh"
       Real*8 ArrIn (nb,*),
      &       ArrOut(nb,*)

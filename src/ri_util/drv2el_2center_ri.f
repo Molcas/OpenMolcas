@@ -48,8 +48,6 @@
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut
 #include "Molcas.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "setup.fh"
 #include "print.fh"
 #include "real.fh"

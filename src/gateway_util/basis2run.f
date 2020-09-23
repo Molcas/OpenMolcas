@@ -14,8 +14,6 @@
       use Sizes_of_Seward, only: S
       use Symmetry_Info, only: nIrrep
       Implicit None
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
       integer :: nPrim
       integer :: kExp

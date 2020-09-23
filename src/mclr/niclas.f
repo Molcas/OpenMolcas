@@ -17,8 +17,6 @@
 * eaw 970909
       Implicit Real*8(a-h,o-z)
 #include "WrkSpc.fh"
-#include "itmax.fh"
-#include "info.fh"
 
 #include "SysDef.fh"
       Real*8 H(*)

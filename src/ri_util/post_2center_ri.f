@@ -42,8 +42,6 @@
       use Temporary_Parameters, only: force_out_of_core
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "setup.fh"
 #include "print.fh"
 #include "real.fh"

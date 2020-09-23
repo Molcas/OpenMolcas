@@ -34,8 +34,6 @@
       use Logical_Info, only: Align_Only, Do_Align, lRP, lRP_Post
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
@@ -769,8 +767,6 @@
       Integer nAt,mAt
       Real*8 A(3,nAt),B(3,nAt)
       Logical Found
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 TMass
@@ -819,8 +815,6 @@
       Implicit Real*8 (a-h,o-z)
       Real*8 Reac(mynRP),Prod(mynRP),TanVec(mynRP),norm
       Logical Found,Invar
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Integer, Dimension(:), Allocatable :: iStab

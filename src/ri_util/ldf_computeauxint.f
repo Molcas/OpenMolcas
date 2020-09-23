@@ -284,8 +284,6 @@ C
       Integer jAO
       Integer nPrp
       Real*8  PrpInt(nPrp)
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "localdf_bas.fh"
 
@@ -536,8 +534,6 @@ C
       Integer iCount
       Integer nPrp
       Real*8  PrpInt(nPrp)
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "localdf_bas.fh"
 #include "localdf_int.fh"

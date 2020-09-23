@@ -50,8 +50,6 @@
 #include "ndarray.fh"
       External Cmpct
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "nsd.fh"

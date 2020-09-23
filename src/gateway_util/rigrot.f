@@ -43,8 +43,6 @@
       use Real_Info, only: TMass, CoM, rMI, Prin, PAX
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 CoorIn(3,nAtm), rM(nAtm), XI(3)

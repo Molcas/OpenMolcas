@@ -23,8 +23,6 @@
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "real.fh"
       Real*8, Dimension(:), Allocatable :: Out, Nuc, TMat, Temp, El,

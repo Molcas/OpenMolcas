@@ -41,8 +41,6 @@
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Do_NInt_d, Do_NInt
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"

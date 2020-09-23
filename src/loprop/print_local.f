@@ -17,8 +17,6 @@
       use Real_Spherical
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"

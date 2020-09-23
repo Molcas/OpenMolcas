@@ -16,8 +16,6 @@
 #include "rctfld.fh"
 #include "status.fh"
 #include "stdalloc.fh"
-#include "itmax.fh"
-#include "info.fh"
        Logical NonEq
 *
        tK=1.0D-99 ! Boltzman factor, initial set to 0 K

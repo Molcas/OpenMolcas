@@ -30,8 +30,6 @@
       use Basis_Info
       Implicit Real*8 (A-H,O-Z)
       Logical Print
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"

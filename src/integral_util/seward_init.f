@@ -26,8 +26,6 @@
       implicit real*8 (a-h,o-z)
       External Reduce_Prt
       Logical Reduce_Prt
-#include "itmax.fh"
-#include "info.fh"
 #include "pstat.fh"
 #include "print.fh"
 #include "notab.fh"

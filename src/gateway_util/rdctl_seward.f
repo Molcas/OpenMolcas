@@ -41,7 +41,6 @@
 #include "para_info.fh"
 *
 #include "angtp.fh"
-#include "info.fh"
 #include "constants.fh"
 #include "constants2.fh"
 #include "SysDef.fh"

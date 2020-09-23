@@ -47,8 +47,6 @@
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
       Real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp),
      &       SOInt(ijkl,nSOInt), Aux(nAux)

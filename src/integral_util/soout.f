@@ -10,9 +10,7 @@
 ************************************************************************
       Subroutine SOOUT(label,cnt_ico,phase_ico)
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
 #include "Molcas.fh"
-#include "info.fh"
       Integer cnt_ico(0:7,*),phase_ico(0:7,*)
       Character Label(MaxBfn+MaxBfn_Aux)*(LENIN8)
 *
@@ -28,9 +26,7 @@
       use Real_Spherical, only: iSphCr, LblCBs, LblSBs
       Implicit Real*8 (a-h,o-z)
 *
-#include "itmax.fh"
 #include "Molcas.fh"
-#include "info.fh"
 #include "real.fh"
 *
       Character ChTemp*8, Mamn(nMamn)*(LENIN8)

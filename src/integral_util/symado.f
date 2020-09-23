@@ -13,8 +13,6 @@
       use Symmetry_Info, only: nIrrep, iChTbl, iOper
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
       Real*8 ArrIn (nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
      &       ArrOut(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
      &       Prmt(0:7)

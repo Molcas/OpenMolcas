@@ -29,9 +29,7 @@
       use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
 #include "etwas.fh"
-#include "info.fh"
 c#include "print.fh"
       Real*8 AOInt(nkl,nij),MOint(nMO),
      &       Temp1(nTemp),Temp2(naco,naco),

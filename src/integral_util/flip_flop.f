@@ -13,8 +13,6 @@
        use Sizes_of_Seward, only:S
        Implicit Real*8 (a-h,o-z)
        Logical Primitive
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"

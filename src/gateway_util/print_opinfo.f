@@ -16,8 +16,6 @@
       use External_Centers
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "rmat.fh"
       Character*72 tempStr

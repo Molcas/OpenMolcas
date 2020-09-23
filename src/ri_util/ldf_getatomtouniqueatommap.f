@@ -24,8 +24,6 @@ C              (i is an index in the LDF Atom Info list)
 C
       Implicit Real*8 (A-H,O-Z)
       Integer A2UA(nA)
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 
 #if defined (_DEBUG_)

@@ -26,8 +26,6 @@
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iChTbl, iOper
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
       Integer iStabO(8)
 *

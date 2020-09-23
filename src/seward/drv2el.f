@@ -38,8 +38,6 @@
       use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Rsv_GTList
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"

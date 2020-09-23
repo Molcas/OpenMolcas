@@ -37,8 +37,6 @@
       use Sizes_of_Seward, only: S
       use Logical_Info, only: GIAO
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
       Logical DoRys
       Integer nDiff
 *

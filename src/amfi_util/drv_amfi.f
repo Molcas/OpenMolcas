@@ -18,7 +18,6 @@
       External Rsv_Tsk
 #include "Molcas.fh"
 #include "angtp.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "nsd.fh"

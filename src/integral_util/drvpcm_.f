@@ -23,8 +23,6 @@
      &       VTessera(2,nTs), VSave(2,Nts), QTessera(2,nTs),
      &       QTessera_Slow(nTs),VSlow(nTs), Origin(3)
 #include "SysDef.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"

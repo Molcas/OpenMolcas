@@ -64,7 +64,6 @@
       External KrnlMm
 #include "Molcas.fh"
 #include "angtp.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"

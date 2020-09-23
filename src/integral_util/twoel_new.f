@@ -66,8 +66,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "twoswi.fh"
       Real*8 SOInt(iBasi*jBasj*kBask*lBasl,nSOInt)
@@ -839,8 +837,6 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "twoswi.fh"
       Real*8 Coor(3,4), CoorAC(3,2),

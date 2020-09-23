@@ -36,8 +36,6 @@
       use Real_Info, only: ThrInt, CutInt
       Implicit None
       External No_Routine
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "setup.fh"

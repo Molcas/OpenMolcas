@@ -27,8 +27,6 @@
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
@@ -127,8 +125,6 @@ c Avoid unused argument warnings
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "WrkSpc.fh"

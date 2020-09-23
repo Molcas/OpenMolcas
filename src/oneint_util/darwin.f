@@ -29,8 +29,6 @@
       use Basis_Info
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "constants.fh"
 #include "WrkSpc.fh"
 #include "print.fh"

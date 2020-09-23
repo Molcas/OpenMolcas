@@ -30,9 +30,7 @@
       use iSD_data
       use k2_arrays, only: DeDe, ipDijS
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
 #include "Molcas.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "real.fh"
 #include "print.fh"

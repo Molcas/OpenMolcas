@@ -32,8 +32,6 @@
 #include "Molcas.fh"
 #include "print.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "disp2.fh"
       Real*8 A(3), B(3), RB(3), Grad(nGrad)

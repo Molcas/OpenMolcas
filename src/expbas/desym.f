@@ -43,8 +43,6 @@
       use Symmetry_Info, only: nIrrep, lIrrep
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "info_expbas.fh"

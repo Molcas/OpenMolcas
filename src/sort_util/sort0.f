@@ -88,8 +88,6 @@
       Use Real_Info, only: PkAcc
       Implicit Integer (A-Z)
 *
-#include "itmax.fh"
-#include "info.fh"
 #include "TwoDat.fh"
 #include "srt0.fh"
 #include "srt1.fh"

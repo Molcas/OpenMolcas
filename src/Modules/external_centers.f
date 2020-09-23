@@ -46,7 +46,6 @@
 *                                                                      *
       Subroutine External_Centers_Dmp()
 #include "angtp.fh"
-#include "info.fh"
       Real*8, Allocatable:: RP_Temp(:,:,:)
       Integer, Allocatable:: iDmp(:)
       Real*8, Allocatable:: DMS_Ext(:,:)

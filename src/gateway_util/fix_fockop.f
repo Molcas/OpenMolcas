@@ -33,9 +33,8 @@
       use Sizes_of_Seward, only: S
       use Logical_Info, only: UnNorm, Do_FckInt, FNMC
       Implicit Real*8 (A-H,O-Z)
-#include "Molcas.fh"
 #include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "stdalloc.fh"
 #include "real.fh"
 #include "print.fh"

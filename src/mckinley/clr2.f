@@ -21,9 +21,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
 #include "etwas.fh"
-#include "info.fh"
 #include "buffer.fh"
 #include "disp.fh"
 #include "disp2.fh"

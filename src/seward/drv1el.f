@@ -82,8 +82,6 @@
       logical lPAM2np,lPAM2
       logical lPP, lFAIEMP
 #include "Molcas.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "nq_info.fh"
 #include "real.fh"

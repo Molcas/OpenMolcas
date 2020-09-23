@@ -29,7 +29,6 @@
       use RICD_Info, only: Thrshld_CD
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "info.fh"
 #include "relmp.fh"
 #include "real.fh"
 #include "print.fh"

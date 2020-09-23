@@ -64,8 +64,6 @@
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_WrOut2, Integral_RI_3
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "warnings.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"

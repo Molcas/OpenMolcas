@@ -31,8 +31,6 @@
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iChTbl, iChBas
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
       Real*8 g2(78),  Prmt(0:7),Hess(nHess)
       Logical IfHss(4,3,4,3),Tr(4),IfGr(4)

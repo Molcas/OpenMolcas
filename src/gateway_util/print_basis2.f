@@ -16,7 +16,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "angtp.fh"
-#include "info.fh"
 #include "print.fh"
       Logical output
       Logical lAux, lPam2, lECP, lPP, lFAIEMP

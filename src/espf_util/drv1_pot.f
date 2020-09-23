@@ -49,7 +49,6 @@
       use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
@@ -392,8 +391,6 @@ c----------------------------------------------------------------------
       Implicit Real*8 (A-H,O-Z)
 *     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "oneswi.fh"

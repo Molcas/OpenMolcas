@@ -46,8 +46,6 @@
       Implicit Integer (A-Z)
 *
 
-#include "itmax.fh"
-#include "info.fh"
 #include "FileIDs.fh"
 #include "TwoDat.fh"
 #include "srt0.fh"

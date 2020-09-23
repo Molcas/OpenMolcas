@@ -37,8 +37,6 @@
       Integer AixRm
       External Get_Cho_1Center,AixRm
 #include "Molcas.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "status.fh"
 #include "gateway.fh"
 #include "rctfld.fh"

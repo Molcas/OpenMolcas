@@ -48,8 +48,6 @@
       Implicit Real*8 (A-H,O-Z)
       External TERISq, ModU2, Cff2Dq, xRys2D
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
       Real*8  CoorM(3,4), CoorAC(3,2), HMtrx(nHrrMtrx,2),

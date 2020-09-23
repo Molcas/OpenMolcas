@@ -31,8 +31,6 @@
       External ElGrd,elgrddot
       External ElMem
 #include "Molcas.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "disp.fh"
       Character*8 Lbl

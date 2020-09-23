@@ -12,9 +12,8 @@
       use Basis_Info
       use Symmetry_Info, only: nIrrep
       implicit real*8(a-h,o-z)
-#include "Molcas.fh"
 #include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "rinfo.fh"
 #include "stdalloc.fh"
 #include "real.fh"

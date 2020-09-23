@@ -11,8 +11,6 @@
       Integer Function nMo(mIrr)
       use Symmetry_Info, only: nIrrep
       Implicit Integer (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 #include "etwas.fh"
       nInt=0
       nA=0

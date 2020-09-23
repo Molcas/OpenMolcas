@@ -27,8 +27,6 @@
       use Symmetry_Info, only: nIrrep, iChTbl, iOper, lIrrep, lBsFnc,
      &                         SymLab
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "gateway.fh"

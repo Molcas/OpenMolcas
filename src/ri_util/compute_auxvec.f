@@ -16,8 +16,6 @@
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
       Integer ipVk(nProc), ipUk(nProc), ipZpk(nProc)
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
 #include "cholesky.fh"

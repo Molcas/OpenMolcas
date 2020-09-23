@@ -34,8 +34,6 @@
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
       External CmpctR, CmpctS
-#include "itmax.fh"
-#include "info.fh"
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
 #include "stdalloc.fh"
@@ -166,8 +164,6 @@
 *                                                                      *
       Function iPD(iSO_,jSO_,iSOSym,nSOs)
       use Basis_Info, only: nBas
-#include "itmax.fh"
-#include "info.fh"
       Integer iPD
       Integer iSOSym(2,nSOs)
 *

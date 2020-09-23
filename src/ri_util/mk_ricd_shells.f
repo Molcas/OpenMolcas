@@ -35,8 +35,6 @@
       use RICD_Info, only: Do_acCD_Basis, Skip_High_AC, Do_nacCD_Basis,
      &                     Thrshld_CD
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "SysDef.fh"
 #include "real.fh"
 #include "print.fh"
@@ -193,8 +191,6 @@ C      iPrint=99
 *     Experimental code to be used with care.                          *
 *                                                                      *
 ************************************************************************
-#include "itmax.fh"
-#include "info.fh"
       Integer iD(nD), List2(mData,nTheta_All)
       Logical Skip
 *
