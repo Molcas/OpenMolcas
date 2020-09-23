@@ -81,7 +81,6 @@ C
       Do_FckInt=.True.
       Do_GuessOrb=.True.
 *
-      Do_acCD_Basis=.True.
       Do_nacCD_Basis=.False.
       Skip_High_AC = .False.
       LocalDF=.False.

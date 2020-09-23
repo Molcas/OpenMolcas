@@ -28,7 +28,8 @@
       use Real_Info, only: ThrInt, Rtrnc, CutInt, PkAcc, Thrs, E1, E2,
      &                     RPQMin, SadStep, Shake
       use DKH_Info
-      use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky
+      use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky,
+     &                     Do_acCD_Basis
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif

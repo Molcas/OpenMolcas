@@ -11,12 +11,13 @@
 !
 Module RICD_Info
 Private
-Public :: iRI_Type, LDF, Do_RI, Cholesky, &
+Public :: iRI_Type, LDF, Do_RI, Cholesky, Do_acCD_Basis, &
           RICD_Info_Dmp, RICD_Info_Get
 Integer :: iRI_Type=-1
 Logical :: LDF=.False.
 Logical :: Do_RI=.False.
 Logical :: Cholesky=.False.
+Logical :: Do_acCD_Basis=.True.
 #include "stdalloc.fh"
 
 Contains
@@ -24,7 +25,7 @@ Contains
 Subroutine RICD_Info_Dmp()
   Real*8, Allocatable:: rDmp(:)
   Integer i
-  Integer:: Len=4
+  Integer:: Len=5
 
   Call mma_allocate(rDmp,Len,Label='rDmp:RICD')
 
@@ -38,6 +39,10 @@ Subroutine RICD_Info_Dmp()
   i = 0
   If (Cholesky) i = 1
   rDmp(4) = i
+  i = 0
+  If (Do_acCD_Basis) i = 1
+  rDmp(5) = i
+
 
   Call Put_dArray('RICD_Info',rDmp,Len)
   Call mma_deallocate(rDmp)
@@ -46,7 +51,7 @@ End Subroutine RICD_Info_Dmp
 
 Subroutine RICD_Info_Get()
   Real*8, Allocatable:: rDmp(:)
-  Integer:: Len=4
+  Integer:: Len=5
 
   Call mma_allocate(rDmp,Len,Label='rDmp:RICD')
   Call Get_dArray('RICD_Info',rDmp,Len)
@@ -55,6 +60,7 @@ Subroutine RICD_Info_Get()
   LDF = NINT(rDmp(2)).eq.1
   Do_RI = NINT(rDmp(3)).eq.1
   Cholesky = NINT(rDmp(4)).eq.1
+  Do_acCD_Basis = NINT(rDmp(5)).eq.1
 
   Call mma_deallocate(rDmp)
 End Subroutine RICD_Info_Get
