@@ -20,7 +20,7 @@
 
 project (Molcas Fortran C)
 
-cmake_minimum_required (VERSION 3.7.0)
+cmake_minimum_required (VERSION 3.12.0)
 #set (CMAKE_VERBOSE_MAKEFILE true)
 if (POLICY CMP0042)
   cmake_policy(SET CMP0042 NEW)
