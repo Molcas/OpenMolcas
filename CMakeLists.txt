@@ -18,6 +18,8 @@
 # Ignacio Fdez. Galván made several improvements / additions
 # Lasse Sørensen - Mac CMP0042 fix
 
+project (Molcas Fortran C)
+
 cmake_minimum_required (VERSION 3.7.0)
 #set (CMAKE_VERBOSE_MAKEFILE true)
 if (POLICY CMP0042)
@@ -155,6 +157,10 @@ option (TOOLS "Compile supported tools." OFF)
 
 option (CTEST "Enable CTest." OFF)
 mark_as_advanced (CTEST)
+# Refactored according to: https://cliutils.gitlab.io/modern-cmake/chapters/testing.html
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    include(CTest)
+endif()
 
 # External projects
 option (MSYM       "Activate MSYM support (requires External/libmsym submodule)."                               OFF)
@@ -240,12 +246,8 @@ set (ENV{CMAKE_SESSION} "OpenMolcas")
 #=====================================
 message ("Configuring compilers:")
 
-if (EFPLIB)
-  cmake_minimum_required (VERSION 3.0.2)
-endif ()
 if (DMRG)
-  project (Molcas Fortran C CXX)
-  cmake_minimum_required (VERSION 3.2.0)
+  enable_language(CXX)
   if (NOT DEFINED QCMaquis_ROOT)
     if (DEFINED ENV{QCMaquis_ROOT})
       set (QCMaquis_ROOT $ENV{QCMaquis_ROOT})
@@ -254,11 +256,11 @@ if (DMRG)
     endif ()
     set (QCMaquis_ROOT ${QCMaquis_ROOT} CACHE STRING "Specify path to existing QCMaquis installation. This will allow to skip the installation of ALPS/BOOST and QCMaquis.")
   endif ()
-elseif (WFA)
-  project (Molcas Fortran C CXX)
-else ()
-  project (Molcas Fortran C)
-endif ()
+endif()
+
+if (WFA)
+  enable_language(CXX)
+endif()
 
 #avoid using CXX compiler for linking
 set (CMAKE_CXX_LINKER_PREFERENCE_PROPAGATES FALSE)
@@ -3146,44 +3148,50 @@ endforeach ()
 #                                                                              #
 ################################################################################
 
-if (CTEST)
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
   enable_testing()
 
-  set (MODULENAMES ${PROJECT_SOURCE_DIR}/sbin/modulenames.plx)
-  file (STRINGS ${PROJECT_BINARY_DIR}/test/testdirs testdirs)
-  set (known_groups "")
-  foreach (dir ${testdirs})
-    file (GLOB groups RELATIVE ${dir} ${dir}/*)
-    foreach (group ${groups})
-      list (FIND known_groups ${group} _index)
-      if (_index GREATER -1)
-        break ()
-      else ()
-        list (APPEND known_groups ${group})
-      endif ()
-      file (GLOB inputs RELATIVE ${dir}/${group} ${dir}/${group}/*)
-      list (SORT inputs)
-      foreach (input ${inputs})
-        string (REGEX MATCH "^([^.]+).input$" match ${input})
-        if (NOT ${match} STREQUAL "")
-          set (number ${CMAKE_MATCH_1})
-          execute_process (
-            COMMAND ${MODULENAMES} ${dir}/${group}/${input}
-            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-            OUTPUT_VARIABLE module_names
-          )
-          add_test (
-            NAME "${group}-${CMAKE_MATCH_1}__${module_names}"
-            COMMAND ${MOLCAS_DRIVER} verify -q "${group}:${number}"
-          )
-          set_property (
-            TEST "${group}-${CMAKE_MATCH_1}__${module_names}"
-            PROPERTY ENVIRONMENT MOLCAS=${PROJECT_BINARY_DIR}
-          )
+# unit tests
+  add_subdirectory(unit_tests)
+
+  if (CTEST)
+# old style molcas tests
+    set (MODULENAMES ${PROJECT_SOURCE_DIR}/sbin/modulenames.plx)
+    file (STRINGS ${PROJECT_BINARY_DIR}/test/testdirs testdirs)
+    set (known_groups "")
+    foreach (dir ${testdirs})
+      file (GLOB groups RELATIVE ${dir} ${dir}/*)
+      foreach (group ${groups})
+        list (FIND known_groups ${group} _index)
+        if (_index GREATER -1)
+          break ()
+        else ()
+          list (APPEND known_groups ${group})
         endif ()
+        file (GLOB inputs RELATIVE ${dir}/${group} ${dir}/${group}/*)
+        list (SORT inputs)
+        foreach (input ${inputs})
+          string (REGEX MATCH "^([^.]+).input$" match ${input})
+          if (NOT ${match} STREQUAL "")
+            set (number ${CMAKE_MATCH_1})
+            execute_process (
+              COMMAND ${MODULENAMES} ${dir}/${group}/${input}
+              WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+              OUTPUT_VARIABLE module_names
+            )
+            add_test (
+              NAME "${group}-${CMAKE_MATCH_1}__${module_names}"
+              COMMAND ${MOLCAS_DRIVER} verify -q "${group}:${number}"
+            )
+            set_property (
+              TEST "${group}-${CMAKE_MATCH_1}__${module_names}"
+              PROPERTY ENVIRONMENT MOLCAS=${PROJECT_BINARY_DIR}
+            )
+          endif ()
+        endforeach ()
       endforeach ()
     endforeach ()
-  endforeach ()
+  endif()
 endif ()
 
 ################################################################################
