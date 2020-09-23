@@ -13,10 +13,11 @@ Module Real_Info
 Private
 Public :: AccMch, ThrInt, PotNuc, Rtrnc, CutInt, TMass, qNuc, PkAcc, &
           Thrs, RadMax, cdMax, EtMax, E1, E2, RPQMin, SadStep, Shake,&
-          ChiI2, &
+          ChiI2, CoM, &
           Real_Info_Dmp, Real_Info_Get
 
 #include "stdalloc.fh"
+Integer i
 Real*8 ::AccMch  =1.d-15
 Real*8 ::ThrInt  =1.d-14
 Real*8 ::PotNuc  =0.0D0
@@ -36,13 +37,14 @@ Real*8 ::SadStep =0.1d0
 Real*8 ::CLight_Info=0.0D0
 Real*8 ::Shake   =-1.0D0
 Real*8 ::ChiI2   =0.0D0
+Real*8 :: CoM(3)=[(0.0D0,i=1,3)]
 
 Contains
 
 Subroutine Real_Info_Dmp()
 #include "RelLight.fh"
   Real*8, Allocatable:: rDmp(:)
-  Integer:: Len=19
+  Integer:: Len=22
 
   CLight_Info=CLightAU
   Call mma_allocate(rDmp,Len,Label='rDmp:Real')
@@ -66,6 +68,8 @@ Subroutine Real_Info_Dmp()
   rDmp(17)=CLight_Info
   rDmp(18)=Shake
   rDmp(19)=ChiI2
+  rDmp(20:22)= CoM(1:3)
+
   Call Put_dArray('Real_Info',rDmp,Len)
   Call mma_deallocate(rDmp)
 End Subroutine Real_Info_Dmp
@@ -73,7 +77,7 @@ End Subroutine Real_Info_Dmp
 Subroutine Real_Info_Get()
 #include "RelLight.fh"
   Real*8, Allocatable:: rDmp(:)
-  Integer:: Len=19
+  Integer:: Len=22
 
   Call mma_allocate(rDmp,Len,Label='rDmp:Real')
   Call Get_dArray('Real_Info',rDmp,Len)
@@ -97,6 +101,7 @@ Subroutine Real_Info_Get()
   CLight_Info= rDmp(17)
   Shake      = rDmp(18)
   ChiI2      = rDmp(19)
+  CoM(1:3)   = rDmp(20:22)
 
   Call mma_deallocate(rDmp)
 

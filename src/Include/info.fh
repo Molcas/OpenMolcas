@@ -60,7 +60,6 @@
 *                                                                      *
 ************************************************************************
 * -> Real*8 <-                                                         *
-*     CoM   : cartesian coordinates of the center of mass              *
 *     rMI   : lower triangular form for the moment of inertia tensor   *
 *     Prin  : moment of inertia of the principle axis                  *
 *     PAx   : vector of the principle axis                             *
@@ -70,8 +69,8 @@
 *     KVector: the k-vector of the EMFR                                *
 ************************************************************************
       Real*8         rxStrt, rxEnd
-      Real*8         CoM(3), rMI(6), Dxyz(3),Prin(3),PAx(9), CoC(3),
+      Real*8         rMI(6), Dxyz(3),Prin(3),PAx(9), CoC(3),
      &               KVector(3)
       Common /RInfo/ rxStrt,  ! Put never ever anything before rxStrt!!!
-     &               CoM, rMI, Prin, PAx, CoC, Dxyz, KVector,
+     &               rMI, Prin, PAx, CoC, Dxyz, KVector,
      &               rxEnd      ! Put never ever anything after rxEnd!!!

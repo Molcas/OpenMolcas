@@ -14,7 +14,7 @@
       use Center_Info
       use Symmetry_Info, only: iChCar
       use Sizes_of_Seward, only: S
-      use Real_Info, only: TMass, qNuc
+      use Real_Info, only: TMass, qNuc, CoM
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

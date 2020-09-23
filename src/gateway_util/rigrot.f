@@ -40,7 +40,7 @@
 *             November '90                                             *
 ************************************************************************
       use Sizes_of_Seward, only: S
-      use Real_Info, only: TMass
+      use Real_Info, only: TMass, CoM
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"
