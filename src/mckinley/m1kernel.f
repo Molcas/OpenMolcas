@@ -19,6 +19,7 @@
 
       use Real_Spherical
       use Basis_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
 #include "Molcas.fh"

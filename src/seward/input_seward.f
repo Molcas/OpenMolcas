@@ -46,6 +46,7 @@
       use Basis_Info, only: nBas
       use Temporary_Parameters, only: Test, PrPrt, Primitive_Pass
       use Logical_Info, only: Do_GuessOrb
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "itmax.fh"

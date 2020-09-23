@@ -53,7 +53,7 @@
       use MpmC
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: lIrrep
+      use Symmetry_Info, only: nIrrep, lIrrep
       use LundIO
       use Temporary_Parameters
       use Integral_parameters, only: iPack, iWROpt

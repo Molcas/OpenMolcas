@@ -32,7 +32,7 @@
 *                                                                      *
 *              March 2000                                              *
 ************************************************************************
-      use Symmetry_Info, only: iChBas
+      use Symmetry_Info, only: nIrrep, iChBas
       use Basis_Info, only: nBas
       use Temporary_Parameters, only: PrPrt
       Implicit Real*8 (a-h,o-z)

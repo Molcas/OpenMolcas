@@ -12,6 +12,7 @@
      &                  jfgrd,jfhss,jndgrd,jndhss,tr,ifg)
       use Real_Spherical
       use Center_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "real.fh"

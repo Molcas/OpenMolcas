@@ -28,7 +28,7 @@
       use Real_Spherical
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: lIrrep
+      use Symmetry_Info, only: nIrrep, lIrrep
       use Sizes_of_Seward, only: S
       implicit real*8 (a-h,o-z)
 #include "Molcas.fh"

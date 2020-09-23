@@ -28,6 +28,7 @@
       use SOAO_Info, only: iAOtSO, iOffSO
       use lw_Info
       use Real_Info, only: ThrInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

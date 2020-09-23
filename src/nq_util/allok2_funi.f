@@ -31,6 +31,7 @@
       use iSD_data
       use k2_arrays
       use IOBUF
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"

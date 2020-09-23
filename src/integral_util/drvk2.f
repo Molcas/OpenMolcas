@@ -42,7 +42,7 @@
       use iSD_data
       use k2_arrays
       use Basis_Info
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
       use Temporary_parameters, only: force_part_c
       use Sizes_of_Seward, only: S
       use Logical_Info, only: lSchw

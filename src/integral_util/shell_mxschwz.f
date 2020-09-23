@@ -20,6 +20,7 @@ c----------------------------------------------------------------------
       use k2_arrays
       use iSD_data
       use Basis_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       Integer nSkal
       Real*8 Schwz_Shl(nSkal,nSkal)

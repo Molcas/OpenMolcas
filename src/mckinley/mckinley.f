@@ -48,6 +48,7 @@
       use Real_Spherical
       use Basis_Info
       use Temporary_Parameters
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 *
 #include "Molcas.fh"

@@ -24,6 +24,7 @@
 *             December 2001                                            *
 ************************************************************************
       use iSD_data
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "real.fh"

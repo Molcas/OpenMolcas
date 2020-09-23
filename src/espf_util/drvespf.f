@@ -15,6 +15,7 @@
 *     piece of (extinct) integral_util/drvprop subroutine
 *
       use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "espf.fh"
 *

@@ -12,6 +12,7 @@
 ************************************************************************
       SubRoutine CtrlMO(moip,nAcO)
 *
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"

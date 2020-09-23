@@ -42,6 +42,7 @@
 ************************************************************************
       use Her_RW
       use Center_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

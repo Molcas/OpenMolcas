@@ -24,7 +24,7 @@
       Subroutine SOCtl_mod(Mamn,nMamn,Cnt_ico,Phase_ico)
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iChTbl, iChBas
+      use Symmetry_Info, only: nIrrep, iChTbl, iChBas
       use Real_Spherical, only: iSphCr, LblCBs, LblSBs
       Implicit Real*8 (a-h,o-z)
 *

@@ -53,7 +53,7 @@ C
 C     Purpose: set up info for calculating multipole integrals.
 C
       use MpmC
-      use Symmetry_Info, only: iChBas
+      use Symmetry_Info, only: nIrrep, iChBas
       use Sizes_of_Seward, only: S
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"

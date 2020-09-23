@@ -31,7 +31,7 @@
       use Center_Info
       use PCM_arrays, only: PCM_SQ, PCMTess, MM
       use External_Centers
-      use Symmetry_Info, only: iChBas
+      use Symmetry_Info, only: iChBas, nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "SysDef.fh"

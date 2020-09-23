@@ -25,7 +25,7 @@
 *     Author: Anders Bernhardsson, Dept. of Theoretical Chemistry,     *
 *             University of Lund, Sweden. Januar '96                   *
 ************************************************************************
-      use Symmetry_Info, only: iChTbl, iOper
+      use Symmetry_Info, only: nIrrep, iChTbl, iOper
       use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"

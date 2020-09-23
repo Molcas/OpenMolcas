@@ -12,7 +12,7 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: iChTbl, iOper, iChBas, lIrrep, lBsFnc,
-     &                         iSkip
+     &                         iSkip, nIrrep
       use SOAO_Info, only: SOAO_Info_Init, nSOInf, iSOInf, iAOtSO,
      &                     iOffSO
       use real_spherical, only: iSphCr, LblCBs, LblSBs

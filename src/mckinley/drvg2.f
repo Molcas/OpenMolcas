@@ -48,7 +48,7 @@
       use k2_arrays
       use pso_stuff
       use Basis_Info
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
       use Sizes_of_Seward, only:S
       use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)

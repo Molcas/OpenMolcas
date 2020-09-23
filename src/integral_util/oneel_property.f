@@ -12,6 +12,7 @@
      &                          CCoor,nOrdOp,rNuc,rHrmt,iChO,
      &                          D_tot,nDens,Property,Sig)
       use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
 #include "itmax.fh"

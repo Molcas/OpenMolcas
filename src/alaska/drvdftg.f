@@ -28,6 +28,7 @@
 *             August 2002                                              *
 ************************************************************************
       use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "itmax.fh"

@@ -21,7 +21,7 @@
       use fortran_strings, only : str
       use External_Centers
       use Symmetry_Info, only: Symmetry_Info_Back, Symmetry_Info_Setup,
-     &                         iSkip
+     &                         iSkip, nIrrep
       use Temporary_Parameters
       use Integral_Parameters
       use Sizes_of_Seward, Only: S
@@ -4323,10 +4323,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     Set up Symmetry_Info
 *
       Call Symmetry_Info_Setup(nOper,Oper,Max(S%iAngMx,3))
-
-* temporary back port while nIrrep is still available in info.fh
-
-      Call Symmetry_Info_Back(nIrrep)
 
       If (lSkip) then
          Call Put_Ln(ChSkip)

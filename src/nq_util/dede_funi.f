@@ -11,6 +11,7 @@
       Subroutine DeDe_Funi(Dens,nDens,nr_of_Densities)
       use k2_arrays
       use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

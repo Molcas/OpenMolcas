@@ -29,6 +29,7 @@
       use PrpPnt
       use Basis_Info, only: nBas
       use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

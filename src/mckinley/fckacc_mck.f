@@ -61,7 +61,7 @@
 *             of Lund, Sweden. February '93                            *
 ************************************************************************
       use Basis_Info
-      use Symmetry_Info, only: iChTbl, iOper, iChBas
+      use Symmetry_Info, only: nIrrep, iChTbl, iOper, iChBas
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       use Real_Info, only: CutInt
@@ -703,7 +703,7 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
 *     Modified July '98 in Tokyo by R. Lindh                           *
 ************************************************************************
       use Basis_Info
-      use Symmetry_Info, only: iChTbl, iChBas
+      use Symmetry_Info, only: nIrrep, iChTbl, iChBas
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       use Real_Info, only: ThrInt, CutInt

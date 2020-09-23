@@ -13,6 +13,7 @@
       Subroutine DKRelint_DP
       Use Basis_Info
       use DKH_Info
+      use Symmetry_Info, only: nIrrep
 *
 *     modified by D. Peng, ETH Zurich, October 2011
 *

@@ -19,6 +19,7 @@
 #ifdef _DEBUG_
       use Sizes_of_Seward, only: S
       use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
 #endif
       Implicit Real*8 (A-H,O-Z)
       External EMFInt, EMFMem

@@ -13,6 +13,7 @@
       use Basis_Info, only: nBas, nBas_Aux
       use Temporary_Parameters, only: force_out_of_core
       use RICD_Info, only: Do_RI, Cholesky
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
       Integer ipVk(nProc), ipUk(nProc), ipZpk(nProc)
 #include "itmax.fh"

@@ -13,6 +13,5 @@
 *                                                                      *
 ************************************************************************
       Integer   ixStrt, ixEnd
-      Integer   nIrrep
 *
-      Common /Info/ ixStrt, nIrrep, ixEnd
+      Common /Info/ ixStrt, ixEnd

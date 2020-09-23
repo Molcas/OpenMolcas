@@ -11,6 +11,7 @@
       Subroutine inter1(Label,iBas_Lab,Coor,ZNUC,N_Cent)
       Use Basis_Info
       Use Center_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8(a-h,o-z)
 #include "itmax.fh"
 #include "Molcas.fh"

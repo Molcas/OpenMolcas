@@ -95,6 +95,7 @@ c     use Temporary_parameters, only: force_part_c, force_part_p
       use SOAO_Info, only: iAOtSO
       use pso_stuff
       use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "real.fh"

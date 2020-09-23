@@ -10,7 +10,7 @@
 ************************************************************************
       SubRoutine OpnFls_McKinley()
       use Basis_Info, only: nBas
-      use Symmetry_Info, only: lIrrep
+      use Symmetry_Info, only: nIrrep, lIrrep
       Implicit Real*8(a-h,o-z)
 #include "Molcas.fh"
 #include "itmax.fh"

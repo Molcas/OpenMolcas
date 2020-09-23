@@ -36,6 +36,7 @@
       use index_arrays, only: iSO2Sh
       use Basis_Info, only: nBas
       use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

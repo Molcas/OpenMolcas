@@ -24,6 +24,7 @@
       use Basis_Info, only: nBas, nBas_Aux
       use pso_stuff
       use RICD_Info, only: Do_RI, Cholesky
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "itmax.fh"

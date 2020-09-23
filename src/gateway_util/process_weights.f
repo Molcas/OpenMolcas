@@ -28,6 +28,7 @@
       SUBROUTINE Process_Weights(iPrint)
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: nIrrep
       IMPLICIT REAL*8 (a-h,o-z)
 #include "itmax.fh"
 #include "info.fh"

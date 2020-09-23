@@ -40,6 +40,7 @@
      &                     LocalDF, Do_nacCD_Basis, Thrshld_CD
       use Logical_Info, only: Vlct, lRel, lAMFI, DoFMM, EMFR, GIAO,
      &                        FNMC, lPSOI
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "itmax.fh"

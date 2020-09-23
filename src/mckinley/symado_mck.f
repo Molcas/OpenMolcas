@@ -10,7 +10,7 @@
 ************************************************************************
       SubRoutine SymAdO_mck(ArrIn,nB,ArrOut,nrOp,nop,
      &                  lOper,IndGrd,iu,iv,ifgrd,idCar,trans)
-      use Symmetry_Info, only: iChTbl, iChBas
+      use Symmetry_Info, only: nIrrep, iChTbl, iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

@@ -12,7 +12,7 @@
       use GeoList
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iChCar
+      use Symmetry_Info, only: nIrrep, iChCar
       use Sizes_of_Seward, only: S
       use Real_Info, only: TMass, qNuc, CoM, CoC
       Implicit Real*8 (A-H,O-Z)

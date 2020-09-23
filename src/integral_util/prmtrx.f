@@ -27,6 +27,7 @@
 ************************************************************************
       Use Basis_Info, only: nBas
       use Temporary_Parameters, only: PrPrt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

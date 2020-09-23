@@ -24,9 +24,8 @@
 *              QExit                                                   *
 *                                                                      *
 ************************************************************************
-      use Symmetry_Info, only: iChTbl
+      use Symmetry_Info, only: nIrrep, iChTbl
       Implicit Real*8 (A-H,O-Z)
-c#include "print.fh"
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"

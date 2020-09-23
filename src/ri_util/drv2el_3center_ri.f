@@ -49,6 +49,7 @@
       use Temporary_Parameters, only: force_out_of_core
       use Real_Info, only: CutInt
       use RICD_Info, only: LDF
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_RI_2, Rsv_Tsk
 #include "Molcas.fh"

@@ -121,6 +121,7 @@
       use Center_Info
       use Phase_Info
       use Real_Info, only: CutInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External TERI1, ModU2, Cff2D
 #include "Molcas.fh"

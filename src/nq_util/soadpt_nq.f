@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine SOAdpt_NQ(AOValue,mAO,nCoor,mBas,mBas_Eff,
      &                     nCmp,nOp,SOValue,nDeg,iAO)
-      use Symmetry_Info, only: iChTbl
+      use Symmetry_Info, only: nIrrep, iChTbl
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: MolWgh
       Implicit Real*8 (a-h,o-z)
@@ -24,7 +24,6 @@
       Character*80 Label
       Data iTwoj/1,2,4,8,16,32,64,128/
 *
-      Call QEnter('SOAdpt')
       iRout=133
       iPrint=nPrint(iRout)
 *     Call GetMem('SOAdpt_E','CHEC','REAL',iDum,iDum)
@@ -61,7 +60,5 @@
          End Do
       End If
 *
-*     Call GetMem('SOAdpt_X','CHEC','REAL',iDum,iDum)
-      Call QExit ('SOAdpt')
       Return
       End

@@ -45,6 +45,7 @@
 *              Anders Bernhardsson 1995                                *
 ************************************************************************
       use Real_Spherical
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "real.fh"

@@ -41,6 +41,7 @@
 *             Modified to gradient calculations May '95                *
 ************************************************************************
       use Her_RW
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

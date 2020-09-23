@@ -49,6 +49,7 @@
       use Basis_Info
       use Sizes_of_Seward, only:S
       use Real_Info, only: CutInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Rsv_GTList
 #include "Molcas.fh"

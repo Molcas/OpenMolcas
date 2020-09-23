@@ -13,6 +13,7 @@
       use Center_Info
       use Sizes_of_Seward, only: S
       use Real_Info, only: RadMax, cdMax, EtMax
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "itmax.fh"

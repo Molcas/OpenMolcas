@@ -36,6 +36,7 @@
       use pso_stuff
       use Basis_Info
       use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit None
 #include "itmax.fh"
 #include "info.fh"
@@ -466,7 +467,7 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit None
 #include "real.fh"
 #include "itmax.fh"

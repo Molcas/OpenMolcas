@@ -44,6 +44,7 @@
       use Basis_Info
       use Sizes_of_Seward, only:S
       use Real_Info, only: CutInt
+      use Symmetry_Info, only: nIrrep
       Implicit None
       External King, Rsv_GTList, MPP
 #include "Molcas.fh"

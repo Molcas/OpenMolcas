@@ -31,6 +31,7 @@
       use Center_Info
       use Sizes_of_Seward, only:S
       use Logical_Info, only: FNMC
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
 *     External Kernel, KrnlMm
       External KrnlMm

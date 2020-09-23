@@ -38,7 +38,7 @@
       use iSD_data
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

@@ -86,7 +86,7 @@
 *   @parameter lgrad true if 1st derivatives should be calculated
 *   @parameter tr  true for all centers on which should be calculated via translation invarians
       use vRys_RW
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
       use Real_Info, only: ChiI2
       use Temporary_Parameters, only: IsChi
       Implicit Real*8 (A-H,O-Z)

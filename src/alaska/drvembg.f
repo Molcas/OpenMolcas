@@ -31,6 +31,7 @@
 *             University of Geneva, Switzerland                        *
 ************************************************************************
       use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "itmax.fh"

@@ -62,6 +62,7 @@
       use Center_Info
       use Phase_Info
       use Real_Info, only: ThrInt, CutInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
@@ -834,6 +835,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
       use Basis_Info
       use Center_Info
       use Real_Info, only: ThrInt, CutInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"

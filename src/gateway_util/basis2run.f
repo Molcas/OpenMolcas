@@ -12,6 +12,7 @@
       use Basis_Info
       use Center_Info
       use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit None
 #include "itmax.fh"
 #include "info.fh"

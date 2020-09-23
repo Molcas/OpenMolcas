@@ -33,6 +33,7 @@ C                                                                       C
 C***********************************************************************C
       Use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: nIrrep
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "prgm.fh"

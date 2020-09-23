@@ -51,6 +51,7 @@
       use Temporary_parameters, only: force_part_c, force_part_p
       use Integral_Parameters, only: iWROpt
       use RICD_Info, only: Do_RI, Cholesky
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #include "real.fh"

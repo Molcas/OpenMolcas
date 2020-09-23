@@ -30,6 +30,7 @@
       use External_Centers, only: nOrd_XF, XF
 #endif
       use Phase_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "itmax.fh"

@@ -24,7 +24,8 @@
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
 *             September '06                                            *
 ************************************************************************
-      use Symmetry_Info, only: iChTbl, iOper, lIrrep, lBsFnc, SymLab
+      use Symmetry_Info, only: nIrrep, iChTbl, iOper, lIrrep, lBsFnc,
+     &                         SymLab
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

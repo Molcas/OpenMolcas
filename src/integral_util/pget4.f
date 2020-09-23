@@ -34,6 +34,7 @@
 ************************************************************************
       use SOAO_Info, only: iAOtSO, iOffSO
       use pso_stuff
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "info.fh"

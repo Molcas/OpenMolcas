@@ -32,6 +32,7 @@
      &                                VarT, DirInt
       use Sizes_of_Seward, only: S
       use RICD_Info, only: Do_RI, Cholesky, Cho_OneCenter
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       Integer AixRm
       External Get_Cho_1Center,AixRm
