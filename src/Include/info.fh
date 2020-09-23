@@ -56,13 +56,12 @@
 *                                                                      *
 ************************************************************************
 * -> Real*8 <-                                                         *
-*     CoC   : center of charge of the nuclear charges                  *
 *     Dxyz  : coordinates of the gauge origin in the calculation of the*
 *             magnetic shielding integrals                             *
 *     KVector: the k-vector of the EMFR                                *
 ************************************************************************
       Real*8         rxStrt, rxEnd
-      Real*8         Dxyz(3), CoC(3), KVector(3)
+      Real*8         Dxyz(3), KVector(3)
       Common /RInfo/ rxStrt,  ! Put never ever anything before rxStrt!!!
-     &               CoC, Dxyz, KVector,
+     &               Dxyz, KVector,
      &               rxEnd      ! Put never ever anything after rxEnd!!!
