@@ -67,7 +67,6 @@ C
 *-----LInfo
 *
       IRFLAG1=0
-      EMFR  =.False.
       lUPONLY=.False.
       lDOWNONLY=.False.
       lGENINT=.False.

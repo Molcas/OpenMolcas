@@ -24,14 +24,10 @@
 ************************************************************************
 * -> Logical <-                                                        *
 *     GIAO: integrals for first derivative with respect to B           *
-*     Do_FckInt: logical flag for FckInt                               *
-*     EMFR: Electromagnetic field radiation                            *
 *     FNMC: finite nuclear mass correction                             *
 ************************************************************************
       Integer lxStrt, lxEnd
-      Logical lRP, lRP_Post, Do_Align, EMFR, GIAO,
-     &        lUPONLY, lDOWNONLY, FNMC, lPSOI
+      Logical Do_Align, GIAO, lUPONLY, lDOWNONLY, FNMC, lPSOI
       Common /LInfo/ lxStrt,  ! Put never ever anything before lxStrt!!!
-     &               GIAO, lRP, lRP_Post,  Do_Align,
-     &               EMFR, lUPONLY, lDOWNONLY, FNMC, lPSOI,
+     &               GIAO,  Do_Align, lUPONLY, lDOWNONLY, FNMC, lPSOI,
      &               lxEnd      ! Put never ever anything after lxEnd!!!
