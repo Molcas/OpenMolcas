@@ -103,13 +103,18 @@ endif ()
 option (DEBUGPRINT "Enable excessive print statements for debugging." OFF)
 option (DEBUGTRACE "Enable tracing print statements for debugging." OFF)
 
-set (DEBUG_DEFS_DESC "Additional debugging definitions.")
-if (DEFINED DEBUG_DEFS)
-  separate_arguments(DEBUG_DEFS)
-  set (DEBUG_DEFS "${DEBUG_DEFS}" CACHE STRING "${DEBUG_DEFS_DESC}" FORCE)
-else ()
-  set (DEBUG_DEFS "" CACHE STRING "${DEBUG_DEFS_DESC}")
-endif ()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set (DEBUG_DEFS_DEFAULTS "_DEBUG_")
+else()
+    set (DEBUG_DEFS_DEFAULTS "")
+endif()
+set(builds_with_warnings Debug Garble RelWithDebInfo)
+if (${CMAKE_BUILD_TYPE} IN_LIST builds_with_warnings)
+    set (DEBUG_DEFS_DEFAULTS "${DEBUG_DEFS_DEFAULTS} _WARNING_WORKAROUND_")
+endif()
+set (DEBUG_DEFS "${DEBUG_DEFS_DEFAULTS}" CACHE LIST "Additional debugging definitions.")
+separate_arguments(DEBUG_DEFS)
 
 option (BUILD_SHARED_LIBS "Build dynamically-linked molcas library." OFF)
 option (BUILD_STATIC_LIB "Build statically-linked molcas library too." OFF)
@@ -1109,7 +1114,7 @@ get_filename_component (CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" ABSOLUTE)
 #=========================
 
 if (DEBUGPRINT)
-  add_definitions (-D_DEBUG_)
+  add_definitions (-D_DEBUGPRINT_)
 endif ()
 if (DEBUGTRACE)
   add_definitions (-D_DEBUG_TRACE_)
@@ -2919,6 +2924,7 @@ if (DEBUG_DEFS)
     endforeach ()
   endforeach ()
 endif ()
+
 
 ################################################################################
 #                                                                              #
