@@ -10,6 +10,8 @@
 *                                                                      *
 * Copyright (C) 2020, Oskar Weser                                      *
 ************************************************************************
+#include "macros.fh"
+
       module CC_CI_mod
 #ifdef _MOLCAS_MPP_
       use mpi
@@ -17,6 +19,7 @@
       use definitions, only: MPIInt, wp
       use filesystem, only: chdir_, getcwd_, get_errno_, strerror_,
      &    real_path
+      use linalg_mod, only: verify_, abort_
       use fortran_strings, only: str
       use stdalloc, only : mma_allocate, mma_deallocate, mxMem
 
@@ -30,8 +33,8 @@
       use generic_CI, only: CI_solver_t
       use index_symmetry, only: one_el_idx, two_el_idx,
      &    one_el_idx_flatten, two_el_idx_flatten
-      use CI_solver_util, only: wait_and_read, abort_, RDM_to_runfile,
-     &  assert_, CleanMat
+      use CI_solver_util, only: wait_and_read, RDM_to_runfile,
+     &  CleanMat
 
       implicit none
       save
@@ -181,7 +184,7 @@
         logical, intent(in) :: lRf, DoGAS
         character(*), intent(in) :: KSDFT
         logical :: Do_ESPF
-        call assert_(lroots == 1,
+        call verify_(lroots == 1,
      &               "CC-CI doesn't support State Average!")
 
         call DecideOnESPF(Do_ESPF)
@@ -189,7 +192,7 @@
           call abort_('CC CI does not support Reaction Field yet!')
         end if
 
-        call assert_(.not. DoGAS, 'CC CI does not support GASSCF yet!')
+        call verify_(.not. DoGAS, 'CC CI does not support GASSCF yet!')
       end subroutine check_options
 
       subroutine write_user_message(
@@ -265,8 +268,7 @@
 
         integer :: pq, p, q, r
 
-        call assert_(size(PSMAT) == triangular_number(size(DMAT)),
-     &      'Dimension mismatch PSMAT, DMAT')
+        ASSERT(size(PSMAT) == triangular_number(size(DMAT)))
 
         DMAT(:) = 0._wp
         do pq = lbound(DMAT, 1), ubound(DMAT, 1)
@@ -287,7 +289,7 @@
         integer, parameter :: arbitrary_magic_number = 42
 
 
-        call assert_(size(RDM_2) == nAcpr2, 'Size does not match')
+        ASSERT(size(RDM_2) == nAcpr2)
         n_lines = inv_triang_number(nAcpr2)
 
         file_id = arbitrary_magic_number
@@ -296,7 +298,7 @@
         call molcas_open(file_id, trim(path))
           do curr_line = 1, n_lines
             read(file_id, *, iostat=io_err) RDM_2(i : i + curr_line - 1)
-            call assert_(io_err == 0, 'Error on reading 2-RDMs.')
+            call verify_(io_err == 0, 'Error on reading 2-RDMs.')
             i = i + curr_line
           end do
         close(file_id)
@@ -317,8 +319,6 @@
 
 
       subroutine write_RDM(RDM, i_unit)
-        use CI_solver_util, only: assert_
-        implicit none
         real(wp), intent(in) :: RDM(:)
         integer, intent(in) :: i_unit
 
@@ -331,7 +331,7 @@
           do j = i, i + curr_line - 1
             write(i_unit, '(E25.15)', advance='no', iostat=io_err)
      &          RDM(j)
-            call assert_(io_err == 0, 'Error on writing RDM.')
+            call verify_(io_err == 0, 'Error on writing RDM.')
           end do
           write(i_unit, *)
           i = i + curr_line

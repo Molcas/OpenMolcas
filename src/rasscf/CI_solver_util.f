@@ -11,6 +11,8 @@
 * Copyright (C) 2019, Giovanni Li Manni                                *
 *               2020, Oskar Weser                                      *
 ************************************************************************
+
+#include "macros.fh"
       module CI_solver_util
 #ifdef _MOLCAS_MPP_
       use mpi
@@ -22,7 +24,7 @@
       use general_data, only: JobIPH
       implicit none
       private
-      public :: wait_and_read, abort_, assert_, RDM_to_runfile,
+      public :: wait_and_read, RDM_to_runfile,
      &      cleanMat
 #include "para_info.fh"
 #ifdef _MOLCAS_MPP_
@@ -74,20 +76,6 @@
         end if
 #endif
       end subroutine wait_and_read
-
-      subroutine abort_(message)
-        character(*), intent(in) :: message
-        call WarningMessage(2, message)
-        call QTrace()
-        call Abend()
-      end subroutine
-
-      subroutine assert_(condition, message)
-        logical, intent(in) :: condition
-        character(*), intent(in) :: message
-        if (.not. condition) call abort_(message)
-      end subroutine
-
 
 !>  @brief
 !>    State Average RDMs and put into runfile.

@@ -19,6 +19,7 @@
       use filesystem, only: chdir_, getcwd_, get_errno_, strerror_,
      &    real_path, basename
       use fortran_strings, only: str
+      use linalg_mod, only: abort_
       use stdalloc, only : mma_allocate, mma_deallocate, mxMem
 
       use rasscf_data, only: iter, lRoots, nRoots, iRoot, EMY,
@@ -28,7 +29,7 @@
       use gugx_data, only: IfCAS
       use gas_data, only: ngssh, iDoGas, nGAS, iGSOCCX
 
-      use CI_solver_util, only: wait_and_read, abort_, RDM_to_runfile
+      use CI_solver_util, only: wait_and_read, RDM_to_runfile
       use fciqmc_read_RDM, only: read_neci_RDM
 
       use generic_CI, only: CI_solver_t

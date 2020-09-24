@@ -12,7 +12,7 @@
 !***********************************************************************
 
 #include "compiler_features.h"
-#include "macros.h"
+#include "macros.fh"
 
 module linalg_mod
     use stdalloc, only: mma_allocate, mma_deallocate
@@ -864,8 +864,29 @@ contains
 
     !> @brief
     !>    Print error message, print stacktrace, and abort.
-    subroutine abort_(message)
+    !>
+    !> @details
+    !> This subroutine is highly state-changing and impure,
+    !> **but** it should be possible to abort in pure procedures
+    !> and even the Fortran standard allows the built-in `error stop`
+    !> for pure procedures.
+    !> This is necessary to allow asserts in pure procedures.
+    pure subroutine abort_(message)
         character(*), intent(in) :: message
+
+        ! I know, that these functions are not pure,
+        ! but we are aborting anyway.
+        interface
+            pure subroutine WarningMessage(level, message)
+                integer, intent(in) :: level
+                character*(*), intent(in) :: message
+            end subroutine
+            pure subroutine QTrace()
+            end subroutine
+            pure subroutine Abend()
+            end subroutine
+        end interface
+
         call WarningMessage(2, message)
         call QTrace()
         call Abend()
