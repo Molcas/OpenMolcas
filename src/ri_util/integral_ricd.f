@@ -16,9 +16,6 @@
      &                         TInt,nTInt,iTOffs,nSym)
       Implicit Real*8 (A-H,O-Z)
 *
-#include "itmax.fh"
-#include "info.fh"
-*
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)
       Integer iCmp(4), iShell(4), iAO(4),
      &        iAOst(4), kOp(4), iSOSym(2,nSOs),

@@ -31,8 +31,6 @@
       use vRys_RW
       use Leg_RW
       implicit none
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "status.fh"

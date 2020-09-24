@@ -36,10 +36,9 @@
       use Real_Spherical
       use Basis_Info
       Implicit Real*8 (A-H,O-Z)
+#include "itmax.fh"
 #include "print.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
       Parameter(lab=iTabMx*2+1,npMax=lab*(lab+1)*(lab+2)/6)
       Real*8 HMtrxAB(*),HMtrxCD(*)

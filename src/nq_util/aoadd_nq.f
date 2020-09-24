@@ -27,8 +27,6 @@
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
       Real*8 AOInt(0:iBas_Eff-1,0:jBas_Eff-1,iCmp,jCmp), PrpInt(nPrp)
 *                                                                      *

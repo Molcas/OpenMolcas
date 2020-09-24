@@ -30,9 +30,8 @@
 *             August 1999                                              *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
 #include "itmax.fh"
-#include "info.fh"
+#include "real.fh"
 #include "WrkSpc.fh"
 #include "setup.fh"
 #include "nq_info.fh"

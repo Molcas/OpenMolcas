@@ -17,7 +17,9 @@
       Use MpmC
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
+      use Sizes_of_Seward, only: S
       use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
 #endif
       Implicit Real*8 (A-H,O-Z)
       External EMFInt, EMFMem
@@ -36,8 +38,6 @@
       Real*8, Allocatable :: Int_R_O(:), Int_I_O(:)
       Integer IOFF(8,8)
 #endif
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "nq_info.fh"
 #include "real.fh"
@@ -147,10 +147,10 @@
       Int_I(:)=0.0D0
       Int_I(nInts_TMOM+1:nInts_TMOM+3)=CoorO
 *
-      nMltpl=9
+      S%nMltpl=9
       iCase=1
       Phase=1.0D0
-      Do iMltpl= 0, nMltpl
+      Do iMltpl= 0, S%nMltpl
          Write (Label,'(A,I2)') 'Mltpl ',iMltpl
          nComp=(iMltpl+1)*(iMltpl+2)/2
          iComp=0

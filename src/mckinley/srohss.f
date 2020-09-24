@@ -62,9 +62,8 @@
       use Real_Spherical
       use Symmetry_Info, only: iOper
       implicit real*8 (a-h,o-z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"

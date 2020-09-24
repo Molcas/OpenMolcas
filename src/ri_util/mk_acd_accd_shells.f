@@ -23,10 +23,12 @@
       use SOAO_Info, only: iAOtSO, nSOInf, SOAO_Info_Init,
      &                                     SOAO_Info_Free
       Use Basis_Info
+      Use Sizes_of_Seward, only: S
+      use RICD_Info, only: Do_acCD_Basis, Skip_High_AC, Thrshld_CD
       Implicit Real*8 (A-H,O-Z)
       External Integral_RICD
 #include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "SysDef.fh"
 #include "real.fh"
 #include "print.fh"
@@ -84,7 +86,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Max_Cnt=0
       ThrAO=Zero
       mData=4
       nCnttp_Start = nCnttp
@@ -145,7 +146,7 @@
 *     Define some parameters to facilitate the atomic calculation
 *
       iShell = dbsc(iCnttp)%nVal
-      nShlls=iShell
+      S%nShlls=iShell
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -373,7 +374,7 @@
 *        the p*p and d*s resulting in two independent shells with
 *        the same total angular momentum, d.
 *
-         iShll=Mx_Shll - 1
+         iShll=S%Mx_Shll - 1
 *
 *        Start now looping over the products and analys the result
 *        of the CD. Note the very peculiar loop structure over
@@ -827,15 +828,15 @@
 ************************************************************************
 *                                                                      *
                   lAng=iAng+jAng
-                  iAngMx=Max(iAngMx,lAng)
-                  MaxPrm(lAng)=Max(MaxPrm(lAng),nPrim)
+                  S%iAngMx=Max(S%iAngMx,lAng)
+                  S%MaxPrm(lAng)=Max(S%MaxPrm(lAng),nPrim)
 *
 #ifdef _DEBUGPRINT_
                   Write (6,*)
                   Write (6,*) 'iShll=',iShll
                   Write (6,*) 'nPrim,nCntrc=',nPrim,nCntrc
                   Write (6,*) 'lAng=',lAng
-                  Write (6,*) 'MaxPrm(lAng)=',MaxPrm(lAng)
+                  Write (6,*) 'S%MaxPrm(lAng)=',S%MaxPrm(lAng)
 #endif
 *
                   Shells(iShll)%nBasis_c=nCntrc
@@ -1336,9 +1337,9 @@ C                          Thrs= 1.0D-12
 *
 *              Compute the number of elements stored in the dynamic
 *              memory so far.
-               Mx_Shll=iShll+1
-               Max_Shells=Mx_Shll
-               Mx_mdc=mdc
+               S%Mx_Shll=iShll+1
+               Max_Shells=S%Mx_Shll
+               S%Mx_mdc=mdc
 *
             Else
 *
@@ -1351,8 +1352,8 @@ C                          Thrs= 1.0D-12
 *
 *        Done for this valence basis set.
 *
-         Mx_Shll = iShll + 1
-         Max_Shells=Mx_Shll
+         S%Mx_Shll = iShll + 1
+         Max_Shells=S%Mx_Shll
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -15,9 +15,9 @@
      &                   nOrdOp,rNuc,rHrmt,iChO,
      &                   opmol,ipad,opnuc,iopadr,idirect,isyop,
      &                   PtChrg,nGrid,iAddPot)
+      use PAM2
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "real.fh"
@@ -212,9 +212,10 @@ c        Write(6,*) ' oneel *',Label,'*'
       use iSD_data
       use Basis_Info
       use Center_Info
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "info.fh"
 #include "real.fh"
 #include "rmat_option.fh"
 #include "stdalloc.fh"
@@ -242,8 +243,8 @@ c        Write(6,*) ' oneel *',Label,'*'
 *
 *-----Auxiliary memory allocation.
 *
-      Call mma_allocate(Zeta,m2Max)
-      Call mma_allocate(ZI,m2Max)
+      Call mma_allocate(Zeta,S%m2Max)
+      Call mma_allocate(ZI,S%m2Max)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -302,7 +303,7 @@ c        Write(6,*) ' oneel *',Label,'*'
 *                                                                      *
 *           Allocate memory for the final integrals all in the
 *           primitive basis.
-            lFinal = nIC * MaxPrm(iAng) * MaxPrm(jAng) *
+            lFinal = nIC * S%MaxPrm(iAng) * S%MaxPrm(jAng) *
      &               nElem(iAng)*nElem(jAng)
             Call mma_allocate(Fnl,lFinal)
             Call dCopy_(lFinal,[Zero],0,Fnl,1)

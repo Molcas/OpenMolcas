@@ -42,11 +42,12 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
+      use Temporary_Parameters
+      use RICD_Info, only: Do_RI, Cholesky
       Implicit Real*8 (A-H,O-Z)
       External RF_On
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
@@ -207,11 +208,6 @@
 *                                                                      *
 *-----Compute contribution due to 2-electron integrals.
 *
-      Call GetMem('MemHid','ALLO','REAL',idum,MemHid)
-*
-*                                                                      *
-************************************************************************
-*                                                                      *
       If (Cholesky.or.Do_RI) Then
          If (Cholesky) Then
             If (iPrint.ge.6) Write (6,*) 'Cholesky-ERI gradients!'
@@ -239,8 +235,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*
-      Call GetMem('MemHid','Free','REAL',idum,MemHid)
  998  Continue
 *                                                                      *
 ************************************************************************

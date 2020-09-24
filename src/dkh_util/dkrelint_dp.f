@@ -12,6 +12,8 @@
 ************************************************************************
       Subroutine DKRelint_DP
       Use Basis_Info
+      use DKH_Info
+      use Symmetry_Info, only: nIrrep
 *
 *     modified by D. Peng, ETH Zurich, October 2011
 *
@@ -21,9 +23,8 @@
 *           exact decoupling BSS method.
 *
       Implicit real*8(a-h,o-z)
+#include "Molcas.fh"
 #include "warnings.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "rinfo.fh"
 #include "print.fh"
 #include "real.fh"
@@ -312,7 +313,6 @@ c     &                            " exact decoupling BSS Hamiltonian"
          If (LDKroll) Then
            Call GetMem('Index  ','ALLO','INTE',indx,iibas+4)
            Call xdr_indx(iibas,iWork(indx))
-CDP           write(6,*) "radild : ",radild
            DoFullLT=.true.
            if(radiLD.eq.0.d0) DoFullLT=.false.
            if(DoFullLT)then

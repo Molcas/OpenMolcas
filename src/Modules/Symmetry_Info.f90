@@ -14,7 +14,7 @@
 Module Symmetry_Info
 Implicit None
 Private
-Public :: nIrrep, iOper, iChTbl, iChCar, iChBas, lIrrep, lBsFnc, SymLab, &
+Public :: nIrrep, iOper, iChTbl, iChCar, iChBas, lIrrep, lBsFnc, SymLab, iSkip, &
           Symmetry_Info_Set, Symmetry_Info_Dmp, Symmetry_Info_Get, Symmetry_Info_Back, Symmetry_Info_Free, &
           Symmetry_Info_Setup
 
@@ -35,6 +35,7 @@ Integer, Allocatable:: iChBas(:)
 Character(LEN=3) :: lIrrep(0:7)=['','','','','','','','']
 Character(LEN=80) :: lBsFnc(0:7)=['','','','','','','','']
 Character(LEN=3) SymLab
+Integer :: iSkip(0:7)=[0,0,0,0,0,0,0,0]
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
@@ -85,7 +86,7 @@ Integer i, j, k, liDmp, lcDmp
 Integer, Allocatable:: iDmp(:)
 Character(LEN=1), Allocatable:: cDmp(:)
 
-liDmp = 1+8+8*8+3 + MxFnc
+liDmp = 1+8+8*8+3 + MxFnc + 8
 Call mma_allocate(iDmp,liDmp,Label='iDmp')
 
 i=0
@@ -113,6 +114,8 @@ iDmp(i+1:i+3)=iChCar(1:3)
 i=i+3
 iDmp(i+1:i+MxFnc)=iChBas(1:MxFnc)
 i=i+MxFnc
+iDmp(i+1:i+8)=iSkip(0:7)
+i=i+8
 
 #ifdef _DEBUGPRINT_
 Write (6,*) 'Symmetry_Info_Dmp'
@@ -176,7 +179,7 @@ Call Qpg_iArray('Symmetry Info',Found,liDmp)
 Call mma_allocate(iDmp,liDmp,Label='iDmp')
 Call Get_iArray('Symmetry Info',iDmp,liDmp)
 
-MxFnc=liDmp - (1+8+8*8+3)
+MxFnc=liDmp - (1+8+8*8+3+8)
 Call mma_allocate(iChBas,MxFnc,Label='iChBas')
 
 i=0
@@ -204,6 +207,8 @@ iChCar(1:3)=iDmp(i+1:i+3)
 i=i+3
 iChBas(1:MxFnc) = iDmp(i+1:i+MxFnc)
 i=i+MxFnc
+iSKip(0:7) = iDmp(i+1:i+8)
+i=i+8
 Call mma_deallocate(iDmp)
 
 lcDmp = 3*8 + 80*8 + 3

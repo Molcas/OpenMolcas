@@ -11,11 +11,9 @@
       Subroutine Int_Setup(iSD,nSkal,iS,jS,kS,lS,Coor,Shijij,
      &                     iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs)
       Use Basis_Info
+      use Real_Info, only: RPQMin
+      use Logical_Info, only: DoFMM
       Implicit Real*8 (a-h,o-z)
-*
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 *
 #include "nsd.fh"
 #include "FMM.fh"

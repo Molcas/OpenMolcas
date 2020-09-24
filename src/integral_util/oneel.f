@@ -17,10 +17,12 @@
      &                 PtChrg,nGrid,iAddPot)
       use Basis_Info, only: nBas
       use PrpPnt
+      use Temporary_Parameters, only: PrPrt, Short, IfAllOrb
+      use Sizes_of_Seward, only: S
+      use Real_Info, only: Thrs
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "real.fh"
       Real*8, Dimension(:), Allocatable :: Out, Nuc, TMat, Temp, El,
@@ -142,7 +144,7 @@
                If (short) Then
                   mDim = 1
                Else
-                  mDim = nDim
+                  mDim = S%nDim
                End If
                call mma_allocate(Out,mDim*nComp,label='Out')
                ipOut=1

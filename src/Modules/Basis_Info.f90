@@ -17,7 +17,7 @@ Implicit None
 Private
 Public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free, Distinct_Basis_set_Centers, dbsc, nFrag_LineWords,&
           PAMExp, Shells, Max_Shells, nCnttp, iCnttp_Dummy, Point_Charge, Gaussian_type, mGaussian_Type,     &
-          Nuclear_Model, Basis_Info_Init, nBas, nBas_Aux, nBas_Frag
+          Nuclear_Model, Basis_Info_Init, nBas, nBas_Aux, nBas_Frag, MolWgh
 
 #include "stdalloc.fh"
 #include "Molcas.fh"
@@ -159,6 +159,12 @@ Integer :: Nuclear_Model=Point_Charge
 Integer :: nBas(0:7)     =[0,0,0,0,0,0,0,0]
 Integer :: nBas_Aux(0:7) =[0,0,0,0,0,0,0,0]
 Integer :: nBas_Frag(0:7)=[0,0,0,0,0,0,0,0]
+Integer :: MolWgh=2
+!     MolWgh: integer flag to indicate the normalization of the symmetry transformation
+!             0: double coset represetative normalization
+!             1: as in MOLECULE
+!             2: as in MOLPRO
+
 
 Type (Distinct_Basis_set_centers) , Allocatable, Target:: dbsc(:)
 Type (Shell_Info), Allocatable :: Shells(:)
@@ -351,6 +357,7 @@ iDmp(5,nCnttp+1)=Nuclear_Model
 iDmp(6:13,nCnttp+1)=nBas(0:7)
 iDmp(14:21,nCnttp+1)=nBas_Aux(0:7)
 iDmp(22:29,nCnttp+1)=nBas_Frag(0:7)
+iDmp(30,nCnttp+1)=MolWgh
 Call Put_iArray('iDmp',iDmp,nFields*(nCnttp+1))
 Call mma_deallocate(iDmp)
 !
@@ -569,6 +576,7 @@ Nuclear_Model  =iDmp(5,Len2)
 nBas(0:7)      =iDmp(6:13,Len2)
 nBas_Aux(0:7)  =iDmp(14:21,Len2)
 nBas_Frag(0:7) =iDmp(22:29,Len2)
+MolWgh         =iDmp(30,Len2)
 nAux = 0
 !
 !     Initiate the memory allocation of dsbc and Shells

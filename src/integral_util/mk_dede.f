@@ -57,10 +57,10 @@
       use iSD_data
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
+      use Sizes_of_Seward, only:S
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
@@ -105,10 +105,6 @@ C     Call QEnter('DeDe')
          End Do
       End If
 *
-*     ipD00:
-*     MaxDCR: max number of possible pairs
-*     MaxDe:
-*
       mIndij = 0
       iIrrep = 0
       jOffD = 0
@@ -116,7 +112,7 @@ C     Call QEnter('DeDe')
       If (mFD.eq.2) Inc=4
       Call ICopy(nOffD,[ipD00],0,ipOffD(1,1),Inc)
       If (mFD.eq.2) Call ICopy(nOffD,[ipD00],0,ipOffD(4,1),Inc)
-      Call ICopy(nOffD,[MaxDCR],0,ipOffD(2,1),Inc)
+      Call ICopy(nOffD,[nIrrep],0,ipOffD(2,1),Inc)
       Call ICopy(nOffD,[MaxDe],0,ipOffD(3,1),Inc)
 *                                                                      *
 ************************************************************************
@@ -163,12 +159,12 @@ C     Call QEnter('DeDe')
 *
 *---------- Scratch area for contraction step
 *
-            nScr1 =  MaxPrm(iAng)*MaxPrm(jAng) *
+            nScr1 =  S%MaxPrm(iAng)*S%MaxPrm(jAng) *
      &               nElem(iAng)*nElem(jAng)
 *
 *---------- Scratch area for the transformation to spherical gaussians
 *
-            nScr2=MaxPrm(iAng)*MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+            nScr2=S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
 *
             Call mma_allocate(DAO,Max(iBas*jBas,iPrim*jPrim)*iCmp*jCmp,
      &                        label='DAO')

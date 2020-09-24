@@ -10,10 +10,9 @@
 ************************************************************************
       SubRoutine OneEl_Integrals(Kernel,KrnlMm,Label,ip,lOper,nComp,
      &                           CCoor,nOrdOp,rHrmt,iChO,Integrals)
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "real.fh"

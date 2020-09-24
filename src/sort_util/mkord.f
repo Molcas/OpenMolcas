@@ -42,11 +42,10 @@
 **** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 *
       use srt2
+      use Integral_Parameters, only: iPack
       Implicit Integer (A-Z)
 *
 
-#include "itmax.fh"
-#include "info.fh"
 #include "FileIDs.fh"
 #include "TwoDat.fh"
 #include "srt0.fh"
@@ -68,13 +67,13 @@ C     Call qEnter('MkOrd')
 *
       TocTwo(isId)=IDtwo
       TocTwo(isVer)=VNtwo
-      TocTwo(isForm)=iOrdFm
+      TocTwo(isForm)=0
 *
 *---------------------------------------------------------------------*
 *     Write ordring mode                                              *
 *---------------------------------------------------------------------*
 *
-      TocTwo(isOrd)=iSquar
+      TocTwo(isOrd)=0
 *
 *---------------------------------------------------------------------*
 *     Write symmetry and basis set information                        *

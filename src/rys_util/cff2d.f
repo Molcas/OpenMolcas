@@ -35,8 +35,6 @@
 * Chemistry, University of Lund, Sweden.                               *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 Zeta(nT), ZInv(nT), Eta(nT), EInv(nT),

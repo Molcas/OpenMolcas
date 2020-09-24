@@ -20,8 +20,6 @@
 *                      else  integral order within symblk: ijkl
       Implicit Real*8 (a-h,o-z)
 *
-#include "itmax.fh"
-#include "info.fh"
 #include "localdf_int3.fh"
 *
       Character*15 SecNam

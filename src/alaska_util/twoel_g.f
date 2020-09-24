@@ -59,12 +59,14 @@
       use Basis_Info
       use Center_Info
       use Phase_Info
+      use Real_Info, only: ChiI2
+      use Temporary_Parameters, only: IsChi
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External TERI1, ModU2, vCff2D
+#include "Molcas.fh"
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"

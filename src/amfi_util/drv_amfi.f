@@ -12,10 +12,12 @@
      &                    Charge2)
       use iSD_data
       use Basis_Info
+      use DKH_Info, only: DKroll
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
       External Rsv_Tsk
+#include "Molcas.fh"
 #include "angtp.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "nsd.fh"

@@ -35,9 +35,9 @@
       use pso_stuff
       use index_arrays, only: iSO2Sh
       use Basis_Info, only: nBas
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -95,8 +95,8 @@
 *...  Get the method label
       Call Get_cArray('Relax Method',Method,8)
       Call Get_iScalar('Columbus',columbus)
-      nCMo = n2Tot
-      mCMo = n2Tot
+      nCMo = S%n2Tot
+      mCMo = S%n2Tot
       If (Method.eq. 'KS-DFT  ' .or.
      &    Method.eq. 'MCPDFT  ' .or.
      &    Method.eq. 'CASDFT  ' ) Then

@@ -20,8 +20,7 @@
       End
       Subroutine Mk_iSO2Ind_(iSO2Sh,iSO2Ind,nSO,nTemp,nShell)
       use Basis_Info, only: nBas_Aux
-#include "itmax.fh"
-#include "info.fh"
+      use Symmetry_Info, only: nIrrep
       Integer iSO2Sh(nSO), iSO2Ind(nSO), nTemp(nShell)
 *
       iSO = 0

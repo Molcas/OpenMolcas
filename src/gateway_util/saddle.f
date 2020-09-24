@@ -29,9 +29,11 @@
       use Basis_Info
       use Center_Info
       use external_centers
+      use Sizes_of_Seward, only: S
+      use Real_Info, only: E1, E2, SadStep, Shake
+      use Logical_Info, only: Align_Only, Do_Align, lRP, lRP_Post
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
@@ -144,14 +146,14 @@
 *
             If (Shake.gt.Zero) Then
                Do iAt=1,nAt
-                  nDim=0
+                  S%nDim=0
                   Do j=0,2
-                     If (iAnd(iStab(iAt),2**j).eq.0) nDim=nDim+1
+                     If (iAnd(iStab(iAt),2**j).eq.0) S%nDim=S%nDim+1
                   End Do
-                  If (nDim.gt.0) Then
+                  If (S%nDim.gt.0) Then
                      Do iRP=1,2
-                        Call Random_Vector(nDim,
-     &                                     RandVect(1:nDim),.False.)
+                        Call Random_Vector(S%nDim,
+     &                                     RandVect(1:S%nDim),.False.)
                         jDim=0
                         Do j=0,2
                            If (iAnd(iStab(iAt),2**j).eq.0) Then
@@ -765,10 +767,9 @@
       Integer nAt,mAt
       Real*8 A(3,nAt),B(3,nAt)
       Logical Found
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
+      Real*8 TMass
       Real*8, Dimension(:), Allocatable :: W
 ************************************************************************
 *                                                                      *
@@ -814,8 +815,6 @@
       Implicit Real*8 (a-h,o-z)
       Real*8 Reac(mynRP),Prod(mynRP),TanVec(mynRP),norm
       Logical Found,Invar
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Integer, Dimension(:), Allocatable :: iStab

@@ -46,10 +46,13 @@
       use iSD_data
       use Wrj12
       use Basis_Info, only: dbsc, nBas, nBas_Aux
+      use Temporary_Parameters, only: force_out_of_core
+      use Real_Info, only: CutInt
+      use RICD_Info, only: LDF
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_RI_2, Rsv_Tsk
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "j12.fh"
 #include "print.fh"
 #include "real.fh"

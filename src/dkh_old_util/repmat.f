@@ -10,9 +10,10 @@
 ************************************************************************
       subroutine repmat(idbg,bInt,sInt)
       Use Basis_Info
+      use Symmetry_Info, only: nIrrep
       implicit real*8(a-h,o-z)
 #include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "rinfo.fh"
 #include "WrkSpc.fh"
       integer icaddr(MxAO),numc(MxAO),ihelp(MxAtom,iTabMx),numb(MxAO)

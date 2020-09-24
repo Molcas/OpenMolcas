@@ -36,10 +36,12 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iChTbl, iOper, lIrrep, lBsFnc
+      use Symmetry_Info, only: nIrrep, iChTbl, iOper, lIrrep, lBsFnc
+      use Temporary_Parameters
+      use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "real.fh"
 #include "disp.fh"
 #include "disp2.fh"
@@ -102,7 +104,6 @@ c      EndIf
       If (KWord(1:1).eq.'*')    Go To 998
       If (KWord.eq.'')       Go To 998
 *     If (KWord(1:4).eq.'EQUI') Go To 935
-*     If (KWord(1:4).eq.'MEMO') Go To 951
 *     If (KWord(1:4).eq.'NOTR') Go To 952
 *     If (KWord(1:4).eq.'NOIN') Go To 953
       If (KWord(1:4).eq.'SHOW') Go To 992
@@ -193,17 +194,6 @@ c      EndIf
 *     Read(KWord,*,Err=988) CutInt
       CutInt = Abs(CutInt)
       Go To 998
-*                                                                      *
-****** MEMO ************************************************************
-*                                                                      *
-*     Screen off memory
-*
-*951  Read(5,'(A)',Err=988) KWord
-*     If (KWord(1:1).eq.'*') Go To 951
-*     If (KWord.eq.'')    Go To 951
-*     Read(KWord,*,Err=988) MemHid
-*     If (MemHid.le.0) MemHid = 1
-*     Go To 998
 *                                                                      *
 ****** NOIN ************************************************************
 *                                                                      *

@@ -42,8 +42,7 @@
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, XCff2D
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"

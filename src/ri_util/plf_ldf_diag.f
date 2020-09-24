@@ -29,8 +29,6 @@
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "localdf_bas.fh"
 #include "localdf_int.fh"
 #include "real.fh"

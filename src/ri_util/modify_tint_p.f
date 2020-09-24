@@ -11,8 +11,6 @@
       Subroutine Modify_TInt_p(TInt,nTheta_All,List2,mData)
       use Basis_Info
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
       Real*8 TInt(nTheta_All,nTheta_All)
       Integer List2(mData,nTheta_All)
 *

@@ -16,11 +16,8 @@
 ************************************************************************
       Use Basis_Info, only: dbsc, Shells
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "SysDef.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

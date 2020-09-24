@@ -32,8 +32,6 @@
 *             January '92, modified for gradient calculations.         *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
       Real*8 Alpha(nAlpha), Beta(nBeta), Zeta(nAlpha*nBeta),
      &       Alpha_(nAlpha*nBeta), Beta_(nAlpha*nBeta),

@@ -27,12 +27,11 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iChBas
+      use Symmetry_Info, only: nIrrep, iChBas
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "print.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "disp2.fh"
       Real*8 A(3), B(3), RB(3), Grad(nGrad)

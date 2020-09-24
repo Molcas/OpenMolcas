@@ -42,13 +42,14 @@
       use iSD_data
       use k2_arrays
       use Basis_Info
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
+      use Temporary_parameters, only: force_part_c
+      use Sizes_of_Seward, only: S
+      use Logical_Info, only: lSchw
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External Cmpct
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "nsd.fh"
@@ -94,7 +95,7 @@
 *                                                                      *
       DoGrad_=DoGrad
       DoHess_=.False.
-      la_=iAngMx
+      la_=S%iAngMx
       mabMin_=nabSz(Max(la_,la_)-1)+1
       mabMax_=nabSz(la_+la_)
       ne_=(mabMax_-mabMin_+1)
@@ -118,25 +119,25 @@
       mk2 = 0
 *
 *     Allocate memory for zeta, kappa, and P.
-      ipZInv = ipZeta + m2Max
-      ipKab  = ipZInv + m2Max
-      ipP    = ipKab  + m2Max
-      ipCon  = ipP    + m2Max*3
-      ipAlpha= ipCon  + m2Max
-      ipBeta = ipAlpha+ m2Max
+      ipZInv = ipZeta + S%m2Max
+      ipKab  = ipZInv + S%m2Max
+      ipP    = ipKab  + S%m2Max
+      ipCon  = ipP    + S%m2Max*3
+      ipAlpha= ipCon  + S%m2Max
+      ipBeta = ipAlpha+ S%m2Max
       ipInd  = ipiZet
 *                                                                      *
 ************************************************************************
 *                                                                      *
       MemTmp=0
-      Do iAng = 0, iAngMx
-         MemTmp=Max(MemTmp,(MaxPrm(iAng)*nElem(iAng))**2)
+      Do iAng = 0, S%iAngMx
+         MemTmp=Max(MemTmp,(S%MaxPrm(iAng)*nElem(iAng))**2)
       End Do
       Call mma_allocate(Scr,MemTmp,3,Label='Scr')
-      Call mma_allocate(Knew,m2Max,Label='Knew')
-      Call mma_allocate(Lnew,m2Max,Label='Lnew')
-      Call mma_allocate(Pnew,m2Max*3,Label='Pnew')
-      Call mma_allocate(Qnew,m2Max*3,Label='Qnew')
+      Call mma_allocate(Knew,S%m2Max,Label='Knew')
+      Call mma_allocate(Lnew,S%m2Max,Label='Lnew')
+      Call mma_allocate(Pnew,S%m2Max*3,Label='Pnew')
+      Call mma_allocate(Qnew,S%m2Max*3,Label='Qnew')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -308,7 +309,7 @@ C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
      &                  nScree,mScree,mdci,mdcj,
      &                  DeDe(ipDij),nDij,nDCR  ,nHm,ijCmp,DoFock,
      &                  Scr, MemTmp,
-     &                  Knew,Lnew,Pnew,Qnew,m2Max,DoGrad,
+     &                  Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,
      &                  HrrMtrx,nHrrMtrx)
 *
             Indk2(1,ijS) = jpk2

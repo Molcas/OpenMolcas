@@ -72,10 +72,9 @@
       use Real_Spherical
       use iSD_data
       use Basis_Info, only: dbsc
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm, Rsv_Tsk
-#include "itmax.fh"
-#include "info.fh"
 C     Logical Addpot
 #include "real.fh"
 #include "rmat_option.fh"
@@ -108,10 +107,10 @@ C     Logical Addpot
 *
 *-----Auxiliary memory allocation.
 *
-      Call mma_allocate(Zeta,m2Max,label='Zeta')
-      Call mma_allocate(ZI,m2Max,label='ZI')
-      Call mma_allocate(Kappa,m2Max,label='Kappa')
-      call mma_allocate(PCoor,m2Max*3,label='PCoor')
+      Call mma_allocate(Zeta,S%m2Max,label='Zeta')
+      Call mma_allocate(ZI,S%m2Max,label='ZI')
+      Call mma_allocate(Kappa,S%m2Max,label='Kappa')
+      call mma_allocate(PCoor,S%m2Max*3,label='PCoor')
 *                                                                      *
 ************************************************************************
 *                                                                      *

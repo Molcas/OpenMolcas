@@ -17,10 +17,9 @@
 *
       use Basis_Info, only: nBas
       use pso_stuff
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "buffer.fh"
 #include "etwas.fh"
 #include "WrkSpc.fh"

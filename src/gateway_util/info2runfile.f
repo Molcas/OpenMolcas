@@ -27,9 +27,15 @@
       use Period
       use Basis_Info
       use Center_Info
+      use external_centers, only: iXPolType, XF
+      use Temporary_Parameters, only: Expert, VarR, VarT, DirInt
+      use Sizes_of_Seward, only: S
+      use RICD_Info, only: Do_RI, Cholesky, Cho_OneCenter, LocalDF
+      use Real_Info, only: CoC, CoM
+      use Logical_Info, only: DoFMM
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "cholesky.fh"
 #include "real.fh"
 #include "rctfld.fh"
@@ -83,7 +89,7 @@
      &                         dbsc(iCnttp)%Fixed)
       End Do
       If (.not.DoEMPC) Then
-         If (lXF.or.Pseudo) Then
+         If (Allocated(XF).or.Pseudo) Then
             iOption=iOr(iOption,2**7)
             iOption=iOr(iOption,2**8)
          End If
@@ -110,7 +116,7 @@
       Cho_OneCenter=Cho_1Center
       Call Put_iScalar('System BitSwitch',iOption)
 
-      Call Put_iScalar('Highest Mltpl',nMltpl)
+      Call Put_iScalar('Highest Mltpl',S%nMltpl)
       iGO = 0
       Call Put_iScalar('Grad ready',iGO)
       iFMM = 0
@@ -122,10 +128,6 @@
          iter_S=0
          Call Put_iScalar('Saddle Iter',iter_S)
       End If
-*
-      iDNG=0
-      If (Do_Numerical_Gradients) iDNG=1
-      Call Put_iScalar('DNG',iDNG)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -219,7 +221,7 @@
       Call Put_dArray('Effective nuclear Charge',DCh_Eff,nNuc)
       Call Put_cArray('Unique Atom Names',xLblCnt(1),(LENIN)*nNuc)
       Call Put_iArray('nStab',nStab,nNuc)
-      If (lXF) Call Put_iScalar('nXF',nXF)
+      If (Allocated(XF)) Call Put_iScalar('nXF',nXF)
       If (Cell_l) Then
          Call Put_dArray('Unit Cell Vector',VCell,9)
          Call Put_iArray('Spread of Coord.',ispread,3)

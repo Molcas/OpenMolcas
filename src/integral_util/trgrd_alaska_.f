@@ -22,10 +22,10 @@
 ************************************************************************
       Use Basis_Info
       Use Center_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8(a-h,o-z)
       Parameter (tol=1d-8)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "disp.fh"
 #include "real.fh"
 #include "SysDef.fh"

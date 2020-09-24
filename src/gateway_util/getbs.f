@@ -1001,8 +1001,6 @@ c            Open(LUQRP,file='QRPLIB',form='formatted')
       Return
       End
       Subroutine Check_Info()
-#include "itmax.fh"
-#include "info.fh"
       Call Free_Work(LctInf)
       Call Abend()
       End Subroutine Check_Info

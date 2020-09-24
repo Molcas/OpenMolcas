@@ -28,12 +28,11 @@
 *              March 2000                                              *
 ************************************************************************
       use external_centers
-      use Symmetry_Info, only: iChBas
+      use Symmetry_Info, only: nIrrep, iChBas
       use Basis_Info, only: nBas
+      use Temporary_Parameters, only: PrPrt
       Implicit Real*8 (a-h,o-z)
       External EFInt, EFMem
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "rctfld.fh"
 #include "print.fh"
@@ -113,8 +112,7 @@
                   If (Origin(3).ne.Zero) iSymZ = iOr(iSymZ,1)
                End If
 *
-               iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ,
-     &                            nIrrep),nIrrep)
+               iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
                l_Oper=iOr(l_Oper,iTemp)
             End Do
          End Do
@@ -145,7 +143,7 @@
      &                              ' ',Cavxyz,1,nCavxyz_)
 
 
-      If(lXF) Then
+      If(Allocated(XF)) Then
          Call XFMoment(lMax,Cavxyz,Ravxyz,nCavxyz_,Origin)
       EndIf
 
@@ -217,7 +215,7 @@
                If (Mod(iz,2).ne.0) ixyz=iOr(ixyz,4)
                iSym = 2**IrrFnc(ixyz)
                If (Ccoor(iComp).ne.Zero ) iSym = iOr(iSym,1)
-               lOper(iComp) = MltLbl(iSymC,iSym,nIrrep)
+               lOper(iComp) = MltLbl(iSymC,iSym)
                kOper(iComp) = iChBas(iComp+1)
                call dcopy_(3,Ccoor,1,C_Coor(1,iComp),1)
             End Do

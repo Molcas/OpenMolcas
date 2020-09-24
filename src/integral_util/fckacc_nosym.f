@@ -55,10 +55,9 @@
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: nBas
+      use Real_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
       Intrinsic Max, Min
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), FMat(nDens),
@@ -339,9 +338,8 @@ c Avoid unused argument warnings
 *             of Lund, Sweden. February '93                            *
 ************************************************************************
       use SOAO_Info, only: iAOtSO
+      use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), FMat(nDens),

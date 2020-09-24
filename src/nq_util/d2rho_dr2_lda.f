@@ -34,8 +34,7 @@
       use k2_arrays, only: DeDe, ipDijS
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "disp.fh"
 #include "real.fh"
 #include "print.fh"
@@ -68,7 +67,6 @@
          Write (6,*) 'mAO=',mAO
          Write (6,*) 'mGrid=',mGrid
          Write (6,*) 'nTabAO=',nTabAO
-         Write (6,*) 'nIrrep=',nIrrep
          Write (6,*) 'nlist_s=',nlist_s
          Write (6,*) 'nD=',nD
          Do iList_s = 1, nList_s

@@ -33,8 +33,6 @@
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 Alpha(nAlpha), Beta(nBeta), Zeta(nAlpha*nBeta),

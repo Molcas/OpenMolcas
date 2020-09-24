@@ -30,6 +30,8 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External PotInt, NAMem
 #include "stdalloc.fh"
@@ -56,7 +58,7 @@
       End Do
       Call DecideOnESPF(Do_ESPF)
 c
-      Call mma_allocate(Centr,3,mCentr)
+      Call mma_allocate(Centr,3,S%mCentr)
       ndc = 0
       nc = 1
       Do jCnttp = 1, nCnttp

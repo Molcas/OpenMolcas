@@ -13,6 +13,9 @@
 ************************************************************************
       Subroutine DKRelint
       use Basis_Info
+      use Temporary_Parameters, only: force_out_of_core
+      use DKH_Info
+      use Symmetry_Info, only: nIrrep
 c
 c     modified by A. Wolf and M. Reiher, Uni Bonn, Feb. and March 2005
 c       (extended for use of generalized arbitrary-order DKH)
@@ -20,9 +23,8 @@ c       NB: If the standard 2nd order DKH is wanted,
 c           the original routines by Hess are called!
 c
       Implicit real*8(a-h,o-z)
+#include "Molcas.fh"
 #include "warnings.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "rinfo.fh"
 #include "print.fh"
 #include "real.fh"

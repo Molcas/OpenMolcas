@@ -17,8 +17,6 @@
 *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "rassi.fh"
 #include "print.fh"
       Character*180 KWord, Key, Get_Ln

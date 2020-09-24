@@ -13,9 +13,8 @@
      &                  nMOs,iAO,CMOs,nCMO,DoIt)
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 SOValue(mAO*nCoor,mBas,nCmp*nDeg),
@@ -128,9 +127,8 @@
       Subroutine SODist2(SOValue,mAO,nCoor,mBas,nCmp,nDeg,SO,
      &                  nSOs,iAO,TmpCMOs,nCMO,TmpDoIt)
       use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 *
       Real*8  SOValue(mAO*nCoor,mBas,nCmp*nDeg),
      &        SO(mAO*nCoor,nSOs),

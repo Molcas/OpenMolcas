@@ -21,9 +21,8 @@
 *             March 1992.                                              *
 ************************************************************************
       use Her_RW
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "real.fh"
 #include "status.fh"
@@ -39,8 +38,8 @@
 *     1) Hermite-Gauss
 *     2) Rys-Gauss (asymtotic formula)
 *
-      n_1111 = (2*iAngMx+nPrp+2+nDiff)/2
-      n_2222 = 4*iAngMx+2+nDiff
+      n_1111 = (2*S%iAngMx+nPrp+2+nDiff)/2
+      n_2222 = 4*S%iAngMx+2+nDiff
 *
       If (Allocated(HerR) .and. Max(n_1111,n_2222).le.MaxHer) Then
          Return
@@ -168,7 +167,7 @@ c               write(6,*) delta
 #ifdef _DEBUGPRINT_
       Call TriPrt(' Hermite roots',' ',HerR(iHerR(1)),MaxHer)
       Call TriPrt(' Hermite weights',' ',HerW(iHerW(1)),MaxHer)
-      Write (6,*) ' MaxHer=',MaxHer,nPrp,iAngMx
+      Write (6,*) ' MaxHer=',MaxHer,nPrp,S%iAngMx
 #endif
       Return
       End

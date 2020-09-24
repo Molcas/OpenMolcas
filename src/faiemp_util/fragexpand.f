@@ -26,9 +26,9 @@
 ************************************************************************
       Use Basis_Info
       Use Center_Info
+      use Sizes_of_Seward, only: S
       Implicit None
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "stdalloc.fh"
 #include "real.fh"
 #include "print.fh"
@@ -47,7 +47,7 @@
       Character*(storageSize) sBasis
       Equivalence( sBasis, eqBasis)
       Character *256 Basis_lib, Fname
-!#define _DEBUGPRINT_
+      Logical UnNorm
 #ifdef _DEBUGPRINT_
       Integer i
 #endif
@@ -71,7 +71,7 @@
       LenLbl=0
       mdc = dbsc(nCnttp)%mdci+dbsc(nCnttp)%nCntr
       BasisTypes(:)=0
-      iShll = Mx_Shll-1
+      iShll = S%Mx_Shll-1
       lSTDINP=0
       mCnttp = nCnttp
 #ifdef _DEBUGPRINT_
@@ -178,7 +178,7 @@
            lAng=Max(dbsc(nCnttp)%nVal,
      &         dbsc(nCnttp)%nSRO,
      &         dbsc(nCnttp)%nPrj)-1
-            iAngMx=Max(iAngMx,lAng)
+            S%iAngMx=Max(S%iAngMx,lAng)
             Shells(jShll+1)%Transf=.False.
             Shells(jShll+1)%Prjct =.False.
             Shells(jShll+2)%Transf=.False.
@@ -294,8 +294,8 @@ c LENIN possible BUG
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Mx_Shll=iShll+1
-      Max_Shells=Mx_Shll
+      S%Mx_Shll=iShll+1
+      Max_Shells=S%Mx_Shll
 *                                                                      *
 ************************************************************************
 *                                                                      *
