@@ -131,7 +131,7 @@ Subroutine Logical_Info_Dmp()
   iDmp(18)= i
   i = 0
   If (lPSOI) i = 1
-  iDmp(10)= i
+  iDmp(19)= i
 
   Call Put_iArray('Logical_Info',iDmp,Len)
   Call mma_deallocate(iDmp)
