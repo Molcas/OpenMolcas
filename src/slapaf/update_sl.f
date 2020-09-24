@@ -135,7 +135,8 @@
 *
          t_qInt(:,1)=qInt(:,1)
 *
-         Call Update_sl_(iter_,iInt,nFix,nInter,t_qInt,
+         Call Update_internal(
+     &                   iter_,iInt,nFix,nInter,t_qInt,
      &                   t_Shift,Grad,iOptC,Beta,Beta_Disp,
      &                   Lbl,GNrm,Energy,UpMeth,ed,Line_Search,
      &                   Step_Trunc,nLambda,iRow_c,nsAtom,AtomLbl,
@@ -167,7 +168,8 @@
 *                                                                      *
 *        Conventional optimization.
 *
-         Call Update_sl_(iter,iInt,nFix,nInter,qInt,Shift,
+         Call Update_internal(
+     &                iter,iInt,nFix,nInter,qInt,Shift,
      &                Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,Energy,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                iRow_c,nsAtom,AtomLbl,mxdc,jStab,

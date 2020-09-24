@@ -15,23 +15,28 @@
 *                                                                      *
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "db.fh"
       Real*8 dCdQ(nQQ,nLambda), QC(nDim**2,nLambda)
+      Real*8, Allocatable:: X(:,:), K(:,:)
 *
-      Call FZero(QC,nDim**2*nLambda)
+      QC(:,:)=0.0D0
+
       If (ip_dB.eq.ip_Dummy) Then
+C        Write (6,*) 'FAST out'
          Return
       End If
-      Call Allocate_Work(ipX,mq*nLambda)
-      Call FZero(Work(ipX),mq*nLambda)
-      Call Allocate_Work(ipK,mq*nQQ)
-      Call Get_dArray('K',Work(ipK),mq*nQQ)
+
+      Call mma_allocate(X,mq,nLambda,Label='X')
+      X(:,:)=0.0D0
+      Call mma_allocate(K,mq,nQQ,Label='K')
+      Call Get_dArray('K',K,mq*nQQ)
 *
       Call DGEMM_('N','N',mq,nLambda,nQQ,
-     &            1.0D0,Work(ipK),mq,
+     &            1.0D0,K,mq,
      &                  dCdQ,nQQ,
-     &            0.0D0,Work(ipX),mq)
-      Call Free_Work(ipK)
+     &            0.0D0,X,mq)
+      Call mma_deallocate(K)
 *
       idB = 0
       Do iq = 0, mq-1
@@ -42,14 +47,13 @@
             jDim=iWork(iElem*2 + ip_idB+1)
             ijDim = (jDim-1)*nDim + iDim
             Do iLambda = 1, nLambda
-               X = Work((iLambda-1)*mq + iq + ipX)
                QC(ijDim,iLambda) = QC(ijDim,iLambda)
-     &                           + X * dBqR
+     &                           + X(1+iq,iLambda) * dBqR
             End Do
          End Do
          idB = idB + nElem**2
       End Do
-      Call Free_Work(ipX)
+      Call mma_deallocate(X)
 *
       Return
       End
@@ -85,6 +89,7 @@
          Call RecPrt('dBQQ',' ',Work(ipBuf),nDim,nDim)
       End Do
       Call Free_Work(ipBuf)
+      Call Free_Work(ipK)
 *
       Return
       End

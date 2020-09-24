@@ -209,7 +209,8 @@
 *
          First_MicroIteration=iterAI.eq.iter
          nWndw_=nWndw/2 + (iterAI-iter)
-         Call Update_sl_(iterAI,iInt,nFix,nInter,qInt,Shift,Grad,iOptC,
+         Call Update_internal(
+     &                   iterAI,iInt,nFix,nInter,qInt,Shift,Grad,iOptC,
      &                   Beta_,Beta_Disp_,Lbl,GNrm,Energy,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                   iRow_c,nsAtom,AtomLbl,mxdc,jStab,
