@@ -42,10 +42,13 @@
 *             January '91 additional input for property calculations.  *
 *             October '93 split up to RdCtl and SoCtl.                 *
 ************************************************************************
+      use Sizes_of_Seward, only: S
       use Basis_Info, only: nBas
+      use Temporary_Parameters, only: Test, PrPrt, Primitive_Pass
+      use Logical_Info, only: Do_GuessOrb
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "real.fh"
 #include "SysDef.fh"
 #include "print.fh"
@@ -125,7 +128,7 @@
          Call Put_iArray('nBas_Prim',nBas,nIrrep)
          Call Info2Runfile()
       End If
-      Call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*nDim)
+      Call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*S%nDim)
       Call Put_iArray('nBas',nBas,nIrrep)
       Call mma_deallocate(Mamn)
 *                                                                      *

@@ -22,9 +22,6 @@ c----------------------------------------------------------------------
 *
 *  returns number of basis functions for given shell and symmetry
 *
-#include "itmax.fh"
-#include "info.fh"
-*
       nbfshl=0
       iAO    = iSD( 7,iSkal)
       iCmp   = iSD( 2,iSkal)

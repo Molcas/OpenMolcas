@@ -47,11 +47,14 @@
       use PSO_Stuff
       use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
       use Basis_Info
+      use Sizes_of_Seward, only:S
+      use Real_Info, only: CutInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Rsv_GTList
-#include "real.fh"
 #include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
+#include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
@@ -144,8 +147,8 @@
 ************************************************************************
 *                                                                      *
       MxPrm = 0
-      Do iAng = 0, iAngMx
-         MxPrm = Max(MxPrm,MaxPrm(iAng))
+      Do iAng = 0, S%iAngMx
+         MxPrm = Max(MxPrm,S%MaxPrm(iAng))
       End Do
       nZeta = MxPrm * MxPrm
       nEta  = MxPrm * MxPrm
@@ -184,7 +187,7 @@
 *                                                                      *
 *-------Compute FLOPs for the transfer equation.
 *
-        Do iAng = 0, iAngMx
+        Do iAng = 0, S%iAngMx
            Do jAng = 0, iAng
               nHrrab = 0
               Do i = 0, iAng+1

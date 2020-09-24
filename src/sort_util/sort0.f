@@ -83,10 +83,11 @@
 *
       use Basis_Info, only: nBas
       use srt2
+      use Symmetry_Info, only: nIrrep, iSkip
+      use Integral_parameters, only: iPack
+      Use Real_Info, only: PkAcc
       Implicit Integer (A-Z)
 *
-#include "itmax.fh"
-#include "info.fh"
 #include "TwoDat.fh"
 #include "srt0.fh"
 #include "srt1.fh"
@@ -134,7 +135,7 @@
 *     (Get total no. of irred. representations, basis dimensions ect.) *
 *----------------------------------------------------------------------*
 *
-      Call MKSRT0(iSquar,nIrrep,nBas,iSkip)
+      Call MKSRT0(0,nIrrep,nBas,iSkip)
 *
 *----------------------------------------------------------------------*
 *     Initialize the common /SRT1/, i.e.,                              *
@@ -143,7 +144,7 @@
 *     determined by the maximum number of bins (mxBin)                 *
 *----------------------------------------------------------------------*
 *
-      Call MKSRT1(IntTot)
+      Call MKSRT1()
 *
 *----------------------------------------------------------------------*
 *     allocate the space required in phase1 of the bin sort algoritm   *

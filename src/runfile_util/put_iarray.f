@@ -122,13 +122,13 @@
          RecLab( 17)='RFiInfo         '
          RecLab( 18)='RFlInfo         '
          RecLab( 19)='SCFInfoI        '
-         RecLab( 20)='                '
+         RecLab( 20)='Misc            '
          RecLab( 21)='SewIInfo        '
-         RecLab( 22)='SewLInfo        '
+         RecLab( 22)='                ' !Free slot
          RecLab( 23)='SCFInfoI_ab     '
          RecLab( 24)='icDmp           '
          RecLab( 25)='Symmetry Info   '
-         RecLab( 26)='                ' !Free slot
+         RecLab( 26)='Sizes           '
          RecLab( 27)='                ' !Free slot
          RecLab( 28)='IndS            '
          RecLab( 29)='                ' !Free slot
@@ -153,7 +153,7 @@
          RecLab( 48)='nBas_Prim       '
          RecLab( 49)='IsMM            '
          RecLab( 50)='Atom -> Basis   '
-         RecLab( 51)='                ' !Free slot
+         RecLab( 51)='Logical_Info    ' !Free slot
          RecLab( 52)='                ' !Free slot
          RecLab( 53)='                ' !Free slot
          RecLab( 54)='SCF nOcc        '

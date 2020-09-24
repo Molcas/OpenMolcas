@@ -34,8 +34,6 @@
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake, XCff2D, XRys2D
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 
 #include "int_interface.fh"

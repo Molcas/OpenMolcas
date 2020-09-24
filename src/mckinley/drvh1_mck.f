@@ -30,13 +30,12 @@
 *             May 95                                                   *
 ************************************************************************
       Use Basis_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External OvrGrd_mck,KneGrd_mck,nagrd_mck,prjgrd_mck,m1grd_mck ,
      &         srogrd_mck, nona2
       External OvrMem_mck,KneMem_mck,namem_mck,prjmm1,m1mm1, na2mem,
      &         sromm1
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"

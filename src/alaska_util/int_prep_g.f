@@ -12,9 +12,6 @@
       Use Basis_Info
       Implicit Real*8 (a-h,o-z)
 *
-#include "itmax.fh"
-#include "info.fh"
-*
       Integer iSD4(0:nSD,4)
 *
       Real*8  Coor(3,4)

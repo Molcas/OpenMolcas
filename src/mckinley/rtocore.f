@@ -26,8 +26,6 @@
       use Basis_Info
       Implicit Real*8 (a-h,o-z)
 
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
       Real*8 F(*)
 

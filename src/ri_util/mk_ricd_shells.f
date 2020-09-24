@@ -31,9 +31,10 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
+      use Sizes_of_Seward, only: S
+      use RICD_Info, only: Do_acCD_Basis, Skip_High_AC, Do_nacCD_Basis,
+     &                     Thrshld_CD
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "SysDef.fh"
 #include "real.fh"
 #include "print.fh"
@@ -70,16 +71,16 @@ C      iPrint=99
 *     Set up transformation matrix from Cartesian to real spherical
 *     harmonics.
 *
-      Call Sphere(iAngMx)
+      Call Sphere(S%iAngMx)
 *
 *     Setup of tables for coefficients for the Rys roots and weights.
 *
       nDiff=0
-      If (iAngMx.eq.0) nDiff=2
+      If (S%iAngMx.eq.0) nDiff=2
       DoRys=.True.
       Call SetUp_RW(DoRys,nDiff)
 *
-      iShll=Mx_Shll - 1
+      iShll=S%Mx_Shll - 1
       mCnttp=nCnttp
 *                                                                      *
 ************************************************************************
@@ -190,8 +191,6 @@ C      iPrint=99
 *     Experimental code to be used with care.                          *
 *                                                                      *
 ************************************************************************
-#include "itmax.fh"
-#include "info.fh"
       Integer iD(nD), List2(mData,nTheta_All)
       Logical Skip
 *

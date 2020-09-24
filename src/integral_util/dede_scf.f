@@ -11,10 +11,10 @@
       Subroutine DeDe_SCF(Dens,TwoHam,nDens,mDens)
       use k2_arrays
       use Basis_Info, only: nBas
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "setup.fh"
       Integer nDens, mDens
@@ -26,7 +26,7 @@
 #endif
       nr_of_Densities=1  ! Hardwired option
 *
-      nIndij=nShlls*(nShlls+1)/2
+      nIndij=S%nShlls*(S%nShlls+1)/2
       nField=2+nr_of_Densities
       Call mma_allocate(ipOffD,nField,nIndij,label='ipOffD')
 *
@@ -36,11 +36,11 @@
 *     ipDijS is an auxilliary memory if not the whole set of a
 *      desymmetrized density could be used.
 *
-      nDeDe_tot = nDeDe + MaxDe*MaxDCR + MxDij
+      nDeDe_tot = nDeDe + MaxDe*nIrrep + MxDij
       Call mma_allocate(DeDe,nDeDe_tot,Label='DeDe')
       ipDeDe = 1
       ipD00 = ipDeDe + nDeDe
-      ipDijS= ipD00  + MaxDe*MaxDCR
+      ipDijS= ipD00  + MaxDe*nIrrep
       DeDe(:)=Zero
 *
       Special_NoSym=.True.

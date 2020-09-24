@@ -28,8 +28,6 @@
       use Center_Info
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 
 #include "grd_mck_interface.fh"

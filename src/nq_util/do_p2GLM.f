@@ -343,13 +343,10 @@ C            Write(6,'(A,1f28.20)') 'P2(4)   =',P2_ontop(4,iGrid)
       use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "nq_info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-!#include "info.fh"
 !Error could be TabAO...
       Integer iOff_Ash(0:7), iOff_Bas(0:7), iOff_BasAct(0:7),
      &        list_s(2,nlist_s),list_bas(2,nlist_s),Index(nIndex),

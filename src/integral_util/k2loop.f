@@ -12,17 +12,17 @@
 *               1990, IBM                                              *
 ************************************************************************
       SubRoutine k2Loop(Coor,
-     &           iAnga,iCmpa,iShll,
-     &           iDCRR,nDCRR,Data,
-     &           Alpha,nAlpha,Beta, nBeta,
-     &           Alpha_,Beta_,
-     &           Coeff1,iBasn,Coeff2,jBasn,
-     &           Zeta,ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,
-     &           Wrk,nWork2,
-     &           Cmpct,nScree,mScree,iStb,jStb,
-     &           Dij,nDij,nDCR,nHm,ijCmp,DoFock,
-     &           Scr,nScr,
-     &           Knew,Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx)
+     &                  iAnga,iCmpa,iShll,
+     &                  iDCRR,nDCRR,Data,
+     &                  Alpha,nAlpha,Beta, nBeta,
+     &                  Alpha_,Beta_,
+     &                  Coeff1,iBasn,Coeff2,jBasn,
+     &                  Zeta,ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,
+     &                  Wrk,nWork2,
+     &                  Cmpct,nScree,mScree,iStb,jStb,
+     &                  Dij,nDij,nDCR,nHm,ijCmp,DoFock,
+     &                  Scr,nScr,
+     &                  Knew,Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx)
 ************************************************************************
 *                                                                      *
 * Object: to compute zeta, kappa, P, and the integrals [nm|nm] for     *
@@ -54,13 +54,13 @@
       use Real_Spherical
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
+      use Real_Info, only: CutInt, RadMax, cdMax, EtMax
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External TERIS, ModU2, Cmpct, Cff2DS, Rys2D
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "disp.fh"
 #include "print.fh"
       Real*8 Coor(3,4), CoorM(3,4), Coori(3,4), Coora(3,4), CoorAC(3,2),

@@ -32,9 +32,10 @@
       use Real_Spherical
       use Her_RW
       use External_Centers
+      use Temporary_Parameters, only: Test
+      use DKH_Info, only: DKroll
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "real.fh"
@@ -122,9 +123,9 @@
 *                                                                      *
 *     Generate the transformation matrices
 *
-      If (iAngMx-1.ge.lMax) Then
-         Call Sphere(iAngMx)
-         lmax_internal=iAngMx
+      If (S%iAngMx-1.ge.lMax) Then
+         Call Sphere(S%iAngMx)
+         lmax_internal=S%iAngMx
       Else
          Call Sphere(lMax)
       End If
@@ -140,7 +141,7 @@
 *
 *     Setup of tables for coefficients of the Rys roots and weights.
 *
-      If (iAngMx.eq.0) nDiff=2
+      If (S%iAngMx.eq.0) nDiff=2
       If (DKroll.and.nOrdEF.gt.0) nDiff=nDiff+nOrdEF
       If (.Not.Test) Call Setup_RW(DoRys,nDiff)
 *                                                                      *

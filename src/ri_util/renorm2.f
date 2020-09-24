@@ -39,10 +39,11 @@
       use SOAO_Info, only: iAOtSO, nSOInf
       use Real_Spherical
       use Basis_Info
+      use Sizes_of_Seward, only: S
+      use RICD_Info, only: Thrshld_CD
       Implicit Real*8 (A-H,O-Z)
       External Integral_RI_2
 #include "itmax.fh"
-#include "info.fh"
 #include "SysDef.fh"
 #include "real.fh"
 #include "print.fh"
@@ -81,7 +82,7 @@
 *     Set up transformation matrix from Cartesian to real spherical
 *     harmonics.
 *
-      Call Sphere(iAngMx)
+      Call Sphere(S%iAngMx)
 *
       Call Flip_Flop(.False.) ! Contracted mode.
 *
@@ -98,7 +99,7 @@
 *                                                                      *
 *        Define some parameters to facilitate the atomic calculation
 *
-         nShlls= dbsc(iCnttp)%nVal
+         S%nShlls= dbsc(iCnttp)%nVal
          nTest = dbsc(iCnttp)%nVal-1
 *
 *        Define AOtSO

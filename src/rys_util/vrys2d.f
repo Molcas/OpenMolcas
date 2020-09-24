@@ -35,8 +35,6 @@
 * Further modifications in Jan-Feb. 1994.                              *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 xyz2D(nArg*lRys*3,0:nabMax,0:ncdMax),

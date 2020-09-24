@@ -26,8 +26,6 @@
       use Basis_Info, only: Shells
       Implicit Real*8 (a-h,o-z)
 
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
       Dimension F(*)
 

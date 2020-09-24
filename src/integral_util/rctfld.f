@@ -19,8 +19,6 @@
       use PCM_arrays, only: MM
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
@@ -84,12 +82,14 @@
 *             Modified for nonequilibrum calculations January 2002 (RL)*
 ************************************************************************
       use Basis_Info, only: nBas
+      use External_Centers, only: XF
+      use Temporary_Parameters, only: PrPrt
+      use Real_Info, only: PotNuc
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1), Origin(3)
       Character*72 Label
       Character*8 Label2
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
@@ -136,7 +136,7 @@
             Call RFNuc(Origin,Q_solute(ip,1),iMax)
          End Do
 
-         if(lXF) Then
+         if(Allocated(XF)) Then
 *
 *------- Add contribution from XFIELD multipoles
 *
@@ -255,8 +255,7 @@
                   If (Origin(3).ne.Zero) iSymZ = iOr(iSymZ,1)
                End If
 *
-               iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ,
-     &                            nIrrep),nIrrep)
+               iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
                lOper(1)=iOr(lOper(1),iTemp)
             End Do
          End Do

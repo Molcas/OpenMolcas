@@ -865,9 +865,8 @@ C     ------------
 *                                                                      *
 ************************************************************************
       Subroutine Put_thr_Cho(ThrCom)
+      use RICD_Info, only: Do_RI, Thrshld_CD
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 *
       If (.not. Do_RI) Thrshld_CD = ThrCom
 *

@@ -15,8 +15,6 @@
      &                         dFdP2ontop,ndFdP2ontop,
      &                         TmpPUVX,nTmpPUVX)
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "nq_info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"

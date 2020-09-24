@@ -12,24 +12,24 @@
       use GeoList
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iChCar
+      use Symmetry_Info, only: nIrrep, iChCar
+      use Sizes_of_Seward, only: S
+      use Real_Info, only: TMass, qNuc, CoM, CoC
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call mma_allocate(Centr,3,mCentr,label='Centr')
-      Call mma_allocate(Mass,mCentr,label='Mass')
-      Call mma_allocate(Chrg,mCentr,label='Chrg')
+      Call mma_allocate(Centr,3,S%mCentr,label='Centr')
+      Call mma_allocate(Mass,S%mCentr,label='Mass')
+      Call mma_allocate(Chrg,S%mCentr,label='Chrg')
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Generate the center list.
 *
-      kCentr=0
+      S%kCentr=0
 *
       nc = 1
       Do jCnttp = 1, nCnttp
@@ -63,7 +63,7 @@
                End If
                nc = nc + 1
             End Do
-            kCentr = kCentr + nIrrep/dc(ndc)%nStab
+            S%kCentr = S%kCentr + nIrrep/dc(ndc)%nStab
          End Do
       End Do
 *                                                                      *
@@ -71,7 +71,7 @@
 *                                                                      *
 *     Compute Total Charge and Center of Charge centroid
 *
-      Call CoW(Centr,CoC,Chrg,kCentr,qNuc)
+      Call CoW(Centr,CoC,Chrg,S%kCentr,qNuc)
       If (iChCar(1).ne.0) CoC(1)=Zero
       If (iChCar(2).ne.0) CoC(2)=Zero
       If (iChCar(3).ne.0) CoC(3)=Zero
@@ -99,7 +99,7 @@
 *                                                                      *
 *     Compute Total Mass and Center of Mass
 *
-      Call CoW(Centr,CoM,Mass,kCentr,TMass)
+      Call CoW(Centr,CoM,Mass,S%kCentr,TMass)
       If (iChCar(1).ne.0) CoM(1)=Zero
       If (iChCar(2).ne.0) CoM(2)=Zero
       If (iChCar(3).ne.0) CoM(3)=Zero

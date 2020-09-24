@@ -26,11 +26,11 @@
 *             October  97                                              *
 ************************************************************************
       use Basis_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External ElGrd,elgrddot
       External ElMem
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "disp.fh"
       Character*8 Lbl

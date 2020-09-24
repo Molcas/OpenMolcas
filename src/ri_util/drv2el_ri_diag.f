@@ -38,10 +38,9 @@
 ************************************************************************
       use SOAO_Info, only: iOffSO
       use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut
-#include "itmax.fh"
-#include "info.fh"
 #include "j12.fh"
 #include "print.fh"
 #include "real.fh"

@@ -31,9 +31,9 @@
 ************************************************************************
       use SOAO_Info, only: iAOtSO, iOffSO
       use LundIO
+      use Real_Info, only: ThrInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
@@ -199,7 +199,6 @@
                                   kkSOkk = kSOkk
                                   llSOll = lSOll
                                End If
-                               IntTot = IntTot + 1
                                Buf%nUt=Buf%nUt + 1
                                Buf%Buf(Buf%nUt) = SOInt(nijkl,MemSO2)
                                Buf%iBuf(Buf%nUt) = llSOll + kkSOkk*2**8

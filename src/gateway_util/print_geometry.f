@@ -27,9 +27,12 @@
       use Basis_Info
       use Center_Info
       use Period
+      use Temporary_Parameters, only: Expert
+      use Sizes_of_Seward, only: S
+      use Real_Info, only: Rtrnc
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
@@ -48,8 +51,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call mma_allocate(Centr,3,mCentr,Label='Centr')
-      Call mma_allocate(Lblxxx,mCentr,Label='Lblxxx')
+      Call mma_allocate(Centr,3,S%mCentr,Label='Centr')
+      Call mma_allocate(Lblxxx,S%mCentr,Label='Lblxxx')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -137,19 +140,19 @@
 *                                                                      *
 *     Compute distances
 *
-      If (mCentr.le.2) Go To 55
-      Call Dstncs(lblxxx,Centr,nc,angstr,Max_Center,6)
+      If (S%mCentr.le.2) Go To 55
+      Call Dstncs(lblxxx,Centr,nc,angstr,S%Max_Center,6)
       If (.Not.Expert) Call DstChk(Centr,lblxxx,nc)
 *
 *     Compute valence bond angels
 *
-      If (iPrint.lt.5.or.mCentr.lt.3.or.iOpt.eq.1) Go To 55
-      Call Angles(lblxxx,Centr,nc,rtrnc,Max_Center)
+      If (iPrint.lt.5.or.S%mCentr.lt.3.or.iOpt.eq.1) Go To 55
+      Call Angles(lblxxx,Centr,nc,rtrnc,S%Max_Center)
 *
 *     Compute dihedral angles
 *
-      If (iPrint.lt.5.or.mCentr.lt.4) Go To 55
-      Call Dihedr(lblxxx,Centr,nc,rtrnc,Max_Center)
+      If (iPrint.lt.5.or.S%mCentr.lt.4) Go To 55
+      Call Dihedr(lblxxx,Centr,nc,rtrnc,S%Max_Center)
 *                                                                      *
 ************************************************************************
 *                                                                      *

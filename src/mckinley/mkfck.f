@@ -45,11 +45,10 @@
 *              Anders Bernhardsson 1995                                *
 ************************************************************************
       use Real_Spherical
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-c#include "print.fh"
 #include "disp.fh"
 #include "disp2.fh"
 *
@@ -59,8 +58,8 @@ c#include "print.fh"
      &       Scrtch1(nS1),Scrtch2(nS2)
       Integer iCmp(4), nOp(4),iAnga(4), iShll(4),iShell(4),
      &        jOp(6),iCmpa(4) , iAO(4), iAOst(4),
-     &        indgrd(3,4,0:nirrep-1),ipdisp(*)
-      Logical Shijij,pert(0:nIrrep-1)
+     &        indgrd(3,4,0:7),ipdisp(*)
+      Logical Shijij,pert(0:7)
 *
 *     Just the make a nice interface
 *

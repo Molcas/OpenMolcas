@@ -54,11 +54,15 @@
       use pso_stuff
       use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
       use Basis_Info
+      use Sizes_of_Seward, only:S
+      use Real_Info, only: CutInt
+      use RICD_Info, only: Do_RI
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk2
-#include "real.fh"
+#include "Molcas.fh"
 #include "itmax.fh"
-#include "info.fh"
+#include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
@@ -169,8 +173,8 @@
 ************************************************************************
 *                                                                      *
       MxPrm = 0
-      Do iAng = 0, iAngMx
-         MxPrm = Max(MxPrm,MaxPrm(iAng))
+      Do iAng = 0, S%iAngMx
+         MxPrm = Max(MxPrm,S%MaxPrm(iAng))
       End Do
       nZeta = MxPrm * MxPrm
       nEta  = MxPrm * MxPrm
@@ -204,8 +208,6 @@
             ip_Out=ip_Tmp + (jS-1)*nSkal + iS -1
             ip_In =ipTMax + (jS-1)*nSkal_Valence + iS -1
             Work(ip_In)=Work(ip_Out)
-cVV: ifort 11 can't handle the code without this dummy print.
-            if(iPrint.gt.100) write(6,*) ip_In, ip_Out
             ip_In =ipTMax + (iS-1)*nSkal_Valence + jS -1
             Work(ip_In)=Work(ip_Out)
             TMax_all=Max(TMax_all,Work(ip_Out))
@@ -537,7 +539,7 @@ cVV: ifort 11 can't handle the code without this dummy print.
 *                                                                      *
 *-------Compute FLOP's for the transfer equation.
 *
-      Do iAng = 0, iAngMx
+      Do iAng = 0, S%iAngMx
          Do jAng = 0, iAng
             nHrrab = 0
             Do i = 0, iAng+1

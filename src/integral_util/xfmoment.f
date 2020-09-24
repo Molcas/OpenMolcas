@@ -23,11 +23,9 @@
 ************************************************************************
       use External_Centers
       use Phase_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 
       Real*8 Cavxyz(nCavxyz_),Tmom(nCavxyz_),Org(3)
 

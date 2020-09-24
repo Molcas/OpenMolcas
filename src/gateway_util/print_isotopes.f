@@ -14,8 +14,6 @@
       use Period
       use Basis_Info, only: nCnttp, dbsc
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "constants2.fh"
       Logical Changed
