@@ -17,7 +17,8 @@
       module filesystem
       use, intrinsic :: iso_c_binding, only: c_char, MOLCAS_C_INT,
      &      C_INT, c_ptr, C_NULL_CHAR
-      use fortran_strings, only: split, StringWrapper_t
+      use fortran_strings, only: split, StringWrapper_t, Cptr_to_str,
+     &  str
       implicit none
       private
       public :: getcwd_, chdir_, symlink_, get_errno_, strerror_,
@@ -119,13 +120,10 @@
 
 !> Return Error String from Error number
       function strerror_(errnum) result(res)
-        use, intrinsic :: iso_c_binding
-        use fortran_strings, only : str
-        implicit none
         character(:), allocatable :: res
         integer, intent(in) :: errnum
 #ifdef C_PTR_BINDING
-        res = str(strerror_c(int(errnum, C_INT)))
+        res = Cptr_to_str(strerror_c(int(errnum, C_INT)))
 #else
         integer :: rc
         character(80) :: errstr
@@ -137,8 +135,6 @@
       end function
 
       subroutine remove_(path, err)
-        use, intrinsic :: iso_c_binding
-        implicit none
         character(len=*) :: path
         integer, optional, intent(out) :: err
         integer(MOLCAS_C_INT) :: loc_err
@@ -164,10 +160,10 @@
 
         if (len(names(size(names))%str) /= 0) then
         ! Base is a normal file that is not a directory .../.../basename
-            res = names(size(names))%str
+            res = str(names(size(names))%str)
         else
         ! Base is itself a directory .../.../basename/
-            res = names(size(names) - 1)%str
+            res = str(names(size(names) - 1)%str)
         end if
       end function
       end module filesystem

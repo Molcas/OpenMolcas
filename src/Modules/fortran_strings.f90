@@ -19,12 +19,16 @@ module fortran_strings
     save
     private
     public :: str, to_lower, to_upper, operator(.in.), split, &
-        count_char, StringWrapper_t
+        count_char, StringWrapper_t, Cptr_to_str
 
     ! This type exists to have an array of string pointers
     ! and to allow unequally sized strings.
+    ! NOTE: Due to old compilers this had to be
+    ! character(1), dimension(:), allocatable
+    ! if possible change it to
+    ! character(:), allocatable
     type :: StringWrapper_t
-        character(:), allocatable :: str
+        character(1), allocatable :: str(:)
     end type
 
 
@@ -34,18 +38,18 @@ module fortran_strings
     !>  @author Oskar Weser
     !>
     !>  @details
-    !>  It is a generic procedure that accepts Fortran integer and
-    !>  real and C char* pointer arguments..
+    !>  It is a generic procedure that accepts Fortran integer,
+    !>  Fortran real, and Fortran arrays with single character elements.
     !>
-    !>  @param[in] A fortran integer or real, or a C char* pointer.
+    !>  @param[in] A Fortran integer or real, or character array.
     interface str
-        module procedure I_to_str, R_to_str, Cptr_to_str
+        module procedure I_to_str, R_to_str, character_array_to_str
     end interface
 
     interface
-        function strlen_c(c_string) bind(C, name='strlen_wrapper')
+        pure function strlen_c(c_string) bind(C, name='strlen_wrapper')
             import :: c_ptr, MOLCAS_C_INT
-            type(c_ptr) :: c_string
+            type(c_ptr), intent(in) :: c_string
             integer(MOLCAS_C_INT) :: strlen_c
         end function
     end interface
@@ -60,7 +64,7 @@ module fortran_strings
 
     contains
 
-    function I_to_str(i) result(str)
+    pure function I_to_str(i) result(str)
         character(:), allocatable :: str
         integer, intent(in) :: i
         character(range(i) + 2) :: tmp
@@ -68,12 +72,24 @@ module fortran_strings
         str = trim(tmp)
     end function
 
-    function R_to_str(x) result(str)
+    pure function R_to_str(x) result(str)
         character(:), allocatable :: str
         real*8, intent(in) :: x
         character(range(x) + 2) :: tmp
         write(tmp, '(I0)') x
         str = trim(tmp)
+    end function
+
+    pure function character_array_to_str(array) result(res)
+        character(1), intent(in) :: array(:)
+        character(len=:), allocatable :: res
+        integer :: i, L
+
+        L = size(array)
+        allocate(character(len=L) :: res)
+        do i = 1, L
+            res(i:i) = array(i)
+        end do
     end function
 
     !> Convert C string pointer to Fortran string.
@@ -89,7 +105,6 @@ module fortran_strings
             res(i:i) = string(i)
         end do
     end function
-
 
     !> Changes a string to upper case
     pure function to_upper (in_str) result (string)
