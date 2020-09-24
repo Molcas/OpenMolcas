@@ -28,7 +28,7 @@ module fortran_strings
     ! if possible change it to
     ! character(:), allocatable
     type :: StringWrapper_t
-        character(1), allocatable :: str(:)
+        character(len=1), allocatable :: str(:)
     end type
 
 
