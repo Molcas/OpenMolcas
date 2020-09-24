@@ -27,7 +27,7 @@
       use gugx_data, only: IfCAS
       use gas_data, only: ngssh, iDoGas, nGAS, iGSOCCX
 
-      use generic_CI, only: CI_solver_t, unused
+      use generic_CI, only: CI_solver_t
       use index_symmetry, only: one_el_idx, two_el_idx,
      &    one_el_idx_flatten, two_el_idx_flatten
       use CI_solver_util, only: wait_and_read, abort_, RDM_to_runfile,

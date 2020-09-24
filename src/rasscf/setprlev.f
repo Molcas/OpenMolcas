@@ -53,5 +53,7 @@
 
       RETURN
 c Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       IF (.FALSE.) CALL Unused_integer(LF_IN)
+#endif
       END

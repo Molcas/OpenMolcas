@@ -31,7 +31,7 @@
       use CI_solver_util, only: wait_and_read, abort_, RDM_to_runfile
       use fciqmc_read_RDM, only: read_neci_RDM
 
-      use generic_CI, only: CI_solver_t, unused
+      use generic_CI, only: CI_solver_t
 
       implicit none
       save
