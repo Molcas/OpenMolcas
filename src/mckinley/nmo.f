@@ -8,10 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Function nMo(mIrr)
+      Integer Function nMo(mIrr)
+      use Symmetry_Info, only: nIrrep
       Implicit Integer (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 #include "etwas.fh"
       nInt=0
       nA=0

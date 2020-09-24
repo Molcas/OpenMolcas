@@ -33,9 +33,8 @@
 ************************************************************************
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "wldata.fh"
 #include "print.fh"
 #include "disp.fh"

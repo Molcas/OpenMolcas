@@ -232,7 +232,6 @@ option (NECI       "Activate NECI support (requires External/NECI submodule)."  
 option (WFA        "Activate extended wavefunction analysis (requires External/libwfa submodule)."              OFF)
 option (NEVPT2     "Activate (DMRG)-NEVPT2 support."                                                            OFF)
 option (EFPLIB     "Enable EFPLib library for effective fragment potentials (requires External/efp submodule)." OFF)
-option (GRID_IT    "Enable public GRID_IT code (requires External/grid_it submodule)."                          OFF)
 
 ################################################################################
 #                                                                              #
@@ -2104,28 +2103,6 @@ else ()
   message("NEVPT2 support DISABLED")
 endif ()
 
-# external GRID_IT
-if (GRID_IT)
-  message("Configuring external GRID_IT:")
-  set (proj ${extprojsdir}/grid_it)
-  if (EXISTS ${proj}/main.f)
-    set (GRID_IT_FOUND ON)
-    set (prog "grid_it")
-    list (APPEND progs ${prog})
-    file (RELATIVE_PATH ${prog}_src ${PROJECT_SOURCE_DIR} ${proj})
-    # some routines in the external code are referenced by libmolcas,
-    # so they must be compiled with the molcas library and not with the "program" library
-    list (APPEND objlibs "$<TARGET_OBJECTS:${prog}>")
-    list (APPEND proglib ${prog})
-    message ("-- Source found, external GRID_IT enabled")
-  else()
-    set (GRID_IT_FOUND OFF)
-    message ("-- External GRID_IT ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
-  endif ()
-else ()
-  message("External GRID_IT DISABLED")
-endif ()
-
 # Add the "bigot" flags after processing the external projects, so they are not affected
 if (BIGOT)
   # Modify the "BUILD_TARGET" flags because we want them at the end
@@ -2339,7 +2316,6 @@ if (FDE)
     seward
     scf
     rasscf
-    grid_it
   )
     list (APPEND ${prog}_incs ${${util}_src})
   endforeach ()
@@ -2524,20 +2500,6 @@ if (HDF5 AND HDF5_FOUND)
   endif ()
 endif ()
 
-# activate grid_it
-if (GRID_IT AND GRID_IT_FOUND)
-  # Some additional files and configuration needed if using external grid_it
-  configure_file (${grid_util_src}/grid.fh.in ${MAIN_INCLUDE_DIR}/grid.fh)
-  list (APPEND external_prgm "${grid_util_src}/grid_it.prgm.src")
-  list (APPEND grid_util_defs "_EXTERNAL_GRID_IT_")
-else ()
-  file (REMOVE ${MAIN_INCLUDE_DIR}/grid.fh)
-endif ()
-# grid_it could be external or from molcas_extra
-if (DEFINED grid_it_src)
-  list (APPEND grid_util_defs "_HAVE_GRID_IT_")
-endif ()
-
 # finally, sort the list
 list (SORT progs)
 
@@ -2599,7 +2561,7 @@ endif ()
 #                                                                              #
 #################################################################################
 # netlib blas/lapack produces warnings
-# some external codes (grid_it) too
+# some external codes too
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
   set (netlib_nowarn_flags " -w")
   set (ext_nowarn_flags " -w")
@@ -2620,10 +2582,6 @@ find_source(LinAlg_internal)
 if (netlib_nowarn_flags)
   file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f ${delayed_util_src}/*.f)
   set_property (SOURCE ${source} APPEND_STRING PROPERTY COMPILE_FLAGS ${netlib_nowarn_flags})
-endif ()
-if (ext_nowarn_flags)
-  file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${grid_it_src}/*.f)
-  set_property (SOURCE ${source} APPEND_STRING PROPERTY COMPILE_FLAGS ${ext_nowarn_flags})
 endif ()
 
 ################################################################################

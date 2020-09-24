@@ -31,9 +31,8 @@
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       use LundIO
+      use Real_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
@@ -131,7 +130,6 @@
                                   kkSOkk = kSOkk
                                   llSOll = lSOll
                                End If
-                               IntTot = IntTot + 1
 *
                                Buf%nUt=Buf%nUt + 1
                                Buf%Buf(Buf%nUt) =

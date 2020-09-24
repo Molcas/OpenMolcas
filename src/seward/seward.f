@@ -53,14 +53,17 @@
       use MpmC
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: lIrrep
+      use Symmetry_Info, only: nIrrep, lIrrep
       use LundIO
+      use Temporary_Parameters
+      use Integral_parameters, only: iPack, iWROpt
+      use DKH_Info, only: DKroll
+      use Real_Info, only: PkAcc
+      use RICD_Info, only: Do_RI, Cholesky, DiagCheck, LocalDF
+      use Logical_Info, only: NEMO, Do_GuessOrb, Do_FckInt, lRP_Post
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_WrOut2, Integral_RI_3
-      Real*8, Dimension(:), Allocatable :: MemHide
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "warnings.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
@@ -79,7 +82,6 @@
 C-SVC: identify runfile with a fingerprint
       Character cDNA*256
       Logical IsBorn, Do_OneEl
-      Integer IsGvMode
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -209,8 +211,6 @@ C     Call Seward_Banner()
          Call Center_Info_Free()
          Call Center_Info_Get()
       End If
-      Call GvMode(IsGvMode)
-      if(IsGvMode.gt.0) Onenly=.true.
 *
       Call Close_LuSpool(LuSpool)
 *
@@ -359,8 +359,6 @@ C     Call Seward_Banner()
 ************************************************************************
 *                                                                      *
 *
-      Call mma_allocate(MemHide,Memhid)
-*
       If ( iWRopt.eq.0 ) then
 *
 *------- Molcas format
@@ -406,12 +404,6 @@ C     Call Seward_Banner()
                Write (6,*)
                Write (6,'(A)')
      &           ' Integrals are written in MOLCAS2 format'
-               Write (6,'(A,I10)')
-     &           ' Total Number of integrals             '//
-     &           '                = ',IntTot
-               Write (6,'(A,I10)')
-     &           ' Number of nonzero integrals passed to '//
-     &           'packing routine = ',NotZer
                If ( iPack.ne.0 ) Then
                   Write (6,'(A)')
      &              ' No packing of integrals has been applied'
@@ -421,14 +413,9 @@ C     Call Seward_Banner()
                   Write (6,'(A,I10)')
      &             ' Highest disk address written',MaxDax
                End If
-               If ( iSquar.eq.0 ) Then
-                  Write (6,'(A,A)') ' Diagonal and subdiagonal, '
-     &              //'symmetry allowed 2-el',
-     &              ' integral blocks are stored on Disk'
-               Else
-                  Write (6,'(A,A)') ' All symmetry allowed 2-el '
-     &              //'integral blocks are', ' stored on Disk'
-               End If
+               Write (6,'(A,A)') ' Diagonal and subdiagonal, '
+     &           //'symmetry allowed 2-el',
+     &           ' integral blocks are stored on Disk'
             End If
             iWrOpt=iWrOpt_Save
          End If
@@ -466,16 +453,11 @@ C     Call Seward_Banner()
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call mma_deallocate(MemHide)
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     At the end of the calculation free all memory to check for
 *     corruption of the memory.
 *
 
- 9999 Call DumpSagit()
-      Call ClsSew()
+ 9999 Call ClsSew()
       If (Allocated(AdCell)) Call mma_deallocate(AdCell)
       Call mma_deallocate(Coor_MPM)
       Call mma_deallocate(Chrg)
@@ -522,9 +504,6 @@ C     Call Seward_Banner()
 *     Automatic run of GuessOrb
 *
       If (Do_GuessOrb.and.Do_FckInt) Call GuessOrb(iReturn,.FALSE.)
-      If(IsGvMode.gt.0) then
-        Call DoGvMode(IsGvMode)
-      EndIf
       If (.not.Prprt.and.Do_OneEl) Call Put_NucAttr()
 *                                                                      *
 ************************************************************************
@@ -539,12 +518,13 @@ C     Call Seward_Banner()
       End If
 *
 *
-      ireturn=_RC_ALL_IS_WELL_
       If (Test)  Then
          ireturn=_RC_EXIT_EXPECTED_
+      Else If (lRP_Post) Then
+         ireturn=_RC_INVOKED_OTHER_MODULE_
       Else
-         If (isGvMode.gt.0.or.lRP_Post)
-     &       ireturn=_RC_INVOKED_OTHER_MODULE_
+         ireturn=_RC_ALL_IS_WELL_
       End If
+
       Return
       End

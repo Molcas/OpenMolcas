@@ -29,8 +29,6 @@
 ************************************************************************
       Use Basis_Info
       Implicit None
-#include "itmax.fh"
-#include "info.fh"
       Integer nHer,MemFrag,la,lb,lr
       Integer i,nElem,nOrder,maxDensSize
       Integer iCnttp,jCnttp,iAng,jAng,iShll,jShll

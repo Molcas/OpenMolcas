@@ -20,16 +20,15 @@ c----------------------------------------------------------------------
       use k2_arrays
       use iSD_data
       use Basis_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       Integer nSkal
       Real*8 Schwz_Shl(nSkal,nSkal)
 *
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 *
       nElem(i)=(i+1)*(i+2)/2

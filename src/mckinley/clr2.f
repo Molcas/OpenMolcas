@@ -16,13 +16,12 @@
 *
       use pso_stuff
       use SOAO_Info, only: iAOtSO
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
       use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
 #include "etwas.fh"
-#include "info.fh"
 #include "buffer.fh"
 #include "disp.fh"
 #include "disp2.fh"

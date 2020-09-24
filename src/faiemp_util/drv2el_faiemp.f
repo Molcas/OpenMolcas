@@ -32,11 +32,10 @@
       use k2_arrays, only: pDq, pFq
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
+      use Real_Info, only: ThrInt, CutInt
       Implicit None
       External No_Routine
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "setup.fh"

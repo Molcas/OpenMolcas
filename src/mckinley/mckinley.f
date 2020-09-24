@@ -47,11 +47,12 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
+      use Temporary_Parameters
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 *
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "disp.fh"
 #include "disp2.fh"
@@ -213,8 +214,6 @@ cpcm_solvent end
       End If
       Call Drvh1_mck(nGrad,Nona)
 *
-      Call GetMem('MemHid','ALLO','REAL',idum,MemHid)
-*                                                                      *
 ************************************************************************
 *                                                                      *
 *      Calculate two electron integrals. First order is contracted     *
@@ -277,10 +276,6 @@ cpcm_solvent end
           End If
 *
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call GetMem('MemHid','Free','REAL',idum,MemHid)
 *                                                                      *
 ************************************************************************
 *                                                                      *

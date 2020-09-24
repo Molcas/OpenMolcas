@@ -39,8 +39,6 @@
 *
 *******************************************************************************
       Implicit Real*8(a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 

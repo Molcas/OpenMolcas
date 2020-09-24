@@ -225,8 +225,6 @@ C
       Integer iAO, jAO
       Integer lS
       Real*8  S(lS)
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "localdf_bas.fh"
 

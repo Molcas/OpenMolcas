@@ -61,11 +61,11 @@
       use Basis_Info
       use Center_Info
       use Phase_Info
+      use Real_Info, only: ThrInt, CutInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "twoswi.fh"
       Real*8 SOInt(iBasi*jBasj*kBask*lBasl,nSOInt)
@@ -832,11 +832,11 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
       use Real_Spherical
       use Basis_Info
       use Center_Info
+      use Real_Info, only: ThrInt, CutInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "twoswi.fh"
       Real*8 Coor(3,4), CoorAC(3,2),
@@ -1203,7 +1203,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
 *
 *--------Write integrals to current position on disc.
 *
-         iOpt=iOrdFm
+         iOpt=0
          Call PkR8(iOpt,nInts,nByte,Wrk(iW2),Wrk(iW3))
          mInts=(nByte+RtoB-1)/RtoB
 *
@@ -1251,7 +1251,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
             Call Abend()
          End If
 *
-         iOpt=iOrdFm
+         iOpt=0
          Call UpkR8(iOpt,nInts,nByte,Wrk(iW3),Wrk(iW2))
       End If
 *

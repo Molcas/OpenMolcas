@@ -16,8 +16,7 @@
      &                       XHoleLoc,D2, ChPol, ChPolBB,LIonize)
       use Real_Spherical
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"

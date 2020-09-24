@@ -31,13 +31,12 @@
       use Center_Info
       use PCM_arrays, only: PCM_SQ, PCMTess, MM
       use External_Centers
-      use Symmetry_Info, only: iChBas
+      use Symmetry_Info, only: iChBas, nIrrep
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "SysDef.fh"
 #include "print.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"
@@ -228,7 +227,7 @@
 ************************************************************************
 *
 
-      If (.Not.lXF) Go To 666
+      If (.Not.Allocated(XF)) Go To 666
 *
       If((nOrd_XF.gt.1).or.(iXPolType.gt.0)) Then
          Call WarningMessage(2,'Error in DrvN1')

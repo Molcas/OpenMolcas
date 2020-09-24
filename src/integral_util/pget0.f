@@ -37,9 +37,10 @@
       use aces_stuff
       use pso_stuff
       use Index_arrays, only: iSO2Sh
+      use Sizes_of_Seward, only: S
+      use RICD_Info, only: Do_RI
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
 #include "print.fh"
@@ -81,7 +82,7 @@
          ipPam=1
          ipiPam = ipPam + MemPSO
          ipMap = ipiPam + n1+n2+n3+n4
-         ipC = ipMap + 4*nDim
+         ipC = ipMap + 4*S%nDim
          ipS1 = ipC + nCred
          ipS2 = ipS1 + 2*nScr1
 *
@@ -123,7 +124,7 @@
      &                    iAO,iAOst,Shijij,
      &                    iBas,jBas,kBas,lBas,kOp,D0,nDens,
      &                    Mem2(ipPam),n1,n2,n3,n4,
-     &                    Mem2(ipiPam),Mem2(ipMap),nDim,
+     &                    Mem2(ipiPam),Mem2(ipMap),S%nDim,
      &                    Mem2(ipC),nCred,Mem2(ipS1),nScr1,
      &                    Mem2(ipS2),nScr2,PMax)
 !yma                  write(*,*)"PGet3 ==========="
@@ -171,7 +172,7 @@
      &                    Shijij, iAO, iAOst, ijkl, PSO, nPSO,
      &                    D0,nDens,
      &                    Mem2(ipPam),n1,n2,n3,n4,
-     &                    Mem2(ipiPam),Mem2(ipMap),nDim,
+     &                    Mem2(ipiPam),Mem2(ipMap),S%nDim,
      &                    Mem2(ipC),nCred,Mem2(ipS1),nScr1,
      &                    Mem2(ipS2),nScr2,PMax)
 !yma                  write(*,*)"PGet4 ============"

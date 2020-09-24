@@ -33,8 +33,6 @@
       use Real_Spherical, only: iSphCr
       use Symmetry_Info, only: iChBas
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
       Real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
       Integer iAng(4), iShll(4)

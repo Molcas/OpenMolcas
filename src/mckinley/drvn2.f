@@ -32,12 +32,10 @@
       use Basis_Info
       use Center_Info
       use PCM_arrays
-      use Symmetry_Info, only: iChTbl
+      use Symmetry_Info, only: nIrrep, iChTbl
       Implicit Real*8 (A-H,O-Z)
-c#include "print.fh"
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "WrkSpc.fh"

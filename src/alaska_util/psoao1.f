@@ -51,10 +51,11 @@
       use aces_stuff, only: nGamma, Gamma_On
       use PSO_Stuff
       use SOAO_Info, only: iAOtSO
+      use Temporary_parameters, only: force_part_c, force_part_p
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "lCache.fh"
 #include "pstat.fh"
@@ -157,7 +158,7 @@
          nFac = 0
          nTmp2 = 0
       End If
-      MemAux0= MemPSO + MemScr + nFac*nDim + nTmp2 + 4
+      MemAux0= MemPSO + MemScr + nFac*S%nDim + nTmp2 + 4
       If (Mem1+1+MemAux0.gt.Mem0) Then
          MaxReq=Max(MaxReq,Mem1+1+MemAux0-Mem0)
          QjPrim = .False.
@@ -179,7 +180,7 @@
             Write (6,'(2I3,L1,2I3,L1)')
      &            jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim
             Write (6,*) MemMax,Mem0,Mem1,MemAux0+1
-            Write (6,*) MemPSO,MemScr,4*nDim,nTmp2+4
+            Write (6,*) MemPSO,MemScr,4*S%nDim,nTmp2+4
             Call Abend()
          End If
          Go To 999

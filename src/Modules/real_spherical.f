@@ -68,7 +68,6 @@
       Implicit real*8 (a-h,o-z)
 *     find iTabMx, limiting the highest ang mom, in itmax.fh
 #include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
       Logical CSPF
 *     check if required ang mom is greater than hard-coded limit

@@ -33,8 +33,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
       Integer nOp(2)
       Logical Ifgrad(3,2)
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,2),

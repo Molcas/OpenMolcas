@@ -35,11 +35,10 @@
 *             October '91                                              *
 ************************************************************************
       use Basis_Info, only: nCnttp, dbsc, nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External NaHss,OvrHss, KneHss,PrjHss,SROHss,M1Hss,PCMHss
       External NaMmH,OvrMmH, KneMmH,PrjMMH,sroMMH,M1MMH,PCMMMH
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "rctfld.fh"

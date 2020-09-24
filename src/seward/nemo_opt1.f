@@ -10,9 +10,9 @@
 ************************************************************************
       Subroutine NEMO_Opt1()
       use Basis_Info
+      use Symmetry_Info, only: nIrrep
       Implicit real*8(a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "warnings.fh"
 #include "rinfo.fh"
 #include "print.fh"

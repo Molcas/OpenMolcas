@@ -71,9 +71,8 @@
       use Center_Info
       use Symmetry_Info, only: iOper
       Implicit None
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"

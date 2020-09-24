@@ -38,9 +38,8 @@
       use Basis_Info, only: nBas, nBas_Aux
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: nnp, lPSO, lsa, DMdiag
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "WrkSpc.fh"

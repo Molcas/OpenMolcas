@@ -11,6 +11,7 @@
       Subroutine MkGrid(natom,ipCord,ipGrd,nGrdPt,iRMax,DeltaR,
      &                  Forces,ipIsMM,iGrdTyp,ipDGrd,nAtQM)
       use PCM_arrays
+      use external_centers, only: iXPolType
       Implicit Real*8 (A-H,O-Z)
 *
 #include "espf.fh"

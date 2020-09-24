@@ -127,8 +127,7 @@
       Return
       End
       Subroutine Ini_PkR8(PkMode)
-#include "itmax.fh"
-#include "info.fh"
+      use Real_Info, only: PkAcc
       Logical PkMode
 *
       Call inipkr8(PkAcc,PkMode)

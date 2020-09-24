@@ -12,8 +12,6 @@
       use Basis_Info, only: dbsc
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
-#include "itmax.fh"
-#include "info.fh"
 *
       If (dbsc(i)%Aux) Then
          Basis_Mode = Auxiliary_Mode
