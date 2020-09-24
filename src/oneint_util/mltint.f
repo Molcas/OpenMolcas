@@ -64,7 +64,6 @@
 *
       iRout = 122
       iPrint = nPrint(iRout)
-*     Call qEnter('MltInt')
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
@@ -76,7 +75,6 @@
       If (NDDO.AND.
      &    .NOT.(ABeq(1).AND.ABeq(2).AND.ABeq(3))) Then
         call dcopy_(nZeta*nIC*nElem(la)*nElem(lb),[Zero],0,Final,1)
-*       Call qExit('MltInt')
         Return
       End If
 *     switch
@@ -252,7 +250,6 @@
       End If
 *
 *     Call GetMem(' Exit MltInt','LIST','REAL',iDum,iDum)
-*     Call qExit('MltInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

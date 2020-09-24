@@ -65,7 +65,6 @@
 *
       iRout = 151
       iPrint = nPrint(iRout)
-C     Call qEnter('NAInt')
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
@@ -294,7 +293,6 @@ C     Call qEnter('NAInt')
       End If
 *
 *     Call GetMem(' Exit NAInt','LIST','REAL',iDum,iDum)
-C     Call qExit('NAInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

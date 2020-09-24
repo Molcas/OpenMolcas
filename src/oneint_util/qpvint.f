@@ -49,7 +49,6 @@
 *
       iRout = 210
       iPrint = nPrint(iRout)
-*     Call qEnter('QpVInt')
 *
       nip = 1
       ipB = nip
@@ -115,7 +114,6 @@
 *
  102  Continue
 *
-*     Call qExit('QpVInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

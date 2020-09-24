@@ -575,7 +575,6 @@ c                 Write (*,*) 'Prem=',Prem
      &                      'Norm of gradient contribution is huge!'
                       Write (6,*) 'Probably due to wrong coordinates.'
                       Call QTrace()
-                      Call QExit('TwoEl')
                   End If
 *
  410           Continue

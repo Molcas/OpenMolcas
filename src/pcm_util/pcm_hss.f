@@ -23,7 +23,6 @@
 *
       iRout = 1
       iPrint = nPrint(iRout)
-      Call QEnter('PCM_Hss')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -80,7 +79,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('PCM_Hss')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Hess)

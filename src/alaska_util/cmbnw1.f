@@ -50,7 +50,6 @@
       iRout = 134
       iPrint = nPrint(iRout)
       iQ = 1
-*     Call qEnter('CmbnW1')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In CmbnW1: Zeta  ',' ',Zeta  ,1,nZeta)
@@ -227,6 +226,5 @@
  110     Continue
  100  Continue
 *
-*     Call qExit('CmbnW1')
       Return
       End

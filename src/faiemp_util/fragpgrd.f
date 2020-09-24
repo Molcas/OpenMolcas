@@ -110,7 +110,6 @@
       nElem(i) = (i+1)*(i+2)/2
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *
-*     Call qEnter('FragPGrd')
       iRout = 202
       iPrint = nPrint(iRout)
 *

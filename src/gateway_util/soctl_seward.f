@@ -74,7 +74,6 @@ CIFG: for Cartesian shells, l -> -l, m -> T(ly+lz)-(lx+ly), where T(n)=n*(n+1)/2
       IsBasisUNK=.false.
       iRout=2
       iPrint = nPrint(iRout)
-      Call qEnter('SOCtl')
 cvv LP_NAMES was used later without initialization.
       do i=1,MxAtom
        LP_NAMES(i)(1:LENIN)='crap'
@@ -976,6 +975,5 @@ CSVC: basis IDs of non-symmetric case
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit ('SOCtl')
       Return
       End

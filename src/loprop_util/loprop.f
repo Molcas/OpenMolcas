@@ -54,7 +54,6 @@
       Utility = .True.
       Utility = .False.
 #ifdef _DEBUG_
-         Call QEnter('LoProp')
 #endif
       lSave = ireturn.eq.0
       ireturn=99
@@ -213,7 +212,6 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUG_
-         Call QExit('LoProp')
 #endif
       Return
       End

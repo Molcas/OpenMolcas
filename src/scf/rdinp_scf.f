@@ -97,7 +97,6 @@
 *----------------------------------------------------------------------*
 *
 #ifdef _DEBUG_
-      Call qEnter('RdInp')
 #endif
 *
 *     copy input from standard input to a local scratch file
@@ -1732,7 +1731,6 @@ c         Write (6,*)
 *
       Call Put_iScalar('SCF mode',iUHF)
 #ifdef _DEBUG_
-      Call qExit('RdInp')
 #endif
 *
       LKon = ALGO.eq.4

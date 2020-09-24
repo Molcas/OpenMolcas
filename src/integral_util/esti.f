@@ -35,7 +35,6 @@
 *
       iRout = 238
       iPrint = nPrint(iRout)
-*     Call QEnter('EstI')
 *
       If (iPrint.ge.99) Then
          Write (6,*) 'Esti:mZeta=',IndZ(nAlpha*nBeta)
@@ -69,7 +68,6 @@
       iHigh = iDAMax_(niBas*njBas,Scrt,1)
       EstI = Sqrt(Scrt(iHigh))
 *
-*     Call QExit('EstI')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

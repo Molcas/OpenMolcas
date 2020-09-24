@@ -40,7 +40,6 @@
       iRout = 122
       iPrint = nPrint(iRout)
 *     iQ = 1
-      Call qEnter('WelInt')
       If (iPrint.ge.59) Then
          Write (6,*) ' In WelInt'
          Write (6,*) ' r0, ExpB=',r0,ExpB
@@ -114,7 +113,6 @@
       ip = ip - nZeta*5
       ip = ip - nZeta*jsum
 *
-      Call qExit('WelInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

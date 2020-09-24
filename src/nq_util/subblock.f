@@ -59,7 +59,6 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUG_
-      Call QEnter('Subblock')
 #endif
       nGrid=(9*mGrid)/10
       iStrt=number_of_grid_points+1
@@ -357,7 +356,6 @@ C        Write (*,*) 'ntotgp=',ntotgp
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUG_
-      Call QExit('Subblock')
 #endif
       Return
       End

@@ -88,7 +88,6 @@
       iRout = 240
       iPrint = nPrint(iRout)
 *     iPrint = 99
-      Call QEnter('Drvk2')
       Call CWTime(TCpu1,TWall1)
 *                                                                      *
 ************************************************************************
@@ -357,7 +356,6 @@ C        Write (6,*) 'Drvk2: Release Sew_Scr'
 ************************************************************************
 *                                                                      *
 *
-      Call QExit('Drvk2')
       Call CWTime(TCpu2,TWall2)
       Call SavTim(2,TCpu2-TCpu1,TWall2-TWall1)
       k2_Status=Produced

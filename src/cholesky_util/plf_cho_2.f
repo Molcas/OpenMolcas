@@ -54,7 +54,6 @@
       iShP2Q(i,j)=iWork(ip_iShP2Q-1+2*(j-1)+i)
 *
 #if defined (_DEBUG_)
-      Call qEnter('Plf_Cho_2')
 #endif
       irout = 109
       jprint = nprint(irout)
@@ -249,7 +248,6 @@ C to avoid stupid compiler warnings:
 100   Continue
 
 #if defined (_DEBUG_)
-      Call qExit('Plf_Cho_2')
 #endif
       Return
       End

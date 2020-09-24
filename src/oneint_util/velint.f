@@ -35,7 +35,6 @@
       Character*80 Label
       iRout=160
       iPrint = nPrint(iRout)
-      Call qEnter('VelInt')
 
       If (iPrint.ge.99) Then
          Call RecPrt(' In VelInt: Beta ',' ',Beta ,nZeta,1)
@@ -68,6 +67,5 @@
  10   Continue
 
 *     Call GetMem(' Exit VelInt  ','CHECK','REAL',iDum,iDum)
-      Call qExit('VelInt')
       Return
       End

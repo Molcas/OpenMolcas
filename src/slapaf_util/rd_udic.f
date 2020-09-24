@@ -32,7 +32,6 @@
 *
       iRout = 27
       iPrint = nPrint(iRout)
-      Call qEnter('Rd_UDIC')
 *
       Lu=6
 *
@@ -86,7 +85,6 @@ c      Open(Lu_UDIC,File=filnam,Form='FORMATTED',Status='OLD')
  400  Continue
 *
       Close(Lu_UDIC)
-      Call qExit('Rd_UDIC')
       Return
       End
 
@@ -109,7 +107,6 @@ c      Open(Lu_UDIC,File=filnam,Form='FORMATTED',Status='OLD')
       Character*16 filnam
       Integer mRowH(10)
 *
-      Call qEnter('Rd_UDIC_RowH')
 *
 * nMaxRowH is the maximum number of internal coordinates that can be
 * specified for the numerical estimation of rows (and column) of the
@@ -176,6 +173,5 @@ c      Open(Lu_UDIC,File=filnam,Form='FORMATTED',Status='OLD')
  40      Continue
       End Do
       Close(Lu_UDIC)
-      Call qExit('Rd_UDIC_RowH')
       Return
       End

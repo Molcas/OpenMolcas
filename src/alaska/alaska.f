@@ -88,7 +88,6 @@
 *                                                                      *
 *     Print program header
 *
-      Call qEnter('Alaska')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -440,7 +439,6 @@
 *     Epilogue
 *
       Call ClsSew
-      Call qExit('Alaska')
 *
       If (iPrint.ge.6) Then
          Call qStat(' ')

@@ -83,7 +83,6 @@
       TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
      &                              iIrrep,iComp,dc(mdc)%nStab)
 *
-*     Call qEnter('M1Grd')
       iRout = 193
       iPrint = nPrint(iRout)
 *
@@ -330,7 +329,6 @@
  100  Continue
 *
 *
-*     Call QExit('M1Grd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

@@ -48,7 +48,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('NewH')
       iRout = 112
       iPrint = nPrint(iRout)
       If (iPrint.ge.99) Then
@@ -197,6 +196,5 @@
 ************************************************************************
 *                                                                      *
  999  Continue
-      Call QExit('NewH')
       Return
       End Subroutine NewH

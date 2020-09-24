@@ -44,7 +44,6 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-*     Call qEnter('CmbnKE_GIAO')
 *
       RAB(1)=A(1)-RB(1)
       RAB(2)=A(2)-RB(2)
@@ -152,6 +151,5 @@
       End Do
       End Do
 *
-*     Call qExit('CmbnKE_GIAO')
       Return
       End

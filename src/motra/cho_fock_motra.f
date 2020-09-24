@@ -29,7 +29,6 @@
 *  CALCULATE AND RETURN FMAT DUE TO FROZEN ORBITALS ONLY
 *****************************************************************
 
-      Call qEnter('Cho_Fock_MoTRA')
 
       NScreen=10
       dmpK=1.0d-1
@@ -115,6 +114,5 @@
          write(6,*)'Try recovery -- continue.'
       endif
 
-      Call qExit('Cho_Fock_MoTRA')
       RETURN
       END

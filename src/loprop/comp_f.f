@@ -31,7 +31,6 @@
       Character*8 Method, Label
       Integer mBas(8)
 *
-C     Call QEnter('Comp_F')
       iOpt1=1
       iOpt2=2
 *
@@ -121,7 +120,6 @@ C     Call Get_Energy(Energy)
 *
       Call WrOne(iRc,0,Label,iComp,h0,iSyLbl)
       Call Put_dScalar('PotNuc',PotNuc_Save)
-C     Call QExit('Comp_F')
       Return
 *
  99   Continue

@@ -43,7 +43,6 @@ C
       NDIMRS(I,J)=IWORK(ip_NDIMRS-1+NSYM*(J-1)+I)
       DSPNM(I)=WORK(ip_DSPNM-1+I)
 
-      CALL QENTER('_STAT')
 
       PARALG=CHO_DECALG.EQ.4 .OR. CHO_DECALG.EQ.5 .OR. CHO_DECALG.EQ.6
 
@@ -679,6 +678,5 @@ C     ------------------------------------------------------------
 
       END IF
 
-      CALL QEXIT('_STAT')
 
       END

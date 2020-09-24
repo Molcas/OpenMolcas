@@ -44,7 +44,6 @@
 *
       iRout = 150
       iPrint = nPrint(iRout)
-      Call qEnter('D1Int')
 *
       nip = 1
       ipAxyz = nip
@@ -83,7 +82,6 @@
       End If
 *
 *     Call GetMem(' Exit D1Int','LIST','REAL',iDum,iDum)
-      Call qExit('D1Int')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

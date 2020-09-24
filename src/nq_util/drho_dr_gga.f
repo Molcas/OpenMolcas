@@ -55,7 +55,6 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUG_
-      Call QEnter('dRho_dR_GGA')
       If (Debug) Then
          Call RecPrt('dRho_dR_GGA:Dens',' ',Dens,nDens,nD)
          Write (6,*) 'mAO=',mAO
@@ -233,7 +232,6 @@
       If (Debug) Call RecPrt('dRho_dR_GGA: dRho_dR',' ',dRho_dR,
      &                        ndRho_dR*mGrid,nGrad_Eff)
 *
-      Call QExit('dRho_dR_GGA')
 #else
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Dens)

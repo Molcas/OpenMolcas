@@ -44,7 +44,6 @@
 *
       iRout = 203
       iPrint = nPrint(iRout)
-      Call qEnter('Util1 ')
 *
       If (iPrint.ge.99) Then
           Write (6,*) ' In Util1 la,lb=',la,lb
@@ -213,6 +212,5 @@
 400       Continue
       End If
 *
-      Call qExit('Util1 ')
       Return
       End

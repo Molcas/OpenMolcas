@@ -52,7 +52,6 @@ c     ISqOff(i,j,k,l) =
 c    &             ((indSOo(j)*nSOiSh(i)+indSOo(i))*nSOiSh(k)
 c    &            +indSOo(k))*nSOiSh(l)
 *
-      Call qEnter('PLFInd')
       iRout = 109
       iPrint = nPrint(iRout)
 *     and set up corresponding logicals...
@@ -178,7 +177,6 @@ c                       IntOff=ISqOff(1,2,3,4)
       End If
 *
 *     Call GetMem(' Exit PLFIdS','CHECK','REAL',iDum,iDum)
-      Call qExit('PLFInd')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_logical(Shijij)

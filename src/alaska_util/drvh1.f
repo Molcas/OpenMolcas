@@ -74,7 +74,6 @@ CAOM>
       iRout = 131
       iPrint = nPrint(iRout)
       Call CWTime(TCpu1,TWall1)
-      Call qEnter('Drvh1')
       Call StatusLine(' Alaska:',' Computing 1-electron gradients')
 *
 *---- Allocate memory for density and Fock matrices
@@ -424,6 +423,5 @@ CAOM>
 *
       Call CWTime(TCpu2,TWall2)
       Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
-      Call qExit('Drvh1')
       Return
       End

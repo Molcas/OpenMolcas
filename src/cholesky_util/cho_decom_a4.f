@@ -31,7 +31,6 @@ C
       nKVec(i)=iWork(ip_nKVec-1+i)
 
 #if defined (_DEBUG_)
-      Call qEnter('_Decom_A4')
 #endif
 
 C     Print header.
@@ -344,7 +343,6 @@ C     ------
       End If
 
 #if defined (_DEBUG_)
-      Call qExit('_Decom_A4')
 #endif
 
       End

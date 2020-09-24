@@ -81,7 +81,6 @@
 *
       iRout = 112
       iPrint = nPrint(iRout)
-      Call qEnter('Drv1_RF')
 *
       iIrrep = 0
 *
@@ -371,6 +370,5 @@
       Call mma_deallocate(ZI)
       Call mma_deallocate(Zeta)
 *
-      Call qExit('Drv1_RF')
       Return
       End

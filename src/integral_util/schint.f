@@ -64,7 +64,6 @@
       iRout = 242
       iPrint = nPrint(iRout)
 *     iQ = 1
-*     Call qEnter('SchInt')
       la = iAnga(1)
       lb = iAnga(2)
       If (iPrint.ge.19) Then
@@ -158,7 +157,6 @@
       If (iPrint.ge.99) Call RecPrt(' In SchInt',' ',Wrk(i_Int),
      &      mZeta,(nElem(la)*nElem(lb))**2)
 *     Call GetMem(' Exit SchInt','CHECK','REAL',iDum,iDum)
-*     Call qExit('SchInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer_array(iCmp)

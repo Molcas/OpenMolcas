@@ -46,7 +46,6 @@
 *
       iRout = 170
       iPrint = nPrint(iRout)
-      Call qEnter('Darwin ')
       If (iPrint.ge.99) Then
          Call RecPrt(' In Darwin: rKappa',' ',rKappa,nZeta,1)
          Call RecPrt(' In Darwin: Zeta',' ',Zeta,nZeta,1)
@@ -175,6 +174,5 @@
  140  Continue
 *
 *     Call GetMem(' Exit Darwin ','LIST','REAL',iDum,iDum)
-      Call qExit('Darwin ')
       Return
       End

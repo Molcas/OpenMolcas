@@ -41,7 +41,6 @@
       COMMON / CHOTRAW / tv2disk
 *
 
-      Call qEnter('RdInp')
 
       iCTonly=0
       iDoInt =0
@@ -223,7 +222,6 @@
       End Do
       Call Put_iArray('nFro',nFro,nSym)
       close(LuSpool)
-      Call qExit('RdInp')
       Return
 *----------------------------------------------------------------------*
 *     Error Exit                                                       *

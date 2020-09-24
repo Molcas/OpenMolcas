@@ -51,7 +51,6 @@
       nBstSh(i)=iWork(ip_nBstSh-1+i)
 *
 #if defined (_DEBUG_)
-      Call qEnter('Plf_Cho')
 #endif
       irout = 109
       jprint = nprint(irout)
@@ -256,7 +255,6 @@ C to avoid stupid compiler warnings:
 100   Continue
 
 #if defined (_DEBUG_)
-      Call qExit('Plf_Cho')
 #endif
       Return
       End

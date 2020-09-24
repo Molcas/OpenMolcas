@@ -35,7 +35,6 @@
       Character Label*(*), Names(nGrad)*(LENIN6)
       Character Namei*(LENIN5)
 *
-*     Call qEnter('PrGrad')
 *
       Write (6,*)
       Call Banner(Label,1,Len(Label)+30)
@@ -87,6 +86,5 @@
       EndIf
       Write (6,*)
 *
-*     Call qExit('PrGrad')
       Return
       End

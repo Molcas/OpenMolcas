@@ -36,12 +36,10 @@
 *
       iRout = 233
       iPrint = nPrint(iRout)
-*     Call qEnter('HrrCtl')
 *
       Call Hrr2Da(Arr1,nTR,nabMax,ncdMax,Arr2,A,B,la,lb,lc,ld,IfGrad)
 *
       Call Hrr2Db(Arr2,nTR,       ncdMax,Arr1,C,D,la,lb,lc,ld,IfGrad)
 *
-*     Call qExit('HrrCtl')
       Return
       End

@@ -24,7 +24,6 @@
       Integer OrbSym(2*mxBas)
       Parameter (iPrint=0)
 *
-*     Call qEnter('GugaCtl_MCLR')
 *
       ntRas1=0
       ntRas2=0
@@ -244,7 +243,6 @@ CEAW970812     &      Work(ipCIL),Work(ipCInew))
       Call GetMem('DWN1','FREE','INTEGER',LDOWN,NDOWN)
       Call GetMem('DRT1','FREE','INTEGER',LDRT,NDRT)
 *
-*     Call qExit('GugaCtl_MCLR')
 *
       Return
       End

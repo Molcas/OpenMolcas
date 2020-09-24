@@ -38,7 +38,6 @@
 *
       iRout = 236
       iPrint = nPrint(iRout)
-*     Call QEnter('Picky')
 *     Call GetMem('Enter Picky','Check','Real',iDum,iDum)
 *
       If (nSt.eq.1.and.nEnd.eq.n .and.
@@ -79,7 +78,6 @@ c              jOut= nijCmp*((nEnd-nSt+1)*(mEnd-mSt+1)+1)
  1       Continue
       End If
 *
-*     Call QExit('Picky')
 *     Call GetMem('Exit Picky','Check','Real',iDum,iDum)
       Return
       End

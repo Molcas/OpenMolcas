@@ -94,7 +94,6 @@
 *                                                                      *
       iRout = 9
       iPrint = nPrint(iRout)
-      Call QEnter('Drvg1_2Center_RI')
 #ifdef _CD_TIMING_
       Twoel2_CPU = 0.0d0
       Twoel2_Wall = 0.0d0
@@ -550,6 +549,5 @@ C        End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drvg1_2Center_RI')
       Return
       End

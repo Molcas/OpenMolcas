@@ -103,7 +103,6 @@
 *
       iRout = 1
       iPrint = nPrint(iRout)
-      Call qEnter('RctFld')
 *
       lOper(1)=1
       nOrdOp=lMax
@@ -349,7 +348,6 @@
 ************************************************************************
 *                                                                      *
 *
-      Call qExit('RctFld')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_logical(Dff)

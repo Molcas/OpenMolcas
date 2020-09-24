@@ -55,7 +55,6 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUG_
-      Call QEnter('dRho_dR_meta_GGA')
       If (Debug) Then
          Write (6,*) 'mAO=',mAO
          Write (6,*) 'mGrid=',mGrid
@@ -232,7 +231,6 @@
       If (Debug) Call RecPrt('dRho_dR_meta_GGA: dRho_dR',' ',dRho_dR,
      &                        ndRho_dR*mGrid,nGrad_Eff)
 *
-      Call QExit('dRho_dR_meta_GGA')
 #endif
       Return
       End

@@ -66,7 +66,6 @@
 *                                                                      *
       iRout = 9
       iPrint = nPrint(iRout)
-      Call QEnter('Drv2El_Atomic_NoSym')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -382,6 +381,5 @@ C    &               TInt,nTInt,nTInt)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drv2El_Atomic_NoSym')
       Return
       End

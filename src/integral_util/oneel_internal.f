@@ -101,7 +101,6 @@ C     Logical Addpot
 *                                                                      *
       iRout = 112
       iPrint = nPrint(iRout)
-      Call qEnter('OneEl_')
       RMat_type_integrals=.False.
       Do_PGamma = .True.
 *
@@ -298,7 +297,6 @@ C     Logical Addpot
       Call mma_deallocate(Kappa)
       Call mma_deallocate(ZI)
       Call mma_deallocate(Zeta)
-      Call qExit('OneEl_')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

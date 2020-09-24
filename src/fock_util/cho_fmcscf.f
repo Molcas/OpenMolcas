@@ -86,7 +86,6 @@ c      Debug=.true.
       Debug=.false.
 #endif
 
-      Call QEnter(SECNAM)
 
       if(ExFac.ne.1.0d0) then
           write(6,*) 'WARNING: if you are running MCPDFT calculations'
@@ -778,7 +777,6 @@ c Print the Fock-matrix
 
       rc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
       END

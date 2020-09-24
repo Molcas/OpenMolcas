@@ -37,7 +37,6 @@
       Integer iPntr(nPntr)
       Logical ABeqCD, EQ
 *
-*     Call qEnter('ssss')
 *
       xdInv=One/ddx
       dddx = ddx/10d0 + ddx
@@ -85,6 +84,5 @@
 *
  99   Continue
 *
-*     Call qExit('ssss')
       Return
       End

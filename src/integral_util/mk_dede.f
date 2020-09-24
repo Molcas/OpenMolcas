@@ -86,7 +86,6 @@
       iRout = 112
       iPrint = nPrint(iRout)
       Call CWTime(TCpu1,TWall1)
-C     Call QEnter('DeDe')
 *
       If (iPrint.ge.99) Then
          Write (6,*)

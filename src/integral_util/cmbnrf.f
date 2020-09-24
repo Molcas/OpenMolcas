@@ -40,7 +40,6 @@
       iRout = 134
       iPrint = nPrint(iRout)
       iQ = 0
-      Call qEnter('CmbnRF')
 *     Call GetMem(' Enter CmbnRF','LIST','REAL',iDum,iDum)
 *
       Do 130 iZeta = 1, nZeta
@@ -90,6 +89,5 @@
       If (iPrint.ge.99) Call RecPrt('Final',' ',Final,nFinal,nComp)
 *
 *     Call GetMem(' Exit CmbnRF','LIST','REAL',iDum,iDum)
-      Call qExit('CmbnRF')
       Return
       End

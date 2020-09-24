@@ -33,7 +33,6 @@
 *
       iRout = 235
       iPrint = nPrint(iRout)
-      Call qEnter('ExpArr')
 *
       Do 100 iArray = nArray, 1, -1
          jArray = Ind(iArray)
@@ -45,6 +44,5 @@
             call dcopy_(lArray,Array(1,jArray),1,Array(1,iArray),1)
          End If
  100  Continue
-      Call qExit('ExpArr')
       Return
       End

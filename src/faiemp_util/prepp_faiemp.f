@@ -60,7 +60,6 @@
       iRout = 205
       iPrint = nPrint(iRout)
       lPrint=.True.
-      Call qEnter('PrepP_FAIEMP')
       iD0Lbl=1
       iComp=1
 *
@@ -417,7 +416,6 @@
 1000     Continue
 *
 *...  Epilogue, end
-      Call qExit('PrepP_FAIEMP')
       Return
       End
 

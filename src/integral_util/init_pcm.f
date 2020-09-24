@@ -48,7 +48,6 @@
 *
       iRout=1
       iPrint=nPrint(iRout)
-      Call qEnter('Init_PCM')
 *
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
@@ -177,7 +176,6 @@ cpcm_solvent end
 ************************************************************************
 *                                                                      *
  999    Continue
-       Call qExit('Init_PCM')
       Return
 *
 *     This is to allow type punning without an explicit interface

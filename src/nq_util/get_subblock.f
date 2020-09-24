@@ -87,7 +87,6 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUG_
-      Call QEnter('Get_Subblock')
       If (Debug) Then
          Write(6,*) 'Enter Get_Subblock'
          Write(6,*) 'ip_nR_Eff GET_SBK',ip_nR_Eff
@@ -753,7 +752,6 @@ cGLM     &                 list_g,IndGrd,iTab,Temp,F_xc,F_xca,F_xcb,
 *                                                                      *
  999  Continue
 #ifdef _DEBUG_
-      Call QExit('Get_Subblock')
 #endif
       Return
       End

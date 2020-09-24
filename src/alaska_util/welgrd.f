@@ -49,7 +49,6 @@
       iRout = 122
       iPrint = nPrint(iRout)
 *     iQ = 1
-      Call qEnter('WelGrd')
       If (iPrint.ge.59) Then
          Write (6,*) ' In WelGrd'
          Write (6,*) ' r0, ExpB=',r0,ExpB
@@ -208,7 +207,6 @@
       If (lb.ge.1) ip = ip - nZeta*nElem(la)*nElem(lb-1)
       ip = ip - nZeta*nElem(la+1)*nElem(lb)
       ip = ip - 2*nZeta*jsump
-      Call qExit('WelGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

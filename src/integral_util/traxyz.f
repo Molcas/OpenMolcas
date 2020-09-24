@@ -35,7 +35,6 @@
 *
       iRout = 233
       iPrint = nPrint(iRout)
-      Call qEnter('Traxyz')
       If (iPrint.ge.99) Then
          Call RecPrt(' Enter Traxyz: WInt',' ',Wint,nZeta,3**la)
          Call RecPrt(' The transformation matrix',' ',A,nZeta,9)
@@ -78,6 +77,5 @@
      &   Call RecPrt('Exit Traxyz :Global well integrals',' ',
      &                WInt,nZeta,kLen)
 *     Call GetMem('Traxyz','Check','Real',iDum,iDum)
-      Call qExit('Traxyz')
       Return
       End

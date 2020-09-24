@@ -39,7 +39,6 @@
 *
       iRout = 99
       iPrint = nPrint(iRout)
-*     Call qEnter('HRR1')
 *     If (iPrint.ge.99) Then
 *        Write(Label,'(A,i1,A,i1,A)') ' Source: (',na1,',',nb,'|'
 *        Call RecPrt(Label,' ',a1b,nPrim,na1b)
@@ -105,6 +104,5 @@
 *        Call RecPrt(Label,' ',ab1,nPrim,nab1)
 *     End If
 *
-*     Call qExit('HRR1')
       Return
       End

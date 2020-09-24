@@ -109,7 +109,6 @@ c      Debug=.true.
       Debug=.false.
 #endif
 
-      Call QEnter(SECNAM)
 
 
       DoRead  = .false.
@@ -1508,7 +1507,6 @@ c Print the Fock-matrix
 
       rc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
       END

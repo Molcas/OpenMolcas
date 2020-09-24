@@ -52,7 +52,6 @@
 *
       iRout = 130
       iPrint = nPrint(iRout)
-*     Call qEnter('SOGthr')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In SOGthr: PrpInt',' ',PrpInt,1,nPrp)
@@ -113,7 +112,6 @@
       End If
       If (iPrint.ge.99) Call GetMem(' Exit SOGthr','CHECK','REAL',
      &                              iDum,iDum)
-*     Call qExit('SOGthr')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_logical(AeqB)

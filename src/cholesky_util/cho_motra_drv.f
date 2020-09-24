@@ -61,7 +61,6 @@ C
       Debug=.false.
 #endif
 
-      Call QEnter(SECNAM)
 
       DoRead  = .false.
       IREDC = -1  ! unknown reduced set in core
@@ -460,7 +459,6 @@ C --- free memory
       rc  = 0
 
       Call Cho_X_final(rc)
-      CAll QExit(SECNAM)
 
       Return
       END

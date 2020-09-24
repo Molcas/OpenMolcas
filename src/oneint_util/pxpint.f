@@ -50,7 +50,6 @@
 *
       iRout = 220
       iPrint = nPrint(iRout)
-      Call qEnter('PXPInt')
 *
       iSize=nZeta*nElem(la)*nElem(lb)*nComp
       call dcopy_(iSize,[Zero],0,Final,1)
@@ -180,7 +179,6 @@ C              Write (6,*) 'iSym_pXp,iSym_pX=',iSym_pXp,iSym_pX
       If (iPrint.ge.49) Call RecPrt('pXpInt: Final',' ',Final,
      &                               nZeta,nElem(la)*nElem(lb))
 *
-      Call qExit('pXpInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nHer)

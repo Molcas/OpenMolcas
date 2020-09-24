@@ -61,7 +61,6 @@ c      Character*120 Lines(17)
 *
 *     Prologue
 *
-      Call qEnter('GRID')
       levelprint=IPRINTLEVEL(-1)
       if(iRun.eq.0.and.levelprint.lt.3) then
         levelprint=0
@@ -124,7 +123,6 @@ c      write(6,*) 'Input file for molcasgv was generated'
 c      ireturn=0
 
 
-      Call qExit('GRID')
       return
       End
 #elif defined (NAGFOR)

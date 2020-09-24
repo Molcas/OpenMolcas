@@ -34,7 +34,6 @@ C
 
       Integer ipWrk, lWrk
 
-      Call qEnter(ThisNm)
       irc = 0
 
       Call GetMem('GetMax','Max ','Real',ipWrk,lWrk)
@@ -66,5 +65,4 @@ C
       End If
 
     1 Call GetMem('GetMax','Free','Real',ipWrk,lWrk)
-      Call qExit(ThisNm)
       End

@@ -59,7 +59,6 @@ C     nElem(ixyz) = 2*ixyz+1
 *
       iRout = 151
       iPrint = nPrint(iRout)
-*     Call qEnter('XFdInt')
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *

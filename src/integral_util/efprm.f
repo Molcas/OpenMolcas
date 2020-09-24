@@ -56,7 +56,6 @@
 *
       iRout = 200
       iPrint = nPrint(iRout)
-      Call qEnter('EFPrm')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In EFPrm: Alpha',' ',Alpha,nAlpha,1)
@@ -156,7 +155,6 @@
  400     Continue
       End If
 *
-      Call qExit('EFPrm')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nRys)

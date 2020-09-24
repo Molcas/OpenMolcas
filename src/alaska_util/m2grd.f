@@ -88,7 +88,6 @@
 *
       iRout = 122
       iPrint = nPrint(iRout)
-*     Call QEnter('M2Grd')
 *
       iIrrep = 0
       iuvwx(1) = dc(mdc)%nStab
@@ -310,7 +309,6 @@
  100  Continue
 *
 *
-*     Call QExit('M2Grd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

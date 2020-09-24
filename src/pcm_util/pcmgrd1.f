@@ -69,7 +69,6 @@
 *
       iRout = 151
       iPrint = nPrint(iRout)
-      Call qEnter('PCMgrd')
 *
 *---- Modify the density matrix with the prefactor
 *
@@ -233,7 +232,6 @@ cpcm_solvent end
       End Do     ! End loop over centers in the external field
 *
 *     Call GetMem(' Exit PCMgrd','LIST','REAL',iDum,iDum)
-      Call qExit('PCMgrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

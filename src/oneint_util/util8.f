@@ -40,7 +40,6 @@
 *
       iRout = 203
       iPrint = nPrint(iRout)
-      Call qEnter('util8 ')
 *
 *
       If (iPrint.ge.99) Then
@@ -132,6 +131,5 @@
 380          Continue
       End If
 *
-      Call qExit('util8 ')
       Return
       End

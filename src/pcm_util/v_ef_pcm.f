@@ -165,7 +165,6 @@ c----------------------------------------------------------------------
 *
       iRout = 112
       iPrint = nPrint(iRout)
-      Call qEnter('drv_ef_PCM')
 *
       iIrrep = 0
 *
@@ -470,6 +469,5 @@ cpcm_solvent end
 *
 c     Call GetMem('drv_ef_PCM','CHEC','REAL',iDum,iDum)
 *
-      Call qExit('drv_ef_PCM')
       Return
       End

@@ -32,7 +32,6 @@
       If (.Not.lRF) Return
 
 *
-      Call QEnter('DrvRF')
 *
       Call Set_Basis_Mode('Valence')
       Call Setup_iSD()
@@ -133,6 +132,5 @@
 ************************************************************************
 *                                                                      *
       Call Free_iSD()
-      Call QExit('DrvRF')
       Return
       End

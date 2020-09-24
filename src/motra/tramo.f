@@ -38,7 +38,6 @@
       integer             :: iout_total
 #endif
 *
-      Call qEnter('Tramo')
 *
 *     Set some constants
 *
@@ -376,6 +375,5 @@
 *
       IF ( INCORE.EQ.1 ) CALL DACLOS(LUHALF)
 *
-      Call qExit('Tramo')
       RETURN
       END

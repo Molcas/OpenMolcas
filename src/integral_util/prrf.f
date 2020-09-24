@@ -34,7 +34,6 @@
       Logical DSCF, NonEq
       Integer StrnLn
 *
-      Call qEnter('PrRF')
 *
       IF (jPrint.GE.2) THEN
       If (lRF.and..Not.PCM.and.lRFCav) Then
@@ -126,7 +125,6 @@
       If (lRF) Call Init_RctFld(NonEq,iCharge)
       If (DSCF) Call Allok2
 *
-      Call qExit('PrRF')
       Return
 *
       End

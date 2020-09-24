@@ -22,7 +22,6 @@
       Real*8 Bt_temp_m(3,4)
 #endif
 *
-      Call qEnter('OutofP')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -76,7 +75,6 @@
       If (Abs(Fi1-Pi).lt.1.0D-13) Then
          Teta=0.0D0
          Call FZero(Bt,3*nCent)
-         Call qExit('OutofP')
          Return
       End If
 *
@@ -133,7 +131,6 @@
       If ((C14X(1,3)**2+C14X(2,3)**2+C14X(3,3)**2).lt.1.0D-10) Then
          Teta=0.0D0
          Call FZero(Bt,3*nCent)
-         Call qExit('OutofP')
          Return
       End If
       C14X(1,3)=C14X(1,3)+xyz(1,4)
@@ -357,7 +354,6 @@ C     Call DScal_(12**2,-One,dBt,1)
       End Do    ! iAtom
       End If
 #endif
-      Call qExit('OutofP')
       Return
       End
 #ifdef _Test_Numerical_
@@ -369,7 +365,6 @@ C     Call DScal_(12**2,-One,dBt,1)
       Logical ldB
       Character*8 Label
 *
-      Call qEnter('OutofP0')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -422,7 +417,6 @@ C     Call DScal_(12**2,-One,dBt,1)
 *
       If (Abs(Fi1-Pi).lt.1.0D-13) Then
          Teta=0.0D0
-         Call qExit('OutofP0')
          Return
       End If
 *
@@ -478,7 +472,6 @@ C     Call DScal_(12**2,-One,dBt,1)
 *
       If ((C14X(1,3)**2+C14X(2,3)**2+C14X(3,3)**2).lt.1.0D-10) Then
          Teta=0.0D0
-         Call qExit('OutofP0')
          Return
       End If
       C14X(1,3)=C14X(1,3)+xyz(1,4)
@@ -493,7 +486,6 @@ C     Call DScal_(12**2,-One,dBt,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('OutofP0')
       Return
       End
       Subroutine OutofP1(xyz,nCent,Teta,Bt,ldB)
@@ -505,7 +497,6 @@ C     Call DScal_(12**2,-One,dBt,1)
       Logical ldB
       Character*8 Label
 *
-      Call qEnter('OutofP1')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -559,7 +550,6 @@ C     Call DScal_(12**2,-One,dBt,1)
       If (Abs(Fi1-Pi).lt.1.0D-13) Then
          Teta=0.0D0
          Call FZero(Bt,3*nCent)
-         Call qExit('OutofP1')
          Return
       End If
 *
@@ -616,7 +606,6 @@ C     Call DScal_(12**2,-One,dBt,1)
       If ((C14X(1,3)**2+C14X(2,3)**2+C14X(3,3)**2).lt.1.0D-10) Then
          Teta=0.0D0
          Call FZero(Bt,3*nCent)
-         Call qExit('OutofP1')
          Return
       End If
       C14X(1,3)=C14X(1,3)+xyz(1,4)
@@ -656,7 +645,6 @@ C     Call DScal_(12**2,-One,dBt,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('OutofP1')
       Return
       End
 #endif

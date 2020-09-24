@@ -55,7 +55,6 @@ C     Data Error/1.0D-06/, BSet/.False./, HSet/.False./,
       Lu=6
       iRout = 33
       iPrint=nPrint(iRout)
-      Call QEnter('Int2Car')
       If (iPrint.ge.11) Then
          Write (Lu,*)
          Write (Lu,*) ' *** Transforming internal coordinates'
@@ -249,7 +248,6 @@ C     Data Error/1.0D-06/, BSet/.False./, HSet/.False./,
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Int2Car')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real(Error)

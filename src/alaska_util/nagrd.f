@@ -62,7 +62,6 @@
 *
       iRout = 150
       iPrint = nPrint(iRout)
-*     Call qEnter('NAGrd')
 *
 #ifdef _DEBUG_
       If (iPrint.ge.99) Then
@@ -259,7 +258,6 @@ C              Call RecPrt('In NaGrd: Grad',' ',Grad,nGrad,1)
  111     kdc = kdc + dbsc(kCnttp)%nCntr
       End Do
 *
-*     Call qExit('NAGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

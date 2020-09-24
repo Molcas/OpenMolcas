@@ -48,7 +48,6 @@
 *
       iRout = 15
       iPrint = nPrint(iRout)
-*     Call QEnter('Rys2Dm')
 #ifdef _DEBUG_
       iPrint=99
       If (iPrint.ge.99) Then
@@ -201,6 +200,5 @@ c Avoid unused argument warnings
          Call Unused_integer(lcc)
       End If
 #endif
-*     Call QExit('Rys2Dm')
       Return
       End

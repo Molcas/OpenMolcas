@@ -50,7 +50,6 @@
 #include "real.fh"
 *
 #ifdef _DEBUG_
-      Call QEnter('ChkTrD')
 #endif
       ipDlt = 1
       ipOvl = 1
@@ -79,7 +78,6 @@
         End If
       End Do
 #ifdef _DEBUG_
-      Call QExit('ChkTrD')
 #endif
       Return
       End

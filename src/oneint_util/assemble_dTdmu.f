@@ -41,7 +41,6 @@
 *
       iRout = 231
       iPrint = nPrint(iRout)
-      Call qEnter('Assemble_dTdmu ')
 *
 *     Fact = -1.D6 * One2C2
       If (iPrint.ge.99) Then
@@ -136,6 +135,5 @@
           End Do
       End If
 *
-      Call qExit('Assemble_dTdmu ')
       Return
       End

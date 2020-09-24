@@ -57,7 +57,6 @@
 *
       iRout = 67
       iPrint = nPrint(iRout)
-*     Call qEnter('Trnsps')
 *     Call RecPrt(' In Trnsps: AOInt ',' ',AOInt,ijkl,ijCmp*ijCmp)
 *
 *     Change phase factor. This is only nessecary if T=/=E.
@@ -109,6 +108,5 @@
 *
 *     Call RecPrt(' Exit Trnsps: AOInt ',' ',AOInt,ijkl,ijCmp*ijCmp)
 *     Call GetMem(' Exit Trnsps','CHECK','REAL',iDum,iDum)
-*     Call qExit('Trnsps')
       Return
       End

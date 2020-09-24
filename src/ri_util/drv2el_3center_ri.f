@@ -87,7 +87,6 @@
 ************************************************************************
 *                                                                      *
       iRout = 9
-      Call QEnter('Drv2El3RI')
 *
 #ifdef  _MOLCAS_MPP_
       Distribute = nProcs.gt.1 .and. Is_Real_Par()
@@ -786,6 +785,5 @@ C      End Do    ! klS
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drv2El3RI')
       Return
       End

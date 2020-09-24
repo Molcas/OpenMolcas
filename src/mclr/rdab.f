@@ -19,7 +19,6 @@
       Character*8 Label
 #include "disp_mclr.fh"
 *
-*     Call qEnter('RDAB')
 *
       Perturbation='NONE'
 *

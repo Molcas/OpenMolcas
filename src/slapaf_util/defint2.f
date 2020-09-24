@@ -76,7 +76,6 @@
 *
       iRout = 30
       iPrint = nPrint(iRout)
-      Call qEnter('DefInt2')
       Start=lIter.eq.1
       Call ICopy(nBVct,[Flip],0,iFlip,1)
 *
@@ -667,7 +666,6 @@ C              Write (Lu,*) 'Flip Sign for ',Labels(iBVct)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('DefInt2')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nDim)

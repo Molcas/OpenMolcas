@@ -64,7 +64,6 @@
       If (nBonds.lt.3) Return
       iRout=152
       iPrint=nPrint(iRout)
-      Call QEnter('OutOfPs')
       nqO=0
       PSPrint=.False.
       Call FZero(Hess,144)
@@ -615,6 +614,5 @@ C                 If (kAtom.gt.lAtom) Go To 401
   101    Continue
       End Do                     ! jBond
 *
-      Call QExit ('OutOfPs')
       Return
       End

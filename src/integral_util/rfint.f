@@ -53,7 +53,6 @@
       iPrint = nPrint(iRout)
 *     iPrint = 99
       iQ = 0
-      Call qEnter('RFInt')
       ABeq(1) = A(1).eq.B(1)
       ABeq(2) = A(2).eq.B(2)
       ABeq(3) = A(3).eq.B(3)
@@ -124,7 +123,6 @@
      &          nComp,Array(ipTemp1),Array(ipTemp2))
 *
 *     Call GetMem(' Exit RFInt','LIST','REAL',iDum,iDum)
-      Call qExit('RFInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

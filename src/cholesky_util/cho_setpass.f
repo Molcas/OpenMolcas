@@ -20,7 +20,6 @@ C
 #include "cholesky.fh"
 
 #if defined (_DEBUG_)
-      CALL QENTER('_SETPASS')
 #endif
 
 C     Initialize the potential number of shell pairs that can
@@ -54,7 +53,6 @@ C     -----------------------------------------
       END IF
 
 #if defined (_DEBUG_)
-      CALL QEXIT('_SETPASS')
 #endif
 
       END

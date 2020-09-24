@@ -66,7 +66,6 @@
       iPrint = nPrint(iRout)
 *#define _DEBUG_
 #ifdef _DEBUG_
-      Call qEnter('PGET_RI3')
       iPrint=99
       If (iPrint.ge.99) Then
          iComp = 1
@@ -487,7 +486,6 @@
          Call RecPrt(' In PGET_RI3:PSO ',' ',PSO,nijkl,nPSO)
       End If
       Call GetMem(' Exit PGET_RI3','CHECK','REAL',iDum,iDum)
-      Call qExit('PGET_RI3')
 #endif
 
       Call CWTime(Cpu2,Wall2)

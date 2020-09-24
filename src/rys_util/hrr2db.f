@@ -41,7 +41,6 @@
       iRout = 233
       iPrint = nPrint(iRout)
 *     iQ = 0
-*     Call qEnter('Hrr2Db')
 *
       Do 10 iCar = 1, 3
          llc = 0
@@ -158,6 +157,5 @@
          End If
  10   Continue
 *
-*     Call qExit('Hrr2Db')
       Return
       End

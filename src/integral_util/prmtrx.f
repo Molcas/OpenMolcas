@@ -35,7 +35,6 @@
       Integer ip(nComp), lOper(nComp)
       Logical Type
 *
-      Call qEnter('PrMtrx')
 *
       Do 10 iComp = 1, nComp
          ip1 = ip(iComp)
@@ -75,6 +74,5 @@
  30      Continue
  10   Continue
 *
-      Call qExit('PrMtrx')
       Return
       End

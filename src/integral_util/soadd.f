@@ -36,7 +36,6 @@
 *
       iRout = 130
       iPrint = nPrint(iRout)
-C     Call qEnter('SOAdd')
       If (iPrint.ge.99) Then
          Call RecPrt(' In SOAdd:SOInt',' ',SOInt,iBas*jBas,nSOInt)
       End If
@@ -107,7 +106,6 @@ C     Call qEnter('SOAdd')
 *
       If (iPrint.ge.99) Call GetMem(' Exit SOAdd','CHECK','ALLO',
      &                              iDum,iDum)
-C     Call qExit('SOAdd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

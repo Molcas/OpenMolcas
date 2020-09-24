@@ -46,7 +46,6 @@
       ldB=.False.
       lWrite = .True.
       lWarn  = .True.
-      Call qEnter('CllCtoF')
       If (iPrint.ge.99) Call RecPrt(' In CllCtoF: Coor',' ',
      &                               Coor,3,nAtom)
 *
@@ -191,6 +190,5 @@
          Call Quit_OnUserError()
       End If
 *
-      Call qExit('CllCtoF')
       Return
       End

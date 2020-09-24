@@ -55,7 +55,6 @@
 *...  Prologue
       iRout = 131
       iPrint = nPrint(iRout)
-      Call qEnter('DrvEMBg')
       LuWr=6
 *
       Call StatusLine(' Alaska:',' Computing OFembedding gradients')
@@ -100,7 +99,6 @@
       Call Free_iSD()
       Call CWTime(TCpu2,TWall2)
       Call SavTim(5,TCpu2-TCpu1,TWall2-TWall1)
-      Call qExit('DrvEMBg')
       Return
       End
 *                                                                      *
@@ -135,7 +133,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('DrvEMB_')
       If (.not.Do_Grad) Then
          Call WarningMessage(2,'DrvEMB_: Do_Grad must be .true.')
          Call Abend()
@@ -331,7 +328,6 @@
 *
       Call Free_Work(ipF_DFT)
       Call GetMem('D-DS','Free','Real',ip_D_DS,l_D_DS)
-      Call QExit('DrvEMB_')
 *
       Return
       End

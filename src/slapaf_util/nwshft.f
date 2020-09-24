@@ -31,7 +31,6 @@
 *
       iRout = 182
       iPrint = nPrint(iRout)
-      Call qEnter('NwShft')
 *
       If (iPrint.ge.99) Then
          Call RecPrt('NwShft  g',' ', g,nInter,nIter)
@@ -120,6 +119,5 @@
          Call RecPrt('  q',' ', q,nInter,nIter+1)
          Call RecPrt(' dq',' ',dq,nInter,nIter)
       End If
-      Call qExit('NwShft')
       Return
       End

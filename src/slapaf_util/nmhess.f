@@ -35,7 +35,6 @@
 *
       iRout = 181
       iPrint = nPrint(iRout)
-      Call qEnter('NmHess')
 *
       If (iPrint.ge.99) Then
          Call RecPrt('NmHess:  g',' ',g,nInter,nIter)
@@ -168,6 +167,5 @@ C        Write (*,*) kIter1,kIter2
 *
       End If
 *
-      Call qExit('NmHess')
       Return
       End

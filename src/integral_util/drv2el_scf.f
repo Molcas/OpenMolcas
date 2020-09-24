@@ -83,7 +83,6 @@
 *                                                                      *
       iRout = 9
       iPrint = nPrint(iRout)
-      Call QEnter('Drv2El')
 #ifdef _DEBUG_
        Debug=.true.
 c       iPrint=200
@@ -328,7 +327,6 @@ c       iPrint=200
 *
       Call Free_DeDe(Dens,TwoHam,nDens)
 *
-      Call QExit('Drv2El')
 *
 *     Broadcast contributions to the Fock matrix
 *

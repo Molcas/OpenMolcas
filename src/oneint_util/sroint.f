@@ -84,7 +84,6 @@
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
-*     Call qEnter('SROInt')
       iRout = 191
       iPrint = nPrint(iRout)
 *
@@ -352,7 +351,6 @@
       End If
 *
 *     Call GetMem(' Exit SROInt','LIST','REAL',iDum,iDum)
-*     Call QExit('SROInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

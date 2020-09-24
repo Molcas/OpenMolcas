@@ -41,7 +41,6 @@
       Integer IndZ(nijkl+1), Ind_Pair(mijkl)
       Logical AeqB
 *
-*     Call QEnter('Cmpct')
 *#define _DEBUG_
 #ifdef _DEBUG_
       Call RecPrt('Cmpct:Zeta',' ',Zeta,mijkl,1)
@@ -128,7 +127,6 @@
 #endif
 *
 *     Call GetMem(' Exit Cmpct','Check','Real',iDum,iDum)
-*     Call QExit('Cmpct')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

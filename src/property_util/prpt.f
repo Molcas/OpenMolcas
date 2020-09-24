@@ -229,7 +229,6 @@ c Avoid unused argument warnings
       Real*8, Target :: Scr(*)
       Character, Pointer :: cScr(:)
 #ifdef _DEBUG_
-      Call qEnter('PrPt_')
 #endif
 *                                                                      *
 ************************************************************************
@@ -689,7 +688,6 @@ c
 *                                                                      *
 499   continue
 #ifdef _DEBUG_
-      Call qExit('PrPt_')
 #endif
       If (iPL.ge.2) Then
          Call CollapseOutput(0,'   Molecular properties:')

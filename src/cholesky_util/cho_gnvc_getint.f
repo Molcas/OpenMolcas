@@ -33,7 +33,6 @@ C
       IndRSh(i)=iWork(ip_IndRSh-1+i)
 
 #if defined (_DEBUG_)
-      Call qEnter('_GnVc_GetInt')
 #endif
 
 C     Initialization and input check.
@@ -120,7 +119,6 @@ C     -------------
       Call xRlsMem_Ints
     1 Continue
 #if defined (_DEBUG_)
-      Call qExit('_GnVc_GetInt')
 #endif
 
       End

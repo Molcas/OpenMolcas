@@ -29,7 +29,6 @@
       DIMENSION NBSX(8),KEEP(8),ISTSQ(8)
       Logical FoundTwoEls,DoDirect,DoCholesky,ISQUAR
 *
-      Call qEnter('Tr2Ctl')
 *
 *     Set time at start of transformation
 *
@@ -232,7 +231,6 @@
       ENDIF
 
       CALL DACLOS(LUTWOMO)
-      Call qExit('Tr2Ctl')
 *
 *     exits
 *

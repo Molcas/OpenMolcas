@@ -58,7 +58,6 @@
       iRout = 30
       iPrint = nPrint(iRout)
       If (iPrint.ge.6) lWrite = .True.
-      Call qEnter('DefInt')
       Do i = 1, 6*nAtom
          lPIC(i)  = .True.
       EndDo
@@ -556,7 +555,6 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
       End If
 
       Close(Lu_UDIC)
-      Call qExit('DefInt')
       First = .False.
       Return
       End

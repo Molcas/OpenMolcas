@@ -47,7 +47,6 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-*     Call qEnter('CmbnRF1')
       If (iPrint.ge.99) Then
          Call RecPrt(' In CmbnRF1: EF',' ',EF,nComp,1)
       End If
@@ -308,6 +307,5 @@
          End Do     ! End loop over centers, iCn
       End Do        ! End loop over EF components, iEF
 *
-*     Call qExit('CmbnRF1')
       Return
       End

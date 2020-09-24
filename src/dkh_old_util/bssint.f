@@ -27,7 +27,6 @@
 *
       iRout=77
       iPrint=nPrint(iRout)
-      Call QEnter('BSSInt')
 #ifdef _DEBUG_
       IfTest=.True.
 #endif
@@ -818,7 +817,6 @@ C
       CALL GetMem('Revtf   ','FREE','REAL',iRevtf,LenIntf)
       CALL GetMem('Aaf     ','FREE','REAL',iAaf,LenIntf1)
       CALL GetMem('Rrf     ','FREE','REAL',iRrf,LenIntf1)
-      Call QExit('BSSInt')
       Return
 *
  9999 Continue

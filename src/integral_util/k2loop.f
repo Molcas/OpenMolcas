@@ -121,7 +121,6 @@
       iRout = 241
       iPrint = nPrint(iRout)
 *     iPrint = 99
-*     Call QEnter('k2Loop')
       call dcopy_(3,[One],0,Q,1)
       nData=nZeta*(nDArray+2*ijCmp)+nDScalar+nHm
       call dcopy_(nData*nDCRR,[Zero],0,Data,1)
@@ -542,7 +541,6 @@
 #endif
  100  Continue ! lDCRR
 *
-*     Call QExit('k2Loop')
       Return
       End Subroutine k2loop_internal
 *

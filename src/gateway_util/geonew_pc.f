@@ -53,7 +53,6 @@
 *     Quit if the datadfield 'NewGeom' is not available
 *
       If ( lBuf.eq.0 ) then
-         Call qExit('GeoNew_PC')
          nNuc=0
          Return
       End If

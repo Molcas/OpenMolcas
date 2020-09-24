@@ -107,7 +107,6 @@
       idum1=0
       ExFac=One
       CoulFac=One
-      Call QEnter('Drvg_FAIEMP')
 *
 *     Handle both the valence and the fragment basis set
 *
@@ -462,6 +461,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drvg_FAIEMP')
       Return
       End

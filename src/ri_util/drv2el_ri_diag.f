@@ -52,7 +52,6 @@
 *                                                                      *
       iRout = 9
       iPrint = nPrint(iRout)
-      Call QEnter('Drv2El_RI_Diag')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -86,7 +85,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drv2El_RI_Diag')
       Return
       End
       SubRoutine Cho_x_setab(iS,jS)

@@ -41,7 +41,6 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-*     Call qEnter('CmbnMP_GIAO')
 *
       Do 10 ixa = 0, la
          iyaMax=la-ixa
@@ -97,6 +96,5 @@
  11   Continue
  10   Continue
 *
-*     Call qExit('CmbnMP_GIAO')
       Return
       End

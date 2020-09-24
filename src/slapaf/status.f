@@ -40,7 +40,6 @@
       Lu=6
       iRout = 52
       iPrint = nPrint(iRout)
-*     Call qEnter('Status')
 *
 *     Pick up previous energy
 *
@@ -124,6 +123,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qExit('Status')
       Return
       End

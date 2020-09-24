@@ -45,7 +45,6 @@
 *
       iRout = 133
       iPrint = nPrint(iRout)
-*     Call qEnter('SymAd1')
       If (iPrint.ge.99) Then
          Write (6,*) ' lOper=',lOper
          Write (6,*) ' nSOInt=',nSOInt
@@ -116,7 +115,6 @@
       End If
       If (iPrint.ge.59) Call GetMem(' Exit SymAd1','CHECK','REAL',
      &                              iDum,iDum)
-*     Call qExit('SymAd1')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

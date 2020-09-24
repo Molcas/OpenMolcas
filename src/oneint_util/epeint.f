@@ -53,7 +53,6 @@
 *
       iRout = 201
       iPrint = nPrint(iRout)
-      Call qEnter('EPEInt')
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
@@ -116,7 +115,6 @@
  100  Continue
 *
 *     Call GetMem(' Exit EPEInt','LIST','REAL',iDum,iDum)
-      Call qExit('EPEInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

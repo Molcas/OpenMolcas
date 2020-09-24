@@ -44,7 +44,6 @@
 *
       iRout = 245
       iPrint = nPrint(iRout)
-*     Call QEnter('Cmpct')
       If (iPrint.ge.59) Then
          Write (6,*) ' In CmpctS'
          Write (6,*) AeqB,iOff,Jnd
@@ -123,7 +122,6 @@
       End If
 *
 *     Call GetMem(' Exit Cmpct','Check','Real',iDum,iDum)
-*     Call QExit('Cmpct')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

@@ -23,7 +23,6 @@
       Integer OrbSym(2*mxBas)
       Parameter (iPrint=0)
 *
-*     Call qEnter('GugaCtl')
 *
       ntRas1=0
       ntRas2=0
@@ -177,7 +176,6 @@
       Call GetMem('DRT1','FREE','INTEGER',LDRT,NDRT)
       Call GetMem('SCR1','FREE','INTEGER',LSCR,NSCR)
 *
-*     Call qExit('GugaCtl')
 *
 
       Return

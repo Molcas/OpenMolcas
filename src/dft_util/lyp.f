@@ -49,7 +49,6 @@ cGLM     &               F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QEnter('LYP')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -304,6 +303,5 @@ C     Call QEnter('LYP')
       End Do
       Endif
 *
-C     Call QExit('LYP')
       Return
       End

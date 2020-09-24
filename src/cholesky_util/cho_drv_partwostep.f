@@ -87,7 +87,6 @@ C
 C     Preliminaries.
 C     ==============
 
-      Call qEnter(myName)
 #if defined (_DEBUG_)
       Call Cho_PrtMaxMem('Start of '//SecNam)
 #endif
@@ -626,6 +625,5 @@ C     ======================
 #if defined (_DEBUG_)
       Call Cho_PrtMaxMem('End of '//SecNam)
 #endif
-      Call qExit(myName)
 
       End

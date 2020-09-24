@@ -80,7 +80,6 @@
 *
       iRout = 151
       iPrint = nPrint(iRout)
-      Call qEnter('PCMHss')
 *
       nip = 1
       ipA = nip
@@ -240,7 +239,6 @@
 111      Continue
       End Do     ! End loop over centers in the external field
 *
-      Call qExit('PCMHss')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

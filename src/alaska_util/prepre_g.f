@@ -40,7 +40,6 @@
       iRout = 180
       iPrint = nPrint(iRout)
 *     iQ = 0
-*     Call qEnter('PrePre')
       If (iPrint.ge.99) Then
          Call RecPrt(' Data1',' ',Data1,nZeta,8)
          Call RecPrt(' Data2',' ',Data2,nEta ,8)
@@ -90,6 +89,5 @@
          lEta = 0
       End If
 *
-*     Call qExit('PrePre')
       Return
       End

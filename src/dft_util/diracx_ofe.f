@@ -33,7 +33,6 @@ C-Ajitha Modifying the kernel output structure
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QEnter('DiracX')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -110,6 +109,5 @@ C     Call QEnter('DiracX')
 *
       End If
 *
-C     Call QExit('DiracX')
       Return
       End

@@ -147,7 +147,6 @@ C     Integer iDskPt,len
          Call qTrace
       End If
 #ifdef _DEBUG_
-      Call qEnter('PutVec')
 #endif
 *
 *     clear ErrCode
@@ -161,7 +160,6 @@ C     Integer iDskPt,len
         If (opcode.eq.'NOOP') Then
 *         that's all, folks
 #ifdef _DEBUG_
-          Call qExit('PutVec')
 #endif
           Return
         Else If (opcode.eq.'OVWR') Then
@@ -172,7 +170,6 @@ C     Integer iDskPt,len
             call dcopy_(lvec,vec,1,Work(nLList(iroot,1)),1)
           End If
 #ifdef _DEBUG_
-          Call qExit('PutVec')
 #endif
           Return
         Else If (opcode.ne.'APND') Then
@@ -208,7 +205,6 @@ cvv Enough memory
 
 *
 #ifdef _DEBUG_
-      Call qExit('PutVec')
 #endif
       Return
 c Avoid unused argument warnings
@@ -248,7 +244,6 @@ c      Integer iDskPt
 #include "SysDef.fh"
 *
 #ifdef _DEBUG_
-      Call qEnter('GetVec')
 #endif
 *
         inode=nLList(iLList,1)
@@ -274,7 +269,6 @@ c      Integer iDskPt
       End If
 *
 #ifdef _DEBUG_
-      Call qExit('GetVec')
 #endif
       Return
 c Avoid unused argument warnings
@@ -299,7 +293,6 @@ c Avoid unused argument warnings
 
 *
 #ifdef _DEBUG_
-      Call qEnter('GetNod')
 #endif
 *
       If (Debug_LnkLst) Then
@@ -325,7 +318,6 @@ c Avoid unused argument warnings
       End If
 *
 #ifdef _DEBUG_
-      Call qExit('GetNod')
 #endif
       Return
       End
@@ -458,7 +450,6 @@ c Avoid unused argument warnings
       Logical InCore
 *
 #ifdef _DEBUG_
-      Call qEnter('LstPtr')
 #endif
       LstPtr=-999999
       Call GetNod(iterat,iLList,inode)
@@ -479,7 +470,6 @@ c Avoid unused argument warnings
         Call Abend()
       End If
 #ifdef _DEBUG_
-      Call qExit('LstPtr')
 #endif
       Return
 c Avoid unused argument warnings
@@ -498,7 +488,6 @@ c Avoid unused argument warnings
 *     local vars
       Integer iLList,iroot,iPtr1
 #ifdef _DEBUG_
-      Call qEnter('KilLst')
 #endif
 *
 *
@@ -522,7 +511,6 @@ c Avoid unused argument warnings
       End If
 *
 #ifdef _DEBUG_
-      Call qExit('KilLst')
 #endif
       Return
       End
@@ -540,7 +528,6 @@ c Avoid unused argument warnings
 #include "SysDef.fh"
 *
 #ifdef _DEBUG_
-      Call QEnter('DmpLst')
 #endif
 *     clear ErrCode
       nLList(iLList,0)=0
@@ -557,7 +544,6 @@ c Avoid unused argument warnings
         Call iDaFile(LUnit,1,nLList(iLList,0),NodSiz,iDskPt)
 *       Call GetMem('CNOD ','Free','Inte',LList,NodSiz)
 #ifdef _DEBUG_
-        Call QExit('DmpLst')
 #endif
         Return
       End If
@@ -604,7 +590,6 @@ c Avoid unused argument warnings
 *     Call GetMem('CNOD ','Free','Inte',LList,NodSiz)
 *
 #ifdef _DEBUG_
-      Call QExit('DmpLst')
 #endif
       Return
       End
@@ -622,7 +607,6 @@ c Avoid unused argument warnings
 #include "SysDef.fh"
 *
 #ifdef _DEBUG_
-      Call QEnter('RclLst')
 #endif
 * load listhead...
       lLList=lLList+1
@@ -637,7 +621,6 @@ c Avoid unused argument warnings
 * linked list has zero length, that's strange
 *       Call Quit(20)
 #ifdef _DEBUG_
-        Call QExit('RclLst')
 #endif
         Return
       End If
@@ -690,7 +673,6 @@ c Avoid unused argument warnings
       If (iPtr2.gt.0) nLList(iLList,3)=nLList(iLList,3)-incore
 *
 #ifdef _DEBUG_
-      Call QExit('RclLst')
 #endif
       Return
       End

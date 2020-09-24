@@ -46,7 +46,6 @@
 *
 *define _DEBUG_
 #ifdef _DEBUG_
-      Call qEnter('UpdFck')
 #endif
 *
       i2Hm=NumDT
@@ -101,7 +100,6 @@
 *
       End Do
 #ifdef _DEBUG_
-      Call qExit('UpdFck')
 #endif
       Return
       End
