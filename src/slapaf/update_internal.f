@@ -346,7 +346,7 @@ C           Write (6,*) 'tBeta=',tBeta
      &                     Shift(1,kIter),Tmp)
             rInter=Sqrt(dDot_(N,Shift(1,kIter),1,Shift(1,kIter),1))
             rCart=Zero
-            Do i=1,nsAtom1
+            Do i=1,nsAtom
                rCart=Max(rCart,
      &                   Sqrt(dDot_(3,Tmp(i),nsAtom,Tmp(i),nsAtom)))
             End Do
