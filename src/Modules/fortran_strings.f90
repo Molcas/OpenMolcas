@@ -150,10 +150,10 @@ module fortran_strings
 
     !> @brief
     !> Split a string at delimiter.
-    pure function split(str, delimiter) result(res)
+    pure subroutine split(str, delimiter, res)
         character(*), intent(in) :: str
         character(1), intent(in) :: delimiter
-        type(StringWrapper_t), allocatable :: res(:)
+        type(StringWrapper_t), allocatable, intent(out) :: res(:)
 
         integer :: i, n, low
 
@@ -171,7 +171,7 @@ module fortran_strings
         if (n == size(res)) then
             res(n)%str = str(low : )
         end if
-    end function
+    end subroutine
 
     !> @brief
     !> Count the occurence of a character in a string.

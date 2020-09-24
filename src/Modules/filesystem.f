@@ -156,7 +156,7 @@
         character(:), allocatable :: res
         type(StringWrapper_t), allocatable :: names(:)
 
-        names = split(path, '/')
+        call split(path, '/', names)
 
         if (len(names(size(names))%str) /= 0) then
         ! Base is a normal file that is not a directory .../.../basename
