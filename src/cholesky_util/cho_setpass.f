@@ -19,7 +19,7 @@ C
       LOGICAL   CONV
 #include "cholesky.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QENTER('_SETPASS')
 #endif
 
@@ -53,7 +53,7 @@ C     -----------------------------------------
          END DO
       END IF
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QEXIT('_SETPASS')
 #endif
 

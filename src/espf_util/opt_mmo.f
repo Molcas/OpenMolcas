@@ -110,7 +110,7 @@
                iAtOut = iAtOut+1
             END IF
          END DO
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 200      FORMAT(I5,6ES12.4)
          IF (MMIter==1) THEN
             WRITE(6,*)
@@ -188,7 +188,7 @@
          WRITE(6,400) MaxF/AuToKjPerMolNm,ConvF/AuToKjPerMolNm
          CALL dscal_(3*nAtGMX,-One/AuToKjPerMolNm,ForceGMX,1)
          EnergyGMX = EnergyGMX/AuToKjPerMol
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 500      FORMAT(3(F12.6,1X))
          WRITE(6,*)
          WRITE(6,*) 'Properties'

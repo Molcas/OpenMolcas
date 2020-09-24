@@ -77,7 +77,7 @@
       iTrM   = 1
       iOvrlp = 1
       Do iSym = 1, nSym
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('FixOrb: CMO(in)',' ',CMO(iCMO),
      &                       nBas(iSym),nBas(iSym))
          Call RecPrt('FixOrb: TrMat',' ',TrMat(iCMO),
@@ -108,7 +108,7 @@
      &                  1.0d0,TT,nBas(iSym),
      &                        S,nBas(iSym),
      &                  0.0d0,TTS,nBas(iSym))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('FixOrb: TT',' ',TT,nBas(iSym),nBas(iSym))
             Call RecPrt('FixOrb: TTS',' ',TTS,nBas(iSym),nBas(iSym))
 #endif
@@ -120,7 +120,7 @@
      &                        CMO(iCMO),nBas(iSym),
      &                  0.0d0,CMO0,nBas(iSym))
             call dcopy_(nBas(iSym)*nOF,CMO0,1,CMO(iCMO),1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('FixOrb: CMO(out)',' ',CMO(iCMO),
      &                             nBas(iSym),nBas(iSym))
 #endif
@@ -145,7 +145,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('FixOrb')
 #endif
       Return

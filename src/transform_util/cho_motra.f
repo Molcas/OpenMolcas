@@ -213,7 +213,7 @@ C
 ************************************************************************
 
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Debug=.true.
 #else
       Debug=.false.

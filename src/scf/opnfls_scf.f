@@ -45,7 +45,7 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('OpnFls')
 #endif
 *
@@ -80,7 +80,7 @@
 *     Exit                                                             *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('OpnFls')
 #endif
       Return

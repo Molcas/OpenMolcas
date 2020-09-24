@@ -50,8 +50,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call qEnter('PLF_RI_2')
       irout = 109
       iPrint = nPrint(irout)
@@ -76,7 +76,7 @@
       nn = mm_ - iOffA(2)
       mx = nn*(nn+1)/2
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'nn,mx=',nn,mx
       Write (6,*) 'iOff=',nn,mx
       Write (6,*) 'lBas,jBas=',lBas,jBas
@@ -107,7 +107,7 @@
 *
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('PLF_RI_2')
 #endif
 *

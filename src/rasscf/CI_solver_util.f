@@ -173,7 +173,7 @@
       end do
       CALL JACOB(MAT_copy, EVC, NAC, NAC)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*) 'eigenvalues: '
       do i=1,nac
          write(6,*) MAT_copy(I*(I+1)/2)
@@ -223,7 +223,7 @@
             MAT(j + (i - 1) * i / 2) = Tmp2(j + (i - 1) * nac)
           end do
         end do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         write(6,*) 'trace after recombination:'
         trace = 0.0d0
         do i = 1, nac

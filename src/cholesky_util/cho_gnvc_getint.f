@@ -32,7 +32,7 @@ C
       InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
       IndRSh(i)=iWork(ip_IndRSh-1+i)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call qEnter('_GnVc_GetInt')
 #endif
 
@@ -119,7 +119,7 @@ C     -------------
 
       Call xRlsMem_Ints
     1 Continue
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call qExit('_GnVc_GetInt')
 #endif
 

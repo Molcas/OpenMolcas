@@ -39,7 +39,7 @@ C
 
       Integer  LDF_nBasAux_Atom, LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
       External LDF_nBasAux_Atom, LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer  LDF_nAtom
       External LDF_nAtom
 #endif
@@ -56,7 +56,7 @@ C
       Integer jShell, kShell
       Integer JK, KJ
       Integer J, K
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer M
 #endif
 
@@ -75,7 +75,7 @@ C
       End If
 #endif
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (A.lt.1 .or. A.gt.LDF_nAtom()) Then
          Call WarningMessage(2,SecNam//': A out of bounds!')
          Call LDF_Quit(1)
@@ -238,7 +238,7 @@ C
       Integer  LDF_nBasAux_Atom, LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
       External LDF_nBasAux_Pair
       External LDF_nBasAux_Atom, LDF_nAuxShell_Atom, LDF_lAuxShell_Atom
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer  LDF_nAtom
       External LDF_nAtom
 #endif
@@ -252,7 +252,7 @@ C
       Integer ip_SewWrk, l_SewWrk
       Integer klS, kShell, lShell
       Integer jS, jShell
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer M
 #endif
 
@@ -276,7 +276,7 @@ C
       End If
 #endif
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (A.lt.1 .or. A.gt.LDF_nAtom()) Then
          Call WarningMessage(2,SecNam//': A out of bounds!')
          Call LDF_Quit(1)
@@ -442,7 +442,7 @@ C
       End If
 #endif
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (AB.lt.1 .or. AB.gt.NumberOfAtomPairs) Then
          Call WarningMessage(2,SecNam//': AB out of bounds!')
          Call LDF_Quit(1)

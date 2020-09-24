@@ -43,11 +43,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        iPrint=49
 C      iPrint=99
 #else
@@ -97,7 +97,7 @@ C      iPrint=99
 *
       Do 1100 iCnttp = 1, mCnttp
          If (dbsc(iCnttp)%Frag.or.dbsc(iCnttp)%nVal.eq.0) goto 1100
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          If (iPrint.ge.99)
      &   Write (6,*) 'Generating auxiliary basis set for valence basis'
      &             //':',iCnttp

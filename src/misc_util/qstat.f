@@ -36,7 +36,7 @@
 #include "SysCtl.fh"
 *
       Character*(*) String
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Character*8   Token
       Character*8   Fmt1,Fmt2
       Integer       Temp(2)

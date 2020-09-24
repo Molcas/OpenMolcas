@@ -44,7 +44,7 @@ C
 
       Integer  LDF_nBasAux_Pair
       External LDF_nBasAux_Pair
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  isSymmetric, hasNonnegativeDiagonal, obeysCauchySchwarz
       External isSymmetric, hasNonnegativeDiagonal, obeysCauchySchwarz
 #endif
@@ -70,7 +70,7 @@ C
       M=LDF_nBasAux_Pair(iAtomPair)
       If (M.lt.1) Return
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (l_G.ne.M*M) Then
          Write(6,'(A,A,2I8)') SecNam,': l_G,M:',l_G,M
          irc=-1
@@ -163,7 +163,7 @@ C
          End Do
       End Do
 
-#ifndef _DEBUG_
+#ifndef _DEBUGPRINT_
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(l_G)
 #endif

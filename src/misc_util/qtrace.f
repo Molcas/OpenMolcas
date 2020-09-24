@@ -31,7 +31,7 @@
 
 #include "SysCtl.fh"
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Character*8   Proc1,Proc2
       Integer       iProc1(2),iProc2(2)
       Equivalence   (Proc1,iProc1),(Proc2,iProc2)

@@ -44,14 +44,14 @@
       Real*8 OneHam(nDT),TwoHam(nDT,nD,NumDT),Vxc(nDT,nD,NumDT),
      &       Fock(nDT,nD)
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call qEnter('UpdFck')
 #endif
 *
       i2Hm=NumDT
       If (nIter_.eq.1) i2Hm=1
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'i2Hm=',i2Hm
       Call NrmClc(OneHam,nDT,'UpdFck','OneHam')
       Call NrmClc(TwoHam(1,1,i2Hm),nDT*nD,'UpdFck','T in i2Hm')
@@ -91,7 +91,7 @@
 *
          Call DaXpY_(nDT,One,Vxc(1,iD,i2Hm  ),1,Fock(1,iD),1)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          write(6,*) 'Fock'
          write(6,'(5f12.6)') (Fock(ivv,iD),ivv=1,nDT)
          Call NrmClc(Fock(1,iD),nDT,'Fock  ','UpdFck ')
@@ -100,7 +100,7 @@
 #endif
 *
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('UpdFck')
 #endif
       Return

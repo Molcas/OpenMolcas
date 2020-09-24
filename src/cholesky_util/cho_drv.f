@@ -73,7 +73,7 @@ C
       PARAMETER (DUMTST = 0.123456789D0, DUMTOL = 1.0D-15)
 
       CALL QENTER('_DRV_')
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL CHO_PRTMAXMEM('CHO_DRV_ [ENTER]')
 #endif
 
@@ -110,7 +110,7 @@ C     ===============
      &                   TIMSEC(4,ISEC),TIMSEC(3,ISEC),
      &                   1)
       END IF
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER CHO_INIT]')
       IRC = 0
       CALL CHO_DUMP(IRC,LUPRI)
@@ -139,7 +139,7 @@ C     =============
      &                   TIMSEC(4,ISEC),TIMSEC(3,ISEC),
      &                   1)
       END IF
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER CHO_GETDIAG]')
       IRC = 0
       CALL CHO_DUMP(IRC,LUPRI)
@@ -218,7 +218,7 @@ C     ==============
      &                      1)
          END IF
       END IF
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER DECOMPOSITION]')
 #endif
 
@@ -252,7 +252,7 @@ C     ===============
      &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),
      &                      1)
          END IF
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER DIAGONAL CHECK]')
 #endif
       END IF
@@ -282,7 +282,7 @@ C     ================
      &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),
      &                      1)
          END IF
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER INTEGRAL CHECK]')
 #endif
       ELSE
@@ -314,7 +314,7 @@ C     ================
      &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),
      &                      1)
          END IF
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER VECTOR REORDERING]')
 #endif
       ELSE
@@ -343,7 +343,7 @@ C     ==================================================
      &                      TIMSEC(4,ISEC),TIMSEC(3,ISEC),
      &                      1)
          END IF
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER CHO_PFAKE_VDIST]')
 #endif
       ELSE
@@ -370,7 +370,7 @@ C     ==============
      &                   TIMSEC(4,ISEC),TIMSEC(3,ISEC),
      &                   1)
       END IF
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER CHO_FINAL]')
 #endif
 
@@ -395,7 +395,7 @@ C     ===========
      &                      1)
          END IF
       END IF
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL CHO_PRTMAXMEM('CHO_DRV_ [AFTER CHO_STAT]')
 #endif
 
@@ -420,7 +420,7 @@ C     ----------------------------------------------------------------
      &                   TWALL1,TWALL0,1)
       END IF
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL CHO_PRTMAXMEM('CHO_DRV_ [EXIT]')
 #endif
       CALL QEXIT('_DRV_')

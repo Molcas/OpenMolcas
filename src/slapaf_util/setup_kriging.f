@@ -62,7 +62,7 @@
 *     the kriging hessian reproduce the diagonal value of the HMF
 *     Hessian of the current structure.
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Energy',' ',Energy,1,nRaw)
       Call RecPrt('qInt',' ',qInt,nInter,nRaw)
       Call RecPrt('Grad',' ',Grad,nInter,nRaw)

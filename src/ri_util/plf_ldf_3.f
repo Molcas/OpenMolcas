@@ -47,7 +47,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -65,7 +65,7 @@
          Write (6,*) 'iShell(4).gt.iShell(3)'
          Call Abend()
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('AOInt',' ',AOInt,ijkl,jCmp*kCmp*lCmp)
       Call RecPrt('Work(ipLocal_A)',' ',Work(ipLocal_A),nAB,nAB)
       n1=nTInt/n3C
@@ -194,7 +194,7 @@ C                             Write (6,*) 'kl_B=',kl_B
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('TInt',' ',TInt,n3C,n1)
 C     Call RecPrt('TInt',' ',TInt,1,nTInt)
 #endif

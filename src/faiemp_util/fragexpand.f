@@ -47,8 +47,8 @@
       Character*(storageSize) sBasis
       Equivalence( sBasis, eqBasis)
       Character *256 Basis_lib, Fname
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Integer i
 #endif
       Character*180, Allocatable :: STDINP(:)
@@ -74,11 +74,11 @@
       iShll = Mx_Shll-1
       lSTDINP=0
       mCnttp = nCnttp
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*) 'nCnttp, iShll, mdc = ',nCnttp,iShll,mdc
 #endif
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        write(6,'(A,i6)')'FragExpand: just before the ''Do 1000 iCnttp'''
        write(6,'(A,i6)') 'FragExpand:       mdc          = ',mdc
        write(6,'(A,i6)') 'FragExpand:    mCnttp          = ',mCnttp
@@ -163,7 +163,7 @@
               End If
               dbsc(nCnttp)%Bsl=sBasis(1:Indx-1)
             Endif
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             write(6,*) 'Setting Bsl(',nCnttp,') to ',dbsc(nCnttp)%Bsl
             write(6,*) 'Fname = ',Fname
 #endif
@@ -220,7 +220,7 @@
             x1 = x1 + dbsc(iCnttp)%Coor(1,iCntr)
             y1 = y1 + dbsc(iCnttp)%Coor(2,iCntr)
             z1 = z1 + dbsc(iCnttp)%Coor(3,iCntr)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             write(6,'(a,i3,3(a,F12.7))') 'FragExpand: Center ',nCnttp,
      &      ' Coordinates:  x =',x1,' y=',y1,' z=',z1
 #endif
@@ -239,7 +239,7 @@
             Do ii = LenLbl+1,4
               label(ii:ii) = '_'
             End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,'(2A)') 'Label=',label
 #endif
 c LENIN possible BUG
@@ -254,7 +254,7 @@ c LENIN possible BUG
               write(label,'(i4)') mdc
             End If
             dc(mdc)%LblCnt(5:LENIN2) = label
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,'(2A)') 'Label=',label
             Write (6,'(2A)') 'LblCnt(mdc)=',dc(mdc)%LblCnt
 #endif
@@ -275,7 +275,7 @@ c LENIN possible BUG
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        write(6,'(A,i6)')'FragExpand: After the ''Do 1000 iCnttp'''
        write(6,'(A,i6)') 'FragExpand:       mdc          = ',mdc
        write(6,'(A,i6)') 'FragExpand:    nCnttp          = ',nCnttp

@@ -61,8 +61,8 @@
 *----------------------------------------------------------------------*
 * Initialize                                                           *
 *----------------------------------------------------------------------*
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call qEnter('Optim')
       Debug=.true.
       Debug2=.True.
@@ -179,7 +179,7 @@
             If(C(i).gt.1.0d0) C(i)=1.0d0
             sum=sum+C(i)
          End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write(6,*) 'optim: sum-1',sum-1.0d0
 #endif
          fact=1.0d0/sum
@@ -188,14 +188,14 @@
          End Do
          Go To 100
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'ERef=',ERef
 #endif
       E_Pred=ERef
 *----------------------------------------------------------------------*
 * Done.                                                                *
 *----------------------------------------------------------------------*
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('Optim')
 #endif
       Return

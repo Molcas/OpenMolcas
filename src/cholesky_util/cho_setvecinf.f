@@ -20,7 +20,7 @@ C
       CHARACTER*13 SECNAM
       PARAMETER (SECNAM = 'CHO_SETVECINF')
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QENTER('_SETVECINF')
 #endif
 
@@ -42,7 +42,7 @@ C
      &                         + NNBSTR(ISYM,ILOC) ! next addr.
       END IF
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QEXIT('_SETVECINF')
 #endif
 

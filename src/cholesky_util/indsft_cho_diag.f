@@ -54,7 +54,7 @@
       ISHLSO(I)=IWORK(ip_iShlSO-1+I)
       NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
 *
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call qEnter('IndSftC')
 #endif
       irout = 39
@@ -238,7 +238,7 @@
 200      Continue
 100   Continue
 *
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call qExit('IndSftC')
 #endif
       Return

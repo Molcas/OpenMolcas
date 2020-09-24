@@ -33,7 +33,7 @@
 *     nDisc in units of MByte
 *     nCore in units of kByte
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('IniBuf')
 #endif
 *
@@ -93,7 +93,7 @@ C        Write (6,*) 'lBuf=',lBuf
          Call mma_allocate(Buffer,lBuf,nBuf,Label='Buffer')
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call QExit('IniBuf')
 #endif
       Return

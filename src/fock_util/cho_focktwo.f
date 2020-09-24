@@ -95,7 +95,7 @@
 **************************************************
 
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 c      Debug=.true.
       Debug=.false.! to avoid double printing in SCF-debug
 #else
@@ -286,7 +286,7 @@ C --- Special trick for the vector L11 ; used to store X(a,Jb)
 
        kLab = kWab + kcount
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        write(6,*) 'Batch ',iBatch,' of ',nBatch,': NumV = ',NumV
        write(6,*) 'Total allocated:     ',kRdMem,' at ',kWab
        write(6,*) 'Memory pointers KSQ1:',(KSQ1(i),i=1,nSym)
@@ -678,7 +678,7 @@ C -- Close Files
 
 
 c Print the Fock-matrix
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 
       if(Debug) then !to avoid double printing in SCF-debug
 

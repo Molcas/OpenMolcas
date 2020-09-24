@@ -58,7 +58,7 @@ C
       End If
 
       ! set debug print
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       DebugPrint=iPrint.gt.4
 #else
       DebugPrint=.false.
@@ -141,7 +141,7 @@ C
             Call RPA_ReadIntegerInput('PRIN',1,Lu,
      *                                iWork(ip_Integer),l_Integer)
             iPrint=max(iWork(ip_Integer),0)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
             DebugPrint=DebugPrint.or.iPrint.gt.4
 #endif
          !*******************************

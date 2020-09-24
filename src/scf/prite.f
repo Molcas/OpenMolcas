@@ -42,7 +42,7 @@
 #include "infso.fh"
       character cEDiff, cDMOMax, cFMOMax,cDltNrm
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('PrIte')
 #endif
 *
@@ -139,7 +139,7 @@
 
          End If
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('PrIte')
 #endif
       Return

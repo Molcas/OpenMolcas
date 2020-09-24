@@ -230,7 +230,7 @@ C
 #include "WrkSpc.fh"
 #include "localdf_bas.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*20 SecNam
       Parameter (SecNam='LDF_SortOverlapBlock')
 #endif
@@ -241,7 +241,7 @@ C
 
       iShell=iSOShl(iAOtSO(iAO+1,0))
       jShell=iSOShl(iAOtSO(jAO+1,0))
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (nBasSh(iShell)*nBasSh(jShell).gt.lS) Then
          Call WarningMessage(2,SecNam//': array dimension problem')
          Call LDF_Quit(1)
@@ -256,7 +256,7 @@ C
                lSO=lSO+1
                Do jj=1,jBas
                   jSOj=iShlSO(jSO0+jj)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                   If (jSOj.lt.1 .or. jSOj.gt.nBasSh(jShell)) Then
                      Call WarningMessage(2,
      &                                    SecNam//' jSOj out of bounds')
@@ -267,7 +267,7 @@ C
                   ij0=iBas*(jj-1)
                   Do ii=1,iBas
                      iSOi=iShlSO(iSO0+ii)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                      If (iSOi.lt.1 .or. iSOi.gt.nBasSh(iShell)) Then
                         Call WarningMessage(2,
      &                                    SecNam//' iSOi out of bounds')
@@ -288,7 +288,7 @@ C
             lSO=lSO+1
             Do jj=1,jBas
                jSOj=iShlSO(jSO0+jj)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                If (jSOj.lt.1 .or. jSOj.gt.nBasSh(jShell)) Then
                   Call WarningMessage(2,SecNam//' jSOj out of bounds')
                   Call LDF_Quit(1)
@@ -298,7 +298,7 @@ C
                ij0=iBas*(jj-1)
                Do ii=jj,iBas
                   iSOi=iShlSO(iSO0+ii)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                   If (iSOi.lt.1 .or. iSOi.gt.nBasSh(iShell)) Then
                      Call WarningMessage(2,
      &                                    SecNam//' iSOi out of bounds')
@@ -322,7 +322,7 @@ C
                lSO=lSO+1
                Do jj=1,jBas
                   jSOj=iShlSO(jSO0+jj)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                   If (jSOj.lt.1 .or. jSOj.gt.nBasSh(jShell)) Then
                      Call WarningMessage(2,
      &                                    SecNam//' jSOj out of bounds')
@@ -333,7 +333,7 @@ C
                   ij0=iBas*(jj-1)
                   Do ii=1,iBas
                      iSOi=iShlSO(iSO0+ii)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                      If (iSOi.lt.1 .or. iSOi.gt.nBasSh(iShell)) Then
                         Call WarningMessage(2,
      &                                    SecNam//' iSOi out of bounds')

@@ -52,8 +52,8 @@
      &       Scrt2(nScrt2)
 #include "real.fh"
 *
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' In Nrmlz: iAng=',iAng
       Call RecPrt(' In Nrmlz: Coefficients',' ',Coeff,nPrim,nCntrc)
       Call RecPrt(' In Nrmlz: Exponents',' ',Exp,nPrim,1)
@@ -91,7 +91,7 @@
      &            1.0d0,Scrt1,nPrim,
      &            Coeff,nPrim,
      &            0.0d0,Scrt2,nPrim)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' Overlap primitives',' ',Scrt1,nPrim,nPrim)
       Call RecPrt(' Overlap PrimCon',' ',Scrt2,nPrim,nCntrc)
 #endif
@@ -99,7 +99,7 @@
 *     Compute the overlap for each contracted basis function, <i|i>
 *
       Call DnDot(nCntrc,nPrim,Scrt1,1,1,Scrt2,1,nPrim,Coeff,1,nPrim)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' Overlap Contracted',' ',Scrt1,nCntrc,1)
 #endif
 *
@@ -128,7 +128,7 @@
       If (nPrim.eq.1 .and. nCntrc.eq.1 .and. Exp(1).eq.Zero) Then
          Coeff(1,1)=One
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call Recprt(' In Nrmlz: Normalized coefficients',' ',
      &            Coeff,nPrim,nCntrc)
 #endif

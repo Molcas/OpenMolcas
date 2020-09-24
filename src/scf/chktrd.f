@@ -49,7 +49,7 @@
 *
 #include "real.fh"
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call QEnter('ChkTrD')
 #endif
       ipDlt = 1
@@ -78,7 +78,7 @@
      &     SumOcc-TrDns,SumOcc,TrDns
         End If
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call QExit('ChkTrD')
 #endif
       Return

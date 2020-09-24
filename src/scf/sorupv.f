@@ -160,8 +160,8 @@
             W(i)=HDiag(i)*V(i)
          End If
       End Do
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt('SORUPV: v        ',' ',V,1,lvec)
       Call RecPrt('SORUPV: HDiag    ',' ',HDiag,1,lvec)
       If (Mode.eq.'DISP') Then
@@ -208,7 +208,7 @@
            SOScr(i)=HDiag(i)*SOGrd(i)
         End If
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Init y(n-1)',' ',SOScr,1,lVec)
 #endif
 *
@@ -268,7 +268,7 @@
             S(5)=Zero
             S(6)=Zero
          End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'it=',it
          Write (6,*) '(S(i),i=1,6)=',(S(i),i=1,6)
 #endif
@@ -303,7 +303,7 @@
 *
 *        Compute w and y(n-1)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) '(T(i),i=1,4)=',(T(i),i=1,4)
 #endif
          Call daxpy_(lvec, T(1),SODel,1,W,1)
@@ -328,7 +328,7 @@
       ipynm1=LstPtr(Luy,iter-1,LLy)
       ipdel =LstPtr(Lu1,iter-1,LL1)
       ipdgd =LstPtr(Lu2,iter-1,LL2)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('y(n-1)',' ',Work(ipynm1),1,lVec)
       If (Mode.eq.'DISP') Then
          Call RecPrt('dX(n-1)',' ',Work(ipdel),1,lVec)
@@ -351,7 +351,7 @@
       S(2)=ddot_(lvec,Work(ipdgd),1,Work(ipynm1),1)
       S(3)=ddot_(lvec,Work(ipdel),1,V,1)
       S(4)=ddot_(lvec,Work(ipynm1),1,V,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) '(S(i),i=1,4)=',(S(i),i=1,4)
 #endif
       If ((Mode_Old.eq.'DISPBFGS').or.
@@ -378,12 +378,12 @@
 *
 *     update the vector w
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) '(T(i),i=1,2)=',(T(i),i=1,2)
 #endif
       Call daxpy_(lvec, T(1),Work(ipdel),1,W,1)
       Call daxpy_(lvec,-T(2),Work(ipynm1),1,W,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('The final W array',' ',W,1,lVec)
 #endif
 *

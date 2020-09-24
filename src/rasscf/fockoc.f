@@ -79,14 +79,14 @@ c fock matrices added -- R L 921008.
 * Disk address ipFocc is in /WADR/
 *      Call GetMem('FOcc','ALLO','REAL',ipFocc,nTot1)
       call dcopy_(nTot1,[0.0D0],0,Work(ipFocc),1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(LF,*) 'nTot1=',nTot1
 #endif
       Call GetMem('Fockoc','ALLO','REAL',ipFock,nFock)
       iAd15 = iAdr15(5)
 *-----Read Fock matrix in MO basis from JOBIPH.
       Call DDaFile(Jobiph,2,Work(ipFock),nFock,iAd15)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Fock(MO)',' ',Work(ipFock),1,nFock)
 #endif
 *
@@ -103,7 +103,7 @@ c fock matrices added -- R L 921008.
 *
 *-----------Transform to SO/AO basis.
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write(LF,*) 'iSym=',iSym
             Call RecPrt('F(iStFck)',' ',F(iStFck),nOrb(iSym),
      &                                            nOrb(iSym))
@@ -137,7 +137,7 @@ c fock matrices added -- R L 921008.
                ij = ij + 1
             END DO
          END IF
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call TriPrt('FAO',' ',Work(jFock),nBas(iSym))
 #endif
          jFock = jFock + nBas(iSym)*(nBas(iSym)+1)/2

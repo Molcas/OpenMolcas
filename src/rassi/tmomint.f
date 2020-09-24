@@ -15,8 +15,8 @@
 *                                                                      *
 ************************************************************************
       Use MpmC
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       use Basis_Info, only: nBas
 #endif
       Implicit Real*8 (A-H,O-Z)
@@ -30,7 +30,7 @@
       Integer, Dimension(:), Allocatable :: ipList, OperI, OperC
       Real*8, Dimension(:), Allocatable :: CoorO, Nuc
       Real*8 wavevector(3)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 #include "stdalloc.fh"
       Real*8, Allocatable :: Int_R(:), Int_I(:), Temp_Int(:)
       Real*8, Allocatable :: Int_R_O(:), Int_I_O(:)
@@ -91,7 +91,7 @@
      &              dum,1,0)
 *
          Call Deallocate_Aux()
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *
       Call mma_allocate(CoorO,6,Label='CoorO')
       CoorO(:)=0.0D0

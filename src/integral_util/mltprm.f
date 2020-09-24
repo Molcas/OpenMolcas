@@ -75,8 +75,8 @@
          Call Abend()
       End If
 *
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In MltPrm: A',' ',A,1,3)
       Call RecPrt(' In MltPrm: RB',' ',RB,1,3)
       Call RecPrt(' In MltPrm: Ccoor',' ',Ccoor,1,3)

@@ -88,7 +88,7 @@ C     Preliminaries.
 C     ==============
 
       Call qEnter(myName)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem('Start of '//SecNam)
 #endif
 
@@ -123,7 +123,7 @@ C     ===============
      &                   TimSec(4,iSec),TimSec(3,iSec),
      &                   1)
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem(SecNam//': After init')
 #endif
 
@@ -152,7 +152,7 @@ C     =============
      &                   TimSec(4,iSec),TimSec(3,iSec),
      &                   1)
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem(SecNam//': After diagonal')
 #endif
 
@@ -184,7 +184,7 @@ C     ====================================
      &                   tW1,TimSec(3,iSec),
      &                   2)
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem(SecNam//': After 1st step')
 #endif
 
@@ -338,7 +338,7 @@ C     ====================================
          Call Cho_Timer(tC1,tW1)
          Call Cho_PrtTim('Cholesky reinitialization',tC1,tC0,tW1,tW0,2)
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem(SecNam//': After re-init')
 #endif
 
@@ -454,7 +454,7 @@ C     ====================================
          Call Cho_PrtTim('Cholesky Z vector fetching',tC1,tC0,tW1,tW0,
      &                   2)
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem(SecNam//': After GetZ')
 #endif
 
@@ -502,7 +502,7 @@ C     ====================================
       Call Cho_Timer(C1,W1)
       tDecDrv(1)=C1-C0
       tDecDrv(2)=W1-W0
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem(SecNam//': After 2nd step.')
 #endif
 
@@ -547,7 +547,7 @@ C     ===============
      &                   TimSec(4,iSec),TimSec(3,iSec),
      &                   1)
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem(SecNam//': After diagonal check.')
 #endif
 
@@ -570,7 +570,7 @@ C     =============
      &                   TimSec(4,iSec),TimSec(3,iSec),
      &                   1)
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem(SecNam//': After finalization')
 #endif
 
@@ -595,7 +595,7 @@ C     ===========
      &                      1)
          End If
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem(SecNam//': After statistics')
 #endif
 
@@ -623,7 +623,7 @@ C     ======================
       End If
 
       Call Cho_Flush(LuPri)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call Cho_PrtMaxMem('End of '//SecNam)
 #endif
       Call qExit(myName)

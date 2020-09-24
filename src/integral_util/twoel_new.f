@@ -91,8 +91,8 @@
      &        Batch_On_Disk, W2Disc,
      &        IntOnly, DoIntegrals,DoFock,FckNoClmb, FckNoExch, NoInts,
      &        DoAOBatch, All_Spherical
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Character ChOper(0:7)*3
       Data ChOper/' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz'/
 #endif
@@ -146,7 +146,7 @@ c Avoid unused argument warnings
       ipDkl=1
       kabcd=0
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Do iData = 1, nData1
          Call RecPrt('Twoel: Data1',' ',
      &                Data1(1,iData),nAlpha*nBeta,nDArray)
@@ -186,7 +186,7 @@ c Avoid unused argument warnings
      &               dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
       u = DBLE(dc(iStb)%nStab)
       v = DBLE(dc(jStb)%nStab)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.9) Write (6,'(20A)') ' {R}=(',
      &      (ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
 #endif
@@ -207,7 +207,7 @@ c Avoid unused argument warnings
      &               dc(lStb)%iStab,dc(lStb)%nStab,iDCRS,nDCRS)
       w = DBLE(dc(kStb)%nStab)
       x = DBLE(dc(lStb)%nStab)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.9) Write (6,'(20A)') ' {S}=(',
      &      (ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
 #endif
@@ -284,7 +284,7 @@ clwj           (DS|SS), (FP|SS) and (FS|PS) vanish as well
      &                2*Max(la,lb,lc,ld).gt.iSmAng) Go To 300
 clwj
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (iPrint.ge.9) Write (6,'(6A)')
      &         ' R=',ChOper(iDCRR(lDCRR)),
      &         ', S=',ChOper(iDCRS(lDCRS)),
@@ -870,7 +870,7 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -913,7 +913,7 @@ c Avoid unused argument warnings
      &              Shells(iShll(3))%Prjct.and.
      &              Shells(iShll(4))%Prjct
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Twoel: Data1',' ',
      &             Data1,nAlpha*nBeta,nDArray-1)
       Call RecPrt('Twoel: Data2',' ',
@@ -1094,7 +1094,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
 *
       nZeta_Tot=iGet(Data1(ip_IndZ(1,nZeta)),nZeta+1)
       nEta_Tot =iGet(Data2(ip_IndZ(1,nEta )),nEta +1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'nZeta_Tot, IncZet=',nZeta_Tot, IncZet
       Write (6,*) 'nEta_Tot,  IncEta=',nEta_Tot,  IncEta
 #endif
@@ -1192,7 +1192,7 @@ c     (DS|SS), (FP|SS) and (FS|PS) vanish as well
          Call DGeTMO(Wrk(iW3),nabcd,nabcd,nijkl,Wrk(iW2),nijkl)
 *
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('(AB|CD)',' ',Wrk(iW2),nijkl,
      &            iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4))
 #endif

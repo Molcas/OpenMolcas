@@ -43,7 +43,7 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('ClsFls')
 #endif
 *
@@ -78,7 +78,7 @@
 *     Exit                                                             *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('ClsFls')
 #endif
       Return

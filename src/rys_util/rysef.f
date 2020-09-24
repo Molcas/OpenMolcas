@@ -45,8 +45,8 @@
       Real*8 xyz2D(nRys,mArg,3,0:neMax,0:nfMax), PreFct(mArg),
      &       Scrtch(nRys,mArg), EFInt(nArg,meMin:meMax,mfMin:mfMax)
       Logical AeqB, CeqD
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Character*80 Label
 #endif
 *                                                                      *
@@ -186,7 +186,7 @@
 ************************************************************************
 *                                                                      *
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Do iab = meMin, meMax
          Do icd = mfMin, mfMax
             Write (Label,'(A,I3,A,I3,A)') ' In RysEF: [', iab, ',0|',

@@ -67,7 +67,7 @@ C     ----------------
       Call qEnter(ThisNm)
       irc = 0
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       ChkDecoMP2 = .True.
 #endif
 

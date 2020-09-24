@@ -36,7 +36,7 @@
      &       Temp(9), PAOg1(12), Prmt(0:7)
       Logical IfGrad(3,4)
       Integer   IndGrd(3,4), kOp(4), iStab(4)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Character*80 Label
 #endif
       Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
@@ -45,7 +45,7 @@
 *
       xPrmt(i,j) = Prmt(iAnd(i,j))
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iRout = 239
       iPrint = nPrint(iRout)
       Call qEnter('Distg1')
@@ -115,7 +115,7 @@
             End If
  210     Continue
  200  Continue
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.49) Call RecPrt('PAOg1',' ',PAOg1,12,1)
 #endif
 *
@@ -133,7 +133,7 @@
             End If
  110    Continue
  100  Continue
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.49) Then
          Call RecPrt('Accumulated gradient on exit',
      &               ' ',Grad,nGrad,1)

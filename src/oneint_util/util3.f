@@ -36,8 +36,8 @@
      &        Slalb (nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,3),
      &        Slalbm(nZeta,(la+1)*(la+2)/2, lb   *(lb+1)/2,6),
      &        Beta(nZeta)
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Character*80 Label
 #endif
 !
@@ -51,11 +51,11 @@
 *     Statement function for cartesian index
 *
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       nElem(ix) = (ix+1)*(ix+2)/2
 #endif
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        Write (6,*) ' In Util3 la,lb=',la,lb
        Call RecPrt('Beta',' ',Beta,nZeta,1)
        Do ia = 1, nElem(la)
@@ -297,7 +297,7 @@
  11      Continue
  10   Continue
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           Write (6,*) ' In Util3 la,lb=',la,lb
           Do 300 iElem = 1, nElem(la)
              Do 310 jElem = 1, nElem(lb)

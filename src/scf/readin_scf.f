@@ -49,7 +49,7 @@
       Logical PkMode
 *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('ReadIn')
 #endif
 *                                                                      *
@@ -114,7 +114,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('ReadIn')
 #endif
       Call Timing(Cpu2,Tim1,Tim2,Tim3)

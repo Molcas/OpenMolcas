@@ -50,7 +50,7 @@
       iShlSO(i)=iWork(ip_iShlSO-1+i)
       nBstSh(i)=iWork(ip_nBstSh-1+i)
 *
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call qEnter('Plf_CD')
 #endif
       irout = 109
@@ -147,7 +147,7 @@
 200      Continue
 100   Continue
 *
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call qExit('Plf_CD')
 #endif
       Return

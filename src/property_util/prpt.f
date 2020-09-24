@@ -228,7 +228,7 @@ c Avoid unused argument warnings
       Use Iso_C_Binding
       Real*8, Target :: Scr(*)
       Character, Pointer :: cScr(:)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('PrPt_')
 #endif
 *                                                                      *
@@ -688,7 +688,7 @@ c
 ************************************************************************
 *                                                                      *
 499   continue
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('PrPt_')
 #endif
       If (iPL.ge.2) Then

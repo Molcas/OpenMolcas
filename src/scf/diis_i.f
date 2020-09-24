@@ -75,12 +75,12 @@
 *----------------------------------------------------------------------*
 *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) 'E_pred=',(EPred(i),i=1,iter)
       If (nD.eq.1) Then
@@ -235,7 +235,7 @@
       Call Optim(E_Pred,Eline,Equad,CInter(1,1),kOptim,kOptim)
       EPred(iter+1)=E_Pred
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write(6,*)' Interpolation coefficients:'
          Write(6,'(5f16.8)')(CInter(i,1), i = 1, kOptim)
 #endif
@@ -244,7 +244,7 @@
 *
       If (nD.eq.2) Call DCopy_(nCI,CInter(1,1),1,CInter(1,2),1)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*)' Interpolation coefficients:'
       Write(6,'(5f16.8)')(CInter(i,1), i = 1, kOptim)
 #endif
@@ -265,7 +265,7 @@
             E_n  = E_n  + Elst(iter-1,iD)
          End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'iter=',iter
          Write (6,*) 'Energy of iter  =',E_n1
          Write (6,*) 'E_pred of iter  =',E_Pred

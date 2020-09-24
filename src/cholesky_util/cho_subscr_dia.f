@@ -37,7 +37,7 @@ C
       nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
       DSubScr(i)=Work(ip_DSubScr-1+i)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call qEnter('_SubScr_Dia')
       If (iLoc.lt.1 .or. iLoc.gt.3) Then
          Call Cho_Quit('iLoc error in '//SecNam,104)
@@ -79,7 +79,7 @@ C     --------------------------------------
          Call UpCase(myDSPNorm)
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (lstr .lt. 1) Then
          Write(Lupri,*) SecNam,': input norm: (null string)'
       Else If (lstr .lt. 3) Then
@@ -125,7 +125,7 @@ C     --------------------------------------
 C     Return.
 C     -------
     1 Continue
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call qExit('_SubScr_Dia')
 #endif
       Return

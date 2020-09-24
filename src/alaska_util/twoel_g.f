@@ -85,7 +85,7 @@
       Logical Shijij, AeqB, CeqD, AeqC, ABeqCD,
      &        EQ, lEmpty, IfGrad(3,4),
      &        JfGrad(3,4), PreScr
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Character ChOper(0:7)*3
       Data ChOper/' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz'/
 #endif
@@ -156,7 +156,7 @@
          Call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,
      &                  dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Write (6,'(20A)') ' {R}=(',
      &      (ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
 #endif
@@ -190,7 +190,7 @@
      &                  dc(lStb)%iStab,dc(lStb)%nStab,
      &                               iDCRS,nDCRS)
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Write (6,'(20A)') ' {S}=(',
      &      (ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
 #endif
@@ -252,7 +252,7 @@
             CeqD = EQ(Coor(1,3),CoorM(1,4))
 *
             Do 300 lDCRT = nDCRT-1, 0, -1
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (iPrint.ge.99) Write (6,'(6A)')
      &         ' R=',ChOper(iDCRR(lDCRR)),
      &         ', S=',ChOper(iDCRS(lDCRS)),
@@ -266,7 +266,7 @@
                Call OA(iDCRTS,Coor(1:3,4),CoorM(1:3,4))
                Call OA(iDCRT(lDCRT),Coor(1:3,3),CoorM(1:3,3))
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (iPrint.ge.59)
      &            Call RecPrt(' CoorM in TwoEl',' ',CoorM,3,4)
 #endif
@@ -579,7 +579,7 @@ c                 Write (*,*) 'Prem=',Prem
  410           Continue
  400           Continue
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (iPrint.ge.19) Call PrGrad(' In TwoEl',
      &                     Grad,nGrad,ChDisp,5)
 #endif

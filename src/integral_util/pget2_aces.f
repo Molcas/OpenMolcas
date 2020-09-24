@@ -70,7 +70,7 @@
 *                                                                      *
       iRout = 39
       iPrint = nPrint(iRout)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('PGet2')
       If (iPrint.ge.99) Then
          Write (6,*) 'nSOs=',nSOs
@@ -306,7 +306,7 @@
          Call Abend()
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In PGet2:PSO ',' ',PSO,nijkl,nPSO)
       End If

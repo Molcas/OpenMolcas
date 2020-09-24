@@ -55,7 +55,7 @@
 *                                                                      *
       iRout = 39
       iPrint = nPrint(iRout)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('PGet2_CD3')
       iPrint=99
       If (iPrint.ge.99) Then
@@ -204,7 +204,7 @@ C                           End If
         Call Abend
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In PGet2_CD3:PSO ',' ',PSO,nijkl,nPSO)
       End If

@@ -85,7 +85,7 @@
       iRout = 9
       iPrint = nPrint(iRout)
       Call QEnter('Drv2El')
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        Debug=.true.
 c       iPrint=200
 #else

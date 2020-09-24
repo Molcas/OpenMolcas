@@ -34,7 +34,7 @@ C
       INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
       NDIMRS(I,J)=IWORK(ip_NDIMRS-1+NSYM*(J-1)+I)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QENTER('_PUTVEC2')
 #endif
 
@@ -175,7 +175,7 @@ C     ------------
       END IF
 
     1 CONTINUE
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QEXIT('_PUTVEC2')
 #endif
 

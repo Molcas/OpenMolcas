@@ -47,13 +47,13 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Utility = .True.
       Utility = .False.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call QEnter('LoProp')
 #endif
       lSave = ireturn.eq.0
@@ -212,7 +212,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call QExit('LoProp')
 #endif
       Return

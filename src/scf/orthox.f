@@ -49,7 +49,7 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('Orthox')
 #endif
 *
@@ -78,7 +78,7 @@
   130    Continue
   100 Continue
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('Orthox')
 #endif
 *

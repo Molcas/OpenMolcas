@@ -40,7 +40,7 @@ C
       INTMAP(I)=IWORK(ip_INTMAP-1+I)
       ISP2F(I)=IWORK(ip_iSP2F-1+I)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QENTER('_GETINT')
 #endif
 
@@ -211,7 +211,7 @@ C     ------------------------------------------------
 
       CALL CHO_P_SETLQ()
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QEXIT('_GETINT')
 #endif
 

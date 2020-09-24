@@ -192,7 +192,7 @@ C     -------------
       THR_PRESCREEN = -1.0d9 ! diag. prescreen threshold (neg=>generic)
       CHO_SIMRI = .FALSE.    ! simulate RI
       THR_SIMRI = -1.0D9     ! threshold for qualifying diags. in RI sim
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CHO_INTCHK = .TRUE.  ! check integrals after decomposition
       CHO_MINCHK = .TRUE.  ! minimal integral check
       CHO_TRCNEG = .TRUE.  ! tracing of negative diagonals

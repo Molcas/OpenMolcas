@@ -31,7 +31,7 @@
         character *(*) xb_bas(*)
 
       IfTest=.False.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call QEnter('XMatrixConverter')
       IfTest=.True.
 #endif
@@ -221,7 +221,7 @@ c2000  Continue
 
 9999  Continue
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call QExit('XMatrixConverter')
 #endif
 

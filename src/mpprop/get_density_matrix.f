@@ -17,7 +17,7 @@
 
       If (nSym.eq.1) Then
        Call Get_D1ao(ip_D,nDens)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        Call RecPrt('D',' ',Work(ip_D),1,nDens)
 #endif
       Else

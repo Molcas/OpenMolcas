@@ -96,7 +96,7 @@ C        Write (*,*) 'Mode: Dense'
 C        Write (*,*) 'Mode: Sparse'
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) 'Processing slice                   :',iBin
       Write (6,*) 'Actual number of non-zero integrals:', mInt(1,iBin)

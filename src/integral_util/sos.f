@@ -31,7 +31,7 @@
 #include "real.fh"
       Integer iStabO(8)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' In SOS'
       Write (6,*) ' lOper=',lOper
       Do 1 iS = 0, nIrrep-1

@@ -77,8 +77,8 @@
 *     Local varables
       Real*8 C(3), TC(3)
       Integer iDCRT(0:7), iTwoj(0:7)
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Character*80 Label
 #endif
       Data iTwoj/1,2,4,8,16,32,64,128/
@@ -87,7 +87,7 @@
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In PrjInt: Zeta',' ',Zeta,1,nZeta)
       Call RecPrt(' In PrjInt: A',' ',A,1,3)
       Call RecPrt(' In PrjInt: RB',' ',RB,1,3)
@@ -122,7 +122,7 @@
                nBasisi=Shells(iShll)%nBasis
                If (nExpi.eq.0 .or. nBasisi.eq.0) Cycle
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Call RecPrt('Cff',' ',Shells(iShll)%pCff,nExpi,
      &                     nBasisi)
 #endif
@@ -326,7 +326,7 @@
          mdc = mdc + dbsc(iCnttp)%nCntr
       End Do ! iCnttp
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) ' Result in PrjInt'
          Do 100 ia = 1, (la+1)*(la+2)/2
             Do 200 ib = 1, (lb+1)*(lb+2)/2

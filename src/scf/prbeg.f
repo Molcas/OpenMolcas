@@ -44,7 +44,7 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('PrBeg')
 #endif
 *
@@ -83,7 +83,7 @@
 *
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('PrBeg')
 #endif
 *

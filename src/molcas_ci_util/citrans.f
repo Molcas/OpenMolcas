@@ -130,13 +130,13 @@
 !     Compute offsets for addressing into the reordering and coefficient arrays.
       allocate (csf_offset(ndo_min:ndo_max))
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,'(5(1x,a4))') 'ido', 'ndoc', 'nsoc', 'ndet', 'ncsf'
 #endif
 
       ncsf = 0
       do ido = ndo_min, ndo_max
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         write(6,'(5(1x,i4))') ido, ndoc_group(ido), nsoc_group(ido),
      &    ndet_group(ido), ncsf_group(ido)
 #endif

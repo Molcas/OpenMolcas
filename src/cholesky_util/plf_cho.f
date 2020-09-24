@@ -52,7 +52,7 @@
       iShlSO(i)=iWork(ip_iShlSO-1+i)
       nBstSh(i)=iWork(ip_nBstSh-1+i)
 *
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call qEnter('Plf_Cho')
 #endif
       irout = 109
@@ -225,7 +225,7 @@ C to avoid stupid compiler warnings:
                             END IF
 
                             CDAB = NUMCD*(AB - 1) + CD
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                             IF ((CDAB.GT.LINT) .OR. (CDAB.LT.1)) THEN
                                WRITE(LUPRI,*) 'CDAB: ',CDAB
                                WRITE(LUPRI,*) 'Dimension: ',LINT
@@ -257,7 +257,7 @@ C to avoid stupid compiler warnings:
 200      Continue
 100   Continue
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call qExit('Plf_Cho')
 #endif
       Return

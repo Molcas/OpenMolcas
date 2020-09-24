@@ -25,7 +25,7 @@ C
 
       LOGICAL FOUND
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QENTER('_ANADIA')
 #endif
 
@@ -119,7 +119,7 @@ C     -----------------
       WRITE(LUPRI,'(1X,A,1P,D15.6,A)')
      & 'Standard dev.   : ',STAT(7),' (unbiased variance)'
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QEXIT('_ANADIA')
 #endif
 

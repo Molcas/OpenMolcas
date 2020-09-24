@@ -21,7 +21,7 @@
       Real*8, Target:: Dens(nDens), TwoHam(nDens)
       Logical Special_NoSym, DFT_Storage
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('DeDe_SCF')
 #endif
       nr_of_Densities=1  ! Hardwired option
@@ -77,7 +77,7 @@
          pDq => Dens(:)
          pFq => Twoham(:)
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('DeDe_SCF')
 #endif
 *

@@ -97,7 +97,7 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('RdInp')
 #endif
 *
@@ -1738,7 +1738,7 @@ c         Write (6,*)
       End If
 *
       Call Put_iScalar('SCF mode',iUHF)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('RdInp')
 #endif
 *

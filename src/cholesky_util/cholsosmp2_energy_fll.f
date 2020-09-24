@@ -292,7 +292,7 @@ C
       Real*8   dDot_
       external ddot_
 
-#if !defined (_I8_) || defined (_DEBUG_)
+#if !defined (_I8_) || defined (_DEBUGPRINT_)
       Character*2 Unt
       Real*8  Byte
 #endif
@@ -370,7 +370,7 @@ C
          End If
       End Do
       l_X=int(lX)
-#if !defined (_I8_) || defined (_DEBUG_)
+#if !defined (_I8_) || defined (_DEBUGPRINT_)
       If (l_X .lt. 0) Then
          Write(Lupri,'(A,A)')
      &   SecNam,': dimension of X matrix is negative!'
@@ -471,7 +471,7 @@ C
                      ipX=ipX+nVeci*nVecj
                   End Do
                End Do
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                If (lenX.ne.(ipX-ip_X)) Then
                   Call WarningMessage(2,
      &                          SecNam//': dimension problem [1]')
@@ -507,7 +507,7 @@ C
                      ipX=ipX+nVeci*nVecj
                   End Do
                End Do
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                If (lenX.ne.(ipX-ip_X)) Then
                   Call WarningMessage(2,
      &                             SecNam//': dimension problem [2]')

@@ -27,7 +27,7 @@
       Logical TDensity, ok1, ok2
       Character*8 Method
 *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *
       Write(Label,'(A,I1)') 'LoProp Dens ',iPert
       If (Restart) Then
@@ -141,7 +141,7 @@
 * End Addition J.Bostrom (well, the End If too ofc.)
             Call Get_D1ao(ip_D,nDens)
          End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('D',' ',Work(ip_D),1,nDens)
 #endif
          If(PrintDen) Then
@@ -163,20 +163,20 @@
 *
          Call Get_D1ao(ip_DSym,nDens)
          iSyLbl=1
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('DSym',' ',Work(ip_DSym),1,nDens)
 #endif
          iOfft = ip_DSym
          iOffs = ip_Tmp
          Do iSym = 1, nSym
             If (nBas(iSym).eq.0) Go To 99
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call TriPrt('DSym',' ',Work(iOfft),nBas(iSym))
 #endif
             Call Square(Work(iOfft),Work(iOffs),1,nBas(iSym),nBas(iSym))
             Call DScal_(nBas(iSym)**2,Half,Work(iOffs),1)
             Call DScal_(nBas(iSym)   ,Two, Work(iOffs),nBas(iSym)+1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('DSym',' ',Work(iOffs),nBas(iSym),nBas(iSym))
 #endif
             iOfft = iOfft + nBas(iSym)*(nBas(iSym)+1)/2
@@ -196,7 +196,7 @@
          Call Triangularize(Work(ip_D_sq),Work(ip_D),nBas1,.True.)
          Call Free_Work(ip_D_sq)
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call TriPrt('Density Matrix',' ',Work(ip_D),nBas1)
 #endif
 *

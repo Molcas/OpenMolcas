@@ -21,7 +21,7 @@ C
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_PUTRED')
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QENTER('_PUTRED')
 #endif
 
@@ -56,7 +56,7 @@ C
      &                          + NSYM*NNSHL + NNBSTRT(IRED)
       END IF
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QEXIT('_PUTRED')
 #endif
 

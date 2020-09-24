@@ -74,7 +74,7 @@
       Shkl = iShell(3).eq.iShell(4)
       MemSO2 = 1
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In DesymP: PSO ',' ',PSO,ijkl,nPSO)
          Call WrCheck(' In DesymP: PSO ',PSO,ijkl*nPSO)
@@ -191,7 +191,7 @@
  110  Continue
 *
       If (iAux.ne.0) Then
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          If (iPrint.ge.99) Call RecPrt(' Aux',' ',Aux,iAux,1)
 #endif
          If (iAux.ne.1) Then
@@ -209,7 +209,7 @@
  200     Continue
  100  Continue
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' On exit from DesymP: PAO ',' ', PAO,
      &            ijkl,iCmp*jCmp*kCmp*lCmp)

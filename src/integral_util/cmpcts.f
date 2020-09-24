@@ -42,8 +42,8 @@
       Logical AeqB
 *
 *     Call QEnter('Cmpct')
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Cmpct:Zeta',' ',Zeta,mijkl,1)
       Call RecPrt('Cmpct:KappAB',' ',KappAB,mijkl,1)
       Call RecPrt('Cmpct:abcd',' ',abcd,mijkl,(na*nb)**2)
@@ -112,7 +112,7 @@
       End If
       IndZ(nijkl+1)=Jnd
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'AeqB=',AeqB
       Write (6,*) 'IndZ=',IndZ
       Call RecPrt('xZeta ',' ',xZeta,  1,nijkl)

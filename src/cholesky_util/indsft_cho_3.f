@@ -58,7 +58,7 @@
       iShP2RS(i,j)=iWork(ip_iShP2RS-1+2*(j-1)+i)
       iShP2Q(i,j)=iWork(ip_iShP2Q-1+2*(j-1)+i)
 *
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call qEnter('IndSft_Cho_3')
 #endif
       irout = 39
@@ -373,7 +373,7 @@ C to avoid stupid compiler warnings:
 200      Continue
 100   Continue
 *
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call qExit('IndSft_Cho_3')
 #endif
       Return

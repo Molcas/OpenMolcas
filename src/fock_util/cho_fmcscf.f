@@ -79,7 +79,7 @@ C
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 c      Debug=.true.
       Debug=.false.! to avoid double printing in CASSCF-debug
 #else
@@ -410,7 +410,7 @@ C --- Set pointers to the half-transformed Cholesky vectors
      &                         nAorb(iSymp),nChM(iSymp))*JNUM
      &                  + nnA(iSymp,iSymb)*JNUM
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             write(6,*)'JRED,iBatch,nBatch= ',jred,iBatch,nBatch
             write(6,*)'JSYM,iSymp,iSymb,lChot= ',JSYM,iSymp,iSymb,lChot
             write(6,*)'Lxb starts in= ',ipLab(iSymp,3)
@@ -439,7 +439,7 @@ C *********************** INACTIVE HALF-TRANSFORMATION  ****************
                tread(1) = tread(1) + (TCR4 - TCR3)
                tread(2) = tread(2) + (TWR4 - TWR3)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        write(6,*) 'Half-transformation in the Inactive space'
        write(6,*) 'Total allocated :     ',mTvec*nVec,' at ',ipChoT
        write(6,*) 'Mem pointers ipLab :  ',(ipLab(i,1),i=1,nSym)
@@ -744,7 +744,7 @@ C --- free memory
 
 
 c Print the Fock-matrix
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 
       if(Debug) then !to avoid double printing in CASSCF-debug
 

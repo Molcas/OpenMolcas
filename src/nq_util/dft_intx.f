@@ -64,8 +64,8 @@ C     Call QEnter('DFT_IntX')
 *---- Evaluate the desired AO integrand here from the AOs, accumulate
 *     contributions to the SO integrals on the fly.
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Debug=.True.
 #endif
       VMax=0.0D0
@@ -127,7 +127,7 @@ C     Call QEnter('DFT_IntX')
 *
             Do iD = 1, iSpin
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (Debug) Then
                   nAOInt_j=jBas_Eff*jCmp
                   nAOInt_i=iBas_Eff*iCmp
@@ -180,7 +180,7 @@ C     Call QEnter('DFT_IntX')
       Flop=Flop+DBLE(nGrid_Tot)
 *
 C     Call QExit('DFT_Int1')
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Debug=.False.
 #endif
       Return

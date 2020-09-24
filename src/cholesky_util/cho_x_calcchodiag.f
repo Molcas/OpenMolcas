@@ -55,7 +55,7 @@
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call QEnter(SECNAM)
 #endif
 
@@ -181,7 +181,7 @@ C --- free memory
 
       rc  = 0
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CAll QExit(SECNAM)
 #endif
 

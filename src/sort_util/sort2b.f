@@ -66,7 +66,7 @@
 *     pick up the print level                                          *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iRout = 86
       iPrint = nPrint(iRout)
       If ( iPrint.gt.5 ) then
@@ -158,7 +158,7 @@
             iOptIO=0
             Call dDAFILE(LuTwo,iOptIO,[0.0d0],lStRec,mDaTwo)
          End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          If ( iPrint.ge.10 ) then
            Write (6,*) ' write record: iOrd,iDaTwo ',iOrd,iDaTwo
          End If

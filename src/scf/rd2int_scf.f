@@ -46,7 +46,7 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('Rd2Int')
 #endif
 *
@@ -70,7 +70,7 @@
          End If
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('Rd2Int')
 #endif
 *

@@ -49,7 +49,7 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('Sort')
 #endif
 *
@@ -70,7 +70,7 @@
          End If
 100   Continue
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('Sort')
 #endif
 *

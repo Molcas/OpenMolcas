@@ -52,8 +52,8 @@
 *                                                                      *
 c     iRout = 239
 c     iPrint = nPrint(iRout)
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call recprt('Distg2: g2(raw) ',' ',g2,1,78)
       Call recprt('Distg2: Hess(raw) ',' ',Hess,1,nHess)
 #endif
@@ -168,7 +168,7 @@ c                      iMax=Max(iCar,jCar)
  200  Continue
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call recprt('Distg2: g2 ',' ',g2,1,78)
 #endif
 *-----Distribute contribution to the hessian.
@@ -237,7 +237,7 @@ c                      iMax=Max(iCar,jCar)
  110     Continue
  100   Continue
   90  Continue
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call recprt('Distg2: Hess ',' ',Hess,1,nHess)
 #endif
 *

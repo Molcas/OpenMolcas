@@ -65,8 +65,8 @@ c     read information from SYMINFO
      &                  'SYMINFO not present','Sorry')
       call molcas_open(isymunit,'SYMINFO')
       rewind(isymunit)
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       write(6,*) 'Symmetry adapation of the SO-integrals'
 #endif
       read(isymunit,*)
@@ -77,7 +77,7 @@ c     read information from SYMINFO
          numboffunct=numboffunct+1
          read(isymunit,'(A3)') END
       enddo
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*) 'there are totally ',numboffunct,' functions'
 #endif
       if (numboffunct.gt.maxorbs)
@@ -96,7 +96,7 @@ c     read information from SYMINFO
      &                       'weird numbering  on SYMINFO',' ' )
       End Do
       Close(iSymUnit)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*) 'number of unique centres' , numbofcent
 #endif
 c
@@ -138,7 +138,7 @@ c     clean up arrays for new integrals
       ipC(1:numbofcent)=-99
       do jcent=1,numbofcent
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*) 'read integrals and info for centre ',jcent
 #endif
 *
@@ -153,7 +153,7 @@ c     clean up arrays for new integrals
      &        I=1,numballcart(icent)),
      &        (mcent(i),I=1,numballcart(icent)),
      &        Lhighcent(icent),(ncontcent(I),I=0,Lhighcent(icent))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
               write(6,*) numballcart(icent) ,
      &        'functions on centre ',icent
 #endif
@@ -183,7 +183,7 @@ cbs   determize where the first function of a special type is..
       do iorb=1,numballcart(icent)
          Lrun=Lcent(iorb)
          Mrun=Mcent(iorb)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          write(6,*) 'iorb,Lrun,mrun',iorb,Lrun,mrun
 #endif
          ifirstLM(Lrun,Mrun,icent)=min(iorb,ifirstLM(Lrun,Mrun,icent))
@@ -202,7 +202,7 @@ cbs   check if all of them were found
       enddo
       enddo    !end of loop over centres
  199  Continue
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'length3_tot=',length3_tot
       Call RecPrt('SCR(1,1)',' ',Scr(1,1),1,length3_tot)
       Call RecPrt('SCR(1,2)',' ',Scr(1,2),1,length3_tot)
@@ -346,7 +346,7 @@ cDebugDebug
 *
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call PrMtrx(Label,lOper,nComp,ip,SOInt)
 #endif
 *

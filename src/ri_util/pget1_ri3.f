@@ -64,8 +64,8 @@
 *                                                                      *
       iRout = 39
       iPrint = nPrint(iRout)
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call qEnter('PGet1_RI3   ')
       iPrint=99
       If (iPrint.ge.99) Then
@@ -1144,7 +1144,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In PGet1_RI3:PAO ',' ',PAO,ijkl,nPAO)
          Do i = 1, ijkl

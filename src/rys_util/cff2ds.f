@@ -45,15 +45,15 @@
      &       B01(nRys,nT,3)
 *     Local arrays
       Logical AeqB, CeqD, EQ
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Character*30 Label
 #endif
 *
       iRout = 14
       iPrint = nPrint(iRout)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPrint=99
       If (iPrint.ge.99) Then
          Call RecPrt(' In Cff2Ds: Coori',' ',Coori,3,4)
@@ -140,7 +140,7 @@
          Write (6,*) 'lc,ld=',lc,ld
          Call Abend()
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (la+lb.gt.0) Then
          Write (Label,'(A)') ' PAQP(x)'
          Call RecPrt(Label,' ',PAQP(1,1,1),nRys,nT)

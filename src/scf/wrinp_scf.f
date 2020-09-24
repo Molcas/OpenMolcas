@@ -57,7 +57,7 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call QEnter('WrInp')
 #endif
       If (jPrint.ge.2) Then
@@ -491,7 +491,7 @@ c           Call Abend()
          End If
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call QExit('WrInp')
 #endif
 *

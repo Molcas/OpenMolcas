@@ -24,7 +24,7 @@ C
       REAL*8  DSCR(LSCR)
       INTEGER JSCR(LSCR)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QENTER('_WRRSTC')
 #endif
 
@@ -110,7 +110,7 @@ C     --------------------------------------
          CALL IDAFILE(LUMAP,IOPT,IWORK(ip_INTMAP),NDIM,JADR)
       END IF
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QEXIT('_WRRSTC')
 #endif
 

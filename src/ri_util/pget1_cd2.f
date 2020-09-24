@@ -57,8 +57,8 @@
 *                                                                      *
       iRout = 39
       iPrint = nPrint(iRout)
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call qEnter('PGet1_CD2')
       Call RecPrt('PGet1_CD2: V_k',' ',V_k,1,mV_k)
 #endif
@@ -353,7 +353,7 @@ C     Fac = One / Four
          Call Abend
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In PGet1_CD2:PAO ',' ',PAO,ijkl,nPAO)
       Call GetMem(' Exit PGet1_CD2','CHECK','REAL',iDum,iDum)
       Call qExit('PGet1_CD2')

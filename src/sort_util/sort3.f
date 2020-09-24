@@ -81,7 +81,7 @@
 *     pick up the print level                                          *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iRout = 88
       iPrint = nPrint(iRout)
       If ( iPrint.gt.5 ) Write(6,*) ' >>> Enter SORT3 <<<'
@@ -110,7 +110,7 @@
          SrtKey(iOrd) = Int(Buf(2))
       End Do
       MaxDax=iDisk
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If ( iPrint.ge.10 ) then
         Call iVcPrt('Sort keys',' ',SrtKey,mxOrd)
         Call iVcPrt('Disk addresses',' ',SRtAdr,mxOrd)
@@ -151,7 +151,7 @@
           SrtKey(j2) = j2
         End If
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If ( iPrint.ge.10 ) then
         Call iVcPrt('Sort keys',' ',SrtKey,mxOrd)
       End If

@@ -52,21 +52,21 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
       If (nBonds.lt.2) Return
       iRout=150
       iPrint=nPrint(iRout)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPrint=99
 #endif
       Call QEnter('Bends')
 *
       nqA=0
       PSPrint=.False.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) PSPrint=.True.
       If (PSPrint) Write (6,*) ' Enter Bends.'
 #endif
@@ -113,7 +113,7 @@
             iBondType=iTabBonds(3,iBond)
             If (iBondType.eq.vdW_Bond.or.
      &          iBondType.gt.Magic_Bond) Go To 200
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*)
             Write (6,*) 'iAtom,mAtom=',iAtom,mAtom
             Write (6,*) 'iBond,iBondType=',iBond,iBondType
@@ -150,7 +150,7 @@
                jBondType=iTabBonds(3,jBond)
                If (jBondType.eq.vdW_Bond.or.
      &             jBondType.gt.Magic_Bond) Go To 300
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*)
                Write (6,*) 'jAtom,mAtom=',jAtom,mAtom
                Write (6,*) 'jBond,jBondType=',jBond,jBondType
@@ -160,7 +160,7 @@
                Write (Label,'(A,I2,A,I2,A,I2,A)')
      &                'A(',iAtom,',',mAtom,',',jAtom,')'
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (PSPrint) Then
                   Call RecPrt('A',' ',Cx(1,iAtom,iIter),1,3)
                   Call RecPrt('B',' ',Cx(1,mAtom,iIter),1,3)
@@ -173,13 +173,13 @@
                Call DCR(Lambda,
      &                  jStab(0,iAtom),nStab(iAtom),
      &                  jStab(0,jAtom),nStab(jAtom),iDCRT,nDCRT)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,'(10A)') 'T={',
      &               (ChOp(iDCRT(i)),i=0,nDCRT-1),'}  '
 #endif
                kDCRT=iDCR(3)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (PSPrint) Then
                   Write (6,'(10A)') 'U={',
      &                  (ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
@@ -207,7 +207,7 @@
      &                          iStabN,nStabN)
                End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (PSPrint) Then
                   Write (6,'(10A)') 'N={',
      &                  (ChOp(iStabN(i)),i=0,nStabN-1),'}  '
@@ -222,7 +222,7 @@
      &                  iStabN,nStabN,iDCRR,nDCRR)
                kDCRR = iDCR(2)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (PSPrint) Then
                   Write (6,'(10A)') 'R={',
      &                  (ChOp(iDCRR(i)),i=0,nDCRR-1),'}  '
@@ -240,7 +240,7 @@
      &                    iStabN,nStabN,
      &                    iStabM,nStabM)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (PSPrint) Then
                   Write (6,'(10A)') 'M={',
      &                  (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
@@ -251,7 +251,7 @@
 *
                ideg=nIrrep/nStabM
                Deg=Sqrt(DBLE(iDeg))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (PSPrint) Write (6,*)' nIrrep,nStabM=',nIrrep,nStabM
 #endif
 *
@@ -304,7 +304,7 @@
                If (f_Const_Ref.lt.f_Const_Min .and.
      &             iBondType.ne.Fragments_Bond .and.
      &             jBondType.ne.Fragments_Bond ) Go To 300
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*) ' A Force Constant:',f_Const
                Write (6,*) iAtom,mAtom,jAtom, f_Const
 #endif
@@ -395,7 +395,7 @@ C                 Do k = 1, 2
      &                          Lbls(1)(iF1:iE1),
      &                      ' ',Lbls(2)(iF2:iE2),
      &                      ' ',Lbls(3)(iF3:iE3)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                      If (iPrint.ge.49)
      &               Write (6,'(A,I3.3,A,I1.1,6A)')
      &                      'a',nqA,' = LAngle(',k,') ',
@@ -494,7 +494,7 @@ C                 Do k = 1, 2
      &                       Lbls(1)(iF1:iE1),
      &                   ' ',Lbls(2)(iF2:iE2),
      &                   ' ',Lbls(3)(iF3:iE3)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   If (iPrint.ge.49)
      &            Write (6,'(A,I3.3,6A)')
      &                   'a',nqA,' = Angle ',

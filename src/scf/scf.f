@@ -164,7 +164,7 @@
 #include "llists.fh"
 #include "lnklst.fh"
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call QEnter('IniLLs')
 #endif
 *
@@ -179,7 +179,7 @@ c     MemRsv=6*nBT
       Call IniLst(LLx,MxOptm)
       Init_LLs=1
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call QExit('IniLLs')
 #endif
       Return

@@ -65,7 +65,7 @@ c     calculate relativistic integrals if needed
          write(6,*) ' The dimension of rel must somehow be increased.'
          Call Abend
       endif
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*) ' basis:', (Shells(isrshll+i-1)%nExp,i=1,lmax+1)
       do i=1,lmax+1
          nnExp=Shells(isrshll+i-1)%nExp

@@ -29,7 +29,7 @@ C     Initialize integral program (this does some memory
 C     allocations; thus, DO NOT move this.
 C     --------------------------------------------------
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL CHO_PRESCR(CUTINT1,THRINT1)
 #endif
 
@@ -42,7 +42,7 @@ C     --------------------------------------------------
       DOGRAD     = .FALSE.
       CALL SETUP_INTS(NSHELL,INDEXATION,THRAO,DOFOCK,DOGRAD)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL CHO_PRESCR(CUTINT2,THRINT2)
       WRITE(LUPRI,*) SECNAM,': CutInt before Setup_Ints: ',CUTINT1
       WRITE(LUPRI,*) SECNAM,': CutInt after  Setup_Ints: ',CUTINT2

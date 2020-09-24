@@ -43,13 +43,13 @@
      &       PAWP(nArg*lRys*3), QCWQ(nArg*lRys*3),
      &       B10(nArg*lRys*3), B00(nArg*lRys*3),
      &       B01(nArg*lRys*3)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Character*30 Label
 #endif
 *
       iRout = 15
       iPrint = nPrint(iRout)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPrint=99
       If (iPrint.ge.59) Then
          If (nabMax.gt.0) Call RecPrt('PAWP',' ',PAWP,nArg,lRys*3)
@@ -161,7 +161,7 @@
 
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Do 600 iab = 0, nabMax
             Do 610 icd = 0, ncdMax

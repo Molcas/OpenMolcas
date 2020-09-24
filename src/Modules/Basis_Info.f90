@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
-!#define _DEBUG_
+!#define _DEBUGPRINT_
 
 Module Basis_Info
 Implicit None
@@ -214,7 +214,7 @@ Contains
 !     run file.
 !
 Subroutine Basis_Info_Init()
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*)
 Write (6,*) 'Enter Basis_Info_Init'
 Write (6,*)
@@ -239,7 +239,7 @@ Else
    Allocate(Shells(1:Max_Shells))
 End If
 Initiated=.True.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*)
 Write (6,*) 'Exit Basis_Info_Init'
 Write (6,*)
@@ -257,7 +257,7 @@ Integer, Allocatable:: iDmp(:,:)
 Real*8, Allocatable, Target:: rDmp(:,:)
 Real*8, Pointer:: qDmp(:,:)
 Character(LEN=160), Allocatable:: cDmp(:)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*)
 Write (6,*) 'Enter Basis_Info_Dmp'
 Write (6,*)
@@ -329,7 +329,7 @@ Do i = 1, nCnttp
          +5              *        nFragCoor     &
                          +dbsc(i)%nFragEner     &
        +dbsc(i)%nFragDens*dbsc(i)%nFragEner
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
    Write (6,'(A,8I4)') 'iCnttp=',i,                     &
           nFrag_LineWords,dbsc(i)%nFragType,    &
                           dbsc(i)%nFragCoor,    &
@@ -376,7 +376,7 @@ Do i = 1, Max_Shells-1
    iDmp(11,i) = Shells(i)%kOffAO
    nAux2 = nAux2 + 2*Shells(i)%nBK + 2*Shells(i)%nAkl**2 + Shells(i)%nFockOp**2  &
          + Shells(i)%nExp + 2*Shells(i)%nExp*Shells(i)%nBasis + 2*Shells(i)%nExp**2
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
    Write (6,'(A,7I4)') 'iShll=',i,                     &
                Shells(i)%nBK,                          &
                Shells(i)%nAkl,                         &
@@ -527,7 +527,7 @@ lcDmp=160*nCnttp
 Call Put_cArray('cDmp',cDmp(1),lcDmp)
 Call mma_deallocate(cDmp)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*)
 Write (6,*) 'Exit Basis_Info_Dmp'
 Write (6,*)
@@ -547,7 +547,7 @@ Character(LEN=160), Allocatable:: cDmp(:)
 Logical Found
 Integer Len, i, j, nAtoms, nAux, nM1, nM2, nBK,nAux2, nAkl, nFockOp, nExp, nBasis, Len2, lcDmp
 Integer nFragType, nFragCoor, nFragEner, nFragDens
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*)
 Write (6,*) 'Enter Basis_Info_Get'
 Write (6,*)
@@ -618,7 +618,7 @@ Do i = 1, nCnttp
          +5              *        nFragCoor     &
                          +dbsc(i)%nFragEner     &
        +dbsc(i)%nFragDens*dbsc(i)%nFragEner
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
    Write (6,'(A,8I4)') 'iCnttp=',i,                     &
           nFrag_LineWords,dbsc(i)%nFragType,    &
                           dbsc(i)%nFragCoor,    &
@@ -835,7 +835,7 @@ Do i = 1, nCnttp
    dbsc(i)%Bsl_Old=cDmp(i)(81:160)
 End Do
 Call mma_deallocate(cDmp)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*)
 Write (6,*) 'Coordinates:'
 Do i = 1, nCnttp
@@ -855,7 +855,7 @@ End Subroutine Basis_Info_Get
 !
 Subroutine Basis_Info_Free()
 Integer i
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*) 'Basis_Info_Free()'
 #endif
 !

@@ -81,7 +81,7 @@ C
       Integer l_COcc,  l_CVir
 
       Logical Debug
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Parameter (Debug = .True.)
 #else
       Parameter (Debug = .False.)

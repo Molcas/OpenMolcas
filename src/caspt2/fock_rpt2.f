@@ -36,7 +36,7 @@ c To be called from ORBCTL section, after second order two-el
 c transformation, and TRAONE, are finished, or from H0CTL.
 
       CALL QENTER('FOCK_RPT2')
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IFTEST=1
 #else
       IFTEST=0

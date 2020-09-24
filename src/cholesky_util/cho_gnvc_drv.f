@@ -39,7 +39,7 @@ C
       iVecRS(i,j)=iWork(ip_iVecRS-1+nSym*(j-1)+i)
       mapRS2RS(i,j)=iWork(ip_mapRS2RS(i)-1+j)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call qEnter('_GnVc_Drv')
 #endif
 
@@ -147,7 +147,7 @@ C     -----------------------
          l_Wrk = l_WrkT/2
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
 C     Debug: force batching.
 C     ----------------------
 
@@ -288,7 +288,7 @@ C        ----------------------------------------------------------
                   iAB = InfVec(iV,1,iSym) ! addr in 1st red. set
                   jAB = iAB - iiBstR(iSym,1)
                   kAB = mapRS2RS(iSym,jAB) ! addr in curr. red. set
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                   If (kAB.lt.1 .or. kAB.gt.nnBstR(iSym,2)) Then
                      Write(Lupri,*) SecNam,': illegal kAB = ',kAB
                      Write(Lupri,*) 'Vector, symmetry, pass: ',
@@ -382,7 +382,7 @@ C     ---------------------------------------------
       Call Cho_Timer(tCPU2,tWall2)
       tDecDrv(1) = tDecDrv(1) + tCPU2  - tCPU1
       tDecDrv(2) = tDecDrv(2) + tWall2 - tWall1
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call qExit('_GnVc_Drv')
 #endif
       Return

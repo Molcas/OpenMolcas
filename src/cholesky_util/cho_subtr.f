@@ -23,7 +23,7 @@ C
       LOGICAL LOCDBG, FXDMEM
       PARAMETER (LOCDBG = .FALSE.)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QENTER('_SUBTR')
 #endif
 
@@ -96,7 +96,7 @@ C     -------------------------------------------
       END IF
 
     1 CONTINUE
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QEXIT('_SUBTR')
 #endif
 

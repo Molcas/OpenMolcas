@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-C#define _DEBUG_
+C#define _DEBUGPRINT_
 C======================================================================C
 C This file collects the subroutines and functions used to get info    C
 C from the LDF common blocks.                                          C
@@ -18,7 +18,7 @@ C >>> Logical Function LDF_With2CF()
       Implicit None
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_AtomPairInfoIsSet
       External LDF_AtomPairInfoIsSet
 #endif
@@ -26,7 +26,7 @@ C >>> Logical Function LDF_With2CF()
       Integer i
       Integer n2CFunctions
       n2CFunctions(i)=iWork(ip_AP_2CFunctions+2*(i-1))
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (.not.LDF_AtomPairInfoIsSet()) Then
          Call WarningMessage(2,'LDF_With2CF: atom pair info unset!')
          Call LDF_Quit(1)
@@ -46,7 +46,7 @@ C >>> Integer Function LDF_UniqueAtomPair(iAtomPair)
       Integer iAtomPair
 #include "ldf_atom_pair_info.fh"
 #include "WrkSpc.fh"
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_AtomPairInfoIsSet
       External LDF_AtomPairInfoIsSet
       Integer  LDF_nAtomPair
@@ -70,7 +70,7 @@ C >>> Integer Function LDF_UniqueAtom(iAtom)
       Integer iAtom
 #include "ldf_atom_info.fh"
 #include "WrkSpc.fh"
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_AtomInfoIsSet
       External LDF_AtomInfoIsSet
       Integer  LDF_nAtom
@@ -122,7 +122,7 @@ C >>> Integer Function LDF_NumberOfValenceShellsOnAtom(iAtom)
       Integer iAtom
 #include "ldf_atom_info.fh"
 #include "WrkSpc.fh"
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_AtomInfoIsSet
       External LDF_AtomInfoIsSet
 
@@ -154,7 +154,7 @@ C >>> Integer Function LDF_NumberOfAuxiliaryShellsOnAtom(iAtom)
       Integer iAtom
 #include "ldf_atom_info.fh"
 #include "WrkSpc.fh"
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_AtomInfoIsSet
       External LDF_AtomInfoIsSet
 
@@ -185,7 +185,7 @@ C >>> Integer Function LDF_NumberOfAtoms()
       Integer Function LDF_NumberOfAtoms()
       Implicit None
 #include "ldf_atom_info.fh"
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_AtomInfoIsSet
       External LDF_AtomInfoIsSet
 
@@ -223,7 +223,7 @@ C >>> Integer Function LDF_nBasSh(iShell)
       Integer iShell
 #include "localdf_bas.fh"
 #include "WrkSpc.fh"
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (iShell.lt.1 .or.
      &    iShell.gt.(nShell_Valence+nShell_Auxiliary+1)) Then
          Call WarningMessage(2,'LDF_nBasSh_Atom: iAtom out of bounds')
@@ -241,7 +241,7 @@ C >>> Integer Function LDF_nBasSh_Atom(iShell,iAtom)
       Integer jShell
       Integer  LDF_lShell_Atom, LDF_nBasSh
       External LDF_lShell_Atom, LDF_nBasSh
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_AtomInfoIsSet
       External LDF_AtomInfoIsSet
       Integer  LDF_nAtom, LDF_nShell_Atom
@@ -272,7 +272,7 @@ C >>> Integer Function LDF_nBasAuxSh_Atom(iAuxShell,iAtom)
       Integer jAuxShell
       Integer  LDF_lAuxShell_Atom
       External LDF_lAuxShell_Atom
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_AtomInfoIsSet
       External LDF_AtomInfoIsSet
       Integer  LDF_nAtom, LDF_nAuxShell_Atom
@@ -281,7 +281,7 @@ C >>> Integer Function LDF_nBasAuxSh_Atom(iAuxShell,iAtom)
       Integer i
       Integer nBasSh
       nBasSh(i)=iWork(ip_nBasSh-1+i)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (.not.LDF_AtomInfoIsSet()) Then
          Call SysWarnMsg('LDF_nBasAuxSh_Atom',
      &                      'LDF Atom Info not set!',
@@ -315,7 +315,7 @@ C >>> Integer Function LDF_nBasAux_Pair(iAtomPair)
       Integer iAtom, jAtom
       Integer  LDF_nBasAux_Atom
       External LDF_nBasAux_Atom
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer  nAtom
       Integer  LDF_nAtom
       External LDF_nAtom
@@ -329,7 +329,7 @@ C >>> Integer Function LDF_nBasAux_Pair(iAtomPair)
       AP_Atoms(i,j)=iWork(ip_AP_Atoms-1+2*(j-1)+i)
       AP_1CLinDep(i,j)=iWork(ip_AP_1CLinDep-1+2*(j-1)+i)
       AP_2CFunctions(i,j)=iWork(ip_AP_2CFunctions-1+2*(j-1)+i)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (.not.LDF_AtomPairInfoIsSet()) Then
          Call WarningMessage(2,
      &                      'LDF_nBasAux_Pair: Atom Pair Info not set!')
@@ -343,7 +343,7 @@ C >>> Integer Function LDF_nBasAux_Pair(iAtomPair)
 #endif
       iAtom=AP_Atoms(1,iAtomPair)
       jAtom=AP_Atoms(2,iAtomPair)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       nAtom=LDF_nAtom()
       If (iAtom.lt.1 .or. iAtom.gt.nAtom .or.
      &    jAtom.lt.1 .or. jAtom.gt.nAtom) Then
@@ -377,7 +377,7 @@ C >>> Integer Function LDF_nBasAux_Pair_WithLinDep(iAtomPair)
       Integer iAtom, jAtom
       Integer  LDF_nBasAux_Atom
       External LDF_nBasAux_Atom
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer  nAtom
       Integer  LDF_nAtom
       External LDF_nAtom
@@ -389,7 +389,7 @@ C >>> Integer Function LDF_nBasAux_Pair_WithLinDep(iAtomPair)
       Integer AP_2CFunctions
       AP_Atoms(i,j)=iWork(ip_AP_Atoms-1+2*(j-1)+i)
       AP_2CFunctions(i,j)=iWork(ip_AP_2CFunctions-1+2*(j-1)+i)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (.not.LDF_AtomPairInfoIsSet()) Then
          Call WarningMessage(2,
      &           'LDF_nBasAux_Pair_WithLinDep: Atom Pair Info not set!')
@@ -403,7 +403,7 @@ C >>> Integer Function LDF_nBasAux_Pair_WithLinDep(iAtomPair)
 #endif
       iAtom=AP_Atoms(1,iAtomPair)
       jAtom=AP_Atoms(2,iAtomPair)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       nAtom=LDF_nAtom()
       If (iAtom.lt.1 .or. iAtom.gt.nAtom .or.
      &    jAtom.lt.1 .or. jAtom.gt.nAtom) Then
@@ -428,7 +428,7 @@ C >>> Integer Function LDF_nBasAux_Atom(iAtom)
       Integer i
       Integer  LDF_nAuxShell_Atom, LDF_nBasAuxSh_Atom
       External LDF_nAuxShell_Atom, LDF_nBasAuxSh_Atom
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer  LDF_nAtom
       External LDF_nAtom
       If (iAtom.lt.1 .or. iAtom.gt.LDF_nAtom()) Then
@@ -449,7 +449,7 @@ C >>> Integer Function LDF_nBas_Atom(iAtom)
       Integer i
       Integer  LDF_nShell_Atom, LDF_nBasSh_Atom
       External LDF_nShell_Atom, LDF_nBasSh_Atom
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer  LDF_nAtom
       External LDF_nAtom
       If (iAtom.lt.1 .or. iAtom.gt.LDF_nAtom()) Then
@@ -483,7 +483,7 @@ C >>> Integer Function LDF_ListOfValenceShellsOnAtom(iAtom)
       Integer iAtom
 #include "ldf_atom_info.fh"
 #include "WrkSpc.fh"
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_AtomInfoIsSet
       External LDF_AtomInfoIsSet
       If (.not.LDF_AtomInfoIsSet()) Then
@@ -514,7 +514,7 @@ C >>> Integer Function LDF_ListOfAuxiliaryShellsOnAtom(iAtom)
       Integer iAtom
 #include "ldf_atom_info.fh"
 #include "WrkSpc.fh"
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_AtomInfoIsSet
       External LDF_AtomInfoIsSet
       If (.not.LDF_AtomInfoIsSet()) Then
@@ -547,7 +547,7 @@ C Note: returns -1 if fitting coefficients are not available on disk.
       Integer iAtomPair
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_AtomPairInfoIsSet
       External LDF_AtomPairInfoIsSet
       If (.not.LDF_AtomPairInfoIsSet()) Then
@@ -568,7 +568,7 @@ C >>> Integer Function LDF_Coord_Atom(iAtom)
       Implicit None
       Integer iAtom
 #include "ldf_atom_info.fh"
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (l_Coord.lt.1) Then
          Call WarningMessage(2,'LDF_Coord_Atom: Info not set!')
          Call LDF_Quit(1)
@@ -591,7 +591,7 @@ C >>> Integer Function LDF_AtomWithCoordinates(R)
       Real*8  d
       Integer  LDF_Coord_Atom
       External LDF_Coord_Atom
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (l_Coord.lt.1) Then
          Call WarningMessage(2,
      &             'LDF_AtomWithCoordinates: LDF Atom Info is not set!')
@@ -635,14 +635,14 @@ C >>> Integer Function LDF_AtomPair_DiagDim(iAtomPair)
 #include "WrkSpc.fh"
       Integer  LDF_nBas_Atom
       External LDF_nBas_Atom
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_AtomPairInfoIsSet
       External LDF_AtomPairInfoIsSet
 #endif
       Integer i, j
       Integer AP_Atoms
       AP_Atoms(i,j)=iWork(ip_AP_Atoms-1+2*(j-1)+i)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (.not.LDF_AtomPairInfoIsSet()) Then
          Call WarningMessage(2,
      &                 'LDF_AtomPair_DiagDim: Atom Pair Info not set!')

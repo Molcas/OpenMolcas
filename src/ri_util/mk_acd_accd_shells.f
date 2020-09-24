@@ -43,11 +43,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
+*#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Real*8, Allocatable :: H(:), U(:), tVtInv(:)
 #endif
       Logical Hit, Found, Diagonal, Keep_Basis, In_Core, W2L
@@ -277,7 +277,7 @@
       call dcopy_(nTInt_c,[1.0D0],0,Wg,1)
 *
       If (In_Core) Then
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('TInt_c',' ',TInt_c,nTInt_c,nTInt_c)
 #endif
          Call mma_allocate(Vec,nTInt_c**2,label='Vec')
@@ -291,7 +291,7 @@
             Write (6,*) 'Mk_aCD_Shells: CD_InCore_p(c) failed!'
             Call Abend()
          End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('Vec',' ',Vec,nTInt_c,NumCho_c)
 #endif
          Call mma_deallocate(TInt_c)
@@ -328,7 +328,7 @@
          Call Abend()
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' Thr_aCD:',Thr_aCD
       Write (6,*) 'NumCho_c:',NumCho_c
       Call iVcPrt('iD_c',' ',iD_c,NumCho_c)
@@ -422,7 +422,7 @@
                   jShll_=dbsc(iCnttp)%iVal+jAng
 *
                   iShll = iShll + 1
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*)
                   Write (6,*) 'iAng,jAng=',iAng,jAng
                   Write (6,*) 'iAngMax=',iAngMax
@@ -460,7 +460,7 @@
      &                          .and. iAng.ge.iAngMin
      &                          .and. iAng+jAng.le.Keep_Shell
                   Keep_Basis = Found .or. Keep_Basis
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*) 'Found,kShll,lShll=',Found,kShll,lShll
 #endif
 *                                                                      *
@@ -513,7 +513,7 @@
                         Write (6,*) 'Out-of-core acCD not implemented!'
                         Call Abend()
                      End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                      Call RecPrt('TInt_p','(5G20.11)',
      &                           TInt_p,nTInt_p,nTInt_p)
 #endif
@@ -548,7 +548,7 @@
                      Else
                         nCntrc_Max=nk*nl
                      End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                      Write (6,*) 'nCntrc_Max=',
      &                                              nCntrc_Max
 #endif
@@ -582,7 +582,7 @@
                                nCntrc=nCntrc+1
                                Con(ikl)=1
                                ConR(1,nCntrc)=ik
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                                Write (6,*) 'iCho_c,  ijSO=',
      &                                      iCho_c+1,ijSO
 #endif
@@ -590,7 +590,7 @@
                            End If
                         End If
                      End Do    !  iCho_c
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                      Write (6,*) 'nCntrc=',nCntrc
                      Call iVcPrt('Con',' ',Con,nCntrc_Max)
                      Call iVcPrt('ConR',' ',ConR,2*nCntrc)
@@ -638,7 +638,7 @@
                         Else
                            nPrim_Max=npk*npl
                         End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                            Write (6,*) 'nPrim_Max:',nPrim_Max
 #endif
                         Call mma_allocate(Prm,nPrim_Max,label='Prm')
@@ -670,7 +670,7 @@
      &                                 iList2_p,nTheta_All,
      &                                 2*mData,iAng,jAng,npk,npl,LTP)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                         Call RecPrt('TIntP','(5G20.10)',
      &                              TP,nPrim_Max,nPrim_Max)
                         Call iVcPrt('List_TP',' ',LTP,2*nPrim_Max)
@@ -698,7 +698,7 @@
                            Call Abend()
                         End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                         Write (6,*) 'Thrshld_CD_p:',Thrshld_CD_p
                         Write (6,*) 'NumCho_p    :',NumCho_p
                         Call iVcPrt('iD_p',' ',iD_p,NumCho_p)
@@ -737,7 +737,7 @@
      &                                    Label='ExpacCD')
                         Shells(iShll)%nExp=nPrim
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                         Write (6,*) 'nPrim=',nPrim
                         Call iVcPrt('Prm',' ',Prm,nPrim_Max)
 #endif
@@ -756,7 +756,7 @@
                            Exp_j=Shells(lShll)%Exp(il)
                            Shells(iShll)%Exp(iCho_p)=Exp_i+Exp_j
                         End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                         Call RecPrt('SLIM Exponents',' ',
      &                             Shells(iShll)%Exp,1,nPrim)
 #endif
@@ -800,7 +800,7 @@
                            Call Abend()
                         End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                         If (Diagonal) Then
                            Call TriPrt('aCD Exponents',' ',
      &                                 Shells(iShll)%Exp,nExpk)
@@ -830,7 +830,7 @@
                   iAngMx=Max(iAngMx,lAng)
                   MaxPrm(lAng)=Max(MaxPrm(lAng),nPrim)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*)
                   Write (6,*) 'iShll=',iShll
                   Write (6,*) 'nPrim,nCntrc=',nPrim,nCntrc
@@ -895,7 +895,7 @@
      &                              Indkl_p,nPrim_Max,
      &                              AL,nCompA,nCompB)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                         Write (6,*)
                         Write (6,*) 'tVt(Diag)'
                         Write (6,*) (tVt(i),i=1,nTheta**2,nTheta+1)
@@ -923,7 +923,7 @@
                               A(ijT)=tVt(ijS)
                            End Do
                         End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                         Call TriPrt('A',' ',A,nTheta)
 *
                         Call mma_allocate(H,nTri,label='H')
@@ -938,7 +938,7 @@
                         Call mma_deallocate(U)
 #endif
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                         Call mma_allocate(tVtInv,nTheta**2,
      &                                    label='tVtInv')
                         iSing=0
@@ -970,7 +970,7 @@ C                          Thrs= 1.0D-12
                         End Do
                         Call mma_deallocate(Z)
                         Call mma_deallocate(A)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                         Call TriPrt('Q','(9G10.3)',Q,nTheta)
 #endif
 *
@@ -989,7 +989,7 @@ C                          Thrs= 1.0D-12
      &                               nTheta_Full,
      &                               AL,nCompA,nCompB)
                         Call mma_deallocate(AL)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                         Call RecPrt('tVtF',' ',tVtF,nTheta,nTheta_Full)
 #endif
 *
@@ -1016,7 +1016,7 @@ C                          Thrs= 1.0D-12
      &                                 Shells(kShll)%Cff_p(1,1,1),
      &                                 Shells(lShll)%Cff_p(1,1,1))
                         Call mma_deallocate(Indkl)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                         Call RecPrt('C',' ',C,nTheta_Full,nPhi)
 #endif
 *
@@ -1028,7 +1028,7 @@ C                          Thrs= 1.0D-12
      &                              C,nTheta_Full,
      &                              0.0d0,tVp,nTheta)
                         Call mma_deallocate(tVtF)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                         Call RecPrt('tVp',' ',tVp,nTheta,nPhi)
 #endif
                         Call mma_deallocate(C)
@@ -1051,7 +1051,7 @@ C                          Thrs= 1.0D-12
                            End Do
                         End Do
                         call mma_deallocate(Q)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                         Call RecPrt('Q',' ',Temp,nTheta,nTheta)
 #endif
 *
@@ -1066,7 +1066,7 @@ C                          Thrs= 1.0D-12
      &                                       QTmp(iTheta),nTheta)
                         End Do
                         Call mma_deallocate(Temp)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                         Call RecPrt('Q',' ',QTmp,nTheta,nTheta)
                         Call RecPrt('tVp',' ',tVp,nTheta,nPhi)
 #endif
@@ -1085,7 +1085,7 @@ C                          Thrs= 1.0D-12
      &                              Scr,nTheta,
      &                              0.0d0,
      &                              Shells(iShll)%Cff_c(1,1,1),nTheta)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                         Call RecPrt('SLIM coeffcients',' ',
      &                               Shells(iShll)%Cff_c(1,1,1),
      &                               nTheta,nPhi)
@@ -1136,7 +1136,7 @@ C                          Thrs= 1.0D-12
                         Call mma_deallocate(Indkl_p)
                         Call mma_deallocate(Scr)
                         Call mma_deallocate(QTmp)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                         Call RecPrt('SLIM coeffcients',' ',
      &                              Shells(iShll)%Cff_c(1,1,1),
      &                              nTheta,nPhi)
@@ -1156,7 +1156,7 @@ C                          Thrs= 1.0D-12
                         Do iCntrc = 1, nCntrc
                            kC = ConR(1,iCntrc)
                            lC = ConR(2,iCntrc)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                            Write (6,*) 'kC,lC=',kC,lC
 #endif
 *                                                                      *
@@ -1204,7 +1204,7 @@ C                          Thrs= 1.0D-12
                            End If
 *
                         End Do ! iCntrc
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                         Call RecPrt('aCD Coefficients','(6G20.12)',
      &                              Shells(iShll)%Cff_c(1,1,1),
      &                              nPrim,nCntrc)
@@ -1235,7 +1235,7 @@ C                          Thrs= 1.0D-12
                      Call Nrmlz(Shells(iShll)%Exp,nPrim,
      &                          Shells(iShll)%Cff_p(1,1,1),
      &                          nPrim ,lAng)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                      Call RecPrt('uncon1',' ',
      &                            Shells(iShll)%Cff_p(:,:,1),
      &                            nPrim,nPrim)
@@ -1246,7 +1246,7 @@ C                          Thrs= 1.0D-12
 *
 *                    OK let's do the correction now!
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                      Call RecPrt('Coefficients 10',' ',
      &                           Shells(iShll)%Cff_c(:,:,1),
      &                           nPrim,nCntrc)
@@ -1259,7 +1259,7 @@ C                          Thrs= 1.0D-12
                      Call Fix_Coeff(nPrim,nCntrc,
      &                              Shells(iShll)%Cff_c(:,:,2),
      &                              Shells(iShll)%Cff_p(:,:,1),'F')
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                      Call RecPrt('Coefficients 1',' ',
      &                            Shells(iShll)%Cff_c(:,:,1),
      &                            nPrim,nCntrc)
@@ -1278,7 +1278,7 @@ C                          Thrs= 1.0D-12
      &                                  Shells(iShll)%Cff_p)
                      nPrim=mPrim
                      Shells(iShll)%nExp=nPrim
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                      Call RecPrt('Coefficients 1',' ',
      &                           Shells(iShll)%Cff_c(:,:,1),
      &                           nPrim,nCntrc)

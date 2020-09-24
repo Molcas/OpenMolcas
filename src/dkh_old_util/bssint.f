@@ -28,7 +28,7 @@
       iRout=77
       iPrint=nPrint(iRout)
       Call QEnter('BSSInt')
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif
 *

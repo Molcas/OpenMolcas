@@ -65,7 +65,7 @@
       iPrint = nPrint(iRout)
 *     Call qEnter('NAGrd')
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Write (6,*) ' In NAGrd: nArr=',nArr
          nDAO = nElem(la) * nElem(lb)

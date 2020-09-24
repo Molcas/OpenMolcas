@@ -966,7 +966,7 @@ c         write(6,*) 'Func in drvdft :', Func
          Call Put_dScalar('CASDFT energy',Energy_integrated)
          Call Put_dExcdRa(Work(ipF_DFT),nFckDim*nh1)
 *         Write(6,'(a,f22.16)') " Energy in drvdft ",Energy_integrated
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write(6,'(a,f22.16)') " Energy ",Energy_integrated
          If (nFckDim.eq.1) Then
             Do i=1,nh1

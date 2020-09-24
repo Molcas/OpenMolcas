@@ -44,7 +44,7 @@
 #include "real.fh"
 #include "itmax.fh"
 #include "info.fh"
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 #include "print.fh"
 #endif
 
@@ -58,7 +58,7 @@
 *                                                                      *
 ************************************************************************
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iRout = 122
       iPrint = nPrint(iRout)
 #endif
@@ -86,7 +86,7 @@
          Call Abend
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.49) Then
          Call RecPrt(' In MltGrd: RKappa',' ',rKappa,1,nZeta)
          Call RecPrt(' In MltGrd: A',' ',A,1,3)

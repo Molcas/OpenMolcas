@@ -42,7 +42,7 @@
 #include "cicisp_mclr.fh"
 #include "WrkSpc.fh"
        Character*8 Label
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        Character*20 Label2
 #endif
        Integer Pstate_sym,ldisp2(8),ielec(3)
@@ -54,13 +54,13 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *
        Call QEnter('Output')
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        debug=.True.
 #else
        debug=.false.
@@ -382,7 +382,7 @@ C     Call GetMem('Temp','ALLO','REAL',ipELEC2,3*ndisp)
       if (irc.ne.0) elec=.false.
                 Call GADsum(Work(iphss), nhss)
       call dcopy_(nhss,Work(iphss),1,Work(iphess2),1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (debug) Then
          ip=ipHess2
          Do iSym=1,nSym
@@ -406,7 +406,7 @@ c       Write(*,*)'I am here 1'
 C
       Call DaXpY_(mSym,1.0d0,Work(ipRHss),1,Work(ipHess2),1)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (debug) Then
        Call MMSORT2(Work(ipRHSS),Work(ipELEC),pola,ielec)
        Call Recprt('RESP',' ',Work(ipElec),3*nDisp,1)
@@ -415,7 +415,7 @@ C
 *
       Call MMSORT2(Work(ipHESS2),Work(ipELEC),pola,ielec)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (debug) Then
        Call Recprt('R+C',' ',Work(ipElec),3*nDisp,1)
        ip=ipHess2
@@ -430,7 +430,7 @@ C
 *
       Call mmSort(Work(ipHess2),Work(ipHess),ldisp2)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 C
 cvv       Write(*,*)'I am here'
 c       Call Recprt('iphess2',' ',Work(ipHess2),nhss,1)
@@ -449,7 +449,7 @@ c       Call HssPrt_MCLR(iwork(ipdegdisp),Work(ipHess2),ldisp2)
             Call Abend()
          End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          If (debug) Then
             ip=ipTemp
             Do iSym=1,nSym
@@ -462,7 +462,7 @@ c       Call HssPrt_MCLR(iwork(ipdegdisp),Work(ipHess2),ldisp2)
 #endif
          Call DaXpY_(mSym,1.0d0,Work(ipTemp),1,Work(ipHess),1)
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (debug) Then
         ip=ipHess
         Do iSym=1,nSym
@@ -512,7 +512,7 @@ C
 *       Call Recprt('iphess',' ',Work(ipHess),nhss,1)
 C
        call daxpy_(3*ndisp,-1.0d0,Work(ipEG),1,Work(ipELEC),1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        If (debug.and.elec)
      &  Call Recprt('ELEC-ST',' ',Work(ipEG),3*nDisp,1)
        If (debug.and.elec)

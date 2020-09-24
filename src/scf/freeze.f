@@ -53,7 +53,7 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('Freeze')
 #endif
 *
@@ -108,7 +108,7 @@
 *---- Deallocate memory
       Call mma_deallocate(Temp)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('Freeze')
 #endif
 *

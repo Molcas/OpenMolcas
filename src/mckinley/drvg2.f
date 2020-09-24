@@ -75,7 +75,7 @@
      &        l_Hss,l_Grd,lGrad,n8,ldot2,new_fock,
      &        Post_Process
       Integer moip(0:7)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Character*40 format
 #endif
       Real*8, Allocatable:: TMax(:,:)
@@ -1100,7 +1100,7 @@ C     End Do !  iS
 
       End If
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call GADSum_SCAL(Pren)
       Call GADSum_SCAL(Prem)
       Write (Format,'(A,I2,A,I2,A)') '(A,F',

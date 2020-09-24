@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
-!#define _DEBUG_
+!#define _DEBUGPRINT_
 Module Symmetry_Info
 Implicit None
 Private
@@ -71,7 +71,7 @@ Contains
 Subroutine Symmetry_Info_Back(mIrrep)
 Integer:: mIrrep
 mIrrep=nIrrep
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*) 'Call Symmetry_Info_Back'
 Write (6,'(A,I4)') 'nIrrep=',nIrrep
 #endif
@@ -114,7 +114,7 @@ i=i+3
 iDmp(i+1:i+MxFnc)=iChBas(1:MxFnc)
 i=i+MxFnc
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*) 'Symmetry_Info_Dmp'
 Write (6,*) 'liDmp=',liDmp
 Write (6,*) 'MxFnc=',MxFnc
@@ -226,7 +226,7 @@ Do i = 1, 3
    SymLab(i:i)=cDmp(i+k)
 End Do
 Call mma_deallocate(cDmp)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*) 'Symmetry_Info_Get'
 Write (6,*) 'liDmp=',liDmp
 Write (6,*) 'MxFnc=',MxFnc
@@ -349,7 +349,7 @@ iChCar(3) = iSymZ
 
 MxFnc=(iAng+1)*(iAng+2)*(iAng+3)/6
 Call mma_allocate(iChBas,MxFnc,Label='iChBas')
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*) 'Symmetry_Info_Set:'
 Write (6,*) 'iAng,MxFnc=',iAng,MxFnc
 #endif
@@ -379,7 +379,7 @@ Do iIrrep=0,nIrrep-2
       End If
    End Do
 End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*) 'Symmetry_Info_Set:'
 Write (6,*) 'MxFnc=',MxFnc
 Write (6,*) 'nIrrep=',nIrrep

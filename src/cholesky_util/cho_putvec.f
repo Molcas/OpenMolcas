@@ -32,7 +32,7 @@ C
 
       INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QENTER('_PUTVEC')
 #endif
 
@@ -176,7 +176,7 @@ C     ------------
       END IF
 
     1 CONTINUE
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QEXIT('_PUTVEC')
 #endif
 

@@ -31,8 +31,8 @@
       Real*8 Charge2(mxdbsc)
       Data IfTest/.False./
 *
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
       Write (6,*) ' In OneEl: Label', Label
       Write (6,*) ' In OneEl: nComp'

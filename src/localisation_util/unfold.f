@@ -52,7 +52,7 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        Call qEnter('UnFold')
 #endif
 *
@@ -78,7 +78,7 @@
 10    Continue
 *
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        Call qExit('UnFold')
 #endif
 *

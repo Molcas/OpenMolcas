@@ -14,7 +14,7 @@
 #include "SysDef.fh"
 
       Character*24 Label
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 #include "run_common.fh"
 #endif
       Logical      Found
@@ -37,7 +37,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(is_nSym.eq.0) then
        Call Get_iScalar('nSym',nSym)
        is_nSym=1

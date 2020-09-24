@@ -19,8 +19,8 @@
 ************************************************************************
       Implicit None
 #include "stdalloc.fh"
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Integer i,j
       Integer ij, iTri
 #endif
@@ -33,7 +33,7 @@
       Real*8 tmp
       Real*8, Dimension(:,:), Allocatable:: P, Ovrlp_Sq, EVe, C_tmp
       Real*8, Dimension(:), Allocatable:: PNew, EVa
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
       Write (6,*) 'nBas,nOcc,nVirt=',nBas,nOcc,nVirt
       Call RecPrt('C_Occ',' ',C_Occ,nBas,nOcc)
@@ -116,7 +116,7 @@
             P(iBas,jBas) = tmp
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('P-mat',' ',P,nBas,nBas)
       Do iBas = 1, nBas
          Write (6,*) 'iBas,P(iBas,iBas)=',iBas,P(iBas,iBas)
@@ -156,7 +156,7 @@
 *
          tmp=1.0D0/Sqrt(tmp)
          Call DScal_(nBas,tmp,PNew,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*)
          Write (6,*) 'New Trial vector'
          Write (6,*) '================'
@@ -177,7 +177,7 @@
             Do iBas = 1, nBas
                tmp = tmp + PNew(iBas)*C_tmp(iBas,iOcc)
             End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'iOcc,tmp=',iOcc,tmp
 #endif
 *           Form PNew(2) = P(2) - <PNew(1)|Ovrlp|P(2)>PNew(1)
@@ -193,7 +193,7 @@
             Do iBas = 1, nBas
                tmp = tmp + PNew(iBas)*C_Virt(iBas,iVirt)
             End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'iVirt,tmp=',iVirt,tmp
 #endif
 *
@@ -208,7 +208,7 @@
          Do iBas = 1, nBas
             tmp = tmp + PNew(iBas)**2
          End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'Norm after projection:',tmp
          Write (6,*)
 #endif
@@ -281,7 +281,7 @@
       Call mma_deallocate(C_tmp)
       Call mma_deallocate(Ovrlp_Sq)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('C_Virt(New)',' ',C_Virt,nBas,nVirt)
 #endif
 *

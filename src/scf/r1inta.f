@@ -104,8 +104,8 @@
        end if
       end if
 #endif
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       ist1Hm=1
       Write (6,*)
       Write (6,*) ' One electron Hamiltonian at start'
@@ -131,7 +131,7 @@
          Call Abend()
       End If
       Tot_Nuc_Charge=Ovrlp(nBT+4)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       istOvl=1
       Write (6,*)
       Write (6,*) ' Overlap matrix at start'

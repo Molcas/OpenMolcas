@@ -23,7 +23,7 @@
 *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
+*#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
       If (nHidden.gt.0) Then
@@ -39,7 +39,7 @@
          iSBS = iOr(iSBS,2**7)
          iSBS = iOr(iSBS,2**8)
          Call dCopy_((3*nAtoms)*(3*nAtoms+1)/2,Work(ipHBig),1,Hess,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          write(6,*) 'DDV: Improved Hessian'
          Call RecPrt('Coord (with hidden atoms):',' ',Cart,3,nTot)
          Call TriPrt('Hessian (hidden atoms):',' ',Work(ipHBig),3*nTot)
@@ -88,7 +88,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'ddV: nBonds=',nBonds
       nqR=0
       nqB=0
@@ -121,7 +121,7 @@
       n3=3*nAtoms
 *
       call dcopy_((n3*(n3+1)/2),[Zero],0,Hess,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call TriPrt(' In LNM: Hessian at start','(12f8.3)',
      &               Hess,n3)
       Call DiagMtrx_T(Hess,n3,iNeg)
@@ -188,7 +188,7 @@
      &   Hess(LHR(3,iAtom,3,iAtom))=Hess(LHR(3,iAtom,3,iAtom))+gmm
 *
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call TriPrt(' In LNM: Hessian after Translation','(6f12.7)',
      &               Hess,n3)
       Call DiagMtrx_T(Hess,n3,iNeg)
@@ -367,7 +367,7 @@ c     End If
 *
       End Do
       Call Free_Work(ip_Grad)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call TriPrt(' In LNM: Hessian after Rotation','(12f12.7)',
      &               Hess,n3)
       Call DiagMtrx_T(Hess,n3,iNeg)
@@ -416,7 +416,7 @@ C        If (iBondType.gt.Magic_Bond) Go To 10
          End If
 *
          f_const = Max(gmm,f_const_Min_)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          nqR=nqR+1
          Write (6,*) 'ddV: bonds: kAtom,lAtom=',kAtom,LAtom
          Write (6,*) '          : Bondtype=',iBondType
@@ -456,7 +456,7 @@ C        If (iBondType.gt.Magic_Bond) Go To 10
 *
 C10      Continue
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call TriPrt(' In LNM: Hessian after tension','(12f12.7)',
      &               Hess,n3)
       Call DiagMtrx_T(Hess,n3,iNeg)
@@ -558,7 +558,7 @@ chjw modified
               rL=sqrt(rL2)
             end if
             gij=Max(gij,f_const_Min_)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'iAtom,mAtom,jAtom=',iAtom,mAtom,jAtom
             Write (6,*) 'gij=',gij
             Write (6,*) 'rmj=',rmj
@@ -568,7 +568,7 @@ chjw modified
 *
             if ((rmj.gt.rZero).and.(rmi.gt.rZero).and.
      &                                (rrij.gt.rZero)) Then
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
               nqB=nqB+1
 #endif
               SinPhi=rL/(rmj*rmi)
@@ -655,7 +655,7 @@ chjw modified
                    y(2)=One
                    z(2)=Zero
                 End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                 nqB=nqB+2
 #endif
                 Do i=1,2
@@ -727,7 +727,7 @@ chjw modified
        End Do
  20    Continue
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call TriPrt(' In LNM: Hessian after bending','(12f12.7)',
      &               Hess,n3)
       Call DiagMtrx_T(Hess,n3,iNeg)
@@ -744,7 +744,7 @@ chjw modified
          iBondType =iTabBonds(3,iBond)
          Fact = One
          If (iBondType.gt.Magic_Bond) Fact=Two
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*)
          Write (6,*) '*',jAtom,kAtom,' *'
          Write (6,*)
@@ -768,7 +768,7 @@ C        If (iBondType.eq.vdW_Bond) Go To 444
 *
          Do jNeighbor = 1, nNeighbor_j
             iAtom = iTabAtoms(1,jNeighbor,jAtom)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *           Write (6,*)
 *           Write (6,*) iAtom,jAtom,kAtom,' *'
 *           Write (6,*)
@@ -825,7 +825,7 @@ C              If (kBondType.eq.vdW_Bond) Go To 222
                CosFi3=(rkl(1)*rjk(1)+rkl(2)*rjk(2)+rkl(3)*rjk(3))
      &               /Sqrt(rkl2*rjk2)
                If (Abs(CosFi3).gt.CosFi_Max) Go To 222
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*) 'CosFi2,CosFi3=',CosFi2,CosFi3
                Write (6,*) 'rij=',rij,rij2
                Write (6,*) 'rjk=',rjk,rjk2
@@ -884,7 +884,7 @@ C              If (kBondType.eq.vdW_Bond) Go To 222
      &                           nMax,nAtoms) )Then
                   tij = Max(tij,10.0D0*f_const_Min_)
                End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                nqT=nqT+1
                Write (6,*)
                Write (6,*) iAtom,jAtom,kAtom,lAtom
@@ -897,7 +897,7 @@ C              If (kBondType.eq.vdW_Bond) Go To 222
                call dcopy_(3,C(1,2),1,sj,1)
                call dcopy_(3,C(1,3),1,sk,1)
                call dcopy_(3,C(1,4),1,sl,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *              Call RecPrt('C',' ',C,3,4)
 #endif
 *
@@ -954,7 +954,7 @@ C              If (kBondType.eq.vdW_Bond) Go To 222
          End Do             ! iNeighbor_j
  444     Continue
       End Do                ! iBonds
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call TriPrt(' In LNM: Hessian after torsion','(12f12.7)',
      &               Hess,n3)
       Call DiagMtrx_T(Hess,n3,iNeg)
@@ -1060,7 +1060,7 @@ C                 Write (*,*) 'Help=',Help
                   CosFi4=(rik(1)*ril(1)+rik(2)*ril(2)+rik(3)*ril(3))
      &                  /Sqrt(rik2*ril2)
                   If (CosFi4.gt.ThrFi1 .or. CosFi4.lt.ThrFi2) Go To 224
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*) 'CosFi2,CosFi3,CosFi4=',
      &                        CosFi2,CosFi3,CosFi4
 #endif
@@ -1080,7 +1080,7 @@ C                 tij=Max(tij,f_const_Min_)
                   Call OutofP(xyz,4,Tau,C,.False.,.False.,'        ',
      &                        Dum,.False.)
                   If (Abs(Tau).gt.25.0D0*(Pi/180.D0)) Go To 224
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   nqO=nqO+1
 #endif
 *
@@ -1088,7 +1088,7 @@ C                 tij=Max(tij,f_const_Min_)
                   call dcopy_(3,C(1,1),1,sj,1)
                   call dcopy_(3,C(1,2),1,sk,1)
                   call dcopy_(3,C(1,3),1,sl,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*) 'iAtoms=',
      &                         iAtom,jAtom,kAtom,lAtom
                   Write(6,*) 'tij,Tau=',tij,Tau
@@ -1153,7 +1153,7 @@ C                 tij=Max(tij,f_const_Min_)
          End Do             ! iCase
  446     Continue
       End Do               ! iBond
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call TriPrt(' In LNM: Hessian after out-of-plane','(12f12.7)',
      &               Hess,n3)
       Call DiagMtrx_T(Hess,n3,iNeg)
@@ -1162,13 +1162,13 @@ C                 tij=Max(tij,f_const_Min_)
 ************************************************************************
 *                                                                      *
  999  Continue
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'ddV: nqR, nqB, nqT, nqO=',nqR, nqB, nqT, nqO
 #endif
       Call QExit('ddV_')
       Return
       End
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Subroutine DiagMtrx_T(H,nH,iNeg)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"

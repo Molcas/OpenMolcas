@@ -99,8 +99,8 @@
 *
       If (PmTime) Call CWTime(xCPM1,xWPM1)
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call qEnter('PMat')
       Call NrmClc(TwoHam(1,1,nDens),nBT*nD,'PMat: Enter','T in nDens')
       Call NrmClc(Vxc   (1,1,nDens),nBT*nD,'PMat: Enter','T in nDens')
@@ -191,7 +191,7 @@
             Call Free_Work(ipVemb)
             Call NameRun(NamRfil)   ! switch back RUNFILE name
          End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call NrmClc(Vxc   (1,1,iPsLst),nDT*nD,'PMat','Optimal V ')
 #endif
 *
@@ -320,7 +320,7 @@
 ************************************************************************
 *                                                                      *
       Call DaXpY_(nBT*nD,One,Temp,1,TwoHam(1,1,iPsLst),1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call NrmClc(Temp,nBT*nD,'PMat_SCF','Temp')
       Call NrmClc(TwoHam(1,1,iPsLst),nBT*nD,'PMat_SCF','T in iPsLst')
 #endif
@@ -397,8 +397,8 @@
      &      / DBLE(nD)
 *
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call NrmClc(Dens  (1,1,iPsLst),nBT*nD,'PMat  ','D iPsLst  ')
       Call NrmClc(Dens  (1,1,nDens), nBT*nD,'PMat  ','D nDens   ')
       Call NrmClc(TwoHam(1,1,iPsLst),nBT*nD,'PMat  ','T iPsLst  ')

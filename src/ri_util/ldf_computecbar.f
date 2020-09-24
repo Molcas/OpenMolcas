@@ -83,7 +83,7 @@ C
       l_CBar=0
       ip_Z=0
       l_Z=0
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (iAtomPair.lt.1 .or. iAtomPair.gt.NumberOfAtomPairs) Then
          Write(6,'(A,A,I8)')
      &   SecNam,': iAtomPair out of bounds:',iAtomPair

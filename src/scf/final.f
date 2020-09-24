@@ -118,7 +118,7 @@
 *----------------------------------------------------------------------*
 *
       Call CWTime(TCpu1,TWall1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('Final')
 #endif
 *
@@ -563,7 +563,7 @@ c make a fix for energies for deleted orbitals
          Call EFP_ShutDown(EFP_Instance)
       End If
 #endif
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('Final')
 #endif
 *

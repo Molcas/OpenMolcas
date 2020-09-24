@@ -76,7 +76,7 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('SOrb')
 #endif
 *
@@ -223,7 +223,7 @@
 #ifdef _HDF5_
       If (isHDF5) Call mh5_close_file(fileorb_id)
 #endif
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('SOrb')
 #endif
 *----------------------------------------------------------------------*

@@ -67,8 +67,8 @@
 *
 *----------------------------------------------------------------------*
 *     Start
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call NrmClc(O,nOTSD   ,'EGrad','O')
       Call NrmClc(S,nOTSD   ,'EGrad','S')
       Call NrmClc(D,nOTSD*nD,'EGrad','D')
@@ -91,14 +91,14 @@
       Do iD = 1, nD
 *
          Call DZAXPY(nBT,1.0D0,O,1,T(1,iD),1,FckM(1,iD),1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call NrmClc(FckM(1,iD),nBT,'EGrad','FckM')
 #endif
          If (nnFr.gt.0)
      &      Call ModFck(FckM(1,iD),S,nBT,CMO(1,iD),nBO,nOcc(1,1))
 *
          Call DaXpY_(nBT,1.0D0,V(1,iD),1,FckM(1,iD),1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call NrmClc(FckM(1,iD),nBT,'EGrad','FckM')
 #endif
 *
@@ -233,7 +233,7 @@
 *
       Call DScal_(nG*nD,2.0D0,G,1)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *     Call RecPrt('EGrad: G',' ',G,nG,nD)
 #endif
 *

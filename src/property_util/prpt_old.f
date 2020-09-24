@@ -81,7 +81,7 @@ c
       Use Iso_C_Binding
       Real*8, Target :: Scr(*)
       Character, Pointer :: cScr(:)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('PrPt')
 #endif
       Write (6,*)
@@ -341,7 +341,7 @@ c
 *                                                                      *
 499   continue
 c
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('PrPt')
 #endif
 

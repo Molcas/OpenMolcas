@@ -51,8 +51,8 @@
       Lu=6
       iRout = 113
       iPrint = nPrint(iRout)
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (Lu,*) ' Newq: nIter,Beta=',nIter,Beta
       Call RecPrt(' Newq: q',' ',q,nInter,nIter+1)
       Call RecPrt(' Newq: dq',' ',dq,nInter,nIter)
@@ -255,7 +255,7 @@ C     Call View(H,nInter,print)
         q(i,nIter+1) = q(i,nIter) + dq(i,nIter)
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (Lu,*) ' dqHdq=',dqHdq
       Call RecPrt('Newq: q',' ',q,nInter,nIter+1)
       Call RecPrt('Newq: dq',' ',dq,nInter,nIter)

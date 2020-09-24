@@ -20,11 +20,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('GenCoo: Cart',' ',Cart,3,nAtom)
       Call RecPrt('GenCoo: Degen',' ',Degen,3,nAtom)
 #endif
@@ -96,7 +96,7 @@
          iSt = iEnd + 1
       End Do         ! End loop over centers
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In GenCoo: Coor',' ',Coor,3,mAtom)
       Call RecPrt(' In GenCoo: Vctrs',' ',Vctrs,3*mAtom,nDim)
       Write (6,*)

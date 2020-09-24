@@ -351,7 +351,7 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
          Fakt_ = -1.0d0*Xlambda(abs(Energy_NAD)/xElAB,Xsigma)
          Call daxpy_(nh1*nFckDim,Fakt_,Work(ipFc),1,Work(ipFA_DFT),1)
          Call GetMem('Fcorr','Free','Real',ipFc,nh1*nFckDim)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          write(6,*) ' lambda(E_nad) = ',dFMD*Fakt_
 #endif
       EndIf
@@ -440,7 +440,7 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
 *
       Call GetMem('Attr Pot','Free','Real',ipTmpA,nh1)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (nFckDim.eq.1) Then
          Do i=1,nh1
             Write(6,'(i4,f22.16)') i,Work(ipF_DFT+i-1)

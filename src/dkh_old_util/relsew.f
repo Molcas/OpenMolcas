@@ -39,7 +39,7 @@ c      write(6,*) ' in SCFCLI', N, iSize
       PREA=1d0/(VELIT*VELIT)
       CON2=PREA+PREA
       CON=1.D0/PREA
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 C
 C     CALCULATE DETERMINANT
 C
@@ -547,7 +547,7 @@ C
      &          AUXF(N,N),AUXG(N,N),AUXH(N,N)
       DIMENSION W1W1(N,N)
 culf
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(idbg.gt.0)CALL PRMAT(IDBG,V,N,0,'V       ')
       if(idbg.gt.0)CALL PRMAT(IDBG,G,N,0,'G       ')
       if(idbg.gt.0)CALL PRMAT(IDBG,E,N,1,'E       ')
@@ -585,7 +585,7 @@ C
 C     ARQA ARQA
 C
       CALL CpLabr(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IF (IE.NE.0) Call SysHalt('relsew')
 culf
       if(idbg.gt.0)CALL prsq(idbg,'AUXH   1',auxh,n)
@@ -609,7 +609,7 @@ C     ARQA AQRA
 C
       CALL CpLabr(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
 culf
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(idbg.gt.0)CALL prsq(idbg,'AUXH   2',auxh,n)
 #endif
       IJ=0
@@ -645,7 +645,7 @@ C     AQRA ARQA
 C
       CALL CpLabr(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
 culf
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(idbg.gt.0)CALL prsq(idbg,'AUXH   3',auxh,n)
 #endif
       IJ=0
@@ -672,7 +672,7 @@ C
       Call dCopy_(N*N,AuxH,1,W1W1,1)
 *
 culf
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(idbg.gt.0)CALL prsq(IDBG,'W*W     ',AUXH,N)
 #endif
 C
@@ -684,7 +684,7 @@ C
 611      CONTINUE
 610   CONTINUE
 culf
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(idbg.gt.0)CALL prsq(idbg,'AUXH SYM',auxh,n)
 #endif
 C
@@ -706,7 +706,7 @@ C
       End Do
       CALL CpLabr(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
 culf
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(idbg.gt.0)CALL prsq(idbg,'AUXH   5',auxh,n)
 #endif
       IJ=0
@@ -725,7 +725,7 @@ culf
       End Do
       CALL CpLabr(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
 culf
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(idbg.gt.0)CALL prsq(idbg,'AUXH   6',auxh,n)
 #endif
       IJ=0
@@ -758,7 +758,7 @@ culf
       End Do
       CALL CpLabr(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
 culf
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(idbg.gt.0)CALL prsq(idbg,'AUXH   7',auxh,n)
 #endif
       IJ=0
@@ -777,7 +777,7 @@ culf
       End Do
       CALL CpLabr(AUXF,AUXG,N,N,N,M,M,AUXH,M,IE)
 culf
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(idbg.gt.0)CALL prsq(idbg,'AUXH   8',auxh,n)
 #endif
 C
@@ -793,7 +793,7 @@ C
 *
 CCC   CALL PRM('OUTPUT  ',G,N)
       RETURN
-#ifndef _DEBUG_
+#ifndef _DEBUGPRINT_
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(idbg)
 #endif
@@ -801,7 +801,7 @@ c Avoid unused argument warnings
       SUBROUTINE CpLabr (A,B,L,M,N,IA,IB,C,IC,IER)
       implicit real*8(a-h,o-z)
       REAL*8   A(IA,M),B(IB,N),C(IC,N)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IF (IA .GE. L .AND. IB .GE. M .AND. IC .GE. L) GO TO 5
       IER=129
       GO TO 9000
@@ -809,7 +809,7 @@ c Avoid unused argument warnings
 #endif
       IER = 0
       Call DGEMM_('N','N',L,M,N,1.0D0,A,IA,B,IB,1.0D0,C,IC)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
  9000 CONTINUE
 #endif
       RETURN

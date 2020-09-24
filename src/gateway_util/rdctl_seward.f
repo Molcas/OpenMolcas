@@ -146,7 +146,7 @@
       iRout=3
       iPrint = nPrint(iRout)
       Call qEnter('RdCtl')
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif
 *                                                                      *
@@ -3640,7 +3640,7 @@ c
          Call WarningMessage(2,Message)
          Call Quit_OnUserError()
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(LuWr,'(/,a)') ' Link atoms (Gromacs numbering):'
       Write(LuWr,'(/,a)') '      LA     QM     MM     Scaling factor'
 #endif
@@ -3650,7 +3650,7 @@ c
          KWord = Get_Ln(LuRd)
          Call Get_I(1,DefLA(1,iLA),3)
          Call Get_F(4,FactLA(iLA),1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write(LuWr,'(i8,2i7,F19.8)') (DefLA(i,iLA),i=1,3),FactLA(iLA)
 #endif
          If (DefLA(1,iLA).LE.0) Then
@@ -4539,7 +4539,7 @@ C           If (iRELAE.eq.-1) IRELAE=201022
          Call mma_deallocate(RTmp)
          Call mma_deallocate(ITmp)
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        Call RecPrt(' Multipole centers',' ',Coor_MPM,3,nMltpl+1)
 #endif
 *                                                                      *

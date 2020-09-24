@@ -45,7 +45,7 @@
 *
       iRout = 39
       iPrint = nPrint(iRout)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('PGet1   ')
       If (iPrint.ge.99) Then
          iComp = 1
@@ -137,7 +137,7 @@
          Call Abend()
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In PGet1:PAO ',' ',PAO,ijkl,nPAO)
          Do 3333 i = 1, ijkl

@@ -35,7 +35,7 @@
       Character*(*) String
       Integer iU,iUinUse
       common /traceiU/iU,iUinUse
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Character*8   Token
       Integer       Temp(2)
       Equivalence   (Token,Temp)
@@ -43,11 +43,11 @@
 *----------------------------------------------------------------------*
 *     Initialize the Common / QueCtl / the first time it is referenced *
 *----------------------------------------------------------------------*
-#ifdef _DEBUG_TRACE_
+#ifdef _DEBUGPRINT_TRACE_
         if(iUinUse.eq.0) iU=6
         write(iU,'(a,a)') '>> Enter ',string
 #endif
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Temp(1)=0
       Temp(2)=0
       If ( QueCtl(ipStat).ne.ON ) then

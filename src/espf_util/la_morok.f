@@ -39,7 +39,7 @@ c
 *
       Call QEnter('LA_Morok')
 *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *
       iPL = iPL_espf()
       lMorok = .False.
@@ -64,7 +64,7 @@ c
 11       Close (IPotFl)
       End If
       If (.not.lMorok) Goto 999
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPL = 4
       Call RecPrt('LA_Morok: coord or grad:',' ',Work(ipCorG),3,nAtom)
 #endif
@@ -91,7 +91,7 @@ c
                   Write (6,*) '          check each LA connectivity'
                   Call Quit_OnUserError()
                End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write(6,*)
                Write(6,*) 'LA_Morok: LAH ',iLA,' between ',iQM,
      &                                             ' and ',iMM
@@ -222,12 +222,12 @@ c
          Call mma_deallocate(GroToMol)
       End If
 c
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('LA_Morok: coord or grad:',' ',Work(ipCorG),3,nAtom)
 #endif
 999   Call QExit('LA_Morok')
       Return
-#ifndef _DEBUG_
+#ifndef _DEBUGPRINT_
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nAtom)
 #endif

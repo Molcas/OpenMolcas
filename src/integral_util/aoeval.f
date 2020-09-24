@@ -33,8 +33,8 @@
      &       CffCnt(mExp,nBas), AOValue(mAO,nCoor,nBas,nCmp)
       Integer Angular(nTerm,5,nForm)
       Logical Transf
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Character*80 Label
 #endif
 *                                                                      *
@@ -71,7 +71,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *      Call QEnter('AOEval')
       iRout=132
       iPrint=nPrint(iRout)
@@ -103,7 +103,7 @@ C     Write(6,*) '----- nDrv = ', nDrv
 *----    Normal radial part and
 *----    premultiplied with (minus two times the exponent)**iDrv
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *      Call QEnter('Exponent')
       If (nRad.LE.0 .AND. nRad.GE.5) Then
          Write (6,*) 'AOEval: illegal value of nRad!'
@@ -176,7 +176,7 @@ C        If (-Exp_Min*R2.lt.Thre) Go To 9898
  9898    Continue
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
             Write (6,*) mExp,nExp
             Write (Label,'(A)')'Radial(nCoor*nRad,nBas)'
@@ -208,7 +208,7 @@ C        If (-Exp_Min*R2.lt.Thre) Go To 9898
       Else
          call dcopy_(3*nCoor,[One],0,xyz(1,1,0),1)
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Do i = 0, iAng+nRad-1
             Write (Label,'(A,I2,A)')'xyz(nCoor,nCar,',i,')'
@@ -255,7 +255,7 @@ C           Call PrntA(nterm,nform,Angular,if,0)
                         jf=jf+(kDrv+1)*(kDrv+2)/2
                      End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                      If (iPrint.ge.99) Then
                         Write (6,*) ' jx,jy,jz,jf=',jx,jy,jz,jf
                      End If
@@ -361,7 +361,7 @@ C                      Call PrntA(nterm,nform,Angular,if,jdrv+1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.49) Then
 C        Do iCmp = 1, nCmp
 C           Write (Label,'(A,I2,A)') 'AOValue(mAO,nCoor,nBas,',
@@ -374,7 +374,7 @@ C        End Do
 #endif
 *
 *     Call GetMem('AOEval ','CHEC','REAL',iDum,iDum)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *      Call QExit ('AOEval')
 #endif
       Return

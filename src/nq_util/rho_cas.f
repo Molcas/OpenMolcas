@@ -52,7 +52,7 @@
 #ifdef _TIME_
       Call QEnter('Rho_CAS')
 #endif
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Then
          Call RecPrt('Rho_CAS:Dens',' ',Dens,nDens,nD)
          Write (6,*) 'mAO=',mAO
@@ -154,7 +154,7 @@
             ijS=iTri(iShell,jShell)
             ip_Tmp=ipDijs
             Call Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ip_Tmp,nD)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*)
                Write (6,*) 'iS,jS=',iSkal,jSkal
@@ -182,7 +182,7 @@
                DMax_ij=Abs(DeDe(ip_D_a-1+ix))
             End If
             If (TMax_i*TMax_j*DMax_ij.lt.T_X) Go To 998
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*) 'Rho_CAS'
                nBB = iBas*jBas
@@ -235,7 +235,7 @@
  999     Continue
       End Do                         ! ilist_s
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Then
 c        Do iGrid=1,mGrid_Eff
 c           Write (*,*) (Rho(iRho,iGrid),iRho=1,nRho)

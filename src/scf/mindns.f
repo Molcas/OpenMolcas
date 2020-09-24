@@ -59,8 +59,8 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call qEnter('MinDns')
       Write(6,*)' ***** SubRoutine MinDns *****'
 #endif
@@ -79,7 +79,7 @@
 *
 *     iStart = iter_d - iDMin
       iStart = Max(1,iter_d - 9)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'iter_d,iStart=',iter_d,iStart
 #endif
 *
@@ -95,7 +95,7 @@
             pDR => Dens(1:mBT,1:nD,iR)
          End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call NrmClc(pDR,nBT*nD,'MinDns','pDR')
 #endif
          Do iD = 1, nD
@@ -137,7 +137,7 @@
      &               1.0d0,AMat(1,1,iD),MxIter,
      &                     BVec(1,iD),iter_d-iStart,
      &               0.0d0,XCff(iStart,iD),iter_d-iStart)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write(6,*)' Coefficients minimizing density difference:'
          Write(6,'(5f16.8)')(XCff(i,iD),i=1,iter_d-1)
          Write(6,*)
@@ -167,7 +167,7 @@
       Call mma_deallocate(DCol)
       Call mma_deallocate(DRow)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('MinDns')
 #endif
 *
@@ -219,7 +219,7 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('RmLDep')
       Write(6,*)' ***** SubRoutine RmLDep*****'
 #endif
@@ -240,7 +240,7 @@
          call dcopy_(i,AMat(i,1),lDm,ATri(ij),1)
          ij = ij + i
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*)' Squared A-matrix in RmLDep:'
       Do i = 1, lth
          Write(6,'(5(2x,e12.6))')(AMat(i,j),j=1,lth)
@@ -257,7 +257,7 @@
      &                 Dummy,Dummy,iDum,iDum,EVal,EVec,
      &                 lth,1,0,'J',nFound,iErr)
       Call mma_deallocate(Scr)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*)' Eigenvalues of A-matrix in RLnDep:'
       Write(6,'(5(2x,e12.6))')(EVal(i),i=1,lth)
 #endif
@@ -289,7 +289,7 @@
       Call mma_deallocate(EVec)
       Call mma_deallocate(ATri)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('RmLDep')
 #endif
 *

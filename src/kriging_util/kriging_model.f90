@@ -36,8 +36,8 @@ SUBROUTINE kriging_model(nPoints)
 !
 ! Initiate A according to Eq. (2) of ref.
 !
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
   Call RecPrt('f',' ',B,1,m_t)
 #endif
 !
@@ -54,7 +54,7 @@ SUBROUTINE kriging_model(nPoints)
       HTri(ij)=Full_R(i,j)
     End Do
   End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
   Call RecPrt('U',' ',U,nPoints,nPoints)
 #endif
   Call nidiag_new(HTri,U,nPoints,nPoints,0)
@@ -63,7 +63,7 @@ SUBROUTINE kriging_model(nPoints)
     Temp=DDot_(nPoints,[1.0D0],0,U(1,i),1)
     U(1:nPoints,i)= U(1:nPoints,i) * Sign(1.0D0,Temp)
   End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
   Call RecPrt('U',' ',U,nPoints,nPoints)
   Call TriPrt('HTri',' ',HTri,nPoints)
 #endif
@@ -90,7 +90,7 @@ SUBROUTINE kriging_model(nPoints)
   do i=1,nPoints
     A(i,i)=HTri(i*(i+1)/2)
   end do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
   Call RecPrt('U^TAU',' ',A,m_t,m_t)
 #endif
   Call mma_allocate(D,m_t,Label='D')
@@ -101,7 +101,7 @@ SUBROUTINE kriging_model(nPoints)
               1.0D0,UBIG,m_t,         &
                     D,m_t,            &
               0.0D0,B,m_t)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
   Call RecPrt('U^TB',' ',B,1,m_t)
 #endif
 !
@@ -141,7 +141,7 @@ SUBROUTINE kriging_model(nPoints)
     Write (6,*) 'k: INFO=',INFO
     Call Abend()
   End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
   Write (6,*) 'Info=',Info
   Call RecPrt('PSI^{-1}',' ',A,m_t,m_t)
   Call RecPrt('X=PSI^{-1}f',' ',B,1,m_t)
@@ -180,7 +180,7 @@ SUBROUTINE kriging_model(nPoints)
     ordinary = .True.
     sbO = dot_product(y,B(1:nPoints))/sum(B(1:nPoints))
     B(:) = [y(:),dy(:)]
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
     Write (6,*) DDot_(m_t,rones,1,B,1) , DDot_(nPoints,rones,1,[1.0D0],0)
 #endif
     sbO = DDot_(m_t,rones,1,B,1) / DDot_(nPoints,rones,1,[1.0D0],0)
@@ -190,7 +190,7 @@ SUBROUTINE kriging_model(nPoints)
 !**********************************************************************
 !
   B(:) = [y(:)-sb,dy(:)]
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
   Write (6,*) 'sb,ln(det|PSI|)=',sb,detR
   Call RecPrt('[y-sb,dy]',' ',B,1,m_t)
 #endif
@@ -217,7 +217,7 @@ SUBROUTINE kriging_model(nPoints)
     Temp=DDot_(nPoints,[1.0D0],0,U(1,i),1)
     U(1:nPoints,i)= U(1:nPoints,i) * Sign(1.0D0,Temp)
   End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
   Call RecPrt('U',' ',U,nPoints,nPoints)
   Call TriPrt('HTri',' ',HTri,nPoints)
 #endif
@@ -252,7 +252,7 @@ SUBROUTINE kriging_model(nPoints)
   do i=1,nPoints
     A(i,i)=HTri(i*(i+1)/2)
   end do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
   Call RecPrt('U^TAU',' ',A,m_t,m_t)
 #endif
 !
@@ -265,7 +265,7 @@ SUBROUTINE kriging_model(nPoints)
               1.0D0,UBIG,m_t,         &
                     D,m_t,            &
               0.0D0,Kv,m_t)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
   Call RecPrt('U^TKv',' ',Kv,1,m_t)
 #endif
 !
@@ -277,7 +277,7 @@ SUBROUTINE kriging_model(nPoints)
   A(:,:)=full_r(:,:)
 #endif
 !
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
   Call RecPrt('A',' ',A,m_t,m_t)
   Call RecPrt('Kv',' ',Kv,1,m_t)
 #endif
@@ -287,7 +287,7 @@ SUBROUTINE kriging_model(nPoints)
   CALL DGESV_(m_t,1,A,m_t,IPIV,Kv,m_t,INFO)
 #endif
 #ifdef _PREDIAG_
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
   Call RecPrt('(U^TAU)^{-1}U^TKv',' ',Kv,1,m_t)
 #endif
   D(:)=Kv(:)
@@ -304,7 +304,7 @@ SUBROUTINE kriging_model(nPoints)
 !Likelihood function
   variance = dot_product(B,Kv)/dble(m_t)
   lh = variance*exp(detR/dble(m_t))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
   Write (6,*) 'Variance=',Variance
   Write (6,*) 'Info=',Info
   Call RecPrt('X=A^{-1}Kv','(5(E15.7,2X))',Kv,1,m_t)

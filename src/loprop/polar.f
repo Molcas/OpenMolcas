@@ -49,12 +49,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Utility = .False.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call QEnter('Polar')
 #endif
       ireturn=99
@@ -325,7 +325,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call QExit('Polar')
 #endif
       Return

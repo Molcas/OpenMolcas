@@ -143,8 +143,8 @@
         jjj = jjj + nElem
 50    Continue
 *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) ' Spherical Harmonic expansions '
       Write (6,*)

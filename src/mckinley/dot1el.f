@@ -493,7 +493,7 @@ CBS            write(6,*) 'Call the  Kernel'
      &                     mdci,mdcj,nOp,lOper,nComp,
      &                     iStabM,nStabM,nIrrep)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                write(6,*)  'Hess after Kernel call in dot1el '
                Call HssPrt(Hess,nHess)
 #endif

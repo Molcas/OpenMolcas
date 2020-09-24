@@ -51,7 +51,7 @@
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('RWDTG')
 #endif
 *
@@ -120,7 +120,7 @@
          jDisk = iDisk(Num)
          Call dDaFile(LU,2,DMat,lth,jDisk)
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('RWDTG')
 #endif
 *----------------------------------------------------------------------*

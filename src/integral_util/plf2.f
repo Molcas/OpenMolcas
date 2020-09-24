@@ -51,8 +51,8 @@ C     Call qEnter('PLF2')
          Write (6,*) ' Sum=',r1
          Write (6,*) ' Dot=',r2
       End If
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In Plf2: AOInt',' ',
      &                              AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
 #endif

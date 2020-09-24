@@ -16,7 +16,7 @@
       Logical IfTest
       Data IfTest/.False./
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call QEnter('MergeBS')
       IfTest=.True.
 #endif
@@ -114,7 +114,7 @@
       n = i
       If (IfTest) Write (6,'(I4)') n
       If (IfTest) Write (6,'(4f20.4)') (z(i),i=1,n)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call QExit('MergeBS')
 #endif
 *

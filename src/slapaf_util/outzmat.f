@@ -58,7 +58,7 @@
       Parameter (ThrsTrasl=1.0d0) ! Threshold for warning
 *
       IfTest=.False.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call QEnter('OutZMAT')
       IfTest=.True.
 #endif
@@ -405,7 +405,7 @@
 98    Format(I3,1X,3(F12.6))
 99    Format(I3,1X,I3,1X,3(F12.6))
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('OutZMAT')
 #endif
       Return

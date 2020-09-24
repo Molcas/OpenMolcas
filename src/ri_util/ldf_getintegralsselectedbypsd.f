@@ -62,7 +62,7 @@ C
       Parameter (doDiagonalization=.False.)
 
       Logical Debug
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Parameter (Debug=.True.)
 #else
       Parameter (Debug=.true.)

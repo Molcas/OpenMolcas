@@ -46,8 +46,8 @@
          End Do
          Call DScal_(mInter,One/Sqrt(r2),EVec(1,iX),2)
       End Do
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt('EVal',' ',EVal,2,mInter)
       Call RecPrt('EVec',' ',EVec,mInter*2,mInter)
 #endif
@@ -72,7 +72,7 @@
             EVal(jHarm) = -Sqrt(Abs(temp))*autocm
          End If
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Converted EVal',' ',EVal,1,mInter)
 #endif
 *
@@ -90,7 +90,7 @@
          r2=One/Sqrt(r2)
          Call DScal_(mInter,r2,EVec(1,iHarm),2)
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Normal coordinates (Q)',' ', EVec,mInter*2,mInter)
 #endif
 *
@@ -116,7 +116,7 @@
             End If
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Frequencies (cm-1)',' ',EVal,1,mInter)
       Call RecPrt('Reduced masses (u)',' ',RedM,1,mInter)
       Call RecPrt('Normal Coordinates',' ',EVec,mInter*2,mInter)

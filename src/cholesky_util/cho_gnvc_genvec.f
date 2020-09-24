@@ -35,7 +35,7 @@ C
       IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
       mapRS2RS(i,j)=iWork(ip_mapRS2RS(i)-1+j)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call qEnter('_GnVc_GetVec')
 #endif
 
@@ -441,7 +441,7 @@ C     ------------------------------------------------
       End If
 
     1 Continue
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call qExit('_GnVc_GetVec')
 #endif
 

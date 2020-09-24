@@ -26,7 +26,7 @@ C TO MO BASIS FOR USE IN CASPT2.
 
       CALL QENTER('FMAT_CHO')
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IFTEST=1
 #else
       IFTEST=0

@@ -14,8 +14,8 @@
        Real*8, Allocatable:: Exp(:), CoeffC(:,:,:), CoeffP(:,:,:)
        Real*8, Allocatable:: Scr(:,:,:)
 *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
        Call RecPrt('Fix_Exponents: Exp',' ',Exp,1,nP)
        Call RecPrt('Fix_Exponents: CoeffC(1)',' ',CoeffC(1,1,1),nP,nC)
        Call RecPrt('Fix_Exponents: CoeffC(2)',' ',CoeffC(1,1,2),nP,nC)
@@ -26,7 +26,7 @@
        mP = nP
        Call Fix_Exp()
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        Write (6,*) 'After Fix_Exp'
        Call RecPrt('Fix_Exponents: Exp',' ',Exp,1,nP)
        Call RecPrt('Fix_Exponents: CoeffC(1)',' ',CoeffC(1,1,1),nP,nC)
@@ -60,7 +60,7 @@
           Call mma_deallocate(Scr)
        End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        Write (6,*) 'After Reallocation'
        Call RecPrt('Fix_Exponents: Exp',' ',Exp,1,mP)
        Call RecPrt('Fix_Exponents: CoeffC(1)',' ',CoeffC(1,1,1),mP,nC)

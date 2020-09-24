@@ -57,7 +57,7 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('OvlDel')
 #endif
 *
@@ -171,7 +171,7 @@ C??         End Do
       Call mma_deallocate(OvlH)
       Call mma_deallocate(OvlT)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('OvlDel')
 #endif
 *

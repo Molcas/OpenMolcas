@@ -30,7 +30,7 @@ C
 
       nKVec(i)=iWork(ip_nKVec-1+i)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call qEnter('_Decom_A4')
 #endif
 
@@ -343,7 +343,7 @@ C     ------
      &   '#vec. gener.  : ',(NumCho_OLD(iSym),iSym=1,nSym)
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call qExit('_Decom_A4')
 #endif
 

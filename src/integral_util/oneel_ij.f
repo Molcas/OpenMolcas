@@ -368,7 +368,7 @@
 *
       Call DCR(LambdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.19) Then
          Write (6,*)
          Write (6,*) ' g      =',nIrrep

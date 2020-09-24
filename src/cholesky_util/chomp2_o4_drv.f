@@ -55,7 +55,7 @@ C
 
       MulD2h(k,l)=iEor(k-1,l-1)+1
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Verbose = .true.
 #endif
       If (Verbose) Then

@@ -59,7 +59,7 @@
       Real*8, Pointer :: flatStorage(:)
 #endif
 
-#ifdef _DEBUG_RASSI_
+#ifdef _DEBUGPRINT_RASSI_
       logical :: debug_dmrg_rassi_code = .true.
 #else
       logical :: debug_dmrg_rassi_code = .false.
@@ -82,7 +82,7 @@ C CONSTANTS:
 *
       DIAGONAL=.TRUE.
 
-#ifdef _DEBUG_RASSI_
+#ifdef _DEBUGPRINT_RASSI_
       write(6,*) 'BLUBB start of eigctl: debug print of property matrix'
         do istate = 1, nstate
         do jstate = 1, nstate

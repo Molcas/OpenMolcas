@@ -196,11 +196,11 @@ C
 C
 C     Write coordinates to output file
 C
-*#ifdef _DEBUG_
+*#ifdef _DEBUGPRINT_
 *      WRITE(6,*)' Dynamix calls 2 DxCoord.'
 *#endif
       CALL DxCoord(natom,atom,xyz,hybrid)
-*#ifdef _DEBUG_
+*#ifdef _DEBUGPRINT_
 *      WRITE(6,*)' Dynamix back from 2 DxCoord.'
 *#endif
 C

@@ -55,8 +55,8 @@
       R_Grid(1)=Work(ip_Coor(iNQ)  )
       R_Grid(2)=Work(ip_Coor(iNQ)+1)
       R_Grid(3)=Work(ip_Coor(iNQ)+2)
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Debug=.True.
       If (Debug) Then
          Call RecPrt('R_Grid',' ',R_Grid,1,3)
@@ -454,7 +454,7 @@
          Call WarningMessage(2,'Do_Grad: wrong functional type!')
          Call Abend()
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Then
          Call RecPrt('w * f^x before translational contributions',
      &               ' ',Temp,1,nGrad_Eff)
@@ -480,7 +480,7 @@
      &             iTab(2,jGrad).eq.Off  .and.
      &             IndGrd(jGrad).gt.0           ) iGrad=jGrad
             End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (Debug) Write (6,*) 'iGrad=',iGrad
 #endif
             If (iGrad.ne.0) Then
@@ -493,7 +493,7 @@
 *
                       Temp(iGrad)=Temp(iGrad)-Temp(jGrad)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (Debug) Write (6,*) 'jGrad,Temp(jGrad)=',
      &                              jGrad,Temp(jGrad)
 #endif
@@ -502,7 +502,7 @@
 *
             End If
          End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Call RecPrt('w * f^x',' ',Temp,1,nGrad_Eff)
 #endif
 *                                                                      *
@@ -517,7 +517,7 @@
      &              One,dW_dR,nGrad_Eff,
      &                  F_xc,mGrid,
      &              One,Temp,nGrad_Eff)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Call RecPrt('w * f^x + w^x * f',' ',Temp,1,nGrad_Eff)
 #endif
 *                                                                      *
@@ -532,7 +532,7 @@
      &               1.0d0,OV,3,
      &               Work(ip_O),3,
      &               0.0d0,V,3)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Call RecPrt('V',' ',V,3,3)
 #endif
 *
@@ -556,7 +556,7 @@
       else
             Tmp = DDot_(9,Work(ip_dOdx(jNQ,iCar)),1,V,1)
       end if
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*)
                Write (6,*) 'iCar,jNQ=',iCar,jNQ
@@ -568,7 +568,7 @@
          End Do
 *
       End If !moving grid
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Call RecPrt('Gradient contribution from this block',
      &                       ' ',Temp,1,nGrad_Eff)
 #endif
@@ -584,7 +584,7 @@
             Grad(i) = Grad(i) + Fact*Temp(i_Eff)
          End If
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Call RecPrt('Gradient accumulated so far',
      &                     ' ',Grad,1,nGrad)
       Debug=.False.

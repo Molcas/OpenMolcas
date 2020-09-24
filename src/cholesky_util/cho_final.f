@@ -24,11 +24,11 @@ C
       INTEGER CHOISINI, IREO
       INTEGER NUMV(8)
       Integer ip, l
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer is1CCD
 #endif
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QENTER('_FINAL')
 #endif
 
@@ -39,7 +39,7 @@ C     ------------------------------------------------------------
       CALL PUT_IARRAY('NUMCHO',NUMV,NSYM)
       CALL PUT_IARRAY('iSOShl',IWORK(ip_ISOSHL),NBAST)
       CALL PUT_DSCALAR('Cholesky Threshold',THRCOM)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       ! This is needed in order for bookmark tests in cho_x_init to work
       If (WriteBookmarks) Then
          If (Cho_1Center) Then
@@ -124,7 +124,7 @@ C     ---------------------------------------------
       CHOISINI = CHOINICHECK + 1
       CALL PUT_ISCALAR('ChoIni',CHOISINI)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CALL QEXIT('_FINAL')
 #endif
 

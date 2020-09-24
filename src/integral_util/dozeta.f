@@ -41,8 +41,8 @@
      &       P(nAlpha*nBeta,3), rKappa(nAlpha*nBeta)
       Integer Ind_Pair(nAlpha*nBeta+1)
 *
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In DoZeta:Alpha',' ',Alpha,nAlpha,1)
       Call RecPrt(' In DoZeta:Beta',' ',Beta,nBeta,1)
 #endif
@@ -109,7 +109,7 @@
       End Do
 #endif
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In DoZeta: Kappa',' ',rKappa,nZeta,1)
       Call RecPrt(' In DoZeta: P',' ',P,nZeta,3)
 #endif

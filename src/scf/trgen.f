@@ -55,7 +55,7 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qEnter('TrGen')
 #endif
 *
@@ -88,7 +88,7 @@
 *---- Orthogonalize final orbitals
       Call Ortho(TrMat,nBO,Ovlp,nBT)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call qExit('TrGen')
 #endif
 *
