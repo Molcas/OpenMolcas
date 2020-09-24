@@ -52,7 +52,6 @@
 *
       iRout = 220
       iPrint = nPrint(iRout)
-      Call qEnter('AMPInt')
 *
       nip = 1
       ipB = nip
@@ -148,7 +147,6 @@ C Symmetry adaption:
          if(iprint.gt.49) write(6,*)' Back to AMPInt.'
       End Do
 
-      Call qExit('AMPInt')
       if(iprint.gt.49) write(6,*)' Leaving AMPInt.'
       Return
 c Avoid unused argument warnings

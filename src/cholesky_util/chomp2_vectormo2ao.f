@@ -93,7 +93,6 @@ C
 C     Initializations.
 C     ----------------
 
-      Call qEnter(ThisNm)
       irc = 0
       Do iSym = 1,nSym
          lU_AO(iSym) = -999999
@@ -112,7 +111,6 @@ C     ----------------
             If (iCount .gt. lDiag) Then
                Write(6,*) '   - insufficient memory, will return now...'
                irc = 1
-               Call qExit(ThisNm)
                Return
             Else
                Write(6,*) '   - sufficient memory, going to continue...'
@@ -169,5 +167,4 @@ C     --------------------
 
       Call GetMem('CVir','Free','Real',ip_CVir,l_CVir)
       Call GetMem('COcc','Free','Real',ip_COcc,l_COcc)
-      Call qExit(ThisNm)
       End

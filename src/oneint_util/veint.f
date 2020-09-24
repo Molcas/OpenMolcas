@@ -51,7 +51,6 @@
 *
       iRout = 195
       iPrint = nPrint(iRout)
-      Call qEnter('VeInt')
       ABeq(1) = A(1).eq.RB(1)
       ABeq(2) = A(2).eq.RB(2)
       ABeq(3) = A(3).eq.RB(3)
@@ -149,7 +148,6 @@
  102  Continue
 *
 *     Call GetMem(' Exit VeInt','LIST','REAL',iDum,iDum)
-      Call qExit('VeInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

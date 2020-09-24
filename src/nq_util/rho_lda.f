@@ -48,7 +48,6 @@
 *                                                                      *
 *define _TIME_
 #ifdef _TIME_
-      Call QEnter('Rho_LDA')
 #endif
 *define _DEBUG_DEBUG_
 #ifdef _DEBUG_DEBUG_
@@ -252,7 +251,6 @@ c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Dens)
 #endif
 #ifdef _TIME_
-      Call QExit('Rho_LDA')
 #endif
       Return
 c Avoid unused argument warnings
@@ -278,7 +276,6 @@ c Avoid unused argument warnings
 ************************************************************************
 *                                                                      *
 #ifdef _TIME_
-      Call QEnter('Do_Rho2a')
 #endif
       Do jCB_Eff = 1, jBas_Eff*jCmp
          jCB = Index_j(jCB_Eff)
@@ -300,7 +297,6 @@ c Avoid unused argument warnings
       End Do             ! jCB
 *
 #ifdef _TIME_
-      Call QExit('Do_Rho2a')
 #endif
       Return
       End
@@ -364,7 +360,6 @@ c Avoid unused argument warnings
 ************************************************************************
 *                                                                      *
 #ifdef _TIME_
-      Call QEnter('Do_Rho2a_d')
 #endif
       Do jCB_Eff = 1, iBas_Eff*iCmp
          jCB = Index_i(jCB_Eff)
@@ -394,7 +389,6 @@ c Avoid unused argument warnings
       End Do             ! jCB
 *
 #ifdef _TIME_
-      Call QExit('Do_Rho2a_d')
 #endif
       Return
       End

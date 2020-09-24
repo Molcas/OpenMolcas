@@ -33,7 +33,6 @@ C
       INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
 
 #if defined (_DEBUG_)
-      CALL QENTER('_PUTVEC')
 #endif
 
       CHK_OVERFLOW = .NOT.Cho_Real_Par
@@ -177,7 +176,6 @@ C     ------------
 
     1 CONTINUE
 #if defined (_DEBUG_)
-      CALL QEXIT('_PUTVEC')
 #endif
 
       END

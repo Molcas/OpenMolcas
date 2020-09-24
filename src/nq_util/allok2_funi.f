@@ -39,7 +39,6 @@
 #include "setup.fh"
 #include "status.fh"
 *
-*     Call QEnter('AlloK2')
 *
       Call Nr_Shells(nSkal)
 *

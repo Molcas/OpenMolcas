@@ -50,7 +50,6 @@
 *                                                                      *
 *define _DEBUG_
 #ifdef _DEBUG_
-      Call qEnter('PLF_RI_2')
       irout = 109
       iPrint = nPrint(irout)
       iPrint=99
@@ -106,7 +105,6 @@
          End Do
       End Do
 #ifdef _DEBUG_
-      Call qExit('PLF_RI_2')
 #endif
 *
       Return

@@ -52,7 +52,6 @@
 *
       iRout = 150
       iPrint = nPrint(iRout)
-*     Call qEnter('KnEInt')
       ABeq(1) = A(1).eq.RB(1)
       ABeq(2) = A(2).eq.RB(2)
       ABeq(3) = A(3).eq.RB(3)
@@ -197,7 +196,6 @@
       End If
 *
 *     Call GetMem(' Exit KnEInt','LIST','REAL',iDum,iDum)
-*     Call qExit('KnEInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

@@ -89,7 +89,6 @@
       TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
      &                              iIrrep,iComp,dc(mdc)%nStab)
 *
-*     Call qEnter('SROGrd')
       iRout = 191
       iPrint = nPrint(iRout)
 *
@@ -565,7 +564,6 @@
          kdc = kdc + dbsc(kCnttp)%nCntr
  1960 Continue
 *
-*     Call QExit('SROGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

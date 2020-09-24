@@ -53,7 +53,6 @@
 *
       iRout = 50
       iPrint = nPrint(iRout)
-      Call qEnter('Cllct2')
       ldB=.True.
       lWarn  = lWrite
       If (iPrint.gt.20) lWrite = .True.
@@ -248,6 +247,5 @@
      &                              ' ',dVector,3*nAtom,3*nAtom)
       End If
 *
-      Call qExit('Cllct2')
       Return
       End

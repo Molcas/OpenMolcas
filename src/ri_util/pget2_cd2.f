@@ -55,7 +55,6 @@
       iRout = 39
       iPrint = nPrint(iRout)
       iPrint=99
-      Call qEnter('PGet2_CD2')
       Call RecPrt('V_K',' ',V_K,1,mV_K)
 #endif
 *                                                                      *
@@ -203,7 +202,6 @@ C                           End If
          Call RecPrt(' In PGet2_CD2:PSO ',' ',PSO,nijkl,nPSO)
       End If
       Call GetMem(' Exit PGet2_CD2','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet2_CD2')
 #endif
       Return
 c Avoid unused argument warnings

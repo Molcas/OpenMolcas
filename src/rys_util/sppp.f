@@ -44,7 +44,6 @@
       Integer iPntr(nPntr)
       Logical ABeqCD, EQ
 *
-*     Call qEnter('sppp')
 *
       xdInv=One/ddx
       dddx = ddx/10d0 + ddx
@@ -498,7 +497,6 @@
 *
  99   Continue
 *
-*     Call qExit('sppp')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(ZInv)

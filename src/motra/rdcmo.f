@@ -33,7 +33,6 @@
       Real*8  temp2(MxRoot)
       Dimension Dummy(1),iDummy(1)
 *
-      Call qEnter('RdCmo_motra')
 *----------------------------------------------------------------------*
 *     Read MO coefficients from input                                  *
 *----------------------------------------------------------------------*
@@ -93,6 +92,5 @@
 *     Normal termination                                               *
 *----------------------------------------------------------------------*
       Call Ortho_Motra(nSym,nBas,nDel,Ovlp,Cmo)
-      Call qExit('RdCmo_motra')
       Return
       End

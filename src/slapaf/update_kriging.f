@@ -69,7 +69,6 @@
 *
       iRout=153
       iPrint=nPrint(iRout)
-      Call QEnter('Update')
 *
 #ifdef _DEBUG_
       Call RecPrt('Update_Kriging: qInt',' ',qInt,nInter,Iter)
@@ -492,7 +491,6 @@
       Call Put_dArray('BMxOld',Dummy(1),0)
       Call Put_dArray('TROld',Dummy(1),0)
 *
-      Call QExit('Update')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(kIter)

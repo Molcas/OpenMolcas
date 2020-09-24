@@ -58,7 +58,6 @@
 #ifdef _DEBUG_
       iRout = 248
       iPrint = nPrint(iRout)
-      Call qEnter('PGet0')
 #endif
 *                                                                      *
 ************************************************************************
@@ -333,7 +332,6 @@
 #ifdef _DEBUG_
       If (iPrint.ge.99) Call RecPrt('PSO in PGet0',' ',
      &                               PSO,ijkl,nPSO)
-      Call qExit('PGet0')
 #endif
 *                                                                      *
 ************************************************************************

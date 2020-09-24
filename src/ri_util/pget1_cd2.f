@@ -57,7 +57,6 @@
       iPrint = nPrint(iRout)
 *define _DEBUG_
 #ifdef _DEBUG_
-      Call qEnter('PGet1_CD2')
       Call RecPrt('PGet1_CD2: V_k',' ',V_k,1,mV_k)
 #endif
 *                                                                      *
@@ -354,7 +353,6 @@ C     Fac = One / Four
 #ifdef _DEBUG_
       Call RecPrt(' In PGet1_CD2:PAO ',' ',PAO,ijkl,nPAO)
       Call GetMem(' Exit PGet1_CD2','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet1_CD2')
 #endif
 
       Call CWTime(Cpu2,Wall2)

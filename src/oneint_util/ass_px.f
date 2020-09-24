@@ -40,7 +40,6 @@
 *
       iRout = 203
       iPrint = nPrint(iRout)
-      Call qEnter('Ass_pX')
 *
       If (iPrint.ge.99) Then
           Write (6,*)
@@ -163,6 +162,5 @@
          End Do
       End If
 *
-      Call qExit('Ass_pX')
       Return
       End

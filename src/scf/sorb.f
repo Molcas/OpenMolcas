@@ -77,7 +77,6 @@
 *----------------------------------------------------------------------*
 *
 #ifdef _DEBUG_
-      Call qEnter('SOrb')
 #endif
 *
       CALL DecideonCholesky(DoCholesky)
@@ -224,7 +223,6 @@
       If (isHDF5) Call mh5_close_file(fileorb_id)
 #endif
 #ifdef _DEBUG_
-      Call qExit('SOrb')
 #endif
 *----------------------------------------------------------------------*
 *     Exit                                                             *

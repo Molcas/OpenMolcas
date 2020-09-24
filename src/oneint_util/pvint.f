@@ -57,7 +57,6 @@
 *                                                                      *
       iRout = 221
       iPrint = nPrint(iRout)
-      Call qEnter('pvint')
 *
       If (iPrint.ge.99) Then
          Write (6,*) 'PVInt: nIC,nComp=',nIC,nComp
@@ -135,7 +134,6 @@
      &                  nZeta,nElem(la)*nElem(lb))
          End Do
       End If
-      Call qExit('pvint')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nHer)

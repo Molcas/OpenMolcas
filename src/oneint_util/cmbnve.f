@@ -39,7 +39,6 @@
 *
       iRout = 161
       iPrint = nPrint(iRout)
-      Call qEnter('CmbnVe')
 *     Call GetMem(' Enter CmbnVe','LIST','REAL',iDum,iDum)
 *
       Do 10 ixa = 0, la
@@ -81,6 +80,5 @@
  10   Continue
 *
 *     Call GetMem(' Exit CmbnVe','LIST','REAL',iDum,iDum)
-      Call qExit('CmbnVe')
       Return
       End

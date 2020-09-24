@@ -52,7 +52,6 @@
 *
       iRout = 39
       iPrint = nPrint(iRout)
-*     Call qEnter('PGet4')
       lOper = 1
 *
 *     Prepare some data for Pam
@@ -219,7 +218,6 @@
       End If
 *
 *     Call GetMem(' Exit PGet4','CHECK','REAL',iDum,iDum)
-*     Call qExit('PGet4')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_logical(Shijij)

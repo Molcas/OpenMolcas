@@ -44,7 +44,6 @@
 *
       iRout = 68
       iPrint = nPrint(iRout)
-*     Call qEnter('DoZ')
 *
 *     Transfer precomputer data
 *
@@ -80,7 +79,6 @@
          Write (6,*) ' Exit DoZ'
       End If
 *
-*     Call qExit('DoZ')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

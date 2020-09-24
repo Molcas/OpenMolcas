@@ -47,7 +47,6 @@
       Logical Line_Search
 *     Logical Fail
 *
-      Call QEnter('Newq')
       Lu=6
       iRout = 113
       iPrint = nPrint(iRout)
@@ -261,7 +260,6 @@ C     Call View(H,nInter,print)
       Call RecPrt('Newq: dq',' ',dq,nInter,nIter)
       Call RecPrt('Newq: g',' ',g,nInter,nIter)
 #endif
-      Call QExit('Newq')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(dg)

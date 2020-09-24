@@ -56,7 +56,6 @@
 ************************************************************************
 
 #if defined (_DEBUG_)
-      Call QEnter(SECNAM)
 #endif
 
       Call fZero(Diag,nnBstRT(1))
@@ -182,7 +181,6 @@ C --- free memory
       rc  = 0
 
 #if defined (_DEBUG_)
-      CAll QExit(SECNAM)
 #endif
 
       Return

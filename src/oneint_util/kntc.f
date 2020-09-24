@@ -37,7 +37,6 @@
 *
       iRout = 115
       iPrint = nPrint(iRout)
-*     Call qEnter('Kntc')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In Kntc: Alpha',' ',Alpha,nZeta,1)
@@ -99,6 +98,5 @@
  10   Continue
 *
 *     Call GetMem(' Exit Kntc  ','CHECK','REAL',iDum,iDum)
-*     Call qExit('Kntc')
       Return
       End

@@ -55,7 +55,6 @@
 *                                                                      *
       Utility = .False.
 #ifdef _DEBUG_
-         Call QEnter('Polar')
 #endif
       ireturn=99
 *                                                                      *
@@ -326,7 +325,6 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUG_
-         Call QExit('Polar')
 #endif
       Return
       End

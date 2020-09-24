@@ -335,7 +335,6 @@
  100     Continue
 #endif
 *
-*     Call QExit('PrjInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

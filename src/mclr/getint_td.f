@@ -35,7 +35,6 @@
 #include "glbbas_mclr.fh"
       Dimension XINT(*)
 *
-C      CALL QENTER('GETIN  ')
        NTEST=0
 *
 *          Write(*,*)'square in getint_td',square
@@ -96,7 +95,6 @@ C
 
       END IF
 *
-C     CALL QEXIT('GETIN ')
 C     STOP ' Jeppe forced me to stop in GETINT '
       RETURN
       END

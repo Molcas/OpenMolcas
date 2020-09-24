@@ -54,7 +54,6 @@
       Lu=6
       iRout = 33
       iPrint=nPrint(iRout)
-      Call QEnter('Int2Car')
       If (iPrint.ge.11) Then
          Write (Lu,*)
          Write (Lu,*) ' *** Transforming internal coordinates'
@@ -258,6 +257,5 @@
 ************************************************************************
 *                                                                      *
       Error=.False.
-      Call QExit('Int2Car')
       Return
       End

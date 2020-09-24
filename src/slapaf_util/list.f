@@ -33,7 +33,6 @@
 *
       iRout = 118
       iPrint = nPrint(iRout)
-*     Call qEnter('List')
       Lu=6
 *
       Write (Lu,*)
@@ -60,7 +59,6 @@
  10   Continue
       Write (Lu,*)
 *
-*     Call qExit('List')
       Return
       End
 

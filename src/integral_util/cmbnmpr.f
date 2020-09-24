@@ -41,7 +41,6 @@
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     iPrint = 99
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-*     Call QEnter('CmbnMP')
 *     Call GetMem(' Enter CmbnMP','LIST','REAL',iDum,iDum)
 *
       Do 10 ixa = 0, la
@@ -89,7 +88,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 10    Continue
 *
 *     Call GetMem(' Exit CmbnMP','LIST','REAL',iDum,iDum)
-*     Call QExit('CmbnMP')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Zeta)

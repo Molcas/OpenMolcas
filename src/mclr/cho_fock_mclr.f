@@ -420,6 +420,5 @@ c --- backtransform fock matrix to full storage
       Call GetMem('ip_kOffSh','Free','Inte',ip_kOffSh,nShell*nSym)
       Call GetMem('Qmat','FREE','REAL',ipScr,nsBB*nDen)
 
-      CAll QExit(SECNAM)
       Return
       END

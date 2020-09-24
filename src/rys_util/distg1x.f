@@ -48,7 +48,6 @@
 #ifdef _DEBUG_
       iRout = 239
       iPrint = nPrint(iRout)
-      Call qEnter('Distg1')
       If (iPrint.ge.99) Then
          Call RecPrt('PAO',' ',PAO,nT,mPAO)
          Do 500 iVec = 1, mVec
@@ -139,7 +138,6 @@
      &               ' ',Grad,nGrad,1)
       End If
 *
-      Call qExit('Distg1')
 #endif
       Return
       End

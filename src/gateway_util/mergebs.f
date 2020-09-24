@@ -17,7 +17,6 @@
       Data IfTest/.False./
 *
 #ifdef _DEBUG_
-      Call QEnter('MergeBS')
       IfTest=.True.
 #endif
       If (n1.gt.mPrim .or. n2.gt.mPrim) Then
@@ -115,7 +114,6 @@
       If (IfTest) Write (6,'(I4)') n
       If (IfTest) Write (6,'(4f20.4)') (z(i),i=1,n)
 #ifdef _DEBUG_
-      Call QExit('MergeBS')
 #endif
 *
       Return

@@ -38,7 +38,6 @@ C
       DSubScr(i)=Work(ip_DSubScr-1+i)
 
 #if defined (_DEBUG_)
-      Call qEnter('_SubScr_Dia')
       If (iLoc.lt.1 .or. iLoc.gt.3) Then
          Call Cho_Quit('iLoc error in '//SecNam,104)
       End If
@@ -126,7 +125,6 @@ C     Return.
 C     -------
     1 Continue
 #if defined (_DEBUG_)
-      Call qExit('_SubScr_Dia')
 #endif
       Return
 

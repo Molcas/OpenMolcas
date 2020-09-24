@@ -50,7 +50,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('Do_CS')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -275,7 +274,6 @@
 *
       End If
 *
-      Call QExit('Do_CS')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real(Coeff)

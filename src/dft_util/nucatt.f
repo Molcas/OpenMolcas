@@ -99,7 +99,6 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QEnter('Do_NucAtt')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -168,7 +167,6 @@ C     Call QEnter('Do_NucAtt')
 ************************************************************************
 *                                                                      *
 *
-C     Call QExit('Do_NucAtt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

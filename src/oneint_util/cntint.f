@@ -45,7 +45,6 @@
 *
       iRout = 150
       iPrint = nPrint(iRout)
-      Call qEnter('CntInt')
 *
       Call FZero(Final,nZeta*((la+1)*(la+2)/2)*((lb+1)*(lb+2)/2)*nIC)
 *
@@ -96,7 +95,6 @@
       End If
 *
 *     Call GetMem(' Exit CntInt','LIST','REAL',iDum,iDum)
-      Call qExit('CntInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

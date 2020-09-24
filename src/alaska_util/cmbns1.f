@@ -45,7 +45,6 @@
       iRout = 134
       iPrint = nPrint(iRout)
       iQ = 1
-*     Call qEnter('CmbnS1')
 *
 *     ii = la*(la+1)*(la+2)/6
 *     jj = lb*(lb+1)*(lb+2)/6
@@ -253,6 +252,5 @@
  110     Continue
  100  Continue
 *
-*     Call qExit('CmbnS1')
       Return
       End

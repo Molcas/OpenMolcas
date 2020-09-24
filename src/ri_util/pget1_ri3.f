@@ -64,7 +64,6 @@
       iPrint = nPrint(iRout)
 *#define _DEBUG_
 #ifdef _DEBUG_
-      Call qEnter('PGet1_RI3   ')
       iPrint=99
       If (iPrint.ge.99) Then
          iComp = 1
@@ -1151,7 +1150,6 @@
          End Do
       End If
       Call GetMem(' Exit PGet1_RI3','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet1_RI3')
 #endif
 *                                                                      *
 ************************************************************************

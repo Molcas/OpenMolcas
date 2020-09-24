@@ -38,7 +38,6 @@
       Integer Indij(lZeta),idone(mxnprm),nnz2(mxnprm),
      &        ifirst(mxnprm),last(mxnprm)
       Logical First
-*     Call QEnter('CntHlf')
 *
       If (nPrm1.gt.mxnprm .or.
      &    nPrm2.gt.mxnprm) Then
@@ -164,6 +163,5 @@ C     &                         A3(iivec,iCntr1,icntr2),1,mVec,nPrm2)
 *
       End Do    ! iiVec
 *
-*     Call QExit('CntHlf')
       Return
       End

@@ -31,7 +31,6 @@ C
       DIMENSION NREME(*),IREME(8,*),EEXT(*),E2(*)
       DIMENSION CMO(*),CMO1(*),ISEQ(*)
 C
-      Call qEnter('FrzDel')
 C
       IAD0=1
       IADR=1
@@ -106,6 +105,5 @@ C
         NORB(ISYM)=NBAS(ISYM)-NFRO(ISYM)-NDEL(ISYM)
 100   CONTINUE
 C
-      Call qExit('FrzDel')
       RETURN
       END

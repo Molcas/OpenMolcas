@@ -38,7 +38,6 @@
       iRout = 116
       iPrint = nPrint(iRout)
 *     iPrint = 99
-      Call qEnter('vCrtCmp')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In vCrtCmp: HerR',' ',HerR,1,nHer)
@@ -86,6 +85,5 @@
 *100     Continue
 *     End If
 *     Call GetMem(' Exit vCrtCmp','CHECK','REAL',iDum,iDum)
-      Call qExit('vCrtCmp')
       Return
       End

@@ -35,7 +35,6 @@
 *
       iRout = 53
       iPrint = nPrint(iRout)
-      Call qEnter('Auxil')
 *
       Call HighFm(Fm(1,mHigh),T,mHigh,nT)
 *
@@ -50,6 +49,5 @@
 *     Call RecPrt(' Fm',' ',Fm,nT,mHigh+1)
 *     Call GetMem('Auxil','CHECK','REAL',iDum,iDum)
 *
-      Call qExit('Auxil')
       Return
       End

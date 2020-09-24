@@ -56,7 +56,6 @@
       iPrint = nPrint(iRout)
       iPrint = 000000 !yma
 
-*     Call qEnter('Tcrtnc')
 *
 !#ifdef _DEBUG_  !yma
       If (iPrint.ge.19) Call WrCheck('Tcrtnc:P(AB|CD)',ACInt,
@@ -123,7 +122,6 @@
 #endif
 *
 *     Call GetMem('Tcrtnc','CHECK','REAL',iDum,iDum)
-*     Call qExit('Tcrtnc')
       Return
       End
       Subroutine Tnchlf(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,nPrm2,

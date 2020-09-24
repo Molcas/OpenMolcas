@@ -99,7 +99,6 @@
 *
       iRout=153
       iPrint=nPrint(iRout)
-      Call QEnter('Update')
 *
       If (iPrint.ge.99) Then
          Call RecPrt('Update: qInt',' ',qInt,nInter,Iter)
@@ -205,6 +204,5 @@
       Call Put_dArray('BMxOld',Dummy(1),0)
       Call Put_dArray('TROld',Dummy(1),0)
 *
-      Call QExit('Update')
       Return
       End

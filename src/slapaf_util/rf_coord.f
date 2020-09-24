@@ -44,7 +44,6 @@
 *
       iRout=151
       iPrint=nPrint(iRout)
-      Call QEnter('RF_Coords')
 *
       TransVar=iAnd(iSBS,2**7).eq. 2**7
       RotVar=iAnd(iSBS,2**8).eq. 2**8
@@ -284,7 +283,6 @@ C     Write (6,*) 'nqRF=',nqRF
       Call mma_deallocate(iDCR)
       Call mma_deallocate(Hess)
  99   Continue
-      Call QExit ('RF_Coords')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer_array(iANr)

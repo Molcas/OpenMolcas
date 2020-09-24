@@ -60,7 +60,6 @@
       iRout = 39
       iPrint = nPrint(iRout)
       iPrint=99
-      Call qEnter('PGet2_RI2')
       Call RecPrt('V_K',' ',V_K,1,mV_K)
 #endif
 
@@ -652,7 +651,6 @@
          Call RecPrt(' In PGet2_RI2:PSO ',' ',PSO,nijkl,nPSO)
       End If
       Call GetMem(' Exit PGet2_RI2','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet2_RI2')
 #endif
 *
       Call CWTime(Cpu2,Wall2)

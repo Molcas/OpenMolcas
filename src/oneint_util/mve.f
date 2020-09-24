@@ -41,7 +41,6 @@
 *
       iRout = 192
       iPrint = nPrint(iRout)
-      Call qEnter('MVe')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In MVe: Alpha',' ',Alpha,nZeta,1)
@@ -137,6 +136,5 @@
       End If
 *
 *     Call GetMem(' Exit MVe   ','CHECK','REAL',iDum,iDum)
-      Call qExit('MVe ')
       Return
       End

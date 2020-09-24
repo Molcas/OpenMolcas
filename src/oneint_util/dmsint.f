@@ -49,7 +49,6 @@
 *
       iRout = 230
       iPrint = nPrint(iRout)
-*     Call qEnter('DMSInt')
 *
       nRys=nHer
 *
@@ -112,7 +111,6 @@
 *
  102  Continue
 *
-*     Call qExit('DMSInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

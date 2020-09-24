@@ -61,7 +61,6 @@
             Call NameRun('RUNOLD')
             Call Get_Coord_New(CN,lBuf)
             If (lBuf.eq.0) Then
-               Call qExit('GeoNew')
                nNuc=0
                Call NameRun('RUNFILE')
                Return
@@ -75,7 +74,6 @@
                End If
             End If
          Else
-            Call qExit('GeoNew')
             nNuc=0
             Return
          End If

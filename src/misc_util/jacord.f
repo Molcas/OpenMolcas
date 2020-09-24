@@ -83,7 +83,6 @@ C      SubRoutine Sort(EVal,EVec,n,nB)
 *----------------------------------------------------------------------*
 *
 #ifdef _DEBUG_
-      Call qEnter('Sort')
 #endif
 *
       Do 100 i = 1,n - 1
@@ -104,7 +103,6 @@ C      SubRoutine Sort(EVal,EVec,n,nB)
 100   Continue
 *
 #ifdef _DEBUG_
-      Call qExit('Sort')
 #endif
 *
 *----------------------------------------------------------------------*
@@ -153,7 +151,6 @@ C      SubRoutine Sort(EVal,EVec,n,nB)
 *----------------------------------------------------------------------*
 *
 #ifdef _DEBUG_
-      Call qEnter('Sort')
 #endif
 *
       Do 100 i = 1,n - 1
@@ -174,7 +171,6 @@ C      SubRoutine Sort(EVal,EVec,n,nB)
 100   Continue
 *
 #ifdef _DEBUG_
-      Call qExit('Sort')
 #endif
 *
 *----------------------------------------------------------------------*

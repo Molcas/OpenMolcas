@@ -41,7 +41,6 @@
       iRout = 233
       iPrint = nPrint(iRout)
 *     iQ = 0
-*     Call qEnter('HRR2Da')
 *
       Do 10 iCar = 1, 3
          lla = 0
@@ -147,6 +146,5 @@
          End If
  10   Continue
 *
-*     Call qExit('HRR2Da')
       Return
       End

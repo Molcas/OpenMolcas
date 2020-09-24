@@ -41,7 +41,6 @@
 *                                                                      *
       iRout = 115
       iPrint = nPrint(iRout)
-*     Call qEnter('Kntc_GIAO')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -172,7 +171,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qExit('Kntc_GIAO')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nr)

@@ -35,7 +35,6 @@
 *
       iRout = 249
       iPrint = nPrint(iRout)
-*     Call qEnter('CloseP')
 *
       If(case_mp2) then
          Call DecideOnCholesky(DoCholesky)
@@ -61,6 +60,5 @@
       call mma_deallocate(DVar)
       call mma_deallocate(D0)
 *
-*     Call qExit('CloseP')
       Return
       End

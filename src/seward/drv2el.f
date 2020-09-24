@@ -56,7 +56,6 @@
 *                                                                      *
       iRout = 9
       iPrint = nPrint(iRout)
-      Call QEnter('Drv2El')
       SLine='Computing 2-electron integrals'
       Call StatusLine(' Seward:',SLine)
 *                                                                      *
@@ -241,6 +240,5 @@
       FreeK2=.True.
       Call Term_Ints(Verbose,FreeK2)
       Call Free_iSD()
-      Call QExit('Drv2El')
       Return
       End

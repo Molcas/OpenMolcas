@@ -70,7 +70,6 @@
 *
       iRout = 119
       iPrint = nPrint(iRout)
-      Call qEnter('List')
 *
       Thr=0.001D+00 ! Threshold for printout.
 *
@@ -182,6 +181,5 @@ c      Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
  10   Continue
       Call CollapseOutput(0,Title)
 *
-      Call qExit('List')
       Return
       End

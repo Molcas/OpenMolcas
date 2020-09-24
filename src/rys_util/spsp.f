@@ -44,7 +44,6 @@
       Integer iPntr(nPntr)
       Logical ABeqCD, EQ
 *
-*     Call qEnter('spsp')
 *
       xdInv=One/ddx
       dddx = ddx/10 + ddx
@@ -413,6 +412,5 @@
 *
  99   Continue
 *
-*     Call qExit('spsp')
       Return
       End

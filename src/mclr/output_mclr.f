@@ -59,7 +59,6 @@
 ************************************************************************
 *                                                                      *
 *
-       Call QEnter('Output')
 #ifdef _DEBUG_
        debug=.True.
 #else
@@ -564,6 +563,5 @@ c       Open(unit=Lu_10, file='UNSYM')
       Call GetMem('Temp','Free','REAL',ipEG  ,3*ndisp)
       Call GetMem('Temp','FREE','REAL',ipELOUT,3*ndisp)
 *
-      Call QExit('Output')
       Return
       End

@@ -81,7 +81,6 @@
 *                                                                      *
       iRout = 203
       iPrint = nPrint(iRout)
-      Call QEnter('Drv2ElFrag')
       call xFlush(6)
       ExFac=One
       Nr_Dens=1
@@ -441,6 +440,5 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drv2ElFrag')
       Return
       End

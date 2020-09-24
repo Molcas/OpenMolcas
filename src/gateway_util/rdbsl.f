@@ -61,7 +61,6 @@
          End Do
       End If
       If (IfTest) Then
-         Call qEnter('Rdbsl')
          Write (6,*) ' Enter Rdbsl'
          Write (6,'(2a)') ' BsLbl=',BsLbl
          Write (6,'(2a)') ' BasDir=',BasDir
@@ -354,7 +353,6 @@ c     &        Form='FORMATTED',IOSTAT=IOStat)
      &     'Abend in RdBsl:Requested basis inconsistent with library')
          Call Quit_OnUserError()
       End If
-      If (IfTest) Call qExit('Rdbsl')
       Return
       End
 c

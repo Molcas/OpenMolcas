@@ -15,7 +15,6 @@
 #include "welcom.fh"
       Real*8 F(kmax+1)
 *
-      Call qEnter('qRINT')
       qRINT=Zero
       NN=N/2+1
 *     Write (*,*) ' N,NN=',n,nn
@@ -53,6 +52,5 @@
          qRINT=GINT*PRSUM
  10   Continue
 *
-      Call qExit('qRINT')
       Return
       End

@@ -42,7 +42,6 @@ C
       nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
 
 #if defined (_DEBUG_)
-      Call qEnter('RI_XDiag')
 #endif
 
 C     Allocate memory.
@@ -109,7 +108,6 @@ C     ------------------
       Call GetMem('xDiaScr','Free','Real',ip_Scr,l_Scr)
 
 #if defined (_DEBUG_)
-      Call qExit('RI_XDiag')
 #endif
 
       End

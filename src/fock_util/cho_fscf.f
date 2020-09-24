@@ -73,7 +73,6 @@ c      Debug=.true.
       Debug=.false.
 #endif
 
-      Call QEnter(SECNAM)
 
       FactCI = one
       FactXI = xone*ExFac
@@ -476,7 +475,6 @@ c Print the Fock-matrix
 
       rc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
       END

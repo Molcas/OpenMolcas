@@ -141,7 +141,6 @@
  199  Continue
       End Do  ! iGrid
 c
-c     Call QExit('Do_LYP')
 c
       return
       end

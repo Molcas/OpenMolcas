@@ -122,7 +122,6 @@ c      Debug=.true.
       Debug=.false.
 #endif
 
-      Call QEnter(SECNAM)
 
       DoTraInt = .false.
       IREDC = -1  ! unknown reduced set in core
@@ -1728,7 +1727,6 @@ c Print the Fock-matrix
 
       rc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
       END

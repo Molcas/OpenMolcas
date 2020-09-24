@@ -60,7 +60,6 @@
 #ifdef _DEBUG_
       iRout = 39
       iPrint = nPrint(iRout)
-      Call qEnter('PGet1_RI2')
       Do i=1,nSA
          Call RecPrt('PGet1_RI2: V_k',' ',V_k(1,i),1,mV_k)
       End Do
@@ -584,7 +583,6 @@
 #ifdef _DEBUG_
       Call RecPrt(' In PGet1_RI2:PAO ',' ',PAO,ijkl,nPAO)
       Call GetMem(' Exit PGet1_RI2','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet1_RI2')
 #endif
       Call CWTime(Cpu2,Wall2)
       Cpu = Cpu2 - Cpu1

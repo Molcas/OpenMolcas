@@ -44,7 +44,6 @@
       iRout = 39
       iPrint = nPrint(iRout)
 #ifdef _DEBUG_
-      Call qEnter('PGet1   ')
       If (iPrint.ge.99) Then
          iComp = 1
          Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
@@ -144,7 +143,6 @@
  3333    Continue
       End If
       Call GetMem(' Exit PGet1','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet1')
 #endif
       Return
 c Avoid unused argument warnings

@@ -27,7 +27,6 @@
       Implicit Real*8 (A-H,O-Z)
       Real*8 Vector(n1,n2), Array(n1)
 *
-*     Call qEnter('Exp_1')
 *
       Do 10 i2 = 1, n2
          Do 20 i1 = 1, n1
@@ -35,6 +34,5 @@
  20      Continue
  10   Continue
 *
-*     Call qExit('Exp_1')
       Return
       End

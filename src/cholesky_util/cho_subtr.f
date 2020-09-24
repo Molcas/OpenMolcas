@@ -24,7 +24,6 @@ C
       PARAMETER (LOCDBG = .FALSE.)
 
 #if defined (_DEBUG_)
-      CALL QENTER('_SUBTR')
 #endif
 
 C     Return if nothing to do.
@@ -97,7 +96,6 @@ C     -------------------------------------------
 
     1 CONTINUE
 #if defined (_DEBUG_)
-      CALL QEXIT('_SUBTR')
 #endif
 
       END

@@ -55,7 +55,6 @@
       NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
 *
 #if defined (_DEBUG_)
-      Call qEnter('IndSft_Cho')
 #endif
       irout = 39
       jprint = nprint(irout)
@@ -348,7 +347,6 @@ C to avoid stupid compiler warnings:
 100   Continue
 *
 #if defined (_DEBUG_)
-      Call qExit('IndSft_Cho')
 #endif
       Return
       End

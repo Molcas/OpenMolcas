@@ -59,7 +59,6 @@
 *
       iRout = 151
       iPrint = nPrint(iRout)
-C     Call qEnter('NAPrm')
 *
       Call FZero(Final,nZeta*nElem(la)*nElem(lb)*nComp)
 *
@@ -226,7 +225,6 @@ C     Call qEnter('NAPrm')
          End Do
       End If
 *
-C     Call qExit('NAPrm')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

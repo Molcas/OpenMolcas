@@ -50,7 +50,6 @@
 *                                                                      *
       iRout = 170
       iPrint = nPrint(iRout)
-      Call qEnter('Contact ')
       If (iPrint.ge.99) Then
          Call RecPrt(' In Contact: rKappa',' ',rKappa,nZeta,1)
          Call RecPrt(' In Contact: Zeta',' ',Zeta,nZeta,1)
@@ -170,7 +169,6 @@
       End Do
 *
 *     Call GetMem(' Exit Contact ','LIST','REAL',iDum,iDum)
-      Call qExit('Contact ')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nArr)

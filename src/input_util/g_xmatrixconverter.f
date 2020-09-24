@@ -32,7 +32,6 @@
 
       IfTest=.False.
 #ifdef _DEBUG_
-      Call QEnter('XMatrixConverter')
       IfTest=.True.
 #endif
 
@@ -222,7 +221,6 @@ c2000  Continue
 9999  Continue
 
 #ifdef _DEBUG_
-      Call QExit('XMatrixConverter')
 #endif
 
       Return

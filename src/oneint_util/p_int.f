@@ -55,7 +55,6 @@
 *
       iRout = 122
       iPrint = nPrint(iRout)
-*     Call qEnter('P_Int')
 *
 *---- Observe that this code does not make any sense in case of symmetry!
 *
@@ -75,7 +74,6 @@
       End If
 *
 *     Call GetMem(' Exit P_Int','LIST','REAL',iDum,iDum)
-*     Call qExit('p_Int')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

@@ -26,7 +26,6 @@ C
       LOGICAL FOUND
 
 #if defined (_DEBUG_)
-      CALL QENTER('_ANADIA')
 #endif
 
 C     Print header.
@@ -120,7 +119,6 @@ C     -----------------
      & 'Standard dev.   : ',STAT(7),' (unbiased variance)'
 
 #if defined (_DEBUG_)
-      CALL QEXIT('_ANADIA')
 #endif
 
       END

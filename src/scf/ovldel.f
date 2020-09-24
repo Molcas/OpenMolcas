@@ -58,7 +58,6 @@
 *----------------------------------------------------------------------*
 *
 #ifdef _DEBUG_
-      Call qEnter('OvlDel')
 #endif
 *
 *---- Allocate memory for transformed overlap matrix
@@ -172,7 +171,6 @@ C??         End Do
       Call mma_deallocate(OvlT)
 *
 #ifdef _DEBUG_
-      Call qExit('OvlDel')
 #endif
 *
 *----------------------------------------------------------------------*

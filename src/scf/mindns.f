@@ -61,7 +61,6 @@
 *
 *define _DEBUG_
 #ifdef _DEBUG_
-      Call qEnter('MinDns')
       Write(6,*)' ***** SubRoutine MinDns *****'
 #endif
 *
@@ -168,7 +167,6 @@
       Call mma_deallocate(DRow)
 *
 #ifdef _DEBUG_
-      Call qExit('MinDns')
 #endif
 *
 *----------------------------------------------------------------------*
@@ -220,7 +218,6 @@
 *----------------------------------------------------------------------*
 *
 #ifdef _DEBUG_
-      Call qEnter('RmLDep')
       Write(6,*)' ***** SubRoutine RmLDep*****'
 #endif
 *
@@ -290,7 +287,6 @@
       Call mma_deallocate(ATri)
 *
 #ifdef _DEBUG_
-      Call qExit('RmLDep')
 #endif
 *
 *----------------------------------------------------------------------*

@@ -43,7 +43,6 @@
       character cEDiff, cDMOMax, cFMOMax,cDltNrm
 *
 #ifdef _DEBUG_
-      Call qEnter('PrIte')
 #endif
 *
       If(iterprlv.gt.0) Then
@@ -140,7 +139,6 @@
          End If
       End If
 #ifdef _DEBUG_
-      Call qExit('PrIte')
 #endif
       Return
       End

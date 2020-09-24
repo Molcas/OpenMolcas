@@ -53,7 +53,6 @@
 *                                                                      *
       iRout=77
       iPrint=nPrint(iRout)
-      Call QEnter('DKRelInt')
 *
       If(Debug)Then
         idbg=6
@@ -837,7 +836,6 @@ c... reset contracted basis size
       CALL GetMem('H_temp  ','FREE','REAL',iH_temp,iSizec+4)
       CALL GetMem('pVp     ','FREE','REAL',ipVp,iSizep+4)
 *
-      Call QExit('DKRelInt')
       Return
 *
  9999 Continue

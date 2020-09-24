@@ -61,7 +61,6 @@ C     Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *
       iRout = 151
       iPrint = nPrint(iRout)
-      Call qEnter('PCMgrd')
 *
       nRys = nHer
 *
@@ -198,7 +197,6 @@ C     Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 111      Continue
       End Do     ! End loop over centers in the external field
 *
-      Call qExit('PCMgrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

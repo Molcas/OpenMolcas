@@ -39,7 +39,6 @@
 *
       iRout = 239
       iPrint = nPrint(iRout)
-      Call QEnter('TraPAB')
       If (iPrint.ge.99) Then
          Call RecPrt(' In TraPAB: GInt',' ',GInt,nZeta,jSum)
          Call RecPrt(' In TraPAB: P   ',' ',P   ,nZeta,3)
@@ -211,6 +210,5 @@
          Call RecPrt(' In TraPAB: AB',' ', AB, nZeta,nab)
       End If
 *
-      Call QExit('TraPAB')
       Return
       End

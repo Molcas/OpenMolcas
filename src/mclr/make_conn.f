@@ -23,7 +23,6 @@ c
       Real*8 P(*),D(*),F(*),Kappa(*)
       Dimension dum(1)
 *
-      Call QEnter('Make_Conn')
       Call GetMem('MO','ALLO','REAL',ipT1,n2dens)
       Call GetMem('F1','ALLO','REAL',ipT2,ndens2)
       Call GetMem('F2','ALLO','REAL',ipT3,ndens2)
@@ -79,6 +78,5 @@ c
       Call GetMem('F2','Free','REAL',ipT3,ndens2)
       Call GetMem('F1','Free','REAL',ipT2,ndens2)
       Call GetMem('MO','Free','REAL',ipT1,n2dens)
-      Call QExit('Make_Conn')
       Return
       End

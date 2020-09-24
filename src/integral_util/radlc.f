@@ -39,7 +39,6 @@
 ccccccccccccccccccccccccccccccccccccccc
 c     iPrint = 99
 ccccccccccccccccccccccccccccccccccccccc
-      Call QEnter('Radlc')
       Result=Zero
 *
 ************************************************************************
@@ -159,6 +158,5 @@ C           End If
          Call RecPrt(Label,' ',Rnr(1,0),nZeta,lsum+1)
       End If
 *
-      Call QExit('Radlc')
       Return
       End

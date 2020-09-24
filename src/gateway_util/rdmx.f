@@ -33,7 +33,6 @@
 *
       iRout = 201
       iPrint = nPrint(iRout)
-      Call qEnter('RdMx')
 *
       Call RecPrt('Exp',' ',Exp,nExp,1)
       Call RecPrt('Cff',' ',Cff,nExp,nCff)
@@ -62,7 +61,6 @@
       End Do
 *
 #ifdef _DEBUG_
-      Call qExit('RdMx')
 #endif
       Return
       End

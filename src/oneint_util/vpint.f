@@ -45,7 +45,6 @@
       iRout = 221
       iPrint = nPrint(iRout)
 *
-c     Call qEnter('vpint')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In vpint: Alpha','(5D20.13)',Alpha,nAlpha,1)
@@ -117,6 +116,5 @@ c     Call qEnter('vpint')
      &                 nElem(la)*nElem(lb))
          End Do
       End If
-c     Call qExit('vpint')
       Return
       End

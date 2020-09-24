@@ -70,7 +70,6 @@
 *     Turn timing ON                                                   *
 *----------------------------------------------------------------------*
 *
-C     Call QEnter('Savebin')
 *
 *----------------------------------------------------------------------*
 *         as the packed integral labels add an extra 1-2 Byte          *
@@ -217,6 +216,5 @@ C     Call QEnter('Savebin')
 *     Turn timing OFF and exit                                         *
 *----------------------------------------------------------------------*
 *
-C     Call QExit('SaveBin')
       Return
       End

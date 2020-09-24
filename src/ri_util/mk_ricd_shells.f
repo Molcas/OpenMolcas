@@ -57,7 +57,6 @@ C      iPrint=99
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qEnter('Mk_aCD_Shells')
 *
       Call StatusLine('Gateway:',
      &                ' Generating aCD or acCD auxiliary basis set')
@@ -180,7 +179,6 @@ C      iPrint=99
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('Mk_aCD_Shells')
       Return
       End
       Subroutine Remove_High_Exponents(iD,nD,List2,mData,nTheta_All)

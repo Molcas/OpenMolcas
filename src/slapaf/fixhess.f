@@ -20,7 +20,6 @@
 *
       iRout=211
       iPrint=nPrint(iRout)
-      Call QEnter('FixHess')
 *
 *#define _DEBUG_
 #ifdef _DEBUG_
@@ -537,6 +536,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('FixHess')
       Return
       End

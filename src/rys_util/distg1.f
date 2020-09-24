@@ -43,7 +43,6 @@
 *
       iRout = 239
       iPrint = nPrint(iRout)
-*     Call qEnter('Distg1')
 #ifdef _DEBUG_
       If (iPrint.ge.99) Then
          Call RecPrt('Accumulated gradient on entrance',
@@ -128,7 +127,6 @@
       End If
 #endif
 *
-*     Call qExit('Distg1')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(mVec)

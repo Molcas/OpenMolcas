@@ -40,7 +40,6 @@
       iRout = 123
       iPrint = nPrint(iRout)
 *     iPrint = 99
-      Call qEnter('vAssmbl ')
       If (iPrint.ge.99) Then
          Call RecPrt(' In vAssmbl:HerW',' ',HerW,1,nHer)
          Call RecPrt(' In vAssmbl:Axyz',' ',Axyz,nZeta*3,nHer*(la+1))
@@ -83,6 +82,5 @@
  100  Continue
 *
 *     Call GetMem(' Exit vAssmbl ','LIST','REAL',iDum,iDum)
-      Call qExit('vAssmbl ')
       Return
       End

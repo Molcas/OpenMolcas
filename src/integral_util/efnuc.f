@@ -40,7 +40,6 @@
 *
       iRout = 185
       iPrint = nPrint(iRout)
-      Call qEnter('EFNuc')
 *
 *     Compute the nuclear contribution to the electrostatic interation
 *     tensor, ESIT.
@@ -94,7 +93,6 @@
 *
       If (iPrint.ge.99) Call RecPrt(' The Electrostatic Interaction'
      &                 //' Tensor',' ',ESIT,nElem(nOrdOp),1)
-      Call qExit('EFNuc')
       Return
       End
       Subroutine InitIA(I,mDeg)

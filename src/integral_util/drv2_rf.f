@@ -87,7 +87,6 @@
 *
       iRout = 212
       iPrint = nPrint(iRout)
-      Call qEnter('Drv2_RF')
       If (iPrint.ge.19) Then
          Write (6,*) ' In Drv2_RF: llOper'
          Write (6,'(1X,8I5)') llOper
@@ -395,6 +394,5 @@
       Call mma_deallocate(ZI)
       Call mma_deallocate(Zeta)
 *
-      Call qExit('Drv2_RF')
       Return
       End

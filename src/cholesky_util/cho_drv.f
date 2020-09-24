@@ -72,7 +72,6 @@ C
 
       PARAMETER (DUMTST = 0.123456789D0, DUMTOL = 1.0D-15)
 
-      CALL QENTER('_DRV_')
 #if defined (_DEBUG_)
       CALL CHO_PRTMAXMEM('CHO_DRV_ [ENTER]')
 #endif
@@ -423,6 +422,5 @@ C     ----------------------------------------------------------------
 #if defined (_DEBUG_)
       CALL CHO_PRTMAXMEM('CHO_DRV_ [EXIT]')
 #endif
-      CALL QEXIT('_DRV_')
 
       END

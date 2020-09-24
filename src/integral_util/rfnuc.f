@@ -45,7 +45,6 @@
 *                                                                      *
       iRout = 124
       iPrint = nPrint(iRout)
-      Call qEnter('RFNuc')
       If (iPrint.ge.99) Then
          Call RecPrt(' In RFNuc:CoOp',' ',CoOp,1,3)
       End If
@@ -253,6 +252,5 @@ c            Write (*,*) ' Temp=',temp
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('RFNuc')
       Return
       End

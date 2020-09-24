@@ -52,7 +52,6 @@
       nElem(i)=(i+1)*(i+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
-*     Call QEnter('AlloK2')
 *
       If (Debug) Then
          If (Allocated(Data_k2)) Then

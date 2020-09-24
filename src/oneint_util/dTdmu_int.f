@@ -48,7 +48,6 @@
 *
       iRout = 230
       iPrint = nPrint(iRout)
-      Call qEnter('dTdmu_int')
 *
       nRys=nHer
 *
@@ -120,7 +119,6 @@
       End Do
 *
 *     Call GetMem(' Exit dTdmu_int','LIST','REAL',iDum,iDum)
-      Call qExit('dTdmu_int')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

@@ -104,7 +104,6 @@
       Pget_CPU = 0.0d0
       Pget_Wall = 0.0d0
 #endif
-      Call QEnter('Drvg1')
       call dcopy_(nGrad,[Zero],0,Temp,1)
 *
       Call StatusLine(' Alaska:',' Computing 2-electron gradients')
@@ -509,6 +508,5 @@
 ************************************************************************
 *                                                                      *
       Call Free_iSD()
-      Call QExit('Drvg1')
       Return
       End

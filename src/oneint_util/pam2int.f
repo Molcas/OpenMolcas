@@ -84,7 +84,6 @@
 *
       iRout = 122
       iPrint = nPrint(iRout)
-*     Call QEnter('PAM2Int')
 *     Call GetMem(' Enter PAM2Int','LIST','REAL',iDum,iDum)
 *
       nip = 1
@@ -284,7 +283,6 @@ c      If (nOrdOp.eq.1) Then
       End If
 *
 *     Call GetMem(' Exit PAM2Int','LIST','REAL',iDum,iDum)
-*     Call QExit('PAM2Int')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

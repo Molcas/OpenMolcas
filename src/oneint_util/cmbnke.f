@@ -38,7 +38,6 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-*     Call qEnter('CmbnKE')
 *     Call GetMem(' Enter CmbnKE','LIST','REAL',iDum,iDum)
 *
       iComp = 1
@@ -79,6 +78,5 @@
  10   Continue
 *
 *     Call GetMem(' Exit CmbnKE','LIST','REAL',iDum,iDum)
-*     Call qExit('CmbnKE')
       Return
       End

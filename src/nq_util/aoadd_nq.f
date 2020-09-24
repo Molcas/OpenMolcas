@@ -41,7 +41,6 @@
 *define _DEBUG_
 *
 #ifdef _DEBUG_
-      Call qEnter('AOAdd')
       Call RecPrt(' In AOAdd:AOInt',' ',AOInt,iBas_Eff*jBas_Eff,
      &            iCmp*jCmp)
       Write (6,*) 'iBas_Eff,jBas_Eff,iCmp,jCmp=',iBas_Eff,jBas_Eff,
@@ -86,7 +85,6 @@
 *
 #ifdef _DEBUG_
       Call GetMem(' Exit AOAdd','CHECK','REAL',iDum,iDum)
-      Call qExit('AOAdd')
 #endif
       Return
       End

@@ -33,7 +33,6 @@
 *
       iRout = 246
       iPrint = nPrint(iRout)
-*     Call qEnter('ModInd')
 *
       AB2 = (A(1)-B(1))**2 + (A(2)-B(2))**2 + (A(3)-B(3))**2
       CutZt = .False.
@@ -63,6 +62,5 @@
          SkipZt= Ind.eq.0
 *     End If
 *
-*     Call qExit('ModInd')
       Return
       End

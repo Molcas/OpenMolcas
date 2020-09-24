@@ -94,7 +94,6 @@ C     Call Seward_Banner()
 *     Prologue
 *
       iRout=1
-      Call qEnter('Seward')
       LuWr=6
       PrPrt_Save = .False. ! dummy initialize
 *                                                                      *
@@ -511,7 +510,6 @@ C     Call Seward_Banner()
 *
 *     Epilogue
 *
-      Call qExit('Seward')
       If (nPrint(iRout).ge.6) Then
          Call qStat(' ')
          Call FastIO('STATUS')

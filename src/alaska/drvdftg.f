@@ -53,7 +53,6 @@
       DFTFOCK='SCF '
       iRout = 131
       iPrint = nPrint(iRout)
-      Call qEnter('DrvDFTg')
       LuWr=6
 *
       nDens = 0
@@ -143,6 +142,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('DrvDFTg')
       Return
       End

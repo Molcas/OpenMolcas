@@ -74,7 +74,6 @@
 *                                                                      *
       iRout = 9
       iPrint = nPrint(iRout)
-      Call QEnter('Drv2El2RI')
 *
       Call StatusLine(' Seward:',' Computing 2-center RI integrals')
 *                                                                      *
@@ -285,6 +284,5 @@ c      Call RecPrt('ip_Tmp',' ',Work(ip_Tmp),nSkal,nSkal)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drv2El2RI')
       Return
       End

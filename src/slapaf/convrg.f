@@ -53,7 +53,6 @@
          Call RecPrt('Convrg: Cx',' ',Cx,3*nAtom,iter+1)
          Call RecPrt('Convrg: Gx',' ',Gx,3*nAtom,iter+1)
       End If
-      Call QEnter('Convrg')
 *
       Call Get_iScalar('Saddle Iter',iter_S)
       If (iter_S.eq.0) Then
@@ -1084,6 +1083,5 @@ C              Write (6,*) 'SubProject=.Prod'
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Convrg')
       Return
       End

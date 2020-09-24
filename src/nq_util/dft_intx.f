@@ -56,7 +56,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QEnter('DFT_IntX')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -178,7 +177,6 @@ C     Call QEnter('DFT_IntX')
       End Do                        ! ilist_s
       Flop=Flop+DBLE(nGrid_Tot)
 *
-C     Call QExit('DFT_Int1')
 #ifdef _DEBUG_
       Debug=.False.
 #endif

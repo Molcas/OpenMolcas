@@ -47,7 +47,6 @@
 *
       iRout = 39
       iPrint = nPrint(iRout)
-*     Call qEnter('PGet3   ')
       If (iPrint.ge.99) Then
          iComp = 1
          Write (6,*) ' nBases..=',iBas,jBas,kBas,lBas
@@ -147,7 +146,6 @@
       End If
 *
 *     Call GetMem(' Exit PGet3','CHECK','REAL',iDum,iDum)
-*     Call qExit('PGet3')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

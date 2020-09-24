@@ -32,7 +32,6 @@
 *
       iRout = 230
       iPrint = nPrint(iRout)
-*     Call qEnter('ConMax')
 *
       Do iPrim = 1, nPrim
          Temp= Zero
@@ -59,6 +58,5 @@
          End Do
       End Do
 *
-*     Call qExit('ConMax')
       Return
       End

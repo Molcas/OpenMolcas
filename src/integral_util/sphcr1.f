@@ -50,7 +50,6 @@
       iRout = 59
       iPrint = nPrint(iRout)
 *     iQ = 0
-*     Call qEnter('SphCr1')
 *     Call RecPrt(' In SphCr1: P(AB|CD) ',' ',Win,ijkla,kSph*lSph)
       If (Tr3.and.Tr4) Then
 *        Call RecPrt(' Right contraction',' ',Coeff4,lCar,lSph)
@@ -103,7 +102,6 @@
 *
 *     Call RecPrt(' In SphCr1: P(AB|cd)  ',' ',Wout,mcd,ijkla)
 *     Call GetMem(' Exit SphCr1','CHECK','REAL',iDum,iDum)
-*     Call qExit('SphCr1')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

@@ -68,7 +68,6 @@
       iRout = 250
       iPrint = nPrint(iRout)
       lPrint=iPrint.ge.6
-      Call qEnter('PrepP')
 #ifdef _CD_TIMING_
       Call CWTIME(PreppCPU1,PreppWall1)
 #endif
@@ -612,7 +611,6 @@
       Prepp_CPU  = PreppCPU2 - PreppCPU1
       Prepp_Wall = PreppWall2 - PreppWall1
 #endif
-      Call qExit('PrepP')
 
       Return
       End
@@ -660,7 +658,6 @@
 #include "real.fh"
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
-      Call qEnter('Get_D1A')
 
       iOff1 = 1
       iOff2 = 1
@@ -702,7 +699,6 @@
       End Do
       Call Fold2(nsym,nBas,work(ip1),D1A_AO)
       Call GetMem('Scr1','FREE','Real',ip1,ndens)
-      Call qExit('Get_D1A')
       Return
       End
 

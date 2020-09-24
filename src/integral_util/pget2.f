@@ -53,7 +53,6 @@
       iPrint = nPrint(iRout)
       iPrint=99
 #ifdef _DEBUG_
-      Call qEnter('PGet2')
       If (iPrint.ge.99) Then
          iComp = 1
          Call PrMtrx(' In PGet2:DSO ',[iD0Lbl],iComp,1,D0)
@@ -224,7 +223,6 @@
          Call RecPrt(' In PGet2:PSO ',' ',PSO,nijkl,nPSO)
       End If
       Call GetMem(' Exit PGet2','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet2')
 #endif
       Return
 c Avoid unused argument warnings

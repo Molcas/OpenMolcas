@@ -43,7 +43,6 @@
 ************************************************************************
 *                                                                      *
       iRout=2
-      Call QEnter('RdCtl_Slapaf')
       Expert=.False.
       Lu=6
 *                                                                      *
@@ -1393,7 +1392,6 @@ CGGd: Coherency with patch 7.1.615 !      If (lNmHss) nPrint(122)=10
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('RdCtl_Slapaf')
       Return
 *
       End

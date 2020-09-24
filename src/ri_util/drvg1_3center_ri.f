@@ -113,7 +113,6 @@
 *                                                                      *
       iRout = 9
       iPrint = nPrint(iRout)
-      Call QEnter('Drvg1_3Center_RI')
 #ifdef _CD_TIMING_
       Twoel3_CPU = 0.0d0
       Twoel3_Wall = 0.0d0
@@ -965,7 +964,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drvg1_3Center_RI')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Grad)

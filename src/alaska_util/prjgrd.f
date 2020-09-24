@@ -88,7 +88,6 @@
      &                              iIrrep,iComp,dc(mdc)%nStab)
 
 *
-*     Call qEnter('PrjGrd')
       iRout = 192
       iPrint = nPrint(iRout)
 *
@@ -564,7 +563,6 @@
          kdc = kdc + dbsc(kCnttp)%nCntr
  1960 Continue
 *
-*     Call QExit('PrjGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

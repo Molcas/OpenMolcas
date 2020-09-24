@@ -52,7 +52,6 @@
 #include "srt1.fh"
 #include "PkCtl.fh"
 *
-C     Call qEnter('MkOrd')
 *---------------------------------------------------------------------*
 *     Initialize table of content                                     *
 *---------------------------------------------------------------------*
@@ -178,6 +177,5 @@ C     Call qEnter('MkOrd')
       Call iDAFILE(LuTwo,iOpt,TocTwo,lTocTwo,iDisk)
       AuxTwo(isDaDa)=iDisk
 *
-C     Call qExit('MkOrd')
       Return
       End

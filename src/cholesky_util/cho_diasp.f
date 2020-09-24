@@ -25,7 +25,6 @@ C
       Tmax(i,j)=Work(ip_Tmax-1+nShell*(j-1)+i)
 
 #if defined (_DEBUG_)
-      Call qEnter('_DiaSP')
 #endif
 
       If (Cho_PreScreen) Then ! prescreening with approx. diagonal
@@ -89,7 +88,6 @@ C
          Write(LuPri,*) '    Screening-%: ',
      &                   1.0d2*DBLE(nnShl_Tot-nnShl)/DBLE(nnShl_Tot)
       End If
-      Call qExit('_DiaSP')
 #endif
 
       End

@@ -82,7 +82,6 @@
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
-      Call qEnter('M1Int')
       iRout = 193
       iPrint = nPrint(iRout)
 *
@@ -245,7 +244,6 @@
       End If
 *
 *     Call GetMem(' Exit M1Int','LIST','REAL',iDum,iDum)
-      Call QExit('M1Int')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

@@ -34,7 +34,6 @@
 *     nCore in units of kByte
 *
 #ifdef _DEBUG_
-      Call qEnter('IniBuf')
 #endif
 *
 *     The maximum number of bytes on disk. The file size limit times
@@ -94,7 +93,6 @@ C        Write (6,*) 'lBuf=',lBuf
       End If
 *
 #ifdef _DEBUG_
-      Call QExit('IniBuf')
 #endif
       Return
       End

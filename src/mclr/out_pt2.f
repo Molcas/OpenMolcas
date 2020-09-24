@@ -39,7 +39,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-       Call QEnter('Out_PT2')
        isym=1
        CI=.true.
        Call Setup_MCLR(iSym)
@@ -598,7 +597,6 @@ c      Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)
 
        irc=ipclose(-1)
 *
-       Call QExit('Out_PT2')
 
        Return
        End
@@ -618,7 +616,6 @@ c
       Logical act
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
-      Call QEnter('OITD')
       call dcopy_(ndens2,[Zero],0,Dtmp,1)
 *
 *     Note: even with NAC we set the inactive block,
@@ -652,7 +649,6 @@ c
      &                 One,D(ipMat(iS,jS)),nOrb(iS))
          End If
       End Do
-      Call QExit('OITD')
       Return
       End
       Subroutine NatOrb(Dens,CMOO,CMON,OCCN)

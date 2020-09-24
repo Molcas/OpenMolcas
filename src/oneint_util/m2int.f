@@ -82,7 +82,6 @@
 *
       iRout = 122
       iPrint = nPrint(iRout)
-*     Call QEnter('M2Int')
 *     Call GetMem(' Enter M2Int','LIST','REAL',iDum,iDum)
 *
       nip = 1
@@ -257,7 +256,6 @@
       End If
 *
 *     Call GetMem(' Exit M2Int','LIST','REAL',iDum,iDum)
-*     Call QExit('M2Int')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

@@ -117,7 +117,6 @@
 *
       Call CWTime(TCpu1,TWall1)
 #ifdef _DEBUG_
-      Call qEnter('Final')
 #endif
 *
          What='COEI'
@@ -555,7 +554,6 @@ c make a fix for energies for deleted orbitals
       End If
 #endif
 #ifdef _DEBUG_
-      Call qExit('Final')
 #endif
 *
       Call CWTime(TCpu2,TWall2)

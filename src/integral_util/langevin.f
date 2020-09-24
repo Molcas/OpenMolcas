@@ -28,7 +28,6 @@
 
       iRout = 1
       iPrint = nPrint(iRout)
-      Call qEnter('Langevin')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -307,6 +306,5 @@ c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('Langevin')
       Return
       End

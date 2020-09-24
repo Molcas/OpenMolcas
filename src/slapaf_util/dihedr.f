@@ -36,7 +36,6 @@
       Lu=6
       iRout = 127
       iPrint = nPrint(iRout)
-*     Call QEnter('Dihedr')
       Label=' '
       If (mCentr.gt.Max_Center) Go To 99
 *
@@ -127,6 +126,5 @@ C                 Phi12= 180.D0 * ACos(arg) / Pi
  452   Continue
 *
  99   Continue
-*     Call QExit('Dihedr')
       Return
       End

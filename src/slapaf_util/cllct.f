@@ -50,7 +50,6 @@
       lWrite = First
       lWarn  = First
       If (iPrint.gt.20) lWrite = .True.
-      Call qEnter('Cllct')
       If (iPrint.ge.99) Call RecPrt(' In Cllct: Coor',' ',
      &                               Coor,3,nAtom)
 *
@@ -262,6 +261,5 @@
      &                              ' ',Vector,3,nAtom)
       End If
 *
-      Call qExit('Cllct')
       Return
       End

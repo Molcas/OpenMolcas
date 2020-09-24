@@ -38,7 +38,6 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-*     Call qEnter('CmbnAC')
 *     Call GetMem(' Enter CmbnAC','LIST','REAL',iDum,iDum)
 *
       If (iPrint.ge.99) Then
@@ -133,6 +132,5 @@
  10   Continue
 *
 *     Call GetMem(' Exit CmbnAC','LIST','REAL',iDum,iDum)
-*     Call qExit('CmbnAC')
       Return
       End

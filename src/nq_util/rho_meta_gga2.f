@@ -48,7 +48,6 @@
 *                                                                      *
 *define _TIME_
 #ifdef _TIME_
-      Call QEnter('Rho_meta_GGA')
 #endif
 #ifdef _DEBUG_
       If (Debug) Then
@@ -243,7 +242,6 @@ c        End Do
 *
 #endif
 #ifdef _TIME_
-      Call QExit('Rho_GGA')
 #endif
       Return
       End
@@ -263,7 +261,6 @@ c        End Do
 ************************************************************************
 *                                                                      *
 #ifdef _TIME_
-      Call QEnter('Do_Rho9a')
 #endif
       Do jCB_Eff = 1, jBas_Eff*jCmp
          jCB = Index_j(jCB_Eff)
@@ -313,7 +310,6 @@ c        End Do
       End Do             ! jCB
 *
 #ifdef _TIME_
-      Call QExit('Do_Rho9a')
 #endif
       Return
       End
@@ -406,7 +402,6 @@ c        End Do
 ************************************************************************
 *                                                                      *
 #ifdef _TIME_
-      Call QEnter('Do_Rho9a_d')
 #endif
       Do jCB_Eff = 1, iBas_Eff*iCmp
          jCB=Index_i(jCB_Eff)
@@ -487,7 +482,6 @@ c        End Do
       End Do             ! jCB
 *
 #ifdef _TIME_
-      Call QExit('Do_Rho9a_d')
 #endif
       Return
       End
