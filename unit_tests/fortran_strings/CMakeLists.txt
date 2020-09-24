@@ -11,10 +11,10 @@
 # Copyright (C) 2020, Oskar Weser                                      *
 #***********************************************************************
 
-include_guard(GLOBAL)
-
 include(${PROJECT_SOURCE_DIR}/cmake/cmake_helpers.cmake)
 
-# Libfruit provides the machinery for unit testing in Fortran
-add_Fortran_library(fruit_molcas
-    fruit.f90)
+set(not_supported ";SunPro;PGI;")
+
+if (NOT ((CMAKE_Fortran_COMPILER_ID IN_LIST not_supported) OR (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "14")))
+    add_unit_test(test_fortran_strings test_fortran_strings.F90)
+endif()

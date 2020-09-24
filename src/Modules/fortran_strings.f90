@@ -19,7 +19,7 @@ module fortran_strings
     save
     private
     public :: str, to_lower, to_upper, operator(.in.), split, &
-        count_char, StringWrapper_t, Cptr_to_str
+        count_char, StringWrapper_t, Cptr_to_str, char_array
 
     ! This type exists to have an array of string pointers
     ! and to allow unequally sized strings.
@@ -81,7 +81,7 @@ module fortran_strings
     end function
 
     pure function character_array_to_str(array) result(res)
-        character(1), intent(in) :: array(:)
+        character(len=1), intent(in) :: array(:)
         character(len=:), allocatable :: res
         integer :: i, L
 
@@ -150,28 +150,42 @@ module fortran_strings
 
     !> @brief
     !> Split a string at delimiter.
-    pure subroutine split(str, delimiter, res)
-        character(*), intent(in) :: str
+    subroutine split(string, delimiter, res)
+        character(*), intent(in) :: string
         character(1), intent(in) :: delimiter
         type(StringWrapper_t), allocatable, intent(out) :: res(:)
 
         integer :: i, n, low
 
-        allocate(res(count_char(str, delimiter) + 1))
+        allocate(res(count_char(string, delimiter) + 1))
+
+        ! NOTE: this function is unnecessarily complicated,
+        ! because StringWrapper_t cannot have character(len=:), allocatable
+        ! components. (Old compilers)
 
         low = 1; n = 1
-        do i = 1, len(str)
-            if (str(i : i) == delimiter) then
-                res(n)%str = str(low : i - 1)
+        do i = 1, len(string)
+            if (string(i : i) == delimiter) then
+                res(n)%str = char_array(string(low : i - 1))
                 n = n + 1
                 low = i + 1
             end if
         end do
 
         if (n == size(res)) then
-            res(n)%str = str(low : )
+            res(n)%str = char_array(string(low : ))
         end if
     end subroutine
+
+    pure function char_array(string) result(res)
+        character(*), intent(in) :: string
+        character(len=1) :: res(len(string))
+        integer :: i
+        do i = 1, len(string)
+            res(i) = string(i : i)
+        end do
+    end function
+
 
     !> @brief
     !> Count the occurence of a character in a string.

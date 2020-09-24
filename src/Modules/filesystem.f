@@ -151,7 +151,7 @@
         path = buffer(:L)
       end function
 
-      pure function basename(path) result(res)
+      function basename(path) result(res)
         character(*), intent(in) :: path
         character(:), allocatable :: res
         type(StringWrapper_t), allocatable :: names(:)
