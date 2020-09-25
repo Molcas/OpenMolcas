@@ -66,7 +66,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "nsd.fh"

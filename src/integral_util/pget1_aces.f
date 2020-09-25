@@ -43,7 +43,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
 ************ columbus interface ****************************************
 #include "columbus_gamma.fh"
       parameter (exfac=1d0)

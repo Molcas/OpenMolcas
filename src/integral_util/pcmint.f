@@ -44,8 +44,6 @@
 *     Used for finite nuclei
       External TERI, ModU2, vCff2D, vRys2D
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
      &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,nComp),
@@ -63,9 +61,6 @@
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
-*
-      iRout = 151
-      iPrint = nPrint(iRout)
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
@@ -103,24 +98,26 @@
       Do iTile = 1, nTiles
          QTessera = Q_Tessera(iTile)
          C(:)=C_Tessera(:,iTile)
-         If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
+#ifdef _DEBUG_
+         Call RecPrt('C',' ',C,1,3)
+#endif
 *
 *--------Find the DCR for M and S
 *
          Call DCR(LmbdT,iStabM,nStabM,jStab_,nStab_,iDCRT,nDCRT)
          Fact = One / DBLE(LmbdT)
 *
-         If (iPrint.ge.99) Then
-            Write (6,*) ' m      =',nStabM
-            Write (6,'(9A)') '(M)=',(ChOper(iStabM(ii)),
-     &            ii = 0, nStabM-1)
-            Write (6,*) ' s      =',nStab_
-            Write (6,'(9A)') '(S)=',ChOper(jStab_)
-            Write (6,*) ' LambdaT=',LmbdT
-            Write (6,*) ' t      =',nDCRT
-            Write (6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),
-     &            ii = 0, nDCRT-1)
-         End If
+#ifdef _DEBUG_
+         Write (6,*) ' m      =',nStabM
+         Write (6,'(9A)') '(M)=',(ChOper(iStabM(ii)),
+     &         ii = 0, nStabM-1)
+         Write (6,*) ' s      =',nStab_
+         Write (6,'(9A)') '(S)=',ChOper(jStab_)
+         Write (6,*) ' LambdaT=',LmbdT
+         Write (6,*) ' t      =',nDCRT
+         Write (6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),
+     &         ii = 0, nDCRT-1)
+#endif
 
 *
          Do lDCRT = 0, nDCRT-1
@@ -150,18 +147,17 @@
             nOp = NrOpr(iDCRT(lDCRT))
             Call SymAdO(Array(ipIn),nZeta,la,lb,nComp,Final,nIC,
      &                  nOp         ,lOper,iChO,-Fact*QTessera)
-            If (iPrint.ge.99) Then
-               Write (6,*) Fact*QTessera
-               Call RecPrt('PCMInt: Array(ipIn)',' ',Array(ipIn),
-     &                 nZeta,nElem(la)*nElem(lb)*nComp)
-               Call RecPrt('PCMInt: Final',' ',Final,
-     &                 nZeta,nElem(la)*nElem(lb)*nIC)
-            End If
+#ifdef _DEBUG_
+            Write (6,*) Fact*QTessera
+            Call RecPrt('PCMInt: Array(ipIn)',' ',Array(ipIn),
+     &              nZeta,nElem(la)*nElem(lb)*nComp)
+            Call RecPrt('PCMInt: Final',' ',Final,
+     &              nZeta,nElem(la)*nElem(lb)*nIC)
+#endif
 *
          End Do
       End Do
 *
-*     Call GetMem(' Exit PCMInt','LIST','REAL',iDum,iDum)
       Return
 c Avoid unused argument warnings
       If (.False.) Then

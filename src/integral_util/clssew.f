@@ -33,7 +33,6 @@
       use Symmetry_Info, only: Symmetry_Info_Free
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "timtra.fh"
 #include "rctfld.fh"

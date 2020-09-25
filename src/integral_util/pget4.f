@@ -38,7 +38,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
       Real*8 PSO(ijkl,nPSO), PSOPam(n1,n2,n3,n4), DSO(nDSO),
      &       Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
       Integer nPam(4,0:7), iiBas(4),
@@ -91,15 +90,6 @@
 *     Get the scrambled 2nd order density matrix
 *
       If (LSA) Then
-!      write(*,*)"This or ??? in pget4"  !yma
-
-!      do i=1,nG1
-!        write(*,*)i,"V-ipG1",Work(ipG1+i-1)
-!      end do
-!      write(*,*)
-!      do i=1,nG2
-!        write(*,*)i,"V-ipG2",Work(ipG2+i-1)
-!      end do
 
       Call PTrans_sa(CMO(1,1),nPam,iPam,n1+n2+n3+n4,
      &            DSO,PSOPam,nPSOPam,G1,nG1,G2,nG2,

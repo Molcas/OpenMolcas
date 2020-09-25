@@ -34,15 +34,11 @@
       use Real_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
       Real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
       Integer iShell(4), iAO(4), kOp(4), iAOst(4)
       Logical Shijij, Shij, Shkl, Qijij, iShij, iShkl, Qij, Qkl,
      &        iQij, iQkl
 *
-      iRout = 109
-      iPrint = nPrint(iRout)
       iShij = iShell(1).eq.iShell(2)
       iShkl = iShell(3).eq.iShell(4)
 *

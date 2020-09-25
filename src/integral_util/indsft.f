@@ -36,7 +36,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
       Real*8 SOInt(ijkl,nSOInt)
       Integer iCmp(4), iShell(4), iAO(4), iAOst(4)
       Logical Shijij, Shij, Shkl, Qijij, Qij, Qkl,

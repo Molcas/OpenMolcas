@@ -38,7 +38,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
       Real*8 PSO(nijkl,nPSO), DSO(nDSO), DSSO(nDSO)
       Integer iCmp(4), iAO(4), iAOst(4)
       Logical Shijij

@@ -39,7 +39,6 @@
 #include "itmax.fh"
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
       Parameter(lab=iTabMx*2+1,npMax=lab*(lab+1)*(lab+2)/6)
       Real*8 HMtrxAB(*),HMtrxCD(*)
       Real*8 Wrk(nWrk), Coora(3,4)

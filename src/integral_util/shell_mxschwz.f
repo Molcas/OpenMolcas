@@ -29,7 +29,6 @@ c----------------------------------------------------------------------
 #include "real.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "WrkSpc.fh"
 *
       nElem(i)=(i+1)*(i+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1

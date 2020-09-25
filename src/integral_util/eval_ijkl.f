@@ -87,7 +87,6 @@
 *
 #include "ndarray.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "setup.fh"

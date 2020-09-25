@@ -46,7 +46,6 @@
 #include "print.fh"
 #include "real.fh"
 #include "setup.fh"
-#include "WrkSpc.fh"
 #include "etwas.fh"
 #include "columbus_gamma.fh"
       Real*8 PSO(ijkl,nPSO), Mem2(nMem2)

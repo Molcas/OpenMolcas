@@ -10,7 +10,6 @@
 ************************************************************************
       Subroutine AppFld(Cavxyz,radius,Eps,lmax,EpsInf,NonEq)
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6)
       Real*8, Allocatable:: CavSph(:,:)

@@ -39,7 +39,6 @@
 #include "Molcas.fh"
 #include "real.fh"
 #include "rmat_option.fh"
-#include "WrkSpc.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "property_label.fh"
