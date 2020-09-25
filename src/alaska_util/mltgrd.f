@@ -42,13 +42,7 @@
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-<<<<<<< HEAD
-#include "itmax.fh"
-#include "info.fh"
 #ifdef _DEBUGPRINT_
-=======
-#ifdef _DEBUG_
->>>>>>> ce6a32feb787e2ffaaec8e43f7b8110f0a0cbe02
 #include "print.fh"
 #endif
 
