@@ -31,7 +31,6 @@
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "wldata.fh"
 #include "print.fh"
 

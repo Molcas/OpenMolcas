@@ -44,7 +44,6 @@
 *
 #include "rmat_option.fh"
 *
-#include "WrkSpc.fh"
 #include "oneswi.fh"
 #include "print.fh"
 

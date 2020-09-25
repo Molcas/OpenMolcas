@@ -46,7 +46,6 @@
       External TNAI, Fake,  XCff2D, XRys2D
       External TERI, MODU2, vCff2D, vRys2D
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),

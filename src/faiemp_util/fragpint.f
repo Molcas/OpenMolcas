@@ -82,7 +82,6 @@
       use Symmetry_Info, only: nIrrep, iChTbl
       Implicit None
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"

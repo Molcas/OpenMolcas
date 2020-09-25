@@ -43,7 +43,6 @@
 #include "rmat_option.fh"
 #include "rmat.fh"
 *
-#include "WrkSpc.fh"
 #include "print.fh"
 
 #include "int_interface.fh"

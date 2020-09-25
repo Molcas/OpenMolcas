@@ -28,7 +28,6 @@
 *             University of Lund, Sweden, February '91                 *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "real.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),

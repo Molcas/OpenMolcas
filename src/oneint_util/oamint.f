@@ -37,7 +37,6 @@
       use Logical_Info, only: lUPONLY, lDOWNONLY
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 
 #include "int_interface.fh"
