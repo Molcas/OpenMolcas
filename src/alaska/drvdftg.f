@@ -33,7 +33,6 @@
 #include "Molcas.fh"
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "rctfld.fh"
 #include "disp.fh"
 #include "nq_info.fh"

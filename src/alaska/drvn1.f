@@ -39,7 +39,6 @@
 #include "real.fh"
 #include "disp.fh"
 #include "rctfld.fh"
-#include "WrkSpc.fh"
 #include "status.fh"
       Real*8 A(3), B(3), RB(3), Grad(nGrad), Temp(nGrad), DA(3),
      &       Tempd(3)
@@ -433,7 +432,6 @@
                      tempd(3)= MM(ip,2) *ZA * CCoMx * CCoMy * CCoMzd
                      If (iPrint.ge.99) Then
                         Write (6,*) CCoMx, CCoMy, CCoMz
-                        Write (6,*) 'Work(ip)=',Work(ip)
                         Write (6,*) 'tempd=',tempd
                      End If
 *
