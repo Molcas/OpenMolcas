@@ -105,7 +105,7 @@ option (DEBUGTRACE "Enable tracing print statements for debugging." OFF)
 
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set (DEBUG_DEFS_DEFAULTS "_DEBUG_")
+    set (DEBUG_DEFS_DEFAULTS "_ADDITIONAL_RUNTIME_CHECK_")
 else()
     set (DEBUG_DEFS_DEFAULTS "")
 endif()

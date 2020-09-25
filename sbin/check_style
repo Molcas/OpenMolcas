@@ -68,6 +68,13 @@ def test_write(line, filename):
     return False
   return write_star.search(line.decode('ascii', 'ignore').strip('\n'))
 
+# _DEBUG_ compile flag used
+compile_flag = re.compile(r'(\bifdef\b|\bifndef).*?_DEBUG_.*?')
+def test_debug_flag(line, filename):
+  if (not filename.endswith(('.f', '.F', '.f90', '.F90', '.c', '.h', '.fh'))):
+    return False
+  return compile_flag.search(line.decode('ascii', 'ignore').strip('\n'))
+
 # Bare (without wrapper) LAPACK/BLAS calls
 unwrapped_sub = re.compile(r'call\s*(drot|dswap|dscal|[ds]copy|daxpy|dgemm|dspmv|dgemv|dopmtr|dspgv|dsptrd|dstevr|dgetrs|dspev|dgeev|dgesvd|dgetrf|dgesv|dsyev|dsyevr|dgetri|zhpev|dsygv|dpotrf|dgels|dsytrd|dposv|dsterf|dsteqr|dlascl|dorgtr)\s*\(', re.IGNORECASE)
 unwrapped_func = re.compile(r'\b(ddot|dnrm2|dasum|idamax|dlamch|ilaenv|dlansy)\s*\(', re.IGNORECASE)
@@ -148,6 +155,7 @@ tests.append({'func': test_printst, 'print': '[{0}] "PRINT" statement in {1}, li
 tests.append({'func': test_openst, 'print': '[{0}] "OPEN" statement in {1}, line {2} (use molcas_open)', 'error': False})
 tests.append({'func': test_matmulfn, 'print': '[{0}] "MATMUL" function in {1}, line {2} (use LAPACK routines)', 'error': True})
 tests.append({'func': test_forallfn, 'print': '[{0}] "FORALL" statement in {1}, line {2} (obsolescent in Fortran 2018)', 'error': True})
+tests.append({'func': test_debug_flag, 'print': '[{0}] "_DEBUG_ compile flag in {1}, line {2}', 'error': True})
 
 def run_tests(line, fname, ln):
   j = 0
