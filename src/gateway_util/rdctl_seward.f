@@ -45,6 +45,7 @@
 #include "constants2.fh"
 #include "SysDef.fh"
 #include "notab.fh"
+#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "rctfld.fh"
 #include "rmat.fh"
