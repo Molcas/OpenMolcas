@@ -19,17 +19,6 @@
 * Object: kernel routine for the computation of nuclear attraction     *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: EFInt                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy  (ESSL)                                           *
-*              ICopy                                                   *
-*              SOS                                                     *
-*              Rys                                                     *
-*              Hrr                                                     *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, February '91                            *
 ************************************************************************

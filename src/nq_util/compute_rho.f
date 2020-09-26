@@ -12,15 +12,6 @@
 ************************************************************************
       Real*8 Function Compute_Rho(Weights,mGrid,Rho,nRho,iSpin,T_X)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************

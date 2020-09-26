@@ -19,16 +19,6 @@
 * Object: to compute the mass-velocity integrals with the Gauss-       *
 *         Hermite quadrature.                                          *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              MVe                                                     *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden. February '91                 *
 ************************************************************************

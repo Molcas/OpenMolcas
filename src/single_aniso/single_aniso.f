@@ -16,7 +16,7 @@
       Integer ::  i, input_to_read, nH, nT, nTempMagn
       Integer ::  nDir, nDirZee, nMult
       Logical ::  ifrestart,GRAD
-      Character(180) :: input_file_name
+      Character(Len=180) :: input_file_name
       Logical :: dbg
 
 C----------------------------------------------------------------------
@@ -148,7 +148,7 @@ c      Real(kind=8) :: F, Fx,Fy,Fz, AT, Ax,Ay,Az, AF, dnrm, dE
       Real(kind=8), allocatable :: TempMagn(:)
       Complex(kind=8), allocatable :: MM(:,:,:), MS(:,:,:), HSO(:,:),
      &                                 ML(:,:,:), DM(:,:,:), U(:,:)
-      Character(180), intent(in) :: input_file_name
+      Character(Len=180), intent(in) :: input_file_name
 
       Logical :: poly_file
       Logical :: ifrestart

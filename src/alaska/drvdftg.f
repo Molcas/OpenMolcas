@@ -16,13 +16,6 @@
 * Object: driver for computation of gradient with respect to the DFT   *
 *         energy.                                                      *
 *                                                                      *
-* Called from: Alaska or Drvg1                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              OneEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Chem. Phys.                       *
 *             University of Lund, SWEDEN                               *
 *             August 2002                                              *

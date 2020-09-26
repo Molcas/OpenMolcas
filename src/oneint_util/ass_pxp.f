@@ -13,12 +13,7 @@
       SubRoutine Ass_pXp(Beta,nZeta,Final,la,lb,Slalbp,Slalbm,nComp)
 ************************************************************************
 *                                                                      *
-* Object: to assemble the pVp integrals
-*                                                                      *
-* Called from: PVPInt                                                  *
-*                                                                      *
-* Calling    : qEnter                                                  *
-*              qExit                                                   *
+* Object: to assemble the pVp integrals                                *
 *                                                                      *
 *     Author: Bernd Hess, Institut fuer Physikalische und Theoretische *
 *             Chemie, University of Bonn, Germany, August 1994         *

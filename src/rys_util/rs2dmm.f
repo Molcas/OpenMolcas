@@ -16,17 +16,10 @@
      &                 la,lb,lc,ld,IfHss,ifgrd)
 ************************************************************************
 *                                                                      *
-*     Object: to compute the 2-dimensional integrals of the Rys        *
-*             quadrature. The z components are assumed to be pre-      *
-*             conditioned with the weights of the roots of the         *
-*             Rys polynomial.                                          *
-*                                                                      *
-* Called from: Rys                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              RecPrt                                                  *
-*              QExit                                                   *
+* Object: to compute the 2-dimensional integrals of the Rys            *
+*         quadrature. The z components are assumed to be pre-          *
+*         conditioned with the weights of the roots of the             *
+*         Rys polynomial.                                              *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *

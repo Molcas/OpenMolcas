@@ -16,13 +16,6 @@
 *                                                                      *
 * Object: driver for computation of one-electron matrices.             *
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              OneEl                                                   *
-*              GetDens                                                 *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January 1991                                             *

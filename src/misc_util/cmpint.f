@@ -23,12 +23,6 @@
 *         Label: symmetry label of the operator for which the          *
 *                matrix elements where computed.                       *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy  (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             March 1991                                               *

@@ -17,13 +17,6 @@
 * Object: to compute intermediate integrals for the evaluation of the  *
 *          mass velocity integrals.                                    *
 *                                                                      *
-* Called from: MVeInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 *                                                                      *

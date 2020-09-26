@@ -40,7 +40,7 @@
 *             "New General Tools for Constrained Geometry Optimization"*
 *             L. De Vico, M. Olivucci, and R. Lindh,                   *
 *             JCTC, 1:1029-1037, 2005                                  *
-*             DOI: 10.1021/ct500949                                    *
+*             doi:10.1021/ct500949                                     *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Chemical Physics,                 *
 *             University of Lund, SWEDEN                               *

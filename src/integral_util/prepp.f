@@ -15,17 +15,6 @@
 *                                                                      *
 * Object: to set up the handling of the 2nd order density matrix.      *
 *                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              OpnOne                                                  *
-*              GetMem                                                  *
-*              RdOne                                                   *
-*              PrMtrx                                                  *
-*              ClsOne                                                  *
-*              ErrOne                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '92                                              *

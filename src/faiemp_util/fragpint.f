@@ -20,21 +20,6 @@
 * Object: kernel routine for the computation of Fragment AIEMP         *
 *         projection integrals                                         *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              MltPrm                                                  *
-*              DGeTMO  (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
 *      Beta  : as Alpha but for ket gaussians                          *

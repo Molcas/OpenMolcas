@@ -439,7 +439,7 @@ cCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !     The convention is to follow the paper:
 !     C. Rudowicz and C.Y. Chung
 !     J. Phys.: Condens. Matter, 2004, 16, pp. 5825
-!     DOI: https://doi.org/10.1088/0953-8984/16/32/018
+!     doi:10.1088/0953-8984/16/32/018
 !
 !     with a minor addition of the Norm(N) factor which depends on the operator rank
 !     This norm makes the matrix elements of ESO identical to those of the

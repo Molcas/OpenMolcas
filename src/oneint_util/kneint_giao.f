@@ -21,18 +21,6 @@
 * Object: to compute the kinetic energy integrals with the Gauss-      *
 *         Hermite quadrature.                                          *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              Kntc                                                    *
-*              CmbnKE                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 *             Modified to multipole moments November '90               *

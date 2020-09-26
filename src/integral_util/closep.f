@@ -15,11 +15,6 @@
 *                                                                      *
 * Object: to close the handling of the 2nd order density matrix.       *
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************

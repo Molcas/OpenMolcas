@@ -16,17 +16,13 @@
      &                 PAOPam,n1,n2,n3,n4,iPam,MapPam,mDim,
      &                 Cred,nCred,Scr1,nScr1,Scr2,nScr2,PMax)
 ************************************************************************
+*                                                                      *
 *  Object: to assemble the index list of the batch of the 2nd order    *
 *          density matrix.                                             *
 *                                                                      *
 *          The indices has been scrambled before calling this routine. *
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
-*                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *

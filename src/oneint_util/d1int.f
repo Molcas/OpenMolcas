@@ -18,14 +18,6 @@
 *                                                                      *
 * Object: to compute the 1-electron Darwin contact term.               *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              Darwin                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden, February '91                 *
 ************************************************************************

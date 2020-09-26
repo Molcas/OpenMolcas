@@ -13,7 +13,7 @@ CSVC: routine that terminates Molcas properly
       implicit none
       integer rc, lb, ub
 #include "warnings.fh"
-      character(128) :: msg
+      character(len=128) :: msg
       logical, external :: bomb_on_error
 #ifdef _MOLCAS_MPP_
       logical, external :: King
@@ -64,7 +64,7 @@ C     code similar to an abort.
       function bomb_on_error() result(rc)
       implicit none
       logical :: rc
-      character(16) :: bomb, env
+      character(len=16) :: bomb, env
       bomb=' '
       env='MOLCAS_BOMB'
       call getenvf(env,bomb)

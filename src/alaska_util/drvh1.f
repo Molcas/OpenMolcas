@@ -20,12 +20,6 @@
 *         matrix and the latter will be contracted with the generalized*
 *         Fock matrix.                                                 *
 *                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              OneEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *

@@ -15,12 +15,6 @@
 *                                                                      *
 * Object: to expand arrays according to an index array.                *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             Augusti '91                                              *

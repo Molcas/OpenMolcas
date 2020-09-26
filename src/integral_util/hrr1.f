@@ -13,16 +13,6 @@
       SubRoutine HRR1(ab1,nab1,a1b,na1b,cffAB,ab,nab,
      &           na,nb,na1,nb1,nPrim,la,lb)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: HRR                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DZaXpY  (ESSL)                                          *
-*              DCopy   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             June '91                                                 *

@@ -16,11 +16,6 @@
 * Object: to compute the molecular gradient contribution due to the    *
 *         nuclear repulsion energy.                                    *
 *                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *

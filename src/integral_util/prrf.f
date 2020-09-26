@@ -12,15 +12,6 @@
 ************************************************************************
       SubRoutine PrRF(DSCF,NonEq,iCharge,jPrint)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Allok2                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *                                                                      *

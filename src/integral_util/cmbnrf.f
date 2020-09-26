@@ -13,14 +13,6 @@
       SubRoutine CmbnRF(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp,
      &                  Fact,Temp)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: MltInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             Modified for reaction field calculations July '92        *

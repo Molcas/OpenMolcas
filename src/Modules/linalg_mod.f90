@@ -409,7 +409,7 @@ contains
         real(wp), intent(inout) :: V(:, :), lambda(:)
         !> The norms of the projections
         real(wp), allocatable :: norms_projections(:)
-        character(*), parameter :: this_routine = 'canonicalize_factory'
+        character(len=*), parameter :: this_routine = 'canonicalize_factory'
 
 
         integer :: low, i, j, d, n_new
@@ -859,7 +859,7 @@ contains
     !> @brief
     !>    Print error message, print stacktrace, and abort.
     subroutine abort_(message)
-        character(*), intent(in) :: message
+        character(len=*), intent(in) :: message
         call WarningMessage(2, message)
         call QTrace()
         call Abend()
@@ -870,7 +870,7 @@ contains
     !>    (Not implemented yet).
     subroutine assert_(test_expression, message)
         logical, intent(in) :: test_expression
-        character(*), intent(in) :: message
+        character(len=*), intent(in) :: message
         ! TODO(@Oskar): Create actual Debug flag (that is not a DEBUGPRINT flag)
         if (.not. test_expression) then
             call abort_(message)
@@ -881,7 +881,7 @@ contains
     !>    Runtime check, that is not switched off in Debug mode
     subroutine assume_(test_expression, message)
         logical, intent(in) :: test_expression
-        character(*), intent(in) :: message
+        character(len=*), intent(in) :: message
         if (.not. test_expression) then
             call abort_(message)
         end if

@@ -20,15 +20,6 @@
 * Object: kernel routine for the computation of electronic COSMO cont. *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DCR                                                     *
-*              XRysg1                                                  *
-*              QExit                                                   *
-*                                                                      *
 *             M. Diedenhofen Nov. 2003                                 *
 *             changes pcmgrd routines which do not take into account   *
 *             the contribution of a non fixed grid                     *

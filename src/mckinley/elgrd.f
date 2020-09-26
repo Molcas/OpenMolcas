@@ -22,17 +22,6 @@
 * Object: to compute the multipole moments integrals with the          *
 *         Gauss-Hermite quadrature.                                    *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              CmbnMP                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 *             Modified to multipole moments November '90               *
@@ -151,7 +140,6 @@
      &                nElem(la)*nElem(lb)*nrOp)
 
 c     Call Getmem('EXOG','CHECK','REAL',ipdum,ipdum)
-c     Call qExit('OvrGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

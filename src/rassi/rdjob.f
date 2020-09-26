@@ -43,7 +43,7 @@
       integer, allocatable :: ref_rootid(:)
       integer :: root2state(MxRoot)
 
-      character(1), allocatable :: typestring(:)
+      character(len=1), allocatable :: typestring(:)
 
       real*8, allocatable :: ref_Heff(:,:), ref_energies(:)
 #endif

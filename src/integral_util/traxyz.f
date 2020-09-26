@@ -17,12 +17,6 @@
 *         system to the global one. The transformation matrix is       *
 *         stored in A.                                                 *
 *                                                                      *
-* Called from: WelInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DGeTMo                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *              October '92.                                            *

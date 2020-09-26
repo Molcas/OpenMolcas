@@ -18,13 +18,6 @@
 * Object: to assemble the cartesian components of the multipole moment *
 *         matrix within the framework of the Gauss-Hermite quadrature. *
 *                                                                      *
-* Called from: PrpInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 ************************************************************************

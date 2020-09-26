@@ -170,31 +170,6 @@ c        Write(6,*) ' oneel *',Label,'*'
 *         b) refer to the components of the cartesian or spherical     *
 *         harmonic gaussians.                                          *
 *                                                                      *
-* Called from: Drv1El                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              ICopy                                                   *
-*              DCopy    (ESSL)                                         *
-*              KrnlMm                                                  *
-*              ZXia                                                    *
-*              MemSO1                                                  *
-*              DCR                                                     *
-*              Inter                                                   *
-*              SetUp1                                                  *
-*              Kernel                                                  *
-*              DGeTMO   (ESSL)                                         *
-*              CarSph                                                  *
-*              SymAd1                                                  *
-*              DScal    (ESSL)                                         *
-*              SOSctt                                                  *
-*              PrMtrx                                                  *
-*              XProp                                                   *
-*              WrOne                                                   *
-*              ErrOne                                                  *
-*              Prop                                                    *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
 *             Modified for Hermite-Gauss quadrature November '90       *

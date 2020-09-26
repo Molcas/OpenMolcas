@@ -17,11 +17,6 @@
 *                                                                      *
 * Object: to set up for a TS optimization with the SADDLE approach.    *
 *                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : qEnter                                                  *
-*              OpnCom                                                  *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             January 2009                                             *

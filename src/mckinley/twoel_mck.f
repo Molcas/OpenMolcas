@@ -45,41 +45,11 @@
 *     Temp   : Working place for F gen and n8                          *
 *     TwoHam : Final results fock matrix and MO's                      *
 *                                                                      *
-*                                                                      *
-*                                                                      *
 *     Object:      To construct the first order derivatives of the AO- *
 *     integrals and add them up to the MO derivatives and              *
 *     the Fock matrix derivatives and contract the second              *
 *     order derivatives of the AO's with the second order              *
 *     density matrix.                                                  *
-*                                                                      *
-*     Called from: Drvg2                                               *
-*                                                                      *
-*     Calling    : QEnter                                              *
-*     DCR                                                              *
-*     DCopy   (ESSL)                                                   *
-*     ICopy                                                            *
-*     LCopy                                                            *
-*     Inter                                                            *
-*     Stblzr                                                           *
-*     DesymP                                                           *
-*     Trnsps                                                           *
-*     Trns1                                                            *
-*     Phase                                                            *
-*     SphCr1                                                           *
-*     SphCr2                                                           *
-*     PrePre                                                           *
-*     Tcrtnc                                                           *
-*     Screen                                                           *
-*     Rysg2                                                            *
-*     Cntrct                                                           *
-*     CrSph                                                            *
-*     Clrbuf                                                           *
-*     RecPrt                                                           *
-*     DaXpY  (ESSL)                                                    *
-*     DScal  (ESSL)                                                    *
-*     DGetMO (ESSL)                                                    *
-*     QExit                                                            *
 *                                                                      *
 *     Authors: Roland Lindh, IBM Almaden Research Center, San Jose, CA *
 *     March '90                                                        *

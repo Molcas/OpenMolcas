@@ -23,12 +23,6 @@
 *             ref (secondary): Swart, Sola, Bickelhaupt                *
 *             J.Chem.Phys. 131 (2009) 094103. Note that it isnt SSB-D  *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author: G. Li Manni & A. Cohen, Max Planck Institute Stuttgart  *
 *              Summer 2017, edited in Cambridge (UK) & Palermo (Sicily)*
 ************************************************************************

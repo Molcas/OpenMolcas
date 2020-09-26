@@ -17,11 +17,6 @@
 * Object: to assemble the velocity quadrupole integrals from the       *
 *         derivative integrals and dipole integrals.                   *
 *                                                                      *
-* Called from: QpVInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             February '91                                             *

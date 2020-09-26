@@ -15,13 +15,8 @@
      &                  rKappa,IndZt,IncZet,SkipZt,Data,IndZ,
      &                  iphX,iphY,iphZ)
 ************************************************************************
+*                                                                      *
 * Object : to compute zeta, P and kappa.                               *
-*                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *

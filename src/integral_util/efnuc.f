@@ -17,12 +17,6 @@
 *         from the nuclei. In the case that the test charge coincide   *
 *         with a nucleau we will remove that center.                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, April '95.                                      *
 ************************************************************************

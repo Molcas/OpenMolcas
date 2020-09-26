@@ -21,19 +21,6 @@
 *         prescreening. This is done for all unique pairs of centers   *
 *         generated from the symmetry unique centers A and B.          *
 *                                                                      *
-* Called from: k2loop                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              DoZeta                                                  *
-*              Rys                                                     *
-*              GetMem                                                  *
-*              RecPrt                                                  *
-*              Hrr                                                     *
-*              CrSph1                                                  *
-*              CrSph2                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *

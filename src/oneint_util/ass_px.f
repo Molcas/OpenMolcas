@@ -16,11 +16,6 @@
 * Object: to assemble the pV integrals from                            *
 *         derivative integrals of the electric potential.              *
 *                                                                      *
-* Called from: pvInt                                                   *
-*                                                                      *
-* Calling    : qEnter                                                  *
-*              qExit                                                   *
-*                                                                      *
 *     Author: Bernd Hess, Institut fuer Physikalische und Theoretische *
 *             Chemie, University of Bonn, Germany, August 1994         *
 ************************************************************************

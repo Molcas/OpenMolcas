@@ -13,14 +13,6 @@
       SubRoutine CmbnKE(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp,
      &                  Txyz)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: KnEInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************

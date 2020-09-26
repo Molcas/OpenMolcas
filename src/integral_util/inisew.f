@@ -12,14 +12,6 @@
 ************************************************************************
       SubRoutine IniSew(DSCF,nDiff)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Chemical Physics,                 *
 *             University of Lund, SWEDEN                               *
 ************************************************************************

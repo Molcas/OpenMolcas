@@ -27,18 +27,6 @@
 *          Twoham is the lower triangular of the two-electron contri-  *
 *               bution to the Fock matrix.                             *
 *                                                                      *
-* Called from: PMat                                                    *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DeDe_SCF                                                *
-*              DrvK2                                                   *
-*              StatP                                                   *
-*              mHrr                                                    *
-*              DCopy   (ESSL)                                          *
-*              Swap                                                    *
-*              DrvTwo                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *

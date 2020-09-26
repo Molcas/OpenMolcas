@@ -16,12 +16,6 @@
 *                                                                      *
 * Object: compute the gradient of the overlap matrix.                  *
 *                                                                      *
-* Called from: M2Grd                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91.                                             *

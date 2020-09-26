@@ -20,23 +20,9 @@
 *          list of symmetry distinct centers that do have basis func-  *
 *          tions of the requested type.                                *
 *                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              SetUp_Ints                                              *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              Swap                                                    *
-*              MemRg1                                                  *
-*              PSOAO1                                                  *
-*              PGet0                                                   *
-*              TwoEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Ben Swerts                                               *
 *                                                                      *
 *     based on Drvg1                                                   *
-*                                                                      *
 ************************************************************************
       use k2_setup
       use iSD_data

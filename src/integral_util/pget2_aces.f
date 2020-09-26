@@ -16,6 +16,7 @@
      &                      Gamma,nGamma,iSO2cI,nSOs,
      &                      iSO2Sh,PMax)
 ************************************************************************
+*                                                                      *
 *  Object: to assemble the 2nd order density matrix of a SCF wave      *
 *          function from the 1st order density matrix.                 *
 *                                                                      *
@@ -25,12 +26,6 @@
 *                                                                      *
 *          DSO: HF 1st order density                                   *
 *          DSO_Var: 1st order density of correlated wf.                *
-*                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *

@@ -17,11 +17,6 @@
 * Object: to assemble the electric field integrals from                *
 *         derivative integrals of the electric potential.              *
 *                                                                      *
-* Called from: EFInt                                                   *
-*                                                                      *
-* Calling    : qEnter                                                  *
-*              qExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             February '91                                             *

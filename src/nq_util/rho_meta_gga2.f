@@ -14,14 +14,6 @@
      &                         list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,
      &                         Fact,mdc,TabAOMax,list_bas,Index,nIndex)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: Do_Batch                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.  2000                                   *
 ************************************************************************

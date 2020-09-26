@@ -19,13 +19,6 @@
 * Object: to compute the Pauli repulsion integrals with the            *
 *         Gauss-Hermite quadrature.                                    *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Rowel                                                   *
-*              Traxyz                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden. October '92.                            *
 ************************************************************************

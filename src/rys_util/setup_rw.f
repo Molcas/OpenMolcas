@@ -21,13 +21,6 @@
 *         Rys polynomials the roots and weight are computed from expa- *
 *         nsion coefficients.                                          *
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              SetHer                                                  *
-*              SetUpR                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
 *                                                                      *

@@ -16,11 +16,6 @@
 *                                                                      *
 * Object: to compute the multipole moments for the nuclei.             *
 *                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 ************************************************************************

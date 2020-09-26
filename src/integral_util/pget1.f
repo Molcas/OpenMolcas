@@ -14,18 +14,13 @@
      &                 iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,
      &                 DSO,DSSO,nDSO,ExFac,CoulFac,PMax)
 ************************************************************************
+*                                                                      *
 *  Object: to assemble the 2nd order density matrix of a SCF wave      *
 *          function from the 1st order density.                        *
 *                                                                      *
 *          The indices has been scrambled before calling this routine. *
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
-*                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *

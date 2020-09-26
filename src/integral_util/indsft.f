@@ -20,12 +20,6 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: Twoel                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             April '90                                                *
 ************************************************************************

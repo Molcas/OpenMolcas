@@ -22,13 +22,6 @@
 *         Note that the position in memory of the final set is not     *
 *         fixed.                                                       *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              HrrMtrx                                                 *
-*              Sp_Mlt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             Modified by R.L Februrary, 1999.                         *

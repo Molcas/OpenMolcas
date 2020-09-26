@@ -17,15 +17,6 @@
 *                                                                      *
 * Object: desymmetrize the first order density matrix.                 *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              DYaX    (ESSL)                                          *
-*              DaXpY   (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *

@@ -21,11 +21,6 @@
 *   mZeta, mEta : section length due to partioning. These are usually  *
 *                 equal to nZeta and nEta.                             *
 *                                                                      *
-* Called from: Twoel                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             July '92.                                                *

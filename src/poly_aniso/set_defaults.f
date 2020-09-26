@@ -39,7 +39,7 @@ c definintion of the cluster
       Real(kind=8), intent(out) :: D_fact(nneq)
       Real(kind=8), intent(out) :: EoverD_fact(nneq)
       Real(kind=8), intent(out) :: riso(nneq,3,3)
-      Character(1), intent(out) :: itype(nneq)
+      Character(Len=1), intent(out) :: itype(nneq)
 c definintion of exchange interaction
       Integer, intent(out) :: nexch(nneq)
 c  definition of g and D tensors

@@ -19,12 +19,6 @@
 * Object:    OLYP combination                                          *
 *            ref: Handy, Cohen, J. Mol.Phys 99 (2001) 403              *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 * Author:    Grigory A Shamov, University of Manitoba 2009             *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)

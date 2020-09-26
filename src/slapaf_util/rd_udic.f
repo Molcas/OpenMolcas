@@ -13,14 +13,6 @@
 ************************************************************************
       SubRoutine Rd_UDIC(nLines,iInt,nFix,nRowH)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 ************************************************************************

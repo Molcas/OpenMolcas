@@ -16,11 +16,6 @@
 *                                                                      *
 * Object: to print gradient or internal coordinate lists               *
 *                                                                      *
-* Called from: RlxCtl                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             1993                                                     *

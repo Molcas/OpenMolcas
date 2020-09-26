@@ -36,7 +36,7 @@
 #include "caspt2.fh"
 #include "output.fh"
 #include "stdalloc.fh"
-      CHARACTER(8) CSNAME(MXCASE)
+      CHARACTER(LEN=8) CSNAME(MXCASE)
       DATA CSNAME / 'VJTU    ','VJTIP   ','VJTIM   ',
      &     'ATVX    ','AIVX    ','VJAIP   ','VJAIM   ','BVATP   ',
      &     'BVATM   ','BJATP   ','BJATM   ','BJAIP   ','BJAIM   '/

@@ -186,7 +186,7 @@
 * Algorithm 726: ORTHPOL -- A package of Routines for Generating
 * Orthogonal Polynomials and Gauss-Type Quadrature Rules
 *   Walter Gautschi. ACM Trans. Math. Softw. 20 (1994) 21-62
-*   DOI: 10.1145/174603.174605
+*   doi:10.1145/174603.174605
 ************************************************************************
 *
       Subroutine GaussQuad(n,alpha,beta,eps,roots,weights,ierr)

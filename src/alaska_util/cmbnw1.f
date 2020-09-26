@@ -17,12 +17,6 @@
 *                                                                      *
 * Object: compute the gradient of the Spherical Well integrals         *
 *                                                                      *
-* Called from: WelGrd                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             May '95.                                                 *

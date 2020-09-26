@@ -20,13 +20,6 @@
 *             used for the HRR. The primitive integrals are generated  *
 *             from the 2D-integrals according to the Rys quadrature.   *
 *                                                                      *
-* Called from: Rys                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              RysEF0                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90.                                             *
 *                                                                      *

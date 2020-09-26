@@ -22,18 +22,11 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 *                                                                      *
 *             Modified for 3-center RI gradients, March 2007           *
-*                                                                      *
 ************************************************************************
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO

@@ -357,13 +357,13 @@ class MolcasStyle(UnsrtStyle):
     return template
 
   def format_doi(self, e):
-    return join [
-      'DOI: ',
-      href [
-        join [
-          'https://doi.org/',
-          field('doi')
-        ],
+    return href [
+      join [
+        'https://doi.org/',
+        field('doi')
+      ],
+      join [
+        'doi:',
         field('doi')
       ]
     ]

@@ -23,7 +23,7 @@
 *
 * NOT TESTED (used for OFEmbed below)
 #if 0
-      Character(16) NamRfil
+      Character(Len=16) NamRfil
 #endif
       Logical Found
 

@@ -13,14 +13,6 @@
       SubRoutine CmbnMV(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp,
      &                  rV2Int,rV4Int)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: MVeInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN, February '91                 *
 ************************************************************************

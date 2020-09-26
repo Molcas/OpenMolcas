@@ -16,13 +16,6 @@
 *                                                                      *
 * Object: to compoute the 1-electron Darwin contact term.              *
 *                                                                      *
-* Called from: D1Int                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. Of Theoretical Chemistry,            *
 *             University of Lund, Sweden, February '91                 *
 ************************************************************************

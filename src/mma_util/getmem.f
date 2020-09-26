@@ -199,7 +199,7 @@
 *include "SysDef.fh"
 #include "WrkSpc.fh"
       integer :: ipos, length
-      character(*) :: vartyp
+      character(len=*) :: vartyp
       real*8, parameter ::    dgarbage(1) = [0.730432726d308]
       integer, parameter ::   igarbage(1) = [730432726]
       real*4, parameter ::    sgarbage(1) = [0.730432726e38]

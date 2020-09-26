@@ -16,11 +16,6 @@
 * Object: to find the largest element in the contraction matrix  for   *
 *         each primitive index.                                        *
 *                                                                      *
-* Called from: Drvk2                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             July '91                                                 *

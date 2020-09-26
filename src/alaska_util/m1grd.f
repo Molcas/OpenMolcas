@@ -21,15 +21,6 @@
 *         ECP calculations. The operator is the nuclear attraction     *
 *         operator times a s-type gaussian function.                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DCR                                                     *
-*              Rysg1                                                   *
-*              QExit                                                   *
-*                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
 *      Beta  : as Alpha but for ket gaussians                          *

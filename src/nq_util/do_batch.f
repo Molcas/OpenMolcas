@@ -26,19 +26,6 @@
      &                    list_g,IndGrd,iTab,Temp,F_xc,dW_dR,iNQ,Maps2p,
      &                    dF_dRho,dF_dP2ontop,DFTFOCK,LOE_DB,LTEG_DB)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: SubBlock                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              AOEval                                                  *
-*              Do_Rho_*                                                *
-*              Kernel                                                  *
-*              DFT_Int                                                 *
-*              Do_DFT_Grad                                             *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************

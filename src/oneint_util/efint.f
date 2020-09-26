@@ -19,19 +19,6 @@
 * Object: kernel routine for the computation of electric field         *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy  (ESSL)                                           *
-*              SOS                                                     *
-*              DCR                                                     *
-*              XRys                                                    *
-*              Util1                                                   *
-*              DaXpY  (ESSL)                                           *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, January '91                             *
 *                                                                      *

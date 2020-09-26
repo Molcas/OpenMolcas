@@ -17,11 +17,6 @@
 *                                                                      *
 * Object: to compute pseudo potential gradient integrals               *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 ************************************************************************
       Use Basis_Info
       use Center_Info

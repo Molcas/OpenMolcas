@@ -54,19 +54,19 @@ if (${CMAKE_VERSION} VERSION_LESS 3.1)
     set(CMAKE_Fortran_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
   endif ()
   if (NOT DEFINED CMAKE_Fortran_ARCHIVE_APPEND)
-    set(CMAKE_Fortran_ARCHIVE_APPEND "<CMAKE_AR> q  <TARGET> <LINK_FLAGS> <OBJECTS>")
+    set(CMAKE_Fortran_ARCHIVE_APPEND "<CMAKE_AR> q <TARGET> <LINK_FLAGS> <OBJECTS>")
   endif ()
   if (NOT DEFINED CMAKE_C_ARCHIVE_CREATE)
     set(CMAKE_C_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
   endif ()
   if (NOT DEFINED CMAKE_C_ARCHIVE_APPEND)
-    set(CMAKE_C_ARCHIVE_APPEND "<CMAKE_AR> q  <TARGET> <LINK_FLAGS> <OBJECTS>")
+    set(CMAKE_C_ARCHIVE_APPEND "<CMAKE_AR> q <TARGET> <LINK_FLAGS> <OBJECTS>")
   endif ()
   if (NOT DEFINED CMAKE_CXX_ARCHIVE_CREATE)
     set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
   endif ()
   if (NOT DEFINED CMAKE_CXX_ARCHIVE_APPEND)
-    set(CMAKE_CXX_ARCHIVE_APPEND "<CMAKE_AR> q  <TARGET> <LINK_FLAGS> <OBJECTS>")
+    set(CMAKE_CXX_ARCHIVE_APPEND "<CMAKE_AR> q <TARGET> <LINK_FLAGS> <OBJECTS>")
   endif ()
 endif ()
 
@@ -137,7 +137,7 @@ if (DEFINED LINALG)
       message (FATAL_ERROR "Unsuported LINALG: ${LINALG}")
   endif ()
 else ()
-  set (LINALG "Internal"  CACHE STRING "${LINALG_OPTIONS}")
+  set (LINALG "Internal" CACHE STRING "${LINALG_OPTIONS}")
 endif ()
 set_property (CACHE LINALG PROPERTY STRINGS Internal Runtime MKL OpenBLAS ACML Accelerate)
 
@@ -163,9 +163,9 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 endif()
 
 # External projects
-option (MSYM       "Activate MSYM support (requires External/libmsym submodule)."                               OFF)
-option (DMRG       "Activate QCMaquis DMRG driver and library."                                                 OFF)
-option (DMRG_DEBUG "Enable DEBUG print in QCMaquis driver."                                                     OFF)
+option (MSYM       "Activate MSYM support (requires External/libmsym submodule)." OFF)
+option (DMRG       "Activate QCMaquis DMRG driver and library."                   OFF)
+option (DMRG_DEBUG "Enable DEBUG print in QCMaquis driver."                       OFF)
 
 if (DMRG)
   mark_as_advanced (CLEAR DMRG_DEBUG)
@@ -2559,24 +2559,18 @@ endif ()
 #                                                                              #
 # Disable some warnings that are buggy or on code we don't want to modify      #
 #                                                                              #
-#################################################################################
+################################################################################
 # netlib blas/lapack produces warnings
-# some external codes too
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
   set (netlib_nowarn_flags " -w")
-  set (ext_nowarn_flags " -w")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
   set (netlib_nowarn_flags " -w")
-  set (ext_nowarn_flags " -w")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "SunPro")
   set (netlib_nowarn_flags " -erroff=%all")
-  set (ext_nowarn_flags " -erroff=%all")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
   set (netlib_nowarn_flags " -Kieee -w")
-  set (ext_nowarn_flags " -w")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG")
   set (netlib_nowarn_flags " -w")
-  set (ext_nowarn_flags " -w")
 endif ()
 find_source(LinAlg_internal)
 if (netlib_nowarn_flags)
@@ -2853,7 +2847,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
           add_custom_command(TARGET dylibpath_${prog}
             POST_BUILD
             DEPENDS dylibpath_${prog}
-            COMMAND ${OPENMOLCAS_DIR}/sbin/fixdylib  ${EXECUTABLE_OUTPUT_PATH}/${prog} libmkl ${MKLROOT}
+            COMMAND ${OPENMOLCAS_DIR}/sbin/fixdylib ${EXECUTABLE_OUTPUT_PATH}/${prog} libmkl ${MKLROOT}
             COMMENT "Enforce absolute path to MKL in dynamically linked executables"
             VERBATIM
           )
@@ -2950,7 +2944,7 @@ configure_file (${OPENMOLCAS_DIR}/data/rysrw.ascii  data/rysrw        COPYONLY)
 configure_file (${OPENMOLCAS_DIR}/data/abdata.ascii data/abdata       COPYONLY)
 configure_file (${OPENMOLCAS_DIR}/data/banner.src   data/banner.txt   COPYONLY)
 configure_file (${OPENMOLCAS_DIR}/data/modalias.src data/modalias.txt COPYONLY)
-configure_file (${OPENMOLCAS_DIR}/data/landing.src data/landing.txt   COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/landing.src  data/landing.txt  COPYONLY)
 file (COPY ${OPENMOLCAS_DIR}/data/inputs.tpl DESTINATION ${PROJECT_BINARY_DIR}/data)
 if (DEFINED EXTRA_DIR)
   foreach (f alias.plx auto.prgm landing.txt)

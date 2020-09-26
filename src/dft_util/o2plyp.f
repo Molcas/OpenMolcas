@@ -19,10 +19,6 @@
 *           preserves non-UEG feature of the OPTX combinations         *
 *           requires scaling of &mbpt2 correlation energy!             *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*                                                                      *
 *      Author: Grigory A Shamov, U of Manitoba, 2009                   *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)

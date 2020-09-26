@@ -19,12 +19,6 @@
 *                                                                      *
 * Object:  Lyp Functional(Formula taken from Molpro Manual)            *
 *                                                                      *
-* Called from:Do_batch                                                 *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author: Per-AAke Malmquist,Department of Theoretical Chemistry  *
 *              University of LUnd, SWEDEN                              *
 ************************************************************************

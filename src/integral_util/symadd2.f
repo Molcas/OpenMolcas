@@ -20,12 +20,6 @@
 * Object: to transform the one-electon matrix elements from AO basis   *
 *         to SO basis.                                                 *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DaXpY   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *

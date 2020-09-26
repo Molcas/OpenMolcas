@@ -14,13 +14,8 @@
       SubRoutine DoZeta(Alpha,nAlpha,Beta,nBeta,A,B,P,Zeta,rKappa,
      &                  ZInv,Alpha_,Beta_,Ind_Pair)
 ************************************************************************
+*                                                                      *
 * Object : to compute P and kappa.                                     *
-*                                                                      *
-* Called from: k2Loop                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *

@@ -14,15 +14,6 @@
      &                  Alpha,Beta,Grad,nGrad,DAO,IfGrad,IndGrd,iStab,
      &                  jStab,kOp)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: KnEGrd                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *

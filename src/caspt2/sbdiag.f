@@ -517,7 +517,7 @@ C-SVC20100902: global arrays header files
       DIMENSION WGRONK(2)
 #endif
       LOGICAL bSTAT
-      CHARACTER(2) cSYM,cCASE
+      CHARACTER(LEN=2) cSYM,cCASE
       LOGICAL KING
 
 C On entry, the DRA metafiles contain the matrices S and B for cases A

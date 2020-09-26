@@ -28,17 +28,6 @@
 *         This is done for all unique pairs of centers                 *
 *         generated from the symmetry unique centers A and B.          *
 *                                                                      *
-* Called from: Drvk2                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              DoZeta                                                  *
-*              SchInt                                                  *
-*              PckInt                                                  *
-*              GetMem                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *

@@ -17,13 +17,6 @@
 * Object: trace the gradient of the ERI's with the second order        *
 *         density matrix                                               *
 *                                                                      *
-* Called from: Rysg1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DGeMV   (ESSL)                                          *
-*              DCopy   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *

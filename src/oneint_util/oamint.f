@@ -20,16 +20,6 @@
 * Object: kernel routine for the computation of orbital angular        *
 *         momentum integrals.                                          *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              MltPrm                                                  *
-*              Util2                                                   *
-*              DCopy   (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, February '91                            *
 *             Placed restrictions on the differentiation. Lasse '16    *

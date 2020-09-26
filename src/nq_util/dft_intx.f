@@ -27,12 +27,6 @@
 *                                                                      *
 *         F(r)=rho(r)*e(rho(r),grad[rho(r)])                           *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 *             D.Ajitha:Modifying for the new Kernel outputs            *
@@ -53,9 +47,6 @@
      &       dF_dRho(ndF_dRho,mGrid), TabAOMax(nlist_s)
       Integer nOp(2), list_s(2,nlist_s), ipTabAO(nlist_s),
      &        list_bas(2,nlist_s)
-*                                                                      *
-************************************************************************
-*                                                                      *
 *                                                                      *
 ************************************************************************
 *                                                                      *

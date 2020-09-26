@@ -17,11 +17,6 @@
 * Object: to assemble the orbital magnetic quadrupole integrals from   *
 *         the derivative integrals and dipole integrals.               *
 *                                                                      *
-* Called from: OMQInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Lasse Kragh Soerensen                      *
 *             Dept. of Theoretical Chemistry,                          *
 *             University of Uppsala, SWEDEN                            *

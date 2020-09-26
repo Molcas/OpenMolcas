@@ -15,11 +15,6 @@
 *                                                                      *
 * Object: expand an array.                                             *
 *                                                                      *
-* Called from: Rys2Dg                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *

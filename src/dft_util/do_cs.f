@@ -20,13 +20,6 @@
 *         for MC wave function (basis formuls was written by PAM,      *
 *         other by maple & GS (=/= CS!!!))                             *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              dDot                                                    *
-*              QExit                                                   *
-*                                                                      *
 *     Authors: Sergey Gusarov, University of Lund, SWEDEN,             *
 *              Roland Lindh,   University of Lund, SWEDEN,             *
 *              P.-A.Malmqvist, University of Lund, SWEDEN,             *

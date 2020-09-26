@@ -22,12 +22,6 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
@@ -36,7 +30,6 @@
 *             R. Lindh                                                 *
 *                                                                      *
 *             Modified for RI-HF/CAS, Dec 2009 (F. Aquilante)          *
-*                                                                      *
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)

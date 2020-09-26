@@ -22,12 +22,6 @@
 *             Reference:  Swart, Marcel                                *
 *             Chemical Physics Letters 580 (2013) 166-171              *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author: G. Li Manni and A. Cohen, Department of Electronic      *
 *              Structure Theory, Max Planck Institute, Stuttgart       *
 *              2017                                                    *

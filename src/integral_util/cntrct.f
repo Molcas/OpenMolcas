@@ -22,13 +22,6 @@
 *         basis functions. The subroutine will do both complete and    *
 *         incomplete transformations.                                  *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CntHlf                                                  *
-*              QExit                                                   *
-*                                                                      *
 * Author:     Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 ************************************************************************

@@ -13,14 +13,6 @@
       SubRoutine TraPAB(nZeta,la,lb,AB,GInt,jSum,rKappa,Fac1,Fac2,
      &                  Fac3,Fac4,Fac5,A,B,P)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************

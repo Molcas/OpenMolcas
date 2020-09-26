@@ -13,13 +13,7 @@
       SubRoutine Output1_Seward(lOPTO)
 ************************************************************************
 *                                                                      *
-*     Object: to write the output of seward            .               *
-*                                                                      *
-*                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
+*     Object: to write the output of seward                            *
 *                                                                      *
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
 *             September '06                                            *

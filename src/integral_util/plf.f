@@ -14,17 +14,12 @@
       SubRoutine PLF(AOInt,ijkl,iCmp,jCmp,kCmp,lCmp,iShell,
      &               iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp)
 ************************************************************************
+*                                                                      *
 *  Object: to sift and index the Petite List Format integrals.         *
 *                                                                      *
 *          The indices has been scrambled before calling this routine. *
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
-*                                                                      *
-* Called from: Twoel                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             May '90                                                  *

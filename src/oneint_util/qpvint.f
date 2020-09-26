@@ -19,16 +19,6 @@
 * Object: kernel routine for the computation of velocity quadrupole    *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              MltPrm                                                  *
-*              Util5                                                   *
-*              DCopy   (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, February '91                            *
 ************************************************************************

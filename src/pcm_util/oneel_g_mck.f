@@ -23,25 +23,6 @@
 *         b) refer to the components of the cartesian or spherical     *
 *         harmonic gaussians.                                          *
 *                                                                      *
-* Called from: Drvh1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              Kernel                                                  *
-*              RecPrt                                                  *
-*              DCopy    (ESSL)                                         *
-*              DGEMM_   (ESSL)                                         *
-*              CarSph                                                  *
-*              DGeTMO   (ESSL)                                         *
-*              DaXpY    (ESSL)                                         *
-*              SOGthr                                                  *
-*              DesymD                                                  *
-*              DScal    (ESSL)                                         *
-*              TriPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
 *             Modified for Hermite-Gauss quadrature November '90       *

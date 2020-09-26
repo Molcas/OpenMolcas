@@ -22,19 +22,6 @@
 *         internal coordinates and the symmetry unique cartesian       *
 *         coordinates.                                                 *
 *                                                                      *
-*                                                                      *
-* Called from: BMtrx                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Banner                                                  *
-*              UpCase                                                  *
-*              NxtWrd                                                  *
-*              Cllct                                                   *
-*              RecPrt                                                  *
-*              DCopy  (ESSL)                                           *
-*              DaXpY  (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             May '91                                                  *
