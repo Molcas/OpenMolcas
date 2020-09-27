@@ -12,15 +12,15 @@
      &                      Schlegel,iOptC,iTabBonds,nBonds,
      &                      nBondMax,iTabAtoms,ThrB)
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
       Real*8 Coor(3,nAtoms)
       Integer iTab(0:nMax,nx,ny,nz), iBox(3,nAtoms), iANr(nAtoms),
      &        iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
       Logical Schlegel
+#include "bondtypes.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+!#define _DEBUG_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -92,6 +92,15 @@
 
       End Do
       Write (6,*)
+      Write (6,*)
+      Write (6,*) 'Bonds:'
+      Do iBond = 1, nBonds
+         Write (6,*)
+         Write (6,*) 'iBond=',iBond
+         Write (6,*)
+         Write (6,*) 'Atoms=',iTabBonds(1,iBond),iTabBonds(2,iBond)
+         Write (6,*) 'Bondtype:',BondType(Min(3,iTabBonds(3,iBond)))
+      End Do
 #endif
 *                                                                      *
 ************************************************************************
@@ -145,13 +154,15 @@
      &               iTabBonds(3,iTabAtoms(2,i,iAtom)),i=1,nn)
       End Do
       Write (6,*)
-      Write (6,*) 'iTabBonds:'
+      Write (6,*)
+      Write (6,*)
+      Write (6,*) 'Bonds:'
       Do iBond = 1, nBonds
          Write (6,*)
          Write (6,*) 'iBond=',iBond
          Write (6,*)
          Write (6,*) 'Atoms=',iTabBonds(1,iBond),iTabBonds(2,iBond)
-         Write (6,*) 'Bondtype:',iTabBonds(3,iBond)
+         Write (6,*) 'Bondtype:',BondType(Min(3,iTabBonds(3,iBond)))
       End Do
 #endif
 *                                                                      *
@@ -181,13 +192,14 @@
      &               iTabBonds(3,iTabAtoms(2,i,iAtom)),i=1,nn)
       End Do
       Write (6,*)
-      Write (6,*) 'iTabBonds:'
+      Write (6,*)
+      Write (6,*) 'Bonds:'
       Do iBond = 1, nBonds
          Write (6,*)
          Write (6,*) 'iBond=',iBond
          Write (6,*)
          Write (6,*) 'Atoms=',iTabBonds(1,iBond),iTabBonds(2,iBond)
-         Write (6,*) 'Bondtype:',iTabBonds(3,iBond)
+         Write (6,*) 'Bondtype:',BondType(Min(3,iTabBonds(3,iBond)))
       End Do
 #endif
 *
@@ -221,13 +233,14 @@
      &               iTabBonds(3,iTabAtoms(2,i,iAtom)),i=1,nn)
       End Do
       Write (6,*)
-      Write (6,*) 'iTabBonds:'
+      Write (6,*)
+      Write (6,*) 'Bonds:'
       Do iBond = 1, nBonds
          Write (6,*)
          Write (6,*) 'iBond=',iBond
          Write (6,*)
          Write (6,*) 'Atoms=',iTabBonds(1,iBond),iTabBonds(2,iBond)
-         Write (6,*) 'Bondtype:',iTabBonds(3,iBond)
+         Write (6,*) 'Bondtype:',BondType(Min(3,iTabBonds(3,iBond)))
       End Do
 #endif
 *
