@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine ProjSym(nAtoms,nCent,Ind,nStab,jStab,A,
-     &                   iDCRs,B,Smmtrc,nDim,Print,dB,
+     &                   iDCRs,B,Smmtrc,nDim,dB,
      &                   mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,
      &                   nB_Tot,ndB_Tot,Proc_dB,nqB,nB,iq,
      &                   rMult)
@@ -18,18 +18,17 @@
 #include "warnings.fh"
 *
 #include "real.fh"
-#include "print.fh"
       Real*8 Tx(3,MxAtom), A(3,nCent), B(3,nCent), ATemp(3),
      &       dB(3,nCent,3,nCent), BM(nB_Tot), dBM(ndB_Tot)
       Integer   Ind(nCent), nStab(nAtoms), jStab(0:7,nAtoms),
      &          iDCRs(nCent), iBM(nB_Tot), idBM(2,ndB_Tot), nqB(nB)
-      Logical Smmtrc(3,nAtoms), Print, Proc_dB
+      Logical Smmtrc(3,nAtoms), Proc_dB
 *
-      If (Print) Then
+#ifdef _DEBUG_
          Call RecPrt('B',' ',B,3,nCent)
          Call RecPrt('dB',' ',dB,3*nCent,3*nCent)
          Write (6,*) iDCRs
-      End If
+#endif
 *
 *---- Set up the T-matrix
 *
@@ -116,24 +115,23 @@ c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nDim)
       End
       Subroutine ProjSym2(nAtoms,nCent,Ind,nStab,jStab,A,
-     &                   iDCRs,B,BqR,Smmtrc,Print,dB,dBqR)
+     &                   iDCRs,B,BqR,Smmtrc,dB,dBqR)
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"
 *
 #include "real.fh"
-#include "print.fh"
       Real*8 Tx(3,MxAtom), A(3,nCent), B(3,nCent), BqR(3,nAtoms),
      &       dB(3,nCent,3,nCent), dBqR(3,nAtoms,3,nAtoms), ATemp(3)
       Integer   Ind(nCent), nStab(nAtoms), jStab(0:7,nAtoms),
      &          iDCRs(nCent)
-      Logical Smmtrc(3,nAtoms), Print
+      Logical Smmtrc(3,nAtoms)
 *
-      If (Print) Then
-         Call RecPrt('B',' ',B,3,nCent)
-         Call RecPrt('dB',' ',dB,3*nCent,3*nCent)
-         Write (6,*) iDCRs
-      End If
+#ifdef _DEBUG_
+      Call RecPrt('B',' ',B,3,nCent)
+      Call RecPrt('dB',' ',dB,3*nCent,3*nCent)
+      Write (6,*) iDCRs
+#endif
 *
 *---- Set up the T-matrix
 *
@@ -160,7 +158,9 @@ c Avoid unused argument warnings
      &                       + Tx(ixyz,i)*B(ixyz,i)
          End Do
       End Do
-      If (Print) Call RecPrt('BqR',' ',BqR,1,3*nAtoms)
+#ifdef _DEBUG_
+      Call RecPrt('BqR',' ',BqR,1,3*nAtoms)
+#endif
 *
 *---- Create dBqR
 *
@@ -180,7 +180,9 @@ c Avoid unused argument warnings
 
          End Do
       End Do
-      If (Print) Call RecPrt('dBqR',' ',dBqR,3*nAtoms,3*nAtoms)
+#ifdef _DEBUG_
+      Call RecPrt('dBqR',' ',dBqR,3*nAtoms,3*nAtoms)
+#endif
 *
       Return
 c Avoid unused argument warnings

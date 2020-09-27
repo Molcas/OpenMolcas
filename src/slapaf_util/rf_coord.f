@@ -171,7 +171,7 @@ C           fconst(nq)=Sqrt(Fact*Trans_Const)
 *--------   Project the gradient vector
 *
             Call ProjSym(nAtoms,nCent,Ind,nStab,jStab,currXYZ,
-     &                   iDCR,Grad,Smmtrc,nDim,PSPrint,
+     &                   iDCR,Grad,Smmtrc,nDim,
      &                   Hess,mB_Tot,mdB_Tot,
      &                   BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                   Proc_dB,nqB,nB,nq,rMult(nq))
@@ -259,7 +259,7 @@ C        Call RecPrt('Grad (Rot)',' ',Grad,3,nCent)
 *--------   Project the gradient vector
 *
             Call ProjSym(nAtoms,nCent,Ind,nStab,jStab,currXYZ,
-     &                   iDCR,Grad,Smmtrc,nDim,PSPrint,
+     &                   iDCR,Grad,Smmtrc,nDim,
      &                   Hess,mB_Tot,mdB_Tot,
      &                   BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                   Proc_dB,nqB,nB,nq,rMult(nq))

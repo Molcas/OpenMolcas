@@ -239,7 +239,7 @@
       Deg=Sqrt(Deg)
 *
       Call ProjSym2(nAtom,nCent,Ind,nStab,jStab,xyz,
-     &             iDCR,Grad,Vector,Smmtrc,PSPrint,Hess,dVector)
+     &             iDCR,Grad,Vector,Smmtrc,Hess,dVector)
       If (iPrint.ge.99) Then
          Call RecPrt(' symmetry adapted vector',
      &                              ' ',Vector,3,nAtom)

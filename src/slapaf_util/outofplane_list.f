@@ -598,7 +598,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
 *
                      Call ProjSym(nAtoms,nCent,Ind,nStab,
      &                            jStab,A,iDCR,Grad,
-     &                            Smmtrc,nDim,PSPrint,Hess,
+     &                            Smmtrc,nDim,Hess,
      &                            mB_Tot,mdB_Tot,
      &                            BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                            Proc_dB,nqB,nB,nq,rMult(nq))

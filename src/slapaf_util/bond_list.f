@@ -248,7 +248,7 @@
 *-----------   Project the gradient vector
 *
                Call ProjSym(nAtoms,nCent,Ind,nStab,jStab,A,
-     &                      iDCR,Grad,Smmtrc,nDim,PSPrint,
+     &                      iDCR,Grad,Smmtrc,nDim,
      &                      Hess,mB_Tot,mdB_Tot,
      &                      BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                      Proc_dB,mqB,nB,nq,rMult(nq))
