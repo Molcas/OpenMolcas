@@ -162,10 +162,8 @@
 *
 *     These bonds are of type 2.
 *
-      Call GetMem('nSet','Allo','Inte',ip_nSet,nAtoms)
-      Call Connect_Fragments(iWork(ip_nSet),nAtoms,iTabBonds,nBondMax,
+      Call Connect_Fragments(nAtoms,iTabBonds,nBondMax,
      &                        nBonds,Coor,iTabAtoms,nMax,iANr)
-      Call Free_iWork(ip_nSet)
 #ifdef _DEBUG_
       Write (6,*)
       Write (6,*) 'After Connecting Fragments'

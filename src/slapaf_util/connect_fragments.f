@@ -8,16 +8,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Connect_Fragments(nSet,nAtoms,iTabBonds,nBondMax,
+      Subroutine Connect_Fragments(nAtoms,iTabBonds,nBondMax,
      &                             nBonds,Coor,iTabAtoms,nMax,iANr)
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "info_slapaf.fh"
       Real*8 Coor(3,nAtoms)
-      Integer nSet(nAtoms), iTabAtoms(2,0:nMax,nAtoms), iANr(nAtoms),
+      Integer iTabAtoms(2,0:nMax,nAtoms), iANr(nAtoms),
      &        iTabBonds(3,nBondMax)
       Integer, Allocatable, Dimension(:) :: iStack
+      Integer, Allocatable:: nSet(:)
 #include "bondtypes.fh"
 *                                                                      *
 ************************************************************************
@@ -26,6 +27,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call mma_allocate(nSet,nAtoms,Label='nSet')
       dR_Thr=rFuzz
       HH_Thr=5.0D0
 *
@@ -33,7 +35,7 @@
 *
  1    Continue
       Not_Defined=-1
-      Call ICopy(nAtoms,[Not_Defined],0,nSet,1)
+      nSet(:)=Not_Defined
 *
       iX = 0
       nStack=1
@@ -139,6 +141,7 @@
 *
       If (iSet.eq.1) Then
          Call mma_deallocate(iStack)
+         Call mma_deallocate(nSet)
          Return
       End If
 *                                                                      *
