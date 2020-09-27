@@ -12,33 +12,29 @@
      &                       iRow,iANr,Schlegel,iOptC,iTabBonds,nBonds,
      &                       nBondMax,iTabAtoms,nMax,ThrB,ThrB_vdW)
       Implicit Real*8 (a-h,o-z)
+#include "real.fh"
 #define _VDW_
 #include "ddvdt.fh"
       Real*8 Coor(3,nAtoms)
       Integer iTab(0:nMax,nx,ny,nz), iANr(nAtoms),
      &        iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
       Logical Help, Schlegel
+      Real*8 A(3), B(3)
 #include "bondtypes.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
-*define _TIME_
-#ifdef _TIME_
-#endif
+!#define _DEBUG_
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Check box indices for consistency
 *
-      If (ix.lt.1.or.ix.gt.nx) Go To 199
-      If (iy.lt.1.or.iy.gt.ny) Go To 199
-      If (iz.lt.1.or.iz.gt.nz) Go To 199
+      If (ix.lt.1.or.ix.gt.nx) Return
+      If (iy.lt.1.or.iy.gt.ny) Return
+      If (iz.lt.1.or.iz.gt.nz) Return
       Nr=iTab(0, ix,iy,iz) ! nr of atoms in the box.
-      If (Nr.eq.0) Go To 199
-#ifdef _DEBUG_
-      Write (6,*) 'Bond_Tester: iAtom,ix,iy,iz=',iAtom,ix,iy,iz
-#endif
+      If (Nr.eq.0) Return
 *
       iRow=iTabRow(iANr(iAtom))
       nVal_i=0
@@ -47,14 +43,21 @@
          If (iTabBonds(3,iTabAtoms(2,i,iAtom)).eq.Covalent_Bond)
      &       nVal_i=nVal_i+1
       End Do
+#ifdef _DEBUG_
+      Write (6,*)
+      Write (6,*) 'Bond_Tester: iAtom,=',iAtom
+      Write (6,*) '                Box(ix,iy,iz)=(',ix,iy,iz,')'
+      Write (6,*) '                        nVal_i=',nVal_i
+      Write (6,*)
+#endif
 *
 *     Loop over all atoms in the box
 *
       If (ThrB.lt.ThrB_vdw) ivdW=vdW_Bond
-      Do Ir = 1, Nr
+      Box: Do Ir = 1, Nr
          jAtom=iTab(Ir,ix,iy,iz)
-C        If (iAtom.le.jAtom) Go To 99
-         If (iAtom.ge.jAtom) Go To 99
+C        If (iAtom.le.jAtom) Cycle
+         If (iAtom.ge.jAtom) Cycle
          jRow =iTabRow(iANr(jAtom))
          Help = iRow.gt.3.or.jRow.gt.3
 #ifdef _DEBUG_
@@ -65,6 +68,8 @@ C        If (iAtom.le.jAtom) Go To 99
          x = Coor(1,iAtom)-Coor(1,jAtom)
          y = Coor(2,iAtom)-Coor(2,jAtom)
          z = Coor(3,iAtom)-Coor(3,jAtom)
+         A(:)=Coor(:,iAtom)-Coor(:,jAtom)
+         ANorm = dot_product(A,A)
          rij2 = x**2 + y**2 + z**2
          r0 = rAv(iRow,jRow)
          alpha=aAv(iRow,jRow)
@@ -87,7 +92,7 @@ C        If (iAtom.le.jAtom) Go To 99
 *
 *              Skip if we are looking for vdW bonds
 *
-               If (ThrB.gt.ThrB_vdW) Go To 99
+               If (ThrB.gt.ThrB_vdW) Cycle Box
             Else If (Rab.gt.1.25d0*RabCov .and.
      &               Rab.le.2.00D0*RabCov) Then
 *
@@ -99,21 +104,26 @@ C        If (iAtom.le.jAtom) Go To 99
 *
 *              No Bond!
 *
-               Go To 99
+               Cycle Box
             End If
+
          Else
+
             test=Exp(alpha*(r0**2-rij2))
             If (iAnd(iOptC,2048).eq.2048) Then
                r0_vdW=r_ref_vdW(iRow,jRow)
                test_vdW=Exp(-alpha_vdW*(r0_vdW-SQRT(rij2))**2)
             Else
+               r0_vdW=0.0D0
                test_vdW=0.0D0
             End If
 #ifdef _DEBUG_
             Write (6,*)
             Write (6,*) 'Bond_Tester: iAtom,jAtom=',iAtom,jAtom
+            Write (6,*) 'Bond_Tester: iRow, jRow =',iRow,jRow
             Write (6,*) 'Bond_Tester: test=',test,ThrB
             Write (6,*) 'Bond_Tester: test_vdW=',test_vdW,ThrB_vdW
+            Write (6,*) 'Bond_Tester: r0_vdW=',r0_vdW, SQRT(rij2)
 #endif
 *
 *           If the valence force constant small but not too small
@@ -123,11 +133,11 @@ C        If (iAtom.le.jAtom) Go To 99
 *           If already valence bond skip if also vdW bond. We picked
 *           up this bond before!
 *
-            If (test.ge.ThrB .and. Test_vdW.ge.ThrB_vdW) Go To 99
+            If (test.ge.ThrB .and. Test_vdW.ge.ThrB_vdW) Cycle Box
 *
 *           If none skip
 *
-            If (test.lt.ThrB .and. test_vdW.lt.ThrB_vdW) Go To 99
+            If (test.lt.ThrB .and. test_vdW.lt.ThrB_vdW) Cycle Box
 *
 *           Some logic to see if vdw bond should be included.
 *           Hydrogen-hydrogen is always included.
@@ -142,9 +152,42 @@ C        If (iAtom.le.jAtom) Go To 99
                   If ( iTabBonds(3,iTabAtoms(2,i,jAtom)) .eq.
      &                 Covalent_Bond) nVal_j=nVal_j+1
                End Do
+#ifdef _DEBUG_
+               Write (6,*) 'nVal_j=',nVal_j
+#endif
                If ((nVal_i.ge.6.and.nVal_j.ge.1) .or.
-     &             (nVal_j.ge.6.and.nVal_i.ge.1)     ) Go To 99
+     &             (nVal_j.ge.6.and.nVal_i.ge.1)     ) Cycle Box
             End If
+#define _OLD_CODE
+#ifndef _OLD_CODE_
+*
+*           We need to exclude vdW bonds if there is an atom close to
+*           being in between the two atoms being considered.
+*
+            If (test.lt.ThrB) Then ! only in case of vdW bond
+*
+*              Loop over all covalently bonded neighbors of atom iAtom
+*
+#ifdef _DEBUG_
+               Write (6,*) 'Test validity of vdW bond'
+#endif
+               Do i = 1, iTabAtoms(1,0,iAtom)
+                  kAtom=iTabAtoms(1,i,iAtom)
+                  B(:)=Coor(:,iAtom)-Coor(:,kAtom)
+                  BNorm = dot_product(B,B)
+*                 If bond as about as long as iAtom-jAtom ok.
+                  If (1.3D0*BNorm.gt.ANorm) Cycle
+                  B(:) = B(:)
+                  CosPhi=dot_product(A,B)/Sqrt(ANorm*BNorm)
+                  Phi=ACOS(CosPhi)
+#ifdef _DEBUG_
+                  Write (6,*) 'kAtom,Phi=',kAtom,Phi
+#endif
+                  If (Abs(Phi).lt.Pi/Four) Cycle Box
+               End Do
+            End If
+#endif
+*
          End If
 *
          If (nBonds+1.gt.nBondMax) Then
@@ -168,6 +211,13 @@ C        If (iAtom.le.jAtom) Go To 99
             ivdW=99
          End If
          iTabBonds(3,nBonds)=ivdW
+#ifdef _DEBUG_
+         Write (6,*)
+         Write (6,*) 'Add bond to the list.'
+         Write (6,*) 'Atom pair:',iAtom,jAtom
+         Write (6,*) 'Bond type:', Bondtype(Min(3,ivdW))
+         Write (6,*)
+#endif
 *
          nNeighbor=iTabAtoms(1,0,iAtom)
          If (nNeighbor+1.gt.nMax) Then
@@ -178,6 +228,7 @@ C        If (iAtom.le.jAtom) Go To 99
             Call Abend()
          End If
 
+*        Update the neighbor lists of atoms iAtom and jAtom
          nNeighbor=nNeighbor+1
          iTabAtoms(1,0,iAtom) = nNeighbor
          iTabAtoms(1,nNeighbor,iAtom)=jAtom
@@ -196,11 +247,7 @@ C        If (iAtom.le.jAtom) Go To 99
          iTabAtoms(1,nNeighbor,jAtom)=iAtom
          iTabAtoms(2,nNeighbor,jAtom)=nBonds
 *
- 99      Continue
-      End Do
+      End Do Box
 *
- 199  Continue
-#ifdef _TIME_
-#endif
       Return
       End
