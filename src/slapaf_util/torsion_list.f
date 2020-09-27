@@ -20,7 +20,6 @@
       use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "print.fh"
       Parameter (mB = 4*3)
       Real*8 Cx(3,nAtoms,nIter), A(3,4), Grad(mB), Hess(mB**2),
      &       fconst(nB), Value(nB,nIter),
@@ -33,7 +32,7 @@
      &          Indq(3,nB), iDCRX(0:7), iDCRY(0:7), nqB(nB),
      &          iTabBonds(3,nBonds), iTabAI(2,mAtoms),
      &          iTabAtoms(2,0:nMax,mAtoms), iBM(nB_Tot),idBM(2,ndB_Tot)
-      Logical Smmtrc(3,nAtoms), Process, PSPrint,
+      Logical Smmtrc(3,nAtoms), Process,
      &        MinBas, Help, Proc_dB, R_Stab_A, Torsion_Check
       Character*14 Label, qLbl(nB)
       Character*3 ChOp(0:7)
@@ -51,20 +50,14 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+!#define _DEBUG_
 *                                                                      *
 ************************************************************************
 *                                                                      *
       If (nBonds.lt.3) Return
-      iRout=152
-      iPrint=nPrint(iRout)
+
       nqT=0
-      PSPrint=.False.
       Call FZero(Hess,144)
-#ifdef _DEBUG_
-      iPrint=99
-      If (iPrint.ge.99) PSPrint=.True.
-#endif
 *
 *---- Loop over dihedrals
 *
@@ -85,13 +78,35 @@
 *     DCBA. To guarantee this we limit the pairs to the unique
 *     combinations.
 *
+*     Start with the center bond: B-C
+*
+#ifdef _DEBUG_
+      Write (6,*)
+      Write (6,*) "List of all available bonds"
+      Write (6,*)
+      Do iBond = 1, nBonds
+         iBondType=iTabBonds(3,iBond)
+         Write (6,*)
+         jAtom_ = iTabBonds(1,iBond)
+         kAtom_ = iTabBonds(2,iBond)
+         jAtom = iTabAI(1,jAtom_)
+         kAtom = iTabAI(1,kAtom_)
+         Write (6,*) 'Atoms-pair:  ',Name(jAtom),Name(kAtom)
+         Write (6,*) 'iBond,iBondType=',iBond,Bondtype(Min(3,iBondType))
+      End Do
+#endif
       Do iBond = 1, nBonds
 *
 *        The center bond may be a "magic" bond
          iBondType=iTabBonds(3,iBond)
 #ifdef _DEBUG_
          Write (6,*)
-         Write (6,*) 'iBond,iBondType=',iBond,iBondType
+         jAtom_ = iTabBonds(1,iBond)
+         kAtom_ = iTabBonds(2,iBond)
+         jAtom = iTabAI(1,jAtom_)
+         kAtom = iTabAI(1,kAtom_)
+         Write (6,*) 'Atoms-pair:',Name(jAtom),Name(kAtom)
+         Write (6,*) 'iBond,iBondType=',iBond,Bondtype(Min(3,iBondType))
 #endif
 *
 *        Center bond should not be a van der Waals bond,
@@ -107,6 +122,8 @@
          Else
             iMagic=0
          End If
+*
+*        cases: BC or CB
 *
          Do iCase = 1, 2
 *
@@ -134,6 +151,7 @@
             Write (6,*)
             Write (6,*) 'R,T=',Name(jAtom),ChOp(iDCR(2)),
      &                         Name(kAtom),ChOp(iDCR(3))
+            Write (6,*)
 #endif
 *
             nNeighbor_j = iTabAtoms(1,0,jAtom_)
@@ -152,6 +170,7 @@
 #ifdef _DEBUG_
             Write (6,*) 'nNeighbor_j,nNeighbor_k=',
      &                   nNeighbor_j,nNeighbor_k
+            Write (6,*)
 #endif
 *
          Do iNeighbor = 1, nNeighbor_j
@@ -164,7 +183,8 @@
             If (jBond.eq.iBond) Go To 301
             jBondType=iTabBonds(3,jBond)
 #ifdef _DEBUG_
-            Write (6,*) 'jBond,jBondType=',jBond,jBondType
+            Write (6,*) 'jBond,jBondType=',jBond,
+     &                  BondType(Min(3,jBondType))
 #endif
             If (jBondType.eq.vdW_Bond   .or.
      &          jBondType.eq.Magic_Bond) Go To 301
@@ -234,10 +254,8 @@
      &                 jStab(0,jAtom),nStab(jAtom),
      &                 iStabM,nStabM)
 #ifdef _DEBUG_
-            If (PSPrint) Then
-               Write (6,'(10A)') 'M={',
-     &               (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
-            End If
+            Write (6,'(10A)') 'M={',
+     &            (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
 #endif
             If (Help) Then
                rij2=(Ref(1,1)-Ref(1,2))**2
@@ -279,7 +297,7 @@
                If (lAtom_.eq.iAtom_) Go To 401
                kBondType=iTabBonds(3,kBond)
 #ifdef _DEBUG_
-         Write (6,*) 'kBond,kBondType=',kBond,kBondType
+         Write (6,*) 'kBond,kBondType=',kBond,Bondtype(Min(3,kBondType))
 #endif
                If (kBondType.eq.vdW_Bond    .or.
      &             kBondType.eq.Magic_Bond) Go To 401
@@ -380,10 +398,8 @@
      &                    iStabN,nStabN)
 *
 #ifdef _DEBUG_
-               If (PSPrint) Then
-                  Write (6,'(10A)') 'N={',
-     &                  (ChOp(iStabN(i)),i=0,nStabN-1),'}  '
-               End If
+               Write (6,'(10A)') 'N={',
+     &               (ChOp(iStabN(i)),i=0,nStabN-1),'}  '
 #endif
 *
 *------------- Form double coset representatives for
@@ -415,12 +431,12 @@
 #ifdef _DEBUG_
                Write (6,'(10A)') 'T={',
      &               (ChOp(iDCRT(i)),i=0,nDCRT-1),'}  '
+               Write (6,'(2A)') 'kDCRT=',ChOp(kDCRT)
+               Write (6,'(2A)') 'T=',ChOp(kDCRT)
 #endif
-               If (PSPrint) Write (6,'(2A)') 'kDCRT=',ChOp(kDCRT)
 *
                kDCRTS=iEor(kDCRT,kDCRS)
 *
-               If (PSPrint) Write (6,'(2A)') 'T=',ChOp(kDCRT)
                Call OA(kDCRT ,Cx(1:3,kAtom,iIter),  A(1:3,3))
                Call OA(kDCRT ,Cx(1:3,kAtom,iRef ),Ref(1:3,3))
                Call OA(kDCRT ,Cx(1:3,kAtom,iPrv ),Prv(1:3,3))
@@ -442,14 +458,12 @@
                End If
 *
 #ifdef _DEBUG_
-               If (PSPrint) Then
-                  Write (6,'(10A)') 'M={',
-     &                  (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
-                  Write (6,'(10A)') 'N={',
-     &                  (ChOp(iStabN(i)),i=0,nStabN-1),'}  '
-                  Write (6,'(10A)') 'O={',
-     &                  (ChOp(iStabO(i)),i=0,nStabO-1),'}  '
-               End If
+               Write (6,'(10A)') 'M={',
+     &               (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
+               Write (6,'(10A)') 'N={',
+     &               (ChOp(iStabN(i)),i=0,nStabN-1),'}  '
+               Write (6,'(10A)') 'O={',
+     &               (ChOp(iStabO(i)),i=0,nStabO-1),'}  '
 #endif
 *
 *------------- Compute the degeneracy of the torsion
@@ -617,10 +631,8 @@
                   End If
                End If
 #ifdef _DEBUG_
-               If (PSPrint) Then
-                  Call RecPrt('Trsns:  B',' ',Grad,3,4)
-                  Call RecPrt('Trsns: dB',' ',Hess,12,12)
-               End If
+               Call RecPrt('Trsns:  B',' ',Grad,3,4)
+               Call RecPrt('Trsns: dB',' ',Hess,12,12)
 #endif
 *
                If (Process) Then
