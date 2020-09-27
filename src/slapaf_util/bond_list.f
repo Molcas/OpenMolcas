@@ -18,9 +18,8 @@
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
       use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-#include "print.fh"
 #include "Molcas.fh"
+#include "real.fh"
       Parameter (mB=2*3)
       Real*8 Cx(3,nAtoms,nIter), A(3,2), Grad(mB), Hess(mB**2),
      &       fconst(nB), Value(nB,nIter), rMult(nB),
@@ -29,8 +28,7 @@
      &          iStabM(0:7), Ind(2), iDCR(2), iANr(nAtoms), iChOp(0:7),
      &          Indq(3,nB), iTabBonds(3,nBonds), iTabAI(2,mAtoms),
      &          iBM(nB_Tot), idBM(2,ndB_Tot), mqB(nB)
-      Logical Smmtrc(3,nAtoms), Process, PSPrint, Proc_dB,
-     &        Help, R_Stab_A
+      Logical Smmtrc(3,nAtoms), Process, Proc_dB,Help, R_Stab_A
       Character*14 Label, qLbl(nB)
       Character*3 ChOp(0:7)
       Character*(LENIN) Name(nAtoms)
@@ -46,26 +44,18 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+!#define _DEBUG_
 *                                                                      *
 ************************************************************************
 *                                                                      *
       If (nBonds.lt.1) Return
-      iRout=151
-      iPrint=nPrint(iRout)
-#ifdef _DEBUG_
-      iPrint=99
-#endif
+*
 *
       nqB=0
-      PSPrint=.False.
 #ifdef _DEBUG_
-      If (iPrint.ge.99) PSPrint=.True.
-      If (PSPrint) Then
-         Write (6,*)
-         Write (6,*) ' ---> Enter Bonds.'
-         Write (6,*)
-      End If
+      Write (6,*)
+      Write (6,*) ' ---> Enter Bonds.'
+      Write (6,*)
       Write (6,*) 'Process=',Process
       Call RecPrt('CX',' ',CX,3*nAtoms,nIter)
       Write (6,'(20(1X,A))') (Name(i),i=1,nAtoms)
@@ -82,6 +72,9 @@
       nCent=2
       Do iBond = 1, nBonds
          iBondType=iTabBonds(3,iBond)
+*
+*        We will only incorpotate covalent and fragment bonds
+*
          If (iBondType.eq.vdW_Bond  ) Go To 1   ! vdW bonds
          If (iBondType.gt.Magic_Bond) Go To 1   ! magic bonds
 *
@@ -114,10 +107,10 @@
             call dcopy_(3,Cx(1,iAtom,iIter),1,A,1)
             Write (Label,'(A,I2,A,I2,A)') 'B(',iAtom,',',jAtom,')'
 *
-            If (PSPrint) Then
-               Call RecPrt('A',' ',Cx(1,iAtom,iIter),1,3)
-               Call RecPrt('B',' ',Cx(1,jAtom,iIter),1,3)
-            End If
+#ifdef _DEBUG_
+            Call RecPrt('A',' ',Cx(1,iAtom,iIter),1,3)
+            Call RecPrt('B',' ',Cx(1,jAtom,iIter),1,3)
+#endif
 
 *
 *------------- Form double coset representatives
@@ -128,15 +121,13 @@
              kDCRR = iDCR(2)
 *
 #ifdef _DEBUG_
-            If (PSPrint) Then
-               Write (6,'(10A)') 'U={',
-     &               (ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
-               Write (6,'(10A)') 'V={',
-     &               (ChOp(jStab(i,jAtom)),i=0,nStab(jAtom)-1),'}  '
-               Write (6,'(10A)') 'R={',
-     &               (ChOp(iDCRR(i)),i=0,nDCRR-1),'}  '
-               Write (6,'(2A)') 'R=',ChOp(iDCR(2))
-            End If
+            Write (6,'(10A)') 'U={',
+     &            (ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
+            Write (6,'(10A)') 'V={',
+     &            (ChOp(jStab(i,jAtom)),i=0,nStab(jAtom)-1),'}  '
+            Write (6,'(10A)') 'R={',
+     &            (ChOp(iDCRR(i)),i=0,nDCRR-1),'}  '
+            Write (6,'(2A)') 'R=',ChOp(iDCR(2))
 #endif
 *
             Call OA(iDCR(2),Cx(1:3,jAtom,iIter),A(1:3,2))
@@ -157,10 +148,8 @@
      &                    kDCRR,iStabM,nStabM)
             End If
 #ifdef _DEBUG_
-            If (PSPrint) Then
-               Write (6,'(10A)') 'M={',
-     &               (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
-            End If
+            Write (6,'(10A)') 'M={',
+     &            (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
 #endif
 *
 *---------- Now evaluate the degeneracy of the bond.
@@ -168,7 +157,7 @@
             iDeg=nIrrep/nStabM
             Deg=Sqrt(DBLE(iDeg))
 #ifdef _DEBUG_
-            If (PSPrint) Write (6,*)' nIrrep,nStabM=',nIrrep,nStabM
+            Write (6,*)' nIrrep,nStabM=',nIrrep,nStabM
 #endif
 *
             nq = nq + 1
@@ -194,8 +183,7 @@
      &             Lbls(1)(iF1:iE1),' ',
      &             Lbls(2)(iF2:iE2)
 #ifdef _DEBUG_
-            If (iPrint.ge.49)
-     &      Write (6,'(A,I3.3,4A)')
+            Write (6,'(A,I3.3,4A)')
      &             'b',nqB,' = Bond ',
      &             Lbls(1)(iF1:iE1),' ',
      &             Lbls(2)(iF2:iE2)
