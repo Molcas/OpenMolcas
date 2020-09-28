@@ -36,15 +36,16 @@ C     Data f_Const_Min/0.0D-0/
       Data f_Const_Min/1.0D-3/
 #endif
 #ifdef _VDW_
-*     HMF augmented by weak forces, MGS
-      Data alpha_vdW/5.0D+00/
 #define _OLD_CODE_
 #ifdef _OLD_CODE_
+*     HMF augmented by weak forces, MGS
+      Data alpha_vdW/5.0D+00/
       Data r_ref_vdW/ 0.D+00,  3.6D+00, 3.6D+00,
      &                3.6D+00, 5.3D+00, 5.3D+00,
      &                3.6D+00, 5.3D+00, 5.3D+00 /
 #else
 * approximate with sums of average vdW radius
+      Data alpha_vdW/10.0D+00/
       Data r_ref_vdW/ 0.D+00,  5.5D+00, 5.5D+00,
      &                5.5D+00, 6.3D+00, 6.3D+00,
      &                5.5D+00, 6.3D+00, 6.3D+00 /

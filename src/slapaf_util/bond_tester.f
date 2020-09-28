@@ -56,8 +56,8 @@
       If (ThrB.lt.ThrB_vdw) ivdW=vdW_Bond
       Box: Do Ir = 1, Nr
          jAtom=iTab(Ir,ix,iy,iz)
-C        If (iAtom.le.jAtom) Cycle
-         If (iAtom.ge.jAtom) Cycle
+C        If (iAtom.le.jAtom) Cycle Box
+         If (iAtom.ge.jAtom) Cycle Box
          jRow =iTabRow(iANr(jAtom))
          Help = iRow.gt.3.or.jRow.gt.3
 #ifdef _DEBUG_
@@ -162,7 +162,8 @@ C        If (iAtom.le.jAtom) Cycle
 #ifndef _OLD_CODE_
 *
 *           We need to exclude vdW bonds if there is an atom close to
-*           being in between the two atoms being considered.
+*           being in between the two atoms being considered and
+*           forming a covalent bond.
 *
             If (test.lt.ThrB) Then ! only in case of vdW bond
 *
@@ -173,11 +174,11 @@ C        If (iAtom.le.jAtom) Cycle
 #endif
                Do i = 1, iTabAtoms(1,0,iAtom)
                   kAtom=iTabAtoms(1,i,iAtom)
+                  iBond=iTabAtoms(2,i,iAtom)
+                  iType=iTabBonds(3,iBond)
+                  If (iType.ne.Covalent_Bond) Cycle
                   B(:)=Coor(:,iAtom)-Coor(:,kAtom)
                   BNorm = dot_product(B,B)
-*                 If bond as about as long as iAtom-jAtom ok.
-                  If (1.3D0*BNorm.gt.ANorm) Cycle
-                  B(:) = B(:)
                   CosPhi=dot_product(A,B)/Sqrt(ANorm*BNorm)
                   Phi=ACOS(CosPhi)
 #ifdef _DEBUG_
