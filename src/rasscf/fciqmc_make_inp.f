@@ -14,6 +14,7 @@
 
       module fciqmc_make_inp
         use stdalloc, only : mma_deallocate
+        use linalg_mod, only: assume_
         implicit none
         private
         public :: make_inp, cleanup
@@ -64,15 +65,19 @@
 !>    G. Li Manni, Oskar Weser
 !>
 !>  @paramin[in] readpops  If true the readpops option for NECI is set.
-      subroutine make_inp(path, FCIDUMP_name, readpops, doGAS)
+      subroutine make_inp(path, FCIDUMP_name, readpops,
+     &    GAS_spaces, GAS_particles)
       use general_data, only : nActEl, iSpin
       use stdalloc, only : mma_deallocate
       use fortran_strings, only : str
       character(len=*), intent(in) :: path
-      character(len=*), intent(in) :: FCIDUMP_name
-      logical, intent(in), optional :: readpops, doGAS
-      logical :: readpops_, doGAS_
-      integer :: i, isFreeUnit, file_id, indentlevel
+      character(len=*), intent(in), optional :: FCIDUMP_name
+      logical, intent(in), optional :: readpops
+      integer, intent(in), optional ::
+     &      GAS_spaces(:, :), GAS_particles(:, :)
+      logical :: readpops_
+      integer :: i, isFreeUnit, file_id, indentlevel, iGAS, iSym
+      integer :: nGAS, nSym
       integer, parameter :: indentstep = 4
 
       if (present(readpops)) then
@@ -80,11 +85,9 @@
       else
         readpops_ = .false.
       end if
-      if (present(doGAS)) then
-        doGAS_ = doGAS
-      else
-        doGAS_ = .false.
-      end if
+
+      call assume_(present(GAS_spaces) .eqv. present(GAS_particles),
+     &             'present(GAS_spaces) .eqv. present(GAS_particles)')
 
       call add_info('Default number of total walkers',
      &  [dble(totalwalkers)], 1, 6)
@@ -104,12 +107,35 @@
         write(file_id, I_fmt()) 'electrons ', nActEl
         write(file_id,A_fmt()) 'nonuniformrandexcits 4ind-weighted-2'
         write(file_id,A_fmt()) 'nobrillouintheorem'
-        write(file_id,A_fmt()) 'FCIDUMP-name', FCIDUMP_name
+        if (present(FCIDUMP_name)) then
+          write(file_id,A_fmt()) 'FCIDUMP-name', FCIDUMP_name
+        end if
         if(iSpin /= 1) then
           write(file_id, I_fmt()) 'spin-restrict', iSpin - 1
         end if
         write(file_id, A_fmt()) 'freeformat'
-        if (doGas_) write(file_id, A_fmt()) 'part-conserving-gas'
+        if (present(GAS_spaces) .and. present(GAS_particles)) then
+          nGAS = size(GAS_spaces, 1)
+          nSym = size(GAS_spaces, 2)
+          write(file_id, A_fmt())
+     &      'GAS-SPEC '//str(nGAS)//' +++'
+          call indent()
+          do iGAS = 1, nGAS
+        write(file_id, '('//indent_fmt()//'I0, 1x, I0, 1x, I0, 1x, A)')
+     &        sum([(GAS_spaces(iGAS, iSym), iSym = 1, nSym)]),
+     &        GAS_particles(iGAS, 1), GAS_particles(iGAS, 2), '+++'
+          end do
+          write(file_id, '('//indent_fmt()//')', advance='no')
+          do iSym = 1, nSym
+            do iGAS = 1, nGAS
+              do i = 1, GAS_spaces(iGAS, iSym)
+                write(file_id, '(I0, 1x)', advance='no'), iGAS
+              end do
+            end do
+          end do
+          write(file_id, *)
+          call dedent()
+        end if
       call dedent()
       write(file_id, A_fmt()) 'endsys'
       write(file_id, *)
