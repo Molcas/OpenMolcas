@@ -109,7 +109,7 @@
       DIMENSION NFRO_L(8),NISH_L(8),NRS1_L(8),NRS2_L(8)
       DIMENSION NRS3_L(8),NSSH_L(8),NDEL_L(8)
 #ifdef _HDF5_
-      character(1), allocatable :: typestring(:)
+      character(len=1), allocatable :: typestring(:)
 #endif
 * TOC on JOBOLD (or JOBIPH)
       DIMENSION IADR19(15)
@@ -131,7 +131,7 @@
 
       integer :: start, step, length
 
-      character(50) :: ON_scheme_inp, uppercased
+      character(len=50) :: ON_scheme_inp, uppercased
 
 #ifdef _DMRG_
 !     dmrg(QCMaquis)-stuff

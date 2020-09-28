@@ -19,24 +19,12 @@
 * Object: kernel routine for the computation of nuclear attraction     *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: EFInt                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy  (ESSL)                                           *
-*              ICopy                                                   *
-*              SOS                                                     *
-*              Rys                                                     *
-*              Hrr                                                     *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, February '91                            *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake, Cff2D, XRys2D
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 
 #include "int_interface.fh"
@@ -53,7 +41,6 @@
 *
       iRout = 201
       iPrint = nPrint(iRout)
-      Call qEnter('EPEInt')
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
@@ -116,7 +103,6 @@
  100  Continue
 *
 *     Call GetMem(' Exit EPEInt','LIST','REAL',iDum,iDum)
-      Call qExit('EPEInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

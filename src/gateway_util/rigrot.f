@@ -25,17 +25,6 @@
 *               Mechanics", McGraw-Hill Book Company, New York,        *
 *               ch. 7-14, pp. 250.                                     *
 *                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              DCopy  (ESSL)                                           *
-*              Jacob                                                   *
-*              DSwap  (ESSL)                                           *
-*              Order                                                   *
-*              TriPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 ************************************************************************
@@ -56,7 +45,6 @@
       iPrint = nPrint(iRout)
       RR_Show = iPrint.ge.6
       if(iprintlevel(-1).lt.3) RR_Show=.false.
-      Call qEnter('RigRot')
 *
       If (RR_Show) Then
          Write (6,*)
@@ -345,6 +333,5 @@ C     Call Put_dArray('PAX',Pax,9)
          Call CollapseOutput(0,'   Rigid rotor info:')
          Write (6,*)
       End If
-      Call qExit('RigRot')
       Return
       End

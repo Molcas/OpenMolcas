@@ -32,7 +32,6 @@
       iRout = 131
       iPrint = nPrint(iRout)
       Call CWTime(TCpu1,TWall1)
-      Call qEnter('PotGrd')
 *
 *---- Allocate memory for density and Fock matrices
 *
@@ -124,6 +123,5 @@
 *
       Call CWTime(TCpu2,TWall2)
       Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
-      Call qExit('PotGrd')
       Return
       End

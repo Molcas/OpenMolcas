@@ -127,7 +127,7 @@
       integer function c_cptr2loff(buffer)
         use, intrinsic :: iso_c_binding
         implicit none
-        character(*), target :: buffer(*)
+        character(len=*), target :: buffer(*)
         interface
           integer(kind=MOLCAS_C_INT) function cptr2woff(string, ptr)
      &                               bind(C,name=cptr2woff_name)
@@ -280,7 +280,7 @@
       end subroutine
       subroutine cmma_allo_1D(buffer,n1,label)
         implicit none
-        character(*), allocatable :: buffer(:)
+        character(len=*), allocatable :: buffer(:)
         integer :: n1
         character (len=*), optional :: label
 #include "SysDef.fh"
@@ -309,7 +309,7 @@
       end subroutine
       subroutine cmma_allo_1D_lim(buffer,l1,label)
         implicit none
-        character(*), allocatable :: buffer(:)
+        character(len=*), allocatable :: buffer(:)
         integer, dimension(2) :: l1
         character (len=*), optional :: label
 #include "SysDef.fh"
@@ -1262,7 +1262,7 @@
       end subroutine
       subroutine cmma_free_1D(buffer)
         implicit none
-        character(*), allocatable :: buffer(:)
+        character(len=*), allocatable :: buffer(:)
 #include "SysDef.fh"
 #include "cptr2loff.fh"
         integer :: n1

@@ -16,6 +16,7 @@
      &                      Gamma,nGamma,iSO2cI,nSOs,
      &                      iSO2Sh,PMax)
 ************************************************************************
+*                                                                      *
 *  Object: to assemble the 2nd order density matrix of a SCF wave      *
 *          function from the 1st order density.                        *
 *                                                                      *
@@ -25,12 +26,6 @@
 *                                                                      *
 *          DSO: HF 1st order density                                   *
 *          DSO_Var: 1st order density of correlated wf.                *
-*                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
@@ -43,7 +38,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
 ************ columbus interface ****************************************
 #include "columbus_gamma.fh"
       parameter (exfac=1d0)
@@ -64,7 +58,6 @@
       iRout = 39
       iPrint = nPrint(iRout)
 #ifdef _DEBUG_
-      Call qEnter('PGet1   ')
       If (iPrint.ge.99) Then
          iComp = 1
          Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
@@ -228,7 +221,6 @@
  3333    Continue
       End If
       Call GetMem(' Exit PGet1','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet1')
 #endif
       Return
 c Avoid unused argument warnings

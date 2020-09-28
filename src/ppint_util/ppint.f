@@ -16,11 +16,6 @@
 *                                                                      *
 * Object: to compute pseudo potential integrals.                       *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 ************************************************************************
       use Basis_Info
       use Center_Info

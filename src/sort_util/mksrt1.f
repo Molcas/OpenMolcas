@@ -54,7 +54,6 @@
       iRout = 80
       iPrint = nPrint(iRout)
       If ( iPrint.gt.10) Write (6,*) ' >>> Enter MKSRT1 <<<'
-      Call qEnter('MkSrt1')
 *----------------------------------------------------------------------*
 *                                                                      *
 *     grab memory                                                      *
@@ -249,6 +248,5 @@ C               Write (*,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
 *
       Call ICopy(3*nBin,[0],0,mInt,1)
 *
-      Call qExit('MkSrt1')
       Return
       End

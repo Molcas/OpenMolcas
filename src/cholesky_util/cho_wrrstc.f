@@ -25,7 +25,6 @@ C
       INTEGER JSCR(LSCR)
 
 #if defined (_DEBUG_)
-      CALL QENTER('_WRRSTC')
 #endif
 
 C     Start address on file.
@@ -111,7 +110,6 @@ C     --------------------------------------
       END IF
 
 #if defined (_DEBUG_)
-      CALL QEXIT('_WRRSTC')
 #endif
 
       END

@@ -20,11 +20,6 @@
 *                                                                      *
 * Object: to compute the gradient of rho, grad rho, and nabla rho      *
 *                                                                      *
-* Called from: Do_Batch                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Theoretical Chemistry,       *
 *             Lund university, SWEDEN.  September 2007                 *
 ************************************************************************
@@ -55,7 +50,6 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUG_
-      Call QEnter('dRho_dR_meta_GGA')
       If (Debug) Then
          Write (6,*) 'mAO=',mAO
          Write (6,*) 'mGrid=',mGrid
@@ -232,7 +226,6 @@
       If (Debug) Call RecPrt('dRho_dR_meta_GGA: dRho_dR',' ',dRho_dR,
      &                        ndRho_dR*mGrid,nGrad_Eff)
 *
-      Call QExit('dRho_dR_meta_GGA')
 #endif
       Return
       End

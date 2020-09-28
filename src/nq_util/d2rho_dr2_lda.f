@@ -17,14 +17,6 @@
      &                         Grid_type,Fixed_Grid,Fact,ndc,TabAOMax,
      &                         T_X,list_bas,Index,nIndex)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: Do_Batch                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.  2000                                   *
 *                                                                      *
@@ -61,7 +53,6 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUG_
-      Call QEnter('d2Rho_dR2_LDA')
       If (Debug) Then
          Call RecPrt('d2Rho_dR2_LDA:Dens',' ',Dens,nDens,nD)
          Write (6,*) 'mAO=',mAO
@@ -254,7 +245,6 @@
       If (Debug) Call RecPrt('d2Rho_dR2_LDA: dRho_dR',' ',dRho_dR,
      &                       ndRho_dR*mGrid,nGrad_Eff)
 *
-      Call QExit('d2Rho_dR2_LDA')
 #else
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Dens)

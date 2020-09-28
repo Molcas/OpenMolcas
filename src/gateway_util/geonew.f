@@ -18,11 +18,6 @@
 *         will use the geometry as specified by the standard input     *
 *         file.                                                        *
 *                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : qEnter                                                  *
-*              qExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             March 1991                                               *
@@ -61,7 +56,6 @@
             Call NameRun('RUNOLD')
             Call Get_Coord_New(CN,lBuf)
             If (lBuf.eq.0) Then
-               Call qExit('GeoNew')
                nNuc=0
                Call NameRun('RUNFILE')
                Return
@@ -75,7 +69,6 @@
                End If
             End If
          Else
-            Call qExit('GeoNew')
             nNuc=0
             Return
          End If

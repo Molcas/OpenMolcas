@@ -62,7 +62,6 @@
 
       IfTest=.False.
 
-      Call QENTER('Cho_TraCtl')
       Call Timing(CPU0,CPE,TIO0,TIOE)
 
 ***   INIZIALIZATION   *************************************************
@@ -260,6 +259,5 @@
      & CPU_Tot, 1.0d2*(CPU_Tot+5.0d-5)/(TIO_Tot+5.0d-5), TIO_Tot
       Call XFlush(6)
 
-      Call QEXIT('Cho_TraCtl')
       Return
       End

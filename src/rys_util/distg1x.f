@@ -17,13 +17,6 @@
 * Object: trace the gradient of the ERI's with the second order        *
 *         density matrix                                               *
 *                                                                      *
-* Called from: Rysg1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DGeMV   (ESSL)                                          *
-*              DCopy   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
@@ -48,7 +41,6 @@
 #ifdef _DEBUG_
       iRout = 239
       iPrint = nPrint(iRout)
-      Call qEnter('Distg1')
       If (iPrint.ge.99) Then
          Call RecPrt('PAO',' ',PAO,nT,mPAO)
          Do 500 iVec = 1, mVec
@@ -139,7 +131,6 @@
      &               ' ',Grad,nGrad,1)
       End If
 *
-      Call qExit('Distg1')
 #endif
       Return
       End

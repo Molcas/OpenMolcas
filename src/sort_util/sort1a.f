@@ -88,10 +88,8 @@
 *     Turn timing ON                                                   *
 *----------------------------------------------------------------------*
 *
-C     Call QEnter('Sort1A')
       If ( RAMD ) then
         Call SORT1C(nUt,vInt,nSqNum,nSyBlk)
-C       Call QExit('Sort1A')
         Return
       End If
 *
@@ -124,6 +122,5 @@ C       Call QExit('Sort1A')
 *     Turn timing OFF and exit                                         *
 *----------------------------------------------------------------------*
 *
-C     Call QExit('Sort1A')
       Return
       End

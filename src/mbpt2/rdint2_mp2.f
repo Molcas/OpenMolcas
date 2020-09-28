@@ -28,7 +28,6 @@ C
 #include "SysDef.fh"
 
 C
-      Call qEnter('RdInt2')
 C
 C     READ ADDRESS RECORD ON UNIT LUINTM
 C
@@ -156,6 +155,5 @@ C
 103    CONTINUE
 104   CONTINUE
 C
-      Call qExit('RdInt2')
       RETURN
       END

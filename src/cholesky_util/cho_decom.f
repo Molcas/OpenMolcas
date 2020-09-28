@@ -37,7 +37,6 @@ C
       IQUAB(I,J)=IWORK(ip_IQUAB-1+MAXQUAL*(J-1)+I)
 
 #if defined (_DEBUG_)
-      CALL QENTER('_DECOM')
 #endif
 
       LENLIN = 0  ! to avoid compiler warnings...
@@ -350,7 +349,6 @@ C        ---------------------------------
       END IF
 
 #if defined (_DEBUG_)
-      CALL QEXIT('_DECOM')
 #endif
 
       END

@@ -17,12 +17,6 @@
 *                                                                      *
 * Object:            standalone OPTX exchange                          *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. March 2001                              *
 ************************************************************************
@@ -37,7 +31,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('HFO')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -55,7 +48,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('HFO')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

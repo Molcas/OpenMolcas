@@ -19,16 +19,6 @@
 *                                                                      *
 * Object: kernel routine for the comutation of pXp integrals           *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : qEnter                                                  *
-*              RecPrt                                                  *
-*              pvint                                                   *
-*              Util2                                                   *
-*              DCopy   (ESSL)                                          *
-*              GetMem                                                  *
-*              qExit                                                   *
-*                                                                      *
 *     Author: Bernd Hess, Institut fuer Physikalische und Theoretische *
 *             Chemie, University of Bonn, Germany, April 1993          *
 *             R. Lindh, modified to molcas 4.1 form, Oct 1999          *
@@ -50,7 +40,6 @@
 *
       iRout = 220
       iPrint = nPrint(iRout)
-      Call qEnter('PXPInt')
 *
       iSize=nZeta*nElem(la)*nElem(lb)*nComp
       call dcopy_(iSize,[Zero],0,Final,1)
@@ -180,7 +169,6 @@ C              Write (6,*) 'iSym_pXp,iSym_pX=',iSym_pXp,iSym_pX
       If (iPrint.ge.49) Call RecPrt('pXpInt: Final',' ',Final,
      &                               nZeta,nElem(la)*nElem(lb))
 *
-      Call qExit('pXpInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nHer)

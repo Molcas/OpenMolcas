@@ -13,14 +13,6 @@
       SubRoutine SOAdd(SOInt,iBas,jBas,nSOInt,PrpInt,nPrp,lOper,
      &                  iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
@@ -36,7 +28,6 @@
 *
       iRout = 130
       iPrint = nPrint(iRout)
-C     Call qEnter('SOAdd')
       If (iPrint.ge.99) Then
          Call RecPrt(' In SOAdd:SOInt',' ',SOInt,iBas*jBas,nSOInt)
       End If
@@ -107,7 +98,6 @@ C     Call qEnter('SOAdd')
 *
       If (iPrint.ge.99) Call GetMem(' Exit SOAdd','CHECK','ALLO',
      &                              iDum,iDum)
-C     Call qExit('SOAdd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

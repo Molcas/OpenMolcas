@@ -58,7 +58,6 @@
 *----------------------------------------------------------------------*
 *
 #ifdef _DEBUG_
-      Call QEnter('WrInp')
 #endif
       If (jPrint.ge.2) Then
          Call CollapseOutput(1,'   Input section:')
@@ -492,7 +491,6 @@ c           Call Abend()
       End If
 *
 #ifdef _DEBUG_
-      Call QExit('WrInp')
 #endif
 *
 *----------------------------------------------------------------------*

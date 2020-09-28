@@ -21,15 +21,6 @@
 *         ECP calculations. The operator is the nuclear attraction     *
 *         operator times a s-type gaussian function.                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DCR                                                     *
-*              Rysg1                                                   *
-*              QExit                                                   *
-*                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
 *      Beta  : as Alpha but for ket gaussians                          *
@@ -66,7 +57,6 @@
       External TNAI1, Fake, Cff2D
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
 
@@ -83,7 +73,6 @@
       TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
      &                              iIrrep,iComp,dc(mdc)%nStab)
 *
-*     Call qEnter('M1Grd')
       iRout = 193
       iPrint = nPrint(iRout)
 *
@@ -330,7 +319,6 @@
  100  Continue
 *
 *
-*     Call QExit('M1Grd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

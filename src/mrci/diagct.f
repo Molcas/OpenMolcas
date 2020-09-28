@@ -13,7 +13,6 @@
 #include "SysDef.fh"
 #include "mrci.fh"
 #include "WrkSpc.fh"
-      CALL QENTER('DIAGCT')
       ILIM=4
       IF(IFIRST.NE.0)ILIM=2
 * ----------------------------------------------------------------------
@@ -78,6 +77,5 @@
       CALL IJIJ (IWork(LINTSY),Work(LHDIAG),Work(LFOCK),Work(LIJIJ))
       CALL GETMEM('HDIAG','Free','Real',LHDIAG,NHDIAG)
       CALL GETMEM('FIJIJ','Free','Real',LIJIJ,NBTRI)
-      CALL QEXIT('DIAGCT')
       RETURN
       END

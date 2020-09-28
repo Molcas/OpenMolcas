@@ -20,16 +20,6 @@
 * Object: to compute the multipole moments integrals with the          *
 *         Gauss-Hermite quadrature.                                    *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              DCopy   (ESSL)                                          *
-*              CmbnMP                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 *             Modified to multipole moments November '90               *
@@ -44,7 +34,6 @@
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "rctfld.fh"
 
@@ -56,7 +45,6 @@
       iRout = 122
       iPrint = nPrint(iRout)
 *     iPrint = 99
-      Call qEnter('RFGrd')
       ABeq(1) = A(1).eq.RB(1)
       ABeq(2) = A(2).eq.RB(2)
       ABeq(3) = A(3).eq.RB(3)
@@ -144,7 +132,6 @@
      &             IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,
      &             kOp,MM(1,2))
 *
-      Call qExit('RFGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

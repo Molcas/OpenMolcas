@@ -37,7 +37,6 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "mxdm.fh"
 *
       Integer nDT,NumDT
@@ -46,7 +45,6 @@
 *
 *define _DEBUG_
 #ifdef _DEBUG_
-      Call qEnter('UpdFck')
 #endif
 *
       i2Hm=NumDT
@@ -101,7 +99,6 @@
 *
       End Do
 #ifdef _DEBUG_
-      Call qExit('UpdFck')
 #endif
       Return
       End

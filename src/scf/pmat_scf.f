@@ -101,7 +101,6 @@
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 *define _DEBUG_
 #ifdef _DEBUG_
-      Call qEnter('PMat')
       Call NrmClc(TwoHam(1,1,nDens),nBT*nD,'PMat: Enter','T in nDens')
       Call NrmClc(Vxc   (1,1,nDens),nBT*nD,'PMat: Enter','T in nDens')
       Call NrmClc(TwoHam(1,1,nDens),nBT*nD,'PMat: Enter','T in iPsLst')
@@ -406,7 +405,6 @@
       Call NrmClc(Vxc   (1,1,iPsLst),nBT*nD,'PMat  ','V iPsLst  ')
       Call NrmClc(Vxc   (1,1,nDens), nBT*nD,'PMat  ','V nDens   ')
 *
-      Call qExit('PMat')
 #endif
       Call Timing(Cpu2,Tim1,Tim2,Tim3)
       TimFld( 5) = TimFld( 5) + (Cpu2 - Cpu1)

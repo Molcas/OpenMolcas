@@ -17,12 +17,6 @@
 *                                                                      *
 * Object: compute the 2nd derivative  of the overlap matrix.           *
 *                                                                      *
-* Called from: OvrHss                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iChTbl
       Implicit Real*8 (A-H,O-Z)
@@ -51,7 +45,6 @@ c     iRout = 134
       iStab(1)=iv
 c     iPrint = nPrint(iRout)
       iQ = 1
-c     Call qEnter('CmbnT2')
 *     Call GetMem(' Enter CmbnT2','LIST','REAL',iDum,iDum)
 *
       exp32 = -Three/Two
@@ -615,6 +608,5 @@ c     End If
  100  Continue
  90   Continue
 *
-c     Call qExit('CmbnT2')
       Return
       End

@@ -15,18 +15,6 @@
 *                                                                      *
 * Object: input module for the gradient code                           *
 *                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              RecPrt                                                  *
-*              DaXpY   (ESSL)                                          *
-*              DDot_   (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             September '91                                            *
@@ -67,7 +55,6 @@
 *
       iRout = 99
       iPrint = nPrint(iRout)
-*     Call qEnter('Inputg')
       Do i = 1, nRout
          nPrint(i) = 5
       End Do
@@ -921,6 +908,5 @@
 *
       Onenly = HF_Force
 *
-*     Call qExit('Inputg')
       Return
       End

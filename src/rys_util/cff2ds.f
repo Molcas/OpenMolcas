@@ -21,13 +21,6 @@
 * Object: to compute the coefficients in the three terms recurrence    *
 *         relation of the 2D-integrals.                                *
 *                                                                      *
-* Called from: Rys                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DYax   (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March 1990                                               *
 ************************************************************************

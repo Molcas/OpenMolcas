@@ -18,12 +18,6 @@
 *                                                                      *
 * Object:    Gill96 + LYP combination                                  *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. March 2001                              *
 ************************************************************************
@@ -38,7 +32,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      Call QEnter('GLYP')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -62,7 +55,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      Call QExit('GLYP')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

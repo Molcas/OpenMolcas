@@ -46,7 +46,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call qEnter('PLF_RICD')
       irout = 109
       iprint = nprint(irout)
 *define _DEBUG_
@@ -141,7 +140,6 @@ C    &                                   iSOij,iSOkl,AInt
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call qExit('PLF_RICD')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

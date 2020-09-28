@@ -208,7 +208,6 @@ c      Debug=.true.
       iRout = 9
       iPrint = nPrint(iRout)
 
-      Call QEnter(SECNAM)
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
@@ -1833,7 +1832,6 @@ C--- have performed screening in the meanwhile
 
       irc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
       END

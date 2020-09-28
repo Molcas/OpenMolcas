@@ -30,32 +30,6 @@
 *         b) refer to the components of the cartesian or spherical     *
 *         harmonic gaussians.                                          *
 *                                                                      *
-* Called from: Drv1El                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              ICopy                                                   *
-*              DCopy    (ESSL)                                         *
-*              KrnlMm                                                  *
-*              ZXia                                                    *
-*              MemSO1                                                  *
-*              DCR                                                     *
-*              Inter                                                   *
-*              SetUp1                                                  *
-*              Kernel                                                  *
-*              DGEMM_   (ESSL)                                         *
-*              DGeTMO   (ESSL)                                         *
-*              CarSph                                                  *
-*              SymAd1                                                  *
-*              DScal    (ESSL)                                         *
-*              SOSctt                                                  *
-*              PrMtrx                                                  *
-*              XProp                                                   *
-*              WrOne                                                   *
-*              ErrOne                                                  *
-*              Prop                                                    *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
 *             Modified for Hermite-Gauss quadrature November '90       *
@@ -101,7 +75,6 @@ C     Logical Addpot
 *                                                                      *
       iRout = 112
       iPrint = nPrint(iRout)
-      Call qEnter('OneEl_')
       RMat_type_integrals=.False.
       Do_PGamma = .True.
 *
@@ -298,7 +271,6 @@ C     Logical Addpot
       Call mma_deallocate(Kappa)
       Call mma_deallocate(ZI)
       Call mma_deallocate(Zeta)
-      Call qExit('OneEl_')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

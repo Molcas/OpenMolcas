@@ -35,7 +35,6 @@
 *
       ij(i,j,lda)= (j-1)*lda + i
 *
-*     Call QEnter('C1DIIS')
       iRout = 114
       iPrint = nPrint(iRout)
 *
@@ -208,7 +207,6 @@
      &   dq(1,nIter),1,nInter)
 *
       Call Free_Work(ipA)
-*     Call QExit('C1DIIS')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer_array(iPvt)

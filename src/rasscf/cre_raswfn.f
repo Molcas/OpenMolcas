@@ -30,7 +30,7 @@
 
       integer :: dsetid
       integer, dimension(mxsym) :: NTMP1, NTMP2, NTMP3
-      character(1), allocatable :: typestring(:)
+      character(len=1), allocatable :: typestring(:)
 
 *     create a new wavefunction file!
       wfn_fileid = mh5_create_file('RASWFN')

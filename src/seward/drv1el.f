@@ -16,13 +16,6 @@
 *                                                                      *
 * Object: driver for computation of one-electron matrices.             *
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              OneEl                                                   *
-*              GetDens                                                 *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January 1991                                             *
@@ -104,7 +97,6 @@
 *
       iRout = 131
       iPrint = nPrint(iRout)
-*     Call qEnter('Drv1El')
 *
       Call StatusLine(' Seward:',' Computing 1-electron integrals')
 *
@@ -2100,7 +2092,6 @@ c        Call DCopy_(3,Work(ipPSO),1,CoorO(1+(iComp-1)*3),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qExit('Drv1El')
       Return
 *
       Contains

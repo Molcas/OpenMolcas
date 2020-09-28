@@ -18,7 +18,6 @@
       Dimension Coord(3,mTtAtm),HiddenCoord(3,nHidden)
       Dimension iHiddenAN(nHidden)
 *
-      Call QEnter('select_hidden')
 *
 *  Criteria: dMin < distance < rHidden
 *
@@ -44,6 +43,5 @@
       If(iPL .gt. 3 .and. nKept .gt. 0) Write(6,'(A,i3,A)')
      &                ' Select_Hidden: ',nKept,' hidden atoms are kept'
 *
-      Call QExit('select_hidden')
       Return
       End

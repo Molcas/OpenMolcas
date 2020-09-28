@@ -12,22 +12,12 @@
 *               1990, IBM                                              *
 *               2000-2015, Valera Veryazov                             *
 ************************************************************************
-#ifdef _HAVE_GRID_IT_
+#ifdef _HAVE_EXTRA_
       subroutine Grid_it(iRun,INPORB,ireturn)
 c  iRun =1 normal run, 0=trancated from scf
 ************************************************************************
 *                                                                      *
 *  Object: Driver for evaluation MO values on a grid.                  *
-*                                                                      *
-* Called from: None                                                    *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              XuFlow (IBM)                                            *
-*              Seward_init                                             *
-*             *SetUp0                                                  *
-*              GetMem                                                  *
-*              GetInf                                                  *
-*              DrvMO                                                   *
 *                                                                      *
 *  Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA     *
 *          July '89 - May '90                                          *
@@ -54,14 +44,10 @@ c  iRun =1 normal run, 0=trancated from scf
 c      Character*120 Lines(17)
       Character INPORB*(*)
       Logical OldTst, DoRys
-#ifdef _EXTERNAL_GRID_IT_
-#include "grid.fh"
-#endif
 #include "warnings.fh"
 *
 *     Prologue
 *
-      Call qEnter('GRID')
       levelprint=IPRINTLEVEL(-1)
       if(iRun.eq.0.and.levelprint.lt.3) then
         levelprint=0
@@ -91,12 +77,7 @@ c      Call bXML('GRID_IT')
       if (iReturn.eq._RC_INVOKED_OTHER_MODULE_) then
 c* take care to close files and release the potential memory...
 c       close(unit=LuOrb)
-#ifdef _EXTERNAL_GRID_IT_
-        close(unit=LuVal)
-        if(isUHF.eq.1) close(unit=LuVal_ab)
-#else
         call close_grids()
-#endif
       goto 999
       endif
 *
@@ -124,7 +105,6 @@ c      write(6,*) 'Input file for molcasgv was generated'
 c      ireturn=0
 
 
-      Call qExit('GRID')
       return
       End
 #elif defined (NAGFOR)

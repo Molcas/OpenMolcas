@@ -27,7 +27,6 @@
 *
       iRout=135
       iPrint=nPrint(iRout)
-      Call QEnter('SODist')
       If (iPrint.ge.49) Then
          Write (6,*) 'SODist: MO-Coefficients'
          iOff=1
@@ -79,7 +78,6 @@
       End If
 *
       Call GetMem('SODist ','CHEC','REAL',iDum,iDum)
-      Call QExit('SODist')
       Return
       End
 

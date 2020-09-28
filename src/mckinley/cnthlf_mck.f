@@ -21,11 +21,6 @@
 *         intermediate matrix will not push the start of the same out  *
 *         from the cache.                                              *
 *                                                                      *
-* Called from: Cntrct                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 * Author:     Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 ************************************************************************

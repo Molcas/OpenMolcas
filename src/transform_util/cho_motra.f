@@ -219,7 +219,6 @@ C
       Debug=.false.
 #endif
 
-      Call QEnter(SECNAM)
 
 #ifdef _HDF5_QCM_
       ! Leon 13.6.2017: Avoid opening a regular file if HDF5 is used
@@ -733,7 +732,6 @@ C --- free memory
       EndIf
       write(6,*)
 
-      CAll QExit(SECNAM)
 
       Return
 #ifndef _HDF5_QCM_

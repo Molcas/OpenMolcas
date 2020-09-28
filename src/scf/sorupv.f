@@ -15,7 +15,7 @@
       SubRoutine SOrUpV(NoAllo,V,HDiag,lvec,W,Mode,UpTp)
 ************************************************************************
 *     for Ref., see T.H. Fischer and J. Almloef, JPC 96, 9768 (1992)   *
-*               DOI: 10.1021/j100203a036                               *
+*               doi:10.1021/j100203a036                                *
 *                                                                      *
 *     purpose: Second Order Updated vector V using BFGS and            *
 *              diagonal Hessian of Orbital Rotations                   *

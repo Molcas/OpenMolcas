@@ -29,7 +29,6 @@ C
       Character*13 SecNam
       Parameter (SecNam = 'ChoMP2_TraDrv', ThisNm = 'TraDrv')
 
-      Call qEnter(ThisNm)
       irc = 0
 
 C     Reorder MO coefficients.
@@ -52,5 +51,4 @@ C     -------------------------------------
       Call GetMem('CVir','Free','Real',ip_CVir,l_CVir)
       Call GetMem('COcc','Free','Real',ip_COcc,l_COcc)
 
-      Call qExit(ThisNm)
       End

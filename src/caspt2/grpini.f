@@ -32,7 +32,7 @@
 #include "warnings.fh"
 #include "stdalloc.fh"
       LOGICAL IF_TRNSF
-      CHARACTER(27)  STLNE2
+      CHARACTER(LEN=27)  STLNE2
       real(8) Heff(Nstate,Nstate)
       real(8) H0(Nstate,Nstate)
       real(8) U0(Nstate,Nstate)

@@ -15,13 +15,6 @@
 *                                                                      *
 * Object: to initialize the Hessian matrix for the first iteration.    *
 *                                                                      *
-* Called from: PrePro                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy  (ESSL)                                           *
-*              OldFcm                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             May '91                                                  *
@@ -34,7 +27,6 @@
 *
       iRout = 51
       iPrint = nPrint(iRout)
-*     Call qEnter('IntFcm')
 *
       nQQ = 0
 *
@@ -63,6 +55,5 @@
       If (iPrint.ge.99.and.lOld) Call RecPrt('IntFcm: Final Hessian',
      &                       ' ',Work(ipH),nQQ,nQQ)
 *
-*     Call qExit('IntFcm')
       Return
       End

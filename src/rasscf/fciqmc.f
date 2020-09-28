@@ -47,7 +47,7 @@
 
           subroutine NECImain(fcidmp, input_name, MemSize, NECIen)
             import :: int64, real64
-            character(*), intent(in) :: fcidmp, input_name
+            character(len=*), intent(in) :: fcidmp, input_name
             integer(int64), intent(in) :: MemSize
             real(real64), intent (out) :: NECIen
           end subroutine
@@ -114,7 +114,7 @@
 #endif
 
       parameter(ROUTINE = 'FCIQMC_clt')
-      character(*), parameter ::
+      character(len=*), parameter ::
      &  ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
 
       call qEnter(routine)
@@ -177,14 +177,14 @@
      &      NECIen, D1S_MO, DMAT, PSMAT, PAMAT, doGAS)
         use fciqmc_make_inp, only: make_inp
         logical, intent(in) :: DoEmbdNECI, fake_run, reuse_pops
-        character(*), intent(in) :: ascii_fcidmp, h5_fcidmp
+        character(len=*), intent(in) :: ascii_fcidmp, h5_fcidmp
         real(wp), intent(out) :: NECIen, D1S_MO(nAcPar), DMAT(nAcpar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
         logical, intent(in), optional :: doGAS
         logical :: doGAS_
         real(wp), save :: previous_NECIen = 0.0_wp
 
-        character(*), parameter :: input_name = 'FCINP',
+        character(len=*), parameter :: input_name = 'FCINP',
      &    energy_file = 'NEWCYCLE'
 
         if (present(doGAS)) then
@@ -251,7 +251,7 @@
      &      DoGAS, iGSOCCX, nGAS)
         integer, intent(in) :: lroots, iGSOCCX(:, :),nGAS
         logical, intent(in) :: lRf, DoGAS
-        character(*), intent(in) :: KSDFT
+        character(len=*), intent(in) :: KSDFT
         logical :: Do_ESPF
         if (lroots > 1) then
           call abort_('FCIQMC does not support State Average yet!')
@@ -270,9 +270,9 @@
 
       subroutine write_ExNECI_message(
      &      input_name, ascii_fcidmp, h5_fcidmp, energy_file)
-        character(*), intent(in) :: input_name, ascii_fcidmp, h5_fcidmp,
-     &          energy_file
-        character(1024) :: WorkDir
+        character(len=*), intent(in) :: input_name, ascii_fcidmp,
+     &          h5_fcidmp, energy_file
+        character(len=1024) :: WorkDir
         integer :: err
 
         call getcwd_(WorkDir, err)

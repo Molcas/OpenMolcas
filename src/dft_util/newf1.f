@@ -14,15 +14,6 @@
      &                  nP2_ontop,iSpin,F_xc,
      &                  dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
@@ -33,7 +24,6 @@
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
-C     Call QEnter('NEWF1')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -47,6 +37,5 @@ C     Call QEnter('NEWF1')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QExit('NEWF1')
       Return
       End

@@ -14,15 +14,6 @@
      &                nP2_ontop,iSpin,F_xc,
      &                dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. March 2001                              *
 ************************************************************************
@@ -37,7 +28,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QEnter('TLYP')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -48,7 +38,6 @@ C     Call QEnter('TLYP')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QExit('TLYP')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

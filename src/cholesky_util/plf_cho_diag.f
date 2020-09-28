@@ -49,7 +49,6 @@
       nBstSh(i)=iWork(ip_nBstSh-1+i)
 *
 #if defined (_DEBUG_)
-      Call qEnter('Plf_CD')
 #endif
       irout = 109
       jprint = nprint(irout)
@@ -146,7 +145,6 @@
 100   Continue
 *
 #if defined (_DEBUG_)
-      Call qExit('Plf_CD')
 #endif
       Return
       End

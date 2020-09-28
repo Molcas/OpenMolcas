@@ -17,12 +17,6 @@
 *         from the nuclei. In the case that the test charge coincide   *
 *         with a nucleau we will remove that center.                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, April '95.                                      *
 ************************************************************************
@@ -40,7 +34,6 @@
 *
       iRout = 185
       iPrint = nPrint(iRout)
-      Call qEnter('EFNuc')
 *
 *     Compute the nuclear contribution to the electrostatic interation
 *     tensor, ESIT.
@@ -94,7 +87,6 @@
 *
       If (iPrint.ge.99) Call RecPrt(' The Electrostatic Interaction'
      &                 //' Tensor',' ',ESIT,nElem(nOrdOp),1)
-      Call qExit('EFNuc')
       Return
       End
       Subroutine InitIA(I,mDeg)

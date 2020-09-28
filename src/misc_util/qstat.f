@@ -13,7 +13,7 @@
       Subroutine qStat (String)
 ************************************************************************
 *                                                                      *
-*     Print timing information for all sections enbracket by           *
+*     Print timing information for all sections bracketed by           *
 *     calls to qenter and qexit.                                       *
 *                                                                      *
 *     calling argument:                                                *

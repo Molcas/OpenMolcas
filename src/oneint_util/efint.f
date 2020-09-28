@@ -19,19 +19,6 @@
 * Object: kernel routine for the computation of electric field         *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy  (ESSL)                                           *
-*              SOS                                                     *
-*              DCR                                                     *
-*              XRys                                                    *
-*              Util1                                                   *
-*              DaXpY  (ESSL)                                           *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, January '91                             *
 *                                                                      *
@@ -40,7 +27,6 @@
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake, XCff2D, XRys2D
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 
 #include "int_interface.fh"
@@ -59,7 +45,6 @@
 *
       iRout = 200
       iPrint = nPrint(iRout)
-      Call qEnter('EFInt')
 *
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
@@ -194,7 +179,6 @@
 *
  102  Continue
 *     Call GetMem(' Exit EFInt','LIST','REAL',iDum,iDum)
-      Call qExit('EFInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

@@ -22,19 +22,12 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 *                                                                      *
 *             Modified for Cholesky 1-center gradients May 2007 by     *
 *             R. Lindh                                                 *
-*                                                                      *
 ************************************************************************
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
@@ -55,7 +48,6 @@
       iPrint = nPrint(iRout)
 *define _DEBUG_
 #ifdef _DEBUG_
-      Call qEnter('PGet1_CD3')
       iPrint=99
       If (iPrint.ge.99) Then
          iComp = 1
@@ -332,7 +324,6 @@ C     Fac = One / Four
 #ifdef _DEBUG_
       Call RecPrt(' In PGet1_CD3:PAO ',' ',PAO,ijkl,nPAO)
       Call GetMem(' Exit PGet1_CD3','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet1_CD3')
 #endif
 
       Call CWTime(Cpu2,Wall2)

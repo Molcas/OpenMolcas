@@ -17,7 +17,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "setup.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
        Integer, Allocatable:: iTable(:,:)
        Real*8, Allocatable:: Buf(:), Bin3(:,:,:)
 *                                                                      *

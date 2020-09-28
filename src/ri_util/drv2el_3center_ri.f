@@ -21,15 +21,6 @@
 *          2) a 3-center section to generate the R-vectors             *
 *          3) a partial transpose section to generate the RI vectors   *
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Timing                                                  *
-*              Setup_Ints                                              *
-*              Eval_Ints                                               *
-*              Term_Ints                                               *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -41,7 +32,6 @@
 *             Modified driver. Jan. '98                                *
 *             Modified to 3-center ERIs for RI Jan '06                 *
 *             Modified to out-of-core version Feb '07                  *
-*                                                                      *
 ************************************************************************
       use iSD_data
       use Wrj12
@@ -87,7 +77,6 @@
 ************************************************************************
 *                                                                      *
       iRout = 9
-      Call QEnter('Drv2El3RI')
 *
 #ifdef  _MOLCAS_MPP_
       Distribute = nProcs.gt.1 .and. Is_Real_Par()
@@ -786,6 +775,5 @@ C      End Do    ! klS
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drv2El3RI')
       Return
       End

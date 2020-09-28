@@ -22,7 +22,6 @@
       Character*80 Label
       Data iTwoj/1,2,4,8,16,32,64,128/
 *
-      Call QEnter('SOAdpt')
       iRout=133
       iPrint=nPrint(iRout)
 *     Call GetMem('SOAdpt_E','CHEC','REAL',iDum,iDum)
@@ -58,6 +57,5 @@
       End If
 *
 *     Call GetMem('SOAdpt_X','CHEC','REAL',iDum,iDum)
-      Call QExit ('SOAdpt')
       Return
       End

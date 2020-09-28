@@ -15,16 +15,6 @@
 *                                                                      *
 * Object: to read all input information on the file INFO.              *
 *                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              OpnCom                                                  *
-*              ClsCom                                                  *
-*              RdCom                                                   *
-*              SetUp_RW                                                *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January 1992                                             *

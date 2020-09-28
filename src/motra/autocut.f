@@ -25,7 +25,6 @@
 #include "motra_global.fh"
 #include "trafo_motra.fh"
 *
-      Call qEnter('AutoCut')
 *----------------------------------------------------------------------*
 *     Start procedure                                                  *
 *----------------------------------------------------------------------*
@@ -57,6 +56,5 @@
         nOrbt=nOrbt+nOrb(iSym)
         nOrbtt=nOrbtt+nOrb(iSym)*(nOrb(iSym)+1)/2
       End Do
-      Call qExit('AutoCut')
       Return
       End

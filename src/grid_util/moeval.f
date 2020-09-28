@@ -15,15 +15,6 @@
       Subroutine MOEval(MOValue,nMOs,nCoor,CCoor,CMOs,nCMO,mCoor,DoIt,
      &                  nDrv,mAO,Debug)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: Drv1EL                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN. November 1995                           *
 *                                                                      *

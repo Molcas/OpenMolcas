@@ -33,7 +33,6 @@
 #include "twoswi.fh"
 #include "rmat.fh"
 #include "gam.fh"
-#include "WrkSpc.fh"
 #include "real.fh"
 #include "relae.fh"
 #include "FMM.fh"

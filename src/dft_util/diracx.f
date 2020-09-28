@@ -13,15 +13,6 @@
       Subroutine DiracX(mGrid,Rho,nRho,iSpin,F_xc,dF_dRho,
      &                  ndF_dRho,Coeff,T_X)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
@@ -36,7 +27,6 @@ cGLM     &           F_xca(mGrid),F_xcb(mGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QEnter('DiracX')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -119,6 +109,5 @@ C     Call QEnter('DiracX')
 *
       End If
 *
-C     Call QExit('DiracX')
       Return
       End

@@ -15,11 +15,6 @@
 *                                                                      *
 * Object: to compute the degeneracy of a coordinate.                   *
 *                                                                      *
-* Called from:Coor                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             March '91                                                *

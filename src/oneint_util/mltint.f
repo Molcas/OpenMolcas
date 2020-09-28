@@ -20,20 +20,6 @@
 * Object: to compute the multipole moments integrals with the          *
 *         Gauss-Hermite quadrature.                                    *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              SOS                                                     *
-*              DCR                                                     *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              CmbnMP                                                  *
-*              SymAdO                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 *             Modified to multipole moments November '90               *
@@ -44,7 +30,6 @@
 *
 #include "rmat_option.fh"
 *
-#include "WrkSpc.fh"
 #include "oneswi.fh"
 #include "print.fh"
 
@@ -64,7 +49,6 @@
 *
       iRout = 122
       iPrint = nPrint(iRout)
-*     Call qEnter('MltInt')
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
@@ -76,7 +60,6 @@
       If (NDDO.AND.
      &    .NOT.(ABeq(1).AND.ABeq(2).AND.ABeq(3))) Then
         call dcopy_(nZeta*nIC*nElem(la)*nElem(lb),[Zero],0,Final,1)
-*       Call qExit('MltInt')
         Return
       End If
 *     switch
@@ -252,7 +235,6 @@
       End If
 *
 *     Call GetMem(' Exit MltInt','LIST','REAL',iDum,iDum)
-*     Call qExit('MltInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

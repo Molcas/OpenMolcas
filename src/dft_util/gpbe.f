@@ -18,12 +18,6 @@
 *                                                                      *
 * Object:    Gill96 + PBE combination                                  *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. March 2001                              *
 ************************************************************************
@@ -38,7 +32,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C      Call QEnter('GPBE')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -62,7 +55,6 @@ C      Call QEnter('GPBE')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C      Call QExit('GPBE')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

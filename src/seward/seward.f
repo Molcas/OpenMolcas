@@ -29,17 +29,6 @@
 *          SEWARD. SEWARD computes integrals for cartesian and         *
 *          spherical harmonic gaussian basis functions.                *
 *                                                                      *
-*                                                                      *
-* Called from: None                                                    *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              SetUp0                                                  *
-*              DmpInf                                                  *
-*              Input_Seward                                            *
-*              SetUp                                                   *
-*              Drv1El                                                  *
-*              Drv2El                                                  *
-*                                                                      *
 *  Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA     *
 *          July '89 - May '90                                          *
 *                                                                      *
@@ -94,7 +83,6 @@ C     Call Seward_Banner()
 *     Prologue
 *
       iRout=1
-      Call qEnter('Seward')
       LuWr=6
       PrPrt_Save = .False. ! dummy initialize
 *                                                                      *
@@ -511,7 +499,6 @@ C     Call Seward_Banner()
 *
 *     Epilogue
 *
-      Call qExit('Seward')
       If (nPrint(iRout).ge.6) Then
          Call qStat(' ')
          Call FastIO('STATUS')

@@ -24,9 +24,9 @@ module fortran_strings
     ! This type exists to have an array of string pointers
     ! and to allow unequally sized strings.
     ! NOTE: Due to old compilers this had to be
-    ! character(1), dimension(:), allocatable
+    ! character(len=1), dimension(:), allocatable
     ! if possible change it to
-    ! character(:), allocatable
+    ! character(len=:), allocatable
     type :: StringWrapper_t
         character(len=1), allocatable :: str(:)
     end type
@@ -58,24 +58,24 @@ module fortran_strings
         module procedure substr_in_str
     end interface
 
-    character(*), parameter :: &
+    character(len=*), parameter :: &
         UPPERCASE_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', &
         lowercase_chars = 'abcdefghijklmnopqrstuvwxyz'
 
     contains
 
     pure function I_to_str(i) result(str)
-        character(:), allocatable :: str
+        character(len=:), allocatable :: str
         integer, intent(in) :: i
-        character(range(i) + 2) :: tmp
+        character(len=range(i) + 2) :: tmp
         write(tmp, '(I0)') I
         str = trim(tmp)
     end function
 
     pure function R_to_str(x) result(str)
-        character(:), allocatable :: str
+        character(len=:), allocatable :: str
         real*8, intent(in) :: x
-        character(range(x) + 2) :: tmp
+        character(len=range(x) + 2) :: tmp
         write(tmp, '(I0)') x
         str = trim(tmp)
     end function
@@ -108,8 +108,8 @@ module fortran_strings
 
     !> Changes a string to upper case
     pure function to_upper (in_str) result (string)
-        character(*), intent(in) :: in_str
-        character(len(in_str)) :: string
+        character(len=*), intent(in) :: in_str
+        character(len=len(in_str)) :: string
         integer :: ic, i, L
 
         L = len_trim(in_str)
@@ -126,8 +126,8 @@ module fortran_strings
 
     !> Changes a string to lower case
     pure function to_lower (in_str) result (string)
-        character(*), intent(in) :: in_str
-        character(len(in_str)) :: string
+        character(len=*), intent(in) :: in_str
+        character(len=len(in_str)) :: string
         integer :: ic, i, L
 
         L = len_trim(in_str)
@@ -143,7 +143,7 @@ module fortran_strings
     end function to_lower
 
     logical pure function substr_in_str(substring, string)
-        character(*), intent(in) :: string, substring
+        character(len=*), intent(in) :: string, substring
 
         substr_in_str = index(string, substring) /= 0
     end function
@@ -151,8 +151,8 @@ module fortran_strings
     !> @brief
     !> Split a string at delimiter.
     subroutine split(string, delimiter, res)
-        character(*), intent(in) :: string
-        character(1), intent(in) :: delimiter
+        character(len=*), intent(in) :: string
+        character(len=1), intent(in) :: delimiter
         type(StringWrapper_t), allocatable, intent(out) :: res(:)
 
         integer :: i, n, low
@@ -178,7 +178,7 @@ module fortran_strings
     end subroutine
 
     pure function char_array(string) result(res)
-        character(*), intent(in) :: string
+        character(len=*), intent(in) :: string
         character(len=1) :: res(len(string))
         integer :: i
         do i = 1, len(string)
@@ -190,8 +190,8 @@ module fortran_strings
     !> @brief
     !> Count the occurence of a character in a string.
     pure function count_char(str, char) result(c)
-        character(*), intent(in) :: str
-        character(1), intent(in) :: char
+        character(len=*), intent(in) :: str
+        character(len=1), intent(in) :: char
         integer :: c
         integer :: i
 

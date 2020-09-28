@@ -20,7 +20,6 @@
       DIMENSION NBSX(8),KEEP(8)
       Logical FoundTwoEls,ISQUAR
 *
-      Call qEnter('FTWOI')
 *
       Call f_Inquire(FnTwoAo,FoundTwoEls)
       If (.not.FoundTwoEls) Then
@@ -81,7 +80,6 @@
         END DO
       END IF
 *
-      Call qExit('FTWOI')
 *
       RETURN
       END

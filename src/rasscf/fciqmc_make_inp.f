@@ -68,8 +68,8 @@
       use general_data, only : nActEl, iSpin
       use stdalloc, only : mma_deallocate
       use fortran_strings, only : str
-      character(*), intent(in) :: path
-      character(*), intent(in) :: FCIDUMP_name
+      character(len=*), intent(in) :: path
+      character(len=*), intent(in) :: FCIDUMP_name
       logical, intent(in), optional :: readpops, doGAS
       logical :: readpops_, doGAS_
       integer :: i, isFreeUnit, file_id, indentlevel
@@ -174,7 +174,7 @@
       contains
 
         function indent_fmt() result(res)
-          character(:), allocatable :: res
+          character(len=:), allocatable :: res
           if (indentlevel /= 0) then
             res = str(indentlevel)//'x, '
           else
@@ -183,23 +183,23 @@
         end function
 
         function kw_fmt(value_fmt) result(res)
-          character(*), intent(in) :: value_fmt
-          character(:), allocatable :: res
+          character(len=*), intent(in) :: value_fmt
+          character(len=:), allocatable :: res
           res = '('//indent_fmt()//'A, 1x, '//value_fmt//')'
         end function
 
         function I_fmt() result(res)
-          character(:), allocatable :: res
+          character(len=:), allocatable :: res
           res = kw_fmt('I0')
         end function
 
         function R_fmt() result(res)
-          character(:), allocatable :: res
+          character(len=:), allocatable :: res
           res = kw_fmt('F0.2')
         end function
 
         function A_fmt() result(res)
-          character(:), allocatable :: res
+          character(len=:), allocatable :: res
           res = kw_fmt('A')
         end function
 

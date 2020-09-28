@@ -19,17 +19,6 @@
 *                                                                      *
 * Object: to compute the gradients of the overlap matrix               *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              CmbnS2                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 *             Anders Bernhardsson 1995                                 *
@@ -48,7 +37,6 @@ c#include "print.fh"
 *
 c     iRout = 122
 c     iPrint = nPrint(iRout)
-c     Call qEnter('OvrHss')
 *     Write (*,*) ' IfHss=',IfHss
 *     Write (*,*) ' IndHss=',IndHss
       ABeq(1) = A(1).eq.RB(1)
@@ -126,7 +114,6 @@ c     End If
      &            IfHss,IndHss,indgrd,dc(mdc)%nStab,dc(ndc)%nStab,nOp)
 *
 c     Call GetMem(' Exit OvrHss','CHECK','REAL',iDum,iDum)
-c     Call qExit('OvrHss')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

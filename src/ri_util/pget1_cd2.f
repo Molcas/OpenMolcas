@@ -22,12 +22,6 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
@@ -36,7 +30,6 @@
 *             R. Lindh                                                 *
 *                                                                      *
 *             Modified for RI-HF/CAS, Dec 2009 (F. Aquilante)          *
-*                                                                      *
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
@@ -57,7 +50,6 @@
       iPrint = nPrint(iRout)
 *define _DEBUG_
 #ifdef _DEBUG_
-      Call qEnter('PGet1_CD2')
       Call RecPrt('PGet1_CD2: V_k',' ',V_k,1,mV_k)
 #endif
 *                                                                      *
@@ -354,7 +346,6 @@ C     Fac = One / Four
 #ifdef _DEBUG_
       Call RecPrt(' In PGet1_CD2:PAO ',' ',PAO,ijkl,nPAO)
       Call GetMem(' Exit PGet1_CD2','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet1_CD2')
 #endif
 
       Call CWTime(Cpu2,Wall2)

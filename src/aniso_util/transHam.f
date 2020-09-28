@@ -23,7 +23,7 @@ c           matrices to the basis of their local pseudospins
       Complex(kind=8), intent(in)  :: MM2(3,n2,n2)
       Complex(kind=8), intent(in)  :: H( n1,n1,n2,n2)
       Complex(kind=8), intent(out) :: HT(n1,n1,n2,n2)
-      Character(1), intent(in)      :: typ1, typ2
+      Character(Len=1), intent(in)  :: typ1, typ2
       ! local variables
       Integer                       :: i1,i2,j1,j2,i
       Real(kind=8), allocatable    :: gt1(:), gt2(:)

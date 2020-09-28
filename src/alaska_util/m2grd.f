@@ -20,21 +20,6 @@
 * Object: kernel routine for the computation of M2 integrals used in   *
 *         ECP calculations. The operator is a s-type gaussian          *
 *                                                                      *
-*                                                                      *
-*                                                                      *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DCR                                                     *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              CmbnMP                                                  *
-*              DaXpY   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
 *      Beta  : as Alpha but for ket gaussians                          *
@@ -69,7 +54,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
 
@@ -88,7 +72,6 @@
 *
       iRout = 122
       iPrint = nPrint(iRout)
-*     Call QEnter('M2Grd')
 *
       iIrrep = 0
       iuvwx(1) = dc(mdc)%nStab
@@ -310,7 +293,6 @@
  100  Continue
 *
 *
-*     Call QExit('M2Grd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

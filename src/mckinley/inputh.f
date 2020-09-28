@@ -16,18 +16,6 @@
 *                                                                      *
 * Object: input module for the gradient code                           *
 *                                                                      *
-* Called from: McKinley                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              RecPrt                                                  *
-*              DaXpY   (ESSL)                                          *
-*              DDot_   (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             September 1991                                           *
@@ -60,8 +48,6 @@ c      Logical DoCholesky
       Integer iSym(3), iTemp(3*MxAtom)
       Data xyz/'x','y','z'/
 *
-      Call QEnter('InputH')
-
 c      Call DecideOnCholesky(DoCholesky)
 c      If (DoCholesky) Then
 c       write(6,*)'** Cholesky or RI/DF not yet implemented in McKinley '
@@ -820,6 +806,5 @@ c      EndIf
         End If
       End Do
 *
-      Call QExit('InputH')
       Return
       End

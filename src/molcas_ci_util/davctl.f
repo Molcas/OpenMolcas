@@ -1706,15 +1706,11 @@ CFUE  End If
 
 #include "davctl.fh"
 
-*     Call qEnter('PageNo')
-
       itmp1 = iRoot
       If (iRoot.gt.n_Roots) then
         itmp1=n_Roots+mod(istart+iRoot-n_Roots-1,nvec-n_Roots)+1
       EndIf
       PageNo = itmp1
-
-*     Call qExit('PageNo')
 
       Return
       End
@@ -1751,8 +1747,6 @@ CFUE  End If
 
 #include "davctl.fh"
 
-*     Call qEnter('RecNo')
-
       RecNo = 0
       If ( itype.eq.1 ) then
         H_diag_RecNo = 1
@@ -1775,8 +1769,6 @@ CFUE  End If
         Call QTrace
         Call Abend
       End If
-
-*     Call qExit('RecNo')
 
       Return
       End

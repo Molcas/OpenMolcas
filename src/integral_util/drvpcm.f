@@ -26,7 +26,6 @@
 *
       iRout = 1
       iPrint = nPrint(iRout)
-      Call QEnter('DrvPCM')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -103,7 +102,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('DrvPCM')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_logical(Dff)

@@ -14,8 +14,8 @@ C     Chemistry" Vol. 22, pp. 55.
       SUBROUTINE EXPCSF (ICS, NLEV, IMS, LEX)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION ICS(NLEV), LEX(NLEV)
-      CHARACTER(256) LINE
-      CHARACTER(6) STRING
+      CHARACTER(LEN=256) LINE
+      CHARACTER(LEN=6) STRING
       DIMENSION ICOEF(2)
       LOGICAL LPHASE, LAST
 C     find number of singly occupied orbitals

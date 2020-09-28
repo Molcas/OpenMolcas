@@ -29,7 +29,6 @@ C
       IATOMSHL(I)=IWORK(ip_IATOMSHL-1+I)
 
 #if defined (_DEBUG_)
-      CALL QENTER('_SETRED')
 #endif
 
 C     Debug print.
@@ -391,7 +390,6 @@ C     ------------
       END IF
 
 #if defined (_DEBUG_)
-      CALL QEXIT('_SETRED')
 #endif
 
       END

@@ -16,11 +16,6 @@
 *                                                                      *
 * Object: driver for computation of one-electron property matrices     *
 *                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              OneEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
@@ -44,8 +39,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qEnter('DrvPot')
-*
       Call IniSewM('mltpl',0)
 *
       Call Set_Basis_Mode('Valence')
@@ -117,8 +110,6 @@ c
 *
       Call mma_deallocate(Centr)
       Call Free_iSD()
-*
-      Call QExit('DrvPot')
 *
       Return
       End

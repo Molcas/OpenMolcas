@@ -22,7 +22,6 @@
       Logical Special_NoSym, DFT_Storage
 *
 #ifdef _DEBUG_
-      Call qEnter('DeDe_SCF')
 #endif
       nr_of_Densities=1  ! Hardwired option
 *
@@ -78,7 +77,6 @@
          pFq => Twoham(:)
       End If
 #ifdef _DEBUG_
-      Call qExit('DeDe_SCF')
 #endif
 *
       Return

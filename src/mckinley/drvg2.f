@@ -20,24 +20,10 @@
 *          list of symmetry distinct centers that do have basis func-  *
 *          tions of the requested type.                                *
 *                                                                      *
-* Called from: mckinley                                                *
-*                                                                      *
 * Input:                                                               *
 *              nHess         : Size of gradient and hessian            *
 *              l_Grd,l_Hss   : Boolean on/off for gradient/hessian     *
 *                              generation                              *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              StatP                                                   *
-*              Drvk2                                                   *
-*              DCopy   (ESSL)                                          *
-*              Swap                                                    *
-*              MemRg2 Calculate memory requirement for calc area       *
-*              PSOAO1 Memory partioning                                *
-*              PGet0                                                   *
-*              TwoEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March 1990                                               *
 *             Anders Bernhardsson 1995-1996                            *

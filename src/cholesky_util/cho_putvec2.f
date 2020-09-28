@@ -35,7 +35,6 @@ C
       NDIMRS(I,J)=IWORK(ip_NDIMRS-1+NSYM*(J-1)+I)
 
 #if defined (_DEBUG_)
-      CALL QENTER('_PUTVEC2')
 #endif
 
 C     Return if no vectors.
@@ -176,7 +175,6 @@ C     ------------
 
     1 CONTINUE
 #if defined (_DEBUG_)
-      CALL QEXIT('_PUTVEC2')
 #endif
 
       END

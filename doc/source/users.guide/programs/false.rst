@@ -1,7 +1,7 @@
 .. _UG\:sec\:false:
 
 :program:`false`
-==============
+================
 
 .. only:: html
 

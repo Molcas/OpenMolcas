@@ -57,7 +57,6 @@
 
       IfTest=.False.
 #ifdef _DEBUG_
-      Call QEnter('ZMatrixConverter')
       IfTest=.True.
 #endif
 
@@ -260,7 +259,6 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
 9999  Continue
 
 #ifdef _DEBUG_
-      Call QExit('ZMatrixConverter')
 #endif
 
       Return

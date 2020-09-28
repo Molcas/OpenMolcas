@@ -16,13 +16,6 @@
 *                                                                      *
 *  Object: Allocate space for K2 entities.                             *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              DCR                                                     *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden. November '92                 *
 *             Martin Schuetz, Dept. of Theoretical Chemistry,          *
@@ -39,7 +32,6 @@
 #include "setup.fh"
 #include "status.fh"
 *
-*     Call QEnter('AlloK2')
 *
       Call Nr_Shells(nSkal)
 *

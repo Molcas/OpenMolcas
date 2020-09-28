@@ -271,7 +271,7 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
         real*8, intent(in) :: CMO(:), orbital_E(:)
         logical, intent(in) :: iDoGAS
 
-        character(*), parameter :: filename = 'ORTHORB'
+        character(len=*), parameter :: filename = 'ORTHORB'
         real*8, allocatable :: occ_number(:)
         integer, parameter :: arbitrary_magic_number = 50
         integer :: file_id, typeidx(7, 8)

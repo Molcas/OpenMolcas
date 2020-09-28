@@ -15,13 +15,8 @@
      &                  rKappa,IndZt,IncZet,SkipZt,Data,IndZ,
      &                  iphX,iphY,iphZ)
 ************************************************************************
+*                                                                      *
 * Object : to compute zeta, P and kappa.                               *
-*                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
@@ -44,7 +39,6 @@
 *
       iRout = 68
       iPrint = nPrint(iRout)
-*     Call qEnter('DoZ')
 *
 *     Transfer precomputer data
 *
@@ -80,7 +74,6 @@
          Write (6,*) ' Exit DoZ'
       End If
 *
-*     Call qExit('DoZ')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

@@ -122,7 +122,7 @@ c total average M and average S data:
       Real(kind=8)             :: dev, dnrm2_
       External                  :: dev, dnrm2_
       Logical          :: DBG
-      Character(15)    :: lbl_X, lbl_Y, lbl_Z
+      Character(Len=15):: lbl_X, lbl_Y, lbl_Z
 c
 
       Call qEnter('magnetisation')

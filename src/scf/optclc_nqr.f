@@ -14,7 +14,6 @@
 #include "llists.fh"
 #include "file.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
       Integer nCI,nD,nOV,MxOptm,kOptim
       Real*8 CInter(nCI,nD), Grd1(nOV,nD), Xnp1(nOV,nD)
       Integer Ind(MxOptm)

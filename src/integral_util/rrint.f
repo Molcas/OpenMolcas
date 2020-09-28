@@ -14,7 +14,6 @@
 #include "welcom.fh"
       Real*8 grint(0:lmax,lmax),rri(0:kmax+2)
 *
-      Call QEnter('RRINT')
       M=K+1
       EXPA=-A*A*ALFA-BETA*R0*R0
       AEXP=(ALFA+BETA)
@@ -114,6 +113,5 @@ C     Call RecPrt(' rri',' ',rri,l+3,1)
  100  Continue
 *
 *     Call RecPrt(' In RRint:grint',' ',grint,1+lmax,lmax)
-      Call QExit ('RRINT')
       Return
       End

@@ -49,7 +49,6 @@
 
 #include "SysDef.fh"
 
-      Call qEnter('RdMBPT')
 *
 *...  Read nSym, nBas, nOrb, nOcc, nFro, CMO and orbital energies from COMFILE
 *
@@ -113,6 +112,5 @@
          End Do
          Call GetMem('EOrb_t','Free','Real',ipEOrb_t,lthEOr)
 *
-      Call qExit('RdMBPT')
       Return
       End

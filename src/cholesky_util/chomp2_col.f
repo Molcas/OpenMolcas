@@ -36,7 +36,6 @@ C     ------------
       If (nCol.lt.1 .or. nDim.lt.1) Return
       iSym = NowSym
       If (nDim .ne. nT1am(iSym)) Then
-         Call qEnter(ThisNm)
          Write(6,*) SecNam,': inconsistent dimension. Expected: ',
      &              nT1am(iSym),'   Received: ',nDim
          Write(6,*) SecNam,': symmetry from chomp2_dec.fh: ',iSym
@@ -136,7 +135,6 @@ C
      &                        Work(ip_OldVec),NumCho(iSym),
      &                        Buf,l_Buf,Fac,irc)
          If (irc .ne. 0) Then
-            Call qEnter(ThisNm)
             Write(6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
             Call ChoMP2_Quit(SecNam,'ChoMP2_Col_Comp error','[1]')
          End If
@@ -155,7 +153,6 @@ C
 
             nVec = min(l_Buf/(nDim+1),NumCho(iSym))
             If (nVec .lt. 1) Then
-               Call qEnter(ThisNm)
                Write(6,*) SecNam,': insufficient memory for batch!'
                Call ChoMP2_Quit(SecNam,'insufficient memory','[1]')
                nBat = 0
@@ -198,7 +195,6 @@ C
      &                                 Buf(1+lTot),lScr,Fac,irc)
                End If
                If (irc .ne. 0) Then
-                  Call qEnter(ThisNm)
                   Write(6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
                   Call ChoMP2_Quit(SecNam,'ChoMP2_Col_Comp error','[2]')
                End If
@@ -211,7 +207,6 @@ C
 
             nVec = min(lWrk/nDim,NumCho(iSym))
             If (nVec .lt. 1) Then
-               Call qEnter(ThisNm)
                Write(6,*) SecNam,': insufficient memory for batch!'
                Call ChoMP2_Quit(SecNam,'insufficient memory','[2]')
                nBat = 0
@@ -250,7 +245,6 @@ C
      &                                 Work(ipWrk+lTot),lScr,Fac,irc)
                End If
                If (irc .ne. 0) Then
-                  Call qEnter(ThisNm)
                   Write(6,*) SecNam,': ChoMP2_Col_Comp returned ',irc
                   Call ChoMP2_Quit(SecNam,'ChoMP2_Col_Comp error','[3]')
                End If

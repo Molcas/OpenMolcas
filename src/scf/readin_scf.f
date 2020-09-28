@@ -50,7 +50,6 @@
 *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 #ifdef _DEBUG_
-      Call qEnter('ReadIn')
 #endif
 *                                                                      *
 ************************************************************************
@@ -115,7 +114,6 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUG_
-      Call qExit('ReadIn')
 #endif
       Call Timing(Cpu2,Tim1,Tim2,Tim3)
       TimFld( 1) = TimFld( 1) + (Cpu2 - Cpu1)

@@ -42,7 +42,6 @@ CAOM>
       iRout = 131
       iPrint = nPrint(iRout)
       Call CWTime(TCpu1,TWall1)
-      Call qEnter('Drvh1_emb')
       Call StatusLine(' Alaska:',' Computing 1-el OFE gradients')
 *
       Call Set_Basis_Mode('Valence')
@@ -182,7 +181,6 @@ CAOM>
       Call Free_iSD()
       Call CWTime(TCpu2,TWall2)
       Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
-      Call qExit('Drvh1_emb')
       Return
       End
 *                                                                      *

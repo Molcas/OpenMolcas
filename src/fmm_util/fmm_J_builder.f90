@@ -30,7 +30,7 @@ CONTAINS
       TYPE(scheme_paras), INTENT(IN) :: scheme
       TYPE(raw_mm_data),  INTENT(IN) :: LHS_mms
       REAL(REALK),        INTENT(IN) :: Vff(:,:)
-      CHARACTER(1),       INTENT(IN) :: J_or_E
+      CHARACTER(LEN=1),   INTENT(IN) :: J_or_E
       LOGICAL :: A,B,C
 
       A = (SIZE(LHS_mms%paras) /= SIZE(Vff,2))
@@ -52,7 +52,7 @@ CONTAINS
       IMPLICIT NONE
       TYPE(scheme_paras), INTENT(IN)    :: scheme
       REAL(REALK),        INTENT(INOUT) :: energy
-      CHARACTER(*),       INTENT(OUT)   :: text
+      CHARACTER(LEN=*),   INTENT(OUT)   :: text
       LOGICAL :: A,B,C,D
 
       A = (scheme%LHS_mm_range == ELECTRONIC_ONLY)
@@ -92,7 +92,7 @@ CONTAINS
       TYPE(raw_mm_data),  INTENT(IN)  :: LHS_mms
       REAL(REALK),        INTENT(IN)  :: Vff(:,:)
       REAL(REALK),        INTENT(OUT) :: energy
-      CHARACTER(*),       INTENT(OUT) :: text
+      CHARACTER(LEN=*),   INTENT(OUT) :: text
 
       REAL(REALK)   :: g
       INTEGER(INTK) :: u,v, lm_max
@@ -128,7 +128,7 @@ CONTAINS
       TYPE(raw_mm_data),  INTENT(IN)  :: LHS_mms
       REAL(REALK),        INTENT(IN)  :: Vff(:,:)
       REAL(REALK),        INTENT(OUT) :: energy
-      CHARACTER(*),       INTENT(OUT) :: text
+      CHARACTER(LEN=*),   INTENT(OUT) :: text
 
       REAL(REALK)   :: g
       INTEGER(INTK) :: u,v,w, lm_max

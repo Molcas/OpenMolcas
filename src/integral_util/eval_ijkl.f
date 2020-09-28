@@ -41,19 +41,7 @@
 *          nTInt               : dimension of TInt                     *
 *          iTOffs              : iTOffs holds symmetry block offsets   *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter,QExit                                            *
-*              Int_Setup                                               *
-*              Dens_Info                                               *
-*              MemRys                                                  *
-*              PSOAO0                                                  *
-*              Picky_                                                  *
-*              TwoEl_NoSym                                             *
-*              TwoEl_Sym                                               *
-*              Integ_Proc                                              *
-*                                                                      *
-*             Roland Lindh / Martin Schuetz,                           *
+*     Author: Roland Lindh / Martin Schuetz,                           *
 *             Dept. of Theoretical Chemistry, University of Lund,      *
 *             SWEDEN.                                                  *
 *             Modified for k2 loop. August '91                         *

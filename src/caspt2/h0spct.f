@@ -27,7 +27,7 @@
 #endif
 
 #include "SysDef.fh"
-      CHARACTER(80) LINE
+      CHARACTER(LEN=80) LINE
 
 C Write pertinent warnings and statistics for the energy
 C denominators, i.e. the spectrum of (H0(diag)-E0).

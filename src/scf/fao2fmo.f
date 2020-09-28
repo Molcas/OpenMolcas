@@ -43,7 +43,6 @@
 #else
       Debug=.false.
 #endif
-      Call qEnter('Fao2Fmo')
       Write(6,'(a)') '+++ Entering Fao2Fmo'
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -55,6 +54,5 @@
 * Done                                                                 *
 *----------------------------------------------------------------------*
       Write(6,'(a)') '+++ Exiting Fao2Fmo'
-      Call qExit ('Fao2Fmo')
       Return
       End

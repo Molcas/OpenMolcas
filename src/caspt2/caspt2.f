@@ -74,7 +74,7 @@ C
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
 #include "stdalloc.fh"
-      CHARACTER(60) STLNE2
+      CHARACTER(LEN=60) STLNE2
 #ifdef _MOLCAS_MPP_
       LOGICAL KING, Is_Real_Par
 #endif

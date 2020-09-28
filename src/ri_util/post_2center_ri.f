@@ -16,15 +16,6 @@
 *                                                                      *
 *  Object: driver for two-electron integrals.                          *
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Timing                                                  *
-*              Setup_Ints                                              *
-*              Eval_Ints                                               *
-*              Term_Ints                                               *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -35,7 +26,6 @@
 *             small basis sets and large molecules. Sept. '93          *
 *             Modified driver. Jan. '98                                *
 *             Modified to 2-center ERIs for RI June '05                *
-*                                                                      *
 ************************************************************************
       use Basis_Info, only: nBas_Aux
       use Wrj12
@@ -56,7 +46,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('Post2RI')
 *
       nScr=0
       nBfn2 = 0
@@ -276,6 +265,5 @@ c         If (iIrrep.eq.0) nB = nB - 1
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      Call QExit('Post2RI')
       Return
       End

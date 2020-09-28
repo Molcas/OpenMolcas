@@ -72,7 +72,6 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUG_
-*      Call QEnter('AOEval')
       iRout=132
       iPrint=nPrint(iRout)
 C     iPrint=99
@@ -104,7 +103,6 @@ C     Write(6,*) '----- nDrv = ', nDrv
 *----    premultiplied with (minus two times the exponent)**iDrv
 *
 #ifdef _DEBUG_
-*      Call QEnter('Exponent')
       If (nRad.LE.0 .AND. nRad.GE.5) Then
          Write (6,*) 'AOEval: illegal value of nRad!'
          Call Abend()
@@ -182,7 +180,6 @@ C        If (-Exp_Min*R2.lt.Thre) Go To 9898
             Write (Label,'(A)')'Radial(nCoor*nRad,nBas)'
             Call RecPrt(Label,'(10G20.10)',Radial,nCoor*nRad,nBas)
       End If
-*      Call QExit('Exponent')
 #endif
 *                                                                      *
 ************************************************************************
@@ -375,7 +372,6 @@ C        End Do
 *
 *     Call GetMem('AOEval ','CHEC','REAL',iDum,iDum)
 #ifdef _DEBUG_
-*      Call QExit ('AOEval')
 #endif
       Return
       End

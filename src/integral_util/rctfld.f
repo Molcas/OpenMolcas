@@ -62,19 +62,6 @@
 *                                                                      *
 *         -1/2 Sum(nl) E(tot,nl)M(tot,nl)                              *
 *                                                                      *
-* Called from: DrvRF                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              DCopy  (ESSL)                                           *
-*              RecPrt                                                  *
-*              MltNuc                                                  *
-*              Drv1                                                    *
-*              AppFld                                                  *
-*              DDot_  (ESSL)                                           *
-*              Drv2                                                    *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             July '92                                                 *
@@ -103,7 +90,6 @@
 *
       iRout = 1
       iPrint = nPrint(iRout)
-      Call qEnter('RctFld')
 *
       lOper(1)=1
       nOrdOp=lMax
@@ -349,7 +335,6 @@
 ************************************************************************
 *                                                                      *
 *
-      Call qExit('RctFld')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_logical(Dff)

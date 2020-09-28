@@ -18,18 +18,6 @@
 * Object: kernel routine for the computation of electric field         *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy  (ESSL)                                           *
-*              SOS                                                     *
-*              DCR                                                     *
-*              XRys                                                    *
-*              Util1                                                   *
-*              DaXpY  (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, January '91                             *
 *                                                                      *
@@ -56,7 +44,6 @@
 *
       iRout = 200
       iPrint = nPrint(iRout)
-      Call qEnter('EFPrm')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In EFPrm: Alpha',' ',Alpha,nAlpha,1)
@@ -156,7 +143,6 @@
  400     Continue
       End If
 *
-      Call qExit('EFPrm')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nRys)

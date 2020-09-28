@@ -20,12 +20,6 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: Twoel                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             April '90                                                *
 ************************************************************************
@@ -36,7 +30,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
       Real*8 SOInt(ijkl,nSOInt)
       Integer iCmp(4), iShell(4), iAO(4), iAOst(4)
       Logical Shijij, Shij, Shkl, Qijij, Qij, Qkl,

@@ -20,12 +20,6 @@
 *                                                                      *
 * Object: to compute the primitive integrals of type (pp|ps).          *
 *                                                                      *
-* Called from: vRys                                                    *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
-*                                                                      *
 *  Author:    Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN. 1994                                    *
 ************************************************************************
@@ -44,7 +38,6 @@
       Integer iPntr(nPntr)
       Logical ABeqCD, EQ
 *
-*     Call qEnter('ppps')
 *
       xdInv=One/ddx
       dddx = ddx/10d0 + ddx
@@ -499,7 +492,6 @@
 *
  99   Continue
 *
-*     Call qExit('ppps')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(EInv)

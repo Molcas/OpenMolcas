@@ -18,16 +18,6 @@
 *                                                                      *
 * Object: kernel routine for the computation of  pX integrals          *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : qEnter                                                  *
-*              RecPrt                                                  *
-*              Util1                                                   *
-*              DCopy  (ESSL)                                           *
-*              NSOInt                                                  *
-*              GetMem                                                  *
-*              qExit                                                   *
-*                                                                      *
 *     Author: Bernd Hess, Institut fuer Physikalische und Theoretische *
 *             Chemie, University of Bonn, Germany, April 1993          *
 ************************************************************************
@@ -57,7 +47,6 @@
 *                                                                      *
       iRout = 221
       iPrint = nPrint(iRout)
-      Call qEnter('pvint')
 *
       If (iPrint.ge.99) Then
          Write (6,*) 'PVInt: nIC,nComp=',nIC,nComp
@@ -135,7 +124,6 @@
      &                  nZeta,nElem(la)*nElem(lb))
          End Do
       End If
-      Call qExit('pvint')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nHer)

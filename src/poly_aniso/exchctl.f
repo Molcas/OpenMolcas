@@ -42,7 +42,7 @@
       Integer, intent(in)           :: mem ! memory allocated so far
       Integer, intent(in)           :: MxRank1, MxRank2
       Integer, intent(in)           :: imaxrank(npair,2)
-      Character(1), intent(in)      :: itype(nneq)
+      Character(Len=1), intent(in)  :: itype(nneq)
 
       Real(kind=8), intent(in)     :: eso(nneq,nmax)
       Real(kind=8), intent(in)     :: Jex(npair)

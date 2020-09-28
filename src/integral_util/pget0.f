@@ -19,15 +19,6 @@
 * Object: to act as a shell towards the manipulations of generating or *
 *         accessing the 2nd order density matrix.                      *
 *                                                                      *
-* Called from: Twoel                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              PGet1                                                   *
-*              PGet2                                                   *
-*              PGet3                                                   *
-*              PGet4                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '92.                                             *
@@ -46,7 +37,6 @@
 #include "print.fh"
 #include "real.fh"
 #include "setup.fh"
-#include "WrkSpc.fh"
 #include "etwas.fh"
 #include "columbus_gamma.fh"
       Real*8 PSO(ijkl,nPSO), Mem2(nMem2)
@@ -58,7 +48,6 @@
 #ifdef _DEBUG_
       iRout = 248
       iPrint = nPrint(iRout)
-      Call qEnter('PGet0')
 #endif
 *                                                                      *
 ************************************************************************
@@ -333,7 +322,6 @@
 #ifdef _DEBUG_
       If (iPrint.ge.99) Call RecPrt('PSO in PGet0',' ',
      &                               PSO,ijkl,nPSO)
-      Call qExit('PGet0')
 #endif
 *                                                                      *
 ************************************************************************

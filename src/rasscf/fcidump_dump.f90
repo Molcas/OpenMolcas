@@ -37,7 +37,7 @@ contains
                         two_el_table, orbsym)
     use general_data, only : nSym, nActEl, iSpin, lSym, nAsh
     implicit none
-    character(*), intent(in) :: path
+    character(len=*), intent(in) :: path
     real*8, intent(in) :: EMY
     type(OrbitalTable), intent(in) :: orbital_table
     type(FockTable), intent(in) :: fock_table
@@ -115,7 +115,7 @@ contains
     use mh5
 #endif
     implicit none
-    character(*), intent(in) :: path
+    character(len=*), intent(in) :: path
     real*8, intent(in) :: EMY
     type(OrbitalTable), intent(in) :: orbital_table
     type(FockTable), intent(in) :: fock_table

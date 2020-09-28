@@ -76,7 +76,6 @@
 #endif
 *define _DEBUG_
 #ifdef _DEBUG_
-      Call qEnter('TraFck')
       Call NrmClc(Fock,nFock*nD,'TraFck','Fock')
 #endif
 *---- allocate memory for modified Fock matrix
@@ -420,7 +419,6 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
       Call mma_deallocate(FckM)
 *
 #ifdef _DEBUG_
-      Call qExit('TraFck')
 #endif
 #ifdef _SPECIAL_DEBUG_
       Call DebugCMOx(CMO,nCMO,nD,nBas,nOrb,nSym,'TraFck: CMO new')

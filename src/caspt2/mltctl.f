@@ -27,7 +27,7 @@
       INTEGER LAXITY
       INTEGER  Cho_X_GetTol
       EXTERNAL Cho_X_GetTol
-      CHARACTER(8) INLAB
+      CHARACTER(LEN=8) INLAB
       DIMENSION HEFF(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE)
       real(8) U0(Nstate,Nstate)
       real(8),allocatable :: Utmp(:,:)

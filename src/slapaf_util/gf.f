@@ -20,7 +20,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('GF')
       iRout=138
 *define _DEBUG_
 #ifdef _DEBUG_
@@ -101,7 +100,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('GF')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(iDo_dDipM)

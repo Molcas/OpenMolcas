@@ -18,21 +18,6 @@
 *                                                                      *
 * Object: kernel routine for the computation of ECP integrals.         *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              Mlt1                                                    *
-*              DGeTMO  (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
 *      Beta  : as Alpha but for ket gaussians                          *

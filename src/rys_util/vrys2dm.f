@@ -21,13 +21,6 @@
 *             conditioned with the weights of the roots of the         *
 *             Rys polynomial.                                          *
 *                                                                      *
-* Called from: Rys                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -48,7 +41,6 @@
 *
       iRout = 15
       iPrint = nPrint(iRout)
-*     Call QEnter('Rys2Dm')
 #ifdef _DEBUG_
       iPrint=99
       If (iPrint.ge.99) Then
@@ -201,6 +193,5 @@ c Avoid unused argument warnings
          Call Unused_integer(lcc)
       End If
 #endif
-*     Call QExit('Rys2Dm')
       Return
       End

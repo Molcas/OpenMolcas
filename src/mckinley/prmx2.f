@@ -13,16 +13,6 @@
 ************************************************************************
       SubRoutine PrMx2(Label,iComp,lOper,Result,Mem)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              TriPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden, January '91                  *
 *                                                                      *
@@ -37,8 +27,6 @@
       Character Label*(*), Line*80
       Integer  lOper
       Logical Type
-*
-*     Call qEnter('PrMtrx')
 *
          ip1=1
          Type = .True.
@@ -73,6 +61,5 @@
  40         Continue
  30      Continue
 *
-*     Call qExit('PrMtrx')
       Return
       End

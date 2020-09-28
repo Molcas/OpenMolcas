@@ -120,13 +120,13 @@
 
 !> Return Error String from Error number
       function strerror_(errnum) result(res)
-        character(:), allocatable :: res
         integer, intent(in) :: errnum
+        character(len=:), allocatable :: res
 #ifdef C_PTR_BINDING
         res = Cptr_to_str(strerror_c(int(errnum, C_INT)))
 #else
         integer :: rc
-        character(80) :: errstr
+        character(len=80) :: errstr
         integer, external :: aixerr
         errstr = ''
         rc = aixerr(errstr)
@@ -143,17 +143,17 @@
       end subroutine
 
       function real_path(molcas_name) result(path)
-        character(*), intent(in) :: molcas_name
-        character(:), allocatable :: path
-        character(1024) :: buffer
+        character(len=*), intent(in) :: molcas_name
+        character(len=:), allocatable :: path
+        character(len=1024) :: buffer
         integer :: L
         call prgmtranslate_master(molcas_name, buffer, L)
         path = buffer(:L)
       end function
 
       function basename(path) result(res)
-        character(*), intent(in) :: path
-        character(:), allocatable :: res
+        character(len=*), intent(in) :: path
+        character(len=:), allocatable :: res
         type(StringWrapper_t), allocatable :: names(:)
 
         call split(path, '/', names)

@@ -45,7 +45,7 @@ c local variables:
       Real(kind=8)    :: E_thres
       Real(kind=8)    :: zJ
       Real(kind=8)    :: g_e
-      Character(60)    :: fmtline
+      Character(Len=60)    :: fmtline
       logical          :: DBG
       Real(kind=8),allocatable     :: WM(:)     ! WM(N)
       Real(kind=8), allocatable    :: MM(:,:,:) ! MM(nsites,3,N)
