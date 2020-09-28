@@ -23,7 +23,7 @@
      &                     nWndw,Mode,MF,
      &                     iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
      &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
-     &                     Degen,ThrEne,ThrGrd)
+     &                     Degen,ThrEne,ThrGrd,nLines)
 ************************************************************************
 *                                                                      *
 *     Object: to update coordinates                                    *
@@ -208,7 +208,7 @@
 *
          First_MicroIteration=iterAI.eq.iter
          nWndw_=nWndw/2 + (iterAI-iter)
-         Call Update_internal(
+         Call Update_inner(
      &                   iterAI,iInt,nFix,nInter,qInt,Shift,Grad,iOptC,
      &                   Beta_,Beta_Disp_,Lbl,GNrm,Energy,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
@@ -219,11 +219,23 @@
      &                   MF,iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,
      &                   dMass,HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
-     &                   First_MicroIteration,iter,qBeta_Disp)
+     &                   First_MicroIteration,iter,qBeta_Disp,nLines)
 #ifdef _DEBUG_
          Write (6,*) 'Update_kriging: Step_Trunc',Step_Trunc
          Call RecPrt('New Coord',' ',qInt,nInter,iterAI+1)
          Call RecPrt('Grad',' ',Grad,nInter,iterAI)
+#endif
+*
+*        Transform the new internal coordinates to Cartesians
+*        (this updates the new internal coordinates, in case they were
+*        not totally consistent)
+*
+         Error=(iterK.ge.1)
+         Call NewCar_Kriging(iterAI,nLines,nsAtom,nDimBC,nInter,BMx,
+     &                       dMass,Lbl,Shift,qInt,Grad,AtomLbl,
+     &                       Cx,.True.,iter,Error)
+#ifdef _DEBUG_
+         Call RecPrt('New Coord (after NewCar)','',qInt,nInter,iterAI+1)
 #endif
 *                                                                      *
 ************************************************************************
@@ -257,24 +269,19 @@
 *
          dqdq=Zero
          Do iInter=1,nInter
-            dqdq=(qInt(iInter,iterAI+1)
-     &           -qInt(iInter,iFirst+nRaw-1))**2
+            dqdq=dqdq+(qInt(iInter,iterAI+1)-qInt(iInter,iter))**2
          End Do
          If (iterK.eq.0.and.Step_trunc.eq.'*') dqdq=qBeta**2
-*                                                                      *
-************************************************************************
-*                                                                      *
-*        Transform the new internal coordinates to Cartesians
 *
-         Error=(iterK.ge.1)
-         Call NewCar_Kriging(iterAI,iRow,nsAtom,nDimBC,nInter,BMx,dMass,
-     &                       Lbl,Shift,qInt,Grad,AtomLbl,
-     &                       Cx,.True.,iter,Error)
+*        In case of error during conversion to Cartesians
+*
          If (Error) Then
             Step_Trunc='@'
             Exit
          End If
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *        Compute the energy and gradient according to the
 *        surrogate model for the new coordinates.
 *
@@ -392,13 +399,12 @@
 *     Attempt overshooting
 *
       Call mma_allocate(Step_k,nInter,2)
-      i=iFirst+nRaw-1
       Call dCopy_(nInter,qInt(1,iterAI),1,Step_k(1,2),1)
-      Call dAXpY_(nInter,-One,qInt(1,i),1,Step_k(1,2),1)
-*     Call RecPrt('q(i+1)-q(f)','',Step_k(1,2),nInter,1)
-      If (i.gt.1) Then
-         Call dCopy_(nInter,qInt(1,i),1,Step_k(1,1),1)
-         Call dAXpY_(nInter,-One,qInt(1,i-1),1,Step_k(1,1),1)
+      Call dAXpY_(nInter,-One,qInt(1,iter),1,Step_k(1,2),1)
+*     Call RecPrt('q(iter+1)-q(f)','',Step_k(1,2),nInter,1)
+      If (iter.gt.1) Then
+         Call dCopy_(nInter,qInt(1,iter),1,Step_k(1,1),1)
+         Call dAXpY_(nInter,-One,qInt(1,iter-1),1,Step_k(1,1),1)
 *        Call RecPrt('q(f)-q(f-1)','',Step_k(1,1),nInter,1)
          dsds=dDot_(nInter,Step_k(1,1),1,Step_k(1,2),1)
          dsds=dsds/Sqrt(ddot_(nInter,Step_k(1,1),1,Step_k(1,1),1))
@@ -411,7 +417,7 @@
       If ((dsds.gt.dsds_min).And.(Step_Trunc.eq.' ')) Then
         Do Max_OS=9,0,-1
          OS_Factor=Max_OS*((dsds-dsds_min)/(One-dsds_min))**4
-         Call dCopy_(nInter,qInt(1,i),1,qInt(1,iterAI),1)
+         Call dCopy_(nInter,qInt(1,iter),1,qInt(1,iterAI),1)
          Call dAXpY_(nInter,One+OS_Factor,Step_k(1,2),1,
      &                                    qInt(1,iterAI),1)
          Call Energy_Kriging_Layer(qInt(1,iterAI),OS_Energy,nInter)
@@ -421,8 +427,8 @@
          If ((OS_Disp.gt.E_Disp).And.(OS_Disp.lt.Beta_Disp_)) Then
             Call dAXpY_(nInter,OS_Factor,Step_k(1,2),1,
      &                                   Shift(1,iterAI-1),1)
-            Call NewCar_Kriging(iterAI-1,iRow,nsAtom,nDimBC,nInter,BMx,
-     &                          dMass,Lbl,Shift,qInt,Grad,AtomLbl,
+            Call NewCar_Kriging(iterAI-1,nLines,nsAtom,nDimBC,nInter,
+     &                          BMx,dMass,Lbl,Shift,qInt,Grad,AtomLbl,
      &                          Cx,.True.,iter)
             Energy(iterAI)=OS_Energy
             If (Max_OS.gt.0) Then

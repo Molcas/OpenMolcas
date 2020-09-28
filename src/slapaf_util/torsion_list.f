@@ -660,8 +660,9 @@
                   CosFi=Max(Abs(Cos(Fi2)),Abs(Cos(Fi3)))
                   CosThr=0.97D0
                   If (CosFi.gt.CosThr) Then
-                    CosFi=(CosFi-CosThr)/(One-CosThr)
-                    fconst(nq)=(One-CosFi**2)*fconst(nq)
+                     CosFact=(CosFi-CosThr)/(One-CosThr)
+                     CosFact=One-(One-1.0D-3)*CosFact**2
+                     fconst(nq)=CosFact*fconst(nq)
                   End If
 *
                   Value(nq,iIter)=Val

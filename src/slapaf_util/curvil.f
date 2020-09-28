@@ -15,7 +15,7 @@
      &                  ip_rInt,ip_drInt,HSet,BSet,ipBMx,Numerical,iANr,
      &                  HWRS,Analytic_Hessian,iOptC,Name,PrQ,Proj,
      &                  dMass,iCoSet,iTabBonds,
-     &                  iTabAtoms, nBonds,nMax,iTabAI,mAtoms,lOld,
+     &                  iTabAtoms,nBonds,nMax,iTabAI,mAtoms,lOld,
      &                  ip_KtB_Hessian,nQQ,nqInt,MaxItr,nWndw)
 ************************************************************************
 *                                                                      *
@@ -393,9 +393,11 @@ C        iEnd = 1
 *
       Do jIter = iSt, iEnd, -1
          Proc_H=HSet.and.jIter.eq.iRef.and..Not.lOld
-         Proc_dB=Proc_H.and.Analytic_Hessian
+*        iOptC(256) = constrained optimization
+         Proc_dB=Proc_H.and.
+     &           (Analytic_Hessian.or.Numerical.or.
+     &            iAnd(iOptC,256).eq.256)
 *        Compute and store dBQQ in the reference structure
-         Proc_dB=Proc_dB.or.(Proc_H.and.Numerical)
          If (Proc_dB) Then
             If (ip_dB.ne.ip_Dummy) Then
                Call Free_Work(ip_dB)

@@ -225,7 +225,7 @@
       If (lRowH.or.lNmHss) kIter = iter - (NmIter-1)
 *define UNIT_MM
 #ifdef UNIT_MM
-      Call Setup_UpdMask(Curvilinear, Redundant, nsAtom, nInter)
+      Call Init_UpdMask(Curvilinear, Redundant, nsAtom, nInter)
 #endif
 *
 *     Update geometry
@@ -243,7 +243,7 @@
      &               nWndw,Mode,Work(ipMF),
      &               iOptH,HUpMet,kIter,GNrm_Threshold,
      &               IRC,Work(ipCM),HrmFrq_Show,
-     &               CnstWght,Curvilinear,Degen,ThrEne,ThrGrd)
+     &               CnstWght,Curvilinear,Degen,ThrEne,ThrGrd,iRow)
       Else
          Call Update_sl(
      &               Iter,MaxItr,NmIter,iInt,nFix,nQQ,Work(ipqInt),
@@ -272,7 +272,10 @@
 *-----Transform the new internal coordinates to Cartesians
 *     (if not already done by Kriging)
 *
-      If (.not.(Kriging .and. Iter.ge.nspAI)) Then
+      If (Kriging .and. Iter.ge.nspAI) Then
+         Call dCopy_(3*nsAtom,Work(ipCx+Iter*3*nsAtom),1,
+     &                        Work(ipCoor),1)
+      Else
          Call GetMem(' DFC  ', 'Allo','Real',ipDFC, 3*nsAtom)
          Call GetMem(' dss  ', 'Allo','Real',ipdss, nQQ)
          Call GetMem(' qTemp', 'Allo','Real',ipTmp, nQQ)

@@ -17,10 +17,7 @@
      &                   iFlip,dMass)
 ************************************************************************
 *                                                                      *
-* Object: to generate the B matrix which is the transformation matrix  *
-*         between an infinitesimal displacement in the symmetry adapted*
-*         internal coordinates and the symmetry unique cartesian       *
-*         coordinates.                                                 *
+* Object: to generate the B matrix for the constraints                 *
 *                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *

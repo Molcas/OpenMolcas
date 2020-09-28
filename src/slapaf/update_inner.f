@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Update_internal(
+      Subroutine Update_inner(
      &                     kIter,iInt,nFix,nInter,qInt,Shift,
      &                     Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
@@ -100,18 +100,18 @@
      &                      dEdq(:,:), dx(:,:), dy(:), BVec(:,:),
      &                      Scr1(:), Scr2(:), Value(:), Value0(:),
      &                      Mult(:), dBVec(:), Tmp(:)
-*#define _NEW_CODE_
+#define _NEW_CODE_
 #ifdef _NEW_CODE_
       Real*8, Allocatable:: QC(:,:,:)
 #endif
       Lu=6
 !#define _DEBUG_
 #ifdef _DEBUG_
-      Write (Lu,*)'Update_internal:iOpt_RS,Beta,Beta_Disp=',
+      Write (Lu,*)'Update_inner:iOpt_RS,Beta,Beta_Disp=',
      &                     iOpt_RS,Beta,Beta_Disp
-      Call RecPrt('Update_internal: qInt',' ',qInt,nInter,kIter)
-      Call RecPrt('Update_internal: Shift',' ',Shift,nInter,kIter-1)
-      Call RecPrt('Update_internal: GNrm',' ',GNrm,kIter,1)
+      Call RecPrt('Update_inner: qInt',' ',qInt,nInter,kIter)
+      Call RecPrt('Update_inner: Shift',' ',Shift,nInter,kIter-1)
+      Call RecPrt('Update_inner: GNrm',' ',GNrm,kIter,1)
 #endif
 *
       GrdMax=Zero
@@ -164,7 +164,7 @@
      &              GNrm_Threshold,nsAtom,IRC,.True.,
      &              First_MicroIteration)
 *
-*     Call RecPrt('Update_internal: Hessian',' ',Hessian,nInter,nInter)
+*     Call RecPrt('Update_inner: Hessian',' ',Hessian,nInter,nInter)
 *     Write (6,*) 'After corrections'
 *     Call DiagMtrx(Hessian,nInter,jNeg)
 *
@@ -368,26 +368,26 @@ C           Write (6,*) 'tBeta=',tBeta
 *
          Call mma_allocate(R,nLambda,kIter,Label='R')
          Call mma_allocate(dRdq,nInter,nLambda,kIter,Label='dRdq')
-         dRdq(:,:,:)=0.0D0
+         dRdq(:,:,:)=Zero
          Call mma_allocate(T,nInter,nInter,Label='T')
-         T(:,:)=0.0D0
+         T(:,:)=Zero
          Call mma_allocate(dy,nLambda,Label='dy')
          Call mma_allocate(dx,(nInter-nLambda),kIter,Label='dx')
-         dx(:,:)=0.0D0
-         Call mma_allocate(dEdq,nInter,kIter,Label='dEdq')
+         dx(:,:)=Zero
+         Call mma_allocate(dEdq,nInter,kIter,Label='dEdQ')
          Call mma_allocate(du,nInter,Label='du')
          Call mma_allocate(X,(nInter-nLambda),(kIter+1),Label='X')
-         X(:,:)=0.0D0
+         X(:,:)=Zero
          call mma_allocate(dEdx,nInter-nLambda,kIter,Label='dEdx')
          Call mma_allocate(Wess,nInter-nLambda,nInter-nLambda,
      &                     Label='Wess')
-         Wess(:,:)=0.0D0
+         Wess(:,:)=Zero
          Call mma_allocate(Energy_L,kIter,Label='Energy_L')
 *
          Energy_L(:)=Energy(:)
 *
          If (mInter.gt.nLbl) Then
-            Call WarningMessage(2,'Update_internal: mInter.gt.nLbl')
+            Call WarningMessage(2,'Update_inner: mInter.gt.nLbl')
             Write (6,*) 'mInter=',mInter
             Write (6,*) 'nLbl=',nLbl
             Call Abend()
@@ -395,7 +395,7 @@ C           Write (6,*) 'tBeta=',tBeta
 *
          nBVec=iRow_c-nLambda-1
          If (nBVec.gt.nLabels) Then
-            Call WarningMessage(2,'Update_internal: nBVec.gt.nLabels')
+            Call WarningMessage(2,'Update_inner: nBVec.gt.nLabels')
             Write (6,*) 'nBVec=',nBVec
             Write (6,*) 'nLabels=',nLabels
             Call Abend()
@@ -436,13 +436,15 @@ C           Write (6,*) 'tBeta=',tBeta
 *
             R(:,lIter)=cInt(:)-cInt0(:)
 *
-*           Assemble dr/dq: Solve  B dr/dq = dr/dx
+*           Assemble dC/dQ: Solve  B dC/dQ = dC/dx
+*
+*           where B = dQ/dx
 *
             dRdq(:,:,lIter)=Zero
 #ifdef _DEBUG_
-            Write (Lu,*) 'Update_internal: lIter=',lIter
-            Call RecPrt('Update_internal: dQdx(BMx)',' ',BMx,n1,nInter)
-            Call RecPrt('Update_internal: dCdx(BM)',' ',BM,n1,nLambda)
+            Write (Lu,*) 'Update_inner: lIter=',lIter
+            Call RecPrt('Update_inner: dQ/dx(BMx)',' ',BMx,n1,nInter)
+            Call RecPrt('Update_inner: dC/dx(BM)',' ',BM,n1,nLambda)
 #endif
 *
             M=n1
@@ -471,7 +473,7 @@ C           Write (6,*) 'tBeta=',tBeta
             Call Eq_Solver('N',M,N,NRHS,BMx,Curvilinear,Degen,
      &                     BM,dRdq(1,1,lIter))
 #ifdef _DEBUG_
-            Call RecPrt('Update_Internal: dRdq(1,1,lIter)',' ',
+            Call RecPrt('Update_inner: dRdq(1,1,lIter)',' ',
      &                   dRdq(1,1,lIter),nInter,nLambda)
 #endif
 *                                                                     *
@@ -491,14 +493,12 @@ C           Write (6,*) 'tBeta=',tBeta
          Call mma_deallocate(BVec)
 *
 #ifdef _DEBUG_
-         Call RecPrt('Update_internal: R',' ',R,nLambda,kIter)
-         Call RecPrt('Update_internal: dRdq',' ',dRdq,nInter*nLambda,
+         Call RecPrt('Update_inner: R',' ',R,nLambda,kIter)
+         Call RecPrt('Update_inner: dRdq',' ',dRdq,nInter*nLambda,
      &               kIter)
-         Call RecPrt('Update_internal: dC/dx',' ',BM,n1,nLambda)
-         Call RecPrt('Update_internal: dQ/dx',' ',BMx,n1,nInter)
          Do i = 1, nLambda
             Write (6,*) ' iLambda=',i
-            Call RecPrt('Update_internal: d2C/dx2',' ',dBM(1,1,i),n1,n1)
+            Call RecPrt('Update_inner: d2C/dx2',' ',dBM(1,1,i),n1,n1)
          End Do
          If (Curvilinear) Call dBPrint(nInter,nDimBC)
 #endif
@@ -511,7 +511,7 @@ C           Write (6,*) 'tBeta=',tBeta
 *
 *        The expression is written as
 *
-*        dQ/dx * d^2C/dQ^2 * dQ/dx = d^2C/dx^2 - Sum (d^2Q/dx^2 * dC/dQ)
+*        dQ/dx * d^2C/dQ^2 * (dQ/dx)^T = d^2C/dx^2 - Sum (d^2Q/dx^2 * dC/dQ)
 *
 *        Dimensions
 *        dQ/dx     :  3*nsAtom x nInter
@@ -522,20 +522,20 @@ C           Write (6,*) 'tBeta=',tBeta
 *        Compute Sum (d^2Q/dx^2 * dC/dQ)
 *
          Call mma_allocate(QC,nDimBC,nDimBC,nLambda,Label='QC')
-         QC(:,:,:)=0.0D0
+         QC(:,:,:)=Zero
          If (Curvilinear) Call dBMult(dRdq(1,1,kIter),
      &                                QC,nInter,nDimBC,nLambda)
 #ifdef _DEBUG_
-         write (Lu,*) 'Update_internal: kIter=',kIter
-         Call RecPrt('drdq(1,1,kIter)',' ',dRdq(1,1,kIter),nInter,1)
+         write (Lu,*) 'Update_inner: kIter=',kIter
+         Call RecPrt('dRdq(1,1,kIter)',' ',dRdq(1,1,kIter),nInter,1)
          Do iLambda=1,nLambda
-            Write (6,*) 'Update_Internal: iLambda=',iLambda
-            Call RecPrt('Update_internal: QC',' ',QC(1,1,iLambda),
+            Write (6,*) 'Update_inner: iLambda=',iLambda
+            Call RecPrt('Update_inner: QC',' ',QC(1,1,iLambda),
      &                   nDimBC,nDimBC)
          End Do
 #endif
 *
-*        Subtract the term d^2C/dx^2
+*        Subtract the term from d^2C/dx^2
 *
          Do k = 1, nLambda
             j = 0
@@ -559,7 +559,7 @@ C           Write (6,*) 'tBeta=',tBeta
          Call mma_allocate(Scr2,nInter*n1*nLambda,Label='Scr2')
          Call mma_allocate(Scr1,nInter*n1*nLambda,Label='Scr1')
 #ifdef _DEBUG_
-         Call RecPrt('Update_internal: d^2C/dx^2(dBM)',' ',dBM,n2,
+         Call RecPrt('Update_inner: d^2C/dx^2(dBM)',' ',dBM,n2,
      &               nLambda)
 #endif
 *
@@ -576,14 +576,14 @@ C           Write (6,*) 'tBeta=',tBeta
             End Do
          End If
 #ifdef _DEBUG_
-         Call RecPrt('Update_internal: d^2C/dx^2(dBM)',' ',dBM,n2,
+         Call RecPrt('Update_inner: d^2C/dx^2(dBM)',' ',dBM,n2,
      &               nLambda)
 #endif
 *
 *        Solve first for y in
 *                dQ/dx y = d^2C/dx^2 - Sum (d^2Q/dx^2 * dC/dQ)
 *
-*        where y   = d^2C/dQ^2  * dQ/dx
+*        where y   = d^2C/dQ^2 * (dQ/dx)^T
 *
 *        and   y^T = dQ/dx * d^2C/dQ^2
 *
@@ -596,40 +596,25 @@ C           Write (6,*) 'tBeta=',tBeta
 *
          Call TRNSPS(nInter,n1*nLambda,Scr1,Scr2)
 #ifdef _DEBUG_
-         Call RecPrt('d^2C/dQ^2 * dQ/dx',' ',Scr1,nInter,n1*nLambda)
+         Call RecPrt('d^2C/dQ^2 * (dQ/dx)^T',' ',Scr1,nInter,n1*nLambda)
          Call RecPrt('dQ/dx * d^2C/dQ^2',' ',Scr2,n1*nLambda,nInter)
-#define _CHECK_
-#ifdef _CHECK_
-         Block
-            Real*8, Allocatable:: test(:,:,:)
-            Call mma_allocate(Test,n1,n1,nLambda,Label='Test')
-            Call dgemm_('N','N',n1,n1*nLambda,nInter,
-     &                  1.0D0,BMx,n1,
-     &                        Scr1,nInter,
-     &                  0.0D0,Test,n1)
-            Test(:,:,:)=Test(:,:,:)-dBM(:,:,:)
-            Do i = 1, nLambda
-               Write (6,*) ' iLambda=',i
-               Call RecPrt('Update_internal: err',' ',Test(1,1,i),n1,n1)
-            End Do
-            Call mma_deallocate(Test)
-         End Block
-#endif
 #endif
          Call mma_deallocate(dBM)
 *
 *        Followed by solve for x in B x = y^T for which B = dQ/dx
 *
-         M=3*nsAtom
-         N=nInter
          NRHS=nLambda*nInter
          Call Eq_Solver('N',M,N,NRHS,BMx,Curvilinear,Degen,Scr2,Scr1)
-         Call mma_allocate(d2l,nInter,nInter,nLambda,Label='d2L')
+         Call mma_allocate(d2L,nInter,nInter,nLambda,Label='d2L')
 *
          Call TRNSPS(nInter*nLambda,nInter,Scr1,d2L)
 #ifdef _DEBUG_
          Call RecPrt('Scr1',' ',Scr1,nInter*nLambda,nInter)
-         Call RecPrt('Update_internal: d2L',' ',d2L,nInter**2,nLambda)
+         Do i = 1, nLambda
+            Write (6,*) ' iLambda=',i
+            Call RecPrt('Update_inner: d2L',' ',d2L(1,1,iLambda),
+     &                  nInter,nInter)
+         End Do
 #endif
          Call mma_deallocate(Scr2)
          Call mma_deallocate(Scr1)

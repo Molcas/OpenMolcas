@@ -16,7 +16,7 @@
 ************************************************************************
 *                                                                      *
 * Object: to generate the B matrix which is the transformation matrix  *
-*         between a infinitesimal displacement in the symmetry adapted *
+*         between an infinitesimal displacement in the symmetry adapted*
 *         internal coordinates and the symmetry unique cartesian       *
 *         coordinates.                                                 *
 *                                                                      *

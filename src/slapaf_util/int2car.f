@@ -238,15 +238,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     In case the internal coordinates where nonvalid we now take the
-*     final internal coordinates at the converged Cartesian structure
-*     as the internal coordinates.
-*
-      ip = ip_qInt + Iter*nInter
-      call dcopy_(nInter,rInt,1,Work(ip),1)
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     Finally, just to be safe align the new Cartesian structure with
 *     the reference structure (see init2.f)
 *

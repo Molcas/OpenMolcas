@@ -134,7 +134,7 @@
 *
          t_qInt(:,1)=qInt(:,1)
 *
-         Call Update_internal(
+         Call Update_inner(
      &                   iter_,iInt,nFix,nInter,t_qInt,
      &                   t_Shift,Grad,iOptC,Beta,Beta_Disp,
      &                   Lbl,GNrm,Energy,UpMeth,ed,Line_Search,
@@ -167,7 +167,7 @@
 *                                                                      *
 *        Conventional optimization.
 *
-         Call Update_internal(
+         Call Update_inner(
      &                iter,iInt,nFix,nInter,qInt,Shift,
      &                Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,Energy,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,

@@ -29,7 +29,7 @@
       Integer   iAnr(nAtom),
      &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
-     &        Numerical, HWRS, Analytic_Hessian, PrQ, lOld
+     &        Numerical, HWRS, Analytic_Hessian, PrQ, lOld, Proc_dB
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -61,6 +61,15 @@
 *
 *-----Compute the B matrix in symmetry distinct basis and the
 *     internal coordinates.
+*
+*     iOptC(256) = constrained optimization
+      Proc_dB=HSet.and..Not.lOld.and.
+     &           (Analytic_Hessian.or.Numerical.or.
+     &            iAnd(iOptC,256).eq.256)
+*     Compute and store dBQQ in the reference structure
+      If (Proc_dB) Then
+*        Not implimented, sorry
+      End If
 *
       ip = ip_rInt + (nIter-1)*nQQ
       Call DefInt(Work(ipBVec),nBVec,cWork(ipLab),Work(ipBMx),nQQ,
@@ -126,10 +135,7 @@ c Avoid unused argument warnings
          Call Unused_real_array(Cx)
          Call Unused_integer(mTtAtm)
          Call Unused_integer_array(iAnr)
-         Call Unused_logical(Numerical)
          Call Unused_logical(HWRS)
-         Call Unused_logical(Analytic_Hessian)
-         Call Unused_integer(iOptC)
          Call Unused_logical(PrQ)
          Call Unused_integer_array(iCoSet)
       End If
