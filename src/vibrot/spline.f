@@ -29,7 +29,6 @@ C NEXT IS INPUT (DIMENSION BOUND) AND OUTPUT (NR OF EXTREMA).
 C      CHARACTER*12 TEXT(3)
       DATA ZERO,ONE,TWO,THREE/0.0D0,1.0D0,2.0D0,3.0D0/
 C      DATA TEXT/'MAX. POINT','SADDLE POINT','MIN. POINT'/
-      Call qEnter('Spline')
       IF(NFIT.GT.NDIM) Then
         Write(6,*)'SPLINE Error: NFIT.gt.NDIM.'
         Write(6,'(1x,a,2I8)')'NFIT,NDIM:',NFIT,NDIM
@@ -186,7 +185,6 @@ C              WRITE(6,2001) TEXT(IT),X,Y
       Call GetMem('VecD','Free','Real',indexD,ndim)
       Call GetMem('VecC','Free','Real',indexC,ndim)
       Call GetMem('VecB','Free','Real',indexB,ndim)
-      Call qExit('Spline')
       RETURN
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                      C
@@ -328,7 +326,6 @@ C              WRITE(6,2001) TEXT(IT),X,Y
       Call GetMem('VecD','Free','Real',indexD,ndim)
       Call GetMem('VecC','Free','Real',indexC,ndim)
       Call GetMem('VecB','Free','Real',indexB,ndim)
-      Call qExit('Spline')
       RETURN
 #endif
       End
