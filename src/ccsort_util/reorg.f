@@ -67,7 +67,6 @@ c
        INTEGER NOIPSB(106)
        Logical run_triples,run_sort
 c
-       call qEnter('CCSORT')
 c
 C PRINT THE PROGRAM HEADER
        call ccsort_helloPN
@@ -201,7 +200,6 @@ c      case, when SORT was skipped
        write (6,*) ' Input parameters are from last actual run of SORT'
        end if
 c
-       call qExit('CCSORT')
        ireturn=0
        return
        END

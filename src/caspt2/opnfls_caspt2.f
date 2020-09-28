@@ -30,7 +30,6 @@ C  Start
 #include "caspt2.fh"
 #include "output.fh"
 
-      Call qEnter('OpnFls')
 *---  define logical unit numbers ------------------------------------*
 C  AO two-electron integrals
       LUINTA=20
@@ -110,6 +109,5 @@ C  AO one-electron integrals
 *----------------------------------------------------------------------*
 C  Exit
 *----------------------------------------------------------------------*
-      Call qExit('OpnFls')
       Return
       End

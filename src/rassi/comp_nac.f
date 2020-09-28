@@ -54,7 +54,6 @@ C***********************************************************************C
       TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
      &                              iIrrep,iComp,dc(mdc)%nStab)
 
-      CALL QENTER(ROUTINE)
 
 *
 * Main Loop on all  geometrical displacements to perform
@@ -187,7 +186,6 @@ C***********************************************************************C
       CHARACTER*8 LABEL, STYPE
 * Subroutine Statements
 
-      CALL QENTER(ROUTINE)
 
 *
 * Reading information from MCKINT file...
@@ -280,6 +278,5 @@ C     END IF
 *
 * Now you can leave...
 *
-      CALL QEXIT(ROUTINE)
       RETURN
       END

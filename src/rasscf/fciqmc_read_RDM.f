@@ -56,7 +56,6 @@
       real*8 :: D_alpha(size(DMAT)), D_beta(size(DMAT))
       parameter(routine = 'read_neci_RDM')
 
-      Call qEnter(routine)
 
       iprlev = iprloc(1)
       if(iprlev == debug) then
@@ -364,7 +363,6 @@
        call triprt('DMAT in neci2molcas',' ',DMAT,norb)
        call triprt('DSPN in neci2molcas',' ',DSPN,norb)
       END IF
-      Call qExit(routine)
       Return
 
 123   continue

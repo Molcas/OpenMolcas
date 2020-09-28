@@ -19,7 +19,6 @@
       REAL*8 DREF(NDREF)
       REAL*8 PREF(NPREF)
 
-      CALL QENTER('GETDPREF')
 * Get active 1-density and 2-density matrices GAMMA1 and
 * GAMMA2, and construct DREF and PREF which are in a tringular
 * storage.
@@ -91,6 +90,5 @@ C CONSTRUCT PREF, 2-ELECTRON DENSITY MATRIX:
 
   99  CONTINUE
 
-      CALL QEXIT('GETDPREF')
       RETURN
       END

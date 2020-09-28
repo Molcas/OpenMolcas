@@ -43,7 +43,6 @@
 *----------------------------------------------------------------------*
 *     Start and define the paper width                                 *
 *----------------------------------------------------------------------*
-      Call qEnter('PrInp_CASPT2')
 *----------------------------------------------------------------------*
 *     Initialize blank and header lines                                *
 *----------------------------------------------------------------------*
@@ -272,6 +271,5 @@ C Compute necessary quantities for subsequent gradient calc:
         END IF
       END IF
 
-      Call qExit('PrInp_CASPT2')
       Return
       End

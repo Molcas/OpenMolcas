@@ -49,7 +49,6 @@
       DIMENSION CMOO(*),CMON(*),FI(*),FP(*),FTR(*),VEC(*),
      &          WO(*),SQ(*),CMOX(*)
 
-      CALL QENTER(ROUTINE)
 * Local print level (if any)
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -588,6 +587,5 @@
       CALL DDAFILE(JOBIPH,1,FP,NTOT3,IAD15)
       CALL DDAFILE(JOBIPH,1,SQ,NORBT,IAD15)
 *
-      CALL QEXIT(ROUTINE)
       RETURN
       END

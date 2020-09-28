@@ -32,7 +32,6 @@
       real(8) U0(Nstate,Nstate)
       real(8),allocatable :: Utmp(:,:)
 
-      CALL QENTER('MLTCTL')
 
       IF(IPRGLB.GE.TERSE) THEN
         CALL CollapseOutput(1,'Multi-State CASPT2 section:')
@@ -176,6 +175,5 @@ C Use a symmetrized matrix, in triangular storage:
       IF(IfChol) LAXITY=Cho_X_GetTol(LAXITY)
       Call Add_Info('E_MSPT2',ENERGY,nState,LAXITY)
 
-      CALL QEXIT('MLTCTL')
       RETURN
       END

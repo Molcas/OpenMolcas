@@ -38,7 +38,6 @@
 *  Author : P. A. Malmqvist
 **********************************************************************
 
-      Call QEnter('TraChoSZ')
 
 * ======================================================================
 * Determine sectioning size to use for the full-transformed MO vectors
@@ -228,7 +227,6 @@ CSVC: take the global sum of the individual maxima
         END DO
       END DO
 
-      Call QExit('TraChoSZ')
       RETURN
       END
 

@@ -38,7 +38,6 @@ C    DPT2(p,q) = Add <IVEC| E(p,q) |JVEC>,
 C i.e. inactive/inactive, active/active, and virt/virt
 C submatrices.IVEC, JVEC stands for the 1st-order perturbed
 C CASPT2 wave functions in vectors nr IVEC, JVEC on LUSOLV.
-      CALL QENTER('TRDNS2D')
 
 C Inact/Inact and Virt/Virt blocks:
       DO 101 ICASE=1,13
@@ -98,6 +97,5 @@ C full array in case we are running in parallel
  100    CONTINUE
  101  CONTINUE
 
-      CALL QEXIT('TRDNS2D')
       RETURN
       END

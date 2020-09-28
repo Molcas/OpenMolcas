@@ -26,7 +26,6 @@
 #include "SysDef.fh"
 #include "para_info.fh"
 
-      CALL QENTER('SBDIAG')
 
       IF(IPRGLB.GE.VERBOSE) THEN
         WRITE(6,*)
@@ -96,7 +95,6 @@ C usually print info on the total number of parameters
         WRITE(6,'(a,i12)')'   After  reduction:',IPAR1
       ENDIF
 
-      CALL QEXIT('SBDIAG')
 
       RETURN
       END

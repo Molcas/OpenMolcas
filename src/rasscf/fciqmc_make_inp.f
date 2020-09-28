@@ -90,7 +90,6 @@
       call add_info('Default number of cycles ',[dble(nmcyc)],1,6)
       call add_info('Default value for Time  ',[dble(Time)],1,6)
 
-      call qEnter('make_inp')
 
       file_id = isFreeUnit(39)
       call Molcas_Open(file_id, path)
@@ -167,7 +166,6 @@
 
 
       close(file_id)
-      call qExit('make_inp')
 
       contains
 

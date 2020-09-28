@@ -26,7 +26,6 @@ c#include "print.fh"
 *
 c     iRout = 200
 c     iPrint = nPrint(iRout)
-c     Call qEnter('SymAdO')
 *
 *--------Accumulate contributions
 *
@@ -89,7 +88,6 @@ c     Call qEnter('SymAdO')
  102  Continue
 *
 *     Call GetMem(' Exit SymAdO','LIST','REAL',iDum,iDum)
-c     Call qExit('SymAdO')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

@@ -37,7 +37,6 @@
       real(8) H0(Nstate,Nstate)
       real(8) U0(Nstate,Nstate)
 
-      CALL QENTER('GRPINI')
 * ---------------------------------------------------------------------
 * Number of states in this group.
       IF (IPRGLB.EQ.DEBUG) THEN
@@ -256,6 +255,5 @@ c Modify the Fock matrix if needed
 
       call getmem('LCMO','FREE','REAL',LCMO,NCMO)
 
-      CALL QEXIT('GRPINI')
       return
       end
