@@ -18,14 +18,6 @@
 *         will use the geometry as specified by the standard input     *
 *         file.                                                        *
 *                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : qEnter                                                  *
-*              OpnCom                                                  *
-*              ClsCom                                                  *
-*              RdCom                                                   *
-*              qExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             March '91                                                *

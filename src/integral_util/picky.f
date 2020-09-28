@@ -13,14 +13,6 @@
       SubRoutine Picky(Din,n,m,nijPrm,nijCmp,nDCR,nSt,nEnd,mSt,mEnd,
      &                 Dout)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: DFTwo                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************

@@ -20,13 +20,6 @@
 *         matrix and the latter will be contracted with the generalized*
 *         Fock matrix.                                                 *
 *                                                                      *
-* Called from: mckinley                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              Dot1El                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
@@ -53,7 +46,6 @@
       iprint=0
       if (show) iPrint = 12
       Call CWTime(TCpu1,TWall1)
-      Call qEnter('Drvh2')
       Call StatusLine(' McKinley:',
      &                ' Computing 1-electron 2rd order derivatives')
 *                                                                      *
@@ -205,6 +197,5 @@
 *                                                                      *
       Call CWTime(TCpu2,TWall2)
       Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
-      Call qExit('Drvh2')
       Return
       End

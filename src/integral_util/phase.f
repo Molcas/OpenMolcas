@@ -14,17 +14,9 @@
       Subroutine Phase(iCmp, jCmp, kCmp, lCmp, iAng,
      &                 iShll, kOp, ijkl, AOInt)
 ************************************************************************
+*                                                                      *
 *  Object: To change the phase of the integrals in accordance with the *
 *          swapping of the operators operating on the integrals.       *
-*                                                                      *
-* Called from: TwoEl                                                   *
-*            : Trnsps                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              DScal    (ESSL)                                         *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             June '90                                                 *

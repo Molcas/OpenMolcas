@@ -20,11 +20,6 @@
 *                                                                      *
 * Object: to compute the gradient of rho, grad rho, and nabla rho      *
 *                                                                      *
-* Called from: Do_Batch                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Theoretical Chemistry,       *
 *             Lund university, SWEDEN.  September 2007                 *
 ************************************************************************

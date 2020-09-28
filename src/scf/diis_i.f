@@ -128,7 +128,7 @@
 *
       Do iD = 1, nD
 *
-*        EDIIS optimization, DOI: 10.1063/1.1470195, Eq. (8)
+*        EDIIS optimization, doi:10.1063/1.1470195, Eq. (8)
 *
 *        Noticed the change in sign - in optim the quadratic terms,
 *        however, are added in the evaluation of Eq. (8). Additionally,

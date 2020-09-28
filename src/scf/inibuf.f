@@ -24,7 +24,6 @@
 ************************************************************************
       use IOBUF
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       External AllocDisk
       Integer AllocDisk

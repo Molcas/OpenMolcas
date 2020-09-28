@@ -13,14 +13,6 @@
       SubRoutine CmbnKEr(Rnr,qC,Di,nZeta,la,lb,Zeta,Final,nComp,Alpha,
      &                   nAlpha,Beta,nBeta)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: KnEInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Kurt Pfingst                                             *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)

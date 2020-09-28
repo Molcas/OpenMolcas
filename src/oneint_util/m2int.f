@@ -20,19 +20,6 @@
 * Object: kernel routine for the computation of M2 integrals used in   *
 *         ECP calculations. The operator is a s-type gaussian          *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DCR                                                     *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              CmbnMP                                                  *
-*              DaXpY   (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
 *      Beta  : as Alpha but for ket gaussians                          *

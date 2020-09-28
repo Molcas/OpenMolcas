@@ -17,12 +17,6 @@
 *         system which has the z-axis going through P to the global    *
 *         coordinate system. Formula by P.-A. Malmqvist.               *
 *                                                                      *
-* Called from: WelInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DGeTMo                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *              October '92.                                            *

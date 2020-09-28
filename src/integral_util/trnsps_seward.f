@@ -14,6 +14,7 @@
       Subroutine Trnsps_Seward(ijCmp, iCmp, jCmp, iAng, jAng, iShll,
      &                         jShll, kOp, ijkl, ij, AOInt, Scrtch)
 ************************************************************************
+*                                                                      *
 *  Object: to transpose the integrals in order to resolve the          *
 *          redundancy (faA,fbB)=(fcC,fdD). In this case both sides will*
 *          have the same DCR, i.e. (R)=(S). In this case we will only  *
@@ -28,17 +29,6 @@
 *          will not be a simple one to one correspondes between the    *
 *          integrals in batch one and two. But after transposing the   *
 *          pair arguments we will achive that one to one correspondens.*
-*                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              DGeTMI   (ESSL)                                         *
-*              DGeTMO   (ESSL)                                         *
-*              DScal    (ESSL)                                         *
-*              DCopy    (ESSL)                                         *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             May '90                                                  *

@@ -15,13 +15,6 @@
 *                                                                      *
 * Object: to initialize the Hessian matrix for the first iteration.    *
 *                                                                      *
-* Called from: PrePro                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy  (ESSL)                                           *
-*              OldFcm                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             May '91                                                  *

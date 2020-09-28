@@ -33,11 +33,8 @@
 *
       Implicit Real*8 (a-h,o-z)
 *
-
 #include "mxdm.fh"
 #include "infscf.fh"
-
-#include "WrkSpc.fh"
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *

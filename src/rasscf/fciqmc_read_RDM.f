@@ -377,8 +377,8 @@
       subroutine bcast_2RDM(InFile)
         use filesystem, only : symlink_, strerror_, get_errno_
         implicit none
-        character(*), intent(in) :: InFile
-        character(1024) :: master
+        character(len=*), intent(in) :: InFile
+        character(len=1024) :: master
         integer :: lmaster1, err
 
         call prgmtranslate_master(InFile, master, lmaster1)

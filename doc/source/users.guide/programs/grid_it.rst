@@ -9,7 +9,7 @@
 
 .. warning::
 
-   This program requires a submodule
+   This program is not available in |openmolcas|
 
 .. only:: html
 

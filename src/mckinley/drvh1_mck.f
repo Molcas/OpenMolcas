@@ -16,13 +16,6 @@
 *                                                                      *
 * Object: driver for computation of gradients of one-electron matrices.*
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              Cnt1El                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
@@ -44,7 +37,6 @@
 *
 c     iRout = 131
 c     iPrint = nPrint(iRout)
-      Call qEnter('Drvh1_mck')
 *
       If (show) Then
          nFock = 0
@@ -219,7 +211,6 @@ c     iPrint = nPrint(iRout)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('Drvh1_mck')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nGrad)

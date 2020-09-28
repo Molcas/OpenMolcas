@@ -13,15 +13,9 @@
       Subroutine  mHrr(la,lb,nSize,nMem)
       Implicit Real*8 (a-h,o-z)
 *
-#include "print.fh"
-#include "WrkSpc.fh"
-*
 *     Statement function for canonical indices
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-*
-      iRout =25
-      iPrint = nPrint(iRout)
 *
 *     First find the size of the working array.
 *

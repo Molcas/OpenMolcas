@@ -12,7 +12,6 @@
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
       Dimension Cavxyz((lMax+1)*(lMax+2)*(lMax+3)/6),
      &          Cavsph( (lMax+1)**2 )
       Logical CarSph

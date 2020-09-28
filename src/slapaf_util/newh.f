@@ -15,15 +15,6 @@
 *                                                                      *
 * Object: Driver for inverse Hessian update.                           *
 *                                                                      *
-* Called from: RlxCtl                                                  *
-*                                                                      *
-* Calling:     QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              UpdHin                                                  *
-*              View                                                    *
-*              Minv                                                    *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '95                                              *

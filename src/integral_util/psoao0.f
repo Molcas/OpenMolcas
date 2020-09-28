@@ -19,6 +19,7 @@
      &                  ipMem1,ipMem2,
      &                  Mem1,  Mem2,  DoFock)
 ************************************************************************
+*                                                                      *
 *  Object: to partion the SO and AO block. It will go to some length   *
 *          before it will start and break up the SO block. This will   *
 *          reduce the total flop count. However, as we are breaking up *
@@ -33,13 +34,6 @@
 *          3. Terminate run telling job max and min of additional      *
 *             memory needed to perform the calculation.                *
 *                                                                      *
-* Called from: Eval_Ints                                               *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Change                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -53,7 +47,6 @@
       use RICD_Info, only: Do_RI, Cholesky
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "real.fh"
 #include "print.fh"
 #include "lCache.fh"

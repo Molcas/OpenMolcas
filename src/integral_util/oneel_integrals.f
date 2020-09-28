@@ -13,7 +13,6 @@
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "real.fh"
       Character Label*8

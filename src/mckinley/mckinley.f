@@ -18,21 +18,6 @@
 *  Object: Driver for the one and two electron integral second order   *
 *          derivative program McKinley.                                *
 *                                                                      *
-*                                                                      *
-* Called from: None                                                    *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              XuFlow (IBM)                                            *
-*              SetUp0                                                  *
-*              GetMem                                                  *
-*              GetInf                                                  *
-*              Inputh                                                  *
-*              DrvN1                                                   *
-*              Drvh1                                                   *
-*              PrepP                                                   *
-*              Drvg1                                                   *
-*              CloseP                                                  *
-*                                                                      *
 *  Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA     *
 *          July '89 - May '90                                          *
 *                                                                      *
@@ -71,7 +56,6 @@ c      Parameter (nLines=12)
 *                                                                      *
 *     Call McKinley_banner()
       Call CWTime(TCpu1,TWall1)
-      Call qEnter('McKinley')
       iRout=1
       call dcopy_(9,[0.0d0],0,CpuStat,1)
 *                                                                      *
@@ -305,7 +289,6 @@ cpcm_solvent end
       Call SavTim(5,TCpu2-TCpu1,TWall2-TWall1)
 *
 C     Call DaTimm
-      Call qExit('McKinley')
       Call Timing(Time,dum,dum,dum)
       CPUStat(nTotal)=Time
       If (iPrint.ge.6) Call Sttstc

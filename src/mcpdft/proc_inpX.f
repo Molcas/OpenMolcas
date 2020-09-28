@@ -40,7 +40,7 @@
 #include "stdalloc.fh"
 #ifdef _HDF5_
 #  include "mh5.fh"
-      character(32) :: prgm
+      character(len=32) :: prgm
 #endif
 *
       Logical Do_OFemb,KEonly,OFE_first
@@ -88,7 +88,7 @@
       DIMENSION NFRO_L(8),NISH_L(8),NRS1_L(8),NRS2_L(8)
       DIMENSION NRS3_L(8),NSSH_L(8),NDEL_L(8)
 #ifdef _HDF5_
-      character(1), allocatable :: typestring(:)
+      character(len=1), allocatable :: typestring(:)
 #endif
 * TOC on JOBOLD (or JOBIPH)
       DIMENSION IADR19(15)

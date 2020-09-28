@@ -20,12 +20,6 @@
 *                                                                      *
 * Object: to compute the primitive integrals of type (ps|ps).          *
 *                                                                      *
-* Called from: vRys                                                    *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
-*                                                                      *
 *  Author:    Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN. 1994                                    *
 ************************************************************************

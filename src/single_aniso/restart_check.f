@@ -20,8 +20,8 @@ c
       Logical ::  Ifrestart
       Logical ::  GRAD
       Real    ::  rdummy
-      Character(280) :: line, tmp
-      Character(180) :: input_file_name
+      Character(Len=280) :: line, tmp
+      Character(Len=180) :: input_file_name
       Integer :: ncut,nk,mg
       Real    :: encut_rate
       Logical :: KeyREST,KeyTEXP,KeyHEXP,KeyHINT,KeyTINT,KeyTMAG,

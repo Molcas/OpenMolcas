@@ -17,10 +17,6 @@
 * Object: Compute matrix elements of hermitized products of angular    *
 *         moment operators, using elementary overlaps, dipole, and     *
 *         quadrupole integrals.                                        *
-* Called from: AMPInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Per-Ake Malmqvist, Dept. of Theoretical Chemistry,       *
 *             University of Lund, SWEDEN                               *

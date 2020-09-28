@@ -12,14 +12,6 @@
 ************************************************************************
       SubRoutine Init_PCM(NonEq,iCharg)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *                                                                      *
@@ -33,7 +25,6 @@
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "unixinfo.fh"
       Character*2 Elements(MxAtom*8)

@@ -49,7 +49,7 @@ for mol in {01..25}*.xyz ; do
     *H2O_PO3-_H2PO4-)
       export SLAPAF="${SLAPAF}"$'\n'"Gnrm = 0.3"$'\n'"MaxStep = 0.15"
       ;;
-    *HCONHOH_HCOHNHO)
+    *HCONHOH_HCOHNOH)
       export SLAPAF="${SLAPAF}"$'\n'"Gnrm = 0.1"$'\n'"MaxStep = 0.1"
       ;;
   esac

@@ -39,11 +39,6 @@
 *                                                                      *
 *     purpose: perform final calculations                              *
 *                                                                      *
-*     called from: SCF                                                 *
-*                                                                      *
-*     calls to:                                                        *
-*               IvoGen,PrFin,OpnRlx,ClsRlx,WrRlx,qEnter,qExit          *
-*                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
 *     written by:                                                      *
@@ -104,7 +99,7 @@
       Real*8, Dimension(:,:), Allocatable:: GVFck, Scrt1, Scrt2, DMat,
      &                                      EOr
 #ifdef _HDF5_
-      character(1), allocatable :: typestring(:)
+      character(Len=1), allocatable :: typestring(:)
       Integer nSSh(mxSym), nZero(mxSym)
 #endif
       Integer nFldP

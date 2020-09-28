@@ -10,12 +10,12 @@
 *                                                                      *
 * Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
 ************************************************************************
-      subroutine appendchr_cvb(c,character,iskip)
+      subroutine appendchr_cvb(c,string,iskip)
       implicit REAL*8 (a-h,o-z)
-      character*(*)c,character
+      character*(*)c,string
 
       ibegin=len_trim_cvb(c)+1+iskip
-      iend=min(len(c),ibegin+len_trim_cvb(character)-1)
-      c(ibegin:iend)=character(1:len_trim_cvb(character))
+      iend=min(len(c),ibegin+len_trim_cvb(string)-1)
+      c(ibegin:iend)=string(1:len_trim_cvb(string))
       return
       end

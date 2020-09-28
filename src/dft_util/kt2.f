@@ -16,11 +16,6 @@
 *                                                                      *
 * Object:     KT2 combination, as described in Keal&Tozer paper        *
 *               J.Chem.Phys 119 (2003) 3015                            *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)

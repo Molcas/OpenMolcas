@@ -25,17 +25,6 @@
 *               Mechanics", McGraw-Hill Book Company, New York,        *
 *               ch. 7-14, pp. 250.                                     *
 *                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              DCopy  (ESSL)                                           *
-*              Jacob                                                   *
-*              DSwap  (ESSL)                                           *
-*              Order                                                   *
-*              TriPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 ************************************************************************

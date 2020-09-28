@@ -20,16 +20,6 @@
 * Object: kernel routine for computing matrix elements of the          *
 *         six hermitized products of two angular momentum ops          *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              MltPrm                                                  *
-*              AMPr                                                    *
-*              DCopy   (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Per-Ake Malmqvist, Dept. of Theoretical Chemistry,       *
 *             University of Lund, SWEDEN                               *
 *             November '96                                             *
@@ -37,7 +27,6 @@
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 
 #include "int_interface.fh"

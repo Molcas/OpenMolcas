@@ -18,16 +18,6 @@
 *                                                                      *
 * Object: kernel routine for the computation of  pV integrals          *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : qEnter                                                  *
-*              RecPrt                                                  *
-*              Util1                                                   *
-*              DCopy  (ESSL)                                           *
-*              NSOInt                                                  *
-*              GetMem                                                  *
-*              qExit                                                   *
-*                                                                      *
 *     Author: Bernd Hess, Institut fuer Physikalische und Theoretische *
 *             Chemie, University of Bonn, Germany, April 1993          *
 ************************************************************************

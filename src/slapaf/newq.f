@@ -18,16 +18,6 @@
 *                                                                      *
 * Object: Driver for optimization procedures.                          *
 *                                                                      *
-* Called from: RlxCtl                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              View                                                    *
-*              DDot_   (ESSL)                                          *
-*              DGeMV   (ESSL)                                          *
-*              Minv                                                    *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             December '94                                             *

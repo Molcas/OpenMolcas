@@ -17,11 +17,6 @@
 *                                                                      *
 * Object:                                                              *
 *                                                                      *
-* Called from: Convrg                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             May '91                                                  *

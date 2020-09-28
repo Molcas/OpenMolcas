@@ -15,6 +15,7 @@
      &                  iShll, iShell, iAO, kOp, ijkl,
      &                  Aux,nAux,AOInt,SOInt,nSOInt,Done)
 ************************************************************************
+*                                                                      *
 *  Object: to transform the integrals in AO basis to symmetry adapted  *
 *          orbitals , SO. This is done by accumulating the AO inte-    *
 *          grals onto the SO integrals.                                *
@@ -30,14 +31,6 @@
 *          onical order.                                               *
 *                                                                      *
 *          This code is never executed in the no symmetry case!!!      *
-*                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              DnaXpY   (ESSL)                                         *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *

@@ -12,14 +12,6 @@
 ************************************************************************
       SubRoutine RdMx(RadMax,Exp,nExp,Cff,nCff,cdMax,EtMax)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             August '91                                               *

@@ -16,23 +16,14 @@
      &                 )
 ************************************************************************
 *                                                                      *
-* Object: to compute contact integrals.                .               *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              Darwin                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
+* Object: to compute contact integrals.                                *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden, February '91                 *
-*             Modified from D1Int January 2008.
+*             Modified from D1Int January 2008.                        *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 
 #include "int_interface.fh"

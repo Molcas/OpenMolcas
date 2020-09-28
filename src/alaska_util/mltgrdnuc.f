@@ -13,7 +13,6 @@
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "real.fh"
 #include "disp.fh"

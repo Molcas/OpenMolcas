@@ -17,11 +17,6 @@
 *                                                                      *
 * Object: to compute gradient integrals for SC Reaction Fields         *
 *                                                                      *
-* Called from: RFGrd                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             Modified for reaction field calculations July '92        *

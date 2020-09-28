@@ -20,15 +20,7 @@
 * Object: to compute the gradient of the nuclear attraction integrals. *
 *          Something is wrong here                                     *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy  (ESSL)                                           *
-*              ICopy                                                   *
-*              Rysg1                                                   *
-*              QExit                                                   *
-*                                                                      *
-*             Roland Lindh, Dept. of Theoretical Chemistry, University *
+*     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             October 1991                                             *
 *              Anders Bernhardsson 1995                                *
@@ -63,7 +55,6 @@
 *
 c     iRout = 150
 c     iPrint = nPrint(iRout)
-c     Call qEnter('NAGrd')
 *
 c     If (iPrint.ge.99) Then
 c        Write (*,*) ' In NAGrd: nArr=',nArr
@@ -238,7 +229,6 @@ c    &            Call RecPrt('In NaGrd FI',' ',Final,nb,nrOp)
  100  Continue
       Call GetMem('Grad','Free','REAL',ipGrad,nGrad)
 *
-c     Call qExit('NAGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

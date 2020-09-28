@@ -19,16 +19,6 @@
 *                                                                      *
 * Object: kernel routine for the comutation of pXp integrals           *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : qEnter                                                  *
-*              RecPrt                                                  *
-*              pvint                                                   *
-*              Util2                                                   *
-*              DCopy   (ESSL)                                          *
-*              GetMem                                                  *
-*              qExit                                                   *
-*                                                                      *
 *     Author: Bernd Hess, Institut fuer Physikalische und Theoretische *
 *             Chemie, University of Bonn, Germany, April 1993          *
 *             R. Lindh, modified to molcas 4.1 form, Oct 1999          *

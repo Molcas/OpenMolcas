@@ -17,11 +17,6 @@
 * Object: to compute the first derivative of the kinetic energy        *
 *         integrals with respect to the magnetic field.                *
 *                                                                      *
-* Called from: KnEInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *                                                                      *

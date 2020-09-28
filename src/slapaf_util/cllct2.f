@@ -14,15 +14,6 @@
      &                  nCntr,mCntr,xyz,Grad,Ind,Type,rMss,qMss,Lbl,
      &                  lWrite,jStab,nStab,mxdc,Deg,Smmtrc,Hess,lIter)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: DefInt2                                                 *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy  (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             May '91                                                  *

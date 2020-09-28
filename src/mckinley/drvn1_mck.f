@@ -16,11 +16,6 @@
 * Object: to compute the molecular gradient contribution due to the    *
 *         nuclear repulsion energy.                                    *
 *                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October 1991                                             *
@@ -40,7 +35,6 @@
 *
       iRout = 33
       iPrint = nPrint(iRout)
-      Call qEnter('DrvN1')
 *
       iIrrep = 0
       mdc = 0
@@ -125,6 +119,5 @@
          mdc = mdc + dbsc(iCnttp)%nCntr
  100  Continue
 *
-      Call qExit('DrvN1')
       Return
       End

@@ -17,12 +17,6 @@
 *                                                                      *
 * Object: compute the 2nd derivative  of the overlap matrix.           *
 *                                                                      *
-* Called from: OvrHss                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 c#include "print.fh"

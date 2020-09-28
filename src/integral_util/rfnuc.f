@@ -16,11 +16,6 @@
 *                                                                      *
 * Object: to compute the multipole moments for the nuclei.             *
 *                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 ************************************************************************
@@ -34,7 +29,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
       Real*8  rNucMm((ir+1)*(ir+2)/2), CoOp(3), A(3), RA(3)
 #ifdef _OBSOLETE_
      &        ,rRMy(3)
@@ -248,7 +242,6 @@ c            Write (*,*) ' Temp=',temp
 #endif
       If (iPrint.ge.99) Call RecPrt(' Nuclear Multipole Moments',
      &                              ' ',rNucMm,ip,1)
-*     Call GetMem(' Exit RFNuc','CHECK','REAL',iDum,iDum)
 *                                                                      *
 ************************************************************************
 *                                                                      *

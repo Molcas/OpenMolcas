@@ -246,8 +246,6 @@
 
       Logical forward,backward
 
-*     Call qEnter('Schmidt')
-
       forward  = .true.
       backward = .not.forward
 
@@ -328,8 +326,6 @@
            End If
         End Do
       End If
-
-*     Call qExit('Schmidt')
 
       Return
       End

@@ -16,7 +16,6 @@
      &               CMO,jdisp,jspin,CI)
 ********************************************************************
 *                                                                  *
-*                                                                  *
 *    Purpose:                                                      *
 *            Read the perturbed fock operator and one electron     *
 *            hamiltonian from disk and add the connection part     *
@@ -30,15 +29,6 @@
 *                                                                  *
 *     Temporary                                                    *
 *                Temp1,Temp2,Temp3                                 *
-*                                                                  *
-*      Calling:                                                    *
-*              qenter                                              *
-*              rdmck                                               *
-*              oneindtra                                           *
-*              dgemm                                               *
-*              dcopy                                               *
-*              dgetmo                                              *
-*              qexit                                               *
 *                                                                  *
 * Author: Anders Bernhardsson, 1995                                *
 *         Theoretical Chemistry, University of Lund                *

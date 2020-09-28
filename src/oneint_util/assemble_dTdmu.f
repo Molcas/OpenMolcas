@@ -16,11 +16,6 @@
 * Object: to assemble the diamagnetic shielding integrals from         *
 *         electric field integrals.                                    *
 *                                                                      *
-* Called from: DMSInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             February '91                                             *

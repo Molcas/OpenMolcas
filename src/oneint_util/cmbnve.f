@@ -13,14 +13,6 @@
       SubRoutine CmbnVe(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp,
      &                  Vxyz)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: VeInt                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *

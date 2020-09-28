@@ -14,15 +14,6 @@
      &                 xyz,Temp,Ind,Type,rMss,qMss,TMtrx,First,Lbl,
      &                 lWrite,jStab,nStab,mxdc,Deg,lAtom)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: DefInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy  (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             May '91                                                  *

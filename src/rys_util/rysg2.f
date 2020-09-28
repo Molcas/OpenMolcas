@@ -25,21 +25,6 @@
 *                                                                      *
 * Object: to compute the gradient of the two-electron integrals.       *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Tvalue                                                  *
-*              RtsWgh                                                  *
-*              vRysRW                                                  *
-*              ModU2                                                   *
-*              Cff2D                                                   *
-*              Rys2Dm                                                  *
-*              HrrCtl                                                  *
-*              Rys2Dg                                                  *
-*              Assg2                                                   *
-*              Distg2                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *

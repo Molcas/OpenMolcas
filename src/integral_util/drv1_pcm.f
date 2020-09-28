@@ -18,25 +18,6 @@
 *         order density matrix and accumulate contributions to the     *
 *         global multipole expansion.                                  *
 *                                                                      *
-* Called from: RctFld                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              MltInt                                                  *
-*              DGeMV    (ESSL)                                         *
-*              RecPrt                                                  *
-*              DCopy    (ESSL)                                         *
-*              DGEMM_   (ESSL)                                         *
-*              CarSph                                                  *
-*              DGeTMO   (ESSL)                                         *
-*              DaXpY    (ESSL)                                         *
-*              SOGthr                                                  *
-*              DesymD                                                  *
-*              DScal    (ESSL)                                         *
-*              TriPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
 *             Modified for Hermite-Gauss quadrature November '90       *
@@ -60,7 +41,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "nsd.fh"

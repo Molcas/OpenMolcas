@@ -37,7 +37,6 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "mxdm.fh"
 *
       Integer nDT,NumDT

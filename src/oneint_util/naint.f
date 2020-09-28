@@ -19,19 +19,6 @@
 * Object: kernel routine for the computation of nuclear attraction     *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              mHrr                                                    *
-*              DCR                                                     *
-*              Rys                                                     *
-*              Hrr                                                     *
-*              DaXpY   (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, January 1991                            *
 ************************************************************************
@@ -45,7 +32,6 @@
 *     Used for finite nuclei
       External TERI, ModU2, vCff2D, vRys2D
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "oneswi.fh"
 #include "print.fh"
 

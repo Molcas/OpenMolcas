@@ -18,17 +18,6 @@
 *          integral prescreening vector to be used with the Schwartz   *
 *          inequlity.                                                  *
 *                                                                      *
-* Called from: Drv2El or Server (DP case)                              *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              mHrr                                                    *
-*              DCopy   (ESSL)                                          *
-*              MemRys                                                  *
-*              PSOAO0                                                  *
-*              DCR                                                     *
-*              k2Loop                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *

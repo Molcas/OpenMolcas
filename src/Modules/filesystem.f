@@ -125,13 +125,13 @@
         use, intrinsic :: iso_c_binding
         use fortran_strings, only : str
         implicit none
-        character(:), allocatable :: res
+        character(len=:), allocatable :: res
         integer, intent(in) :: errnum
 #ifdef C_PTR_BINDING
         res = str(strerror_c(int(errnum, C_INT)))
 #else
         integer :: rc
-        character(80) :: errstr
+        character(Len=80) :: errstr
         integer, external :: aixerr
         errstr = ''
         rc = aixerr(errstr)
@@ -150,9 +150,9 @@
       end subroutine
 
       function real_path(molcas_name) result(path)
-        character(*), intent(in) :: molcas_name
-        character(:), allocatable :: path
-        character(1024) :: buffer
+        character(len=*), intent(in) :: molcas_name
+        character(len=:), allocatable :: path
+        character(len=1024) :: buffer
         integer :: L
         call prgmtranslate_master(molcas_name, buffer, L)
         path = buffer(:L)

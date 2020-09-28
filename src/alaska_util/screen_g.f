@@ -28,14 +28,6 @@
 *                                                                      *
 *   lZeta, lEta : section length after prescreening.                   *
 *                                                                      *
-* Called from: Twoel                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DNrm2_  (ESSL)                                          *
-*              IDAMax_ (ESSL)                                          *
-*              DGeTMO  (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             March '92                                                *

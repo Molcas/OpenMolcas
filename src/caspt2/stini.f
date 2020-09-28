@@ -20,7 +20,7 @@
 #include "SysDef.fh"
 #include "intgrl.fh"
 #include "eqsolv.fh"
-      CHARACTER(50)  STLNE2
+      CHARACTER(LEN=50)  STLNE2
 C     timers
       REAL*8 CPU0,CPU1,CPU,
      &       TIO0,TIO1,TIO

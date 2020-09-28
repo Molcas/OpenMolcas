@@ -17,14 +17,6 @@
 *     Object: to compute the auxiliary functions in quadruple precision*
 *             for a number of arguments.                               *
 *                                                                      *
-* Called from: RtsWgh                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Fm                                                      *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 ************************************************************************

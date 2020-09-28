@@ -15,12 +15,6 @@
 *                                                                      *
 *     Object: to print the basis set                                   *
 *                                                                      *
-*                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
 *             September 2006                                           *
 ************************************************************************

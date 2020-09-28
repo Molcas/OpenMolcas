@@ -18,14 +18,6 @@
 *                                                                      *
 * Object: to compute the gradient of the nuclear attraction integrals. *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy  (ESSL)                                           *
-*              ICopy                                                   *
-*              Rysg1                                                   *
-*              QExit                                                   *
-*                                                                      *
 *             Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             October '91                                              *
@@ -39,7 +31,6 @@
       External TERI1, ModU2, vCff2D
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
 

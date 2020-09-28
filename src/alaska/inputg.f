@@ -15,18 +15,6 @@
 *                                                                      *
 * Object: input module for the gradient code                           *
 *                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              RecPrt                                                  *
-*              DaXpY   (ESSL)                                          *
-*              DDot_   (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             September '91                                            *

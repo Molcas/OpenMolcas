@@ -16,14 +16,6 @@
      &                       Grid_Type,Fixed_Grid,Fact,ndc,TabAOMax,T_X,
      &                       list_bas,Index,nIndex)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: Do_Batch                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.  2002 (at Todai)                        *
 ************************************************************************

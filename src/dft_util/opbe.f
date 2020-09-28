@@ -16,11 +16,6 @@
 *                                                                      *
 * Object:     OPTX + PBE combination                                   *
 *                 OPBE                                                 *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)

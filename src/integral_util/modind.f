@@ -14,12 +14,6 @@
 ************************************************************************
 * Object : to modify the index array.                                  *
 *                                                                      *
-* Called from: DoZ                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              ICopy                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN.                              *
 *             June '91                                                 *

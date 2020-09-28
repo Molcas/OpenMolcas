@@ -13,14 +13,6 @@
       SubRoutine AOAdd_NQ(AOInt,iBas,iBas_Eff,jBas,jBas_Eff,PrpInt,nPrp,
      &                 iCmp,jCmp,iShell,jShell,iAO,jAO)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *

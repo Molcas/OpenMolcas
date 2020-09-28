@@ -13,14 +13,8 @@
 ************************************************************************
       SubRoutine NewPK(A,B,P,mZeta,nZeta,rKappa,Alpha,Beta)
 ************************************************************************
+*                                                                      *
 * Object : to compute P and kappa.                                     *
-*                                                                      *
-* Called from: k2Loop                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
