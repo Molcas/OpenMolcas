@@ -19,7 +19,11 @@
       Integer iTab(0:nMax,nx,ny,nz), iANr(nAtoms),
      &        iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
       Logical Help, Schlegel
-      Real*8 A(3), B(3)
+      Real*8 A(3)
+#define _OLD_CODE
+#ifndef _OLD_CODE_
+      Real*8 B(3)
+#endif
 #include "bondtypes.fh"
 *                                                                      *
 ************************************************************************
@@ -158,7 +162,6 @@ C        If (iAtom.le.jAtom) Cycle Box
                If ((nVal_i.ge.6.and.nVal_j.ge.1) .or.
      &             (nVal_j.ge.6.and.nVal_i.ge.1)     ) Cycle Box
             End If
-#define _OLD_CODE
 #ifndef _OLD_CODE_
 *
 *           We need to exclude vdW bonds if there is an atom close to
