@@ -166,14 +166,16 @@ module fortran_strings
         low = 1; n = 1
         do i = 1, len(string)
             if (string(i : i) == delimiter) then
-                res(n)%str = char_array(string(low : i - 1))
+                allocate(character(len=1) :: res(n)%str(i - low))
+                res(n)%str(:) = char_array(string(low : i - 1))
                 n = n + 1
                 low = i + 1
             end if
         end do
 
         if (n == size(res)) then
-            res(n)%str = char_array(string(low : ))
+            allocate(character(len=1) :: res(n)%str(len(string(low : ))))
+            res(n)%str(:) = char_array(string(low : ))
         end if
     end subroutine
 
