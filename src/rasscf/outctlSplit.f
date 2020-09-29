@@ -61,7 +61,6 @@ cnf
 *----------------------------------------------------------------------*
 *     Start and define the paper width                                 *
 *----------------------------------------------------------------------*
-      Call qEnter('OutCtlSplit')
 C Local print level (if any)
       IPRLEV=IPRLOC(6)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -582,6 +581,5 @@ C Local print level (if any)
 *                                                                      *
       CALL GETMEM('CMON','FREE','REAL',icmon,NTOT2)
 *----------------------------------------------------------------------*
-      Call qExit('OutCtl')
       Return
       End

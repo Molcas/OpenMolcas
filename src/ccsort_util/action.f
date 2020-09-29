@@ -54,7 +54,6 @@ c
        real*8 foka((mbas**2+mbas)/2)
        real*8 fokb((mbas**2+mbas)/2)
 
-       Call qEnter('Action')
 
 c
 c*    distribute memory
@@ -506,7 +505,6 @@ c       open (unit=1,file='INPDAT',form='unformatted')
 c
 c      Release the memory
        Call GetMem('CCSORT','Free','Real',iOff,wrksize)
-       Call qExit('Action')
 
        return
        end

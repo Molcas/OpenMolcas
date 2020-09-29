@@ -215,7 +215,6 @@ C is nSym, as some input lines assume knowledge of the number of irreps.
 #endif
 
 
-      CALL QENTER('READIN')
 *
       Rewind(LuIn)
       Call RdNLst(LuIn,'CASPT2')
@@ -633,7 +632,6 @@ c      call Quit_OnInstError
       GoTo 10
 
 9000  CONTINUE
-      CALL QEXIT('Readin_CASPT2')
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
 ! Check if nState>1

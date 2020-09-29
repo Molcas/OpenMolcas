@@ -48,7 +48,6 @@ C initialize global common-block variables appropriately.
 
 #include "chocaspt2.fh"
 
-      CALL QENTER('READIN')
 
 * Hzero and Focktype are merged together into Hzero. We keep the
 * variable Focktype not to break the input keyword which is documented
@@ -481,6 +480,5 @@ C Consistency of these demands:
       END DO
 *
 *---  Exit
-      CALL QEXIT('PROC_INP')
       Return
       End

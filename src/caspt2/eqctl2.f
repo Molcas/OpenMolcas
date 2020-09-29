@@ -34,7 +34,6 @@ C At position IVEC=IVECW, the RHS array, in contravariant repr.
 #include "SysDef.fh"
 #include "chocaspt2.fh"
 
-      CALL QENTER('EQCTL2')
 
       IF (IPRGLB.GE.VERBOSE) THEN
         WRITE(6,'(1X,A)')
@@ -207,6 +206,5 @@ C-SVC: collect and print information on coefficients/denominators
       TIOSER=TIO1-TIO0
 
   100 CONTINUE
-      CALL QEXIT('EQCTL2')
       RETURN
       END

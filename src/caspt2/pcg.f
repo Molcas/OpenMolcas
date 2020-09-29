@@ -41,7 +41,6 @@
       REAL*8 OVLAPS(0:8,0:MXCASE)
       REAL*8 SAV,SAVI,DSCALE
 
-      CALL QENTER('PCG')
 C Flag to tell wether convergence was obtained
       ICONV = 0
 
@@ -251,6 +250,5 @@ CPAM End of insert.
        WRITE(6,*)
       END IF
       CALL GETMEM('LISTS','FREE','INTE',LLISTS,NLSTOT)
-      CALL QEXIT('PCG')
       RETURN
       END

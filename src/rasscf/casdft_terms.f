@@ -47,7 +47,6 @@
       Logical First, Dff, Do_DFT
       Parameter ( Zero=0.0d0 , One=1.0d0 )
 
-      Call qEnter('CASDFT_Terms')
 
 ***********************************************************
 C Local print level (if any)
@@ -398,7 +397,6 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
         Call TriPrt(' ',' ',F,NAC)
       End If
 
-      Call qExit('CASDFT_terms')
 
       Return
       End

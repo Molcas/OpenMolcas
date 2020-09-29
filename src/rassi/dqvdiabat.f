@@ -59,7 +59,6 @@
 *
 
 
-      CALL QENTER(ROUTINE)
 
 *
 * Printing some stuff
@@ -388,6 +387,5 @@
        CALL Add_Info('DQVHam33',HDIA(3,3),1,4)
 *End Molcas verify calls
 
-       CALL QEXIT(ROUTINE)
        RETURN
        END

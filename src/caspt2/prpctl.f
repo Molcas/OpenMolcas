@@ -36,7 +36,6 @@
       Integer IndType(56)
       Real*8 Dummy(2),DUM(1)
 
-      CALL QENTER('PRPCTL')
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
@@ -263,6 +262,5 @@ cnf
 
  999  CONTINUE
 
-      CALL QEXIT('PRPCTL')
       RETURN
       END

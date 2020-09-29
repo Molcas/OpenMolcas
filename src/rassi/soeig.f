@@ -79,7 +79,6 @@
 
 
 
-      Call qEnter(ROUTINE)
 
 C CONSTANTS:
       AU2EV=CONV_AU_TO_EV_
@@ -613,7 +612,6 @@ C Assume the SO "ground states" are mostly formed by the SF "ground states"
 
       call mma_deallocate(HAMSOR)
       call mma_deallocate(HAMSOI)
-      Call qExit(ROUTINE)
       RETURN
 
       END

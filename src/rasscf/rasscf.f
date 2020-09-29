@@ -156,7 +156,6 @@
 
 * Start the traceback utilities
 *
-      Call QENTER(ROUTINE)
 
 * Set status line for monitor:
       Call StatusLine('RASSCF:',' Just started.')
@@ -2102,7 +2101,6 @@ C Close the one-electron integral file:
         END DO
         Close(LUInput)
       End If
-      Call qExit(ROUTINE)
 
       return
 

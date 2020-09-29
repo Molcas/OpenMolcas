@@ -28,7 +28,6 @@
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
 
-      CALL QENTER('SIZES')
 
 C Available workspace right now:
       CALL GETMEM('LDUM','MAX','REAL',LDUM,MXLEFT)
@@ -350,7 +349,6 @@ C This is a Cholesky calculation, only give recommended amount
        END IF
       END IF
 
-      CALL QEXIT('SIZES')
 
       RETURN
       END

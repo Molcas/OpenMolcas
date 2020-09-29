@@ -147,7 +147,6 @@
       character(len=12), parameter :: routine = 'CleanMat'
       logical :: cleanup_required
 
-      Call qEnter(routine)
 
       rc = 0
       If (nacpar .lt. 1) then
@@ -237,7 +236,6 @@
       call mma_deallocate(EVC)
 ****************** Exit ****************
 10    Continue
-      Call qExit(routine)
       return
       end subroutine cleanMat
 

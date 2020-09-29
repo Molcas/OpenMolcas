@@ -32,7 +32,6 @@
 C Write pertinent warnings and statistics for the energy
 C denominators, i.e. the spectrum of (H0(diag)-E0).
 
-      CALL QENTER('H0SPCT')
 
       WRITE(6,*)
       Call CollapseOutput(1,'Denominators, etc.')
@@ -242,7 +241,6 @@ C End of very long loop over symmetry and case:
 
       Call CollapseOutput(0,'Denominators, etc.')
 
-      CALL QEXIT('H0SPCT')
 
       RETURN
       END

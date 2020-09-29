@@ -22,7 +22,6 @@ C Purpose: Remove vertices from a DRT table.
 
 
 
-      CALL QENTER(ROUTINE)
 
       CALL GETMEM('Conn','Allo','Inte',LCONN,NVERT)
 C KILL VERTICES THAT DO NOT OBEY RESTRICTIONS.
@@ -119,6 +118,5 @@ C FINITE NUMBER WE STARTED WITH.
       NVERT=NV
 
 
-      CALL QEXIT(ROUTINE)
       RETURN
       END

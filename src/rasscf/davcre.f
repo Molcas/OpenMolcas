@@ -65,7 +65,6 @@ cvv   Thrld2 changed to 1.D-14 to avoid numerial unstabillity
       DATA THRA/1.D-13/,THRLD2/5.D-14/,THRQ/1.D-07/,THRZ/1.D-06/,
      &     THRLD1/1.D-08/
 C
-      Call qEnter('DAVCRE')
 C Local print level (if any)
       IPRLEV=IPRLOC(1)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -569,6 +568,5 @@ C
       CALL GETMEM('XXXX','FREE','REAL',LC1,NSXS)
       CALL GETMEM('XXXX','FREE','REAL',LC2,NSXS)
       CALL GETMEM('XXXX','FREE','REAL',LX,NSXS)
-      CALL QEXIT('DAVCRE')
       RETURN
       END

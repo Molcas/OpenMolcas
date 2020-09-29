@@ -99,7 +99,6 @@
      &  iTmp8, iTmpx, iTmpz, iTu, j, l_ndsd, lx0, lx1, lx2, lx3,
      &  mxna, mxnb, nAt, nst, nt, ntu, nu, nvxc
 
-      Call qEnter(ROUTINE)
 C Local print level (if any)
       IPRLEV=IPRLOC(3)
       IPRLEV=0000
@@ -521,7 +520,6 @@ Cbjp
         Call TriPrt(' ',' ',F,NAC)
       End If
 
-      Call qExit('SGFCIN')
 
 
       Return

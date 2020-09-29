@@ -44,7 +44,6 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 #include "mafdecls.fh"
 #endif
 
-      CALL QENTER('HCOUP')
 
 C Sketch of procedure:
 C  HEL=0.0D0
@@ -147,7 +146,6 @@ C Sum-reduce the per-process contributions
         WRITE(6,*)
       END IF
 
-      CALL QEXIT('HCOUP')
 
       END
 
@@ -179,7 +177,6 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
       HEBLK=0.0D0
 
       IF (IISTA.LE.0) RETURN
-      CALL QENTER('HCOUP_BLK')
 
       NISBLK=IIEND-IISTA+1
       SELECT CASE (ICASE)
@@ -585,6 +582,5 @@ C Formula used: SG(t,x)= Gtx
         END IF
 ************************************************************************
       END SELECT
-      CALL QExit('HCOUP_BLK')
       Return
       END
