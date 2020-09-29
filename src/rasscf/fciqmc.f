@@ -149,8 +149,8 @@
 #endif
 
       if (iDoGAS) then
-        GAS_spaces = nGSSH(: nGAS, : nSym)
-        GAS_particles = iGSOCCX(: nGAS, : nGAS)
+        GAS_spaces(:, :) = nGSSH(: nGAS, : nSym)
+        GAS_particles(:, :) = iGSOCCX(: nGAS, : nGAS)
       end if
 
       call run_neci(DoEmbdNECI, actual_iter == 1,
