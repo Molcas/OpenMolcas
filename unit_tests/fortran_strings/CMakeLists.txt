@@ -18,3 +18,8 @@ set(not_supported ";SunPro;PGI;")
 if (NOT ((CMAKE_Fortran_COMPILER_ID IN_LIST not_supported) OR (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" AND CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "14")))
     add_unit_test(test_fortran_strings test_fortran_strings.F90)
 endif()
+
+
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set_source_files_properties(test_fortran_strings.F90 COMPILE_FLAGS -Wno-maybe-uninitialized)
+endif()
