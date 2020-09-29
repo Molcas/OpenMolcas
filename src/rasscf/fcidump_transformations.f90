@@ -62,7 +62,6 @@ contains
           VecTit, 0, err)
       else
         Write (6,*) 'RdCMO: Error finding MO file'
-        call QTrace()
         call Abend()
       end if
     end subroutine read_orbital_energies
