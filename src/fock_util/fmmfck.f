@@ -118,15 +118,13 @@ C     CALL mm_call_car_to_sph(CarMoms,SphMoms,ndim,LMAX)
 *
 *---- Write to FMM interface file
 *
-      Write (6,*) "Sorry pal this is not correct yet."
-      Call abend()
 *     Write array lengths in header file
-C     OPEN(98,FILE='MM_DATA_HEADER',FORM='UNFORMATTED',STATUS='REPLACE')
+      OPEN(98,FILE='MM_DATA_HEADER',FORM='UNFORMATTED',STATUS='REPLACE')
       WRITE (98) LMAX, nBasTot, ndim, 0
       CLOSE(98,STATUS='KEEP')
 
 *     Write multipole moments and density information
-C     OPEN(98,FILE='MM_DATA',FORM='UNFORMATTED',STATUS='REPLACE')
+      OPEN(98,FILE='MM_DATA',FORM='UNFORMATTED',STATUS='REPLACE')
 
       ij = 0
       Do J = 1, nBasTot
