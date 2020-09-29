@@ -219,7 +219,7 @@
      &                   MF,iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,
      &                   dMass,HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
-     &                   First_MicroIteration,iter,qBeta_Disp,nLines)
+     &                   First_MicroIteration,iter,qBeta_Disp)
 #ifdef _DEBUG_
          Write (6,*) 'Update_kriging: Step_Trunc',Step_Trunc
          Call RecPrt('New Coord',' ',qInt,nInter,iterAI+1)
