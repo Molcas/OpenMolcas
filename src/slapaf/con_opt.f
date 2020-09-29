@@ -52,6 +52,7 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
+      Integer nInter
       Real*8 r(nLambda,nIter), drdq(nInter,nLambda,nIter),
      &       T(nInter,nInter), dEdq(nInter,nIter),
      &       rLambda(nLambda,nIter+1), q(nInter,nIter+1),
