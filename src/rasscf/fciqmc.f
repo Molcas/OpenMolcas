@@ -149,7 +149,9 @@
 #endif
 
       if (iDoGAS) then
+        call mma_allocate(GAS_spaces, nGAS, nSym)
         GAS_spaces(:, :) = nGSSH(: nGAS, : nSym)
+        call mma_allocate(GAS_particles, nGAS, nGAS)
         GAS_particles(:, :) = iGSOCCX(: nGAS, : nGAS)
       end if
 
@@ -171,6 +173,11 @@
       call Timing(Rado_2, Swatch, Swatch, Swatch)
       Rado_2 = Rado_2 - Rado_1
       Rado_3 = Rado_3 + Rado_2
+
+      if (allocated(GAS_spaces)) then
+          call mma_deallocate(GAS_spaces)
+          call mma_deallocate(GAS_particles)
+      end if
 
       call qExit(routine)
       end subroutine fciqmc_ctl
