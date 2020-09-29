@@ -190,7 +190,6 @@ c      stop 888
         write(6,*) " no enough space to store h0 matrix",num
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
 #ifdef _XIANEST_

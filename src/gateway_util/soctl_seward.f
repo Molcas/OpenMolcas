@@ -369,7 +369,6 @@ C     write(6,'(20i4)') (mval(i),i=1,k)
                            nBas(iIrrep) = nBas(iIrrep) + 1
                         End If
                         If (iSO_.gt.nMamn) Then
-                           Call qTrace
                            Write (6,*) ' iSO_.gt.nMamn'
                            Write (6,*) 'nMamn=',nMamn
                            Call Abend
@@ -721,7 +720,6 @@ CSVC: basis IDs of both symmetric and non-symmetric case
                            nBas(iIrrep) = nBas(iIrrep) + 1
                         End If
                         If (iSO_.gt.nMamn) Then
-                           Call qTrace
                            Write (6,*) ' iSO_.gt.nMamn'
                            Write (6,*) 'nMamn=',nMamn
                            Call Abend

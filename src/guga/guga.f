@@ -113,14 +113,12 @@ C     ALSO SPACE FOR NTPB WORDS IN EMPTY
       If (LIM.GT.NCOR) Then
          Write (6,*) 'Guga: LIM.GT.NCOR, position 1'
          Write (6,*) 'LIM,NCOR=',LIM,NCOR
-         Call QTrace
          Call Abend
       End If
       LIM=LW2+KBUF2
       If (LIM.GT.NCOR) Then
          Write (6,*) 'Guga: LIM.GT.NCOR, position 2'
          Write (6,*) 'LIM,NCOR=',LIM,NCOR
-         Call QTrace
          Call Abend
       End If
       CALL ICOPY(LW1,[0],0,iWork(LSOArr),1)

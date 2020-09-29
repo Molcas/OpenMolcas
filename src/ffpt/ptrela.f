@@ -99,6 +99,5 @@ c Avoid unused argument warnings
 *
 991   Write (6,*) 'PtRela: Error reading ONEINT'
       Write (6,'(A,A)') 'Label=',Label
-      Call QTrace
       Call Abend()
       End

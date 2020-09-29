@@ -56,7 +56,6 @@
          If ( iRc.ne.0 ) Then
             Write (6,*) 'Polar: error reading length of mu!'
             Write (6,*) 'Mu=',0
-            Call QTrace
             Call Abend()
          End If
          nInts=idum(1)
@@ -65,7 +64,6 @@
          If ( iRc.ne.0 ) Then
             Write (6,*) 'Polar: error reading mu!'
             Write (6,*) 'Mu=',0
-            Call QTrace
             Call Abend()
          End If
       End If

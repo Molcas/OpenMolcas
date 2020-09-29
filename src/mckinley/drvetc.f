@@ -45,7 +45,6 @@
       If ( length.ne.nDens ) Then
          Write (6,*) 'DrvEtc: length.ne.nDens'
          Write (6,*) 'Length,nDens=',Length,nDens
-         Call QTrace()
          Call Abend()
       End If
 *     Write(*,*) Ddot_(ndens,Work(ipD0),1,Work(ipD0),1)

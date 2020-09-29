@@ -427,7 +427,6 @@
       Call ClsSew
 *
       If (iPrint.ge.6) Then
-         Call qStat(' ')
          Call FastIO('STATUS')
       End If
 *

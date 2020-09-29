@@ -74,7 +74,6 @@
       If (iRc.ne.0) Then
          Write (6,*) 'R1Inta: Error readin ONEINT'
          Write (6,'(A,A)') 'Label=',Label
-         Call QTrace
          Call Abend()
       End If
 #ifdef _FDE_
@@ -98,7 +97,6 @@
         If (iRc.ne.0) Then
            Write (6,*) 'R1Inta: Error readin ONEINT'
            Write (6,'(A,A)') 'Label=',Label
-           Call QTrace
            Call Abend()
         End If
        end if
@@ -127,7 +125,6 @@
       If (iRc.ne.0) Then
          Write (6,*) 'R1Inta: Error readin ONEINT'
          Write (6,'(A,A)') 'Label=',Label
-         Call QTrace
          Call Abend()
       End If
       Tot_Nuc_Charge=Ovrlp(nBT+4)

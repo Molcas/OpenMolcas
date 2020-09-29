@@ -717,7 +717,6 @@ c            !set index arrays at iLoc
                WRITE(6,*) ' mTvec = ',mTvec
                WRITE(6,*) ' LFMAX = ',LFMAX
                irc = 33
-               CALL QTrace()
                CALL Abend()
                nBatch = -9999  ! dummy assignment
             End If

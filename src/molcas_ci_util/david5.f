@@ -258,7 +258,6 @@ C Timings on generation of the sigma vector
             Write(6,*) 'nBasvec, lRoots = ',nBasVec, lRoots
             If ( ICIRST.EQ.1 ) Write(6,*) 'CIREstart was used. ',
      & 'Check the number of roots in the previous calculation'
-            Call QTrace
             Call Abend
          Endif
          If ( iprlev.ge.DEBUG ) then

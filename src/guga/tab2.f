@@ -361,7 +361,6 @@ c     */,6X,'NUMBER OF DOUBLET COUPLED SINGLES',I7)
       If (ISUM.GT.LIX) Then
          Write(6,*) 'Tab2: ISUM.GT.LIX'
          Write(6,*) 'ISUM,LIX=',ISUM,LIX
-         Call QTrace
          Call Abend
       End If
       DO 5 I=1,10

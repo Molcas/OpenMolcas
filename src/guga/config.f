@@ -162,7 +162,6 @@ C     TEST ALSO IF REFERENCE STATE
       If (JPART.NE.JHOLE) Then
          Write (6,*) 'Config: JPART.NE.JHOLE'
          Write (6,*) 'JPART,JHOLE=',JPART,JHOLE
-         Call QTrace
          Call Abend
       End If
       IF(JPART.LE.IEL)IFEXC=1
@@ -203,7 +202,6 @@ C CONSTRUCT INDEX LIST FOR REFERENCE STATES
            Write (6,*) ' the link ''http://www.teokem.lu.se/molcas'' '
            Write (6,*) ' and then ''Entry for Users'' and'
            Write (6,*) ' ''Report a new bug''.'
-           Call QTrace
            Call Abend
         End If
         JREFX(LMN)=0
@@ -233,7 +231,6 @@ C CONSTRUCT INDEX LIST FOR REFERENCE STATES
          Write (6,*) ' the link ''http://www.teokem.lu.se/molcas'' '
          Write (6,*) ' and then ''Entry for Users'' and'
          Write (6,*) ' ''Report a new bug''.'
-         Call QTrace
          Call Abend
       End If
       DO 130 K=1,LN
@@ -261,7 +258,6 @@ C CONSTRUCT INDEX LIST FOR REFERENCE STATES
       If (LMN.GT.JSYL) Then
          Write (6,*) 'Config: LMN.GT.JSYL'
          Write (6,*) 'LMN,JSYL=',LMN,JSYL
-         Call QTrace
          Call Abend()
       End If
       If (IX1.GE.8192.OR.IX2.GE.8192.OR.
@@ -277,7 +273,6 @@ C CONSTRUCT INDEX LIST FOR REFERENCE STATES
          Write (6,*) ' the link ''http://www.teokem.lu.se/molcas'' '
          Write (6,*) ' and then ''Entry for Users'' and'
          Write (6,*) ' ''Report a new bug''.'
-         Call QTrace
          Call Abend()
       End If
 C     SORT BY SYMMETRY
@@ -338,7 +333,6 @@ C     SORT BY SYMMETRY
       If (IX1.GE.8192.OR.IX2.GE.8192) Then
          Write (6,*) 'Config: IX?.GE.8192'
          Write (6,*) 'IX1,IX2=',IX1,IX2
-         Call QTrace
          Call Abend()
       End If
 
@@ -349,7 +343,6 @@ CPAM97      M1=(LMN0+29)/30
       If (M1.GT.MXCASE) Then
          Write (6,*) 'Config: M1.GT.MXCASE'
          Write (6,*) 'M1,MXCASE=',M1,MXCASE
-         Call QTrace
          Call Abend()
       End If
       M=0

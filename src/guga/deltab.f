@@ -120,7 +120,6 @@ C     STRIKE OUT INTERNAL CONFIGURATIONS
          Write (6,*) 'DeltaB: JPART.NE.JHOLE'
          Write (6,*) 'JPART,JHOLE=',JPART,JHOLE
          Write (6,*) 'iREF=',iREF
-         Call QTrace
          Call Abend
       End If
       IF(JPART.LE.IEL)GO TO 113

@@ -202,14 +202,12 @@ C --------------------------------------
 
          if (irc.ne.0) then
          Write(LF,*)'SXCTL: Cho_cas_drv non-zero return code! rc= ',irc
-         call qtrace()
          call abend()
          endif
 
       Else
 
          Write(LF,*)'SXCTL: Illegal Cholesky parameter ALGO= ',ALGO
-         call qtrace()
          call abend()
 
       EndIf

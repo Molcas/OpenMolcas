@@ -52,7 +52,6 @@ c     iPrint = nPrint(iRout)
          If ( length.ne.nDens ) Then
             Write (6,*) 'Drvh1_mck: length.ne.nDens'
             Write (6,*) 'length,nDens=',length,nDens
-            Call QTrace()
             Call Abend()
          End If
 *...  Read the generalized Fock matrix
@@ -61,7 +60,6 @@ c     iPrint = nPrint(iRout)
          If ( length.ne.nDens ) Then
             Write (6,*) 'Drvh1_mck: length.ne.nDens'
             Write (6,*) 'length,nDens=',length,nDens
-            Call QTrace()
             Call Abend()
          End If
       Else

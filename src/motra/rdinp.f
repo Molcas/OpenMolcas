@@ -77,7 +77,6 @@
       End Do
       If ( jCmd.eq.0 ) Then
          Write (6,*) 'RdInp: Unknown command at line: ', trim(Line)
-         Call QTrace()
          Call Abend()
       End If
 *----------------------------------------------------------------------*
@@ -228,6 +227,5 @@
 *----------------------------------------------------------------------*
 994   Write (6,*) 'RdInp: error readin input file!'
       Write (6,*) 'Command=',CmdTab(jCmd)
-      Call QTrace()
       Call Abend()
       End

@@ -251,37 +251,31 @@ C
       If ( nConf.lt.0 ) then
          Write(6,*) 'Ini_David: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( nRoots.lt.0 ) then
          Write(6,*) 'Ini_David: nRoots less than zero'
          Write(6,*) 'nRoots = ',nRoots
-         Call QTrace
          Call Abend
       Endif
       If ( nRoots.gt.mxRoot ) then
          Write(6,*) 'Ini_David: nRoots greater than mxRoot'
          Write(6,*) 'nRoots, mxRoot = ',nRoots, mxRoot
-         Call QTrace
          Call Abend
       Endif
       If ( nDet.lt.0 ) then
          Write(6,*) 'Ini_David: nDet less than zero'
          Write(6,*) 'nDet = ',nDet
-         Call QTrace
          Call Abend
       Endif
       If ( ntAsh.lt.0 ) then
          Write(6,*) 'Ini_David: ntAsh less than 0'
          Write(6,*) 'ntAsh = ',ntAsh
-         Call QTrace
          Call Abend
       Endif
       If ( ntAsh.gt.mxAct ) then
          Write(6,*) 'Ini_David: ntAsh greater than mxAct'
          Write(6,*) 'ntAsh, mxAct = ',ntAsh, mxAct
-         Call QTrace
          Call Abend
       Endif
       n_Roots=nRoots
@@ -489,19 +483,16 @@ CFUE  End If
       If ( nConf.lt.0 ) then
          Write(6,*) 'Term_David: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( iter.lt.0 ) then
          Write(6,*) 'Term_David: iter less than 0'
          Write(6,*) 'iter = ',iter
-         Call QTrace
          Call Abend
       Endif
       If ( iter.gt.mxCiIt ) then
          Write(6,*) 'Term_David: iter greater than mxCiIt'
          Write(6,*) 'iter, mxCiIt = ',iter, mxCiIt
-         Call QTrace
          Call Abend
       Endif
 
@@ -585,7 +576,6 @@ CFUE  End If
       If ( nConf.lt.0 ) then
          Write(6,*) 'Load_H_diag: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
 
@@ -664,7 +654,6 @@ CFUE  End If
       If ( nConf.lt.0 ) then
          Write(6,*) 'Save_H_diag: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
 
@@ -745,19 +734,16 @@ CFUE  End If
       If ( nConf.lt.0 ) then
          Write(6,*) 'Load_CI_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.lt.0 ) then
          Write(6,*) 'Load_CI_vec: iRoot less than 0'
          Write(6,*) 'iRoot = ',iRoot
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.gt.nkeep ) then
          Write(6,*) 'Load_CI_vec: iRoot greater than nkeep'
          Write(6,*) 'iRoot, nkeep = ',iRoot, nkeep
-         Call QTrace
          Call Abend
       Endif
 
@@ -840,19 +826,16 @@ CFUE  End If
       If ( nConf.lt.0 ) then
          Write(6,*) 'Save_CI_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.lt.0 ) then
          Write(6,*) 'Save_CI_vec: iRoot less than 0'
          Write(6,*) 'iRoot = ',iRoot
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.gt.nkeep ) then
          Write(6,*) 'Save_CI_vec: iRoot greater than nkeep'
          Write(6,*) 'iRoot, nkeep = ',iRoot, nkeep
-         Call QTrace
          Call Abend
       Endif
 
@@ -935,19 +918,16 @@ CFUE  End If
       If ( nConf.lt.0 ) then
          Write(6,*) 'Load_Sig_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.lt.0 ) then
          Write(6,*) 'Load_Sig_vec: iRoot less than 0'
          Write(6,*) 'iRoot = ',iRoot
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.gt.nkeep ) then
          Write(6,*) 'Load_Sig_vec: iRoot greater than nkeep'
          Write(6,*) 'iRoot, nkeep = ',iRoot, nkeep
-         Call QTrace
          Call Abend
       Endif
 
@@ -1030,19 +1010,16 @@ CFUE  End If
       If ( nConf.lt.0 ) then
          Write(6,*) 'Save_Sig_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.lt.0 ) then
          Write(6,*) 'Save_Sig_vec: iRoot less than 0'
          Write(6,*) 'iRoot = ',iRoot
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.gt.nkeep ) then
          Write(6,*) 'Save_Sig_vec: iRoot greater than nkeep'
          Write(6,*) 'iRoot, nkeep = ',iRoot, nkeep
-         Call QTrace
          Call Abend
       Endif
 
@@ -1125,19 +1102,16 @@ CFUE  End If
       If ( nConf.lt.0 ) then
          Write(6,*) 'Load_tmp_CI_vec: nConf less than'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.lt.0 ) then
          Write(6,*) 'Load_tmp_CI_vec: iRoot less than 0'
          Write(6,*) 'iRoot = ',iRoot
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.gt.n_Roots ) then
          Write(6,*) 'Load_tmp_CI_vec: iRoot greater than nRoots'
          Write(6,*) 'iRoot, nRoots = ',iRoot, n_Roots
-         Call QTrace
          Call Abend
       Endif
 
@@ -1219,19 +1193,16 @@ CFUE  End If
       If ( nConf.lt.0 ) then
          Write(6,*) 'Save_tmp_CI_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.lt.0 ) then
          Write(6,*) 'Save_tmp_CI_vec: iRoot less than 0'
          Write(6,*) 'iRoot = ',iRoot
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.gt.n_Roots ) then
          Write(6,*) 'Save_tmp_CI_vec: iRoot greater than nRoots'
          Write(6,*) 'iRoot, nRoots = ',iRoot, n_Roots
-         Call QTrace
          Call Abend
       Endif
 
@@ -1313,19 +1284,16 @@ CFUE  End If
       If ( nConf.lt.0 ) then
          Write(6,*) 'Load_tmp_Sig_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.lt.0 ) then
          Write(6,*) 'Load_tmp_Sig_vec: iRoot less than 0'
          Write(6,*) 'iRoot = ',iRoot
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.gt.n_Roots ) then
          Write(6,*) 'Load_tmp_Sig_vec: iRoot greater than nRoots'
          Write(6,*) 'iRoot = ',n_Roots
-         Call QTrace
          Call Abend
       Endif
 
@@ -1407,19 +1375,16 @@ CFUE  End If
       If ( nConf.lt.0 ) then
          Write(6,*) 'Save_tmp_Sig_vec: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.lt.0 ) then
          Write(6,*) 'Save_tmp_Sig_vec: iRoot less than 0'
          Write(6,*) 'iRoot = ',iRoot
-         Call QTrace
          Call Abend
       Endif
       If ( iRoot.gt.n_Roots ) then
          Write(6,*) 'Save_tmp_Sig_vec: iRoot greater than nRoots'
          Write(6,*) 'iRoot, nRoots = ',iRoot, n_Roots
-         Call QTrace
          Call Abend
       Endif
 
@@ -1499,7 +1464,6 @@ CFUE  End If
       If ( nConf.lt.0 ) then
          Write(6,*) 'page_out: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
 
@@ -1620,7 +1584,6 @@ CFUE  End If
       If ( nConf.lt.0 ) then
          Write(6,*) 'page_in: nConf less than 0'
          Write(6,*) 'nConf = ',nConf
-         Call QTrace
          Call Abend
       Endif
 
@@ -1632,7 +1595,6 @@ CFUE  End If
       If ( nStk.eq.0 ) then
          Write(6,*) 'page_in: nStk equal 0'
          Write(6,*) 'nStk = ',nStk
-         Call QTrace
          Call Abend
       Endif
 
@@ -1736,7 +1698,6 @@ CFUE  End If
       Else
         Write(6,*) 'RecNo: itype does not match'
         Write(6,*) 'itype = ',itype
-        Call QTrace
         Call Abend
       End If
 

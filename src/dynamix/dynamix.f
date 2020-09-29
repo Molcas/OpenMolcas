@@ -332,7 +332,6 @@ C
 
          ELSE
             WRITE(6,*) 'Illegal task'
-            CALL QTrace()
             CALL Abend()
          END IF
       END DO

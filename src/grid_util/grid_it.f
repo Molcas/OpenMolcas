@@ -97,7 +97,6 @@ c       close(unit=LuOrb)
 *     Epilogue
 *
       if(iRun.eq.1) then
-        Call qStat(' ')
 c        Call eXML('GRID_IT')
 c      else
 c      write(6,*) 'Input file for molcasgv was generated'

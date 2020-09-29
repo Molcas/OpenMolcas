@@ -340,7 +340,6 @@
       If (iCIRST.eq.1.and.DumpOnly) then
         write(6,*) 'ICIRST and DumpOnly flags are not compatible!'
         write(6,*) 'Choose only one.'
-        Call QTrace
         Call Abend
       end if
 
@@ -1180,7 +1179,6 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
            Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
            Write(LF,*) 'Label = ',Label
            Write(LF,*) 'iRc = ',iRc
-           Call QTrace
            Call Abend
           End if
 

@@ -275,7 +275,6 @@
          If (iRc.ne.0) Then
             Write (6,*) 'WrDisk: Error writing to MCKINT'
             Write (6,'(A,A)') 'Label=',Label
-            Call QTrace
             Call Abend()
          End If
          If (Show) Then
@@ -290,7 +289,6 @@
          If (iRc.ne.0) Then
             Write (6,*) 'WrDisk: Error writing to MCKINT'
             Write (6,'(A,A)') 'Label=',Label
-            Call QTrace
             Call Abend()
          End If
          If (Show) Then
@@ -308,7 +306,6 @@
          If (iRc.ne.0) Then
             Write (6,*) 'WrDisk: Error writing to MCKINT'
             Write (6,'(A,A)') 'Label=',Label
-            Call QTrace
             Call Abend()
          End If
 *                                                                      *
@@ -327,7 +324,6 @@
          If (iRc.ne.0) Then
             Write (6,*) 'WrDisk: Error writing to MCKINT'
             Write (6,'(A,A)') 'Label=',Label
-            Call QTrace
             Call Abend()
          End If
          If (Show) Then

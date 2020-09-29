@@ -84,7 +84,6 @@
       If (iRc.ne.0) Then
          Write (6,*) 'WrHDsk: Error writing to MCKINT'
          Write (6,'(A,A)') 'Label=',Label
-         Call QTrace
          Call Abend()
       End If
       Call Getmem('HStat','Free','REAL',ipHStat,nH)

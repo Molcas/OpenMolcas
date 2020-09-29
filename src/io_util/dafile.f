@@ -207,7 +207,6 @@ C10    Continue
 
 1000  write (6,*) 'I/O error in ',TheName
       write (6,*) 'Unit = ',Lu
-      Call QTrace()
       Call Abend()
 
       End

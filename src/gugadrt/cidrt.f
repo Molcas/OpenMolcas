@@ -152,7 +152,6 @@ c...end of subroutine gugadefault
      &      1100,1200,1300,1400,1500,1600,1700,1800           ) jcmd
       write (6,*) 'input: illegal keyword'
       write (6,'(a,a)') 'command=',command
-      call qtrace
       call abend()
 *
 *---  process title    command ----------------------------------------*
@@ -588,11 +587,9 @@ c write date into cidrt for ci calculation
 !---------------------------------------------------------------------
 991   write (6,*) 'input: end of input file encountered'
       write (6,'(a,a)') 'last command: ',command
-      call qtrace
       call abend()
 992   write (6,*) 'input: error while reading input!'
       write (6,'(a,a)') 'last command: ',command
-      call qtrace
       call abend()
 1001  format(1x,"norb all group sm")
 1002  format(8(1x,i3))

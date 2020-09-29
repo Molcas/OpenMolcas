@@ -317,7 +317,6 @@ c
          write(6,*) 'dgnalization procedure is non-convergent.'
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
 #ifdef _XIANEST_

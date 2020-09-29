@@ -76,7 +76,6 @@ c     End If
       If (nip-1.gt.nArr) Then
          Write (6,*) 'NAHss: nip-1.gt.nArr'
          Write (6,*) 'nip,nArr=',nip,nArr
-         Call QTrace
          Call Abend()
       End If
       ipArr = nip

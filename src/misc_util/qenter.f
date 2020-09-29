@@ -104,7 +104,6 @@
          Write (6,*) 'QEnter: dublicate enter!'
          Write (6,*) 'String=',String
          Write (6,*) 'iQStk=',iQStk
-         Call QTrace()
          Call Abend()
       End If
 *----------------------------------------------------------------------*
@@ -115,7 +114,6 @@
          Write (6,*) 'QEnter: nQStk.gt.mxQStk'
          Write (6,*) 'nQStk=',nQStk
          Write (6,*) 'mxQStk=',mxQStk
-         Call QTrace()
          Call Abend()
       End If
       QueCtl(iplStk)=nQStk
@@ -138,7 +136,6 @@
             Write (6,*) 'QEnter: nQTbl.gt.mxQTbl'
             Write (6,*) 'nQTbl=',nQTbl
             Write (6,*) 'mxQTbl=',mxQTbl
-            Call QTrace()
             Call Abend()
          End If
          QueCtl(iplTbl)=nQTbl

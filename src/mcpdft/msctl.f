@@ -112,7 +112,6 @@ C Local print level (if any)
          Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
       Call GetMem('Ovrlp','Free','Real',iTmp0,nTot1+4)
@@ -140,7 +139,6 @@ C Local print level (if any)
          Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
       If ( IPRLEV.ge.DEBUG ) then
@@ -169,7 +167,6 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
          Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
       Call GetMem('NucElcore','Allo','Real',iTmpn,nTot1)
@@ -183,7 +180,6 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
          Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
 c      end if
@@ -789,7 +785,6 @@ c         call xflush(6)
       Else
 
          Write(LF,*)'SXCTL: Illegal Cholesky parameter ALGO= ',ALGO
-         call qtrace()
          call abend()
 
       EndIf

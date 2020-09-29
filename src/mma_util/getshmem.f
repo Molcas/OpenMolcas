@@ -137,7 +137,6 @@ C      n=LEN(TRIM(path)); cpath(n+1:n+1)=char(0)
       Return
 *
  777  Continue
-      Call QTrace()
       Call Quit(_RC_MEMORY_ERROR_)
 
       End

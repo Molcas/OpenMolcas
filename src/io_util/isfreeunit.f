@@ -45,7 +45,6 @@ CVV since more and more developers' calling isfreeunit with constant...
        If (kan.eq.kan0) Then
           Call fastio('STATUS')
           Write (6,*) ' isFreeUnit: no available unit!'
-          Call QTrace()
           Call Abend()
        End If
  2     Continue

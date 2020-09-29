@@ -372,7 +372,6 @@ cmp!
 c
 c@@        deallocate (wrk)
         Call GetMem('CCSD','Free','Real',iOff,wrksize)
-        Call qStat(' ')
 c
         ireturn=0
 c

@@ -75,7 +75,6 @@ c       CALL STRINF_GAS(WORK,IPRSTR)
 c      IF(PNTGRP.GT.1) CALL MLSM(IREFSM,IREFPA,IREFSM,'CI',1)
       IF(NOINT.EQ.1) THEN
         WRITE(6,*) ' End of calculation without integrals'
-        CALL QSTAT(' ')
         CALL QUIT(_RC_ALL_IS_WELL_)
       END IF
 *

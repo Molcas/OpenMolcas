@@ -82,7 +82,6 @@ c set the default convergence threshhold
       write (6,'(a,a)') 'command=',command
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
 #ifdef _XIANEST_
@@ -163,7 +162,6 @@ c set the default convergence threshhold
 #endif
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
 992   write (6,*) 'input: error while reading input!'
@@ -172,7 +170,6 @@ c set the default convergence threshhold
 #endif
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
       end
@@ -301,7 +298,6 @@ c write date into cidrt for ci calculation
         write(6,*)'  input num.of orbital err! check again!'
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
 #ifdef _XIANEST_

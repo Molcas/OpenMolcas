@@ -26,7 +26,6 @@
          Write (6,*) 'Comp: IT1.NE.IT2'
          Write (6,*) 'IT1,IT2=',IT1,IT2
          Write (6,*) 'ITYP,L=',ITYP,L
-         Call QTrace
          Call Abend
       End If
       FAC=D1

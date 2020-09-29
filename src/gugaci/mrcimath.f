@@ -197,7 +197,6 @@ c
      *       'computation must stop***')
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
 #ifdef _XIANEST_

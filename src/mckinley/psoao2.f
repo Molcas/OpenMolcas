@@ -176,7 +176,6 @@ c     iPrint = nPrint(iRout)
          If (Fail) Then
             Write (6,*) 'PSOAO2: memory partitioning failed!'
             Write (6,*) '        Restart with more memory!'
-            Call QTrace
             Call Abend()
          End If
          Go To 999
@@ -251,7 +250,6 @@ c     iPrint = nPrint(iRout)
          If (Fail) Then
             Write (6,*) 'PSOAO2: memory partitioning failed!'
             Write (6,*) '        Restart with more memory!'
-            Call QTrace
             Call Abend()
          End If
          Go To 999
@@ -328,7 +326,6 @@ c     iPrint = nPrint(iRout)
          If (Fail) Then
             Write (6,*) 'PSOAO2: memory partitioning failed!'
             Write (6,*) '        Restart with more memory!'
-            Call QTrace
             Call Abend()
          End If
          Go To 999
@@ -347,7 +344,6 @@ c     iPrint = nPrint(iRout)
          If (Fail) Then
             Write (6,*) 'PSOAO2: memory partitioning failed!'
             Write (6,*) '        Restart with more memory!'
-            Call QTrace
             Call Abend()
          End If
          Go To 999
@@ -391,7 +387,6 @@ c     iPrint = nPrint(iRout)
          If (Fail) Then
             Write (6,*) 'PSOAO2: memory partitioning failed!'
             Write (6,*) '        Restart with more memory!'
-            Call QTrace
             Call Abend()
          End If
          Go To 999

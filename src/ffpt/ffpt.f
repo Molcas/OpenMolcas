@@ -75,7 +75,6 @@ C     Call Hello
       Call GetMem('Ovlp','Free','Real',ipOvlp,nSize)
       Call GetMem('H0','Free','Real',ipH0,nSize)
 *----------------------------------------------------------------------*
-      Call qStat(' ')
       Call FastIO('STATUS')
 *
       ireturn=0

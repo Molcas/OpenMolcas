@@ -110,7 +110,6 @@ C     Call TriPrt('H0_temp after wrone',' ',h0_temp,nBas)
       Else
          Write (6,*) 'Method=',Method
          Write (6,*) ' Oups!'
-         Call QTrace
          Call Abend()
       End If
 *
@@ -126,7 +125,6 @@ C     Call Get_Energy(Energy)
       Write (6,*)
       Write (6,*) 'Comp_f: Wave function calculation failed!'
       Write (6,*)
-      Call QTrace()
       Call Abend()
 * Avoid unused argument warnings
       If (.False.) Call Unused_integer(nBas)

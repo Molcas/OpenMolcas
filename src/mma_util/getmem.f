@@ -172,7 +172,6 @@
       Return
 *
  777  Continue
-      Call QTrace()
       Call Quit(_RC_MEMORY_ERROR_)
 
       End

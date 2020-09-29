@@ -57,7 +57,6 @@
       Orig=Orig.or.ComStk(2,3,2,4)
       If ( .not.Orig ) Then
          Write (6,*) 'PtElfd: No matching center is found.'
-         Call QTrace
          Call Abend()
       End If
 *
@@ -72,7 +71,6 @@
         If ( iAtm.lt.0 .or. iAtm.gt.nAtoms ) Then
            Write (6,*) 'PtEfld: You specified a invalid atom number as'
      &               //' the origin of the perturbation operator.'
-           Call QTrace
            Call Abend()
         End If
         XOrig=Coor(1,iAtm)
@@ -115,7 +113,6 @@
       If ( NoCntr ) Then
          Write (6,*) 'PtEfld: You missed to specify the origin of '
      &             //'the operator.'
-         Call QTrace
          Call Abend()
       End If
       If ( Debug )
@@ -167,6 +164,5 @@ c Avoid unused argument warnings
 *
 991   Write (6,*) 'PtEfld: Error reading ONEINT'
       Write (6,'(A,A)') 'Label=',Label
-      Call QTrace
       Call Abend()
       End

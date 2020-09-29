@@ -67,7 +67,6 @@
             Write (6,*) 'CIall: IIN.GT.nIOCR'
             Write (6,*) 'IIN=',IIN
             Write (6,*) 'nIOCR=',nIOCR
-            Call QTrace
             Call Abend()
          End If
          IOCR(IIN)=IOC(I)

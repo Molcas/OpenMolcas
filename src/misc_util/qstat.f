@@ -58,7 +58,6 @@
       Temp(2)=0
       If ( QueCtl(ipStat).ne.ON ) then
          Write (6,*) 'QStat: QueCtl(ipStat).ne.ON'
-         Call QTrace()
          Call Abend()
       End if
 *----------------------------------------------------------------------*

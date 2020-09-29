@@ -500,7 +500,6 @@ C     Call Seward_Banner()
 *     Epilogue
 *
       If (nPrint(iRout).ge.6) Then
-         Call qStat(' ')
          Call FastIO('STATUS')
       End If
 *

@@ -77,7 +77,6 @@
           If ( iAtm.lt.0 .or. iAtm.gt.nAtoms ) Then
              Write (6,*) 'PtOkt0: You specified a invalid atom number'
      &                 //' as the origin of the perturbation operator.'
-             Call QTrace
              Call Abend()
           End If
           XOrig=Coor(1,iAtm)
@@ -126,7 +125,6 @@
           If ( X.ne.XOrig .or. Y.ne.YOrig .or. Z.ne.ZOrig ) Then
              Write (6,*) 'PtOkt0: Input error, no matching center'
      &                 //' is found.'
-             Call QTrace
              Call Abend()
           End If
           Alpha=5.0d0
@@ -166,6 +164,5 @@ c Avoid unused argument warnings
 *
 991   Write (6,*) 'PtOkt0: Error reading ONEINT'
       Write (6,'(A,A)') 'Label=',Label
-      Call QTrace
       Call Abend()
       End

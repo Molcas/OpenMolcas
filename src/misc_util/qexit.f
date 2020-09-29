@@ -45,7 +45,6 @@
       Temp(2)=0
       If ( QueCtl(ipStat).ne.ON ) then
          Write (6,*) 'QExit: QueCtl(ipStat).ne.ON'
-         Call QTrace()
          Call Abend()
       End if
 *----------------------------------------------------------------------*
@@ -65,7 +64,6 @@
       If ( nQStk.le.0 ) Then
          Write (6,*) 'QExit: String=',String
          Write (6,*) 'QExit: nQStk.le.0'
-         Call QTrace()
          Call Abend()
       End if
 
@@ -110,14 +108,12 @@
          Write (6,*) 'QExit: iQStk.eq.0'
          Write (6,*) 'String=',String
          Write (6,*) 'Subroutine not entered!'
-         Call QTrace()
          Call Abend()
       End If
       If ( iQStk.ne.nQStk ) then
          Write (6,*) 'QExit: iQStk.ne.nQStk'
          Write (6,*) 'String=',String
          Write (6,*) 'Exit out of sequence!'
-         Call QTrace()
          Call Abend()
       End If
 *----------------------------------------------------------------------*
@@ -126,7 +122,6 @@
       If ( iQTbl.eq.0 ) then
          Write (6,*) 'QExit: iQTbl.eq.0'
          Write (6,*) 'String=',String
-         Call QTrace()
          Call Abend()
       End If
 *----------------------------------------------------------------------*

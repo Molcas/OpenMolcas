@@ -820,7 +820,6 @@ C
       Return
 *
  9999 Continue
-      Call qTrace
       Write (6,*) ' *** Error in subroutine BSSint ***'
       Write (6,*) '     Abend in subroutine OpnOne'
       Call Abend

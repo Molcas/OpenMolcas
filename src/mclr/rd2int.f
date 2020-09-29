@@ -40,7 +40,6 @@
       Call GetOrd(iRc,SqSym,nSymX,nBasX,nSkip)
       If ( iRc.ne.0 ) Then
          Write (6,*) 'Rd2Int: Error reading ORDINT'
-         Call QTrace
          Call Abend()
       End If
       If (iPL.ge.2) Then
@@ -50,7 +49,6 @@
       If ( nSymX.ne.nSym ) Then
          Write (6,*) 'Rd2Int: nSymX.ne.nSym'
          Write (6,*) 'nSymX,nSym=',nSymX,nSym
-         Call QTrace
          Call Abend()
       End If
       Do 10 iSym=1,nSym
@@ -58,7 +56,6 @@
             Write (6,*) 'Rd2Int: nBas(iSym).ne.nBasX(iSym)'
             Write (6,*) 'nBas(iSym),nBasX(iSym)=',
      &                   nBas(iSym),nBasX(iSym)
-            Call QTrace
             Call Abend()
          End If
 10    Continue
@@ -69,7 +66,6 @@
       If ( ntSkip.ne.0 ) Then
          Write (6,*) 'Rd2Int: ntSkip.ne.0'
          Write (6,*) 'ntSkip=',ntSkip
-         Call QTrace
          Call Abend()
       End If
       If (.not.SqSym.and..not.TimeDep) Then
