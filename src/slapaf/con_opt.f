@@ -896,7 +896,6 @@ C           Write (6,*) 'gBeta=',gBeta
 #ifdef _DEBUG_
          Call RecPrt('Con_Opt: W',' ',W,nInter-nLambda,nInter-nLambda)
 #endif
-*
 *                                                                      *
 ************************************************************************
 *                                                                      *

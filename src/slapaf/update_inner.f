@@ -526,7 +526,7 @@ C           Write (6,*) 'tBeta=',tBeta
          If (Curvilinear) Call dBMult(dRdq(1,1,kIter),
      &                                QC,nInter,nDimBC,nLambda)
 #ifdef _DEBUG_
-         write (Lu,*) 'Update_inner: kIter=',kIter
+         Write (Lu,*) 'Update_inner: kIter=',kIter
          Call RecPrt('dRdq(1,1,kIter)',' ',dRdq(1,1,kIter),nInter,1)
          Do iLambda=1,nLambda
             Write (6,*) 'Update_inner: iLambda=',iLambda
