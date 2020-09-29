@@ -129,7 +129,7 @@
           do iSym = 1, nSym
             do iGAS = 1, nGAS
               do i = 1, GAS_spaces(iGAS, iSym)
-                write(file_id, '(I0, 1x)', advance='no'), iGAS
+                write(file_id, '(I0, 1x)', advance='no') iGAS
               end do
             end do
           end do
