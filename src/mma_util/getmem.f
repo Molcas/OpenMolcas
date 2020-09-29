@@ -85,7 +85,6 @@
       If ( MemCtl(ipStat).ne.ON ) then
          Call IniMem()
       End if
-      If ( MemCtl(ipQuery).eq.ON ) Call qEnter('GetMem')
 *----------------------------------------------------------------------*
 *     read default parameters from Common / MemCtl /                   *
 *----------------------------------------------------------------------*
@@ -170,7 +169,6 @@
       End If
 #endif
 
-      If ( MemCtl(ipQuery).eq.ON ) Call qExit('GetMem')
       Return
 *
  777  Continue

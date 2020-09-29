@@ -37,7 +37,6 @@
 *                                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qEnter('PtOkt0')
 *
       Exec=.false.
       Exec=Exec.or.ComStk(2,6,1,1)
@@ -51,7 +50,6 @@
       Exec=Exec.or.ComStk(2,6,1,9)
       Exec=Exec.or.ComStk(2,6,1,10)
       If ( .not.Exec ) then
-         Call qExit('PtOkt0')
          Return
       End If
 *
@@ -158,7 +156,6 @@
 *     Normal Exit                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qExit('PtOkt0')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Ovlp)

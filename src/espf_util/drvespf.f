@@ -39,7 +39,6 @@
 *
 *...  Prologue
       iPrint = 1
-      Call qEnter('Drvespf')
 *
 *     Set up the angular index vector
 *
@@ -113,6 +112,5 @@
       Call GetMem('lOper','Free','Inte',ip1,nComp)
       Call GetMem('D0  ','Free','Real',ipD_Var,nDens)
 *
-      Call qExit('Drvespf')
       Return
       End

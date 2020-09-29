@@ -60,7 +60,6 @@
 #include "output_ras.fh"
 #include "lucia_ini.fh"
       Parameter(ROUTINE='DAVCTL  ')
-      Call qEnter('DAVCTL')
 C
 C -------------------------------------------------------------------- C
 C -- INITIALIZE THE DAVIDSON DIAGONALIZATION
@@ -194,7 +193,6 @@ C
      &                JOBIPH,LuDavid,iDisk)
       CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
 
-      Call qExit('DAVCTL')
 
       Return
 
@@ -248,7 +246,6 @@ C
 
       Character*8 Label
 
-      Call qEnter('Ini_David')
 
 *     check input arguments
       If ( nConf.lt.0 ) then
@@ -442,7 +439,6 @@ CFUE  End If
         save_in_memory = .true.
       End If
 
-      Call qExit('Ini_David')
 
       Return
       End
@@ -488,7 +484,6 @@ CFUE  End If
 #include "davctl.fh"
 #include "WrkSpc.fh"
 
-      Call qEnter('Term_David')
 
 *     check input arguments
       If ( nConf.lt.0 ) then
@@ -543,7 +538,6 @@ CFUE  End If
         End Do
       End If
 
-      Call qExit('Term_David')
 
       Return
       End
@@ -585,7 +579,6 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Load_H_diag')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
@@ -624,7 +617,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Load_H_diag')
 
       Return
       End
@@ -666,7 +658,6 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Save_H_diag')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
@@ -705,7 +696,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Save_H_diag')
 
       Return
       End
@@ -749,7 +739,6 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Load_CI_vec')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
@@ -802,7 +791,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Load_CI_vec')
 
       Return
       End
@@ -846,7 +834,6 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Save_CI_vec')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
@@ -899,7 +886,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Save_CI_vec')
 
       Return
       End
@@ -943,7 +929,6 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Load_Sig_vec')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
@@ -996,7 +981,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Load_Sig_vec')
 
       Return
       End
@@ -1040,7 +1024,6 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Save_Sig_vec')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
@@ -1093,7 +1076,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Save_Sig_vec')
 
       Return
       End
@@ -1137,7 +1119,6 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Load_tmp_CI_vec')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
@@ -1189,7 +1170,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Load_tmp_CI_vec')
 
       Return
       End
@@ -1233,7 +1213,6 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Save_tmp_CI_vec')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
@@ -1285,7 +1264,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Save_tmp_CI_vec')
 
       Return
       End
@@ -1329,7 +1307,6 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Load_tmp_Sig_vec')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
@@ -1381,7 +1358,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Load_tmp_Sig_vec')
 
       Return
       End
@@ -1425,7 +1401,6 @@ CFUE  End If
 
       Character*16 KeyWord
 
-      Call qEnter('Save_tmp_Sig_vec')
       Call Timing(WTC_1,Swatch,Swatch,Swatch)
 
 *     check input arguments
@@ -1477,7 +1452,6 @@ CFUE  End If
       Call Timing(WTC_2,Swatch,Swatch,Swatch)
       WTC_2 = WTC_2 - WTC_1
       WTC_3 = WTC_3 + WTC_2
-      Call qExit('Save_tmp_Sig_vec')
 
       Return
       End
@@ -1520,7 +1494,6 @@ CFUE  End If
 #include "davctl.fh"
 #include "WrkSpc.fh"
 
-      Call qEnter('page_out')
 
 *     check input arguments
       If ( nConf.lt.0 ) then
@@ -1601,7 +1574,6 @@ CFUE  End If
         End If
       End if
 
-      Call qExit('page_out')
 
       Return
       End
@@ -1643,7 +1615,6 @@ CFUE  End If
 #include "davctl.fh"
 #include "WrkSpc.fh"
 
-      Call qEnter('page_in')
 
 *     check input arguments
       If ( nConf.lt.0 ) then
@@ -1673,7 +1644,6 @@ CFUE  End If
         Call DDaFile(LuDavid,2,Vector,nConf,iDisk)
       End If
 
-      Call qExit('page_in')
 
       Return
       End

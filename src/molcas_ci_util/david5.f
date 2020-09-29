@@ -83,7 +83,6 @@
         call getmem('kcnf','allo','inte',ivkcnf,nactel)
       end if
 
-      Call qEnter('David')
       Call Timing(Alfex_1,Swatch,Swatch,Swatch)
       Rc_CI = 0
       IPRLEV=IPRLOC(3)
@@ -618,7 +617,6 @@ C Timings on generation of the sigma vector
       Call Timing(Alfex_2,Swatch,Swatch,Swatch)
       Alfex_2 = Alfex_2 - Alfex_1
       Alfex_3 = Alfex_3 + Alfex_2
-      Call qExit('David')
 
       Return
       End

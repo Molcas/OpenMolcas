@@ -22,7 +22,6 @@
       COMMON/D/JNDX(500 000)
       DIMENSION IOC(55),ISP(55)
 *
-      CALL QENTER('CONFIG')
       JSYL=30000
       JSYLL=3000
       JRX=9000
@@ -368,6 +367,5 @@ CPAM97      JSY((L+9)/10)=IOR(JSY((L+9)/10),ISHFT(NSJ,29-3*MOD(L-1,10)))
       CALL JSPCK(JSY,L,JSYM(L))
 411   CONTINUE
 *
-      CALL QEXIT('CONFIG')
       Return
       End

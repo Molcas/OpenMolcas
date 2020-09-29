@@ -24,7 +24,6 @@ c local variables:
       Integer :: i
       Real(kind=8) :: dltt
 
-      Call qEnter('set_T')
 
       ! set nT, T(i) and XTexp(i) arrays:
       T=0.0_wp
@@ -81,6 +80,5 @@ c local variables:
         End If
       End Do
 
-      Call qExit('set_T')
       Return
       End subroutine set_T

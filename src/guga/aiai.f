@@ -21,7 +21,6 @@
 #include "addr_guga.fh"
       COMMON/D/JNDX(500 000)
 
-      CALL QENTER('AIAI')
       KBUF0=RTOI*KBUF
       KBUF1=KBUF0+KBUF+1
       KBUF2=KBUF1+1
@@ -96,6 +95,5 @@ C EMPTY LAST BUFFERS
       CALL iDAFILE(Lu_11,1,INDOUT(ICQ+1),KBUF2,IADD11)
       ICAD(I)=IAD110
 150   CONTINUE
-      CALL QEXIT('AIAI')
       RETURN
       END

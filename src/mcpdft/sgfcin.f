@@ -48,7 +48,6 @@
       Dimension Dumm(1)
 
 !      iprlev=debug
-      Call qEnter('SGFCIN')
 C Local print level (if any)
       IPRLEV=IPRLOC(3)
 !      IPRLEV=DEBUG
@@ -456,7 +455,6 @@ Cbjp
         Call TriPrt(' ',' ',F,NAC)
       End If
 
-      Call qExit('SGFCIN')
 
       Return
       End

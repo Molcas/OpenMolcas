@@ -35,7 +35,6 @@
       Real*8, Allocatable:: TEMP1(:), TEMP2(:)
       Logical DoRys
 
-      Call QEnter('GiveMeInfo')
 
 *------------------------------------------------------------------------*
 * Initialize in order to read properly from the info file.               *
@@ -249,7 +248,6 @@ C     Endif
 * Make deallocations. They are necessary because of the getinf.        *
 *----------------------------------------------------------------------*
       Call ClsSew()
-      Call QEXit('GiveMeInfo')
 
       Return
 c Avoid unused argument warnings

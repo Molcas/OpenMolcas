@@ -23,7 +23,6 @@
       Character*1 xyz(0:2)
       Data xyz/'x','y','z'/
 *
-      Call qEnter('prepare')
 *
       LuWr=6
       DoRys = .True.
@@ -122,6 +121,5 @@
          Call Abend()
       End If
 *
-      Call qExit('prepare')
       Return
       End

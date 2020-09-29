@@ -37,7 +37,6 @@ c           matrices to the basis of their local pseudospins
 
       DBG= .false.
 
-      Call qEnter('transham')
 !-----------------------------------------------------------------------
       Call mma_allocate(gt1,3,'gt1')
       Call mma_allocate(gt2,3,'gt2')
@@ -274,6 +273,5 @@ c----------------------------------------------------------------------
          Call mma_deallocate(HI)
       End If
 
-      Call qExit('transham')
       Return
       End Subroutine transHam

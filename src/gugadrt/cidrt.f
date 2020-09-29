@@ -133,7 +133,6 @@ c...end of subroutine gugadefault
      &          'NONI','NACT','END '/
 *
 
-      call qenter("INPUT")
       n_electron=0
       nactel=0
       spin=0.d0

@@ -78,7 +78,6 @@
       Integer iRc
       Data    iRc/0/
 
-      If ( Query ) Call qEnter(TheName)
 
       Call DaFile_checkarg(Lu,iOpt,lBuf,iDisk)
 C****************** REAL I/O IS HERE **************
@@ -135,7 +134,6 @@ C10    Continue
       iDisk       = iDisk+lBuf
       Addr(Lu)    = iDisk
       If ( Trace ) Write (6,*) ' >>> Exit DaFile <<<'
-      If ( Query ) Call qExit(TheName)
 
       Return
 

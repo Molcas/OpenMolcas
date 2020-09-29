@@ -28,7 +28,6 @@
       Logical lMorok,DoDirect,isNAC_tmp
       Dimension idum(1)
 *
-      Call QEnter('espf')
       iReturn=99
 *
 *-----Print
@@ -221,7 +220,6 @@
          Call Put_iScalar('System BitSwitch',iOption)
       End If
 *
-      Call QExit('espf')
       iReturn=0
       Return
       End

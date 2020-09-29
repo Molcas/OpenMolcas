@@ -188,7 +188,6 @@ c      Integer                      :: icase, nmagmult
       Logical                       :: dbg
       Character(Len=180)            :: fname
 
-      Call qEnter('PA_1')
       dbg=.false.
 c---------------------------------------------------------------------
       ! Constants:
@@ -978,7 +977,6 @@ c---------------------------------------------------------------------
       Write(6,*)
       Write(6,'(10A)') (('-*-&-%-$-#-@-'),idim=1,10)
       Call xFlush(6)
-      Call qExit('PA_1')
 
       Return
       End

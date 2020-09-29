@@ -22,7 +22,6 @@
 *
       JO(L)=ICUNP(ICASE,L)
 *
-      CALL QENTER('COMP')
       IF (IT1.NE.IT2) Then
          Write (6,*) 'Comp: IT1.NE.IT2'
          Write (6,*) 'IT1,IT2=',IT1,IT2
@@ -82,6 +81,5 @@
       GO TO 27
 *
 71      Continue
-       Call QExit('COMP')
       Return
       End

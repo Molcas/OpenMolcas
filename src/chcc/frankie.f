@@ -216,7 +216,6 @@ cmp
       Debug=.false.
 #endif
 
-      Call QEnter(SECNAM)
 
 cmp
 cmp!<new 21/04/09
@@ -514,7 +513,6 @@ C --- free memory
 
       rc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
       END

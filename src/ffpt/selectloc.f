@@ -43,7 +43,6 @@
 *
 *-- Commence!
 *
-      Call qEnter('SELECTLOC')
       Write(6,*)
       Write(6,*)' The perturbation will be localized "LoProp style".'
       Write(6,*)
@@ -252,6 +251,5 @@
       Write(6,*)
       Write(6,*)'  ....Done!'
       Write(6,*)
-      Call qExit('SELECTLOC')
       Return
       End

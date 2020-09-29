@@ -44,7 +44,6 @@
 #include "general.fh"
 #include "WrkSpc.fh"
 
-      Call qEnter('Get_D1A')
 
       Zero = 0.0d0
 
@@ -79,7 +78,6 @@
         iOff3 = iOff3 + iBas*iBas
       End Do
 
-      Call qExit('Get_D1A')
 
       Return
       End

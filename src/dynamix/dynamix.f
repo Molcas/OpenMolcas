@@ -40,7 +40,6 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       REAL*8, ALLOCATABLE ::    Mass(:),vel(:),pcoo(:,:)
 
 *
-      CALL QEnter('Dynamix')
       iReturn=99
 *
 C
@@ -374,7 +373,6 @@ C
       Else
          iReturn=irc
       End If
-      CALL QExit('Dynamix')
       RETURN
 *
       END

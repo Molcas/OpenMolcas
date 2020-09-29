@@ -45,7 +45,6 @@
       NCOR=NCOR-100000
       Call GETMEM('SOArr','Allo','Inte',LSOArr,NCOR)
 *     Call SetQue('Trace=On')
-      Call qEnter('GUGA')
       CALL SETTIM
       CALL XUFLOW
       CALL ERRSET(208,256,-1,1,1,208)
@@ -145,7 +144,6 @@ C     ALSO SPACE FOR NTPB WORDS IN EMPTY
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('GUGA')
       ireturn=0
       Return
       End

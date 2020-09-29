@@ -27,7 +27,6 @@ C
      &                              E_factor, diff12, diff23, ZD2(3,3)
       Complex(kind=8)           :: DMAT(3,3)
 
-      Call qEnter('dmatrix')
 
       CF=sqrt(3.0_wp/2.0_wp)
 
@@ -324,6 +323,5 @@ c the WD(3) and ZD(i,3) correspond to gtens(3) and maxes(i,3)
         Write(6,'(a,F9.4)') 'E = ', E_factor
       End If
 
-      Call qExit('dmatrix')
       Return
       End

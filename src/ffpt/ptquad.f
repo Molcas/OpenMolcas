@@ -39,7 +39,6 @@
 *                                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qEnter('PtQuad')
 *
       Exec=.false.
       Exec=Exec.or.ComStk(2,2,1,1)
@@ -50,7 +49,6 @@
       Exec=Exec.or.ComStk(2,2,1,6)
       Exec=Exec.or.ComStk(2,2,1,7)
       If ( .not.Exec ) then
-         Call qExit('PtQuad')
          Return
       End If
 *
@@ -218,7 +216,6 @@ c        End Do
 *     Normal Exit                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qExit('PtQuad')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Ovlp)

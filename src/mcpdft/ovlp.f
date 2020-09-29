@@ -58,7 +58,6 @@
 
 * prologue
 
-      Call qEnter('Ovlp')
 
       zero = 0.0d0
       Call dCopy_(nAc*nAc,[zero],0,Smat,1)
@@ -140,7 +139,6 @@
 
       Call GetMem('OAO','Free','Real',lOAO,nTot1)
 
-      Call qExit('Ovlp')
       Return
 
  900  Write(LF,*)

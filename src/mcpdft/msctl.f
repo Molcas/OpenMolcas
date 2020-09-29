@@ -80,7 +80,6 @@
 c      iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 
 
-      Call qEnter('MSCTL')
       Call unused_real_array(F)
 ***********************************************************
 C Local print level (if any)
@@ -1338,7 +1337,6 @@ cPS         call xflush(6)
       Call GetMem('Kincore','free','Real',iTmpk,nTot1)
       Call GetMem('NucElcore','free','Real',iTmpn,nTot1)
 c      call xflush(6)
-      Call qExit('MSCTL')
       Return
       END
 

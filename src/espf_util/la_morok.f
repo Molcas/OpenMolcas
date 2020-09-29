@@ -37,7 +37,6 @@ c
       Integer, Dimension(:,:), Allocatable :: DefLA
       Real*8, Dimension(:), Allocatable :: FactLA
 *
-      Call QEnter('LA_Morok')
 *
 *define _DEBUG_
 *
@@ -63,7 +62,7 @@ c
          Goto 10
 11       Close (IPotFl)
       End If
-      If (.not.lMorok) Goto 999
+      If (.not.lMorok) Return
 #ifdef _DEBUG_
       iPL = 4
       Call RecPrt('LA_Morok: coord or grad:',' ',Work(ipCorG),3,nAtom)
@@ -225,7 +224,6 @@ c
 #ifdef _DEBUG_
       Call RecPrt('LA_Morok: coord or grad:',' ',Work(ipCorG),3,nAtom)
 #endif
-999   Call QExit('LA_Morok')
       Return
 #ifndef _DEBUG_
 c Avoid unused argument warnings

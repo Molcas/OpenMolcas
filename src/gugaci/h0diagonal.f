@@ -321,7 +321,6 @@ c
       call abend()
 #endif
 #ifdef _XIANEST_
-      call qexit()
 #endif
 !        call abend
 !         stop

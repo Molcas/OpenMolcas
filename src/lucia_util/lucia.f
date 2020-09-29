@@ -31,7 +31,6 @@
 #include "warnings.fh"
 *.Scratch : A character line
 *
-      CALL QENTER('REST ')
 *.    No floating point underflow
       CALL XUFLOW
 *. Assign diskunits
@@ -95,6 +94,5 @@ c         IF (ENVIRO(1:6).EQ.'RASSCF') THEN
 
       CALL GETMEM('VEC1  ','ALLO','REAL',KCI_POINTER,LBLOCK)
       CALL GETMEM('VEC2  ','ALLO','REAL',KSIGMA_POINTER,LBLOCK)
-      CALL QEXIT('REST ')
       RETURN
       END

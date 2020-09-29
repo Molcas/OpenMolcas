@@ -35,7 +35,6 @@
 #include "disp.fh"
       Character*8 Lbl
       Real*8 Ccoor(3)
-      Call QEnter('DrvEtc')
       iRc=-1
       iOpt=1
       nDens = 0
@@ -96,6 +95,5 @@
         End Do
       End Do
       End Do
-      Call QExit('DrvEtc')
       Return
       End

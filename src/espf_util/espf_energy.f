@@ -25,7 +25,6 @@
       Real*8 h1(nh1)
       Dimension opnuc(1),idum(1)
 *
-      Call QEnter('espf_energy')
       iPL = iPL_espf()
 *
 * Read the MM contribution to the total energy and add it
@@ -117,6 +116,5 @@
         Call Add_Info('PotNuc',[RepNuc],1,12)
       End If
 *
-      Call QExit('espf_energy')
       Return
       End

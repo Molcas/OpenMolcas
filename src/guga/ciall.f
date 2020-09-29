@@ -16,7 +16,6 @@
 #include "integ.fh"
       DIMENSION IOC(55)
 *
-      CALL QENTER('CIALL')
       IIN=0
       NREF=0
       IJJ=IV0
@@ -76,6 +75,5 @@
       GO TO 12
 *
 10      Continue
-       CALL QEXIT('CIALL')
       RETURN
       End

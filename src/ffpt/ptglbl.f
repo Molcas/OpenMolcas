@@ -36,12 +36,10 @@
 *                                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qEnter('PTGLBL')
 *
       Exec=.false.
       Exec=Exec.or.ComStk(3,0,0,0)
       If ( .not.Exec ) then
-         Call qExit ('PTGLBL')
          Return
       End If
 *
@@ -84,7 +82,6 @@
 *     Normal Exit                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qExit ('PTGLBL')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

@@ -38,7 +38,6 @@
      &          'NONI','NACT','END '/
 *
 *---  Initialize data and variables -----------------------------------*
-      CALL QENTER('INPUT')
       IOM=55
       IVER=MXVERT
       IFIRST=0
@@ -425,7 +424,6 @@ CPAM97      IR1=(LN*IR+29)/30
       IAD10(2)=IADD10
       CALL iDAFILE(Lu_10,1,JREFX,JRC(1),IADD10)
 *
-      CALL QEXIT('INPUT')
       RETURN
 991   Write (6,*) 'Input: End of input file encountered'
       Write (6,'(A,A)') 'Last Command: ',Command

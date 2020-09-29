@@ -36,14 +36,12 @@
 *                                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qEnter('PtEfld')
 *
       Exec=.false.
       Exec=Exec.or.ComStk(2,3,1,1)
       Exec=Exec.or.ComStk(2,3,1,2)
       Exec=Exec.or.ComStk(2,3,1,3)
       If ( .not.Exec ) then
-         Call qExit('PtEfld')
          Return
       End If
 *
@@ -156,7 +154,6 @@
 *     Normal Exit                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qExit('PtEfld')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

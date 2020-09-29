@@ -249,7 +249,6 @@ c                        call ddatard(nft,buff,kbuf,idisk)
       call qtrace
       call abend()
 #ifdef _XIANEST_
-      call qexit()
 #endif
 !               call abend
 !                stop 1999
