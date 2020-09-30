@@ -690,7 +690,7 @@
      &                           C(1,ldsp),1)
 *--------------------Transfer the multiplicity factor
                      C(4,ldsp)= Fact
-                     IndCar(ldso) = iCar
+                     IndCar(ldsp) = iCar
                   End If
                 End Do
  2200       Continue
@@ -728,10 +728,11 @@
                Do ldsp = 1, lDisp(0)
                   If (IndCar(ldsp).eq.j) Then
                      Fact = C(4,ldsp) * C(k,ldsp)
+                     Am(iTR,ldsp) = Fact
                   Else If (IndCar(ldsp).eq.k) Then
-                     Fact =-(C(4,ldsp) * C(j,ldsp))
+                     Fact =-C(4,ldsp) * C(j,ldsp)
+                     Am(iTR,ldsp) = Fact
                   End If
-                  Am(iTR,ldsp) = Fact
                End Do
  1210          Continue
             End Do
