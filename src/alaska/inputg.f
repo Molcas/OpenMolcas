@@ -21,6 +21,7 @@
 *                                                                      *
 *             Modified to complement GetInf, January '92.              *
 ************************************************************************
+      use Alaska_Info, only: Am
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep, iChTbl, iOper, lIrrep, lBsFnc
@@ -33,21 +34,25 @@
 #include "real.fh"
 #include "disp.fh"
 #include "iavec.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "columbus_gamma.fh"
 #include "exterm.fh"
 #include "nac.fh"
 #include "alaska_root.fh"
       Logical TstFnc, Type, Slct, T_Only, No_Input_OK
-      Character*1 xyz(0:2)
-      Character KWord*80, Key*80
+      Real*8, Allocatable:: Tmp(:), C(:,:), Scr(:,:), Temp(:,:)
+      Integer, Allocatable:: IndCar(:)
+
+      Character(LEN=1) :: xyz(0:2)=['x','y','z']
+      Character(LEN=80) KWord, Key
       Integer iSym(3), iTemp(3*MxAtom)
       Logical timings,Reduce_Prt
       External Reduce_Prt
-      Data xyz/'x','y','z'/
       COMMON /CHOTIME / timings
+
       Logical Do_OFemb,KEonly,OFE_first
       COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
+
       COMMON  / OFembed_R1/ Xsigma
       COMMON  / OFembed_R2/ dFMD
       Character*16  OFE_KSDFT
@@ -194,7 +199,7 @@
  935  Continue
       If (T_Only) Then
          Call WarningMessage(2,'Error in InputG')
-         Write (LuWr,*)'EQUI option does not work with RF calculations!'
+         Write (LuWr,*)'EQUI option does not ork with RF calculations!'
          Call Quit_OnUserError()
       End If
       lEq=.True.
@@ -462,10 +467,10 @@
          No_Nuc=.True.
 *Get the state energies
          Call Get_iScalar('Number of roots',nRoots)
-         Call Allocate_Work(ipTmp,nRoots)
-         Call Get_dArray('Last energies',Work(ipTmp),nRoots)
-         Ediff=Work(ipTmp+NACstates(1)-1)-Work(ipTmp+NACstates(2)-1)
-         Call Free_Work(ipTmp)
+         Call mma_Allocate(Tmp,nRoots,Label='Tmp')
+         Call Get_dArray('Last energies',Tmp,nRoots)
+         Ediff=Tmp(NACstates(1))-Tmp(NACstates(2))
+         Call mma_deallocate(Tmp)
       End If
 *
       nCnttp_Valence=0
@@ -641,13 +646,13 @@
             Go To 9876
          End If
          If (iPrint.ge.99) Write (LuWr,*) ' nTR=',nTR
-         Call GetMem('Amtrx','Allo','Real',ipAm,lDisp(0)**2)
-         Call GetMem('Temp ','Allo','Real',ipTmp,nTR**2)
-         Call GetMem('Coor ','Allo','Real',ipC,lDisp(0)*4)
-         Call GetMem('Car  ','Allo','Inte',ipCar,lDisp(0))
+         Call mma_allocate(Am,nTR,lDisp(0),Label='Am')
+         Call mma_allocate(Temp,nTR,nTR,Label='Temp')
+         Call mma_allocate(C,4,lDisp(0),Label='C')
+         Call mma_allocate(IndCar,lDisp(0),Label='IndCar')
 *
-         call dcopy_(nTR*lDisp(0),[Zero],0,Work(ipAm),1)
-         call dcopy_(4*lDisp(0),[Zero],0,Work(ipC),1)
+         Am(:,:)=Zero
+         C(:,:)=Zero
 *
 *        Generate temporary information of the symmetrical
 *        displacements.
@@ -674,26 +679,25 @@
                      Fact = Fact + One
                   End If
                End Do
-               Do iCar = 0, 2
-                  iComp = 2**iCar
+               Do iCar = 1, 3
+                  iComp = 2**(iCar-1)
                   If ( TstFnc(dc(mdc)%iCoSet,
      &                  iIrrep,iComp,dc(mdc)%nStab) ) Then
                      ldsp = ldsp + 1
                      Direct(lDsp)=.True.
 *--------------------Transfer the coordinates
-                     ip = 4*(ldsp-1) + ipC
                      call dcopy_(3,dbsc(iCnttp)%Coor(1:3,iCnt),1,
-     &                           Work(ip),1)
+     &                           C(1,ldsp),1)
 *--------------------Transfer the multiplicity factor
-                     Work(ip+3) = Fact
-                     iWork(ipCar-1+ldsp) = iCar + 1
+                     C(4,ldsp)= Fact
+                     IndCar(ldso) = iCar
                   End If
                 End Do
  2200       Continue
  2100    Continue
          If (iPrint.ge.99) Then
-            Call RecPrt(' Information',' ',Work(ipC),4,lDisp(0))
-            Write (LuWr,*) (iWork(i),i=ipCar,ipCar+lDisp(0)-1)
+            Call RecPrt(' Information',' ',C,4,lDisp(0))
+            Write (LuWr,*) (IndCar(i),i=1,lDisp(0))
          End If
 *
 *--------Set up coefficient for the translational equations
@@ -703,10 +707,8 @@
             If (iSym(i).eq.0) Then
                iTR = iTR + 1
                Do ldsp = 1, lDisp(0)
-                  If (iWork(ipCar+ldsp-1).eq.i) Then
-                     ipOut= ipC + 4*(ldsp-1) + 3
-                     ipIn = nTR*(ldsp-1) + iTR + ipAm - 1
-                     Work(ipIn) = Work(ipOut)
+                  If (IndCar(ldsp).eq.i) Then
+                     Am(iTR,ldsp) = C(4,ldsp)
                   End If
                End Do
             End If
@@ -724,21 +726,18 @@
                If (ijSym.ne.0) Go To 1210
                iTR = iTR + 1
                Do ldsp = 1, lDisp(0)
-                  ipIn = nTR*(ldsp-1) + iTR + ipAm - 1
-                  ipOut = ipC + 4*(ldsp-1)
-                  If (iWork(ipCar+ldsp-1).eq.j) Then
-                     Fact = Work(ipOut+3) * Work(ipOut+k-1)
-                     Work(ipIn) = Fact
-                  Else If (iWork(ipCar+ldsp-1).eq.k) Then
-                     Fact = Work(ipOut+3) * Work(ipOut+j-1)
-                     Work(ipIn) = -Fact
+                  If (IndCar(ldsp).eq.j) Then
+                     Fact = C(4,ldsp) * C(k,ldsp)
+                  Else If (IndCar(ldsp).eq.k) Then
+                     Fact =-(C(4,ldsp) * C(j,ldsp))
                   End If
+                  Am(iTR,ldsp) = Fact
                End Do
  1210          Continue
             End Do
          End If
          If (iPrint.ge.99)
-     &      Call RecPrt(' The A matrix',' ',Work(ipAm),nTR,lDisp(0))
+     &      Call RecPrt(' The A matrix',' ',Am,nTR,lDisp(0))
 *
 *--------Now, transfer the coefficient of those gradients which will
 *        not be computed directly.
@@ -756,19 +755,16 @@
                   If (iTemp(jTR).eq.ldsp) Go To 1231
                End Do
 *              Write (LuWr,*) ' Checking vector #', ldsp
-               ipNew = ipAm + nTR*(ldsp-1)
-               ipIn = ipTmp + nTR*(iTR-1)
-               call dcopy_(nTR,Work(ipNew),1,Work(ipIn),1)
-*              Call RecPrt(' Vector',' ',Work(ipIn),nTR,1)
+               call dcopy_(nTR,Am(1,ldsp),1,Temp(1,iTR),1)
+*              Call RecPrt(' Vector',' ',Temp(1,iTR),nTR,1)
 *--------------Gram-Schmidt orthonormalize against accepted vectors
                Do lTR = 1, iTR-1
-                  ipOld = ipTmp + nTR*(lTR-1)
-                  alpha = DDot_(nTR,Work(ipIn),1,Work(ipOld),1)
+                  alpha = DDot_(nTR,Temp(1,iTR),1,Temp(1,lTR),1)
 *                 Write (LuWr,*) ' <x|y> =', alpha
-                  Call DaXpY_(nTR,-alpha,Work(ipOld),1,Work(ipIn),1)
+                  Call DaXpY_(nTR,-alpha,Temp(1,lTR),1,Temp(1,iTR),1)
                End Do
-*              Call RecPrt(' Remainings',' ',Work(ipIn),nTR,1)
-               alpha = DDot_(nTR,Work(ipIn),1,Work(ipIn),1)
+*              Call RecPrt(' Remainings',' ',Temp(1,iTR),nTR,1)
+               alpha = DDot_(nTR,Temp(1,iTR),1,Temp(1,iTR),1)
 *              Write (LuWr,*) ' Remaining overlap =', alpha
 *--------------Check the remaining magnitude of vector after Gram-Schmidt
                If (alpha.gt.ovlp) Then
@@ -787,64 +783,59 @@
             End If
 *           Write (LuWr,*) ' Selecting vector #', kTR
 *-----------Pick up the "best" vector
-            ipNew = ipAm + nTR*(kTR-1)
-            ipIn = ipTmp + nTR*(iTR-1)
-            call dcopy_(nTR,Work(ipNew),1,Work(ipIn),1)
+            call dcopy_(nTR,Am(1,kTR),1,Temp(1,iTR),1)
             Do lTR = 1, iTR-1
-               ipOld = ipTmp + nTR*(lTR-1)
-               alpha = DDot_(nTR,Work(ipIn),1,Work(ipOld),1)
-               Call DaXpY_(nTR,-alpha,Work(ipOld),1,Work(ipIn),1)
+               alpha = DDot_(nTR,Temp(1,iTR),1,Temp(1,lTR),1)
+               Call DaXpY_(nTR,-alpha,Temp(1,lTR),1,Temp(1,iTR),1)
             End Do
-            alpha = DDot_(nTR,Work(ipIn),1,Work(ipIn),1)
-            Call DScal_(nTR,One/Sqrt(alpha),Work(ipIn),1)
+            alpha = DDot_(nTR,Temp(1,iTR),1,Temp(1,iTR),1)
+            Call DScal_(nTR,One/Sqrt(alpha),Temp(1,iTR),1)
             iTemp(iTR) = kTR
          End Do
          Do iTR = 1, nTR
-            ipNew = ipAm + nTR*(iTemp(iTR)-1)
-            ipIn  = ipTmp + nTR*(iTR-1)
-            call dcopy_(nTR,Work(ipNew),1,Work(ipIn),1)
-            call dcopy_(nTR,[Zero],0,Work(ipNew),1)
+            call dcopy_(nTR,Am(1,iTemp(iTR)),1,Temp(1,iTR),1)
+            Am(:,iTemp(iTR))=Zero
          End Do
          If (iPrint.ge.99) Then
-            Call RecPrt(' The A matrix',' ',Work(ipAm),nTR,lDisp(0))
-            Call RecPrt(' The T matrix',' ',Work(ipTmp),nTR,nTR)
+            Call RecPrt(' The A matrix',' ',Am,nTR,lDisp(0))
+            Call RecPrt(' The T matrix',' ',Temp,nTR,nTR)
             Write (LuWr,*) (iTemp(iTR),iTR=1,nTR)
          End If
 *
 *        Compute the inverse of the T matrix
 *
-         Call MatInvert(Work(ipTmp),nTR)
+         Call MatInvert(Temp,nTR)
          If (IPrint.ge.99)
-     &      Call RecPrt(' The T-1 matrix',' ',Work(ipTmp),nTR,nTR)
-         Call DScal_(nTR**2,-One,Work(ipTmp),1)
+     &      Call RecPrt(' The T-1 matrix',' ',Temp,nTR,nTR)
+         Call DScal_(nTR**2,-One,Temp,1)
 *
 *        Generate the complete matrix
 *
-         Call GetMem(' Temp2','Allo','Real',ipScr,nTR*lDisp(0))
+         Call mma_allocate(Scr,nTR,lDisp(0),Label='Scr')
          Call DGEMM_('N','N',
      &               nTR,lDisp(0),nTR,
-     &               1.0d0,Work(ipTmp),nTR,
-     &               Work(ipAm),nTR,
-     &               0.0d0,Work(ipScr),nTR)
-         If (IPrint.ge.99)
-     &      Call RecPrt(' A-1*A',' ',Work(ipScr),nTR,lDisp(0))
-         call dcopy_(lDisp(0)**2,[Zero],0,Work(ipAm),1)
-         call dcopy_(lDisp(0),[One],0,Work(ipAm),lDisp(0)+1)
+     &               1.0d0,Temp,nTR,
+     &               Am,nTR,
+     &               0.0d0,Scr,nTR)
+         If (IPrint.ge.99) Call RecPrt(' A-1*A',' ',Scr,nTR,lDisp(0))
+         Call mma_deallocate(Am)
+         Call mma_allocate(Am,lDisp(0),lDisp(0),Label='Am')
+         Am(:,:)=Zero
+         Do i = 1, lDisp(0)
+            Am(i,i)=One
+         End Do
          Do 1250 iTR = 1, nTR
             ldsp = iTemp(iTR)
-            ipOut = ipScr + iTR - 1
-            ipIn  = ipAM  + ldsp - 1
-            call dcopy_(lDisp(0),Work(ipOut),nTR,Work(ipIn),lDisp(0))
+            call dcopy_(lDisp(0),Scr(1,iTR),nTR,Am(1,lDisp),lDisp(0))
  1250    Continue
          If (iPrint.ge.99)
-     &      Call RecPrt('Final A matrix',' ',
-     &                  Work(ipAm),lDisp(0),lDisp(0))
+     &      Call RecPrt('Final A matrix',' ',Am,lDisp(0),lDisp(0))
 *
 *
-         Call GetMem(' Temp2','Free','Real',ipScr,nTR*lDisp(0))
-         Call GetMem('Car  ','Free','Inte',ipCar,lDisp(0))
-         Call GetMem('Coor ','Free','Real',ipC,lDisp(0)*4)
-         Call GetMem('Temp ','Free','Real',ipTmp,nTR**2)
+         Call mma_deallocate(Scr)
+         Call mma_deallocate(IndCar)
+         Call mma_deallocate(C)
+         Call mma_deallocate(Temp)
          Do 1501 iTR = 1, nTR
             ldsp = iTemp(iTR)
             Direct(ldsp)=.False.
