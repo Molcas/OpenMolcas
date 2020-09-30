@@ -22,25 +22,16 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 *                                                                      *
 *             Modified for 3-center RI gradients, March 2007           *
-*                                                                      *
 ************************************************************************
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: lPSO, lsa, ipAorb, Thpkl
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "chomp2g_alaska.fh"
@@ -66,7 +57,6 @@
       iPrint = nPrint(iRout)
 *#define _DEBUG_
 #ifdef _DEBUG_
-      Call qEnter('PGet1_RI3   ')
       iPrint=99
       If (iPrint.ge.99) Then
          iComp = 1
@@ -1153,7 +1143,6 @@
          End Do
       End If
       Call GetMem(' Exit PGet1_RI3','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet1_RI3')
 #endif
 *                                                                      *
 ************************************************************************

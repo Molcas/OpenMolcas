@@ -12,21 +12,11 @@
 ************************************************************************
       SubRoutine IniSew(DSCF,nDiff)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Chemical Physics,                 *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"

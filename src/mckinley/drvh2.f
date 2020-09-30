@@ -20,13 +20,6 @@
 *         matrix and the latter will be contracted with the generalized*
 *         Fock matrix.                                                 *
 *                                                                      *
-* Called from: mckinley                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              Dot1El                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
@@ -35,11 +28,10 @@
 *             October '91                                              *
 ************************************************************************
       use Basis_Info, only: nCnttp, dbsc, nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External NaHss,OvrHss, KneHss,PrjHss,SROHss,M1Hss,PCMHss
       External NaMmH,OvrMmH, KneMmH,PrjMMH,sroMMH,M1MMH,PCMMMH
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "rctfld.fh"
@@ -54,7 +46,6 @@
       iprint=0
       if (show) iPrint = 12
       Call CWTime(TCpu1,TWall1)
-      Call qEnter('Drvh2')
       Call StatusLine(' McKinley:',
      &                ' Computing 1-electron 2rd order derivatives')
 *                                                                      *
@@ -206,6 +197,5 @@
 *                                                                      *
       Call CWTime(TCpu2,TWall2)
       Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
-      Call qExit('Drvh2')
       Return
       End

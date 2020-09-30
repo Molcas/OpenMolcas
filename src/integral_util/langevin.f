@@ -14,10 +14,9 @@
       Use Langevin_arrays
       use External_Centers
       use Phase_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
@@ -29,7 +28,6 @@
 
       iRout = 1
       iPrint = nPrint(iRout)
-      Call qEnter('Langevin')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -308,6 +306,5 @@ c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('Langevin')
       Return
       End

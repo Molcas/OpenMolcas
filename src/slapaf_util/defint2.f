@@ -22,19 +22,6 @@
 *         internal coordinates and the symmetry unique cartesian       *
 *         coordinates.                                                 *
 *                                                                      *
-*                                                                      *
-* Called from: BMtrx                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Banner                                                  *
-*              UpCase                                                  *
-*              NxtWrd                                                  *
-*              Cllct                                                   *
-*              RecPrt                                                  *
-*              DCopy  (ESSL)                                           *
-*              DaXpY  (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             May '91                                                  *
@@ -76,7 +63,6 @@
 *
       iRout = 30
       iPrint = nPrint(iRout)
-      Call qEnter('DefInt2')
       Start=lIter.eq.1
       Call ICopy(nBVct,[Flip],0,iFlip,1)
 *
@@ -667,7 +653,6 @@ C              Write (Lu,*) 'Flip Sign for ',Labels(iBVct)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('DefInt2')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nDim)

@@ -37,7 +37,6 @@ cnf
       If (iRC.ne.0)  Then
          Write (6,*) 'InpOne: Error reading ONEINT'
          Write (6,'(A,A)') 'Label=',Label
-         Call QTrace
          Call Abend()
       End If
       iisym=2**0
@@ -52,7 +51,6 @@ cnf
       If (iRC.ne.0)  Then
          Write (6,*) 'InpOne: Error reading ONEINT'
          Write (6,'(A,A)') 'Label=',Label
-         Call QTrace
          Call Abend()
       End If
 cnf

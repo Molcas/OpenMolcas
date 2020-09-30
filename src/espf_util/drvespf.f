@@ -15,6 +15,7 @@
 *     piece of (extinct) integral_util/drvprop subroutine
 *
       use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "espf.fh"
 *
@@ -38,7 +39,6 @@
 *
 *...  Prologue
       iPrint = 1
-      Call qEnter('Drvespf')
 *
 *     Set up the angular index vector
 *
@@ -112,6 +112,5 @@
       Call GetMem('lOper','Free','Inte',ip1,nComp)
       Call GetMem('D0  ','Free','Real',ipD_Var,nDens)
 *
-      Call qExit('Drvespf')
       Return
       End

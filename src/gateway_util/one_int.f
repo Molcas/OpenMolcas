@@ -23,8 +23,6 @@
       use Her_RW
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
       External Kernel
       Real*8 Array(nArray)

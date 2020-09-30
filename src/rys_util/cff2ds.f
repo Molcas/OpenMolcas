@@ -21,19 +21,10 @@
 * Object: to compute the coefficients in the three terms recurrence    *
 *         relation of the 2D-integrals.                                *
 *                                                                      *
-* Called from: Rys                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DYax   (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March 1990                                               *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 Zeta(nT), ZInv(nT), Eta(nT), EInv(nT),

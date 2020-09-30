@@ -17,26 +17,16 @@
 *  Object: driver for the central-fragment interaction 2-electron      *
 *          integrals (based on drv2el_3center_RI and drv2el_scf)       *
 *                                                                      *
-* Called from: Drv1El                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Timing                                                  *
-*              Setup_Ints                                              *
-*              Eval_Ints                                               *
-*              Term_Ints                                               *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Ben Swerts                                               *
 *   Modified: Liviu Ungur                                              *
 ************************************************************************
       use k2_arrays, only: pDq, pFq
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
+      use Real_Info, only: ThrInt, CutInt
       Implicit None
       External No_Routine
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "setup.fh"
@@ -82,7 +72,6 @@
 *                                                                      *
       iRout = 203
       iPrint = nPrint(iRout)
-      Call QEnter('Drv2ElFrag')
       call xFlush(6)
       ExFac=One
       Nr_Dens=1
@@ -175,7 +164,7 @@ c              ! position in fragment density matrix
  1000   Continue
       End Do
 #ifdef _DEBUG_
-      FD = 1
+      iFD = 1
       Do iIrrep = 0, nIrrep - 1
          Call TriPrt('Combined density',' ',Dens(iFD),nBas(iIrrep))
          iFD = iFD + nBas(iIrrep)*(nBas(iIrrep)+1)/2
@@ -442,6 +431,5 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drv2ElFrag')
       Return
       End

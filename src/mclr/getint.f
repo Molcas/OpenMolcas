@@ -35,7 +35,6 @@
 #include "glbbas_mclr.fh"
       Dimension XINT(*)
 *
-C      CALL QENTER('GETIN  ')
        NTEST=0
 *
           IF(.not.square) THEN
@@ -84,6 +83,5 @@ C      CALL QENTER('GETIN  ')
 
       END IF
 *
-C     CALL QEXIT('GETIN ')
       RETURN
       END

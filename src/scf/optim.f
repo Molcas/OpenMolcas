@@ -63,7 +63,6 @@
 *----------------------------------------------------------------------*
 *define _DEBUG_
 #ifdef _DEBUG_
-      Call qEnter('Optim')
       Debug=.true.
       Debug2=.True.
 *     Debug2=.false.
@@ -196,7 +195,6 @@
 * Done.                                                                *
 *----------------------------------------------------------------------*
 #ifdef _DEBUG_
-      Call qExit('Optim')
 #endif
       Return
       End

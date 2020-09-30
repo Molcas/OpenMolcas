@@ -17,12 +17,6 @@
 *                                                                      *
 * Object:  PW92C Functional(Formula taken from Molpro Manual)          *
 *                                                                      *
-* Called from: Do_batch                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Authors: Gusarov S,,Department of Theoretical Chemistry         *
 *              University of LUnd, SWEDEN                              *
 *              Maple 8.0                                               *
@@ -33,7 +27,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QEnter('PW92C')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -229,6 +222,5 @@ C     Call QEnter('PW92C')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QExit('PW92C')
       Return
       End

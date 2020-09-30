@@ -19,21 +19,11 @@
 * Object: to compute the Pauli repulsion integrals with the            *
 *         Gauss-Hermite quadrature.                                    *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Rowel                                                   *
-*              Traxyz                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden. October '92.                            *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "wldata.fh"
 #include "print.fh"
 
@@ -42,7 +32,6 @@
       iRout = 122
       iPrint = nPrint(iRout)
 *     iQ = 1
-      Call qEnter('WelInt')
       If (iPrint.ge.59) Then
          Write (6,*) ' In WelInt'
          Write (6,*) ' r0, ExpB=',r0,ExpB
@@ -116,7 +105,6 @@
       ip = ip - nZeta*5
       ip = ip - nZeta*jsum
 *
-      Call qExit('WelInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

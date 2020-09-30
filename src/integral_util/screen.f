@@ -34,11 +34,6 @@
 *   the integral generation step whereas the 1st order density is      *
 *   canonically ordered.                                               *
 *                                                                      *
-* Called from: Twoel                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             March '92                                                *

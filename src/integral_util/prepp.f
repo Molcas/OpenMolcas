@@ -15,17 +15,6 @@
 *                                                                      *
 * Object: to set up the handling of the 2nd order density matrix.      *
 *                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              OpnOne                                                  *
-*              GetMem                                                  *
-*              RdOne                                                   *
-*              PrMtrx                                                  *
-*              ClsOne                                                  *
-*              ErrOne                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '92                                              *
@@ -35,9 +24,9 @@
       use pso_stuff
       use index_arrays, only: iSO2Sh
       use Basis_Info, only: nBas
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -68,7 +57,6 @@
       iRout = 250
       iPrint = nPrint(iRout)
       lPrint=iPrint.ge.6
-      Call qEnter('PrepP')
 #ifdef _CD_TIMING_
       Call CWTIME(PreppCPU1,PreppWall1)
 #endif
@@ -95,8 +83,8 @@
 *...  Get the method label
       Call Get_cArray('Relax Method',Method,8)
       Call Get_iScalar('Columbus',columbus)
-      nCMo = n2Tot
-      mCMo = n2Tot
+      nCMo = S%n2Tot
+      mCMo = S%n2Tot
       If (Method.eq. 'KS-DFT  ' .or.
      &    Method.eq. 'MCPDFT  ' .or.
      &    Method.eq. 'CASDFT  ' ) Then
@@ -612,7 +600,6 @@
       Prepp_CPU  = PreppCPU2 - PreppCPU1
       Prepp_Wall = PreppWall2 - PreppWall1
 #endif
-      Call qExit('PrepP')
 
       Return
       End
@@ -660,7 +647,6 @@
 #include "real.fh"
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
-      Call qEnter('Get_D1A')
 
       iOff1 = 1
       iOff2 = 1
@@ -702,7 +688,6 @@
       End Do
       Call Fold2(nsym,nBas,work(ip1),D1A_AO)
       Call GetMem('Scr1','FREE','Real',ip1,ndens)
-      Call qExit('Get_D1A')
       Return
       End
 

@@ -16,6 +16,7 @@
      &                      Gamma,nGamma,iSO2cI,nSOs,
      &                      iSO2Sh,PMax)
 ************************************************************************
+*                                                                      *
 *  Object: to assemble the 2nd order density matrix of a SCF wave      *
 *          function from the 1st order density matrix.                 *
 *                                                                      *
@@ -26,12 +27,6 @@
 *          DSO: HF 1st order density                                   *
 *          DSO_Var: 1st order density of correlated wf.                *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
@@ -41,12 +36,10 @@
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO, iOffSO
       use pso_stuff
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
 ************ columbus interface ****************************************
 #include "columbus_gamma.fh"
       parameter (exfac=1d0)
@@ -71,7 +64,6 @@
       iRout = 39
       iPrint = nPrint(iRout)
 #ifdef _DEBUG_
-      Call qEnter('PGet2')
       If (iPrint.ge.99) Then
          Write (6,*) 'nSOs=',nSOs
          Write (6,*) 'iSO2Sh=',iSO2Sh
@@ -311,7 +303,6 @@
          Call RecPrt(' In PGet2:PSO ',' ',PSO,nijkl,nPSO)
       End If
       Call GetMem(' Exit PGet2','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet2')
 #endif
       Return
 c Avoid unused argument warnings

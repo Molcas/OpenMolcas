@@ -19,21 +19,6 @@
 *                                                                      *
 * Object: kernel routine for the computation of ECP integrals.         *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              MltPrm                                                  *
-*              DGeTMO  (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
 *      Beta  : as Alpha but for ket gaussians                          *
@@ -65,12 +50,9 @@
       use Basis_Info
       use Center_Info
       use Real_Spherical
-      use Symmetry_Info, only: iChTbl
+      use Symmetry_Info, only: nIrrep, iChTbl
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 
 #include "int_interface.fh"
 
@@ -337,7 +319,6 @@
  100     Continue
 #endif
 *
-*     Call QExit('PrjInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

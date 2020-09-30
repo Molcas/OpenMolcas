@@ -1558,11 +1558,9 @@ c      print*, "in read_lp, read coe",idisk_lp,norb_inn-norb_dz
           write(6,*) " program stop"
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
 #ifdef _XIANEST_
-      call qexit()
 #endif
         endif
         ntype(n)=mtype

@@ -19,23 +19,15 @@
 * Object: to transform the one-electon matrix elements from AO basis   *
 *         to SO basis.                                                 *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DaXpY   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
 ************************************************************************
       use Basis_Info
-      use Symmetry_Info, only: iChTbl, iOper, iChBas
+      use Symmetry_Info, only: nIrrep, iChTbl, iOper, iChBas
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
       Real*8 AOInt(iBas*jBas,iCmp,jCmp,nIC), SOInt(iBas*jBas,nSOInt)

@@ -98,7 +98,6 @@ cnf
 *----------------------------------------------------------------------*
 *
 #ifdef _DEBUG_
-      Call qEnter('PrFin')
 #endif
 #ifdef _DEBUG_
       Debug=.true.
@@ -328,7 +327,6 @@ c         print *,'Elumo',Elumo
 *
       End If
 #ifdef _DEBUG_
-      Call qExit('PrFin')
 #endif
 *
 *----------------------------------------------------------------------*

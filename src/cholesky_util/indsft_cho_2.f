@@ -26,10 +26,9 @@
 *          april '90                                                   *
 *                                                                      *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep
       use SOAO_Info, only: iAOtSO, iOffSO
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "chosew.fh"
@@ -59,7 +58,6 @@
       iShP2Q(i,j)=iWork(ip_iShP2Q-1+2*(j-1)+i)
 *
 #if defined (_DEBUG_)
-      Call qEnter('IndSft_Cho_2')
 #endif
       irout = 39
       jprint = nprint(irout)
@@ -373,7 +371,6 @@ C to avoid stupid compiler warnings:
 100   Continue
 *
 #if defined (_DEBUG_)
-      Call qExit('IndSft_Cho_2')
 #endif
       Return
       End

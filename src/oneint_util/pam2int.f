@@ -20,19 +20,6 @@
 * Object: kernel routine for the computation of PAM integrals used in  *
 *         PAM calculations. The operator is a gaussian type function   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DCR                                                     *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              CmbnMP                                                  *
-*              DaXpY   (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
 *      Beta  : as Alpha but for ket gaussians                          *
@@ -64,10 +51,9 @@
       use Basis_Info
       use Center_Info
       use Her_RW
+      use PAM2
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
 
@@ -85,7 +71,6 @@
 *
       iRout = 122
       iPrint = nPrint(iRout)
-*     Call QEnter('PAM2Int')
 *     Call GetMem(' Enter PAM2Int','LIST','REAL',iDum,iDum)
 *
       nip = 1
@@ -285,7 +270,6 @@ c      If (nOrdOp.eq.1) Then
       End If
 *
 *     Call GetMem(' Exit PAM2Int','LIST','REAL',iDum,iDum)
-*     Call QExit('PAM2Int')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

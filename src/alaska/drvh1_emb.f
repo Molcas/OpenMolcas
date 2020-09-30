@@ -10,13 +10,13 @@
 ************************************************************************
       SubRoutine Drvh1_EMB(Grad,Temp,nGrad)
       Use Basis_Info, only: dbsc, nCnttp, nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External OvrGrd, KneGrd, NAGrd, PrjGrd, M1Grd, M2Grd, SROGrd,
      &         WelGrd, XFdGrd, RFGrd, PCMGrd, PPGrd, COSGrd, FragPGrd
       External OvrMmG, KneMmG, NAMmG, PrjMmG, M1MmG, M2MmG, SROMmG,
      &         WelMmg, XFdMmg, RFMmg, PCMMmg, PPMmG, FragPMmG
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -31,7 +31,7 @@ CAOM<
       common /finfld/force
       External MltGrd,MltMmG
 CAOM>
-      Logical DiffOp, lECP, lPP
+      Logical DiffOp, lECP, lPP, lFAIEMP
       Character*16 NamRfil
 *
 *-----Statement function
@@ -42,7 +42,6 @@ CAOM>
       iRout = 131
       iPrint = nPrint(iRout)
       Call CWTime(TCpu1,TWall1)
-      Call qEnter('Drvh1_emb')
       Call StatusLine(' Alaska:',' Computing 1-el OFE gradients')
 *
       Call Set_Basis_Mode('Valence')
@@ -50,9 +49,11 @@ CAOM>
 *
       lECP=.False.
       lPP =.False.
+      lFAIEMP=.False.
       Do i = 1, nCnttp
          lECP = lECP .or. dbsc(i)%ECP
          lPP  = lPP  .or. dbsc(i)%nPP.ne.0
+         lFAIEMP = LFAIEMP .or. dbsc(i)%Frag
       End Do
 *
 *---- Allocate memory for density matrices
@@ -180,7 +181,6 @@ CAOM>
       Call Free_iSD()
       Call CWTime(TCpu2,TWall2)
       Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
-      Call qExit('Drvh1_emb')
       Return
       End
 *                                                                      *

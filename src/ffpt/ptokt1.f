@@ -45,7 +45,6 @@
 *     If no origin has been given pick the center of mass!             *
 *----------------------------------------------------------------------*
 *
-      Call qEnter('PtOkt1')
 *
       Orig=.false.
       Orig=Orig.or.ComStk(2,6,2,1)
@@ -65,7 +64,6 @@
           If ( iAtm.lt.0 .or. iAtm.gt.nAtoms ) Then
              Write (6,*) 'PtOkt0: You specified a invalid atom number'
      &                 //' as the origin of the perturbation operator.'
-             Call QTrace
              Call Abend()
           End If
           XOrig=Coor(1,iAtm)
@@ -108,7 +106,6 @@
          If ( X.ne.XOrig .or. Y.ne.YOrig .or. Z.ne.ZOrig ) Then
              Write (6,*) 'PtOkt1: Input error, no matching center'
      &                 //' is found.'
-             Call QTrace
              Call Abend()
          End If
          If ( iComp.eq.1 ) Then
@@ -125,7 +122,6 @@
 *     Normal Exit                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qExit('PtOkt1')
       Return
 *
 *----------------------------------------------------------------------*
@@ -134,6 +130,5 @@
 *
 991   Write (6,*) 'PtOkt1: Error reading ONEINT'
       Write (6,'(A,A)') 'Label=',Label
-      Call QTrace
       Call Abend()
       End

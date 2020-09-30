@@ -40,7 +40,6 @@ C
       mapRS2RS(i,j)=iWork(ip_mapRS2RS(i)-1+j)
 
 #if defined (_DEBUG_)
-      Call qEnter('_GnVc_Drv')
 #endif
 
 C     Start timing.
@@ -383,7 +382,6 @@ C     ---------------------------------------------
       tDecDrv(1) = tDecDrv(1) + tCPU2  - tCPU1
       tDecDrv(2) = tDecDrv(2) + tWall2 - tWall1
 #if defined (_DEBUG_)
-      Call qExit('_GnVc_Drv')
 #endif
       Return
 

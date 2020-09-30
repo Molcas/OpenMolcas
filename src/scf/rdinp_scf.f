@@ -91,14 +91,12 @@
       COMMON  / ADDcorr_L   / Do_Addc
       Logical Do_SpinAV
       COMMON  / SPAVE_L  / Do_SpinAV
-      Common /Sagit/isSagit
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
 #ifdef _DEBUG_
-      Call qEnter('RdInp')
 #endif
 *
 *     copy input from standard input to a local scratch file
@@ -283,7 +281,6 @@
       MSYMON=.False.
 *
       iUHF = 0
-      isSagit=0
       nD = 1
 *
 *---- Locate "start of input"
@@ -403,7 +400,6 @@
       If (Line(1:4).eq.'MSYM') Go To 8904
       If (Line(1:4).eq.'ITDI') Go To 8905
       If (Line(1:4).eq.'FCKA') Go To 8906
-      If (Line(1:4).eq.'SAGI') Go To 8907
 *
       If (Line(1:4).eq.'FALC') Go To 30000
 *
@@ -1511,10 +1507,6 @@ c        Call FindErrorLine()
          FckAuf=.False.
       End If
       GoTo 1000
-*>>>>>>>>>>>>> SAGI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 8907 Continue
-      isSagit=1
-      GoTo 1000
 *>>>>>>>>>>>>> FALC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 30000 Continue
       Falcon = .True.
@@ -1652,7 +1644,6 @@ c         Write (6,*)
          Call ICopy(nSym,[0],0,nFro,1)
          call WarningMessage(2, 'Input error!;'//
      &    'Aufbau not allowed with frozen orbitals')
-         Call QTrace
          Call Abend()
       End If
 *
@@ -1693,7 +1684,6 @@ c         Write (6,*)
       If (MxConstr.gt.0 .and. (iUHF+iOCCU).ne.2) Then
          call WarningMessage(2,
      &    'For CONStraints, keywords UHF and OCCUpied are compulsory!')
-         Call QTrace
          Call Abend()
       EndIf
 *
@@ -1739,7 +1729,6 @@ c         Write (6,*)
 *
       Call Put_iScalar('SCF mode',iUHF)
 #ifdef _DEBUG_
-      Call qExit('RdInp')
 #endif
 *
       LKon = ALGO.eq.4
@@ -1775,12 +1764,10 @@ c         Write (6,*)
   902 Continue
       call WarningMessage(2, 'Input error!;'//
      & 'Error reading input file for OCCNO option')
-      Call QTrace
       Call Abend()
   903 Continue
       call WarningMessage(2, 'Input error!;'//
      & 'End of input file for OCCNO option')
-      Call QTrace
       Call Abend()
 *
       End

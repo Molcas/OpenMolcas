@@ -24,25 +24,6 @@
 *         b) refer to the components of the cartesian or spherical     *
 *         harmonic gaussians.                                          *
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              Kernel                                                  *
-*              RecPrt                                                  *
-*              DCopy    (ESSL)                                         *
-*              DGEMM_   (ESSL)                                         *
-*              CarSph                                                  *
-*              DGeTMO   (ESSL)                                         *
-*              DaXpY    (ESSL)                                         *
-*              SOGthr                                                  *
-*              DesymD                                                  *
-*              DScal    (ESSL)                                         *
-*              TriPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
 *             Anders Bernhardsson  Dec '94                             *
@@ -58,12 +39,12 @@
       use iSD_data
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
 *     External Kernel, KrnlMm
       External KrnlMm
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 c#include "print.fh"
@@ -107,10 +88,10 @@ c     Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *
 *     Auxiliary memory allocation.
 *
-      Call GetMem('Zeta','ALLO','REAL',iZeta,m2Max)
-      Call GetMem('Zeta','ALLO','REAL',ipZI ,m2Max)
-      Call GetMem('Kappa','ALLO','REAL',iKappa,m2Max)
-      Call GetMem('PCoor','ALLO','REAL',iPCoor,m2Max*3)
+      Call GetMem('Zeta','ALLO','REAL',iZeta,S%m2Max)
+      Call GetMem('Zeta','ALLO','REAL',ipZI ,S%m2Max)
+      Call GetMem('Kappa','ALLO','REAL',iKappa,S%m2Max)
+      Call GetMem('PCoor','ALLO','REAL',iPCoor,S%m2Max*3)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -168,25 +149,25 @@ C        write(6,*) (iSD(i,jS),i=0,11)
 *
         nOrdOp = 0  ! not used in this implementation
         Call KrnlMm(nOrder,MemKer,iAng,jAng,nOrdOp)
-        MemKrn=MemKer*m2Max
+        MemKrn=MemKer*S%m2Max
         Call GetMem('Kernel','ALLO','REAL',iKern,MemKrn)
 *
 *       Allocate memory for the final integrals, all in the
 *       primitive basis.
 *
-        lFinal = 21 * MaxPrm(iAng) * MaxPrm(jAng) *
+        lFinal = 21 * S%MaxPrm(iAng) * S%MaxPrm(jAng) *
      &           nElem(iAng)*nElem(jAng)
         Call GetMem('Final','ALLO','REAL',ipFnl,lFinal)
 *
 *       Scratch area for contraction step
 *
-        nScr1 =  MaxPrm(iAng)*MaxPrm(jAng) *
+        nScr1 =  S%MaxPrm(iAng)*S%MaxPrm(jAng) *
      &           nElem(iAng)*nElem(jAng)
         Call GetMem('Scrtch','ALLO','REAL',iScrt1,nScr1)
 *
 *       Scratch area for the transformation to spherical gaussians
 *
-        nScr2=MaxPrm(iAng)*MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+        nScr2=S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
         Call GetMem('ScrSph','Allo','Real',iScrt2,nScr2)
 *
           Call GetMem(' DAO ','Allo','Real',ipDAO,
@@ -516,10 +497,10 @@ C     End Do
 *
       Call Free_iSD()
 *
-      Call GetMem('Kappa','FREE','REAL',iKappa,n2Max)
-      Call GetMem('PCoor','FREE','REAL',iPCoor,n2Max*3)
-      Call GetMem('Zeta','FREE','REAL',ipZI ,n2Max)
-      Call GetMem('Zeta','FREE','REAL',iZeta,n2Max)
+      Call GetMem('Kappa','FREE','REAL',iKappa,S%m2Max)
+      Call GetMem('PCoor','FREE','REAL',iPCoor,S%m2Max*3)
+      Call GetMem('Zeta','FREE','REAL',ipZI ,S%m2Max)
+      Call GetMem('Zeta','FREE','REAL',iZeta,S%m2Max)
 *
       Return
 c Avoid unused argument warnings

@@ -18,11 +18,9 @@
       use Basis_Info
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
-c#include "print.fh"
 #include "disp.fh"
 #include "disp2.fh"
       Logical Shijij
@@ -34,7 +32,6 @@ c#include "print.fh"
 *
       nElem(i) = (i+1)*(i+2)/2
 *
-c     Call qEnter('TwoDens')
       nijkl=iBasi*jBasj*kBask*lBasl
       iShlla = iShll(1)
       jShllb = iShll(2)
@@ -102,6 +99,5 @@ c     Call qEnter('TwoDens')
 *
 *   P is now in cartisan AO base
 *
-c     Call qExit('TwoDens')
       Return
       End

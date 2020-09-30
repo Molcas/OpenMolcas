@@ -18,12 +18,6 @@
 *                                                                      *
 * Object:  Becke86 + YP combination                                    *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. March 2001                              *
 ************************************************************************
@@ -38,7 +32,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      Call QEnter('B86LYP')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -62,7 +55,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      Call QExit('B86LYP')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

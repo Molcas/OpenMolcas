@@ -29,8 +29,6 @@
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "localdf_bas.fh"
 #include "localdf_int.fh"
 #include "real.fh"
@@ -51,7 +49,6 @@
       nBstSh(i)=iWork(ip_nBasSh-1+i)
 *
 #if defined (_DEBUG_)
-      Call qEnter('Plf_LDF')
 #endif
       irout = 109
       jprint = nprint(irout)
@@ -150,7 +147,6 @@
 100   Continue
 *
 #if defined (_DEBUG_)
-      Call qExit('Plf_LDF')
 #endif
       Return
       End

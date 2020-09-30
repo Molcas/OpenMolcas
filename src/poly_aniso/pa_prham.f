@@ -55,7 +55,6 @@ c local variables
       Real(kind=8) :: dznrm2_
       External :: norder, dznrm2_
 
-      Call qEnter('PA_prham')
 !=======================================================================
       If(npair==0) Then
           Call WarningMessage(2,'PA_PRHAM: npair = 0')
@@ -507,7 +506,6 @@ c proceed to print
         Call mma_deallocate(h4)
       End If
 
-      Call qExit('PA_prham')
 
       Return
       End

@@ -30,8 +30,8 @@ MODULE fmm_global_paras
    INTEGER(INTK), SAVE :: LUPRI = 6
    INTEGER(INTK), SAVE :: LUINTM = 77
     ! Interface file name (contains moments and co-ordinate data)
-   CHARACTER(7),  SAVE :: INPUT_FILE = 'MM_DATA'
-   CHARACTER(14), SAVE :: INPUT_FILE_HEADER = 'MM_DATA_HEADER'
+   CHARACTER(LEN=7),  SAVE :: INPUT_FILE = 'MM_DATA'
+   CHARACTER(LEN=14), SAVE :: INPUT_FILE_HEADER = 'MM_DATA_HEADER'
 
     ! Flag for verbose printing of run-time statistics
    LOGICAL, SAVE :: fmm_stats_printed = .TRUE.
@@ -173,7 +173,7 @@ MODULE fmm_global_paras
 
     ! Named parameters for memory management
    INTEGER(INTK), PARAMETER :: NMEMDIVS = 5
-   CHARACTER(7),  PARAMETER :: NSPACE(NMEMDIVS) = (/ 'raw_qlm',   &
+   CHARACTER(LEN=7),  PARAMETER :: NSPACE(NMEMDIVS) = (/ 'raw_qlm',   &
                                                      'raw_Vff',   &
                                                      'box_Vff',   &
                                                      'Vff_tmp',   &
@@ -331,7 +331,7 @@ MODULE fmm_global_paras
       REAL(REALK)   :: r_ab(3)
       INTEGER(INTK) :: lmax, lm_max
       ! Used only for W_pairs when translating to distinguish qlm and Vff modes
-      CHARACTER(1)  :: N_or_T
+      CHARACTER(LEN=1)  :: N_or_T
    END TYPE T_pair_single
 
    TYPE T_pair_list
@@ -340,7 +340,7 @@ MODULE fmm_global_paras
       INTEGER(INTK) :: lmax, lm_max
       INTEGER(INTK) :: LHS_lmax, RHS_lmax
       ! Used only for W_pairs when translating to distinguish qlm and Vff modes
-      CHARACTER(1)  :: N_or_T
+      CHARACTER(LEN=1)  :: N_or_T
    END TYPE T_pair_list
 
    TYPE T_pair_batch

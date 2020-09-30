@@ -74,7 +74,6 @@ C  **************************************************
         iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 C  **************************************************
 
-      Call QEnter('CHOSCF_DRV_')
       rc=0
 
 
@@ -653,7 +652,6 @@ C --- and pack the off-diagonal elements
 
       call getmem('nVec_a+b','Free','Inte',ipnVec,2*nSym)
 
-      Call QExit('CHOSCF_DRV_')
 
       Return
       End

@@ -54,7 +54,6 @@ C     #orbitals per symmetry
       INTEGER NF,NI,NA,NR1,NR2,NR3,NS,NO,NB
       INTEGER NSCT,NCMOSCT
 
-      CALL QENTER('MKRPTORB')
 
 * Allocate space for temporary square Fock matrix in each symmetry:
 * NBMX=Max number of basis functions in any symmetry, in common in caspt2.fh
@@ -295,7 +294,6 @@ C Finally, loop again over symmetries, transforming the CI:
       END IF
 
 
-      CALL QEXIT('MKRPTORB')
 
       RETURN
       END

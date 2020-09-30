@@ -17,11 +17,6 @@
 * Object: to compute the molecular gradient contribution due to the    *
 *         nuclear repulsion energy.                                    *
 *                                                                      *
-* Called from: McKinley                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October 1991                                             *
@@ -32,12 +27,10 @@
       use Basis_Info
       use Center_Info
       use PCM_arrays
-      use Symmetry_Info, only: iChTbl
+      use Symmetry_Info, only: nIrrep, iChTbl
       Implicit Real*8 (A-H,O-Z)
-c#include "print.fh"
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "WrkSpc.fh"
@@ -63,7 +56,6 @@ c#include "print.fh"
 *
 c     iRout = 33
 c     iPrint = nPrint(iRout)
-c     Call qEnter('DrvN2')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -790,6 +782,5 @@ c     Call qEnter('DrvN2')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-c     Call qExit('DrvN2')
       Return
       End

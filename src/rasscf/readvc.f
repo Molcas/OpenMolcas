@@ -102,11 +102,11 @@
       integer mh5id
       character(Len=maxbfn) typestring
 #endif
-      character(LENIN8*mxOrb) :: lJobH1
-      character(2*72) :: lJobH2
-      character(72) :: JobTit(mxTit)
-      character(80) :: VecTit
-      character(4) :: Label
+      character(len=LENIN8*mxOrb) :: lJobH1
+      character(len=2*72) :: lJobH2
+      character(len=72) :: JobTit(mxTit)
+      character(len=80) :: VecTit
+      character(len=4) :: Label
 
       interface
         integer function isfreeunit(seed)
@@ -121,7 +121,6 @@
 *----------------------------------------------------------------------*
 *                                                                      *
 *----------------------------------------------------------------------*
-      Call qEnter('ReadVc')
 C Local print level (if any)
       IPRLEV=IPRLOC(1)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -539,6 +538,5 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
 
 *     exit
 
-      CALL QEXIT('READVC')
       RETURN
       END

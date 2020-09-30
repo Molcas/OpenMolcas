@@ -16,28 +16,16 @@
 * Object: to set up the handling of the 2nd order density matrix for   *
 *         the calculation of the 2-electron FAIEMP derivatives         *
 *                                                                      *
-* Called from: DrvG_FAIEMP                                             *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              OpnOne                                                  *
-*              GetMem                                                  *
-*              RdOne                                                   *
-*              PrMtrx                                                  *
-*              ClsOne                                                  *
-*              ErrOne                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Ben Swerts                                               *
 *                                                                      *
 * Based on PrepP                                                       *
-*                                                                      *
 ************************************************************************
       use aces_stuff, only: Gamma_On
       use pso_stuff
       use Basis_Info
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit None
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -60,7 +48,6 @@
       iRout = 205
       iPrint = nPrint(iRout)
       lPrint=.True.
-      Call qEnter('PrepP_FAIEMP')
       iD0Lbl=1
       iComp=1
 *
@@ -73,8 +60,8 @@
 *
 *...  Get the method label
       Call Get_cArray('Relax Method',Method,8)
-      nCMo = n2Tot
-      mCMo = n2Tot
+      nCMo = S%n2Tot
+      mCMo = S%n2Tot
       If (Method.eq. 'KS-DFT  ' .or.
      &    Method.eq. 'CASDFT  ' ) Then
          Call Get_iScalar('Multiplicity',iSpin)
@@ -417,7 +404,6 @@
 1000     Continue
 *
 *...  Epilogue, end
-      Call qExit('PrepP_FAIEMP')
       Return
       End
 
@@ -465,11 +451,9 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit None
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
       Integer nDens,nDens_Valence
       Real*8  Array(nDens)

@@ -24,6 +24,7 @@
 *             December 2001                                            *
 ************************************************************************
       use iSD_data
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "real.fh"
@@ -31,7 +32,6 @@
 #include "itmax.fh"
 #include "nq_info.fh"
 #include "setup.fh"
-#include "info.fh"
 #include "nsd.fh"
 #include "debug.fh"
 #include "grid_on_disk.fh"
@@ -52,7 +52,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QEnter('DrvNQ')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -656,6 +655,5 @@ c      Call GetMem('tmpB','Free','Real',ip_tmpB,nGridMax)
 *
       Call xFlush(LuGridFile)
       Close(LuGridFile)
-C     Call QExit('DrvNQ')
       Return
       End

@@ -20,19 +20,13 @@
 *                                                                      *
 * Object: to compute the gradient of rho, grad rho, and nabla rho      *
 *                                                                      *
-* Called from: Do_Batch                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Theoretical Chemistry,       *
 *             Lund university, SWEDEN.  September 2007                 *
 ************************************************************************
       use iSD_data
       use k2_arrays, only: DeDe, ipDijS
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "disp.fh"
 #include "real.fh"
 #include "print.fh"
@@ -56,12 +50,10 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUG_
-      Call QEnter('dRho_dR_meta_GGA')
       If (Debug) Then
          Write (6,*) 'mAO=',mAO
          Write (6,*) 'mGrid=',mGrid
          Write (6,*) 'nTabAO=',nTabAO
-         Write (6,*) 'nIrrep=',nIrrep
          Write (6,*) 'nlist_s=',nlist_s
          Do iList_s = 1, nList_s
             Write (6,*) 'iList_s=',iList_s
@@ -234,7 +226,6 @@
       If (Debug) Call RecPrt('dRho_dR_meta_GGA: dRho_dR',' ',dRho_dR,
      &                        ndRho_dR*mGrid,nGrad_Eff)
 *
-      Call QExit('dRho_dR_meta_GGA')
 #endif
       Return
       End

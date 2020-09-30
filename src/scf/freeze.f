@@ -54,7 +54,6 @@
 *----------------------------------------------------------------------*
 *
 #ifdef _DEBUG_
-      Call qEnter('Freeze')
 #endif
 *
 *---- Allocate temporary spaces
@@ -109,7 +108,6 @@
       Call mma_deallocate(Temp)
 *
 #ifdef _DEBUG_
-      Call qExit('Freeze')
 #endif
 *
 *----------------------------------------------------------------------*

@@ -45,7 +45,6 @@
 
       Data TheName/'DaClos'/
 
-      If ( Query ) Call qEnter(TheName)
 
       If ( Trace ) then
         Write (6,*) ' >>> Enter DaClos <<<'
@@ -117,7 +116,6 @@
         Write (6,*) ' >>> Exit DaClos <<<'
       End If
 
-      If ( Query ) Call qExit(TheName)
 
       Return
       End

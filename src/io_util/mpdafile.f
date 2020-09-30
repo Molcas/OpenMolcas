@@ -88,7 +88,6 @@
 
       My_Progname=Get_Progname()
       Length_Progname=StrnLn(My_Progname)
-      If ( Query ) Call qEnter(TheName)
 *
       max_File_Size = MaxFileSizel*10**6
       max_Bytes     = MIN(max_File_Length,max_File_Size)
@@ -246,7 +245,6 @@ cvv               LuName(Lu_Mod)    = tmp
          End Do
       End If
 
-      If ( Query ) Call qExit(TheName)
 
       Return
       End

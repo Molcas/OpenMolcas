@@ -16,6 +16,7 @@
      &                  iAO,iAOst,iBas,jBas,kBas,lBas,
      &                  DoCoul,DoExch,Dij,Dkl,Dik,Dil,Djk,Djl,ExFac)
 ************************************************************************
+*                                                                      *
 *  Object: to accumulate contibutions from the AO integrals directly   *
 *          to the symmetry adapted Fock matrix.                        *
 *                                                                      *
@@ -38,27 +39,14 @@
 *          The density matrix is not folded if the shell indices and   *
 *          the angular indices are identical.                          *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DNrm2_  (ESSL)                                          *
-*              DGeTMO  (ESSL)                                          *
-*              DGeMV   (ESSL)                                          *
-*              FckDst                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden. February '93                            *
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: nBas
+      use Real_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
       Intrinsic Max, Min
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), FMat(nDens),
@@ -304,6 +292,7 @@ c Avoid unused argument warnings
      &                  AOInt,FMat,DMat,nDens,
      &                  iAO,iAOst,iBas,jBas,kBas,lBas,ExFac)
 ************************************************************************
+*                                                                      *
 *  Object: to accumulate contibutions from the AO integrals directly   *
 *          to the symmetry adapted Fock matrix.                        *
 *                                                                      *
@@ -323,25 +312,12 @@ c Avoid unused argument warnings
 *          The density matrix is not folded if the shell indices and   *
 *          the angular indices are identical.                          *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DNrm2_  (ESSL)                                          *
-*              DGeTMO  (ESSL)                                          *
-*              DGeMV   (ESSL)                                          *
-*              FckDst                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden. February '93                            *
 ************************************************************************
       use SOAO_Info, only: iAOtSO
+      use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), FMat(nDens),

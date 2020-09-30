@@ -33,7 +33,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qEnter('TrCtl')
 *
       CALL DANAME_wa(LUTRI1,FNTRI1)
       CALL DANAME_wa(LUTRI2,FNTRI2)

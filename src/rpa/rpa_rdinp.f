@@ -47,7 +47,6 @@ C
       Integer i
 
       ! register entry
-      Call qEnter(SecNam)
 
       ! set default print level
       iPrint=max(iPrintLevel(-1),0)
@@ -227,7 +226,6 @@ C
       Call Close_LuSpool(Lu)
 
       ! register exit
-      Call qExit(SecNam)
 
       End
 ************************************************************************

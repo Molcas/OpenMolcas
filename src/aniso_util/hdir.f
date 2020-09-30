@@ -24,7 +24,6 @@ c      field according to Lebedev-Laikov grids using the the given parameters (n
      &                 dHW(nDirTot)
       Real(kind=8) :: X(nP), Y(nP), Z(nP), W(nP)
 
-      Call qEnter('hdir')
 
       If ((nDirTot-nDir-nDirZee-nP).ne.0) Then
         Write(6,'(A   )') 'the number of directions of applied '//
@@ -87,6 +86,5 @@ c      Call DCOPY_(     nP, X(1), 1, dHX(1+nDir+nDirZee), 1)
 c      Call DCOPY_(     nP, Y(1), 1, dHY(1+nDir+nDirZee), 1)
 c      Call DCOPY_(     nP, Z(1), 1, dHZ(1+nDir+nDirZee), 1)
 c      Call DCOPY_(     nP, W(1), 1, dHW(1+nDir+nDirZee), 1)
-      Call qExit('hdir')
       Return
       End

@@ -41,7 +41,6 @@
       iRout=120
       iPrint=nPrint(iRout)
 #ifdef _DEBUG_
-      Call QEnter('LNM')
       iPrint=99
       If (iPrint.ge.19) Then
          Call RecPrt('In LNM: Cart',' ',Cart,3,nAtoms)
@@ -307,7 +306,6 @@ cnf
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUG_
-      Call QExit('LNM')
 #endif
 *                                                                      *
 ************************************************************************

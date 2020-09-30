@@ -330,7 +330,7 @@ c      Call RecPrt('DipMom ',' ',DipMom,3,nGrid_)
 #ifdef _DEBUG_
       Call RecPrt('edip: converged DipMom ',' ',DipMom,3,nGrid_)
 
-      Write out dipoles and a pointcharge representation of the dipoles
+*     Write out dipoles and a pointcharge representation of the dipoles
       Write(6,*)'QREP'
       do i=1,nGrid_
          dipabs=sqrt(DipMom(1,i)**2+DipMom(2,i)**2+DipMom(3,i)**2)

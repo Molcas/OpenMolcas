@@ -13,22 +13,12 @@
       SubRoutine AOAdd_NQ(AOInt,iBas,iBas_Eff,jBas,jBas_Eff,PrpInt,nPrp,
      &                 iCmp,jCmp,iShell,jShell,iAO,jAO)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
       Real*8 AOInt(0:iBas_Eff-1,0:jBas_Eff-1,iCmp,jCmp), PrpInt(nPrp)
 *                                                                      *
@@ -43,7 +33,6 @@
 *define _DEBUG_
 *
 #ifdef _DEBUG_
-      Call qEnter('AOAdd')
       Call RecPrt(' In AOAdd:AOInt',' ',AOInt,iBas_Eff*jBas_Eff,
      &            iCmp*jCmp)
       Write (6,*) 'iBas_Eff,jBas_Eff,iCmp,jCmp=',iBas_Eff,jBas_Eff,
@@ -88,7 +77,6 @@
 *
 #ifdef _DEBUG_
       Call GetMem(' Exit AOAdd','CHECK','REAL',iDum,iDum)
-      Call qExit('AOAdd')
 #endif
       Return
       End

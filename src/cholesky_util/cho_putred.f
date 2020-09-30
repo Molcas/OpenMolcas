@@ -22,7 +22,6 @@ C
       PARAMETER (SECNAM = 'CHO_PUTRED')
 
 #if defined (_DEBUG_)
-      CALL QENTER('_PUTRED')
 #endif
 
       IF (IPASS .GT. MAXRED) THEN
@@ -57,7 +56,6 @@ C
       END IF
 
 #if defined (_DEBUG_)
-      CALL QEXIT('_PUTRED')
 #endif
 
       END

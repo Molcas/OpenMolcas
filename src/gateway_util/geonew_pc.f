@@ -18,14 +18,6 @@
 *         will use the geometry as specified by the standard input     *
 *         file.                                                        *
 *                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : qEnter                                                  *
-*              OpnCom                                                  *
-*              ClsCom                                                  *
-*              RdCom                                                   *
-*              qExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             March '91                                                *
@@ -34,8 +26,6 @@
 ************************************************************************
       use external_centers
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
@@ -55,7 +45,6 @@
 *     Quit if the datadfield 'NewGeom' is not available
 *
       If ( lBuf.eq.0 ) then
-         Call qExit('GeoNew_PC')
          nNuc=0
          Return
       End If

@@ -20,7 +20,6 @@ C
       Allocatable Vib(:)
       Dimension R(*)
 *
-      Call qEnter('PrWf_VibRot')
 
       Call mma_allocate(Vib,lwork,label='Vib')
 
@@ -82,6 +81,5 @@ C End of loop over J1.
       Call CollapseOutput(0,'PRINTOUT OF VIBRATIONAL WAVE FUNCTIONS')
       write(6,*)
       Call mma_deallocate(Vib)
-      Call qExit('PrWf_VibRot')
       return
       end

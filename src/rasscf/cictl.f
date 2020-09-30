@@ -102,7 +102,6 @@
       Dimension rdum(1)
 
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
-      Call qEnter('CICTL')
 C Local print level (if any)
       IPRLEV=IPRLOC(3)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -1028,6 +1027,5 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
         Call Free_Work(ipRF)
       End If
 
-      Call qExit('CICTL')
       Return
       End

@@ -16,24 +16,16 @@
 * Object: driver for computation of gradient with respect to the DFT   *
 *         energy.                                                      *
 *                                                                      *
-* Called from: Alaska or Drvg1                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              OneEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Chem. Phys.                       *
 *             University of Lund, SWEDEN                               *
 *             August 2002                                              *
 ************************************************************************
       use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "rctfld.fh"
 #include "disp.fh"
 #include "nq_info.fh"
@@ -53,7 +45,6 @@
       DFTFOCK='SCF '
       iRout = 131
       iPrint = nPrint(iRout)
-      Call qEnter('DrvDFTg')
       LuWr=6
 *
       nDens = 0
@@ -143,6 +134,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('DrvDFTg')
       Return
       End

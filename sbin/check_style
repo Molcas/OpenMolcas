@@ -126,6 +126,16 @@ def test_forallfn(line, filename):
     return False
   return (forallfn.search(line.decode('ascii', 'ignore').strip('\n')))
 
+# CHARACTER(n) declaration
+characternfn1 = re.compile(r'^[^\'"]*\bcharacter\s*\(', re.IGNORECASE)
+characternfn2 = re.compile(r'\bcharacter\s*\((\s*(kind|len)\s*=\s*[^,]*,?)*\)', re.IGNORECASE)
+def test_characternfn(line, filename):
+  if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):
+    return False
+  if (not characternfn1.search(line.decode('ascii', 'ignore').strip('\n'))):
+    return False
+  return (not characternfn2.search(line.decode('ascii', 'ignore').strip('\n')))
+
 #====================================================
 
 #====================================================
@@ -148,6 +158,7 @@ tests.append({'func': test_printst, 'print': '[{0}] "PRINT" statement in {1}, li
 tests.append({'func': test_openst, 'print': '[{0}] "OPEN" statement in {1}, line {2} (use molcas_open)', 'error': False})
 tests.append({'func': test_matmulfn, 'print': '[{0}] "MATMUL" function in {1}, line {2} (use LAPACK routines)', 'error': True})
 tests.append({'func': test_forallfn, 'print': '[{0}] "FORALL" statement in {1}, line {2} (obsolescent in Fortran 2018)', 'error': True})
+tests.append({'func': test_characternfn, 'print': '[{0}] "CHARACTER(n)" declaration in {1}, line {2} (use CHARACTER(LEN=n))', 'error': True})
 
 def run_tests(line, fname, ln):
   j = 0

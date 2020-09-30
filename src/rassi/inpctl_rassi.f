@@ -21,12 +21,11 @@
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='INPCTL')
+#include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "rassi.fh"
 #include "symmul.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "centra.fh"
 #include "rasdef.fh"
 #include "cntrl.fh"
@@ -37,7 +36,6 @@
       LOGICAL READ_STATES
       INTEGER JOB, i
 
-      CALL QENTER(ROUTINE)
 
 * get basic info from runfile
       Call Get_iScalar('nSym',nSym)
@@ -138,6 +136,5 @@ C Additional input processing. Start writing report.
       Call GetMem('REFENE','Free','Real',LREFENE,NSTATE)
       Call GetMem('HEFF','Free','Real',L_HEFF,NSTATE**2)
 C
-      CALL QEXIT(ROUTINE)
       RETURN
       END

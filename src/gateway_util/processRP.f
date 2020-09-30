@@ -27,8 +27,6 @@
       Real*8, Dimension(:,:), Allocatable :: DumTrans
       Real*8, pointer:: p1Dim(:)
 #endif
-#include "itmax.fh"
-#include "info.fh"
 ************************************************************************
 *                                                                      *
 *    A silly routine to try to handle symmetry in RP-Coord section     *

@@ -19,16 +19,6 @@
 *                                                                      *
 * Object: to compute the gradients of the overlap matrix               *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              DCopy   (ESSL)                                          *
-*              CmbnS1                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 *             Modified to multipole moments November '90               *
@@ -42,8 +32,6 @@
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 
 #include "grd_interface.fh"
@@ -53,7 +41,6 @@
 *
       iRout = 122
       iPrint = nPrint(iRout)
-*     Call qEnter('OvrGrd')
 *     Write (*,*) ' IfGrad=',IfGrad
 *     Write (*,*) ' IndGrd=',IndGrd
       ABeq(1) = A(1).eq.RB(1)
@@ -129,7 +116,6 @@
      &            Array(ipAlph),Array(ipBeta),Grad,nGrad,DAO,
      &            IfGrad,IndGrd,dc(mdc)%nStab,dc(ndc)%nStab,kOp)
 *
-*     Call qExit('OvrGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

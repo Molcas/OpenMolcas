@@ -10,12 +10,9 @@
 ************************************************************************
       SubRoutine SymAdO(ArrIn,nZeta,la,lb,nComp,ArrOut,nIC,iDCRT,
      &                  lOper,iChO,Factor)
-      use Symmetry_Info, only: iChTbl, iOper
+      use Symmetry_Info, only: nIrrep, iChTbl, iOper
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "print.fh"
       Real*8 ArrIn (nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
      &       ArrOut(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
      &       Prmt(0:7)
@@ -28,9 +25,6 @@
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       xPrmt(i,j) = Prmt(iAnd(i,j))
 *
-      iRout = 200
-      iPrint = nPrint(iRout)
-C     Call qEnter('SymAdO')
 C     nA = (la+1)*(la+2)/2
 C     nB = (lb+1)*(lb+2)/2
 C     Call RecPrt('SymAdO: ArrIn',' ',ArrIn,nZeta*nA*nB, nComp)
@@ -55,7 +49,5 @@ C     Call RecPrt('SymAdO: ArrIn',' ',ArrIn,nZeta*nA*nB, nComp)
       End If
 C     Call RecPrt('SymAdO: ArrOut',' ',ArrOut,nZeta*nA*nB, nIC)
 *
-*     Call GetMem(' Exit SymAdO','LIST','REAL',iDum,iDum)
-C     Call qExit('SymAdO')
       Return
       End

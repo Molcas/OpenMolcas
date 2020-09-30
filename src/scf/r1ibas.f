@@ -33,17 +33,13 @@
 *
       Implicit Real*8 (a-h,o-z)
 *
-
 #include "mxdm.fh"
 #include "infscf.fh"
-
-#include "WrkSpc.fh"
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-      Call qEnter('R1IBas')
 *
 *---- read file header
       Call Get_cArray('Seward Title',Header,144)
@@ -75,6 +71,5 @@
          Type(i) = Name(i)(LENIN1:LENIN8)
       End Do
 *
-      Call qExit('R1IBas')
       Return
       End

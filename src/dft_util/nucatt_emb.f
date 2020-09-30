@@ -13,8 +13,6 @@
      &                      ndF_dRho,dF_dP2ontop,ndF_dP2ontop)
 
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"

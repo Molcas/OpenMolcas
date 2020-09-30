@@ -77,10 +77,9 @@
       integer(MPIInt) :: error
 #endif
       parameter(ROUTINE = 'CC_CI_ctl')
-      character(*), parameter ::
+      character(len=*), parameter ::
      &  ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
 
-      call qEnter(routine)
 
 ! SOME DIRTY SETUPS
       S = 0.5_wp * dble(iSpin - 1)
@@ -124,19 +123,18 @@
       Rado_2 = Rado_2 - Rado_1
       Rado_3 = Rado_3 + Rado_2
 
-      call qExit(routine)
       end subroutine CC_CI_ctl
 
 
       subroutine run_CC_CI(ascii_fcidmp, h5_fcidmp,
      &      fake_run, energy, D1S_MO, DMAT, PSMAT, PAMAT)
-        character(*), intent(in) :: ascii_fcidmp, h5_fcidmp
+        character(len=*), intent(in) :: ascii_fcidmp, h5_fcidmp
         logical, intent(in) :: fake_run
         real(wp), intent(out) :: energy, D1S_MO(nAcPar), DMAT(nAcpar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
         real(wp), save :: previous_energy = 0.0_wp
 
-        character(*), parameter :: input_name = 'CC_CI.inp',
+        character(len=*), parameter :: input_name = 'CC_CI.inp',
      &      energy_file = 'NEWCYCLE'
 
         if (fake_run) then
@@ -154,7 +152,7 @@
       end subroutine run_CC_CI
 
       subroutine make_inp(input_name)
-        character(*), intent(in) :: input_name
+        character(len=*), intent(in) :: input_name
         write(6, *) input_name
         write(6, *) 'make_inp has to be implemented.'
 !         call abort_('make_inp has to be implemented.')
@@ -179,7 +177,7 @@
       subroutine check_options(lroots, lRf, KSDFT, DoGAS)
         integer, intent(in) :: lroots
         logical, intent(in) :: lRf, DoGAS
-        character(*), intent(in) :: KSDFT
+        character(len=*), intent(in) :: KSDFT
         logical :: Do_ESPF
         call assert_(lroots == 1,
      &               "CC-CI doesn't support State Average!")
@@ -194,8 +192,9 @@
 
       subroutine write_user_message(
      &      input_name, ascii_fcidmp, h5_fcidmp)
-        character(*), intent(in) :: input_name, ascii_fcidmp, h5_fcidmp
-        character(1024) :: WorkDir
+        character(len=*), intent(in) :: input_name, ascii_fcidmp,
+     &                                  h5_fcidmp
+        character(len=1024) :: WorkDir
         integer :: err
 
         call getcwd_(WorkDir, err)
@@ -280,7 +279,7 @@
       end subroutine
 
       subroutine read_2RDM(path, RDM_2)
-        character(*), intent(in) :: path
+        character(len=*), intent(in) :: path
         real(wp), intent(out) :: RDM_2(:)
 
         integer :: file_id, io_err, curr_line, i, n_lines

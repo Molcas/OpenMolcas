@@ -52,7 +52,6 @@
       Character(Len=180), External :: Get_Ln_EOF
       Real*8, External :: DDot_
 *
-      Call QEnter('Print_Mode_Components')
 *
 *---- Ugly hack: backup all "global" slapaf variables in case this is
 *                called from inside slapaf
@@ -568,6 +567,5 @@
       ipNADC=Bk_ipNADC
       iState(:)=Bk_iState(:)
 *
-      Call QExit('Print_Mode_Components')
 *
       End Subroutine

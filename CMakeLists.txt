@@ -18,6 +18,8 @@
 # Ignacio Fdez. Galván made several improvements / additions
 # Lasse Sørensen - Mac CMP0042 fix
 
+project (Molcas Fortran C)
+
 cmake_minimum_required (VERSION 3.7.0)
 #set (CMAKE_VERBOSE_MAKEFILE true)
 if (POLICY CMP0042)
@@ -52,19 +54,19 @@ if (${CMAKE_VERSION} VERSION_LESS 3.1)
     set(CMAKE_Fortran_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
   endif ()
   if (NOT DEFINED CMAKE_Fortran_ARCHIVE_APPEND)
-    set(CMAKE_Fortran_ARCHIVE_APPEND "<CMAKE_AR> q  <TARGET> <LINK_FLAGS> <OBJECTS>")
+    set(CMAKE_Fortran_ARCHIVE_APPEND "<CMAKE_AR> q <TARGET> <LINK_FLAGS> <OBJECTS>")
   endif ()
   if (NOT DEFINED CMAKE_C_ARCHIVE_CREATE)
     set(CMAKE_C_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
   endif ()
   if (NOT DEFINED CMAKE_C_ARCHIVE_APPEND)
-    set(CMAKE_C_ARCHIVE_APPEND "<CMAKE_AR> q  <TARGET> <LINK_FLAGS> <OBJECTS>")
+    set(CMAKE_C_ARCHIVE_APPEND "<CMAKE_AR> q <TARGET> <LINK_FLAGS> <OBJECTS>")
   endif ()
   if (NOT DEFINED CMAKE_CXX_ARCHIVE_CREATE)
     set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
   endif ()
   if (NOT DEFINED CMAKE_CXX_ARCHIVE_APPEND)
-    set(CMAKE_CXX_ARCHIVE_APPEND "<CMAKE_AR> q  <TARGET> <LINK_FLAGS> <OBJECTS>")
+    set(CMAKE_CXX_ARCHIVE_APPEND "<CMAKE_AR> q <TARGET> <LINK_FLAGS> <OBJECTS>")
   endif ()
 endif ()
 
@@ -135,7 +137,7 @@ if (DEFINED LINALG)
       message (FATAL_ERROR "Unsuported LINALG: ${LINALG}")
   endif ()
 else ()
-  set (LINALG "Internal"  CACHE STRING "${LINALG_OPTIONS}")
+  set (LINALG "Internal" CACHE STRING "${LINALG_OPTIONS}")
 endif ()
 set_property (CACHE LINALG PROPERTY STRINGS Internal Runtime MKL OpenBLAS ACML Accelerate)
 
@@ -155,11 +157,15 @@ option (TOOLS "Compile supported tools." OFF)
 
 option (CTEST "Enable CTest." OFF)
 mark_as_advanced (CTEST)
+# Refactored according to: https://cliutils.gitlab.io/modern-cmake/chapters/testing.html
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    include(CTest)
+endif()
 
 # External projects
-option (MSYM       "Activate MSYM support (requires External/libmsym submodule)."                               OFF)
-option (DMRG       "Activate QCMaquis DMRG driver and library."                                                 OFF)
-option (DMRG_DEBUG "Enable DEBUG print in QCMaquis driver."                                                     OFF)
+option (MSYM       "Activate MSYM support (requires External/libmsym submodule)." OFF)
+option (DMRG       "Activate QCMaquis DMRG driver and library."                   OFF)
+option (DMRG_DEBUG "Enable DEBUG print in QCMaquis driver."                       OFF)
 
 if (DMRG)
   mark_as_advanced (CLEAR DMRG_DEBUG)
@@ -226,7 +232,6 @@ option (NECI       "Activate NECI support (requires External/NECI submodule)."  
 option (WFA        "Activate extended wavefunction analysis (requires External/libwfa submodule)."              OFF)
 option (NEVPT2     "Activate (DMRG)-NEVPT2 support."                                                            OFF)
 option (EFPLIB     "Enable EFPLib library for effective fragment potentials (requires External/efp submodule)." OFF)
-option (GRID_IT    "Enable public GRID_IT code (requires External/grid_it submodule)."                          OFF)
 
 ################################################################################
 #                                                                              #
@@ -241,12 +246,8 @@ set (ENV{CMAKE_SESSION} "OpenMolcas")
 #=====================================
 message ("Configuring compilers:")
 
-if (EFPLIB)
-  cmake_minimum_required (VERSION 3.0.2)
-endif ()
 if (DMRG)
-  project (Molcas Fortran C CXX)
-  cmake_minimum_required (VERSION 3.2.0)
+  enable_language(CXX)
   if (NOT DEFINED QCMaquis_ROOT)
     if (DEFINED ENV{QCMaquis_ROOT})
       set (QCMaquis_ROOT $ENV{QCMaquis_ROOT})
@@ -255,11 +256,11 @@ if (DMRG)
     endif ()
     set (QCMaquis_ROOT ${QCMaquis_ROOT} CACHE STRING "Specify path to existing QCMaquis installation. This will allow to skip the installation of ALPS/BOOST and QCMaquis.")
   endif ()
-elseif (WFA)
-  project (Molcas Fortran C CXX)
-else ()
-  project (Molcas Fortran C)
-endif ()
+endif()
+
+if (WFA)
+  enable_language(CXX)
+endif()
 
 #avoid using CXX compiler for linking
 set (CMAKE_CXX_LINKER_PREFERENCE_PROPAGATES FALSE)
@@ -2102,28 +2103,6 @@ else ()
   message("NEVPT2 support DISABLED")
 endif ()
 
-# external GRID_IT
-if (GRID_IT)
-  message("Configuring external GRID_IT:")
-  set (proj ${extprojsdir}/grid_it)
-  if (EXISTS ${proj}/main.f)
-    set (GRID_IT_FOUND ON)
-    set (prog "grid_it")
-    list (APPEND progs ${prog})
-    file (RELATIVE_PATH ${prog}_src ${PROJECT_SOURCE_DIR} ${proj})
-    # some routines in the external code are referenced by libmolcas,
-    # so they must be compiled with the molcas library and not with the "program" library
-    list (APPEND objlibs "$<TARGET_OBJECTS:${prog}>")
-    list (APPEND proglib ${prog})
-    message ("-- Source found, external GRID_IT enabled")
-  else()
-    set (GRID_IT_FOUND OFF)
-    message ("-- External GRID_IT ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
-  endif ()
-else ()
-  message("External GRID_IT DISABLED")
-endif ()
-
 # Add the "bigot" flags after processing the external projects, so they are not affected
 if (BIGOT)
   # Modify the "BUILD_TARGET" flags because we want them at the end
@@ -2337,7 +2316,6 @@ if (FDE)
     seward
     scf
     rasscf
-    grid_it
   )
     list (APPEND ${prog}_incs ${${util}_src})
   endforeach ()
@@ -2522,20 +2500,6 @@ if (HDF5 AND HDF5_FOUND)
   endif ()
 endif ()
 
-# activate grid_it
-if (GRID_IT AND GRID_IT_FOUND)
-  # Some additional files and configuration needed if using external grid_it
-  configure_file (${grid_util_src}/grid.fh.in ${MAIN_INCLUDE_DIR}/grid.fh)
-  list (APPEND external_prgm "${grid_util_src}/grid_it.prgm.src")
-  list (APPEND grid_util_defs "_EXTERNAL_GRID_IT_")
-else ()
-  file (REMOVE ${MAIN_INCLUDE_DIR}/grid.fh)
-endif ()
-# grid_it could be external or from molcas_extra
-if (DEFINED grid_it_src)
-  list (APPEND grid_util_defs "_HAVE_GRID_IT_")
-endif ()
-
 # finally, sort the list
 list (SORT progs)
 
@@ -2595,33 +2559,23 @@ endif ()
 #                                                                              #
 # Disable some warnings that are buggy or on code we don't want to modify      #
 #                                                                              #
-#################################################################################
+################################################################################
 # netlib blas/lapack produces warnings
-# some external codes (grid_it) too
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
   set (netlib_nowarn_flags " -w")
-  set (ext_nowarn_flags " -w")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
   set (netlib_nowarn_flags " -w")
-  set (ext_nowarn_flags " -w")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "SunPro")
   set (netlib_nowarn_flags " -erroff=%all")
-  set (ext_nowarn_flags " -erroff=%all")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
   set (netlib_nowarn_flags " -Kieee -w")
-  set (ext_nowarn_flags " -w")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG")
   set (netlib_nowarn_flags " -w")
-  set (ext_nowarn_flags " -w")
 endif ()
 find_source(LinAlg_internal)
 if (netlib_nowarn_flags)
   file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f ${delayed_util_src}/*.f)
   set_property (SOURCE ${source} APPEND_STRING PROPERTY COMPILE_FLAGS ${netlib_nowarn_flags})
-endif ()
-if (ext_nowarn_flags)
-  file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${grid_it_src}/*.f)
-  set_property (SOURCE ${source} APPEND_STRING PROPERTY COMPILE_FLAGS ${ext_nowarn_flags})
 endif ()
 
 ################################################################################
@@ -2893,7 +2847,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
           add_custom_command(TARGET dylibpath_${prog}
             POST_BUILD
             DEPENDS dylibpath_${prog}
-            COMMAND ${OPENMOLCAS_DIR}/sbin/fixdylib  ${EXECUTABLE_OUTPUT_PATH}/${prog} libmkl ${MKLROOT}
+            COMMAND ${OPENMOLCAS_DIR}/sbin/fixdylib ${EXECUTABLE_OUTPUT_PATH}/${prog} libmkl ${MKLROOT}
             COMMENT "Enforce absolute path to MKL in dynamically linked executables"
             VERBATIM
           )
@@ -2990,7 +2944,7 @@ configure_file (${OPENMOLCAS_DIR}/data/rysrw.ascii  data/rysrw        COPYONLY)
 configure_file (${OPENMOLCAS_DIR}/data/abdata.ascii data/abdata       COPYONLY)
 configure_file (${OPENMOLCAS_DIR}/data/banner.src   data/banner.txt   COPYONLY)
 configure_file (${OPENMOLCAS_DIR}/data/modalias.src data/modalias.txt COPYONLY)
-configure_file (${OPENMOLCAS_DIR}/data/landing.src data/landing.txt   COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/landing.src  data/landing.txt  COPYONLY)
 file (COPY ${OPENMOLCAS_DIR}/data/inputs.tpl DESTINATION ${PROJECT_BINARY_DIR}/data)
 if (DEFINED EXTRA_DIR)
   foreach (f alias.plx auto.prgm landing.txt)
@@ -3188,44 +3142,50 @@ endforeach ()
 #                                                                              #
 ################################################################################
 
-if (CTEST)
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
   enable_testing()
 
-  set (MODULENAMES ${PROJECT_SOURCE_DIR}/sbin/modulenames.plx)
-  file (STRINGS ${PROJECT_BINARY_DIR}/test/testdirs testdirs)
-  set (known_groups "")
-  foreach (dir ${testdirs})
-    file (GLOB groups RELATIVE ${dir} ${dir}/*)
-    foreach (group ${groups})
-      list (FIND known_groups ${group} _index)
-      if (_index GREATER -1)
-        break ()
-      else ()
-        list (APPEND known_groups ${group})
-      endif ()
-      file (GLOB inputs RELATIVE ${dir}/${group} ${dir}/${group}/*)
-      list (SORT inputs)
-      foreach (input ${inputs})
-        string (REGEX MATCH "^([^.]+).input$" match ${input})
-        if (NOT ${match} STREQUAL "")
-          set (number ${CMAKE_MATCH_1})
-          execute_process (
-            COMMAND ${MODULENAMES} ${dir}/${group}/${input}
-            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-            OUTPUT_VARIABLE module_names
-          )
-          add_test (
-            NAME "${group}-${CMAKE_MATCH_1}__${module_names}"
-            COMMAND ${MOLCAS_DRIVER} verify -q "${group}:${number}"
-          )
-          set_property (
-            TEST "${group}-${CMAKE_MATCH_1}__${module_names}"
-            PROPERTY ENVIRONMENT MOLCAS=${PROJECT_BINARY_DIR}
-          )
+# unit tests
+  add_subdirectory(unit_tests)
+
+  if (CTEST)
+# old style molcas tests
+    set (MODULENAMES ${PROJECT_SOURCE_DIR}/sbin/modulenames.plx)
+    file (STRINGS ${PROJECT_BINARY_DIR}/test/testdirs testdirs)
+    set (known_groups "")
+    foreach (dir ${testdirs})
+      file (GLOB groups RELATIVE ${dir} ${dir}/*)
+      foreach (group ${groups})
+        list (FIND known_groups ${group} _index)
+        if (_index GREATER -1)
+          break ()
+        else ()
+          list (APPEND known_groups ${group})
         endif ()
+        file (GLOB inputs RELATIVE ${dir}/${group} ${dir}/${group}/*)
+        list (SORT inputs)
+        foreach (input ${inputs})
+          string (REGEX MATCH "^([^.]+).input$" match ${input})
+          if (NOT ${match} STREQUAL "")
+            set (number ${CMAKE_MATCH_1})
+            execute_process (
+              COMMAND ${MODULENAMES} ${dir}/${group}/${input}
+              WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+              OUTPUT_VARIABLE module_names
+            )
+            add_test (
+              NAME "${group}-${CMAKE_MATCH_1}__${module_names}"
+              COMMAND ${MOLCAS_DRIVER} verify -q "${group}:${number}"
+            )
+            set_property (
+              TEST "${group}-${CMAKE_MATCH_1}__${module_names}"
+              PROPERTY ENVIRONMENT MOLCAS=${PROJECT_BINARY_DIR}
+            )
+          endif ()
+        endforeach ()
       endforeach ()
     endforeach ()
-  endforeach ()
+  endif()
 endif ()
 
 ################################################################################

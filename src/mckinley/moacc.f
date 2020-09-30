@@ -25,22 +25,21 @@
 *     Author: Anders Bernhardsson, Dept. of Theoretical Chemistry,     *
 *             University of Lund, Sweden. Januar '96                   *
 ************************************************************************
-      use Symmetry_Info, only: iChTbl, iOper
+      use Symmetry_Info, only: nIrrep, iChTbl, iOper
+      use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
 #include "etwas.fh"
-#include "info.fh"
 c#include "print.fh"
       Real*8 AOInt(nkl,nij),MOint(nMO),
      &       Temp1(nTemp),Temp2(naco,naco),
      &       Ck(nCk),Cl(nCl),D(*),
      &       Buffer(nbasi,icmp,nbasj,jcmp,0:nirrep-1,
      &       nAco*(naco+1)/2,*)
-      Integer moip(0:nIrrep-1),nOp(4),
+      Integer moip(0:7),nOp(4),
      &          ishell(4),iao(4),iAOST(4),
-     &          ibasa(4),icmpa(4),indgrd(3,4,0:nirrep-1)
-      Logical pert(0:nIrrep-1)
+     &          ibasa(4),icmpa(4),indgrd(3,4,0:7)
+      Logical pert(0:7)
       Real*8 Prmt(0:7)
 
       Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/

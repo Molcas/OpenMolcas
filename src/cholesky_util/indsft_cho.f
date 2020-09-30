@@ -26,10 +26,9 @@
 *          april '90                                                   *
 *                                                                      *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep
       use SOAO_Info, only: iAOtSO, iOffSO
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "real.fh"
@@ -56,7 +55,6 @@
       NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
 *
 #if defined (_DEBUG_)
-      Call qEnter('IndSft_Cho')
 #endif
       irout = 39
       jprint = nprint(irout)
@@ -349,7 +347,6 @@ C to avoid stupid compiler warnings:
 100   Continue
 *
 #if defined (_DEBUG_)
-      Call qExit('IndSft_Cho')
 #endif
       Return
       End

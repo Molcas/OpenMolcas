@@ -11,21 +11,9 @@
 * Copyright (C) 2002, Laura Gagliardi                                  *
 *               2002, Roland Lindh                                     *
 ************************************************************************
-*
       Subroutine Polar(ireturn)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
-*      Author:                                                         *
-*                                                                      *
-*             Laura Gagliardi, Dipartimento di Chimica Fisica,         *
+*      Author:Laura Gagliardi, Dipartimento di Chimica Fisica,         *
 *             University of Palermo, ITALY. December 2002              *
 *             Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.                                         *
@@ -55,7 +43,6 @@
 *                                                                      *
       Utility = .False.
 #ifdef _DEBUG_
-         Call QEnter('Polar')
 #endif
       ireturn=99
 *                                                                      *
@@ -326,7 +313,6 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUG_
-         Call QExit('Polar')
 #endif
       Return
       End

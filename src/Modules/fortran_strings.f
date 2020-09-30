@@ -45,24 +45,24 @@
           module procedure substr_in_str
         end interface
 
-        character(*), parameter ::
+        character(len=*), parameter ::
      &      UPPERCASE_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
      &      lowercase_chars = 'abcdefghijklmnopqrstuvwxyz'
 
         contains
 
         function I_to_str(i) result(str)
-          character(:), allocatable :: str
+          character(len=:), allocatable :: str
           integer, intent(in) :: i
-          character(range(i) + 2) :: tmp
+          character(len=range(i) + 2) :: tmp
           write(tmp, '(I0)') I
           str = trim(tmp)
         end function
 
         function R_to_str(x) result(str)
-          character(:), allocatable :: str
+          character(len=:), allocatable :: str
           real*8, intent(in) :: x
-          character(range(x) + 2) :: tmp
+          character(len=range(x) + 2) :: tmp
           write(tmp, '(I0)') x
           str = trim(tmp)
         end function
@@ -86,8 +86,8 @@
 
 !> Changes a string to upper case
         pure function to_upper (in_str) result (string)
-          character(*), intent(in) :: in_str
-          character(len(in_str)) :: string
+          character(len=*), intent(in) :: in_str
+          character(len=len(in_str)) :: string
           integer :: ic, i, L
 
           L = len_trim(in_str)
@@ -104,8 +104,8 @@
 
 !> Changes a string to lower case
         pure function to_lower (in_str) result (string)
-          character(*), intent(in) :: in_str
-          character(len(in_str)) :: string
+          character(len=*), intent(in) :: in_str
+          character(len=len(in_str)) :: string
           integer :: ic, i, L
 
           L = len_trim(in_str)
@@ -121,7 +121,7 @@
         end function to_lower
 
         logical pure function substr_in_str(substring, string)
-          character(*), intent(in) :: string, substring
+          character(len=*), intent(in) :: string, substring
 
           substr_in_str = index(string, substring) /= 0
         end function

@@ -57,7 +57,6 @@
 *----------------------------------------------------------------------*
 *
       Call CWTime(TCPU1,TWall1)
-      Call qEnter('SCF')
       HFLDA=0.0
       Call SCF_Init()
       iTerm=0
@@ -125,9 +124,7 @@
       Else
          Call Molden_Interface(iUHF,'UHFORB','MD_SCF')
       End If
-      Call qExit('SCF')
       if(iStatPRN.gt.0) then
-       Call qStat(' ')
        Call FastIO('STATUS')
       endif
 *
@@ -165,7 +162,6 @@
 #include "lnklst.fh"
 *
 #ifdef _DEBUG_
-      Call QEnter('IniLLs')
 #endif
 *
 *     MemRsv set tentatively to the size of six density matrices
@@ -180,7 +176,6 @@ c     MemRsv=6*nBT
       Init_LLs=1
 *
 #ifdef _DEBUG_
-      Call QExit('IniLLs')
 #endif
       Return
       End

@@ -15,19 +15,12 @@
 *                                                                      *
 * Object: to generate the stabilizer S for the operator O.             *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             February '91                                             *
 ************************************************************************
-      use Symmetry_Info, only: iChTbl, iOper
+      use Symmetry_Info, only: nIrrep, iChTbl, iOper
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
       Integer iStabO(8)
 *

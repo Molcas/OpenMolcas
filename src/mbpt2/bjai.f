@@ -27,7 +27,6 @@ c      Data Debug/.True./   ! CGG
 
       MUL(I,J)=1+IEOR(I-1,J-1)
 
-      Call qEnter('BJAI')
 
       SKAL2=-9999999.9
       IAD13=0
@@ -245,6 +244,5 @@ c      Data Debug/.True./   ! CGG
        NRI=NRI+nOccI
 10    CONTINUE
       VECL2=sqrt(1.0D+00/VECL2)
-      Call qExit('BJAI')
       RETURN
       END

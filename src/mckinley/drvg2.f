@@ -20,24 +20,10 @@
 *          list of symmetry distinct centers that do have basis func-  *
 *          tions of the requested type.                                *
 *                                                                      *
-* Called from: mckinley                                                *
-*                                                                      *
 * Input:                                                               *
 *              nHess         : Size of gradient and hessian            *
 *              l_Grd,l_Hss   : Boolean on/off for gradient/hessian     *
 *                              generation                              *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              StatP                                                   *
-*              Drvk2                                                   *
-*              DCopy   (ESSL)                                          *
-*              Swap                                                    *
-*              MemRg2 Calculate memory requirement for calc area       *
-*              PSOAO1 Memory partioning                                *
-*              PGet0                                                   *
-*              TwoEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March 1990                                               *
 *             Anders Bernhardsson 1995-1996                            *
@@ -48,12 +34,13 @@
       use k2_arrays
       use pso_stuff
       use Basis_Info
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
+      use Sizes_of_Seward, only:S
+      use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "disp.fh"
@@ -169,7 +156,7 @@
       lpick=lgrad.and.(.not.New_Fock)
       Pren = Zero
       Prem = Zero
-      nIndK2 = nShlls*(nShlls+1)/2
+      nIndK2 = S%nShlls*(S%nShlls+1)/2
       Call mma_allocate(IndK2,2,nIndk2)
       Call Drvk2_mck(ndede,new_Fock)
 *
@@ -191,8 +178,8 @@
       MxPrm = 0
       MxDij = 0
       MxBsC = 0
-      Do iAng = 0, iAngMx
-         MxPrm = Max(MxPrm,MaxPrm(iAng))
+      Do iAng = 0, S%iAngMx
+         MxPrm = Max(MxPrm,S%MaxPrm(iAng))
          Do 2900 iCnttp = 1,nCnttp
             iShll = dbsc(iCnttp)%iVal + iAng
             iPrim = Shells(iShll)%nExp
@@ -222,7 +209,7 @@
 *-----Calculate the size of memory needed for storing fock matrixes and
 *     MO integrals and allocate it.
 *
-      nIndij=nShlls*(nShlls+1)/2
+      nIndij=S%nShlls*(S%nShlls+1)/2
       nInt=0
       jDisp=0
       Do iIrrep=0,nIrrep-1
@@ -349,7 +336,6 @@
             If (mDeDe.ne.nDeDe) Then
                Write (6,*) 'DrvG2: mDeDe.ne.nDeDe'
                Write (6,*) 'mDeDe,nDeDe=',mDeDe,nDeDe
-               Call QTrace
                Call Abend
             End If
          End If
@@ -492,7 +478,6 @@ C        Do jS = 1, iS
                   Write (6,*) 'iMemB=',iMemB
                   Write (6,*) 'MemMax=',MemMax
                   Write (6,*) 'Increase MOLCAS_MEM!'
-                  Call QTrace()
                   Call Abend()
                End If
                Sew_Scr(1:iMemb)=Zero

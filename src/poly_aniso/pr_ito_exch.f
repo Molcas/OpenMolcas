@@ -42,7 +42,7 @@
       Logical, intent(in)          :: AnisoLines9
       Logical, intent(in)          :: DM_exchange
       Logical, intent(in)          :: JITO_exchange
-      Character(1), intent(in)     :: itype(nneq)
+      Character(Len=1), intent(in) :: itype(nneq)
       ! local variables
       Integer       ::   i,j,l,k,lp,i1,i2,j1,j2,lb1,lb2,iopt,ibuf,
      &                   is1,is2,js1,js2,k1,k2,q1,q2,n1,n2,nsize

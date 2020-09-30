@@ -103,7 +103,6 @@
       DIMENSION IAOC(*),JAOC(*),IBOC(*),JBOC(*)
       DIMENSION ITSOB(1),IPHGAS(*),SRHO1(*)
 *
-      CALL QENTER('GSDNB')
       NTEST = 000
       NTEST = MAX(NTEST,IPRNT)
       NTESTO= NTEST
@@ -300,7 +299,6 @@ C    &                  CJRES,SIRES,NORB,NTEST)
         CALL COPVEC(C2,SB,NIB*NIA)
       END IF
 *
-      CALL QEXIT('GSDNB')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN

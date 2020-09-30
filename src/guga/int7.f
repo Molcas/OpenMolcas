@@ -23,7 +23,6 @@ C     I.LT.L  I.EQ.K  J.EQ.L
 #include "addr_guga.fh"
       COMMON/D/JNDX(500 000)
 *
-      CALL QENTER('INT7')
       IJJ=0 ! dummy initialize
       KBUF0=RTOI*KBUF
       KBUF1=KBUF0+KBUF+1
@@ -120,6 +119,5 @@ C     I.LT.L  I.EQ.K  J.EQ.L
       GO TO 62
 10    CONTINUE
 100   CONTINUE
-      CALL QEXIT('INT7')
       RETURN
       END

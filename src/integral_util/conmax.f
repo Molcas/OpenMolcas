@@ -16,11 +16,6 @@
 * Object: to find the largest element in the contraction matrix  for   *
 *         each primitive index.                                        *
 *                                                                      *
-* Called from: Drvk2                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             July '91                                                 *
@@ -32,7 +27,6 @@
 *
       iRout = 230
       iPrint = nPrint(iRout)
-*     Call qEnter('ConMax')
 *
       Do iPrim = 1, nPrim
          Temp= Zero
@@ -59,6 +53,5 @@
          End Do
       End Do
 *
-*     Call qExit('ConMax')
       Return
       End

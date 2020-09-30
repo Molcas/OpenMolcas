@@ -36,7 +36,6 @@ C
       mapRS2RS(i,j)=iWork(ip_mapRS2RS(i)-1+j)
 
 #if defined (_DEBUG_)
-      Call qEnter('_GnVc_GetVec')
 #endif
 
 C     Check input.
@@ -442,7 +441,6 @@ C     ------------------------------------------------
 
     1 Continue
 #if defined (_DEBUG_)
-      Call qExit('_GnVc_GetVec')
 #endif
 
       End

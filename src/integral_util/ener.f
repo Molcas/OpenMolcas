@@ -32,15 +32,13 @@
 *                                                                      *
 *              March 2000                                              *
 ************************************************************************
-      use Symmetry_Info, only: iChBas
+      use Symmetry_Info, only: nIrrep, iChBas
       use Basis_Info, only: nBas
+      use Temporary_Parameters, only: PrPrt
       Implicit Real*8 (a-h,o-z)
       External EFInt,EFMem
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "rctfld.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 h1(nh1), TwoHam(nh1), D(nh1), D_tot(nh1), EF_Grid(3),
      &       Grid(3,nGrid_), DipMom(3,nGrid_), EField(4,nGrid_),
@@ -251,7 +249,7 @@ c     and: RepNuc = RepNuc + Eself + Half*Edip2 + Half*Enucdip
                If (Mod(iz,2).ne.0) ixyz=iOr(ixyz,4)
                iSym = 2**IrrFnc(ixyz)
                If (Ccoor(iComp).ne.Zero ) iSym = iOr(iSym,1)
-               lOper(iComp) = MltLbl(iSymC,iSym,nIrrep)
+               lOper(iComp) = MltLbl(iSymC,iSym)
                kOper(iComp) = iChBas(iComp+1)
                call dcopy_(3,Ccoor,1,C_Coor(1,iComp),1)
             End Do

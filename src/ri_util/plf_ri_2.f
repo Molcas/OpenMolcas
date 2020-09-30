@@ -31,8 +31,6 @@
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "srt0.fh"
@@ -52,7 +50,6 @@
 *                                                                      *
 *define _DEBUG_
 #ifdef _DEBUG_
-      Call qEnter('PLF_RI_2')
       irout = 109
       iPrint = nPrint(irout)
       iPrint=99
@@ -108,7 +105,6 @@
          End Do
       End Do
 #ifdef _DEBUG_
-      Call qExit('PLF_RI_2')
 #endif
 *
       Return

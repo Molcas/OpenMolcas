@@ -44,7 +44,6 @@
 *----------------------------------------------------------------------*
 *
 #ifdef _DEBUG_
-      Call qEnter('ClsFls')
 #endif
 *
 *---  close two-electron integral file --------------------------------*
@@ -54,7 +53,6 @@
          Call ClsOrd(iRc,iOpt)
          If (iRc.ne.0) Then
             Write (6,*) 'ClsFls: Error closing ORDINT'
-            Call QTrace
             Call Abend()
          End If
       End If
@@ -79,7 +77,6 @@
 *----------------------------------------------------------------------*
 *
 #ifdef _DEBUG_
-      Call qExit('ClsFls')
 #endif
       Return
       End

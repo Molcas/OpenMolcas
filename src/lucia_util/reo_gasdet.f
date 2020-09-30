@@ -43,7 +43,6 @@
 *
 *. Output
       INTEGER IREO(*)
-      CALL QENTER('REOGA')
 
 c      write(6,*)'nconf_per_open in reo_gasdet'
 c      call iwrtma(nconf_per_open,1,4,1,4)
@@ -126,7 +125,6 @@ C??? Jesper      CALL MEMMAN(KLDET_MS,NOCOB,'ADDL  ',1,'CONF_M')
       CALL GETMEM('CONF_O','FREE','INTE',KLDET_OC,NAEL+NBEL)
       CALL GETMEM('CONF_M','FREE','INTE',KLDET_MS,NAEL+NBEL)
       CALL GETMEM('CONF_M','FREE','INTE',KLDET_VC,NOCOB)
-      CALL QEXIT('REOGA')
 *
       RETURN
       END

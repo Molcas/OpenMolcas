@@ -30,9 +30,8 @@
 *             August 1999                                              *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
 #include "itmax.fh"
-#include "info.fh"
+#include "real.fh"
 #include "WrkSpc.fh"
 #include "setup.fh"
 #include "nq_info.fh"
@@ -60,7 +59,6 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUG_
-      Call QEnter('Subblock')
 #endif
       nGrid=(9*mGrid)/10
       iStrt=number_of_grid_points+1
@@ -358,7 +356,6 @@ C        Write (*,*) 'ntotgp=',ntotgp
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUG_
-      Call QExit('Subblock')
 #endif
       Return
       End

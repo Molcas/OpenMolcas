@@ -68,7 +68,6 @@
       Implicit real*8 (a-h,o-z)
 *     find iTabMx, limiting the highest ang mom, in itmax.fh
 #include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
       Logical CSPF
 *     check if required ang mom is greater than hard-coded limit
@@ -371,7 +370,6 @@
       Real*8 P0((i+1)*(i+2)/2,-l:l), Px((j+1)*(j+2)/2,-l:l)
 *     Declare statement function
       iad(ix,iy,iz)=(iz+iy)*(iz+iy+1)/2 +iz + 1
-*     Call QEnter('Contaminant')
 *
 *     Px = (x^2+y^2+z^2) x P0
 *
@@ -390,7 +388,6 @@
          End Do
       End Do
 *
-*     Call QExit('Contaminant')
       Return
       End Subroutine Contaminant
       Subroutine NrmSph(P,n)

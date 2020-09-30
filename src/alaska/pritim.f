@@ -14,7 +14,6 @@
 *     declaration subroutine parameters
       Real*8 TimDat(2*nFld_par,nProcs)
 *
-*     Call QEnter('PriTim')
       Write (6,'(1X,A)') 'Timing statistics of individual servers:'
       Write (6,'(1X,A5,6X,9A13)') ' node',
      &                           '   wait Dens.',
@@ -33,6 +32,5 @@
      &                 ' Wall ',
      &                 (TimDat(nFld_par+iFld,inode),iFld=1,nFld_par-1)
       End Do
-*     Call QExit('PriTim')
       Return
       End

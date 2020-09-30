@@ -18,11 +18,11 @@ therefore not included in OpenMolcas.
 
 * "OpenMolcas: From Source Code to Insight."
   *J. Chem. Theory Comput.* **15** (2019) 5925-5964.
-  DOI: [10.1021/acs.jctc.9b00532](https://doi.org/10.1021/acs.jctc.9b00532)
+  [doi:10.1021/acs.jctc.9b00532](https://doi.org/10.1021/acs.jctc.9b00532)
 
 * "Modern quantum chemistry with [Open]Molcas."
   *J. Chem. Phys.* **152** (2020) 214117.
-  DOI: [10.1063/5.0004835](https://doi.org/10.1063/5.0004835)
+  [doi:10.1063/5.0004835](https://doi.org/10.1063/5.0004835)
 
 Installation
 ------------

@@ -20,8 +20,6 @@
 *                      else  integral order within symblk: ijkl
       Implicit Real*8 (a-h,o-z)
 *
-#include "itmax.fh"
-#include "info.fh"
 #include "localdf_int.fh"
 *
       Real*8 AOInt(*), SOInt(*), TInt(nTInt)

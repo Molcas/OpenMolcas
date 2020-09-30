@@ -25,7 +25,6 @@ C
       Parameter (SecNam='RPA_Setup')
 
       ! Register entry
-      Call qEnter(SecNam)
 
       ! Define data in common blocks (dummy values).
       Call RPA_SetInc()
@@ -50,6 +49,5 @@ C
       Call RPA_Setup_Add_Info()
 
       ! Register exit
-      Call qExit(SecNam)
 
       End

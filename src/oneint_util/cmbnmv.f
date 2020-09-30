@@ -13,14 +13,6 @@
       SubRoutine CmbnMV(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp,
      &                  rV2Int,rV4Int)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: MVeInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN, February '91                 *
 ************************************************************************
@@ -39,7 +31,6 @@
 *
       iRout = 191
       iPrint = nPrint(iRout)
-      Call qEnter('CmbnMV')
 *     Call GetMem(' Enter CmbnMV','LIST','REAL',iDum,iDum)
 *
       Const = - One2C2/Four
@@ -102,6 +93,5 @@
  10   Continue
 *
 *     Call GetMem(' Exit CmbnMV','LIST','REAL',iDum,iDum)
-      Call qExit('CmbnMV')
       Return
       End

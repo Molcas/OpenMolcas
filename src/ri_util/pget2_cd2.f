@@ -21,25 +21,17 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 *                                                                      *
 *             Modified for Cholesky 1-center gradients May 2007 by     *
 *             R. Lindh                                                 *
-*                                                                      *
 ************************************************************************
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 PSO(nijkl,nPSO), V_K(mV_K)
@@ -56,7 +48,6 @@
       iRout = 39
       iPrint = nPrint(iRout)
       iPrint=99
-      Call qEnter('PGet2_CD2')
       Call RecPrt('V_K',' ',V_K,1,mV_K)
 #endif
 *                                                                      *
@@ -204,7 +195,6 @@ C                           End If
          Call RecPrt(' In PGet2_CD2:PSO ',' ',PSO,nijkl,nPSO)
       End If
       Call GetMem(' Exit PGet2_CD2','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet2_CD2')
 #endif
       Return
 c Avoid unused argument warnings

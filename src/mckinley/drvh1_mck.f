@@ -16,13 +16,6 @@
 *                                                                      *
 * Object: driver for computation of gradients of one-electron matrices.*
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              Cnt1El                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
@@ -30,13 +23,12 @@
 *             May 95                                                   *
 ************************************************************************
       Use Basis_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External OvrGrd_mck,KneGrd_mck,nagrd_mck,prjgrd_mck,m1grd_mck ,
      &         srogrd_mck, nona2
       External OvrMem_mck,KneMem_mck,namem_mck,prjmm1,m1mm1, na2mem,
      &         sromm1
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
@@ -45,7 +37,6 @@
 *
 c     iRout = 131
 c     iPrint = nPrint(iRout)
-      Call qEnter('Drvh1_mck')
 *
       If (show) Then
          nFock = 0
@@ -61,7 +52,6 @@ c     iPrint = nPrint(iRout)
          If ( length.ne.nDens ) Then
             Write (6,*) 'Drvh1_mck: length.ne.nDens'
             Write (6,*) 'length,nDens=',length,nDens
-            Call QTrace()
             Call Abend()
          End If
 *...  Read the generalized Fock matrix
@@ -70,7 +60,6 @@ c     iPrint = nPrint(iRout)
          If ( length.ne.nDens ) Then
             Write (6,*) 'Drvh1_mck: length.ne.nDens'
             Write (6,*) 'length,nDens=',length,nDens
-            Call QTrace()
             Call Abend()
          End If
       Else
@@ -220,7 +209,6 @@ c     iPrint = nPrint(iRout)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('Drvh1_mck')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nGrad)

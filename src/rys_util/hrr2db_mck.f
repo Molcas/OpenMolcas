@@ -19,13 +19,6 @@
 *         The transformation is in place and the recursion             *
 *         is replaced with the indentity when applicable.              *
 *                                                                      *
-* Called from: HrrCtl                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              DZaXpY  (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             September '91                                            *

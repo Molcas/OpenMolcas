@@ -21,7 +21,6 @@ C
       PARAMETER (SECNAM = 'CHO_SETVECINF')
 
 #if defined (_DEBUG_)
-      CALL QENTER('_SETVECINF')
 #endif
 
       IF (IVEC .GT. MAXVEC) THEN
@@ -43,7 +42,6 @@ C
       END IF
 
 #if defined (_DEBUG_)
-      CALL QEXIT('_SETVECINF')
 #endif
 
       END

@@ -20,7 +20,6 @@
       Logical LWRITE
 *
       Return
-*     Call qEnter('CofMss')
 *
 *     Calculate the molecular mass.
 *
@@ -70,6 +69,5 @@
          End Do
       End Do
 *
-*     Call qExit('CofMss')
       Return
       End

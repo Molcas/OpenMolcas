@@ -20,7 +20,6 @@
       Logical lWrite_, ldB, lWarn
       Character*8 Label
 *
-*     Call QEnter('ConInt')
 *
       E1 = Work(ipEner +lIter-1)
       E0 = Work(ipEner0+lIter-1)
@@ -195,7 +194,6 @@ C------------- Absolute value ----------
 *
       End If
 *
-*     Call QExit('ConInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_logical(lWarn)

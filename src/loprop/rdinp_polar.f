@@ -31,7 +31,6 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-      Call qEnter('RdInp')
       BLine=' '
       Delta=0.001D00
       Call Get_iScalar('Highest Mltpl',lMax)
@@ -344,7 +343,6 @@ C8000 Continue
         Endif
         Write(6,*)
       Endif
-      Call qExit('RdInp')
 *
 *----------------------------------------------------------------------*
 *     Exit                                                             *

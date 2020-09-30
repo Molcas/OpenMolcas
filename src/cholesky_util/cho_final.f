@@ -29,7 +29,6 @@ C
 #endif
 
 #if defined (_DEBUG_)
-      CALL QENTER('_FINAL')
 #endif
 
 C     Write NUMCHO array, shell indices, and threshold to runfile.
@@ -125,7 +124,6 @@ C     ---------------------------------------------
       CALL PUT_ISCALAR('ChoIni',CHOISINI)
 
 #if defined (_DEBUG_)
-      CALL QEXIT('_FINAL')
 #endif
 
       END

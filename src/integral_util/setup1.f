@@ -33,7 +33,6 @@
 *
       iRout = 114
       iPrint = nPrint(iRout)
-*     Call qEnter('SetUp1')
       ab  = (A(1)-B(1))**2 + (A(2)-B(2))**2 + (A(3)-B(3))**2
       If (ab.ne.Zero) Then
       Do 10 iPrim = 1, nPrim
@@ -62,6 +61,5 @@
       End If
 *     Call GetMem('SetUp1','CHECK','REAL',iDum,iDum)
 *
-*     Call qExit('SetUp1')
       Return
       End

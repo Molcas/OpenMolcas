@@ -30,9 +30,11 @@
       use Her_RW
       use Real_Spherical
       use Basis_Info
+      use Sizes_of_Seward, only: S
+      use Logical_Info, only: UnNorm, Do_FckInt, FNMC
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "stdalloc.fh"
 #include "real.fh"
 #include "print.fh"
@@ -96,7 +98,7 @@
       nOrdOp=2
       iComp = 1
 *
-      nPrp=Max(4,nMltpl)
+      nPrp=Max(4,S%nMltpl)
       nDiff = 0
 *
       List   (:)=0
@@ -137,7 +139,7 @@
 *
          If (iFerm.eq.2) Then
 *
-            iShll = Mx_Shll-1
+            iShll = S%Mx_Shll-1
             jShll = iShll
 *
 *           The Fock operator will simply be the one-particle
@@ -476,7 +478,7 @@
 *
 *        Let's get the reference basis set (ANO-RCC).
 *
-         iShll = Mx_Shll-1
+         iShll = S%Mx_Shll-1
          jShll = iShll
          Call GetBS(Fname,Bsl_,iShll,Ref,UnNorm,LuRd,
      &              BasisTypes,STDINP,lSTDINP,.False.,.true.,' ')

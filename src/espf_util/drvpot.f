@@ -16,11 +16,6 @@
 *                                                                      *
 * Object: driver for computation of one-electron property matrices     *
 *                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              OneEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
@@ -30,6 +25,8 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External PotInt, NAMem
 #include "stdalloc.fh"
@@ -42,8 +39,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qEnter('DrvPot')
-*
       Call IniSewM('mltpl',0)
 *
       Call Set_Basis_Mode('Valence')
@@ -56,7 +51,7 @@
       End Do
       Call DecideOnESPF(Do_ESPF)
 c
-      Call mma_allocate(Centr,3,mCentr)
+      Call mma_allocate(Centr,3,S%mCentr)
       ndc = 0
       nc = 1
       Do jCnttp = 1, nCnttp
@@ -115,8 +110,6 @@ c
 *
       Call mma_deallocate(Centr)
       Call Free_iSD()
-*
-      Call QExit('DrvPot')
 *
       Return
       End

@@ -19,20 +19,11 @@
 * Object: trace the gradient of the ERI's with the second order        *
 *         density matrix                                               *
 *                                                                      *
-* Called from: Rysg2                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DGeMV   (ESSL)                                          *
-*              DCopy   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Anders Bernhardsson Dept. of Theoretical Chemistry,      *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
-      use Symmetry_Info, only: iChTbl, iChBas
+      use Symmetry_Info, only: nIrrep, iChTbl, iChBas
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
       Real*8 g2(78),  Prmt(0:7),Hess(nHess)
       Logical IfHss(4,3,4,3),Tr(4),IfGr(4)

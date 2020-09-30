@@ -29,7 +29,6 @@
       Integer                       :: i,j
       Real(kind=8), allocatable    :: gtens(:), zmagn(:,:)
 
-      Call qEnter('SA_CF')
 
       Write(6,'(/)')
       Write(6,'(100A)') ('%',i=1,95)
@@ -164,7 +163,6 @@ c  of the main magnetic axes of the ground multiplet (NDIM(1))
       Call mma_deallocate(SJ)
       Call mma_deallocate(gtens)
       Call mma_deallocate(zmagn)
-      Call qExit('SA_CF')
       Return
       End
 
@@ -211,7 +209,6 @@ C================== Variable declarations =============================
      &                                  HCF(:,:)
       External           :: trace, dznrm2, IsFreeUnit
 
-      Call qEnter('SA_CF1')
 C============== End of variable declarations ==========================
       Call mma_allocate(Winit,nDIMcf,'Winit')
       Call mma_allocate(Eloc,nDIMcf,'Eloc')
@@ -333,7 +330,6 @@ c-----------------------------------------------------------------------
       Call mma_deallocate(Zinit)
       Call mma_deallocate(Z)
       Call mma_deallocate(HCF)
-      Call qExit('SA_CF1')
 
       Return
       End
@@ -365,7 +361,6 @@ c-----------------------------------------------------------------------
       External                      :: trace
       Logical                       :: dbg
 
-      Call qEnter('SA_newCF')
 !-------------------------------------------
       If(n<1) Return
 !-------------------------------------------
@@ -442,7 +437,6 @@ c-----------------------------------------------------------------------
 
       Call mma_deallocate(Cp)
       Call mma_deallocate(Cm)
-      Call qExit('SA_newCF')
 
       Return
       End subroutine newCF

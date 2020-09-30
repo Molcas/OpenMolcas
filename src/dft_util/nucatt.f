@@ -14,21 +14,10 @@
      &                  nP2_ontop,iSpin,F_xc,dF_dRho,
      &                  ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_XX)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
@@ -79,15 +68,6 @@ c Avoid unused argument warnings
      &                      iSpin,F_xc,dF_dRho,ndF_dRho,
      &                      dF_dP2ontop,ndF_dP2ontop,Grid,RA,ZA,mCenter)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
@@ -101,7 +81,6 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QEnter('Do_NucAtt')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -170,7 +149,6 @@ C     Call QEnter('Do_NucAtt')
 ************************************************************************
 *                                                                      *
 *
-C     Call QExit('Do_NucAtt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

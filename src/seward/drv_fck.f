@@ -15,9 +15,9 @@
      &                   nOrdOp,rNuc,rHrmt,iChO,
      &                   opmol,ipad,opnuc,iopadr,idirect,isyop,
      &                   PtChrg,nGrid,iAddPot)
+      use PAM2
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "real.fh"
@@ -34,7 +34,6 @@
 *                                                                      *
       iRout = 112
       iPrint = nPrint(iRout)
-      Call qEnter('Drv_Fck')
       If (iPrint.ge.19) Then
          Write (6,*) ' In OneEl: Label', Label
          Write (6,*) ' In OneEl: nComp'
@@ -136,7 +135,6 @@ c        Write(6,*) ' oneel *',Label,'*'
          iPAMcount=iPAMcount+1
 
          If (iRC.ne.0) then
-            Call qTrace
             Write(6,*) ' *** Error in subroutine ONEEL ***'
             Write(6,*) '     Abend in subroutine WrOne'
             Call Quit(_RC_IO_ERROR_WRITE_)
@@ -152,7 +150,6 @@ c        Write(6,*) ' oneel *',Label,'*'
 ************************************************************************
 *                                                                      *
  999  Continue
-      Call qExit('Drv_Fck')
       Return
       End
       Subroutine Drv_Fck_Internal(Label,ip,Int1El,LenTot,lOper,nComp,
@@ -172,31 +169,6 @@ c        Write(6,*) ' oneel *',Label,'*'
 *         b) refer to the components of the cartesian or spherical     *
 *         harmonic gaussians.                                          *
 *                                                                      *
-* Called from: Drv1El                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              ICopy                                                   *
-*              DCopy    (ESSL)                                         *
-*              KrnlMm                                                  *
-*              ZXia                                                    *
-*              MemSO1                                                  *
-*              DCR                                                     *
-*              Inter                                                   *
-*              SetUp1                                                  *
-*              Kernel                                                  *
-*              DGeTMO   (ESSL)                                         *
-*              CarSph                                                  *
-*              SymAd1                                                  *
-*              DScal    (ESSL)                                         *
-*              SOSctt                                                  *
-*              PrMtrx                                                  *
-*              XProp                                                   *
-*              WrOne                                                   *
-*              ErrOne                                                  *
-*              Prop                                                    *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
 *             Modified for Hermite-Gauss quadrature November '90       *
@@ -212,9 +184,10 @@ c        Write(6,*) ' oneel *',Label,'*'
       use iSD_data
       use Basis_Info
       use Center_Info
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "info.fh"
 #include "real.fh"
 #include "rmat_option.fh"
 #include "stdalloc.fh"
@@ -238,12 +211,11 @@ c        Write(6,*) ' oneel *',Label,'*'
       iRout = 112
       iPrint = nPrint(iRout)
 *     iPrint = 99
-      Call qEnter('Drv_Fck_')
 *
 *-----Auxiliary memory allocation.
 *
-      Call mma_allocate(Zeta,m2Max)
-      Call mma_allocate(ZI,m2Max)
+      Call mma_allocate(Zeta,S%m2Max)
+      Call mma_allocate(ZI,S%m2Max)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -302,7 +274,7 @@ c        Write(6,*) ' oneel *',Label,'*'
 *                                                                      *
 *           Allocate memory for the final integrals all in the
 *           primitive basis.
-            lFinal = nIC * MaxPrm(iAng) * MaxPrm(jAng) *
+            lFinal = nIC * S%MaxPrm(iAng) * S%MaxPrm(jAng) *
      &               nElem(iAng)*nElem(jAng)
             Call mma_allocate(Fnl,lFinal)
             Call dCopy_(lFinal,[Zero],0,Fnl,1)
@@ -387,9 +359,9 @@ c        Write(6,*) ' oneel *',Label,'*'
                      ijC=(iC-1)*iCmp+iC
                      iTo= + (ijC-1)*iBas**2+ijB
 #ifdef _DEBUG_
-                     Write (6,*) 'ijB,ijC=',ijB,ijC
-                     Write (6,*) 'Fnl(iTo),Shell(iShll)%FockOp(iB,jB)=',
-     &                            Fnl(iTo),Shell(iShll)%FockOp(iB,jB)
+                     Write (6,*)'ijB,ijC=',ijB,ijC
+                     Write (6,*)'Fnl(iTo),Shells(iShll)%FockOp(iB,jB)=',
+     &                           Fnl(iTo),Shells(iShll)%FockOp(iB,jB)
 #endif
                      Fnl(iTo)=Shells(iShll)%FockOp(iB,jB)
                   End Do
@@ -480,7 +452,6 @@ c        Write(6,*) ' oneel *',Label,'*'
       Call mma_deallocate(ZI)
       Call mma_deallocate(Zeta)
 *
-      Call qExit('Drv_Fck_')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

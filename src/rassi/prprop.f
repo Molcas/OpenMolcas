@@ -74,7 +74,6 @@
       REAL*8, Allocatable:: SOPRR(:,:), SOPRI(:,:)
 
 
-      CALL QENTER(ROUTINE)
 
       AVOGADRO=CONST_AVOGADRO_
       AU2EV=CONV_AU_TO_EV_

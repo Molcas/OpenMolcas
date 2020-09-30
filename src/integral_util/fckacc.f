@@ -22,6 +22,7 @@
      &                  Djl,jl1,jl2,jl3,jl4,
      &                  FT,nFT,DoCoul,DoExch,ExFac)
 ************************************************************************
+*                                                                      *
 *  Object: to accumulate contibutions from the AO integrals directly   *
 *          to the symmetry adapted Fock matrix.                        *
 *                                                                      *
@@ -41,18 +42,6 @@
 *          The density matrix is not folded if the shell indices and   *
 *          the angular indices are identical.                          *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DNrm2_  (ESSL)                                          *
-*              DGeTMO  (ESSL)                                          *
-*              DGeMV   (ESSL)                                          *
-*              FckDst                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden. February '93                            *
 *                                                                      *
@@ -61,10 +50,9 @@
       use Basis_Info
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
-      use Symmetry_Info, only: iOper, iChBas
+      use Symmetry_Info, only: nIrrep, iOper, iChBas
+      use Real_Info, only: ThrInt, CutInt
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 *

@@ -23,18 +23,6 @@
 *         with the Rys quadrature, i.e. the integrals [e0|f0] will be  *
 *         computed (e=Max(la,lb),la+lb,f=Max(lc,ld),lc+ld).            *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Tvalue                                                  *
-*              RtsWgh                                                  *
-*              vRysRW                                                  *
-*              ModU2                                                   *
-*              Cff2D                                                   *
-*              Rys2D                                                   *
-*              RysEF                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -43,10 +31,10 @@
 *             Modified for special routines Jan-Mar '94                *
 ************************************************************************
       use vRys_RW
+      use Real_Info, only: ChiI2
+      use Temporary_parameters, only: IsChi
       Implicit Real*8 (A-H,O-Z)
       External Tvalue, ModU2, Cff2D, Rys2D
-#include "itmax.fh"
-#include "info.fh"
 #include "notab.fh"
 #include "print.fh"
 #include "real.fh"

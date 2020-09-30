@@ -18,13 +18,6 @@
 *         The transformation is in place and the recursion             *
 *         is replaced with the indentity when applicable.              *
 *                                                                      *
-* Called from: HrrCtl                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              DZaXpY  (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             September '91                                            *
@@ -41,7 +34,6 @@
       iRout = 233
       iPrint = nPrint(iRout)
 *     iQ = 0
-*     Call qEnter('HRR2Da')
 *
       Do 10 iCar = 1, 3
          lla = 0
@@ -147,6 +139,5 @@
          End If
  10   Continue
 *
-*     Call qExit('HRR2Da')
       Return
       End

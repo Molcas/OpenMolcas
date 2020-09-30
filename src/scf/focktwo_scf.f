@@ -45,7 +45,6 @@ c
        Factor=0.5D0
         if(iUHF.eq.1) Factor=1.0D0
 #ifdef _DEBUG_
-      Call qEnter('Focktwo')
 #endif
 #ifdef _DEBUG_
       Debug=.true.
@@ -354,7 +353,6 @@ c Print the Fock-matrix
       WRITE(6,'(6X,A)')'----------------------------'
 #endif
 #ifdef _DEBUG_
-      Call qExit('Focktwo')
 #endif
 
       RETURN

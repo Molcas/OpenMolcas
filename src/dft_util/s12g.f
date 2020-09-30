@@ -22,12 +22,6 @@
 *             Reference:  Swart, Marcel                                *
 *             Chemical Physics Letters 580 (2013) 166-171              *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author: G. Li Manni and A. Cohen, Department of Electronic      *
 *              Structure Theory, Max Planck Institute, Stuttgart       *
 *              2017                                                    *
@@ -44,7 +38,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('S12g')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -71,7 +64,6 @@ C     &            dF_dRho,ndF_dRho,Coeff,T_X)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('S12g')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

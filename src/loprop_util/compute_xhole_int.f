@@ -13,8 +13,6 @@
       use Real_Spherical
       Implicit Real*8 (a-h,o-z)
 
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "nq_info.fh"
 #include "status.fh"

@@ -41,19 +41,7 @@
 *          nTInt               : dimension of TInt                     *
 *          iTOffs              : iTOffs holds symmetry block offsets   *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter,QExit                                            *
-*              Int_Setup                                               *
-*              Dens_Info                                               *
-*              MemRys                                                  *
-*              PSOAO0                                                  *
-*              Picky_                                                  *
-*              TwoEl_NoSym                                             *
-*              TwoEl_Sym                                               *
-*              Integ_Proc                                              *
-*                                                                      *
-*             Roland Lindh / Martin Schuetz,                           *
+*     Author: Roland Lindh / Martin Schuetz,                           *
 *             Dept. of Theoretical Chemistry, University of Lund,      *
 *             SWEDEN.                                                  *
 *             Modified for k2 loop. August '91                         *
@@ -67,6 +55,8 @@
       use k2_arrays
       use iSD_data
       use Basis_Info
+      use Real_Info, only: CutInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Integ_Proc
 *
@@ -85,8 +75,6 @@
 *
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"

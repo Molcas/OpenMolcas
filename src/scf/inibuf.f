@@ -24,7 +24,6 @@
 ************************************************************************
       use IOBUF
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       External AllocDisk
       Integer AllocDisk
@@ -34,7 +33,6 @@
 *     nCore in units of kByte
 *
 #ifdef _DEBUG_
-      Call qEnter('IniBuf')
 #endif
 *
 *     The maximum number of bytes on disk. The file size limit times
@@ -94,7 +92,6 @@ C        Write (6,*) 'lBuf=',lBuf
       End If
 *
 #ifdef _DEBUG_
-      Call QExit('IniBuf')
 #endif
       Return
       End

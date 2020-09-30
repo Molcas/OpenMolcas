@@ -24,7 +24,7 @@ MODULE fmm_T_buffer
    INTEGER(INTK), SAVE :: buffer = -1
 
    ! diagnostic flag
-   CHARACTER(4), SAVE :: T_buffer_stat
+   CHARACTER(LEN=4), SAVE :: T_buffer_stat
 
 CONTAINS
 

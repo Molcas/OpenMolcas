@@ -19,16 +19,6 @@
 *                                                                      *
 * Object: to compute the gradients of the Multipole operator           *
 *                                                                      *
-* Called from: DrvH1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              DCopy   (ESSL)                                          *
-*              CmbnMlt1                                                *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 *             Modified to multipole moments November '90               *
@@ -42,8 +32,6 @@
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #ifdef _DEBUG_
 #include "print.fh"
 #endif

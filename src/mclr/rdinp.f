@@ -323,7 +323,6 @@
       If ( iRc.ne.0 ) Then
          Write (6,*) 'RdInp: Error reading ONEINT'
          Write (6,'(A,A)') 'Label=',Label
-         Call QTrace
          Call Abend()
       End If
 *
@@ -548,10 +547,8 @@
 *----------------------------------------------------------------------*
  998  Write (6,*) 'RdInp: Error while reading input'
       Write (6,'(A,A)') 'Last command:',Line
-      Call QTrace
       Call Abend()
 999   Write (6,*) 'RdInp: Premature end of input file'
       Write (6,'(A,A)') 'Last command:',Line
-      Call QTrace
       Call Abend()
       End

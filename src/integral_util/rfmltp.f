@@ -14,8 +14,6 @@
       SubRoutine RFmltp()
       use PCM_arrays, only: MM
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"
@@ -34,14 +32,6 @@
       End
       Subroutine RFmltp_(Qs,QTot,VTot,nComp)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *                                                                      *
@@ -49,8 +39,6 @@
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
       Real*8 Qs(nComp,2), QTot(nComp), VTot(nComp)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"

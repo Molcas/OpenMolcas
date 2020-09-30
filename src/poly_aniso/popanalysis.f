@@ -35,7 +35,6 @@ c local variables
       Complex(kind=8), allocatable :: pop(:,:,:,:)
       Character(len=50):: fmtline
       Logical          :: DBG
-      Call qEnter('PA_popanalysis')
       DBG=.false.
 
       If(DBG) Then
@@ -149,7 +148,6 @@ c     sum over all other components of other sites
 
       call mma_deallocate(pop)
 
-      Call qExit('PA_popanalysis')
       Return
       End
 

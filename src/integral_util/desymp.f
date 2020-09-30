@@ -14,6 +14,7 @@
       Subroutine DesymP(iAng, iCmp, jCmp, kCmp, lCmp, Shijij, iShll,
      &                  iShell, iAO, kOp, ijkl,Aux,nAux,PAO,PSO,nPSO)
 ************************************************************************
+*                                                                      *
 *  Object: to transform the integrals in AO basis to symmetry adapted  *
 *          orbitals , SO. This is done by accumulating the AO inte-    *
 *          grals onto the SO integrals.                                *
@@ -28,15 +29,6 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy    (ESSL)                                         *
-*              DYaX     (ESSL)                                         *
-*              DnaXpY   (ESSL)                                         *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -46,12 +38,10 @@
 *             matrix, January '92.                                     *
 ************************************************************************
       use Basis_Info
-      use Symmetry_Info, only: iChTbl, iOper, iChBas
+      use Symmetry_Info, only: nIrrep, iChTbl, iOper, iChBas
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
       Real*8 PAO(ijkl,iCmp,jCmp,kCmp,lCmp), PSO(ijkl,nPSO), Aux(nAux)

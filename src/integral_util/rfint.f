@@ -19,17 +19,6 @@
 * Object: to compute the multipole moments integrals with the          *
 *         Gauss-Hermite quadrature.                                    *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              CmbnMP                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 *             Modified to multipole moments November '90               *
@@ -41,21 +30,12 @@
       use Her_RW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
      &       rKappa(nZeta), P(nZeta,3), A(3), B(3),
      &       Array(nZeta*nArr), Ccoor(3)
       Logical ABeq(3)
 *
-      iRout = 122
-      iPrint = nPrint(iRout)
-*     iPrint = 99
-      iQ = 0
-      Call qEnter('RFInt')
       ABeq(1) = A(1).eq.B(1)
       ABeq(2) = A(2).eq.B(2)
       ABeq(3) = A(3).eq.B(3)
@@ -82,14 +62,14 @@
          Call Abend()
       End If
 *
-      If (iPrint.ge.49) Then
-         Call RecPrt(' In RFInt: A',' ',A,1,3)
-         Call RecPrt(' In RFInt: B',' ',B,1,3)
-         Call RecPrt(' In RFInt: CCoor',' ',CCoor,1,3)
-         Call RecPrt(' In RFInt: P',' ',P,nZeta,3)
-         Write (6,*) ' In RFInt: la,lb=',la,lb
-         Write (6,*) ' In RFInt: nHer=',nHer
-      End If
+#ifdef _DEBUG_
+      Call RecPrt(' In RFInt: A',' ',A,1,3)
+      Call RecPrt(' In RFInt: B',' ',B,1,3)
+      Call RecPrt(' In RFInt: CCoor',' ',CCoor,1,3)
+      Call RecPrt(' In RFInt: P',' ',P,nZeta,3)
+      Write (6,*) ' In RFInt: la,lb=',la,lb
+      Write (6,*) ' In RFInt: nHer=',nHer
+#endif
 *
 *     Compute the cartesian values of the basis functions angular part
 *
@@ -125,8 +105,6 @@
       Call CmbnRF(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,Final,
      &          nComp,Array(ipTemp1),Array(ipTemp2))
 *
-*     Call GetMem(' Exit RFInt','LIST','REAL',iDum,iDum)
-      Call qExit('RFInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

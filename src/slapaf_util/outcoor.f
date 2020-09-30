@@ -22,7 +22,6 @@
       Logical lAngstroms
       Real*8 FI(N1,N2)
 *
-      Call qEnter('OutCoor')
 *
       Lu=6
       Write (Lu,*)
@@ -43,6 +42,5 @@
 10    Continue
 *
       Write (Lu,*)
-      Call qExit('OutCoor')
       Return
       End

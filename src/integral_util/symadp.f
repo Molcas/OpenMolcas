@@ -15,6 +15,7 @@
      &                  iShll, iShell, iAO, kOp, ijkl,
      &                  Aux,nAux,AOInt,SOInt,nSOInt,Done)
 ************************************************************************
+*                                                                      *
 *  Object: to transform the integrals in AO basis to symmetry adapted  *
 *          orbitals , SO. This is done by accumulating the AO inte-    *
 *          grals onto the SO integrals.                                *
@@ -31,24 +32,14 @@
 *                                                                      *
 *          This code is never executed in the no symmetry case!!!      *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              DnaXpY   (ESSL)                                         *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 ************************************************************************
       use Basis_Info
-      use Symmetry_Info, only: iChTbl, iOper, iChBas
+      use Symmetry_Info, only: nIrrep, iChTbl, iOper, iChBas
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
       Real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp),
      &       SOInt(ijkl,nSOInt), Aux(nAux)

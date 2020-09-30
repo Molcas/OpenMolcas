@@ -24,7 +24,6 @@ c      DIMENSION INDOUT(RTOI*NBSIZ3,NCHN3)
       DIMENSION FC(NBTRI),FIIJJ(*),FIJIJ(*)
       DIMENSION IVEC(20),IPOF(65)
       DIMENSION NORB0(9)
-      CALL QENTER('SORT_MRCI')
       IAD50=0
       CALL iDAFILE(LUTRA,2,iTraToc,nTraToc,IAD50)
       NVT=IROW(NVIRT+1)
@@ -329,7 +328,6 @@ C EMPTY LAST BUFFERS
         CALL XFLUSH(6)
 155     FORMAT(6X,5I10)
 *      END IF
-      CALL QEXIT('SORT_MRCI')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(NINTGR)

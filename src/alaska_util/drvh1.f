@@ -20,12 +20,6 @@
 *         matrix and the latter will be contracted with the generalized*
 *         Fock matrix.                                                 *
 *                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              OneEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
@@ -40,13 +34,13 @@
       use PCM_arrays, only: PCM_SQ
       use External_Centers
       use Basis_Info, only: nCnttp, dbsc, nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External OvrGrd, KneGrd, NAGrd, PrjGrd, M1Grd, M2Grd, SROGrd,
      &         WelGrd, XFdGrd, RFGrd, PCMGrd, PPGrd, COSGrd, FragPGrd
       External OvrMmG, KneMmG, NAMmG, PrjMmG, M1MmG, M2MmG, SROMmG,
      &         WelMmg, XFdMmg, RFMmg, PCMMmg, PPMmG, FragPMmG
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
@@ -64,7 +58,7 @@
       Real*8, Allocatable:: Coor(:,:)
       Integer, Allocatable:: lOper(:), lOperf(:)
 CAOM>
-      Logical DiffOp, lECP, lPP
+      Logical DiffOp, lECP, lPP, lFAIEMP
 *
 *-----Statement function
 *
@@ -74,7 +68,6 @@ CAOM>
       iRout = 131
       iPrint = nPrint(iRout)
       Call CWTime(TCpu1,TWall1)
-      Call qEnter('Drvh1')
       Call StatusLine(' Alaska:',' Computing 1-electron gradients')
 *
 *---- Allocate memory for density and Fock matrices
@@ -87,9 +80,11 @@ CAOM>
       End Do
       lECP=.False.
       lPP =.False.
+      lFAIEMP =.False.
       Do i = 1, nCnttp
          lECP = lECP .or. dbsc(i)%ECP
          lPP  = lPP  .or. dbsc(i)%nPP.ne.0
+         lFAIEMP = LFAIEMP .or. dbsc(i)%Frag
       End Do
 *
 *
@@ -224,7 +219,7 @@ CAOM>
      &           Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
       Call DaXpY_(nGrad,One,Temp,1,Grad,1)
       If (HF_Force) Then
-         If (lECP.or.nWel.ne.0.or.lXF.or.lRF) Then
+         If (lECP.or.nWel.ne.0.or.Allocated(XF).or.lRF) Then
             Call WarningMessage(2,'Error in Drvh1')
             Write (6,*) 'HF forces not implemented yet for this case!'
             Call Quit_OnUserError()
@@ -290,7 +285,7 @@ CAOM>
 *     gradient of the external field integrals.                        *
 *                                                                      *
 ************************************************************************
-      If (lXF) Then
+      If (Allocated(XF)) Then
          DiffOp = .True.
          Label = ' The External Field Contribution'
          Call OneEl_g(XFdGrd,XFdMmG,Temp,nGrad,DiffOp,Coor,
@@ -340,8 +335,7 @@ CAOM>
                      ixyz=4
                      iSymZ=2**IrrFnc(ixyz)
                   End If
-*                 lOper(iComp) = MltLbl(iSymX,MltLbl(iSymY,iSymZ,
-*    &                                      nIrrep),nIrrep)
+*                 lOper(iComp) = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
 *-----------------Compute only total symmetric contributions
                   lOper(iComp) = 1
                   iComp = iComp + 1
@@ -423,6 +417,5 @@ CAOM>
 *
       Call CWTime(TCpu2,TWall2)
       Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
-      Call qExit('Drvh1')
       Return
       End

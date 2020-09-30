@@ -56,7 +56,6 @@
 #ifdef _DEBUG_
       iPrint=99
 #endif
-      Call QEnter('Bonds')
 *
       nqB=0
       PSPrint=.False.
@@ -262,6 +261,5 @@
  1       Continue
       End Do        ! iBond
 *
-      Call QExit ('Bonds')
       Return
       End

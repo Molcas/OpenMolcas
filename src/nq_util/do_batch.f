@@ -26,19 +26,6 @@
      &                    list_g,IndGrd,iTab,Temp,F_xc,dW_dR,iNQ,Maps2p,
      &                    dF_dRho,dF_dP2ontop,DFTFOCK,LOE_DB,LTEG_DB)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: SubBlock                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              AOEval                                                  *
-*              Do_Rho_*                                                *
-*              Kernel                                                  *
-*              DFT_Int                                                 *
-*              Do_DFT_Grad                                             *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
@@ -50,8 +37,6 @@
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
@@ -126,7 +111,6 @@
      &           KSDFA(1:6).eq.'FTBLYP'
 ************************************************************************
 #ifdef _TIME_
-      Call qEnter('Do_Batch ')
 #endif
 #ifdef _DEBUG_
       Debug_Save=Debug
@@ -181,7 +165,6 @@
 ************************************************************************
 *
 #ifdef _TIME_
-      Call QEnter('AO')
 #endif
 *
       Call FZero(TabAO,nTabAO)
@@ -439,8 +422,6 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
 ************************************************************************
 *                                                                      *
 #ifdef _TIME_
-      Call QExit('AO')
-      Call QEnter('Rho')
 #endif
 *                                                                      *
 ************************************************************************
@@ -1721,7 +1702,6 @@ C     Write (*,*) Dens_I,Grad_I,Tau_I
 ************************************************************************
 *                                                                      *
 #ifdef _TIME_
-      Call QExit('Rho')
 #endif
 *                                                                      *
 ************************************************************************
@@ -1738,7 +1718,6 @@ C     Write (*,*) Dens_I,Grad_I,Tau_I
 ************************************************************************
 *                                                                      *
 #ifdef _TIME_
-      Call QEnter('Functional')
 #endif
 ************************************************************************
 *                                                                      *
@@ -1783,7 +1762,6 @@ cGLM     write(6,*) 'Func in do_batch =', Func
 ************************************************************************
 *                                                                      *
 #ifdef _TIME_
-      Call QExit('Functional')
 #endif
 *                                                                      *
 ************************************************************************
@@ -1795,7 +1773,6 @@ cGLM     write(6,*) 'Func in do_batch =', Func
 ************************************************************************
 *                                                                      *
 #ifdef _TIME_
-         Call QEnter('Integral')
 #endif
 *                                                                      *
 ************************************************************************
@@ -2053,7 +2030,6 @@ cGLM     write(6,*) 'Func in do_batch =', Func
 ************************************************************************
 *                                                                      *
 #ifdef _TIME_
-         Call QExit('Integral')
 #endif
 *                                                                      *
 ************************************************************************
@@ -2080,7 +2056,6 @@ cGLM     write(6,*) 'Func in do_batch =', Func
       Debug=Debug_Save
 #endif
 #ifdef _TIME_
-      Call qExit('Do_Batch ')
 #endif
       Return
       End

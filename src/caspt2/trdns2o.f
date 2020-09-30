@@ -40,7 +40,6 @@ C     WRITE(*,*)' of CASPT2 density matrix contribution to '//
 C    & '2nd order in perturbation'
 C     WRITE(*,*)' theory are presently not properly debugged.'
 C     RETURN
-      CALL QENTER('TRDNS2O')
 
 C Enter coupling cases for non-diagonal blocks:
       DO I=1,NCASES
@@ -256,6 +255,5 @@ C Fill in lower-triangular block elements by symmetry.
         END DO
       END IF
 
-      CALL QEXIT('TRDNS2O')
       RETURN
       END

@@ -120,7 +120,6 @@ c      IfTest=.True.
 c      DoExch2=.True.
 CGG   ------------------------------------------------------------------
 
-      Call QENTER('Cho_TraCtl')
       Call Timing(CPU0,CPE,TIO0,TIOE)
 
 ***   INIZIALIZATION   *************************************************
@@ -310,7 +309,6 @@ CGG   ------------------------------------------------------------------
           Write(6,*) ' ************************************'
           Write(6,*)
           Call XFlush(6)
-          Call QTrace()
           Call Abend()
         EndIf
 
@@ -457,7 +455,6 @@ CGG   ------------------------------------------------------------------
 
       Call put_tra_comm(IAD2M,NSYMZ,NORBZ,NOSHZ,LUINTMZ)
 
-      Call QEXIT('Cho_TraCtl')
       Return
       End
 

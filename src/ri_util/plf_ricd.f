@@ -29,8 +29,6 @@
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "srt0.fh"
@@ -48,7 +46,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call qEnter('PLF_RICD')
       irout = 109
       iprint = nprint(irout)
 *define _DEBUG_
@@ -143,7 +140,6 @@ C    &                                   iSOij,iSOkl,AInt
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call qExit('PLF_RICD')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

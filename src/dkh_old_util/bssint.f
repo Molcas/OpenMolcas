@@ -10,9 +10,9 @@
 ************************************************************************
       Subroutine BSSint
       use Basis_Info
+      use Symmetry_Info, only: nIrrep
       Implicit real*8(a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "rinfo.fh"
 #include "print.fh"
 #include "real.fh"
@@ -27,7 +27,6 @@
 *
       iRout=77
       iPrint=nPrint(iRout)
-      Call QEnter('BSSInt')
 #ifdef _DEBUG_
       IfTest=.True.
 #endif
@@ -818,11 +817,9 @@ C
       CALL GetMem('Revtf   ','FREE','REAL',iRevtf,LenIntf)
       CALL GetMem('Aaf     ','FREE','REAL',iAaf,LenIntf1)
       CALL GetMem('Rrf     ','FREE','REAL',iRrf,LenIntf1)
-      Call QExit('BSSInt')
       Return
 *
  9999 Continue
-      Call qTrace
       Write (6,*) ' *** Error in subroutine BSSint ***'
       Write (6,*) '     Abend in subroutine OpnOne'
       Call Abend

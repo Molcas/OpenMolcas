@@ -91,7 +91,6 @@
 *     Turn timing ON                                                   *
 *----------------------------------------------------------------------*
 *
-      Call qEnter('Sort3')
 *
 *----------------------------------------------------------------------*
 *     Scan once the two-electron integral file a pick up the sort      *
@@ -198,6 +197,5 @@
 *     Turn timing OFF and exit                                         *
 *----------------------------------------------------------------------*
 *
-      Call qExit('Sort3')
       Return
       End

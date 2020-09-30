@@ -70,7 +70,6 @@
 *     Turn timing ON                                                   *
 *----------------------------------------------------------------------*
 *
-C     Call QEnter('Savebin')
 *
 *----------------------------------------------------------------------*
 *         as the packed integral labels add an extra 1-2 Byte          *
@@ -118,7 +117,6 @@ C     Call QEnter('Savebin')
          Write(6,'(2X,A)') 'An inconsistency has been deteced'
          Write(6,'(2X,A)') 'lIRec > mxIRec '
          Write(6,*)
-         Call qTrace
          Call xFlush(6)
          Call Abend
       End If
@@ -130,7 +128,6 @@ C     Call QEnter('Savebin')
          Write(6,'(2X,A)') 'An inconsistency has been deteced'
          Write(6,'(2X,A)') 'lIBin # lIRec'
          Write(6,*)
-         Call qTrace
          call xFlush(6)
          Call Abend
       End If
@@ -145,7 +142,6 @@ C     Call QEnter('Savebin')
          Write(6,'(2X,A)') 'An inconsistency has been deteced'
          Write(6,'(2X,A)') 'lVRec > mxVRec '
          Write(6,*)
-         Call qTrace
          Call xFlush(6)
          Call Abend
       End If
@@ -157,7 +153,6 @@ C     Call QEnter('Savebin')
          Write(6,'(2X,A)') 'An inconsistency has been deteced'
          Write(6,'(2X,A)') 'lVBin # lVRec'
          Write(6,*)
-         Call qTrace
          call xFlush(6)
          Call Abend()
       End If
@@ -217,6 +212,5 @@ C     Call QEnter('Savebin')
 *     Turn timing OFF and exit                                         *
 *----------------------------------------------------------------------*
 *
-C     Call QExit('SaveBin')
       Return
       End

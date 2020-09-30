@@ -21,15 +21,6 @@
 *          2) a 3-center section to generate the R-vectors             *
 *          3) a partial transpose section to generate the RI vectors   *
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Timing                                                  *
-*              Setup_Ints                                              *
-*              Eval_Ints                                               *
-*              Term_Ints                                               *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -41,15 +32,17 @@
 *             Modified driver. Jan. '98                                *
 *             Modified to 3-center ERIs for RI Jan '06                 *
 *             Modified to out-of-core version Feb '07                  *
-*                                                                      *
 ************************************************************************
       use iSD_data
       use Wrj12
       use Basis_Info, only: dbsc, nBas, nBas_Aux
+      use Temporary_Parameters, only: force_out_of_core
+      use Real_Info, only: CutInt
+      use RICD_Info, only: LDF
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Integral_RI_2, Rsv_Tsk
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "j12.fh"
 #include "print.fh"
 #include "real.fh"
@@ -84,7 +77,6 @@
 ************************************************************************
 *                                                                      *
       iRout = 9
-      Call QEnter('Drv2El3RI')
 *
 #ifdef  _MOLCAS_MPP_
       Distribute = nProcs.gt.1 .and. Is_Real_Par()
@@ -783,6 +775,5 @@ C      End Do    ! klS
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drv2El3RI')
       Return
       End

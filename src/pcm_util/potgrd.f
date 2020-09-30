@@ -10,10 +10,10 @@
 ************************************************************************
       SubRoutine PotGrd(Temp,nGrad)
       use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External PCMGrd1,PCMMmg
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -32,7 +32,6 @@
       iRout = 131
       iPrint = nPrint(iRout)
       Call CWTime(TCpu1,TWall1)
-      Call qEnter('PotGrd')
 *
 *---- Allocate memory for density and Fock matrices
 *
@@ -54,7 +53,6 @@
       If ( length.ne.nDens ) Then
          Write (6,*) 'PotGrd: length.ne.nDens'
          Write (6,*) 'length,nDens=',length,nDens
-         Call QTrace
          Call Abend()
       End If
 *
@@ -76,7 +74,6 @@
          If ( length.ne.nDens ) Then
             Write (6,*) 'PotGrd: length.ne.nDens'
             Write (6,*) 'length,nDens=',length,nDens
-            Call QTrace
             Call Abend()
          End If
          If (iPrint.ge.99) then
@@ -124,6 +121,5 @@
 *
       Call CWTime(TCpu2,TWall2)
       Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
-      Call qExit('PotGrd')
       Return
       End

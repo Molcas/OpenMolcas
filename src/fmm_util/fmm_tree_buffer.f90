@@ -65,7 +65,7 @@ MODULE fmm_tree_buffer
       INTEGER(INTK)          :: entries_used
       INTEGER(INTK)          :: LHS_LMAX, RHS_LMAX, LMAX
      ! For translations must know if qlm or Vff translation
-      CHARACTER(1)           :: N_or_T
+      CHARACTER(LEN=1)       :: N_or_T
    END TYPE PointNode
 
    ! PRIVATE DATA
@@ -146,7 +146,7 @@ CONTAINS
       ! put these variables in a TYPE ??
       INTEGER(INTK),   INTENT(IN) :: ll,lr,lm
      ! For translations must know if qlm or Vff translation
-      CHARACTER(1),    INTENT(IN) :: NT
+      CHARACTER(LEN=1),INTENT(IN) :: NT
 
       pack_inter_tree_used = pack_inter_tree_used + 1
       node => pack_inter_tree(pack_inter_tree_used)
@@ -286,7 +286,7 @@ CONTAINS
       ! orders of multipole expanions per node
       INTEGER(INTK)            :: ll,lr,lm
       ! for translations must know if qlm or Vff translation per node
-      CHARACTER(1)             :: NT
+      CHARACTER(LEN=1)         :: NT
 
       r_pq = T_pair_in%r_ab
       new_T_pair = T_pair_in%paras

@@ -18,7 +18,6 @@
      &       qInt(nInter,nIter+1), dMass(nAtom)
       Logical Stop, ANM
 *
-      Call QEnter('Freq2')
       iRout = 183
       iPrint = nPrint(iRout)
 *
@@ -32,7 +31,6 @@
          Write (6,*)
       End If
 *
-      Call QExit('Freq2')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

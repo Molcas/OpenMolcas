@@ -55,7 +55,6 @@ CPAM98     &              LMOR2,LMOS2,IAD13,ITP,ITQ,ITR,ITS
       Dimension X1(*),X2(*)
       Dimension PQRS(*),TURS(*)
 
-      CALL QEnter('Tr2NsB')
       icc=NOCP*NOCQ*NOR*NOS
 
       If(ISP.gt.ISR)then
@@ -250,6 +249,5 @@ c End of Loop over t,u pair
        Endif
       Endif
 
-      CALL QEXIT('Tr2NsB')
       Return
       End

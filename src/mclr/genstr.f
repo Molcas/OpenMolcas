@@ -41,7 +41,6 @@
 *.Scratch arrays
       DIMENSION IOC(*),LSTASO(NOCTYP,NSMST)
 *
-*     Call qEnter('GENSTR')
 *
       NTEST0 = 0
       NTEST = MAX(NTEST0,IPRNT)
@@ -171,6 +170,5 @@
         CALL IWRTMA(IREORD,1,NPR,1,NPR)
       END IF
 *
-*     Call qExit('GENSTR')
       RETURN
       END

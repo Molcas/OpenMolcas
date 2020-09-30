@@ -14,15 +14,6 @@
       SubRoutine CmbnT1_mck(Rnxyz,nZeta,la,lb,Zeta,rKappa,
      &                  Final,Txyz,Alpha,Beta,IfGrad)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: KnEGrd                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
@@ -45,7 +36,6 @@ c#include "print.fh"
 *
 c     iRout = 134
 c     iPrint = nPrint(iRout)
-c     Call QEnter('CmbnT1')
 *
 *     ii = la*(la+1)*(la+2)/6
 *     jj = lb*(lb+1)*(lb+2)/6
@@ -284,6 +274,5 @@ c     Call QEnter('CmbnT1')
  10   Continue
 *
 *
-c     Call QExit('CmbnT1')
       Return
       End

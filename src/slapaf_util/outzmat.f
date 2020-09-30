@@ -59,7 +59,6 @@
 *
       IfTest=.False.
 #ifdef _DEBUG_
-      Call QEnter('OutZMAT')
       IfTest=.True.
 #endif
 *
@@ -406,7 +405,6 @@
 99    Format(I3,1X,I3,1X,3(F12.6))
 
 #ifdef _DEBUG_
-      Call qExit('OutZMAT')
 #endif
       Return
       End

@@ -14,22 +14,12 @@
      &                         list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,
      &                         Fact,mdc,TabAOMax,list_bas,Index,nIndex)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: Do_Batch                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.  2000                                   *
 ************************************************************************
       use iSD_data
       use k2_arrays, only: DeDe, ipDijS
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "debug.fh"
@@ -50,7 +40,6 @@
 *                                                                      *
 *define _TIME_
 #ifdef _TIME_
-      Call QEnter('Rho_meta_GGA')
 #endif
 *define _DEBUG_
 #ifdef _DEBUG_
@@ -59,7 +48,6 @@
          Write (6,*) 'mAO=',mAO
          Write (6,*) 'mGrid=',mGrid
          Write (6,*) 'nTabAO=',nTabAO
-         Write (6,*) 'nIrrep=',nIrrep
          Write (6,*) 'nlist_s=',nlist_s
          Do iList_s = 1, nList_s
             Write (6,*) 'iList_s=',iList_s
@@ -249,7 +237,6 @@ c        End Do
 *
 #endif
 #ifdef _TIME_
-      Call QExit('Rho_GGA')
 #endif
       Return
       End
@@ -269,7 +256,6 @@ c        End Do
 ************************************************************************
 *                                                                      *
 #ifdef _TIME_
-      Call QEnter('Do_Rho5a')
 #endif
       Do jCB_Eff = 1, jBas_Eff*jCmp
          jCB = Index_j(jCB_Eff)
@@ -308,7 +294,6 @@ c        End Do
       End Do             ! jCB
 *
 #ifdef _TIME_
-      Call QExit('Do_Rho5a')
 #endif
       Return
       End
@@ -387,7 +372,6 @@ c        End Do
 ************************************************************************
 *                                                                      *
 #ifdef _TIME_
-      Call QEnter('Do_Rho5a_d')
 #endif
       Do jCB_Eff = 1, iBas_Eff*iCmp
          jCB=Index_i(jCB_Eff)
@@ -446,7 +430,6 @@ c        End Do
       End Do             ! jCB
 *
 #ifdef _TIME_
-      Call QExit('Do_Rho5a_d')
 #endif
       Return
       End

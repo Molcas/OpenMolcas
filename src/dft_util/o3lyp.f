@@ -21,12 +21,6 @@
 *          is probably not the same as Gaussian's O3LYP implementation *
 *          that, according to their docs, has (1-a) like Becke's B3LYP *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 * Author:    Grigory A. Shamov, U. of Manitoba, 2009                   *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
@@ -40,7 +34,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('O3LYP')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -74,7 +67,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('O3LYP')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

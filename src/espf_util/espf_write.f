@@ -18,7 +18,6 @@
 *
 * Espf data are saved
 *
-      Call QEnter('espf_write')
       iPL = iPL_espf()
 *
 * Save data in the ESPF.DATA file
@@ -123,6 +122,5 @@
          Close(ITkQMMM)
       End If
 *
-      Call QExit('espf_write')
       Return
       End

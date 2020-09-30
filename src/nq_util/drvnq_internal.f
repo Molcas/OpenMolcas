@@ -39,7 +39,7 @@
       use Basis_Info, only: nBas
 #endif
       use Real_Spherical
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (A-H,O-Z)
       External Kernel, Rsv_Tsk
 #include "real.fh"
@@ -47,8 +47,6 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "nq_info.fh"
 #include "grid_on_disk.fh"
 #include "debug.fh"

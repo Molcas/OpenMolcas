@@ -51,7 +51,6 @@
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 *define _DEBUG_
 #ifdef _DEBUG_
-      Call qEnter('MODens')
 #endif
 *
 *---- Allocate memory for squared density matrix

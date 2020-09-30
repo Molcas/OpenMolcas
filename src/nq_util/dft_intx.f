@@ -27,21 +27,14 @@
 *                                                                      *
 *         F(r)=rho(r)*e(rho(r),grad[rho(r)])                           *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 *             D.Ajitha:Modifying for the new Kernel outputs            *
 ************************************************************************
       use iSD_data
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Do_NInt_d, Do_NInt
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
@@ -54,10 +47,6 @@
      &       dF_dRho(ndF_dRho,mGrid), TabAOMax(nlist_s)
       Integer nOp(2), list_s(2,nlist_s), ipTabAO(nlist_s),
      &        list_bas(2,nlist_s)
-*                                                                      *
-************************************************************************
-*                                                                      *
-C     Call QEnter('DFT_IntX')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -179,7 +168,6 @@ C     Call QEnter('DFT_IntX')
       End Do                        ! ilist_s
       Flop=Flop+DBLE(nGrid_Tot)
 *
-C     Call QExit('DFT_Int1')
 #ifdef _DEBUG_
       Debug=.False.
 #endif

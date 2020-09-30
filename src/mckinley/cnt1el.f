@@ -27,33 +27,6 @@
 *         b) refer to the components of the cartesian or spherical     *
 *         harmonic gaussians.                                          *
 *                                                                      *
-* Called from: Drv1El                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              ICopy                                                   *
-*              GetMem                                                  *
-*              DCopy    (ESSL)                                         *
-*              KrnlMm                                                  *
-*              ZXia                                                    *
-*              MemSO1                                                  *
-*              DCR                                                     *
-*              Inter                                                   *
-*              SetUp1                                                  *
-*              Kernel                                                  *
-*              DGEMM_   (ESSL)                                         *
-*              DGeTMO   (ESSL)                                         *
-*              CarSph                                                  *
-*              SymAd1                                                  *
-*              DScal    (ESSL)                                         *
-*              SOSctt                                                  *
-*              PrMtrx                                                  *
-*              XProp                                                   *
-*              WrOne                                                   *
-*              ErrOne                                                  *
-*              Prop                                                    *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
 *             Rewritten for gradients needed in hessian calculations   *
@@ -66,11 +39,12 @@
       use iSD_data
       use Basis_Info
       use Center_Info
+      use Sizes_of_Seward, only:S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 *     External Kernel, KrnlMm
       External KrnlMm
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -224,7 +198,7 @@ C But then ISTABO will be the whole group!? and NSTABO=NIRREP?!
 *       that kernels which will use the HRR will allocate that
 *       memory internally.
 *
-        maxi=maxPrm(iAng)*maxprm(jang)
+        maxi=S%maxPrm(iAng)*S%maxprm(jang)
         Call GetMem('Zeta','ALLO','REAL',iZeta,maxi)
         Call GetMem('Zeta','ALLO','REAL',ipZI ,Maxi)
         Call GetMem('Kappa','ALLO','REAL',iKappa,Maxi)
@@ -234,10 +208,10 @@ C But then ISTABO will be the whole group!? and NSTABO=NIRREP?!
 *       Memory requirements for contraction and Symmetry
 *       adoption of derivatives.
 *
-        MaxP= Max(MaxPrm(iAng),MaxPrm(jAng))
-        MaxZeta=MaxPrm(iAng)*MaxPrm(jAng)
-        MaxB= Max(MaxBas(iAng),MaxBas(jAng))
-        lFinal = MaxPrm(iAng) * MaxPrm(jAng) *
+        MaxP= Max(S%MaxPrm(iAng),S%MaxPrm(jAng))
+        MaxZeta=S%MaxPrm(iAng)*S%MaxPrm(jAng)
+        MaxB= Max(S%MaxBas(iAng),S%MaxBas(jAng))
+        lFinal = S%MaxPrm(iAng) * S%MaxPrm(jAng) *
      &           nElem(iAng)*nElem(jAng)*nIrrep
 *
         MemKrn=Max(MemKer*Maxi,lFinal)
@@ -253,7 +227,7 @@ C But then ISTABO will be the whole group!? and NSTABO=NIRREP?!
 *
 *       Scratch area for the transformation to spherical gaussians
 *
-        nScr1=MaxBas(iAng)*MaxBas(jAng)*nElem(iAng)*nElem(jAng)*nIC
+        nScr1=S%MaxBas(iAng)*S%MaxBas(jAng)*nElem(iAng)*nElem(jAng)*nIC
         Call GetMem('ScrSph','ALLO','REAL',iScrt1,nScr1)
 *
 *         At this point we can compute Zeta.

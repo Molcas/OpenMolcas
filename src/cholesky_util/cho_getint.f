@@ -41,7 +41,6 @@ C
       ISP2F(I)=IWORK(ip_iSP2F-1+I)
 
 #if defined (_DEBUG_)
-      CALL QENTER('_GETINT')
 #endif
 
 C-tbp: some debugging...
@@ -212,7 +211,6 @@ C     ------------------------------------------------
       CALL CHO_P_SETLQ()
 
 #if defined (_DEBUG_)
-      CALL QEXIT('_GETINT')
 #endif
 
       END

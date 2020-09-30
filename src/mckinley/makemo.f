@@ -27,10 +27,10 @@
 *
 
       Use Basis_Info, only: Shells
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "buffer.fh"
 *
 *
@@ -38,7 +38,7 @@
       Integer iCmpa(4),
      &         index(3,4),ipPert(0:7),icmp(4),ibas(4),
      &         indgrd2(3,4,0:7),indgrd(3,4,0:nirrep-1),
-     &         moip(0:nIrrep-1),nop(4),ishell(4),iuvwx(4),
+     &         moip(0:7),nop(4),ishell(4),iuvwx(4),
      &         iao(4),iAOST(4),ianga(4),ishll(4)
       Real*8 Temp(nTemp),AOInt(nInt),rmoin(nmoin),MOInt(nMOInt),
      &       C(12),buffer(*)
@@ -76,7 +76,6 @@
       If (ip-1.gt.nTemp) Then
          Write (6,*) 'MakeMO: ip-1.gt.nTemp'
          Write (6,*) 'ip,nTemp=',ip,nTemp
-         Call QTrace
          Call Abend()
       End If
 *     ip=2
@@ -118,7 +117,6 @@
       If (ipc-1.ne.nMoIn) Then
          Write (6,*) 'MakeMO: ipc-1.ne.nMoIn'
          Write (6,*) 'ipc,nMoIn=',ipc,nMoIn
-         Call QTrace
          Call Abend()
       End If
 

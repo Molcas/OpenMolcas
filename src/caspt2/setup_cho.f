@@ -22,7 +22,7 @@
       Integer NumCho(8)
       Integer iAorb(8),iIorb(8),iKorb(8)
       Character(len=*) mode
-      Character(4)   modecopy
+      Character(len=4) modecopy
 
 #include "chocaspt2.fh"
 #include "WrkSpc.fh"

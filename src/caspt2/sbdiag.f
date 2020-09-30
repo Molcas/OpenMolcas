@@ -26,7 +26,6 @@
 #include "SysDef.fh"
 #include "para_info.fh"
 
-      CALL QENTER('SBDIAG')
 
       IF(IPRGLB.GE.VERBOSE) THEN
         WRITE(6,*)
@@ -96,7 +95,6 @@ C usually print info on the total number of parameters
         WRITE(6,'(a,i12)')'   After  reduction:',IPAR1
       ENDIF
 
-      CALL QEXIT('SBDIAG')
 
       RETURN
       END
@@ -517,7 +515,7 @@ C-SVC20100902: global arrays header files
       DIMENSION WGRONK(2)
 #endif
       LOGICAL bSTAT
-      CHARACTER(2) cSYM,cCASE
+      CHARACTER(LEN=2) cSYM,cCASE
       LOGICAL KING
 
 C On entry, the DRA metafiles contain the matrices S and B for cases A

@@ -16,18 +16,11 @@
 *                                                                      *
 * Object: to compute pseudo potential integrals.                       *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 ************************************************************************
       use Basis_Info
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "oneswi.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
@@ -64,7 +57,6 @@
       nArray=nArray+nZeta*nElem(la)*nElem(lb)
       If (nArray.gt.nZeta*nArr) Then
          Write (6,*) 'nArray.gt.nZeta*nArr'
-         Call QTrace()
          Call Abend()
       End If
 *                                                                      *
@@ -94,7 +86,6 @@ cAOM>
             Write (6,*) 'dbsc(iCnttp)%nPP-1.gt.lproju'
             Write (6,*) 'dbsc(iCnttp)%nPP=',nPP_S
             Write (6,*) 'lproju            =',lproju
-            Call QTrace()
             Call Abend()
          End If
          lcr(kcrs)=nPP_S-1
@@ -109,7 +100,6 @@ cAOM>
                Write (6,*)' Pseudo: nPot.gt.imax'
                Write (6,*)'         nPot=',nPot
                Write (6,*)'         imax=',imax
-               Call QTrace()
                Call Abend()
             End If
             iStrt=1

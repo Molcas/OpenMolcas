@@ -44,7 +44,7 @@
 #ifdef NAGFOR
       use f90_unix_proc, only: sleep
 #endif
-        character(*), intent(in) :: filename
+        character(len=*), intent(in) :: filename
         real*8, intent(out) :: energy
         logical :: newcycle_found
         integer :: LuNewC
@@ -76,15 +76,14 @@
       end subroutine wait_and_read
 
       subroutine abort_(message)
-        character(*), intent(in) :: message
+        character(len=*), intent(in) :: message
         call WarningMessage(2, message)
-        call QTrace()
         call Abend()
       end subroutine
 
       subroutine assert_(condition, message)
         logical, intent(in) :: condition
-        character(*), intent(in) :: message
+        character(len=*), intent(in) :: message
         if (.not. condition) call abort_(message)
       end subroutine
 
@@ -144,10 +143,9 @@
       real*8, allocatable :: EVC(:), Tmp(:), Tmp2(:), MAT_copy(:)
       integer :: rc, i, j
       real*8 :: trace
-      character(12), parameter :: routine = 'CleanMat'
+      character(len=12), parameter :: routine = 'CleanMat'
       logical :: cleanup_required
 
-      Call qEnter(routine)
 
       rc = 0
       If (nacpar .lt. 1) then
@@ -237,7 +235,6 @@
       call mma_deallocate(EVC)
 ****************** Exit ****************
 10    Continue
-      Call qExit(routine)
       return
       end subroutine cleanMat
 

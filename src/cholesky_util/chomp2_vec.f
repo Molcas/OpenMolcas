@@ -56,7 +56,6 @@ C
 
       Else
 
-         Call qEnter(ThisNm)
          Write(6,*) SecNam,': illegal option: iOpt = ',iOpt
          Call ChoMP2_Quit(SecNam,'illegal option',' ')
 

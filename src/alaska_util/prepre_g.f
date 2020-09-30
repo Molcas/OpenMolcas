@@ -21,11 +21,6 @@
 *   mZeta, mEta : section length due to partioning. These are usually  *
 *                 equal to nZeta and nEta.                             *
 *                                                                      *
-* Called from: Twoel                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             July '92.                                                *
@@ -40,7 +35,6 @@
       iRout = 180
       iPrint = nPrint(iRout)
 *     iQ = 0
-*     Call qEnter('PrePre')
       If (iPrint.ge.99) Then
          Call RecPrt(' Data1',' ',Data1,nZeta,8)
          Call RecPrt(' Data2',' ',Data2,nEta ,8)
@@ -90,6 +84,5 @@
          lEta = 0
       End If
 *
-*     Call qExit('PrePre')
       Return
       End

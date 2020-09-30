@@ -15,18 +15,6 @@
 *                                                                      *
 * Object: input module for the gradient code                           *
 *                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              RecPrt                                                  *
-*              DaXpY   (ESSL)                                          *
-*              DDot_   (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             September '91                                            *
@@ -35,10 +23,12 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iChTbl, iOper, lIrrep, lBsFnc
+      use Symmetry_Info, only: nIrrep, iChTbl, iOper, lIrrep, lBsFnc
+      use Temporary_Parameters
+      use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "print.fh"
 #include "real.fh"
 #include "disp.fh"
@@ -65,7 +55,6 @@
 *
       iRout = 99
       iPrint = nPrint(iRout)
-*     Call qEnter('Inputg')
       Do i = 1, nRout
          nPrint(i) = 5
       End Do
@@ -73,7 +62,6 @@
       DoCSF  = .True.
       isCSF  = .False.
       Auto   = .False.
-      Onenly = .False.
       Test   = .False.
       T_Only = .False.
       TRSymm = .False.
@@ -117,11 +105,6 @@
 *     Second CutInt should now locally for Alaska be reset to the value
 *     of CutInt/100!
       CutInt=CutGrd*1.0D-2
-c..   debug
-c      onenly=.true.
-c      nprint(112)=99
-c      nprint(133)=99
-c      nprint(26)=99
       Do 109 i = 1, 3*MxAtom
          IndxEq(i) = i
  109  Continue
@@ -147,7 +130,6 @@ c      nprint(26)=99
       If (KWord(1:4).eq.'EQUI') Go To 935
       If (KWord(1:4).eq.'CUTO') Go To 942
       If (KWord(1:4).eq.'HF-F') Go To 993
-      If (KWord(1:4).eq.'MEMO') Go To 951
       If (KWord(1:4).eq.'NOIN') Go To 953
       If (KWord(1:4).eq.'SELE') Go To 960
       If (KWord(1:4).eq.'2DOP') Go To 965
@@ -245,18 +227,6 @@ c      nprint(26)=99
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Screen off memory
-*
- 951  Read(LuSpool,'(A)',Err=988) KWord
-      If (KWord(1:1).eq.'*') Go To 951
-      If (KWord.eq.'')    Go To 951
-      Read(KWord,*,Err=988) MemHid
-      If (MemHid.le.0) MemHid = 1
-      Go To 998
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
 *     Disable the utilization of translational and
 *     rotational invariance of the energy in the
 *     computation of the molecular gradient.
@@ -938,6 +908,5 @@ c      nprint(26)=99
 *
       Onenly = HF_Force
 *
-*     Call qExit('Inputg')
       Return
       End

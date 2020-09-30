@@ -12,14 +12,6 @@
 ************************************************************************
       SubRoutine RdMx(RadMax,Exp,nExp,Cff,nCff,cdMax,EtMax)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             August '91                                               *
@@ -33,7 +25,6 @@
 *
       iRout = 201
       iPrint = nPrint(iRout)
-      Call qEnter('RdMx')
 *
       Call RecPrt('Exp',' ',Exp,nExp,1)
       Call RecPrt('Cff',' ',Cff,nExp,nCff)
@@ -62,7 +53,6 @@
       End Do
 *
 #ifdef _DEBUG_
-      Call qExit('RdMx')
 #endif
       Return
       End

@@ -22,21 +22,6 @@
 *                                                                      *
 * Object: to compute the gradient of the two-electron integrals.       *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Tvalue                                                  *
-*              RtsWgh                                                  *
-*              vRysRW                                                  *
-*              ModU2                                                   *
-*              Cff2D                                                   *
-*              Rys2Dm                                                  *
-*              HrrCtl                                                  *
-*              Rys2Dg                                                  *
-*              Assg1                                                   *
-*              Distg1                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -44,12 +29,12 @@
 ************************************************************************
       use vRys_RW
       use Symmetry_Info, only: iOper
+      use Real_Info, only: ChiI2
+      use Temporary_Parameters, only: IsChi
       Implicit Real*8 (A-H,O-Z)
       External Tvalue, ModU2, Cff2D
       External Exp_1, Exp_2
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "notab.fh"
 #include "print.fh"
       Real*8 Zeta(nZeta), ZInv(nZeta), P(lP,3),
