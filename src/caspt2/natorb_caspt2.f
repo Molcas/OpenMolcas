@@ -30,7 +30,6 @@ C array CMO of MO coefficients, return array of
 C natural occupation numbers and MO coefficients of
 C natural orbitals.
 
-      CALL QENTER('NATORB')
 
       IDMAT=0
       IOCC=0
@@ -73,7 +72,6 @@ C Deleted orbitals:
         END IF
       END DO
 
-      CALL QEXIT('NATORB')
 
       RETURN
       END

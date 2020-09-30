@@ -75,7 +75,6 @@
       If (iRc.ne.0) Then
           Write (6,*) 'RHS: Error reading MCKINT'
           Write (6,*) 'Label=',Label
-          Call QTrace
           Call Abend()
       End If
       ip=1

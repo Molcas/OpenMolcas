@@ -88,7 +88,6 @@
       Call f_Inquire('RUNFILE',Exist)
       If (.Not.Exist) then
        Write (6,*) 'Error finding RUNFILE'
-       Call QTrace()
        Call Abend()
       Endif
 *                                                                      *

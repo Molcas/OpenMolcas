@@ -33,7 +33,6 @@ C=======================================================================
 C     Enter
 C=======================================================================
 
-      Call qEnter(SecNam)
       rc=_RC_ALL_IS_WELL_ ! init return code
       irc=0 ! init internal return code
 
@@ -57,6 +56,5 @@ C=======================================================================
          Call WarningMessage(2,string)
          If (rc.eq._RC_ALL_IS_WELL_) rc=_RC_INTERNAL_ERROR_
       End If
-      Call qExit(SecNam)
 
       End

@@ -552,7 +552,6 @@ c                 Write (*,*) 'Prem=',Prem
                       Write (6,*)
      &                      'Norm of gradient contribution is huge!'
                       Write (6,*) 'Probably due to wrong coordinates.'
-                      Call QTrace()
                   End If
 *
  410           Continue

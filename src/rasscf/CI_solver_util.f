@@ -78,7 +78,6 @@
       subroutine abort_(message)
         character(len=*), intent(in) :: message
         call WarningMessage(2, message)
-        call QTrace()
         call Abend()
       end subroutine
 
@@ -147,7 +146,6 @@
       character(len=12), parameter :: routine = 'CleanMat'
       logical :: cleanup_required
 
-      Call qEnter(routine)
 
       rc = 0
       If (nacpar .lt. 1) then
@@ -237,7 +235,6 @@
       call mma_deallocate(EVC)
 ****************** Exit ****************
 10    Continue
-      Call qExit(routine)
       return
       end subroutine cleanMat
 

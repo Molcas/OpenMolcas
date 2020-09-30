@@ -80,7 +80,6 @@
       character(len=*), parameter ::
      &  ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
 
-      call qEnter(routine)
 
 ! SOME DIRTY SETUPS
       S = 0.5_wp * dble(iSpin - 1)
@@ -124,7 +123,6 @@
       Rado_2 = Rado_2 - Rado_1
       Rado_3 = Rado_3 + Rado_2
 
-      call qExit(routine)
       end subroutine CC_CI_ctl
 
 

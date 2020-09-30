@@ -47,7 +47,6 @@
       If ( N.lt.0 ) Then
          Write (6,*) 'lcopy: N.lt.0'
          Write (6,*) 'N=',N
-         Call QTrace
          Call Abend()
       End If
       If ( incX.eq.1 .and. incY.eq.1 ) then

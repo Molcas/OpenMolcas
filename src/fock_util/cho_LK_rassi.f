@@ -1871,7 +1871,6 @@ c      ! NON TOTAL-SYMMETRIC
 
          write(6,*)'Wrong input parameters. JSYM,mode = ',JSYM,mode
          irc = 66
-         Call Qtrace()
          Call abend()
 
       EndIf

@@ -20,7 +20,6 @@
 #include "stdalloc.fh"
       Logical Forces,Process,Dirty
 *
-      Call QEnter('mkgrid')
       iPL = iPL_espf()
 *
       iPrint = 5
@@ -205,6 +204,5 @@ c
       End If
       Call GetMem('Atomic Numbers','Free','Inte',ipAN,natom)
 *
-      Call QExit('mkgrid')
       Return
       End

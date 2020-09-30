@@ -545,7 +545,6 @@ CGG      DoExch2=.True. ! Do generate Exch-2 integrals (not really used).
       Call GetMem('EOrb  ','Free','Real',mAdEOr,lthEOr)
       Call GetMem('CMO   ','Free','Real',mAdCMO,lthCMO)
 *
-      Call qStat(' ')
       ireturn=0
 *                                                                      *
 ************************************************************************

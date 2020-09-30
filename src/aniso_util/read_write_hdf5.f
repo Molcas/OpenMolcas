@@ -24,7 +24,6 @@
       Logical                   ::    Exist
       Logical                   ::    DBG
 
-      Call qEnter('read_hdf5_init')
       DBG=.false.
 
       WRITE (6,'(A,A)') 'Read data from rassi.h5 file ',trim(file_h5)
@@ -92,7 +91,6 @@
       ! close the file
       Call mh5_close_file(fileid)
 
-      Call qExit('read_hdf5_init')
       RETURN
       END SUBROUTINE read_hdf5_init
 
@@ -146,7 +144,6 @@
      &           found_sos_coeff, found_eso, found_esfs, found_mult
       Logical :: DBG
 
-      Call qEnter('read_hdf5_all')
       DBG  =.false.
       AU2CM=219474.6313702_wp
       g_e=2.00231930437180_wp
@@ -571,7 +568,6 @@ c----- expand the spin free basis to the spin-orbit basis:
       ! close the file
       Call mh5_close_file(fileid)
 
-      Call qExit('read_hdf5_all')
       RETURN
       END SUBROUTINE read_hdf5_all
 
@@ -625,7 +621,6 @@ c----- expand the spin free basis to the spin-orbit basis:
      &           found_sos_coeff, found_eso, found_esfs, found_mult
       Logical :: DBG
 
-      Call qEnter('read_hdf5_poly')
       DBG  =.false.
       AU2CM=219474.6313702_wp
       g_e=2.00231930437180_wp
@@ -1056,7 +1051,6 @@ c----- expand the spin free basis to the spin-orbit basis:
       ! close the file
       Call mh5_close_file(fileid)
 
-      Call qExit('read_hdf5_poly')
       RETURN
       END  SUBROUTINE read_hdf5_poly
 

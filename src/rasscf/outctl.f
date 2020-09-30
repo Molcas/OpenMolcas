@@ -74,7 +74,6 @@ cnf
 *----------------------------------------------------------------------*
 *     Start and define the paper width                                 *
 *----------------------------------------------------------------------*
-      Call qEnter('OutCtl')
 C Local print level (if any)
       IPRLEV=IPRLOC(6)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -306,7 +305,6 @@ C Local print level (if any)
             Write(LF,*) 'OutCtl: iRc from Call RdOne not 0'
             Write(LF,*) 'Label = ',Label
             Write(LF,*) 'iRc = ',iRc
-            Call QTrace
             Call Abend
          Endif
          Call GetMem('Ovrlp','Free','Real',iTmp0,nTot1+4)
@@ -840,6 +838,5 @@ cnf
       CALL GETMEM('CMON','FREE','REAL',icmon,NTOT2)
 *----------------------------------------------------------------------*
 
-      Call qExit('OutCtl')
       Return
       End

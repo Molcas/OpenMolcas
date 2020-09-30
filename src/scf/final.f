@@ -167,7 +167,6 @@
          If ( iRc.ne.0 ) Then
             Write (6,*) 'Final: Error writing on ONEINT'
             Write (6,'(A,A)') 'RlxLbl=',RlxLbl
-            Call QTrace
             Call Abend()
          End If
       End Do

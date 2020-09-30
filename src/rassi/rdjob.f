@@ -63,7 +63,6 @@
 #endif
 
 
-      CALL QENTER(ROUTINE)
 
 #ifdef _HDF5_
 ************************************************************************
@@ -618,7 +617,6 @@ C Where is the CMO data set stored?
 #endif
 
       CALL XFLUSH(6)
-      CALL QEXIT(ROUTINE)
       RETURN
 ************************************************************************
 *

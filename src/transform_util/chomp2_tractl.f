@@ -155,7 +155,6 @@
           Write(6,*) ' ************************************'
           Write(6,*)
           Call XFlush(6)
-          Call QTrace()
           Call Abend()
         EndIf
 

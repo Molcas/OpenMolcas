@@ -209,7 +209,6 @@ C        -------------------------------------------
                irc = 1
                Go To 1 ! exit (decomposition failure)
             Else If (NumCho .gt. MxNumCho) Then
-               Call qTrace
                Call SysAbendMsg(SecNam,'Logical error!',' ')
             End If
          End If

@@ -185,7 +185,6 @@ C        nFro1(iSym)=0
       If ( jCom.eq.0 ) Then
          Write (6,*) 'RdInp: Illegal keyword!'
          Write (6,'(A,A)') 'Command=',Command
-         Call QTrace
          Call Abend()
       End If
 *----------------------------------------------------------------------*
@@ -286,7 +285,6 @@ C        nFro1(iSym)=0
          Write (6,*) 'RdInp: Error while reading input!'
          Write (6,*) 'Title option already processed!'
          Write (6,'(A,A)') 'Last read line:',Line
-         Call QTrace
          Call Abend()
       End If
       lTit=.true.
@@ -311,7 +309,6 @@ C        nFro1(iSym)=0
          If (lFre) Write (6,*) 'Freeze option and Frozen option ',
      &                         'are incompatible!'
          Write (6,'(A,A)') 'Last read line:',Line
-         Call QTrace
          Call Abend()
       End If
       lFro=.true.
@@ -332,7 +329,6 @@ C        nFro1(iSym)=0
          Write (6,*) 'RdInp: Error while reading input!'
          Write (6,*) 'Delete option already processed!'
          Write (6,'(A,A)') 'Last read line:',Line
-         Call QTrace
          Call Abend()
       End If
       lDel=.true.
@@ -345,7 +341,6 @@ C        nFro1(iSym)=0
          Write (6,*) 'RdInp: Error while reading input!'
          Write (6,*) 'SFrozen option already processed!'
          Write (6,'(A,A)') 'Last read line:',Line
-         Call QTrace
          Call Abend()
       End If
       lSFro=.true.
@@ -363,7 +358,6 @@ C        nFro1(iSym)=0
          Write (6,*) 'RdInp: Error while reading input!'
          Write (6,*) 'SDelete option already processed!'
          Write (6,'(A,A)') 'Last read line:',Line
-         Call QTrace
          Call Abend()
       End If
       lSDel=.true.
@@ -381,7 +375,6 @@ C        nFro1(iSym)=0
          Write (6,*) 'RdInp: Error while reading input!'
          Write (6,*) 'Extract option already processed!'
          Write (6,'(A,A)') 'Last read line:',Line
-         Call QTrace
          Call Abend()
       End If
       Write (6,*) 'RdInp: EXTRACT option is redundant and is ignored!'
@@ -392,7 +385,6 @@ C        nFro1(iSym)=0
          Write (6,*) 'RdInp: Error while reading input!'
          Write (6,*) 'Print option already processed!'
          Write (6,'(A,A)') 'Last read line:',Line
-         Call QTrace
          Call Abend()
       End If
       lPrt=.true.
@@ -425,7 +417,6 @@ C        nFro1(iSym)=0
          Write (6,*) 'RdInp: Error while reading input!'
          Write (6,*) 'EREF can be used only with LumOrb.'
          Write (6,*) '(Note: LumOrb keyword must precede EREF)'
-         Call QTrace
          Call Abend()
       EndIf
       Line = Get_Ln(LuSpool)
@@ -441,7 +432,6 @@ C        nFro1(iSym)=0
       DoT1amp=.true.
       If (.not.DoCholesky) Then
          Write (6,*) 'RdInp: T1AM is available only with Cholesky/RI .'
-         Call QTrace
          Call Abend()
       EndIf
       Goto 100
@@ -560,7 +550,6 @@ c     not used
          If (lFro) Write (6,*) 'Frozen option and Freeze option ',
      &                         'are incompatible!'
          Write (6,'(A,A)') 'Last read line:',Line
-         Call QTrace
          Call Abend()
       End If
 *
@@ -909,7 +898,6 @@ c     Goto 100
          Write (6,'(/,A)') 'ERROR!  Keywords incompatibility.'
          Write (6,'(/,A)') 'Both LUMOrb and T1AM were selected.'
          Write (6,'(/,A)') '***  I must shut down MBPT2 ! ***'
-         Call QTrace
          Call Abend()
       EndIf
 *
@@ -937,6 +925,5 @@ c     Goto 100
 *----------------------------------------------------------------------*
 995   Write (6,*) 'RdInp: Error while reading input!'
       Write (6,'(A,A)') 'Last read line:',Line
-      Call QTrace
       Call Abend()
       End

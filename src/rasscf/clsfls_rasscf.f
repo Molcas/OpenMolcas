@@ -41,7 +41,6 @@
 *     Start                                                            *
 *-------------------------------------- -------------------------------*
 C Local print level (if any)
-      Call qEnter('ClsFls')
 *---  close the JOBOLD file -------------------------------------------*
       If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
         Call DaClos(JOBOLD)
@@ -78,6 +77,5 @@ C Local print level (if any)
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*
-      Call qExit('ClsFls')
       Return
       End

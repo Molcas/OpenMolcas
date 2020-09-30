@@ -26,7 +26,6 @@ c***********************************************************************
       Integer nIsh(mxSym),nRs1(mxSym),nRs2(mxSym),nRs3(mxSym)
       Dimension E2act(1)
 
-      Call qEnter(routine)
 * This routine is used at normal end of a RASSCF optimization, or
 * when using the OrbOnly keyword to create orbital files.
 *-------------------------------------------------------------------
@@ -220,6 +219,5 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
       call getmem('CMO','free','real',LCMO,ntot2)
       call getmem('Occ','free','real',ipOcc,ntot)
 
-      Call qExit(routine)
       Return
       End

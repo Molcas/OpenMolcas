@@ -861,7 +861,6 @@ contains
     subroutine abort_(message)
         character(len=*), intent(in) :: message
         call WarningMessage(2, message)
-        call QTrace()
         call Abend()
     end subroutine
 

@@ -63,7 +63,6 @@
 
       Dimension CMO(*) , PUVX(*) , D(*) , D1A(*) , FI(*) , FA(*)
 
-      Call qEnter ('Fmat')
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
       !iPrLev=DEBUG-1
@@ -429,7 +428,6 @@ c        End If
         End Do
       End If
 
-      Call qExit('Fmat')
 
       Return
       End

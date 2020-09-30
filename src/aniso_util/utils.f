@@ -551,7 +551,6 @@ c------------------------------------------------------------------------
       Real(kind=8) :: Ar, Ai
       Character(Len=1)  :: cRsign, cIsign
 
-      Call qEnter('SA_PRCF')
 
       Write(6,'(/)')
       Write(6,'(100A)') ('*',i=1,80)
@@ -637,7 +636,6 @@ c------------------------------------------------------------------------
       End If
 
       Write(6,'(100A)') ('-',i=1,59),'|'
-      Call qExit('SA_PRCF')
       Return
       End Subroutine print_cfp_naoya
 

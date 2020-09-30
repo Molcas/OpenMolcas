@@ -28,7 +28,6 @@ c
      &           KeyMVEC,KeyZEEM,KeyMLTP,KeyNCUT,KeyENCU,KeyERAT,KeyGRAD
       Logical :: DBG
 
-      Call qEnter('SA_rest_chk')
       DBG=.false.
 
       nH=0
@@ -238,6 +237,5 @@ C------ errors ------------------------------
 
 
 190   Continue
-      Call qExit('SA_rest_chk')
       Return
       End

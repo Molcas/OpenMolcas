@@ -110,7 +110,6 @@ C Temporaries:
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qStat(' ')
       Call FastIO('STATUS')
       IRETURN=0
       RETURN

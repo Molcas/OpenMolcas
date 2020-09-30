@@ -94,7 +94,6 @@ c      COMMON/MAGNSUBL/ HINPUT
 
       Logical :: DBG
 
-      Call qEnter('SA_readin')
       DBG=.false.
 C============ Some default settings=====================================
 c  variables in "mgrid.fh"
@@ -1592,6 +1591,5 @@ C------ errors ------------------------------
 
 
  190  continue
-      Call qExit('SA_readin')
       Return
       End

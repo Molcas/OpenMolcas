@@ -58,7 +58,6 @@
          Call OpnOrd(iRC,iOpt,FnOrd,LuOrd)
          If (iRc.ne.0) Then
             Write (6,*) 'OpnFls: Error opening ORDINT'
-            Call QTrace
             Call Abend()
          End If
       End If

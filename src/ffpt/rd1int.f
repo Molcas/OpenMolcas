@@ -24,7 +24,6 @@
 #include "input.fh"
 #include "WrkSpc.fh"
 *
-      Call QEnter('Rd1Int_FFPT')
 *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -43,6 +42,5 @@
       Call Get_iScalar('Unique atoms',nAtoms)
       Call Get_dArray('Unique Coordinates',Coor,3*nAtoms)
 *
-      Call QExit('Rd1Int_FFPT')
       Return
       End

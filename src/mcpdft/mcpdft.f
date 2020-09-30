@@ -137,7 +137,6 @@
       Dimension Dummy(1)
 * Start the traceback utilities
 *
-      Call QENTER(ROUTINE)
 * Set status line for monitor:
       Call StatusLine('MCPDFT:',' Just started.')
 * Set the return code(s)
@@ -957,7 +956,6 @@ C Close the one-electron integral file:
         END DO
         Close(LUInput)
       End If
-      Call qExit(ROUTINE)
       return
       End
 

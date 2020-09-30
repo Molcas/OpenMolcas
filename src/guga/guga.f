@@ -45,7 +45,6 @@
       NCOR=NCOR-100000
       Call GETMEM('SOArr','Allo','Inte',LSOArr,NCOR)
 *     Call SetQue('Trace=On')
-      Call qEnter('GUGA')
       CALL SETTIM
       CALL XUFLOW
       CALL ERRSET(208,256,-1,1,1,208)
@@ -114,14 +113,12 @@ C     ALSO SPACE FOR NTPB WORDS IN EMPTY
       If (LIM.GT.NCOR) Then
          Write (6,*) 'Guga: LIM.GT.NCOR, position 1'
          Write (6,*) 'LIM,NCOR=',LIM,NCOR
-         Call QTrace
          Call Abend
       End If
       LIM=LW2+KBUF2
       If (LIM.GT.NCOR) Then
          Write (6,*) 'Guga: LIM.GT.NCOR, position 2'
          Write (6,*) 'LIM,NCOR=',LIM,NCOR
-         Call QTrace
          Call Abend
       End If
       CALL ICOPY(LW1,[0],0,iWork(LSOArr),1)
@@ -145,7 +142,6 @@ C     ALSO SPACE FOR NTPB WORDS IN EMPTY
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('GUGA')
       ireturn=0
       Return
       End

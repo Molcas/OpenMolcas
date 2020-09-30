@@ -48,7 +48,6 @@ c      parameters for par
        real*8 timtotit
        integer i
 c
-       Call qEnter('CCSD')
        call CWTime (timtotcpu,timtotwc)
        timtotit=timtotwc
 c
@@ -740,7 +739,6 @@ c
          write(6,*)
        EndIf
 c
-       Call qExit('CCSD')
        ireturn=0
        return
        end

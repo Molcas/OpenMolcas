@@ -30,7 +30,6 @@ C energies.
       real(8) Weight(MxRoot)
       real(8) Heff(Nstate,Nstate),Ueff(Nstate,Nstate),U0(Nstate,Nstate)
 
-      CALL QENTER('CREIPH')
 
 C Not called, if .NOT.IFMIX, then only the new CI coefficients are
 C printed, no JOBMIX file is created.
@@ -243,7 +242,6 @@ C in grpini)
       CALL DACLOS(JOBIPH)
       CALL DACLOS(JOBMIX)
 
-      CALL QEXIT('CREIPH')
 
       RETURN
       END

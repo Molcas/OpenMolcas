@@ -53,7 +53,6 @@
       If ( length.ne.nDens ) Then
          Write (6,*) 'PotGrd: length.ne.nDens'
          Write (6,*) 'length,nDens=',length,nDens
-         Call QTrace
          Call Abend()
       End If
 *
@@ -75,7 +74,6 @@
          If ( length.ne.nDens ) Then
             Write (6,*) 'PotGrd: length.ne.nDens'
             Write (6,*) 'length,nDens=',length,nDens
-            Call QTrace
             Call Abend()
          End If
          If (iPrint.ge.99) then

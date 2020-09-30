@@ -22,7 +22,6 @@ C
 C
       DIMENSION IDOWN(NVERT,0:3),IUP(NVERT,0:3),IRAW(NVERT,0:4)
 
-      Call qEnter(Routine)
 C
 C     BEGIN BY CONSTRUCTING THE UPCHAIN TABLE IUP:
 C
@@ -77,6 +76,5 @@ C
         Write(LF,*)
       ENDIF
 
-      Call qExit(Routine)
       RETURN
       END

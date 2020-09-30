@@ -21,6 +21,5 @@
 
       Call Start(Module_Name)
       Call poly_aniso_open(iReturn)
-      Call QStat(' ')
       Call Finish(iReturn)
       End

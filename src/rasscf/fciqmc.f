@@ -113,12 +113,9 @@
 #ifdef _MOLCAS_MPP_
       integer(MPIInt) :: error
 #endif
-
-      parameter(ROUTINE = 'FCIQMC_clt')
       character(len=*), parameter ::
      &  ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
 
-      call qEnter(routine)
 
 ! SOME DIRTY SETUPS
       S = 0.5_wp * dble(iSpin - 1)
@@ -178,8 +175,6 @@
           call mma_deallocate(GAS_spaces)
           call mma_deallocate(GAS_particles)
       end if
-
-      call qExit(routine)
       end subroutine fciqmc_ctl
 
 

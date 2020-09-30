@@ -337,7 +337,6 @@ c Avoid unused argument warnings
       If (.NOT.ok) Then
         Write (6,*) 'GADupl: ga_duplicate not OK!'
         Call GAStp('GADupl',42)
-        Call QTrace
         Call Abend()
       End If
 

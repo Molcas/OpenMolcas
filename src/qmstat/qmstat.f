@@ -31,7 +31,6 @@
 *
 *-- The journey begins. Set non-zero return code.
 *
-      Call Qenter('QMSTAT')
       ireturn=99
 
 *
@@ -177,7 +176,6 @@
 666   Continue
 
       ireturn=0
-      Call QExit('QMSTAT')
 
       Return
       End

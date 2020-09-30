@@ -59,7 +59,6 @@
 
 *      Character*12 method
 
-      Call qEnter('HCSCE')
       Call Timing(Longines_1,Swatch,Swatch,Swatch)
 
 * PAM 2009: On input, M=max possible orthonormal solutions to HC=SCE
@@ -158,7 +157,6 @@
       Call Timing(Longines_2,Swatch,Swatch,Swatch)
       Longines_2 = Longines_2 - Longines_1
       Longines_3 = Longines_3 + Longines_2
-      Call qExit('HCSCE')
 
       Return
       End

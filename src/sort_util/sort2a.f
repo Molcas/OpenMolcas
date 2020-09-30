@@ -126,7 +126,6 @@ C        Write (*,*) 'Mode: Sparse'
           Write(6,'(2X,A,I8)') 'iBin =',iBin
           Write(6,*)
           Write(6,*) 'Action: rerun with a larger MOLCAS_MEM'
-          Call qTrace
           Call Quit(_RC_MEMORY_ERROR_)
         End If
         IOStk(nStk)=iDaTwo
@@ -149,7 +148,6 @@ C        Write (*,*) 'Mode: Sparse'
             Write(6,'(2X,A)') 'An inconsistency has been deteced'
             Write(6,'(2X,A)') 'nInts1#nInts2'
             Write(6,*)
-            Call qTrace
             Call xFlush(6)
             Call Abend
           End If
@@ -162,7 +160,6 @@ C        Write (*,*) 'Mode: Sparse'
             Write(6,'(2X,A)') 'An inconsistency has been deteced'
             Write(6,'(2X,A)') 'nInts>lBin'
             Write(6,*)
-            Call qTrace
             Call xFlush(6)
             Call Abend
           End If

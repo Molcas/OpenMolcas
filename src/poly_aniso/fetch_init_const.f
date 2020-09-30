@@ -45,7 +45,6 @@ c local variables:
       Logical :: DBG
       External Isfreeunit
 
-      Call qEnter('PA_fetch')
 
       iReturn=0
       nH=0
@@ -514,6 +513,5 @@ C------ errors ------------------------------
 
 
 190   Continue
-      Call qExit('PA_fetch')
       Return
       End

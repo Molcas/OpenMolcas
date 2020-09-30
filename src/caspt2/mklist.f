@@ -38,7 +38,6 @@ C  coefficients -- See sgm.f and sgm.ol for usage.
      &        LADR16,LADR17
       INTEGER NOFF
 
-      CALL QENTER('MKLIST')
 
       LADR=1
       DO ILIST=1,17
@@ -492,7 +491,6 @@ C Add to list 16: IA,IB,IAB,V= Sqr(2)
         END DO
        END DO
 
-      CALL QEXIT('MKLIST')
 
       RETURN
       END

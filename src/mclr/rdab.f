@@ -30,7 +30,6 @@
        If (iRC.ne.0) Then
           Write (6,*) 'RdAB: Error reading MCKINT'
           Write (6,'(A,A)') 'Label=',Label
-          Call QTrace
           Call Abend
        End If
        LABEL='PERT'
@@ -40,7 +39,6 @@
        If (iRC.ne.0) Then
           Write (6,*) 'RdAB: Error reading MCKINT'
           Write (6,'(A,A)') 'Label=',Label
-          Call QTrace
           Call Abend
        End If
       End If
@@ -76,7 +74,6 @@
          If (iRC.ne.0) Then
             Write (6,*) 'RdAB: Error reading MCKINT'
             Write (6,'(A,A)') 'Label=',Label
-            Call QTrace
             Call Abend
          End If
          nDisp=0
@@ -91,7 +88,6 @@
             If (iRC.ne.0) Then
                Write (6,*) 'RdAB: Error reading MCKINT'
                Write (6,'(A,A)') 'Label=',Label
-               Call QTrace
                Call Abend
             End If
          End if

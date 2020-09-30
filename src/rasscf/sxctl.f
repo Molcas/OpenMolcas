@@ -111,7 +111,6 @@ C Extra term in overlaps (COVLP, SXHAM): 1.0D-14
 C Extra term in SIGVEC:                  1.0D-12
 
 
-      Call qEnter(ROUTINE)
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
 c      write(6,*) 'Entering SXCTL!'
@@ -203,14 +202,12 @@ C --------------------------------------
 
          if (irc.ne.0) then
          Write(LF,*)'SXCTL: Cho_cas_drv non-zero return code! rc= ',irc
-         call qtrace()
          call abend()
          endif
 
       Else
 
          Write(LF,*)'SXCTL: Illegal Cholesky parameter ALGO= ',ALGO
-         call qtrace()
          call abend()
 
       EndIf
@@ -687,6 +684,5 @@ C LY,LA, AND LB WORK AREAS
 
 9990  CONTINUE
       CALL GETMEM('SXBM','FREE','REAL',LBM,NSXS)
-      Call qExit(ROUTINE)
       RETURN
       END

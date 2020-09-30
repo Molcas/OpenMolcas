@@ -15,7 +15,6 @@
 #include "real_guga.fh"
 #include "integ.fh"
       COMMON/CNSTS/D0,D1,D2
-      CALL QENTER('LOOP14')
       ISTOP=0
       KM1=KM+1
       IDIF=IA(J1(KM1))-IA(J2(KM1))
@@ -44,6 +43,5 @@ C     (HE,FG)
       GO TO 40
 55    ISTOP=1
 40      Continue
-       CALL QEXIT('LOOP14')
       RETURN
       END

@@ -143,7 +143,6 @@
             Write (6,*) 'WrOne: The total number of operators',
      &                  ' exceeds the limit'
             Write (6,*) 'k.eq.0'
-            Call QTrace()
             Call Abend()
          End If
          Len=0

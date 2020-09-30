@@ -49,7 +49,6 @@
 
 * Purpose: Compute the 1-electron density matrix array G1.
 
-      CALL QENTER('DENS1_RPT2')
 
       CALL DCOPY_(NG1,[0.0D0],0,G1,1)
 
@@ -156,7 +155,6 @@
         WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "G1:", DNRM2_(NG1,G1,1)
       ENDIF
 
-      CALL QEXIT('DENS1_RPT2')
 
       RETURN
       END

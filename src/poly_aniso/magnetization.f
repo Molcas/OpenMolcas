@@ -125,7 +125,6 @@ c total average M and average S data:
       Character(Len=15):: lbl_X, lbl_Y, lbl_Z
 c
 
-      Call qEnter('magnetisation')
 
       DBG=.false.
 c      Boltz_k=0.6950356000_wp   !   in cm^-1*K-1
@@ -934,7 +933,6 @@ c----------------------------------------------------------------------
          Call mma_deallocate(H)
       End If
 
-      Call qExit('magnetisation')
       Return
       End
 

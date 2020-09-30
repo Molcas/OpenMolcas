@@ -112,7 +112,6 @@ c------------------------------------------------------------------
 ! Local variables:
       Integer       :: i,j,l
 
-      Call qEnter('PA_set_defaults')
 c------------------------------------------------------------------
 !  at this point, the follwing variables have been already assigned
 !  their values
@@ -338,7 +337,6 @@ c  variables in "mgrid.fh"
       get_nP(3,31)=694
       get_nP(3,32)=760
 
-      Call qExit('PA_set_defaults')
 
       Return
       End Subroutine set_defaults

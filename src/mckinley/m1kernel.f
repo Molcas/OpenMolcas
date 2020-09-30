@@ -66,7 +66,6 @@
       ip = ip + nDAO*nZeta
       if (ip.ge.narray) then
         write(6,*) 'Out of memory in m1kernel (',narray,',',ip,')'
-        Call QTrace
         Call Abend()
       endif
 

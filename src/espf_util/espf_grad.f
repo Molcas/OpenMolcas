@@ -25,7 +25,6 @@
       Dimension FX(4)
       Dimension opnuc(1)
 *
-      Call QEnter('espf_grad')
       iPL = iPL_espf()
 *
       Call Get_Grad(ipGrad,nGrad)
@@ -244,6 +243,5 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
       Call Add_Info('Grad',Work(ipGrad),3*natom,6)
       Call GetMem('Grad','Free','Real',ipGrad,3*natom)
 *
-      Call QExit('espf_grad')
       Return
       End

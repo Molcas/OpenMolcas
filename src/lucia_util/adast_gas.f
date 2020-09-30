@@ -89,7 +89,6 @@
 * (NKSTR,*), Where NKSTR is the number of K-strings of
 *  correct symmetry . Nk is provided by this routine.
 *
-      CALL QENTER('ADAST ')
 *
       NTEST = 00
       IF(NTEST.GE.100) THEN
@@ -335,7 +334,6 @@ C       DO IGAS =  IOBTP +1, NIGRP
         END IF
       END IF
 *
-      CALL QEXIT('ADAST ')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN

@@ -65,7 +65,6 @@
       Call Get_iScalar('Unique atoms',mUnique_Atoms)
       If (mUnique_Atoms.ne.nUnique_Atoms) Then
          Write (6,*) 'Get_NMode_All: mUnique_Atoms.ne.nUnique_Atoms'
-         Call QTrace
          Call Abend()
       End If
       Call Allocate_Work(ipCoor,3*mUnique_Atoms)

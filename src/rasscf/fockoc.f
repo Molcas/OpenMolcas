@@ -38,7 +38,6 @@ C
       DIMENSION F(*),CMO(*)
       REAL*8, ALLOCATABLE :: FOCC(:)
 
-C     CALL QENTER('FOCKOC')
 C
       nFock = 0
       Do iSym = 1, nSym

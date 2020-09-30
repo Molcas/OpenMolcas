@@ -27,7 +27,6 @@
 C     Cholesky
       Integer iSym, iRC
 
-      CALL QENTER('PT2INI')
 *
 * Probe the RunFile for some basic information
 *
@@ -148,7 +147,6 @@ C Initialize sizes, offsets etc used in equation solver.
       CALL GETMEM('TORB','ALLO','REAL',LTORB,NTORB)
       CALL GETMEM('TAT','ALLO','REAL',LTAT,NTAT)
 
-      CALL QEXIT('PT2INI')
       END
 
       SUBROUTINE PT2CLS

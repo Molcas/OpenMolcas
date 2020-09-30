@@ -43,7 +43,6 @@
 *
 *-- Commence!
 *
-      Call qEnter('SELECTLOC')
       Write(6,*)
       Write(6,*)' The perturbation will be localized "LoProp style".'
       Write(6,*)
@@ -98,7 +97,6 @@
       Call RdOne(iRc,iOpt0,Label,1,Work(ipSTr),iSymLbl)
       If(iRc.ne.0) then
         Write(6,*)'Error reading overlap matrix in SELECTLOC!'
-        Call QTrace
         Call Abend()
       Endif
 *-- Lets be square.
@@ -131,7 +129,6 @@
       Call RdOne(iRc,iOpt2,Label,1,Work(iHVac),iSymLbl)
       If(iRc.ne.0) then
         Write(6,*)'Error reading H0 in SELECTLOC!'
-        Call QTrace
         Call Abend()
       Endif
       Call GetMem('Pert','Allo','Real',iV,nInts)
@@ -252,6 +249,5 @@
       Write(6,*)
       Write(6,*)'  ....Done!'
       Write(6,*)
-      Call qExit('SELECTLOC')
       Return
       End

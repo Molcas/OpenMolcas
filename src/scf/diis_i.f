@@ -364,7 +364,6 @@
          If (Abs(CSum - One).gt.1.0D-5) Then
             Write (6,*) 'diis_i: Abs(CSum - One).gt.1.0D-5'
             Write (6,*) 'CSum=',CSum
-            Call QTrace
             Call Abend()
          End If
 *

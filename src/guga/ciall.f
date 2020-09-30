@@ -16,7 +16,6 @@
 #include "integ.fh"
       DIMENSION IOC(55)
 *
-      CALL QENTER('CIALL')
       IIN=0
       NREF=0
       IJJ=IV0
@@ -68,7 +67,6 @@
             Write (6,*) 'CIall: IIN.GT.nIOCR'
             Write (6,*) 'IIN=',IIN
             Write (6,*) 'nIOCR=',nIOCR
-            Call QTrace
             Call Abend()
          End If
          IOCR(IIN)=IOC(I)
@@ -76,6 +74,5 @@
       GO TO 12
 *
 10      Continue
-       CALL QEXIT('CIALL')
       RETURN
       End

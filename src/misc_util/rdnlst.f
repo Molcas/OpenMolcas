@@ -82,6 +82,5 @@
       EndIf
       Write (6,*) 'RdNLst: Input section not found in input file'
       Write (6,*) '        Looking for:',StdNam(1:lStdNam)
-      Call QTrace()
       Call Quit_OnUserError()
       End

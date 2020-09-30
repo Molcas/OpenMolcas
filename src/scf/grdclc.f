@@ -91,7 +91,6 @@
       If (What.ne.'All' .and. What.ne.'Lst') Then
          Write (6,*) 'GrdClc: What.ne."All" .and. What.ne."Lst"'
          Write (6,'(A,A)') 'What=',What
-         Call QTrace
          Call Abend()
       End If
 

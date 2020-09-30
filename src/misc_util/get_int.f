@@ -41,27 +41,23 @@ C Check input parameters
          rc = rcRD06
          Write(6,*) 'Get_Int: Invalid option'
          Write(6,*) 'iOpt= ',iOpt
-         Call QTrace()
          Call Abend()
       End If
       If (iSymp.lt.iSymq .or. iSymr.lt.iSyms) Then
          rc = rcRD02
          Write(6,*) 'Get_Int: invalid order of symmetry labels'
-         Call Qtrace()
          Call Abend()
       End If
       If (MulD2h(iSymp,iSymq) .ne. MulD2h(iSymr,iSyms)) Then
          rc = rcRD01
          Write(6,*) 'Get_Int: wrong symmetry labels, direct product',
      &              ' is not total symmetric'
-         Call Qtrace()
          Call Abend()
       End If
       If (lBuf.lt.1) Then
          rc = rcRD04
          Write(6,*) 'Get_Int: invalid buffer size'
          Write(6,*) 'lBuf=',lBuf
-         Call Qtrace()
          Call Abend()
       End If
 
@@ -100,7 +96,6 @@ C      lBuf=  min(Nrs*min(Npq,2)+1,lBufs)
        If (pq1.lt.1 .or. pq1.gt.Npq) Then
           rc = 999999
           Write(6,*) 'pq1 out of bounds: ',pq1
-          Call Qtrace()
           Call Abend()
           nMat = 99999999
        Else

@@ -21,7 +21,6 @@
       COMMON/CNSTS/D0,D1,D2
 #include "addr_guga.fh"
 *
-      CALL QENTER('AIJK')
       IOUT=0
       NMAT=0
       L=0
@@ -133,6 +132,5 @@ C     DOUBLET-SINGLET INTERACTIONS
       CALL iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
       WRITE(IW,600)NMAT
 600   FORMAT(/6X,'COEFFICIENTS FOR AIJK',I9)
-      CALL QEXIT('AIJK')
       RETURN
       END

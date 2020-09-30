@@ -100,7 +100,6 @@ C
       Call StatusLine('CASPT2:','Just starting')
 
       IRETURN = 0
-      CALL QENTER('CASPT2')
 
       CALL SETTIM
       ! CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
@@ -461,10 +460,8 @@ C Free resources, close files
 C     PRINT I/O AND SUBROUTINE CALL STATISTICS
       IF ( IPRGLB.GE.USUAL ) THEN
         CALL FASTIO('STATUS')
-        CALL QSTAT(' ')
       END IF
 
       Call StatusLine('CASPT2:','Finished.')
-      CALL QEXIT('CASPT2')
       RETURN
       END

@@ -56,7 +56,6 @@
          Write (6,*) 'Tr2Ctl: NSYM2.NE.NSYM'
          Write (6,*) 'NSYM2=',NSYM2
          Write (6,*) 'NSYM=',NSYM
-         Call QTrace()
          Call Abend()
       END IF
       DO ISYM=1,NSYM
@@ -66,7 +65,6 @@
            Write (6,*) 'Tr2Ctl: NB1.NE.NB2'
            Write (6,*) 'NB1=',NB1
            Write (6,*) 'NB2=',NB2
-           Call QTrace()
            Call Abend()
         END IF
       END DO
@@ -129,7 +127,6 @@
                 Write (6,*) 'Tr2Ctl: NORBP.NE.0.AND.KEEPT.NE.0'
                 Write (6,*) 'NORBP=',NORBP
                 Write (6,*) 'KEEPT=',KEEPT
-                Call QTrace()
                 Call Abend()
               End If
 *
@@ -174,7 +171,6 @@
                 Write (6,*) 'Tr2Ctl: MEMX.LT.NOVX'
                 Write (6,*) 'MEMX=',MEMX
                 Write (6,*) 'NOVX=',NOVX
-                Call QTrace()
                 Call Abend()
               End If
 *

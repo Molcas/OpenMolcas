@@ -28,7 +28,6 @@ c local variables:
       Integer       :: i
       Real(kind=8) :: diff, T_High
       Real(kind=8) :: boltz_k, mu_bohr
-      Call qEnter('set_nm')
 
       ! Constants:
       boltz_k=0.6950356_wp                    !   in cm^-1*K-1
@@ -102,7 +101,6 @@ c local variables:
 
 309   Continue
 
-      Call qExit('set_nm')
       Return
       End subroutine set_nm
 

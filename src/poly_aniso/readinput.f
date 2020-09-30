@@ -190,7 +190,6 @@ c      Character(Len=14) :: namefile_energy(nDirZee)
 
 
 
-      Call qEnter('PA_readinp')
 
       DBG=.false.
 
@@ -1533,7 +1532,6 @@ c ===============   NORMAL EndING  ===============================
       If(IPRINT.gt.2) Then
       Write(6,'(5X,A)') 'NO ERROR WAS LOCATED WHILE READING INPUT'
       End If
-      Call qExit('PA_readinp')
 
       Return
       End !Subroutine

@@ -19,7 +19,6 @@ C     I.LT.L . CASE 1 J=K=L , CASE 2 I=J=K .
 #include "integ.fh"
       COMMON/CNSTS/D0,D1,D2
 c      COMMON/ADDR/IADD10,IAD10(9),IADD11,IDUM,COP(600),ICOP1(601)
-      CALL QENTER('INT9')
       ITYP=0
       FAC=D1
       LJS=IJ(L+1)+1
@@ -65,6 +64,5 @@ c      COMMON/ADDR/IADD10,IAD10(9),IADD11,IDUM,COP(600),ICOP1(601)
       IF(KM.EQ.L)GO TO 32
       GO TO 42
 10    CONTINUE
-      CALL QEXIT('INT9')
       RETURN
       END

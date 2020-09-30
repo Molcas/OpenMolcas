@@ -45,7 +45,6 @@ c       integer nhelp
 c
 #include "para_info.fh"
 c
-       Call qEnter('CCT3')
 cpar
 cstare Call SetTim
 cstare call MPI_COMM_RANK(MPI_COMM_WORLD,myRank,rc)
@@ -1566,7 +1565,6 @@ c     Releasing the memory
       Call GetMem('CCT3','Free','Real',iOff,wrksize)
 c
 c
-      Call qExit('CCT3')
       ireturn=0
       return
       end

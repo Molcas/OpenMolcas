@@ -36,7 +36,6 @@
       logical qcmaquis_input
 #endif
 *
-      Call qEnter('Scan_Inp')
 
 #ifdef _DMRG_
       qcmaquis_input = .false.
@@ -162,6 +161,5 @@
       GOTO 9990
 *----------------------------------------------------
 9990  CONTINUE
-      Call qExit('Scan_Inp')
       Return
       End

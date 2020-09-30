@@ -34,7 +34,6 @@ C
       Integer i
 
       ! Register entry
-      Call qEnter(SecNam)
 
       ! Set type of SCF reference wave function
       ! Note: in RPA, iUHF=1 means restricted, 2 means unrestricted.
@@ -205,6 +204,5 @@ C
       Call iZero(nDel,16)
 
       ! Register exit
-      Call qExit(SecNam)
 
       End

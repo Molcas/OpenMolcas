@@ -72,13 +72,11 @@ cvv      MaxOcc = 0
          If (nBas(iSym).gt.MxBas) Then
             Write (6,*) 'SetUp: nBas(iSym).gt.MxBas'
             Write (6,*) 'nBas(iSym),MxBas=',nBas(iSym),MxBas
-            Call QTrace
             Call Abend()
          End If
          If (nOrb(iSym).gt.nBas(iSym)) Then
             Write (6,*) 'SetUp: nOrb(iSym).gt.nBas(iSym)'
             Write (6,*) 'nOrb(iSym),nBas(iSym)=',nOrb(iSym),nBas(iSym)
-            Call QTrace
             Call Abend()
          End If
          If (maxnOcc(iSym).gt.nOrb(iSym)) Then
@@ -86,14 +84,12 @@ cvv      MaxOcc = 0
             Write (6,*) 'SetUp: nOcc(iSym).gt.nOrb(iSym)'
             Write (6,*) 'nOcc(iSym),nOrb(iSym)=',
      &                          maxnOcc(iSym),nOrb(iSym)
-            Call QTrace
             Call Abend()
          End If
          If (nFro(iSym).gt.minnOcc(iSym)) Then
             Write (6,*) 'SetUp: nFro(iSym).gt.nOcc(iSym)'
             Write (6,*) 'nFro(iSym),nOcc(iSym)=',
      &                          nFro(iSym),minnOcc(iSym)
-            Call QTrace
             Call Abend()
          End If
          nnOc   = nnOc + nOcc(iSym,1)
@@ -127,12 +123,10 @@ cvv         MaxOcc = Max(MaxOcc,nOcc(iSym,1))
       If (nnB.gt.2*MxBas .and. .not.DSCF ) Then
          Write (6,*) 'SetUp: nnB.gt.2*MxBas .and. .not.DSCF'
          Write (6,*) 'nnB,MxBas=',nnB,MxBas
-         Call QTrace
          Call Abend()
       Else If (nnB.gt.4*MxBas .and. DSCF ) Then
          Write (6,*) 'SetUp: nnB.gt.4*MxBas .and. DSCF'
          Write (6,*) 'nnB,MxBas=',nnB,MxBas
-         Call QTrace
          Call Abend()
       End If
 *

@@ -22,7 +22,6 @@
 #endif
       Else
        Write(6,*) 'MpProp cannot handle symmetry'
-       Call QTrace
        Call Abend()
       EndIf
       Return

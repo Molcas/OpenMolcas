@@ -195,7 +195,6 @@ C     NPROCS that satisfies a block size smaller than MAXI:
                     JLSM = 0
                   END IF
 *. Obtain all double excitations from this group of K strings
-                  CALL QENTER('ADADS')
                   II12 = 1
                   K12 = 1
                   IONE = 1
@@ -208,13 +207,11 @@ C     NPROCS that satisfies a block size smaller than MAXI:
                   JFRST = 0
                   KFRST = 0
 *
-                  CALL QEXIT('ADADS')
                   IF(NKBTC.EQ.0) GOTO 1930
 *. Loop over jl in TS classes
                   J = 0
                   L = 1
 *
-                  CALL QENTER('MATCG')
                   DO  IJL = 1, NJL
                     CALL NXTIJ(      J,      L,     NJ,     NL,   JLSM,
      &                           NONEW)
@@ -237,7 +234,6 @@ C                   JLOFF = (JLBOFF-1+IJL-1)*NKBTC*NIBTC+1
      &                            NKBTC,I1(1,I1JL),XI1S(1,I1JL))
                     END IF
                   END DO
-                  CALL QEXIT ('MATCG')
 *
 *
 * =========================================================
@@ -256,7 +252,6 @@ C                   JLOFF = (JLBOFF-1+IJL-1)*NKBTC*NIBTC+1
                     IKSM = 0
                   END IF
 *. Obtain all double excitations from this group of K strings
-CT                CALL QENTER('ADADS')
                   II12 = 2
                   K12 = 1
                   IONE = 1
@@ -271,13 +266,11 @@ CT                CALL QENTER('ADADS')
                   IFRST = 0
                   KFRST = 0
 *
-CT                CALL QEXIT('ADADS')
                   IF(NKBTC.EQ.0) GOTO 1930
 *. Loop over jl in TS classes
                   I = 0
                   K = 1
 *
-CT                CALL QENTER('MATCG')
                   DO  IIK = 1, NIK
                     CALL NXTIJ(      I,      K,     NI,     NK,   IKSM,
      &                           NONEW)
@@ -300,7 +293,6 @@ C                   IKOFF = (IKBOFF-1+IIK-1)*NKBTC*NIBTC+1
      &                            NKBTC,I1(1,I1IK),XI1S(1,I1IK))
                     END IF
                   END DO
-CT                CALL QEXIT ('MATCG')
 *
 *
 * =================================================================

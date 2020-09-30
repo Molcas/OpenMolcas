@@ -32,7 +32,6 @@
 *
       nElem(i) = (i+1)*(i+2)/2
 *
-c     Call qEnter('TwoDens')
       nijkl=iBasi*jBasj*kBask*lBasl
       iShlla = iShll(1)
       jShllb = iShll(2)
@@ -100,6 +99,5 @@ c     Call qEnter('TwoDens')
 *
 *   P is now in cartisan AO base
 *
-c     Call qExit('TwoDens')
       Return
       End
