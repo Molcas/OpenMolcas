@@ -300,7 +300,7 @@
       Do_ESPF = .False.
       Call DecideOnESPF(Do_ESPF)
       If (Do_ESPF) Then
-       Call LA_Morok(nsAtom,ipCoor,2)
+       Call LA_Morok(nsAtom,work(ipCoor),2)
        call dcopy_(3*nsAtom,Work(ipCoor),1,Work(ipCx+3*nsAtom*Iter),1)
       End If
 *                                                                      *

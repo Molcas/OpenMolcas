@@ -13,8 +13,10 @@
      &                      Show_espf,Forces,DoDirect)
       Implicit Real*8 (A-H,O-Z)
 #include "espf.fh"
+#include "stdalloc.fh"
 *
       Logical DoTinker,DoGromacs,lMorok,Show_espf,Forces,DoDirect,Exist
+      Real*8, Allocatable:: Grad(:)
 *
 * Espf data are saved
 *
@@ -103,7 +105,8 @@
          Call Molcas_Open(ITkQMMM,'QMMM')
          Call Get_dScalar('Last energy',EQMMM)
          Write(ITkQMMM,'(F12.7,I5)') EQMMM,MltOrd/4
-         Call Get_Grad(ipGrad,nGrad)
+         Call mma_allocate(Grad,nGrad,Label='Grad')
+         Call Get_Grad(Grad,nGrad)
          If (nGrad.ne.3*natom) Then
             Write (6,*)
             Write (6,'(/,A)')'nGrad.ne.natom'

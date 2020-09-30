@@ -232,7 +232,7 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
 *     Apply Morokuma's scheme if needed
 *
       If ((Exist.and.DoTinker).or.DoGromacs)
-     &   Call LA_Morok(natom,ipGrad,1)
+     &   Call LA_Morok(natom,Work(ipGrad),1)
 *
 *     Finally
 *
