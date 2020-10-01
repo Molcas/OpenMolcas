@@ -32,8 +32,22 @@
       Logical :: ordinary=.False.
       Real*8  :: blvAI
 *
+!     Memory for coordinates, value and gradients of the
+!     sample points.
+!
       real*8, allocatable, protected :: x(:,:), y(:), dy(:)
+!
+!     Inter_save: the dimension of the coordinate vector
+!     nPoints_save: the total number of sample points
+!     nPoints_v: the total number of sample points for which the value is
+!                used
+!     nPoinst_g: the total number of sample points for which the
+!                gradients are used
+!
+!     We will assume that nPoints_v >= nPoints_g
+!
       integer, protected :: nInter_save = 0, nPoints_save = 0
+      integer, protected :: nPoints_v = 0, nPoints_g = 0
 
       real*8, allocatable ::
      &        rl(:,:,:), dl(:,:), full_Rinv(:,:),
@@ -56,10 +70,12 @@
 
       nInter_save = nInter
       nPoints_save = nPoints
+      nPoints_v = nPoints
+      nPoints_g = nPoints
 
-      Call mma_Allocate(x,nInter,nPoints,Label="x")
-      Call mma_Allocate(dy,nInter*nPoints,Label="dy")
-      Call mma_Allocate(y,nPoints,Label="y")
+      Call mma_Allocate(x,nInter,nPoints_v,Label="x")
+      Call mma_Allocate(dy,nInter*nPoints_g,Label="dy")
+      Call mma_Allocate(y,nPoints_v,Label="y")
 
 !x is the n-dimensional internal coordinates
       x(:,:) = x_(:,:)
@@ -69,9 +85,14 @@
       ! write(6,*) 'y',y
 !dy it's a vector of Grad-y (eq. (5)  ref. gradients of
 ! the energy with respect to the internal coordinates
+!
+!     Note the storage as subblocks of the same component of the
+!     gradient, each subblock running over all nPoints_g which
+!     contributes with gradient values.
+!
       do i=1,nInter
-        do j=1,nPoints
-          dy((i-1)*nPoints+j) = dy_(i,j)
+        do j=1,nPoints_g
+          dy(j + (i-1)*nPoints_g) = dy_(i,j)
         enddo
       enddo
 
