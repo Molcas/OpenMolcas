@@ -95,9 +95,7 @@
      &                      TUVX, F_IN, D1S_MO, DMAT, PSMAT, PAMAT)
       use fcidump_reorder, only : get_P_GAS, get_P_inp,ReOrFlag,ReOrInp
       use fcidump, only : make_fcidumps, transform
-#include "output_ras.fh"
 #include "rctfld.fh"
-#include "timers.fh"
       integer, intent(in) :: actual_iter
       real(wp), intent(in) ::
      &    CMO(nTot2), DIAF(nTot),
@@ -140,7 +138,6 @@
      &                   orbital_E, folded_Fock, TUVX, EMY, permutation)
 
 ! Run NECI
-      call Timing(Rado_1, Swatch, Swatch, Swatch)
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, error)
 #endif
@@ -166,10 +163,6 @@
 
       if (nAsh(1) /= nac) call dblock(dmat)
 
-
-      call Timing(Rado_2, Swatch, Swatch, Swatch)
-      Rado_2 = Rado_2 - Rado_1
-      Rado_3 = Rado_3 + Rado_2
 
       if (allocated(GAS_spaces)) then
           call mma_deallocate(GAS_spaces)
