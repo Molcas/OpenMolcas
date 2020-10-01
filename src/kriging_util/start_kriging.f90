@@ -15,8 +15,17 @@ Subroutine Start_Kriging(nPoints,nInter,x_,dy_,y_)
   Implicit None
 #include "stdalloc.fh"
 !
+!    nPoints: the number of sample points, n
+!    nInter: the dimensionality of the function, d
+!    y_: the values of the function at the sample points
+!    dy_: the gradient of the function at the sample points
+!    x_: the coordinates of the sample points
+!
   Integer nInter,nPoints
-  Real*8 x_(nInter,nPoints),dy_(nInter,nPoints),y_(nPoints)
+  Real*8 y_(nPoints)
+  Real*8 dy_(nInter,nPoints)
+  Real*8 x_(nInter,nPoints)
+!
 !
 !#define _DEBUG_
 #ifdef _DEBUG_
@@ -24,26 +33,31 @@ Subroutine Start_Kriging(nPoints,nInter,x_,dy_,y_)
   Call RecPrt('Start_Kriging: y',' ',y_,     1,nPoints)
   Call RecPrt('Start_Kriging: dy',' ',dy_,nInter,nPoints)
 #endif
-  Call mma_Allocate(x,nInter,nPoints,Label="x")
-  Call mma_Allocate(dy,nInter*nPoints,Label="dy")
-  Call mma_Allocate(y,nPoints,Label="y")
 !
   Call Setup_Kriging(nPoints,nInter,x_,dy_,y_)
 !
 !nx is the n-dimensional vector of the last iteration computed in update_sl
+!
   Call mma_Allocate(nx,nInter,1,Label="nx")
+!
 !m_t is the dimentionality of the square correlation matrix Gradient-Psi
 ! (equation (2) on:
 !-------- ref. = doi:10.1007/s00366-015-0397-y)-------
+!
   m_t=nPoints*(1+nInter)
+!
 !npx is the number of new points (Energy and Gradient) to be predict
 ! according to the iteration that was computed in update_sl subroutine
+!
   npx = 1
+!
 !full_R correspond to the gradient of Psi (eq. (2) ref.)
+!
   Call mma_Allocate(full_R,m_t,m_t,Label="full_R")
   Call mma_Allocate(full_RInv,m_t,m_t,Label="full_RInv")
 !
   If (mblAI) sbmev = y(maxloc(y,dim=1))
+!
 !rl and dl are temporary matrices for the contruction of Psi which is inside of
 ! Grad-Psi (eq.(2) ref.) dl=rl^2=Sum[i] [(x_i-x0_i)/l)^2]
 ! more inoformation is given in subsequen files.
@@ -52,9 +66,11 @@ Subroutine Start_Kriging(nPoints,nInter,x_,dy_,y_)
 ! ref.).
 !Iden is just an identity matrix necesary to avoid that the Grad-Psi becomes
 ! Singular after been multiplied by EPS factor
+!
   Call mma_Allocate(rl,nPoints,npx,nInter,Label="rl")
   Call mma_Allocate(dl,nPoints,npx,Label="dl")
   Call mma_Allocate(Rones,m_t,Label="Rones")
+!
 !kv is the vector that contains the dot product of the inverse of Grad-Psi and
 !Grad-y minus the dot product of the inverse of Grad-Psi and f-ones multiplied
 ! by the constant Grad-Trend function (eq. (3), (5), (6) and (7)
@@ -69,6 +85,8 @@ Subroutine Start_Kriging(nPoints,nInter,x_,dy_,y_)
 ! (eq. 4 ref.).
 !l is a n-dimensional vector of the width of the Matern function.
 !ll is the likelihood function.
+!
+! Allocate additional variables needed for the kriging.
 !
   Call mma_allocate(kv,m_t,Label="kv")
   Call mma_allocate(pred,npx,Label="pred")
