@@ -30,6 +30,7 @@
       iPL = iPL_espf()
 *
       Call mma_allocate(Grad,3,nAtom,Label='Grad')
+      nGrad=3*nAtom
       Call Get_Grad(Grad,nGrad)
       lMMHess = .False.
       If (iPL.ge.3) Call PrGrad(' Molecular gradients, entering ESPF',

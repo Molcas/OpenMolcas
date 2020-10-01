@@ -406,6 +406,7 @@
             Call Put_AnalHess(Work(ipHX),iOff)
             Call NameRun('#Pop')
             Call mma_deallocate(GB)
+            Call GetMem('HssX','Free','Real',ipHX,nHX)
             Call GetMem('HssQ','Free','Real',ipHQ,nHQ)
             Call GetMem('KtB','Free','Real',ipKtB,nKtB)
 *
