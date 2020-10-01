@@ -12,7 +12,7 @@
 !***********************************************************************
 SUBROUTINE set_l_kriging(lv,nInter)
   use kriging_mod
-  integer i, nInter
+  integer nInter
   real*8 lv(nInter)
 !
 ! Set the characteristic length of all the components of the coordintes.
