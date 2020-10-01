@@ -18,6 +18,10 @@ SUBROUTINE covarMatrix(nPoints,nInter)
   Real*8, Allocatable :: diffx_j(:,:), diffx_i(:,:), matFder(:,:),&
                          matSder(:,:), r(:,:,:), d(:,:)
 !#define _DEBUG_
+
+!**********************************************************************
+!
+! Allocate temporary memory
 !
   Call mma_Allocate(diffx_j,nPoints,nPoints,Label="diffx_j")
   Call mma_Allocate(diffx_i,nPoints,nPoints,Label="diffx_i")
@@ -26,51 +30,99 @@ SUBROUTINE covarMatrix(nPoints,nInter)
   Call mma_Allocate(r,nPoints,nPoints,nInter,Label="r")
   Call mma_Allocate(d,nPoints,nPoints,Label="d")
 !
-  full_R = 0
-  d = 0
-  diffx_j = 0
-  diffx_i = 0
+!**********************************************************************
+!
+! Compute the distances between the sample points using
+! the characteristic length.
+!
+  full_R(:,:) = 0.0D0
+  d(:,:) = 0.0D0
+  diffx_j(:,:) = 0.0D0
+  diffx_i(:,:) = 0
 !
   do i=1,nInter
+
     do k=1,nPoints
       do j=1,nPoints
         r(k,j,i)=(x(i,k)-x(i,j))/l(i)
       end do
     end do
+
+!   Accumulate contributions to the square of the individual distances.
+
     d(:,:) = d(:,:) + r(:,:,i)**2
+
 #ifdef _DEBUG_
     Call RecPrt('r',' ',r(1,1,i),nPoints,nPoints)
 #endif
+
   end do
+!
+!**********************************************************************
+!
 #ifdef _DEBUG_
   Call RecPrt('l',' ',l,1,nInter)
   Call RecPrt('x',' ',x,nInter,nPoints)
   Call RecPrt('d',' ',d,nPoints,nPoints)
 #endif
 !
-    !Matern Function
-  Call matern     (d, full_R(1:nPoints,1:nPoints), nPoints, nPoints)
+!**********************************************************************
+!**********************************************************************
+!
+! Now evaluate the covariance function over all the distances. For GEK
+! we will need gradients and 2nd order derivatives of the covariance
+! function too.
+!
+! Currently we use the 5/2 Matern function as the covariance function
+!
+!**********************************************************************
+!
+! Note that we will evaluate the derivative of the covariance function
+! w.r.t d. For the full derivative this has to be complemented by
+! the derivative of d w.r.t the individual components of the coordinates.
+!
+!**********************************************************************
+! 1) Evaluate the covariance function for all the distances.
+!
+  Call matern(d, full_R(1:nPoints,1:nPoints), nPoints, nPoints)
 !
 ! Writing the covariant matrix in GEK (eq 2 of doi:10.1007/s00366-015-0397)
 !
-    !Matern first derivative with respect to d
-  call matderiv(1, d, MatFder, nPoints, nPoints)
+!**********************************************************************
+!
+! 2) Evaluate first derivatives of the covariance function with respect to d at all distances.
+!
+  Call matderiv(1, d, MatFder, nPoints, nPoints)
+!
 ! Covariant matrix in Gradient Enhanced Kriging (eq 2 of doi:10.1007/s00366-015-0397):
 !
-    ! First line and first column derivative in Psi matrix
-  do i=1,nInter
-    i0 = i*nPoints +1
-    i1 = i0        +nPoints-1
+! First line and first column derivative in Psi matrix
 !
+  do i=1,nInter      ! Loop over component of the coordinate to differentiate
+!
+!   Compute the range of the block in the covariance matrix.
+!
+    i0 = i*nPoints +1
+    i1 = i0+nPoints-1
+!
+!   Do an on-the-fly evaluation of the dervative w.r.t x_i
     diffx_i(:,:) = -2.0D0*r(:,:,i)/l(i)
 !
-    !  Writing the 1st row of 1st derivatives with respect the coordinates
+!   Writing the 1st row of 1st derivatives with respect the coordinates
+!
     full_R(1:nPoints,i0:i1) = matFDer*diffx_i
-    !  Writing the column of derivatives
+
+!   Writing the column of derivatives
     full_R(i0:i1,1:nPoints) = transpose(full_R(1:nPoints,i0:i1))
+
   enddo
 !
-    !Matern second derivative with respect to d
+!**********************************************************************
+!
+! 3) Evaluate the second derivatives.
+!
+! Matern second derivative with respect to d
+!
   call matderiv(2, d, matSder, nPoints, nPoints)
 !
     ! Second derivatives
@@ -88,7 +140,7 @@ SUBROUTINE covarMatrix(nPoints,nInter)
 !
     !   if differentiating twice on the same dimension
       if (i.eq.j) Then
-       full_R(i0:i1,j0:j1) = matSder*diffx_j*diffx_i - matfder*(2.0D0/(l(i)*l(j)))
+       full_R(i0:i1,j0:j1) = matSder*diffx_j*diffx_i - matFder*(2.0D0/(l(i)*l(j)))
       else
        full_R(i0:i1,j0:j1) = matSder*diffx_j*diffx_i
       end if

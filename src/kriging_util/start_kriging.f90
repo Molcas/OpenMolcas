@@ -34,34 +34,41 @@ Subroutine Start_Kriging(nPoints,nInter,x_,dy_,y_)
   Call RecPrt('Start_Kriging: dy',' ',dy_,nInter,nPoints)
 #endif
 !
+! Call Setup_Kriging to store the data in some internally protected arrays and scalars.
+!
   Call Setup_Kriging(nPoints,nInter,x_,dy_,y_)
 !
-!nx is the n-dimensional vector of the last iteration computed in update_sl
+! Allocate nx, which is a n-dimensional vector of the coordinats of the last iteration computed
 !
   Call mma_Allocate(nx,nInter,1,Label="nx")
 !
-!m_t is the dimentionality of the square correlation matrix Gradient-Psi
+! m_t is the dimentionality of the square correlation matrix Gradient-Psi
 ! (equation (2) on:
 !-------- ref. = doi:10.1007/s00366-015-0397-y)-------
 !
   m_t=nPoints*(1+nInter)
 !
-!npx is the number of new points (Energy and Gradient) to be predict
+! In the case the nPoint last energies and mPoint last gradients were use
+! m_t would be computed as
+!
+! m_t=nPoints+mPoints*nInter
+!
+! npx is the number of new points (Energy and Gradient) to be predict
 ! according to the iteration that was computed in update_sl subroutine
 !
   npx = 1
 !
-!full_R correspond to the gradient of Psi (eq. (2) ref.)
+! full_R correspond to the gradient of Psi (eq. (2) ref.)
 !
   Call mma_Allocate(full_R,m_t,m_t,Label="full_R")
   Call mma_Allocate(full_RInv,m_t,m_t,Label="full_RInv")
 !
   If (mblAI) sbmev = y(maxloc(y,dim=1))
 !
-!rl and dl are temporary matrices for the contruction of Psi which is inside of
+! rl and dl are temporary matrices for the contruction of Psi which is inside of
 ! Grad-Psi (eq.(2) ref.) dl=rl^2=Sum[i] [(x_i-x0_i)/l)^2]
 ! more inoformation is given in subsequen files.
-!Mat is the final matrix after the distance (between source data rl and dl) has
+! Mat is the final matrix after the distance (between source data rl and dl) has
 ! passed through the Matern correlation function (ISBN 0-486-61272-4 & eq. (11-12)
 ! ref.).
 !Iden is just an identity matrix necesary to avoid that the Grad-Psi becomes
