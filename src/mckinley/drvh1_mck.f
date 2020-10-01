@@ -31,9 +31,11 @@
      &         sromm1
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
       Character*8 Label
       Logical Nona, lECP
+      Real*8, Allocatable:: Fock(:)
 *
 c     iRout = 131
 c     iPrint = nPrint(iRout)
@@ -56,15 +58,14 @@ c     iPrint = nPrint(iRout)
          End If
 *...  Read the generalized Fock matrix
 *...  Fock matrix in AO/SO basis
-         Call Get_Fock_Occ(ipFock,Length)
-         If ( length.ne.nDens ) Then
-            Write (6,*) 'Drvh1_mck: length.ne.nDens'
-            Write (6,*) 'length,nDens=',length,nDens
-            Call Abend()
-         End If
+         Call mma_allocate(Fock,nFock,Label='Fock')
+         Call Get_Fock_Occ(Fock,nFock)
       Else
+         nFock = 1
+         nDens = 1
          ipD0=ip_Dummy
-         ipFock=ip_Dummy
+         Call mma_allocate(Fock,nFock,Label='Fock')
+         Fock(1)=Zero
       End If
       If (Nona) Then
 ************************************************************************
@@ -80,8 +81,7 @@ c     iPrint = nPrint(iRout)
                 idcnt=idcnt+1
                 Do idCar=1,3
             Call Cnt1El(OvrGrd_mck,OvrMem_mck,Label,idcnt,idcar,loper,
-     &              -One,.false.,Work(ipFock),
-     &               'OVRGRDA ',0)
+     &              -One,.false.,Fock,'OVRGRDA ',0)
                 End Do
              End Do
           End Do
@@ -98,8 +98,7 @@ c     iPrint = nPrint(iRout)
                 idcnt=idcnt+1
                 Do idCar=1,3
             Call Cnt1El(NONA2,NA2Mem,Label,idcnt,idcar,loper,
-     &                  One,.false.,Work(ipFock),
-     &                  'NONA2   ',0)
+     &                  One,.false.,Fock,'NONA2   ',0)
                 End Do
              End Do
           End Do
@@ -119,8 +118,7 @@ c     iPrint = nPrint(iRout)
           idcnt=idcnt+1
           Do idCar=1,3
             Call Cnt1El(OvrGrd_mck,OvrMem_mck,Label,idcnt,idcar,loper,
-     &               One,.false.,Work(ipFock),
-     &               'OVRGRD  ',0)
+     &               One,.false.,Fock,'OVRGRD  ',0)
           End Do
         End Do
       End Do
@@ -204,8 +202,8 @@ c     iPrint = nPrint(iRout)
 *                                                                      *
       If (Show) Then
           Call Free_Work(ipD0)
-          Call Free_Work(ipFock)
       End If
+      Call mma_deallocate(Fock)
 *                                                                      *
 ************************************************************************
 *                                                                      *

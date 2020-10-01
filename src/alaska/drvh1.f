@@ -55,7 +55,7 @@
       common /finfld/force
       character*30 fldname
       External MltGrd,MltMmG
-      Real*8, Allocatable:: Coor(:,:)
+      Real*8, Allocatable:: Coor(:,:), Fock(:)
       Integer, Allocatable:: lOper(:), lOperf(:)
 CAOM>
       Logical DiffOp, lECP, lPP, lFAIEMP
@@ -117,20 +117,14 @@ CAOM>
 *...  Fock matrix in AO/SO basis
 *     print *,' Read Fock matrix'
       If (.Not.HF_Force) Then
-         Call Get_Fock_Occ(ipFock,Length)
-         If ( length.ne.nDens ) Then
-            Call WarningMessage(2,'Error in Drvh1')
-            Write (6,*) 'Drvh1: length.ne.nDens'
-            Write (6,*) 'length,nDens=',length,nDens
-            Call Abend()
-         End If
-!         iprint=100
+         Call mma_allocate(Fock,nDens,Label='Fock')
+         Call Get_Fock_Occ(Fock,nDens)
          If (iPrint.ge.99) then
             Write(6,*) 'generalized Fock matrix'
-            ii=ipFock
+            ii=1
             Do iIrrep = 0, nIrrep - 1
                Write(Label,*) 'symmetry block',iIrrep
-               Call TriPrt(Label,' ',Work(ii),nBas(iIrrep))
+               Call TriPrt(Label,' ',Fock(ii),nBas(iIrrep))
                ii = ii + nBas(iIrrep)*(nBas(iIrrep)+1)/2
             End Do
          End If
@@ -158,7 +152,7 @@ CAOM>
       DiffOp = .False.
       Label  = ' The Renormalization Contribution'
       Call OneEl_g(OvrGrd,OvrMmG,Temp,nGrad,DiffOp,Coor,
-     &           Work(ipFock),nFock,lOper,nComp,nOrdOp,Label)
+     &             Fock,nFock,lOper,nComp,nOrdOp,Label)
       Call DaXpY_(nGrad,-One,Temp,1,Grad,1)
 *
 ************************************************************************
@@ -412,7 +406,7 @@ CAOM>
 *                                                                      *
 *...  Epilogue, end
 *
-      If (.Not.HF_Force) Call GetMem('Fock','Free','Real',ipFock,nFock)
+      If (.Not.HF_Force) Call mma_deallocate(Fock)
       Call GetMem('D0  ','Free','Real',ipD_Var,nDens)
 *
       Call CWTime(TCpu2,TWall2)

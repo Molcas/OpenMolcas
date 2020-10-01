@@ -34,10 +34,12 @@
       External NaMmH,OvrMmH, KneMmH,PrjMMH,sroMMH,M1MMH,PCMMMH
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "rctfld.fh"
       Character Label*80
       Real*8    Hess(nHess), Temp(nHess)
       Logical DiffOp,show, lECP
+      Real*8, Allocatable:: Fock(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -65,7 +67,8 @@
       Call Get_D1ao_Var(ipD0,Length)
 *     Read the generalized Fock matrix
 *     Fock matrix in AO/SO basis
-      Call Get_Fock_Occ(ipFock,Length)
+      Call mma_allocate(Fock,nFock,Label='Fock')
+      Call Get_Fock_Occ(Fock,nFock)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -86,7 +89,7 @@
       call dcopy_(nHess,[Zero],0,Temp,1)
       Label  = ' The Renormalization Contribution'
       Call Dot1El(OvrHss,OvrMmH,Temp,nHess,DiffOp,Work(ipC),
-     &           Work(ipFock),nFock,iWork(ip1),nComp,Label)
+     &           Fock,nFock,iWork(ip1),nComp,Label)
       If (show) write(6,*) label
       If (show) Call HssPrt(Hess,nHess)
       Call DaXpY_(nHess,-One,Temp,1,Hess,1)
@@ -189,7 +192,7 @@
 *                                                                      *
       Call GetMem('lOper','Free','Inte',ip1,nComp)
       Call GetMem('Coor','Free','Real',ipC,3*nComp)
-      Call GetMem('Fock','Free','Real',ipFock,nFock)
+      Call mma_deallocate(Fock)
       Call GetMem('D0  ','Free','Real',ipD0,nDens)
       If (iprint.ge.12) Call HssPrt(Hess,nHess)
 *                                                                      *

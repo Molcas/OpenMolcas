@@ -27,6 +27,7 @@
       Implicit Real*8 (a-h,o-z)
 *
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
 #include "Input.fh"
 #include "disp_mclr.fh"
@@ -54,6 +55,7 @@
 
       Integer ipFT99,iptemp5
       External IsFreeUnit
+      Real*8, Allocatable:: FOSq(:), FOTr(:)
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -330,24 +332,15 @@
 !the runfile needs to be replaced - switch triangular storage to square
 !storage:
 !
-      Call GetMem('FockOSq ','Allo','Real',ipFOSq,nDens2)
-      Call dcopy_(nDens2,[Zero],0,Work(ipFOSq),1)
-      Call Get_Fock_Occ(ipFOtr,Length)
-      Call dcopy_(Length,Work(ipFOtr),1,Work(ipFOSq),1)
-      Call Put_Fock_Occ(Work(ipFOSq),ndens2)
+      Call mma_allocate(FOSq,nDens2,Label='FOSq')
+      Call mma_allocate(FOTr,nTri  ,Label='FOTr')
+      FOSq(:)=Zero
+      Call Get_Fock_Occ(FOTr,nTri)
+      Call dcopy_(nTri,FOtr,1,FOSq,1)
+      Call Put_Fock_Occ(FOSq,ndens2)
 
-!TEMP TEST
-!      Call GetMem('FockTri2','ALLO','Real',ipFOtmp,Length)
-!      Call dcopy_(nDens2,[Zero],0,Work(ipFOSq),1)
-!!      Call Get_Darray('fock_tempo',Work(ipFOtmp),Length)
-!      Call dcopy_(Length,Work(ipFOtmp),1,Work(ipFOSq),1)
-!      Call Put_Darray('fock_tempS',Work(ipFOSq),ndens2)
-!      Call GetMem('FockTri2','Free','Real',ipFOtmp,Length)
-
-!END TEMP TEST
-
-      Call GetMem('FockOSq ','Free','Real',ipFOSq,nDens2)
-      Call GetMem('Dens','Free','Real',ipFOTr,Length)
+      Call mma_deallocate(FOSq)
+      Call mma_deallocate(FOTr)
 
 
 !This seems to calculate the RHS, at least for the orbital part.
