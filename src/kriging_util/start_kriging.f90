@@ -46,7 +46,7 @@ Subroutine Start_Kriging(nPoints,nInter,x_,dy_,y_)
 ! (equation (2) on:
 !-------- ref. = doi:10.1007/s00366-015-0397-y)-------
 !
-  m_t=nPoints*(1+nInter)
+  m_t=nPoints_v + nInter*nPoints_g
 !
 ! In the case the nPoint last energies and mPoint last gradients were use
 ! m_t would be computed as
@@ -103,6 +103,7 @@ Subroutine Start_Kriging(nPoints,nInter,x_,dy_,y_)
   Call mma_allocate(sigma,npx,Label="sigma")
   Call mma_allocate(l,nInter,Label="l")
   Call mma_allocate(ll,int(lb(3)),Label="ll")
+!
   Call mma_allocate(cv,m_t,npx,nInter,nInter,Label="cv")
   Call mma_allocate(cvMatFder,nPoints,npx,Label="cvMatFder")
   Call mma_allocate(cvMatSder,nPoints,npx,Label="cvMatSder")

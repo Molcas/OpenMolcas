@@ -30,7 +30,7 @@ SUBROUTINE set_l_kriging(lv,nInter)
 !
   call covarMatrix(nPoints_Save,nInter_save)
 !
-! Form the inverse of the covariance matrix times the value vector.
+! Form the inverse of the covariance matrix times the generalized value vector.
 !
   call kriging_model(nPoints_save)
 

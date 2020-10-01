@@ -23,12 +23,12 @@ SUBROUTINE covarMatrix(nPoints,nInter)
 !
 ! Allocate temporary memory
 !
-  Call mma_Allocate(diffx_j,nPoints,nPoints,Label="diffx_j")
-  Call mma_Allocate(diffx_i,nPoints,nPoints,Label="diffx_i")
-  Call mma_Allocate(matFder,nPoints,nPoints,Label="matFder")
-  Call mma_Allocate(matSder,nPoints,nPoints,Label="matSder")
-  Call mma_Allocate(r,nPoints,nPoints,nInter,Label="r")
-  Call mma_Allocate(d,nPoints,nPoints,Label="d")
+  Call mma_Allocate(diffx_j,nPoints_v,nPoints_v,Label="diffx_j")
+  Call mma_Allocate(diffx_i,nPoints_v,nPoints_v,Label="diffx_i")
+  Call mma_Allocate(matFder,nPoints_v,nPoints_v,Label="matFder")
+  Call mma_Allocate(matSder,nPoints_v,nPoints_v,Label="matSder")
+  Call mma_Allocate(r,nPoints_v,nPoints_v,nInter,Label="r")
+  Call mma_Allocate(d,nPoints_v,nPoints_v,Label="d")
 !
 !**********************************************************************
 !
@@ -42,8 +42,8 @@ SUBROUTINE covarMatrix(nPoints,nInter)
 !
   do i=1,nInter
 
-    do k=1,nPoints
-      do j=1,nPoints
+    do k=1,nPoints_v
+      do j=1,nPoints_v
         r(k,j,i)=(x(i,k)-x(i,j))/l(i)
       end do
     end do
@@ -53,7 +53,7 @@ SUBROUTINE covarMatrix(nPoints,nInter)
     d(:,:) = d(:,:) + r(:,:,i)**2
 
 #ifdef _DEBUG_
-    Call RecPrt('r',' ',r(1,1,i),nPoints,nPoints)
+    Call RecPrt('r',' ',r(1,1,i),nPoints_v,nPoints_v)
 #endif
 
   end do
@@ -62,8 +62,8 @@ SUBROUTINE covarMatrix(nPoints,nInter)
 !
 #ifdef _DEBUG_
   Call RecPrt('l',' ',l,1,nInter)
-  Call RecPrt('x',' ',x,nInter,nPoints)
-  Call RecPrt('d',' ',d,nPoints,nPoints)
+  Call RecPrt('x',' ',x,nInter,nPoints_v)
+  Call RecPrt('d',' ',d,nPoints_v,nPoints_v)
 #endif
 !
 !**********************************************************************
@@ -84,7 +84,7 @@ SUBROUTINE covarMatrix(nPoints,nInter)
 !**********************************************************************
 ! 1) Evaluate the covariance function for all the distances.
 !
-  Call matern(d, full_R(1:nPoints,1:nPoints), nPoints, nPoints)
+  Call matern(d, full_R(1:nPoints_v,1:nPoints_v), nPoints_v, nPoints_v)
 !
 ! Writing the covariant matrix in GEK (eq 2 of doi:10.1007/s00366-015-0397)
 !
@@ -92,7 +92,7 @@ SUBROUTINE covarMatrix(nPoints,nInter)
 !
 ! 2) Evaluate first derivatives of the covariance function with respect to d at all distances.
 !
-  Call matderiv(1, d, MatFder, nPoints, nPoints)
+  Call matderiv(1, d, MatFder, nPoints_v, nPoints_v)
 !
 ! Covariant matrix in Gradient Enhanced Kriging (eq 2 of doi:10.1007/s00366-015-0397):
 !
@@ -102,20 +102,21 @@ SUBROUTINE covarMatrix(nPoints,nInter)
 !
 !   Compute the range of the block in the covariance matrix.
 !
-    i0 = i*nPoints +1
-    i1 = i0+nPoints-1
+    i0 = nPoints_v + 1 + (i-1)*nPoints_g
+    i1 = i0 + nPoints_g - 1
 !
 !   Do an on-the-fly evaluation of the dervative w.r.t x_i
-    diffx_i(:,:) = -2.0D0*r(:,:,i)/l(i)
+    diffx_i(1:nPoints_v,1:nPoints_g) = -2.0D0*r(1:nPoints_v,1:nPoints_g,i)/l(i)
 !
 !   Writing the 1st row of 1st derivatives with respect the coordinates
 !
-    full_R(1:nPoints,i0:i1) = matFDer*diffx_i
-
-!   Writing the column of derivatives
-    full_R(i0:i1,1:nPoints) = transpose(full_R(1:nPoints,i0:i1))
+    full_R(1:nPoints_v,i0:i1) = matFDer(1:nPoints_v,1:nPoints_g)*diffx_i(1:nPoints_v,1:nPoints_g)
 
   enddo
+! Complete by filling in the opposite side
+
+  full_R(nPoints_v+1:m_t,1:nPoints_v) = Transpose(Full_R(1:nPoints_v,nPoints_v+1:m_t))
+!... to be continued
 !
 !**********************************************************************
 !

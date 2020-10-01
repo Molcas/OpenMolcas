@@ -69,9 +69,10 @@
       real*8 :: x_(nInter,nPoints), dy_(nInter,nPoints), y_(nPoints)
 
       nInter_save = nInter
+
       nPoints_save = nPoints
-      nPoints_v = nPoints
-      nPoints_g = nPoints
+      nPoints_v    = nPoints
+      nPoints_g    = nPoints
 
       Call mma_Allocate(x,nInter,nPoints_v,Label="x")
       Call mma_Allocate(dy,nInter*nPoints_g,Label="dy")
