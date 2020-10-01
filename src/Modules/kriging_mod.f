@@ -21,7 +21,7 @@
       Logical :: anMd = .True.
       Real*8  :: pAI = 2
       Integer :: npxAI = 1
-      Real*8  :: lb(3) = [20.0D0, 20.0D0, 1]
+      Real*8  :: lb(3) = [20.0D0, 20.0D0, 1.0D0]
       Integer :: miAI = 50
       Real*8  :: meAI = 1.0D-8
       Logical :: blAI = .False.
@@ -50,12 +50,16 @@
       contains
 
       Subroutine Setup_Kriging(nPoints,nInter,x_,dy_,y_)
-
+#include "stdalloc.fh"
       integer :: nPoints, nInter, i, j
       real*8 :: x_(nInter,nPoints), dy_(nInter,nPoints), y_(nPoints)
 
       nInter_save = nInter
       nPoints_save = nPoints
+
+      Call mma_Allocate(x,nInter,nPoints,Label="x")
+      Call mma_Allocate(dy,nInter*nPoints,Label="dy")
+      Call mma_Allocate(y,nPoints,Label="y")
 
 !x is the n-dimensional internal coordinates
       x(:,:) = x_(:,:)
