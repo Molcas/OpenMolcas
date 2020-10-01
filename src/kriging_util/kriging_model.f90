@@ -163,7 +163,6 @@ SUBROUTINE kriging_model(nPoints)
   enddo
 !
 !Trend Function (baseline)
-  ordinary = .False.
   if (blaAI) then
 !
 !   Make sure the base line is above any data point

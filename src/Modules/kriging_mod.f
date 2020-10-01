@@ -13,13 +13,25 @@
       module kriging_mod
 
       implicit none
-      integer :: nspAI, npxAI, miAI
-      real*8 :: pAI, lb(3), dAIy, meAI, blvAI, blavAI
-      logical :: Kriging, ordinary, anMd, blAI, mblAI, blaAI, set_l
+!
+!     Define and initiate Kriging parameters.
+!
+      Logical :: Kriging = .False.
+      Integer :: nspAI = 1
+      Logical :: anMd = .True.
+      Real*8  :: pAI = 2
+      Integer :: npxAI = 1
+      Real*8  :: lb(3) = [20.0D0, 20.0D0, 1]
+      Integer :: miAI = 50
+      Real*8  :: meAI = 1.0D-8
+      Logical :: blAI = .False.
+      Logical :: mblAI = .False.
+      Logical :: blaAI = .True.
+      Real*8  :: blavAI=10.0D0
+      Logical :: set_l=.False.
+      Logical :: ordinary=.False.
+      Real*8  :: blvAI
 *
-*     use AI, only: npxAI, anMd, pAI, lb, blAI, blvAI, mblAI, blaAI,
-*    &              blavAI
-
       real*8, allocatable, protected :: x(:,:), y(:), dy(:)
       integer, protected :: nInter_save = 0, nPoints_save = 0
 
