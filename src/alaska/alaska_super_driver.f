@@ -528,6 +528,7 @@
 *
       Call Get_iScalar('Unique atoms',nsAtom)
       Call mma_Allocate(Grad,3*nsAtom,Label='Grad')
+      nGrad=3*nsAtom
       Call Get_Grad(Grad,nGrad)
       If (isNAC) Then
         Call Store_Grad(Grad,nGrad,0,NACstates(1),NACstates(2))
