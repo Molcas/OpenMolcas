@@ -158,7 +158,7 @@
 
         call split(path, '/', names)
 
-        if (len(names(size(names))%str) /= 0) then
+        if (size(names(size(names))%str) /= 0) then
         ! Base is a normal file that is not a directory .../.../basename
             res = str(names(size(names))%str)
         else

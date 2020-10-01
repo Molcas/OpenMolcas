@@ -14,6 +14,7 @@
 module test_fortran_strings_mod
     use fruit
     use fortran_strings, only: StringWrapper_t, split, str
+    use filesystem, only: basename
     implicit none
     private
     public :: test_split
@@ -36,6 +37,9 @@ contains
         call assert_true(str(splitted(1)%str) == 'Schroedinger')
         call assert_true(str(splitted(2)%str) == 'Born')
         call assert_true(str(splitted(3)%str) == 'Oppenheimer')
+
+        call assert_true('file.txt' == basename(path))
+        call assert_true('files' == basename('/home/mustermann/files/'))
     end subroutine
 
 end module test_fortran_strings_mod
