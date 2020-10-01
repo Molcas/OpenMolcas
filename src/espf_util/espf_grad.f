@@ -158,7 +158,6 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
          Call Get_dArray('Effective nuclear Charge',Work(ipXC),nAtom)
          Do iAt = 1, nAtom
             iCurXC = ipXC+iAt-1
-            iCurG = ipGrad+(iAt-1)*3
             iCurE = ipExt+(iAt-1)*MxExtPotComp
             Grad(1,iAt)=Grad(1,iAt) + Work(iCurXC)*Work(iCurE+1)
             Grad(2,iAt)=Grad(2,iAt) + Work(iCurXC)*Work(iCurE+2)
@@ -215,7 +214,6 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
          If (iWork(ipIsMM+iAt-1).eq.1) Goto 10
          iQM = iQM + 1
          Do jPnt = 1, NGrdPt
-            iCurG  = ipGrad + (iAt-1)*3
             iCurDB = ipDB + (jPnt-1)*nAtQM*3+(iQM-1)*3
             iCurDB1 = ipDB + (jPnt-1)+((iQM-1)*3+0)*nGrdPt
             iCurDB2 = ipDB + (jPnt-1)+((iQM-1)*3+1)*nGrdPt
