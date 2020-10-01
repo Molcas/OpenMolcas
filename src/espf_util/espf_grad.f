@@ -15,6 +15,7 @@
 *     Gradient due to the external potential
 *
 #include "espf.fh"
+#include "stdalloc.fh"
 *
 #include "disp.fh"
 #include "nac.fh"
@@ -24,20 +25,15 @@
       External Get_Ln
       Dimension FX(4)
       Dimension opnuc(1)
+      Real*8, Allocatable:: Grad(:,:)
 *
       iPL = iPL_espf()
 *
-      Call Get_Grad(ipGrad,nGrad)
+      Call mma_allocate(Grad,3,nAtom,Label='Grad')
+      Call Get_Grad(Grad,nGrad)
       lMMHess = .False.
-      If (nGrad.ne.3*natom) Then
-         Write (6,*)
-         Write (6,'(/,A)')'nGrad.ne.natom'
-         Write (6,'(A,I6)')'nGrad=',nGrad
-         Write (6,'(A,I6)')'natom=',natom
-         Call Quit_OnUserError()
-      End If
       If (iPL.ge.3) Call PrGrad(' Molecular gradients, entering ESPF',
-     &                          Work(ipGrad),lDisp(0),ChDisp,4)
+     &                          Grad,lDisp(0),ChDisp,4)
 *
 *     Recover MM gradient and hessian, if any, in QMMM file
 *
@@ -75,7 +71,7 @@
                   iOff = (iAtom-1)*3+iXYZ
                   Work(ipMMGrd+3*natom+iOff) = FX(iXYZ+1) * Angstrom
      &                                                    * ToHartree
-                  Work(ipGrad+iOff) = Work(ipGrad+iOff)
+                  Grad(iXYZ+1,iAtom) = Grad(iXYZ+1,iAtom)
      &                              + Work(ipMMGrd+3*natom+iOff)
                EndDo
             Else If (Index(Line,'MMHDiag').ne.0) Then
@@ -118,8 +114,11 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
 *
       If (DoGromacs .and. .not.isNAC) Then
          Call dcopy_(3*natom,Work(ipGradCl),1,Work(ipMMGrd+3*natom),1)
-         Do i = 0,3*natom-1
-            Work(ipGrad+i) = Work(ipGrad+i) + Work(ipMMGrd+3*natom+i)
+         Do iAtom = 1, nAtom
+            Do ixyz = 1, 3
+               i = ixyz + 3*(iAtom-1) - 1
+               Grad(ixyz,iAtom)=Grad(ixyz,iAtom)+Work(ipMMGrd+3*natom+i)
+            End Do
          End Do
       End If
 *
@@ -146,7 +145,7 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
       If (((Exist.and.DoTinker).or.DoGromacs) .and. .not.isNAC) Then
          Call Put_iScalar('No of Internal coordinates',3*natom)
          If (iPL.ge.3) Call PrGrad(' Molecular gradients, after MM',
-     &                          Work(ipGrad),lDisp(0),ChDisp,4)
+     &                          Grad,lDisp(0),ChDisp,4)
       End If
 *
 *     External field acting on nuclear charges
@@ -160,13 +159,13 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
             iCurXC = ipXC+iAt-1
             iCurG = ipGrad+(iAt-1)*3
             iCurE = ipExt+(iAt-1)*MxExtPotComp
-            Work(iCurG  ) = Work(iCurG  ) + Work(iCurXC)*Work(iCurE+1)
-            Work(iCurG+1) = Work(iCurG+1) + Work(iCurXC)*Work(iCurE+2)
-            Work(iCurG+2) = Work(iCurG+2) + Work(iCurXC)*Work(iCurE+3)
+            Grad(1,iAt)=Grad(1,iAt) + Work(iCurXC)*Work(iCurE+1)
+            Grad(2,iAt)=Grad(2,iAt) + Work(iCurXC)*Work(iCurE+2)
+            Grad(3,iAt)=Grad(3,iAt) + Work(iCurXC)*Work(iCurE+3)
          EndDo
          Call GetMem('XCharge','Free','Real',ipXC,natom)
          If (iPL.ge.3) Call PrGrad(' Molecular grad, after nuc ESPF',
-     &                          Work(ipGrad),lDisp(0),ChDisp,4)
+     &                             Grad,lDisp(0),ChDisp,4)
       End If
 *
 *     Here I need the integral derivatives, weighted by B and contracted
@@ -190,10 +189,10 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
 *     Need to save isNAC here because Prepare calling inisew calling init_seward which resets isNAC .to False.
       isNAC_tmp = isNAC
       Call Prepare(nGrdPt,ipGrid,ipB,ipGrdI)
-      Call Drvespf(Work(ipGrad),Work(ipTemp),3*natom,Work(ipGrdI))
+      Call Drvespf(Grad,Work(ipTemp),3*natom,Work(ipGrdI))
       Call GetMem('GridInfo','Free','Real',ipGrdI,4*nGrdPt)
       If (iPL.ge.3) Call PrGrad(' Molecular gradients, after P*B*dV',
-     &                          Work(ipGrad),lDisp(0),ChDisp,4)
+     &                          Grad,lDisp(0),ChDisp,4)
       Call GetMem('Temp','Free','Real',ipTemp,3*natom)
 *
 *     Here I need the integrals contracted with the density matrix and weighted
@@ -221,9 +220,9 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
             iCurDB2 = ipDB + (jPnt-1)+((iQM-1)*3+1)*nGrdPt
             iCurDB3 = ipDB + (jPnt-1)+((iQM-1)*3+2)*nGrdPt
             iCurI  = ipD2 + jPnt-1
-            Work(iCurG  ) = Work(iCurG  ) + Work(iCurDB1)*Work(iCurI)
-            Work(iCurG+1) = Work(iCurG+1) + Work(iCurDB2)*Work(iCurI)
-            Work(iCurG+2) = Work(iCurG+2) + Work(iCurDB3)*Work(iCurI)
+            Grad(1,iAt)=Grad(1,iAt) + Work(iCurDB1)*Work(iCurI)
+            Grad(2,iAt)=Grad(2,iAt) + Work(iCurDB2)*Work(iCurI)
+            Grad(3,iAt)=Grad(3,iAt) + Work(iCurDB3)*Work(iCurI)
          EndDo
 10       Continue
       EndDo
@@ -231,17 +230,16 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
 *
 *     Apply Morokuma's scheme if needed
 *
-      If ((Exist.and.DoTinker).or.DoGromacs)
-     &   Call LA_Morok(natom,Work(ipGrad),1)
+      If ((Exist.and.DoTinker).or.DoGromacs) Call LA_Morok(natom,Grad,1)
 *
 *     Finally
 *
-      Call Put_Grad(Work(ipGrad),3*natom)
+      Call Put_Grad(Grad,3*natom)
       Call GetMem('dESPF2','Free','Real',ipD2,nGrdPt)
       If (iPL.ge.2) Call PrGrad(' Molecular gradients, after ESPF',
-     &                          Work(ipGrad),lDisp(0),ChDisp,4)
-      Call Add_Info('Grad',Work(ipGrad),3*natom,6)
-      Call GetMem('Grad','Free','Real',ipGrad,3*natom)
+     &                          Grad,lDisp(0),ChDisp,4)
+      Call Add_Info('Grad',Grad,3*natom,6)
+      Call mma_deallocate(Grad)
 *
       Return
       End

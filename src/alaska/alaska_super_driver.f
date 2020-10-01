@@ -18,9 +18,11 @@
       Character*16 StdIn
       Integer Columbus
       Character(Len=16) mstate1,mstate2
+      Real*8, Allocatable:: Grad(:)
 #include "warnings.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "nac.fh"
 #include "alaska_root.fh"
 #include "para_info.fh"
@@ -524,13 +526,15 @@
 * It is done here because the gradient could have been modified by ESPF
 * and we do not want to pass the root to ESPF (yet)
 *
-      Call Get_Grad(ipGrad,nGrad)
+      Call Get_iScalar('Unique atoms',nsAtom)
+      Call mma_Allocate(Grad,3*nsAtom,Label='Grad')
+      Call Get_Grad(Grad,nGrad)
       If (isNAC) Then
-        Call Store_Grad(Work(ipGrad),nGrad,0,NACstates(1),NACstates(2))
+        Call Store_Grad(Grad,nGrad,0,NACstates(1),NACstates(2))
       Else
-        Call Store_Grad(Work(ipGrad),nGrad,iRlxRoot,0,0)
+        Call Store_Grad(Grad,nGrad,iRlxRoot,0,0)
       End If
-      Call GetMem('Grad','Free','Real',ipGrad,nGrad)
+      Call mma_deallocate(Grad)
 *                                                                      *
 ************************************************************************
 *                                                                      *
