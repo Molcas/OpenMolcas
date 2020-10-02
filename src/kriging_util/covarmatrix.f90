@@ -144,7 +144,8 @@ SUBROUTINE covarMatrix(nPoints,nInter)
                           * diffx_j(1:nPoints_g,1:nPoints_g) &
                           * diffx_i(1:nPoints_g,1:nPoints_g)
 
-      if (i.eq.j) full_R(i0:i1,j0:j1) = full_R(i0:i1,j0:j1) - matFder*(2.0D0/(l(i)*l(j)))
+      if (i.eq.j) full_R(i0:i1,j0:j1) = full_R(i0:i1,j0:j1) &
+                                      - matFder(1:nPoints_g,1:nPoints_g)*(2.0D0/(l(i)*l(j)))
 
     !   Writing the second derivatives in eq(2)
       if (i.ne.j) full_R(j0:j1,i0:i1) = transpose(Full_r(i0:i1,j0:j1))
