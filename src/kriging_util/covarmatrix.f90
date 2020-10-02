@@ -140,21 +140,21 @@ SUBROUTINE covarMatrix(nPoints,nInter)
       diffx_j(:,:)  =  2.0D0*r(:,:,j)/l(j)
 !
     !   if differentiating twice on the same dimension
-      if (i.eq.j) Then
-       full_R(i0:i1,j0:j1) = matSder*diffx_j*diffx_i - matFder*(2.0D0/(l(i)*l(j)))
-      else
-       full_R(i0:i1,j0:j1) = matSder*diffx_j*diffx_i
-      end if
+      full_R(i0:i1,j0:j1) = matSder*diffx_j*diffx_i
+
+      if (i.eq.j) full_R(i0:i1,j0:j1) = full_R(i0:i1,j0:j1) - matFder*(2.0D0/(l(i)*l(j)))
+
     !   Writing the second derivatives in eq(2)
       if (i.ne.j) full_R(j0:j1,i0:i1) = transpose(Full_r(i0:i1,j0:j1))
     enddo
+
   enddo
 !
 !           Add constants to reflect the error in the energy and the
 !           gradient, respectively.
 !
   do j=1,m_t
-    if (j.le.nPoints) then
+    if (j.le.nPoints_v) then
       Full_R(j,j) = Full_R(j,j) + eps
     else
       Full_R(j,j) = Full_R(j,j) + eps2
