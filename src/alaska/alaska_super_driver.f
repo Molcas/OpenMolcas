@@ -21,7 +21,6 @@
       Real*8, Allocatable:: Grad(:)
 #include "warnings.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "nac.fh"
 #include "alaska_root.fh"

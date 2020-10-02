@@ -118,12 +118,14 @@
       External LSDA_emb, Checker
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "debug.fh"
       Real*8 Grad(nGrad)
       Logical Do_Grad
       Character*(*) KSDFT
       Character*4 DFTFOCK
       Character*16 NamRfil
+      Real*8, Allocatable:: Grad_A(:), F_DFT(:,:), D_DS(:,:)
       Logical Do_OFemb,KEonly,OFE_first
       COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
       COMMON  / OFembed_R1/ Xsigma
@@ -138,8 +140,8 @@
          Call Abend()
       EndIf
       Call FZero(Grad,nGrad)
-      Call GetMem('Grad_A','Allo','Real',ip_Grad_A,nGrad)
-      Call FZero(Work(ip_Grad_A),nGrad)
+      Call mma_allocate(Grad_A,nGrad,Label='Grad_A')
+      Grad_A(:)=Zero
 ************************************************************************
 *                                                                      *
 *     Setup of density matrices for subsys B (environment)             *
@@ -151,12 +153,8 @@
 ************************************************************************
 *                                                                      *
       nD=4
-      lFck=nh1*nD
-      Call Allocate_Work(ipF_DFT,lFck)
-      ipFA_DFT=ipF_DFT+2*nh1
-      l_D_DS=nh1*nD
-      Call GetMem('D-DS','Allo','Real',ip_D_DS,l_D_DS)
-      ipA_D_DS=ip_D_DS+2*nh1
+      Call mma_allocate(F_DFT,nh1,nD,Label='F_DFT')
+      Call mma_allocate(D_DS,nh1,nD,Label='D_DS')
 *
 *---- Get the density matrix of the environment (rho_B)
 *
@@ -168,7 +166,7 @@
          Write (6,*) 'nh1  =',nh1
          Call Abend()
       End If
-      call dcopy_(nh1,Work(ipD1ao),1,Work(ip_D_DS),1)
+      call dcopy_(nh1,Work(ipD1ao),1,D_DS(1,1),1)
 *     Call RecPrt('D1ao',' ',Work(ipD1ao),nh1,1)
 *
       Call GetMem('Dens','Free','Real',ipD1ao,nDens)
@@ -178,7 +176,7 @@
       If (kSpin.ne.1) Then
          Call Get_D1Sao(ipD1Sao,nDens)
 *        Call RecPrt('D1Sao',' ',Work(ipD1Sao),nh1,1)
-         call dcopy_(nh1,Work(ipD1Sao),1,Work(ip_D_DS+nh1),1)
+         call dcopy_(nh1,Work(ipD1Sao),1,D_DS(1,2),1)
          Call GetMem('Dens','Free','Real',ipD1Sao,nDens)
       End If
 *
@@ -186,27 +184,27 @@
 *
       nFckDim=2
       If (kSpin.eq.1) Then
-         call dscal_(nh1,Half,Work(ip_D_DS),1)
-         call dcopy_(nh1,Work(ip_D_DS),1,Work(ip_D_DS+nh1),1)
+         call dscal_(nh1,Half,D_DS(1,1),1)
+         call dcopy_(nh1,D_DS(1,1),1,D_DS(1,2),1)
          nFckDim=1
       Else
          Do i = 1, nh1
-            DTot=Work(ip_D_DS+i-1)
-            DSpn=Work(ip_D_DS+i-1+nh1)
+            DTot=D_DS(i,1)
+            DSpn=D_DS(i,2)
             d_Alpha=Half*(DTot+DSpn)
             d_Beta =Half*(DTot-DSpn)
-            Work(ip_D_DS+i-1)=    d_Alpha
-            Work(ip_D_DS+i-1+nh1)=d_Beta
+            D_DS(i,1)=d_Alpha
+            D_DS(i,2)=d_Beta
          End Do
-*      Call RecPrt('Da',' ',Work(ip_D_DS),nh1,1)
-*      Call RecPrt('Db',' ',Work(ip_D_DS+nh1),nh1,1)
+*      Call RecPrt('Da',' ',D_DS(1,1),nh1,1)
+*      Call RecPrt('Db',' ',D_DS(1,2),nh1,1)
       End If
 *
 
       If (KSDFT(1:4).eq.'NDSD') Then
 
-         Call wrap_DrvNQ(KSDFT,Work(ipF_DFT),nFckDim,Func_B,
-     &                   Work(ip_D_DS),nh1,nFckDim,
+         Call wrap_DrvNQ(KSDFT,F_DFT,nFckDim,Func_B,
+     &                   D_DS,nh1,nFckDim,
      &                   Do_Grad,
      &                   Grad,nGrad,DFTFOCK)
 
@@ -229,7 +227,7 @@
          Write (6,*) 'nh1  =',nh1
          Call Abend()
       End If
-      call dcopy_(nh1,Work(ipD1ao),1,Work(ipA_D_DS),1)
+      call dcopy_(nh1,Work(ipD1ao),1,D_DS(1,3),1)
 *     Call RecPrt('D1ao',' ',Work(ipD1ao),nh1,1)
 *
       Call GetMem('Dens','Free','Real',ipD1ao,nDens)
@@ -246,7 +244,7 @@
       If (iSpin.ne.1) Then
          Call Get_D1Sao(ipD1Sao,nDens)
 *        Call RecPrt('D1Sao',' ',Work(ipD1Sao),nh1,1)
-         call dcopy_(nh1,Work(ipD1Sao),1,Work(ipA_D_DS+nh1),1)
+         call dcopy_(nh1,Work(ipD1Sao),1,D_DS(1,4),1)
          Call GetMem('Dens','Free','Real',ipD1Sao,nDens)
       End If
 *
@@ -254,54 +252,54 @@
 *
       nFckDim=2
       If (iSpin.eq.1) Then
-         call dscal_(nh1,Half,Work(ipA_D_DS),1)
-         call dcopy_(nh1,Work(ipA_D_DS),1,Work(ipA_D_DS+nh1),1)
+         call dscal_(nh1,Half,D_DS(1,3),1)
+         call dcopy_(nh1,D_DS(1,3),1,D_DS(1,4),1)
          If (kSpin.eq.1) nFckDim=1
       Else
          Do i = 1, nh1
-            DTot=Work(ipA_D_DS+i-1)
-            DSpn=Work(ipA_D_DS+i-1+nh1)
+            DTot=D_DS(i,3)
+            DSpn=D_DS(i,4)
             d_Alpha=Half*(DTot+DSpn)
             d_Beta =Half*(DTot-DSpn)
-            Work(ipA_D_DS+i-1)=    d_Alpha
-            Work(ipA_D_DS+i-1+nh1)=d_Beta
+            D_DS(i,3)=d_Alpha
+            D_DS(i,4)=d_Beta
          End Do
-*      Call RecPrt('Da',' ',Work(ipA_D_DS),nh1,1)
-*      Call RecPrt('Db',' ',Work(ipA_D_DS+nh1),nh1,1)
+*      Call RecPrt('Da',' ',D_DS(1,3),nh1,1)
+*      Call RecPrt('Db',' ',D_DS(1,4),nh1,1)
       End If
 *
-      Call wrap_DrvNQ(KSDFT,Work(ipFA_DFT),nFckDim,Func_A,
-     &                Work(ipA_D_DS),nh1,nFckDim,
+      Call wrap_DrvNQ(KSDFT,F_DFT(1,3),nFckDim,Func_A,
+     &                D_DS(1,3),nh1,nFckDim,
      &                Do_Grad,
-     &                Work(ip_Grad_A),nGrad,DFTFOCK)
+     &                Grad_A,nGrad,DFTFOCK)
 
-      Call daxpy_(nGrad,-1.0d0,Work(ip_Grad_A),1,Grad,1)
+      Call daxpy_(nGrad,-1.0d0,Grad_A,1,Grad,1)
 *
 *  Fraction of correlation potential from A (cases: HF or Trunc. CI)
       If (dFMD.gt.0.0d0) Then
 *
-         Call FZero(Work(ip_Grad_A),nGrad)
+         Grad_A(:)=Zero
          Call GetMem('Fcorr','Allo','Real',ipFc,nh1*nFckDim) !dummy
 
-         Call cwrap_DrvNQ(KSDFT,Work(ipFA_DFT),nFckDim,Func_A,
-     &                    Work(ipA_D_DS),nh1,nFckDim,
+         Call cwrap_DrvNQ(KSDFT,F_DFT(1,3),nFckDim,Func_A,
+     &                    D_DS(1,3),nh1,nFckDim,
      &                    Do_Grad,
-     &                    Work(ip_Grad_A),nGrad,DFTFOCK,Work(ipFc))
+     &                    Grad_A,nGrad,DFTFOCK,Work(ipFc))
 
          Call get_dScalar('NAD dft energy',Energy_NAD)
          Fakt_ = Xlambda(abs(Energy_NAD),Xsigma)
-         Call daxpy_(nGrad,Fakt_,Work(ip_Grad_A),1,Grad,1)
+         Call daxpy_(nGrad,Fakt_,Grad_A,1,Grad,1)
 
          Call GetMem('Fcorr','Free','Real',ipFc,nh1*nFckDim)
       End If
 *
-      Call GetMem('Grad_A','Free','Real',ip_Grad_A,nGrad)
+      Call mma_deallocate(Grad_A)
 *
       Call Get_NameRun(NamRfil) ! save the old RUNFILE name
       Call NameRun('AUXRFIL')   ! switch RUNFILE name
 *
-      Call wrap_DrvNQ('NUCATT_EMB',Work(ipF_DFT),nFckDim,Func_X,
-     &                Work(ipA_D_DS),nh1,nFckDim,
+      Call wrap_DrvNQ('NUCATT_EMB',F_DFT,nFckDim,Func_X,
+     &                D_DS(1,3),nh1,nFckDim,
      &                Do_Grad,
      &                Grad,nGrad,DFTFOCK)
 *
@@ -315,19 +313,19 @@
       nFckDim=2
       If (iSpin.eq.1 .and. kSpin.eq.1) Then
          nFckDim=1
-         Call daxpy_(nh1,One,Work(ipA_D_DS),1,Work(ip_D_DS),1)
+         Call daxpy_(nh1,One,D_DS(1,3),1,D_DS(1,1),1)
       Else
-         Call daxpy_(nh1,One,Work(ipA_D_DS),1,Work(ip_D_DS),1)
-         Call daxpy_(nh1,One,Work(ipA_D_DS+nh1),1,Work(ip_D_DS+nh1),1)
+         Call daxpy_(nh1,One,D_DS(1,3),1,D_DS(1,1),1)
+         Call daxpy_(nh1,One,D_DS(1,4),1,D_DS(1,2),1)
       EndIf
 
-      Call wrap_DrvNQ(KSDFT,Work(ipF_DFT),nFckDim,Func_AB,
-     &                Work(ip_D_DS),nh1,nFckDim,
+      Call wrap_DrvNQ(KSDFT,F_DFT,nFckDim,Func_AB,
+     &                D_DS,nh1,nFckDim,
      &                Do_Grad,
      &                Grad,nGrad,DFTFOCK)
 *
-      Call Free_Work(ipF_DFT)
-      Call GetMem('D-DS','Free','Real',ip_D_DS,l_D_DS)
+      Call mma_deallocate(F_DFT)
+      Call mma_deallocate(D_DS)
 *
       Return
       End
