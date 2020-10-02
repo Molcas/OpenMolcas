@@ -110,13 +110,13 @@ SUBROUTINE covarMatrix(nPoints,nInter)
 !
 !   Writing the 1st row of 1st derivatives with respect the coordinates
 !
-    full_R(1:nPoints_v,i0:i1) = matFDer(1:nPoints_v,1:nPoints_g)*diffx_i(1:nPoints_v,1:nPoints_g)
+    full_R(1:nPoints_v,i0:i1) = matFDer(1:nPoints_v,1:nPoints_g)  &
+                              * diffx_i(1:nPoints_v,1:nPoints_g)
 
   enddo
 ! Complete by filling in the opposite side
 
   full_R(nPoints_v+1:m_t,1:nPoints_v) = Transpose(Full_R(1:nPoints_v,nPoints_v+1:m_t))
-!... to be continued
 !
 !**********************************************************************
 !
@@ -124,12 +124,12 @@ SUBROUTINE covarMatrix(nPoints,nInter)
 !
 ! Matern second derivative with respect to d
 !
-  call matderiv(2, d, matSder, nPoints, nPoints)
+  call matderiv(2, d, matSder, nPoints_v, nPoints_v)
 !
     ! Second derivatives
   do i = 1,nInter
-    i0 = i*nPoints +1
-    i1 = i0        +nPoints-1
+    i0 = nPoints_v + 1 + (i-1)*nPoints_g
+    i1 = i0 + nPoints_g - 1
 !
     diffx_i(:,:) = -2.0D0*r(:,:,i)/l(i)
 !
