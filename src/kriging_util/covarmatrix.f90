@@ -131,13 +131,13 @@ SUBROUTINE covarMatrix(nPoints,nInter)
     i0 = nPoints_v + 1 + (i-1)*nPoints_g
     i1 = i0 + nPoints_g - 1
 !
-    diffx_i(:,:) = -2.0D0*r(:,:,i)/l(i)
+    diffx_i(1:nPoints_g,1:nPoints_g) = -2.0D0*r(1:nPoints_g,1:nPoints_g,i)/l(i)
 !
     do j = i,nInter
-      j0 = j*nPoints+1
-      j1 = j0+nPoints-1
+      j0 = nPoints_v + 1 + (j-1)*nPoints_g
+      j1 = j0 + nPoints_g - 1
 !
-      diffx_j(:,:)  =  2.0D0*r(:,:,j)/l(j)
+      diffx_j(1:nPoints_g,1:nPoints_g)  =  2.0D0*r(1:nPoints_g,1:nPoints_g,j)/l(j)
 !
     !   if differentiating twice on the same dimension
       full_R(i0:i1,j0:j1) = matSder*diffx_j*diffx_i
