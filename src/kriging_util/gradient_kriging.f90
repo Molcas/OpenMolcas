@@ -32,7 +32,7 @@ Subroutine Gradient_Kriging(x_,dy_,ndimx)
   nx(:,:) = x_
 !
   ! Write(6,*) 'Entro grad'
-  call covarvector(1,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+  call covarvector(1) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
   call predict(1,nPoints,nInter)
   dy_=gpred(npx,:)
 !
@@ -45,13 +45,13 @@ Subroutine Gradient_Kriging(x_,dy_,ndimx)
 !
     nx(i,1) = x_(i,1) + Delta
 !
-    call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+    call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
     call predict(0,nPoints,nInter)
     tpred = pred(npx)
 !
     nx(i,1) = x_(i,1) - Delta
 !
-    call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+    call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
     call predict(0,nPoints,nInter)
     thpred = pred(npx)
 !

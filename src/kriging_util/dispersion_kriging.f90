@@ -21,7 +21,7 @@ Subroutine Dispersion_Kriging(x_,y_,ndimx)
         nPoints=nPoints_save
         nInter=nInter_save
         nx(:,:) = x_
-        call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+        call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
         call predict(0,nPoints,nInter)
 ! 95% confidence -> 1.96*sigma
   y_ = 1.96d0*sigma(npx)

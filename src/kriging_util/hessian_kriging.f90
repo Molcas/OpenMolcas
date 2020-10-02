@@ -31,7 +31,7 @@ Subroutine Hessian_Kriging(x_,ddy_,ndimx)
 ! subroutine
   nx(:,:) = x_
 !
-  call covarvector(2,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+  call covarvector(2) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
   call predict(2,nPoints,nInter)
   ddy_ = hpred(npx,:,:)
 !
@@ -49,12 +49,12 @@ Subroutine Hessian_Kriging(x_,ddy_,ndimx)
     Delta = 1.0D-5!Max(Abs(x_(i,1)),1.0D-5)*Scale
 !
     nx(i,1) = tmp + Delta
-    call covarvector(1,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+    call covarvector(1) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
     call predict(1,nPoints,nInter)
     tgrad=gpred(npx,:)
 !
     nx(i,1) = tmp - Delta
-    call covarvector(1,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+    call covarvector(1) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
     call predict(1,nPoints,nInter)
     thgrad=gpred(npx,:)
 !

@@ -24,7 +24,7 @@ Subroutine Energy_Kriging(x_,y_,ndimx)
 ! subroutine
   nx(:,:) = x_
 !
-  call covarvector(0,nPoints,nInter) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
+  call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
   call predict(0,nPoints,nInter)
   y_=pred(npx)
 !
