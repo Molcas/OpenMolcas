@@ -16,18 +16,6 @@
 *                                                                      *
 * Object: input module for the gradient code                           *
 *                                                                      *
-* Called from: McKinley                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              RecPrt                                                  *
-*              DaXpY   (ESSL)                                          *
-*              DDot_   (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             September 1991                                           *
@@ -60,8 +48,6 @@ c      Logical DoCholesky
       Integer iSym(3), iTemp(3*MxAtom)
       Data xyz/'x','y','z'/
 *
-      Call QEnter('InputH')
-
 c      Call DecideOnCholesky(DoCholesky)
 c      If (DoCholesky) Then
 c       write(6,*)'** Cholesky or RI/DF not yet implemented in McKinley '
@@ -123,15 +109,12 @@ c      EndIf
       If (KWord(1:4).eq.'END ') Go To 997
       Write (6,*) 'InputH: Illegal keyword'
       Write (6,'(A,A)') 'KWord=',KWord
-      Call QTrace
       Call Abend()
  977  Write (6,*) 'InputH: end of input file.'
       Write (6,'(A,A)') 'Last command=',KWord
-      Call QTrace
       Call Abend()
  988  Write (6,*) 'InputH: error reading input file.'
       Write (6,'(A,A)') 'Last command=',KWord
-      Call QTrace
       Call Abend()
 *                                                                      *
 ****** MEM  ************************************************************
@@ -156,7 +139,6 @@ c      EndIf
       Else
          Write (6,*) 'InputH: Illegal perturbation keyword'
          Write (6,'(A,A)') 'KWord=',KWord
-         Call QTrace
          Call Abend()
       End If
 
@@ -309,7 +291,6 @@ c      EndIf
       Call OpnMck(irc,iOpt,'MCKINT',Lu_Mck)
       If (iRC.ne.0) Then
          Write (6,*) 'InputH: Error opening MCKINT'
-         Call QTrace
          Call Abend()
       End If
       If (ipert.eq.1) Then
@@ -331,7 +312,6 @@ c      EndIf
         Call cWrMck(iRC,iOpt,LabelOp,1,Label2,iDummer)
         Write (6,*) 'InputH: Illegal perturbation option'
         Write (6,*) 'iPert=',iPert
-        Call QTrace
         Call Abend()
       Else If (ipert.eq.4) Then
         LabelOp='PERT    '
@@ -339,12 +319,10 @@ c      EndIf
         Call cWrMck(iRC,iOpt,LabelOp,1,Label2,iDummer)
         Write (6,*) 'InputH: Illegal perturbation option'
         Write (6,*) 'iPert=',iPert
-        Call QTrace
         Call Abend()
       Else
         Write (6,*) 'InputH: Illegal perturbation option'
         Write (6,*) 'iPert=',iPert
-        Call QTrace
         Call Abend()
       End If
 
@@ -455,7 +433,6 @@ c      EndIf
       If (nDisp.ne.mDisp) Then
          Write (6,*) 'InputH: nDisp.ne.mDisp'
          Write (6,*) 'nDisp,mDisp=',nDisp,mDisp
-         Call QTrace
          Call Abend()
       End If
       If (sIrrep) Then
@@ -473,7 +450,6 @@ c      EndIf
       If (iRC.ne.0) Then
          Write (6,*) 'InputH: Error writing to MCKINT'
          Write (6,'(A,A)') 'labelOp=',labelOp
-         Call QTrace
          Call Abend()
       End If
       LABEL='DEGDISP'
@@ -483,7 +459,6 @@ c      EndIf
       If (iRC.ne.0) Then
          Write (6,*) 'InputH: Error writing to MCKINT'
          Write (6,'(A,A)') 'LABEL=',LABEL
-         Call QTrace
          Call Abend()
       End If
       Call GetMem('DEGDISP','Free','INTE',ipdd,mDisp)
@@ -494,7 +469,6 @@ c      EndIf
       If (iRC.ne.0) Then
          Write (6,*) 'InputH: Error writing to MCKINT'
          Write (6,'(A,A)') 'LABEL=',LABEL
-         Call QTrace
          Call Abend()
       End If
       Call GetMem('ATDISP','Free','INTE',ipad,mDisp)
@@ -505,7 +479,6 @@ c      EndIf
       If (iRC.ne.0) Then
          Write (6,*) 'InputH: Error writing to MCKINT'
          Write (6,'(A,A)') 'LABEL=',LABEL
-         Call QTrace
          Call Abend()
       End If
       Call GetMem('TDISP','FREE','INTE',ipTD,ndisp)
@@ -820,6 +793,5 @@ c      EndIf
         End If
       End Do
 *
-      Call QExit('InputH')
       Return
       End

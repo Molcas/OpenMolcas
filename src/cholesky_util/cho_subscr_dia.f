@@ -38,7 +38,6 @@ C
       DSubScr(i)=Work(ip_DSubScr-1+i)
 
 #if defined (_DEBUGPRINT_)
-      Call qEnter('_SubScr_Dia')
       If (iLoc.lt.1 .or. iLoc.gt.3) Then
          Call Cho_Quit('iLoc error in '//SecNam,104)
       End If
@@ -55,7 +54,7 @@ C     --------------------------------------
 
       Call Cho_dZero(Work(ip_DSubScr),nnBstR(iSym,iLoc))
       Call Cho_dZero(Work(ip_DSPNm),nnShl)
-      If (nVec.lt.1 .or. nnBstR(iSym,iLoc).lt.1) Go To 1 ! return
+      If (nVec.lt.1 .or. nnBstR(iSym,iLoc).lt.1) return
 
 C     Compute diagonal.
 C     -----------------
@@ -121,13 +120,5 @@ C     --------------------------------------
             End Do
          End Do
       End If
-
-C     Return.
-C     -------
-    1 Continue
-#if defined (_DEBUGPRINT_)
-      Call qExit('_SubScr_Dia')
-#endif
-      Return
 
       End

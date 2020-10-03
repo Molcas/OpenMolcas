@@ -197,7 +197,6 @@
 
       integer :: iSym, remove(nSym), total_remove
 
-      call qEnter(ROUTINE)
 
       remove = n_to_ON(:nSym) - nNew(:nSym)
       total_remove = sum(remove(:nSym))
@@ -235,7 +234,6 @@
         nTot3 = sum((nOrb(:nSym) + nOrb(:nSym)**2) / 2)
         nTot4 = sum(nOrb(:nSym)**2)
       end if
-      call qExit(ROUTINE)
       end subroutine update_orb_numbers
 
 
@@ -272,7 +270,6 @@
         real(wp) :: Mol_Charge
         real(wp), allocatable :: S_buffer(:)
 
-        call qEnter(ROUTINE)
 
         size_S_buffer = sum(nBas(:nSym) * (nBas(:nSym) + 1) / 2)
         call mma_allocate(S_buffer, size_S_buffer + 4)
@@ -288,7 +285,6 @@
           write(6,'(6x,A,f8.2)') 'Total molecular charge',Mol_Charge
         end if
 
-        call qExit(ROUTINE)
       end subroutine
 
       end module orthonormalization

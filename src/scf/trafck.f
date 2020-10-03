@@ -70,13 +70,10 @@
      &        nVrt,ii,ia
 *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-*define _SPECIAL_DEBUGPRINT_
 #ifdef _SPECIAL_DEBUGPRINT_
       Call DebugCMOx(CMO,nCMO,nD,nBas,nOrb,nSym,'TraFck: CMO old')
 #endif
-*define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call qEnter('TraFck')
       Call NrmClc(Fock,nFock*nD,'TraFck','Fock')
 #endif
 *---- allocate memory for modified Fock matrix
@@ -419,9 +416,6 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
       Call mma_deallocate(FckS)
       Call mma_deallocate(FckM)
 *
-#ifdef _DEBUGPRINT_
-      Call qExit('TraFck')
-#endif
 #ifdef _SPECIAL_DEBUGPRINT_
       Call DebugCMOx(CMO,nCMO,nD,nBas,nOrb,nSym,'TraFck: CMO new')
 #endif

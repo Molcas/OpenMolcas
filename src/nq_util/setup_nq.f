@@ -18,17 +18,6 @@
 *         numerical quadrature.                                        *
 * Warning: The exponents of each shell are reordered diffuse to compact*
 *                                                                      *
-* Called from: Drvnq                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Quit                                                    *
-*              Nr_Shells                                               *
-*              GetMem                                                  *
-*              DSwap                                                   *
-*              GauLeg                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh,                                            *
 *             Dept of Chemical Physics,                                *
 *             University of Lund, Sweden                               *
@@ -80,7 +69,6 @@
 ************************************************************************
 *                                                                      *
 c     Write(6,*) '********** Setup_NQ ***********'
-C     Call QEnter('Setup_NQ')
       ntotgp=0
 *                                                                      *
 ************************************************************************
@@ -805,6 +793,5 @@ C        Write (6,*) 'Grid_Status.eq.Use_Old'
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QExit('Setup_NQ')
       Return
       End

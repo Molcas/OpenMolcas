@@ -35,12 +35,6 @@
 *          3. Terminate run telling job max and min of additional      *
 *             memory needed to perform the calculation.                *
 *                                                                      *
-* Called from: Drvg1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Change                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -71,7 +65,6 @@
 *
       iRout = 10
       iPrint = nPrint(iRout)
-*     Call qEnter('PSOAO1')
       la = iAnga(1)
       lb = iAnga(2)
       lc = iAnga(3)
@@ -347,6 +340,5 @@
       q2 = q2 + DBLE(jPrInc)/DBLE(jPrim)
       q3 = q3 + DBLE(kPrInc)/DBLE(kPrim)
       q4 = q4 + DBLE(lPrInc)/DBLE(lPrim)
-*     Call qExit('PSOAO1')
       Return
       End

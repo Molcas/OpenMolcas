@@ -28,10 +28,6 @@ C
       Integer is1CCD
 #endif
 
-#if defined (_DEBUGPRINT_)
-      CALL QENTER('_FINAL')
-#endif
-
 C     Write NUMCHO array, shell indices, and threshold to runfile.
 C     ------------------------------------------------------------
 
@@ -123,9 +119,4 @@ C     ---------------------------------------------
 
       CHOISINI = CHOINICHECK + 1
       CALL PUT_ISCALAR('ChoIni',CHOISINI)
-
-#if defined (_DEBUGPRINT_)
-      CALL QEXIT('_FINAL')
-#endif
-
       END

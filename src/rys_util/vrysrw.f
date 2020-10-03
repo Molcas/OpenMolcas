@@ -32,7 +32,6 @@
 *
       iRout = 78
       iPrint = nPrint(iRout)
-*     Call qEnter('vRysRW')
 #ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Call RecPrt('In vRysRW:Arg',' ',Arg,nArg,1)
 #endif
@@ -175,6 +174,5 @@
          Call Recprt(' In vRysRW: Weight',' ',Weight,nRys,nArg)
       End If
 #endif
-*     Call qExit('vRysRW')
       Return
       End

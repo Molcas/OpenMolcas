@@ -37,10 +37,6 @@ c
       Integer, Dimension(:,:), Allocatable :: DefLA
       Real*8, Dimension(:), Allocatable :: FactLA
 *
-      Call QEnter('LA_Morok')
-*
-*define _DEBUGPRINT_
-*
       iPL = iPL_espf()
       lMorok = .False.
       DoTinker = .False.
@@ -63,7 +59,7 @@ c
          Goto 10
 11       Close (IPotFl)
       End If
-      If (.not.lMorok) Goto 999
+      If (.not.lMorok) Return
 #ifdef _DEBUGPRINT_
       iPL = 4
       Call RecPrt('LA_Morok: coord or grad:',' ',Work(ipCorG),3,nAtom)
@@ -225,9 +221,7 @@ c
 #ifdef _DEBUGPRINT_
       Call RecPrt('LA_Morok: coord or grad:',' ',Work(ipCorG),3,nAtom)
 #endif
-999   Call QExit('LA_Morok')
-      Return
-#ifndef _DEBUGPRINT_
+#ifdef _WARNING_WORKAROUND_
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nAtom)
 #endif

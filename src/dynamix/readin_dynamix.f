@@ -13,7 +13,6 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       IMPLICIT REAL*8 (a-h,o-z)
       INTEGER Task(nTasks)
 *
-      CALL qEnter('ReadIn')
 C
 C     Copy input from standard input to a local scratch file
 C
@@ -33,7 +32,6 @@ C
 C     Remove local copy of standard input
 C
       CLOSE(LuSpool)
-      CALL qExit('ReadIn')
 *
       RETURN
 *

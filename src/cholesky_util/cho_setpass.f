@@ -19,10 +19,6 @@ C
       LOGICAL   CONV
 #include "cholesky.fh"
 
-#if defined (_DEBUGPRINT_)
-      CALL QENTER('_SETPASS')
-#endif
-
 C     Initialize the potential number of shell pairs that can
 C     contribute.
 C     -------------------------------------------------------
@@ -52,9 +48,5 @@ C     -----------------------------------------
             END IF
          END DO
       END IF
-
-#if defined (_DEBUGPRINT_)
-      CALL QEXIT('_SETPASS')
-#endif
 
       END

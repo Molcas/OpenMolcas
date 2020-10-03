@@ -22,7 +22,6 @@
       Complex(kind=8), intent(out) ::  HAM( N1,N1, N2,N2 )
       ! local variables
       Integer          :: i1,i2,j1,j2,l
-      Call qEnter('Lines_Exchange')
 
       If( (N1<=0).OR.(N2<=0) ) Return
       Call zcopy_(N1*N1*N2*N2,[(0.0_wp,0.0_wp)],0,HAM,1)
@@ -45,7 +44,6 @@
           End Do
         End Do
       End Do
-      Call qExit('Lines_Exchange')
       Return
       End Subroutine Lines_Exchange
 
@@ -68,7 +66,6 @@
       Real(kind=8)    :: dnrm2_
       External         :: dnrm2_
 
-      Call qEnter('Aniso_Lines3')
       If( (N1<=0).OR.(N2<=0) ) Return
       Call zcopy_(N1*N1*N2*N2,[(0.0_wp,0.0_wp)],0,HAM,1)
       If ( dnrm2_(3,Jex,1)==0.0_wp) Return
@@ -92,7 +89,6 @@
           End Do
         End Do
       End Do
-      Call qExit('Aniso_Lines3')
       Return
       End Subroutine Aniso_Lines_Exchange3
 
@@ -116,7 +112,6 @@
       Real(kind=8)    :: dnrm2_
       External         :: dnrm2_
 
-      Call qEnter('Aniso_Lines9')
       If( (N1<=0).OR.(N2<=0) ) Return
       Call zcopy_(N1*N1*N2*N2,[(0.0_wp,0.0_wp)],0,HAM,1)
       If ( dnrm2_(9,Jex,1)==0.0_wp) Return
@@ -145,7 +140,6 @@
           End Do
         End Do
       End Do
-      Call qExit('Aniso_Lines9')
       Return
       End Subroutine Aniso_Lines_Exchange9
 
@@ -169,7 +163,6 @@
       Real(kind=8)    :: dnrm2_
       External         :: dnrm2_
 
-      Call qEnter('DM_exchange')
       If( (N1<=0).OR.(N2<=0) ) Return
       Call zcopy_(N1*N1*N2*N2,[(0.0_wp,0.0_wp)],0,HAM,1)
       If ( dnrm2_(3,Jex,1)==0.0_wp) Return
@@ -207,7 +200,6 @@
           End Do
         End Do
       End Do
-      Call qExit('DM_exchange')
       Return
       End Subroutine Dzyaloshinsky_Morya_Exchange
 
@@ -247,7 +239,6 @@
       Real(kind=8)                 :: dnrm2_
       External                      :: dnrm2_
 
-      Call qEnter('JITO_Exchange_Int')
       dbg=.false.
 ! ----  initial checks
       If( (n1<=0).OR.(n2<=0) ) Return
@@ -350,6 +341,5 @@
       Call mma_deallocate(O2)
       Call mma_deallocate(W2)
 
-      Call qExit('JITO_Exchange_Int')
       Return
       End Subroutine JITO_Exchange_Int

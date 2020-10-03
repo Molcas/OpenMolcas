@@ -33,7 +33,6 @@ C
       DIMENSION TWRK4(N*200)
 *
 C
-*     Call qEnter('scfcli')
 c      write(6,*) ' in SCFCLI', N, iSize
       TOL=1.D-14
       PREA=1d0/(VELIT*VELIT)
@@ -356,7 +355,6 @@ culf
       if(idbg.gt.0)CALL PRMAT(IDBG,h,n,0,'h   oper(final)')
       if(idbg.gt.0)WRITE (idbg,*) '--- EIGENVALUES OF H MATRIX ---'
       if(idbg.gt.0)WRITE (idbg,'(4D20.12)') EW
-*     Call qExit('scfcli')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN

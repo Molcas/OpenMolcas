@@ -30,10 +30,10 @@
         character *(*) xb_label(*)
         character *(*) xb_bas(*)
 
-      IfTest=.False.
 #ifdef _DEBUGPRINT_
-      Call QEnter('XMatrixConverter')
       IfTest=.True.
+#else
+      IfTest=.False.
 #endif
 
 C  ***  H-Fm (Atomic numbers 1-100)
@@ -221,9 +221,4 @@ c2000  Continue
 
 9999  Continue
 
-#ifdef _DEBUGPRINT_
-      Call QExit('XMatrixConverter')
-#endif
-
-      Return
       End

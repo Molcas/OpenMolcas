@@ -158,7 +158,6 @@
 *                                                                      *
       iRout=3
       iPrint = nPrint(iRout)
-      Call qEnter('RdCtl')
 #ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif
@@ -4577,7 +4576,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('RdCtl')
 *
       Call mma_deallocate(STDINP)
       Return

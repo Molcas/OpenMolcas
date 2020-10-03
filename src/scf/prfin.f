@@ -98,9 +98,6 @@ cnf
 *----------------------------------------------------------------------*
 *
 #ifdef _DEBUGPRINT_
-      Call qEnter('PrFin')
-#endif
-#ifdef _DEBUGPRINT_
       Debug=.true.
 #else
       Debug=.false.
@@ -327,13 +324,5 @@ c         print *,'Elumo',Elumo
          Call mma_deallocate(Scr2)
 *
       End If
-#ifdef _DEBUGPRINT_
-      Call qExit('PrFin')
-#endif
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
-      End
+
+      End subroutine PrFin

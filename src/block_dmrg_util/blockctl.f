@@ -51,7 +51,6 @@
 #include "WrkSpc.fh"
 #include "output_ras.fh"
       Parameter (ROUTINE='BLOCKCTL')
-      Call qEnter(ROUTINE)
 
 * Load symmetry info from RunFile
       Call Get_iScalar('NSYM',nIrrep)
@@ -154,7 +153,6 @@
 
       Call Getmem('OrbSym','Free','Inte',lOrbSym,NAC)
 
-      Call qExit(ROUTINE)
 
       Return
       End

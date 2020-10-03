@@ -29,19 +29,6 @@
 *         prescreening. This is done for all unique pairs of centers   *
 *         generated from the symmetry unique centers A and B.          *
 *                                                                      *
-* Called from: Drvk2                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              DoZeta                                                  *
-*              Rys                                                     *
-*              DGeTMO  (ESSL)                                          *
-*              RecPrt                                                  *
-*              Hrr                                                     *
-*              CrSph1                                                  *
-*              CrSph2                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -121,7 +108,6 @@
       iRout = 241
       iPrint = nPrint(iRout)
 *     iPrint = 99
-*     Call QEnter('k2Loop')
       call dcopy_(3,[One],0,Q,1)
       nData=nZeta*(nDArray+2*ijCmp)+nDScalar+nHm
       call dcopy_(nData*nDCRR,[Zero],0,Data,1)
@@ -542,7 +528,6 @@
 #endif
  100  Continue ! lDCRR
 *
-*     Call QExit('k2Loop')
       Return
       End Subroutine k2loop_internal
 *

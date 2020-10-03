@@ -29,7 +29,6 @@
 *                                                                      *
       iRout = 112
       iPrint = nPrint(iRout)
-*     Call qEnter('OneEl')
       If (rHrmt.ne.One) Then
          Call WarningMessage(2,'OneEl_Property: rHrmt.ne.One')
          Call Abend()
@@ -90,6 +89,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qExit('OneEl')
       Return
       End

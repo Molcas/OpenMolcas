@@ -17,7 +17,8 @@
       module filesystem
       use, intrinsic :: iso_c_binding, only: c_char, MOLCAS_C_INT,
      &      C_INT, c_ptr, C_NULL_CHAR
-      use fortran_strings, only: split, StringWrapper_t
+      use fortran_strings, only: split, StringWrapper_t, Cptr_to_str,
+     &  str
       implicit none
       private
       public :: getcwd_, chdir_, symlink_, get_errno_, strerror_,
@@ -119,16 +120,13 @@
 
 !> Return Error String from Error number
       function strerror_(errnum) result(res)
-        use, intrinsic :: iso_c_binding
-        use fortran_strings, only : str
-        implicit none
-        character(:), allocatable :: res
         integer, intent(in) :: errnum
+        character(len=:), allocatable :: res
 #ifdef C_PTR_BINDING
-        res = str(strerror_c(int(errnum, C_INT)))
+        res = Cptr_to_str(strerror_c(int(errnum, C_INT)))
 #else
         integer :: rc
-        character(80) :: errstr
+        character(len=80) :: errstr
         integer, external :: aixerr
         errstr = ''
         rc = aixerr(errstr)
@@ -137,8 +135,6 @@
       end function
 
       subroutine remove_(path, err)
-        use, intrinsic :: iso_c_binding
-        implicit none
         character(len=*) :: path
         integer, optional, intent(out) :: err
         integer(MOLCAS_C_INT) :: loc_err
@@ -147,27 +143,27 @@
       end subroutine
 
       function real_path(molcas_name) result(path)
-        character(*), intent(in) :: molcas_name
-        character(:), allocatable :: path
-        character(1024) :: buffer
+        character(len=*), intent(in) :: molcas_name
+        character(len=:), allocatable :: path
+        character(len=1024) :: buffer
         integer :: L
         call prgmtranslate_master(molcas_name, buffer, L)
         path = buffer(:L)
       end function
 
-      pure function basename(path) result(res)
-        character(*), intent(in) :: path
-        character(:), allocatable :: res
+      function basename(path) result(res)
+        character(len=*), intent(in) :: path
+        character(len=:), allocatable :: res
         type(StringWrapper_t), allocatable :: names(:)
 
-        names = split(path, '/')
+        call split(path, '/', names)
 
-        if (len(names(size(names))%str) /= 0) then
+        if (size(names(size(names))%str) /= 0) then
         ! Base is a normal file that is not a directory .../.../basename
-            res = names(size(names))%str
+            res = str(names(size(names))%str)
         else
         ! Base is itself a directory .../.../basename/
-            res = names(size(names) - 1)%str
+            res = str(names(size(names) - 1)%str)
         end if
       end function
       end module filesystem

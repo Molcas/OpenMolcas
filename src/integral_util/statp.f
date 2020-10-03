@@ -12,7 +12,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "pstat.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
 *
       iRout = 10
       iPrint = nPrint(iRout)

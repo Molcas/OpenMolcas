@@ -16,11 +16,6 @@
 *                                                                      *
 * Object: to numerically evaluate the molecular Hessian.               *
 *                                                                      *
-* Called from: RlxCtl                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             May '92                                                  *
@@ -35,7 +30,6 @@
 *
       iRout = 181
       iPrint = nPrint(iRout)
-      Call qEnter('NmHess')
 *
       If (iPrint.ge.99) Then
          Call RecPrt('NmHess:  g',' ',g,nInter,nIter)
@@ -168,6 +162,5 @@ C        Write (*,*) kIter1,kIter2
 *
       End If
 *
-      Call qExit('NmHess')
       Return
       End

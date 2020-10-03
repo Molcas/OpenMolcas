@@ -40,7 +40,6 @@ C
       iSOShl(i)=iWork(ip_iSOShl-1+i)
 
       If (Debug) Then
-         Call qEnter('_SetAtomShl')
          Write(Lupri,*) '>>> Enter ',SecNam
       End If
 
@@ -53,7 +52,6 @@ C     ------
          If (Debug) Then
             Write(Lupri,*) '>>> Exit ',SecNam,
      &      ' (error exit: symmetry not allowed!)'
-            Call qExit('_SetAtomShl')
          End If
          Return
       End If
@@ -137,7 +135,6 @@ C     --------------
 
       If (Debug) Then
          Write(Lupri,*) '>>> Exit ',SecNam
-         Call qExit('_SetAtomShl')
       End If
 
       End

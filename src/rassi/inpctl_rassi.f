@@ -36,7 +36,6 @@
       LOGICAL READ_STATES
       INTEGER JOB, i
 
-      CALL QENTER(ROUTINE)
 
 * get basic info from runfile
       Call Get_iScalar('nSym',nSym)
@@ -137,6 +136,5 @@ C Additional input processing. Start writing report.
       Call GetMem('REFENE','Free','Real',LREFENE,NSTATE)
       Call GetMem('HEFF','Free','Real',L_HEFF,NSTATE**2)
 C
-      CALL QEXIT(ROUTINE)
       RETURN
       END

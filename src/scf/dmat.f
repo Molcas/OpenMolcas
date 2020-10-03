@@ -112,7 +112,6 @@
       If (iPsLst.le.0) Then
          Write (6,*) 'DMat: iPsLst.le.0'
          Write (6,*) 'iPsLst=',iPsLst
-         Call QTrace
          Call Abend()
       End If
 *

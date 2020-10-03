@@ -46,7 +46,6 @@
       External                  :: dznrm2
       Character(len=16)         :: field(8)
       Character(len=6)          :: iprog
-      Call qEnter('SA_indRank')
 !-----------------------------------------------------------------------
       Call mma_allocate(Rnrm,nDIMCF,'Rnrm')
       Call mma_allocate(Snrm,nDIMCF,'Snrm')
@@ -403,7 +402,6 @@
       Call mma_deallocate(rankKQ)
       Call mma_deallocate(projKQ)
 
-      Call qExit('SA_indRank')
       Return
       End Subroutine individual_ranks
 

@@ -28,7 +28,6 @@ C
 #include "general.fh"
 #include "output_ras.fh"
       Parameter (ROUTINE='SIGVEC  ')
-      Call qEnter('SIGVEC')
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -171,6 +170,5 @@ C
       END IF
 1000  FORMAT(/1X,'Sigma vector in SIGVEC'/(1X,10F11.6))
 C
-      CALL QEXIT('SIGVEC')
       RETURN
       END

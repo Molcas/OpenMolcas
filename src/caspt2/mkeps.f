@@ -20,7 +20,6 @@
       REAL*8 E
       REAL*8 FIFA(*),DREF(*)
 
-      CALL QENTER('MKEPS')
 
 c   Orbital energies, EPS, EPSI,EPSA,EPSE:
       IEPS=0
@@ -92,7 +91,6 @@ C EASUM=CONTRACT EPSA WITH DIAGONAL OF ACTIVE DENS
       WRITE(6,'(1x,5F16.8)')(DREF(I),I=1,(NASHT*(NASHT+1))/2)
 #endif
 
-      CALL QEXIT('MKEPS')
 
       RETURN
       END

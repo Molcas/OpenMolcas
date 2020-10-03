@@ -16,11 +16,6 @@
 *                                                                      *
 *     Object: dump misc. information to the runfile.                   *
 *                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
 *             October 2006                                             *
 ************************************************************************

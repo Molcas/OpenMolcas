@@ -80,7 +80,6 @@
 c      iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 
 
-      Call qEnter('MSCTL')
       Call unused_real_array(F)
 ***********************************************************
 C Local print level (if any)
@@ -113,7 +112,6 @@ C Local print level (if any)
          Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
       Call GetMem('Ovrlp','Free','Real',iTmp0,nTot1+4)
@@ -141,7 +139,6 @@ C Local print level (if any)
          Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
       If ( IPRLEV.ge.DEBUG ) then
@@ -170,7 +167,6 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
          Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
       Call GetMem('NucElcore','Allo','Real',iTmpn,nTot1)
@@ -184,7 +180,6 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
          Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
 c      end if
@@ -790,7 +785,6 @@ c         call xflush(6)
       Else
 
          Write(LF,*)'SXCTL: Illegal Cholesky parameter ALGO= ',ALGO
-         call qtrace()
          call abend()
 
       EndIf
@@ -1338,7 +1332,6 @@ cPS         call xflush(6)
       Call GetMem('Kincore','free','Real',iTmpk,nTot1)
       Call GetMem('NucElcore','free','Real',iTmpn,nTot1)
 c      call xflush(6)
-      Call qExit('MSCTL')
       Return
       END
 

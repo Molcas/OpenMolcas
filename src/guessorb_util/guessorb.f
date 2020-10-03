@@ -43,7 +43,6 @@
 * Prologue                                                             *
 *----------------------------------------------------------------------*
       iReturn=0
-      Call qEnter('guessorb')
       Call InitGO(StandAlone)
       If(StandAlone) Call InpCtl_GuessOrb
 *----------------------------------------------------------------------*
@@ -71,9 +70,7 @@ c        call grid_driver(-1,'SEWARD','GSSORB',iRc)
 *----------------------------------------------------------------------*
 * Epilogue                                                             *
 *----------------------------------------------------------------------*
-      Call qExit('guessorb')
       If(StandAlone) Then
-         Call qStat(' ')
          Call FastIO('STATUS')
       End If
       iReturn=0

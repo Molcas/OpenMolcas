@@ -52,7 +52,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QEnter('DrvNQ')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -656,6 +655,5 @@ c      Call GetMem('tmpB','Free','Real',ip_tmpB,nGridMax)
 *
       Call xFlush(LuGridFile)
       Close(LuGridFile)
-C     Call QExit('DrvNQ')
       Return
       End

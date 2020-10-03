@@ -19,20 +19,6 @@
 *                                                                      *
 *          Alaska is a derivative code of Seward 3.1.                  *
 *                                                                      *
-* Called from: None                                                    *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              XuFlow (IBM)                                            *
-*              SetUp0                                                  *
-*              GetMem                                                  *
-*              GetInf                                                  *
-*              Inputg                                                  *
-*              DrvN1                                                   *
-*              Drvh1                                                   *
-*              PrepP                                                   *
-*              Drvg1                                                   *
-*              CloseP                                                  *
-*                                                                      *
 *  Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA     *
 *          July '89 - May '90                                          *
 *                                                                      *
@@ -88,7 +74,6 @@
 *                                                                      *
 *     Print program header
 *
-      Call qEnter('Alaska')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -440,10 +425,8 @@
 *     Epilogue
 *
       Call ClsSew
-      Call qExit('Alaska')
 *
       If (iPrint.ge.6) Then
-         Call qStat(' ')
          Call FastIO('STATUS')
       End If
 *

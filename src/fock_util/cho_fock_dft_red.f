@@ -87,14 +87,12 @@ C ---
 
       if (nVrs.lt.0) then
          Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs < 0. STOP!!'
-         call qtrace()
          call abend()
       endif
 
       Call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
       if(irc.ne.0)then
         Write(6,*)SECNAM//'cho_X_setred non-zero return code. rc= ',irc
-        call qtrace()
         call abend()
       endif
 
@@ -116,7 +114,6 @@ C ---
          WRITE(6,*) 'LWORK= ',LWORK
          WRITE(6,*) 'min. mem. need= ',nRS+1
          irc = 33
-         CALL QTrace()
          CALL Abend()
          nBatch = -9999  ! dummy assignment
       End If
@@ -357,7 +354,6 @@ c Offsets to symmetry block in the LT matrix
 
          write(6,*)'Wrong input parameter. mode = ',mode
          irc = 66
-         Call Qtrace()
          Call abend()
 
       EndIf

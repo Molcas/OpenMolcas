@@ -39,11 +39,6 @@
 *                                                                      *
 *     purpose: perform final calculations                              *
 *                                                                      *
-*     called from: SCF                                                 *
-*                                                                      *
-*     calls to:                                                        *
-*               IvoGen,PrFin,OpnRlx,ClsRlx,WrRlx,qEnter,qExit          *
-*                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
 *     written by:                                                      *
@@ -104,7 +99,7 @@
       Real*8, Dimension(:,:), Allocatable:: GVFck, Scrt1, Scrt2, DMat,
      &                                      EOr
 #ifdef _HDF5_
-      character(1), allocatable :: typestring(:)
+      character(Len=1), allocatable :: typestring(:)
       Integer nSSh(mxSym), nZero(mxSym)
 #endif
       Integer nFldP
@@ -116,9 +111,6 @@
 *----------------------------------------------------------------------*
 *
       Call CWTime(TCpu1,TWall1)
-#ifdef _DEBUGPRINT_
-      Call qEnter('Final')
-#endif
 *
          What='COEI'
 
@@ -173,7 +165,6 @@
          If ( iRc.ne.0 ) Then
             Write (6,*) 'Final: Error writing on ONEINT'
             Write (6,'(A,A)') 'RlxLbl=',RlxLbl
-            Call QTrace
             Call Abend()
          End If
       End Do
@@ -554,9 +545,6 @@ c make a fix for energies for deleted orbitals
          Call EFP_ShutDown(EFP_Instance)
       End If
 #endif
-#ifdef _DEBUGPRINT_
-      Call qExit('Final')
-#endif
 *
       Call CWTime(TCpu2,TWall2)
       TimFld(15) = TimFld(15) + (TCpu2 - TCpu1)
@@ -592,10 +580,5 @@ c make a fix for energies for deleted orbitals
       Call CollapseOutput(0,'Statistics and timing')
       Write(6,*)
       endif
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
+
       End

@@ -17,11 +17,6 @@
 * Object: to assemble the electric field integrals from                *
 *         derivative integrals of the electric potential.              *
 *                                                                      *
-* Called from: EFInt                                                   *
-*                                                                      *
-* Calling    : qEnter                                                  *
-*              qExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             February '91                                             *
@@ -44,7 +39,6 @@
 *
       iRout = 203
       iPrint = nPrint(iRout)
-      Call qEnter('Util1 ')
 *
       If (iPrint.ge.99) Then
           Write (6,*) ' In Util1 la,lb=',la,lb
@@ -213,6 +207,5 @@
 400       Continue
       End If
 *
-      Call qExit('Util1 ')
       Return
       End

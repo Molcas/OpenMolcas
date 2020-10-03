@@ -51,11 +51,9 @@ C     ---------------------
 #if defined (_DEBUGPRINT_)
       If (iSymi.lt.1 .or. iSymi.gt.nSym .or.
      &    iSyma.lt.1 .or. iSyma.gt.nSym) Then
-         Call qEnter(SecNam)
          Call ChoMP2_Quit(SecNam,'bug detected','[1]')
       End If
       If (nOcc(iSymi).lt.1 .or. nVir(iSyma).lt.1) Then
-         Call qEnter(SecNam)
          Call ChoMP2_Quit(SecNam,'bug detected','[2]')
       End If
 #endif
@@ -80,7 +78,6 @@ C     -------------
 #if defined (_DEBUGPRINT_)
       If (i.lt.1 .or. i.gt.nOcc(iSymi) .or.
      &    a.lt.1 .or. a.gt.nVir(iSyma)) Then
-         Call qEnter(SecNam)
          Call ChoMP2_Quit(SecNam,'bug detected','[3]')
       End If
 #endif

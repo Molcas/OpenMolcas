@@ -13,13 +13,8 @@
       SubRoutine Print_Geometry(iOpt)
 ************************************************************************
 *                                                                      *
-*     Object: to print the molecular coordinates, bonds, angles and    *
-*             torsional angles.                                        *
-*                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
+* Object: to print the molecular coordinates, bonds, angles and        *
+*         torsional angles.                                            *
 *                                                                      *
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
 *             September 2006                                           *

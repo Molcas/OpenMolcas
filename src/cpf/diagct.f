@@ -18,9 +18,7 @@
 
 #include "cpfmcpf.fh"
       DIMENSION H(*)
-      CALL QENTER('DIAGCT_CPF')
       CALL DIAGCT_INTERNAL(H)
-      CALL QEXIT('DIAGCT_CPF')
 *
 *     This is to allow type punning without an explicit interface
       CONTAINS

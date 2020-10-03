@@ -20,17 +20,6 @@
 *                                                                      *
 * Object: to compute the gradients of the overlap matrix               *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              CmbnS1_mck                                              *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 *             Modified to multipole moments November '90               *
@@ -87,7 +76,6 @@ c     iPrint = nPrint(iRout)
       If (nip-1.gt.nArr) Then
          Write (6,*) 'OvrGrd_Mck: nip-1.gt.nArr'
          Write (6,*) 'nip,nArr=',nip,nArr
-         Call QTrace
          Call Abend()
       End If
 *

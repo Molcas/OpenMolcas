@@ -16,12 +16,6 @@
 * Object: to establish if a translation or a rotation belongs to the   *
 *         total symmetric irreducible representation.                  *
 *                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              ICopy                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             April '92                                                *

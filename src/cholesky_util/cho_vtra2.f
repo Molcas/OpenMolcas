@@ -110,7 +110,6 @@
       Debug=.false.
 #endif
 
-      Call qEnter(SECNAM)
 
 **********************************************************
 C
@@ -784,7 +783,6 @@ C     -----------------------------------
 
       irc=0
 
-      Call qExit(SECNAM)
 
       Return
       END

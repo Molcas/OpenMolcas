@@ -34,7 +34,6 @@
 *                                                                      *
       iRout = 112
       iPrint = nPrint(iRout)
-      Call qEnter('Drv_Fck')
       If (iPrint.ge.19) Then
          Write (6,*) ' In OneEl: Label', Label
          Write (6,*) ' In OneEl: nComp'
@@ -136,7 +135,6 @@ c        Write(6,*) ' oneel *',Label,'*'
          iPAMcount=iPAMcount+1
 
          If (iRC.ne.0) then
-            Call qTrace
             Write(6,*) ' *** Error in subroutine ONEEL ***'
             Write(6,*) '     Abend in subroutine WrOne'
             Call Quit(_RC_IO_ERROR_WRITE_)
@@ -152,7 +150,6 @@ c        Write(6,*) ' oneel *',Label,'*'
 ************************************************************************
 *                                                                      *
  999  Continue
-      Call qExit('Drv_Fck')
       Return
       End
       Subroutine Drv_Fck_Internal(Label,ip,Int1El,LenTot,lOper,nComp,
@@ -171,31 +168,6 @@ c        Write(6,*) ' oneel *',Label,'*'
 *         ny or i j) refer to primitives or basis functions and two (a *
 *         b) refer to the components of the cartesian or spherical     *
 *         harmonic gaussians.                                          *
-*                                                                      *
-* Called from: Drv1El                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              ICopy                                                   *
-*              DCopy    (ESSL)                                         *
-*              KrnlMm                                                  *
-*              ZXia                                                    *
-*              MemSO1                                                  *
-*              DCR                                                     *
-*              Inter                                                   *
-*              SetUp1                                                  *
-*              Kernel                                                  *
-*              DGeTMO   (ESSL)                                         *
-*              CarSph                                                  *
-*              SymAd1                                                  *
-*              DScal    (ESSL)                                         *
-*              SOSctt                                                  *
-*              PrMtrx                                                  *
-*              XProp                                                   *
-*              WrOne                                                   *
-*              ErrOne                                                  *
-*              Prop                                                    *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
@@ -239,7 +211,6 @@ c        Write(6,*) ' oneel *',Label,'*'
       iRout = 112
       iPrint = nPrint(iRout)
 *     iPrint = 99
-      Call qEnter('Drv_Fck_')
 *
 *-----Auxiliary memory allocation.
 *
@@ -481,7 +452,6 @@ c        Write(6,*) ' oneel *',Label,'*'
       Call mma_deallocate(ZI)
       Call mma_deallocate(Zeta)
 *
-      Call qExit('Drv_Fck_')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

@@ -31,18 +31,7 @@
 * Object: Driver for the generation of the two electron contribution   *
 *         to the Fock Matrix directly from the two electron integrals. *
 *                                                                      *
-* Called from: TwoEL                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              ICopy                                                   *
-*              Trnsps                                                  *
-*              Trns1                                                   *
-*              Phase                                                   *
-*              FckAcc                                                  *
-*              QExit                                                   *
-*                                                                      *
-*              Anders Bernhardsson 1995                                *
+*     Author:  Anders Bernhardsson 1995                                *
 ************************************************************************
       use Real_Spherical
       use Symmetry_Info, only: nIrrep

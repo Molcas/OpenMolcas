@@ -25,7 +25,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call QEnter('ElRed')
 *
       Do i = 1, nq
          Do j = 1, nx
@@ -151,7 +150,6 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
 #endif
 *
  99   Continue
-*     Call QExit('ElRed')
       Return
       End
 *                                                                      *
@@ -175,7 +173,6 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call QEnter('ElRed2')
 *
 #ifdef _DEBUGPRINT_
       Call RecPrt('ElRed2: The u matrix','(5e21.12)',umtrx,nx,1)
@@ -309,7 +306,6 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
 #endif
 *
  99   Continue
-*     Call QExit('ElRed2')
       Return
       End
 

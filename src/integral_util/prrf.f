@@ -12,15 +12,6 @@
 ************************************************************************
       SubRoutine PrRF(DSCF,NonEq,iCharge,jPrint)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Allok2                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *                                                                      *
@@ -34,7 +25,6 @@
       Logical DSCF, NonEq
       Integer StrnLn
 *
-      Call qEnter('PrRF')
 *
       IF (jPrint.GE.2) THEN
       If (lRF.and..Not.PCM.and.lRFCav) Then
@@ -126,7 +116,6 @@
       If (lRF) Call Init_RctFld(NonEq,iCharge)
       If (DSCF) Call Allok2
 *
-      Call qExit('PrRF')
       Return
 *
       End

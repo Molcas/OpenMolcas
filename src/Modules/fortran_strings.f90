@@ -19,12 +19,16 @@ module fortran_strings
     save
     private
     public :: str, to_lower, to_upper, operator(.in.), split, &
-        count_char, StringWrapper_t
+        count_char, StringWrapper_t, Cptr_to_str, char_array
 
     ! This type exists to have an array of string pointers
     ! and to allow unequally sized strings.
+    ! NOTE: Due to old compilers this had to be
+    ! character(len=1), dimension(:), allocatable
+    ! if possible change it to
+    ! character(len=:), allocatable
     type :: StringWrapper_t
-        character(:), allocatable :: str
+        character(len=1), allocatable :: str(:)
     end type
 
 
@@ -34,18 +38,18 @@ module fortran_strings
     !>  @author Oskar Weser
     !>
     !>  @details
-    !>  It is a generic procedure that accepts Fortran integer and
-    !>  real and C char* pointer arguments..
+    !>  It is a generic procedure that accepts Fortran integer,
+    !>  Fortran real, and Fortran arrays with single character elements.
     !>
-    !>  @param[in] A fortran integer or real, or a C char* pointer.
+    !>  @param[in] A Fortran integer or real, or character array.
     interface str
-        module procedure I_to_str, R_to_str, Cptr_to_str
+        module procedure I_to_str, R_to_str, character_array_to_str
     end interface
 
     interface
-        function strlen_c(c_string) bind(C, name='strlen_wrapper')
+        pure function strlen_c(c_string) bind(C, name='strlen_wrapper')
             import :: c_ptr, MOLCAS_C_INT
-            type(c_ptr) :: c_string
+            type(c_ptr), intent(in) :: c_string
             integer(MOLCAS_C_INT) :: strlen_c
         end function
     end interface
@@ -54,26 +58,38 @@ module fortran_strings
         module procedure substr_in_str
     end interface
 
-    character(*), parameter :: &
+    character(len=*), parameter :: &
         UPPERCASE_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', &
         lowercase_chars = 'abcdefghijklmnopqrstuvwxyz'
 
     contains
 
-    function I_to_str(i) result(str)
-        character(:), allocatable :: str
+    pure function I_to_str(i) result(str)
+        character(len=:), allocatable :: str
         integer, intent(in) :: i
-        character(range(i) + 2) :: tmp
+        character(len=range(i) + 2) :: tmp
         write(tmp, '(I0)') I
         str = trim(tmp)
     end function
 
-    function R_to_str(x) result(str)
-        character(:), allocatable :: str
+    pure function R_to_str(x) result(str)
+        character(len=:), allocatable :: str
         real*8, intent(in) :: x
-        character(range(x) + 2) :: tmp
+        character(len=range(x) + 2) :: tmp
         write(tmp, '(I0)') x
         str = trim(tmp)
+    end function
+
+    pure function character_array_to_str(array) result(res)
+        character(len=1), intent(in) :: array(:)
+        character(len=:), allocatable :: res
+        integer :: i, L
+
+        L = size(array)
+        allocate(character(len=L) :: res)
+        do i = 1, L
+            res(i:i) = array(i)
+        end do
     end function
 
     !> Convert C string pointer to Fortran string.
@@ -90,11 +106,10 @@ module fortran_strings
         end do
     end function
 
-
     !> Changes a string to upper case
     pure function to_upper (in_str) result (string)
-        character(*), intent(in) :: in_str
-        character(len(in_str)) :: string
+        character(len=*), intent(in) :: in_str
+        character(len=len(in_str)) :: string
         integer :: ic, i, L
 
         L = len_trim(in_str)
@@ -111,8 +126,8 @@ module fortran_strings
 
     !> Changes a string to lower case
     pure function to_lower (in_str) result (string)
-        character(*), intent(in) :: in_str
-        character(len(in_str)) :: string
+        character(len=*), intent(in) :: in_str
+        character(len=len(in_str)) :: string
         integer :: ic, i, L
 
         L = len_trim(in_str)
@@ -128,41 +143,57 @@ module fortran_strings
     end function to_lower
 
     logical pure function substr_in_str(substring, string)
-        character(*), intent(in) :: string, substring
+        character(len=*), intent(in) :: string, substring
 
         substr_in_str = index(string, substring) /= 0
     end function
 
     !> @brief
     !> Split a string at delimiter.
-    pure function split(str, delimiter) result(res)
-        character(*), intent(in) :: str
-        character(1), intent(in) :: delimiter
-        type(StringWrapper_t), allocatable :: res(:)
+    subroutine split(string, delimiter, res)
+        character(len=*), intent(in) :: string
+        character(len=1), intent(in) :: delimiter
+        type(StringWrapper_t), allocatable, intent(out) :: res(:)
 
         integer :: i, n, low
 
-        allocate(res(count_char(str, delimiter) + 1))
+        allocate(res(count_char(string, delimiter) + 1))
+
+        ! NOTE: this function is unnecessarily complicated,
+        ! because StringWrapper_t cannot have character(len=:), allocatable
+        ! components. (Old compilers)
 
         low = 1; n = 1
-        do i = 1, len(str)
-            if (str(i : i) == delimiter) then
-                res(n)%str = str(low : i - 1)
+        do i = 1, len(string)
+            if (string(i : i) == delimiter) then
+                allocate(character(len=1) :: res(n)%str(i - low))
+                res(n)%str(:) = char_array(string(low : i - 1))
                 n = n + 1
                 low = i + 1
             end if
         end do
 
         if (n == size(res)) then
-            res(n)%str = str(low : )
+            allocate(character(len=1) :: res(n)%str(len(string(low : ))))
+            res(n)%str(:) = char_array(string(low : ))
         end if
+    end subroutine
+
+    pure function char_array(string) result(res)
+        character(len=*), intent(in) :: string
+        character(len=1) :: res(len(string))
+        integer :: i
+        do i = 1, len(string)
+            res(i) = string(i : i)
+        end do
     end function
+
 
     !> @brief
     !> Count the occurence of a character in a string.
     pure function count_char(str, char) result(c)
-        character(*), intent(in) :: str
-        character(1), intent(in) :: char
+        character(len=*), intent(in) :: str
+        character(len=1), intent(in) :: char
         integer :: c
         integer :: i
 

@@ -45,18 +45,6 @@
 *          The density matrix is not folded if the shell indices and   *
 *          the angular indices are identical.                          *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DNrm2_  (ESSL)                                          *
-*              DGeTMO  (ESSL)                                          *
-*              DGeMV   (ESSL)                                          *
-*              FckDst                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden. February '93                            *
 ************************************************************************
@@ -128,7 +116,6 @@ c     Logical Qij, Qkl
          Write (6,*) 'FckAcc_McK: iBas*jBas*kBas*lBas.gt.nScrt'
          Write (6,*) 'iBas,jBas,kBas,lBas,nScrt=',
      &         iBas,jBas,kBas,lBas,nScrt
-         Call QTrace
          Call Abend()
       End If
       ii = iOff(iAng(1))
@@ -369,7 +356,6 @@ C                 Call RecPrt('Fkl',' ',FT(ipFkl1),kBas,lBas)
                   If (np.gt.nScrt) Then
                      Write (6,*) 'FckAcc_McK: np.gt.nScrt'
                      Write (6,*) 'np,nScrt=',np,nScrt
-                     Call QTrace
                      Call Abend()
                   End If
                   If (mFik+mFjl.eq.0) Go To 1210
@@ -682,18 +668,6 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
 *                                                                      *
 *          The density matrix is not folded if the shell indices and   *
 *          the angular indices are identical.                          *
-*                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DNrm2_  (ESSL)                                          *
-*              DGeTMO  (ESSL)                                          *
-*              DGeMV   (ESSL)                                          *
-*              FckDst                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden. February '93                            *

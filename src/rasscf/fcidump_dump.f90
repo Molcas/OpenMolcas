@@ -37,7 +37,7 @@ contains
                         two_el_table, orbsym)
     use general_data, only : nSym, nActEl, iSpin, lSym, nAsh
     implicit none
-    character(*), intent(in) :: path
+    character(len=*), intent(in) :: path
     real*8, intent(in) :: EMY
     type(OrbitalTable), intent(in) :: orbital_table
     type(FockTable), intent(in) :: fock_table
@@ -45,7 +45,6 @@ contains
     integer, intent(in) :: orbsym(:)
     integer :: i, j, ireturn, isFreeUnit, LuFCI
 
-    call qEnter('dump_ascii')
 
     LuFCI = isFreeUnit(38)
     call molcas_open(LuFCI, path)
@@ -87,7 +86,6 @@ contains
 
     call FastIO('STATUS')
     ireturn = 0
-    call qExit('dump_ascii')
 
     return
   end subroutine dump_ascii
@@ -115,7 +113,7 @@ contains
     use mh5
 #endif
     implicit none
-    character(*), intent(in) :: path
+    character(len=*), intent(in) :: path
     real*8, intent(in) :: EMY
     type(OrbitalTable), intent(in) :: orbital_table
     type(FockTable), intent(in) :: fock_table
@@ -126,7 +124,6 @@ contains
     integer :: ireturn
     character :: lIrrep(24)
 
-    call qEnter('dump_hdf5')
 
     file_id = mh5_create_file(path)
 
@@ -199,7 +196,6 @@ contains
 
     call FastIO('STATUS')
     ireturn = 0
-    call qExit('dump_hdf5')
 #else
 ! Avoid unused argument warnings
 #ifdef _WARNING_WORKAROUND_

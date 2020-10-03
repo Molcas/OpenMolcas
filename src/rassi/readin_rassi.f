@@ -42,7 +42,6 @@
 
       character(len=7) :: input_id = '&RASSI '
 
-      CALL QENTER(ROUTINE)
 
       Call SpoolInp(LuIn)
 
@@ -927,6 +926,5 @@ cnf
 
       Call Close_LuSpool(LuIn)
 
-      CALL QEXIT(ROUTINE)
       RETURN
       END

@@ -20,22 +20,11 @@
 * Object: kernel routine for the computation of orbital magnetic       *
 *         quadrupole integrals => OMQInt                               *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              MltPrm                                                  *
-*              Util2                                                   *
-*              DCopy   (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Lasse Kragh Soerensen and Roland Lindh  2015             *
 *             Based on OAMInt                                          *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 
 #include "int_interface.fh"
@@ -50,7 +39,6 @@
 *
       iRout = 210
       iPrint = nPrint(iRout)
-      Call qEnter('OMQInt')
 *
       nip = 1
       ipB = nip
@@ -134,7 +122,6 @@
 *
  102  Continue
 *
-      Call qExit('OMQInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

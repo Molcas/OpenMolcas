@@ -16,26 +16,6 @@
 *                                                                      *
 *     Object: to read the input to the integral package.               *
 *                                                                      *
-*                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RdCtl                                                   *
-*              ChTab                                                   *
-*              GeoNew                                                  *
-*              DCopy    (ESSL)                                         *
-*              SOCtl                                                   *
-*              Sphere                                                  *
-*              Nrmlz                                                   *
-*              Dstncs                                                  *
-*              Angles                                                  *
-*              Dihedr                                                  *
-*              CoW                                                     *
-*              RigRot                                                  *
-*              RdMx                                                    *
-*              DrvN0                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
 *                                                                      *
@@ -63,7 +43,6 @@
 ************************************************************************
 *                                                                      *
       iRout=2
-      Call qEnter('Input ')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -116,7 +95,6 @@
 ************************************************************************
 *                                                                      *
       If (Test) Then
-         Call qExit('Input ')
          Return
       End If
 *                                                                      *
@@ -134,6 +112,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('Input ')
       Return
       End

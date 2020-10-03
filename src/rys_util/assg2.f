@@ -16,11 +16,6 @@
 *                                                                      *
 * Object: to assemble the gradients of the ERI's.                      *
 *                                                                      *
-* Called from: Rysg2                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Anders Bernhardsson                                      *
 *             Dept. of Theoretical Chemistry,                          *
 *             University of Lund, SWEDEN                               *

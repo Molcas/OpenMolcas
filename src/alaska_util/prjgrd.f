@@ -19,20 +19,6 @@
 *                                                                      *
 * Object: kernel routine for the computation of ECP integrals.         *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              Mlt1                                                    *
-*              DGeTMO  (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
 *      Beta  : as Alpha but for ket gaussians                          *
@@ -69,7 +55,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
 
@@ -88,7 +73,6 @@
      &                              iIrrep,iComp,dc(mdc)%nStab)
 
 *
-*     Call qEnter('PrjGrd')
       iRout = 192
       iPrint = nPrint(iRout)
 *
@@ -564,7 +548,6 @@
          kdc = kdc + dbsc(kCnttp)%nCntr
  1960 Continue
 *
-*     Call QExit('PrjGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

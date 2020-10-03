@@ -16,21 +16,9 @@
 * Object: to set up the handling of the 2nd order density matrix for   *
 *         the calculation of the 2-electron FAIEMP derivatives         *
 *                                                                      *
-* Called from: DrvG_FAIEMP                                             *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              OpnOne                                                  *
-*              GetMem                                                  *
-*              RdOne                                                   *
-*              PrMtrx                                                  *
-*              ClsOne                                                  *
-*              ErrOne                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Ben Swerts                                               *
 *                                                                      *
 * Based on PrepP                                                       *
-*                                                                      *
 ************************************************************************
       use aces_stuff, only: Gamma_On
       use pso_stuff
@@ -60,7 +48,6 @@
       iRout = 205
       iPrint = nPrint(iRout)
       lPrint=.True.
-      Call qEnter('PrepP_FAIEMP')
       iD0Lbl=1
       iComp=1
 *
@@ -417,7 +404,6 @@
 1000     Continue
 *
 *...  Epilogue, end
-      Call qExit('PrepP_FAIEMP')
       Return
       End
 

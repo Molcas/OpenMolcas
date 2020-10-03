@@ -19,17 +19,6 @@
 * Object: kernel routine for the computation of nuclear attraction     *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              mHrr                                                    *
-*              DCR                                                     *
-*              Rys                                                     *
-*              Hrr                                                     *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, April '95                               *
 ************************************************************************
@@ -59,7 +48,6 @@ C     nElem(ixyz) = 2*ixyz+1
 *
       iRout = 151
       iPrint = nPrint(iRout)
-*     Call qEnter('XFdInt')
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *

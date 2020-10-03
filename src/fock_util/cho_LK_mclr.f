@@ -117,7 +117,6 @@ c      Debug=.true.
       Debug=.false.
 #endif
 
-      Call QEnter(SECNAM)
 
       timings=.false.
 *
@@ -2228,7 +2227,6 @@ c Print the Fock-matrix
 #endif
       rc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
 c Avoid unused argument warnings

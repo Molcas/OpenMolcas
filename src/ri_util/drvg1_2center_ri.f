@@ -21,17 +21,6 @@
 *                                                                      *
 *  X_ij^K = Sum(L) R_ij_L  Q_L^K                                       *
 *                                                                      *
-*                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              SetUp_Ints                                              *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              PGet0                                                   *
-*              TwoEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -41,7 +30,6 @@
 *             Modified for gradient calculation. January '92           *
 *             Modified for SetUp_Ints. January '00                     *
 *             Modified for 2-center RI gradients, January '07          *
-*                                                                      *
 ************************************************************************
       use k2_setup
       use iSD_data
@@ -94,7 +82,6 @@
 *                                                                      *
       iRout = 9
       iPrint = nPrint(iRout)
-      Call QEnter('Drvg1_2Center_RI')
 #ifdef _CD_TIMING_
       Twoel2_CPU = 0.0d0
       Twoel2_Wall = 0.0d0
@@ -550,6 +537,5 @@ C        End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drvg1_2Center_RI')
       Return
       End

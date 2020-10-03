@@ -49,13 +49,6 @@
 *          6. Terminate run telling job max and min of additional      *
 *             memory needed to perform the calculation.                *
 *                                                                      *
-* Called from: Drvg1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Change                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *             Modified to first order derivatives. January '92         *
@@ -115,7 +108,6 @@ c     use Temporary_parameters, only: force_part_c, force_part_p
 *
 c     iRout = 10
 c     iPrint = nPrint(iRout)
-c     Call qEnter('PSOAO2')
       la = iAnga(1)
       lb = iAnga(2)
       lc = iAnga(3)
@@ -184,7 +176,6 @@ c     Call qEnter('PSOAO2')
          If (Fail) Then
             Write (6,*) 'PSOAO2: memory partitioning failed!'
             Write (6,*) '        Restart with more memory!'
-            Call QTrace
             Call Abend()
          End If
          Go To 999
@@ -259,7 +250,6 @@ c     Call qEnter('PSOAO2')
          If (Fail) Then
             Write (6,*) 'PSOAO2: memory partitioning failed!'
             Write (6,*) '        Restart with more memory!'
-            Call QTrace
             Call Abend()
          End If
          Go To 999
@@ -336,7 +326,6 @@ c     Call qEnter('PSOAO2')
          If (Fail) Then
             Write (6,*) 'PSOAO2: memory partitioning failed!'
             Write (6,*) '        Restart with more memory!'
-            Call QTrace
             Call Abend()
          End If
          Go To 999
@@ -355,7 +344,6 @@ c     Call qEnter('PSOAO2')
          If (Fail) Then
             Write (6,*) 'PSOAO2: memory partitioning failed!'
             Write (6,*) '        Restart with more memory!'
-            Call QTrace
             Call Abend()
          End If
          Go To 999
@@ -399,7 +387,6 @@ c     Call qEnter('PSOAO2')
          If (Fail) Then
             Write (6,*) 'PSOAO2: memory partitioning failed!'
             Write (6,*) '        Restart with more memory!'
-            Call QTrace
             Call Abend()
          End If
          Go To 999
@@ -415,6 +402,5 @@ c     Call qEnter('PSOAO2')
       End If
 *
       MemSum=Mem1+Mem2+Mem3+MemX+MemFin
-c     Call qExit('PSOAO2')
       Return
       End

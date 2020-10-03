@@ -59,7 +59,6 @@
 ************************************************************************
 *                                                                      *
 *
-       Call QEnter('Output')
 #ifdef _DEBUGPRINT_
        debug=.True.
 #else
@@ -445,7 +444,6 @@ c       Call HssPrt_MCLR(iwork(ipdegdisp),Work(ipHess2),ldisp2)
          If (iRC.ne.0) Then
             Write (6,*) 'OutPut: Error reading MCKINT'
             Write (6,'(A,A)') 'Label=',Label
-            Call QTrace
             Call Abend()
          End If
 *
@@ -483,7 +481,6 @@ c       Call HssPrt_MCLR(iwork(ipdegdisp),Work(ipHess2),ldisp2)
          If (iRC.ne.0) Then
             Write (6,*) 'OutPut: Error writing to MCKINT'
             Write (6,'(A,A)') 'Label=',Label
-            Call QTrace
             Call Abend()
          End If
          Call Put_iScalar('No of Internal coordinates',ldisp2(1))
@@ -503,7 +500,6 @@ c       Call HssPrt_MCLR(iwork(ipdegdisp),Work(ipHess2),ldisp2)
        If (iRC.ne.0) Then
           Write (6,*) 'OutPut: Error reading RELAX'
           Write (6,'(A,A)') 'Label=',Label
-          Call QTrace
           Call Abend()
        End If
 C
@@ -564,6 +560,5 @@ c       Open(unit=Lu_10, file='UNSYM')
       Call GetMem('Temp','Free','REAL',ipEG  ,3*ndisp)
       Call GetMem('Temp','FREE','REAL',ipELOUT,3*ndisp)
 *
-      Call QExit('Output')
       Return
       End

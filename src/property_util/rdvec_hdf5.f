@@ -40,7 +40,7 @@
 #include "stdalloc.fh"
       Integer :: Beta,nB
       Character(Len=128) :: DataSet,su,sl
-      Character(1), Allocatable :: typestring(:)
+      Character(Len=1), Allocatable :: typestring(:)
 
       Beta=0
       su=''

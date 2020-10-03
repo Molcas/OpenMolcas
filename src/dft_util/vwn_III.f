@@ -19,12 +19,6 @@
 *         Ceperley-Alder solution to the uniform electron gas.         *
 *         This is the functional to use in B3LYP.                      *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 *             Laura Gagliardi, Dipartimento di Chimica G. Ciamician,   *
@@ -45,7 +39,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QEnter('VWN_III')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -332,6 +325,5 @@ c+++  original formula in Rydbergs -> 0.5 converts to hartree
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QExit('VWN_III')
       Return
       End

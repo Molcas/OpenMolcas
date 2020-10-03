@@ -33,7 +33,6 @@ C OR CLOSED-SHELL SCF CASE.
 #include "para_info.fh"
       LOGICAL RSV_TSK
 
-      CALL QENTER('SPECIAL')
 
       CALL DCOPY_(NG1,[0.0D0],0,G1,1)
       CALL DCOPY_(NG2,[0.0D0],0,G2,1)
@@ -169,6 +168,5 @@ C SVC2010: no more tasks, wait here for the others.
 
  999  CONTINUE
 
-      CALL QEXIT('SPECIAL')
       RETURN
       END

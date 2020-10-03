@@ -24,10 +24,6 @@ C
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
       Tmax(i,j)=Work(ip_Tmax-1+nShell*(j-1)+i)
 
-#if defined (_DEBUGPRINT_)
-      Call qEnter('_DiaSP')
-#endif
-
       If (Cho_PreScreen) Then ! prescreening with approx. diagonal
 
          l_Tmax = nShell**2
@@ -89,7 +85,6 @@ C
          Write(LuPri,*) '    Screening-%: ',
      &                   1.0d2*DBLE(nnShl_Tot-nnShl)/DBLE(nnShl_Tot)
       End If
-      Call qExit('_DiaSP')
 #endif
 
       End

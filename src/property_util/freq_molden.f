@@ -18,7 +18,6 @@
 #include "Molcas.fh"
       Character*2 Element(MxAtom*8)
 *
-      Call QEnter('Freq_Molden')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -117,6 +116,5 @@
 
 
       Close(Lu_9)
-      Call QExit('Freq_Molden')
       Return
       End

@@ -17,15 +17,6 @@
 *  Object: driver for the central-fragment interaction 2-electron      *
 *          integrals (based on drv2el_3center_RI and drv2el_scf)       *
 *                                                                      *
-* Called from: Drv1El                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Timing                                                  *
-*              Setup_Ints                                              *
-*              Eval_Ints                                               *
-*              Term_Ints                                               *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Ben Swerts                                               *
 *   Modified: Liviu Ungur                                              *
 ************************************************************************
@@ -81,7 +72,6 @@
 *                                                                      *
       iRout = 203
       iPrint = nPrint(iRout)
-      Call QEnter('Drv2ElFrag')
       call xFlush(6)
       ExFac=One
       Nr_Dens=1
@@ -441,6 +431,5 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drv2ElFrag')
       Return
       End

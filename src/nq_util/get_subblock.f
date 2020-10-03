@@ -87,7 +87,6 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUGPRINT_
-      Call QEnter('Get_Subblock')
       If (Debug) Then
          Write(6,*) 'Enter Get_Subblock'
          Write(6,*) 'ip_nR_Eff GET_SBK',ip_nR_Eff
@@ -176,7 +175,7 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
          EndIf
  10   Continue
       nlist_p=ilist_p
-      If (nlist_p.eq.0) Go To 999
+      If (nlist_p.eq.0) return
 #ifdef _DEBUGPRINT_
       If (debug) Write (6,*) 'Get_Subblock: List_p:',List_p
 #endif
@@ -292,7 +291,7 @@ C              End If
 #ifdef _DEBUGPRINT_
       If (Debug) Write (6,*) 'nList_s,nList_p=',nList_s,nList_p
 #endif
-      If (nList_s*nList_p.eq.0) Go To 999
+      If (nList_s*nList_p.eq.0) return
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -751,9 +750,4 @@ cGLM     &                 list_g,IndGrd,iTab,Temp,F_xc,F_xca,F_xcb,
 *                                                                      *
 ************************************************************************
 *                                                                      *
- 999  Continue
-#ifdef _DEBUGPRINT_
-      Call QExit('Get_Subblock')
-#endif
-      Return
       End

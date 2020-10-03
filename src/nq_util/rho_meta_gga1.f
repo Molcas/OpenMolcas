@@ -14,14 +14,6 @@
      &                         list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,
      &                         Fact,mdc,TabAOMax,list_bas,Index,nIndex)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: Do_Batch                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.  2000                                   *
 ************************************************************************
@@ -48,7 +40,6 @@
 *                                                                      *
 *define _TIME_
 #ifdef _TIME_
-      Call QEnter('Rho_meta_GGA')
 #endif
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -246,7 +237,6 @@ c        End Do
 *
 #endif
 #ifdef _TIME_
-      Call QExit('Rho_GGA')
 #endif
       Return
       End
@@ -266,7 +256,6 @@ c        End Do
 ************************************************************************
 *                                                                      *
 #ifdef _TIME_
-      Call QEnter('Do_Rho5a')
 #endif
       Do jCB_Eff = 1, jBas_Eff*jCmp
          jCB = Index_j(jCB_Eff)
@@ -305,7 +294,6 @@ c        End Do
       End Do             ! jCB
 *
 #ifdef _TIME_
-      Call QExit('Do_Rho5a')
 #endif
       Return
       End
@@ -384,7 +372,6 @@ c        End Do
 ************************************************************************
 *                                                                      *
 #ifdef _TIME_
-      Call QEnter('Do_Rho5a_d')
 #endif
       Do jCB_Eff = 1, iBas_Eff*iCmp
          jCB=Index_i(jCB_Eff)
@@ -443,7 +430,6 @@ c        End Do
       End Do             ! jCB
 *
 #ifdef _TIME_
-      Call QExit('Do_Rho5a_d')
 #endif
       Return
       End

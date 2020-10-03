@@ -30,7 +30,6 @@
 
       Integer                    :: i, j
       Real(kind=8)              :: pB, dltw, S2, S1, mB, kB
-      Call qEnter('calcmagn2')
 c /// constants
       mB=0.4668643740_wp                  ! * in cm-1*T-1
       kB=0.69503560_wp                    !   in cm^-1*K-1
@@ -76,6 +75,5 @@ c  case when I > NM
 
       MT=MT/Z
 
-      Call qExit('calcmagn2')
       Return
       End

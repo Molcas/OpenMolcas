@@ -69,22 +69,15 @@
 *
       Do 200 iExp = 1, nPrim
          Do 210 jExp = 1, iExp-1
-               Pro_ij  = Exp(iExp)*Exp(jExp)
-               Sum_ij  = Exp(iExp)+Exp(jExp)
-               iPower_i1=iAng + 1
-               Power= 0.5D0*DBLE(iAng) + 0.75D0
-               C       = 2.0D0/Sum_ij
-*              Temp    = Sqrt(C) * C**iPower_i1 * Pro_ij**Power
-               Power = DBLE(iAng) + 1.5D0
-               C = 2.0D0*Sqrt(Pro_ij)/Sum_ij
-               Temp = C**Power
-*              Temp =  ( Two*Sqrt(Exp(iExp)*Exp(jExp)) /
-*    &                   (Exp(iExp)+Exp(jExp)))**(DBLE(iAng)+Three/Two)
-               Scrt1(nPrim*(iExp-1)+jExp)=Temp
-               Scrt1(nPrim*(jExp-1)+iExp)=Temp
-210        Continue
-           Scrt1(nPrim*(iExp-1)+iExp)=One
-200     Continue
+            Pro_ij = Sqrt(Exp(iExp)*Exp(jExp))
+            Sum_ij = (Exp(iExp)+Exp(jExp))/Two
+            Power  = Dble(iAng) + OneHalf
+            Temp   = (Pro_ij/Sum_ij)**Power
+            Scrt1(nPrim*(iExp-1)+jExp)=Temp
+            Scrt1(nPrim*(jExp-1)+iExp)=Temp
+210      Continue
+         Scrt1(nPrim*(iExp-1)+iExp)=One
+200   Continue
 *     Contract right side
       Call DGEMM_('N','N',
      &            nPrim,nCntrc,nPrim,

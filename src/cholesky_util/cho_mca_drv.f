@@ -22,7 +22,6 @@ C
       LOGICAL INDEXATION, DOFOCK, DOGRAD
       LOGICAL VERBOSE, FREEK2
 
-      CALL QENTER('Cholesky')
       CALL STATUSLINE('Seward: ','Cholesky decomposition of ERIs')
 
 C     Initialize integral program (this does some memory
@@ -83,6 +82,5 @@ C     ----------------------------
 
       CALL GASYNC
       Call Free_iSD()
-      CALL QEXIT('Cholesky')
 
       END

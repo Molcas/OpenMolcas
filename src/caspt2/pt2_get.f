@@ -28,7 +28,7 @@
       CHARACTER(len=*) LAB
       REAL*8 VEC(*)
 
-      CHARACTER(8) LAB1
+      CHARACTER(LEN=8) LAB1
 
       INTEGER I,IAD,NSZ
 #ifdef _DEBUGPRINT_

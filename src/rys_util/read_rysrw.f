@@ -25,7 +25,7 @@ c      implicit none
 #include "SysDef.fh"
 #include "itmax.fh"
 #include "stdalloc.fh"
-      character(*), parameter :: RYSRW_NAME = 'RYSRW'
+      character(len=*), parameter :: RYSRW_NAME = 'RYSRW'
       integer, parameter :: lu_rysrw = 22
       logical :: found_rysrw
 *

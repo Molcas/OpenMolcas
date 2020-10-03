@@ -105,26 +105,6 @@ c----------------------------------------------------------------------
 *         order density matrix and accumulate contributions to the     *
 *         global multipole expansion.                                  *
 *                                                                      *
-* Called from: RctFld                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              MltInt                                                  *
-*              DGeMV    (ESSL)                                         *
-*              RecPrt                                                  *
-*              DCopy    (ESSL)                                         *
-*              DGEMM_   (ESSL)                                         *
-*              CarSph                                                  *
-*              DGeTMO   (ESSL)                                         *
-*              DaXpY    (ESSL)                                         *
-*              SOGthr                                                  *
-*              DesymD                                                  *
-*              DScal    (ESSL)                                         *
-*              TriPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
 *             Modified for Hermite-Gauss quadrature November '90       *
@@ -165,7 +145,6 @@ c----------------------------------------------------------------------
 *
       iRout = 112
       iPrint = nPrint(iRout)
-      Call qEnter('drv_ef_PCM')
 *
       iIrrep = 0
 *
@@ -470,6 +449,5 @@ cpcm_solvent end
 *
 c     Call GetMem('drv_ef_PCM','CHEC','REAL',iDum,iDum)
 *
-      Call qExit('drv_ef_PCM')
       Return
       End

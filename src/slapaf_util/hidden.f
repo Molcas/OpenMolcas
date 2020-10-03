@@ -26,7 +26,6 @@
       Dimension XYZ(3)
       Character*2 Symbol
 *
-      Call QEnter('hidden')
       iPL = iPrintLevel(-1)
 *     iPL=99
 *
@@ -171,6 +170,5 @@
       End If
       nHidden = nKept
 *
-      Call QExit('hidden')
       Return
       End

@@ -17,14 +17,6 @@
 *                                                                      *
 * Object: to compute the gradients of the 2D-integrals.                *
 *                                                                      *
-* Called from: Rysg1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Exp1                                                    *
-*              Exp2                                                    *
-*              DaXpY  (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *

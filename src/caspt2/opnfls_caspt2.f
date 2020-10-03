@@ -22,7 +22,7 @@ C  M.P. Fuelscher and P. AA. Malmqvist
 C  University of Lund, Sweden, 1993
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-      CHARACTER(2) CVEC,CMAT
+      CHARACTER(LEN=2) CVEC,CMAT
 *---------------------------------------------------------------------*
 C  Start
 *---------------------------------------------------------------------*
@@ -30,7 +30,6 @@ C  Start
 #include "caspt2.fh"
 #include "output.fh"
 
-      Call qEnter('OpnFls')
 *---  define logical unit numbers ------------------------------------*
 C  AO two-electron integrals
       LUINTA=20
@@ -110,6 +109,5 @@ C  AO one-electron integrals
 *----------------------------------------------------------------------*
 C  Exit
 *----------------------------------------------------------------------*
-      Call qExit('OpnFls')
       Return
       End

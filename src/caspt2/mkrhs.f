@@ -35,7 +35,6 @@ C root state to the 1st order interacting space are computed, as
 C combinations of MO integrals.
 C This is the RHS vector in contravariant representation.
 
-      CALL QENTER('MKRHS')
 
       IF (IPRGLB.GE.VERBOSE) THEN
         WRITE(6,'(1X,A)') ' Using conventional MKRHS algorithm'
@@ -61,7 +60,6 @@ C INTEGRAL BUFFERS:
 
       CALL GETMEM('ERI','FREE','REAL',LERI,2*NERI)
 
-      CALL QEXIT('MKRHS')
 
       RETURN
       END
@@ -82,7 +80,6 @@ C INTEGRAL BUFFERS:
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for case 1 (VJTU).
 
-      CALL QENTER('MKRHSA')
 
       NFNXT=0
       DO 190 ISYM=1,NSYM
@@ -137,7 +134,6 @@ C Put W on disk:
           CALL GETMEM('WA','FREE','REAL',LW,NV)
  190    CONTINUE
 
-      CALL QEXIT('MKRHSA')
 
       RETURN
       END
@@ -159,7 +155,6 @@ C Put W on disk:
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV for cases 2 and 3 (VJTI).
 
-      CALL QENTER('MKRHSB')
 
       SQ2=SQRT(2.0D00)
 C VJTI CASE:
@@ -271,7 +266,6 @@ C  Put WM on disk
           CALL GETMEM('WB','FREE','REAL',LW,NV)
  290    CONTINUE
 
-      CALL QEXIT('MKRHSB')
 
       RETURN
       END
@@ -290,7 +284,6 @@ C  Put WM on disk
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV for case 4 (ATVX).
 
-      CALL QENTER('MKRHSC')
 
       NFNXT=0
       DO 390 ISYM=1,NSYM
@@ -368,7 +361,6 @@ C   Put W on disk
           CALL GETMEM('WC','FREE','REAL',LW,NV)
  390    CONTINUE
 
-      CALL QEXIT('MKRHSC')
 
       RETURN
       END
@@ -388,7 +380,6 @@ C   Put W on disk
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for case 5, AIVX.
 
-      CALL QENTER('MKRHSD')
 
       DO 490 ISYM=1,NSYM
         IF(NINDEP(ISYM,5).EQ.0) GOTO 490
@@ -456,7 +447,6 @@ C   Put W on disk.
           CALL GETMEM('WD','FREE','REAL',LW,NV)
  490    CONTINUE
 
-      CALL QEXIT('MKRHSD')
 
       RETURN
       END
@@ -479,7 +469,6 @@ C   Put W on disk.
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for cases 6 and 7 (VJAI).
 
-      CALL QENTER('MKRHSE')
 
       SQ2=SQRT(2.0D00)
       SQI2=1.0D0/SQ2
@@ -563,7 +552,6 @@ C   Put WP and WM on disk.
           CALL GETMEM('WE','FREE','REAL',LW,NV)
  590    CONTINUE
 
-      CALL QEXIT('MKRHSE')
 
       RETURN
       END
@@ -582,7 +570,6 @@ C   Put WP and WM on disk.
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for cases 8 and 9 (BVAT).
 
-      CALL QENTER('MKRHSF')
 
       SQ2=SQRT(2.0D00)
       SQI2=1.0D0/SQ2
@@ -666,7 +653,6 @@ C   Put WM on disk
           IF(NVM.GT.0) CALL GETMEM('WFM','FREE','REAL',LWM,NVM)
  690    CONTINUE
 
-      CALL QEXIT('MKRHSF')
 
       RETURN
       END
@@ -686,7 +672,6 @@ C   Put WM on disk
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for cases 10 and 11 (BJAT).
 
-      CALL QENTER('MKRHSG')
 
       SQ2=SQRT(2.0D00)
       SQI2=1.0D0/SQ2
@@ -773,7 +758,6 @@ C   Put WP and WM on disk.
           CALL GETMEM('WG','FREE','REAL',LW,NV)
  790    CONTINUE
 
-      CALL QEXIT('MKRHSG')
 
       RETURN
       END
@@ -795,7 +779,6 @@ C   Put WP and WM on disk.
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for cases 12 and 13 (BJAI).
 
-      CALL QENTER('MKRHSH')
 
       SQ2=SQRT(2.0D00)
       SQI2=1.0D0/SQ2
@@ -875,7 +858,6 @@ C With new norm., divide by /SQRT(12)
           END IF
  890    CONTINUE
 
-      CALL QEXIT('MKRHSH')
 
       RETURN
       END

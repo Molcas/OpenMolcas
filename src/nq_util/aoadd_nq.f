@@ -13,14 +13,6 @@
       SubRoutine AOAdd_NQ(AOInt,iBas,iBas_Eff,jBas,jBas_Eff,PrpInt,nPrp,
      &                 iCmp,jCmp,iShell,jShell,iAO,jAO)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
@@ -37,11 +29,8 @@
       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *                                                                      *
 ************************************************************************
-*                                                                      *
-*define _DEBUGPRINT_
-*
+
 #ifdef _DEBUGPRINT_
-      Call qEnter('AOAdd')
       Call RecPrt(' In AOAdd:AOInt',' ',AOInt,iBas_Eff*jBas_Eff,
      &            iCmp*jCmp)
       Write (6,*) 'iBas_Eff,jBas_Eff,iCmp,jCmp=',iBas_Eff,jBas_Eff,
@@ -86,7 +75,6 @@
 *
 #ifdef _DEBUGPRINT_
       Call GetMem(' Exit AOAdd','CHECK','REAL',iDum,iDum)
-      Call qExit('AOAdd')
 #endif
       Return
       End

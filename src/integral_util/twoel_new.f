@@ -30,24 +30,9 @@
      &           Shijij,W2Disc,IntOnly,Quad_ijkl,nHRRAB,nHRRCD,
      &           DoIntegrals,DoFock,FckNoClmb,FckNoExch,Aux,nAux,ExFac)
 ************************************************************************
+*                                                                      *
 * Object: to generate the SO integrals for four fixed centers and      *
 *         fixed basis set types.                                       *
-*                                                                      *
-* Called from: Eval_Ints                                               *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCR                                                     *
-*              DCopy   (ESSL)                                          *
-*              Inter                                                   *
-*              Stblzr                                                  *
-*              Rys                                                     *
-*              Cntrct                                                  *
-*              GetMem                                                  *
-*              RecPrt                                                  *
-*              TnsCtl                                                  *
-*              FckAcc                                                  *
-*              DScal  (ESSL)                                           *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
@@ -802,24 +787,9 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
      &           Shijij, W2Disc,IntOnly,Quad_ijkl,nHRRAB,nHRRCD,
      &           DoIntegrals,DoFock,FckNoClmb,FckNoExch,Aux,nAux,ExFac)
 ************************************************************************
+*                                                                      *
 * Object: to generate the SO integrals for four fixed centers and      *
 *         fixed basis set types.                                       *
-*                                                                      *
-* Called from: Eval_Ints                                               *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCR                                                     *
-*              DCopy   (ESSL)                                          *
-*              Inter                                                   *
-*              Stblzr                                                  *
-*              Rys                                                     *
-*              Cntrct                                                  *
-*              GetMem                                                  *
-*              RecPrt                                                  *
-*              TnsCtl                                                  *
-*              FckAcc                                                  *
-*              DScal  (ESSL)                                           *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *

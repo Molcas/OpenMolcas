@@ -17,12 +17,6 @@
 *                                                                      *
 * Object: compute the 2nd derivative  of the overlap matrix.           *
 *                                                                      *
-* Called from: OvrHss                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iChTbl
       Implicit Real*8 (A-H,O-Z)
@@ -49,7 +43,6 @@
 *EAW 970912     ixyz=idLoc(DAO(1,1,1))
 c     iRout = 134
 c     iPrint = nPrint(iRout)
-c     Call qEnter('CmbnS2')
       iStb(0)=iu
       iStb(1)=iv
       iQ = 1
@@ -231,7 +224,6 @@ c     End If
  90   Continue
 *
 *     Call GetMem(' Exit CmbnS2','LIST','REAL',iDum,iDum)
-c     Call qExit('CmbnS2')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Beta)

@@ -43,7 +43,6 @@
 *  THE TUVX MATRICES ARE IN THE SAME FORMAT AS THE DENSITY MATRICES.
 *****************************************************************
 
-      Call qEnter('TRINT')
       IfTest=.False.
 #ifdef _DEBUGPRINT_
       IfTest=.True.
@@ -419,7 +418,6 @@ C TRANSFORM TWO-ELECTRON INTEGRALS:
 c     Call triprt('tuvx',' ',TUVX,nasht)
 
 
-      Call qExit('TRINT')
       RETURN
 901   CONTINUE
       WRITE(6,*)' ERROR IN KEEP PARAMETERS ON ORDINT FILE.'

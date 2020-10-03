@@ -70,7 +70,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('DrvEMB')
       Call Setup_iSD()
       If (Do_Grad) Call FZero(Grad,nGrad)
 *                                                                      *
@@ -458,7 +457,6 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
       Call Free_Work(ipF_DFT)
       Call GetMem('D-DS','Free','Real',ip_D_DS,l_D_DS)
       Call Free_iSD()
-      Call QExit('DrvEMB')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

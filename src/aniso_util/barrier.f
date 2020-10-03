@@ -56,7 +56,6 @@ c  N --  dimension of the barrier
       Complex(kind=8), allocatable :: dipso5(:,:,:,:,:)
 !                                            (3,nmult,10,nmult,10)
 !-----------------------------------------------------------------------
-      Call qEnter('barrier')
 
       If((nmult>0).and.(nBlock>0)) Then
          Call mma_allocate(ibas,nmult,nBlock,'ibas')
@@ -834,7 +833,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       Call mma_deallocate(MM)
       Call mma_deallocate(maxes)
 
-      Call qExit('barrier')
 
       Return
       End

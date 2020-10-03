@@ -92,16 +92,10 @@
         End Subroutine Drv2El_dscf
       End Interface
 
-*
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-*
+
       If (PmTime) Call CWTime(xCPM1,xWPM1)
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-*define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call qEnter('PMat')
       Call NrmClc(TwoHam(1,1,nDens),nBT*nD,'PMat: Enter','T in nDens')
       Call NrmClc(Vxc   (1,1,nDens),nBT*nD,'PMat: Enter','T in nDens')
       Call NrmClc(TwoHam(1,1,nDens),nBT*nD,'PMat: Enter','T in iPsLst')
@@ -397,7 +391,6 @@
      &      / DBLE(nD)
 *
 *
-*define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call NrmClc(Dens  (1,1,iPsLst),nBT*nD,'PMat  ','D iPsLst  ')
       Call NrmClc(Dens  (1,1,nDens), nBT*nD,'PMat  ','D nDens   ')
@@ -406,7 +399,6 @@
       Call NrmClc(Vxc   (1,1,iPsLst),nBT*nD,'PMat  ','V iPsLst  ')
       Call NrmClc(Vxc   (1,1,nDens), nBT*nD,'PMat  ','V nDens   ')
 *
-      Call qExit('PMat')
 #endif
       Call Timing(Cpu2,Tim1,Tim2,Tim3)
       TimFld( 5) = TimFld( 5) + (Cpu2 - Cpu1)
@@ -421,10 +413,5 @@
      &   ' (2-el contributions: ',tWF2,' seconds) <<<'
          Call xFlush(6)
       End If
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
-      End
+
+      End subroutine PMat_SCF

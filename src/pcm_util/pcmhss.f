@@ -19,16 +19,6 @@
 * Object: kernel routine for the computation of nuclear attraction     *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DCR                                                     *
-*              XRysg1                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, May 1995                                *
 *                                                                      *
@@ -80,7 +70,6 @@
 *
       iRout = 151
       iPrint = nPrint(iRout)
-      Call qEnter('PCMHss')
 *
       nip = 1
       ipA = nip
@@ -240,7 +229,6 @@
 111      Continue
       End Do     ! End loop over centers in the external field
 *
-      Call qExit('PCMHss')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

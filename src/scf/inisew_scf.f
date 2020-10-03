@@ -14,14 +14,6 @@
       SubRoutine IniSew_scf(DSCF,EThr,DThr,FThr,
      &                  DltNTh,SIntTh,KSDFT)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             modified by M.Schuetz @teokem.lu.se, 1995                *
@@ -33,7 +25,6 @@
 *                                                                      *
 *                                                                      *
 * Note :  the corresponding finalization subroutine is ClsSew          *
-*                                                                      *
 ************************************************************************
       use Sizes_of_Seward, only: S
       use Real_Info, only: ThrInt, CutInt

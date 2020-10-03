@@ -208,7 +208,6 @@ c      Debug=.true.
       iRout = 9
       iPrint = nPrint(iRout)
 
-      Call QEnter(SECNAM)
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
@@ -718,7 +717,6 @@ c            !set index arrays at iLoc
                WRITE(6,*) ' mTvec = ',mTvec
                WRITE(6,*) ' LFMAX = ',LFMAX
                irc = 33
-               CALL QTrace()
                CALL Abend()
                nBatch = -9999  ! dummy assignment
             End If
@@ -1833,7 +1831,6 @@ C--- have performed screening in the meanwhile
 
       irc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
       END

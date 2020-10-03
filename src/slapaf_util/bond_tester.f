@@ -25,7 +25,6 @@
 *define _DEBUGPRINT_
 *define _TIME_
 #ifdef _TIME_
-      Call Qenter('Bond_Tester')
 #endif
 *                                                                      *
 ************************************************************************
@@ -202,7 +201,6 @@ C        If (iAtom.le.jAtom) Go To 99
 *
  199  Continue
 #ifdef _TIME_
-      Call QExit('Bond_Tester')
 #endif
       Return
       End

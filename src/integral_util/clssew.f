@@ -12,14 +12,6 @@
 ************************************************************************
       SubRoutine ClsSew
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
@@ -33,7 +25,6 @@
       use Symmetry_Info, only: Symmetry_Info_Free
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "timtra.fh"
 #include "rctfld.fh"

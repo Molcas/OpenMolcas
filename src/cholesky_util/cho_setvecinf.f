@@ -20,10 +20,6 @@ C
       CHARACTER*13 SECNAM
       PARAMETER (SECNAM = 'CHO_SETVECINF')
 
-#if defined (_DEBUGPRINT_)
-      CALL QENTER('_SETVECINF')
-#endif
-
       IF (IVEC .GT. MAXVEC) THEN
          WRITE(LUPRI,*) SECNAM,': too many Cholesky vectors!'
          WRITE(LUPRI,*) SECNAM,': symmetry: ',ISYM
@@ -41,9 +37,5 @@ C
          INFVEC(IVEC+1,4,ISYM) = INFVEC(IVEC,4,ISYM)
      &                         + NNBSTR(ISYM,ILOC) ! next addr.
       END IF
-
-#if defined (_DEBUGPRINT_)
-      CALL QEXIT('_SETVECINF')
-#endif
 
       END

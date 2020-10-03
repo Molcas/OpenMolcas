@@ -16,13 +16,6 @@
 *                                                                      *
 *  Object: Allocate space for K2 entities.                             *
 *                                                                      *
-* Called from: ReadIn (client) / DPSCF main (server)                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              DCR                                                     *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden. November '92                 *
 *             Martin Schuetz, Dept. of Theoretical Chemistry,          *
@@ -52,7 +45,6 @@
       nElem(i)=(i+1)*(i+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
-*     Call QEnter('AlloK2')
 *
       If (Debug) Then
          If (Allocated(Data_k2)) Then

@@ -415,7 +415,7 @@ contains
         real(wp), intent(inout) :: V(:, :), lambda(:)
         !> The norms of the projections
         real(wp), allocatable :: norms_projections(:)
-        character(*), parameter :: this_routine = 'canonicalize_factory'
+        character(len=*), parameter :: this_routine = 'canonicalize_factory'
 
 
         integer :: low, i, j, d, n_new
@@ -872,7 +872,7 @@ contains
     !> for pure procedures.
     !> This is necessary to allow asserts in pure procedures.
     pure subroutine abort_(message)
-        character(*), intent(in) :: message
+        character(len=*), intent(in) :: message
 
         ! I know, that these functions are not pure,
         ! but we are aborting anyway.
@@ -888,7 +888,6 @@ contains
         end interface
 
         call WarningMessage(2, message)
-        call QTrace()
         call Abend()
     end subroutine
 
@@ -896,7 +895,7 @@ contains
     !>    Runtime check, that is not switched off in Debug mode
     subroutine verify_(test_expression, message)
         logical, intent(in) :: test_expression
-        character(*), intent(in) :: message
+        character(len=*), intent(in) :: message
         if (.not. test_expression) then
             call abort_(message)
         end if

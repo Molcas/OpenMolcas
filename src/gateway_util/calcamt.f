@@ -48,7 +48,6 @@ C...  working variables (change this)
      &       W1W1(maxprim,maxprim),W1E0W1(maxprim,maxprim)
       Data iExch/1/,iMVPot/2/,iDWPot/4/,iNPPot/8/
 *
-      Call qEnter('CalcAMt')
       PI=2D0*ACOS(0D0)
       iprint=0
       Call Agin
@@ -173,6 +172,5 @@ C
         END DO
 *
 1000  CONTINUE
-      Call qExit('CalcAMt')
       RETURN
       END

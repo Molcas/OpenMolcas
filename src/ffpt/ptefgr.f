@@ -37,7 +37,6 @@
 *                                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qEnter('PtEfGr')
 *
       Exec=.false.
       Exec=Exec.or.ComStk(2,4,1,1)
@@ -47,7 +46,6 @@
       Exec=Exec.or.ComStk(2,4,1,5)
       Exec=Exec.or.ComStk(2,4,1,6)
       If ( .not.Exec ) then
-         Call qExit('PtEfGr')
          Return
       End If
 *
@@ -63,7 +61,6 @@
       Orig=Orig.or.ComStk(2,4,2,4)
       If ( .not.Orig ) Then
          Write (6,*) 'PtEfGr: Input error, no matching center found.'
-         Call QTrace
          Call Abend()
       End If
 *
@@ -83,7 +80,6 @@
            Write (6,*) 'iAtm,nAtoms=',iAtm,nAtoms
            Write (6,*) 'You specified a invalid atom number as the '
      &               //'origin of the perturbation operator.'
-           Call QTrace
            Call Abend()
         End If
         XOrig=Coor(1,iAtm)
@@ -126,7 +122,6 @@
       If ( NoCntr ) Then
          Write (6,*) 'PrEfGr: No center found!'
          Write (6,*) 'XOrig,YOrig,ZOrig=',XOrig,YOrig,ZOrig
-         Call QTrace
          Call Abend()
       End If
       If ( Debug )
@@ -190,7 +185,6 @@
 *     Normal Exit                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qExit('PtEfGr')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
@@ -204,6 +198,5 @@ c Avoid unused argument warnings
 *
 991   Write (6,*) 'PtEfGr: Error reading ONEINT'
       Write (6,'(A,A)') 'Label=',Label
-      Call QTrace
       Call Abend()
       End

@@ -22,7 +22,6 @@ C
       Character*9 SecNam
       Parameter (SecNam='RPA_RdOrb')
 
-      Call qEnter(SecNam)
 
       If (LumOrb) Then
          ! read from InpOrb
@@ -32,7 +31,6 @@ C
          Call RPA_RdOrb_FromRunfile()
       End If
 
-      Call qExit(SecNam)
 
       End
 ************************************************************************

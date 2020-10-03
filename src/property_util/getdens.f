@@ -15,13 +15,6 @@
 *                                                                      *
 * Object: to get the 1 particle density from file INPORB               *
 *                                                                      *
-* Called from: Drv1el                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              OneEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Chem. Phys.                       *
 *             University of Lund, SWEDEN                               *
 *             January 2000                                             *

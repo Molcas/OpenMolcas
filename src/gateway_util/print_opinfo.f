@@ -29,7 +29,6 @@
       iRout=2
       iPrint = nPrint(iRout)
       If (iPrint.eq.0) Return
-      Call qEnter('Print_OpInfo')
       LuWr=6
 *                                                                      *
 ************************************************************************
@@ -202,6 +201,5 @@
         Call CollapseOutput(0,'   Operator info:')
         Write(LuWr,*)
       End If
-      Call qExit('Print_OpInfo')
       Return
       End

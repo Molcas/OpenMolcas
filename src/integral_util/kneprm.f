@@ -19,17 +19,6 @@
 * Object: to compute the kinetic energy integrals with the Gauss-      *
 *         Hermite quadrature.                                          *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              DCopy   (ESSL)                                          *
-*              Kntc                                                    *
-*              CmbnKE                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 *             Modified to multipole moments November '90               *
@@ -43,7 +32,6 @@
      &       Array(nZeta*nArr), Ccoor(3)
       Logical ABeq(3)
 *
-*     Call qEnter('KnEInt')
       ABeq(1) = A(1).eq.RB(1)
       ABeq(2) = A(2).eq.RB(2)
       ABeq(3) = A(3).eq.RB(3)
@@ -135,7 +123,6 @@
      &            nComp,Array(ipTxyz))
 *
 *
-*     Call qExit('KnEInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

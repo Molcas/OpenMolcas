@@ -65,7 +65,6 @@ C     Calling arguments:
       DIMENSION CMOO(*),CMON(*),FP(*),FTR(*),VEC(*),
      *          WO(*),SQ(*),D(*),OCCN(*),CMOX(*)
 
-      Call qEnter(routine)
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -430,6 +429,5 @@ C
       call mh5_put_dset(wfn_orbene,FDIAG)
 #endif
 
-      CALL QEXIT('NEWORB')
       RETURN
       END

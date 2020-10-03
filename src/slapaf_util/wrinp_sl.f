@@ -22,7 +22,6 @@
 *
       Lu=6
 *
-      Call QEnter('WrInp')
 *
       If (lNmHss) Then
          lOld = .False.
@@ -428,6 +427,5 @@
       If (iPrint.ge.5)
      &   Call CollapseOutput(0,'      Slapaf input parameters:')
 *
-      Call QExit('WrInp')
       Return
       End

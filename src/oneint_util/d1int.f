@@ -18,20 +18,11 @@
 *                                                                      *
 * Object: to compute the 1-electron Darwin contact term.               *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              Darwin                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden, February '91                 *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 
 #include "int_interface.fh"
@@ -44,7 +35,6 @@
 *
       iRout = 150
       iPrint = nPrint(iRout)
-      Call qEnter('D1Int')
 *
       nip = 1
       ipAxyz = nip
@@ -83,7 +73,6 @@
       End If
 *
 *     Call GetMem(' Exit D1Int','LIST','REAL',iDum,iDum)
-      Call qExit('D1Int')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

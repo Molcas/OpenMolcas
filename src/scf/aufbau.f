@@ -44,7 +44,6 @@
 #include "real.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 *
 *     declaration subroutine parameters

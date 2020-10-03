@@ -27,28 +27,6 @@
 * Object: to generate the SO integrals for four fixed centers and      *
 *         fixed basis set types.                                       *
 *                                                                      *
-* Called from: Drvg1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCR                                                     *
-*              DCopy   (ESSL)                                          *
-*              Inter                                                   *
-*              Stblzr                                                  *
-*              DesymP                                                  *
-*              Trnsps                                                  *
-*              Trns1                                                   *
-*              Phase                                                   *
-*              SphCr1                                                  *
-*              SphCr2                                                  *
-*              PrePre                                                  *
-*              Tcrtnc                                                  *
-*              Screen                                                  *
-*              Rysg1                                                   *
-*              RecPrt                                                  *
-*              DaXpY  (ESSL)                                           *
-*              DScal  (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -574,8 +552,6 @@ c                 Write (*,*) 'Prem=',Prem
                       Write (6,*)
      &                      'Norm of gradient contribution is huge!'
                       Write (6,*) 'Probably due to wrong coordinates.'
-                      Call QTrace()
-                      Call QExit('TwoEl')
                   End If
 *
  410           Continue

@@ -53,9 +53,6 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUGPRINT_
-      Call qEnter('Freeze')
-#endif
 *
 *---- Allocate temporary spaces
       Call mma_allocate(Temp,nBT,Label='Temp')
@@ -108,13 +105,4 @@
 *---- Deallocate memory
       Call mma_deallocate(Temp)
 *
-#ifdef _DEBUGPRINT_
-      Call qExit('Freeze')
-#endif
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
       End

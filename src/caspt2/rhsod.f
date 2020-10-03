@@ -28,7 +28,6 @@
 #include "eqsolv.fh"
 #include "para_info.fh"
 
-      Call QEnter('RHSOD')
 
       IF (IPRGLB.GE.VERBOSE) THEN
         WRITE(6,'(1X,A)') ' Using RHS on-demand algorithm'
@@ -68,7 +67,6 @@
       END DO
 #endif
 
-      Call QExit('RHSOD')
 
       END
 

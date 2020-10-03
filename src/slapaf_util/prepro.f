@@ -17,7 +17,6 @@
       Real*8 Coor(3,nAtom)
       Logical CofM
 *
-      Call QEnter('PrePro')
       iRout=134
       iPrint=nPrint(iRout)
 *
@@ -81,6 +80,5 @@
          Call GetMem(' NSUP ','Free','Inte',ipNSup,nSupSy)
       End If
 *
-      Call QExit('PrePro')
       Return
       End

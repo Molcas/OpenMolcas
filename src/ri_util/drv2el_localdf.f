@@ -35,7 +35,6 @@ C
       Integer  iPrintLevel
       External iPrintLevel
 
-      Call qEnter('2El_LDF')
 *
 
       Call StatusLine('Seward: ','local density fitting')
@@ -176,6 +175,5 @@ C==================
 #if defined (_DEBUGPRINT_)
       Write(6,'(A,A)') '>>> Exit ',SecNam
 #endif
-      Call qExit('2El_LDF')
       Return
       End

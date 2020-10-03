@@ -41,7 +41,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('RHSALL2')
 
       IF (IPRGLB.GE.VERBOSE) THEN
         WRITE(6,'(1X,A)') ' Using RHSALL2+ADDRHS algorithm'
@@ -421,7 +420,6 @@ C      the case, symmetry, and rhs vector respectively.
 ************************************************************************
 *                                                                      *
 
-      Call QExit('RHSALL2')
       RETURN
       END
       Subroutine Get_Cholesky_Vectors(ITK,ITQ,JSYM,

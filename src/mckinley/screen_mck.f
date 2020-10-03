@@ -34,14 +34,6 @@
 *                                                                      *
 *   lZeta, lEta : section length after prescreening.                   *
 *                                                                      *
-* Called from: Twoel                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DNrm2_  (ESSL)                                          *
-*              IDAMax_ (ESSL)                                          *
-*              DGeTMO  (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             March '92                                                *
@@ -70,7 +62,6 @@
 #ifdef _DEBUGPRINT_
       iRout = 180
       iPrint = nPrint(iRout)
-      Call qEnter('Screen')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' Data1',' ',Data1,nZeta,nDArray)
@@ -228,7 +219,6 @@
 #ifdef _DEBUGPRINT_
       If (iPrint.ge.39) Call RecPrt(' PAO',' ',
      &                              PAO,lZeta*lEta,mPAO)
-      Call qExit('Screen')
 #endif
       Return
 c Avoid unused argument warnings
@@ -265,14 +255,6 @@ c Avoid unused argument warnings
 *                                                                      *
 *   lZeta, lEta : section length after prescreening.                   *
 *                                                                      *
-* Called from: Twoel                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DNrm2_  (ESSL)                                          *
-*              IDAMax_ (ESSL)                                          *
-*              DGeTMO  (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             March '92                                                *
@@ -301,7 +283,6 @@ c Avoid unused argument warnings
 #ifdef _DEBUGPRINT_
       iRout = 180
       iPrint = nPrint(iRout)
-      Call qEnter('Screen')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' Data1',' ',Data1,nZeta,nDArray)
@@ -453,7 +434,6 @@ c Avoid unused argument warnings
 #ifdef _DEBUGPRINT_
       If (iPrint.ge.39) Call RecPrt(' PAO',' ',
      &                              PAO,lZeta*lEta,mPAO)
-      Call qExit('Screen')
 #endif
       Return
 c Avoid unused argument warnings

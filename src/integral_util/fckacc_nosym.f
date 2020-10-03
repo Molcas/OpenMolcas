@@ -16,6 +16,7 @@
      &                  iAO,iAOst,iBas,jBas,kBas,lBas,
      &                  DoCoul,DoExch,Dij,Dkl,Dik,Dil,Djk,Djl,ExFac)
 ************************************************************************
+*                                                                      *
 *  Object: to accumulate contibutions from the AO integrals directly   *
 *          to the symmetry adapted Fock matrix.                        *
 *                                                                      *
@@ -37,18 +38,6 @@
 *                                                                      *
 *          The density matrix is not folded if the shell indices and   *
 *          the angular indices are identical.                          *
-*                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DNrm2_  (ESSL)                                          *
-*              DGeTMO  (ESSL)                                          *
-*              DGeMV   (ESSL)                                          *
-*              FckDst                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden. February '93                            *
@@ -303,6 +292,7 @@ c Avoid unused argument warnings
      &                  AOInt,FMat,DMat,nDens,
      &                  iAO,iAOst,iBas,jBas,kBas,lBas,ExFac)
 ************************************************************************
+*                                                                      *
 *  Object: to accumulate contibutions from the AO integrals directly   *
 *          to the symmetry adapted Fock matrix.                        *
 *                                                                      *
@@ -321,18 +311,6 @@ c Avoid unused argument warnings
 *                                                                      *
 *          The density matrix is not folded if the shell indices and   *
 *          the angular indices are identical.                          *
-*                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DNrm2_  (ESSL)                                          *
-*              DGeTMO  (ESSL)                                          *
-*              DGeMV   (ESSL)                                          *
-*              FckDst                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden. February '93                            *

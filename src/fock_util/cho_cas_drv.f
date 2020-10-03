@@ -158,7 +158,6 @@ c --- decompose the Inactive density on request
              If (rc.ne.0) Then
               write(6,*)SECNAM//': ill-defined dens decomp for Inact'
               write(6,*) 'rc value produced = ', rc
-              Call qtrace()
               Call abend()
              EndIf
              nChI(i) = NumV
@@ -343,7 +342,6 @@ C ---  Decompose the active density  -----------------------------
              If (rc.ne.0) Then
                 write(6,*)SECNAM//': ill-defined dens decomp for active'
                 write(6,*) 'rc value produced = ', rc
-                Call qtrace()
                 Call abend()
              EndIf
              nChM(i) = NumV

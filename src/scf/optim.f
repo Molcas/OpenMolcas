@@ -61,9 +61,7 @@
 *----------------------------------------------------------------------*
 * Initialize                                                           *
 *----------------------------------------------------------------------*
-*define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call qEnter('Optim')
       Debug=.true.
       Debug2=.True.
 *     Debug2=.false.
@@ -192,14 +190,10 @@
       Write (6,*) 'ERef=',ERef
 #endif
       E_Pred=ERef
-*----------------------------------------------------------------------*
-* Done.                                                                *
-*----------------------------------------------------------------------*
-#ifdef _DEBUGPRINT_
-      Call qExit('Optim')
-#endif
-      Return
-      End
+
+      End subroutine Optim
+
+
       Real*8 Function optim_E(C,G,H,n,nDim)
       Implicit Real*8 (A-H,O-Z)
       Real*8 C(nDim), G(nDim), H(nDim,nDim)
@@ -212,5 +206,4 @@
          End Do
          Optim_E=Optim_E+C(k)*G(k)+Tmp
       End Do
-      Return
       End

@@ -82,7 +82,6 @@
       Debug=.false.
 #endif
 
-      Call qEnter('HALFTRNSF')
 
 * iLoc = 3 means 'use scratch location in reduced index arrays'
       iLoc = 3
@@ -250,7 +249,6 @@
 
       irc=0
 
-      Call qExit('HALFTRNSF')
 
       Return
       END

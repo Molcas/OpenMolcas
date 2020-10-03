@@ -49,7 +49,6 @@
 
 #include "SysDef.fh"
 
-      Call qEnter('RdMBPT')
 *
 *...  Read nSym, nBas, nOrb, nOcc, nFro, CMO and orbital energies from COMFILE
 *
@@ -68,7 +67,6 @@
          Do iSym=1,nSym
             If (nFro(iSym).ne.0) Then
                Write (6,*) 'Some orbitals where frozen in the SCF!'
-               Call QTrace()
                Call Abend()
             End If
             nDel(iSym)=nBas(iSym)-nOrb(iSym)
@@ -113,6 +111,5 @@
          End Do
          Call GetMem('EOrb_t','Free','Real',ipEOrb_t,lthEOr)
 *
-      Call qExit('RdMBPT')
       Return
       End

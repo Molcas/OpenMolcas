@@ -11,6 +11,8 @@
 # Copyright (C) 2020, Oskar Weser                                      *
 #***********************************************************************
 
+include_guard(GLOBAL)
+
 include(${PROJECT_SOURCE_DIR}/cmake/cmake_helpers.cmake)
 
 # Libfruit provides the machinery for unit testing in Fortran

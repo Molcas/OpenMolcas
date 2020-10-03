@@ -17,7 +17,6 @@
       Integer   iANr(nAtoms+nHidden), iTabBonds(3,nBonds),
      &          iTabAtoms(2,0:nMax,nAtoms+nHidden)
       Logical Schlegel
-      Call QEnter('ddV')
 *
 *  Temporary big hessian
 *
@@ -50,7 +49,6 @@
          Call ddV_(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,iTabBonds,
      &             iTabAtoms,nBonds,nMax,nHidden)
       End If
-      Call QExit('ddV')
       End
 *
       Subroutine ddV_(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,iTabBonds,
@@ -105,7 +103,6 @@
 *                                                                      *
       iRout=140
       iPrint=nPrint(iRout)
-      Call QEnter('ddV_')
 *
       f_const_min_=f_const_min * 1.0D-1
       f_const=0.0D0
@@ -1165,7 +1162,6 @@ C                 tij=Max(tij,f_const_Min_)
 #ifdef _DEBUGPRINT_
       Write (6,*) 'ddV: nqR, nqB, nqT, nqO=',nqR, nqB, nqT, nqO
 #endif
-      Call QExit('ddV_')
       Return
       End
 #ifdef _DEBUGPRINT_
@@ -1178,7 +1174,6 @@ C                 tij=Max(tij,f_const_Min_)
       Real*8 H(*)
       Logical Exist
 *
-      Call QEnter('DiagMtrx')
       Lu=6
       iRout=22
       iprint=nPrint(iRout)
@@ -1264,7 +1259,6 @@ c         Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
       Call GetMem('EVec','Free','Real',ipEVec,nH*nH)
       Call GetMem('EVal','Free','Real',ipEVal,nH*(nH+1)/2)
 *
-      Call QExit('DiagMtrx')
       Return
       End
 #endif

@@ -45,7 +45,6 @@
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
       iPrint = 5
-      Call qEnter('BdVGrd')
 *
 *---- Modify the density matrix with the prefactor
 *
@@ -243,7 +242,6 @@
 111      Continue
       End Do     ! End loop over centers in the grid
 *
-      Call qExit('BdVGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

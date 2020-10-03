@@ -13,13 +13,7 @@
       SubRoutine Print_Symmetry()
 ************************************************************************
 *                                                                      *
-*     Object: to write the output of seward            .               *
-*                                                                      *
-*                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
+*     Object: to write the output of seward                            *
 *                                                                      *
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
 *             September '06                                            *
@@ -47,7 +41,6 @@
       iRout=2
       iPrint=nPrint(iRout)
       If (iPrint.eq.0) Return
-      Call QEnter('Print_Symmetry')
       LuWr=6
 *                                                                      *
 ************************************************************************
@@ -93,6 +86,5 @@
 *                                                                      *
       Call CollapseOutput(0,'  Symmetry information:')
       Write (LuWr,*)
-      Call QExit('Print_Symmetry')
       Return
       End

@@ -32,10 +32,6 @@ C
 
       INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
 
-#if defined (_DEBUGPRINT_)
-      CALL QENTER('_PUTVEC')
-#endif
-
       CHK_OVERFLOW = .NOT.Cho_Real_Par
 
 C     Return if no vectors.
@@ -46,7 +42,7 @@ C     ---------------------
             WRITE(LUPRI,*) SECNAM,': WARNING: no vectors in this call!'
             WRITE(LUPRI,*) SECNAM,': NUMVEC = ',NUMVEC
          END IF
-         GO TO 1 ! exit
+         return
       END IF
 
 C     Check vector dimension: should be the same as current reduced
@@ -61,7 +57,7 @@ C     -------------------------------------------------------------
             WRITE(LUPRI,*) SECNAM,': WARNING: negative vector dimension'
             WRITE(LUPRI,*) SECNAM,': LENVEC = ',LENVEC
          END IF
-         GO TO 1 ! exit
+         return
       END IF
 
 C     Check symmetry.
@@ -174,10 +170,4 @@ C     ------------
      &                     XNRM
          END DO
       END IF
-
-    1 CONTINUE
-#if defined (_DEBUGPRINT_)
-      CALL QEXIT('_PUTVEC')
-#endif
-
       END

@@ -48,7 +48,6 @@ C-POW Dimension nv1w(6),nv2w(6),Sw(6),
       Dimension R(*),PotR(*)
       Character*80 TmpLine
 *
-      Call qEnter('VibTrm')
       ChkSum=0.0d0
 C
       hyph='-'
@@ -464,6 +463,5 @@ CPAM97      End Do
 CPAM97      End Do
 CPAM97CPAM97 New code ends
       Call Add_Info('VIBROT_VIBTRM',[ChkSum],1,6)
-      Call qExit('VibTrm')
       Return
       End

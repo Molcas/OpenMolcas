@@ -34,7 +34,6 @@
       Character(len=160) string
       real*8, allocatable :: cpu_timing(:), wall_timing(:)
 
-      CALL QENTER('MCCTL')
 
       Call mma_allocate( cpu_timing,nstate,'timing in mcctl')
       Call mma_allocate(wall_timing,nstate,'timing in mcctl')
@@ -89,6 +88,5 @@ C Compute the effective Hamiltonian:
       Call mma_deallocate(cpu_timing)
       Call mma_deallocate(wall_timing)
 
-      CALL QEXIT('MCCTL')
       RETURN
       END

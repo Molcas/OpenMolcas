@@ -19,10 +19,6 @@
 *           preserves non-UEG feature of the OPTX combinations         *
 *           requires scaling of &mbpt2 correlation energy!             *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*                                                                      *
 *      Author: Grigory A Shamov, U of Manitoba, 2009                   *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
@@ -36,7 +32,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('O2PLYP')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -69,7 +64,6 @@ C MP2 correlation energy to be scaled to 1 - Coeff_C = 0.25
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('O2PLYP')
 C
       Return
 c Avoid unused argument warnings

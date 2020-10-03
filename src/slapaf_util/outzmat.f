@@ -57,10 +57,10 @@
       Character*8 Label
       Parameter (ThrsTrasl=1.0d0) ! Threshold for warning
 *
-      IfTest=.False.
 #ifdef _DEBUGPRINT_
-      Call QEnter('OutZMAT')
       IfTest=.True.
+#else
+      IfTest=.False.
 #endif
 *
       LuWr = 6
@@ -405,8 +405,4 @@
 98    Format(I3,1X,3(F12.6))
 99    Format(I3,1X,I3,1X,3(F12.6))
 
-#ifdef _DEBUGPRINT_
-      Call qExit('OutZMAT')
-#endif
-      Return
       End

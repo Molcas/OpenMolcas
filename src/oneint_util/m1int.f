@@ -21,19 +21,6 @@
 *         ECP calculations. The operator is the nuclear attraction     *
 *         operator times a s-type gaussian function.                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              mHrr                                                    *
-*              DCR                                                     *
-*              Rys                                                     *
-*              DaXpY   (ESSL)                                          *
-*              Hrr                                                     *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
 *      Beta  : as Alpha but for ket gaussians                          *
@@ -82,7 +69,6 @@
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
-      Call qEnter('M1Int')
       iRout = 193
       iPrint = nPrint(iRout)
 *
@@ -245,7 +231,6 @@
       End If
 *
 *     Call GetMem(' Exit M1Int','LIST','REAL',iDum,iDum)
-      Call QExit('M1Int')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

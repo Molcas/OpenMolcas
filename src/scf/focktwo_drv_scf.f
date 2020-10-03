@@ -96,7 +96,6 @@ C zeroing the elements
          WRITE(6,*)' Max nr of bf in any symmetry,  NBMX=',NBMX
          WRITE(6,*)' Required minimum size       NBMX**2=',NBMX**2
          WRITE(6,*)'    (All in Real*8-size words)'
-         Call QTRACE()
          Call  ABEND()
        End If
 *
@@ -132,7 +131,6 @@ C zeroing the elements
          WRITE(6,*)' Max nr of bf in any symmetry,  NBMX=',NBMX
          WRITE(6,*)' Required minimum size       NBMX**2=',NBMX**2
          WRITE(6,*)'    (All in Real*8-size words)'
-         Call QTRACE()
          Call  ABEND()
        End If
 *

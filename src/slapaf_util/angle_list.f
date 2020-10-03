@@ -62,7 +62,6 @@
 #ifdef _DEBUGPRINT_
       iPrint=99
 #endif
-      Call QEnter('Bends')
 *
       nqA=0
       PSPrint=.False.
@@ -564,6 +563,5 @@ C                 Do k = 1, 2
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit ('Bends')
       Return
       End

@@ -34,7 +34,6 @@ C Compute |JVEC> := BETA* |JVEC> + ALPHA* (H0-E0)* |IVEC>
 C where the vectors are represented in transformed basis and
 C are  stored at positions IVEC and JVEC on the LUSOLV unit.
 
-      CALL QENTER('SIGMA')
 
 #ifdef _DEBUGPRINT_
       WRITE(6,*)' Entering SIGMA.'
@@ -504,7 +503,6 @@ C Transform covar. sigma to eigenbasis of H0(diag):
       CALL PTRTOSR(0,JVEC,JVEC)
 
   99  CONTINUE
-      CALL QEXIT('SIGMA')
       RETURN
 
  999  CONTINUE

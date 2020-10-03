@@ -17,15 +17,6 @@
 *                                                                      *
 *  Object: driver for two-electron integrals.                          *
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Timing                                                  *
-*              Setup_Ints                                              *
-*              Eval_Ints                                               *
-*              Term_Ints                                               *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March 1990                                               *
 *                                                                      *
@@ -36,7 +27,6 @@
 *             small basis sets and large molecules. Sept. 1993         *
 *             Modified driver. Jan. 1998                               *
 *             Modified to 2-center ERIs for RI June 2005               *
-*                                                                      *
 ************************************************************************
       use Basis_Info, only: nBas_Aux
       use Wrj12
@@ -56,7 +46,6 @@
 *                                                                      *
       iRout = 9
       iPrint = nPrint(iRout)
-      Call QEnter('POST2LDF')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -294,6 +283,5 @@ C    &                     Work(ipLocal_AInv),nlO,nlO)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Post2LDF')
       Return
       End

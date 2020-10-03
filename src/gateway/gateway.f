@@ -40,7 +40,6 @@
 #include "status.fh"
 #include "gateway.fh"
 #include "rctfld.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "vrsn_gateway.fh"

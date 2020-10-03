@@ -20,19 +20,6 @@
 *         internal coordinates and the symmetry unique cartesian       *
 *         coordinates.                                                 *
 *                                                                      *
-*                                                                      *
-* Called from: BMtrx                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Banner                                                  *
-*              UpCase                                                  *
-*              NxtWrd                                                  *
-*              Cllct                                                   *
-*              RecPrt                                                  *
-*              DCopy  (ESSL)                                           *
-*              DaXpY  (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             May '91                                                  *
@@ -58,7 +45,6 @@
       iRout = 30
       iPrint = nPrint(iRout)
       If (iPrint.ge.6) lWrite = .True.
-      Call qEnter('DefInt')
       Do i = 1, 6*nAtom
          lPIC(i)  = .True.
       EndDo
@@ -556,7 +542,6 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
       End If
 
       Close(Lu_UDIC)
-      Call qExit('DefInt')
       First = .False.
       Return
       End

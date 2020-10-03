@@ -20,27 +20,12 @@
 * Object: to compute the multipole moments integrals with the          *
 *         Gauss-Hermite quadrature.                                    *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              SOS                                                     *
-*              DCR                                                     *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              CmbnMP                                                  *
-*              SymAdO                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 *             Modified to multipole moments November '90               *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "oneswi.fh"
 #include "print.fh"
 
@@ -55,7 +40,6 @@
 *
       iRout = 122
       iPrint = nPrint(iRout)
-*     Call qEnter('P_Int')
 *
 *---- Observe that this code does not make any sense in case of symmetry!
 *
@@ -75,7 +59,6 @@
       End If
 *
 *     Call GetMem(' Exit P_Int','LIST','REAL',iDum,iDum)
-*     Call qExit('p_Int')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

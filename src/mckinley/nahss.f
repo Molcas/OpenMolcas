@@ -19,15 +19,7 @@
 *                                                                      *
 * Object: to compute the gradient of the nuclear attraction integrals. *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy  (ESSL)                                           *
-*              ICopy                                                   *
-*              Rysg1                                                   *
-*              QExit                                                   *
-*                                                                      *
-*             Anders Bernhardsson & Roland Lindh,                      *
+*     Author: Anders Bernhardsson & Roland Lindh,                      *
 *             Dept. of Theoretical Chemistry, University               *
 *             of Lund, SWEDEN.                                         *
 *             October 1991                                             *
@@ -67,7 +59,6 @@ c#include "print.fh"
 *
 c     iRout = 150
 c     iPrint = nPrint(iRout)
-c     Call qEnter('NAHSS')
 *
 c     If (iPrint.ge.99) Then
 c        Write (6,*) ' In NAHss: nArr=',nArr
@@ -85,7 +76,6 @@ c     End If
       If (nip-1.gt.nArr) Then
          Write (6,*) 'NAHss: nip-1.gt.nArr'
          Write (6,*) 'nip,nArr=',nip,nArr
-         Call QTrace
          Call Abend()
       End If
       ipArr = nip
@@ -302,7 +292,6 @@ c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
  111     kdc = kdc + dbsc(kCnttp)%nCntr
       End Do
 *
-c     Call qExit('NAHSS')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

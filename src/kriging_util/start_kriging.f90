@@ -34,7 +34,7 @@ Subroutine Start_Kriging(nPoints,nInter,x_,dy_,y_)
   Call mma_Allocate(nx,nInter,1,Label="nx")
 !m_t is the dimentionality of the square correlation matrix Gradient-Psi
 ! (equation (2) on:
-!-------- ref. = DOI 10.1007/s00366-015-0397-y)-------
+!-------- ref. = doi:10.1007/s00366-015-0397-y)-------
   m_t=nPoints*(1+nInter)
 !npx is the number of new points (Energy and Gradient) to be predict
 ! according to the iteration that was computed in update_sl subroutine

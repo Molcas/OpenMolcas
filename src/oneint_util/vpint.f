@@ -18,16 +18,6 @@
 *                                                                      *
 * Object: kernel routine for the computation of  pV integrals          *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : qEnter                                                  *
-*              RecPrt                                                  *
-*              Util1                                                   *
-*              DCopy  (ESSL)                                           *
-*              NSOInt                                                  *
-*              GetMem                                                  *
-*              qExit                                                   *
-*                                                                      *
 *     Author: Bernd Hess, Institut fuer Physikalische und Theoretische *
 *             Chemie, University of Bonn, Germany, April 1993          *
 ************************************************************************
@@ -45,7 +35,6 @@
       iRout = 221
       iPrint = nPrint(iRout)
 *
-c     Call qEnter('vpint')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In vpint: Alpha','(5D20.13)',Alpha,nAlpha,1)
@@ -117,6 +106,5 @@ c     Call qEnter('vpint')
      &                 nElem(la)*nElem(lb))
          End Do
       End If
-c     Call qExit('vpint')
       Return
       End

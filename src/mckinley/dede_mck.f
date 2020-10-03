@@ -13,7 +13,6 @@
       Real*8 FD(nFD), DDen(lDDen)
       Integer ipOffD(nOffD)
       Logical Special_NoSym, DFT_Storage
-      Call QEnter('DeDe_Mck')
 *
       Special_NoSym=.False.
       DFT_Storage=.False.
@@ -26,6 +25,5 @@
      &             MaxDe,mDeDe,mIndij,Special_NoSym,DFT_Storage,
      &             DDen,lDDen)
 *
-      Call QExit('DeDe_Mck ')
       Return
       End

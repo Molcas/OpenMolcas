@@ -30,7 +30,6 @@
       Integer AixRm, iNeg(2)
 *
       Lu=6
-      Call QEnter('RlxCtl')
       iRout = 32
       iPrint=nPrint(iRout)
       StpLbl=' '
@@ -456,7 +455,6 @@
 *
 *-----Terminate the calculations.
 *
-      Call QExit('RlxCtl')
 *
       Return
       End

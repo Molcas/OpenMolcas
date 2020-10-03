@@ -31,17 +31,10 @@
       Character*180 Line,Get_Ln
       External Get_Ln
       Dimension XYZ(3)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*define _DEBUGPRINT_
-*                                                                      *
-************************************************************************
-*                                                                      *
+
       iRout=120
       iPrint=nPrint(iRout)
 #ifdef _DEBUGPRINT_
-      Call QEnter('LNM')
       iPrint=99
       If (iPrint.ge.19) Then
          Call RecPrt('In LNM: Cart',' ',Cart,3,nAtoms)
@@ -306,16 +299,10 @@ cnf
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUGPRINT_
-      Call QExit('LNM')
-#endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Return
-c Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Then
          Call Unused_real_array(Cx)
          Call Unused_real_array(Gx)
       End If
+#endif
       End

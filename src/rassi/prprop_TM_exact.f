@@ -56,7 +56,6 @@
       Real*8, Allocatable:: TDMZZ(:),TSDMZZ(:),WDMZZ(:), SCR(:,:)
       Real*8, Allocatable:: VSOR(:,:), VSOI(:,:), TMP(:)
 
-      CALL QENTER(ROUTINE)
 #define _TIME_TMOM_
 #ifdef _TIME_TMOM_
       Call CWTime(TCpu1,TWall1)

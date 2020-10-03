@@ -89,7 +89,6 @@ C     Register entry.
 C     ---------------
 
 #if defined (_DEBUGPRINT_)
-      Call qEnter(SecNam)
       Call GetMem('CXI_MX1','Max ','Real',ip_Max,l_Max)
       Call Cho_Word2Byte(l_Max,8,Byte,Unt)
       Write(6,*) '>>>>> Available memory on entry to ',SecNam,': ',
@@ -501,9 +500,10 @@ C     =======
       Write(6,*) '>>>>> Available memory on exit from ',SecNam,': ',
      &           l_Max,' = ',Byte,Unt
       Call xFlush(6)
-      Call qExit(SecNam)
 #endif
       End
+
+
       SubRoutine Cho_X_DefineInfVec_5(isDF)
 C
 C     Purpose: Trivial definition of location 5 of InfVec:

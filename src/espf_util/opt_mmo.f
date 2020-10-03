@@ -33,7 +33,6 @@
       INTEGER, EXTERNAL :: iPL_espf,mmslave_calc_energy
       REAL*8, EXTERNAL :: ddot_
 
-      CALL qEnter('Opt_MMO')
 
       iPL = iPL_espf()
 
@@ -237,7 +236,6 @@
       CALL mma_deallocate(OldCoord)
       CALL mma_deallocate(GradMMO)
 
-      CALL qExit('Opt_MMO')
 
       RETURN
       END

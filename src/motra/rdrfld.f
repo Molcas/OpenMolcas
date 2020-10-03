@@ -19,7 +19,6 @@
 #include "SysDef.fh"
       Logical Found
 *
-      Call qEnter('RdRfld')
 *----------------------------------------------------------------------*
 *     If this is a perturbative reaction field calculation then        *
 *     modifiy the one-electron Hamiltonian by the reaction field and   *
@@ -41,6 +40,5 @@
 *----------------------------------------------------------------------*
 *     Normal termination                                               *
 *----------------------------------------------------------------------*
-      Call qExit('RdRfld')
       Return
       End

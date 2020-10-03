@@ -54,7 +54,6 @@
       iRout = 80
       iPrint = nPrint(iRout)
       If ( iPrint.gt.10) Write (6,*) ' >>> Enter MKSRT1 <<<'
-      Call qEnter('MkSrt1')
 *----------------------------------------------------------------------*
 *                                                                      *
 *     grab memory                                                      *
@@ -153,7 +152,6 @@ C              Write (*,*) 'i,j,k,l=',iSymi,jSymj,kSymk,lSyml
                     Write(6,'(2X,A)') 'Increase the value of the'//
      &                                'MOLCAS_MEM environement variable'
                     Write(6,*)
-                    Call qTrace
                     Call Quit(_RC_MEMORY_ERROR_)
                 End If
                 nSlice = 1+(ibj-1)/nij
@@ -211,7 +209,6 @@ C               Write (*,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
         Write(6,*)
         Write (6,*) 'Increase MOLCAS_MEM and try again!'
         Write(6,*)
-        Call qTrace
         Call Quit(_RC_MEMORY_ERROR_)
       End If
 *
@@ -228,7 +225,6 @@ C               Write (*,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
         Write(6,*)
         Write (6,*) 'Increase MOLCAS_MEM and try again!'
         Write(6,*)
-        Call qTrace
         Call Quit(_RC_MEMORY_ERROR_)
       End If
 *
@@ -249,6 +245,5 @@ C               Write (*,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
 *
       Call ICopy(3*nBin,[0],0,mInt,1)
 *
-      Call qExit('MkSrt1')
       Return
       End

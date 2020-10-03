@@ -20,24 +20,10 @@
 *          list of symmetry distinct centers that do have basis func-  *
 *          tions of the requested type.                                *
 *                                                                      *
-* Called from: mckinley                                                *
-*                                                                      *
 * Input:                                                               *
 *              nHess         : Size of gradient and hessian            *
 *              l_Grd,l_Hss   : Boolean on/off for gradient/hessian     *
 *                              generation                              *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              StatP                                                   *
-*              Drvk2                                                   *
-*              DCopy   (ESSL)                                          *
-*              Swap                                                    *
-*              MemRg2 Calculate memory requirement for calc area       *
-*              PSOAO1 Memory partioning                                *
-*              PGet0                                                   *
-*              TwoEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March 1990                                               *
 *             Anders Bernhardsson 1995-1996                            *
@@ -350,7 +336,6 @@
             If (mDeDe.ne.nDeDe) Then
                Write (6,*) 'DrvG2: mDeDe.ne.nDeDe'
                Write (6,*) 'mDeDe,nDeDe=',mDeDe,nDeDe
-               Call QTrace
                Call Abend
             End If
          End If
@@ -493,7 +478,6 @@ C        Do jS = 1, iS
                   Write (6,*) 'iMemB=',iMemB
                   Write (6,*) 'MemMax=',MemMax
                   Write (6,*) 'Increase MOLCAS_MEM!'
-                  Call QTrace()
                   Call Abend()
                End If
                Sew_Scr(1:iMemb)=Zero

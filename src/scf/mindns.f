@@ -59,11 +59,6 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-*define _DEBUGPRINT_
-#ifdef _DEBUGPRINT_
-      Call qEnter('MinDns')
-      Write(6,*)' ***** SubRoutine MinDns *****'
-#endif
 *
       Call mma_allocate(DRow,nBT,nD,Label='DRow')
       Call mma_allocate(DCol,nBT,nD,Label='DCol')
@@ -166,17 +161,10 @@
       Call mma_deallocate(AMat)
       Call mma_deallocate(DCol)
       Call mma_deallocate(DRow)
-*
-#ifdef _DEBUGPRINT_
-      Call qExit('MinDns')
-#endif
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
-      End
+
+      end subroutine MinDns
+
+
       SubRoutine RmLDep(AMat,lDm,lth)
 ************************************************************************
 *                                                                      *
@@ -219,10 +207,6 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUGPRINT_
-      Call qEnter('RmLDep')
-      Write(6,*)' ***** SubRoutine RmLDep*****'
-#endif
 *
       lthT = lth*(lth + 1)/2
       lthS = lth*lth
@@ -289,13 +273,4 @@
       Call mma_deallocate(EVec)
       Call mma_deallocate(ATri)
 *
-#ifdef _DEBUGPRINT_
-      Call qExit('RmLDep')
-#endif
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
       End

@@ -19,7 +19,6 @@
 *
 
 *
-      Call QEnter('DiagMtrx')
       Lu=6
       iRout=21
       iPrint=nPrint(iRout)
@@ -116,7 +115,6 @@ c         Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
       Call GetMem('EVec','Free','Real',ipEVec,nH*nH)
       Call GetMem('EVal','Free','Real',ipEVal,nH*(nH+1)/2)
 *
-      Call QExit('DiagMtrx')
       Return
       End
 

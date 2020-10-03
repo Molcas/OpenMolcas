@@ -18,12 +18,6 @@
 * Object: to entities for the two-electron integrals which are used in *
 *         in the Rys quadrature to evaluate these integrals.           *
 *                                                                      *
-* Called from: Rys                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 ************************************************************************

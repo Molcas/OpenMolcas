@@ -22,18 +22,11 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 *                                                                      *
 *             Modified to RI-DFT, March 2007                           *
-*                                                                      *
 ************************************************************************
       use Basis_Info, only: nBas, nBas_Aux
       use SOAO_Info, only: iAOtSO
@@ -60,7 +53,6 @@
       iRout = 39
       iPrint = nPrint(iRout)
       iPrint=99
-      Call qEnter('PGet2_RI2')
       Call RecPrt('V_K',' ',V_K,1,mV_K)
 #endif
 
@@ -652,7 +644,6 @@
          Call RecPrt(' In PGet2_RI2:PSO ',' ',PSO,nijkl,nPSO)
       End If
       Call GetMem(' Exit PGet2_RI2','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet2_RI2')
 #endif
 *
       Call CWTime(Cpu2,Wall2)

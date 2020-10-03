@@ -58,7 +58,6 @@
       If (nBonds.lt.3) Return
       iRout=152
       iPrint=nPrint(iRout)
-      Call QEnter('Trsns')
       nqT=0
       PSPrint=.False.
       Call FZero(Hess,144)
@@ -681,7 +680,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit ('Trsns')
       Return
       End
       Function Torsion_Check(iAtom,jAtom,kAtom,lAtom,Ref,iTabAtoms,

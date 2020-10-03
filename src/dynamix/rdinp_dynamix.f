@@ -33,7 +33,6 @@ C
 C
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 C
-      CALL qEnter('RdInp')
       mTasks=0
 C
 C     Start of input
@@ -235,7 +234,6 @@ c      CALL Abend()
       CALL mh5_put_dset(dyn_mass,Mass)
       CALL mma_deallocate(Mass)
 #endif
-      CALL qExit('RdInp')
 *
       RETURN
 *

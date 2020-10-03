@@ -19,20 +19,6 @@
 *                                                                      *
 * Object: kernel routine for the computation of MP integrals.          *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              MltPrm                                                  *
-*              DGeTMO  (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
 *      Beta  : as Alpha but for ket gaussians                          *
@@ -68,7 +54,6 @@
       use Symmetry_Info, only: nIrrep, iChTbl
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 
 #include "int_interface.fh"
@@ -84,7 +69,6 @@
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
-*     Call qEnter('SROInt')
       iRout = 191
       iPrint = nPrint(iRout)
 *
@@ -352,7 +336,6 @@
       End If
 *
 *     Call GetMem(' Exit SROInt','LIST','REAL',iDum,iDum)
-*     Call QExit('SROInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

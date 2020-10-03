@@ -26,7 +26,6 @@
       Character*8 Label
 #include "angstr.fh"
 *
-      Call qEnter('Dissoc')
 *
       call dcopy_(2,[Zero],0,RM,1)
       call dcopy_(6,[Zero],0,R,1)
@@ -144,7 +143,6 @@
          Call RecPrt('dB',' ',dB,3*(nCntr+mCntr),3*(nCntr+mCntr))
 #endif
       End If
-      Call qExit('Dissoc')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nsAtom)

@@ -51,11 +51,11 @@ SUBROUTINE covarMatrix(nPoints,nInter)
     !Matern Function
   Call matern     (d, full_R(1:nPoints,1:nPoints), nPoints, nPoints)
 !
-! Writing the covariant matrix in GEK (eq 2 of DOI 10.1007/s00366-015-0397)
+! Writing the covariant matrix in GEK (eq 2 of doi:10.1007/s00366-015-0397)
 !
     !Matern first derivative with respect to d
   call matderiv(1, d, MatFder, nPoints, nPoints)
-! Covariant matrix in Gradient Enhanced Kriging (eq 2 of DOI 10.1007/s00366-015-0397)):
+! Covariant matrix in Gradient Enhanced Kriging (eq 2 of doi:10.1007/s00366-015-0397):
 !
     ! First line and first column derivative in Psi matrix
   do i=1,nInter
@@ -109,7 +109,7 @@ SUBROUTINE covarMatrix(nPoints,nInter)
   end do
 !
 !           defining full_r has strictly positive define sec. 3 of
-!           DOI: 10.1615/Int.J.UncertaintyQuantification.2013006809
+!           doi:10.1615/Int.J.UncertaintyQuantification.2013006809
   ! full_R = abs(full_R)
 #ifdef _DEBUGPRINT_
   Call RecPrt('full_r Orig:','(14E10.2)',full_R,m_t,m_t)

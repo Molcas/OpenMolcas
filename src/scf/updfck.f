@@ -37,17 +37,12 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "mxdm.fh"
 *
       Integer nDT,NumDT
       Real*8 OneHam(nDT),TwoHam(nDT,nD,NumDT),Vxc(nDT,nD,NumDT),
      &       Fock(nDT,nD)
 *
-*define _DEBUGPRINT_
-#ifdef _DEBUGPRINT_
-      Call qEnter('UpdFck')
-#endif
 *
       i2Hm=NumDT
       If (nIter_.eq.1) i2Hm=1
@@ -100,8 +95,5 @@
 #endif
 *
       End Do
-#ifdef _DEBUGPRINT_
-      Call qExit('UpdFck')
-#endif
-      Return
+
       End

@@ -71,7 +71,6 @@ C??      DIMENSION IOFFI(LOFFI)
 * (NKSTR,*), Where NKSTR is the number of K-strings of
 *  correct symmetry . Nk is provided by this routine.
 *
-      CALL QENTER('ADSTN ')
 * PAM Mars-2006: Allocation moved to outside this subroutine.
 *      CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'ADSTN ')
 *      CALL MEMMAN(KLOFFI,LOFFI,'ADDL  ',2,'KLOFFI')
@@ -379,7 +378,6 @@ C?      write(6,*) ' KACGRP ', KACGRP
 * PAM Mars-2006: This flush moved outside of this subroutine
 *      CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'ADSTN ')
 
-      CALL QEXIT('ADSTN ')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN

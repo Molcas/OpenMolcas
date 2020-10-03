@@ -43,7 +43,6 @@ C
       Character*13 SecNam
       Parameter (SecNam = 'ChoMP2_DecChk', ThisNm = 'DecChk')
 
-      Call qEnter(ThisNm)
 
       If (iOption_MP2CD .eq. 1) Then ! (ai|bj) int
          Call ChoMP2_DecChk_1(irc,iSym,Col,nDim,nCol,Wrk,lWrk,ErrStat)
@@ -55,7 +54,6 @@ C
          irc = -123456
       End If
 
-      Call qExit(ThisNm)
 
       End
       SubRoutine ChoMP2_DecChk_1(irc,iSym,Col,nDim,nCol,Wrk,lWrk,
@@ -90,7 +88,6 @@ C
       Character*15 SecNam
       Parameter (SecNam = 'ChoMP2_DecChk_1', ThisNm = 'DecChk_1')
 
-      Call qEnter(ThisNm)
       irc = 0
 
 C     Check dimensions.
@@ -188,7 +185,6 @@ C     ------------------
       ErrStat(3) = sqrt(ErrStat(3)/xdim)
 
     1 Continue
-      Call qExit(ThisNm)
       End
       SubRoutine ChoMP2_DecChk_2(irc,iSym,Col,nDim,nCol,Wrk,lWrk,
      &                           ErrStat)
@@ -228,7 +224,6 @@ C
       Evir(k)=Work(ip_EVir-1+k)
       EOcc(k)=Work(ip_EOc-1+k)
 
-      Call qEnter(ThisNm)
       irc = 0
 
 C     Check dimensions.
@@ -345,5 +340,4 @@ C     ------------------
       ErrStat(3) = sqrt(ErrStat(3)/xdim)
 
     1 Continue
-      Call qExit(ThisNm)
       End

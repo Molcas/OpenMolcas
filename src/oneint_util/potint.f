@@ -18,18 +18,6 @@
 *                                                                      *
 * Object: kernel routine for the computation of potential integrals    *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              mHrr                                                    *
-*              DCR                                                     *
-*              Rys                                                     *
-*              Hrr                                                     *
-*              DaXpY   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, January '91                             *
 ************************************************************************

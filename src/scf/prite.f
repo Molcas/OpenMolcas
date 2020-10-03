@@ -41,11 +41,7 @@
 #include "infscf.fh"
 #include "infso.fh"
       character cEDiff, cDMOMax, cFMOMax,cDltNrm
-*
-#ifdef _DEBUGPRINT_
-      Call qEnter('PrIte')
-#endif
-*
+
       If(iterprlv.gt.0) Then
          Write(6,*)
          Write(6,'(a)') '*******************'
@@ -139,8 +135,5 @@
 
          End If
       End If
-#ifdef _DEBUGPRINT_
-      Call qExit('PrIte')
-#endif
-      Return
-      End
+
+      End subroutine prite

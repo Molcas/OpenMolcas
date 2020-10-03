@@ -38,7 +38,7 @@ MODULE fmm_T_contractors
    REAL(REALK), POINTER, SAVE :: qlm_ptr(:,:)
 
    ! Diagnostic variables
-   CHARACTER(11), SAVE :: T_con_stat
+   CHARACTER(LEN=11), SAVE :: T_con_stat
    LOGICAL,       SAVE :: fmm_lock_T_con
 
 CONTAINS

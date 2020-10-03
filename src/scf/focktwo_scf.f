@@ -45,9 +45,6 @@ c
        Factor=0.5D0
         if(iUHF.eq.1) Factor=1.0D0
 #ifdef _DEBUGPRINT_
-      Call qEnter('Focktwo')
-#endif
-#ifdef _DEBUGPRINT_
       Debug=.true.
 c      myDebug=.true. ! very extensive print out
 #else
@@ -352,9 +349,6 @@ c Print the Fock-matrix
         END IF
       END DO
       WRITE(6,'(6X,A)')'----------------------------'
-#endif
-#ifdef _DEBUGPRINT_
-      Call qExit('Focktwo')
 #endif
 
       RETURN

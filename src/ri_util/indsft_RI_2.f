@@ -54,7 +54,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qEnter('IndSftRI2')
       irout = 39
       iprint = nprint(irout)
 *                                                                      *
@@ -171,7 +170,6 @@ C           Write (6,*) 'i1,i2,i3,i4=',i1,i2,i3,i4
 400      Continue
       End Do
 *
-*     Call qExit('IndSftRI2')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

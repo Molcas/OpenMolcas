@@ -20,19 +20,6 @@
 *          list of symmetry distinct centers that do have basis func-  *
 *          tions of the requested type.                                *
 *                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              SetUp_Ints                                              *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              Swap                                                    *
-*              MemRg1                                                  *
-*              PSOAO1                                                  *
-*              PGet0                                                   *
-*              TwoEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -47,7 +34,6 @@
 *             Modified for gradient calculation. January '92           *
 *             Modified for SetUp_Ints. January '00                     *
 *             Modified for 3-center RI gradients, March '07            *
-*                                                                      *
 ************************************************************************
       use k2_setup
       use iSD_data
@@ -113,7 +99,6 @@
 *                                                                      *
       iRout = 9
       iPrint = nPrint(iRout)
-      Call QEnter('Drvg1_3Center_RI')
 #ifdef _CD_TIMING_
       Twoel3_CPU = 0.0d0
       Twoel3_Wall = 0.0d0
@@ -965,7 +950,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drvg1_3Center_RI')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Grad)

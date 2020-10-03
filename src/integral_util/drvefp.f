@@ -21,6 +21,7 @@
       Type(c_ptr) :: cptr1
       integer(c_int) :: irc
       Character(kind=c_char):: Name*180, PATH*180
+      Character(kind=c_char):: Name*180, PATH*180
       Integer(c_int) :: Molcas_ELECTRON_DENSITY_FIELD_FN
       Integer(c_size_t) :: frag_idx
       Integer(c_size_t), Target :: n_atoms

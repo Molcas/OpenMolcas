@@ -40,7 +40,6 @@
       complex*16 ArelaxPrev
 
 
-      call QENTER('Tully')
       CIBigArrayP(:)=0.0D0
       CIBigArrayPP(:)=0.0D0
       V(:,:) = 0.0D0
@@ -637,7 +636,6 @@ C                           END SAVING                                 C
 C                                                                      C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-      call QEXIT('Tully')
       RETURN
 
       END

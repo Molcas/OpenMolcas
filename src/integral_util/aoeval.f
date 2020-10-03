@@ -72,7 +72,6 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUGPRINT_
-*      Call QEnter('AOEval')
       iRout=132
       iPrint=nPrint(iRout)
 C     iPrint=99
@@ -104,7 +103,6 @@ C     Write(6,*) '----- nDrv = ', nDrv
 *----    premultiplied with (minus two times the exponent)**iDrv
 *
 #ifdef _DEBUGPRINT_
-*      Call QEnter('Exponent')
       If (nRad.LE.0 .AND. nRad.GE.5) Then
          Write (6,*) 'AOEval: illegal value of nRad!'
          Call Abend()
@@ -182,7 +180,6 @@ C        If (-Exp_Min*R2.lt.Thre) Go To 9898
             Write (Label,'(A)')'Radial(nCoor*nRad,nBas)'
             Call RecPrt(Label,'(10G20.10)',Radial,nCoor*nRad,nBas)
       End If
-*      Call QExit('Exponent')
 #endif
 *                                                                      *
 ************************************************************************
@@ -363,21 +360,11 @@ C                      Call PrntA(nterm,nform,Angular,if,jdrv+1)
 *                                                                      *
 #ifdef _DEBUGPRINT_
       If (iPrint.ge.49) Then
-C        Do iCmp = 1, nCmp
-C           Write (Label,'(A,I2,A)') 'AOValue(mAO,nCoor,nBas,',
-C    &                                    iCmp,')'
-C           Call RecPrt(Label,' ',AOValue(1,1,1,iCmp),mAO,nCoor*nBas)
-C        End Do
          Write(6,*) 'mAO,nCoor,nBas,nCmp',mAO,nCoor,nBas,nCmp
          Call RecPrt('AOValue','(10G20.10)',AOValue,mAO,nCoor*nBas*nCmp)
       End If
 #endif
-*
-*     Call GetMem('AOEval ','CHEC','REAL',iDum,iDum)
-#ifdef _DEBUGPRINT_
-*      Call QExit ('AOEval')
-#endif
-      Return
+
       End
 *
       Subroutine dFdxyz(mterm,mform,N,jp,ip,ixyz,ipf,jdrv)
@@ -389,12 +376,6 @@ C        End Do
 *     ipf: Phase factor in integer
 *
 *
-C     Write(6,*) '--- Start dFdxyz ---'
-C     Write(6,9000) 'jp',jp
-C     Write(6,9000) 'ip',ip
-C     Write(6,9000) 'ixyz',ixyz
-C     Write(6,9000) 'ipf',ipf
-C     Write(6,9000) 'jdrv',jdrv
 *
 *
       nterm=2**jdrv
@@ -434,27 +415,4 @@ C     Write(6,9000) 'jdrv',jdrv
          N(iterm,4,ip)=N(iterm,4,ip)+1
          N(iterm,5,ip)=N(iterm,5,ip)*ipf
       End do
-*
-*
-C     Call  PrntA(mterm,mform,N,ip,jdrv+1)
-C     Write(6,*) '---  End  dFdxyz ---'
-*
-C9000 Format(a10,'=',i5)
-*
-      Return
       End
-*
-C     Subroutine PrntA(mterm,mform,A,ip,idrv)
-*
-C     Implicit real*8 (a-h,o-z)
-C     Integer A(mterm,5,mform)
-*
-C     nterm=2**idrv
-C     Do iterm=1,nterm
-C        Write(6,9000) ip,iterm,(A(iterm,i,ip),i=1,5)
-C     End do
-*
-C9000 Format(7i10)
-*
-C     Return
-C     End

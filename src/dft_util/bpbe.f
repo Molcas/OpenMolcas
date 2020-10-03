@@ -18,12 +18,6 @@
 *                                                                      *
 * Object: B88 + PBE combination. Resembles popular BP86                *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. March 2001                              *
 ************************************************************************
@@ -38,7 +32,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C      Call QEnter('BPBE')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -62,7 +55,6 @@ C      Call QEnter('BPBE')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C      Call QExit('BPBE')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

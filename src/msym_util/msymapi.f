@@ -138,7 +138,7 @@
       integer fileid, dsetid
 #endif
       Character*80 Title
-      Character(8), allocatable :: irrep_strings(:)
+      Character(len=8), allocatable :: irrep_strings(:)
       Integer ret
       Dimension nBas(mxSym)
       Dimension Dummy(1)

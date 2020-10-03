@@ -49,10 +49,6 @@
 *----------------------------------------------------------------------*
 *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-*define _DEBUGPRINT_
-#ifdef _DEBUGPRINT_
-      Call qEnter('MODens')
-#endif
 *
 *---- Allocate memory for squared density matrix
       Call mma_allocate(DnsS,MaxBas**2,Label='DnsS')

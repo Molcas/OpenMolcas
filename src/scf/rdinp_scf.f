@@ -91,14 +91,7 @@
       COMMON  / ADDcorr_L   / Do_Addc
       Logical Do_SpinAV
       COMMON  / SPAVE_L  / Do_SpinAV
-*
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-*
-#ifdef _DEBUGPRINT_
-      Call qEnter('RdInp')
-#endif
+
 *
 *     copy input from standard input to a local scratch file
 *
@@ -1645,7 +1638,6 @@ c         Write (6,*)
          Call ICopy(nSym,[0],0,nFro,1)
          call WarningMessage(2, 'Input error!;'//
      &    'Aufbau not allowed with frozen orbitals')
-         Call QTrace
          Call Abend()
       End If
 *
@@ -1686,7 +1678,6 @@ c         Write (6,*)
       If (MxConstr.gt.0 .and. (iUHF+iOCCU).ne.2) Then
          call WarningMessage(2,
      &    'For CONStraints, keywords UHF and OCCUpied are compulsory!')
-         Call QTrace
          Call Abend()
       EndIf
 *
@@ -1731,9 +1722,6 @@ c         Write (6,*)
       End If
 *
       Call Put_iScalar('SCF mode',iUHF)
-#ifdef _DEBUGPRINT_
-      Call qExit('RdInp')
-#endif
 *
       LKon = ALGO.eq.4
 *
@@ -1768,12 +1756,10 @@ c         Write (6,*)
   902 Continue
       call WarningMessage(2, 'Input error!;'//
      & 'Error reading input file for OCCNO option')
-      Call QTrace
       Call Abend()
   903 Continue
       call WarningMessage(2, 'Input error!;'//
      & 'End of input file for OCCNO option')
-      Call QTrace
       Call Abend()
 *
       End

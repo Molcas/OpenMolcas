@@ -98,7 +98,6 @@ C
 
 #if defined (_DEBUGPRINT_)
       ! Enter
-      Call qEnter(RegNam)
 #endif
       Call ThisIsRestrictedCode('Thomas Bondo Pedersen','LDF-SCF',
      &                          .false.)
@@ -772,7 +771,6 @@ C--------------------------------------------------------------
 
 #if defined (_DEBUGPRINT_)
       ! Exit
-      Call qExit(RegNam)
 #endif
 c Avoid unused argument warnings
       If (.False.) Then

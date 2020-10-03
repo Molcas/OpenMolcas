@@ -21,11 +21,6 @@
 *                                                                      *
 * Object:     Combination of exchange SSB-D and PBE correlation terms  *
 *             ref (secondary): This is true SSB-D                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 *      Author: G. Li Manni A. Cohen, Max Planck Institute Stuttgart    *
 *              Summer 2017, edited in Cambridge (UK) & Palermo (Sicily)*
@@ -41,7 +36,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('SSBD')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -57,7 +51,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('SSBD')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

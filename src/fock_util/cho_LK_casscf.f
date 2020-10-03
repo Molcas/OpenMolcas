@@ -122,7 +122,6 @@ c      Debug=.true.
       Debug=.false.
 #endif
 
-      Call QEnter(SECNAM)
 
       DoTraInt = .false.
       IREDC = -1  ! unknown reduced set in core
@@ -554,7 +553,6 @@ c           !set index arrays at iLoc
                WRITE(6,*) ' mTvec = ',mTvec
                WRITE(6,*) ' LFMAX = ',LFMAX
                rc = 33
-               CALL QTrace()
                CALL Abend()
                nBatch = -9999  ! dummy assignment
             End If
@@ -1728,7 +1726,6 @@ c Print the Fock-matrix
 
       rc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
       END
@@ -1884,7 +1881,6 @@ c      ! NON TOTAL-SYMMETRIC
 
          write(6,*)'Wrong input parameters. JSYM,mode = ',JSYM,mode
          irc = 66
-         Call Qtrace()
          Call abend()
 
       EndIf

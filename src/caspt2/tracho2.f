@@ -60,7 +60,6 @@
       REAL*8, EXTERNAL :: DDOT_
 
 **********************************************************************
-      Call QEnter('TRACHO2')
 * ======================================================================
 * This section deals with density matrices and CMO''s
 * Offsets into CMO arrays:
@@ -618,6 +617,5 @@ c (It is in fact an effective one-electron Hamiltonian).
         END DO
 #endif
 
-      Call QExit('TRACHO2')
       RETURN
       END

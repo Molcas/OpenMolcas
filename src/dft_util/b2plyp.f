@@ -20,12 +20,6 @@
 *         requires (manual?) scaling of the &mbpt2 correlation energy! *
 *         Grimme S., J. Chem.Phys 124(2006) 034108                     *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author: Template by Roland Lindh, Department of Chemical Physi  *
 *             of Lund, SWEDEN. March 2001                              *
 *              Grigory A Shamov, University of Manitoba, 2009          *
@@ -41,7 +35,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C      Call QEnter('B2PLYP')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -76,7 +69,6 @@ C--     &           ndF_dRho,CoefR-Coeff_C,T_X)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C      Call QExit('B2PLYP')
 C
       Return
 c Avoid unused argument warnings

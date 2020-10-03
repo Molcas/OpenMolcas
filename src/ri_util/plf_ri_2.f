@@ -48,9 +48,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call qEnter('PLF_RI_2')
       irout = 109
       iPrint = nPrint(irout)
       iPrint=99
@@ -105,12 +103,8 @@
 *
          End Do
       End Do
-#ifdef _DEBUGPRINT_
-      Call qExit('PLF_RI_2')
-#endif
 *
-      Return
-c Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Then
          Call Unused_integer(iCmp)
          Call Unused_integer(kCmp)
@@ -119,4 +113,5 @@ c Avoid unused argument warnings
          Call Unused_integer(iBas)
          Call Unused_integer(kBas)
       End If
+#endif
       End

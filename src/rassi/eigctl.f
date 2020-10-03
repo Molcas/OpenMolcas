@@ -70,7 +70,6 @@
 
 
 
-      CALL QENTER(ROUTINE)
 C CONSTANTS:
       AU2EV=CONV_AU_TO_EV_
       AU2CM=CONV_AU_TO_CM1_
@@ -3081,7 +3080,6 @@ C                 Why do it when we don't do the L.S-term!
       end if
       Call mma_DeAllocate(IndexE)
 
-      CALL QEXIT(ROUTINE)
       RETURN
 30    FORMAT (5X,A,1X,ES15.8)
 31    FORMAT (5X,2(1X,A4),6X,A15,1X,A47,1X,A15)

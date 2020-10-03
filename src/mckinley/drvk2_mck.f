@@ -16,19 +16,6 @@
 *                                                                      *
 *  Object: to precompute all pair entites as zeta, kappa, P.           *
 *                                                                      *
-* Called from: Drvg1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              mHrr                                                    *
-*              ICopy                                                   *
-*              DCopy   (ESSL)                                          *
-*              DCR                                                     *
-*              MemRys                                                  *
-*              PSOAO0                                                  *
-*              k2Loop                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -67,7 +54,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qEnter('Drvk2')
       Call CWTime(TCpu1,TWall1)
       Call GetMem('k2','Max','Real',idum,maxk2)
       maxk2 = maxk2 / 2
@@ -283,7 +269,6 @@
      &   ' integral estimates.'
 #endif
 *
-      Call qExit('Drvk2')
       Call CWTime(TCpu2,TWall2)
       Call SavTim(2,TCpu2-TCpu1,TWall2-TWall1)
       Return

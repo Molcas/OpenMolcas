@@ -40,7 +40,6 @@
 ************************************************************************
 *                                                                      *
 c     Call SetQue('Trace=on')
-      Call QEnter('DrvDFT')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1002,7 +1001,6 @@ c         write(6,*) 'Func in drvdft :', Func
       Call Free_Work(ipF_DFT)
       Call GetMem('D-DS','Free','Real',ip_D_DS,2*nh1)
       Call Free_iSD()
-      Call QExit('DrvDFT')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
