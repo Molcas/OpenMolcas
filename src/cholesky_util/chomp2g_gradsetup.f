@@ -119,7 +119,7 @@
 *                                                                      *
 *     Get the Variational MP2 Density and the HF density
 *
-      Call Get_D1ao_Var(ip_MP2TTotDensity,lTriDens)
+      Call Get_D1ao_Var(Work(ip_MP2TTotDensity),lTriDens)
       Call Get_D1ao(ip_SCFTDensity, lTriDens)
 *                                                                      *
 ************************************************************************

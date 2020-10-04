@@ -19,13 +19,12 @@
 #include "Molcas.fh"
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "disp.fh"
 #include "wldata.fh"
 #include "rctfld.fh"
       Integer, Allocatable:: lOper(:)
-      Real*8, Allocatable:: Coor(:,:)
+      Real*8, Allocatable:: Coor(:,:), D_Var(:)
 
       Character Label*80
       Real*8 Grad(nGrad), Temp(nGrad)
@@ -73,19 +72,14 @@ CAOM>
       Call Get_NameRun(NamRfil) ! save the old RUNFILE name
       Call NameRun('AUXRFIL')   ! switch RUNFILE name
 
-      Call Get_D1ao_Var(ipD_var,Length)
-      If ( length.ne.nDens ) Then
-         Call WarningMessage(2,'Error in Drvh1_emb')
-         Write (6,*) 'Drvh1_emb: length.ne.nDens'
-         Write (6,*) 'length,nDens=',length,nDens
-         Call Abend()
-      End If
+      Call mma_allocate(D_Var,nDens,Label='D_Var')
+      Call Get_D1ao_Var(D_var,nDens)
       If (iPrint.ge.99) then
          Write(6,*) 'variational 1st order density matrix'
-         ii=ipD_Var
+         ii=1
          Do iIrrep = 0, nIrrep - 1
             Write(6,*) 'symmetry block',iIrrep
-            Call TriPrt(' ',' ',Work(ii),nBas(iIrrep))
+            Call TriPrt(' ',' ',D_Var(ii),nBas(iIrrep))
             ii = ii + nBas(iIrrep)*(nBas(iIrrep)+1)/2
          End Do
       End If
@@ -94,7 +88,7 @@ CAOM>
 *
 *SVC: fixed according to instructions from Francesco,
 * as embedding should not deal with symmetry
-      Call Annihil_rho(Work(ipD_var),nBas(0))
+      Call Annihil_rho(D_var,nBas(0))
 *
       Call NameRun(NamRfil)   ! switch RUNFILE name
 *                                                                      *
@@ -120,7 +114,7 @@ CAOM>
       DiffOp = .True.
       Label = ' The Nuclear Attraction Contribution'
       Call OneEl_g(NAGrd,NAMmG,Temp,nGrad,DiffOp,Coor,
-     &           Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
+     &             D_Var,nDens,lOper,nComp,nOrdOp,Label)
 
       Call DaXpY_(nGrad,One,Temp,1,Grad,1)
 *
@@ -135,28 +129,28 @@ CAOM>
          DiffOp = .True.
          Label = ' The Projection Operator contribution'
          Call OneEl_g(PrjGrd,PrjMmG,Temp,nGrad,DiffOp,Coor,
-     &              Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
+     &                D_Var,nDens,lOper,nComp,nOrdOp,Label)
          Call DaXpY_(nGrad,One,Temp,1,Grad,1)
 *
          Label = ' The M1 Operator contribution'
          Call OneEl_g( M1Grd, M1MmG,Temp,nGrad,DiffOp,Coor,
-     &              Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
+     &                D_Var,nDens,lOper,nComp,nOrdOp,Label)
          Call DaXpY_(nGrad,One,Temp,1,Grad,1)
 *
          Label = ' The M2 Operator contribution'
          Call OneEl_g( M2Grd, M2MmG,Temp,nGrad,DiffOp,Coor,
-     &              Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
+     &                D_Var,nDens,lOper,nComp,nOrdOp,Label)
          Call DaXpY_(nGrad,One,Temp,1,Grad,1)
 *
          Label = ' The SR Operator contribution'
          Call OneEl_g(SROGrd,SROMmG,Temp,nGrad,DiffOp,Coor,
-     &              Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
+     &                D_Var,nDens,lOper,nComp,nOrdOp,Label)
          Call DaXpY_(nGrad,One,Temp,1,Grad,1)
       End If
       If (lPP) Then
          Label = ' The Pseudo Potential contribution'
          Call OneEl_g(PPGrd,PPMmG,Temp,nGrad,DiffOp,Coor,
-     &              Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
+     &                 D_Var,nDens,lOper,nComp,nOrdOp,Label)
          Call DaXpY_(nGrad,One,Temp,1,Grad,1)
       End If
 *                                                                      *
@@ -166,7 +160,7 @@ CAOM>
         DiffOp = .True.
         Label = ' The FAIEMP Projection Operator Contribution'
         Call OneEl_g(FragPGrd,FragPMmG,Temp,nGrad,DiffOp,Coor,
-     &               Work(ipD_Var),nDens,lOper,nComp,nOrdOp,Label)
+     &               D_Var,nDens,lOper,nComp,nOrdOp,Label)
         Call DaXpY_(nGrad,One,Temp,1,Grad,1)
         Call DrvG_FAIEMP(Grad,Temp,nGrad)
       End If
@@ -180,7 +174,7 @@ CAOM>
 *                                                                      *
 *...  Epilogue, end
 *
-      Call GetMem('D0  ','Free','Real',ipD_Var,nDens)
+      Call mma_deallocate(D_Var)
 *
       Call Free_iSD()
       Call CWTime(TCpu2,TWall2)

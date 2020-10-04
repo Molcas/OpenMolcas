@@ -35,7 +35,7 @@
 #include "print.fh"
       Character*8 Label
       Logical Nona, lECP
-      Real*8, Allocatable:: Fock(:)
+      Real*8, Allocatable:: Fock(:), D0(:)
 *
 c     iRout = 131
 c     iPrint = nPrint(iRout)
@@ -50,12 +50,8 @@ c     iPrint = nPrint(iRout)
 *
 *...  Read the variational 1st order density matrix
 *...  density matrix in AO/SO basis
-         Call Get_D1ao_Var(ipD0,Length)
-         If ( length.ne.nDens ) Then
-            Write (6,*) 'Drvh1_mck: length.ne.nDens'
-            Write (6,*) 'length,nDens=',length,nDens
-            Call Abend()
-         End If
+         Call mma_allocate(D0,nDens,Label='D0')
+         Call Get_D1ao_Var(D0,nDens)
 *...  Read the generalized Fock matrix
 *...  Fock matrix in AO/SO basis
          Call mma_allocate(Fock,nFock,Label='Fock')
@@ -63,9 +59,10 @@ c     iPrint = nPrint(iRout)
       Else
          nFock = 1
          nDens = 1
-         ipD0=ip_Dummy
          Call mma_allocate(Fock,nFock,Label='Fock')
+         Call mma_allocate(D0,nDens,Label='D0')
          Fock(1)=Zero
+         D0(1)=Zero
       End If
       If (Nona) Then
 ************************************************************************
@@ -137,8 +134,7 @@ c     iPrint = nPrint(iRout)
           idcnt=idcnt+1
           Do idCar=1,3
             Call Cnt1El(KneGrd_mck,KneMem_mck,Label,idcnt,idcar,loper,
-     &                  One,.false.,Work(ipD0),
-     &                  'ONEGRD  ',0)
+     &                  One,.false.,D0,'ONEGRD  ',0)
           End Do
         End Do
       End Do
@@ -157,8 +153,7 @@ c     iPrint = nPrint(iRout)
           idcnt=idcnt+1
           Do idCar=1,3
             Call Cnt1El(NaGrd_mck,NaMem_mck,Label,idcnt,idcar,loper,
-     &                  One,.true.,Work(ipD0),
-     &                  'ONEGRD  ',1)
+     &                  One,.true.,D0,'ONEGRD  ',1)
           End Do
         End Do
       End Do
@@ -183,16 +178,13 @@ c     iPrint = nPrint(iRout)
           Do idCar=1,3
             Label='PRJGRD  '
             Call Cnt1El(Prjgrd_mck,PrjMm1,Label,idcnt,idcar,loper,
-     &               One,.true.,Work(ipD0),
-     &               'ONEGRD  ',1)
+     &               One,.true.,D0,'ONEGRD  ',1)
             Label='M1GRD  '
             Call Cnt1El(m1grd_mck,m1Mm1,Label,idcnt,idcar,loper,
-     &               One,.true.,Work(ipD0),
-     &               'ONEGRD  ',1)
+     &               One,.true.,D0,'ONEGRD  ',1)
             Label='SROGRD  '
             Call Cnt1El(Srogrd_mck,sroMm1,Label,idcnt,idcar,loper,
-     &               One,.true.,Work(ipD0),
-     &               'ONEGRD  ',1)
+     &               One,.true.,D0,'ONEGRD  ',1)
           End Do
         End Do
       End Do
@@ -200,9 +192,7 @@ c     iPrint = nPrint(iRout)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (Show) Then
-          Call Free_Work(ipD0)
-      End If
+      Call mma_deallocate(D0)
       Call mma_deallocate(Fock)
 *                                                                      *
 ************************************************************************

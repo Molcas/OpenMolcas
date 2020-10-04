@@ -291,7 +291,8 @@ c
 *        If (iUHF.eq.0) then
             call dcopy_(nblock,[Zero],0,Scr(iadDen),1)
             If (var) Then
-               Call Get_D1ao_Var(ipD1ao,nBlock)
+               Call GetMem('D1ao','Allo','Real',ipD1ao,nBlock)
+               Call Get_D1ao_Var(Work(ipD1ao),nBlock)
             Else
                Call Get_D1ao(ipD1ao,nBlock)
             End If

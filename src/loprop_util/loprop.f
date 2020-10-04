@@ -118,7 +118,7 @@
       Call Get_Density_Matrix(ip_D(0),nBas1,nBas2,nBasMax,nBas,nSym,
      &                       ipP,UserDen,PrintDen,SubtractDen,SubScale,
      &                       Work(ipQ_Nuc),nAtoms,iPert,Restart,Utility,
-     &                       TDensity,nStateI,nStateF)
+     &                       TDensity,nStateI,nStateF,nSize)
 *
       Do i = mElem, 1, -1
          Call Free_Work(ip_mu(i-1))

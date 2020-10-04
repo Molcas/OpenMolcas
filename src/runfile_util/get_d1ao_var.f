@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Get_D1ao_Var(ipD1ao,nDens)
+      Subroutine Get_D1ao_Var(D1ao,nD1ao)
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -18,6 +18,8 @@
 #include "run_common.fh"
 #endif
       Logical      Found
+      Integer nD1ao
+      Real*8 D1ao(nD1ao)
 
       Call Get_iScalar('System BitSwitch',iOption)
 *
@@ -30,9 +32,20 @@
       Call qpg_dArray(Label,Found,nDens)
       If(.not.Found .or. nDens.eq.0) Then
          Call Get_D1ao(ipD1ao,nDens)
+         If (nDens/=nD1ao) Then
+            Write (6,*) 'Get_D1ao_Var(2): nDens/=nD1ao'
+            Call Abend()
+         End If
+         Call DCopy_(nD1ao,Work(ipD1ao),1,D1ao,1)
+         Call GetMem('ipD1ao','Free','Real',ipD1ao,nD1ao)
       Else
-         Call GetMem('D1ao_var','Allo','Real',ipD1ao,nDens)
-         Call get_dArray(Label,Work(ipD1ao),nDens)
+         If (nDens/=nD1ao) Then
+            Write (6,*) 'Get_D1ao_Var(2): nDens/=nD1ao'
+            Write (6,*) 'nDens=',nDens
+            Write (6,*) 'nD1ao=',nD1ao
+            Call Abend()
+         End If
+         Call get_dArray(Label,D1ao,nD1ao)
       End If
 *                                                                      *
 ************************************************************************
@@ -47,11 +60,11 @@
        is_nBas=1
       endif
       Write(6,*) 'variational 1st order density matrix'
-      ii=ipD1ao
+      ii=1
       Do iIrrep = 0, nSym - 1
          If (nBas(iIrrep).gt.0) Then
             Write(6,*) 'symmetry block',iIrrep
-            Call TriPrt(' ',' ',Work(ii),nBas(iIrrep))
+            Call TriPrt(' ',' ',D1ao(ii),nBas(iIrrep))
             ii = ii + nBas(iIrrep)*(nBas(iIrrep)+1)/2
          End If
       End Do

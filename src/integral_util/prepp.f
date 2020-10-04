@@ -279,12 +279,7 @@
          endif
 *
 
-         Call Get_D1ao_Var(ipD1ao_Var,length)
-         call dcopy_(nDens,Work(ipD1ao_Var),1,DVar,1)
-*        if (gamma_mrcisd) then
-*         call dcopy_(nDens,Work(ipD1ao_Var),1,D0,1)
-*        endif
-         Call Free_Work(ipD1ao_Var)
+         Call Get_D1ao_Var(DVar,length)
 *
          Call mma_Allocate(DS,nDens,Label='DS')
          Call mma_Allocate(DSVar,nDens,Label='DSVar')

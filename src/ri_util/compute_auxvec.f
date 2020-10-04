@@ -125,7 +125,8 @@
                  EndDo
                EndDo
             Else
-               Call Get_D1AO_Var(ipDMLT(1),nDens)
+               Call GetMem('DMLT(1)','Allo','Real',ipDMLT(1),nDens)
+               Call Get_D1AO_Var(Work(ipDMLT(1)),nDens)
             EndIf
          Else
             Call Get_D1AO(ipDMLT(1),nDens)
@@ -145,7 +146,8 @@
          EndIf
          ipDLT2 = 1
          If(iMp2prpt.eq.2) Then
-            Call Get_D1AO_Var(ipDLT2,nDens)
+            Call GetMem('DLT2','Allo','Real',ipDLT2,nDens)
+            Call Get_D1AO_Var(Work(ipDLT2),nDens)
             Call daxpy_(nDens,-One,Work(ipDMLT(1)),1,Work(ipDLT2),1)
          Else
             ipDLT2 = ip_Dummy

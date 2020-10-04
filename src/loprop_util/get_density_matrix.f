@@ -11,7 +11,7 @@
       Subroutine Get_Density_Matrix(ip_D,nBas1,nBas2,nBasMax,nBas,nSym,
      &                      ipP,UserDen,PrintDen,SubtractDen,SubScale,
      &                      Q_Nuc,nAtoms,iPert,Restart,Utility,TDensity,
-     &                      nStateI,nStateF)
+     &                      nStateI,nStateF,nSize)
 
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -136,7 +136,9 @@
             Call Get_iScalar('mp2prpt',iMp2Prpt)
          End If
          If(iMp2Prpt.ne.0) Then
-            Call Get_D1ao_var(ip_D,nDens)
+            Call getmem('D','Allo','Real',ip_D,nSize-4)
+            Call Get_D1ao_var(Work(ip_D),nSize-4)
+            nDens=nSize-4
          else
 * End Addition J.Bostrom (well, the End If too ofc.)
             Call Get_D1ao(ip_D,nDens)

@@ -39,7 +39,7 @@
       Character Label*80
       Real*8    Hess(nHess), Temp(nHess)
       Logical DiffOp,show, lECP
-      Real*8, Allocatable:: Fock(:)
+      Real*8, Allocatable:: Fock(:), D0(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -64,7 +64,8 @@
 *
 *     Read the variational 1st order density matrix
 *     density matrix in AO/SO basis
-      Call Get_D1ao_Var(ipD0,Length)
+      Call mma_allocate(D0,nDens,Label='D0')
+      Call Get_D1ao_Var(D0,nDens)
 *     Read the generalized Fock matrix
 *     Fock matrix in AO/SO basis
       Call mma_allocate(Fock,nFock,Label='Fock')
@@ -105,7 +106,7 @@
       call dcopy_(nHess,[Zero],0,Temp,1)
       Label  = ' The Kinetic Energy Contribution'
       Call Dot1El(KneHss,KneMmH,Temp,nHess,DiffOp,Work(ipC),
-     &           Work(ipD0),nFock,iWork(ip1),nComp,Label)
+     &            D0,nFock,iWork(ip1),nComp,Label)
       If (show) write(6,*) label
       If (show) Call HssPrt(Temp,nHess)
       Call DaXpY_(nHess,-One,Temp,1,Hess,1)
@@ -121,7 +122,7 @@
       Label = ' The Nuclear Attraction Contribution'
       call dcopy_(nHess,[Zero],0,Temp,1)
       Call Dot1El(NAHss,NAMmH,Temp,nHess,DiffOp,Work(ipC),
-     &           Work(ipD0),nFock,iWork(ip1),nComp,Label)
+     &            D0,nFock,iWork(ip1),nComp,Label)
       If (show) write(6,*) label
       if (show) Call HssPrt(Temp,nHess)
       Call DaXpY_(nHess,One,Temp,1,Hess,1)
@@ -142,7 +143,7 @@
         Label = ' The Projection (ECP) Contribution'
         call dcopy_(nHess,[Zero],0,Temp,1)
         Call Dot1El(PrjHss,PRJMMH,Temp,nHess,DiffOp,Work(ipC),
-     &              Work(ipD0),nFock,iWork(ip1),nComp,Label)
+     &               D0,nFock,iWork(ip1),nComp,Label)
         If (show) write(6,*) label
         if (show) Call HssPrt(Temp,nHess)
         Call DaXpY_(nHess,One,Temp,1,Hess,1)
@@ -151,7 +152,7 @@
         Label = ' The Spec. Res. (ECP) Contribution'
         call dcopy_(nHess,[Zero],0,Temp,1)
         Call Dot1El(SROHss,SROMMH,Temp,nHess,DiffOp,Work(ipC),
-     &              Work(ipD0),nFock,iWork(ip1),nComp,Label)
+     &               D0,nFock,iWork(ip1),nComp,Label)
         if (show) Write(6,*) Label,'first part '
         if (show) Call HssPrt(Temp,nHess)
         Call DaXpY_(nHess,One,Temp,1,Hess,1)
@@ -160,7 +161,7 @@
         Label = ' The M1 (ECP) Contribution'
         call dcopy_(nHess,[Zero],0,Temp,1)
         Call Dot1El(m1Hss,m1MMH,Temp,nHess,DiffOp,Work(ipC),
-     &              Work(ipD0),nFock,iWork(ip1),nComp,Label)
+     &               D0,nFock,iWork(ip1),nComp,Label)
         if (show) Write(6,*) Label,'second part '
         if (show) Call HssPrt(Temp,nHess)
         Call DaXpY_(nHess,One,Temp,1,Hess,1)
@@ -178,7 +179,7 @@
         Label = ' The PCM Contribution'
         call dcopy_(nHess,[Zero],0,Temp,1)
         Call Dot1El(PCMHss,PCMMMH,Temp,nHess,DiffOp,Work(ipC),
-     &              Work(ipD0),nFock,iWork(ip1),nComp,Label)
+     &               D0,nFock,iWork(ip1),nComp,Label)
         If (show) write(6,*) label
         if (show) Call HssPrt(Temp,nHess)
         Call DaXpY_(nHess,One,Temp,1,Hess,1)
@@ -193,7 +194,7 @@
       Call GetMem('lOper','Free','Inte',ip1,nComp)
       Call GetMem('Coor','Free','Real',ipC,3*nComp)
       Call mma_deallocate(Fock)
-      Call GetMem('D0  ','Free','Real',ipD0,nDens)
+      Call mma_deallocate(D0)
       If (iprint.ge.12) Call HssPrt(Hess,nHess)
 *                                                                      *
 ************************************************************************
