@@ -244,12 +244,11 @@ c       nCoor=iiCoord
       Write (6,*) ' Number of grid points in file:  ',nCoor
 c      call iXML('nPoints',nCoor)
 *
-*************************************************************************
+************************************************************************
 * And now we had to choose orbitals to draw.
 *
 * Sometime we had to make an automatic guess....
-*
-*************************************************************************
+************************************************************************
 *
        Call PickOrb(ipNz,ipSort,ipGref,ipSort_ab,
      &  ipGref_ab,ipVol,ipE,ipOcc,ipE_ab,ipOcc_ab,
@@ -428,7 +427,7 @@ c using ipCutOff
           Work(ipC+ipPO*3+1-1)=Work(ipGrid+(iSec+ipPO-1)*3+1-1)
           Work(ipC+ipPO*3+2-1)=Work(ipGrid+(iSec+ipPO-1)*3+2-1)
           Work(ipC+ipPO*3+3-1)=Work(ipGrid+(iSec+ipPO-1)*3+3-1)
-          !make a local copy of the weights of the corresponding grid points:
+c         make a local copy of the weights of the corresponding grid points:
         endif
         iv3=iv3+1
         if (iv3.gt.ive3) then

@@ -923,7 +923,8 @@ c packing late
                 enddo
 
             IF (ISLUSCUS .EQ. 1) THEN
-              RC=C_WRITE(LID, WORK(IPCMP), (III-1)*RTOB) !!!!!!!!!!!!!!!!!!!!check iii-1
+              !!!!!!!!!!!!!!!!!!!!check iii-1
+              RC=C_WRITE(LID, WORK(IPCMP), (III-1)*RTOB)
               IF (RC .EQ. 0) THEN
                 WRITE(6,*) 'error in writing luscus file!'
                 CALL Abend()
