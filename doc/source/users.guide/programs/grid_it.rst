@@ -7,10 +7,6 @@
 :program:`GRID_IT`
 ==================
 
-.. warning::
-
-   This program is not available in |openmolcas|
-
 .. only:: html
 
   .. contents::
