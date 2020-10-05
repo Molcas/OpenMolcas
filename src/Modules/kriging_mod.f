@@ -54,7 +54,7 @@
      &        full_R(:,:), x0(:), Kv(:),
      &        cv(:,:,:,:), cvg(:,:,:),cvh(:,:,:,:),
      &        var(:), Rones(:), sigma(:), l(:),
-     &        pred(:), gpred(:,:), hpred(:,:,:), ll(:),
+     &        pred(:), gpred(:), hpred(:,:), ll(:),
      &        cvMatFder(:,:), cvMatSder(:,:), cvMatTder(:,:)
       real*8 :: sb, variance, detR, lh, sbO, sbmev
       real*8, parameter :: h = 1e-5, eps = 1e-13, eps2 = 1e-10

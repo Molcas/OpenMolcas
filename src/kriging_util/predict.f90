@@ -48,7 +48,7 @@ nInter=nInter_save
 
       do k=1,nInter
         B(:) = cv(:,1,k,1)
-        gpred(1,k) = dot_product(B,Kv)
+        gpred(k) = dot_product(B,Kv)
       enddo
 
     else if (gh.eq.2) then

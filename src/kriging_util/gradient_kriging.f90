@@ -32,7 +32,7 @@ Subroutine Gradient_Kriging(x0_,dy_,ndimx)
   ! Write(6,*) 'Entro grad'
   call covarvector(1) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
   call predict(1)
-  dy_=gpred(npx,:)
+  dy_(:)=gpred(:)
 !
 #ifdef _Grad_Test
  ! Numerical Gradient of GEK
@@ -53,20 +53,20 @@ Subroutine Gradient_Kriging(x0_,dy_,ndimx)
     call predict(0)
     thpred = pred(npx)
 !
-    gpred(npx,i) = (tpred-thpred)/(2.0D0*Delta)
+    gpred(i) = (tpred-thpred)/(2.0D0*Delta)
 !
   enddo
   write(6,*) 'Gradient Threshold',GradT
   do i = 1,nInter
     write(6,*) 'i',i
-    write(6,*) 'gpred, dy_',gpred(npx,i),dy_(i)
-    if (abs(dy_(i)-gpred(npx,i)).gt.GradT) then
+    write(6,*) 'gpred, dy_',gpred(i),dy_(i)
+    if (abs(dy_(i)-gpred(i)).gt.GradT) then
       Write(6,*) 'Error in entry',i,'of the gradient vector'
       Call RecPrt('Anna Grad',' ',dy_,1,nInter)
       Call RecPrt('Num Grad',' ',gpred,1,nInter)
       Write(6,*) 'abs(dy_(i,j)+ HessT)',abs(dy_(i)+ GradT)
       Write(6,*) 'abs(dy_(i,j)- HessT)',abs(dy_(i)- GradT)
-      Write(6,*) 'abs(gpred(npx,i))',abs(gpred(npx,i))
+      Write(6,*) 'abs(gpred(i))',abs(gpred(i))
       Call Abend()
     endif
   enddo

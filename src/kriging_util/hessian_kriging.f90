@@ -49,12 +49,12 @@ Subroutine Hessian_Kriging(x0_,ddy_,ndimx)
     x0(i) = tmp + Delta
     call covarvector(1) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
     call predict(1)
-    tgrad=gpred(npx,:)
+    tgrad=gpred(:)
 !
     x0(i) = tmp - Delta
     call covarvector(1) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
     call predict(1)
-    thgrad=gpred(npx,:)
+    thgrad=gpred(:)
 !
     do j=1,nInter
       hpred(i,j) = (tgrad(j)-thgrad(j))/(2.0D0*Delta)
