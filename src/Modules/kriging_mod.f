@@ -51,7 +51,7 @@
 
       real*8, allocatable ::
      &        rl(:,:,:), dl(:,:), full_Rinv(:,:),
-     &        full_R(:,:), nx(:,:), Kv(:),
+     &        full_R(:,:), x0(:), Kv(:),
      &        cv(:,:,:,:), cvg(:,:,:),cvh(:,:,:,:),
      &        var(:), Rones(:), sigma(:), l(:),
      &        pred(:), gpred(:,:), hpred(:,:,:), ll(:),
@@ -63,16 +63,18 @@
 
       contains
 
-      Subroutine Setup_Kriging(nPoints,nInter,x_,dy_,y_)
+      Subroutine Setup_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
 #include "stdalloc.fh"
-      integer :: nPoints, nInter, i, j
-      real*8 :: x_(nInter,nPoints), dy_(nInter,nPoints), y_(nPoints)
+      integer :: nPoints_In, nD, nInter, i, j
+      real*8 ::  x_(nInter,nPoints_In)
+      real*8 ::         y_(nPoints_In)
+      real*8 :: dy_(nInter,nPoints_In-nD)
 
       nInter_save = nInter
 
-      nPoints_save = nPoints
-      nPoints_v    = nPoints
-      nPoints_g    = nPoints
+      nPoints_save = nPoints_In
+      nPoints_v    = nPoints_In
+      nPoints_g    = nPoints_In-nD
 
       Call mma_Allocate(x,nInter,nPoints_v,Label="x")
       Call mma_Allocate(dy,nInter*nPoints_g,Label="dy")
