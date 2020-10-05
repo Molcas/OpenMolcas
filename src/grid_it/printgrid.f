@@ -249,7 +249,7 @@ c      call eXML('Header')
       CHARACTER(LEN=512) TMPLUS
       INTEGER RC
 c      logical exist
-c      logical is_error
+      Logical is_error
       Character Slash
       Character*12 Alpha
       INTEGER LUSOPEN
