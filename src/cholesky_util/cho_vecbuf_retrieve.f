@@ -44,7 +44,7 @@ C
 
       Logical Full
       Logical LocDbg
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
       Parameter (LocDbg = .true.)
 #else
       Parameter (LocDbg = .false.)
@@ -161,7 +161,8 @@ C     ----------------------
          ! Check copy operation (may fail if molcas is compiled for
          ! 64 bit but linked to a 32 bit blas library)
          ! Note: check is not done unless it is enabled when the buffer
-         ! is initialized. This only happens if _DEBUGPRINT_ is defined, so
+         ! is initialized.
+         ! This only happens if _DEBUGPRINT_ is defined, so
          ! the following section is normally not executed.
          ! For debugging without turning on _DEBUGPRINT_ compilation:
          !   Call Cho_VecBuf_EnableIntegrityCheck(irc)

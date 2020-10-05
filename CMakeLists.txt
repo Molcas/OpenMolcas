@@ -104,18 +104,6 @@ option (DEBUGPRINT "Enable excessive print statements for debugging." OFF)
 option (DEBUGTRACE "Enable tracing print statements for debugging." OFF)
 
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set (DEBUG_DEFS_DEFAULTS "_ADDITIONAL_RUNTIME_CHECK_")
-else()
-    set (DEBUG_DEFS_DEFAULTS "")
-endif()
-set(builds_with_warnings Debug Garble RelWithDebInfo)
-if (${CMAKE_BUILD_TYPE} IN_LIST builds_with_warnings)
-    set (DEBUG_DEFS_DEFAULTS "${DEBUG_DEFS_DEFAULTS} _WARNING_WORKAROUND_")
-endif()
-set (DEBUG_DEFS "${DEBUG_DEFS_DEFAULTS}" CACHE LIST "Additional debugging definitions.")
-separate_arguments(DEBUG_DEFS)
-
 option (BUILD_SHARED_LIBS "Build dynamically-linked molcas library." OFF)
 option (BUILD_STATIC_LIB "Build statically-linked molcas library too." OFF)
 if (BUILD_SHARED_LIBS)
@@ -166,6 +154,15 @@ mark_as_advanced (CTEST)
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     include(CTest)
 endif()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-D_ADDITIONAL_RUNTIME_CHECK_)
+endif()
+
+if (";Debug;Garble;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};" OR BIGOT)
+    add_definitions(-D_WARNING_WORKAROUND_)
+endif()
+
 
 # External projects
 option (MSYM       "Activate MSYM support (requires External/libmsym submodule)." OFF)
@@ -2228,7 +2225,6 @@ else ()
 endif ()
 get_directory_property(defs COMPILE_DEFINITIONS)
 message ("-- Definitions: ${defs}")
-message ("-- Debug definitions: ${DEBUG_DEFS}")
 
 ################################################################################
 #                                                                              #
@@ -2861,22 +2857,6 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     endif ()
   endif ()
 endif ()
-
-# Add custom debug flags per file:
-#   For each file, tries to find out if each definition is used and modify the file's properties
-# Limitation: it will rebuild the whole target (but not the whole molcas)
-if (DEBUG_DEFS)
-  foreach (file ${ALL_SOURCES})
-    file (READ ${file} contents)
-    foreach (def ${DEBUG_DEFS})
-      string (REGEX MATCH ${def} result "${contents}")
-      if (NOT ${result} STREQUAL "")
-        set_property (SOURCE ${file} APPEND PROPERTY COMPILE_DEFINITIONS ${def})
-      endif ()
-    endforeach ()
-  endforeach ()
-endif ()
-
 
 ################################################################################
 #                                                                              #
