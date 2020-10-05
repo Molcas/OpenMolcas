@@ -56,8 +56,8 @@ nInter=nInter_save
       do k=1,nInter
         do i=k,nInter
           B(:) = cv(:,1,i,k)
-          hpred(1,k,i) = dot_product(B, Kv)
-          if (i.ne.k) hpred(1,i,k) = hpred(1,k,i)
+          hpred(k,i) = dot_product(B, Kv)
+          if (i.ne.k) hpred(i,k) = hpred(k,i)
         enddo
       enddo
 
