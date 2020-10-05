@@ -10,17 +10,18 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-SUBROUTINE predict(gh,iter,nInter)
+SUBROUTINE predict(gh)
   use kriging_mod
 #include "stdalloc.fh"
   real*8 tsum
   integer INFO
-  integer i,j,iter,nInter,gh ! ipiv the pivot indices that define the permutation matrix
+  integer i,j,gh ! ipiv the pivot indices that define the permutation matrix
   real*8, Allocatable :: B(:), A(:,:)
   integer, Allocatable :: IPIV(:)
 !
   Call mma_allocate(B,m_t,label="B")
 !
+nInter=nInter_save
     if (gh.eq.0) then
 
       !A contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
@@ -34,7 +35,7 @@ SUBROUTINE predict(gh,iter,nInter)
       var(1) = 1d0 - dot_product(B,CV(:,1,1,1))
 
       if (ordinary) Then
-        tsum = sum(rones(1:iter))
+        tsum = sum(rones(1:m_t))
         B(:) = cv(:,1,1,1)
         var(1)=max(var(1)+(1d0-dot_product(B,rones))**2/tsum,0d0)
       end if

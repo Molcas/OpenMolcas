@@ -13,7 +13,7 @@
 Subroutine Gradient_Kriging(x_,dy_,ndimx)
   use kriging_mod
   Implicit None
-  Integer nInter,nPoints, ndimx
+  Integer ndimx
   Real*8 x_(ndimx,1),dy_(ndimx)
 !
 !#define _Grad_Test
@@ -23,8 +23,6 @@ Subroutine Gradient_Kriging(x_,dy_,ndimx)
   Real*8 GradT
   GradT = 1.0D-6
 #endif
-  nPoints=nPoints_save
-  nInter=nInter_save
 !
   npx = npxAI
 !nx is the n-dimensional vector of the last iteration computed in update_sl
@@ -33,7 +31,7 @@ Subroutine Gradient_Kriging(x_,dy_,ndimx)
 !
   ! Write(6,*) 'Entro grad'
   call covarvector(1) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-  call predict(1,nPoints,nInter)
+  call predict(1)
   dy_=gpred(npx,:)
 !
 #ifdef _Grad_Test
@@ -46,13 +44,13 @@ Subroutine Gradient_Kriging(x_,dy_,ndimx)
     nx(i,1) = x_(i,1) + Delta
 !
     call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-    call predict(0,nPoints,nInter)
+    call predict(0)
     tpred = pred(npx)
 !
     nx(i,1) = x_(i,1) - Delta
 !
     call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-    call predict(0,nPoints,nInter)
+    call predict(0)
     thpred = pred(npx)
 !
     gpred(npx,i) = (tpred-thpred)/(2.0D0*Delta)

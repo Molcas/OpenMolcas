@@ -13,11 +13,8 @@
 Subroutine Energy_Kriging(x_,y_,ndimx)
   use kriging_mod
   Implicit None
-  Integer nInter,nPoints,nDimx
+  Integer nDimx
   Real*8 x_(ndimx,1),y_
-!
-  nPoints=nPoints_save
-  nInter=nInter_save
 !
   npx = npxAI
 !nx is the n-dimensional vector of the last iteration computed in update_sl
@@ -25,7 +22,7 @@ Subroutine Energy_Kriging(x_,y_,ndimx)
   nx(:,:) = x_
 !
   call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-  call predict(0,nPoints,nInter)
+  call predict(0)
   y_=pred(npx)
 !
   return

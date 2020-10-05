@@ -13,18 +13,16 @@
 Subroutine Dispersion_Kriging(x_,y_,ndimx)
   use kriging_mod
   Implicit None
-  Integer nInter,nPoints,ndimx
+  Integer ndimx
   Real*8 x_(ndimx,1),y_
 !
 !nx is the n-dimensional vector of the last iteration computed
 !
-        nPoints=nPoints_save
-        nInter=nInter_save
         nx(:,:) = x_
         call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-        call predict(0,nPoints,nInter)
+        call predict(0)
 ! 95% confidence -> 1.96*sigma
-  y_ = 1.96d0*sigma(npx)
+        y_ = 1.96d0*sigma(npx)
 !
   return
 End Subroutine Dispersion_Kriging

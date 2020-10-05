@@ -13,7 +13,7 @@
 Subroutine Hessian_Kriging(x_,ddy_,ndimx)
   use kriging_mod
   Implicit None
-  Integer nInter,nPoints,ndimx
+  Integer ndimx
   Real*8 x_(ndimx,1),ddy_(ndimx,ndimx)
 !
 !#define _Hess_Test
@@ -23,8 +23,6 @@ Subroutine Hessian_Kriging(x_,ddy_,ndimx)
   Integer i, j
   HessT = 1.0D-3
 #endif
-  nPoints = nPoints_save
-  nInter = nInter_save
 !
   npx = npxAI
 !nx is the n-dimensional vector of the last iteration computed in update_sl
@@ -32,7 +30,7 @@ Subroutine Hessian_Kriging(x_,ddy_,ndimx)
   nx(:,:) = x_
 !
   call covarvector(2) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-  call predict(2,nPoints,nInter)
+  call predict(2)
   ddy_ = hpred(npx,:,:)
 !
 #ifdef _Hess_Test
@@ -50,12 +48,12 @@ Subroutine Hessian_Kriging(x_,ddy_,ndimx)
 !
     nx(i,1) = tmp + Delta
     call covarvector(1) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-    call predict(1,nPoints,nInter)
+    call predict(1)
     tgrad=gpred(npx,:)
 !
     nx(i,1) = tmp - Delta
     call covarvector(1) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-    call predict(1,nPoints,nInter)
+    call predict(1)
     thgrad=gpred(npx,:)
 !
     do j=1,nInter
