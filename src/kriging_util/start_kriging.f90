@@ -46,12 +46,11 @@ Subroutine Start_Kriging(nPoints,nInter,x_,dy_,y_)
 ! (equation (2) on:
 !-------- ref. = doi:10.1007/s00366-015-0397-y)-------
 !
-  m_t=nPoints_v + nInter*nPoints_g
 !
-! In the case the nPoint last energies and mPoint last gradients were use
+! In the case the nPoint_v last energies and nPoint_g last gradients were use
 ! m_t would be computed as
 !
-! m_t=nPoints+mPoints*nInter
+  m_t=nPoints_v + nInter*nPoints_g
 !
 ! npx is the number of new points (Energy and Gradient) to be predict
 ! according to the iteration that was computed in update_sl subroutine
@@ -74,8 +73,8 @@ Subroutine Start_Kriging(nPoints,nInter,x_,dy_,y_)
 !Iden is just an identity matrix necesary to avoid that the Grad-Psi becomes
 ! Singular after been multiplied by EPS factor
 !
-  Call mma_Allocate(rl,nPoints,npx,nInter,Label="rl")
-  Call mma_Allocate(dl,nPoints,npx,Label="dl")
+  Call mma_Allocate(rl,nPoints_v,npx,nInter,Label="rl")
+  Call mma_Allocate(dl,nPoints_v,npx,Label="dl")
   Call mma_Allocate(Rones,m_t,Label="Rones")
 !
 !kv is the vector that contains the dot product of the inverse of Grad-Psi and
@@ -105,9 +104,9 @@ Subroutine Start_Kriging(nPoints,nInter,x_,dy_,y_)
   Call mma_allocate(ll,int(lb(3)),Label="ll")
 !
   Call mma_allocate(cv,m_t,npx,nInter,nInter,Label="cv")
-  Call mma_allocate(cvMatFder,nPoints,npx,Label="cvMatFder")
-  Call mma_allocate(cvMatSder,nPoints,npx,Label="cvMatSder")
-  Call mma_allocate(cvMatTder,nPoints,npx,Label="cvMatTder")
+  Call mma_allocate(cvMatFder,nPoints_v,npx,Label="cvMatFder")
+  Call mma_allocate(cvMatSder,nPoints_v,npx,Label="cvMatSder")
+  Call mma_allocate(cvMatTder,nPoints_v,npx,Label="cvMatTder")
 !
   return
 End Subroutine Start_Kriging
