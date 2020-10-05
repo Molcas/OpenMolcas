@@ -11,6 +11,8 @@
 # Copyright (C) 2020, Oskar Weser                                      *
 #***********************************************************************
 
+include_guard(GLOBAL)
+
 include(${PROJECT_SOURCE_DIR}/cmake/cmake_helpers.cmake)
 
 set(UNIT_TEST_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
@@ -42,4 +44,5 @@ endfunction()
 
 # And start adding tests
 add_subdirectory(linalg_mod/)
+add_subdirectory(fortran_strings/)
 
