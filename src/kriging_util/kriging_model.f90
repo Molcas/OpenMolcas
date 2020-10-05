@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-SUBROUTINE kriging_model(nPoints)
+SUBROUTINE kriging_model()
   use kriging_mod
   Implicit None
 #include "stdalloc.fh"
@@ -28,7 +28,7 @@ SUBROUTINE kriging_model(nPoints)
 #endif
 
   Integer, Allocatable:: IPIV(:)
-  Integer i,INFO,nPoints ! ipiv the pivot indices that define the permutation matrix
+  Integer i,INFO ! ipiv the pivot indices that define the permutation matrix
 !
   Call mma_Allocate(B,m_t,Label="B")
   Call mma_Allocate(A,m_t,m_t,Label="A")
@@ -78,7 +78,7 @@ SUBROUTINE kriging_model(nPoints)
 !
 ! Introduce canonical phase factor
 !
-  Do i = 1, nPoints
+  Do i = 1, nPoints_v
     Temp=DDot_(nPoints_v,[1.0D0],0,U(1,i),1)
     U(1:nPoints_v,i)= U(1:nPoints_v,i) * Sign(1.0D0,Temp)
   End Do
@@ -114,7 +114,7 @@ SUBROUTINE kriging_model(nPoints)
 ! eigenvalues from the previous diagonalization.
 !
   A(1:nPoints_v,1:nPoints_v)=0.0D0
-  do i=1,nPoints
+  do i=1,nPoints_v
     A(i,i)=HTri(i*(i+1)/2)
   end do
 #ifdef _DEBUG_
@@ -149,8 +149,8 @@ SUBROUTINE kriging_model(nPoints)
 !
 ! here we do the same stuff but without prediagonalization
 !
-  B(1:nPoints)=1.0D0
-  B(nPoints+1:)=0.0D0
+  B(1:nPoints_v)=1.0D0
+  B(nPoints_v+1:)=0.0D0
   A(:,:) = full_r(:,:)
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -177,7 +177,7 @@ SUBROUTINE kriging_model(nPoints)
   Call RecPrt('PSI^{-1}',' ',A,m_t,m_t)
   Call RecPrt('X=PSI^{-1}f',' ',B,1,m_t)
   Call RecPrt('rones',' ',rones,1,m_t)
-  Write (6,*) 'nPoints=',nPoints
+  Write (6,*) 'nPointsi_v=',nPoints_v
 #endif
 
 !

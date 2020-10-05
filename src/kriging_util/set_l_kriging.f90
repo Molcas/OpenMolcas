@@ -28,10 +28,10 @@ SUBROUTINE set_l_kriging(lv,nInter)
 !
 ! Generate the covariance matrix
 !
-  call covarMatrix(nPoints_Save,nInter_save)
+  call covarMatrix()
 !
 ! Form the inverse of the covariance matrix times the generalized value vector.
 !
-  call kriging_model(nPoints_save)
+  call kriging_model()
 
 END SUBROUTINE set_l_kriging
