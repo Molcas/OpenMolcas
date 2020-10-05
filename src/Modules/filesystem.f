@@ -12,15 +12,20 @@
 ************************************************************************
 
 #include "compiler_features.h"
+#include "molcastypes.fh"
 
       module filesystem
+      use, intrinsic :: iso_c_binding, only: c_char, MOLCAS_C_INT,
+     &      C_INT, c_ptr, C_NULL_CHAR
+      use fortran_strings, only: split, StringWrapper_t, Cptr_to_str,
+     &  str
+      implicit none
       private
       public :: getcwd_, chdir_, symlink_, get_errno_, strerror_,
-     &    mkdir_, remove_, real_path
-#include "molcastypes.fh"
+     &    mkdir_, remove_, real_path, basename
       interface
       subroutine getcwd_c(path, n, err) bind(C, name="getcwd_wrapper")
-        use, intrinsic :: iso_c_binding
+        import :: c_char, MOLCAS_C_INT
         implicit none
         character(len=1, kind=c_char), intent(out) :: path(*)
         integer(MOLCAS_C_INT), intent(in) :: n
@@ -28,36 +33,36 @@
       end subroutine
 
       subroutine chdir_c(path, err) bind(C, name="chdir_wrapper")
-        use, intrinsic :: iso_c_binding
+        import :: c_char, MOLCAS_C_INT
         implicit none
         character(len=1, kind=c_char), intent(in) :: path(*)
         integer(MOLCAS_C_INT), intent(out) :: err
       end subroutine
 
       subroutine symlink_c(to, from, err)bind(C, name="symlink_wrapper")
-        use, intrinsic :: iso_c_binding
+        import :: c_char, MOLCAS_C_INT
         implicit none
         character(len=1, kind=c_char), intent(in) :: to(*), from(*)
         integer(MOLCAS_C_INT), intent(out) :: err
       end subroutine
 
       subroutine mkdir_c(path, mode, err) bind(C, name="mkdir_wrapper")
-        use, intrinsic :: iso_c_binding
+        import :: c_char, MOLCAS_C_INT
         implicit none
-        integer(kind=MOLCAS_C_INT) :: c_mkdir
-        character(len=1, kind=c_char) :: path(*)
-        integer(kind=MOLCAS_C_INT) :: mode, err
+        character(len=1, kind=c_char), intent(in) :: path(*)
+        integer(kind=MOLCAS_C_INT), intent(in) :: mode
+        integer(kind=MOLCAS_C_INT), intent(out) :: err
       end subroutine mkdir_c
 
       function get_errno_c() bind(C, name="get_errno")
-        use, intrinsic :: iso_c_binding
+        import :: MOLCAS_C_INT
         implicit none
         integer(MOLCAS_C_INT) :: get_errno_c
       end function
 
 #ifdef C_PTR_BINDING
       function strerror_c(errno) bind(C, name="strerror")
-        use, intrinsic :: iso_c_binding
+        import :: c_ptr, C_INT
         implicit none
         integer(C_INT), value, intent(in) :: errno
         type(c_ptr) :: strerror_c
@@ -65,7 +70,8 @@
 #endif
 
       subroutine remove_c(path, err) bind(C, name="remove_wrapper")
-        use, intrinsic :: iso_c_binding
+        import :: c_char, MOLCAS_C_INT
+        implicit none
         integer(kind=MOLCAS_C_INT), intent(out) :: err
         character(len=1, kind=c_char), intent(in) :: path(*)
       end subroutine remove_c
@@ -75,8 +81,6 @@
       contains
 
       subroutine getcwd_(path, err)
-        use, intrinsic :: iso_c_binding
-        implicit none
         character(len=*), intent(out) :: path
         integer, intent(out), optional :: err
         integer(MOLCAS_C_INT) :: c_err
@@ -85,8 +89,6 @@
       end subroutine
 
       subroutine chdir_(path, err)
-        use, intrinsic :: iso_c_binding
-        implicit none
         character(len=*), intent(in) :: path
         integer, intent(out), optional :: err
         integer(MOLCAS_C_INT) :: c_err
@@ -95,8 +97,6 @@
       end subroutine
 
       subroutine symlink_(to, from, err)
-        use, intrinsic :: iso_c_binding
-        implicit none
         character(len=*), intent(in) :: to, from
         integer, intent(out), optional :: err
         integer(MOLCAS_C_INT) :: c_err
@@ -106,9 +106,7 @@
       end subroutine
 
       subroutine mkdir_(path, err)
-        use, intrinsic :: iso_c_binding
-        implicit none
-        character(len=*) :: path
+        character(len=*), intent(in) :: path
         integer, optional, intent(out) :: err
         integer(MOLCAS_C_INT) :: loc_err
         call mkdir_c(trim(path)//C_NULL_CHAR,
@@ -122,16 +120,13 @@
 
 !> Return Error String from Error number
       function strerror_(errnum) result(res)
-        use, intrinsic :: iso_c_binding
-        use fortran_strings, only : str
-        implicit none
-        character(len=:), allocatable :: res
         integer, intent(in) :: errnum
+        character(len=:), allocatable :: res
 #ifdef C_PTR_BINDING
-        res = str(strerror_c(int(errnum, C_INT)))
+        res = Cptr_to_str(strerror_c(int(errnum, C_INT)))
 #else
         integer :: rc
-        character(Len=80) :: errstr
+        character(len=80) :: errstr
         integer, external :: aixerr
         errstr = ''
         rc = aixerr(errstr)
@@ -140,8 +135,6 @@
       end function
 
       subroutine remove_(path, err)
-        use, intrinsic :: iso_c_binding
-        implicit none
         character(len=*) :: path
         integer, optional, intent(out) :: err
         integer(MOLCAS_C_INT) :: loc_err
@@ -158,4 +151,19 @@
         path = buffer(:L)
       end function
 
+      function basename(path) result(res)
+        character(len=*), intent(in) :: path
+        character(len=:), allocatable :: res
+        type(StringWrapper_t), allocatable :: names(:)
+
+        call split(path, '/', names)
+
+        if (size(names(size(names))%str) /= 0) then
+        ! Base is a normal file that is not a directory .../.../basename
+            res = str(names(size(names))%str)
+        else
+        ! Base is itself a directory .../.../basename/
+            res = str(names(size(names) - 1)%str)
+        end if
+      end function
       end module filesystem

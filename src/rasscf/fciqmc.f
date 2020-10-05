@@ -17,7 +17,7 @@
 #endif
       use definitions, only: wp, MPIInt, int64, real64
       use filesystem, only: chdir_, getcwd_, get_errno_, strerror_,
-     &    real_path
+     &    real_path, basename
       use fortran_strings, only: str
       use stdalloc, only : mma_allocate, mma_deallocate, mxMem
 
@@ -95,9 +95,7 @@
      &                      TUVX, F_IN, D1S_MO, DMAT, PSMAT, PAMAT)
       use fcidump_reorder, only : get_P_GAS, get_P_inp,ReOrFlag,ReOrInp
       use fcidump, only : make_fcidumps, transform
-#include "output_ras.fh"
 #include "rctfld.fh"
-#include "timers.fh"
       integer, intent(in) :: actual_iter
       real(wp), intent(in) ::
      &    CMO(nTot2), DIAF(nTot),
@@ -107,13 +105,12 @@
      &    PSMAT(nAcpr2), PAMAT(nAcpr2)
       real(wp) :: NECIen
       integer :: jRoot
-      integer, allocatable :: permutation(:)
+      integer, allocatable :: permutation(:),
+     &  GAS_spaces(:, :), GAS_particles(:, :)
       real(wp) :: orbital_E(nTot), folded_Fock(nAcPar)
 #ifdef _MOLCAS_MPP_
       integer(MPIInt) :: error
 #endif
-
-      parameter(ROUTINE = 'FCIQMC_clt')
       character(len=*), parameter ::
      &  ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
 
@@ -121,7 +118,7 @@
 ! SOME DIRTY SETUPS
       S = 0.5_wp * dble(iSpin - 1)
 
-      call check_options(lRoots, lRf, KSDFT, iDoGAS, iGSOCCX, nGAS)
+      call check_options(lRoots, lRf, KSDFT)
 
 ! Produce a working FCIDUMP file
       if (ReOrFlag /= 0) then
@@ -140,16 +137,21 @@
       call make_fcidumps(ascii_fcidmp, h5_fcidmp,
      &                   orbital_E, folded_Fock, TUVX, EMY, permutation)
 
-      if (iDoGAS) call write_GASORB(nGSSH, permutation)
-
 ! Run NECI
-      call Timing(Rado_1, Swatch, Swatch, Swatch)
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) call MPI_Barrier(MPI_COMM_WORLD, error)
 #endif
 
+      if (iDoGAS) then
+        call mma_allocate(GAS_spaces, nGAS, nSym)
+        GAS_spaces(:, :) = nGSSH(: nGAS, : nSym)
+        call mma_allocate(GAS_particles, nGAS, nGAS)
+        GAS_particles(:, :) = iGSOCCX(: nGAS, : nGAS)
+      end if
+
       call run_neci(DoEmbdNECI, actual_iter == 1,
-     &  ascii_fcidmp, h5_fcidmp, doGAS=iDoGAS,
+     &  ascii_fcidmp, h5_fcidmp,
+     &  GAS_spaces=GAS_spaces, GAS_particles=GAS_particles,
      &  reuse_pops=actual_iter >= 5 .and. abs(rotmax) < 1d-2,
      &  NECIen=NECIen,
      &  D1S_MO=D1S_MO, DMAT=DMAT, PSMAT=PSMAT, PAMAT=PAMAT)
@@ -162,40 +164,36 @@
       if (nAsh(1) /= nac) call dblock(dmat)
 
 
-      call Timing(Rado_2, Swatch, Swatch, Swatch)
-      Rado_2 = Rado_2 - Rado_1
-      Rado_3 = Rado_3 + Rado_2
-
+      if (allocated(GAS_spaces)) then
+          call mma_deallocate(GAS_spaces)
+          call mma_deallocate(GAS_particles)
+      end if
       end subroutine fciqmc_ctl
 
 
       subroutine run_neci(DoEmbdNECI, fake_run,
      &      ascii_fcidmp, h5_fcidmp,
      &      reuse_pops,
-     &      NECIen, D1S_MO, DMAT, PSMAT, PAMAT, doGAS)
+     &      NECIen, D1S_MO, DMAT, PSMAT, PAMAT,
+     &      GAS_spaces, GAS_particles)
         use fciqmc_make_inp, only: make_inp
         logical, intent(in) :: DoEmbdNECI, fake_run, reuse_pops
         character(len=*), intent(in) :: ascii_fcidmp, h5_fcidmp
         real(wp), intent(out) :: NECIen, D1S_MO(nAcPar), DMAT(nAcpar),
      &      PSMAT(nAcpr2), PAMAT(nAcpr2)
-        logical, intent(in), optional :: doGAS
-        logical :: doGAS_
+        integer, intent(in), optional ::
+     &      GAS_spaces(:, :), GAS_particles(:, :)
         real(wp), save :: previous_NECIen = 0.0_wp
 
         character(len=*), parameter :: input_name = 'FCINP',
      &    energy_file = 'NEWCYCLE'
 
-        if (present(doGAS)) then
-          doGAS_ = doGAS
-        else
-          doGAS_ = .false.
-        end if
-
         if (fake_run) then
           NECIen = previous_NECIen
         else
           if (DoEmbdNECI) then
-            call make_inp(input_name, doGAS=doGAS_, readpops=reuse_pops)
+            call make_inp(input_name, readpops=reuse_pops,
+     &          GAS_spaces=GAS_spaces, GAS_particles=GAS_particles)
 #ifdef _NECI_
             write(6,*) 'NECI called automatically within Molcas!'
             if (myrank /= 0) call chdir_('..')
@@ -210,7 +208,8 @@
      &'for compiling or use an external NECI.')
 #endif
           else
-            call make_inp(input_name, doGAS=doGAS_)
+            call make_inp(input_name, basename(real_path(ascii_fcidmp)),
+     &              GAS_spaces=GAS_spaces, GAS_particles=GAS_particles)
             if (myrank == 0) then
               call write_ExNECI_message(input_name, ascii_fcidmp,
      &                                  h5_fcidmp, energy_file)
@@ -243,10 +242,9 @@
       end subroutine
 
 
-      subroutine check_options(lroots, lRf, KSDFT,
-     &      DoGAS, iGSOCCX, nGAS)
-        integer, intent(in) :: lroots, iGSOCCX(:, :),nGAS
-        logical, intent(in) :: lRf, DoGAS
+      subroutine check_options(lroots, lRf, KSDFT)
+        integer, intent(in) :: lroots
+        logical, intent(in) :: lRf
         character(len=*), intent(in) :: KSDFT
         logical :: Do_ESPF
         if (lroots > 1) then
@@ -255,12 +253,6 @@
         call DecideOnESPF(Do_ESPF)
         if ( lRf .or. KSDFT /= 'SCF' .or. Do_ESPF) then
           call abort_('FCIQMC does not support Reaction Field yet!')
-        end if
-        if (DoGAS) then
-          if (.not. all(iGSOCCX(:nGAS, 1) == iGSOCCX(:nGAS, 2))) then
-            call abort_('Only disconnected GAS spaces are '//
-     &        'currently supported in FCIQMC.')
-          end if
         end if
       end subroutine check_options
 
@@ -293,25 +285,5 @@
      &    'echo $your_RDM_Energy > '//real_path(energy_file)
         call xflush(6)
       end subroutine write_ExNECI_message
-
-      subroutine write_GASORB(GAS_spaces, permutation)
-        integer, intent(in) :: GAS_spaces(:, :)
-        integer, intent(in), optional :: permutation(:)
-        integer, parameter :: arbitrary_magic_number = 42
-        integer :: i, GAS_ORB(sum(GAS_spaces)), iGAS, iSym, file_id
-
-        GAS_ORB(:) = [(((iGAS, i = 1, GAS_spaces(iGAS, iSym)),
-     &                 iGAS = 1, size(GAS_spaces, 1)), iSym = 1, nSym)]
-
-        if (present(permutation)) GAS_ORB = GAS_ORB(permutation)
-
-        file_id = arbitrary_magic_number
-        file_id = isfreeunit(file_id)
-        call molcas_open(file_id, 'GASOrbs')
-          do i = 1, size(GAS_ORB)
-            write(file_id,'(I0, A)', advance='no') GAS_ORB(i), ','
-          end do
-        close(file_id)
-      end subroutine
 
       end module fciqmc
