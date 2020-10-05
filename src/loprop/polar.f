@@ -110,11 +110,12 @@
       Call Get_Density_Matrix(ip_D(0),nBas1,nBas2,nBasMax,nBas,nSym,ipP
      &                      ,UserDen,PrintDen,SubtractDen,SubScale,
      &                       Work(ipQ_Nuc),nAtoms,iPert,Restart,Utility
-     &                      ,TDensity,nStateI,nStateF,nSize)
+     &                      ,TDensity,nStateI,nStateF)
 *
 *   If computing local xhole-dipole moments. Should come after
 *   get_density_matrix so modified densities are used.
-      If(XHole) Call Compute_XHole_Int(nBas,nSym,ipXHole2,dMolExpec)
+      If(XHole) Call Compute_XHole_Int(nBas,nSym,ipXHole2,dMolExpec,
+     &                                 nSize)
 
       If (.Not.NoField) Then
 *        Read the one-electron hamiltonian.
@@ -129,7 +130,7 @@
             Call Get_Density_Matrix(ip_D(iPert),nBas1,nBas2,nBasMax,
      &                  nBas,nSym,ipP,UserDen,PrintDen,SubtractDen,
      &              SubScale,Work(ipQ_Nuc),nAtoms,iPert,Restart,Utility,
-     &              TDensity,nStateI,nStateF,nSize)
+     &              TDensity,nStateI,nStateF)
          End Do
          Call Free_Work(ip_h0)
       End If

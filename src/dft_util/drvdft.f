@@ -73,17 +73,9 @@ c     Call SetQue('Trace=on')
 *
 *---- Get the total density
 *
-      Call Get_D1ao(ipD1ao,nDens)
-      If (nDens.ne.nh1) Then
-         Call WarningMessage(2,'DrvDFT: nDens.ne.nh1')
-         Write (6,*) 'nDens=',nDens
-         Write (6,*) 'nh1  =',nh1
-         Call Abend()
-      End If
-      call dcopy_(nh1,Work(ipD1ao),1,Work(ip_D_DS),1)
-*      Call RecPrt('D1ao',' ',Work(ipD1ao),nh1,1)
+      Call Get_D1ao(Work(ip_D_DS),nh1)
+*     Call RecPrt('D1ao',' ',Work(ip_D_DS),nh1,1)
 *
-      Call GetMem('DrvXV','Free','Real',ipD1ao,nDens)
 *
 *---- Get the spin density
 *

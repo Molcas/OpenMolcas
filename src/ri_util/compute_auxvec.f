@@ -129,7 +129,8 @@
                Call Get_D1AO_Var(Work(ipDMLT(1)),nDens)
             EndIf
          Else
-            Call Get_D1AO(ipDMLT(1),nDens)
+            Call GetMem('DMLT(1)','Allo','Real',ipDMLT(1),nDens)
+            Call Get_D1AO(Work(ipDMLT(1)),nDens)
          End If
 *
          If (nKdens.eq.2) Then

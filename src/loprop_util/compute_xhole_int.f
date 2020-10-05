@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Compute_Xhole_Int(nBasLop,nSym,ipSqMom,Func)
+      Subroutine Compute_Xhole_Int(nBasLop,nSym,ipSqMom,Func,nSize)
       use Her_RW
       use Real_Spherical
       Implicit Real*8 (a-h,o-z)
@@ -18,7 +18,7 @@
 #include "status.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-
+      Real*8, Allocatable:: D1ao(:)
       Dimension nBasLop(nSym)
       Logical Do_Gamma, Do_Grad, On_Top, Do_Tau, Do_MO, Do_TwoEl
       Logical DSCF
@@ -33,7 +33,6 @@
         Write(6,*)' You should not run LoProp with symmetry!'
         Call Abend()
       Endif
-
 *
 *-- Set a lot of numbers and labels. See below for more help.
 *
@@ -58,7 +57,9 @@
       Write(KSDFT,'(A)')'LDA'     !-- Just to get the routines to
                                   !   take the fastest path, no other
                                   !   meaning.
-      Call Get_D1ao(ip_Dens,nDens)!-- The density matrix.
+      Call mma_allocate(D1ao,nTri)
+      nDens=nTri
+      Call Get_D1ao(D1ao,nDens)!-- The density matrix.
       ExFac=Get_ExFac(KSDFT)      !-- Zero, in fact.
       Functional_type=LDA_type    !-- Number from nq_info.fh.
       EThr=1.0d-9
@@ -154,11 +155,10 @@
 !IFG: The call to DrvNQ below is completely messed up, please fix
       Call WarningMessage(2,'There is surely a bug here!')
 !     Call DrvNQ(Do_XHoleDip,Work(ip_MatEl),nFckDim,Func,Dens
-!    &          ,Work(ip_Dens),nTri,nD,Do_Gamma,Do_Grad,Dummy
+!    &          ,D1ao,nTri,nD,Do_Gamma,Do_Grad,Dummy
 !    &          ,iDummy,Dummy,Dummy,iDummy,On_Top,Do_Tau,Do_MO
 !    &          ,Do_TwoEl,DFTFOCK)
-*      call get_d1ao(ipD,nDens)
-*      FFF=ddot_(nDens,Work(ipD),1,Work(ip_MatEl),1)
+*      FFF=ddot_(nDens,D1ao,1,Work(ip_MatEl),1)
 *      write(6,*)'YYY:',nDens,FFF,Func,ip_MatEl
 *
 *-- Put the second-moments in square form.
@@ -169,6 +169,7 @@
 *
 *-- Deallocate
 *
+      Call mma_deallocate(D1ao)
       Call Free_iSD()
       Call GetMem('X-Dipole elements','Free','Real',ip_MatEl,nTri)
       Call GetMem('OrbDipsX','Free','Real',ip_OrbDip(1),nOrb*(nOrb+1)/2)

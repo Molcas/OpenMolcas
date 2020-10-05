@@ -29,18 +29,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Get the total 1st order AO density matrix
-*
-*     (unused?)
-      Call Get_D1ao(ipD1ao,nDens)
-      If (nDens.ne.nh1) Then
-         Call WarningMessage(2,'DrvPCM: nDens.ne.nh1')
-         Write (6,*) nDens,nh1
-         Call Abend()
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
 *---- Generate list of all atoms
 *
 *     Cord: list of all atoms
@@ -98,7 +86,6 @@
 *                                                                      *
       Call mma_deallocate(Chrg)
       Call mma_deallocate(Cord)
-      Call GetMem('D1ao','Free','Real',ipD1ao,nDens)
 *                                                                      *
 ************************************************************************
 *                                                                      *

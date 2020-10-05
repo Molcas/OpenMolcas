@@ -159,17 +159,9 @@
 *---- Get the density matrix of the environment (rho_B)
 *
       Call Get_iScalar('Multiplicity',kSpin)
-      Call Get_D1ao(ipD1ao,nDens)
-      If (nDens.ne.nh1) Then
-         Call WarningMessage(2,'DrvEMB_: nDens.ne.nh1')
-         Write (6,*) 'nDens=',nDens
-         Write (6,*) 'nh1  =',nh1
-         Call Abend()
-      End If
-      call dcopy_(nh1,Work(ipD1ao),1,D_DS(1,1),1)
-*     Call RecPrt('D1ao',' ',Work(ipD1ao),nh1,1)
+      Call Get_D1ao(D_DS(1,1),nh1)
+*     Call RecPrt('D_DS(1,1)',' ',D_DS(1,1),nh1,1)
 *
-      Call GetMem('Dens','Free','Real',ipD1ao,nDens)
 *
 *---- Get the spin density matrix of the environment
 *
@@ -220,17 +212,8 @@
 *
 *---- Get the density matrix for rho_A
 *
-      Call Get_D1ao(ipD1ao,nDens)
-      If (nDens.ne.nh1) Then
-         Call WarningMessage(2,'DrvEMB_: nDens.ne.nh1')
-         Write (6,*) 'nDens=',nDens
-         Write (6,*) 'nh1  =',nh1
-         Call Abend()
-      End If
-      call dcopy_(nh1,Work(ipD1ao),1,D_DS(1,3),1)
-*     Call RecPrt('D1ao',' ',Work(ipD1ao),nh1,1)
-*
-      Call GetMem('Dens','Free','Real',ipD1ao,nDens)
+      Call Get_D1ao(D_DS(1,3),nh1)
+*     Call RecPrt('D_DS(1,3)',' ',D_DS(1,3),nh1,1)
 *
       Call Get_iScalar('Multiplicity',iSpin)
       If (iSpin.eq.1 .and. kSpin.ne.1) Then

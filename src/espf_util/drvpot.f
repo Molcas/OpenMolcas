@@ -82,16 +82,16 @@ c
         ipnuc=ip_Dummy
       End if
       If (iaddpot.lt.0) Then
+
+         Call mma_allocate(Dens,ntdg,Label='Dens')
          If (iaddpot.eq.-1) Then
-            Call mma_allocate(Dens,ntdg,Label='Dens')
             Call Get_D1ao_Var(Dens,ntdg)
-            call Drv1_Pot(Dens,CCoor,ptchrg,ngrid,1,0)
-            Call mma_deallocate(Dens)
          Else
-            Call Get_D1ao(ipdens,Length)
-            call Drv1_Pot(work(ipdens),CCoor,ptchrg,ngrid,1,0)
-            Call GetMem('DENS','FREE','REAL',ipdens,ntdg)
+            Call Get_D1ao(Dens,ntdg)
          End If
+         call Drv1_Pot(Dens,CCoor,ptchrg,ngrid,1,0)
+         Call mma_deallocate(Dens)
+
          If (.not.Do_ESPF) Then
             Call AddVec(ptchrg,ptchrg,work(ipnuc),ngrid)
             Call dCopy_(ngrid,work(ipnuc),1,opnuc,1)

@@ -16,13 +16,13 @@
 #include "glbbas_mclr.fh"
 #include "Pointers.fh"
 #include "WrkSpc.fh"
-cnf
+#include "stdalloc.fh"
 #include "real.fh"
 #include "rctfld.fh"
       Logical Do_ESPF,First,Dff,Do_DFT,NonEq
-cnf
       Character*8 Label
       Dimension idum(1)
+      Real*8, Allocatable:: D1ao(:)
 *
       iRc=-1
       iOpt=1
@@ -89,14 +89,15 @@ cnf
          Call GetMem('Gtmp','Allo','Real',iGtmp,leng)
          Call dCopy_(leng,[Zero],0,Work(iHtmp),1)
          Call dCopy_(leng,[Zero],0,Work(iGtmp),1)
-         Call Get_D1ao(ipD1ao,leng)
+         Call mma_allocate(D1ao,leng,Label='D1ao')
+         Call Get_D1ao(D1ao,leng)
 *
          NonEq=.False.
          First=.True.
          Dff=.False.
          Do_DFT=.True.
          Call Get_dScalar('PotNuc',PotNuc)
-         Call DrvXV(Work(iHtmp),Work(iGtmp),Work(ipD1ao),
+         Call DrvXV(Work(iHtmp),Work(iGtmp),D1ao,
      &              PotNuc,leng,First,Dff,NonEq,lRF,
 *
 *------ Don't care about the last arguments: no (CAS-)DFT here I guess)
@@ -110,7 +111,7 @@ cnf
 *         Call Daxpy_(leng,One,Work(iGtmp),1,FI,1)
          Call GetMem('Gtmp','Free','Real',iGtmp,leng)
          Call GetMem('Htmp','Free','Real',iHtmp,leng)
-         Call Free_Work(ipD1ao)
+         Call mma_deallocate(D1ao)
       End If
 cnf
       ip=1

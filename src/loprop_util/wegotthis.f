@@ -13,6 +13,7 @@
       Implicit real*8 (a-h,o-z)
 
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "warnings.fh"
 
       Dimension EC(3,nij),Pot_Expo(nij*2),Pot_Point(nij),Pot_Fac(nij*4)
@@ -21,6 +22,8 @@
 
       Logical Diffed(nij*2)
       Logical Que,D1,D2
+      Logical Found
+      Real*8, Allocatable:: D1ao(:)
 
       Character*10 DistType(2),OneFile,Label
 
@@ -110,7 +113,14 @@
         DeNom=0.0d0
         Write(OneFile,'(A)')'ONEINTP'
         Call Diff_Aux1(nEPP,ipEPCo,nB,OneFile)
-        Call Get_D1ao(ip_D,nDens)
+        Call Qpg_dArray('D1ao',Found,nDens)
+        If (Found .and. nDens/=0) Then
+           Call mma_allocate(D1ao,nDens,Label='D1ao')
+        Else
+           Write (6,*) 'WeGotThis: do not think so!'
+           Call Abend()
+        End If
+        Call Get_D1ao(D1ao,nDens)
         Call GetMem('ElPot','Allo','Real',iElP,nDens+4)
         If(iPrint.ge.2) then
           Write(6,*)
@@ -132,7 +142,7 @@
           iComp=1
           Call RdOne(irc,iOpt,Label,iComp,Work(iElP),iSmLbl)
           ElPot_REF=Work(iElP+nDens+3)
-          ElPot_REF=ElPot_REF-Ddot_(nDens,Work(ip_D),1,Work(iElP),1)
+          ElPot_REF=ElPot_REF-Ddot_(nDens,D1ao,1,Work(iElP),1)
 *
 *---- Second, get the approximate electric potential and also the
 *     completely multipole expanded potential.
@@ -241,7 +251,7 @@
 *---- Deallocate
 *
         Call GetMem('ElPot','Free','Real',iElP,nDens+4)
-        Call GetMem('Dens','Free','Real',ip_D,nDens)
+        Call mma_deallocate(D1ao)
         Call GetMem('PotPointCoord','Free','Real',ipEPCo,3*nEPP)
         irc=-1
         Call ClsOne(irc,0)

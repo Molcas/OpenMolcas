@@ -31,16 +31,10 @@
       Label='D1aoVar'
       Call qpg_dArray(Label,Found,nDens)
       If(.not.Found .or. nDens.eq.0) Then
-         Call Get_D1ao(ipD1ao,nDens)
-         If (nDens/=nD1ao) Then
-            Write (6,*) 'Get_D1ao_Var(2): nDens/=nD1ao'
-            Call Abend()
-         End If
-         Call DCopy_(nD1ao,Work(ipD1ao),1,D1ao,1)
-         Call GetMem('ipD1ao','Free','Real',ipD1ao,nD1ao)
+         Call Get_D1ao(D1ao,nDens)
       Else
          If (nDens/=nD1ao) Then
-            Write (6,*) 'Get_D1ao_Var(2): nDens/=nD1ao'
+            Write (6,*) 'Get_D1ao_Var: nDens/=nD1ao'
             Write (6,*) 'nDens=',nDens
             Write (6,*) 'nD1ao=',nD1ao
             Call Abend()

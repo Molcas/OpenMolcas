@@ -46,6 +46,8 @@ c----------------------------------------------------------------------
 #include "stdalloc.fh"
       Real*8 Temp(3)
       Real*8, Allocatable :: Chrg(:)
+      Logical Found
+      Real*8, Allocatable :: D1ao(:)
 *                                                                      *
       Call mma_allocate(Chrg,nat)
       Call Get_dArray('Nuclear charge',Chrg,nAt)
@@ -74,14 +76,21 @@ c----------------------------------------------------------------------
 *
 *     Get the total 1st order AO density matrix
 *
-      Call Get_D1ao(ipD1ao,nDens)
+      Call Qpg_dArray('D1ao',Found,nDens)
+      If (Found .and. nDens/=0) Then
+         Call mma_allocate(D1ao,nDens,Label='D1ao')
+      Else
+         Write (6,*) 'Mlt_pcm: D1ao not found.'
+         Call Abend()
+      End If
+      Call Get_D1ao(D1ao,nDens)
 *
       Call Allocate_Work(ipFactOp,nTs)
       Call Allocate_iWork(iplOper,nTs)
       call dcopy_(nTs,[One],0,Work(ipFactOp),1)
       Call ICopy(nTs,[255],0,iWork(iplOper),1)
 *
-      Call drv_ef_PCM(Work(ipFactOp),nTs,Work(ipD1ao),nDens,
+      Call drv_ef_PCM(Work(ipFactOp),nTs,D1ao,nDens,
      &              Tessera,iWork(iplOper),
      &              EF_e,nOrdOp)
       If(nOrdOp.eq.0) then
@@ -92,7 +101,7 @@ c----------------------------------------------------------------------
 *
       Call Free_iWork(iplOper)
       Call Free_Work(ipFactOp)
-      Call GetMem('D1ao','Free','Real',ipD1ao,nDens)
+      Call Free_Work(D1ao)
 *
       Return
       End

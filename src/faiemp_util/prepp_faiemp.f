@@ -35,7 +35,7 @@
       Integer nBas_Valence(0:7),nBT,nBVT,nFro(0:7)
       Character*8 RlxLbl,Method, KSDFT*16
       Logical lPrint
-      Integer i,iBas,iGo,iIrrep,ij,ipD1ao,ipD1AV,ipD2AV
+      Integer i,iBas,iGo,iIrrep,ij,ipD1AV,ipD2AV
       Integer ipDLAO,ipDS1,ipDSVar1,ipLCMO,ipPLMO,ipt,ipTmp1,ipTemp
       Integer iSpin,jBas,length,nAct,nDens_Valence,nsa,nTemp,nTst
       Integer iRout,iPrint,iComp
@@ -179,17 +179,8 @@
          Call mma_allocate(DVar,nDens,mDens,Label='DVar')
          D0  (:,:)=Zero
          DVar(:,:)=Zero
-         Call Get_D1ao(ipD1ao,length)
-         If ( length.ne.nDens_Valence ) Then
-            Write (6,*) 'PrepP_FAIEMP: length.ne.nDens'
-            Write (6,*) 'length=',length
-            Write (6,*) 'nDens=',nDens_Valence
-            Call Abend()
-         End If
-         call dcopy_(nDens_Valence,Work(ipD1ao),1,D0,1)
-         Call Free_Work(ipD1ao)
-*
-         Call Get_D1ao_Var(DVar,nDens_Valence)
+         Call Get_D1ao(D0,nDens)
+         Call Get_D1ao_Var(DVar,nDens)
 *
          Call ReIndexFrag(D0,nDens,nDens_Valence,nBas,
      &                    nBas_Valence, nIrrep)
