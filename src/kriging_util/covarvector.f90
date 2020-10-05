@@ -115,14 +115,12 @@ SUBROUTINE defdlrl()
 
   nInter=nInter_save
 
-  dl=0
+  dl(:,1)=0.0D0
   do i=1,nInter
     do j=1,nPoints_v
-      do k=1,int(npx)
-        rl(j,k,i) = (x(i,j) - nx(i,k))/l(i)
-      enddo
+       rl(j,1,i) = (x(i,j) - x0(i))/l(i)
     enddo
-    dl(:,:) = dl(:,:) + rl(:,:,i)**2
+    dl(:,1) = dl(:,1) + rl(:,1,i)**2
   enddo
 END Subroutine defdlrl
 !

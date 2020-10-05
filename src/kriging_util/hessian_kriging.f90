@@ -10,11 +10,11 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-Subroutine Hessian_Kriging(x_,ddy_,ndimx)
+Subroutine Hessian_Kriging(x0_,ddy_,ndimx)
   use kriging_mod
   Implicit None
   Integer ndimx
-  Real*8 x_(ndimx,1),ddy_(ndimx,ndimx)
+  Real*8 x0_(ndimx),ddy_(ndimx,ndimx)
 !
 !#define _Hess_Test
 #ifdef _Hess_Test
@@ -27,7 +27,7 @@ Subroutine Hessian_Kriging(x_,ddy_,ndimx)
   npx = npxAI
 !nx is the n-dimensional vector of the last iteration computed in update_sl
 ! subroutine
-  nx(:,:) = x_
+  x0(:) = x0_(:)
 !
   call covarvector(2) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
   call predict(2)
@@ -42,16 +42,16 @@ Subroutine Hessian_Kriging(x_,ddy_,ndimx)
   write(6,*) 'Hess Threshold',HessT
 !
   do i = 1,nInter
-    tmp=nx(i,1)
+    tmp=x0(i)
 !
     Delta = 1.0D-5!Max(Abs(x_(i,1)),1.0D-5)*Scale
 !
-    nx(i,1) = tmp + Delta
+    x0(i) = tmp + Delta
     call covarvector(1) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
     call predict(1)
     tgrad=gpred(npx,:)
 !
-    nx(i,1) = tmp - Delta
+    x0(i) = tmp - Delta
     call covarvector(1) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
     call predict(1)
     thgrad=gpred(npx,:)
@@ -59,7 +59,7 @@ Subroutine Hessian_Kriging(x_,ddy_,ndimx)
     do j=1,nInter
       hpred(npx,i,j) = (tgrad(j)-thgrad(j))/(2.0D0*Delta)
     enddo
-    nx(i,1) = tmp
+    x0(i) = tmp
   enddo
 ! Comparing Analytical solution with Numerical
   do i = 1,nInter

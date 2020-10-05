@@ -38,9 +38,9 @@ Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
 !
   Call Setup_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
 !
-! Allocate nx, which is a n-dimensional vector of the coordinats of the last iteration computed
+! Allocate x0, which is a n-dimensional vector of the coordinats of the last iteration computed
 !
-  Call mma_Allocate(nx,nInter,1,Label="nx")
+  Call mma_Allocate(x0,nInter,Label="nx")
 !
 ! m_t is the dimentionality of the square correlation matrix Gradient-Psi
 ! (equation (2) on:

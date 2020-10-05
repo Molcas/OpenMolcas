@@ -10,16 +10,16 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-Subroutine Energy_Kriging(x_,y_,ndimx)
+Subroutine Energy_Kriging(x0_,y_,ndimx)
   use kriging_mod
   Implicit None
   Integer nDimx
-  Real*8 x_(ndimx,1),y_
+  Real*8 x0_(ndimx),y_
 !
   npx = npxAI
-!nx is the n-dimensional vector of the last iteration computed in update_sl
+!x0 is the n-dimensional vector of the coordinates at which the energy is evaluated
 ! subroutine
-  nx(:,:) = x_
+  x0(:) = x0_(:)
 !
   call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
   call predict(0)

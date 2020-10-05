@@ -10,11 +10,11 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-Subroutine Gradient_Kriging(x_,dy_,ndimx)
+Subroutine Gradient_Kriging(x0_,dy_,ndimx)
   use kriging_mod
   Implicit None
   Integer ndimx
-  Real*8 x_(ndimx,1),dy_(ndimx)
+  Real*8 x0_(ndimx),dy_(ndimx)
 !
 !#define _Grad_Test
 #ifdef _Grad_Test
@@ -25,9 +25,9 @@ Subroutine Gradient_Kriging(x_,dy_,ndimx)
 #endif
 !
   npx = npxAI
-!nx is the n-dimensional vector of the last iteration computed in update_sl
+!x0 is the n-dimensional vector of the coordinates at which the gradient is evaluated.
 ! subroutine
-  nx(:,:) = x_
+  x0(:) = x0_(:)
 !
   ! Write(6,*) 'Entro grad'
   call covarvector(1) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
@@ -39,15 +39,15 @@ Subroutine Gradient_Kriging(x_,dy_,ndimx)
   write(6,*) 'Begining Numerical Gradient'
   Delta = 1.0D-4!Max(Abs(x_(i,1)),1.0D-5)*Scale
   do i = 1,nInter
-    nx(:,:) = x_
+    x0(:) = x0_(:)
 !
-    nx(i,1) = x_(i,1) + Delta
+    x0(i) = x0_(i) + Delta
 !
     call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
     call predict(0)
     tpred = pred(npx)
 !
-    nx(i,1) = x_(i,1) - Delta
+    x0(i) = x0_(i) - Delta
 !
     call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
     call predict(0)
