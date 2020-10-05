@@ -33,6 +33,7 @@ c      Logical Debug
       character*128 line
       Real*8 pp(3)
       Integer nTypes(7)
+      Logical is_error
       Data Crypt/'fi123sd'/
 *
 *---- Set size of batches
@@ -49,7 +50,7 @@ c      Logical Debug
 c      Debug=.false.
       isEner=1
       iRout = 2
-       ipCutOff=ip_iDummy
+      ipCutOff=ip_iDummy
 
       dNorm=0
       ddNorm=0
@@ -117,7 +118,7 @@ c      Debug=.false.
       if(isUHF.eq.0) then
 
         Call RdVec(INPORB,LuOrb,'COE',nIrrep,NBAS,NBAS,
-     &    Work(ipCMO),Work(ipOcc),Work(ipE),iDummy,
+     &    Work(ipCMO),Work(ipOcc),Work(ipE),iWork(ip_iDummy),
      &    myTitle,0,iErr)
 
 
@@ -134,7 +135,7 @@ c       print *,'Pab=', (Work(ipPab+i),i=0,nMOs-1)
           enddo
         endif
       Call RdVec(INPORB,LuOrb,'I',nIrrep,NBAS,NBAS,
-     &  Dummy,Dummy,Dummy,iWork(ipType),
+     &  Work(ip_Dummy),Work(ip_Dummy),Work(ip_Dummy),iWork(ipType),
      &  myTitle,0,iErr)
         if(iErr.eq.1) then
           do j=0, nMOs-1
@@ -152,7 +153,7 @@ c allocate memory for extra arrays.
 
       Call RdVec_(INPORB,LuOrb,'COE',1,nIrrep,NBAS,NBAS,
      &  Work(ipCMO),Work(ipCMO_ab),Work(ipOcc),Work(ipOcc_ab),
-     &  Work(ipE),Work(ipE_ab),iDummy,
+     &  Work(ipE),Work(ipE_ab),iWork(ip_iDummy),
      &  myTitle,0,iErr,iWFtype)
 c it can be only after SCF, so we do not need TypeIndex info
           do j=0, nMOs-1
@@ -584,7 +585,7 @@ c       print *,'ddNorm=',ddNorm*det3
 
        endif
 
-        Call Add_Info('GRIDIT_NORM',dNorm,1,6)
+        Call Add_Info('GRIDIT_NORM',[dNorm],1,6)
       endif
 *                                                                      *
 ************************************************************************
