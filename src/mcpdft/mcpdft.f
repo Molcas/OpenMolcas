@@ -122,7 +122,6 @@
       External Get_ProgName
 !      External Get_SuperName
       Character*100 ProgName, Get_ProgName!, Get_SuperName
-      External QEnter, QExit
       External RasScf_Init
       External Scan_Inp
 !      External Proc_Inp
