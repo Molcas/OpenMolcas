@@ -21,40 +21,46 @@ SUBROUTINE predict(gh,iter,nInter)
 !
   Call mma_allocate(B,m_t,label="B")
 !
-  do j=1,npx
     if (gh.eq.0) then
+
       !A contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
       Call mma_allocate(A,m_t,m_t,label="A")
       Call mma_allocate(IPIV,m_t,label="IPIV")
       ! calculations of Energy and dispersion
       A(:,:) = full_R
-      B(:) = cv(:,j,1,1)
-      pred(j) = sb + dot_product(B,Kv)
+      B(:) = cv(:,1,1,1)
+      pred(1) = sb + dot_product(B,Kv)
       CALL DGESV_(m_t, 1,A,m_t,IPIV,B,m_t,INFO )
-      var(j) = 1d0 - dot_product(B,CV(:,j,1,1))
+      var(1) = 1d0 - dot_product(B,CV(:,1,1,1))
+
       if (ordinary) Then
         tsum = sum(rones(1:iter))
-        B(:) = cv(:,j,1,1)
-        var(j)=max(var(j)+(1d0-dot_product(B,rones))**2/tsum,0d0)
+        B(:) = cv(:,1,1,1)
+        var(1)=max(var(1)+(1d0-dot_product(B,rones))**2/tsum,0d0)
       end if
-      sigma(j)=sqrt(var(j)*variance)
+
+      sigma(1)=sqrt(var(1)*variance)
       Call mma_deallocate(A)
       Call mma_deallocate(IPIV)
+
     else if (gh.eq.1) then
+
       do k=1,nInter
-        B(:) = cv(:,j,k,1)
-        gpred(j,k) = dot_product(B,Kv)
+        B(:) = cv(:,1,k,1)
+        gpred(1,k) = dot_product(B,Kv)
       enddo
+
     else if (gh.eq.2) then
+
       do k=1,nInter
         do i=k,nInter
-          B(:) = cv(:,j,i,k)
-          hpred(j,k,i) = dot_product(B, Kv)
-          if (i.ne.k) hpred(j,i,k) = hpred(j,k,i)
+          B(:) = cv(:,1,i,k)
+          hpred(1,k,i) = dot_product(B, Kv)
+          if (i.ne.k) hpred(1,i,k) = hpred(1,k,i)
         enddo
       enddo
+
     endif
-  enddo
 !
   Call mma_deallocate(B)
 !
