@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-Subroutine Start_Kriging(nPoints,nInter,x_,dy_,y_)
+Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
   use kriging_mod
   Implicit None
 #include "stdalloc.fh"
@@ -21,22 +21,22 @@ Subroutine Start_Kriging(nPoints,nInter,x_,dy_,y_)
 !    dy_: the gradient of the function at the sample points
 !    x_: the coordinates of the sample points
 !
-  Integer nInter,nPoints
-  Real*8 y_(nPoints)
-  Real*8 dy_(nInter,nPoints)
-  Real*8 x_(nInter,nPoints)
+  Integer nInter,nPoints_In,nD
+  Real*8 x_(nInter,nPoints_In)
+  Real*8 y_(nPoints_In)
+  Real*8 dy_(nInter,nPoints_In-nd)
 !
 !
 !#define _DEBUG_
 #ifdef _DEBUG_
-  Call RecPrt('Start_Kriging: x',' ',x_,nInter,nPoints)
-  Call RecPrt('Start_Kriging: y',' ',y_,     1,nPoints)
-  Call RecPrt('Start_Kriging: dy',' ',dy_,nInter,nPoints)
+  Call RecPrt('Start_Kriging: x',' ',x_,nInter,nPoints_In)
+  Call RecPrt('Start_Kriging: y',' ',y_,     1,nPoints_In)
+  Call RecPrt('Start_Kriging: dy',' ',dy_,nInter,nPoints_In-nD)
 #endif
 !
 ! Call Setup_Kriging to store the data in some internally protected arrays and scalars.
 !
-  Call Setup_Kriging(nPoints,nInter,x_,dy_,y_)
+  Call Setup_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
 !
 ! Allocate nx, which is a n-dimensional vector of the coordinats of the last iteration computed
 !

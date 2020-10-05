@@ -14,11 +14,10 @@ SUBROUTINE covarVector(gh)
   use kriging_mod
   Implicit None
 #include "stdalloc.fh"
-  integer i,i0,i1,j,j0,j1,k,k0,k1,gh,nPoints,nInter
+  integer i,i0,i1,j,j0,j1,k,k0,k1,gh,nInter
   real*8 sdiffx,sdiffx0,sdiffxk
   real*8, Allocatable ::  diffx(:,:),diffx0(:,:), diffxk(:,:)
 
-  nPoints=nPoints_save
   nInter =nInter_save
 
   Call mma_Allocate(diffx,nPoints_v,npx,label="diffx")
@@ -76,9 +75,9 @@ SUBROUTINE covarVector(gh)
         diffx0(:,:) = 2.0D0*rl(:,:,j)/l(j)
         sdiffx0 = 2.0D0/l(j)**2
         if (i.eq.j) Then
-          cv(1:nPoints,:,i,j) = cvMatSder * diffx*diffx0 + cvMatFder*2.0D0/(l(i)*l(j))
+          cv(1:nPoints_v,:,i,j) = cvMatSder * diffx*diffx0 + cvMatFder*2.0D0/(l(i)*l(j))
         else
-          cv(1:nPoints,:,i,j) = cvMatSder * diffx*diffx0
+          cv(1:nPoints_v,:,i,j) = cvMatSder * diffx*diffx0
         end if
         do k = 1, nInter
           diffxk(:,:) = 2.0D0*rl(:,:,k)/l(k)
