@@ -74,7 +74,7 @@ Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
 ! Singular after been multiplied by EPS factor
 !
   Call mma_Allocate(rl,nPoints_v,npx,nInter,Label="rl")
-  Call mma_Allocate(dl,nPoints_v,npx,Label="dl")
+  Call mma_Allocate(dl,nPoints_v,Label="dl")
   Call mma_Allocate(Rones,m_t,Label="Rones")
 !
 !kv is the vector that contains the dot product of the inverse of Grad-Psi and

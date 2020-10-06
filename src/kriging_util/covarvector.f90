@@ -32,8 +32,8 @@ SUBROUTINE covarVector(gh)
 !
   if (gh.eq.0) then
 !
-    call matern(dl, cv(1:nPoints_v,:,1,1), nPoints_v, npx)
-    call matderiv(1, dl, cvMatFDer, nPoints_v, npx)
+    call matern(dl, cv(1:nPoints_v,:,1,1), nPoints_v,1)
+    call matderiv(1, dl, cvMatFDer, nPoints_v, 1)
     do i=1,nInter
 !     1st derivatives second part of eq. (4)
       diffx(:,:) = 2.0D0*rl(:,:,i)/l(i)
@@ -45,8 +45,8 @@ SUBROUTINE covarVector(gh)
 !
   else if(gh.eq.1) then
 !
-    call matderiv(1, dl, cvMatFder, nPoints_v, npx)
-    call matderiv(2, dl, cvMatSder, nPoints_v, npx)
+    call matderiv(1, dl, cvMatFder, nPoints_v, 1)
+    call matderiv(2, dl, cvMatSder, nPoints_v, 1)
     do i=1,nInter
       diffx(:,:) = 2.0D0*rl(:,:,i)/l(i)
       cv(1:nPoints_v,:,i,1) = -cvMatFder * diffx
@@ -65,9 +65,9 @@ SUBROUTINE covarVector(gh)
   else if(gh.eq.2) then
 !
       !    print *,'covar vector calling deriv(3) for Kriging Hessian'
-    call matderiv(1, dl, cvMatFder, nPoints_v, npx)
-    call matderiv(2, dl, cvMatSder, nPoints_v, npx)
-    call matderiv(3, dl, cvMatTder, nPoints_v, npx)
+    call matderiv(1, dl, cvMatFder, nPoints_v, 1)
+    call matderiv(2, dl, cvMatSder, nPoints_v, 1)
+    call matderiv(3, dl, cvMatTder, nPoints_v, 1)
     do i = 1, nInter
       diffx(:,:) = 2.0D0*rl(:,:,i)/l(i)
       sdiffx = 2.0D0/l(i)**2
@@ -115,12 +115,12 @@ SUBROUTINE defdlrl()
 
   nInter=nInter_save
 
-  dl(:,1)=0.0D0
+  dl(:)=0.0D0
   do i=1,nInter
     do j=1,nPoints_v
        rl(j,1,i) = (x(i,j) - x0(i))/l(i)
     enddo
-    dl(:,1) = dl(:,1) + rl(:,1,i)**2
+    dl(:) = dl(:) + rl(:,1,i)**2
   enddo
 END Subroutine defdlrl
 !
