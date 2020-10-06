@@ -30,7 +30,7 @@ nInter=nInter_save
       ! calculations of Energy and dispersion
       A(:,:) = full_R
       B(:) = cv(:,1,1,1)
-      pred(1) = sb + dot_product(B,Kv)
+      pred = sb + dot_product(B,Kv)
       CALL DGESV_(m_t, 1,A,m_t,IPIV,B,m_t,INFO )
       var(1) = 1d0 - dot_product(B,CV(:,1,1,1))
 

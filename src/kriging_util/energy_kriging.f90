@@ -23,7 +23,7 @@ Subroutine Energy_Kriging(x0_,y_,ndimx)
 !
   call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
   call predict(0)
-  y_=pred(npx)
+  y_=pred
 !
   return
 End Subroutine Energy_Kriging

@@ -95,7 +95,6 @@ Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
 ! Allocate additional variables needed for the kriging.
 !
   Call mma_allocate(kv,m_t,Label="kv")
-  Call mma_allocate(pred,npx,Label="pred")
   Call mma_allocate(gpred,nInter,Label="gpred")
   Call mma_allocate(hpred,nInter,nInter,Label="hpred")
   Call mma_allocate(var,npx,Label="var")

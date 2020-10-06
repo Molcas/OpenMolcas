@@ -45,13 +45,13 @@ Subroutine Gradient_Kriging(x0_,dy_,ndimx)
 !
     call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
     call predict(0)
-    tpred = pred(npx)
+    tpred = pred
 !
     x0(i) = x0_(i) - Delta
 !
     call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
     call predict(0)
-    thpred = pred(npx)
+    thpred = pred
 !
     gpred(i) = (tpred-thpred)/(2.0D0*Delta)
 !
