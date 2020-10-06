@@ -1729,8 +1729,9 @@ c           write(6,*) "iAtmNr2(i)",i, iAtmNr2(i)
 c           write(6,*) "Charge(i)", i, dbsc(i)%Charge
 
             iAtom_Number= dbsc(i)%AtmNr
-            If (iAtom_Number<1 .or. iAtom_Number>SIZE(No_AMFI)) Then
+            If (iAtom_Number<0 .or. iAtom_Number>SIZE(No_AMFI)) Then
                Write (6,*) 'Illegal atom number.'
+               Write (6,*) 'Atom number=',iAtom_Number
                Call Abend()
             End If
             If (No_AMFI(iAtom_Number)) then

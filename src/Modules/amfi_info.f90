@@ -15,6 +15,6 @@ Module AMFI_Info
 !
   Integer, Parameter:: nSize=120
   Integer i
-  Logical:: No_AMFI(nSize)= (/ (.False., i=1, nSize) /)
+  Logical:: No_AMFI(0:nSize)= (/ (.False., i=0, nSize) /)
 !
   End Module AMFI_Info
