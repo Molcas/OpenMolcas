@@ -18,11 +18,13 @@
 
 #define debug_function_name(name) character(*), parameter :: this_routine = name
 #define ASSERT(x) if(.not.(x))call abort_("Assert fail")
+#define pure_ASSERT(x) if(.not.(x))call pure_abort()
 
 #else
 
 #define debug_function_name(name)
 #define ASSERT(x)
+#define pure_ASSERT(x)
 
 #endif
 
