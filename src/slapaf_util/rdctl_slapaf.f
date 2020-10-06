@@ -541,10 +541,10 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *                                                                      *
 ****** MXMI ************************************************************
 *                                                                      *
-*     Maximum number of Iterations for the AI method
+*     Maximum number of Iterations for the Kriging method
 *
 106   Char=Get_Ln(LuRd)
-      Call Get_I1(1,miAI)
+      Call Get_I1(1,Max_Microiterations)
       Go To 999
 !*                                                                      *
 !****** AIME ************************************************************
@@ -553,7 +553,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 !*     (loop exit condition)
 !*
 !107   Char=Get_Ln(LuRd)
-!      Call Get_F1(1,meAI)
+!      Call Get_F1(1,Thr_microiterations)
 !      Go To 999
 !*                                                                      *
 !****** AIBL ************************************************************

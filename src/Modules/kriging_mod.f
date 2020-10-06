@@ -21,8 +21,8 @@
       Logical :: anMd = .True.
       Real*8  :: pAI = 2
       Real*8  :: lb(3) = [20.0D0, 20.0D0, 1.0D0]
-      Integer :: miAI = 50
-      Real*8  :: meAI = 1.0D-8
+      Integer :: Max_MicroIterations = 50
+      Real*8  :: Thr_MicroIterations = 1.0D-8
       Logical :: blAI = .False.
       Logical :: mblAI = .False.
       Logical :: blaAI = .True.
