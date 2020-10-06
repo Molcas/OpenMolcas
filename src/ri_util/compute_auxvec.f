@@ -135,7 +135,8 @@
 *
          If (nKdens.eq.2) Then
             Call GetMem('DMLT(2)','Allo','Real',ipDMLT(2),nDens)
-            Call Get_D1SAO_Var(Work(ipDMLT(2)),nDens) ! spin-density matrix
+!           spin-density matrix
+            Call Get_D1SAO_Var(Work(ipDMLT(2)),nDens)
             Call daxpy_(nDens,-One,Work(ipDMLT(1)),1,
      &                              Work(ipDMLT(2)),1)
             call dscal_(nDens,-Half,Work(ipDMLT(2)),1) ! beta DMAT

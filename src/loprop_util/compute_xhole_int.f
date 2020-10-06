@@ -23,7 +23,7 @@
       Logical Do_Gamma, Do_Grad, On_Top, Do_Tau, Do_MO, Do_TwoEl
       Logical DSCF
       Character*4 DFTFOCK, KSDFT
-      Dimension nSize(1)
+      Integer nSize
 
 *
 *-- Check symmetry

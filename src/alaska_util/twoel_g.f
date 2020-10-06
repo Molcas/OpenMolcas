@@ -40,7 +40,6 @@
       use Real_Info, only: ChiI2
       use Temporary_Parameters, only: IsChi
       use Symmetry_Info, only: nIrrep
-      Use Iso_C_Binding
       Implicit Real*8 (A-H,O-Z)
       External TERI1, ModU2, vCff2D
 #include "Molcas.fh"
@@ -48,10 +47,8 @@
 #include "real.fh"
 #include "print.fh"
 #include "disp.fh"
-      Real*8, Target ::
-     &       Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1),
+      Real*8 Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1),
      &       Data2(nEta *(nDArray+2*ncd)+nDScalar+nHmcd,nData2)
-      Integer, Pointer :: iData1(:), iData2(:)
       Real*8 Coor(3,4), CoorM(3,4), CoorAC(3,2),
      &       xA(nZeta),xB(nZeta), xG(nEta), xD(nEta), Grad(nGrad),
      &       Zeta(nZeta), ZInv(nZeta), P(nZeta,3),
@@ -65,12 +62,22 @@
      &        iAnga(4), iCmp(4), iShell(4), iShll(4),
      &        nOp(4), kOp(4), JndGrd(3,4), iuvwx(4)
       Logical Shijij, AeqB, CeqD, AeqC, ABeqCD,
-     &        EQ, lEmpty, IfGrad(3,4),
-     &        JfGrad(3,4), PreScr
+     &        IfGrad(3,4), JfGrad(3,4), PreScr
 #ifdef _DEBUG_
       Character ChOper(0:7)*3
       Data ChOper/' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz'/
 #endif
+      Call TwoEl_g_Internal(Data1,Data2)
+
+      Contains
+      Subroutine TwoEl_g_Internal(Data1,Data2)
+      Use Iso_C_Binding
+      Real*8, Target ::
+     &       Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1),
+     &       Data2(nEta *(nDArray+2*ncd)+nDScalar+nHmcd,nData2)
+      Integer, Pointer :: iData1(:), iData2(:)
+      Logical EQ, lEmpty
+      External EQ, lEmpty
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -509,8 +516,8 @@
      &                        Coeff4,nDelta,lBasl,
      &                        Wrk2(iW4),mab*mcd,Wrk2(iW3_),nWrk3_,
      &                        Wrk2(iW2),
-     &                        iData1(iZeta),mZeta,
-     &                        iData2(iEta ),mEta)
+     &                        iData1(iZeta:iZeta+mZeta-1),mZeta,
+     &                        iData2(iEta: iEta +mEta -1),mEta)
 *
 *-----------------Transfer k2 data and prescreen
 *
@@ -521,11 +528,11 @@
      &                        Zeta,ZInv,P,xA,xB,
      &                        Data1(iZeta,lDCR1),
      &                        nAlpha,jPrim,
-     &                        iData1(iZeta),
+     &                        iData1(iZeta:iZeta+mZeta-1),
      &                        Eta, EInv,Q,xG,xD,
      &                        Data2(iEta ,lDCR2),
      &                        nGamma,lPrim,
-     &                        iData2(iEta ),
+     &                        iData2(iEta :iEta +mEta -1),
      &                        ix1,iy1,iz1,ix2,iy2,iz2,
      &                        CutGrd,l2DI,
      &                        Data1(iZeta+iffab ,lDCR1),
@@ -579,4 +586,5 @@ c Avoid unused argument warnings
          Call Unused_integer(iPrInc)
          Call Unused_integer(kPrInc)
       End If
+      End Subroutine TwoEl_g_Internal
       End

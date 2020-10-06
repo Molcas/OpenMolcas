@@ -75,10 +75,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+#ifdef _NOT_USED_
 *     --- Section to calculate Nonelectr. V_emb with current density
 *     Temporarily turned off (clean output)
-*      If (.not.OFE_first) then
-      If (.False.) then
+       If (.not.OFE_first) then
           Call mma_allocate(D1ao_y,nh1)
           Call Get_NameRun(NamRfil) ! save the old RUNFILE name
           Call NameRun('AUXRFIL')   ! switch RUNFILE name
@@ -111,6 +111,7 @@
           Call NameRun(NamRfil)     ! switch back to RUNFILE
       End If
 *     --- Section End
+#endif
       Call f_Inquire('PRERFIL',is_rhoA_on_file) ! rho_A from file
       If (is_rhoA_on_file .and. .not.OFE_first) Return ! Vemb on disk
 
