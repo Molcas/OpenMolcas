@@ -37,7 +37,6 @@
       real*8, allocatable, protected :: x(:,:), y(:), dy(:)
 !
 !     Inter_save: the dimension of the coordinate vector
-!     nPoints_save: the total number of sample points
 !     nPoints_v: the total number of sample points for which the value is
 !                used
 !     nPoinst_g: the total number of sample points for which the
@@ -45,7 +44,7 @@
 !
 !     We will assume that nPoints_v >= nPoints_g
 !
-      integer, protected :: nInter_save = 0, nPoints_save = 0
+      integer, protected :: nInter_save = 0
       integer, protected :: nPoints_v = 0, nPoints_g = 0
 
       real*8, allocatable ::
@@ -72,7 +71,6 @@
 
       nInter_save = nInter
 
-      nPoints_save = nPoints_In
       nPoints_v    = nPoints_In
       nPoints_g    = nPoints_In-nD
 
