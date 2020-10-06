@@ -73,7 +73,7 @@ Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
 !Iden is just an identity matrix necesary to avoid that the Grad-Psi becomes
 ! Singular after been multiplied by EPS factor
 !
-  Call mma_Allocate(rl,nPoints_v,npx,nInter,Label="rl")
+  Call mma_Allocate(rl,nPoints_v,nInter,Label="rl")
   Call mma_Allocate(dl,nPoints_v,Label="dl")
   Call mma_Allocate(Rones,m_t,Label="Rones")
 !

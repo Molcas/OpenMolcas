@@ -36,7 +36,7 @@ SUBROUTINE covarVector(gh)
     call matderiv(1, dl, cvMatFDer, nPoints_v, 1)
     do i=1,nInter
 !     1st derivatives second part of eq. (4)
-      diffx(:,:) = 2.0D0*rl(:,:,i)/l(i)
+      diffx(:,1) = 2.0D0*rl(:,i)/l(i)
       i0 = nPoints_v + 1 + (i-1)*nPoints_g
       i1 = i0 + nPoints_g - 1
       cv(i0:i1,:,1,1) = cvMatFder * diffx
@@ -48,12 +48,12 @@ SUBROUTINE covarVector(gh)
     call matderiv(1, dl, cvMatFder, nPoints_v, 1)
     call matderiv(2, dl, cvMatSder, nPoints_v, 1)
     do i=1,nInter
-      diffx(:,:) = 2.0D0*rl(:,:,i)/l(i)
+      diffx(:,1) = 2.0D0*rl(:,i)/l(i)
       cv(1:nPoints_v,:,i,1) = -cvMatFder * diffx
       do j = 1,nInter
         j0 = nPoints_v + 1 + (j-1)*nPoints_g
         j1 = j0 + nPoints_g - 1
-        diffx0(:,:) = -2.0D0*rl(:,:,j)/l(j)
+        diffx0(:,1) = -2.0D0*rl(:,j)/l(j)
         if (i.eq.j) Then
          cv(j0:j1,:,i,1) = cvMatSder * diffx*diffx0 - cvMatFder*(2/(l(i)*l(j)))
         else
@@ -69,10 +69,10 @@ SUBROUTINE covarVector(gh)
     call matderiv(2, dl, cvMatSder, nPoints_v, 1)
     call matderiv(3, dl, cvMatTder, nPoints_v, 1)
     do i = 1, nInter
-      diffx(:,:) = 2.0D0*rl(:,:,i)/l(i)
+      diffx(:,1) = 2.0D0*rl(:,i)/l(i)
       sdiffx = 2.0D0/l(i)**2
       do j = 1, nInter
-        diffx0(:,:) = 2.0D0*rl(:,:,j)/l(j)
+        diffx0(:,1) = 2.0D0*rl(:,j)/l(j)
         sdiffx0 = 2.0D0/l(j)**2
         if (i.eq.j) Then
           cv(1:nPoints_v,:,i,j) = cvMatSder * diffx*diffx0 + cvMatFder*2.0D0/(l(i)*l(j))
@@ -80,7 +80,7 @@ SUBROUTINE covarVector(gh)
           cv(1:nPoints_v,:,i,j) = cvMatSder * diffx*diffx0
         end if
         do k = 1, nInter
-          diffxk(:,:) = 2.0D0*rl(:,:,k)/l(k)
+          diffxk(:,1) = 2.0D0*rl(:,k)/l(k)
           sdiffxk = 2.0D0/l(k)**2
           k0 = nPoints_v + 1 + (k-1)*nPoints_g
           k1 = k0 + nPoints_g - 1
@@ -118,9 +118,9 @@ SUBROUTINE defdlrl()
   dl(:)=0.0D0
   do i=1,nInter
     do j=1,nPoints_v
-       rl(j,1,i) = (x(i,j) - x0(i))/l(i)
+       rl(j,i) = (x(i,j) - x0(i))/l(i)
     enddo
-    dl(:) = dl(:) + rl(:,1,i)**2
+    dl(:) = dl(:) + rl(:,i)**2
   enddo
 END Subroutine defdlrl
 !
