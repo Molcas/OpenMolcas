@@ -1712,10 +1712,16 @@ C     mMltpl=-1 ! Do only overlap.
          OperI(1+2)=2**IrrFnc(3)
          OperC(1+2)=iChBas(4)
 
-* BP - Turn off AMFI integrals for certain atom types
-*      as requested by the PAMF keyword
+* BP -   Turn off AMFI integrals for certain atom types
+*        as requested by the PAMF keyword
+
+*        Note that Drv_AMFI will onluy process dbsc of valence typ.
+*        Hence the restriction on the loop.
 
          Do i=1,nCnttp
+            If (dbsc(i)%ECP  .or.
+     &          dbsc(i)%Aux  .or.
+     &          dbsc(i)%Frag) Cycle
             iAtmNr2(i) = dbsc(i)%AtmNr
             Charge2(i) = dbsc(i)%Charge
 
@@ -1723,6 +1729,10 @@ c           write(6,*) "iAtmNr2(i)",i, iAtmNr2(i)
 c           write(6,*) "Charge(i)", i, dbsc(i)%Charge
 
             iAtom_Number= dbsc(i)%AtmNr
+            If (iAtom_Number<1 .or. iAtom_Number>SIZE(No_AMFI)) Then
+               Write (6,*) 'Illegal atom number.'
+               Call Abend()
+            End If
             If (No_AMFI(iAtom_Number)) then
                write(6,*) "Disabling AMFI for atom type ",
      &                 dbsc(i)%AtmNr
