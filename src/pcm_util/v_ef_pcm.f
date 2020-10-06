@@ -101,7 +101,7 @@ c----------------------------------------------------------------------
 *
       Call Free_iWork(iplOper)
       Call Free_Work(ipFactOp)
-      Call Free_Work(D1ao)
+      Call mma_deallocate(D1ao)
 *
       Return
       End
