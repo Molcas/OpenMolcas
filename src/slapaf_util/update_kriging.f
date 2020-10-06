@@ -30,7 +30,8 @@
 *                                                                      *
 *    (see update_sl)                                                   *
 ************************************************************************
-      Use kriging_mod, only: miAI, meAI
+      Use kriging_mod, only: Max_Microiterations,
+     &                       Thr_microiterations
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -80,7 +81,7 @@
       Force_RS=.FALSE.
       iOpt_RS=1   ! Activate restricted variance.
       iterAI=iter
-      dEner=meAI
+      dEner=Thr_microiterations
       nRaw=Min(iter,nWndw/2)
 *     nRaw=1 ! Force HMF Hessian
       iFirst = iter - nRaw + 1
@@ -341,7 +342,8 @@
             If (RMS.gt.(Three*Beta_)) Step_trunc='*'
             Call mma_deAllocate(Temp)
          End If
-         Not_Converged = Not_Converged .and. iterK.lt.miAI
+         Not_Converged = Not_Converged .and.
+     &                   iterK.lt.Max_Microiterations
 #ifdef _DEBUG_
          Write (6,*) 'Not_Converged=',Not_Converged
 #endif
