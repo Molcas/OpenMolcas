@@ -15,7 +15,7 @@ SUBROUTINE predict(gh)
 #include "stdalloc.fh"
   real*8 tsum
   integer INFO
-  integer i,j,gh ! ipiv the pivot indices that define the permutation matrix
+  integer i,gh ! ipiv the pivot indices that define the permutation matrix
   real*8, Allocatable :: B(:), A(:,:)
   integer, Allocatable :: IPIV(:)
 !
