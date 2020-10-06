@@ -85,15 +85,7 @@
 *...  read old density matrix
       Call Get_D1AO(Dens(1,1),nBT)
       if (iUHF.eq.1) then
-         Call Get_D1sAO(ipD1AO,Length)
-         If (Length.ne.nBT) Then
-            Call SysWarnMsg(Location,
-     &            'Error Reading D1SAO',' ')
-            Call SysCondMsg('Length.ne.nBT',Length,'<>',nBT)
-         End If
-         call dcopy_(nBT,Work(ipD1AO),1,Dens(1,2),1)
-         Call Free_Work(ipD1AO)
-         Call Abend()
+         Call Get_D1sAO(Dens(1,2),nBT)
 c now we need to fix interface - actually we read a+b,a-b
          Do i=1,nBT
             ra=Half*(Dens(i,1)+Dens(i,2))

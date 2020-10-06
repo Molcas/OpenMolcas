@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Get_D1ao(D1ao,nDens)
+      Subroutine Get_D1ao(D1ao,nD1ao)
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -17,7 +17,7 @@
 #include "run_common.fh"
 #endif
       Logical      Found
-      Real*8 D1ao(nDens)
+      Real*8 D1ao(nD1ao)
 
       Call Get_iScalar('System BitSwitch',iOption)
 *
@@ -31,7 +31,13 @@
       If(.not.Found .or.nDens==0) Then
          Call SysAbendMsg('get_d1ao','Could not locate:',Label)
       End If
-      Call get_dArray(Label,D1ao,nDens)
+      If (nDens/=nD1ao) Then
+         Write (6,*) 'Get_D1ao: nDens/=nD1ao'
+         Write (6,*) 'nDens=',nDens
+         Write (6,*) 'nD1ao=',nD1ao
+         Call Abend()
+      End If
+      Call get_dArray(Label,D1ao,nD1ao)
 *                                                                      *
 ************************************************************************
 *                                                                      *

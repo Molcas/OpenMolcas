@@ -278,10 +278,8 @@
      &       Method.eq.'ROHF    ' .or.
      &    (Method.eq.'KS-DFT  '.and.iSpin.ne.1) .or.
      &       Method.eq.'Corr. WF' ) Then
-            Call Get_D1sao(ipDS1,Length)
+            Call Get_D1sao(DS,nDens)
             Call Get_D1sao_Var(DSVar,nDens)
-            Call DCopy_(Length,Work(ipDS1),1,DS,1)
-            Call GetMem('DS   ','Free','Real',ipDS1,nDens)
          Else
             DS   (:)=Zero
             DSVar(:)=Zero

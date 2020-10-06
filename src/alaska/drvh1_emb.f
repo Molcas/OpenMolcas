@@ -190,7 +190,6 @@ CAOM>
       Implicit Real*8 (a-h,o-z)
 #include "itmax.fh"
 #include "Molcas.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 Dmat(*)
       Integer nBas

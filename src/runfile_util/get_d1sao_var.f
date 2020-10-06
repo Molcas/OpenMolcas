@@ -29,9 +29,7 @@
       Label='D1saoVar'
       Call qpg_dArray(Label,Found,nDens)
       If(.not.Found .or. nDens.eq.0) Then
-         Call Get_D1sao(ipD1sao,nD1Sao)
-         Call DCopy_(nD1SAO,Work(ipD1Sao),1,D1Sao,1)
-         Call GetMem('D1Sao','Free','Real',ipD1Sao,nD1Sao)
+         Call Get_D1sao(D1sao,nD1Sao)
       Else
          Call Get_dArray(Label,D1sao,nD1Sao)
       End If

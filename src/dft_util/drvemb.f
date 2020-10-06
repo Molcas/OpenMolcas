@@ -145,10 +145,8 @@
 *---- Get the spin density matrix of the environment
 *
       If (kSpin.ne.1) Then
-         Call Get_D1Sao(ipD1Sao,nDens)
-*        Call RecPrt('D1Sao',' ',Work(ipD1Sao),nh1,1)
-         call dcopy_(nh1,Work(ipD1Sao),1,Work(ip_D_DS+nh1),1)
-         Call GetMem('Dens','Free','Real',ipD1Sao,nDens)
+         Call Get_D1Sao(Work(ip_D_DS+nh1),nh1)
+*        Call RecPrt('D1Sao',' ',Work(ip_D_DS+nh1),nh1,1)
       End If
 *
 *---- Compute alpha and beta density matrices of the environment
@@ -219,10 +217,8 @@
 *---- Get the spin density matrix of A
 *
       If (iSpin.ne.1) Then
-         Call Get_D1Sao(ipD1Sao,nDens)
-*        Call RecPrt('D1Sao',' ',Work(ipD1Sao),nh1,1)
-         call dcopy_(nh1,Work(ipD1Sao),1,Work(ipA_D_DS+nh1),1)
-         Call GetMem('Dens','Free','Real',ipD1Sao,nDens)
+         Call Get_D1Sao(Work(ipA_D_DS+nh1),nh1)
+*        Call RecPrt('D1Sao',' ',Work(ipA_D_DS+nh1),nh1,1)
       End If
 *
 *---- Compute alpha and beta density matrices of subsystem A

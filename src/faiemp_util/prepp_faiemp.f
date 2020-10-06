@@ -36,7 +36,7 @@
       Character*8 RlxLbl,Method, KSDFT*16
       Logical lPrint
       Integer i,iBas,iGo,iIrrep,ij,ipD1AV,ipD2AV
-      Integer ipDLAO,ipDS1,ipLCMO,ipPLMO,ipt,ipTmp1,ipTemp
+      Integer ipDLAO,ipLCMO,ipPLMO,ipt,ipTmp1,ipTemp
       Integer iSpin,jBas,length,nAct,nDens_Valence,nsa,nTemp,nTst
       Integer iRout,iPrint,iComp
       Real*8  Get_ExFac,CoefX,CoefR
@@ -196,10 +196,8 @@
          If(Method.eq.'UHF-SCF ' .or.
      &      Method.eq.'ROHF    ' .or.
      &      Method.eq.'Corr. WF'      ) Then
-           Call Get_D1sao(ipDS1,Length)
+           Call Get_D1sao(DS,nDens)
            Call Get_D1sao_Var(DSVar,nDens)
-           call dcopy_(nDens_Valence,Work(ipDS1),1,DS,1)
-           Call Free_Work(ipDS1)
          End If
 *
 *     Unfold density matrix

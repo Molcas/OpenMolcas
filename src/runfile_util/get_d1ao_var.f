@@ -31,7 +31,7 @@
       Label='D1aoVar'
       Call qpg_dArray(Label,Found,nDens)
       If(.not.Found .or. nDens.eq.0) Then
-         Call Get_D1ao(D1ao,nDens)
+         Call Get_D1ao(D1ao,nD1ao)
       Else
          If (nDens/=nD1ao) Then
             Write (6,*) 'Get_D1ao_Var: nDens/=nD1ao'

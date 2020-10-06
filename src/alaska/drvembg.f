@@ -36,7 +36,6 @@
 #include "Molcas.fh"
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "rctfld.fh"
 #include "disp.fh"
 #include "nq_info.fh"
@@ -117,7 +116,6 @@
       Implicit Real*8 (a-h,o-z)
       External LSDA_emb, Checker
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "debug.fh"
       Real*8 Grad(nGrad)
@@ -130,6 +128,7 @@
       COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
       COMMON  / OFembed_R1/ Xsigma
       COMMON  / OFembed_R2/ dFMD
+      Real*8, Allocatable:: Fcorr(:,:)
 *
       Debug=.False.
 *                                                                      *
@@ -166,10 +165,8 @@
 *---- Get the spin density matrix of the environment
 *
       If (kSpin.ne.1) Then
-         Call Get_D1Sao(ipD1Sao,nDens)
-*        Call RecPrt('D1Sao',' ',Work(ipD1Sao),nh1,1)
-         call dcopy_(nh1,Work(ipD1Sao),1,D_DS(1,2),1)
-         Call GetMem('Dens','Free','Real',ipD1Sao,nDens)
+         Call Get_D1Sao(D_DS(1,2),nh1)
+*        Call RecPrt('D1Sao',' ',D_DS(1,2),nh1,1)
       End If
 *
 *---- Compute alpha and beta density matrices of the environment
@@ -225,10 +222,8 @@
 *---- Get the spin density matrix of A
 *
       If (iSpin.ne.1) Then
-         Call Get_D1Sao(ipD1Sao,nDens)
-*        Call RecPrt('D1Sao',' ',Work(ipD1Sao),nh1,1)
-         call dcopy_(nh1,Work(ipD1Sao),1,D_DS(1,4),1)
-         Call GetMem('Dens','Free','Real',ipD1Sao,nDens)
+         Call Get_D1Sao(D_DS(1,4),nh1)
+*        Call RecPrt('D1Sao',' ',D_DS(1,4),nh1,1)
       End If
 *
 *---- Compute alpha and beta density matrices of subsystem A
@@ -262,18 +257,18 @@
       If (dFMD.gt.0.0d0) Then
 *
          Grad_A(:)=Zero
-         Call GetMem('Fcorr','Allo','Real',ipFc,nh1*nFckDim) !dummy
+         Call mma_allocate(Fcorr,nh1,nFckDim,Label='Fcorr')
 
          Call cwrap_DrvNQ(KSDFT,F_DFT(1,3),nFckDim,Func_A,
      &                    D_DS(1,3),nh1,nFckDim,
      &                    Do_Grad,
-     &                    Grad_A,nGrad,DFTFOCK,Work(ipFc))
+     &                    Grad_A,nGrad,DFTFOCK,Fcorr)
 
          Call get_dScalar('NAD dft energy',Energy_NAD)
          Fakt_ = Xlambda(abs(Energy_NAD),Xsigma)
          Call daxpy_(nGrad,Fakt_,Grad_A,1,Grad,1)
 
-         Call GetMem('Fcorr','Free','Real',ipFc,nh1*nFckDim)
+         Call mma_deallocate(Fcorr)
       End If
 *
       Call mma_deallocate(Grad_A)
