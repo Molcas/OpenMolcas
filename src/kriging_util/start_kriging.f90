@@ -52,11 +52,6 @@ Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
 !
   m_t=nPoints_v + nInter*nPoints_g
 !
-! npx is the number of new points (Energy and Gradient) to be predict
-! according to the iteration that was computed in update_sl subroutine
-!
-  npx = 1
-!
 ! full_R correspond to the gradient of Psi (eq. (2) ref.)
 !
   Call mma_Allocate(full_R,m_t,m_t,Label="full_R")

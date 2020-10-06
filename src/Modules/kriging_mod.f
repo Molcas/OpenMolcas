@@ -20,7 +20,6 @@
       Integer :: nspAI = 1
       Logical :: anMd = .True.
       Real*8  :: pAI = 2
-      Integer :: npxAI = 1
       Real*8  :: lb(3) = [20.0D0, 20.0D0, 1.0D0]
       Integer :: miAI = 50
       Real*8  :: meAI = 1.0D-8
@@ -52,15 +51,15 @@
       real*8, allocatable ::
      &        rl(:,:), dl(:), full_Rinv(:,:),
      &        full_R(:,:), x0(:), Kv(:),
-     &        cv(:,:,:,:), cvg(:,:,:),cvh(:,:,:,:),
+     &        cv(:,:,:), cvg(:,:,:),cvh(:,:,:,:),
      &        Rones(:), l(:),
      &        gpred(:), hpred(:,:), ll(:),
-     &        cvMatFder(:,:), cvMatSder(:,:), cvMatTder(:,:)
+     &        cvMatFder(:), cvMatSder(:), cvMatTder(:)
       real*8 :: pred, sigma, var
       real*8 :: sb, variance, detR, lh, sbO, sbmev
       real*8, parameter :: h = 1e-5, eps = 1e-13, eps2 = 1e-10
 ! eps avoid to become singular in 1st der & eps2 in 2nd der
-      integer :: prev_ns, m_t, npx, counttimes
+      integer :: prev_ns, m_t, counttimes
 
       contains
 

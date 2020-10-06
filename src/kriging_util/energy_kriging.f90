@@ -16,7 +16,6 @@ Subroutine Energy_Kriging(x0_,y_,ndimx)
   Integer nDimx
   Real*8 x0_(ndimx),y_
 !
-  npx = npxAI
 !x0 is the n-dimensional vector of the coordinates at which the energy is evaluated
 ! subroutine
   x0(:) = x0_(:)

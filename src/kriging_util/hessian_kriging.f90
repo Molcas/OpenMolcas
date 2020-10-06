@@ -24,7 +24,6 @@ Subroutine Hessian_Kriging(x0_,ddy_,ndimx)
   HessT = 1.0D-3
 #endif
 !
-  npx = npxAI
 !nx is the n-dimensional vector of the last iteration computed in update_sl
 ! subroutine
   x0(:) = x0_(:)

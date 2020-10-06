@@ -24,7 +24,6 @@ Subroutine Gradient_Kriging(x0_,dy_,ndimx)
   GradT = 1.0D-6
 #endif
 !
-  npx = npxAI
 !x0 is the n-dimensional vector of the coordinates at which the gradient is evaluated.
 ! subroutine
   x0(:) = x0_(:)
