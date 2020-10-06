@@ -97,8 +97,6 @@ Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
   Call mma_allocate(kv,m_t,Label="kv")
   Call mma_allocate(gpred,nInter,Label="gpred")
   Call mma_allocate(hpred,nInter,nInter,Label="hpred")
-  Call mma_allocate(var,npx,Label="var")
-  Call mma_allocate(sigma,npx,Label="sigma")
   Call mma_allocate(l,nInter,Label="l")
   Call mma_allocate(ll,int(lb(3)),Label="ll")
 !

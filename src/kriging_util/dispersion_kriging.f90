@@ -22,7 +22,7 @@ Subroutine Dispersion_Kriging(x0_,y_,ndimx)
         call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
         call predict(0)
 ! 95% confidence -> 1.96*sigma
-        y_ = 1.96d0*sigma(npx)
+        y_ = 1.96d0*sigma
 !
   return
 End Subroutine Dispersion_Kriging

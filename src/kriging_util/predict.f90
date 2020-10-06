@@ -32,15 +32,15 @@ nInter=nInter_save
       B(:) = cv(:,1,1,1)
       pred = sb + dot_product(B,Kv)
       CALL DGESV_(m_t, 1,A,m_t,IPIV,B,m_t,INFO )
-      var(1) = 1d0 - dot_product(B,CV(:,1,1,1))
+      var = 1d0 - dot_product(B,CV(:,1,1,1))
 
       if (ordinary) Then
         tsum = sum(rones(1:m_t))
         B(:) = cv(:,1,1,1)
-        var(1)=max(var(1)+(1d0-dot_product(B,rones))**2/tsum,0d0)
+        var=max(var+(1d0-dot_product(B,rones))**2/tsum,0d0)
       end if
 
-      sigma(1)=sqrt(var(1)*variance)
+      sigma=sqrt(var*variance)
       Call mma_deallocate(A)
       Call mma_deallocate(IPIV)
 
