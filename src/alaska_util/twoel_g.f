@@ -465,9 +465,9 @@
                iy2 = iPhase(2,iDCRT(lDCRT))
                iz2 = iPhase(3,iDCRT(lDCRT))
 *
-               Call C_F_Pointer(C_Loc(Data1(ip_IndZ(1,nZeta),lDCR1+1)),
+               Call C_F_Pointer(C_Loc(Data1(ip_IndZ(1,nZeta),lDCR1)),
      &                         iData1,[nZeta+1])
-               Call C_F_Pointer(C_Loc(Data2(ip_IndZ(1,nEta ),lDCR2+1)),
+               Call C_F_Pointer(C_Loc(Data2(ip_IndZ(1,nEta ),lDCR2)),
      &                         iData2,[nEta +1])
                nZeta_Tot=iData1(nZeta+1)
                nEta_Tot =iData2(nEta +1)
