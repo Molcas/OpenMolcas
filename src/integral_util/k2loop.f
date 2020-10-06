@@ -245,6 +245,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+         Call C_F_Pointer(C_Loc(Data(ip_IndZ(1,nZeta),lDCRR+1)),iData,
+     &                    [nAlpha*nBeta+1])
+*                                                                      *
+************************************************************************
+*                                                                      *
 *-----------Store data in core
 *
             Call Cmpct(Wrk(iW2),iCmpa_,jCmpb_,nZeta,mZeta,
@@ -253,7 +258,7 @@
      &                 Data(ip_Z    (1,nZeta),lDCRR+1),
      &                 Data(ip_Kappa(1,nZeta),lDCRR+1),
      &                 Data(ip_Pcoor(1,nZeta),lDCRR+1),
-     &                 Data(ip_IndZ (1,nZeta),lDCRR+1),iZeta-1,Jnd,
+     &                 iData,iZeta-1,Jnd,
      &                 Data(ip_ZInv (1,nZeta),lDCRR+1),CutInt,RadMax,
      &                 cdMax,EtMax,AeqB,
      &                 Data(ip_ab   (1,nZeta),lDCRR+1),
@@ -270,8 +275,6 @@
 *                                                                      *
 *        Estimate the largest contracted integral.
 *
-         Call C_F_Pointer(C_Loc(Data(ip_IndZ(1,nZeta),lDCRR+1)),iData,
-     &                    [nAlpha*nBeta+1])
          Data(ip_EstI(nZeta),lDCRR+1) =
      &                      EstI(Data(ip_Z(1,nZeta),lDCRR+1),
      &                           Data(ip_Kappa(1,nZeta),lDCRR+1),
