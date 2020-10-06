@@ -17,7 +17,7 @@
 #ifdef _ADDITIONAL_RUNTIME_CHECK_
 
 #define debug_function_name(name) character(*), parameter :: this_routine = name
-#define ASSERT(x) if(.not.(x))call abort_("Assert fail in "//__FILE__);
+#define ASSERT(x) if(.not.(x))call abort_("Assert fail")
 
 #else
 
