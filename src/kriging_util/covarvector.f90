@@ -32,14 +32,14 @@ SUBROUTINE covarVector(gh)
 !
   if (gh.eq.0) then
 !
-    call matern(dl, cv(1:nPoints_v,1,1,1), nPoints_v,1)
+    call matern(dl, cv(1:nPoints_v,1,1), nPoints_v,1)
     call matderiv(1, dl, cvMatFDer, nPoints_v, 1)
     do i=1,nInter
 !     1st derivatives second part of eq. (4)
       diffxi(:) = 2.0D0*rl(:,i)/l(i)
       i0 = nPoints_v + 1 + (i-1)*nPoints_g
       i1 = i0 + nPoints_g - 1
-      cv(i0:i1,1,1,1) = cvMatFder(:,1) * diffxi(:)
+      cv(i0:i1,1,1) = cvMatFder(:) * diffxi(:)
     enddo
 ! Covariant vector in Gradient Enhanced Kriging
 !
@@ -49,15 +49,15 @@ SUBROUTINE covarVector(gh)
     call matderiv(2, dl, cvMatSder, nPoints_v, 1)
     do i=1,nInter
       diffxi(:) = 2.0D0*rl(:,i)/l(i)
-      cv(1:nPoints_v,1,i,1) = -cvMatFder(:,1) * diffxi(:)
+      cv(1:nPoints_v,i,1) = -cvMatFder(:) * diffxi(:)
       do j = 1,nInter
         j0 = nPoints_v + 1 + (j-1)*nPoints_g
         j1 = j0 + nPoints_g - 1
         diffxj(:) = -2.0D0*rl(:,j)/l(j)
         if (i.eq.j) Then
-         cv(j0:j1,1,i,1) = cvMatSder(:,1) * diffxi(:)*diffxj(:) - cvMatFder(:,1)*(2/(l(i)*l(j)))
+         cv(j0:j1,i,1) = cvMatSder(:) * diffxi(:)*diffxj(:) - cvMatFder(:)*(2/(l(i)*l(j)))
         else
-         cv(j0:j1,1,i,1) = cvMatSder(:,1) * diffxi(:)*diffxj(:)
+         cv(j0:j1,i,1) = cvMatSder(:) * diffxi(:)*diffxj(:)
         end if
       enddo
     enddo
@@ -75,9 +75,9 @@ SUBROUTINE covarVector(gh)
         diffxj(:) = 2.0D0*rl(:,j)/l(j)
         sdiffxj = 2.0D0/l(j)**2
         if (i.eq.j) Then
-          cv(1:nPoints_v,1,i,j) = cvMatSder(:,1) * diffxi(:)*diffxj(:) + cvMatFder(:,1)*2.0D0/(l(i)*l(j))
+          cv(1:nPoints_v,i,j) = cvMatSder(:) * diffxi(:)*diffxj(:) + cvMatFder(:)*2.0D0/(l(i)*l(j))
         else
-          cv(1:nPoints_v,1,i,j) = cvMatSder(:,1) * diffxi(:)*diffxj(:)
+          cv(1:nPoints_v,i,j) = cvMatSder(:) * diffxi(:)*diffxj(:)
         end if
         do k = 1, nInter
           diffxk(:) = 2.0D0*rl(:,k)/l(k)
@@ -85,15 +85,15 @@ SUBROUTINE covarVector(gh)
           k0 = nPoints_v + 1 + (k-1)*nPoints_g
           k1 = k0 + nPoints_g - 1
           if (i.eq.j.and.j.eq.k) then
-            cv(k0:k1,1,i,j) = cvMatTder(:,1)*diffxi(:)*diffxj(:)*diffxk(:) + 3.0D0*cvMatSder(:,1)*diffxi(:)*sdiffxj
+            cv(k0:k1,i,j) = cvMatTder(:)*diffxi(:)*diffxj(:)*diffxk(:) + 3.0D0*cvMatSder(:)*diffxi(:)*sdiffxj
           else if (i.eq.j) then
-            cv(k0:k1,1,i,j) = cvMatTder(:,1)*diffxi(:)*diffxj(:)*diffxk(:) + cvMatSder(:,1)*diffxk(:)*sdiffxi
+            cv(k0:k1,i,j) = cvMatTder(:)*diffxi(:)*diffxj(:)*diffxk(:) + cvMatSder(:)*diffxk(:)*sdiffxi
           else if (i.eq.k) then
-            cv(k0:k1,1,i,j) = cvMatTder(:,1)*diffxi(:)*diffxj(:)*diffxk(:) + cvMatSder(:,1)*diffxj(:)*sdiffxi
+            cv(k0:k1,i,j) = cvMatTder(:)*diffxi(:)*diffxj(:)*diffxk(:) + cvMatSder(:)*diffxj(:)*sdiffxi
           else if (j.eq.k) then
-            cv(k0:k1,1,i,j) = cvMatTder(:,1)*diffxi(:)*diffxj(:)*diffxk(:) + cvMatSder(:,1)*diffxi(:)*sdiffxk
+            cv(k0:k1,i,j) = cvMatTder(:)*diffxi(:)*diffxj(:)*diffxk(:) + cvMatSder(:)*diffxi(:)*sdiffxk
           else
-            cv(k0:k1,1,i,j) = cvMatTder(:,1)*diffxi(:)*diffxj(:)*diffxk(:)
+            cv(k0:k1,i,j) = cvMatTder(:)*diffxi(:)*diffxj(:)*diffxk(:)
           endif
         enddo
       enddo

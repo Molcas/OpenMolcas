@@ -29,14 +29,14 @@ nInter=nInter_save
       Call mma_allocate(IPIV,m_t,label="IPIV")
       ! calculations of Energy and dispersion
       A(:,:) = full_R
-      B(:) = cv(:,1,1,1)
+      B(:) = cv(:,1,1)
       pred = sb + dot_product(B,Kv)
       CALL DGESV_(m_t, 1,A,m_t,IPIV,B,m_t,INFO )
-      var = 1d0 - dot_product(B,CV(:,1,1,1))
+      var = 1d0 - dot_product(B,CV(:,1,1))
 
       if (ordinary) Then
         tsum = sum(rones(1:m_t))
-        B(:) = cv(:,1,1,1)
+        B(:) = cv(:,1,1)
         var=max(var+(1d0-dot_product(B,rones))**2/tsum,0d0)
       end if
 
@@ -47,7 +47,7 @@ nInter=nInter_save
     else if (gh.eq.1) then
 
       do k=1,nInter
-        B(:) = cv(:,1,k,1)
+        B(:) = cv(:,k,1)
         gpred(k) = dot_product(B,Kv)
       enddo
 
@@ -55,7 +55,7 @@ nInter=nInter_save
 
       do k=1,nInter
         do i=k,nInter
-          B(:) = cv(:,1,i,k)
+          B(:) = cv(:,i,k)
           hpred(k,i) = dot_product(B, Kv)
           if (i.ne.k) hpred(i,k) = hpred(k,i)
         enddo

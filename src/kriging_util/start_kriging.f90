@@ -100,10 +100,10 @@ Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
   Call mma_allocate(l,nInter,Label="l")
   Call mma_allocate(ll,int(lb(3)),Label="ll")
 !
-  Call mma_allocate(cv,m_t,npx,nInter,nInter,Label="cv")
-  Call mma_allocate(cvMatFder,nPoints_v,npx,Label="cvMatFder")
-  Call mma_allocate(cvMatSder,nPoints_v,npx,Label="cvMatSder")
-  Call mma_allocate(cvMatTder,nPoints_v,npx,Label="cvMatTder")
+  Call mma_allocate(cv,m_t,nInter,nInter,Label="cv")
+  Call mma_allocate(cvMatFder,nPoints_v,Label="cvMatFder")
+  Call mma_allocate(cvMatSder,nPoints_v,Label="cvMatSder")
+  Call mma_allocate(cvMatTder,nPoints_v,Label="cvMatTder")
 !
   return
 End Subroutine Start_Kriging
