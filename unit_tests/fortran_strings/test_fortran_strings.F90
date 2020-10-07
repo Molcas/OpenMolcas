@@ -29,10 +29,10 @@ contains
 
         type(StringWrapper_t), allocatable :: splitted(:)
 
-! Bug in GFortran up to 10.01
+! Bug in GFortran at least up to 10.01
 ! https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96047
 ! If the problem persists in higher versions, adjust the following line.
-#if (__GNUC__) && (GCC_VERSION <= 100100) && defined(_WARNING_WORKAROUND_)
+#if (__GNUC__) && defined(_WARNING_WORKAROUND_)
         allocate(splitted(0))
 #endif
 
