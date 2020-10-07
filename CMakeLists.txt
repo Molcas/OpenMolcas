@@ -104,7 +104,6 @@ option (DEBUGTRACE "Enable tracing print statements for debugging." OFF)
 
 set (DEBUG_DEFS "${DEBUG_DEFS}" CACHE STRING "Additional user-defined definitions.")
 separate_arguments(DEBUG_DEFS)
-add_compile_definitions(${DEBUG_DEFS})
 
 option (BUILD_SHARED_LIBS "Build dynamically-linked molcas library." OFF)
 option (BUILD_STATIC_LIB "Build statically-linked molcas library too." OFF)
@@ -2219,6 +2218,7 @@ else ()
 endif ()
 get_directory_property(defs COMPILE_DEFINITIONS)
 message ("-- Definitions: ${defs}")
+message ("-- Debug definitions: ${DEBUG_DEFS}")
 
 ################################################################################
 #                                                                              #
@@ -2850,6 +2850,21 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
       endforeach (prog)
     endif ()
   endif ()
+endif ()
+
+# Add custom debug flags per file:
+#   For each file, tries to find out if each definition is used and modify the file's properties
+# Limitation: it will rebuild the whole target (but not the whole molcas)
+if (DEBUG_DEFS)
+  foreach (file ${ALL_SOURCES})
+    file (READ ${file} contents)
+    foreach (def ${DEBUG_DEFS})
+      string (REGEX MATCH ${def} result "${contents}")
+      if (NOT ${result} STREQUAL "")
+        set_property (SOURCE ${file} APPEND PROPERTY COMPILE_DEFINITIONS ${def})
+      endif ()
+    endforeach ()
+  endforeach ()
 endif ()
 
 ################################################################################
