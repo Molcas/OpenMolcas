@@ -100,9 +100,11 @@ if (NOT DEFINED CMAKE_INSTALL_PREFIX)
        "Location where Molcas will be installed.")
 endif ()
 
-option (DEBUGPRINT "Enable excessive print statements for debugging." OFF)
 option (DEBUGTRACE "Enable tracing print statements for debugging." OFF)
 
+set (DEBUG_DEFS "${DEBUG_DEFS}" CACHE STRING "Additional user-defined definitions.")
+separate_arguments(DEBUG_DEFS)
+add_compile_definitions(${DEBUG_DEFS})
 
 option (BUILD_SHARED_LIBS "Build dynamically-linked molcas library." OFF)
 option (BUILD_STATIC_LIB "Build statically-linked molcas library too." OFF)
@@ -151,11 +153,11 @@ option (TOOLS "Compile supported tools." OFF)
 option (BUILD_TESTING "Build the unit_tests." ON)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_definitions(-D_ADDITIONAL_RUNTIME_CHECK_)
+    add_compile_definitions(_ADDITIONAL_RUNTIME_CHECK_)
 endif()
 
 if (";Debug;Garble;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};" OR BIGOT)
-    add_definitions(-D_WARNING_WORKAROUND_)
+    add_compile_definitions(_WARNING_WORKAROUND_)
 endif()
 
 
@@ -1104,9 +1106,6 @@ get_filename_component (CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" ABSOLUTE)
 # Special print statements
 #=========================
 
-if (DEBUGPRINT)
-  add_definitions (-D_DEBUGPRINT_)
-endif ()
 if (DEBUGTRACE)
   add_definitions (-D_DEBUG_TRACE_)
 endif ()
@@ -3124,9 +3123,8 @@ endforeach ()
 ################################################################################
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
-  enable_testing()
-
-  add_subdirectory(unit_tests)
+    enable_testing()
+    add_subdirectory(unit_tests)
 endif ()
 
 ################################################################################

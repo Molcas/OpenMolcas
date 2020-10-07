@@ -29,11 +29,6 @@ function(add_unit_test Target)
         RUNTIME_OUTPUT_DIRECTORY
             "${UNIT_TEST_BUILD_DIR}/bin")
 
-    set_property(TARGET ${Target}
-        APPEND PROPERTY
-        COMPILE_DEFINITIONS
-            "${DEBUG_DEFS}")
-
     add_test(
         NAME
             ${Target}
