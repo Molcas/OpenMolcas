@@ -32,33 +32,29 @@
       External ElMem
 #include "Molcas.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "disp.fh"
       Character*8 Lbl
       Real*8 Ccoor(3)
-      Call QEnter('DrvEtc')
+      Real*8, Allocatable:: D0(:)
+
       iRc=-1
       iOpt=1
       nDens = 0
       Do iIrrep = 0, nIrrep - 1
          nDens = nDens + nBas(iIrrep)*(nBas(iIrrep)+1)/2
       End Do
-      Call Get_D1ao_Var(ipD0,Length)
-      If ( length.ne.nDens ) Then
-         Write (6,*) 'DrvEtc: length.ne.nDens'
-         Write (6,*) 'Length,nDens=',Length,nDens
-         Call QTrace()
-         Call Abend()
-      End If
-*     Write(*,*) Ddot_(ndens,Work(ipD0),1,Work(ipD0),1)
+      Call mma_Allocate(D0,nDens,Label='D0')
+      Call Get_D1ao_Var(D0,nDens)
+*     Write(*,*) Ddot_(ndens,D0,1,D0,1)
       call dcopy_(3,[0.0d0],0,CCOOR,1)
       ncomp=1
       loper=0
       Call GetMem('ELEGRD','ALLO','REAL',ipEG,3*ngrad)
       Call Dot1El2(ElGrddot,ElMem,Work(ipEG),3*nGrad,
-     &                 .true.,CCoor,
-     &                 Work(ipD0),1)
+     &                 .true.,CCoor,D0,1)
       CALL DSCAL_(3*ngrad,-1.0d0,Work(ipEG),1)
-      Call GetMem('D0  ','FREE','Real',ipD0,nDens)
+      Call mma_deallocate(D0)
       Call GetMem('TEMP','ALLO','Real',ipTemp,3*ngrad)
       Call GetMem('TEMP','CHEC','Real',ipTemp,3*ngrad)
       call dcopy_(3*ngrad,[0.0d0],0,Work(ipTemp),1)
@@ -96,6 +92,5 @@
         End Do
       End Do
       End Do
-      Call QExit('DrvEtc')
       Return
       End

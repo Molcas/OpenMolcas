@@ -36,7 +36,6 @@ C
 
       DIMENSION FOCC(*),F(*),CMO(*)
 
-C     CALL QENTER('FOCKOC')
 C
 
       ISTFCK=0

@@ -43,7 +43,6 @@ c
         real*8 e1new,e2new,e1old,e2old,e2os,escf
         integer iter
 cmp
-        call qEnter('CHCC')
 cmp
 c
 #ifdef _MOLCAS_MPP_
@@ -373,8 +372,6 @@ cmp!
 c
 c@@        deallocate (wrk)
         Call GetMem('CCSD','Free','Real',iOff,wrksize)
-        Call qExit('CHCC')
-        Call qStat(' ')
 c
         ireturn=0
 c

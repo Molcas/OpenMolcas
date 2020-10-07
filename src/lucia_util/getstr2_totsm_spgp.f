@@ -67,7 +67,6 @@
       INTEGER NNSTSGP(MXPNSMST,MXPNGAS)
       INTEGER IISTSGP(MXPNSMST,MXPNGAS)
 *
-      CALL QENTER('GETST')
       NTEST = 00
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
@@ -164,7 +163,6 @@
           CALL IWRTMA(ISMFGS,1,NGAS,1,NGAS)
         END IF
 *. Obtain all strings of this symmetry
-CT      CALL QENTER('GASSM')
 *        CALL GETSTRN_GASSM_SPGP(ISMFGS,ITPFGS,ISTR(1,ISTRBS),
         CALL GETSTRN_GASSM_SPGP( ISMFGS,
      &                           ITPFGS,
@@ -174,7 +172,6 @@ CT      CALL QENTER('GASSM')
 *
      &                          NNSTSGP,
      &                          IISTSGP)
-CT      CALL QEXIT('GASSM')
 *. Reorder Info : Lexical => actual number
         IF(IDOREO.NE.0) THEN
 *. Lexical number of NEL electrons
@@ -216,6 +213,5 @@ C?          WRITE(6,*) ' JSTR and LEX ', JSTR,LEX
         END IF
       END IF
 *
-      CALL QEXIT('GETST')
       RETURN
       END

@@ -125,14 +125,18 @@
                  EndDo
                EndDo
             Else
-               Call Get_D1AO_Var(ipDMLT(1),nDens)
+               Call GetMem('DMLT(1)','Allo','Real',ipDMLT(1),nDens)
+               Call Get_D1AO_Var(Work(ipDMLT(1)),nDens)
             EndIf
          Else
-            Call Get_D1AO(ipDMLT(1),nDens)
+            Call GetMem('DMLT(1)','Allo','Real',ipDMLT(1),nDens)
+            Call Get_D1AO(Work(ipDMLT(1)),nDens)
          End If
 *
          If (nKdens.eq.2) Then
-            Call Get_D1SAO_Var(ipDMLT(2),nDens) ! spin-density matrix
+            Call GetMem('DMLT(2)','Allo','Real',ipDMLT(2),nDens)
+!           spin-density matrix
+            Call Get_D1SAO_Var(Work(ipDMLT(2)),nDens)
             Call daxpy_(nDens,-One,Work(ipDMLT(1)),1,
      &                              Work(ipDMLT(2)),1)
             call dscal_(nDens,-Half,Work(ipDMLT(2)),1) ! beta DMAT
@@ -145,7 +149,8 @@
          EndIf
          ipDLT2 = 1
          If(iMp2prpt.eq.2) Then
-            Call Get_D1AO_Var(ipDLT2,nDens)
+            Call GetMem('DLT2','Allo','Real',ipDLT2,nDens)
+            Call Get_D1AO_Var(Work(ipDLT2),nDens)
             Call daxpy_(nDens,-One,Work(ipDMLT(1)),1,Work(ipDLT2),1)
          Else
             ipDLT2 = ip_Dummy

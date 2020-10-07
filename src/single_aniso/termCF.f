@@ -77,7 +77,6 @@ c
       Integer       :: ij, iLS, nLS, ibasS(100), ibasL(100), ibasJ(100)
       Integer       :: irootL(100), ir, icas, k
       complex(kind=8) :: CFC(100,100),zl(lDIMcf,lDIMcf)
-      Call qEnter('TERMCF')
 !============== End of variable declarations ==========================
       Call mma_allocate(maxes,3,3,'maxes')
       Call mma_allocate(gtens,3,'gtens')
@@ -528,6 +527,5 @@ c     &   CfC(8,iLS), CfC(MJ-7,iLS)
       Call mma_deallocate(tmp)
       Call mma_deallocate(HCF)
 
-      Call qExit('TERMCF')
       Return
       End

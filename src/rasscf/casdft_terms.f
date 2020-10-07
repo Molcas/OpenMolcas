@@ -124,7 +124,6 @@ c      IPRLEV=100
          Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
       Call GetMem('Ovrlp','Free','Real',iTmp0,nTot1+4)
@@ -155,7 +154,6 @@ c      IPRLEV=100
          Write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
       If ( IPRLEV.ge.DEBUG ) then

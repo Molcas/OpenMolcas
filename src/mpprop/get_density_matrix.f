@@ -16,15 +16,17 @@
       Integer nBas(nSym)
 
       If (nSym.eq.1) Then
-       Call Get_D1ao(ip_D,nDens)
+         nDens=nBas(1)*(nBas(1)+1)/2
+         Call GetMem('D1ao','Allo','Real',ip_D,nDens)
+         Call Get_D1ao(Work(ip_D),nDens)
 #ifdef _DEBUG_
-       Call RecPrt('D',' ',Work(ip_D),1,nDens)
+         Call RecPrt('D',' ',Work(ip_D),1,nDens)
 #endif
       Else
-       Write(6,*) 'MpProp cannot handle symmetry'
-       Call QTrace
-       Call Abend()
+         Write(6,*) 'MpProp cannot handle symmetry'
+         Call Abend()
       EndIf
+
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer_array(nBas)

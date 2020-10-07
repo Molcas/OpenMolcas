@@ -51,6 +51,7 @@
       Logical DoCholesky
       Real*8 CoefX,CoefR
       Character*80 Fmt*60
+      Real*8, Allocatable:: D1ao(:)
 *
 *...  Prologue
 
@@ -266,25 +267,10 @@
          Call mma_allocate(D0,nDens,mDens,Label='D0')
          D0(:,:)=Zero
          Call mma_allocate(DVar,nDens,nsa,Label='DVar')
-         if (.not.gamma_mrcisd) then
-         Call Get_D1ao(ipD1ao,length)
-         If ( length.ne.nDens ) Then
-            Call WarningMessage(2,'PrepP: length.ne.nDens')
-            Write (6,*) 'length=',length
-            Write (6,*) 'nDens=',nDens
-            Call Abend()
-         End If
-         call dcopy_(nDens,Work(ipD1ao),1,D0(1,1),1)
-         Call Free_Work(ipD1ao)
-         endif
+         if (.not.gamma_mrcisd) Call Get_D1ao(D0(1,1),nDens)
 *
 
-         Call Get_D1ao_Var(ipD1ao_Var,length)
-         call dcopy_(nDens,Work(ipD1ao_Var),1,DVar,1)
-*        if (gamma_mrcisd) then
-*         call dcopy_(nDens,Work(ipD1ao_Var),1,D0,1)
-*        endif
-         Call Free_Work(ipD1ao_Var)
+         Call Get_D1ao_Var(DVar,nDens)
 *
          Call mma_Allocate(DS,nDens,Label='DS')
          Call mma_Allocate(DSVar,nDens,Label='DSVar')
@@ -292,12 +278,8 @@
      &       Method.eq.'ROHF    ' .or.
      &    (Method.eq.'KS-DFT  '.and.iSpin.ne.1) .or.
      &       Method.eq.'Corr. WF' ) Then
-            Call Get_D1sao(ipDS1,Length)
-            Call Get_D1sao_Var(ipDSVar1,Length)
-            Call DCopy_(Length,Work(ipDS1),1,DS,1)
-            Call DCopy_(Length,Work(ipDSVar1),1,DSVar,1)
-            Call GetMem('DS   ','Free','Real',ipDS1,nDens)
-            Call GetMem('DSVar','Free','Real',ipDSVar1,nDens)
+            Call Get_D1sao(DS,nDens)
+            Call Get_D1sao_Var(DSVar,nDens)
          Else
             DS   (:)=Zero
             DSVar(:)=Zero
@@ -546,30 +528,31 @@
 
          If ( Method.eq.'MCPDFT  ') then
 !Get the D_theta piece
-         Call Get_D1ao(ipD1ao,ndens)
-      ij = -1
-      Do  iIrrep = 0, nIrrep-1
-         Do iBas = 1, nBas(iIrrep)
-            Do jBas = 1, iBas-1
-               ij = ij + 1
-               Work(ipD1ao+ij) = Half*Work(ipD1ao+ij)
+            Call mma_allocate(D1ao,nDens)
+            Call Get_D1ao(D1ao,ndens)
+            ij = 0
+            Do  iIrrep = 0, nIrrep-1
+               Do iBas = 1, nBas(iIrrep)
+                  Do jBas = 1, iBas-1
+                     ij = ij + 1
+                     D1ao(ij) = Half*D1ao(ij)
+                  end do
+                  ij = ij + 1
+                end do
             end do
-            ij = ij + 1
-          end do
-      end do
-          call daxpy_(ndens,-1d0,D0(1,1),1,Work(ipD1ao),1)
-!          write(*,*) 'do they match?'
-!          do i=1,ndens
-!            write(*,*) Work(ipd1ao-1+i),DO(i,3)
-!          end do
+            call daxpy_(ndens,-1d0,D0(1,1),1,D1ao,1)
+!           write(*,*) 'do they match?'
+!           do i=1,ndens
+!             write(*,*) d1ao(i),DO(i,3)
+!           end do
 
-          call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
-          call daxpy_(ndens,-1.0d0,Work(ipD1ao),1,D0(1,2),1)
-!ANDREW - Generate new D5 piece:
-          D0(:,5)=Zero
-          call daxpy_(ndens,0.5d0,D0(1,1),1,D0(1,5),1)
-          call daxpy_(ndens,1.0d0,Work(ipD1ao),1,D0(1,5),1)
-         Call Free_Work(ipD1ao)
+            call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
+            call daxpy_(ndens,-1.0d0,D1ao,1,D0(1,2),1)
+!ANDREW -   Generate new D5 piece:
+            D0(:,5)=Zero
+            call daxpy_(ndens,0.5d0,D0(1,1),1,D0(1,5),1)
+            call daxpy_(ndens,1.0d0,D1ao,1,D0(1,5),1)
+            Call mma_deallocate(D1ao)
           end if
 
 

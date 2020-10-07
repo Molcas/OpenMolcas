@@ -214,7 +214,6 @@ C ------------------
 C         ***QUIT*** bad initialization
          WRITE(6,*) 'Cho_FTwo_MO: bad initialization'
          rc=99
-         CALL QTrace()
          CALL Abend()
          nVec = -9999  ! dummy assignment - avoid compiler warnings
       End If
@@ -232,7 +231,6 @@ C         ***QUIT*** insufficient memory
          WRITE(6,*) 'NumCho= ',NumCho(jsym)
          WRITE(6,*) 'jsym= ',jsym
          rc = 205
-         CALL QTrace()
          CALL Abend()
          nBatch = -9999  ! dummy assignment
       End If

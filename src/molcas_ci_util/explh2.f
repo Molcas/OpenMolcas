@@ -66,7 +66,6 @@
       DIMENSION EXPLV(*)
       DIMENSION ISEL(*)
 *
-      CALL QENTER('EXPLH')
       Call Timing(Omega_1,Swatch,Swatch,Swatch)
       IPRLEV=IPRLOC(3)
 
@@ -152,7 +151,6 @@
       Call Timing(Omega_2,Swatch,Swatch,Swatch)
       Omega_2 = Omega_2 - Omega_1
       Omega_3 = Omega_3 + Omega_2
-      CALL QEXIT('EXPLH')
 
       RETURN
       END

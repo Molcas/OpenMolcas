@@ -101,7 +101,6 @@ COLD      REAL*8 INPROD
 *
       DIMENSION IJ_REO(2),IJ_DIM(2),IJ_SM(2),IJ_TP(2),IJ_AC(2)
       DIMENSION ISCR(2)
-      CALL QENTER('RS1   ')
 * Type of single excitations that connects the two column strings
 C     MOC = 1
       NTESTL = 000
@@ -342,7 +341,6 @@ C               CALL GETH1(H,IJ_SM(2),IJ_TP(2),IJ_SM(1),IJ_TP(1))
   900 CONTINUE
  1001 CONTINUE
 *
-      CALL QEXIT('RS1  ')
 C!    WRITE(6,*) ' Enforced stop in RSBB1E '
 C!    STOP' Enforced stop in RSBB1E '
       RETURN

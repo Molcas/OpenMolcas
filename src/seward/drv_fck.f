@@ -135,7 +135,6 @@ c        Write(6,*) ' oneel *',Label,'*'
          iPAMcount=iPAMcount+1
 
          If (iRC.ne.0) then
-            Call qTrace
             Write(6,*) ' *** Error in subroutine ONEEL ***'
             Write(6,*) '     Abend in subroutine WrOne'
             Call Quit(_RC_IO_ERROR_WRITE_)

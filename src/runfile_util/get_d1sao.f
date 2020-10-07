@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Get_D1sao(ipD1sao,nDens)
+      Subroutine Get_D1sao(D1sao,nD1sao)
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -17,6 +17,7 @@
 #include "run_common.fh"
 #endif
       Logical      Found
+      Real*8 D1sao(nD1sao)
 
       Call Get_iScalar('System BitSwitch',iOption)
 *
@@ -30,8 +31,11 @@
       If(.not.Found .or. nDens.eq.0) Then
          Call SysAbendMsg('get_d1sao','Did not find',Label)
       End If
-      Call GetMem('D1sao','Allo','Real',ipD1sao,nDens)
-      Call Get_dArray(Label,Work(ipD1sao),nDens)
+      If (nDens/=nD1sao) Then
+         Write (6,*) 'Get_D1sao: nDens/=nD1sao'
+         Call Abend()
+      End If
+      Call Get_dArray(Label,D1sao,nD1sao)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -45,11 +49,11 @@
        is_nBas=1
       endif
       Write(6,*) 'variational 1st order density matrix'
-      ii=ipD1sao
+      ii=1
       Do iIrrep = 0, nSym - 1
          If (nBas(iIrrep).gt.0) Then
             Write(6,*) 'symmetry block',iIrrep
-            Call TriPrt(' ',' ',Work(ii),nBas(iIrrep))
+            Call TriPrt(' ',' ',D1sao(ii),nBas(iIrrep))
             ii = ii + nBas(iIrrep)*(nBas(iIrrep)+1)/2
          End If
       End Do

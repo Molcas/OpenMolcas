@@ -125,7 +125,6 @@
          Call Molden_Interface(iUHF,'UHFORB','MD_SCF')
       End If
       if(iStatPRN.gt.0) then
-       Call qStat(' ')
        Call FastIO('STATUS')
       endif
 *

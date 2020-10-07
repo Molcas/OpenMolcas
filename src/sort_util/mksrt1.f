@@ -152,7 +152,6 @@ C              Write (*,*) 'i,j,k,l=',iSymi,jSymj,kSymk,lSyml
                     Write(6,'(2X,A)') 'Increase the value of the'//
      &                                'MOLCAS_MEM environement variable'
                     Write(6,*)
-                    Call qTrace
                     Call Quit(_RC_MEMORY_ERROR_)
                 End If
                 nSlice = 1+(ibj-1)/nij
@@ -210,7 +209,6 @@ C               Write (*,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
         Write(6,*)
         Write (6,*) 'Increase MOLCAS_MEM and try again!'
         Write(6,*)
-        Call qTrace
         Call Quit(_RC_MEMORY_ERROR_)
       End If
 *
@@ -227,7 +225,6 @@ C               Write (*,*) 'lSll(iSyBlk)=',lSll(iSyBlk)
         Write(6,*)
         Write (6,*) 'Increase MOLCAS_MEM and try again!'
         Write(6,*)
-        Call qTrace
         Call Quit(_RC_MEMORY_ERROR_)
       End If
 *

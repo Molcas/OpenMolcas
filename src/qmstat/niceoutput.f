@@ -27,7 +27,6 @@
 *
 *-- Enter.
 *
-      Call Qenter('NiceOutPut')
 
 *
 *-- Make sure that the string is of correct length.
@@ -172,7 +171,6 @@
 *
 *-- Tschuss
 *
-      Call Qexit('NiceOutPut')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

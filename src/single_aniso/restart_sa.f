@@ -18,7 +18,6 @@
        Integer        :: IsFreeUnit
        External       :: IsFreeUnit
        Logical        :: dbg
-       Call qEnter('SA_restart')
        dbg=.false.
 
 
@@ -95,6 +94,5 @@
 
        End If
 
-       Call qExit('SA_restart')
       Return
       End

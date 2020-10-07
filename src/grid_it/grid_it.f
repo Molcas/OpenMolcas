@@ -12,9 +12,8 @@
 *               1990, IBM                                              *
 *               2000-2015, Valera Veryazov                             *
 ************************************************************************
-#ifdef _HAVE_EXTRA_
-      subroutine Grid_it(iRun,INPORB,ireturn)
-c  iRun =1 normal run, 0=trancated from scf
+      subroutine Grid_it(iRun,ireturn)
+c  iRun =1 normal run, 0=truncated from scf
 ************************************************************************
 *                                                                      *
 *  Object: Driver for evaluation MO values on a grid.                  *
@@ -41,9 +40,11 @@ c  iRun =1 normal run, 0=trancated from scf
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
+#include "Molcas.fh"
+#include "grid.fh"
 c      Character*120 Lines(17)
-      Character INPORB*(*)
-      Logical OldTst, DoRys
+      Character(Len=1024) INPORB
+      Logical DoRys
 #include "warnings.fh"
 *
 *     Prologue
@@ -66,9 +67,6 @@ c      Call bXML('GRID_IT')
       nDiff=0
       DoRys=.False.
       Call IniSew(DoRys,nDiff)
-
-      OldTst = Test
-*
 *
 *---- Read the input
 *
@@ -77,10 +75,10 @@ c      Call bXML('GRID_IT')
       if (iReturn.eq._RC_INVOKED_OTHER_MODULE_) then
 c* take care to close files and release the potential memory...
 c       close(unit=LuOrb)
-        call close_grids()
+        close(unit=LuVal)
+        if(isUHF.eq.1) close(unit=LuVal_ab)
       goto 999
       endif
-*
 *
 *     Start computing the spin density and spin density gradient
 *     at the grid.
@@ -97,18 +95,11 @@ c       close(unit=LuOrb)
 *     Epilogue
 *
       if(iRun.eq.1) then
-        Call qStat(' ')
 c        Call eXML('GRID_IT')
 c      else
 c      write(6,*) 'Input file for molcasgv was generated'
       endif
 c      ireturn=0
 
-
       return
       End
-#elif defined (NAGFOR)
-c Some compilers do not like empty files
-      Subroutine empty_grid_it
-      End
-#endif

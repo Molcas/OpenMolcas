@@ -45,8 +45,6 @@ contains
     integer, intent(in) :: orbsym(:)
     integer :: i, j, ireturn, isFreeUnit, LuFCI
 
-    call qEnter('dump_ascii')
-
     LuFCI = isFreeUnit(38)
     call molcas_open(LuFCI, path)
 
@@ -87,7 +85,6 @@ contains
 
     call FastIO('STATUS')
     ireturn = 0
-    call qExit('dump_ascii')
 
     return
   end subroutine dump_ascii
@@ -125,8 +122,6 @@ contains
     integer :: file_id, dset_id
     integer :: ireturn
     character :: lIrrep(24)
-
-    call qEnter('dump_hdf5')
 
     file_id = mh5_create_file(path)
 
@@ -199,7 +194,6 @@ contains
 
     call FastIO('STATUS')
     ireturn = 0
-    call qExit('dump_hdf5')
 #else
 ! Avoid unused argument warnings
     if (.false.) then

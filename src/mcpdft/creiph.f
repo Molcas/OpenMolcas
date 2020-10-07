@@ -79,7 +79,6 @@ C
 #include "general.fh"
       Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
 
-      Call qEnter('CREIPH')
 
       DO I=1,15
        IADR15(I)=0
@@ -172,6 +171,5 @@ C
       IAD15=0
       CALL IDAFILE(JOBIPH,1,IADR15,30,IAD15)
 C
-      Call qExit('CREIPH')
       RETURN
       END

@@ -460,7 +460,6 @@ C Free resources, close files
 C     PRINT I/O AND SUBROUTINE CALL STATISTICS
       IF ( IPRGLB.GE.USUAL ) THEN
         CALL FASTIO('STATUS')
-        CALL QSTAT(' ')
       END IF
 
       Call StatusLine('CASPT2:','Finished.')

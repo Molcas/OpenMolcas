@@ -82,7 +82,6 @@ c      Debug=.true.
 
       If (nDen.ne.1 .and. nDen.ne.2) then
          write(6,*)SECNAM//'Invalid parameter nDen= ',nDen
-         call qtrace()
          call abend()
       EndIf
 
@@ -160,7 +159,6 @@ C ------------------------------------------------------------------
 
             if (nVrs.lt.0) then
                Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
-               call qtrace()
                call abend()
             endif
 
@@ -168,7 +166,6 @@ C ------------------------------------------------------------------
             if(irc.ne.0)then
               Write(6,*)SECNAM//'cho_X_setred non-zero return code.',
      &                        '   rc= ',irc
-              call qtrace()
               call abend()
             endif
 
@@ -195,7 +192,6 @@ C ------------------------------------------------------------------
                WRITE(6,*) 'min. mem. need= ',nRS+mTvec
                WRITE(6,*) 'jsym= ',jsym
                rc = 33
-               CALL QTrace()
                CALL Abend()
                nBatch = -9999  ! dummy assignment
             End If
@@ -580,7 +576,6 @@ c Offsets to symmetry block in the LT matrix
 
          write(6,*)'Wrong input parameter. mode = ',mode
          irc = 66
-         Call Qtrace()
          Call abend()
 
       EndIf

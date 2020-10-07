@@ -193,7 +193,6 @@
       If (ip-1.gt.nTemp) Then
          Write (6,*) 'TwoEl_McK: ip-1.gt.nTemp'
          Write (6,*) 'ip,nTemp=',ip,nTemp
-         Call QTrace
          Call Abend()
       End If
 *

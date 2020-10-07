@@ -169,7 +169,6 @@ c      Real(kind=8) :: F, Fx,Fy,Fz, AT, Ax,Ay,Az, AF, dnrm, dE
       Integer :: l
       Integer                   :: nss2,nstate2
 
-      Call qEnter('SA_main1')
       DBG=.false.
 
       Boltz_k=0.6950356_wp                    !   in cm-1*K-1
@@ -754,7 +753,6 @@ c---------------------------------------------------------------------
          Call mma_deallocate(chit_exp)
       End If
 
-      Call qExit('SA_main1')
 
       Return
       End

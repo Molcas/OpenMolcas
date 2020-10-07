@@ -108,7 +108,6 @@
 *
       If (nArray.gt.nZeta*nArr) Then
          Write (6,*) 'nArray.gt.nZeta*nArr'
-         Call QTrace()
          Call Abend()
       End If
 *                                                                      *
@@ -140,7 +139,6 @@ cAOM         kShEnd = kShStr + dbsc(iCnttp)%nPP-1
 CAOM            Write (6,*) 'dbsc(iCnttp)%nPP=',dbsc(iCnttp)%nPP
             Write (6,*) 'dbsc(iCnttp)%nPP=',nPP_S
             Write (6,*) 'lproju            =',lproju
-            Call QTrace()
             Call Abend()
          End If
 CAOM         lcr(kcrs)=dbc(iCnttp)%nPP-1
@@ -156,7 +154,6 @@ CAOM         lcr(kcrs)=dbc(iCnttp)%nPP-1
                Write (6,*)' Pseudo: nPot.gt.imax'
                Write (6,*)'         nPot=',nPot
                Write (6,*)'         imax=',imax
-               Call QTrace()
                Call Abend()
             End If
             iStrt=1

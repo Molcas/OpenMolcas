@@ -155,7 +155,6 @@ C   No changing about read in orbital information from INPORB yet.
 *    GAS flag, means the INPUT was GAS
       iDoGas = .false.
 
-      Call qEnter('Proc_Inp')
 
       NAlter=0
       iRc=_RC_ALL_IS_WELL_
@@ -2944,11 +2943,9 @@ C Test read failed. JOBOLD cannot be used.
 9000  CONTINUE
       close(989)
       If (DBG) Write(6,*)' Normal exit from PROC_INP.'
-      Call qExit('Proc_Inp')
       Return
 *---  Abnormal exit -----------------------------------------------------*
 9900  CONTINUE
       If (DBG) Write(6,*)' Abnormal exit from PROC_INP.'
-      Call qExit('Proc_Inp')
       Return
       End

@@ -50,7 +50,6 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       REAL*8, ALLOCATABLE ::     force2(:),xyz2(:)
 *
       IF(IPRINT.EQ.INSANE) WRITE(6,*)' Entering ',ROUTINE
-      CALL QENTER(ROUTINE)
 
       WRITE(6,*)'*** First step of the Velocity Verlet algorithm ***'
 C
@@ -163,7 +162,7 @@ C
          If (qmmm) Then
             Call GetMem('Coordinates','ALLO','REAL',ipCoord,3*natom)
             call dcopy_(3*natom,xyz,1,Work(ipCoord),1)
-            Call LA_Morok(natom,ipCoord,2)
+            Call LA_Morok(natom,Work(ipCoord),2)
             call dcopy_(3*natom,Work(ipCoord),1,xyz,1)
             Call Free_Work(ipCoord)
          End If
@@ -246,6 +245,5 @@ C
  404  FORMAT(6F12.7)
  405  FORMAT(5X,A22,D11.4,1X,A)
 *
-      CALL qExit(ROUTINE)
       RETURN
       END

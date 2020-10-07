@@ -122,7 +122,6 @@ C    &          SIGNREO,NADOP,NADDEL,IADDEL,ADSIGN)
 *
 
 #include "oper.fh"
-      CALL QENTER('RS2B ')
 *
       NTESTL = 000
       NTEST = MAX(NTESTG,NTESTL)
@@ -438,7 +437,6 @@ C    &               I4,XI4S,NKBSTR,IEND,IFRST,KFRST,KACT,ONE   )
 *
  9999 CONTINUE
 *
-      CALL QEXIT('RS2B ')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN

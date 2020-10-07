@@ -76,7 +76,6 @@
       If (ip-1.gt.nTemp) Then
          Write (6,*) 'MakeMO: ip-1.gt.nTemp'
          Write (6,*) 'ip,nTemp=',ip,nTemp
-         Call QTrace
          Call Abend()
       End If
 *     ip=2
@@ -118,7 +117,6 @@
       If (ipc-1.ne.nMoIn) Then
          Write (6,*) 'MakeMO: ipc-1.ne.nMoIn'
          Write (6,*) 'ipc,nMoIn=',ipc,nMoIn
-         Call QTrace
          Call Abend()
       End If
 

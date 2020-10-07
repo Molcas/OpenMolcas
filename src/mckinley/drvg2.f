@@ -278,7 +278,8 @@
       call dcopy_(nInt,[Zero],0,Work(ipInt),1)
       If (New_Fock) Then
          If (nmethod.ne.RASSCF) Then
-            Call Get_D1ao_Var(ipDTemp,Length)
+            Call getmem('DTemp','Allo','Real',ipDTemp,nDens)
+            Call Get_D1ao_Var(Work(ipDTemp),nDens)
             Call DScal_(nDens,Half,Work(ipDTemp),1)
             ij=0
             Do i = 1, nBas(0)
@@ -309,7 +310,8 @@
          Call mma_allocate(DeDe,mmDeDe+MxDij,label='DeDe')
          ipDijS = 1 + mmDeDe
          If (nMethod.ne.RASSCF) Then
-            Call Get_D1ao_Var(ipDTemp,Length)
+            Call getmem('DTemp','Allo','Real',ipDTemp,nDens)
+            Call Get_D1ao_Var(Work(ipDTemp),nDens)
             Call DeDe_mck(Work(ipDTemp),nFck(0),ipOffD,nIndij,
      &                    Dede,mmDeDe,mDeDe,mIndij)
             Call GetMem('Dtemp','Free','Real',ipDTemp,ndens)
@@ -336,7 +338,6 @@
             If (mDeDe.ne.nDeDe) Then
                Write (6,*) 'DrvG2: mDeDe.ne.nDeDe'
                Write (6,*) 'mDeDe,nDeDe=',mDeDe,nDeDe
-               Call QTrace
                Call Abend
             End If
          End If
@@ -479,7 +480,6 @@ C        Do jS = 1, iS
                   Write (6,*) 'iMemB=',iMemB
                   Write (6,*) 'MemMax=',MemMax
                   Write (6,*) 'Increase MOLCAS_MEM!'
-                  Call QTrace()
                   Call Abend()
                End If
                Sew_Scr(1:iMemb)=Zero

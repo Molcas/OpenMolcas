@@ -340,7 +340,6 @@ c      idp=rtoi
       Else
          ireturn=_RC_NOT_CONVERGED_
       End If
-      Call qStat(' ')
 *                                                                      *
 ************************************************************************
 *                                                                      *

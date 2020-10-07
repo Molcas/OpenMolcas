@@ -71,7 +71,6 @@ c        call grid_driver(-1,'SEWARD','GSSORB',iRc)
 * Epilogue                                                             *
 *----------------------------------------------------------------------*
       If(StandAlone) Then
-         Call qStat(' ')
          Call FastIO('STATUS')
       End If
       iReturn=0

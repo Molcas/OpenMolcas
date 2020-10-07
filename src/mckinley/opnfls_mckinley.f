@@ -25,7 +25,6 @@
       If (iRC.ne.0) Then
          Write (6,*) 'OpnFls: Error writing to MCKINT'
          Write (6,'(A,A)') 'MckLbl=',MckLbl
-         Call QTrace
          Call Abend()
       End If
       iOpt = 1
@@ -35,7 +34,6 @@
       If (iRC.ne.0) Then
          Write (6,*) 'OpnFls: Error writing to MCKINT'
          Write (6,'(A,A)') 'MckLbl=',MckLbl
-         Call QTrace
          Call Abend()
       End If
       iOpt = 0
@@ -45,7 +43,6 @@
       If (iRC.ne.0) Then
          Write (6,*) 'OpnFls: Error writing to MCKINT'
          Write (6,'(A,A)') 'MckLbl=',MckLbl
-         Call QTrace
          Call Abend()
       End If
       iOpt = 0
@@ -55,7 +52,6 @@
       If (iRC.ne.0) Then
          Write (6,*) 'OpnFls: Error writing to MCKINT'
          Write (6,'(A,A)') 'MckLbl=',MckLbl
-         Call QTrace
          Call Abend()
       End If
       iOpt = 0
@@ -65,7 +61,6 @@
       If (iRC.ne.0) Then
          Write (6,*) 'OpnFls: Error writing to MCKINT'
          Write (6,'(A,A)') 'MckLbl=',MckLbl
-         Call QTrace
          Call Abend()
       End If
       ngrad=0
@@ -79,7 +74,6 @@
       If (iRC.ne.0) Then
          Write (6,*) 'OpnFls: Error writing to MCKINT'
          Write (6,'(A,A)') 'MckLbl=',MckLbl
-         Call QTrace
          Call Abend()
       End If
 *                                                                      *

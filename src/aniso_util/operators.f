@@ -222,7 +222,6 @@ C
      &                             ITO_PLUS(-dim:dim,-dim:dim),
      &                            ITO_MINUS(-dim:dim,-dim:dim)
 !***********************************************************************
-      Call qEnter('Stewens_m')
 
       NPAR=MOD(dim,2)
       COEFF_REDUS=0.0_wp
@@ -387,7 +386,6 @@ C
         End Do   ! i
       End If ! iPrint
 
-      Call qExit('Stewens_m')
 
       Return
       End

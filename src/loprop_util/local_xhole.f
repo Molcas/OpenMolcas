@@ -16,11 +16,14 @@
 
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Dimension Coor(3,nAtoms), Sq_Temp(nTemp), Ttot_Inv(nTemp)
       Dimension Temp(nTemp), A(3), B(3), d2Loc(nij), EC(3,nij)
       Dimension Ttot(nTemp)
       Dimension iCenter(nBas1), iANr(nAtoms)
+      Logical Found
+      Real*8, Allocatable:: Dens(:)
 
 *
 *---- Binomal stuff
@@ -30,8 +33,17 @@
 *
 *---- Transform the density matrix to the LoProp basis
 *
-      Call Get_D1ao(ip_Dens,nDenno)
-      Call DSq(Work(ip_Dens),Sq_Temp,1,nBas1,nBas1)
+      Call Qpg_dArray('D1ao',Found,nDenno)
+      If (Found .and. nDenno/=0) Then
+         Call mma_Allocate(Dens,nDenno,Label='Dens')
+      Else
+         Write (6,*) 'Local XHole: D1ao not found.'
+         Call Abend()
+      End If
+      Call Get_D1ao(Dens,nDenno)
+      Call DSq(Dens,Sq_Temp,1,nBas1,nBas1)
+      Call mma_deallocate(Dens)
+*
       Call DGEMM_('N','T',
      &            nBas1,nBas1,nBas1,
      &            1.0d0,Sq_Temp,nBas1,
@@ -75,11 +87,6 @@
           d2Loc(ij)=Acc
         End Do   ! jAtom
       End Do   ! iAtom
-
-*
-*---- Deallocate density
-*
-      Call GetMem('Dens','Free','Real',ip_Dens,nDenno)
 
 *
 * Distributes the contributions from the bonds that doesn't fulfill the requirement

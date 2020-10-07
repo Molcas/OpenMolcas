@@ -47,7 +47,6 @@
 * Some dummy initializations
       IOFF = 0 ! jwk-cleanup
 *
-      CALL QENTER('TRACI')
       IDUM=0
 *
       NTEST = 0
@@ -87,7 +86,6 @@
       CALL GETMEM('TMAT  ','FREE','REAL',KLT,NTOOB**2)
       CALL GETMEM('KLSCR ','FREE','REAL',KLSCR,LSCR)
 *
-      CALL QEXIT('TRACI')
 *
       RETURN
       END

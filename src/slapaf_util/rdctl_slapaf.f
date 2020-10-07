@@ -100,7 +100,6 @@ C     Write (Lu,*) iOptC
       If (Char.eq.BLine) Go To 999
       If (Char(1:1).eq.'*') Go To 999
 !     If (Char(1:4).eq.'AIL ') Go To 102
-!     If (Char(1:4).eq.'AINX') Go To 103
 !     If (Char(1:4).eq.'AIP ') Go To 104
 !     If (Char(1:4).eq.'AISP') Go To 105
 !     If (Char(1:4).eq.'AIME') Go To 107
@@ -525,14 +524,6 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 !      Call Get_F(1,lb,3)
 !      Go To 999
 !*                                                                      *
-!****** AINX ************************************************************
-!*                                                                      *
-!*     The resolution of the predicted path
-!*
-!103   Char=Get_Ln(LuRd)
-!      Call Get_I1(1,npxAI)
-!      Go To 999
-!*                                                                      *
 !****** AIP  ************************************************************
 !*                                                                      *
 !*     Parameter of differentiability for Matern function
@@ -552,10 +543,10 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *                                                                      *
 ****** MXMI ************************************************************
 *                                                                      *
-*     Maximum number of Iterations for the AI method
+*     Maximum number of Iterations for the Kriging method
 *
 106   Char=Get_Ln(LuRd)
-      Call Get_I1(1,miAI)
+      Call Get_I1(1,Max_Microiterations)
       Go To 999
 !*                                                                      *
 !****** AIME ************************************************************
@@ -564,7 +555,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 !*     (loop exit condition)
 !*
 !107   Char=Get_Ln(LuRd)
-!      Call Get_F1(1,meAI)
+!      Call Get_F1(1,Thr_microiterations)
 !      Go To 999
 !*                                                                      *
 !****** AIBL ************************************************************

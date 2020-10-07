@@ -13,12 +13,13 @@
      &                      Show_espf,Forces,DoDirect)
       Implicit Real*8 (A-H,O-Z)
 #include "espf.fh"
+#include "stdalloc.fh"
+      Real*8, Allocatable:: Grad(:,:)
 *
       Logical DoTinker,DoGromacs,lMorok,Show_espf,Forces,DoDirect,Exist
 *
 * Espf data are saved
 *
-      Call QEnter('espf_write')
       iPL = iPL_espf()
 *
 * Save data in the ESPF.DATA file
@@ -104,25 +105,17 @@
          Call Molcas_Open(ITkQMMM,'QMMM')
          Call Get_dScalar('Last energy',EQMMM)
          Write(ITkQMMM,'(F12.7,I5)') EQMMM,MltOrd/4
-         Call Get_Grad(ipGrad,nGrad)
-         If (nGrad.ne.3*natom) Then
-            Write (6,*)
-            Write (6,'(/,A)')'nGrad.ne.natom'
-            Write (6,'(A,I6)')'nGrad=',nGrad
-            Write (6,'(A,I6)')'natom=',natom
-            Call Quit_OnUserError()
-         End If
+         Call mma_allocate(Grad,3,nAtom,Label='Grad')
+         Call Get_Grad(Grad,3*nAtom)
          Do iAt = 1, natom
-            iBlaG = ipGrad + 3*(iAt-1)
             iBlaQ = ipMltp + MltOrd*(iAt-1)
-            Write(ITkQMMM,'(7F12.7)') Work(iBlaG),Work(iBlaG+1),
-     &                    Work(iBlaG+2),(Work(iBlaQ+J),J=0,MltOrd-1)
+            Write(ITkQMMM,'(7F12.7)') Grad(1:3,iAt),
+     &                    (Work(iBlaQ+J),J=0,MltOrd-1)
          End Do
          Close(ITkQMMM)
-         Call GetMem('Grad','Free','Real',ipGrad,3*natom)
+         Call mma_deallocate(Grad)
          Close(ITkQMMM)
       End If
 *
-      Call QExit('espf_write')
       Return
       End

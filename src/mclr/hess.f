@@ -76,7 +76,6 @@
          If (iRc.ne.0) Then
             Write (6,*) 'Hess: Error reading MCKINT'
             Write (6,'(A,A)') 'Label=',Label
-            Call QTrace
             Call Abend()
          End If
          ip=1

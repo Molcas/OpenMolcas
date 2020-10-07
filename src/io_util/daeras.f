@@ -40,7 +40,6 @@
       Character*16 TheName
       Data TheName/'DaEras'/
 
-      If ( Query ) Call qEnter(TheName)
 
       If ( Trace ) then
         Write (6,*) ' >>> Enter DaEras <<<'
@@ -110,7 +109,6 @@
         Write (6,*) ' >>> Exit DaEras <<<'
       End If
 
-      If ( Query ) Call qExit(TheName)
 
       Return
       End

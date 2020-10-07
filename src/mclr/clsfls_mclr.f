@@ -70,7 +70,6 @@
          Call ClsMck(iRc,iOpt)
          If ( iRc.ne.0 ) Then
             Write (6,*) 'ClsFls: Error closing MCKINT'
-            Call QTrace
             Call Abend()
          End If
       End If

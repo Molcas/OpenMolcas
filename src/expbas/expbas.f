@@ -41,7 +41,6 @@
       Call f_Inquire(FName(:iLen),Exist_1)
       If(.not.Exist_1) then
        Write (6,*) 'Error finding file '//FName(:iLen)
-        Call QTrace()
         Call Abend()
       Endif
       Call namerun(FName(:iLen))
@@ -62,7 +61,6 @@
       Call f_Inquire(FName(:iLen),Exist_2)
       If(.not.Exist_2) then
        Write (6,*) 'Error finding file '//FName(:iLen)
-        Call QTrace()
         Call Abend()
       Endif
       Call namerun(FName(:iLen))
@@ -91,7 +89,6 @@
      &  nSym1,nBas1,nBas1,Work(ipCMO1),Occ1,Eorb1,indt1,VecTit,1,iErr)
       Else
         Write (6,*) 'RdCMO: Error finding MO file'
-        Call QTrace()
         Call Abend()
       End If
 
@@ -113,7 +110,6 @@ C
 C     Check for inconsistensies:
       If(nSym1.ne.nSym2) then
        write(6,*) 'Symmetries are not equal. Stop here',nSym1, nSym2
-       Call QTrace()
        Call Abend()
       Endif
       Do isym=1,nSym1
@@ -121,7 +117,6 @@ C     Check for inconsistensies:
         write(6,*) 'Second basis set must be larger than first'
         write(6,*) 'not fulfilled in sym',isym,'basis functions are',
      &  nBas1(isym),nBas2(isym)
-        Call QTrace()
         Call Abend()
        Endif
       Enddo

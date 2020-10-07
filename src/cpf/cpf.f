@@ -116,7 +116,6 @@ C Temporaries:
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      CALL QSTAT(' ')
       CALL FASTIO('STATUS')
       IRETURN=0
       RETURN

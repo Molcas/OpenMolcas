@@ -76,7 +76,8 @@
 !      Write (Lu,'(A,I6)')
 !   &     '   Parameter of diff. for Matern (p):         ',pAI
        Write (Lu,'(A,I6)')
-     &    '   Maximum number of micro iterations:        ',miAI
+     &    '   Maximum number of micro iterations:        ',
+     &                                               Max_Microiterations
        If (set_l) Then
           Call Get_dScalar('Value_l',Value_l)
           Write (Lu,*) '  Global characteristic length scale, l:     ',

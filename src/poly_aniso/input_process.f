@@ -158,7 +158,6 @@ c  options for automatic fitting of parameters:
       Integer  :: icount_B_sites
 
 
-      Call qEnter('PA_input_process')
       DBG=.false.
 c-----------------------------------------------------------------------
 c print the data from this Subroutine:
@@ -617,7 +616,6 @@ c    ...
      &                     'is yet in the development'
       End If
 ! ======================================================================
-      Call qExit('PA_input_process')
 
       Return
       End subroutine input_process

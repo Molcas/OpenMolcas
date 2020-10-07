@@ -120,7 +120,6 @@ C Local print level (if any)
          Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
       Call GetMem('Ovrlp','Free','Real',iTmp0,nTot1+4)
@@ -144,7 +143,6 @@ C Local print level (if any)
          Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
          Write(LF,*) 'Label = ',Label
          Write(LF,*) 'iRc = ',iRc
-         Call QTrace
          Call Abend
       Endif
       If ( IPRLEV.ge.DEBUG ) then

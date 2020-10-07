@@ -17,12 +17,14 @@
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "disp.fh"
 #include "wldata.fh"
 #include "rctfld.fh"
       Character Method*8, Label*80
       Real*8 Temp(nGrad)
       Logical DiffOp
+      Real*8, Allocatable:: D_Var(:)
 *
 *-----Statement function
 *
@@ -33,12 +35,10 @@
       iPrint = nPrint(iRout)
       Call CWTime(TCpu1,TWall1)
 *
-*---- Allocate memory for density and Fock matrices
+*---- Allocate memory for density
 *
-      nFock = 0
       nDens = 0
       Do iIrrep = 0, nIrrep - 1
-         nFock = nFock + nBas(iIrrep)*(nBas(iIrrep)+1)/2
          nDens = nDens + nBas(iIrrep)*(nBas(iIrrep)+1)/2
       End Do
 *
@@ -49,44 +49,17 @@
 *...  Read the variational 1st order density matrix
 *...  density matrix in AO/SO basis
 *     print *,' Read density matrix'
-      Call Get_D1ao_Var(ipD_var,Length)
-      If ( length.ne.nDens ) Then
-         Write (6,*) 'PotGrd: length.ne.nDens'
-         Write (6,*) 'length,nDens=',length,nDens
-         Call QTrace
-         Call Abend()
-      End If
+      Call mma_allocate(D_Var,nDens,Label='D_Var')
+      Call Get_D1ao_Var(D_var,nDens)
 *
       If (iPrint.ge.99) then
          Write(6,*) 'variational 1st order density matrix'
-         ii=ipD_Var
+         ii=1
          Do iIrrep = 0, nIrrep - 1
             Write(6,*) 'symmetry block',iIrrep
-            Call TriPrt(' ',' ',Work(ii),nBas(iIrrep))
+            Call TriPrt(' ',' ',D_Var(ii),nBas(iIrrep))
             ii = ii + nBas(iIrrep)*(nBas(iIrrep)+1)/2
          End Do
-      End If
-*
-*...  Read the generalized Fock matrix
-*...  Fock matrix in AO/SO basis
-*     print *,' Read Fock matrix'
-      If (.Not.HF_Force) Then
-         Call Get_Fock_Occ(ipFock,Length)
-         If ( length.ne.nDens ) Then
-            Write (6,*) 'PotGrd: length.ne.nDens'
-            Write (6,*) 'length,nDens=',length,nDens
-            Call QTrace
-            Call Abend()
-         End If
-         If (iPrint.ge.99) then
-            Write(6,*) 'generalized Fock matrix'
-            ii=ipFock
-            Do iIrrep = 0, nIrrep - 1
-               Write(6,*) 'symmetry block',iIrrep
-               Call TriPrt(' ',' ',Work(ii),nBas(iIrrep))
-               ii = ii + nBas(iIrrep)*(nBas(iIrrep)+1)/2
-            End Do
-         End If
       End If
 *                                                                      *
 ************************************************************************
@@ -103,7 +76,7 @@
       DiffOp = .True.
       Call dZero(Temp,nGrad)
       Call OneEl_g_mck(PCMGrd1,PCMMmG,Temp,nGrad,DiffOp,Work(ipC),
-     &             Work(ipD_Var),nDens,iWork(ip1),nComp,nOrdOp,
+     &                 D_Var,nDens,iWork(ip1),nComp,nOrdOp,
      &             Label)
       Call PrGrad_mck(' TEST '
      &   //'(PCM) contribution',Temp,nGrad,ChDisp,5)
@@ -118,8 +91,7 @@
 *...  Epilogue, end
 *
 *
-      If (.Not.HF_Force) Call GetMem('Fock','Free','Real',ipFock,nFock)
-      Call GetMem('D0  ','Free','Real',ipD_Var,nDens)
+      Call mma_deallocate(D_Var)
 *
       Call CWTime(TCpu2,TWall2)
       Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)

@@ -42,7 +42,6 @@
            Write (6,*) 'nDel(iSym)=',nDel(iSym)
            Write (6,*) 'nFro(iSym)=',nFro(iSym)
            Write (6,*) 'nBas(iSym)=',nBas(iSym)
-           Call QTrace()
            Call Abend()
         End If
       End Do

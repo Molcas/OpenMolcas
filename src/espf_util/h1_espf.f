@@ -26,7 +26,6 @@
       Logical DynExtPot,Exist,DoTinker,DoGromacs,lMorok,UpdateVMM
       Logical DoDirect
 *
-      Call QEnter('h1_espf')
       iPL = iPrintLevel(-1)
 *
       RealDummy = Zero
@@ -106,7 +105,8 @@
       End If
       If(.not. DynExtPot) Then
         If (ipOldMltp .ne. ip_Dummy) Call Free_Work(ipOldMltp)
-        Goto 9999
+        iReturn=0
+        Return
       End If
 *
       ipIsMM = ip_iDummy
@@ -261,7 +261,6 @@
       Call GetMem('IsMM for atoms','Free','Inte',ipIsMM,natom)
       Call GetMem('AtomCoord','Free','Real',ipCord,3*natom)
 *
-9999  Call QExit('h1_espf')
       iReturn=0
       Return
       End

@@ -35,8 +35,8 @@
       Integer nBas_Valence(0:7),nBT,nBVT,nFro(0:7)
       Character*8 RlxLbl,Method, KSDFT*16
       Logical lPrint
-      Integer i,iBas,iGo,iIrrep,ij,ipD1ao,ipD1ao_Var,ipD1AV,ipD2AV
-      Integer ipDLAO,ipDS1,ipDSVar1,ipLCMO,ipPLMO,ipt,ipTmp1,ipTemp
+      Integer i,iBas,iGo,iIrrep,ij,ipD1AV,ipD2AV
+      Integer ipDLAO,ipLCMO,ipPLMO,ipt,ipTmp1,ipTemp
       Integer iSpin,jBas,length,nAct,nDens_Valence,nsa,nTemp,nTst
       Integer iRout,iPrint,iComp
       Real*8  Get_ExFac,CoefX,CoefR
@@ -179,19 +179,8 @@
          Call mma_allocate(DVar,nDens,mDens,Label='DVar')
          D0  (:,:)=Zero
          DVar(:,:)=Zero
-         Call Get_D1ao(ipD1ao,length)
-         If ( length.ne.nDens_Valence ) Then
-            Write (6,*) 'PrepP_FAIEMP: length.ne.nDens'
-            Write (6,*) 'length=',length
-            Write (6,*) 'nDens=',nDens_Valence
-            Call Abend()
-         End If
-         call dcopy_(nDens_Valence,Work(ipD1ao),1,D0,1)
-         Call Free_Work(ipD1ao)
-*
-         Call Get_D1ao_Var(ipD1ao_Var,length)
-         call dcopy_(nDens_Valence,Work(ipD1ao_Var),1,DVar,1)
-         Call Free_Work(ipD1ao_Var)
+         Call Get_D1ao(D0,nDens)
+         Call Get_D1ao_Var(DVar,nDens)
 *
          Call ReIndexFrag(D0,nDens,nDens_Valence,nBas,
      &                    nBas_Valence, nIrrep)
@@ -207,12 +196,8 @@
          If(Method.eq.'UHF-SCF ' .or.
      &      Method.eq.'ROHF    ' .or.
      &      Method.eq.'Corr. WF'      ) Then
-           Call Get_D1sao(ipDS1,Length)
-           Call Get_D1sao_Var(ipDSVar1,Length)
-           call dcopy_(nDens_Valence,Work(ipDS1),1,DS,1)
-           call dcopy_(nDens_Valence,Work(ipDSVar1),1,DSVar,1)
-           Call Free_Work(ipDS1)
-           Call Free_Work(ipDSVar1)
+           Call Get_D1sao(DS,nDens)
+           Call Get_D1sao_Var(DSVar,nDens)
          End If
 *
 *     Unfold density matrix

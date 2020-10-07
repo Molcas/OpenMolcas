@@ -150,6 +150,5 @@ c      Call Get_cArray('Unique Atom Names',AtLbl,(LENIN)*nAtoms)
 *----------------------------------------------------------------------*
 991   Write (6,*) 'Rd1Int: Error reading from ONEINT'
       Write (6,*) 'OneLbl=',OneLbl
-      Call QTrace()
       Call Abend()
       End

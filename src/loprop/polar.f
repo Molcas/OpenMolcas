@@ -114,7 +114,8 @@
 *
 *   If computing local xhole-dipole moments. Should come after
 *   get_density_matrix so modified densities are used.
-      If(XHole) Call Compute_XHole_Int(nBas,nSym,ipXHole2,dMolExpec)
+      If(XHole) Call Compute_XHole_Int(nBas,nSym,ipXHole2,dMolExpec,
+     &                                 nSize)
 
       If (.Not.NoField) Then
 *        Read the one-electron hamiltonian.

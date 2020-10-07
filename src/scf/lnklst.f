@@ -144,7 +144,6 @@ C     Integer iDskPt,len
       If (Debug_LnkLst) Then
          Write (6,*) 'PutVec'
          Call StlLst(iLList)
-         Call qTrace
       End If
 #ifdef _DEBUG_
 #endif
@@ -176,7 +175,6 @@ C     Integer iDskPt,len
 *         opcode unknown
           Write (6,*) 'PutVec: opcode unknown'
           Write (6,'(A,A)') 'opcode=',opcode
-          Call QTrace
           Call Abend()
         End If
       End If
@@ -457,7 +455,6 @@ c Avoid unused argument warnings
 * Hmmm, no entry found in LList, that's strange
         Write (6,*) 'LstPtr: inode.le.0'
         Write (6,*) 'inode=',inode
-        Call QTrace
         Call Abend()
       Else If (InCore(inode)) Then
         Call InfNod(inode,idum,idum,ivptr,idum)
@@ -466,7 +463,6 @@ c Avoid unused argument warnings
 * Hmmm, no incore hit for this entry, that's strange
         Write (6,*) 'LstPtr: no incore hit for this entry'
         Write (6,*) 'inode=',inode
-        Call QTrace
         Call Abend()
       End If
 #ifdef _DEBUG_

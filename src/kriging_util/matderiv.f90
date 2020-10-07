@@ -14,8 +14,12 @@ SUBROUTINE matderiv(nd, d, m, d1, d2)
   use kriging_mod
   Implicit None
 #include "stdalloc.fh"
-  integer nd,d1,d2,p0,k
-  real*8 nr,kr,a,d(d1,d2),m(d1,d2),t
+  integer nd,d1,d2
+  real*8 d(d1,d2),m(d1,d2)
+!
+! Local variables
+  integer p0,k
+  real*8 nr,kr,a,t
   real*8, Allocatable :: b(:,:), dh(:,:), c(:,:)
 !
   Call mma_Allocate(b,d1,d2,label="b")
@@ -23,6 +27,9 @@ SUBROUTINE matderiv(nd, d, m, d1, d2)
   Call mma_Allocate(c,d1,d2,label="c")
 !
   m = 0
+!
+! Analytic or Numerical Derivatives
+!
   if (anMd) then
     p0=int(pAI)
     t=sqrt(2.0D0*pAI+1.0D0)

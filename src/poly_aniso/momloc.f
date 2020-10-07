@@ -59,7 +59,6 @@ c local variables:
       Real(kind=8), allocatable :: RWORK(:)
       Complex(kind=8), allocatable :: HZEE(:), WORK(:), W_c(:)
 c
-      Call qEnter('PA_momloc2')
       DBG=.false.
       g_e=2.0023193043718_wp
 
@@ -352,6 +351,5 @@ c  we proceed to compute expectation values for this nb1 exchange state
       Call mma_deallocate(W_c)
 
 
-      Call qExit('PA_momloc2')
       Return
       End Subroutine momloc2
