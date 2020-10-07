@@ -48,7 +48,7 @@
 *             University of Lund, SWEDEN                               *
 *             July '03                                                 *
 ************************************************************************
-      Use kriging_mod, only: miAI
+      Use kriging_mod, only: Max_MicroIterations
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -1025,7 +1025,8 @@ C           Write (6,*) 'gBeta=',gBeta
 *     For kriging, in the last 10 micro iterations, give up trying to
 *     optimize and just focus on fulfilling the constraints.
       Recompute_disp=.False.
-      If ((miAI.ge.50).and.(niter-iter_+1.gt.miAI-10)) Then
+      If ((Max_MicroIterations.ge.50) .and.
+     &    (niter-iter_+1.gt.Max_Microiterations-10)) Then
          dydy=Sqrt(DDot_(nLambda,dy,1,dy,1))
          If (dydy.gt.1.0D-12) du(1+nLambda:nInter)=Zero
          Recompute_disp=.True.

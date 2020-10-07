@@ -336,7 +336,7 @@
 #endif
 *           Ensure that the initial gradient is reduced,
 *           except in the last micro iteration
-            If (iterK.lt.miAI) Then
+            If (iterK.lt.Max_MicroIterations) Then
                Not_Converged = FAbs.gt.Min(ThrGrd,FAbs_ini)
                Not_Converged = Not_Converged .or.
      &                         GrdMx.gt.Min(ThrGrd*OneHalf,GrdMx_ini)
