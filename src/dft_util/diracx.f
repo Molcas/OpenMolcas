@@ -17,7 +17,7 @@
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
 C-Ajitha Modifying the kernel output structure
-      use KSDFT_GLM, only: F_xca, F_xcb
+      use KSDFT_Info, only: F_xca, F_xcb
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"

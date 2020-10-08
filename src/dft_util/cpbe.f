@@ -27,7 +27,7 @@
 *      Author:Per Ake Malmqvist, Department of Theoretical Chemistry,  *
 *             University of Lund, SWEDEN. December 2005                *
 ************************************************************************
-      use KSDFT_GLM, only: tmpB
+      use KSDFT_Info, only: tmpB
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"

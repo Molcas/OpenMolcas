@@ -25,7 +25,7 @@
 *      Author: G. Li Manni & A. Cohen, Max Planck Institute Stuttgart  *
 *              Summer 2017, edited in Cambridge (UK) & Palermo (Sicily)*
 ************************************************************************
-      use KSDFT_GLM, only: tmpB
+      use KSDFT_Info, only: tmpB
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"

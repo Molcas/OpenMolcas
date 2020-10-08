@@ -8,9 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module KSDFT_GLM
+Module KSDFT_Info
 Character(LEN=16) KSDFA
 Real*8 :: funcaa=0.0D0, funcbb=0.0D0 ,funccc=0.0D0
 Real*8, Allocatable:: F_xca(:), F_xcb(:), tmpB(:)
 Integer :: LuMC,LuMT
-End Module KSDFT_GLM
+End Module KSDFT_Info

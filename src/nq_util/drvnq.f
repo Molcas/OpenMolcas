@@ -25,7 +25,7 @@
 ************************************************************************
       use iSD_data
       use Symmetry_Info, only: nIrrep
-      use KSDFT_GLM, only: KSDFA
+      use KSDFT_Info, only: KSDFA
       use nq_Grid
       Implicit Real*8 (A-H,O-Z)
       External Kernel

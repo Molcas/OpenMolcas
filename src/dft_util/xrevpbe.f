@@ -29,7 +29,7 @@
 *             University of Lund, SWEDEN. June 2006                    *
 *      Modified for revPBE: Andrew Sand, U. of Minnesota, March 2016   *
 ************************************************************************
-      use KSDFT_GLM, only: F_xca, F_xcb, tmpB
+      use KSDFT_Info, only: F_xca, F_xcb, tmpB
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"

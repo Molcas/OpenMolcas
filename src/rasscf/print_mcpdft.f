@@ -20,7 +20,7 @@
 * Author:
 * G. Li Manni (GLM)
 ******************************************************************
-      use KSDFT_GLM, only: Funcaa, Funcbb, Funccc
+      use KSDFT_Info, only: Funcaa, Funcbb, Funccc
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #include "ksdft.fh"

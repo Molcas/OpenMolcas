@@ -40,7 +40,7 @@
 #endif
       use Real_Spherical
       use Symmetry_Info, only: nIrrep, iOper
-      use KSDFT_GLM, only: KSDFA, LuMC, LuMT, Funcaa, Funcbb, Funccc
+      use KSDFT_Info, only: KSDFA, LuMC, LuMT, Funcaa, Funcbb, Funccc
       Implicit Real*8 (A-H,O-Z)
       External Kernel, Rsv_Tsk
 #include "real.fh"

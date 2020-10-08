@@ -24,7 +24,7 @@
 *             Laura Gagliardi, Dipartimento di Chimica G. Ciamician,   *
 *             University of Bologna, ITALY. October 2001               *
 ************************************************************************
-      use KSDFT_GLM, only: tmpB
+      use KSDFT_Info, only: tmpB
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"

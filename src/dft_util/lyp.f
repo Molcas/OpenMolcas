@@ -24,7 +24,7 @@
 *              Modify Per-AAke's code for open shell case              *
 *              and adopt for closed shell case                         *
 ************************************************************************
-      use KSDFT_GLM, only: tmpB
+      use KSDFT_Info, only: tmpB
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"

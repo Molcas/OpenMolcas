@@ -34,7 +34,7 @@
       use Basis_Info
       use Center_Info
       use Phase_Info
-      use KSDFT_GLM
+      use KSDFT_Info
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
