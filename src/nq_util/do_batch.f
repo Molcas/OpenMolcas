@@ -1697,8 +1697,10 @@ C     Write (*,*) Dens_I,Grad_I,Tau_I
 *   the Xhole application. A bit 'cheating' but hey what da hey!
 *
       If(l_Xhol) then
+#ifdef _NOT_USED_TESTED_OR_MAINTAINED_
         Call Xhole(nRho,mGrid,Rho,Grid,mAO,nMOs,TabMO,ndF_dRho,nD,
      &             dF_dRho,Weights,ip_OrbDip,Func)
+#endif
         Go To 1979
       Endif
 ************************************************************************
