@@ -101,6 +101,7 @@ if (NOT DEFINED CMAKE_INSTALL_PREFIX)
   set (CMAKE_INSTALL_PREFIX "/opt/OpenMolcas" CACHE STRING
        "Location where OpenMolcas will be installed.")
 endif ()
+set (EXTRA_INSTALL_DIRS "")
 
 option (DEBUGPRINT "Enable excessive print statements for debugging." OFF)
 option (DEBUGTRACE "Enable tracing print statements for debugging." OFF)
@@ -165,10 +166,10 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 endif ()
 
 # External projects
-option (MSYM       "Activate MSYM support (requires External/libmsym submodule)."                      OFF)
-option (DMRG       "Activate QCMaquis DMRG driver and library."                                        OFF)
-option (DMRG_DEBUG "Enable DEBUG print in QCMaquis driver."                                            OFF)
-option (MolGUI     "Enable the Molcas Graphical User Interface (requires External/MolGUI submodule)."  OFF)
+option (MSYM       "Activate MSYM support (requires External/libmsym submodule)." OFF)
+option (DMRG       "Activate QCMaquis DMRG driver and library."                   OFF)
+option (DMRG_DEBUG "Enable DEBUG print in QCMaquis driver."                       OFF)
+option (MolGUI     "Enable the Molcas Graphical User Interface."                  OFF)
 
 if (DMRG)
   mark_as_advanced (CLEAR DMRG_DEBUG)
@@ -261,7 +262,7 @@ if (DMRG)
   endif ()
 endif ()
 
-if (WFA)
+if (WFA OR MolGUI)
   enable_language (CXX)
 endif ()
 
@@ -1722,6 +1723,7 @@ endif ()
 
 # Chan group's DMRG (Block code) support
 #=======================================
+
 if (BLOCK)
   mark_as_advanced (CLEAR BLOCK_DIR)
 
@@ -2134,15 +2136,26 @@ endif ()
 # MolGUI
 if (MolGUI)
   message ("Configuring MolGUI:")
-  set (proj ${extprojsdir}/MolGUI)
-  set (proj_bin ${PROJECT_BINARY_DIR}/External/MolGUI)
-  if (EXISTS ${proj}/CMakeLists.txt)
-    set (MOLCAS ${PROJECT_BINARY_DIR} CACHE INTERNAL "(Open)Molcas directory.")
-    add_subdirectory (${proj} ${proj_bin})
-    set (MOLCAS ${MOLCAS} CACHE INTERNAL "")
-  else ()
-    message ("-- MolGUI ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
-  endif ()
+
+  set (projname MolGUI)
+  set (projdir ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${projname})
+  set (projinstall ${PROJECT_BINARY_DIR}/${projname})
+
+  include (ExternalProject)
+  ExternalProject_Add (${projname}
+    GIT_REPOSITORY https://gitlab.com/Molcas/MolGUI.git
+    GIT_TAG f839f89edc9554efb54aa9f7905f0573410baa40
+    PREFIX ${projdir}
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${projinstall}
+               -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+               -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+               -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+               -DMOLCAS=${PROJECT_BINARY_DIR}
+  )
+  message ("-- MolGUI will be downloaded and compiled in ${projdir}")
+  message ("-- MolGUI will be installed in ${projinstall}")
+
+  list (APPEND EXTRA_INSTALL_DIRS ${projinstall})
 else ()
   message ("MolGUI DISABLED")
 endif ()
@@ -3052,6 +3065,9 @@ else ()
       message (FATAL_ERROR "Failed to configure the pymolcas driver")
     endif ()
   endif ()
+  if (MolGUI)
+    add_dependencies(MolGUI pymolcas)
+  endif ()
 endif ()
 
 get_directory_property (defs COMPILE_DEFINITIONS)
@@ -3363,6 +3379,15 @@ if (DEFINED EXTRA_DIR)
 
   install (CODE "execute_process(COMMAND ${OPENMOLCAS_DIR}/sbin/install_driver.sh ${MOLCAS_DRIVER})")
 endif ()
+
+# Additional directories to install (from external projects)
+foreach (dir ${EXTRA_INSTALL_DIRS})
+  install (DIRECTORY
+    ${dir}
+    USE_SOURCE_PERMISSIONS
+    DESTINATION ${CMAKE_INSTALL_PREFIX}
+  )
+endforeach ()
 
 if (IS_DIRECTORY "$ENV{HOME}/.Molcas")
   install (CODE "execute_process(COMMAND sh \"-c\" \"cd ${CMAKE_INSTALL_PREFIX}; echo `pwd` > $HOME/.Molcas/molcas 2> /dev/null\")")
