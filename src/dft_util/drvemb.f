@@ -43,7 +43,6 @@
       Implicit Real*8 (a-h,o-z)
       External LSDA_emb, Checker
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "debug.fh"
       Real*8 h1(nh1), D(nh1,2), Grad(nGrad)
@@ -67,7 +66,7 @@
       Real*8 Xlambda
       External Xlambda
 *
-      Real*8, Allocatable:: D_DS(:,:), F_DFT(:,:)
+      Real*8, Allocatable:: D_DS(:,:), F_DFT(:,:), Fcorr(:,:), TmpA(:)
 *
       Debug=.False.
       is_rhoA_on_file = .False.
@@ -88,10 +87,10 @@
           Call NameRun('AUXRFIL')   ! switch RUNFILE name
           Call GetMem('Vemb_M','Allo','Real', ipVemb, nh1)
           Call Get_dArray('dExcdRa', Work(ipVemb), nh1)
-          Call GetMem('Attr Pot','Allo','Real',ipTmpA,nh1)
-          Call Get_dArray('Nuc Potential',Work(ipTmpA),nh1)
+          Call mma_allocate(TmpA,nh1,Label='TmpA')
+          Call Get_dArray('Nuc Potential',TmpA,nh1)
 *    Substract V_nuc_B
-          Call daxpy_(nh1,-One,Work(ipTmpA),1,Work(ipVemb),1)
+          Call daxpy_(nh1,-One,TmpA,1,Work(ipVemb),1)
 *    Calculate nonelectr. V_emb with current Density
           Ynorm=dDot_(nh1,WD1ao_y,1,D1ao_y,1)
           V_emb_x=dDot_(nh1,Work(ipVemb),1,D1ao_y,1)
@@ -109,7 +108,7 @@
      &          'Nonelectr. Vemb w.    ref. density: ', V_emb_x_ref,
      &          'X_Norm = ', Xnorm
           Call VEMB_Exc_states(Work(ipVemb),nh1,KSDFT,Func_B)
-          Call GetMem('Attr Pot','Free','Real',ipTmpA,nh1)
+          Call mma_deallocate(TmpA)
           Call GetMem('Dens','Free','Real',ipD1ao_x,nDens)
           Call GetMem('Vemb_M','Free','Real', ipVemb, nh1)
           Call NameRun(NamRfil)     ! switch back to RUNFILE
@@ -262,12 +261,12 @@
 *
       If (dFMD.gt.0.0d0) Then
 *
-         Call GetMem('Fcorr','Allo','Real',ipFc,nh1*nFckDim)
+         Call mma_Allocate(Fcorr,nh1,nFckDim,Label='Fcorr')
 *
          Call cwrap_DrvNQ(KSDFT,F_DFT(:,3:nFckDim+2),nFckDim,Ec_A,
      &                    D_DS(:,3:nFckDim+2),nh1,nFckDim,
      &                    Do_Grad,
-     &                    Grad,nGrad,DFTFOCK,Work(ipFc))
+     &                    Grad,nGrad,DFTFOCK,Fcorr(:,1:nFckDim))
       End If
 *
 *
@@ -331,9 +330,9 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
       If (dFMD.gt.0.0d0) Then
          Call Get_electrons(xElAB)
          Fakt_ = -1.0d0*Xlambda(abs(Energy_NAD)/xElAB,Xsigma)
-         Call daxpy_(nh1*nFckDim,Fakt_,Work(ipFc),1,
-     &               F_DFT(:,3:nFckDim+2),1)
-         Call GetMem('Fcorr','Free','Real',ipFc,nh1*nFckDim)
+         Call daxpy_(nh1*nFckDim,Fakt_,Fcorr(:,1:nFckDim),1,
+     &                                 F_DFT(:,3:nFckDim+2),1)
+         Call mma_deallocate(Fcorr)
 #ifdef _DEBUG_
          write(6,*) ' lambda(E_nad) = ',dFMD*Fakt_
 #endif
@@ -364,19 +363,18 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
 *
       Call NameRun('AUXRFIL')   ! switch RUNFILE name
 *
-      Call GetMem('Attr Pot','Allo','Real',ipTmpA,nh1)
-      Call Get_dArray('Nuc Potential',Work(ipTmpA),nh1)
+      Call mma_allocate(TmpA,nh1,Label='TmpA')
+      Call Get_dArray('Nuc Potential',TmpA,nh1)
 *
       Fact = Two ! because Dmat has been scaled by half
       If (kSpin.ne.1) Fact=One
       Fact_=Fact
 *
       V_emb=Fact*dDot_(nh1,F_DFT(:,1),1,D_DS(:,3),1)
-      V_Nuc_AB=Fact*dDot_(nh1,Work(ipTmpA),1,D_DS(:,3),1)
+      V_Nuc_AB=Fact*dDot_(nh1,TmpA,1,D_DS(:,3),1)
       If (kSpin.ne.1) Then
          V_emb=V_emb+Fact*dDot_(nh1,F_DFT(:,2),1,D_DS(:,4),1)
-         V_Nuc_AB=V_Nuc_AB+Fact*dDot_(nh1,Work(ipTmpA),1,
-     &                               D_DS(:,4),1)
+         V_Nuc_AB=V_Nuc_AB+Fact*dDot_(nh1,TmpA,1,D_DS(:,4),1)
       EndIf
 *
 *  Averaging the spin-components of F(AB) iff non-spol(A)//spol(B)
@@ -390,7 +388,7 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
       EndIf
 *
       Do i=1,nFckDim
-         Call daxpy_(nh1,1.0d0,Work(ipTmpA),1,F_DFT(:,i),1)
+         Call daxpy_(nh1,1.0d0,TmpA,1,F_DFT(:,i),1)
          Vxc_ref(i)=Fact*dDot_(nh1,F_DFT(:,i),1,D_DS(:,i+2),1)
       End Do
 *
@@ -400,17 +398,15 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
       Call Put_dArray('dExcdRa',F_DFT(:,1:nFckDim),nh1*nFckDim)
       Call NameRun(NamRfil)   ! switch back RUNFILE name
 
-      Call Get_dArray('Nuc Potential',Work(ipTmpA),nh1)
-      V_Nuc_BA= Fact_*( dDot_(nh1,Work(ipTmpA),1,D_DS(:,1),1)
-     &                 -dDot_(nh1,Work(ipTmpA),1,D_DS(:,3),1))
+      Call Get_dArray('Nuc Potential',TmpA,nh1)
+      V_Nuc_BA= Fact_*( dDot_(nh1,TmpA,1,D_DS(:,1),1)
+     &                 -dDot_(nh1,TmpA,1,D_DS(:,3),1))
       If (kSpin.ne.1) Then
-         V_Nuc_BA=V_Nuc_BA+Fact_*( dDot_(nh1,Work(ipTmpA),1,
-     &                                      D_DS(:,2),1)
-     &                            -dDot_(nh1,Work(ipTmpA),1,
-     &                                      D_DS(:,4),1) )
+         V_Nuc_BA=V_Nuc_BA+Fact_*( dDot_(nh1,TmpA,1,D_DS(:,2),1)
+     &                            -dDot_(nh1,TmpA,1,D_DS(:,4),1) )
       EndIf
 *
-      Call GetMem('Attr Pot','Free','Real',ipTmpA,nh1)
+      Call mma_deallocate(TmpA)
 *
 #ifdef _DEBUG_
       If (nFckDim.eq.1) Then
