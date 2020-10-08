@@ -536,8 +536,10 @@ c make a fix for energies for deleted orbitals
 *
       If (Do_OFemb) Then
           Call GetMem('FMaux','Free','Real',ipFMaux,nBT)
+#ifdef _NOT_USED_CODE_
           If (l_NDSD.gt.0)
      &        Call GetMem('NDSD','Free','Real',ip_NDSD,l_NDSD)
+#endif
       EndIf
       If (MxConstr.gt.0) Then
          If (Do_SpinAV) Call GetMem('DSc','Free','Real',ip_DSc,nBB)

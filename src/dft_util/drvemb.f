@@ -186,12 +186,14 @@
      &                   Do_Grad,
      &                   Grad,nGrad,DFTFOCK)
 
+#ifdef _NOT_USED_
          If (KSDFT(1:4).eq.'NDSD') Then
             l_NDSD=nFckDim*nh1
             Call GetMem('NDSD','Allo','Real',ip_NDSD,l_NDSD)
             call dcopy_(l_NDSD,F_DFT(:,1:nFckDim),1,Work(ip_NDSD),1)
             KSDFT(1:4)='LDTF' !set to Thomas-Fermi for subsequent calls
          EndIf
+#endif
 
       EndIf
 *                                                                      *
@@ -344,6 +346,7 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
       Do i=1,nFckDim
          Call daxpy_(nh1,-One,F_DFT(:,2+i),1,F_DFT(:,i),1)
       End Do
+#ifdef _NOT_USED_
 *
 *  NDSD potential for T_nad: add the (B)-dependent term
       iFickB=ip_NDSD
@@ -351,6 +354,7 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
          Call daxpy_(nh1,One,Work(iFickB),1,F_DFT(:,i),1)
          If (kSpin.ne.1) iFickB=iFickB+nh1
       End Do
+#endif
 *
 *     Add the Nuc Attr potential (from subsystem B) and then
 *     put out the DFT Fock matrices from the (NAD) embedding potential
