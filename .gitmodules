@@ -13,6 +13,3 @@
 [submodule "External/lapack"]
 	path = External/lapack
 	url = https://github.com/Reference-LAPACK/lapack.git
-[submodule "External/MolGUI"]
-	path = External/MolGUI
-	url = https://gitlab.com/Molcas/MolGUI.git
