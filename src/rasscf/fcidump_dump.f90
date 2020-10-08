@@ -45,7 +45,6 @@ contains
     integer, intent(in) :: orbsym(:)
     integer :: i, j, ireturn, isFreeUnit, LuFCI
 
-
     LuFCI = isFreeUnit(38)
     call molcas_open(LuFCI, path)
 
@@ -123,7 +122,6 @@ contains
     integer :: file_id, dset_id
     integer :: ireturn
     character :: lIrrep(24)
-
 
     file_id = mh5_create_file(path)
 

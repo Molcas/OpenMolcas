@@ -21,6 +21,7 @@
 #include "disp_mclr.fh"
 #include "cicisp_mclr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "real.fh"
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
@@ -32,6 +33,7 @@
        Integer iKapDisp(nDisp),iCiDisp(nDisp)
        Character(Len=16) mstate
        Dimension rdum(1),idum(7,8)
+       Real*8, Allocatable:: D_K(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -291,12 +293,13 @@ c
 *
 *----- First we fix the renormalization contribution
 *
-       Call Get_Fock_Occ(ipD_K,Length)
+       Call mma_allocate(D_K,nLCMO,Label='D_K')
+       Call Get_Fock_Occ(D_K,nLCMO)
 *      Calculates the effective Fock matrix
        Call Make_Conn(Work(ipF),Work(ipK2),
      &                Work(ipP_CI),work(ipD_CI))   !ipD_CI not changed
-       Call DaxPy_(ndens2,One,Work(ipD_K),1,Work(ipF),1)
-*      call dcopy_(ndens2,Work(ipD_K),1,Work(ipF),1)
+       Call DaxPy_(ndens2,One,D_K,1,Work(ipF),1)
+*      call dcopy_(ndens2,D_K,1,Work(ipF),1)
        Call Put_Fock_Occ(Work(ipF),nTot1)
 *
 *      Transposed one index transformation of the density
@@ -321,7 +324,7 @@ c Mult all terms that are not diag by 2
 *      Now with active density too, to form the variational density
 *
 !      gives \tilde{D}
-       Call OITD(Work(ipK2),1,Work(ipD_K),Work(ipDtmp),.True.)
+       Call OITD(Work(ipK2),1,D_K,Work(ipDtmp),.True.)
 *
        Do iS=1,nsym
 c
@@ -366,10 +369,8 @@ c
 *    Construct a variationally stable density matrix. In MO
 c
 c D_eff = D^j + \tilde{D} +\bar{D}
-c ipD_K = (ipG1q + inact) + ipD_K + ipD_CI
+c D_K = (ipG1q + inact) + D_K + ipD_CI
 *
-C
-C       call dcopy_(ndens2, [Zero], 0, Work(ipD_K), 1)  !DEBUG
 C
        If (isNAC) Then
 *
@@ -383,15 +384,15 @@ c Note: no inactive part for transition densities
             j=jA+nish(is)
             iAA=iA+na(is)
             jAA=jA+na(is)
-            Work(ipD_K+ipmat(is,is)-1+i-1+(j-1)*nbas(is))=
-     &       Work(ipD_K+ipmat(is,is)-1+i-1+(j-1)*nbas(is))
+            D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))=
+     &       D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))
      &      +Work(ipD_CI+iAA-1+(jAA-1)*ntash)
      &      +Work(ipG1q-1+itri(iAA,jAA))
            End Do
           End Do
          End Do
          Call Getmem('TMP', 'ALLO','Real',ipT,nBuf/2)
-         Call NatOrb(Work(ipD_K),Work(ipCMO),Work(ipCMON),Work(ipO))
+         Call NatOrb(D_K,Work(ipCMO),Work(ipCMON),Work(ipO))
          Call dmat_MCLR(Work(ipCMON),Work(ipO),Work(ipT))
          Call Put_D1ao_var(Work(ipT),nTot1)
          Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)
@@ -448,8 +449,8 @@ c Note: no inactive part for transition densities
 c
 c The inactive density
 c
-           Work(ipD_K+ipmat(is,is)-1+i-1+(i-1)*nbas(is))=
-     &     Work(ipD_K+ipmat(is,is)-1+i-1+(i-1)*nbas(is))+Two
+           D_K(ipmat(is,is)+i-1+(i-1)*nbas(is))=
+     &     D_K(ipmat(is,is)+i-1+(i-1)*nbas(is))+Two
           End DO
           Do iA=1,nash(is)
            Do jA=1,nash(is)
@@ -460,8 +461,8 @@ c
 c
 c The active density ipG1q and \bar{D}
 c
-            Work(ipD_K+ipmat(is,is)-1+i-1+(j-1)*nbas(is))=
-     &       Work(ipD_K+ipmat(is,is)-1+i-1+(j-1)*nbas(is))
+            D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))=
+     &       D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))
      &      +Work(ipD_CI+iAA-1+(jAA-1)*ntash)
      &      +Work(ipG1q-1+itri(iAA,jAA))
            End Do
@@ -473,7 +474,7 @@ c ipO eigenvalues of eff dens
 c ipCMON eigenvectors (new orb coef)
 c
          Call Getmem('TMP', 'ALLO','Real',ipT,nBuf/2)
-         Call NatOrb(Work(ipD_K),Work(ipCMO),Work(ipCMON),Work(ipO))
+         Call NatOrb(D_K,Work(ipCMO),Work(ipCMON),Work(ipO))
          Call dmat_MCLR(Work(ipCMON),Work(ipO),Work(ipT))
          Call Put_D1ao_Var(Work(ipT),nTot1)
          Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)
@@ -533,14 +534,14 @@ c
 c  Write the effective active one el density to disk in the same format as ipg1q
 c
 c       Call Getmem('TEMP1','ALLO','REAL',ipDeff_act,ndens2)
-c       call dcopy_(nDens2,Work(ipD_K),1,Work(ipDeff_act),1)
+c       call dcopy_(nDens2,D_K,1,Work(ipDeff_act),1)
 c       Do is=1,nSym
 c        Do i=1,nish(is)
 c
 c Subtract the inactive density
 c
 c         Work(ipDeff_act+ipmat(is,is)-1+i-1+(i-1)*nbas(is))=
-c     &   Work(ipD_K+ipmat(is,is)-1+i-1+(i-1)*nbas(is))-Two
+c     &   D_K(ipmat(is,is)+i-1+(i-1)*nbas(is))-Two
 c        End Do
 c       End Do
 c
@@ -554,7 +555,7 @@ c Diagonalize the effective density to be able to use Prpt
 c ipO eigenvalues of eff dens
 c ipCMON eigenvectors (new orb coef)
 c
-c      Call NatOrb(Work(ipD_K),Work(ipCMO),Work(ipCMON),Work(ipO))
+c      Call NatOrb(D_K,Work(ipCMO),Work(ipCMON),Work(ipO))
 c      Call Getmem('TMP', 'ALLO','Real',ipT,nBuf/2)
 c      Call dmat_MCLR(Work(ipCMON),Work(ipO),Work(ipT))
 c      Call Put_D1ao_Var(Work(ipT),nTot1)
@@ -584,7 +585,7 @@ c      Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)
 *
        Call GetMem('kappa1','FREE','Real',ipK1,  nDens2)
        Call Getmem('kappa2','FREE','Real',ipk2,  nDens2)
-         Call GetMem('Dens','FREE','Real',ipD_K,Length)
+       Call mma_deallocate(D_K)
        Call GetMem('ONEDEN','FREE','Real',ipDAO,nDens2)
        Call GetMem('ONEDEN','FREE','Real',ipD_CI,n1Dens)
        Call GetMem('ONEDEN','FREE','Real',ipD1,n1Dens)

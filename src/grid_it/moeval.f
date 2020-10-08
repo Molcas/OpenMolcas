@@ -12,8 +12,8 @@
 *               2000, Valera Veryazov                                  *
 *               2014, Thomas Dresselhaus                               *
 ************************************************************************
-      Subroutine MOEval(MOValue,nMOs,nCoor,CCoor,CMOs,nCMO,mCoor,DoIt,
-     &                  nDrv,mAO,Debug)
+      Subroutine MOEval(MOValue,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt,
+     &                  nDrv,mAO)
 ************************************************************************
 *      Author:Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN. November 1995                           *
@@ -37,7 +37,6 @@
       Integer mAO  ! Memory slots per point and basis functions. Should
                    ! be >=1 for nDrv=0, >=4 for nDrv=1, >=10 for nDrv=2.
       Real*8 MOValue(mAO,nCoor,nMOs),CMOs(nCMO)
-      Logical Debug
 *
 *     Statement functions
 *
@@ -211,28 +210,20 @@
       End Do
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-        Call Unused_integer(mCoor)
-        Call Unused_logical(Debug)
-      End If
       End
 
 
-      Subroutine MOEvalDel(MOValueD,nMOs,
-     &                     nCoor,CCoor,CMOs,nCMO,mCoor,DoIt,Debug)
+      Subroutine MOEvalDel(MOValueD,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt)
 
       Implicit Real*8 (A-H,O-Z)
       Real*8 Ccoor(3,nCoor),MOValueD(4*nCoor*nMOs),CMOs(nCMO)
       Integer DoIt(nMOs),mAO
-      Logical Debug
       integer nDrv
 
       mAO  = 4
       nDrv = 1
 
-      Call MOEval(MOValueD, nMOs, nCoor, CCoor, CMOs, nCMO, mCoor,
-     &                     DoIt, nDrv, mAO, DEBUG)
+      Call MOEval(MOValueD,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt,nDrv,mAO)
 
 c        IJ1=1+(I-1)*4
 c        IJ2=2+(I-1)*4
@@ -248,14 +239,12 @@ c      END DO
       Return
       End
 
-      Subroutine MOEvalDer(MOValue,iDir,nMOs,
-     &                     nCoor,CCoor,CMOs,nCMO,mCoor,DoIt,Debug)
+      Subroutine MOEvalDer(MOValue,iDir,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt)
 
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
       Real*8 Ccoor(3,nCoor),MOValue(nCoor*nMOs),CMOs(nCMO)
       Integer DoIt(nMOs),mAO
-      Logical Debug
       integer nDrv
 
       mAO  = 4
@@ -263,8 +252,7 @@ c      END DO
 
       Call GetMem('MOTMP','Allo','Real',iMoTmp,4*nCoor*nMOs)
 
-      Call MOEval(work(iMoTmp), nMOs, nCoor, CCoor, CMOs, nCMO, mCoor,
-     &                     DoIt, nDrv, mAO, DEBUG)
+      Call MOEval(work(iMoTmp),nMOs,nCoor,CCoor,CMOs,nCMO,DoIt,nDrv,mAO)
 
 c iDir = 1 then do dX
 c iDir = 2 then do dY

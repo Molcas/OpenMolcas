@@ -1005,7 +1005,7 @@ C_MPP End Do
 *
          Call F_Inquire('QMMM',Exist)
          If (Exist .and. DoTinker) Then
-            Call LA_Morok(nAtoms,ipTmp,1)
+            Call LA_Morok(nAtoms,Work(ipTmp),1)
          End If
 *
          If (iR.eq.iRoot) Call Put_Grad(Work(ipTmp),3*nAtoms)

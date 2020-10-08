@@ -75,11 +75,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+#ifdef _NOT_USED_
 *     --- Section to calculate Nonelectr. V_emb with current density
 *     Temporarily turned off (clean output)
-*      If (.not.OFE_first) then
-      If (.False.) then
-          Call Get_D1ao(ipD1ao_y,nDens)
+       If (.not.OFE_first) then
+          Call mma_allocate(D1ao_y,nh1)
           Call Get_NameRun(NamRfil) ! save the old RUNFILE name
           Call NameRun('AUXRFIL')   ! switch RUNFILE name
           Call GetMem('Vemb_M','Allo','Real', ipVemb, nh1)
@@ -89,12 +89,12 @@
 *    Substract V_nuc_B
           Call daxpy_(nh1,-One,Work(ipTmpA),1,Work(ipVemb),1)
 *    Calculate nonelectr. V_emb with current Density
-          Ynorm=dDot_(nh1,Work(ipD1ao_y),1,Work(ipD1ao_y),1)
-          V_emb_x=dDot_(nh1,Work(ipVemb),1,Work(ipD1ao_y),1)
+          Ynorm=dDot_(nh1,WD1ao_y,1,D1ao_y,1)
+          V_emb_x=dDot_(nh1,Work(ipVemb),1,D1ao_y,1)
           Write (6,'(A,F19.10,4X,A,F10.5)')
      &          'Nonelectr. Vemb w. current density: ', V_emb_x,
      &          'Y_Norm = ', Ynorm
-          Call GetMem('Dens','Free','Real',ipD1ao_y,nDens)
+          Call mma_deallocate(D1ao_y)
 *    Get rho_A_ref
           Call NameRun('PRERFIL')
           Call GetMem('Dens','Allo','Real',ipD1ao_x,nDens)
@@ -111,6 +111,7 @@
           Call NameRun(NamRfil)     ! switch back to RUNFILE
       End If
 *     --- Section End
+#endif
       Call f_Inquire('PRERFIL',is_rhoA_on_file) ! rho_A from file
       If (is_rhoA_on_file .and. .not.OFE_first) Return ! Vemb on disk
 
@@ -139,25 +140,14 @@
 *---- Get the density matrix of the environment (rho_B)
 *
       Call Get_iScalar('Multiplicity',kSpin)
-      Call Get_D1ao(ipD1ao,nDens)
-      If (nDens.ne.nh1) Then
-         Call WarningMessage(2,'DrvEMB: nDens.ne.nh1')
-         Write (6,*) 'nDens=',nDens
-         Write (6,*) 'nh1  =',nh1
-         Call Abend()
-      End If
-      call dcopy_(nh1,Work(ipD1ao),1,Work(ip_D_DS),1)
-*     Call RecPrt('D1ao',' ',Work(ipD1ao),nh1,1)
-*
-      Call GetMem('Dens','Free','Real',ipD1ao,nDens)
+      Call Get_D1ao(Work(ip_D_DS),nh1)
+*     Call RecPrt('D1ao',' ',Work(ip_D_DS),nh1,1)
 *
 *---- Get the spin density matrix of the environment
 *
       If (kSpin.ne.1) Then
-         Call Get_D1Sao(ipD1Sao,nDens)
-*        Call RecPrt('D1Sao',' ',Work(ipD1Sao),nh1,1)
-         call dcopy_(nh1,Work(ipD1Sao),1,Work(ip_D_DS+nh1),1)
-         Call GetMem('Dens','Free','Real',ipD1Sao,nDens)
+         Call Get_D1Sao(Work(ip_D_DS+nh1),nh1)
+*        Call RecPrt('D1Sao',' ',Work(ip_D_DS+nh1),nh1,1)
       End If
 *
 *---- Compute alpha and beta density matrices of the environment
@@ -215,17 +205,8 @@
       If (is_rhoA_on_file) Call NameRun('PRERFIL')
 *---- Get the density matrix for rho_A
 *
-      Call Get_D1ao(ipD1ao,nDens)
-      If (nDens.ne.nh1) Then
-         Call WarningMessage(2,'DrvEMB: nDens.ne.nh1')
-         Write (6,*) 'nDens=',nDens
-         Write (6,*) 'nh1  =',nh1
-         Call Abend()
-      End If
-      call dcopy_(nh1,Work(ipD1ao),1,Work(ipA_D_DS),1)
-*     Call RecPrt('D1ao',' ',Work(ipD1ao),nh1,1)
-*
-      Call GetMem('Dens','Free','Real',ipD1ao,nDens)
+      Call Get_D1ao(Work(ipA_D_DS),nh1)
+*     Call RecPrt('D1ao',' ',Work(ipA_D_DS),nh1,1)
 *
       Call Get_iScalar('Multiplicity',iSpin)
       If (iSpin.eq.1 .and. kSpin.ne.1 .and. OFE_first) Then
@@ -237,10 +218,8 @@
 *---- Get the spin density matrix of A
 *
       If (iSpin.ne.1) Then
-         Call Get_D1Sao(ipD1Sao,nDens)
-*        Call RecPrt('D1Sao',' ',Work(ipD1Sao),nh1,1)
-         call dcopy_(nh1,Work(ipD1Sao),1,Work(ipA_D_DS+nh1),1)
-         Call GetMem('Dens','Free','Real',ipD1Sao,nDens)
+         Call Get_D1Sao(Work(ipA_D_DS+nh1),nh1)
+*        Call RecPrt('D1Sao',' ',Work(ipA_D_DS+nh1),nh1,1)
       End If
 *
 *---- Compute alpha and beta density matrices of subsystem A
@@ -835,7 +814,9 @@ c Avoid unused argument warnings
 #include "ciinfo.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include <SysDef.fh>
+      Real*8, Allocatable:: D1ao_b(:)
 
 
       IAD12=IADR15(12)
@@ -877,8 +858,9 @@ c Avoid unused argument warnings
 * E_xc,T[rhoA+rhoB]
         Call Get_NameRun(MyNamRfil) ! save current Runfile name
         Call NameRun('AUXRFIL')   ! switch RUNFILE name
-        Call Get_D1ao(ipD1ao_b,nDns)
-        Call daxpy_(nVemb,0.5d0,Work(ipD1ao_b),1,Work(ipD),1)
+        Call mma_allocate(D1ao_b,nVemb,Label='D1ao_b')
+        Call Get_D1ao(D1ao_b,nVemb)
+        Call daxpy_(nVemb,0.5d0,D1ao_b,1,Work(ipD),1)
 *
         Func_AB=0.0d0
         Call GetMem('Fdummy','ALLO','REAL',ipFAB_DFT,2*nVemb)
@@ -888,7 +870,7 @@ c Avoid unused argument warnings
      &                Work(ipDummy),nDummy,'SCF ')
 *        Write(6,*) 'Kroot, Func_AB', KROOT, Func_AB
 *        Write(6,*) 'Kroot, Func_Bx', KROOT, Func_Bx
-        Call GetMem('Dens','Free','Real',ipD1ao_b,nDns)
+        Call mma_deallocate(D1ao_b)
 * Calculate DFT NAD for all densities:
         DFT_NAD = Func_AB - Func_A - Func_Bx
         Write(6,'(A,F19.10,3X,A,I3)') 'DFT energy (NAD) =           ',

@@ -288,10 +288,11 @@ c        multipled by 2
 c
 *        If (iUHF.eq.0) then
             call dcopy_(nblock,[Zero],0,Scr(iadDen),1)
+            Call GetMem('D1ao','Allo','Real',ipD1ao,nBlock)
             If (var) Then
-               Call Get_D1ao_Var(ipD1ao,nBlock)
+               Call Get_D1ao_Var(Work(ipD1ao),nBlock)
             Else
-               Call Get_D1ao(ipD1ao,nBlock)
+               Call Get_D1ao(Work(ipD1ao),nBlock)
             End If
             Do i = 1,nBlock
                SCR(i) = Work(ipD1ao+i-1)

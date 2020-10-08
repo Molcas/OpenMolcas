@@ -37,9 +37,10 @@
 #include "ciinfo.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "splitcas.fh"
 #include "SysDef.fh"
-
+      Real*8, Allocatable:: DSave(:)
       Character*8  Fmt2, Label
       Character*3 lIrrep(8)
       Character*80 Note
@@ -418,7 +419,8 @@ C Local print level (if any)
 ************************************************************************
 *     save the 1st order density for gradients                         *
 ************************************************************************
-      Call Get_D1AO(ipDSave,NTOT1)
+      Call mma_allocate(DSave,nTot1,Label='DSave')
+      Call Get_D1AO(DSave,NTOT1)
 
 * Read natural orbitals
       If ( NAC.GT.0 ) then
@@ -573,8 +575,8 @@ C Local print level (if any)
 
 *     Restore the correct 1st order density for gradient calculations.
 *
-      Call Put_D1AO(Work(ipDSave),NTOT1)
-      Call GetMem('DSave','Free','REAL',ipDSave,nTot1)
+      Call Put_D1AO(DSave,NTOT1)
+      Call mma_deallocate(DSave)
 *                                                                      *
 ************************************************************************
 *                                                                      *

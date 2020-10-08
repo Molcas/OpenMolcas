@@ -27,11 +27,14 @@
 #include "setup.fh"
 #include "wldata.fh"
 #include "iavec.fh"
+#include "stdalloc.fh"
       Character Label*80
       Real*8 Grad(nGrad), Temp(nGrad)
       Real*8 Ccoor(*)
 *     Logical DiffOp, DoRys
       Logical DiffOp
+      Real*8, Allocatable:: D_Var(:)
+      Integer, Allocatable:: lOper(:)
 *
 *-----Statement function
 *
@@ -66,18 +69,14 @@
 *...  Read the variational 1st order density matrix
 *...  density matrix in AO/SO basis
 *
-      Call Get_D1ao_Var(ipD_var,Length)
-      If ( length.ne.nDens ) Then
-         Write (6,*) 'Drvespf: length.ne.nDens'
-         Write (6,*) 'length,nDens=',length,nDens
-         Call Abend
-      End If
+      Call mma_allocate(D_Var,nDens,Label='D_Var')
+      Call Get_D1ao_Var(D_Var,nDens)
       If (iPrint.ge.99) then
          Write(6,*) 'variational 1st order density matrix'
-         ii=ipD_Var
+         ii=1
          Do iIrrep = 0, nIrrep - 1
             Write(6,*) 'symmetry block',iIrrep
-            Call TriPrt(' ',' ',Work(ii),nBas(iIrrep))
+            Call TriPrt(' ',' ',D_Var(ii),nBas(iIrrep))
             ii = ii + nBas(iIrrep)*(nBas(iIrrep)+1)/2
          End Do
       End If
@@ -85,15 +84,15 @@
 ************************************************************************
 *                                                                      *
 *     nOrdOp: order/rank of the operator
-*     Work(ip1): lOper of each component of the operator
+*     lOper: lOper of each component of the operator
 *
       nPrint(112) = 5
       iPL = iPL_espf()
       If (iPL.ge.3) nPrint(112) = 15
       nOrdOp=0
       nComp = nElem(nOrdOp)
-      Call GetMem('lOper','Allo','Inte',ip1,nComp)
-      iWork(ip1) = 1
+      Call mma_allocate(lOper,nComp,Label='lOper')
+      lOper(:)=1
 *
 ************************************************************************
 *                                                                      *
@@ -104,13 +103,13 @@
       DiffOp = .True.
       Label = ' The ESPF BdV contribution'
       Call OneEl_g(BdVGrd,NAMmG,Temp,nGrad,DiffOp,CCoor,
-     &           Work(ipD_Var),nDens,iWork(ip1),nComp,nOrdOp,Label)
+     &             D_Var,nDens,lOper,nComp,nOrdOp,Label)
       Call DaXpY_(nGrad,One,Temp,1,Grad,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('lOper','Free','Inte',ip1,nComp)
-      Call GetMem('D0  ','Free','Real',ipD_Var,nDens)
+      Call mma_deallocate(lOper)
+      Call mma_deallocate(D_Var)
 *
       Return
       End

@@ -45,13 +45,12 @@
 #include "Molcas.fh"
 #include "ndarray.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
+      Real*8 Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1),
+     &       Data2(nEta *(nDArray+2*ncd)+nDScalar+nHmcd,nData2)
       Real*8 Coor(3,4), CoorM(3,4), CoorAC(3,2),
      &       xA(nZeta),xB(nZeta), xG(nEta), xD(nEta), Grad(nGrad),
-     &       Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1),
-     &       Data2(nEta *(nDArray+2*ncd)+nDScalar+nHmcd,nData2),
      &       Zeta(nZeta), ZInv(nZeta), P(nZeta,3),
      &       Eta (nEta),  EInv(nEta ), Q(nEta, 3),
      &       Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj),
@@ -63,12 +62,22 @@
      &        iAnga(4), iCmp(4), iShell(4), iShll(4),
      &        nOp(4), kOp(4), JndGrd(3,4), iuvwx(4)
       Logical Shijij, AeqB, CeqD, AeqC, ABeqCD,
-     &        EQ, lEmpty, IfGrad(3,4),
-     &        JfGrad(3,4), PreScr
+     &        IfGrad(3,4), JfGrad(3,4), PreScr
 #ifdef _DEBUGPRINT_
       Character ChOper(0:7)*3
       Data ChOper/' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz'/
 #endif
+      Call TwoEl_g_Internal(Data1,Data2)
+
+      Contains
+      Subroutine TwoEl_g_Internal(Data1,Data2)
+      Use Iso_C_Binding
+      Real*8, Target ::
+     &       Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1),
+     &       Data2(nEta *(nDArray+2*ncd)+nDScalar+nHmcd,nData2)
+      Integer, Pointer :: iData1(:), iData2(:)
+      Logical EQ, lEmpty
+      External EQ, lEmpty
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -463,10 +472,12 @@
                iy2 = iPhase(2,iDCRT(lDCRT))
                iz2 = iPhase(3,iDCRT(lDCRT))
 *
-               ipIndZ=ip_of_iWork_d(Data1(ip_IndZ(1,nZeta),lDCR1))-1
-               ipIndE=ip_of_iWork_d(Data2(ip_IndZ(1,nEta ),lDCR2))-1
-               nZeta_Tot=iWork(ipIndZ+nZeta+1)
-               nEta_Tot =iWork(ipIndE+nEta+1)
+               Call C_F_Pointer(C_Loc(Data1(ip_IndZ(1,nZeta),lDCR1)),
+     &                         iData1,[nZeta+1])
+               Call C_F_Pointer(C_Loc(Data2(ip_IndZ(1,nEta ),lDCR2)),
+     &                         iData2,[nEta +1])
+               nZeta_Tot=iData1(nZeta+1)
+               nEta_Tot =iData2(nEta +1)
 *
 *--------------Loops to partion the primitives
 *
@@ -483,9 +494,9 @@
 *-----------------Preprescreen
 *
                   Call PrePre_g(nZeta,nEta,mZeta,mEta,lZeta,lEta,
-     &                        Data1(ip_Z   (iZeta,nZeta),lDCR1),
-     &                        Data2(ip_Z   (iEta, nEta), lDCR2),
-     &                        PreScr,CutGrd)
+     &                          Data1(ip_Z   (iZeta,nZeta),lDCR1),
+     &                          Data2(ip_Z   (iEta, nEta), lDCR2),
+     &                          PreScr,CutGrd)
                   If (lZeta*lEta.eq.0) Go To 410
 *
 *-----------------Decontract the 2nd order density matrix
@@ -505,8 +516,8 @@
      &                        Coeff4,nDelta,lBasl,
      &                        Wrk2(iW4),mab*mcd,Wrk2(iW3_),nWrk3_,
      &                        Wrk2(iW2),
-     &                        iWork(ipIndZ+iZeta),mZeta,
-     &                        iWork(ipIndE+iEta ),mEta)
+     &                        iData1(iZeta:iZeta+mZeta-1),mZeta,
+     &                        iData2(iEta: iEta +mEta -1),mEta)
 *
 *-----------------Transfer k2 data and prescreen
 *
@@ -517,11 +528,11 @@
      &                        Zeta,ZInv,P,xA,xB,
      &                        Data1(iZeta,lDCR1),
      &                        nAlpha,jPrim,
-     &                        iWork(ipIndZ+iZeta),
+     &                        iData1(iZeta:iZeta+mZeta-1),
      &                        Eta, EInv,Q,xG,xD,
      &                        Data2(iEta ,lDCR2),
      &                        nGamma,lPrim,
-     &                        iWork(ipIndE+iEta ),
+     &                        iData2(iEta :iEta +mEta -1),
      &                        ix1,iy1,iz1,ix2,iy2,iz2,
      &                        CutGrd,l2DI,
      &                        Data1(iZeta+iffab ,lDCR1),
@@ -556,6 +567,7 @@ c                 Write (*,*) 'Prem=',Prem
 *
  410           Continue
  400           Continue
+               Nullify(iData1,iData2)
 *
 #ifdef _DEBUGPRINT_
                If (iPrint.ge.19) Call PrGrad(' In TwoEl',
@@ -574,4 +586,5 @@ c Avoid unused argument warnings
          Call Unused_integer(iPrInc)
          Call Unused_integer(kPrInc)
       End If
+      End Subroutine TwoEl_g_Internal
       End

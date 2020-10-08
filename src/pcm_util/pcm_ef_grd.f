@@ -21,10 +21,11 @@
 #include "rctfld.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-      Logical Save_tmp
+      Logical Save_tmp, Found
       Real*8 EF_Temp(3)
       Real*8, Allocatable :: Cord(:,:), Chrg(:), FactOp(:)
       Integer, Allocatable :: lOper(:)
+      Real*8, Allocatable:: D1ao(:)
 *
       iRout = 1
       iPrint = nPrint(iRout)
@@ -96,19 +97,26 @@
 *
 *     Get the total 1st order AO density matrix
 *
-      Call Get_D1ao(ipD1ao,nDens)
+      Call Qpg_dArray('D1ao',Found,nDens)
+      If (Found .and. nDens/=0) Then
+         Call mma_allocate(D1ao,nDens,Label='D1ao')
+      Else
+         Write (6,*) 'pcm_ef_grd: D1ao not found.'
+         Call Abend()
+      End If
+      Call Get_D1ao(D1ao,nDens)
 *
       Call mma_allocate(FactOp,nTs)
       Call mma_allocate(lOper,nTs)
       Call DCopy_(nTs,[One],0,FactOp,1)
       Call ICopy(nTs,[255],0,lOper,1)
 *
-      Call Drv1_PCM(FactOp,nTs,Work(ipD1ao),nDens,
+      Call Drv1_PCM(FactOp,nTs,D1ao,nDens,
      &              PCMTess,lOper,Work(ip_EF),nOrdOp)
 *
       Call mma_deallocate(lOper)
       Call mma_deallocate(FactOp)
-      Call GetMem('D1ao','Free','Real',ipD1ao,nDens)
+      Call mma_deallocate(D1ao)
 *                                                                      *
 ************************************************************************
 *                                                                      *

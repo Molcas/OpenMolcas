@@ -33,7 +33,7 @@
 #include "espf.fh"
       Character*8 Label
       Real*8 Ccoor(3),opnuc(*),ptchrg(*)
-      Real*8, Allocatable :: Centr(:,:)
+      Real*8, Allocatable :: Centr(:,:), Dens(:)
       Logical Do_ESPF
       Dimension dummy(1),iopadr(1)
 *                                                                      *
@@ -82,13 +82,16 @@ c
         ipnuc=ip_Dummy
       End if
       If (iaddpot.lt.0) Then
+
+         Call mma_allocate(Dens,ntdg,Label='Dens')
          If (iaddpot.eq.-1) Then
-            Call Get_D1ao_Var(ipdens,Length)
+            Call Get_D1ao_Var(Dens,ntdg)
          Else
-            Call Get_D1ao(ipdens,Length)
+            Call Get_D1ao(Dens,ntdg)
          End If
-         call Drv1_Pot(work(ipdens),CCoor,ptchrg,ngrid,1,0)
-         Call GetMem('DENS','FREE','REAL',ipdens,ntdg)
+         call Drv1_Pot(Dens,CCoor,ptchrg,ngrid,1,0)
+         Call mma_deallocate(Dens)
+
          If (.not.Do_ESPF) Then
             Call AddVec(ptchrg,ptchrg,work(ipnuc),ngrid)
             Call dCopy_(ngrid,work(ipnuc),1,opnuc,1)

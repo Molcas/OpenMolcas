@@ -28,7 +28,7 @@
      * NoOrb, iMaxUp, iMaxDown, isLine, itRange, isDebug, LevelPrint,
      * NoSort, isSphere,mynCenter,ipWdW,isColor, isVirt,isWDW,
      * iSubBlock,isDerivative,isCurDens,isRxJ,iuseMaxes,
-     * ISLUSCUS, LID
+     * ISLUSCUS, LID, LID_ab
       Common /m2miVB/ isVB, nActOrb, nActEl
       Common /Chanal/ LuVal,LuVal_ab,isUHF
       Common /Request/ nReq, iReq(MAXGRID*2)
@@ -43,8 +43,8 @@
       Common /m2mPack/ xLeft,xRight,xLoErr,xHiErr,CutOff
       Common /m2miPack/ nBytesPackedVal,iyRange,iMinYLeft,
      * imoPack,isBinPack,isCutOff
-      Common/Title/Title1,TheName
-      Character Title1*80, TheName*40
+      Common/Title/Title1,TheName,LUS1,LUS2
+      Character Title1*80, TheName*256, LUS1*256, LUS2*256
 *
       Integer isMULL, isLONGPRT
       Common /mullprt/ isMULL, isLONGPRT

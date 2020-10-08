@@ -8,25 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Get_Grad(Grad,nGrad)
-      Implicit None
-      Integer nGrad
-      Real*8 Grad(nGrad)
-*     Local variables
-      Integer :: mGrad=0
-      Character(LEN=24), Parameter:: Label='GRAD'
-      Logical :: Found=.False.
-
-      Call qpg_dArray(Label,Found,mGrad)
-      If(.not.Found .or. nGrad==0) Then
-         Call SysAbendmsg('get_grad','Did not find:',Label)
-      End If
-      If (mGrad/=nGrad) Then
-         Write (6,*) 'mGrad=',mGrad
-         Write (6,*) 'nGrad=',nGrad
-         Call SysAbendmsg('get_grad','mGrad/=nGrad:',Label)
-      End If
-      Call Get_dArray(Label,Grad,nGrad)
-
-      Return
+*     This should have never been used outside casvb_util
+      Subroutine fmove(ia,ib,n)
+      Real*8 ia(*),ib(*)
+      Integer n
+      Call fmove_cvb(ia,ib,n)
       End

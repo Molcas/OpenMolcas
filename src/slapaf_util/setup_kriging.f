@@ -16,7 +16,7 @@
       Implicit None
 #include "stdalloc.fh"
 #include "real.fh"
-      Integer nRaw, nInter,i,iInter,jInter,ij
+      Integer nRaw, nInter,i,iInter,jInter,ij, nD
       Real*8 qInt(nInter,nRaw), Grad(nInter,nRaw), Energy(nRaw),
      &       Hessian_HMF(nInter,nInter)
       Real*8 Value_l
@@ -88,7 +88,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Start_Kriging(nRaw,nInter,qInt_s,Grad_s,Energy)
+      nD=0
+      Call Start_Kriging(nRaw,nD,nInter,qInt_s,Grad_s,Energy)
 *
       Call mma_deAllocate(qInt_s)
       Call mma_deAllocate(Grad_s)
