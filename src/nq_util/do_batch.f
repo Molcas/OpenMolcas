@@ -34,11 +34,13 @@
       use Basis_Info
       use Center_Info
       use Phase_Info
+      use KSDFT_GLM
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "SysDef.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 #include "debug.fh"
 #include "ksdft.fh"
@@ -110,8 +112,6 @@
      &           KSDFA(1:6).eq.'FTOPBE'  .or.
      &           KSDFA(1:6).eq.'FTBLYP'
 ************************************************************************
-#ifdef _TIME_
-#endif
 #ifdef _DEBUG_
       Debug_Save=Debug
       Debug=Debug.or.iPrint.ge.99
@@ -163,9 +163,6 @@
 *---- Evaluate the AOs on the grid points.                             *
 *                                                                      *
 ************************************************************************
-*
-#ifdef _TIME_
-#endif
 *
       Call FZero(TabAO,nTabAO)
 c      write(6,*) 'nTabAO value in do_batch.f=', nTabAO
@@ -418,11 +415,6 @@ cGLM            kAO   = iCmp*iBas_Eff*mGrid
 *
          End Do
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-#ifdef _TIME_
-#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1701,11 +1693,6 @@ C     Write (*,*) Dens_I,Grad_I,Tau_I
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _TIME_
-#endif
-*                                                                      *
-************************************************************************
-*                                                                      *
 *-- (A.Ohrn): Here I add the routine which constructs the kernel for
 *   the Xhole application. A bit 'cheating' but hey what da hey!
 *
@@ -1714,11 +1701,6 @@ C     Write (*,*) Dens_I,Grad_I,Tau_I
      &             dF_dRho,Weights,ip_OrbDip,Func)
         Go To 1979
       Endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-#ifdef _TIME_
-#endif
 ************************************************************************
 *                                                                      *
 *---- Evaluate the functional on the grid                              *
@@ -1727,12 +1709,12 @@ C     Write (*,*) Dens_I,Grad_I,Tau_I
 *                                                                      *
       Call FZero(dF_dRho,ndF_dRho*mGrid)
       Call FZero(F_xc,mGrid)
-      Call GetMem('F_xca','Allo','Real',ip_F_xca,mGrid)
-      Call GetMem('F_xcb','Allo','Real',ip_F_xcb,mGrid)
-      Call GetMem('tmpB','Allo','Real',ip_tmpB,mGrid)
-      Call FZero(Work(ip_F_xca),mGrid)
-      Call FZero(Work(ip_F_xcb),mGrid)
-      Call FZero(Work(ip_tmpB),mGrid)
+      Call mma_allocate(F_xca,mGrid,Label='F_xca')
+      Call mma_allocate(F_xcb,mGrid,Label='F_xcb')
+      Call mma_allocate(tmpB,mGrid,Label='tmpB')
+      F_xca(:)=Zero
+      F_xcb(:)=Zero
+      tmpB(:)=Zero
 *
 *1)   evaluate the energy density, the derivative of the functional with
 *     respect to rho and grad rho.
@@ -1751,29 +1733,19 @@ cGLM     &            ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_Rho,Work(ip_tmpB))
 *
       Func=Func+DDot_(mGrid,Weights,1,F_xc,1)
 cGLM     write(6,*) 'Func in do_batch =', Func
-      Funcaa=Funcaa+DDot_(mGrid,Weights,1,Work(ip_F_xca),1)
-      Funcbb=Funcbb+DDot_(mGrid,Weights,1,Work(ip_F_xcb),1)
-      Funccc=Funccc+DDot_(mGrid,Weights,1,Work(ip_tmpB),1)
-         call xflush(6)
-      Call GetMem('tmpB','Free','Real',ip_tmpB,mGrid)
-      Call GetMem('F_xcb','Free','Real',ip_F_xcb,mGrid)
-      Call GetMem('F_xca','Free','Real',ip_F_xca,mGrid)
-*                                                                      *
-************************************************************************
-*                                                                      *
-#ifdef _TIME_
-#endif
+      Funcaa=Funcaa+DDot_(mGrid,Weights,1,F_xca,1)
+      Funcbb=Funcbb+DDot_(mGrid,Weights,1,F_xcb,1)
+      Funccc=Funccc+DDot_(mGrid,Weights,1,tmpB,1)
+      call xflush(6)
+      Call mma_deallocate(F_xca)
+      Call mma_deallocate(F_xcb)
+      Call mma_deallocate(tmpB)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 1979  Continue  !Jump here and skip the call to the kernel.
 
       If (.Not.Do_Grad) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
-#ifdef _TIME_
-#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -2029,11 +2001,6 @@ cGLM     write(6,*) 'Func in do_batch =', Func
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _TIME_
-#endif
-*                                                                      *
-************************************************************************
-*                                                                      *
 *    Compute the DFT contribution to the gradient                      *
 *                                                                      *
 ************************************************************************
@@ -2054,8 +2021,6 @@ cGLM     write(6,*) 'Func in do_batch =', Func
       End If
 #ifdef _DEBUG_
       Debug=Debug_Save
-#endif
-#ifdef _TIME_
 #endif
       Return
       End

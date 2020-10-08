@@ -17,10 +17,10 @@
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
 C-Ajitha Modifying the kernel output structure
+      use KSDFT_GLM, only: F_xca, F_xcb
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-#include "WrkSpc.fh"
 #include "ksdft.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
 cGLM     &           F_xca(mGrid),F_xcb(mGrid)
@@ -84,14 +84,12 @@ cGLM     &           F_xca(mGrid),F_xcb(mGrid)
          If (DTot.lt.T_X) Go To 200
 *------- Exchange contributions to energy
 *
-         functional=-Three/Four*CVX*(d_alpha**FTHIRD+d_beta**FTHIRD)
+         functional =-Three/Four*CVX*(d_alpha**FTHIRD+d_beta**FTHIRD)
          functionala=-Three/Four*CVX*(d_alpha**FTHIRD)
-         functionalb=-Three/Four*CVX*(d_beta**FTHIRD)
-         F_xc(iGrid)=F_xc(iGrid)+Coeff*functional
-         Work(ip_F_xca+iGrid-1)=
-     &         Work(ip_F_xca+iGrid-1)+Coeff*functionala
-         Work(ip_F_xcb+iGrid-1)=
-     &         Work(ip_F_xcb+iGrid-1)+Coeff*functionalb
+         functionalb=-Three/Four*CVX*(                d_beta**FTHIRD)
+         F_xc(iGrid) =F_xc(iGrid) +Coeff*functional
+         F_xca(iGrid)=F_xca(iGrid)+Coeff*functionala
+         F_xcb(iGrid)=F_xcb(iGrid)+Coeff*functionalb
 *
 *------- Exchange contributions to the AO intergrals
 *

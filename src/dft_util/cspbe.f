@@ -25,10 +25,10 @@
 *      Author: G. Li Manni & A. Cohen, Max Planck Institute Stuttgart  *
 *              Summer 2017, edited in Cambridge (UK) & Palermo (Sicily)*
 ************************************************************************
+      use KSDFT_GLM, only: tmpB
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-#include "WrkSpc.fh"
 #include "ksdft.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
 * Local arrays:
@@ -111,7 +111,7 @@
          zeta_in=(rhoa-rhob)/rho_in
          call cspbe_(idord,rho_in,grdrho_in,zeta_in,func0,func1,func2)
          F_xc(iGrid)=F_xc(iGrid)+Coeff*func0
-         Work(ip_tmpB+iGrid-1)=F_xc(iGrid)-Work(ip_tmpB+iGrid-1)
+         tmpB(iGrid)=F_xc(iGrid)-tmpB(iGrid)
 * dF_drhoa:
          dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)+
      &            Coeff*(func1(1)+(2.0D0*func1(3))*(rhob/rho_in**2))

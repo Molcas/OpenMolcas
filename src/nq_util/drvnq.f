@@ -25,6 +25,7 @@
 ************************************************************************
       use iSD_data
       use Symmetry_Info, only: nIrrep
+      use KSDFT_GLM, only: KSDFA
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "real.fh"
@@ -391,8 +392,6 @@ c     &        'Meta-GGA functional type 2 not fully DEBUGGED yet!')
 ************************************************************************
 *                                                                      *
       Call GetMem('F_xc','Allo','Real',ip_F_xc,nGridMax)
-cGLM      Call GetMem('F_xca','Allo','Real',ip_F_xca,nGridMax)
-cGLM      Call GetMem('F_xcb','Allo','Real',ip_F_xcb,nGridMax)
       Call GetMem('Rho','Allo','Real',ip_Rho,nRho*nGridMax)
       Call GetMem('dF_dRho','Allo','Real',ip_dFdRho,ndF_dRho*nGridMax)
 *
@@ -597,8 +596,6 @@ cGLM     &        Work(ip_F_xca),Work(ip_F_xcb),
 *
       Call GetMem('Rho','Free','Real',ip_Rho,nRho*nGridMax)
       Call GetMem('F_xc','Free','Real',ip_F_xc,nGridMax)
-cGLM      Call GetMem('F_xca','Free','Real',ip_F_xca,nGridMax)
-cGLM      Call GetMem('F_xcb','Free','Real',ip_F_xcb,nGridMax)
       Call GetMem('Grid','Free','Real',ip_Grid,nGridMax*3)
 c      Call GetMem('tmpB','Free','Real',ip_tmpB,nGridMax)
 

@@ -29,10 +29,10 @@
 *             University of Lund, SWEDEN. June 2006                    *
 *      Modified for revPBE: Andrew Sand, U. of Minnesota, March 2016   *
 ************************************************************************
+      use KSDFT_GLM, only: F_xca, F_xcb, tmpB
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-#include "WrkSpc.fh"
 #include "ksdft.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
      &       F_xc(mGrid)
@@ -93,9 +93,9 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid)
          call xrevpbe_(idord,rhob,sigmabb,Fb,dFdrhob,dFdgammabb,
      &          d2Fdrb2,d2Fdrbdgbb,d2Fdgbb2)
 
-         F_xc(iGrid)=F_xc(iGrid)+Coeff*(Fa+Fb)
-         Work(ip_F_xca+iGrid-1)=Work(ip_F_xca+iGrid-1)+Coeff*(Fa)
-         Work(ip_F_xcb+iGrid-1)=Work(ip_F_xcb+iGrid-1)+Coeff*(Fb)
+         F_xc (iGrid)=F_xc (iGrid)+Coeff*(Fa+Fb)
+         F_xca(iGrid)=F_xca(iGrid)+Coeff*(Fa)
+         F_xcb(iGrid)=F_xcb(iGrid)+Coeff*(   Fb)
          dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)+Coeff*dFdrhoa
          dF_dRho(ipRb,iGrid)=dF_dRho(ipRb,iGrid)+Coeff*dFdrhob
 * Maybe derivatives w.r.t. gamma_aa, gamma_ab, gamma_bb should be used instead.
@@ -104,7 +104,7 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid)
          dF_dRho(ipGbb,iGrid)=dF_dRho(ipGbb,iGrid)+Coeff*dFdgammabb
  210     continue
         end do
-        call DCopy_(mGrid,F_xc,1,Work(ip_tmpB),1)
+        tmpB(:)=F_xc(:)
 
       end if
 

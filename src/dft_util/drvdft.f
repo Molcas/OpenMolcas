@@ -11,6 +11,7 @@
       Subroutine DrvDFT(h1,TwoHam,D,RepNuc,nh1,First,Dff,
      &                  lRF,KSDFT,ExFac,Do_Grad,Grad,nGrad,iSpin,
      &                  D1I,D1A,nD1,DFTFOCK)
+      use KSDFT_GLM, only: KSDFA, funcaa, funcbb, funccc
       Implicit Real*8 (a-h,o-z)
       External LSDA, Overlap, BLYP, BPBE, B3LYP, HFS, HFB,
      &         XAlpha, LSDA5, B3LYP5, B2PLYP, TLYP, NLYP,
