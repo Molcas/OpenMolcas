@@ -1,5 +1,3 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
 * it under the terms of the GNU Lesser General Public License, v. 2.1. *
@@ -19,19 +17,21 @@
      & KT2, RGE2, PTCA
       Integer Functional_type
 #include "functional_types.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
+      Real*8, Allocatable:: F_xc1(:), F_xc2(:), F_xc3(:), F_xc4(:),
+     &                      dF_temp(:), Rho_temp(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('F_xc1','Allo','Real',ip_F_xc1,mGrid)
-      Call GetMem('F_xc2','Allo','Real',ip_F_xc2,mGrid)
-      Call GetMem('F_xc3','Allo','Real',ip_F_xc3,mGrid)
-      Call GetMem('F_xc4','Allo','Real',ip_F_xc4,mGrid)
-      Call GetMem('dF_temp','Allo','Real',ip_dF_temp,ndF_dRho*mGrid)
-      Call GetMem('Rho_temp','Allo','Real',ip_Rho_temp,nRho*mGrid)
+      Call mma_allocate(F_xc1,mGrid,Label='F_xc1')
+      Call mma_allocate(F_xc2,mGrid,Label='F_xc2')
+      Call mma_allocate(F_xc3,mGrid,Label='F_xc3')
+      Call mma_allocate(F_xc4,mGrid,Label='F_xc4')
+      Call mma_allocate(dF_temp,ndF_dRho*mGrid,Label='dF_temp')
+      Call mma_allocate(Rho_temp,nRho*mGrid,Label='Rho_temp')
       T_x=1.0D-8
 *                                                                      *
 ************************************************************************
@@ -42,33 +42,33 @@
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              LSDA,Functional_type,'LSDA',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- LSDA5
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              LSDA5,Functional_type,'LSDA5',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- HFS
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              HFS,Functional_type,'HFS',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- xalpha
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              XAlpha,Functional_type,'xAlpha',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *
       Functional_type=GGA_type
 *---- HFB
@@ -76,235 +76,235 @@
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              HFB,Functional_type,'HFB',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- HFO
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              HFO,Functional_type,'HFO',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- HFB86
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              HFB86,Functional_type,'HFB86',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- HFG
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              HFG,Functional_type,'HFG',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- BWIG
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              BWIG,Functional_type,'BWIG',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- BLYP
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              BLYP,Functional_type,'BLYP',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- OLYP
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              OLYP,Functional_type,'OLYP',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- KT3
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              KT3,Functional_type,'KT3',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- KT2
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              KT2,Functional_type,'KT2',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- GLYP
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              GLYP,Functional_type,'GLYP',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- B86LYP
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              B86LYP,Functional_type,'B86LYP',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- BPBE
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              BPBE,Functional_type,'BPBE',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- OPBE
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              OPBE,Functional_type,'OPBE',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- GPBE
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              GPBE,Functional_type,'GPBE',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- B86PBE
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              B86PBE,Functional_type,'B86PBE',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- TLYP
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              TLYP,Functional_type,'TLYP',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 #ifdef _SKIP_
 *---- NLYP
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              NLYP,Functional_type,'NLYP',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 #endif
 *---- B3LYP
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              B3LYP,Functional_type,'B3LYP',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- O3LYP
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              O3LYP,Functional_type,'O3LYP',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- B2PLYP
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              B2PLYP,Functional_type,'B2PLYP',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- O2PLYP
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              O2PLYP,Functional_type,'O2PLYP',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- B3LYP5
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              B3LYP5,Functional_type,'B3LYP5',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- PBE0
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              PBE0,Functional_type,'PBE0',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- PBE
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              PBE,Functional_type,'PBE',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- SSBSW
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              SSBSW,Functional_type,'SSBSW',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- SSBD
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              SSBD,Functional_type,'SSBD',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- PBEsol
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              PBEsol,Functional_type,'PBESOL',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- RGE2
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              RGE2,Functional_type,'RGE2',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- PTCA
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              PTCA,Functional_type,'PTCA',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *
 *
       Functional_type=meta_GGA_type1
@@ -313,42 +313,42 @@
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              M06L,Functional_type,'M06-L',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- M06
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              M06,Functional_type,'M06',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- M06-2X
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              M062X,Functional_type,'M06-2X',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *---- M06-HF
       Call Checker_(mGrid,Rho,nRho,P2_ontop,
      &              nP2_ontop,iSpin,F_xc,
      &              dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X,
      &              M06HF,Functional_type,'M06-HF',
-     &              Work(ip_F_xc1),Work(ip_F_xc2),
-     &              Work(ip_F_xc3),Work(ip_F_xc4),
-     &              Work(ip_dF_temp),Work(ip_Rho_temp))
+     &              F_xc1,F_xc2,
+     &              F_xc3,F_xc4,
+     &              dF_temp,Rho_temp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('Rho_temp','Free','Real',ip_Rho_temp,nRho*mGrid)
-      Call GetMem('dF_temp','Free','Real',ip_dF_temp,ndF_dRho*mGrid)
-      Call GetMem('F_xc4','Free','Real',ip_F_xc4,mGrid)
-      Call GetMem('F_xc3','Free','Real',ip_F_xc3,mGrid)
-      Call GetMem('F_xc2','Free','Real',ip_F_xc2,mGrid)
-      Call GetMem('F_xc1','Free','Real',ip_F_xc1,mGrid)
+      Call mma_deallocate(Rho_temp)
+      Call mma_deallocate(dF_temp)
+      Call mma_deallocate(F_xc4)
+      Call mma_deallocate(F_xc3)
+      Call mma_deallocate(F_xc2)
+      Call mma_deallocate(F_xc1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -67,6 +67,7 @@
       Character ChOper(0:7)*3
       Data ChOper/' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz'/
 #endif
+
       Call TwoEl_g_Internal(Data1,Data2)
 
       Contains
@@ -76,6 +77,7 @@
      &       Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1),
      &       Data2(nEta *(nDArray+2*ncd)+nDScalar+nHmcd,nData2)
       Integer, Pointer :: iData1(:), iData2(:)
+      Integer :: lZeta=0, lEta=0
       Logical EQ, lEmpty
       External EQ, lEmpty
 *                                                                      *
@@ -228,17 +230,17 @@
 ************************************************************************
 *                                                                      *
       nOp(1)=NrOpr(0)
-      call dcopy_(3,Coor(1,1),1,CoorM(1,1),1)
+      CoorM(:,1)=Coor(:,1)
       Do 100 lDCRR = 0, nDCRR-1
          nOp(2)=NrOpr(iDCRR(lDCRR))
-         Call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
-         AeqB = EQ(CoorM(1,1),CoorM(1,2))
+         Call OA(iDCRR(lDCRR),Coor(:,2),CoorM(:,2))
+         AeqB = EQ(CoorM(:,1),CoorM(:,2))
 *
          MxDCRS = nDCRS-1
          Do 200 lDCRS = 0, MxDCRS
-            call dcopy_(3,Coor(1,3),1,CoorM(1,3),1)
+            CoorM(:,3)=Coor(:,3)
             Call OA(iDCRS(lDCRS),Coor(1:3,4),CoorM(1:3,4))
-            CeqD = EQ(Coor(1,3),CoorM(1,4))
+            CeqD = EQ(Coor(:,3),CoorM(:,4))
 *
             Do 300 lDCRT = nDCRT-1, 0, -1
 #ifdef _DEBUG_
@@ -252,14 +254,14 @@
                iDCRTS=iEor(iDCRT(lDCRT),iDCRS(lDCRS))
                nOp(4) = NrOpr(iDCRTS)
 *
-               Call OA(iDCRTS,Coor(1:3,4),CoorM(1:3,4))
-               Call OA(iDCRT(lDCRT),Coor(1:3,3),CoorM(1:3,3))
+               Call OA(iDCRTS,Coor(:,4),CoorM(:,4))
+               Call OA(iDCRT(lDCRT),Coor(:,3),CoorM(:,3))
 *
 #ifdef _DEBUG_
                If (iPrint.ge.59)
      &            Call RecPrt(' CoorM in TwoEl',' ',CoorM,3,4)
 #endif
-               AeqC = EQ(CoorM(1,1),CoorM(1,3))
+               AeqC = EQ(CoorM(:,1),CoorM(:,3))
                ABeqCD = AeqB .and. CeqD .and. AeqC
 *--------------No contribution to gradient from one-center integrals
                If (ABeqCD) Go To 301
@@ -270,14 +272,8 @@
                mGrad = 0
                Do 3333 iCar = 1, 3
 *-----------------Copy to temporary arrays
-                  JfGrad(iCar,1)=IfGrad(iCar,1)
-                  JfGrad(iCar,2)=IfGrad(iCar,2)
-                  JfGrad(iCar,3)=IfGrad(iCar,3)
-                  JfGrad(iCar,4)=IfGrad(iCar,4)
-                  JndGrd(iCar,1)=IndGrd(iCar,1)
-                  JndGrd(iCar,2)=IndGrd(iCar,2)
-                  JndGrd(iCar,3)=IndGrd(iCar,3)
-                  JndGrd(iCar,4)=IndGrd(iCar,4)
+                  JfGrad(iCar,:)=IfGrad(iCar,:)
+                  JndGrd(iCar,:)=IndGrd(iCar,:)
 *-----------------In case of four differentiations use
 *                 the translational invariance to remove
 *                 one or several of them.
@@ -392,19 +388,16 @@
 *              the order as defined by the basis functions types.
 *
                If (iAnga(1).ge.iAnga(2)) Then
-                  call dcopy_(3,CoorM(1,1),1,CoorAC(1,1),1)
+                  CoorAC(:,1)=CoorM(:,1)
                Else
-                  call dcopy_(3,CoorM(1,2),1,CoorAC(1,1),1)
+                  CoorAC(:,1)=CoorM(:,2)
                End If
                If (iAnga(3).ge.iAnga(4)) Then
-                   call dcopy_(3,CoorM(1,3),1,CoorAC(1,2),1)
+                  CoorAC(:,2)=CoorM(:,3)
                Else
-                   call dcopy_(3,CoorM(1,4),1,CoorAC(1,2),1)
+                  CoorAC(:,2)=CoorM(:,4)
                End If
-               kOp(1) = nOp(1)
-               kOp(2) = nOp(2)
-               kOp(3) = nOp(3)
-               kOp(4) = nOp(4)
+               kOp(:) = nOp(:)
 
 *
 *--------------Desymmetrize the second order density matrix
