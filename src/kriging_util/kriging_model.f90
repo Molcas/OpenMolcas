@@ -35,8 +35,8 @@ SUBROUTINE kriging_model()
   Call mma_Allocate(IPIV,m_t,Label="IPIV")
 !
 ! Initiate B according to Eq. (6) of ref.
-  B(1:nPoints_v)=1.0D0
-  B(nPoints_v+1:)=0.0D0
+  B(1:nPoints)=1.0D0
+  B(nPoints+1:)=0.0D0
 !
 ! Initiate A according to Eq. (2) of ref.
 !
@@ -58,41 +58,41 @@ SUBROUTINE kriging_model()
 !
 ! U will contain the eigenvectors
 !
-  Call mma_allocate(U,nPoints_v,nPoints_v,Label='U')
+  Call mma_allocate(U,nPoints,nPoints,Label='U')
   U(:,:) = 0.0D0
-  do i=1,nPoints_v
+  do i=1,nPoints
     U(i,i)=1.0D0
   end do
-  Call mma_allocate(HTri,nPoints_v*(nPoints_v+1)/2,Label='HTri')
-  Do i = 1, nPoints_v
+  Call mma_allocate(HTri,nPoints*(nPoints+1)/2,Label='HTri')
+  Do i = 1, nPoints
     Do j = 1, i
       ij=i*(i-1)/2 + j
       HTri(ij)=Full_R(i,j)
     End Do
   End Do
 #ifdef _DEBUG_
-  Call RecPrt('U',' ',U,nPoints_v,nPoints_v)
+  Call RecPrt('U',' ',U,nPoints,nPoints)
 #endif
-  Call nidiag_new(HTri,U,nPoints_v,nPoints_v,0)
-  Call Jacord    (HTri,U,nPoints_v,nPoints_v)
+  Call nidiag_new(HTri,U,nPoints,nPoints,0)
+  Call Jacord    (HTri,U,nPoints,nPoints)
 !
 ! Introduce canonical phase factor
 !
-  Do i = 1, nPoints_v
-    Temp=DDot_(nPoints_v,[1.0D0],0,U(1,i),1)
-    U(1:nPoints_v,i)= U(1:nPoints_v,i) * Sign(1.0D0,Temp)
+  Do i = 1, nPoints
+    Temp=DDot_(nPoints,[1.0D0],0,U(1,i),1)
+    U(1:nPoints,i)= U(1:nPoints,i) * Sign(1.0D0,Temp)
   End Do
 #ifdef _DEBUG_
-  Call RecPrt('U',' ',U,nPoints_v,nPoints_v)
-  Call TriPrt('HTri',' ',HTri,nPoints_v)
+  Call RecPrt('U',' ',U,nPoints,nPoints)
+  Call TriPrt('HTri',' ',HTri,nPoints)
 #endif
 !
 ! Now set up an eigenvector matrix for the whole space.
 !
   Call mma_Allocate(UBIG,m_t,m_t,Label='UBig')
   UBIG(:,:)=0.0D0
-  UBIG(1:nPoints_v,1:nPoints_v)=U(:,:)
-  do i=nPoints_v+1,m_t
+  UBIG(1:nPoints,1:nPoints)=U(:,:)
+  do i=nPoints+1,m_t
     UBIG(i,i)=1.0D0
   end do
 !           Call RecPrt('UBIG',' ',UBig,m_t,m_t)
@@ -113,8 +113,8 @@ SUBROUTINE kriging_model()
 ! For safty measures set the value-value to zero and then reintroduce the
 ! eigenvalues from the previous diagonalization.
 !
-  A(1:nPoints_v,1:nPoints_v)=0.0D0
-  do i=1,nPoints_v
+  A(1:nPoints,1:nPoints)=0.0D0
+  do i=1,nPoints
     A(i,i)=HTri(i*(i+1)/2)
   end do
 #ifdef _DEBUG_
@@ -124,8 +124,8 @@ SUBROUTINE kriging_model()
 ! Set up the F-vector with ones and zeros
 !
   Call mma_allocate(D,m_t,Label='D')
-  D(1:nPoints_v)=1.0D0
-  D(nPoints_v+1:)=0.0D0
+  D(1:nPoints)=1.0D0
+  D(nPoints+1:)=0.0D0
 !
 ! Transform the vector to the new basus
 !
@@ -149,8 +149,8 @@ SUBROUTINE kriging_model()
 !
 ! here we do the same stuff but without prediagonalization
 !
-  B(1:nPoints_v)=1.0D0
-  B(nPoints_v+1:)=0.0D0
+  B(1:nPoints)=1.0D0
+  B(nPoints+1:)=0.0D0
   A(:,:) = full_r(:,:)
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -177,7 +177,7 @@ SUBROUTINE kriging_model()
   Call RecPrt('PSI^{-1}',' ',A,m_t,m_t)
   Call RecPrt('X=PSI^{-1}f',' ',B,1,m_t)
   Call RecPrt('rones',' ',rones,1,m_t)
-  Write (6,*) 'nPointsi_v=',nPoints_v
+  Write (6,*) 'nPoints=',nPoints
 #endif
 
 !
@@ -226,7 +226,7 @@ SUBROUTINE kriging_model()
 !   Make sure the base line is above any data point
 !
     sb = -1.0D99
-    Do i = 1, nPoints_v
+    Do i = 1, nPoints
       sb = Max( sb, y(i) + blavAI )
     End Do
   else if (mblAI) then
@@ -238,10 +238,10 @@ SUBROUTINE kriging_model()
 !
     B(:) = [y(:),dy(:)]
 #ifdef _DEBUG_
-    Write (6,*) DDot_(m_t,rones,1,B,1) , DDot_(nPoints_v,rones,1,[1.0D0],0)
+    Write (6,*) DDot_(m_t,rones,1,B,1) , DDot_(nPoints,rones,1,[1.0D0],0)
 #endif
 !   sbO:  FR^-1y/(FR^-1F)
-    sbO = DDot_(m_t,rones,1,B,1) / DDot_(nPoints_v,rones,1,[1.0D0],0)
+    sbO = DDot_(m_t,rones,1,B,1) / DDot_(nPoints,rones,1,[1.0D0],0)
     sb = sbO
   endif
 !
@@ -249,7 +249,7 @@ SUBROUTINE kriging_model()
 !
 ! form the actual value vector (y-b_0F)
 !
-  B(1:m_t) = [y(1:nPoints_v)-sb,dy(1:nInter_save*nPoints_g)]
+  B(1:m_t) = [y(1:nPoints)-sb,dy(1:nInter_save*(nPoints-nD))]
 !
 #ifdef _DEBUG_
   Write (6,*) 'sb,ln(det|PSI|)=',sb,detR
@@ -261,28 +261,28 @@ SUBROUTINE kriging_model()
 !
 ! Diagonalize the energy block of Psi
 !
-  Call mma_allocate(U,nPoints_v,nPoints_v,Label='U')
+  Call mma_allocate(U,nPoints,nPoints,Label='U')
   U(:,:) = 0.0D0
-  do i=1,nPoints_v
+  do i=1,nPoints
     U(i,i)=1.0D0
   end do
-  Call mma_allocate(HTri,nPoints_v*(nPoints_v+2)/2,Label='HTri')
-  Do i = 1, nPoints_v
+  Call mma_allocate(HTri,nPoints*(nPoints+2)/2,Label='HTri')
+  Do i = 1, nPoints
     Do j = 1, i
       ij=i*(i-1)/2 + j
       HTri(ij)=Full_R(i,j)
     End Do
   End Do
-  Call nidiag_new(HTri,U,nPoints_v,nPoints_v,0)
-  Call Jacord    (HTri,U,nPoints_v,nPoints_v)
+  Call nidiag_new(HTri,U,nPoints,nPoints,0)
+  Call Jacord    (HTri,U,nPoints,nPoints)
 ! Standardized phase factor
-  Do i = 1, nPoints_v
-    Temp=DDot_(nPoints_v,[1.0D0],0,U(1,i),1)
-    U(1:nPoints_v,i)= U(1:nPoints_v,i) * Sign(1.0D0,Temp)
+  Do i = 1, nPoints
+    Temp=DDot_(nPoints,[1.0D0],0,U(1,i),1)
+    U(1:nPoints,i)= U(1:nPoints,i) * Sign(1.0D0,Temp)
   End Do
 #ifdef _DEBUG_
-  Call RecPrt('U',' ',U,nPoints_v,nPoints_v)
-  Call TriPrt('HTri',' ',HTri,nPoints_v)
+  Call RecPrt('U',' ',U,nPoints,nPoints)
+  Call TriPrt('HTri',' ',HTri,nPoints)
 #endif
 !
 ! Construct a transformation which will transform the
@@ -290,8 +290,8 @@ SUBROUTINE kriging_model()
 !
   Call mma_Allocate(UBIG,m_t,m_t,Label='UBig')
   UBIG(:,:)=0.0D0
-  UBIG(1:nPoints_v,1:nPoints_v)=U(:,:)
-  do i=nPoints_v+1,m_t
+  UBIG(1:nPoints,1:nPoints)=U(:,:)
+  do i=nPoints+1,m_t
     UBIG(i,i)=1.0D0
   end do
 ! Call RecPrt('UBIG',' ',UBig,m_t,m_t)
@@ -311,8 +311,8 @@ SUBROUTINE kriging_model()
 !
 ! Cleanup the first block - should be prefectly diagonal.
 !
-  A(1:nPoints_v,1:nPoints_v)=0.0D0
-  do i=1,nPoints_v
+  A(1:nPoints,1:nPoints)=0.0D0
+  do i=1,nPoints
     A(i,i)=HTri(i*(i+1)/2)
   end do
 #ifdef _DEBUG_

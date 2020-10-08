@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
+Subroutine Start_Kriging(nPoints_In,nD_In,nInter,x_,dy_,y_)
   use kriging_mod
   Implicit None
 #include "stdalloc.fh"
@@ -21,17 +21,17 @@ Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
 !    dy_: the gradient of the function at the sample points
 !    x_: the coordinates of the sample points
 !
-  Integer nInter,nPoints_In,nD
+  Integer nInter,nPoints_In,nD_In
   Real*8 x_(nInter,nPoints_In)
   Real*8 y_(nPoints_In)
-  Real*8 dy_(nInter,nPoints_In-nd)
+  Real*8 dy_(nInter,nPoints_In)
 !
 !
 !#define _DEBUG_
 #ifdef _DEBUG_
   Call RecPrt('Start_Kriging: x',' ',x_,nInter,nPoints_In)
   Call RecPrt('Start_Kriging: y',' ',y_,     1,nPoints_In)
-  Call RecPrt('Start_Kriging: dy',' ',dy_,nInter,nPoints_In-nD)
+  Call RecPrt('Start_Kriging: dy',' ',dy_,nInter,nPoints_In)
 #endif
 !
 ! Call Setup_Kriging to store the data in some internally protected arrays and scalars.
@@ -50,7 +50,7 @@ Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
 ! In the case the nPoint_v last energies and nPoint_g last gradients were use
 ! m_t would be computed as
 !
-  m_t=nPoints_v + nInter*nPoints_g
+  m_t=nPoints + nInter*(nPoints-nD)
 !
 ! full_R correspond to the gradient of Psi (eq. (2) ref.)
 !
@@ -68,8 +68,8 @@ Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
 !Iden is just an identity matrix necesary to avoid that the Grad-Psi becomes
 ! Singular after been multiplied by EPS factor
 !
-  Call mma_Allocate(rl,nPoints_v,nInter,Label="rl")
-  Call mma_Allocate(dl,nPoints_v,Label="dl")
+  Call mma_Allocate(rl,nPoints,nInter,Label="rl")
+  Call mma_Allocate(dl,nPoints,Label="dl")
   Call mma_Allocate(Rones,m_t,Label="Rones")
 !
 !kv is the vector that contains the dot product of the inverse of Grad-Psi and
@@ -96,9 +96,9 @@ Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
   Call mma_allocate(ll,int(lb(3)),Label="ll")
 !
   Call mma_allocate(cv,m_t,nInter,nInter,Label="cv")
-  Call mma_allocate(cvMatFder,nPoints_v,Label="cvMatFder")
-  Call mma_allocate(cvMatSder,nPoints_v,Label="cvMatSder")
-  Call mma_allocate(cvMatTder,nPoints_v,Label="cvMatTder")
+  Call mma_allocate(cvMatFder,nPoints,Label="cvMatFder")
+  Call mma_allocate(cvMatSder,nPoints,Label="cvMatSder")
+  Call mma_allocate(cvMatTder,nPoints,Label="cvMatTder")
 !
   return
 End Subroutine Start_Kriging
