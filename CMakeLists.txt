@@ -2137,20 +2137,25 @@ endif ()
 if (MolGUI)
   message ("Configuring MolGUI:")
 
-  include (ExternalProject)
   set (projname MolGUI)
+  set (projdir ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${projname})
+  set (projinstall ${PROJECT_BINARY_DIR}/${projname})
+
+  include (ExternalProject)
   ExternalProject_Add (${projname}
     GIT_REPOSITORY https://gitlab.com/Molcas/MolGUI.git
     GIT_TAG f839f89edc9554efb54aa9f7905f0573410baa40
-    PREFIX ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${projname}
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}/${projname}
+    PREFIX ${projdir}
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${projinstall}
                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
                -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
                -DMOLCAS=${PROJECT_BINARY_DIR}
   )
+  message ("-- MolGUI will be downloaded and compiled in ${projdir}")
+  message ("-- MolGUI will be installed in ${projinstall}")
 
-  list (APPEND EXTRA_INSTALL_DIRS ${PROJECT_BINARY_DIR}/${projname})
+  list (APPEND EXTRA_INSTALL_DIRS ${projinstall})
 else ()
   message ("MolGUI DISABLED")
 endif ()
