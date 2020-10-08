@@ -11,11 +11,10 @@
       Subroutine NucAtt_EMB(mGrid,Rho,nRho,P2_ontop,
      &                      nP2_ontop,iSpin,F_xc,dF_dRho,
      &                      ndF_dRho,dF_dP2ontop,ndF_dP2ontop)
-
+      use nq_Grid, only: Grid
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "debug.fh"
 #include "nsd.fh"
@@ -53,7 +52,7 @@
 *
       Call Do_NucAtt_EMB(mGrid,Rho,nRho,P2_ontop,nP2_ontop,
      &                   iSpin,F_xc,dF_dRho,ndF_dRho,
-     &                   dF_dP2ontop,ndF_dP2ontop,Work(ip_Grid),
+     &                   dF_dP2ontop,ndF_dP2ontop,Grid,
      &                   RA,ZA,mCenter,T_X)
 *
       Call mma_deallocate(ZA)

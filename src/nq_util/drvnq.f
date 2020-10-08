@@ -26,10 +26,12 @@
       use iSD_data
       use Symmetry_Info, only: nIrrep
       use KSDFT_GLM, only: KSDFA
+      use nq_Grid
       Implicit Real*8 (A-H,O-Z)
       External Kernel
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "itmax.fh"
 #include "nq_info.fh"
 #include "setup.fh"
@@ -139,7 +141,7 @@
 *-----Allocate memory sufficiently large to store all grid points
 *     and associated weights.
 *
-      Call GetMem('Grid','Allo','Real',ip_Grid,nGridMax*3)
+      Call mma_Allocate(Grid,3,nGridMax,Label='Grid')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -405,20 +407,20 @@ c      Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
 *                                                                      *
 ************************************************************************
 * Global variable for MCPDFT functionals                               *
-      l_casdft = KSDFA(1:5).eq.'TLSDA'   .or.
-     &           KSDFA(1:6).eq.'TLSDA5'  .or.
-     &           KSDFA(1:5).eq.'TBLYP'   .or.
-     &           KSDFA(1:6).eq.'TSSBSW'  .or.
-     &           KSDFA(1:5).eq.'TSSBD'   .or.
-     &           KSDFA(1:5).eq.'TS12G'   .or.
-     &           KSDFA(1:4).eq.'TPBE'    .or.
-     &           KSDFA(1:5).eq.'FTPBE'   .or.
-     &           KSDFA(1:5).eq.'TOPBE'   .or.
-     &           KSDFA(1:6).eq.'FTOPBE'  .or.
-     &           KSDFA(1:7).eq.'TREVPBE' .or.
-     &           KSDFA(1:8).eq.'FTREVPBE'.or.
-     &           KSDFA(1:6).eq.'FTLSDA'  .or.
-     &           KSDFA(1:6).eq.'FTBLYP'
+      l_casdft = KSDFA.eq.'TLSDA'   .or.
+     &           KSDFA.eq.'TLSDA5'  .or.
+     &           KSDFA.eq.'TBLYP'   .or.
+     &           KSDFA.eq.'TSSBSW'  .or.
+     &           KSDFA.eq.'TSSBD'   .or.
+     &           KSDFA.eq.'TS12G'   .or.
+     &           KSDFA.eq.'TPBE'    .or.
+     &           KSDFA.eq.'FTPBE'   .or.
+     &           KSDFA.eq.'TOPBE'   .or.
+     &           KSDFA.eq.'FTOPBE'  .or.
+     &           KSDFA.eq.'TREVPBE' .or.
+     &           KSDFA.eq.'FTREVPBE'.or.
+     &           KSDFA.eq.'FTLSDA'  .or.
+     &           KSDFA.eq.'FTBLYP'
       if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
       if(Debug.and.l_casdft) write(6,*) 'MCPDFT with functional:', KSDFA
 ************************************************************************
@@ -551,7 +553,7 @@ cGLM          write(6,*) (Work(ipP2mo+i), i=0,NQNACPR2-1)
      &            Work(ipAOInt),nAOInt,FckInt,nFckDim,
      &            Density,nFckInt,nD,
      &            Work(ipSOTemp),nSOTemp,
-     &            Work(ip_Grid),Work(ip_Weights),Work(ip_Rho),
+     &            Grid,Work(ip_Weights),Work(ip_Rho),
      &            nGridMax,nRho,
      &            ndF_dRho,nP2_ontop,ndF_dP2ontop,
      &            Do_Mo,Do_TwoEl,l_Xhol,
@@ -596,7 +598,7 @@ cGLM     &        Work(ip_F_xca),Work(ip_F_xcb),
 *
       Call GetMem('Rho','Free','Real',ip_Rho,nRho*nGridMax)
       Call GetMem('F_xc','Free','Real',ip_F_xc,nGridMax)
-      Call GetMem('Grid','Free','Real',ip_Grid,nGridMax*3)
+      Call mma_deallocate(Grid)
 c      Call GetMem('tmpB','Free','Real',ip_tmpB,nGridMax)
 
       if(Debug) write(6,*) 'l_casdft value at drvnq.f:',l_casdft
