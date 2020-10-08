@@ -44,6 +44,7 @@
       External LSDA_emb, Checker
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "debug.fh"
       Real*8 h1(nh1), D(nh1,2), Grad(nGrad)
       Real*8 D1I(nD1),D1A(nD1)
@@ -60,13 +61,18 @@
       COMMON  / OFembed_R2/ dFMD
       COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
 *
-*      Real*8 Func_A_TF, Func_B_TF, Func_AB_TF, TF_NAD
+*     Real*8 Func_A_TF, Func_B_TF, Func_AB_TF, TF_NAD
+      Real*8 Func_A_TF, Func_B_TF
       Logical is_rhoA_on_file
       Real*8 Xlambda
       External Xlambda
 *
+      Real*8, Allocatable:: D_DS(:,:)
+*
       Debug=.False.
       is_rhoA_on_file = .False.
+      Write (6,*) 'DrvEmb: KSDFT=',KSDFT
+      Write (6,*) 'DrvEmb: LEN(KSDFT)=',LEN(KSDFT)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -131,43 +137,41 @@
       lFck=nh1*nD
       Call Allocate_Work(ipF_DFT,lFck)
       ipFA_DFT=ipF_DFT+2*nh1
-      l_D_DS=nh1*nD
-      Call GetMem('D-DS','Allo','Real',ip_D_DS,l_D_DS)
-      ipA_D_DS=ip_D_DS+2*nh1
+      Call mma_allocate(D_DS,nh1,nD)
       Vxc_ref(1)=Zero
       Vxc_ref(2)=Zero
 *
 *---- Get the density matrix of the environment (rho_B)
 *
       Call Get_iScalar('Multiplicity',kSpin)
-      Call Get_D1ao(Work(ip_D_DS),nh1)
-*     Call RecPrt('D1ao',' ',Work(ip_D_DS),nh1,1)
+      Call Get_D1ao(D_DS(:,1),nh1)
+*     Call RecPrt('D1ao',' ',D_DS(:,1),nh1,1)
 *
 *---- Get the spin density matrix of the environment
 *
       If (kSpin.ne.1) Then
-         Call Get_D1Sao(Work(ip_D_DS+nh1),nh1)
-*        Call RecPrt('D1Sao',' ',Work(ip_D_DS+nh1),nh1,1)
+         Call Get_D1Sao(D_DS(:,2),nh1)
+*        Call RecPrt('D1Sao',' ',D_DS(:,2),nh1,1)
       End If
 *
 *---- Compute alpha and beta density matrices of the environment
 *
       nFckDim=2
       If (kSpin.eq.1) Then
-         call dscal_(nh1,Half,Work(ip_D_DS),1)
-         call dcopy_(nh1,Work(ip_D_DS),1,Work(ip_D_DS+nh1),1)
+         call dscal_(nh1,Half,D_DS(:,1),1)
+         call dcopy_(nh1,D_DS(:,1),1,D_DS(:,2),1)
          nFckDim=1
       Else
          Do i = 1, nh1
-            DTot=Work(ip_D_DS+i-1)
-            DSpn=Work(ip_D_DS+i-1+nh1)
+            DTot=D_DS(i,1)
+            DSpn=D_DS(i,2)
             d_Alpha=Half*(DTot+DSpn)
             d_Beta =Half*(DTot-DSpn)
-            Work(ip_D_DS+i-1)=    d_Alpha
-            Work(ip_D_DS+i-1+nh1)=d_Beta
+            D_DS(i,1)=d_Alpha
+            D_DS(i,2)=d_Beta
          End Do
-*      Call RecPrt('Da',' ',Work(ip_D_DS),nh1,1)
-*      Call RecPrt('Db',' ',Work(ip_D_DS+nh1),nh1,1)
+*      Call RecPrt('Da',' ',D_DS(:,1),nh1,1)
+*      Call RecPrt('Db',' ',D_DS(:,2),nh1,1)
       End If
 *
 *      If (OFE_first) Then
@@ -175,14 +179,14 @@
 *   kinetic part of E_xct, Subsys B
       Func_B_TF = 0.0d0
       Call wrap_DrvNQ('TF_only',Work(ipF_DFT),nFckDim,Func_B_TF,
-     &                   Work(ip_D_DS),nh1,nFckDim,
+     &                   D_DS(:,1:nFckDim),nh1,nFckDim,
      &                   Do_Grad,
      &                   Grad,nGrad,DFTFOCK)
 *---
       If (OFE_first) Then
 
          Call wrap_DrvNQ(KSDFT,Work(ipF_DFT),nFckDim,Func_B,
-     &                   Work(ip_D_DS),nh1,nFckDim,
+     &                   D_DS(:,1:nFckDim),nh1,nFckDim,
      &                   Do_Grad,
      &                   Grad,nGrad,DFTFOCK)
 
@@ -205,8 +209,8 @@
       If (is_rhoA_on_file) Call NameRun('PRERFIL')
 *---- Get the density matrix for rho_A
 *
-      Call Get_D1ao(Work(ipA_D_DS),nh1)
-*     Call RecPrt('D1ao',' ',Work(ipA_D_DS),nh1,1)
+      Call Get_D1ao(D_DS(:,3),nh1)
+*     Call RecPrt('D1ao',' ',D_DS(:,3),nh1,1)
 *
       Call Get_iScalar('Multiplicity',iSpin)
       If (iSpin.eq.1 .and. kSpin.ne.1 .and. OFE_first) Then
@@ -218,41 +222,41 @@
 *---- Get the spin density matrix of A
 *
       If (iSpin.ne.1) Then
-         Call Get_D1Sao(Work(ipA_D_DS+nh1),nh1)
-*        Call RecPrt('D1Sao',' ',Work(ipA_D_DS+nh1),nh1,1)
+         Call Get_D1Sao(D_DS(:,4),nh1)
+*        Call RecPrt('D1Sao',' ',D_DS(:,4),nh1,1)
       End If
 *
 *---- Compute alpha and beta density matrices of subsystem A
 *
       nFckDim=2
       If (iSpin.eq.1) Then
-         call dscal_(nh1,Half,Work(ipA_D_DS),1)
-         call dcopy_(nh1,Work(ipA_D_DS),1,Work(ipA_D_DS+nh1),1)
+         call dscal_(nh1,Half,D_DS(:,3),1)
+         call dcopy_(nh1,D_DS(:,3),1,D_DS(:,4),1)
          If (kSpin.eq.1) nFckDim=1
       Else
          Do i = 1, nh1
-            DTot=Work(ipA_D_DS+i-1)
-            DSpn=Work(ipA_D_DS+i-1+nh1)
+            DTot=D_DS(i,3)
+            DSpn=D_DS(i,4)
             d_Alpha=Half*(DTot+DSpn)
             d_Beta =Half*(DTot-DSpn)
-            Work(ipA_D_DS+i-1)=    d_Alpha
-            Work(ipA_D_DS+i-1+nh1)=d_Beta
+            D_DS(i,3)=d_Alpha
+            D_DS(i,4)=d_Beta
          End Do
-*      Call RecPrt('Da',' ',Work(ipA_D_DS),nh1,1)
-*      Call RecPrt('Db',' ',Work(ipA_D_DS+nh1),nh1,1)
+*      Call RecPrt('Da',' ',D_DS(:,3),nh1,1)
+*      Call RecPrt('Db',' ',D_DS(:,4),nh1,1)
       End If
 *
 *---AZECH 10/2015
 *   kinetic part of E_xct, Subsys A
       Call wrap_DrvNQ('TF_only',Work(ipFA_DFT),nFckDim,Func_A_TF,
-     &                Work(ipA_D_DS),nh1,nFckDim,
+     &                D_DS(:,3:nFckDim+2),nh1,nFckDim,
      &                Do_Grad,
      &                Grad,nGrad,DFTFOCK)
 *   calculate v_T, Subsys A
-      Xint_Ts_A=dDot_(nh1,Work(ipFA_DFT),1,Work(ipA_D_DS),1)
+      Xint_Ts_A=dDot_(nh1,Work(ipFA_DFT),1,D_DS(:,3),1)
 *---
       Call wrap_DrvNQ(KSDFT,Work(ipFA_DFT),nFckDim,Func_A,
-     &                Work(ipA_D_DS),nh1,nFckDim,
+     &                D_DS(:,3:nFckDim+2),nh1,nFckDim,
      &                Do_Grad,
      &                Grad,nGrad,DFTFOCK)
 *
@@ -263,7 +267,7 @@
          Call GetMem('Fcorr','Allo','Real',ipFc,nh1*nFckDim)
 *
          Call cwrap_DrvNQ(KSDFT,Work(ipFA_DFT),nFckDim,Ec_A,
-     &                    Work(ipA_D_DS),nh1,nFckDim,
+     &                    D_DS(:,3:nFckDim+2),nh1,nFckDim,
      &                    Do_Grad,
      &                    Grad,nGrad,DFTFOCK,Work(ipFc))
       End If
@@ -277,18 +281,19 @@
       nFckDim=2
       If (iSpin.eq.1 .and. kSpin.eq.1) Then
          nFckDim=1
-         Call daxpy_(nh1,One,Work(ipA_D_DS),1,Work(ip_D_DS),1)
+         Call daxpy_(nh1,One,D_DS(:,3),1,D_DS(:,1),1)
       Else
-         Call daxpy_(nh1,One,Work(ipA_D_DS),1,Work(ip_D_DS),1)
-         Call daxpy_(nh1,One,Work(ipA_D_DS+nh1),1,Work(ip_D_DS+nh1),1)
+         Call daxpy_(nh1,One,D_DS(:,3),1,D_DS(:,1),1)
+         Call daxpy_(nh1,One,D_DS(:,4),1,D_DS(:,2),1)
       EndIf
+#ifdef _NOT_USED_
 *---AZECH 10/2015
 *   kinetic part of E_xct, Subsys A+B
 *   temporarily turned off to clean output
       If (.False.) Then
        Func_AB_TF = 0.0d0
        Call wrap_DrvNQ('TF_only',Work(ipF_DFT),nFckDim,Func_AB_TF,
-     &                Work(ip_D_DS),nh1,nFckDim,
+     &                D_DS(:,1:nFckDim),nh1,nFckDim,
      &                Do_Grad,
      &                Grad,nGrad,DFTFOCK)
        TF_NAD = Func_AB_TF - Func_A_TF - Func_B_TF
@@ -299,7 +304,7 @@
        Write(6,'(A,F19.10)') '-------------------'
        Write(6,'(A,F19.10)') 'Ts_NAD:  ', TF_NAD
 *   calculate v_T, Subsys A+B
-       Xint_Ts_AB=dDot_(nh1,Work(ipF_DFT),1,Work(ipA_D_DS),1)
+       Xint_Ts_AB=dDot_(nh1,Work(ipF_DFT),1,D_DS(:,3),1)
        Xint_Ts_NAD = Xint_Ts_AB - Xint_Ts_A
 *     scale by 2 because wrapper only handles spin-densities
        Xint_Ts_NAD = Two*Xint_Ts_NAD
@@ -309,9 +314,10 @@
        Write(6,'(A,F19.10)') '-------------------'
        Write(6,'(A,F19.10)') 'Ts_NAD_integral:  ', Xint_Ts_NAD
       EndIf
+#endif
 *---
       Call wrap_DrvNQ(KSDFT,Work(ipF_DFT),nFckDim,Func_AB,
-     &                Work(ip_D_DS),nh1,nFckDim,
+     &                D_DS(:,1:nFckDim),nh1,nFckDim,
      &                Do_Grad,
      &                Grad,nGrad,DFTFOCK)
 
@@ -370,13 +376,13 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
       If (kSpin.ne.1) Fact=One
       Fact_=Fact
 *
-      V_emb=Fact*dDot_(nh1,Work(ipF_DFT),1,Work(ipA_D_DS),1)
-      V_Nuc_AB=Fact*dDot_(nh1,Work(ipTmpA),1,Work(ipA_D_DS),1)
+      V_emb=Fact*dDot_(nh1,Work(ipF_DFT),1,D_DS(:,3),1)
+      V_Nuc_AB=Fact*dDot_(nh1,Work(ipTmpA),1,D_DS(:,3),1)
       If (kSpin.ne.1) Then
          V_emb=V_emb+Fact*dDot_(nh1,Work(ipF_DFT+nh1),1,
-     &                             Work(ipA_D_DS+nh1),1)
+     &                             D_DS(:,4),1)
          V_Nuc_AB=V_Nuc_AB+Fact*dDot_(nh1,Work(ipTmpA),1,
-     &                               Work(ipA_D_DS+nh1),1)
+     &                               D_DS(:,4),1)
       EndIf
 *
 *  Averaging the spin-components of F(AB) iff non-spol(A)//spol(B)
@@ -392,12 +398,10 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
       EndIf
 *
       iFick=ipF_DFT
-      iADmt=ipA_D_DS
       Do i=1,nFckDim
          Call daxpy_(nh1,1.0d0,Work(ipTmpA),1,Work(iFick),1)
-         Vxc_ref(i)=Fact*dDot_(nh1,Work(iFick),1,Work(iADmt),1)
+         Vxc_ref(i)=Fact*dDot_(nh1,Work(iFick),1,D_DS(:,i+2),1)
          iFick=iFick+nh1
-         iADmt=iADmt+nh1
       End Do
 *
       If(dFMD.gt.0.0d0) Call Put_dScalar('KSDFT energy',Ec_A)
@@ -407,13 +411,13 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
       Call NameRun(NamRfil)   ! switch back RUNFILE name
 
       Call Get_dArray('Nuc Potential',Work(ipTmpA),nh1)
-      V_Nuc_BA= Fact_*( dDot_(nh1,Work(ipTmpA),1,Work(ip_D_DS),1)
-     &                 -dDot_(nh1,Work(ipTmpA),1,Work(ipA_D_DS),1))
+      V_Nuc_BA= Fact_*( dDot_(nh1,Work(ipTmpA),1,D_DS(:,1),1)
+     &                 -dDot_(nh1,Work(ipTmpA),1,D_DS(:,3),1))
       If (kSpin.ne.1) Then
          V_Nuc_BA=V_Nuc_BA+Fact_*( dDot_(nh1,Work(ipTmpA),1,
-     &                                      Work(ip_D_DS+nh1),1)
+     &                                      D_DS(:,2),1)
      &                            -dDot_(nh1,Work(ipTmpA),1,
-     &                                      Work(ipA_D_DS+nh1),1) )
+     &                                      D_DS(:,4),1) )
       EndIf
 *
       Call GetMem('Attr Pot','Free','Real',ipTmpA,nh1)
@@ -434,7 +438,7 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
 #endif
 *
       Call Free_Work(ipF_DFT)
-      Call GetMem('D-DS','Free','Real',ip_D_DS,l_D_DS)
+      Call mma_deallocate(D_DS)
       Call Free_iSD()
       Return
 c Avoid unused argument warnings
@@ -464,7 +468,6 @@ c Avoid unused argument warnings
       Real*8 Grad(nGrad)
       Character*4 DFTFOCK
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "nq_info.fh"
 #include "debug.fh"
       External LSDA_emb,
@@ -503,7 +506,7 @@ c Avoid unused argument warnings
 *                                                                      *
        If (KSDFT.eq.'LDTF/LSDA ' .or.
      &     KSDFT.eq.'LDTF/LDA  ') Then
-         ExFac=Get_ExFac(KSDFT(6:10)//' ')
+         ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
          Call DrvNQ(LSDA_emb,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -517,7 +520,7 @@ c Avoid unused argument warnings
 *                                                                      *
        Else If (KSDFT.eq.'LDTF/LSDA5' .or.
      &          KSDFT.eq.'LDTF/LDA5 ') Then
-         ExFac=Get_ExFac(KSDFT(6:10)//' ')
+         ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
          Call DrvNQ(LSDA5_emb,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -530,7 +533,7 @@ c Avoid unused argument warnings
 *      LDTF/PBE   (Thomas-Fermi for KE)                                *
 *                                                                      *
        Else If (KSDFT.eq.'LDTF/PBE  ') Then
-         ExFac=Get_ExFac(KSDFT(6:10)//' ')
+         ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
          Call DrvNQ(PBE_emb,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -543,7 +546,7 @@ c Avoid unused argument warnings
 *      NDSD/PBE   (NDSD for KE)                                        *
 *                                                                      *
        Else If (KSDFT.eq.'NDSD/PBE  ') Then
-         ExFac=Get_ExFac(KSDFT(6:10)//' ')
+         ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=meta_GGA_type2
          Call DrvNQ(PBE_emb2,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -556,7 +559,7 @@ c Avoid unused argument warnings
 *      LDTF/BLYP  (Thomas-Fermi for KE)                                *
 *                                                                      *
        Else If (KSDFT.eq.'LDTF/BLYP ') Then
-         ExFac=Get_ExFac(KSDFT(6:10)//' ')
+         ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
          Call DrvNQ(BLYP_emb,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -569,7 +572,7 @@ c Avoid unused argument warnings
 *      NDSD/BLYP  (NDSD for KE)                                        *
 *                                                                      *
        Else If (KSDFT.eq.'NDSD/BLYP ') Then
-         ExFac=Get_ExFac(KSDFT(6:10)//' ')
+         ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=meta_GGA_type2
          Call DrvNQ(BLYP_emb2,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -656,7 +659,6 @@ c Avoid unused argument warnings
       Real*8 Grad(nGrad)
       Character*4 DFTFOCK
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "nq_info.fh"
 #include "debug.fh"
       External VWN_III_emb,
@@ -692,7 +694,7 @@ c Avoid unused argument warnings
 *                                                                      *
        If (KSDFT.eq.'LDTF/LSDA ' .or.
      &     KSDFT.eq.'LDTF/LDA  ') Then
-         ExFac=Get_ExFac(KSDFT(6:10)//' ')
+         ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
          Call DrvNQ(VWN_III_emb,F_corr,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -706,7 +708,7 @@ c Avoid unused argument warnings
 *                                                                      *
        Else If (KSDFT.eq.'LDTF/LSDA5' .or.
      &          KSDFT.eq.'LDTF/LDA5 ') Then
-         ExFac=Get_ExFac(KSDFT(6:10)//' ')
+         ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
          Call DrvNQ(VWN_V_emb,F_corr,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -720,7 +722,7 @@ c Avoid unused argument warnings
 *                                                                      *
        Else If (KSDFT.eq.'LDTF/PBE  ' .or.
      &          KSDFT.eq.'NDSD/PBE  ') Then
-         ExFac=Get_ExFac(KSDFT(6:10)//' ')
+         ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
          Call DrvNQ(cPBE_emb,F_corr,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -734,7 +736,7 @@ c Avoid unused argument warnings
 *                                                                      *
        Else If (KSDFT.eq.'LDTF/BLYP ' .or.
      &          KSDFT.eq.'NDSD/BLYP ') Then
-         ExFac=Get_ExFac(KSDFT(6:10)//' ')
+         ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
          Call DrvNQ(cBLYP_emb,F_corr,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
