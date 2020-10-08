@@ -801,74 +801,73 @@ c Avoid unused argument warnings
 #include "gas.fh"
 #include "ciinfo.fh"
 #include "rctfld.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include <SysDef.fh>
-      Real*8, Allocatable:: D1ao_b(:)
+      Real*8, Allocatable:: D1ao_b(:), F_DFT(:)
+      Real*8, Allocatable:: xxCMO(:), xxOCCN(:), DState(:)
+      Real*8 :: Dummy(1)=[0.0D0]
+      Integer :: nDummy=1
 
 
       IAD12=IADR15(12)
-* Define dummy pointer and length
-      nDummy = 0
-      ipDummy = 42
+
+      Call mma_allocate(xxCMO,NTOT2,Label='xxCMO')
+      Call mma_allocate(xxOCCN,NTOT,Label='xxOCCN')
+      Call mma_allocate(DState,NTOT1,Label='DState')
+      Call mma_allocate(F_DFT,nVemb,Label='F_DFT')
+      Call mma_allocate(D1ao_b,nVemb,Label='D1ao_b')
 
       DO KROOT=1,LROOTS
-        Call GetMem('xxCMOv','ALLO','REAL',ipxxCMO,NTOT2)
-        Call GetMem('xxOCCv','ALLO','REAL',ipxxOCCN,NTOT)
 *
 * Read natural orbitals
         If ( NAC.GT.0 ) then
-          CALL DDAFILE(JOBIPH,2,Work(ipxxCMO),NTOT2,IAD12)
-          CALL DDAFILE(JOBIPH,2,Work(ipxxOCCN),NTOT,IAD12)
+          CALL DDAFILE(JOBIPH,2,xxCMO,NTOT2,IAD12)
+          CALL DDAFILE(JOBIPH,2,xxOCCN,NTOT,IAD12)
         End If
 * Get GS and excited state densities:
-        Call GetMem('DState','ALLO','REAL',ipD,nTot1)
 * Fill allocated mem with zeroes.
-        Call dcopy_(nTot1,[0.0D0],0,Work(ipD),1)
+        DSTATE(:)=0.0D0
 
-        Call DONE_RASSCF(Work(ipxxCMO),Work(ipxxOCCN),
-     &                   Work(ipD)) ! computes D=CnC'
+        Call DONE_RASSCF(xxCMO,xxOCCN,DState) ! computes D=CnC'
 * Nonelectr. Vemb with GS and excited state density
-        Vemb_Xstate=ddot_(nVemb,Vemb,1,Work(ipD),1)
+        Vemb_Xstate=ddot_(nVemb,Vemb,1,DState,1)
 *        Write(6,*) 'Kroot, Vemb_K ', KROOT, Vemb_Xstate
         Write(6,'(A,F19.10,3X,A,I3)') 'Nonelectr. Vemb w. rhoA_emb =',
      &        Vemb_Xstate,'root = ', KROOT
 * E_xc,T[rhoA]
         Func_A=0.0d0
-        Call GetMem('Fdummy','ALLO','REAL',ipFA_DFT,2*nVemb)
-        Call dscal_(nVemb,0.5d0,Work(ipD),1)
-        Call wrap_DrvNQ(xKSDFT,Work(ipFA_DFT),1,Func_A,
-     &                Work(ipD),nVemb,1,
-     &                .false.,
-     &                Work(ipDummy),nDummy,'SCF ')
+        F_DFT(:)=0.0D0
+        Call dscal_(nVemb,0.5d0,DState,1)
+        Call wrap_DrvNQ(xKSDFT,F_DFT,1,Func_A,
+     &                  DState,nVemb,1,
+     &                  .false.,
+     &                  Dummy,nDummy,'SCF ')
 *        Write(6,*) 'Kroot, Func_A ', KROOT, Func_A
-        Call Free_Work(ipFA_DFT)
 * E_xc,T[rhoA+rhoB]
         Call Get_NameRun(MyNamRfil) ! save current Runfile name
         Call NameRun('AUXRFIL')   ! switch RUNFILE name
-        Call mma_allocate(D1ao_b,nVemb,Label='D1ao_b')
         Call Get_D1ao(D1ao_b,nVemb)
-        Call daxpy_(nVemb,0.5d0,D1ao_b,1,Work(ipD),1)
+        Call daxpy_(nVemb,0.5d0,D1ao_b,1,DState,1)
 *
         Func_AB=0.0d0
-        Call GetMem('Fdummy','ALLO','REAL',ipFAB_DFT,2*nVemb)
-        Call wrap_DrvNQ(xKSDFT,Work(ipFAB_DFT),1,Func_AB,
-     &                Work(ipD),nVemb,1,
-     &                .false.,
-     &                Work(ipDummy),nDummy,'SCF ')
+        F_DFT(:)=0.0D0
+        Call wrap_DrvNQ(xKSDFT,F_DFT,1,Func_AB,
+     &                  DState,nVemb,1,
+     &                  .false.,
+     &                  Dummy,nDummy,'SCF ')
 *        Write(6,*) 'Kroot, Func_AB', KROOT, Func_AB
 *        Write(6,*) 'Kroot, Func_Bx', KROOT, Func_Bx
-        Call mma_deallocate(D1ao_b)
 * Calculate DFT NAD for all densities:
         DFT_NAD = Func_AB - Func_A - Func_Bx
         Write(6,'(A,F19.10,3X,A,I3)') 'DFT energy (NAD) =           ',
      &        DFT_NAD, 'root = ', KROOT
-        Call Free_Work(ipFAB_DFT)
-        Call Free_Work(ipD)
-        Call Free_Work(ipxxCMO)
-        Call Free_Work(ipxxOCCN)
         Call NameRun(MyNamRfil) ! go back to MyNamRfil
       End Do
+      Call mma_deallocate(D1ao_b)
+      Call mma_deallocate(F_DFT)
+      Call mma_deallocate(DState)
+      Call mma_deallocate(xxCMO)
+      Call mma_deallocate(xxOCCN)
 
       Return
       End
