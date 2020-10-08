@@ -67,12 +67,10 @@
       Real*8 Xlambda
       External Xlambda
 *
-      Real*8, Allocatable:: D_DS(:,:)
+      Real*8, Allocatable:: D_DS(:,:), F_DFT(:,:)
 *
       Debug=.False.
       is_rhoA_on_file = .False.
-      Write (6,*) 'DrvEmb: KSDFT=',KSDFT
-      Write (6,*) 'DrvEmb: LEN(KSDFT)=',LEN(KSDFT)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -134,10 +132,8 @@
 ************************************************************************
 *                                                                      *
       nD=4
-      lFck=nh1*nD
-      Call Allocate_Work(ipF_DFT,lFck)
-      ipFA_DFT=ipF_DFT+2*nh1
-      Call mma_allocate(D_DS,nh1,nD)
+      Call mma_allocate(F_DFT,nh1,nD,Label='F_DFT')
+      Call mma_allocate(D_DS,nh1,nD,Label='D_DS')
       Vxc_ref(1)=Zero
       Vxc_ref(2)=Zero
 *
@@ -178,14 +174,14 @@
 *---AZECH 10/2015
 *   kinetic part of E_xct, Subsys B
       Func_B_TF = 0.0d0
-      Call wrap_DrvNQ('TF_only',Work(ipF_DFT),nFckDim,Func_B_TF,
+      Call wrap_DrvNQ('TF_only',F_DFT(:,1:nFckDim),nFckDim,Func_B_TF,
      &                   D_DS(:,1:nFckDim),nh1,nFckDim,
      &                   Do_Grad,
      &                   Grad,nGrad,DFTFOCK)
 *---
       If (OFE_first) Then
 
-         Call wrap_DrvNQ(KSDFT,Work(ipF_DFT),nFckDim,Func_B,
+         Call wrap_DrvNQ(KSDFT,F_DFT(:,1:nFckDim),nFckDim,Func_B,
      &                   D_DS(:,1:nFckDim),nh1,nFckDim,
      &                   Do_Grad,
      &                   Grad,nGrad,DFTFOCK)
@@ -193,7 +189,7 @@
          If (KSDFT(1:4).eq.'NDSD') Then
             l_NDSD=nFckDim*nh1
             Call GetMem('NDSD','Allo','Real',ip_NDSD,l_NDSD)
-            call dcopy_(l_NDSD,Work(ipF_DFT),1,Work(ip_NDSD),1)
+            call dcopy_(l_NDSD,F_DFT(:,1:nFckDim),1,Work(ip_NDSD),1)
             KSDFT(1:4)='LDTF' !set to Thomas-Fermi for subsequent calls
          EndIf
 
@@ -248,14 +244,14 @@
 *
 *---AZECH 10/2015
 *   kinetic part of E_xct, Subsys A
-      Call wrap_DrvNQ('TF_only',Work(ipFA_DFT),nFckDim,Func_A_TF,
+      Call wrap_DrvNQ('TF_only',F_DFT(:,3:nFckDim+2),nFckDim,Func_A_TF,
      &                D_DS(:,3:nFckDim+2),nh1,nFckDim,
      &                Do_Grad,
      &                Grad,nGrad,DFTFOCK)
 *   calculate v_T, Subsys A
-      Xint_Ts_A=dDot_(nh1,Work(ipFA_DFT),1,D_DS(:,3),1)
+      Xint_Ts_A=dDot_(nh1,F_DFT(:,3),1,D_DS(:,3),1)
 *---
-      Call wrap_DrvNQ(KSDFT,Work(ipFA_DFT),nFckDim,Func_A,
+      Call wrap_DrvNQ(KSDFT,F_DFT(:,3:nFckDim+2),nFckDim,Func_A,
      &                D_DS(:,3:nFckDim+2),nh1,nFckDim,
      &                Do_Grad,
      &                Grad,nGrad,DFTFOCK)
@@ -266,7 +262,7 @@
 *
          Call GetMem('Fcorr','Allo','Real',ipFc,nh1*nFckDim)
 *
-         Call cwrap_DrvNQ(KSDFT,Work(ipFA_DFT),nFckDim,Ec_A,
+         Call cwrap_DrvNQ(KSDFT,F_DFT(:,3:nFckDim+2),nFckDim,Ec_A,
      &                    D_DS(:,3:nFckDim+2),nh1,nFckDim,
      &                    Do_Grad,
      &                    Grad,nGrad,DFTFOCK,Work(ipFc))
@@ -292,7 +288,7 @@
 *   temporarily turned off to clean output
       If (.False.) Then
        Func_AB_TF = 0.0d0
-       Call wrap_DrvNQ('TF_only',Work(ipF_DFT),nFckDim,Func_AB_TF,
+       Call wrap_DrvNQ('TF_only',F_DFT(:,1:nFckDim),nFckDim,Func_AB_TF,
      &                D_DS(:,1:nFckDim),nh1,nFckDim,
      &                Do_Grad,
      &                Grad,nGrad,DFTFOCK)
@@ -304,7 +300,7 @@
        Write(6,'(A,F19.10)') '-------------------'
        Write(6,'(A,F19.10)') 'Ts_NAD:  ', TF_NAD
 *   calculate v_T, Subsys A+B
-       Xint_Ts_AB=dDot_(nh1,Work(ipF_DFT),1,D_DS(:,3),1)
+       Xint_Ts_AB=dDot_(nh1,F_DFT(:,1),1,D_DS(:,3),1)
        Xint_Ts_NAD = Xint_Ts_AB - Xint_Ts_A
 *     scale by 2 because wrapper only handles spin-densities
        Xint_Ts_NAD = Two*Xint_Ts_NAD
@@ -316,7 +312,7 @@
       EndIf
 #endif
 *---
-      Call wrap_DrvNQ(KSDFT,Work(ipF_DFT),nFckDim,Func_AB,
+      Call wrap_DrvNQ(KSDFT,F_DFT(:,1:nFckDim),nFckDim,Func_AB,
      &                D_DS(:,1:nFckDim),nh1,nFckDim,
      &                Do_Grad,
      &                Grad,nGrad,DFTFOCK)
@@ -333,7 +329,8 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
       If (dFMD.gt.0.0d0) Then
          Call Get_electrons(xElAB)
          Fakt_ = -1.0d0*Xlambda(abs(Energy_NAD)/xElAB,Xsigma)
-         Call daxpy_(nh1*nFckDim,Fakt_,Work(ipFc),1,Work(ipFA_DFT),1)
+         Call daxpy_(nh1*nFckDim,Fakt_,Work(ipFc),1,
+     &               F_DFT(:,3:nFckDim+2),1)
          Call GetMem('Fcorr','Free','Real',ipFc,nh1*nFckDim)
 #ifdef _DEBUG_
          write(6,*) ' lambda(E_nad) = ',dFMD*Fakt_
@@ -344,21 +341,15 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
 ************************************************************************
 *                                                                      *
 *  Non Additive (NAD) potential: F(AB)-F(A)
-      iFick=ipF_DFT
-      iFickA=ipFA_DFT
       Do i=1,nFckDim
-         Call daxpy_(nh1,-One,Work(iFickA),1,Work(iFick),1)
-         iFickA=iFickA+nh1
-         iFick=iFick+nh1
+         Call daxpy_(nh1,-One,F_DFT(:,2+i),1,F_DFT(:,i),1)
       End Do
 *
 *  NDSD potential for T_nad: add the (B)-dependent term
-      iFick=ipF_DFT
       iFickB=ip_NDSD
       Do i=1,nFckDim*Min(1,l_NDSD)
-         Call daxpy_(nh1,One,Work(iFickB),1,Work(iFick),1)
+         Call daxpy_(nh1,One,Work(iFickB),1,F_DFT(:,i),1)
          If (kSpin.ne.1) iFickB=iFickB+nh1
-         iFick=iFick+nh1
       End Do
 *
 *     Add the Nuc Attr potential (from subsystem B) and then
@@ -376,38 +367,33 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
       If (kSpin.ne.1) Fact=One
       Fact_=Fact
 *
-      V_emb=Fact*dDot_(nh1,Work(ipF_DFT),1,D_DS(:,3),1)
+      V_emb=Fact*dDot_(nh1,F_DFT(:,1),1,D_DS(:,3),1)
       V_Nuc_AB=Fact*dDot_(nh1,Work(ipTmpA),1,D_DS(:,3),1)
       If (kSpin.ne.1) Then
-         V_emb=V_emb+Fact*dDot_(nh1,Work(ipF_DFT+nh1),1,
-     &                             D_DS(:,4),1)
+         V_emb=V_emb+Fact*dDot_(nh1,F_DFT(:,2),1,D_DS(:,4),1)
          V_Nuc_AB=V_Nuc_AB+Fact*dDot_(nh1,Work(ipTmpA),1,
      &                               D_DS(:,4),1)
       EndIf
 *
 *  Averaging the spin-components of F(AB) iff non-spol(A)//spol(B)
       If (iSpin.eq.1 .and. kSpin.ne.1) Then
-         Do i=0,nh1-1
-            k=ipF_DFT+i
-            l=k+nh1
-            tmp=Half*(Work(k)+Work(l))
-            Work(k)=tmp
+         Do i=1,nh1
+            tmp=Half*(F_DFT(i,1)+F_DFT(i,2))
+            F_DFT(i,1)=tmp
          End Do
          nFckDim=1  ! reset stuff as if A+B had been spin compensated
          Fact=Two
       EndIf
 *
-      iFick=ipF_DFT
       Do i=1,nFckDim
-         Call daxpy_(nh1,1.0d0,Work(ipTmpA),1,Work(iFick),1)
-         Vxc_ref(i)=Fact*dDot_(nh1,Work(iFick),1,D_DS(:,i+2),1)
-         iFick=iFick+nh1
+         Call daxpy_(nh1,1.0d0,Work(ipTmpA),1,F_DFT(:,i),1)
+         Vxc_ref(i)=Fact*dDot_(nh1,F_DFT(:,i),1,D_DS(:,i+2),1)
       End Do
 *
       If(dFMD.gt.0.0d0) Call Put_dScalar('KSDFT energy',Ec_A)
       Call Put_dArray('Vxc_ref ',Vxc_ref,2)
 *
-      Call Put_dArray('dExcdRa',Work(ipF_DFT),nh1*nFckDim)
+      Call Put_dArray('dExcdRa',F_DFT(:,1:nFckDim),nh1*nFckDim)
       Call NameRun(NamRfil)   ! switch back RUNFILE name
 
       Call Get_dArray('Nuc Potential',Work(ipTmpA),nh1)
@@ -425,19 +411,19 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
 #ifdef _DEBUG_
       If (nFckDim.eq.1) Then
          Do i=1,nh1
-            Write(6,'(i4,f22.16)') i,Work(ipF_DFT+i-1)
+            Write(6,'(i4,f22.16)') i,F_DFT(i,1)
          End Do
       Else
          Do i=1,nh1
-           Write(6,'(i4,3f22.16)') i,Work(ipF_DFT+i-1),
-     &                               Work(ipF_DFT+i-1+nh1),
-     &     (Work(ipF_DFT+i-1)+Work(ipF_DFT+i-1+nh1))/2.0d0
+           Write(6,'(i4,3f22.16)') i,F_DFT(i,1),
+     &                               F_DFT(i,2),
+     &     (F_DFT(i,1)+F_DFT(i,2))/2.0d0
          End Do
       End If
       Write(6,'(a,f22.16)') ' NAD DFT Energy :',Energy_NAD
 #endif
 *
-      Call Free_Work(ipF_DFT)
+      Call mma_deallocate(F_DFT)
       Call mma_deallocate(D_DS)
       Call Free_iSD()
       Return
