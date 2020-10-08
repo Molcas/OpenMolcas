@@ -43,7 +43,7 @@
 *----------------------------------------------------------------------*
 *     Initialize the Common / QueCtl / the first time it is referenced *
 *----------------------------------------------------------------------*
-#ifdef _DEBUGPRINT_TRACE_
+#ifdef _DEBUG_TRACE_
         if(iUinUse.eq.0) iU=6
         write(iU,'(a,a)') '>> Enter ',string
 #endif

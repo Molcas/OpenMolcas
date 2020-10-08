@@ -68,8 +68,8 @@ def test_write(line, filename):
     return False
   return write_star.search(line.decode('ascii', 'ignore').strip('\n'))
 
-# _DEBUG_ compile flag used
-compile_flag = re.compile(r'(\bifdef\b|\bifndef).*?_DEBUG_.*?')
+# _DEBUG_ compile flag used (but _DEBUG_TRACE_is not a problem)
+compile_flag = re.compile(r'(\bifdef\b|\bifndef).*?_DEBUG_(?!TRACE_).*?')
 def test_debug_flag(line, filename):
   if (not filename.endswith(('.f', '.F', '.f90', '.F90', '.c', '.h', '.fh'))):
     return False
@@ -165,7 +165,7 @@ tests.append({'func': test_printst, 'print': '[{0}] "PRINT" statement in {1}, li
 tests.append({'func': test_openst, 'print': '[{0}] "OPEN" statement in {1}, line {2} (use molcas_open)', 'error': False})
 tests.append({'func': test_matmulfn, 'print': '[{0}] "MATMUL" function in {1}, line {2} (use LAPACK routines)', 'error': True})
 tests.append({'func': test_forallfn, 'print': '[{0}] "FORALL" statement in {1}, line {2} (obsolescent in Fortran 2018)', 'error': True})
-tests.append({'func': test_debug_flag, 'print': '[{0}] "_DEBUG_ compile flag in {1}, line {2}', 'error': True})
+tests.append({'func': test_debug_flag, 'print': '[{0}] "_DEBUG_ compile flag in {1}, line {2} (use _DEBUGPRINT_ or _ADDITIONAL_RUNTIME_CHECK_)', 'error': True})
 tests.append({'func': test_characternfn, 'print': '[{0}] "CHARACTER(n)" declaration in {1}, line {2} (use CHARACTER(LEN=n))', 'error': True})
 
 def run_tests(line, fname, ln):
