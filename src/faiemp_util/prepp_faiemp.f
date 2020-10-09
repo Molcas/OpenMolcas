@@ -237,9 +237,7 @@
          End If
          kCMO=nsa
          Call mma_allocate(CMO,mCMO,kCMO,Label='CMO')
-         Call Get_CMO(ipTemp,nTemp)
-         call dcopy_(nTemp,Work(ipTemp),1,CMO,1)
-         Call Free_Work(ipTemp)
+         Call Get_CMO(CMO(:,1),mCMO)
          If (iPrint.ge.99) Then
             ipTmp1 = 1
             Do iIrrep = 0, nIrrep-1

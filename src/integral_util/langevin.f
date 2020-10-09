@@ -287,7 +287,7 @@ c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
      &        'Average solvation energy and stdev: ',
      &        sumRepNuc/DBLE(nAv),
      &        sqrt(sumRepNuc2/DBLE(nAv)-(sumRepNuc/DBLE(nAv))**2)
-      EndIf
+      End If
       Call mma_deallocate(Atom_R)
       Call mma_deallocate(D1ao)
       Call mma_deallocate(Chrg)

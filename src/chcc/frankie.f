@@ -69,7 +69,7 @@ c
         end if
 c
 c.3 - read CMO
-        call read_mo(ipCmo,nfro,no,nv,ndel,nbas)
+        call read_mo(ipCmo,nfro,no,nv,ndel,nbas,nOrb)
 c.3 - invert the CMO matrix
         FracMem=0.0d0 ! in a parallel run set it to a sensible value
         rc=0
@@ -101,22 +101,21 @@ c
 c
 c -------------------------------------
 c
-      Subroutine read_mo (ipCmo,nfro,no,nv,ndel,nbas)
+      Subroutine read_mo (ipCmo,nfro,no,nv,ndel,nbas,nOrb)
       Implicit Real*8 (A-H,O-Z)
 
 *     declaration of calling arguments
       Integer ipCMO,lthCMO
-cmp
-        integer nfro_scf(8)
-        integer iskip,nfro
-cmp
+      integer nfro_scf(8)
+      integer iskip,nfro
 #include "real.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
+      Real*8, Allocatable:: CMO_t(:,:)
 
 *     declaration of local variables...
       Logical Debug
       Data Debug/.False./
-
 
 #include "SysDef.fh"
 
@@ -128,14 +127,16 @@ cmp
          Call Abend()
       End If
 c
-      Call Get_CMO(ipCMO_t,lthCMO)
+      lthCMO=nBas*nBas
+      Call mma_allocate(CMO_t,nBas,nBas,Label='CMO_t')
+      Call Get_CMO(CMO_t,lthCMO)
 c
 c - transpose MO matrix, skip the frozen occupied orbitals
 c
-        iskip=nbas*nfro
-        call mo_transp(Work(ipCMO),Work(ipCMO_t+iskip),no,nv,ndel,nbas)
+      iskip=nbas*nfro
+      call mo_transp(Work(ipCMO),CMO_t(:,1+nfro:nOrb),no,nv,ndel,nbas)
 c
-        Call GetMem('CMO','Free','Real',ipCMO_t,lthCMO)
+      Call mma_deallocate(CMO_t)
 c
       Return
       End

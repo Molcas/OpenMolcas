@@ -44,6 +44,7 @@
       Logical Do_Grad, Do_MO,Do_TwoEl,PMode
       Logical l_XHol, l_casdft
       Character*4 DFTFOCK
+      Integer nBas(8), nOrb(8)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -431,7 +432,14 @@ c      Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
              Call Get_P2mo(ipP2mo,nP2)
            End If
          End If
-         Call Get_CMO(ipCmo,nCmo)
+         Call Get_iArray('nBas',nBas,mIrrep)
+         Call Get_iArray('nOrb',nOrb,mIrrep)
+         nCMO=0
+         Do i = 1, mIrrep
+            nCMO = nCMO + nBas(i)*nOrb(i)
+         End Do
+         Call GetMem('CMO','Allo','Real',ipCMO,nCMO)
+         Call Get_CMO(Work(ipCMO),nCMO)
          Call Get_iArray('nAsh',nAsh,mIrrep)
          nMOs=0
          Do iIrrep = 0, mIrrep-1
