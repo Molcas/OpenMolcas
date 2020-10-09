@@ -24,10 +24,10 @@
 *             Laura Gagliardi, Dipartimento di Chimica G. Ciamician,   *
 *             University of Bologna, ITALY. October 2001               *
 ************************************************************************
+      use KSDFT_Info, only: tmpB
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-#include "WrkSpc.fh"
 #include "ksdft.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
 *  LDA Stuff
@@ -230,7 +230,7 @@ c      If(.False.) Then
 
 *
          F_xc(iGrid)=F_xc(iGrid)+Coeff*vwn
-         Work(ip_tmpB+iGrid-1)=Work(ip_tmpB+iGrid-1)+Coeff*vwn
+         tmpB(iGrid)=tmpB(iGrid)+Coeff*vwn
 *
          dF_dRho(ipRa,iGrid) = dF_dRho(ipRa,iGrid)
      &                               + Coeff*dvwndra

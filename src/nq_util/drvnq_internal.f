@@ -40,6 +40,7 @@
 #endif
       use Real_Spherical
       use Symmetry_Info, only: nIrrep, iOper
+      use KSDFT_Info, only: KSDFA, LuMC, LuMT, Funcaa, Funcbb, Funccc
       Implicit Real*8 (A-H,O-Z)
       External Kernel, Rsv_Tsk
 #include "real.fh"
@@ -107,7 +108,6 @@
         FI_time = 0d0
 !
         LuMC=37
-        LuMT=37
         call OpnFl('MCPDFT',LuMC,Exist)
 c        Call append_file(LuMC)
         write(LuMC,'(A)') ' Here densities are MCPDFT modified ones.'
@@ -116,6 +116,7 @@ c        Call append_file(LuMC)
      &                    '       d_a*W     ,       d_b*W     ,'//
      &                    '       dTot*W    ,       Weights   ,'//
      &                    '          dTot   ,       P2        ,   ratio'
+        LuMT=37
         call OpnFl('MCTRUD',LuMT,Exist)
 c        Call append_file(LuMT)
         write(LuMT,'(A)') ' Here densities are original ones.'
