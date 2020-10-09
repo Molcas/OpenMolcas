@@ -43,11 +43,9 @@
 *----------------------------------------------------------------------*
 *     Initialize the Common / QueCtl / the first time it is referenced *
 *----------------------------------------------------------------------*
-#ifdef _DEBUG_TRACE_
+#if defined(_DEBUGPRINT_)
         if(iUinUse.eq.0) iU=6
         write(iU,'(a,a)') '>> Enter ',string
-#endif
-#ifdef _DEBUGPRINT_
       Temp(1)=0
       Temp(2)=0
       If ( QueCtl(ipStat).ne.ON ) then
@@ -162,9 +160,7 @@
 *----------------------------------------------------------------------*
 *     exit                                                             *
 *----------------------------------------------------------------------*
-#else
-c Avoid unused argument warnings
+#elif defined(_WARNING_WORKAROUND_)
       If (.False.) Call Unused_character(String)
 #endif
-      Return
       End

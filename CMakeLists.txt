@@ -103,8 +103,6 @@ if (NOT DEFINED CMAKE_INSTALL_PREFIX)
 endif ()
 set (EXTRA_INSTALL_DIRS "")
 
-option (DEBUGTRACE "Enable tracing print statements for debugging." OFF)
-
 set (DEBUG_DEFS "${DEBUG_DEFS}" CACHE STRING "Additional user-defined definitions.")
 separate_arguments(DEBUG_DEFS)
 
@@ -1130,13 +1128,6 @@ if (NOT IS_ABSOLUTE "${CMAKE_INSTALL_PREFIX}")
   set (CMAKE_INSTALL_PREFIX "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_PREFIX}")
 endif ()
 get_filename_component (CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" ABSOLUTE)
-
-# Special print statements
-#=========================
-
-if (DEBUGTRACE)
-  add_definitions (-D_DEBUG_TRACE_)
-endif ()
 
 # Global Arrays settings
 #=======================
