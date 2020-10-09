@@ -68,8 +68,8 @@ def test_write(line, filename):
     return False
   return write_star.search(line.decode('ascii', 'ignore').strip('\n'))
 
-# _DEBUG_ compile flag used (but _DEBUG_TRACE_is not a problem)
-compile_flag = re.compile(r'(\bifdef\b|\bifndef).*?_DEBUG_(?!TRACE_).*?')
+# _DEBUG_ compile flag used
+compile_flag = re.compile(r'(\bifdef\b|\bifndef).*?_DEBUG_.*?')
 def test_debug_flag(line, filename):
   if (not filename.endswith(('.f', '.F', '.f90', '.F90', '.c', '.h', '.fh'))):
     return False
