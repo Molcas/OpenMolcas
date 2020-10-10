@@ -283,10 +283,8 @@
          mG1=nsa
          Call mma_allocate(G1,nG1,mG1,Label='G1')
          If (nsa.gt.0) Then
-            Call Get_D1MO(ipTemp,nTemp)
-            call dcopy_(nTemp,Work(ipTemp),1,G1(1,1),1)
-            Call Free_Work(ipTemp)
-            If (iPrint.ge.99) Call TriPrt(' G1',' ',G1(1,1),nAct)
+            Call Get_D1MO(G1(:,1),nG1)
+            If (iPrint.ge.99) Call TriPrt(' G1',' ',G1(:,1),nAct)
          End If
 *
 *...  Get the two body density for the active orbitals

@@ -266,11 +266,8 @@ C --------------------------------------
        IF(ISTORP(NSYM+1).GT.0) THEN
 c         Write(LF,*)
 c         Write(LF,*) ' ---------------------'
-C         Call Get_D1MO(ipDMAT,nDmat)
-c         CALL TRIPRT('Averaged 1-body Dmat D in MO in SXCTL',' ',D,NAC)
          CALL GETMEM('ISTRP','ALLO','REAL',LP,ISTORP(NSYM+1))
          CALL DmatDmat(D,WORK(LP))
-C         If(ipDMAT.ne.ip_Dummy) Call Free_Work(ipDMAT)
        END IF
       end if
 ************************************************************************

@@ -33,7 +33,7 @@
        Integer iKapDisp(nDisp),iCiDisp(nDisp)
        Character(Len=16) mstate
        Dimension rdum(1),idum(7,8)
-       Real*8, Allocatable:: D_K(:)
+       Real*8, Allocatable:: D_K(:), Tmp(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -54,6 +54,7 @@
           nDLMO=nDLMO+nash(is)
           nLCMO=nLCMO+nbas(is)*nbas(is)
        End Do
+       nNAC=(nDLMO+nDLMO**2)/2
        nDLMO=nDLMO*(nDLMO+1)/2
        nPLMO=nDLMO*(nDLMO+1)/2
 *
@@ -346,7 +347,9 @@ c
        end if
 *
        If (isNAC) Then
-         Call Get_D1MO(ipG1q,ng1)
+         ng1=nNAC
+         Call Getmem('TMP', 'ALLO','Real',ipG1q,ng1)
+         Call Get_D1MO(Work(ipG1q),ng1)
          iR = 0 ! set to dummy value.
        Else
          iR=iroot(istate)
@@ -473,12 +476,13 @@ c Diagonalize the effective density to be able to use Prpt
 c ipO eigenvalues of eff dens
 c ipCMON eigenvectors (new orb coef)
 c
-         Call Getmem('TMP', 'ALLO','Real',ipT,nBuf/2)
          Call NatOrb(D_K,Work(ipCMO),Work(ipCMON),Work(ipO))
-         Call dmat_MCLR(Work(ipCMON),Work(ipO),Work(ipT))
-         Call Put_D1ao_Var(Work(ipT),nTot1)
-         Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)
-         Call get_D1MO(ipT,nTot1)
+         Call mma_Allocate(Tmp,nBuf/2,Label='Tmp')
+         Call dmat_MCLR(Work(ipCMON),Work(ipO),Tmp)
+         Call Put_D1ao_Var(Tmp,nTot1)
+         Call mma_deallocate(Tmp)
+         Call Getmem('TMP', 'ALLO','Real',ipT,nNac)
+         Call get_D1MO(Work(ipT),nNac)
          Call get_DLMO(ipTt,nTot1)
          Call DaxPy_(nTot1,1.0d0,Work(ipTt),1,Work(ipT),1)
          Call Getmem('DENS','FREE','Real',ipT,nTot1)
