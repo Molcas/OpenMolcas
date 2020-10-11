@@ -24,7 +24,7 @@ C
 
       Integer iSym, i_, ai_1, ai_2
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*16 SecNam
       Parameter (SecNam = 'ChoMP2_Col_Invai')
 #endif
@@ -48,14 +48,12 @@ C     ---------------------
          End If
       End Do
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (iSymi.lt.1 .or. iSymi.gt.nSym .or.
      &    iSyma.lt.1 .or. iSyma.gt.nSym) Then
-         Call qEnter(SecNam)
          Call ChoMP2_Quit(SecNam,'bug detected','[1]')
       End If
       If (nOcc(iSymi).lt.1 .or. nVir(iSyma).lt.1) Then
-         Call qEnter(SecNam)
          Call ChoMP2_Quit(SecNam,'bug detected','[2]')
       End If
 #endif
@@ -77,10 +75,9 @@ C     -------------
          End If
       End Do
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (i.lt.1 .or. i.gt.nOcc(iSymi) .or.
      &    a.lt.1 .or. a.gt.nVir(iSyma)) Then
-         Call qEnter(SecNam)
          Call ChoMP2_Quit(SecNam,'bug detected','[3]')
       End If
 #endif

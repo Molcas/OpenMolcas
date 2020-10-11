@@ -63,8 +63,8 @@
 *
       Do iD = 1, nD
          iCase = iD - 1
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'n1,n2,nOO,nOV=',n1,n2,nOO,nOV
          iOff = 1
          Do iSym = 1, nSym
@@ -156,7 +156,7 @@
             ioffs=ioffs+(nOrb(iSym)*nOrb(iSym))
          End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'n1,n2,nOO,nOV=',n1,n2,nOO,nOV
          iOff = 1
          Do iSym = 1, nSym

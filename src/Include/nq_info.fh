@@ -46,7 +46,7 @@
      &                 Info_Ang, nAngularGrids,
      &                 L_Quad_save, nR_Save, Angular_Prunning,
      &                 ipNQ,nx,ny,nz,number_of_subblocks,
-     &                 ip_nR_Eff,ip_R,ip_Grid,ipMem,nMem,
+     &                 ip_nR_Eff,ip_R,ipMem,nMem,
      &                 L_Quad,nR,nAtoms,nMaxExp,
      &                 nTotGP,nbrmxbas,iAngMax,ip_ioffsh,ipcoor,
      &                 nGridMax,iOpt_Angular,ip_O,

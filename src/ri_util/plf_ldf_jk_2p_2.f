@@ -57,7 +57,7 @@
 
       Integer i, j
       Integer nBasSh, iShlSO, iRow, iCol
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer iSOShl
       iSOShl(i)=iWork(ip_iSOShl-1+i)
 #endif
@@ -68,7 +68,7 @@
 
       If (Map(1).eq.1 .and. Map(2).eq.2 .and.
      &    Map(3).eq.3 .and. Map(4).eq.4) Then
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          If (iSOShl(iAOtSO(iAO(1)+1,kOp(1))+iAOst(1)).ne.SHA) Then
             Call WarningMessage(2,SecNam//': Shell problem [1]')
             Call LDF_Quit(1)
@@ -133,7 +133,7 @@
          Call LDF_Quit(1)
       End If
 
-#ifndef _DEBUG_
+#ifndef _DEBUGPRINT_
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(iBas)
 #endif

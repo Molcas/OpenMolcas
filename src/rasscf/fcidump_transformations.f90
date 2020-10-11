@@ -52,8 +52,8 @@ contains
       real*8, intent(inout) :: orbital_energies(:)
       real*8 :: Dummy(1)
       integer :: LuInpOrb = 10, iDummy(1), err
-      character(*), parameter ::  FnInpOrb = 'INPORB'
-      character(80) :: VecTit
+      character(len=*), parameter ::  FnInpOrb = 'INPORB'
+      character(len=80) :: VecTit
       logical :: okay
       call f_Inquire(FnInpOrb, okay)
       if (okay) then
@@ -62,7 +62,6 @@ contains
           VecTit, 0, err)
       else
         Write (6,*) 'RdCMO: Error finding MO file'
-        call QTrace()
         call Abend()
       end if
     end subroutine read_orbital_energies

@@ -16,7 +16,6 @@
 #include "integ.fh"
       COMMON/CNSTS/D0,D1,D2
       DIMENSION IORB(MXVERT)
-      CALL QENTER('TAB2F')
       nijj=0
       IEL=2
       IF(IFIRST.NE.0)IEL=1
@@ -189,7 +188,6 @@ C     DETERMINE CASE DOWN
       IF(IPRINT.GE.5)WRITE(IW,100)(J,IAF(J),IBF(J),K0F(J),
      *K1F(J),K2F(J),K3F(J),J=1,IUT)
 100   FORMAT(6X,I3,5X,2I4,5X,4I4)
-      CALL QEXIT('TAB2F')
       write(6,*) ' Number of vertices', nijj, iut
       if (nijj.gt.iver) go to 300
       RETURN

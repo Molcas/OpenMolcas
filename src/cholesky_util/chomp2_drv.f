@@ -44,7 +44,7 @@ C
       Logical DoSort, Delete, Delete_def
       Parameter (Delete_def = .true.)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Verbose = .true.
 #endif
       If (Verbose) Then
@@ -54,7 +54,6 @@ C
 C     Initializations.
 C     ----------------
 
-      Call qEnter(ThisNm)
       irc = 0
 
       EMP2 = 0.0d0
@@ -339,6 +338,5 @@ C     -----
       End If
       Call GetMem('Flush','Flush','Real',ip_Dum,l_Dum)
       Call GetMem('Dummy','Free','Real',ip_Dum,l_Dum)
-      Call qExit(ThisNm)
       Return
       End

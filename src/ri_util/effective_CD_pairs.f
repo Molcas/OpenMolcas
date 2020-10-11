@@ -10,9 +10,8 @@
 ************************************************************************
       Subroutine Effective_CD_Pairs(ip_ij2,nij_Eff)
       use Basis_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "WrkSpc.fh"

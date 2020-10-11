@@ -54,7 +54,6 @@
 *     PIVOTING IS ACHIEVED BY INDIRECT INDEXING.
 *     FIRST PIVOTING INDICES ARE ASSIGNED START VALUES.
 *
-*     Call qEnter('MInv')
 *
 *     set N and M to NDIM since this subroutine is modified to only
 *     deal with square matrices.
@@ -170,7 +169,6 @@
 889      Continue
 888   Continue
 *
-*     Call qExit('MInv')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(ISING)

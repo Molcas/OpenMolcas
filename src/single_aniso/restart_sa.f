@@ -14,11 +14,10 @@
        Implicit None
        Integer        :: nss, nstate, input_to_read, iDisk
        Integer        :: luaniso
-       Character(180) :: input_file_name
+       Character(Len=180) :: input_file_name
        Integer        :: IsFreeUnit
        External       :: IsFreeUnit
        Logical        :: dbg
-       Call qEnter('SA_restart')
        dbg=.false.
 
 
@@ -95,6 +94,5 @@
 
        End If
 
-       Call qExit('SA_restart')
       Return
       End

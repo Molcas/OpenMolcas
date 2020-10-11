@@ -20,19 +20,6 @@
 * Object: kernel routine for the computation of electric field         *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy  (ESSL)                                           *
-*              SOS                                                     *
-*              DCR                                                     *
-*              XRys                                                    *
-*              Util1                                                   *
-*              DaXpY  (ESSL)                                           *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, January '91                             *
 *                                                                      *
@@ -46,9 +33,6 @@
       External TNAI, Fake,  XCff2D, XRys2D
       External TERI, MODU2, vCff2D, vRys2D
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
@@ -72,7 +56,6 @@
 *                                                                      *
       iRout = 200
       iPrint = nPrint(iRout)
-      Call qEnter('EFInt')
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
@@ -283,7 +266,6 @@
 ************************************************************************
 *                                                                      *
 *     Call GetMem(' Exit EFInt','LIST','REAL',iDum,iDum)
-      Call qExit('EFInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

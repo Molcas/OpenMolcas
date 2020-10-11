@@ -66,7 +66,6 @@
       DIMENSION EXPLV(*)
       DIMENSION ISEL(*)
 *
-      CALL QENTER('EXPLH')
       Call Timing(Omega_1,Swatch,Swatch,Swatch)
       IPRLEV=IPRLOC(3)
 
@@ -122,7 +121,7 @@
           EXPLV(II)=1.0D00
 10      CONTINUE
 *       CALL Jacob(Work(LEXHAM),EXPLV,NSEL,NSEL)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         CALL NIdiag(Work(LEXHAM),EXPLV,NSEL,NSEL,0)
 #else
         CALL NIdiag_new(Work(LEXHAM),EXPLV,NSEL,NSEL,0)
@@ -152,7 +151,6 @@
       Call Timing(Omega_2,Swatch,Swatch,Swatch)
       Omega_2 = Omega_2 - Omega_1
       Omega_3 = Omega_3 + Omega_2
-      CALL QEXIT('EXPLH')
 
       RETURN
       END

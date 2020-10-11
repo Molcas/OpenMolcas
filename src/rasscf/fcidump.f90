@@ -33,7 +33,7 @@ contains
   subroutine make_fcidumps(ascii_path, h5_path, orbital_energies, folded_Fock,&
                            TUVX, core_energy, permutation)
     use general_data, only : nSym, nAsh
-    character(*), intent(in) :: ascii_path, h5_path
+    character(len=*), intent(in) :: ascii_path, h5_path
     real*8, intent(in) :: orbital_energies(:), folded_Fock(:), TUVX(:), core_energy
     integer, intent(in), optional :: permutation(:)
     type(OrbitalTable) :: orbital_table

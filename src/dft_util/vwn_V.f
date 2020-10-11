@@ -18,12 +18,6 @@
 *         Ceperley-Alder solution to the uniform electron gas.         *
 *         This is the functional to use in LDA and LSDA.               *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
@@ -42,7 +36,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QEnter('VWN_V')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -234,6 +227,5 @@ c+++  original formula in Rydbergs -> 0.5 converts to hartree
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QExit('VWN_V')
       Return
       End

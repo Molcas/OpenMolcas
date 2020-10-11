@@ -31,7 +31,6 @@
 #include "warnings.fh"
       Parameter ( ROUTINE='ChkSplit' )
 
-      Call qEnter('ChkSplit')
 *      IF(DoSplitCAS) THEN
         IERR=0
         If (lRootSplit.gt.nConf) IERR=1
@@ -103,6 +102,5 @@
 
 *      END IF
 
-      Call qExit('ChkSplit')
       Return
       End

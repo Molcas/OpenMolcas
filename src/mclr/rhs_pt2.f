@@ -35,6 +35,7 @@ c Avoid unused argument warnings
 
 #include "Input.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "glbbas_mclr.fh"
 #include "Files_mclr.fh"
 #ifndef _DEBUGED_
@@ -42,6 +43,7 @@ c Avoid unused argument warnings
 #include "csfbas_mclr.fh"
 #endif
       Real*8 rKappa(*)
+      Real*8, Allocatable:: DCAS(:)
       Half=0.5d0
 *
 *     Read in a and b part of effective gradient from CASPT2
@@ -110,7 +112,14 @@ c Avoid unused argument warnings
 *
 *---  Read in necessary densities.
 *
-      Call Get_D1ao(ipDCAS,nDens)
+      Call Qpg_dArray('D1ao',Found,nDens)
+      If (Found .and. nDens/=0) Then
+         Call mma_allocate(DCAS,nDens,Label='DCAS*)
+      Else
+         Write (6,*) 'RHS_PT2: Density not found'
+         Call Abend()
+      End If
+      Call Get_D1ao(DCAS,nDens)
       irc=-1
       iopt=0
       Call RdRlx(irc,iopt,'D1PT22',Work(ipDP))
@@ -124,7 +133,7 @@ c Avoid unused argument warnings
 *
       Call UnFold_MCLR(Work(ipDP),Work(ipDP2))
 *
-      Call UnFold_MCLR(Work(ipDCAS),Work(ipDCAS2))
+      Call UnFold_MCLR(DCAS,Work(ipDCAS2))
 *
 *==============================================================================*
 *
@@ -245,7 +254,7 @@ c Avoid unused argument warnings
       Call GetMem('FockMO2','FREE','REAL',ipFMO2,ndens2)
       Call GetMem('dens1','FREE','REAL',ipDTot,ndens2)
       Call GetMem('Dens2','FREE','REAL',ipDTOT2,ndens2)
-      Call GetMem('dens3','FREE','REAL',ipDCAS,ndens2)
+      Call mma_deallocate(DCAS)
       Call GetMem('Dens4','FREE','REAL',ipDCAS2,ndens2)
       Call GetMem('Kappa1','FREE','REAL',ipK1,ndens2)
       Call GetMem('Kappa2','FREE','REAL',ipK2,ndens2)

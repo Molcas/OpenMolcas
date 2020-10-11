@@ -19,26 +19,12 @@
 * Object: to compute the velocity integrals with the Gauss-Hermite     *
 *         quadrature.                                                  *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              Kntc                                                    *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden, January '91                  *
 ************************************************************************
       use Her_RW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 
 #include "int_interface.fh"
@@ -53,7 +39,6 @@
 *
       iRout = 195
       iPrint = nPrint(iRout)
-      Call qEnter('VeInt')
       ABeq(1) = A(1).eq.RB(1)
       ABeq(2) = A(2).eq.RB(2)
       ABeq(3) = A(3).eq.RB(3)
@@ -151,7 +136,6 @@
  102  Continue
 *
 *     Call GetMem(' Exit VeInt','LIST','REAL',iDum,iDum)
-      Call qExit('VeInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

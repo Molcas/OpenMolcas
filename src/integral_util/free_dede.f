@@ -11,10 +11,9 @@
       Subroutine Free_DeDe(Dens,TwoHam,nDens)
       use k2_arrays
       use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "setup.fh"
 *

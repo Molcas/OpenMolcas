@@ -39,7 +39,6 @@
 *.Scratch
       DIMENSION SB(*),CB(*)
 *
-      CALL QENTER('RASSG')
       NTEST = 00
 C     NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.20) THEN
@@ -140,7 +139,6 @@ C     if this block structure is used internally, I didn't optimize this.
         CALL WRTVCD(SB,LUHC,1,-1)
       END IF
 *
-      CALL QEXIT('RASSG')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) Call Unused_integer_array(LEBATS)

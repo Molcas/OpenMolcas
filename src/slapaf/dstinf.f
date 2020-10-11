@@ -28,7 +28,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call QEnter('DstInf')
 *
       iRout=53
       iPrint=nPrint(iRout)
@@ -297,6 +296,5 @@
 *                                                                      *
       If (Stop.or.do_printcoords)
      &   Call CollapseOutput(0,'Geometry section')
-*     Call QExit('DstInf')
       Return
       End

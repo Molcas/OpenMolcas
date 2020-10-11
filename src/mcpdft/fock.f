@@ -166,7 +166,6 @@ c ---     Q(m,v) = C(a,m) * Q(a,v)
         Else
 
           Write(LF,*)'FOCK: illegal Cholesky parameter ALGO= ',ALGO
-          call qtrace()
           call abend()
 
         EndIf
@@ -533,7 +532,6 @@ c         call wrtmat(P(ISTP),1,nFint,1,nFint)
         Else
 
           Write(LF,*)'FOCK: illegal Cholesky parameter ALGO= ',ALGO
-          call qtrace()
           call abend()
 
         EndIf

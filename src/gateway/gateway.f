@@ -27,15 +27,19 @@
       use MpmC
       use Basis_Info
       use Center_Info
+      use external_centers, only: iXPolType, XF
+      use Temporary_parameters, only: Primitive_Pass, Expert, VarR,
+     &                                VarT, DirInt
+      use Sizes_of_Seward, only: S
+      use RICD_Info, only: Do_RI, Cholesky, Cho_OneCenter
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       Integer AixRm
       External Get_Cho_1Center,AixRm
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "status.fh"
 #include "gateway.fh"
 #include "rctfld.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "vrsn_gateway.fh"
@@ -139,7 +143,7 @@ C     Call Gateway_banner()
       Call Print_Geometry(0)
       Call Print_Isotopes()
       If (nPrint(2).gt.0) nPrint(117)=6
-      Call RigRot(Centr,Mass,kCentr)
+      Call RigRot(Centr,Mass,S%kCentr)
       Call Print_Basis2()
       Call Print_OpInfo()
 *                                                                      *
@@ -163,7 +167,7 @@ C     Call Gateway_banner()
 *
       Call Drvn0()
 *
-      Call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*nDim)
+      Call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*S%nDim)
       Call Put_iArray('NBAS',nBas,nIrrep)
       call basis2run()
       Call mma_deallocate(Mamn)
@@ -234,7 +238,7 @@ C     Call Gateway_banner()
          Pseudo = Pseudo .or. (dbsc(iCnttp)%pChrg .and.
      &                         dbsc(iCnttp)%Fixed)
       End Do
-      If (lXF.or.Pseudo) Then
+      If (Allocated(XF).or.Pseudo) Then
          iOption=iOr(iOption,2**7)
          iOption=iOr(iOption,2**8)
       End If
@@ -251,13 +255,9 @@ C     Call Gateway_banner()
       Call Put_iScalar('System BitSwitch',iOption)
       iter_S=0
       Call Put_iScalar('Saddle Iter',iter_S)
-      iDNG = 0
-      If (Do_Numerical_Gradients) iDNG=1
-      Call Put_iScalar('DNG',iDNG)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call DumpSagit()
       Call ClsSew()
       If (Allocated(AdCell)) Call mma_deallocate(AdCell)
       Call mma_deallocate(Coor_MPM)

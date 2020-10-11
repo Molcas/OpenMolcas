@@ -15,17 +15,6 @@
 *                                                                      *
 * Object: to set up the handling of the 2nd order density matrix.      *
 *                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              OpnOne                                                  *
-*              GetMem                                                  *
-*              RdOne                                                   *
-*              PrMtrx                                                  *
-*              ClsOne                                                  *
-*              ErrOne                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '92                                              *
@@ -35,9 +24,9 @@
       use pso_stuff
       use index_arrays, only: iSO2Sh
       use Basis_Info, only: nBas
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -62,13 +51,13 @@
       Logical DoCholesky
       Real*8 CoefX,CoefR
       Character*80 Fmt*60
+      Real*8, Allocatable:: D1ao(:)
 *
 *...  Prologue
 
       iRout = 250
       iPrint = nPrint(iRout)
       lPrint=iPrint.ge.6
-      Call qEnter('PrepP')
 #ifdef _CD_TIMING_
       Call CWTIME(PreppCPU1,PreppWall1)
 #endif
@@ -95,8 +84,8 @@
 *...  Get the method label
       Call Get_cArray('Relax Method',Method,8)
       Call Get_iScalar('Columbus',columbus)
-      nCMo = n2Tot
-      mCMo = n2Tot
+      nCMo = S%n2Tot
+      mCMo = S%n2Tot
       If (Method.eq. 'KS-DFT  ' .or.
      &    Method.eq. 'MCPDFT  ' .or.
      &    Method.eq. 'CASDFT  ' ) Then
@@ -278,25 +267,10 @@
          Call mma_allocate(D0,nDens,mDens,Label='D0')
          D0(:,:)=Zero
          Call mma_allocate(DVar,nDens,nsa,Label='DVar')
-         if (.not.gamma_mrcisd) then
-         Call Get_D1ao(ipD1ao,length)
-         If ( length.ne.nDens ) Then
-            Call WarningMessage(2,'PrepP: length.ne.nDens')
-            Write (6,*) 'length=',length
-            Write (6,*) 'nDens=',nDens
-            Call Abend()
-         End If
-         call dcopy_(nDens,Work(ipD1ao),1,D0(1,1),1)
-         Call Free_Work(ipD1ao)
-         endif
+         if (.not.gamma_mrcisd) Call Get_D1ao(D0(1,1),nDens)
 *
 
-         Call Get_D1ao_Var(ipD1ao_Var,length)
-         call dcopy_(nDens,Work(ipD1ao_Var),1,DVar,1)
-*        if (gamma_mrcisd) then
-*         call dcopy_(nDens,Work(ipD1ao_Var),1,D0,1)
-*        endif
-         Call Free_Work(ipD1ao_Var)
+         Call Get_D1ao_Var(DVar,nDens)
 *
          Call mma_Allocate(DS,nDens,Label='DS')
          Call mma_Allocate(DSVar,nDens,Label='DSVar')
@@ -304,12 +278,8 @@
      &       Method.eq.'ROHF    ' .or.
      &    (Method.eq.'KS-DFT  '.and.iSpin.ne.1) .or.
      &       Method.eq.'Corr. WF' ) Then
-            Call Get_D1sao(ipDS1,Length)
-            Call Get_D1sao_Var(ipDSVar1,Length)
-            Call DCopy_(Length,Work(ipDS1),1,DS,1)
-            Call DCopy_(Length,Work(ipDSVar1),1,DSVar,1)
-            Call GetMem('DS   ','Free','Real',ipDS1,nDens)
-            Call GetMem('DSVar','Free','Real',ipDSVar1,nDens)
+            Call Get_D1sao(DS,nDens)
+            Call Get_D1sao_Var(DSVar,nDens)
          Else
             DS   (:)=Zero
             DSVar(:)=Zero
@@ -558,30 +528,31 @@
 
          If ( Method.eq.'MCPDFT  ') then
 !Get the D_theta piece
-         Call Get_D1ao(ipD1ao,ndens)
-      ij = -1
-      Do  iIrrep = 0, nIrrep-1
-         Do iBas = 1, nBas(iIrrep)
-            Do jBas = 1, iBas-1
-               ij = ij + 1
-               Work(ipD1ao+ij) = Half*Work(ipD1ao+ij)
+            Call mma_allocate(D1ao,nDens)
+            Call Get_D1ao(D1ao,ndens)
+            ij = 0
+            Do  iIrrep = 0, nIrrep-1
+               Do iBas = 1, nBas(iIrrep)
+                  Do jBas = 1, iBas-1
+                     ij = ij + 1
+                     D1ao(ij) = Half*D1ao(ij)
+                  end do
+                  ij = ij + 1
+                end do
             end do
-            ij = ij + 1
-          end do
-      end do
-          call daxpy_(ndens,-1d0,D0(1,1),1,Work(ipD1ao),1)
-!          write(*,*) 'do they match?'
-!          do i=1,ndens
-!            write(*,*) Work(ipd1ao-1+i),DO(i,3)
-!          end do
+            call daxpy_(ndens,-1d0,D0(1,1),1,D1ao,1)
+!           write(*,*) 'do they match?'
+!           do i=1,ndens
+!             write(*,*) d1ao(i),DO(i,3)
+!           end do
 
-          call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
-          call daxpy_(ndens,-1.0d0,Work(ipD1ao),1,D0(1,2),1)
-!ANDREW - Generate new D5 piece:
-          D0(:,5)=Zero
-          call daxpy_(ndens,0.5d0,D0(1,1),1,D0(1,5),1)
-          call daxpy_(ndens,1.0d0,Work(ipD1ao),1,D0(1,5),1)
-         Call Free_Work(ipD1ao)
+            call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
+            call daxpy_(ndens,-1.0d0,D1ao,1,D0(1,2),1)
+!ANDREW -   Generate new D5 piece:
+            D0(:,5)=Zero
+            call daxpy_(ndens,0.5d0,D0(1,1),1,D0(1,5),1)
+            call daxpy_(ndens,1.0d0,D1ao,1,D0(1,5),1)
+            Call mma_deallocate(D1ao)
           end if
 
 
@@ -612,7 +583,6 @@
       Prepp_CPU  = PreppCPU2 - PreppCPU1
       Prepp_Wall = PreppWall2 - PreppWall1
 #endif
-      Call qExit('PrepP')
 
       Return
       End
@@ -660,7 +630,6 @@
 #include "real.fh"
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
-      Call qEnter('Get_D1A')
 
       iOff1 = 1
       iOff2 = 1
@@ -702,7 +671,6 @@
       End Do
       Call Fold2(nsym,nBas,work(ip1),D1A_AO)
       Call GetMem('Scr1','FREE','Real',ip1,ndens)
-      Call qExit('Get_D1A')
       Return
       End
 

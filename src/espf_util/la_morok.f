@@ -8,8 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine LA_Morok(nAtom,ipCorG,iMode)
+      Subroutine LA_Morok(nAtom,CorG,iMode)
       Implicit Real*8 (a-h,o-z)
+      Real*8 CorG(3,nAtom)
 c
 c     Morokuma's scaling scheme:
 c       k = (q_LA - q_QM)/(q_MM - q_QM), k = constant
@@ -37,10 +38,6 @@ c
       Integer, Dimension(:,:), Allocatable :: DefLA
       Real*8, Dimension(:), Allocatable :: FactLA
 *
-      Call QEnter('LA_Morok')
-*
-*define _DEBUG_
-*
       iPL = iPL_espf()
       lMorok = .False.
       DoTinker = .False.
@@ -63,10 +60,10 @@ c
          Goto 10
 11       Close (IPotFl)
       End If
-      If (.not.lMorok) Goto 999
-#ifdef _DEBUG_
+      If (.not.lMorok) Return
+#ifdef _DEBUGPRINT_
       iPL = 4
-      Call RecPrt('LA_Morok: coord or grad:',' ',Work(ipCorG),3,nAtom)
+      Call RecPrt('LA_Morok: coord or grad:',' ',CorG,3,nAtom)
 #endif
 c
 c Tinker part
@@ -91,29 +88,26 @@ c
                   Write (6,*) '          check each LA connectivity'
                   Call Quit_OnUserError()
                End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write(6,*)
                Write(6,*) 'LA_Morok: LAH ',iLA,' between ',iQM,
      &                                             ' and ',iMM
                Write(6,*) '          scaling factor : ',Fact
 #endif
-               iLA = (iLA-1)*3
-               iQM = (iQM-1)*3
-               iMM = (iMM-1)*3
                If (iMode .eq. 1) Then
                   If (iPL.ge.2) Write(6,*) 'LA_Morok: scaling gradients'
-                  Do iXYZ = 0, 2
-                     Work(ipCorG+iQM+iXYZ) = Work(ipCorG+iQM+iXYZ)+
-     &                                  Work(ipCorG+iLA+iXYZ)*(One-Fact)
-                     Work(ipCorG+iMM+iXYZ) = Work(ipCorG+iMM+iXYZ)+
-     &                                  Work(ipCorG+iLA+iXYZ)* Fact
-                     Work(ipCorG+iLA+iXYZ) = Zero
+                  Do iXYZ = 1, 3
+                     CorG(iXYZ,iQM)=CorG(iXYZ,iQM)+
+     &                              CorG(iXYZ,iLA)*(One-Fact)
+                     CorG(iXYZ,iMM)=CorG(iXYZ,iMM)+
+     &                              CorG(iXYZ,iLA)*Fact
+                     CorG(iXYZ,iLA)=Zero
                   End Do
                Else If (iMode .eq. 2) Then
                   If (iPL.ge.2) Write(6,*)'LA_Morok: updating positions'
-                  Do iXYZ = 0, 2
-                     Work(ipCorG+iLA+iXYZ) = Work(ipCorG+iQM+iXYZ)+
-     &                (Work(ipCorG+iMM+iXYZ)-Work(ipCorG+iQM+iXYZ))*Fact
+                  Do iXYZ = 1, 3
+                     CorG(iXYZ,iLA) = CorG(iXYZ,iQM) + (CorG(iXYZ,iMM)
+     &                              - Corg(iXYZ,iQM))*Fact
                   End Do
                Else
                   Write (6,*) 'LA_Morok: wrong iMode'
@@ -181,16 +175,13 @@ c
                iLA = GroToMol(DefLA(1,iLink))
                iQM = GroToMol(DefLA(2,iLink))
                iMM = GroToMol(DefLA(3,iLink))
-               iLA = 3*(iLA-1)
-               iQM = 3*(iQM-1)
-               iMM = 3*(iMM-1)
                Fact = FactLA(iLink)
-               Do ixyz = 0,2
-                  Work(ipCorG+iQM+ixyz) = Work(ipCorG+iQM+ixyz) +
-     &                                    Work(ipCorG+iLA+ixyz)*(1-Fact)
-                  Work(ipCorG+iMM+ixyz) = Work(ipCorG+iMM+ixyz) +
-     &                                    Work(ipCorG+iLA+ixyz)*Fact
-                  Work(ipCorG+iLA+ixyz) = Zero
+               Do ixyz = 1,3
+                  CorG(ixyz,iQM) = CorG(ixyz,iQM)
+     &                           + CorG(ixyz,iLA)*(1-Fact)
+                  CorG(ixyz,iMM) = CorG(ixyz,iMM)
+     &                           + CorG(ixyz,iLA)*Fact
+                  CorG(ixyz,iLA) = Zero
                End Do
             End Do
 * ...or to position
@@ -202,13 +193,10 @@ c
                iLA = GroToMol(DefLA(1,iLink))
                iQM = GroToMol(DefLA(2,iLink))
                iMM = GroToMol(DefLA(3,iLink))
-               iLA = 3*(iLA-1)
-               iQM = 3*(iQM-1)
-               iMM = 3*(iMM-1)
                Fact = FactLA(iLink)
-               Do ixyz = 0,2
-                  Work(ipCorG+iLA+ixyz) = Work(ipCorG+iQM+ixyz) +
-     &                (Work(ipCorG+iMM+ixyz)-Work(ipCorG+iQM+ixyz))*Fact
+               Do ixyz = 1,3
+                  CorG(ixyz,iLA) = CorG(ixyz,iQM)
+     &                           +(CorG(ixyz,iMM) - CorG(ixyz,iQM))*Fact
                End Do
             End Do
          Else
@@ -222,13 +210,7 @@ c
          Call mma_deallocate(GroToMol)
       End If
 c
-#ifdef _DEBUG_
-      Call RecPrt('LA_Morok: coord or grad:',' ',Work(ipCorG),3,nAtom)
-#endif
-999   Call QExit('LA_Morok')
-      Return
-#ifndef _DEBUG_
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(nAtom)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('LA_Morok: coord or grad:',' ',CorG,3,nAtom)
 #endif
       End

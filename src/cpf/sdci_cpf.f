@@ -17,9 +17,7 @@
 #include "cpfmcpf.fh"
 c      DIMENSION H(LIC0), iH(RtoI*LIC0)
       DIMENSION H(*), iH(*)
-      CALL QENTER('SDCI')
       CALL SDCI_CPF_INTERNAL(H)
-      CALL QEXIT('SDCI')
 *
 *     This is to allow type punning without an explicit interface
       CONTAINS
@@ -66,7 +64,6 @@ C     FIRST ORDER DENSITY MATRIX
          WRITE(6,*) ' one reference state has been specified in the'
          WRITE(6,*) ' GUGA program. Change input to GUGA and run again.'
       CALL XFLUSH(6)
-         CALL QEXIT('SDCI')
          RETURN
       END IF
       RETURN

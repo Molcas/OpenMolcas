@@ -20,26 +20,18 @@
 * Object: to compute the gradient of the nuclear attraction integrals. *
 *          Something is wrong here                                     *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy  (ESSL)                                           *
-*              ICopy                                                   *
-*              Rysg1                                                   *
-*              QExit                                                   *
-*                                                                      *
-*             Roland Lindh, Dept. of Theoretical Chemistry, University *
+*     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             October 1991                                             *
 *              Anders Bernhardsson 1995                                *
 ************************************************************************
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "disp.fh"
 #include "disp2.fh"

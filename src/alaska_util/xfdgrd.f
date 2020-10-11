@@ -19,15 +19,6 @@
 * Object: kernel routine for the computation of nuclear attraction     *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DCR                                                     *
-*              XRysg1                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, May 1995                                *
 ************************************************************************
@@ -35,10 +26,8 @@
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, XCff2D
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
 
@@ -59,7 +48,6 @@
 *
       iRout = 151
       iPrint = nPrint(iRout)
-      Call qEnter('XFdGrd')
 *
       nRys=nHer
 *
@@ -251,7 +239,6 @@
 *
       End Do     ! End loop over charges and dipole moments
 *
-      Call qExit('XFdGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

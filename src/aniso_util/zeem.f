@@ -32,7 +32,6 @@ c local variables:
       Complex(kind=8) :: H_c, dX_c, dY_c, dZ_c, zJ_c, W_c(N), S_c(3)
       Complex(kind=8) :: mB_c
       Logical          :: DBG
-      Call qEnter('ZEEM')
       mB = 0.4668643740_wp !   in cm-1*T-1
 
       ! initialization
@@ -142,6 +141,5 @@ c      Call zcopy_(  (2*N-1)    , [(0.0_wp,0.0_wp)], 0,  WORK, 1)
      &       'WM(',i,')=',WM(i)!,' ZM(j,',i,'):',(ZM(j,i),j=1,N)
         End Do
       End If
-      Call qExit('ZEEM')
       Return
       End

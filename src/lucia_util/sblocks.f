@@ -130,7 +130,6 @@
 *.
 C-jwk-cleanup      REAL * 8 INPROD
 *
-      CALL QENTER('SBLOC')
 *
 C?    WRITE(6,*) ' IPERTOP in SBLOCKS = ', IPERTOP
 c      IF(IH_OCC_CONS.EQ.1) THEN
@@ -494,6 +493,5 @@ C               IF(IPERTOP.NE.0) THEN
      &                   NSSOA,    NSSOB,        1)
       END IF
 *
-      CALL QEXIT('SBLOC')
       RETURN
       END

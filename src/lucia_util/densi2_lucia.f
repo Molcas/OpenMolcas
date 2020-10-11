@@ -84,7 +84,6 @@ c      REAL*8 INPRDD
 *.Output
       DIMENSION RHO1(*),RHO2(*),RHO2S(*),RHO2A(*),SRHO1(*)
 *. Before I forget it :
-      CALL QENTER('DENSI')
       IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'DENSI ')
       ZERO = 0.0D0
@@ -483,6 +482,5 @@ c      END IF
       CALL GETMEM('IBT_R  ','FREE','INTE',KLIBTR ,8*NTTS)
       CALL GETMEM('SCLF_R ','FREE','REAL',KLSCLFCR,NTTS)
 
-      CALL QEXIT('DENSI')
       RETURN
       END

@@ -32,7 +32,6 @@ C tridiagonal local array at Work(lg_M)
 #include "mafdecls.fh"
 #endif
 
-      CALL QENTER('PSBMAT_GETMEM')
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
@@ -49,7 +48,6 @@ C tridiagonal local array at Work(lg_M)
       CALL DCOPY_(nTri,[0.0D0],0,WORK(lg_M),1)
 #endif
 
-      CALL QEXIT('PSBMAT_GETMEM')
       END
 
       SUBROUTINE PSBMAT_FREEMEM(cNAME,lg_M,nSize)
@@ -74,7 +72,6 @@ C tridiagonal local array at Work(lg_M)
       LOGICAL bStat
 #endif
 
-      CALL QEnter('PSBMAT_FREEMEM')
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
@@ -87,7 +84,6 @@ C tridiagonal local array at Work(lg_M)
       nTri=(nSize*(nSize+1))/2
       CALL GETMEM(cNAME,'FREE','REAL',lg_M,nTri)
 #endif
-      CALL QExit('PSBMAT_FREEMEM')
       END
 
       SUBROUTINE PSBMAT_WRITE(cNAME,iCase,iSym,lg_M,nSize)
@@ -110,7 +106,6 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
 #include "mafdecls.fh"
 #endif
 
-      CALL QEnter('PSBMAT_WRITE')
 
       IF (CNAME.EQ.'S') THEN
         LU=LUH0T(1)
@@ -151,7 +146,6 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
       CALL DDAFILE(LUSBT,1,WORK(lg_M),nBlock,IDISK)
 #endif
 
-      CALL QExit('PSBMAT_WRITE')
       END
 
       SUBROUTINE PSBMAT_READ(cNAME,iCase,iSym,lg_M,nSize)
@@ -175,7 +169,6 @@ C LUSBT into WORK(lg_M)
 #include "mafdecls.fh"
 #endif
 
-      CALL QEnter('PSBMAT_READ')
 
       IF (CNAME.EQ.'S') THEN
         LU=LUH0T(1)
@@ -216,7 +209,6 @@ C LUSBT into WORK(lg_M)
       CALL DDAFILE(LUSBT,2,WORK(lg_M),nBlock,IDISK)
 #endif
 
-      CALL QExit('PSBMAT_READ')
 
       END
 

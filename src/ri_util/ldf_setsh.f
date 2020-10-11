@@ -23,8 +23,6 @@ C
       Integer nShell_Aux
       Logical Verbose
       Integer irc
-#include "itmax.fh"
-#include "info.fh"
 #include "localdf_bas.fh"
 #include "WrkSpc.fh"
 

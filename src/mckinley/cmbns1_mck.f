@@ -17,12 +17,6 @@
 *                                                                      *
 * Object: compute the gradient of the overlap matrix.                  *
 *                                                                      *
-* Called from: OvrGrd_mck                                              *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh,                                            *
 *             Dept. of Theoretical Chemistry,                          *
 *             University of Lund, SWEDEN                               *
@@ -47,7 +41,6 @@ c#include "print.fh"
 *
 c     iRout = 134
 c     iPrint = nPrint(iRout)
-c     Call qEnter('CmbnS1_mck')
 *     Call GetMem(' Enter CmbnS1_mck','LIST','REAL',iDum,iDum)
 *
 *     ii = la*(la+1)*(la+2)/6
@@ -212,7 +205,6 @@ c     End If
  10   Continue
 *
 *     Call GetMem(' Exit CmbnS1_mck','LIST','REAL',iDum,iDum)
-c     Call qExit('CmbnS1_mck')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

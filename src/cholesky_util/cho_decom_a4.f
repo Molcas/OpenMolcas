@@ -30,10 +30,6 @@ C
 
       nKVec(i)=iWork(ip_nKVec-1+i)
 
-#if defined (_DEBUG_)
-      Call qEnter('_Decom_A4')
-#endif
-
 C     Print header.
 C     -------------
 
@@ -342,9 +338,5 @@ C     ------
          Write(Lupri,'(A,8I8)')
      &   '#vec. gener.  : ',(NumCho_OLD(iSym),iSym=1,nSym)
       End If
-
-#if defined (_DEBUG_)
-      Call qExit('_Decom_A4')
-#endif
 
       End

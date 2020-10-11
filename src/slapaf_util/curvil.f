@@ -52,17 +52,16 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPrint=99
 #else
       iRout=128
       iPrint=nPrint(iRout)+1
 #endif
-      Call QEnter('Curvil')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -107,7 +106,7 @@
             i = i + 1
          End If
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Work(ipDegen)',' ',Work(ipDegen),nDim,1)
 #endif
 *                                                                      *
@@ -155,7 +154,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'nq, nqB, nqA, nqT, nqO=',
      &             nq, nqB, nqA, nqT, nqO
 #endif
@@ -218,7 +217,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.49) Then
          Write (6,*) 'nq, nqB, nqA, nqT, nqO=',
      &             nq, nqB, nqA, nqT, nqO
@@ -259,7 +258,7 @@
             Call DScal_(nB,Work(ipf_c+iq),Work(ip_B+i),1)
             i = i + nB
          End Do
-*ifdef _DEBUG_
+*ifdef _DEBUGPRINT_
          If (iPrint.ge.99) Then
             i = 0
             Do iq = 0, nq-1
@@ -306,7 +305,7 @@
       Else
          Call Get_dArray('K',Work(ipK),nq*nQQ)
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt('K',' ',Work(ipK),nq,nQQ)
       End If
@@ -459,7 +458,7 @@ C        iEnd = 1
                End Do
             End Do
          End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          If (iPrint.ge.99) Then
             Call RecPrt(' The K matrix',' ',Work(ipK),nq,nQQ)
             Call RecPrt(' The K(t)B matrix',' ',Work(ipKtB),nQQ,nDim)
@@ -585,7 +584,7 @@ C        iEnd = 1
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.49) Then
          Call RecPrt(' The K Matrix',' ',Work(ipK),nq,nQQ)
          Call RecPrt(' q-values',' ',Work(ipqVal),nq,nIter)
@@ -620,6 +619,5 @@ C        iEnd = 1
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit ('Curvil')
       Return
       End

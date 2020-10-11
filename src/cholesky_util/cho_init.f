@@ -49,7 +49,6 @@ C
       NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)
       NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
 
-      CALL QENTER('_INIT')
 
 C     Check settings for parallel runs.
 C     Return code: 3 will cause verification to accept this as a passed
@@ -387,6 +386,5 @@ C           -----------
 
       END IF
 
-      CALL QEXIT('_INIT')
 
       END

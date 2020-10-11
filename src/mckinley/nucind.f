@@ -12,10 +12,10 @@
      &                  jfgrd,jfhss,jndgrd,jndhss,tr,ifg)
       use Real_Spherical
       use Center_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
@@ -43,7 +43,6 @@
 *                                                                      *
 c     iRout = 150
 c     iPrint = nPrint(iRout)
-c     Call qEnter('NAHSS')
 *
       Call ICopy(nIrrep*16*9,[0],0,JndHss,1)
       Call iCopy(nIrrep*4*3,[0],0,JndGrd,1)

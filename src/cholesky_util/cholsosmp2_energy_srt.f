@@ -37,7 +37,7 @@ C
       Real*8   dDot_
       external ddot_
 
-#if !defined (_I8_) || defined (_DEBUG_)
+#if !defined (_I8_) || defined (_DEBUGPRINT_)
       Character*2 Unt
       Real*8  Byte
 #endif
@@ -122,7 +122,7 @@ C
          End If
       End Do
       l_X=int(lX)
-#if !defined (_I8_) || defined (_DEBUG_)
+#if !defined (_I8_) || defined (_DEBUGPRINT_)
       If (l_X .lt. 0) Then
          Write(Lupri,'(A,A)')
      &   SecNam,': dimension of X matrix is negative!'
@@ -167,7 +167,7 @@ C
                lenX=nEnrVec(iSym)*(nEnrVec(iSym)+1)/2
      &             +(nBlock-1)*(bsize*(bsize-1)/2)
      &             +blast*(blast-1)/2
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                If (lenX.gt.l_X) Then
                   Call WarningMessage(2,
      &                            SecNam//': insufficient X allocation')
@@ -186,7 +186,7 @@ C
                      iOpt=2
                      l_Tot=Nai*nEnrVec(iSym)
                      iAddr=1
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                      If (l_Tot.gt.l_V) Then
                         Call WarningMessage(2,
      &                            SecNam//': insufficient V allocation')
@@ -244,7 +244,7 @@ C
                            ipX=ipX+nVeci*nVecj
                         End Do
                      End Do
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                      If (lenX.ne.(ipX-ip_X)) Then
                         Call WarningMessage(2,
      &                                SecNam//': dimension problem [1]')
@@ -282,7 +282,7 @@ C
                      ipX=ipX+nVeci*nVecj
                   End Do
                End Do
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                If (lenX.ne.(ipX-ip_X)) Then
                   Call WarningMessage(2,
      &                             SecNam//': dimension problem [2]')

@@ -20,8 +20,6 @@
 ************************************************************************
       use Basis_Info
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
 *                                                                      *

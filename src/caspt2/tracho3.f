@@ -46,7 +46,6 @@
       REAL*8, EXTERNAL :: DDOT_
 
 **********************************************************************
-      Call QEnter('TRACHO3')
 * ======================================================================
 * This section deals with density matrices and CMO''s
 * Offsets into CMO arrays:
@@ -298,6 +297,5 @@ C loop over secondary orbital index c is more efficient.
       CALL GETMEM('HTSPC','FREE','REAL',IP_HTSPC,NHTSPC)
       CALL GETMEM('FTSPC','FREE','REAL',IP_FTSPC,NFTSPC)
 
-      Call QExit('TRACHO3')
       RETURN
       END

@@ -22,7 +22,6 @@
       DIMENSION K00(MXVERT),K11(MXVERT),K22(MXVERT),K33(MXVERT)
       DIMENSION L00(MXVERT),L11(MXVERT),L22(MXVERT),L33(MXVERT)
 *
-      CALL QENTER('TAB2')
       IEL=2
       IF(IFIRST.NE.0)IEL=1
 *
@@ -362,7 +361,6 @@ c     */,6X,'NUMBER OF DOUBLET COUPLED SINGLES',I7)
       If (ISUM.GT.LIX) Then
          Write(6,*) 'Tab2: ISUM.GT.LIX'
          Write(6,*) 'ISUM,LIX=',ISUM,LIX
-         Call QTrace
          Call Abend
       End If
       DO 5 I=1,10
@@ -421,6 +419,5 @@ C     PUT ZEROS IN VECTORS
       END IF
       IF(IBMAX.GT.MAXB) Call Abend
 *
-      CALL QEXIT('TAB2')
       RETURN
       END

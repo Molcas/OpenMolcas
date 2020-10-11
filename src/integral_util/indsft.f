@@ -20,23 +20,16 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: Twoel                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             April '90                                                *
 ************************************************************************
       use SOAO_Info, only: iAOtSO, iOffSO
       use LundIO
+      use Real_Info, only: ThrInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
       Real*8 SOInt(ijkl,nSOInt)
       Integer iCmp(4), iShell(4), iAO(4), iAOst(4)
       Logical Shijij, Shij, Shkl, Qijij, Qij, Qkl,
@@ -199,7 +192,6 @@
                                   kkSOkk = kSOkk
                                   llSOll = lSOll
                                End If
-                               IntTot = IntTot + 1
                                Buf%nUt=Buf%nUt + 1
                                Buf%Buf(Buf%nUt) = SOInt(nijkl,MemSO2)
                                Buf%iBuf(Buf%nUt) = llSOll + kkSOkk*2**8

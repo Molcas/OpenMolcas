@@ -33,8 +33,6 @@
 ************************************************************************
 *      Implicit None
 #include "dkhparameters.fh"
-#include "itmax.fh"
-#include "info.fh"
 *
       Logical dkhscfflg,no_hamil,no_prop
       Integer  dkhorder,xorder,isize,snumber,tnumber,nbasp,nbaso,
@@ -348,10 +346,9 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      use DKH_Info
       Integer indx2(nAtom,4),indx(N),N,Nsm,nblock,itmp1,itmp2
       Real*8 Coord(3*nAtom),distce
-#include "itmax.fh"
-#include "info.fh"
 *
       call get_iarray('Ctr Index Prim',indx,N)
       indx2(1,1)=1
@@ -513,9 +510,8 @@ c Avoid unused argument warnings
 *                                                                      *
 *                                                                      *
 ************************************************************************
+      use DKH_Info
       Implicit real*8(a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
       Integer N,isize,i,j,k,l,m,icen,nAtom,
      *        nblock,indx2(nAtom,4)
       Real*8 h(isize),s(isize),sinv(N,N),eig(N,N),ew(N)

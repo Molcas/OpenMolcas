@@ -10,14 +10,14 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
-!#define _DEBUG_
+!#define _DEBUGPRINT_
 
 Module Basis_Info
 Implicit None
 Private
 Public :: Basis_Info_Dmp, Basis_Info_Get, Basis_Info_Free, Distinct_Basis_set_Centers, dbsc, nFrag_LineWords,&
           PAMExp, Shells, Max_Shells, nCnttp, iCnttp_Dummy, Point_Charge, Gaussian_type, mGaussian_Type,     &
-          Nuclear_Model, Basis_Info_Init, nBas, nBas_Aux, nBas_Frag
+          Nuclear_Model, Basis_Info_Init, nBas, nBas_Aux, nBas_Frag, MolWgh
 
 #include "stdalloc.fh"
 #include "Molcas.fh"
@@ -159,6 +159,12 @@ Integer :: Nuclear_Model=Point_Charge
 Integer :: nBas(0:7)     =[0,0,0,0,0,0,0,0]
 Integer :: nBas_Aux(0:7) =[0,0,0,0,0,0,0,0]
 Integer :: nBas_Frag(0:7)=[0,0,0,0,0,0,0,0]
+Integer :: MolWgh=2
+!     MolWgh: integer flag to indicate the normalization of the symmetry transformation
+!             0: double coset represetative normalization
+!             1: as in MOLECULE
+!             2: as in MOLPRO
+
 
 Type (Distinct_Basis_set_centers) , Allocatable, Target:: dbsc(:)
 Type (Shell_Info), Allocatable :: Shells(:)
@@ -214,7 +220,7 @@ Contains
 !     run file.
 !
 Subroutine Basis_Info_Init()
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*)
 Write (6,*) 'Enter Basis_Info_Init'
 Write (6,*)
@@ -239,7 +245,7 @@ Else
    Allocate(Shells(1:Max_Shells))
 End If
 Initiated=.True.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*)
 Write (6,*) 'Exit Basis_Info_Init'
 Write (6,*)
@@ -257,7 +263,7 @@ Integer, Allocatable:: iDmp(:,:)
 Real*8, Allocatable, Target:: rDmp(:,:)
 Real*8, Pointer:: qDmp(:,:)
 Character(LEN=160), Allocatable:: cDmp(:)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*)
 Write (6,*) 'Enter Basis_Info_Dmp'
 Write (6,*)
@@ -329,7 +335,7 @@ Do i = 1, nCnttp
          +5              *        nFragCoor     &
                          +dbsc(i)%nFragEner     &
        +dbsc(i)%nFragDens*dbsc(i)%nFragEner
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
    Write (6,'(A,8I4)') 'iCnttp=',i,                     &
           nFrag_LineWords,dbsc(i)%nFragType,    &
                           dbsc(i)%nFragCoor,    &
@@ -351,6 +357,7 @@ iDmp(5,nCnttp+1)=Nuclear_Model
 iDmp(6:13,nCnttp+1)=nBas(0:7)
 iDmp(14:21,nCnttp+1)=nBas_Aux(0:7)
 iDmp(22:29,nCnttp+1)=nBas_Frag(0:7)
+iDmp(30,nCnttp+1)=MolWgh
 Call Put_iArray('iDmp',iDmp,nFields*(nCnttp+1))
 Call mma_deallocate(iDmp)
 !
@@ -376,7 +383,7 @@ Do i = 1, Max_Shells-1
    iDmp(11,i) = Shells(i)%kOffAO
    nAux2 = nAux2 + 2*Shells(i)%nBK + 2*Shells(i)%nAkl**2 + Shells(i)%nFockOp**2  &
          + Shells(i)%nExp + 2*Shells(i)%nExp*Shells(i)%nBasis + 2*Shells(i)%nExp**2
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
    Write (6,'(A,7I4)') 'iShll=',i,                     &
                Shells(i)%nBK,                          &
                Shells(i)%nAkl,                         &
@@ -527,7 +534,7 @@ lcDmp=160*nCnttp
 Call Put_cArray('cDmp',cDmp(1),lcDmp)
 Call mma_deallocate(cDmp)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*)
 Write (6,*) 'Exit Basis_Info_Dmp'
 Write (6,*)
@@ -547,7 +554,7 @@ Character(LEN=160), Allocatable:: cDmp(:)
 Logical Found
 Integer Len, i, j, nAtoms, nAux, nM1, nM2, nBK,nAux2, nAkl, nFockOp, nExp, nBasis, Len2, lcDmp
 Integer nFragType, nFragCoor, nFragEner, nFragDens
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*)
 Write (6,*) 'Enter Basis_Info_Get'
 Write (6,*)
@@ -569,6 +576,7 @@ Nuclear_Model  =iDmp(5,Len2)
 nBas(0:7)      =iDmp(6:13,Len2)
 nBas_Aux(0:7)  =iDmp(14:21,Len2)
 nBas_Frag(0:7) =iDmp(22:29,Len2)
+MolWgh         =iDmp(30,Len2)
 nAux = 0
 !
 !     Initiate the memory allocation of dsbc and Shells
@@ -618,7 +626,7 @@ Do i = 1, nCnttp
          +5              *        nFragCoor     &
                          +dbsc(i)%nFragEner     &
        +dbsc(i)%nFragDens*dbsc(i)%nFragEner
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
    Write (6,'(A,8I4)') 'iCnttp=',i,                     &
           nFrag_LineWords,dbsc(i)%nFragType,    &
                           dbsc(i)%nFragCoor,    &
@@ -835,7 +843,7 @@ Do i = 1, nCnttp
    dbsc(i)%Bsl_Old=cDmp(i)(81:160)
 End Do
 Call mma_deallocate(cDmp)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*)
 Write (6,*) 'Coordinates:'
 Do i = 1, nCnttp
@@ -855,7 +863,7 @@ End Subroutine Basis_Info_Get
 !
 Subroutine Basis_Info_Free()
 Integer i
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*) 'Basis_Info_Free()'
 #endif
 !

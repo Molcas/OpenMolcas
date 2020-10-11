@@ -22,7 +22,6 @@
 
       integer offset
 
-      call QENTER('rdminit')
 
       if (IPRGLB.GE.DEBUG) then
         write(6,*)' Entered rdminit.'
@@ -77,6 +76,5 @@
       call getmem('LCMO','FREE','REAL',LCMO,NCMO)
       call getmem('LCI','FREE','REAL',LCI,NCONF)
 
-      call QEXIT('rdminit')
       return
       end

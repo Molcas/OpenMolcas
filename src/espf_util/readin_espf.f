@@ -31,7 +31,6 @@
       Character*180 Get_Ln
       External Get_Ln
 *
-      Call qEnter('ReadIn')
 *
 * If some keywords are not given, what are the defauts ?
 * 3 cases:
@@ -469,7 +468,6 @@ ctmp
 * b) external potential calculated from point charges and dipoles
 *
       If (nChg .gt. 0 .and. DoDirect) Then
-         lXF = .True.
          nXF = nChg
          nOrd_XF = nOrd_ext
          iXPolType = 0
@@ -616,7 +614,6 @@ ctmp
       End Do
       Close(IPotFl)
       Write (6,*)
-      Call qExit('ReadIn')
 *
 *----------------------------------------------------------------------*
 *     Exit                                                             *

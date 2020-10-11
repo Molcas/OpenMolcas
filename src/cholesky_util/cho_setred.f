@@ -28,10 +28,6 @@ C
       ISP2F(I)=IWORK(ip_iSP2F-1+I)
       IATOMSHL(I)=IWORK(ip_IATOMSHL-1+I)
 
-#if defined (_DEBUG_)
-      CALL QENTER('_SETRED')
-#endif
-
 C     Debug print.
 C     ------------
 
@@ -389,9 +385,5 @@ C     ------------
          END DO
          WRITE(LUPRI,*) SECNAM,': total #negative: ',NNEG
       END IF
-
-#if defined (_DEBUG_)
-      CALL QEXIT('_SETRED')
-#endif
 
       END

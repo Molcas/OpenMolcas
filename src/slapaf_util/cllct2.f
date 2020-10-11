@@ -14,15 +14,6 @@
      &                  nCntr,mCntr,xyz,Grad,Ind,Type,rMss,qMss,Lbl,
      &                  lWrite,jStab,nStab,mxdc,Deg,Smmtrc,Hess,lIter)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: DefInt2                                                 *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy  (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             May '91                                                  *
@@ -53,7 +44,6 @@
 *
       iRout = 50
       iPrint = nPrint(iRout)
-      Call qEnter('Cllct2')
       ldB=.True.
       lWarn  = lWrite
       If (iPrint.gt.20) lWrite = .True.
@@ -248,6 +238,5 @@
      &                              ' ',dVector,3*nAtom,3*nAtom)
       End If
 *
-      Call qExit('Cllct2')
       Return
       End

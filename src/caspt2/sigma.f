@@ -34,9 +34,8 @@ C Compute |JVEC> := BETA* |JVEC> + ALPHA* (H0-E0)* |IVEC>
 C where the vectors are represented in transformed basis and
 C are  stored at positions IVEC and JVEC on the LUSOLV unit.
 
-      CALL QENTER('SIGMA')
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)' Entering SIGMA.'
       WRITE(6,*)
      &' Compute |JVEC> := Beta*|JVEC> + Alpha*(H0-E0)|IVEC>'
@@ -203,7 +202,7 @@ C the SGM subroutines
                 GOTO 999
               END IF
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
               WRITE(6,*)' ISYM1,ICASE1:',ISYM1,ICASE1
               WRITE(6,*)' ISYM2,ICASE2:',ISYM2,ICASE2
               WRITE(6,*)' SIGMA calling SGM with IMLTOP=',IMLTOP
@@ -433,7 +432,7 @@ CPAM Sanity check:
 *               GOTO 999
 *             END IF
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
               WRITE(6,*)' ISYM1,ICASE1:',ISYM1,ICASE1
               WRITE(6,*)' ISYM2,ICASE2:',ISYM2,ICASE2
               WRITE(6,*)' SIGMA calling SGM with IMLTOP=',IMLTOP
@@ -482,7 +481,7 @@ C-SVC: no need for the replicate arrays any more, fall back to one array
       CPUSGM=CPUSGM+(CPU1-CPU0)
       TIOSGM=TIOSGM+(TIO1-TIO0)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)' End of SIGMA. Flop counts:'
       WRITE(6,'(a,i12)')' In MLTSCA:',NFSCA
       WRITE(6,'(a,i12)')' In MLTDXP:',NFDXP
@@ -504,7 +503,6 @@ C Transform covar. sigma to eigenbasis of H0(diag):
       CALL PTRTOSR(0,JVEC,JVEC)
 
   99  CONTINUE
-      CALL QEXIT('SIGMA')
       RETURN
 
  999  CONTINUE

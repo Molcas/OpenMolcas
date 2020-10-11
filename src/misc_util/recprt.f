@@ -41,7 +41,7 @@
       Character*20 FMT
 *----------------------------------------------------------------------*
       If (nRow*nCol.eq.0) Return
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call TrcPrt(Title,FmtIn,A,nRow,nCol)
       Return
 #endif

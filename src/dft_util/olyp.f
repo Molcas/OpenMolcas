@@ -19,26 +19,14 @@
 * Object:    OLYP combination                                          *
 *            ref: Handy, Cohen, J. Mol.Phys 99 (2001) 403              *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 * Author:    Grigory A Shamov, University of Manitoba 2009             *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
 #include "ksdft.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
-*                                                                      *
-************************************************************************
-*                                                                      *
-C      Call QEnter('OLYP')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -62,7 +50,6 @@ C      Call QEnter('OLYP')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C      Call QExit('OLYP')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

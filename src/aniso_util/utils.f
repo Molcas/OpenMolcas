@@ -272,7 +272,7 @@ c------------------------------------------------------------------------
       ! local variables:
       Integer       :: k,i,j,jEnd
       Real(kind=8) :: Mr(n), Mi(n), Weight(n)
-      Character(1)  :: cRsign(n), cIsign(n)
+      Character(Len=1)  :: cRsign(n), cIsign(n)
 
       Write(6,'(/)')
       Do j=1,n,2
@@ -549,9 +549,8 @@ c------------------------------------------------------------------------
       ! local variables:
       Integer       :: k,q,i
       Real(kind=8) :: Ar, Ai
-      Character(1)  :: cRsign, cIsign
+      Character(Len=1)  :: cRsign, cIsign
 
-      Call qEnter('SA_PRCF')
 
       Write(6,'(/)')
       Write(6,'(100A)') ('*',i=1,80)
@@ -637,7 +636,6 @@ c------------------------------------------------------------------------
       End If
 
       Write(6,'(100A)') ('-',i=1,59),'|'
-      Call qExit('SA_PRCF')
       Return
       End Subroutine print_cfp_naoya
 

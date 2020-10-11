@@ -39,10 +39,11 @@
       use SOAO_Info, only: iAOtSO, nSOInf
       use Real_Spherical
       use Basis_Info
+      use Sizes_of_Seward, only: S
+      use RICD_Info, only: Thrshld_CD
       Implicit Real*8 (A-H,O-Z)
       External Integral_RI_2
 #include "itmax.fh"
-#include "info.fh"
 #include "SysDef.fh"
 #include "real.fh"
 #include "print.fh"
@@ -67,7 +68,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-!#define _DEBUG_
+!#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -81,7 +82,7 @@
 *     Set up transformation matrix from Cartesian to real spherical
 *     harmonics.
 *
-      Call Sphere(iAngMx)
+      Call Sphere(S%iAngMx)
 *
       Call Flip_Flop(.False.) ! Contracted mode.
 *
@@ -98,7 +99,7 @@
 *                                                                      *
 *        Define some parameters to facilitate the atomic calculation
 *
-         nShlls= dbsc(iCnttp)%nVal
+         S%nShlls= dbsc(iCnttp)%nVal
          nTest = dbsc(iCnttp)%nVal-1
 *
 *        Define AOtSO
@@ -144,7 +145,7 @@
      &                               TInt_c,nTInt_c,
      &                               In_Core,ADiag,Lu_A,ijS_req,
      &                               Keep_Shell)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call TriPrt('TInt_c',' ',TInt_c,nTInt_c)
 #endif
 *
@@ -169,7 +170,7 @@
             End Do
             Call mma_deallocate(TInt_c)
             ip_TInt_c=ipA
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('TInt_c',' ',Work(ip_TInt_c),nTInt_c,nTInt_c)
 #endif
 *
@@ -187,7 +188,7 @@
 *
                End Do
             End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('TInt_c(r)','(5G20.10)',
      &                  Work(ip_TInt_c),nBasisi,nBasisi)
 #endif
@@ -226,7 +227,7 @@
             iDisk=0
             Call dDaFile(Lu_Q,2,Work(ipQVec),nBasisi*m,iDisk)
             Call DaEras(Lu_Q)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('QVec',' ',Work(ipQVec),nBasisi,m)
 #endif
 *
@@ -235,7 +236,7 @@
                call dcopy_(nExpi*nBasisi,
      &                     Shells(iShll)%Cff_c(1,1,iCase),1,
      &                     Work(ipTmp),1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Call RecPrt('Coeff(old)',' ',
      &                     Shells(iShll)%Cff_c(1,1,iCase),
      &                     nExpi,nBasisi)
@@ -246,7 +247,7 @@
      &                          Work(ipQVec),nBasisi,
      &                    0.0D0,Shells(iShll)%Cff_c(1,1,iCase),
      &                          nExpi)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Call RecPrt('Coeff(new)',' ',
      &                     Shells(iShll)%Cff_c(1,1,iCase),
      &                     nExpi,nBasisi)

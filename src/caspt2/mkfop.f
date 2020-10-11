@@ -29,7 +29,6 @@
 * Compute the matrix elements of this Fock operator over the basis
 * of CASSCF states that are treated together in XMS fashion.
 
-      CALL QENTER('MKFOP')
 
       CALL DCOPY_(NGRP**2,[0.0D0],0,FOPXMS,1)
 
@@ -46,6 +45,5 @@
         END DO
       END DO
 
-      CALL QEXIT('MKFOP')
       RETURN
       END

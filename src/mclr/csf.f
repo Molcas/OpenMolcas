@@ -372,7 +372,6 @@ C?    END IF
 #include "csfsd.fh"
 
 *
-*     Call qEnter('CsfInf')
 *
 C.... Sorry about this  but this is just to tell the program
 C     that no CSF<->SD coefficents is in core
@@ -443,7 +442,6 @@ C     that no CSF<->SD coefficents is in core
            CALL iDAFILE(LUCSF2SD,1,IWORK(KICONF(1)),lconf,iA)
       End Do
 *
-*     Call qExit('CsfInf')
 *
       CALL GETMEM('KICTS','FREE','INTEGER',KICTS(1),NOOS)
       CALL GETMEM('KICONF','FREE','INTEGER',KICONF(1),NOOS)
@@ -1004,7 +1002,6 @@ c Avoid unused argument warnings
 *. Scratch
       DIMENSION IICL(*),IIOP(*),IIOC(NORB1+NORB2+NORB3)
 *
-*      Call qEnter('CIsize')
 *
       NTEST = 0000
       NTEST = MAX(NTEST,IPRNT)
@@ -1305,7 +1302,6 @@ C
       END IF
 
 *
-*     Call qExit('CIsize')
 *
       RETURN
       END
@@ -1331,7 +1327,6 @@ C     DIMENSION IPDET(NOP,NDET)
       DIMENSION IPDET(*       )
       DIMENSION IDET(NEL,*   )
 C
-*     Call qEnter('CNDET')
 C
 C POSITIVE NUMBER  : ALPHA ORBITAL
 C NEGATIVE NUMBER  : BETA  ORBITAL
@@ -1387,7 +1382,6 @@ C
 C
 C..4  EXIT
 C
-*     Call qExit('CNDET')
       RETURN
       END
 *
@@ -1419,7 +1413,6 @@ C
       DIMENSION IWORK(*)
 C
 C
-*     Call qEnter('DETSTR')
 C
       NTEST = 000
       NTEST = MAX(NTEST,IPRNT)
@@ -1459,7 +1452,6 @@ C
 !      end if
 
 C
-*     Call qExit('DETSTR')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(NORB)
@@ -1615,7 +1607,6 @@ c Avoid unused argument warnings
 *.Scratch
       DIMENSION IIOC(*),IICL(*),IIOP(*)
 *
-*     Call qEnter('CONFG2')
 *
       NTEST = 0000
 
@@ -1892,7 +1883,6 @@ C
       END IF
 
 C
-*     Call qExit('CONFG2')
       RETURN
       END
 *

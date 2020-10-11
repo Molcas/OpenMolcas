@@ -31,9 +31,10 @@
 ************************************************************************
       use Real_Spherical
       use Basis_Info
+      use Sizes_of_Seward, only: S
+      use RICD_Info, only: Do_acCD_Basis, Skip_High_AC, Do_nacCD_Basis,
+     &                     Thrshld_CD
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "SysDef.fh"
 #include "real.fh"
 #include "print.fh"
@@ -43,11 +44,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        iPrint=49
 C      iPrint=99
 #else
@@ -56,7 +57,6 @@ C      iPrint=99
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qEnter('Mk_aCD_Shells')
 *
       Call StatusLine('Gateway:',
      &                ' Generating aCD or acCD auxiliary basis set')
@@ -70,16 +70,16 @@ C      iPrint=99
 *     Set up transformation matrix from Cartesian to real spherical
 *     harmonics.
 *
-      Call Sphere(iAngMx)
+      Call Sphere(S%iAngMx)
 *
 *     Setup of tables for coefficients for the Rys roots and weights.
 *
       nDiff=0
-      If (iAngMx.eq.0) nDiff=2
+      If (S%iAngMx.eq.0) nDiff=2
       DoRys=.True.
       Call SetUp_RW(DoRys,nDiff)
 *
-      iShll=Mx_Shll - 1
+      iShll=S%Mx_Shll - 1
       mCnttp=nCnttp
 *                                                                      *
 ************************************************************************
@@ -97,7 +97,7 @@ C      iPrint=99
 *
       Do 1100 iCnttp = 1, mCnttp
          If (dbsc(iCnttp)%Frag.or.dbsc(iCnttp)%nVal.eq.0) goto 1100
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          If (iPrint.ge.99)
      &   Write (6,*) 'Generating auxiliary basis set for valence basis'
      &             //':',iCnttp
@@ -179,7 +179,6 @@ C      iPrint=99
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('Mk_aCD_Shells')
       Return
       End
       Subroutine Remove_High_Exponents(iD,nD,List2,mData,nTheta_All)
@@ -190,8 +189,6 @@ C      iPrint=99
 *     Experimental code to be used with care.                          *
 *                                                                      *
 ************************************************************************
-#include "itmax.fh"
-#include "info.fh"
       Integer iD(nD), List2(mData,nTheta_All)
       Logical Skip
 *

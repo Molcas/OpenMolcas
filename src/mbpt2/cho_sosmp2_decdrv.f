@@ -43,7 +43,6 @@ C
 C     Initializations.
 C     ----------------
 
-      Call qEnter(ThisNm)
       irc = 0
 
       lErrStat = 3
@@ -294,5 +293,4 @@ C           ---------------------------------
       End If
       Call GetMem('Flush','Flush','Real',ipErrStat,lErrStat)
       Call GetMem('ErrStat','Free','Real',ipErrStat,lErrStat)
-      Call qExit(ThisNm)
       End

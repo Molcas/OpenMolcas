@@ -15,20 +15,14 @@
 *                                                                      *
 *     Object: to print the basis set                                   *
 *                                                                      *
-*                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept Chem. Phys., Lund University, Sweden  *
 *             September 2006                                           *
 ************************************************************************
       use Basis_Info
       use Center_Info
+      use RICD_Info, only: Thrshld_CD
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "info.fh"
 #include "relmp.fh"
 #include "real.fh"
 #include "print.fh"

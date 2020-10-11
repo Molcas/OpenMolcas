@@ -40,7 +40,7 @@
      &                        iPrimi,iPrInc,jPrimj,jPrInc,
      &                        kPrimk,kPrInc,lPriml,lPrInc,
      &                        ipMem1,ipMem2, Mem1,  Mem2, MemPSO)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) ' ************** Memory partioning **************'
          Write (6,*) ' ipMem1=',ipMem1
          Write (6,*) ' Mem1=',Mem1

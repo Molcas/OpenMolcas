@@ -23,7 +23,6 @@
 *
       JO(L)=ICUNP(ICASE,L)
 *
-      CALL QENTER('COMP1')
       FAC=D1
       ITAIL=IX(IT2+LJ)
       DO 90 IN=1,ITAIL
@@ -69,6 +68,5 @@
       NMAT=NMAT+NBUF
       IOUT=0
 90    CONTINUE
-      CALL QEXIT('COMP1')
       RETURN
       END

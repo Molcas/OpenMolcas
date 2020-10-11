@@ -102,14 +102,13 @@ C
       iOffShp(i,j) = iWork(ip_iiBstRSh+nSym*nnShl-1+nSym*(j-1)+i)
 ************************************************************************
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 c      Debug=.true.
       Debug=.false.! to avoid double printing in SCF-debug
 #else
       Debug=.false.
 #endif
 
-      Call QEnter(SECNAM)
 
 
       DoRead  = .false.
@@ -120,7 +119,6 @@ c      Debug=.true.
 
       If (nDen.ne.1 .and. nDen.ne.2) then
          write(6,*)SECNAM//'Invalid parameter nDen= ',nDen
-         call qtrace()
          call abend()
       EndIf
 
@@ -1480,7 +1478,7 @@ c ---------------
 
 
 c Print the Fock-matrix
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 
       if(Debug) then !to avoid double printing in SCF-debug
 
@@ -1508,7 +1506,6 @@ c Print the Fock-matrix
 
       rc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
       END
@@ -1671,7 +1668,6 @@ c      ! NON TOTAL-SYMMETRIC
 
          write(6,*)'Wrong input parameters. JSYM,mode = ',JSYM,mode
          irc = 66
-         Call Qtrace()
          Call abend()
 
       EndIf

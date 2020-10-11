@@ -86,12 +86,11 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *
       If (What.ne.'All' .and. What.ne.'Lst') Then
          Write (6,*) 'GrdClc: What.ne."All" .and. What.ne."Lst"'
          Write (6,'(A,A)') 'What=',What
-         Call QTrace
          Call Abend()
       End If
 
@@ -141,7 +140,7 @@
 *
          Call PutVec(GrdOV,nD*nOV,LuGrd,iDT+iter0,MemRsv,'OVWR',LLGrad)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'GrdClc: Put Gradient iteration:',iDT+iter0
          Write (6,*) 'iOpt=',iOpt
          Call NrmClc(GrdOO,nOO*nD,'GrdClc','GrdOO')

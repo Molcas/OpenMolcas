@@ -21,13 +21,6 @@
 * Object: to compute the coefficients in the three terms recurrence    *
 *         relation of the 2D-integrals.                                *
 *                                                                      *
-* Called from: Rys                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DYax   (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -35,8 +28,6 @@
 *             Modified for decreased memory access January '94.        *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 Zeta(nT), ZInv(nT), Eta(nT), EInv(nT),
@@ -47,8 +38,8 @@
      &       B00(nRys,nT),
      &       B01(nRys,nT)
       Real*8 tmp
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
 *     Local arrays
       Character*30 Label
 #endif
@@ -56,7 +47,7 @@
 *
       iRout = 14
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In vCff2D: Coori',' ',Coori,3,4)
       Call RecPrt(' In vCff2D: U2',' ',U2,nRys,nT)
       Call RecPrt(' in vCff2d: Zeta',' ',Zeta,1,nT)
@@ -217,7 +208,7 @@
           EndDo
          End If
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (la+lb.gt.0) Then
          Write (Label,'(A)') ' PAQP(x)'
 *        Call RecPrt(Label,' ',PAQP(1,1,1),nRys,nT)

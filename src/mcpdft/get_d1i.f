@@ -43,7 +43,6 @@
 
       Parameter ( Zero=0.0d0 , Two=2.0d0 )
 
-      Call qEnter('Get_D1I')
 
 * PAM Aug 2006, replace the following explicit code
 * with the corresponding DGEMM calls.
@@ -83,7 +82,6 @@
         end if
       end do
 
-      Call qExit('Get_D1I')
 
       Return
       End

@@ -11,7 +11,7 @@
       SubRoutine Prepare(nGrdPt,ipGrid,ipB,ipGrdI)
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iChTbl
+      use Symmetry_Info, only: nIrrep, iChTbl
       Implicit Real*8 (A-H,O-Z)
 *
 *     Some stuff for preparing the gradient integral computation
@@ -23,7 +23,6 @@
       Character*1 xyz(0:2)
       Data xyz/'x','y','z'/
 *
-      Call qEnter('prepare')
 *
       LuWr=6
       DoRys = .True.
@@ -122,6 +121,5 @@
          Call Abend()
       End If
 *
-      Call qExit('prepare')
       Return
       End

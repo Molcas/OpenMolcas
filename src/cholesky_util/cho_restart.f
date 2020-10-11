@@ -47,7 +47,6 @@ C
       ISP2F(I)=IWORK(ip_iSP2F-1+I)
       ISIMRI(I)=IWORK(ip_ISIMRI-1+I)
 
-      CALL QENTER('_RESTART')
 
 C     Read diagonal (in reduced set 1).
 C     ---------------------------------
@@ -372,7 +371,7 @@ C     than the threshold for deletion, THR_SIMRI.
 C     ----------------------------------------------------------------
 
       IF (CHO_1CENTER .AND. .NOT.LCONV) THEN
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          IF (NSYM .NE. 1) THEN
             CALL CHO_QUIT(SECNAM//': CHO_1CENTER on, but NSYM != 1',103)
          END IF
@@ -405,6 +404,5 @@ C     ----------------------------------------------------------------
          END DO
       END IF
 
-      CALL QEXIT('_RESTART')
 
       END

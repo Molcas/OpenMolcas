@@ -23,7 +23,6 @@
       Character*256 STRING
       Logical FoundTwoEls,DoCholesky
 
-      CALL QENTER(ROUTINE)
 
 
 C SET UP SYMMETRY MULTIPLICATION TABLE:
@@ -258,6 +257,5 @@ C DEFAULT WAVE FUNCTION TYPE:
       WFTYPE='GENERAL '
       IF(IPGLOB.GT.VERBOSE) WRITE(6,*)' ***** INIT ENDS **********'
 
-      CALL QEXIT(ROUTINE)
       RETURN
       END

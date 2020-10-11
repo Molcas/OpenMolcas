@@ -43,9 +43,8 @@
 *  THE TUVX MATRICES ARE IN THE SAME FORMAT AS THE DENSITY MATRICES.
 *****************************************************************
 
-      Call qEnter('TRINT')
       IfTest=.False.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif
 C THE FOLLOWING PROGRAMS USE THE ORDERED INTEGRAL FILE FOR BOTH
@@ -141,7 +140,7 @@ c --- FAO already contains the one-electron part
          Call DaXpY_(nFAO,1.0D+0,Work(ipTemp),1,FAO,1)
          Call Free_Work(ipTemp)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          ioff=1
          Do i=1,nSym
          call CHO_OUTPUT(fao(ioff),1,nBasF(i),1,nBasF(i),
@@ -165,7 +164,7 @@ c --- FAO already contains the one-electron part
          CALL GETMEM('DLT','ALLO','REAL',ipDLT,nBTri)
          CALL Fold_Mat(nSym,nBasF,DINAO,Work(ipDLT))
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 
          ioff1=0
          ioff2=0
@@ -419,7 +418,6 @@ C TRANSFORM TWO-ELECTRON INTEGRALS:
 c     Call triprt('tuvx',' ',TUVX,nasht)
 
 
-      Call qExit('TRINT')
       RETURN
 901   CONTINUE
       WRITE(6,*)' ERROR IN KEEP PARAMETERS ON ORDINT FILE.'

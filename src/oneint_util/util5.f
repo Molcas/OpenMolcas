@@ -17,11 +17,6 @@
 * Object: to assemble the velocity quadrupole integrals from the       *
 *         derivative integrals and dipole integrals.                   *
 *                                                                      *
-* Called from: QpVInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             February '91                                             *
@@ -43,7 +38,6 @@
 *
       iRout = 211
       iPrint = nPrint(iRout)
-      Call qEnter('Util5 ')
 *
       If (iPrint.ge.99) Then
           Write (6,*) ' In Util5 la,lb=',la,lb
@@ -174,6 +168,5 @@
  300      Continue
       End If
 *
-      Call qExit('Util5 ')
       Return
       End

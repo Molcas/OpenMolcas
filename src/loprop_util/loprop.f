@@ -11,21 +11,9 @@
 * Copyright (C) 2002, Laura Gagliardi                                  *
 *               2002, Roland Lindh                                     *
 ************************************************************************
-*
       Subroutine LoProp(ireturn)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
-*      Author:                                                         *
-*                                                                      *
-*             Laura Gagliardi, Dipartimento di Chimica Fisica,         *
+*      Author:Laura Gagliardi, Dipartimento di Chimica Fisica,         *
 *             University of Palermo, ITALY. December 2002              *
 *             Roland Lindh, Department of Chemical Physics,            *
 *             University of Lund, SWEDEN.                              *
@@ -47,15 +35,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Utility = .True.
       Utility = .False.
-#ifdef _DEBUG_
-         Call QEnter('LoProp')
-#endif
       lSave = ireturn.eq.0
       ireturn=99
 
@@ -212,8 +197,4 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
-         Call QExit('LoProp')
-#endif
-      Return
       End

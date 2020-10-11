@@ -23,13 +23,6 @@
 *         basis functions. The subroutine will do both complete and    *
 *         incomplete transformations.                                  *
 *                                                                      *
-* Called from: RysG2                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CntHlf                                                  *
-*              QExit                                                   *
-*                                                                      *
 * Author:      Roland Lindh, Dept. of Theoretical Chemistry, University*
 *              of Lund, SWEDEN.                                        *
 *                                                                      *
@@ -50,7 +43,6 @@ c#include "print.fh"
 *
 c     iRout = 18
 c     iPrint = nPrint(iRout)
-c     Call QEnter('Cntrct')
 *
 c     If (iPrint.ge.99)
 c    &   Call RecPrt(' In Cntrct: ',' ',G1In,nt,nGr)
@@ -95,6 +87,5 @@ c    &  Call RecPrt(' In Cntrct:  ',' ',
 c    &              ACOut,labcdG,m1*m2*m3*m4)
 *
 *     Call GetMem('Cntrct','Check','Real',iDum,iDum)
-c     Call QExit('Cntrct')
       Return
       End

@@ -14,15 +14,6 @@
      &                 xyz,Temp,Ind,Type,rMss,qMss,TMtrx,First,Lbl,
      &                 lWrite,jStab,nStab,mxdc,Deg,lAtom)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: DefInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy  (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             May '91                                                  *
@@ -50,7 +41,6 @@
       lWrite = First
       lWarn  = First
       If (iPrint.gt.20) lWrite = .True.
-      Call qEnter('Cllct')
       If (iPrint.ge.99) Call RecPrt(' In Cllct: Coor',' ',
      &                               Coor,3,nAtom)
 *
@@ -262,6 +252,5 @@
      &                              ' ',Vector,3,nAtom)
       End If
 *
-      Call qExit('Cllct')
       Return
       End

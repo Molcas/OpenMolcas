@@ -19,25 +19,12 @@
 * Object: to compute the mass-velocity integrals with the Gauss-       *
 *         Hermite quadrature.                                          *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              MVe                                                     *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden. February '91                 *
 ************************************************************************
       use Her_RW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 
 #include "int_interface.fh"
@@ -52,7 +39,6 @@
 *
       iRout = 190
       iPrint = nPrint(iRout)
-      Call qEnter('MVeInt')
       ABeq(1) = A(1).eq.RB(1)
       ABeq(2) = A(2).eq.RB(2)
       ABeq(3) = A(3).eq.RB(3)
@@ -153,7 +139,6 @@
       End If
 *
 *     Call GetMem(' Exit MVeInt','LIST','REAL',iDum,iDum)
-      Call qExit('MVeInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

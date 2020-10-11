@@ -12,10 +12,12 @@
      &                    Charge2)
       use iSD_data
       use Basis_Info
+      use DKH_Info, only: DKroll
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
       External Rsv_Tsk
+#include "Molcas.fh"
 #include "angtp.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "nsd.fh"
@@ -31,8 +33,8 @@
       Real*8 Charge2(mxdbsc)
       Data IfTest/.False./
 *
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
       Write (6,*) ' In OneEl: Label', Label
       Write (6,*) ' In OneEl: nComp'

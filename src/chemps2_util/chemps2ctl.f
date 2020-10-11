@@ -53,7 +53,6 @@
 #include "WrkSpc.fh"
 #include "output_ras.fh"
       Parameter (ROUTINE='CHEMPS2CTL')
-      Call qEnter(ROUTINE)
 
 ! Quan: FIXME: Do we need this?
 * Load symmetry info from RunFile
@@ -569,7 +568,6 @@
       endif
 
 
-      Call qExit(ROUTINE)
 
       Return
       End

@@ -21,13 +21,6 @@
 *             conditioned with the weights of the roots of the         *
 *             Rys polynomial.                                          *
 *                                                                      *
-* Called from: Rys                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -35,8 +28,6 @@
 * Chemistry, University of Lund, Sweden.                               *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 xyz2D(nArg*lRys,3,0:nabMax,0:ncdMax),
@@ -44,14 +35,13 @@
      &       B10(nArg*lRys), B00(nArg*lRys),
      &       B01(nArg*lRys)
       Logical IfGrad(3,4)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Character*30 Label
 #endif
 *
       iRout = 15
       iPrint = nPrint(iRout)
-*     Call QEnter('Rys2Dm')
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPrint=99
       If (iPrint.ge.99) Then
          If (nabMax.gt.0) Call RecPrt('PAWP',' ',PAWP,nArg,lRys*3)
@@ -182,7 +172,7 @@
       End If
  200  Continue
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Do 600 iab = 0, nabMax
             Do 610 icd = 0, ncdMax
@@ -203,6 +193,5 @@ c Avoid unused argument warnings
          Call Unused_integer(lcc)
       End If
 #endif
-*     Call QExit('Rys2Dm')
       Return
       End

@@ -18,9 +18,7 @@
 #include "SysDef.fh"
 
 #include "cpfmcpf.fh"
-      CALL QENTER('DENSCT_CPF')
       CALL DENSCT_INTERNAL(H)
-      CALL QEXIT('DENSCT_CPF')
 *
 *     This is to allow type punning without an explicit interface
       CONTAINS

@@ -38,7 +38,6 @@ c local variables
       Integer           :: i,m,ipar,nf,j,jEnd,iss
       Character(len=80) :: fmtline
       Logical           :: dbg
-      Call qEnter('PA_preigen')
 
       Write(6,*)
       Write(6,'(100a)') (('%'),i=1,100)
@@ -630,6 +629,5 @@ ccc  eigenvectors
       End If
 
 
-      Call qExit('PA_preigen')
       Return
       End

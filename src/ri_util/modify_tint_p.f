@@ -11,12 +11,10 @@
       Subroutine Modify_TInt_p(TInt,nTheta_All,List2,mData)
       use Basis_Info
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
       Real*8 TInt(nTheta_All,nTheta_All)
       Integer List2(mData,nTheta_All)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Modify_TInt_p: TInt',' ',TInt,nTheta_All,nTheta_All)
 #endif
       Do iTheta_All= 1, nTheta_All
@@ -56,7 +54,7 @@
             TInt(iTheta_All,jTheta_All) = TInt(iTheta_All,jTheta_All)
      &                                  * Coeff_i * Coeff_j
      &                                  * Coeff_k * Coeff_l
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*)
             Write (6,*) Coeff_i,Coeff_j,Coeff_k,Coeff_l
             Write (6,*) iPrim,  jPrim,  kPrim,  lPrim
@@ -66,7 +64,7 @@
          End Do
 *
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Modify_TInt_p: TInt',' ',TInt,nTheta_All,nTheta_All)
 #endif
 *

@@ -16,23 +16,13 @@
 *                                                                      *
 * Object: to compoute the 1-electron Darwin contact term.              *
 *                                                                      *
-* Called from: D1Int                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. Of Theoretical Chemistry,            *
 *             University of Lund, Sweden, February '91                 *
 ************************************************************************
       use Basis_Info
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "constants.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "real.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp),
@@ -48,7 +38,6 @@
 *
       iRout = 170
       iPrint = nPrint(iRout)
-      Call qEnter('Darwin ')
       If (iPrint.ge.99) Then
          Call RecPrt(' In Darwin: rKappa',' ',rKappa,nZeta,1)
          Call RecPrt(' In Darwin: Zeta',' ',Zeta,nZeta,1)
@@ -177,6 +166,5 @@
  140  Continue
 *
 *     Call GetMem(' Exit Darwin ','LIST','REAL',iDum,iDum)
-      Call qExit('Darwin ')
       Return
       End

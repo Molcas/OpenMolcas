@@ -30,7 +30,6 @@ C
       DIMENSION ICASE(NICASE)
       DIMENSION ISTEPVEC(mxact)
 
-      Call qEnter(Routine)
 C
 C     INITIALIZE NUMBERING TABLES
 C
@@ -133,6 +132,5 @@ C
         Write(LF,*)
       ENDIF
 
-      Call qExit(Routine)
       RETURN
       END

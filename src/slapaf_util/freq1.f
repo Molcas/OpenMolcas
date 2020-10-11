@@ -29,7 +29,6 @@
 *
       iRout = 183
       iPrint = nPrint(iRout)
-      Call QEnter('Freq1')
 *
       If (iPrint.ge.99) Then
          Write(6,*)' [Freq1] nInter, nIter, Delta =',nInter,nIter,Delta
@@ -65,6 +64,5 @@
          Call RecPrt('Final dq:','(10F9.6)',dq,nInter,nIter)
          Call RecPrt('Final  q:','(10F9.6)', q,nInter,nIter+1)
       EndIf
-      Call QExit('Freq1')
       Return
       End

@@ -40,15 +40,7 @@
 *
 *---- Define local variables
       Logical test
-*
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-*
-#ifdef _DEBUG_
-      Call qEnter('OpnFls')
-#endif
-*
+
 *---  open two-electron integral file ---------------------------------*
       Call f_Inquire(FnOrd,test)
       Call DecideOnDirect(.True.,test,DSCF,DoCholesky)
@@ -59,7 +51,6 @@
          Call OpnOrd(iRC,iOpt,FnOrd,LuOrd)
          If (iRc.ne.0) Then
             Write (6,*) 'OpnFls: Error opening ORDINT'
-            Call QTrace
             Call Abend()
          End If
       End If
@@ -76,12 +67,4 @@
       Call DAName(LuDel,FnDel)
       Call DAName(Luy,Fny)
 *
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-#ifdef _DEBUG_
-      Call qExit('OpnFls')
-#endif
-      Return
       End

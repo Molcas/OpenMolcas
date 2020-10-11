@@ -50,7 +50,6 @@ C denoting sets of coefficients stored on LUSOLV. These are assumed
 C to be contravariant representations of the wave operators W1 and W2,
 C in the notation of the comments.
 
-      CALL QENTER('TRDACT')
 
 CTEST      WRITE(*,*)' Memory list, TRDACT point A:'
 CTEST      call getmem('TRDACT A','LIST','REAL',LDUM,NDUM)
@@ -182,6 +181,5 @@ CTEST      end do
 CTEST      WRITE(*,*)' Memory check, TRDACT point E:'
 CTEST      call getmem('TRDACT E','CHEC','REAL',LDUM,NDUM)
 
-      CALL QEXIT('TRDACT')
       RETURN
       END

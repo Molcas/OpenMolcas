@@ -38,7 +38,6 @@
 *.Output
       INTEGER IOCOC(NOCTPA,NOCTPB)
 *
-*     Call qEnter('IAIBCM')
 *
       NTEST = 0000
       NTEST = MAX(NTEST,IPRNT)
@@ -64,7 +63,6 @@
       END IF
 
 *
-*     Call qExit('IAIBCM')
 *
       RETURN
       END

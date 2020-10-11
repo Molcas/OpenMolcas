@@ -20,7 +20,6 @@
       Logical lWrite_, ldB, lWarn
       Character*8 Label
 *
-*     Call QEnter('NACInt')
 *
       H12=Zero
       If (lWrite_) Then
@@ -53,7 +52,6 @@ C     Call RecPrt('Bf',' ',Bf,3,nCent)
 *
       End If
 *
-*     Call QExit('NACInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

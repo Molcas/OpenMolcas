@@ -25,7 +25,6 @@
 *. Output
       DIMENSION AB(NROW,*)
 *
-C      CALL QENTER('GSAXP ')
       IWAY = 2
       ICRAY = 0
       IF(IWAY.EQ.1) THEN
@@ -133,6 +132,5 @@ C          END IF
       END IF
 *( End of IWAY branching )
 *
-C      CALL QEXIT('GSAXP ')
       RETURN
       END

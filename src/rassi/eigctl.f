@@ -59,7 +59,7 @@
       Real*8, Pointer :: flatStorage(:)
 #endif
 
-#ifdef _DEBUG_RASSI_
+#ifdef _DEBUGPRINT_RASSI_
       logical :: debug_dmrg_rassi_code = .true.
 #else
       logical :: debug_dmrg_rassi_code = .false.
@@ -70,7 +70,6 @@
 
 
 
-      CALL QENTER(ROUTINE)
 C CONSTANTS:
       AU2EV=CONV_AU_TO_EV_
       AU2CM=CONV_AU_TO_CM1_
@@ -82,7 +81,7 @@ C CONSTANTS:
 *
       DIAGONAL=.TRUE.
 
-#ifdef _DEBUG_RASSI_
+#ifdef _DEBUGPRINT_RASSI_
       write(6,*) 'BLUBB start of eigctl: debug print of property matrix'
         do istate = 1, nstate
         do jstate = 1, nstate
@@ -3081,7 +3080,6 @@ C                 Why do it when we don't do the L.S-term!
       end if
       Call mma_DeAllocate(IndexE)
 
-      CALL QEXIT(ROUTINE)
       RETURN
 30    FORMAT (5X,A,1X,ES15.8)
 31    FORMAT (5X,2(1X,A4),6X,A15,1X,A47,1X,A15)

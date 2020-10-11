@@ -10,8 +10,7 @@
 ************************************************************************
       Subroutine Fill_rInfo1()
       use Basis_Info
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "rinfo.fh"
 *                                                                      *
 ************************************************************************

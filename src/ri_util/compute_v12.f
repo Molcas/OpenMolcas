@@ -15,7 +15,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -49,7 +49,7 @@
 *
       Call FZero(V12,nDim**2)
       Do i = 1, nDim
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          tmp=VTri(i*(i+1)/2)
          Write (6,*) 'i,tmp=',i,tmp
 #endif

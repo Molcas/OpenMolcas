@@ -14,23 +14,13 @@
      &                  nP2_ontop,iSpin,F_xc,dF_dRho,
      &                  ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_XX)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
+      use nq_Grid, only: Grid
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 #include "debug.fh"
 #include "nsd.fh"
@@ -39,37 +29,39 @@
       Real*8  Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
      &        dF_dP2ontop(ndF_dP2ontop,mGrid),
      &        P2_ontop(nP2_ontop,mGrid), F_xc(mGrid)
+      Real*8, Allocatable:: RA(:,:), ZA(:), Eff(:)
+      Integer, Allocatable:: nStab(:)
 *
       Call Get_nAtoms_All(mCenter)
-      Call Allocate_Work(ip_RA,3*mCenter)
-      Call Get_Coord_All(Work(ip_RA),mCenter)
+      Call mma_allocate(RA,3,mCenter,Label='RA')
+      Call Get_Coord_All(RA,mCenter)
 *
-      Call Allocate_Work(ip_ZA,mCenter)
+      Call mma_allocate(ZA,mCenter,Label='ZA')
       Call Get_iScalar('Unique atoms',nCenter)
 *
-      Call Allocate_iWork(ip_nStab,nCenter)
-      Call Get_iArray('nStab',iWork(ip_nStab),nCenter)
-      Call Allocate_Work(ip_Eff,nCenter)
-      Call Get_dArray('Effective Nuclear Charge',Work(ip_Eff),nCenter)
+      Call mma_allocate(nStab,nCenter,Label='nStab')
+      Call Get_iArray('nStab',nStab,nCenter)
+      Call mma_allocate(Eff,nCenter,Label='Eff')
+      Call Get_dArray('Effective Nuclear Charge',Eff,nCenter)
       Call Get_iScalar('nSym',nSym)
 *
-      iOff = ip_ZA
+      iOff = 1
       Do i = 1, nCenter
-         n=nSym/iWork(ip_nStab+i-1)
-         call dcopy_(n,Work(ip_Eff+i-1),0,Work(iOff),1)
+         n=nSym/nStab(i)
+         call dcopy_(n,[Eff(i)],0,ZA(iOff),1)
          iOff = iOff + n
       End Do
 *
-      Call Free_Work(ip_Eff)
-      Call Free_iWork(ip_nStab)
+      Call mma_deallocate(Eff)
+      Call mma_deallocate(nStab)
 *
       Call Do_NucAtt_(mGrid,Rho,nRho,P2_ontop,nP2_ontop,
      &                iSpin,F_xc,dF_dRho,ndF_dRho,
-     &                dF_dP2ontop,ndF_dP2ontop,Work(ip_Grid),
-     &                Work(ip_RA),Work(ip_ZA),mCenter)
+     &                dF_dP2ontop,ndF_dP2ontop,Grid,
+     &                RA,ZA,mCenter)
 *
-      Call Free_Work(ip_ZA)
-      Call Free_Work(ip_RA)
+      Call mma_deallocate(ZA)
+      Call mma_deallocate(RA)
 *
       Return
 c Avoid unused argument warnings
@@ -79,15 +71,6 @@ c Avoid unused argument warnings
      &                      iSpin,F_xc,dF_dRho,ndF_dRho,
      &                      dF_dP2ontop,ndF_dP2ontop,Grid,RA,ZA,mCenter)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
@@ -101,7 +84,6 @@ c Avoid unused argument warnings
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QEnter('Do_NucAtt')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -170,7 +152,6 @@ C     Call QEnter('Do_NucAtt')
 ************************************************************************
 *                                                                      *
 *
-C     Call QExit('Do_NucAtt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

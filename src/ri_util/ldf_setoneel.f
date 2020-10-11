@@ -53,10 +53,9 @@ C
 C     Purpose: set up info for calculating multipole integrals.
 C
       use MpmC
-      use Symmetry_Info, only: iChBas
+      use Symmetry_Info, only: nIrrep, iChBas
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
 #include "rmat_option.fh"
@@ -92,13 +91,13 @@ C
       Call GetMem('kOper','Allo','Inte',ip_kOper,l_kOper)
       l_CCoor=3*nComp
       Call GetMem('CCoor','Allo','Real',ip_CCoor,l_CCoor)
-      l_xZeta=m2Max
+      l_xZeta=S%m2Max
       Call GetMem('Zeta','Allo','Real',ip_xZeta,l_xZeta)
-      l_xZI=m2Max
+      l_xZI=S%m2Max
       Call GetMem('ZI','Allo','Real',ip_xZI,l_xZI)
-      l_xKappa=m2Max
+      l_xKappa=S%m2Max
       Call GetMem('Kappa','Allo','Real',ip_xKappa,l_xKappa)
-      l_xPCoor=3*m2Max
+      l_xPCoor=3*S%m2Max
       Call GetMem('PCoor','Allo','Real',ip_xPCoor,l_xPCoor)
       iComp=0
       Do ix=iMltpl,0,-1
@@ -134,9 +133,7 @@ C
             iChO=Mod(ix,2)*iChBas(2)
      &          +Mod(iy,2)*iChBas(3)
      &          +Mod(iz,2)*iChBas(4)
-            iWork(ip_lOper+iComp)=MltLbl(iSymX,
-     &                                   MltLbl(iSymY,iSymZ,nIrrep),
-     &                                   nIrrep)
+            iWork(ip_lOper+iComp)=MltLbl(iSymX,MltLbl(iSymY,iSymZ))
             iWork(ip_kOper+iComp)=iChO
             Call dCopy_(3,Coor_MPM(1,iMltpl+1),1,
      &                   Work(ip_CCoor+3*iComp),1)
@@ -174,7 +171,7 @@ C
       Character*8 ucLabel
 
       If (OperatorLabel.eq.'IS_UNSET') Then
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          Call WarningMessage(0,SecNam//': nothing to do, returning')
          Call xFlush(6)
 #endif

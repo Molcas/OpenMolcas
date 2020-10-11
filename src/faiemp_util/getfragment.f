@@ -51,8 +51,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       iPrint=99
 #else
       iPrint=5

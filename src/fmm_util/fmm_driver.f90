@@ -106,7 +106,7 @@ CONTAINS
       REAL(REALK),        INTENT(IN)    :: dens(:,:)
       REAL(REALK),        INTENT(OUT)   :: J_matrix(:,:)
       REAL(REALK),        INTENT(OUT)   :: energy
-      CHARACTER(*),       INTENT(OUT)   :: txt
+      CHARACTER(LEN=*),   INTENT(OUT)   :: txt
 
       ! We only have the density on RHS when getting J-matrix
       ! via far-field potential
@@ -145,12 +145,12 @@ CONTAINS
       USE fmm_scheme_builder, ONLY: fmm_get_scheme
 
       IMPLICIT NONE
-      CHARACTER(6), INTENT(IN)  :: n_el
+      CHARACTER(LEN=6), INTENT(IN)  :: n_el
       REAL(REALK),  INTENT(IN)  :: dens(:,:)
       REAL(REALK),  INTENT(OUT) :: J_matrix(:,:)
 
       TYPE(scheme_paras), POINTER :: scheme
-      CHARACTER(36) :: E_text
+      CHARACTER(LEN=36) :: E_text
       REAL(REALK)   :: energy, T0, fmm_second, TTOT
 
       T0 = fmm_second()

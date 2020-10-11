@@ -70,7 +70,6 @@
 *----------------------------------------------------------------------*
 *     Start and define the paper width                                 *
 *----------------------------------------------------------------------*
-      Call qEnter('InpPri')
       lPaper=132
       Zero = 0.0D0
 *----------------------------------------------------------------------*
@@ -568,7 +567,6 @@ C.. for GAS
             Write(LF,*) 'InpPri: iRc from Call RdOne not 0'
             Write(LF,*) 'Label = ',Label
             Write(LF,*) 'iRc = ',iRc
-            Call QTrace
             Call Abend
          Endif
          Call GetMem('Ovrlp','Free','Real',iTmp0,nTot1+4)
@@ -616,6 +614,5 @@ C.. for GAS
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*
-      Call qExit('InpPri')
       Return
       End

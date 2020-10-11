@@ -59,7 +59,7 @@
 *
       Call Put_dArray('Nuc Potential',Work(ipAttr),nLT_)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iAttr=ipAttr
       Do i=1,nSym
          Call TriPrt('Attr Inte','',Work(iAttr),nBas(i))

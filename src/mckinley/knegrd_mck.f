@@ -20,18 +20,6 @@
 * Object: to compute the gradient of the kinetic energy integrals      *
 *         with the Gauss-Hermite quadrature                            *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              Kntc                                                    *
-*              CmbnT1                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 *             Anders Bernhardsson,1995                                 *
@@ -39,8 +27,6 @@
       use Her_RW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 c#include "print.fh"
 
@@ -55,7 +41,6 @@ c#include "print.fh"
 *
 c     iRout = 150
 c     iPrint = nPrint(iRout)
-c     Call qEnter('KnEGrd')
       ABeq(1) = A(1).eq.RB(1)
       ABeq(2) = A(2).eq.RB(2)
       ABeq(3) = A(3).eq.RB(3)
@@ -80,7 +65,6 @@ c     Call qEnter('KnEGrd')
       If (nip-1.gt.nArr) Then
          Write (6,*) 'KneGrd_Mck: nip-1.gt.nArr'
          Write (6,*) 'nip,nArr=',nip,nArr
-         Call QTrace
          Call Abend()
       End If
 *
@@ -152,7 +136,6 @@ c     End If
      &                nop,loper,IndGrd,iu,iv,ifgrad,idCar,trans)
 
 *
-c     Call qExit('KnEGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

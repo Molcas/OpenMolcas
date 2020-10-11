@@ -16,28 +16,16 @@
 * Object: to set up the handling of the 2nd order density matrix for   *
 *         the calculation of the 2-electron FAIEMP derivatives         *
 *                                                                      *
-* Called from: DrvG_FAIEMP                                             *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              OpnOne                                                  *
-*              GetMem                                                  *
-*              RdOne                                                   *
-*              PrMtrx                                                  *
-*              ClsOne                                                  *
-*              ErrOne                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Ben Swerts                                               *
 *                                                                      *
 * Based on PrepP                                                       *
-*                                                                      *
 ************************************************************************
       use aces_stuff, only: Gamma_On
       use pso_stuff
       use Basis_Info
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit None
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -47,8 +35,8 @@
       Integer nBas_Valence(0:7),nBT,nBVT,nFro(0:7)
       Character*8 RlxLbl,Method, KSDFT*16
       Logical lPrint
-      Integer i,iBas,iGo,iIrrep,ij,ipD1ao,ipD1ao_Var,ipD1AV,ipD2AV
-      Integer ipDLAO,ipDS1,ipDSVar1,ipLCMO,ipPLMO,ipt,ipTmp1,ipTemp
+      Integer i,iBas,iGo,iIrrep,ij,ipD1AV,ipD2AV
+      Integer ipDLAO,ipLCMO,ipPLMO,ipt,ipTmp1,ipTemp
       Integer iSpin,jBas,length,nAct,nDens_Valence,nsa,nTemp,nTst
       Integer iRout,iPrint,iComp
       Real*8  Get_ExFac,CoefX,CoefR
@@ -60,7 +48,6 @@
       iRout = 205
       iPrint = nPrint(iRout)
       lPrint=.True.
-      Call qEnter('PrepP_FAIEMP')
       iD0Lbl=1
       iComp=1
 *
@@ -73,8 +60,8 @@
 *
 *...  Get the method label
       Call Get_cArray('Relax Method',Method,8)
-      nCMo = n2Tot
-      mCMo = n2Tot
+      nCMo = S%n2Tot
+      mCMo = S%n2Tot
       If (Method.eq. 'KS-DFT  ' .or.
      &    Method.eq. 'CASDFT  ' ) Then
          Call Get_iScalar('Multiplicity',iSpin)
@@ -192,19 +179,8 @@
          Call mma_allocate(DVar,nDens,mDens,Label='DVar')
          D0  (:,:)=Zero
          DVar(:,:)=Zero
-         Call Get_D1ao(ipD1ao,length)
-         If ( length.ne.nDens_Valence ) Then
-            Write (6,*) 'PrepP_FAIEMP: length.ne.nDens'
-            Write (6,*) 'length=',length
-            Write (6,*) 'nDens=',nDens_Valence
-            Call Abend()
-         End If
-         call dcopy_(nDens_Valence,Work(ipD1ao),1,D0,1)
-         Call Free_Work(ipD1ao)
-*
-         Call Get_D1ao_Var(ipD1ao_Var,length)
-         call dcopy_(nDens_Valence,Work(ipD1ao_Var),1,DVar,1)
-         Call Free_Work(ipD1ao_Var)
+         Call Get_D1ao(D0,nDens)
+         Call Get_D1ao_Var(DVar,nDens)
 *
          Call ReIndexFrag(D0,nDens,nDens_Valence,nBas,
      &                    nBas_Valence, nIrrep)
@@ -220,12 +196,8 @@
          If(Method.eq.'UHF-SCF ' .or.
      &      Method.eq.'ROHF    ' .or.
      &      Method.eq.'Corr. WF'      ) Then
-           Call Get_D1sao(ipDS1,Length)
-           Call Get_D1sao_Var(ipDSVar1,Length)
-           call dcopy_(nDens_Valence,Work(ipDS1),1,DS,1)
-           call dcopy_(nDens_Valence,Work(ipDSVar1),1,DSVar,1)
-           Call Free_Work(ipDS1)
-           Call Free_Work(ipDSVar1)
+           Call Get_D1sao(DS,nDens)
+           Call Get_D1sao_Var(DSVar,nDens)
          End If
 *
 *     Unfold density matrix
@@ -417,7 +389,6 @@
 1000     Continue
 *
 *...  Epilogue, end
-      Call qExit('PrepP_FAIEMP')
       Return
       End
 
@@ -465,11 +436,9 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit None
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
       Integer nDens,nDens_Valence
       Real*8  Array(nDens)

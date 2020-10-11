@@ -51,18 +51,17 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
       If (nBonds.lt.3) Return
       iRout=152
       iPrint=nPrint(iRout)
-      Call QEnter('Trsns')
       nqT=0
       PSPrint=.False.
       Call FZero(Hess,144)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPrint=99
       If (iPrint.ge.99) PSPrint=.True.
 #endif
@@ -90,7 +89,7 @@
 *
 *        The center bond may be a "magic" bond
          iBondType=iTabBonds(3,iBond)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*)
          Write (6,*) 'iBond,iBondType=',iBond,iBondType
 #endif
@@ -131,7 +130,7 @@
             iDCR(3) = iTabAI(2,kAtom_)
             If (R_Stab_A(iDCR(3),jStab(0,kAtom),nStab(kAtom)))
      &          iDCR(3)=iOper(0)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*)
             Write (6,*) 'R,T=',Name(jAtom),ChOp(iDCR(2)),
      &                         Name(kAtom),ChOp(iDCR(3))
@@ -150,7 +149,7 @@
             If ( nCoBond_j.lt.2.and.nFgBond_j.eq.0) Go To 250
             If ( nCoBond_k.lt.2.and.nFgBond_k.eq.0) Go To 250
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'nNeighbor_j,nNeighbor_k=',
      &                   nNeighbor_j,nNeighbor_k
 #endif
@@ -164,7 +163,7 @@
             jBond  = iTabAtoms(2,iNeighbor,jAtom_)
             If (jBond.eq.iBond) Go To 301
             jBondType=iTabBonds(3,jBond)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'jBond,jBondType=',jBond,jBondType
 #endif
             If (jBondType.eq.vdW_Bond   .or.
@@ -198,7 +197,7 @@
             If (R_Stab_A(iDCR(3),jStab(0,iAtom),nStab(iAtom)) .and.
      &          R_Stab_A(iDCR(3),jStab(0,jAtom),nStab(jAtom)) .and.
      &          iDCR(3).ne.iOper(0)) Go To 301
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*)
             Write (6,*) 'E=',Name(iAtom),ChOp(iDCR(1))
 #endif
@@ -214,7 +213,7 @@
      &               jStab(0,jAtom),nStab(jAtom),
      &               iDCRR,nDCRR)
             kDCRR=iDCR(2)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,'(10A)') 'R={',(ChOp(iDCRR(i)),
      &                            i=0,nDCRR-1),'}  '
             Write (6,'(2A)') 'R=',ChOp(kDCRR)
@@ -222,7 +221,7 @@
             Call OA(kDCRR,Cx(1:3,jAtom,iIter),  A(1:3,2))
             Call OA(kDCRR,Cx(1:3,jAtom,iRef ),Ref(1:3,2))
             Call OA(kDCRR,Cx(1:3,jAtom,iPrv ),Prv(1:3,2))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,'(10A)') 'U={',(ChOp(jStab(i,iAtom)),
      &                         i=0,nStab(iAtom)-1),'}  '
             Write (6,'(10A)') 'V={',(ChOp(jStab(i,jAtom)),
@@ -234,7 +233,7 @@
             Call Inter(jStab(0,iAtom),nStab(iAtom),
      &                 jStab(0,jAtom),nStab(jAtom),
      &                 iStabM,nStabM)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (PSPrint) Then
                Write (6,'(10A)') 'M={',
      &               (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
@@ -279,7 +278,7 @@
                If (kBond.eq.iBond) Go To 401
                If (lAtom_.eq.iAtom_) Go To 401
                kBondType=iTabBonds(3,kBond)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'kBond,kBondType=',kBond,kBondType
 #endif
                If (kBondType.eq.vdW_Bond    .or.
@@ -296,7 +295,7 @@
                kDCRT= iDCR(3)
                kDCRTS=iDCR(4)
                kDCRS=iEor(kDCRTS,kDCRT)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*) 'i,j,k,l=',
      &               Name(iAtom),ChOp(iDCR(1)),
      &               Name(jAtom),ChOp(iDCR(2)),
@@ -325,7 +324,7 @@
                If (nE.lt.mE) Go To 401
                If (nE.eq.mE .and. iAtom.gt.lAtom) Go To 401
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*)
                Write (6,*) 'TS=',Name(lAtom),ChOp(iDCR(4))
 #endif
@@ -334,7 +333,7 @@
 *
                Write (Label,'(A,I2,A,I2,A,I2,A,I2,A)')
      &                'D(',iAtom,',',jAtom,',',kAtom,',',lAtom,')'
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,'(A,I2,A,I2,A,I2,A,I2,A)')
      &                'D(',iAtom,',',jAtom,',',kAtom,',',lAtom,')'
 #endif
@@ -345,7 +344,7 @@
      &                  jStab(0,kAtom),nStab(kAtom),
      &                  jStab(0,lAtom),nStab(lAtom),
      &                  iDCRS,nDCRS)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,'(10A)') 'S={',(ChOp(iDCRS(i)),
      &                            i=0,nDCRS-1),'}  '
                Write (6,'(10A)') 'W={',(ChOp(jStab(i,kAtom)),
@@ -380,7 +379,7 @@
      &                    jStab(0,lAtom),nStab(lAtom),
      &                    iStabN,nStabN)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (PSPrint) Then
                   Write (6,'(10A)') 'N={',
      &                  (ChOp(iStabN(i)),i=0,nStabN-1),'}  '
@@ -413,7 +412,7 @@
      &                       kDCRS,iDCRT,nDCRT)
                End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,'(10A)') 'T={',
      &               (ChOp(iDCRT(i)),i=0,nDCRT-1),'}  '
 #endif
@@ -442,7 +441,7 @@
      &                       iStabO,nStabO)
                End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (PSPrint) Then
                   Write (6,'(10A)') 'M={',
      &                  (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
@@ -578,7 +577,7 @@
      &                ' ',Lbls(2)(iF2:iE2),
      &                ' ',Lbls(3)(iF3:iE3),
      &                ' ',Lbls(4)(iF4:iE4)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,'(A,I3.3,8A)')
      &                't',nqT,' = Dihedral ',
      &                    Lbls(1)(iF1:iE1),
@@ -617,7 +616,7 @@
                      Val=Val-Pi
                   End If
                End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (PSPrint) Then
                   Call RecPrt('Trsns:  B',' ',Grad,3,4)
                   Call RecPrt('Trsns: dB',' ',Hess,12,12)
@@ -675,13 +674,12 @@
          End Do                  ! iCase
   201    Continue
       End Do                     ! iBonds
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'nqT=',nqT
 #endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit ('Trsns')
       Return
       End
       Function Torsion_Check(iAtom,jAtom,kAtom,lAtom,Ref,iTabAtoms,

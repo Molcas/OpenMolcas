@@ -213,13 +213,12 @@ C
 ************************************************************************
 
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Debug=.true.
 #else
       Debug=.false.
 #endif
 
-      Call QEnter(SECNAM)
 
 #ifdef _HDF5_QCM_
       ! Leon 13.6.2017: Avoid opening a regular file if HDF5 is used
@@ -358,7 +357,6 @@ C ------------------------------------------------------------------
 
             if (nVrs.lt.0) then
                Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
-               call qtrace()
                call abend()
             endif
 
@@ -366,7 +364,6 @@ C ------------------------------------------------------------------
             if(irc.ne.0)then
               Write(6,*)SECNAM//'cho_X_setred non-zero return code.',
      &                         ' rc= ',irc
-              call qtrace()
               call abend()
             endif
 
@@ -385,7 +382,6 @@ C ------------------------------------------------------------------
                WRITE(6,*) 'Reading ',nRS,' and then MO-transform.'
                WRITE(6,*) 'In jsym= ',jsym,' and JRED= ',JRED
                rc = 33
-               CALL QTrace()
                CALL Abend()
                nBatch = -9999  ! dummy assignment
             End If
@@ -733,7 +729,6 @@ C --- free memory
       EndIf
       write(6,*)
 
-      CAll QExit(SECNAM)
 
       Return
 #ifndef _HDF5_QCM_

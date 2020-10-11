@@ -15,30 +15,15 @@
      &                 dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,
      &                 T_X)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
 #include "ksdft.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
-*                                                                      *
-************************************************************************
-*                                                                      *
-C     Call QEnter('LSDA5')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -56,7 +41,6 @@ C     Call QEnter('LSDA5')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QExit('LSDA5')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

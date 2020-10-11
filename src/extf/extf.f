@@ -31,7 +31,6 @@ C This module calculates an external force applied to the system.
 
 C get initial values
 
-      call qEnter('extf')
 C      call Mem_Info('EXTF')
 
       call Get_iScalar('Unique atoms',nsAtom)
@@ -157,7 +156,6 @@ C>>>>>>>>>>>>>>>>>>>>>>> end of linear code <<<<<<<<<<<
 
       CLOSE(LuSpool)
 
-      call qExit('extf')
 
       ireturn=0
       Return

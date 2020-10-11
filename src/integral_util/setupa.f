@@ -17,12 +17,6 @@
 *         system which has the z-axis going through P to the global    *
 *         coordinate system. Formula by P.-A. Malmqvist.               *
 *                                                                      *
-* Called from: WelInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DGeTMo                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *              October '92.                                            *
@@ -34,7 +28,6 @@
 *
       iRout = 233
       iPrint = nPrint(iRout)
-      Call qEnter('SetUpA')
       If (iPrint.ge.99)
      &   Call RecPrt(' In SetupA: Pxyz',' ',Pxyz,nZeta,3)
 *
@@ -78,6 +71,5 @@
       If (iPrint.ge.99)
      &   Call RecPrt(' The transformation matrix',' ',A,nZeta,9)
 *     Call GetMem('SetUpA','Check','Real',iDum,iDum)
-      Call qExit('SetUpA')
       Return
       End

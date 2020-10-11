@@ -20,7 +20,6 @@
       Real*8 Ovlp(*), CMO(*)
       Integer nBas(nSym), nDel(nSym)
 *
-      Call qEnter('ORTHO')
 *
 *     Allocate work space
 *
@@ -62,7 +61,6 @@ C     *               NORBI,NBAS(ISYM),NORBI)
       CALL GETMEM('SCR2','FREE','REAL',LW2,N2MAX)
       CALL GETMEM('SCR1','FREE','REAL',LW1,N2MAX)
 *
-      Call qExit('ORTHO')
 *
       RETURN
       END

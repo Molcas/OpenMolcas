@@ -16,12 +16,12 @@ C     Thomas Bondo Pedersen, July 2012.
 C
 C     Set multipole centers.
 C
+      use Sizes_of_Seward, only: S
+      use Real_Info, only: CoM
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 
       If (MltplOrder.ge.0) Then
-         nMltpl=MltplOrder
+         S%nMltpl=MltplOrder
          Call Get_dArray('Center of Mass',CoM,3)
          Call SetMltplCenters()
       End If

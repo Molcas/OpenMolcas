@@ -14,22 +14,22 @@
       Use Langevin_arrays
       use External_Centers
       use Phase_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Logical First, Dff, Exist
       Save nAnisopol,nPolComp
+      Real*8, Allocatable:: D1ao(:)
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
       iRout = 1
       iPrint = nPrint(iRout)
-      Call qEnter('Langevin')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -159,12 +159,8 @@ c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
 *
 *     Get the total 1st order AO density matrix
 *
-      Call Get_D1ao(ipD1ao,nDens)
-      If (nDens.ne.nh1) Then
-         Call WarningMessage(2,'Langevin: nDens.ne.nh1')
-         Write (6,*) 'nDens,nh1=',nDens,nh1
-         Call Abend()
-      End If
+      Call mma_allocate(D1ao,nh1,Label='D1ao')
+      Call Get_D1ao(D1ao,nh1)
 *
 *     Save field from permanent multipoles for use in ener
       Call GetMem('pField','Allo','Real',ippField,nGrid_Eff*4)
@@ -175,7 +171,7 @@ c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
 
 
 
-      Call eperm(Work(ipD1ao),nh1,Ravxyz,Cavxyz,nCavxyz,
+      Call eperm(D1ao,nh1,Ravxyz,Cavxyz,nCavxyz,
      &           dField,Grid,nGrid_Eff,Work(ipCord),
      &           MaxAto,Work(ipChrg),Work(ippField))
 
@@ -269,7 +265,7 @@ c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
 *                                                                      *
 *---- Compute contributions to RepNuc, h1, and TwoHam
 *
-      Call Ener(h1,TwoHam,D,RepNuc,nh1,First,Dff,Work(ipD1ao),
+      Call Ener(h1,TwoHam,D,RepNuc,nh1,First,Dff,D1ao,
      &          Grid,nGrid_Eff,Dip, Field,
      &          DipEf,PolEf,Work(ipCord),MaxAto,
      &          Work(ipChrg),nPolComp,nAnisopol,Work(ippField),
@@ -301,13 +297,12 @@ c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
      &        sqrt(sumRepNuc2/DBLE(nAv)-(sumRepNuc/DBLE(nAv))**2)
       EndIf
       Call GetMem('Atod','Free','Real',ipAtod,MaxAto)
-      Call GetMem(' D1ao','Free','Real',ipD1ao,nDens)
+      Call mma_deallocate(D1ao)
       Call GetMem('Chrg','Free','Real',ipChrg,MaxAto)
       Call GetMem('Cord','Free','Real',ipCord,3*MaxAto)
 
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('Langevin')
       Return
       End

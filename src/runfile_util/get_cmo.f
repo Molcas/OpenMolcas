@@ -36,7 +36,7 @@
       Logical   IfTest, Found
       Data      IfTest/.False./
       Call Get_iScalar('System BitSwitch',iOption)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif
 

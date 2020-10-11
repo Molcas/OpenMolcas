@@ -49,7 +49,7 @@
 subroutine group_psi4number( groupname, psi4number )
 
   implicit none
-  character(3), intent(in)  :: groupname
+  character(len=3), intent(in)  :: groupname
   integer,      intent(out) :: psi4number
 
   psi4number = -1 ! Error output
@@ -68,7 +68,7 @@ end subroutine
 subroutine molpro2psi( groupname, conversion )
 
   implicit none
-  character(3), intent(in)  :: groupname
+  character(len=3), intent(in)  :: groupname
   integer,      intent(out) :: conversion(8)
   integer,      parameter   :: X = -1
 
@@ -88,7 +88,7 @@ end subroutine
 subroutine psi2molpro( groupname, conversion )
 
   implicit none
-  character(3), intent(in)  :: groupname
+  character(len=3), intent(in)  :: groupname
   integer,      intent(out) :: conversion(8)
   integer,      parameter   :: X = -1
 
@@ -108,7 +108,7 @@ end subroutine
 subroutine molcas2molpro( groupname, conversion )
 
   implicit none
-  character(3), intent(in)  :: groupname
+  character(len=3), intent(in)  :: groupname
   integer,      intent(out) :: conversion(8)
   integer,      parameter   :: X = -1
 
@@ -128,7 +128,7 @@ end subroutine
 subroutine molpro2molcas( groupname, conversion )
 
   implicit none
-  character(3), intent(in)  :: groupname
+  character(len=3), intent(in)  :: groupname
   integer,      intent(out) :: conversion(8)
   integer,      parameter   :: X = -1
 
@@ -148,7 +148,7 @@ end subroutine
 subroutine molcas2psi( groupname, conversion )
 
   implicit none
-  character(3), intent(in)  :: groupname
+  character(len=3), intent(in)  :: groupname
   integer,      intent(out) :: conversion(8)
   integer,      parameter   :: X = -1
 
@@ -168,7 +168,7 @@ end subroutine
 subroutine psi2molcas( groupname, conversion )
 
   implicit none
-  character(3), intent(in)  :: groupname
+  character(len=3), intent(in)  :: groupname
   integer,      intent(out) :: conversion(8)
   integer,      parameter   :: X = -1
 

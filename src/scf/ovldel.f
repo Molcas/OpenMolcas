@@ -52,15 +52,8 @@
 *
       Real*8, Dimension(:), Allocatable:: OvlT, OvlH, OvlS, EVec, EVal,
      &                                    NewB, Scratch
-*
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-*
-#ifdef _DEBUG_
-      Call qEnter('OvlDel')
-#endif
-*
+
+
 *---- Allocate memory for transformed overlap matrix
       Call mma_allocate(OvlT,MaxOrF*(MaxOrF+1)/2,Label='OvlT')
 *
@@ -170,14 +163,5 @@ C??         End Do
       Call mma_deallocate(OvlS)
       Call mma_deallocate(OvlH)
       Call mma_deallocate(OvlT)
-*
-#ifdef _DEBUG_
-      Call qExit('OvlDel')
-#endif
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
-      End
+
+      End subroutine OvlDel

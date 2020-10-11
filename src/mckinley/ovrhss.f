@@ -19,17 +19,6 @@
 *                                                                      *
 * Object: to compute the gradients of the overlap matrix               *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              CmbnS2                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 *             Anders Bernhardsson 1995                                 *
@@ -38,8 +27,6 @@
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 c#include "print.fh"
 
@@ -50,7 +37,6 @@ c#include "print.fh"
 *
 c     iRout = 122
 c     iPrint = nPrint(iRout)
-c     Call qEnter('OvrHss')
 *     Write (*,*) ' IfHss=',IfHss
 *     Write (*,*) ' IndHss=',IndHss
       ABeq(1) = A(1).eq.RB(1)
@@ -73,7 +59,6 @@ c     Call qEnter('OvrHss')
       If (nip-1.gt.nArr) Then
          Write (6,*) 'OvrHss: nip-1.gt.nArr'
          Write (6,*) 'nip,nArr=',nip,nArr
-         Call QTrace
          Call Abend()
       End If
 *
@@ -128,7 +113,6 @@ c     End If
      &            IfHss,IndHss,indgrd,dc(mdc)%nStab,dc(ndc)%nStab,nOp)
 *
 c     Call GetMem(' Exit OvrHss','CHECK','REAL',iDum,iDum)
-c     Call qExit('OvrHss')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

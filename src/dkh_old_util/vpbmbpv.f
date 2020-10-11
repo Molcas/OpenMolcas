@@ -35,7 +35,6 @@ C
       DIMENSION AUX2(NA,NB),CMM2(NA,NB),
      *          SCPV(NB,NA),SCVP(NB,NA)
 C
-*     Call qEnter('vpbmbpv')
 C
 C
       IF(iSyma.eq.iSymb) Then
@@ -150,7 +149,6 @@ C
 C
 *     write(*,*) 'END OF VPBMBPV !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
 C
-*     Call qExit('vpbmbpv')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN

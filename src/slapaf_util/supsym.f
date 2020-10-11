@@ -26,7 +26,6 @@
 *
       Real*8 E(3)
 *
-      Call qEnter('SupSym')
 *
 *     Loop over groups of centers which are identical.
 *
@@ -87,6 +86,5 @@
 35       Continue
 10    Continue
 *
-      Call qExit('SupSym')
       Return
       End

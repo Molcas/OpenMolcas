@@ -14,10 +14,9 @@
 *
       use Basis_Info, only: nBas
       use pso_stuff
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "etwas.fh"
 #include "WrkSpc.fh"
       Real*8 Dens(nDens)

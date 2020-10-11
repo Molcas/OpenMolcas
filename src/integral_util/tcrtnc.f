@@ -23,16 +23,6 @@
 *                                                                      *
 *         Observe that ACInt and ACOut may overlap!!!!                 *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              Trnglr                                                  *
-*              DGEMM_  (ESSL)                                          *
-*              DGeTMO  (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -56,9 +46,8 @@
       iPrint = nPrint(iRout)
       iPrint = 000000 !yma
 
-*     Call qEnter('Tcrtnc')
 *
-!#ifdef _DEBUG_  !yma
+!#ifdef _DEBUGPRINT_  !yma
       If (iPrint.ge.19) Call WrCheck('Tcrtnc:P(AB|CD)',ACInt,
      &                                m1*m2*m3*m4*mabcd)
       If (iPrint.ge.99) Then
@@ -115,7 +104,7 @@
       Call TncHlf(Coef1,m1,n1,Coef2,m2,n2,lZeta,nVec,
      &            IncVec,Scrtch(ipA3),Scrtch(ipA2),ACOut,IndZet)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.59)
      &  Call RecPrt(' In Tcrtnc: P(ab|cd) ',' ',ACOut,mabcd,lZeta*lEta)
       If (iPrint.ge.19) Call WrCheck('Tcrtnc:P(ab|cd)',ACOut,
@@ -123,7 +112,6 @@
 #endif
 *
 *     Call GetMem('Tcrtnc','CHECK','REAL',iDum,iDum)
-*     Call qExit('Tcrtnc')
       Return
       End
       Subroutine Tnchlf(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,nPrm2,
@@ -134,11 +122,6 @@
 *         matrix multiplications is segmented such that the end of the *
 *         intermediate matrix will not push the start of the same out  *
 *         from the cache.                                              *
-*                                                                      *
-* Called from: Cntrct                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
 *                                                                      *
 * Author:     Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *

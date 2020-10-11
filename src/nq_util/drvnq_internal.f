@@ -35,11 +35,12 @@
 *             University of Lund, Sweden                               *
 *             August 1999                                              *
 ************************************************************************
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       use Basis_Info, only: nBas
 #endif
       use Real_Spherical
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
+      use KSDFT_Info, only: KSDFA, LuMC, LuMT, Funcaa, Funcbb, Funccc
       Implicit Real*8 (A-H,O-Z)
       External Kernel, Rsv_Tsk
 #include "real.fh"
@@ -47,8 +48,6 @@
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "nq_info.fh"
 #include "grid_on_disk.fh"
 #include "debug.fh"
@@ -109,7 +108,6 @@
         FI_time = 0d0
 !
         LuMC=37
-        LuMT=37
         call OpnFl('MCPDFT',LuMC,Exist)
 c        Call append_file(LuMC)
         write(LuMC,'(A)') ' Here densities are MCPDFT modified ones.'
@@ -118,6 +116,7 @@ c        Call append_file(LuMC)
      &                    '       d_a*W     ,       d_b*W     ,'//
      &                    '       dTot*W    ,       Weights   ,'//
      &                    '          dTot   ,       P2        ,   ratio'
+        LuMT=37
         call OpnFl('MCTRUD',LuMT,Exist)
 c        Call append_file(LuMT)
         write(LuMT,'(A)') ' Here densities are original ones.'
@@ -289,8 +288,8 @@ C     End Do ! number_of_subblocks
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Debug=.True.
       If (Debug.and..Not.Do_Grad) Then
          Write (6,*) 'Func=',Func

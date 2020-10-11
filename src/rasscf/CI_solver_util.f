@@ -11,6 +11,8 @@
 * Copyright (C) 2019, Giovanni Li Manni                                *
 *               2020, Oskar Weser                                      *
 ************************************************************************
+
+#include "macros.fh"
       module CI_solver_util
 #ifdef _MOLCAS_MPP_
       use mpi
@@ -22,7 +24,7 @@
       use general_data, only: JobIPH
       implicit none
       private
-      public :: wait_and_read, abort_, assert_, RDM_to_runfile,
+      public :: wait_and_read, RDM_to_runfile,
      &      cleanMat
 #include "para_info.fh"
 #ifdef _MOLCAS_MPP_
@@ -44,7 +46,7 @@
 #ifdef NAGFOR
       use f90_unix_proc, only: sleep
 #endif
-        character(*), intent(in) :: filename
+        character(len=*), intent(in) :: filename
         real*8, intent(out) :: energy
         logical :: newcycle_found
         integer :: LuNewC
@@ -74,20 +76,6 @@
         end if
 #endif
       end subroutine wait_and_read
-
-      subroutine abort_(message)
-        character(*), intent(in) :: message
-        call WarningMessage(2, message)
-        call QTrace()
-        call Abend()
-      end subroutine
-
-      subroutine assert_(condition, message)
-        logical, intent(in) :: condition
-        character(*), intent(in) :: message
-        if (.not. condition) call abort_(message)
-      end subroutine
-
 
 !>  @brief
 !>    State Average RDMs and put into runfile.
@@ -144,10 +132,9 @@
       real*8, allocatable :: EVC(:), Tmp(:), Tmp2(:), MAT_copy(:)
       integer :: rc, i, j
       real*8 :: trace
-      character(12), parameter :: routine = 'CleanMat'
+      character(len=12), parameter :: routine = 'CleanMat'
       logical :: cleanup_required
 
-      Call qEnter(routine)
 
       rc = 0
       If (nacpar .lt. 1) then
@@ -173,7 +160,7 @@
       end do
       CALL JACOB(MAT_copy, EVC, NAC, NAC)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*) 'eigenvalues: '
       do i=1,nac
          write(6,*) MAT_copy(I*(I+1)/2)
@@ -223,7 +210,7 @@
             MAT(j + (i - 1) * i / 2) = Tmp2(j + (i - 1) * nac)
           end do
         end do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         write(6,*) 'trace after recombination:'
         trace = 0.0d0
         do i = 1, nac
@@ -237,7 +224,6 @@
       call mma_deallocate(EVC)
 ****************** Exit ****************
 10    Continue
-      Call qExit(routine)
       return
       end subroutine cleanMat
 

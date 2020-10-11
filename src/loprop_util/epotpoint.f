@@ -13,10 +13,12 @@
      &                    ,nB,iAtom,jAtom,ip_Center)
       Implicit Real*8 (a-h,o-z)
 
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "warnings.fh"
-
+      Real*8, Allocatable:: D1ao(:)
       Character*10 Label
+      Logical Found
 
 *
 *-- Loop through all points, pick out the relevant ones, obtain the
@@ -25,8 +27,16 @@
       nB2=nB*(nB+1)/2
       nB22=nB**2
       Call GetMem('DSq','Allo','Real',iDSq,nB22)
-      Call Get_D1ao(ip_D,nDens)
-      Call Dsq(Work(ip_D),Work(iDSq),1,nB,nB)
+      Call Qpg_darray('D1ao',Found,nDens)
+      If (Found .and. nDens/=0) Then
+         Call mma_allocate(D1ao,nDens,Label='D1ao')
+      Else
+         Write (6,*) 'EPotPoint: D1ao not found.'
+         Call abend()
+      End If
+      Call Get_D1ao(D1ao,nDens)
+      Call Dsq(D1ao,Work(iDSq),1,nB,nB)
+      Call mma_deallocate(D1ao)
       Call GetMem('TEMP','Allo','Real',iTEMP,nB22)
       Call GetMem('DTrans','Allo','Real',iDTrans,nB22)
 *
@@ -92,7 +102,6 @@
       Call GetMem('Points','Free','Real',iPP,nB2+4)
       Call GetMem('PointsSq','Free','Real',iPSq,nB22)
       Call GetMem('PointsTr','Free','Real',iPTr,nB22)
-      Call GetMem('Dens','Free','Real',ip_D,nDens)
 
       Return
 c Avoid unused argument warnings

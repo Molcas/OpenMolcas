@@ -11,9 +11,11 @@
       Subroutine Misc_Seward(iBas,iBas_Aux,iBas_Frag)
       use Basis_Info
       use Center_Info
+      use Sizes_of_Seward, only: S
+      use Real_Info, only: RadMax, cdMax, EtMax
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -93,9 +95,9 @@
             End Do
             mc = mc + nIrrep/dc(mdc)%nStab
          End Do
-         nShlls = iShell
 *
       End Do
+      S%nShlls = iShell
       If (iBas.ge.2*MaxBfn) Then
          Call WarningMessage(2,'MaxBfn too small')
          Write (LuWr,*) 'Increase 2*MaxBfn to ', iBas

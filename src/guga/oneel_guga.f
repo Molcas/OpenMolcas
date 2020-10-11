@@ -19,7 +19,6 @@
       COMMON/CNSTS/D0,D1,D2
 #include "addr_guga.fh"
 *
-      CALL QENTER('ONEEl')
       IOUT=0
       NMAT=0
       ITYP=0
@@ -93,6 +92,5 @@
       CALL iDAFILE(Lu_10,1,iCOP1,NCOP+1,IADD10)
       WRITE(IW,100)NMAT
 100   FORMAT(/6X,'COEFFICIENTS FOR IJ',I11)
-      CALL QEXIT('ONEEL')
       RETURN
       END

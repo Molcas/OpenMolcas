@@ -46,7 +46,6 @@ cvv      External LocUtil_Models
       Real*8 ERFun(2), xnr0(8)
       Integer IndT(7,8)
 
-      Call qEnter(SecNam)
 
 C     Start timing.
 C     -------------
@@ -521,5 +520,4 @@ C     -------------
 C     That's it!
 C     ----------
 
-      Call qExit(SecNam)
       End

@@ -45,8 +45,8 @@ c      Integer       :: nsfs(nneq), multiplicity(nneq,nLoc)
       Real(kind=8), allocatable    :: eso(:,:)
       Complex(kind=8), allocatable :: dipso(:,:,:,:)
       Complex(kind=8), allocatable ::  s_so(:,:,:,:)
-      Character(1)                  :: itype(nneq)
-      Character(180)                :: namefile_aniso(nneq)
+      Character(Len=1)              :: itype(nneq)
+      Character(Len=180)            :: namefile_aniso(nneq)
       Logical                       :: ifHDF
       Logical                       :: DoPlot
 c  definition of the exchange:
@@ -182,13 +182,12 @@ c  fundamental constants:
 c      Integer                      :: nsta
 c      Integer                      :: icase, nmagmult
       Logical                       :: check_title
-      Character(180)                :: Title
+      Character(Len=180)            :: Title
       Logical                       :: GRAD
       Logical                       :: lvM
       Logical                       :: dbg
-      Character(len=180)            :: fname
+      Character(Len=180)            :: fname
 
-      Call qEnter('PA_1')
       dbg=.false.
 c---------------------------------------------------------------------
       ! Constants:
@@ -978,7 +977,6 @@ c---------------------------------------------------------------------
       Write(6,*)
       Write(6,'(10A)') (('-*-&-%-$-#-@-'),idim=1,10)
       Call xFlush(6)
-      Call qExit('PA_1')
 
       Return
       End

@@ -91,13 +91,12 @@
       iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
 ************************************************************************
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Debug=.true.
 #else
       Debug=.false.
 #endif
 
-      Call qEnter(SECNAM)
 
 **********************************************************
 C
@@ -646,7 +645,6 @@ C     -----------------------------------
 
       irc=0
 
-      Call qExit(SECNAM)
 
       Return
       END

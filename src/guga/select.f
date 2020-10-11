@@ -22,10 +22,8 @@
       COMMON/CNSTS/D0,D1,D2
 #include "addr_guga.fh"
 *
-      CALL QENTER('SELECT')
       CALL JTIME(IST)
       CALL CI_SELECT_INTERNAL(INDOUT,IBUFL)
-      CALL QEXIT('SELECT')
       RETURN
 *
 *     This is to allow type punning without an explicit interface

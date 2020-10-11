@@ -44,7 +44,6 @@
 #include "real.fh"
 #include "mxdm.fh"
 #include "infscf.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 *
 *     declaration subroutine parameters
@@ -118,7 +117,7 @@ c for RHF we will not use nOccAuf_ab
          Do iD = 1, nD
             eferm=FermiPop(EOr(1,iD),Occup(1,iD),nOrbAS,RTemp,
      &                     nAuf(iD)*mD,UHF_occ)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,'(A,G20.10)')'         E(Fermi)=',eferm
 #endif
          End Do
@@ -241,8 +240,8 @@ c for RHF we will not use nOccAuf_ab
 *----------------------------------------------------------------------*
 * Scan for Fermi level                                                 *
 *----------------------------------------------------------------------*
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write(6,'(a)') 'Scan for Fermi energy level'
       Write(6,'(a)') '       ef             y       '
       Write(6,'(a)') ' -------------- --------------'
@@ -280,7 +279,7 @@ c         Do i=1,n
             if(i.le.n) goto 300
 c         End Do
          f=-nEle+ff*UHF_occ
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write(6,'(2G20.10)') ef,f
 #endif
          If(f*f_old.gt.0.0d0) GoTo 100
@@ -288,7 +287,7 @@ c         End Do
 *----------------------------------------------------------------------*
 * Refine with interval halving.                                       *
 *----------------------------------------------------------------------*
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,'(a)') 'Refine Fermi level with interval halving'
       Write(6,'(a)') '       y0            y2             y1       '
       Write(6,'(a)') ' -------------- -------------- --------------'
@@ -310,7 +309,7 @@ c         End Do
             f=f+UHF_occ/(1.0d0+exp(z))
          End Do
          y2=f
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write(6,'(3f15.8)') y0,y2,y1
 #endif
          If(abs(y2).lt.1.0d-9) GoTo 201

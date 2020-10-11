@@ -18,7 +18,6 @@
 *
 #include "espf.fh"
 *
-      Call QEnter('initb')
       iPL = iPL_espf()
       nOrd = nMult/nAtQM
 *
@@ -139,6 +138,5 @@
          End do
       End If
 *
-      Call QExit('initb')
       Return
       End

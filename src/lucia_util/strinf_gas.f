@@ -49,7 +49,6 @@
 *. A bit of scratch
 C     DIMENSION IOCTYP(MXPNGAS)
 *
-      CALL QENTER('STRIN')
 *
 * Some dummy initializtions
       LAC = 0 ! jwk-cleanup
@@ -371,6 +370,5 @@ C?      WRITE(6,*) 'ISTTYP, ISTTYPA', ISTTYP,ISTTYPA
 C     WRITE(6,*) ' Memory Check at end of STRINF_GAS  '
       CALL MEMCHK
 *
-      CALL QEXIT('STRIN')
       RETURN
       END

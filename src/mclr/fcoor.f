@@ -21,9 +21,9 @@
 ********************************************************************
       use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8(a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
       Real*8 A(3),COOR(3,*), B(3)
       Character*(LENIN) Lab
       mdc=0

@@ -27,7 +27,7 @@ C
       Integer SP
 #include "cho_para_info.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "WrkSpc.fh"

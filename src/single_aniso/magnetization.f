@@ -112,7 +112,6 @@
 
       External      :: dev
 
-      Call qEnter('SA_magn')
       Boltz_k=0.6950356_wp                    !   in cm-1*K-1
       mu_Bohr=0.466864374_wp                  !   in cm-1*T-1
 !-----------------------------------------------------------------------
@@ -708,7 +707,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             Call mma_deallocate(dHW)
       End If
 
-      Call qExit('SA_magn')
       Return
       End
 
