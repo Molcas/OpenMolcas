@@ -396,12 +396,10 @@
          Call mma_allocate(G2,nG2,mG2,Label='G2')
 !       write(*,*) 'got the 2rdm, Ithink.'
          if(Method.eq.'MCPDFT  ') then
-           Call Get_P2MOt(ipTemp,nTemp)!PDFT-modified 2-RDM
+           Call Get_P2MOt(G2,nG2)!PDFT-modified 2-RDM
          else
-           Call Get_P2MO(ipTemp,nTemp)
+           Call Get_P2MO(G2,nG2)
          end if
-         call dcopy_(nTemp,Work(ipTemp),1,G2(1,1),1)
-         Call Free_Work(ipTemp)
          If (iPrint.ge.99) Call TriPrt(' G2',' ',G2(1,1),nG1)
          If (lsa) Then
 

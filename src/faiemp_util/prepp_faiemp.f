@@ -293,9 +293,7 @@
          if (lsa) nsa=2
          mG2=nsa
          Call mma_allocate(G2,nG2,mG2,Label='G2')
-         Call Get_P2MO(ipTemp,nTemp)
-         call dcopy_(nTemp,Work(ipTemp),1,G2(1,1),1)
-         Call Free_Work(ipTemp)
+         Call Get_P2MO(G2(:,1),nG2)
          If (iPrint.ge.99) Call TriPrt(' G2',' ',G2(1,1),nG1)
          If (lsa) Then
 

@@ -428,10 +428,14 @@ c      Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
       If (Do_MO) Then
          If (NQNAC.ne.0) Then
            If(.not.l_casdft) Then
-             nd1mo=(NQNAC+NQNAC**2)/2
+             NQNACPAR = ( NQNAC**2 + NQNAC )/2
+             nd1mo=NQNACPAR
              Call GetMem('D1MO','Allo','Real',ipD1MO,nd1mo)
              Call Get_D1MO(Work(ipD1mo),nd1mo)
-             Call Get_P2mo(ipP2mo,nP2)
+             NQNACPR2 = ( NQNACPAR**2 + NQNACPAR )/2
+             Call GetMem('P2MO','Allo','Real',ipP2MO,nP2)
+             Call Get_P2mo(Work(ipP2mo),nP2)
+
            End If
          End If
          Call Get_iArray('nBas',nBas,mIrrep)
@@ -543,7 +547,9 @@ c      Call GetMem('tmpB','Allo','Real',ip_tmpB,nGridMax)
           Call Get_D1MO(Work(ipD1mo),nd1mo)
 cGLM          write(6,*) 'D1MO in drvNQ routine'
 cGLM          write(6,*) (Work(ipD1mo+i), i=0,NQNACPAR-1)
-          call Get_P2mo(ipP2mo,nP2)
+          nP2 = NQNACPR2
+          Call GetMEM('P2MO','Allo','Real',ipP2MO,nP2)
+          call Get_P2mo(Work(ipP2mo),nP2)
 cGLM          write(6,*) 'P2MO in drvNQ routine'
 cGLM          write(6,*) (Work(ipP2mo+i), i=0,NQNACPR2-1)
         END IF
