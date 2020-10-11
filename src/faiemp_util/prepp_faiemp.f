@@ -35,13 +35,14 @@
       Integer nBas_Valence(0:7),nBT,nBVT,nFro(0:7)
       Character*8 RlxLbl,Method, KSDFT*16
       Logical lPrint
-      Integer i,iBas,iGo,iIrrep,ij,ipD1AV,ipD2AV
-      Integer ipDLAO,ipLCMO,ipPLMO,ipt,ipTmp1,ipTemp
+      Integer i,iBas,iGo,iIrrep,ij
+      Integer ipt,ipTmp1,ipTemp
       Integer iSpin,jBas,length,nAct,nDens_Valence,nsa,nTemp,nTst
       Integer iRout,iPrint,iComp
       Real*8  Get_ExFac,CoefX,CoefR
       External Get_ExFac
       Character*80 Fmt*60
+      Real*8, Allocatable:: D1AV(:)
 
 *
 *...  Prologue
@@ -301,9 +302,7 @@
 *
 *  CMO2 CMO*Kappa
 *
-           Call Get_LCMO(ipLCMO,Length)
-           call dcopy_(Length,Work(ipLCMO),1,CMO(1,2),1)
-           Call Free_Work(ipLCMO)
+           Call Get_LCMO(CMO(:,2),mCMO)
            If (iPrint.ge.99) Then
             ipTmp1 = 1
             Do iIrrep = 0, nIrrep-1
@@ -319,22 +318,13 @@
 *   P1=<i|e_pqrs|i> + sum_i <i|e_pqrs|i>+<i|e_pqrs|i>
 *   P2=sum_i <i|e_pqrs|i>
 *
-           Call Get_PLMO(ipPLMO,Length)
-           call dcopy_(Length,Work(ipPLMO),1,G2(1,2),1)
-           Call Free_Work(ipPLMO)
-           Call Daxpy_(ng2,1.0d0,G2(1,2),1,G2(1,1),1)
-           If(iPrint.ge.99)Call TriPrt(' G2L',' ',G2(1,2),nG1)
-           If(iPrint.ge.99)Call TriPrt(' G2T',' ',G2(1,1),nG1)
+           Call Get_PLMO(G2(:,2),nG2)
+           Call Daxpy_(nG2,1.0d0,G2(:,2),1,G2(:,1),1)
+           If(iPrint.ge.99)Call TriPrt(' G2L',' ',G2(:,2),nG1)
+           If(iPrint.ge.99)Call TriPrt(' G2T',' ',G2(:,1),nG1)
 *
-           Call Get_D2AV(ipD2AV,Length)
-           If (ng2.ne.Length) Then
-              Write (6,*) 'PrepP_FAIEMP: D2AV, ng2.ne.Length!'
-              Write (6,*) 'ng2,Length=',ng2,Length
-              Call Abend()
-           End If
-           call dcopy_(Length,Work(ipD2AV),1,G2(1,2),1)
-           Call Free_Work(ipD2AV)
-           If (iPrint.ge.99) Call TriPrt('G2A',' ',G2(1,2),nG2)
+           Call Get_D2AV(G2(:,2),nG2)
+           If (iPrint.ge.99) Call TriPrt('G2A',' ',G2(:,2),nG2)
 *
 *
 *  Densities are stored as:
@@ -362,20 +352,14 @@
 *
 *   This is necessary for the kap-lag
 *
-           Call Get_D1AV(ipD1AV,Length)
            nG1 = nAct*(NAct+1)/2
-           If (nG1.ne.Length) Then
-              Write (6,*) 'Prepp: D1AV, nG1.ne.Length!'
-              Write (6,*) 'nG1,Length=',nG1,Length
-              Call Abend()
-           End If
-           Call Get_D1A(CMO(1,1),Work(ipD1AV),D0(1,3),
+           Call mma_Allocate(D1AV,nG1,Label='D1AV')
+           Call Get_D1AV(D1AV,nG1)
+           Call Get_D1A(CMO(1,1),D1AV,D0(1,3),
      &                 nIrrep,nBas_Valence,nish,nash,nDens_Valence)
-           Call Free_Work(ipD1AV)
+           Call mma_deallocate(D1AV)
 *
-           Call Get_DLAO(ipDLAO,Length)
-           call dcopy_(Length,Work(ipDLAO),1,D0(1,4),1)
-           Call Free_Work(ipDLAO)
+           Call Get_DLAO(D0(1,4),nDens)
          End If
          If (iPrint.ge.99) Call TriPrt(' G2',' ',G2(1,1),nG1)
 *

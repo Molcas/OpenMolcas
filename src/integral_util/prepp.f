@@ -51,7 +51,7 @@
       Logical DoCholesky
       Real*8 CoefX,CoefR
       Character*80 Fmt*60
-      Real*8, Allocatable:: D1ao(:)
+      Real*8, Allocatable:: D1ao(:), D1AV(:)
 *
 *...  Prologue
 
@@ -407,9 +407,7 @@
 *
 *  CMO2 CMO*Kappa
 *
-           Call Get_LCMO(ipLCMO,Length)
-           call dcopy_(Length,Work(ipLCMO),1,CMO(1,2),1)
-           Call Free_Work(ipLCMO)
+           Call Get_LCMO(CMO(:,2),mCMO)
            If (iPrint.ge.99) Then
             ipTmp1 = 1
             Do iIrrep = 0, nIrrep-1
@@ -425,8 +423,7 @@
 *   P1=<i|e_pqrs|i> + sum_i <i|e_pqrs|i>+<i|e_pqrs|i>
 *   P2=sum_i <i|e_pqrs|i>
 *
-           Call Get_PLMO(ipPLMO,Length)
-           call dcopy_(Length,Work(ipPLMO),1,G2(1,2),1)
+           Call Get_PLMO(G2(:,2),nG2)
            ndim1=0
            if(doDMRG)then
              ndim0=0  !yma
@@ -439,25 +436,12 @@
                if(i.gt.ndim2) G2(i,2)=0.0D0
              end do
            end if
-           Call Free_Work(ipPLMO)
-           Call Daxpy_(ng2,One,G2(1,2),1,G2(1,1),1)
-           If(iPrint.ge.99)Call TriPrt(' G2L',' ',G2(1,2),nG1)
-           If(iPrint.ge.99)Call TriPrt(' G2T',' ',G2(1,1),nG1)
+           Call Daxpy_(ng2,One,G2(:,2),1,G2(:,1),1)
+           If(iPrint.ge.99)Call TriPrt(' G2L',' ',G2(:,2),nG1)
+           If(iPrint.ge.99)Call TriPrt(' G2T',' ',G2(:,1),nG1)
 *
-           Call Get_D2AV(ipD2AV,Length)
-           If (ng2.ne.Length) Then
-              Call WarningMessage(2,'Prepp: D2AV, ng2.ne.Length!')
-              Write (6,*) 'ng2,Length=',ng2,Length
-! DMRG with the reduced AS
-              if(doDMRG)then
-                Length=ng2 ! yma
-              else
-                Call Abend()
-              end if
-           End If
-           call dcopy_(Length,Work(ipD2AV),1,G2(1,2),1)
-           Call Free_Work(ipD2AV)
-           If (iPrint.ge.99) Call TriPrt('G2A',' ',G2(1,2),nG1)
+           Call Get_D2AV(G2(:,2),nG2)
+           If (iPrint.ge.99) Call TriPrt('G2A',' ',G2(:,2),nG1)
 *
 *
 *  Densities are stored as:
@@ -491,32 +475,22 @@
 *
            Call dcopy_(ndens,DVar,1,D0(1,2),1)
            If (.not.isNAC) call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
-!         RlxLbl='D1COMBO  '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,2))
+!          RlxLbl='D1COMBO  '
+!          Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,2))
 *
 *   This is necessary for the kap-lag
 *
-           Call Get_D1AV(ipD1AV,Length)
            nG1 = nAct*(nAct+1)/2
-           If (ng1.ne.Length) Then
-              Call WarningMessage(2,'PrepP: D1AV, nG1.ne.Length!')
-              Write (6,*) 'nG1,Length=',nG1,Length
-              if(doDMRG)then ! yma
-                If (length.ne.ng1) length=nG1
-              else
-                Call Abend()
-              end if
-              Call Abend()
-           End If
-           Call Get_D1A(CMO(1,1),Work(ipD1AV),D0(1,3),
+           Call mma_allocate(D1AV,nG1,Label='D1AV')
+           Call Get_D1AV(D1AV,nG1)
+           Call Get_D1A(CMO(1,1),D1AV,D0(1,3),
      &                 nIrrep,nbas,nish,nash,ndens)
-           Call Free_Work(ipD1AV)
+           Call mma_deallocate(D1AV)
 !************************
-         RlxLbl='D1AOA   '
-!         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,3))
+!          RlxLbl='D1AOA   '
+!          Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,3))
 *
-           Call Get_DLAO(ipDLAO,Length)
-           call dcopy_(Length,Work(ipDLAO),1,D0(1,4),1)
+           Call Get_DLAO(D0(:,4),nDens)
 
 !ANDREW - modify D2: should contain only the correction pieces
 
@@ -549,12 +523,10 @@
             Call mma_deallocate(D1ao)
           end if
 
-
 !          call dcopy_(ndens*5,0.0d0,0,D0,1)
 !          call dcopy_(nG2,0.0d0,0,G2,1)
 
 
-           Call Free_Work(ipDLAO)
 !************************
            !Call dscal_(Length,0.5d0,D0(1,4),1)
            !Call dscal_(Length,0.0d0,D0(1,4),1)
