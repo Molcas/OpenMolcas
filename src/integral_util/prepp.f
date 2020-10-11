@@ -29,7 +29,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "etwas.fh"
 #include "mp2alaska.fh"
@@ -51,7 +50,7 @@
       Logical DoCholesky
       Real*8 CoefX,CoefR
       Character*80 Fmt*60
-      Real*8, Allocatable:: D1ao(:), D1AV(:)
+      Real*8, Allocatable:: D1ao(:), D1AV(:), Tmp(:,:)
 *
 *...  Prologue
 
@@ -463,11 +462,9 @@
          RlxLbl='D1AO    '
 !         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
 
-
-           Call Getmem('TMP','ALLO','REAL',ipT,2*ndens)
-           Call Get_D1I(CMO(1,1),D0(1,1),Work(ipT),
-     &                  nish,nbas,nIrrep)
-           Call Getmem('TMP','FREE','REAL',ipT,2*ndens)
+           Call mma_allocate(Tmp,nDens,2,Label='Tmp')
+           Call Get_D1I(CMO(1,1),D0(1,1),Tmp,nIsh,nBas,nIrrep)
+           Call mma_deallocate(Tmp)
 
 !************************
          RlxLbl='D1AO    '
@@ -585,58 +582,52 @@
 
       Subroutine Get_D1A(CMO,D1A_MO,D1A_AO,
      &                    nsym,nbas,nish,nash,ndens)
-
-
       Implicit Real*8 (A-H,O-Z)
-
+#include "real.fh"
+#include "stdalloc.fh"
       Dimension CMO(*) , D1A_MO(*) , D1A_AO(*)
       Integer nbas(nsym),nish(nsym),nash(nsym)
+      Real*8, Allocatable:: Scr1(:), Tmp1(:,:), Tmp2(:,:)
 
-#include "WrkSpc.fh"
-#include "real.fh"
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
 
-      iOff1 = 1
       iOff2 = 1
       iOff3 = 1
       ii=0
-      Call GetMem('Scr1','Allo','Real',ip1,2*ndens)
+      Call mma_allocate(Scr1,2*nDens,Label='Scr1')
       Do iSym = 1,nSym
         iBas = nBas(iSym)
         iAsh = nAsh(iSym)
         iIsh = nIsh(iSym)
-        Call dCopy_(iBas*iBas,[Zero],0,Work(ip1-1+iOff3),1)
+        Call dCopy_(iBas*iBas,[Zero],0,Scr1(iOff3),1)
         If ( iAsh.ne.0 ) then
-          Call GetMem('Scr1','Allo','Real',iTmp1,iAsh*iAsh)
-          Call GetMem('Scr2','Allo','Real',iTmp2,iAsh*iBas)
-          ij=0
-          Do i=1,iash
-           Do j=1,iash
-            Work(iTmp1+ij)=D1A_MO(itri(i+ii,j+ii))
-            ij=ij+1
+          Call mma_allocate(Tmp1,iAsh,iAsh,Label='Tmp1')
+          Call mma_allocate(Tmp2,iBas,iAsh,Label='Tmp2')
+          Do i=1,iAsh
+           Do j=1,iAsh
+            Tmp1(j,i)=D1A_MO(itri(i+ii,j+ii))
            End do
           End do
           ii=ii+iash
           Call DGEMM_('N','T',
      &                iBas,iAsh,iAsh,
      &                One,CMO(iOff2+iIsh*iBas),iBas,
-     &                Work(iTmp1),iAsh,
-     &                Zero,Work(iTmp2),iBas)
+     &                    Tmp1,iAsh,
+     &               Zero,Tmp2,iBas)
           Call DGEMM_('N','T',
      &                iBas,iBas,iAsh,
-     &                One,Work(iTmp2),iBas,
-     &                CMO(iOff2+iIsh*iBas),iBas,
-     &                Zero,Work(ip1-1+iOff3),iBas)
-          Call GetMem('Scr2','Free','Real',iTmp2,iAsh*iBas)
-          Call GetMem('Scr1','Free','Real',iTmp1,iAsh*iAsh)
+     &                One,Tmp2,iBas,
+     &                    CMO(iOff2+iIsh*iBas),iBas,
+     &               Zero,Scr1(iOff3),iBas)
+          Call mma_deallocate(Tmp2)
+          Call mma_deallocate(Tmp1)
         End If
-        iOff1 = iOff1 + (iAsh*iAsh+iAsh)/2
         iOff2 = iOff2 + iBas*iBas
         iOff3 = iOff3 + iBas*iBas
       End Do
-      Call Fold2(nsym,nBas,work(ip1),D1A_AO)
-      Call GetMem('Scr1','FREE','Real',ip1,ndens)
+      Call Fold2(nSym,nBas,Scr1,D1A_AO)
+      Call mma_deallocate(Scr1)
       Return
       End
 
