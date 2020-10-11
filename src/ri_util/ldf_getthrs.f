@@ -20,7 +20,7 @@ C
       Real*8 Target_Accuracy
       Call Get_dScalar('LDF Accuracy',Target_Accuracy)
       Call LDF_SetThrs(Target_Accuracy)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Write(6,'(A,1P,D15.6)')
      & 'LDF_GetThrs: target accuracy from runfile:',Target_Accuracy
 #endif

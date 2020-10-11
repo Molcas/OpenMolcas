@@ -30,7 +30,7 @@ C
       Character*30 SecNam
       Parameter (SecNam='LDF_ComputeFittingCoefficients')
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_AtomInfoIsSet, LDF_AtomPairInfoIsSet
       External LDF_AtomInfoIsSet, LDF_AtomPairInfoIsSet
 #endif
@@ -73,7 +73,7 @@ C
       ! Init return code
       irc=0
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (.not.LDF_AtomInfoIsSet() .or.
      &    .not.LDF_AtomPairInfoIsSet()) Then
          irc=-1

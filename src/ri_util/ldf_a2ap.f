@@ -54,7 +54,7 @@ C
       Integer  LDF_nAtom
       External LDF_nAtom
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer n, iAB
 #endif
       Integer nAtoms
@@ -68,7 +68,7 @@ C
       AP_Atoms(i,j)=iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
       If (l_A2AP.gt.0) Then
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          Call WarningMessage(0,
      &                SecNam//': atom to atom pair map already set up!')
 #endif
@@ -119,7 +119,7 @@ C
          End If
       End Do
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       n=0
       Do A=1,nAtoms
          l=iWork(ip_A2AP+2*(A-1))
@@ -171,7 +171,7 @@ C
       Integer A, ip, l
 
       If (l_A2AP.lt.1) Then
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          Call WarningMessage(0,
      &                 SecNam//' called, but A2AP has not been set up!')
          Call xFlush(6)
@@ -209,7 +209,7 @@ C
 #include "WrkSpc.fh"
 #include "ldf_a2ap.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*13 SecNam
       Parameter (SecNam='LDF_PrintA2AP')
 #endif
@@ -224,7 +224,7 @@ C
       A2AP(i,j)=iWork(ip_A2AP-1+2*(j-1)+i)
 
       If (l_A2AP.lt.1) Then
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          Call WarningMessage(0,
      &         SecNam//' called, but atom to atom pair map not set up!')
          Call xFlush(6)

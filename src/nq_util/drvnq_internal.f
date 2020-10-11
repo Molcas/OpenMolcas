@@ -35,7 +35,7 @@
 *             University of Lund, Sweden                               *
 *             August 1999                                              *
 ************************************************************************
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       use Basis_Info, only: nBas
 #endif
       use Real_Spherical
@@ -288,8 +288,8 @@ C     End Do ! number_of_subblocks
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Debug=.True.
       If (Debug.and..Not.Do_Grad) Then
          Write (6,*) 'Func=',Func

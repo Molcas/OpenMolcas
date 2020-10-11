@@ -654,7 +654,7 @@
 *           get last gradient grad(n) from LList
 *
             Call GetVec(LuGrd,iter,LLGrad,inode,Grd1,nOV*nD)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Wfctl: g(n)',' ',Grd1,1,nOV*nD)
 #endif
 *
@@ -668,7 +668,7 @@
 *           store dX(n) vector from Disp to LList
 *
             Call PutVec(Disp,nOV*nD,LuDel,iter,MemRsv,'NOOP',LLDelt)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'LuDel,LLDelt:',LuDel,LLDelt
             Call RecPrt('Wfctl: dX(n)',' ',Disp,1,nOV*nD)
 #endif

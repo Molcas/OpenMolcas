@@ -43,7 +43,7 @@
 #include "localdf_int3.fh"
 #include "WrkSpc.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*15 SecNam
       Parameter (SecNam='PLF_LDF_3Indx_1')
 #endif
@@ -58,14 +58,14 @@
 
       Integer i
       Integer iShlSO, nBasSh
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer iSOShl
       iSOShl(i)=iWork(ip_iSOShl-1+i)
 #endif
       nBasSh(i)=iWork(ip_nBasSh-1+i)
       iShlSO(i)=iWork(ip_iShlSO-1+i)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (iSOShl(iAOtSO(iAO(1)+1,kOp(1))+iAOst(1)).ne.SHA) Then
          Call WarningMessage(2,SecNam//': Shell problem [1]')
          Call LDF_Quit(1)

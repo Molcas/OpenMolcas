@@ -71,9 +71,8 @@
 *                                                                      *
       iRout = 9
       iPrint = nPrint(iRout)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        Debug=.true.
-c       iPrint=200
 #else
        Debug=.false.
 #endif

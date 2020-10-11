@@ -96,7 +96,7 @@
             iShOff(irp,iSkal)=nShOff(irp)
             nShOff(irp)=nShOff(irp)+nShBF(irp,iSkal)
          End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write(6,'(A)') 'nShBF'
          Write(6,'(8I4)') iSkal,(nShBF(irp,iSkal),irp=0,nSym-1)
          Write(6,'(A)') 'iShOff'
@@ -142,7 +142,7 @@
             iptr=iptr+nBas(irp)
          End If
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,'(A,I4)') 'max shell size:',nShBFMx
       Write(6,'(A)') '# of shells contributing to each irrep:'
       Write(6,'(8I4)') (nShIrp(irp),irp=0,nSym-1)

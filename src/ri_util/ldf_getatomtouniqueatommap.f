@@ -26,7 +26,7 @@ C
       Integer A2UA(nA)
 #include "WrkSpc.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*62 Msg, Msg2, Msg3, Msg4
       Parameter (Msg=
      & 'LDF_GetAtomToUniqueAtomMap: LDF_AtomWithCoordinates returned 0')
@@ -40,7 +40,7 @@ C
       Integer  LDF_AtomWithCoordinates
       External LDF_AtomWithCoordinates
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Call iZero(A2UA,nA)
       nCount=0
 #endif
@@ -60,7 +60,7 @@ C
             ndc=ndc+1
             jxyz=jxyz+3
             iAtom=LDF_AtomWithCoordinates(Work(ip_UAR))
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
             nCount=nCount+1
             If (iAtom.lt.1) Then
                Call WarningMessage(2,Msg)
@@ -84,7 +84,7 @@ C
                ndc=ndc+1
                jxyz=jxyz+3
                iAtom=LDF_AtomWithCoordinates(Work(ip_UAR))
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                nCount=nCount+1
                If (iAtom.lt.1) Then
                   Call WarningMessage(2,Msg)
@@ -105,7 +105,7 @@ C
       End Do
       Call GetMem('LDFUAR','Free','Real',ip_UAR,l_UAR)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (nCount.ne.nA) Then
          Call WarningMessage(2,Msg4)
          Call LDF_Quit(1)

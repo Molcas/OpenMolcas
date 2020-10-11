@@ -41,14 +41,7 @@
 *---- Define local variables
       Dimension nBasX(MxSym)
       Logical SqI2
-*
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-*
-#ifdef _DEBUG_
-#endif
-*
+
       iRc=-1
       Call GetOrd(iRc,SqI2,nSymX,nBasX,nSkip)
       If (iRc.ne.0) Then
@@ -68,13 +61,5 @@
             Call Abend
          End If
       End Do
-*
-#ifdef _DEBUG_
-#endif
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
-      End
+
+      End subroutine Rd2Int_SCF

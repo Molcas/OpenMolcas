@@ -59,8 +59,8 @@ c     Parameter (Thresh = 99999.99D99)
       Else
          Call ETaylr(kapOV,U,mynOcc)
       End If
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call NrmClc(kapOV,nOV,'ExpKap','kapOV')
 #endif
 *

@@ -29,7 +29,7 @@ C
       Parameter (Info_Debug = 4)
 
       Logical Debug
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Parameter (Debug = .True.)
 #else
       Parameter (Debug = .False.)

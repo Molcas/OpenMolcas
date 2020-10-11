@@ -43,7 +43,7 @@
       Logical Shijij, qijij
 *     local array
       Integer jSym(0:7), lSym(0:7)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Data tr1,tr2/0.0d0,0.0d0/
       Save tr1,tr2
 #endif
@@ -61,7 +61,7 @@
 *                                                                      *
       k12=0
       k34=0
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.49) Then
          r1=DDot_(ijkl*nSOInt,SOInt,1,[One],0)
          r2=DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)

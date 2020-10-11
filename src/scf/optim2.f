@@ -62,8 +62,8 @@
       Real*8  Step,Eref,Eplus,Eminus,E_Pred
       Real*8  Step_pi,Step_mi,Step_pj,Step_mj,Step_pk,Step_mk
       Real*8  Optim_E
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Real*8  sum
 #endif
       Logical DidChange
@@ -112,7 +112,7 @@
       End If
 *
 *     At this point we have a set of Cs which fulfil the two contraints.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,'(a)') 'Start C:'
       Write(6,'(6F15.6)') (C(i),i=1,n)
       Write(6,'(a)') 'Start G:'
@@ -130,7 +130,7 @@
             Eref=Eref+0.5d0*C(i)*C(j)*H(i,j)
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,'(a,F15.6)') 'Eref = ',Eref
 #endif
 *----------------------------------------------------------------------*
@@ -272,7 +272,7 @@
 *
                   C(i)=C(i) - Step_mi
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write(6,'(a,3I3,4F20.10)')
      &                  'i,j,k,Es(i),i=1,4)=',
      &                   i,j,k,(Es(l),l=1,4)
@@ -299,12 +299,12 @@
             If (Step.gt.0.9d-4) Then
                Step=0.1d0*Step
                DidChange=.true.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write(6,*) 'Step is',Step
 #endif
             End If
          End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *
 *        Check that the constraint is fullfilled.
 *
@@ -324,14 +324,9 @@
 #endif
          Go To 100
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'ERef=',ERef
 #endif
       E_Pred=ERef
-*----------------------------------------------------------------------*
-* Done.                                                                *
-*----------------------------------------------------------------------*
-#ifdef _DEBUG_
-#endif
-      Return
+
       End

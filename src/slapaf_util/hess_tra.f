@@ -17,7 +17,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -33,7 +33,7 @@
          End Do
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('BMx',' ',BMx,nDim,nInter)
       Call RecPrt('Hss_X',' ',Hss_X,nDim,nDim)
 #endif
@@ -45,7 +45,7 @@
 *
       Call Allocate_Work(ipXT,nDim*nInter)
       Call TRNSPS(nInter,nDim,Work(ipX),Work(ipXT))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Work(ipX)',' ',Work(ipX),nInter,nDim)
       Call RecPrt('Work(ipXT)',' ',Work(ipXT),nDim,nInter)
 #endif
@@ -57,7 +57,7 @@
 *
       Call Free_Work(ipXT)
       Call Free_Work(ipX)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Hss_Q',' ',Hss_Q,nInter,nInter)
 #endif
 *                                                                      *

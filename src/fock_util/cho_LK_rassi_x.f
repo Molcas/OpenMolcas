@@ -106,7 +106,7 @@ C
 ************************************************************************
 
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 c      Debug=.true.
       Debug=.false.! to avoid double printing in CASSCF-debug
 #else
@@ -1668,8 +1668,8 @@ C--- have performed screening in the meanwhile
 
 
 c Print the Fock-matrix
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
 
 *     if(Debug) then !to avoid double printing in RASSI-debug
 

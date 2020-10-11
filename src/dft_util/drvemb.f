@@ -333,7 +333,7 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
          Call daxpy_(nh1*nFckDim,Fakt_,Fcorr(:,1:nFckDim),1,
      &                                 F_DFT(:,3:nFckDim+2),1)
          Call mma_deallocate(Fcorr)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          write(6,*) ' lambda(E_nad) = ',dFMD*Fakt_
 #endif
       EndIf
@@ -408,7 +408,7 @@ c      Write(6,'(A,F19.10)') 'E_xc_NAD: ', Func_xc_NAD
 *
       Call mma_deallocate(TmpA)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (nFckDim.eq.1) Then
          Do i=1,nh1
             Write(6,'(i4,f22.16)') i,F_DFT(i,1)

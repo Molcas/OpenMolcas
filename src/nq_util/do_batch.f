@@ -74,8 +74,8 @@
       Real*8 P2_ontop_d(nP2_ontop,nGrad_Eff,mGrid)
       Integer ntot1
       Integer LOE_DB,LTEG_DB
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Logical Debug_Save
 #endif
 *                                                                      *
@@ -112,7 +112,7 @@
      &           KSDFA(1:6).eq.'FTOPBE'  .or.
      &           KSDFA(1:6).eq.'FTBLYP'
 ************************************************************************
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Debug_Save=Debug
       Debug=Debug.or.iPrint.ge.99
 *
@@ -235,7 +235,7 @@ C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
             RA(2) = py*A(2)
             RA(3) = pz*A(3)
             iSym=NrOpr(iR)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (debug) Write (6,*) 'mAO=',mAO
             If (iPrim_Eff.le.0 .or. iPrim_Eff.gt.iPrim) Then
                Call WarningMessage(2,'Do_batch: error in iPrim_Eff!')
@@ -247,7 +247,7 @@ C        Call RecPrt('TabAO from disk',' ',TabAO,1,mTabAO)
 *
 *---------- Evaluate AOs at RA
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             iPrint_132=nPrint(132)
             If (Debug) nPrint(132)=99
 #endif
@@ -265,7 +265,7 @@ c            write(6,*) 'iOff =', iOff
      &                  TabAO(iOff),
      &                  mAO,px,py,pz,ipx,ipy,ipz)
             iOff = iOff + mAO*mGrid*iBas_Eff*iCmp
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             nPrint(132)=iPrint_132
 #endif
 *
@@ -564,7 +564,7 @@ cGLM           if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
              end if
            end if
             end do!ngrad_eff
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           !if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
 !         write(*,*) Grid(1,iGrid+1),Grid(2,iGrid+1),Grid(3,iGrid+1)
           if(Grid(1,iGrid+1).eq.0d0.and.
@@ -590,7 +590,7 @@ cGLM           if(dTot.ge.thrsrho.and.P2_ontop(1,iGrid+1).ge.thrsrho) then
            end do!igrid
        End if !not gradient or gradient
        End if !tlsda
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 !       Close(97)
 !       Close(98)
 #endif
@@ -2021,7 +2021,7 @@ cGLM     write(6,*) 'Func in do_batch =', Func
         Call GetMem('Rho_I','Free','Real',ipRhoI,mGrid*mRho)
         Call GetMem('Rho_A','Free','Real',ipRhoA,mGrid*mRho)
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Debug=Debug_Save
 #endif
       Return

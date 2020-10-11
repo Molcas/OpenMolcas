@@ -51,13 +51,6 @@
 #include "mxdm.fh"
 #include "infscf.fh"
 *
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-*
-#ifdef _DEBUG_
-#endif
-*
       ind=0
       Do iSym = 1, nSym
          Do i = 1, nBas(iSym)
@@ -87,12 +80,4 @@
 *---- Orthogonalize final orbitals
       Call Ortho(TrMat,nBO,Ovlp,nBT)
 *
-#ifdef _DEBUG_
-#endif
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
-      End
+      End subroutine TrGen

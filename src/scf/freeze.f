@@ -53,8 +53,6 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
-#endif
 *
 *---- Allocate temporary spaces
       Call mma_allocate(Temp,nBT,Label='Temp')
@@ -107,12 +105,4 @@
 *---- Deallocate memory
       Call mma_deallocate(Temp)
 *
-#ifdef _DEBUG_
-#endif
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
       End

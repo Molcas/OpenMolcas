@@ -163,8 +163,8 @@ c               write(6,*) delta
       Call mma_deallocate(BInv)
       Call mma_deallocate(Herm)
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call TriPrt(' Hermite roots',' ',HerR(iHerR(1)),MaxHer)
       Call TriPrt(' Hermite weights',' ',HerW(iHerW(1)),MaxHer)
       Write (6,*) ' MaxHer=',MaxHer,nPrp,S%iAngMx

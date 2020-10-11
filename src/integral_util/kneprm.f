@@ -61,8 +61,8 @@
          Call  Abend()
       End If
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In KnEInt: A',' ',A,1,3)
       Call RecPrt(' In KnEInt: RB',' ',RB,1,3)
       Call RecPrt(' In KnEInt: Ccoor',' ',Ccoor,1,3)

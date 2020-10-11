@@ -55,8 +55,8 @@
 *     ,     u = y^T*dq*y + (dq^T|B|dq)|B|dq = a*y + b|B|dq
 *     and   v = y - B*dq (quasi-Newton condition)
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
 *     Make a comment in logfile
       write(6,*) 'hello from ts_bfgs.f'
 #endif
@@ -140,7 +140,7 @@
      &               WorkR * WorkM(i,j) )
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *
 *     Checking the quasi-Newton condition.
 *

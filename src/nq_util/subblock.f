@@ -58,8 +58,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
-#endif
       nGrid=(9*mGrid)/10
       iStrt=number_of_grid_points+1
 *                                                                      *
@@ -69,7 +67,7 @@
 *
       ip_iRx=ip_of_iWork_d(Work(ip_R_Quad(iNQ)))
       ip_Rx=iWork(ip_iRx)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Then
          Write (6,*) 'ip_Rx=',ip_Rx
          Write (6,*) ' x_NQ=',x_NQ
@@ -186,7 +184,7 @@ c        Write (*,*) 'l_max=',Info_Ang(1,iSet)
 *---- Angular loop
 *
       Do iPoint=1,Info_Ang(2,iSet)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          If (Debug) Then
             Write (6,*) 'X,Y,Z*',x_a(iPoint,iSet),
      &                           y_a(iPoint,iSet),
@@ -218,7 +216,7 @@ c           Write (*,*) 'Select angular points!'
             x=xpt+x_NQ
             y=ypt+y_NQ
             z=zpt+z_NQ
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*) 'Radius=',Radius
                Write (6,*) ' x,y,z:',x,y,z
@@ -244,7 +242,7 @@ c           Write (*,*) 'Select angular points!'
                If (x.eq.x_max_) Fact=Fact*Half
                If (y.eq.y_max_) Fact=Fact*Half
                If (z.eq.z_max_) Fact=Fact*Half
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (Debug) Then
                   Write (6,*) x_a(iPoint,iSet),
      &                        y_a(iPoint,iSet),
@@ -355,7 +353,4 @@ C        Write (*,*) 'ntotgp=',ntotgp
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
-#endif
-      Return
       End

@@ -32,7 +32,7 @@
 *
       iRout = 78
       iPrint = nPrint(iRout)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Call RecPrt('In vRysRW:Arg',' ',Arg,nArg,1)
 #endif
       labcd=1
@@ -167,7 +167,7 @@
 *
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          If (labcd.ne.0)
      &      Call Recprt(' In vRysRW: Roots ',' ',Root  ,nRys,nArg)

@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
-!#define _DEBUG_
+!#define _DEBUGPRINT_
 
 Module SOAO_Info
 Implicit None
@@ -63,7 +63,7 @@ Contains
 
 Subroutine SOAO_Info_Init(nSize,mIrrep)
 Implicit None
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 #endif
 Integer nSize,mIrrep
 If (Allocated(iSOInf).or.Allocated(iAOtSO)) Call SOAO_Info_Free()
@@ -83,7 +83,7 @@ Subroutine SOAO_Info_Dmp()
 Implicit None
 Integer, Allocatable:: iDmp(:)
 Integer i, j
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*)
 Write (6,*) 'Enter SOAO_Info_Dmp'
 Write (6,*)
@@ -115,7 +115,7 @@ Implicit None
 Integer, Allocatable:: iDmp(:)
 Integer i, j
 Logical Found
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Write (6,*)
 Write (6,*) 'Enter SOAO_Info_Get'
 Write (6,*)
@@ -146,7 +146,7 @@ End If
 nIrrep=nIrrep/nSOInf
 Call mma_allocate(iAOtSO,[1,nSOInf],[0,nIrrep-1],Label='iAOtSO')
 Call Get_iArray('iAOtSO',iAOtSO,nSOInf*nIrrep)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 Block
 Integer i
 Write (6,*)

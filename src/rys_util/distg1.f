@@ -36,7 +36,7 @@
 *
       iRout = 239
       iPrint = nPrint(iRout)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt('Accumulated gradient on entrance',
      &               ' ',Grad,nGrad,1)
@@ -112,7 +112,7 @@
          End Do
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.49) Then
          Call RecPrt('PAOg1',' ',PAOg1,12,1)
          Call RecPrt('Accumulated gradient on exit',
@@ -121,6 +121,7 @@
 #endif
 *
       Return
-c Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(mVec)
+#endif
       End

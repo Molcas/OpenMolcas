@@ -33,7 +33,7 @@ c         print *,l
          end
          subroutine prgmtranslate(in,out,lout)
          character*(*) in, out
-#ifdef _DEBUG_IO_
+#ifdef _DEBUGPRINT_IO_
          character LL*128
 #endif
          Integer Strnln
@@ -48,7 +48,7 @@ c just in case if we processing translated name!
          call prgmtranslatec(in,lin,out,lout,1)
          endif
          out=out(1:lout)
-#ifdef _DEBUG_IO_
+#ifdef _DEBUGPRINT_IO_
          LL='QWERTYUIOPASDFGHJKLZXCVBNM1234567890'//
      *           'qwertyuiopasdfghjklzxcvbnm /.-_*'
 

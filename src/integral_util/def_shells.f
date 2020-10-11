@@ -258,8 +258,8 @@
       Else
          nBas(0)=nFunctions
       End If
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write(6,*) 'in Define_Shells...'
       Do i = 1, mSkal
          Write (6,*) 'i=',i

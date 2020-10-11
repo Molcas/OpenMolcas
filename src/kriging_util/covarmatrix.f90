@@ -17,7 +17,7 @@ SUBROUTINE covarMatrix()
   integer i,j,i0,i1,j0,j1,k,nInter
   Real*8, Allocatable :: diffx_j(:,:), diffx_i(:,:), matFder(:,:),&
                          matSder(:,:), r(:,:,:), d(:,:)
-!#define _DEBUG_
+!#define _DEBUGPRINT_
 nInter=nInter_save
 
 !**********************************************************************
@@ -53,7 +53,7 @@ nInter=nInter_save
 
     d(:,:) = d(:,:) + r(:,:,i)**2
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
     Call RecPrt('r',' ',r(1,1,i),nPoints_v,nPoints_v)
 #endif
 
@@ -61,7 +61,7 @@ nInter=nInter_save
 !
 !**********************************************************************
 !
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
   Call RecPrt('l',' ',l,1,nInter)
   Call RecPrt('x',' ',x,nInter,nPoints_v)
   Call RecPrt('d',' ',d,nPoints_v,nPoints_v)
@@ -168,7 +168,7 @@ nInter=nInter_save
 !           defining full_r has strictly positive define sec. 3 of
 !           doi:10.1615/Int.J.UncertaintyQuantification.2013006809
   ! full_R = abs(full_R)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
   Call RecPrt('full_r Orig:','(14E10.2)',full_R,m_t,m_t)
 #endif
 !

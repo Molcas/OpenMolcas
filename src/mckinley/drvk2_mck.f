@@ -257,7 +257,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,'(20X,A)')
      &  ' *** The k2 entities has been precomputed ***'

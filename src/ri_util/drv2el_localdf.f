@@ -38,7 +38,7 @@ C
 *
 
       Call StatusLine('Seward: ','local density fitting')
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Write(6,'(A,A)') '>>> Enter ',SecNam
 #endif
       Call ThisIsRestrictedCode('Thomas Bondo Pedersen',
@@ -172,7 +172,7 @@ C==================
      &                   tCPU1,tCPU0,tWall1,tWall0,1)
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Write(6,'(A,A)') '>>> Exit ',SecNam
 #endif
       Return

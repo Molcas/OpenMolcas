@@ -70,7 +70,7 @@
       Integer  MaxBas, MaxBOO, MaxOrO, nBT
       Integer  iRc, iOpt, iComp, iSyLbl
       Real*8   Dummy
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Integer  iOff, iBas
 #endif
 
@@ -86,7 +86,7 @@
          MaxOrO = Max(MaxOrO,nBas(iSym) - nOcc(iSym))
          MaxBOO = Max(MaxBOO,nBas(iSym)*(nBas(iSym)-nOcc(iSym)))
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Do iSym=1, nSym
          Call RecPrt('IvoGen: CMO(in)',' ',CMO(iCMO),nBas(iSym),
      &                                               nBas(iSym) )
@@ -113,7 +113,7 @@
         Write(LF,*)' wrong with the file.'
         Call Quit(_RC_IO_ERROR_READ_)
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(LF,*)
       Write(LF,*) ' OneHam in AO basis in RASSCF'
       Write(LF,*) ' ---------------------'

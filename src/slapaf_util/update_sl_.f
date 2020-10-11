@@ -99,8 +99,8 @@
       iRout=153
       iPrint=nPrint(iRout)
       Lu=6
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (Lu,*)'Update_:iOpt_RS,Beta,Beta_Disp=',
      &                     iOpt_RS,Beta,Beta_Disp
       Call RecPrt('Update_: qInt',' ',qInt,nInter,kIter)
@@ -142,7 +142,7 @@
 *     modify the Hessian if it is needed to guide 2nd order
 *     optimization towards a minimum or a TS.
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (Lu,*)
       Write (Lu,*)
       Write (Lu,*) ' *** Updating the molecular Hessian ***'
@@ -304,7 +304,7 @@ C           Write (6,*) 'tBeta=',tBeta
                qInt(:,kIter+1)=qInt(:,kIter)+Shift(:,kIter)
                Call Dispersion_Kriging_Layer(qInt(1,kIter+1),Disp,
      &                                       nInter)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*) 'Disp,Beta_Disp=',Disp,Beta_Disp
 #endif
                fact=Half*fact
@@ -313,7 +313,7 @@ C           Write (6,*) 'tBeta=',tBeta
                If ((fact.lt.1.0D-5) .or. (disp.lt.Beta_Disp)) Exit
                Step_Trunc='*'
             End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*) 'Step_Trunc=',Step_Trunc
 #endif
 *

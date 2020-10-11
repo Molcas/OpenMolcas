@@ -44,7 +44,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iRout = 39
       iPrint = nPrint(iRout)
       iPrint=99
@@ -190,7 +190,7 @@ C                           End If
         Call Abend
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In PGet2_CD2:PSO ',' ',PSO,nijkl,nPSO)
       End If

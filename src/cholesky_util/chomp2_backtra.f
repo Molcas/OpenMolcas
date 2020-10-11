@@ -164,7 +164,7 @@ C     --------------
             End If
 
          End Do
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          If (nVecOnDisk.ne.nMP2Vec(iSym) .or. nVecInCore.ne.0) Then
             Call ChoMP2_Quit(SecNam,'Logical bug detected!',' [1]')
          End If

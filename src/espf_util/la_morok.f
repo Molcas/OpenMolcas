@@ -38,9 +38,6 @@ c
       Integer, Dimension(:,:), Allocatable :: DefLA
       Real*8, Dimension(:), Allocatable :: FactLA
 *
-*
-*define _DEBUG_
-*
       iPL = iPL_espf()
       lMorok = .False.
       DoTinker = .False.
@@ -64,7 +61,7 @@ c
 11       Close (IPotFl)
       End If
       If (.not.lMorok) Return
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPL = 4
       Call RecPrt('LA_Morok: coord or grad:',' ',CorG,3,nAtom)
 #endif
@@ -91,7 +88,7 @@ c
                   Write (6,*) '          check each LA connectivity'
                   Call Quit_OnUserError()
                End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write(6,*)
                Write(6,*) 'LA_Morok: LAH ',iLA,' between ',iQM,
      &                                             ' and ',iMM
@@ -213,8 +210,7 @@ c
          Call mma_deallocate(GroToMol)
       End If
 c
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('LA_Morok: coord or grad:',' ',CorG,3,nAtom)
 #endif
-      Return
       End

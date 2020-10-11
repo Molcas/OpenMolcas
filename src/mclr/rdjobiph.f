@@ -44,9 +44,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
       debug=.FALSE.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       debug=.TRUE.
 #endif
 
@@ -248,7 +248,7 @@ C
           End Do
           Call dDaFile(LuJob,2,Work(ipCI+(i-1)*nconf),nConf,iDisk)
         End Do
-!#ifdef _DEBUG_           ! yma umcomment
+!#ifdef _DEBUGPRINT_           ! yma umcomment
         Do i=0,nroots-1            !yma
           inum=0
           dv_ci2=0.0d0
@@ -273,7 +273,7 @@ C
 *----------------------------------------------------------------------*
       Call GetMem('Temp2','Allo','Real',ipTmp2,mxRoot*mxIter)
       iDisk=iToc(6)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (debug) Then
          Write(6,*) 'NROOTS: ',nroots
          Write(6,*) 'iROOTS: ',(iroot(i),i=1,nroots)
@@ -292,7 +292,7 @@ C
          End Do
       End Do
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (debug) Then
           Write(6,*) (Work(ipTmp2+i),i=0,lroots)
           Write(6,*)'RASSCF energies=',(ERASSCF(i),i=1,nroots)
@@ -334,7 +334,7 @@ C
       ipg2tmm=ipg2
       ipg2tpp=ipg2
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call Triprt('G1',' ',Work(ipG1t),ntash)
       Call Triprt('G2',' ',Work(ipG2),ng1)
 #endif

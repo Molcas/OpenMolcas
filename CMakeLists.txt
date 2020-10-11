@@ -103,16 +103,8 @@ if (NOT DEFINED CMAKE_INSTALL_PREFIX)
 endif ()
 set (EXTRA_INSTALL_DIRS "")
 
-option (DEBUGPRINT "Enable excessive print statements for debugging." OFF)
-option (DEBUGTRACE "Enable tracing print statements for debugging." OFF)
-
-set (DEBUG_DEFS_DESC "Additional debugging definitions.")
-if (DEFINED DEBUG_DEFS)
-  separate_arguments (DEBUG_DEFS)
-  set (DEBUG_DEFS "${DEBUG_DEFS}" CACHE STRING "${DEBUG_DEFS_DESC}" FORCE)
-else ()
-  set (DEBUG_DEFS "" CACHE STRING "${DEBUG_DEFS_DESC}")
-endif ()
+set (DEBUG_DEFS "${DEBUG_DEFS}" CACHE STRING "Additional user-defined definitions.")
+separate_arguments(DEBUG_DEFS)
 
 option (BUILD_SHARED_LIBS "Build dynamically-linked molcas library." OFF)
 option (BUILD_STATIC_LIB "Build statically-linked molcas library too." OFF)
@@ -158,12 +150,16 @@ option (HDF5 "Activate HDF5 support for wavefunction format." ON)
 
 option (TOOLS "Compile supported tools." OFF)
 
-option (CTEST "Enable CTest." OFF)
-mark_as_advanced (CTEST)
-# Refactored according to: https://cliutils.gitlab.io/modern-cmake/chapters/testing.html
-if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-    include (CTest)
-endif ()
+option (BUILD_TESTING "Build the unit_tests." ON)
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_definitions(_ADDITIONAL_RUNTIME_CHECK_)
+endif()
+
+if (";Debug;Garble;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};" OR BIGOT)
+    add_compile_definitions(_WARNING_WORKAROUND_)
+endif()
+
 
 # External projects
 option (MSYM       "Activate MSYM support (requires External/libmsym submodule)." OFF)
@@ -1132,16 +1128,6 @@ if (NOT IS_ABSOLUTE "${CMAKE_INSTALL_PREFIX}")
   set (CMAKE_INSTALL_PREFIX "${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_PREFIX}")
 endif ()
 get_filename_component (CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" ABSOLUTE)
-
-# Special print statements
-#=========================
-
-if (DEBUGPRINT)
-  add_definitions (-D_DEBUG_)
-endif ()
-if (DEBUGTRACE)
-  add_definitions (-D_DEBUG_TRACE_)
-endif ()
 
 # Global Arrays settings
 #=======================
@@ -3202,50 +3188,9 @@ endforeach ()
 #                                                                              #
 ################################################################################
 
-if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
-  enable_testing ()
-
-  # unit tests
-  add_subdirectory (unit_tests)
-
-  # old-style Molcas tests
-  if (CTEST)
-    set (MODULENAMES ${PROJECT_SOURCE_DIR}/sbin/modulenames.plx)
-    file (STRINGS ${PROJECT_BINARY_DIR}/test/testdirs testdirs)
-    set (known_groups "")
-    foreach (dir ${testdirs})
-      file (GLOB groups RELATIVE ${dir} ${dir}/*)
-      foreach (group ${groups})
-        list (FIND known_groups ${group} _index)
-        if (_index GREATER -1)
-          break ()
-        else ()
-          list (APPEND known_groups ${group})
-        endif ()
-        file (GLOB inputs RELATIVE ${dir}/${group} ${dir}/${group}/*)
-        list (SORT inputs)
-        foreach (input ${inputs})
-          string (REGEX MATCH "^([^.]+).input$" match ${input})
-          if (NOT ${match} STREQUAL "")
-            set (number ${CMAKE_MATCH_1})
-            execute_process (
-              COMMAND ${MODULENAMES} ${dir}/${group}/${input}
-              WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-              OUTPUT_VARIABLE module_names
-            )
-            add_test (
-              NAME "${group}-${CMAKE_MATCH_1}__${module_names}"
-              COMMAND ${MOLCAS_DRIVER} verify -q "${group}:${number}"
-            )
-            set_property (
-              TEST "${group}-${CMAKE_MATCH_1}__${module_names}"
-              PROPERTY ENVIRONMENT MOLCAS=${PROJECT_BINARY_DIR}
-            )
-          endif ()
-        endforeach ()
-      endforeach ()
-    endforeach ()
-  endif ()
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+    enable_testing()
+    add_subdirectory(unit_tests)
 endif ()
 
 ################################################################################

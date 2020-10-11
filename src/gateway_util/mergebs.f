@@ -16,7 +16,7 @@
       Logical IfTest
       Data IfTest/.False./
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif
       If (n1.gt.mPrim .or. n2.gt.mPrim) Then
@@ -113,8 +113,4 @@
       n = i
       If (IfTest) Write (6,'(I4)') n
       If (IfTest) Write (6,'(4f20.4)') (z(i),i=1,n)
-#ifdef _DEBUG_
-#endif
-*
-      Return
       End

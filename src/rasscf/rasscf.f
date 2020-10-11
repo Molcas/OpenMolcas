@@ -1483,7 +1483,7 @@ cGLM some additional printout for MC-PDFT
         else
           IF(doDMRG)then
 
-#ifdef _DMRG_DEBUG_
+#ifdef _DMRG_DEBUGPRINT_
             write(lf,*) "DMRG-SCF energy    ",ECAS
             write(lf,*) "DMRG sweeped energy",EAV
 #endif
@@ -1986,9 +1986,6 @@ c deallocating TUVX memory...
       If (.not. any([allocated(CI_solver), DumpOnly,
      &              doDMRG, doBlockDMRG])) then
         Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
-      else if (allocated(CI_solver)) then
-        call CI_solver%cleanup()
-        deallocate(CI_solver)
       end if
 
 
@@ -2035,6 +2032,11 @@ c      End If
       if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG
      &          .or. allocated(CI_solver) .or. DumpOnly)) then
         Call MKGUGA_FREE
+      end if
+
+      if (allocated(CI_solver)) then
+          call CI_solver%cleanup()
+          deallocate(CI_solver)
       end if
 
 !Leon: The velociraptor comes! xkcd.com/292/

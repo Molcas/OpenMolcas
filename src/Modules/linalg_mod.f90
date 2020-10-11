@@ -12,6 +12,7 @@
 !***********************************************************************
 
 #include "compiler_features.h"
+#include "macros.fh"
 
 module linalg_mod
     use stdalloc, only: mma_allocate, mma_deallocate
@@ -25,7 +26,7 @@ module linalg_mod
         symmetric
 
     ! TODO Move to different module
-    public :: assert_, abort_, assume_
+    public :: abort_, verify_
 
     type, abstract :: ParentCanonicalize_t
     contains
@@ -130,6 +131,7 @@ contains
         real(wp), intent(out) :: C(:, :)
         logical, intent(in), optional :: transpA, transpB
         logical :: transpA_, transpB_
+        debug_function_name("mult_2D")
 
         integer :: M, N, K_1, K_2, K
 
@@ -145,15 +147,15 @@ contains
         end if
 
         M = size(A, merge(1, 2, .not. transpA_))
-        call assert_(M == size(C, 1), 'Shape mismatch.')
+        ASSERT(M == size(C, 1))
         N = size(B, merge(2, 1, .not. transpB_))
-        call assert_(N == size(C, 2), 'Shape mismatch.')
+        ASSERT(N == size(C, 2))
         K_1 = size(A, merge(2, 1, .not. transpA_))
         K_2 = size(B, merge(1, 2, .not. transpB_))
-        call assert_(K_1 == K_2, 'Shape mismatch.')
+        ASSERT(K_1 == K_2)
         K = K_1
 
-        call assert_(wp == r8, 'Precision mismatch for DGEMM')
+        ASSERT(wp == r8)
         call dgemm_(merge('T', 'N', transpA_), merge('T', 'N',transpB_), &
                     M, N, K, 1._wp, A, size(A, 1), B, size(B, 1), &
                     0._wp, C, size(C, 1))
@@ -186,12 +188,12 @@ contains
         end if
 
         M = size(A, merge(1, 2, .not. transpA_))
-        call assert_(M == size(y, 1), 'Shape mismatch.')
+        ASSERT(M == size(y, 1))
         N = 1
         K = size(A, merge(2, 1, .not. transpA_))
-        call assert_(K == size(x, 1), 'Shape mismatch.')
+        ASSERT(M == size(x, 1))
 
-        call assert_(wp == r8, 'Precision mismatch for DGEMM')
+        ASSERT(wp == r8)
         call dgemm_(merge('T', 'N', transpA_), 'N', &
                     M, N, K, 1._wp, A, size(A, 1), x, size(x, 1), &
                     0._wp, y, size(y, 1))
@@ -307,7 +309,7 @@ contains
         real(wp), allocatable :: work(:)
         real(wp) :: dummy(2), query_result(2)
 
-        call assert_(symmetric(A), 'Matrix not symmetric')
+        ASSERT(symmetric(A))
 
         V(:, :) = A(:, :)
         call dsyev_('V', 'L', size(V, 2), dummy, size(V, 1), dummy, &
@@ -372,7 +374,11 @@ contains
         integer :: i, low
         integer :: n_spaces
 
-        call assert_(all(lambda(2:) >= lambda(:size(lambda) - 1)), 'Not sorted')
+#ifdef _ADDITIONAL_RUNTIME_CHECK_
+        if (any(lambda(2 :) < lambda(: size(lambda) - 1))) then
+            call abort_('Eigenvalues not sorted in'//__FILE__)
+        end if
+#endif
 
         call mma_allocate(d_buffer, size(lambda))
         d_buffer(:) = 0
@@ -416,7 +422,7 @@ contains
         integer, allocatable :: idx(:), dimensions(:)
         real(wp), allocatable :: projections(:, :), ONB(:, :)
 
-        call assert_(size(V, 1) == size(V, 2), 'non square matrix')
+        ASSERT(size(V, 1) == size(V, 2))
         call mma_allocate(projections, size(V, 1), size(V, 2))
         call mma_allocate(norms_projections, size(projections, 2))
         call mma_allocate(idx, size(V, 1))
@@ -450,7 +456,7 @@ contains
 
             ! reorthogonalize
             call Gram_Schmidt(V(:, low : low + d - 1), d, ONB(:, : d), n_new)
-            call assert_(d == n_new, 'Unexpected linear dependency')
+            ASSERT(d == n_new)
             V(:, low : low + d - 1) = ONB(:, : d)
 
             low = low + d
@@ -669,7 +675,7 @@ contains
         call sym_diagonalize(S_transf, U, s_diag)
         call canonicalize(U, s_diag)
 
-        call assert_(all(s_diag > 1.0d-10), &
+        call verify_(all(s_diag > 1.0d-10), &
            "Linear dependency detected. "// &
            "Lowdin can't cure it. Please use  "// &
            "Gram_Schmidt or Canonical orthonormalization.")
@@ -857,28 +863,28 @@ contains
 
 
     !> @brief
-    !>    Print error message, print stacktrace, and abort.
+    !>    Print error message and abort.
     subroutine abort_(message)
         character(len=*), intent(in) :: message
         call WarningMessage(2, message)
+        call pure_abort()
+    end subroutine
+
+    !> @brief
+    !>    Abort.
+    pure subroutine pure_abort()
+        ! I know, that these functions are not pure,
+        ! but we are aborting anyway.
+        interface
+            pure subroutine Abend()
+            end subroutine
+        end interface
         call Abend()
     end subroutine
 
     !> @brief
-    !>    Runtime check, that should be switched off in Debug mode.
-    !>    (Not implemented yet).
-    subroutine assert_(test_expression, message)
-        logical, intent(in) :: test_expression
-        character(len=*), intent(in) :: message
-        ! TODO(@Oskar): Create actual Debug flag (that is not a DEBUGPRINT flag)
-        if (.not. test_expression) then
-            call abort_(message)
-        end if
-    end subroutine
-
-    !> @brief
     !>    Runtime check, that is not switched off in Debug mode
-    subroutine assume_(test_expression, message)
+    subroutine verify_(test_expression, message)
         logical, intent(in) :: test_expression
         character(len=*), intent(in) :: message
         if (.not. test_expression) then

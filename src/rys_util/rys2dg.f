@@ -35,7 +35,7 @@
 *
       iRout = 249
       iPrint = nPrint(iRout)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In Rys2Dg: Alpha',' ',Alpha,1,nZeta)
          Call RecPrt(' In Rys2Dg: Beta ',' ',Beta ,1,nZeta)

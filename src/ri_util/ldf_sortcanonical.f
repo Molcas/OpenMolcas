@@ -51,7 +51,7 @@ C
       Integer ip0
 
       Logical TestIt
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Parameter (TestIt=.True.)
 #else
       Parameter (TestIt=.False.)

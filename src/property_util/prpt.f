@@ -228,8 +228,6 @@ c Avoid unused argument warnings
       Use Iso_C_Binding
       Real*8, Target :: Scr(*)
       Character, Pointer :: cScr(:)
-#ifdef _DEBUG_
-#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -688,8 +686,6 @@ c
 ************************************************************************
 *                                                                      *
 499   continue
-#ifdef _DEBUG_
-#endif
       If (iPL.ge.2) Then
          Call CollapseOutput(0,'   Molecular properties:')
          Write(6,*)
@@ -710,7 +706,6 @@ c
          Call CollapseOutput(0,'   Molecular properties:')
          Write(6,*)
       End IF
-      Return
       End Subroutine Prpt_Internal
 *
       End

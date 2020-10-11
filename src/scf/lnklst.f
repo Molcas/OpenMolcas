@@ -145,8 +145,6 @@ C     Integer iDskPt,len
          Write (6,*) 'PutVec'
          Call StlLst(iLList)
       End If
-#ifdef _DEBUG_
-#endif
 *
 *     clear ErrCode
       nLList(iLList,0)=0
@@ -158,8 +156,6 @@ C     Integer iDskPt,len
       If ((iroot.gt.0).AND.(nLList(iroot,4).eq.iterat)) Then
         If (opcode.eq.'NOOP') Then
 *         that's all, folks
-#ifdef _DEBUG_
-#endif
           Return
         Else If (opcode.eq.'OVWR') Then
           If (nLList(iroot,3).ne.lvec) Then
@@ -168,8 +164,6 @@ C     Integer iDskPt,len
           Else
             call dcopy_(lvec,vec,1,Work(nLList(iroot,1)),1)
           End If
-#ifdef _DEBUG_
-#endif
           Return
         Else If (opcode.ne.'APND') Then
 *         opcode unknown
@@ -202,14 +196,14 @@ cvv Enough memory
       nLList(iLList,2)=lislen
 
 *
-#ifdef _DEBUG_
-#endif
       Return
-c Avoid unused argument warnings
+
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Then
          Call Unused_integer(LUnit)
          Call Unused_integer(NoAllo)
       End If
+#endif
       End
 *----------------------------------------------------------------------*
 
@@ -241,8 +235,6 @@ c      Integer iDskPt
 
 #include "SysDef.fh"
 *
-#ifdef _DEBUG_
-#endif
 *
         inode=nLList(iLList,1)
 
@@ -266,11 +258,9 @@ c      Integer iDskPt
         inode=0
       End If
 *
-#ifdef _DEBUG_
-#endif
-      Return
-c Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(LUnit)
+#endif
       End
 *----------------------------------------------------------------------*
 
@@ -290,8 +280,6 @@ c Avoid unused argument warnings
 #include "lnklst.fh"
 
 *
-#ifdef _DEBUG_
-#endif
 *
       If (Debug_LnkLst) Then
          Write (6,*) 'GetNod'
@@ -315,9 +303,6 @@ c Avoid unused argument warnings
         nLList(iLList,0)=1
       End If
 *
-#ifdef _DEBUG_
-#endif
-      Return
       End
 *----------------------------------------------------------------------*
 
@@ -447,8 +432,6 @@ c Avoid unused argument warnings
 *     and functions
       Logical InCore
 *
-#ifdef _DEBUG_
-#endif
       LstPtr=-999999
       Call GetNod(iterat,iLList,inode)
       If (inode.eq.0) Then
@@ -465,11 +448,10 @@ c Avoid unused argument warnings
         Write (6,*) 'inode=',inode
         Call Abend()
       End If
-#ifdef _DEBUG_
-#endif
-      Return
-c Avoid unused argument warnings
+
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(LUnit)
+#endif
       End
 *----------------------------------------------------------------------*
 
@@ -483,8 +465,6 @@ c Avoid unused argument warnings
 #include "lnklst.fh"
 *     local vars
       Integer iLList,iroot,iPtr1
-#ifdef _DEBUG_
-#endif
 *
 *
       If (Debug_LnkLst) Then
@@ -506,9 +486,6 @@ c Avoid unused argument warnings
         GoTo 100
       End If
 *
-#ifdef _DEBUG_
-#endif
-      Return
       End
 *----------------------------------------------------------------------*
 
@@ -523,8 +500,6 @@ c Avoid unused argument warnings
 
 #include "SysDef.fh"
 *
-#ifdef _DEBUG_
-#endif
 *     clear ErrCode
       nLList(iLList,0)=0
 *     read listhead
@@ -539,8 +514,6 @@ c Avoid unused argument warnings
         iDskPt=lDskPt
         Call iDaFile(LUnit,1,nLList(iLList,0),NodSiz,iDskPt)
 *       Call GetMem('CNOD ','Free','Inte',LList,NodSiz)
-#ifdef _DEBUG_
-#endif
         Return
       End If
  10   Continue
@@ -585,9 +558,6 @@ c Avoid unused argument warnings
       End If
 *     Call GetMem('CNOD ','Free','Inte',LList,NodSiz)
 *
-#ifdef _DEBUG_
-#endif
-      Return
       End
 *----------------------------------------------------------------------*
 
@@ -602,8 +572,6 @@ c Avoid unused argument warnings
 
 #include "SysDef.fh"
 *
-#ifdef _DEBUG_
-#endif
 * load listhead...
       lLList=lLList+1
       iLList=lLList
@@ -616,8 +584,6 @@ c Avoid unused argument warnings
      &            //' that''s strange!'
 * linked list has zero length, that's strange
 *       Call Quit(20)
-#ifdef _DEBUG_
-#endif
         Return
       End If
 *
@@ -668,7 +634,4 @@ c Avoid unused argument warnings
       End If
       If (iPtr2.gt.0) nLList(iLList,3)=nLList(iLList,3)-incore
 *
-#ifdef _DEBUG_
-#endif
-      Return
       End

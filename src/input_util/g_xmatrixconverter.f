@@ -30,9 +30,10 @@
         character *(*) xb_label(*)
         character *(*) xb_bas(*)
 
-      IfTest=.False.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
+#else
+      IfTest=.False.
 #endif
 
 C  ***  H-Fm (Atomic numbers 1-100)
@@ -220,8 +221,4 @@ c2000  Continue
 
 9999  Continue
 
-#ifdef _DEBUG_
-#endif
-
-      Return
       End

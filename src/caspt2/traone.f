@@ -23,7 +23,7 @@
 c Objective: Transformation of one-electron integrals
 c (effective one electron Hamiltonian) for CASPT2.
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IFTEST=1
 #else
       IFTEST=0

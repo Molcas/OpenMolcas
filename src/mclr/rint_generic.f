@@ -31,7 +31,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -41,7 +41,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (LuWr,*) 'Focki=',DDot_(nDens2,Focki,1,Focki,1)
       Write (LuWr,*) 'Focka=',DDot_(nDens2,Focka,1,Focka,1)
 #endif
@@ -59,7 +59,7 @@
         Call R2ElInt(rkappa,work(ipMT1),work(ipMT2),
      &               focki,focka,
      &               nDens2,idSym,ReCo,Fact,jspin)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         Write (LuWr,*) 'MT1=',DDot_(nmba,Work(ipMT1),1,Work(ipMT1),1)
         Write (LuWr,*) 'MT2=',DDot_(nmba,Work(ipMT2),1,Work(ipMT2),1)
 #endif
@@ -75,7 +75,7 @@
            Call GetMem('QTemp','ALLO','REAL',ipq,ndens2)
            Call CreQ(Q,Work(ipMT1),Work(ipG2tpp),idsym)
            Call CreQ(Work(ipQ),Work(ipMT2),Work(ipG2tmm),idsym)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
            Write (LuWr,*) 'Q=',DDot_(nDens2,Q,1,Q,1)
            Write (LuWr,*) 'ipQ=',DDot_(nDens2,Work(ipQ),1,Work(ipQ),1)
 #endif
@@ -347,7 +347,7 @@
 *       ap   ap   ap
 *
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (LuWr,*) 'Fock=',DDot_(nDens2,Fock,1,Fock,1)
 #endif
 *
@@ -360,7 +360,7 @@
      %              Fock(ipMat(is,js)),nOrb(is),
      &              nOrb(is),nOrb(js))
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (LuWr,*) 'Fock=',DDot_(nDens2,Fock,1,Fock,1)
 #endif
 *
@@ -380,7 +380,7 @@
         Call GetMem('MOTemp2','FREE','REAL',ipMT2,nmba)
         Call GetMem('MOTemp1','FREE','REAL',ipMT1,nmba)
       EndIf
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (LuWr,*) 'Exit RInt_Generic'
 #endif
       Return

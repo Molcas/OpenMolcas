@@ -21,7 +21,7 @@ C
 #include "ldf_atom_pair_info.fh"
 #include "WrkSpc.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_AtomPairInfoIsSet
       External LDF_AtomPairInfoIsSet
 #endif
@@ -39,7 +39,7 @@ C
       AP_1CLinDep(i,j)=iWork(ip_AP_1CLinDep-1+2*(j-1)+i)
       AP_2CFunctions(i,j)=iWork(ip_AP_2CFunctions-1+2*(j-1)+i)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (.not.LDF_AtomPairInfoIsSet()) Then
          Call WarningMessage(2,
      &                   'LDF_PrintAuxBasInfo: Atom Pair Info not set!')

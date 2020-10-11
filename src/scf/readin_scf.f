@@ -49,8 +49,6 @@
       Logical PkMode
 *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-#ifdef _DEBUG_
-#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -113,22 +111,16 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
-#endif
       Call Timing(Cpu2,Tim1,Tim2,Tim3)
       TimFld( 1) = TimFld( 1) + (Cpu2 - Cpu1)
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
-      End
+      End subroutine ReadIn_SCF
+
+
+
       Subroutine Ini_PkR8(PkMode)
       use Real_Info, only: PkAcc
       Logical PkMode
 *
       Call inipkr8(PkAcc,PkMode)
 *
-      Return
       End

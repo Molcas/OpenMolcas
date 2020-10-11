@@ -502,8 +502,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
          Write (6,*)
          Write (6,*) 'lDCRR=',lDCRR
          Call WrCheck('Zeta ',Data(ip_Z    (1,nZeta),  lDCRR+1),nZeta)

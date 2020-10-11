@@ -47,7 +47,7 @@
       iPrint = 000000 !yma
 
 *
-!#ifdef _DEBUG_  !yma
+!#ifdef _DEBUGPRINT_  !yma
       If (iPrint.ge.19) Call WrCheck('Tcrtnc:P(AB|CD)',ACInt,
      &                                m1*m2*m3*m4*mabcd)
       If (iPrint.ge.99) Then
@@ -104,7 +104,7 @@
       Call TncHlf(Coef1,m1,n1,Coef2,m2,n2,lZeta,nVec,
      &            IncVec,Scrtch(ipA3),Scrtch(ipA2),ACOut,IndZet)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.59)
      &  Call RecPrt(' In Tcrtnc: P(ab|cd) ',' ',ACOut,mabcd,lZeta*lEta)
       If (iPrint.ge.19) Call WrCheck('Tcrtnc:P(ab|cd)',ACOut,

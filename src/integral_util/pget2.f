@@ -46,7 +46,7 @@
       iRout = 39
       iPrint = nPrint(iRout)
       iPrint=99
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          iComp = 1
          Call PrMtrx(' In PGet2:DSO ',[iD0Lbl],iComp,1,D0)
@@ -212,7 +212,7 @@
          Call Abend()
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In PGet2:PSO ',' ',PSO,nijkl,nPSO)
       End If

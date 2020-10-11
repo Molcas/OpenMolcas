@@ -36,7 +36,7 @@
       EVal(6)=M(3,3)
       Call Jacob(EVal,O,3,3)
 C     Call JacOrd(EVal,O,3,3)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call TriPrt('RotGrd: EVal',' ',EVal,3)
       Call RecPrt('RotGrd: O',' ',O,3,3)
 #endif

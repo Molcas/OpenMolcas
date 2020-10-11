@@ -23,7 +23,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
+*#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -65,7 +65,7 @@
          nComp = (l+1)*(l+2)/2
          Write (Label(8:8),'(I1)') l
          Do iComp = 1, nComp
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'l,iComp=',l,iComp
 #endif
             mu = mu + 1
@@ -160,12 +160,12 @@
 *           Now I transform with my Transformation Matrix Ttot the
 *           multipole moment integral matrices
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Multipole Integrals in AO Basis',' ',
      &                  Work(ip_sq_mu(mu)),nBas1,nBas1)
 #endif
             Call TransMu(Work(ip_sq_mu(mu)),nBas1,Ttot,Temp)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Multipole Integrals in LoProp Basis',' ',
      &                  Work(ip_sq_mu(mu)),nBas1,nBas1)
 #endif
@@ -202,7 +202,7 @@
       End If
       Call Free_iWork(ip_nComp)
       Call Free_iWork(ip_iSyLbl)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Origin',' ',Origin,3,lMax+1)
       Call RecPrt('rMPq',' ',rMPq,1,nElem)
       Call xSpot('Exit  Read_Multipole_Int')

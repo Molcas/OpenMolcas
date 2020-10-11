@@ -57,8 +57,8 @@
          Call FZero(Xn,nOV*nD)
 *        and store it on appropriate LList
          Call PutVec(Xn,nOV*nD,Lux,iter,MemRsv,'NOOP',LLx)
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'TraClc_x: Initiate X(n), iter=',iter
          Call RecPrt('TraClc_x: X(n)',' ',Xn,1,nOV*nD)
          Write (6,*) 'TraClc_x: compute all gradients, call GrdClc'

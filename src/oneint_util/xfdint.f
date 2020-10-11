@@ -214,8 +214,8 @@ C     nElem(ixyz) = 2*ixyz+1
                ipI=ipI+nZeta*nElem(la)*nElem(lb)
             End Do
 *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
             Write (6,*) (Fact*ZFd(i),i = 1, nElem(iOrdOp))
             Call RecPrt('Array(ip1)',' ',Array(ip1),nZeta,
      &              (la+1)*(la+2)/2*(lb+1)*(lb+2)/2*nElem(iOrdOp))

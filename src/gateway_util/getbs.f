@@ -74,8 +74,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
       iPrint=99
 #else
@@ -493,7 +493,7 @@
      &                = Temp(1:Min(nEorb,nCntrc),
      &                       1:Min(nEorb,nCntrc))
             Call mma_deallocate(Temp)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Fock',' ',Shells(iShll)%FockOp,nCntrc,nCntrc)
 #endif
          Else If(isEorb) Then
@@ -509,12 +509,12 @@
                Shells(iShll)%FockOp(i,i)=Temp(i,1)
             End Do
             Call mma_deallocate(Temp)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Eorb',' ',Shells(iShll)%FockOp,nCntrc,nCntrc)
 #endif
          Else
             dbsc(nCnttp)%FOp=.False.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Empty',' ',Shells(iShll)%FockOp,nCntrc,nCntrc)
 #endif
          End If

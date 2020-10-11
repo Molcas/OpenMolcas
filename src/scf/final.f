@@ -111,8 +111,6 @@
 *----------------------------------------------------------------------*
 *
       Call CWTime(TCpu1,TWall1)
-#ifdef _DEBUG_
-#endif
 *
          What='COEI'
 
@@ -549,8 +547,6 @@ c make a fix for energies for deleted orbitals
          Call EFP_ShutDown(EFP_Instance)
       End If
 #endif
-#ifdef _DEBUG_
-#endif
 *
       Call CWTime(TCpu2,TWall2)
       TimFld(15) = TimFld(15) + (TCpu2 - TCpu1)
@@ -586,10 +582,5 @@ c make a fix for energies for deleted orbitals
       Call CollapseOutput(0,'Statistics and timing')
       Write(6,*)
       endif
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
+
       End

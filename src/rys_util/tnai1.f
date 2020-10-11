@@ -30,7 +30,7 @@
 *
       iRout = 57
       iPrint = nPrint(iRout)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' Zeta in TNAI1',' ',Zeta,nT,1)
          Call RecPrt(' Eta in TNAI1',' ',Eta,nT,1)
@@ -46,7 +46,7 @@
          ZEInv(iT) = 1.0D0/Zeta(iT)
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt('Tvalue',' ',T,nT,1)
       End If

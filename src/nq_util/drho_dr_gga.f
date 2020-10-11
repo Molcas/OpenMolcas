@@ -46,7 +46,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Then
          Call RecPrt('dRho_dR_GGA:Dens',' ',Dens,nDens,nD)
          Write (6,*) 'mAO=',mAO
@@ -120,7 +120,7 @@
             ijS=iTri(iShell,jShell)
             ipTmp=ipDijs
             Call Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ipTmp,nD)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*)
                Write (6,*) 'iS,jS=',iS,jS
@@ -152,7 +152,7 @@
             End If
             DMax_ij=DMax_ij*Fact(ij)
             If (TMax_i*TMax_j*DMax_ij.lt.T_X) Go To 98
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*) 'dRho_dR_GGA'
                nBB = iBas*jBas
@@ -220,7 +220,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Call RecPrt('dRho_dR_GGA: dRho_dR',' ',dRho_dR,
      &                        ndRho_dR*mGrid,nGrad_Eff)
 *

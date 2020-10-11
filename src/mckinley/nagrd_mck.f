@@ -214,7 +214,7 @@ c           End If
                   End Do
                End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
               Call RecPrt('In NaGrd PI',' ',Array(nip),nb,3)
               Call RecPrt('In NaGrd PI',' ',Final,nb,nrOp)
 #endif

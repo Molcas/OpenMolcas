@@ -43,8 +43,6 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
-#endif
 *
 *---  close two-electron integral file --------------------------------*
       If (.Not.DSCF .And. .Not.DoCholesky) Then
@@ -72,11 +70,5 @@
 #ifdef _HDF5_
       call mh5_close_file(wfn_fileid)
 #endif
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-#ifdef _DEBUG_
-#endif
-      Return
+
       End
