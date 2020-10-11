@@ -13,7 +13,7 @@
 #include "angtp.fh"
       Character*8 LblCBs(MxFnc), LblSBs(MxFnc)
       Character Sgn*3
-!#define _DEBUG_
+!#define _DEBUGPRINT_
 *
 *---- Generate cartesian labels
 *
@@ -55,7 +55,7 @@
             End Do
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) 'lMax,MxFnc=',lMax,MxFnc
       Write (6,*)

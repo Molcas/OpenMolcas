@@ -18,9 +18,7 @@
 
 #include "cpfmcpf.fh"
       DIMENSION H(*)
-      CALL QENTER('ONECT')
       CALL ONECT_INTERNAL(H)
-      CALL QEXIT('ONECT')
 *
 *     This is to allow type punning without an explicit interface
       CONTAINS

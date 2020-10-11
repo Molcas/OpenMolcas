@@ -15,15 +15,6 @@
 *                                                                      *
 * Object: Driver for inverse Hessian update.                           *
 *                                                                      *
-* Called from: RlxCtl                                                  *
-*                                                                      *
-* Calling:     QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              UpdHin                                                  *
-*              View                                                    *
-*              Minv                                                    *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '95                                              *
@@ -48,7 +39,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('NewH')
       iRout = 112
       iPrint = nPrint(iRout)
       If (iPrint.ge.99) Then
@@ -197,6 +187,5 @@
 ************************************************************************
 *                                                                      *
  999  Continue
-      Call QExit('NewH')
       Return
       End Subroutine NewH

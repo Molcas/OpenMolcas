@@ -23,7 +23,6 @@
       Integer MaxQual_SAVE, ip_iQuAB_SAVE, l_iQuAB_SAVE
       Integer iSym
 
-      Call qEnter('_X_GenVec')
 
 C     Set return code.
 C     ----------------
@@ -78,6 +77,5 @@ C     -----------------------------
       l_iQuAB  = l_iQuAB_SAVE
       MaxQual  = MaxQual_SAVE
 
-      Call qExit('_X_GenVec')
 
       End

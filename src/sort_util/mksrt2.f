@@ -46,7 +46,6 @@
       iRout = 80
       iPrint = nPrint(iRout)
       If ( iPrint.gt.10) Write(6,*) ' >>> Enter MKSRT2 <<<'
-      Call qEnter('MkSrt2')
 *
 *----------------------------------------------------------------------*
 *     initialize various pointers, counters and disk adresses          *
@@ -68,6 +67,5 @@
          End If
 30    Continue
 *
-      Call qExit('MkSrt2')
       Return
       End

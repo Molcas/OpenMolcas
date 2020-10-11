@@ -17,13 +17,6 @@
 * Object: to assemble the cartesian components of the velocity inte-   *
 *         grals from the cartesian components of the overlap integals. *
 *                                                                      *
-* Called from: PrpInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 ************************************************************************
@@ -35,7 +28,6 @@
       Character*80 Label
       iRout=160
       iPrint = nPrint(iRout)
-      Call qEnter('VelInt')
 
       If (iPrint.ge.99) Then
          Call RecPrt(' In VelInt: Beta ',' ',Beta ,nZeta,1)
@@ -68,6 +60,5 @@
  10   Continue
 
 *     Call GetMem(' Exit VelInt  ','CHECK','REAL',iDum,iDum)
-      Call qExit('VelInt')
       Return
       End

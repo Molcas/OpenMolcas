@@ -19,20 +19,11 @@
 * Object: trace the gradient of the ERI's with the second order        *
 *         density matrix                                               *
 *                                                                      *
-* Called from: Rysg2                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DGeMV   (ESSL)                                          *
-*              DCopy   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Anders Bernhardsson Dept. of Theoretical Chemistry,      *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
-      use Symmetry_Info, only: iChTbl, iChBas
+      use Symmetry_Info, only: nIrrep, iChTbl, iChBas
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
       Real*8 g2(78),  Prmt(0:7),Hess(nHess)
       Logical IfHss(4,3,4,3),Tr(4),IfGr(4)
@@ -52,8 +43,8 @@
 *                                                                      *
 c     iRout = 239
 c     iPrint = nPrint(iRout)
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call recprt('Distg2: g2(raw) ',' ',g2,1,78)
       Call recprt('Distg2: Hess(raw) ',' ',Hess,1,nHess)
 #endif
@@ -168,7 +159,7 @@ c                      iMax=Max(iCar,jCar)
  200  Continue
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call recprt('Distg2: g2 ',' ',g2,1,78)
 #endif
 *-----Distribute contribution to the hessian.
@@ -237,7 +228,7 @@ c                      iMax=Max(iCar,jCar)
  110     Continue
  100   Continue
   90  Continue
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call recprt('Distg2: Hess ',' ',Hess,1,nHess)
 #endif
 *

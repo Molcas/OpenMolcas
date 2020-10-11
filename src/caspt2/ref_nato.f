@@ -22,7 +22,6 @@
 * coefficients of  natural orbitals. Frozen, inactive and virtual
 C orbitals are copied unchanged.
 
-      CALL QENTER('REF_NATO')
 
       IDREF=0
       IOCC=0
@@ -84,7 +83,6 @@ C Secondary and deleted orbitals:
         END IF
       END DO
 
-      CALL QEXIT('REF_NATO')
 
       RETURN
       END

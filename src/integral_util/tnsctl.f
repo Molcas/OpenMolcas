@@ -22,13 +22,6 @@
 *         Note that the position in memory of the final set is not     *
 *         fixed.                                                       *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              HrrMtrx                                                 *
-*              Sp_Mlt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             Modified by R.L Februrary, 1999.                         *
@@ -36,11 +29,9 @@
       use Real_Spherical
       use Basis_Info
       Implicit Real*8 (A-H,O-Z)
+#include "itmax.fh"
 #include "print.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
       Parameter(lab=iTabMx*2+1,npMax=lab*(lab+1)*(lab+2)/6)
       Real*8 HMtrxAB(*),HMtrxCD(*)
       Real*8 Wrk(nWrk), Coora(3,4)

@@ -17,12 +17,6 @@
 *                                                                      *
 * Object: compute the gradient of the Spherical Well integrals         *
 *                                                                      *
-* Called from: WelGrd                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             May '95.                                                 *
@@ -50,7 +44,6 @@
       iRout = 134
       iPrint = nPrint(iRout)
       iQ = 1
-*     Call qEnter('CmbnW1')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In CmbnW1: Zeta  ',' ',Zeta  ,1,nZeta)
@@ -227,6 +220,5 @@
  110     Continue
  100  Continue
 *
-*     Call qExit('CmbnW1')
       Return
       End

@@ -15,11 +15,6 @@
 *                                                                      *
 * Object: to compute distances from a coordinate list                  *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
@@ -119,8 +114,8 @@ CVV   Set .false. to get faster printing without sorting.
                   End If
                End Do
             End Do
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
             do ii=1,iiBST
                 R=sqrt(BST(ii))
                 Write (Lu,'(2(I5,1X,A4),2(F10.6,6X))')

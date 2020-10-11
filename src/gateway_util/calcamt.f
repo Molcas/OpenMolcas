@@ -48,7 +48,6 @@ C...  working variables (change this)
      &       W1W1(maxprim,maxprim),W1E0W1(maxprim,maxprim)
       Data iExch/1/,iMVPot/2/,iDWPot/4/,iNPPot/8/
 *
-      Call qEnter('CalcAMt')
       PI=2D0*ACOS(0D0)
       iprint=0
       Call Agin
@@ -65,7 +64,7 @@ c     calculate relativistic integrals if needed
          write(6,*) ' The dimension of rel must somehow be increased.'
          Call Abend
       endif
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*) ' basis:', (Shells(isrshll+i-1)%nExp,i=1,lmax+1)
       do i=1,lmax+1
          nnExp=Shells(isrshll+i-1)%nExp
@@ -173,6 +172,5 @@ C
         END DO
 *
 1000  CONTINUE
-      Call qExit('CalcAMt')
       RETURN
       END

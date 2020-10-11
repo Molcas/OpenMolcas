@@ -16,25 +16,14 @@
      &                 )
 ************************************************************************
 *                                                                      *
-* Object: to compute contact integrals.                .               *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              Darwin                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
+* Object: to compute contact integrals.                                *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden, February '91                 *
-*             Modified from D1Int January 2008.
+*             Modified from D1Int January 2008.                        *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 
 #include "int_interface.fh"
@@ -47,7 +36,6 @@
 *
       iRout = 150
       iPrint = nPrint(iRout)
-      Call qEnter('CntInt')
 *
       Call FZero(Final,nZeta*((la+1)*(la+2)/2)*((lb+1)*(lb+2)/2)*nIC)
 *
@@ -98,7 +86,6 @@
       End If
 *
 *     Call GetMem(' Exit CntInt','LIST','REAL',iDum,iDum)
-      Call qExit('CntInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

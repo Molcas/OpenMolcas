@@ -17,7 +17,7 @@
 #endif
       Implicit None
       Integer ireturn
-      Character(20), Parameter :: module_name = 'wfa'
+      Character(Len=20), Parameter :: module_name = 'wfa'
 #ifdef _FPE_TRAP_
       Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
 #endif

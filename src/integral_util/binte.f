@@ -16,7 +16,6 @@
      &       alfa(nz), a(nz)
 *
 *     iq = 1
-      Call qEnter('Binte')
 *     Call RecPrt(' In Binte: Alfa',' ',alfa,nz,1)
 *     Call RecPrt(' In Binte: A   ',' ',a   ,nz,1)
       call dcopy_(nz*(k+1)*(k/2+1)*(k/4+1),[Zero],0,ggrin,1)
@@ -48,6 +47,5 @@
 *
 *     Call RecPrt(' In Binte: Ggrin',' ',
 *    &            Ggrin,nz,(k+1)*(k/2+1)*(k/4+1))
-      Call qExit('Binte')
       Return
       End

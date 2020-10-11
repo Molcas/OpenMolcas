@@ -14,8 +14,6 @@
       use Period
       use Basis_Info, only: nCnttp, dbsc
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "constants2.fh"
       Logical Changed
@@ -25,7 +23,6 @@
       iRout=2
       iPrint = nPrint(iRout)
       If (iPrint.eq.0) Return
-      Call qEnter('Print_Isotopes')
       LuWr=6
 *                                                                      *
 ************************************************************************
@@ -78,6 +75,5 @@
  10   Format(1X,A)
 100   Format(I5,1X,I3,1X,I4,1X,F12.6)
 101   Format(I5,1X,I3,1X,I4,1X,F12.6,1X,'[',I4,1X,F12.6,']')
-      Call qExit('Print_Isotopes')
       Return
       End

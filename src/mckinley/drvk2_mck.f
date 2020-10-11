@@ -16,19 +16,6 @@
 *                                                                      *
 *  Object: to precompute all pair entites as zeta, kappa, P.           *
 *                                                                      *
-* Called from: Drvg1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              mHrr                                                    *
-*              ICopy                                                   *
-*              DCopy   (ESSL)                                          *
-*              DCR                                                     *
-*              MemRys                                                  *
-*              PSOAO0                                                  *
-*              k2Loop                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -42,12 +29,12 @@
       use k2_arrays
       use iSD_data
       use Basis_Info
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "WrkSpc.fh"
@@ -67,7 +54,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qEnter('Drvk2')
       Call CWTime(TCpu1,TWall1)
       Call GetMem('k2','Max','Real',idum,maxk2)
       maxk2 = maxk2 / 2
@@ -86,21 +72,21 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('Con','Allo','Real',ipCon,m2Max)
+      Call GetMem('Con','Allo','Real',ipCon,S%m2Max)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       MemTmp=0
-      Do iAng = 0, iAngMx
-         MemTmp=Max(MemTmp,(MaxPrm(iAng)*nElem(iAng))**2)
+      Do iAng = 0, S%iAngMx
+         MemTmp=Max(MemTmp,(S%MaxPrm(iAng)*nElem(iAng))**2)
       End Do
       Call GetMem('Temp1','Allo','Real',ipTmp1,MemTmp )
       Call GetMem('Temp2','Allo','Real',ipTmp2,MemTmp )
       Call GetMem('Temp3','Allo','Real',ipTmp3,MemTmp )
-      Call GetMem('Knew ','Allo','Real',ipKnew,m2Max  )
-      Call GetMem('Lnew ','Allo','Real',ipLnew,m2Max  )
-      Call GetMem('Pnew ','Allo','Real',ipPnew,3*m2Max)
-      Call GetMem('Qnew ','Allo','Real',ipQnew,3*m2Max)
+      Call GetMem('Knew ','Allo','Real',ipKnew,S%m2Max  )
+      Call GetMem('Lnew ','Allo','Real',ipLnew,S%m2Max  )
+      Call GetMem('Pnew ','Allo','Real',ipPnew,3*S%m2Max)
+      Call GetMem('Qnew ','Allo','Real',ipQnew,3*S%m2Max)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -252,14 +238,14 @@
 ************************************************************************
 *                                                                      *
       Call GetMem('MemMax', 'Free','Real',ipM001, MemMax )
-      Call GetMem(' Qnew',  'Free','Real',ipQnew, 3*m2Max)
-      Call GetMem(' Pnew',  'Free','Real',ipPnew, 3*m2Max)
-      Call GetMem(' Lnew',  'Free','Real',ipLnew, m2Max  )
-      Call GetMem(' Knew',  'Free','Real',ipKnew, m2Max  )
+      Call GetMem(' Qnew',  'Free','Real',ipQnew, 3*S%m2Max)
+      Call GetMem(' Pnew',  'Free','Real',ipPnew, 3*S%m2Max)
+      Call GetMem(' Lnew',  'Free','Real',ipLnew, S%m2Max  )
+      Call GetMem(' Knew',  'Free','Real',ipKnew, S%m2Max  )
       Call GetMem('Temp3',  'Free','Real',ipTmp3, MemTmp )
       Call GetMem('Temp2',  'Free','Real',ipTmp2, MemTmp )
       Call GetMem('Temp1',  'Free','Real',ipTmp1, MemTmp )
-      Call GetMem('Con','Free','Real',ipCon,m2Max)
+      Call GetMem('Con','Free','Real',ipCon,S%m2Max)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -271,7 +257,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,'(20X,A)')
      &  ' *** The k2 entities has been precomputed ***'
@@ -283,7 +269,6 @@
      &   ' integral estimates.'
 #endif
 *
-      Call qExit('Drvk2')
       Call CWTime(TCpu2,TWall2)
       Call SavTim(2,TCpu2-TCpu1,TWall2-TWall1)
       Return

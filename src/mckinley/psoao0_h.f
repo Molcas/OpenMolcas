@@ -35,21 +35,14 @@
 *          3. Terminate run telling job max and min of additional      *
 *             memory needed to perform the calculation.                *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Change                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 ************************************************************************
+      use Integral_Parameters, only: iWROpt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "lCache.fh"
 #include "pstat.fh"
@@ -65,7 +58,6 @@
       iRout = 10
       iPrint = nPrint(iRout)
 *     iQ = 1
-*     Call qEnter('PSOAO0')
       la = iAnga(1)
       lb = iAnga(2)
       lc = iAnga(3)

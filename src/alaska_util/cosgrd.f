@@ -20,15 +20,6 @@
 * Object: kernel routine for the computation of electronic COSMO cont. *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DCR                                                     *
-*              XRysg1                                                  *
-*              QExit                                                   *
-*                                                                      *
 *             M. Diedenhofen Nov. 2003                                 *
 *             changes pcmgrd routines which do not take into account   *
 *             the contribution of a non fixed grid                     *
@@ -43,10 +34,8 @@
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "rctfld.fh"
@@ -67,7 +56,6 @@
 *
       iRout = 151
       iPrint = nPrint(iRout)
-      Call qEnter('COSgrd')
 *
       nRys=nHer
 *
@@ -249,7 +237,6 @@ c             skip 2 center
 111      Continue
       End Do     ! End loop over centers in the external field
 *
-      Call qExit('COSgrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

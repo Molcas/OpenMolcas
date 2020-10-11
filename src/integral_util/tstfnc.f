@@ -30,8 +30,8 @@
       nCoSet=nIrrep/nStab
       iAcc(0:nCoSet-1)=0
 *
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'TstFnc'
       Write (6,*)
       Write (6,*) 'Coset:'

@@ -94,7 +94,6 @@ c      Integer StrnLn
 *----------------------------------------------------------------------*
 *                                                                      *
 *----------------------------------------------------------------------*
-      Call qEnter('ReadVc')
 C Local print level (if any)
       IPRLEV=IPRLOC(1)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -477,6 +476,5 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
 
 *     exit
 
-      CALL QEXIT('READVC')
       RETURN
       END

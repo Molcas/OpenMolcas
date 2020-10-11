@@ -52,8 +52,8 @@
      &       Scrt2(nScrt2)
 #include "real.fh"
 *
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' In Nrmlz: iAng=',iAng
       Call RecPrt(' In Nrmlz: Coefficients',' ',Coeff,nPrim,nCntrc)
       Call RecPrt(' In Nrmlz: Exponents',' ',Exp,nPrim,1)
@@ -69,29 +69,22 @@
 *
       Do 200 iExp = 1, nPrim
          Do 210 jExp = 1, iExp-1
-               Pro_ij  = Exp(iExp)*Exp(jExp)
-               Sum_ij  = Exp(iExp)+Exp(jExp)
-               iPower_i1=iAng + 1
-               Power= 0.5D0*DBLE(iAng) + 0.75D0
-               C       = 2.0D0/Sum_ij
-*              Temp    = Sqrt(C) * C**iPower_i1 * Pro_ij**Power
-               Power = DBLE(iAng) + 1.5D0
-               C = 2.0D0*Sqrt(Pro_ij)/Sum_ij
-               Temp = C**Power
-*              Temp =  ( Two*Sqrt(Exp(iExp)*Exp(jExp)) /
-*    &                   (Exp(iExp)+Exp(jExp)))**(DBLE(iAng)+Three/Two)
-               Scrt1(nPrim*(iExp-1)+jExp)=Temp
-               Scrt1(nPrim*(jExp-1)+iExp)=Temp
-210        Continue
-           Scrt1(nPrim*(iExp-1)+iExp)=One
-200     Continue
+            Pro_ij = Sqrt(Exp(iExp)*Exp(jExp))
+            Sum_ij = (Exp(iExp)+Exp(jExp))/Two
+            Power  = Dble(iAng) + OneHalf
+            Temp   = (Pro_ij/Sum_ij)**Power
+            Scrt1(nPrim*(iExp-1)+jExp)=Temp
+            Scrt1(nPrim*(jExp-1)+iExp)=Temp
+210      Continue
+         Scrt1(nPrim*(iExp-1)+iExp)=One
+200   Continue
 *     Contract right side
       Call DGEMM_('N','N',
      &            nPrim,nCntrc,nPrim,
      &            1.0d0,Scrt1,nPrim,
      &            Coeff,nPrim,
      &            0.0d0,Scrt2,nPrim)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' Overlap primitives',' ',Scrt1,nPrim,nPrim)
       Call RecPrt(' Overlap PrimCon',' ',Scrt2,nPrim,nCntrc)
 #endif
@@ -99,7 +92,7 @@
 *     Compute the overlap for each contracted basis function, <i|i>
 *
       Call DnDot(nCntrc,nPrim,Scrt1,1,1,Scrt2,1,nPrim,Coeff,1,nPrim)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' Overlap Contracted',' ',Scrt1,nCntrc,1)
 #endif
 *
@@ -128,7 +121,7 @@
       If (nPrim.eq.1 .and. nCntrc.eq.1 .and. Exp(1).eq.Zero) Then
          Coeff(1,1)=One
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call Recprt(' In Nrmlz: Normalized coefficients',' ',
      &            Coeff,nPrim,nCntrc)
 #endif

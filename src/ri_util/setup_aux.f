@@ -25,11 +25,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'Setup_Aux:nIrrep:   ',nIrrep
       Write (6,*) 'Setup_Aux:nBas:     ',nBas
       Write (6,*) 'Setup_Aux:nBas_Aux: ',nBas_Aux
@@ -104,7 +104,7 @@ C     Call iVcPrt('SOShl',' ',iWork(ip_SOShl),nSO+nSO_Aux)
                ij_Shell = ij_Shell + 1
                iWork(ip_iShij+(ij_Shell-1)*2  )=iSkal
                iWork(ip_iShij+(ij_Shell-1)*2+1)=jSkal
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*) 'ij_Shell,iSkal,jSkal=',
      &                      ij_Shell,iSkal,jSkal
 #endif
@@ -127,7 +127,7 @@ C     Call iVcPrt('SOShl',' ',iWork(ip_SOShl),nSO+nSO_Aux)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'ip_iShij=',ip_iShij
       Write (6,*) 'nij_Shell=',nij_Shell
       Write (6,*)
@@ -262,7 +262,7 @@ C     Call iVcPrt('iSOShl',' ',iSOShl,nSO)
 ************************************************************************
 *                                                                      *
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*)  'iSSOff'
       Write (6,*)
@@ -294,7 +294,7 @@ C     Call iVcPrt('iSOShl',' ',iSOShl,nSO)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) ' iSO, iShlSO(iSO), relative index in irrep'
       Do jSO = 1, iSO

@@ -84,7 +84,9 @@ module generic_CI
 
     subroutine unused(CI_solver)
       class(CI_solver_t), intent(in) :: CI_solver
+#ifdef _WARNING_WORKAROUND_
       if (.false.) call CI_solver%init()
+#endif
     end subroutine
 
 end module generic_CI

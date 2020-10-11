@@ -71,8 +71,8 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call NrmClc(CMO,nCMO,'DOne_SCF','CMO')
       nOcc=0
       Do iSym = 1, nSym
@@ -118,7 +118,7 @@
                pDlt(Ind(iRow,iCol)) = 2.0D0*Sum
             End Do
          End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call NrmClc(pDlt,nBs*(nBs+1)/2,'DOne_SCF','Dlt')
 *        Call RecPrt('CMO',' ',pCMO,nBs,nBs)
 *        Call RecPrt('Occ',' ',pOcc,1,nOr)

@@ -111,7 +111,6 @@ C Extra term in overlaps (COVLP, SXHAM): 1.0D-14
 C Extra term in SIGVEC:                  1.0D-12
 
 
-      Call qEnter(ROUTINE)
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
 c      write(6,*) 'Entering SXCTL!'
@@ -203,14 +202,12 @@ C --------------------------------------
 
          if (irc.ne.0) then
          Write(LF,*)'SXCTL: Cho_cas_drv non-zero return code! rc= ',irc
-         call qtrace()
          call abend()
          endif
 
       Else
 
          Write(LF,*)'SXCTL: Illegal Cholesky parameter ALGO= ',ALGO
-         call qtrace()
          call abend()
 
       EndIf
@@ -343,27 +340,6 @@ cGLM      end if
         Call GetMem('EDUM','ALLO','REAL',LEDUM,NTOT)
         call dcopy_(NTOT,[0.0D0],0,WORK(LEDUM),1)
 
-        IF (DoNECI) THEN
-          write(6,*)'For NECI orbital energies are approximated'
-          write(6,*)'to the diagonal value of the Fock matrix (SXCTL)'
-          write(6,*)'These values are going to the temporary RasOrb'
-          write(6,*)'together with CMOs before orb rot is performed'
-c This is of course not true other than for special cases ... but some might find it beneficial!
-          iOff  = 0
-          iOff2 = 0
-          Do iSym = 1,nSym
-           iBas = nBas(iSym)
-           if(iBas.gt.0) then
-            do iDiag = 1,iBas
-             WORK(LEDUM+iDiag-1+iOff) = FA(iOff2+(iDiag*(iDiag+1)/2))
-            end do
-            write(6,*) 'OrbEn in line for sym = ',iSym
-            write(6,*) (Work(LEDUM+i+iOff), i = 0,iBas-1)
-             iOff  = iOff + iBas
-             iOff2 = iOff2 + (iBas*iBas+iBas)/2
-           end if
-          End Do
-        END IF
         Write(VecTyp,'(A)')
         VecTyp='* RASSCF average (pseudo-natural) orbitals (Not final)'
         LuvvVec=50
@@ -708,6 +684,5 @@ C LY,LA, AND LB WORK AREAS
 
 9990  CONTINUE
       CALL GETMEM('SXBM','FREE','REAL',LBM,NSXS)
-      Call qExit(ROUTINE)
       RETURN
       END

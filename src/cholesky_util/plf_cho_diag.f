@@ -29,8 +29,6 @@
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "real.fh"
@@ -50,9 +48,6 @@
       iShlSO(i)=iWork(ip_iShlSO-1+i)
       nBstSh(i)=iWork(ip_nBstSh-1+i)
 *
-#if defined (_DEBUG_)
-      Call qEnter('Plf_CD')
-#endif
       irout = 109
       jprint = nprint(irout)
       If (jPrint.ge.49) Then
@@ -147,8 +142,4 @@
 200      Continue
 100   Continue
 *
-#if defined (_DEBUG_)
-      Call qExit('Plf_CD')
-#endif
-      Return
       End

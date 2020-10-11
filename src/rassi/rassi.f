@@ -64,7 +64,6 @@ C RAS state interaction.
 
       CALL GETPRINTLEVEL
 
-      CALL QENTER(ROUTINE)
 
 C Greetings. Default settings. Initialize data sets.
       CALL INIT_RASSI()
@@ -361,6 +360,5 @@ C Will also handle mixing of states (sodiag.f)
 
       Call StatusLine('RASSI:','Finished.')
       IRETURN=0
-      CALL QEXIT(ROUTINE)
       RETURN
       END

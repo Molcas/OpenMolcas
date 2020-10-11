@@ -8,15 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-#ifdef _HAVE_GRID_IT_
-*     This should have never been used outside casvb_util
-      Subroutine fmove(ia,ib,n)
-      Real*8 ia(*),ib(*)
-      Integer n
-      Call fmove_cvb(ia,ib,n)
-      End
-#elif defined (NAGFOR)
-c Some compilers do not like empty files
-      Subroutine empty_fmove
-      End
+      program main
+#ifdef _FPE_TRAP_
+      Use, Intrinsic :: IEEE_Exceptions
 #endif
+      implicit real*8 (a-h,o-z)
+#ifdef _FPE_TRAP_
+      Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
+#endif
+
+      Call Start('grid_it')
+      Call Grid_It(1,ireturn)
+      Call Finish(ireturn)
+      end

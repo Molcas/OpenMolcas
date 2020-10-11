@@ -19,33 +19,19 @@
 * Object: kernel routine for the computation of nuclear attraction     *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              mHrr                                                    *
-*              DCR                                                     *
-*              Rys                                                     *
-*              Hrr                                                     *
-*              DaXpY   (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, January 1991                            *
 ************************************************************************
       Use Basis_Info
       use Center_Info
+      use Temporary_Parameters, only: Primitive_Pass
+      use DKH_Info, only: DKroll
       Implicit Real*8 (A-H,O-Z)
 *     Used for normal nuclear attraction integrals
       External TNAI, Fake, XCff2D, XRys2D
 *     Used for finite nuclei
       External TERI, ModU2, vCff2D, vRys2D
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "oneswi.fh"
 #include "print.fh"
 
@@ -65,7 +51,6 @@
 *
       iRout = 151
       iPrint = nPrint(iRout)
-C     Call qEnter('NAInt')
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
@@ -294,7 +279,6 @@ C     Call qEnter('NAInt')
       End If
 *
 *     Call GetMem(' Exit NAInt','LIST','REAL',iDum,iDum)
-C     Call qExit('NAInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

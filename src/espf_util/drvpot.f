@@ -16,11 +16,6 @@
 *                                                                      *
 * Object: driver for computation of one-electron property matrices     *
 *                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              OneEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
@@ -30,20 +25,20 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External PotInt, NAMem
 #include "stdalloc.fh"
 #include "espf.fh"
       Character*8 Label
       Real*8 Ccoor(3),opnuc(*),ptchrg(*)
-      Real*8, Allocatable :: Centr(:,:)
+      Real*8, Allocatable :: Centr(:,:), Dens(:)
       Logical Do_ESPF
       Dimension dummy(1),iopadr(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qEnter('DrvPot')
-*
       Call IniSewM('mltpl',0)
 *
       Call Set_Basis_Mode('Valence')
@@ -56,7 +51,7 @@
       End Do
       Call DecideOnESPF(Do_ESPF)
 c
-      Call mma_allocate(Centr,3,mCentr)
+      Call mma_allocate(Centr,3,S%mCentr)
       ndc = 0
       nc = 1
       Do jCnttp = 1, nCnttp
@@ -87,13 +82,16 @@ c
         ipnuc=ip_Dummy
       End if
       If (iaddpot.lt.0) Then
+
+         Call mma_allocate(Dens,ntdg,Label='Dens')
          If (iaddpot.eq.-1) Then
-            Call Get_D1ao_Var(ipdens,Length)
+            Call Get_D1ao_Var(Dens,ntdg)
          Else
-            Call Get_D1ao(ipdens,Length)
+            Call Get_D1ao(Dens,ntdg)
          End If
-         call Drv1_Pot(work(ipdens),CCoor,ptchrg,ngrid,1,0)
-         Call GetMem('DENS','FREE','REAL',ipdens,ntdg)
+         call Drv1_Pot(Dens,CCoor,ptchrg,ngrid,1,0)
+         Call mma_deallocate(Dens)
+
          If (.not.Do_ESPF) Then
             Call AddVec(ptchrg,ptchrg,work(ipnuc),ngrid)
             Call dCopy_(ngrid,work(ipnuc),1,opnuc,1)
@@ -115,8 +113,6 @@ c
 *
       Call mma_deallocate(Centr)
       Call Free_iSD()
-*
-      Call QExit('DrvPot')
 *
       Return
       End

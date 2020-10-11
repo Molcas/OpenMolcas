@@ -369,7 +369,7 @@
 *                                                                      *
       Erest_xc=Erest_xc-Func
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*) ' XC-part of energy-restoring term : ',-Func
       write(6,*)
       write(6,*) ' XC-potentials: (itri,F_alpha,F_beta)'

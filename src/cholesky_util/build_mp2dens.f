@@ -143,7 +143,7 @@
      &                      Work(ip_EigenVecBlock),
      &                      nOrbAll(iSym),nOrbAll(iSym))
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write(6,*) 'The sorted eigenvalues are'
                Do i = 1, nOrbAll(iSym)
                   Write(6,*) Work(ip_EigenValBlock+i-1)

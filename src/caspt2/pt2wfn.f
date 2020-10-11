@@ -37,7 +37,7 @@
 #  include "mh5.fh"
 
       integer :: dsetid, ndmat, i
-      character(1), allocatable :: typestring(:)
+      character(len=1), allocatable :: typestring(:)
 #endif
 
       If (refwfn_active) Then

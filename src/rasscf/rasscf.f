@@ -141,7 +141,6 @@
       External Get_ProgName
       Character*100 ProgName, Get_ProgName
       Character*15 STLNE2
-      External QEnter, QExit
       External RasScf_Init
       External Scan_Inp
       External Proc_Inp
@@ -156,7 +155,6 @@
 
 * Start the traceback utilities
 *
-      Call QENTER(ROUTINE)
 
 * Set status line for monitor:
       Call StatusLine('RASSCF:',' Just started.')
@@ -341,7 +339,6 @@
       If (iCIRST.eq.1.and.DumpOnly) then
         write(6,*) 'ICIRST and DumpOnly flags are not compatible!'
         write(6,*) 'Choose only one.'
-        Call QTrace
         Call Abend
       end if
 
@@ -1181,7 +1178,6 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
            Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
            Write(LF,*) 'Label = ',Label
            Write(LF,*) 'iRc = ',iRc
-           Call QTrace
            Call Abend
           End if
 
@@ -1487,7 +1483,7 @@ cGLM some additional printout for MC-PDFT
         else
           IF(doDMRG)then
 
-#ifdef _DMRG_DEBUG_
+#ifdef _DMRG_DEBUGPRINT_
             write(lf,*) "DMRG-SCF energy    ",ECAS
             write(lf,*) "DMRG sweeped energy",EAV
 #endif
@@ -1990,9 +1986,6 @@ c deallocating TUVX memory...
       If (.not. any([allocated(CI_solver), DumpOnly,
      &              doDMRG, doBlockDMRG])) then
         Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
-      else if (allocated(CI_solver)) then
-        call CI_solver%cleanup()
-        deallocate(CI_solver)
       end if
 
 
@@ -2039,6 +2032,11 @@ c      End If
       if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG
      &          .or. allocated(CI_solver) .or. DumpOnly)) then
         Call MKGUGA_FREE
+      end if
+
+      if (allocated(CI_solver)) then
+          call CI_solver%cleanup()
+          deallocate(CI_solver)
       end if
 
 !Leon: The velociraptor comes! xkcd.com/292/
@@ -2102,7 +2100,6 @@ C Close the one-electron integral file:
         END DO
         Close(LUInput)
       End If
-      Call qExit(ROUTINE)
 
       return
 

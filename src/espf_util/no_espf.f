@@ -12,6 +12,9 @@
       use Basis_Info
       use Center_Info
       use external_centers
+      use Temporary_Parameters, only: Primitive_pass
+      use Real_Info, only: PotNuc
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
 *
 #include "espf.fh"
@@ -53,7 +56,7 @@
 1000     Format(/,' RepNuc + MM = ',F13.8,' + ',F13.8,' = ',F13.8)
       End If
 *
-      If (lXF.and.(nOrd_XF.ge.0)) Then
+      If (Allocated(XF).and.(nOrd_XF.ge.0)) Then
          write(6,*) 'Here we are!!'
 *
          DoRys=.True.

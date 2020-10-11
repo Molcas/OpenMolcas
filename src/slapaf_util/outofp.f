@@ -22,11 +22,10 @@
       Real*8 Bt_temp_m(3,4)
 #endif
 *
-      Call qEnter('OutofP')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -76,7 +75,6 @@
       If (Abs(Fi1-Pi).lt.1.0D-13) Then
          Teta=0.0D0
          Call FZero(Bt,3*nCent)
-         Call qExit('OutofP')
          Return
       End If
 *
@@ -104,7 +102,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('xyz',' ',xyz,3,nCent)
 #endif
 *                                                                      *
@@ -133,7 +131,6 @@
       If ((C14X(1,3)**2+C14X(2,3)**2+C14X(3,3)**2).lt.1.0D-10) Then
          Teta=0.0D0
          Call FZero(Bt,3*nCent)
-         Call qExit('OutofP')
          Return
       End If
       C14X(1,3)=C14X(1,3)+xyz(1,4)
@@ -166,7 +163,7 @@
          Bt(ix,4) = - (Bt(ix,1)+Bt(ix,2)+Bt(ix,3))
 *
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Outofp: R43',' ',R43,1,3)
       Call RecPrt('Outofp: R43',' ',R42,1,3)
       Call RecPrt('Outofp: BR14X',' ',BR14X,3,3)
@@ -298,7 +295,7 @@
 *                                                                      *
             End Do
          End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('dBt','(4(3F7.2,2X))',dBt,12,12)
 #endif
       End If
@@ -357,7 +354,6 @@ C     Call DScal_(12**2,-One,dBt,1)
       End Do    ! iAtom
       End If
 #endif
-      Call qExit('OutofP')
       Return
       End
 #ifdef _Test_Numerical_
@@ -369,11 +365,10 @@ C     Call DScal_(12**2,-One,dBt,1)
       Logical ldB
       Character*8 Label
 *
-      Call qEnter('OutofP0')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -422,7 +417,6 @@ C     Call DScal_(12**2,-One,dBt,1)
 *
       If (Abs(Fi1-Pi).lt.1.0D-13) Then
          Teta=0.0D0
-         Call qExit('OutofP0')
          Return
       End If
 *
@@ -450,7 +444,7 @@ C     Call DScal_(12**2,-One,dBt,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('xyz',' ',xyz,3,nCent)
 #endif
 *                                                                      *
@@ -478,7 +472,6 @@ C     Call DScal_(12**2,-One,dBt,1)
 *
       If ((C14X(1,3)**2+C14X(2,3)**2+C14X(3,3)**2).lt.1.0D-10) Then
          Teta=0.0D0
-         Call qExit('OutofP0')
          Return
       End If
       C14X(1,3)=C14X(1,3)+xyz(1,4)
@@ -493,7 +486,6 @@ C     Call DScal_(12**2,-One,dBt,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('OutofP0')
       Return
       End
       Subroutine OutofP1(xyz,nCent,Teta,Bt,ldB)
@@ -505,11 +497,10 @@ C     Call DScal_(12**2,-One,dBt,1)
       Logical ldB
       Character*8 Label
 *
-      Call qEnter('OutofP1')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -559,7 +550,6 @@ C     Call DScal_(12**2,-One,dBt,1)
       If (Abs(Fi1-Pi).lt.1.0D-13) Then
          Teta=0.0D0
          Call FZero(Bt,3*nCent)
-         Call qExit('OutofP1')
          Return
       End If
 *
@@ -587,7 +577,7 @@ C     Call DScal_(12**2,-One,dBt,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('xyz',' ',xyz,3,nCent)
 #endif
 *                                                                      *
@@ -616,7 +606,6 @@ C     Call DScal_(12**2,-One,dBt,1)
       If ((C14X(1,3)**2+C14X(2,3)**2+C14X(3,3)**2).lt.1.0D-10) Then
          Teta=0.0D0
          Call FZero(Bt,3*nCent)
-         Call qExit('OutofP1')
          Return
       End If
       C14X(1,3)=C14X(1,3)+xyz(1,4)
@@ -647,7 +636,7 @@ C     Call DScal_(12**2,-One,dBt,1)
          Bt(ix,4) = - (Bt(ix,1)+Bt(ix,2)+Bt(ix,3))
 *
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Outofp: R43',' ',R43,1,3)
       Call RecPrt('Outofp: R43',' ',R42,1,3)
       Call RecPrt('Outofp: BR14X',' ',BR14X,3,3)
@@ -656,7 +645,6 @@ C     Call DScal_(12**2,-One,dBt,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('OutofP1')
       Return
       End
 #endif

@@ -16,13 +16,6 @@
 *                                                                      *
 *  Object: Allocate space for K2 entities.                             *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              DCR                                                     *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden. November '92                 *
 *             Martin Schuetz, Dept. of Theoretical Chemistry,          *
@@ -31,16 +24,14 @@
       use iSD_data
       use k2_arrays
       use IOBUF
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "status.fh"
 *
-*     Call QEnter('AlloK2')
 *
       Call Nr_Shells(nSkal)
 *

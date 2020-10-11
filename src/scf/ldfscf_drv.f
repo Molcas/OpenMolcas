@@ -35,7 +35,7 @@ C
 
       Integer  ip_of_Work, iPrintLevel
       External ip_of_Work, iPrintLevel
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_X_IsSet
       External LDF_X_IsSet
 #endif
@@ -96,15 +96,14 @@ C
       Integer iTri
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       ! Enter
-      Call qEnter(RegNam)
 #endif
       Call ThisIsRestrictedCode('Thomas Bondo Pedersen','LDF-SCF',
      &                          .false.)
 
       ! Get print level
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       iPrint=max(iPrintLevel(-1),4)
 #else
       iPrint=iPrintLevel(-1)
@@ -125,7 +124,7 @@ C
       Call Set_Basis_Mode('WithAuxiliaryr')
       Call Setup_iSD()
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (.not.LDF_X_IsSet()) Then
          Call WarningMessage(2,SecNam//': LDF info not set!')
          Call LDF_Quit(1)
@@ -770,9 +769,8 @@ C--------------------------------------------------------------
       End If
       Call Free_iSD()
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       ! Exit
-      Call qExit(RegNam)
 #endif
 c Avoid unused argument warnings
       If (.False.) Then

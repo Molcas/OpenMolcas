@@ -20,10 +20,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('GF')
       iRout=138
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt('GF: dDipM',' ',dDipM,3,nInter)
       Call RecPrt('GF: DipM',' ',DipM,3,1)
 #endif
@@ -95,13 +94,12 @@
          End Do
       End Do
       call dcopy_(3*mInter,Tmp1,1,dDipM,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('dDipM(normal coord.)',' ',dDipM,3,mInter)
 #endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('GF')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(iDo_dDipM)

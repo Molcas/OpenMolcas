@@ -46,7 +46,6 @@
 *
       SymProd(i,j)=1+iEor(i-1,j-1)
 *
-      Call qEnter('Tra_Ctl2')
 *
       If ( IPR.gt.1 ) then
         Write(6,*)
@@ -214,7 +213,6 @@ C  Synchronize PUVX if running parallel:
 *     nasty, but necessary
       lSym=state_symmetry
 
-      Call qExit('Tra_Ctl2')
 
       Return
       End

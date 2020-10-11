@@ -47,7 +47,6 @@
       Parameter ( RadToDeg=180.0D0/Pi )
       Dimension iDum(1)
 *
-      Call QEnter('MEP_dir')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -347,6 +346,5 @@
       Call Free_Work(ipGrad)
       Call Free_Work(ipDir)
       Call Free_Work(ipCen)
-      Call QExit('MEP_dir')
       Return
       End

@@ -40,7 +40,7 @@
 *
       Write (6,*)
       Banner_Line(1)='LoProp Charges per center'
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Banner_Line(2)=' '
       Banner_Line(3)='Note that this charge analysis only makes '
      &             //'sense if the orbital basis is of true AO '
@@ -86,7 +86,7 @@
      &        (Q_Charge(i)+E_Charge(i),i=iSt,iEnd)
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Call Banner (Banner_Line,0,120)
 #endif

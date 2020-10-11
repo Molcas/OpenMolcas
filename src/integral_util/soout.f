@@ -10,8 +10,7 @@
 ************************************************************************
       Subroutine SOOUT(label,cnt_ico,phase_ico)
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
       Integer cnt_ico(0:7,*),phase_ico(0:7,*)
       Character Label(MaxBfn+MaxBfn_Aux)*(LENIN8)
 *
@@ -23,12 +22,11 @@
       Subroutine SOCtl_mod(Mamn,nMamn,Cnt_ico,Phase_ico)
       use Basis_Info
       use Center_Info
-      use Symmetry_Info, only: iChTbl, iChBas
+      use Symmetry_Info, only: nIrrep, iChTbl, iChBas
       use Real_Spherical, only: iSphCr, LblCBs, LblSBs
       Implicit Real*8 (a-h,o-z)
 *
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "real.fh"
 *
       Character ChTemp*8, Mamn(nMamn)*(LENIN8)

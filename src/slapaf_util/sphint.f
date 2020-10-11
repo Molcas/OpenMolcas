@@ -21,7 +21,6 @@
 *
       xyz0(i,j)=Work(ipRef_+(j-1)*3+i-1)
 *
-*     Call QEnter('SphInt')
 *
 *                                                                      *
 ************************************************************************
@@ -120,7 +119,6 @@ C        Call RecPrt('dBf',' ',dBf,3*nCent,3*nCent)
 *
       End If
 *
-*     Call QExit('SphInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_logical(lWarn)

@@ -30,7 +30,7 @@ C
       Character*27 SecNam
       Parameter (SecNam='LDF_ComputeValenceIntegrals')
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  isSymmetric
       External isSymmetric
       Integer  ji, lk
@@ -111,7 +111,7 @@ C
             maxAB=max(maxAB,n_)
          End Do
       End Do
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (n.ne.nAB) Then
          Call WarningMessage(2,SecNam//': n != nAB')
          Call LDF_Quit(1)
@@ -137,7 +137,7 @@ C
             End Do
          End Do
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (n.ne.nCD) Then
          Call WarningMessage(2,SecNam//': n != nCD')
          Call LDF_Quit(1)
@@ -233,7 +233,7 @@ C
          End Do
       End Do
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (AB.eq.CD) Then
          If (.not. isSymmetric(xInt,nAB,1.0d-14)) Then
             Call WarningMessage(2,SecNam//': (AB|CD) != (CD|AB)')

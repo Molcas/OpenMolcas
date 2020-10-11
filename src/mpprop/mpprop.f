@@ -202,7 +202,6 @@ C     Call OneBas('PRIM')
                If(iComp.ne.1) Then
                   Write (6,'(2A)')'MPProp: Error reading iComp.ne.0 lab'
      &            ,'el=',label
-                  Call QTrace()
                   Call Abend()
                Else
                   Call GetMem(MemLabel,'Free','Inte',iMltPlAd(iMltpl),
@@ -224,12 +223,10 @@ C     Call OneBas('PRIM')
             Else
                Write (6,'(2A)')'MPProp: Error reading nInt=0 label='
      &         ,label
-               Call QTrace()
                Call Abend()
             End If
             If (irc.ne.0) Then
                Write (6,'(2A)') '2 MPProp: Error reading ',label
-               Call QTrace()
                Call Abend()
             End If
 !???????????????????????
@@ -286,14 +283,12 @@ C     Call OneBas('PRIM')
      &                            label
          Write(6,*) 'Length of the vector', nInt, iSmLbl
          Write(6,*) 'irc=',irc
-         Call QTrace()
          Call Abend()
       End If
       If (nInt.ne.nSize) Then
          Write (6,*) 'MPProp: nInt.ne.nSize'
          Write (6,*) 'nInt=',nInt
          Write (6,*) 'nSize=',nSize
-         Call QTrace()
          Call Abend()
       End If
       irc=-1

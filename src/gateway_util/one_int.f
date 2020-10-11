@@ -23,8 +23,6 @@
       use Her_RW
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
       External Kernel
       Real*8 Array(nArray)
@@ -70,7 +68,7 @@
      &            1.0d0,Scr1,nPrim_r,
      &                  Cff_r,nPrim_r,
      &            0.0d0,Scr2,naa*nCntrc_a)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('S_AR in Cartesian',' ',Scr2,
      &            naa,nCntrc_a*nCntrc_r)
 #endif
@@ -93,8 +91,8 @@
      &               SAR,nCntrc_a*nCntrc_r)
       End If
       Call mma_deallocate(pSAR)
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt('S_AR in Sphericals',' ',SAR,
      &                  iCmp_a*iCmp_r,nCntrc_a*nCntrc_r)
 #endif

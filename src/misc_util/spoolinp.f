@@ -44,7 +44,6 @@
       Character*128 FileName
       logical exist
 *
-      Call QEnter('SpoolInp')
 *
 *     Get the name of the module
 *
@@ -82,7 +81,6 @@
          endif
       End If
 *
-       Call QExit('SpoolInp')
       Return
 *                                                                      *
 ************************************************************************

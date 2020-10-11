@@ -52,14 +52,7 @@
       Character*72 Line
       Character*3 lIrrep(8)
       Logical NonEq
-*
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-*
-#ifdef _DEBUG_
-      Call QEnter('WrInp')
-#endif
+
       If (jPrint.ge.2) Then
          Call CollapseOutput(1,'   Input section:')
          Write(6,'(3X,A)')     '   --------------'
@@ -490,15 +483,7 @@ c           Call Abend()
      &      'the robust representation')
          End If
       End If
-*
-#ifdef _DEBUG_
-      Call QExit('WrInp')
-#endif
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
+
+
       Call XFlush(6)
-      Return
       End

@@ -17,13 +17,6 @@
 * Object: trace the gradient of the ERI's with the second order        *
 *         density matrix                                               *
 *                                                                      *
-* Called from: Rysg1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DGeMV   (ESSL)                                          *
-*              DCopy   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
@@ -43,8 +36,7 @@
 *
       iRout = 239
       iPrint = nPrint(iRout)
-*     Call qEnter('Distg1')
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt('Accumulated gradient on entrance',
      &               ' ',Grad,nGrad,1)
@@ -120,7 +112,7 @@
          End Do
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.49) Then
          Call RecPrt('PAOg1',' ',PAOg1,12,1)
          Call RecPrt('Accumulated gradient on exit',
@@ -128,8 +120,8 @@
       End If
 #endif
 *
-*     Call qExit('Distg1')
       Return
-c Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(mVec)
+#endif
       End

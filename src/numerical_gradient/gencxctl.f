@@ -33,7 +33,6 @@
 *
       Lu=6
 *
-      Call QEnter('GenCxCTL')
       iRout = 32
       iPrint=nPrint(iRout)
 *                                                                      *
@@ -302,7 +301,6 @@
 *
 *-----Terminate the calculations.
 *
-      Call QExit('GenCxCTL')
 *
       Return
       End

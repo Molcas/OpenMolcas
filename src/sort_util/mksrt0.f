@@ -45,7 +45,6 @@
       iRout = 80
       iPrint = nPrint(iRout)
       if ( iPrint.gt.10) Write(6,*) ' >>> Enter MKSRT0 <<<'
-      Call qEnter('MkSrt0')
 *----------------------------------------------------------------------*
 *     Gather information on desired ordering scheme                    *
 *----------------------------------------------------------------------*
@@ -94,6 +93,5 @@
 40      Continue
 30    Continue
 *
-      Call qExit('MkSrt0')
       Return
       End

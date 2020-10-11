@@ -54,7 +54,6 @@
       End Do
       If (.not. lDens .eq. ndim) Then
          Write (6,*) 'ERROR in FMMFck', lDens, ndim
-         Call QTrace
          Call Abend()
       End If
 
@@ -74,7 +73,6 @@ C      call dcopy_(ndim,Zero,0,CntrZ,1)
       If (iRc.ne.0) Then
          Write (6,*) 'FMMFck: Error readin ONEINT'
          Write (6,'(A,A)') 'Label=',Label
-         Call QTrace
          Call Abend()
       End If
       Label='FMMCnY'
@@ -82,7 +80,6 @@ C      call dcopy_(ndim,Zero,0,CntrZ,1)
       If (iRc.ne.0) Then
          Write (6,*) 'FMMFck: Error readin ONEINT'
          Write (6,'(A,A)') 'Label=',Label
-         Call QTrace
          Call Abend()
       End If
       Label='FMMCnZ'
@@ -90,7 +87,6 @@ C      call dcopy_(ndim,Zero,0,CntrZ,1)
       If (iRc.ne.0) Then
          Write (6,*) 'FMMFck: Error readin ONEINT'
          Write (6,'(A,A)') 'Label=',Label
-         Call QTrace
          Call Abend()
       End If
 *
@@ -106,7 +102,6 @@ C      call dcopy_(ndim,Zero,0,CntrZ,1)
          If (iRc.ne.0) Then
             Write (6,*) 'FMMFck: Error readin ONEINT'
             Write (6,'(A,A)') 'Label=',Label
-            Call QTrace
             Call Abend()
          End If
          Do ij = 1, ndim

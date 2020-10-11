@@ -25,24 +25,6 @@
 *         b) refer to the components of the cartesian or spherical     *
 *         harmonic gaussians.                                          *
 *                                                                      *
-* Called from: Drv1El                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              Kernel                                                  *
-*              RecPrt                                                  *
-*              DCopy    (ESSL)                                         *
-*              DGEMM_   (ESSL)                                         *
-*              CarSph                                                  *
-*              DGeTMO   (ESSL)                                         *
-*              DaXpY    (ESSL)                                         *
-*              SOSctt                                                  *
-*              SymAd1                                                  *
-*              DScal    (ESSL)                                         *
-*              TriPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
 *             Modified for Hermite-Gauss quadrature November '90       *
@@ -60,11 +42,12 @@
       use iSD_data
       use Basis_Info
       use Center_Info
+      use Temporary_parameters, only: PrPrt
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "nsd.fh"
@@ -85,7 +68,6 @@
 *
       iRout = 212
       iPrint = nPrint(iRout)
-      Call qEnter('Drv2_RF')
       If (iPrint.ge.19) Then
          Write (6,*) ' In Drv2_RF: llOper'
          Write (6,'(1X,8I5)') llOper
@@ -98,10 +80,10 @@
 *
 *     Auxiliary memory allocation.
 *
-      Call mma_allocate(Zeta,m2Max,Label='Zeta')
-      Call mma_allocate(ZI,m2Max,Label='ZI')
-      Call mma_allocate(Kappa,m2Max,Label='Kappa')
-      Call mma_allocate(PCoor,m2Max,3,Label='PCoor')
+      Call mma_allocate(Zeta,S%m2Max,Label='Zeta')
+      Call mma_allocate(ZI,S%m2Max,Label='ZI')
+      Call mma_allocate(Kappa,S%m2Max,Label='Kappa')
+      Call mma_allocate(PCoor,S%m2Max,3,Label='PCoor')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -150,26 +132,26 @@
 *
             Call RFMem(nOrder,MemKer,iAng,jAng,nOrdOp)
 *           Write(*,*)nOrder,MemKer,iAng,jAng,nOrdOp
-            MemKrn=MemKer*m2Max
+            MemKrn=MemKer*S%m2Max
             Call mma_allocate(Kern,MemKrn,Label='Kern')
 *
 *           Allocate memory for the final integrals all in the
 *           primitive basis.
             nComp = (lMax+1)*(lMax+2)*(lMax+3)/6
-            lFinal = MaxPrm(iAng) * MaxPrm(jAng) *
+            lFinal = S%MaxPrm(iAng) * S%MaxPrm(jAng) *
      &               nElem(iAng)*nElem(jAng)
             Call mma_allocate(Fnl,lFinal,nComp+1,Label='Fnl')
 *
 *           Scratch area for contraction step
 *
-            nScr1 =  Max(MaxPrm(iAng),MaxPrm(jAng)) *
-     &               Max(MaxBas(iAng),MaxBas(jAng)) *
+            nScr1 =  Max(S%MaxPrm(iAng),S%MaxPrm(jAng)) *
+     &               Max(S%MaxBas(iAng),S%MaxBas(jAng)) *
      &               nComp*nElem(iAng)*nElem(jAng)
             Call mma_allocate(Scr1,nScr1,Label='Scr1')
 *
 *           Scratch area for the transformation to spherical gaussians
 *
-            nScr2=nComp*MaxBas(iAng)*MaxBas(jAng)
+            nScr2=nComp*S%MaxBas(iAng)*S%MaxBas(jAng)
      &           *nElem(iAng)*nElem(jAng)
             Call mma_allocate(Scr2,nScr2,Label='Scr2')
 *
@@ -393,6 +375,5 @@
       Call mma_deallocate(ZI)
       Call mma_deallocate(Zeta)
 *
-      Call qExit('Drv2_RF')
       Return
       End

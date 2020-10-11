@@ -16,15 +16,6 @@
 *                                                                      *
 *  Object: driver for two-electron integrals.                          *
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Timing                                                  *
-*              Setup_Ints                                              *
-*              Eval_Ints                                               *
-*              Term_Ints                                               *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -35,10 +26,9 @@
 ************************************************************************
       use iSD_data
       use Basis_Info, only: dbsc
+      use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
       External Integral_WrOut, Rsv_GTList
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
@@ -57,7 +47,6 @@
 *                                                                      *
       iRout = 9
       iPrint = nPrint(iRout)
-      Call QEnter('Drv2El')
       SLine='Computing 2-electron integrals'
       Call StatusLine(' Seward:',SLine)
 *                                                                      *
@@ -242,6 +231,5 @@
       FreeK2=.True.
       Call Term_Ints(Verbose,FreeK2)
       Call Free_iSD()
-      Call QExit('Drv2El')
       Return
       End

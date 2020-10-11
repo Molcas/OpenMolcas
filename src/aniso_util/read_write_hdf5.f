@@ -13,18 +13,17 @@
       Implicit None
 #include "stdalloc.fh"
 #include "mh5.fh"
-      Character(180),intent(in) ::    file_h5
+      Character(Len=180),intent(in) ::    file_h5
       Integer, intent(out)      ::    nstate,nss
       ! local variables:
       Integer                   ::    i,fileid
       Character                 ::    tmp*256, sFile*128
-      Character(180)            ::    tmp2
+      Character(Len=180)        ::    tmp2
       Integer, allocatable      ::    spin_mult(:)
-      Character(5)              ::    molcas_module_kind
+      Character(Len=5)          ::    molcas_module_kind
       Logical                   ::    Exist
       Logical                   ::    DBG
 
-      Call qEnter('read_hdf5_init')
       DBG=.false.
 
       WRITE (6,'(A,A)') 'Read data from rassi.h5 file ',trim(file_h5)
@@ -92,7 +91,6 @@
       ! close the file
       Call mh5_close_file(fileid)
 
-      Call qExit('read_hdf5_init')
       RETURN
       END SUBROUTINE read_hdf5_init
 
@@ -130,7 +128,7 @@
       Real(kind=8), allocatable    :: RR(:,:), RI(:,:)
       Real(kind=8), allocatable    :: AL(:,:,:)
       Integer                       :: fileid,jend,INRM
-      Character(180)                :: file_h5
+      Character(Len=180)            :: file_h5
       Real(kind=8)                 :: RNRM
       Real(kind=8), external       :: dnrm2_, dznrm2_
       Complex(kind=8), external    :: spin
@@ -146,7 +144,6 @@
      &           found_sos_coeff, found_eso, found_esfs, found_mult
       Logical :: DBG
 
-      Call qEnter('read_hdf5_all')
       DBG  =.false.
       AU2CM=219474.6313702_wp
       g_e=2.00231930437180_wp
@@ -571,7 +568,6 @@ c----- expand the spin free basis to the spin-orbit basis:
       ! close the file
       Call mh5_close_file(fileid)
 
-      Call qExit('read_hdf5_all')
       RETURN
       END SUBROUTINE read_hdf5_all
 
@@ -609,7 +605,7 @@ c----- expand the spin free basis to the spin-orbit basis:
       Real(kind=8), allocatable    :: AL(:,:,:)
       Complex(kind=8), allocatable :: U(:,:)
       Integer                       :: fileid,jend,INRM
-      Character(180)                :: file_h5
+      Character(Len=180)            :: file_h5
       Real(kind=8)                 :: RNRM
       Real(kind=8), external       :: dnrm2_, dznrm2_
       Complex(kind=8), external    :: spin
@@ -625,7 +621,6 @@ c----- expand the spin free basis to the spin-orbit basis:
      &           found_sos_coeff, found_eso, found_esfs, found_mult
       Logical :: DBG
 
-      Call qEnter('read_hdf5_poly')
       DBG  =.false.
       AU2CM=219474.6313702_wp
       g_e=2.00231930437180_wp
@@ -1056,7 +1051,6 @@ c----- expand the spin free basis to the spin-orbit basis:
       ! close the file
       Call mh5_close_file(fileid)
 
-      Call qExit('read_hdf5_poly')
       RETURN
       END  SUBROUTINE read_hdf5_poly
 

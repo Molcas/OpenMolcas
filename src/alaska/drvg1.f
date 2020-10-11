@@ -20,19 +20,6 @@
 *          list of symmetry distinct centers that do have basis        *
 *          functions of the requested type.                            *
 *                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              SetUp_Ints                                              *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              Swap                                                    *
-*              MemRg1                                                  *
-*              PSOAO1                                                  *
-*              PGet0                                                   *
-*              TwoEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -47,12 +34,14 @@
       use PSO_Stuff
       use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
       use Basis_Info
+      use Sizes_of_Seward, only:S
+      use Real_Info, only: CutInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Rsv_GTList
-#include "real.fh"
 #include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
+#include "Molcas.fh"
+#include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "disp.fh"
@@ -101,7 +90,6 @@
       Pget_CPU = 0.0d0
       Pget_Wall = 0.0d0
 #endif
-      Call QEnter('Drvg1')
       call dcopy_(nGrad,[Zero],0,Temp,1)
 *
       Call StatusLine(' Alaska:',' Computing 2-electron gradients')
@@ -144,8 +132,8 @@
 ************************************************************************
 *                                                                      *
       MxPrm = 0
-      Do iAng = 0, iAngMx
-         MxPrm = Max(MxPrm,MaxPrm(iAng))
+      Do iAng = 0, S%iAngMx
+         MxPrm = Max(MxPrm,S%MaxPrm(iAng))
       End Do
       nZeta = MxPrm * MxPrm
       nEta  = MxPrm * MxPrm
@@ -184,7 +172,7 @@
 *                                                                      *
 *-------Compute FLOPs for the transfer equation.
 *
-        Do iAng = 0, iAngMx
+        Do iAng = 0, S%iAngMx
            Do jAng = 0, iAng
               nHrrab = 0
               Do i = 0, iAng+1
@@ -506,6 +494,5 @@
 ************************************************************************
 *                                                                      *
       Call Free_iSD()
-      Call QExit('Drvg1')
       Return
       End

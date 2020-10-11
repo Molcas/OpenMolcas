@@ -12,21 +12,26 @@
 !***********************************************************************
 SUBROUTINE set_l_kriging(lv,nInter)
   use kriging_mod
-  integer i, nInter
+  integer nInter
   real*8 lv(nInter)
+!
+! Set the characteristic length of all the components of the coordintes.
+!
   If (nInter.eq.nInter_Save) Then
-    do i = 1,nInter_save
-      l(i)=lv(i)
-    enddo
+    l(:)=lv(:)
   Else If (nInter.eq.1) Then
-    do i = 1,nInter_save
-      l(i)=lv(1)
-    enddo
+    l(:)=lv(1)
   Else
     Write (6,*) "setlkriging: illegal nInter value."
     Call Abend()
   End If
-  call covarMatrix(nPoints_Save,nInter_save)
-  call kriging_model(nPoints_save)
-! write (6,*) 'set l value, lh:',l(1)
+!
+! Generate the covariance matrix
+!
+  call covarMatrix()
+!
+! Form the inverse of the covariance matrix times the generalized value vector.
+!
+  call kriging_model()
+
 END SUBROUTINE set_l_kriging

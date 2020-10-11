@@ -14,15 +14,6 @@
      &                  Alpha,Beta,Grad,nGrad,DAO,IfGrad,IndGrd,iStab,
      &                  jStab,kOp)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: KnEGrd                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
@@ -45,7 +36,6 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-*     Call QEnter('CmbnT1')
 *
 *     ii = la*(la+1)*(la+2)/6
 *     jj = lb*(lb+1)*(lb+2)/6
@@ -324,6 +314,5 @@
  100  Continue
 *
 *
-*     Call QExit('CmbnT1')
       Return
       End

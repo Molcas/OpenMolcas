@@ -31,7 +31,6 @@
 *
       Real*8 Ovlp(*), HOne(*), Kine(*), CMO(*)
 *
-      Call qEnter('Tr1Ctl')
 *
 *     Initialize LUONEMO
 *
@@ -166,6 +165,5 @@
      &                   NBAS,NORB,NFRO,NDEL,8,BSLBL,LENIN8*mxOrb)
       CALL DACLOS(LUONEMO)
 *
-      Call qExit('Tr1Ctl')
       RETURN
       END

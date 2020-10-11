@@ -17,13 +17,6 @@
 * Object: trace the gradient of the ERI's with the second order        *
 *         density matrix                                               *
 *                                                                      *
-* Called from: Rysg1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DGeMV   (ESSL)                                          *
-*              DCopy   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
@@ -36,7 +29,7 @@
      &       Temp(9), PAOg1(12), Prmt(0:7)
       Logical IfGrad(3,4)
       Integer   IndGrd(3,4), kOp(4), iStab(4)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Character*80 Label
 #endif
       Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
@@ -45,10 +38,9 @@
 *
       xPrmt(i,j) = Prmt(iAnd(i,j))
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iRout = 239
       iPrint = nPrint(iRout)
-      Call qEnter('Distg1')
       If (iPrint.ge.99) Then
          Call RecPrt('PAO',' ',PAO,nT,mPAO)
          Do 500 iVec = 1, mVec
@@ -115,7 +107,7 @@
             End If
  210     Continue
  200  Continue
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.49) Call RecPrt('PAOg1',' ',PAOg1,12,1)
 #endif
 *
@@ -133,13 +125,12 @@
             End If
  110    Continue
  100  Continue
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.49) Then
          Call RecPrt('Accumulated gradient on exit',
      &               ' ',Grad,nGrad,1)
       End If
 *
-      Call qExit('Distg1')
 #endif
       Return
       End

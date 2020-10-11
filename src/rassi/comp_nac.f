@@ -33,13 +33,13 @@ C                                                                       C
 C***********************************************************************C
       Use Basis_Info
       use Center_Info
+      use Symmetry_Info, only: nIrrep
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='COMP_NAC')
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "disp.fh"
@@ -54,7 +54,6 @@ C***********************************************************************C
       TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
      &                              iIrrep,iComp,dc(mdc)%nStab)
 
-      CALL QENTER(ROUTINE)
 
 *
 * Main Loop on all  geometrical displacements to perform
@@ -171,8 +170,7 @@ C                                                                       C
 C***********************************************************************C
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "prgm.fh"
@@ -188,7 +186,6 @@ C***********************************************************************C
       CHARACTER*8 LABEL, STYPE
 * Subroutine Statements
 
-      CALL QENTER(ROUTINE)
 
 *
 * Reading information from MCKINT file...
@@ -281,6 +278,5 @@ C     END IF
 *
 * Now you can leave...
 *
-      CALL QEXIT(ROUTINE)
       RETURN
       END

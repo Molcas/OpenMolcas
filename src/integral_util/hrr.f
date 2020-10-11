@@ -21,16 +21,6 @@
 *         2D-integrals. The method was later implemented to be applied *
 *         on the contracted integrals( Head-Gordon & Pople).           *
 *                                                                      *
-* Called from: OneEl                                                   *
-*              TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              OCHRR                                                   *
-*              HRR1                                                    *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             February '90                                             *
 *                                                                      *

@@ -19,17 +19,6 @@
 * Object: kernel routine for the computation of nuclear attraction     *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              mHrr                                                    *
-*              DCR                                                     *
-*              Rys                                                     *
-*              Hrr                                                     *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, April '95                               *
 ************************************************************************
@@ -37,9 +26,8 @@
       use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake, XCff2D, XRys2D
-#include "real.fh"
 #include "itmax.fh"
-#include "info.fh"
+#include "real.fh"
 #include "print.fh"
 
 #include "int_interface.fh"
@@ -60,7 +48,6 @@ C     nElem(ixyz) = 2*ixyz+1
 *
       iRout = 151
       iPrint = nPrint(iRout)
-*     Call qEnter('XFdInt')
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
@@ -227,8 +214,8 @@ C     nElem(ixyz) = 2*ixyz+1
                ipI=ipI+nZeta*nElem(la)*nElem(lb)
             End Do
 *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
             Write (6,*) (Fact*ZFd(i),i = 1, nElem(iOrdOp))
             Call RecPrt('Array(ip1)',' ',Array(ip1),nZeta,
      &              (la+1)*(la+2)/2*(lb+1)*(lb+2)/2*nElem(iOrdOp))

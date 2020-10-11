@@ -355,7 +355,7 @@ CONTAINS
    SUBROUTINE fmm_contract_Wq(N_or_T,W_mat,WLDA,vec_in,n,vec_out,m)
 
       IMPLICIT NONE
-      CHARACTER(1),  INTENT(IN)    :: N_or_T
+      CHARACTER(LEN=1),  INTENT(IN):: N_or_T
       INTEGER(INTK), INTENT(IN)    :: n,m,WLDA
       REAL(REALK),   INTENT(IN)    :: W_mat(WLDA,WLDA)
       REAL(REALK),   INTENT(IN)    :: vec_in(n)

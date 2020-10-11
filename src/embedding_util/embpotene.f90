@@ -48,7 +48,6 @@
 ! If (readCheck.ne.0) Then
 !    Write (6,*) 'R1Inta: Error readin ONEINT'
 !    Write (6,'(A,A)') 'Label=embpot  '
-!    Call QTrace
 !    Call Abend()
 ! End If
 !

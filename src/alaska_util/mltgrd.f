@@ -19,16 +19,6 @@
 *                                                                      *
 * Object: to compute the gradients of the Multipole operator           *
 *                                                                      *
-* Called from: DrvH1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              DCopy   (ESSL)                                          *
-*              CmbnMlt1                                                *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 *             Modified to multipole moments November '90               *
@@ -42,9 +32,7 @@
       use Center_Info
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 #include "print.fh"
 #endif
 
@@ -58,7 +46,7 @@
 *                                                                      *
 ************************************************************************
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iRout = 122
       iPrint = nPrint(iRout)
 #endif
@@ -86,7 +74,7 @@
          Call Abend
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.49) Then
          Call RecPrt(' In MltGrd: RKappa',' ',rKappa,1,nZeta)
          Call RecPrt(' In MltGrd: A',' ',A,1,3)

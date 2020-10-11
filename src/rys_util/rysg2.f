@@ -25,21 +25,6 @@
 *                                                                      *
 * Object: to compute the gradient of the two-electron integrals.       *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Tvalue                                                  *
-*              RtsWgh                                                  *
-*              vRysRW                                                  *
-*              ModU2                                                   *
-*              Cff2D                                                   *
-*              Rys2Dm                                                  *
-*              HrrCtl                                                  *
-*              Rys2Dg                                                  *
-*              Assg2                                                   *
-*              Distg2                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -86,12 +71,12 @@
 *   @parameter lgrad true if 1st derivatives should be calculated
 *   @parameter tr  true for all centers on which should be calculated via translation invarians
       use vRys_RW
-      use Symmetry_Info, only: iOper
+      use Symmetry_Info, only: nIrrep, iOper
+      use Real_Info, only: ChiI2
+      use Temporary_Parameters, only: IsChi
       Implicit Real*8 (A-H,O-Z)
       External Tvalue, ModU2, Cff2D
       External Exp_1, Exp_2
-#include "itmax.fh"
-#include "info.fh"
 #include "notab.fh"
 #include "real.fh"
       Real*8 Zeta(nZeta), ZInv(nZeta), P(lP,3),
@@ -100,7 +85,7 @@
      &       CoorAC(3,2), Coora(3,4), Coori(3,4), Array(nArray),
      &       PAO(nT,nPAO), Hess(nHess)
 *    &       rkab(nZeta),rdcd(neta)
-      Integer iAnga(4), IndGrd(3,4,0:nirrep-1), Index1(3,4),
+      Integer iAnga(4), IndGrd(3,4,0:7), Index1(3,4),
      &          nOp(4), iuvwx(4),   JndGrd(3,4,0:7), lOp(4),
      &          IndHss(4,3,4,3,0:7),Index2(3,4,4),
      &          Index3(3,3),Index4(2,6,3),ng(3),nh(3),Index_Out(3,4)

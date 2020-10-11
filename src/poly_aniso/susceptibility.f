@@ -104,7 +104,6 @@ c local variables
       Character(len=50) :: label
       Real(wp), external :: dnrm2_
 
-      Call qEnter('PA_suscept')
 
       mem_local=0
       dbg=.false.
@@ -778,7 +777,6 @@ c-------------------------------------------------------------------------------
      &                  'tensor were not calculated.'
       Write(6,*)
   190 continue
-      Call qExit('PA_suscept')
       Return
       End
 

@@ -18,7 +18,6 @@
 #include "intgrl.fh"
 
       DIMENSION CMO(NCMO)
-      CALL QENTER('INTCTL1')
 
 * Compute using conventional integral file:
       IF(IPRGLB.GE.DEBUG) THEN
@@ -34,6 +33,5 @@
 c Compute FIMO, FAMO, ...  to workspace:
       CALL FOCK_RPT2
 
-      CALL QEXIT('INTCTL1')
       RETURN
       END

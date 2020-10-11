@@ -81,7 +81,6 @@
        If (ia.gt.Max_CI_Vectors) Then
           Write (6,*) 'ipclose: ia.gt.Max_CI_Vectors'
           Write (6,*) 'ia,Max_CI_Vectors=',ia,Max_CI_Vectors
-          Call QTrace()
           Call Abend()
        End If
 *
@@ -263,7 +262,6 @@
        If (iii.gt.Max_CI_Vectors) Then
           Write (6,*) 'ipout: iii.gt.Max_CI_Vectors'
           Write (6,*) 'iii,Max_CI_Vectors=',iii,Max_CI_Vectors
-          Call QTrace()
           Call Abend()
        End If
 *
@@ -300,7 +298,6 @@
        If (ii.gt.Max_CI_Vectors) Then
           Write (6,*) 'opout: ii.gt.Max_CI_Vectors'
           Write (6,*) 'ii,Max_CI_Vectors=',ii,Max_CI_Vectors
-          Call QTrace()
           Call Abend()
        End If
 *

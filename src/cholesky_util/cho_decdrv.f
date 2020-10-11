@@ -39,7 +39,6 @@ C
 
       INFRED(I)=IWORK(ip_INFRED-1+I)
 
-      CALL QENTER('_DECDRV')
 
 C     Start timing.
 C     -------------
@@ -335,6 +334,5 @@ C     -------
       TDECDRV(1) = TCPU2  - TCPU1
       TDECDRV(2) = TWALL2 - TWALL1
 
-      CALL QEXIT('_DECDRV')
 
       END

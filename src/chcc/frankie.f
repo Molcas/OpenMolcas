@@ -125,7 +125,6 @@ cmp
       Call Get_iArray('nFro',nFro_scf,1)
       If (nFro_scf(1).ne.0) Then
          Write (6,*) 'Some orbitals were frozen in SCF!'
-         Call QTrace()
          Call Abend()
       End If
 c
@@ -210,13 +209,12 @@ cmp
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Debug=.true.
 #else
       Debug=.false.
 #endif
 
-      Call QEnter(SECNAM)
 
 cmp
 cmp!<new 21/04/09
@@ -313,7 +311,6 @@ C ------------------------------------------------------------------
 
             if (nVrs.lt.0) then
                Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
-               call qtrace()
                call abend()
             endif
 
@@ -323,7 +320,6 @@ cmp!              Write(6,*)SECNAM//'cho_X_setred non-zero return code.
 cmp!     &                           rc= ',irc
               Write(6,*)SECNAM//'cho_X_setred non-zero return code.',
      &                         ' rc= ',irc
-              call qtrace()
               call abend()
             endif
 
@@ -342,7 +338,6 @@ cmp!     &                           rc= ',irc
                WRITE(6,*) 'reading ',nRS,' and transforming to ',mvec
                WRITE(6,*) 'of jsym= ',jsym,' and JRED= ',JRED
                rc = 33
-               CALL QTrace()
                CALL Abend()
                nBatch = -9999  ! dummy assignment
             End If
@@ -514,7 +509,6 @@ C --- free memory
 
       rc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
       END

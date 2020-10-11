@@ -45,41 +45,11 @@
 *     Temp   : Working place for F gen and n8                          *
 *     TwoHam : Final results fock matrix and MO's                      *
 *                                                                      *
-*                                                                      *
-*                                                                      *
 *     Object:      To construct the first order derivatives of the AO- *
 *     integrals and add them up to the MO derivatives and              *
 *     the Fock matrix derivatives and contract the second              *
 *     order derivatives of the AO's with the second order              *
 *     density matrix.                                                  *
-*                                                                      *
-*     Called from: Drvg2                                               *
-*                                                                      *
-*     Calling    : QEnter                                              *
-*     DCR                                                              *
-*     DCopy   (ESSL)                                                   *
-*     ICopy                                                            *
-*     LCopy                                                            *
-*     Inter                                                            *
-*     Stblzr                                                           *
-*     DesymP                                                           *
-*     Trnsps                                                           *
-*     Trns1                                                            *
-*     Phase                                                            *
-*     SphCr1                                                           *
-*     SphCr2                                                           *
-*     PrePre                                                           *
-*     Tcrtnc                                                           *
-*     Screen                                                           *
-*     Rysg2                                                            *
-*     Cntrct                                                           *
-*     CrSph                                                            *
-*     Clrbuf                                                           *
-*     RecPrt                                                           *
-*     DaXpY  (ESSL)                                                    *
-*     DScal  (ESSL)                                                    *
-*     DGetMO (ESSL)                                                    *
-*     QExit                                                            *
 *                                                                      *
 *     Authors: Roland Lindh, IBM Almaden Research Center, San Jose, CA *
 *     March '90                                                        *
@@ -120,12 +90,13 @@
       use Basis_Info
       use Center_Info
       use Phase_Info
+      use Real_Info, only: CutInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External TERI1, ModU2, Cff2D
+#include "Molcas.fh"
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "disp.fh"
 #include "disp2.fh"
@@ -222,7 +193,6 @@
       If (ip-1.gt.nTemp) Then
          Write (6,*) 'TwoEl_McK: ip-1.gt.nTemp'
          Write (6,*) 'ip,nTemp=',ip,nTemp
-         Call QTrace
          Call Abend()
       End If
 *

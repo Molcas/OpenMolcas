@@ -32,7 +32,6 @@
 C Purpose: Compute three sets of quantities, needed by MCLR, used to
 C compute forces and derivatives.
 
-      CALL QENTER('GRDCTL')
 
 C--------------------------------------------------------------------
 C (A):
@@ -250,6 +249,5 @@ C--------------------------------------------------------------------
 
       CALL GETMEM('GRDSGM','FREE','REAL',LSGM,NSG)
       CALL GETMEM('GRDCI','FREE','REAL',LCI,NCONF)
-      CALL QEXIT('GRDCTL')
       RETURN
       END

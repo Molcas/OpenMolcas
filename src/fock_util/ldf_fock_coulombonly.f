@@ -255,7 +255,7 @@ C
       Integer  LDF_nAtom
       External LDF_nAtom
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_X_IsSet, LDF_TestBlockMatrix
       External LDF_X_IsSet, LDF_TestBlockMatrix
       Logical  DoTest
@@ -312,7 +312,7 @@ C
          Go To 1  ! return
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (.not.LDF_X_IsSet()) Then
          Call WarningMessage(2,SecNam//': LDF data not initialized!')
          Call LDF_Quit(1)
@@ -367,7 +367,7 @@ C
       l_DBlocks=nD
       Call GetMem('DBlk_P','Allo','Inte',ip_DBlocks,l_DBlocks)
       ip0=ip_DBlocks-1
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       x=dble(NumberOfAtomPairs)
       y=dble(LDF_nAtom())*(dble(LDF_nAtom())+1.0d0)/2.0d0
       DoTest=int(x-y).eq.0
@@ -375,7 +375,7 @@ C
       Do iD=1,nD
          Call LDF_AllocateBlockMatrix('Den',iWork(ip0+iD))
          Call LDF_Full2Blocked(Work(ip_D(iD)),PackedD,iWork(ip0+iD))
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          If (DoTest) Then
             If (.not.LDF_TestBlockMatrix(iWork(ip0+iD),PackedD,
      &                                   Work(ip_D(iD)))) Then
@@ -1272,7 +1272,7 @@ C
       Character*21 SecNam
       Parameter (SecNam='LDF_Fock_CoulombOnly0')
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  LDF_X_IsSet, LDF_TestBlockMatrix
       External LDF_X_IsSet, LDF_TestBlockMatrix
       Integer  LDF_nAtom
@@ -1303,7 +1303,7 @@ C
          Return
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (.not.LDF_X_IsSet()) Then
          Call WarningMessage(2,SecNam//': LDF data not initialized!')
          Call LDF_Quit(1)
@@ -1348,7 +1348,7 @@ C
       l_DBlocks=nD
       Call GetMem('DBlk_P','Allo','Inte',ip_DBlocks,l_DBlocks)
       ip0=ip_DBlocks-1
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       x=dble(NumberOfAtomPairs)
       y=dble(LDF_nAtom())*(dble(LDF_nAtom())+1.0d0)/2.0d0
       DoTest=int(x-y).eq.0
@@ -1356,7 +1356,7 @@ C
       Do iD=1,nD
          Call LDF_AllocateBlockMatrix('Den',iWork(ip0+iD))
          Call LDF_Full2Blocked(Work(ip_D(iD)),PackedD,iWork(ip0+iD))
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          If (DoTest) Then
             If (.not.LDF_TestBlockMatrix(iWork(ip0+iD),PackedD,
      &                                   Work(ip_D(iD)))) Then

@@ -10,51 +10,58 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-SUBROUTINE predict(gh,iter,nInter)
+SUBROUTINE predict(gh)
   use kriging_mod
 #include "stdalloc.fh"
   real*8 tsum
   integer INFO
-  integer i,j,iter,nInter,gh ! ipiv the pivot indices that define the permutation matrix
+  integer i,gh ! ipiv the pivot indices that define the permutation matrix
   real*8, Allocatable :: B(:), A(:,:)
   integer, Allocatable :: IPIV(:)
 !
   Call mma_allocate(B,m_t,label="B")
 !
-  do j=1,npx
+nInter=nInter_save
     if (gh.eq.0) then
+
       !A contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
       Call mma_allocate(A,m_t,m_t,label="A")
       Call mma_allocate(IPIV,m_t,label="IPIV")
       ! calculations of Energy and dispersion
       A(:,:) = full_R
-      B(:) = cv(:,j,1,1)
-      pred(j) = sb + dot_product(B,Kv)
+      B(:) = cv(:,1,1)
+      pred = sb + dot_product(B,Kv)
       CALL DGESV_(m_t, 1,A,m_t,IPIV,B,m_t,INFO )
-      var(j) = 1d0 - dot_product(B,CV(:,j,1,1))
+      var = 1d0 - dot_product(B,CV(:,1,1))
+
       if (ordinary) Then
-        tsum = sum(rones(1:iter))
-        B(:) = cv(:,j,1,1)
-        var(j)=max(var(j)+(1d0-dot_product(B,rones))**2/tsum,0d0)
+        tsum = sum(rones(1:m_t))
+        B(:) = cv(:,1,1)
+        var=max(var+(1d0-dot_product(B,rones))**2/tsum,0d0)
       end if
-      sigma(j)=sqrt(var(j)*variance)
+
+      sigma=sqrt(var*variance)
       Call mma_deallocate(A)
       Call mma_deallocate(IPIV)
+
     else if (gh.eq.1) then
+
       do k=1,nInter
-        B(:) = cv(:,j,k,1)
-        gpred(j,k) = dot_product(B,Kv)
+        B(:) = cv(:,k,1)
+        gpred(k) = dot_product(B,Kv)
       enddo
+
     else if (gh.eq.2) then
+
       do k=1,nInter
         do i=k,nInter
-          B(:) = cv(:,j,i,k)
-          hpred(j,k,i) = dot_product(B, Kv)
-          if (i.ne.k) hpred(j,i,k) = hpred(j,k,i)
+          B(:) = cv(:,i,k)
+          hpred(k,i) = dot_product(B, Kv)
+          if (i.ne.k) hpred(i,k) = hpred(k,i)
         enddo
       enddo
+
     endif
-  enddo
 !
   Call mma_deallocate(B)
 !

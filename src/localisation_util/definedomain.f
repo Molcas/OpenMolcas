@@ -67,7 +67,7 @@
       Integer nB(1)
 
       Logical LocDbg
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Parameter (LocDbg = .True.)
 #else
       Parameter (LocDbg = .False.)

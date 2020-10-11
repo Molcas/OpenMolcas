@@ -1533,7 +1533,7 @@
 *
 
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*) 'Pab'
       Do i = 1,lPab
          Write(6,*) Wrk(kPab(1)+i-1)

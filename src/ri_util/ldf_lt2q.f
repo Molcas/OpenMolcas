@@ -92,7 +92,7 @@ C
          Call WarningMessage(2,SecNam//': ipLT != l')
          Call LDF_Quit(1)
       End If
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       n=0
       Do jS=1,nS
          jShell=iWork(ipS+jS)

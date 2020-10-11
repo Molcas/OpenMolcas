@@ -42,7 +42,7 @@
       Character*20 FMT
 *----------------------------------------------------------------------*
       If (nRow*nCol.eq.0) Return
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 C     Call CTrcPrt(Title,FmtIn,A,nRow,nCol,'R')
 C     Call CTrcPrt(Title,FmtIn,A,nRow,nCol,'I')
       Return

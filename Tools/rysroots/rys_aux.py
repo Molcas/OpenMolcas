@@ -97,7 +97,7 @@ def frange(start, end, step):
 # 
 # Code translated directly from:
 #   Walter Gautschi. ACM Trans. Math. Softw. 20 (1994) 21-62
-#   DOI: 10.1145/174603.174605
+#   doi:10.1145/174603.174605
 # (routine supplied by G. H. Golub according to a footnote)
 def gauss(alpha, beta, eps, nloop=30):
   n = len(alpha)
@@ -170,7 +170,7 @@ def gauss(alpha, beta, eps, nloop=30):
 #
 # Code translated directly from:
 #   Walter Gautschi. ACM Trans. Math. Softw. 20 (1994) 21-62
-#   DOI: 10.1145/174603.174605
+#   doi:10.1145/174603.174605
 def stieltjes(n, roots, weights):
   naux = len(roots)
   if (len(weights) != naux):
@@ -217,7 +217,7 @@ def stieltjes(n, roots, weights):
 #
 # Code translated directly from:
 #   Walter Gautschi. ACM Trans. Math. Softw. 20 (1994) 21-62
-#   DOI: 10.1145/174603.174605
+#   doi:10.1145/174603.174605
 def lanczos(n, roots, weights):
   naux = len(roots)
   if (len(weights) != naux):

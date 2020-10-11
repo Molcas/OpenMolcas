@@ -46,21 +46,20 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
       If (nBonds.lt.1) Return
       iRout=151
       iPrint=nPrint(iRout)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPrint=99
 #endif
-      Call QEnter('Bonds')
 *
       nqB=0
       PSPrint=.False.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) PSPrint=.True.
       If (PSPrint) Then
          Write (6,*)
@@ -106,7 +105,7 @@
      &          iDCR(2).ne.iOper(0)) Go To 2
             iRow = iANr(iAtom)
             jRow = iANr(jAtom)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'iAtom,jAtom=',iAtom,jAtom
 #endif
             Help = iRow.gt.3 .or. jRow.gt.3
@@ -128,7 +127,7 @@
      &               jStab(0,jAtom),nStab(jAtom),iDCRR,nDCRR)
              kDCRR = iDCR(2)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (PSPrint) Then
                Write (6,'(10A)') 'U={',
      &               (ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
@@ -157,7 +156,7 @@
      &                    jStab(0,jAtom),nStab(jAtom),
      &                    kDCRR,iStabM,nStabM)
             End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (PSPrint) Then
                Write (6,'(10A)') 'M={',
      &               (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
@@ -168,7 +167,7 @@
 *
             iDeg=nIrrep/nStabM
             Deg=Sqrt(DBLE(iDeg))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (PSPrint) Write (6,*)' nIrrep,nStabM=',nIrrep,nStabM
 #endif
 *
@@ -194,7 +193,7 @@
      &             'b',nqB,' = Bond ',
      &             Lbls(1)(iF1:iE1),' ',
      &             Lbls(2)(iF2:iE2)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (iPrint.ge.49)
      &      Write (6,'(A,I3.3,4A)')
      &             'b',nqB,' = Bond ',
@@ -262,6 +261,5 @@
  1       Continue
       End Do        ! iBond
 *
-      Call QExit ('Bonds')
       Return
       End

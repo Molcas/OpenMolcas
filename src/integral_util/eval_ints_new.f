@@ -47,18 +47,6 @@
 *                                                                      *
 *  Local:                                                              *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter,QExit                                            *
-*              Int_Setup                                               *
-*              Dens_Info                                               *
-*              MemRys                                                  *
-*              PSOAO0                                                  *
-*              Picky_                                                  *
-*              TwoEl_NoSym                                             *
-*              TwoEl_Sym                                               *
-*              Integ_Proc                                              *
-*                                                                      *
 * Author:     Roland Lindh                                             *
 *             Dept. of Theoretical Chemistry, University of Lund,      *
 *             SWEDEN.                                                  *

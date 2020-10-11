@@ -35,7 +35,6 @@
       External                      :: dznrm2_,trace_exch2
       Logical                       :: dbg
 
-      Call qEnter('newJKQP')
 !-------------------------------------------
       If( (n1<1).or.(n2<1)) Return
 !-------------------------------------------
@@ -253,7 +252,6 @@
       Call mma_deallocate(W1)
       Call mma_deallocate(W2)
 
-      Call qExit('newJKQP')
 
       Return
       End subroutine newjkqpar

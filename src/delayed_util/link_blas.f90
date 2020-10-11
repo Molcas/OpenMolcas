@@ -31,7 +31,7 @@ module link_blas
 
 contains
 
-!define _DEBUG_
+!define _DEBUGPRINT_
 
 !===============================================================================
 
@@ -159,13 +159,13 @@ contains
       if (c_associated(link_func)) then
         success=.true.
         exit
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       else
         write(6,*) c_f_string(dlerror())
 #endif
       end if
     end do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
     if (.not. success) then
       write(6,*) 'no ',trim(funname),' found'
     end if

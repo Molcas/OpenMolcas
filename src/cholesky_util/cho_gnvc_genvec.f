@@ -35,14 +35,10 @@ C
       IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
       mapRS2RS(i,j)=iWork(ip_mapRS2RS(i)-1+j)
 
-#if defined (_DEBUG_)
-      Call qEnter('_GnVc_GetVec')
-#endif
-
 C     Check input.
 C     ------------
 
-      If (NumPass .lt. 1) Go To 1 ! exit
+      If (NumPass .lt. 1) return
 
       If (mSym .ne. nSym) Then
          Call Cho_Quit('Input error [1] in '//SecNam,103)
@@ -68,7 +64,7 @@ C     ------------
             NumVec = NumVec + nVecRS(iSym,iPass)
          End Do
       End Do
-      If (NumVec .lt. 1) Go To 1 ! exit
+      If (NumVec .lt. 1) return ! exit
 
 C     Subtract previous vectors.
 C     --------------------------
@@ -439,10 +435,5 @@ C     ------------------------------------------------
          Write(Lupri,*) SecNam,': Cho_X_RSCopy returned ',irc
          Call Cho_Quit('Error termination in '//SecNam,104)
       End If
-
-    1 Continue
-#if defined (_DEBUG_)
-      Call qExit('_GnVc_GetVec')
-#endif
 
       End

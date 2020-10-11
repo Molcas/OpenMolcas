@@ -20,21 +20,13 @@
 * Object: to transform the one-electon matrix elements from AO basis   *
 *         to SO basis.                                                 *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DaXpY   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
 ************************************************************************
-      use Symmetry_Info, only: iChTbl
+      use Symmetry_Info, only: nIrrep, iChTbl
       use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
       Real*8 AOInt(iBas_Eff*jBas_Eff,iCmp,jCmp,nIC),
@@ -47,7 +39,6 @@
 *
       iRout = 133
       iPrint = nPrint(iRout)
-*     Call qEnter('SymAd1')
       If (iPrint.ge.99) Then
          Write (6,*) ' lOper=',lOper
          Write (6,*) ' nSOInt=',nSOInt
@@ -118,7 +109,6 @@
       End If
       If (iPrint.ge.59) Call GetMem(' Exit SymAd1','CHECK','REAL',
      &                              iDum,iDum)
-*     Call qExit('SymAd1')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

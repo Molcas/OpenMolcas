@@ -14,13 +14,8 @@
       SubRoutine DoZeta(Alpha,nAlpha,Beta,nBeta,A,B,P,Zeta,rKappa,
      &                  ZInv,Alpha_,Beta_,Ind_Pair)
 ************************************************************************
+*                                                                      *
 * Object : to compute P and kappa.                                     *
-*                                                                      *
-* Called from: k2Loop                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
@@ -32,8 +27,6 @@
 *             January '92, modified for gradient calculations.         *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
       Real*8 Alpha(nAlpha), Beta(nBeta), Zeta(nAlpha*nBeta),
      &       Alpha_(nAlpha*nBeta), Beta_(nAlpha*nBeta),
@@ -41,8 +34,8 @@
      &       P(nAlpha*nBeta,3), rKappa(nAlpha*nBeta)
       Integer Ind_Pair(nAlpha*nBeta+1)
 *
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In DoZeta:Alpha',' ',Alpha,nAlpha,1)
       Call RecPrt(' In DoZeta:Beta',' ',Beta,nBeta,1)
 #endif
@@ -109,7 +102,7 @@
       End Do
 #endif
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In DoZeta: Kappa',' ',rKappa,nZeta,1)
       Call RecPrt(' In DoZeta: P',' ',P,nZeta,3)
 #endif

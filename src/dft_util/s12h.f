@@ -22,29 +22,16 @@
 *             Reference:  Swart, Marcel                                *
 *             Chemical Physics Letters 580 (2013) 166-171              *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author: G. Li Manni and A. Cohen, Department of Electronic      *
 *              Structure Theory, Max Planck Institute, Stuttgart       *
 *              2017                                                    *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
-
       Real*8 Rho(nRho,mGrid), dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
       Integer gh_switch
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call QEnter('S12h')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -70,7 +57,6 @@ C     &            dF_dRho,ndF_dRho,Coeff,T_X)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('S12h')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

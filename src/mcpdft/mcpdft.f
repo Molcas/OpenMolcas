@@ -122,7 +122,6 @@
       External Get_ProgName
 !      External Get_SuperName
       Character*100 ProgName, Get_ProgName!, Get_SuperName
-      External QEnter, QExit
       External RasScf_Init
       External Scan_Inp
 !      External Proc_Inp
@@ -137,7 +136,6 @@
       Dimension Dummy(1)
 * Start the traceback utilities
 *
-      Call QENTER(ROUTINE)
 * Set status line for monitor:
       Call StatusLine('MCPDFT:',' Just started.')
 * Set the return code(s)
@@ -957,7 +955,6 @@ C Close the one-electron integral file:
         END DO
         Close(LUInput)
       End If
-      Call qExit(ROUTINE)
       return
       End
 

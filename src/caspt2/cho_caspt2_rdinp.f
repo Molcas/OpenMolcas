@@ -17,16 +17,14 @@
 *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "output.fh"
 #include "WrkSpc.fh"
-      Character(180) KWord, Key, Get_Ln
+      Character(Len=180) KWord, Key, Get_Ln
       External Get_Ln
       Logical  DFonly,REORD,DECO,timings,DensityCheck
-      character(16) SECNAM
+      character(len=16) SECNAM
       parameter (SECNAM = 'CHO_CASPT2_RDINP')
       Integer  ALGO
 *

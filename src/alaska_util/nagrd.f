@@ -18,14 +18,6 @@
 *                                                                      *
 * Object: to compute the gradient of the nuclear attraction integrals. *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy  (ESSL)                                           *
-*              ICopy                                                   *
-*              Rysg1                                                   *
-*              QExit                                                   *
-*                                                                      *
 *             Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             October '91                                              *
@@ -37,10 +29,8 @@
       External TNAI1, Fake, Cff2D
 *     Finite nuclei
       External TERI1, ModU2, vCff2D
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
 
@@ -63,9 +53,8 @@
 *
       iRout = 150
       iPrint = nPrint(iRout)
-*     Call qEnter('NAGrd')
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Write (6,*) ' In NAGrd: nArr=',nArr
          nDAO = nElem(la) * nElem(lb)
@@ -260,7 +249,6 @@ C              Call RecPrt('In NaGrd: Grad',' ',Grad,nGrad,1)
  111     kdc = kdc + dbsc(kCnttp)%nCntr
       End Do
 *
-*     Call qExit('NAGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

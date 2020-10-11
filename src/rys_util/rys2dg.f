@@ -17,14 +17,6 @@
 *                                                                      *
 * Object: to compute the gradients of the 2D-integrals.                *
 *                                                                      *
-* Called from: Rysg1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Exp1                                                    *
-*              Exp2                                                    *
-*              DaXpY  (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
@@ -43,7 +35,7 @@
 *
       iRout = 249
       iPrint = nPrint(iRout)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In Rys2Dg: Alpha',' ',Alpha,1,nZeta)
          Call RecPrt(' In Rys2Dg: Beta ',' ',Beta ,1,nZeta)

@@ -29,7 +29,7 @@
 #include "SysDef.fh"
 
 C Read coefficient vector from LUSOLV (C repres).
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         WRITE(6,*)' RDSCTC (Normal repres.)'
         WRITE(6,'(a,i2,a,a,a,i2,a,i2)')' Vector nr.',IVEC,
      &          '  Case ',CASES(ICASE),' Symm ',ISYM,
@@ -46,7 +46,7 @@ C Read coefficient vector from LUSOLV (C repres).
       NCOL=MIN(NIS-MDVEC*(ISCT-1),MDVEC)
       NSCT=NAS*NCOL
       CALL DDAFILE(LUSOLV,2,VSCT,NSCT,IDS)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         WRITE(6,*)' First few elements:'
         WRITE(6,'(1x,5f15.6)')(VSCT(I),I=1,MIN(NSCT,10))
 #endif
@@ -66,7 +66,7 @@ C Read coefficient vector from LUSOLV (C repres).
 #include "SysDef.fh"
 
 C Read coefficient vector from LUSOLV (C repres).
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         WRITE(6,*)' RDBLKC (Normal repres.)'
         WRITE(6,'(a,i2,a,a,a,i2)')' Vector nr.',IVEC,
      &          '  Case ',CASES(ICASE),' Symm ',ISYM
@@ -86,7 +86,7 @@ C Read coefficient vector from LUSOLV (C repres).
         CALL DDAFILE(LUSOLV,2,VEC(LVEC),NBLK,IDV)
         LVEC=LVEC+NBLK
   10  CONTINUE
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         WRITE(6,*)' First few elements:'
         WRITE(6,'(1x,5f15.6)')(VEC(I),I=1,MIN(NCOEF,10))
 #endif

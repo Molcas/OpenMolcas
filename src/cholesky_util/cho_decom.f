@@ -36,10 +36,6 @@ C
       INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
       IQUAB(I,J)=IWORK(ip_IQUAB-1+MAXQUAL*(J-1)+I)
 
-#if defined (_DEBUG_)
-      CALL QENTER('_DECOM')
-#endif
-
       LENLIN = 0  ! to avoid compiler warnings...
       IF (IPRINT .GE. INF_PROGRESS) THEN
          CALL CHO_HEAD(SECNAM//
@@ -348,9 +344,5 @@ C        ---------------------------------
          WRITE(LUPRI,'(A,8I8)')
      &   '#vec. gener.  : ',(NUMCHO_OLD(ISYM),ISYM=1,NSYM)
       END IF
-
-#if defined (_DEBUG_)
-      CALL QEXIT('_DECOM')
-#endif
 
       END

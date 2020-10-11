@@ -12,22 +12,11 @@
 *               1990, IBM                                              *
 *               2000-2015, Valera Veryazov                             *
 ************************************************************************
-#ifdef _HAVE_GRID_IT_
-      subroutine Grid_it(iRun,INPORB,ireturn)
-c  iRun =1 normal run, 0=trancated from scf
+      subroutine Grid_it(iRun,ireturn)
+c  iRun =1 normal run, 0=truncated from scf
 ************************************************************************
 *                                                                      *
 *  Object: Driver for evaluation MO values on a grid.                  *
-*                                                                      *
-* Called from: None                                                    *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              XuFlow (IBM)                                            *
-*              Seward_init                                             *
-*             *SetUp0                                                  *
-*              GetMem                                                  *
-*              GetInf                                                  *
-*              DrvMO                                                   *
 *                                                                      *
 *  Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA     *
 *          July '89 - May '90                                          *
@@ -49,21 +38,17 @@ c  iRun =1 normal run, 0=trancated from scf
       use Real_Spherical
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-c      Character*120 Lines(17)
-      Character INPORB*(*)
-      Logical OldTst, DoRys
-#ifdef _EXTERNAL_GRID_IT_
+#include "Molcas.fh"
 #include "grid.fh"
-#endif
+c      Character*120 Lines(17)
+      Character(Len=1024) INPORB
+      Logical DoRys
 #include "warnings.fh"
 *
 *     Prologue
 *
-      Call qEnter('GRID')
       levelprint=IPRINTLEVEL(-1)
       if(iRun.eq.0.and.levelprint.lt.3) then
         levelprint=0
@@ -82,9 +67,6 @@ c      Call bXML('GRID_IT')
       nDiff=0
       DoRys=.False.
       Call IniSew(DoRys,nDiff)
-
-      OldTst = Test
-*
 *
 *---- Read the input
 *
@@ -93,15 +75,10 @@ c      Call bXML('GRID_IT')
       if (iReturn.eq._RC_INVOKED_OTHER_MODULE_) then
 c* take care to close files and release the potential memory...
 c       close(unit=LuOrb)
-#ifdef _EXTERNAL_GRID_IT_
         close(unit=LuVal)
         if(isUHF.eq.1) close(unit=LuVal_ab)
-#else
-        call close_grids()
-#endif
       goto 999
       endif
-*
 *
 *     Start computing the spin density and spin density gradient
 *     at the grid.
@@ -118,19 +95,11 @@ c       close(unit=LuOrb)
 *     Epilogue
 *
       if(iRun.eq.1) then
-        Call qStat(' ')
 c        Call eXML('GRID_IT')
 c      else
 c      write(6,*) 'Input file for molcasgv was generated'
       endif
 c      ireturn=0
 
-
-      Call qExit('GRID')
       return
       End
-#elif defined (NAGFOR)
-c Some compilers do not like empty files
-      Subroutine empty_grid_it
-      End
-#endif

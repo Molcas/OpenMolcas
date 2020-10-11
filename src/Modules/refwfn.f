@@ -11,7 +11,7 @@
       module refwfn
       Implicit None
       Logical :: refwfn_active = .False.
-      Character(128) :: refwfn_filename
+      Character(Len=128) :: refwfn_filename
       Integer :: refwfn_id
       Logical, public :: refwfn_is_h5
       Integer :: IADR15(30)
@@ -25,7 +25,7 @@
       Subroutine refwfn_init(Filename)
 ************************************************************************
       Implicit None
-      Character(*) :: Filename
+      Character(Len=*) :: Filename
       Integer :: I, IAD15
 
 #ifdef _HDF5_
@@ -111,7 +111,7 @@ CSVC: initialize the reference wavefunction info
 #include "stdalloc.fh"
 #ifdef _HDF5_
 #  include "mh5.fh"
-      character(1), allocatable :: typestring(:)
+      character(Len=1), allocatable :: typestring(:)
 #endif
       Integer iSym, ref_nSym, ref_nBas(mxSym)
       Real*8 :: Weight(mxRoot)

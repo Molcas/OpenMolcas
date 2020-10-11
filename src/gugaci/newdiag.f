@@ -91,11 +91,9 @@ c      if(ndimt.le.maxdimlu) then
      *               ,num,max_tmpvalue,neh0,lent,ndimt
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
 #ifdef _XIANEST_
-      call qexit()
 #endif
 !         call abend
 !          stop 1000

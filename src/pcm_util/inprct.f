@@ -12,22 +12,12 @@
 ************************************************************************
       SubRoutine InpRct(LuSpool)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *                                                                      *
 *             Modified for Langevin polarizabilities, March 2000 (RL)  *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "rctfld.fh"
@@ -37,7 +27,6 @@
 *
       iRout=1
       iPrint=nPrint(iRout)
-*     Call qEnter('InpRct')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -545,7 +534,6 @@ c      write(6,*)'COVR',ii,val
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call qExit('InpRct')
       Return
 *                                                                      *
 ************************************************************************

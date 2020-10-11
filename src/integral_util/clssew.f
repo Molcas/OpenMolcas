@@ -12,14 +12,6 @@
 ************************************************************************
       SubRoutine ClsSew
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
@@ -32,10 +24,7 @@
       Use SOAO_Info
       use Symmetry_Info, only: Symmetry_Info_Free
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "timtra.fh"
 #include "rctfld.fh"
@@ -67,23 +56,4 @@
 *
       Seward_Status=InActive
       Return
-      End
-c
-c This code originally was included into ClsSew
-c occasionally it should be separated
-      Subroutine DumpSagit()
-      Implicit Real*8 (A-H,O-Z)
-c      Character*8 sagit
-c      Call getenvf('MOLCAS_SAGIT',sagit)
-c      If (sagit(1:1).eq.'y'.or.sagit(1:1).eq.'Y') Then
-CVV: dump info from runfile into ORB.std
-C    note that changes in info.fh
-C    should be reflected in sagit
-        iutemp=16
-        iutemp=isfreeunit(iutemp)
-        Call molcas_open(iutemp,'ORB.std')
-        Call Koor2file(iutemp)
-        Call Basi2file(iutemp)
-        close(iutemp)
-c      End If
       End

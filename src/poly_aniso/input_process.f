@@ -48,14 +48,14 @@
       Integer, intent(in)       :: neq(nneq), neqv
 !     number of equivalent sites of each type, neqv = MAXVAL(neq(:))
       Integer, intent(in)       :: nexch(nneq), nmax
-      Character(1), intent(in)  :: itype(nneq)
+      Character(len=1), intent(in)  :: itype(nneq)
       Integer, intent(in)       :: nCenter
       Integer, intent(in)       :: nLoc
       Real(kind=8), intent(in) :: R_LG( nneq,neqv,3,3)
       Real(kind=8), intent(in) :: gtens_input(3,nneq)
       Real(kind=8), intent(in) :: eso(nneq,nLoc)
       Integer, intent(in)       :: nss(nneq), nsfs(nneq)
-      Character(180), intent(in) :: namefile_aniso(nneq)
+      Character(len=180), intent(in) :: namefile_aniso(nneq)
 c  definition of the exchange:
 !     total number of exchange states
       Integer, intent(in)       :: exch
@@ -145,11 +145,11 @@ c  options for automatic fitting of parameters:
       Logical, intent(in)       :: fitM !-- not used so far
 
       Logical, intent(in)       :: check_title
-      Character(180),intent(in) :: Title
+      Character(len=180),intent(in) :: Title
 
 
 ! local variables
-      Character(180) fmtline
+      Character(len=180) fmtline
       Logical  :: nosym
       Logical  :: ab_initio_all
       Logical  :: DBG
@@ -158,7 +158,6 @@ c  options for automatic fitting of parameters:
       Integer  :: icount_B_sites
 
 
-      Call qEnter('PA_input_process')
       DBG=.false.
 c-----------------------------------------------------------------------
 c print the data from this Subroutine:
@@ -617,7 +616,6 @@ c    ...
      &                     'is yet in the development'
       End If
 ! ======================================================================
-      Call qExit('PA_input_process')
 
       Return
       End subroutine input_process

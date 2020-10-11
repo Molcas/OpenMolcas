@@ -10,9 +10,6 @@
 ************************************************************************
         SubRoutine CtlDns(iDCRR,iDCRS,iDCRT,jOp)
 
-#include "itmax.fh"
-#include "info.fh"
-
       Integer jop(6)
 
 *              Djl. Some care has to be taken here. Assume that there

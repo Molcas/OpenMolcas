@@ -30,7 +30,8 @@
 *                                                                      *
 *    (see update_sl)                                                   *
 ************************************************************************
-      Use kriging_mod, only: miAI, meAI
+      Use kriging_mod, only: Max_Microiterations,
+     &                       Thr_microiterations
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -57,7 +58,7 @@
 *                                                                      *
 *     Different hardwired kriging options
 *
-*#define _DEBUG_
+*#define _DEBUGPRINT_
 *#define _OVERSHOOT_
 *                                                                      *
 ************************************************************************
@@ -69,9 +70,8 @@
 *
       iRout=153
       iPrint=nPrint(iRout)
-      Call QEnter('Update')
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Update_K: qInt',' ',qInt,nInter,Iter)
       Call RecPrt('Update_K: Shift',' ',Shift,nInter,Iter-1)
       Call RecPrt('Update_K: GNrm',' ',GNrm,Iter,1)
@@ -81,7 +81,7 @@
       Force_RS=.FALSE.
       iOpt_RS=1   ! Activate restricted variance.
       iterAI=iter
-      dEner=meAI
+      dEner=Thr_microiterations
       nRaw=Min(iter,nWndw/2)
 *     nRaw=1 ! Force HMF Hessian
       iFirst = iter - nRaw + 1
@@ -91,7 +91,7 @@
       qBeta_Disp=Beta_Disp
       GrdMax_Save=GrdMax
       GrdLbl_Save=GrdLbl
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('qInt(0)',  ' ',qInt(1,iFirst),nInter,nRaw)
       Call RecPrt('Energy(0)',' ',Energy(iFirst),1,nRaw)
       Call RecPrt('Grad(0)',  ' ',Grad(1,iFirst),nInter,nRaw)
@@ -189,7 +189,7 @@
 ************************************************************************
 *                                                                      *
          kIter_=iterAI
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*)
          Write (6,*) 'Do iterAI: ',iterAI
 #endif
@@ -218,7 +218,7 @@
      &                   dMass,HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
      &                   First_MicroIteration,iter,qBeta_Disp)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'Update_kriging: Step_Trunc',Step_Trunc
          Call RecPrt('New Coord',' ',qInt,nInter,iterAI+1)
          Call RecPrt('Grad',' ',Grad,nInter,iterAI)
@@ -283,7 +283,7 @@
          iterK  = iterK  + 1
          iterAI = iterAI + 1
          dEner = Energy(iterAI) - Energy(iterAI-1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('qInt(x):',' ',qInt,nInter,iterAI)
          Call RecPrt('Ener(x):',' ',Energy,1,iterAI)
          Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
@@ -313,7 +313,7 @@
                RMSMx=Max(RMSMx,Abs(Shift(iInter,iterAI-1)))
             End Do
             GrdMx=GrdMax
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*)
             Write (6,*) 'iter=',iterAI-1
             Write (6,*) 'FAbs=',FAbs
@@ -342,8 +342,9 @@
             If (RMS.gt.(Three*Beta_)) Step_trunc='*'
             Call mma_deAllocate(Temp)
          End If
-         Not_Converged = Not_Converged .and. iterK.lt.miAI
-#ifdef _DEBUG_
+         Not_Converged = Not_Converged .and.
+     &                   iterK.lt.Max_Microiterations
+#ifdef _DEBUGPRINT_
          Write (6,*) 'Not_Converged=',Not_Converged
 #endif
 *                                                                      *
@@ -358,7 +359,7 @@
 *
          If (iOpt_RS.eq.0) Not_Converged=.False.
 *        Not_Converged=.False. ! Force single iteration scheme.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'Not_Converged=',Not_Converged
 #endif
 *                                                                      *
@@ -442,7 +443,7 @@
 *
       GrdMax=GrdMax_Save
       GrdLbl=GrdLbl_Save
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('qInt(3):',' ',qInt,nInter,iter+1)
       Call RecPrt('Shift:',' ',Shift,nInter,iter)
 #endif
@@ -472,11 +473,9 @@
       Call Put_dArray('BMxOld',Dummy(1),0)
       Call Put_dArray('TROld',Dummy(1),0)
 *
-      Call QExit('Update')
       Return
-c Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(kIter)
       If (.False.) Call Unused_integer(NmIter)
-*
-      Return
+#endif
       End Subroutine Update_Kriging

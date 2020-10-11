@@ -34,8 +34,8 @@
 *
       If (OnlyProp) Return
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Do iD = 1, nD
          Write (6,*) 'iD=',iD
          Write(6,'(a,8i5)') 'sorb: nOcc   ',(nOcc(i,iD),i=1,nSym)
@@ -201,8 +201,8 @@
             End Do ! iSym
 *
          End Do    ! iD
-*define _SPECIAL_DEBUG_
-#ifdef _SPECIAL_DEBUG_
+*define _SPECIAL_DEBUGPRINT_
+#ifdef _SPECIAL_DEBUGPRINT_
          Call DebugCMO(CMO,mBB,nD,Occ,mmB,nBas,nOrb,nSym,iFerm,
      &                 '@ the last position')
 #endif
@@ -224,8 +224,8 @@
 *     they are virtual.
 *
       Do iD = 1, nD
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'iD=',iD
          Write (6,*) 'nOccs(original):'
          Write (6,*) (nOcc(iSym,iD),iSym=1,nSym)
@@ -261,7 +261,7 @@
             jOff=jOff+nOrb(iSym)
             iOff=iOff+nBas(iSym)*nOrb(iSym)
          End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'iD=',iD
          Write (6,*) 'nOccs(new):'
          Write (6,*) (nOcc(iSym,iD),iSym=1,nSym)
@@ -291,8 +291,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Do iD = 1, nD
          iOff=1
          jOff=1
@@ -310,7 +310,7 @@
 #endif
       Return
       End
-#ifdef _SPECIAL_DEBUG_
+#ifdef _SPECIAL_DEBUGPRINT_
       Subroutine DebugCMO(CMO,nCMO,nD,Occ,nnB,nBas,nOrb,nSym,iFerm,
      &                    Label)
       Implicit Real*8 (a-h,o-z)

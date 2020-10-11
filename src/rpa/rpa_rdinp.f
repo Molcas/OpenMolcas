@@ -47,7 +47,6 @@ C
       Integer i
 
       ! register entry
-      Call qEnter(SecNam)
 
       ! set default print level
       iPrint=max(iPrintLevel(-1),0)
@@ -58,7 +57,7 @@ C
       End If
 
       ! set debug print
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       DebugPrint=iPrint.gt.4
 #else
       DebugPrint=.false.
@@ -141,7 +140,7 @@ C
             Call RPA_ReadIntegerInput('PRIN',1,Lu,
      *                                iWork(ip_Integer),l_Integer)
             iPrint=max(iWork(ip_Integer),0)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
             DebugPrint=DebugPrint.or.iPrint.gt.4
 #endif
          !*******************************
@@ -227,7 +226,6 @@ C
       Call Close_LuSpool(Lu)
 
       ! register exit
-      Call qExit(SecNam)
 
       End
 ************************************************************************

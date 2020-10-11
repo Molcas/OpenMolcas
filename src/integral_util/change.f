@@ -35,7 +35,6 @@ c#include "print.fh"
 *
 c     iRout = 11
 c     iPrint = nPrint(iRout)
-c     Call QEnter('Change')
       Fail = .False.
       If (QlPrim) Then
          If (lPrInc.eq.1) Then
@@ -46,7 +45,6 @@ c     Call QEnter('Change')
          Do 10 i = 2, lPrim
             If ((lPrim+1)/i.lt.lPrInc) Then
                lPrInc=Max(1,(lPrim+1)/i)
-c              Call QExit('Change')
                Return
             End If
  10      Continue
@@ -62,7 +60,6 @@ c              Call QExit('Change')
          Do 20 i = 2, jPrim
             If ((jPrim+1)/i.lt.jPrInc) Then
                jPrInc=Max(1,(jPrim+1)/i)
-c              Call QExit('Change')
                Return
             End If
  20      Continue
@@ -80,7 +77,6 @@ c              Call QExit('Change')
             If ((lBas+1)/i.lt.lBsInc) Then
                lBsInc=Max(1,(lBas+1)/i)
                QlPrim=.True.
-c              Call QExit('Change')
                Return
             End If
  30      Continue
@@ -97,7 +93,6 @@ c              Call QExit('Change')
             If ((jBas+1)/i.lt.jBsInc) Then
                jBsInc=Max((jBas+1)/i,1)
                QlPrim=.True.
-c              Call QExit('Change')
                Return
             End If
  40      Continue
@@ -115,7 +110,6 @@ c              Call QExit('Change')
             If ((kBas+1)/i.lt.kBsInc) Then
                kBsInc=Max((kBas+1)/i,1)
                QlPrim=.True.
-c              Call QExit('Change')
                Return
             End If
  50      Continue
@@ -133,13 +127,11 @@ c              Call QExit('Change')
             If ((iBas+1)/i.lt.iBsInc) Then
                iBsInc=Max(1,(iBas+1)/i)
                QlPrim=.True.
-c              Call QExit('Change')
                Return
             End If
  60      Continue
       End If
 *
-c     Call QExit('Change')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(MaxReq)

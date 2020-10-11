@@ -20,34 +20,22 @@
 *          list of symmetry distinct centers that do have basis func-  *
 *          tions of the requested type.                                *
 *                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              SetUp_Ints                                              *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              Swap                                                    *
-*              MemRg1                                                  *
-*              PSOAO1                                                  *
-*              PGet0                                                   *
-*              TwoEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Ben Swerts                                               *
 *                                                                      *
 *     based on Drvg1                                                   *
-*                                                                      *
 ************************************************************************
       use k2_setup
       use iSD_data
       use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
       use Basis_Info
-
+      use Sizes_of_Seward, only:S
+      use Real_Info, only: CutInt
+      use Symmetry_Info, only: nIrrep
       Implicit None
       External King, Rsv_GTList, MPP
-#include "real.fh"
 #include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
+#include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
@@ -105,7 +93,6 @@
       idum1=0
       ExFac=One
       CoulFac=One
-      Call QEnter('Drvg_FAIEMP')
 *
 *     Handle both the valence and the fragment basis set
 *
@@ -149,8 +136,8 @@
 ************************************************************************
 *                                                                      *
       MxPrm = 0
-      Do iAng = 0, iAngMx
-         MxPrm = Max(MxPrm,MaxPrm(iAng))
+      Do iAng = 0, S%iAngMx
+         MxPrm = Max(MxPrm,S%MaxPrm(iAng))
       End Do
       nZeta = MxPrm * MxPrm
       nEta  = MxPrm * MxPrm
@@ -189,7 +176,7 @@
 *                                                                      *
 *-------Compute FLOP's for the transfer equation.
 *
-        Do iAng = 0, iAngMx
+        Do iAng = 0, S%iAngMx
            Do jAng = 0, iAng
               nHrrab = 0
               Do i = 0, iAng+1
@@ -460,6 +447,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drvg_FAIEMP')
       Return
       End

@@ -26,7 +26,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('BMx',' ',Work(ipB),nX,nQ)
       Call RecPrt('V_X',' ',V_X,nX,1)
 #endif
@@ -36,7 +36,7 @@
       NRHS=1
       Call Eq_Solver('T',M,N,NRHS,Work(ipB),.FALSE.,Degen,V_X,V_Q)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('V_Q',' ',V_Q,nQ,1)
 #endif
 *                                                                      *

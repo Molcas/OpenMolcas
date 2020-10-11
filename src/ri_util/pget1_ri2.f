@@ -24,12 +24,6 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
@@ -37,14 +31,11 @@
 *             Modified for RI-DFT, March 2007                          *
 *                                                                      *
 *             Modified for RI-HF/CAS, Dec 2009 (F. Aquilante)          *
-*                                                                      *
 ************************************************************************
       use Basis_Info, only: nBas
       use SOAO_Info, only: iAOtSO
       use pso_stuff, only: nnP, lPSO, lsa, DMdiag, nPos
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
@@ -58,11 +49,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       iRout = 39
       iPrint = nPrint(iRout)
-      Call qEnter('PGet1_RI2')
       Do i=1,nSA
          Call RecPrt('PGet1_RI2: V_k',' ',V_k(1,i),1,mV_k)
       End Do
@@ -583,10 +573,9 @@
          Call Abend
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In PGet1_RI2:PAO ',' ',PAO,ijkl,nPAO)
       Call GetMem(' Exit PGet1_RI2','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet1_RI2')
 #endif
       Call CWTime(Cpu2,Wall2)
       Cpu = Cpu2 - Cpu1

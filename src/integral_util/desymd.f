@@ -17,26 +17,15 @@
 *                                                                      *
 * Object: desymmetrize the first order density matrix.                 *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              DYaX    (ESSL)                                          *
-*              DaXpY   (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
 ************************************************************************
       Use Basis_Info
-      use Symmetry_Info, only: iChTbl, iOper, iChBas
+      use Symmetry_Info, only: nIrrep, iChTbl, iOper, iChBas
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
       Real*8 DAO(iBas*jBas,iCmp,jCmp), DSO(iBas*jBas,nDSO), Prmt(0:7)

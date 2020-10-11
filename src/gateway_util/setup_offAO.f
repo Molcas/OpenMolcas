@@ -11,8 +11,6 @@
       Subroutine Setup_OffAO()
       use Basis_Info, only: nCnttp, Shells, dbsc
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 *
 *     For some reason we need a counter which for a given shell index,
 *     kSh, counts how many angular functions have been in the

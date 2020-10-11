@@ -22,17 +22,6 @@
 * Object: to compute the multipole moments integrals with the          *
 *         Gauss-Hermite quadrature.                                    *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              CmbnMP                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 *             Modified to multipole moments November '90               *
@@ -43,10 +32,7 @@
       use Her_RW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
-      Integer IndGrd(2,3,3,0:nirrep-1), nOp(2), iStabM(0:nStabM-1)
+      Integer IndGrd(2,3,3,0:7), nOp(2), iStabM(0:nStabM-1)
       Real*8
      &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
      &       rKappa(nZeta), P(nZeta,3), A(3), B(3),
@@ -154,7 +140,6 @@
      &                nElem(la)*nElem(lb)*nrOp)
 
 c     Call Getmem('EXOG','CHECK','REAL',ipdum,ipdum)
-c     Call qExit('OvrGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

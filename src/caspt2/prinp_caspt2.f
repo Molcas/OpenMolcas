@@ -36,14 +36,13 @@
 #include "caspt2.fh"
 #include "output.fh"
 #include "pt2_guga.fh"
-      Character(8)   Fmt1,Fmt2
-      Character(120)  Line,BlLine,StLine
-      Character(3) lIrrep(8)
-      Character(20) calctype,FockOpType
+      Character(Len=8)   Fmt1,Fmt2
+      Character(Len=120)  Line,BlLine,StLine
+      Character(Len=3) lIrrep(8)
+      Character(Len=20) calctype,FockOpType
 *----------------------------------------------------------------------*
 *     Start and define the paper width                                 *
 *----------------------------------------------------------------------*
-      Call qEnter('PrInp_CASPT2')
 *----------------------------------------------------------------------*
 *     Initialize blank and header lines                                *
 *----------------------------------------------------------------------*
@@ -272,6 +271,5 @@ C Compute necessary quantities for subsequent gradient calc:
         END IF
       END IF
 
-      Call qExit('PrInp_CASPT2')
       Return
       End

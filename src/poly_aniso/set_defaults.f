@@ -39,7 +39,7 @@ c definintion of the cluster
       Real(kind=8), intent(out) :: D_fact(nneq)
       Real(kind=8), intent(out) :: EoverD_fact(nneq)
       Real(kind=8), intent(out) :: riso(nneq,3,3)
-      Character(1), intent(out) :: itype(nneq)
+      Character(Len=1), intent(out) :: itype(nneq)
 c definintion of exchange interaction
       Integer, intent(out) :: nexch(nneq)
 c  definition of g and D tensors
@@ -112,7 +112,6 @@ c------------------------------------------------------------------
 ! Local variables:
       Integer       :: i,j,l
 
-      Call qEnter('PA_set_defaults')
 c------------------------------------------------------------------
 !  at this point, the follwing variables have been already assigned
 !  their values
@@ -338,7 +337,6 @@ c  variables in "mgrid.fh"
       get_nP(3,31)=694
       get_nP(3,32)=760
 
-      Call qExit('PA_set_defaults')
 
       Return
       End Subroutine set_defaults

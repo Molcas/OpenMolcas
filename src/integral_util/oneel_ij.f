@@ -29,14 +29,16 @@
       use iSD_data
       use Basis_Info
       use Center_Info
+      use Sizes_of_Seward, only:S
+      use Logical_Info, only: FNMC
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
 *     External Kernel, KrnlMm
       External KrnlMm
 #include "angtp.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "real.fh"
 #include "rmat_option.fh"
-#include "WrkSpc.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "property_label.fh"
@@ -114,7 +116,7 @@
           Write (6,'(A,A,A,A,A)')
      &   ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
        endif
-      lFinal = nIC*MaxPrm(iAng)*MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+      lFinal = nIC*S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
       If (lFinal.gt.nFinal) Then
          Call WarningMessage(2,'lFinal.gt.nFinal')
          Call Abend()
@@ -156,7 +158,6 @@
         Call Get_nAtoms_All(nAtoms)
         l_Coord=3*nAtoms
         Call Get_dArray('Bfn Coordinates',Coord,l_Coord)
-        ! write(6,*) "nPSOI", nPSOI
          NATEST=.false.
         if (nAtoms.eq.2) then
          nAtoms=nAtoms+1
@@ -368,7 +369,7 @@
 *
       Call DCR(LambdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.19) Then
          Write (6,*)
          Write (6,*) ' g      =',nIrrep

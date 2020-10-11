@@ -411,7 +411,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
       iPL_Base=0
       If (iPL_Save.ge.3) iPl_Base=iPL_Save
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('BMtrx',' ',Work(ip_BMtrx),3*nAtoms,mInt)
       Call RecPrt('TMtrx',' ',Work(ip_TMtrx),mInt,mInt)
       Call RecPrt('Degeneracy vector',' ',Work(ipDeg),3,nAtoms)
@@ -1005,7 +1005,7 @@ C_MPP End Do
 *
          Call F_Inquire('QMMM',Exist)
          If (Exist .and. DoTinker) Then
-            Call LA_Morok(nAtoms,ipTmp,1)
+            Call LA_Morok(nAtoms,Work(ipTmp),1)
          End If
 *
          If (iR.eq.iRoot) Call Put_Grad(Work(ipTmp),3*nAtoms)

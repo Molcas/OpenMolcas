@@ -20,21 +20,6 @@
 * Object: kernel routine for the computation of FAIEMP Projection      *
 *         operator integrals.                                          *
 *                                                                      *
-* Called from: OneEl_g                                                 *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              Mlt1                                                    *
-*              DGeTMO  (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
 *      Beta  : as Alpha but for ket gaussians                          *
@@ -62,7 +47,6 @@
 *     Author: Ben Swerts                                               *
 *                                                                      *
 *     based on PrjGrd                                                  *
-*                                                                      *
 ************************************************************************
       use Her_RW
       use Real_Spherical
@@ -71,10 +55,8 @@
       use Center_Info
       use Symmetry_Info, only: iOper
       Implicit None
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "nsd.fh"
@@ -111,7 +93,6 @@
       nElem(i) = (i+1)*(i+2)/2
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *
-*     Call qEnter('FragPGrd')
       iRout = 202
       iPrint = nPrint(iRout)
 *

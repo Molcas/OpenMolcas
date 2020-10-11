@@ -23,14 +23,16 @@
 #include "weighting.fh"
 #include "db.fh"
 #include "print.fh"
+#include "stdalloc.fh"
       Logical Numerical, GoOn, PrQ, TSReg,
      &        Do_ESPF, Just_Frequencies, Found
       Character*8 GrdLbl, StpLbl, Labels(nLabels), Lbl(nLbl)
       Character*1 Step_trunc
       Integer AixRm, iNeg(2)
+      Integer nGB
+      Real*8, Allocatable:: GB(:)
 *
       Lu=6
-      Call QEnter('RlxCtl')
       iRout = 32
       iPrint=nPrint(iRout)
       StpLbl=' '
@@ -301,7 +303,7 @@
       Do_ESPF = .False.
       Call DecideOnESPF(Do_ESPF)
       If (Do_ESPF) Then
-       Call LA_Morok(nsAtom,ipCoor,2)
+       Call LA_Morok(nsAtom,work(ipCoor),2)
        call dcopy_(3*nsAtom,Work(ipCoor),1,Work(ipCx+3*nsAtom*Iter),1)
       End If
 *                                                                      *
@@ -370,7 +372,9 @@
          Call f_Inquire('RUNBACK',Found)
          If (Found) Then
 *           Read data
-            Call Get_Grad(ipGB,nGB)
+            nGB=3*nsAtom
+            Call mma_allocate(GB,nGB,Label='GB')
+            Call Get_Grad(GB,nGB)
             Call Qpg_dArray('Hss_X',Found,nHX)
             Call GetMem('HssX','Allo','Real',ipHX,nHX)
             Call Get_dArray('Hss_X',Work(ipHX),nHX)
@@ -383,7 +387,7 @@
             Call Get_iScalar('No of Internal coordinates',nIntCoor)
 *           Write data in backup file
             Call NameRun('RUNBACK')
-            Call Put_Grad(Work(ipGB),nGB)
+            Call Put_Grad(GB,nGB)
             Call Put_dArray('Hss_X',Work(ipHX),nHX)
             Call Put_dArray('Hss_Q',Work(ipHQ),nHQ)
             Call Put_dArray('Hss_upd',Work(ip_Dummy),0)
@@ -401,7 +405,7 @@
             End Do
             Call Put_AnalHess(Work(ipHX),iOff)
             Call NameRun('#Pop')
-            Call GetMem('Grad','Free','Real',ipGB,nGB)
+            Call mma_deallocate(GB)
             Call GetMem('HssX','Free','Real',ipHX,nHX)
             Call GetMem('HssQ','Free','Real',ipHQ,nHQ)
             Call GetMem('KtB','Free','Real',ipKtB,nKtB)
@@ -456,7 +460,6 @@
 *
 *-----Terminate the calculations.
 *
-      Call QExit('RlxCtl')
 *
       Return
       End

@@ -15,7 +15,6 @@ C
       IMPLICIT NONE
 #include "cholesky.fh"
 
-      CALL QENTER('_DBGINT')
 
       IF (CHO_MINCHK) THEN ! minimal check
          CALL CHO_MCA_DBGINT_S(ICHKQ,NCHKQ,.TRUE.)
@@ -23,6 +22,5 @@ C
          CALL CHO_MCA_DBGINT_A()
       END IF
 
-      CALL QEXIT('_DBGINT')
 
       END

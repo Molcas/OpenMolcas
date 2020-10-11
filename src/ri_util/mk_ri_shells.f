@@ -23,9 +23,11 @@
 *                                                                      *
 ************************************************************************
       use Basis_Info
+      use Sizes_of_Seward, only: S
+      use RICD_Info, only: iRI_Type
+      use Logical_Info, only: UnNorm
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
@@ -56,7 +58,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qEnter('Mk_RI_Shells')
       iRout = 2
       iPrint = nPrint(iRout)
 *
@@ -72,7 +73,7 @@
       BasisTypes(2)=0
       BasisTypes(3)=0
       BasisTypes(4)=0
-      iShll = Mx_Shll - 1
+      iShll = S%Mx_Shll - 1
       lSTDINP=0
       mCnttp=nCnttp
 *
@@ -190,7 +191,7 @@
          lAng=Max(dbsc(nCnttp)%nVal,
      &            dbsc(nCnttp)%nSRO,
      &            dbsc(nCnttp)%nPrj)-1
-         iAngMx=Max(iAngMx,lAng)
+         S%iAngMx=Max(S%iAngMx,lAng)
 *        No transformation needed for s and p shells
          Shells(jShll+1)%Transf=.False.
          Shells(jShll+1)%Prjct =.False.
@@ -221,9 +222,9 @@
 *        Create a pointer to the actual coordinates of the parent dbsc
          dbsc(nCnttp)%Coor=>dbsc(iCnttp)%Coor(1:3,1:nCnt)
 *
-         Mx_Shll=iShll+1
-         Max_Shells=Mx_Shll
-         Mx_mdc=mdc
+         S%Mx_Shll=iShll+1
+         Max_Shells=S%Mx_Shll
+         S%Mx_mdc=mdc
 *
       End Do
       Go To 1100
@@ -439,7 +440,7 @@
             End Do ! iAng
 *
             dbsc(nCnttp)%Aux=.True.
-            iAngMx=Max(iAngMx,lAng)
+            S%iAngMx=Max(S%iAngMx,lAng)
 *
             dbsc(nCnttp)%iVal = jShll + 1
             dbsc(nCnttp)%nVal = lAng+1
@@ -452,9 +453,9 @@
 *           Create a pointer to the actual coordinates.
             dbsc(nCnttp)%Coor=>dbsc(iCnttp)%Coor(1:3,1:nCnt)
 *
-            Mx_Shll=iShll+1
-            Max_Shells=Mx_Shll
-            Mx_mdc=mdc
+            S%Mx_Shll=iShll+1
+            Max_Shells=S%Mx_Shll
+            S%Mx_mdc=mdc
 *
             nSet=nSet-1
             If (nSet.ne.0) Line=Get_Ln(Lu_lib)
@@ -474,6 +475,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('Mk_RI_Shells')
       Return
       End

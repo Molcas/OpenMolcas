@@ -10,11 +10,9 @@
 ************************************************************************
       SubRoutine OneEl_Integrals(Kernel,KrnlMm,Label,ip,lOper,nComp,
      &                           CCoor,nOrdOp,rHrmt,iChO,Integrals)
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "real.fh"
       Character Label*8
@@ -27,8 +25,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' In OneEl: Label', Label
       Write (6,*) ' In OneEl: nComp'
       Write (6,'(1X,8I5)') nComp
@@ -55,7 +53,7 @@
             If (iAnd(lOper(iComp),iTwoj(iIrrep)).ne.0) nIC = nIC + 1
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' nIC =',nIC
 #endif
       If (nIC.eq.0) Then

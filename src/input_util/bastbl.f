@@ -81,7 +81,7 @@ c     &        Form='FORMATTED',IOSTAT=IOStat)
        if(ia.eq.0) ia=len(Line)+1
        TransName=Line(ib:ib+ia-1)
        FileName=DirName(1:ileft)//Line(ib:ib+ia-1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        write(6,*) '*** Basis set was redirected to ',FileName
 #endif
 30     close(iunit)
@@ -146,7 +146,7 @@ c       i=index(Line,Label(1:iLast))
          ib=i
          ia=index(Line(ib:),' ')
          if(ia.eq.0) ia=len(Line)+1
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          write(6,'(3a)') Label(1:iLast),'translated to ',
      &      Line(ib:ib+ia-1)
 #endif

@@ -35,7 +35,6 @@ c
         character*24 Label
         logical Found
 cmp
-        call qEnter('CHT3')
 cmp
 cmp
 c       vynuluj hodiny
@@ -186,7 +185,6 @@ c!        call GetMem('t3_ampl_bti','Free','Real',ioff,maxspace)
 c
         !Call EndGlb
 
-        Call qExit('CHT3')
         ireturn = 0
         return
         end
