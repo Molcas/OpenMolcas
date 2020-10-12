@@ -14,11 +14,9 @@ SUBROUTINE covarVector(gh)
   use kriging_mod
   Implicit None
 #include "stdalloc.fh"
-  integer i,i0,i1,j,j0,j1,k,k0,k1,gh,nInter
+  integer i,i0,i1,j,j0,j1,k,k0,k1,gh
   real*8 sdiffxi,sdiffxj,sdiffxk
   real*8, Allocatable ::  diffxi(:),diffxj(:), diffxk(:)
-
-  nInter =nInter_save
 
   Call mma_Allocate(diffxi,nPoints,label="diffxi")
   Call mma_Allocate(diffxj,nPoints,label="diffxj")
@@ -116,9 +114,7 @@ contains
 !
 SUBROUTINE defdlrl()
   use kriging_mod
-  integer i,j,nInter
-
-  nInter=nInter_save
+  integer i,j
 
   dl(:)=0.0D0
   do i=1,nInter

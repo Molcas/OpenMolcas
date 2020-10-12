@@ -14,11 +14,10 @@ SUBROUTINE covarMatrix()
   use kriging_mod
   Implicit None
 #include "stdalloc.fh"
-  integer i,j,i0,i1,j0,j1,k,nInter
+  integer i,j,i0,i1,j0,j1,k
   Real*8, Allocatable :: diffx_j(:,:), diffx_i(:,:), matFder(:,:),&
                          matSder(:,:), r(:,:,:), d(:,:)
 !#define _DEBUG_
-nInter=nInter_save
 
 !**********************************************************************
 !

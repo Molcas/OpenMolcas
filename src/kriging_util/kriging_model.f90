@@ -249,7 +249,7 @@ SUBROUTINE kriging_model()
 !
 ! form the actual value vector (y-b_0F)
 !
-  B(1:m_t) = [y(1:nPoints)-sb,dy(1:nInter_save*(nPoints-nD))]
+  B(1:m_t) = [y(1:nPoints)-sb,dy(1:nInter*(nPoints-nD))]
 !
 #ifdef _DEBUG_
   Write (6,*) 'sb,ln(det|PSI|)=',sb,detR
