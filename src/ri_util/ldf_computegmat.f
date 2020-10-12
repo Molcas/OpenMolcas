@@ -34,7 +34,7 @@ C
 #include "localdf_int.fh"
 #include "WrkSpc.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*15 SecNam
       Parameter (SecNam='LDF_ComputeGMat')
       Logical  isSymmetric, hasNonnegativeDiagonal, obeysCauchySchwarz
@@ -184,7 +184,7 @@ C
          Call LDF_UnsetIndxG()
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       ! Check G matrix for symmetry and non-negative diagonals
       ! and Cauchy-Schwarz inequality
       irc=0

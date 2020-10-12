@@ -56,7 +56,7 @@ C
 C     Set debug flag.
 C     ---------------
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Debug = .True.
 #else
       Debug = .False.

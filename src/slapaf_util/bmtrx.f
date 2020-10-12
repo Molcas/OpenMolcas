@@ -36,7 +36,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -61,7 +61,7 @@
          End If
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' Actual structure from iteration',iIter
       Write (6,*) ' Last structure from iteration',nIter
 #endif
@@ -288,7 +288,7 @@
          If (mTR.ne.0) Then
             Call Allocate_Work(ipTROld,3*nAtom*mTR)
             Call FZero(Work(ipTROld),3*nAtom*mTR)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('TRVec',' ',Work(ipTR),3*nAtom,mTR)
 #endif
             i = 0
@@ -307,7 +307,7 @@
 *
 *---- Print the B-matrix
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' The BMtrx',' ',Work(ipBMx),3*nAtom,nQQ)
 #endif
       Call Free_Work(ipTR)

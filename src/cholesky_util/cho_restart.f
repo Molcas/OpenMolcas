@@ -371,7 +371,7 @@ C     than the threshold for deletion, THR_SIMRI.
 C     ----------------------------------------------------------------
 
       IF (CHO_1CENTER .AND. .NOT.LCONV) THEN
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          IF (NSYM .NE. 1) THEN
             CALL CHO_QUIT(SECNAM//': CHO_1CENTER on, but NSYM != 1',103)
          END IF

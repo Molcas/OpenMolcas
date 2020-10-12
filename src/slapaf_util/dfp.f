@@ -14,12 +14,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('DFP: B',' ',B,nDim,nDim)
       Call RecPrt('DFP: Bd',' ',Bd,1,nDim)
       Call RecPrt('DFP: Gamma',' ',Gamma,1,nDim)
@@ -58,7 +58,7 @@
          End Do
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('DFP: B',' ',B,nDim,nDim)
 #endif
       Return

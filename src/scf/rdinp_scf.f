@@ -91,13 +91,7 @@
       COMMON  / ADDcorr_L   / Do_Addc
       Logical Do_SpinAV
       COMMON  / SPAVE_L  / Do_SpinAV
-*
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-*
-#ifdef _DEBUG_
-#endif
+
 *
 *     copy input from standard input to a local scratch file
 *
@@ -1728,8 +1722,6 @@ c         Write (6,*)
       End If
 *
       Call Put_iScalar('SCF mode',iUHF)
-#ifdef _DEBUG_
-#endif
 *
       LKon = ALGO.eq.4
 *

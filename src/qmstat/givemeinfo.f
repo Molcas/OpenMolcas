@@ -167,7 +167,7 @@ C     Endif
           iCount=iAng+iAngSav
           iPrim=Shells(iCount)%nExp
           iBas=Shells(iCount)%nBasis
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           Call RecPrt('Exp',' ',Shells(iCount)%Exp,iPrim,1)
           Call RecPrt('Cff',' ',Shells(iCount)%pCff,iPrim,iBas)
 #endif

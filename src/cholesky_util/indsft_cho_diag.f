@@ -53,8 +53,6 @@
       ISHLSO(I)=IWORK(ip_iShlSO-1+I)
       NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
 *
-#if defined (_DEBUG_)
-#endif
       irout = 39
       jprint = nprint(irout)
       k12=0
@@ -236,7 +234,4 @@
 200      Continue
 100   Continue
 *
-#if defined (_DEBUG_)
-#endif
-      Return
       End

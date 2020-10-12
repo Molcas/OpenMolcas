@@ -65,7 +65,7 @@
       iRout = 38
       iPrint = nPrint(iRout)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *     Write (*,*) DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),
 *    &            DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One  ,0)
       If (iPrint.ge.49) Then
@@ -278,7 +278,7 @@ c     End If
 *
 *     Call GetMem(' Exit FckAcc','CHECK','REAL',iDum,iDum)
       Return
-#ifndef _DEBUG_
+#ifndef _DEBUGPRINT_
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer_array(iAng)

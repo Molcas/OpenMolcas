@@ -47,7 +47,7 @@ C
 
       External Integral_WrOut_LDF_G
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  isSymmetric, hasNonnegativeDiagonal, obeysCauchySchwarz
       External isSymmetric, hasNonnegativeDiagonal, obeysCauchySchwarz
 #endif
@@ -134,7 +134,7 @@ C
             End Do
          End Do
          Call xRlsMem_Ints()
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          ! Check integral matrix for symmetry and non-negative diagonals
          ! and Cauchy-Schwarz inequality
          If (.not.isSymmetric(Work(ip_Int),nRow_G,1.0d-15)) Then
@@ -211,7 +211,7 @@ C
          ! Incomplete CD of residual matrix
          Thr=Thr_Accuracy
          nVec=0
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          ! Check residual matrix for symmetry and non-negative diagonals
          ! and Cauchy-Schwarz inequality
          If (.not.isSymmetric(Work(ip_Int),nRow_G,1.0d-15)) Then

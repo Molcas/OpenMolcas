@@ -21,7 +21,7 @@
       Real*8  Diag(*), Scr(lScr)
 #include "WrkSpc.fh"
 #include "warnings.fh"
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 C-tbp: check diagonal for negative entries
       n_NegInpDiag=0
       d_NegInpDiag=0.0d0

@@ -66,7 +66,7 @@ C EASUM=CONTRACT EPSA WITH DIAGONAL OF ACTIVE DENS
         END DO
       END DO
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)
       WRITE(6,*)'      ORBITAL ENERGIES, EPS:'
       WRITE(6,'(1X,5F12.6)')(EPS(I),I=1,NORBT)
@@ -85,7 +85,7 @@ C EASUM=CONTRACT EPSA WITH DIAGONAL OF ACTIVE DENS
        E=E+EPSA(I)*DREF((I*(I+1))/2)
       END DO
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)' Compare to E=',E
       WRITE(6,*)' DREF:'
       WRITE(6,'(1x,5F16.8)')(DREF(I),I=1,(NASHT*(NASHT+1))/2)

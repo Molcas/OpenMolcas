@@ -85,7 +85,7 @@
       Do iTile = 1, nTiles
          QTessera = Q_Tessera(iTile)
          C(:)=C_Tessera(:,iTile)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('C',' ',C,1,3)
 #endif
 *
@@ -94,7 +94,7 @@
          Call DCR(LmbdT,iStabM,nStabM,jStab_,nStab_,iDCRT,nDCRT)
          Fact = One / DBLE(LmbdT)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) ' m      =',nStabM
          Write (6,'(9A)') '(M)=',(ChOper(iStabM(ii)),
      &         ii = 0, nStabM-1)
@@ -134,7 +134,7 @@
             nOp = NrOpr(iDCRT(lDCRT))
             Call SymAdO(Array(ipIn),nZeta,la,lb,nComp,Final,nIC,
      &                  nOp         ,lOper,iChO,-Fact*QTessera)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) Fact*QTessera
             Call RecPrt('PCMInt: Array(ipIn)',' ',Array(ipIn),
      &              nZeta,nElem(la)*nElem(lb)*nComp)
@@ -144,9 +144,8 @@
 *
          End Do
       End Do
-*
-      Return
-c Avoid unused argument warnings
+
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Then
          Call Unused_real_array(Alpha)
          Call Unused_real_array(Beta)
@@ -154,4 +153,5 @@ c Avoid unused argument warnings
          Call Unused_real_array(CCoor)
          Call Unused_integer(nOrdOp)
       End If
+#endif
       End

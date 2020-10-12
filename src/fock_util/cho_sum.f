@@ -35,7 +35,7 @@
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 **************************************************
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Debug=.true.
 #else
       Debug=.false.
@@ -126,7 +126,7 @@ c
 
 
 c Print the Fock-matrix
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,'(6X,A)')'TEST PRINT FROM CHO_SUM.'
       WRITE(6,'(6X,A)')'FROZEN FOCK MATRIX IN AO BASIS.'
 

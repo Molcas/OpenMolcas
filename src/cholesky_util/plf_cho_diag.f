@@ -48,8 +48,6 @@
       iShlSO(i)=iWork(ip_iShlSO-1+i)
       nBstSh(i)=iWork(ip_nBstSh-1+i)
 *
-#if defined (_DEBUG_)
-#endif
       irout = 109
       jprint = nprint(irout)
       If (jPrint.ge.49) Then
@@ -144,7 +142,4 @@
 200      Continue
 100   Continue
 *
-#if defined (_DEBUG_)
-#endif
-      Return
       End

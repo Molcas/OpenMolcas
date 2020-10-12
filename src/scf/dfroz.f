@@ -170,8 +170,8 @@
                Dlt(ipDlt + Ind(iRow,iCol)) = Scale*Sum
             End Do
          End Do
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
          Call NrmClc(Dlt(ipDlt),nBs,'DOne_SCF_froz','Dlt(ipDlt)')
 #endif
 *

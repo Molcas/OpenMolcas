@@ -55,11 +55,11 @@
       Logical PreScr,ldot
       Integer IndEta(nEta),IndZet(nZeta), IndZ(mZeta), IndE(mEta)
 #include "real.fh"
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 #include "print.fh"
 #endif
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iRout = 180
       iPrint = nPrint(iRout)
 *
@@ -216,7 +216,7 @@
             End Do
          End Do
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.39) Call RecPrt(' PAO',' ',
      &                              PAO,lZeta*lEta,mPAO)
 #endif
@@ -276,11 +276,11 @@ c Avoid unused argument warnings
       Logical PreScr,ldot
       Integer IndEta(nEta),IndZet(nZeta), IndZ(mZeta), IndE(mEta)
 #include "real.fh"
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 #include "print.fh"
 #endif
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iRout = 180
       iPrint = nPrint(iRout)
 *
@@ -431,7 +431,7 @@ c Avoid unused argument warnings
             End Do
          End Do
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.39) Call RecPrt(' PAO',' ',
      &                              PAO,lZeta*lEta,mPAO)
 #endif

@@ -34,7 +34,7 @@ C
       Logical DoPrint, DoCheck
 #include "cholesky.fh"
 
-#if !defined (_I8_) || defined (_DEBUG_)
+#if !defined (_I8_) || defined (_DEBUGPRINT_)
       Character*8 SecNam
       Parameter (SecNam='Cho_ZMem')
 #endif
@@ -43,7 +43,7 @@ C
       Real*8 Byte, xl_Z
       Real*8 Word(8)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (l_NVT .lt. nSym) Then
          irc=-1
          l_Z=-999999
@@ -76,7 +76,7 @@ C
      &   'Total:        ',l_Z,' words (',Byte,Unt,')'
       End If
 
-#if !defined (_I8_) || defined (_DEBUG_)
+#if !defined (_I8_) || defined (_DEBUGPRINT_)
       If (l_Z .lt. 0) Then
          Write(Lupri,'(A,A)')
      &   SecNam,': dimension of Z vector array is negative!'

@@ -224,7 +224,7 @@
 *                                                                      *
       Ec_AB=Func
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*) ' Correlation energy: ',Ec_AB
       write(6,*)
       write(6,*) ' Correlation potentials: (itri,F_alpha,F_beta)'

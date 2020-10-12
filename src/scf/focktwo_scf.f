@@ -44,9 +44,7 @@ c
        myDebug=.false.
        Factor=0.5D0
         if(iUHF.eq.1) Factor=1.0D0
-#ifdef _DEBUG_
-#endif
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Debug=.true.
 c      myDebug=.true. ! very extensive print out
 #else
@@ -335,7 +333,7 @@ c         write (6,'(a,i5,a,f12.6)') ' >> Fsq(',K2+JB,')=',FSQ(K2+JB)
       If (iUHF.eq.1) Call GADSum(Flt_ab,nFlt)
 *
 c Print the Fock-matrix
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,'(6X,A)')'TEST PRINT FROM FTWOI.'
       WRITE(6,'(6X,A)')'FROZEN FOCK MATRIX IN AO BASIS:'
       ISTLTT=1
@@ -351,8 +349,6 @@ c Print the Fock-matrix
         END IF
       END DO
       WRITE(6,'(6X,A)')'----------------------------'
-#endif
-#ifdef _DEBUG_
 #endif
 
       RETURN

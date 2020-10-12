@@ -37,8 +37,8 @@
      &       B10(nRys,nT,3),
      &       B00(nRys,nT,3),
      &       B01(nRys,nT,3)
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
 *     Local arrays
       Character*30 Label
 #endif
@@ -46,7 +46,7 @@
 *
       iRout = 14
       iPrint = nPrint(iRout)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPrint=99
       If (iPrint.ge.99) Then
          Call RecPrt(' In vCff2D: Coori',' ',Coori,3,4)
@@ -207,7 +207,7 @@
  202     Continue
          End If
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (la+lb.gt.0) Then
          Write (Label,'(A)') ' PAQP(x)'
          Call RecPrt(Label,' ',PAQP(1,1,1),nRys,nT)

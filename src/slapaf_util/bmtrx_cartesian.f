@@ -271,7 +271,7 @@
          Call Free_Work(ipiHi)
          Call Free_Work(ipHi)
          Call Free_iWork(ipInd)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call TriPrt(' The Projected Model Hessian','(5G20.10)',
      &               Work(ipEVal),nDim)
          Call RecPrt(' The Projected Model Hessian','(5G20.10)',

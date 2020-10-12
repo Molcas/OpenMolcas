@@ -25,9 +25,6 @@ C
 
       LOGICAL FOUND
 
-#if defined (_DEBUG_)
-#endif
-
 C     Print header.
 C     -------------
 
@@ -117,8 +114,5 @@ C     -----------------
      & 'Biased variance : ',STAT(6)
       WRITE(LUPRI,'(1X,A,1P,D15.6,A)')
      & 'Standard dev.   : ',STAT(7),' (unbiased variance)'
-
-#if defined (_DEBUG_)
-#endif
 
       END

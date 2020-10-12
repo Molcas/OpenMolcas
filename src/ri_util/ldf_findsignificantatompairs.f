@@ -312,7 +312,7 @@ C
          End If
       End Do
       iWork(ip_iOff+nRSAP)=l
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (l_Diag.lt.(iOff(nRSAP+1)-1)) Then
          Call WarningMessage(2,
      &                   'LDF_ComputeRSAPDiagonal: dimension mismatch!')
@@ -454,7 +454,7 @@ C
 #include "ldf_atom_pair_info.fh"
 #include "WrkSpc.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer iAtomPair
       Integer uv
       Integer ip_LT, l_LT
@@ -604,7 +604,7 @@ C     ===============================================================
       Call iZero(iWork(ip_AP_1CLinDep),l_AP_1CLinDep)
       Call iZero(iWork(ip_AP_2CFunctions),l_AP_2CFunctions)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
 C     Debug: "unit test" of LDF_Q2LT and LDF_LT2Q
 C     ===========================================
       Do iAtomPair=1,NumberOfAtomPairs

@@ -40,14 +40,7 @@
 *
 *---- Define local variables
       Logical test
-*
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-*
-#ifdef _DEBUG_
-#endif
-*
+
 *---  open two-electron integral file ---------------------------------*
       Call f_Inquire(FnOrd,test)
       Call DecideOnDirect(.True.,test,DSCF,DoCholesky)
@@ -74,11 +67,4 @@
       Call DAName(LuDel,FnDel)
       Call DAName(Luy,Fny)
 *
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-#ifdef _DEBUG_
-#endif
-      Return
       End

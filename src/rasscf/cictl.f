@@ -588,7 +588,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
      &                             state = jroot,
      &                             rdm1  = .true.
      &                            )
-#ifdef _DMRG_DEBUG_
+#ifdef _DMRG_DEBUGPRINT_
            write(6,*)"==============================================="
            write(6,*)"  Set all elems in anti-symmetric 2-RDM to zero"
            write(6,*)"==============================================="

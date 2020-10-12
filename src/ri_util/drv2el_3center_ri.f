@@ -65,7 +65,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -414,7 +414,7 @@ C              Write (6,*) 'jCenter=',jCenter
 *
             Aint=Aint_kl * TMax_Auxiliary(jS-nSkal_Valence)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*)
             Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
             Write (6,*) 'AInt,CutInt=',AInt,CutInt

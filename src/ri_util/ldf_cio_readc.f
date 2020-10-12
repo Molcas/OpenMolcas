@@ -38,7 +38,7 @@ C
       Integer iAtom, jAtom
       Integer l
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Real*8 Byte
       Character*2 Unt
 #endif
@@ -66,7 +66,7 @@ C
       If (iAtomPair.gt.LastAtomPair) Then ! read from disk
          iAddr=AP_DiskC(iAtomPair)
          Call dDAFile(Lu_LDFC,2,C,l,iAddr)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          Call Cho_Word2Byte(l,8,Byte,Unt)
          Write(6,'(A,I9,A,I9,A,F7.2,A,A)')
      &   'LDF_CIO_ReadC: atom pair=',iAtomPair,' Dim=',l,' (',Byte,Unt,
@@ -76,7 +76,7 @@ C
       Else ! copy from buffer
          iAddr=iWork(ip_LDFC_Blocks-1+iAtomPair)
          Call dCopy_(l,Work(iAddr),1,C,1)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          Call Cho_Word2Byte(l,8,Byte,Unt)
          Write(6,'(A,I9,A,I9,A,F7.2,A,A)')
      &   'LDF_CIO_ReadC: atom pair=',iAtomPair,' Dim=',l,' (',Byte,Unt,

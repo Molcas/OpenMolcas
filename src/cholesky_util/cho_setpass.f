@@ -19,9 +19,6 @@ C
       LOGICAL   CONV
 #include "cholesky.fh"
 
-#if defined (_DEBUG_)
-#endif
-
 C     Initialize the potential number of shell pairs that can
 C     contribute.
 C     -------------------------------------------------------
@@ -51,8 +48,5 @@ C     -----------------------------------------
             END IF
          END DO
       END IF
-
-#if defined (_DEBUG_)
-#endif
 
       END

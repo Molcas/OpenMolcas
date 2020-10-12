@@ -64,7 +64,7 @@
 ************************************************************************
 *                                                                      *
       Call ICopy(nShell*nSym,[-99999999],0,Maps2p,1)
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -305,7 +305,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
          iOff = iOff + 3
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Do_Grad) Then
       delta=1.0D-8
       Call Allocate_Work(ip_Dbg,9)
@@ -355,7 +355,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
       iOff = ipdOdx
       Do iCar = 1, 3
          Do iNQ = 1, nNQ
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('dOdx','(3G20.10)',Work(iOff),3,3)
          Call RecPrt('dOdx(numerical)','(3G20.10)',
      &               Work(ip_dOdx(iNQ,iCar)),3,3)
@@ -365,7 +365,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
          End Do
       End Do
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *
 *     Check translational invariance
 *
@@ -479,7 +479,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,'(A)') ' =================================='
       Write (6,'(A)') ' =        Grid information        ='
@@ -559,7 +559,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
       nx=nx+2
       ny=ny+2
       nz=nz+2
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'x_min=',x_min,dx
       Write (6,*) 'y_min=',y_min,dy
       Write (6,*) 'z_min=',z_min,dz

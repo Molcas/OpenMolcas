@@ -21,8 +21,6 @@
       Real*8, Target:: Dens(nDens), TwoHam(nDens)
       Logical Special_NoSym, DFT_Storage
 *
-#ifdef _DEBUG_
-#endif
       nr_of_Densities=1  ! Hardwired option
 *
       nIndij=S%nShlls*(S%nShlls+1)/2
@@ -76,8 +74,5 @@
          pDq => Dens(:)
          pFq => Twoham(:)
       End If
-#ifdef _DEBUG_
-#endif
-*
-      Return
+
       End

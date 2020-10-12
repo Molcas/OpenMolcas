@@ -52,7 +52,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Then
          Call RecPrt('d2Rho_dR2_LDA:Dens',' ',Dens,nDens,nD)
          Write (6,*) 'mAO=',mAO
@@ -133,7 +133,7 @@
             ijS=iTri(iShell,jShell)
             ipTmp=ipDijs
             Call Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ipTmp,nD)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*)
                Write (6,*) 'iS,jS=',iS,jS
@@ -161,7 +161,7 @@
                DMax_ij=DMax_ij+Abs(DeDe(ip_D_a-1+ix))
             End If
             If (TMax_i*TMax_j*DMax_ij.lt.T_X) Go To 98
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*) 'd2Rho_dR2_LDA'
                nBB = iBas*jBas
@@ -241,7 +241,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Call RecPrt('d2Rho_dR2_LDA: dRho_dR',' ',dRho_dR,
      &                       ndRho_dR*mGrid,nGrad_Eff)
 *

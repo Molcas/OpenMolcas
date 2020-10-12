@@ -51,7 +51,7 @@ c 98-09-02 J.Hasegawa Modified for non-squared integrals.
       Logical DoCholesky
 
       IFTEST=.FALSE.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif
 

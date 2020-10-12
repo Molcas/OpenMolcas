@@ -29,7 +29,7 @@
       Character*8 Method
       Real*8, Allocatable:: DTmp(:), DSym(:)
 *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *
       Write(Label,'(A,I1)') 'LoProp Dens ',iPert
       If (Restart) Then
@@ -148,7 +148,7 @@
             Call Get_D1ao(Work(ip_D),nSize)
          End If
          nDens=nSize
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('D',' ',Work(ip_D),1,nDens)
 #endif
          If(PrintDen) Then
@@ -177,20 +177,20 @@
             Call Abend()
          End If
          iSyLbl=1
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('DSym',' ',DSym,1,nDens)
 #endif
          iOfft = 1
          iOffs = ip_Tmp
          Do iSym = 1, nSym
             If (nBas(iSym).eq.0) Go To 99
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call TriPrt('DSym',' ',DSym(iOfft),nBas(iSym))
 #endif
             Call Square(DSym(iOfft),Work(iOffs),1,nBas(iSym),nBas(iSym))
             Call DScal_(nBas(iSym)**2,Half,Work(iOffs),1)
             Call DScal_(nBas(iSym)   ,Two, Work(iOffs),nBas(iSym)+1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('DSym',' ',Work(iOffs),nBas(iSym),nBas(iSym))
 #endif
             iOfft = iOfft + nBas(iSym)*(nBas(iSym)+1)/2
@@ -210,7 +210,7 @@
          Call Triangularize(Work(ip_D_sq),Work(ip_D),nBas1,.True.)
          Call Free_Work(ip_D_sq)
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call TriPrt('Density Matrix',' ',Work(ip_D),nBas1)
 #endif
 *

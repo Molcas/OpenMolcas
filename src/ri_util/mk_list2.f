@@ -89,8 +89,8 @@ C                    Write (*,*) 'iSO,jSO,ijSO=',iSO,jSO,ijSO
          iiSO=iiSO+nSO
       End Do                     ! iAng
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'List2'
          Write (6,*) '  iAng,  jAng,  iCmp,  jCmp, iCont, '
      &             //'jCont, iShll, jShll'

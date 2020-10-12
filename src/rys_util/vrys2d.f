@@ -35,8 +35,8 @@
      &       B10(nArg*lRys), B00(nArg*lRys),
      &       B01(nArg*lRys)
       Logical lPAWP, lQCWQ
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Character*30 Label
 *
       If (nabMax.gt.0) Call RecPrt('PAWP',' ',PAWP,lRys,nArg*3)
@@ -310,7 +310,7 @@
       End If
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Do iab = 0, nabMax
          Do icd = 0, ncdMax
             Write (Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(x)'

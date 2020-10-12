@@ -48,11 +48,8 @@
 #include "file.fh"
 
 #include "SysDef.fh"
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-#ifdef _DEBUG_
-#endif
+
+
 *
 * Check Num; Subroutine is called with Num = - MapDns(i)
 *
@@ -119,10 +116,5 @@
          jDisk = iDisk(Num)
          Call dDaFile(LU,2,DMat,lth,jDisk)
       End If
-#ifdef _DEBUG_
-#endif
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-      Return
-      End
+
+      end subroutine RWDTG

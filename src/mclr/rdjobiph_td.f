@@ -94,6 +94,7 @@
       ntBtri=0
       ntBsqr=0
       nna=0
+      Length=0
       Do 10 iSym=1,nSym
          norb(isym)=nbas(isym)-ndel(isym)
          ntIsh=ntIsh+nIsh(iSym)
@@ -107,12 +108,14 @@
          ntBsqr=ntBsqr+nBas(iSym)*nBas(iSym)
          nA(iSym)=nna
          nnA=nnA+nAsh(isym)
+         Length=Length+nbas(isym)*norb(isym)
 10    Continue
 *----------------------------------------------------------------------*
 *     Load the orbitals used in the last macro iteration               *
 *----------------------------------------------------------------------*
 *
-      Call Get_CMO(ipCMO,Length)
+      Call GetMem('CMO','Allo','Real',ipCMO,Length)
+      Call Get_CMO(Work(ipCMO),Length)
 *     iDisk=iToc(9)
 *     IF(IPT2.EQ.0) iDisk=iToc(2)
 *     Call dDaFile(LuJob,2,Work(ipCMO),ntBsqr,iDisk)

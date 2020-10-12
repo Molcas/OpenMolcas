@@ -196,6 +196,7 @@ contains
     ireturn = 0
 #else
 ! Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
     if (.false.) then
       call unused_real(EMY)
       call unused_character(path)
@@ -204,6 +205,7 @@ contains
       call unused(two_el_table)
       call unused_integer_array(orbsym)
     end if
+#endif
 #endif
   end subroutine dump_hdf5
 end module fcidump_dump

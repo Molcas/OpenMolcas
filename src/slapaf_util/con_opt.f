@@ -74,8 +74,8 @@
 ************************************************************************
 *                                                                      *
       jPrint=jPrint_
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) '****************************************************'
       Write (6,*) '**** Con_Opt: Input data ***************************'
@@ -126,7 +126,7 @@
       iSt=Max(iOff_Iter+1,nIter-nWndw+1)
       Do iIter = iSt, nIter
 *     Do iIter = iOff_Iter+1, nIter
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*)
          Write (6,*) '>>>>>> iIter=',iIter
          Write (6,*)
@@ -178,7 +178,7 @@
      &                     dEdq(1,iIter),nInter,
      &               0.0d0,rLambda(1,iIter),nLambda)
          Call mma_deallocate(RRR)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('rLambda(iIter)',' ',rLambda(1,iIter),nLambda,1)
 #endif
       End Do
@@ -188,7 +188,7 @@
 *                                                                      *
       Do iIter = iSt, nIter
 *     Do iIter = iOff_Iter+1, nIter
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*)
          Write (6,*) '>>>>>> iIter=',iIter
          Write (6,*)
@@ -268,7 +268,7 @@ c    &              dEdq(iInter,iIter)
                   If (Abs(dEdq(iInter,iIter)).le.1.0D-6)
      &               drdq(iInter,iLambda,iIter) = Zero
                End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Call RecPrt('Con_Opt: drdq(1)',' ',drdq,nInter,
      &                                            nLambda*nIter)
 #endif
@@ -296,7 +296,7 @@ C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
                End Do
 *
                Continue
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Call RecPrt('Con_Opt; drdq(2)',' ',drdq,nInter,
      &                                            nLambda*nIter)
 #endif
@@ -327,7 +327,7 @@ C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
 *        T_{ti}^T T_{ti} = 1
 *
          Call GS(drdq(1,1,iIter),nLambda,T,nInter,.False.,.False.)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('Con_Opt: T-Matrix',' ',T,nInter,nInter)
          Call RecPrt('Con_Opt: T_b',' ',T(1,ipTB),nInter,nLambda)
          Call RecPrt('Con_Opt: T_ti',' ',T(1,ipTti),nInter,
@@ -362,13 +362,13 @@ C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
      &               1.0d0,drdq(1,1,iIter),nInter,
      &                     T(1,ipTb),nInter,
      &               0.0d0,RT,nLambda)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('Con_Opt: RT',' ',RT,nLambda,nLambda)
 #endif
 *
          Call MInv(RT,RTInv,iSing,Det,nLambda)
          Call mma_deallocate(RT)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('Con_Opt: RTInv',' ',RTInv,nLambda,nLambda)
 #endif
 *
@@ -380,7 +380,7 @@ C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
      &                     r(1,iIter),nLambda,
      &               0.0d0,dy,nLambda)
          Call mma_deallocate(RTInv)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('Con_Opt: dy(full)',' ',dy,nLambda,1)
 #endif
 *                                                                      *
@@ -407,7 +407,7 @@ C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
      &                               d2rdq2(1,1,iLambda),1,Hessian,1)
             End Do
          End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('W',' ',Hessian,nInter,nInter)
 #endif
 *                                                                      *
@@ -492,7 +492,7 @@ C              Write (6,*) 'xBeta=',xBeta
             Call mma_allocate(Tmp1,nInter,Label='Tmp1')
             Call mma_allocate(Tmp2,nInter,nLambda,Label='Tmp2')
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Con_Opt: dEdq',' ',dEdq(1,iIter),1,nInter)
             Call RecPrt('Con_Opt: W',' ',Hessian,nInter,nInter)
             Call RecPrt('Con_Opt: T',' ',T,nInter,nInter)
@@ -507,7 +507,7 @@ C              Write (6,*) 'xBeta=',xBeta
      &                  1.0d0,Hessian,nInter,
      &                        T(1,ipTb),nInter,
      &                  0.0d0,Tmp2,nInter)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('W_{ex} T_b',' ',Tmp2,nInter,nLambda)
 #endif
 *
@@ -522,7 +522,7 @@ C              Write (6,*) 'xBeta=',xBeta
      &                        dy,nLambda,
      &                  1.0d0,Tmp1,nInter)
             Call mma_deallocate(Tmp2)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('dEdq + W_{ex} T_b dy',' ',Tmp1,1,nInter)
 #endif
 *
@@ -533,7 +533,7 @@ C              Write (6,*) 'xBeta=',xBeta
      &                  1.0d0,T(1,ipTti),nInter,
      &                        Tmp1,nInter,
      &                  0.0d0,dEdx(1,iIter),nInter-nLambda)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'iIter=',iIter
             Call RecPrt('dEdx(1,iIter)',' ',dEdx(1,iIter),1,
      &                  nInter-nLambda)
@@ -711,7 +711,7 @@ C           Write (6,*) 'gBeta=',gBeta
                                 ! gradients. So be a bit careful.
             Beta_Disp_=Max(Beta_Disp_Min,tmp*Half*Beta_Disp)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'Step_trunc=',Step_trunc
             Write (6,*) 'Beta_Disp_=',Beta_Disp_
             Write (6,*) 'Start: dy(:)=',dy(:)
@@ -733,7 +733,7 @@ C           Write (6,*) 'gBeta=',gBeta
                Fact_short=Zero
                dydy_short=dydy_long+One
             End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'dydy,Fact,iCount=', dydy,Fact,iCount
 #endif
             If (dydy.gt.Beta_Disp_ .or. iCount.gt.1) Then
@@ -751,7 +751,7 @@ C           Write (6,*) 'gBeta=',gBeta
             End If
  667        Continue
             dy(:)=(One/Fact)*dy(:)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'Step_trunc=',Step_trunc
             Write (6,*) 'Final: dy(:)=',dy(:)
 #endif
@@ -764,7 +764,7 @@ C           Write (6,*) 'gBeta=',gBeta
      &       .and. iIter.ne.1) xBeta=xBeta*Half
          dydy_last=dydy
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('Con_Opt: dy(actual)',' ',dy,nLambda,1)
 #endif
 *                                                                      *
@@ -777,7 +777,7 @@ C           Write (6,*) 'gBeta=',gBeta
 ************************************************************************
 *                                                                      *
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Con_Opt: dEdx',' ',dEdx,nInter-nLambda,nIter)
       Call RecPrt('Con_Opt: Lambda',' ',rLambda,nLambda,nIter)
       Call RecPrt('Con_Opt: x',' ',x,nInter-nLambda,nIter)
@@ -792,7 +792,7 @@ C           Write (6,*) 'gBeta=',gBeta
 *
 *     Note the sign conflict due to storage of the force rather than the
 *     gradient.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Con_Opt: dEdq',' ',dEdq,nInter,nIter)
 #endif
       dEdq_(:,:) = dEdq(:,:)
@@ -803,7 +803,7 @@ C           Write (6,*) 'gBeta=',gBeta
      &                          dEdq_(1,iIter),1)
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Con_Opt: dEdq_',' ',dEdq_,nInter,nIter)
 #endif
 *                                                                      *
@@ -820,7 +820,7 @@ C           Write (6,*) 'gBeta=',gBeta
          End Do
          Energy(iIter)=Temp
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Con_Opt: Lagrangian',' ',Energy,nIter,1)
 #endif
 *                                                                      *
@@ -829,7 +829,7 @@ C           Write (6,*) 'gBeta=',gBeta
 *---- Update the Hessian in the m subspace
 *     There should be no negative eigenvalue, if so change the sign.
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*)
       Write (6,*) ' *** Updating the reduced Hessian ***'
@@ -847,7 +847,7 @@ C           Write (6,*) 'gBeta=',gBeta
       End If
 *
       Dummy = 0.0D0
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Con_Opt: Hessian(raw)',' ',Hessian,nInter,nInter)
       Write (6,*) 'iOptH=',iOptH
 #endif
@@ -858,7 +858,7 @@ C           Write (6,*) 'gBeta=',gBeta
      &              jPrint,Dummy,Dummy,nsAtom,IRC,.False.,Corrected)
       If (Corrected) Step_Trunc='#'
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Con_Opt: Hessian(updated)',' ',Hessian,nInter,nInter)
       Write (6,*) 'Step_Trunc=',Step_trunc
 #endif
@@ -885,7 +885,7 @@ C           Write (6,*) 'gBeta=',gBeta
      &                     T(1,ipTti),nInter,
      &               0.0d0,W,nInter-nLambda)
          Call mma_deallocate(Tmp2)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('Con_Opt: W',' ',W,nInter-nLambda,nInter-nLambda)
 #endif
 *                                                                      *
@@ -904,7 +904,7 @@ C           Write (6,*) 'gBeta=',gBeta
 *           Note that we use the dEdx data for the last point on the
 *           real PES.
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'Beta_Disp_=',Beta_Disp_
 #endif
             Beta_Disp_Min=1.0D-10
@@ -913,7 +913,7 @@ C           Write (6,*) 'gBeta=',gBeta
                tmp = Max(tmp,Abs(dEdx(i,iter_)))
             End Do
             Beta_Disp_=Max(Beta_Disp_,Beta_Disp_Min,tmp*Beta_Disp)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'tmp,Beta_Disp_=',tmp,Beta_Disp_
 #endif
          End If
@@ -921,7 +921,7 @@ C           Write (6,*) 'gBeta=',gBeta
      &    Sqrt(DDot_(nInter-nLambda,dEdx(1,iter_),1,dEdx(1,iter_),1))
          tBeta= Max(Beta*yBeta*Min(xBeta,gBeta),Beta/Ten)
          Thr_RS=1.0D-7
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'Step_Trunc(0)=',Step_Trunc
 #endif
          Do
@@ -939,7 +939,7 @@ C           Write (6,*) 'gBeta=',gBeta
 *
             Call Dispersion_Kriging_Layer(q(1,nIter+1),disp,nInter)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'disp=',disp
 #endif
             fact=Half*fact
@@ -948,7 +948,7 @@ C           Write (6,*) 'gBeta=',gBeta
             If ((fact.lt.1.0D-5) .or. (disp.lt.Beta_Disp_)) Exit
             Step_Trunc='*'
          End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'Step_Trunc(n)=',Step_Trunc
 #endif
          GNrm=
@@ -959,7 +959,7 @@ C           Write (6,*) 'gBeta=',gBeta
          GNrm=-One
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'Step_Trunc=',Step_trunc
       Call RecPrt('Con_Opt: dx',' ',dx,nInter-nLambda,nIter)
 #endif
@@ -970,7 +970,7 @@ C           Write (6,*) 'gBeta=',gBeta
 *
 *     See Eqn. 10.
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *
 *     dy only, constraint
 *
@@ -1017,7 +1017,7 @@ C           Write (6,*) 'gBeta=',gBeta
 *
       q(:,nIter+1) = q(:,nIter) + dq(:,nIter)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Con_Opt: q',' ',q,nInter,nIter+1)
 #endif
 *                                                                      *

@@ -38,8 +38,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' In OneEl: Label', Label
       Write (6,*) ' In OneEl: nComp'
       Write (6,'(1X,8I5)') nComp
@@ -66,7 +66,7 @@
             If (iAnd(lOper(iComp),iTwoj(iIrrep)).ne.0) nIC = nIC + 1
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' nIC =',nIC
 #endif
 *
@@ -117,7 +117,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call PrMtrx(Label,lOper,nComp,ip,Array)
 #endif
 *                                                                      *

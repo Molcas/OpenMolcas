@@ -51,7 +51,7 @@
       lOp(2) = iOper(kOp(2))
       lOp(3) = iOper(kOp(3))
       lOp(4) = iOper(kOp(4))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       call dcopy_(lP-nZeta,[Zero],0,P(nZeta+1,1),1)
       call dcopy_(lP-nZeta,[Zero],0,P(nZeta+1,2),1)
       call dcopy_(lP-nZeta,[Zero],0,P(nZeta+1,3),1)

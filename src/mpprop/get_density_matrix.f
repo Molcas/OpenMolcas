@@ -19,7 +19,7 @@
          nDens=nBas(1)*(nBas(1)+1)/2
          Call GetMem('D1ao','Allo','Real',ip_D,nDens)
          Call Get_D1ao(Work(ip_D),nDens)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('D',' ',Work(ip_D),1,nDens)
 #endif
       Else

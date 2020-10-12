@@ -55,8 +55,8 @@
 #include "real.fh"
 *
 *     decalaration of local variables...
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In Screen: Data1',' ',Data1,nZeta,nDArray-1)
       Call RecPrt(' In Screen: Data2',' ',Data2,nEta ,nDArray-1)
       Call FZero(P,nZeta*3)
@@ -177,8 +177,8 @@
       If (iphZ2.ne.1) Call DScal_(lEta,-One,Q(1,3),1)
 *
  999  Continue
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' In Screen'
       Call RecPrt(' Zeta  ',' ',Zeta,lZeta,1)
       Call RecPrt(' Eta   ',' ', Eta, lEta,1)

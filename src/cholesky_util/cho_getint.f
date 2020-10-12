@@ -40,9 +40,6 @@ C
       INTMAP(I)=IWORK(ip_INTMAP-1+I)
       ISP2F(I)=IWORK(ip_iSP2F-1+I)
 
-#if defined (_DEBUG_)
-#endif
-
 C-tbp: some debugging...
 c     IF (LOCDBG) THEN
 c        DO LEVEL = 1,3
@@ -209,8 +206,5 @@ C     Set indices for local qualified (parallel runs).
 C     ------------------------------------------------
 
       CALL CHO_P_SETLQ()
-
-#if defined (_DEBUG_)
-#endif
 
       END

@@ -19,7 +19,7 @@
       Character Name(nAtom)*(LENIN), Lbl(nInter)*8
       Dimension Dummy(1)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('In Force:BMx ',' ',BMx ,3*nAtom,nInter)
       Call RecPrt('In Force:Degen ',' ',Degen ,1,3*nAtom)
       Call RecPrt('In Force:GrdX',' ',GrdX,3,nAtom)
@@ -51,7 +51,7 @@
       NRHS=1
       Call Eq_Solver('N',M,N,NRHS,BMx,.TRUE.,Dummy,Work(ipFrc),
      &               Grad(1,Iter))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' Internal Forces in au before FIXIC ',
      &            ' ',Grad(1,Iter),nInter,1)
 #endif
@@ -65,7 +65,7 @@
 *
 *-----Write cartesian symmetry distinct forces which will be relaxed.
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call PrList('Cartesian forces which will be relaxed'
      &            //' hartree/bohr',
      &            Name,nAtom,GrdX,3,nAtom)

@@ -1193,7 +1193,8 @@ cPS         call xflush(6)
 !      Call GetMem('P2t','allo','Real',iP2dt1,NACPR2)
 !      Call FZero(Work(ip2dt1),Nacpr2)
 !      !I need the non-symmetry blocked d1act, hence the read.
-!      Call Get_D1MO(iD1Act1,NACPAR)
+!      Call GetMem('D1Act1','Allo','Real',iD1Act1,NACPAR)
+!      Call Get_D1MO(Work(iD1Act1),NACPAR)
 !        write(6,*) 'd1act'
 !        do i=1,NACPAR
 !          write(6,*) work(iD1Act1-1+i)

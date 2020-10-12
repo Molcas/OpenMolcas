@@ -49,8 +49,6 @@
 *
 #include "real.fh"
 *
-#ifdef _DEBUG_
-#endif
       ipDlt = 1
       ipOvl = 1
       ipOcc = 0
@@ -77,7 +75,4 @@
      &     SumOcc-TrDns,SumOcc,TrDns
         End If
       End Do
-#ifdef _DEBUG_
-#endif
-      Return
       End

@@ -121,7 +121,7 @@
           EXPLV(II)=1.0D00
 10      CONTINUE
 *       CALL Jacob(Work(LEXHAM),EXPLV,NSEL,NSEL)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         CALL NIdiag(Work(LEXHAM),EXPLV,NSEL,NSEL,0)
 #else
         CALL NIdiag_new(Work(LEXHAM),EXPLV,NSEL,NSEL,0)

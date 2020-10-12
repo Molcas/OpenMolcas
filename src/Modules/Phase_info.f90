@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
-!#define _DEBUG_
+!#define _DEBUGPRINT_
 
 Module Phase_Info
 Implicit None

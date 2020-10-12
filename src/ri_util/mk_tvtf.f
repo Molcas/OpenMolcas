@@ -18,7 +18,7 @@
       Integer List2(mData,nTheta_All), Indkl(nkl), iPrm(nPrm),
      &        iAL(nA,nB)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('TInt',' ',TInt,nTheta_all,nTheta_all)
       Call iVcPrt('Indkl',' ',Indkl,nkl)
 #endif
@@ -64,7 +64,7 @@ C    &                                 +Abs(TInt(iTheta_All,jTheta_All))
 *
          End If
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('tVtF',' ',tVtF,nTheta,nTheta_Full)
 #endif
 *

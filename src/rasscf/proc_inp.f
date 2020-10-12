@@ -2760,7 +2760,7 @@ c       write(6,*)          '  --------------------------------------'
         guess_dmrg(1:7) = 'DEFAULT'
         call mma_allocate(initial_occ,nrs2t,nroots); initial_occ = 0
         !> debug output
-#ifdef _DMRG_DEBUG_
+#ifdef _DMRG_DEBUGPRINT_
         ifverbose_dmrg = .true.
 #endif
       end if

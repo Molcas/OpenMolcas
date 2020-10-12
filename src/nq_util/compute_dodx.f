@@ -104,7 +104,7 @@
      &            1.0d0,O,3,
      &            Px,3,
      &            0.0d0,dOdx(1,1),3)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 C     Call RecPrt('M','(3G20.10)',M,3,3)
 C     Call RecPrt('RotGrd: O','(3G20.10)',O,3,3)
 C     Call RecPrt('RotGrd: EVal',' ',EVal,3,1)

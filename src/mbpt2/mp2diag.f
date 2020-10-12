@@ -23,7 +23,7 @@
 #include "trafo.fh"
 #include "files_mbpt2.fh"
 #include "corbinf.fh"
-*#define _DEBUG_
+*#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -59,7 +59,7 @@
      &                iA + nOcc(iSym) + nFro(iSym),
      &                iB + nOcc(iSym) + nFro(iSym),
      &                Work(ipIntC),Work(ipScr1))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write(6,*)
             Write(6,*) ' *  A,B = ',iA,iB
             Call RecPrt('Int1:','(8F10.6)',Work(ipInt1),
@@ -112,7 +112,7 @@
       Call GetMem('Int1','Free','Real',ipInt1,lInt)
       Call GetMem('IntC','Free','Real',ipIntC,lInt)
       Call GetMem('Scr1','Free','Real',ipScr1,lInt)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Do iSym = 1,nSym
           write (6,*) 'Symmetry nr', iSym
           Call RecPrt('Diag(ia|ia)','',

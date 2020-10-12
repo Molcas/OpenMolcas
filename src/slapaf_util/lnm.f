@@ -31,16 +31,10 @@
       Character*180 Line,Get_Ln
       External Get_Ln
       Dimension XYZ(3)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*define _DEBUG_
-*                                                                      *
-************************************************************************
-*                                                                      *
+
       iRout=120
       iPrint=nPrint(iRout)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPrint=99
       If (iPrint.ge.19) Then
          Call RecPrt('In LNM: Cart',' ',Cart,3,nAtoms)
@@ -111,7 +105,7 @@
                End Do
             End If
          End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call TriPrt('Hessian(anal.)',' ',Hess,nDim)
          Write (6,*) 'nDim,nAtoms,mAtoms=',
      &                nDim,nAtoms,mAtoms
@@ -178,7 +172,7 @@ cnf
             Call ddV(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,
      &            iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
          End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          If (iPrint.ge.19)
      &      Call TriPrt(' The Model Hessian','(12f9.5)',Hess,3*nAtoms)
 #endif
@@ -200,7 +194,7 @@ cnf
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          If (iPrint.ge.19)
      &      Call RecPrt(' Scrt1',' ',Scrt1,3*nAtoms,3*nAtoms)
 #endif
@@ -213,7 +207,7 @@ cnf
      &               1.0d0,Scrt1,3*nAtoms,
      &               Vctrs,3*nAtoms,
      &               0.0d0,Scrt2,3*nAtoms)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          If (iPrint.ge.19)
      &      Call RecPrt(' Scrt2',' ',Scrt2,3*nAtoms,nDim)
 #endif
@@ -222,7 +216,7 @@ cnf
      &               1.0d0,Vctrs,3*nAtoms,
      &               Scrt2,3*nAtoms,
      &               0.0d0,Scrt1,nDim)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          If (iPrint.ge.19)
      &      Call RecPrt(' The Symmetrized Hessian',' ',Scrt1,nDim,nDim)
 #endif
@@ -305,15 +299,10 @@ cnf
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
-#endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Return
-c Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Then
          Call Unused_real_array(Cx)
          Call Unused_real_array(Gx)
       End If
+#endif
       End
