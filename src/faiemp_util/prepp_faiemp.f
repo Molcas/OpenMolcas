@@ -35,9 +35,8 @@
       Integer nBas_Valence(0:7),nBT,nBVT,nFro(0:7)
       Character*8 RlxLbl,Method, KSDFT*16
       Logical lPrint
-      Integer i,iBas,iGo,iIrrep,ij
-      Integer ipt,ipTmp1,ipTemp
-      Integer iSpin,jBas,length,nAct,nDens_Valence,nsa,nTemp,nTst
+      Integer i,iBas,iGo,iIrrep,ij,ipt,ipTmp1
+      Integer iSpin,jBas,nAct,nDens_Valence,nsa,nTst
       Integer iRout,iPrint,iComp
       Real*8  Get_ExFac,CoefX,CoefR
       External Get_ExFac
