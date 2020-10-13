@@ -97,8 +97,7 @@
      &          Q(lQ,3),Coori(3,4),Coora(3,4),CoorAC(3,2),Array(nArray),
      &          PAO(nT,nPAO),Grad(nGrad)
       Logical :: IfGrad(3,4)
-      Integer, External :: ModU2
-      Real*8, External :: Tvalue, Cff2D
+      External :: Tvalue, ModU2, Cff2D
       End Subroutine Rysg1
       End Interface
 #endif

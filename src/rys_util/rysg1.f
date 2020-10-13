@@ -202,7 +202,7 @@
          call dcopy_(nEta,Q(1,3),1,Array(iOff+ipQ     ),nZeta)
       End Do
 *
-*     Compute tha arguments for which we will compute the roots and
+*     Compute the arguments for which we will compute the roots and
 *     the weights.
 *
       Call Tvalue(Array(ipZeta),Array(ipEta),Array(ipP),Array(ipQ),nT,
