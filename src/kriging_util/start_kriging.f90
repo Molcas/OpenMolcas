@@ -35,7 +35,7 @@ Subroutine Start_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
 !
 ! Call Setup_Kriging to store the data in some internally protected arrays and scalars.
 !
-  Call Setup_Kriging(nPoints_In,nD,nInter_In,x_,dy_,y_)
+  Call Setup_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
 !
 !If (nPoints>2) Call PGEK()
 !
