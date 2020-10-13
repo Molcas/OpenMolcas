@@ -118,7 +118,8 @@ C Addition of NJOB,MSJOB and MLTPLT on RunFile.
       CALL Put_iscalar('NJOB_SINGLE',NJOB)
       CALL Put_iscalar('MXJOB_SINGLE',MXJOB)
       CALL Put_iArray('MLTP_SINGLE',MLTPLT,MXJOB)
-
+      CALL Put_iArray('NSTAT_SINGLE',NSTAT,MXJOB)
+!     CALL Put_iArray('ISTAT_SINGLE',ISTAT,MXJOB)
 C
 C .. and print it out
 CTEST      CALL PRINF()

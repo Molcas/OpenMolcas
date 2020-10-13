@@ -557,6 +557,7 @@ C Added by Ungur Liviu on 04.11.2009
 C Saving the ESO array in the RunFile.
        CALL Put_iscalar('NSS_SINGLE',NSS)
        CALL Put_dArray( 'ESO_SINGLE',ESO,NSS)
+       CALL Put_dArray( 'ESO_LOW'   ,ENSOR+EMIN,NSS)
        CALL MMA_DEALLOCATE(ESO)
       END IF
 

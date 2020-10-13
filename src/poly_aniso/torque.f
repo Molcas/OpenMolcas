@@ -205,153 +205,134 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 ! Allocate memory for this calculation:
       mem_local=0
       RtoB=8
-      If(nM>=0) Then
-         ! Zeeman exchange energy spectrum
-         Call mma_allocate(Wex,nM,'Wex')
-         Call dcopy_(nM,[0.0_wp],0,Wex,1)
-         mem_local=mem_local+nM*RtoB
-      End If
+      ! Zeeman exchange energy spectrum
+      Call mma_allocate(Wex,nM,'Wex')
+      Call dcopy_(nM,[0.0_wp],0,Wex,1)
+      mem_local=mem_local+nM*RtoB
 
       If(dbg) Write(6,*) 'mem_local 1 = ', mem_local
 
-      If(nTempMagn>=0) Then
-         ! exchange statistical sum, Boltzmann distribution
-         Call mma_allocate(Zex,nTempMagn,'Zex')
-         Call dcopy_(nTempMagn,[0.0_wp],0,Zex,1)
-         mem_local=mem_local+nTempMagn*RtoB
-         ! spin magnetisation, from the exchange block
-         Call mma_allocate(SEX,3,nTempMagn,'SEX')
-         Call dcopy_(3*nTempMagn,[0.0_wp],0,SEX,1)
-         mem_local=mem_local+3*nTempMagn*RtoB
-         ! magnetisation, from the exchange block
-         Call mma_allocate(MEX,3,nTempMagn,'MEX')
-         Call dcopy_(3*nTempMagn,[0.0_wp],0,MEX,1)
-         mem_local=mem_local+3*nTempMagn*RtoB
+      ! exchange statistical sum, Boltzmann distribution
+      Call mma_allocate(Zex,nTempMagn,'Zex')
+      Call dcopy_(nTempMagn,[0.0_wp],0,Zex,1)
+      mem_local=mem_local+nTempMagn*RtoB
+      ! spin magnetisation, from the exchange block
+      Call mma_allocate(SEX,3,nTempMagn,'SEX')
+      Call dcopy_(3*nTempMagn,[0.0_wp],0,SEX,1)
+      mem_local=mem_local+3*nTempMagn*RtoB
+      ! magnetisation, from the exchange block
+      Call mma_allocate(MEX,3,nTempMagn,'MEX')
+      Call dcopy_(3*nTempMagn,[0.0_wp],0,MEX,1)
+      mem_local=mem_local+3*nTempMagn*RtoB
 
-         ! total statistical sum, Boltzmann distribution
-         Call mma_allocate(ZT,nTempMagn,'ZT')
-         Call dcopy_(nTempMagn,[0.0_wp],0,ZT,1)
-         mem_local=mem_local+nTempMagn*RtoB
-         ! total spin magnetisation
-         Call mma_allocate(ST,3,nTempMagn,'ST')
-         Call dcopy_(3*nTempMagn,[0.0_wp],0,ST,1)
-         mem_local=mem_local+3*nTempMagn*RtoB
-         ! total magnetisation
-         Call mma_allocate(MT,3,nTempMagn,'MT')
-         Call dcopy_(3*nTempMagn,[0.0_wp],0,MT,1)
-         mem_local=mem_local+3*nTempMagn*RtoB
+      ! total statistical sum, Boltzmann distribution
+      Call mma_allocate(ZT,nTempMagn,'ZT')
+      Call dcopy_(nTempMagn,[0.0_wp],0,ZT,1)
+      mem_local=mem_local+nTempMagn*RtoB
+      ! total spin magnetisation
+      Call mma_allocate(ST,3,nTempMagn,'ST')
+      Call dcopy_(3*nTempMagn,[0.0_wp],0,ST,1)
+      mem_local=mem_local+3*nTempMagn*RtoB
+      ! total magnetisation
+      Call mma_allocate(MT,3,nTempMagn,'MT')
+      Call dcopy_(3*nTempMagn,[0.0_wp],0,MT,1)
+      mem_local=mem_local+3*nTempMagn*RtoB
 
       if(dbg) Write(6,*) 'mem_local 2 = ', mem_local
-         If(nneq>=0) Then
-            ! local statistical sum, Boltzmann distribution
-            Call mma_allocate(ZL,nneq,nTempMagn,'ZL')
-            Call dcopy_(nneq*nTempMagn,[0.0_wp],0,ZL,1)
-            mem_local=mem_local+nneq*nTempMagn*RtoB
-            ! spin magnetisation, from the local sites, using ALL states
-            Call mma_allocate(SL,nneq,3,nTempMagn,'SL')
-            Call dcopy_(nneq*3*nTempMagn,[0.0_wp],0,SL,1)
-            mem_local=mem_local+nneq*3*nTempMagn*RtoB
-            ! magnetisation, from local sites, using ALL states
-            Call mma_allocate(ML,nneq,3,nTempMagn,'ML')
-            Call dcopy_(nneq*3*nTempMagn,[0.0_wp],0,ML,1)
-            mem_local=mem_local+nneq*3*nTempMagn*RtoB
+      ! local statistical sum, Boltzmann distribution
+      Call mma_allocate(ZL,nneq,nTempMagn,'ZL')
+      Call dcopy_(nneq*nTempMagn,[0.0_wp],0,ZL,1)
+      mem_local=mem_local+nneq*nTempMagn*RtoB
+      ! spin magnetisation, from the local sites, using ALL states
+      Call mma_allocate(SL,nneq,3,nTempMagn,'SL')
+      Call dcopy_(nneq*3*nTempMagn,[0.0_wp],0,SL,1)
+      mem_local=mem_local+nneq*3*nTempMagn*RtoB
+      ! magnetisation, from local sites, using ALL states
+      Call mma_allocate(ML,nneq,3,nTempMagn,'ML')
+      Call dcopy_(nneq*3*nTempMagn,[0.0_wp],0,ML,1)
+      mem_local=mem_local+nneq*3*nTempMagn*RtoB
 
-            ! local statistical sum, Boltzmann distribution
-            Call mma_allocate(ZR,nneq,nTempMagn,'ZR')
-            Call dcopy_(nneq*nTempMagn,[0.0_wp],0,ZR,1)
-            mem_local=mem_local+nneq*nTempMagn*RtoB
-!           spin magnetisation, from the local sites, using only NEXCH states
-            Call mma_allocate(SR,nneq,3,nTempMagn,'SR')
-            Call dcopy_(nneq*3*nTempMagn,[0.0_wp],0,SR,1)
-            mem_local=mem_local+nneq*3*nTempMagn*RtoB
-!           magnetisation, from the local sites, using only NEXCH states
-            Call mma_allocate(MR,nneq,3,nTempMagn,'MR')
-            Call dcopy_(nneq*3*nTempMagn,[0.0_wp],0,MR,1)
-            mem_local=mem_local+nneq*3*nTempMagn*RtoB
-         End If
+      ! local statistical sum, Boltzmann distribution
+      Call mma_allocate(ZR,nneq,nTempMagn,'ZR')
+      Call dcopy_(nneq*nTempMagn,[0.0_wp],0,ZR,1)
+      mem_local=mem_local+nneq*nTempMagn*RtoB
+!     spin magnetisation, from the local sites, using only NEXCH states
+      Call mma_allocate(SR,nneq,3,nTempMagn,'SR')
+      Call dcopy_(nneq*3*nTempMagn,[0.0_wp],0,SR,1)
+      mem_local=mem_local+nneq*3*nTempMagn*RtoB
+!     magnetisation, from the local sites, using only NEXCH states
+      Call mma_allocate(MR,nneq,3,nTempMagn,'MR')
+      Call dcopy_(nneq*3*nTempMagn,[0.0_wp],0,MR,1)
+      mem_local=mem_local+nneq*3*nTempMagn*RtoB
 
       if(dbg) Write(6,*) 'mem_local 3 = ', mem_local
-         If(nCenter>=0) Then
-            ! ZRT(nCenter,nTempMagn)
-            Call mma_allocate(ZRT,nCenter,nTempMagn,'ZRT')
-            Call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZRT,1)
-            mem_local=mem_local+nCenter*nTempMagn*RtoB
-            ! ZLT(nCenter,nTempMagn)
-            Call mma_allocate(ZLT,nCenter,nTempMagn,'ZLT')
-            Call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZLT,1)
-            mem_local=mem_local+nCenter*nTempMagn*RtoB
-            ! MRT(nCenter,3,nTempMagn)
-            Call mma_allocate(MRT,nCenter,3,nTempMagn,'MRT')
-            Call dcopy_(nCenter*3*nTempMagn,[0.0_wp],0,MRT,1)
-            mem_local=mem_local+nCenter*3*nTempMagn*RtoB
-            ! MLT(nCenter,3,nTempMagn)
-            Call mma_allocate(MLT,nCenter,3,nTempMagn,'MLT')
-            Call dcopy_(nCenter*3*nTempMagn,[0.0_wp],0,MLT,1)
-            mem_local=mem_local+nCenter*3*nTempMagn*RtoB
-            ! SRT(nCenter,3,nTempMagn)
-            Call mma_allocate(SRT,nCenter,3,nTempMagn,'SRT')
-            Call dcopy_(nCenter*3*nTempMagn,[0.0_wp],0,SRT,1)
-            mem_local=mem_local+nCenter*3*nTempMagn*RtoB
-            ! SLT(nCenter,3,nTempMagn)
-            Call mma_allocate(SLT,nCenter,3,nTempMagn,'SLT')
-            Call dcopy_(nCenter*3*nTempMagn,[0.0_wp],0,SLT,1)
-            mem_local=mem_local+nCenter*3*nTempMagn*RtoB
-         End If
+      ! ZRT(nCenter,nTempMagn)
+      Call mma_allocate(ZRT,nCenter,nTempMagn,'ZRT')
+      Call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZRT,1)
+      mem_local=mem_local+nCenter*nTempMagn*RtoB
+      ! ZLT(nCenter,nTempMagn)
+      Call mma_allocate(ZLT,nCenter,nTempMagn,'ZLT')
+      Call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZLT,1)
+      mem_local=mem_local+nCenter*nTempMagn*RtoB
+      ! MRT(nCenter,3,nTempMagn)
+      Call mma_allocate(MRT,nCenter,3,nTempMagn,'MRT')
+      Call dcopy_(nCenter*3*nTempMagn,[0.0_wp],0,MRT,1)
+      mem_local=mem_local+nCenter*3*nTempMagn*RtoB
+      ! MLT(nCenter,3,nTempMagn)
+      Call mma_allocate(MLT,nCenter,3,nTempMagn,'MLT')
+      Call dcopy_(nCenter*3*nTempMagn,[0.0_wp],0,MLT,1)
+      mem_local=mem_local+nCenter*3*nTempMagn*RtoB
+      ! SRT(nCenter,3,nTempMagn)
+      Call mma_allocate(SRT,nCenter,3,nTempMagn,'SRT')
+      Call dcopy_(nCenter*3*nTempMagn,[0.0_wp],0,SRT,1)
+      mem_local=mem_local+nCenter*3*nTempMagn*RtoB
+      ! SLT(nCenter,3,nTempMagn)
+      Call mma_allocate(SLT,nCenter,3,nTempMagn,'SLT')
+      Call dcopy_(nCenter*3*nTempMagn,[0.0_wp],0,SLT,1)
+      mem_local=mem_local+nCenter*3*nTempMagn*RtoB
 
-         If(dbg) Write(6,*) 'mem_local 4 = ', mem_local
+      If(dbg) Write(6,*) 'mem_local 4 = ', mem_local
 c magnetic torque
-         If( (nPlanes>=0).and.(AngPoints>=0).and.(nH>=0)
-     &                                    .and.(nTempMagn>=0) ) Then
-            Call mma_allocate(tx,nPlanes,AngPoints,nH,nTempMagn,'tx')
-            Call mma_allocate(ty,nPlanes,AngPoints,nH,nTempMagn,'ty')
-            Call mma_allocate(tz,nPlanes,AngPoints,nH,nTempMagn,'tz')
-            Call mma_allocate(sx,nPlanes,AngPoints,nH,nTempMagn,'sx')
-            Call mma_allocate(sy,nPlanes,AngPoints,nH,nTempMagn,'sy')
-            Call mma_allocate(sz,nPlanes,AngPoints,nH,nTempMagn,'sz')
-            Call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[0.0_wp],0,tx,1)
-            Call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[0.0_wp],0,ty,1)
-            Call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[0.0_wp],0,tz,1)
-            Call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[0.0_wp],0,sx,1)
-            Call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[0.0_wp],0,sy,1)
-            Call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[0.0_wp],0,sz,1)
-            mem_local=mem_local+6*nPlanes*AngPoints*nH*nTempMagn*RtoB
-         End If
-      End If
+      Call mma_allocate(tx,nPlanes,AngPoints,nH,nTempMagn,'tx')
+      Call mma_allocate(ty,nPlanes,AngPoints,nH,nTempMagn,'ty')
+      Call mma_allocate(tz,nPlanes,AngPoints,nH,nTempMagn,'tz')
+      Call mma_allocate(sx,nPlanes,AngPoints,nH,nTempMagn,'sx')
+      Call mma_allocate(sy,nPlanes,AngPoints,nH,nTempMagn,'sy')
+      Call mma_allocate(sz,nPlanes,AngPoints,nH,nTempMagn,'sz')
+      Call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[0.0_wp],0,tx,1)
+      Call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[0.0_wp],0,ty,1)
+      Call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[0.0_wp],0,tz,1)
+      Call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[0.0_wp],0,sx,1)
+      Call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[0.0_wp],0,sy,1)
+      Call dcopy_(nPlanes*AngPoints*nH*nTempMagn,[0.0_wp],0,sz,1)
+      mem_local=mem_local+6*nPlanes*AngPoints*nH*nTempMagn*RtoB
       if(dbg) Write(6,*) 'mem_local 5 = ', mem_local
 
-      If((nLoc>=0).and.(nneq>=0)) Then
-         ! Zeeman local energies
-         Call mma_allocate(WL,nneq,nLoc,'WL')
-         Call dcopy_(nneq*nLoc,[0.0_wp],0,WL,1)
-         mem_local=mem_local+nneq*nLoc*RtoB
-         ! Zeeman local reduced energies, using only NEXCH states
-         Call mma_allocate(WR,nneq,nLoc,'WR')
-         Call dcopy_(nneq*nLoc,[0.0_wp],0,WR,1)
-         mem_local=mem_local+nneq*nLoc*RtoB
-      End If
+      ! Zeeman local energies
+      Call mma_allocate(WL,nneq,nLoc,'WL')
+      Call dcopy_(nneq*nLoc,[0.0_wp],0,WL,1)
+      mem_local=mem_local+nneq*nLoc*RtoB
+      ! Zeeman local reduced energies, using only NEXCH states
+      Call mma_allocate(WR,nneq,nLoc,'WR')
+      Call dcopy_(nneq*nLoc,[0.0_wp],0,WR,1)
+      mem_local=mem_local+nneq*nLoc*RtoB
       if(dbg) Write(6,*) 'mem_local 6 = ', mem_local
 
-      If(AngPoints>=0) Then
-         Call mma_allocate(Ang,AngPoints,'Ang')
-         Call dcopy_(AngPoints,[0.0_wp],0,Ang,1)
-         mem_local=mem_local+AngPoints*RtoB
-         If(nPlanes>=0) Then
-            Call mma_allocate(dX,nPlanes,AngPoints,'dX')
-            Call mma_allocate(dY,nPlanes,AngPoints,'dY')
-            Call mma_allocate(dZ,nPlanes,AngPoints,'dZ')
-            Call dcopy_(nPlanes*AngPoints,[0.0_wp],0,dX,1)
-            Call dcopy_(nPlanes*AngPoints,[0.0_wp],0,dY,1)
-            Call dcopy_(nPlanes*AngPoints,[0.0_wp],0,dZ,1)
-            mem_local=mem_local+3*nPlanes*AngPoints*RtoB
-         End If
-      End If
+      Call mma_allocate(Ang,AngPoints,'Ang')
+      Call dcopy_(AngPoints,[0.0_wp],0,Ang,1)
+      mem_local=mem_local+AngPoints*RtoB
+      Call mma_allocate(dX,nPlanes,AngPoints,'dX')
+      Call mma_allocate(dY,nPlanes,AngPoints,'dY')
+      Call mma_allocate(dZ,nPlanes,AngPoints,'dZ')
+      Call dcopy_(nPlanes*AngPoints,[0.0_wp],0,dX,1)
+      Call dcopy_(nPlanes*AngPoints,[0.0_wp],0,dY,1)
+      Call dcopy_(nPlanes*AngPoints,[0.0_wp],0,dZ,1)
+      mem_local=mem_local+3*nPlanes*AngPoints*RtoB
       if(dbg) Write(6,*) 'mem_local 7 = ', mem_local
 
-      If(nH>=0) Then
-         Call mma_allocate(H,nH,'H')
-         Call dcopy_(nH,[0.0_wp],0,H,1)
-         mem_local=mem_local+nH*RtoB
-      End If
+      Call mma_allocate(H,nH,'H')
+      Call dcopy_(nH,[0.0_wp],0,H,1)
+      mem_local=mem_local+nH*RtoB
 
       If(dbg) Write(6,*) 'TORQ:  memory allocated (local):'
       If(dbg) Write(6,*) 'mem_local=', mem_local
@@ -719,63 +700,45 @@ C -------------------------------------------------------------------
 ! 199  Continue
 !-----------------------------------------------------------------------
 ! Deallocate memory for this calculation:
-      If(nM>=0) Then
-         Call mma_deallocate(Wex)
-      End If
+      Call mma_deallocate(Wex)
 
-      If(nTempMagn>=0) Then
-         Call mma_deallocate(Zex)
-         Call mma_deallocate(SEX)
-         Call mma_deallocate(MEX)
-         Call mma_deallocate(ZT)
-         Call mma_deallocate(ST)
-         Call mma_deallocate(MT)
+      Call mma_deallocate(Zex)
+      Call mma_deallocate(SEX)
+      Call mma_deallocate(MEX)
+      Call mma_deallocate(ZT)
+      Call mma_deallocate(ST)
+      Call mma_deallocate(MT)
 
-         If(nneq>=0) Then
-            Call mma_deallocate(ZL)
-            Call mma_deallocate(SL)
-            Call mma_deallocate(ML)
-            Call mma_deallocate(ZR)
-            Call mma_deallocate(SR)
-            Call mma_deallocate(MR)
-         End If
+      Call mma_deallocate(ZL)
+      Call mma_deallocate(SL)
+      Call mma_deallocate(ML)
+      Call mma_deallocate(ZR)
+      Call mma_deallocate(SR)
+      Call mma_deallocate(MR)
 
-         If(nCenter>=0) Then
-            Call mma_deallocate(ZRT)
-            Call mma_deallocate(ZLT)
-            Call mma_deallocate(MRT)
-            Call mma_deallocate(MLT)
-            Call mma_deallocate(SRT)
-            Call mma_deallocate(SLT)
-         End If
+      Call mma_deallocate(ZRT)
+      Call mma_deallocate(ZLT)
+      Call mma_deallocate(MRT)
+      Call mma_deallocate(MLT)
+      Call mma_deallocate(SRT)
+      Call mma_deallocate(SLT)
 
-         If( (nPlanes>=0).and.(AngPoints>=0).and.(nH>=0) ) Then
-            Call mma_deallocate(tx)
-            Call mma_deallocate(ty)
-            Call mma_deallocate(tz)
-            Call mma_deallocate(sx)
-            Call mma_deallocate(sy)
-            Call mma_deallocate(sz)
-         End If
-      End If
+      Call mma_deallocate(tx)
+      Call mma_deallocate(ty)
+      Call mma_deallocate(tz)
+      Call mma_deallocate(sx)
+      Call mma_deallocate(sy)
+      Call mma_deallocate(sz)
 
-      If((nLoc>=0).and.(nneq>=0)) Then
-         Call mma_deallocate(WL)
-         Call mma_deallocate(WR)
-      End If
+      Call mma_deallocate(WL)
+      Call mma_deallocate(WR)
 
-      If(AngPoints>=0) Then
-         Call mma_deallocate(Ang)
-         If(nPlanes>=0) Then
-            Call mma_deallocate(dX)
-            Call mma_deallocate(dY)
-            Call mma_deallocate(dZ)
-         End If
-      End If
+      Call mma_deallocate(Ang)
+      Call mma_deallocate(dX)
+      Call mma_deallocate(dY)
+      Call mma_deallocate(dZ)
 
-      If(nH>=0) Then
-         Call mma_deallocate(H)
-      End If
+      Call mma_deallocate(H)
 
       If(dbg) Write(6,*) 'TORQ: allocated memory was sucessfully '//
      &                   'deallocated'

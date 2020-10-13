@@ -11,7 +11,8 @@
        Subroutine XT_dMoverdH_single( nss, nTempMagn, nT, nM,
      &                                Tmin, Tmax, chit_exp, eso, T,
      &                                zJ, Xfield, EM, dM, sM,
-     &                                XT_no_field, tinput, smagn, mem )
+     &                                XT_no_field, tinput, smagn, mem,
+     &                                DoPlot )
 c       chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
       Implicit None
       Integer, parameter        :: wp=SELECTED_REAL_KIND(p=15,r=307)
@@ -28,7 +29,7 @@ c       chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
       Real(kind=8), intent(in) :: XT_no_field( nT+nTempMagn )
       Complex(kind=8), intent(in) :: dM(3,nss,nss)
       Complex(kind=8), intent(in) :: sM(3,nss,nss)
-      Logical, intent(in)          :: tinput, smagn
+      Logical, intent(in)          :: tinput, smagn, doplot
 cccc local variables ccc
       Integer       :: iM,iT,jT,i,j,l, nDirX
       Logical       :: m_paranoid
@@ -86,11 +87,12 @@ c standard deviation data:
       Real(kind=8) :: dHW(3)
 
       Integer       :: Info
-      Real(kind=8) :: WT(3), ZT(3,3)
+      Real(kind=8)  :: WT(3), ZT(3,3)
 
       Integer       :: mem_local, RtoB
-      Real(kind=8) :: cm3tomB
+      Real(kind=8)  :: cm3tomB
       logical       :: DBG
+      Character(len=50) :: label
 
       DBG=.false.
       m_paranoid=.true.!.false.
@@ -164,55 +166,50 @@ cccc-------------------------------------------------------cccc
      &                           tmax,' K.'
       End If
 ! allocate memory:
-      If ( nM >= 0 ) Then
-         Call mma_allocate(WM1,nM,'WM1')
-         Call mma_allocate(WM2,nM,'WM2')
-         Call mma_allocate(WM3,nM,'WM3')
-         Call mma_allocate(WM4,nM,'WM4')
-         Call mma_allocate(WM5,nM,'WM5')
-         Call mma_allocate(WM6,nM,'WM6')
-         Call mma_allocate(WM7,nM,'WM7')
-         mem_local=mem_local+7*nM*RtoB
-      End If
-      If ( (nT+nTempMagn) >= 0 ) Then
-         Call mma_allocate(ZT1,(nT+nTempMagn),'ZT1')
-         Call mma_allocate(ZT2,(nT+nTempMagn),'ZT2')
-         Call mma_allocate(ZT3,(nT+nTempMagn),'ZT3')
-         Call mma_allocate(ZT4,(nT+nTempMagn),'ZT4')
-         Call mma_allocate(ZT5,(nT+nTempMagn),'ZT5')
-         Call mma_allocate(ZT6,(nT+nTempMagn),'ZT6')
-         Call mma_allocate(ZT7,(nT+nTempMagn),'ZT7')
-         mem_local=mem_local+7*(nT+nTempMagn)*RtoB
+      Call mma_allocate(WM1,nM,'WM1')
+      Call mma_allocate(WM2,nM,'WM2')
+      Call mma_allocate(WM3,nM,'WM3')
+      Call mma_allocate(WM4,nM,'WM4')
+      Call mma_allocate(WM5,nM,'WM5')
+      Call mma_allocate(WM6,nM,'WM6')
+      Call mma_allocate(WM7,nM,'WM7')
+      mem_local=mem_local+7*nM*RtoB
 
-         Call mma_allocate(MT1,3,(nT+nTempMagn),'MT0')
-         Call mma_allocate(MT2,3,(nT+nTempMagn),'MT1')
-         Call mma_allocate(MT3,3,(nT+nTempMagn),'MT3')
-         Call mma_allocate(MT4,3,(nT+nTempMagn),'MT4')
-         Call mma_allocate(MT5,3,(nT+nTempMagn),'MT5')
-         Call mma_allocate(MT6,3,(nT+nTempMagn),'MT6')
-         Call mma_allocate(MT7,3,(nT+nTempMagn),'MT7')
+      Call mma_allocate(ZT1,(nT+nTempMagn),'ZT1')
+      Call mma_allocate(ZT2,(nT+nTempMagn),'ZT2')
+      Call mma_allocate(ZT3,(nT+nTempMagn),'ZT3')
+      Call mma_allocate(ZT4,(nT+nTempMagn),'ZT4')
+      Call mma_allocate(ZT5,(nT+nTempMagn),'ZT5')
+      Call mma_allocate(ZT6,(nT+nTempMagn),'ZT6')
+      Call mma_allocate(ZT7,(nT+nTempMagn),'ZT7')
+      mem_local=mem_local+7*(nT+nTempMagn)*RtoB
 
-         Call mma_allocate(ST1,3,(nT+nTempMagn),'ST1')
-         Call mma_allocate(ST2,3,(nT+nTempMagn),'ST2')
-         Call mma_allocate(ST3,3,(nT+nTempMagn),'ST3')
-         Call mma_allocate(ST4,3,(nT+nTempMagn),'ST4')
-         Call mma_allocate(ST5,3,(nT+nTempMagn),'ST5')
-         Call mma_allocate(ST6,3,(nT+nTempMagn),'ST6')
-         Call mma_allocate(ST7,3,(nT+nTempMagn),'ST7')
-         mem_local=mem_local+14*3*(nT+nTempMagn)*RtoB
+      Call mma_allocate(MT1,3,(nT+nTempMagn),'MT0')
+      Call mma_allocate(MT2,3,(nT+nTempMagn),'MT1')
+      Call mma_allocate(MT3,3,(nT+nTempMagn),'MT3')
+      Call mma_allocate(MT4,3,(nT+nTempMagn),'MT4')
+      Call mma_allocate(MT5,3,(nT+nTempMagn),'MT5')
+      Call mma_allocate(MT6,3,(nT+nTempMagn),'MT6')
+      Call mma_allocate(MT7,3,(nT+nTempMagn),'MT7')
 
-         Call mma_allocate(XTM_MH  ,(nT+nTempMagn),'XTM_MH')
-         Call mma_allocate(XTM_dMdH,(nT+nTempMagn),'XTM_dMdH')
-         Call mma_allocate(XTtens_MH  ,3,3,(nT+nTempMagn),'XTtens_MH')
-         Call mma_allocate(XTtens_dMdH,3,3,(nT+nTempMagn),'XTtens_dMdH')
-         mem_local=mem_local+(2+2*3*3)*(nT+nTempMagn)*RtoB
-      End If
+      Call mma_allocate(ST1,3,(nT+nTempMagn),'ST1')
+      Call mma_allocate(ST2,3,(nT+nTempMagn),'ST2')
+      Call mma_allocate(ST3,3,(nT+nTempMagn),'ST3')
+      Call mma_allocate(ST4,3,(nT+nTempMagn),'ST4')
+      Call mma_allocate(ST5,3,(nT+nTempMagn),'ST5')
+      Call mma_allocate(ST6,3,(nT+nTempMagn),'ST6')
+      Call mma_allocate(ST7,3,(nT+nTempMagn),'ST7')
+      mem_local=mem_local+14*3*(nT+nTempMagn)*RtoB
+
+      Call mma_allocate(XTM_MH  ,(nT+nTempMagn),'XTM_MH')
+      Call mma_allocate(XTM_dMdH,(nT+nTempMagn),'XTM_dMdH')
+      Call mma_allocate(XTtens_MH  ,3,3,(nT+nTempMagn),'XTtens_MH')
+      Call mma_allocate(XTtens_dMdH,3,3,(nT+nTempMagn),'XTtens_dMdH')
+      mem_local=mem_local+(2+2*3*3)*(nT+nTempMagn)*RtoB
       If(dbg) Write(6,*) 'XTMG:  memory allocated (local):'
       If(dbg) Write(6,*) 'mem_local=', mem_local
       If(dbg) Write(6,*) 'XTMG:  memory allocated (total):'
       If(dbg) Write(6,*) 'mem_total=', mem+mem_local
-
-
 
 
 
@@ -456,6 +453,37 @@ c  calcualtion of the standard deviation:
 
 
 
+!-------------------------  PLOTs -------------------------------------!
+      WRITE(label,'(A)') "with_field_M_over_H"
+      IF ( DoPlot ) THEN
+         IF ( tinput ) THEN
+            Call plot_XT_with_Exp(label, nT-nTempMagn,
+     &                                     T((1+nTempMagn):(nT) ),
+     &                                XTM_MH((1+nTempMagn):(nT) ),
+     &                              chit_exp((1+nTempMagn):(nT) ), zJ )
+         ELSE
+            Call plot_XT_no_Exp(  label, nT-nTempMagn,
+     &                                     T((1+nTempMagn):(nT) ),
+     &                                XTM_MH((1+nTempMagn):(nT) ), zJ )
+         END IF
+      END IF
+
+
+      WRITE(label,'(A)') "with_field_dM_over_dH"
+      IF ( DoPlot ) THEN
+         IF ( tinput ) THEN
+            Call plot_XT_with_Exp(label, nT-nTempMagn,
+     &                                     T((1+nTempMagn):(nT) ),
+     &                              XTM_dMdH((1+nTempMagn):(nT) ),
+     &                              chit_exp((1+nTempMagn):(nT) ), zJ )
+         ELSE
+            Call plot_XT_no_Exp(  label, nT-nTempMagn,
+     &                                     T((1+nTempMagn):(nT) ),
+     &                              XTM_dMdH((1+nTempMagn):(nT) ), zJ )
+         END IF
+      END IF
+!------------------------- END PLOTs -------------------------------------!
+
 
 
 
@@ -534,48 +562,43 @@ c print out the main VAN VLECK SUSCEPTIBILITY TENSOR, its main values and main a
       Write(6,'(111A)') ('-',i=1,110),'|'
 
 
-      If ( nM >= 0 ) Then
-         Call mma_deallocate(WM1)
-         Call mma_deallocate(WM2)
-         Call mma_deallocate(WM3)
-         Call mma_deallocate(WM4)
-         Call mma_deallocate(WM5)
-         Call mma_deallocate(WM6)
-         Call mma_deallocate(WM7)
-      End If
-      If ( nT+nTempMagn >= 0 ) Then
-         Call mma_deallocate(ZT1)
-         Call mma_deallocate(ZT2)
-         Call mma_deallocate(ZT3)
-         Call mma_deallocate(ZT4)
-         Call mma_deallocate(ZT5)
-         Call mma_deallocate(ZT6)
-         Call mma_deallocate(ZT7)
+      Call mma_deallocate(WM1)
+      Call mma_deallocate(WM2)
+      Call mma_deallocate(WM3)
+      Call mma_deallocate(WM4)
+      Call mma_deallocate(WM5)
+      Call mma_deallocate(WM6)
+      Call mma_deallocate(WM7)
 
-         Call mma_deallocate(MT1)
-         Call mma_deallocate(MT2)
-         Call mma_deallocate(MT3)
-         Call mma_deallocate(MT4)
-         Call mma_deallocate(MT5)
-         Call mma_deallocate(MT6)
-         Call mma_deallocate(MT7)
+      Call mma_deallocate(ZT1)
+      Call mma_deallocate(ZT2)
+      Call mma_deallocate(ZT3)
+      Call mma_deallocate(ZT4)
+      Call mma_deallocate(ZT5)
+      Call mma_deallocate(ZT6)
+      Call mma_deallocate(ZT7)
 
-         Call mma_deallocate(ST1)
-         Call mma_deallocate(ST2)
-         Call mma_deallocate(ST3)
-         Call mma_deallocate(ST4)
-         Call mma_deallocate(ST5)
-         Call mma_deallocate(ST6)
-         Call mma_deallocate(ST7)
+      Call mma_deallocate(MT1)
+      Call mma_deallocate(MT2)
+      Call mma_deallocate(MT3)
+      Call mma_deallocate(MT4)
+      Call mma_deallocate(MT5)
+      Call mma_deallocate(MT6)
+      Call mma_deallocate(MT7)
 
-         Call mma_deallocate(XTM_MH)
-         Call mma_deallocate(XTM_dMdH)
-         Call mma_deallocate(XTtens_MH)
-         Call mma_deallocate(XTtens_dMdH)
-      End If
+      Call mma_deallocate(ST1)
+      Call mma_deallocate(ST2)
+      Call mma_deallocate(ST3)
+      Call mma_deallocate(ST4)
+      Call mma_deallocate(ST5)
+      Call mma_deallocate(ST6)
+      Call mma_deallocate(ST7)
+
+      Call mma_deallocate(XTM_MH)
+      Call mma_deallocate(XTM_dMdH)
+      Call mma_deallocate(XTtens_MH)
+      Call mma_deallocate(XTtens_dMdH)
 
       Return
       End
-
-
 

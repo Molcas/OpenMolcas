@@ -118,12 +118,10 @@ c      End If
       mem_local=0
       RtoB=8
       CtoB=16
-      If(nM>=0) Then
-         ! Zeeman exchange energy spectrum
-         Call mma_allocate(W,nM,'W')
-         Call dcopy_(nM,[0.0_wp],0,W,1)
-         mem_local=mem_local+nM*RtoB
-      End If
+      ! Zeeman exchange energy spectrum
+      Call mma_allocate(W,nM,'W')
+      Call dcopy_(nM,[0.0_wp],0,W,1)
+      mem_local=mem_local+nM*RtoB
 
       Call mma_allocate(ST,3,'ST')
       Call dcopy_(3,[0.0_wp],0,ST,1)
@@ -133,33 +131,27 @@ c      End If
       Call dcopy_(3,[0.0_wp],0,MT,1)
       mem_local=mem_local+3*RtoB
 
-      If(AngPoints>=0) Then
-         Call mma_allocate(dX,AngPoints,'dX')
-         Call mma_allocate(dY,AngPoints,'dY')
-         Call mma_allocate(dZ,AngPoints,'dZ')
-         Call dcopy_(AngPoints,[0.0_wp],0,dX,1)
-         Call dcopy_(AngPoints,[0.0_wp],0,dY,1)
-         Call dcopy_(AngPoints,[0.0_wp],0,dZ,1)
-         mem_local=mem_local+3*AngPoints*RtoB
+      Call mma_allocate(dX,AngPoints,'dX')
+      Call mma_allocate(dY,AngPoints,'dY')
+      Call mma_allocate(dZ,AngPoints,'dZ')
+      Call dcopy_(AngPoints,[0.0_wp],0,dX,1)
+      Call dcopy_(AngPoints,[0.0_wp],0,dY,1)
+      Call dcopy_(AngPoints,[0.0_wp],0,dZ,1)
+      mem_local=mem_local+3*AngPoints*RtoB
 
-         Call mma_allocate(Ang,AngPoints,'Ang')
-         Call dcopy_(AngPoints,[0.0_wp],0,Ang,1)
-         mem_local=mem_local+AngPoints*RtoB
-      End If
+      Call mma_allocate(Ang,AngPoints,'Ang')
+      Call dcopy_(AngPoints,[0.0_wp],0,Ang,1)
+      mem_local=mem_local+AngPoints*RtoB
 
-      If( (nPlanes>=0).and.(AngPoints>=0) ) Then
-         Call mma_allocate(ty,AngPoints,'ty')
-         Call dcopy_(AngPoints,[0.0_wp],0,ty,1)
-         mem_local=mem_local+AngPoints*RtoB
-      End If
+      Call mma_allocate(ty,AngPoints,'ty')
+      Call dcopy_(AngPoints,[0.0_wp],0,ty,1)
+      mem_local=mem_local+AngPoints*RtoB
 
-      If (nss>=0) Then
-         Call mma_allocate(M,3,nss,nss,'Mrot')
-         Call mma_allocate(S,3,nss,nss,'Srot')
-         Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,M,1)
-         Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,S,1)
-         mem_local=mem_local+2*3*nss*nss*CtoB
-      End If
+      Call mma_allocate(M,3,nss,nss,'Mrot')
+      Call mma_allocate(S,3,nss,nss,'Srot')
+      Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,M,1)
+      Call zcopy_(3*nss*nss,[(0.0_wp,0.0_wp)],0,S,1)
+      mem_local=mem_local+2*3*nss*nss*CtoB
 
 
       If(dbg) Write(6,*) 'TORQ:  memory allocated (local):'
@@ -167,16 +159,16 @@ c      End If
       If(dbg) Write(6,*) 'TORQ:  memory allocated (total):'
       If(dbg) Write(6,*) 'mem_total=', mem+mem_local
 !-----------------------------------------------------------------------
-          ! rotate the moments to the coordiante system of
-          ! the ground state
-         ! ma_inv=0.0_wp
-         ! Call REVERSE(ma,ma_inv,DET)
-          Call rotmom2( DIPM, nss, ma, M )
-          Call rotmom2(   SM, nss, ma, S )
+      ! rotate the moments to the coordiante system of
+      ! the ground state
+      ! ma_inv=0.0_wp
+      ! Call REVERSE(ma,ma_inv,DET)
+      Call rotmom2( DIPM, nss, ma, M )
+      Call rotmom2(   SM, nss, ma, S )
 
-          g=0.0_wp
-          mg=0.0_wp
-          Call atens( M(1:3,1:2,1:2), 2, g, mg, 2)
+      g=0.0_wp
+      mg=0.0_wp
+      Call atens( M(1:3,1:2,1:2), 2, g, mg, 2)
 !-----------------------------------------------------------------------
       Call dcopy_(AngPoints,[0.0_wp],0,dX,1)
       Call dcopy_(AngPoints,[0.0_wp],0,dY,1)
@@ -271,27 +263,16 @@ C -------------------------------------------------------------------
 
 !-----------------------------------------------------------------------
 ! deallocate memory for this computation:
-      If(nM>0) Then
-         Call mma_deallocate(W)
-      End If
-
+      Call mma_deallocate(W)
       Call mma_deallocate(ST)
       Call mma_deallocate(MT)
-
-      If(AngPoints>0) Then
-         Call mma_deallocate(dX)
-         Call mma_deallocate(dY)
-         Call mma_deallocate(dZ)
-         Call mma_deallocate(Ang)
-      End If
-
-      If( (nPlanes>0).and.(AngPoints>0) ) Then
-         Call mma_deallocate(ty)
-      End If
-      If(nss>0) Then
-         Call mma_deallocate(m)
-         Call mma_deallocate(s)
-      End If
+      Call mma_deallocate(dX)
+      Call mma_deallocate(dY)
+      Call mma_deallocate(dZ)
+      Call mma_deallocate(Ang)
+      Call mma_deallocate(ty)
+      Call mma_deallocate(m)
+      Call mma_deallocate(s)
 
       If(dbg) Write(6,*) 'TORQ: allocated memory was sucessfully '//
      &                   'deallocated'

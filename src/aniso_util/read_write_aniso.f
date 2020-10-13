@@ -609,3 +609,350 @@ c compatibility with the present version: of aniso_i.input file
       Return
       End
 
+
+
+
+
+
+      Subroutine write_new_formatted_aniso(
+     &                                  nss, nstate, multiplicity, eso,
+     &                                  esfs, U, MM, MS, DM, angmom,
+     &                                  edmom, amfi, HSO,
+     &                                  eso_au, esfs_au )
+
+      Implicit None
+      Integer, Parameter          :: wp=selected_real_kind(p=15,r=307)
+      Integer, intent(in)         :: nss, nstate, multiplicity(nstate)
+      Real(kind=8), intent(in)    :: eso(nss), esfs(nstate)
+      Real(kind=8), intent(in)    :: eso_au(nss), esfs_au(nstate)
+      Real(kind=8), intent(in)    :: angmom(3,nstate,nstate)
+      Real(kind=8), intent(in)    ::  edmom(3,nstate,nstate)
+      Real(kind=8), intent(in)    ::   amfi(3,nstate,nstate)
+      Complex(kind=8), intent(in) :: MM(3,nss,nss)
+      Complex(kind=8), intent(in) :: MS(3,nss,nss)
+      Complex(kind=8), intent(in) :: DM(3,nss,nss)
+      Complex(kind=8), intent(in) ::    U(nss,nss)
+      Complex(kind=8), intent(in) ::  HSO(nss,nss)
+      ! local stuff
+#include "stdalloc.fh"
+      Integer                     :: njob, mxjob, mult, iss, ipar, ist
+      Integer                     :: ibas(nstate,-30:30)
+      Integer                     :: data_file_format
+      Integer                     :: l,i,j,IsFreeUnit,Lu
+      Character(LEN=30)           :: fmt_int, fmt_real, fmt_key
+      External                    :: IsFreeUnit
+      Integer, allocatable        :: szproj(:), jbnum(:), mltplt(:)
+      Integer, allocatable        :: nroot(:)
+      Logical                     :: exist
+      Character(len=128)          :: Filename
+
+
+      !-------------------------------------------------------------
+      ! some preparations
+      njob=0
+      mxjob=0
+      Call get_iScalar('NJOB_SINGLE',njob)
+      Call get_iScalar('MXJOB_SINGLE',mxjob)
+      ! allocate temporary memory:
+      Call mma_allocate(jbnum,nstate,'jbnum')
+      Call mma_allocate(mltplt,mxjob,'mltplt')
+      ! get the information from RUNFILE:
+      mltplt=0
+      jbnum=0
+      Call get_iArray('MLTP_SINGLE',mltplt,mxjob)
+      Call get_iArray('JBNUM_SINGLE',jbnum,nstate)
+      !-------------------------------------------------------------
+
+
+
+
+      !-------------------------------------------------------------
+      ! prepare the szproj index table
+      Call mma_allocate(szproj,nss,'szproj')
+      szproj(1:nss)=0
+      iss=0
+      ibas=0
+      ipar=mod(multiplicity(1),2)
+      Do Ist=1,nstate
+         Mult=Multiplicity(Ist)
+         Do I=-(Mult-Ipar)/2,(Mult-Ipar)/2
+            If( (Ipar==0) .AND. (I==0)) Go To 310
+               Iss=Iss+1
+               Ibas(Ist,I)=Iss
+               szproj(iss)=I
+  310       Continue
+         End Do ! i
+      End Do ! ist
+
+
+
+      Call get_iScalar('MXJOB_SINGLE',mxjob)
+      Call mma_allocate(nroot,mxjob,'nroot')
+      nroot=0
+      Call get_iArray('NSTAT_SINGLE',nroot,mxjob)
+
+      !-------------------------------------------------------------
+      ! write the data to the new aniso file
+
+      FileName='ANISOFILE'
+      Lu=IsFreeUnit(81)
+      !Call OpnFl(FileName,Lu,Exist)
+
+      Call molcas_open(Lu,FileName)
+
+      data_file_format=2020
+
+      fmt_key='(A)'
+      fmt_real='(5ES22.14,1x)'
+      fmt_int='(40(I0,1x))'
+
+      WRITE(Lu,fmt_key) '#SINGLE_ANISO DATA FILE'
+      !-------------------------------------------------------------
+      ! DATA FILE FORMAT VERSION:
+      WRITE(Lu,fmt_key) '$format'
+      WRITE(Lu,fmt_int)  data_file_format
+      WRITE(Lu,'(A)')
+      !-------------------------------------------------------------
+      ! Number of spin orbit states
+      WRITE(Lu,fmt_key) '$nss'
+      WRITE(Lu,fmt_int)  nss
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      !-------------------------------------------------------------
+      ! Number of spin free states
+      WRITE(Lu,fmt_key) '$nstate'
+      WRITE(Lu,fmt_int)  nstate
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      !-------------------------------------------------------------
+      ! Number of spin multiplicities
+      WRITE(Lu,fmt_key)  '$nmult'
+      WRITE(Lu,fmt_int)  njob
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      !-------------------------------------------------------------
+      ! Values of the spin multiplicity
+      WRITE(Lu,fmt_key)  '$imult'
+      WRITE(Lu,fmt_int)  njob
+      WRITE(Lu,fmt_int)  mltplt(1:njob)
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      !-------------------------------------------------------------
+      ! Number of roots in each spin multiplicity
+      WRITE(Lu,fmt_key)  '$nroot'
+      WRITE(Lu,fmt_int)  njob
+      WRITE(Lu,fmt_int)  nroot(1:njob)
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      !-------------------------------------------------------------
+      ! SZ projection of the states defining the ording
+      WRITE(Lu,fmt_key)  '$szproj'
+      WRITE(Lu,fmt_int)  nss
+      WRITE(Lu,fmt_int)  szproj(1:nss)
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      !-------------------------------------------------------------
+      ! spin multiplicity for all states
+      WRITE(Lu,fmt_key)  '$multiplicity'
+      WRITE(Lu,fmt_int)  nstate
+      WRITE(Lu,fmt_int)  multiplicity(1:nstate)
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      !-------------------------------------------------------------
+      ! Eigenvalues of the HBO matrix (spin-free energies from RASSCF)
+      ! atomic units
+      WRITE(Lu,fmt_key)  '$eso'
+      WRITE(Lu,fmt_int)  nss
+      WRITE(Lu,fmt_real) (eso_au(i),i=1,nss)
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      !-------------------------------------------------------------
+      ! Eigenvalues of the HBO matrix (spin-free energies from RASSCF)
+      ! atomic units
+      WRITE(Lu,fmt_key)  '$esfs'
+      WRITE(Lu,fmt_int)  nstate
+      WRITE(Lu,fmt_real) (esfs_au(i),i=1,nstate)
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      !-------------------------------------------------------------
+      ! Angular momentum operator in the basis of spin free states, component X,Y,Z
+      WRITE(Lu,fmt_key)  '$angmom_xi'
+      WRITE(Lu,fmt_int)  nstate, nstate
+      WRITE(Lu,fmt_real) angmom(1,1:nstate,1:nstate)
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$angmom_yi'
+      WRITE(Lu,fmt_int)  nstate, nstate
+      WRITE(Lu,fmt_real) angmom(2,1:nstate,1:nstate)
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$angmom_zi'
+      WRITE(Lu,fmt_int)  nstate, nstate
+      WRITE(Lu,fmt_real) angmom(3,1:nstate,1:nstate)
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      !-------------------------------------------------------------
+      ! AMFI/SOMF operator in the basis of spin free states (see eq. 35 in [1]).
+      ! Note that the meaning of these matrices is different in MOLCAS and ORCA
+      WRITE(Lu,fmt_key)  '$amfi_x'
+      WRITE(Lu,fmt_int)  nstate, nstate
+      WRITE(Lu,fmt_real) amfi(1,1:nstate,1:nstate)
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$amfi_y'
+      WRITE(Lu,fmt_int)  nstate, nstate
+      WRITE(Lu,fmt_real) amfi(2,1:nstate,1:nstate)
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$amfi_z'
+      WRITE(Lu,fmt_int)  nstate, nstate
+      WRITE(Lu,fmt_real) amfi(3,1:nstate,1:nstate)
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      !-------------------------------------------------------------
+      ! Electric transition-dipole moments in the basis of spin free states
+      ! The dipole moments, where bra and ket have the same state, are not computed. ??
+      WRITE(Lu,fmt_key)  '$edmom_x'
+      WRITE(Lu,fmt_int)  nstate, nstate
+      WRITE(Lu,fmt_real) edmom(1,1:nstate,1:nstate)
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$edmom_y'
+      WRITE(Lu,fmt_int)  nstate, nstate
+      WRITE(Lu,fmt_real) edmom(2,1:nstate,1:nstate)
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$edmom_z'
+      WRITE(Lu,fmt_int)  nstate, nstate
+      WRITE(Lu,fmt_real) edmom(3,1:nstate,1:nstate)
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      !-------------------------------------------------------------
+      ! Magnetic dipole moment in the basis of SO states
+      WRITE(Lu,fmt_key)  '$magn_xr'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real)  DBLE(MM(1,1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$magn_xi'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real) DIMAG(MM(1,1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$magn_yr'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real)  DBLE(MM(2,1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$magn_yi'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real) DIMAG(MM(2,1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$magn_zr'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real)  DBLE(MM(3,1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$magn_zi'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real) DIMAG(MM(3,1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      !-------------------------------------------------------------
+      ! Spin moment in the basis of SO states
+      WRITE(Lu,fmt_key)  '$spin_xr'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real)  DBLE(MS(1,1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$spin_xi'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real) DIMAG(MS(1,1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$spin_yr'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real)  DBLE(MS(2,1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$spin_yi'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real) DIMAG(MS(2,1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$spin_zr'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real)  DBLE(MS(3,1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$spin_zi'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real) DIMAG(MS(3,1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      !-------------------------------------------------------------
+      ! Electric transition-dipole moments in the basis of SO states
+      WRITE(Lu,fmt_key)  '$edipm_xr'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real)  DBLE(DM(1,1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$edipm_xi'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real) DIMAG(DM(1,1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$edipm_yr'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real)  DBLE(DM(2,1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$edipm_yi'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real) DIMAG(DM(2,1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$edipm_zr'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real)  DBLE(DM(3,1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      WRITE(Lu,fmt_key)  '$edipm_zi'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real) DIMAG(DM(3,1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      !-------------------------------------------------------------
+      ! Eigenvector of the HBO+SOC matrix
+      WRITE(Lu,fmt_key)  '$eigenr'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real) DBLE(U(1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      WRITE(Lu,fmt_key)  '$eigeni'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real) DIMAG(U(1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      !-------------------------------------------------------------
+      ! The HBO+SOC matrix, atomic units
+      WRITE(Lu,fmt_key)  '$hsor'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real) DBLE(HSO(1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      WRITE(Lu,fmt_key)  '$hsoi'
+      WRITE(Lu,fmt_int)  nss, nss
+      WRITE(Lu,fmt_real) DIMAG(HSO(1:nss,1:nss))
+      WRITE(Lu,'(A)')
+      FLUSH(Lu)
+      !-------------------------------------------------------------
+      FLUSH(Lu)
+      CLOSE(Lu)
+
+      Call mma_deallocate(szproj)
+      Call mma_deallocate(jbnum)
+      Call mma_deallocate(mltplt)
+      Call mma_deallocate(nroot)
+
+      Return
+      End

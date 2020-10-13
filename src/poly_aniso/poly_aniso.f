@@ -214,253 +214,227 @@ c---------------------------------------------------------------------
       CtoB=16
       ItoB=8
 
-      If(exch>=0) Then
-        ! exchange energy spectrum
-        Call mma_allocate(W,exch,'W')
-        Call dcopy_(exch,[0.0_wp],0,W,1)
-        mem=exch*RtoB
-        ! exchange eigenvectors:
-        Call mma_allocate(Z,exch,exch,'Z')
-        Call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,Z,1)
-        mem=mem+exch*exch*CtoB
-        ! magnetic moment
-        Call mma_allocate(dipexch,3,exch,exch,'dipexch')
-        Call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,dipexch,1)
-        mem=mem+3*exch*exch*CtoB
-        ! spin moment
-        Call mma_allocate( s_exch,3,exch,exch,'s_exch')
-        Call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0, s_exch,1)
-        mem=mem+3*exch*exch*CtoB
-        ! allocated memory counter
-        If(dbg) Write(6,'(A,I16)') 'mem 1 =',mem
-      End If
+      ! exchange energy spectrum
+      Call mma_allocate(W,exch,'W')
+      Call dcopy_(exch,[0.0_wp],0,W,1)
+      mem=exch*RtoB
+      ! exchange eigenvectors:
+      Call mma_allocate(Z,exch,exch,'Z')
+      Call zcopy_(exch*exch,[(0.0_wp,0.0_wp)],0,Z,1)
+      mem=mem+exch*exch*CtoB
+      ! magnetic moment
+      Call mma_allocate(dipexch,3,exch,exch,'dipexch')
+      Call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0,dipexch,1)
+      mem=mem+3*exch*exch*CtoB
+      ! spin moment
+      Call mma_allocate( s_exch,3,exch,exch,'s_exch')
+      Call zcopy_(3*exch*exch,[(0.0_wp,0.0_wp)],0, s_exch,1)
+      mem=mem+3*exch*exch*CtoB
+      ! allocated memory counter
+      If(dbg) Write(6,'(A,I16)') 'mem 1 =',mem
 
-      If(nPair>=0) Then
-        ! index of metal site for each interacting pair:
-        Call mma_allocate(i_pair,nPair,2,'i_pair')
-        Call icopy(nPair*2,[0],0,i_pair,1)
-        mem=mem+nPair*2*ItoB
-        ! exchange Lines-1 parameter
-        Call mma_allocate(Jex,nPair,'Jex')
-        Call dcopy_(nPair,[0.0_wp],0,Jex,1)
-        mem=mem+nPair*RtoB
-        ! exchange Lines-3 parameter
-        Call mma_allocate(JAex,nPair,3,'Jex')
-        Call dcopy_(nPair*3,[0.0_wp],0,JAex,1)
-        mem=mem+nPair*3*RtoB
-        ! exchange Lines-9 parameter
-        Call mma_allocate(JAex9,nPair,3,3,'Jex')
-        Call dcopy_(nPair*3*3,[0.0_wp],0,JAex9,1)
-        mem=mem+nPair*3*3*RtoB
-        ! exchange Dzyaloshinsky-Morya parameter
-        Call mma_allocate(JDMex,nPair,3,'Jex')
-        Call dcopy_(nPair*3,[0.0_wp],0,JDMex,1)
-        mem=mem+nPair*3*RtoB
-        ! index of ITO ranks for for each interacting pair:
-        Call mma_allocate(imaxrank,nPair,2,'imaxrank')
-        Call icopy(nPair*2,[0],0,imaxrank,1)
-        mem=mem+nPair*2*ItoB
-        ! exchange JITO
-        If((MxRank1>=0).AND.(MxRank2>=0)) Then
-           l1(1)=1;         l1(2)=nPair
-           l2(1)=1;         l2(2)=MxRank1
-           l3(1)=-MxRank1;  l3(2)=MxRank1
-           l4(1)=1;         l4(2)=MxRank2
-           l5(1)=-MxRank2;  l5(2)=MxRank2
-           ibuf=nPair*MxRank1*MxRank2*(2*MxRank1+1)*(2*MxRank2+1)
-           If(dbg) Write(6,'(A,I10)') 'nPair  =',nPair
-           If(dbg) Write(6,'(A,I10)') 'MxRank1=',MxRank1
-           If(dbg) Write(6,'(A,I10)') 'MxRank2=',MxRank2
-           If(dbg) Write(6,'(A,I10)') 'ibuf   =',ibuf
-           Call xFlush(6)
-           Call mma_allocate(JITOexR,l1,l2,l3,l4,l5,'JITOexR')
-           Call mma_allocate(JITOexI,l1,l2,l3,l4,l5,'JITOexI')
-           Call dcopy_(ibuf,[0.0_wp],0,JITOexR,1)
-           Call dcopy_(ibuf,[0.0_wp],0,JITOexI,1)
-           mem=mem+2*ibuf*RtoB
-        End If
-        ! allocated memory counter
-        If(dbg) Write(6,'(A,I16)') 'mem 2 =',mem
-      End If
+      ! index of metal site for each interacting pair:
+      Call mma_allocate(i_pair,nPair,2,'i_pair')
+      Call icopy(nPair*2,[0],0,i_pair,1)
+      mem=mem+nPair*2*ItoB
+      ! exchange Lines-1 parameter
+      Call mma_allocate(Jex,nPair,'Jex')
+      Call dcopy_(nPair,[0.0_wp],0,Jex,1)
+      mem=mem+nPair*RtoB
+      ! exchange Lines-3 parameter
+      Call mma_allocate(JAex,nPair,3,'Jex')
+      Call dcopy_(nPair*3,[0.0_wp],0,JAex,1)
+      mem=mem+nPair*3*RtoB
+      ! exchange Lines-9 parameter
+      Call mma_allocate(JAex9,nPair,3,3,'Jex')
+      Call dcopy_(nPair*3*3,[0.0_wp],0,JAex9,1)
+      mem=mem+nPair*3*3*RtoB
+      ! exchange Dzyaloshinsky-Morya parameter
+      Call mma_allocate(JDMex,nPair,3,'Jex')
+      Call dcopy_(nPair*3,[0.0_wp],0,JDMex,1)
+      mem=mem+nPair*3*RtoB
+      ! index of ITO ranks for for each interacting pair:
+      Call mma_allocate(imaxrank,nPair,2,'imaxrank')
+      Call icopy(nPair*2,[0],0,imaxrank,1)
+      mem=mem+nPair*2*ItoB
+      ! exchange JITO
+      l1(1)=1;         l1(2)=nPair
+      l2(1)=1;         l2(2)=MxRank1
+      l3(1)=-MxRank1;  l3(2)=MxRank1
+      l4(1)=1;         l4(2)=MxRank2
+      l5(1)=-MxRank2;  l5(2)=MxRank2
+      ibuf=nPair*MxRank1*MxRank2*(2*MxRank1+1)*(2*MxRank2+1)
+      If(dbg) Write(6,'(A,I10)') 'nPair  =',nPair
+      If(dbg) Write(6,'(A,I10)') 'MxRank1=',MxRank1
+      If(dbg) Write(6,'(A,I10)') 'MxRank2=',MxRank2
+      If(dbg) Write(6,'(A,I10)') 'ibuf   =',ibuf
+      Call xFlush(6)
+      Call mma_allocate(JITOexR,l1,l2,l3,l4,l5,'JITOexR')
+      Call mma_allocate(JITOexI,l1,l2,l3,l4,l5,'JITOexI')
+      Call dcopy_(ibuf,[0.0_wp],0,JITOexR,1)
+      Call dcopy_(ibuf,[0.0_wp],0,JITOexI,1)
+      mem=mem+2*ibuf*RtoB
+      ! allocated memory counter
+      If(dbg) Write(6,'(A,I16)') 'mem 2 =',mem
 
-      If(nMult>=0) Then
-        ! index of metal site for each interacting pair:
-        Call mma_allocate(nDim,nMult,'nDim')
-        Call icopy(nMult,[0],0,nDim,1)
-        mem=mem+nMult*ItoB
-        ! g_tensor for each multiplet
-        Call mma_allocate(gtens,nMult,3,'gtens')
-        Call dcopy_(nMult*3,[0.0_wp],0,gtens,1)
-        mem=mem+nMult*3*RtoB
-        ! main axes of the g tensor for each multiplet
-        Call mma_allocate(maxes,nMult,3,3,'maxes')
-        Call dcopy_(nMult*3*3,[0.0_wp],0,maxes,1)
-        mem=mem+nMult*3*3*RtoB
-        ! allocated memory counter
-        If(dbg) Write(6,'(A,I16)') 'mem 3 =',mem
-      End If
+      ! index of metal site for each interacting pair:
+      Call mma_allocate(nDim,nMult,'nDim')
+      Call icopy(nMult,[0],0,nDim,1)
+      mem=mem+nMult*ItoB
+      ! g_tensor for each multiplet
+      Call mma_allocate(gtens,nMult,3,'gtens')
+      Call dcopy_(nMult*3,[0.0_wp],0,gtens,1)
+      mem=mem+nMult*3*RtoB
+      ! main axes of the g tensor for each multiplet
+      Call mma_allocate(maxes,nMult,3,3,'maxes')
+      Call dcopy_(nMult*3*3,[0.0_wp],0,maxes,1)
+      mem=mem+nMult*3*3*RtoB
+      ! allocated memory counter
+      If(dbg) Write(6,'(A,I16)') 'mem 3 =',mem
 
-      If(nneq>=0) Then
-        ! number of equivalent centers, per type
-        Call mma_allocate(neq,nneq,'neq')
-        Call icopy(nneq,[0],0,neq,1)
-        mem=mem+nneq*ItoB
-        ! local number of spin orbit states:
-        Call mma_allocate(nss,nneq,'nss')
-        Call icopy(nneq,[0],0,nss,1)
-        mem=mem+nneq*ItoB
-        ! local number of spin free states:
-        Call mma_allocate(nsfs,nneq,'nsfs')
-        Call icopy(nneq,[0],0,nsfs,1)
-        mem=mem+nneq*ItoB
-        ! local basis for exchange:
-        Call mma_allocate(nexch,nneq,'nexch')
-        Call icopy(nneq,[0],0,nexch,1)
-        mem=mem+nneq*ItoB
-        ! gtens_input(:,:)
-        Call mma_allocate(gtens_input,3,nneq,'gtens_input')
-        Call dcopy_(3*nneq,[0.0_wp],0,gtens_input,1)
-        mem=mem+3*nneq*RtoB
-        ! D_fact
-        Call mma_allocate(D_fact,nneq,'D_fact')
-        Call dcopy_(nneq,[0.0_wp],0,D_fact,1)
-        mem=mem+nneq*RtoB
-        ! EoverD_fact
-        Call mma_allocate(EoverD_fact,nneq,'EoverD_fact')
-        Call dcopy_(nneq,[0.0_wp],0,EoverD_fact,1)
-        mem=mem+nneq*RtoB
-        ! MagnCoords()
-        Call mma_allocate(MagnCoords,nneq,3,'MagnCoords')
-        Call dcopy_(nneq*3,[0.0_wp],0,MagnCoords,1)
-        mem=mem+nneq*3*RtoB
-        ! riso
-        Call mma_allocate(riso,nneq,3,3,'riso')
-        Call dcopy_(3*3*nneq,[0.0_wp],0,riso,1)
-        mem=mem+9*nneq*RtoB
+      ! number of equivalent centers, per type
+      Call mma_allocate(neq,nneq,'neq')
+      Call icopy(nneq,[0],0,neq,1)
+      mem=mem+nneq*ItoB
+      ! local number of spin orbit states:
+      Call mma_allocate(nss,nneq,'nss')
+      Call icopy(nneq,[0],0,nss,1)
+      mem=mem+nneq*ItoB
+      ! local number of spin free states:
+      Call mma_allocate(nsfs,nneq,'nsfs')
+      Call icopy(nneq,[0],0,nsfs,1)
+      mem=mem+nneq*ItoB
+      ! local basis for exchange:
+      Call mma_allocate(nexch,nneq,'nexch')
+      Call icopy(nneq,[0],0,nexch,1)
+      mem=mem+nneq*ItoB
+      ! gtens_input(:,:)
+      Call mma_allocate(gtens_input,3,nneq,'gtens_input')
+      Call dcopy_(3*nneq,[0.0_wp],0,gtens_input,1)
+      mem=mem+3*nneq*RtoB
+      ! D_fact
+      Call mma_allocate(D_fact,nneq,'D_fact')
+      Call dcopy_(nneq,[0.0_wp],0,D_fact,1)
+      mem=mem+nneq*RtoB
+      ! EoverD_fact
+      Call mma_allocate(EoverD_fact,nneq,'EoverD_fact')
+      Call dcopy_(nneq,[0.0_wp],0,EoverD_fact,1)
+      mem=mem+nneq*RtoB
+      ! MagnCoords()
+      Call mma_allocate(MagnCoords,nneq,3,'MagnCoords')
+      Call dcopy_(nneq*3,[0.0_wp],0,MagnCoords,1)
+      mem=mem+nneq*3*RtoB
+      ! riso
+      Call mma_allocate(riso,nneq,3,3,'riso')
+      Call dcopy_(3*3*nneq,[0.0_wp],0,riso,1)
+      mem=mem+9*nneq*RtoB
 
 
-        If(neqv>=0) Then
-          ! R_LG
-          Call mma_allocate(r_lg,nneq,neqv,3,3,'r_lg')
-          Call dcopy_(nneq*neqv*3*3,[0.0_wp],0,r_lg,1)
-          mem=mem+nneq*neqv*3*3*RtoB
-          ! R_ROT
-          Call mma_allocate(r_rot,nneq,neqv,3,3,'r_rot')
-          Call dcopy_(nneq*neqv*3*3,[0.0_wp],0,r_rot,1)
-          mem=mem+nneq*neqv*3*3*RtoB
-        End If
+      ! R_LG
+      Call mma_allocate(r_lg,nneq,neqv,3,3,'r_lg')
+      Call dcopy_(nneq*neqv*3*3,[0.0_wp],0,r_lg,1)
+      mem=mem+nneq*neqv*3*3*RtoB
+      ! R_ROT
+      Call mma_allocate(r_rot,nneq,neqv,3,3,'r_rot')
+      Call dcopy_(nneq*neqv*3*3,[0.0_wp],0,r_rot,1)
+      mem=mem+nneq*neqv*3*3*RtoB
 
-        If(nLoc>=0) Then
-          ! local spin orbit states
-          Call mma_allocate(eso,nneq,nLoc,'eso')
-          Call dcopy_( nneq*nLoc,[0.0_wp],0,eso,1)
-          mem=mem+nneq*nLoc*RtoB
-          ! local magnetic moment
-          Call mma_allocate(dipso,nneq,3,nLoc,nLoc,'dipso')
-          Call zcopy_(3*nneq*nLoc*nLoc,[(0.0_wp,0.0_wp)],0,dipso,1)
-          mem=mem+3*nneq*nLoc*nLoc*CtoB
-          ! local spin moment
-          Call mma_allocate( s_so,nneq,3,nLoc,nLoc,'s_so')
-          Call zcopy_(3*nneq*nLoc*nLoc,[(0.0_wp,0.0_wp)],0, s_so,1)
-          mem=mem+3*nneq*nLoc*nLoc*CtoB
-        End If
+      ! local spin orbit states
+      Call mma_allocate(eso,nneq,nLoc,'eso')
+      Call dcopy_( nneq*nLoc,[0.0_wp],0,eso,1)
+      mem=mem+nneq*nLoc*RtoB
+      ! local magnetic moment
+      Call mma_allocate(dipso,nneq,3,nLoc,nLoc,'dipso')
+      Call zcopy_(3*nneq*nLoc*nLoc,[(0.0_wp,0.0_wp)],0,dipso,1)
+      mem=mem+3*nneq*nLoc*nLoc*CtoB
+      ! local spin moment
+      Call mma_allocate( s_so,nneq,3,nLoc,nLoc,'s_so')
+      Call zcopy_(3*nneq*nLoc*nLoc,[(0.0_wp,0.0_wp)],0, s_so,1)
+      mem=mem+3*nneq*nLoc*nLoc*CtoB
 
-        ! allocated memory counter
-        If(dbg) Write(6,'(A,I16)') 'mem 4 =',mem
-      End If
+      ! allocated memory counter
+      If(dbg) Write(6,'(A,I16)') 'mem 4 =',mem
 
-      If(nDirZee>=0) Then
-        ! unit numbers of the files containing Zeeman states
-        Call mma_allocate(LuZee,nDirZee,'LuZee')
-        Call icopy(nDirZee,[0],0,LuZee,1)
-        mem=mem+nDirZee*ItoB
-!       directional vectors for the magnetic field, for computing Zeeman states
-        Call mma_allocate(dir_weight,nDirZee,3,'dir_weight')
-        Call dcopy_(3*nDirZee,[0.0_wp],0,dir_weight,1)
-        mem=mem+3*nDirZee*ItoB
-        ! allocated memory counter
-        If(dbg) Write(6,'(A,I16)') 'mem 5 =',mem
-      End If
+      ! unit numbers of the files containing Zeeman states
+      Call mma_allocate(LuZee,nDirZee,'LuZee')
+      Call icopy(nDirZee,[0],0,LuZee,1)
+      mem=mem+nDirZee*ItoB
+!     directional vectors for the magnetic field, for computing Zeeman states
+      Call mma_allocate(dir_weight,nDirZee,3,'dir_weight')
+      Call dcopy_(3*nDirZee,[0.0_wp],0,dir_weight,1)
+      mem=mem+3*nDirZee*ItoB
+      ! allocated memory counter
+      If(dbg) Write(6,'(A,I16)') 'mem 5 =',mem
 
-      If(nDir>=0) Then
-        ! magnetization vectors
-        Call mma_allocate(dirX,nDir,'dirX')
-        Call mma_allocate(dirY,nDir,'dirY')
-        Call mma_allocate(dirZ,nDir,'dirZ')
-        mem=mem+3*nDir*RtoB
-        Call dcopy_(nDir,[0.0_wp],0,dirX,1)
-        Call dcopy_(nDir,[0.0_wp],0,dirY,1)
-        Call dcopy_(nDir,[0.0_wp],0,dirZ,1)
-        ! allocated memory counter
-        If(dbg) Write(6,'(A,I16)') 'mem 6 =',mem
-      End If
+      ! magnetization vectors
+      Call mma_allocate(dirX,nDir,'dirX')
+      Call mma_allocate(dirY,nDir,'dirY')
+      Call mma_allocate(dirZ,nDir,'dirZ')
+      mem=mem+3*nDir*RtoB
+      Call dcopy_(nDir,[0.0_wp],0,dirX,1)
+      Call dcopy_(nDir,[0.0_wp],0,dirY,1)
+      Call dcopy_(nDir,[0.0_wp],0,dirZ,1)
+      ! allocated memory counter
+      If(dbg) Write(6,'(A,I16)') 'mem 6 =',mem
 
-      If((nH>=0).and.(nTempMagn>=0)) Then
-        ! experimental field points:
-        Call mma_allocate(Hexp,nH,'Hexp')
-        Call dcopy_(nH,[0.0_wp],0,Hexp,1)
-        mem=mem+nH*RtoB
-        ! experimental magnetisation:
-        Call mma_allocate(Mexp,nH,nTempMagn,'Mexp')
-        Call dcopy_(nH*nTempMagn,[0.0_wp],0,Mexp,1)
-        mem=mem+nH*nTempMagn*RtoB
-        ! temperature points for magnetization:
-        Call mma_allocate(TempMagn,nTempMagn,'TempMagn')
-        Call dcopy_(nTempMagn,[0.0_wp],0,TempMagn,1)
-        mem=mem+nTempMagn*RtoB
-        ! allocated memory counter
-        If(dbg) Write(6,'(A,I16)') 'mem 7 =',mem
-      End If
+      ! experimental field points:
+      Call mma_allocate(Hexp,nH,'Hexp')
+      Call dcopy_(nH,[0.0_wp],0,Hexp,1)
+      mem=mem+nH*RtoB
+      ! experimental magnetisation:
+      Call mma_allocate(Mexp,nH,nTempMagn,'Mexp')
+      Call dcopy_(nH*nTempMagn,[0.0_wp],0,Mexp,1)
+      mem=mem+nH*nTempMagn*RtoB
+      ! temperature points for magnetization:
+      Call mma_allocate(TempMagn,nTempMagn,'TempMagn')
+      Call dcopy_(nTempMagn,[0.0_wp],0,TempMagn,1)
+      mem=mem+nTempMagn*RtoB
+      ! allocated memory counter
+      If(dbg) Write(6,'(A,I16)') 'mem 7 =',mem
 
-      If((nCenter>=0).and.(nTempMagn>=0)) Then
-        ! XT for local centers, all states
-        Call mma_allocate(XLM,nCenter,nTempMagn,3,3,'XLM')
-        Call dcopy_(nCenter*nTempMagn*3*3,[0.0_wp],0,XLM,1)
-        mem=mem+nCenter*nTempMagn*3*3*RtoB
-        ! Statistical sum for local centers, all states
-        Call mma_allocate(ZLM,nCenter,nTempMagn,'ZLM')
-        Call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZLM,1)
-        mem=mem+nCenter*nTempMagn*RtoB
-        ! XT for local centers, exchange states
-        Call mma_allocate(XRM,nCenter,nTempMagn,3,3,'XRM')
-        Call dcopy_(nCenter*nTempMagn*3*3,[0.0_wp],0,XRM,1)
-        mem=mem+nCenter*nTempMagn*3*3*RtoB
-        ! Statistical sum for local centers, exchange states
-        Call mma_allocate(ZRM,nCenter,nTempMagn,'ZRM')
-        Call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZRM,1)
-        mem=mem+nCenter*nTempMagn*RtoB
-        ! allocated memory counter
-        If(dbg) Write(6,'(A,I16)') 'mem 8 =',mem
-      End If
+      ! XT for local centers, all states
+      Call mma_allocate(XLM,nCenter,nTempMagn,3,3,'XLM')
+      Call dcopy_(nCenter*nTempMagn*3*3,[0.0_wp],0,XLM,1)
+      mem=mem+nCenter*nTempMagn*3*3*RtoB
+      ! Statistical sum for local centers, all states
+      Call mma_allocate(ZLM,nCenter,nTempMagn,'ZLM')
+      Call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZLM,1)
+      mem=mem+nCenter*nTempMagn*RtoB
+      ! XT for local centers, exchange states
+      Call mma_allocate(XRM,nCenter,nTempMagn,3,3,'XRM')
+      Call dcopy_(nCenter*nTempMagn*3*3,[0.0_wp],0,XRM,1)
+      mem=mem+nCenter*nTempMagn*3*3*RtoB
+      ! Statistical sum for local centers, exchange states
+      Call mma_allocate(ZRM,nCenter,nTempMagn,'ZRM')
+      Call dcopy_(nCenter*nTempMagn,[0.0_wp],0,ZRM,1)
+      mem=mem+nCenter*nTempMagn*RtoB
+      ! allocated memory counter
+      If(dbg) Write(6,'(A,I16)') 'mem 8 =',mem
 
-      If(nT>=0) Then
-        ! T expeirimental given by user in the input
-        Call mma_allocate(Texp,nT,'Texp')
-        Call dcopy_(nT,[0.0_wp],0,Texp,1)
-        mem=mem+nT*RtoB
-        ! XT expeirimental given by user in the input
-        Call mma_allocate(chit_exp,nT,'chit_exp')
-        Call dcopy_(nT,[0.0_wp],0,chit_exp,1)
-        mem=mem+nT*RtoB
-      End If
+      ! T expeirimental given by user in the input
+      Call mma_allocate(Texp,nT,'Texp')
+      Call dcopy_(nT,[0.0_wp],0,Texp,1)
+      mem=mem+nT*RtoB
+      ! XT expeirimental given by user in the input
+      Call mma_allocate(chit_exp,nT,'chit_exp')
+      Call dcopy_(nT,[0.0_wp],0,chit_exp,1)
+      mem=mem+nT*RtoB
 
-      If((nT+nTempMagn)>=0) Then
-!       -- add nTempMagn points, so that all measurables are computed at once...
-!       temperature points for which XT will be computed
-        Call mma_allocate(T,(nTempMagn+nT),'Temperature')
-        Call dcopy_((nT+nTempMagn),[0.0_wp],0,T,1)
-        mem=mem+(nT+nTempMagn)*RtoB
-        ! XT experimental tmagn XTexp+Tmagn
-        Call mma_allocate(XTexp,(nTempMagn+nT),'XTexp')
-        Call dcopy_((nT+nTempMagn),[0.0_wp],0,XTexp,1)
-        mem=mem+(nT+nTempMagn)*RtoB
-        ! XT in the absence of the magnetic field
-        Call mma_allocate(XT_no_field,(nTempMagn+nT),'XT_no_field')
-        Call dcopy_((nT+nTempMagn),[0.0_wp],0,XT_no_field,1)
-        mem=mem+(nT+nTempMagn)*RtoB
-        ! allocated memory counter
-        If(dbg) Write(6,'(A,I16)') 'mem 9 =',mem
-      End If
+!     -- add nTempMagn points, so that all measurables are computed at once...
+!     temperature points for which XT will be computed
+      Call mma_allocate(T,(nTempMagn+nT),'Temperature')
+      Call dcopy_((nT+nTempMagn),[0.0_wp],0,T,1)
+      mem=mem+(nT+nTempMagn)*RtoB
+      ! XT experimental tmagn XTexp+Tmagn
+      Call mma_allocate(XTexp,(nTempMagn+nT),'XTexp')
+      Call dcopy_((nT+nTempMagn),[0.0_wp],0,XTexp,1)
+      mem=mem+(nT+nTempMagn)*RtoB
+      ! XT in the absence of the magnetic field
+      Call mma_allocate(XT_no_field,(nTempMagn+nT),'XT_no_field')
+      Call dcopy_((nT+nTempMagn),[0.0_wp],0,XT_no_field,1)
+      mem=mem+(nT+nTempMagn)*RtoB
+      ! allocated memory counter
+      If(dbg) Write(6,'(A,I16)') 'mem 9 =',mem
 
       Write(6,'(A,I16,A)') 'The code allocated at least:',mem,
      &                     ' bytes of memory for this run.'
@@ -623,6 +597,10 @@ c     ! fetch the data from aniso_x.input files: (formatted ANISOINPUT)
             Call quit(_RC_INTERNAL_ERROR_)
          End If
       End Do
+
+
+
+
 
       If(dbg) Write(6,*) 'Enter input_process'
       Call input_process( nneq, neq, neqv, nmax, nCenter, nexch,
@@ -887,88 +865,58 @@ c---------------------------------------------------------------------
 !---------------------------------------------------------------------
 ! Deallocate memory for big arrays:
 !---------------------------------------------------------------------
-      If(exch>=0) Then
-        Call mma_deallocate(W)
-        Call mma_deallocate(Z)
-        Call mma_deallocate(dipexch)
-        Call mma_deallocate(s_exch)
-      End If
+      Call mma_deallocate(W)
+      Call mma_deallocate(Z)
+      Call mma_deallocate(dipexch)
+      Call mma_deallocate(s_exch)
+      Call mma_deallocate(i_pair)
+      Call mma_deallocate(Jex)
+      Call mma_deallocate(JAex)
+      Call mma_deallocate(JAex9)
+      Call mma_deallocate(JDMex)
+      Call mma_deallocate(imaxrank)
+      Call mma_deallocate(JITOexR)
+      Call mma_deallocate(JITOexI)
 
-      If(nPair>=0) Then
-        Call mma_deallocate(i_pair)
-        Call mma_deallocate(Jex)
-        Call mma_deallocate(JAex)
-        Call mma_deallocate(JAex9)
-        Call mma_deallocate(JDMex)
-        Call mma_deallocate(imaxrank)
-        If((MxRank1>=0).AND.(MxRank2>=0)) Then
-          Call mma_deallocate(JITOexR)
-          Call mma_deallocate(JITOexI)
-        End If
-      End If
+      Call mma_deallocate(nDim)
+      Call mma_deallocate(gtens)
+      Call mma_deallocate(maxes)
+      Call mma_deallocate(neq)
+      Call mma_deallocate(nss)
+      Call mma_deallocate(nsfs)
+      Call mma_deallocate(nexch)
+      Call mma_deallocate(gtens_input)
+      Call mma_deallocate(D_fact)
+      Call mma_deallocate(EoverD_fact)
+      Call mma_deallocate(MagnCoords)
+      Call mma_deallocate(riso)
+      Call mma_deallocate(r_lg)
+      Call mma_deallocate(r_rot)
+      Call mma_deallocate(eso)
+      Call mma_deallocate(dipso)
+      Call mma_deallocate(s_so)
 
-      If(nMult>=0) Then
-        Call mma_deallocate(nDim)
-        Call mma_deallocate(gtens)
-        Call mma_deallocate(maxes)
-      End If
+      Call mma_deallocate(LuZee)
+      Call mma_deallocate(dir_weight)
 
-      If(nneq>=0) Then
-        Call mma_deallocate(neq)
-        Call mma_deallocate(nss)
-        Call mma_deallocate(nsfs)
-        Call mma_deallocate(nexch)
-        Call mma_deallocate(gtens_input)
-        Call mma_deallocate(D_fact)
-        Call mma_deallocate(EoverD_fact)
-        Call mma_deallocate(MagnCoords)
-        Call mma_deallocate(riso)
-        If(neqv>=0) Then
-          Call mma_deallocate(r_lg)
-          Call mma_deallocate(r_rot)
-        End If
-        If(nLoc>=0) Then
-          Call mma_deallocate(eso)
-          Call mma_deallocate(dipso)
-          Call mma_deallocate(s_so)
-        End If
-      End If
+      Call mma_deallocate(dirX)
+      Call mma_deallocate(dirY)
+      Call mma_deallocate(dirZ)
 
-      If(nDirZee>=0) Then
-        Call mma_deallocate(LuZee)
-        Call mma_deallocate(dir_weight)
-      End If
+      ! experimental field points:
+      Call mma_deallocate(Hexp)
+      Call mma_deallocate(Mexp)
+      Call mma_deallocate(TempMagn)
 
-      If(nDir>=0) Then
-        Call mma_deallocate(dirX)
-        Call mma_deallocate(dirY)
-        Call mma_deallocate(dirZ)
-      End If
-
-      If((nH>=0).and.(nTempMagn>=0)) Then
-        ! experimental field points:
-        Call mma_deallocate(Hexp)
-        Call mma_deallocate(Mexp)
-        Call mma_deallocate(TempMagn)
-      End If
-
-      If((nCenter>=0).and.(nTempMagn>=0)) Then
-        Call mma_deallocate(XLM)
-        Call mma_deallocate(ZLM)
-        Call mma_deallocate(XRM)
-        Call mma_deallocate(ZRM)
-      End If
-
-      If(nT>=0) Then
-        Call mma_deallocate(Texp)
-        Call mma_deallocate(chit_exp)
-      End If
-
-      If((nT+nTempMagn)>=0) Then
-        Call mma_deallocate(T)
-        Call mma_deallocate(XTexp)
-        Call mma_deallocate(XT_no_field)
-      End If
+      Call mma_deallocate(XLM)
+      Call mma_deallocate(ZLM)
+      Call mma_deallocate(XRM)
+      Call mma_deallocate(ZRM)
+      Call mma_deallocate(Texp)
+      Call mma_deallocate(chit_exp)
+      Call mma_deallocate(T)
+      Call mma_deallocate(XTexp)
+      Call mma_deallocate(XT_no_field)
 !---------------------------------------------------------------------
       Write(6,*)
       Write(6,'(10A)') (('-@-#-$-%-&-*-'),idim=1,10)
