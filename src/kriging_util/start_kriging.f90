@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
+Subroutine Start_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
   use kriging_mod
   Implicit None
 #include "stdalloc.fh"
@@ -21,25 +21,24 @@ Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
 !    dy_: the gradient of the function at the sample points
 !    x_: the coordinates of the sample points
 !
-  Integer nInter,nPoints_In,nD
-  Real*8 x_(nInter,nPoints_In)
+  Integer nInter_In,nPoints_In,nD_In
+  Real*8 x_(nInter_In,nPoints_In)
   Real*8 y_(nPoints_In)
-  Real*8 dy_(nInter,nPoints_In-nd)
+  Real*8 dy_(nInter_In,nPoints_In)
 !
 !
 #ifdef _DEBUGPRINT_
-  Call RecPrt('Start_Kriging: x',' ',x_,nInter,nPoints_In)
+  Call RecPrt('Start_Kriging: x',' ',x_,nInter_In,nPoints_In)
   Call RecPrt('Start_Kriging: y',' ',y_,     1,nPoints_In)
-  Call RecPrt('Start_Kriging: dy',' ',dy_,nInter,nPoints_In-nD)
+  Call RecPrt('Start_Kriging: dy',' ',dy_,nInter,nPoints_In)
 #endif
 !
 ! Call Setup_Kriging to store the data in some internally protected arrays and scalars.
 !
-  Call Setup_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
+  Call Setup_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
 !
-! Allocate x0, which is a n-dimensional vector of the coordinats of the last iteration computed
+!If (nPoints>2) Call PGEK()
 !
-  Call mma_Allocate(x0,nInter,Label="nx")
 !
 ! m_t is the dimentionality of the square correlation matrix Gradient-Psi
 ! (equation (2) on:
@@ -49,7 +48,7 @@ Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
 ! In the case the nPoint_v last energies and nPoint_g last gradients were use
 ! m_t would be computed as
 !
-  m_t=nPoints_v + nInter*nPoints_g
+  m_t=nPoints + nInter*(nPoints-nD)
 !
 ! full_R correspond to the gradient of Psi (eq. (2) ref.)
 !
@@ -57,6 +56,10 @@ Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
   Call mma_Allocate(full_RInv,m_t,m_t,Label="full_RInv")
 !
   If (mblAI) sbmev = y(maxloc(y,dim=1))
+
+! Allocate x0, which is a n-dimensional vector of the coordinats of the last iteration computed
+!
+  Call mma_Allocate(x0,nInter,Label="nx")
 !
 ! rl and dl are temporary matrices for the contruction of Psi which is inside of
 ! Grad-Psi (eq.(2) ref.) dl=rl^2=Sum[i] [(x_i-x0_i)/l)^2]
@@ -67,8 +70,8 @@ Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
 !Iden is just an identity matrix necesary to avoid that the Grad-Psi becomes
 ! Singular after been multiplied by EPS factor
 !
-  Call mma_Allocate(rl,nPoints_v,nInter,Label="rl")
-  Call mma_Allocate(dl,nPoints_v,Label="dl")
+  Call mma_Allocate(rl,nPoints,nInter,Label="rl")
+  Call mma_Allocate(dl,nPoints,Label="dl")
   Call mma_Allocate(Rones,m_t,Label="Rones")
 !
 !kv is the vector that contains the dot product of the inverse of Grad-Psi and
@@ -95,9 +98,9 @@ Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
   Call mma_allocate(ll,int(lb(3)),Label="ll")
 !
   Call mma_allocate(cv,m_t,nInter,nInter,Label="cv")
-  Call mma_allocate(cvMatFder,nPoints_v,Label="cvMatFder")
-  Call mma_allocate(cvMatSder,nPoints_v,Label="cvMatSder")
-  Call mma_allocate(cvMatTder,nPoints_v,Label="cvMatTder")
+  Call mma_allocate(cvMatFder,nPoints,Label="cvMatFder")
+  Call mma_allocate(cvMatSder,nPoints,Label="cvMatSder")
+  Call mma_allocate(cvMatTder,nPoints,Label="cvMatTder")
 !
   return
 End Subroutine Start_Kriging

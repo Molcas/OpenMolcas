@@ -21,7 +21,6 @@ SUBROUTINE predict(gh)
 !
   Call mma_allocate(B,m_t,label="B")
 !
-nInter=nInter_save
     if (gh.eq.0) then
 
       !A contains the factors L and U from the factorization A = P*L*U as computed by DGETRF
