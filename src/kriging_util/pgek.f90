@@ -17,7 +17,7 @@ Implicit None
 #include "stdalloc.fh"
 Real*8, Allocatable:: Mean_univariate(:), Mean_bivariate(:)
 Real*8, Allocatable:: Variance_univariate(:), Variance_bivariate(:)
-Integer i, j, k, l
+Integer i, j,  l
 Real*8 tmp, dx, dy
 ! Mutual information array
 !Real*8 MI(nInter)
