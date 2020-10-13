@@ -22,18 +22,19 @@
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Logical First, Dff, NonEq
+      Real*8, Allocatable:: Vs(:,:), QV(:,:)
 *
       nComp=(lMax+1)*(lMax+2)*(lMax+3)/6
-      Call GetMem('Vs','Allo','Real',ipVs,nComp*2)
-      Call GetMem('QV','Allo','Real',ipQV,nComp*2)
+      call mma_Allocate(Vs,nComp,2,Label='Vs')
+      call mma_Allocate(QV,nComp,2,Label='QV')
 *
       Call RctFld_(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,
-     &             MM,nComp,Work(ipVs),Work(ipQV))
+     &             MM,nComp,Vs,QV)
 *
-      Call GetMem('QV','Free','Real',ipQV,nComp*2)
-      Call GetMem('Vs','Free','Real',ipVs,nComp*2)
+      Call mma_deallocate(Vs)
+      Call mma_deallocate(QV)
 *
       Return
       End
