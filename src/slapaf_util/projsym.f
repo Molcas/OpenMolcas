@@ -24,7 +24,7 @@
      &          iDCRs(nCent), iBM(nB_Tot), idBM(2,ndB_Tot), nqB(nB)
       Logical Smmtrc(3,nAtoms), Proc_dB
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('B',' ',B,3,nCent)
          Call RecPrt('dB',' ',dB,3*nCent,3*nCent)
          Write (6,*) iDCRs
@@ -127,7 +127,7 @@ c Avoid unused argument warnings
      &          iDCRs(nCent)
       Logical Smmtrc(3,nAtoms)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('B',' ',B,3,nCent)
       Call RecPrt('dB',' ',dB,3*nCent,3*nCent)
       Write (6,*) iDCRs
@@ -158,7 +158,7 @@ c Avoid unused argument warnings
      &                       + Tx(ixyz,i)*B(ixyz,i)
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('BqR',' ',BqR,1,3*nAtoms)
 #endif
 *
@@ -180,7 +180,7 @@ c Avoid unused argument warnings
 
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('dBqR',' ',dBqR,3*nAtoms,3*nAtoms)
 #endif
 *

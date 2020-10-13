@@ -46,8 +46,8 @@
       Logical Found
 *
       Lu =6
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In RS_I_RFO: H','(10f10.6)',H,nInter,nInter)
       Call RecPrt(' In RS_I_RFO: g','(10f10.6)', g,nInter,1)
       Call RecPrt(' In RS_I_RFO:dq','(10f10.6)',dq,nInter,1)
@@ -115,7 +115,7 @@
          Call RecPrt(' In RS_I_RFO: Eigenvalues',' ',Val,1,NumVal)
 *        Call Abend()
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In RS_I_RFO: Eigenvalues',' ',Val,1,NumVal)
       Call RecPrt(' In RS_I_RFO: Eigenvectors',' ',Vec,nInter,NumVal)
       Write (Lu,*) ' nNeg=',nNeg
@@ -157,7 +157,7 @@
 *
       UpMeth='RSIRFO'
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In RS_I_RFO: g','(10f10.6)', g,nInter,1)
       Call RecPrt(' In RS_I_RFO:dq','(10f10.6)',dq,nInter,1)
 #endif

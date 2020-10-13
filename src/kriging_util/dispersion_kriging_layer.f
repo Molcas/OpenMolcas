@@ -21,8 +21,8 @@
       Call mma_allocate(qInt_s,nInter,Label='qInt_s')
 *
       Call Trans_K(U,qInt,qInt_s,nInter,1)
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Dispersion_Kriging_Layer: qInt',' ',qInt,nInter,1)
       Call RecPrt('Dispersion_Kriging_Layer: qInt_s',' ',qInt_s,
      &                                                   nInter,1)

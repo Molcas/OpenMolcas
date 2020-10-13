@@ -15,7 +15,7 @@ use kriging_mod, only: x, y, nPoints, nInter
 Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
-Real*8, Allocatable:: Mean_univariate(:), Mean_bivariate(:)
+Real*8, Allocatable:: Mean_univariate(:)
 Real*8, Allocatable:: Variance_univariate(:), Variance_bivariate(:)
 Integer i, j,  l
 Real*8 tmp, dx, dy
