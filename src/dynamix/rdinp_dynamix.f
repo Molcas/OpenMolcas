@@ -93,29 +93,29 @@ C
       GOTO 999
 *>>>>>>>>>>>>>>>>>>>> THERmostat <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1105 CONTINUE
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix starts reading THERMO.'
 #endif
       Line = Get_Ln(LuSpool)
       CALL Get_I1(1,THERMO)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix ends reading THERMO.'
 #endif
       GOTO 999
 *>>>>>>>>>>>>>>>>>>>> VELOcities <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1106 CONTINUE
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix starts reading VELO.'
 #endif
       Line = Get_Ln(LuSpool)
       CALL Get_I1(1,VELO)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix ends reading VELO.'
 #endif
       GOTO 999
 *>>>>>>>>>>>>>>>>>>>> DT   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1107 CONTINUE
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix starts reading DT.'
 #endif
       Line = Get_Ln(LuSpool)
@@ -124,7 +124,7 @@ C
 #ifdef _HDF5_
       call mh5_put_dset(dyn_dt,DT)
 #endif
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix ends reading DT.'
 #endif
       GOTO 999
@@ -153,30 +153,30 @@ C     This is the keyword for Velocity Verlet algorithm
       IF (.NOT.lHop) THEN
          CALL Put_iScalar('MaxHops',maxHop)
       END IF
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*) ' lHop = ',lHop,'maxHop = ',maxHop
 #endif
       GOTO 999
 *>>>>>>>>>>>>>>>>>>>> Restart <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1112 CONTINUE
       Line = Get_Ln(LuSpool)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix starts reading RESTART.'
 #endif
       CALL Get_F1(1,RESTART)
       GOTO 999
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix ends reading RESTART.'
 #endif
 
 *>>>>>>>>>>>>>>>>>>>> TEMPERATURE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1113 CONTINUE
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix starts reading Temperature.'
 #endif
       Line = Get_Ln(LuSpool)
       CALL Get_F1(1,TEMP)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix ends reading Temperature.'
 #endif
       GOTO 999
@@ -203,23 +203,23 @@ c      CALL Abend()
       GOTO 999
 *>>>>>>>>>>>>>>>>>>>> project OUT some coordinates <<<<<<<<<<<<<<<<<<<<<<<
  1116 CONTINUE
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix starts reading OUT.'
 #endif
       Line = Get_Ln(LuSpool)
       CALL Get_I1(1,POUT)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix ends reading OUT.'
 #endif
       GOTO 999
 *>>>>>>>>>>>>>>>>>>>> keep IN only some coordinates <<<<<<<<<<<<<<<<<<<<<<<
  1117 CONTINUE
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix starts reading IN.'
 #endif
       Line = Get_Ln(LuSpool)
       CALL Get_I1(1,PIN)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*) ' Dynamix ends reading IN.'
 #endif
       GOTO 999

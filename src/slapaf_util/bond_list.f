@@ -44,7 +44,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-!#define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -52,7 +52,6 @@
 *
 *
       nqB=0
-#ifdef _DEBUG_
       Write (6,*)
       Write (6,*) ' ---> Enter Bonds.'
       Write (6,*)
@@ -98,7 +97,7 @@
      &          iDCR(2).ne.iOper(0)) Go To 2
             iRow = iANr(iAtom)
             jRow = iANr(jAtom)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'iAtom,jAtom=',iAtom,jAtom
 #endif
             Help = iRow.gt.3 .or. jRow.gt.3
@@ -107,7 +106,7 @@
             call dcopy_(3,Cx(1,iAtom,iIter),1,A,1)
             Write (Label,'(A,I2,A,I2,A)') 'B(',iAtom,',',jAtom,')'
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('A',' ',Cx(1,iAtom,iIter),1,3)
             Call RecPrt('B',' ',Cx(1,jAtom,iIter),1,3)
 #endif
@@ -120,7 +119,7 @@
      &               jStab(0,jAtom),nStab(jAtom),iDCRR,nDCRR)
              kDCRR = iDCR(2)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,'(10A)') 'U={',
      &            (ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
             Write (6,'(10A)') 'V={',
@@ -147,7 +146,7 @@
      &                    jStab(0,jAtom),nStab(jAtom),
      &                    kDCRR,iStabM,nStabM)
             End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,'(10A)') 'M={',
      &            (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
 #endif
@@ -156,7 +155,7 @@
 *
             iDeg=nIrrep/nStabM
             Deg=Sqrt(DBLE(iDeg))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*)' nIrrep,nStabM=',nIrrep,nStabM
 #endif
 *
@@ -182,7 +181,7 @@
      &             'b',nqB,' = Bond ',
      &             Lbls(1)(iF1:iE1),' ',
      &             Lbls(2)(iF2:iE2)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,'(A,I3.3,4A)')
      &             'b',nqB,' = Bond ',
      &             Lbls(1)(iF1:iE1),' ',

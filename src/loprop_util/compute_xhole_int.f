@@ -24,6 +24,7 @@
       Logical DSCF
       Character*4 DFTFOCK, KSDFT
       Integer nSize
+      Real*8, Allocatable:: CMO(:)
 
 *
 *-- Check symmetry
@@ -80,8 +81,10 @@
 *
 *-- Then we need orbital density dipoles.
 *
-      Call Get_CMO(ipCmo,nCmo)
-      nOrb=INT(sqrt(dble(nCmo)))
+      nCMO=nB**2
+      Call mma_allocate(CMO,nCMO,Label='CMO')
+      nOrb=INT(sqrt(dble(nCMO)))
+      Call Get_CMO(CMO,nCMO)
       nB=mBas(0)
       Call GetMem('MultSq','Allo','Real',iMultSq,nB**2)
       Call GetMem('TEMP','Allo','Real',iTEMP,nB*nOrb)
@@ -108,10 +111,14 @@
         iSmLbl=0
         Call RdOne(irc,iOpt,'Mltpl  1',i,Work(iMult1),iSmLbl)
         Call Square(Work(iMult1),Work(iMultSq),1,nB,nB)
-      Call DGEMM_('T','N',nOrb,nB,nB,One,Work(ipCmo),nB,Work(iMultSq)
-     &            ,nB,Zero,Work(iTEMP),nOrb)
-      Call DGEMM_('N','N',nOrb,nOrb,nB,One,Work(iTEMP),nOrb,Work(ipCmo)
-     &            ,nB,Zero,Work(iMult1),nOrb)
+      Call DGEMM_('T','N',nOrb,nB,nB,
+     &            One,CMO,nB,
+     &                Work(iMultSq),nB,
+     &            Zero,Work(iTEMP),nOrb)
+      Call DGEMM_('N','N',nOrb,nOrb,nB,
+     &            One,Work(iTEMP),nOrb,
+     &                CMO,nB,
+     &                Zero,Work(iMult1),nOrb)
         kaunt1=0
         kaunt2=0
         Do iO1=1,nOrb
@@ -128,7 +135,7 @@
       Call GetMem('MultSq','Free','Real',iMultSq,nB**2)
       Call GetMem('TEMP','Free','Real',iTEMP,nB*nOrb)
       Call GetMem('MultiKulti','Free','Real',iMult1,nOrb**2+4)
-      Call GetMem('CMO','Free','Real',ipCMO,nCMO)
+      Call mma_deallocate(CMO)
 
 *
 *-- Anders' little helper on DrvNQ:

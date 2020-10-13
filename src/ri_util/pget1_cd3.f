@@ -46,8 +46,7 @@
 *                                                                      *
       iRout = 39
       iPrint = nPrint(iRout)
-*define _DEBUG_
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPrint=99
       If (iPrint.ge.99) Then
          iComp = 1
@@ -321,7 +320,7 @@ C     Fac = One / Four
          Call Abend
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In PGet1_CD3:PAO ',' ',PAO,ijkl,nPAO)
       Call GetMem(' Exit PGet1_CD3','CHECK','REAL',iDum,iDum)
 #endif

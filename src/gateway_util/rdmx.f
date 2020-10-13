@@ -19,8 +19,8 @@
       Implicit Real*8 (A-H,O-Z)
       Real*8 Exp(nExp), Cff(nExp,nCff)
 #include "real.fh"
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
 #include "print.fh"
 *
       iRout = 201
@@ -52,7 +52,4 @@
 *
       End Do
 *
-#ifdef _DEBUG_
-#endif
-      Return
       End

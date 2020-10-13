@@ -82,8 +82,6 @@ C      SubRoutine Sort(EVal,EVec,n,nB)
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
-#endif
 *
       Do 100 i = 1,n - 1
          k = i
@@ -101,16 +99,10 @@ C      SubRoutine Sort(EVal,EVec,n,nB)
 120         Continue
          End If
 100   Continue
-*
-#ifdef _DEBUG_
-#endif
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
+
       End
+
+
       SUBROUTINE JACORD3(EVal,EVec,n,nB)
 C      SubRoutine Sort(EVal,EVec,n,nB)
 ************************************************************************
@@ -150,8 +142,6 @@ C      SubRoutine Sort(EVal,EVec,n,nB)
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
-#endif
 *
       Do 100 i = 1,n - 1
          k = i
@@ -170,12 +160,4 @@ C      SubRoutine Sort(EVal,EVec,n,nB)
          End If
 100   Continue
 *
-#ifdef _DEBUG_
-#endif
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
       End

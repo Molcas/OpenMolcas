@@ -29,7 +29,7 @@
       iRout = 56
       iPrint = nPrint(iRout)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' Zeta in TERI1',' ',Zeta,nT,1)
          Call RecPrt(' Eta in TERI1',' ',Eta,nT,1)
@@ -49,7 +49,7 @@
          T(iT) = Rho*PQ2
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt('Tvalue',' ',T,nT,1)
       End If

@@ -18,7 +18,7 @@
       Logical Curvilinear
       Character*1 Mode
       Dimension Temp(1)
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -35,7 +35,7 @@
                Call DScal_(M,Sqrt(Degen(i+1)),Work(ipA+i),M)
             End Do
          End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('A',' ',Work(ipA),M,M)
 #endif
       Else
@@ -46,7 +46,7 @@
                Call DScal_(N,Sqrt(Degen(i+1)),Work(ipA+i),M)
             End Do
          End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('A',' ',Work(ipA),M,N)
 #endif
       End If
@@ -62,7 +62,7 @@
             jpB=jpB+LDB
          End Do
       Else
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('B(raw)',' ',dss,M,nRHS)
 #endif
          Do iRHS = 1, nRHS
@@ -78,7 +78,7 @@
             jpB=jpB+LDB
          End Do
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('B(in)',' ',Work(ipB),LDB,NRHS)
 #endif
 *
@@ -100,7 +100,7 @@
          Call Quit(_RC_INTERNAL_ERROR_)
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('B(out)',' ',Work(ipB),LDB,NRHS)
 #endif
       jpB=ipB

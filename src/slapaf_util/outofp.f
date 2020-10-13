@@ -25,7 +25,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -102,7 +102,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('xyz',' ',xyz,3,nCent)
 #endif
 *                                                                      *
@@ -163,7 +163,7 @@
          Bt(ix,4) = - (Bt(ix,1)+Bt(ix,2)+Bt(ix,3))
 *
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Outofp: R43',' ',R43,1,3)
       Call RecPrt('Outofp: R43',' ',R42,1,3)
       Call RecPrt('Outofp: BR14X',' ',BR14X,3,3)
@@ -295,7 +295,7 @@
 *                                                                      *
             End Do
          End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('dBt','(4(3F7.2,2X))',dBt,12,12)
 #endif
       End If
@@ -368,7 +368,7 @@ C     Call DScal_(12**2,-One,dBt,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -444,7 +444,7 @@ C     Call DScal_(12**2,-One,dBt,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('xyz',' ',xyz,3,nCent)
 #endif
 *                                                                      *
@@ -500,7 +500,7 @@ C     Call DScal_(12**2,-One,dBt,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -577,7 +577,7 @@ C     Call DScal_(12**2,-One,dBt,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('xyz',' ',xyz,3,nCent)
 #endif
 *                                                                      *
@@ -636,7 +636,7 @@ C     Call DScal_(12**2,-One,dBt,1)
          Bt(ix,4) = - (Bt(ix,1)+Bt(ix,2)+Bt(ix,3))
 *
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Outofp: R43',' ',R43,1,3)
       Call RecPrt('Outofp: R43',' ',R42,1,3)
       Call RecPrt('Outofp: BR14X',' ',BR14X,3,3)

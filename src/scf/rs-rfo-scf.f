@@ -44,8 +44,8 @@
       UpMeth='RS-RFO'
       Step_Trunc=' '
       Lu=6
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
 *     Call RecPrt('rs-rfo: HDiag',' ',HDiag,1,nInter)
 *     Call RecPrt('rs-rfo: g',' ',g,1,nInter)
       Write (Lu,*)
@@ -75,7 +75,7 @@
       Call DZero(Tmp,nInter+1)
  998  Continue
          Iter=Iter+1
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *        Write (Lu,*) 'Iter=',Iter
 *        Write (Lu,*) 'A_RFO=',A_RFO
 #endif
@@ -142,7 +142,7 @@
 *        Compute R^2 according to Eq. (8c)
 *
          dqdq=DDot_(nInter,dq,1,dq,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (Lu,'(I5,4E11.3)') Iter,A_RFO,Sqrt(dqdq),StepMax,EigVal
 #endif
 *                                                                      *
@@ -198,7 +198,7 @@
  997  Continue
       Call mma_deallocate(Tmp)
       dqHdq=dqHdq+EigVal*Half
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (Lu,*)
       Write (Lu,*) 'Rational Function Optimization, Lambda=',EigVal
       Write (Lu,*)

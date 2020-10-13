@@ -14,7 +14,7 @@
 
       module fciqmc_make_inp
         use stdalloc, only : mma_deallocate
-        use linalg_mod, only: assume_
+        use linalg_mod, only: verify_
         implicit none
         private
         public :: make_inp, cleanup
@@ -86,7 +86,7 @@
         readpops_ = .false.
       end if
 
-      call assume_(present(GAS_spaces) .eqv. present(GAS_particles),
+      call verify_(present(GAS_spaces) .eqv. present(GAS_particles),
      &             'present(GAS_spaces) .eqv. present(GAS_particles)')
 
       call add_info('Default number of total walkers',

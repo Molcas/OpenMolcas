@@ -29,9 +29,9 @@
       iPL = iPrintLevel(-1)
 *     iPL=99
 *
-*#define _DEBUG_
+*#define _DEBUGPRINT_
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPL = 4
 #endif
       nMDstep = 0

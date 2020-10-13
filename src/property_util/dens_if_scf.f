@@ -33,8 +33,6 @@
 *
 *     COEN WANTED IT AS A BLOCKED MATRIX, SO HERE THEY COME...
 *
-#ifdef _DEBUG_
-#endif
       Call Get_iScalar('nSym',nIrrep)
       Call Get_iArray('nBas',nBas,nIrrep)
       nTot=0
@@ -64,7 +62,4 @@ C        Call RecPrt('CMO',' ',CMO(ip1-nbas(is)**2),nbas(is),nbas(is))
       End Do
 C     Call RecPrt('COEFF',' ',Coeff,nTot,nTot)
 *
-#ifdef _DEBUG_
-#endif
-      Return
       End

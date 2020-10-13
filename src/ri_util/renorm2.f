@@ -68,7 +68,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-!#define _DEBUG_
+!#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -145,7 +145,7 @@
      &                               TInt_c,nTInt_c,
      &                               In_Core,ADiag,Lu_A,ijS_req,
      &                               Keep_Shell)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call TriPrt('TInt_c',' ',TInt_c,nTInt_c)
 #endif
 *
@@ -170,7 +170,7 @@
             End Do
             Call mma_deallocate(TInt_c)
             ip_TInt_c=ipA
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('TInt_c',' ',Work(ip_TInt_c),nTInt_c,nTInt_c)
 #endif
 *
@@ -188,7 +188,7 @@
 *
                End Do
             End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('TInt_c(r)','(5G20.10)',
      &                  Work(ip_TInt_c),nBasisi,nBasisi)
 #endif
@@ -227,7 +227,7 @@
             iDisk=0
             Call dDaFile(Lu_Q,2,Work(ipQVec),nBasisi*m,iDisk)
             Call DaEras(Lu_Q)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('QVec',' ',Work(ipQVec),nBasisi,m)
 #endif
 *
@@ -236,7 +236,7 @@
                call dcopy_(nExpi*nBasisi,
      &                     Shells(iShll)%Cff_c(1,1,iCase),1,
      &                     Work(ipTmp),1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Call RecPrt('Coeff(old)',' ',
      &                     Shells(iShll)%Cff_c(1,1,iCase),
      &                     nExpi,nBasisi)
@@ -247,7 +247,7 @@
      &                          Work(ipQVec),nBasisi,
      &                    0.0D0,Shells(iShll)%Cff_c(1,1,iCase),
      &                          nExpi)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Call RecPrt('Coeff(new)',' ',
      &                     Shells(iShll)%Cff_c(1,1,iCase),
      &                     nExpi,nBasisi)

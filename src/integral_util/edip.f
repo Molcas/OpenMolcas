@@ -57,7 +57,7 @@
       Integer XMolnr(nXMolnr,nXF)
       Logical NonEq,lExcl
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('edip: dEF(permanent) ',' ',dEF,4,nGrid_)
       Call RecPrt('edip: PolEff ',' ',PolEff,nPolComp,nGrid_)
       Call RecPrt('edip: DipEff ',' ',DipEff,1,nGrid_)
@@ -77,7 +77,7 @@
       NonEq=.False.
 
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) 'Iter fmax             testa'
 #endif
@@ -317,7 +317,7 @@ c666     Continue
 *
 c      Call RecPrt('DipMom ',' ',DipMom,3,nGrid_)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) Iter,fmax,testa
 #endif
       If (fmax.gt.clim) Go To 555
@@ -327,7 +327,7 @@ c      Call RecPrt('DipMom ',' ',DipMom,3,nGrid_)
 *     distribution of dipole moments is also internally consistent!
 *
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('edip: converged DipMom ',' ',DipMom,3,nGrid_)
 
 *     Write out dipoles and a pointcharge representation of the dipoles

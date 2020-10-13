@@ -11,6 +11,8 @@
 * Copyright (C) 2019, Giovanni Li Manni                                *
 *               2020, Oskar Weser                                      *
 ************************************************************************
+
+#include "macros.fh"
       module CI_solver_util
 #ifdef _MOLCAS_MPP_
       use mpi
@@ -22,7 +24,7 @@
       use general_data, only: JobIPH
       implicit none
       private
-      public :: wait_and_read, abort_, assert_, RDM_to_runfile,
+      public :: wait_and_read, RDM_to_runfile,
      &      cleanMat
 #include "para_info.fh"
 #ifdef _MOLCAS_MPP_
@@ -74,19 +76,6 @@
         end if
 #endif
       end subroutine wait_and_read
-
-      subroutine abort_(message)
-        character(len=*), intent(in) :: message
-        call WarningMessage(2, message)
-        call Abend()
-      end subroutine
-
-      subroutine assert_(condition, message)
-        logical, intent(in) :: condition
-        character(len=*), intent(in) :: message
-        if (.not. condition) call abort_(message)
-      end subroutine
-
 
 !>  @brief
 !>    State Average RDMs and put into runfile.
@@ -171,7 +160,7 @@
       end do
       CALL JACOB(MAT_copy, EVC, NAC, NAC)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*) 'eigenvalues: '
       do i=1,nac
          write(6,*) MAT_copy(I*(I+1)/2)
@@ -221,7 +210,7 @@
             MAT(j + (i - 1) * i / 2) = Tmp2(j + (i - 1) * nac)
           end do
         end do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         write(6,*) 'trace after recombination:'
         trace = 0.0d0
         do i = 1, nac

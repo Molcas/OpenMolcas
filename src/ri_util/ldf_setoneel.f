@@ -171,7 +171,7 @@ C
       Character*8 ucLabel
 
       If (OperatorLabel.eq.'IS_UNSET') Then
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          Call WarningMessage(0,SecNam//': nothing to do, returning')
          Call xFlush(6)
 #endif

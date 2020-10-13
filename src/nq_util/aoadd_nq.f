@@ -29,10 +29,8 @@
       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *                                                                      *
 ************************************************************************
-*                                                                      *
-*define _DEBUG_
-*
-#ifdef _DEBUG_
+
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In AOAdd:AOInt',' ',AOInt,iBas_Eff*jBas_Eff,
      &            iCmp*jCmp)
       Write (6,*) 'iBas_Eff,jBas_Eff,iCmp,jCmp=',iBas_Eff,jBas_Eff,
@@ -59,7 +57,7 @@
                Do indAO2_Eff = 0, jBsMax
                   indAO2=indAO2_Eff+jAdd
                   Indj = iSO2+indAO2
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*) 'iC,jC,iB,jB=',i1,i2,indAO1+1,
      &                                             indAO2+1
                   Write (6,*) 'Indi,Indj=',Indi,Indj
@@ -75,7 +73,7 @@
          End Do      ! i2
       End Do         ! i1
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call GetMem(' Exit AOAdd','CHECK','REAL',iDum,iDum)
 #endif
       Return

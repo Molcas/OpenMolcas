@@ -27,7 +27,7 @@
 *
       iRout=77
       iPrint=nPrint(iRout)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif
 *

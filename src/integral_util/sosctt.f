@@ -27,8 +27,8 @@
       Integer kOper(nComp)
       Character Label*8
 *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In SOSctt:SOInt',' ',SOInt,iBas*jBas,nSOInt)
       Call RecPrt(' In SOSctt:PrpInt',' ',PrpInt,1,nPrp)
 #endif

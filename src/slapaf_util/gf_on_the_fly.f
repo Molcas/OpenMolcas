@@ -16,7 +16,7 @@
 #include "WrkSpc.fh"
       Real*8 DipM(3)
       Integer mDisp(8)
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -47,7 +47,7 @@
 *
       Call Free_Work(ipTmp2)
       Call Free_Work(ipTmp1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('EVec',' ',Work(ipEVec),2*nX,nX)
       Call RecPrt('EVal',' ',Work(ipEVal),2,nX)
 #endif
@@ -115,7 +115,7 @@
       call dcopy_(nX*nInter,Work(ipEVec),2,Work(ipNMod),1)
       lModes=lModes+nInter*nX
       nModes=nModes+nInter
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('NModes',' ',Work(ipNMod),nX,nInter)
 #endif
 *

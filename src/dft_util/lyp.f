@@ -24,10 +24,10 @@
 *              Modify Per-AAke's code for open shell case              *
 *              and adopt for closed shell case                         *
 ************************************************************************
+      use KSDFT_Info, only: tmpB
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-#include "WrkSpc.fh"
 #include "ksdft.fh"
       Real*8 dF_dRho(ndF_dRho,mGrid),Rho(nRho,mGrid),F_xc(mGrid)
 cGLM     &               F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid)
@@ -40,9 +40,6 @@ cGLM     &               F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid)
 * Cfconst is = (3/10)*(3*Pi**2)**(2/3)
       Cfconst2=Cfconst*2.0D0**(11.0D0/3.D0)
       Rho_Min=T_X*1.0D-2
-*                                                                      *
-************************************************************************
-*                                                                      *
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -278,7 +275,7 @@ cGLM     &               F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid)
 
       Functional= ec1+ec2+ec3+ec4
       F_xc(iGrid)=F_xc(iGrid)+Coeff*functional
-      Work(ip_tmpB+iGrid-1)=F_xc(iGrid)-Work(ip_tmpB+iGrid-1)
+      tmpB(iGrid)=F_xc(iGrid)-tmpB(iGrid)
 *                                                                      *
 ************************************************************************
 *                                                                      *

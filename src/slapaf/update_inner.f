@@ -105,8 +105,8 @@
       Real*8, Allocatable:: QC(:,:,:)
 #endif
       Lu=6
-!#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (Lu,*)'Update_inner:iOpt_RS,Beta,Beta_Disp=',
      &                     iOpt_RS,Beta,Beta_Disp
       Call RecPrt('Update_inner: qInt',' ',qInt,nInter,kIter)
@@ -148,7 +148,7 @@
 *     modify the Hessian if it is needed to guide 2nd order
 *     optimization towards a minimum or a TS.
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (Lu,*)
       Write (Lu,*)
       Write (Lu,*) ' *** Updating the molecular Hessian ***'
@@ -319,7 +319,7 @@ C           Write (6,*) 'tBeta=',tBeta
                qInt(:,kIter+1)=qInt(:,kIter)+Shift(:,kIter)
                Call Dispersion_Kriging_Layer(qInt(1,kIter+1),Disp,
      &                                       nInter)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*) 'Disp,Beta_Disp=',Disp,Beta_Disp
 #endif
                fact=Half*fact
@@ -328,7 +328,7 @@ C           Write (6,*) 'tBeta=',tBeta
                If ((fact.lt.1.0D-5) .or. (disp.lt.Beta_Disp)) Exit
                Step_Trunc='*'
             End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*) 'Step_Trunc=',Step_Trunc
 #endif
 *
@@ -441,7 +441,7 @@ C           Write (6,*) 'tBeta=',tBeta
 *           where B = dQ/dx
 *
             dRdq(:,:,lIter)=Zero
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (Lu,*) 'Update_inner: lIter=',lIter
             Call RecPrt('Update_inner: dQ/dx(BMx)',' ',BMx,n1,nInter)
             Call RecPrt('Update_inner: dC/dx(BM)',' ',BM,n1,nLambda)
@@ -472,7 +472,7 @@ C           Write (6,*) 'tBeta=',tBeta
             End If
             Call Eq_Solver('N',M,N,NRHS,BMx,Curvilinear,Degen,
      &                     BM,dRdq(1,1,lIter))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Update_inner: dRdq(1,1,lIter)',' ',
      &                   dRdq(1,1,lIter),nInter,nLambda)
 #endif
@@ -492,7 +492,7 @@ C           Write (6,*) 'tBeta=',tBeta
          Call mma_deallocate(Value)
          Call mma_deallocate(BVec)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('Update_inner: R',' ',R,nLambda,kIter)
          Call RecPrt('Update_inner: dRdq',' ',dRdq,nInter*nLambda,
      &               kIter)
@@ -525,7 +525,7 @@ C           Write (6,*) 'tBeta=',tBeta
          QC(:,:,:)=Zero
          If (Curvilinear) Call dBMult(dRdq(1,1,kIter),
      &                                QC,nInter,nDimBC,nLambda)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (Lu,*) 'Update_inner: kIter=',kIter
          Call RecPrt('dRdq(1,1,kIter)',' ',dRdq(1,1,kIter),nInter,1)
          Do iLambda=1,nLambda
@@ -558,7 +558,7 @@ C           Write (6,*) 'tBeta=',tBeta
 *
          Call mma_allocate(Scr2,nInter*n1*nLambda,Label='Scr2')
          Call mma_allocate(Scr1,nInter*n1*nLambda,Label='Scr1')
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('Update_inner: d^2C/dx^2(dBM)',' ',dBM,n2,
      &               nLambda)
 #endif
@@ -575,7 +575,7 @@ C           Write (6,*) 'tBeta=',tBeta
                End Do
             End Do
          End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('Update_inner: d^2C/dx^2(dBM)',' ',dBM,n2,
      &               nLambda)
 #endif
@@ -595,7 +595,7 @@ C           Write (6,*) 'tBeta=',tBeta
 *        Generate y^T in Scr2
 *
          Call TRNSPS(nInter,n1*nLambda,Scr1,Scr2)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('d^2C/dQ^2 * (dQ/dx)^T',' ',Scr1,nInter,n1*nLambda)
          Call RecPrt('dQ/dx * d^2C/dQ^2',' ',Scr2,n1*nLambda,nInter)
 #endif
@@ -608,7 +608,7 @@ C           Write (6,*) 'tBeta=',tBeta
          Call mma_allocate(d2L,nInter,nInter,nLambda,Label='d2L')
 *
          Call TRNSPS(nInter*nLambda,nInter,Scr1,d2L)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('Scr1',' ',Scr1,nInter*nLambda,nInter)
          Do i = 1, nLambda
             Write (6,*) ' iLambda=',i
@@ -673,7 +673,7 @@ C           Write (6,*) 'tBeta=',tBeta
          End Do
          Call mma_deallocate(Tmp)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (Lu,*)
          Write (Lu,*) '********************************************'
          Write (Lu,*) '* Lagrange multipliers for the constraints *'

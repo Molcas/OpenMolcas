@@ -53,8 +53,8 @@
 *---- Evaluate the desired AO integrand here from the AOs, accumulate
 *     contributions to the SO integrals on the fly.
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Debug=.True.
 #endif
       VMax=0.0D0
@@ -116,7 +116,7 @@
 *
             Do iD = 1, iSpin
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (Debug) Then
                   nAOInt_j=jBas_Eff*jCmp
                   nAOInt_i=iBas_Eff*iCmp
@@ -168,10 +168,10 @@
       End Do                        ! ilist_s
       Flop=Flop+DBLE(nGrid_Tot)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Debug=.False.
 #endif
-      Return
-c Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(nSym)
+#endif
       End

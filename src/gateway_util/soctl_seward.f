@@ -59,7 +59,7 @@ CIFG: for Cartesian shells, l -> -l, m -> T(ly+lz)-(lx+ly), where T(n)=n*(n+1)/2
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -555,7 +555,7 @@ C redefine iOffSO array in case of Fragment AIEMP
           iOffSO(iIrrep) = jOffSO(iIrrep)
         End Do
       End IF
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Symmetrization Matrix','(20F5.2)',SM,iBas,iBas)
 #endif
       Call Put_dArray('SM',SM,iBas**2)
@@ -961,7 +961,7 @@ CSVC: basis IDs of non-symmetric case
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' *** iAOtSO ***'
       Do 555 jAO = 1, iAO
          Write (6,*) (iAOtSO(jAO,jIrrep),jIrrep=0,nIrrep-1)

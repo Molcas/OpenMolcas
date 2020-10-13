@@ -45,7 +45,7 @@ c      implicit none
         call abend()
       end if
       call molcas_open(lu_rysrw,RYSRW_NAME)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' nDisk=',nDisk
 #endif
 *
@@ -64,7 +64,7 @@ c      implicit none
       nMxRys=mRys
       nCff=2*(nOrder+1)
       Read (lu_rysrw,*) (Acc(i),i=1,mRys)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) ' Reading tables for roots and weights of Rys poly.'
       Write (6,*) ' Highest order is:',mRys
@@ -79,7 +79,7 @@ c      implicit none
       Call mma_allocate(TMax,mRys,label='TMax')
 c     Call InR(Tmax,mRys,lu_rysrw)
       Read (lu_rysrw,*) (TMax(i),i=1,mRys)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' Tmax',' ',Tmax,mRys,1)
 #endif
 *
@@ -88,7 +88,7 @@ c     Call InR(Tmax,mRys,lu_rysrw)
       Call mma_allocate(ddx,mRys,label='ddx')
 c     Call InR(ddx,mRys,lu_rysrw)
       Read (lu_rysrw,*) (ddx(i),i=1,mRys)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' ddx ',' ',ddx,mRys,1)
 #endif
 *
@@ -96,7 +96,7 @@ c     Call InR(ddx,mRys,lu_rysrw)
 *
 c     Call InI(nMap,mRys,lu_rysrw)
       Read (lu_rysrw,*) (nMap(i),i=1,mRys)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' nMap=',nMap
 #endif
 *
@@ -104,7 +104,7 @@ c     Call InI(nMap,mRys,lu_rysrw)
 *
 c     Call InI(nx0,mRys,lu_rysrw)
       Read (lu_rysrw,*) (nx0(i),i=1,mRys)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' nx0=',nx0
 #endif
 *

@@ -358,7 +358,7 @@ c        Write(6,*) ' oneel *',Label,'*'
                   Do iC = 1, iCmp
                      ijC=(iC-1)*iCmp+iC
                      iTo= + (ijC-1)*iBas**2+ijB
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                      Write (6,*)'ijB,ijC=',ijB,ijC
                      Write (6,*)'Fnl(iTo),Shells(iShll)%FockOp(iB,jB)=',
      &                           Fnl(iTo),Shells(iShll)%FockOp(iB,jB)
@@ -367,7 +367,7 @@ c        Write(6,*) ' oneel *',Label,'*'
                   End Do
                End Do
             End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('EOrb',' ',Shells(iShll)%FockOp,iBas,1)
             Call RecPrt('EOrb',' ',Shells(iShll)%FockOp,iBas,iBas)
             Call RecPrt('FckInt',' ',Fnl,iBas*jBas,iCmp*jCmp*nIC)

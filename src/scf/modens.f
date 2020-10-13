@@ -49,9 +49,6 @@
 *----------------------------------------------------------------------*
 *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-*define _DEBUG_
-#ifdef _DEBUG_
-#endif
 *
 *---- Allocate memory for squared density matrix
       Call mma_allocate(DnsS,MaxBas**2,Label='DnsS')
@@ -72,7 +69,7 @@
       DMOMax = Zero
       Do jD = 1, nD
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call NrmClc(Dens(1,jD,nDens),nBT,'MoDens','D in AO   ')
          Call NrmClc(Ovlp         ,nBT,'MoDens','Overlap   ')
          Call NrmClc(CMO(1,jD)    ,nBO,'MoDens','CMOs      ')
@@ -135,7 +132,7 @@ C        Write (6,'(F16.8)') DXot(MaxBxO,CMO(1,jD),1,CMO(1,jD),1)
       Call mma_deallocate(OvlS)
       Call mma_deallocate(DnsS)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*)' DMOMax in MODens',DMOMax
 #endif
       Call Timing(Cpu2,Tim1,Tim2,Tim3)

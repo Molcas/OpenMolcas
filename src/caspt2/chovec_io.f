@@ -234,7 +234,7 @@ C always write the chunks to LUDRA, both for serial and parallel
       IDISK=IDLOC_CHOGROUP(ICASE,ISYQ,JSYM,IB)
       CALL DDAFILE(LUDRA,1,CHOBUF,NPQ*JNUM,IDISK)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       NBUF=NPQ*JNUM
       SQFP = DNRM2_(NBUF,CHOBUF,1)
       WRITE(6,'(1X,A,I9,A,A,I2,A,A,I2,A,A,I2,A,A,F21.14)')
@@ -265,7 +265,7 @@ C always write the chunks to LUDRA, both for serial and parallel
       IDISK=IDLOC_CHOGROUP(ICASE,ISYQ,JSYM,IB)
       CALL DDAFILE(LUDRA,2,CHOBUF,NPQ*JNUM,IDISK)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       NBUF=NPQ*JNUM
       SQFP = DNRM2_(NBUF,CHOBUF,1)
       WRITE(6,'(1X,A,I9,A,A,I2,A,A,I2,A,A,I2,A,A,F21.14)')
@@ -303,7 +303,7 @@ C always write the chunks to LUDRA, both for serial and parallel
       INTEGER*4, PARAMETER :: ONE4 = 1
       INTEGER :: LDISP,LSIZE,LRECVBUF,LTRANSP
       INTEGER :: I,JNUM,JNUMT,NPQ,NUMSEND(1),IDISKT,IERROR
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       INTEGER :: MY_N,NOFF
       REAL*8 :: SQFP
       REAL*8, EXTERNAL :: DDOT_
@@ -358,7 +358,7 @@ CSVC: for RHS on demand, write transposed chovecs, else just write
           CALL DDAFILE(LUDRATOT,1,WORK(LRECVBUF),NPQ*JNUMT,IDISKT)
         END IF
 
-#  ifdef _DEBUG_
+#  ifdef _DEBUGPRINT_
         WRITE(6,*) ' process block, size, offset, fingerprint'
         DO I=1,NPROCS
           MY_N = IWORK(LSIZE+I-1)

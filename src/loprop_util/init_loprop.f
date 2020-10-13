@@ -21,7 +21,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -80,7 +80,7 @@
       Call Allocate_iWork(ip_center,nbas1)
       Call Get_iArray('Center Index',iWork(ip_center),nBas1)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) '******* LoProp Debug Info *******'
       Call RecPrt('Coordinates',' ',Work(ipC),3,nAtoms)
       Call RecPrt('Charges',' ',Work(ipQ_Nuc),1,nAtoms)
@@ -111,11 +111,11 @@
       Call Allocate_Work(ipP,nbas1**2)
       Call Allocate_Work(ipPInv,nbas1**2)
       Call Get_dArray('SM',Work(ipP),nbas1**2)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('SM',' ',Work(ipP),nbas1,nbas1)
 #endif
       Call MINV(Work(ipP),Work(ipPInv),ISING,DET,nBas1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('SMInv',' ',Work(ipPInv),nbas1,nbas1)
 #endif
       Call DGeTMi(Work(ipPInv),nbas1,nbas1)

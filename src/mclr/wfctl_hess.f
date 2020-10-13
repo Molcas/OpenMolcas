@@ -67,7 +67,7 @@
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
-*define _DEBUG_
+*define _DEBUGPRINT_
 *----------------------------------------------------------------------*
       one=1.0d0
       SLine=' Solving CP(CAS)HF equations'
@@ -106,7 +106,7 @@
 *     Start loop over the symmetry of the perturbations
 *
       If (iAnd(kprint,2).eq.2) lprint=.true.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       lprint=.true.
 #endif
       kksym=1
@@ -341,7 +341,7 @@ C         iDisp=iDisp+1
      &                Work(ipSc3),
      &                Work(ipTemp4),ipST,
      &                iDisp,iSym-1,Work(ipCMO),jdisp,jspin,CI)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
              Write (LuWr,*) 'After RHS'
              Write (LuWr,*) 'Sigma=',DDot_(nDens,Work(ipSigma),1,
      &                                          Work(ipSigma),1)
@@ -384,7 +384,7 @@ C         iDisp=iDisp+1
 *
           Call DSCAL_(nDensC,-1.0d0,Work(ipSigma),1)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           Write (LuWr,*) 'ST=',DDot_(nConf1,Work(ipin(ipST)),1,
      &                                     Work(ipin(ipST)),1)
           Write (LuWr,*) 'Sigma=',DDot_(nDensC,Work(ipSigma),1,
@@ -400,7 +400,7 @@ C         iDisp=iDisp+1
      &                  isym,iter)
           irc=opout(ippre2)
           r2=ddot_(ndensc,Work(ipKap),1,Work(ipKap),1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           Write (LuWr,*) 'DMinvKap'
           Write (LuWr,*) 'Kap=',DDot_(nDens2,Work(ipKap),1,
      &                                      Work(ipKap),1)
@@ -421,14 +421,14 @@ C         iDisp=iDisp+1
           deltaK=ddot_(nDensC,Work(ipKap),1,Work(ipSigma),1)
           call dcopy_(nDens,[0.0d0],0,Work(ipKap),1)
           delta=deltac+deltaK
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           If (Abs(DeltaC).lt.1.0D-12) DeltaC=0.0D0
           Write (LuWr,*)'DeltaK, DeltaC, Delta=',DeltaK, DeltaC, Delta
 #endif
 
           If (delta.eq.0.0D0) Goto 300
           delta0=delta
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           Write (LuWr,*) 'Delta0=',Delta0
           Write (LuWr,*) 'Start ITERATIONS'
           Write (LuWr,*) 'Orb,CI=',ORB,CI
@@ -490,7 +490,7 @@ C         iDisp=iDisp+1
      &                       ipTemp4,iprmoaa,idum,
      &                       ipCI,ipS1,'N')
                 Clock(iTimeKC)=Clock(iTimeKC)+Tim3
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                 Write (LuWr,*) 'CISigma'
                 Call RecPrt('CI ','(3F10.4)',Work(ipin(ipCI )),1,nConf1)
                 Call RecPrt('S1 ','(3F10.4)',Work(ipin(ipS1 )),1,nConf1)
@@ -566,7 +566,7 @@ C         iDisp=iDisp+1
 *                                                                      *
               Response=.true.
               irc=ipnout(-1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
               Call RecPrt('CI ','(3F10.4)',Work(ipin(ipCI )),1,nConf1)
               Call RecPrt('CId','(3F10.4)',Work(ipin(ipCId)),1,nConf1)
 #endif
@@ -575,7 +575,7 @@ C         iDisp=iDisp+1
      &                    PState_Sym,jspin,
      &                    Work(ipP),Work(ipDe))     ! Jeppes
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
               Write (LuWr,*) 'After CIDens'
               Write (LuWr,*) 'P=',DDot_(n2dens,Work(ipP),1,
      &                                        Work(ipP),1)
@@ -619,7 +619,7 @@ C         iDisp=iDisp+1
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
            Write (LuWr,*) 'Add together!'
            Write (LuWr,*) 'dKap=',DDot_(nDens,Work(ipdKap),1,
      &                                    Work(ipdKap),1)
@@ -673,7 +673,7 @@ C         iDisp=iDisp+1
            If (CI)  rAlphaC=DDot_(nConf1,Work(ipin(ipS1)),1,
      &                                  Work(ipin(ipCId)),1)
            rAlpha=delta/(rAlphaK+rAlphaC)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
            Write (LuWr,*) 'At PCG'
            Write (LuWr,*) 'S1=',
      &                      DDot_(nConf1,Work(ipin(ipS1 )),1,
@@ -758,7 +758,7 @@ C         iDisp=iDisp+1
               irc=opout(ipS2)
               irc=ipout(ipCID)
            End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
            Write (LuWr,*) 'rBeta, DeltaK, DeltaC=',
      &                     rBeta, DeltaK, DeltaC
 #endif
@@ -945,7 +945,7 @@ C     End Do ! iSym
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(LuWr,*)  '****************************************',
      &               '****************************************'
       Write(LuWr,*)

@@ -45,4 +45,3 @@ endfunction()
 # And start adding tests
 add_subdirectory(linalg_mod/)
 add_subdirectory(fortran_strings/)
-

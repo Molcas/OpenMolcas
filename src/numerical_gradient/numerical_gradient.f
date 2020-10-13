@@ -411,7 +411,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
       iPL_Base=0
       If (iPL_Save.ge.3) iPl_Base=iPL_Save
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('BMtrx',' ',Work(ip_BMtrx),3*nAtoms,mInt)
       Call RecPrt('TMtrx',' ',Work(ip_TMtrx),mInt,mInt)
       Call RecPrt('Degeneracy vector',' ',Work(ipDeg),3,nAtoms)

@@ -120,7 +120,7 @@ CSVC: take the global sum of the individual maxima
       NFTSPC_TOT=NJSCT_TOT*MXFTARR
 #endif
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)' To be allocated for ...'
       WRITE(6,'(A,1X,I12)')'   Chol. vectors: NCHSPC     =',NCHSPC
       WRITE(6,'(A,1X,I12)')'   half-transf  : NHTSPC     =',NHTSPC

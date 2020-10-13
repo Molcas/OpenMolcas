@@ -48,8 +48,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       irout = 109
       iPrint = nPrint(irout)
       iPrint=99
@@ -73,7 +72,7 @@
       nn = mm_ - iOffA(2)
       mx = nn*(nn+1)/2
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'nn,mx=',nn,mx
       Write (6,*) 'iOff=',nn,mx
       Write (6,*) 'lBas,jBas=',lBas,jBas
@@ -104,11 +103,8 @@
 *
          End Do
       End Do
-#ifdef _DEBUG_
-#endif
 *
-      Return
-c Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Then
          Call Unused_integer(iCmp)
          Call Unused_integer(kCmp)
@@ -117,4 +113,5 @@ c Avoid unused argument warnings
          Call Unused_integer(iBas)
          Call Unused_integer(kBas)
       End If
+#endif
       End

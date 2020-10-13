@@ -55,9 +55,6 @@
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
 
-#if defined (_DEBUG_)
-#endif
-
       Call fZero(Diag,nnBstRT(1))
 
 
@@ -180,10 +177,6 @@ C --- free memory
 
       rc  = 0
 
-#if defined (_DEBUG_)
-#endif
-
-      Return
       END
 
 **************************************************************

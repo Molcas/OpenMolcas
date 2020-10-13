@@ -49,8 +49,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       iRout = 39
       iPrint = nPrint(iRout)
       Do i=1,nSA
@@ -573,7 +573,7 @@
          Call Abend
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In PGet1_RI2:PAO ',' ',PAO,ijkl,nPAO)
       Call GetMem(' Exit PGet1_RI2','CHECK','REAL',iDum,iDum)
 #endif

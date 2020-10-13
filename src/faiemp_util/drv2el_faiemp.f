@@ -54,8 +54,8 @@
      &             P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all,
      &             TskHi, TskLw, TWall1, TWall2, DMax, TMax
       Real*8, Allocatable, Target:: Dens(:), Fock(:)
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Integer      iFD
       Character*80 Line
 #endif
@@ -135,7 +135,7 @@ c     W2Disc=.False.
      &                EnergyWeight,Work(ipFragDensAO))
 * create the symmetry adapted version if necessary
 * (fragment densities are always calculated without symmetry)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           Call TriPrt('Fragment density',' ',
      &      Work(ipFragDensSO),dbsc(iCnttp)%nFragDens)
 #endif
@@ -163,7 +163,7 @@ c              ! position in fragment density matrix
           End Do
  1000   Continue
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iFD = 1
       Do iIrrep = 0, nIrrep - 1
          Call TriPrt('Combined density',' ',Dens(iFD),nBas(iIrrep))
@@ -181,7 +181,7 @@ c              ! position in fragment density matrix
 *
       Call AlloK2()
       Call DeDe_SCF(Dens,Fock,nBT,mDens)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (nIrrep.eq.1) Then
          Call RecPrt('Desymmetrized Density:',' ',pDq,nBas(0),nBas(0))
       Else
@@ -294,7 +294,7 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
      &                     [NoCoul],[NoExch],
      &                     Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                     Count,DoIntegrals,DoFock)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             write(6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
             If (nIrrep.eq.1) Then
                Call RecPrt('updated Fock',' ',pFq,nBas(0),nBas(0))
@@ -351,7 +351,7 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
       Call Free_DeDe(Dens,Fock,nBT)
 
       Call mma_deallocate(Dens)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*)
       write(6,*)
       write(6,'(a)') 'SO Integrals of type Frag2El Component 1'
@@ -391,7 +391,7 @@ c     klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
       End Do
 
 * write out the results
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iFD = ipOneHam
       Do iIrrep = 0, nIrrep - 1
          Call TriPrt('OneHam at end',' ',Work(iFD),nBas_Valence(iIrrep))

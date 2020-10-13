@@ -84,7 +84,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -100,7 +100,7 @@ C earlier center/irrep. Thus it is an offset.
       nOrdOp=0
       Call iCopy(nIrrep,[0],0,IndGrd,1)
       loper=0
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iprint=99
 #else
       iprint=00
@@ -272,7 +272,7 @@ C differentiation wrt center iCnt
                  nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                End If
             End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
 #endif
             If (nSO.eq.0) Go To 131
@@ -389,7 +389,7 @@ C differentiation wrt center iCnt
 *            At this point accumulate the batch of integrals onto the
 *            final symmetry adapted integrals.
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                 If (iPrint.ge.99) Then
                   Call RecPrt (' Accumulated SO integrals, so far...',
      &                               ' ',Work(ipSO),iBas*jBas,nSO)
@@ -503,7 +503,7 @@ C differentiation wrt center iCnt
             End If
             irc=-1
             iopt=0
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write(6,'(2A,2I8)')'Lab_dsk,jdisp,koper',Lab_dsk,jdisp,koper
 #endif
             Call dWrMck(irc,iOpt,Lab_dsk,jdisp,work(ip(nrop)),koper)

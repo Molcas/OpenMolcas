@@ -35,7 +35,7 @@
       Integer OUT, iBeginIRed(8), iDelperSym(8)
       Data IfTest/.False./
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif
       OUT=6
@@ -133,7 +133,7 @@
      &                 '    with maximum l-values of ',Lmax
           Call Abend()
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(OUT,'(A21,F5.2)') chCharge, Charge
 #endif
       Call InitiRed

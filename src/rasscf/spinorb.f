@@ -69,5 +69,7 @@ C
 C
       RETURN
 c Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       IF (.FALSE.) CALL Unused_integer(kroot)
+#endif
       END

@@ -46,8 +46,8 @@
       Integer iLast_JR,iLast1
       Integer BasisTypes(4)
       Data IfTest/.False./
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif
       If (iTabMx.lt.lCGTO) Then

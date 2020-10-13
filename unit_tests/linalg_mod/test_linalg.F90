@@ -242,13 +242,12 @@ program test_linalg
     use test_linalg_mod
 
     implicit none
-    integer :: failed_count
-    integer, parameter :: seed(20) = &
-        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    integer :: failed_count, i
+    integer, parameter :: seed_size = 50
+    integer, parameter :: seed(seed_size) = [(i, i = 1, seed_size)]
 
-
-    call init_fruit()
     call random_seed(put=seed)
+    call init_fruit()
     call inimem()
 
     call test_linalg_driver()

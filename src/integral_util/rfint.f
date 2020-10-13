@@ -62,7 +62,7 @@
          Call Abend()
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In RFInt: A',' ',A,1,3)
       Call RecPrt(' In RFInt: B',' ',B,1,3)
       Call RecPrt(' In RFInt: CCoor',' ',CCoor,1,3)
@@ -105,11 +105,11 @@
       Call CmbnRF(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,Final,
      &          nComp,Array(ipTemp1),Array(ipTemp2))
 *
-      Return
-c Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Then
          Call Unused_real_array(Alpha)
          Call Unused_real_array(Beta)
          Call Unused_real_array(ZInv)
       End If
+#endif
       End

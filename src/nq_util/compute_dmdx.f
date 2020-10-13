@@ -12,13 +12,13 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Real*8 ZA(nAtoms), RA(3,nAtoms), T(3), dMdx(3,3)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Real*8 M(3,3)
 #endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Z_Tot=DDot_(nAtoms,[One],0,ZA,1)
       delta=1.0D-4
       temp = RA(iCar,iAtom)
@@ -84,7 +84,7 @@
             If (Abs(dMdx(i,j)).lt.1.0D-14) dMdx(i,j)=Zero
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('dMdx',' ',dMdx,3,3)
 #endif
 *                                                                      *

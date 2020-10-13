@@ -53,8 +53,8 @@ cgh - stuff for short range integrals
       iTri(i,j) = (Max(i,j)*(Max(i,j)-1))/2 + Min(i,j)
 *
 
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'NoSpecial=',NoSpecial
          Call RecPrt(' In Rys:P','(10G15.5)',P,lP,3)
          Call RecPrt(' In Rys:Q','(10G15.5)',Q,lQ,3)
@@ -585,7 +585,7 @@ cgh - (additional memory has been declared in MemRys)
       If (shortrange.or.FMM_shortrange)
      &   ip = ip - nT*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
       End Select
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       mabcd=(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
       Call RecPrt('{e0|f0}',' ',Array,nT,mabcd)
 #endif

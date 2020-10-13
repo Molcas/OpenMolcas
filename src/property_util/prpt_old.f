@@ -81,8 +81,6 @@ c
       Use Iso_C_Binding
       Real*8, Target :: Scr(*)
       Character, Pointer :: cScr(:)
-#ifdef _DEBUG_
-#endif
       Write (6,*)
       Call CollapseOutput(1,'   Molecular properties:')
       Write (6,'(3X,A)')    '   ---------------------'
@@ -340,8 +338,6 @@ c
 *                                                                      *
 499   continue
 c
-#ifdef _DEBUG_
-#endif
 
       Call CollapseOutput(0,'   Molecular properties:')
       Write(6,*)

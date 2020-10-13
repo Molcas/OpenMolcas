@@ -22,7 +22,7 @@ C
 
       J = IRED
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       IF ((NNSHL.NE.MMSHL) .OR. (NSYM.NE.MSYM))
      & CALL CHO_QUIT('[1] Dimension error in '//SECNAM,104)
       IF ((J.LT.1) .OR. (J.GT.3))

@@ -315,7 +315,7 @@ c         ipDA2 = ip_of_Work(DA2(1))
       If (DoActive) Then
 C ---  Decompose the active density  -----------------------------
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        koff=0
        do i=1,nSym
           CALL CD_TESTER(rc,ipDALT+koff,nBas(i),.true.)

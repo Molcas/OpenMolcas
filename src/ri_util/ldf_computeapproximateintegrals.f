@@ -59,7 +59,7 @@ C
       Real*8  xInt(l_xInt_)
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
 #include "localdf_bas.fh"
 #endif
 
@@ -68,7 +68,7 @@ C
 
       Integer  LDF_nBas_Atom, LDF_nBasAux_Pair
       External LDF_nBas_Atom, LDF_nBasAux_Pair
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Logical  isSymmetric
       External isSymmetric
       Integer  LDF_nShell_Atom, LDF_lShell_Atom
@@ -83,7 +83,7 @@ C
       Integer ip_2Int, l_2Int
       Integer ip_C, l_C, l_C_CD, l_C_AB
       Integer ip, l
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer ip_iAB, l_iAB
       Integer ip_iCD, l_iCD
       Integer ipA, ipB, ipC, ipD
@@ -97,7 +97,7 @@ C
 
       Integer i, j
       Integer AP_Atoms
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer nBasSh, iAB, iCD
       nBasSh(i)=iWork(ip_nBasSh-1+i)
       iAB(i,j)=iWork(ip_iAB-1+nShell_A*(j-1)+i)
@@ -226,7 +226,7 @@ C
          Call LDF_Quit(1)
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (AB.eq.CD) Then
          If (.not. isSymmetric(xInt,nAB,1.0d-14)) Then
             Call WarningMessage(2,SecNam//': (AB|CD) != (CD|AB)')

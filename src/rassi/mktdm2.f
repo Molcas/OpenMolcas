@@ -231,7 +231,7 @@ C Position determined by active orbital index in external order:
  124  CONTINUE
 #endif
 
-#ifdef _DMRG_DEBUG_
+#ifdef _DMRG_DEBUGPRINT_
       write(6,*)' final 2-TDM'
       DO IJ=1,ntdm2
         write(6,*)' IJ, value = ',IJ,TDM2(IJ)

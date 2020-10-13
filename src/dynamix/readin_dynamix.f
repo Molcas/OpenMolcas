@@ -21,11 +21,11 @@ C
 C
 C     Read input
 C
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)' Dynamix calls RdInp_Dynamix.'
 #endif
       CALL RdInp_Dynamix(LuSpool,Task,nTasks,mTasks)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,*)' Dynamix back from RdInp_Dynamix.'
 #endif
 C

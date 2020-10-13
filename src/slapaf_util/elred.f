@@ -21,7 +21,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -32,7 +32,7 @@
          End Do
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('ElRed: The B matrix','(5e21.12)',Bmtrx,nq,nx)
       Call RecPrt('ElRed: The u matrix','(5e21.12)',umtrx,nx,1)
 #endif
@@ -64,7 +64,7 @@
          Diagonal = Diagonal .and. Sum.eq.0.0D0
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('ElRed: The G Matrix (nq x nq)',
      &            '(5e21.12)',Gmtrx,nq,nq)
       Write (6,*) 'Diagonal=',Diagonal
@@ -84,7 +84,7 @@
             EVal(ijTri) = Half*(Gmtrx(i,j)+Gmtrx(j,i))
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call TriPrt('Eval prediagonalization',' ',EVal,nQ)
 #endif
 *
@@ -122,7 +122,7 @@
          tmp=OrbPhase(EVec(1,iQ),nQ)
       End Do
       Call DScal_(nQ*(nQ+1)/2,-1.0D0,EVal,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('ElRed: Eigenvectors',' ',EVec,nQ,nQ)
       Call TriPrt('ElRed: Eigenvalues',' ',EVal,nQ)
 #endif
@@ -142,7 +142,7 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
          If (g12K .and. Abs(EVal(i)).gt.Zero_Approx)
      &      Call DScal_(nQ,One/Sqrt(EVal(i)),EVec(1,i),1)
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('ElRed: The NonRedundant eigenvectors',
      &            '(5e21.12)',EVec,nQ,nK)
        Call RecPrt('ElRed: eigenvalues ','(8E12.4)',
@@ -169,12 +169,12 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('ElRed2: The u matrix','(5e21.12)',umtrx,nx,1)
 #endif
       If (nq.eq.0) Then
@@ -220,7 +220,7 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
          Diagonal = Diagonal .and. Sum.eq.0.0D0
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('ElRed2: The G Matrix (nq x nq)',
      &            '(5e21.12)',Gmtrx,nq,nq)
       Write (6,*) 'Diagonal=',Diagonal
@@ -240,7 +240,7 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
             EVal(ijTri) = Half*(Gmtrx(i,j)+Gmtrx(j,i))
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call TriPrt('Eval prediagonalization',' ',EVal,nQ)
 #endif
 *
@@ -278,7 +278,7 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
          tmp=OrbPhase(EVec(1,iQ),nQ)
       End Do
       Call DScal_(nQ*(nQ+1)/2,-1.0D0,EVal,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('ElRed2: Eigenvectors',' ',EVec,nQ,nQ)
       Call TriPrt('ElRed2: Eigenvalues',' ',EVal,nQ)
 #endif
@@ -298,7 +298,7 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
          If (g12K .and. Abs(EVal(i)).gt.Zero_Approx)
      &      Call DScal_(nQ,One/Sqrt(EVal(i)),EVec(1,i),1)
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('ElRed2: The NonRedundant eigenvectors',
      &            '(5e21.12)',EVec,nQ,nK)
        Call RecPrt('ElRed2: eigenvalues ','(8E12.4)',

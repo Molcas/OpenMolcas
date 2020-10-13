@@ -18,7 +18,7 @@
 *                                                                      *
 *---- Compute the eigenvalues and the eigenvectors of the Hessian
 *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *
 *---- Set up a unit matrix
 *
@@ -46,7 +46,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' Eigenvectors','(12f6.2)',EVec,nDim,nDim)
       Call TriPrt(' Eigenvalues','(12E8.2)',Hess,nDim)
 #endif

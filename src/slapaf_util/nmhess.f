@@ -53,8 +53,8 @@ C        Write (*,*) kIter1,kIter2
          dDipM(3,iInter) = (DipM(3,kIter1)-DipM(3,kIter2))
      &                   / (Two*Delta)
       End Do
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt('DipM',' ',DipM,3,nIter)
       Call RecPrt('dDipM',' ',dDipM,3,nInter)
 #endif

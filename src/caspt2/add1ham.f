@@ -63,7 +63,7 @@ c the nuclear attraction by the cavity self-energy
          Call GetMem('RFFLD','Free','Real',lTemp,nTemp)
       End If
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          WRITE(6,*)' 1-EL HAMILTONIAN (MAY INCLUDE REACTION FIELD)'
          ISTLT=0
          DO ISYM=1,NSYM
@@ -107,7 +107,7 @@ c the nuclear attraction by the Rep_EN
          EndIf
          Call Free_Work(ipVxc)
          Call NameRun(NamRfil)   ! switch back to old RUNFILE
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
              WRITE(6,*)' 1-EL HAMILTONIAN INCLUDING OFE POTENTIAL'
              ISTLT=0
              DO ISYM=1,NSYM

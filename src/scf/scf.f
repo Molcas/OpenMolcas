@@ -161,8 +161,6 @@
 #include "llists.fh"
 #include "lnklst.fh"
 *
-#ifdef _DEBUG_
-#endif
 *
 *     MemRsv set tentatively to the size of six density matrices
 c     MemRsv=6*nBT
@@ -175,10 +173,7 @@ c     MemRsv=6*nBT
       Call IniLst(LLx,MxOptm)
       Init_LLs=1
 *
-#ifdef _DEBUG_
-#endif
-      Return
-      End
+      End subroutine IniLLs
 *----------------------------------------------------------------------*
 #ifdef _NOTUSED_
       Subroutine StatLLS()

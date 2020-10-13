@@ -57,8 +57,7 @@
 *                                                                      *
       iRout = 39
       iPrint = nPrint(iRout)
-*#define _DEBUG_
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPrint=99
       If (iPrint.ge.99) Then
          iComp = 1
@@ -474,7 +473,7 @@
         Call Abend
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In PGET_RI3:PSO ',' ',PSO,nijkl,nPSO)
       End If

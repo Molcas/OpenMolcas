@@ -25,8 +25,8 @@
          Fabs=Fabs+ Degen(i)*GrdX(i)**2
       End Do
       Fabs=Sqrt(Fabs)
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
          Write (6,42) Fabs
 42       Format (/,' Norm of the force vector',F20.15)
 #endif
@@ -39,7 +39,7 @@
          If (Abs(Grad(i,Iter)).gt.1.0d-6) mIntEff=mIntEff+1
       End Do
       If (mIntEff.eq.0) mIntEff=1
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) ' mIntEff=',mIntEff
 #endif
 *

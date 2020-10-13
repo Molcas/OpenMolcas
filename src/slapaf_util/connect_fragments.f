@@ -23,7 +23,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -45,7 +45,7 @@
       mBonds=0
       nSet(iAtom)=iSet
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) '>>>> Connect Fragments <<<<<'
       Call RecPrt('Coor',' ',Coor,3,nAtoms)
 #endif
@@ -60,7 +60,7 @@
 *     Pick up an atom from the top of the stack.
 *
       iAtom=iStack(nStack)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) 'iAtom=',iAtom
       Write (6,*) 'iSet=',iSet
@@ -76,7 +76,7 @@
       Do iNeighbor = 1, iTabAtoms(1,0,iAtom)
          jAtom=iTabAtoms(1,iNeighbor,iAtom)
          iBond=iTabAtoms(2,iNeighbor,iAtom)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'jAtom=',jAtom
          Write (6,*) 'iBond=',iBond
          Write (6,*) 'iTabBonds(3,iBond)=',iTabBonds(3,iBond)

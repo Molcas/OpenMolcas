@@ -20,13 +20,13 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-!#define _DEBUG_
+!#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Initiate
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Coor',' ',Coor,3,nAtoms)
       Write (6,*) 'Find_Bonds: ThrB=',ThrB
       Write (6,*) 'Initialize iTabAtoms'
@@ -45,7 +45,7 @@
          iRow = iTabRow(iANr(iAtom))
          If (iRow.eq.0) Go To 99
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*)
          Write (6,*) 'iAtom, iAnr=',iAtom,iANr(iAtom)
          Write (6,*)
@@ -72,7 +72,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) 'After Covalent Bonds'
       Write (6,*)
@@ -137,7 +137,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) 'After vdW Bonds'
       Write (6,*)
@@ -174,8 +174,8 @@
 *     These bonds are of type 2.
 *
       Call Connect_Fragments(nAtoms,iTabBonds,nBondMax,
-     &                        nBonds,Coor,iTabAtoms,nMax,iANr)
-#ifdef _DEBUG_
+     &                       nBonds,Coor,iTabAtoms,nMax,iANr)
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) 'After Connecting Fragments'
       Write (6,*)
@@ -216,7 +216,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) 'After Magic Bonds'
       Write (6,*)

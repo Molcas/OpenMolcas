@@ -28,7 +28,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-!#define _DEBUG_
+!#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -47,7 +47,7 @@
          If (iTabBonds(3,iTabAtoms(2,i,iAtom)).eq.Covalent_Bond)
      &       nVal_i=nVal_i+1
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) 'Bond_Tester: iAtom,=',iAtom
       Write (6,*) '                Box(ix,iy,iz)=(',ix,iy,iz,')'
@@ -64,7 +64,7 @@ C        If (iAtom.le.jAtom) Cycle Box
          If (iAtom.ge.jAtom) Cycle Box
          jRow =iTabRow(iANr(jAtom))
          Help = iRow.gt.3.or.jRow.gt.3
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) ' jAtom, iAnr(jAtom)=',jAtom, iAnr(jAtom)
          Write (6,*) 'Help=',Help
 #endif
@@ -83,7 +83,7 @@ C        If (iAtom.le.jAtom) Cycle Box
          If (Schlegel.or.Help) Then
             Rab=Sqrt(rij2)
             RabCov=CovRad(iANr(iAtom))+CovRad(iANr(jAtom))
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'Rab=',Rab
             Write (6,*) CovRad(iANr(iAtom)),CovRad(iANr(jAtom))
 #endif
@@ -121,7 +121,7 @@ C        If (iAtom.le.jAtom) Cycle Box
                r0_vdW=0.0D0
                test_vdW=0.0D0
             End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*)
             Write (6,*) 'Bond_Tester: iAtom,jAtom=',iAtom,jAtom
             Write (6,*) 'Bond_Tester: iRow, jRow =',iRow,jRow
@@ -156,7 +156,7 @@ C        If (iAtom.le.jAtom) Cycle Box
                   If ( iTabBonds(3,iTabAtoms(2,i,jAtom)) .eq.
      &                 Covalent_Bond) nVal_j=nVal_j+1
                End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*) 'nVal_j=',nVal_j
 #endif
                If ((nVal_i.ge.6.and.nVal_j.ge.1) .or.
@@ -172,7 +172,7 @@ C        If (iAtom.le.jAtom) Cycle Box
 *
 *              Loop over all covalently bonded neighbors of atom iAtom
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                Write (6,*) 'Test validity of vdW bond'
 #endif
                Do i = 1, iTabAtoms(1,0,iAtom)
@@ -184,7 +184,7 @@ C        If (iAtom.le.jAtom) Cycle Box
                   BNorm = dot_product(B,B)
                   CosPhi=dot_product(A,B)/Sqrt(ANorm*BNorm)
                   Phi=ACOS(CosPhi)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                   Write (6,*) 'kAtom,Phi=',kAtom,Phi
 #endif
                   If (Abs(Phi).lt.Pi/Four) Cycle Box
@@ -215,7 +215,7 @@ C        If (iAtom.le.jAtom) Cycle Box
             ivdW=99
          End If
          iTabBonds(3,nBonds)=ivdW
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*)
          Write (6,*) 'Add bond to the list.'
          Write (6,*) 'Atom pair:',iAtom,jAtom

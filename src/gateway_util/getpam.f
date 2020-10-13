@@ -36,7 +36,7 @@
 *     External Get_Ln
       Integer nPAM2
       Logical test
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       data test /.True./
 #else
       data test /.False./

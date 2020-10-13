@@ -35,13 +35,13 @@
      &       B10(nArg*lRys), B00(nArg*lRys),
      &       B01(nArg*lRys)
       Logical IfGrad(3,4)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Character*30 Label
 #endif
 *
       iRout = 15
       iPrint = nPrint(iRout)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iPrint=99
       If (iPrint.ge.99) Then
          If (nabMax.gt.0) Call RecPrt('PAWP',' ',PAWP,nArg,lRys*3)
@@ -172,7 +172,7 @@
       End If
  200  Continue
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Do 600 iab = 0, nabMax
             Do 610 icd = 0, ncdMax
