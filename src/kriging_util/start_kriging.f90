@@ -27,8 +27,8 @@ Subroutine Start_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
   Real*8 dy_(nInter,nPoints_In-nd)
 !
 !
-!#define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
   Call RecPrt('Start_Kriging: x',' ',x_,nInter,nPoints_In)
   Call RecPrt('Start_Kriging: y',' ',y_,     1,nPoints_In)
   Call RecPrt('Start_Kriging: dy',' ',dy_,nInter,nPoints_In-nD)
