@@ -52,6 +52,7 @@
 *
 *
       nqB=0
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) ' ---> Enter Bonds.'
       Write (6,*)

@@ -761,6 +761,7 @@ C           Write (6,*) 'gBeta=',gBeta
                   Step_Trunc='*'
                End If
             End If
+#endif
 #ifdef _DEBUGPRINT_
             Write (6,*) 'Step_trunc=',Step_trunc
             Write (6,*) 'Final: dy(:)=',dy(:)

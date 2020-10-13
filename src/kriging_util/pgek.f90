@@ -40,7 +40,6 @@ Call RecPrt('x',' ',x,nInter,nPoints)
 !    Allocate memory
 
 Call mma_allocate(Mean_univariate,nInter+1,Label='Mean_univariate')
-Call mma_allocate(Mean_bivariate,nInter,Label='Mean_bivariate')
 Call mma_allocate(Variance_univariate,nInter+1,Label='Variance_univariate')
 Call mma_allocate(Variance_bivariate,nInter,Label='Variance_bivariate')
 Call mma_allocate(MI,nInter,Label='MI')
@@ -51,34 +50,40 @@ Call mma_allocate(pxy,nPoints,nInter,Label='pxy')
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !  Compute the mean for all variables - coordinate components and the energy
-!  univariate --  x and y -- and bivariate -- xy
-!  Compute the variance of the same
+!  univariate --  x and y
+!  Compute the variance of the univariate and the bivariate
 
+! univariate means
 Do i = 1, nInter
   Mean_Univariate(i)    =Zero
-  Mean_bivariate(i)     =Zero
-  Variance_Univariate(i)=Zero
-  Variance_bivariate(i) =Zero
   Do j = 1, nPoints
     Mean_Univariate(i)    =Mean_Univariate(i)    + x(i,j)
-    Mean_bivariate(i)     =Mean_bivariate(i)     + x(i,j)*y(j)
-    Variance_Univariate(i)=Variance_Univariate(i)+ (x(i,j))**2
-    Variance_bivariate(i) =Variance_bivariate(i) + (x(i,j)*y(j))**2
   End Do
 End Do
 Mean_Univariate(nInter+1)    =Zero
-Variance_Univariate(nInter+1)=Zero
 Do j = 1, nPoints
   Mean_Univariate(nInter+1)    =Mean_Univariate(nInter+1)     + y(j)
-  Variance_Univariate(nInter+1)=Variance_Univariate(nInter+1) + y(j)**2
 End Do
 Mean_Univariate(:)    = Mean_Univariate(:)    /DBLE(nPoints)
-Mean_Bivariate(:)     = Mean_Bivariate(:)     /DBLE(nPoints)
+
+! uni- and bivariate variances
+Do i = 1, nInter
+  Variance_Univariate(i)=Zero
+  Variance_bivariate(i) =Zero
+  Do j = 1, nPoints
+    Variance_Univariate(i)=Variance_Univariate(i)+ (x(i,j) - Mean_univariate(i))**2
+    Variance_bivariate(i) =Variance_bivariate(i) + (x(i,j) - Mean_univariate(i))  &
+                                                 * (y(j)   - Mean_univariate(nInter+1))
+  End Do
+End Do
+Variance_Univariate(nInter+1)=Zero
+Do j = 1, nPoints
+  Variance_Univariate(nInter+1)=Variance_Univariate(nInter+1) + (y(j)-Mean_univariate(nInter+1))**2
+End Do
 Variance_Univariate(:)= Variance_Univariate(:)/DBLE(nPoints)
 Variance_Bivariate(:) = Variance_Bivariate(:) /DBLE(nPoints)
 
 Call RecPrt('Mean - x ',' ',Mean_Univariate(:),nInter,1)
-Call RecPrt('Mean - xy ',' ',Mean_Bivariate(:),nInter,1)
 Call RecPrt('Variance - x ',' ',Variance_Univariate(:),nInter,1)
 Call RecPrt('Variance - xy ',' ',Variance_Bivariate(:),nInter,1)
 
@@ -217,7 +222,6 @@ Call mma_deallocate(py)
 Call mma_deallocate(pxy)
 Call mma_deallocate(Variance_univariate)
 Call mma_deallocate(Variance_bivariate)
-Call mma_deallocate(Mean_bivariate)
 Call mma_deallocate(Mean_univariate)
 
 END SUBROUTINE pgek
