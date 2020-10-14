@@ -150,7 +150,7 @@ def find_sources():
   try:
     with utf8_open(join(MOLCAS, 'CMakeCache.txt'), 'r') as f:
       for line in f:
-        m = match(r'Molcas_SOURCE_DIR:.*?=(.*)', line)
+        m = match(r'OpenMolcas_SOURCE_DIR:.*?=(.*)', line)
         if (m):
           cmake_src = m.group(1)
         m = match(r'OPENMOLCAS_DIR:.*?=(.*)', line)

@@ -1,6 +1,6 @@
 # Some useful templates:
 # doc-build: rules for when to build documentation
-# doc-publish: rules for whon to publish documentation
+# doc-publish: rules for when to publish documentation
 
 .template: &doc-build
   rules:
@@ -13,11 +13,17 @@
     # branches, api, trigger, web
     - if: '$CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "web"'
       when: on_success
+    # scheduled release creation
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CREATE_RELEASE'
+      when: on_success
 
 .template: &doc-publish
   rules:
     # only on master
     - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
+      when: on_success
+    # scheduled release creation
+    - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_PIPELINE_SOURCE == "schedule" && $CREATE_RELEASE'
       when: on_success
 
 # A special job for building the documentation,
@@ -26,6 +32,17 @@ doc:
   interruptible: true
   image: ${CI_REGISTRY}/molcas/dockerfiles/doc:latest
   script:
+    # Create a temporary tag if this is a release pipeline
+    # (the tag is exported to variables.env for later use in the release job)
+    - |
+      touch variables.env
+      if [ $CI_PIPELINE_SOURCE == "schedule" ] && [ $CREATE_RELEASE == "true" ] ; then
+        TAG=v$(date +%y.%m)
+        echo TAG=$TAG > variables.env
+        git config --global user.name "${GITLAB_USER_NAME}"
+        git config --global user.email "${GITLAB_USER_EMAIL}"
+        git tag $TAG -m "temporary tag"
+      fi
     # First build sphinx doc
     - git submodule update --init External/lapack
     - mkdir build
@@ -44,6 +61,8 @@ doc:
   after_script:
     - cat doc/doxygen/doxygen.log
   artifacts:
+    reports:
+      dotenv: variables.env
     paths:
       - build/doc
       - doc/doxygen/html
