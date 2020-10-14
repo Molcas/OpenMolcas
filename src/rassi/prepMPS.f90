@@ -33,8 +33,8 @@
   !> module dependencies
 #ifdef _DMRG_
   use qcmaquis_interface_cfg
-  use qcmaquis_interface_wrapper
   use qcmaquis_info
+  use qcmaquis_interface_mpssi
 #endif
 
   implicit none
@@ -68,43 +68,15 @@
   integer               :: i, isym, no, ii, ista, jorb, ni
   real*8                :: fac(1,1), ckk
   logical               :: debug_dmrg_rassi_code = .false.
+  real*8, allocatable   :: tmat(:,:) ! active-active rotation matrix
+
 
   if(.not.trorb)then
-    !> if a backup of the actual MPS exists - copy it back
-    if (doMPSSICheckpoints) then
-      call dmrg_interface_ctl(                                              &
-                            task         = 'MPS back',                      &
-                            checkpoint1  = qcm_group_names(job)%states(ist),&
-                            stateL       =  1                               &
-                            )
-      write(lupri,'(a,a)') ' prepMPS: no MPS rotation requested for state ', &
-      qcm_group_names(job)%states(ist)
-    else
-      call dmrg_interface_ctl(                           &
-                            task    = 'MPS back',        &
-                            state   = istate,     &
-                            stateL  =  1                 &
-                            )
-      write(lupri,'(a,i4)') ' prepMPS: no MPS rotation requested for state #',istate
-    end if
+    write(lupri,'(a,a)') ' prepMPS: no MPS rotation requested for state ', &
+    qcm_group_names(job)%states(ist)
     return
   else
-    !> make a backup of the actual MPS
-    if (doMPSSICheckpoints) then
-      call dmrg_interface_ctl(                                              &
-                            task         = 'MPS back',                      &
-                            checkpoint1  = qcm_group_names(job)%states(ist),&
-                            stateL  = -1                                    &
-                            )
-      write(lupri,'(a,a)') ' prepMPS:    MPS rotation requested for state ', qcm_group_names(job)%states(ist)
-    else
-      call dmrg_interface_ctl(                           &
-                            task    = 'MPS back',        &
-                            state   = istate,     &
-                            stateL  = -1                 &
-                            )
-      write(lupri,'(a,i4)') ' prepMPS:    MPS rotation requested for state #',istate
-    end if
+    write(lupri,'(a,a)') ' prepMPS:    MPS rotation requested for state ', qcm_group_names(job)%states(ist)
   end if
 
   dmrg_orbital_space%nash(1:nsym) = nash(1:nsym)
@@ -135,59 +107,34 @@
     write(lupri,*) ' scaling factor for MPS (inactive orbital rotations)',fac
   end if
 
-  !> create file with info for inactive orbital rotation
-  call dmrg_interface_ctl(                          &
-                          task    = 'tra dump',     &
-                          x1      = fac,            &
-                          ndim    =  1,             &
-                          mdim    = -1,             &
-                          state   =  0,             &
-                          stateL  =  0              &
-                         )
-  !> create file(s) with info for active orbital rotation
+  dmrg_state%ms2                  = mspro
+
+  if (nsym.gt.1) stop "MPS rotation not supported with symmetry"
+
+  allocate(tmat(nash(1),nash(1)))
+  tmat = 0.0d0
+
   ista = 1
   jorb = 0
   do isym = 1, nsym
     ni = nish(isym)
     no = nosh(isym)
     do i = 1, nash(isym)
-      jorb = jorb + 1
-      call dmrg_interface_ctl(                          &
-                              task    = 'tra dump',     &
-                              x1      = tra(ista),      &
-                              ndim    = no,             &
-                              mdim    = ni,             &
-                              state   = jorb,           &
-                              stateL  = isym            &
-                             )
+      ! copy the active-active part of the rotation matrix into tmat
+      tmat(i,:) = tra(1+(no+i)*ni+nash(isym)*(i-1):(no+i)*ni+nash(isym)*i)
     end do
     ista = ista + no**2
   end do
 
-  dmrg_state%ms2                  = mspro
+  ! rotate MPS
+  call qcmaquis_mpssi_rotate(qcm_prefixes(job), &
+                             ist,               &
+                             tmat, &
+                             nash(1)**2, &
+                             fac(1,1), &
+                             mspro)
 
-  !> counterrotate MPS
-  if (doMPSSICheckpoints) then
-    if(debug_dmrg_rassi_code)then
-      write(lupri,*) ' counterrotate MPS ',qcm_group_names(job)%states(ist)
-    end if
-    call dmrg_interface_ctl(                                             &
-                          task        = 'MPS crot',                      &
-                          checkpoint1 = qcm_group_names(job)%states(ist) &
-                          )
-  else
-    if(debug_dmrg_rassi_code)then
-      write(lupri,*) ' counterrotate MPS #',istate
-    end if
-    call dmrg_interface_ctl(                           &
-                          task    = 'MPS crot',        &
-                          state   = istate             &
-                          )
-  endif
-
-  if(debug_dmrg_rassi_code)then
-    write(lupri,*) ' counterrotation done'
-  end if
+  if (allocated(tmat)) deallocate(tmat)
 
   ! Avoid unused variable warnings
   if (.false.) then

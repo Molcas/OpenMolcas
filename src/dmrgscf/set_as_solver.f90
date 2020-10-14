@@ -17,6 +17,7 @@
 #ifdef _DMRG_
   use qcmaquis_interface_cfg
 #endif
+  use rasscf_data, only: doDMRG
 
   implicit none
 ! ----------------------------------------------------------------------
@@ -125,6 +126,9 @@
   if(as_solver(1:8) == 'qcmaquis') then
 #ifdef _DMRG_
     doDMRG = .true.
+#else
+    call WarningMessage(2, "Please compile with QCMaquis support to run DMRGSCF with QCMaquis.")
+    call Quit_OnUserError()
 #endif
   end if
 

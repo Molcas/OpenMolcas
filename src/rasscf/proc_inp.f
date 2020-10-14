@@ -16,8 +16,10 @@
       use fortran_strings, only : to_upper, operator(.in.)
 #ifdef _DMRG_
 ! module dependencies
-      use qcmaquis_interface_environment, only: initialize_dmrg
       use qcmaquis_interface_cfg
+      use qcmaquis_interface, only: qcmaquis_interface_init,
+     &        remove_comment, qcmaquis_interface_set_param,
+     &        qcmaquis_interface_stdout
 #endif
       use active_space_solver_cfg
       use write_orbital_files, only: OrbFiles
@@ -60,7 +62,7 @@
 #endif
 #include "para_info.fh"
 *
-      Logical Do_OFemb,KEonly,OFE_first,l_casdft
+      Logical Do_OFemb,KEonly,OFE_first
       COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
       Character*16  OFE_KSDFT
       COMMON  / OFembed_C / OFE_KSDFT
@@ -120,9 +122,10 @@
       External Get_ExFac
       Character*100 ProgName, Get_SuperName
       External Get_SuperName
-      Character*72 ReadStatus
+      Character*72 ReadStatus, ProjectName
       Character*72 JobTit(mxTit)
       Character*256 myTitle
+      Character*256 CurrDir
       Character*8 MaxLab
       Logical, External :: Is_First_Iter
       Dimension Dummy(1)
@@ -137,7 +140,6 @@
 !     dmrg(QCMaquis)-stuff
       integer              :: LRras2_dmrg(8)
       integer, allocatable :: initial_occ(:,:)
-      logical              :: ifverbose_dmrg,ifdo_dmrg
       character(len=20)    :: guess_dmrg
 !     dmrg(QCMaquis)-stuff
 #endif
@@ -152,7 +154,6 @@ C   No changing about read in orbital information from INPORB yet.
 #ifdef _DMRG
 * Leon: Prepare 4-RDM calculations for (CD)-DMRG-NEVPT2 at the end of the calculation
       DoNEVPT2Prep = .FALSE.
-      DoEvaluateRDM = .FALSE.
 !     If this is set to 0, MPS compression is disabled
       MPSCompressM = 0
 #endif
@@ -200,10 +201,6 @@ C   No changing about read in orbital information from INPORB yet.
 *   QCMaquis flags
 * ======================================================================
       dofcidump      =   .false.
-#ifdef _DMRG_
-      ifdo_dmrg      =   doDMRG
-      ifverbose_dmrg =   .false.
-#endif
 
 * ======================================================================
 
@@ -2734,6 +2731,9 @@ c       write(6,*)          '  --------------------------------------'
       If (KeyFCID) Then
 !      activate the DMRG interface in RASSCF (dummy here since we stop after FCIDUMP)
        DOFCIDUMP = .true.
+#ifdef _DMRG_
+       doDMRG = .true.
+#endif
        if(.not.KeyDMRG) KeyDMRG = .true.
        Call SetPos(LUInput,'FCID',Line,iRc)
        Call ChkIfKey()
@@ -2750,7 +2750,7 @@ c       write(6,*)          '  --------------------------------------'
           Call ChkIfKey()
         end if
         !> DMRG flag
-        ifdo_dmrg=.true.
+        doDMRG=.true.
         LRras2_dmrg(1:8) = 0
         !> LRras2 = Ras2 as the default
         do i=1,nsym
@@ -2759,10 +2759,6 @@ c       write(6,*)          '  --------------------------------------'
         !> initial guess setup
         guess_dmrg(1:7) = 'DEFAULT'
         call mma_allocate(initial_occ,nrs2t,nroots); initial_occ = 0
-        !> debug output
-#ifdef _DMRG_DEBUGPRINT_
-        ifverbose_dmrg = .true.
-#endif
       end if
 *
 *---  Process RGIN command (QCMaquis Custom Input) --------------------*
@@ -2822,7 +2818,8 @@ c       write(6,*)          '  --------------------------------------'
         Line=Get_Ln(LUInput)
         call UpCase(Line)
         If (Index(Line,'EVRD').ne.0) then
-          DoEvaluateRDM = .TRUE.
+         Call WarningMessage(2,'Warning,EvRDM keyword is deprecated.')
+         Write(6,*) ('RDM evaluation is done in NEVPT2 module now')
         end if
 
 #else
@@ -3202,35 +3199,57 @@ C Test read failed. JOBOLD cannot be used.
      &    KSDFT.ne.'SCF'     )
      &    Call IniSew(DSCF.or.Langevin_On().or.PCM_On(),nDiff)
 * ===============================================================
+#ifdef _DMRG_
+      domcpdftDMRG = l_casdft .and. doDMRG
+      twordm_qcm = domcpdftDMRG.or.(.not.KeyCION)
+#endif
 
       ! Setup part for DMRG calculations
 #ifdef _DMRG_
       if(keyDMRG .or. doDMRG)then
-        call initialize_dmrg(
-     &!>>>>>>>>>>>>>>>>>>>>>>>>>>>>   DMRGSCF wave function    <<<<<<<<<<<<<<<<<<<<<<<<<!
-     &           nsym,              ! Number of irreps
-     &           lsym,              !    Target irreps            DEFAULT:       1
-     &           nactel,            ! Number of electrons
-     &           ispin,             ! Multiple                    DEFAULT: singlet(1)
-     &           nroots,            ! Number of roots             DEFAULT:       1
-     &           lroots,            ! Max   roots                 DEFAULT:       1
-     &           iroot,             ! Target root                 DEFALUT:       1
-     &           nrs2,              ! RAS2 (active) orbitals      DEFALUT:   All 0
-     &           LRras2_dmrg,       ! RAS2 for LR (SA gradient)   DEFALUT:   All 0
-     &           NRS2T,             ! Number of RAS2 orbitals     DEFAULT:       0
-     &           weight,            ! Root Weight
-     &           THRE,              ! Threshold for energy        DEFAULT:   1e-08
-     &!>>>>>>>>>>>>>>>>>>>>>>>>>>>>   DMRG start options       <<<<<<<<<<<<<<<<<<<<<<<<<<!
-     &           ifdo_dmrg,         ! Logical DMRG                DEFAULT:   .FALSE.
-     &           guess_dmrg,        ! Initial guess               DEFALUT:  "Default"         (-> CI_DEAS)
-     &           initial_occ
-     &!>>>>>>>>>>>>>>>>>>>>>>>>>>>>   MPI options              <<<<<<<<<<<<<<<<<<<<<<<<<<!
+      call getenv("Project", ProjectName)
+      call getenv("CurrDir", CurrDir)
+      ! Initialize the new interface
+
+        call qcmaquis_interface_init(
+     &    nactel,
+     &    sum(nrs2),
+     &    ispin-1, ! in QCMaquis spins start with 0
+     &    lsym-1, ! in QCMaquis irreps start with 0
+     &    nsym,
+     &    nrs2,
+     &    qcmaquis_param%conv_thresh,
+     &    qcmaquis_param%M,
+     &    qcmaquis_param%num_sweeps,
+     &    trim(CurrDir)//"/"//trim(ProjectName),
+     &    twordm_qcm,
+     &    nroots,
+     &    lroots,
+     &    iroot,
+     &    thre,
+     &    weight,
 #ifdef _MOLCAS_MPP_
-     &          ,nprocs,
-     &           myrank
+     &    nprocs,
+     &    myrank,
 #endif
-     &!>>>>>>>>>>>>><<>>>>>>>>>>>>>   Developer options        <<<<<<<<<<<<<<<<<<<<<<<<<<!
-     &           )
+     &    initial_occ)
+       ! TODO: Support sweep_bond_dimension!
+       ! This is an optional parameter to qcmaquis_interface_init not used here yet
+       ! For now, it is set by the following qcmaquis_interface_set_param
+
+        ! Read in the parameters
+        ! Loop over the lines of qcmaquis input, ignore the comments
+        do ii = 1, size(dmrg_input%qcmaquis_input)/2
+            ij = 2*ii
+            call remove_comment(dmrg_input%qcmaquis_input(ij-1), "//")
+            call remove_comment(dmrg_input%qcmaquis_input(ij), "//")
+
+            call qcmaquis_interface_set_param(
+     &               trim(dmrg_input%qcmaquis_input(ij-1)),
+     &               trim(dmrg_input%qcmaquis_input(ij)))
+        end do
+
+      call qcmaquis_interface_stdout(trim(ProjectName)//".QCMaquis.log")
       end if
 #endif
 *

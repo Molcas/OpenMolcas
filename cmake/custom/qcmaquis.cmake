@@ -26,4 +26,6 @@ if(NOT MAQUIS_DMRG_FOUND)
   message(STATUS "QCMaquis DMRG not found. A pre-packaged version will be built.")
 else()
   message(STATUS "Existing version of QCMaquis found at ${QCMaquis_ROOT}\n   which will be used. Remember to set all environment variables (PATH, LD_LIBRARY_PATH, ...) correctly.\n   HINT: use `source ${QCMaquis_ROOT}/bin/qcmaquis.sh`")
+  add_library(qcmaquis-suite ALIAS maquis_dmrg)
 endif()
+

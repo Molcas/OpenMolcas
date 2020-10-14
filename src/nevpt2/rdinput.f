@@ -68,6 +68,8 @@ c
       If (Line(1:4).eq.'NOMS') Goto 5000
       If (Line(1:4).eq.'MULT') Goto 6000
       If (Line(1:4).eq.'FILE') Goto 7000
+      If (Line(1:4).eq.'RDMR') Goto 8000
+      If (Line(1:4).eq.'DIST') Goto 9000
       If (Line(1:4).eq.'END ') Go To 99999
       Write (6,*) 'Unidentified key word  : '
       Call FindErrorLine
@@ -194,9 +196,28 @@ c
       call fileorb(Line,refwfnfile)
 !     Read(Line,*,Err=9920,End=9920) refwfnfile
       Go To 999
-c
-c END of Input
-c
+*========= RDMR ============= a.k.a. RDMRead
+! Skip calculation of 4-RDM and/or transition 3-RDMs at the beginning of the calculation
+! This is useful only for single-file reading, e.g. when your previous calculation has crashed
+! and you do not wish to recalculate the full 4-RDM again.
+! For distributed RDM calculations see option below
+ 8000 Continue
+      rdm_read = .true.
+      Go To 999
+*========= DIST ============= a.k.a. DistributedRDM
+! Skip calculation of RDMs *and* read them from distributed RDM calculation
+! Specify a path, where the program will look for subdirectories
+! of the format "A-B-C-D", where A,B,C,D are the first four indices of the 4-RDM to be calculated
+! Each subdirectory should contain the results of a single calculation in a batch
+ 9000 Continue
+      rdm_distributed = .true.
+      If(.NOT.next_non_comment(LuSpool,Line)) GoTo 9910
+      Read(Line,'(A)') key
+      rdm_path = trim(key)
+      Go To 999
+!
+! END of Input
+!
 
 9910  Continue
       Call WarningMessage(2,'Premature end of input file.')

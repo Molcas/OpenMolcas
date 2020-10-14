@@ -12,14 +12,11 @@
 !***********************************************************************
   subroutine dmrgscf(iReturn)
 
-#ifdef _DMRG_
-  use qcmaquis_interface_cfg
-#endif
+  use rasscf_data, only: doDMRG
   implicit none
 
   integer, intent(inout) :: iReturn
 ! ----------------------------------------------------------------------
-
   !> set DMRG driver as active space solver
   call set_as_solver()
 

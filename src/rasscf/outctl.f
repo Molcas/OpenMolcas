@@ -29,7 +29,7 @@
 #ifdef _DMRG_
 !     module dependencies
       use qcmaquis_interface_cfg
-      use qcmaquis_interface_environment, only: print_dmrg_info
+      use qcmaquis_interface_utility_routines, only: print_dmrg_info
 #endif
 
       Implicit Real*8 (A-H,O-Z)

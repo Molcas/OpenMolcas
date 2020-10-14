@@ -38,7 +38,7 @@
 
       use rasscf_data, only : iToc, name, header, title, lRoots, nRoots,
      &  iRoot, LENIN8, mXORB, mxTit, mXroot, iPt2, Weight, iOrbTyp,
-     &  FDiag, E2Act, mxiter, maxorbout
+     &  FDiag, E2Act, mxiter, maxorbout, doDMRG
       use general_data, only : nActel, iSpin, lSym, mXSym,
      &  nFro, nIsh, nAsh, nDel, nBas, nRs1, nRs2, nRs3, nHole1, nElec3,
      &  nTot, nTot2, nConf
@@ -56,9 +56,7 @@
 
       character(len=80) :: VecTyp
       character(len=128) :: Filename
-#ifndef _DMRG_
-      logical :: doDMRG = .false.
-#endif
+
       interface
         integer function isfreeunit(iseed)
           integer, intent(in) :: iseed

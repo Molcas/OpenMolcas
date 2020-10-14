@@ -137,6 +137,9 @@
       call mh5_put_dset(wfn_supsym, IXSYM)
 
 *     CI data for each root
+#ifdef _DMRG_
+      if (.not.doDMRG) then
+#endif
       wfn_cicoef = mh5_create_dset_real(wfn_fileid,
      $        'CI_VECTORS', 2, [nConf, lRoots])
       call mh5_init_attr(wfn_cicoef, 'description',
@@ -144,6 +147,9 @@
      $        'in Split-GUGA ordering, size [NCONF] '//
      $        'for each root in NROOTS: [NROOTS,NCONF].')
 
+#ifdef _DMRG_
+      end if
+#endif
 *     density matrices for each root
       wfn_dens = mh5_create_dset_real (wfn_fileid,
      $        'DENSITY_MATRIX', 3, [NAC, NAC, lRoots])

@@ -4,7 +4,7 @@
 * Symmetry: C1
 * Features tested: MPS-SI (spin-orbit coupling in RASSI)
 * Responsible person: S. Knecht
-* Comments: Simple test of MPS-SI for triplet/singlet state of methylen
+* Comments: Simple test of MPS-SI for triplet/singlet state of methylene
 *-------------------------------------------------------------------------------
 
 >> RM -FORCE TEST_QCMAQUIS
@@ -43,7 +43,7 @@ EndOOptimizationSettings
 >> COPY $Project.JobIph JOBOLD
 >> COPY $Project.dmrgscf.h5 $Project.trip.h5
 >> EXEC mv $CurrDir/$Project.checkpoint_state.0.h5 $CurrDir/$Project.trip.checkpoint_state.0.h5
->> EXEC $MOLCAS/pytools/qcm_checkpoint_rename.py $Project.trip.h5 -q
+>> EXEC $MOLCAS/Tools/qcmaquis/qcm_checkpoint_rename.py $Project.trip.h5 -q
   &DMRGSCF
 ActiveSpaceOptimizer=QCMaquis
 DMRGSettings
@@ -59,7 +59,7 @@ JobIph
 EndOOptimizationSettings
 >> COPY $Project.dmrgscf.h5 $Project.sing.h5
 >> EXEC mv $CurrDir/$Project.checkpoint_state.0.h5 $CurrDir/$Project.sing.checkpoint_state.0.h5
->> EXEC $MOLCAS/pytools/qcm_checkpoint_rename.py $Project.sing.h5 -q
+>> EXEC $MOLCAS/Tools/qcmaquis/qcm_checkpoint_rename.py $Project.sing.h5 -q
 &MPSSI
 Nrof
 2 1 1

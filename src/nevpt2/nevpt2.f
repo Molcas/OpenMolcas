@@ -37,6 +37,12 @@
 
         character(len=256):: refwfnfile
 
+#ifdef _MOLCAS_MPP_
+        ! Make sure we run single-threaded in an MPI environment
+        logical, external :: King
+
+        IF (KING()) then
+#endif
         !> initialize
         refwfnfile = ''
 
@@ -84,6 +90,8 @@
 
         !> clean up and free memory
         call pt2close
-
+#ifdef _MOLCAS_MPP_
+        endif
+#endif
         iReturn = 0
       end subroutine nevpt2

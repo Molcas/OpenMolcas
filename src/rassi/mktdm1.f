@@ -16,15 +16,19 @@
       !> module dependencies
 #ifdef _DMRG_
       use rassi_global_arrays, only: LROOT
+      use rasscf_data, only: doDMRG
       use qcmaquis_interface_cfg
-      use qcmaquis_interface_wrapper
       use qcmaquis_interface_utility_routines, only:
      &    pretty_print_util
       use qcmaquis_info
+      use qcmaquis_interface_mpssi
 #endif
 
       IMPLICIT NONE
       INTEGER LSYM1,MPLET1,MSPROJ1,LSYM2,MPLET2,MSPROJ2
+#ifdef _DMRG_
+      Real*8, Allocatable:: TDMAA(:), TDMBB(:)
+#endif
       INTEGER IFSBTAB1(*),IFSBTAB2(*),ISSTAB(*),MAPORB(*)
       INTEGER IORB,ISORB,ISYOP,ITABS,IUABS,JORB,JSORB,LORBTB
       INTEGER MS2OP,NASHT,NASORB,NSPD1
@@ -74,44 +78,12 @@ C Overlap:
 
 #ifdef _DMRG_
         else
-          if (doMPSSICheckpoints) then
-            if (dmrg_external%MPSrotated) then
-              write(mplet1s,'(I3)')  MPLET1-1
-              write(msproj1s,'(I3)')  MSPROJ1
-
-              checkpoint1_2u1 = qcm_group_names(job1)%states(ist)
-     &(1:len_trim(qcm_group_names(job1)%states(ist))-3)
-     &//"."//trim(adjustl(mplet1s))//"."//trim(adjustl(msproj1s))//".h5"
-              checkpoint2_2u1 = qcm_group_names(job2)%states(jst)
-     &(1:len_trim(qcm_group_names(job2)%states(jst))-3)
-     &//"."//trim(adjustl(mplet1s))//"."//trim(adjustl(msproj1s))//".h5"
-
-              call dmrg_interface_ctl(
-     &                            task        = 'overlapU',
-     &                            energy      = sij,
-     &                            checkpoint1 = checkpoint1_2u1,
-     &                            checkpoint2 = checkpoint2_2u1
-     &                           )
-            else
-              call dmrg_interface_ctl(
-     &                            task   = 'overlap ',
-     &                            energy = sij,
-     &                            checkpoint1 =
-     &                            qcm_group_names(job1)%states(ist),
-     &                            checkpoint2 =
-     &                            qcm_group_names(job2)%states(jst)
-     &                           )
-            end if
-          else
-          ! Leon: TODO: Add possibility to calculate overlap of rotated MPS without using checkpoint names
-            call dmrg_interface_ctl(
-     &                            task   = 'overlap ',
-     &                            energy = sij,
-     &                            state  = LROOT(istate),
-     &                            stateL = LROOT(jstate)
-     &                           )
-          end if
-
+            sij = qcmaquis_mpssi_overlap(
+     &         qcm_prefixes(job1),
+     &         ist,
+     &         qcm_prefixes(job2),
+     &         jst,
+     &         .true.)
         end if ! DMRG or not
 
 
@@ -124,8 +96,23 @@ C Overlap:
 
 C General 1-particle transition density matrix:
       NSPD1=NASORB**2
-      Call mma_allocate(SPD1,nSPD1,Label='SPD1')
-      SPD1(:)=0.0D0
+#ifdef _DMRG_
+      if (.not.doDMRG) then
+#endif
+        Call mma_allocate(SPD1,nSPD1,Label='SPD1')
+        SPD1(:)=0.0D0
+#ifdef _DMRG_
+      else
+        ! For DMRG, we only need the AA and BB spin components
+        ! Let's allocate two different arrays for them because that's
+        ! easier for the new QCMaquis interface
+        NSPD1=NASHT**2
+        Call mma_allocate(TDMAA,nSPD1,Label='TDMAA')
+        Call mma_allocate(TDMBB,nSPD1,Label='TDMBB')
+        TDMAA(:)=0.0D0
+        TDMBB(:)=0.0D0
+      end if
+#endif
       ISYOP = MUL(LSYM1,LSYM2)
       MS2OP = MSPROJ1-MSPROJ2
 
@@ -143,49 +130,37 @@ C General 1-particle transition density matrix:
         else
           if(isyop /= 1)
      & stop 'MPS property density with spatial symm irrep > 1: FIXME!'
-          if (doMPSSICheckpoints) then
-            call dmrg_interface_ctl(
-     &                            task       = 'imp rdmY',
-     &                            x1         = spd1,
-     &                            ndim       = nasorb,
-     &                            checkpoint1=
-     &                            qcm_group_names(job1)%states(ist),
-     &                            checkpoint2=
-     &                            qcm_group_names(job2)%states(jst),
-     &                            msproj     = msproj1,
-     &                            msprojL    = msproj2,
-     &                            multiplet  = MPLET1-1, ! (MPLET1 == 2*S+1) and we need 2*S
-     &                            multipletL = MPLET2-1, ! (MPLET2 == 2*S+1) and we need 2*S
-     &                            rdm1       = .true.,
-     &                            rdm2       = .false.
-     &                           )
-          else
-            call dmrg_interface_ctl(
-     &                            task       = 'imp rdmY',
-     &                            x1         = spd1,
-     &                            ndim       = nasorb,
-     &                            state      = LROOT(istate),
-     &                            stateL     = LROOT(jstate),
-     &                            msproj     = msproj1,
-     &                            msprojL    = msproj2,
-     &                            multiplet  = MPLET1-1, ! (MPLET1 == 2*S+1) and we need 2*S
-     &                            multipletL = MPLET2-1, ! (MPLET2 == 2*S+1) and we need 2*S
-     &                            rdm1       = .true.,
-     &                            rdm2       = .false.
-     &                           )
-          end if
-        end if
-#endif
+          ! calculate 1-TDMs: Must always be calculated with the higher multiplicity as <T|o|S>
+          ! where T always has a higher multiplicity than S
 
-#ifdef _DMRG_
+          if (MPLET1.lt.MPLET2) then
+            call qcmaquis_mpssi_get_onetdm_spin(
+     &             qcm_prefixes(job2),
+     &             jst,
+     &             qcm_prefixes(job1),
+     &             ist,
+     &             TDMAA,
+     &             TDMBB,
+     &             NSPD1)
+          else
+            call qcmaquis_mpssi_get_onetdm_spin(
+     &             qcm_prefixes(job1),
+     &             ist,
+     &             qcm_prefixes(job2),
+     &             jst,
+     &             TDMAA,
+     &             TDMBB,
+     &             NSPD1)
+          end if
+
         if(debug_dmrg_rassi_code)then
           write(6,*) 'density for i, j',istate,jstate
           write(6,*) 'dimension: ',nasorb**2, '--> #nact', nasorb
           call pretty_print_util(SPD1,1,nasorb,1,nasorb,
      &                           nasorb,nasorb,1,6)
         end if
+      end if
 #endif
-
       END IF
 C Create a scalar, and an WE-reduced spin, transition density matrix.
 C The scalar matrix is simply the usual spin-summed density matrix.
@@ -202,10 +177,23 @@ C   FACT=(-1)**(MAX(S1,S2)-S1)/SQRT(2*S1+1)
        ISORB=2*IORB-1
        DO JORB=1,NASHT
         JSORB=2*JORB-1
-        GAA=SPD1(0+ISORB+NASORB*(JSORB-1))
-        GAB=SPD1(0+ISORB+NASORB*(JSORB  ))
-        GBA=SPD1(1+ISORB+NASORB*(JSORB-1))
-        GBB=SPD1(1+ISORB+NASORB*(JSORB  ))
+#ifdef _DMRG_
+        if (.not.doDMRG) then
+#endif
+          GAA=SPD1(0+ISORB+NASORB*(JSORB-1))
+          GAB=SPD1(0+ISORB+NASORB*(JSORB  ))
+          GBA=SPD1(1+ISORB+NASORB*(JSORB-1))
+          GBB=SPD1(1+ISORB+NASORB*(JSORB  ))
+#ifdef _DMRG_
+        else
+          GAA=TDMAA(JORB+NASHT*(IORB-1))
+          GBB=TDMBB(JORB+NASHT*(IORB-1))
+          ! transpose from row-major order,
+          ! as it comes from C++ this way
+          GAB=0.0D0
+          GBA=0.0D0
+        end if
+#endif
 
 C Position determined by active orbital index in external order:
         ITABS=MAPORB(ISORB)
@@ -284,7 +272,16 @@ c Avoid unused argument warnings
       END IF
 #endif
 
+#ifdef _DMRG_
+      if (.not.doDMRG) then
+#endif
       CALL mma_deallocate(SPD1)
 
+#ifdef _DMRG_
+      else
+        call mma_deallocate(TDMAA)
+        call mma_deallocate(TDMBB)
+      end if
+#endif
       RETURN
       END

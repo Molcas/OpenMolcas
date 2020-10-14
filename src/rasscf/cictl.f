@@ -52,19 +52,21 @@
 * ****************************************************************
 #ifdef _DMRG_
 !     module dependencies
+      use qcmaquis_interface
       use qcmaquis_interface_cfg
-      use qcmaquis_interface_wrapper
-      use qcmaquis_interface_main, only: file_name_generator
+      use qcmaquis_interface_utility_routines,
+     &     only: fiedlerorder_length, file_name_generator,
+     &           qcmaquis_interface_fcidump
 #endif
 
       Implicit Real* 8 (A-H,O-Z)
 
       Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),
      &          TUVX(*)
-      Logical Exist,Do_ESPF,l_casdft
+      Logical Exist,Do_ESPF
 *JB   variables for state rotation on final states
       Logical do_rotate
-*JB   end of variables for state rotation calculation
+      Logical PCM_On ! function defined in misc_util/pcm_on.f
 
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -91,13 +93,18 @@
 #endif
       Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
 
-#ifndef _DMRG_
-      logical :: doDMRG = .false.
-#else
+#ifdef _DMRG_
       character(len=2300) :: maquis_name_states
       character(len=2300) :: maquis_name_results
       logical             :: rfh5DMRG
-      logical             :: twordm_qcm
+      ! check if we calculate entanglement and spin density
+      ! we do it only in the last iteration
+      logical             :: doEntanglement
+      character(len=:), allocatable :: fiedler_order_str
+
+      ! arrays for 1- and 2-RDMs and spin-1-RDMs, size: nrdm x nroots
+      real*8, allocatable :: d1all(:,:), d2all(:,:), spd1all(:,:)
+c #include "nevptp.fh"
 #endif
       Dimension rdum(1)
 
@@ -156,26 +163,28 @@ C Local print level (if any)
       END IF
       Call DecideOnESPF(Do_ESPF)
 
-*                                                                      *
-************************************************************************
-* Global variable for MCPDFT functionals                               *
-      l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
-     &           KSDFT(1:6).eq.'TLSDA5'  .or.
-     &           KSDFT(1:5).eq.'TBLYP'   .or.
-     &           KSDFT(1:6).eq.'TSSBSW'  .or.
-     &           KSDFT(1:5).eq.'TSSBD'  .or.
-     &           KSDFT(1:5).eq.'TS12G'  .or.
-     &           KSDFT(1:4).eq.'TPBE'    .or.
-     &           KSDFT(1:5).eq.'FTPBE'   .or.
-     &           KSDFT(1:5).eq.'TOPBE'    .or.
-     &           KSDFT(1:6).eq.'FTOPBE'   .or.
-     &           KSDFT(1:7).eq.'TREVPBE' .or.
-     &           KSDFT(1:8).eq.'FTREVPBE'.or.
-     &           KSDFT(1:6).eq.'FTLSDA'  .or.
-     &           KSDFT(1:6).eq.'FTBLYP'
-*                                                                      *
-************************************************************************
-*                                                                      *
+! initialize RDM arrays for QCMaquis
+#ifdef _DMRG_
+      if (doDMRG) then
+        ! Calculate entanglement and spin densities
+        ! only in the last iteration
+        ! i.e. only for IFINAL.eq.2 if we do DMRG-SCF
+        ! otherwise always
+        doEntanglement = merge(.true.,IFINAL.eq.2,KeyCION)
+
+        call mma_allocate(d1all, NACPAR, lRoots)
+        d1all = 0.0d0
+        if (twordm_qcm) then
+          call mma_allocate(d2all, NACPR2, lRoots)
+          d2all = 0.0d0
+        end if
+        ! Allocate spin density only for the last iteration
+        if(doEntanglement) then
+          call mma_allocate(spd1all, NACPAR, lRoots)
+          spd1all = 0.0d0
+        end if
+      end if
+#endif
 
       If ( lRf .or. KSDFT.ne.'SCF' .or. Do_ESPF) THEN
 *
@@ -270,26 +279,18 @@ C Local print level (if any)
 
                 if(doDMRG)then
 #ifdef _DMRG_
-                call dmrg_interface_ctl(
-     &                                  task  = 'imp rdmX',
-     &                                  x1    = work(lw6:lw6+NACPAR-1),
-     &                                  x2    = work(lw8:lw8+NACPR2-1),
-     &                                  ndim  = nacpar,
-     &                                  mdim  = nacpr2,
-     &                                  state = ipcmroot,
-     &                                  rdm1  = .true.,
-     &                                  rdm2  = (.not.KeyCION)
-     &                                 )
+                ! copy the DMs from d1rf/d2rf for ipcmroot
+                call dcopy_(NACPAR,work(lw_rf1),1,work(lw6),1)
+                if (twordm_qcm) then
+                  call dcopy_(NACPR2,work(lw_rf2),1,work(lw8),1)
+                end if
 
+                ! Import RDMs from QCMaquis that we've got from the last optimization
                 !> import 1p-spin density
+                ! Temporarily disable spin density here: spin density is calculated
+                ! only once at the end of DMRG-SCF optimisation. If you need it at every
+                ! iteration for some reason, please change this code accordingly
                 call dcopy_(NACPAR,[0.0D0],0,work(lw7),1)
-                call dmrg_interface_ctl(
-     &                                  task  = 'imp spdX',
-     &                                  x1    = work(lw7:lw7+NACPAR-1),
-     &                                  ndim  = nacpar,
-     &                                  state = ipcmroot,
-     &                                  rdm1  = .true.
-     &                                 )
 #endif
                else
                  Call GetMem('PAtmp','ALLO','REAL',LW9,NACPR2)
@@ -368,18 +369,53 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 *
       END IF
 
-!     stknecht: the core fock matrix (pointer lw1)
-!               total core energy (emy) as output of sgfcin
-!     task: write the FCIDUMP file
       if(doDMRG)then
 #ifdef _DMRG_
-        call dmrg_interface_ctl(
-     &                          task   = 'fci dump',
-     &                          x1     = work(lw1),
-     &                          x2     = tuvx,
-     &                          energy = emy
-     &                         )
+        ! update integrals for QCMaquis
+
+        call qcmaquis_interface_update_integrals(work(lw1),tuvx,emy)
+
+        !!! Fiedler order/CI-DEAS run
+        if (dmrg_warmup%dofiedler.or.dmrg_warmup%docideas) then
+        ! allocate string where Fiedler ordering will be returned with the correct length
+          ilen = fiedlerorder_length(qcmaquis_param%L)
+          allocate(character(len=ilen) :: fiedler_order_str)
+          fiedler_order_str(:) = ' '
+
+
+        ! if HF guess is present, use it (required for CI-DEAS)
+        ! If not, error handling should be done in QCMaquis
+          if(sum(dmrg_orbital_space%initial_occ) > 0)then
+              call qcmaquis_interface_run_starting_guess(nRoots,
+     &     dmrg_warmup%dofiedler,
+     &     dmrg_warmup%docideas,
+     &     fiedler_order_str,
+           ! pass the HF occupation as 1D array to QCMaquis
+     &     reshape(dmrg_orbital_space%initial_occ,
+     &          (/1, sum(nash)*nroots/)))
+          else
+            call qcmaquis_interface_run_starting_guess(nRoots,
+     &       dmrg_warmup%dofiedler,
+     &       dmrg_warmup%docideas,
+     &       fiedler_order_str)
+          endif
+
+          if (dmrg_warmup%dofiedler)
+     &      call qcmaquis_interface_set_param("orbital_order",
+     &      fiedler_order_str)
+            write (6,*) "Fiedler orbital ordering: "//fiedler_order_str
+
+          dmrg_warmup%dofiedler = .false.
+          dmrg_warmup%docideas = .false.
+          if(allocated(fiedler_order_str)) deallocate(fiedler_order_str)
+        end if
         if(dofcidump)then
+          ! Produce a FCIDUMP file
+          ! TODO:
+          ! We already have the fcidump module in rasscf, which is called elsewhere
+          ! so ensure the compatibility of the FCIDUMP files produced by this module
+          ! and remove the code below
+          call qcmaquis_interface_fcidump(work(lw1),tuvx,emy)
           CALL GETMEM('CICTL1','FREE','REAL',LW1,NACPAR)
           goto 9000
         end if
@@ -461,20 +497,45 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
            end if
          end if
          if(.not.DoSplitCAS) then
-! Call DMRG staff in Molcas - yingjin
+
            if(doDMRG)then
 #ifdef _DMRG_
-                                                  twordm_qcm = .true.
-             if(KeyCION .and. .not. domcpdftDMRG) twordm_qcm = .false.
-             call dmrg_interface_ctl(
-     &                               task = 'run DMRG',
-     &                               Key_CION = .not.twordm_qcm,
-     &                               IterSCF  = Iter
-     &                              )
+             ! Get also spin density at the last iteration
+             ! Please help me call it more cleanly than with these if clauses
+             ! and different optional arguments
+             if (doEntanglement) then
+               if (twordm_qcm) then
+                 call qcmaquis_interface_run_dmrg(nstates=lroots,
+     &             d1=d1all, d2=d2all, spd=spd1all,
+     &             entanglement=doEntanglement)
+               else
+                 call qcmaquis_interface_run_dmrg(nstates=lroots,
+     &             d1=d1all, spd=spd1all, entanglement=doEntanglement)
+               end if
+             else
+               if (twordm_qcm) then
+                 call qcmaquis_interface_run_dmrg(nstates=lroots,
+     &             d1=d1all, d2=d2all, entanglement=doEntanglement)
+               else
+                 call qcmaquis_interface_run_dmrg(nstates=lroots,
+     &               d1=d1all, entanglement=doEntanglement)
+               end if
+             end if
+
+             ! For PCM calculations: copy RDMs for the PCM root
+             if (PCM_On()) then
+               call dcopy_(NACPAR,d1all(:,ipcmroot),1,work(lw_rf1),1)
+               if (twordm_qcm) then
+                 call dcopy_(NACPR2,d2all(:,ipcmroot),1,work(lw_rf2),1)
+               end if
+             end if
 ! Keep the root energies
              Do jRoot = 1,lRoots
                 ENER(jRoot,ITER)=dmrg_energy%dmrg_state_specific(jroot)
              End Do
+! The new QCMaquis interface requires that the density matrices are calculated immediately after the DMRG run
+! So we either need to keep them all in memory, or move the saving routines up here.
+! The 2nd option requires code refactoring, so for now we keep them all in memory.
 #endif
            else
 ! Normal Davidson algorithm
@@ -568,31 +629,22 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
 ! 1,2-RDMs importing from DMRG calculation -- Stefan/Yingjin
          if(doDMRG)then
 #ifdef _DMRG_
-           call dmrg_interface_ctl(
-     &                             task  = 'imp rdmX',
-     &                             x1    = work(lw6:lw6+NACPAR-1),
-     &                             x2    = work(lw8:lw8+NACPR2-1),
-     &                             ndim  = nacpar,
-     &                             mdim  = nacpr2,
-     &                             state = jroot,
-     &                             rdm1  = .true.,
-     &                             rdm2  = twordm_qcm
-     &                            )
+          ! for QCMaquis, just copy the RDMs
+          ! actually, copying is not needed! TODO
+          call dcopy_(NACPAR,d1all(:,jroot),1,work(lw6),1)
+          if (twordm_qcm) then
+            call dcopy_(NACPR2,d2all(:,jroot),1,work(lw8),1)
+          end if
 
            !> import 1p-spin density
-           call dcopy_(NACPAR,[0.0D0],0,work(lw7),1)
-           call dmrg_interface_ctl(
-     &                             task  = 'imp spdX',
-     &                             x1    = work(lw7:lw7+NACPAR-1),
-     &                             ndim  = nacpar,
-     &                             state = jroot,
-     &                             rdm1  = .true.
-     &                            )
-#ifdef _DMRG_DEBUGPRINT_
-           write(6,*)"==============================================="
-           write(6,*)"  Set all elems in anti-symmetric 2-RDM to zero"
-           write(6,*)"==============================================="
-#endif
+           ! disable spin density if not in the last iteration
+           if (doEntanglement) then
+             call dcopy_(NACPAR,spd1all(:,jroot),1,work(lw7),1)
+           else
+             call dcopy_(NACPAR,[0.0D0],0,work(lw7),1)
+           end if
+
+           ! disable antisymmetric 2-RDM
            call dcopy_(NACPR2,[0.0D0],0,work(lw9),1)
 
            IF ( IPRLEV.GE.INSANE  ) THEN
@@ -750,7 +802,6 @@ c
         Do i = 1,lRoots
           jDisk=iDisk
 * load back one CI vector at the time
-*          Call DDafile(JOBIPH,2,Work(LW4),nConf,iDisk)
            Call DDafile(JOBIPH,2,Work(LW4),nConf,iDisk)
           IF (IPRLEV.GE.DEBUG) THEN
            call DVcPrt('CI-Vec in CICTL last cycle',' ',
@@ -865,6 +916,13 @@ C.. printout of the wave function
 #ifdef _DMRG_
           call mh5_put_dset_array_str
      &         (wfn_dmrg_checkpoint,dmrg_file%qcmaquis_checkpoint_file)
+      if (doDMRG) then
+        call mma_deallocate(d1all)
+        if(twordm_qcm) call mma_deallocate(d2all)
+        if(doEntanglement) then
+          if(allocated(spd1all)) call mma_deallocate(spd1all)
+        end if
+      end if
 #endif
 
       CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)
@@ -919,9 +977,9 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
             maquis_name_states  = ""
             maquis_name_results = ""
             call file_name_generator(IPCMROOT-1,"checkpoint_state.",
-     &                               17,".h5",3,maquis_name_states)
+     &                               ".h5",maquis_name_states)
             call file_name_generator(IPCMROOT-1,"results_state.",
-     &                               14,".h5",3,maquis_name_results)
+     &                               ".h5",maquis_name_results)
 
           !> copy current target wave function to local wave function
             call systemf(
@@ -941,13 +999,8 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
 
            if(doDMRG)then
 #ifdef _DMRG_
-             overlap = 0.0d0
-             call dmrg_interface_ctl(
-     &                               task   = 'overlapR',
-     &                               energy = overlap,
-     &                               stateL = -1
-     &                              )
-             rnorm = sqrt(overlap)
+             ! Here we calculated the state with itself so shouldn't it be 1?
+             overlap = 1.0d0
 #endif
            else
              Call Get_dArray("RF CASSCF Vector",Work(ipRF),nConf)
@@ -963,11 +1016,7 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
                  if(doDMRG)then
 #ifdef _DMRG_
                    overlap = 0.0d0
-                   call dmrg_interface_ctl(
-     &                                     task   = 'overlapR',
-     &                                     energy = overlap,
-     &                                     stateL = i
-     &                                    )
+                   overlap = qcmaquis_interface_get_overlap(i)
                    qmax = abs(overlap)
 #endif
                  else
@@ -999,14 +1048,9 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
           maquis_name_states  = ""
           maquis_name_results = ""
           call file_name_generator(IPCMROOT-1,"checkpoint_state.",
-     &                             17,".h5",3,maquis_name_states)
+     &                             ".h5",maquis_name_states)
           call file_name_generator(IPCMROOT-1,"results_state.",
-     &                             14,".h5",3,maquis_name_results)
-
-!         print *, 'my string: ',
-!    & "cp -f "//trim(maquis_name_results)//" rf.results_state.h5 && "//
-!    & "rm -rf rf.checkpoint_state.h5 && "//
-!    & "cp -r "//trim(maquis_name_states)//" rf.checkpoint_state.h5"
+     &                             ".h5",maquis_name_results)
 
           !> copy current target wave function to local wave function
           call system(

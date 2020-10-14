@@ -109,7 +109,7 @@
       Character*(2*72) lJobH2
 
       INTEGER :: iDNG,IPRLEV
-      Logical :: DoDMRG,DNG
+      Logical :: DNG
       Character*8 emiloop
       Character*8 inGeo
       Logical :: MustCopy

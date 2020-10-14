@@ -13,6 +13,7 @@
       use rassi_global_arrays, only: JBNUM
       use sorting, only : argsort
       use sorting_funcs, only : leq_r
+      use rasscf_data, only: doDMRG
 #ifdef _HDF5_
       use Dens2HDF5
 #endif

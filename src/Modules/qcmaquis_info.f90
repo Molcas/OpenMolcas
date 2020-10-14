@@ -15,10 +15,11 @@ module qcmaquis_info
  implicit none
 
  type qcm_names
- character(len=256), allocatable :: states(:)
+ character(len=256), allocatable :: states(:) ! full checkpoint names for every state
  end type
 
  type(qcm_names), public, allocatable :: qcm_group_names(:)
+ character(len=256), public, allocatable :: qcm_prefixes(:) ! prefix for the particular group (although redundant but used in the new MPSSI interface)
 
  save
 
@@ -30,6 +31,9 @@ module qcmaquis_info
 
    if(tag == 0)then
      allocate(qcm_group_names(igroup))
+     allocate(qcm_prefixes(igroup))
+     qcm_prefixes = ''
+
    else if(tag == 1)then
      allocate(qcm_group_names(igroup)%states(nstates)); qcm_group_names(igroup)%states = ''
    else if(tag == -1)then
@@ -49,6 +53,7 @@ module qcmaquis_info
      if(allocated(qcm_group_names(i)%states)) deallocate(qcm_group_names(i)%states)
    end do
    deallocate(qcm_group_names)
+   if(allocated(qcm_prefixes)) deallocate(qcm_prefixes)
  end subroutine qcmaquis_info_deinit
 
 end module qcmaquis_info

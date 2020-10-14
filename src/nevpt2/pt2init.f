@@ -11,7 +11,7 @@
 
       !> Read information provided on runfile/jobiph files and
       !> initialize pt2wfn file
-      subroutine pt2init(refwfnfile)
+      subroutine pt2init(refwfn_in)
 
 #ifdef _DMRG_
       use qcmaquis_info
@@ -24,9 +24,13 @@
       use info_state_energy  ! energies
       use info_orbital_space ! orbital specifications read from JobIph
       use nevpt2wfn
+
       implicit none
 
-      character(len=*), intent(in) :: refwfnfile
+      logical, external :: mh5_is_hdf5
+
+      character(len=*), intent(in) :: refwfn_in
+      character(len=:), allocatable :: refwfnfile
 
       integer :: istate,ii,j,nDiff,nishprev,nfroprev
 
@@ -34,6 +38,10 @@
       real*8, allocatable :: readbuf(:,:)
 #include "mxdm.fh"
 #include "caspt2.fh"
+
+      ! Save current directory into the CurrDir string
+      call get_environment_variable("CurrDir", curr_dir)
+      call get_environment_variable("Project", molcas_project)
 
       ! call the Molcas routine to check whether we're using Cholesky
       call DecideOnCholesky(do_cholesky)
@@ -60,6 +68,33 @@
       LUONEM=16
       CALL DANAME_wa(LUONEM,'MOLONE')
 
+      ! We can only open HDF5 files, so if no HDF5 file is specified in the input
+      ! or JOBIPH is not a HDF5 file, try to find the corresponding HDF5 file,
+      ! if not found, exit
+
+#ifdef _HDF5_
+      refwfnfile = trim(refwfn_in)
+      If (.not.mh5_is_hdf5(refwfnfile)) Then
+        ! try $Project.dmrgscf.h5
+        refwfnfile = trim(molcas_project)//".dmrgscf.h5"
+        If (.not.mh5_is_hdf5(refwfnfile)) Then
+          ! try $Project.rasscf.h5
+          refwfnfile = trim(molcas_project)//".rasscf.h5"
+          If (.not.mh5_is_hdf5(refwfnfile)) Then
+            call WarningMessage(1,
+     & "Cannot find a HDF5 file with the reference wavefunction. "//
+     & "Make sure that file "//trim(molcas_project)//".rasscf.h5 "//
+     & "or .dmrgscf.h5 exists")
+            call Quit_OnUserError()
+          end if
+        endif
+      endif
+#else
+      call WarningMessage(1,
+     & "Please compile OpenMolcas with HDF5 support "//
+     &  "for NEVPT2 to work")
+      call Quit_OnUserError()
+#endif
       Call refwfn_init(refwfnfile)
       Call refwfn_info
       Call refwfn_data

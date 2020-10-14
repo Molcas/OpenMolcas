@@ -12,9 +12,7 @@
 !***********************************************************************
   subroutine mpssi(iReturn)
 
-#ifdef _DMRG_
-  use qcmaquis_interface_cfg
-#endif
+  use rasscf_data, only: doDMRG
 
   implicit none
 
@@ -24,6 +22,10 @@
   !> set QCMaquis as default (actually the only possible) DMRG driver in RASSI
 #ifdef _DMRG_
   doDMRG = .true.
+#else
+  ! this should not happen
+  call WarningMessage(2, "Please compile with QCMaquis support to run MPSSI.")
+  call Quit_OnUserError()
 #endif
 
   !> print info about MPS-SI

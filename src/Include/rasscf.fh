@@ -80,18 +80,24 @@
 *
       Logical         RFpert,lSquare, Start_Vectors, NonEq, DoFaro
      &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT,DoNOGRAD,
-     &                DoGSOR, kIvo, IfCRPR
+     &                DoGSOR, kIvo, IfCRPR, doDMRG, l_casdft
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
      &                , Do3RDM
+#endif
+#ifdef _DMRG_
+     &                , domcpdftDMRG, twordm_qcm
 #endif
 #ifdef _ENABLE_CHEMPS2_DMRG_
      &                , chemps2_restart
 #endif
       COMMON/LOGINP/  RFpert,lSquare, Start_Vectors, NonEq, DoFaro
      &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT,DoNOGRAD,
-     &                DoGSOR, kIvo, IfCRPR
+     &                DoGSOR, kIvo, IfCRPR, doDMRG, l_casdft
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
      &                , Do3RDM
+#endif
+#ifdef _DMRG_
+     &                , domcpdftDMRG, twordm_qcm
 #endif
 #ifdef _ENABLE_CHEMPS2_DMRG_
      &                , chemps2_restart
