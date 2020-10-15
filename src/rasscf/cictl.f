@@ -66,7 +66,7 @@
       Logical Exist,Do_ESPF
 *JB   variables for state rotation on final states
       Logical do_rotate
-      Logical PCM_On ! function defined in misc_util/pcm_on.f
+      Logical, external :: PCM_On ! function defined in misc_util/pcm_on.f
 
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -999,8 +999,9 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
 
            if(doDMRG)then
 #ifdef _DMRG_
-             ! Here we calculated the state with itself so shouldn't it be 1?
+             ! Here we calculate the overlap of the state with itself so shouldn't it be 1?
              overlap = 1.0d0
+             rNorm = 1.0d0
 #endif
            else
              Call Get_dArray("RF CASSCF Vector",Work(ipRF),nConf)

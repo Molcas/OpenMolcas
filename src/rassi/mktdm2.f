@@ -33,9 +33,9 @@
       INTEGER IVABS,IVX,IXABS,JALA,JALB,JBJA,JBLA,JBLB
       INTEGER JORBA,JORBB,KORB,KORBA,KORBB,LORB,LORBA,LORBB
       INTEGER NASGEM,NSPD2,ISTATE,JSTATE
-#ifdef _DMRG_
-      LOGICAL :: debug_dmrg_rassi_code = .false.
-#endif
+c #ifdef _DMRG_
+c       LOGICAL :: debug_dmrg_rassi_code = .false.
+c #endif
 #include "symmul.fh"
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
@@ -66,6 +66,8 @@ C Pick out nr of active orbitals from orbital table:
         write(6,*) "2-TDM import with QCMaquis in MPSSI "//
      &    "not implemented yet"
         call Quit_OnUserError()
+        call Unused_integer(ISTATE)
+        call Unused_integer(JSTATE)
       endif
 ! Old interface import
 !!#define BLUBB
@@ -245,15 +247,9 @@ C DIAGONAL ELEMENTS HALF-SIZED (This is for proper contraction with TUVX):
         TDM2(IJIJ)=0.5D0*TDM2(IJIJ)
       END DO
       RETURN
-#ifndef _DMRG_
 ! Leon: Avoid warnings for unused variables if DMRG support is disabled
       if (.false.) then
         call Unused_integer(ISTATE)
         call Unused_integer(JSTATE)
-        call Unused_integer(job1)
-        call Unused_integer(job2)
-        call Unused_integer(ist)
-        call Unused_integer(jst)
       endif
-#endif
       END

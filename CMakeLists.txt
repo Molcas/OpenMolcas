@@ -2653,8 +2653,10 @@ endforeach (util)
 # Workaround for GCC > 10.0 and GA
 if (GA AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU"
        AND CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER 10.0)
-  target_compile_options (ga_util_obj PRIVATE "-fallow-argument-mismatch")
-endif ()
+  # -w disables all warnings, this is the only way to compile it with BIGOT but until there's an update
+  # from GA that supports clean compilation on gfortran > 10.0 there's no other way
+  target_compile_options (ga_util_obj PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:-w -fallow-argument-mismatch>)
+endif()
 
 
 # build an actual molcas library
@@ -2663,7 +2665,6 @@ add_library (molcas ${objlibs})
 if (DMRG)
   target_link_libraries (molcas ${HDF5_QCM_LIBRARIES})
 endif (DMRG)
-
 set (MOLCAS_LIBRARIES "molcas")
 if (BUILD_SHARED_LIBS)
   # flatten namespace on Mac OS X
@@ -2760,8 +2761,18 @@ if (BOUNDS AND (${FFLAGS_GNU_BOUNDS} MATCHES "-fsanitize=address"))
   set_property (SOURCE ${rassi_src}/prprop.f APPEND_STRING PROPERTY COMPILE_FLAGS " --param=max-vartrack-size=120000000")
 endif ()
 if (BIGOT)
-  # Disable an incorrect warning about unitialised variable in gtdmctl.f
-  set_property (SOURCE ${rassi_src}/gtdmctl.f APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-error=maybe-uninitialized")
+  # Workaround for MPI for gfortran >=10, see above (MPI and GA section)
+  if (GA AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER 10.0)
+    set_property (SOURCE ${rasscf_src}/CI_solver_util.f APPEND_STRING PROPERTY COMPILE_FLAGS " -w -fallow-argument-mismatch")
+    set_property (SOURCE ${caspt2_src}/allgather.f APPEND_STRING PROPERTY COMPILE_FLAGS " -w -fallow-argument-mismatch")
+    set_property (SOURCE ${caspt2_src}/mkbmat.f APPEND_STRING PROPERTY COMPILE_FLAGS " -w -fallow-argument-mismatch")
+    set_property (SOURCE ${caspt2_src}/mksmat.f APPEND_STRING PROPERTY COMPILE_FLAGS " -w -fallow-argument-mismatch")
+  endif ()
+
+  # Workaround for an incorrect out-of-bounds warning/error in merge statements
+  if (NEVPT2)
+    set_property (SOURCE ${nevpt2_src}/pt2init.f APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-error")
+  endif ()
 endif ()
 
 # set up proper RPATH for executables, use RUNPATH if on Linux
@@ -3302,6 +3313,20 @@ if (DEFINED EXTRA_DIR)
 
   install (CODE "execute_process(COMMAND ${OPENMOLCAS_DIR}/sbin/install_driver.sh ${MOLCAS_DRIVER})")
 endif ()
+
+if (DMRG)
+  install (DIRECTORY
+    ${PROJECT_BINARY_DIR}/qcmaquis
+    USE_SOURCE_PERMISSIONS
+    DESTINATION ${CMAKE_INSTALL_PREFIX}
+  )
+  install (DIRECTORY
+    ${PROJECT_BINARY_DIR}/Tools
+    USE_SOURCE_PERMISSIONS
+    DESTINATION ${CMAKE_INSTALL_PREFIX}
+  )
+endif ()
+
 # Additional directories to install (from external projects)
 foreach (dir ${EXTRA_INSTALL_DIRS})
   install (DIRECTORY

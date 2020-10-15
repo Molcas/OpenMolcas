@@ -15,7 +15,6 @@
 
       !> module dependencies
 #ifdef _DMRG_
-      use rassi_global_arrays, only: LROOT
       use rasscf_data, only: doDMRG
       use qcmaquis_interface_cfg
       use qcmaquis_interface_utility_routines, only:
@@ -37,16 +36,6 @@
       REAL*8 SIJ,TDM1(NASHT,NASHT),TSDM1(NASHT,NASHT),WTDM1(NASHT,NASHT)
       REAL*8 S1,S2,SM,SM1,SM2,GAA,GAB,GBA,GBB
       REAL*8 OVERLAP_RASSI,TMATEL,RED,FACT,CGCOEF,DCLEBS
-#ifdef _DMRG_
-      LOGICAL :: debug_dmrg_rassi_code = .false.
-#endif
-
-#ifdef _DMRG_
-      ! strings for conversion of the qcmaquis h5 checkpoint names from 2u1 to su2u1
-      character(len=3) :: mplet1s, msproj1s
-      ! new checkpoint names
-      character(len=2300) :: checkpoint1_2u1,checkpoint2_2u1
-#endif
 
 #include "symmul.fh"
 #include "stdalloc.fh"
@@ -69,13 +58,10 @@ C Overlap:
       SIJ=0.0D00
 
       IF(MPLET1.EQ.MPLET2.AND.MSPROJ1.EQ.MSPROJ2) THEN
-
 #ifdef _DMRG_
         if(.not.doDMRG)then
 #endif
-
-        SIJ=OVERLAP_RASSI(IFSBTAB1,IFSBTAB2,DET1,DET2)
-
+          SIJ=OVERLAP_RASSI(IFSBTAB1,IFSBTAB2,DET1,DET2)
 #ifdef _DMRG_
         else
             sij = qcmaquis_mpssi_overlap(
@@ -85,12 +71,6 @@ C Overlap:
      &         jst,
      &         .true.)
         end if ! DMRG or not
-
-
-        if(debug_dmrg_rassi_code)then
-          write(6,*) 'overlap sij is for i,j',istate,jstate,sij
-          call flush(6)
-        end if
 #endif
       END IF ! mmplet and msproj check
 
@@ -153,12 +133,12 @@ C General 1-particle transition density matrix:
      &             NSPD1)
           end if
 
-        if(debug_dmrg_rassi_code)then
-          write(6,*) 'density for i, j',istate,jstate
-          write(6,*) 'dimension: ',nasorb**2, '--> #nact', nasorb
-          call pretty_print_util(SPD1,1,nasorb,1,nasorb,
-     &                           nasorb,nasorb,1,6)
-        end if
+c         if(debug_dmrg_rassi_code)then
+c           write(6,*) 'density for i, j',istate,jstate
+c           write(6,*) 'dimension: ',nasorb**2, '--> #nact', nasorb
+c           call pretty_print_util(SPD1,1,nasorb,1,nasorb,
+c      &                           nasorb,nasorb,1,6)
+c         end if
       end if
 #endif
       END IF
@@ -199,12 +179,12 @@ C Position determined by active orbital index in external order:
         ITABS=MAPORB(ISORB)
         IUABS=MAPORB(JSORB)
 
-#ifdef _DMRG_
-        if(debug_dmrg_rassi_code)then
-          write(6,'(a,2i3,4f12.8)') ' i,j: GAA,GBB,GAB,GBA ==> ',
-     &                itabs,iuabs,gaa,gbb,gab,gba
-        end if
-#endif
+c #ifdef _DMRG_
+c         if(debug_dmrg_rassi_code)then
+c           write(6,'(a,2i3,4f12.8)') ' i,j: GAA,GBB,GAB,GBA ==> ',
+c      &                itabs,iuabs,gaa,gbb,gab,gba
+c         end if
+c #endif
 
         !> scalar TDM
         TDM1(ITABS,IUABS)=GAA+GBB
@@ -247,30 +227,25 @@ C Thus obtain reduced matrix element from Wigner-Eckart theorem:
        END DO
       END DO
 
-#ifdef _DMRG_
-      if(debug_dmrg_rassi_code)then
-        !> debug print
-        write(6,*) '1-tdm density for i, j',istate,jstate
-        call pretty_print_util(tdm1,1,nasht,1,nasht,
-     &                         nasht,nasht,1,6)
-        write(6,*) '1-tdm sp-density for i, j',istate,jstate
-        call pretty_print_util(tsdm1,1,nasht,1,nasht,
-     &                         nasht,nasht,1,6)
-        write(6,*) 'w-reduced tdm for i, j',istate,jstate
-        call pretty_print_util(wtdm1,1,nasht,1,nasht,
-     &                         nasht,nasht,1,6)
-      end if
-#else
+c #ifdef _DMRG_
+c       if(debug_dmrg_rassi_code)then
+c         !> debug print
+c         write(6,*) '1-tdm density for i, j',istate,jstate
+c         call pretty_print_util(tdm1,1,nasht,1,nasht,
+c      &                         nasht,nasht,1,6)
+c         write(6,*) '1-tdm sp-density for i, j',istate,jstate
+c         call pretty_print_util(tsdm1,1,nasht,1,nasht,
+c      &                         nasht,nasht,1,6)
+c         write(6,*) 'w-reduced tdm for i, j',istate,jstate
+c         call pretty_print_util(wtdm1,1,nasht,1,nasht,
+c      &                         nasht,nasht,1,6)
+c       end if
+c #endif
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer(ISTATE)
         CALL Unused_integer(JSTATE)
-        call Unused_integer(job1)
-        call Unused_integer(job2)
-        call Unused_integer(ist)
-        call Unused_integer(jst)
       END IF
-#endif
 
 #ifdef _DMRG_
       if (.not.doDMRG) then

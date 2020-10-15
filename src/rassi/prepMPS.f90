@@ -65,7 +65,7 @@
   logical,intent(in)    :: trorb
 !-------------------------------------------------------------------------------
 #ifdef _DMRG_
-  integer               :: i, isym, no, ii, ista, jorb, ni
+  integer               :: i, isym, no, ii, ista, jorb, ni, active_offset
   real*8                :: fac(1,1), ckk
   logical               :: debug_dmrg_rassi_code = .false.
   real*8, allocatable   :: tmat(:,:) ! active-active rotation matrix
@@ -121,7 +121,8 @@
     no = nosh(isym)
     do i = 1, nash(isym)
       ! copy the active-active part of the rotation matrix into tmat
-      tmat(i,:) = tra(1+(no+i)*ni+nash(isym)*(i-1):(no+i)*ni+nash(isym)*i)
+      active_offset = (no+i)*ni+nash(isym)
+      tmat(i,:) = tra(1+active_offset*(i-1):active_offset*i)
     end do
     ista = ista + no**2
   end do
@@ -139,6 +140,7 @@
   ! Avoid unused variable warnings
   if (.false.) then
     call unused_integer(istatereal)
+    call unused_integer(istate)
   end if
 #else
   write(lupri,*) ' calling prepMPS w/o DMRG interface - foolish!'

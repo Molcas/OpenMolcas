@@ -225,8 +225,6 @@ set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
     ExternalProject_Add(${EP_PROJECT}
         PREFIX ${extprojpath}
         GIT_REPOSITORY ${reference_git_repo}
-        #GIT_TAG ${reference_git_commit}
-        UPDATE_COMMAND ${GIT} pull
         SOURCE_SUBDIR dmrg
         CMAKE_ARGS ${EP_CMAKE_ARGS}
         CMAKE_CACHE_ARGS ${EP_CMAKE_CACHE_ARGS}
