@@ -61,7 +61,8 @@
       Integer, Parameter:: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
       Character(LEN=8) Lab_dsk
       Real*8, Allocatable:: Zeta(:), ZI(:), PCoor(:,:), Kappa(:),
-     &                      Kern(:), Fnl(:), ScrSph(:)
+     &                      Kern(:), Fnl(:), ScrSph(:), SO(:),
+     &                      Integrals(:)
 *
 *     Statement functions
 *
@@ -99,15 +100,23 @@
       End Do
       nIC=0
       If (loper.eq.0) Return
+
       Call ICopy(nIrrep,[0],0,ip,1)
+
+      iStart=1
       Do iIrrep =0,nIrrep-1
          If (iAnd(2**iIrrep,loper).ne.0) Then
             LenInt=nFck(iIrrep)
             nIc=nIC+1
-            Call GetMem(Label,'ALLO','REAL',ip(NIC),LenInt)
-            call dcopy_(LenInt,[Zero],0,Work(ip(nIC)),1)
+            ip(NIC)=iStart
+            iStart=iStart+LenInt
          End If
       End Do
+      LenInt_Tot=iStart - 1
+      Call mma_allocate(Integrals,LenInt_Tot,Label='Integrals')
+      Integrals(:)=Zero
+
+
       Call SOS(iStabO,nStabO,1)
 *
 *-----Auxiliary memory allocation.
@@ -224,8 +233,8 @@
             End Do
 c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
             If (nSO.eq.0) Go To 131
-            Call GetMem(' SO ','ALLO','REAL',ipSO,nSO*iBas*jBas)
-            call dcopy_(nSO*iBas*jBas,[Zero],0,Work(ipSO),1)
+            Call mma_allocate(SO,iBas*jBas*nSO,Label='SO')
+            SO(:)=Zero
 *
 *           Find the DCR for A and B
 *
@@ -338,12 +347,12 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
 *
 *               If (iPrint.ge.99) Then
 *                 Call RecPrt (' Accumulated SO integrals, so far...',
-*    &                               ' ',Work(ipSO),iBas*jBas,nSO)
+*    &                               ' ',SO,iBas*jBas,nSO)
 *               End If
 *
 *------------Symmetry adapt component by component
 *
-             iSOBlk = ipSO
+             iSOBlk = 1
              iIC=1
              Do iIrrep = 0, nIrrep-1
                 iSmLbl=iAnd(lOper,iTwoj(iIrrep))
@@ -356,7 +365,7 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
                    Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
      &                         iShell,jShell,iShll,jShll,iAO,jAO,
      &                         Kern,iBas,jBas,nIC,iIC,
-     &                         Work(iSOBlk),mSO,nOp)
+     &                         SO(iSOBlk),mSO,nOp)
                    iSOBlk = iSOBlk + mSO*iBas*jBas
                 End If
              End Do
@@ -365,12 +374,12 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
 *
 *           Multiply with factors due to projection operators
 *
-           If (Fact.ne.One) Call DScal_(nSO*iBas*jBas,Fact,Work(ipSO),1)
+           If (Fact.ne.One) Call DScal_(nSO*iBas*jBas,Fact,SO,1)
 *
 *           Scatter the SO's on to the non-zero blocks of the
 *           lower triangle.
 *
-             iSOBlk=ipSO
+             iSOBlk=1
              iIC=0
              Do  iIrrep = 0, nIrrep-1
                If (iAnd(lOper,2**iIrrep).ne.0) Then
@@ -378,15 +387,15 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
                  iiC=iiC+1
                  mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                  If (nfck(iirrep).ne.0.and.mSO.ne.0)
-     &            Call SOSctt(Work(iSOBlk),iBas,jBas,mSO,
-     &                    Work(ip(iIC)),nFck(iIrrep),iSmLbl,
+     &            Call SOSctt(SO(iSOBlk),iBas,jBas,mSO,
+     &                    Integrals(ip(iIC)),nFck(iIrrep),iSmLbl,
      &                    iCmp,jCmp,iShell,jShell,
      &                    iAO,jAO,nIC,Label,2**iIrrep,rHrmt)
                  iSOBlk = iSOBlk + mSO*iBas*jBas
                End If
              End Do
 *
-            Call GetMem('  SO ','FREE','REAL',ipSO,nSO*iBas*jBas)
+            Call mma_deallocate(SO)
  131        Continue
          Call mma_deallocate(pCoor)
          Call mma_deallocate(Kappa)
@@ -428,24 +437,24 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
                iopt=0
                iipscr=ip_of_iWork_d(work(ipscr))
                call rdmck(irc,iOpt,Lab_dsk,jdisp,iwork(iipscr),koper)
-               If (irc.ne.0)
-     & Call SysAbendMsg('cnt1el2','error during read in rdmck',' ')
+               If (irc.ne.0) Call SysAbendMsg('cnt1el2',
+     &                                 'error during read in rdmck',' ')
                call daxpy_(nfck(iirrep),one,
-     &                    work(ipscr),1,
-     &                   work(ip(nrop)),1)
+     &                     work(ipscr),1,
+     &                     Integrals(ip(nrop)),1)
             End If
             irc=-1
             iopt=0
 *           Write(*,*) Lab_dsk,jdisp,koper
-            call dwrmck(irc,iOpt,Lab_dsk,jdisp,work(ip(nrop)),koper)
-            If (irc.ne.0)
-     & Call SysAbendMsg('cnt1el2','error during write in dwrmck',' ')
-         Call GetMem(Label,'FREE','REAL',ip(nrOp),nFck(iIrrep))
+            call dwrmck(irc,iOpt,Lab_dsk,jdisp,Integrals(ip(nrop)),
+     &                  koper)
+            If (irc.ne.0) Call SysAbendMsg('cnt1el2',
+     &                               'error during write in dwrmck',' ')
          End If
  16   Continue
 *
-
       Call Getmem('Temp','FREE','REAL',ipscr,2*ii)
+      Call mma_deallocate(Integrals)
 *
       Return
       End
