@@ -27,7 +27,7 @@ Subroutine Start_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
   Real*8 dy_(nInter_In,nPoints_In)
 !
 !
-!#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
   Call RecPrt('Start_Kriging: x',' ',x_,nInter_In,nPoints_In)
   Call RecPrt('Start_Kriging: y',' ',y_,     1,nPoints_In)
@@ -52,6 +52,10 @@ Subroutine Start_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
 ! In the case the nPoint_v last energies and nPoint_g last gradients were use
 ! m_t would be computed as
 !
+#ifdef _DEBUGPRINT_
+  Write (6,*) 'nD=',nD
+  Write (6,*) 'nPoints_v,nPoints_g=',nPoints,nPoints-nD
+#endif
   m_t=nPoints + nInter*(nPoints-nD)
 !
 ! full_R correspond to the gradient of Psi (eq. (2) ref.)

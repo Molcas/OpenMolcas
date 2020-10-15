@@ -168,7 +168,7 @@ SUBROUTINE covarMatrix()
 !           doi:10.1615/Int.J.UncertaintyQuantification.2013006809
   ! full_R = abs(full_R)
 #ifdef _DEBUGPRINT_
-  Call RecPrt('full_r Orig:','(14E10.2)',full_R,m_t,m_t)
+  Call RecPrt('The covariance matrix:','(12(2x,E9.3))',full_R,m_t,m_t)
 #endif
 !
   Call mma_deallocate(diffx_j)

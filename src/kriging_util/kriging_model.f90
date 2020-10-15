@@ -11,6 +11,7 @@
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
 SUBROUTINE kriging_model()
+!#define _DEBUGPRINT_
   use kriging_mod
   Implicit None
 #include "stdalloc.fh"
@@ -40,7 +41,6 @@ SUBROUTINE kriging_model()
 !
 ! Initiate A according to Eq. (2) of ref.
 !
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
   Call RecPrt('f',' ',B,1,m_t)
 #endif
@@ -253,7 +253,7 @@ SUBROUTINE kriging_model()
 !
 #ifdef _DEBUGPRINT_
   Write (6,*) 'sb,ln(det|PSI|)=',sb,detR
-  Call RecPrt('[y-sb,dy]',' ',B,1,m_t)
+  Call RecPrt('[y-sb,dy]','(12(2x,E9.3))',B,1,m_t)
 #endif
 
 !#undef _PREDIAG_

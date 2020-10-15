@@ -17,6 +17,7 @@ SUBROUTINE covarVector(gh)
   integer i,i0,i1,j,j0,j1,k,k0,k1,gh
   real*8 sdiffxi,sdiffxj,sdiffxk
   real*8, Allocatable ::  diffxi(:),diffxj(:), diffxk(:)
+!#define _DEBUGPRINT_
 
   Call mma_Allocate(diffxi,nPoints,label="diffxi")
   Call mma_Allocate(diffxj,nPoints,label="diffxj")
@@ -39,6 +40,9 @@ SUBROUTINE covarVector(gh)
       i1 = i0 + (nPoints-nD) - 1
       cv(i0:i1,1,1) = cvMatFder(1+nD:nPoints) * diffxi(1+nD:nPoints)
     enddo
+#ifdef _DEBUGPRINT_
+    Call RecPrt(' The covector for energies','(12(2x,E9.3))',cv(:,1,1),m_t,1)
+#endif
 ! Covariant vector in Gradient Enhanced Kriging
 !
   else if(gh.eq.1) then
@@ -47,7 +51,7 @@ SUBROUTINE covarVector(gh)
     call matderiv(2, dl, cvMatSder, nPoints, 1)
     do i=1,nInter
       diffxi(:) = 2.0D0*rl(:,i)/l(i)
-      cv(1+nD:nPoints,i,1) = -cvMatFder(1+nD:nPoints) * diffxi(1+nD:nPoints)
+      cv(1:nPoints,i,1) = -cvMatFder(1:nPoints) * diffxi(1:nPoints)
       do j = 1,nInter
         j0 = nPoints + 1 + (j-1)*(nPoints-nD)
         j1 = j0 + (nPoints-nD) - 1
@@ -60,6 +64,9 @@ SUBROUTINE covarVector(gh)
         end if
       enddo
     enddo
+#ifdef _DEBUGPRINT_
+    Call RecPrt(' The covector for gradients','(12(2x,E9.3))',cv(:,:,1),m_t,nInter)
+#endif
 !
   else if(gh.eq.2) then
 !
