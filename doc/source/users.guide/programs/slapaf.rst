@@ -1136,7 +1136,7 @@ Optional restricted variance optimization (RVO) :cite:`Raggi2020` keywords
   be included in the PGEK procedure.
   The default value is 0, that is standard GEK.
 
-  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="PGEK" APPEAR="nDelta" KIND="INT" MIN_VALUE="0" DEFAULT_VALUE="0" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NDELTA" APPEAR="nDelta" KIND="INT" MIN_VALUE="0" DEFAULT_VALUE="0" LEVEL="ADVANCED">
               %%Keyword: MXMI <advanced>
               <HELP>
               Activate partial gradient enhanced Kriging, PGEK, this integer number determine for how many fewer iterations the gradients will
