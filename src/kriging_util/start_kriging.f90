@@ -27,11 +27,11 @@ Subroutine Start_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
   Real*8 dy_(nInter_In,nPoints_In)
 !
 !
-#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
   Call RecPrt('Start_Kriging: x',' ',x_,nInter_In,nPoints_In)
   Call RecPrt('Start_Kriging: y',' ',y_,     1,nPoints_In)
-  Call RecPrt('Start_Kriging: dy',' ',dy_,nInter,nPoints_In)
+  Call RecPrt('Start_Kriging: dy',' ',dy_,nInter_In,nPoints_In)
 #endif
 !
 ! Call Setup_Kriging to store the data in some internally protected arrays and scalars.

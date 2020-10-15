@@ -31,7 +31,7 @@
 *     info:slapaf.fh. Otherwise the common cgetln should be
 *     identical in size.
 *
-* mxn should be len(line)/2+1
+*     mxn should be len(line)/2+1
       parameter (mxn=91)
       common/cgetln/ ncol, jstrt(mxn),jend(mxn)
       Integer StrnLn
@@ -106,6 +106,7 @@ C     Write (Lu,*) iOptC
 !     If (Char(1:4).eq.'AIBL') Go To 108
 !     If (Char(1:4).eq.'AIMB') Go To 109
 !     If (Char(1:4).eq.'L-VA') Go To 112
+      If (Char(1:4).eq.'NDEL') Go To 113
       If (Char(1:4).eq.'BAKE') Go To 926
       If (Char(1:4).eq.'C1-D') Go To 936
       If (Char(1:4).eq.'C2-D') Go To 937
@@ -596,6 +597,12 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 !      Call Qpg_dScalar('Value_l',Found)
 !      If (.Not.Found) Call Put_dScalar('Value_l',Value_l)
 !      Go To 999
+*                                                                      *
+****** NDELta **********************************************************
+*                                                                      *
+113   Char=Get_Ln(LuRd)
+      Call Get_I1(1,nD_In)
+      Go To 999
 *                                                                      *
 ****** BAKE ************************************************************
 *                                                                      *
