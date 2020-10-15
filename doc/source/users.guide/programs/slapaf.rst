@@ -1131,6 +1131,19 @@ Optional restricted variance optimization (RVO) :cite:`Raggi2020` keywords
               </HELP>
               Default: 50.
               </KEYWORD>
+:kword:`NDELta`
+  Activate partial gradient enhanced Kriging, PGEK, this integer number determine for how many fewer iterations the gradients will
+  be included in the PGEK procedure.
+  The default value is 0, that is standard GEK.
+
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="PGEK" APPEAR="nDelta" KIND="INT" MIN_VALUE="0" DEFAULT_VALUE="0" LEVEL="ADVANCED">
+              %%Keyword: MXMI <advanced>
+              <HELP>
+              Activate partial gradient enhanced Kriging, PGEK, this integer number determine for how many fewer iterations the gradients will
+              be included in the PGEK procedure.
+              </HELP>
+              Default: 0.
+              </KEYWORD>
 
 Example: A complete set of input decks for a CASSCF geometry
 optimization. These are the input decks for the optimization
