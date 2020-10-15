@@ -219,17 +219,14 @@ set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
     ###############################
     # git references for QCMaquis #
     ###############################
-    #set(reference_git_commit e9136bbf37017884e24213e4a39fad8737f499c8)
-    set(reference_git_commit IGNORED_ANYWAY_FOR_NOW)
-    set(reference_git_repo git@gitlab.chab.ethz.ch:dmrg/maquis-dmrg.git)
+
+    set(reference_git_repo git@github.com:qcscine/qcmaquis.git)
 
     ExternalProject_Add(${EP_PROJECT}
         PREFIX ${extprojpath}
         GIT_REPOSITORY ${reference_git_repo}
         #GIT_TAG ${reference_git_commit}
-        DOWNLOAD_COMMAND  ${GIT} clone --single-branch --branch libqcmaquis --verbose ${reference_git_repo} ${EP_PROJECT} || true
         UPDATE_COMMAND ${GIT} pull
-
         SOURCE_SUBDIR dmrg
         CMAKE_ARGS ${EP_CMAKE_ARGS}
         CMAKE_CACHE_ARGS ${EP_CMAKE_CACHE_ARGS}

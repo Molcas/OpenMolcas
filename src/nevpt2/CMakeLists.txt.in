@@ -75,8 +75,7 @@ endif()
 ######################################
 # git references for NEVPT2          #
 ######################################
-set(reference_git_commit new-interface)
-set(reference_git_repo git@gitlab.chab.ethz.ch:dmrg/nevpt2.git)
+set(reference_git_repo git@github.com:qcscine/nevpt2.git)
 set(EP_PROJECT nevpt2_ext)
 
 # Enabling source changes to keep ExternalProject happy
@@ -86,7 +85,6 @@ set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
 ExternalProject_Add(${EP_PROJECT}
                     PREFIX ${CUSTOM_NEVPT2_LOCATION}
                     GIT_REPOSITORY ${reference_git_repo}
-                    GIT_TAG ${reference_git_commit}
                     CMAKE_ARGS "${NEVPT2CMakeArgs}"
                     INSTALL_DIR "${PROJECT_BINARY_DIR}"
                    )
