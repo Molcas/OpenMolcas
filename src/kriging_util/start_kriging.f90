@@ -38,6 +38,9 @@ Subroutine Start_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
 !
   Call Setup_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
 !
+! Development code for partial gradient enhanced Kriging (PGEK) based on Mutual Information between
+! the coordinates and the energy.
+
 !If (nPoints>2) Call PGEK()
 !
 !

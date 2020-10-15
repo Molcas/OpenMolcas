@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
+#define _DEBUGPRINT_
 SUBROUTINE pgek()
 use kriging_mod, only: x, y, nPoints, nInter
 Implicit None
@@ -18,7 +19,7 @@ Implicit None
 Real*8, Allocatable:: Mean_univariate(:)
 Real*8, Allocatable:: Variance_univariate(:), Variance_bivariate(:)
 Integer i, j,  l
-Real*8 tmp, dx, dy
+Real*8 tmp, dx, dy, Fact
 ! Mutual information array
 !Real*8 MI(nInter)
 Real*8, Allocatable::  MI(:)
@@ -28,13 +29,15 @@ Real*8, Allocatable::  MI(:)
 !Real*8 pxy(nPoints,nInter)
 Real*8, Allocatable:: px(:,:), py(:), pxy(:,:)
 ! the 2 x 2 covariance matrix (used to compute the transformation variable in the bivariate case)
-Real*8 Sigma(2,2), Sigma_Inverse(2,2)
-Real*8 d, d_h, h, u_j, K_u_j, Norm_Sigma
+Real*8 Sigma2(2,2), Sigma2_Inverse(2,2)
+Real*8 d, d_h, h, u_j, K_u_j, Det_Sigma2, Sigma_2, N_norm
 
+#ifdef _DEBUGPRINT_
 Write (6,*) 'PGEK: nPoints=',nPoints
 Write (6,*) 'PGEK: nInter=',nInter
 Call RecPrt('y',' ',y,1,nPoints)
 Call RecPrt('x',' ',x,nInter,nPoints)
+#endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !    Allocate memory
@@ -64,7 +67,7 @@ Mean_Univariate(nInter+1)    =Zero
 Do j = 1, nPoints
   Mean_Univariate(nInter+1)    =Mean_Univariate(nInter+1)     + y(j)
 End Do
-Mean_Univariate(:)    = Mean_Univariate(:)    /DBLE(nPoints)
+Mean_Univariate(:)    = Mean_Univariate(:)    / DBLE(nPoints)
 
 ! uni- and bivariate variances
 Do i = 1, nInter
@@ -83,9 +86,11 @@ End Do
 Variance_Univariate(:)= Variance_Univariate(:)/DBLE(nPoints)
 Variance_Bivariate(:) = Variance_Bivariate(:) /DBLE(nPoints)
 
-Call RecPrt('Mean - x ',' ',Mean_Univariate(:),nInter,1)
-Call RecPrt('Variance - x ',' ',Variance_Univariate(:),nInter,1)
+#ifdef _DEBUGPRINT_
+Call RecPrt('Mean - x,y ',' ',Mean_Univariate(:),nInter+1,1)
+Call RecPrt('Variance - x^2,y^2 ',' ',Variance_Univariate(:),nInter+1,1)
 Call RecPrt('Variance - xy ',' ',Variance_Bivariate(:),nInter,1)
+#endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -93,99 +98,137 @@ Call RecPrt('Variance - xy ',' ',Variance_Bivariate(:),nInter,1)
 
 d_h = Two
 h = (Four/(d_h + Two))**(One/(Four+d_h)) * DBLE(nPoints)**(-One/(Four+d_h))
+#ifdef _DEBUGPRINT_
+Write (6,*)
 Write (6,*) 'd_h=',d_h
 Write (6,*) 'h=',h
+Write (6,*)
+#endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! Compute the universal kernel density estimators px, py, and pxy
-! also known as Parzen window
+! also known as Parzen window technique using as a kernel function a normal distribution with
+! an exponent of alpha=1/(2 h^2 Sigma^2), in which h is the Gaussian bandwith and Sigma^2 is the
+! variance of the random variable under consideration -- Sigma is the standard deviation.
 
 ! 1) the univariate cases
 
 d=One
+Fact = One /  ( (Two*Pi)**(d/Two) * h**d )  ! Part of the normalization factor
+#ifdef _DEBUGPRINT_
 Write (6,*) 'd=',d
+Write (6,*) '1/((2pi)^(d/2) h^d)=',Fact
+
+#endif
 
 
 !  a) Compute px(i,l)
 
 Do l = 1, nInter
-   Do i = 1, nPoints
+   Sigma_2=Variance_Univariate(l)
+   Write (6,*) 'l, Sigma_2=',l, Sigma_2
+!
+!  Take special care of coordinates which might not change due to symmetry
+!  or for some other reason. Then the kernel function effectively is a Dirac delta function.
+!
+   If (Sigma_2<1.0D-10) Then
+      px(:,l)=One/DBLE(nPoints)
+   Else
+      N_norm= (Fact / SQRT(Sigma_2))
+      Do i = 1, nPoints
+         Write (6,*) 'i=',i
 
-      Norm_Sigma=Abs(Variance_Univariate(l))
-      tmp=Zero
-      Do j = 1, nPoints
-         u_j = (x(l,i)-x(l,j))**2 / (h**2 * Variance_univariate(l))
-         K_u_j = One/((Two*Pi)**(d/Two) * h**d * sqrt(Norm_Sigma)) * Exp(-u_j/Two)
-         tmp=tmp+K_u_j
+         tmp=Zero
+         Do j = 1, nPoints
+            u_j = (x(l,i)-x(l,j))**2 / (h**2 * Sigma_2)
+            K_u_j = N_norm * EXP(-u_j/Two)
+            Write (6,*) 'u_j, K_u_j=',u_j, K_u_j
+            tmp=tmp+K_u_j
+         End Do
+
+         px(i,l)=tmp/DBLE(nPoints)
+
       End Do
-
-      px(i,l)=tmp/DBLE(nPoints)
-
-   End Do
+   End If
 End Do
-Call RecPrt('px',' ',px,nPoints,nInter)
 
 !  b) Compute py(i)
 
+Sigma_2=Variance_Univariate(nPoints+1)
+N_norm= (Fact / SQRT(Sigma_2))
+Write (6,*) 'Sigma_2=',Sigma_2
 Do i = 1, nPoints
+   Write (6,*) 'i=',i
 
-   Norm_Sigma=Abs(Variance_Univariate(l))
    tmp=Zero
    Do j = 1, nPoints
-      u_j = (y(i)-y(j))**2 / (h**2 * Variance_univariate(l))
-      K_u_j = One/((Two*Pi)**(d/Two) * h**d * sqrt(Norm_Sigma)) * Exp(-u_j/Two)
+      u_j = (y(i)-y(j))**2 / (h**2 * Sigma_2)
+      K_u_j = N_norm * EXP(-u_j/Two)
+      Write (6,*) 'u_j, K_u_j=',u_j, K_u_j
       tmp=tmp+K_u_j
    End Do
 
    py(i)=tmp/DBLE(nPoints)
 
 End Do
+#ifdef _DEBUGPRINT_
+Call RecPrt('px',' ',px,nPoints,nInter)
 Call RecPrt('py',' ',py,nPoints,1)
+#endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! 2) the bivariate case, pxy(i,l)
 
 d=Two
+Fact = One / ( (Two*Pi)**(d/Two) * h**d )
 Write (6,*) 'd=',d
+Write (6,*) 'Fact=',Fact
 
 Do l = 1, nInter
-   Do i = 1, nPoints
-
+   Sigma_2=Variance_univariate(l)
+   If (Sigma_2<1.0D-10) Then
+      pxy(:,l)=One/DBLE(nPoints)  ! Not sure about this part yet.
+   Else
 !     Assemble the 2 x 2 covariance matrix
-      Sigma(1,1)=Variance_univariate(l)  ! p(x_l^2)
-      Sigma(1,2)=Variance_bivariate(l)   ! p(x_ly)
-      Sigma(2,1)=Sigma(1,2)
-      Sigma(2,2)=Variance_univariate(nInter+1) ! p(y^2)
-      Call RecPrt('Sigma',' ',Sigma,2,2)
-      Norm_Sigma=Sigma(1,1)*Sigma(2,2)-Sigma(1,2)*Sigma(2,1)  ! The determinant of the 2 x 2 sigma matrix
-      Write (6,*) 'Norm_Sigma=',Norm_Sigma
-      Sigma_Inverse(1,1)= Sigma(2,2)/Norm_Sigma
-      Sigma_Inverse(1,2)=-Sigma(1,2)/Norm_Sigma
-      Sigma_Inverse(2,1)=-Sigma(2,1)/Norm_Sigma
-      Sigma_Inverse(2,2)=-Sigma(1,1)/Norm_Sigma
-      Call RecPrt('Sigma_Inverse',' ',Sigma_Inverse,2,2)
+      Sigma2(1,1)=Variance_univariate(l)  ! p(x_l^2)
+      Sigma2(1,2)=Variance_bivariate(l)   ! p(x_ly)
+      Sigma2(2,1)=Sigma2(1,2)
+      Sigma2(2,2)=Variance_univariate(nInter+1) ! p(y^2)
+      Call RecPrt('Sigma2',' ',Sigma2,2,2)
+      Det_Sigma2=Sigma2(1,1)*Sigma2(2,2)-Sigma2(1,2)*Sigma2(2,1)  ! The determinant of the 2 x 2 sigma matrix
+      Write (6,*) 'Det(Sigma2)=',Det_Sigma2
+      Sigma2_Inverse(1,1)= Sigma2(2,2)/Det_Sigma2
+      Sigma2_Inverse(1,2)=-Sigma2(1,2)/Det_Sigma2
+      Sigma2_Inverse(2,1)=-Sigma2(2,1)/Det_Sigma2
+      Sigma2_Inverse(2,2)= Sigma2(1,1)/Det_Sigma2
+      Call RecPrt('Sigma2_Inverse',' ',Sigma2_Inverse,2,2)
 
-      tmp=Zero
-      Do j = 1, nPoints
-         dx = x(l,i)-x(l,j)
-         dy = y(i)-y(j)
-         u_j = ( dx*dx * Sigma_Inverse(1,1)   &
-                +dx*dy * Sigma_Inverse(1,2)   &
-                +dy*dx * Sigma_Inverse(2,1)   &
-                +dy*dy * Sigma_Inverse(2,2) ) &
-               / h**2
-         Write (6,*)' u_j=',u_j
-         K_u_j = One/((Two*Pi)**(d/Two) * h**d * sqrt(Abs(Norm_Sigma))) * Exp(-u_j/Two)
-         Write (6,*)' K_u_j=',K_u_j
-         tmp=tmp+K_u_j
+      N_norm = (Fact / SQRT(Det_Sigma2))
+      Do i = 1, nPoints
+
+
+         tmp=Zero
+         Do j = 1, nPoints
+            dx = x(l,i)-x(l,j)
+            dy = y(i)-y(j)
+            u_j = ( dx*dx * Sigma2_Inverse(1,1)   &
+                   +dx*dy * Sigma2_Inverse(1,2)   &
+                   +dy*dx * Sigma2_Inverse(2,1)   &
+                   +dy*dy * Sigma2_Inverse(2,2) ) &
+                  / h**2
+            Write (6,*)' u_j=',u_j
+            K_u_j = N_norm * Exp(-u_j/Two)
+            Write (6,*)' K_u_j=',K_u_j
+            tmp=tmp+K_u_j
+         End Do
+
+         pxy(i,l)=tmp/DBLE(nPoints)
+
       End Do
-
-      pxy(i,l)=tmp/DBLE(nPoints)
-
-   End Do
+   End If
 End Do
 
 Call RecPrt('pxy',' ',pxy,nPoints,nInter)
@@ -198,7 +241,7 @@ Call RecPrt('pxy',' ',pxy,nPoints,nInter)
 Do l = 1, nInter
    tmp=0.0D0
    Do i = 1, nPoints
-      tmp = tmp + pxy(i,l) * log10(pxy(i,l)/(px(i,l)*py(i)))
+      tmp = tmp + pxy(i,l) * log10( pxy(i,l) / (px(i,l)*py(i)) )
    End Do
    MI(l)=tmp
 End Do
@@ -208,7 +251,7 @@ End Do
 Write (*,*) 'Mutual Information'
 Write (*,*) '=================='
 Do i = 1, nInter
-   Write (6,'(i4,E10.2)') i, MI(i)
+   Write (6,'(i4,E10.3)') i, MI(i)
 End Do
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
