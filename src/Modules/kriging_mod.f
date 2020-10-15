@@ -30,6 +30,7 @@
       Logical :: set_l=.False.
       Logical :: ordinary=.False.
       Real*8  :: blvAI
+      Integer :: nD_In=0
 *
 !     Memory for coordinates, value and gradients of the
 !     sample points.
@@ -61,16 +62,16 @@
 
       contains
 
-      Subroutine Setup_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
+      Subroutine Prep_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
 #include "stdalloc.fh"
-      integer :: nPoints_In, nD_In, nInter_In, i, j
+      integer :: nPoints_In, nInter_In, i, j
       real*8 ::  x_(nInter_In,nPoints_In)
       real*8 ::         y_(nPoints_In)
       real*8 :: dy_(nInter_In,nPoints_In)
 
       nInter = nInter_In
-      nD           = nD_In
       nPoints      = nPoints_In
+      nD           = MAX(0,MIN(nD_In,nPoints-nD_In))
 
       Call mma_Allocate(x,nInter,nPoints,Label="x")
       Call mma_Allocate(y,nPoints,Label="y")
@@ -99,6 +100,6 @@
       enddo
 
       return
-      end subroutine Setup_kriging
+      end subroutine Prep_kriging
 
       end module kriging_mod

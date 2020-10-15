@@ -10,13 +10,14 @@
 *                                                                      *
 * Copyright (C) 2020, Roland Lindh                                     *
 ************************************************************************
-      Subroutine SetUp_Kriging(nRaw,nInter,qInt,Grad,Energy,Hessian_HMF)
+      Subroutine SetUp_Kriging(nRaw,nInter,qInt,Grad,Energy,
+     &                         Hessian_HMF)
       Use kriging_mod, only: blavAI, set_l
       Use Limbo
       Implicit None
 #include "stdalloc.fh"
 #include "real.fh"
-      Integer nRaw, nInter,i,iInter,jInter,ij, nD
+      Integer nRaw, nInter,i,iInter,jInter,ij
       Real*8 qInt(nInter,nRaw), Grad(nInter,nRaw), Energy(nRaw),
      &       Hessian_HMF(nInter,nInter)
       Real*8 Value_l
@@ -93,8 +94,7 @@
       Call RecPrt('Setup_kriging: qInt_s',' ',qInt_s,nInter,nRaw)
       Call RecPrt('Setup_kriging: Grad_s',' ',Grad_s,nInter,nRaw)
 #endif
-      nD=0
-      Call Start_Kriging(nRaw,nD,nInter,qInt_s,Grad_s,Energy)
+      Call Start_Kriging(nRaw,nInter,qInt_s,Grad_s,Energy)
 *
       Call mma_deAllocate(qInt_s)
       Call mma_deAllocate(Grad_s)

@@ -70,17 +70,22 @@
       If (Kriging) Then
        Write (Lu,*) '-RVO activated with parameters:'
 !      Write (Lu,'(A,I6)')
-!    &    '   GEK starts at iteration:                   ',nspAI
+!    &   '   GEK starts at iteration:                   ',nspAI
        Write (Lu,'(A,I6)')
-     &    '   Maximum number of data points used in GEK: ',nWndw/2
+     &   '   Maximum number of sample points (energies) used in GEK: ',
+     &        nWndw/2
+       Write (Lu,'(A,I6)')
+     &   '   Maximum number of sample points (gradients) used in GEK: ',
+     &        nWndw/2-nD_In
 !      Write (Lu,'(A,I6)')
-!   &     '   Parameter of diff. for Matern (p):         ',pAI
+!   &    '   Parameter of diff. for Matern (p):         ',pAI
        Write (Lu,'(A,I6)')
-     &    '   Maximum number of micro iterations:        ',
+     &   '   Maximum number of micro iterations:        ',
      &                                               Max_Microiterations
        If (set_l) Then
           Call Get_dScalar('Value_l',Value_l)
-          Write (Lu,*) '  Global characteristic length scale, l:     ',
+          Write (Lu,*)
+     &    '  Global characteristic length scale, l:     ',
      &              Value_l
        Else
           Write (Lu,*) '  Individual characteristic length scales set '

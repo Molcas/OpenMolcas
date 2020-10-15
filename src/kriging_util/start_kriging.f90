@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-Subroutine Start_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
+Subroutine Start_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
   use kriging_mod
   Implicit None
 #include "stdalloc.fh"
@@ -21,7 +21,7 @@ Subroutine Start_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
 !    dy_: the gradient of the function at the sample points
 !    x_: the coordinates of the sample points
 !
-  Integer nInter_In,nPoints_In,nD_In
+  Integer nInter_In,nPoints_In
   Real*8 x_(nInter_In,nPoints_In)
   Real*8 y_(nPoints_In)
   Real*8 dy_(nInter_In,nPoints_In)
@@ -36,7 +36,7 @@ Subroutine Start_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
 !
 ! Call Setup_Kriging to store the data in some internally protected arrays and scalars.
 !
-  Call Setup_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
+  Call Prep_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
 !
 ! Development code for partial gradient enhanced Kriging (PGEK) based on Mutual Information between
 ! the coordinates and the energy.
