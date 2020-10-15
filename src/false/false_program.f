@@ -10,7 +10,11 @@
 *                                                                      *
 * Copyright (C) 2020, Ignacio Fdez. Galvan                             *
 ************************************************************************
-
+*
+* "False" is a wrapper program that calls an external program and reads
+* its output into the runfile.
+* It is named after False Island (not False Pass), Alaska.
+*
       subroutine False_Program(rc)
       use False_Global, only: Run_Command, Will_Print
       implicit none
@@ -37,9 +41,12 @@
           write(6,100) 'Command to run:  '//trim(Run_Command)
           write(6,100) 'First argument:  '//trim(InFile)
           write(6,100) 'Second argument: '//trim(OutFile)
+          write(6,*)
         end if
+        call CollapseOutput(1, 'External program output')
         call SystemF(trim(Run_Command)
      &     //' '//trim(InFile)//' '//trim(OutFile),rc)
+        call CollapseOutput(0, 'External program output')
       end if
 
 #ifdef _MOLCAS_MPP_
