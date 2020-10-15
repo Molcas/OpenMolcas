@@ -197,6 +197,25 @@ include:
     when: always
   <<: *test-jobs
 
+# A release job to be scheduled
+
+create_release:
+  stage: deploy
+  image: registry.gitlab.com/gitlab-org/release-cli
+  needs:
+    # Note: the doc job defines and exports TAG
+    - job: doc
+      artifacts: true
+  script: |
+    echo "Creating release $TAG"
+  release:
+    tag_name: ${TAG}
+    description: "Automatic release from latest master"
+    ref: $CI_COMMIT_SHA
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CREATE_RELEASE'
+      when: on_success
+
 # A special job for running checks on the code
 
 checks:

@@ -98,7 +98,7 @@ Restart files & options
 .. class:: filelist
 
 :file:`RUNFILE`
-  The file of communication between different modules in |molcas|. Normally it is already present in :file:`i$WorkDir`.
+  The file of communication between different modules in |molcas|. Normally it is already present in :file:`$WorkDir`.
   The :program:`SINGLE_ANISO` may be restarted as many times as necessary in the same working directory where the previous :program:`RASSI` was succesfully executed. The :file:`RUNFILE` contains then all necessary data.
 
 :file:`ANISOINPUT`
