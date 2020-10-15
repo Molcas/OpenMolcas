@@ -220,7 +220,7 @@ set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
     # git references for QCMaquis #
     ###############################
 
-    set(reference_git_repo git@github.com:qcscine/qcmaquis.git)
+    set(reference_git_repo https://github.com/qcscine/qcmaquis.git)
 
     ExternalProject_Add(${EP_PROJECT}
         PREFIX ${extprojpath}

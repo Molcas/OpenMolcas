@@ -75,7 +75,7 @@ endif()
 ######################################
 # git references for NEVPT2          #
 ######################################
-set(reference_git_repo git@github.com:qcscine/nevpt2.git)
+set(reference_git_repo https://github.com/qcscine/nevpt2.git)
 set(EP_PROJECT nevpt2_ext)
 
 # Enabling source changes to keep ExternalProject happy
