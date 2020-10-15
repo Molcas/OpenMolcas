@@ -61,15 +61,13 @@
       Character*(*) InLab
       Dimension Data(*)
 *
-      Logical Debug
-      Character*8 TmpLab,Label
+      Logical :: Debug=.False.
+      Character(LEN=8) TmpLab,Label
 *     Dimension LabTmp(2)
 *     Equivalence (TmpLab,LabTmp)
       Dimension TmpBuf(nBuf),HldBuf(1)
-      Character*16 TheName
-      Data TheName/'RdMck'/
-      Data CurrOp/1/
-      Data Debug/.false./
+      Character(LEN=16) :: TheName= 'RdMck'
+      Integer :: CurrOp=1
 *----------------------------------------------------------------------*
 *     Start procedure:                                                 *
 *     Define inline function (symmetry multiplication)                 *

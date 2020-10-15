@@ -435,8 +435,7 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
             If (iadd.ne.0) Then
                irc=-1
                iopt=0
-               iipscr=ip_of_iWork_d(work(ipscr))
-               call rdmck(irc,iOpt,Lab_dsk,jdisp,iwork(iipscr),koper)
+               call drdmck(irc,iOpt,Lab_dsk,jdisp,work(ipscr),koper)
                If (irc.ne.0) Call SysAbendMsg('cnt1el2',
      &                                 'error during read in rdmck',' ')
                call daxpy_(nfck(iirrep),one,
