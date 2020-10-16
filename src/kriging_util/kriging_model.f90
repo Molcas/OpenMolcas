@@ -30,6 +30,7 @@ SUBROUTINE kriging_model()
 
   Integer, Allocatable:: IPIV(:)
   Integer i,INFO ! ipiv the pivot indices that define the permutation matrix
+  Integer i_eff, is, ie, ise, iee
 !
   Call mma_Allocate(B,m_t,Label="B")
   Call mma_Allocate(A,m_t,m_t,Label="A")
@@ -236,7 +237,17 @@ SUBROUTINE kriging_model()
   else
     ordinary = .True.
 !
-    B(:) = [y(:),dy(:)]
+!   Note dy only containes gradients for the set of points which we are considering
+!   B(:) = [y(:),dy(:)]  original code before PGEK implementation
+    B(1:nPoints)=y(1:nPoints)
+    Do i_eff = 1, nInter_eff
+       i = Index_PGEK(i_eff)
+       is =           (i    -1)*(nPoints-nD) + 1
+       ise= nPoints + (i_eff-1)*(nPoints-nD) + 1
+       ie = is + (nPoints-nD) - 1
+       iee= ise+ (nPoints-nD) - 1
+       B(ise:iee)=dy(is:ie)
+     End Do
 #ifdef _DEBUGPRINT_
     Write (6,*) DDot_(m_t,rones,1,B,1) , DDot_(nPoints,rones,1,[1.0D0],0)
 #endif
@@ -249,7 +260,16 @@ SUBROUTINE kriging_model()
 !
 ! form the actual value vector (y-b_0F)
 !
-  B(1:m_t) = [y(1:nPoints)-sb,dy(1:nInter*(nPoints-nD))]
+! B(1:m_t) = [y(1:nPoints)-sb,dy(1:nInter*(nPoints-nD))]
+    B(1:nPoints)=y(1:nPoints)-sb
+    Do i_eff = 1, nInter_eff
+       i = Index_PGEK(i_eff)
+       is =         + (i    -1)*(nPoints-nD) + 1
+       ise= nPoints + (i_eff-1)*(nPoints-nD) + 1
+       ie = is + (nPoints-nD) - 1
+       iee= ise+ (nPoints-nD) - 1
+       B(ise:iee)=dy(is:ie)
+     End Do
 !
 #ifdef _DEBUGPRINT_
   Write (6,*) 'sb,ln(det|PSI|)=',sb,detR

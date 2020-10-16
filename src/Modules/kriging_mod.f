@@ -38,15 +38,16 @@
 !
       real*8, allocatable, protected :: x(:,:), y(:), dy(:)
 !
-!     Inter_save: the dimension of the coordinate vector
-!     nPoints_v: the total number of sample points for which the value is
-!                used
-!     nPoinst_g: the total number of sample points for which the
-!                gradients are used
+!     Inter  : the dimension of the coordinate vector
+!     nPoints: the total number of sample points for which the value is
+!              used or the gradient is used
+!     nD     : the total number of sample points less for which the
+!              gradients are used
 !
-!     We will assume that nPoints_v >= nPoints_g
+!     We will assume that nD >= 0
 !
       integer, protected :: nInter = 0 , nPoints = 0, nD=0
+      integer :: nInter_Eff=0
 
       real*8, allocatable ::
      &        rl(:,:), dl(:), full_Rinv(:,:),
@@ -72,6 +73,7 @@
       real*8 :: dy_(nInter_In,nPoints_In)
 
       nInter = nInter_In
+      nInter_Eff = nInter
       nPoints      = nPoints_In
       nD           = MAX(0,MIN(nD_In,nPoints-nD_In))
 
@@ -79,12 +81,10 @@
       Call mma_Allocate(y,nPoints,Label="y")
       Call mma_Allocate(dy,nInter*(nPoints-nD),Label="dy")
 
-      If (PGEK_On) Then
-         Call mma_Allocate(Index_PGEK,nInter,Label='Index_PGEK')
-         Do i = 1,nInter
-            Index_PGEK(i)=i
-         End Do
-      End If
+      Call mma_Allocate(Index_PGEK,nInter,Label='Index_PGEK')
+      Do i = 1,nInter
+         Index_PGEK(i)=i
+      End Do
 
 !x is the n-dimensional internal coordinates
       x(:,:) = x_(:,:)
@@ -98,6 +98,7 @@
 !     Note the storage as subblocks of the same component of the
 !     gradient, each subblock running over all nPoints_g which
 !     contributes with gradient values.
+!     This will enable a somewhat simpler code later on in the PGEK case.
 !
 !     At this point we also skip those gradients which we will not use in
 !     the kriging.
