@@ -47,7 +47,7 @@
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-c#include "print.fh"
+#include "stdalloc.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "nsd.fh"
@@ -61,7 +61,7 @@ c     Character ChOper(0:7)*3
      &           iStabO(0:7),lOper(nComp),IndGrd(0:2,0:1,0:7)
       Logical AeqB, EQ, TstFnc, DiffOp, IfHss(0:1,0:2,0:1,0:2),
      &        TF,Chck,ifgrd(0:2,0:1)
-c     Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
+      Real*8, Allocatable:: Zeta(:), ZI(:), Kappa(:), PCoor(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -88,10 +88,10 @@ c     Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *
 *     Auxiliary memory allocation.
 *
-      Call GetMem('Zeta','ALLO','REAL',iZeta,S%m2Max)
-      Call GetMem('Zeta','ALLO','REAL',ipZI ,S%m2Max)
-      Call GetMem('Kappa','ALLO','REAL',iKappa,S%m2Max)
-      Call GetMem('PCoor','ALLO','REAL',iPCoor,S%m2Max*3)
+      Call mma_allocate(Zeta,S%m2Max,Label='Zeta')
+      Call mma_allocate(ZI,S%m2Max,Label='ZI')
+      Call mma_allocate(Kappa,S%m2Max,Label='Kappa')
+      Call mma_allocate(PCoor,S%m2Max,3,Label='PCoor')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -175,7 +175,7 @@ C        write(6,*) (iSD(i,jS),i=0,11)
 *
 *         At this point we can compute Zeta.
 *
-          Call ZXia(Work(iZeta),Work(ipZI),
+          Call ZXia(Zeta,ZI,
      &              iPrim,jPrim,Shells(iShll)%Exp,
      &                          Shells(jShll)%Exp)
 *
@@ -454,7 +454,7 @@ c    &                  ' ',Work(ipDAO),iPrim*jPrim,kk)
 *
                Call Setup1(Shells(iShll)%Exp,iPrim,
      &                     Shells(jShll)%Exp,jPrim,
-     &                     A,RB,Work(iKappa),Work(iPCoor),Work(ipZI))
+     &                     A,RB,Kappa,PCoor,ZI)
 *
 *--------------Compute gradients of the primitive integrals and
 *              trace the result.
@@ -464,8 +464,8 @@ CBS            write(6,*) 'Call the  Kernel'
 *
                Call Kernel(Shells(iShll)%Exp,iPrim,
      &                     Shells(jShll)%Exp,jPrim,
-     &                     Work(iZeta),Work(ipZI),
-     &                     Work(iKappa),Work(iPcoor),
+     &                     Zeta,ZI,
+     &                     Kappa,Pcoor,
      &                     Work(ipFnl),iPrim*jPrim,
      &                     iAng,jAng,A,RB,nOrder,Work(iKern),
      &                     MemKer*iPrim*jPrim,Ccoor,
@@ -497,10 +497,10 @@ C     End Do
 *
       Call Free_iSD()
 *
-      Call GetMem('Kappa','FREE','REAL',iKappa,S%m2Max)
-      Call GetMem('PCoor','FREE','REAL',iPCoor,S%m2Max*3)
-      Call GetMem('Zeta','FREE','REAL',ipZI ,S%m2Max)
-      Call GetMem('Zeta','FREE','REAL',iZeta,S%m2Max)
+      Call mma_deallocate(PCoor)
+      Call mma_deallocate(Kappa)
+      Call mma_deallocate(ZI)
+      Call mma_deallocate(Zeta)
 *
       Return
 c Avoid unused argument warnings

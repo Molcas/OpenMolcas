@@ -46,6 +46,7 @@
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "disp.fh"
 #include "nsd.fh"
 #include "setup.fh"
@@ -54,8 +55,9 @@
       Integer iDCRR(0:7), iDCRT(0:7), iStabM(0:7),iCoM(0:7,0:7),
      &           nOp(2),
      &           iStabO(0:7),IndGrd(2,3,3,0:7)
-      Logical AeqB, EQ, TstFnc, DiffOp,
-     &        TF
+      Logical AeqB, EQ, TstFnc, DiffOp, TF
+      Real*8, Allocatable:: Zeta(:), ZI(:), Kappa(:), PCoor(:,:)
+
 *
 *     Statement functions
 *
@@ -67,10 +69,10 @@
 *
 *     Auxiliary memory allocation.
 *
-      Call GetMem('Zeta','ALLO','REAL',iZeta,S%m2Max)
-      Call GetMem('Zeta','ALLO','REAL',ipZI ,S%m2Max)
-      Call GetMem('Kappa','ALLO','REAL',iKappa,S%m2Max)
-      Call GetMem('PCoor','ALLO','REAL',iPCoor,S%m2Max*3)
+      Call mma_allocate(Zeta,S%m2Max,Label='Zeta')
+      Call mma_allocate(ZI,S%m2Max,Label='ZI')
+      Call mma_allocate(Kappa,S%m2Max,Label='Kappa')
+      Call mma_allocate(PCoor,S%m2Max,3,Label='PCoor')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -143,7 +145,7 @@ C        Do jS = 1, iS
 *
 *         At this point we can compute Zeta.
 *
-          Call ZXia(Work(iZeta),Work(ipZI),
+          Call ZXia(Zeta,ZI,
      &              iPrim,jPrim,Shells(iShll)%Exp,
      &                          Shells(jShll)%Exp)
 *
@@ -291,7 +293,7 @@ C        Do jS = 1, iS
 *
                Call Setup1(Shells(iShll)%Exp,iPrim,
      &                     Shells(jShll)%Exp,jPrim,
-     &                     A,RB,Work(iKappa),Work(iPCoor),Work(ipZI))
+     &                     A,RB,Kappa,PCoor,ZI)
 *
 *
                Call Icopy(18*nirrep,[0],0,IndGrd,1)
@@ -347,8 +349,8 @@ C        Do jS = 1, iS
 
                Call Kernel(Shells(iShll)%Exp,iPrim,
      &                     Shells(jShll)%Exp,jPrim,
-     &                     Work(iZeta),Work(ipZI),
-     &                     Work(iKappa),Work(iPcoor),
+     &                     Zeta,ZI,
+     &                     Kappa,Pcoor,
      &                     iPrim*jPrim,
      &                     iAng,jAng,A,RB,nOrder,Work(iKern),
      &                     MemKer,Ccoor,
@@ -373,10 +375,10 @@ C     End Do
 *
       Call Free_iSD()
 *
-      Call GetMem('Kappa','FREE','REAL',iKappa,S%m2Max)
-      Call GetMem('PCoor','FREE','REAL',iPCoor,S%m2Max*3)
-      Call GetMem('Zeta','FREE','REAL',ipZI ,S%m2Max)
-      Call GetMem('Zeta','FREE','REAL',iZeta,S%m2Max)
+      Call mma_deallocate(PCoor)
+      Call mma_deallocate(Kappa)
+      Call mma_deallocate(ZI)
+      Call mma_deallocate(Zeta)
 *
       Return
       End
