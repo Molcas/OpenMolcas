@@ -31,6 +31,7 @@
       Logical :: ordinary=.False.
       Real*8  :: blvAI
       Integer :: nD_In=0
+      Logical :: PGEK_On=.False.
 *
 !     Memory for coordinates, value and gradients of the
 !     sample points.
@@ -54,6 +55,7 @@
      &        Rones(:), l(:),
      &        gpred(:), hpred(:,:), ll(:),
      &        cvMatFder(:), cvMatSder(:), cvMatTder(:)
+      Integer, Allocatable:: Index_PGEK(:)
       real*8 :: pred, sigma, var
       real*8 :: sb, variance, detR, lh, sbO, sbmev
       real*8, parameter :: h = 1e-5, eps = 1e-13, eps2 = 1e-10
@@ -76,6 +78,13 @@
       Call mma_Allocate(x,nInter,nPoints,Label="x")
       Call mma_Allocate(y,nPoints,Label="y")
       Call mma_Allocate(dy,nInter*(nPoints-nD),Label="dy")
+
+      If (PGEK_On) Then
+         Call mma_Allocate(Index_PGEK,nInter,Label='Index_PGEK')
+         Do i = 1,nInter
+            Index_PGEK(i)=i
+         End Do
+      End If
 
 !x is the n-dimensional internal coordinates
       x(:,:) = x_(:,:)
