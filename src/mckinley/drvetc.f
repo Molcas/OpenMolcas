@@ -25,7 +25,6 @@
       External ElGrd,elgrddot
       External ElMem
 #include "Molcas.fh"
-#include "WrkSpc.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "disp.fh"
