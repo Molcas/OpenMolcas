@@ -108,7 +108,7 @@
       Logical Do_ESPF
 #endif
 
-      Logical PCM_On ! function defined in misc_util/pcm_on.f
+      Logical, External :: PCM_On ! function defined in misc_util/pcm_on.f
 
 * --------- Cholesky stuff:
       Integer ALGO

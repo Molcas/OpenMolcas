@@ -997,13 +997,11 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
      &      .and. (ABS(RotMax).lt.1.0D-3 .or. KeyCISE)
      &     ) Then
 
-           if(doDMRG)then
-#ifdef _DMRG_
-             ! Here we calculate the overlap of the state with itself so shouldn't it be 1?
-             overlap = 1.0d0
-             rNorm = 1.0d0
-#endif
-           else
+           rNorm = 1.0d0
+           overlap = 1.0d0
+           ! Shouldn't the overlap in this case be always 1? For DMRG it seems it is...
+           ! But just to make sure we calculate it anyway in case of non-DMRG calculation
+           if (.not.doDMRG) then
              Call Get_dArray("RF CASSCF Vector",Work(ipRF),nConf)
              rNorm=Sqrt(DDot_(nConf,Work(ipRF),1,Work(ipRF),1))
            end if
@@ -1012,6 +1010,7 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
            If (rNorm.gt.1.0D-10) Then
               Call Allocate_Work(ipTemp,nConf)
               rMax=0.0D0
+              qMax=0.0d0
               jDisk = IADR15(4)
               Do i = 1, lRoots
                  if(doDMRG)then

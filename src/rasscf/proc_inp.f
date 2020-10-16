@@ -138,6 +138,8 @@
 
 #ifdef _DMRG_
 !     dmrg(QCMaquis)-stuff
+      Character*256 CurrDir
+      Character*72 ProjectName
       integer              :: LRras2_dmrg(8)
       integer, allocatable :: initial_occ(:,:)
       character(len=20)    :: guess_dmrg

@@ -65,9 +65,7 @@
 
       Integer  Cho_X_GetTol
       External Cho_X_GetTol
-#ifndef _DMRG_
-      logical :: doDMRG = .false.
-#else
+#ifdef _DMRG_
       character(len=100) :: dmrg_start_guess
 #endif
       Dimension Dum(1),iDum(56)

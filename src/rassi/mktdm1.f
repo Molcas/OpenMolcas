@@ -245,6 +245,10 @@ c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer(ISTATE)
         CALL Unused_integer(JSTATE)
+        CALL Unused_integer(job1)
+        CALL Unused_integer(job2)
+        CALL Unused_integer(ist)
+        CALL Unused_integer(jst)
       END IF
 
 #ifdef _DMRG_

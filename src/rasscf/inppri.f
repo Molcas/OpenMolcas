@@ -59,9 +59,7 @@
       Real*8  dmpK
       Integer nScreen
       COMMON /CHOLK / DoLocK,Deco,dmpk,Nscreen
-#ifndef _DMRG_
-      logical :: doDMRG = .false.
-#else
+#ifdef _DMRG_
       character(len=100) :: dmrg_start_guess
 #endif
 

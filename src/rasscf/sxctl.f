@@ -83,9 +83,7 @@
 
       COMMON /CHOTODO /DoActive,DoQmat,ipQmat
       COMMON /CHLCAS /DoCholesky,ALGO
-#ifndef _DMRG_
-      logical :: doDMRG = .false.
-#endif
+
       ipDMAT=ip_Dummy
       nDMAT = 1
 

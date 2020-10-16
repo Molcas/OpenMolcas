@@ -75,10 +75,6 @@
       Character*8 PAMlbl
       Logical First, Dff, Do_DFT, Found
       Logical Do_ESPF
-
-#ifndef _DMRG_
-      logical :: doDMRG = .false.
-#endif
 *
       Logical Do_OFemb, KEonly, OFE_first
       COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
