@@ -125,7 +125,6 @@
       Character*72 ReadStatus
       Character*72 JobTit(mxTit)
       Character*256 myTitle
-      Character*256 CurrDir
       Character*8 MaxLab
       Logical, External :: Is_First_Iter
       Dimension Dummy(1)
