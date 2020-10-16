@@ -122,7 +122,7 @@
       External Get_ExFac
       Character*100 ProgName, Get_SuperName
       External Get_SuperName
-      Character*72 ReadStatus, ProjectName
+      Character*72 ReadStatus
       Character*72 JobTit(mxTit)
       Character*256 myTitle
       Character*256 CurrDir

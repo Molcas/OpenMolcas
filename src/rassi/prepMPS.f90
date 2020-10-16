@@ -65,7 +65,7 @@
   logical,intent(in)    :: trorb
 !-------------------------------------------------------------------------------
 #ifdef _DMRG_
-  integer               :: i, isym, no, ii, ista, jorb, ni, active_offset
+  integer               :: i, isym, no, ii, ista, jorb, ni
   real*8                :: fac(1,1), ckk
   logical               :: debug_dmrg_rassi_code = .false.
   real*8, allocatable   :: tmat(:,:) ! active-active rotation matrix
@@ -121,8 +121,7 @@
     no = nosh(isym)
     do i = 1, nash(isym)
       ! copy the active-active part of the rotation matrix into tmat
-      active_offset = (no+i)*ni+nash(isym)
-      tmat(i,:) = tra(1+active_offset*(i-1):active_offset*i)
+      tmat(i,:) = tra(1+(no+i)*ni+nash(isym)*(i-1):(no+i)*ni+nash(isym)*i)
     end do
     ista = ista + no**2
   end do
