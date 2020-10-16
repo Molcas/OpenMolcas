@@ -56,7 +56,7 @@ Subroutine Start_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
   Write (6,*) 'nD=',nD
   Write (6,*) 'nPoints_v,nPoints_g=',nPoints,nPoints-nD
 #endif
-  m_t=nPoints + nInter*(nPoints-nD)
+  m_t=nPoints + nInter_Eff*(nPoints-nD)
 !
 ! full_R correspond to the gradient of Psi (eq. (2) ref.)
 !

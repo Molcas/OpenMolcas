@@ -16,7 +16,7 @@ Subroutine Finish_Kriging()
 #include "stdalloc.fh"
 !
 !       write(6,*) 'Deallocating all kriging variables'
-  If (PGEK_On) Call mma_deallocate(Index_PGEK)
+  Call mma_deallocate(Index_PGEK)
   Call mma_deallocate(x)
   Call mma_deallocate(y)
   Call mma_deallocate(x0)
