@@ -45,7 +45,6 @@
       External Kernel, KrnlMm
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "disp.fh"
 #include "disp2.fh"
@@ -62,7 +61,7 @@
       Character(LEN=8) Lab_dsk
       Real*8, Allocatable:: Zeta(:), ZI(:), PCoor(:,:), Kappa(:),
      &                      Kern(:), Fnl(:), ScrSph(:), SO(:),
-     &                      Integrals(:)
+     &                      Integrals(:), Scr(:)
 *
 *     Statement functions
 *
@@ -424,7 +423,7 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
       End Do
       nrOp=0
 
-      Call Getmem('Temp','ALLO','REAL',ipscr,ndenssq)
+      Call mma_allocate(Scr,ndenssq,Label='Scr')
       Do 16 iIrrep = 0, nIrrep-1
          iSmLbl = 2**iIrrep
          If (iAnd(ismLbl,loper).ne.0) Then
@@ -435,12 +434,10 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
             If (iadd.ne.0) Then
                irc=-1
                iopt=0
-               call drdmck(irc,iOpt,Lab_dsk,jdisp,work(ipscr),koper)
+               call drdmck(irc,iOpt,Lab_dsk,jdisp,Scr,koper)
                If (irc.ne.0) Call SysAbendMsg('cnt1el2',
      &                                 'error during read in rdmck',' ')
-               call daxpy_(nfck(iirrep),one,
-     &                     work(ipscr),1,
-     &                     Integrals(ip(nrop)),1)
+               call daxpy_(nfck(iirrep),one,scr,1,Integrals(ip(nrop)),1)
             End If
             irc=-1
             iopt=0
@@ -452,7 +449,7 @@ c           If (iPrint.ge.29) Write (*,*) ' nSO=',nSO
          End If
  16   Continue
 *
-      Call Getmem('Temp','FREE','REAL',ipscr,2*ii)
+      Call mma_deallocate(Scr)
       Call mma_deallocate(Integrals)
 *
       Return

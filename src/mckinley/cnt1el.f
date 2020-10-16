@@ -48,6 +48,7 @@
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "nsd.fh"
@@ -55,13 +56,12 @@
 * log trans   integer dcent
       Real*8 A(3), B(3), RB(3),CCoor(3),dens(*)
       Character Label*8
-      Integer nOp(2), ip(8),ipc(0:7),
-     &          iDCRR(0:7), iDCRT(0:7), iStabM(0:7), iStabO(0:7),
-     &          IndGrd(0:7)
+      Integer nOp(2), ip(8), ipc(0:7), iDCRR(0:7), iDCRT(0:7),
+     &        iStabM(0:7), iStabO(0:7), IndGrd(0:7)
       Logical AeqB,TstFnc,TF,IfGrd(3,2),EQ,DiffOP,DiffCnt,Trans(2)
-      Integer iTwoj(0:7)
-      Character*8 Lab_dsk
-      Data iTwoj/1,2,4,8,16,32,64,128/
+      Integer, Parameter:: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
+      Character(LEN=8) Lab_dsk
+      Real*8, Allocatable:: Integrals(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -139,16 +139,22 @@ C will then contain the ordering number of the displacement.
 
 C Allocate one integral array for each of these irreps.
 C The address is kept in array IP().
-       nIC=0
+      nIC=0
       Call ICopy(nIrrep,[0],0,ip,1)
+
+      iStart=1
       Do iIrrep =0,nIrrep-1
          If (iAnd(2**iIrrep,loper).ne.0) Then
             LenInt=nFck(iIrrep)
             nIc=nIC+1
-            Call GetMem(Label,'ALLO','REAL',ip(NIC),LenInt)
-            call dcopy_(LenInt,[Zero],0,Work(ip(nIC)),1)
+            ip(NIC)=iStart
+            iStart=iStart+LenInt
          End If
       End Do
+      LenInt_Tot=iStart-1
+      Call mma_allocate(Integrals,LenInt_Tot,Label='Integrals')
+      Integrals(:)=Zero
+
 C Obtain ISTABO, the stabilizer of the totally symmetric irrep(!)
 C Note: 3rd parameter is bit-packed set of irreps
 C so '1' contains only irrep nr 0.
@@ -435,7 +441,7 @@ C differentiation wrt center iCnt
                  mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
                  If (nfck(iIrrep).ne.0.and.mSO.ne.0)
      &            Call SOSctt(Work(iSOBlk),iBas,jBas,mSO,
-     &                    Work(ip(iIC)),nFck(iIrrep),iSmLbl,
+     &                    Integrals(ip(iIC)),nFck(iIrrep),iSmLbl,
      &                    iCmp,jCmp,iShell,jShell,
      &                    iAO,jAO,
      &                    nIC,Label,2**iIrrep,rHrmt)
@@ -479,42 +485,42 @@ C differentiation wrt center iCnt
             kOper=2**iIrrep
             If (show.and.iIrrep.eq.0) Then
                Write(6,*) Label,': ',
-     &               ddot_(nDens,Dens,1,Work(ip(nrop)),1)
+     &               ddot_(nDens,Dens,1,Integrals(ip(nrop)),1)
                Write(6,*) 'oper: ',
-     &               ddot_(nDens,Work(ip(nrop)),1,Work(ip(nrop)),1)
+     &               ddot_(nDens,Integrals(ip(nrop)),1,
+     &                           Integrals(ip(nrop)),1)
                Write(6,*) 'Dens: ',ddot_(nDens,Dens,1,Dens,1)
             Else If (show) Then
                mDens=nFck(iIrrep)
                Write(6,*) Label
                Write(6,'(A,G20.10)') 'oper: ',
-     &               ddot_(mDens,Work(ip(nrop)),1,Work(ip(nrop)),1)
+     &               ddot_(mDens,Integrals(ip(nrop)),1,
+     &                           Integrals(ip(nrop)),1)
             End if
 *
             If (iadd.ne.0) Then
                irc=-1
                iopt=0
-               iipscr=ip_of_iWork_d(work(ipscr))
-               call RdMck(irc,iOpt,Lab_dsk,jdisp,iwork(iipscr),koper)
+               call dRdMck(irc,iOpt,Lab_dsk,jdisp,work(ipscr),koper)
                If (irc.ne.0) Call SysAbendMsg('cnt1el',
      &                            'error during read in rdmck',' ')
                Call DaXpY_(nfck(iIrrep),one,
      &                   work(ipscr),1,
-     &                   work(ip(nrop)),1)
+     &                   Integrals(ip(nrop)),1)
             End If
             irc=-1
             iopt=0
 #ifdef _DEBUGPRINT_
             Write(6,'(2A,2I8)')'Lab_dsk,jdisp,koper',Lab_dsk,jdisp,koper
 #endif
-            Call dWrMck(irc,iOpt,Lab_dsk,jdisp,work(ip(nrop)),koper)
-            If (irc.ne.0)
-     &      Call SysAbendMsg('cnt1el','error during write in dwrmck',
-     &                       ' ')
-            Call GetMem(Label,'FREE','REAL',ip(nrOp),nFck(iIrrep))
+            Call dWrMck(irc,iOpt,Lab_dsk,jdisp,Integrals(ip(nrop)),
+     &                  koper)
+            If (irc.ne.0) Call SysAbendMsg('cnt1el',
+     &                            'error during write in dwrmck',' ')
          End If
  16   Continue
+      Call mma_deallocate(Integrals)
 *
-
       Call Getmem('Temp','FREE','REAL',ipscr,2*ii)
 *
       Return
