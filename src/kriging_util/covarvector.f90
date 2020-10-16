@@ -14,7 +14,7 @@ SUBROUTINE covarVector(gh)
   use kriging_mod
   Implicit None
 #include "stdalloc.fh"
-  integer i,i0,i1,j,j0,j1,k,k0,k1,gh
+  integer i,i0,i1,j,j0,j1,k,k0,k1,gh, i_eff, j_eff, k_eff
   real*8 sdiffxi,sdiffxj,sdiffxk
   real*8, Allocatable ::  diffxi(:),diffxj(:), diffxk(:)
 !#define _DEBUGPRINT_
@@ -33,7 +33,8 @@ SUBROUTINE covarVector(gh)
 !
     call matern(dl, cv(1:nPoints,1,1), nPoints,1)
     call matderiv(1, dl, cvMatFDer, nPoints, 1)
-    do i=1,nInter
+    do i_eff=1,nInter_eff
+      i = Index_PGEK(i_eff)
 !     1st derivatives second part of eq. (4)
       diffxi(:) = 2.0D0*rl(:,i)/l(i)
       i0 = nPoints + 1 + (i-1)*(nPoints-nD)
@@ -52,8 +53,9 @@ SUBROUTINE covarVector(gh)
     do i=1,nInter
       diffxi(:) = 2.0D0*rl(:,i)/l(i)
       cv(1:nPoints,i,1) = -cvMatFder(1:nPoints) * diffxi(1:nPoints)
-      do j = 1,nInter
-        j0 = nPoints + 1 + (j-1)*(nPoints-nD)
+      do j_eff = 1,nInter_eff
+        j = Index_PGEK(j_eff)
+        j0 = nPoints + 1 + (j_eff-1)*(nPoints-nD)
         j1 = j0 + (nPoints-nD) - 1
         diffxj(:) = -2.0D0*rl(:,j)/l(j)
         if (i.eq.j) Then
@@ -85,10 +87,11 @@ SUBROUTINE covarVector(gh)
         else
           cv(1:nPoints,i,j) = cvMatSder(:) * diffxi(:)*diffxj(:)
         end if
-        do k = 1, nInter
+        do k_eff = 1, nInter_eff
+          k = Index_PGEK(k_eff)
           diffxk(:) = 2.0D0*rl(:,k)/l(k)
           sdiffxk = 2.0D0/l(k)**2
-          k0 = nPoints + 1 + (k-1)*(nPoints-nD)
+          k0 = nPoints + 1 + (k_eff-1)*(nPoints-nD)
           k1 = k0 + (nPoints-nD) - 1
           if (i.eq.j.and.j.eq.k) then
             cv(k0:k1,i,j) = cvMatTder(1+nD:nPoints)*diffxi(1+nD:nPoints)*diffxj(1+nD:nPoints)*diffxk(1+nD:nPoints) &
