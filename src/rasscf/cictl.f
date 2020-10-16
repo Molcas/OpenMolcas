@@ -66,7 +66,9 @@
       Logical Exist,Do_ESPF
 *JB   variables for state rotation on final states
       Logical do_rotate
-      Logical, external :: PCM_On ! function defined in misc_util/pcm_on.f
+
+      ! function defined in misc_util/pcm_on.f
+      Logical, external :: PCM_On
 
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -999,8 +1001,10 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
 
            rNorm = 1.0d0
            overlap = 1.0d0
-           ! Shouldn't the overlap in this case be always 1? For DMRG it seems it is...
-           ! But just to make sure we calculate it anyway in case of non-DMRG calculation
+           ! Shouldn't the overlap in this case be always 1?
+           ! For DMRG it seems it is...
+           ! But just to make sure we calculate it anyway
+           ! in case of non-DMRG calculation
            if (.not.doDMRG) then
              Call Get_dArray("RF CASSCF Vector",Work(ipRF),nConf)
              rNorm=Sqrt(DDot_(nConf,Work(ipRF),1,Work(ipRF),1))
