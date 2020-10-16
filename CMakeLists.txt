@@ -2455,7 +2455,7 @@ if (HDF5 AND HDF5_FOUND)
     list (APPEND nevpt2_defs "_HDF5_")
   endif()
   if (DMRG)
-    list (APPEND hdf5_qcm_progs motra)
+    list (APPEND hdf5_qcm_progs motra rpa)
     if (NEVPT2)
       list (APPEND hdf5_qcm_progs nevpt2)
     endif ()
@@ -2819,7 +2819,7 @@ if (DMRG)
 
   foreach (prog ${hdf5_qcm_progs})
     add_dependencies (${prog} qcmaquis-driver)
-    target_link_libraries (${prog}.exe ${HDF5_QCM_LIBRARIES})
+    target_link_libraries (${prog}.exe ${HDF5_QCM_LIBRARIES} ${HDF5_C_LIBRARIES})
   endforeach ()
 
   list (APPEND dmrg_progs last_energy
@@ -2836,9 +2836,9 @@ if (DMRG)
   endif()
 
   foreach (prog ${dmrg_progs})
-    target_link_libraries (${prog}.exe ${DMRG_LIBRARIES} -lstdc++)
+    target_link_libraries (${prog}.exe ${HDF5_QCM_LIBRARIES} ${EXTERNAL_LIBRARIES} ${DMRG_LIBRARIES} -lstdc++)
     if(MAQUIS_DMRG_FOUND)
-      target_link_libraries (${prog}.exe ${MAQUIS_DMRG_LIBRARIES})
+      target_link_libraries (${prog}.exe ${HDF5_QCM_LIBRARIES} ${EXTERNAL_LIBRARIES} ${MAQUIS_DMRG_LIBRARIES} -lstdc++)
     else()
       # Set proper install RPATH if using internal QCMaquis
       set_target_properties (${prog}.exe PROPERTIES
