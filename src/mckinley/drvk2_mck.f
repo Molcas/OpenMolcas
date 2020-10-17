@@ -80,13 +80,6 @@
       Do iAng = 0, S%iAngMx
          MemTmp=Max(MemTmp,(S%MaxPrm(iAng)*nElem(iAng))**2)
       End Do
-      Call GetMem('Temp1','Allo','Real',ipTmp1,MemTmp )
-      Call GetMem('Temp2','Allo','Real',ipTmp2,MemTmp )
-      Call GetMem('Temp3','Allo','Real',ipTmp3,MemTmp )
-      Call GetMem('Knew ','Allo','Real',ipKnew,S%m2Max  )
-      Call GetMem('Lnew ','Allo','Real',ipLnew,S%m2Max  )
-      Call GetMem('Pnew ','Allo','Real',ipPnew,3*S%m2Max)
-      Call GetMem('Qnew ','Allo','Real',ipQnew,3*S%m2Max)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -211,9 +204,7 @@
      &                      nMemab,Work(ipCon),
      &                      Work(ipM002),M002,Work(ipM003),M003,
      &                      Work(ipM004),M004,
-     &                      mdci,mdcj,
-     &                      ipTmp1,ipTmp2,ipTmp3,
-     &                      ipKnew,ipLnew,ipPnew,ipQnew)
+     &                      mdci,mdcj)
 *
             Indk2(1,ijShll) = jpk2
             Indk2(2,ijShll) = nDCRR
@@ -238,13 +229,6 @@
 ************************************************************************
 *                                                                      *
       Call GetMem('MemMax', 'Free','Real',ipM001, MemMax )
-      Call GetMem(' Qnew',  'Free','Real',ipQnew, 3*S%m2Max)
-      Call GetMem(' Pnew',  'Free','Real',ipPnew, 3*S%m2Max)
-      Call GetMem(' Lnew',  'Free','Real',ipLnew, S%m2Max  )
-      Call GetMem(' Knew',  'Free','Real',ipKnew, S%m2Max  )
-      Call GetMem('Temp3',  'Free','Real',ipTmp3, MemTmp )
-      Call GetMem('Temp2',  'Free','Real',ipTmp2, MemTmp )
-      Call GetMem('Temp1',  'Free','Real',ipTmp1, MemTmp )
       Call GetMem('Con','Free','Real',ipCon,S%m2Max)
 *                                                                      *
 ************************************************************************
