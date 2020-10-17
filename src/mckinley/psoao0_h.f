@@ -41,7 +41,6 @@
       use Integral_Parameters, only: iWROpt
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "real.fh"
 #include "print.fh"
 #include "lCache.fh"

@@ -37,14 +37,13 @@
 #include "real.fh"
 #include "disp.fh"
 #include "disp2.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "nsd.fh"
 #include "setup.fh"
       Real*8  Coor(3,2)
       Integer iDCRR(0:7), iShllV(2), iAngV(4), iCmpV(4)
       Logical New_fock
-      Real*8, Dimension(:), Allocatable :: Data_k2_local
+      Real*8, Allocatable :: Data_k2_local(:), Con(:), Wrk(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -55,7 +54,7 @@
 ************************************************************************
 *                                                                      *
       Call CWTime(TCpu1,TWall1)
-      Call GetMem('k2','Max','Real',idum,maxk2)
+      Call mma_MaxDBLE(Maxk2)
       maxk2 = maxk2 / 2
       Call mma_allocate(Data_k2_local,Maxk2)
       jpk2 = 1
@@ -72,7 +71,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('Con','Allo','Real',ipCon,S%m2Max)
+      Call mma_allocate(Con,S%m2Max,Label='Con')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -83,8 +82,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('MemMax','Max','Real',iDum,MaxMem)
-      Call GetMem('MemMax','Allo','Real',ipM001,MaxMem)
+      Call mma_MaxDBLE(MaxMem)
+      Call mma_allocate(Wrk,MaxMem,Label='Wrk')
+      ipM001=1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -141,7 +141,7 @@
 *
             nZeta = iPrimi * jPrimj
 *
-            Call ConMax(Work(ipCon),iPrimi,jPrimj,
+            Call ConMax(Con,iPrimi,jPrimj,
      &                  Shells(iShll)%pCff,nBasi,
      &                  Shells(jShll)%pCff,nBasj)
 *
@@ -201,9 +201,9 @@
      &                      Shells(iShllV(2))%Exp,jPrimj,
      &                      Shells(iShllV(1))%pCff,iBas,
      &                      Shells(iShllV(2))%pCff,jBas,
-     &                      nMemab,Work(ipCon),
-     &                      Work(ipM002),M002,Work(ipM003),M003,
-     &                      Work(ipM004),M004,
+     &                      nMemab,Con,
+     &                      Wrk(ipM002),M002,Wrk(ipM003),M003,
+     &                      Wrk(ipM004),M004,
      &                      mdci,mdcj)
 *
             Indk2(1,ijShll) = jpk2
@@ -228,8 +228,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('MemMax', 'Free','Real',ipM001, MemMax )
-      Call GetMem('Con','Free','Real',ipCon,S%m2Max)
+      Call mma_deallocate(Wrk)
+      Call mma_deallocate(Con)
 *                                                                      *
 ************************************************************************
 *                                                                      *
