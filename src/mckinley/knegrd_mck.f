@@ -27,8 +27,6 @@
       use Her_RW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
-c#include "print.fh"
 
 #include "grd_mck_interface.fh"
 
@@ -39,8 +37,6 @@ c#include "print.fh"
 *
       nElem(li)=(li+1)*(li+2)/2
 *
-c     iRout = 150
-c     iPrint = nPrint(iRout)
       ABeq(1) = A(1).eq.RB(1)
       ABeq(2) = A(2).eq.RB(2)
       ABeq(3) = A(3).eq.RB(3)
@@ -68,13 +64,13 @@ c     iPrint = nPrint(iRout)
          Call Abend()
       End If
 *
-c     If (iPrint.ge.49) Then
-c        Call RecPrt(' In KnEGrd: A',' ',A,1,3)
-c        Call RecPrt(' In KnEGrd: B',' ',B,1,3)
-c        Call RecPrt(' In KnEGrd: Ccoor',' ',Ccoor,1,3)
-c        Call RecPrt(' In KnEGrd: P',' ',P,nZeta,3)
-c        Write (*,*) ' In KnEGrd: la,lb=',la,lb
-c     End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In KnEGrd: A',' ',A,1,3)
+      Call RecPrt(' In KnEGrd: B',' ',B,1,3)
+      Call RecPrt(' In KnEGrd: Ccoor',' ',Ccoor,1,3)
+      Call RecPrt(' In KnEGrd: P',' ',P,nZeta,3)
+      Write (6,*) ' In KnEGrd: la,lb=',la,lb
+#endif
 *
 *     Compute the cartesian values of the basis functions angular part
 *
