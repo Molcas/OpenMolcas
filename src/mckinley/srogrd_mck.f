@@ -53,8 +53,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
 #include "disp.fh"
 
 #include "grd_mck_interface.fh"
@@ -77,22 +75,19 @@
       mOp(1) = nOp(1)
       mOp(2) = nOp(2)
 *
-      iprint = 0
       DiffCnt=(IfGrad(iDCar,1).or.IfGrad(iDCar,2))
 
-
-
-      If (iPrint.ge.49) Then
-            Call RecPrt(' In SROGrd: A',' ',A,1,3)
-            Call RecPrt(' In SROGrd: RB',' ',RB,1,3)
-            Call RecPrt(' In SROGrd: P',' ',P,nZeta,3)
-            Call RecPrt(' In SROGrd: Alpha',' ',Alpha,nAlpha,1)
-            Call RecPrt(' In SROGrd: Beta',' ',Beta,nBeta,1)
-            Write (6,*) ' In SROGrd: la,lb=',' ',la,lb
-            Write (6,*) ' In SROGrd: Diffs=',' ',
-     &                    IfGrad(iDCar,1),IfGrad(iDCar,2)
-            Write (6,*) ' In SROGrd: Center=',' ',iDCNT
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In SROGrd: A',' ',A,1,3)
+      Call RecPrt(' In SROGrd: RB',' ',RB,1,3)
+      Call RecPrt(' In SROGrd: P',' ',P,nZeta,3)
+      Call RecPrt(' In SROGrd: Alpha',' ',Alpha,nAlpha,1)
+      Call RecPrt(' In SROGrd: Beta',' ',Beta,nBeta,1)
+      Write (6,*) ' In SROGrd: la,lb=',' ',la,lb
+      Write (6,*) ' In SROGrd: Diffs=',' ',
+     &              IfGrad(iDCar,1),IfGrad(iDCar,2)
+      Write (6,*) ' In SROGrd: Center=',' ',iDCNT
+#endif
 
       kdc = 0
       Do 1960 kCnttp = 1, nCnttp
@@ -155,12 +150,12 @@
                iShll = dbsc(kCnttp)%iSRO + iAng
                nExpi=Shells(iShll)%nExp
                nBasisi=Shells(iShll)%nBasis
-               If (iPrint.ge.49) Then
-                  Write (6,*) 'nExpi=',nExpi
-                  Write (6,*) 'nBasis(iShll)=',nBasisi
-                  Write (6,*) ' iAng=',iAng
-                  Call RecPrt('TC',' ',TC,1,3)
-               End If
+#ifdef _DEBUGPRINT_
+               Write (6,*) 'nExpi=',nExpi
+               Write (6,*) 'nBasis(iShll)=',nBasisi
+               Write (6,*) ' iAng=',iAng
+               Call RecPrt('TC',' ',TC,1,3)
+#endif
 
                If (nExpi.eq.0) Go To 1966
 *
