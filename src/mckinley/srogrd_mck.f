@@ -181,7 +181,11 @@
                Call Acore(iang,la,ishll,nordop,TC,A,Array(ip),
      &                     narr-ip+1,Alpha,nalpha,Array(ipFA1),
      &                     array(ipFA2),jfgrad(1,1),ifhess_dum,
-     &                     1,iprint.ge.49)
+#ifdef _DEBUGPRINT_
+     &                     1,.TRUE.)
+#else
+     &                     1,.FALSE.)
+#endif
                call LToSph(Array(ipFA1),nalpha,ishll,la,iAng,2)
 
 
@@ -191,7 +195,11 @@
                Call coreB(iang,lb,ishll,nordop,TC,RB,Array(ip),
      &                    narr-ip+1,Beta,nbeta,Array(ipFB1),
      &                    array(ipFB2),jfgrad(1,2),ifhess_dum,1,
-     &                    iprint.ge.49)
+#ifdef _DEBUGPRINT_
+     &                     .TRUE.)
+#else
+     &                     .FALSE.)
+#endif
                call RToSph(Array(ipFB1),nBeta,ishll,lb,iAng,2)
 
 
@@ -220,6 +228,7 @@ c Avoid unused argument warnings
          Call Unused_real_array(Zeta)
          Call Unused_real_array(ZInv)
          Call Unused_real_array(rKappa)
+         Call Unused_real_array(P)
          Call Unused_integer(nHer)
          Call Unused_real_array(Ccoor)
          Call Unused_logical_array(Trans)

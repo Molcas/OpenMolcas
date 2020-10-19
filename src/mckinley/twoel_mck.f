@@ -130,12 +130,9 @@
      &     IndHss(4,3,4,3,0:7), JndHss(4,3,4,3,0:7),
      &     Index(3,4), moip(0:7)
 *
-      Logical Shijij, AeqB, CeqD, AeqC, ABeqCD,
-     &     ABeq, CDeq, EQ, lEmpty, IfGrd(3,4),
-     &     JfGrd(3,4), first,
-     &     IfHss(4,3,4,3),JfHss(4,3,4,3),IfG(4),ltri,
-     &     Tr(4),ldot,ldot2,
-     &     lgrad,n8,log,no_integrals,new_fock
+      Logical Shijij, AeqB, CeqD, AeqC, ABeqCD, ABeq, CDeq, IfGrd(3,4),
+     &        JfGrd(3,4), first,IfHss(4,3,4,3),JfHss(4,3,4,3),IfG(4),
+     &        ltri,Tr(4),ldot,ldot2,lgrad,n8,log,no_integrals,new_fock
 *                                                                      *
 ************************************************************************
 *                                                                      *
