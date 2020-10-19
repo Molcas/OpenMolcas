@@ -16,8 +16,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
 #include "disp.fh"
 #include "disp2.fh"
 
@@ -41,9 +39,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-c     iRout = 150
-c     iPrint = nPrint(iRout)
-*
       Call ICopy(nIrrep*16*9,[0],0,JndHss,1)
       Call iCopy(nIrrep*4*3,[0],0,JndGrd,1)
       Call LCopy(144,[.False.],0,jfHss,1)
