@@ -27,6 +27,7 @@
       call Get_nAtoms_All(nAtoms)
       nCart=3*nAtoms
       nHess=nCart*(nCart+1)/2
+      if (Will_Print) write(6,*)
 
       ! read data from interface output file
       ! write to RUNFILE or GRADS as we read it
