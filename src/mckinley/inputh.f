@@ -624,7 +624,7 @@ c      EndIf
                   Fact =-C(4,ldsp) * C(j,ldsp)
                Else
                   Fact=Zero
-                  Write (6,*) 'Input_h: Error"
+                  Write (6,*) 'Inputh: Error'
                   Call Abend()
                End If
                AM(iTR,ldsp) = Fact
