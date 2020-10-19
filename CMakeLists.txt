@@ -75,7 +75,7 @@ endif ()
 # discover some necessary tools
 find_program (GIT "git")
 find_program (PERL "perl")
-mark_as_advanced(FORCE GIT PERL)
+mark_as_advanced (FORCE GIT PERL)
 
 FIND_PACKAGE (PythonInterp 3.0)
 if (NOT PYTHONINTERP_FOUND)
@@ -153,12 +153,12 @@ option (TOOLS "Compile supported tools." OFF)
 option (BUILD_TESTING "Build the unit_tests." ON)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_definitions(_ADDITIONAL_RUNTIME_CHECK_)
+    add_compile_definitions (_ADDITIONAL_RUNTIME_CHECK_)
 endif()
 
 if (";Debug;Garble;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};" OR BIGOT)
-    add_compile_definitions(_WARNING_WORKAROUND_)
-endif()
+    add_compile_definitions (_WARNING_WORKAROUND_)
+endif ()
 
 # External projects
 option (MSYM       "Activate MSYM support (requires External/libmsym submodule)."                               OFF)
@@ -185,7 +185,7 @@ set (ENV{CMAKE_SESSION} "OpenMolcas")
 message ("Configuring compilers:")
 
 if (DMRG OR WFA OR MolGUI)
-        enable_language(CXX)
+        enable_language (CXX)
 endif ()
 
 #avoid using CXX compiler for linking
@@ -985,7 +985,7 @@ if (NOT CMAKE_Fortran_FLAGS_USER)
        CACHE INTERNAL "set to FALSE to reset to default Fortran flags" FORCE)
 endif ()
 if (EXPERT)
-  mark_as_advanced(CLEAR
+  mark_as_advanced (CLEAR
     CMAKE_Fortran_FLAGS_DEFAULT
     CMAKE_Fortran_FLAGS_DEBUG
     CMAKE_Fortran_FLAGS_GARBLE
@@ -994,7 +994,7 @@ if (EXPERT)
     CMAKE_Fortran_FLAGS_FAST
   )
 else ()
-  mark_as_advanced(FORCE
+  mark_as_advanced (FORCE
     CMAKE_Fortran_FLAGS_DEFAULT
     CMAKE_Fortran_FLAGS_DEBUG
     CMAKE_Fortran_FLAGS_GARBLE
@@ -1157,7 +1157,7 @@ if (MPI)
       set (MPI_IMPLEMENTATION "mpich")
     else ()
       message (FATAL_ERROR "Unknown or unsupported MPI implementation:\n${MPIEXEC_VERSION}")
-    endif()
+    endif ()
   endif ()
   message ("-- MPI_IMPLEMENTATION: ${MPI_IMPLEMENTATION}")
 
@@ -1392,7 +1392,7 @@ if (LINALG STREQUAL "OpenBLAS")
   message ("-- Using OpenBLAS LAPACK+BLAS libraries")
 
   # find out what OPENBLASROOT is
-  mark_as_advanced(CLEAR OPENBLASROOT)
+  mark_as_advanced (CLEAR OPENBLASROOT)
   if (OPENBLASROOT STREQUAL "")
     set (OPENBLASROOT $ENV{OPENBLASROOT} CACHE PATH "OpenBLAS root directory." FORCE)
     if (NOT OPENBLASROOT)
@@ -1429,7 +1429,7 @@ if (LINALG STREQUAL "OpenBLAS")
     message ("-- Checking OpenBLAS for 64-bit integer interface...")
     include (CheckSymbolExists)
     unset (OPENBLAS_WITH_ILP64 CACHE)
-    check_symbol_exists("OPENBLAS_USE64BITINT" ${OPENBLAS_CONFIG} OPENBLAS_WITH_ILP64)
+    check_symbol_exists ("OPENBLAS_USE64BITINT" ${OPENBLAS_CONFIG} OPENBLAS_WITH_ILP64)
     if (ADDRMODE EQUAL 64 AND NOT OPENBLAS_WITH_ILP64)
       message (FATAL_ERROR
                "OpenBLAS was not configured for 64-bit integer interface, "
@@ -1459,7 +1459,7 @@ if (LINALG STREQUAL "OpenBLAS")
   if (NOT LIBOPENBLAS STREQUAL LIBOPENBLAS_LAST)
     # check if the OpenBLAS library contains LAPACK functionality
     message ("-- Checking OpenBLAS for LAPACK functionality...")
-    include(CheckFortranFunctionExists)
+    include (CheckFortranFunctionExists)
     set (CMAKE_REQUIRED_LIBRARIES ${LIBOPENBLAS})
     unset (OPENBLAS_WITH_LAPACK CACHE)
     check_fortran_function_exists ("dsyev" OPENBLAS_WITH_LAPACK)
@@ -1828,14 +1828,14 @@ endif ()
 
 if (DMRG)
   message ("Configuring QCMaquis DMRG support:")
-  if(QCMaquis_ROOT OR DEFINED ENV{QCMaquis_ROOT})
+  if (QCMaquis_ROOT OR DEFINED ENV{QCMaquis_ROOT})
     if (DEFINED ENV{QCMaquis_ROOT})
       set (QCMaquis_ROOT $ENV{QCMaquis_ROOT})
     endif ()
     message(STATUS "External QCMaquis root specified at: ${QCMaquis_ROOT}")
     set (QCMaquis_ROOT ${QCMaquis_ROOT} CACHE STRING "Specify path to existing QCMaquis installation. This will allow to skip the installation of QCMaquis.")
-    set(MAQUIS_DMRG_DIR ${QCMaquis_ROOT}/share/cmake)
-    find_package(MAQUIS_DMRG PATHS ${QCMaquis_ROOT} NO_DEFAULT_PATH)
+    set (MAQUIS_DMRG_DIR ${QCMaquis_ROOT}/share/cmake)
+    find_package (MAQUIS_DMRG PATHS ${QCMaquis_ROOT} NO_DEFAULT_PATH)
   endif ()
 
   add_definitions (-D_DMRG_)
@@ -1861,7 +1861,7 @@ if (DMRG)
   message ("-- DMRG_LIBRARIES: ${DMRG_LIBRARIES}")
   if (MAQUIS_DMRG_FOUND)
     message (" -- External QCMaquis libraries: ${MAQUIS_DMRG_LIBRARIES}")
-  endif()
+  endif ()
   message ("-- HDF5 QCMaquis include path: ${HDF5_QCM_INCLUDE}")
   message ("-- HDF5 QCMaquis libraries: ${HDF5_QCM_LIBRARIES}")
 else ()
@@ -2006,8 +2006,8 @@ if (WFA)
     message ("-- libwfa support ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
   endif ()
 else ()
-  mark_as_advanced(FORCE ARMADILLO_INC)
-  message("libwfa support DISABLED")
+  mark_as_advanced (FORCE ARMADILLO_INC)
+  message ("libwfa support DISABLED")
 endif ()
 
 # NEVPT2
@@ -2324,7 +2324,7 @@ endif ()
 # activate HDF5 wrappers for I/O
 if (HDF5 AND HDF5_FOUND)
   set (util hdf5_util)
-  find_source(${util})
+  find_source (${util})
   if (DEFINED ${util}_src)
     list (APPEND utils ${util})
     list (APPEND ${util}_incs ${HDF5_INCLUDE_DIRS})
@@ -2347,7 +2347,7 @@ if (HDF5 AND HDF5_FOUND)
     list (APPEND ${util}_defs "_HDF5_")
   endforeach ()
   if (DMRG)
-    list(APPEND hdf5_qcm_utils transform_util)
+    list (APPEND hdf5_qcm_utils transform_util)
     foreach (util
             ${hdf5_qcm_utils}
     )
@@ -2453,7 +2453,7 @@ if (HDF5 AND HDF5_FOUND)
   endforeach ()
   if (NEVPT2)
     list (APPEND nevpt2_defs "_HDF5_")
-  endif()
+  endif ()
   if (DMRG)
     list (APPEND hdf5_qcm_progs motra rpa)
     if (NEVPT2)
@@ -2587,8 +2587,12 @@ if (DEFINED ${util}_defs)
 endif ()
 # needed to fix a HDF5 dependency of transform_util
 if (DMRG)
-  add_dependencies(mods_obj qcmaquis-hdf5-interface)
+  add_dependencies (mods_obj qcmaquis-hdf5-interface)
 endif ()
+if (NEVPT2)
+  add_dependencies (mods_obj nevpt2_ext)
+endif ()
+
 
 if (GEN1INT)
   add_dependencies (mods_obj gen1int)
@@ -2627,7 +2631,7 @@ foreach (util ${utils})
       foreach (util ${hdf5_qcm_utils})
         add_dependencies (${util}_obj qcmaquis-hdf5-interface)
       endforeach ()
-    endif()
+    endif ()
     # utility-specific compile definitions
     if (DEFINED ${util}_defs)
       set_target_properties (${util}_obj PROPERTIES COMPILE_DEFINITIONS "${${util}_defs}")
@@ -2656,7 +2660,7 @@ if (GA AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU"
   # -w disables all warnings, this is the only way to compile it with BIGOT but until there's an update
   # from GA that supports clean compilation on gfortran > 10.0 there's no other way
   target_compile_options (ga_util_obj PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:-w -fallow-argument-mismatch>)
-endif()
+endif ()
 
 
 # build an actual molcas library
@@ -2833,13 +2837,13 @@ if (DMRG)
                          casvb)
   if (NEVPT2)
     list (APPEND dmrg_progs nevpt2)
-  endif()
+  endif ()
 
   foreach (prog ${dmrg_progs})
     target_link_libraries (${prog}.exe ${DMRG_LIBRARIES} ${HDF5_QCM_LIBRARIES} -lstdc++)
-    if(MAQUIS_DMRG_FOUND)
+    if (MAQUIS_DMRG_FOUND)
       target_link_libraries (${prog}.exe ${MAQUIS_DMRG_LIBRARIES} ${HDF5_QCM_LIBRARIES} -lstdc++)
-    else()
+    else ()
       # Set proper install RPATH if using internal QCMaquis
       set_target_properties (${prog}.exe PROPERTIES
         BUILD_WITH_INSTALL_RPATH TRUE
@@ -3140,7 +3144,7 @@ if (PYTHONINTERP_FOUND)
     RESULT_VARIABLE EXTRACT_RESULT
   )
   if (EXTRACT_ERROR)
-    message(FATAL_ERROR "Running \"extract_xmldoc.py\" failed: ${EXTRACT_ERROR}")
+    message (FATAL_ERROR "Running \"extract_xmldoc.py\" failed: ${EXTRACT_ERROR}")
   endif ()
   # check XML consistency, only if the program is found
   find_program (XMLLINT "xmllint")
@@ -3177,7 +3181,7 @@ endforeach ()
 #                                                                              #
 ################################################################################
 
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
   enable_testing ()
   add_subdirectory (unit_tests)
 endif ()
