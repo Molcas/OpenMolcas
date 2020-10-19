@@ -1848,7 +1848,7 @@ if (DMRG)
   add_subdirectory (${proj_bin} ${proj_bin})
 
   get_directory_property (${DMRG_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${DMRG_INCLUDE})
-  get_directory_property (${DMRG_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${DMRG_LIBRARIES})
+  get_directory_property (${MAQUIS_DMRG_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${MAQUIS_DMRG_LIBRARIES})
   include_directories (${DMRG_INCLUDE})
 
 
@@ -1857,9 +1857,10 @@ if (DMRG)
   include_directories (${HDF5_QCM_INCLUDE})
 
   message ("Enabled QCMaquis DMRG support.")
-  message ("-- DMRG_INCLUDE_PATH: ${DMRG_INCLUDE}")
-  message ("-- DMRG_LIBRARIES: ${DMRG_LIBRARIES}")
-  if (MAQUIS_DMRG_FOUND)
+  message ("-- QCMaquis include path: ${DMRG_INCLUDE}")
+  if (NOT MAQUIS_DMRG_FOUND)
+    message ("-- QCMaquis libraries: ${MAQUIS_DMRG_LIBRARIES}")
+  else ()
     message (" -- External QCMaquis libraries: ${MAQUIS_DMRG_LIBRARIES}")
   endif ()
   message ("-- HDF5 QCMaquis include path: ${HDF5_QCM_INCLUDE}")
@@ -2840,10 +2841,8 @@ if (DMRG)
   endif ()
 
   foreach (prog ${dmrg_progs})
-    target_link_libraries (${prog}.exe ${DMRG_LIBRARIES} ${HDF5_QCM_LIBRARIES} -lstdc++)
-    if (MAQUIS_DMRG_FOUND)
-      target_link_libraries (${prog}.exe ${MAQUIS_DMRG_LIBRARIES} ${HDF5_QCM_LIBRARIES} -lstdc++)
-    else ()
+    target_link_libraries (${prog}.exe ${MAQUIS_DMRG_LIBRARIES} ${HDF5_QCM_LIBRARIES} -lstdc++)
+    if (NOT MAQUIS_DMRG_FOUND)
       # Set proper install RPATH if using internal QCMaquis
       set_target_properties (${prog}.exe PROPERTIES
         BUILD_WITH_INSTALL_RPATH TRUE

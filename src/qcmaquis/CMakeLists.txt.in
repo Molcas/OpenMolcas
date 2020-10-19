@@ -136,7 +136,7 @@ set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
     ##########################
     find_package(GSL REQUIRED)
       if(GSL_FOUND)
-        list(APPEND DMRG_LIBRARIES ${GSL_LIBRARIES})
+        list(APPEND MAQUIS_DMRG_LIBRARIES ${GSL_LIBRARIES})
     endif(GSL_FOUND)
 
     ##########
@@ -210,7 +210,7 @@ set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
 
     find_package(Boost 1.56 COMPONENTS ${Boost_requirements})
     if(Boost_FOUND)
-        list(APPEND DMRG_LIBRARIES ${Boost_LIBRARIES})
+        list(APPEND MAQUIS_DMRG_LIBRARIES ${Boost_LIBRARIES})
     else(Boost_FOUND)
         message(FATAL_ERROR "Boost >= 1.56 is required for QCMaquis")
     endif(Boost_FOUND)
@@ -306,16 +306,16 @@ set(DMRG_INCLUDE ${CMAKE_Fortran_MODULE_DIRECTORY} PARENT_SCOPE)
 
 # set library paths
 if (MAQUIS_DMRG_FOUND)
-  set(DMRG_LIBRARIES qcmaquis-driver PARENT_SCOPE)
+  set(MAQUIS_DMRG_LIBRARIES qcmaquis-driver PARENT_SCOPE)
 else()
 # add static QCMaquis libraries
-  set(DMRG_LIBRARIES
+  set(MAQUIS_DMRG_LIBRARIES
       ${CMAKE_BINARY_DIR}/qcmaquis/lib/${CMAKE_FIND_LIBRARY_PREFIXES}dmrg_utils.a
       ${CMAKE_BINARY_DIR}/qcmaquis/lib/${CMAKE_FIND_LIBRARY_PREFIXES}dmrg_models.a
       qcmaquis-driver
       ${ALPS_LIBRARY}
       maquis_dmrg
-      ${DMRG_LIBRARIES}
+      ${MAQUIS_DMRG_LIBRARIES}
     PARENT_SCOPE)
 endif()
 
