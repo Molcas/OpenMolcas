@@ -232,6 +232,7 @@ c Avoid unused argument warnings
          Call Unused_real_array(Zeta)
          Call Unused_real_array(ZInv)
          Call Unused_real_array(rKappa)
+         Call Unused_real_array(P)
          Call Unused_integer(nHer)
          Call Unused_real_array(Ccoor)
          Call Unused_logical_array(Trans)
