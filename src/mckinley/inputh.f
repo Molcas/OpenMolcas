@@ -618,11 +618,14 @@ c      EndIf
             If (ijSym.ne.0) Go To 1210
             iTR = iTR + 1
             Do 1220 ldsp = 1, lDisp(0)
-               ipOut = ipC + 4*(ldsp-1)
                If (Car(ldsp).eq.j) Then
                   Fact = C(4,ldsp) * C(k,ldsp)
                Else If (Car(ldsp).eq.k) Then
                   Fact =-C(4,ldsp) * C(j,ldsp)
+               Else
+                  Fact=Zero
+                  Write (6,*) 'Input_h: Error"
+                  Call Abend()
                End If
                AM(iTR,ldsp) = Fact
  1220       Continue
@@ -646,7 +649,7 @@ c      EndIf
                   If (iTemp(jTR).eq.ldsp) Go To 1231
  1235          Continue
 *              Write (*,*) ' Checking vector #', ldsp
-               call dcopy_(nTR,AM(:,ldps),1,Tmp(:,iTR),1)
+               call dcopy_(nTR,AM(:,ldsp),1,Tmp(:,iTR),1)
 *              Call RecPrt(' Vector',' ',Tmp(:,iTR),nTR,1)
 *--------------Gram-Schmidt orthonormalize against accepted vectors
                Do 1232 lTR = 1, iTR-1
