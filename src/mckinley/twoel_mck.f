@@ -97,7 +97,6 @@
 #include "Molcas.fh"
 #include "ndarray.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "buffer.fh"
@@ -143,6 +142,20 @@
 *     Statement function to compute canonical index
 *
       nElem(i) = (i+1)*(i+2)/2
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call TwoEl_mck_Internal(Data1,Data2)
+
+      Contains
+      Subroutine TwoEl_mck_Internal(Data1,Data2)
+      Use Iso_C_Binding
+      Real*8, Target :: Data1(nZeta*nDArray+nDScalar,nData1),
+     &                  Data2( nEta*nDArray+nDScalar,nData2)
+      Integer, Pointer :: iData1(:), iData2(:)
+      Integer :: lZeta=0, lEta=0
+      Logical EQ, lEmpty
+      External EQ, lEmpty
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -376,10 +389,12 @@
                iy2 = iPhase(2,iDCRT(lDCRT))
                iz2 = iPhase(3,iDCRT(lDCRT))
 *
-               ipIndZ=ip_of_iWork_d(Data1(ip_IndZ(1,nZeta),lDCR1))-1
-               ipIndE=ip_of_iWork_d(Data2(ip_IndZ(1,nEta ),lDCR2))-1
-               nZeta_Tot=iWork(ipIndZ+nZeta+1)
-               nEta_Tot =iWork(ipIndE+nEta+1)
+               Call C_F_Pointer(C_Loc(Data1(ip_IndZ(1,nZeta),lDCR1)),
+     &                         iData1,[nZeta+1])
+               Call C_F_Pointer(C_Loc(Data2(ip_IndZ(1,nEta ),lDCR2)),
+     &                         iData2,[nEta +1])
+               nZeta_Tot=iData1(nZeta+1)
+               nEta_Tot =iData2(nEta +1)
 *
                no_integrals=.true.
                first=.true.
@@ -439,8 +454,8 @@
      &                    Coeff3,nGamma,kBask,
      &                    Coeff4,nDelta,lBasl,
      &                    Work4,mab*mcd,Work3,nWork3/2,Work2,
-     &                    iWork(ipIndZ+iZeta),mZeta,
-     &                    iWork(ipIndE+iEta),mEta)
+     &                    iData1(iZeta:iZeta+mZeta-1),mZeta,
+     &                    iData2(iEta :iEta +mEta -1),mEta)
                      Call Timing(dum1,Time,dum2,dum3)
                      CPUStat(nTwoDens)=CPUStat(nTwoDens)+Time
 *
@@ -453,14 +468,14 @@
      &                    mZeta,mEta,lZeta,lEta,
      &                    Zeta,ZInv,P,xA,xB,rKab,
      &                    Data1(ip_Z(iZeta,nZeta),lDCR1),
-     &                    iWork(ipIndZ+iZeta),
+     &                    iData1(iZeta:iZeta+mZeta-1),
      &                    Data1(ip_ZtMax(nZeta),ldcr1),
      &                    Data1(ip_abMax(nZeta),ldcr1),
      &                    Data1(ip_ZetaM(nZeta),ldcr1),
      &                    nAlpha,nBeta,
      &                    Eta, EInv,Q,xG,xD,rKcd,
      &                    Data2(ip_Z(iEta,nEta),lDCR2),
-     &                    iWork(ipIndE+iEta),
+     &                    iData2(iEta :iEta +mEta -1),
      &                    Data2(ip_ZtMax(nEta),ldcr2),
      &                    Data2(ip_abMax(nEta),ldcr2),
      &                    Data2(ip_ZetaM(nEta),ldcr2),
@@ -669,6 +684,7 @@
  200     Continue
 *
  100  Continue
+      Return
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -685,4 +701,5 @@ c Avoid unused argument warnings
          Call Unused_real_array(Delta)
          Call Unused_integer(ipdens)
       End If
-      End
+      End Subroutine Twoel_Mck_Internal
+      End Subroutine Twoel_Mck
