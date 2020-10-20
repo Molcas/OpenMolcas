@@ -50,7 +50,8 @@
       Real*8 Clock(4)
       Real*8, Allocatable:: DigPrec(:), Kappa(:), dKappa(:), Sigma(:),
      &                      Temp1(:), Temp2(:), Temp3(:), Temp4(:),
-     &                      Sc1(:), Sc2(:), Sc3(:)
+     &                      Sc1(:), Sc2(:), Sc3(:),
+     &                      Dens(:), Pens(:), rmoaa(:)
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -214,12 +215,12 @@ c
           dKappa(1:nDens2)=Zero
           Sigma(1:nDens2)=Zero
           If (CI) Then
-             Call GetMem('1Dens','ALLO','Real',ipDe,n1dens)
-             Call GetMem('2Dens','ALLO','Real',ipP,n2dens)
-             Call GetMem('2Dens','ALLO','Real',iprmoaa,n2dens)
-             call dcopy_(n1dens,[0.0d0],0,Work(ipDe),1)
-             call dcopy_(n2dens,[0.0d0],0,Work(ipP),1)
-             call dcopy_(n2dens,[0.0d0],0,Work(iprmoaa),1)
+             Call mma_allocate(Dens,n1dens,Label='Dens')
+             Call mma_allocate(Pens,n2dens,Label='Pens')
+             Call mma_allocate(rmoaa,n2dens,Label='Pens')
+             Dens(:)=Zero
+             Pens(:)=Zero
+             rmoaa(:)=Zero
           End If
 *
 *-----------------------------------------------------------------------------
@@ -347,7 +348,7 @@ c
 
              irc=ipnout(-1)
              Call RInt_ns(dKappa,
-     &                 Work(iprmoaa),    ! OIT 2-el-int (active indexes)
+     &                 rmoaa,    ! OIT 2-el-int (active indexes)
      &                 Sc2,      ! SC2 contains the E*kappa
      &                 Temp4,    ! Contains OIT FI
      &                 isym,reco,jspin,rInEne) ! OIT integrals are used
@@ -374,7 +375,7 @@ c
              If (CI) Then
 *              Adjusted to timedep
                Call CISigma_td(jspin,State_Sym,pstate_sym,
-     &                      Temp4,iprmoaa,idum,
+     &                      Temp4,rmoaa,idum,
      &                      ipCI,ipS1,'T')
                Clock(iTimeKC)=Clock(iTimeKC)+Tim3
 *
@@ -435,7 +436,7 @@ C
 *
              irc=ipnout(-1)
              if (CI) Call CISigma_td(0,PState_Sym,Pstate_sym,
-     &                    Work(ipFIMO),k2int,idum,
+     &                    Work(ipFIMO),Work(k2int),idum,
      &                    ipCId,ipS2,'S')
 *
 c I want the RASSCF energy of the ACTIVE electrons !!!!
@@ -478,8 +479,7 @@ c
              Response=.true.
              irc=ipnout(-1)
 c
-             Call CIDens_TD(ipCid,PState_Sym,
-     &                       Work(ipp),Work(ipDe))     ! Jeppes
+             Call CIDens_TD(ipCid,PState_Sym,Pens,Dens)     ! Jeppes
 *
 *            density for inactive= 2(<d|0>+<0|d>)
 *
@@ -502,7 +502,7 @@ c
 c Fockgen gives the Fock matrix, MO integrals and one index transformed
 c MO integrals
 c
-                 Call Fockgen_td(d_0,Work(ipDe),Work(ipp),Sc3,isym)
+                 Call Fockgen_td(d_0,Dens,Pens,Sc3,isym)
 *
 *-----------------------------------------------------------------------------
 *
@@ -763,9 +763,9 @@ C
           Call mma_deallocate(Sc2)
           Call mma_deallocate(Sc1)
           If (CI) Then
-             Call GetMem('2Dens','FREE','Real',iprmoaa,n2dens)
-             Call GetMem('2Dens','FREE','Real',ipP,n1dens)
-             Call GetMem('1Dens','FREE','Real',ipDe,n2dens)
+             Call mma_deallocate(rmoaa)
+             Call mma_deallocate(Pens)
+             Call mma_deallocate(Dens)
           End If
  110     Continue
 *

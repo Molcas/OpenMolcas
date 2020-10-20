@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       SubRoutine CISigma_td(iispin,iCsym,iSSym,Int1,ipint2s,
+       SubRoutine CISigma_td(iispin,iCsym,iSSym,Int1,Int2s,
      &                    ipint2a,ipCI1,ipCI2,NT)
        Implicit Real*8(a-h,o-z)
 c
@@ -28,7 +28,7 @@ c
 #include "cicisp_mclr.fh"
        Character NT
        integer kic(2),opout
-       Real*8 Int1(*)
+       Real*8 Int1(*), Int2s(*)
        itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
 *      Interface Anders to Jeppe
@@ -42,13 +42,15 @@ c
 *
 *      One electron integrals
 *
-       KAIN1=ip_of_Work(Int1(1))
+       ipInt1=ip_of_Work(Int1(1))
+       KAIN1=ipInt1
 *
 *      Two electron integrals
 *      symmetric in perticle one and two
 *
 *
-       KINT2=ipint2s
+       ipInt2s=ip_of_Work(Int2s(1))
+       KINT2= ipInt2s
        KINT2a=ipint2a
 *
 *      Two electron integrals
@@ -95,8 +97,6 @@ C
 *
 *      Triplet/Singlet operator
 *
-*       Call Getmem('cisigma2','CHECK','REAL',idum,idum)
-*
        ist=iispin+1
        square=.false.
 *
@@ -135,7 +135,7 @@ C......... The operator is not sym --> transpose integrals! NT.ne.S
                 If (ij.ge.kl) Then
                  ijkl=itri(ij,kl)
                  jilk=itri(ji,lk)
-                 Work(ipTI2+jilk-1)=Work(ipint2s+ijkl-1)
+                 Work(ipTI2+jilk-1)=int2s(ijkl)
                 End if
                End Do
               End Do

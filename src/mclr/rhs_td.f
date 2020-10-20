@@ -287,17 +287,10 @@
        ipMX=0
        If (iAnd(ntPert(idisp),2**3).ne.0) ipMX=ipMOX
 *
-*      Call Getmem('rhs7c','CHECK','REAL',idum,idum)
-*
        Call CiSigma_td(0,State_Sym,iEor(State_sym-1,idsym-1)+1,
-     &             Work(ipFix),ipMx,idum,ipCI,ipst,'N')
+     &             Work(ipFix),Work(ipMx),idum,ipCI,ipst,'N')
 C
-*       Call RECPRT('IpST',' ',Work(ipin(ipST)),nConf1*2,1)
-*       Call RECPRT('ipFix',' ',Work(ipFix),ndens2,1)
-*       Call RECPRT('ipmox',' ',Work(ipmox),ndens2,1)
 C
-*      Call Getmem('rhs7d','CHECK','REAL',idum,idum)
-*
        If (idsym.eq.1) Then
         EnA=E2_td(Work(ipFix),Work(ipmox),idsym-1,idisp)
         Call DaXpY_(nConf1,-Ena,Work(ipin(ipCI))
@@ -307,10 +300,6 @@ C
       End If
 *
       Call DYAX(ndens2,2.0d0,rkappa,1,Temp1,1)
-C
-*      Call Getmem('rhs8','CHECK','REAL',idum,idum)
-*      Call RECPRT('IpST',' ',Work(ipin(ipST)),nConf1*2,1)
-*      Stop 10
 C
       Do iS=1,nSym
         js=iEOR(is-1,loper)+1
