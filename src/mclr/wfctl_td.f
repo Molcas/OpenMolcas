@@ -49,7 +49,8 @@
       Logical lPrint,converged(8)
       Real*8 Clock(4)
       Real*8, Allocatable:: DigPrec(:), Kappa(:), dKappa(:), Sigma(:),
-     &                      Temp1(:), Temp2(:), Temp3(:), Temp4(:)
+     &                      Temp1(:), Temp2(:), Temp3(:), Temp4(:),
+     &                      Sc1(:), Sc2(:), Sc3(:)
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -205,9 +206,9 @@ c
           Call mma_allocate(Temp2,nDens2+6,Label='Temp2')
           Call mma_allocate(Temp3,nDens2+6,Label='Temp3')
           Call mma_allocate(Temp4,nDens2+6,Label='Temp4')
-          Call Getmem('Scr1  ','ALLO','Real',ipSc1  ,nDens2+6)
-          Call Getmem('Scr3  ','ALLO','Real',ipSc3  ,nDens2+6)
-          Call Getmem('Scr2  ','ALLO','Real',ipSc2  ,nDens2+6)
+          Call mma_allocate(Sc1,nDens2+6,Label='Sc1')
+          Call mma_allocate(Sc2,nDens2+6,Label='Sc2')
+          Call mma_allocate(Sc3,nDens2+6,Label='Sc3')
           Temp1(1:nDens2)=Zero
           Kappa(1:nDens2)=Zero
           dKappa(1:nDens2)=Zero
@@ -230,8 +231,8 @@ c
 *
 *                 (T1,T2,T3,T4,T5,T6,T7,Kappa1,CI1)
 *
-           Call RHS_td(Sigma,Kappa,Temp1,Temp3,Work(ipSc2),dKappa,
-     &                 Work(ipSc3),Temp4,ipST,
+           Call RHS_td(Sigma,Kappa,Temp1,Temp3,Sc2,dKappa,
+     &                 Sc3,Temp4,ipST,
      &                 iDisp,iSym-1,Work(ipCMO),jdisp,jspin,CI)
 *
 *
@@ -347,11 +348,11 @@ c
              irc=ipnout(-1)
              Call RInt_ns(dKappa,
      &                 Work(iprmoaa),    ! OIT 2-el-int (active indexes)
-     &                 Work(ipSc2),      ! SC2 contains the E*kappa
+     &                 Sc2,      ! SC2 contains the E*kappa
      &                 Temp4,    ! Contains OIT FI
      &                 isym,reco,jspin,rInEne) ! OIT integrals are used
 *
-             Call RInttd(Work(ipSc2),dKappa,isym)
+             Call RInttd(Sc2,dKappa,isym)
 c
              Clock(iTimeKK)=Clock(iTimeKK)+Tim2
 *
@@ -501,8 +502,7 @@ c
 c Fockgen gives the Fock matrix, MO integrals and one index transformed
 c MO integrals
 c
-                 Call Fockgen_td(d_0,Work(ipDe),Work(ipp),
-     &                    Work(ipSc3),isym)
+                 Call Fockgen_td(d_0,Work(ipDe),Work(ipp),Sc3,isym)
 *
 *-----------------------------------------------------------------------------
 *
@@ -526,8 +526,8 @@ c
 **********************************************************************
 C
 *         If (isym.eq.2) Then
-*            Call RECPRT('Sc2',' ',Work(ipSc2),ndens2,1)
-*            Call RECPRT('Sc3',' ',Work(ipSc3),ndens2,1)
+*            Call RECPRT('Sc2',' ',Sc2,ndens2,1)
+*            Call RECPRT('Sc3',' ',Sc3,ndens2,1)
 *            Call RECPRT('S1',' ',Work(ipin(ipS1)),2*nConf1,1)
 *            Call RECPRT('S2',' ',Work(ipin(ipS2)),2*nConf1,1)
 *            Call RECPRT('ST',' ',Work(ipin(ipSt)),2*nConf1,1)
@@ -539,12 +539,11 @@ C
 C
            irc=ipnout(-1)
            if (CI) then   ! if (.false.) then
-            Call DZaXpY(nDens,One,Work(ipSc2),1,
-     &            Work(ipSc3),1,Work(ipSc1),1)
+            Call DZaXpY(nDens,One,Sc2,1,Sc3,1,Sc1,1)
            Else
-            call dcopy_(nDens,Work(ipSc2),1,Work(ipSc1),1)
+            call dcopy_(nDens,Sc2,1,Sc1,1)
            End If
-           Call Compress(Work(ipSc1),Temp4,isym)   ! ds
+           Call Compress(Sc1,Temp4,isym)   ! ds
            Call Compress(dKappa,Temp2,isym) ! DX
 c
 c S1 + S2 --> S1
@@ -636,7 +635,7 @@ C
           irc=opout(ipci)
           irc=opout(ipdia)
 *
-          Call DMInvKap_td(DigPrec,Sigma,Work(ipSc2))
+          Call DMInvKap_td(DigPrec,Sigma,Sc2)
 C
            irc=opout(ippre2)
 *
@@ -657,12 +656,12 @@ C
            deltaC=0.0d0
            end if
 *
-           deltaK=0.50d0*ddot_(nDensC,Sigma,1,Work(ipSc2),1)
+           deltaK=0.50d0*ddot_(nDensC,Sigma,1,Sc2,1)
            If (.not.CI) Then
              rBeta=deltaK/delta
              delta=deltaK
              Call DScal_(nDensC,rBeta,Temp2,1)
-             Call DaXpY_(nDensC,1.0d0,Work(ipsc2),1,Temp2,1)
+             Call DaXpY_(nDensC,1.0d0,sc2,1,Temp2,1)
            Else
              rbeta=(deltac+deltaK)/delta
              delta=deltac+deltaK
@@ -670,7 +669,7 @@ C
              Call DScal_(nDensC,rBeta,Temp2,1)
              Call DaXpY_(2*nConf1,1.0d0,Work(ipin(ipS2)),1,
      &                             Work(ipin(ipCID)),1)
-             Call DaXpY_(nDensC,1.0d0,Work(ipsc2),1,Temp2,1)
+             Call DaXpY_(nDensC,1.0d0,sc2,1,Temp2,1)
              irc=opout(ipS2)
              irc=ipout(ipCID)
            End If
@@ -760,9 +759,9 @@ C
           Call mma_deallocate(Sigma)
           Call mma_deallocate(dKappa)
           Call mma_deallocate(Kappa)
-          Call Getmem('Scr1   ','FREE','Real',ipSc1  ,nDens2)
-          Call Getmem('Scr2   ','FREE','Real',ipSc2  ,nDens2)
-          Call Getmem('Scr3   ','FREE','Real',ipSc3  ,nDens2)
+          Call mma_deallocate(Sc3)
+          Call mma_deallocate(Sc2)
+          Call mma_deallocate(Sc1)
           If (CI) Then
              Call GetMem('2Dens','FREE','Real',iprmoaa,n2dens)
              Call GetMem('2Dens','FREE','Real',ipP,n1dens)
