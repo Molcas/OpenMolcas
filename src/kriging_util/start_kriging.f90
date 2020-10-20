@@ -41,7 +41,9 @@ Subroutine Start_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
 ! Development code for partial gradient enhanced Kriging (PGEK) based on Mutual Information between
 ! the coordinates and the energy.
 
-!If (nPoints>2) Call PGEK()
+! Write (6,*) 'nPoints=',nPoints
+! If (nPoints>2) Call PGEK()
+
 !
 !
 ! m_t is the dimentionality of the square correlation matrix Gradient-Psi

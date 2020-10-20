@@ -12,13 +12,13 @@
 !***********************************************************************
 #define _DEBUGPRINT_
 SUBROUTINE pgek()
-use kriging_mod, only: x, y, nPoints, nInter
+use kriging_mod, only: x, y, nPoints, nInter, Index_PGEK, nInter_Eff
 Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
 Real*8, Allocatable:: Mean_univariate(:)
 Real*8, Allocatable:: Variance_univariate(:), Variance_bivariate(:)
-Integer i, j,  l
+Integer i, j, l, k
 Real*8 tmp, dx, dy, Fact
 ! Mutual information array
 !Real*8 MI(nInter)
@@ -30,13 +30,17 @@ Real*8, Allocatable::  MI(:)
 Real*8, Allocatable:: px(:,:), py(:), pxy(:,:)
 ! the 2 x 2 covariance matrix (used to compute the transformation variable in the bivariate case)
 Real*8 Sigma2(2,2), Sigma2_Inverse(2,2)
-Real*8 d, d_h, h, u_j, K_u_j, Det_Sigma2, Sigma_2, N_norm
+Real*8 d, h, u_j, K_u_j, Det_Sigma2, Sigma_2, N_norm
 
 #ifdef _DEBUGPRINT_
-Write (6,*) 'PGEK: nPoints=',nPoints
-Write (6,*) 'PGEK: nInter=',nInter
-Call RecPrt('y',' ',y,1,nPoints)
-Call RecPrt('x',' ',x,nInter,nPoints)
+Write (6,*)
+Write (6,*) 'Experimental code to compute the Mutual information between the lth coordinate'
+Write (6,*) 'and the energy, denoted MI(l).'
+Write (6,*)
+Write (6,*) '# of sample points, nPoints=               ',nPoints
+Write (6,*) '# of dimensions of the coordinates, nInter=',nInter
+Call RecPrt('Energies (nPoints): y',' ',y,1,nPoints)
+Call RecPrt('Coordinates (nInter x nPoints): x',' ',x,nInter,nPoints)
 #endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -93,19 +97,6 @@ Call RecPrt('Variance - xy ',' ',Variance_Bivariate(:),nInter,1)
 #endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-! Compute the Gaussian bandwidth
-
-d_h = Two
-h = (Four/(d_h + Two))**(One/(Four+d_h)) * DBLE(nPoints)**(-One/(Four+d_h))
-#ifdef _DEBUGPRINT_
-Write (6,*)
-Write (6,*) 'd_h=',d_h
-Write (6,*) 'h=',h
-Write (6,*)
-#endif
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! Compute the universal kernel density estimators px, py, and pxy
@@ -115,12 +106,22 @@ Write (6,*)
 
 ! 1) the univariate cases
 
+! Note that for the bandwidth we are using the equation suggested by Moon, Rajagoplan and Lall
+! rather than the one suggested by Liming, Qiu, Gao, Jiang, and Yang. In particular, the latter is
+! identical in the uni- and bi-variate case while the former differ.
+!
+!h = (4/((2*d + 1)*DBLE(nPoints)))**(1/(4+d)) ! the Gaussian bandwidth   d=1,2
+!h = (4/((d_h + 2)*DBLE(nPoints)))**(1/(4+d_h)) ! the Gaussian bandwidth   d_h=2
+!
 d=One
+h = (Four/((Two*d + One)*DBLE(nPoints)))**(One/(Four+d)) ! the Gaussian bandwidth
 Fact = One /  ( (Two*Pi)**(d/Two) * h**d )  ! Part of the normalization factor
 #ifdef _DEBUGPRINT_
-Write (6,*) 'd=',d
+Write (6,*)
+Write (6,*) 'univariate probabilities'
+Write (6,*)
 Write (6,*) '1/((2pi)^(d/2) h^d)=',Fact
-
+Write (6,*) 'The Gaussian bandwidth, h=',h
 #endif
 
 
@@ -128,7 +129,7 @@ Write (6,*) '1/((2pi)^(d/2) h^d)=',Fact
 
 Do l = 1, nInter
    Sigma_2=Variance_Univariate(l)
-   Write (6,*) 'l, Sigma_2=',l, Sigma_2
+!  Write (6,*) 'l, Sigma_2=',l, Sigma_2
 !
 !  Take special care of coordinates which might not change due to symmetry
 !  or for some other reason. Then the kernel function effectively is a Dirac delta function.
@@ -138,13 +139,13 @@ Do l = 1, nInter
    Else
       N_norm= (Fact / SQRT(Sigma_2))
       Do i = 1, nPoints
-         Write (6,*) 'i=',i
+!        Write (6,*) 'i=',i
 
          tmp=Zero
          Do j = 1, nPoints
             u_j = (x(l,i)-x(l,j))**2 / (h**2 * Sigma_2)
             K_u_j = N_norm * EXP(-u_j/Two)
-            Write (6,*) 'u_j, K_u_j=',u_j, K_u_j
+!           Write (6,*) 'u_j, K_u_j=',u_j, K_u_j
             tmp=tmp+K_u_j
          End Do
 
@@ -158,15 +159,15 @@ End Do
 
 Sigma_2=Variance_Univariate(nPoints+1)
 N_norm= (Fact / SQRT(Sigma_2))
-Write (6,*) 'Sigma_2=',Sigma_2
+!Write (6,*) 'Sigma_2=',Sigma_2
 Do i = 1, nPoints
-   Write (6,*) 'i=',i
+!   Write (6,*) 'i=',i
 
    tmp=Zero
    Do j = 1, nPoints
       u_j = (y(i)-y(j))**2 / (h**2 * Sigma_2)
       K_u_j = N_norm * EXP(-u_j/Two)
-      Write (6,*) 'u_j, K_u_j=',u_j, K_u_j
+!      Write (6,*) 'u_j, K_u_j=',u_j, K_u_j
       tmp=tmp+K_u_j
    End Do
 
@@ -174,8 +175,8 @@ Do i = 1, nPoints
 
 End Do
 #ifdef _DEBUGPRINT_
-Call RecPrt('px',' ',px,nPoints,nInter)
-Call RecPrt('py',' ',py,nPoints,1)
+Call RecPrt('Probablity px(i,l)',' ',px,nPoints,nInter)
+Call RecPrt('Probablity py(l)',' ',py,nPoints,1)
 #endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -183,76 +184,113 @@ Call RecPrt('py',' ',py,nPoints,1)
 ! 2) the bivariate case, pxy(i,l)
 
 d=Two
+h = (Four/((Two*d + One)*DBLE(nPoints)))**(One/(Four+d)) ! the Gaussian bandwidth
 Fact = One / ( (Two*Pi)**(d/Two) * h**d )
+#ifdef _DEBUGPRINT_
+Write (6,*)
+Write (6,*) 'bivariate probabilities'
+Write (6,*)
 Write (6,*) 'd=',d
 Write (6,*) 'Fact=',Fact
+Write (6,*) 'The Gaussian bandwidth, h=',h
+#endif
 
 Do l = 1, nInter
-   Sigma_2=Variance_univariate(l)
-   If (Sigma_2<1.0D-10) Then
-      pxy(:,l)=One/DBLE(nPoints)  ! Not sure about this part yet.
-   Else
-!     Assemble the 2 x 2 covariance matrix
-      Sigma2(1,1)=Variance_univariate(l)  ! p(x_l^2)
-      Sigma2(1,2)=Variance_bivariate(l)   ! p(x_ly)
-      Sigma2(2,1)=Sigma2(1,2)
-      Sigma2(2,2)=Variance_univariate(nInter+1) ! p(y^2)
-      Call RecPrt('Sigma2',' ',Sigma2,2,2)
-      Det_Sigma2=Sigma2(1,1)*Sigma2(2,2)-Sigma2(1,2)*Sigma2(2,1)  ! The determinant of the 2 x 2 sigma matrix
-      Write (6,*) 'Det(Sigma2)=',Det_Sigma2
-      Sigma2_Inverse(1,1)= Sigma2(2,2)/Det_Sigma2
-      Sigma2_Inverse(1,2)=-Sigma2(1,2)/Det_Sigma2
-      Sigma2_Inverse(2,1)=-Sigma2(2,1)/Det_Sigma2
-      Sigma2_Inverse(2,2)= Sigma2(1,1)/Det_Sigma2
-      Call RecPrt('Sigma2_Inverse',' ',Sigma2_Inverse,2,2)
+!  Assemble the 2 x 2 covariance matrix
+   Sigma2(1,1)=Variance_univariate(l)  ! p(x_l^2)
+   Sigma2(1,2)=Variance_bivariate(l)   ! p(x_ly)
+   Sigma2(2,1)=Sigma2(1,2)
+   Sigma2(2,2)=Variance_univariate(nInter+1) ! p(y^2)
+   Det_Sigma2=Sigma2(1,1)*Sigma2(2,2)-Sigma2(1,2)*Sigma2(2,1)  ! The determinant of the 2 x 2 sigma matrix
+   Sigma2_Inverse(1,1)= Sigma2(2,2)/Det_Sigma2
+   Sigma2_Inverse(1,2)=-Sigma2(1,2)/Det_Sigma2
+   Sigma2_Inverse(2,1)=-Sigma2(2,1)/Det_Sigma2
+   Sigma2_Inverse(2,2)= Sigma2(1,1)/Det_Sigma2
+#ifdef _DEBUGPRINT_
+!  Call RecPrt('Sigma2',' ',Sigma2,2,2)
+!  Write (6,*) 'Det(Sigma2)=',Det_Sigma2
+!  Call RecPrt('Sigma2_Inverse',' ',Sigma2_Inverse,2,2)
+#endif
 
-      N_norm = (Fact / SQRT(Det_Sigma2))
-      Do i = 1, nPoints
+   N_norm = (Fact / SQRT(Det_Sigma2))
+   Do i = 1, nPoints
 
 
-         tmp=Zero
-         Do j = 1, nPoints
-            dx = x(l,i)-x(l,j)
-            dy = y(i)-y(j)
-            u_j = ( dx*dx * Sigma2_Inverse(1,1)   &
-                   +dx*dy * Sigma2_Inverse(1,2)   &
-                   +dy*dx * Sigma2_Inverse(2,1)   &
-                   +dy*dy * Sigma2_Inverse(2,2) ) &
-                  / h**2
-            Write (6,*)' u_j=',u_j
-            K_u_j = N_norm * Exp(-u_j/Two)
-            Write (6,*)' K_u_j=',K_u_j
-            tmp=tmp+K_u_j
-         End Do
-
-         pxy(i,l)=tmp/DBLE(nPoints)
-
+      tmp=Zero
+      Do j = 1, nPoints
+         dx = x(l,i)-x(l,j)
+         dy = y(i)-y(j)
+         u_j = ( dx*dx * Sigma2_Inverse(1,1)   &
+                +dx*dy * Sigma2_Inverse(1,2)   &
+                +dy*dx * Sigma2_Inverse(2,1)   &
+                +dy*dy * Sigma2_Inverse(2,2) ) &
+               / h**2
+!        Write (6,*)' u_j=',u_j
+         K_u_j = N_norm * Exp(-u_j/Two)
+!        Write (6,*)' K_u_j=',K_u_j
+         tmp=tmp+K_u_j
       End Do
-   End If
+
+      pxy(i,l)=tmp/DBLE(nPoints)
+
+   End Do
 End Do
 
-Call RecPrt('pxy',' ',pxy,nPoints,nInter)
+#ifdef _DEBUGPRINT_
+Call RecPrt('Probablity pxy(i,l)',' ',pxy,nPoints,nInter)
+#endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-! Assemble the Mutual Information, MI(l), for each variable l
+! Assemble the Mutual Information, MI(l), for each variable l, according to equation 23 of
+! Chen et al. Note that this is correct only if the sample points to a large extent are
+! equidistant -- which they are not.
 
 Do l = 1, nInter
-   tmp=0.0D0
-   Do i = 1, nPoints
-      tmp = tmp + pxy(i,l) * log10( pxy(i,l) / (px(i,l)*py(i)) )
-   End Do
+   tmp=Zero
+   If (Variance_univariate(l)>1.0D-10) Then
+      Do i = 1, nPoints
+         tmp = tmp + pxy(i,l) * log10( pxy(i,l) / (  px(i,l) * py(i)) )
+      End Do
+   End If
    MI(l)=tmp
 End Do
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-Write (*,*) 'Mutual Information'
-Write (*,*) '=================='
+#ifdef _DEBUGPRINT_
+Write (6,*) 'Mutual Information'
+Write (6,*) '=================='
 Do i = 1, nInter
    Write (6,'(i4,E10.3)') i, MI(i)
 End Do
+#endif
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+nInter_Eff=0
+Do i = 1, nInter
+   k = 0
+   tmp=-One
+   Do j = 1, nInter
+      If (MI(j)>tmp) Then
+         k=j
+         tmp=MI(j)
+      End If
+   End Do
+   If (k==0) Then
+      Write (6,*) 'PGEK: k==0'
+      Call Abend()
+   Else
+      If (MI(k)>1.0D-10) nInter_Eff=nInter_Eff+1
+      MI(k)=-Two
+      Index_PGEK(i)=k
+   End If
+End Do
+#ifdef _DEBUGPRINT_
+Write (6,*) 'nInter_eff=',nInter_eff
+Write (6,*) 'Index_PGEK=',(Index_PGEK(i),i=1,nInter_eff)
+#endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !     Deallocate memory
@@ -266,5 +304,85 @@ Call mma_deallocate(pxy)
 Call mma_deallocate(Variance_univariate)
 Call mma_deallocate(Variance_bivariate)
 Call mma_deallocate(Mean_univariate)
+
+Contains
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Real*8 Function p_x(xl,l)
+Real*8 :: xl
+Integer l
+
+d=One
+h = (Four/((Two*d + One)*DBLE(nPoints)))**(One/(Four+d)) ! the Gaussian bandwidth
+Fact = One /  ( (Two*Pi)**(d/Two) * h**d )  ! Part of the normalization factor
+
+Sigma_2=Variance_Univariate(l)
+
+! We need a case of explicit zero variance (within machine accuracy) for the cases for symmetry breaking coordinates.
+
+N_norm= (Fact / SQRT(Sigma_2))
+p_x=Zero
+Do j = 1, nPoints
+   u_j = (xl-x(l,j))**2 / (h**2 * Sigma_2)
+   K_u_j = N_norm * EXP(-u_j/Two)
+   p_x=p_x+K_u_j
+End Do
+p_x = p_x / DBLE(nPoints)
+End Function p_x
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Real*8 Function p_y(yl)
+Real*8 :: yl
+
+d=One
+h = (Four/((Two*d + One)*DBLE(nPoints)))**(One/(Four+d)) ! the Gaussian bandwidth
+Fact = One /  ( (Two*Pi)**(d/Two) * h**d )  ! Part of the normalization factor
+
+Sigma_2=Variance_Univariate(nPoints+1)
+N_norm= (Fact / SQRT(Sigma_2))
+p_y=Zero
+Do j = 1, nPoints
+   u_j = (yl-y(j))**2 / (h**2 * Sigma_2)
+   K_u_j = N_norm * EXP(-u_j/Two)
+   p_y=p_y+K_u_j
+End Do
+p_y = p_y / DBLE(nPoints)
+
+End Function p_y
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Real*8 Function p_xy(xl,yl,l)
+Real*8 :: xl, yl
+Integer l
+
+d=Two
+h = (Four/((Two*d + One)*DBLE(nPoints)))**(One/(Four+d)) ! the Gaussian bandwidth
+Fact = One / ( (Two*Pi)**(d/Two) * h**d )
+
+! Assemble the 2 x 2 covariance matrix
+Sigma2(1,1)=Variance_univariate(l)  ! p(x_l^2)
+Sigma2(1,2)=Variance_bivariate(l)   ! p(x_ly)
+Sigma2(2,1)=Sigma2(1,2)
+Sigma2(2,2)=Variance_univariate(nInter+1) ! p(y^2)
+Det_Sigma2=Sigma2(1,1)*Sigma2(2,2)-Sigma2(1,2)*Sigma2(2,1)  ! The determinant of the 2 x 2 sigma matrix
+Sigma2_Inverse(1,1)= Sigma2(2,2)/Det_Sigma2
+Sigma2_Inverse(1,2)=-Sigma2(1,2)/Det_Sigma2
+Sigma2_Inverse(2,1)=-Sigma2(2,1)/Det_Sigma2
+Sigma2_Inverse(2,2)= Sigma2(1,1)/Det_Sigma2
+
+N_norm = (Fact / SQRT(Det_Sigma2))
+p_xy=Zero
+Do j = 1, nPoints
+   dx = xl-x(l,j)
+   dy = yl-y(j)
+   u_j = ( dx*dx * Sigma2_Inverse(1,1)   &
+           +dx*dy * Sigma2_Inverse(1,2)   &
+           +dy*dx * Sigma2_Inverse(2,1)   &
+           +dy*dy * Sigma2_Inverse(2,2) ) &
+       / h**2
+   K_u_j = N_norm * Exp(-u_j/Two)
+   p_xy=p_xy+K_u_j
+End Do
+p_xy = p_xy / DBLE(nPoints)
+
+End Function p_xy
 
 END SUBROUTINE pgek
