@@ -50,7 +50,7 @@
       Real*8 Clock(4)
       Real*8, Allocatable:: DigPrec(:), Kappa(:), dKappa(:), Sigma(:),
      &                      Temp1(:), Temp2(:), Temp3(:), Temp4(:),
-     &                      Sc1(:), Sc2(:), Sc3(:),
+     &                      Sc1(:), Sc2(:), Sc3(:), TempTD(:),
      &                      Dens(:), Pens(:), rmoaa(:)
 *
 *----------------------------------------------------------------------*
@@ -144,17 +144,12 @@ c
 *
 c      ipget is like getmem but handles weather the vector is on disk or not.
 c
-c
         ips1 =ipget(2*nconf3)
         ips2 =ipget(2*nconf3)
         ipst =ipget(2*nconf3)
         ipcit=ipget(2*nconf1)
         ipcid=ipget(2*nconf1)
 C
-*       Write(*,*) 'I have allocated: ips1, ips2,ipst,ipcit,ipcid',
-*    &           ips1, ips2,ipst,ipcit,ipcid
-C
-
         End If
 *
 *
@@ -403,8 +398,6 @@ c
                 call dscal_(nconf1,-1.0d0,Work(ipin(ips1)),1)
                 call dscal_(2*nconf1,2.0d0,Work(ipin(ips1)),1)
 C
-*                Call RECPRT('S1',' ',Work(ipin(ipS1)),2*nconf1,1)
-*                Stop 10
 C
 
                irc=opout(ipCI)
@@ -525,33 +518,17 @@ c
 *
 **********************************************************************
 C
-*         If (isym.eq.2) Then
-*            Call RECPRT('Sc2',' ',Sc2,ndens2,1)
-*            Call RECPRT('Sc3',' ',Sc3,ndens2,1)
-*            Call RECPRT('S1',' ',Work(ipin(ipS1)),2*nConf1,1)
-*            Call RECPRT('S2',' ',Work(ipin(ipS2)),2*nConf1,1)
-*            Call RECPRT('ST',' ',Work(ipin(ipSt)),2*nConf1,1)
-*            Call RECPRT('cid',' ',Work(ipin(ipcid)),2*nConf1,1)
-*            Call RECPRT('dkappa',' ',dKappa,ndens2,1)
-*            Call RECPRT('sigma',' ',Sigma,ndens2,1)
-*            Stop 10
-*         End If
-C
            irc=ipnout(-1)
            if (CI) then   ! if (.false.) then
-            Call DZaXpY(nDens,One,Sc2,1,Sc3,1,Sc1,1)
+              Call DZaXpY(nDens,One,Sc2,1,Sc3,1,Sc1,1)
            Else
-            call dcopy_(nDens,Sc2,1,Sc1,1)
+              call dcopy_(nDens,Sc2,1,Sc1,1)
            End If
            Call Compress(Sc1,Temp4,isym)   ! ds
            Call Compress(dKappa,Temp2,isym) ! DX
 c
 c S1 + S2 --> S1
 c
-C
-*           call dcopy_(2*nconf1,[0.0d0],0, !Work(ipin1(ipS2,2*nconf1)),1,
-*     %                Work(ipin1(ipS1,2*nconf1)),1)
-C
            If (CI) Then  !If (.false.) then
                      Call DaXpY_(2*nConf1,1.0d0,
      &               Work(ipin1(ipS2,2*nconf1)),1,
@@ -587,9 +564,6 @@ C
      &                   Work(ipin(ipCId)),1)
            End If
            rAlpha=delta/(rAlphaK+ralphaC)
-C
-*           write(*,*)' delta, rAlphaK, rAlphaC', delta, rAlphaK, rAlphaC
-*           Stop 10
 *
 *-------------------------------------------------------------------*
 *
@@ -602,9 +576,6 @@ C
             resk=sqrt(0.5d0*ddot_(nDensC,Sigma,1,Sigma,1))
            End If
            resci=0.0d0
-C
-*          Call RECPRT('ST',' ',Work(ipin(ipSt)),2*nconf1,1)
-*          Call RECPRT('S1',' ',Work(ipin(ipS1)),2*nconf1,1)
 C
            If (CI) Then
               Call DaXpY_(2*nConf1,ralpha,Work(ipin(ipCId)),1,
@@ -731,11 +702,9 @@ c
           irc=ipnout(-1)
 *          stop 10
  310      Continue
-C         Write(6,*)'Response'
-          Call GetMem('temptd','ALLO','Real',ipTempTd,nDens2)
-          Call Uncompress(Kappa,Work(ipTempTd),isym)
-C
-          Call GetMem('temptd','Free','Real',ipTempTd,nDens2)
+          Call mma_allocate(TempTD,nDens2,Label='TempTD')
+          Call Uncompress(Kappa,TempTD,isym)
+          Call mma_deallocate(TempTD)
 C
           Write(6,*)
           iLen=ndensC
