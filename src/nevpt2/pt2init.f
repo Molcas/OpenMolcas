@@ -227,8 +227,13 @@
           ! fill igelo by symmetry
           !! TODO: Check here for what has been frozen in MOTRA and subtract it (!!)
           do ii=1, nSym
-            nishprev=merge(0,nfro(ii-1)+nish(ii-1),ii.eq.1)
-            nfroprev=merge(0,nfro(ii-1),ii.eq.1)
+            if (ii.eq.1) then
+              nishprev=0
+              nfroprev=0
+            else
+              nishprev=nfro(ii-1)+nish(ii-1)
+              nfroprev=nfro(ii-1)
+            endif
             do j=1,nfro(ii)
               igelo(nfroprev+j)=nishprev+j
             end do

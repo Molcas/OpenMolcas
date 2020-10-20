@@ -33,7 +33,12 @@ endif()
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_ROOT})
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/custom)
 
-set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod)
+set(OPENMOLCAS_TOOLS_DIR ${CMAKE_BINARY_DIR}/Tools/distributed-4rdm)
+if(SINGLE_MOD_DIR)
+  set(mod_dir ${MAIN_MOD_DIR}/_single)
+else()
+  set(mod_dir ${MAIN_MOD_DIR}/nevpt2)
+endif()
 
 # CMake does not support passing lists inside lists, so we need to
 # replace the semicolons in the lists and pass them as normal strings
@@ -55,7 +60,8 @@ string(REPLACE ";" "<->" LINALG_LIBRARIES_NEVPT "${LINALG_LIBRARIES}")
   "-DMOLCAS_MATHLIBS=${LINALG_LIBRARIES_NEVPT}"
   "-DENABLE_MOLCAS=ON"
   "-DMOLCAS_BUILD_DIR=${PROJECT_BINARY_DIR}"
-  "-DCMAKE_Fortran_MODULE_DIRECTORY=${CMAKE_Fortran_MODULE_DIRECTORY}"
+  "-DCMAKE_Fortran_MODULE_DIRECTORY=${mod_dir}"
+  "-DDMRG_INCLUDE=${HDF5_QCM_INCLUDE}"
   )
 
 if (MPI AND GA)
@@ -76,25 +82,35 @@ endif()
 # git references for NEVPT2          #
 ######################################
 set(reference_git_repo https://github.com/qcscine/nevpt2.git)
+# set(reference_git_tag release-3.0) # uncomment before merging into master, since before merging we expect more patches into upstream
 
 set(EP_PROJECT nevpt2_ext)
 
 # Enabling source changes to keep ExternalProject happy
 set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
 
-
 ExternalProject_Add(${EP_PROJECT}
                     PREFIX ${CUSTOM_NEVPT2_LOCATION}
                     GIT_REPOSITORY ${reference_git_repo}
+                    GIT_TAG ${reference_git_tag}
                     CMAKE_ARGS "${NEVPT2CMakeArgs}"
-                    INSTALL_DIR "${PROJECT_BINARY_DIR}"
+                    INSTALL_DIR "${PROJECT_BINARY_DIR}/qcmaquis"
                    )
 
-set (CMAKE_DISABLE_SOURCE_CHANGES ON)
+ExternalProject_Get_Property(${EP_PROJECT} install_dir)
+set(TOOL_SUBDIR Tools/distributed-4rdm)
+file(MAKE_DIRECTORY ${OPENMOLCAS_TOOLS_DIR})
+ExternalProject_Add_Step(${EP_PROJECT} install_tools DEPENDEES install
+                         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${install_dir}/${TOOL_SUBDIR}/jobmanager.py
+                                                                       ${install_dir}/${TOOL_SUBDIR}/prepare_rdm_template.sh
+                                                                       ${install_dir}/${TOOL_SUBDIR}/submit-3rdm.sh
+                                                                       ${install_dir}/${TOOL_SUBDIR}/submit-4rdm.sh
+                                                                       ${OPENMOLCAS_TOOLS_DIR})
 
+set (CMAKE_DISABLE_SOURCE_CHANGES ON)
 
 # set variables for use in parent CMakeLists.txt
 ExternalProject_Get_Property(${EP_PROJECT} BINARY_DIR)
 
-set(NEVPT2_INCLUDE ${CMAKE_Fortran_MODULE_DIRECTORY} PARENT_SCOPE)
+set(NEVPT2_INCLUDE ${mod_dir} PARENT_SCOPE)
 set(NEVPT2_LIBRARIES ${BINARY_DIR}/${CMAKE_FIND_LIBRARY_PREFIXES}qdnevpt2.a ${BINARY_DIR}/${CMAKE_FIND_LIBRARY_PREFIXES}AUXLIB_F.a PARENT_SCOPE)

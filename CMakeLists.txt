@@ -45,8 +45,8 @@ get_filename_component (sourcedir "${CMAKE_SOURCE_DIR}" REALPATH)
 get_filename_component (binarydir "${CMAKE_BINARY_DIR}" REALPATH)
 if ("${sourcedir}" STREQUAL "${binarydir}")
   message (FATAL_ERROR "In-source builds in ${CMAKE_BINARY_DIR} are not "
-          "allowed, please remove ./CMakeCache.txt and ./CMakeFiles/, create a "
-          "separate build directory and run cmake from there.")
+           "allowed, please remove ./CMakeCache.txt and ./CMakeFiles/, create a "
+           "separate build directory and run cmake from there.")
 endif ()
 
 # workaround for CMake bug 14874
@@ -153,23 +153,22 @@ option (TOOLS "Compile supported tools." OFF)
 option (BUILD_TESTING "Build the unit_tests." ON)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_definitions (_ADDITIONAL_RUNTIME_CHECK_)
-endif()
+  add_compile_definitions (_ADDITIONAL_RUNTIME_CHECK_)
+endif ()
 
 if (";Debug;Garble;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};" OR BIGOT)
-    add_compile_definitions (_WARNING_WORKAROUND_)
+  add_compile_definitions (_WARNING_WORKAROUND_)
 endif ()
 
 # External projects
-option (MSYM       "Activate MSYM support (requires External/libmsym submodule)."                               OFF)
-option (DMRG       "Activate QCMaquis DMRG driver and library."                                                 OFF)
-option (MolGUI     "Enable the Molcas Graphical User Interface."                  OFF)
-
-option (GEN1INT    "Enable Gen1Int library for 1-electron integrals."                                           OFF)
-option (NECI       "Activate NECI support (requires External/NECI submodule)."                                  OFF)
-option (WFA        "Activate extended wavefunction analysis (requires External/libwfa submodule)."              OFF)
-option (NEVPT2     "Activate (DMRG)-NEVPT2 support."                                                            OFF)
-option (EFPLIB     "Enable EFPLib library for effective fragment potentials (requires External/efp submodule)." OFF)
+option (MSYM    "Activate MSYM support (requires External/libmsym submodule)."                               OFF)
+option (DMRG    "Activate QCMaquis DMRG driver and library."                                                 OFF)
+option (MolGUI  "Enable the Molcas Graphical User Interface."                                                OFF)
+option (GEN1INT "Enable Gen1Int library for 1-electron integrals."                                           OFF)
+option (NECI    "Activate NECI support (requires External/NECI submodule)."                                  OFF)
+option (WFA     "Activate extended wavefunction analysis (requires External/libwfa submodule)."              OFF)
+option (NEVPT2  "Activate (DMRG)-NEVPT2 support (requires QCMaquis DMRG)."                                   OFF)
+option (EFPLIB  "Enable EFPLib library for effective fragment potentials (requires External/efp submodule)." OFF)
 
 ################################################################################
 #                                                                              #
@@ -185,7 +184,7 @@ set (ENV{CMAKE_SESSION} "OpenMolcas")
 message ("Configuring compilers:")
 
 if (DMRG OR WFA OR MolGUI)
-        enable_language (CXX)
+  enable_language (CXX)
 endif ()
 
 #avoid using CXX compiler for linking
@@ -626,6 +625,7 @@ set (CFLAGS_Clang_FAST "-O2")
 set (CXXFLAGS_Clang_BIGOT "-Wall -Werror")
 set (CFLAGS_Clang_BIGOT "-Wall -Werror")
 #set (Clang_TRAP "???")
+
 #======================================#
 # LLVM C frontend CMake 3.0 (AppleClang)
 #======================================#
@@ -1054,7 +1054,6 @@ if (NOT IS_ABSOLUTE "${CMAKE_INSTALL_PREFIX}")
 endif ()
 get_filename_component (CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" ABSOLUTE)
 
-
 # Global Arrays settings
 #=======================
 
@@ -1244,7 +1243,7 @@ if (LINALG STREQUAL "MKL")
         set (libpath "${MKLROOT}/lib/intel64")
       elseif (ADDRMODE EQUAL 32)
         set (libpath "${MKLROOT}/lib/ia32")
-        endif ()
+      endif ()
     endif ()
     set (MKL_LIBRARY_PATH ${libpath} CACHE PATH "location of MKL libraries." FORCE)
     # uncache variables
@@ -1268,17 +1267,17 @@ if (LINALG STREQUAL "MKL")
                   PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
   else ()
     find_library (LIBMKL_CORE NAMES "mkl_core"
-                PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
   endif ()
   # compiler-specific library interface
   if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     if (PLATFORM STREQUAL "MacOS")
       find_library (LIBMKL_BLAS NAMES "libmkl_blas95_ilp64.a"
-                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+                    PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
       find_library (LIBMKL_LAPACK NAMES "libmkl_lapack95_ilp64.a"
-                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+                    PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
       find_library (LIBMKL_INTERFACE NAMES "libmkl_intel_ilp64.a"
-                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+                    PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
     else ()
     find_library (LIBMKL_INTERFACE NAMES "mkl_gf_ilp64"
                   PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
@@ -1296,7 +1295,7 @@ if (LINALG STREQUAL "MKL")
                   PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
   else ()
     find_library (LIBMKL_SEQUENTIAL NAMES "mkl_sequential"
-                PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
+                  PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
   endif ()
   if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     set (LIBMKL_OMP_LINK_FLAGS "${FFLAGS_GNU_OPENMP}")
@@ -1646,6 +1645,7 @@ endif ()
 
 # Chan group's DMRG (Block code) support
 #=======================================
+
 if (BLOCK)
   mark_as_advanced (CLEAR BLOCK_DIR)
 
@@ -1765,6 +1765,16 @@ if (FDE)
   add_definitions (-D_FDE_)
 endif ()
 
+# global module directory
+#========================
+
+set (MAIN_MOD_DIR ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/mod)
+if (SINGLE_MOD_DIR)
+  include_directories (${MAIN_MOD_DIR}/_single)
+else ()
+  include_directories (${MAIN_MOD_DIR})
+endif ()
+
 ################################################################################
 #                                                                              #
 # External programs/libraries: compilation does not require a molcas library,  #
@@ -1798,7 +1808,6 @@ endif ()
 
 if (MSYM)
   message ("Configuring MSYM support:")
-
   set (proj ${extprojsdir}/libmsym)
   set (proj_bin ${PROJECT_BINARY_DIR}/External/libmsym)
   if (EXISTS ${proj}/CMakeLists.txt)
@@ -1832,7 +1841,7 @@ if (DMRG)
     if (DEFINED ENV{QCMaquis_ROOT})
       set (QCMaquis_ROOT $ENV{QCMaquis_ROOT})
     endif ()
-    message(STATUS "External QCMaquis root specified at: ${QCMaquis_ROOT}")
+    message (STATUS "External QCMaquis root specified at: ${QCMaquis_ROOT}")
     set (QCMaquis_ROOT ${QCMaquis_ROOT} CACHE STRING "Specify path to existing QCMaquis installation. This will allow to skip the installation of QCMaquis.")
     set (MAQUIS_DMRG_DIR ${QCMaquis_ROOT}/share/cmake)
     find_package (MAQUIS_DMRG PATHS ${QCMaquis_ROOT} NO_DEFAULT_PATH)
@@ -1840,17 +1849,16 @@ if (DMRG)
 
   add_definitions (-D_DMRG_)
 
-  set (proj ${PROJECT_SOURCE_DIR}/src/qcmaquis)
+  set (custom_dir ${PROJECT_SOURCE_DIR}/cmake/custom)
   set (proj_bin ${PROJECT_BINARY_DIR}/External/qcmaquis)
 
-  configure_file (${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
+  configure_file (${custom_dir}/qcmaquis.cmake ${proj_bin}/CMakeLists.txt COPYONLY)
   ## Builds with build subdirectory outside the source tree require the second argument of add_subdirectory
   add_subdirectory (${proj_bin} ${proj_bin})
 
   get_directory_property (${DMRG_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${DMRG_INCLUDE})
   get_directory_property (${MAQUIS_DMRG_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${MAQUIS_DMRG_LIBRARIES})
   include_directories (${DMRG_INCLUDE})
-
 
   get_directory_property (${HDF5_QCM_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${HDF5_QCM_INCLUDE})
   get_directory_property (${HDF5_QCM_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${HDF5_QCM_LIBRARIES})
@@ -1861,12 +1869,14 @@ if (DMRG)
   if (NOT MAQUIS_DMRG_FOUND)
     message ("-- QCMaquis libraries: ${MAQUIS_DMRG_LIBRARIES}")
   else ()
-    message (" -- External QCMaquis libraries: ${MAQUIS_DMRG_LIBRARIES}")
+    message ("-- External QCMaquis libraries: ${MAQUIS_DMRG_LIBRARIES}")
   endif ()
   message ("-- HDF5 QCMaquis include path: ${HDF5_QCM_INCLUDE}")
   message ("-- HDF5 QCMaquis libraries: ${HDF5_QCM_LIBRARIES}")
+
+  insert_before (EXTERNAL_LIBRARIES HDF5_C_LIBRARIES "${HDF5_QCM_LIBRARIES}")
 else ()
-        message ("QCMaquis DMRG support DISABLED")
+  message ("QCMaquis DMRG support DISABLED")
 endif ()
 
 # NECI Full-CI Quantum Monte-Carlo
@@ -1958,10 +1968,10 @@ endif ()
 if (GEN1INT)
   message ("Configuring GEN1INT")
 
-  set (proj ${PROJECT_SOURCE_DIR}/src/gen1int_util)
+  set (custom_dir ${PROJECT_SOURCE_DIR}/cmake/custom)
   set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int_util)
 
-  configure_file (${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
+  configure_file (${custom_dir}/gen1int.cmake ${proj_bin}/CMakeLists.txt COPYONLY)
   add_subdirectory (${proj_bin} ${proj_bin})
 
   get_directory_property (${GEN1INT_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${GEN1INT_INCLUDE})
@@ -2020,10 +2030,10 @@ if (NEVPT2)
     message (FATAL_ERROR "NEVPT2 support requires enabling HDF5 too.")
   endif ()
 
-  set (proj ${PROJECT_SOURCE_DIR}/src/nevpt2)
+  set (custom_dir ${PROJECT_SOURCE_DIR}/cmake/custom)
   set (proj_bin ${PROJECT_BINARY_DIR}/External/nevpt2_ext)
 
-  configure_file (${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
+  configure_file (${custom_dir}/nevpt2.cmake ${proj_bin}/CMakeLists.txt COPYONLY)
 
   add_subdirectory (${proj_bin} ${proj_bin})
 
@@ -2034,8 +2044,6 @@ if (NEVPT2)
 
   message ("Enabling NEVPT2 support.")
   message ("-- NEVPT2_LIBRARIES: ${NEVPT2_LIBRARIES}")
-
-  list (APPEND EXTERNAL_LIBRARIES "${NEVPT2_LIBRARIES}")
 else ()
   message ("NEVPT2 support DISABLED")
 endif ()
@@ -2063,7 +2071,7 @@ if (MolGUI)
   message ("-- MolGUI will be installed in ${projinstall}")
 
   list (APPEND EXTRA_INSTALL_DIRS ${projinstall})
-  else ()
+else ()
   message ("MolGUI DISABLED")
 endif ()
 
@@ -2078,16 +2086,6 @@ if (BIGOT)
   if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
     set (SINGLE_MOD_DIR "1")
   endif ()
-endif ()
-
-# global module directory
-#========================
-
-set (MAIN_MOD_DIR ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/mod)
-if (SINGLE_MOD_DIR)
-  include_directories (${MAIN_MOD_DIR}/_single)
-else ()
-  include_directories (${MAIN_MOD_DIR})
 endif ()
 
 ################################################################################
@@ -2349,9 +2347,7 @@ if (HDF5 AND HDF5_FOUND)
   endforeach ()
   if (DMRG)
     list (APPEND hdf5_qcm_utils transform_util)
-    foreach (util
-            ${hdf5_qcm_utils}
-    )
+    foreach (util ${hdf5_qcm_utils})
       list (APPEND ${util}_defs "_HDF5_QCM_")
     endforeach ()
   endif ()
@@ -2442,6 +2438,7 @@ if (HDF5 AND HDF5_FOUND)
     caspt2
     dynamix
     mcpdft
+    nevpt2
     poly_aniso
     rasscf
     rassi
@@ -2452,17 +2449,12 @@ if (HDF5 AND HDF5_FOUND)
   )
     list (APPEND ${prog}_defs "_HDF5_")
   endforeach ()
-  if (NEVPT2)
-    list (APPEND nevpt2_defs "_HDF5_")
-  endif ()
   if (DMRG)
     list (APPEND hdf5_qcm_progs motra rpa)
     if (NEVPT2)
       list (APPEND hdf5_qcm_progs nevpt2)
     endif ()
-    foreach (prog
-      ${hdf5_qcm_progs}
-    )
+    foreach (prog ${hdf5_qcm_progs})
       list (APPEND ${prog}_defs "_HDF5_QCM_")
     endforeach ()
   endif ()
@@ -2537,7 +2529,6 @@ elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "SunPro")
   set (netlib_nowarn_flags " -erroff=%all")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
   set (netlib_nowarn_flags " -Kieee -w")
-  set (ext_nowarn_flags " -w")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG")
   set (netlib_nowarn_flags " -w")
 endif ()
@@ -2590,10 +2581,6 @@ endif ()
 if (DMRG)
   add_dependencies (mods_obj qcmaquis-hdf5-interface)
 endif ()
-if (NEVPT2)
-  add_dependencies (mods_obj nevpt2_ext)
-endif ()
-
 
 if (GEN1INT)
   add_dependencies (mods_obj gen1int)
@@ -2650,26 +2637,13 @@ foreach (util ${utils})
     #add_library (${util} $<TARGET_OBJECTS:${util}_obj>)
 
     #if (EXISTS ${PROJECT_SOURCE_DIR}/${${util}_src}/custom.cmake)
-    #  include(${PROJECT_SOURCE_DIR}/${${util}_src}/custom.cmake)
+    #  include (${PROJECT_SOURCE_DIR}/${${util}_src}/custom.cmake)
     #endif ()
   endif ()
 endforeach (util)
 
-# Workaround for GCC > 10.0 and GA
-if (GA AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU"
-       AND CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER 10.0)
-  # -w disables all warnings, this is the only way to compile it with BIGOT but until there's an update
-  # from GA that supports clean compilation on gfortran > 10.0 there's no other way
-  target_compile_options (ga_util_obj PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:-w -fallow-argument-mismatch>)
-endif ()
-
-
 # build an actual molcas library
 add_library (molcas ${objlibs})
-# link against HDF5 QCMaquis interface if QCMaquis is built
-if (DMRG)
-  target_link_libraries (molcas ${HDF5_QCM_LIBRARIES})
-endif (DMRG)
 set (MOLCAS_LIBRARIES "molcas")
 if (BUILD_SHARED_LIBS)
   # flatten namespace on Mac OS X
@@ -2762,22 +2736,8 @@ foreach (prog ${progs})
 endforeach ()
 
 # set file-specific flags
-if (BOUNDS AND (${FFLAGS_GNU_BOUNDS} MATCHES "-fsanitize=address"))
+if (BOUNDS AND (${CMAKE_Fortran_FLAGS} MATCHES "-fsanitize=address"))
   set_property (SOURCE ${rassi_src}/prprop.f APPEND_STRING PROPERTY COMPILE_FLAGS " --param=max-vartrack-size=120000000")
-endif ()
-if (BIGOT)
-  # Workaround for MPI for gfortran >=10, see above (MPI and GA section)
-  if (GA AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER 10.0)
-    set_property (SOURCE ${rasscf_src}/CI_solver_util.f APPEND_STRING PROPERTY COMPILE_FLAGS " -w -fallow-argument-mismatch")
-    set_property (SOURCE ${caspt2_src}/allgather.f APPEND_STRING PROPERTY COMPILE_FLAGS " -w -fallow-argument-mismatch")
-    set_property (SOURCE ${caspt2_src}/mkbmat.f APPEND_STRING PROPERTY COMPILE_FLAGS " -w -fallow-argument-mismatch")
-    set_property (SOURCE ${caspt2_src}/mksmat.f APPEND_STRING PROPERTY COMPILE_FLAGS " -w -fallow-argument-mismatch")
-  endif ()
-
-  # Workaround for an incorrect out-of-bounds warning/error in merge statements
-  if (NEVPT2)
-    set_property (SOURCE ${nevpt2_src}/pt2init.f APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-error")
-  endif ()
 endif ()
 
 # set up proper RPATH for executables, use RUNPATH if on Linux
@@ -2824,24 +2784,27 @@ if (DMRG)
 
   foreach (prog ${hdf5_qcm_progs})
     add_dependencies (${prog} qcmaquis-driver)
-    target_link_libraries (${prog}.exe ${HDF5_QCM_LIBRARIES} ${HDF5_C_LIBRARIES})
   endforeach ()
 
-  list (APPEND dmrg_progs last_energy
-                         rasscf
-                         dmrgscf
-                         mcpdft
-                         rassi
-                         mpssi
-                         numerical_gradient
-                         loprop
-                         casvb)
+  list (APPEND dmrg_progs
+    last_energy
+    rasscf
+    dmrgscf
+    mcpdft
+    rassi
+    mpssi
+    numerical_gradient
+    loprop
+    casvb
+  )
   if (NEVPT2)
     list (APPEND dmrg_progs nevpt2)
+    add_dependencies (nevpt2 nevpt2_ext)
+    target_link_libraries (nevpt2.exe ${NEVPT2_LIBRARIES})
   endif ()
 
   foreach (prog ${dmrg_progs})
-    target_link_libraries (${prog}.exe ${MAQUIS_DMRG_LIBRARIES} ${HDF5_QCM_LIBRARIES} -lstdc++)
+    target_link_libraries (${prog}.exe ${MAQUIS_DMRG_LIBRARIES} -lstdc++)
     if (NOT MAQUIS_DMRG_FOUND)
       # Set proper install RPATH if using internal QCMaquis
       set_target_properties (${prog}.exe PROPERTIES
@@ -3285,7 +3248,7 @@ if (DEFINED PYMOLCAS_TARGET)
     RENAME pymolcas
   )
 
-  install (CODE "execute_process(COMMAND ${OPENMOLCAS_DIR}/sbin/install_pymolcas.sh ${PYMOLCAS_TARGET})")
+  install (CODE "execute_process (COMMAND ${OPENMOLCAS_DIR}/sbin/install_pymolcas.sh ${PYMOLCAS_TARGET})")
 endif ()
 
 install (DIRECTORY
@@ -3314,7 +3277,7 @@ if (DEFINED EXTRA_DIR)
     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
   )
 
-  install (CODE "execute_process(COMMAND ${OPENMOLCAS_DIR}/sbin/install_driver.sh ${MOLCAS_DRIVER})")
+  install (CODE "execute_process (COMMAND ${OPENMOLCAS_DIR}/sbin/install_driver.sh ${MOLCAS_DRIVER})")
 endif ()
 
 if (DMRG)
@@ -3324,7 +3287,14 @@ if (DMRG)
     DESTINATION ${CMAKE_INSTALL_PREFIX}
   )
   install (DIRECTORY
-    ${PROJECT_BINARY_DIR}/Tools
+    ${PROJECT_BINARY_DIR}/Tools/qcmaquis
+    USE_SOURCE_PERMISSIONS
+    DESTINATION ${CMAKE_INSTALL_PREFIX}
+  )
+endif ()
+if (NEVPT2)
+  install (DIRECTORY
+    ${PROJECT_BINARY_DIR}/Tools/distributed-4rdm
     USE_SOURCE_PERMISSIONS
     DESTINATION ${CMAKE_INSTALL_PREFIX}
   )
@@ -3340,5 +3310,5 @@ foreach (dir ${EXTRA_INSTALL_DIRS})
 endforeach ()
 
 if (IS_DIRECTORY "$ENV{HOME}/.Molcas")
-  install (CODE "execute_process(COMMAND sh \"-c\" \"cd ${CMAKE_INSTALL_PREFIX}; echo `pwd` > $HOME/.Molcas/molcas 2> /dev/null\")")
+  install (CODE "execute_process (COMMAND sh \"-c\" \"cd ${CMAKE_INSTALL_PREFIX}; echo `pwd` > $HOME/.Molcas/molcas 2> /dev/null\")")
 endif ()

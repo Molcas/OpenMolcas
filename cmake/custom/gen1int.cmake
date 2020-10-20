@@ -30,7 +30,11 @@ endif()
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_ROOT})
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/custom)
 
-set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod)
+if(SINGLE_MOD_DIR)
+  set(mod_dir ${MAIN_MOD_DIR}/_single)
+else()
+  set(mod_dir ${MAIN_MOD_DIR}/gen1int_util)
+endif()
 
 list(APPEND GEN1INTCMakeArgs
   -DCMAKE_BUILD_TYPE=${GEN1INT_BUILD_TYPE}
@@ -43,7 +47,7 @@ list(APPEND GEN1INTCMakeArgs
   -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
   -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
   -DCMAKE_INSTALL_LIBDIR=lib
-  -DCMAKE_Fortran_MODULE_DIRECTORY=${CMAKE_Fortran_MODULE_DIRECTORY}
+  -DCMAKE_Fortran_MODULE_DIRECTORY=${mod_dir}
   -DEXTRA_INCLUDE=${OPENMOLCAS_DIR}/src/Include
   )
 
@@ -78,5 +82,5 @@ set (CMAKE_DISABLE_SOURCE_CHANGES ON)
 # set variables for use in parent CMakeLists.txt
 ExternalProject_Get_Property(${EP_PROJECT} install_dir)
 ExternalProject_Get_Property(${EP_PROJECT} source_dir)
-set(GEN1INT_INCLUDE ${CMAKE_Fortran_MODULE_DIRECTORY} ${source_dir}/src PARENT_SCOPE)
+set(GEN1INT_INCLUDE ${mod_dir} ${source_dir}/src PARENT_SCOPE)
 set(GEN1INT_LIBRARIES ${install_dir}/lib/${CMAKE_FIND_LIBRARY_PREFIXES}gen1int-molcaslib.a PARENT_SCOPE)
