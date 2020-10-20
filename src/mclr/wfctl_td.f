@@ -23,6 +23,8 @@
       Implicit Real*8 (a-h,o-z)
 *
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
+#include "real.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -39,27 +41,26 @@
       Parameter (iTimeKC = 3 )
       Parameter (iTimeCK = 4 )
 #include "crun_mclr.fh"
-      Character*8   Fmt2
+      Character(LEN=8)   Fmt2
       Integer iKapDisp(nDisp),isigDisp(nDisp)
       Integer iRHSDisp(nDisp),iRHSCIDisp(nDisp)
       Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
       Integer pstate_sym,opout
       Logical lPrint,converged(8)
       Real*8 Clock(4)
+      Real*8, Allocatable:: DigPrec(:), Kappa(:), dKappa(:), Sigma(:),
+     &                      Temp4(:)
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
-      one=1.0d0
-*
-*----------------------------------------------------------------------*
 *     Initialize blank and header lines                                *
 *----------------------------------------------------------------------*
-      TIM2=0.0D0
-      TIM3=0.0D0
-      TIM4=0.0D0
+      TIM2=Zero
+      TIM3=Zero
+      TIM4=Zero
 *
-      call dcopy_(4,[0.0d0],0,CLOCK,1)
+      CLOCK(:)=Zero
       lPaper=132
       lLine =120
       left=(lPaper-lLine)/2
@@ -69,9 +70,7 @@
 *
 *
       fail=.false.
-      Do i=1,8
-       Converged(i)=.true.
-      end do
+      Converged(:)=.true.
       lprint=.false.
       idasave=0
       LU_50 = 50
@@ -169,12 +168,10 @@ C
         call Prec_dig(Work(ipin(ipPre2)),isym)
 *
 *
-        Call GetMem('DigPrec','Allo','Real',ipDigPrec,nDensC)
-        call dcopy_(nDensC,[0.0d0],0,Work(ipDigPrec),1)
-        Call Prec_td(Work(ipin(ipPre2)),Work(ipDigPrec),isym)
+        Call mma_allocate(DigPrec,nDensC,Label='DigPrec')
+        DigPrec(:)=Zero
+        Call Prec_td(Work(ipin(ipPre2)),DigPrec,isym)
 *
-*
-*       Call Getmem('wfctl02','CHECK','REAL',idum,idum)
        irc=ipout(ippre2)
 *#endif
 *
@@ -201,20 +198,20 @@ c
 *
 *    Allocate areas for scratch and state variables
 *
-          Call GetMem('kappa ','Allo','Real',ipKap  ,nDens2+6)
-          Call GetMem('dkappa','Allo','Real',ipdKap ,nDens2+6)
-          Call GetMem('sigma ','Allo','Real',ipSigma,nDens2+6)
+          Call mma_allocate(Kappa,nDens2+6,Label='Kappa')
+          Call mma_allocate(dKappa,nDens2+6,Label='dKappa')
+          Call mma_allocate(Sigma,nDens2+6,Label='Sigma')
           Call GetMem('Temp1 ','Allo','Real',ipTemp1,nDens2+6)
           Call GetMem('Temp2 ','Allo','Real',ipTemp2,nDens2+6)
           Call GetMem('Temp3 ','ALLO','Real',ipTemp3,nDens2+6)
-          Call GetMem('Temp4 ','Allo','Real',ipTemp4,nDens2+6)
+          Call mma_allocate(Temp4,nDens2+6,Label='.Sigma')
           Call Getmem('Scr1  ','ALLO','Real',ipSc1  ,nDens2+6)
           Call Getmem('Scr3  ','ALLO','Real',ipSc3  ,nDens2+6)
           Call Getmem('Scr2  ','ALLO','Real',ipSc2  ,nDens2+6)
           call dcopy_(nDens2,[0.0d0],0,Work(ipTemp1),1)
-          call dcopy_(nDens2,[0.0d0],0,Work(ipKap),1)
-          call dcopy_(nDens2,[0.0d0],0,Work(ipsigma),1)
-          call dcopy_(nDens2,[0.0d0],0,Work(ipdKap),1)
+          Kappa(1:nDens2)=Zero
+          dKappa(1:nDens2)=Zero
+          Sigma(1:nDens2)=Zero
           If (CI) Then
              Call GetMem('1Dens','ALLO','Real',ipDe,n1dens)
              Call GetMem('2Dens','ALLO','Real',ipP,n2dens)
@@ -227,22 +224,21 @@ c
 *-----------------------------------------------------------------------------
 *
 *    Calculate RHS for the perturbation. The b^x vector!
-*    ipsigma is the orbital part and ipTemp4 is the cipart
+*    sigma is the orbital part and Temp4 is the cipart
 *
 *-----------------------------------------------------------------------------
 *
 *                 (T1,T2,T3,T4,T5,T6,T7,Kappa1,CI1)
 *
-           kain=ipkap
-           Call RHS_td(Work(ipSigma),Work(ipKap),Work(ipTemp1),
-     &              Work(ipTemp3),Work(ipSc2),Work(ipdKap),
+           Call RHS_td(Sigma,Kappa,Work(ipTemp1),
+     &              Work(ipTemp3),Work(ipSc2),dKappa,
      &              Work(ipSc3),
-     &              Work(ipTemp4),ipST,
+     &              Temp4,ipST,
      &              iDisp,iSym-1,Work(ipCMO),jdisp,jspin,CI)
 *
 *           Call Getmem('wfctl1a','CHECK','REAL',idum,idum)
 *
-           call dscal_(nDens2,-1.0d0,Work(ipTemp4),1)
+           call dscal_(nDens2,-1.0d0,Temp4,1)
 c
 c Make RHS twice as long and change sign on second part!
 c
@@ -262,12 +258,12 @@ C
      &      '       Iteration         Delta     Res(kappa) Res(CI)'
           iLen=nDensC
           iRHSDisp(iDisp)=iDis
-          Call Compress(Work(ipTemp4),Work(ipSigma),iSym)
-          r1 = 0.50d0*ddot_(ndensc,Work(ipsigma),1,Work(ipsigma),1)
+          Call Compress(Temp4,Sigma,iSym)
+          r1 = 0.50d0*ddot_(ndensc,Sigma,1,Sigma,1)
 *
-          Call UnCompress(Work(ipSigma),Work(ipTemp4),iSym)
-*          Call RECPRT('IpSigma',' ',Work(ipSigma),nDensC,1)
-          Call dDaFile(LuTemp,1,Work(ipSigma),iLen,iDis)
+          Call UnCompress(Sigma,Temp4,iSym)
+*          Call RECPRT('Sigma',' ',Sigma,nDensC,1)
+          Call dDaFile(LuTemp,1,Sigma,iLen,iDis)
           If (CI)
      &    call dcopy_(2*nConf1,[0.0d0],0,Work(ipin(ipCIT)),1)
           irc=ipout(ipcit)
@@ -278,22 +274,21 @@ C
             Call DSCAL_(2*nConf1,-1.0d0,Work(ipin(ipST)),1)
           End If
 *
-         Call DMInvKap_td(Work(ipDigPrec),Work(ipSigma),
-     &                   Work(ipKap))
+         Call DMInvKap_td(DigPrec,Sigma,Kappa)
 C
 * No Prec
-*         call dcopy_(ndensC,work(ipSigma),1,Work(ipKap),1)
+*         call dcopy_(ndensC,Sigma,1,Kappa,1)
 C
           irc=opout(ippre2)
 *         kap:kap
-          r2 = 0.50d0*ddot_(ndensc,Work(ipKap),1,Work(ipKap),1)
+          r2 = 0.50d0*ddot_(ndensc,Kappa,1,Kappa,1)
 C         Write(6,*) 'r1,r2',r1,r2
           If (r2.gt.r1) Write(6,*) 'Warning ',
      &     ' perturbation number ',idisp,
      &     ' might diverge'
 *
 *         dkap=Kap in matrix form
-          Call UnCompress(Work(ipKap),Work(ipdKap),iSym)
+          Call UnCompress(Kappa,dKappa,iSym)
 c
 c DMinvCI is related to cidia and inverts the precond CI-CI
 c part of E
@@ -321,8 +316,8 @@ C
           Else
             deltac=0.0d0
           End If
-          deltaK= 0.50d0*ddot_(nDensC,Work(ipKap),1,Work(ipSigma),1)
-          call dcopy_(nDens,[0.0d0],0,Work(ipKap),1)
+          deltaK= 0.50d0*ddot_(nDensC,Kappa,1,Sigma,1)
+          Kappa(1:nDens)=Zero
           delta=deltac+deltaK
 C         Write(6,*) 'delta',delta
 
@@ -367,13 +362,13 @@ c j2>0 --> CI-K and K-CI, These parts are antisym between eachother
 c
 
              irc=ipnout(-1)
-             Call RInt_ns(Work(ipdKap),
+             Call RInt_ns(dKappa,
      &                 Work(iprmoaa),    ! OIT 2-el-int (active indexes)
      &                 Work(ipSc2),      ! SC2 contains the E*kappa
-     &                 Work(ipTemp4),    ! Contains OIT FI
+     &                 Temp4,    ! Contains OIT FI
      &                 isym,reco,jspin,rInEne) ! OIT integrals are used
 *
-             Call RInttd(Work(ipSc2),Work(ipdKap),isym)
+             Call RInttd(Work(ipSc2),dKappa,isym)
 c
              Clock(iTimeKK)=Clock(iTimeKK)+Tim2
 *
@@ -395,7 +390,7 @@ c
              If (CI) Then
 *              Adjusted to timedep
                Call CISigma_td(jspin,State_Sym,pstate_sym,
-     &                      ipTemp4,iprmoaa,idum,
+     &                      Temp4,iprmoaa,idum,
      &                      ipCI,ipS1,'T')
                Clock(iTimeKC)=Clock(iTimeKC)+Tim3
 *
@@ -456,7 +451,7 @@ C
 *
              irc=ipnout(-1)
              if (CI) Call CISigma_td(0,PState_Sym,Pstate_sym,
-     &                    ipFIMO,k2int,idum,
+     &                    Work(ipFIMO),k2int,idum,
      &                    ipCId,ipS2,'S')
 *
 c I want the RASSCF energy of the ACTIVE electrons !!!!
@@ -554,8 +549,8 @@ C
 *            Call RECPRT('S2',' ',Work(ipin(ipS2)),2*nConf1,1)
 *            Call RECPRT('ST',' ',Work(ipin(ipSt)),2*nConf1,1)
 *            Call RECPRT('cid',' ',Work(ipin(ipcid)),2*nConf1,1)
-*            Call RECPRT('dkap',' ',Work(ipdkap),ndens2,1)
-*            Call RECPRT('sigma',' ',Work(ipsigma),ndens2,1)
+*            Call RECPRT('dkappa',' ',dKappa,ndens2,1)
+*            Call RECPRT('sigma',' ',Sigma,ndens2,1)
 *            Stop 10
 *         End If
 C
@@ -566,8 +561,8 @@ C
            Else
             call dcopy_(nDens,Work(ipSc2),1,Work(ipSc1),1)
            End If
-           Call Compress(Work(ipSc1),Work(ipTemp4),isym)   ! ds
-           Call Compress(Work(ipdKap),Work(ipTemp2),isym) ! DX
+           Call Compress(Work(ipSc1),Temp4,isym)   ! ds
+           Call Compress(dKappa,Work(ipTemp2),isym) ! DX
 c
 c S1 + S2 --> S1
 c
@@ -604,7 +599,7 @@ C
            rAlphaC=0.0d0
            rAlphaK=0.0d0
            If (orb)
-     &      rAlphaK=0.5d0*ddot_(nDensC,Work(ipTemp4),1,Work(ipTemp2),1)
+     &      rAlphaK=0.5d0*ddot_(nDensC,Temp4,1,Work(ipTemp2),1)
            If (CI) Then
               rAlphaC=0.5d0*ddot_(2*nConf1,Work(ipin(ipS1)),1,
      &                   Work(ipin(ipCId)),1)
@@ -620,10 +615,9 @@ C
 *          Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
 *
            If (orb) Then
-            Call DaxPy_(nDensC,ralpha,Work(ipTemp2),1,Work(ipKap),1)
-            Call DaxPy_(nDensC,-ralpha,Work(ipTemp4),1,Work(ipSigma),1)
-            resk=sqrt(0.5d0*ddot_(nDensC,Work(ipSigma),1,
-     &            Work(ipSigma),1))
+            Call DaxPy_(nDensC,ralpha,Work(ipTemp2),1,Kappa,1)
+            Call DaxPy_(nDensC,-ralpha,Temp4,1,Sigma,1)
+            resk=sqrt(0.5d0*ddot_(nDensC,Sigma,1,Sigma,1))
            End If
            resci=0.0d0
 C
@@ -663,11 +657,10 @@ C
           irc=opout(ipci)
           irc=opout(ipdia)
 *
-          Call DMInvKap_td(Work(ipDigPrec),Work(ipSigma),
-     &                   Work(ipSc2))
+          Call DMInvKap_td(DigPrec,Sigma,Work(ipSc2))
 C
 * No Prec
-*              call dcopy_(ndensc,work(ipsigma),1,Work(ipSc2),1)
+*              call dcopy_(ndensc,Sigma,1,Work(ipSc2),1)
 C
            irc=opout(ippre2)
 *
@@ -688,7 +681,7 @@ C
            deltaC=0.0d0
            end if
 *
-           deltaK=0.50d0*ddot_(nDensC,Work(ipSigma),1,Work(ipSc2),1)
+           deltaK=0.50d0*ddot_(nDensC,Sigma,1,Work(ipSc2),1)
            If (.not.CI) Then
              rBeta=deltaK/delta
              delta=deltaK
@@ -719,7 +712,7 @@ C
 *
 *-------------------------------------------------------------------*
 *
-           Call UnCompress(Work(ipTemp2),Work(ipdKap),isym)
+           Call UnCompress(Work(ipTemp2),dKappa,isym)
 *
 c
 c iBreak is defined via include!
@@ -745,7 +738,6 @@ c
      &            iter,'       ',delta/delta0,resk,resci,deltac,deltak
 
            iter=iter+1
-*          Call GetMem(' LIST ','LIST','REAL',iDum,iDum)
 
           Goto 200
 *
@@ -766,7 +758,7 @@ c
  310      Continue
 C         Write(6,*)'Response'
           Call GetMem('temptd','ALLO','Real',ipTempTd,nDens2)
-          Call Uncompress(Work(ipkap),Work(ipTempTd),isym)
+          Call Uncompress(Kappa,Work(ipTempTd),isym)
 C
 *          Do iS=1,nSym
 *             jS=iEOr(iS-1,iSym-1)+1
@@ -784,15 +776,15 @@ C
 *         End If
 C
 *          Call RECPRT('ipcit',' ',Work(ipin(ipcit)),2*nConf1,1)
-*          Call RECPRT('ipkap',' ',Work(ipkap),4,1)
+*          Call RECPRT('Kappa',' ',Kappa,4,1)
 *          Stop 10
 C
           Write(6,*)
           iLen=ndensC
           iKapDisp(iDisp)=iDis
-          Call dDaFile(LuTemp,1,Work(ipKap),iLen,iDis)
+          Call dDaFile(LuTemp,1,Kappa,iLen,iDis)
           iSigDisp(iDisp)=iDis
-          Call dDaFile(LuTemp,1,Work(ipSigma),iLen,iDis)
+          Call dDaFile(LuTemp,1,Sigma,iLen,iDis)
           If (CI) Then
             ilen=2*nconf1
             iCIDisp(iDisp)=iDis
@@ -802,13 +794,13 @@ C
             Call dDaFile(LuTemp,1,Work(ipin(ipST)),iLen,iDis)
           End If
 *
-          Call GetMem('Temp4  ','FREE','Real',ipTemp4,nDens)
+          Call mma_deallocate(Temp4)
           Call GetMem('Temp3  ','FREE','Real',ipTemp3,ndens)
           Call GetMem('Temp2  ','FREE','Real',ipTemp2,nDens)
           Call GetMem('Temp1  ','FREE','Real',ipTemp1,nDens)
-          Call GetMem('sigma  ','FREE','Real',ipSigma,nDens)
-          Call GetMem('dkappa ','FREE','Real',ipdKap ,nDens)
-          Call GetMem('kappa  ','FREE','Real',ipKap  ,nDens)
+          Call mma_deallocate(Sigma)
+          Call mma_deallocate(dKappa)
+          Call mma_deallocate(Kappa)
           Call Getmem('Scr1   ','FREE','Real',ipSc1  ,nDens2)
           Call Getmem('Scr2   ','FREE','Real',ipSc2  ,nDens2)
           Call Getmem('Scr3   ','FREE','Real',ipSc3  ,nDens2)
@@ -828,8 +820,7 @@ C
             irc=ipclose(ipPre2)
          End If
 *
-*        Call GetMem('PREC','FREE','Real',ipPRE,nDens2)
-         Call GetMem('DigPrec','Free','Real',ipDigPrec,nDensC)
+         Call mma_deallocate(DigPrec)
          If (iphx.ne.0) Then
             Call Getmem('EXPHS','FREE','REAL',iphx,idum)
             Call Getmem('EXPHF','FREE','INTE',ipvt,idum)

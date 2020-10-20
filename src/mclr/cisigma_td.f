@@ -8,11 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       SubRoutine CISigma_td(iispin,iCsym,iSSym,ipInt1,ipint2s,
+       SubRoutine CISigma_td(iispin,iCsym,iSSym,Int1,ipint2s,
      &                    ipint2a,ipCI1,ipCI2,NT)
        Implicit Real*8(a-h,o-z)
 c
-c For the timeindep case ipS1 and ipS2 will be halv as long
+c For the timeindep case ipS1 and ipS2 will be half as long
 c Avoid sigmavec calls. 95% of the time in mclr is spent in sigmavec
 c
 *
@@ -28,6 +28,7 @@ c
 #include "cicisp_mclr.fh"
        Character NT
        integer kic(2),opout
+       Real*8 Int1(*)
        itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
 *      Interface Anders to Jeppe
@@ -41,30 +42,14 @@ c
 *
 *      One electron integrals
 *
-       KAIN1=ipInt1
+       KAIN1=ip_of_Work(Int1(1))
 *
 *      Two electron integrals
 *      symmetric in perticle one and two
 *
 *
-C
-*       Write(*,*)'ipint1,ipint2s, ipint2a',ipint1,ipint2s, ipint2a
-*       Call RecPrt('int1 ',' ',Work(ipint1),ndens2,1)
-*       Call RecPrt('int2s ',' ',Work(ipint2s),ndens2,1)
-C
        KINT2=ipint2s
        KINT2a=ipint2a
-C      If (nt.eq.'T') Then
-       If (.false.) Then
-       call dcopy_(n2dens,[0.0d0],0,Work(KINT2),1)
-       Write(6,*) 'INTEGRAL CHANGE'
-       Read(*,*) i,j,k,l
-       ij=i+(j-1)*ntash
-       kl=k+(l-1)*ntash
-       ijkl=itri(ij,kl)
-       Work(KINT2+ijkl-1)=1.0D0
-       Write(6,*) 'dada',ijkl,Work(KINT2+ijkl-1)
-       End If
 *
 *      Two electron integrals
 *      anti symmetric in perticle one and two
@@ -79,14 +64,7 @@ C      If (nt.eq.'T') Then
        Else
          i12=2
        End If
-       If (ipint1.eq.0) Then
-          Call GetMem('TEMP1INT','ALLO','REAL',ipT1Int,ndens2)
-          call dcopy_(ndens2,[0.0d0],0,Work(ipT1Int),1)
-c One el int pointer
-          KAIN1=ipT1Int
-       End If
 C
-*       Call Getmem('cisigma1','CHECK','REAL',idum,idum)
 *
 *      Symmetry of Sigma vector
 *
@@ -127,41 +105,9 @@ C
         If (.not.page) Then
 c ipcidet is here because sigmavec will destroy the first input vector.
          Call GetMem('CIDET_TD','ALLO','REAL',ipCIDET,nDet)
-*         If (NT.eq.'S') Then
-*             call dcopy_(nCSF(iCSM),Work(ipin(ipCI1)+nConf1),
-*     &                    1,Work(ipCIDET),1)
-*         Else
-*
-*       Call Getmem('cisigma3','CHECK','REAL',idum,idum)
-*
              call dcopy_(nCSF(iCSM),Work(ipin(ipCI1)),1,Work(ipCIDET),1)
-*         End If
-C        Do i=1,ntash
-C        Do j=1,ntash
-C        Do k=1,ntash
-C        Do l=1,ntash
-C        Write(*,'(I1,I1,I1,I1,F12.5)') i,j,k,l,
-C    &    Work(kint2-1+itri(i+(j-1)*ntash,k+(l-1)*ntash))
-C        End Do
-C        End Do
-C        End Do
-C        End Do
-C         Call RecPrt(' ',' ',Work(ipCIDET),nconf1,1)
-*
-C
-*         If (NT.eq.'T') Then
-*           Call SigmaVec(Work(ipCIDET),Work(ipin(ipci2)+nConf1),kic)
-*         Else
-*           Call RecPrt('ipcidet in cisigma',' ',Work(ipcidet),nconf1,1)
 C
            Call SigmaVec(Work(ipCIDET),Work(ipin(ipci2)),kic)
-*         End If
-C
-*          Call Getmem('cisigma','CHECK','REAL',idum,idum)
-C
-*         call dscal_(nConf1,-1.0d0,Work(ipin(ipci2)),1)
-C
-*        Call RecPrt('ipci2 in cisigma',' ',Work(ipin(ipci2)),nconf1,1)
 C
          If (NT.eq.'N') Then
             Call GetMem('CIDET_TD','FREE','REAL',ipCIDET,nDet)
@@ -172,9 +118,6 @@ c
 C......... Symmetric operator, no transpose of integrals needed!
            call dcopy_(nCSF(iCSM),Work(ipin(ipCI1)+nConf1),1,
      &     Work(ipCIDET),1)
-C
-*           call dcopy_(nCSF(iCSM),Work(ipin(ipCI1)),1,
-*     &     Work(ipCIDET),1)
 C
          Else
 C......... The operator is not sym --> transpose integrals! NT.ne.S
@@ -201,7 +144,7 @@ C......... The operator is not sym --> transpose integrals! NT.ne.S
            Do is=1,nSym
             js=ieor(ieor(icsym-1,issym-1),is-1)+1
             If (nbas(js)*nbas(is).ne.0)
-     &      Call DGETMO(Work(ipint1+ipmat(is,js)-1),nbas(is),
+     &      Call DGETMO(Int1(ipmat(is,js)),nbas(is),
      &                nbas(is),nbas(js),Work(ipTI1+ipmat(js,is)-1),
      &                nbas(js))
            End Do
@@ -209,27 +152,10 @@ C......... The operator is not sym --> transpose integrals! NT.ne.S
            KINT2=ipTI2
          End If  ! End the transpose of integrals.
 *
-C        Do i=1,ntash
-C        Do j=1,ntash
-C        Do k=1,ntash
-C        Do l=1,ntash
-C        Write(*,'(I1,I1,I1,I1,F12.5)') i,j,k,l,
-C    &    Work(kint2-1+itri(i+(j-1)*ntash,k+(l-1)*ntash))
-C        End Do
-C        End Do
-C        End Do
-C        End Do
-C         Call RecPrt('ipcidet in cisig',' ',Work(ipcidet),nconf1,1)
 *
 C
-*         If (NT.eq.'T') Then
-*            Call SigmaVec(Work(ipCIDET),Work(ipin(ipci2)),kic)
-*         Else
             Call SigmaVec(Work(ipCIDET),Work(ipin(ipci2)+nconf1),kic)
-*         End If
 C
-C        call dscal_(nConf1,-1.0d0,Work(ipin(ipci2)+nconf1),1)
-C         Call RecPrt('ipci2 in cisig',' ',Work(ipin(ipci2)),2*nconf1,1)
          Call GetMem('CIDET_TD','FREE','REAL',ipCIDET,nDet)
          If (NT.ne.'S') Then
            Call GetMem('TEMPINT1','FREE','REAL',ipTI1,ndens2)

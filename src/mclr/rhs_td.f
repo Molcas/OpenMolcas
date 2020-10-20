@@ -290,7 +290,7 @@
 *      Call Getmem('rhs7c','CHECK','REAL',idum,idum)
 *
        Call CiSigma_td(0,State_Sym,iEor(State_sym-1,idsym-1)+1,
-     &             ipFix,ipMx,idum,ipCI,ipst,'N')
+     &             Work(ipFix),ipMx,idum,ipCI,ipst,'N')
 C
 *       Call RECPRT('IpST',' ',Work(ipin(ipST)),nConf1*2,1)
 *       Call RECPRT('ipFix',' ',Work(ipFix),ndens2,1)
