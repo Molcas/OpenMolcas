@@ -73,6 +73,11 @@
       ! if not found, exit
 
 #ifdef _HDF5_
+#ifdef _WARNING_WORKAROUND_
+      ! fix a compiler warning/error about possibly uninitialized variables
+      allocate(character(len=0)::refwfnfile)
+#endif
+
       refwfnfile = trim(refwfn_in)
       If (.not.mh5_is_hdf5(refwfnfile)) Then
         ! try $Project.dmrgscf.h5
