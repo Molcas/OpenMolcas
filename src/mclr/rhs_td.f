@@ -34,23 +34,25 @@
 *         Theoretical Chemistry, University of Lund                *
 ********************************************************************
       Implicit Real*8 (a-h,o-z)
+#include "real.fh"
 #include "Pointers.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 * for the integrals needed in sigma gen
 #include "glbbas_mclr.fh"
 #include "lbbas1.fh"
-
-      Character*8 Label
+      Character(LEN=8) Label
       Logical CI
       Real*8 Temp1(nDens),rKappa(nDens),Temp4(nDens),
      &      Temp2(nDens),Temp3(nDens),CMO(nCMO),Temp5(nDens),
      &      Temp6(nDens),temp7(ndens)
+      Real*8, Allocatable:: FiX(:),MOX(:),MOT(:),MOT2(:)
+
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
 *
-      one=1.0d0
       debug=.true.
       iRC=-1
       idsym=loper+1
@@ -64,7 +66,6 @@
 *
 *
 *
-*      Call Getmem('rhs1','CHECK','REAL',idum,idum)
       If (iAnd(ntpert(idisp),2**3).eq.8) Then
       iRC=-1
       iOpt=0
@@ -115,7 +116,6 @@
        End Do
       End Do
       End If
-*      Call Getmem('rhs2','CHECK','REAL',idum,idum)
 *
 *-------------------------------------------------------------------*
 *
@@ -123,44 +123,16 @@
 *
       rone=0.0d0
       If (iMethod.eq.2) Then
-        Call GetMem('MOOIX','ALLO','REAL',ipMOX,n2dens)
-        call dcopy_(n2dens,[0.0d0],0,Work(ipMOX),1)
+        Call mma_allocate(MOX,n2dens,Label='MOX')
       Else
-        ipMOX = ip_Dummy
+        Call mma_allocate(MOX,1,Label='MOX')  ! Dummy allocation
       End If
-      Call GetMem('FIX','ALLO','REAL',ipFiX,nDens2)
-      Call IntX(Work(ipFIX),temp7,temp6,temp5,temp4,rkappa,
-     &          work(ipMOX),loper,idisp,rone)
-*      Call Getmem('rhs3','CHECK','REAL',idum,idum)
+      MOX(:)=Zero
+      Call mma_allocate(FiX,nDens2,Label='FiX')
+      Call IntX(FIX,temp7,temp6,temp5,temp4,rkappa,
+     &          MOX,loper,idisp,rone)
 *
 *-------------------------------------------------------------------*
-*
-#ifdef _GRAD_
-       If (idSym.eq.1) Then
-       r=0.0d0
-       Do iS=1,nSym
-       Do k=1,nBas(iS)
-        Do j=1,nAsh(is)+nish(is)
-         Do i=1,nAsh(is)+nIsh(is)
-          If (i.eq.j.and.i.le.nish(is).and.j.le.nish(is))
-     &    Then
-           rde=2.0d0
-          Else If  (i.gt.nish(is).and.j.gt.nish(is)) Then
-           rde=Work(ipG1-1+itri(i-nish(is)+nA(is),
-     &               j-nIsh(is)+nA(is)))
-          Else
-           rde=0.0d0
-          end if
-
-          r=r+Temp1(ipMat(is,is)-1+nBas(is)*(j-1)+k)*
-     &        Work(kint1-1+ipmat(is,is)-1+nBas(is)*(i-1)+k)*rDe
-         End Do
-        End Do
-       End Do
-       End Do
-       Write(6,*) 'Connect one',r
-       End If
-#endif
 *
 *                       C O N N E C T
 *
@@ -169,34 +141,31 @@
 *                                                 ~
 *     Area for one index transformed integrals (pj|kl)
 *
-*      Call Getmem('rhs4','CHECK','REAL',idum,idum)
 *
       If (iAnd(ntpert(idisp),2**3).eq.8)  Then
        If (iMethod.eq.2) Then
-        Call GetMem('MOOIT','ALLO','REAL',ipMOT ,nmba)
-        Call GetMem('MOOIT2','ALLO','REAL',ipMOT2,nmba)
-        call dcopy_(nmba,[0.0d0],0,work(ipMOT),1)
-        call dcopy_(nmba,[0.0d0],0,work(ipMOT2),1)
+        Call mma_allocate(MOT, nmba,Label='MOT')
+        Call mma_allocate(MOT2,nmba,Label='MOT2')
+        MOT (:)=Zero
+        MOT2(:)=Zero
 *
 *       kappa rmo Fi Fa
 *
 *       IFG: this was outside "if (imethod.eq.2)",
 *            probably a bug? ipmot & ipmot2 would be uninitialized
-        Call r2ElInt(Temp1,Work(ipMOT),  Work(ipMOT2),
+        Call r2ElInt(Temp1,MOT,MOT2,
      &               Temp4,Temp5,ndens2,iDSym,1.0d0,-0.5d0,0)
-        Call DaXpY_(nmba,1.0d0,Work(ipmot2),1,Work(ipmot),1 )
-        Call GetMem('MOOIT2','FREE','REAL',ipMOT2,nmba)
+        Call DaXpY_(nmba,One,MOT2,1,MOT,1 )
+        Call mma_deallocate(MOT2)
        End If
 *----- ix  ix  ~i
-       call dcopy_(ndens2,[0.0d0],0,temp7,1)
+       call dcopy_(ndens2,[Zero],0,temp7,1)
 *----- F  =F  + F
-       Call DaXpY_(nDens2,One,Temp4,1,Work(ipFIX),1)
-*
-*       Call Getmem('rhs5','CHECK','REAL',idum,idum)
+       Call DaXpY_(nDens2,One,Temp4,1,FIX,1)
 *
 
        If (iMethod.eq.2)
-     &  Call CreQ_td(Temp6,Work(ipMOT),Work(ipG2sq),loper+1)
+     &  Call CreQ_td(Temp6,MOT,Work(ipG2sq),loper+1)
 *
        Do iS=1,nSym
         jS=iEOr(iS-1,loper)+1
@@ -225,74 +194,35 @@
         End If
        End Do ! is
 *
-*       Call Getmem('rhs6','CHECK','REAL',idum,idum)
-*
-#ifdef _GRAD_
-       If (idsym.eq.1) then
-       r2=0.0d0
-       Do i=1,nSym
-        Do j=1,nIsh(i)+nAsh(i)
-         r2=Temp7(ipMat(i,i)+Nbas(i)*(j-1)+j-1)+r2
-        End Do
-       End Do
-       Write(6,*) 'Connect 2',-r2
-       Write(6,*) 'Connect' , 0.5d0*(r-r2)
-       renc=-0.5d0*(r-r2)
-       end if
-#endif
-*
-*
 *     Calculate connection contribution to hessian
 *
       End If ! ntpert
       Call Hess(Temp7,rkappa,Temp1,temp4,Temp5,temp6,
      &            Temp3,loper+1,jdisp,idisp)
 *
-*      Call Getmem('rhs7','CHECK','REAL',idum,idum)
 *
 *---- F=F~+Fx
       If (iAnd(ntpert(idisp),2**3).eq.8)
      & call daxpy_(nDens,One,Temp7,1,rKappa,1)
-#ifdef _GRAD_
-       if (idsym.eq.1) Then
-       r22=0.0d0
-       Do i=1,nSym
-        Do j=1,nIsh(i)+nAsh(i)
-         r22=rKappa(ipMat(i,i)+Nbas(i)*(j-1)+j-1)+r22
-        End Do
-       End Do
-       Write(6,*) 'Total 2',r22
-       Call Getmem('JJJJ','ALLO','REAL',ipGGG,ndisp)
-       Call Getmem('JJJJ','ALLO','REAL',ipGG,ndisp)
-       iopt=0
-       irc=-1
-       Call RdMCK(iRC,iOpt,'NUCGRAD',1,Work(ipGGG),1)
-       rone2=rone-r
-       Work(ipGG-1+idisp)=0.5d0*(rone2+r22)+Work(ipGGG+idisp-1)
-*      write(*,*)  Work(ipGG-1+idisp)
-       Call Getmem('JJJJ','Free','REAL',ipGGG,ndisp)
-       Call Getmem('JJJJ','Free','REAL',ipGG,ndisp)
-        end if
-#endif
-*
-*      Call Getmem('rhs7b','CHECK','REAL',idum,idum)
 *
 *     Add connection to 2el MO integrals
 *
 *---- Adds (pb|cd) to triangular (ab|cd)
       If (iMethod.eq.2.and.iAnd(ntpert(idisp),2**2).eq.4)
-     &Call ABXpY(Work(ipMOT),Work(ipMOX),idsym)
+     &Call ABXpY(MOT,MOX,idsym)
 *
       If (CI) Then
-       ipMX=0
-       If (iAnd(ntPert(idisp),2**3).ne.0) ipMX=ipMOX
-*
-       Call CiSigma_td(0,State_Sym,iEor(State_sym-1,idsym-1)+1,
-     &             Work(ipFix),Work(ipMx),idum,ipCI,ipst,'N')
-C
+       If (iAnd(ntPert(idisp),2**3).ne.0) Then
+          Call CiSigma_td(0,State_Sym,iEor(State_sym-1,idsym-1)+1,
+     &                    Fix,MOX,idum,ipCI,ipst,'N')
+       Else
+          ipMX=0
+          Call CiSigma_td(0,State_Sym,iEor(State_sym-1,idsym-1)+1,
+     &                    Fix,Work(ipMX),idum,ipCI,ipst,'N')
+       End If
 C
        If (idsym.eq.1) Then
-        EnA=E2_td(Work(ipFix),Work(ipmox),idsym-1,idisp)
+        EnA=E2_td(Fix,MOX,idsym-1,idisp)
         Call DaXpY_(nConf1,-Ena,Work(ipin(ipCI))
      &   ,1,Work(ipin(ipst)),1)
        End If
@@ -310,11 +240,10 @@ C
      &              nBas(is),nBas(js))
       End Do
 *
-      Call GetMem('FIX','FREE','REAL',ipFix,ndens2)
-      If (iMethod.eq.2)
-     & Call GetMem('MOOIX','FREE','REAL',ipMOX,n2dens)
-      If (iMethod.eq.2.and.iAnd(ntpert(idisp),2**3).eq.8)
-     & CaLL GetMem('MOOIT','FREE','REAL',ipMOT,nmba)
+      Call mma_deallocate(FIX)
+      Call mma_deallocate(MOX)
+      If (Allocated(MOT)) Call mma_deallocate(MOT)
+
       return
 c Avoid unused argument warnings
       If (.False.) Then
