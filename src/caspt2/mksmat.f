@@ -366,6 +366,8 @@ C  - G(xvzyut) -> SA(yvx,zut)
 
       INTEGER, ALLOCATABLE :: IBUF(:)
 
+#include "mpi_interfaces.fh"
+
       ! Since we are stuck with collective calls to MPI_Alltoallv in
       ! order to gather the elements, each process needs to loop over
       ! the same number of blocks.
@@ -1172,6 +1174,8 @@ C  - G(xvzyut) -> SC(zvx,yut)
       INTEGER, PARAMETER :: I4=KIND(ONE4)
 
       INTEGER, ALLOCATABLE :: IBUF(:)
+
+#include "mpi_interfaces.fh"
 
       ! Since we are stuck with collective calls to MPI_Alltoallv in
       ! order to gather the elements, each process needs to loop over

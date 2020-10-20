@@ -1,0 +1,45 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+*
+* These interfaces are only needed for MPI implementations that do not
+* include them in the MPI module, and compiler settings that do not
+* allow argument mismatch in subroutine calls. Such compilers should
+* support assumed type and rank (F2018): TYPE(*), DIMENSION(..)
+
+#ifdef _NEED_EXPLICIT_MPI_INTERFACE_
+      interface
+
+        subroutine MPI_AllGatherV(sendbuf,sendcount,sendtype,recvbuf,
+     &                            recvcount,displs,recvtype,comm,ierror)
+          use definitions, only: MPIInt
+          type(*) :: sendbuf(*), recvbuf(*)
+          integer(kind=MPIInt) :: sendcount, sendtype, recvcount(*),
+     &                            displs(*), recvtype, comm, ierror
+        end subroutine MPI_AllGatherV
+
+        subroutine MPI_AllToAllV(sendbuf,sendcounts,sdispls,sendtype,
+     &                           recvbuf,recvcounts,rdispls,recvtype,
+     &                           comm,ierror)
+          use definitions, only: MPIInt
+          type(*) :: sendbuf(*), recvbuf(*)
+          integer(kind=MPIInt) :: sendcounts(*), sdispls(*), sendtype,
+     &                            recvcounts(*), rdispls(*), recvtype,
+     &                            comm, ierror
+        end subroutine MPI_AllToAllV
+
+        subroutine MPI_BCast(buffer,count,datatype,root,comm,ierror)
+          use definitions, only: MPIInt
+          type(*), dimension(..) :: buffer
+          integer(kind=MPIInt) :: count, datatype, root, comm, ierror
+        end subroutine MPI_BCast
+
+      end interface
+#endif
