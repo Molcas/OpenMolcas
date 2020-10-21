@@ -27,6 +27,7 @@
       External Rsv_Tsk
 *
 #include "standard_iounits.fh"
+#include "real.fh"
 #include "WrkSpc.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
@@ -63,24 +64,28 @@
       Character*72 SLine
       Real*8 res_tmp
       Dimension rdum(1)
+      Real*8, Allocatable:: Kappa(:), dKappa(:), Sigma(:),
+     &                      Temp1(:), Temp2(:), Temp3(:), Temp4(:),
+     &                      Sc1(:), Sc2(:), Sc3(:),
+     &                      Dens(:), Pens(:), rmoaa(:)
+
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *define _DEBUGPRINT_
 *----------------------------------------------------------------------*
-      one=1.0d0
       SLine=' Solving CP(CAS)HF equations'
       Call StatusLine(' MCLR:',SLine)
 *
 *----------------------------------------------------------------------*
 *     Initialize blank and header lines                                *
 *----------------------------------------------------------------------*
-      TIM2=0.0D0
-      TIM3=0.0D0
-      TIM4=0.0D0
+      TIM2=Zero
+      TIM3=Zero
+      TIM4=Zero
 *
-      call dcopy_(4,[0.0d0],0,CLOCK,1)
+      CLOCK(:)=Zero
       lPaper=132
       lLine =120
       left=(lPaper-lLine)/2
@@ -90,9 +95,7 @@
       iDis=0
 *
       fail=.false.
-      Do i=1,8
-       Converged(i)=.true.
-      end do
+      Converged(:)=.true.
       lprint=.false.
       idasave=0
 *     If (SAVE) CALL DANAME(50,'RESIDUALS')
@@ -147,7 +150,7 @@
 
          End If
          Call GA_Zero(iglfail)
-         dfail=0.0d0
+         dfail=Zero
       End If
 #endif
 *
@@ -159,7 +162,7 @@
 *       Check if some other process failed
         If (Is_Real_Par()) Then
            Call GA_Get(iglfail,1,1,1,1,dfail,1)
-           If (dfail.gt.0.0d0) Then
+           If (dfail.gt.Zero) Then
               fail=.true.
               Go To 999
            End If
@@ -295,32 +298,30 @@ C         iDisp=iDisp+1
 *
 *    Allocate areas for scratch and state variables
 *
-          Call GetMem('kappa ','Allo','Real',ipKap  ,nDens2+6)
-          Call GetMem('dkappa','Allo','Real',ipdKap ,nDens2+6)
-          Call GetMem('sigma ','Allo','Real',ipSigma,nDens2+6)
-          Call GetMem('Temp1 ','Allo','Real',ipTemp1,nDens2+6)
-          Call GetMem('Temp2 ','Allo','Real',ipTemp2,nDens2+6)
-          Call GetMem('Temp3 ','ALLO','Real',ipTemp3,nDens2+6)
-          Call GetMem('Temp4 ','Allo','Real',ipTemp4,nDens2+6)
-          Call Getmem('Scr1  ','ALLO','Real',ipSc1  ,nDens2+6)
-          Call Getmem('Scr3  ','ALLO','Real',ipSc3  ,nDens2+6)
-          Call Getmem('Scr2  ','ALLO','Real',ipSc2  ,nDens2+6)
-          call dcopy_(nDens2,[0.0d0],0,Work(ipTemp1),1)
-          call dcopy_(nDens2,[0.0d0],0,Work(ipKap),1)
-          call dcopy_(nDens2,[0.0d0],0,Work(ipsigma),1)
-          call dcopy_(nDens2,[0.0d0],0,Work(ipdKap),1)
+          Call mma_allocate(Kappa,nDens2+6,Label='Kappa')
+          Call mma_allocate(dKappa,nDens2+6,Label='dKappa')
+          Call mma_allocate(Sigma,nDens2+6,Label='Sigma')
+          Call mma_allocate(Temp1,nDens2+6,Label='Temp1')
+          Call mma_allocate(Temp2,nDens2+6,Label='Temp2')
+          Call mma_allocate(Temp3,nDens2+6,Label='Temp3')
+          Call mma_allocate(Temp4,nDens2+6,Label='Temp4')
+          Call mma_allocate(Sc1,nDens2+6,Label='Sc1')
+          Call mma_allocate(Sc2,nDens2+6,Label='Sc2')
+          Call mma_allocate(Sc3,nDens2+6,Label='Sc3')
+          Temp1(1:nDens2)=Zero
+          Kappa(1:nDens2)=Zero
+          dKappa(1:nDens2)=Zero
+          Sigma(1:nDens2)=Zero
           If (CI) Then
-             Call GetMem('1Dens','ALLO','Real',ipDe,n1dens)
-             Call GetMem('2Dens','ALLO','Real',ipP,n2dens)
+             Call mma_allocate(Dens,n1dens,Label='Dens')
+             Call mma_allocate(Pens,n2dens,Label='Pens')
 *
-             call dcopy_(n1dens,[0.0d0],0,Work(ipDe),1)
-             call dcopy_(n2dens,[0.0d0],0,Work(ipP),1)
+             Dens(:)=Zero
+             Pens(:)=Zero
           End If
           If (iMethod.eq.2) Then
-             Call GetMem('RMOAA','ALLO','Real',iprmoaa,n2dens)
-             Call FZero(Work(iprmoaa),n2dens)
-          Else
-             iprmoaa = ip_iDummy
+             Call mma_allocate(rmoaa,n2dens,Label='Pens')
+             rmoaa(:)=Zero
           End If
 *                                                                      *
 ************************************************************************
@@ -332,25 +333,25 @@ C         iDisp=iDisp+1
 *         (T1,T2,T3,T4,T5,T6,T7,Kappa1,CI1)
 *
           If (PT2) then
-             Call RHS_PT2(Work(ipTemp4),ipST)
+             Call RHS_PT2(Temp4,ipST)
           Else
-             kain=ipkap
+             kain=ip_of_Work(Kappa)
 
-             Call RHS(Work(ipSigma),Work(ipKap),Work(ipTemp1),
-     &                Work(ipTemp3),Work(ipSc2),Work(ipdKap),
-     &                Work(ipSc3),
-     &                Work(ipTemp4),ipST,
+             Call RHS(Sigma,Kappa,Temp1,
+     &                Temp3,Sc2,dKappa,
+     &                Sc3,
+     &                Temp4,ipST,
      &                iDisp,iSym-1,Work(ipCMO),jdisp,jspin,CI)
 #ifdef _DEBUGPRINT_
              Write (LuWr,*) 'After RHS'
-             Write (LuWr,*) 'Sigma=',DDot_(nDens,Work(ipSigma),1,
-     &                                          Work(ipSigma),1)
-             Write (LuWr,*) 'Kap=',DDot_(nDens,Work(ipKap),1,
-     &                                        Work(ipKap),1)
-             Write (LuWr,*) 'Sc2=',DDot_(nDens,Work(ipSc2),1,
-     &                                        Work(ipSc2),1)
-             Write (LuWr,*) 'dKap=',DDot_(nDens,Work(ipdKap),1,
-     &                                         Work(ipdKap),1)
+             Write (LuWr,*) 'Sigma=',DDot_(nDens,Sigma,1,
+     &                                          Sigma,1)
+             Write (LuWr,*) 'Kappa=',DDot_(nDens,Kappa,1,
+     &                                        Kappa,1)
+             Write (LuWr,*) 'Sc2=',DDot_(nDens,Sc2,1,
+     &                                        Sc2,1)
+             Write (LuWr,*) 'dKap=',DDot_(nDens,dKappa,1,
+     &                                         dKappa,1)
              Write (LuWr,*) 'CMO=',DDot_(nCMO,Work(ipCMO),1,
      &                                       Work(ipCMO),1)
 #endif
@@ -369,46 +370,45 @@ C         iDisp=iDisp+1
 *                                                                      *
           iLen=nDensC
           iRHSDisp(iDisp)=iDis
-          Call Compress(Work(ipTemp4),Work(ipSigma),iSym)
-          r1=ddot_(ndensc,Work(ipsigma),1,Work(ipsigma),1)
-          Call UnCompress(Work(ipSigma),Work(ipTemp4),iSym)
-          Call dDaFile(LuTemp,1,Work(ipSigma),iLen,iDis)
-          If (CI) call dcopy_(nConf1,[0.0d0],0,Work(ipin(ipCIT)),1)
+          Call Compress(Temp4,Sigma,iSym)
+          r1=ddot_(ndensc,sigma,1,sigma,1)
+          Call UnCompress(Sigma,Temp4,iSym)
+          Call dDaFile(LuTemp,1,Sigma,iLen,iDis)
+          If (CI) call dcopy_(nConf1,[Zero],0,Work(ipin(ipCIT)),1)
           irc=ipout(ipCIT)
           If (CI) Then
              ilen=nconf1
              iRHSCIDisp(iDisp)=iDis
              Call dDaFile(LuTemp,1,Work(ipin(ipST)),iLen,iDis)
-             Call DSCAL_(nConf1,-1.0d0,Work(ipin(ipST)),1)
+             Call DSCAL_(nConf1,-One,Work(ipin(ipST)),1)
           End If
 *
-          Call DSCAL_(nDensC,-1.0d0,Work(ipSigma),1)
+          Call DSCAL_(nDensC,-One,Sigma,1)
 *
 #ifdef _DEBUGPRINT_
           Write (LuWr,*) 'ST=',DDot_(nConf1,Work(ipin(ipST)),1,
      &                                     Work(ipin(ipST)),1)
-          Write (LuWr,*) 'Sigma=',DDot_(nDensC,Work(ipSigma),1,
-     &                                        Work(ipSigma),1)
-          Write (LuWr,*) 'Kap=',DDot_(nDens2,Work(ipKap),1,
-     &                                      Work(ipKap),1)
+          Write (LuWr,*) 'Sigma=',DDot_(nDensC,Sigma,1,
+     &                                        Sigma,1)
+          Write (LuWr,*) 'Kappa=',DDot_(nDens2,Kappa,1,
+     &                                      Kappa,1)
           Write (LuWr,*) 'End RHS!'
 #endif
 *
           iter=1
-          Call DMInvKap(Work(ipin(ipPre2)),Work(ipSigma),nDens2+6,
-     &                  Work(ipKap),nDens2+6,work(ipTemp3),nDens2+6,
+          Call DMInvKap(Work(ipin(ipPre2)),Sigma,nDens2+6,
+     &                  Kappa,nDens2+6,Temp3,nDens2+6,
      &                  isym,iter)
           irc=opout(ippre2)
-          r2=ddot_(ndensc,Work(ipKap),1,Work(ipKap),1)
+          r2=ddot_(ndensc,Kappa,1,Kappa,1)
 #ifdef _DEBUGPRINT_
           Write (LuWr,*) 'DMinvKap'
-          Write (LuWr,*) 'Kap=',DDot_(nDens2,Work(ipKap),1,
-     &                                      Work(ipKap),1)
+          Write (LuWr,*) 'Kap=',DDot_(nDens2,Kappa,1,Kappa,1)
           Write (LuWr,*) 'End DMinvKap'
 #endif
           If (r2.gt.r1) Write(LuWr,Fmt2//'A,I3,A)')
      &         'Warning  perturbation number ',idisp,' might diverge!'
-          Call UnCompress(Work(ipKap),Work(ipdKap),iSym)
+          Call UnCompress(Kappa,dKappa,iSym)
 *
           If (CI) Call DMinvCI(ipST,Work(ipin(ipCId)), rCHC,isym)
 *
@@ -416,17 +416,17 @@ C         iDisp=iDisp+1
              deltaC=ddot_(nConf1,Work(ipin(ipST)),1,Work(ipin(ipCId)),1)
              irc=ipout(ipcid)
           Else
-             deltaC=0.0d0
+             deltaC=Zero
           End If
-          deltaK=ddot_(nDensC,Work(ipKap),1,Work(ipSigma),1)
-          call dcopy_(nDens,[0.0d0],0,Work(ipKap),1)
+          deltaK=ddot_(nDensC,Kappa,1,Sigma,1)
+          Kappa(1:nDens)=Zero
           delta=deltac+deltaK
 #ifdef _DEBUGPRINT_
-          If (Abs(DeltaC).lt.1.0D-12) DeltaC=0.0D0
+          If (Abs(DeltaC).lt.1.0D-12) DeltaC=Zero
           Write (LuWr,*)'DeltaK, DeltaC, Delta=',DeltaK, DeltaC, Delta
 #endif
 
-          If (delta.eq.0.0D0) Goto 300
+          If (delta.eq.Zero) Goto 300
           delta0=delta
 #ifdef _DEBUGPRINT_
           Write (LuWr,*) 'Delta0=',Delta0
@@ -435,7 +435,7 @@ C         iDisp=iDisp+1
 #endif
           Orb=.true.
           TimeDep=.false.
-          ReCo=-1.0d0
+          ReCo=-One
 *                                                                      *
 ************************************************************************
 *          I   T   E   R   A   T   I   O   N   S                       *
@@ -468,9 +468,9 @@ C         iDisp=iDisp+1
 *                                                                      *
 
              irc=ipnout(-1)
-             Call RInt_generic(Work(ipdKap),Work(iprmoaa),rdum,
-     &                         Work(ipSc2),Work(ipTemp3),Work(ipTemp4),
-     &                         Work(ipSc3),isym,reco,jspin)
+             Call RInt_generic(dKappa,rmoaa,rdum,
+     &                         Sc2,Temp3,Temp4,
+     &                         Sc3,isym,reco,jspin)
              Clock(iTimeKK)=Clock(iTimeKK)+Tim2
 
 *                                                                      *
@@ -487,7 +487,7 @@ C         iDisp=iDisp+1
 *                                                                      *
              If (CI) Then
                 Call CISigma(jspin,State_Sym,pstate_sym,
-     &                       ipTemp4,iprmoaa,idum,
+     &                       Temp4,rmoaa,idum,
      &                       ipCI,ipS1,'N')
                 Clock(iTimeKC)=Clock(iTimeKC)+Tim3
 #ifdef _DEBUGPRINT_
@@ -515,7 +515,7 @@ C         iDisp=iDisp+1
                    call daxpy_(nConf1,-rgrad,
      &                        Work(ipin(ipCI)),1,Work(ipin(ipS1)),1)
                 End IF
-                call dscal_(nconf1,2.0d0,Work(ipin(ips1)),1)
+                call dscal_(nconf1,Two,Work(ipin(ips1)),1)
 *
                 irc=opout(ipCI)
              End If
@@ -543,13 +543,13 @@ C         iDisp=iDisp+1
 *                                                                      *
               irc=ipnout(-1)
               Call CISigma(0,PState_Sym,Pstate_sym,
-     &                     ipFIMO,k2int,idum,
+     &                     Work(ipFIMO),Work(k2int),idum,
      &                     ipCId,ipS2,'N')
               EC=rin_ene+potnuc-ERASSCF(1)
 
               Call DaXpY_(nConf1,EC,Work(ipin(ipCId)),1,
      &                   Work(ipin(ipS2)),1)
-              Call DSCAL_(nConf1,2.0d0,Work(ipin(ipS2)),1)
+              Call DSCAL_(nConf1,Two,Work(ipin(ipS2)),1)
               Clock(iTimeCC)=Clock(iTimeCC)+Tim4
               irc=ipout(ips2)
               irc=opout(ipcid)
@@ -573,30 +573,27 @@ C         iDisp=iDisp+1
               Call CIDens(Response,ipCI,ipCId,
      &                    State_sym,
      &                    PState_Sym,jspin,
-     &                    Work(ipP),Work(ipDe))     ! Jeppes
+     &                    Pens,Dens)     ! Jeppes
 
 #ifdef _DEBUGPRINT_
               Write (LuWr,*) 'After CIDens'
-              Write (LuWr,*) 'P=',DDot_(n2dens,Work(ipP),1,
-     &                                        Work(ipP),1)
-              Write (LuWr,*) 'De=',DDot_(n1dens,Work(ipDe),1,
-     &                                         Work(ipDe),1)
+              Write (LuWr,*) 'P=',DDot_(n2dens,Pens,1,Pens,1)
+              Write (LuWr,*) 'De=',DDot_(n1dens,Dens,1,Dens,1)
 #endif
 *
 *             density for inactive= 2(<d|0>+<0|d>)
 *
-              d_0=0.0d0
+              d_0=Zero
 *
 *             This is just for debugging purpose.
 *             When we use it for actual calculations d_0 == 0
 *
               If (isym.eq.1)
      &        d_0=ddot_(nconf1,Work(ipin(ipCid)),1,Work(ipin(ipCi)),1)
-              If (Response) d_0=d_0*2.0d0
+              If (Response) d_0=d_0*Two
 *
 
-              Call FockGen(d_0,Work(ipDe),Work(ipP),
-     &                     Work(ipSc1),Work(ipSc3),isym)    ! Made
+              Call FockGen(d_0,Dens,Pens,Sc1,Sc3,isym)    ! Made
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -621,13 +618,10 @@ C         iDisp=iDisp+1
 *                                                                      *
 #ifdef _DEBUGPRINT_
            Write (LuWr,*) 'Add together!'
-           Write (LuWr,*) 'dKap=',DDot_(nDens,Work(ipdKap),1,
-     &                                    Work(ipdKap),1)
-           Write (LuWr,*) 'Sc2=',DDot_(nDens,Work(ipSc2),1,
-     &                                   Work(ipSc2),1)
+           Write (LuWr,*) 'dKap=',DDot_(nDens,dKappa,1,dKappa,1)
+           Write (LuWr,*) 'Sc2=',DDot_(nDens,Sc2,1,Sc2,1)
            If (CI) Then
-              Write (LuWr,*) 'Sc3=',DDot_(nDens,Work(ipSc3),1,
-     &                                      Work(ipSc3),1)
+              Write (LuWr,*) 'Sc3=',DDot_(nDens,Sc3,1,Sc3,1)
              Write(LuWr,*)'S2=',DDot_(nConf1,Work(ipin1(ipS2,nconf1)),1,
      &                                       Work(ipin1(ipS2,nconf1)),1)
              Write(LuWr,*)'S1=',DDot_(nConf1,Work(ipin1(ipS1,nconf1)),1,
@@ -637,15 +631,14 @@ C         iDisp=iDisp+1
 #endif
            irc=ipnout(-1)
            if (CI) then
-              Call DZaXpY(nDens,One,Work(ipSc2),1,
-     &                    Work(ipSc3),1,Work(ipSc1),1)
+              Call DZaXpY(nDens,One,Sc2,1,Sc3,1,Sc1,1)
            Else
-              call dcopy_(nDens,Work(ipSc2),1,Work(ipSc1),1)
+              call dcopy_(nDens,Sc2,1,Sc1,1)
            End If
-           Call Compress(Work(ipSc1),Work(ipTemp4),isym)   ! ds
-           Call Compress(Work(ipdKap),Work(ipTemp2),isym)  ! DX
+           Call Compress(Sc1,Temp4,isym)   ! ds
+           Call Compress(dKappa,Temp2,isym)  ! DX
            If (CI) Then
-              Call DaXpY_(nConf1,1.0d0,Work(ipin1(ipS2,nconf1)),1,
+              Call DaXpY_(nConf1,One,Work(ipin1(ipS2,nconf1)),1,
      &                                Work(ipin1(ipS1,nconf1)),1)
               irc=opout(ipS2)
            End If
@@ -666,10 +659,9 @@ C         iDisp=iDisp+1
 *          rAlpha=------------
 *                 dKappa:dSigma
 *
-           rAlphaC=0.0d0
-           rAlphaK=0.0d0
-           If (orb) rAlphaK=DDot_(nDensC,Work(ipTemp4),1,
-     &                                  Work(ipTemp2),1)
+           rAlphaC=Zero
+           rAlphaK=Zero
+           If (orb) rAlphaK=DDot_(nDensC,Temp4,1,Temp2,1)
            If (CI)  rAlphaC=DDot_(nConf1,Work(ipin(ipS1)),1,
      &                                  Work(ipin(ipCId)),1)
            rAlpha=delta/(rAlphaK+rAlphaC)
@@ -691,11 +683,11 @@ C         iDisp=iDisp+1
 *          Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
 *
            If (orb) Then
-             Call DaxPy_(nDensC,ralpha,Work(ipTemp2),1,Work(ipKap),1)
-             Call DaxPy_(nDensC,-ralpha,Work(ipTemp4),1,Work(ipSigma),1)
-              resk=sqrt(ddot_(nDensC,Work(ipSigma),1,Work(ipSigma),1))
+             Call DaxPy_(nDensC,ralpha,Temp2,1,Kappa,1)
+             Call DaxPy_(nDensC,-ralpha,Temp4,1,Sigma,1)
+              resk=sqrt(ddot_(nDensC,Sigma,1,Sigma,1))
            End If
-           resci=0.0d0
+           resci=Zero
            If (CI) Then
               Call DaXpY_(nConf1,ralpha,Work(ipin(ipCId)),1,
      &                   Work(ipin(ipCIT)),1)
@@ -704,8 +696,7 @@ C         iDisp=iDisp+1
      &                   Work(ipin1(ipST,nconf1)),1)
               irc=opout(ipS1)
               ip=ipin(ipst)
-              resci=sqrt(ddot_(nconf1,Work(ip),1,
-     &                        Work(ip),1))
+              resci=sqrt(ddot_(nconf1,Work(ip),1,Work(ip),1))
            End If
 *                                                                      *
 ************************************************************************
@@ -719,9 +710,8 @@ C         iDisp=iDisp+1
           irc=opout(ipci)
           irc=opout(ipdia)
 *
-           Call DMInvKap(Work(ipin(ipPre2)),work(ipSigma),nDens2+6,
-     &                   work(ipSC2),nDens2+6,Work(ipSc1),nDens2+6,
-     &                   iSym,iter)
+           Call DMInvKap(Work(ipin(ipPre2)),Sigma,nDens2+6,
+     &                   Sc2,nDens2+6,Sc1,nDens2+6,iSym,iter)
            irc=opout(ippre2)
 *                                                                      *
 ************************************************************************
@@ -738,23 +728,23 @@ C         iDisp=iDisp+1
               deltaC=ddot_(nConf1,Work(ipin(ipST)),1,Work(ipin(ipS2)),1)
               irc=ipout(ipST)
            Else
-              deltaC=0.0d0
+              deltaC=Zero
            End If
 *
-           deltaK=ddot_(nDensC,Work(ipSigma),1,Work(ipSc2),1)
+           deltaK=ddot_(nDensC,Sigma,1,Sc2,1)
            If (.not.CI) Then
               rBeta=deltaK/delta
               delta=deltaK
-              Call DScal_(nDensC,rBeta,Work(ipTemp2),1)
-              Call DaXpY_(nDensC,1.0d0,Work(ipsc2),1,Work(ipTemp2),1)
+              Call DScal_(nDensC,rBeta,Temp2,1)
+              Call DaXpY_(nDensC,One,Sc2,1,Temp2,1)
            Else
               rbeta=(deltac+deltaK)/delta
               delta=deltac+deltaK
               Call DScal_(nConf1,rBeta,Work(ipin(ipCID)),1)
-              Call DScal_(nDensC,rBeta,Work(ipTemp2),1)
-              Call DaXpY_(nConf1,1.0d0,Work(ipin(ipS2)),1,
+              Call DScal_(nDensC,rBeta,Temp2,1)
+              Call DaXpY_(nConf1,One,Work(ipin(ipS2)),1,
      &                                Work(ipin(ipCID)),1)
-              Call DaXpY_(nDensC,1.0d0,Work(ipsc2),1,Work(ipTemp2),1)
+              Call DaXpY_(nDensC,One,Sc2,1,Temp2,1)
               irc=opout(ipS2)
               irc=ipout(ipCID)
            End If
@@ -774,10 +764,10 @@ C         iDisp=iDisp+1
 *                                                                      *
 ************************************************************************
 *                                                                      *
-           Call UnCompress(Work(ipTemp2),Work(ipdKap),isym)
+           Call UnCompress(Temp2,dKappa,isym)
 *
-           res=0.0D0 ! dummy initialize
-           res_tmp=-1.0D0
+           res=Zero ! dummy initialize
+           res_tmp=-One
            If (iBreak.eq.1) Then
               If (abs(delta).lt.abs(Epsilon**2*delta0)) Goto 300
            Else If (ibreak.eq.2) Then
@@ -807,7 +797,6 @@ C         iDisp=iDisp+1
      &            iter,'       ',delta/delta0,resk,resci,deltac,deltak
 
            iter=iter+1
-*          Call GetMem(' LIST ','LIST','REAL',iDum,iDum)
 
           Goto 200
 *                                                                      *
@@ -822,8 +811,8 @@ C         iDisp=iDisp+1
 #ifdef _MOLCAS_MPP_
 *         Set the global flag to signal a process failed
           If (Is_Real_Par()) Then
-             dfail=1.0d0
-             Call GA_Acc(iglfail,1,1,1,1,dfail,1,1.0d0)
+             dfail=One
+             Call GA_Acc(iglfail,1,1,1,1,dfail,1,One)
           End If
 #endif
 *
@@ -847,9 +836,9 @@ C         Write(LuWr,Fmt2//'A)')'Writing response to one-file.'
           Write(LuWr,*)
           iLen=ndensC
           iKapDisp(iDisp)=iDis
-          Call dDaFile(LuTemp,1,Work(ipKap),iLen,iDis)
+          Call dDaFile(LuTemp,1,Kappa,iLen,iDis)
           iSigDisp(iDisp)=iDis
-          Call dDaFile(LuTemp,1,Work(ipSigma),iLen,iDis)
+          Call dDaFile(LuTemp,1,Sigma,iLen,iDis)
           If (CI) Then
              ilen=nconf1
              iCIDisp(iDisp)=iDis
@@ -858,42 +847,26 @@ C         Write(LuWr,Fmt2//'A)')'Writing response to one-file.'
              Call dDaFile(LuTemp,1,Work(ipin(ipST)),iLen,iDis)
           End If
 *
-          Call GetMem('Temp4  ','FREE','Real',ipTemp4,nDens)
-          Call GetMem('Temp3  ','FREE','Real',ipTemp3,ndens)
-          Call GetMem('Temp2  ','FREE','Real',ipTemp2,nDens)
-          Call GetMem('Temp1  ','FREE','Real',ipTemp1,nDens)
-          Call GetMem('sigma  ','FREE','Real',ipSigma,nDens)
-          Call GetMem('dkappa ','FREE','Real',ipdKap ,nDens)
-          Call GetMem('kappa  ','FREE','Real',ipKap  ,nDens)
-          Call Getmem('Scr1   ','FREE','Real',ipSc1  ,nDens2)
-          Call Getmem('Scr2   ','FREE','Real',ipSc2  ,nDens2)
-          Call Getmem('Scr3   ','FREE','Real',ipSc3  ,nDens2)
+          If (CI) Then
+          End If
+
+          Call mma_deallocate(Temp4)
+          Call mma_deallocate(Temp3)
+          Call mma_deallocate(Temp2)
+          Call mma_deallocate(Temp1)
+          Call mma_deallocate(Sigma)
+          Call mma_deallocate(dKappa)
+          Call mma_deallocate(Kappa)
+          Call mma_deallocate(Sc3)
+          Call mma_deallocate(Sc2)
+          Call mma_deallocate(Sc1)
           If (iMethod.eq.2) Then
-             Call GetMem('RMOAA','FREE','Real',iprmoaa,n2dens)
+             Call mma_deallocate(rmoaa)
           End If
           If (CI) Then
-*            Call GetMem('RMOAA','FREE','Real',iprmoaa,n2dens)
-             Call GetMem('2Dens','FREE','Real',ipP,n1dens)
-             Call GetMem('1Dens','FREE','Real',ipDe,n2dens)
+             Call mma_deallocate(Pens)
+             Call mma_deallocate(Dens)
           End If
-C        End Do ! jDisp
-*
-*        Free all memory and remove from disk all data
-*        related to this symmetry
-*
-C        If (CI) Then
-C           irc=ipclose(ipdia)
-C        Else
-C           irc=ipclose(ipPre2)
-C        End If
-*
-C        If (iphx.ne.0) Then
-C           Call Getmem('EXPHS','FREE','REAL',iphx,idum)
-C           Call Getmem('EXPHF','FREE','INTE',ipvt,idum)
-C           Call Getmem('EXPLS','FREE','INTE',iplst,idum)
-C        End If
-*
-C     End Do ! iSym
       Go To 888
  999  Continue
       Call Get_nProcs(nProcs)

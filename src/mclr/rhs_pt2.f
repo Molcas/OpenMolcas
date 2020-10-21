@@ -175,7 +175,7 @@ c Avoid unused argument warnings
 *
 *     <i|Sigma> = <i|F|0> - <0|F|0><i|0>+CI_a+CI_b
 *
-      Call CISigma(0,State_sym,State_sym,ipFMO1,0,0,ipci,iprci,'N')
+      Call CISigma(0,State_sym,State_sym,Work(ipFMO1),Work(0),0,ipci,iprci,'N')
       rE=ddot_(nconf1,Work(ipin(iprci)),1,Work(ipin(ipci)),1)
       Call Daxpy_(nconf1,1.0d0,Work(ipT),1,Work(ipin(iprci)),1)
       Call Daxpy_(nconf1,-rE,Work(ipin(ipCI)),1,Work(ipin(iprci)),1)

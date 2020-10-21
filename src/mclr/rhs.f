@@ -225,7 +225,7 @@
        If (iAnd(ntPert(idisp),2**3).ne.0) ipMX=ipMOX
 *
        Call CiSigma(0,State_Sym,iEor(State_sym-1,idsym-1)+1,
-     &             ipFix,ipMx,idum,ipCI,ipst,'N')
+     &             Work(ipFix),Work(ipMx),idum,ipCI,ipst,'N')
 *
        If (idsym.eq.1) Then
         EnA=E2(Work(ipFix),Work(ipmox),idsym-1,idisp)

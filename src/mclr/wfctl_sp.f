@@ -215,7 +215,7 @@
              If (nconf1.gt.1) Then
                irc=opout(-1)
                Call CISigma(1,State_Sym,state_sym,
-     &                      ipTemp4,iprmoaa,iprmoaa2,
+     &                      Work(ipTemp4),Work(iprmoaa),iprmoaa2,
      &                      ipCI,ipS1,'N')
                irc=opout(-1)
                rGrad=ddot_(nconf1,Work(ipin(ipCI)),1,
@@ -233,7 +233,7 @@
                irc=opout(-1)
                If (nconf1.gt.1) Then
                Call CISigma(0,State_Sym,state_sym,
-     &                    ipFIMO,k2int,idum,
+     &                    Work(ipFIMO),Work(k2int),idum,
      &                    ipCId,ipS2,'N')
                irc=opout(-1)
                EC=rin_ene+potnuc-ERASSCF(1)

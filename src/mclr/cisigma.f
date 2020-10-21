@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       SubRoutine CISigma(iispin,iCsym,iSSym,ipInt1,ipint2s,
+       SubRoutine CISigma(iispin,iCsym,iSSym,Int1,Int2s,
      &                    ipint2a,ipCI1,ipCI2,NT)
        Implicit Real*8(a-h,o-z)
 *
@@ -22,8 +22,8 @@
 #include "cands.fh"
 #include "detdim.fh"
 #include "cstate_mclr.fh"
-
 #include "cicisp_mclr.fh"
+       Real*8 Int1(*), Int2s(*)
        Character NT
        integer kic(2),opout,nbb(8)
 *
@@ -36,6 +36,8 @@
 *
        !> yma: notice the nconf1 if DMRG
 
+       ipInt1 = ip_of_Work(Int1(1))
+       ipInt2s= ip_of_Work(Int2s(1))
        If (nconf1.eq.0) return
 *
 *      One electron integrals
