@@ -57,7 +57,8 @@
       External IsFreeUnit
       Real*8, Allocatable:: FOSq(:), FOTr(:)
       Real*8, Allocatable:: Kappa(:), dKappa(:), Sigma(:),
-     &                      Temp4(:), Sc1(:), Sc2(:)
+     &                      Temp4(:), Sc1(:), Sc2(:), Fancy(:),
+     &                      FMO1t(:), FMO1(:), FMO2t(:)
 
 *
 *----------------------------------------------------------------------*
@@ -120,13 +121,13 @@
 *     Calculate the diagonal of E    and store in core/disc
 *
       iphx=0
-      Call Getmem('FANCY','ALLO','REAL',ips,nroots**3)
+      Call mma_allocate(Fancy,nRoots**3,Label='Fancy')
 !____________________
 !AMS - what to do here?
 ! What should rCHC be?  is it computed with E(mcscf) or E(pdft)?
 
 !____________________
-      Call CIDia_SA(State_Sym,rCHC,Work(ipS))
+      Call CIDia_SA(State_Sym,rCHC,Fancy)
       irc=ipOut(ipdia)
 
 
@@ -215,44 +216,40 @@
       do ksym=1,nsym
         nTri = nTri + nBas(ksym)*(nBas(ksym)+1)/2
         nOrbAct = nOrbAct + nAsh(ksym)
-!      nTri = nTri + nAsh(ksym)*(nAsh(ksym)+1)/2
       end do
-      !nTri2 = nTri*(nTri+1)/2
       nacpar = nOrbAct*(nOrbAct+1)/2
       nTri2 = nacpar*(nacpar+1)/2
-      Call GetMem('FockOt ','Allo','Real',ipFMO1t,nTri)
-      Call GetMem('FockO ','Allo','Real',ipFMO1,ndens2)
-      Call GetMem('FockT ','Allo','Real',ipFMO2,n2dens)
+      Call mma_allocate(FMO1t,nTri,Label='FMO1t')
+      Call mma_allocate(FMO1,nDens2,Label='FMO1')
       nacpar=(nnA+1)*nnA/2
       nacpr2=(nacpar+1)*nacpar/2
-      Call GetMem('FockTt','Allo','Real',ipFMO2t,nacpr2)
+      Call mma_allocate(FMO2t,nacpr2,Label='FMO2t')
       do i=1,nTri
-        read(LUTMP,*) Work(ipFMO1t-1+i)
+        read(LUTMP,*) FMO1t(i)
       end do
 
       ioff = 0
       do iS=1,nSym
-        jS=iEOR(iS-1,state_sym-1)+1
-        js=is
+        jS=iS
         If (nBas(is)*nBas(jS).ne.0) then
-          if(is.eq.js) then
+          if(iS.eq.jS) then
             do i=1,nBas(iS)
               do j=1,i
-            Work(ipFMO1-2+ipMat(is,js) +(i-1)*nbas(iS)+j) =
-     &                Work(ipFMO1t+ioff)
-               if (i.ne.j) then
-            Work(ipFMO1-2+ipMat(is,js) +(j-1)*nbas(iS)+i) =
-     &                Work(ipFMO1t+ioff)
-               end if
                ioff = ioff+1
+               ji= ipMat(is,js)-1 +(i-1)*nbas(iS)+j
+               FMO1(ji) = FMO1t(ioff)
+               if (i.ne.j) then
+                  ij= ipMat(is,js)-1 +(j-1)*nbas(iS)+i
+                  FMO1(ij) = FMO1t(ioff)
+               end if
               end do
             end do
           else
             do i=1,nBas(iS)
               do j=1,nBas(jS)
-            Work(ipFMO1-1+ipMat(is,js) +(i-1)*nbas(iSym)+j) =
-     &                Work(ipFMO1t+ioff)
               ioff = ioff+1
+              ji= ipMat(is,js)-1 +(i-1)*nbas(iSym)+j
+              FMO1(ji) = FMO1t(ioff)
               end do
             end do
           end if
@@ -262,14 +259,14 @@
 
 
       do i=1,nacpr2
-        read(LUTMP,*) Work(ipFMO2t-1+i)
+        read(LUTMP,*) FMO2t(i)
       end do
       Close(LUTMP)
 
       iprci = ipget(nconf3)
-      Call CISigma_sa(0,State_sym,State_sym,Work(ipFMO1),Work(ipFMO2t),
+      Call CISigma_sa(0,State_sym,State_sym,FMO1,FMO2t,
      &                0,ipci,ipST,'N')
-      Call GetMem('FockTt','Free','Real',ipFMO2t,nacpr2)
+      Call mma_deallocate(FMO2t)
 
       troot = (irlxroot - 1)
       Do i=0,nroots-1
@@ -295,9 +292,8 @@
       end do
       end if
 
-      Call GetMem('FockOt ','Free','Real',ipFMO1t,nTri)
-      Call GetMem('FockO ','Free','Real',ipFMO1,ndens2)
-      Call GetMem('FockT ','Free','Real',ipFMO2,n2dens)
+      Call mma_deallocate(FMO1t)
+      Call mma_deallocate(FMO1)
 
 !Get the fock matrix needed for the determination of the orbital part of
 !the RHS.
@@ -375,7 +371,7 @@
       deltaC=Zero
 !AMS _________________________________________________________
 !I need to read in the CI portion of the RHS here.
-      If (CI) Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
+      If (CI) Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rdum,isym,Fancy)
       Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
      &   Work(ipin(ipCId)),1)
 ********************
@@ -574,7 +570,7 @@
 *
          irc=opOut(ipcid)
 
-         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
+         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rdum,isym,Fancy)
 
          irc=opOut(ipci)
          irc=opOut(ipdia)
@@ -707,7 +703,7 @@
       Call mma_deallocate(Sigma)
       Call mma_deallocate(dKappa)
       Call mma_deallocate(Kappa)
-      Call Getmem('FANCY',  'FREE','REAL',ips,nroots**3)
+      Call mma_deallocate(Fancy)
 *
 *     Free all memory and remove from disk all data
 *     related to this symmetry
