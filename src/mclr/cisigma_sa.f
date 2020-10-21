@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       SubRoutine CISigma_sa(iispin,iCsym,iSSym,ipInt1,ipint2s,
+       SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,int2s,
      &                    ipint2a,ipCI1,ipCI2,NT)
        Implicit Real*8(a-h,o-z)
 *
@@ -26,6 +26,7 @@
 #include "cicisp_mclr.fh"
        Character NT
        integer kic(2),opout,nbb(8)
+       Real*8 Int1(*), Int2s(*)
 *
 *      Interface Anders to Jeppe
 *      This interface initiates Jeppes common block
@@ -34,6 +35,8 @@
 *
 *      OK first tell Jeppe where the integrals are.
 
+       ipInt1 = ip_of_Work(Int1(1))
+       ipInt2s= ip_of_Work(Int2s(1))
        !> yma: notice the nconf1 if DMRG
 *
        If (nconf1.eq.0) return

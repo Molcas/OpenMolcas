@@ -16,7 +16,7 @@
 #include "Pointers.fh"
 #include "stdalloc.fh"
       Real*8, Allocatable :: R(:,:)
-      Call CISigma_sa(0,state_sym,state_sym,iph1,iph2,
+      Call CISigma_sa(0,state_sym,state_sym,Work(iph1),Work(iph2),
      &                    idum,ipCI,ips1,'N')
       Call DSCAL_(nroots*ncsf(STATE_SYM),2.0d0,
      &           Work(ipin(ips1)),1)

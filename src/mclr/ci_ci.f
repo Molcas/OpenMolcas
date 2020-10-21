@@ -14,7 +14,7 @@
 
 #include "Input.fh"
 #include "Pointers.fh"
-      Call CISigma_sa(0,state_sym,state_sym,ipFimo,k2int,
+      Call CISigma_sa(0,state_sym,state_sym,Work(ipFimo),Work(k2int),
      &                    idum,ipCId,ips2,'N')
       Do i=0,nroots-1
          EC=(rin_ene+potnuc-ERASSCF(i+1))*Weight(i+1)
