@@ -13,6 +13,7 @@
 #define NOCODE
       Subroutine RHS_PT2(rkappa,iprci)
 #ifdef NOCODE
+      Real*8 rKappa(*)
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real(rkappa)

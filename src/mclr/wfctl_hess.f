@@ -316,9 +316,11 @@ C         iDisp=iDisp+1
              Pens(:)=Zero
           End If
           If (iMethod.eq.2) Then
-             Call mma_allocate(rmoaa,n2dens,Label='Pens')
-             rmoaa(:)=Zero
+             Call mma_allocate(rmoaa,n2dens,Label='rmoaa')
+          Else
+             Call mma_allocate(rmoaa,1,Label='rmoaa')
           End If
+          rmoaa(:)=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -331,7 +333,7 @@ C         iDisp=iDisp+1
           If (PT2) then
              Call RHS_PT2(Temp4,ipST)
           Else
-             kain=ip_of_Work(Kappa)
+             kain=ip_of_Work(Kappa(1))
 
              Call RHS(Sigma,Kappa,Temp1,
      &                Temp3,Sc2,dKappa,
@@ -856,9 +858,7 @@ C         Write(LuWr,Fmt2//'A)')'Writing response to one-file.'
           Call mma_deallocate(Sc3)
           Call mma_deallocate(Sc2)
           Call mma_deallocate(Sc1)
-          If (iMethod.eq.2) Then
-             Call mma_deallocate(rmoaa)
-          End If
+          If (allocated(rmoaa)) Call mma_deallocate(rmoaa)
           If (CI) Then
              Call mma_deallocate(Pens)
              Call mma_deallocate(Dens)
