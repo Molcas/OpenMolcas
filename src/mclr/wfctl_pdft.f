@@ -53,13 +53,12 @@
       Logical lPrint,converged(8)
       Real*8 rchc(mxroot)
 
-      Integer ipFT99,iptemp5
       External IsFreeUnit
       Real*8, Allocatable:: FOSq(:), FOTr(:)
       Real*8, Allocatable:: Kappa(:), dKappa(:), Sigma(:),
      &                      Temp4(:), Sc1(:), Sc2(:), Fancy(:),
-     &                      FMO1t(:), FMO1(:), FMO2t(:)
-
+     &                      FMO1t(:), FMO1(:), FMO2t(:),
+     &                      FT99(:), Temp5(:)
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -298,25 +297,25 @@
 !Get the fock matrix needed for the determination of the orbital part of
 !the RHS.
 
-      Call GetMem('FockT ','Allo','Real',ipFT99,nDens2)
-      Call GetMem('Temp5 ','Allo','Real',ipTemp5,nDens2+6)
-      call dcopy_(nDens2,[Zero],0,Work(ipFT99),1)
-      call dcopy_(nDens2+6,[Zero],0,Work(ipTemp5),1)
-      Call get_dArray('Fock_PDFT',Work(ipFT99),nDens2)
+      Call mma_allocate(FT99,nDens2,Label='FT99')
+      Call mma_allocate(Temp5,nDens2+6,Label='Temp5')
+      FT99(:)=Zero
+      Temp5(:)=Zero
+      Call get_dArray('Fock_PDFT',FT99,nDens2)
       Do iS=1,nSym
          jS=iEOR(iS-1,0)+1
          If (nBas(is)*nBas(jS).ne.0) then
-           Call DGeSub(Work(ipFT99-1+ipMat(iS,jS)),nBas(iS),'N',
-     &                  Work(ipFT99-1+ipMat(jS,iS)),nBas(jS),'T',
-     &                  Work(ipTemp5-1+ipMat(iS,jS)),nBas(iS),
-     &                  nBas(iS),nBas(jS))
-         end if
+           Call DGeSub(FT99(ipMat(iS,jS)),nBas(iS),'N',
+     &                 FT99(ipMat(jS,iS)),nBas(jS),'T',
+     &                 Temp5(ipMat(iS,jS)),nBas(iS),
+     &                 nBas(iS),nBas(jS))
+         End If
       End Do
-      Call dcopy_(nDens2+6,Work(ipTemp5),1,Temp4,1)
+      Call dcopy_(nDens2+6,Temp5,1,Temp4,1)
       Call DSCAL_(ndens2+6,-Two,Temp4,1)
 
-      Call GetMem('FockT ','Free','Real',ipFT99,nDens2)
-      Call GetMem('Temp5 ','Free','Real',ipTemp5,nDens2+6)
+      Call mma_deallocate(FT99)
+      Call mma_deallocate(Temp5)
       if (debug) then
       write(6,*) 'RHS orb part:'
       do iS=1,nDens2
@@ -711,7 +710,6 @@
       irc=ipclose(ipdia)
       If (.not.CI) irc=ipclose(ipPre2)
 *
-*     Call GetMem('PREC','FREE','Real',ipPRE,nDens2)
       If (iphx.ne.0) Then
          Call Getmem('EXPHS','FREE','REAL',iphx,idum)
          Call Getmem('EXPHF','FREE','INTE',ipvt,idum)
@@ -739,39 +737,39 @@
 *
       Implicit Real*8(a-h,o-z)
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "Pointers.fh"
 #include "dmrginfo_mclr.fh"
 #include "real.fh"
 #include "Input.fh"
       Integer opOut
       Real*8 Kap(*),KapOut(*)
-      Dimension rdum(1)
+      Real*8 rdum(1)
+      Real*8, Allocatable:: RMOAA(:), Sc1(:), Sc2(:), Sc3(:),
+     &                      Temp4(:), Temp3(:)
 *
-      Call GetMem('RMOAA','ALLO','REAL',iprmoaa,n2dens)
-      Call GetMem('SCR2','ALLO','REAL',ipSc2,ndens2)
-      Call GetMem('SCR1','ALLO','REAL',ipSc1,ndens2)
-      Call GetMem('SCR3','ALLO','REAL',ipSc3,ndens2)
-      Call GetMem('SCR4','ALLO','REAL',ipTemp4,ndens2)
-      Call GetMem('SCR3','ALLO','REAL',ipTemp3,ndens2)
+      Call mma_allocate(RMOAA,n2dens,Label='RMOAA')
+      Call mma_allocate(Sc1,ndens2,Label='Sc1')
+      Call mma_allocate(Sc2,ndens2,Label='Sc2')
+      Call mma_allocate(Sc3,ndens2,Label='Sc3')
+      Call mma_allocate(Temp3,ndens2,Label='Temp3')
+      Call mma_allocate(Temp4,ndens2,Label='Temp4')
 *
       if(doDMRG)then ! yma
         call dmrg_spc_change_mclr(RGras2(1:8),nash)
         call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
       end if
-      Call Uncompress(Kap,Work(ipSC1),isym)
-      Call RInt_generic(Work(ipSC1),Work(iprmoaa),rdum,
-     &                 Work(ipSc2),
-     &                 Work(ipTemp3),Work(ipTemp4),Work(ipSc3),
+      Call Uncompress(Kap,Sc1,isym)
+      Call RInt_generic(SC1,rmoaa,rdum,Sc2,Temp3,Temp4,Sc3,
      &                 isym,reco,jspin)
 
-      Call Kap_CI(ipTemp4,iprmoaa,ipCIOUT)
+      Call Kap_CI(Temp4,rmoaa,ipCIOUT)
       Call Ci_Ci(ipcid,ipS2)
-      Call CI_KAP(ipCid,Work(ipSc1),Work(ipSc3),isym)
+      Call CI_KAP(ipCid,Sc1,Sc3,isym)
 
-      Call DZaXpY(nDens,One,Work(ipSc2),1,
-     &            Work(ipSc3),1,Work(ipSc1),1)
+      Call DZaXpY(nDens,One,Sc2,1,Sc3,1,Sc1,1)
 *
-      Call Compress(Work(ipSc1),KapOut,isym)   ! ds
+      Call Compress(Sc1,KapOut,isym)   ! ds
 *     Call RecPrt('Ex',' ',KapOut,ndensC,1)
 *
       Call DaXpY_(nConf1*nroots,One,
@@ -780,12 +778,12 @@
       irc=opOut(ipCId)
 
 *
-      Call GetMem('RMOAA','FREE','REAL',iprmoaa,n2dens)
-      Call GetMem('SCR2','FREE','REAL',ipSc2,ndens2)
-      Call GetMem('SCR1','FREE','REAL',ipSc1,ndens2)
-      Call GetMem('SCR3','FREE','REAL',ipSc3,ndens2)
-      Call GetMem('SCR4','FREE','REAL',ipTemp4,ndens2)
-      Call GetMem('SCR5','FREE','REAL',ipTemp3,ndens2)
+      Call mma_deallocate(Temp4)
+      Call mma_deallocate(Temp3)
+      Call mma_deallocate(Sc3)
+      Call mma_deallocate(Sc2)
+      Call mma_deallocate(Sc1)
+      Call mma_deallocate(RMOAA)
 
       if(doDMRG)then  ! yma
         call dmrg_spc_change_mclr(LRras2(1:8),nash)

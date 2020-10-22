@@ -456,7 +456,7 @@
      &                 Work(ipTemp3),Work(ipTemp4),Work(ipSc3),
      &                 isym,reco,jspin)
 
-      Call Kap_CI(ipTemp4,iprmoaa,ipCIOUT)
+      Call Kap_CI(Work(ipTemp4),Work(iprmoaa),ipCIOUT)
       Call Ci_Ci(ipcid,ipS2)
       Call CI_KAP(ipCid,Work(ipSc1),Work(ipSc3),isym)
 
