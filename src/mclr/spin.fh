@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       integer ipFAMO_spinp,ipfamo_spinm,
-     & ipfm,ipfp,ipfs,ipg1m,ipg1p,ipg2mm,ipg2mp,ipg2pp
+     &        ipfm,ipfp,ipfs,ipg1m,ipg1p,ipg2mm,ipg2mp,ipg2pp
       real*8  rms,rbetaa,rbetas,ralpha
       common/ESR/rms,rbetaa,rbetas,ralpha,
      &          ipFAMO_spinp,ipfamo_spinm,
-     & ipfm,ipfp,ipfs,ipg1m,ipg1p,ipg2mm,ipg2mp,ipg2pp
+     &          ipfm,ipfp,ipfs,ipg1m,ipg1p,ipg2mm,ipg2mp,ipg2pp

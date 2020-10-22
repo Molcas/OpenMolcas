@@ -24,23 +24,26 @@
 
 #include "Input.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 rkappa(*),rMat(*)
+      Real*8, Allocatable:: Tempi(:), Tempj(:)
+
       Do iS=1,nSym
         js=iEor(is-1,idsym-1)+1
-        If (nOrb(is)*nOrb(js).gt.0) Then
-        Call Getmem('OJTEMP','ALLO','REAL',ipTempi,nOrb(is)**2)
-        Call Getmem('OJTEMP','ALLO','REAL',ipTempj,nOrb(js)**2)
+        If (nOrb(is)*nOrb(js)==0) Cycle
+        Call mma_allocate(Tempi,nOrb(is)**2,Label='Tempi')
+        Call mma_allocate(Tempj,nOrb(js)**2,Label='Tempj')
 *
 *    T=Brillouin matrix
 *
 
         Call DGeSub(Work(ipF0SQMO+ipCM(is)-1),nOrb(is),'N',
      &              Work(ipF0SQMO+ipCM(is)-1),nOrb(is),'T',
-     &              Work(ipTempi),nOrb(is),
+     &              Tempi,nOrb(is),
      &              nOrb(is),nOrb(is))
         Call DGeSub(Work(ipF0SQMO+ipCM(js)-1),nOrb(js),'N',
      &              Work(ipF0SQMO+ipCM(js)-1),nOrb(js),'T',
-     &              Work(ipTempj),nOrb(js),
+     &              Tempj,nOrb(js),
      &              nOrb(js),nOrb(js))
 *
 *               t           t
@@ -49,15 +52,14 @@
 *
         Call DGEMM_('T','N',nOrb(is),nOrb(js),nOrb(js),
      &             0.5d0*fact,rkappa(ipMat(js,is)),nOrb(js),
-     &             Work(ipTempj),nOrb(js),1.0d0,
+     &             Tempj,nOrb(js),1.0d0,
      &             rMat(ipMat(is,js)),nOrb(is))
         Call DGEMM_('N','T',nOrb(is),nOrb(js),nOrb(is),
-     &             -0.5d0*fact,Work(ipTempi),nOrb(is),
+     &             -0.5d0*fact,Tempi,nOrb(is),
      &             rKappa(ipmat(js,is)),nOrb(js),1.0d0,
      &             rMat(ipMat(is,js)),nOrb(is))
-        Call Getmem('OJTEMP','FREE','REAL',ipTempi,nOrb(is)**2)
-        Call Getmem('OJTEMP','FREE','REAL',ipTempj,nOrb(is)**2)
-      End If
+        Call mma_deallocate(Tempi)
+        Call mma_deallocate(Tempj)
       End Do
       Return
       End

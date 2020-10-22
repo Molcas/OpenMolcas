@@ -103,6 +103,7 @@
 *
           Call mma_allocate(Kappa,nDens2+6,Label='Kappa')
           Call mma_allocate(SFock,nDens2+6,Label='SFock')
+          ipFS = ip_of_Work(SFock)
           Call mma_allocate(dKappa,nDens2+6,Label='dKappa')
           Call mma_allocate(Sigma,nDens2+6,Label='Sigma')
           Call mma_allocate(Temp1,nDens2+6,Label='Temp1')
