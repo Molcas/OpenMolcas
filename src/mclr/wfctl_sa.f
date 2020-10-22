@@ -49,7 +49,7 @@
       Real*8 rchc(mxroot)
       Real*8, Allocatable:: Kappa(:), dKappa(:), Sigma(:),
      &                      Temp3(:), Temp4(:),
-     &                      Sc1(:), Sc2(:)
+     &                      Sc1(:), Sc2(:), Fancy(:)
 
 *
 *----------------------------------------------------------------------*
@@ -113,8 +113,8 @@
 *     Calculate the diagonal of E    and store in core/disc
 *
       iphx=0
-      Call Getmem('FANCY','ALLO','REAL',ips,nroots**3)
-      Call CIDia_SA(State_Sym,rCHC,Work(ipS))
+      Call mma_allocate(FANCY,nroots**3,Label='FANCY')
+      Call CIDia_SA(State_Sym,rCHC,Fancy)
 
       irc=ipOut(ipdia)
 *
@@ -282,7 +282,7 @@
 *
          irc=opOut(ipcid)
 
-         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rdum,isym,work(ipS))
+         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rdum,isym,Fancy)
          irc=opOut(ipci)
          irc=opOut(ipdia)
 
@@ -400,7 +400,7 @@
 *     related to this symmetry
 *
 193   Continue
-      Call Getmem('FANCY',  'FREE','REAL',ips,nroots**3)
+      Call mma_deallocate(Fancy)
 
       irc=ipclose(ipdia)
       If (.not.CI) irc=ipclose(ipPre2)
@@ -432,41 +432,43 @@
 
       Implicit Real*8(a-h,o-z)
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "Pointers.fh"
 #include "dmrginfo_mclr.fh"
 #include "real.fh"
 #include "Input.fh"
       Integer opOut
       Real*8 Kap(*),KapOut(*)
-      Dimension rdum(1)
+      Real*8 rdum(1)
+      Real*8, Allocatable:: Temp3(:), Temp4(:),
+     &                      Sc1(:), Sc2(:), Sc3(:), RMOAA(:)
 *
-      Call GetMem('RMOAA','ALLO','REAL',iprmoaa,n2dens)
-      Call GetMem('SCR2','ALLO','REAL',ipSc2,ndens2)
-      Call GetMem('SCR1','ALLO','REAL',ipSc1,ndens2)
-      Call GetMem('SCR3','ALLO','REAL',ipSc3,ndens2)
-      Call GetMem('SCR4','ALLO','REAL',ipTemp4,ndens2)
-      Call GetMem('SCR3','ALLO','REAL',ipTemp3,ndens2)
+      Call mma_allocate(RMOAA,n2Dens,Label='RMOAA')
+      Call mma_allocate(Sc1,nDens2,Label='Sc1')
+      Call mma_allocate(Sc2,nDens2,Label='Sc2')
+      Call mma_allocate(Sc3,nDens2,Label='Sc3')
+      Call mma_allocate(Temp3,nDens2,Label='Temp3')
+      Call mma_allocate(Temp4,nDens2,Label='Temp4')
 *
       if(doDMRG)then ! yma
         call dmrg_spc_change_mclr(RGras2(1:8),nash)
         call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
       end if
-      Call Uncompress(Kap,Work(ipSC1),isym)
+      Call Uncompress(Kap,Sc1,isym)
 
 ! Integral derivative !yma
-      Call RInt_generic(Work(ipSC1),Work(iprmoaa),rdum,
-     &                 Work(ipSc2),
-     &                 Work(ipTemp3),Work(ipTemp4),Work(ipSc3),
+      Call RInt_generic(SC1,rmoaa,rdum,
+     &                 Sc2,
+     &                 Temp3,Temp4,Sc3,
      &                 isym,reco,jspin)
 
-      Call Kap_CI(Work(ipTemp4),Work(iprmoaa),ipCIOUT)
+      Call Kap_CI(Temp4,rmoaa,ipCIOUT)
       Call Ci_Ci(ipcid,ipS2)
-      Call CI_KAP(ipCid,Work(ipSc1),Work(ipSc3),isym)
+      Call CI_KAP(ipCid,Sc1,Sc3,isym)
 
-      Call DZaXpY(nDens,One,Work(ipSc2),1,
-     &            Work(ipSc3),1,Work(ipSc1),1)
+      Call DZaXpY(nDens,One,Sc2,1,Sc3,1,Sc1,1)
 *
-      Call Compress(Work(ipSc1),KapOut,isym)   ! ds
+      Call Compress(Sc1,KapOut,isym)   ! ds
 *     Call RecPrt('Ex',' ',KapOut,ndensC,1)
 *
       Call DaXpY_(nConf1*nroots,One,
@@ -475,12 +477,12 @@
       irc=opOut(ipCId)
 
 *
-      Call GetMem('RMOAA','FREE','REAL',iprmoaa,n2dens)
-      Call GetMem('SCR2','FREE','REAL',ipSc2,ndens2)
-      Call GetMem('SCR1','FREE','REAL',ipSc1,ndens2)
-      Call GetMem('SCR3','FREE','REAL',ipSc3,ndens2)
-      Call GetMem('SCR4','FREE','REAL',ipTemp4,ndens2)
-      Call GetMem('SCR5','FREE','REAL',ipTemp3,ndens2)
+      Call mma_deallocate(Temp4)
+      Call mma_deallocate(Temp3)
+      Call mma_deallocate(Sc3)
+      Call mma_deallocate(Sc2)
+      Call mma_deallocate(Sc1)
+      Call mma_deallocate(rmoaa)
 
       if(doDMRG)then  ! yma
         call dmrg_spc_change_mclr(LRras2(1:8),nash)
