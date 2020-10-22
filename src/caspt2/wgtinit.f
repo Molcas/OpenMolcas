@@ -35,22 +35,42 @@
 * If it is an XDW-CASPT2 calculation, the weights are computed
         if (IFDW.and.zeta.ge.0.0d0) then
           Ebeta = H(I,I)
-* Compute normalization factor
+* Compute normalization factor Wtot, i.e. the sum of all weights
           do J=1,Nstate
-            ! Ealpha = H(J,J)
-            factor = 0.0D0
-            pref = 1.0d-6
+            Ealpha = H(J,J)
+            Wtot = 0.0D0
+            ! pref = 0.001D0
             do K=1,Nstate
-              ! Egamma = H(K,K)
-              ! Dag = Ealpha - Egamma
-              Hag = H(J,K)
-              factor = factor + exp(-pref*zeta*(1.0d0/Hag)**2)
+              Egamma = H(K,K)
+              Dag = Ealpha - Egamma
+              Hag = sqrt(abs(H(J,K)))
+* Compute interaction strength parameter $\xi_{\alpha\gamma}$
+              if (K.ne.J) then
+                xi_ag = abs(Dag/Hag)
+              else
+* Set explicitly to zero when the numerator cancels out to
+* numerical issues
+                xi_ag = 0.0d0
+              end if
+              Wtot = Wtot + exp(-zeta*xi_ag)
             end do
             IJ = (I-1) + Nstate*(J-1)
 * Compute weight according to XDW prescription
-            ! Dab = Ealpha - Ebeta
-            Hab = H(J,I)
-            WORK(LDWGT+IJ) = exp(-pref*zeta*(1.0d0/Hab)**2)/factor
+            Dab = Ealpha - Ebeta
+            Hab = sqrt(abs(H(J,I)))
+* Compute interaction strength parameter $\xi_{\alpha\beta}$
+            if (I.ne.J) then
+              xi_ab = abs(Dab/Hab)
+            else
+* Set explicitly to zero when the numerator cancels out to
+* numerical issues
+              xi_ab = 0.0d0
+            end if
+            WORK(LDWGT+IJ) = exp(-zeta*xi_ab)/Wtot
+            write(6,'(A,I1,A,I1,A)')'(',J,',',I,')'
+            write(6,'(A,F14.8)')' Dab = ',Dab
+            write(6,'(A,F14.8)')' Hab = ',Hab
+            write(6,'(A,F14.8)')'xiab = ',xi_ab
           end do
           write(6,*)
 
