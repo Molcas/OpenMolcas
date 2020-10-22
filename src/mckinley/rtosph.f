@@ -26,8 +26,10 @@
       use Basis_Info, only: Shells
       Implicit Real*8 (a-h,o-z)
 
-#include "WrkSpc.fh"
+#include "real.fh"
+#include "stdalloc.fh"
       Dimension F(*)
+      Real*8, Allocatable:: Tmp1(:), Tmp2(:)
 
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
@@ -35,41 +37,37 @@
 
       ncb=nelem(lb)*nelem(iang)
       nExpi=Shells(iShll)%nExp
-      Call Getmem('TMP1','ALLO','REAL',iptmp,
-     &             nExpi*ncb*nVecCB*nBeta)
-      Call Getmem('TMP2','ALLO','REAL',ipF,
-     &             nExpi*ncb*nVecCB*nBeta)
+      Call mma_allocate(TMP1,nExpi*ncb*nVecCB*nBeta,Label='Tmp1')
+      Call mma_allocate(TMP2,nExpi*ncb*nVecCB*nBeta,Label='Tmp2')
 
 
 *-------------1) kj,cbx -> cbx,kj
 *
       Call DgeTMo(F,
      &            nBeta*nExpi,nBeta*nExpi,
-     &            ncb*nVecCB,Work(ipTmp),ncb*nVecCB)
+     &            ncb*nVecCB,Tmp1,ncb*nVecCB)
 *
 *--------------2) bxkj,C = c,bxkj * c,C
 *
       Call DGEMM_('T','N',
      &            nElem(lb)*nVecCB*nExpi*nBeta,
      &            (2*iAng+1),nElem(iAng),
-     &            1.0d0,Work(ipTmp),nElem(iAng),
-     &            RSph(ipSph(iAng)),nElem(iAng),
-     &            0.0d0,Work(ipF),nElem(lb)*nVecCB*nExpi*nBeta)
+     &            One,Tmp1,nElem(iAng),
+     &                RSph(ipSph(iAng)),nElem(iAng),
+     &            Zero,Tmp2,nElem(lb)*nVecCB*nExpi*nBeta)
 *
 *--------------3) bx,kjC -> kjC,bx
 *
-               Call DgeTMo(Work(ipF),nElem(lb)*nVecCB,
+      Call DgeTMo(Tmp2,nElem(lb)*nVecCB,
      &            nElem(lb)*nVecCB,
-     &            nExpi*nBeta*(2*iAng+1),Work(ipTmp),
+     &            nExpi*nBeta*(2*iAng+1),Tmp1,
      &            nExpi*nBeta*(2*iAng+1))
 
       call dcopy_(nExpi*
      &           nBeta*(2*iAng+1)*nElem(lb)*nVecCB,
-     &           Work(ipTmp),1,F,1)
+     &           Tmp1,1,F,1)
 
-      Call Getmem('TMP1','FREE','REAL',iptmp,
-     &            nExpi*ncb*nVecCB*nBeta)
-      Call Getmem('TMP2','FREE','REAL',ipF,
-     &            nExpi*ncb*nVecCB*nBeta)
-       Return
-       End
+      Call mma_deallocate(Tmp1)
+      Call mma_deallocate(Tmp2)
+      Return
+      End

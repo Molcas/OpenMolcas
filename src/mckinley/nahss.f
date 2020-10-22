@@ -30,8 +30,6 @@
       External TNAI1, Fake, Cff2D
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
-c#include "print.fh"
 #include "disp.fh"
 #include "disp2.fh"
 
@@ -57,12 +55,9 @@ c#include "print.fh"
       TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
      &                              iIrrep,iComp,dc(mdc)%nStab)
 *
-c     iRout = 150
-c     iPrint = nPrint(iRout)
-*
-c     If (iPrint.ge.99) Then
-c        Write (6,*) ' In NAHss: nArr=',nArr
-c     End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' In NAHss: nArr=',nArr
+#endif
 *
       nRys=nHer
 *
@@ -119,7 +114,9 @@ c     End If
             DAO(iZeta,iDAO) = Fact * DAO(iZeta,iDAO)
          End Do
       End Do
-c     If (iPrint.ge.99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
+#endif
 *
 *-----Loop over nuclear centers
 *

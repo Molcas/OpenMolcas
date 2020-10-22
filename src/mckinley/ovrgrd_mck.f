@@ -34,8 +34,6 @@
       use Her_RW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
-c#include "print.fh"
 
 #include "grd_mck_interface.fh"
 
@@ -46,11 +44,6 @@ c#include "print.fh"
 *
       nElem(la)=(la+2)*(la+1)/2
 *
-c     iRout = 122
-      iprint=0
-c     iPrint = nPrint(iRout)
-*     Write (*,*) ' IfGrad=',IfGrad
-*     Write (*,*) ' IndGrd=',IndGrd
       ABeq(1) = A(1).eq.RB(1)
       ABeq(2) = A(2).eq.RB(2)
       ABeq(3) = A(3).eq.RB(3)
@@ -79,13 +72,15 @@ c     iPrint = nPrint(iRout)
          Call Abend()
       End If
 *
-c     If (iPrint.ge.49) Then
-c        Call RecPrt(' In OvrGrd: A',' ',A,1,3)
-c        Call RecPrt(' In OvrGrd: RB',' ',RB,1,3)
-c        Call RecPrt(' In OvrGrd: Ccoor',' ',Ccoor,1,3)
-c        Call RecPrt(' In OvrGrd: P',' ',P,nZeta,3)
-c        Write (*,*) ' In OvrGrd: la,lb=',la,lb
-c     End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' IfGrad=',IfGrad
+      Write (6,*) ' IndGrd=',IndGrd
+      Call RecPrt(' In OvrGrd: A',' ',A,1,3)
+      Call RecPrt(' In OvrGrd: RB',' ',RB,1,3)
+      Call RecPrt(' In OvrGrd: Ccoor',' ',Ccoor,1,3)
+      Call RecPrt(' In OvrGrd: P',' ',P,nZeta,3)
+      Write (6,*) ' In OvrGrd: la,lb=',la,lb
+#endif
 *
 *     Compute the cartesian values of the basis functions angular part
 *
@@ -128,10 +123,10 @@ c     End If
      &            rKappa,Array(ipScrt),
      &            Array(ipAlph),Array(ipBeta),IfGrad,nOp)
 *
-      If (iPrint.ge.49)
-     &    Call RecPrt(' Primitive Integrals',' ',
-     &                Array(ipScrt),nZeta,
-     &                nElem(la)*nElem(lb))
+#ifdef _DEBUGPRINT_
+       Call RecPrt(' Primitive Integrals',' ',
+     &             Array(ipScrt),nZeta,nElem(la)*nElem(lb))
+#endif
 *
 *
 *     Symmetry adopt the gradient operator
@@ -140,10 +135,10 @@ c     End If
       Call SymAdO_mck(Array(ipScrt),nZeta*nElem(la)*nElem(lb),
      &            Final,nrOp,
      &            nop,loper,IndGrd,iu,iv,ifgrad,idcar,trans)
-      If (iPrint.ge.49)
-     &    Call RecPrt(' Primitive Integrals SO',' ',
-     &                Final,nZeta,
-     &                nElem(la)*nElem(lb)*nrOp)
+#ifdef _DEBUGPRINT_
+       Call RecPrt(' Primitive Integrals SO',' ',
+     &             Final,nZeta,nElem(la)*nElem(lb)*nrOp)
+#endif
 
       Return
 c Avoid unused argument warnings
