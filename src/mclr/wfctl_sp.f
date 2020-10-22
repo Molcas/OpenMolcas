@@ -23,6 +23,7 @@
       Implicit Real*8 (a-h,o-z)
 *
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
 #include "Input.fh"
 #include "disp_mclr.fh"
@@ -33,6 +34,7 @@
 #include "incdia.fh"
 #include "spinfo_mclr.fh"
 #include "spin.fh"
+#include "real.fh"
 #include "crun_mclr.fh"
       Character*8   Fmt2
       Integer iKapDisp(nDisp),isigDisp(nDisp)
@@ -40,13 +42,16 @@
       Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
       integer opout
       Logical lPrint
-      Dimension rdum(1)
+      Real*8 rdum(1)
+      Real*8, Allocatable:: Kappa(:), dKappa(:), Sigma(:),
+     &                      Temp1(:), Temp2(:), Temp3(:), Temp4(:),
+     &                      Sc1(:), Sc2(:), Sc3(:),
+     &                      Dens(:), Pens(:), rmoaa(:), rmoaa2(:),
+     &                      SFock(:), Pre2(:)
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
-      one=1.0d0
-*
 *
       lPaper=132
       lLine =120
@@ -72,8 +77,7 @@
 *         Calculate the diagonal of E    and store in core/disc
 *
         If (imethod.gt.0) Then
-        If (nconf1.gt.1)
-     &       Call CIDia(State_Sym,rCHC)
+           If (nconf1.gt.1) Call CIDia(State_Sym,rCHC)
             irc=ipout(ipdia)
 *
 *       Allocate disk/memory space
@@ -85,79 +89,72 @@
 *
 *       opout will release the memory area without update the disk
 *
-        ips1 =ipget(nconf3)
-        ips2 =ipget(nconf3)
-        ipst =ipget(nconf3)
-        ipcit=ipget(nconf1)
-        ipcid=ipget(nconf1)
+           ips1 =ipget(nconf3)
+           ips2 =ipget(nconf3)
+           ipst =ipget(nconf3)
+           ipcit=ipget(nconf1)
+           ipcid=ipget(nconf1)
 
         End If
 *
-*
         idisp=1
-*
-*      OK START WORKING
-*
 *
 *    Allocate areas for scratch and state variables
 *
-          Call GetMem('kappa ','Allo','Real',ipKap  ,nDens2)
-          Call GetMem('SpinFock','Allo','Real',ipFS ,nDens2)
-          Call GetMem('dkappa','Allo','Real',ipdKap ,nDens2)
-          Call GetMem('sigma ','Allo','Real',ipSigma,nDens2)
-          Call GetMem('Temp1 ','Allo','Real',ipTemp1,nDens2)
-          Call GetMem('Temp2 ','Allo','Real',ipTemp2,nDens2)
-          Call GetMem('Temp3 ','ALLO','Real',ipTemp3,nDens2)
-          Call GetMem('Temp4 ','Allo','Real',ipTemp4,nDens2)
-          Call Getmem('Scr1  ','ALLO','Real',ipSc1  ,nDens2)
-          Call Getmem('Scr3  ','ALLO','Real',ipSc3  ,nDens2)
-          Call Getmem('Scr2  ','ALLO','Real',ipSc2  ,nDens2)
-          Call Getmem('PRE  ','ALLO','Real',ipPre2  ,nDensC)
-          call dcopy_(nDens2,[0.0d0],0,Work(ipTemp1),1)
-          call dcopy_(nDens2,[0.0d0],0,Work(ipKap),1)
-          call dcopy_(nDens2,[0.0d0],0,Work(ipsigma),1)
-          call dcopy_(nDens2,[0.0d0],0,Work(ipdKap),1)
+          Call mma_allocate(Kappa,nDens2+6,Label='Kappa')
+          Call mma_allocate(SFock,nDens2+6,Label='SFock')
+          Call mma_allocate(dKappa,nDens2+6,Label='dKappa')
+          Call mma_allocate(Sigma,nDens2+6,Label='Sigma')
+          Call mma_allocate(Temp1,nDens2+6,Label='Temp1')
+          Call mma_allocate(Temp2,nDens2+6,Label='Temp2')
+          Call mma_allocate(Temp3,nDens2+6,Label='Temp3')
+          Call mma_allocate(Temp4,nDens2+6,Label='Temp4')
+          Call mma_allocate(Sc1,nDens2+6,Label='Sc1')
+          Call mma_allocate(Sc2,nDens2+6,Label='Sc2')
+          Call mma_allocate(Sc3,nDens2+6,Label='Sc3')
+          Call mma_allocate(Pre2,nDensC,Label='Pre2')
+          Temp1(1:nDens2)=Zero
+          Kappa(1:nDens2)=Zero
+          dKappa(1:nDens2)=Zero
+          Sigma(1:nDens2)=Zero
           If (iMethod.eq.2) Then
-             Call GetMem('1Dens','ALLO','Real',ipDe,n1dens)
-             Call GetMem('2Dens','ALLO','Real',ipP,nna**4)
-             Call GetMem('2Dens','ALLO','Real',iprmoaa,nna**4)
-             Call GetMem('2Dens','ALLO','Real',iprmoaa2,nna**4)
+             Call mma_allocate(Dens,n1dens,Label='Dens')
+             Call mma_allocate(Pens,nna**4,Label='Pens')
+             Call mma_allocate(rmoaa,nna**4,Label='rmoaa')
+             Call mma_allocate(rmoaa2,nna**4,Label='rmoaa2')
           End If
 *
-*-----------------------------------------------------------------------------
+*-----------------------------------------------------------------------
 *
 *    Calculate RHS
 *
-*-----------------------------------------------------------------------------
+*-----------------------------------------------------------------------
 *
-          Call Pre_SP(work(ippre2),1)
-          Call FockGen_sp(0.0d0,Work(ipG1m),Work(ipG2mp),
-     &                   Work(ipFS),Work(ipTemp4),1)
-          call dcopy_(nconf1,[0.0d0],0,Work(ipin(ipST)),1)
+          Call Pre_SP(Pre2,1)
+          Call FockGen_sp(Zero,Work(ipG1m),Work(ipG2mp),
+     &                   SFock,Temp4,1)
+          call dcopy_(nconf1,[Zero],0,Work(ipin(ipST)),1)
 *
           If (lprint) Write(6,*)
      &      '       Iteration         Delta     Res(kappa) Res(CI)'
           iLen=nDensC
           iRHSDisp(iDisp)=iDis
-          Call Compress(Work(ipTemp4),Work(ipSigma),1)
-          Call DSCAL_(ndensc,-sqrt(1.5d0)*DBLE(ms2p),
-     &               Work(ipSigma),1)
-          Call UnCompress(Work(ipSigma),Work(ipTemp4),1)
-          Call dDaFile(LuTemp,1,Work(ipSigma),iLen,iDis)
+          Call Compress(Temp4,Sigma,1)
+          Call DSCAL_(ndensc,-sqrt(1.5d0)*DBLE(ms2p),Sigma,1)
+          Call UnCompress(Sigma,Temp4,1)
+          Call dDaFile(LuTemp,1,Sigma,iLen,iDis)
           If (iMethod.eq.2)
-     &    call dcopy_(nConf1,[0.0d0],0,Work(ipin(ipCIT)),1)
+     &    call dcopy_(nConf1,[Zero],0,Work(ipin(ipCIT)),1)
           irc=ipout(ipcit)
           If (iMethod.eq.2) Then
             ilen=nconf1
             iRHSCIDisp(iDisp)=iDis
             Call dDaFile(LuTemp,1,Work(ipin(ipST)),iLen,iDis)
           End If
-          Call DSCAL_(nConf1,-1.0d0,Work(ipin(ipST)),1)
-          Call DSCAL_(nDensC,-1.0d0,Work(ipSigma),1)
+          Call DSCAL_(nConf1,-One,Work(ipin(ipST)),1)
+          Call DSCAL_(nDensC,-One,Sigma,1)
 *
-          Call DMInvKap_sp(Work(ipPre2), Work(ipSigma),
-     &                    Work(ipdKap),1)
-
+          Call DMInvKap_sp(Pre2,Sigma,dKappa,1)
 
           If (nconf1.gt.1) then
           Call DMinvCI(ipST,
@@ -173,10 +170,10 @@
             deltaC=ddot_(nConf1,Work(ipin(ipST)),1,Work(ipin(ipCId)),1)
             irc=ipout(ipcid)
           Else
-            deltac=0.0d0
+            deltac=Zero
           end if
-          deltaK=ddot_(nDensC,Work(ipKap),1,Work(ipSigma),1)
-          call dcopy_(nDens,[0.0d0],0,Work(ipKap),1)
+          deltaK=ddot_(nDensC,Kappa,1,Sigma,1)
+          Kappa(1:nDens)=Zero
           delta=deltac+deltaK
 *         If (delta.eq.0) Goto 300
           delta0=delta
@@ -193,36 +190,33 @@
 200       Continue
              Read(5,*)  i1,j1
              If (i1.gt.0) Then
-             call dcopy_(nDens2,[0.0d0],0,Work(ipdkap),1)
-             Work(ipdKap+i1-1)
-     &       =1.0d0
+                dKappa(1:nDens2)=Zero
+                dKappa(i1) =One
              Else
-              call dcopy_(nCONF1,[0.0d0],0,Work(ipin(ipCID)),1)
-              Work(ipin(ipCid)-i1-1)=1.0d0
+              call dcopy_(nCONF1,[Zero],0,Work(ipin(ipCID)),1)
+              Work(ipin(ipCid)-i1-1)=One
               irc=ipout(ipcid)
              End If
 *************************************************************
 *
 
-            Call RInt_SP(Work(ipDkap),
-     &                   Work(iprmoaa),Work(iprmoaa2),
-     &                   Work(ipTemp4),Work(ipSc2))
+            Call RInt_SP(dKappa,rmoaa,rmoaa2,Temp4,Sc2)
 
 *
              If (i1.gt.0.and.j1.gt.0) Then
-               Write(6,*) 'Kap_sig',Work(ipSc2-1+j1)
+               Write(6,*) 'Kap_sig',Sc2(j1)
              End If
              If (nconf1.gt.1) Then
                irc=opout(-1)
                Call CISigma(1,State_Sym,state_sym,
-     &                      Work(ipTemp4),Work(iprmoaa),iprmoaa2,
+     &                      Temp4,rmoaa,rmoaa2,
      &                      ipCI,ipS1,'N')
                irc=opout(-1)
                rGrad=ddot_(nconf1,Work(ipin(ipCI)),1,
      &                   Work(ipin(ips1)),1)
                call daxpy_(nConf1,-rgrad,
      &                    Work(ipin(ipCI)),1,Work(ipin(ipS1)),1)
-               call dscal_(nconf1,-rms*sqrt(1.5d0)*2.0d0,
+               call dscal_(nconf1,-rms*sqrt(1.5d0)*Two,
      &                    Work(ipin(ips1)),1)
 *
              If (i1.gt.0.and.j1.lt.0) Then
@@ -233,7 +227,7 @@
                irc=opout(-1)
                If (nconf1.gt.1) Then
                Call CISigma(0,State_Sym,state_sym,
-     &                    Work(ipFIMO),Work(k2int),idum,
+     &                    Work(ipFIMO),Work(k2int),rdum,
      &                    ipCId,ipS2,'N')
                irc=opout(-1)
                EC=rin_ene+potnuc-ERASSCF(1)
@@ -248,18 +242,17 @@
 
 *
                Call SpinDens(Work(ipin(ipCI)),Work(ipin(ipCid)),
-     &                   State_Sym,State_sym,
-     &                   Work(ipp),rdum,rdum,rdum,rdum,
-     &                   Work(ipDe),rdum,1)
+     &                       State_Sym,State_sym,
+     &                       Pens,rdum,rdum,rdum,rdum,
+     &                       Dens,rdum,1)
 
               d_0=ddot_(nconf1,Work(ipin(ipCid)),1,Work(ipin(ipci)),1)
-               Call FockGen_sp(d_0,Work(ipDe),Work(ipP),
-     &                    Work(ipSc3),Work(ipSc1),1)
-               Call DSCAL_(ndens2,-rms*sqrt(1.5d0),Work(ipSc1),1)
+               Call FockGen_sp(d_0,Dens,Pens,Sc3,Sc1,1)
+               Call DSCAL_(ndens2,-rms*sqrt(1.5d0),Sc1,1)
 
-               Call Compress(Work(ipSc1),Work(ipSc3),1)
+               Call Compress(Sc1,Sc3,1)
                If (i1.lt.0.and.j1.gt.0) Then
-                Write(6,*) 'CI_sig',Work(ipsc3-1+j1)
+                Write(6,*) 'CI_sig',Sc3(j1)
                End If
                goto 200
            end if
@@ -283,20 +276,18 @@
 *
 **********************************************************************
 *
-*          Call GetMem('AKKK','CHECK','REAL',idum,idum)
            if (nconf1.gt.1) then
-            Call DZaXpY(nDens,One,Work(ipSc2),1,
-     &            Work(ipSc3),1,Work(ipTemp4),1)
+            Call DZaXpY(nDens,One,Sc2,1,Sc3,1,Temp4,1)
            Else
-            call dcopy_(nDens,Work(ipSc2),1,Work(ipTemp4),1)
+            call dcopy_(nDens,Sc2,1,Temp4,1)
            End If
-           call dcopy_(nDens,Work(ipdKap),1,Work(ipTemp2),1)
+           call dcopy_(nDens,dKappa,1,Temp2,1)
            If (nconf1.gt.1) Then
-             Call DaXpY_(nConf1,1.0d0,
+             Call DaXpY_(nConf1,One,
      &            Work(ipin1(ipS2,nconf1)),1,
      &           Work(ipin1(ipS1,nconf1)),1)
            Else
-             call dcopy_(nconf1,[0.0d0],0,Work(ipin1(ipS1,nconf1)),1)
+             call dcopy_(nconf1,[Zero],0,Work(ipin1(ipS1,nconf1)),1)
            End If
 
 *-----------------------------------------------------------------------------
@@ -318,9 +309,9 @@
 *                 dKappa:dSigma
 *
 *-----------------------------------------------------------------------------
-           rAlphaC=0.0d0
-           rAlphaK=0.0d0
-           rAlphaK=ddot_(nDensC,Work(ipTemp4),1,Work(ipTemp2),1)
+           rAlphaC=Zero
+           rAlphaK=Zero
+           rAlphaK=ddot_(nDensC,Temp4,1,Temp2,1)
            If (nconf1.ne.0)
      &      rAlphaC=ddot_(nConf1,Work(ipin(ipS1)),1,
      &                   Work(ipin(ipCId)),1)
@@ -331,10 +322,10 @@
 *          Kappa=Kappa+rAlpha*dKappa
 *          Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
 *
-           Call DaxPy_(nDensC,ralpha,Work(ipTemp2),1,Work(ipKap),1)
-           Call DaxPy_(nDensC,-ralpha,Work(ipTemp4),1,Work(ipSigma),1)
-           resk=sqrt(ddot_(nDensC,Work(ipTemp4),1,Work(ipTemp4),1))
-           resci=0.0d0
+           Call DaxPy_(nDensC,ralpha,Temp2,1,Kappa,1)
+           Call DaxPy_(nDensC,-ralpha,Temp4,1,Sigma,1)
+           resk=sqrt(ddot_(nDensC,Temp4,1,Temp4,1))
+           resci=Zero
            If (nconf1.ne.0) Then
              Call DaXpY_(nConf1,ralpha,Work(ipin(ipCId)),1,
      &                  Work(ipin(ipCIT)),1)
@@ -365,8 +356,7 @@
            irc=opout(ipci)
            irc=opout(ipdia)
 
-           Call DMInvKap_sp(Work(ipPre2),work(ipSigma),
-     &                      work(ipSC2),1)
+           Call DMInvKap_sp(Pre2,Sigma,Sc2,1)
 *
 *-------------------------------------------------------------------*
 *               s:Sigma
@@ -381,23 +371,23 @@
            deltaC=ddot_(nConf1,Work(ipin(ipST)),1,Work(ipin(ipS2)),1)
            irc=ipout(ipST)
            else
-           deltaC=0.0d0
+           deltaC=Zero
            end if
 *
-           deltaK=ddot_(nDensC,Work(ipSigma),1,Work(ipSc2),1)
+           deltaK=ddot_(nDensC,Sigma,1,Sc2,1)
            If (imethod.ne.2) Then
              rBeta=deltaK/delta
              delta=deltaK
-             Call DScal_(nDensC,rBeta,Work(ipTemp2),1)
-             Call DaXpY_(nDensC,1.0d0,Work(ipsc2),1,Work(ipTemp2),1)
+             Call DScal_(nDensC,rBeta,Temp2,1)
+             Call DaXpY_(nDensC,One,Sc2,1,Temp2,1)
            Else
              rbeta=(deltac+deltaK)/delta
              delta=deltac+deltaK
              Call DScal_(nConf1,rBeta,Work(ipin(ipCID)),1)
-             Call DScal_(nDensC,rBeta,Work(ipTemp2),1)
-             Call DaXpY_(nConf1,1.0d0,Work(ipin(ipS2)),1,
+             Call DScal_(nDensC,rBeta,Temp2,1)
+             Call DaXpY_(nConf1,One,Work(ipin(ipS2)),1,
      &                             Work(ipin(ipCID)),1)
-             Call DaXpY_(nDensC,1.0d0,Work(ipsc2),1,Work(ipTemp2),1)
+             Call DaXpY_(nDensC,One,Sc2,1,Temp2,1)
              irc=opout(ipS2)
              irc=ipout(ipCID)
            End If
@@ -415,9 +405,9 @@
 *
 *-------------------------------------------------------------------*
 *
-           call dcopy_(ndensc,Work(ipTemp2),1,Work(ipdKap),1)
+           call dcopy_(ndensc,Temp2,1,dKappa,1)
 *
-           res=0.0D0 ! dummu initialize
+           res=Zero ! dummu initialize
            If (iBreak.eq.1) Then
               If (abs(delta).lt.abs(Epsilon**2*delta0)) Goto 300
            Else If (ibreak.eq.2) Then
@@ -434,7 +424,6 @@
      &            iter,'       ',delta/delta0,resk,resci,deltac,deltak
 
            iter=iter+1
-*          Call GetMem(' LIST ','LIST','REAL',iDum,iDum)
 
           Goto 200
 *
@@ -454,9 +443,9 @@
           Write(6,*)
           iLen=ndensC
           iKapDisp(iDisp)=iDis
-          Call dDaFile(LuTemp,1,Work(ipKap),iLen,iDis)
+          Call dDaFile(LuTemp,1,Kappa,iLen,iDis)
           iSigDisp(iDisp)=iDis
-          Call dDaFile(LuTemp,1,Work(ipSigma),iLen,iDis)
+          Call dDaFile(LuTemp,1,Sigma,iLen,iDis)
           If (iMethod.eq.2) Then
             ilen=nconf1
             iCIDisp(iDisp)=iDis
@@ -465,20 +454,21 @@
             Call dDaFile(LuTemp,1,Work(ipin(ipST)),iLen,iDis)
           End If
 *
-          Call GetMem('Temp4  ','FREE','Real',ipTemp4,nDens)
-          Call GetMem('Temp3  ','FREE','Real',ipTemp3,ndens)
-          Call GetMem('Temp2  ','FREE','Real',ipTemp2,nDens)
-          Call GetMem('Temp1  ','FREE','Real',ipTemp1,nDens)
-          Call GetMem('sigma  ','FREE','Real',ipSigma,nDens)
-          Call GetMem('dkappa ','FREE','Real',ipdKap ,nDens)
-          Call GetMem('kappa  ','FREE','Real',ipKap  ,nDens)
-          Call Getmem('Scr1   ','FREE','Real',ipSc1  ,nDens2)
-          Call Getmem('Scr2   ','FREE','Real',ipSc2  ,nDens2)
-          Call Getmem('Scr3   ','FREE','Real',ipSc3  ,nDens2)
+          Call mma_deallocate(Temp4)
+          Call mma_deallocate(Temp3)
+          Call mma_deallocate(Temp2)
+          Call mma_deallocate(Temp1)
+          Call mma_deallocate(dKappa)
+          Call mma_deallocate(Sigma)
+          Call mma_deallocate(Kappa)
+          Call mma_deallocate(Sc3)
+          Call mma_deallocate(Sc2)
+          Call mma_deallocate(Sc1)
           If (iMethod.eq.2) Then
-             Call GetMem('2Dens','FREE','Real',iprmoaa,n2dens)
-             Call GetMem('2Dens','FREE','Real',ipP,n1dens)
-             Call GetMem('1Dens','FREE','Real',ipDe,n2dens)
+             Call mma_deallocate(rmoaa2)
+             Call mma_deallocate(rmoaa)
+             Call mma_deallocate(Pens)
+             Call mma_deallocate(Dens)
           End If
 *
 *        Free all memory and remove from disk all data
