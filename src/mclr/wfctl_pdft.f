@@ -59,6 +59,8 @@
      &                      Temp4(:), Sc1(:), Sc2(:), Fancy(:),
      &                      FMO1t(:), FMO1(:), FMO2t(:),
      &                      FT99(:), Temp5(:)
+      Real*8, Allocatable:: lmroots(:), lmroots_new(:), Kap_New(:),
+     &                      Kap_New_Temp(:)
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -375,93 +377,76 @@
      &   Work(ipin(ipCId)),1)
 ********************
 *TRS
-       Call GetMem('lmroots','Allo','Real',lmroots,nroots)
-       Call GetMem('lmroots_new','Allo','Real',lmroots_new,nroots)
-       Call GetMem('kap_new','Allo','Real',kap_new,ndensc)
-       Call GetMem('kap_new_temp','Allo','Real',kap_new_temp,ndens)
+       Call mma_allocate(lmroots,nroots,Label='lmroots')
+       Call mma_allocate(lmroots_new,nroots,Label='lmroots_new')
+       Call mma_allocate(kap_new,ndensc,Label='kap_new')
+       Call mma_allocate(kap_new_temp,ndens,Label='kap_new_temp')
 *
-      call Dcopy_(ndens,[Zero],
-     &     0,work(kap_new_temp),1)
+      Kap_New(:)=Zero
+      Kap_New_Temp(:)=Zero
 *
-      call Dcopy_(ndensc,[Zero],
-     &     0,work(kap_new),1)
-*
-        Call DgeMV_('T', nconf1, nroots, 1.0d0, work(ipin(ipci)),
-     & nconf1,work(ipin(ipcid)+(irlxroot-1)*nconf1),
-     & 1,0.0d0,work(lmroots),1)
+      Call DgeMV_('T', nconf1, nroots, One, work(ipin(ipci)),
+     &            nconf1,work(ipin(ipcid)+(irlxroot-1)*nconf1),
+     &            1,Zero,lmroots,1)
 *SA-SA rotations w/in SA space in eigen state basis
-      if(debug) then
-      write(6,*) 'lmroots'
-       do i=1,nroots
-        write(6,*) work(lmroots-1+i)
-      end do
-      end if
+      if(debug) Call recprt('lmroots',' ',lmroots,1,nroots)
 *SA-SA rotations w/in SA space in CSF basis
-        call dgemv_('N', nconf1, nroots, 1.0d0, work(ipin(ipci)),
-     & nconf1, work(lmroots),1,0.0d0,
-     & work(ipin(ipcid)+(irlxroot-1)*nconf1),1)
+        call dgemv_('N', nconf1, nroots, One, work(ipin(ipci)),
+     &              nconf1, lmroots,1,Zero,
+     &              work(ipin(ipcid)+(irlxroot-1)*nconf1),1)
 *SA-SA rotations w/in SA space for new lagrange multipliers
-       do i=0, nroots-1
-       if (i.eq.(irlxroot-1)) then
-       work(lmroots_new+i)=0.0d0
-       else
-         diff=(ERASSCF(i+1)-ERASSCF(irlxroot))
-        if(debug) write(6,*) 'diff',diff
-         wscale = (1.0d0/(2.0d0*diff))*(1.0d0/weight(i+1))
-        if(debug) write(6,*)'wscale',wscale
-        if(debug) write(6,*) 'weight', weight(i+1)
-        work(lmroots_new+i)= wscale*work(lmroots+i)
-       end if
+       do i=1, nroots
+          if (i.eq.irlxroot) then
+             lmroots_new(i)=Zero
+          else
+             diff=(ERASSCF(i)-ERASSCF(irlxroot))
+             if(debug) write(6,*) 'diff',diff
+             wscale = (One/(Two*diff))*(One/weight(i))
+             if(debug) write(6,*)'wscale',wscale
+             if(debug) write(6,*) 'weight', weight(i)
+             lmroots_new(i)= wscale*lmroots(i)
+          end if
        end do
 *
-      if(debug) then
-      write(6,*) 'lmroots_new'
-       do i=1,nroots
-        write(6,*) work(lmroots_new-1+i)
-      end do
-      end if
+      if(debug) Call recprt('lmroots_new',' ',lmroots_new,1,nroots)
 *SA-SA rotations w/in SA space for new lagrange multipliers in csf basis
-        call dgemv_('N', nconf1, nroots, 1.0d0, work(ipin(ipci)),
-     &  nconf1, work(lmroots_new),1,0.0d0,
-     &  work(ipin(ipcid)+(irlxroot-1)*nconf1),1)
+        call dgemv_('N', nconf1, nroots, One, work(ipin(ipci)),
+     &              nconf1, lmroots_new,1,Zero,
+     &              work(ipin(ipcid)+(irlxroot-1)*nconf1),1)
 *
 *First iter of PCG
-          Call TimesE2_(work(kap_new),ipCId,1,reco,jspin,ipS2,
-     &                work(kap_new_temp),ipS1)
+          Call TimesE2_(kap_new,ipCId,1,reco,jspin,ipS2,
+     &                  kap_new_temp,ipS1)
 *
-        Call DgeMV_('T', nconf1, nroots, 1.0d0, work(ipin(ipci)),
-     & nconf1,work(ipin(ipst)+(irlxroot-1)*nconf1),
-     & 1,0.0d0,work(lmroots),1)
+        Call DgeMV_('T', nconf1, nroots, One, work(ipin(ipci)),
+     &              nconf1,work(ipin(ipst)+(irlxroot-1)*nconf1),
+     &              1,Zero,lmroots,1)
 *
-       if(debug) then
-       write(6,*) 'lmroots_ipst this should be 1lmroots'
-       do i=1,nroots
-        write(6,*) work(lmroots-1+i)
-       end do
+       if (debug) then
+          write(6,*) 'lmroots_ipst this should be 1lmroots'
+          Call recprt('lmroots',' ',lmroots,1,nroots)
        end if
 *
-        Call DgeMV_('T', nconf1, nroots, 1.0d0, work(ipin(ipci)),
-     & nconf1,work(ipin(ips1)+(irlxroot-1)*nconf1),
-     & 1,0.0d0,work(lmroots),1)
+        Call DgeMV_('T', nconf1, nroots, One, work(ipin(ipci)),
+     &              nconf1,work(ipin(ips1)+(irlxroot-1)*nconf1),
+     &              1,Zero,lmroots,1)
 *
-       if(debug) then
-       write(6,*) 'lmroots_ips1 thisshould be -lmroots'
-       do i=1,nroots
-        write(6,*) work(lmroots-1+i)
-       end do
+       if (debug) then
+          write(6,*) 'lmroots_ips1 thisshould be -lmroots'
+          Call recprt('lmroots',' ',lmroots,1,nroots)
        end if
 * Initializing some of the elements of the PCG
 * Modifying the response
-       Call DaXpY_(nConf1*nroots,-1.0d0,Work(ipIn(ipS1)),1,
-     &                                    Work(ipIn(ipST)),1)
+       Call DaXpY_(nConf1*nroots,-One,Work(ipIn(ipS1)),1,
+     &                                Work(ipIn(ipST)),1)
 *
 *Kap part put into  sigma
-      Call DaxPy_(nDensC,-1.0d0,Work(kap_new_temp),1,Sigma,1)
+      Call DaxPy_(nDensC,-One,kap_new_temp,1,Sigma,1)
       Call DaXpY_(nConf1*nroots,1.0d0,Work(ipIn(ipCId)),1,
      &                                   Work(ipIn(ipCIT)),1)
 *
-       Call dcopy_(nconf1*nroots,Work(ipin(ipst)),
-     &   1,Work(ipin(ipcid)),1)
+       Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
+     &                          Work(ipin(ipcid)),1)
 *
          irc=opOut(ipci)
          irc=opOut(ipdia)
@@ -474,22 +459,20 @@
      &    ' perturbation number ',idisp,' might diverge'
 *
 *
-       Call GetMem('kap_new','Free','Real',kap_new,ndensc)
-       Call GetMem('kap_new_temp','Free','Real',kap_new_temp,ndens)
-       Call GetMem('lmroots_new','Free','Real',lmroots_new,nroots)
+       Call mma_deallocate(kap_new)
+       Call mma_deallocate(kap_new_temp)
+       Call mma_deallocate(lmroots_new)
 *TRS
 **********************
-        Call DgeMV_('T', nconf1, nroots, 1.0d0, work(ipin(ipci)),
-     & nconf1,work(ipin(ipst)+(irlxroot-1)*nconf1),
-     & 1,0.0d0,work(lmroots),1)
+        Call DgeMV_('T', nconf1, nroots, One, work(ipin(ipci)),
+     &              nconf1,work(ipin(ipst)+(irlxroot-1)*nconf1),
+     &              1,Zero,lmroots,1)
 *
       if(debug) then
-       write(6,*) 'lmroots_ipst this should be zero'
-       do i=1,nroots
-        write(6,*) work(lmroots-1+i)
-       end do
+         write(6,*) 'lmroots_ipst this should be zero'
+         Call recprt('lmroots',' ',lmroots,1,nroots)
        end if
-       Call GetMem('lmroots','Free','Real',lmroots,nroots)
+       Call mma_deallocate(lmroots)
 *
 *
       If (CI) Then
