@@ -23,6 +23,7 @@
 ************************************************************************
       Use Basis_Info, only: Basis_Info_Get
       Use Center_Info, only: Center_Info_Get
+      Use Exp, only: NewPre, nexp_max
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "Files_mclr.fh"
@@ -70,7 +71,6 @@
       elechess=.false.
       TimeDep=.false.
       PrCI=.false.
-      nexp_max=100
       CIthrs=0.05d0
       PrOrb=.false.
       SewLab='NONE    '
@@ -83,7 +83,6 @@
       SA=.false.
       esterr=.false.
       FANCY_PRECONDITIONER=.true.
-      newpre=.true.
       save=.false.
       isotop=.true.
       Call lCopy(mxAtm*3+3,[.true.],0,lCalc,1)

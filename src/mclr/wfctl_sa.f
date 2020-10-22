@@ -19,7 +19,7 @@
 *                                                                      *
 *                                                                      *
 ************************************************************************
-*
+      use Exp, only: Exp_Close
       Implicit Real*8 (a-h,o-z)
 *
 #include "WrkSpc.fh"
@@ -112,7 +112,6 @@
 *                                [2]
 *     Calculate the diagonal of E    and store in core/disc
 *
-      iphx=0
       Call mma_allocate(FANCY,nroots**3,Label='FANCY')
       Call CIDia_SA(State_Sym,rCHC,Fancy)
 
@@ -405,11 +404,7 @@
       irc=ipclose(ipdia)
       If (.not.CI) irc=ipclose(ipPre2)
 *
-      If (iphx.ne.0) Then
-         Call Getmem('EXPHS','FREE','REAL',iphx,idum)
-         Call Getmem('EXPHF','FREE','INTE',ipvt,idum)
-         Call Getmem('EXPLS','FREE','INTE',iplst,idum)
-      End If
+      Call Exp_Close()
 
       If (debug) Then
       Write(6,*)  '****************************************'//

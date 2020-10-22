@@ -19,7 +19,7 @@
 *                                                                      *
 *                                                                      *
 ************************************************************************
-*
+      use Exp, only: Exp_Close
       Implicit Real*8 (a-h,o-z)
 *
 #include "WrkSpc.fh"
@@ -476,11 +476,7 @@
 *
          If (imethod.eq.2) irc=ipclose(ipci)
 *
-         If (iphx.ne.0) Then
-          Call Getmem('EXPHS','FREE','REAL',iphx,idum)
-          Call Getmem('EXPHF','FREE','INTE',ipvt,idum)
-          Call Getmem('EXPLS','FREE','INTE',iplst,idum)
-         End If
+         Call Exp_Close()
 
       If (debug) Then
       Write(6,*)  '****************************************',

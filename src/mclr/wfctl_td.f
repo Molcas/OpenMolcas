@@ -19,7 +19,7 @@
 *                                                                      *
 *                                                                      *
 ************************************************************************
-*
+      use Exp, only: Exp_Close
       Implicit Real*8 (a-h,o-z)
 *
 #include "WrkSpc.fh"
@@ -125,7 +125,6 @@ c
 *                                    [2]
 *         Calculate the diagonal of E    and store in core/disc
 *
-        iphx=0
         If (CI) Then
 c
 c CIDia calculates the <i|H|i> elements (diagonal)? From the CI-CI part of E?
@@ -748,11 +747,7 @@ C
          End If
 *
          Call mma_deallocate(DigPrec)
-         If (iphx.ne.0) Then
-            Call Getmem('EXPHS','FREE','REAL',iphx,idum)
-            Call Getmem('EXPHF','FREE','INTE',ipvt,idum)
-            Call Getmem('EXPLS','FREE','INTE',iplst,idum)
-         End If
+         Call Exp_Close()
 
  100  Continue
       If (debug) Then

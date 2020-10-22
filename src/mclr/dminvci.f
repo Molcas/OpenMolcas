@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine DMinvCI(ipSigma,rout,rC_HE_C,idsym)
+      use Exp, only: NewPre
       Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"

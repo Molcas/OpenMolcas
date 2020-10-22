@@ -168,9 +168,6 @@ c
 *     Ask Jeppe!!!
 *     We all want a happy LUCIA
 *
-      Logical NewPre
-      Integer ipvt,iphx,iplst,nexp,nexp_max
-      common  /NPrecon/ipvt,iphx,iplst,nexp,nexp_max,NewPre
       Logical Direct
       Common /Inte_Dir/Direct
       Integer NIRREP,NSMOB,NRS0SH(1,20),NRS4SH(20,10),

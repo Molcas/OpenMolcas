@@ -11,6 +11,7 @@
 * Copyright (C) 1997, Anders Bernhardsson                              *
 ************************************************************************
       Subroutine ExpHinvv(rdia,v,u,alpha,beta)
+      use Exp, only: H0S, H0F, SBIDT, nExp
 *
 *     Preconditioning of the state transfer part
 *     of the  electronic hessian with an subunit
@@ -25,23 +26,23 @@
 #include "Pointers.fh"
 
 #include "Input.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "incdia.fh"
       Real*8 v(*),u(*),rdia(*)
+      Real*8, Allocatable:: Tmp1(:), Tmp4(:)
 *
-      If (nexp.ne.0) Then
-      Call GetMem('Tmp1','ALLO','REAL',ipTmp1,nExp)
-      Call GetMem('Tmp4','ALLO','REAL',ipTmp4,nExp)
+      If (nExp.ne.0) Then
+      Call mma_allocate(Tmp1,nExp,Label='Tmp1')
+      Call mma_allocate(Tmp4,nExp,Label='Tmp4')
 *
-      Do i=0,nExp-1
-       j=iwork(iplst+i)
-       Work(ipTmp1+i)=v(j)
-       Work(ipTmp4+i)=u(j)
+      Do i=1,nExp
+       j=SBIDT(i)
+       Tmp1(i)=v(j)
+       Tmp4(i)=u(j)
       End Do
 *
       irc=0
-      call dgetrs_('N',NEXP,1,Work(iphx),nexp,
-     &                iwork(ipvt),Work(ipTmp1),nexp,irc)
+      call dgetrs_('N',NEXP,1,H0S,nexp,H0F,Tmp1,nexp,irc)
       If (irc.ne.0) then
        write(6,*) 'Error in DGETRS called from exphinvv'
        Call Abend
@@ -63,12 +64,12 @@
       End Do
       End If
 *
-      Do i=0,nExp-1
-       j=iwork(iplst+i)
-       u(j)=alpha*Work(iptmp4+i)+beta*Work(ipTmp1+i)
+      Do i=1,nExp
+       j=SBIDT(i)
+       u(j)=alpha*Tmp4(i)+beta*Tmp1(i)
       End Do
-      Call GetMem('Tmp1','FREE','REAL',ipTmp1,nExp)
-      Call GetMem('Tmp4','FREE','REAL',iptmp4,nExp)
+      Call mma_deallocate(Tmp1)
+      Call mma_deallocate(Tmp4)
 
       Else
       If (alpha.eq.0.0d0.and.beta.eq.1.0d0) Then

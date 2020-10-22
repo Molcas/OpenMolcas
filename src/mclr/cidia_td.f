@@ -11,6 +11,7 @@
 * Copyright (C) 1996, Anders Bernhardsson                              *
 ************************************************************************
       SubRoutine CIDIA_TD(iSym)
+      use Exp, only: nexp, nexp_max
       Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 #include "crun_mclr.fh"
@@ -80,12 +81,9 @@
       nq=0
       If (np2.ne.0) Then
        irc=ipnout(ipdiai)
-       call h0(Work(ipin(ipdiai)),
-     &         np1,nexp_max,nq,isym,iphx,ipvt,iplst,nexp,
-     &         TimeDep)
+       call h0(Work(ipin(ipdiai)),np1,nexp_max,nq,isym,nexp,TimeDep)
       Else
         nexp=0
-        iphx=0
       End if
 *     Call Getmem('KICONF1','FREE','INTEGER',kiconf(i),lConf)
 

@@ -23,6 +23,7 @@
 *     Parallelization of perturbations, RL 2002.                       *
 *                                                                      *
 ************************************************************************
+      use Exp, only: Exp_Close
       Implicit Real*8 (a-h,o-z)
       External Rsv_Tsk
 *
@@ -194,11 +195,7 @@ C     Do iSym=kksym,kkksym
                  irc=ipclose(ipPre2)
               End If
 *
-              If (iphx.ne.0) Then
-                 Call Getmem('EXPHS','FREE','REAL',iphx,idum)
-                 Call Getmem('EXPHF','FREE','INTE',ipvt,idum)
-                 Call Getmem('EXPLS','FREE','INTE',iplst,idum)
-              End If
+              Call Exp_Close()
 *
            End If
            iSym_Old=iSym
@@ -243,7 +240,6 @@ C     Do iSym=kksym,kkksym
 *                                    [2]
 *         Calculate the diagonal of E    and store in core/disc
 *
-        iphx=0
         If (CI) Then
             Call CIDia(PState_Sym,rCHC)
             irc=ipout(ipdia)
@@ -890,11 +886,7 @@ C         Write(LuWr,Fmt2//'A)')'Writing response to one-file.'
          irc=ipclose(ipPre2)
       End If
 *
-      If (iphx.ne.0) Then
-         Call Getmem('EXPHS','FREE','REAL',iphx,idum)
-         Call Getmem('EXPHF','FREE','INTE',ipvt,idum)
-         Call Getmem('EXPLS','FREE','INTE',iplst,idum)
-      End If
+      Call Exp_Close()
 *                                                                      *
 ************************************************************************
 *                                                                      *
