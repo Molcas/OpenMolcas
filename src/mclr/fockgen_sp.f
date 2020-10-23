@@ -28,7 +28,7 @@
 #include "Input.fh"
 #include "WrkSpc.fh"
       Real*8 Fock(nDens2),fockout(*),
-     &       rdens2(*),rDens1(nna,nna)
+     &       rdens2(*),rDens1(nna*nna)
       Parameter ( half  = 0.5d0 )
       Parameter ( two  = 2.0d0 )
       Parameter ( one  = 1.0d0 )
@@ -72,7 +72,7 @@
 *
                            ipM=ip_MO+(kAA-1)*nBas(ipS)
                            ipF=ipMat(ipS,iS)+nBas(ipS)*(iB-1)
-                           rd=rDens1(jA+nA(jS),kA+nA(ks))
+                           rd=rDens1(jA+nA(jS)+(kA+nA(ks)-1)*nna)
                            Call DaXpY_(nBas(ipS),-rd,
      &                                Work(ipM),1,Fock(ipF),1)
                         End Do
@@ -91,7 +91,7 @@
             jS=iEOr(is-1,iDSym-1)+1
             Do iA=1,nAsh(is)
                Do jA=1,nAsh(js)
-                  rd=rDens1(iA+nA(iS),jA+nA(js))
+                  rd=rDens1(iA+nA(iS)+(jA+nA(js)-1)*nna)
                   ip1=nBas(iS)*(nIsh(is)+iA-1)+ipCM(is)-1
                   ip2=nBas(iS)*(nIsh(js)+jA-1) +ipmat(is,js)
                  Call DaxPy_(nBAs(iS),Rd,Work(ipFIMO+ip1),1,Fock(ip2),1)

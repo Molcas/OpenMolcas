@@ -47,10 +47,14 @@
       Dimension C(*),HC(*),kic(2)
       Integer sxstsm(1)
       Dimension idummy(1)
-      Integer, Allocatable:: STSTS(:), STSTD(:),
+      Integer, Allocatable:: STSTS(:), STSTD(:), SVST(:),
      &                       SIOIO(:), CIOIO(:),
-     &                       SBLTP(:), CBLTP(:)
-      Real*8, Allocatable:: SB(:), CB(:), KINSCR(:)
+     &                       SBLTP(:), CBLTP(:),
+     &                       I1(:), I2(:), I3(:), I4(:),
+     &                       OOS(:,:)
+      Real*8, Allocatable:: SB(:), CB(:), INSCR(:),
+     &                      XI1S(:), XI2S(:), XI3S(:), XI4S(:),
+     &                      C2(:), CJRES(:), SIRES(:)
 
       LUC=0
       LUHC=0
@@ -132,7 +136,7 @@
 * A 4 index integral block with four indeces belonging OS class
       INTSCR = MXTSOB ** 4
 
-      Call mma_allocate(KINSCR,INTSCR,Label='KINSCR')
+      Call mma_allocate(INSCR,INTSCR,Label='INSCR')
 *. Arrays giving allowed type combinations '
 
       Call mma_allocate(SIOIO,NOCTPA*NOCTPB,Label='SIOIO')
@@ -160,7 +164,7 @@
       Call mma_allocate(CBLTP,NSMST,Label='CBLTP')
 *. Arrays for additional symmetry operation
 *
-      KSVST = 1
+      Call mma_allocate(SVST,NSMST,Label='SVST')
 *
 *.scratch space for projected matrices and a CI block
 *
@@ -195,21 +199,21 @@
 
       LSCR3 = MAX(MXIJST,MAXIK*MXTSOB,MXSTBL0)
 
-      Call Getmem('I1    ','ALLO','INTE',KI1,LSCR3)
-      Call Getmem('I2    ','ALLO','INTE',KI2,LSCR3)
-      Call Getmem('I3    ','ALLO','INTE',KI3,MAXIK*MXTSOB)
-      Call Getmem('I4    ','ALLO','INTE',KI4,MAXIK*MXTSOB)
-      Call Getmem('XI1S  ','ALLO','REAL',KXI1S,LSCR3)
-      Call Getmem('XI2S    ','ALLO','REAL',KXI2S,LSCR3)
-      Call Getmem('XI3S    ','ALLO','REAL',KXI3S,MAXIK*MXTSOB)
-      Call Getmem('XI4S  ','ALLO','REAL',KXI4S,MAXIK*MXTSOB)
+      Call mma_allocate(I1,LSCR3,Label='I1')
+      Call mma_allocate(I2,LSCR3,Label='I2')
+      Call mma_allocate(I3,MAXIK*MXTSOB,Label='I3')
+      Call mma_allocate(I4,MAXIK*MXTSOB,Label='I4')
+      Call mma_allocate(XI1S,LSCR3,Label='XI1S')
+      Call mma_allocate(XI2S,LSCR3,Label='XI2S')
+      Call mma_allocate(XI3S,MAXIK*MXTSOB,Label='XI3S')
+      Call mma_allocate(XI4S,MAXIK*MXTSOB,Label='XI4S')
       LSCR2 = MAX(MXCJ,MXCIJA,MXCIJB,MXCIJAB)
 *
 *. Merethe Interface
       MOCAA = 0
       IF(MOCAA.NE.0) THEN
 *. These blocks will also be used for single excitations so,
-*. TO be removed   Largest block of SX excitations
+*. To be removed   Largest block of SX excitations
         MAXE = MAX(NAEL,NBEL)
         MAXEl3 = MIN(MAXE,MXTSOB)
         MXSXST = (MXTSOB+1)*MAXEL3
@@ -226,17 +230,20 @@
       IF(IDIAG .EQ. 2 ) THEN
 *. PICO diagonalizer uses block KVEC3, use this as scratch block
         KC2 = KVEC3
-        IF(2*LSCR2 .GT. LSCR1 ) THEN
+        IF ( 2 * LSCR2 .GT. LSCR1 ) THEN
            AlloKC=.true.
-           Call Getmem('KCRJES','ALLO','REAL',KCJRES,LSCR2)
-           Call Getmem('KSIRES','ALLO','REAL',KSIRES,LSCR2)
+           Call mma_allocate(CJRES,LSCR2,Label='CJRES')
+           KCJRES = ip_of_Work(CJRES)
+           Call mma_allocate(SIRES,LSCR2,Label='SIRES')
+           KSIRES = ip_of_Work(SIRES)
         ELSE
            KCJRES = KC2
            KSIRES = KC2 + LSCR2
         END IF
       ELSE
-        AlloKc2=.true.
-        Call Getmem('KC2','ALLO','REAL',KC2,LSCR12)
+        AlloKC2=.true.
+        Call mma_allocate(C2,LSCR12,Label='C2')
+        KC2 = ip_of_Work(C2)
         KCJRES = KC2
         KSIRES = KC2 + LSCR2
       END IF
@@ -247,20 +254,11 @@
 *
 *     Out KSBLTP [NSMST]
 *
-      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,SBLTP,iwORK(KSVST))
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,CBLTP,iwORK(KSVST))
-*.10 OOS arrayy
-      NOOS = NOCTPA*NOCTPB*NSMST
-      Call Getmem('OOS1','ALLO','INTE',KOOS1,NOOS)
-      Call Getmem('OOS2','ALLO','INTE',KOOS2,NOOS)
-      Call Getmem('OOS3','ALLO','INTE',KOOS3,NOOS)
-      Call Getmem('OOS4','ALLO','INTE',KOOS4,NOOS)
-      Call Getmem('OOS5','ALLO','INTE',KOOS5,NOOS)
-      Call Getmem('OOS6','ALLO','INTE',KOOS6,NOOS)
-      Call Getmem('OOS7','ALLO','INTE',KOOS7,NOOS)
-      Call Getmem('OOS8','ALLO','INTE',KOOS8,NOOS)
-      Call Getmem('OOS9','ALLO','INTE',KOOS9,NOOS)
-      Call Getmem('OOS10','ALLO','INTE',KOOS10,NOOS)
+      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,SBLTP,SVST)
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,CBLTP,SVST)
+*.10 OOS arrays
+      nOOS = NOCTPA*NOCTPB*NSMST
+      Call mma_allocate(OOS,nOOS,10,Label='OOS')
 *
       iiCOPY=1
       IF(NOCSF.EQ.0) THEN
@@ -273,9 +271,9 @@
 
 *. Transform from combination scaling to determinant scaling
         CALL SCDTC2_MCLR(C,ISMOST(1,ICSM),CBLTP,NSMST,
-     &              NOCTPA,NOCTPB,iWORK(KNSTSO(IATP)),
-     &              iWORK(KNSTSO(IBTP)),CIOIO,IDC,
-     &              2,IDUMMY,IPRDIA)
+     &                   NOCTPA,NOCTPB,iWORK(KNSTSO(IATP)),
+     &                   iWORK(KNSTSO(IBTP)),CIOIO,IDC,
+     &                   2,IDUMMY,IPRDIA)
       END IF
 
 *
@@ -304,22 +302,21 @@
      &            iWORK(KNSTSO(IBTP)),iWORK(KISTSO(IBTP)),
      &            NAEL,IATP,NBEL,IBTP,NOCTPA,NOCTPB,
      &            NSMST,NSMOB,NSMSX,NSMDX,NTSOB,IBTSOB,ITSOB,
-     &            MAXIJ,MAXK,MAXI,ICISTR,IINSTR,INSCR,LSCR1,
+     &            MAXIJ,MAXK,MAXI,ICISTR,IINSTR,INTSCR,LSCR1,
      &            LSCR1,
-     &            KINSCR,wORK(KCSCR),wORK(KSSCR),
+     &            INSCR,wORK(KCSCR),wORK(KSSCR),
      &            SXSTSM,STSTS,STSTD,SXDXSX,
      &            ADSXA,ASXAD,
      &            iWORK(KEL1(IATP)),iWORK(KEL3(IATP)),
      &            iWORK(KEL1(IBTP)),iWORK(KEL3(IBTP)),IDC,
-     &            iwORK(KOOS1),iwORK(KOOS2),iwORK(KOOS3),
-     &            iwORK(KOOS4),iwORK(KOOS5),iwORK(KOOS6),
-     &            iwORK(KOOS7),iwORK(KOOS8),
-     &            iwORK(KOOS9),iwORK(KOOS10),
-     &            iWORK(KI1),wORK(KXI1S),iWORK(KI2),wORK(KXI2S),
-     &            iWORK(KI3),wORK(KXI3S),iWORK(KI4),wORK(KXI4S),
+     &            OOS(:,1), OOS(:,2), OOS(:,3), OOS(:,4),
+     &            OOS(:,5), OOS(:,6), OOS(:,7), OOS(:,8),
+     &            OOS(:,9), OOS(:,10),
+     &            I1,XI1S,I2,XI2S,
+     &            I3,XI3S,I4,XI4S,
      &            IDOH2,
-     &            iwORK(KSVST),PSSIGN,IPRDIA,LLUC,LLUHC,IST,
-     &            wORK(KCJRES),wORK(KSIRES),NOPARt,TimeDep)
+     &            SVST,PSSIGN,IPRDIA,LLUC,LLUHC,IST,
+     &            WORK(KCJRES),WORK(KSIRES),NOPARt,TimeDep)
 
       Else
        Call SysHalt('sigmavec')
@@ -349,44 +346,31 @@
 
       Call mma_deallocate(STSTS)
       Call mma_deallocate(STSTD)
-      Call mma_deallocate(KINSCR)
+      Call mma_deallocate(INSCR)
       Call mma_deallocate(SIOIO)
       Call mma_deallocate(CIOIO)
       Call mma_deallocate(SBLTP)
       Call mma_deallocate(CBLTP)
 
-      Call Getmem('I1    ','FREE','INTE',KI1,LSCR3)
-      Call Getmem('I2    ','FREE','INTE',KI2,LSCR3)
-      Call Getmem('I3    ','FREE','INTE',KI3,MAXIK*MXTSOB)
-      Call Getmem('I4    ','FREE','INTE',KI4,MAXIK*MXTSOB)
-      Call Getmem('XI1S  ','FREE','REAL',KXI1S,LSCR3)
-      Call Getmem('XI2S  ','FREE','REAL',KXI2S,LSCR3)
-      Call Getmem('XI3S  ','FREE','REAL',KXI3S,MAXIK*MXTSOB)
-      Call Getmem('XI4S  ','FREE','REAL',KXI4S,MAXIK*MXTSOB)
-      Call Getmem('OOS1  ','FREE','REAL',KOOS1,NOOS)
-      Call Getmem('OOS2  ','FREE','REAL',KOOS2,NOOS)
-      Call Getmem('OOS3  ','FREE','REAL',KOOS3,NOOS)
-      Call Getmem('OOS4  ','FREE','REAL',KOOS4,NOOS)
-      Call Getmem('OOS5  ','FREE','REAL',KOOS5,NOOS)
-      Call Getmem('OOS6  ','FREE','REAL',KOOS6,NOOS)
-      Call Getmem('OOS7  ','FREE','REAL',KOOS7,NOOS)
-      Call Getmem('OOS8  ','FREE','REAL',KOOS8,NOOS)
-      Call Getmem('OOS9  ','FREE','REAL',KOOS9,NOOS)
-      Call Getmem('OOS10 ','FREE','REAL',KOOS10,NOOS)
-      IF(ICISTR.EQ.1) THEN
+      Call mma_deallocate(I4)
+      Call mma_deallocate(I3)
+      Call mma_deallocate(I2)
+      Call mma_deallocate(I1)
+      Call mma_deallocate(XI4S)
+      Call mma_deallocate(XI3S)
+      Call mma_deallocate(XI2S)
+      Call mma_deallocate(XI1S)
+      Call mma_deallocate(OOS)
+      IF (ICISTR.EQ.1) THEN
         Call mma_deallocate(CB)
         Call mma_deallocate(SB)
       End If
-      IF(IDC.EQ.3.OR.IDC.EQ.4) THEN
-        Call Getmem('SVST  ','FREE','INTEGER' ,KSVST,NSMST)
+      Call mma_deallocate(SVST)
+      IF (AlloKc ) THEN
+        Call mma_deallocate(CJRES)
+        Call mma_deallocate(SIRES)
       End If
-      IF(AlloKc ) THEN
-        Call Getmem('KCRJES','FREE','REAL',KCJRES,LSCR2)
-        Call Getmem('KSIRES','FREE','REAL',KSIRES,LSCR2)
-      End If
-      IF(AlloKc2) THEN
-        Call Getmem('KC2','FREE','REAL',KC2,LSCR12)
-      End If
+      IF (AlloKc2) Call mma_deallocate(C2)
 *
       RETURN
       END

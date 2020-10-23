@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine Pre_sp(rdum,idum)
       Implicit Real*8(a-h,o-z)
+      Real*8 rdum(*)
       return
 c Avoid unused argument warnings
       If (.False.) Then
