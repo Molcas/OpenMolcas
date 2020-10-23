@@ -23,11 +23,10 @@
 *
 * Jeppe Olsen, Spring of 94
 *
-
       IMPLICIT REAL*8(A-H,O-Z)
 *
 #include "detdim.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 *. Input
       DIMENSION CKJJ(NKA*NJ,*)
 *. Note if Iroute = 2 the form is C(j,Ka,Jb)
@@ -39,20 +38,12 @@
 *. Note if Iroute = 2 the form is S(i,Ka,Ib)
 *. Scratch
       PARAMETER(MXTSOB=35)
-CMS   DIMENSION SCR(MXTSOB*MXTSOB*MXTSOB*MXTSOB)
       DIMENSION IBOFF(MXTSOB*MXTSOB),JBOFF(MXTSOB*MXTSOB)
-C     DIMENSION SCR(NI*NL*NJ),IBOFF(NI),JBOFF(NL*NJ)
-*
-*
-*AB*     CALL MEMMAN(IDUMMY,IDUMMY,'MARK  ',IDUMMY,'SKMARK')
+      Real*8, Allocatable:: KSKICK(:)
 *
       MAXORB = MAX(NI,NJ,NK,NL)
       LENGTH = MAXORB*MAXORB*MAXORB*MAXORB
-C?     write(6,*) ' NI NJ NK NL = ', NI,NJ,NK,NL
-C?     write(6,*) ' MAXORB = ',MAXORB
-C?     write(6,*) ' Dimension of SKICK array ',LENGTH
-*AB*      CALL MEMMAN(KSKICK,LENGTH,'ADDL  ',2,'SKICK ')
-       Call Getmem('SKICK ','ALLO','REAL',KSKICK,LENGTH)
+      Call mma_allocate(KSKICK,LENGTH,Label='KSKICK')
 *
       IF(NI.GT.MXTSOB.OR.NJ.GT.MXTSOB.OR.NK.GT.MXTSOB
      &   .OR.NL.GT.MXTSOB) THEN
@@ -191,29 +182,29 @@ C                  ICOFF = (JB-1)*NJ*NKA + 1
               JLIK0 = (K-1)*NJ*NL*NI
      &              + (I-1)*NJ*NL
      &              + (L-1)*NJ
+
               DO 600 J = 1, NJ
                 JL = JL0 + J
 *. Offsets for C(1,JB,j)
                 JBOFF(JL) = (J-1)*NJB + JB
 *. integral * signs in SCR(jl,ik)
 *. Integrals are stored as (j l i k )
-C               SCR((IKEFF-1)*NJ*LL+JL) = FACTOR*XIJKL(JLIK)
-CMS             SCR(IOFF+JL) = FACTOR*XIJKL(JLIK0+J)
-                WORK(KSKICK-1+IOFF+JL) = FACTOR*XIJKL(JLIK0+J)
-C?        write(6,*) ' SKICKJ : IOFF + JL ', IOFF + JL
+                KSKICK(IOFF+JL) = FACTOR*XIJKL(JLIK0+J)
   600         CONTINUE
+
   800       CONTINUE
+
   700     CONTINUE
+
   900   CONTINUE
 *
-CMS     CALL GSAXPY(SKII,CKJJ,SCR,IKEFF,NJ*LL,NKA,IBOFF,JBOFF)
-        CALL GSAXPY(SKII,CKJJ,wORK(KSKICK),IKEFF,NJ*LL,NKA,IBOFF,JBOFF)
+        CALL GSAXPY(SKII,CKJJ,KSKICK,IKEFF,NJ*LL,NKA,IBOFF,JBOFF)
+
  1000 CONTINUE
       END IF
 *. End of IROUTE branching
 *
-       Call Getmem('SKICK ','FREE','REAL',KSKICK,LENGTH)
-*AB*     CALL MEMMAN(IDUMMY,IDUMMY,'FLUSM ',IDUM,'SKMARK')
+      Call mma_deallocate(KSKICK)
 *
       RETURN
 c Avoid unused argument warnings
@@ -223,4 +214,5 @@ c Avoid unused argument warnings
         CALL Unused_real(SXCR)
         CALL Unused_integer(NTEST)
       END IF
+
       END
