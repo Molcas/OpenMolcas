@@ -20,6 +20,7 @@
 *                                                                      *
 ************************************************************************
       use Exp, only: Exp_Close
+      use Arrays, only: SFock
       Implicit Real*8 (a-h,o-z)
 *
 #include "WrkSpc.fh"
@@ -47,7 +48,7 @@
      &                      Temp1(:), Temp2(:), Temp3(:), Temp4(:),
      &                      Sc1(:), Sc2(:), Sc3(:),
      &                      Dens(:), Pens(:), rmoaa(:), rmoaa2(:),
-     &                      SFock(:), Pre2(:)
+     &                      Pre2(:)
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -103,7 +104,6 @@
 *
           Call mma_allocate(Kappa,nDens2+6,Label='Kappa')
           Call mma_allocate(SFock,nDens2+6,Label='SFock')
-          ipFS = ip_of_Work(SFock)
           Call mma_allocate(dKappa,nDens2+6,Label='dKappa')
           Call mma_allocate(Sigma,nDens2+6,Label='Sigma')
           Call mma_allocate(Temp1,nDens2+6,Label='Temp1')
@@ -132,8 +132,7 @@
 *-----------------------------------------------------------------------
 *
           Call Pre_SP(Pre2,1)
-          Call FockGen_sp(Zero,Work(ipG1m),Work(ipG2mp),
-     &                   SFock,Temp4,1)
+          Call FockGen_sp(Zero,G1m,G2mp,SFock,Temp4,1)
           call dcopy_(nconf1,[Zero],0,Work(ipin(ipST)),1)
 *
           If (lprint) Write(6,*)

@@ -39,7 +39,8 @@
       Use Basis_Info, only: Basis_Info_Free
       Use Center_Info, only: Center_Info_Free
       use Symmetry_Info, only: Symmetry_Info_Free
-      use Arrays, only: Hss
+      use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM, SFock,
+     &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "warnings.fh"
@@ -292,6 +293,18 @@ c      idp=rtoi
 
 *     Arrays allocated in stpert.f
       Call mma_deallocate(Hss)
+      If (SPINPOL) Then
+         Call mma_deallocate(FAMO_SpinP)
+         Call mma_deallocate(FAMO_SpinM)
+         Call mma_deallocate(G2mm)
+         Call mma_deallocate(G2mp)
+         Call mma_deallocate(G2pp)
+         Call mma_deallocate(Fp)
+         Call mma_deallocate(Fm)
+         Call mma_deallocate(G1p)
+         Call mma_deallocate(G1m)
+         Call mma_deallocate(SFock)
+      End If
 *     Arrays allocated in fckmat.f
       Call GetMem('FASQMO','Free','Real',ipFAMO,ndens2)
       If (iMethod.eq.2) Call GetMem('K2Int','Free','Real',k2int,nDum)

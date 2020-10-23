@@ -9,7 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine StPert
-      Use Arrays, only: Hss
+      Use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM,
+     &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
+
       Implicit Real*8(a-h,o-z)
 
 #include "real.fh"
@@ -144,30 +146,26 @@
          End Do
          nG=nAct**2
          nG2=nAct**4
-         Call GETMEM('FAMO_SPINp','ALLO','REAL',ipfamo_spinp,ndens2)
-         Call GETMEM('FAMO_SPINm','ALLO','REAL',ipfamo_spinm,ndens2)
-         Call GetMem('ipg2tmm','ALLO','REAL',ipg2mp,nG2)
-         Call GetMem('ipg2tmm','ALLO','REAL',ipg2pp,nG2)
-         Call GetMem('ipg2tmm','ALLO','REAL',ipg2mm,nG2)
-         Call GetMem('ipg2spin','ALLO','REAL',ipfm,nG2)
-         Call GetMem('ipg2spin','ALLO','REAL',ipfp,nG2)
-         Call GetMem('ipg1m','ALLO','REAL',ipg1p,nG)
-         Call GetMem('ipg1p','ALLO','REAL',ipg1m,nG)
+         Call mma_allocate(famo_spinp,ndens2,Label='famo_spinp')
+         Call mma_allocate(famo_spinm,ndens2,Label='famo_spinm')
+         Call mma_allocate(G2mp,nG2,Label='G2mp')
+         Call mma_allocate(G2pp,nG2,Label='G2pp')
+         Call mma_allocate(G2mm,nG2,Label='G2mm')
+         Call mma_allocate(Fm,nG2,Label='Fm')
+         Call mma_allocate(Fp,nG2,Label='Fp')
+         Call mma_allocate(G1p,nG,Label='G1p')
+         Call mma_allocate(G1m,nG,Label='G1m')
          itype=2
          Call SpinDens(Work(ipin(ipCI)),Work(ipin(ipCI)),
-     &                 STATE_SYM,
-     &                 STATE_SYM,Work(ipg2mm),
-     &                 Work(ipg2mp),work(ipg2pp),
-     &                 Work(ipfm),Work(ipfp),
-     %                 Work(ipg1m),work(ipg1p),
-     &                 itype)
+     &                 STATE_SYM,STATE_SYM,G2mm,G2mp,G2pp,
+     &                 Fm,Fp,G1m,G1p,iType)
 
          Call mma_allocate(Tmp2,ndens2,Label='Tmp2')
          Call mma_MaxDBLE(nMax)
          Call mma_allocate(Tmp1,nMax/2,Label='Tmp1')
 
-         Call Ex_spin(Work(ipg1p),Work(ipFAMO_Spinp),Tmp1,nMax/2,Tmp2)
-         Call Ex_spin(Work(ipg1m),Work(ipFAMO_Spinm),Tmp1,nMax/2,Tmp2)
+         Call Ex_spin(G1p,FAMO_Spinp,Tmp1,nMax/2,Tmp2)
+         Call Ex_spin(G1m,FAMO_Spinm,Tmp1,nMax/2,Tmp2)
 
          Call mma_deallocate(Tmp1)
          Call mma_deallocate(Tmp2)

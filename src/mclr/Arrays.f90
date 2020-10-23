@@ -13,4 +13,8 @@
 Module Arrays
       Implicit None
       Real*8, Allocatable:: Hss(:)
+      Real*8, Allocatable:: FaMO_spinp(:), FaMO_spinm(:), SFock(:)
+      Real*8, Allocatable:: G2mp(:), G2pp(:), G2mm(:)
+      Real*8, Allocatable:: Fm(:), Fp(:)
+      Real*8, Allocatable:: G1p(:), G1m(:)
 End Module Arrays
