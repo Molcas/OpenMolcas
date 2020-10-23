@@ -76,19 +76,16 @@
         iSymlbl=1
         Call RdOne(irc,6,'Mltpl  0',1,STmat,iSymlbl)
 *
-        index = 0
+        index = 1
         iOff = 0
         Do iSym = 1, nSym
            Do i = 1, nBas(iSym)
               Do j = 1, i-1
-              Smat(j + nBas(iSym)*(i-1)+iOff) =
-     &                        Work(ip_STmat+index)
-              Smat(i + nBas(iSym)*(j-1)+iOff) =
-     &                        Work(ip_STmat+index)
-              index = index + 1
+                 Smat(j+nBas(iSym)*(i-1)+iOff) =STmat(index)
+                 Smat(i+nBas(iSym)*(j-1)+iOff) =STmat(index)
+                 index = index + 1
               End Do
-              Smat(i + nBas(iSym)*(i-1)+iOff) =
-     &                        Work(ip_STmat+index)
+              Smat(i+nBas(iSym)*(i-1)+iOff) =STmat(index)
               index = index + 1
            End Do
            ioff=ioff+nBas(iSym)**2

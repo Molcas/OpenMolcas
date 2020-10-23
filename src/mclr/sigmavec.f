@@ -19,7 +19,6 @@
 * This routine is just a setup routine for memory etc
 *
       IMPLICIT REAL*8(A-H,O-Z)
-
 *
 * =====
 *.Input
@@ -36,6 +35,7 @@
 #include "csm.fh"
 #include "csfbas_mclr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "crun_mclr.fh"
 
 #include "Input.fh"
@@ -45,8 +45,13 @@
 #include "csmprd.fh"
       Logical allokc,allokc2
       Dimension C(*),HC(*),kic(2)
-      integer sxstsm(1)
-      dimension idummy(1)
+      Integer sxstsm(1)
+      Dimension idummy(1)
+      Integer, Allocatable:: STSTS(:), STSTD(:),
+     &                       SIOIO(:), CIOIO(:),
+     &                       SBLTP(:), CBLTP(:)
+      Real*8, Allocatable:: SB(:), CB(:), KINSCR(:)
+
       LUC=0
       LUHC=0
       iprnt=200
@@ -57,7 +62,6 @@
 *. The story of MV7 : I started out from nothing, absolutely zero,
 *
       call dcopy_(NSDET,[Zero],0,HC,1)
-
 *
 * Info for this internal space
 *
@@ -77,9 +81,11 @@
       NBEL = NELEC(IBTP)
 * string sym, string sym => sx sym
 * string sym, string sym => dx sym
-      Call Getmem('KSTSTS','ALLO','INTE',KSTSTS,NSMST ** 2)
-      Call Getmem('KSTSTD','ALLO','INTE',KSTSTD,NSMST**2)
-      CALL STSTSM_MCLR(iwORK(KSTSTS),iwORK(KSTSTD),NSMST)
+      Call mma_allocate(STSTS,NSMST**2,Label='STSTS')
+      Call mma_allocate(STSTD,NSMST**2,Label='STSTD')
+
+      CALL STSTSM_MCLR(STSTS,STSTD,NSMST)
+
 *. Largest block of strings in zero order space
       MAXA0 = IMNMX(iWORK(KNSTSO(IATP)),NSMST*NOCTYP(IATP),2)
       MAXB0 = IMNMX(iWORK(KNSTSO(IBTP)),NSMST*NOCTYP(IBTP),2)
@@ -119,18 +125,18 @@
         LSCR1 = MXSOOB
       END IF
       IF(ICISTR.EQ.1) THEN
-        Call Getmem('KCB   ','ALLO','REAL',KCB,LSCR1)
-        Call Getmem('KSB   ','ALLO','REAL' ,KSB,LSCR1)
+        Call mma_allocate(CB,LSCR1,Label='CB')
+        Call mma_allocate(SB,LSCR1,Label='SB')
       END IF
 *.SCRATCH space for integrals
 * A 4 index integral block with four indeces belonging OS class
       INTSCR = MXTSOB ** 4
 
-      Call Getmem('INSCR ','ALLO','REAL' ,KINSCR,INTSCR)
+      Call mma_allocate(KINSCR,INTSCR,Label='KINSCR')
 *. Arrays giving allowed type combinations '
 
-      Call Getmem('SIOIO ','ALLO','INTE' ,KSIOIO,NOCTPA*NOCTPB)
-      Call Getmem('CIOIO ','ALLO','INTE' ,KCIOIO,NOCTPA*NOCTPB)
+      Call mma_allocate(SIOIO,NOCTPA*NOCTPB,Label='SIOIO')
+      Call mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
 *
 *      SIOIO,CIOIO [NOCTPA x NOCTPB]
 *      Allowed combinations of alpha and beta strings
@@ -141,21 +147,20 @@
       CALL IAIBCM_MCLR(MNR1IC(ISSPC),MXR3IC(ISSPC),NOCTPA,NOCTPB,
      &            iWORK(KEL1(IATP)),iWORK(KEL3(IATP)),
      &            iWORK(KEL1(IBTP)),iWORK(KEL3(IBTP)),
-     &            iwORK(KSIOIO),IPRCIX)
+     &            SIOIO,IPRCIX)
 *
       CALL IAIBCM_MCLR(MNR1IC(ICSPC),MXR3IC(ICSPC),NOCTPA,NOCTPB,
      &            iWORK(KEL1(IATP)),iWORK(KEL3(IATP)),
      &            iWORK(KEL1(IBTP)),iWORK(KEL3(IBTP)),
-     &            iwORK(KCIOIO),IPRCIX)
+     &            CIOIO,IPRCIX)
 *
 *
 *. Arrays giving block type
-      Call Getmem('SBLTP ','ALLO','INTE' ,KSBLTP,NSMST)
-      Call Getmem('CBLTP ','ALLO','INTEGER' ,KCBLTP,NSMST)
+      Call mma_allocate(SBLTP,NSMST,Label='SBLTP')
+      Call mma_allocate(CBLTP,NSMST,Label='CBLTP')
 *. Arrays for additional symmetry operation
 *
       KSVST = 1
-
 *
 *.scratch space for projected matrices and a CI block
 *
@@ -171,7 +176,7 @@
 *
 *     MXCJ:MXCIJA:MXCIJB:MXCIJAB:MXSXBL:MXIJST:MXIJSTF
 *
-      CALL MXRESC(iwORK(KCIOIO),IATP,IBTP,NOCTPA,NOCTPB,NSMST,
+      CALL MXRESC(CIOIO,IATP,IBTP,NOCTPA,NOCTPB,NSMST,
      &            iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
      &            IATP+1,iWORK(KNSTSO(IATP+1)),NOCTYP(IATP+1),
      &            iWORK(KNSTSO(IBTP+1)),NOCTYP(IBTP+1),
@@ -242,10 +247,8 @@
 *
 *     Out KSBLTP [NSMST]
 *
-      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,iwORK(KSBLTP),
-     &           iwORK(KSVST))
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,iwORK(KCBLTP),
-     &           iwORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,SBLTP,iwORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,CBLTP,iwORK(KSVST))
 *.10 OOS arrayy
       NOOS = NOCTPA*NOCTPB*NSMST
       Call Getmem('OOS1','ALLO','INTE',KOOS1,NOOS)
@@ -269,9 +272,9 @@
       IF(IDC.NE.1.AND.ICISTR.EQ.1) THEN
 
 *. Transform from combination scaling to determinant scaling
-        CALL SCDTC2_MCLR(C,ISMOST(1,ICSM),iwORK(KCBLTP),NSMST,
+        CALL SCDTC2_MCLR(C,ISMOST(1,ICSM),CBLTP,NSMST,
      &              NOCTPA,NOCTPB,iWORK(KNSTSO(IATP)),
-     &              iWORK(KNSTSO(IBTP)),iwORK(KCIOIO),IDC,
+     &              iWORK(KNSTSO(IBTP)),CIOIO,IDC,
      &              2,IDUMMY,IPRDIA)
       END IF
 
@@ -293,9 +296,9 @@
       call dcopy_(NSDET,[ZERO],0,HC,1)
 *
       IF(ICISTR.EQ.1) THEN
-      CALL RASSG4(C,HC,wORK(KCB),wORK(KSB),wORK(KC2),
-     &            iwORK(KCIOIO),iwORK(KSIOIO),ISMOST(1,ICSM),
-     &            ISMOST(1,ISSM),iwORK(KCBLTP),iwORK(KSBLTP),
+      CALL RASSG4(C,HC,CB,SB,wORK(KC2),
+     &            CIOIO,SIOIO,ISMOST(1,ICSM),
+     &            ISMOST(1,ISSM),CBLTP,SBLTP,
      &            NORB1,NORB2,NORB3,NACOB,
      &            iWORK(KNSTSO(IATP)),iWORK(KISTSO(IATP)),
      &            iWORK(KNSTSO(IBTP)),iWORK(KISTSO(IBTP)),
@@ -303,8 +306,8 @@
      &            NSMST,NSMOB,NSMSX,NSMDX,NTSOB,IBTSOB,ITSOB,
      &            MAXIJ,MAXK,MAXI,ICISTR,IINSTR,INSCR,LSCR1,
      &            LSCR1,
-     &            wORK(KINSCR),wORK(KCSCR),wORK(KSSCR),
-     &            SXSTSM,iwORK(KSTSTS),iwORK(KSTSTD),SXDXSX,
+     &            KINSCR,wORK(KCSCR),wORK(KSSCR),
+     &            SXSTSM,STSTS,STSTD,SXDXSX,
      &            ADSXA,ASXAD,
      &            iWORK(KEL1(IATP)),iWORK(KEL3(IATP)),
      &            iWORK(KEL1(IBTP)),iWORK(KEL3(IBTP)),IDC,
@@ -329,9 +332,9 @@
       IF(IDC.NE.1.AND.ICISTR.EQ.1) THEN
 *. Transform from combination scaling to determinant scaling
 
-        CALL SCDTC2_MCLR(HC,ISMOST(1,ISSM),iwORK(KSBLTP),NSMST,
+        CALL SCDTC2_MCLR(HC,ISMOST(1,ISSM),SBLTP,NSMST,
      &              NOCTPA,NOCTPB,iWORK(KNSTSO(IATP)),
-     &              iWORK(KNSTSO(IBTP)),iwORK(KCIOIO),IDC,
+     &              iWORK(KNSTSO(IBTP)),CIOIO,IDC,
      &              1,IDUMMY,IPRDIA)
       END IF
 
@@ -344,24 +347,14 @@
 
 *. Eliminate local memory
 
-      Call Getmem('KSTSTS','FREE','INTE',KSTSTS,NSMST ** 2)
-      Call Getmem('KSTSTD','FREE','INTE',KSTSTD,NSMST)
-      Call Getmem('INSCR ','FREE','REAL' ,KINSCR,INTSCR)
-      Call Getmem('SIOIO ','FREE','INTE' ,KSIOIO,NOCTPA*NOCTPB)
-      Call Getmem('CIOIO ','FREE','INTE' ,KCIOIO,NOCTPA*NOCTPB)
-      Call Getmem('SBLTP ','FREE','REAL' ,KSBLTP,NSMST) !origonal
-      Call Getmem('CBLTP ','FREE','REAL' ,KCBLTP,NSMS)
+      Call mma_deallocate(STSTS)
+      Call mma_deallocate(STSTD)
+      Call mma_deallocate(KINSCR)
+      Call mma_deallocate(SIOIO)
+      Call mma_deallocate(CIOIO)
+      Call mma_deallocate(SBLTP)
+      Call mma_deallocate(CBLTP)
 
-! =====================================================================
-!      YMA testing
-!      Call Getmem('KSTSTS','FREE','INTE',KSTSTS,1000 ** 2) YMA testing
-!      Call Getmem('KSTSTD','FREE','INTE',KSTSTD,10000)
-!      Call Getmem('INSCR ','FREE','REAL' ,KINSCR,10000)
-!      Call Getmem('SIOIO ','FREE','INTE' ,KSIOIO,10000)
-!      Call Getmem('CIOIO ','FREE','INTE' ,KCIOIO,10000)
-!      Call Getmem('SBLTP ','FREE','REAL' ,KSBLTP,10000) !origonal
-!      Call Getmem('CBLTP ','FREE','REAL' ,KCBLTP,10000)
-! =====================================================================
       Call Getmem('I1    ','FREE','INTE',KI1,LSCR3)
       Call Getmem('I2    ','FREE','INTE',KI2,LSCR3)
       Call Getmem('I3    ','FREE','INTE',KI3,MAXIK*MXTSOB)
@@ -381,8 +374,8 @@
       Call Getmem('OOS9  ','FREE','REAL',KOOS9,NOOS)
       Call Getmem('OOS10 ','FREE','REAL',KOOS10,NOOS)
       IF(ICISTR.EQ.1) THEN
-        Call Getmem('KCB   ','FREE','REAL',KCB,LSCR1)
-        Call Getmem('KSB   ','FREE','REAL' ,KSB,LSCR1)
+        Call mma_deallocate(CB)
+        Call mma_deallocate(SB)
       End If
       IF(IDC.EQ.3.OR.IDC.EQ.4) THEN
         Call Getmem('SVST  ','FREE','INTEGER' ,KSVST,NSMST)
