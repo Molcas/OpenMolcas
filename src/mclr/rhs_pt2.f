@@ -16,7 +16,7 @@
       Real*8 rKappa(*)
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_real(rkappa)
+         Call Unused_real_array(rkappa)
          Call Unused_integer(iprci)
       End If
 #else
