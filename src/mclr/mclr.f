@@ -39,10 +39,12 @@
       Use Basis_Info, only: Basis_Info_Free
       Use Center_Info, only: Center_Info_Free
       use Symmetry_Info, only: Symmetry_Info_Free
+      use Arrays, only: Hss
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "warnings.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "machine.fh"
 #include "SysDef.fh"
 
@@ -90,10 +92,8 @@ c      idp=rtoi
       EndIf
 
 *
-      Call Init_Data
+      Call Init_Data()
 *
-*
-
       doDMRG = .false.
       doMCLR = .false.
 #ifdef _DMRG_
@@ -291,7 +291,7 @@ c      idp=rtoi
       End If
 
 *     Arrays allocated in stpert.f
-      Call GetMem('CONN','Free','Real',ipHss,nDum)
+      Call mma_deallocate(Hss)
 *     Arrays allocated in fckmat.f
       Call GetMem('FASQMO','Free','Real',ipFAMO,ndens2)
       If (iMethod.eq.2) Call GetMem('K2Int','Free','Real',k2int,nDum)

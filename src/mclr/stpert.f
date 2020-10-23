@@ -9,8 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine StPert
+      Use Arrays, only: Hss
       Implicit Real*8(a-h,o-z)
 
+#include "real.fh"
 #include "Input.fh"
 #include "Pointers.fh"
 #include "disp_mclr.fh"
@@ -24,12 +26,12 @@
       Character(LEN=288) Header
       Real*8, Allocatable:: Tmp1(:), Tmp2(:)
 *
-      nLen=0
+      nHss=0
       Do iS=1,nSym
-         nLen=nLen+lDisp(is)*(lDisp(is)+1)/2
+         nHss=nHss+lDisp(is)*(lDisp(is)+1)/2
       End Do
-      Call GetMem('CONN','Allo','Real',ipHss,nLen)
-      call dcopy_(nLen,[0.0d0],0,Work(ipHss),1)
+      Call mma_allocate(Hss,nHss,Label='Hss')
+      Hss(:)=Zero
 *
       If (.Not.Mckinley) Then
          irc=-1

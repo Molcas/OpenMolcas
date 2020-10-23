@@ -32,6 +32,7 @@
 * Author: Anders Bernhardsson, 1996                                *
 *         Theoretical Chemistry, University of Lund                *
 ********************************************************************
+       use Arrays, only: Hss
        Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 #include "Input.fh"
@@ -50,11 +51,8 @@
        Real*8 Pola(6)
 *
        debug=.false.
-       nHss=0
-       Do iS=1,nSym
-        nHss=nHss+lDisp(is)*(lDisp(is)+1)/2
-       End Do
-       nhess=nDIsp*(nDisp+1)/2
+       nHss=SIZE(Hss)
+       nhess=nDisp*(nDisp+1)/2
        Call GetMem('RESPH','ALLO','REAL',ipRHss,nHss)
        call dcopy_(nHss,[0.0d0],0,Work(ipRHss),1)
 *
@@ -294,7 +292,7 @@
          elec=.true.
          if (irc.ne.0) elec=.false.
       End If
-      call dcopy_(nhss,Work(iphss),1,Work(iphess2),1)
+      call dcopy_(nHss,Hss,1,Work(iphess2),1)
       If (debug) Then
          ip=ipHess2
          Do iSym=1,nSym

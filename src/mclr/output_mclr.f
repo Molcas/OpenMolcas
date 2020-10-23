@@ -32,6 +32,7 @@
 * Author: Anders Bernhardsson, 1996                                *
 *         Theoretical Chemistry, University of Lund                *
 ********************************************************************
+       Use Arrays, only: Hss
        Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 
@@ -64,11 +65,8 @@
 #else
        debug=.false.
 #endif
-       nHss=0
-       Do iS=1,nSym
-        nHss=nHss+lDisp(is)*(lDisp(is)+1)/2
-       End Do
-       nhess=nDIsp*(nDisp+1)/2
+       nHss=SIZE(Hss)
+       nhess=nDisp*(nDisp+1)/2
        Call GetMem('RESPH','ALLO','REAL',ipRHss,nHss)
        call dcopy_(nHss,[0.0d0],0,Work(ipRHss),1)
 *
@@ -379,8 +377,8 @@ C     Call GetMem('Temp','ALLO','REAL',ipELEC2,3*ndisp)
       Call drdMCk(irc,iopt,LaBeL,idum,Work(ipEG),idum)
       elec=.true.
       if (irc.ne.0) elec=.false.
-                Call GADsum(Work(iphss), nhss)
-      call dcopy_(nhss,Work(iphss),1,Work(iphess2),1)
+                Call GADsum(Hss,nHss)
+      call dcopy_(nHss,Hss,1,Work(iphess2),1)
 #ifdef _DEBUGPRINT_
       If (debug) Then
          ip=ipHess2
@@ -400,7 +398,7 @@ C     Call GetMem('Temp','ALLO','REAL',ipELEC2,3*ndisp)
 C
 c       Write(*,*)'I am here 1'
        Call Recprt('ipRhss','(5G20.10) ',Work(ipRHss),nhss,1)
-       Call Recprt('iphss','(5G20.10) ',Work(ipHss),nhss,1)
+       Call Recprt('Hss','(5G20.10) ',Hss,nHss,1)
 #endif
 C
       Call DaXpY_(mSym,1.0d0,Work(ipRHss),1,Work(ipHess2),1)

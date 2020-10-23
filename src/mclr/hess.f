@@ -13,10 +13,10 @@
       SubRoutine Hess(FockC,FockX,rCon,Temp1,Temp2,Temp3,
      &                Temp4, idsym,jdisp,idisp)
 *
-*     Constructs the connection parts that is
-*     dependend on the first derivative of
-*     the connection
+*     Constructs the connection parts that is dependend on the first
+*     derivative of the connection.
 *
+      Use Arrays, only: Hss
       Implicit Real*8 (a-h,o-z)
 #include "WrkSpc.fh"
 
@@ -39,7 +39,7 @@
      &  Call DGEMM_('N','N',
      &              nOrb(is),nnj,nnj,
      &              1.0d0,rCon(ipMat(is,js)),nOrb(is),
-     &              Work(ipF0SQMO+ipCM(jS)-1),nOrb(js),
+     &                    Work(ipF0SQMO+ipCM(jS)-1),nOrb(js),
      &              0.0d0,Temp3(ipMat(is,js)),nOrb(is))
 
        End Do
@@ -125,9 +125,8 @@
          Fact=1.0d0
          If (kDisp.eq.jDisp) Fact=2.0d0
          Indx=nIn+Max(kDisp,jDisp)*(Max(kDisp,jDisp)-1)/2+
-     &             Min(kDisp,jDisp)-1+iphss
-         Work(Indx)=Work(Indx)-
-     &             fact*ddot_(nDens2,Temp2,1,Temp3,1)
+     &             Min(kDisp,jDisp)
+         Hss(Indx)=Hss(Indx)-fact*ddot_(nDens2,Temp2,1,Temp3,1)
  310  Continue
       Return
       End
