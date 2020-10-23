@@ -392,6 +392,7 @@
      &     'There is probably a bug here, ipAsh should have two '//
      &     'elements.')
         Call Abend()
+!       ip_CMO_inv = ip_of_work(CMO_Inv)
 !       Call CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2x,ipkappa,
 !    &                   ipJI,ipKI,ipJA,ipKA,ipFockI,ipFockA,
 !    &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,

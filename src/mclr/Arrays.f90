@@ -17,4 +17,5 @@ Module Arrays
       Real*8, Allocatable:: G2mp(:), G2pp(:), G2mm(:)
       Real*8, Allocatable:: Fm(:), Fp(:)
       Real*8, Allocatable:: G1p(:), G1m(:)
+      Real*8, Allocatable:: CMO_Inv(:)
 End Module Arrays

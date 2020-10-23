@@ -40,7 +40,8 @@
       Use Center_Info, only: Center_Info_Free
       use Symmetry_Info, only: Symmetry_Info_Free
       use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM, SFock,
-     &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
+     &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m,
+     &                  CMO_Inv
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "warnings.fh"
@@ -332,11 +333,7 @@ c      idp=rtoi
         End Do
         Call DACLOS(LuChoInt(1))
         Call DACLOS(LuChoInt(2))
-        nOrbBas =0
-        Do iSym=1,nSym
-          nOrbBas  = nOrbBas  + nOrb(iSym)*nBas(iSym)
-        End Do
-        Call GetMem('CMO_inv','Free','Real',ip_CMO_inv,nOrbBas)
+        Call mma_deallocate(CMO_Inv)
       End If
 
       If(TwoStep.and.(StepType.eq.'RUN1')) irc=ipclose(-1)

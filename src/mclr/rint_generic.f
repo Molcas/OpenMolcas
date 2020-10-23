@@ -12,6 +12,7 @@
 ************************************************************************
       SubRoutine RInt_Generic(rkappa,rmos,rmoa,Fock,Q,Focki,Focka,
      &               idsym,reco,jspin)
+      use Arrays, only: CMO_Inv
 *
 *                              ~
 *     Constructs  F  = <0|[E  ,H]|0> ( + <0|[[E  , Kappa],H]|0> )
@@ -243,6 +244,7 @@
 **      Compute the whole thing
 *
         iread=2 ! Asks to read the half-transformed Cho vectors
+        ip_CMO_Inv = ip_of_work(CMO_Inv)
         Call CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2x,ipkappa,
      &                   ipJI,ipKI,ipJA,ipKA,ipFockI,ipFockA,
      &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
