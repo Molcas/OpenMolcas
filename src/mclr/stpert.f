@@ -15,12 +15,14 @@
 #include "Pointers.fh"
 #include "disp_mclr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "spin.fh"
 #include "cstate_mclr.fh"
 #include "Files_mclr.fh"
-      Character*16 Label
-      Character*8  MckLbl
-      Character*288 Header
+      Character(LEN=16) Label
+      Character(LEN=8)  MckLbl
+      Character(LEN=288) Header
+      Real*8, Allocatable:: Tmp1(:), Tmp2(:)
 *
       nLen=0
       Do iS=1,nSym
@@ -157,15 +159,16 @@
      &                 Work(ipfm),Work(ipfp),
      %                 Work(ipg1m),work(ipg1p),
      &                 itype)
-         Call GETMEM('Tmp2','ALLO','REAL',ipTmp2,ndens2)
-         Call GETMEM('Tmp1','MAX','REAL',iptmp1,nMax)
-         Call GETMEM('Tmp1','ALLO','REAL',iptmp1,nMax/2)
-         Call Ex_spin(Work(ipg1p),Work(ipFAMO_Spinp),Work(ipTmp1),
-     &                nMax/2,Work(ipTmp2))
-         Call Ex_spin(Work(ipg1m),Work(ipFAMO_Spinm),Work(ipTmp1),
-     &              nMax/2,Work(ipTmp2))
-         Call GetMem('Tmp1','FREE','REAL',iptmp1,nmax/2)
-         Call GetMem('tmp2','FREE','REAL',ipTmp2,ndens2)
+
+         Call mma_allocate(Tmp2,ndens2,Label='Tmp2')
+         Call mma_MaxDBLE(nMax)
+         Call mma_allocate(Tmp1,nMax/2,Label='Tmp1')
+
+         Call Ex_spin(Work(ipg1p),Work(ipFAMO_Spinp),Tmp1,nMax/2,Tmp2)
+         Call Ex_spin(Work(ipg1m),Work(ipFAMO_Spinm),Tmp1,nMax/2,Tmp2)
+
+         Call mma_deallocate(Tmp1)
+         Call mma_deallocate(Tmp2)
       End If
 *
       Return
