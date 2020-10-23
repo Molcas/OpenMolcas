@@ -44,6 +44,7 @@
       integer opout
       Logical lPrint
       Real*8 rdum(1)
+      Real*8 d_0
       Real*8, Allocatable:: Kappa(:), dKappa(:), Sigma(:),
      &                      Temp1(:), Temp2(:), Temp3(:), Temp4(:),
      &                      Sc1(:), Sc2(:), Sc3(:),
@@ -246,7 +247,7 @@
      &                       Pens,rdum,rdum,rdum,rdum,
      &                       Dens,rdum,1)
 
-              d_0=ddot_(nconf1,Work(ipin(ipCid)),1,Work(ipin(ipci)),1)
+               d_0=ddot_(nconf1,Work(ipin(ipCid)),1,Work(ipin(ipci)),1)
                Call FockGen_sp(d_0,Dens,Pens,Sc3,Sc1,1)
                Call DSCAL_(ndens2,-rms*sqrt(1.5d0),Sc1,1)
 

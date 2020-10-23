@@ -27,6 +27,7 @@
 
 #include "Input.fh"
 #include "WrkSpc.fh"
+      Real*8 d_0
       Real*8 Fock(nDens2),fockout(*),
      &       rdens2(*),rDens1(nna*nna)
       Parameter ( half  = 0.5d0 )
