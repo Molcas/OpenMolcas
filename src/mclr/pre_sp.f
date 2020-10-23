@@ -14,7 +14,7 @@
       return
 c Avoid unused argument warnings
       If (.False.) Then
-        Call Unused_real(rdum)
+        Call Unused_real_array(rdum)
         Call Unused_integer(idum)
       End If
       end
