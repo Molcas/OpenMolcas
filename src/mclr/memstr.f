@@ -77,14 +77,16 @@
           Str(ITYP)%STREO => Str(ITYP)%STREO_Hidden
 
 *. Symmetry and class of each string
-          Call GetMem('STSM  ','ALLO','INTEGER',KSTSM(ITYP),NSTRIN)
-          Call GetMem('STCL  ','ALLO','INTEGER',KSTCL(ITYP),NSTRIN)
+          Call mma_allocate(Str(ITYP)%STSM_Hidden,NSTRIN)
+          Str(ITYP)%STSM  => Str(ITYP)%STSM_Hidden
+          Call mma_allocate(Str(ITYP)%STCL_Hidden,NSTRIN)
+          Str(ITYP)%STCL  => Str(ITYP)%STCL_Hidden
         ELSE
           IITYP = - IUNIQTP(ITYP)
           Str(ITYP)%OCSTR => Str(IITYP)%OCSTR_Hidden
           Str(ITYP)%STREO => Str(IITYP)%STREO_Hidden
-          KSTSM(ITYP)  = KSTSM(IITYP)
-          KSTCL(ITYP)  = KSTCL(IITYP)
+          Str(ITYP)%STSM  => Str(IITYP)%STSM_Hidden
+          Str(ITYP)%STCL  => Str(IITYP)%STCL_Hidden
         END IF
       END DO
 

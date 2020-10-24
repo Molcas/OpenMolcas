@@ -217,12 +217,12 @@ c Avoid unused argument warnings
       DIMENSION IOOS(NOCTYP(IAGRP),NOCTYP(IBGRP),*)
 *
       IABNUM = IABNUS(IASTR,NELEC(IAGRP),Str(IAGRP)%STREO,
-     &         iWORK(KSTCL(IAGRP)),iWORK(KSTSM(IAGRP)),
+     &                Str(IAGRP)%STCL,Str(IAGRP)%STSM,
      &             NOCTYP(IAGRP),
      &         iWORK(KZ(IAGRP)),iWORK(KISTSO(IAGRP)),
      &         iWORK(KNSTSO(IAGRP)),
      &                IBSTR,NELEC(IBGRP),Str(IBGRP)%STREO,
-     &         iWORK(KSTCL(IBGRP)),iWORK(KSTSM(IBGRP)),NOCTYP(IBGRP),
+     &         Str(IBGRP)%STCL,Str(IBGRP)%STSM,NOCTYP(IBGRP),
      &         iWORK(KZ(IBGRP)),iWORK(KISTSO(IBGRP)),
      &     iWORK(KNSTSO(IBGRP)),
      &         IOOS,NORB,IGENSG,ISGNA,ISGNB,ISGNAB,PSSIGN,IPSFAC,

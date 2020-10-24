@@ -90,7 +90,7 @@
      &             NSMST*NOCTYP(ITYP) )
 *. Symmetry and class index for each string
          CALL ZSMCL(NSMST,NOCTYP(ITYP),iWork(KNSTSO(ITYP)),
-     &              iwork(KSTSM(ITYP)),iWork(KSTCL(ITYP)) )
+     &              Str(ITYP)%STSM,Str(ITYP)%STCL )
         END IF
    30 CONTINUE
 *

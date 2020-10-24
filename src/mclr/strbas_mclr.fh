@@ -13,8 +13,6 @@
 *        KISTSO        :         Offset of strings per symmetry and occupation
 *        KSTSTM        :        ?
 *        KZ        :         Lexical adressing of arrays
-*        KSTSM        :        Symmetry of each string
-*        KSTCL        :        Class of each string
 *        KEL1         :        Number of electrons in RAS1 per sub type
 *        KEL3        :        Number of electrons in RAS3 per sub type
 *        KEL123        :        -"-    But array
@@ -35,7 +33,6 @@
 *        KSTSTMN        :                  "
       Integer KSTINF,KNSTSO(MXPSTT),KISTSO(MXPSTT),
      &              KSTSTM(MXPSTT,2),KZ(MXPSTT),
-     &              KSTSM(MXPSTT),KSTCL(MXPSTT),
      &              KEL1(MXPSTT),KEL3(MXPSTT),Kel123(MXPSTT),
      &              KACTP(MXPSTT),
      &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,
@@ -44,7 +41,6 @@
      &              KSTSTMI(MXPSTT),KSTSTMN(MXPSTT)
       COMMON/STRBAS_MCLR/KSTINF,KNSTSO,KISTSO,
      &              KSTSTM,KZ,
-     &              KSTSM,KSTCL,
      &              KEL1,KEL3,Kel123,
      &              KACTP,
      &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,

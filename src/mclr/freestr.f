@@ -65,14 +65,15 @@
           Str(ITYP)%STREO => Null()
           Call mma_deallocate(Str(ITYP)%STREO_Hidden)
 *. Symmetry and class of each string
-          Call GetMem('STSM  ','Free','INTEGER',KSTSM(ITYP),nDum)
-          Call GetMem('STCL  ','Free','INTEGER',KSTCL(ITYP),nDum)
+          Str(ITYP)%STSM => Null()
+          Call mma_deallocate(Str(ITYP)%STSM_Hidden)
+          Str(ITYP)%STCL => Null()
+          Call mma_deallocate(Str(ITYP)%STCL_Hidden)
         ELSE
           Str(ITYP)%OCSTR => Null()
           Str(ITYP)%STREO => Null()
-          IITYP = - IUNIQTP(ITYP)
-          KSTSM(ITYP)  = KSTSM(IITYP)
-          KSTCL(ITYP)  = KSTCL(IITYP)
+          Str(ITYP)%STSM => Null()
+          Str(ITYP)%STCL => Null()
         END IF
    10 CONTINUE
 *. Number of strings per symmetry and occupation
