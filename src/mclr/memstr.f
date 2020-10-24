@@ -49,7 +49,6 @@
       IF(NTEST.NE.0) WRITE(6,*) ' First word with string information',
      &                           KSTINF
 *
-      Call ICopy(MXPSTT,[ip_iDummy],0,KISTSO,1)
       Call ICopy(MXPSTT,[ip_iDummy],0,KEL1  ,1)
       Call ICopy(MXPSTT,[ip_iDummy],0,KEL3  ,1)
       Call ICopy(MXPSTT,[ip_iDummy],0,KEL123,1)
@@ -96,8 +95,9 @@
      &                       Label='NSTSO')
           Str(ITYP)%NSTSO => Str(ITYP)%NSTSO_Hidden
 *. Offset of strings per symmetry and occupation
-        Call GetMem('ISTSO ','ALLO','INTEGER',
-     &             KISTSO(ITYP),NOCTYP(ITYP)*NSMST)
+           Call mma_allocate(Str(ITYP)%ISTSO_Hidden,NOCTYP(ITYP)*NSMST,
+     &                       Label='NSTSO')
+          Str(ITYP)%ISTSO => Str(ITYP)%ISTSO_Hidden
 *. Number of electrons in RAS1 and RAS3 per sub type, is sub-type active
         Call GetMem('IEL1  ','ALLO','INTEGER',
      &              KEL1(ITYP),NOCTYP(ITYP))
@@ -116,7 +116,7 @@ CMS: New array introduced according to Jeppes new strinfo representation
 *. redirect
           IITYP = - IUNIQTP(ITYP)
           Str(ITYP)%NSTSO => Str(IITYP)%NSTSO_Hidden
-          KISTSO(ITYP) = KISTSO(IITYP)
+          Str(ITYP)%ISTSO => Str(IITYP)%ISTSO_Hidden
           KEL1(ITYP)   = KEL1(IITYP)
           KEL3(ITYP)   = KEL3(IITYP)
           KACTP(ITYP)  = KACTP(IITYP)

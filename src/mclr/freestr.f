@@ -82,7 +82,8 @@
           Str(ITYP)%NSTSO => Null()
           Call mma_deallocate(Str(ITYP)%NSTSO_Hidden)
 *. Offset of strings per symmetry and occupation
-        Call GetMem('ISTSO ','Free','INTEGER',KISTSO(ITYP),nDum)
+          Str(ITYP)%ISTSO => Null()
+          Call mma_deallocate(Str(ITYP)%ISTSO_Hidden)
 *. Number of electrons in RAS1 and RAS3 per sub type, is sub-type active
         Call GetMem('IEL1  ','Free','INTEGER',KEL1(ITYP),nDum)
         Call GetMem('IEL3  ','Free','INTEGER',KEL3(ITYP),nDum)
@@ -95,7 +96,7 @@ CMS: New array introduced according to Jeppes new strinfo representation
 *. redirect
           IITYP = - IUNIQTP(ITYP)
           Str(ITYP)%NSTSO => Null()
-          KISTSO(ITYP) = KISTSO(IITYP)
+          Str(ITYP)%ISTSO => Null()
           KEL1(ITYP)   = KEL1(IITYP)
           KEL3(ITYP)   = KEL3(IITYP)
           KACTP(ITYP)  = KACTP(IITYP)

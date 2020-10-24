@@ -86,7 +86,7 @@
      &                   MXRS3(ITYP),KFREEL,NACOB,Str(ITYP)%NSTSO,
      &                   NOCTYP(ITYP),NSMST,ITYP,IPRNT)
 *. Corresponding offset array
-        CALL ZBASE(Str(ITYP)%NSTSO,iwork(KISTSO(ITYP)),
+        CALL ZBASE(Str(ITYP)%NSTSO,Str(ITYP)%ISTSO,
      &             NSMST*NOCTYP(ITYP) )
 *. Symmetry and class index for each string
          CALL ZSMCL(NSMST,NOCTYP(ITYP),Str(ITYP)%NSTSO,
@@ -99,7 +99,7 @@
       DO 40 ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
         CALL GENSTR_MCLR(NELEC(ITYP),MNRS1(ITYP),MXRS1(ITYP),
-     &                   MNRS3(ITYP),MXRS3(ITYP),iWork(KISTSO(ITYP)),
+     &                   MNRS3(ITYP),MXRS3(ITYP),Str(ITYP)%ISTSO,
      &                   NOCTYP(ITYP),NSMST,iwork(KZ(ITYP)),KFREEL,
      &                   Str(ITYP)%STREO,Str(ITYP)%OCSTR,
      &                   KFREEL(1+NOCTYP(ITYP)*NSMST),ITYP,IPRNT)

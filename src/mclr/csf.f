@@ -219,11 +219,11 @@ c Avoid unused argument warnings
       IABNUM = IABNUS(IASTR,NELEC(IAGRP),Str(IAGRP)%STREO,
      &                Str(IAGRP)%STCL,Str(IAGRP)%STSM,
      &                NOCTYP(IAGRP),
-     &         iWORK(KZ(IAGRP)),iWORK(KISTSO(IAGRP)),
+     &         iWORK(KZ(IAGRP)),Str(IAGRP)%ISTSO,
      &         Str(IAGRP)%NSTSO,
      &                IBSTR,NELEC(IBGRP),Str(IBGRP)%STREO,
      &         Str(IBGRP)%STCL,Str(IBGRP)%STSM,NOCTYP(IBGRP),
-     &         iWORK(KZ(IBGRP)),iWORK(KISTSO(IBGRP)),
+     &         iWORK(KZ(IBGRP)),Str(IBGRP)%ISTSO,
      &         Str(IBGRP)%NSTSO,
      &         IOOS,NORB,IGENSG,ISGNA,ISGNB,ISGNAB,PSSIGN,IPSFAC,
      &         IPRNT)

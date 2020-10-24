@@ -15,6 +15,8 @@
 !        STSM         :        Symmetry of each string
 !        STCL         :        Class of each string
 !        NSTSO        :        Number of strings per symmetry and occupation
+!        ISTSO        :        Offset of strings per symmetry and occupation
+
 
 
 Module Str_Info
@@ -31,6 +33,8 @@ Module Str_Info
            Integer, Allocatable:: STCL_hidden(:)
            Integer, Pointer:: NSTSO(:)=>Null()
            Integer, Allocatable:: NSTSO_hidden(:)
+           Integer, Pointer:: ISTSO(:)=>Null()
+           Integer, Allocatable:: ISTSO_hidden(:)
       End Type String_Info
 
       Type (String_Info), Allocatable, Target:: Str(:)
