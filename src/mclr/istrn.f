@@ -11,6 +11,7 @@
 * Copyright (C) 1993, Jeppe Olsen                                      *
 ************************************************************************
       FUNCTION ISTRN_MCLR(STRING,IGROUP)
+      Use Str_Info
 *
 * A string belonging to group IGROUP is given.
 * find actual number
@@ -29,7 +30,7 @@
 
       NEL = NELEC(IGROUP)
       ISTRN_MCLR = ISTRNM(STRING,NACOB,NEL,iWORK(KZ(IGROUP)),
-     &               iWORK(KSTREO(IGROUP)),1)
+     &               Str(IGROUP)%STREO,1)
 *
 *
       RETURN

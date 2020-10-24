@@ -11,6 +11,7 @@
 * Copyright (C) 1990,1994,1995, Jeppe Olsen                            *
 ************************************************************************
       SUBROUTINE FREESTR
+      Use Str_Info
 *
 *
 * Free pointers for saving information about strings and
@@ -37,6 +38,7 @@
 *
 #include "detdim.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "orbinp_mclr.fh"
 #include "strinp_mclr.fh"
 #include "strbas_mclr.fh"
@@ -58,14 +60,17 @@
       DO 10 ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
 *.  Offsets for occupation of strings and reordering array
-          Call GetMem('OCSTR ','Free','INTEGER',KOCSTR(ITYP),nDum)
-          Call GetMem('STREO','Free','INTEGER',KSTREO(ITYP),nDum)
+          Str(ITYP)%OCSTR => Null()
+          Call mma_deallocate(Str(ITYP)%OCSTR_Hidden)
+          Str(ITYP)%STREO => Null()
+          Call mma_deallocate(Str(ITYP)%STREO_Hidden)
 *. Symmetry and class of each string
           Call GetMem('STSM  ','Free','INTEGER',KSTSM(ITYP),nDum)
           Call GetMem('STCL  ','Free','INTEGER',KSTCL(ITYP),nDum)
         ELSE
+          Str(ITYP)%OCSTR => Null()
+          Str(ITYP)%STREO => Null()
           IITYP = - IUNIQTP(ITYP)
-          KSTREO(ITYP) = KSTREO(IITYP)
           KSTSM(ITYP)  = KSTSM(IITYP)
           KSTCL(ITYP)  = KSTCL(IITYP)
         END IF

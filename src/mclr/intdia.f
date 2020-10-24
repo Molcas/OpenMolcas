@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 
-      SUBROUTINE INTDIA(DIAG,NSPC,ISPC,ISM,LSPC,
-     &           IAMCMP,ecore)
+      SUBROUTINE INTDIA(DIAG,NSPC,ISPC,ISM,LSPC,IAMCMP,ecore)
+      Use Str_Info
 *
 * CI diagonal in SD basis for the NCSPC ci spaces defined by
 * ISPC,ISM
@@ -133,8 +133,8 @@
         ELSE
           LLUDIA = LUDIA
         END IF
-        CALL CIDIA4(NAEL,iWORK(KOCSTR(IATP)),
-     &              NBEL,iWORK(KOCSTR(IBTP)),
+        CALL CIDIA4(NAEL,Str(IATP)%OCSTR,
+     &              NBEL,Str(IBTP)%OCSTR,
      &       NACOB,DIAG,NSMST,WORK(KLH1D),
      &       ISMOST(1,ISM(IISPC)),iWORK(KLBLTP),
      &       WORK(KLXA),WORK(KLXB),WORK(KLSCR),WORK(KLJ),

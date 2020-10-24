@@ -202,6 +202,7 @@ c Avoid unused argument warnings
       FUNCTION IABNUM(IASTR,IBSTR,IAGRP,IBGRP,IGENSG,
      &                ISGNA,ISGNB,ISGNAB,IOOS,NORB,IPSFAC,PSSIGN,
      &                IPRNT)
+      Use Str_info
 *
 * Encapsulation routine for IABNUS
 *
@@ -215,12 +216,12 @@ c Avoid unused argument warnings
 #include "WrkSpc.fh"
       DIMENSION IOOS(NOCTYP(IAGRP),NOCTYP(IBGRP),*)
 *
-      IABNUM = IABNUS(IASTR,NELEC(IAGRP),iWORK(KSTREO(IAGRP)),
+      IABNUM = IABNUS(IASTR,NELEC(IAGRP),Str(IAGRP)%STREO,
      &         iWORK(KSTCL(IAGRP)),iWORK(KSTSM(IAGRP)),
      &             NOCTYP(IAGRP),
      &         iWORK(KZ(IAGRP)),iWORK(KISTSO(IAGRP)),
      &         iWORK(KNSTSO(IAGRP)),
-     &                IBSTR,NELEC(IBGRP),iWORK(KSTREO(IBGRP)),
+     &                IBSTR,NELEC(IBGRP),Str(IBGRP)%STREO,
      &         iWORK(KSTCL(IBGRP)),iWORK(KSTSM(IBGRP)),NOCTYP(IBGRP),
      &         iWORK(KZ(IBGRP)),iWORK(KISTSO(IBGRP)),
      &     iWORK(KNSTSO(IBGRP)),

@@ -11,6 +11,7 @@
 * Copyright (C) 1990,1994, Jeppe Olsen                                 *
 ************************************************************************
       SUBROUTINE MEMSTR
+      Use Str_Info
 *
 *
 * Construct pointers for saving information about strings and
@@ -35,6 +36,7 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 *
 #include "detdim.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "orbinp_mclr.fh"
 #include "strinp_mclr.fh"
@@ -44,8 +46,8 @@
       LENGTH=100
 *. Start of string information
       NTEST = 0000
-      IF(NTEST.NE.0)
-     &WRITE(6,*) ' First word with string information',KSTINF
+      IF(NTEST.NE.0) WRITE(6,*) ' First word with string information',
+     &                           KSTINF
 *
       Call ICopy(MXPSTT,[ip_iDummy],0,KNSTSO,1)
       Call ICopy(MXPSTT,[ip_iDummy],0,KISTSO,1)
@@ -60,26 +62,32 @@
 *
 * =====================================================================
 *
+      Allocate(Str(1:NSTTYP))
+
       IIITEST = 1
-      DO 10 ITYP = 1, NSTTYP
+      DO ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
         NSTRIN = NUMST3(NELEC(ITYP),NORB1,MNRS1(ITYP),MXRS1(ITYP),
      &                  NORB2,NORB3,MNRS3(ITYP),MXRS3(ITYP) )
         LSTRIN = NSTRIN * NELEC(ITYP)
 *.  Offsets for occupation of strings and reordering array
-          Call GetMem('OCSTR ','ALLO','INTEGER',KOCSTR(ITYP),LSTRIN)
-          Call GetMem('STREO ','ALLO','INTEGER',KSTREO(ITYP),NSTRIN)
+          Call mma_allocate(Str(ITYP)%OCSTR_Hidden,LSTRIN)
+          Str(ITYP)%OCSTR => Str(ITYP)%OCSTR_Hidden
+          Call mma_allocate(Str(ITYP)%STREO_Hidden,NSTRIN)
+          Str(ITYP)%STREO => Str(ITYP)%STREO_Hidden
+
 *. Symmetry and class of each string
           Call GetMem('STSM  ','ALLO','INTEGER',KSTSM(ITYP),NSTRIN)
           Call GetMem('STCL  ','ALLO','INTEGER',KSTCL(ITYP),NSTRIN)
         ELSE
           IITYP = - IUNIQTP(ITYP)
-          KOCSTR(ITYP) = KOCSTR(IITYP)
-          KSTREO(ITYP) = KSTREO(IITYP)
+          Str(ITYP)%OCSTR => Str(IITYP)%OCSTR_Hidden
+          Str(ITYP)%STREO => Str(IITYP)%STREO_Hidden
           KSTSM(ITYP)  = KSTSM(IITYP)
           KSTCL(ITYP)  = KSTCL(IITYP)
         END IF
-   10 CONTINUE
+      END DO
+
 *. Number of strings per symmetry and occupation
       DO ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
@@ -114,6 +122,7 @@ CMS: New array introduced according to Jeppes new strinfo representation
           KEL123(ITYP) = KEL123(IITYP)
         END IF
       END DO
+
 CMS: Introduced according to Jeppes new concept.
 CMS: NB! WORK(KEL123(ITYP) added to IEL13 parameter list!
 CMS: Be aware that IEL13 is also called in STRINF
@@ -125,6 +134,7 @@ CMS: Be aware that IEL13 is also called in STRINF
      &             iWORK(KACTP(ITYP)) )
         END IF
       END DO
+
 *. Mappings between different string types
       DO ITYP = 1, NSTTYP
 c          write(6,*) nelec(ityp),nstrin
@@ -207,6 +217,7 @@ C     &      ' Map for ITYP=',ITYP,' corresponds to map for JTYP=',
 C     &        -IUNIQMP(ITYP)
           END IF
       END DO
+
 *. Symmetry of conjugated orbitals and orbital excitations
 *     KCOBSM,KNIFSJ,KIFSJ,KIFSJO
       Call GetMem('Cobsm ','ALLO','INTEGER',KCOBSM,NACOB)
@@ -218,12 +229,13 @@ C     &        -IUNIQMP(ITYP)
 *
 **. Up and down mappings of strings containing the same number of electrons
 *
-      DO 70 ITYP = 1, NSTTYP
+      DO ITYP = 1, NSTTYP
        IF(INUMAP(ITYP).NE.0)
      &Call GetMem('Numup ','ALLO','INTEGER',KNUMAP(ITYP),NSTFTP(ITYP))
        IF(INDMAP(ITYP).NE.0)
      &Call GetMem('Ndmup ','ALLO','INTEGER',KNDMAP(ITYP),NSTFTP(ITYP))
-   70 CONTINUE
+      END DO
+
 *. Last word of string information
       RETURN
       END

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE STRINF(IPRNT)
+      Use Str_Info
 *
 * Strings for internal space.
 * Information is stored in
@@ -100,7 +101,7 @@
         CALL GENSTR_MCLR(NELEC(ITYP),MNRS1(ITYP),MXRS1(ITYP),
      &                   MNRS3(ITYP),MXRS3(ITYP),iWork(KISTSO(ITYP)),
      &                   NOCTYP(ITYP),NSMST,iwork(KZ(ITYP)),KFREEL,
-     &                   iWork(KSTREO(ITYP)),iWork(KOCSTR(ITYP)),
+     &                   Str(ITYP)%STREO,Str(ITYP)%OCSTR,
      &                   KFREEL(1+NOCTYP(ITYP)*NSMST),ITYP,IPRNT)
         END IF
    40 CONTINUE
@@ -123,9 +124,9 @@
           END IF
           Call iCOPY(NSTFTP(ITYP)*LROW,[0],0,iWork(KSTSTM(ITYP,1)),1)
           Call iCOPY(NSTFTP(ITYP)*LROW,[0],0,iWork(KSTSTM(ITYP,2)),1)
-          CALL ANNSTR(iWork(KOCSTR(ITYP)),NSTFTP(ITYP),NSTFTP(JTYP),
+          CALL ANNSTR(Str(ITYP)%OCSTR,NSTFTP(ITYP),NSTFTP(JTYP),
      &                NELEC(ITYP),NACOB,iWork(KZ(JTYP)),
-     &                iwork(KSTREO(JTYP)),LROW,0,ISGSTI,ISGSTO,
+     &                Str(JTYP)%STREO,LROW,0,ISGSTI,ISGSTO,
      &                iwork(KSTSTM(ITYP,1)),iwork(KSTSTM(ITYP,2)),
      &                JTYP,IPRNT)
         END IF
@@ -150,9 +151,9 @@
           WRITE(6,*) ' Creator  arrays between types ',ITYP,JTYP
           WRITE(6,*) ' ==========================================='
           END IF
-          CALL CRESTR(iwork(KOCSTR(ITYP)),NSTFTP(ITYP),NSTFTP(JTYP),
+          CALL CRESTR(Str(ITYP)%OCSTR,NSTFTP(ITYP),NSTFTP(JTYP),
      &                NELEC(ITYP),NACOB,iwork(KZ(JTYP)),
-     &                iwork(KSTREO(JTYP)),0,ISGSTI,ISGSTO,
+     &                Str(JTYP)%STREO,0,ISGSTI,ISGSTO,
      &                iwork(KSTSTM(ITYP,1)),iwork(KSTSTM(ITYP,2)),
      &                iWORK(KSTSTMN(ITYP)),iWORK(KSTSTMI(ITYP)),
      &                LROW,JTYP,IPRNT)

@@ -15,6 +15,7 @@
      &                 NINOC,ECORE,IPRODT,DTOC,
      &                 NORB,ICOMBI,PSSIGN,NTERMS,NDIF0,NDIF1,NDIF2,
      &                 NTEST)
+      Use Str_Info
 *
 * Obtain Hamilton matrix over CSFs of configurations ICNL,ICNR
 *
@@ -33,7 +34,6 @@
       DIMENSION CNHCNM(*)
 *. Interface to LUCIA common blocks in order to access strings
 #include "detdim.fh"
-#include "WrkSpc.fh"
 #include "strbas_mclr.fh"
 *
 #include "spinfo_mclr.fh"
@@ -142,8 +142,8 @@ c Avoid unused argument warnings
      &              iSCRar,iSCRbr,NDETR,
      &              NAEL,NBEL,iSCRnn,LWORK,NORB,
      &              SCR(KLDHD),ISYM,0,ECOREP,ICOMBI,PSSIGN,
-     &              iWORK(KOCSTR(IAGRP)),iWORK(KOCSTR(IBGRP)),
-     &              iWORK(KOCSTR(IAGRP)),iWORK(KOCSTR(IBGRP)),
+     &              Str(IAGRP)%OCSTR, Str(IBGRP)%OCSTR,
+     &              Str(IAGRP)%OCSTR, Str(IBGRP)%OCSTR,
      &              0,IDUMMY,IDUMMY,IDUMMY,IDUMMY,iSCR,
      &              iSCRn,NDIF0,NDIF1,NDIF2,NTEST)
         NULLIFY(iSCR,iSCRa,iSCRb,iSCRar,iSCRbr,iSCRn,iSCRnn)

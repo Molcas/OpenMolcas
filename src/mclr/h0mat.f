@@ -85,7 +85,7 @@
 *    &            SBEVL,1,NCIVAR,ISBDET,ISBIA,ISBIB,
 *    &            MXP1,MXP2,MXQ,
 *    &            MP1CSF,MP2CSF,MQCSF,
-*    &            iWORK(KOCSTR(IATP)),iWORK(KOCSTR(IBTP)),
+*    &            Str(IATP)%OCSTR, Str(IBTP)%OCSTR,
 *    &            ISTSGN,IDUMMY,IDUMMY,
 *    &            INTSPC,IPRT)
 *     ELSE IF (NOCSF.EQ.0) THEN
