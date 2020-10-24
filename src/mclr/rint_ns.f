@@ -10,9 +10,7 @@
 *                                                                      *
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
-      SubRoutine RInt_ns(rkappa,rmo,Fock,Focki,
-     &               idsym,reco,jspin,rie)
-*
+      SubRoutine RInt_ns(rkappa,rmo,Fock,Focki,idsym,reco,jspin,rie)
 *                              ~
 *     Constructs  F  = <0|[E  ,H]|0>
 * added in rinttd ( + <0|[[E  , Kappa],H]|0> )
@@ -33,24 +31,24 @@ c
 #include "Input.fh"
 #include "Pointers.fh"
 #include "WrkSpc.fh"
+#include "real.fh"
+#include "stdalloc.fh"
 #include "glbbas_mclr.fh"
       Real*8 Fock(nDens2),rkappa(nDens2),
      &       Focki(ndens2),rMO(*)
+      Real*8, Allocatable:: FA(:), MT1(:), MT2(:), QA(:), QB(:)
 *
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
-      Call GETMEM('FA','ALLO','REAL',ipFA,ndens2)
+      Call mma_allocate(FA,ndens2,Label='FA')
 c Fact controls the sign of H(k)
-      Fact=1.0d0
-      One=1.0d0
-      Call GetMem('MOTemp1','ALLO','REAL',ipMT1,nmba)
-      Call GetMem('MOTemp2','ALLO','REAL',ipMT2,nmba)
-      call dcopy_(nmba,[0.0d0],0,Work(ipMT1),1)
-      call dcopy_(nmba,[0.0d0],0,Work(ipMT2),1)
+      Fact=One
+      Call mma_allocate(MT1,nmba,Label='MT1')
+      Call mma_allocate(MT2,nmba,Label='MT2')
+      MT1(:) = Zero
+      MT2(:) = Zero
 
-*      Call GetMem('MOTemp2','CHEC','REAL',ipMT2,nmba)
-      Call R2ElInt_ns(rkappa,work(ipMT1),work(ipMT2),
-     %             focki,Work(ipFA),
+      Call R2ElInt_ns(rkappa,MT1,MT2,focki,FA,
      &             nDens2,idSym,ReCo,Fact,jspin)
 C
       If (.false.) Then  !If (idsym.eq.2) Then
@@ -69,26 +67,20 @@ C
       End If
 C
 
-*      Call GetMem('MO1emp1','CHEC','REAL',ipMT2,nmba)
-*
-*
-*
-      call dcopy_(ndens2,[0.0d0],0,Fock,1)
-*
+      Fock(:) = Zero
 *
 *     Q  = sum(jkl)=(pj|kl)d(ijkl)
 *      pi
 *
       If (iMethod.eq.2) Then
-       Call GetMem('QTemp','ALLO','REAL',ipqA,ndens2)
-       Call GetMem('QTemp','ALLO','REAL',ipqB,ndens2)
-       Call CreQ_td(Work(ipQB),Work(ipMT1),Work(ipG2sq),idsym)
-       Call CreQ_td(Work(ipQA),Work(ipMT2),Work(ipG2sq),idsym)
+       Call mma_allocate(qA,ndens2,Label='QA')
+       Call mma_allocate(qB,ndens2,Label='QB')
+       Call CreQ_td(QB,MT1,Work(ipG2sq),idsym)
+       Call CreQ_td(QA,MT2,Work(ipG2sq),idsym)
       End If
 *
-*      Call RECPRT('IpQB',' ',Work(ipQB),nDens2,1)
-*      Call RECPRT('IpQA',' ',Work(ipQA),nDens2,1)
-*      Call GetMem('MO12mp1','CHEC','REAL',ipMT2,nmba)
+*      Call RECPRT('QB',' ',QB,nDens2,1)
+*      Call RECPRT('QA',' ',QA,nDens2,1)
 *
       Do iS=1,nSym
        jS=iEOr(iS-1,idsym-1)+1
@@ -97,32 +89,30 @@ C
 *      F  =2( F  + F  )
 *       pi     pi   pi
 *
-       Call DGEADD2(2.0d0,
+       Call DGEADD2(Two,
      &              Focki(ipMat(is,js)),nBas(is),'N',
      &              Fock(ipMat(is,js)),nBas(is),'N',
      %              Fock(ipMat(is,js)),nBas(is),
      &              nbas(is),nish(js))
-       Call DGEADD2(-2.0d0,
+       Call DGEADD2(-Two,
      &             Focki(ipMat(is,js)),nBas(is),'N',
      &             Fock(ipMat(is,js)),nBas(is),'N',
      %             Fock(ipMat(is,js)),nBas(is),
      &             nish(is),nBas(js))
-*      Call GetMem('MO1e2p1','CHEC','REAL',ipMT2,nmba)
        If (iMethod.eq.2) Then
 c
 c 61-121 is all to do with multiconf
 c
-       Call DGEADD2(2.0d0,
-     &              Work(ipFA-1+ipMat(is,js)),nBas(is),'N',
+       Call DGEADD2(Two,
+     &              FA(ipMat(is,js)),nBas(is),'N',
      &              Fock(ipMat(is,js)),nBas(is),'N',
      %              Fock(ipMat(is,js)),nBas(is),
      &              nbas(is),nIsh(js))
-       Call DGEADD2(-2.0d0,
-     &             Work(ipFA-1+ipMat(is,js)),nBas(is),'N',
+       Call DGEADD2(-Two,
+     &             FA(ipMat(is,js)),nBas(is),'N',
      &             Fock(ipMat(is,js)),nBas(is),'N',
      %             Fock(ipMat(is,js)),nBas(is),
      &             nish(is),nBas(js))
-*      Call GetMem('MO1e241','CHEC','REAL',ipMT2,nmba)
 
        Do iAsh=1,nAsh(jS)
         Do jAsh=1,nAsh(js)
@@ -160,42 +150,38 @@ c
      &               Fock(ipF),nbas(is))
         End Do
        End Do
-*      Call GetMem('MO12241','CHEC','REAL',ipMT2,nmba)
 
        Call DGEADD(Fock(ipMat(is,js)+nbas(is)*nish(js)),nBas(is),'N',
-     &              Work(ipQB+ipMatba(is,js)-1),nBas(is),'N',
+     &              QB(ipMatba(is,js)),nBas(is),'N',
      %              Fock(ipMat(is,js)+nbas(is)*nish(js)),nBas(is),
      &              nBas(is),nAsh(js))
        Call DGESUB(Fock(ipMat(is,js)+nish(is)),nBas(is),'N',
-     &              Work(ipQA+ipMatba(js,is)-1),nBas(js),'T',
+     &              QA(ipMatba(js,is)),nBas(js),'T',
      %              Fock(ipMat(is,js)+nish(is)),nBas(is),
      &              nash(is),nBas(js))
       End If
 * Transpose ipsc2
-*     Call GetMem('Temp','ALLO','REAL',ipT,nbas(is)*nbas(jS))
-*     call dcopy_(nbas(is)*nbas(jS),[0.0d0],0,Work(ipT),1)
+*     Call mma_allocate(T,nbas(is)*nbas(jS),Label='T')
+*     call dcopy_(nbas(is)*nbas(jS),[0.0d0],0,T,1)
 *     Call DGETMO(Fock(ipmat(is,js)),nbas(is),
-*    &                nbas(is),nbas(js),Work(ipT),
+*    &                nbas(is),nbas(js),T,
 *    &                nbas(js))
-*     call dcopy_(nBas(jS)*nBas(iS),Work(ipT),
-*    &       1,Fock(ipmat(js,is)),1)
-*     Call GetMem('Temp','FREE','REAL',ipT,nbas(is)*nbas(jS))
+*     call dcopy_(nBas(jS)*nBas(iS),T,1,Fock(ipmat(js,is)),1)
+*     Call mma_deallocate(T)
 *
       End Do
-*      Call GetMem('M112241','CHEC','REAL',ipMT2,nmba)
       If (imethod.eq.2) Then
-      Call GetMem('QTEMP','FREE','REAL',ipQA,ndens2)
-      Call GetMem('QTEMP','FREE','REAL',ipQB,ndens2)
+         Call mma_deallocate(QA)
+         Call mma_deallocate(QB)
       End If
-
 *
-      Call DSCAL_(ndens2,-2.0d0,fock,1)
-      Call AddGrad(rKappa,Fock,idsym,2.0d0*(-fact))
-      Call PickMO_td(Work(ipMT1),rmo,idsym)
+      Call DSCAL_(ndens2,-Two,fock,1)
+      Call AddGrad(rKappa,Fock,idsym,Two*(-fact))
+      Call PickMO_td(MT1,rmo,idsym)
 *
-      Call GetMem('MOTemp2','FREE','REAL',ipMT2,nmba)
-      Call GetMem('MOTemp1','FREE','REAL',ipMT1,nmba)
-      Call GETMEM('FA','FREE','REAL',ipFA,ndens2)
+      Call mma_deallocate(MT2)
+      Call mma_deallocate(MT1)
+      Call mma_deallocate(FA)
 *
       return
 c Avoid unused argument warnings

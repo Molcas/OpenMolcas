@@ -22,6 +22,7 @@
 
 #include "Input.fh"
 #include "Pointers.fh"
+#include "real.fh"
 #include "stdalloc.fh"
 #include "glbbas_mclr.fh"
 #include "spin.fh"
@@ -41,49 +42,49 @@
       Call mma_allocate(Scr,ndensc,Label='Scr')
 *
       Call Oit_sp(rkappa,Scr,-1,1,
-     &            -1.0d0,G2mp,1.0d0,Fm,
+     &            -One,G2mp,One,Fm,
      &            G1m,FAMO_Spinm,
      &            MT1,MT2,Focki)
-*     Call DYAX(ndensc,rbetaA/2.0d0,SCR,1,sigma,1)
-      Call DYAX(ndensc,1.0d0,SCR,1,sigma,1)
+*     Call DYAX(ndensc,rbetaA/Two,SCR,1,sigma,1)
+      Call DYAX(ndensc,One,SCR,1,sigma,1)
       Call Recprt(' ',' ',SCR,ndensc,1)
 *
 *     kappa_S
 *
       Call Oit_sp(rkappa,Scr,1,1,
-     &            -1.0d0,G2mp,1.0d0,Fm,
+     &            -One,G2mp,One,Fm,
      &            G1m,FAMO_Spinm,
      &            MT1,MT2,Focki)
-*     call daxpy_(ndensc,-rbetaA/2.0d0,SCR,1,sigma,1)
-      call daxpy_(ndensc,-1.0d0,SCR,1,sigma,1)
+*     call daxpy_(ndensc,-rbetaA/Two,SCR,1,sigma,1)
+      call daxpy_(ndensc,-One,SCR,1,sigma,1)
       Call Recprt(' ',' ',SCR,ndensc,1)
 *
 *     alpha_S
 *
-      If (rbetas.ne.0.0d0) Then
+      If (rbetas.ne.Zero) Then
         Call Oit_sp(rkappa,Scr,-1,-1,
-     &            1.0d0,G2pp,1.0d0,Fp,
+     &            One,G2pp,One,Fp,
      &            G1p,FAMO_Spinp,
      &            MT1,MT2,Focki)
 *     call daxpy_(ndensc,rbetaS,SCR,1,sigma,1)
-      call daxpy_(ndensc,1.0d0,SCR,1,sigma,1)
+      call daxpy_(ndensc,One,SCR,1,sigma,1)
       Call Recprt(' ',' ',SCR,ndensc,1)
       End if
       Call Oit_sp(rkappa,Scr,-1,-1,
-     &            1.0d0,G2pp,1.0d0,G2mm,
+     &            One,G2pp,One,G2mm,
      &            G1p,Famo_spinp,
      &            MT1,MT2,Focki)
 *     call daxpy_(ndensc,ralphas,SCR,1,sigma,1)
       Call Recprt(' ',' ',SCR,ndensc,1)
 
-      Call AddGrad_sp(rKappa,Scr,SFock,1,1.0d0,1.0d0)
+      Call AddGrad_sp(rKappa,Scr,SFock,1,One,One)
       Call Recprt(' ',' ',SCR,ndensc,1)
-      call daxpy_(ndensc,rbetaA/2.0d0,SCR,1,sigma,1)
+      call daxpy_(ndensc,rbetaA/Two,SCR,1,sigma,1)
 *
-      Call DZAXPY(nmba,1.0d0,MT1,1,MT2,1,MT3,1)
+      Call DZAXPY(nmba,One,MT1,1,MT2,1,MT3,1)
       Call PickMO_MCLR(MT3,rmos,1)
 *
-      Call DZAXPY(nmba,-1.0d0,MT2,1,MT1,1,MT3,1)
+      Call DZAXPY(nmba,-One,MT2,1,MT1,1,MT3,1)
       Call PickMO_MCLR(MT3,rmoa,1)
 
       Call mma_deallocate(Scr)
