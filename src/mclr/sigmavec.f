@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SigmaVec(C,HC,kic)
+      Use Str_Info
 *
 * Outer routine for sigma vector generation
 * RAS space
@@ -91,26 +92,26 @@
       CALL STSTSM_MCLR(STSTS,STSTD,NSMST)
 
 *. Largest block of strings in zero order space
-      MAXA0 = IMNMX(iWORK(KNSTSO(IATP)),NSMST*NOCTYP(IATP),2)
-      MAXB0 = IMNMX(iWORK(KNSTSO(IBTP)),NSMST*NOCTYP(IBTP),2)
+      MAXA0 = IMNMX(Str(IATP)%NSTSO,NSMST*NOCTYP(IATP),2)
+      MAXB0 = IMNMX(Str(IBTP)%NSTSO,NSMST*NOCTYP(IBTP),2)
       MXSTBL0 = MAX(MAXA0,MAXB0)
 *. Largest number of strings of given symmetry and type
       MAXA = 0
       IF(NAEL.GE.1) THEN
-        MAXA1 = IMNMX(iWORK(KNSTSO(IATP+1)),NSMST*NOCTYP(IATP+1),2)
+        MAXA1 = IMNMX(Str(IATP+1)%NSTSO,NSMST*NOCTYP(IATP+1),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       IF(NAEL.GE.2) THEN
-        MAXA1 = IMNMX(iWORK(KNSTSO(IATP+2)),NSMST*NOCTYP(IATP+2),2)
+        MAXA1 = IMNMX(Str(IATP+2)%NSTSO,NSMST*NOCTYP(IATP+2),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       MAXB = 0
       IF(NBEL.GE.1) THEN
-        MAXB1 = IMNMX(iWORK(KNSTSO(IBTP+1)),NSMST*NOCTYP(IBTP+1),2)
+        MAXB1 = IMNMX(Str(IBTP+1)%NSTSO,NSMST*NOCTYP(IBTP+1),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       IF(NBEL.GE.2) THEN
-        MAXB1 = IMNMX(iWORK(KNSTSO(IBTP+2)),NSMST*NOCTYP(IBTP+2),2)
+        MAXB1 = IMNMX(Str(IBTP+2)%NSTSO,NSMST*NOCTYP(IBTP+2),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       MXSTBL = MAX(MAXA,MAXB)
@@ -181,12 +182,12 @@
 *     MXCJ:MXCIJA:MXCIJB:MXCIJAB:MXSXBL:MXIJST:MXIJSTF
 *
       CALL MXRESC(CIOIO,IATP,IBTP,NOCTPA,NOCTPB,NSMST,
-     &            iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
-     &            IATP+1,iWORK(KNSTSO(IATP+1)),NOCTYP(IATP+1),
-     &            iWORK(KNSTSO(IBTP+1)),NOCTYP(IBTP+1),
+     &            Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
+     &            IATP+1,Str(IATP+1)%NSTSO,NOCTYP(IATP+1),
+     &            Str(IBTP+1)%NSTSO,NOCTYP(IBTP+1),
      &            NSMOB,3,3,NTSOB,IPRCIX,MAXpK,
-     &            iWORK(KNSTSO(IATP+2)),NOCTYP(IATP+2),
-     &            iWORK(KNSTSO(IBTP+2)),NOCTYP(IBTP+2),
+     &            Str(IATP+2)%NSTSO,NOCTYP(IATP+2),
+     &            Str(IBTP+2)%NSTSO,NOCTYP(IBTP+2),
      &            iWORK(KEL123(IATP)),iWORK(KEL123(IBTP)),
      &            MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXIJST,
      &            MXIJSTF)
@@ -271,8 +272,8 @@
 
 *. Transform from combination scaling to determinant scaling
         CALL SCDTC2_MCLR(C,ISMOST(1,ICSM),CBLTP,NSMST,
-     &                   NOCTPA,NOCTPB,iWORK(KNSTSO(IATP)),
-     &                   iWORK(KNSTSO(IBTP)),CIOIO,IDC,
+     &                   NOCTPA,NOCTPB,Str(IATP)%NSTSO,
+     &                   Str(IBTP)%NSTSO,CIOIO,IDC,
      &                   2,IDUMMY,IPRDIA)
       END IF
 
@@ -298,8 +299,8 @@
      &            CIOIO,SIOIO,ISMOST(1,ICSM),
      &            ISMOST(1,ISSM),CBLTP,SBLTP,
      &            NORB1,NORB2,NORB3,NACOB,
-     &            iWORK(KNSTSO(IATP)),iWORK(KISTSO(IATP)),
-     &            iWORK(KNSTSO(IBTP)),iWORK(KISTSO(IBTP)),
+     &            Str(IATP)%NSTSO,iWORK(KISTSO(IATP)),
+     &            Str(IBTP)%NSTSO,iWORK(KISTSO(IBTP)),
      &            NAEL,IATP,NBEL,IBTP,NOCTPA,NOCTPB,
      &            NSMST,NSMOB,NSMSX,NSMDX,NTSOB,IBTSOB,ITSOB,
      &            MAXIJ,MAXK,MAXI,ICISTR,IINSTR,INTSCR,LSCR1,
@@ -330,8 +331,8 @@
 *. Transform from combination scaling to determinant scaling
 
         CALL SCDTC2_MCLR(HC,ISMOST(1,ISSM),SBLTP,NSMST,
-     &              NOCTPA,NOCTPB,iWORK(KNSTSO(IATP)),
-     &              iWORK(KNSTSO(IBTP)),CIOIO,IDC,
+     &              NOCTPA,NOCTPB,Str(IATP)%NSTSO,
+     &              Str(IBTP)%NSTSO,CIOIO,IDC,
      &              1,IDUMMY,IPRDIA)
       END IF
 

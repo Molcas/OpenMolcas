@@ -83,13 +83,13 @@
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
         CALL NSTRSO_MCLR(NELEC(ITYP),NORB1,NORB2,NORB3,
      &                   MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),
-     &                   MXRS3(ITYP),KFREEL,NACOB,iwork(KNSTSO(ITYP)),
+     &                   MXRS3(ITYP),KFREEL,NACOB,Str(ITYP)%NSTSO,
      &                   NOCTYP(ITYP),NSMST,ITYP,IPRNT)
 *. Corresponding offset array
-        CALL ZBASE(iWork(KNSTSO(ITYP)),iwork(KISTSO(ITYP)),
+        CALL ZBASE(Str(ITYP)%NSTSO,iwork(KISTSO(ITYP)),
      &             NSMST*NOCTYP(ITYP) )
 *. Symmetry and class index for each string
-         CALL ZSMCL(NSMST,NOCTYP(ITYP),iWork(KNSTSO(ITYP)),
+         CALL ZSMCL(NSMST,NOCTYP(ITYP),Str(ITYP)%NSTSO,
      &              Str(ITYP)%STSM,Str(ITYP)%STCL )
         END IF
    30 CONTINUE

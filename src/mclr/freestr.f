@@ -79,7 +79,8 @@
 *. Number of strings per symmetry and occupation
       DO ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
-        Call GetMem('NSTSO ','Free','INTEGER',KNSTSO(ITYP),nDum)
+          Str(ITYP)%NSTSO => Null()
+          Call mma_deallocate(Str(ITYP)%NSTSO_Hidden)
 *. Offset of strings per symmetry and occupation
         Call GetMem('ISTSO ','Free','INTEGER',KISTSO(ITYP),nDum)
 *. Number of electrons in RAS1 and RAS3 per sub type, is sub-type active
@@ -93,7 +94,7 @@ CMS: New array introduced according to Jeppes new strinfo representation
         ELSE
 *. redirect
           IITYP = - IUNIQTP(ITYP)
-          KNSTSO(ITYP) = KNSTSO(IITYP)
+          Str(ITYP)%NSTSO => Null()
           KISTSO(ITYP) = KISTSO(IITYP)
           KEL1(ITYP)   = KEL1(IITYP)
           KEL3(ITYP)   = KEL3(IITYP)

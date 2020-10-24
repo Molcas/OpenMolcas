@@ -9,7 +9,6 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 *        KSTINF        :        Not in use
-*        KNSTSO        :          Number of strings per symmetry and occupation
 *        KISTSO        :         Offset of strings per symmetry and occupation
 *        KSTSTM        :        ?
 *        KZ        :         Lexical adressing of arrays
@@ -31,7 +30,7 @@
 *        KSIOIO        :
 *        KSTSTMI        :        Explicit offsets and lengths
 *        KSTSTMN        :                  "
-      Integer KSTINF,KNSTSO(MXPSTT),KISTSO(MXPSTT),
+      Integer KSTINF,KISTSO(MXPSTT),
      &              KSTSTM(MXPSTT,2),KZ(MXPSTT),
      &              KEL1(MXPSTT),KEL3(MXPSTT),Kel123(MXPSTT),
      &              KACTP(MXPSTT),
@@ -39,7 +38,7 @@
      &              KNDMAP(MXPSTT),KNUMAP(MXPSTT),
      &              KSBLTP,KSIOIO,
      &              KSTSTMI(MXPSTT),KSTSTMN(MXPSTT)
-      COMMON/STRBAS_MCLR/KSTINF,KNSTSO,KISTSO,
+      COMMON/STRBAS_MCLR/KSTINF,KISTSO,
      &              KSTSTM,KZ,
      &              KEL1,KEL3,Kel123,
      &              KACTP,

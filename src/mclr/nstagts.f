@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       FUNCTION NSTAGTS(IGRP,ITP,ISM)
+      Use Str_Info
 *
 * Number of strings of group IGRP
 *                      type  ITP
@@ -17,14 +18,13 @@
       IMPLICIT REAL*8(A-H,O-Z)
 *
 #include "detdim.fh"
-#include "WrkSpc.fh"
 #include "csm.fh"
 #include "strbas_mclr.fh"
 #include "stinf_mclr.fh"
 * element (ITP,ISM) corresponds to adress
        IADRESS = (ISM-1)*NOCTYP(IGRP)+ ITP
 *
-       NSTAGTS = iWORK(KNSTSO(IGRP)+IADRESS-1)
+       NSTAGTS = Str(IGRP)%NSTSO(IADRESS)
 *
        NTEST = 0
        IF(NTEST.NE.0) THEN

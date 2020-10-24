@@ -218,13 +218,13 @@ c Avoid unused argument warnings
 *
       IABNUM = IABNUS(IASTR,NELEC(IAGRP),Str(IAGRP)%STREO,
      &                Str(IAGRP)%STCL,Str(IAGRP)%STSM,
-     &             NOCTYP(IAGRP),
+     &                NOCTYP(IAGRP),
      &         iWORK(KZ(IAGRP)),iWORK(KISTSO(IAGRP)),
-     &         iWORK(KNSTSO(IAGRP)),
+     &         Str(IAGRP)%NSTSO,
      &                IBSTR,NELEC(IBGRP),Str(IBGRP)%STREO,
      &         Str(IBGRP)%STCL,Str(IBGRP)%STSM,NOCTYP(IBGRP),
      &         iWORK(KZ(IBGRP)),iWORK(KISTSO(IBGRP)),
-     &     iWORK(KNSTSO(IBGRP)),
+     &         Str(IBGRP)%NSTSO,
      &         IOOS,NORB,IGENSG,ISGNA,ISGNB,ISGNAB,PSSIGN,IPSFAC,
      &         IPRNT)
       RETURN
@@ -351,6 +351,7 @@ C?    END IF
 *----------------------------------------------------------------------
 *
       Subroutine CsfInf(lSym,iSpin,MS,iSPC,iPrnt,nsym)
+      use Str_Info
 *
       Implicit Real*8 (A-H,O-Z)
 *
@@ -421,7 +422,7 @@ C     that no CSF<->SD coefficents is in core
           CALL ZBLTP(ISMOST(1,ISYM),NSMST,IDC,iWORK(KSBLTP),idum)
           CALL ZOOS(ISMOST(1,ISYM),iWORK(KSBLTP),
      &          NSMST,iWORK(KSIOIO),
-     &          IWORK(KNSTSO(IATP)),IWORK(KNSTSO(IBTP)),
+     &          Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
      &          NOCTPA,NOCTPB,idc,IWORK(KIOOS1),
      &          IWORK(KNOOS1),NCOMB,0)
 *EAW           CALL CNFORD(IWORK(KICTS(1)),iWORK(KICONF(1)),
@@ -1893,6 +1894,7 @@ C
 *----------------------------------------------------------------------
 *
       SUBROUTINE ICISPS(IPRNT)
+      Use Str_Info
 *
 * Number of dets and combinations
 * per symmetry for each type of internal space
@@ -1954,8 +1956,7 @@ CMS        write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
      &               iWORK(KLCVST))
           CALL NRASDT(MNR1IC(ICI),MXR1IC(ICI),MNR3IC(ICI),MXR3IC(ICI),
      &         ISYM,NSMST,NOCTYP(IATP),NOCTYP(IBTP),iWORK(KEL1(IATP)),
-     &         iWORK(KEL1(IBTP)),iWORK(KNSTSO(IATP)),
-     &         iWORK(KNSTSO(IBTP)),
+     &         iWORK(KEL1(IBTP)),Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
      &         iWORK(KEL3(IATP)),iWORK(KEL3(IBTP)),
      &         NCOMB,XNCOMB,MXS,MXSOO,iWORK(KLBLTP))
           XISPSM(ISYM,ICI) = XNCOMB

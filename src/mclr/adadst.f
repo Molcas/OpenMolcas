@@ -13,6 +13,7 @@
       SUBROUTINE ADADST(IOBTP,IOBSM,IOBOFF,NIOB,JOBTP,JOBSM,JOBOFF,NJOB,
      &                  IJORD,ICLS,ISM,IGRP,KMIN,KMAX,I1,XI1S,NK,
      &                  NKDIM,IEND)
+      use Str_Info
 *
 *
 * Obtain mappings
@@ -91,8 +92,8 @@ C        write(6,*) ' Unique string group for mappings ',KGRP
      &           iWORK(KEL1(IGRP)),
      &           iWORK(KEL3(IGRP)),iWORK(KEL1(IGRP+2)),
      &           iWORK(KEL3(IGRP+2)),iWORK(KISTSO(IGRP)),
-     &           iWORK(KNSTSO(IGRP)),iWORK(KISTSO(IGRP+2)),
-     &           iWORK(KNSTSO(IGRP+2)),NOCTYP(IGRP),NOCTYP(IGRP+2),
+     &           Str(iGRP)%NSTSO,iWORK(KISTSO(IGRP+2)),
+     &           Str(IGRP+2)%NSTSO,NOCTYP(IGRP),NOCTYP(IGRP+2),
      &           NORB1,NORB2,NORB3,NACOB,KMAX,KMIN,IEND)
 *
       RETURN

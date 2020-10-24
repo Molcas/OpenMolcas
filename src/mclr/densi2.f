@@ -11,6 +11,7 @@
 * Copyright (C) 1994-1996, Jeppe Olsen                                 *
 ************************************************************************
        SUBROUTINE DENSI2(I12,RHO1,RHO2,L,R,LUL,LUR,ieaw,n1,n2)
+       use Str_Info
 *
 * Density matrices between L and R
 *
@@ -96,26 +97,26 @@ CFUE  IPRDEN=0
       CALL GETMEM('KSTSTD','ALLO','INTE',KSTSTD,NSMST ** 2)
       CALL STSTSM_MCLR(iWORK(KSTSTS),iWORK(KSTSTD),NSMST)
 *. Largest block of strings in zero order space
-      MAXA0 = IMNMX(iWORK(KNSTSO(IATP)),NSMST*NOCTYP(IATP),2)
-      MAXB0 = IMNMX(iWORK(KNSTSO(IBTP)),NSMST*NOCTYP(IBTP),2)
+      MAXA0 = IMNMX(Str(IATP)%NSTSO,NSMST*NOCTYP(IATP),2)
+      MAXB0 = IMNMX(Str(IBTP)%NSTSO,NSMST*NOCTYP(IBTP),2)
       MXSTBL0 = MXNSTR
 *. Largest number of strings of given symmetry and type
       MAXA = 0
       IF(NAEL.GE.1) THEN
-        MAXA1 = IMNMX(iWORK(KNSTSO(IATPM1)),NSMST*NOCTYP(IATPM1),2)
+        MAXA1 = IMNMX(Str(IATPM1)%NSTSO,NSMST*NOCTYP(IATPM1),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       IF(NAEL.GE.2) THEN
-        MAXA1 = IMNMX(iWORK(KNSTSO(IATPM2)),NSMST*NOCTYP(IATPM2),2)
+        MAXA1 = IMNMX(Str(IATPM2)%NSTSO,NSMST*NOCTYP(IATPM2),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       MAXB = 0
       IF(NBEL.GE.1) THEN
-        MAXB1 = IMNMX(iWORK(KNSTSO(IBTPM1)),NSMST*NOCTYP(IBTPM1),2)
+        MAXB1 = IMNMX(Str(IBTPM1)%NSTSO,NSMST*NOCTYP(IBTPM1),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       IF(NBEL.GE.2) THEN
-        MAXB1 = IMNMX(iWORK(KNSTSO(IBTPM2)),NSMST*NOCTYP(IBTPM2),2)
+        MAXB1 = IMNMX(Str(IBTPM2)%NSTSO,NSMST*NOCTYP(IBTPM2),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       MXSTBL = MAX(MAXA,MAXB)
@@ -172,12 +173,12 @@ CFUE  IPRDEN=0
 *
 *
       CALL MXRESC(iWORK(KCIOIO),IATP,IBTP,NOCTPA,NOCTPB,NSMST,
-     &            iWORK(KNSTSO(IATP)),iWORK(KNSTSO(IBTP)),
-     &            IATP+1,iWORK(KNSTSO(IATP+1)),NOCTYP(IATP+1),
-     &            iWORK(KNSTSO(IBTP+1)),NOCTYP(IBTP+1),
+     &            Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
+     &            IATP+1,Str(IATP+1)%NSTSO,NOCTYP(IATP+1),
+     &            Str(IBTP+1)%NSTSO,NOCTYP(IBTP+1),
      &            NSMOB,3,3,NTSOB,IPRCIX,MAXK,
-     &            iWORK(KNSTSO(IATP+2)),NOCTYP(IATP+2),
-     &            iWORK(KNSTSO(IBTP+2)),NOCTYP(IBTP+2),
+     &            Str(IATP+2)%NSTSO,NOCTYP(IATP+2),
+     &            Str(IBTP+2)%NSTSO,NOCTYP(IBTP+2),
      &            iWORK(KEL123(IATP)),iWORK(KEL123(IBTP)),
      &            MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXIJST,
      &            MXIJSTF)
@@ -235,13 +236,13 @@ CFUE  IPRDEN=0
       IF(IDC.NE.1.AND.ICISTR.EQ.1) THEN
 *. Left CI vector
         CALL SCDTC2_MCLR(L,ISMOST(1,ISSM),iWORK(KSBLTP),NSMST,
-     &              NOCTPA,NOCTPB,iWORK(KNSTSO(IATP)),
-     &              iWORK(KNSTSO(IBTP)),iWORK(KSIOIO),IDC,
+     &              NOCTPA,NOCTPB,Str(IATP)%NSTSO,
+     &              Str(IBTP)%NSTSO,iWORK(KSIOIO),IDC,
      &              2,IDUMMY,IPRDIA)
 *. Right CI vector
         CALL SCDTC2_MCLR(R,ISMOST(1,ICSM),iWORK(KCBLTP),NSMST,
-     &              NOCTPA,NOCTPB,iWORK(KNSTSO(IATP)),
-     &              iWORK(KNSTSO(IBTP)),iWORK(KCIOIO),IDC,
+     &              NOCTPA,NOCTPB,Str(IATP)%NSTSO,
+     &              Str(IBTP)%NSTSO,iWORK(KCIOIO),IDC,
      &              2,IDUMMY,IPRDIA)
       END IF
 
@@ -251,8 +252,8 @@ CFUE  IPRDEN=0
      &       iWORK(KCIOIO),iWORK(KSIOIO),ISMOST(1,ICSM),
      &       ISMOST(1,ISSM),iWORK(KCBLTP),iWORK(KSBLTP),
      &       NACOB,
-     &       iWORK(KNSTSO(IATP)),iWORK(KISTSO(IATP)),
-     &       iWORK(KNSTSO(IBTP)),iWORK(KISTSO(IBTP)),
+     &       Str(IATP)%NSTSO,iWORK(KISTSO(IATP)),
+     &       Str(IBTP)%NSTSO,iWORK(KISTSO(IBTP)),
      &       NAEL,IATP,NBEL,IBTP,
      &       IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &       NSMST,NSMOB,NSMSX,NSMDX,
@@ -275,8 +276,8 @@ CFUE  IPRDEN=0
      &       iWORK(KCIOIO),iWORK(KSIOIO),ISMOST(1,ICSM),
      &       ISMOST(1,ISSM),iWORK(KCBLTP),iWORK(KSBLTP),
      &       NACOB,
-     &       iWORK(KNSTSO(IATP)),iWORK(KISTSO(IATP)),
-     &       iWORK(KNSTSO(IBTP)),iWORK(KISTSO(IBTP)),
+     &       Str(IATP)%NSTSO,iWORK(KISTSO(IATP)),
+     &       Str(IBTP)%NSTSO,iWORK(KISTSO(IBTP)),
      &       NAEL,IATP,NBEL,IBTP,
      &       IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &       NSMST,NSMOB,NSMSX,NSMDX,
@@ -299,12 +300,12 @@ CFUE  IPRDEN=0
 *. Transform from combination scaling to determinant scaling
 *
         CALL SCDTC2_MCLR(L,ISMOST(1,ISSM),iWORK(KSBLTP),NSMST,
-     &              NOCTPA,NOCTPB,iWORK(KNSTSO(IATP)),
-     &              iWORK(KNSTSO(IBTP)),iWORK(KSIOIO),IDC,
+     &              NOCTPA,NOCTPB,Str(IATP)%NSTSO,
+     &              Str(IBTP)%NSTSO,iWORK(KSIOIO),IDC,
      &              1,IDUMMY,IPRDIA)
         CALL SCDTC2_MCLR(R,ISMOST(1,ICSM),iWORK(KCBLTP),NSMST,
-     &              NOCTPA,NOCTPB,iWORK(KNSTSO(IATP)),
-     &              iWORK(KNSTSO(IBTP)),iWORK(KCIOIO),IDC,
+     &              NOCTPA,NOCTPB,Str(IATP)%NSTSO,
+     &              Str(IBTP)%NSTSO,iWORK(KCIOIO),IDC,
      &              1,IDUMMY,IPRDIA)
       END IF
 *

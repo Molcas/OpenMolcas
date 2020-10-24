@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE ADST(IORB,NORB,ICLS,ISM,IGRP,KMIN,KMAX,I1,XI1S,LI1,
      &                NK,IEND)
+      Use Str_Info
 *
 *
 * Obtain mappings
@@ -74,8 +75,8 @@ C        write(6,*) ' Unique string group for mappings ',JGRP
      &           iWORK(KSTSTMI(JGRP)),IMPF,LMAP,iWORK(KEL1(IGRP)),
      &           iWORK(KEL3(IGRP)),iWORK(KEL1(IGRP+1)),
      &           iWORK(KEL3(IGRP+1)),iWORK(KISTSO(IGRP)),
-     &           iWORK(KNSTSO(IGRP)),iWORK(KISTSO(IGRP+1)),
-     &           iWORK(KNSTSO(IGRP+1)),NOCTYP(IGRP),NOCTYP(IGRP+1),
+     &           Str(IGRP)%NSTSO,iWORK(KISTSO(IGRP+1)),
+     &           Str(IGRP+1)%NSTSO,NOCTYP(IGRP),NOCTYP(IGRP+1),
      &           NORB1,NORB2,NORB3,ISMFTO,NACOB,KMAX,KMIN,IEND)
 *
       RETURN

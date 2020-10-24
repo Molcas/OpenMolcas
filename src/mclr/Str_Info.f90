@@ -14,6 +14,8 @@
 !        STREO        :        reordering array
 !        STSM         :        Symmetry of each string
 !        STCL         :        Class of each string
+!        NSTSO        :        Number of strings per symmetry and occupation
+
 
 Module Str_Info
       Implicit None
@@ -27,6 +29,8 @@ Module Str_Info
            Integer, Allocatable:: STSM_hidden(:)
            Integer, Pointer:: STCL(:)=>Null()
            Integer, Allocatable:: STCL_hidden(:)
+           Integer, Pointer:: NSTSO(:)=>Null()
+           Integer, Allocatable:: NSTSO_hidden(:)
       End Type String_Info
 
       Type (String_Info), Allocatable, Target:: Str(:)

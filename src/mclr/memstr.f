@@ -49,7 +49,6 @@
       IF(NTEST.NE.0) WRITE(6,*) ' First word with string information',
      &                           KSTINF
 *
-      Call ICopy(MXPSTT,[ip_iDummy],0,KNSTSO,1)
       Call ICopy(MXPSTT,[ip_iDummy],0,KISTSO,1)
       Call ICopy(MXPSTT,[ip_iDummy],0,KEL1  ,1)
       Call ICopy(MXPSTT,[ip_iDummy],0,KEL3  ,1)
@@ -66,20 +65,20 @@
 
       IIITEST = 1
       DO ITYP = 1, NSTTYP
-        IF(IUNIQTP(ITYP).EQ.ITYP) THEN
+        IF (IUNIQTP(ITYP).EQ.ITYP) THEN
         NSTRIN = NUMST3(NELEC(ITYP),NORB1,MNRS1(ITYP),MXRS1(ITYP),
      &                  NORB2,NORB3,MNRS3(ITYP),MXRS3(ITYP) )
         LSTRIN = NSTRIN * NELEC(ITYP)
 *.  Offsets for occupation of strings and reordering array
-          Call mma_allocate(Str(ITYP)%OCSTR_Hidden,LSTRIN)
+          Call mma_allocate(Str(ITYP)%OCSTR_Hidden,LSTRIN,Label='OCSTR')
           Str(ITYP)%OCSTR => Str(ITYP)%OCSTR_Hidden
-          Call mma_allocate(Str(ITYP)%STREO_Hidden,NSTRIN)
+          Call mma_allocate(Str(ITYP)%STREO_Hidden,NSTRIN,Label='STREO')
           Str(ITYP)%STREO => Str(ITYP)%STREO_Hidden
 
 *. Symmetry and class of each string
-          Call mma_allocate(Str(ITYP)%STSM_Hidden,NSTRIN)
+          Call mma_allocate(Str(ITYP)%STSM_Hidden,NSTRIN,Label='STSM')
           Str(ITYP)%STSM  => Str(ITYP)%STSM_Hidden
-          Call mma_allocate(Str(ITYP)%STCL_Hidden,NSTRIN)
+          Call mma_allocate(Str(ITYP)%STCL_Hidden,NSTRIN,Label='STCL')
           Str(ITYP)%STCL  => Str(ITYP)%STCL_Hidden
         ELSE
           IITYP = - IUNIQTP(ITYP)
@@ -92,9 +91,10 @@
 
 *. Number of strings per symmetry and occupation
       DO ITYP = 1, NSTTYP
-        IF(IUNIQTP(ITYP).EQ.ITYP) THEN
-        Call GetMem('NSTSO ','ALLO','INTEGER',
-     &              KNSTSO(ITYP),NOCTYP(ITYP)*NSMST)
+        IF (IUNIQTP(ITYP).EQ.ITYP) THEN
+           Call mma_allocate(Str(ITYP)%NSTSO_Hidden,NOCTYP(ITYP)*NSMST,
+     &                       Label='NSTSO')
+          Str(ITYP)%NSTSO => Str(ITYP)%NSTSO_Hidden
 *. Offset of strings per symmetry and occupation
         Call GetMem('ISTSO ','ALLO','INTEGER',
      &             KISTSO(ITYP),NOCTYP(ITYP)*NSMST)
@@ -115,7 +115,7 @@ CMS: New array introduced according to Jeppes new strinfo representation
         ELSE
 *. redirect
           IITYP = - IUNIQTP(ITYP)
-          KNSTSO(ITYP) = KNSTSO(IITYP)
+          Str(ITYP)%NSTSO => Str(IITYP)%NSTSO_Hidden
           KISTSO(ITYP) = KISTSO(IITYP)
           KEL1(ITYP)   = KEL1(IITYP)
           KEL3(ITYP)   = KEL3(IITYP)
@@ -159,9 +159,9 @@ CMS: New else block
 *. Only creation allowed, use compact scheme with offsets
 *
           CALL NUMST4_MCLR(NELEC(ITYP),NORB1,MNRS1(ITYP),MXRS1(ITYP),
-     &                NORB2,NORB3,MNRS3(ITYP),MXRS3(ITYP),
-     &                iWORK(KNSTSO(ITYP))   )
-            LENGTH = NCASTR_MCLR(2,iWORK(KNSTSO(ITYP)),NOCTYP(ITYP),
+     &                     NORB2,NORB3,MNRS3(ITYP),MXRS3(ITYP),
+     &                     Str(ITYP)%NSTSO)
+            LENGTH = NCASTR_MCLR(2,Str(ITYP)%NSTSO,NOCTYP(ITYP),
      &                      ITYP,NOBPT,3,iWORK(KEL123(ITYP)))
 *. Explicit offsets and lengths
             Call GetMem('STSTMI','ALLO','INTEGER',KSTSTMI(ITYP),NSTRIN)
