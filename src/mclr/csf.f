@@ -396,8 +396,8 @@ C     that no CSF<->SD coefficents is in core
 *     strbas_mclr.fh
       CALL GETMEM('SIOIO ','ALLO','INTE',KSIOIO,NOCTPA*NOCTPB)
       CALL IAIBCM_MCLR(MNR1IC(ISSPC),MXR3IC(ISSPC),NOCTPA,NOCTPB,
-     &            IWORK(KEL1(IATP)),IWORK(KEL3(IATP)),
-     &            IWORK(KEL1(IBTP)),IWORK(KEL3(IBTP)),
+     &            Str(IATP)%EL1,IWORK(KEL3(IATP)),
+     &            Str(IBTP)%EL1,IWORK(KEL3(IBTP)),
      &            iWORK(KSIOIO),IPRNT)
       CALL GETMEM('SBLTP','ALLO','INTE',KSBLTP,NSMST)
       NOOS = NOCTPA*NOCTPB*NSMST
@@ -1955,8 +1955,8 @@ CMS        write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
           CALL ZBLTP(ISMOST(1,ISYM),NSMST,IIDC,iWORK(KLBLTP),
      &               iWORK(KLCVST))
           CALL NRASDT(MNR1IC(ICI),MXR1IC(ICI),MNR3IC(ICI),MXR3IC(ICI),
-     &         ISYM,NSMST,NOCTYP(IATP),NOCTYP(IBTP),iWORK(KEL1(IATP)),
-     &         iWORK(KEL1(IBTP)),Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
+     &         ISYM,NSMST,NOCTYP(IATP),NOCTYP(IBTP),Str(IATP)%EL1,
+     &         Str(IBTP)%EL1,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
      &         iWORK(KEL3(IATP)),iWORK(KEL3(IBTP)),
      &         NCOMB,XNCOMB,MXS,MXSOO,iWORK(KLBLTP))
           XISPSM(ISYM,ICI) = XNCOMB

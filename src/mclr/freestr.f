@@ -85,7 +85,8 @@
           Str(ITYP)%ISTSO => Null()
           Call mma_deallocate(Str(ITYP)%ISTSO_Hidden)
 *. Number of electrons in RAS1 and RAS3 per sub type, is sub-type active
-        Call GetMem('IEL1  ','Free','INTEGER',KEL1(ITYP),nDum)
+          Str(ITYP)%EL1 => Null()
+          Call mma_deallocate(Str(ITYP)%EL1_Hidden)
         Call GetMem('IEL3  ','Free','INTEGER',KEL3(ITYP),nDum)
         Call GetMem('ACTP ','Free','INTEGER',KACTP(ITYP),nDum)
 CMS: New array introduced according to Jeppes new strinfo representation
@@ -97,7 +98,7 @@ CMS: New array introduced according to Jeppes new strinfo representation
           IITYP = - IUNIQTP(ITYP)
           Str(ITYP)%NSTSO => Null()
           Str(ITYP)%ISTSO => Null()
-          KEL1(ITYP)   = KEL1(IITYP)
+          Str(ITYP)%EL1   => Null()
           KEL3(ITYP)   = KEL3(IITYP)
           KACTP(ITYP)  = KACTP(IITYP)
           KZ(ITYP)     = KZ(IITYP)

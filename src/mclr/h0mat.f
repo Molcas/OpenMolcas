@@ -13,6 +13,7 @@
      &                 NPRCIV,NOCSF,IREFSM,
      &                 IDC,PSSIGN,ECORE,
      &                 VEC1,VEC2,H0SCR,iH0SCR,ieaw)
+      Use Str_Info
 * Obtain preconditioner space corresponding to internalt space INTSPC
 * Obtain Hamiltonian matrices correponding to this subspacw
 *
@@ -58,8 +59,8 @@
 *. Allowed combination of alpha and beta strings
 *     Call Getmem('IOCOC ','ALLO','INTE' ,KIOCOC,NOCTPA*NOCTPB)
 *     CALL MEMMAN(KIOCOC,NOCTPA*NOCTPB,'ADDL  ',2,'IOCOC ')
-*     CALL IAIBCM_MCLR(MNR1,MXR3,NOCTPA,NOCTPB,iWORK(KEL1(IATP)),
-*    &            iWORK(KEL3(IATP)),iWORK(KEL1(IBTP)),
+*     CALL IAIBCM_MCLR(MNR1,MXR3,NOCTPA,NOCTPB,Str(IATP)%EL1,
+*    &            iWORK(KEL3(IATP)),Str(IBTP)%EL1,
 *    &            iWORK(KEL3(IBTP)),
 *    &            iWORK(KIOCOC),NTEST)
 *

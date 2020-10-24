@@ -11,6 +11,7 @@
 * Copyright (C) Jeppe Olsen                                            *
 ************************************************************************
       SUBROUTINE GTSTTP(ICLS,IEL1,IEL3,ITYPE,IWAY)
+      Use Str_Info
 *
 *
 * Relation between number of electrons in RAS1, RAS3 and string type
@@ -31,7 +32,7 @@
 #include "strbas_mclr.fh"
 #include "stinf_mclr.fh"
 *
-      CALL GTSTTPS(IEL1,IEL3,iWORK(KEL1(ICLS)),iWORK(KEL3(ICLS)),
+      CALL GTSTTPS(IEL1,IEL3,Str(ICLS)%EL1,iWORK(KEL3(ICLS)),
      &             NOCTYP(ICLS),ITYPE,IWAY)
 *
       RETURN

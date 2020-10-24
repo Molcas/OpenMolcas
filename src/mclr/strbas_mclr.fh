@@ -11,7 +11,6 @@
 *        KSTINF        :        Not in use
 *        KSTSTM        :        ?
 *        KZ        :         Lexical adressing of arrays
-*        KEL1         :        Number of electrons in RAS1 per sub type
 *        KEL3        :        Number of electrons in RAS3 per sub type
 *        KEL123        :        -"-    But array
 *        KACTP        :        is sub-type active
@@ -31,7 +30,7 @@
 *        KSTSTMN        :                  "
       Integer KSTINF,
      &              KSTSTM(MXPSTT,2),KZ(MXPSTT),
-     &              KEL1(MXPSTT),KEL3(MXPSTT),Kel123(MXPSTT),
+     &              KEL3(MXPSTT),Kel123(MXPSTT),
      &              KACTP(MXPSTT),
      &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,
      &              KNDMAP(MXPSTT),KNUMAP(MXPSTT),
@@ -39,7 +38,7 @@
      &              KSTSTMI(MXPSTT),KSTSTMN(MXPSTT)
       COMMON/STRBAS_MCLR/KSTINF,
      &              KSTSTM,KZ,
-     &              KEL1,KEL3,Kel123,
+     &              KEL3,Kel123,
      &              KACTP,
      &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,
      &              KNDMAP,KNUMAP,

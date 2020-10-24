@@ -124,8 +124,8 @@
         CALL ZBLTP(ISMOST(1,ISM(IISPC)),NSMST,IDC,
      &       iWORK(KLBLTP),iWORK(KLSVST))
         CALL IAIBCM_MCLR(MNRS1C,MXRS3C,NOCTPA,NOCTPB,
-     &       iWORK(KEL1(IATP)),iWORK(KEL3(IATP)),
-     &       iWORK(KEL1(IBTP)),iWORK(KEL3(IBTP)),
+     &       Str(IATP)%EL1,iWORK(KEL3(IATP)),
+     &       Str(IBTP)%EL1,iWORK(KEL3(IBTP)),
      &       iWORK(KLIOIO),IPRDIA)
 *
         IF(ICISTR.LE.1) THEN

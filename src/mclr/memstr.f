@@ -49,7 +49,6 @@
       IF(NTEST.NE.0) WRITE(6,*) ' First word with string information',
      &                           KSTINF
 *
-      Call ICopy(MXPSTT,[ip_iDummy],0,KEL1  ,1)
       Call ICopy(MXPSTT,[ip_iDummy],0,KEL3  ,1)
       Call ICopy(MXPSTT,[ip_iDummy],0,KEL123,1)
       Call ICopy(MXPSTT,[ip_iDummy],0,KACTP ,1)
@@ -93,14 +92,15 @@
         IF (IUNIQTP(ITYP).EQ.ITYP) THEN
            Call mma_allocate(Str(ITYP)%NSTSO_Hidden,NOCTYP(ITYP)*NSMST,
      &                       Label='NSTSO')
-          Str(ITYP)%NSTSO => Str(ITYP)%NSTSO_Hidden
+           Str(ITYP)%NSTSO => Str(ITYP)%NSTSO_Hidden
 *. Offset of strings per symmetry and occupation
            Call mma_allocate(Str(ITYP)%ISTSO_Hidden,NOCTYP(ITYP)*NSMST,
      &                       Label='NSTSO')
-          Str(ITYP)%ISTSO => Str(ITYP)%ISTSO_Hidden
+           Str(ITYP)%ISTSO => Str(ITYP)%ISTSO_Hidden
 *. Number of electrons in RAS1 and RAS3 per sub type, is sub-type active
-        Call GetMem('IEL1  ','ALLO','INTEGER',
-     &              KEL1(ITYP),NOCTYP(ITYP))
+           Call mma_allocate(Str(ITYP)%EL1_Hidden,NOCTYP(ITYP),
+     &                       Label='EL1')
+           Str(ITYP)%EL1 => Str(ITYP)%EL1_Hidden
         Call GetMem('IEL3  ','ALLO','INTEGER',
      &               KEL3(ITYP),NOCTYP(ITYP))
         Call GetMem('ACTP ','ALLO','INTEGER',
@@ -117,7 +117,7 @@ CMS: New array introduced according to Jeppes new strinfo representation
           IITYP = - IUNIQTP(ITYP)
           Str(ITYP)%NSTSO => Str(IITYP)%NSTSO_Hidden
           Str(ITYP)%ISTSO => Str(IITYP)%ISTSO_Hidden
-          KEL1(ITYP)   = KEL1(IITYP)
+          Str(ITYP)%EL1   => Str(IITYP)%EL1_Hidden
           KEL3(ITYP)   = KEL3(IITYP)
           KACTP(ITYP)  = KACTP(IITYP)
           KZ(ITYP)     = KZ(IITYP)
@@ -131,7 +131,7 @@ CMS: Be aware that IEL13 is also called in STRINF
       DO  ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
         CALL IEL13(MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),
-     &             NELEC(ITYP),NOCTYP(ITYP),iWORK(KEL1(ITYP)),
+     &             NELEC(ITYP),NOCTYP(ITYP),Str(ITYP)%EL1,
      &             iWORK(KEL3(ITYP)),iWORK(KEL123(ITYP)),
      &             iWORK(KACTP(ITYP)) )
         END IF

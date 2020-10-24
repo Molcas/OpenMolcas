@@ -71,7 +71,7 @@
       DO 25 ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
         CALL IEL13(MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),
-     &             NELEC(ITYP),NOCTYP(ITYP),iwork(KEL1(ITYP)),
+     &             NELEC(ITYP),NOCTYP(ITYP),Str(ITYP)%EL1,
      &             iWork(KEL3(ITYP)),iwork(KEL123(ITYP)),
      &             iWork(KACTP(ITYP)) )
         END IF
