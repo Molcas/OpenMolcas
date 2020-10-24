@@ -202,8 +202,8 @@
         End If
         Call mma_deallocate(Dens)
         Call mma_deallocate(Pens)
-        Call GetMem('CIL','Free','Real',ipL,nConfL)
-        Call GetMem('CIR','Free','Real',ipR,nConfR)
+        Call mma_deallocate(CIL)
+        Call mma_deallocate(CIR)
       Return
       End
 *

@@ -347,7 +347,7 @@ c
      &                 Temp4,    ! Contains OIT FI
      &                 isym,reco,jspin,rInEne) ! OIT integrals are used
 *
-             Call RInttd(Sc2,dKappa,isym)
+             Call RInt_td(Sc2,dKappa,isym)
 c
              Clock(iTimeKK)=Clock(iTimeKK)+Tim2
 *
