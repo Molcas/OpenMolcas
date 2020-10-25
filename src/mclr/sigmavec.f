@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SigmaVec(C,HC,kic)
-      Use Str_Info, only: Str
+      Use Str_Info, only: Str, NELEC
+
 *
 * Outer routine for sigma vector generation
 * RAS space
@@ -30,7 +31,6 @@
 #include "orbinp_mclr.fh"
 #include "cicisp_mclr.fh"
 #include "cstate_mclr.fh"
-#include "strinp_mclr.fh"
 #include "stinf_mclr.fh"
 #include "csm.fh"
 #include "csfbas_mclr.fh"

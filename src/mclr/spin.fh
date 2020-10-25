@@ -8,5 +8,5 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      real*8  rms,rbetaa,rbetas,ralpha
+      real*8     rms,rbetaa,rbetas,ralpha
       common/ESR/rms,rbetaa,rbetas,ralpha

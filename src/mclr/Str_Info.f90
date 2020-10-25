@@ -84,4 +84,40 @@ Module Str_Info
 !     Integer, Allocatable:: STSTX(:)
       Integer, Allocatable:: SBLTP(:)
       Integer, Allocatable:: SIOIO(:)
+
+!             INITITIALIZED IN STRTYP
+!        NSTTYP        :        Number of string typesi *
+!        MNRS1        :        Min ras1 *
+!        MXRS1        :        Max ras1 *
+!        MNRS3        :        Min ras3 *
+!        MXRS3        :        Max ras3 *
+!        NELEC        :        Number of electrons *
+!        IZORR        :        Zero orde y/n         *
+!        IAZTP        :              Pointer to alpha types*
+!        IBZTP        :        Pointer to beta types*
+!
+!not in use (just zero order space)
+!        IARTP        :          Give type nr to certain exc
+!        IBRTP        :       Give type nr to certain exc
+!
+!        NZSTTP        :        Not in use
+!        NRSTTP        :        Not in use
+!
+!        ISTTP        :        Space (0=zero order)
+!        iuniqmp        :        Unique types (not necessary here just 0order space)
+      Integer, Parameter:: NSTTYP_MAX=6
+      Integer       NSTTYP,                                         &
+                    NELEC(NSTTYP_MAX),                              &
+                    MNRS1(NSTTYP_MAX),                              &
+                    MXRS1(NSTTYP_MAX),                              &
+                    MNRS3(NSTTYP_MAX),                              &
+                    MXRS3(NSTTYP_MAX),                              &
+                    IZORR(NSTTYP_MAX),                              &
+                    ISTTP(NSTTYP_MAX),                              &
+                    iuniqmp(NSTTYP_MAX),                            &
+                    iuniqtp(NSTTYP_MAX),                            &
+                    IAZTP,IBZTP,IARTP(3,10),IBRTP(3,10),            &
+                    NZSTTP,NRSTTP,                                  &
+                    IATPM1,IATPM2,IBTPM1,IBTPM2
+
 End Module Str_Info

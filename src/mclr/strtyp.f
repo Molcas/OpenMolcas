@@ -11,6 +11,7 @@
 * Copyright (C) Jeppe Olsen                                            *
 ************************************************************************
       SUBROUTINE STRTYP(MS2,NACTEL,MNRS10,MXRS30,IPRNT)
+      use Str_Info
 *
 * construct input common blocks /STRINP/
 * from /LUCINP/ and /ORBINP/
@@ -28,7 +29,6 @@
 * Jeppe Olsen ,  Dec.24 ,Almaden
 *                Last Revision March 31
 *
-#include "strinp_mclr.fh"
 * Where INTXC is internal excitation level 1 => no int exc
 *                                          2 => single int exc
 *                                          3 => double int exc

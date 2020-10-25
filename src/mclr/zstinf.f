@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE ZSTINF_MCLR(IPRNT)
+      use Str_Info
 *
 * Set up common block /STINF/ from information in /STINP/
 *
@@ -41,7 +42,6 @@
 *
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
-#include "strinp_mclr.fh"
 #include "stinf_mclr.fh"
 *
 *

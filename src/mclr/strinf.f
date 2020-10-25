@@ -31,7 +31,6 @@
 * Output
 * ======
 *
-#include "strinp_mclr.fh"
 #include "stinf_mclr.fh"
 #include "csm.fh"
 *

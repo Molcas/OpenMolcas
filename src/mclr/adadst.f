@@ -40,7 +40,6 @@
       IMPLICIT REAL*8(A-H,O-Z)
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
-#include "strinp_mclr.fh"
 #include "stinf_mclr.fh"
 *
 * =======

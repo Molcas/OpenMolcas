@@ -23,7 +23,6 @@
       INTEGER STRING(*)
 *
 #include "detdim.fh"
-#include "strinp_mclr.fh"
 #include "orbinp_mclr.fh"
 
       NEL = NELEC(IGROUP)

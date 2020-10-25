@@ -11,6 +11,7 @@
 * Copyright (C) 1990, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE ICISPC(MNRS10,MXRS30,IPRNT)
+      Use Str_Info
 *
 * Obtain internal CI spaces relevant for MRSDCI
 *       /STRINP/+/LUCINP/ = > /CICISP/
@@ -36,7 +37,6 @@
 *./LUCINP : EXTSPC is used
 #include "detdim.fh"
 *./STRINP/
-#include "strinp_mclr.fh"
 */ORBINP/
 #include "orbinp_mclr.fh"
 * ====================

@@ -210,7 +210,6 @@ c Avoid unused argument warnings
       DIMENSION IASTR(*),IBSTR(*)
       DIMENSION ISGNA(*),ISGNB(*)
 #include "detdim.fh"
-#include "strinp_mclr.fh"
 #include "stinf_mclr.fh"
       DIMENSION IOOS(NOCTYP(IAGRP),NOCTYP(IBGRP),*)
 *
@@ -356,7 +355,6 @@ C?    END IF
 *
 #include "cstate_mclr.fh"
 #include "detdim.fh"
-#include "strinp_mclr.fh"
 #include "stinf_mclr.fh"
 #include "orbinp_mclr.fh"
 #include "csm.fh"
@@ -1905,7 +1903,6 @@ C
 *
 #include "detdim.fh"
 #include "cstate_mclr.fh"
-#include "strinp_mclr.fh"
 #include "csm.fh"
 #include "stinf_mclr.fh"
 *
