@@ -17,6 +17,8 @@
 !        NSTSO        :        Number of strings per symmetry and occupation
 !        ISTSO        :        Offset of strings per symmetry and occupation
 !        EL1          :        Number of electrons in RAS1 per sub type
+!        EL3          :        Number of electrons in RAS3 per sub type
+
 
 
 
@@ -38,6 +40,8 @@ Module Str_Info
            Integer, Allocatable:: ISTSO_hidden(:)
            Integer, Pointer:: EL1(:)=>Null()
            Integer, Allocatable:: EL1_hidden(:)
+           Integer, Pointer:: EL3(:)=>Null()
+           Integer, Allocatable:: EL3_hidden(:)
       End Type String_Info
 
       Type (String_Info), Allocatable, Target:: Str(:)

@@ -87,7 +87,8 @@
 *. Number of electrons in RAS1 and RAS3 per sub type, is sub-type active
           Str(ITYP)%EL1 => Null()
           Call mma_deallocate(Str(ITYP)%EL1_Hidden)
-        Call GetMem('IEL3  ','Free','INTEGER',KEL3(ITYP),nDum)
+          Str(ITYP)%EL3 => Null()
+          Call mma_deallocate(Str(ITYP)%EL3_Hidden)
         Call GetMem('ACTP ','Free','INTEGER',KACTP(ITYP),nDum)
 CMS: New array introduced according to Jeppes new strinfo representation
         Call GetMem('KEL123','Free','INTEGER',KEL123(ITYP),nDum)
@@ -99,7 +100,7 @@ CMS: New array introduced according to Jeppes new strinfo representation
           Str(ITYP)%NSTSO => Null()
           Str(ITYP)%ISTSO => Null()
           Str(ITYP)%EL1   => Null()
-          KEL3(ITYP)   = KEL3(IITYP)
+          Str(ITYP)%EL3   => Null()
           KACTP(ITYP)  = KACTP(IITYP)
           KZ(ITYP)     = KZ(IITYP)
           KEL123(ITYP) = KEL123(IITYP)

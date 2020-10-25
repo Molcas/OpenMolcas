@@ -150,13 +150,13 @@
 *      (RAS1 & RAS3 constrains)
 *
       CALL IAIBCM_MCLR(MNR1IC(ISSPC),MXR3IC(ISSPC),NOCTPA,NOCTPB,
-     &            Str(IATP)%EL1,iWORK(KEL3(IATP)),
-     &            Str(IBTP)%EL1,iWORK(KEL3(IBTP)),
+     &            Str(IATP)%EL1,Str(IATP)%EL3,
+     &            Str(IBTP)%EL1,Str(IBTP)%EL3,
      &            SIOIO,IPRCIX)
 *
       CALL IAIBCM_MCLR(MNR1IC(ICSPC),MXR3IC(ICSPC),NOCTPA,NOCTPB,
-     &            Str(IATP)%EL1,iWORK(KEL3(IATP)),
-     &            Str(IBTP)%EL1,iWORK(KEL3(IBTP)),
+     &            Str(IATP)%EL1,Str(IATP)%EL3,
+     &            Str(IBTP)%EL1,Str(IBTP)%EL3,
      &            CIOIO,IPRCIX)
 *
 *
@@ -308,8 +308,8 @@
      &            INSCR,wORK(KCSCR),wORK(KSSCR),
      &            SXSTSM,STSTS,STSTD,SXDXSX,
      &            ADSXA,ASXAD,
-     &            Str(IATP)%EL1,iWORK(KEL3(IATP)),
-     &            Str(IBTP)%EL1,iWORK(KEL3(IBTP)),IDC,
+     &            Str(IATP)%EL1,Str(IATP)%EL3,
+     &            Str(IBTP)%EL1,Str(IBTP)%EL3,IDC,
      &            OOS(:,1), OOS(:,2), OOS(:,3), OOS(:,4),
      &            OOS(:,5), OOS(:,6), OOS(:,7), OOS(:,8),
      &            OOS(:,9), OOS(:,10),

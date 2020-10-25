@@ -59,9 +59,9 @@
 *. Allowed combination of alpha and beta strings
 *     Call Getmem('IOCOC ','ALLO','INTE' ,KIOCOC,NOCTPA*NOCTPB)
 *     CALL MEMMAN(KIOCOC,NOCTPA*NOCTPB,'ADDL  ',2,'IOCOC ')
-*     CALL IAIBCM_MCLR(MNR1,MXR3,NOCTPA,NOCTPB,Str(IATP)%EL1,
-*    &            iWORK(KEL3(IATP)),Str(IBTP)%EL1,
-*    &            iWORK(KEL3(IBTP)),
+*     CALL IAIBCM_MCLR(MNR1,MXR3,NOCTPA,NOCTPB,
+*    &            Str(IATP)%EL1,Str(IATP)%EL3,
+*    &            Str(IBTP)%EL1,Str(IBTP)%EL3,
 *    &            iWORK(KIOCOC),NTEST)
 *
       IF(IDC.EQ.1) THEN

@@ -396,8 +396,8 @@ C     that no CSF<->SD coefficents is in core
 *     strbas_mclr.fh
       CALL GETMEM('SIOIO ','ALLO','INTE',KSIOIO,NOCTPA*NOCTPB)
       CALL IAIBCM_MCLR(MNR1IC(ISSPC),MXR3IC(ISSPC),NOCTPA,NOCTPB,
-     &            Str(IATP)%EL1,IWORK(KEL3(IATP)),
-     &            Str(IBTP)%EL1,IWORK(KEL3(IBTP)),
+     &            Str(IATP)%EL1,Str(IATP)%EL3,
+     &            Str(IBTP)%EL1,Str(IBTP)%EL3,
      &            iWORK(KSIOIO),IPRNT)
       CALL GETMEM('SBLTP','ALLO','INTE',KSBLTP,NSMST)
       NOOS = NOCTPA*NOCTPB*NSMST
@@ -1957,7 +1957,7 @@ CMS        write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
           CALL NRASDT(MNR1IC(ICI),MXR1IC(ICI),MNR3IC(ICI),MXR3IC(ICI),
      &         ISYM,NSMST,NOCTYP(IATP),NOCTYP(IBTP),Str(IATP)%EL1,
      &         Str(IBTP)%EL1,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
-     &         iWORK(KEL3(IATP)),iWORK(KEL3(IBTP)),
+     &         Str(IATP)%EL3,Str(IBTP)%EL3,
      &         NCOMB,XNCOMB,MXS,MXSOO,iWORK(KLBLTP))
           XISPSM(ISYM,ICI) = XNCOMB
           MXSOOB = MAX(MXSOOB,MXSOO)

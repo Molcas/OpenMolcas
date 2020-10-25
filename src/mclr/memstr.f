@@ -49,7 +49,6 @@
       IF(NTEST.NE.0) WRITE(6,*) ' First word with string information',
      &                           KSTINF
 *
-      Call ICopy(MXPSTT,[ip_iDummy],0,KEL3  ,1)
       Call ICopy(MXPSTT,[ip_iDummy],0,KEL123,1)
       Call ICopy(MXPSTT,[ip_iDummy],0,KACTP ,1)
       Call ICopy(MXPSTT,[ip_iDummy],0,KZ    ,1)
@@ -101,8 +100,9 @@
            Call mma_allocate(Str(ITYP)%EL1_Hidden,NOCTYP(ITYP),
      &                       Label='EL1')
            Str(ITYP)%EL1 => Str(ITYP)%EL1_Hidden
-        Call GetMem('IEL3  ','ALLO','INTEGER',
-     &               KEL3(ITYP),NOCTYP(ITYP))
+           Call mma_allocate(Str(ITYP)%EL3_Hidden,NOCTYP(ITYP),
+     &                       Label='EL3')
+           Str(ITYP)%EL3 => Str(ITYP)%EL3_Hidden
         Call GetMem('ACTP ','ALLO','INTEGER',
      &             KACTP(ITYP),NOCTYP(ITYP))
 CMS: New array introduced according to Jeppes new strinfo representation
@@ -118,7 +118,7 @@ CMS: New array introduced according to Jeppes new strinfo representation
           Str(ITYP)%NSTSO => Str(IITYP)%NSTSO_Hidden
           Str(ITYP)%ISTSO => Str(IITYP)%ISTSO_Hidden
           Str(ITYP)%EL1   => Str(IITYP)%EL1_Hidden
-          KEL3(ITYP)   = KEL3(IITYP)
+          Str(ITYP)%EL3   => Str(IITYP)%EL3_Hidden
           KACTP(ITYP)  = KACTP(IITYP)
           KZ(ITYP)     = KZ(IITYP)
           KEL123(ITYP) = KEL123(IITYP)
@@ -132,7 +132,7 @@ CMS: Be aware that IEL13 is also called in STRINF
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
         CALL IEL13(MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),
      &             NELEC(ITYP),NOCTYP(ITYP),Str(ITYP)%EL1,
-     &             iWORK(KEL3(ITYP)),iWORK(KEL123(ITYP)),
+     &             Str(ITYP)%EL3,iWORK(KEL123(ITYP)),
      &             iWORK(KACTP(ITYP)) )
         END IF
       END DO
@@ -210,13 +210,9 @@ CMS: New else block
           IF(IMNEW.EQ.1) THEN
             Call GetMem('CREMAP','ALLO','INTE',KSTSTM(ITYP,1),LENGTH)
             Call GetMem('ANNMAP','ALLO','INTE',KSTSTM(ITYP,2),LENGTH)
-C             WRITE(6,*) ' Map for ITYP = ', ITYP, ' is created '
           ELSE
             KSTSTM(ITYP,1) = KSTSTM(-IUNIQMP(ITYP),1)
             KSTSTM(ITYP,2) = KSTSTM(-IUNIQMP(ITYP),2)
-C             WRITE(6,*)
-C     &      ' Map for ITYP=',ITYP,' corresponds to map for JTYP=',
-C     &        -IUNIQMP(ITYP)
           END IF
       END DO
 
@@ -232,9 +228,9 @@ C     &        -IUNIQMP(ITYP)
 **. Up and down mappings of strings containing the same number of electrons
 *
       DO ITYP = 1, NSTTYP
-       IF(INUMAP(ITYP).NE.0)
+         IF(INUMAP(ITYP).NE.0)
      &Call GetMem('Numup ','ALLO','INTEGER',KNUMAP(ITYP),NSTFTP(ITYP))
-       IF(INDMAP(ITYP).NE.0)
+         IF(INDMAP(ITYP).NE.0)
      &Call GetMem('Ndmup ','ALLO','INTEGER',KNDMAP(ITYP),NSTFTP(ITYP))
       END DO
 

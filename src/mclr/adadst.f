@@ -89,9 +89,8 @@ C        write(6,*) ' Unique string group for mappings ',KGRP
      &           iWORK(KSTSTM(JGRP,1)),iWORK(KSTSTM(JGRP,2)),
      &           I1MPF,L1MP,
      &           iWORK(KSTSTMI(JGRP)), iWORK(KSTSTMN(JGRP)),
-     &           Str(IGRP)%EL1,
-     &           iWORK(KEL3(IGRP)),Str(IGRP+2)%EL1,
-     &           iWORK(KEL3(IGRP+2)),Str(IGRP)%ISTSO,
+     &           Str(IGRP  )%EL1,Str(IGRP  )%EL3,
+     &           Str(IGRP+2)%EL1,Str(IGRP+2)%EL3,Str(IGRP)%ISTSO,
      &           Str(iGRP)%NSTSO,Str(IGRP+2)%ISTSO,
      &           Str(IGRP+2)%NSTSO,NOCTYP(IGRP),NOCTYP(IGRP+2),
      &           NORB1,NORB2,NORB3,NACOB,KMAX,KMIN,IEND)

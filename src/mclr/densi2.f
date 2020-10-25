@@ -158,14 +158,14 @@ CFUE  IPRDEN=0
       CALL GETMEM('CIOIO','ALLO','INTE',KCIOIO,NOCTPA*NOCTPB)
 
       CALL IAIBCM_MCLR(MNR1IC(ISSPC),MXR3IC(ISSPC),NOCTPA,NOCTPB,
-     &            Str(IATP)%EL1,iWORK(KEL3(IATP)),
-     &            Str(IBTP)%EL1,iWORK(KEL3(IBTP)),
+     &            Str(IATP)%EL1,Str(IATP)%EL3,
+     &            Str(IBTP)%EL1,Str(IBTP)%EL3,
      &            iWORK(KSIOIO),IPRDEN)
 
 *
       CALL IAIBCM_MCLR(MNR1IC(ICSPC),MXR3IC(ICSPC),NOCTPA,NOCTPB,
-     &            Str(IATP)%EL1,iWORK(KEL3(IATP)),
-     &            Str(IBTP)%EL1,iWORK(KEL3(IBTP)),
+     &            Str(IATP)%EL1,Str(IATP)%EL3,
+     &            Str(IBTP)%EL1,Str(IBTP)%EL3,
      &            iWORK(KCIOIO),IPRDEN)
 
 *

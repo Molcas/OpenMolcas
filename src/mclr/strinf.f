@@ -72,7 +72,7 @@
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
         CALL IEL13(MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),
      &             NELEC(ITYP),NOCTYP(ITYP),Str(ITYP)%EL1,
-     &             iWork(KEL3(ITYP)),iwork(KEL123(ITYP)),
+     &             Str(ITYP)%EL3,iwork(KEL123(ITYP)),
      &             iWork(KACTP(ITYP)) )
         END IF
    25 CONTINUE
