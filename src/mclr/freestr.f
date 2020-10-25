@@ -44,10 +44,6 @@
 #include "csm.fh"
 #include "stinf_mclr.fh"
 *. Start of string information
-*     CALL MEMMAN(KSTINF,IDUMMY,'FREE  ',IDUMMY,'DUMMY ')
-      NTEST = 0
-      IF(NTEST.NE.0)
-     &WRITE(6,*) ' First word with string information',KSTINF
 * =====================================================================
 *
 * 1 : String information
@@ -187,10 +183,8 @@ CMS: New else block
 **. Up and down mappings of strings containing the same number of electrons
 *
       DO 70 ITYP = 1, NSTTYP
-       IF(INUMAP(ITYP).NE.0)
-     &Call GetMem('Numup ','Free','INTEGER',KNUMAP(ITYP),nDum)
-       IF(INDMAP(ITYP).NE.0)
-     &Call GetMem('Ndmup ','Free','INTEGER',KNDMAP(ITYP),nDum)
+       IF(INUMAP(ITYP).NE.0) Call mma_deallocate(Str(ITYP)%NUMAP)
+       IF(INDMAP(ITYP).NE.0) Call mma_deallocate(Str(ITYP)%NDMAP)
    70 CONTINUE
 *
       RETURN

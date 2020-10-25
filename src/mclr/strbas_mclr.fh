@@ -15,17 +15,11 @@
 *        KIFSJO        :
 *        KSTSTX        :        Symmetry of excitation connecting
 *                        strings of given symmetry
-*        KNDMAP        :         Down mappings of strings containing the same number
-*                        of electrons
-*        KNUMAP        :          Up mappings of strings containing the same number
-*                        of electrons
 *        KSBLTP        :
 *        KSIOIO        :
       Integer KSTINF,
      &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,
-     &              KNDMAP(MXPSTT),KNUMAP(MXPSTT),
      &              KSBLTP,KSIOIO
       COMMON/STRBAS_MCLR/KSTINF,
      &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,
-     &              KNDMAP,KNUMAP,
      &              KSBLTP,KSIOIO

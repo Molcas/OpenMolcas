@@ -45,9 +45,6 @@
 #include "stinf_mclr.fh"
       LENGTH=100
 *. Start of string information
-      NTEST = 0000
-      IF(NTEST.NE.0) WRITE(6,*) ' First word with string information',
-     &                           KSTINF
 *
 * =====================================================================
 *
@@ -227,9 +224,9 @@ CMS: New else block
 *
       DO ITYP = 1, NSTTYP
          IF(INUMAP(ITYP).NE.0)
-     &Call GetMem('Numup ','ALLO','INTEGER',KNUMAP(ITYP),NSTFTP(ITYP))
+     &     Call mma_allocate(Str(ITYP)%NUMAP,NSTFTP(ITYP),Label='NUMAP')
          IF(INDMAP(ITYP).NE.0)
-     &Call GetMem('Ndmup ','ALLO','INTEGER',KNDMAP(ITYP),NSTFTP(ITYP))
+     &     Call mma_allocate(Str(ITYP)%NDMAP,NSTFTP(ITYP),Label='NDMAP')
       END DO
 
 *. Last word of string information

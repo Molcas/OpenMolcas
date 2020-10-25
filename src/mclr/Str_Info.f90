@@ -24,13 +24,8 @@
 !        STSTMI       :        Explicit offsets and lengths
 !        STSTMN       :                  "
 !        STSTM        :        ?
-
-
-
-
-
-
-
+!        NDMAP        :        Down mappings of strings containing the same number of electrons
+!        NUMAP        :          Up mappings of strings containing the same number of electrons
 
 Module Str_Info
       Implicit None
@@ -62,6 +57,8 @@ Module Str_Info
            Integer, Allocatable:: STSTMN(:)
            Integer, Pointer:: STSTM(:,:)=>Null()
            Integer, Allocatable:: STSTM_hidden(:,:)
+           Integer, Allocatable:: NUMAP(:)
+           Integer, Allocatable:: NDMAP(:)
       End Type String_Info
 
       Type (String_Info), Allocatable, Target:: Str(:)
