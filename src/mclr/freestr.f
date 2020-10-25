@@ -79,22 +79,24 @@
 *. Number of strings per symmetry and occupation
       DO ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
-          Str(ITYP)%NSTSO => Null()
+          Str(ITYP)%NSTSO=> Null()
           Call mma_deallocate(Str(ITYP)%NSTSO_Hidden)
 *. Offset of strings per symmetry and occupation
-          Str(ITYP)%ISTSO => Null()
+          Str(ITYP)%ISTSO=> Null()
           Call mma_deallocate(Str(ITYP)%ISTSO_Hidden)
 *. Number of electrons in RAS1 and RAS3 per sub type, is sub-type active
-          Str(ITYP)%EL1 => Null()
+          Str(ITYP)%EL1  => Null()
           Call mma_deallocate(Str(ITYP)%EL1_Hidden)
-          Str(ITYP)%EL3 => Null()
+          Str(ITYP)%EL3  => Null()
           Call mma_deallocate(Str(ITYP)%EL3_Hidden)
-          Str(ITYP)%ACTP=> Null()
+          Str(ITYP)%ACTP => Null()
           Call mma_deallocate(Str(ITYP)%ACTP_Hidden)
 CMS: New array introduced according to Jeppes new strinfo representation
-        Call GetMem('KEL123','Free','INTEGER',KEL123(ITYP),nDum)
+          Str(ITYP)%EL123=> Null()
+          Call mma_deallocate(Str(ITYP)%EL123_Hidden)
 **. Lexical adressing of arrays: NB! Not allocated here in Jeppes new version!
-        Call GetMem('Zmat  ','Free','INTEGER',KZ(ITYP),nDum)
+          Str(ITYP)%Z    => Null()
+          Call mma_deallocate(Str(ITYP)%Z_Hidden)
         ELSE
 *. redirect
           IITYP = - IUNIQTP(ITYP)
@@ -103,8 +105,8 @@ CMS: New array introduced according to Jeppes new strinfo representation
           Str(ITYP)%EL1   => Null()
           Str(ITYP)%EL3   => Null()
           Str(ITYP)%ACTP  => Null()
-          KZ(ITYP)     = KZ(IITYP)
-          KEL123(ITYP) = KEL123(IITYP)
+          Str(ITYP)%EL123 => Null()
+          Str(ITYP)%Z     => Null()
         END IF
       END DO
 *. Mappings between different string types

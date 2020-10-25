@@ -10,8 +10,6 @@
 ************************************************************************
 *        KSTINF        :        Not in use
 *        KSTSTM        :        ?
-*        KZ        :         Lexical adressing of arrays
-*        KEL123        :        -"-    But array
 *        KCOBSM        :        Symmetry of conjugated orbitals
 *        KNIFSJ        :
 *        KIFSJ        :
@@ -27,15 +25,13 @@
 *        KSTSTMI        :        Explicit offsets and lengths
 *        KSTSTMN        :                  "
       Integer KSTINF,
-     &              KSTSTM(MXPSTT,2),KZ(MXPSTT),
-     &              Kel123(MXPSTT),
+     &              KSTSTM(MXPSTT,2),
      &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,
      &              KNDMAP(MXPSTT),KNUMAP(MXPSTT),
      &              KSBLTP,KSIOIO,
      &              KSTSTMI(MXPSTT),KSTSTMN(MXPSTT)
       COMMON/STRBAS_MCLR/KSTINF,
-     &              KSTSTM,KZ,
-     &              Kel123,
+     &              KSTSTM,
      &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,
      &              KNDMAP,KNUMAP,
      &              KSBLTP,KSIOIO,

@@ -26,11 +26,11 @@
 #include "strbas_mclr.fh"
 #include "strinp_mclr.fh"
 #include "orbinp_mclr.fh"
-#include "WrkSpc.fh"
 
       NEL = NELEC(IGROUP)
-      ISTRN_MCLR = ISTRNM(STRING,NACOB,NEL,iWORK(KZ(IGROUP)),
-     &               Str(IGROUP)%STREO,1)
+      ISTRN_MCLR = ISTRNM(STRING,NACOB,NEL,
+     &                    Str(IGROUP)%Z,
+     &                    Str(IGROUP)%STREO,1)
 *
 *
       RETURN

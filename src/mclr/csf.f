@@ -213,20 +213,20 @@ c Avoid unused argument warnings
 #include "strinp_mclr.fh"
 #include "stinf_mclr.fh"
 #include "strbas_mclr.fh"
-#include "WrkSpc.fh"
       DIMENSION IOOS(NOCTYP(IAGRP),NOCTYP(IBGRP),*)
 *
       IABNUM = IABNUS(IASTR,NELEC(IAGRP),Str(IAGRP)%STREO,
      &                Str(IAGRP)%STCL,Str(IAGRP)%STSM,
      &                NOCTYP(IAGRP),
-     &         iWORK(KZ(IAGRP)),Str(IAGRP)%ISTSO,
-     &         Str(IAGRP)%NSTSO,
+     &                Str(IAGRP)%Z,Str(IAGRP)%ISTSO,
+     &                Str(IAGRP)%NSTSO,
      &                IBSTR,NELEC(IBGRP),Str(IBGRP)%STREO,
-     &         Str(IBGRP)%STCL,Str(IBGRP)%STSM,NOCTYP(IBGRP),
-     &         iWORK(KZ(IBGRP)),Str(IBGRP)%ISTSO,
-     &         Str(IBGRP)%NSTSO,
-     &         IOOS,NORB,IGENSG,ISGNA,ISGNB,ISGNAB,PSSIGN,IPSFAC,
-     &         IPRNT)
+     &                Str(IBGRP)%STCL,Str(IBGRP)%STSM,
+     &                NOCTYP(IBGRP),
+     &                Str(IBGRP)%Z,Str(IBGRP)%ISTSO,
+     &                Str(IBGRP)%NSTSO,
+     &                IOOS,NORB,IGENSG,ISGNA,ISGNB,ISGNAB,PSSIGN,
+     &                IPSFAC,IPRNT)
       RETURN
       END
       FUNCTION IABNUS(IASTR,NAEL,IAORD,ITPFSA,ISMFSA,NOCTPA,ZA,

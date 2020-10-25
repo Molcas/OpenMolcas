@@ -179,7 +179,7 @@ CFUE  IPRDEN=0
      &            NSMOB,3,3,NTSOB,IPRCIX,MAXK,
      &            Str(IATP+2)%NSTSO,NOCTYP(IATP+2),
      &            Str(IBTP+2)%NSTSO,NOCTYP(IBTP+2),
-     &            iWORK(KEL123(IATP)),iWORK(KEL123(IBTP)),
+     &            Str(IATP)%EL123,Str(IBTP)%EL123,
      &            MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXIJST,
      &            MXIJSTF)
 
@@ -262,7 +262,7 @@ CFUE  IPRDEN=0
      &       WORK(KCSCR),WORK(KSSCR),
      &       iSXSTSM,iWORK(KSTSTS),iWORK(KSTSTD),SXDXSX,
      &       ADSXA,ASXAD,NGAS,
-     &       iWORK(KEL123(iatp)),iWORK(KEL123(ibtp)),IDC,
+     &       Str(IATP)%EL123,Str(IBTP)%EL123,IDC,
      &       iWORK(KOOS1),iWORK(KOOS2),iWORK(KOOS3),iWORK(KOOS4),
      &       iWORK(KOOS5),iWORK(KOOS6),iWORK(KOOS7),iWORK(KOOS8),
      &       iWORK(KOOS9),iWORK(KOOS10),
@@ -286,7 +286,7 @@ CFUE  IPRDEN=0
      &       WORK(KCSCR),WORK(KSSCR),
      &       iSXSTSM,iWORK(KSTSTS),iWORK(KSTSTD),SXDXSX,
      &       ADSXA,ASXAD,NGAS,
-     &       iWORK(KEL123(iatp)),iWORK(KEL123(ibtp)),IDC,
+     &       Str(IATP)%EL123,Str(IBTP)%EL123,IDC,
      &       iWORK(KOOS1),iWORK(KOOS2),iWORK(KOOS3),iWORK(KOOS4),
      &       iWORK(KOOS5),iWORK(KOOS6),iWORK(KOOS7),iWORK(KOOS8),
      &       iWORK(KOOS9),iWORK(KOOS10),

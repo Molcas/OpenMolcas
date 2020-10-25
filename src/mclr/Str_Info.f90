@@ -19,6 +19,9 @@
 !        EL1          :        Number of electrons in RAS1 per sub type
 !        EL3          :        Number of electrons in RAS3 per sub type
 !        ACTP         :        is sub-type active
+!        Z            :         Lexical adressing of arrays
+!        EL123        :        -"-    But array
+
 
 
 
@@ -46,6 +49,10 @@ Module Str_Info
            Integer, Allocatable:: EL3_hidden(:)
            Integer, Pointer:: ACTP(:)=>Null()
            Integer, Allocatable:: ACTP_hidden(:)
+           Integer, Pointer:: Z(:)=>Null()
+           Integer, Allocatable:: Z_hidden(:)
+           Integer, Pointer:: EL123(:)=>Null()
+           Integer, Allocatable:: EL123_hidden(:)
       End Type String_Info
 
       Type (String_Info), Allocatable, Target:: Str(:)

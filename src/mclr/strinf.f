@@ -60,7 +60,7 @@
       CALL mma_allocate(KFREEL,imax,Label='KFREEL')
       DO 20 ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
-        CALL WEIGHT_mclr(iWork(KZ(ITYP)),NELEC(ITYP),NORB1,NORB2,NORB3,
+        CALL WEIGHT_mclr(Str(ITYP)%Z,NELEC(ITYP),NORB1,NORB2,NORB3,
      &                   MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),
      &                   MXRS3(ITYP),KFREEL )
         END IF
@@ -72,7 +72,7 @@
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
         CALL IEL13(MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),
      &             NELEC(ITYP),NOCTYP(ITYP),Str(ITYP)%EL1,
-     &             Str(ITYP)%EL3,iwork(KEL123(ITYP)),
+     &             Str(ITYP)%EL3,Str(ITYP)%EL123,
      &             Str(ITYP)%ACTP)
         END IF
    25 CONTINUE
@@ -100,7 +100,7 @@
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
         CALL GENSTR_MCLR(NELEC(ITYP),MNRS1(ITYP),MXRS1(ITYP),
      &                   MNRS3(ITYP),MXRS3(ITYP),Str(ITYP)%ISTSO,
-     &                   NOCTYP(ITYP),NSMST,iwork(KZ(ITYP)),KFREEL,
+     &                   NOCTYP(ITYP),NSMST,Str(ITYP)%Z,KFREEL,
      &                   Str(ITYP)%STREO,Str(ITYP)%OCSTR,
      &                   KFREEL(1+NOCTYP(ITYP)*NSMST),ITYP,IPRNT)
         END IF
@@ -125,7 +125,7 @@
           Call iCOPY(NSTFTP(ITYP)*LROW,[0],0,iWork(KSTSTM(ITYP,1)),1)
           Call iCOPY(NSTFTP(ITYP)*LROW,[0],0,iWork(KSTSTM(ITYP,2)),1)
           CALL ANNSTR(Str(ITYP)%OCSTR,NSTFTP(ITYP),NSTFTP(JTYP),
-     &                NELEC(ITYP),NACOB,iWork(KZ(JTYP)),
+     &                NELEC(ITYP),NACOB,Str(JTYP)%Z,
      &                Str(JTYP)%STREO,LROW,0,ISGSTI,ISGSTO,
      &                iwork(KSTSTM(ITYP,1)),iwork(KSTSTM(ITYP,2)),
      &                JTYP,IPRNT)
@@ -152,7 +152,7 @@
           WRITE(6,*) ' ==========================================='
           END IF
           CALL CRESTR(Str(ITYP)%OCSTR,NSTFTP(ITYP),NSTFTP(JTYP),
-     &                NELEC(ITYP),NACOB,iwork(KZ(JTYP)),
+     &                NELEC(ITYP),NACOB,Str(JTYP)%Z,
      &                Str(JTYP)%STREO,0,ISGSTI,ISGSTO,
      &                iwork(KSTSTM(ITYP,1)),iwork(KSTSTM(ITYP,2)),
      &                iWORK(KSTSTMN(ITYP)),iWORK(KSTSTMI(ITYP)),

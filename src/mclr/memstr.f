@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1990,1994, Jeppe Olsen                                 *
 ************************************************************************
-      SUBROUTINE MEMSTR
+      SUBROUTINE MEMSTR()
       Use Str_Info
 *
 *
@@ -49,8 +49,6 @@
       IF(NTEST.NE.0) WRITE(6,*) ' First word with string information',
      &                           KSTINF
 *
-      Call ICopy(MXPSTT,[ip_iDummy],0,KEL123,1)
-      Call ICopy(MXPSTT,[ip_iDummy],0,KZ    ,1)
 * =====================================================================
 *
 * 1 : String information
@@ -98,20 +96,21 @@
 *. Number of electrons in RAS1 and RAS3 per sub type, is sub-type active
            Call mma_allocate(Str(ITYP)%EL1_Hidden,NOCTYP(ITYP),
      &                       Label='EL1')
-           Str(ITYP)%EL1 => Str(ITYP)%EL1_Hidden
+           Str(ITYP)%EL1  => Str(ITYP)%EL1_Hidden
            Call mma_allocate(Str(ITYP)%EL3_Hidden,NOCTYP(ITYP),
      &                       Label='EL3')
-           Str(ITYP)%EL3 => Str(ITYP)%EL3_Hidden
+           Str(ITYP)%EL3  => Str(ITYP)%EL3_Hidden
            Call mma_allocate(Str(ITYP)%ACTP_Hidden,NOCTYP(ITYP),
      &                       Label='ACTP')
            Str(ITYP)%ACTP => Str(ITYP)%ACTP_Hidden
 CMS: New array introduced according to Jeppes new strinfo representation
-        Call GetMem('KEL123','ALLO','INTEGER',
-     &                KEL123(ITYP),3*NOCTYP(ITYP))
+           Call mma_allocate(Str(ITYP)%EL123_Hidden,3*NOCTYP(ITYP),
+     &                       Label='EL123')
+           Str(ITYP)%EL123=> Str(ITYP)%EL123_Hidden
 **. Lexical adressing of arrays: NB! Not allocated here in Jeppes new version!
-*       CALL MEMMAN(KZ(ITYP),NACOB*NELEC(ITYP),'ADDS  ',1,'Zmat  ')
-        Call GetMem('Zmat  ','ALLO','INTEGER',
-     &                    KZ(ITYP),NACOB*NELEC(ITYP))
+           Call mma_allocate(Str(ITYP)%Z_Hidden,NACOB*NELEC(ITYP),
+     &                       Label='Z')
+           Str(ITYP)%Z=> Str(ITYP)%Z_Hidden
         ELSE
 *. redirect
           IITYP = - IUNIQTP(ITYP)
@@ -120,19 +119,19 @@ CMS: New array introduced according to Jeppes new strinfo representation
           Str(ITYP)%EL1   => Str(IITYP)%EL1_Hidden
           Str(ITYP)%EL3   => Str(IITYP)%EL3_Hidden
           Str(ITYP)%ACTP  => Str(IITYP)%ACTP_Hidden
-          KZ(ITYP)     = KZ(IITYP)
-          KEL123(ITYP) = KEL123(IITYP)
+          Str(ITYP)%EL123 => Str(IITYP)%EL123_Hidden
+          Str(ITYP)%Z     => Str(IITYP)%Z_Hidden
         END IF
       END DO
 
 CMS: Introduced according to Jeppes new concept.
-CMS: NB! WORK(KEL123(ITYP) added to IEL13 parameter list!
+CMS: NB! Str(ITYP)%EL123 added to IEL13 parameter list!
 CMS: Be aware that IEL13 is also called in STRINF
       DO  ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
         CALL IEL13(MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),
      &             NELEC(ITYP),NOCTYP(ITYP),Str(ITYP)%EL1,
-     &             Str(ITYP)%EL3,iWORK(KEL123(ITYP)),
+     &             Str(ITYP)%EL3,Str(ITYP)%EL123,
      &             Str(ITYP)%ACTP)
         END IF
       END DO
@@ -162,7 +161,7 @@ CMS: New else block
      &                     NORB2,NORB3,MNRS3(ITYP),MXRS3(ITYP),
      &                     Str(ITYP)%NSTSO)
             LENGTH = NCASTR_MCLR(2,Str(ITYP)%NSTSO,NOCTYP(ITYP),
-     &                      ITYP,NOBPT,3,iWORK(KEL123(ITYP)))
+     &                      ITYP,NOBPT,3,Str(ITYP)%EL123)
 *. Explicit offsets and lengths
             Call GetMem('STSTMI','ALLO','INTEGER',KSTSTMI(ITYP),NSTRIN)
             Call GetMem('STSTMN','ALLO','INTEGER',KSTSTMN(ITYP),NSTRIN)

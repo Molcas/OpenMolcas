@@ -188,7 +188,7 @@
      &            NSMOB,3,3,NTSOB,IPRCIX,MAXpK,
      &            Str(IATP+2)%NSTSO,NOCTYP(IATP+2),
      &            Str(IBTP+2)%NSTSO,NOCTYP(IBTP+2),
-     &            iWORK(KEL123(IATP)),iWORK(KEL123(IBTP)),
+     &            Str(IATP)%EL123,Str(IBTP)%EL123,
      &            MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXIJST,
      &            MXIJSTF)
 *
