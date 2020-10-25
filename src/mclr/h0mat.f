@@ -29,7 +29,6 @@
 *
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "detdim.fh"
-#include "strbas_mclr.fh"
 #include "cicisp_mclr.fh"
 #include "stinf_mclr.fh"
 #include "spinfo_mclr.fh"

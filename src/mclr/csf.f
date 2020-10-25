@@ -212,7 +212,6 @@ c Avoid unused argument warnings
 #include "detdim.fh"
 #include "strinp_mclr.fh"
 #include "stinf_mclr.fh"
-#include "strbas_mclr.fh"
       DIMENSION IOOS(NOCTYP(IAGRP),NOCTYP(IBGRP),*)
 *
       IABNUM = IABNUS(IASTR,NELEC(IAGRP),Str(IAGRP)%STREO,
@@ -358,7 +357,6 @@ C?    END IF
 #include "cstate_mclr.fh"
 #include "detdim.fh"
 #include "strinp_mclr.fh"
-#include "strbas_mclr.fh"
 #include "stinf_mclr.fh"
 #include "orbinp_mclr.fh"
 #include "csm.fh"
@@ -366,6 +364,7 @@ C?    END IF
 #include "csfbas_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "cands.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "Files_mclr.fh"
       integer idum(1)
@@ -393,13 +392,12 @@ C     that no CSF<->SD coefficents is in core
       MXELR3 = MNR1IC(ISPC)
       iRefSm=lsym
 *.... Obtain OOS pointer array
-*     strbas_mclr.fh
-      CALL GETMEM('SIOIO ','ALLO','INTE',KSIOIO,NOCTPA*NOCTPB)
+      CALL mma_allocate(SIOIO,NOCTPA*NOCTPB,Label='SIOIO')
       CALL IAIBCM_MCLR(MNR1IC(ISSPC),MXR3IC(ISSPC),NOCTPA,NOCTPB,
      &            Str(IATP)%EL1,Str(IATP)%EL3,
      &            Str(IBTP)%EL1,Str(IBTP)%EL3,
-     &            iWORK(KSIOIO),IPRNT)
-      CALL GETMEM('SBLTP','ALLO','INTE',KSBLTP,NSMST)
+     &            SIOIO,IPRNT)
+      CALL mma_allocate(SBLTP,NSMST,Label='SBLTP')
       NOOS = NOCTPA*NOCTPB*NSMST
       CALL GETMEM('IOOS1','ALLO','INTEGER',KIOOS1,NOOS)
       CALL GETMEM('NOOS1','ALLO','INTEGER',KNOOS1,NOOS)
@@ -419,9 +417,9 @@ C     that no CSF<->SD coefficents is in core
       iA=0
       Do iSym=1,nSym
 *.OOS arrayy
-          CALL ZBLTP(ISMOST(1,ISYM),NSMST,IDC,iWORK(KSBLTP),idum)
-          CALL ZOOS(ISMOST(1,ISYM),iWORK(KSBLTP),
-     &          NSMST,iWORK(KSIOIO),
+          CALL ZBLTP(ISMOST(1,ISYM),NSMST,IDC,SBLTP,idum)
+          CALL ZOOS(ISMOST(1,ISYM),SBLTP,
+     &          NSMST,SIOIO,
      &          Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
      &          NOCTPA,NOCTPB,idc,IWORK(KIOOS1),
      &          IWORK(KNOOS1),NCOMB,0)
@@ -449,10 +447,8 @@ C     that no CSF<->SD coefficents is in core
       CALL GETMEM('KICONF','FREE','INTEGER',KICONF(1),NOOS)
       CALL GETMEM('IOOS1','FREE','INTEGER',KIOOS1,NOOS)
       CALL GETMEM('NOOS1','FREE','INTEGER',KNOOS1,NOOS)
-      CALL GETMEM('SBLTP','FREE','INTE',KSBLTP,NSMST)
-*     CALL GETMEM('KDFTP','FREE','INTE',KDFTP,NSMST)
-*     strbas_mclr.fh
-      CALL GETMEM('SIOIO ','FREE','INTE',KSIOIO,NOCTPA*NOCTPB)
+      Call mma_deallocate(SBLTP)
+      Call mma_deallocate(SIOIO)
 *
       RETURN
 c Avoid unused argument warnings
@@ -1910,7 +1906,6 @@ C
 #include "detdim.fh"
 #include "cstate_mclr.fh"
 #include "strinp_mclr.fh"
-#include "strbas_mclr.fh"
 #include "csm.fh"
 #include "stinf_mclr.fh"
 *

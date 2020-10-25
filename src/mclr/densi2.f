@@ -38,12 +38,12 @@
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
 #include "cicisp_mclr.fh"
-#include "strbas_mclr.fh"
 #include "cstate_mclr.fh"
 #include "strinp_mclr.fh"
 #include "stinf_mclr.fh"
 #include "csm.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "crun_mclr.fh"
 #include "cprnt_mclr.fh"
 #include "spinfo_mclr.fh"
@@ -154,13 +154,13 @@ CFUE  IPRDEN=0
 
 *
 *. Arrays giving allowed type combinations '
-      CALL GETMEM('SIOIO','ALLO','INTE',KSIOIO,NOCTPA*NOCTPB)
+      CALL mma_allocate(SIOIO,NOCTPA*NOCTPB,Label='SIOIO')
       CALL GETMEM('CIOIO','ALLO','INTE',KCIOIO,NOCTPA*NOCTPB)
 
       CALL IAIBCM_MCLR(MNR1IC(ISSPC),MXR3IC(ISSPC),NOCTPA,NOCTPB,
      &            Str(IATP)%EL1,Str(IATP)%EL3,
      &            Str(IBTP)%EL1,Str(IBTP)%EL3,
-     &            iWORK(KSIOIO),IPRDEN)
+     &            SIOIO,IPRDEN)
 
 *
       CALL IAIBCM_MCLR(MNR1IC(ICSPC),MXR3IC(ICSPC),NOCTPA,NOCTPB,
@@ -202,11 +202,11 @@ CFUE  IPRDEN=0
       CALL GETMEM('XI3S','ALLO','REAL',KXI3S,LSCR3)
       CALL GETMEM('XI4S','ALLO','REAL',KXI4S,LSCR3)
 *. Arrays giving block type
-      CALL GETMEM('SBLTP','ALLO','INTE',KSBLTP,NSMST)
+      CALL mma_allocate(SBLTP,NSMST,Label='SBLTP')
       CALL GETMEM('CBLTP','ALLO','INTE',KCBLTP,NSMST)
 *. Arrays for additional symmetry operation
       KSVST = 1
-      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,iWORK(KSBLTP),iWORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,SBLTP,iWORK(KSVST))
       CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,iWORK(KCBLTP),iWORK(KSVST))
 *.10 OOS arrayy
       NOOS = NOCTPA*NOCTPB*NSMST
@@ -235,9 +235,9 @@ CFUE  IPRDEN=0
 *
       IF(IDC.NE.1.AND.ICISTR.EQ.1) THEN
 *. Left CI vector
-        CALL SCDTC2_MCLR(L,ISMOST(1,ISSM),iWORK(KSBLTP),NSMST,
+        CALL SCDTC2_MCLR(L,ISMOST(1,ISSM),SBLTP,NSMST,
      &              NOCTPA,NOCTPB,Str(IATP)%NSTSO,
-     &              Str(IBTP)%NSTSO,iWORK(KSIOIO),IDC,
+     &              Str(IBTP)%NSTSO,SIOIO,IDC,
      &              2,IDUMMY,IPRDIA)
 *. Right CI vector
         CALL SCDTC2_MCLR(R,ISMOST(1,ICSM),iWORK(KCBLTP),NSMST,
@@ -249,8 +249,8 @@ CFUE  IPRDEN=0
       IF(ICISTR.EQ.1) THEN
         CALL GASDN2(I12,RHO1,RHO2,
      &       R,L,WORK(KCB),WORK(KSB),WORK(KC2),
-     &       iWORK(KCIOIO),iWORK(KSIOIO),ISMOST(1,ICSM),
-     &       ISMOST(1,ISSM),iWORK(KCBLTP),iWORK(KSBLTP),
+     &       iWORK(KCIOIO),SIOIO,ISMOST(1,ICSM),
+     &       ISMOST(1,ISSM),iWORK(KCBLTP),SBLTP,
      &       NACOB,
      &       Str(IATP)%NSTSO,Str(IATP)%ISTSO,
      &       Str(IBTP)%NSTSO,Str(IBTP)%ISTSO,
@@ -273,8 +273,8 @@ CFUE  IPRDEN=0
       ELSE IF(ICISTR.GE.2) THEN
         CALL GASDN2(I12,RHO1,RHO2,
      &       R,L,R,L,WORK(KC2),
-     &       iWORK(KCIOIO),iWORK(KSIOIO),ISMOST(1,ICSM),
-     &       ISMOST(1,ISSM),iWORK(KCBLTP),iWORK(KSBLTP),
+     &       iWORK(KCIOIO),SIOIO,ISMOST(1,ICSM),
+     &       ISMOST(1,ISSM),iWORK(KCBLTP),SBLTP,
      &       NACOB,
      &       Str(IATP)%NSTSO,Str(IATP)%ISTSO,
      &       Str(IBTP)%NSTSO,Str(IBTP)%ISTSO,
@@ -299,9 +299,9 @@ CFUE  IPRDEN=0
       IF(IDC.NE.1.AND.ICISTR.EQ.1) THEN
 *. Transform from combination scaling to determinant scaling
 *
-        CALL SCDTC2_MCLR(L,ISMOST(1,ISSM),iWORK(KSBLTP),NSMST,
+        CALL SCDTC2_MCLR(L,ISMOST(1,ISSM),SBLTP,NSMST,
      &              NOCTPA,NOCTPB,Str(IATP)%NSTSO,
-     &              Str(IBTP)%NSTSO,iWORK(KSIOIO),IDC,
+     &              Str(IBTP)%NSTSO,SIOIO,IDC,
      &              1,IDUMMY,IPRDIA)
         CALL SCDTC2_MCLR(R,ISMOST(1,ICSM),iWORK(KCBLTP),NSMST,
      &              NOCTPA,NOCTPB,Str(IATP)%NSTSO,
@@ -318,7 +318,7 @@ CFUE  IPRDEN=0
         Call GetMem('KSB','FREE','Real',KSB,IDUM)
       End If
       Call GetMem('INTSCR','FREE','Real',KINSCR,IDUM)
-      Call GetMem('SIOIO','FREE','Inte',KSIOIO,IDUM)
+      Call mma_deallocate(SIOIO)
       Call GetMem('CIOIO','FREE','Inte',KCIOIO,IDUM)
       Call GetMem('KC2','FREE','Real',KC2,IDUM)
       Call GetMem('I1','FREE','Inte',KI1,IDUM)
@@ -329,7 +329,7 @@ CFUE  IPRDEN=0
       Call GetMem('XI2S','FREE','Real',KXI2S,IDUM)
       Call GetMem('XI3S','FREE','Real',KXI3S,IDUM)
       Call GetMem('XI4S','FREE','Real',KXI4S,IDUM)
-      Call GetMem('SBLTP','FREE','Inte',KSBLTP,IDUM)
+      Call mma_deallocate(SBLTP)
       Call GetMem('CBLTP','FREE','Inte',KCBLTP,IDUM)
       Call GetMem('OOS1','FREE','Inte',KOOS1,IDUM)
       Call GetMem('OOS2','FREE','Inte',KOOS2,IDUM)

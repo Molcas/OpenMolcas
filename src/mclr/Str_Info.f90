@@ -27,6 +27,10 @@
 !        NDMAP        :        Down mappings of strings containing the same number of electrons
 !        NUMAP        :          Up mappings of strings containing the same number of electrons
 
+!        KSBLTP        :
+!        KSIOIO        :
+
+
 ! Not used
 !        COBSM        :        Symmetry of conjugated orbitals
 !        NIFSJ        :
@@ -78,4 +82,6 @@ Module Str_Info
 !     Integer, Allocatable:: IFSJ(:)
 !     Integer, Allocatable:: IFSJO(:)
 !     Integer, Allocatable:: STSTX(:)
+      Integer, Allocatable:: SBLTP(:)
+      Integer, Allocatable:: SIOIO(:)
 End Module Str_Info

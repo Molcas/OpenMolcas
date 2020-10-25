@@ -34,8 +34,6 @@
       DIMENSION CNHCNM(*)
 *. Interface to LUCIA common blocks in order to access strings
 #include "detdim.fh"
-#include "strbas_mclr.fh"
-*
 #include "spinfo_mclr.fh"
 #include "cicisp_mclr.fh"
 *

@@ -42,7 +42,6 @@
 #include "orbinp_mclr.fh"
 #include "strinp_mclr.fh"
 #include "stinf_mclr.fh"
-#include "strbas_mclr.fh"
 *
 * =======
 *. Output

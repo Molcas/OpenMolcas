@@ -23,7 +23,6 @@
       INTEGER STRING(*)
 *
 #include "detdim.fh"
-#include "strbas_mclr.fh"
 #include "strinp_mclr.fh"
 #include "orbinp_mclr.fh"
 

@@ -33,7 +33,6 @@
 *
 #include "strinp_mclr.fh"
 #include "stinf_mclr.fh"
-#include "strbas_mclr.fh"
 #include "csm.fh"
 *
       Integer ISGSTI(1),ISGSTO(1)

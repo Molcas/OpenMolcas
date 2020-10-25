@@ -44,9 +44,9 @@
 *. Number of alpha and beta electrons
       NAEL = (MS2 + NACTEL ) / 2
       NBEL = (NACTEL - MS2 ) / 2
-      IF(NAEL + NBEL .NE. NACTEL ) THEN
-        Write (6,*) 'STRTYP: NAEL + NBEL .NE. NACTEL'
-        Write (6,*) 'NAEL,NBEL,NACTEL=',NAEL,NBEL,NACTEL
+      IF (NAEL + NBEL .NE. NACTEL ) THEN
+         Write (6,*) 'STRTYP: NAEL + NBEL .NE. NACTEL'
+         Write (6,*) 'NAEL,NBEL,NACTEL=',NAEL,NBEL,NACTEL
 ************************************************************************
 *     The argument iPL was missing so I inserted this piece inside the
 *     stars to calculate it the same way as in the start of mclr.f
@@ -65,13 +65,14 @@
 *. Strings in zero order space
 * =============================
 *. Type : alpha-strings
-      NELEC(1) = NAEL
-      MNRS1(1) = MAX(0,MNRS10-MIN(NBEL,NORB1))
-      MXRS1(1) = MIN(NAEL,NORB1,MXRS10)
-      MNRS3(1) = MAX(0,MNRS30-MIN(NBEL,NORB3))
-      MXRS3(1) = MIN(NAEL,NORB3,MXRS30)
       ITYPE = 1
-      IAZTP = 1
+      IAZTP = ITYPE
+      NELEC(ITYPE) = NAEL
+      MNRS1(ITYPE) = MAX(0,MNRS10-MIN(NBEL,NORB1))
+      MXRS1(ITYPE) = MIN(NAEL,NORB1,MXRS10)
+      MNRS3(ITYPE) = MAX(0,MNRS30-MIN(NBEL,NORB3))
+      MXRS3(ITYPE) = MIN(NAEL,NORB3,MXRS30)
+
       IZORR(ITYPE) = 1
       ISTTP(ITYPE) = 0
 *. Type : single annihilated alphastrings
