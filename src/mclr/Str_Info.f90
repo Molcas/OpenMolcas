@@ -23,6 +23,8 @@
 !        EL123        :        -"-    But array
 !        STSTMI       :        Explicit offsets and lengths
 !        STSTMN       :                  "
+!        STSTM        :        ?
+
 
 
 
@@ -58,6 +60,8 @@ Module Str_Info
            Integer, Allocatable:: EL123_hidden(:)
            Integer, Allocatable:: STSTMI(:)
            Integer, Allocatable:: STSTMN(:)
+           Integer, Pointer:: STSTM(:,:)=>Null()
+           Integer, Allocatable:: STSTM_hidden(:,:)
       End Type String_Info
 
       Type (String_Info), Allocatable, Target:: Str(:)

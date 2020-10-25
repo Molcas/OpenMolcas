@@ -169,11 +169,10 @@ CMS: New else block
  1211       CONTINUE
           END IF
           IF(IMNEW.EQ.1) THEN
-            Call GetMem('CREMAP','Free','INTE',KSTSTM(ITYP,1),nDum)
-            Call GetMem('ANNMAP','Free','INTE',KSTSTM(ITYP,2),nDum)
+            Call mma_deallocate(Str(ITYP)%STSTM_Hidden)
+            Str(ITYP)%STSTM => Null()
           ELSE
-            KSTSTM(ITYP,1) = KSTSTM(-IUNIQMP(ITYP),1)
-            KSTSTM(ITYP,2) = KSTSTM(-IUNIQMP(ITYP),2)
+            Str(ITYP)%STSTM => Null()
           END IF
       END DO
 *. Symmetry of conjugated orbitals and orbital excitations

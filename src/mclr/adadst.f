@@ -39,7 +39,6 @@
 *
       IMPLICIT REAL*8(A-H,O-Z)
 #include "detdim.fh"
-#include "WrkSpc.fh"
 #include "orbinp_mclr.fh"
 #include "strinp_mclr.fh"
 #include "stinf_mclr.fh"
@@ -83,10 +82,10 @@ C        write(6,*) ' Unique string group for mappings ',KGRP
 *
       CALL ADADS1(NK,I1,XI1S,IOBSM,IOBTP,IOBOFF,NIOB,
      &           JOBSM,JOBTP,JOBOFF,NJOB,IJORD,NKDIM,
-     &           ICLS,ISM,iWORK(KSTSTM(KGRP,1)),
-     &           iWORK(KSTSTM(KGRP,2)),I2MPF,L2MP,
+     &           ICLS,ISM,Str(KGRP)%STSTM(:,1),
+     &           Str(KGRP)%STSTM(:,2),I2MPF,L2MP,
      &           Str(KGRP)%STSTMI, Str(KGRP)%STSTMN,
-     &           iWORK(KSTSTM(JGRP,1)),iWORK(KSTSTM(JGRP,2)),
+     &           Str(JGRP)%STSTM(:,1),Str(JGRP)%STSTM(:,2),
      &           I1MPF,L1MP,
      &           Str(JGRP)%STSTMI, Str(JGRP)%STSTMN,
      &           Str(IGRP  )%EL1,Str(IGRP  )%EL3,

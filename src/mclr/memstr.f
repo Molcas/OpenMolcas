@@ -204,11 +204,12 @@ CMS: New else block
           END IF
 
           IF(IMNEW.EQ.1) THEN
-            Call GetMem('CREMAP','ALLO','INTE',KSTSTM(ITYP,1),LENGTH)
-            Call GetMem('ANNMAP','ALLO','INTE',KSTSTM(ITYP,2),LENGTH)
+            Call mma_allocate(Str(ITYP)%STSTM_Hidden,LENGTH,2,
+     &                        Label='STSTM')
+            Str(ITYP)%STSTM => Str(ITYP)%STSTM_Hidden
           ELSE
-            KSTSTM(ITYP,1) = KSTSTM(-IUNIQMP(ITYP),1)
-            KSTSTM(ITYP,2) = KSTSTM(-IUNIQMP(ITYP),2)
+            IITYP = -IUNIQMP(ITYP)
+            Str(ITYP)%STSTM => Str(IITYP)%STSTM_Hidden
           END IF
 
       END DO

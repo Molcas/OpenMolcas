@@ -9,7 +9,6 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 *        KSTINF        :        Not in use
-*        KSTSTM        :        ?
 *        KCOBSM        :        Symmetry of conjugated orbitals
 *        KNIFSJ        :
 *        KIFSJ        :
@@ -23,12 +22,10 @@
 *        KSBLTP        :
 *        KSIOIO        :
       Integer KSTINF,
-     &              KSTSTM(MXPSTT,2),
      &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,
      &              KNDMAP(MXPSTT),KNUMAP(MXPSTT),
      &              KSBLTP,KSIOIO
       COMMON/STRBAS_MCLR/KSTINF,
-     &              KSTSTM,
      &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,
      &              KNDMAP,KNUMAP,
      &              KSBLTP,KSIOIO

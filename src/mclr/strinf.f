@@ -25,7 +25,6 @@
 *     (and /LUCINP/ not occuring here )
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 *
 * ======
@@ -122,12 +121,12 @@
           ELSE
             LROW = NACOB
           END IF
-          Call iCOPY(NSTFTP(ITYP)*LROW,[0],0,iWork(KSTSTM(ITYP,1)),1)
-          Call iCOPY(NSTFTP(ITYP)*LROW,[0],0,iWork(KSTSTM(ITYP,2)),1)
+          Str(ITYP)%STSTM(1:NSTFTP(ITYP)*LROW,1)=0
+          Str(ITYP)%STSTM(1:NSTFTP(ITYP)*LROW,2)=0
           CALL ANNSTR(Str(ITYP)%OCSTR,NSTFTP(ITYP),NSTFTP(JTYP),
      &                NELEC(ITYP),NACOB,Str(JTYP)%Z,
      &                Str(JTYP)%STREO,LROW,0,ISGSTI,ISGSTO,
-     &                iwork(KSTSTM(ITYP,1)),iwork(KSTSTM(ITYP,2)),
+     &                Str(ITYP)%STSTM(:,1),Str(ITYP)%STSTM(:,2),
      &                JTYP,IPRNT)
         END IF
         END IF
@@ -154,7 +153,7 @@
           CALL CRESTR(Str(ITYP)%OCSTR,NSTFTP(ITYP),NSTFTP(JTYP),
      &                NELEC(ITYP),NACOB,Str(JTYP)%Z,
      &                Str(JTYP)%STREO,0,ISGSTI,ISGSTO,
-     &                iwork(KSTSTM(ITYP,1)),iwork(KSTSTM(ITYP,2)),
+     &                Str(ITYP)%STSTM(:,1),Str(ITYP)%STSTM(:,2),
      &                Str(ITYP)%STSTMN,Str(ITYP)%STSTMI,
      &                LROW,JTYP,IPRNT)
         END IF
