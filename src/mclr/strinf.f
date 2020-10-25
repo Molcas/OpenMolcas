@@ -155,7 +155,7 @@
      &                NELEC(ITYP),NACOB,Str(JTYP)%Z,
      &                Str(JTYP)%STREO,0,ISGSTI,ISGSTO,
      &                iwork(KSTSTM(ITYP,1)),iwork(KSTSTM(ITYP,2)),
-     &                iWORK(KSTSTMN(ITYP)),iWORK(KSTSTMI(ITYP)),
+     &                Str(ITYP)%STSTMN,Str(ITYP)%STSTMI,
      &                LROW,JTYP,IPRNT)
         END IF
         END IF

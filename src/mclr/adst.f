@@ -70,9 +70,11 @@ C        write(6,*) ' Unique string group for mappings ',JGRP
       END IF
 *
       CALL ADS1(NK,I1,XI1S,LI1,IORB,NORB,
-     &           ICLS,ISM,iWORK(KSTSTM(JGRP,1)),
-     &           iWORK(KSTSTM(JGRP,2)),iWORK(KSTSTMN(JGRP)),
-     &           iWORK(KSTSTMI(JGRP)),IMPF,LMAP,Str(IGRP)%EL1,
+     &           ICLS,ISM,
+     &           iWORK(KSTSTM(JGRP,1)),
+     &           iWORK(KSTSTM(JGRP,2)),
+     &           Str(JGRP)%STSTMN,
+     &           Str(JGRP)%STSTMI,IMPF,LMAP,Str(IGRP)%EL1,
      &           Str(IGRP)%EL3,Str(IGRP+1)%EL1,
      &           Str(IGRP+1)%EL3,Str(IGRP)%ISTSO,
      &           Str(IGRP)%NSTSO,Str(IGRP+1)%ISTSO,

@@ -22,17 +22,13 @@
 *                        of electrons
 *        KSBLTP        :
 *        KSIOIO        :
-*        KSTSTMI        :        Explicit offsets and lengths
-*        KSTSTMN        :                  "
       Integer KSTINF,
      &              KSTSTM(MXPSTT,2),
      &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,
      &              KNDMAP(MXPSTT),KNUMAP(MXPSTT),
-     &              KSBLTP,KSIOIO,
-     &              KSTSTMI(MXPSTT),KSTSTMN(MXPSTT)
+     &              KSBLTP,KSIOIO
       COMMON/STRBAS_MCLR/KSTINF,
      &              KSTSTM,
      &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,
      &              KNDMAP,KNUMAP,
-     &              KSBLTP,KSIOIO,
-     &              KSTSTMI,KSTSTMN
+     &              KSBLTP,KSIOIO

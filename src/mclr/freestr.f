@@ -10,9 +10,8 @@
 *                                                                      *
 * Copyright (C) 1990,1994,1995, Jeppe Olsen                            *
 ************************************************************************
-      SUBROUTINE FREESTR
+      SUBROUTINE FREESTR()
       Use Str_Info
-*
 *
 * Free pointers for saving information about strings and
 * their mappings
@@ -57,7 +56,7 @@
 *
       nDum=1
       IIITEST = 1
-      DO 10 ITYP = 1, NSTTYP
+      DO ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
 *.  Offsets for occupation of strings and reordering array
           Str(ITYP)%OCSTR => Null()
@@ -75,7 +74,8 @@
           Str(ITYP)%STSM => Null()
           Str(ITYP)%STCL => Null()
         END IF
-   10 CONTINUE
+      END DO
+
 *. Number of strings per symmetry and occupation
       DO ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
@@ -109,29 +109,24 @@ CMS: New array introduced according to Jeppes new strinfo representation
           Str(ITYP)%Z     => Null()
         END IF
       END DO
+
 *. Mappings between different string types
       DO ITYP = 1, NSTTYP
           NSTRIN = NSTFTP(ITYP)
           IF(ISTAC(ITYP,2).NE.0.AND.ISTAC(ITYP,1).NE.0) THEN
 *.creation on string allowed , use full orbital notation
             LENGTH = NACOB*NSTRIN
-*. No explicit offset or length. NEW:
-            KSTSTMI(ITYP) = 0
-            KSTSTMN(ITYP) = 0
           ELSE IF(ISTAC(ITYP,1).NE.0.AND.ISTAC(ITYP,2).EQ.0) THEN
 
 *. only annihilation allowed, use compact scheme
             LENGTH = NELEC(ITYP)*NSTRIN
-*. No explicit offset or length. NEW:
-            KSTSTMI(ITYP) = 0
-            KSTSTMN(ITYP) =  0
 CMS: New else block
           ELSE IF (ISTAC(ITYP,1).EQ.0.AND.ISTAC(ITYP,2).NE.0) THEN
 *. Only creation allowed, use compact scheme with offsets
 *
 *. Explicit offsets and lengths
-            Call GetMem('STSTMI','Free','INTEGER',KSTSTMI(ITYP),nDum)
-            Call GetMem('STSTMN','Free','INTEGER',KSTSTMN(ITYP),nDum)
+            Call mma_deallocate(Str(ITYP)%STSTMI)
+            Call mma_deallocate(Str(ITYP)%STSTMN)
           END IF
 *. has this map been constructed before ?
           IIIITEST = 0

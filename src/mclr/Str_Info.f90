@@ -21,6 +21,9 @@
 !        ACTP         :        is sub-type active
 !        Z            :         Lexical adressing of arrays
 !        EL123        :        -"-    But array
+!        STSTMI       :        Explicit offsets and lengths
+!        STSTMN       :                  "
+
 
 
 
@@ -53,6 +56,8 @@ Module Str_Info
            Integer, Allocatable:: Z_hidden(:)
            Integer, Pointer:: EL123(:)=>Null()
            Integer, Allocatable:: EL123_hidden(:)
+           Integer, Allocatable:: STSTMI(:)
+           Integer, Allocatable:: STSTMN(:)
       End Type String_Info
 
       Type (String_Info), Allocatable, Target:: Str(:)

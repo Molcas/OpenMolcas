@@ -138,34 +138,30 @@ CMS: Be aware that IEL13 is also called in STRINF
 
 *. Mappings between different string types
       DO ITYP = 1, NSTTYP
-c          write(6,*) nelec(ityp),nstrin
-          NSTRIN = NSTFTP(ITYP)
-          IF(ISTAC(ITYP,2).NE.0.AND.ISTAC(ITYP,1).NE.0) THEN
+c        write(6,*) nelec(ityp),nstrin
+         NSTRIN = NSTFTP(ITYP)
+
+         IF(ISTAC(ITYP,2).NE.0.AND.ISTAC(ITYP,1).NE.0) THEN
 *.creation on string allowed , use full orbital notation
-            LENGTH = NACOB*NSTRIN
-*. No explicit offset or length. NEW:
-            KSTSTMI(ITYP) = ip_iDummy
-            KSTSTMN(ITYP) = ip_iDummy
-          ELSE IF(ISTAC(ITYP,1).NE.0.AND.ISTAC(ITYP,2).EQ.0) THEN
+           LENGTH = NACOB*NSTRIN
+         ELSE IF(ISTAC(ITYP,1).NE.0.AND.ISTAC(ITYP,2).EQ.0) THEN
 
 *. only annihilation allowed, use compact scheme
             LENGTH = NELEC(ITYP)*NSTRIN
-*. No explicit offset or length. NEW:
-            KSTSTMI(ITYP) = ip_iDummy
-            KSTSTMN(ITYP) = ip_iDummy
 CMS: New else block
           ELSE IF (ISTAC(ITYP,1).EQ.0.AND.ISTAC(ITYP,2).NE.0) THEN
 *. Only creation allowed, use compact scheme with offsets
 *
-          CALL NUMST4_MCLR(NELEC(ITYP),NORB1,MNRS1(ITYP),MXRS1(ITYP),
+             CALL NUMST4_MCLR(NELEC(ITYP),NORB1,MNRS1(ITYP),MXRS1(ITYP),
      &                     NORB2,NORB3,MNRS3(ITYP),MXRS3(ITYP),
      &                     Str(ITYP)%NSTSO)
             LENGTH = NCASTR_MCLR(2,Str(ITYP)%NSTSO,NOCTYP(ITYP),
      &                      ITYP,NOBPT,3,Str(ITYP)%EL123)
 *. Explicit offsets and lengths
-            Call GetMem('STSTMI','ALLO','INTEGER',KSTSTMI(ITYP),NSTRIN)
-            Call GetMem('STSTMN','ALLO','INTEGER',KSTSTMN(ITYP),NSTRIN)
+            Call mma_allocate(Str(ITYP)%STSTMI,NSTRIN,Label='STSTMI')
+            Call mma_allocate(Str(ITYP)%STSTMN,NSTRIN,Label='STSTMN')
           END IF
+
 *. has this map been constructed before ?
           IIIITEST = 0
           IF(IUNIQTP(ITYP).EQ.ITYP.OR.IIIITEST.EQ.1) THEN
@@ -206,6 +202,7 @@ CMS: New else block
             IUNIQMP(ITYP) = ITYP
  1211       CONTINUE
           END IF
+
           IF(IMNEW.EQ.1) THEN
             Call GetMem('CREMAP','ALLO','INTE',KSTSTM(ITYP,1),LENGTH)
             Call GetMem('ANNMAP','ALLO','INTE',KSTSTM(ITYP,2),LENGTH)
@@ -213,6 +210,7 @@ CMS: New else block
             KSTSTM(ITYP,1) = KSTSTM(-IUNIQMP(ITYP),1)
             KSTSTM(ITYP,2) = KSTSTM(-IUNIQMP(ITYP),2)
           END IF
+
       END DO
 
 *. Symmetry of conjugated orbitals and orbital excitations
