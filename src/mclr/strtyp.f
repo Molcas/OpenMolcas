@@ -141,6 +141,11 @@
       END IF
 *
       NSTTYP = ITYPE
+      IF(NSTTYP>NSTTYP_Max) THEN
+        Write (6,*) 'STRTYP: NSTTYP>NSTTYP_Max'
+        Write (6,*) 'STRTYP: NSTTYP=',NSTTYP
+        Call Abend()
+      END IF
       IF(NTEST.GE.1) THEN
         WRITE(6,*) ' Information about string types generated '
         WRITE(6,*) ' ========================================='

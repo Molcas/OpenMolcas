@@ -28,12 +28,20 @@
 *
 *        ISTTP        :        Space (0=zero order)
 *        iuniqmp        :        Unique types (not necessary here just 0order space)
-      Integer       NSTTYP,MNRS1(MXPSTT),MXRS1(MXPSTT),
-     &              MNRS3(MXPSTT),MXRS3(MXPSTT),NELEC(MXPSTT),
-     &              IZORR(MXPSTT),IAZTP,IBZTP,IARTP(3,10),IBRTP(3,10),
-     &              NZSTTP,NRSTTP,ISTTP(MXPSTT),iuniqmp(MXPSTT),
-     &              iuniqtp(MXPSTT),
-     &             IATPM1,IATPM2,IBTPM1,IBTPM2
+      Integer, Parameter:: NSTTYP_MAX=6
+      Integer       NSTTYP,
+     &              NELEC(NSTTYP_MAX),
+     &              MNRS1(NSTTYP_MAX),
+     &              MXRS1(NSTTYP_MAX),
+     &              MNRS3(NSTTYP_MAX),
+     &              MXRS3(NSTTYP_MAX),
+     &              IZORR(NSTTYP_MAX),
+     &              ISTTP(NSTTYP_MAX),
+     &              iuniqmp(NSTTYP_MAX),
+     &              iuniqtp(NSTTYP_MAX),
+     &              IAZTP,IBZTP,IARTP(3,10),IBRTP(3,10),
+     &              NZSTTP,NRSTTP,
+     &              IATPM1,IATPM2,IBTPM1,IBTPM2
 
 
       COMMON/STRINP_MCLR/NSTTYP,MNRS1,MXRS1,
@@ -41,4 +49,4 @@
      &              IZORR,IAZTP,IBZTP,IARTP,IBRTP,
      &              NZSTTP,NRSTTP,ISTTP,iuniqmp,
      &              iuniqtp,
-     &             IATPM1,IATPM2,IBTPM1,IBTPM2
+     &              IATPM1,IATPM2,IBTPM1,IBTPM2
