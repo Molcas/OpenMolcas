@@ -37,7 +37,6 @@
 *
 #include "detdim.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
 #include "orbinp_mclr.fh"
 #include "strinp_mclr.fh"
 #include "strbas_mclr.fh"
@@ -212,13 +211,13 @@ CMS: New else block
       END DO
 
 *. Symmetry of conjugated orbitals and orbital excitations
-*     KCOBSM,KNIFSJ,KIFSJ,KIFSJO
-      Call GetMem('Cobsm ','ALLO','INTEGER',KCOBSM,NACOB)
-      Call GetMem('Nifsj ','ALLO','INTEGER',KNIFSJ,NACOB*NSMSX)
-      Call GetMem('Ifsj  ','ALLO','INTEGER',KIFSJ,NACOB**2 )
-      Call GetMem('Ifsjo ','ALLO','INTEGER',KIFSJO,NACOB*NSMSX)
+*     COBSM,NIFSJ,IFSJ,IFSJO
+!     Call mma_allocate(COBSM,NACOB,Label='COBSM')
+!     Call mma_allocate(NIFSJ,NACOB*NSMSX,Label='NIFSJ')
+!     Call mma_allocate(IFSJ,NACOB**2,Label='IFSJ')
+!     Call mma_allocate(IFSJO,NACOB*NSMSX,Label='IFSJO')
 *. Symmetry of excitation connecting  strings of given symmetry
-      Call GetMem('Ststx ','ALLO','INTEGER',KSTSTX,NSMST*NSMST)
+!     Call mma_allocate(STSTX,NSMST*NSMST,Label='STSTX')
 *
 **. Up and down mappings of strings containing the same number of electrons
 *

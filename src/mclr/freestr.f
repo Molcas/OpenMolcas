@@ -36,7 +36,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 *
 #include "detdim.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "orbinp_mclr.fh"
 #include "strinp_mclr.fh"
@@ -172,13 +171,13 @@ CMS: New else block
           END IF
       END DO
 *. Symmetry of conjugated orbitals and orbital excitations
-*     KCOBSM,KNIFSJ,KIFSJ,KIFSJO
-      Call GetMem('Cobsm ','Free','INTEGER',KCOBSM,nDum)
-      Call GetMem('Nifsj ','Free','INTEGER',KNIFSJ,nDum)
-      Call GetMem('Ifsj  ','Free','INTEGER',KIFSJ,nDum)
-      Call GetMem('Ifsjo ','Free','INTEGER',KIFSJO,nDum)
+*     COBSM,NIFSJ,IFSJ,IFSJO
+!     Call mma_deallocate(COBSM)
+!     Call mma_deallocate(NIFSJ)
+!     Call mma_deallocate(IFSJ)
+!     Call mma_deallocate(IFSJO)
 *. Symmetry of excitation connecting  strings of given symmetry
-      Call GetMem('Ststx ','Free','INTEGER',KSTSTX,nDum)
+!     Call mma_deallocate(STSTX)
 *
 **. Up and down mappings of strings containing the same number of electrons
 *

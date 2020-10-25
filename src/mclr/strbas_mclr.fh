@@ -8,18 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-*        KSTINF        :        Not in use
-*        KCOBSM        :        Symmetry of conjugated orbitals
-*        KNIFSJ        :
-*        KIFSJ        :
-*        KIFSJO        :
-*        KSTSTX        :        Symmetry of excitation connecting
-*                        strings of given symmetry
 *        KSBLTP        :
 *        KSIOIO        :
-      Integer KSTINF,
-     &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,
-     &              KSBLTP,KSIOIO
-      COMMON/STRBAS_MCLR/KSTINF,
-     &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,
-     &              KSBLTP,KSIOIO
+      Integer KSBLTP,KSIOIO
+      COMMON/STRBAS_MCLR/ KSBLTP,KSIOIO
