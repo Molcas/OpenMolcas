@@ -50,7 +50,6 @@
      &                           KSTINF
 *
       Call ICopy(MXPSTT,[ip_iDummy],0,KEL123,1)
-      Call ICopy(MXPSTT,[ip_iDummy],0,KACTP ,1)
       Call ICopy(MXPSTT,[ip_iDummy],0,KZ    ,1)
 * =====================================================================
 *
@@ -103,8 +102,9 @@
            Call mma_allocate(Str(ITYP)%EL3_Hidden,NOCTYP(ITYP),
      &                       Label='EL3')
            Str(ITYP)%EL3 => Str(ITYP)%EL3_Hidden
-        Call GetMem('ACTP ','ALLO','INTEGER',
-     &             KACTP(ITYP),NOCTYP(ITYP))
+           Call mma_allocate(Str(ITYP)%ACTP_Hidden,NOCTYP(ITYP),
+     &                       Label='ACTP')
+           Str(ITYP)%ACTP => Str(ITYP)%ACTP_Hidden
 CMS: New array introduced according to Jeppes new strinfo representation
         Call GetMem('KEL123','ALLO','INTEGER',
      &                KEL123(ITYP),3*NOCTYP(ITYP))
@@ -119,7 +119,7 @@ CMS: New array introduced according to Jeppes new strinfo representation
           Str(ITYP)%ISTSO => Str(IITYP)%ISTSO_Hidden
           Str(ITYP)%EL1   => Str(IITYP)%EL1_Hidden
           Str(ITYP)%EL3   => Str(IITYP)%EL3_Hidden
-          KACTP(ITYP)  = KACTP(IITYP)
+          Str(ITYP)%ACTP  => Str(IITYP)%ACTP_Hidden
           KZ(ITYP)     = KZ(IITYP)
           KEL123(ITYP) = KEL123(IITYP)
         END IF
@@ -133,7 +133,7 @@ CMS: Be aware that IEL13 is also called in STRINF
         CALL IEL13(MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),
      &             NELEC(ITYP),NOCTYP(ITYP),Str(ITYP)%EL1,
      &             Str(ITYP)%EL3,iWORK(KEL123(ITYP)),
-     &             iWORK(KACTP(ITYP)) )
+     &             Str(ITYP)%ACTP)
         END IF
       END DO
 

@@ -89,7 +89,8 @@
           Call mma_deallocate(Str(ITYP)%EL1_Hidden)
           Str(ITYP)%EL3 => Null()
           Call mma_deallocate(Str(ITYP)%EL3_Hidden)
-        Call GetMem('ACTP ','Free','INTEGER',KACTP(ITYP),nDum)
+          Str(ITYP)%ACTP=> Null()
+          Call mma_deallocate(Str(ITYP)%ACTP_Hidden)
 CMS: New array introduced according to Jeppes new strinfo representation
         Call GetMem('KEL123','Free','INTEGER',KEL123(ITYP),nDum)
 **. Lexical adressing of arrays: NB! Not allocated here in Jeppes new version!
@@ -101,7 +102,7 @@ CMS: New array introduced according to Jeppes new strinfo representation
           Str(ITYP)%ISTSO => Null()
           Str(ITYP)%EL1   => Null()
           Str(ITYP)%EL3   => Null()
-          KACTP(ITYP)  = KACTP(IITYP)
+          Str(ITYP)%ACTP  => Null()
           KZ(ITYP)     = KZ(IITYP)
           KEL123(ITYP) = KEL123(IITYP)
         END IF

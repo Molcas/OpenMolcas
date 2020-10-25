@@ -12,7 +12,6 @@
 *        KSTSTM        :        ?
 *        KZ        :         Lexical adressing of arrays
 *        KEL123        :        -"-    But array
-*        KACTP        :        is sub-type active
 *        KCOBSM        :        Symmetry of conjugated orbitals
 *        KNIFSJ        :
 *        KIFSJ        :
@@ -30,7 +29,6 @@
       Integer KSTINF,
      &              KSTSTM(MXPSTT,2),KZ(MXPSTT),
      &              Kel123(MXPSTT),
-     &              KACTP(MXPSTT),
      &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,
      &              KNDMAP(MXPSTT),KNUMAP(MXPSTT),
      &              KSBLTP,KSIOIO,
@@ -38,7 +36,6 @@
       COMMON/STRBAS_MCLR/KSTINF,
      &              KSTSTM,KZ,
      &              Kel123,
-     &              KACTP,
      &              KCOBSM,KNIFSJ,KIFSJ,KIFSJO,KSTSTX,
      &              KNDMAP,KNUMAP,
      &              KSBLTP,KSIOIO,

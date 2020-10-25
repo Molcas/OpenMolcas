@@ -73,7 +73,7 @@
         CALL IEL13(MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),
      &             NELEC(ITYP),NOCTYP(ITYP),Str(ITYP)%EL1,
      &             Str(ITYP)%EL3,iwork(KEL123(ITYP)),
-     &             iWork(KACTP(ITYP)) )
+     &             Str(ITYP)%ACTP)
         END IF
    25 CONTINUE
 *
