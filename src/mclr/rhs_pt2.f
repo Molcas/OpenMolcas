@@ -306,29 +306,30 @@ c Avoid unused argument warnings
 #include "Input.fh"
 #include "Pointers.fh"
 #include "WrkSpc.fh"
-      Call GetMem('Temp','ALLO','REAL',ipT1,ndens2)
-      Call GetMem('Temp','ALLO','REAL',ipT2,ndens2)
+#include "stdalloc.fh"
+      Real*8, Allocatable:: T1(:), T2(:)
+
+      Call mma_allocate(T1,ndens2,Label='T1')
+      Call mma_allocate(T2,ndens2,Label='T2')
       ip=1
       Do iS=1,nSym
         If (nBas(is).ne.0) Then
-           Call Square(FAO(ip),
-     *                   Work(ipT1),
-     *                   1,nBas(is),nBas(is))
+           Call Square(FAO(ip),T1,1,nBas(is),nBas(is))
            Call DGEMM_('T','N',
      &                 nBas(iS),nBas(iS),nBas(iS),
      &                 1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
-     &                 Work(ipT1),nBas(iS),
-     &                 0.0d0,Work(ipT2),nBas(iS))
+     &                       T1,nBas(iS),
+     &                 0.0d0,T2,nBas(iS))
            Call DGEMM_('N','N',
      &                 nBas(is),nBas(iS),nBAs(iS),
-     &                 1.0d0,Work(ipT2),nBas(iS),
-     &                 Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &                 1.0d0,T2,nBas(iS),
+     &                       Work(ipCMO+ipCM(iS)-1),nBas(iS),
      &                 0.0d0,FMO(ipMat(iS,iS)),nBas(is))
            ip=ip+nBas(is)*(nBas(iS)+1)/2
         End If
       End Do
-      Call GetMem('Temp','FREE','REAL',ipT1,ndens2)
-      Call GetMem('Temp','FREE','REAL',ipT2,ndens2)
+      Call mma_deallocate(T2)
+      Call mma_deallocate(T1)
 #endif
       Return
       End
