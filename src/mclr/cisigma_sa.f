@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
        SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,int2s,
-     &                    ipint2a,ipCI1,ipCI2,NT)
+     &                       Int2a,ipCI1,ipCI2,NT)
        Implicit Real*8(a-h,o-z)
 *
 #include "Pointers.fh"
@@ -26,7 +26,7 @@
 #include "cicisp_mclr.fh"
        Character NT
        integer kic(2),opout,nbb(8)
-       Real*8 Int1(*), Int2s(*)
+       Real*8 Int1(*), Int2s(*), Int2a(*)
 *
 *      Interface Anders to Jeppe
 *      This interface initiates Jeppes common block
@@ -37,6 +37,7 @@
 
        ipInt1 = ip_of_Work(Int1(1))
        ipInt2s= ip_of_Work(Int2s(1))
+       ipInt2a= ip_of_Work(Int2a(1))
        !> yma: notice the nconf1 if DMRG
 *
        If (nconf1.eq.0) return
