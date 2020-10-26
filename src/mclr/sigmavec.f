@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SigmaVec(C,HC,kic)
-      Use Str_Info, only: Str, NELEC, NOCTYP
+      Use Str_Info
 *
 * Outer routine for sigma vector generation
 * RAS space
@@ -135,7 +135,7 @@
       INTSCR = MXTSOB ** 4
 
       Call mma_allocate(INSCR,INTSCR,Label='INSCR')
-*. Arrays giving allowed type combinations '
+*. Arrays giving allowed type combinations
 
       Call mma_allocate(SIOIO,NOCTPA*NOCTPB,Label='SIOIO')
       Call mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
@@ -178,13 +178,20 @@
 *
 *     MXCJ:MXCIJA:MXCIJB:MXCIJAB:MXSXBL:MXIJST:MXIJSTF
 *
+#ifdef _WARNING_WORKAROUND_
+      IATP2=MIN(IATP+2,NSTTYP)
+      IBTP2=MIN(IbTP+2,NSTTYP)
+#else
+      IATP2=IATP+2
+      IBTP2=IBTP+2
+#endif
       CALL MXRESC(CIOIO,IATP,IBTP,NOCTPA,NOCTPB,NSMST,
      &            Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
      &            IATP+1,Str(IATP+1)%NSTSO,NOCTYP(IATP+1),
      &            Str(IBTP+1)%NSTSO,NOCTYP(IBTP+1),
      &            NSMOB,3,3,NTSOB,IPRCIX,MAXpK,
-     &            Str(IATP+2)%NSTSO,NOCTYP(IATP+2),
-     &            Str(IBTP+2)%NSTSO,NOCTYP(IBTP+2),
+     &            Str(IATP2)%NSTSO,NOCTYP(IATP2),
+     &            Str(IBTP2)%NSTSO,NOCTYP(IBTP2),
      &            Str(IATP)%EL123,Str(IBTP)%EL123,
      &            MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXIJST,
      &            MXIJSTF)

@@ -58,6 +58,7 @@ HOP=3
 ****
 
 >> FILE StartOrb
+*&MCLR
 #INPORB 1.1
 #INFO
 * RASSCF average (pseudo-natural) orbitals

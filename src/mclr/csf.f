@@ -360,10 +360,11 @@ C?    END IF
 #include "csfbas_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "cands.fh"
-#include "stdalloc.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "Files_mclr.fh"
       integer idum(1)
+      Integer, Allocatable:: SIOIO(:), SBLTP(:)
 *     COMMONBLOCK THE SUPPORT STORAGE OF REORDERING VECTOR
 *     ON DISK
 #include "csfsd.fh"

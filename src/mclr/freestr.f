@@ -107,19 +107,27 @@ CMS: New array introduced according to Jeppes new strinfo representation
           NSTRIN = NSTFTP(ITYP)
           IF(ISTAC(ITYP,2).NE.0.AND.ISTAC(ITYP,1).NE.0) THEN
 *.creation on string allowed , use full orbital notation
-            LENGTH = NACOB*NSTRIN
+             LENGTH = NACOB*NSTRIN
+#ifdef _WARNING_WORKAROUND_
+             Call mma_deallocate(Str(ITYP)%STSTMI)
+             Call mma_deallocate(Str(ITYP)%STSTMN)
+#endif
           ELSE IF(ISTAC(ITYP,1).NE.0.AND.ISTAC(ITYP,2).EQ.0) THEN
 
 *. only annihilation allowed, use compact scheme
-            LENGTH = NELEC(ITYP)*NSTRIN
+             LENGTH = NELEC(ITYP)*NSTRIN
+#ifdef _WARNING_WORKAROUND_
+             Call mma_deallocate(Str(ITYP)%STSTMI)
+             Call mma_deallocate(Str(ITYP)%STSTMN)
+#endif
 CMS: New else block
           ELSE IF (ISTAC(ITYP,1).EQ.0.AND.ISTAC(ITYP,2).NE.0) THEN
 *. Only creation allowed, use compact scheme with offsets
 *
 *. Explicit offsets and lengths
+             Call mma_deallocate(Str(ITYP)%STSTMI)
+             Call mma_deallocate(Str(ITYP)%STSTMN)
           END IF
-          Call mma_deallocate(Str(ITYP)%STSTMI)
-          Call mma_deallocate(Str(ITYP)%STSTMN)
 *. has this map been constructed before ?
           IIIITEST = 0
           IF(IUNIQTP(ITYP).EQ.ITYP.OR.IIIITEST.EQ.1) THEN

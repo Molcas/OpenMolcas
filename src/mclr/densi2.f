@@ -55,6 +55,7 @@
       DIMENSION RHO1(*),RHO2(*)
 *. Before I forget it :
       DIMENSION iSXSTSM(1),IDUMMY(1)
+      Integer, Allocatable:: SIOIO(:), SBLTP(:)
 
       IDUM = 0
 CFUE  IPRDEN=0
@@ -170,13 +171,20 @@ CFUE  IPRDEN=0
 * Get memory requirements
 *
 *
+#ifdef _WARNING_WORKAROUND_
+      IATP2 = MIN(IATP+2,NSTTYP)
+      IBTP2 = MIN(IBTP+2,NSTTYP)
+#else
+      IATP2 = IATP+2
+      IBTP2 = IBTP+2
+#endif
       CALL MXRESC(iWORK(KCIOIO),IATP,IBTP,NOCTPA,NOCTPB,NSMST,
      &            Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
      &            IATP+1,Str(IATP+1)%NSTSO,NOCTYP(IATP+1),
      &            Str(IBTP+1)%NSTSO,NOCTYP(IBTP+1),
      &            NSMOB,3,3,NTSOB,IPRCIX,MAXK,
-     &            Str(IATP+2)%NSTSO,NOCTYP(IATP+2),
-     &            Str(IBTP+2)%NSTSO,NOCTYP(IBTP+2),
+     &            Str(IATP2)%NSTSO,NOCTYP(IATP2),
+     &            Str(IBTP2)%NSTSO,NOCTYP(IBTP2),
      &            Str(IATP)%EL123,Str(IBTP)%EL123,
      &            MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXIJST,
      &            MXIJSTF)

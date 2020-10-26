@@ -104,6 +104,9 @@ CMS: New array introduced according to Jeppes new strinfo representation
            Call mma_allocate(Str(ITYP)%Z_Hidden,NACOB*NELEC(ITYP),
      &                       Label='Z')
            Str(ITYP)%Z=> Str(ITYP)%Z_Hidden
+           Write (6,*) 'ITYP=',ITYP
+           Write (6,*) Allocated(Str(ITYP)%EL1_Hidden)
+           Write (6,*) Allocated(Str(ITYP)%EL3_Hidden)
         ELSE
 *. redirect
           IITYP = - IUNIQTP(ITYP)
@@ -137,14 +140,18 @@ c        write(6,*) nelec(ityp),nstrin
          IF (ISTAC(ITYP,2).NE.0.AND.ISTAC(ITYP,1).NE.0) THEN
 *.creation on string allowed , use full orbital notation
             LENGTH = NACOB*NSTRIN
+#ifdef _WARNING_WORKAROUND_
             Call mma_allocate(Str(ITYP)%STSTMI,1,Label='STSTMI')
             Call mma_allocate(Str(ITYP)%STSTMN,1,Label='STSTMN')
+#endif
          ELSE IF(ISTAC(ITYP,1).NE.0.AND.ISTAC(ITYP,2).EQ.0) THEN
 
 *. only annihilation allowed, use compact scheme
             LENGTH = NELEC(ITYP)*NSTRIN
+#ifdef _WARNING_WORKAROUND_
             Call mma_allocate(Str(ITYP)%STSTMI,1,Label='STSTMI')
             Call mma_allocate(Str(ITYP)%STSTMN,1,Label='STSTMN')
+#endif
 CMS: New else block
           ELSE IF (ISTAC(ITYP,1).EQ.0.AND.ISTAC(ITYP,2).NE.0) THEN
 *. Only creation allowed, use compact scheme with offsets

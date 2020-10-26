@@ -20,7 +20,7 @@
 * Get ITYPE : type of strings belonging to class ICLS
 *             with IEL1,IEL3 electrons
 * IWAY = 2 :
-* GET IEL1,IEL3 : Number of electrons of classs ICLS of type ITYPE
+* GET IEL1,IEL3 : Number of electrons of class ICLS of type ITYPE
 *
 *
 * Jeppe Olsen, Another lonely night in Lund
@@ -29,8 +29,15 @@
 *
 #include "detdim.fh"
 *
+#ifdef _WARNING_WORKAROUND_
+      CALL GTSTTPS(IEL1,IEL3,
+     &             Str(MIN(ICLS,NSTTYP))%EL1,
+     &             Str(MIN(ICLS,NSTTYP))%EL3,
+     &             NOCTYP(ICLS),ITYPE,IWAY)
+#else
       CALL GTSTTPS(IEL1,IEL3,Str(ICLS)%EL1,Str(ICLS)%EL3,
      &             NOCTYP(ICLS),ITYPE,IWAY)
+#endif
 *
       RETURN
       END
