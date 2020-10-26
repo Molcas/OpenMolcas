@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
        SubRoutine CISigma_td(iispin,iCsym,iSSym,Int1,Int2s,
-     &                    ipint2a,ipCI1,ipCI2,NT)
+     &                       Int2a,ipCI1,ipCI2,NT)
        Implicit Real*8(a-h,o-z)
 c
 c For the timeindep case ipS1 and ipS2 will be half as long
@@ -28,7 +28,7 @@ c
 #include "cicisp_mclr.fh"
        Character NT
        integer kic(2),opout
-       Real*8 Int1(*), Int2s(*)
+       Real*8 Int1(*), Int2s(*), Int2a(*)
        itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
 *      Interface Anders to Jeppe
@@ -39,17 +39,18 @@ c
 *      OK first tell Jeppe where the integrals are.
 *
        If (nconf1.eq.0) return
+       ipInt1 =ip_of_Work(Int1(1))
+       ipInt2s=ip_of_Work(Int2s(1))
+       ipInt2a=ip_of_Work(Int2a(1))
 *
 *      One electron integrals
 *
-       ipInt1=ip_of_Work(Int1(1))
        KAIN1=ipInt1
 *
 *      Two electron integrals
 *      symmetric in perticle one and two
 *
 *
-       ipInt2s=ip_of_Work(Int2s(1))
        KINT2= ipInt2s
        KINT2a=ipint2a
 *
