@@ -43,29 +43,31 @@ c Avoid unused argument warnings
 #include "detdim.fh"
 #include "csfbas_mclr.fh"
 #endif
-      Real*8, Allocatable:: DCAS(:)
+      Real*8, Allocatable:: DCAS(:), TempK(:), TempCI(:), TempCI2(:)
       Real*8 rDum(1)
       Half=0.5d0
 *
 *     Read in a and b part of effective gradient from CASPT2
-*
+*                                                                     *
+***********************************************************************
+*                                                                     *
+      Call mma_allocate(TempK,ndens2,Label='TempK')
       If (imethod.eq.2)Then
-      i=0
-      Call Getmem('TEMPCI','ALLO','REAL',ipT,nconf1)
-      Call Getmem('TEMPCI','ALLO','REAL',ipT2,nconf1)
-      Call Getmem('TEMPKAP','ALLO','REAL',ipK,ndens2)
-      Call dDaFile(LuPT2,2,Work(ipK),ndens2,i)
+         i=0
+         Call mma_allocate(TempCI,nconf1,Label='TempCI')
+         Call mma_allocate(TempCI2,nconf1,Label='TempCI2')
+         Call dDaFile(LuPT2,2,TempK,ndens2,i)
 #ifdef _DEBUGED_
 *
 *    CASPT2 mode
 *
-      Call dDaFile(LuPT2,2,Work(ipT),nconf1,i)
+         Call dDaFile(LuPT2,2,TempCI,nconf1,i)
 #else
 *
 * lucia mode
 *
-      n=nint(xispsm(State_SYM,1))
-      Call dDaFile(LuPT2,2,Work(ipT),n,i)
+         n=nint(xispsm(State_SYM,1))
+         Call dDaFile(LuPT2,2,TempCI,n,i)
 #endif
 *
 *---- Transform from split GUGA to symmetric group
@@ -74,27 +76,36 @@ c Avoid unused argument warnings
 *
 *    CASPT2 mode (split graph)
 *
-      Call Gugactl_MCLR(ipT,1)
+         ipT = ip_of_Work(TempCI(1))
+         Call Gugactl_MCLR(ipT,1)
 #else
 *
 * lucia mode (Symmetric group)
 *
       iprdia=0
       Call INCSFSD(STATE_SYM,STATE_SYM,.false.)
-      CALL CSDTVC_MCLR(Work(ipT2),Work(ipT),2,
+      CALL CSDTVC_MCLR(TempCI2,TempCI,2,
      &                 WORK(KDTOC),iWORK(KICTS(1)),
      &                 State_SYM,1,IPRDIA)
 #endif
-*
+      Call mma_deallocate(TempCI2)
+*                                                                     *
+***********************************************************************
+*                                                                     *
       Else
-*
+*                                                                     *
+***********************************************************************
+*                                                                     *
 *     MP2
 *
+        Call mma_allocate(TempCI,1,Label='TempCI')
         i=0
-        Call Getmem('TEMPKAP','ALLO','REAL',ipK,ndens2)
-        Call dDaFile(LuPT2,2,Work(ipK),ndens2,i)
+        Call dDaFile(LuPT2,2,TempK,ndens2,i)
 *       Call ThreeP(Kappa)
 *       MP2
+*                                                                     *
+***********************************************************************
+*                                                                     *
       End if
 * ----
 *
@@ -178,7 +189,7 @@ c Avoid unused argument warnings
 *
       Call CISigma(0,State_sym,State_sym,Work(ipFMO1),rdum,rdum,ipci,iprci,'N')
       rE=ddot_(nconf1,Work(ipin(iprci)),1,Work(ipin(ipci)),1)
-      Call Daxpy_(nconf1,1.0d0,Work(ipT),1,Work(ipin(iprci)),1)
+      Call Daxpy_(nconf1,1.0d0,TempCI,1,Work(ipin(iprci)),1)
       Call Daxpy_(nconf1,-rE,Work(ipin(ipCI)),1,Work(ipin(iprci)),1)
 *==============================================================================*
 *
@@ -195,7 +206,7 @@ c Avoid unused argument warnings
 *     Add all orbital terms together
 *
       Call Daxpy_(nDens2,1.0d0,Work(ipK2),1,Work(ipK1),1)
-      call daxpy_(ndens2,1.0d0,Work(ipK),1,Work(ipK1),1)
+      call daxpy_(ndens2,1.0d0,TempK,1,Work(ipK1),1)
 *
 *==============================================================================*
 *
@@ -259,9 +270,9 @@ c Avoid unused argument warnings
       Call GetMem('Dens4','FREE','REAL',ipDCAS2,ndens2)
       Call GetMem('Kappa1','FREE','REAL',ipK1,ndens2)
       Call GetMem('Kappa2','FREE','REAL',ipK2,ndens2)
-      Call GetMem('Kappa','FREE','REAL',ipK,ndens2)
+      Call mma_deallocate(TempK)
       Call GetMem('Dens5','FREE','REAL',ipD,ndens2)
-      Call Getmem('TEMPCI','FREE','REAL',ipT,nconf1)
+      Call mma_deallocate(TempCI)
 *
 *............
       return
@@ -273,30 +284,33 @@ c Avoid unused argument warnings
 
 #include "Input.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 DAO(*),FockMO(*),Fock(*)
-      Call Getmem('Temp1','ALLO','REAL',ipT1,ndens2)
-      Call Getmem('Temp2','ALLO','REAL',ipT2,ndens2)
+      Real*8, Allocatable:: Temp1(:), Temp2(:)
+
+      Call mma_allocate(Temp1,ndens2,Label='Temp1')
+      Call mma_allocate(Temp2,ndens2,Label='Temp2')
       Do iS=1,nSym
         If (nBas(is).ne.0) Then
            Call DGEMM_('T','N',
      &                 nBas(iS),nBas(iS),nBas(iS),
      &                 1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
      &                 DAO(ipCM(is)),nBas(iS),
-     &                 0.0d0,Work(ipT2),nBas(iS))
+     &                 0.0d0,Temp2,nBas(iS))
            Call DGEMM_('N','N',
      &                 nBas(is),nBas(iS),nBAs(iS),
-     &                 1.0d0,Work(ipT2),nBas(iS),
+     &                 1.0d0,Temp2,nBas(iS),
      &                 Work(ipCMO+ipCM(iS)-1),nBas(iS),
-     &                 0.0d0,Work(ipT1),nBas(is))
+     &                 0.0d0,Temp1,nBas(is))
            Call DGEMM_('N','N',
      &                 nBas(is),nBas(iS),nBAs(iS),
-     &                 1.0d0,Work(ipT1),nBas(iS),
+     &                 1.0d0,Temp1,nBas(iS),
      &                 FockMO(ipCM(iS)),nBas(iS),
      &                 0.0d0,Fock(ipCM(is)),nBas(is))
         End If
       End Do
-      Call Getmem('Temp1','FREE','REAL',ipT1,ndens2)
-      Call Getmem('Temp2','FREE','REAL',ipT2,ndens2)
+      Call mma_deallocate(Temp2)
+      Call mma_deallocate(Temp1)
       Return
       End
       Subroutine AO2MO(FAO ,FMO)
@@ -307,29 +321,29 @@ c Avoid unused argument warnings
 #include "Pointers.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-      Real*8, Allocatable:: T1(:), T2(:)
+      Real*8, Allocatable:: Temp1(:), Temp2(:)
 
-      Call mma_allocate(T1,ndens2,Label='T1')
-      Call mma_allocate(T2,ndens2,Label='T2')
+      Call mma_allocate(Temp1,ndens2,Label='Temp1')
+      Call mma_allocate(Temp2,ndens2,Label='Temp2')
       ip=1
       Do iS=1,nSym
         If (nBas(is).ne.0) Then
-           Call Square(FAO(ip),T1,1,nBas(is),nBas(is))
+           Call Square(FAO(ip),Temp1,1,nBas(is),nBas(is))
            Call DGEMM_('T','N',
      &                 nBas(iS),nBas(iS),nBas(iS),
      &                 1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
-     &                       T1,nBas(iS),
-     &                 0.0d0,T2,nBas(iS))
+     &                       Temp1,nBas(iS),
+     &                 0.0d0,Temp2,nBas(iS))
            Call DGEMM_('N','N',
      &                 nBas(is),nBas(iS),nBAs(iS),
-     &                 1.0d0,T2,nBas(iS),
+     &                 1.0d0,Temp2,nBas(iS),
      &                       Work(ipCMO+ipCM(iS)-1),nBas(iS),
      &                 0.0d0,FMO(ipMat(iS,iS)),nBas(is))
            ip=ip+nBas(is)*(nBas(iS)+1)/2
         End If
       End Do
-      Call mma_deallocate(T2)
-      Call mma_deallocate(T1)
+      Call mma_deallocate(Temp2)
+      Call mma_deallocate(Temp1)
 #endif
       Return
       End
