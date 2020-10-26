@@ -18,8 +18,9 @@
 #include "stdalloc.fh"
       Real*8, Allocatable :: R(:,:)
       Real*8 h1(*), h2(*)
+      Real*8 rDum(1)
       Call CISigma_sa(0,state_sym,state_sym,h1,h2,
-     &                    idum,ipCI,ips1,'N')
+     &                rdum,ipCI,ips1,'N')
       Call DSCAL_(nroots*ncsf(STATE_SYM),Two,
      &           Work(ipin(ips1)),1)
       Call mma_allocate(R,[0,nroots-1],[0,nroots-1],label='R')

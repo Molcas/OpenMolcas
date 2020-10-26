@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
        SubRoutine CISigma(iispin,iCsym,iSSym,Int1,Int2s,
-     &                    ipint2a,ipCI1,ipCI2,NT)
+     &                    Int2a,ipCI1,ipCI2,NT)
        Implicit Real*8(a-h,o-z)
 *
 #include "Pointers.fh"
@@ -23,7 +23,7 @@
 #include "detdim.fh"
 #include "cstate_mclr.fh"
 #include "cicisp_mclr.fh"
-       Real*8 Int1(*), Int2s(*)
+       Real*8 Int1(*), Int2s(*), Int2a(*)
        Character NT
        integer kic(2),opout,nbb(8)
 *
@@ -38,6 +38,7 @@
 
        ipInt1 = ip_of_Work(Int1(1))
        ipInt2s= ip_of_Work(Int2s(1))
+       ipInt2a= ip_of_Work(Int2a(1))
        If (nconf1.eq.0) return
 *
 *      One electron integrals

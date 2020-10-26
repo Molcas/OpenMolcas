@@ -48,6 +48,7 @@
       Integer pstate_sym,opout
       Logical lPrint,converged(8)
       Real*8 Clock(4)
+      Real*8 rDum(1)
       Real*8, Allocatable:: DigPrec(:), Kappa(:), dKappa(:), Sigma(:),
      &                      Temp1(:), Temp2(:), Temp3(:), Temp4(:),
      &                      Sc1(:), Sc2(:), Sc3(:), TempTD(:),
@@ -369,7 +370,7 @@ c
              If (CI) Then
 *              Adjusted to timedep
                Call CISigma_td(jspin,State_Sym,pstate_sym,
-     &                      Temp4,rmoaa,idum,
+     &                      Temp4,rmoaa,rdum,
      &                      ipCI,ipS1,'T')
                Clock(iTimeKC)=Clock(iTimeKC)+Tim3
 *
@@ -428,7 +429,7 @@ C
 *
              irc=ipnout(-1)
              if (CI) Call CISigma_td(0,PState_Sym,Pstate_sym,
-     &                    Work(ipFIMO),Work(k2int),idum,
+     &                    Work(ipFIMO),Work(k2int),rdum,
      &                    ipCId,ipS2,'S')
 *
 c I want the RASSCF energy of the ACTIVE electrons !!!!

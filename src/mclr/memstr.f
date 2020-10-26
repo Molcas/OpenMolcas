@@ -134,13 +134,17 @@ CMS: Be aware that IEL13 is also called in STRINF
 c        write(6,*) nelec(ityp),nstrin
          NSTRIN = NSTFTP(ITYP)
 
-         IF(ISTAC(ITYP,2).NE.0.AND.ISTAC(ITYP,1).NE.0) THEN
+         IF (ISTAC(ITYP,2).NE.0.AND.ISTAC(ITYP,1).NE.0) THEN
 *.creation on string allowed , use full orbital notation
-           LENGTH = NACOB*NSTRIN
+            LENGTH = NACOB*NSTRIN
+            Call mma_allocate(Str(ITYP)%STSTMI,1,Label='STSTMI')
+            Call mma_allocate(Str(ITYP)%STSTMN,1,Label='STSTMN')
          ELSE IF(ISTAC(ITYP,1).NE.0.AND.ISTAC(ITYP,2).EQ.0) THEN
 
 *. only annihilation allowed, use compact scheme
             LENGTH = NELEC(ITYP)*NSTRIN
+            Call mma_allocate(Str(ITYP)%STSTMI,1,Label='STSTMI')
+            Call mma_allocate(Str(ITYP)%STSTMN,1,Label='STSTMN')
 CMS: New else block
           ELSE IF (ISTAC(ITYP,1).EQ.0.AND.ISTAC(ITYP,2).NE.0) THEN
 *. Only creation allowed, use compact scheme with offsets

@@ -12,8 +12,9 @@
 ************************************************************************
 #define NOCODE
       Subroutine RHS_PT2(rkappa,iprci)
-#ifdef NOCODE
+      Implicit Real*8(a-h,o-z)
       Real*8 rKappa(*)
+#ifdef NOCODE
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(rkappa)
@@ -31,7 +32,6 @@ c Avoid unused argument warnings
 *    Here is the structure, it is not debugged and one
 *    needs to check the detail, but all "input" is there.
 *
-      Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
 
 #include "Input.fh"
@@ -43,8 +43,8 @@ c Avoid unused argument warnings
 #include "detdim.fh"
 #include "csfbas_mclr.fh"
 #endif
-      Real*8 rKappa(*)
       Real*8, Allocatable:: DCAS(:)
+      Real*8 rDum(1)
       Half=0.5d0
 *
 *     Read in a and b part of effective gradient from CASPT2
@@ -176,7 +176,7 @@ c Avoid unused argument warnings
 *
 *     <i|Sigma> = <i|F|0> - <0|F|0><i|0>+CI_a+CI_b
 *
-      Call CISigma(0,State_sym,State_sym,Work(ipFMO1),Work(0),0,ipci,iprci,'N')
+      Call CISigma(0,State_sym,State_sym,Work(ipFMO1),rdum,rdum,ipci,iprci,'N')
       rE=ddot_(nconf1,Work(ipin(iprci)),1,Work(ipin(ipci)),1)
       Call Daxpy_(nconf1,1.0d0,Work(ipT),1,Work(ipin(iprci)),1)
       Call Daxpy_(nconf1,-rE,Work(ipin(ipCI)),1,Work(ipin(iprci)),1)

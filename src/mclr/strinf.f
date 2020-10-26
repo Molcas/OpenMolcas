@@ -47,7 +47,7 @@
 *
 **.3 : Static memory for string information
 *
-      CALL MEMSTR
+      CALL MEMSTR()
 *
 **.4 :Reverse lexical adresing schemes for each type of string
 *

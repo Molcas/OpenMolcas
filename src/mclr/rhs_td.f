@@ -48,6 +48,7 @@
       Real*8 Temp1(nDens),rKappa(nDens),Temp4(nDens),
      &      Temp2(nDens),Temp3(nDens),CMO(nCMO),Temp5(nDens),
      &      Temp6(nDens),temp7(ndens)
+      Real*8 rDum(1)
       Real*8, Allocatable:: FiX(:),MOX(:),MOT(:),MOT2(:)
 
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
@@ -214,11 +215,11 @@
       If (CI) Then
        If (iAnd(ntPert(idisp),2**3).ne.0) Then
           Call CiSigma_td(0,State_Sym,iEor(State_sym-1,idsym-1)+1,
-     &                    Fix,MOX,idum,ipCI,ipst,'N')
+     &                    Fix,MOX,rdum,ipCI,ipst,'N')
        Else
           ipMX=0
           Call CiSigma_td(0,State_Sym,iEor(State_sym-1,idsym-1)+1,
-     &                    Fix,Work(ipMX),idum,ipCI,ipst,'N')
+     &                    Fix,Work(ipMX),rdum,ipCI,ipst,'N')
        End If
 C
        If (idsym.eq.1) Then

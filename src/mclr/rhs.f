@@ -49,6 +49,7 @@
       Real*8 Temp1(nDens),rKappa(nDens),Temp4(nDens),
      &      Temp2(nDens),Temp3(nDens),CMO(nCMO),Temp5(nDens),
      &      Temp6(nDens),temp7(ndens)
+      Real*8 rDum(1)
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
 *
@@ -225,7 +226,7 @@
        If (iAnd(ntPert(idisp),2**3).ne.0) ipMX=ipMOX
 *
        Call CiSigma(0,State_Sym,iEor(State_sym-1,idsym-1)+1,
-     &             Work(ipFix),Work(ipMx),idum,ipCI,ipst,'N')
+     &             Work(ipFix),Work(ipMx),rdum,ipCI,ipst,'N')
 *
        If (idsym.eq.1) Then
         EnA=E2(Work(ipFix),Work(ipmox),idsym-1,idisp)

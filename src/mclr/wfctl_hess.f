@@ -64,7 +64,7 @@
       Real*8 Clock(4)
       Character*72 SLine
       Real*8 res_tmp
-      Dimension rdum(1)
+      Real*8 rdum(1)
       Real*8, Allocatable:: Kappa(:), dKappa(:), Sigma(:),
      &                      Temp1(:), Temp2(:), Temp3(:), Temp4(:),
      &                      Sc1(:), Sc2(:), Sc3(:),
@@ -485,7 +485,7 @@ C         iDisp=iDisp+1
 *                                                                      *
              If (CI) Then
                 Call CISigma(jspin,State_Sym,pstate_sym,
-     &                       Temp4,rmoaa,idum,
+     &                       Temp4,rmoaa,rdum,
      &                       ipCI,ipS1,'N')
                 Clock(iTimeKC)=Clock(iTimeKC)+Tim3
 #ifdef _DEBUGPRINT_
@@ -541,7 +541,7 @@ C         iDisp=iDisp+1
 *                                                                      *
               irc=ipnout(-1)
               Call CISigma(0,PState_Sym,Pstate_sym,
-     &                     Work(ipFIMO),Work(k2int),idum,
+     &                     Work(ipFIMO),Work(k2int),rdum,
      &                     ipCId,ipS2,'N')
               EC=rin_ene+potnuc-ERASSCF(1)
 

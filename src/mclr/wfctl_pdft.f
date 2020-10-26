@@ -52,6 +52,7 @@
       Integer nacpar,nacpr2
       Logical lPrint,converged(8)
       Real*8 rchc(mxroot)
+      Real*8 rDum(1)
 
       External IsFreeUnit
       Real*8, Allocatable:: FOSq(:), FOTr(:)
@@ -265,7 +266,7 @@
 
       iprci = ipget(nconf3)
       Call CISigma_sa(0,State_sym,State_sym,FMO1,FMO2t,
-     &                0,ipci,ipST,'N')
+     &                rdum,ipci,ipST,'N')
       Call mma_deallocate(FMO2t)
 
       troot = (irlxroot - 1)

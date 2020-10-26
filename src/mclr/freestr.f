@@ -117,9 +117,9 @@ CMS: New else block
 *. Only creation allowed, use compact scheme with offsets
 *
 *. Explicit offsets and lengths
-            Call mma_deallocate(Str(ITYP)%STSTMI)
-            Call mma_deallocate(Str(ITYP)%STSTMN)
           END IF
+          Call mma_deallocate(Str(ITYP)%STSTMI)
+          Call mma_deallocate(Str(ITYP)%STSTMN)
 *. has this map been constructed before ?
           IIIITEST = 0
           IF(IUNIQTP(ITYP).EQ.ITYP.OR.IIIITEST.EQ.1) THEN
