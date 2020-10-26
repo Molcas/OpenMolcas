@@ -20,7 +20,7 @@
 *                                                                      *
 ************************************************************************
       use Exp, only: Exp_Close
-      use Arrays, only: SFock
+      use Arrays, only: SFock, G1m, G2mp
       Implicit Real*8 (a-h,o-z)
 *
 #include "WrkSpc.fh"
@@ -50,6 +50,16 @@
      &                      Sc1(:), Sc2(:), Sc3(:),
      &                      Dens(:), Pens(:), rmoaa(:), rmoaa2(:),
      &                      Pre2(:)
+*
+*----------------------------------------------------------------------*
+*
+       Interface
+         SubRoutine FockGen_sp(d_0,rDens1,rdens2,Fock,fockout,idsym)
+         Real*8 d_0
+         Real*8 rDens1(*), rdens2(*), Fock(*), fockout(*)
+         Integer idsym
+         End SubRoutine FockGen_sp
+       End Interface
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *

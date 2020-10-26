@@ -210,7 +210,6 @@ c Avoid unused argument warnings
       DIMENSION IASTR(*),IBSTR(*)
       DIMENSION ISGNA(*),ISGNB(*)
 #include "detdim.fh"
-#include "stinf_mclr.fh"
       DIMENSION IOOS(NOCTYP(IAGRP),NOCTYP(IBGRP),*)
 *
       IABNUM = IABNUS(IASTR,NELEC(IAGRP),Str(IAGRP)%STREO,
@@ -355,7 +354,6 @@ C?    END IF
 *
 #include "cstate_mclr.fh"
 #include "detdim.fh"
-#include "stinf_mclr.fh"
 #include "orbinp_mclr.fh"
 #include "csm.fh"
 #include "cicisp_mclr.fh"
@@ -1904,7 +1902,6 @@ C
 #include "detdim.fh"
 #include "cstate_mclr.fh"
 #include "csm.fh"
-#include "stinf_mclr.fh"
 *
 #include "WrkSpc.fh"
 * ====================

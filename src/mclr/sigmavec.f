@@ -9,8 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SigmaVec(C,HC,kic)
-      Use Str_Info, only: Str, NELEC
-
+      Use Str_Info, only: Str, NELEC, NOCTYP
 *
 * Outer routine for sigma vector generation
 * RAS space
@@ -31,7 +30,6 @@
 #include "orbinp_mclr.fh"
 #include "cicisp_mclr.fh"
 #include "cstate_mclr.fh"
-#include "stinf_mclr.fh"
 #include "csm.fh"
 #include "csfbas_mclr.fh"
 #include "WrkSpc.fh"
@@ -233,9 +231,9 @@
         IF ( 2 * LSCR2 .GT. LSCR1 ) THEN
            AlloKC=.true.
            Call mma_allocate(CJRES,LSCR2,Label='CJRES')
-           KCJRES = ip_of_Work(CJRES)
+           KCJRES = ip_of_Work(CJRES(1))
            Call mma_allocate(SIRES,LSCR2,Label='SIRES')
-           KSIRES = ip_of_Work(SIRES)
+           KSIRES = ip_of_Work(SIRES(1))
         ELSE
            KCJRES = KC2
            KSIRES = KC2 + LSCR2
@@ -243,7 +241,7 @@
       ELSE
         AlloKC2=.true.
         Call mma_allocate(C2,LSCR12,Label='C2')
-        KC2 = ip_of_Work(C2)
+        KC2 = ip_of_Work(C2(1))
         KCJRES = KC2
         KSIRES = KC2 + LSCR2
       END IF

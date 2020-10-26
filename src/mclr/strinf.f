@@ -31,7 +31,6 @@
 * Output
 * ======
 *
-#include "stinf_mclr.fh"
 #include "csm.fh"
 *
       Integer ISGSTI(1),ISGSTO(1)

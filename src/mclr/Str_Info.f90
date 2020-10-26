@@ -86,25 +86,25 @@ Module Str_Info
       Integer, Allocatable:: SIOIO(:)
 
 !             INITITIALIZED IN STRTYP
-!        NSTTYP        :        Number of string typesi *
-!        MNRS1        :        Min ras1 *
-!        MXRS1        :        Max ras1 *
-!        MNRS3        :        Min ras3 *
-!        MXRS3        :        Max ras3 *
-!        NELEC        :        Number of electrons *
-!        IZORR        :        Zero orde y/n         *
-!        IAZTP        :              Pointer to alpha types*
-!        IBZTP        :        Pointer to beta types*
+!        NSTTYP       :        Number of string types
+!        MNRS1        :        Min ras1
+!        MXRS1        :        Max ras1
+!        MNRS3        :        Min ras3
+!        MXRS3        :        Max ras3
+!        NELEC        :        Number of electrons
+!        IZORR        :        Zero orde y/n
+!        IAZTP        :        Pointer to alpha types
+!        IBZTP        :        Pointer to beta types
 !
 !not in use (just zero order space)
-!        IARTP        :          Give type nr to certain exc
-!        IBRTP        :       Give type nr to certain exc
+!        IARTP        :        Give type nr to certain exc
+!        IBRTP        :        Give type nr to certain exc
 !
-!        NZSTTP        :        Not in use
-!        NRSTTP        :        Not in use
+!        NZSTTP       :        Not in use
+!        NRSTTP       :        Not in use
 !
 !        ISTTP        :        Space (0=zero order)
-!        iuniqmp        :        Unique types (not necessary here just 0order space)
+!        iuniqmp      :        Unique types (not necessary here just 0order space)
       Integer, Parameter:: NSTTYP_MAX=6
       Integer       NSTTYP,                                         &
                     NELEC(NSTTYP_MAX),                              &
@@ -119,5 +119,19 @@ Module Str_Info
                     IAZTP,IBZTP,IARTP(3,10),IBRTP(3,10),            &
                     NZSTTP,NRSTTP,                                  &
                     IATPM1,IATPM2,IBTPM1,IBTPM2
+
+!        ISTAC                 : Stringtype maping; a(or a+) i -> istac(j,1(2))
+!        NOCTYP                : Number of occupation classes for given type
+!        NSTFTP                : Number of strings of this type
+!        INUMAP                : Mapping of string type to next more general type
+!        INDMAP                : Mapping of string type to next more restricted type
+!        MXNSTR                : Largest number of strings of given sym and type
+!
+      Integer ISTAC(NSTTYP_MAX,2),     &
+              NOCTYP(NSTTYP_MAX),      &
+              NSTFTP(NSTTYP_MAX),      &
+              INUMAP(NSTTYP_MAX),      &
+              INDMAP(NSTTYP_MAX),      &
+              MXNSTR
 
 End Module Str_Info

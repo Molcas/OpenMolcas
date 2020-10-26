@@ -28,7 +28,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 *
 #include "detdim.fh"
-#include "stinf_mclr.fh"
 *
       CALL GTSTTPS(IEL1,IEL3,Str(ICLS)%EL1,Str(ICLS)%EL3,
      &             NOCTYP(ICLS),ITYPE,IWAY)

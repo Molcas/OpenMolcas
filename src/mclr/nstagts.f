@@ -19,7 +19,6 @@
 *
 #include "detdim.fh"
 #include "csm.fh"
-#include "stinf_mclr.fh"
 * element (ITP,ISM) corresponds to adress
        IADRESS = (ISM-1)*NOCTYP(IGRP)+ ITP
 *

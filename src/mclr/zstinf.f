@@ -42,7 +42,6 @@
 *
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
-#include "stinf_mclr.fh"
 *
 *
       NTEST = 0000
@@ -50,7 +49,7 @@
 * ******************************************************************
 * Mappings between strings with the same type ISTTP index , +/- 1 el
 * ******************************************************************
-      Call iCopy(2*MXPSTT,[0],0,ISTAC,1)
+      ISTAC(:,:)=0
       DO 90 ITYP = 1, NSTTYP-1
         IF(NELEC(ITYP+1).EQ.NELEC(ITYP)-1) THEN
           ISTAC(ITYP,1) = ITYP+1
@@ -88,8 +87,8 @@
 * *****************************************************************
 *. Mappings between strings containing the same number of electrons
 * *****************************************************************
-      Call iCopy(MXPSTT,[0],0,INUMAP,1)
-      Call iCopy(MXPSTT,[0],0,INDMAP,1)
+      INUMAP(:)=0
+      INDMAP(:)=0
 *. Mapping to and from zero order space
 *     Note: some lines are commented out here since IARTP and IBRTP
 *           have never been defined. (R. Lindh 2006)

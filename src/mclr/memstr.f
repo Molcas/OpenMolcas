@@ -39,7 +39,6 @@
 #include "stdalloc.fh"
 #include "orbinp_mclr.fh"
 #include "csm.fh"
-#include "stinf_mclr.fh"
       LENGTH=100
 *. Start of string information
 *

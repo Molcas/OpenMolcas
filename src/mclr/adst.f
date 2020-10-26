@@ -40,7 +40,6 @@
 #include "detdim.fh"
 #include "WrkSpc.fh"
 #include "orbinp_mclr.fh"
-#include "stinf_mclr.fh"
 *
 * =======
 *. Output
