@@ -57,7 +57,7 @@
     in = 1
 
 >>> END DO
-&MCLR
+*&MCLR
 
 ****
 
