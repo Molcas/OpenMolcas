@@ -372,7 +372,7 @@
       deltaC=Zero
 !AMS _________________________________________________________
 !I need to read in the CI portion of the RHS here.
-      If (CI) Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rdum,isym,Fancy)
+      If (CI) Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rdum(1),isym,Fancy)
       Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
      &   Work(ipin(ipCId)),1)
 ********************
@@ -552,7 +552,7 @@
 *
          irc=opOut(ipcid)
 
-         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rdum,isym,Fancy)
+         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rdum(1),isym,Fancy)
 
          irc=opOut(ipci)
          irc=opOut(ipdia)

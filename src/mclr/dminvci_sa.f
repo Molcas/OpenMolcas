@@ -16,7 +16,8 @@
 #include "Pointers.fh"
 #include "negpre.fh"
 #include "incdia.fh"
-
+      Real*8 rC_HE_C
+      Integer idsym
       Real*8 rout(*),rcoeff(mxroot),alpha(mxRoot),
      &       S(nroots,nroots,nroots)
 *

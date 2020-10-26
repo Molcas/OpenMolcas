@@ -47,6 +47,7 @@
       Integer opOut
       Logical lPrint,converged(8)
       Real*8 rchc(mxroot)
+      Real*8 rdum(1)
       Real*8, Allocatable:: Kappa(:), dKappa(:), Sigma(:),
      &                      Temp3(:), Temp4(:),
      &                      Sc1(:), Sc2(:), Fancy(:)
@@ -281,7 +282,7 @@
 *
          irc=opOut(ipcid)
 
-         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rdum,isym,Fancy)
+         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rdum(1),isym,Fancy)
          irc=opOut(ipci)
          irc=opOut(ipdia)
 
