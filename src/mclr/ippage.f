@@ -18,12 +18,12 @@
 ************************************************************************
 *                                                                      *
        Logical Function ipopen(nconf,page)
+       use ipPage
 *
 *      Initiate the whole lot.
 *
        Implicit Real*8(a-h,o-z)
        Logical page
-#include "ippage.fh"
 #include "WrkSpc.fh"
 *
 *      Ask how much memory is available
@@ -31,7 +31,6 @@
        Call GetMem('ipopen','MAX','REAL',ipDum,nmax)
        nmax=nmax/2
        npp=nconf*10
-*      If (npp.lt.nmax.or.(.not.page)) Then
 *
        If (Page) Then
 *
@@ -48,10 +47,10 @@
 *         n  : Length of CI-vector
 *         ida: disk address
 *
-          Call ICopy(Max_CI_Vectors+1,[0],0,n,1)
-          Call ICopy(Max_CI_Vectors+1,[-1],0,ida,1)
-          Call ICopy(Max_CI_Vectors+1,[ip_Dummy],0,ip_Mem,1)
-          Call ICopy(Max_CI_Vectors+1,[Null_Vector],0,Status,1)
+               n(0:Max_CI_Vectors)=0
+             ida(0:Max_CI_Vectors)=-1
+          ip_Mem(0:Max_CI_Vectors)=ip_Dummy
+          Status(0:Max_CI_Vectors)=Null_Vector
 *
 *         iDisk_Addr_End: next free disk address
 *         n_CI_Vectors : number of CI-vectors
@@ -60,10 +59,12 @@
           n_CI_Vectors=0
 *
        Else
+
           If (DiskBased) Then
              Call ipTerm()
              DiskBased=.False.
           End If
+
        End If
 *
        ipopen=DiskBased
@@ -74,7 +75,7 @@
 ************************************************************************
 *                                                                      *
        Integer Function ipclose(ia)
-#include "ippage.fh"
+       use ipPage
 #include "WrkSpc.fh"
        Real*8 rdum(1)
 *
@@ -128,8 +129,8 @@
 *      Get the index of a vector with the length nn
 *      memory or disk space is allocated.
 *
+       use ipPage
        Implicit Integer (a-h,o-z)
-#include "ippage.fh"
 #include "WrkSpc.fh"
        Character*4 Label
 *
@@ -177,8 +178,8 @@
 *
 *      Object: return pointer to vector ii
 *
+       use ipPage
        Implicit Integer (a-h,o-z)
-#include "ippage.fh"
 #include "WrkSpc.fh"
 *
        nn=n(ii)
@@ -190,8 +191,8 @@
 ************************************************************************
 *                                                                      *
        Integer Function ipin1(ii,nn)
+       use ipPage
        Implicit Integer (a-h,o-z)
-#include "ippage.fh"
 #include "WrkSpc.fh"
 *
        If (ii.gt.Max_CI_Vectors) Then
@@ -224,7 +225,6 @@
 *
           ip_Mem(ii)=ip1
           nnn=Min(n(ii),nn)
-
 *
 *         pick up from disk
 *
@@ -255,8 +255,8 @@
 ************************************************************************
 *                                                                      *
        Integer Function ipnout(iii)
+       use ipPage
        Implicit Integer (a-h,o-z)
-#include "ippage.fh"
 #include "WrkSpc.fh"
 *
        If (iii.gt.Max_CI_Vectors) Then
@@ -291,8 +291,8 @@
 *
 *      opout will release the memory area without update the disk
 *
+       use ipPage
        Implicit Integer (a-h,o-z)
-#include "ippage.fh"
 #include "WrkSpc.fh"
 *
        If (ii.gt.Max_CI_Vectors) Then
@@ -323,8 +323,8 @@
 *
 *      ipout will page them out to disk and free the memory area
 *
+       use ipPage
        Implicit Integer (a-h,o-z)
-#include "ippage.fh"
 #include "WrkSpc.fh"
 *
        ipout=0
@@ -348,11 +348,11 @@
 ************************************************************************
 *                                                                      *
        Subroutine ipterm()
+       use ipPage
 *
 *      Termination
 *
-       Implicit Real*8(a-h,o-z)
-#include "ippage.fh"
+       use ipPage
 *
        If (DiskBased) Call DaClos(Lu_ip)
 *
@@ -362,11 +362,11 @@
 ************************************************************************
 *                                                                      *
        Subroutine ipinit()
+       use ipPage
 *
 *      Initialization
 *
-       Implicit Real*8(a-h,o-z)
-#include "ippage.fh"
+       use ipPage
 *
        DiskBased=.False.
 *

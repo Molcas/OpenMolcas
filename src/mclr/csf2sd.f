@@ -11,19 +11,21 @@
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
       Subroutine CSF2SD(CSF,SD,is)
+      use ipPage, only: Diskbased
 *
 *  Transforms a CSF vector to slater determinants
 *
       Use Arrays, only: DTOC, CNSM
       implicit Real*8(a-h,o-z)
 #include "detdim.fh"
-#include "WrkSpc.fh"
+#include "real.fh"
+#include "stdalloc.fh"
 #include "cicisp_mclr.fh"
 #include "Input.fh"
 #include "spinfo_mclr.fh"
-#include "ippage.fh"
 *
       Real*8 CSF(*),SD(*)
+      Real*8, Allocatable:: CTM(:)
 *
 
       iiCOPY=0
@@ -32,16 +34,17 @@
       isym=iEor(is-1,State_Sym-1)+1
       i=2
       If (isym.eq.1) i=1
+
       If (diskbased) Then
-         CALL CSDTVC_MCLR(CSF,SD,1,DTOC, CNSM(i)%ICTS,
-     &                    IS,iiCOPY,IPRDIA)
+         CALL CSDTVC_MCLR(CSF,SD,1,DTOC,CNSM(i)%ICTS,IS,iiCOPY,IPRDIA)
       Else
-         Call GetMem('CITEMP','ALLO','REAL',ipCTM,nConf)
-         Call FZero(Work(ipCTM),nConf)
-         call dcopy_(ncsf(is),CSF,1,Work(ipCTM),1)
-         CALL CSDTVC_MCLR(Work(ipCTM),SD,1,DTOC,CNSM(i)%ICTS,
-     &                    IS,iiCOPY,IPRDIA)
-         Call GetMem('CITEMP','FREE','REAL',ipCTM,nConf)
+         Call mma_allocate(CTM,nConf,Label='CTM')
+         CTM(:)=Zero
+         CTM(1:ncsf(is))=CSF(1:ncsf(is))
+
+         CALL CSDTVC_MCLR(CTM,SD,1,DTOC,CNSM(i)%ICTS,IS,iiCOPY,IPRDIA)
+
+         Call mma_deallocate(CTM)
       End If
 *
       Return
