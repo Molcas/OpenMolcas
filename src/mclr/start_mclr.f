@@ -21,7 +21,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      use Arrays, only: CMO_Inv
+      use Arrays, only: CMO_Inv, CMO
       Implicit real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -97,7 +97,7 @@
         iOff2 = 1
         Do iSym = 1, nSym
            Call dGemm_('T','N', nOrb(iSym),nBas(iSym),nBas(iSym),
-     &                1.0d0,Work(ipCMO+iOff2-1), nBas(iSym),
+     &                1.0d0,CMO(iOff2), nBas(iSym),
      &                      Smat(iOff1), nBas(iSym),
      &                0.0d0,CMO_Inv(iOff2), nOrb(iSym))
 *
@@ -108,6 +108,7 @@
         Call mma_deallocate(Smat)
       EndIf
 *
+      ipCMO = ip_of_work(CMO(1))
       Call SetUp_CASPT2_Tra(nSym,nBas,nOrb,nIsh,nAsh,
      &                      nFro,nDel,ipCMO,nDens2,
      &                      LuTri1,LuTri2,LuHlf2,LuHlf3)
@@ -162,6 +163,7 @@
 **    integrals used for the preconditioner
 *
       If (NewCho) Then
+         ipCMO = ip_of_work(CMO(1))
          Call cho_prec_mclr(ipCMO,nIsh,nASh,LuAChoVec,LuChoInt)
       EndIf
 

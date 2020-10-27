@@ -20,6 +20,7 @@
 *                                                                      *
 ************************************************************************
       use Exp, only: Exp_Close
+      use Arrays, only: CMO
       Implicit Real*8 (a-h,o-z)
 *
 #include "WrkSpc.fh"
@@ -229,7 +230,7 @@ c
 *
            Call RHS_td(Sigma,Kappa,Temp1,Temp3,Sc2,dKappa,
      &                 Sc3,Temp4,ipST,
-     &                 iDisp,iSym-1,Work(ipCMO),jdisp,jspin,CI)
+     &                 iDisp,iSym-1,CMO,jdisp,jspin,CI)
 *
 *
            call dscal_(nDens2,-1.0d0,Temp4,1)

@@ -11,6 +11,7 @@
       subRoutine INTX(FockI,Temp1,Temp2,Temp3,Temp4,Fock,
      &                rMo,loper,idisp,r)
 *
+      use Arrays, only: CMO
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 
@@ -157,24 +158,24 @@
            End If
            Call DGEMM_('T','N',
      &                 nOrb(iS),nBas(jS),nBAs(iS),
-     &                 1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(is),
+     &                 1.0d0,CMO(ipCM(iS)),nBas(is),
      &                 Temp4,nBas(iS),
      &                 0.0d0,Temp3,nOrb(iS))
            Call DGEMM_('N','N',
      &                 nOrb(is),nB(jS),nBas(jS),
      &                 1.0d0,Temp3,nOrb(iS),
-     &                 Work(ipCMO+ipCM(jS)-1),nBas(jS),
+     &                 CMO(ipCM(jS)),nBas(jS),
      &                 0.0d0,Temp2(ipMat(iS,jS)),nOrb(iS))
            If (is.ne.js) Then
            Call DGEMM_('T','T',
      &                 nOrb(jS),nOrb(iS),nBAs(jS),
-     &                 1.0d0,Work(ipCMO+ipCM(jS)-1),nBas(js),
+     &                 1.0d0,CMO(ipCM(jS)),nBas(js),
      &                 Temp4,nBas(iS),
      &                 0.0d0,Temp3,nOrb(jS))
            Call DGEMM_('N','N',
      &                 nOrb(js),nB(iS),nBas(iS),
      &                 1.0d0,Temp3,nOrb(jS),
-     &                 Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &                 CMO(ipCM(iS)),nBas(iS),
      &                 0.0d0,Temp2(ipMat(jS,iS)),nOrb(jS))
           End If
 

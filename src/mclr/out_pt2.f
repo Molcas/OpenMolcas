@@ -12,6 +12,7 @@
 ********************************************************************
 *                                                                  *
 ********************************************************************
+       use Arrays, only: CMO
        Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 
@@ -334,7 +335,7 @@ c
           If (nBas(is).ge.1)
      &       CALL DGEMM_('N','N',
      &                   NBAS(is),NBAS(is),NBAS(is),
-     &                   One,Work(ipCMO+ipCM(is)-1),NBAS(is),
+     &                   One,CMO(ipCM(is)),NBAS(is),
      &                   Work(ipK2+ipmat(is,is)-1),NBAS(is),
      &                   Zero,Work(ipDAO+ipCM(is)-1),NBAS(is))
        End Do
@@ -395,7 +396,7 @@ c Note: no inactive part for transition densities
           End Do
          End Do
          Call Getmem('TMP', 'ALLO','Real',ipT,nBuf/2)
-         Call NatOrb(D_K,Work(ipCMO),Work(ipCMON),Work(ipO))
+         Call NatOrb(D_K,CMO,Work(ipCMON),Work(ipO))
          Call dmat_MCLR(Work(ipCMON),Work(ipO),Work(ipT))
          Call Put_D1ao_var(Work(ipT),nTot1)
          Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)
@@ -476,7 +477,7 @@ c Diagonalize the effective density to be able to use Prpt
 c ipO eigenvalues of eff dens
 c ipCMON eigenvectors (new orb coef)
 c
-         Call NatOrb(D_K,Work(ipCMO),Work(ipCMON),Work(ipO))
+         Call NatOrb(D_K,CMO,Work(ipCMON),Work(ipO))
          Call mma_Allocate(Tmp,nBuf/2,Label='Tmp')
          Call dmat_MCLR(Work(ipCMON),Work(ipO),Tmp)
          Call Put_D1ao_Var(Tmp,nTot1)

@@ -12,7 +12,7 @@
 ************************************************************************
       SubRoutine RInt_Generic(rkappa,rmos,rmoa,Fock,Q,Focki,Focka,
      &                        idsym,reco,jspin)
-      use Arrays, only: CMO_Inv
+      use Arrays, only: CMO_Inv, CMO
 *
 *                              ~
 *     Constructs  F  = <0|[E  ,H]|0> ( + <0|[[E  , Kappa],H]|0> )
@@ -128,21 +128,21 @@
      &                         Zero,Dens2(ipMat(iS,jS)),nOrb(iS))
                    Call DGEMM_('T','T',nOrb(jS),nOrb(iS),nOrb(iS),
      &                         One,Dens2(ipMat(iS,jS)),nOrb(iS),
-     &                             Work(ipCMO+ipCM(is)-1),nOrb(iS),
+     &                             CMO(ipCM(is)),nOrb(iS),
      &                         Zero,DLT(ipMat(jS,iS)),nOrb(jS))
                    Call DGEMM_('T','T',nOrb(jS),nOrb(jS),nOrb(iS),
      &                         One,DLT(ipMat(jS,iS)),nOrb(iS),
-     &                             Work(ipCMO+ipCM(js)-1),nOrb(jS),
+     &                             CMO(ipCM(js)),nOrb(jS),
      &                         Zero,Dens2(ipMat(iS,jS)),nOrb(jS))
 
                    Call DGEMM_('T','T',nOrb(jS),nOrb(iS),nOrb(iS),
      &                         One,DI(ipCM(js)),
-     &                         nOrb(iS),Work(ipCMO+ipCM(is)-1),
+     &                         nOrb(iS),CMO(ipCM(is)),
      &                         nOrb(iS),Zero,
      &                         DLT(ipMat(jS,iS)),nOrb(jS))
                    Call DGEMM_('T','T',nOrb(jS),nOrb(jS),nOrb(iS),One,
      &                         DLT(ipMat(jS,iS)),nOrb(iS),
-     &                         Work(ipCMO+ipCM(js)-1),nOrb(jS),Zero,
+     &                         CMO(ipCM(js)),nOrb(jS),Zero,
      &                         DI(ipCM(js)),nOrb(jS))
               EndIf
             End Do
@@ -183,7 +183,7 @@
             ioff5 = ioff4+ nOrb(iS)*nIsh(iS)
             Do iB=1,nAsh(iS)
               ioff3=ioff2+nOrb(iS)*(iB-1)
-              call dcopy_(nOrb(iS),Work(ipCMO+ioff3),1,
+              call dcopy_(nOrb(iS),CMO(1+ioff3),1,
      &                  CVa(ioff1-1+iB,1),nAsh(iS))
              Do jB=1,nAsh(iS)
               ip=ioffD+ib+(jB-1)*nAsh(is)
@@ -196,7 +196,7 @@
 *MGD to check
             Call DGEMM_('T','T',nAsh(iS),nOrb(iS),nOrb(iS),1.0d0,
      &                  rkappa(ioff5),nOrb(iS),
-     &                  Work(ipCMO+ioff),nOrb(iS),
+     &                  CMO(1+ioff),nOrb(iS),
      &                  0.0d0,CVa(ioff1,2),nAsh(iS))
             ioff=ioff+(nIsh(iS)+nAsh(iS))*nOrb(iS)
             ioff1=ioff1+nAsh(iS)*nOrb(iS)
@@ -244,6 +244,7 @@
 *
         iread=2 ! Asks to read the half-transformed Cho vectors
         ip_CMO_Inv = ip_of_work(CMO_Inv(1))
+        ipCMO      = ip_of_work(CMO(1))
         ipDI       = ip_of_Work(DI(1))
         ipDLT      = ip_of_Work(DLT(1))
         ipDA       = ip_of_Work(DA(1))

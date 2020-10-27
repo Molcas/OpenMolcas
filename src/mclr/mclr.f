@@ -41,7 +41,7 @@
       use Symmetry_Info, only: Symmetry_Info_Free
       use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM, SFock,
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m,
-     &                  CMO_Inv
+     &                  CMO_Inv, CMO
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "warnings.fh"
@@ -282,14 +282,14 @@ c      idp=rtoi
 
 *     Array in rdab.f
       If (iMethod.eq.1) Then
-         Call Free_Work(ipCMO)
+         Call mma_deallocate(CMO)
       End If
 *     Arrays in rdjobip_td.f and rdjobiph.f
       If (iMethod.eq.2) Then
          Call GetMem(' G2 ','Free','Real',ipG2t,nDum)
          If (Timedep) Call GetMem(' G2 ','Free','Real',ipG2sq,nDum)
          Call GetMem(' G1 ','Free','Real',ipG1t,nDum)
-         Call Free_Work(ipCMO)
+         Call mma_deallocate(CMO)
       End If
 
 *     Arrays allocated in stpert.f

@@ -18,4 +18,5 @@ Module Arrays
       Real*8, Allocatable:: Fm(:), Fp(:)
       Real*8, Allocatable:: G1p(:), G1m(:)
       Real*8, Allocatable:: CMO_Inv(:)
+      Real*8, Allocatable:: CMO(:)
 End Module Arrays

@@ -11,16 +11,20 @@
 * Copyright (C) 1998, Anders Bernhardsson                              *
 ************************************************************************
 #define NOCODE
+#ifdef NOCODE
       Subroutine RHS_PT2(rkappa,iprci)
       Implicit Real*8(a-h,o-z)
       Real*8 rKappa(*)
-#ifdef NOCODE
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(rkappa)
          Call Unused_integer(iprci)
       End If
 #else
+      Subroutine RHS_PT2(rkappa,iprci)
+      use Arrays, only: CMO
+      Implicit Real*8(a-h,o-z)
+      Real*8 rKappa(*)
 *
 *    Calculate and reads in from CASPT2 the RHS needed
 *    for the calculation of the Lagrangian multipliers
@@ -229,13 +233,13 @@ c Avoid unused argument warnings
         If (nBas(is).ne.0) Then
            Call DGEMM_('N','N',
      &                 nBas(iS),nBas(iS),nBas(iS),
-     &                 1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &                 1.0d0,CMO(ipCM(iS)),nBas(iS),
      &                 K2(ipMat(is,is)),nBas(iS),
      &                 0.0d0,T2,nBas(iS))
            Call DGEMM_('N','T',
      &                 nBas(is),nBas(iS),nBAs(iS),
      &                 1.0d0,T2,nBas(iS),
-     &                 Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &                 CMO(ipCM(iS)),nBas(iS),
      &                 0.0d0,FAO1(ipMat(iS,iS)),nBas(is))
         End If
       End Do
@@ -277,6 +281,7 @@ c Avoid unused argument warnings
  100  Call SysHalt('rhs_pt2')
       end
       Subroutine DFock(DAO,FockMO,Fock)
+      use Arrays, only: CMO
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 
@@ -292,13 +297,13 @@ c Avoid unused argument warnings
         If (nBas(is).ne.0) Then
            Call DGEMM_('T','N',
      &                 nBas(iS),nBas(iS),nBas(iS),
-     &                 1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &                 1.0d0,CMO(ipCM(iS)),nBas(iS),
      &                 DAO(ipCM(is)),nBas(iS),
      &                 0.0d0,Temp2,nBas(iS))
            Call DGEMM_('N','N',
      &                 nBas(is),nBas(iS),nBAs(iS),
      &                 1.0d0,Temp2,nBas(iS),
-     &                 Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &                 CMO(ipCM(iS)),nBas(iS),
      &                 0.0d0,Temp1,nBas(is))
            Call DGEMM_('N','N',
      &                 nBas(is),nBas(iS),nBAs(iS),
@@ -312,6 +317,7 @@ c Avoid unused argument warnings
       Return
       End
       Subroutine AO2MO(FAO ,FMO)
+      use Arrays, only: CMO
       Implicit Real*8 (a-h,o-z)
       Real*8 FAO(*),FMO(*)
 
@@ -329,13 +335,13 @@ c Avoid unused argument warnings
            Call Square(FAO(ip),Temp1,1,nBas(is),nBas(is))
            Call DGEMM_('T','N',
      &                 nBas(iS),nBas(iS),nBas(iS),
-     &                 1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &                 1.0d0,CMO(ipCM(iS)),nBas(iS),
      &                       Temp1,nBas(iS),
      &                 0.0d0,Temp2,nBas(iS))
            Call DGEMM_('N','N',
      &                 nBas(is),nBas(iS),nBAs(iS),
      &                 1.0d0,Temp2,nBas(iS),
-     &                       Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &                       CMO(ipCM(iS)),nBas(iS),
      &                 0.0d0,FMO(ipMat(iS,iS)),nBas(is))
            ip=ip+nBas(is)*(nBas(iS)+1)/2
         End If

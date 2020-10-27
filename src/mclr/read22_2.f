@@ -20,6 +20,7 @@
 *          MOtilde:MO (one index transformed integrals)            *
 *                                                                  *
 ********************************************************************
+      use Arrays, only: CMO
       Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
 #include "standard_iounits.fh"
@@ -276,11 +277,11 @@
               jS=iS
               Call DGEMM_('T','T',nIsh(jS),nOrb(iS),nIsh(iS),
      &                    1.0d0,Temp2(ipCM(iS)),nOrb(iS),
-     &                    Work(ipCMO+ipCM(is)-1),nOrb(iS),
+     &                    CMO(ipCM(is)),nOrb(iS),
      &                    0.0d0,Temp3(ipMat(jS,iS)),nOrb(jS))
               Call DGEMM_('T','T',nOrb(jS),nOrb(jS),nIsh(iS),
      &                    1.0d0,Temp3(ipMat(jS,iS)),nOrb(iS),
-     &                    Work(ipCMO+ipCM(js)-1),nOrb(jS),
+     &                    CMO(ipCM(js)),nOrb(jS),
      &                    0.0d0,Temp2(ipCM(iS)),nOrb(jS))
            EndIf
         End Do
@@ -316,7 +317,7 @@
             ioff2 = ioff + nOrb(iSym)*nIsh(iSym)
             do ikk=1,nAsh(iSym)
                ioff3=ioff2+nOrb(iSym)*(ikk-1)
-               call dcopy_(nOrb(iSym),Work(ipCMO+ioff3),1,
+               call dcopy_(nOrb(iSym),CMO(1+ioff3),1,
      &                   Work(ipAsh+ioff1+ikk-1),nAsh(iSym))
                ik=ikk+nA(iSym)
                Do ill=1,ikk-1
@@ -392,7 +393,8 @@
      &     'There is probably a bug here, ipAsh should have two '//
      &     'elements.')
         Call Abend()
-!       ip_CMO_inv = ip_of_work(CMO_Inv)
+!       ip_CMO_inv = ip_of_work(CMO_Inv(1))
+!       ipCMO      = ip_of_work(CMO(1))
 !       Call CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2x,ipkappa,
 !    &                   ipJI,ipKI,ipJA,ipKA,ipFockI,ipFockA,
 !    &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,

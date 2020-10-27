@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TRCTL_MCLR
+      use Arrays, only: CMO
 *
 *     Two-electron integral transformation program: control section
 *
@@ -137,10 +138,10 @@
      &                   Buffer(LW5:LW5+NW5-1),NW5,
      &                   nBP,nBQ,nBR,nBS,iSP,iSQ,iSR,iSS,
      &                   nAP,nAQ,nAR,nAS,
-     &                   Work(ipCMO+ipCM(iSP)-1+nBP*nDP),
-     &                   Work(ipCMO+ipCM(iSQ)-1+nBQ*nDQ),
-     &                   Work(ipCMO+ipCM(iSR)-1+nBR*nDR),
-     &                   Work(ipCMO+ipCM(iSS)-1+nBS*nDS),
+     &                   CMO(ipCM(iSP)+nBP*nDP),
+     &                   CMO(ipCM(iSQ)+nBQ*nDQ),
+     &                   CMO(ipCM(iSR)+nBR*nDR),
+     &                   CMO(ipCM(iSS)+nBS*nDS),
      &                   iAD13,iAD14,iAD23,iAD24,iAD34,
      &                   TocC(1,iSPQ,iSRS),
      &                   Hlf1(:,1),Hlf1(:,2),

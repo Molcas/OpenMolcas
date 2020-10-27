@@ -21,12 +21,14 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      Use Arrays, only: CMO
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "Files_mclr.fh"
 #include "glbbas_mclr.fh"
 #include "Pointers.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "SysDef.fh"
       Character*72 Line
       Dimension rdum(1)
@@ -114,16 +116,16 @@
 *     Load the orbitals used in the last macro iteration               *
 *----------------------------------------------------------------------*
 *
-      Call GetMem('CMO','Allo','Real',ipCMO,Length)
-      Call Get_CMO(Work(ipCMO),Length)
+      Call mma_allocate(CMO,Length,Label='CMO')
+      Call Get_CMO(CMO,Length)
 *     iDisk=iToc(9)
 *     IF(IPT2.EQ.0) iDisk=iToc(2)
-*     Call dDaFile(LuJob,2,Work(ipCMO),ntBsqr,iDisk)
+*     Call dDaFile(LuJob,2,CMO,ntBsqr,iDisk)
       If ( .false. ) then
-         jpCMO=ipCMO
+         jpCMO=1
          Do 15 iSym=1,nSym
             Write(Line,'(A,i2.2)') 'MO coefficients, iSym = ',iSym
-            Call RecPrt(Line,' ',Work(jpCMO),nBas(iSym),nBas(iSym))
+            Call RecPrt(Line,' ',CMO(jpCMO),nBas(iSym),nBas(iSym))
             jpCMO=jpCMO+nBas(iSym)*nBas(iSym)
 15       Continue
       End If

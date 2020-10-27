@@ -24,6 +24,7 @@
 *
 ************************************************************************
 *
+      use Arrays, only: CMO
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
@@ -129,7 +130,7 @@ c THIS IS THE ENTIRE DENSITY FOR MULTICONF
      &           Work(ipDA),
      &           rkappa,idsym,Sign,Facr,jSpin,
      &           lFA,lfi,lMo,
-     &           Work(ipCMO))
+     &           CMO)
 *      If (iDsym.eq.2) Then
 *           Call RecPrt('Work(ipFI)',' ',Work(ipFI),ndens2,1)
 *           Call RecPrt('Work(ipDI)',' ',Work(ipDI),ndens2,1)
@@ -158,7 +159,7 @@ c THIS IS THE ENTIRE DENSITY FOR MULTICONF
      &           Work(ipDA),
      &           Work(ipK1),idsym,Sign,Facr,jSpin,
      &           lFA,lfi,.false.,
-     &           Work(ipCMO))
+     &           CMO)
 *      If (iDsym.eq.2)
 *     &      Call RecPrt('Work(ipFI1)',' ',Work(ipFI1),ndens2,1)
 *

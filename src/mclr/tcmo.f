@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine TCMO(A,isym,ictl)
+      use Arrays, only: CMO
       Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"
@@ -46,7 +47,7 @@
 
        Do iS=1,nSym
         If (nbas(is)==0) Cycle
-        call dcopy_(nbas(is)**2,Work(ipCMO+ipcm(is)-1),1,
+        call dcopy_(nbas(is)**2,CMO(ipcm(is)),1,
      &                          CMOINV(ip(is)),1)
         call dgetrf_(nBas(is),nBas(is),CMOINV(ip(is)),
      &              nBas(is),iCMOINV(iip(is)),irc)
@@ -87,13 +88,13 @@
         If (nBas(is)*nBas(js)==0) Cycle
            Call DGEMM_('T','N',
      &                 nOrb(iS),nBas(jS),nBas(iS),
-     &                 1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(is),
+     &                 1.0d0,CMO(ipCM(iS)),nBas(is),
      &                 A(ipmat(is,js)),nBas(iS),
      &                 0.0d0,Temp,nOrb(iS))
            Call DGEMM_('N','N',
      &                 nOrb(is),nOrb(jS),nBas(jS),
      &                 1.0d0,Temp,nOrb(iS),
-     &                 Work(ipCMO+ipCM(jS)-1),nBas(jS),
+     &                 CMO(ipCM(jS)),nBas(jS),
      &                 0.0d0,A(ipMat(iS,jS)),nOrb(iS))
        End Do
 
@@ -104,13 +105,13 @@
         If (nBas(is)*nBas(js)==0) Cycle
            Call DGEMM_('N','N',
      &                 nBas(iS),nOrb(jS),nOrb(iS),
-     &                 1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(is),
+     &                 1.0d0,CMO(ipCM(iS)),nBas(is),
      &                 A(ipmat(is,js)),nOrb(iS),
      &                 0.0d0,Temp,nBas(iS))
            Call DGEMM_('N','T',
      &                 nBas(is),nBas(jS),nOrb(jS),
      &                 1.0d0,Temp,nBas(iS),
-     &                 Work(ipCMO+ipCM(jS)-1),nBas(jS),
+     &                 CMO(ipCM(jS)),nBas(jS),
      &                 0.0d0,A(ipMat(iS,jS)),nBas(iS))
        End Do
 

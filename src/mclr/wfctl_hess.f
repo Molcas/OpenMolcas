@@ -24,6 +24,7 @@
 *                                                                      *
 ************************************************************************
       use Exp, only: Exp_Close
+      use Arrays, only: CMO
       Implicit Real*8 (a-h,o-z)
       External Rsv_Tsk
 *
@@ -339,19 +340,14 @@ C         iDisp=iDisp+1
      &                Temp3,Sc2,dKappa,
      &                Sc3,
      &                Temp4,ipST,
-     &                iDisp,iSym-1,Work(ipCMO),jdisp,jspin,CI)
+     &                iDisp,iSym-1,CMO,jdisp,jspin,CI)
 #ifdef _DEBUGPRINT_
              Write (LuWr,*) 'After RHS'
-             Write (LuWr,*) 'Sigma=',DDot_(nDens,Sigma,1,
-     &                                          Sigma,1)
-             Write (LuWr,*) 'Kappa=',DDot_(nDens,Kappa,1,
-     &                                        Kappa,1)
-             Write (LuWr,*) 'Sc2=',DDot_(nDens,Sc2,1,
-     &                                        Sc2,1)
-             Write (LuWr,*) 'dKap=',DDot_(nDens,dKappa,1,
-     &                                         dKappa,1)
-             Write (LuWr,*) 'CMO=',DDot_(nCMO,Work(ipCMO),1,
-     &                                       Work(ipCMO),1)
+             Write (LuWr,*) 'Sigma=',DDot_(nDens,Sigma,1,Sigma,1)
+             Write (LuWr,*) 'Kappa=',DDot_(nDens,Kappa,1,Kappa,1)
+             Write (LuWr,*) 'Sc2=',DDot_(nDens,Sc2,1,Sc2,1)
+             Write (LuWr,*) 'dKap=',DDot_(nDens,dKappa,1,dKappa,1)
+             Write (LuWr,*) 'CMO=',DDot_(nCMO,CMO,1,CMO,1)
 #endif
           End If
           irc=opout(ipci)

@@ -24,6 +24,7 @@
 *
 ************************************************************************
 *
+      use Arrays, only: CMO
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
@@ -117,7 +118,7 @@
      &         Work(ipDA),
      &         rkappa,idsym,Sign,Facr,jSpin,
      &         lFA,lfi,lMo,
-     &         Work(ipCMO))
+     &         CMO)
 *
 *       call recprt('1 FockI ','',FockI,nDens2,1)
 *       call recprt('1 FockA ','',FockA,nDens2,1)
@@ -130,7 +131,7 @@
        If (.not.CASINT)
      & Call DGEMM_('T','N',
      &             nOrb(iS),nOrb(jS),nBas(iS),
-     &             1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &             1.0d0,CMO(ipCM(iS)),nBas(iS),
      &             Work(ipFI-1+ipMat(iS,jS)),nBas(iS),
      &             0.0d0,FockI(ipMat(iS,jS)),nOrb(iS))
        Call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(iS),Sign*Facr,
@@ -145,7 +146,7 @@
        If (.not.CASINT)
      &   Call DGEMM_('T','N',
      &               nOrb(iS),nOrb(jS),nBas(iS),
-     &               1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &               1.0d0,CMO(ipCM(iS)),nBas(iS),
      &               Work(ipFA-1+ipMat(iS,jS)),nBas(iS),
      &               0.0d0,FockA(ipMat(iS,jS)),nOrb(iS))
          Call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(iS),Sign*Facr,

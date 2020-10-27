@@ -91,24 +91,24 @@
            End If
            Call DGEMM_('T','N',
      &                 nBas(iS),nBas(jS),nBas(iS),
-     &                 1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &                 1.0d0,CMO(ipCM(iS)),nBas(iS),
      &                 Temp6,nBas(iS),
      &                 0.0d0,Temp5,nBas(iS))
            Call DGEMM_('N','N',
      &                 nBas(is),nBas(jS),nBAs(jS),
      &                 1.0d0,Temp5,nBas(iS),
-     &                 Work(ipCMO+ipCM(jS)-1),nBas(jS),
+     &                 CMO(ipCM(jS)),nBas(jS),
      &                 0.0d0,Temp1(ipMat(iS,jS)),nBas(is))
            If (is.ne.js) Then
            Call DGEMM_('T','T',
      &                 nBas(jS),nBas(iS),nBAs(jS),
-     &                 1.0d0,Work(ipCMO+ipCM(jS)-1),nBas(js),
+     &                 1.0d0,CMO(ipCM(jS)),nBas(js),
      &                 Temp6,nBas(iS),
      &                 0.0d0,Temp5,nBas(jS))
            Call DGEMM_('N','N',
      &                 nBas(js),nBas(iS),nBas(iS),
      &                 1.0d0,Temp5,nBas(jS),
-     &                 Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &                 CMO(ipCM(iS)),nBas(iS),
      &                 0.0d0,Temp1(ipMat(jS,iS)),nBas(jS))
           End If
 

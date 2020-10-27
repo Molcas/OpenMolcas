@@ -24,6 +24,7 @@
 *
 ************************************************************************
 *
+      use Arrays, only: CMO
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
@@ -115,7 +116,7 @@ C     Call GetMem('FockI','CHECK','REAL',ipFI,ndens2)
      &           Work(ipDA),
      &           rkappa,idsym,Sign,Facr,jSpin,
      &           lFA,lfi,lMo,
-     &           Work(ipCMO))
+     &           CMO)
 *
 *      Calculate contribution from uncontracted indexes.
 *
@@ -124,7 +125,7 @@ C     Call GetMem('FockI','CHECK','REAL',ipFI,ndens2)
        If (nBas(iS)*nBas(jS).ne.0) Then
        Call DGEMM_('T','N',
      &             nBas(iS),nBas(jS),nBas(iS),
-     &             1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &             1.0d0,CMO(ipCM(iS)),nBas(iS),
      &             Work(ipFI-1+ipMat(iS,jS)),nBas(iS),
      &             0.0d0,FockI(ipMat(iS,jS)),nBas(iS))
        Call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(iS),Sign*Facr,
@@ -138,7 +139,7 @@ C     Call GetMem('FockI','CHECK','REAL',ipFI,ndens2)
        If (iMethod.eq.2) Then
          Call DGEMM_('T','N',
      &               nBas(iS),nBas(jS),nBas(iS),
-     &               1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &               1.0d0,CMO(ipCM(iS)),nBas(iS),
      &               Work(ipFA-1+ipMat(iS,jS)),nBas(iS),
      &               0.0d0,FockA(ipMat(iS,jS)),nBas(iS))
          Call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(iS),Sign*Facr,

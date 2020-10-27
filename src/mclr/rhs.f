@@ -95,24 +95,24 @@
            End If
            Call DGEMM_('T','N',
      &                 nOrb(iS),nBas(jS),nBas(iS),
-     &                 1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &                 1.0d0,CMO(ipCM(iS)),nBas(iS),
      &                 Temp6,nBas(iS),
      &                 0.0d0,Temp5,nOrb(iS))
            Call DGEMM_('N','N',
      &                 nOrb(is),nOrb(jS),nBAs(jS),
      &                 1.0d0,Temp5,nOrb(iS),
-     &                 Work(ipCMO+ipCM(jS)-1),nBas(jS),
+     &                 CMO(ipCM(jS)),nBas(jS),
      &                 0.0d0,Temp1(ipMat(iS,jS)),nOrb(is))
            If (is.ne.js) Then
            Call DGEMM_('T','T',
      &                 nOrb(jS),nBas(iS),nBAs(jS),
-     &                 1.0d0,Work(ipCMO+ipCM(jS)-1),nBas(js),
+     &                 1.0d0,CMO(ipCM(jS)),nBas(js),
      &                 Temp6,nBas(iS),
      &                 0.0d0,Temp5,nOrb(jS))
            Call DGEMM_('N','N',
      &                 nOrb(js),nOrb(iS),nBas(iS),
      &                 1.0d0,Temp5,nOrb(jS),
-     &                 Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &                 CMO(ipCM(iS)),nBas(iS),
      &                 0.0d0,Temp1(ipMat(jS,iS)),nOrb(jS))
           End If
 
@@ -259,7 +259,6 @@
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Temp2)
-         Call Unused_real_array(CMO)
          Call Unused_integer(jspin)
       End If
       End

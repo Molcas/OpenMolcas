@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine InpOne
+      use Arrays, only: CMO
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -124,13 +125,13 @@ cnf
            ip=ip+nBas(is)*(nBas(iS)+1)/2
            Call DGEMM_('T','N',
      &                 nOrb(iS),nBas(iS),nBas(iS),
-     &                 1.0d0,Work(ipCMO+ip2),nBas(iS),
+     &                 1.0d0,CMO(1+ip2),nBas(iS),
      &                 work(itemp2),nBas(iS),
      &                 0.0d0,Work(iTemp3),nOrb(iS))
            Call DGEMM_('N','N',
      &                 nOrb(is),nOrb(iS),nBas(iS),
      &                 1.0d0,Work(iTemp3),nOrb(iS),
-     &                 Work(ipCMO+ip2),nBas(iS),
+     &                 CMO(1+ip2),nBas(iS),
      &                 0.0d0,Work(kint1+ip2),nOrb(iS))
            ip2=ip2+nBas(is)**2
         End If
