@@ -10,6 +10,7 @@
 ************************************************************************
        SubRoutine CISigma(iispin,iCsym,iSSym,Int1,Int2s,
      &                    Int2a,ipCI1,ipCI2,NT)
+       use ipPage, only: W
        Implicit Real*8(a-h,o-z)
 *
 #include "Pointers.fh"
@@ -110,9 +111,9 @@
 #ifdef _MS_
        Do i=0,nroots-1
        call dcopy_(nCSF(iCSM),Work(ipin(ipCI1)+i*ncsf(icsm)),1,
-     &            Work(ipCIDET),1)
+     &                        Work(ipCIDET),1)
        Call SigmaVec(Work(ipCIDET),
-     &    Work(ipin(ipci2)+i*ncsf(issm)),kic)
+     &               Work(ipin(ipci2)+i*ncsf(issm)),kic)
        End Do
 #else
        call dcopy_(nCSF(iCSM),Work(ipin(ipCI1)),1,
@@ -125,8 +126,8 @@
        Else
         irc=ipnout(ipci2)
 
-        Call SigmaVec(Work(ipin1(ipCI1,ndet)),Work(ipin(ipci2)),
-     &   kic)
+        irc=ipin1(ipCI1,ndet)
+        Call SigmaVec(W(ipCI1)%Vec,Work(ipin(ipci2)),kic)
         irc=opout(ipci1)
 
        End If

@@ -21,6 +21,7 @@
 ************************************************************************
       use Exp, only: Exp_Close
       use Arrays, only: CMO
+      use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
 *
 #include "WrkSpc.fh"
@@ -530,9 +531,9 @@ c
 c S1 + S2 --> S1
 c
            If (CI) Then  !If (.false.) then
-                     Call DaXpY_(2*nConf1,1.0d0,
-     &               Work(ipin1(ipS2,2*nconf1)),1,
-     &               Work(ipin1(ipS1,2*nconf1)),1)
+              irc=ipin1(ipS1,2*nconf1)
+              irc=ipin1(ipS2,2*nconf1)
+              Call DaXpY_(2*nConf1,1.0d0,W(ipS2)%Vec,1,W(ipS1)%Vec,1)
                      irc=opout(ips2)
            End If
 *
@@ -581,8 +582,9 @@ C
               Call DaXpY_(2*nConf1,ralpha,Work(ipin(ipCId)),1,
      &                  Work(ipin(ipCIT)),1)
               irc=ipout(ipcit)
+              irc=ipin1(ipST,2*nconf1)
               Call DaXpY_(2*nConf1,-ralpha,Work(ipin(ipS1)),1,
-     &                   Work(ipin1(ipST,2*nconf1)),1)
+     &                                     W(ipST)%Vec,1)
               irc=opout(ipS1)
               ip=ipin(ipst)
               resci=sqrt(0.5d0*ddot_(2*nconf1,Work(ip),1,

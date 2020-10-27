@@ -10,6 +10,7 @@
 ************************************************************************
        SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,int2s,
      &                       Int2a,ipCI1,ipCI2,NT)
+       use ipPage, only: W
        Implicit Real*8(a-h,o-z)
 *
 #include "Pointers.fh"
@@ -117,7 +118,8 @@
 
        Else
         irc=ipnout(ipci2)
-        Call SigmaVec(Work(ipin1(ipCI1,ndet)),Work(ipin(ipci2)),kic)
+        irc=ipin1(ipCI1,ndet)
+        Call SigmaVec(W(ipCI1)%Vec,Work(ipin(ipci2)),kic)
         irc=opout(ipci1)
        End If
 *

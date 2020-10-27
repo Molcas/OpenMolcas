@@ -17,7 +17,6 @@ Integer, Parameter:: dWrite=0, Write=1, Read=2
 !         n  : Length of CI-vector
 !         ida: disk address
 
-Integer:: ip_Mem(0:Max_CI_Vectors)
 Integer::      n(0:Max_CI_Vectors)
 Integer::    ida(0:Max_CI_Vectors)
 Integer:: Status(0:Max_CI_Vectors)
@@ -26,4 +25,10 @@ Integer:: n_CI_Vectors=0
 Integer:: iDisk_Addr_End=0
 Integer:: Lu_ip=-99
 Logical:: DiskBased=.False.
+
+Type Vector
+  Real*8, Allocatable:: Vec(:)
+End Type Vector
+
+Type (Vector) :: W(0:Max_CI_Vectors)
 End Module ipPage

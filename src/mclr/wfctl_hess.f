@@ -25,6 +25,7 @@
 ************************************************************************
       use Exp, only: Exp_Close
       use Arrays, only: CMO
+      use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
       External Rsv_Tsk
 *
@@ -615,10 +616,12 @@ C         iDisp=iDisp+1
            Write (LuWr,*) 'Sc2=',DDot_(nDens,Sc2,1,Sc2,1)
            If (CI) Then
               Write (LuWr,*) 'Sc3=',DDot_(nDens,Sc3,1,Sc3,1)
-             Write(LuWr,*)'S2=',DDot_(nConf1,Work(ipin1(ipS2,nconf1)),1,
-     &                                       Work(ipin1(ipS2,nconf1)),1)
-             Write(LuWr,*)'S1=',DDot_(nConf1,Work(ipin1(ipS1,nconf1)),1,
-     &                                       Work(ipin1(ipS1,nconf1)),1)
+              irc=pin1(ipS2,nconf1)
+              Write(LuWr,*)'S2=',DDot_(nConf1,W(ipS2)%Vec,1,
+     &                                        W(ipS2)%Vec,1)
+              irc=pin1(ipS1,nconf1)
+              Write(LuWr,*)'S1=',DDot_(nConf1,W(ipS1)%Vec,1,
+     &                                        W(ipS1)%Vec,1)
            End If
            Write (LuWr,*)
 #endif
@@ -631,8 +634,9 @@ C         iDisp=iDisp+1
            Call Compress(Sc1,Temp4,isym)   ! ds
            Call Compress(dKappa,Temp2,isym)  ! DX
            If (CI) Then
-              Call DaXpY_(nConf1,One,Work(ipin1(ipS2,nconf1)),1,
-     &                                Work(ipin1(ipS1,nconf1)),1)
+              irc=ipin1(ipS1,nconf1)
+              irc=ipin1(ipS2,nconf1)
+              Call DaXpY_(nConf1,One,W(ipS2)%Vec,1,W(ipS1)%Vec,1)
               irc=opout(ipS2)
            End If
 *                                                                      *
@@ -685,10 +689,11 @@ C         iDisp=iDisp+1
               Call DaXpY_(nConf1,ralpha,Work(ipin(ipCId)),1,
      &                   Work(ipin(ipCIT)),1)
               irc=ipout(ipcit)
+              irc=ipin1(ipST,nconf1)
               Call DaXpY_(nConf1,-ralpha,Work(ipin(ipS1)),1,
-     &                   Work(ipin1(ipST,nconf1)),1)
+     &                   W(ipST)%Vec,1)
               irc=opout(ipS1)
-              ip=ipin(ipst)
+              ip=ipin(ipST)
               resci=sqrt(ddot_(nconf1,Work(ip),1,Work(ip),1))
            End If
 *                                                                      *

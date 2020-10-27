@@ -9,12 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine CIDens(response,iLS,iRS,iL,iR,iS,rP,rD)
+      use ipPage, only: W
       Implicit Real*8(a-h,o-z)
 
 #include "real.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "crun_mclr.fh"
 
@@ -81,10 +81,12 @@
         nConfL=Max(ncsf(il),nint(xispsm(il,1)))
         nConfR=Max(ncsf(iR),nint(xispsm(iR,1)))
         Call mma_allocate(CIL,nConfL,Label='CIL')
-        Call CSF2SD(Work(ipin1(iLS,nconfL)),CIL,iL)
-        irc=opout(ils)
+        irc=ipin1(iLS,nconfL)
+        Call CSF2SD(W(iLS)%Vec,CIL,iL)
+        irc=opout(iLs)
         Call mma_allocate(CIR,nConfR,Label='CIR')
-        Call CSF2SD(Work(ipin1(iRS,nconfR)),CIR,iR)
+        irc=ipin1(iRS,nconfR)
+        Call CSF2SD(W(iRS)%Vec,CIR,iR)
         irc=opout(irs)
         irc=ipnout(-1)
         icsm=iR
@@ -133,8 +135,9 @@
       else
         issm=iL
         icsm=iR
-        Call Densi2(2,De,Pe, Work(ipin(iLS)),
-     &              Work(ipin(iRS)), 0,0,0,n1dens,n2dens)
+        irc=ipin(iLS)
+        irc=ipin(iLR)
+        Call Densi2(2,De,Pe,W(iLS)%Vec,W(iRS)%Vec,0,0,0,n1dens,n2dens)
         If (.not.timedep) Then
          If (response) Then
           Do iA=1,nnA
@@ -167,9 +170,9 @@
           call dcopy_(n1dens,De,1,rD,1)
           iCSM=iL
           iSSM=iR
-          Call Densi2(2,De,Pe,
-     &                Work(ipin(iRS)),Work(ipin(ils)),
-     &                0,0,0,n1dens,n2dens)
+          irc=ipin(iRS)
+          irc=ipin(iLS)
+          Call Densi2(2,De,Pe,W(iRS)%Vec,W(iLs)%Vec,0,0,0,n1dens,n2dens)
           call daxpy_(n2Dens,-One,Pe,1,rp,1)
           call daxpy_(n1Dens,-One,De,1,rD,1)
          End If

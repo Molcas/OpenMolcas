@@ -21,6 +21,7 @@
 ************************************************************************
       use Exp, only: Exp_Close
       use Arrays, only: SFock, G1m, G2mp
+      use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
 *
 #include "WrkSpc.fh"
@@ -294,11 +295,12 @@
            End If
            call dcopy_(nDens,dKappa,1,Temp2,1)
            If (nconf1.gt.1) Then
-             Call DaXpY_(nConf1,One,
-     &            Work(ipin1(ipS2,nconf1)),1,
-     &           Work(ipin1(ipS1,nconf1)),1)
+              irc=ipin1(ipS1,nconf1)
+              irc=ipin1(ipS2,nconf1)
+              Call DaXpY_(nConf1,One,W(ipS2)%Vec,1,W(ipS1)%Vec,1)
            Else
-             call dcopy_(nconf1,[Zero],0,Work(ipin1(ipS1,nconf1)),1)
+              irc=ipin1(ipS1,nconf1)
+              W(ipS1)%Vec(1:nconf1)=Zero
            End If
 
 *-----------------------------------------------------------------------------
@@ -341,12 +343,12 @@
              Call DaXpY_(nConf1,ralpha,Work(ipin(ipCId)),1,
      &                  Work(ipin(ipCIT)),1)
              irc=ipout(ipcit)
+             irc=ipin1(ipST,nconf1)
              Call DaXpY_(nConf1,-ralpha,Work(ipin(ipS1)),1,
-     &                   Work(ipin1(ipST,nconf1)),1)
+     &                   W(ipST)%Vec,1)
              irc=opout(ipS1)
-             ip=ipin(ipst)
-             resci=sqrt(ddot_(nconf1,Work(ip),1,
-     &                        Work(ip),1))
+             ip=ipin(ipST)
+             resci=sqrt(ddot_(nconf1,Work(ip),1,Work(ip),1))
            End If
 *
 *          Precondition......
@@ -355,12 +357,9 @@
 *
            irc=opout(ipcid)
            If (nconf1.gt.1) Then
-           Call DMinvCI(ipST,
-     &                  Work(ipin(ipS2)),
-     &                  rCHC,1)
+              Call DMinvCI(ipST,Work(ipin(ipS2)),rCHC,1)
            Else
-            call dcopy_(nconf1,Work(ipin(ipST)),1,
-     &                  Work(ipin(ipS2)),1)
+            call dcopy_(nconf1,Work(ipin(ipST)),1,Work(ipin(ipS2)),1)
            end if
 
 
