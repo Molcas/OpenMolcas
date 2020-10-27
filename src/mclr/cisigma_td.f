@@ -106,10 +106,12 @@ C
         If (NT.eq.'T')  square=.true.  ! The operator is not sym
         If (.not.page) Then
 c ipcidet is here because sigmavec will destroy the first input vector.
-         Call GetMem('CIDET_TD','ALLO','REAL',ipCIDET,nDet)
-             call dcopy_(nCSF(iCSM),Work(ipin(ipCI1)),1,Work(ipCIDET),1)
+           Call GetMem('CIDET_TD','ALLO','REAL',ipCIDET,nDet)
+           irc=ipin(ipCI1)
+           call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,Work(ipCIDET),1)
 C
-           Call SigmaVec(Work(ipCIDET),Work(ipin(ipci2)),kic)
+           irc=ipin(ipci2)
+           Call SigmaVec(Work(ipCIDET),W(ipci2)%Vec,kic)
 C
          If (NT.eq.'N') Then
             Call GetMem('CIDET_TD','FREE','REAL',ipCIDET,nDet)
@@ -118,12 +120,14 @@ C
 c
          If (NT.eq.'S') Then
 C......... Symmetric operator, no transpose of integrals needed!
-           call dcopy_(nCSF(iCSM),Work(ipin(ipCI1)+nConf1),1,
-     &     Work(ipCIDET),1)
+           irc=ipin(ipCI1)
+           call dcopy_(nCSF(iCSM),W(ipCI1)%Vec(1+nConf1),1,
+     &                 Work(ipCIDET),1)
 C
          Else
 C......... The operator is not sym --> transpose integrals! NT.ne.S
-           call dcopy_(nCSF(iCSM),Work(ipin(ipCI1)),1,Work(ipCIDET),1)
+           irc=ipin(ipCI1)
+           call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,Work(ipCIDET),1)
            Call GetMem('TEMPINT1','ALLO','REAL',ipTI1,ndens2)
            Call GetMem('TEMPINT2','ALLO','REAL',ipTI2,ntash**4)
            Do i=1,ntash
@@ -156,7 +160,8 @@ C......... The operator is not sym --> transpose integrals! NT.ne.S
 *
 *
 C
-            Call SigmaVec(Work(ipCIDET),Work(ipin(ipci2)+nconf1),kic)
+         irc=ipin(ipci2)
+         Call SigmaVec(Work(ipCIDET),W(ipci2)%Vec(1+nconf1),kic)
 C
          Call GetMem('CIDET_TD','FREE','REAL',ipCIDET,nDet)
          If (NT.ne.'S') Then
@@ -171,13 +176,16 @@ C
        Else   ! If not timedep
         If (.not.page) Then
          Call GetMem('CIDET_TD','ALLO','REAL',ipCIDET,nDet)
-         call dcopy_(nCSF(iCSM),Work(ipin(ipCI1)),1,Work(ipCIDET),1)
-         Call SigmaVec(Work(ipCIDET),Work(ipin(ipci2)),kic)
+         irc=ipin(ipCI1)
+         call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,Work(ipCIDET),1)
+         irc=ipin(ipci2)
+         Call SigmaVec(Work(ipCIDET),W(ipci2)%Vec,kic)
          Call GetMem('CIDET_TD','FREE','REAL',ipCIDET,ndet)
         Else
          irc=ipnout(ipci2)
          irc=ipin1(ipCI1,ndet)
-         Call SigmaVec(W(ipCI1)%Vec,Work(ipin(ipci2)),kic)
+         irc=ipin(ipci2)
+         Call SigmaVec(W(ipCI1)%Vec,W(ipci2)%Vec,kic)
          irc=opout(ipci1)
         End If
        End If

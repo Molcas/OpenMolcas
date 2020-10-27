@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine CI_KAP(ipcid,fock,fockOut,isym)
-
+*     use ipPage, only: W
       Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"
@@ -110,8 +110,10 @@
         call dmrg_dim_change_mclr(RGras2(1:8),ntash,0)
         call dmrg_dim_change_mclr(RGras2(1:8),nna,0)
 
-*      call projecter(Work(ipin(ipCID)),Work(ipin(ipci)),
-*     * Work(ipDe),Work(ipp))
+*       irc=ipin(ipCID)
+*       irc=ipin(ipci)
+*       call projecter(W(ipCID)%Vec,W(ipci)%Vec,
+*    &                 Work(ipDe),Work(ipp))
         call dcopy_(ndens2,[0.0d0],0,Fock,1)
         call dcopy_(ndens2,[0.0d0],0,FockOut,1)
         d0=0.0d0
@@ -120,8 +122,11 @@
 
       else
 
-*     call projecter(Work(ipin(ipCID)),Work(ipin(ipci)),
-*    *  Work(ipDe),Work(ipp))
+*
+*       irc=ipin(ipCID)
+*       irc=ipin(ipci)
+*       call projecter(W(ipCID)%Vec,W(ipci)%Vec,
+*    &                 Work(ipDe),Work(ipp))
         call dcopy_(ndens2,[0.0d0],0,Fock,1)
         call dcopy_(ndens2,[0.0d0],0,FockOut,1)
         d0=0.0d0
