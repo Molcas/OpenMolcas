@@ -89,7 +89,8 @@
        Integer Function ipclose(ia)
        use ipPage
 *
-*      Object: release all vectors above vector indexed ia
+*      Object: release all vectors above and including the vector
+*              indexed ia.
 *
 #include "stdalloc.fh"
        Real*8 rdum(1)

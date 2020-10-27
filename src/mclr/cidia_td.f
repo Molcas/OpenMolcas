@@ -53,37 +53,33 @@
         ipDSDi=ipGet(nsd)
         ipdsd=ipin(ipdsdi)
       End If
-      If (nocsf.eq.0) Then
+      If (NOCSF.eq.0) Then
          nD=NCSASM(ISYM)
-         ipDia=ipDCSF
          ipdiai=ipdcsfi
       Else
-        nD=idint(XISPSM(ISYM,ISPC(1)))
-        ipDIA=ipDSD
-        ipdiai=ipdsdi
+         nD=idint(XISPSM(ISYM,ISPC(1)))
+         ipdiai=ipdsdi
       End If
       LSPC(1)=nSD
       Call IntDia(Work(ipDSD),NSPC,ISPC,ISM,LSPC,
      &           IAMCMP,rin_ene+potnuc)
-      If (Nocsf.ne.1)
-     &Call CSDIAG(Work(ipDCSF),Work(ipDSD),
+      If (NOCSF.ne.1) Call CSDIAG(W(ipDCSFi)%Vec,Work(ipDSD),
      &              NCNATS(1,ISYM),NTYP,
      &              CNSM(i)%ICTS,NDPCNT,NCPCNT,0,
      &              0,IDUM,IPRNT)
 
-      If (nocsf.eq.0)
-     & Call GetMem('DIAGSD','FREE','REAL',ipDSD,nSD)
+      If (nocsf.eq.0) Call GetMem('DIAGSD','FREE','REAL',ipDSD,nSD)
 *     Calculate explicit part of hamiltonian
 *
       np2=Min(nd,nexp_max)
       np1=0
       nq=0
       If (np2.ne.0) Then
-       irc=ipnout(ipdiai)
-       irc=ipin(ipdiai)
-       call h0(W(ipdiai)%Vec,np1,nexp_max,nq,isym,nexp,TimeDep)
+         irc=ipnout(ipdiai)
+         irc=ipin(ipdiai)
+         call h0(W(ipdiai)%Vec,np1,nexp_max,nq,isym,nexp,TimeDep)
       Else
-        nexp=0
+         nexp=0
       End if
 
 

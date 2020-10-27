@@ -59,11 +59,9 @@
 
       If (nocsf.eq.0) Then
          nD=NCSASM(ISYM)
-         ipDia=ipDCSF
          ipdiai=ipdcsfi
       Else
          nD=idint(XISPSM(ISYM,ISPC(1)))
-         ipDIA=ipDSD
          ipdiai=ipdsdi
       End If
       LSPC(1)=nSD
@@ -71,7 +69,7 @@
       Call IntDia(Work(ipDSD),NSPC,ISPC,ISM,LSPC,
      &            IAMCMP,rin_ene+potnuc)
 
-      If (Nocsf.ne.1) Call CSDIAG(Work(ipDCSF),Work(ipDSD),
+      If (Nocsf.ne.1) Call CSDIAG(W(ipDCSFi)%Vec,Work(ipDSD),
      &                            NCNATS(1,ISYM),NTYP,
      &                            CNSM(i)%ICTS,NDPCNT,NCPCNT,0,
      &                            0,IDUM,IPRNT)

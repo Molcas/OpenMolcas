@@ -47,31 +47,29 @@
       If (isym.eq.state_sym) i=1
 
       If (NOCSF.eq.0) Then
-        ncsf1=NCSASM(ISYM)
-        nsd=max(ncsf(isym),nint(XISPSM(ISYM,1)))
-        ipdcsfi=ipget(nsd)
-        ipdcsf=ipin(ipdcsfi)
-        Call GetMem('DIAGSD','ALLO','REAL',ipDSD,nSD)
+         ncsf1=NCSASM(ISYM)
+         nsd=max(ncsf(isym),nint(XISPSM(ISYM,1)))
+         ipdcsfi=ipget(nsd)
+         ipdcsf=ipin(ipdcsfi)
+         Call GetMem('DIAGSD','ALLO','REAL',ipDSD,nSD)
       Else
-        nsd=max(ncsf(isym),nint(XISPSM(ISYM,1)))
-        ipDSDi=ipGet(nsd)
-        ipdsd=ipin(ipdsdi)
+         nsd=max(ncsf(isym),nint(XISPSM(ISYM,1)))
+         ipDSDi=ipGet(nsd)
+         ipdsd=ipin(ipdsdi)
       End If
 
       If (NOCSF.eq.0) Then
          nD=NCSASM(ISYM)
-         ipDia=ipDCSF
          ipdiai=ipdcsfi
       Else
-        nD=idint(XISPSM(ISYM,ISPC(1)))
-        ipDIA=ipDSD
-        ipdiai=ipdsdi
+         nD=idint(XISPSM(ISYM,ISPC(1)))
+         ipdiai=ipdsdi
       End If
 
       LSPC(1)=nSD
       Call IntDia(Work(ipDSD),NSPC,ISPC,ISM,LSPC,
      &           IAMCMP,rin_ene+potnuc)
-      If (NOCSF.ne.1) Call CSDIAG(Work(ipDCSF),Work(ipDSD),
+      If (NOCSF.ne.1) Call CSDIAG(W(ipDCSFi)%Vec,Work(ipDSD),
      &                            NCNATS(1,ISYM),NTYP,
      &                            CNSM(i)%ICTS,NDPCNT,NCPCNT,0,
      &                            0,IDUM,IPRNT)
