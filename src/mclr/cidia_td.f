@@ -13,6 +13,7 @@
       SubRoutine CIDIA_TD(iSym)
       use Exp, only: nexp, nexp_max
       use Arrays, only: CNSM
+      use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 #include "crun_mclr.fh"
@@ -79,16 +80,17 @@
       nq=0
       If (np2.ne.0) Then
        irc=ipnout(ipdiai)
-       call h0(Work(ipin(ipdiai)),np1,nexp_max,nq,isym,nexp,TimeDep)
+       irc=ipin(ipdiai)
+       call h0(W(ipdiai)%Vec,np1,nexp_max,nq,isym,nexp,TimeDep)
       Else
         nexp=0
       End if
 
-      ip=ipin(ipdiai)
 
       ECAS=ERASSCF(1)
+      irc=ipin(ipdiai)
       Do iC=1,nD
-        Work(ip+iC-1)=(Work(ip+ic-1)-ECAS)
+        W(ipdiai)%Vec(iC)=(W(ipdiai)%Vec(iC)-ECAS)
       End do
 
       ipdia=ipdiai

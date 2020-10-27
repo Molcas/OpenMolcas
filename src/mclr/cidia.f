@@ -21,11 +21,13 @@
 #include "spinfo_mclr.fh"
 #include "incdia.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
 #include "Input.fh"
 #include "Pointers.fh"
 #include "negpre.fh"
       Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
+      Real*8, Allocatable:: Q(:)
 *
 *     This is just a interface to hide Jeppe from the rest of the world
 *     we dont want to let world see the work of the danish
@@ -43,6 +45,7 @@
       ICISTR=1
       i=2
       If (isym.eq.state_sym) i=1
+
       If (NOCSF.eq.0) Then
         ncsf1=NCSASM(ISYM)
         nsd=max(ncsf(isym),nint(XISPSM(ISYM,1)))
@@ -54,7 +57,8 @@
         ipDSDi=ipGet(nsd)
         ipdsd=ipin(ipdsdi)
       End If
-      If (nocsf.eq.0) Then
+
+      If (NOCSF.eq.0) Then
          nD=NCSASM(ISYM)
          ipDia=ipDCSF
          ipdiai=ipdcsfi
@@ -63,28 +67,28 @@
         ipDIA=ipDSD
         ipdiai=ipdsdi
       End If
+
       LSPC(1)=nSD
       Call IntDia(Work(ipDSD),NSPC,ISPC,ISM,LSPC,
      &           IAMCMP,rin_ene+potnuc)
-      If (Nocsf.ne.1)
-     &Call CSDIAG(Work(ipDCSF),Work(ipDSD),
-     &              NCNATS(1,ISYM),NTYP,
-     &              CNSM(i)%ICTS,NDPCNT,NCPCNT,0,
-     &              0,IDUM,IPRNT)
+      If (NOCSF.ne.1) Call CSDIAG(Work(ipDCSF),Work(ipDSD),
+     &                            NCNATS(1,ISYM),NTYP,
+     &                            CNSM(i)%ICTS,NDPCNT,NCPCNT,0,
+     &                            0,IDUM,IPRNT)
 
-      If (nocsf.eq.0)
-     & Call GetMem('DIAGSD','FREE','REAL',ipDSD,nSD)
+      If (NOCSF.eq.0) Call GetMem('DIAGSD','FREE','REAL',ipDSD,nSD)
+*
 *     Calculate explicit part of hamiltonian
 *
       np2=Min(nd,nexp_max)
       np1=0
       nq=0
       If (np2.ne.0) Then
-       irc=ipnout(ipdiai)
-       irc=ipin(ipdiai)
-       call h0(W(ipdiai)%Vec,np1,nexp_max,nq,isym,nexp,TimeDep)
+         irc=ipnout(ipdiai)
+         irc=ipin(ipdiai)
+         call h0(W(ipdiai)%Vec,np1,nexp_max,nq,isym,nexp,TimeDep)
       Else
-        nexp=0
+         nexp=0
       End if
 
 
@@ -100,17 +104,19 @@
 *                 -1
 *     ralp=<0|(H-E) |0>
 *
-      Call GetMem('TMP','ALLO','REAL',ipq,nD)
-      call dcopy_(nD,[0.0d0],0,Work(ipq),1)
+      Call mma_allocate(Q,nD,Label='Q')
+      Q(:)=0.0D0
+
       irc=ipin(ipCI)
-      Call ExpHinvv(W(ipdiai)%Vec,W(ipCI)%Vec,Work(ipQ),0.0d0,1.0d0)
-      ralp=DDOT_(nD,W(ipCI)%Vec,1,Work(ipQ),1)
+      Call ExpHinvv(W(ipdiai)%Vec,W(ipCI)%Vec,Q,0.0d0,1.0d0)
+
+      ralp=DDOT_(nD,W(ipCI)%Vec,1,Q,1)
       IF (NGP) Then
          Call MKP1INV(W(ipdiai)%Vec)
          Call MKCIPRE()
       End If
       irc=ipnout(ipdiai)
-      Call GetMem('TMP','FREE','REAL',ipq,nD)
+      Call mma_deallocate(Q)
 
       ipdia=ipdiai
       RETURN
