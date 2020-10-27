@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine CIDens_sa(RSP,iLS,iRS,iL,iR,rP,rD)
-
+      use ipPage, only: W
       Implicit Real*8(a-h,o-z)
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -79,10 +79,12 @@
       Call GetMem('CIR','ALLO','REAL',ipR,nConfR)
 *
       Do i=0,nroots-1
-        Call CSF2SD(Work(ipin(iLS)+i*ncsf(il)),Work(ipL),iL)
-        irc=opout(ils)
-        Call CSF2SD(Work(ipin(iRS)+i*ncsf(ir)),Work(ipR),iR)
-        irc=opout(irs)
+        irc=ipin(iLS)
+        irc=ipin(iRS)
+        Call CSF2SD(W(iLS)%Vec(1+i*ncsf(il)),Work(ipL),iL)
+        irc=opout(iLS)
+        Call CSF2SD(W(iRS)%Vec(1+i*ncsf(ir)),Work(ipR),iR)
+        irc=opout(iRS)
         irc=ipnout(-1)
         icsm=iR
         issm=iL

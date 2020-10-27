@@ -136,7 +136,7 @@
         issm=iL
         icsm=iR
         irc=ipin(iLS)
-        irc=ipin(iLR)
+        irc=ipin(iRS)
         Call Densi2(2,De,Pe,W(iLS)%Vec,W(iRS)%Vec,0,0,0,n1dens,n2dens)
         If (.not.timedep) Then
          If (response) Then
@@ -172,7 +172,7 @@
           iSSM=iR
           irc=ipin(iRS)
           irc=ipin(iLS)
-          Call Densi2(2,De,Pe,W(iRS)%Vec,W(iLs)%Vec,0,0,0,n1dens,n2dens)
+          Call Densi2(2,De,Pe,W(iRS)%Vec,W(iLS)%Vec,0,0,0,n1dens,n2dens)
           call daxpy_(n2Dens,-One,Pe,1,rp,1)
           call daxpy_(n1Dens,-One,De,1,rD,1)
          End If

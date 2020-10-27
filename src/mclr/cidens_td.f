@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine CIDens_TD(iCI,iS,rP,rD)
+      use ipPage, only: W
       Implicit Real*8(a-h,o-z)
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -32,7 +33,8 @@
 *
 *     Input:
 *
-*     response: true if the density should be used for response calculations
+*     response: true if the density should be used for response
+*               calculations
 *     LS : CI Coeff for left state
 *     RS : CI Coeff for right state
 *     iL : Symmetry of left state
@@ -53,8 +55,8 @@
 *      rD : One Electron Density
 *
 *
-*      write(*,*)'iCI*iCI',
-*     &   ddot_(2*nConf1,Work(ipin(iCI)),1,Work(ipin(iCI)),1)
+*      irc=ipin(iCI)
+*      write(*,*)'iCI*iCI', ddot_(2*nConf1,W(iCI)%Vec,1,W(iCI)%Vec,1)
 
       If (nconf1.eq.0) return
 
@@ -71,8 +73,10 @@
 c
 c iCI is as long as ipcid for the timedep case!
 c
-        Call CSF2SD(Work(ipin(iCI)),Work(ipR),iS)
-        Call CSF2SD(Work(ipin(ipci)),Work(ipL),State_SYM)
+        irc=ipin(iCI)
+        irc=ipin(ipCI)
+        Call CSF2SD(W(iCI)%Vec,Work(ipR),iS)
+        Call CSF2SD(W(ipCI)%Vec,Work(ipL),State_SYM)
 *
 *        write(*,*)'ipL*ipL',
 *     &   ddot_(nConfL,Work(ipL),1,Work(ipL),1)
@@ -103,8 +107,10 @@ c
 *     &   ddot_(n1dens,rD,1,rD,1)
 *        Call RecPrt('iprD',' ',rD,n1dens,1)
 *
-        Call CSF2SD(Work(ipin(iCI)+nconf1),Work(ipL),iS)
-        Call CSF2SD(Work(ipin(ipci)),Work(ipR),State_SYM)
+        irc=ipin(iCI)
+        irc=ipin(ipCI)
+        Call CSF2SD(W(iCI)%Vec(1+nconf1),Work(ipL),iS)
+        Call CSF2SD(W(ipci)%Vec,Work(ipR),State_SYM)
 *
 *        write(*,*)'ipL*ipL',
 *     &   ddot_(nConfL,Work(ipL),1,Work(ipL),1)
