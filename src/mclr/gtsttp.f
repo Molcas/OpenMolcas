@@ -32,7 +32,7 @@
       CALL GTSTTPS(IEL1,IEL3,
      &             Str(MIN(ICLS,ITYP_Dummy))%EL1,
      &             Str(MIN(ICLS,ITYP_Dummy))%EL3,
-     &             NOCTYP(ICLS),ITYPE,IWAY)
+     &             NOCTYP(MIN(ICLS,ITYP_Dummy)),ITYPE,IWAY)
 *
       RETURN
       END
