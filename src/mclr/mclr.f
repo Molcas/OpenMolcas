@@ -41,7 +41,7 @@
       use Symmetry_Info, only: Symmetry_Info_Free
       use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM, SFock,
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m,
-     &                  CMO_Inv, CMO
+     &                  CMO_Inv, CMO, DFTP, CFTP, DTOC, CNSM
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "warnings.fh"
@@ -56,7 +56,6 @@
 #include "glbbas_mclr.fh"
 #include "lbbas1.fh"
 #include "detdim.fh"
-#include "csfbas_mclr.fh"
 #include "dmrginfo_mclr.fh"
 #include "csfsd.fh"
 
@@ -258,22 +257,21 @@ c      idp=rtoi
 *
 *     Arrays in csf.f
       If (iMethod.eq.2) Then
-         CALL GETMEM('KICTS ','Free','INTEGER',KICTS(1),nDum)
-         CALL GETMEM('KICONF','Free','INTEGER',KICONF(1),nDum)
-         CALL GETMEM('KDTOC','Free','REAL   ',KDTOC,nDum)
-         CALL GETMEM('KCFTP','Free','INTEGER',KCFTP,nDum)
-         CALL GETMEM('KDFTP','Free','INTEGER',KDFTP,nDum)
+         Call mma_deallocate(DTOC)
+         Call mma_deallocate(CFTP)
+         Call mma_deallocate(DFTP)
       End if
+      Do i = 1, MXCNSM
+         If (Allocated(CNSM(i)%ICONF))
+     &                Call mma_deallocate(CNSM(i)%ICONF)
+         If (Allocated(CNSM(i)%ICTS))
+     &                Call mma_deallocate(CNSM(i)%ICTS)
+      End Do
 
 *     Free arrays allocated by memstr.f
       If (iMethod.eq.2) Call FreeStr
 *     Arrays in inpone.f
       Call GetMem('ONEHAM','Free','REAL',kint1,nDum)
-*     Arrays in incsfsd.f
-      If (iAllo.eq.1) Then
-         Call Getmem('KICONF2','Free','INTEGER',kiconf(2),nDum)
-         Call Getmem('KICTS2','Free','INTEGER',Kicts(2),nDum)
-      End If
 *     Arrays in detctl.f
       If (iMethod.eq.2) Then
          Call Getmem('TwoOff','Free','INTE',KpINT2,nDum)

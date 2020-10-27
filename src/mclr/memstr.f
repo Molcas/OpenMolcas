@@ -48,7 +48,13 @@
 *
 * =====================================================================
 *
-      Allocate(Str(1:NSTTYP))
+*     Some calls are done with points which are out of bounds. To make
+*     this to be strictly secure we add a dummy layer and point to that
+*     in the case that we are out of bounds. The code seems, however,
+*     not to touch these arrays.
+*
+      ITYP_Dummy=NSTTYP+1
+      Allocate(Str(1:NSTTYP+1))
 
       IIITEST = 1
       DO ITYP = 1, NSTTYP
@@ -84,7 +90,7 @@
            Str(ITYP)%NSTSO => Str(ITYP)%NSTSO_Hidden
 *. Offset of strings per symmetry and occupation
            Call mma_allocate(Str(ITYP)%ISTSO_Hidden,NOCTYP(ITYP)*NSMST,
-     &                       Label='NSTSO')
+     &                       Label='ISTSO')
            Str(ITYP)%ISTSO => Str(ITYP)%ISTSO_Hidden
 *. Number of electrons in RAS1 and RAS3 per sub type, is sub-type active
            Call mma_allocate(Str(ITYP)%EL1_Hidden,NOCTYP(ITYP),
@@ -104,9 +110,6 @@ CMS: New array introduced according to Jeppes new strinfo representation
            Call mma_allocate(Str(ITYP)%Z_Hidden,NACOB*NELEC(ITYP),
      &                       Label='Z')
            Str(ITYP)%Z=> Str(ITYP)%Z_Hidden
-           Write (6,*) 'ITYP=',ITYP
-           Write (6,*) Allocated(Str(ITYP)%EL1_Hidden)
-           Write (6,*) Allocated(Str(ITYP)%EL3_Hidden)
         ELSE
 *. redirect
           IITYP = - IUNIQTP(ITYP)
@@ -140,18 +143,14 @@ c        write(6,*) nelec(ityp),nstrin
          IF (ISTAC(ITYP,2).NE.0.AND.ISTAC(ITYP,1).NE.0) THEN
 *.creation on string allowed , use full orbital notation
             LENGTH = NACOB*NSTRIN
-#ifdef _WARNING_WORKAROUND_
             Call mma_allocate(Str(ITYP)%STSTMI,1,Label='STSTMI')
             Call mma_allocate(Str(ITYP)%STSTMN,1,Label='STSTMN')
-#endif
          ELSE IF(ISTAC(ITYP,1).NE.0.AND.ISTAC(ITYP,2).EQ.0) THEN
 
 *. only annihilation allowed, use compact scheme
             LENGTH = NELEC(ITYP)*NSTRIN
-#ifdef _WARNING_WORKAROUND_
             Call mma_allocate(Str(ITYP)%STSTMI,1,Label='STSTMI')
             Call mma_allocate(Str(ITYP)%STSTMN,1,Label='STSTMN')
-#endif
 CMS: New else block
           ELSE IF (ISTAC(ITYP,1).EQ.0.AND.ISTAC(ITYP,2).NE.0) THEN
 *. Only creation allowed, use compact scheme with offsets
@@ -235,6 +234,16 @@ CMS: New else block
          IF(INDMAP(ITYP).NE.0)
      &     Call mma_allocate(Str(ITYP)%NDMAP,NSTFTP(ITYP),Label='NDMAP')
       END DO
+*
+*     Some dummy allocations
+*
+      ITYP=ITYP_Dummy
+      Call mma_allocate(Str(ITYP)%NSTSO_Hidden,1,Label='NSTSO')
+      Str(ITYP)%NSTSO => Str(ITYP)%NSTSO_Hidden
+      Call mma_allocate(Str(ITYP)%EL1_Hidden,1,Label='EL1')
+      Str(ITYP)%EL1  => Str(ITYP)%EL1_Hidden
+      Call mma_allocate(Str(ITYP)%EL3_Hidden,1,Label='EL3')
+      Str(ITYP)%EL3  => Str(ITYP)%EL3_Hidden
 
 *. Last word of string information
       RETURN

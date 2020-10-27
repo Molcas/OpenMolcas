@@ -29,15 +29,10 @@
 *
 #include "detdim.fh"
 *
-#ifdef _WARNING_WORKAROUND_
       CALL GTSTTPS(IEL1,IEL3,
-     &             Str(MIN(ICLS,NSTTYP))%EL1,
-     &             Str(MIN(ICLS,NSTTYP))%EL3,
+     &             Str(MIN(ICLS,ITYP_Dummy))%EL1,
+     &             Str(MIN(ICLS,ITYP_Dummy))%EL3,
      &             NOCTYP(ICLS),ITYPE,IWAY)
-#else
-      CALL GTSTTPS(IEL1,IEL3,Str(ICLS)%EL1,Str(ICLS)%EL3,
-     &             NOCTYP(ICLS),ITYPE,IWAY)
-#endif
 *
       RETURN
       END

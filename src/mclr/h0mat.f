@@ -13,6 +13,7 @@
      &                 NPRCIV,NOCSF,IREFSM,
      &                 IDC,PSSIGN,ECORE,
      &                 VEC1,VEC2,H0SCR,iH0SCR,ieaw)
+      Use Arrays, only: DFTP, DTOC, CNSM
       Use Str_Info
 * Obtain preconditioner space corresponding to internalt space INTSPC
 * Obtain Hamiltonian matrices correponding to this subspacw
@@ -31,7 +32,6 @@
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "csfbas_mclr.fh"
 #include "WrkSpc.fh"
 *. Offsets for CSF information
 *
@@ -92,8 +92,8 @@
         IPWAY = 2
         CALL H0CSF(H0,ISBDET,ISBCNF,
      &       MXP1,MXP2,MXQ,
-     &       WORK(KDTOC),
-     &       iWORK(KDFTP),iWORK(KICONF(ieaw)),
+     &       DTOC,
+     &       DFTP,CNSM(ieaw)%ICONF,
      &       IREFSM,ECORE,NINOB,NOCOB,
      &       H0SCR,iH0SCR,NCNASM(IREFSM),
      &       NAEL+NBEL,NAEL,NBEL,IPWAY,

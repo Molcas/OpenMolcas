@@ -12,12 +12,12 @@
 ************************************************************************
       SubRoutine CIDIA_TD(iSym)
       use Exp, only: nexp, nexp_max
+      use Arrays, only: CNSM
       Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 #include "crun_mclr.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "csfbas_mclr.fh"
 #include "incdia.fh"
 #include "WrkSpc.fh"
 #include "Input.fh"
@@ -69,7 +69,7 @@
       If (Nocsf.ne.1)
      &Call CSDIAG(Work(ipDCSF),Work(ipDSD),
      &              NCNATS(1,ISYM),NTYP,
-     &              iWORK(KICTS(i)),NDPCNT,NCPCNT,0,
+     &              CNSM(i)%ICTS,NDPCNT,NCPCNT,0,
      &              0,IDUM,IPRNT)
 
       If (nocsf.eq.0)
@@ -85,7 +85,6 @@
       Else
         nexp=0
       End if
-*     Call Getmem('KICONF1','FREE','INTEGER',kiconf(i),lConf)
 
       ip=ipin(ipdiai)
 

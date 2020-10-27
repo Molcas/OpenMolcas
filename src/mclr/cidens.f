@@ -11,9 +11,11 @@
       SubRoutine CIDens(response,iLS,iRS,iL,iR,iS,rP,rD)
       Implicit Real*8(a-h,o-z)
 
+#include "real.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "crun_mclr.fh"
 
 #include "Input.fh"
@@ -24,7 +26,10 @@
       Real*8 rP(*),rD(*)
       integer opout
       Logical Response
+      Real*8, Allocatable:: De(:), Pe(:), CIL(:), CIR(:)
+
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+
 * LS = CI
 *
 *     Ok, we once more want to hide Jeppe's routines from
@@ -42,7 +47,6 @@
 *     iRS: CI Coeff for right state
 *     iL : Symmetry of left state
 *     iR : Symmetry of right state
-*
 *
 *               +       +
 *     iS=1 E  =a  a  + a  a
@@ -68,24 +72,24 @@
         n2dens=n1dens*(n1dens+1)/2
       end if
 
-      Call GetMem('1Dens2','ALLO','Real',ipDe,n1dens)
-      Call GetMem('2Dens2','ALLO','Real',ipP,n2dens)
-      call dcopy_(n1dens,[0.0d0],0,rD,1)
-      call dcopy_(n2dens,[0.0d0],0,rP,1)
+      Call mma_allocate(De,n1dens,Label='De')
+      Call mma_allocate(Pe,n2dens,Label='Pe')
+      De(:)=Zero
+      Pe(:)=Zero
+
       If (nocsf.eq.0) Then
         nConfL=Max(ncsf(il),nint(xispsm(il,1)))
         nConfR=Max(ncsf(iR),nint(xispsm(iR,1)))
-        Call GetMem('CIL','ALLO','REAL',ipL,nConfL)
-        Call CSF2SD(Work(ipin1(iLS,nconfL)),Work(ipL),iL)
+        Call mma_allocate(CIL,nConfL,Label='CIL')
+        Call CSF2SD(Work(ipin1(iLS,nconfL)),CIL,iL)
         irc=opout(ils)
-        Call GetMem('CIR','ALLO','REAL',ipR,nConfR)
-        Call CSF2SD(Work(ipin1(iRS,nconfR)),Work(ipR),iR)
+        Call mma_allocate(CIR,nConfR,Label='CIR')
+        Call CSF2SD(Work(ipin1(iRS,nconfR)),CIR,iR)
         irc=opout(irs)
         irc=ipnout(-1)
         icsm=iR
         issm=iL
-        Call Densi2(2,Work(ipDe),Work(ipP),
-     &               Work(ipL),Work(ipR),0,0,0,n1dens,n2dens)
+        Call Densi2(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
 
         If (.not.timedep) Then
          If (response) Then
@@ -98,7 +102,7 @@
               kl1=nnA*(ka-1)+la
               kl2=nna*(la-1)+ka
               rp(itri(ij1,kl1))=
-     &         Work(ipp-1+itri(ij1,kl1))+work(ipp-1+itri(ij2,kl2))
+     &         Pe(itri(ij1,kl1))+Pe(itri(ij2,kl2))
              End Do
             End Do
            End Do
@@ -107,32 +111,30 @@
            Do jA=1,nnA
               ij1=nnA*(iA-1)+ja
               ij2=nna*(ja-1)+ia
-              rD(ij1)=Work(ipDe-1+ij1)+work(ipDe-1+ij2)
+              rD(ij1)=De(ij1)+De(ij2)
            End Do
           End Do
 
          Else
-          call dcopy_(n2dens,Work(ipp),1,rp,1)
-          call dcopy_(n1dens,Work(ipde),1,rD,1)
+          call dcopy_(n2dens,Pe,1,rp,1)
+          call dcopy_(n1dens,De,1,rD,1)
          End If
         Else
-          call dcopy_(n2dens,Work(ipp),1,rp,1)
-          call dcopy_(n1dens,Work(ipde),1,rD,1)
+          call dcopy_(n2dens,Pe,1,rp,1)
+          call dcopy_(n1dens,De,1,rD,1)
           iCSM=iL
           iSSM=iR
-          Call Densi2(2,Work(ipDe),Work(ipP),Work(ipR),Work(ipL),
-     &               0,0,0,n1dens,n2dens)
-          call daxpy_(n2Dens,-1.0d0,Work(ipP),1,rp,1)
-          call daxpy_(n1Dens,-1.0d0,Work(ipDe),1,rD,1)
+          Call Densi2(2,De,Pe,CIR,CIL,0,0,0,n1dens,n2dens)
+          call daxpy_(n2Dens,-One,Pe,1,rp,1)
+          call daxpy_(n1Dens,-One,De,1,rD,1)
          End If
-        Call GetMem('CIL','FREE','REAL',ipL,nConfL)
-        Call GetMem('CIR','FREE','REAL',ipR,nConfR)
+         Call mma_deallocate(CIL)
+         Call mma_deallocate(CIR)
       else
         issm=iL
         icsm=iR
-        Call Densi2(2,Work(ipDe),Work(ipP), Work(ipin(iLS)),
-     &              Work(ipin(iRS)), 0,0,0,
-     &              n1dens,n2dens)
+        Call Densi2(2,De,Pe, Work(ipin(iLS)),
+     &              Work(ipin(iRS)), 0,0,0,n1dens,n2dens)
         If (.not.timedep) Then
          If (response) Then
           Do iA=1,nnA
@@ -144,7 +146,7 @@
               kl1=nnA*(ka-1)+la
               kl2=nna*(la-1)+ka
               rp(itri(ij1,kl1))=
-     &         Work(ipp-1+itri(ij1,kl1))+work(ipp-1+itri(ij2,kl2))
+     &         Pe(itri(ij1,kl1))+Pe(itri(ij2,kl2))
              End Do
             End Do
            End Do
@@ -153,27 +155,27 @@
            Do jA=1,nnA
               ij1=nnA*(iA-1)+ja
               ij2=nna*(ja-1)+ia
-              rD(ij1)=Work(ipDe-1+ij1)+work(ipDe-1+ij2)
+              rD(ij1)=De(ij1)+De(ij2)
            End Do
           End Do
          Else
-          call dcopy_(n2dens,Work(ipp),1,rp,1)
-          call dcopy_(n1dens,Work(ipde),1,rD,1)
+          call dcopy_(n2dens,Pe,1,rp,1)
+          call dcopy_(n1dens,De,1,rD,1)
          End If
         Else
-          call dcopy_(n2dens,Work(ipp),1,rp,1)
-          call dcopy_(n1dens,Work(ipde),1,rD,1)
+          call dcopy_(n2dens,Pe,1,rp,1)
+          call dcopy_(n1dens,De,1,rD,1)
           iCSM=iL
           iSSM=iR
-          Call Densi2(2,Work(ipDe),Work(ipP),
+          Call Densi2(2,De,Pe,
      &                Work(ipin(iRS)),Work(ipin(ils)),
      &                0,0,0,n1dens,n2dens)
-          call daxpy_(n2Dens,-1.0d0,Work(ipP),1,rp,1)
-          call daxpy_(n1Dens,-1.0d0,Work(ipDe),1,rD,1)
+          call daxpy_(n2Dens,-One,Pe,1,rp,1)
+          call daxpy_(n1Dens,-One,De,1,rD,1)
          End If
       End If
-      Call GetMem('1Dens2','Free','Real',ipDe,n1dens)
-      Call GetMem('2Dens2','Free','Real',ipP,n2dens)
+      Call mma_deallocate(Pe)
+      Call mma_deallocate(De)
 
       if(doDMRG)then  ! yma
         call dmrg_dim_change_mclr(RGras2(1:8),ndim,0)

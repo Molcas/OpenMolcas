@@ -96,17 +96,19 @@ Module Str_Info
 !
 !        ISTTP        :        Space (0=zero order)
 !        iuniqmp      :        Unique types (not necessary here just 0order space)
-      Integer, Parameter:: NSTTYP_MAX=6
-      Integer       NSTTYP,                                         &
-                    NELEC(NSTTYP_MAX),                              &
-                    MNRS1(NSTTYP_MAX),                              &
-                    MXRS1(NSTTYP_MAX),                              &
-                    MNRS3(NSTTYP_MAX),                              &
-                    MXRS3(NSTTYP_MAX),                              &
-                    IZORR(NSTTYP_MAX),                              &
-                    ISTTP(NSTTYP_MAX),                              &
-                    iuniqmp(NSTTYP_MAX),                            &
-                    iuniqtp(NSTTYP_MAX),                            &
+      Integer, Parameter:: NSTTYP_MAX=6+1   ! "+1" is the dummy layer
+      Integer:: ITYP_DUMMY=0
+      Integer, Private:: i
+      Integer::     NSTTYP,                                         &
+                    NELEC(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
+                    MNRS1(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
+                    MXRS1(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
+                    MNRS3(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
+                    MXRS3(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
+                    IZORR(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
+                    ISTTP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
+                    iuniqmp(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],       &
+                    iuniqtp(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],       &
                     IAZTP,IBZTP,IARTP(3,10),IBRTP(3,10),            &
                     NZSTTP,NRSTTP,                                  &
                     IATPM1,IATPM2,IBTPM1,IBTPM2
@@ -118,11 +120,11 @@ Module Str_Info
 !        INDMAP                : Mapping of string type to next more restricted type
 !        MXNSTR                : Largest number of strings of given sym and type
 !
-      Integer ISTAC(NSTTYP_MAX,2),     &
-              NOCTYP(NSTTYP_MAX),      &
-              NSTFTP(NSTTYP_MAX),      &
-              INUMAP(NSTTYP_MAX),      &
-              INDMAP(NSTTYP_MAX),      &
-              MXNSTR
+      Integer:: ISTAC(NSTTYP_MAX,2),                          &
+                NOCTYP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],      &
+                NSTFTP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],      &
+                INUMAP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],      &
+                INDMAP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],      &
+                MXNSTR
 
 End Module Str_Info

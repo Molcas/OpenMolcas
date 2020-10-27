@@ -27,7 +27,6 @@
 #include "incdia.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "csfbas_mclr.fh"
 #include "negpre.fh"
       Real*8 rdia(*)
       Logical TimeDep

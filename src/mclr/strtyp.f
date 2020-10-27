@@ -39,6 +39,7 @@
 * ISTTP = 3 => reference  space ,single internal excitations
 *
 *
+      ISTAC(:,:)=0
       NTEST = 0000
       NTEST = MAX(NTEST,IPRNT)
 *. Number of alpha and beta electrons

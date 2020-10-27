@@ -108,18 +108,14 @@ CMS: New array introduced according to Jeppes new strinfo representation
           IF(ISTAC(ITYP,2).NE.0.AND.ISTAC(ITYP,1).NE.0) THEN
 *.creation on string allowed , use full orbital notation
              LENGTH = NACOB*NSTRIN
-#ifdef _WARNING_WORKAROUND_
              Call mma_deallocate(Str(ITYP)%STSTMI)
              Call mma_deallocate(Str(ITYP)%STSTMN)
-#endif
           ELSE IF(ISTAC(ITYP,1).NE.0.AND.ISTAC(ITYP,2).EQ.0) THEN
 
 *. only annihilation allowed, use compact scheme
              LENGTH = NELEC(ITYP)*NSTRIN
-#ifdef _WARNING_WORKAROUND_
              Call mma_deallocate(Str(ITYP)%STSTMI)
              Call mma_deallocate(Str(ITYP)%STSTMN)
-#endif
 CMS: New else block
           ELSE IF (ISTAC(ITYP,1).EQ.0.AND.ISTAC(ITYP,2).NE.0) THEN
 *. Only creation allowed, use compact scheme with offsets
@@ -191,5 +187,17 @@ CMS: New else block
        IF(INDMAP(ITYP).NE.0) Call mma_deallocate(Str(ITYP)%NDMAP)
    70 CONTINUE
 *
+*
+*     Some dummy dallocations
+*
+      ITYP=ITYP_Dummy
+      Str(ITYP)%NSTSO => Null()
+      Call mma_deallocate(Str(ITYP)%NSTSO_Hidden)
+      Str(ITYP)%EL1  => Null()
+      Call mma_deallocate(Str(ITYP)%EL1_Hidden)
+      Str(ITYP)%EL3  => Null()
+      Call mma_deallocate(Str(ITYP)%EL3_Hidden)
+
+
       RETURN
       END

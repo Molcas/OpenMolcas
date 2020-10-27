@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE SigmaVec(C,HC,kic)
       Use Str_Info
+      Use Arrays, only: DTOC, CNSM
 *
 * Outer routine for sigma vector generation
 * RAS space
@@ -31,7 +32,6 @@
 #include "cicisp_mclr.fh"
 #include "cstate_mclr.fh"
 #include "csm.fh"
-#include "csfbas_mclr.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "crun_mclr.fh"
@@ -178,17 +178,14 @@
 *
 *     MXCJ:MXCIJA:MXCIJB:MXCIJAB:MXSXBL:MXIJST:MXIJSTF
 *
-#ifdef _WARNING_WORKAROUND_
-      IATP2=MIN(IATP+2,NSTTYP)
-      IBTP2=MIN(IbTP+2,NSTTYP)
-#else
-      IATP2=IATP+2
-      IBTP2=IBTP+2
-#endif
+      IATP1=MIN(IATP+1,ITYP_DUMMY)
+      IBTP1=MIN(IbTP+1,ITYP_DUMMY)
+      IATP2=MIN(IATP+2,ITYP_DUMMY)
+      IBTP2=MIN(IbTP+2,ITYP_DUMMY)
       CALL MXRESC(CIOIO,IATP,IBTP,NOCTPA,NOCTPB,NSMST,
      &            Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
-     &            IATP+1,Str(IATP+1)%NSTSO,NOCTYP(IATP+1),
-     &            Str(IBTP+1)%NSTSO,NOCTYP(IBTP+1),
+     &            IATP+1,Str(IATP1)%NSTSO,NOCTYP(IATP1),
+     &            Str(IBTP1)%NSTSO,NOCTYP(IBTP1),
      &            NSMOB,3,3,NTSOB,IPRCIX,MAXpK,
      &            Str(IATP2)%NSTSO,NOCTYP(IATP2),
      &            Str(IBTP2)%NSTSO,NOCTYP(IBTP2),
@@ -268,7 +265,7 @@
       iiCOPY=1
       IF(NOCSF.EQ.0) THEN
 * Transform C vector from CSF to SD basis
-        CALL CSDTVC_MCLR(C,HC,1,wORK(KDTOC),iWORK(KICTS(kic(1))),
+        CALL CSDTVC_MCLR(C,HC,1,DTOC,CNSM(kic(1))%ICTS,
      &                   icsm,iiCOPY,IPRDIA)
       END IF
 *
@@ -343,8 +340,7 @@
 *
       IF(NOCSF.EQ.0) THEN
 * Transform HC vector from SD to CSF basis
-        CALL CSDTVC_MCLR(C,HC,2,WORK(KDTOC),iWORK(KICTS(kic(2))),
-     &                   ISSM,1,IPRDIA)
+        CALL CSDTVC_MCLR(C,HC,2,DTOC,CNSM(kic(2))%ICTS,ISSM,1,IPRDIA)
       END IF
 
 *. Eliminate local memory

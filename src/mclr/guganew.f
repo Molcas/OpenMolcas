@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine GugaNew(ipCIL,imode,ksym)
 *
+      use Arrays, only: CFTP, CNSM
       Implicit Real*8 (A-H,O-Z)
       Integer A0,B0,C0
 *
@@ -17,7 +18,6 @@
 #include "Input.fh"
 #include "WrkSpc.fh"
 #include "detdim.fh"
-#include "csfbas_mclr.fh"
 #include "spinfo_mclr.fh"
       Integer OrbSym(2*mxBas)
       Parameter (iPrint=0)
@@ -222,8 +222,8 @@
      &      iWork(LUP),iWork(LRAW),iWork(LUSGN),iWork(LLSGN),
      &      nActEl,NLEV,NCONF,NTYP,
      &      iMode,jPrint,
-     &      iWork(KICONF(iss)),
-     &      iWork(KCFTP),NCNATS(1,kSym),NCPCNT,
+     &      CNSM(iss)%ICONF,
+     &      CFTP,NCNATS(1,kSym),NCPCNT,
      &      Work(ipCIL),Work(ipCInew),minop)
       If (imode.eq.0.and.iAnd(kprint,8).eq.8)
      &Call SGPRWF_MCLR
@@ -232,7 +232,6 @@
      &      OrbSym,iWork(LNOCSF),iWork(LIOCSF),
      &      iWork(LNOW),iWork(LIOW),
      &      iWork(LICASE),Work(ipCInew))
-CEAW970812     &      Work(ipCIL),Work(ipCInew))
       If (TimeDep) Then
          Call GetMem('OCIvec','Free','Real',ipCIL,2*nConf)
       Else

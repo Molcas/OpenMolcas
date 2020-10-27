@@ -41,8 +41,9 @@
 *.Output
       DIMENSION ICTSDT(*)
 *.Scratch
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "dmrginfo_mclr.fh"
+      Integer, Allocatable:: KL1(:), KL2(:), KL3(:)
 * NOTE : NCNFTP IS COLUMN FOR SYMMETRY GIVEN , NOT COMPLETE MATRIX.
 * Dim of IWORK : MAX(3*NORB,(MXDT+2)*NEL),
 * where MXDT is the largest number of prototype determinants of
@@ -54,15 +55,15 @@
 * ================================================================
 *
 
-      CALL GETMEM('KSCR11','ALLO','INTEGER',KL1,NORB1+NORB2+NORB3)
-      CALL GETMEM('KSCR12','ALLO','INTEGER',KL2,NORB1+NORB2+NORB3)
-      CALL GETMEM('KSCR13','ALLO','INTEGER',KL3,NORB1+NORB2+NORB3)
+      CALL mma_allocate(KL1,NORB1+NORB2+NORB3,Label='KL1')
+      CALL mma_allocate(KL2,NORB1+NORB2+NORB3,Label='KL2')
+      CALL mma_allocate(KL3,NORB1+NORB2+NORB3,Label='KL3')
       CALL CONFG2(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,
      *            MINOP,MAXOP,IREFSM,NEL,ICONF,
-     *            NCNFTP,IWORK(KL1),IWORK(KL2),IWORK(KL3),IPRNT)
-      CALL GETMEM('KSCR13','FREE','INTEGER',KL3,NORB1+NORB2+NORB3)
-      CALL GETMEM('KSCR12','FREE','INTEGER',KL2,NORB1+NORB2+NORB3)
-      CALL GETMEM('KSCR11','FREE','INTEGER',KL1,NORB1+NORB2+NORB3)
+     *            NCNFTP,KL1,KL2,KL3,IPRNT)
+      CALL mma_deallocate(KL3)
+      CALL mma_deallocate(KL2)
+      CALL mma_deallocate(KL1)
 *
 * =========================================================
 * Obtain determinants for each configuration and determine
@@ -119,8 +120,9 @@ C
 *./SPINFO/
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "dmrginfo_mclr.fh"
+      Integer, Allocatable:: LDTBL(:), LIA(:), LIB(:), SCR23(:)
 *
        NEL = NAEL + NBEL
        NTEST=0000
@@ -132,10 +134,10 @@ C Largest number of dets for a given type
       DO 10 ITYP = 1, NTYP
         MXDT   = MAX(MXDT,NDPCNT(ITYP) )
    10 CONTINUE
-      CALL GETMEM('KSCR20','ALLO','INTEGER',KLDTBL,MXDT*NEL)
-      CALL GETMEM('KSCR21','ALLO','INTEGER',KLIA,NAEL)
-      CALL GETMEM('KSCR22','ALLO','INTEGER',KLIB,NBEL)
-      CALL GETMEM('KSCR23','ALLO','INTEGER',KSCR23,NEL)
+      CALL mma_allocate(LDTBL,MXDT*NEL,Label='LDTBL')
+      CALL mma_allocate(LIA,NAEL,Label='LIA')
+      CALL mma_allocate(LIB,NBEL,Label='LIB')
+      CALL mma_allocate(SCR23,NEL,Label='SCR23')
 C
 C.. Loop over configurations and generate determinants in compact form
 C
@@ -170,17 +172,16 @@ C Base for prototype determinants
 *. Check orbital occupancy with additional constraints
           IF( NTEST .GE. 10 ) WRITE(6,*) ' IC ICNF ICNBS',IC,ICNF,ICNBS
           CALL CNDET(ICONF(ICNBS),IPRODT(IPBAS),IDET,
-     &               NEL,IOCC,IOPEN,ICL, IWORK(KLDTBL),IPRNT)
+     &               NEL,IOCC,IOPEN,ICL, LDTBL,IPRNT)
 C Separate determinants into strings and determine string number .
           DO 800 JDET = 1,IDET
 !            write(117,"(1X,I8,1X,A,1X)",advance='no')ITYP,"ITYP"  ! yma
             JDTABS = JDTABS + 1
-            CALL DETSTR_MCLR(IWORK(KLDTBL+(JDET-1)*NEL),IWORK(KLIA),
-     &      IWORK(KLIB),NEL,NAEL,NBEL,NORB,ISIGN,IWORK(KSCR23),IPRNT)
+            CALL DETSTR_MCLR(LDTBL(1+(JDET-1)*NEL),LIA,
+     &             LIB,NEL,NAEL,NBEL,NORB,ISIGN,SCR23,IPRNT)
             ijkl_num=ijkl_num+1
 * Find number (and sign)of this determinant in string ordering
-            ICTSDT(JDTABS) =
-     &      IABNUM(IWORK(KLIA),IWORK(KLIB),IAGRP,IBGRP,IGENSG,
+            ICTSDT(JDTABS) =IABNUM(LIA,LIB,IAGRP,IBGRP,IGENSG,
      &             ISGNA,ISGNB,ISGNAB,IOOS,NORB,IPSFAC,PSSIGN,
      &             IPRNT)
              IF(  DBLE(ISIGN*ISGNAB*IPSFAC) .eq. -1.0d0)then
@@ -189,10 +190,10 @@ C Separate determinants into strings and determine string number .
   800     CONTINUE
   900   CONTINUE
  1000 CONTINUE
-      CALL GETMEM('KSCR23','FREE','INTEGER',KSCR23,NEL)
-      CALL GETMEM('KSCR22','FREE','INTEGER',KLIB,NBEL)
-      CALL GETMEM('KSCR21','FREE','INTEGER',KLIA,NAEL)
-      CALL GETMEM('KSCR20','FREE','INTEGER',KLDTBL,MXDT*NEL)
+      CALL mma_deallocate(SCR23)
+      CALL mma_deallocate(LIB)
+      CALL mma_deallocate(LIA)
+      CALL mma_deallocate(LDTBL)
 
 C
       RETURN
@@ -349,6 +350,7 @@ C?    END IF
 *
       Subroutine CsfInf(lSym,iSpin,MS,iSPC,iPrnt,nsym)
       use Str_Info
+      use Arrays, only: DFTP, CFTP, DTOC, CNSM
 *
       Implicit Real*8 (A-H,O-Z)
 *
@@ -357,14 +359,13 @@ C?    END IF
 #include "orbinp_mclr.fh"
 #include "csm.fh"
 #include "cicisp_mclr.fh"
-#include "csfbas_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "cands.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "Files_mclr.fh"
       integer idum(1)
-      Integer, Allocatable:: SIOIO(:), SBLTP(:)
+      Integer, Allocatable:: SIOIO(:), SBLTP(:), IOOS1(:),
+     &                       NOOS1(:)
 *     COMMONBLOCK THE SUPPORT STORAGE OF REORDERING VECTOR
 *     ON DISK
 #include "csfsd.fh"
@@ -396,16 +397,15 @@ C     that no CSF<->SD coefficents is in core
      &            SIOIO,IPRNT)
       CALL mma_allocate(SBLTP,NSMST,Label='SBLTP')
       NOOS = NOCTPA*NOCTPB*NSMST
-      CALL GETMEM('IOOS1','ALLO','INTEGER',KIOOS1,NOOS)
-      CALL GETMEM('NOOS1','ALLO','INTEGER',KNOOS1,NOOS)
+      CALL mma_allocate(IOOS1,NOOS,Label='IOOS1')
+      CALL mma_allocate(NOOS1,NOOS,Label='NOOS1')
       CALL INTCSF(NACOB,NEL,iSpin,MS2,
      &            NORB1,NORB2,NORB3,MNELR1,MXELR3,
      &            LLCSF,1,0,PSSIGN,IPRNT,lconf,lldet)
 *
 *     Calculate CG COEFFICENTS ETC
 *
-      CALL CSDTMT(IWORK(KDFTP),IWORK(KCFTP),
-     &            WORK(KDTOC),PSSIGN,IPRNT)
+      CALL CSDTMT(DFTP,CFTP,DTOC,PSSIGN,IPRNT)
 
 *
 *     Calculate the reordering vector and write it to disk
@@ -418,32 +418,31 @@ C     that no CSF<->SD coefficents is in core
           CALL ZOOS(ISMOST(1,ISYM),SBLTP,
      &          NSMST,SIOIO,
      &          Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
-     &          NOCTPA,NOCTPB,idc,IWORK(KIOOS1),
-     &          IWORK(KNOOS1),NCOMB,0)
-*EAW           CALL CNFORD(IWORK(KICTS(1)),iWORK(KICONF(1)),
-*    &          iSym,NACOB,IWORK(KDFTP),
+     &          NOCTPA,NOCTPB,idc,IOOS1,NOOS1,NCOMB,0)
+*EAW           CALL CNFORD(CNSM(1)%ICTS,CNSM(1)%ICONF,
+*    &                     iSym,NACOB,DFTP,
 *    &          NCNATS(1,ISYM),NEL,0,0,IDUM,IDUM,
-*    &          IASTFI(ISPC),IBSTFI(ISPC),IWORK(KIOOS1),
+*    &          IASTFI(ISPC),IBSTFI(ISPC),IOOS1,
 *    &          NORB1,NORB2,NORB3,MNELR1,MXELR3,
 *    &          NELEC(IASTFI(ISPC)),NELEC(IBSTFI(ISPC)),
 *    &          MINOP,MAXOP,IPRNT)
-           CALL CNFORD(IWORK(KICTS(1)),iWORK(KICONF(1)),
-     &          iSym,NACOB,IWORK(KDFTP),
+           CALL CNFORD(CNSM(1)%ICTS,CNSM(1)%ICONF,
+     &                 iSym,NACOB,DFTP,
      &          NCNATS(1,ISYM),NEL,0,0,IDUM,IDUM,
-     &          IASTFI(ISPC),IBSTFI(ISPC),IWORK(KIOOS1),
+     &          IASTFI(ISPC),IBSTFI(ISPC),IOOS1,
      &          NORB1,NORB2,NORB3,MNELR1,MXELR3,
      &          NELEC(IASTFI(ISPC)),NELEC(IBSTFI(ISPC)),
      &          MINOP,MAXOP,PSSIGN, IPRNT)
 *
-           CALL iDAFILE(LUCSF2SD,1,IWORK(KICTS(1)),lldet,iA)
-           CALL iDAFILE(LUCSF2SD,1,IWORK(KICONF(1)),lconf,iA)
+           CALL iDAFILE(LUCSF2SD,1,CNSM(1)%ICTS,lldet,iA)
+           CALL iDAFILE(LUCSF2SD,1,CNSM(1)%ICONF,lconf,iA)
       End Do
 *
 *
-      CALL GETMEM('KICTS','FREE','INTEGER',KICTS(1),NOOS)
-      CALL GETMEM('KICONF','FREE','INTEGER',KICONF(1),NOOS)
-      CALL GETMEM('IOOS1','FREE','INTEGER',KIOOS1,NOOS)
-      CALL GETMEM('NOOS1','FREE','INTEGER',KNOOS1,NOOS)
+      CALL mma_deallocate(CNSM(1)%ICTS)
+      CALL mma_deallocate(CNSM(1)%ICONF)
+      CALL mma_deallocate(IOOS1)
+      CALL mma_deallocate(NOOS1)
       Call mma_deallocate(SBLTP)
       Call mma_deallocate(SIOIO)
 *
@@ -484,8 +483,10 @@ c Avoid unused argument warnings
 *
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       DIMENSION IDET(NOPEN,NDET),ICSF(NOPEN,NCSF)
       DIMENSION CDC(NDET,NCSF)
+      Real*8, Allocatable:: LMDET(:), lSCSF(:)
 
       NTEST = 0000
       NTEST = MAX(IPRCSF,NTEST)
@@ -494,12 +495,12 @@ c Avoid unused argument warnings
       ELSE
        CMBFAC = SQRT(2.0D0)
       END IF
-      CALL GETMEM('KSCR8','ALLO','REAL',KLMDET,NDET*NOPEN)
-      CALL GETMEM('KSCR9','ALLO','REAL',KLSCSF,NDET*NOPEN)
+      CALL mma_allocate(LMDET,NDET*NOPEN,Label='LMDET')
+      CALL mma_allocate(LSCSF,NDET*NOPEN,Label='LSCSF')
 C
 C.. OBTAIN INTERMEDIATE VALUES OF MS FOR ALL DETERMINANTS
       DO 10 JDET = 1, NDET
-        CALL MSSTRN(IDET(1,JDET),WORK(KLMDET+(JDET-1)*NOPEN),NOPEN)
+        CALL MSSTRN(IDET(1,JDET),LMDET(1+(JDET-1)*NOPEN),NOPEN)
    10 CONTINUE
 
 C
@@ -507,7 +508,7 @@ C
        IF( NTEST .GE. 105 ) WRITE(6,*) ' ....Output for CSF ',JCSF
 C
 C OBTAIN INTERMEDIATE COUPLINGS FOR CSF
-      CALL MSSTRN(ICSF(1,JCSF),WORK(KLSCSF),NOPEN)
+      CALL MSSTRN(ICSF(1,JCSF),LSCSF,NOPEN)
 C
       DO 900 JDET = 1, NDET
 C EXPANSION COEFFICIENT OF DETERMINANT JDET FOR CSF JCSF
@@ -518,33 +519,29 @@ C EXPANSION COEFFICIENT OF DETERMINANT JDET FOR CSF JCSF
 C
 C + + CASE
         IF(ICSF(IOPEN,JCSF).EQ.1.AND.IDET(IOPEN,JDET).EQ.1) THEN
-          COEF = COEF *
-     &    (WORK(KLSCSF-1+IOPEN)+WORK(KLMDET-1+JDADD+IOPEN) )
-     &    /(2.0D0*WORK(KLSCSF-1+IOPEN) )
+          COEF = COEF * (LSCSF(IOPEN)+LMDET(JDADD+IOPEN) )
+     &         / (2.0D0*LSCSF(IOPEN) )
         ELSE IF(ICSF(IOPEN,JCSF).EQ.1.AND.IDET(IOPEN,JDET).EQ.0) THEN
 C + - CASE
-          COEF = COEF *
-     &    (WORK(KLSCSF-1+IOPEN)-WORK(KLMDET-1+JDADD+IOPEN) )
-     &    /(2.0D0*WORK(KLSCSF-1+IOPEN) )
+          COEF = COEF *(LSCSF(IOPEN)-LMDET(JDADD+IOPEN) )
+     &         / (2.0D0*LSCSF(IOPEN) )
         ELSE IF(ICSF(IOPEN,JCSF).EQ.0.AND.IDET(IOPEN,JDET).EQ.1) THEN
 C - + CASE
-          COEF = COEF *
-     &    (WORK(KLSCSF-1+IOPEN)-WORK(KLMDET-1+JDADD+IOPEN) +1.0D0)
-     &    /(2.0D0*WORK(KLSCSF-1+IOPEN)+2.0D0 )
+          COEF = COEF * (LSCSF(IOPEN)-LMDET(JDADD+IOPEN) +1.0D0)
+     &         / (2.0D0*LSCSF(IOPEN)+2.0D0 )
           SIGN  = - SIGN
         ELSE IF(ICSF(IOPEN,JCSF).EQ.0.AND.IDET(IOPEN,JDET).EQ.0) THEN
 C - - CASE
-          COEF = COEF *
-     &    (WORK(KLSCSF-1+IOPEN)+WORK(KLMDET-1+JDADD+IOPEN) +1.0D0)
-     &    /(2.0D0*WORK(KLSCSF-1+IOPEN)+2.0D0 )
+          COEF = COEF * (LSCSF(IOPEN)+LMDET(JDADD+IOPEN) +1.0D0)
+     &         / (2.0D0*LSCSF(IOPEN)+2.0D0 )
         END IF
   700 CONTINUE
        CDC(JDET,JCSF) = SIGN * CMBFAC * SQRT(COEF)
   900 CONTINUE
  1000 CONTINUE
 C
-      CALL GETMEM('KSCR9','FREE','REAL',KLSCSF,NDET*NOPEN)
-      CALL GETMEM('KSCR8','FREE','REAL',KLMDET,NDET*NOPEN)
+      CALL mma_deallocate(LSCSF)
+      CALL mma_deallocate(LMDET)
 *
       IF( NTEST .GE. 5 ) THEN
         WRITE(6,*)
@@ -665,8 +662,9 @@ c Avoid unused argument warnings
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       DIMENSION IDFTP(*),ICFTP(*),DTOC(*)
+      Integer, Allocatable:: SCR7(:)
 *./SPINFO/
 *
 
@@ -688,21 +686,21 @@ c Avoid unused argument warnings
         END IF
 *
         IF( IOPEN .NE. 0 ) THEN
-          CALL GETMEM('ISCR7','ALLO','INTEGER',KSCR7,IOPEN+1)
+          CALL mma_allocate(SCR7,IOPEN+1,Label='SCR7')
 *. Proto type determinants and upper determinants
           IF( MS2+1 .EQ. MULTS ) THEN
             IFLAG = 2
-            CALL SPNCOM(iwork(kscr7),IOPEN,MS2,NNDET,IDFTP(IDTBS),
+            CALL SPNCOM(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),
      &                  ICFTP(ICSBS),IFLAG,PSSIGN,IPRNT)
           ELSE
             IFLAG = 1
-            CALL SPNCOM(iwork(kscr7),IOPEN,MS2,NNDET,IDFTP(IDTBS),
+            CALL SPNCOM(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),
      &                  ICFTP(ICSBS),IFLAG,PSSIGN,IPRNT)
             IFLAG = 3
-            CALL SPNCOM(iwork(kscr7),IOPEN,MULTS-1,NNDET,IDFTP(IDTBS),
+            CALL SPNCOM(scr7,IOPEN,MULTS-1,NNDET,IDFTP(IDTBS),
      &                  ICFTP(ICSBS),IFLAG,PSSIGN,IPRNT)
           END IF
-          CALL GETMEM('ISCR7','FREE','INTEGER',KSCR7,IOPEN+1)
+          CALL mma_deallocate(SCR7)
         END IF
    20 CONTINUE
 *. Matrix expressing csf's in terms of combinations
@@ -740,7 +738,7 @@ c Avoid unused argument warnings
       SUBROUTINE INTCSF(NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,
      &                  NEL1MN,NEL3MX,
      &                  LLCSF,NCNSM,ICNSTR,PSSIGN,
-     &IPRNT,lconf,lldet)
+     &                  IPRNT,lconf,lldet)
 
 *
 * Initializing routine for CSF-DET expansions of internal space
@@ -753,24 +751,24 @@ c Avoid unused argument warnings
 * Largest local memory requirements in CNFORD,CSFDET is returned in
 * LLCSF
 *
-* DETERMINE BASE ADRESSES /CSFBAS/
-*             KDFTP : OPEN SHELL DETERMINANTS OF PROTO TYPE
-*             KCFTP : BRANCHING DIAGRAMS FOR PROTO TYPES
-*             KDTOC  : CSF-DET TRANSFORMATION FOR PROTO TYPES
-*             KICONF(I) : SPACE FOR STORING  NCNSM
+*             DFTP : OPEN SHELL DETERMINANTS OF PROTO TYPE
+*             CFTP : BRANCHING DIAGRAMS FOR PROTO TYPES
+*             DTOC  : CSF-DET TRANSFORMATION FOR PROTO TYPES
+*             CNSM(I)%ICONF : SPACE FOR STORING  NCNSM
 *                        CONFIGURATION EXPANSIONS
 *
 * If PSSIGN .ne. 0, spin combinations are used !!
-
+      Use Arrays, only: DFTP, CFTP, DTOC, CNSM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
 #include "WrkSpc.fh"
-#include "csfbas_mclr.fh"
+#include "stdalloc.fh"
 #include "dmrginfo_mclr.fh"
+      Integer, Allocatable:: IICL(:), IIOP(:), IIOC(:)
 *
 * Last modification : Sept 20 : sign and address of dets goes together
-*                      in KICTS
+*                      in CNSM(:)%ICTS
       NTEST = 000
       NTEST = MAX(NTEST,IPRNT)
 *
@@ -857,26 +855,19 @@ C?    WRITE(6,*) ' MAXOP with RAS constraints :' ,MAXOP
 * =================================================
 **. Number of Combinations and CSF's per  symmetry
 * =================================================
-*EAW
-      CALL GETMEM('KIICL','ALLO','INTEGER',KL1,NACTOB)
-      CALL GETMEM('KIIOP','ALLO','INTEGER',KL2,NACTOB)
-      CALL GETMEM('KIIOC','ALLO','INTEGER',KL3,NORB1+NORB2+NORB3)
-*     KL1 = 1
-*     KL2 = KL1 + NACTOB
-*     KL3 = KL2 + NACTOB
-*EAW
+      CALL mma_allocate(IICL,NACTOB,Label='IICL')
+      CALL mma_allocate(IIOP,NACTOB,Label='IIOP')
+      CALL mma_allocate(IIOC,NORB1+NORB2+NORB3,Label='IIOC')
 
       CALL CISIZE(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,NACTEL,
      &            MINOP,MAXOP,MXPCTP,MXPCSM,NCNATS,NCNASM,NDTASM,
      &            NCSASM,
      &            NDPCNT,NCPCNT,
-     &            IWORK(KL1),IWORK(KL2),IWORK(KL3),IPRNT)
+     &            IICL,IIOP,IIOC,IPRNT)
 
-*EAW
-      CALL GETMEM('KIIOC','FREE','INTEGER',KL3,NORB1+NORB2+NORB3)
-      CALL GETMEM('KIIOP','FREE','INTEGER',KL2,NACTOB)
-      CALL GETMEM('KIICL','FREE','INTEGER',KL1,NACTOB)
-*EAW
+      CALL mma_deallocate(IIOC)
+      CALL mma_deallocate(IIOP)
+      CALL mma_deallocate(IICL)
 * ==============================================
 *   Permanent and local memory for csf routines
 * ==============================================
@@ -945,9 +936,9 @@ C?      WRITE(6,*) ' MEMORY FOR HOLDING CONFS OF SYM... ',ISYM,LLCONF
 
 *. permanent memory for csf proto type arrays
 
-      CALL GETMEM('KDFTP','ALLO','INTEGER',KDFTP,LIDT)
-      CALL GETMEM('KCFTP','ALLO','INTEGER',KCFTP,LICS)
-      CALL GETMEM('KDTOC','ALLO','REAL   ',KDTOC,LDTOC)
+      Call mma_allocate(DFTP,LIDT,Label='DFTP')
+      Call mma_allocate(CFTP,LICS,Label='CFTP')
+      CALL mma_allocate(DTOC,LDTOC,Label='DTOC')
 
 *. Permanent arrays for reordering and phases
       IF(NCNSM .GT. MXCNSM ) THEN
@@ -958,8 +949,8 @@ C?      WRITE(6,*) ' MEMORY FOR HOLDING CONFS OF SYM... ',ISYM,LLCONF
         Call Abend()
       END IF
       DO 60 ICNSM = 1, NCNSM
-        CALL GETMEM('KICONF','ALLO','INTEGER',KICONF(ICNSM),LCONF)
-        CALL GETMEM('KICTS ','ALLO','INTEGER',KICTS(ICNSM),LDET)
+        CALL mma_allocate(CNSM(ICNSM)%ICONF,LCONF,Label='ICONF')
+        CALL mma_allocate(CNSM(ICNSM)%ICTS,LDET,Label='ICTS')
    60 CONTINUE
 *
 *
@@ -1904,7 +1895,8 @@ C
 #include "cstate_mclr.fh"
 #include "csm.fh"
 *
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
+      Integer, Allocatable:: LBLTP(:), LCVST(:)
 * ====================
 *. Output common block : XISPSM is calculated
 * ====================
@@ -1913,15 +1905,14 @@ C
 *
 *
 *.Local memory
-      Call GetMem('KLBLTP','ALLO','INTE',KLBLTP,NSMST)
+      Call mma_allocate(LBLTP,NSMST,Label='LBLTP')
 *     IF(IDC.EQ.3 .OR. IDC .EQ. 4 )
-*    &Call GetMem('KLCVST','INTE','ALLO',KLCVST,NSMST)
-      klcvst=1
+*    &Call mma_allocate(LCVST,NSMST,Label='LCVST')
+      Call mma_allocate(LCVST,NSMST,Label='LCVST')
 
 *. Obtain array giving symmetry of sigma v reflection times string
 *. symmetry.
-*     IF(IDC.EQ.3.OR.IDC.EQ.4)
-*    &CALL SIGVST(iWORK(KLCVST),NSMST)
+*     IF(IDC.EQ.3.OR.IDC.EQ.4) CALL SIGVST(LCVST,NSMST)
 
 *. Array defining symmetry combinations of internal strings
 *. Number of internal dets for each symmetry
@@ -1942,13 +1933,12 @@ CMS        write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
           IIDC = 1
         END IF
         IF(IACTI(ICI).EQ.1) THEN
-          CALL ZBLTP(ISMOST(1,ISYM),NSMST,IIDC,iWORK(KLBLTP),
-     &               iWORK(KLCVST))
+          CALL ZBLTP(ISMOST(1,ISYM),NSMST,IIDC,LBLTP,LCVST)
           CALL NRASDT(MNR1IC(ICI),MXR1IC(ICI),MNR3IC(ICI),MXR3IC(ICI),
      &         ISYM,NSMST,NOCTYP(IATP),NOCTYP(IBTP),Str(IATP)%EL1,
      &         Str(IBTP)%EL1,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
      &         Str(IATP)%EL3,Str(IBTP)%EL3,
-     &         NCOMB,XNCOMB,MXS,MXSOO,iWORK(KLBLTP))
+     &         NCOMB,XNCOMB,MXS,MXSOO,LBLTP)
           XISPSM(ISYM,ICI) = XNCOMB
           MXSOOB = MAX(MXSOOB,MXSOO)
           MXSB = MAX(MXSB,MXS)
@@ -1958,7 +1948,8 @@ CMS        write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
         END IF
    50 CONTINUE
   100 CONTINUE
-      Call GetMem('KLBLTP','Free','INTE',KLBLTP,NSMST)
+      Call mma_deallocate(LCVST)
+      Call mma_deallocate(LBLTP)
 *
       NTEST = 0000
       NTEST = MAX(NTEST,IPRNT)

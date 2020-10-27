@@ -9,13 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine InCSFSD(iState,State_sym,GUGA)
+      use Arrays, only: CNSM
       Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "Files_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "WrkSpc.fh"
-#include "csfbas_mclr.fh"
+#include "stdalloc.fh"
       Logical GUGA
       Integer State_sym
       Dimension idum(1)
@@ -39,30 +39,29 @@
 *
       If (iSym.ne.1) Then
          If (iAnders.eq.-9)  Then
-             Call Getmem('KICTS2','ALLO','INTEGER',Kicts(2),lldet)
-             Call Getmem('KICONF2','ALLO','INTEGER',kiconf(2),lConf)
+             Call mma_allocate(CNSM(2)%icts,lldet,Label='ICTS')
+             Call mma_allocate(CNSM(2)%iconf,lConf,Label='ICONF')
              iAllo=1
          End If
          iAnders=isym
       End If
       If (iSym.eq.1) Then
           If (i1.eq.-9) Then
-           Call Getmem('KICTS1','ALLO','INTEGER',Kicts(1),lldet)
-           If (.true.)
-     &      Call Getmem('KICONF1','ALLO','INTEGER',kiconf(1),lConf)
+           Call mma_allocate(CNSM(1)%icts,lldet,Label='ICTS')
+           Call mma_allocate(CNSM(1)%iconf,lConf,Label='ICONF')
            i1=1
           End If
       End If
 
 !      open(unit=1422,file="det.index") ! yma
 !      do i=1,lldet
-!        write(1422,*)iWork(kicts(iAdr)+i-1)
+!        write(1422,*)CNSM(iAdr)%icts(i)
 !      end do
 !      close(1422)
 
 ! calculated from zoo.f, the GUGA number for determinent
-      Call iDafile(LUCSF2SD,2,iWork(kicts(iAdr)),lldet,iad)
-      Call iDafile(LUCSF2SD,2,iWork(kiconf(iAdr)),lconf,iad)
+      Call iDafile(LUCSF2SD,2,CNSM(iAdr)%icts,lldet,iad)
+      Call iDafile(LUCSF2SD,2,CNSM(iAdr)%iconf,lconf,iad)
 
       Return
 

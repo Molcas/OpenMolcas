@@ -171,13 +171,8 @@ CFUE  IPRDEN=0
 * Get memory requirements
 *
 *
-#ifdef _WARNING_WORKAROUND_
-      IATP2 = MIN(IATP+2,NSTTYP)
-      IBTP2 = MIN(IBTP+2,NSTTYP)
-#else
-      IATP2 = IATP+2
-      IBTP2 = IBTP+2
-#endif
+      IATP2 = MIN(IATP+2,ITYP_Dummy)
+      IBTP2 = MIN(IBTP+2,ITYP_Dummy)
       CALL MXRESC(iWORK(KCIOIO),IATP,IBTP,NOCTPA,NOCTPB,NSMST,
      &            Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
      &            IATP+1,Str(IATP+1)%NSTSO,NOCTYP(IATP+1),

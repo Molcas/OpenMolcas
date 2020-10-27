@@ -14,9 +14,9 @@
 *
 *  Transforms a CSF vector to slater determinants
 *
+      Use Arrays, only: DTOC, CNSM
       implicit Real*8(a-h,o-z)
 #include "detdim.fh"
-#include "csfbas_mclr.fh"
 #include "WrkSpc.fh"
 #include "cicisp_mclr.fh"
 #include "Input.fh"
@@ -33,15 +33,13 @@
       i=2
       If (isym.eq.1) i=1
       If (diskbased) Then
-         CALL CSDTVC_MCLR(CSF,SD,1,wORK(KDTOC),
-     &                    iWORK(KICTS(i)),
+         CALL CSDTVC_MCLR(CSF,SD,1,DTOC, CNSM(i)%ICTS,
      &                    IS,iiCOPY,IPRDIA)
       Else
          Call GetMem('CITEMP','ALLO','REAL',ipCTM,nConf)
          Call FZero(Work(ipCTM),nConf)
          call dcopy_(ncsf(is),CSF,1,Work(ipCTM),1)
-         CALL CSDTVC_MCLR(Work(ipCTM),SD,1,WORK(KDTOC),
-     &                    iWORK(KICTS(i)),
+         CALL CSDTVC_MCLR(Work(ipCTM),SD,1,DTOC,CNSM(i)%ICTS,
      &                    IS,iiCOPY,IPRDIA)
          Call GetMem('CITEMP','FREE','REAL',ipCTM,nConf)
       End If

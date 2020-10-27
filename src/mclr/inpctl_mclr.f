@@ -21,7 +21,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-
+      use Arrays, only: DTOC
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -32,7 +32,6 @@
 #include "negpre.fh"
 
 #include "detdim.fh"
-#include "csfbas_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "dmrginfo_mclr.fh"
       logical ldisk,ipopen
@@ -64,7 +63,6 @@
 
       ldisk  =ipopen(0,.True.)
 *
-      write(6,*) "iMethod:",iMethod,iCASSCF
       If (iMethod.eq.iCASSCF) Then
          If (TimeDep) Then
             Call RdJobIph_td
@@ -123,7 +121,7 @@
                  vector_cidmrg(ii)=0.0d0
                end if
              end do
-             call CSDTVC_dmrg(work(ipT),vector_cidmrg,2,WORK(KDTOC),
+             call CSDTVC_dmrg(work(ipT),vector_cidmrg,2,DTOC,
      &                     index_SD,ISSM,1,IPRDIA)
              ! mma_allocate and mma_deallocate
              deallocate(index_SD)

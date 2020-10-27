@@ -18,7 +18,6 @@
 #include "Pointers.fh"
 #include "WrkSpc.fh"
 #include "detdim.fh"
-#include "csfbas_mclr.fh"
 #include "spinfo_mclr.fh"
       Integer OrbSym(2*mxBas)
       Parameter (iPrint=0)

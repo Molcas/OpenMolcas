@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine GugaCtl_MCLR(ipCIL,imode)
 *
-
+      use Arrays, only: CFTP, CNSM
       Implicit Real*8 (A-H,O-Z)
       Integer A0,B0,C0
 *
@@ -19,7 +19,6 @@
 #include "Pointers.fh"
 #include "WrkSpc.fh"
 #include "detdim.fh"
-#include "csfbas_mclr.fh"
 #include "spinfo_mclr.fh"
       Integer OrbSym(2*mxBas)
       Parameter (iPrint=0)
@@ -222,8 +221,8 @@
      &      iWork(LUP),iWork(LRAW),iWork(LUSGN),iWork(LLSGN),
      &      nActEl,NLEV,NCONF,NTYP,
      &      iMode,jPrint,
-     &      iWork(KICONF(1)),
-     &      iWork(KCFTP),NCNATS(1,State_Sym),NCPCNT,
+     &      CNSM(1)%ICONF,
+     &      CFTP,NCNATS(1,State_Sym),NCPCNT,
      &      Work(ipCIL),Work(ipCInew),minop)
 CEAW970812     &      Work(ipCIL),Work(ipCInew))
       Call GetMem('OCIvec','Free','Real',ipCIL,nConf)

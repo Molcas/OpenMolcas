@@ -22,7 +22,7 @@ c Avoid unused argument warnings
       End If
 #else
       Subroutine RHS_PT2(rkappa,iprci)
-      use Arrays, only: CMO
+      use Arrays, only: CMO, DTOC, CNSM
       Implicit Real*8(a-h,o-z)
       Real*8 rKappa(*)
 *
@@ -45,7 +45,6 @@ c Avoid unused argument warnings
 #include "Files_mclr.fh"
 #ifndef _DEBUGED_
 #include "detdim.fh"
-#include "csfbas_mclr.fh"
 #endif
       Real*8, Allocatable:: DCAS(:), TempK(:), TempCI(:), TempCI2(:),
      &                      T2(:), FAO1(:), FAO2(:), FMO1(:), FMO2(:),
@@ -91,7 +90,7 @@ c Avoid unused argument warnings
       iprdia=0
       Call INCSFSD(STATE_SYM,STATE_SYM,.false.)
       CALL CSDTVC_MCLR(TempCI2,TempCI,2,
-     &                 WORK(KDTOC),iWORK(KICTS(1)),
+     &                 TOC,CNSM(1)%ICTS,
      &                 State_SYM,1,IPRDIA)
 #endif
       Call mma_deallocate(TempCI2)

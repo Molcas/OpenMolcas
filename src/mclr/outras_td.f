@@ -144,7 +144,6 @@
           If (CI)  Then
           Call GetMem('CI1','Free','Real',ipcip1,nconfM)
           End If
-*         Call GetMem('KICONF2','FREE','INTE',kiconf(2),idum)
           Call Getmem('rkappa3','FREE','Real',ipkap3,nDensC)
           Call Getmem('rkappa2','FREE','Real',ipkap2,nDensC)
           Call Getmem('rkappa1','FREE','Real',ipkap1,nDensC)
