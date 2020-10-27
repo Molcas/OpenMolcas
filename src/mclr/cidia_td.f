@@ -44,13 +44,11 @@
       If (NOCSF.eq.0) Then
         ncsf1=NCSASM(ISYM)
         nsd=max(ncsf(isym),nint(XISPSM(ISYM,1)))
-*       Call GetMem('DIAGCSF','ALLO','REAL',ipDCSF,nSD)
         ipdcsfi=ipget(nsd)
         ipdcsf=ipin(ipdcsfi)
         Call GetMem('DIAGSD','ALLO','REAL',ipDSD,nSD)
       Else
         nsd=max(ncsf(isym),nint(XISPSM(ISYM,1)))
-*       Call GetMem('DIAGSD','ALLO','REAL',ipDSD,nSD)
         ipDSDi=ipGet(nsd)
         ipdsd=ipin(ipdsdi)
       End If

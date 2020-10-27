@@ -13,6 +13,7 @@
       SubRoutine CIDIA(iSym,ralp)
       use Exp, only: nexp, nexp_max
       use Arrays, only: CNSM
+      use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 #include "crun_mclr.fh"
@@ -45,13 +46,11 @@
       If (NOCSF.eq.0) Then
         ncsf1=NCSASM(ISYM)
         nsd=max(ncsf(isym),nint(XISPSM(ISYM,1)))
-*       Call GetMem('DIAGCSF','ALLO','REAL',ipDCSF,nSD)
         ipdcsfi=ipget(nsd)
         ipdcsf=ipin(ipdcsfi)
         Call GetMem('DIAGSD','ALLO','REAL',ipDSD,nSD)
       Else
         nsd=max(ncsf(isym),nint(XISPSM(ISYM,1)))
-*       Call GetMem('DIAGSD','ALLO','REAL',ipDSD,nSD)
         ipDSDi=ipGet(nsd)
         ipdsd=ipin(ipdsdi)
       End If
@@ -82,34 +81,35 @@
       nq=0
       If (np2.ne.0) Then
        irc=ipnout(ipdiai)
-       call h0(Work(ipin(ipdiai)),np1,nexp_max,nq,isym,nexp,TimeDep)
+       irc=ipin(ipdiai)
+       call h0(W(ipdiai)%Vec,np1,nexp_max,nq,isym,nexp,TimeDep)
       Else
         nexp=0
       End if
 
-      ip=ipin(ipdiai)
 
       ECAS=ERASSCF(1)
+      irc=ipin(ipdiai)
       Do iC=1,nD
-       If ((Work(ip+ic-1)-ECAS).ne.0.0d0) Then
-        Work(ip+iC-1)=1.0d0/(Work(ip+ic-1)-ECAS)
-       Else
-        Work(ip+iC-1)=1.0d5
-       End If
+         If ((W(ipdiai)%Vec(ic)-ECAS).ne.0.0d0) Then
+            W(ipdiai)%Vec(iC)=1.0d0/(W(ipdiai)%Vec(iC)-ECAS)
+         Else
+            W(ipdiai)%Vec(iC)=1.0d5
+         End If
       End do
 *                 -1
 *     ralp=<0|(H-E) |0>
 *
       Call GetMem('TMP','ALLO','REAL',ipq,nD)
       call dcopy_(nD,[0.0d0],0,Work(ipq),1)
-      Call ExpHinvv(work(ipin(ipdiai)),Work(ipin(ipCI)),
-     &          Work(ipQ),0.0d0,1.0d0)
-      ralp=DDOT_(nD,Work(ipin(ipCI)),1,Work(ipQ),1)
-      irc=ipnout(ipdiai)
+      irc=ipin(ipCI)
+      Call ExpHinvv(W(ipdiai)%Vec,W(ipCI)%Vec,Work(ipQ),0.0d0,1.0d0)
+      ralp=DDOT_(nD,W(ipCI)%Vec,1,Work(ipQ),1)
       IF (NGP) Then
-         Call MKP1INV(work(ipin(ipdiai)))
-         Call MKCIPRE
+         Call MKP1INV(W(ipdiai)%Vec)
+         Call MKCIPRE()
       End If
+      irc=ipnout(ipdiai)
       Call GetMem('TMP','FREE','REAL',ipq,nD)
 
       ipdia=ipdiai
