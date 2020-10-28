@@ -586,16 +586,16 @@ c
            resci=0.0d0
 C
            If (CI) Then
-              Call DaXpY_(2*nConf1,ralpha,Work(ipin(ipCId)),1,
-     &                  Work(ipin(ipCIT)),1)
+              irc=ipin(ipCId)
+              irc=ipin(ipCIT)
+              Call DaXpY_(2*nConf1,ralpha,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
               irc=ipout(ipcit)
               irc=ipin1(ipST,2*nconf1)
-              Call DaXpY_(2*nConf1,-ralpha,Work(ipin(ipS1)),1,
-     &                                     W(ipST)%Vec,1)
+              irc=ipin(ipS1)
+              Call DaXpY_(2*nConf1,-ralpha,W(ipS1)%Vec,1,W(ipST)%Vec,1)
               irc=opout(ipS1)
-              ip=ipin(ipst)
-              resci=sqrt(0.5d0*ddot_(2*nconf1,Work(ip),1,
-     &                        Work(ip),1))
+              resci=sqrt(0.5d0*ddot_(2*nconf1,W(ipST)%Vec,1,
+     &                                        W(ipST)%Vec,1))
            End If
 *
 *-------------------------------------------------------------------*
@@ -606,10 +606,11 @@ C
 *
           irc=opout(ipcid)
           If (CI) Then
-             Call DMinvCI_td(work(ipin(ipST)),
-     &                          Work(ipin(ipS2)), -omega,isym)
-             Call DMinvCI_td(work(ipin(ipST)+nConf1),
-     &                          Work(ipin(ipS2)+nconf1),omega,isym)
+             irc=ipin(ipST)
+             irc=ipin(ipS2)
+             Call DMinvCI_td(W(ipST)%Vec,W(ipS2)%Vec, -omega,isym)
+             Call DMinvCI_td(W(ipST)%Vec(1+nConf1),
+     &                       W(ipS2)%Vec(1+nconf1),omega,isym)
 C
           End if
           irc=opout(ipci)
@@ -629,11 +630,13 @@ C
 *          dKappa=s+Beta*dKappa
 *
            If (CI) Then
-               deltaC=0.50d0*ddot_(2*nConf1,Work(ipin(ipST)),1,
-     &                     Work(ipin(ipS2)),1)
-           irc=ipout(ipST)
+              irc=ipin(ipST)
+              irc=ipin(ipS2)
+              deltaC=0.50d0*ddot_(2*nConf1,W(ipST)%Vec,1,
+     &                     W(ipS2)%Vec,1)
+              irc=ipout(ipST)
            else
-           deltaC=0.0d0
+              deltaC=0.0d0
            end if
 *
            deltaK=0.50d0*ddot_(nDensC,Sigma,1,Sc2,1)
@@ -645,10 +648,11 @@ C
            Else
              rbeta=(deltac+deltaK)/delta
              delta=deltac+deltaK
-             Call DScal_(2*nConf1,rBeta,Work(ipin(ipCID)),1)
+             irc=ipin(ipCID)
+             Call DScal_(2*nConf1,rBeta,W(ipCID)%Vec,1)
              Call DScal_(nDensC,rBeta,Temp2,1)
-             Call DaXpY_(2*nConf1,1.0d0,Work(ipin(ipS2)),1,
-     &                             Work(ipin(ipCID)),1)
+             irc=ipin(ipS2)
+             Call DaXpY_(2*nConf1,1.0d0,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
              Call DaXpY_(nDensC,1.0d0,sc2,1,Temp2,1)
              irc=opout(ipS2)
              irc=ipout(ipCID)
@@ -724,10 +728,11 @@ C
           If (CI) Then
             ilen=2*nconf1
             iCIDisp(iDisp)=iDis
-
-            Call dDaFile(LuTemp,1,Work(ipin(ipCIT)),iLen,iDis)
+            irc=ipin(ipCIT)
+            Call dDaFile(LuTemp,1,W(ipCIT)%Vec,iLen,iDis)
             iCISigDisp(iDisp)=iDis
-            Call dDaFile(LuTemp,1,Work(ipin(ipST)),iLen,iDis)
+            irc=ipin(ipST)
+            Call dDaFile(LuTemp,1,W(ipST)%Vec,iLen,iDis)
           End If
 *
           Call mma_deallocate(Temp4)
