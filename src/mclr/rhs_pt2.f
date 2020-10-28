@@ -23,6 +23,7 @@ c Avoid unused argument warnings
 #else
       Subroutine RHS_PT2(rkappa,iprci)
       use Arrays, only: CMO, DTOC, CNSM
+      use ipPage, only: W
       Implicit Real*8(a-h,o-z)
       Real*8 rKappa(*)
 *
@@ -191,9 +192,11 @@ c Avoid unused argument warnings
 *     <i|Sigma> = <i|F|0> - <0|F|0><i|0>+CI_a+CI_b
 *
       Call CISigma(0,State_sym,State_sym,FMO1,rdum,rdum,ipci,iprci,'N')
-      rE=ddot_(nconf1,Work(ipin(iprci)),1,Work(ipin(ipci)),1)
-      Call Daxpy_(nconf1,1.0d0,TempCI,1,Work(ipin(iprci)),1)
-      Call Daxpy_(nconf1,-rE,Work(ipin(ipCI)),1,Work(ipin(iprci)),1)
+      irc=ipin(iprci)
+      irc=ipin(ipci)
+      rE=ddot_(nconf1,W(iprci)%Vec,1,W(ipci)%Vec,1)
+      Call Daxpy_(nconf1,1.0d0,TempCI,1,W(iprci)%Vec,1)
+      Call Daxpy_(nconf1,-rE,W(ipCI)%Vec,1,W(iprci)%Vec,1)
 *==============================================================================*
 *
 *     D^CAS*P(PT2+CAS)

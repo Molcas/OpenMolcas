@@ -33,6 +33,7 @@
 * Author: Anders Bernhardsson, 1995                                *
 *         Theoretical Chemistry, University of Lund                *
 ********************************************************************
+      use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 
@@ -228,12 +229,13 @@
        Call CiSigma(0,State_Sym,iEor(State_sym-1,idsym-1)+1,
      &             Work(ipFix),Work(ipMx),rdum,ipCI,ipst,'N')
 *
+       irc=ipin(ipst)
        If (idsym.eq.1) Then
         EnA=E2(Work(ipFix),Work(ipmox),idsym-1,idisp)
-        Call DaXpY_(nConf1,-Ena,Work(ipin(ipCI))
-     &   ,1,Work(ipin(ipst)),1)
+        irc=ipin(ipCI)
+        Call DaXpY_(nConf1,-Ena,W(ipCI)%Vec,1,W(ipST)%Vec,1)
        End If
-       Call DSCAL_(nConf1,2.0d0,Work(ipin(ipst)),1)
+       Call DSCAL_(nConf1,2.0d0,W(ipST)%Vec,1)
       End If
 *
       Call DYAX(ndens2,2.0d0,rkappa,1,Temp1,1)
