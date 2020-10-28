@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Kap_CI(h1,h2,ips1)
+      Subroutine Kap_CI(h1,h2,ipS1)
+      use ipPage, only: W
       Implicit Real*8(a-h,o-z)
 
 #include "real.fh"
@@ -19,24 +20,31 @@
       Real*8, Allocatable :: R(:,:)
       Real*8 h1(*), h2(*)
       Real*8 rDum(1)
-      Call CISigma_sa(0,state_sym,state_sym,h1,h2,
-     &                rdum,ipCI,ips1,'N')
-      Call DSCAL_(nroots*ncsf(STATE_SYM),Two,
-     &           Work(ipin(ips1)),1)
+
+      Call CISigma_sa(0,state_sym,state_sym,h1,h2,rdum,ipCI,ipS1,'N')
+
+      irc=ipin(ipS1)
+      irc=ipin(ipCI)
+
+      Call DSCAL_(nroots*ncsf(STATE_SYM),Two,W(ipS1)%Vec,1)
       Call mma_allocate(R,[0,nroots-1],[0,nroots-1],label='R')
+
       Do i=0,nroots-1
        Do j=0,nroots-1
-        R(i,j)=ddot_(nconf1,Work(ipin(ips1)+nconf1*i),1,
-     &                     Work(ipin(ipci)+nconf1*j),1)
+        R(i,j)=ddot_(nconf1,W(ipS1)%Vec(1+nconf1*i),1,
+     &                     W(ipCI)%Vec(1+nconf1*j),1)
        End Do
       End Do
+
       Do i=0,nroots-1
        Do j=0,nroots-1
        call daxpy_(nconf1,-R(i,j),
-     &                   Work(ipin(ipci)+i*nconf1),1,
-     *                   Work(ipin(ipS1)+j*nconf1),1)
+     &                   W(ipCI)%Vec(1+i*nconf1),1,
+     *                   W(ipS1)%Vec(1+j*nconf1),1)
        End Do
       End Do
+
       Call mma_deallocate(R)
+
       Return
       End

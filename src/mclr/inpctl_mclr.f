@@ -23,6 +23,7 @@
 ************************************************************************
       use Arrays, only: DTOC
       use negpre
+      use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -44,8 +45,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Rd1Int_MCLR !Read in interesting info from RUNFILE and ONEINT
-      Call RdAB   ! Read in orbitals, perturbation type, etc.
+      !Read in interesting info from RUNFILE and ONEINT
+      Call Rd1Int_MCLR()
+      Call RdAB()   ! Read in orbitals, perturbation type, etc.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -58,9 +60,7 @@
 ************************************************************************
 *                                                                      *
 *     Default activate ippage utility
-
 *
-
       ldisk  =ipopen(0,.True.)
 *
       If (iMethod.eq.iCASSCF) Then
@@ -74,10 +74,6 @@
          Call DetCtl   ! set up determinant tables
 *....... Read in tables from disk
          Call InCsfSD(State_sym,State_sym,.true.)
-
-             !Call GetMem('CIvec','Allo','Real',ipNEW,NCONF)
-             !Call GetMem('OCIvec','Free','Real',ipCI,nConf)
-             !ipCI=ipNEW
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -148,31 +144,34 @@
 C        Write (*,*) 'iState,SA,nroots=',iState,SA,nroots
          If (SA.or.iMCPD) Then
             ipcii=ipget(nconf*nroots)
-            call dcopy_(nconf*nroots,Work(ipCI),1,Work(ipin(ipcii)),1)
+            irc=ipin(ipcii)
+            call dcopy_(nconf*nroots,Work(ipCI),1,W(ipcii)%Vec,1)
             nDisp=1
          Else
             ipcii=ipget(nconf)
+            irc=ipin(ipcii)
             ipCI_ = ipCI + (iState-1)*nConf
-            call dcopy_(nConf,Work(ipCI_),1,Work(ipin(ipcii)),1)
+            call dcopy_(nConf,Work(ipCI_),1,W(ipcii)%Vec,1)
             If (iRoot(iState).ne.1) Then
                Write (6,*) 'McKinley does not support computation of'
      &                   //' harmonic frequencies of excited states'
                Call Abend()
             End If
          End If
-C        Call RecPrt('CI vector',' ',Work(ipin(ipcii)),1,nConf)
+C        irc=ipin(ipcii)
+C        Call RecPrt('CI vector',' ',W(ipcii)%Vec,1,nConf)
          Call Getmem('CIVEC','FREE','REAL',ipci,idum)
          ipci=ipcii
          irc=ipout(ipci)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         If (ngp) Call rdciv
+         If (ngp) Call rdciv()
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call InpOne           ! read in oneham
+      Call InpOne()         ! read in oneham
       Call PrInp_MCLR(iPL)  ! Print all info
 *                                                                      *
 ************************************************************************
