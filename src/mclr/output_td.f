@@ -33,6 +33,7 @@
 *         Theoretical Chemistry, University of Lund                *
 ********************************************************************
        use Arrays, only: Hss
+       use ipPage, only: W
        Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 #include "Input.fh"
@@ -140,16 +141,18 @@
           If (CI) Then
             ilen=nCI
             idis=iCIDisp(iDisp)
-            Call dDaFile(LuTemp,2,Work(ipin(ipCIp1)),iLen,iDis)
+            irc=ipin(ipCIp1)
+            Call dDaFile(LuTemp,2,W(ipCIp1)%Vec,iLen,iDis)
             idis=iCISigDisp(idisp)
-            Call dDaFile(LuTemp,2,Work(ipin(ipSp)),iLen,iDis)
+            irc=ipin(ipSp)
+            Call dDaFile(LuTemp,2,W(ipSp)%Vec,iLen,iDis)
             idis=iRHSCIDisp(idisp)
-            Call dDaFile(LuTemp,2,Work(ipin(iprp1)),iLen,iDis)
+            irc=ipin(iprp1)
+            Call dDaFile(LuTemp,2,W(iprp1)%Vec,iLen,iDis)
             ii=ipin(ipsp)
             jj=ipin(iprp1)
-            Do i=0,nCI -1
-             Work(ii+i)=
-     &             -Work(ii+i)-Work(jj+i)
+            Do i=1,nCI
+             W(ipsp)%Vec(i)=-W(ipsp)%Vec(i)-W(iprp1)%Vec(i)
             End Do
           End If
 
@@ -184,10 +187,11 @@
                if (CI) Then
                 ilen=nCI
                 idis=iCIDisp(kDisp+ksym)
-                Call dDaFile(LuTemp,2,Work(ipin(ipCIp2)),iLen,iDis)
+                irc=ipin(ipCIp2)
+                Call dDaFile(LuTemp,2,W(ipCIp2)%Vec,iLen,iDis)
 *
-                rTempc1=DDot_(nCI,Work(ipin(ipCIp2)),1,
-     &                              Work(ipin(ipsp)),1)
+                irc=ipin(ipsp)
+                rTempc1=DDot_(nCI,W(ipCIp2)%Vec,1,W(ipsp)%Vec,1)
                Else
                 rtempc1=0.0d0
                End If
@@ -198,7 +202,8 @@
                If (CI) Then
                  ilen=nCI
                  idis=iRHSCIDisp(kdisp+ksym)
-                 Call dDaFile(LuTemp,2,Work(ipin(iprp2)),iLen,iDis)
+                 irc=ipin(iprp2)
+                 Call dDaFile(LuTemp,2,W(iprp2)%Vec,iLen,iDis)
                End If
 *
                Fact=1.0d0
@@ -216,13 +221,15 @@
                If (CI) Then
                  Fact=1.0d0
                  If (kdisp.eq.jdisp) Fact=2.0d0
+                  irc=ipin(ipCip1)
+                  irc=ipin(iprp2)
                   rTempc2=Fact*
-     &                DDot_(nCI   ,Work(ipin(ipCip1)),1,
-     &                            Work(ipin(iprp2)),1)
+     &                DDot_(nCI,W(ipCip1)%Vec,1,W(iprp2)%Vec,1)
                  If (kdisp.ne.jdisp) Then
+                  irc=ipin(iprp1)
+                  irc=ipin(ipCIp2)
                   rtempc3=1.0d0*
-     &                DDot_(nCI,Work(ipin(iprp1)),1,
-     &                            Work(ipin(ipCIp2)),1)
+     &                DDot_(nCI,W(iprp1)%Vec,1,W(ipCIp2)%Vec,1)
                  Else
                   rTempc3=0.0d0
                  End if

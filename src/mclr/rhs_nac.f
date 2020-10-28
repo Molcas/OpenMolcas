@@ -9,10 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine RHS_NAC(Fock)
+      use ipPage, only: W
       Implicit None
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "real.fh"
 #include "sa.fh"
@@ -52,9 +52,10 @@
       nConfR=Max(nconf1,nint(xispsm(1,1)))
       Call mma_allocate(CIL,nConfL,Label='CIL')
       Call mma_allocate(CIR,nConfR,Label='CIR')
-      Call CSF2SD(Work(ipIn(ipCI)+(NSSA(2)-1)*nconf1),CIL,1)
+      irc=ipIn(ipCI)
+      Call CSF2SD(W(ipCI)%Vec(1+(NSSA(2)-1)*nconf1),CIL,1)
       iRC=opout(ipCI)
-      Call CSF2SD(Work(ipIn(ipCI)+(NSSA(1)-1)*nconf1),CIR,1)
+      Call CSF2SD(W(ipCI)%Vec(1+(NSSA(1)-1)*nconf1),CIR,1)
       iRC=opout(ipCI)
       iRC=ipnout(-1)
       icsm=1
