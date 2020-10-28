@@ -24,6 +24,7 @@
 *                                                                      *
 ************************************************************************
       use Exp, Only: Exp_Close
+      use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
 *
 #include "WrkSpc.fh"
@@ -151,7 +152,8 @@
       npre2=npre(isym)
       ipPre2=ipGet(npre2)
 
-      Call Prec(Work(ipIn(ipPre2)),isym)
+      irc=ipIn(ipPre2)
+      Call Prec(W(ipPre2)%Vec,isym)
       irc=ipOut(ippre2)
 
 *
@@ -269,26 +271,27 @@
       Call mma_deallocate(FMO2t)
 
       troot = (irlxroot - 1)
+      irc=ipin(ipST)
+      irc=ipin(ipCI)
       Do i=0,nroots-1
         if (i.eq.troot) then
-          Call Dscal_(nconf1,(1/weight(i+1)),
-     &            Work(ipin(ipST)+i*nconf1),1)
-          rE=ddot_(nconf1,Work(ipin(ipST)+i*nconf1),1,
-     &         Work(ipin(ipci)+i*nconf1),1)
-          Call Daxpy_(nconf1,-rE,Work(ipin(ipCI)+i*nconf1),1,
-     &              Work(ipin(ipST)+i*nconf1),1)
+          Call Dscal_(nconf1,(1/weight(i+1)),W(ipST)%Vec(1+i*nconf1),1)
+          rE=ddot_(nconf1,W(ipST)%Vec(1+i*nconf1),1,
+     &                    W(ipCI)%Vec(1+i*nconf1),1)
+          Call Daxpy_(nconf1,-rE,W(ipCI)%Vec(1+i*nconf1),1,
+     &                           W(ipST)%Vec(1+i*nconf1),1)
 
         else
-        call dcopy_(nConf1,[Zero],0,Work(ipIn(ipst)+i*nconf1),1)
+        call dcopy_(nConf1,[Zero],0,W(ipst)%Vec(1+i*nconf1),1)
         end if
       Enddo
 
-      Call DSCAL_(nconf1*nroots,-2.0d0,Work(ipin(ipST)),1)
+      Call DSCAL_(nconf1*nroots,-2.0d0,W(ipST)%Vec,1)
 
       if (debug) then
       write(6,*) 'RHS CI part:'
       do iS=1,nconf1*nroots
-        write(6,*) Work(ipin(ipST)-1+iS)
+        write(6,*) W(ipST)%Vec(iS)
       end do
       end if
 
@@ -360,8 +363,10 @@
       If(debug)Write(6,*) 'Hi how about r1',r1
       Call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 
-      call dcopy_(nConf1*nroots,[Zero],0,Work(ipIn(ipCIT)),1)
-      call dcopy_(nConf1*nroots,[Zero],0,Work(ipIn(ipCID)),1)
+      irc=ipIn(ipCIT)
+      call dcopy_(nConf1*nroots,[Zero],0,W(ipCIT)%Vec,1)
+      irc=ipIn(ipCID)
+      call dcopy_(nConf1*nroots,[Zero],0,W(ipCID)%Vec,1)
       irc=ipOut(ipCIT)
       Call DSCAL_(nDensC,-One,Sigma,1)
 *
@@ -371,9 +376,13 @@
       deltaC=Zero
 !AMS _________________________________________________________
 !I need to read in the CI portion of the RHS here.
-      If (CI) Call DMinvCI_sa(ipST,Work(ipIn(ipS2)),rdum(1),isym,Fancy)
-      Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
-     &   Work(ipin(ipCId)),1)
+      If (CI) Then
+         irc=ipIn(ipS2)
+         Call DMinvCI_sa(ipST,W(ipS2)%Vec,rdum(1),isym,Fancy)
+      End If
+      irc=ipin(ipST)
+      irc=ipin(ipCId)
+      Call dcopy_(nconf1*nroots,W(ipST)%Vec,1,W(ipCId)%Vec,1)
 ********************
 *TRS
        Call mma_allocate(lmroots,nroots,Label='lmroots')
@@ -384,15 +393,16 @@
       Kap_New(:)=Zero
       Kap_New_Temp(:)=Zero
 *
-      Call DgeMV_('T', nconf1, nroots, One, work(ipin(ipci)),
-     &            nconf1,work(ipin(ipcid)+(irlxroot-1)*nconf1),
+      irc=ipin(ipCI)
+      Call DgeMV_('T', nconf1, nroots, One, W(ipCI)%Vec,
+     &            nconf1,W(ipCId)%Vec(1+(irlxroot-1)*nconf1),
      &            1,Zero,lmroots,1)
 *SA-SA rotations w/in SA space in eigen state basis
       if(debug) Call recprt('lmroots',' ',lmroots,1,nroots)
 *SA-SA rotations w/in SA space in CSF basis
-        call dgemv_('N', nconf1, nroots, One, work(ipin(ipci)),
+        call dgemv_('N', nconf1, nroots, One, W(ipCI)%Vec,
      &              nconf1, lmroots,1,Zero,
-     &              work(ipin(ipcid)+(irlxroot-1)*nconf1),1)
+     &              W(ipCId)%Vec(1+(irlxroot-1)*nconf1),1)
 *SA-SA rotations w/in SA space for new lagrange multipliers
        do i=1, nroots
           if (i.eq.irlxroot) then
@@ -409,16 +419,16 @@
 *
       if(debug) Call recprt('lmroots_new',' ',lmroots_new,1,nroots)
 *SA-SA rotations w/in SA space for new lagrange multipliers in csf basis
-        call dgemv_('N', nconf1, nroots, One, work(ipin(ipci)),
+        call dgemv_('N', nconf1, nroots, One, W(ipCI)%Vec,
      &              nconf1, lmroots_new,1,Zero,
-     &              work(ipin(ipcid)+(irlxroot-1)*nconf1),1)
+     &              W(ipcid)%Vec(1+(irlxroot-1)*nconf1),1)
 *
 *First iter of PCG
           Call TimesE2_(kap_new,ipCId,1,reco,jspin,ipS2,
      &                  kap_new_temp,ipS1)
 *
-        Call DgeMV_('T', nconf1, nroots, One, work(ipin(ipci)),
-     &              nconf1,work(ipin(ipst)+(irlxroot-1)*nconf1),
+        Call DgeMV_('T', nconf1, nroots, One, W(ipCI)%Vec,
+     &              nconf1,W(ipST)%Vec(1+(irlxroot-1)*nconf1),
      &              1,Zero,lmroots,1)
 *
        if (debug) then
@@ -426,8 +436,9 @@
           Call recprt('lmroots',' ',lmroots,1,nroots)
        end if
 *
-        Call DgeMV_('T', nconf1, nroots, One, work(ipin(ipci)),
-     &              nconf1,work(ipin(ips1)+(irlxroot-1)*nconf1),
+        irc=ipin(ipS1)
+        Call DgeMV_('T', nconf1, nroots, One, W(ipCI)%Vec,
+     &              nconf1,W(ipS1)%Vec(1+(irlxroot-1)*nconf1),
      &              1,Zero,lmroots,1)
 *
        if (debug) then
