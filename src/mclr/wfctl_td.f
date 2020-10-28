@@ -163,12 +163,13 @@ C
        ipPre2=ipget(npre2)
 *
 *
-        call Prec_dig(Work(ipin(ipPre2)),isym)
+        irc=ipin(ipPre2)
+        call Prec_dig(W(ipPre2)%Vec,isym)
 *
 *
         Call mma_allocate(DigPrec,nDensC,Label='DigPrec')
         DigPrec(:)=Zero
-        Call Prec_td(Work(ipin(ipPre2)),DigPrec,isym)
+        Call Prec_td(W(ipPre2)%Vec,DigPrec,isym)
 *
        irc=ipout(ippre2)
 *#endif
@@ -238,9 +239,10 @@ c
 c Make RHS twice as long and change sign on second part!
 c
            If (CI) Then
-               call dcopy_(nConf1,Work(ipin(ipst)),1,
-     &               Work(ipin(ipst)+nConf1),1)
-               call dscal_(nConf1,-1.0d0,Work(ipin(ipst)+nConf1),1)
+              irc=ipin(ipST)
+               call dcopy_(nConf1,W(ipST)%Vec(1),1,
+     &               W(ipST)%Vec(1+nConf1),1)
+               call dscal_(nConf1,-1.0d0,W(ipST)%Vec(1+nConf1),1)
            End If
 C
           irc=opout(ipci)
@@ -254,14 +256,17 @@ C
 *
           Call UnCompress(Sigma,Temp4,iSym)
           Call dDaFile(LuTemp,1,Sigma,iLen,iDis)
-          If (CI)
-     &    call dcopy_(2*nConf1,[0.0d0],0,Work(ipin(ipCIT)),1)
+          If (CI) Then
+             irc=ipin(ipCIT)
+             call dcopy_(2*nConf1,[0.0d0],0,W(ipCIT)%Vec,1)
+          End If
           irc=ipout(ipcit)
           If (CI) Then
             ilen=2*nconf1
             iRHSCIDisp(iDisp)=iDis
-            Call dDaFile(LuTemp,1,Work(ipin(ipST)),iLen,iDis)
-            Call DSCAL_(2*nConf1,-1.0d0,Work(ipin(ipST)),1)
+            irc=ipin(ipST)
+            Call dDaFile(LuTemp,1,W(ipST)%Vec,iLen,iDis)
+            Call DSCAL_(2*nConf1,-1.0d0,W(ipST)%Vec,1)
           End If
 *
          Call DMInvKap_td(DigPrec,Sigma,Kappa)
@@ -282,18 +287,16 @@ c Has to be modified: <i|H|i> --> <i|H|i>+w
 c
 
           If (CI) Then
-                Call DMinvCI_td(Work(ipin(ipST)),
-     &                          Work(ipin(ipCid)), -omega,isym)
-                Call DMinvCI_td(work(ipin(ipST)+nConf1),
-     &                          work(ipin(ipCId)+nconf1),
-     &                          omega,isym)
+             irc=ipin(ipST)
+             irc=ipin(ipCid)
+             Call DMinvCI_td(W(ipST)%Vec,
+     &                       W(ipCid)%Vec, -omega,isym)
+             Call DMinvCI_td(W(ipST)%Vec(1+nConf1),
+     &                       W(ipCId)%Vec(1+nconf1),
+     &                       omega,isym)
 C
-          End if
-
-*
-          If (CI) Then
-             deltaC= 0.50d0*ddot_(2*nConf1,Work(ipin(ipST)),1,
-     &                   Work(ipin(ipCId)),1)
+             deltaC= 0.50d0*ddot_(2*nConf1,W(ipST)%Vec,1,
+     &                   W(ipCId)%Vec,1)
              irc=ipout(ipcid)
           Else
             deltac=0.0d0
