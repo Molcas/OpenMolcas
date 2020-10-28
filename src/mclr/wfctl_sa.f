@@ -20,6 +20,7 @@
 *                                                                      *
 ************************************************************************
       use Exp, only: Exp_Close
+      use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
 *
 #include "WrkSpc.fh"
@@ -134,17 +135,18 @@
 *
       npre2=npre(isym)
       ipPre2=ipGet(npre2)
-
+      irc=ipIn(ipPre2)
       If (TwoStep.and.(StepType.eq.'RUN2')) Then
          ! fetch data from LuQDAT and skip the call to "Prec"
-         Call ddafile(LuQDAT,2,Work(ipIn(ipPre2)),npre2,iaddressQDAT)
+         Call ddafile(LuQDAT,2,W(ipPre2)%Vec,npre2,iaddressQDAT)
       Else
-         Call Prec(Work(ipIn(ipPre2)),isym)
+         Call Prec(W(ipPre2)%Vec,isym)
          irc=ipOut(ippre2)
          If (TwoStep.and.(StepType.eq.'RUN1')) Then
             ! save the computed data in "Prec" to LuQDAT and skip the
             ! following part of this function
-            Call ddafile(LuQDAT,1,Work(ipIn(ipPre2)),npre2,iaddressQDAT)
+            irc=ipIn(ipPre2)
+            Call ddafile(LuQDAT,1,W(ipPre2)%Vec,npre2,iaddressQDAT)
             Go To 193
          End If
       End If
@@ -207,13 +209,17 @@
       If(debug)Write(6,*) 'Hi how about r1',r1
       Call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 *
-      call dcopy_(nConf1*nroots,[Zero],0,Work(ipIn(ipCIT)),1)
-      call dcopy_(nConf1*nroots,[Zero],0,Work(ipIn(ipST)),1)
-      call dcopy_(nConf1*nroots,[Zero],0,Work(ipIn(ipCID)),1)
+      irc=ipIn(ipCIT)
+      irc=ipIn(ipST)
+      irc=ipIn(ipCID)
+      call dcopy_(nConf1*nroots,[Zero],0,W(ipCIT)%Vec,1)
+      call dcopy_(nConf1*nroots,[Zero],0,W(ipST)%Vec,1)
+      call dcopy_(nConf1*nroots,[Zero],0,W(ipCID)%Vec,1)
       irc=ipOut(ipCIT)
       Call DSCAL_(nDensC,-One,Sigma,1)
 *
-      Call DMInvKap(Work(ipIn(ipPre2)),Sigma,nDens2+6,
+      irc=ipIn(ipPre2)
+      Call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,
      &              Kappa,nDens2+6,Temp3,nDens2+6,
      &              isym,iter)
 
@@ -233,25 +239,26 @@
       delta0=delta
       iter=1
       If (delta.eq.Zero) Goto 300
-*-----------------------------------------------------------------------------
+*-----------------------------------------------------------------------
 *
 200   Continue
 *
          Call TimesE2(dKappa,ipCId,1,reco,jspin,ipS2,Temp4,ipS1)
 *
-*-----------------------------------------------------------------------------
+*-----------------------------------------------------------------------
 *
 *                   delta
 *        rAlpha=------------
 *               dKappa:dSigma
 *
-*-----------------------------------------------------------------------------
+*-----------------------------------------------------------------------
 *
          rAlphaK=Zero
          rAlphaK=ddot_(nDensC,Temp4,1,dKappa,1)
          rAlphaC=Zero
-         rAlphaC=ddot_(nConf1*nroots,Work(ipIn(ipS1)),1,
-     &                              Work(ipIn(ipCId)),1)
+         irc=ipIn(ipS1)
+         irc=ipIn(ipCId)
+         rAlphaC=ddot_(nConf1*nroots,W(ipS1)%Vec,1,W(ipCId)%Vec,1)
          rAlpha=delta/(rAlphaK+rAlphaC)
 *
 *-------------------------------------------------------------------*
@@ -262,16 +269,16 @@
          Call DaxPy_(nDensC,-ralpha,Temp4,1,Sigma,1)
          resk=sqrt(ddot_(nDensC,Sigma,1,Sigma,1))
          resci=Zero
-         Call DaXpY_(nConf1*nroots,ralpha,Work(ipIn(ipCId)),1,
-     &                                   Work(ipIn(ipCIT)),1)
+         irc=ipIn(ipCIT)
+         Call DaXpY_(nConf1*nroots,ralpha,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
          irc=ipOut(ipcit)
 *        ipST =ipST -rAlpha*ipS1         ipST=RHS-A*ipCIT
-         Call DaXpY_(nConf1*nroots,-ralpha,Work(ipIn(ipS1)),1,
-     &                                    Work(ipIn(ipST)),1)
+         irc=ipIn(ipS1)
+         irc=ipIn(ipST)
+         Call DaXpY_(nConf1*nroots,-ralpha,W(ipS1)%Vec,1,W(ipST)%Vec,1)
          irc=opOut(ipS1)
-         ip=ipIn(ipst)
-         resci=sqrt(ddot_(nconf1*nroots,Work(ip),1,
-     &                                 Work(ip),1))
+         irc=ipIn(ipST)
+         resci=sqrt(ddot_(nconf1*nroots,W(ipST)%Vec,1,W(ipST)%Vec,1))
 
 *-------------------------------------------------------------------*
 *
@@ -281,11 +288,13 @@
 *
          irc=opOut(ipcid)
 
-         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rdum(1),isym,Fancy)
+         irc=ipIn(ipS2)
+         Call DMinvCI_SA(ipST,W(ipS2)%Vec,rdum(1),isym,Fancy)
          irc=opOut(ipci)
          irc=opOut(ipdia)
 
-         Call DMInvKap(Work(ipIn(ipPre2)),Sigma,nDens2+6,
+         irc=ipIn(ipPre2)
+         Call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,
      &                 Sc2,nDens2+6,Sc1,nDens2+6,
      &                 iSym,iter)
          irc=opOut(ippre2)
@@ -299,8 +308,7 @@
 *
 *        dKappa=s+Beta*dKappa
 *
-         deltaC=ddot_(nConf1*nroots,Work(ipIn(ipST)),1,
-     &                             Work(ipIn(ipS2)),1)
+         deltaC=ddot_(nConf1*nroots,W(ipST)%Vec,1,W(ipS2)%Vec,1)
          irc=ipOut(ipST)
 *
          deltaK=ddot_(nDensC,Sigma,1,Sc2,1)
@@ -312,10 +320,10 @@
          Else
             rbeta=(deltac+deltaK)/delta
             delta=deltac+deltaK
-            Call DScal_(nConf1*nroots,rBeta,Work(ipIn(ipCID)),1)
+            irc=ipIn(ipCID)
+            Call DScal_(nConf1*nroots,rBeta,W(ipCID)%Vec,1)
             Call DScal_(nDensC,rBeta,dKappa,1)
-            Call DaXpY_(nConf1*nroots,One,Work(ipIn(ipS2)),1,
-     &                                     Work(ipIn(ipCID)),1)
+            Call DaXpY_(nConf1*nroots,One,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
             Call DaXpY_(nDensC,One,Sc2,1,dKappa,1)
             irc=opOut(ipS2)
             irc=ipOut(ipCID)
@@ -377,14 +385,16 @@
       ilen=nconf1*nroots
       iCIDisp(iDisp)=iDis
 *
-      Call dDaFile(LuTemp,1,Work(ipin(ipCIT)),iLen,iDis)
+      irc=ipin(ipCIT)
+      Call dDaFile(LuTemp,1,W(ipCIT)%Vec,iLen,iDis)
 *
 **MGD This last call seems unused, so I comment it
 *
 *      Call TimesE2(Kappa,ipCIT,1,reco,jspin,ipS2,
 *     &             Temp4,ipS2)
       iCISigDisp(iDisp)=iDis
-      Call dDaFile(LuTemp,1,Work(ipin(ipST)),iLen,iDis)
+      irc=ipin(ipST)
+      Call dDaFile(LuTemp,1,W(ipST)%Vec,iLen,iDis)
       end do ! iDisp
 *
       Call mma_deallocate(Temp4)
