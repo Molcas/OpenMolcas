@@ -40,6 +40,7 @@
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 *for the integrals needed in sigma gen
 #include "glbbas_mclr.fh"
 #include "lbbas1.fh"
@@ -51,6 +52,8 @@
      &      Temp2(nDens),Temp3(nDens),CMO(nCMO),Temp5(nDens),
      &      Temp6(nDens),temp7(ndens)
       Real*8 rDum(1)
+      Real*8, Allocatable:: MOX(:), MOT(:)
+
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
 *
@@ -129,14 +132,14 @@
 *
       rone=0.0d0
       If ((iMethod.eq.2).and.(n2dens.ne.0)) Then
-        Call GetMem('MOOIX','ALLO','REAL',ipMOX,n2dens)
-        call dcopy_(n2dens,[0.0d0],0,Work(ipMOX),1)
+        Call mma_allocate(MOX,n2dens,Label='MOX')
       Else
-        ipMOX = ip_Dummy
+        Call mma_allocate(MOX,1,Label='MOX')
       End If
+      MOX(:)=0.0D0
       Call GetMem('FIX','ALLO','REAL',ipFiX,nDens2)
       Call IntX(Work(ipFIX),temp7,temp6,temp5,temp4,rkappa,
-     &          Work(ipMOX),loper,idisp,rone)
+     &          MOX,loper,idisp,rone)
 *
 *-------------------------------------------------------------------*
 *
@@ -150,22 +153,22 @@
 *
       If (iAnd(ntpert(idisp),2**3).eq.8)  Then
        If (iMethod.eq.2) Then
-          Call GetMem('MOOIT','ALLO','REAL',ipMOT ,nmba)
+          Call mma_allocate(MOT ,nmba,Label='MOT')
           Call GetMem('MOOIT2','ALLO','REAL',ipMOT2,nmba)
-          call dcopy_(nmba,[0.0d0],0,work(ipMOT),1)
           call dcopy_(nmba,[0.0d0],0,work(ipMOT2),1)
        Else
-          ipMOT =ip_Dummy
+          Call mma_allocate(MOT ,   1,Label='MOT')
           ipMOT2=ip_Dummy
        End If
+       MOT(:)=0.0D0
 *
 *      kappa rmo Fi Fa
 *
-       Call r2ElInt(Temp1,Work(ipMOT),  Work(ipMOT2),
+       Call r2ElInt(Temp1,MOT,  Work(ipMOT2),
      &             Temp4,Temp5,ndens2,iDSym,1.0d0,-0.5d0,0)
 
        If (imethod.eq.2) Then
-           Call DaXpY_(nmba,1.0d0,Work(ipmot2),1,Work(ipmot),1 )
+           Call DaXpY_(nmba,1.0d0,Work(ipmot2),1,MOT,1 )
            Call GetMem('MOOIT2','FREE','REAL',ipMOT2,nmba)
        End If
 *----- ix  ix  ~i
@@ -175,7 +178,7 @@
 *
 
        If (iMethod.eq.2)
-     &  Call CreQ(Temp6,Work(ipMOT),Work(ipG2t),loper+1)
+     &  Call CreQ(Temp6,MOT,Work(ipG2t),loper+1)
 *
        Do iS=1,nSym
         jS=iEOr(iS-1,loper)+1
@@ -220,18 +223,18 @@
 *
 *---- Adds (pb|cd) to triangular (ab|cd)
       If (iMethod.eq.2.and.iAnd(ntpert(idisp),2**2).eq.4)
-     &Call ABXpY(Work(ipMOT),Work(ipMOX),idsym)
+     &Call ABXpY(MOT,MOX,idsym)
 *
       If (CI) Then
        ipMX=0
-       If (iAnd(ntPert(idisp),2**3).ne.0) ipMX=ipMOX
+       If (iAnd(ntPert(idisp),2**3).ne.0) ipMX=ip_of_work(MOX)
 *
        Call CiSigma(0,State_Sym,iEor(State_sym-1,idsym-1)+1,
      &             Work(ipFix),Work(ipMx),rdum,ipCI,ipst,'N')
 *
        irc=ipin(ipst)
        If (idsym.eq.1) Then
-        EnA=E2(Work(ipFix),Work(ipmox),idsym-1,idisp)
+        EnA=E2(Work(ipFix),MOX,idsym-1,idisp)
         irc=ipin(ipCI)
         Call DaXpY_(nConf1,-Ena,W(ipCI)%Vec,1,W(ipST)%Vec,1)
        End If
@@ -250,10 +253,9 @@
       End Do
 *
       Call GetMem('FIX','FREE','REAL',ipFix,ndens2)
-      If ((iMethod.eq.2).and.(n2dens.ne.0))
-     &    Call GetMem('MOOIX','FREE','REAL',ipMOX,n2dens)
+      If ((iMethod.eq.2).and.(n2dens.ne.0)) Call mma_deallocate(MOX)
       If (iMethod.eq.2.and.iAnd(ntpert(idisp),2**3).eq.8)
-     &   Call GetMem('MOOIT','FREE','REAL',ipMOT,nmba)
+     &   Call mma_deallocate(MOT)
 *                                                                      *
 ************************************************************************
 *                                                                      *

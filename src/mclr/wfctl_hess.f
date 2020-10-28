@@ -268,7 +268,9 @@ C     Do iSym=kksym,kkksym
            ipcid=0
         End If
 *
-        npre2=npre(isym)
+        npre2=Max(npre(isym),1) ! "Max" just there to make sure that
+!                                 W(ipPre2) is allocated even if
+!                                 npre2(isym) is zero.
         ipPre2=ipget(npre2)
         irc=ipin(ipPre2)
         call Prec(W(ipPre2)%Vec,isym)
