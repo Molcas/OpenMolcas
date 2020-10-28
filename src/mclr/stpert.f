@@ -8,17 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine StPert
+      SubRoutine StPert()
       Use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM,
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
-
+      use ipPage, only: W
       Implicit Real*8(a-h,o-z)
 
 #include "real.fh"
 #include "Input.fh"
 #include "Pointers.fh"
 #include "disp_mclr.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "spin.fh"
 #include "cstate_mclr.fh"
@@ -156,7 +155,8 @@
          Call mma_allocate(G1p,nG,Label='G1p')
          Call mma_allocate(G1m,nG,Label='G1m')
          itype=2
-         Call SpinDens(Work(ipin(ipCI)),Work(ipin(ipCI)),
+         irc=ipin(ipCI)
+         Call SpinDens(W(ipCI)%Vec,W(ipCI)%Vec,
      &                 STATE_SYM,STATE_SYM,G2mm,G2mp,G2pp,
      &                 Fm,Fp,G1m,G1p,iType)
 
