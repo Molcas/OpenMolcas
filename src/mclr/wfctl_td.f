@@ -389,18 +389,18 @@ c
 c
 c These terms are to be able to handel less converged CASSCF wave func
 c
+               irc=ipin(ipS1)
                If (isym.eq.1) Then
-                 rGrad=ddot_(nconf1,Work(ipin(ipCI)),1,
-     &                   Work(ipin(ips1)),1)
+                 irc=ipin(ipCI)
+                 rGrad=ddot_(nconf1,W(ipCI)%Vec,1,W(ipS1)%Vec,1)
+                 call daxpy_(nConf1,-rGrad,W(ipCI)%Vec,1,W(ipS1)%Vec,1)
+                 rGrad=ddot_(nconf1,W(ipCI)%Vec,1,
+     &                              W(ipS1)%Vec(1+nconf1),1)
                  call daxpy_(nConf1,-rGrad,
-     &                    Work(ipin(ipCI)),1,Work(ipin(ipS1)),1)
-                 rGrad=ddot_(nconf1,Work(ipin(ipCI)),1,
-     &                   Work(ipin(ips1)+nconf1),1)
-                 call daxpy_(nConf1,-rGrad,
-     &                     Work(ipin(ipCI)),1,Work(ipin(ipS1)+nconf1),1)
+     &                     W(ipCI)%Vec,1,W(ipS1)%Vec(1+nconf1),1)
                End if
-                call dscal_(nconf1,-1.0d0,Work(ipin(ips1)),1)
-                call dscal_(2*nconf1,2.0d0,Work(ipin(ips1)),1)
+               call dscal_(nconf1,-1.0d0, W(ipS1)%Vec,1)
+               call dscal_(2*nconf1,2.0d0,W(ipS1)%Vec,1)
 C
 C
 
@@ -441,11 +441,13 @@ c EC=-E[act]           E[RASSCF]=E[inact]+E[act]+E[nuc]
 c
              EC=rin_ene+potnuc-ERASSCF(1)
 *
-                Call DaXpY_(nConf1,EC,Work(ipin(ipCId)),1,
-     &                  Work(ipin(ipS2)),1)
-                Call DaXpY_(nConf1,EC,Work(ipin(ipCId)+nConf1),1,
-     &                  Work(ipin(ipS2)+nConf1),1)
-                call dscal_(2*nConf1,2.0d0,Work(ipin(ipS2)),1)
+             irc=ipin(ipCId)
+             irc=ipin(ipS2)
+             Call DaXpY_(nConf1,EC,W(ipCId)%Vec,1,
+     &                             W(ipS2)%Vec,1)
+             Call DaXpY_(nConf1,EC,W(ipCId)%Vec(1+nConf1),1,
+     &               W(ipS2)%Vec(1+nConf1),1)
+             call dscal_(2*nConf1,2.0d0,W(ipS2)%Vec,1)
 c
 c Add the wS contribution
 c The (-) sign in both daxpys assumes that the two parts of ipcid are def with diff sign.
@@ -453,10 +455,10 @@ c This is not true for the debug option!! ipcid = 1 regardless of part which par
 c The S-contribution will make E-wS loose its symmetry because E is sym and S
 c is antisym.
 c
-             Call DaXpY_(nConf1,-2.0d0*omega,Work(ipin(ipCId)),1,
-     &                  Work(ipin(ipS2)),1)
+             Call DaXpY_(nConf1,-2.0d0*omega,W(ipCId)%Vec,1,
+     &                                       W(ipS2)%Vec,1)
              Call DaXpY_(nConf1,2.0d0*omega,
-     &            Work(ipin(ipCId)+nConf1),1,Work(ipin(ipS2)+nConf1),1)
+     &            W(ipCId)%Vec(1+nConf1),1,W(ipS2)%Vec(1+nConf1),1)
              Clock(iTimeCC)=Clock(iTimeCC)+Tim4
 *
              irc=ipout(ips2)
@@ -489,10 +491,11 @@ c This if statement is just for better convergence! Grad term
 c Leave this for later!
 c
              If (isym.eq.1) Then
-                d_1=ddot_(nconf1,Work(ipin(ipCid)),1,
-     &                  Work(ipin(ipci)),1)
-                d_2=ddot_(nconf1,Work(ipin(ipCid)+nConf1),1,
-     &                  Work(ipin(ipci)),1)
+                irc=ipin(ipCid)
+                irc=ipin(ipci)
+                d_1=ddot_(nconf1,W(ipCid)%Vec,1,W(ipci)%Vec,1)
+                d_2=ddot_(nconf1,W(ipCid)%Vec(1+nConf1),1,
+     &                  W(ipci)%Vec,1)
                 d_0 = d_1 + d_2
              End If
 c
@@ -564,8 +567,9 @@ c
            If (orb)
      &      rAlphaK=0.5d0*ddot_(nDensC,Temp4,1,Temp2,1)
            If (CI) Then
-              rAlphaC=0.5d0*ddot_(2*nConf1,Work(ipin(ipS1)),1,
-     &                   Work(ipin(ipCId)),1)
+              irc=ipin(ipS1)
+              irc=ipin(ipCId)
+              rAlphaC=0.5d0*ddot_(2*nConf1,W(ipS1)%Vec,1,W(ipCId)%Vec,1)
            End If
            rAlpha=delta/(rAlphaK+ralphaC)
 *
