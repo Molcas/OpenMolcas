@@ -27,7 +27,6 @@
       use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
 *
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
 #include "Input.fh"
@@ -447,21 +446,23 @@
        end if
 * Initializing some of the elements of the PCG
 * Modifying the response
-       Call DaXpY_(nConf1*nroots,-One,Work(ipIn(ipS1)),1,
-     &                                Work(ipIn(ipST)),1)
+       irc=ipIn(ipS1)
+       irc=ipIn(ipST)
+       Call DaXpY_(nConf1*nroots,-One,W(ipS1)%Vec,1,W(ipST)%Vec,1)
 *
 *Kap part put into  sigma
-      Call DaxPy_(nDensC,-One,kap_new_temp,1,Sigma,1)
-      Call DaXpY_(nConf1*nroots,1.0d0,Work(ipIn(ipCId)),1,
-     &                                   Work(ipIn(ipCIT)),1)
+       Call DaxPy_(nDensC,-One,kap_new_temp,1,Sigma,1)
+       irc=ipIn(ipCId)
+       irc=ipIn(ipCIT)
+       Call DaXpY_(nConf1*nroots,1.0d0,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
 *
-       Call dcopy_(nconf1*nroots,Work(ipin(ipst)),1,
-     &                          Work(ipin(ipcid)),1)
+       Call dcopy_(nconf1*nroots,W(ipST)%Vec,1,W(ipCId)%Vec,1)
 *
-         irc=opOut(ipci)
-         irc=opOut(ipdia)
+       irc=opOut(ipci)
+       irc=opOut(ipdia)
 *
-         Call DMInvKap(Work(ipIn(ipPre2)),Sigma,nDens2+6,
+       irc=ipIn(ipPre2)
+       Call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,
      &                 dKappa,nDens2+6,Sc1,nDens2+6,iSym,iter)
          irc=opOut(ippre2)
          r2=ddot_(ndensc,dKappa,1,dKappa,1)
@@ -474,9 +475,11 @@
        Call mma_deallocate(lmroots_new)
 *TRS
 **********************
-        Call DgeMV_('T', nconf1, nroots, One, work(ipin(ipci)),
-     &              nconf1,work(ipin(ipst)+(irlxroot-1)*nconf1),
-     &              1,Zero,lmroots,1)
+       irc=ipin(ipCI)
+       irc=ipin(ipST)
+       Call DgeMV_('T', nconf1, nroots, One, W(ipci)%Vec,
+     &             nconf1,W(ipST)%Vec(1+(irlxroot-1)*nconf1),
+     &             1,Zero,lmroots,1)
 *
       if(debug) then
          write(6,*) 'lmroots_ipst this should be zero'
@@ -486,8 +489,8 @@
 *
 *
       If (CI) Then
-        deltaC=ddot_(nConf1*nroots,Work(ipin(ipST)),
-     &   1,Work(ipin(ipCId)),1)
+        irc=ipin(ipCId)
+        deltaC=ddot_(nConf1*nroots,W(ipST)%Vec,1,W(ipCId)%Vec,1)
         irc=ipout(ipcid)
       Else
         deltaC=0.0d0
@@ -529,8 +532,9 @@
          rAlphaK=Zero
          rAlphaK=ddot_(nDensC,Temp4,1,dKappa,1)
          rAlphaC=Zero
-         rAlphaC=ddot_(nConf1*nroots,Work(ipIn(ipS1)),1,
-     &                              Work(ipIn(ipCId)),1)
+         irc=ipIn(ipS1)
+         irc=ipIn(ipCId)
+         rAlphaC=ddot_(nConf1*nroots,W(ipS1)%Vec,1,W(ipCId)%Vec,1)
 *
          rAlpha=delta/(rAlphaK+rAlphaC)
 *
@@ -543,16 +547,15 @@
          resk=sqrt(ddot_(nDensC,Sigma,1,Sigma,1))
 *
          resci=Zero
-         Call DaXpY_(nConf1*nroots,ralpha,Work(ipIn(ipCId)),1,
-     &                                   Work(ipIn(ipCIT)),1)
-         irc=ipOut(ipcit)
+         irc=ipIn(ipCIT)
+         Call DaXpY_(nConf1*nroots,ralpha,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
+         irc=ipOut(ipCIT)
 *        ipST =ipST -rAlpha*ipS1         ipST=RHS-A*ipCIT
-         Call DaXpY_(nConf1*nroots,-ralpha,Work(ipIn(ipS1)),1,
-     &                                    Work(ipIn(ipST)),1)
+         irc=ipIn(ipS1)
+         irc=ipIn(ipST)
+         Call DaXpY_(nConf1*nroots,-ralpha,W(ipS1)%Vec,1,W(ipST)%Vec,1)
          irc=opOut(ipS1)
-         ip=ipIn(ipst)
-         resci=sqrt(ddot_(nconf1*nroots,Work(ip),1,
-     &                                 Work(ip),1))
+         resci=sqrt(ddot_(nconf1*nroots,W(ipST)%Vec,1,W(ipST)%Vec,1))
 *
 *-------------------------------------------------------------------*
 *
@@ -562,12 +565,14 @@
 *
          irc=opOut(ipcid)
 
-         Call DMinvCI_SA(ipST,Work(ipIn(ipS2)),rdum(1),isym,Fancy)
+         irc=ipIn(ipS2)
+         Call DMinvCI_SA(ipST,W(ipS2)%Vec,rdum(1),isym,Fancy)
 
          irc=opOut(ipci)
          irc=opOut(ipdia)
 *
-         Call DMInvKap(Work(ipIn(ipPre2)),Sigma,nDens2+6,
+         irc=ipIn(ipPre2)
+         Call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,
      &                 Sc2,nDens2+6,Sc1,nDens2+6,iSym,iter)
          irc=opOut(ippre2)
 *
@@ -582,8 +587,9 @@
 *
 *        dKappa=s+Beta*dKappa
 *
-         deltaC=ddot_(nConf1*nroots,Work(ipIn(ipST)),1,
-     &                             Work(ipIn(ipS2)),1)
+         irc=ipIn(ipST)
+         irc=ipIn(ipS2)
+         deltaC=ddot_(nConf1*nroots,W(ipST)%Vec,1,W(ipS2)%Vec,1)
 *
 *
          irc=ipOut(ipST)
@@ -598,10 +604,11 @@
             rbeta=(deltac+deltaK)/delta
             delta=deltac+deltaK
 
-            Call DScal_(nConf1*nroots,rBeta,Work(ipIn(ipCID)),1)
+            irc=ipIn(ipCID)
+            Call DScal_(nConf1*nroots,rBeta,W(ipCID)%Vec,1)
             Call DScal_(nDensC,rBeta,dKappa,1)
-            Call DaXpY_(nConf1*nroots,One,Work(ipIn(ipS2)),1,
-     &                                     Work(ipIn(ipCID)),1)
+            irc=ipIn(ipS2)
+            Call DaXpY_(nConf1*nroots,One,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
             Call DaXpY_(nDensC,One,Sc2,1,dKappa,1)
             irc=opOut(ipS2)
             irc=ipOut(ipCID)
@@ -663,10 +670,11 @@
        do i=1,ndens2
          write(6,*) Kappa(i)
        end do
-*         Call dcopy_(nconf1*nroots,0.0d0,0,Work(ipin(ipCIT)),1)
+       irc=ipin(ipCIT)
+*      Call dcopy_(nconf1*nroots,0.0d0,0,W(ipCIT)%Vec,1)
        write(6,*) 'cit'
        do i=1,nconf1*nroots
-         write(6,*) Work(ipin(ipCIT)-1+i)
+         write(6,*) W(ipCIT)%Vec(i)
        end do
       end if
 *
@@ -679,14 +687,15 @@
       ilen=nconf1*nroots
       iCIDisp(iDisp)=iDis
 *
-      Call dDaFile(LuTemp,1,Work(ipin(ipCIT)),iLen,iDis)
+      irc=ipin(ipCIT)
+      Call dDaFile(LuTemp,1,W(ipCIT)%Vec,iLen,iDis)
 *
 **MGD This last call seems unused, so I comment it
 *
-*      Call TimesE2(Kappa,ipCIT,1,reco,jspin,ipS2,
-*     &             Temp4,ipS2)
+*      Call TimesE2(Kappa,ipCIT,1,reco,jspin,ipS2,Temp4,ipS2)
       iCISigDisp(iDisp)=iDis
-      Call dDaFile(LuTemp,1,Work(ipin(ipST)),iLen,iDis)
+      irc=ipin(ipST)
+      Call dDaFile(LuTemp,1,W(ipST)%Vec,iLen,iDis)
       end do
 *
       Call mma_deallocate(Sc2)
@@ -724,8 +733,8 @@
 
       Subroutine TimesE2_(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
 *
+      use ipPage, only: W
       Implicit Real*8(a-h,o-z)
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "Pointers.fh"
 #include "dmrginfo_mclr.fh"
@@ -748,6 +757,7 @@
         call dmrg_spc_change_mclr(RGras2(1:8),nash)
         call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
       end if
+
       Call Uncompress(Kap,Sc1,isym)
       Call RInt_generic(SC1,rmoaa,rdum,Sc2,Temp3,Temp4,Sc3,
      &                 isym,reco,jspin)
@@ -761,9 +771,9 @@
       Call Compress(Sc1,KapOut,isym)   ! ds
 *     Call RecPrt('Ex',' ',KapOut,ndensC,1)
 *
-      Call DaXpY_(nConf1*nroots,One,
-     &               Work(ipin(ipS2)),1,
-     &               Work(ipin(ipCIOUT)),1)
+      irc=ipin(ipS2)
+      irc=ipin(ipCIOUT)
+      Call DaXpY_(nConf1*nroots,One,W(ipS2)%Vec,1,W(ipCIOUT)%Vec,1)
       irc=opOut(ipCId)
 
 *

@@ -434,9 +434,8 @@
       End
 
       Subroutine TimesE2(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
-
+      use ipPage, only: w
       Implicit Real*8(a-h,o-z)
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "Pointers.fh"
 #include "dmrginfo_mclr.fh"
@@ -476,9 +475,11 @@
       Call Compress(Sc1,KapOut,isym)   ! ds
 *     Call RecPrt('Ex',' ',KapOut,ndensC,1)
 *
+      irc=ipin(ipS2)
+      irc=ipin(ipCIOUT)
       Call DaXpY_(nConf1*nroots,One,
-     &               Work(ipin(ipS2)),1,
-     &               Work(ipin(ipCIOUT)),1)
+     &               W(ipS2)%Vec,1,
+     &               W(ipCIOUT)%Vec,1)
       irc=opOut(ipCId)
 
 *

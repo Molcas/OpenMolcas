@@ -13,6 +13,7 @@
 *                                                                  *
 ********************************************************************
        use Arrays, only: CMO
+       use ipPage, only: W
        Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 
@@ -86,7 +87,8 @@
          ilen=nconf1*nroots ! nroot = # of roots in SA
          ipcip=ipget(nconf1*nroots)
          iDisk=iCIDisp(1)
-         Call dDaFile(LuTemp,2,Work(ipin(ipCIp)),iLen,iDisk)
+         irc=ipin(ipCIp)
+         Call dDaFile(LuTemp,2,W(ipCIp)%Vec,iLen,iDisk)
 *
 *-------Calculate the densities that correct the nonvariational CI stuff
 *

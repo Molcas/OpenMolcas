@@ -270,7 +270,8 @@ C     Do iSym=kksym,kkksym
 *
         npre2=npre(isym)
         ipPre2=ipget(npre2)
-        call Prec(Work(ipin(ipPre2)),isym)
+        irc=ipin(ipPre2)
+        call Prec(W(ipPre2)%Vec,isym)
         irc=ipout(ippre2)
 *                                                                      *
 ************************************************************************
@@ -368,29 +369,32 @@ C         iDisp=iDisp+1
           r1=ddot_(ndensc,sigma,1,sigma,1)
           Call UnCompress(Sigma,Temp4,iSym)
           Call dDaFile(LuTemp,1,Sigma,iLen,iDis)
-          If (CI) call dcopy_(nConf1,[Zero],0,Work(ipin(ipCIT)),1)
+          If (CI) Then
+             irc=ipin(ipCIT)
+             W(ipCIT)%Vec(1:nConf1)=Zero
+          End If
           irc=ipout(ipCIT)
           If (CI) Then
              ilen=nconf1
              iRHSCIDisp(iDisp)=iDis
-             Call dDaFile(LuTemp,1,Work(ipin(ipST)),iLen,iDis)
-             Call DSCAL_(nConf1,-One,Work(ipin(ipST)),1)
+             irc=ipin(ipST)
+             Call dDaFile(LuTemp,1,W(ipST)%Vec,iLen,iDis)
+             Call DSCAL_(nConf1,-One,W(ipST)%Vec,1)
           End If
 *
           Call DSCAL_(nDensC,-One,Sigma,1)
 *
 #ifdef _DEBUGPRINT_
-          Write (LuWr,*) 'ST=',DDot_(nConf1,Work(ipin(ipST)),1,
-     &                                     Work(ipin(ipST)),1)
-          Write (LuWr,*) 'Sigma=',DDot_(nDensC,Sigma,1,
-     &                                        Sigma,1)
-          Write (LuWr,*) 'Kappa=',DDot_(nDens2,Kappa,1,
-     &                                      Kappa,1)
+          irc=ipin(ipST)
+          Write (LuWr,*) 'ST=',DDot_(nConf1,W(ipST)%Vec,1,W(ipST)%Vec,1)
+          Write (LuWr,*) 'Sigma=',DDot_(nDensC,Sigma,1,Sigma,1)
+          Write (LuWr,*) 'Kappa=',DDot_(nDens2,Kappa,1,Kappa,1)
           Write (LuWr,*) 'End RHS!'
 #endif
 *
           iter=1
-          Call DMInvKap(Work(ipin(ipPre2)),Sigma,nDens2+6,
+          irc=ipin(ipPre2)
+          Call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,
      &                  Kappa,nDens2+6,Temp3,nDens2+6,
      &                  isym,iter)
           irc=opout(ippre2)
@@ -404,10 +408,11 @@ C         iDisp=iDisp+1
      &         'Warning  perturbation number ',idisp,' might diverge!'
           Call UnCompress(Kappa,dKappa,iSym)
 *
-          If (CI) Call DMinvCI(ipST,Work(ipin(ipCId)), rCHC,isym)
-*
           If (CI) Then
-             deltaC=ddot_(nConf1,Work(ipin(ipST)),1,Work(ipin(ipCId)),1)
+             irc=ipin(ipCId)
+             Call DMinvCI(ipST,W(ipCId)%Vec, rCHC,isym)
+             irc=ipin(ipST)
+             deltaC=ddot_(nConf1,W(ipST)%Vec,1,W(ipCId)%Vec,1)
              irc=ipout(ipcid)
           Else
              deltaC=Zero
@@ -485,13 +490,15 @@ C         iDisp=iDisp+1
      &                       ipCI,ipS1,'N')
                 Clock(iTimeKC)=Clock(iTimeKC)+Tim3
 #ifdef _DEBUGPRINT_
+                irc=ipin(ipCI )
+                irc=ipin(ipS1 )
                 Write (LuWr,*) 'CISigma'
-                Call RecPrt('CI ','(3F10.4)',Work(ipin(ipCI )),1,nConf1)
-                Call RecPrt('S1 ','(3F10.4)',Work(ipin(ipS1 )),1,nConf1)
-                Write (LuWr,*) 'CI=',DDot_(nConf1,Work(ipin(ipCI)),1,
-     &                                           Work(ipin(ipCI)),1)
-                Write (LuWr,*) 'S1=',DDot_(nConf1,Work(ipin(ipS1)),1,
-     &                                           Work(ipin(ipS1)),1)
+                Call RecPrt('CI ','(3F10.4)',W(ipCI )%Vec,1,nConf1)
+                Call RecPrt('S1 ','(3F10.4)',W(ipS1 )%Vec,1,nConf1)
+                Write (LuWr,*) 'CI=',DDot_(nConf1,W(ipCI)%Vec,1,
+     &                                            W(ipCI)%Vec,1)
+                Write (LuWr,*) 'S1=',DDot_(nConf1,W(ipS1)%Vec,1,
+     &                                            W(ipS1)%Vec,1)
                 Write (LuWr,*) 'End CISigma'
 #endif
 *
@@ -503,13 +510,14 @@ C         iDisp=iDisp+1
 *
 *               when the wavefunction is converged.
 *
+                irc=ipin(ipS1)
                 If (isym.eq.1) Then
-                   rGrad=DDot_(nconf1,Work(ipin(ipCI)),1,
-     &                        Work(ipin(ipS1)),1)
-                   call daxpy_(nConf1,-rgrad,
-     &                        Work(ipin(ipCI)),1,Work(ipin(ipS1)),1)
+                   irc=ipin(ipCI)
+                   rGrad=DDot_(nconf1,W(ipCI)%Vec,1,W(ipS1)%Vec,1)
+                   call daxpy_(nConf1,-rgrad,W(ipCI)%Vec,1,
+     &                                       W(ipS1)%Vec,1)
                 End IF
-                call dscal_(nconf1,Two,Work(ipin(ips1)),1)
+                call dscal_(nconf1,Two,W(ipS1)%Vec,1)
 *
                 irc=opout(ipCI)
              End If
@@ -541,13 +549,14 @@ C         iDisp=iDisp+1
      &                     ipCId,ipS2,'N')
               EC=rin_ene+potnuc-ERASSCF(1)
 
-              Call DaXpY_(nConf1,EC,Work(ipin(ipCId)),1,
-     &                   Work(ipin(ipS2)),1)
-              Call DSCAL_(nConf1,Two,Work(ipin(ipS2)),1)
+              irc=ipin(ipCId)
+              irc=ipin(ipS2)
+              Call DaXpY_(nConf1,EC,W(ipCId)%Vec,1,W(ipS2)%Vec,1)
+              Call DSCAL_(nConf1,Two,W(ipS2)%Vec,1)
               Clock(iTimeCC)=Clock(iTimeCC)+Tim4
-              irc=ipout(ips2)
-              irc=opout(ipcid)
-              irc=opout(ipci)
+              irc=ipout(ipS2)
+              irc=opout(ipCId)
+              irc=opout(ipCI)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -561,8 +570,10 @@ C         iDisp=iDisp+1
               Response=.true.
               irc=ipnout(-1)
 #ifdef _DEBUGPRINT_
-              Call RecPrt('CI ','(3F10.4)',Work(ipin(ipCI )),1,nConf1)
-              Call RecPrt('CId','(3F10.4)',Work(ipin(ipCId)),1,nConf1)
+              irc=ipin(ipCI )
+              irc=ipin(ipCId)
+              Call RecPrt('CI ','(3F10.4)',W(ipCI )%Vec,1,nConf1)
+              Call RecPrt('CId','(3F10.4)',W(ipCId)%Vec,1,nConf1)
 #endif
               Call CIDens(Response,ipCI,ipCId,
      &                    State_sym,
@@ -582,8 +593,11 @@ C         iDisp=iDisp+1
 *             This is just for debugging purpose.
 *             When we use it for actual calculations d_0 == 0
 *
-              If (isym.eq.1)
-     &        d_0=ddot_(nconf1,Work(ipin(ipCid)),1,Work(ipin(ipCi)),1)
+              If (isym.eq.1) Then
+                 irc=ipin(ipCI)
+                 irc=ipin(ipCid)
+                 d_0=ddot_(nconf1,W(ipCid)%Vec,1,W(ipCI)%Vec,1)
+              End If
               If (Response) d_0=d_0*Two
 *
 
@@ -658,18 +672,20 @@ C         iDisp=iDisp+1
 *
            rAlphaC=Zero
            rAlphaK=Zero
+           irc=ipin(ipS1)
+           irc=ipin(ipCId)
            If (orb) rAlphaK=DDot_(nDensC,Temp4,1,Temp2,1)
-           If (CI)  rAlphaC=DDot_(nConf1,Work(ipin(ipS1)),1,
-     &                                  Work(ipin(ipCId)),1)
+           If (CI)  rAlphaC=DDot_(nConf1,W(ipS1)%Vec,1,
+     &                                   W(ipCId)%Vec,1)
            rAlpha=delta/(rAlphaK+rAlphaC)
 #ifdef _DEBUGPRINT_
            Write (LuWr,*) 'At PCG'
            Write (LuWr,*) 'S1=',
-     &                      DDot_(nConf1,Work(ipin(ipS1 )),1,
-     &                                  Work(ipin(ipS1 )),1)
+     &                      DDot_(nConf1,W(ipS1 )%Vec,1,
+     &                                   W(ipS1 )%Vec,1)
            Write (LuWr,*) 'CId=',
-     &                      DDot_(nConf1,Work(ipin(ipCId)),1,
-     &                                  Work(ipin(ipCId)),1)
+     &                      DDot_(nConf1,W(ipCId)%Vec,1,
+     &                                   W(ipCId)%Vec,1)
            Write (LuWr,*) 'rAlphaK, rAlphaC, rAlpha=',
      &                     rAlphaK, rAlphaC, rAlpha
 #endif
@@ -686,15 +702,15 @@ C         iDisp=iDisp+1
            End If
            resci=Zero
            If (CI) Then
-              Call DaXpY_(nConf1,ralpha,Work(ipin(ipCId)),1,
-     &                   Work(ipin(ipCIT)),1)
-              irc=ipout(ipcit)
+              irc=ipin(ipCIT)
+              Call DaXpY_(nConf1,ralpha,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
+              irc=ipout(ipCIT)
               irc=ipin1(ipST,nconf1)
-              Call DaXpY_(nConf1,-ralpha,Work(ipin(ipS1)),1,
-     &                   W(ipST)%Vec,1)
+              irc=ipin(ipS1)
+              Call DaXpY_(nConf1,-ralpha,W(ipS1)%Vec,1,W(ipST)%Vec,1)
               irc=opout(ipS1)
-              ip=ipin(ipST)
-              resci=sqrt(ddot_(nconf1,Work(ip),1,Work(ip),1))
+              irc=ipin(ipST)
+              resci=sqrt(ddot_(nconf1,W(ipST)%Vec,1,W(ipST)%Vec,1))
            End If
 *                                                                      *
 ************************************************************************
@@ -703,14 +719,16 @@ C         iDisp=iDisp+1
 *             -1
 *          S=M  Sigma
 *
-          irc=opout(ipcid)
-          If (CI) Call DMinvCI(ipST,Work(ipin(ipS2)),rCHC,isym)
-          irc=opout(ipci)
+          irc=opout(ipCID)
+          irc=ipin(ipS2)
+          If (CI) Call DMinvCI(ipST,W(ipS2)%Vec,rCHC,isym)
+          irc=opout(ipCI)
           irc=opout(ipdia)
 *
-           Call DMInvKap(Work(ipin(ipPre2)),Sigma,nDens2+6,
-     &                   Sc2,nDens2+6,Sc1,nDens2+6,iSym,iter)
-           irc=opout(ippre2)
+          irc=ipin(ipPre2)
+          Call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,
+     &                  Sc2,nDens2+6,Sc1,nDens2+6,iSym,iter)
+          irc=opout(ippre2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -723,7 +741,9 @@ C         iDisp=iDisp+1
 *          dKappa=s+Beta*dKappa
 *
            If (CI) Then
-              deltaC=ddot_(nConf1,Work(ipin(ipST)),1,Work(ipin(ipS2)),1)
+              irc=ipin(ipS2)
+              irc=ipin(ipST)
+              deltaC=ddot_(nConf1,W(ipST)%Vec,1,W(ipS2)%Vec,1)
               irc=ipout(ipST)
            Else
               deltaC=Zero
@@ -738,10 +758,11 @@ C         iDisp=iDisp+1
            Else
               rbeta=(deltac+deltaK)/delta
               delta=deltac+deltaK
-              Call DScal_(nConf1,rBeta,Work(ipin(ipCID)),1)
+              irc=ipin(ipCID)
+              Call DScal_(nConf1,rBeta,W(ipCID)%Vec,1)
               Call DScal_(nDensC,rBeta,Temp2,1)
-              Call DaXpY_(nConf1,One,Work(ipin(ipS2)),1,
-     &                                Work(ipin(ipCID)),1)
+              irc=ipin(ipS2)
+              Call DaXpY_(nConf1,One,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
               Call DaXpY_(nDensC,One,Sc2,1,Temp2,1)
               irc=opout(ipS2)
               irc=ipout(ipCID)
@@ -840,9 +861,11 @@ C         Write(LuWr,Fmt2//'A)')'Writing response to one-file.'
           If (CI) Then
              ilen=nconf1
              iCIDisp(iDisp)=iDis
-             Call dDaFile(LuTemp,1,Work(ipin(ipCIT)),iLen,iDis)
+             irc=ipin(ipCIT)
+             Call dDaFile(LuTemp,1,W(ipCIT)%Vec,iLen,iDis)
              iCISigDisp(iDisp)=iDis
-             Call dDaFile(LuTemp,1,Work(ipin(ipST)),iLen,iDis)
+             irc=ipin(ipST)
+             Call dDaFile(LuTemp,1,W(ipST)%Vec,iLen,iDis)
           End If
 *
           If (CI) Then

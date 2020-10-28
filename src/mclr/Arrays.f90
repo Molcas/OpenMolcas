@@ -23,6 +23,8 @@ Real*8, Allocatable:: Fm(:), Fp(:)
 Real*8, Allocatable:: G1p(:), G1m(:)
 Real*8, Allocatable:: CMO_Inv(:)
 Real*8, Allocatable:: CMO(:)
+
+
 !     DFTP          :        OPEN SHELL DETERMINANTS OF PROTO TYPE
 !     CFTP          :        BRANCHING DIAGRAMS FOR PROTO TYPES
 !     DTOC          :        CSF-DET TRANSFORMATION FOR PROTO TYPES
@@ -30,9 +32,6 @@ Real*8, Allocatable:: CMO(:)
 !     CNSM(I)%ICTS  :        adress of determinant I in STRING ordering for
 !                            determinant I in CSF ordering
 !                            reference symmetry IREFSM.
-
-
-
 Integer, Allocatable:: DFTP(:)
 Integer, Allocatable:: CFTP(:)
 Real*8,  Allocatable:: DTOC(:)
