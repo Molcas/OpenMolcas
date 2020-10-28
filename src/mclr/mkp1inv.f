@@ -9,11 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine mkp1inv(rdia)
+      use negpre
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 
 #include "Input.fh"
-#include "negpre.fh"
 #include "WrkSpc.fh"
 #include "incdia.fh"
       Real*8 rdia(*)

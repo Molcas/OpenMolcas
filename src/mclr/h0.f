@@ -12,6 +12,7 @@
 ************************************************************************
       Subroutine H0(rdia,MP1,MP2,MQ,isym,nprciv,TimeDep)
       Use Exp, only: H0S, H0F, SBIDT
+      use negpre
       Use Iso_C_Binding
 *
 * frontend to jeppes explicit routines
@@ -27,7 +28,6 @@
 #include "incdia.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "negpre.fh"
       Real*8 rdia(*)
       Logical TimeDep
       Real*8, Allocatable:: H0T(:), Vec2(:)

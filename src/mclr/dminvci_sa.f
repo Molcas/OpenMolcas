@@ -10,11 +10,11 @@
 ************************************************************************
       SubRoutine DMinvCI_sa(ipSigma,rout,rC_HE_C,idsym,S)
       use ipPage, only: W
+      use negpre
       Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "negpre.fh"
 #include "incdia.fh"
       Real*8 rC_HE_C
       Integer idsym

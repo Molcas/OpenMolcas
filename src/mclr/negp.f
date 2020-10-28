@@ -8,7 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine negp(ipdia,ipsigma,rout)
+      Subroutine negp(ipdia,ipSigma,rout)
+      use ipPage, only: W
+      use negpre
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -16,7 +18,6 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "real.fh"
-#include "negpre.fh"
       integer opout
       Real*8 rout(*)
       Real*8, Allocatable:: Tmp(:), Tmp2(:,:), Tmp3(:,:)
@@ -28,20 +29,21 @@
       Call mma_allocate(Tmp2,2,lRoots,Label='Tmp2')
       Call mma_allocate(Tmp3,2,lRoots,Label='Tmp3')
 
+      irc=ipin(ipSigma)
       Do i=1,lroots
          Call dDAFILE(luciv,2,Tmp,nconf,idisk)
          Tmp2(1,i)=DDOT_(nconf,rout,1,Tmp,1)
-         Tmp2(2,i)=DDOT_(nconf,Work(ipin(ipSigma)),1,Tmp,1)
+         Tmp2(2,i)=DDOT_(nconf,W(ipSigma)%Vec,1,Tmp,1)
       End Do
       irc=ipout(ipsigma)
       Call dGeMV_('N',2*lroots,2*lroots,One,
-     &                     Work(ipSS),2*lroots,Tmp2,1,
-     &                     Zero,Tmp3,1)
+     &            SS,2*lroots,Tmp2,1,Zero,Tmp3,1)
 
       idisk=0
+      irc=ipin(ipdia)
       Do i=1,lroots
          Call dDAFILE(luciv,2,Tmp,nconf,idisk)
-         Call Exphinvv(Work(ipin(ipdia)),Tmp,rout,One,Tmp3(1,i))
+         Call Exphinvv(W(ipdia)%Vec,Tmp,rout,One,Tmp3(1,i))
          call daxpy_(nConf,Tmp3(2,i),Tmp,1,rout,1)
       End Do
 

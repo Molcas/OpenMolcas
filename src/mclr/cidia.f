@@ -14,6 +14,7 @@
       use Exp, only: nexp, nexp_max
       use Arrays, only: CNSM
       use ipPage, only: W
+      use negpre
       Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 #include "crun_mclr.fh"
@@ -24,7 +25,6 @@
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "negpre.fh"
       Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
       Real*8, Allocatable:: Q(:)
 *

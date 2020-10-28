@@ -9,11 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine mkp1(nEX,lst,rMat,rdiag)
+      use negpre
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 
 #include "Input.fh"
-#include "negpre.fh"
 #include "WrkSpc.fh"
       Real*8 rMat(*),rdiag(*)
       Integer lst(nex)

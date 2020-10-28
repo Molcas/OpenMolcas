@@ -42,6 +42,7 @@
       use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM, SFock,
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m,
      &                  CMO_Inv, CMO, DFTP, CFTP, DTOC, CNSM
+      use negpre, only: SS
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "warnings.fh"
@@ -78,8 +79,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*
-*
       iAllo=0
 c      idp=rtoi
       nrec=MBl_wa/rtob
@@ -110,7 +109,6 @@ c      idp=rtoi
 !       open(unit=117,file="mclr_dets.initial")
 !      end if
 #endif
-
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -118,14 +116,12 @@ c      idp=rtoi
 *
       Call OpnFls_MCLR(iPL)
       Call IpInit()
-
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Read input
 *
       Call InpCtl_MCLR(iPL)
-
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -148,11 +144,8 @@ c      idp=rtoi
       end do
 
       Call Start_MCLR()
-
 *
       nisp=max(8,nDisp)
-*
-
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -180,7 +173,6 @@ c      idp=rtoi
          ifpSC=1
          ifpRHSCI=1
       End If
-
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -190,8 +182,6 @@ c      idp=rtoi
 *
 *     Output is stored on disk
 *
-*
-
       If (SPINPOL) Then
          Call WfCtl_SP(iWork(ifpK),iWork(ifpS),iWork(ifpCI),
      &                 iWork(ifpSC),iWork(ifpRHS),iWork(ifpRHSCI))
@@ -216,8 +206,6 @@ c      idp=rtoi
      &                   iWork(ifpSC),iWork(ifpRHS),iWork(ifpRHSCI),
      &                   converged)
       End If
-
-
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -250,7 +238,6 @@ c      idp=rtoi
 *                                                                      *
 ************************************************************************
 *                                                                      *
-
 *     Deallocate memory
 *
       nDum=1
@@ -318,6 +305,7 @@ c      idp=rtoi
       Call GetMem('RHSFile','Free','INTE',ifpRHS,nisp)
       Call GetMem('SigFile','Free','INTE',ifpS,nisp)
       Call GetMem('KapFile','Free','INTE',ifpK,nisp)
+      If (Allocated(SS)) Call mma_deallocate(SS)
 *
 *     Close files
 *

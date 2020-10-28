@@ -22,6 +22,7 @@
 *                                                                      *
 ************************************************************************
       use Arrays, only: DTOC
+      use negpre
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -29,7 +30,6 @@
 #include "WrkSpc.fh"
 #include "Pointers.fh"
 #include "sa.fh"
-#include "negpre.fh"
 
 #include "detdim.fh"
 #include "spinfo_mclr.fh"

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       Subroutine RdInp_MCLR
+       Subroutine RdInp_MCLR()
 ************************************************************************
 *                                                                      *
 *     Locate input stream and read commands                            *
@@ -24,12 +24,12 @@
       Use Basis_Info, only: Basis_Info_Get
       Use Center_Info, only: Center_Info_Get
       Use Exp, only: NewPre, nexp_max
+      use negpre
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
 #include "WrkSpc.fh"
-#include "negpre.fh"
 #include "sa.fh"
       Parameter ( nCom=38 )
       Character*72 Line

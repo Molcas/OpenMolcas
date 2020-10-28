@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine RdCIV
+      Subroutine RdCIV()
 ************************************************************************
 *                                                                      *
 *     Read the contents of the JOBIPH file.                            *
@@ -21,12 +21,12 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use negpre
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
 #include "WrkSpc.fh"
-#include "negpre.fh"
 #include "Files_mclr.fh"
       Call DaName(LuCIV,'ROOTS')
       iDisk=0

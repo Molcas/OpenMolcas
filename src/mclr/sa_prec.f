@@ -25,11 +25,11 @@
       End
 
       Subroutine SA_PREC2(rdia,S,CI,ENE)
+      use negpre
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 
 #include "Input.fh"
-#include "negpre.fh"
 #include "WrkSpc.fh"
 #include "incdia.fh"
       Real*8 rdia(*),CI(*),S(nroots,nroots)
