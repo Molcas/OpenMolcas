@@ -1,4 +1,4 @@
-************************************************************************
+***********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -177,8 +177,7 @@
        Call DaXpY_(nDens2,One,Temp4,1,Work(ipFIX),1)
 *
 
-       If (iMethod.eq.2)
-     &  Call CreQ(Temp6,MOT,Work(ipG2t),loper+1)
+       If (iMethod.eq.2) Call CreQ(Temp6,MOT,Work(ipG2t),loper+1)
 *
        Do iS=1,nSym
         jS=iEOr(iS-1,loper)+1
@@ -211,23 +210,24 @@
 *     Calculate connection contribution to hessian
 *
       End If ! ntpert
+
       Call Hess(Temp7,rkappa,Temp1,temp4,Temp5,temp6,
      &            Temp3,loper+1,jdisp,idisp)
 *
 *----- F=F~+Fx
       If (iAnd(ntpert(idisp),2**3).eq.8)
-     & call daxpy_(nDens,One,Temp7,1,rKappa,1)
+     &    call daxpy_(nDens,One,Temp7,1,rKappa,1)
 
 *
 *     Add connection to 2el MO integrals
 *
 *---- Adds (pb|cd) to triangular (ab|cd)
       If (iMethod.eq.2.and.iAnd(ntpert(idisp),2**2).eq.4)
-     &Call ABXpY(MOT,MOX,idsym)
+     &    Call ABXpY(MOT,MOX,idsym)
 *
       If (CI) Then
        ipMX=0
-       If (iAnd(ntPert(idisp),2**3).ne.0) ipMX=ip_of_work(MOX)
+       If (iAnd(ntPert(idisp),2**3).ne.0) ipMX=ip_of_work(MOX(1))
 *
        Call CiSigma(0,State_Sym,iEor(State_sym-1,idsym-1)+1,
      &             Work(ipFix),Work(ipMx),rdum,ipCI,ipst,'N')
@@ -253,9 +253,8 @@
       End Do
 *
       Call GetMem('FIX','FREE','REAL',ipFix,ndens2)
-      If ((iMethod.eq.2).and.(n2dens.ne.0)) Call mma_deallocate(MOX)
-      If (iMethod.eq.2.and.iAnd(ntpert(idisp),2**3).eq.8)
-     &   Call mma_deallocate(MOT)
+      If (Allocated(MOX)) Call mma_deallocate(MOX)
+      If (Allocated(MOT)) Call mma_deallocate(MOT)
 *                                                                      *
 ************************************************************************
 *                                                                      *
