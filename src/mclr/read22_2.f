@@ -22,19 +22,19 @@
 ********************************************************************
       use Arrays, only: CMO
       Implicit Real*8(a-h,o-z)
+#include "real.fh"
 #include "Pointers.fh"
 #include "standard_iounits.fh"
 #include "Input.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "glbbas_mclr.fh"
 #include "Files_mclr.fh"
       Real*8 Fock(nDens2),FockI(nDens2),FockA(nDens2),
      &       Temp2(nDens2),Temp3(ndens2),Q(nDens2),
      &       MO1(*), Scr(*)
       Logical Fake_CMO2,DoAct
-      Parameter ( half  = 0.5d0 )
-      Parameter ( two  = 2.0d0 )
-      Parameter ( one  = 1.0d0 )
+      Real*8, Allocatable:: DLT(:), JA(:), KA(:), Ash(:), DA(:), G2x(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -286,8 +286,8 @@
            EndIf
         End Do
 *
-        Call GetMem('DI','Allo','Real',ipDLT,nDens2)
-        call Fold_Mat(nSym,nOrb,Temp2,Work(ipDLT))
+        Call mma_allocate(DLT,nDens2,Label='DLT')
+        call Fold_Mat(nSym,nOrb,Temp2,DLT)
 *
 **      Form active CMO and density
 *
@@ -307,8 +307,8 @@
             End Do
             nG2=nG2+nAG2**2
           End Do
-          Call GetMem('Cva','Allo','Real',ipAsh,nVB)
-          Call GetMem('DA','Allo','Real',ipDA,na2)
+          Call mma_allocate(Ash,nVB,Label='Ash')
+          Call mma_allocate(DA,na2,Label='DA')
 *
           ioff=0
           ioff1=0
@@ -318,18 +318,18 @@
             do ikk=1,nAsh(iSym)
                ioff3=ioff2+nOrb(iSym)*(ikk-1)
                call dcopy_(nOrb(iSym),CMO(1+ioff3),1,
-     &                   Work(ipAsh+ioff1+ikk-1),nAsh(iSym))
+     &                   Ash(ioff1+ikk),nAsh(iSym))
                ik=ikk+nA(iSym)
                Do ill=1,ikk-1
                  il=ill+nA(iSym)
                  ikl=ik*(ik-1)/2+il-1
-                 Work(ipDA+ioffA+(ikk-1)*nAsh(iSym)+ill-1)=
+                 DA(ioffA+(ikk-1)*nAsh(iSym)+ill)=
      &               Work(ipG1t+ikl)
-                 Work(ipDA+ioffA+(ill-1)*nAsh(iSym)+ikk-1)=
+                 DA(ioffA+(ill-1)*nAsh(iSym)+ikk)=
      &               Work(ipG1t+ikl)
                End Do
                ikl=ik*(ik-1)/2+ik-1
-               Work(ipDA+ioffA+(ikk-1)*nAsh(iSym)+ikk-1)=
+               DA(ioffA+(ikk-1)*nAsh(iSym)+ikk)=
      &              Work(ipG1t+ikl)
             End Do
             ioff=ioff+nOrb(iSym)**2
@@ -337,12 +337,12 @@
             ioffA=ioffA+nAsh(iSym)*nAsh(iSym)
 *            iofftA=ioffA+nAsh(iSym)*(nAsh(iSym)+1)/2
           End Do
-          Call DScal_(na2,half,Work(ipDA),1)
+          Call DScal_(na2,half,DA,1)
 *
 **      Expand 2-body density matrix
 *
-          Call GetMem('G2x','ALLO','REAL',ipG2x,nG2)
-          ipGx=ipG2x
+          Call mma_allocate(G2x,nG2,Label='G2x')
+          ipGx=0
           Do ijS=1,nSym
             Do iS=1,nSym
               jS=iEOR(is-1,ijS-1)+1
@@ -355,8 +355,8 @@
                       Do jAsh=1,nAsh(js)
                         iij =itri(iAsh+nA(is),jAsh+nA(jS))
                         ipG=ipG2+itri(iij,ikl)-1
-                        Work(ipGx)=Work(ipG)
                         ipGx=ipGx+1
+                        G2x(ipGx)=Work(ipG)
                       End Do
                     End Do
                   End Do
@@ -376,15 +376,15 @@
         ipFockA = ip_of_work(FockA(1))
         ipMO1   = ip_of_work(MO1(1))
         ipQ     = ip_of_work(Q(1))
-        Call GetMem('ScrJA','Allo','Real',ipJA,nDens2)
-        Call GetMem('ScrKA','Allo','Real',ipKA,nDens2)
+        Call mma_allocate(JA,nDens2,Label='JA')
+        Call mma_allocate(KA,nDens2,Label='KA')
 *
         call dcopy_(nDens2,[0.0d0],0,Temp3,1)
         call dcopy_(nDens2,[0.0d0],0,Scr,1)
         call dcopy_(nDens2,[0.0d0],0,FockI,1)
         call dcopy_(nDens2,[0.0d0],0,FockA,1)
-        call dcopy_(nDens2,[0.0d0],0,Work(ipJA),1)
-        call dcopy_(nDens2,[0.0d0],0,Work(ipKA),1)
+        JA(:)=0.0D0
+        KA(:)=0.0D0
         call dcopy_(nDens2,[0.0d0],0,Q,1)
 *
         istore=1 ! Ask to store the half-transformed vectors
@@ -395,6 +395,12 @@
         Call Abend()
 !       ip_CMO_inv = ip_of_work(CMO_Inv(1))
 !       ipCMO      = ip_of_work(CMO(1))
+        ipDLT      = ip_of_Work(DLT(1))
+        ipJA       = ip_of_Work(JA(1))
+        ipKA       = ip_of_Work(KA(1))
+        ipAsh      = ip_of_Work(Ash(1))
+        ipDA       = ip_of_Work(DA(1))
+        ipG2X      = ip_of_Work(G2X(1))
 !       Call CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2x,ipkappa,
 !    &                   ipJI,ipKI,ipJA,ipKA,ipFockI,ipFockA,
 !    &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
@@ -405,13 +411,13 @@
         Call DScal_(nAtri,0.25D0,MO1,1)
         Call DScal_(nDens2,-0.5d0,FockI,1)
 *
-        Call GetMem('ScrJA','Free','Real',ipJA,nDens2)
-        Call GetMem('ScrKA','Free','Real',ipKA,nDens2)
-        Call GetMem('DI','Free','Real',ipDLT,nDens2)
+        Call mma_deallocate(JA)
+        Call mma_deallocate(KA)
+        Call mma_deallocate(DLT)
         If (iMethod.eq.iCASSCF) Then
-          Call GetMem('G2x','FREE','REAL',ipG2x,nG2)
-          Call GetMem('Cva','Free','Real',ipAsh,nVB)
-          Call GetMem('DA','Free','Real',ipDA,na2)
+           Call mma_deallocate(G2x)
+           Call mma_deallocate(Ash)
+           Call mma_deallocate(DA)
         EndIf
       EndIf
 ************************************************************************
