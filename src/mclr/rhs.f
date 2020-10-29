@@ -52,7 +52,7 @@
      &      Temp2(nDens),Temp3(nDens),CMO(nCMO),Temp5(nDens),
      &      Temp6(nDens),temp7(ndens)
       Real*8 rDum(1)
-      Real*8, Allocatable:: MOX(:), MOT(:)
+      Real*8, Allocatable:: MOX(:), MOT(:), FIX(:), MOT2(:)
 
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
@@ -82,6 +82,7 @@
           Write (6,*) 'Label=',Label
           Call Abend()
       End If
+
       ip=1
       Do iS=1,nSym
        Do jS=1,is
@@ -137,8 +138,9 @@
         Call mma_allocate(MOX,1,Label='MOX')
       End If
       MOX(:)=0.0D0
-      Call GetMem('FIX','ALLO','REAL',ipFiX,nDens2)
-      Call IntX(Work(ipFIX),temp7,temp6,temp5,temp4,rkappa,
+      Call mma_allocate(FiX,nDens2,Label='FIX')
+
+      Call IntX(FIX,temp7,temp6,temp5,temp4,rkappa,
      &          MOX,loper,idisp,rone)
 *
 *-------------------------------------------------------------------*
@@ -154,27 +156,26 @@
       If (iAnd(ntpert(idisp),2**3).eq.8)  Then
        If (iMethod.eq.2) Then
           Call mma_allocate(MOT ,nmba,Label='MOT')
-          Call GetMem('MOOIT2','ALLO','REAL',ipMOT2,nmba)
-          call dcopy_(nmba,[0.0d0],0,work(ipMOT2),1)
+          Call mma_allocate(MOT2,nmba,Label='MOT2')
        Else
           Call mma_allocate(MOT ,   1,Label='MOT')
-          ipMOT2=ip_Dummy
+          Call mma_allocate(MOT2,   1,Label='MOT2')
        End If
        MOT(:)=0.0D0
+       MOT2(:)=0.0D0
 *
 *      kappa rmo Fi Fa
 *
-       Call r2ElInt(Temp1,MOT,  Work(ipMOT2),
+       Call r2ElInt(Temp1,MOT,MOT2,
      &             Temp4,Temp5,ndens2,iDSym,1.0d0,-0.5d0,0)
 
-       If (imethod.eq.2) Then
-           Call DaXpY_(nmba,1.0d0,Work(ipmot2),1,MOT,1 )
-           Call GetMem('MOOIT2','FREE','REAL',ipMOT2,nmba)
-       End If
+       If (imethod.eq.2) Call DaXpY_(nmba,1.0d0,MOT2,1,MOT,1)
+       Call mma_deallocate(MOT2)
+
 *----- ix  ix  ~i
        call dcopy_(ndens2,[0.0d0],0,temp7,1)
 *------ F  =F  + F
-       Call DaXpY_(nDens2,One,Temp4,1,Work(ipFIX),1)
+       Call DaXpY_(nDens2,One,Temp4,1,FIX,1)
 *
 
        If (iMethod.eq.2) Call CreQ(Temp6,MOT,Work(ipG2t),loper+1)
@@ -226,15 +227,14 @@
      &    Call ABXpY(MOT,MOX,idsym)
 *
       If (CI) Then
-       ipMX=0
-       If (iAnd(ntPert(idisp),2**3).ne.0) ipMX=ip_of_work(MOX(1))
+       If (.NOT.Allocated(MOX)) Call mma_allocate(MOX,1,Label='MOX')
 *
        Call CiSigma(0,State_Sym,iEor(State_sym-1,idsym-1)+1,
-     &             Work(ipFix),Work(ipMx),rdum,ipCI,ipst,'N')
+     &             Fix,MOX,rdum,ipCI,ipst,'N')
 *
        irc=ipin(ipst)
        If (idsym.eq.1) Then
-        EnA=E2(Work(ipFix),MOX,idsym-1,idisp)
+        EnA=E2(Fix,MOX,idsym-1,idisp)
         irc=ipin(ipCI)
         Call DaXpY_(nConf1,-Ena,W(ipCI)%Vec,1,W(ipST)%Vec,1)
        End If
@@ -252,7 +252,7 @@
      &              nOrb(is),nOrb(js))
       End Do
 *
-      Call GetMem('FIX','FREE','REAL',ipFix,ndens2)
+      Call mma_deallocate(FIX)
       If (Allocated(MOX)) Call mma_deallocate(MOX)
       If (Allocated(MOT)) Call mma_deallocate(MOT)
 *                                                                      *
