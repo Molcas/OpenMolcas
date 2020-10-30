@@ -12,14 +12,13 @@
      &                    ELEC,iel,elout,ldisp,Lu_10)
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Logical converged(8)
       Real*8 H(*),elec(*),elout(*)
       logical Do_Molden
       Integer nrvec(*),nDeg(*),iel(3),ldisp(nsym)
       Real*8, Allocatable:: NMod(:), EVec(:), EVal(:), Intens(:),
-     &                      RedMas(:)
+     &                      RedMas(:), Tmp2(:), Tmp3(:), Temp(:)
 #include "temperatures.fh"
 *
       Call mma_allocate(NMod,nDisp**2,Label='NMod')
@@ -71,14 +70,12 @@
 *
             If (converged(isym))  Then
                naux=Max(nx*2,nX**2)
-               Call GetMem('Tmp2','ALLO','REAL',ip2,naux)
-               Call GetMem('Tmp3','ALLO','REAL',ip3,nX**2)
+               Call mma_allocate(Tmp2,naux,Label='Tmp2')
+               Call mma_allocate(Tmp3,nX**2,Label='Tmp3')
                Call FREQ(nX,H(i3),nDeg(i1),nrvec(i1),
-     &                   Work(ip2),Work(ip3),
-     &                   EVec,EVal(i1),RedMas,
-     &                   iNeg)
-               Call GetMem('Tmp3','FREE','REAL',ip3,nX**2)
-               Call GetMem('Tmp2','FREE','REAL',ip2,naux)
+     &                   Tmp2,Tmp3,EVec,EVal(i1),RedMas,iNeg)
+               Call mma_deallocate(Tmp3)
+               Call mma_deallocate(Tmp2)
 *
                iCtl=0
                ll=0
@@ -132,7 +129,7 @@
                   lModes=lModes+nX
                End Do
                nModes=nModes+nX
-               call dcopy_(nX**2,Work(jpNx),1,EVec,2)
+               call dcopy_(nX**2,NMod(jpNx),1,EVec,2)
                Call GF_Print(EVal(i1),EVec,elout(kk),
      &                       ll,nX,nX,iCtl,Intens(i1),
      &                       RedMas,Lu_10,i1-1)
@@ -166,16 +163,16 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Allocate_Work(ip_Temp,nEig)
-      call dcopy_(nEig,Eval,1,Work(ip_Temp),1)
+      Call mma_allocate(Temp,nEig,Label='Temp')
+      call dcopy_(nEig,Eval,1,Temp,1)
 *
 *     For verification purpose we skip frequencies close to zero.
 *
-      Do i = ip_Temp, ip_Temp+nEig-1
-         If (Abs(Work(i)).lt.5.0D0) Work(i)=0.0D0
+      Do i = 1, nEig
+         If (Abs(Temp(i)).lt.5.0D0) Temp(i)=0.0D0
       End Do
-      Call Add_Info('Harm_Freq',Work(ip_Temp),nEig,1)
-      Call Free_Work(ip_Temp)
+      Call Add_Info('Harm_Freq',Temp,nEig,1)
+      Call mma_deallocate(Temp)
 *
       Do i = 1, nEig
          If (Abs(Intens(i)).lt.1.0D0) Intens(i)=0.0D0
