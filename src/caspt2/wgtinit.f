@@ -42,35 +42,44 @@
             ! pref = 0.001D0
             do K=1,Nstate
               Egamma = H(K,K)
-              Dag = Ealpha - Egamma
-              Hag = sqrt(abs(H(J,K)))
-* Compute interaction strength parameter $\xi_{\alpha\gamma}$
-              if (K.ne.J) then
-                xi_ag = abs(Dag/Hag)
+              Dag = abs(Ealpha - Egamma) + 1.0d-8
+              if (abs(H(J,K)).le.1.0d-9) then
+                Hag = 0.0d0
               else
-* Set explicitly to zero when the numerator cancels out to
-* numerical issues
-                xi_ag = 0.0d0
+                Hag = sqrt(abs(H(J,K)))
               end if
+* Compute interaction strength parameter $\xi_{\alpha\gamma}$
+*              if (K.ne.J) then
+                xi_ag = abs(Dag/Hag)
+*              else
+* Set explicitly to zero when the numerator cancels out to avoid
+* numerical issues
+*                xi_ag = 0.0d0
+*              end if
               Wtot = Wtot + exp(-zeta*xi_ag)
+              write(6,*)'exp(-zeta*xi_ag) = ',exp(-zeta*xi_ag)
             end do
             IJ = (I-1) + Nstate*(J-1)
 * Compute weight according to XDW prescription
-            Dab = Ealpha - Ebeta
-            Hab = sqrt(abs(H(J,I)))
-* Compute interaction strength parameter $\xi_{\alpha\beta}$
-            if (I.ne.J) then
-              xi_ab = abs(Dab/Hab)
+            Dab = abs(Ealpha - Ebeta) + 1.0d-8
+            if (abs(H(J,I)).le.1.0d-9) then
+              Hab = 0.0d0
             else
-* Set explicitly to zero when the numerator cancels out to
-* numerical issues
-              xi_ab = 0.0d0
+              Hab = sqrt(abs(H(J,I)))
             end if
+* Compute interaction strength parameter $\xi_{\alpha\beta}$
+*            if (I.ne.J) then
+              xi_ab = abs(Dab/Hab)
+*            else
+* Set explicitly to zero when the numerator cancels out to avoid
+* numerical issues
+*              xi_ab = 0.0d0
+*            end if
             WORK(LDWGT+IJ) = exp(-zeta*xi_ab)/Wtot
             write(6,'(A,I1,A,I1,A)')'(',J,',',I,')'
-            write(6,'(A,F14.8)')' Dab = ',Dab
-            write(6,'(A,F14.8)')' Hab = ',Hab
-            write(6,'(A,F14.8)')'xiab = ',xi_ab
+            write(6,'(A,F18.12)')' Dab = ',Dab
+            write(6,'(A,F18.12)')' Hab = ',Hab
+            write(6,'(A,F18.12)')'xiab = ',xi_ab
           end do
           write(6,*)
 
