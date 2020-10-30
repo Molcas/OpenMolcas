@@ -235,18 +235,22 @@ c Avoid unused argument warnings
 #include "Input.fh"
 #include "Pointers.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 A(*)
       Integer nbas2(nsym),nbas1(nsym)
-      Call GetMem('A','ALLO','REAL',ipA,ndens2)
+      Real*8, Allocatable:: ATemp(:)
+
+      Call mma_allocate(ATemp,ndens2,Label='ATemp')
+
       Do iS=1,nsym
        js=ieor(is-1,idsym-1) +1
        Do j=0,Min(nbas2(js),nbas1(js))-1
         call dcopy_(Min(nbas1(is),nbas2(is)),
      &             A(ipMat(is,js)+j*nbas1(is)),1,
-     &             Work(ipA-1+ipmat(is,js)+j*nbas2(is)),1)
+     &         ATemp(ipmat(is,js)+j*nbas2(is)),1)
        End Do
       End Do
-      call dcopy_(ndens2,Work(ipA),1,A,1)
-      Call GetMem('A','FREE','REAL',ipA,ndens2)
+      call dcopy_(ndens2,ATemp,1,A,1)
+      Call mma_deallocate(ATemp)
       Return
       End
