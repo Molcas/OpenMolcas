@@ -14,40 +14,44 @@
 #include "Pointers.fh"
 
 #include "Input.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 rMat(*),rdiag(*)
       Integer lst(nex)
+      Real*8, Allocatable:: Tmp1(:), Tmp2(:)
+
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+
+      Call mma_allocate(TMP1,nconf,Label='Tmp1')
+      Call mma_allocate(TMP2,nconf,Label='Tmp2')
+
       idisk=0
-      Call Getmem('TMP1','ALLO','REAL',iptmp1,nconf)
-      Call Getmem('TMP2','ALLO','REAL',iptmp2,nconf)
       Do i=1,lroots
-       Call dDaFile(LuCIV,2,Work(ipTmp1),nconf,iDisk)
+       Call dDaFile(LuCIV,2,Tmp1,nconf,iDisk)
        jdisk=0
        Do j=1,i
-         Call dDafile(luciv,2,Work(ipTmp2),nconf,jDisk)
+         Call dDafile(luciv,2,Tmp2,nconf,jDisk)
          rTmp=0.0d0
          Do k=1,nex
           do l=1,nex
-           kk=lst(k)-1
-           ll=lst(l)-1
-           rtmp=rtmp+Work(ipTmp1+kk)*Work(ipTmp2+ll)*rmat(itri(k,l))
+           kk=lst(k)
+           ll=lst(l)
+           rtmp=rtmp+Tmp1(kk)*Tmp2(ll)*rmat(itri(k,l))
           End Do
          End Do
          Do k=1,nconf
-          rtmp=rtmp+Work(ipTmp1+k-1)*Work(ipTmp2+k-1)*
-     &               rdiag(k)
+          rtmp=rtmp+Tmp1(k)*Tmp2(k)*rdiag(k)
          End Do
          If (i.eq.j) rtmp=rtmp-ERASSCF(1)
          Do  k=1,nEx
-          kk=lst(k)-1
-          rtmp=rtmp-Work(ipTmp1+kk)*Work(ipTmp2+kk)*
-     &              (rdiag(kk+1)-ERASSCF(1))
+          kk=lst(k)
+          rtmp=rtmp-Tmp1(kk)*Tmp2(kk)*(rdiag(kk+1)-ERASSCF(1))
          End Do
          P1(itri(i,j))=rtmp
         End Do
        End Do
-       Call Getmem('TMP1','FREE','REAL',iptmp1,nconf)
-       Call Getmem('TMP2','FREE','REAL',iptmp2,nconf)
+
+       Call mma_deallocate(TMP2)
+       Call mma_deallocate(TMP1)
+
        Return
        end

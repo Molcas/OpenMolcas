@@ -26,6 +26,7 @@
       logical tf,tstfnc
       Dimension Coor(*)
       Dimension Dummy(1)
+
       TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
      &                              iIrrep,iComp,dc(mdc)%nStab)
 
