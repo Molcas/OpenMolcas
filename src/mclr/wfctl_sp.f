@@ -228,7 +228,7 @@
                irc=opout(-1)
                Call CISigma(1,State_Sym,state_sym,
      &                      Temp4,rmoaa,rmoaa2,
-     &                      ipCI,ipS1,'N')
+     &                      ipCI,ipS1)
                irc=opout(-1)
                irc=ipin(ipCI)
                irc=ipin(ipS1)
@@ -245,7 +245,7 @@
                If (nconf1.gt.1) Then
                Call CISigma(0,State_Sym,state_sym,
      &                    Work(ipFIMO),Work(k2int),rdum,
-     &                    ipCId,ipS2,'N')
+     &                    ipCId,ipS2)
                irc=opout(-1)
                EC=rin_ene+potnuc-ERASSCF(1)
 

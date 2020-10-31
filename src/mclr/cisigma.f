@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
        SubRoutine CISigma(iispin,iCsym,iSSym,Int1,Int2s,
-     &                    Int2a,ipCI1,ipCI2,NT)
+     &                    Int2a,ipCI1,ipCI2)
        use ipPage, only: W
        Implicit Real*8(a-h,o-z)
 *
@@ -26,7 +26,6 @@
 #include "cstate_mclr.fh"
 #include "cicisp_mclr.fh"
        Real*8 Int1(*), Int2s(*), Int2a(*)
-       Character NT
        integer kic(2),opout,nbb(8)
        Real*8, Allocatable:: CIDET(:)
 *
@@ -137,6 +136,4 @@
        End If
 *
        Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_character(NT)
        End

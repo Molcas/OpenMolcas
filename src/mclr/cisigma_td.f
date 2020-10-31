@@ -20,6 +20,7 @@ c
 #include "Pointers.fh"
 #include "Input.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "genop.fh"
 #include "glbbas_mclr.fh"
 #include "lbbas1.fh"
@@ -30,6 +31,8 @@ c
        Character NT
        integer kic(2),opout
        Real*8 Int1(*), Int2s(*), Int2a(*)
+       Real*8, Allocatable:: CIDET(:), TI1(:), TI2(:)
+
        itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
 *      Interface Anders to Jeppe
@@ -101,94 +104,119 @@ C
 *
        ist=iispin+1
        square=.false.
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
        If (TIMEDEP) Then
-        If (NT.eq.'T')  square=.true.  ! The operator is not sym
-        If (.not.page) Then
-c ipcidet is here because sigmavec will destroy the first input vector.
-           Call GetMem('CIDET_TD','ALLO','REAL',ipCIDET,nDet)
-           irc=ipin(ipCI1)
-           call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,Work(ipCIDET),1)
+*                                                                      *
+************************************************************************
+*                                                                      *
+          If (NT.eq.'T')  square=.true.  ! The operator is not sym
+
+
+          If (page) Then
+             Write(6,*) 'Page not implemented for Timedependent'
+     &              //' perturbations'
+             Call Abend()
+          End If
+
+c         CIDET is here because sigmavec will destroy the first
+C         input vector.
+          Call mma_allocate(CIDET,nDet,Label='CIDET')
+          irc=ipin(ipCI1)
+          call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,CIDET,1)
+
+          irc=ipin(ipci2)
+          Call SigmaVec(CIDET,W(ipci2)%Vec,kic)
 C
-           irc=ipin(ipci2)
-           Call SigmaVec(Work(ipCIDET),W(ipci2)%Vec,kic)
-C
-         If (NT.eq.'N') Then
-            Call GetMem('CIDET_TD','FREE','REAL',ipCIDET,nDet)
-            Return
-         End If
+          If (NT.eq.'N') Then
+             Call mma_deallocate(CIDET)
+             Return
+          End If
 c
-         If (NT.eq.'S') Then
-C......... Symmetric operator, no transpose of integrals needed!
-           irc=ipin(ipCI1)
-           call dcopy_(nCSF(iCSM),W(ipCI1)%Vec(1+nConf1),1,
-     &                 Work(ipCIDET),1)
+          If (NT.eq.'S') Then
+
+C.......... Symmetric operator, no transpose of integrals needed!
+            irc=ipin(ipCI1)
+            call dcopy_(nCSF(iCSM),W(ipCI1)%Vec(1+nConf1),1,
+     &                  CIDET,1)
 C
-         Else
-C......... The operator is not sym --> transpose integrals! NT.ne.S
-           irc=ipin(ipCI1)
-           call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,Work(ipCIDET),1)
-           Call GetMem('TEMPINT1','ALLO','REAL',ipTI1,ndens2)
-           Call GetMem('TEMPINT2','ALLO','REAL',ipTI2,ntash**4)
-           Do i=1,ntash
-             Do j=1,ntash
-              ij=i+ntash*(j-1)
-              ji=j+ntash*(i-1)
-              Do k=1,ntash
-               Do l=1,ntash
-                kl=k+ntash*(l-1)
-                lk=l+ntash*(k-1)
-                If (ij.ge.kl) Then
-                 ijkl=itri(ij,kl)
-                 jilk=itri(ji,lk)
-                 Work(ipTI2+jilk-1)=int2s(ijkl)
-                End if
+          Else  ! NT.ne.'S'
+
+C.......... The operator is not sym --> transpose integrals! NT.ne.S
+            irc=ipin(ipCI1)
+            call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,CIDET,1)
+            Call mma_allocate(TI1,ndens2,Label='TI1')
+            Call mma_allocate(TI2,ntash**4,Label='TI2')
+            Do i=1,ntash
+              Do j=1,ntash
+               ij=i+ntash*(j-1)
+               ji=j+ntash*(i-1)
+               Do k=1,ntash
+                Do l=1,ntash
+                 kl=k+ntash*(l-1)
+                 lk=l+ntash*(k-1)
+                 If (ij.ge.kl) Then
+                  ijkl=itri(ij,kl)
+                  jilk=itri(ji,lk)
+                  TI2(jilk)=int2s(ijkl)
+                 End if
+                End Do
                End Do
               End Do
-             End Do
-           End Do
-           Do is=1,nSym
-            js=ieor(ieor(icsym-1,issym-1),is-1)+1
-            If (nbas(js)*nbas(is).ne.0)
-     &      Call DGETMO(Int1(ipmat(is,js)),nbas(is),
-     &                nbas(is),nbas(js),Work(ipTI1+ipmat(js,is)-1),
-     &                nbas(js))
-           End Do
-           kain1=ipTI1
-           KINT2=ipTI2
+            End Do
+
+            Do is=1,nSym
+             js=ieor(ieor(icsym-1,issym-1),is-1)+1
+             If (nbas(js)*nbas(is).ne.0)
+     &       Call DGETMO(Int1(ipmat(is,js)),nbas(is),
+     &                 nbas(is),nbas(js),TI1(ipmat(js,is)),
+     &                 nbas(js))
+            End Do
+
+            kain1= ip_of_work(TI1)
+            KINT2= ip_of_work(TI2)
+
          End If  ! End the transpose of integrals.
 *
-*
-C
          irc=ipin(ipci2)
-         Call SigmaVec(Work(ipCIDET),W(ipci2)%Vec(1+nconf1),kic)
+         Call SigmaVec(CIDET,W(ipci2)%Vec(1+nconf1),kic)
 C
-         Call GetMem('CIDET_TD','FREE','REAL',ipCIDET,nDet)
+         Call mma_deallocate(CIDET)
+
          If (NT.ne.'S') Then
-           Call GetMem('TEMPINT1','FREE','REAL',ipTI1,ndens2)
-           Call GetMem('TEMPINT2','FREE','REAL',ipTI2,ntash**4)
+            Call mma_deallocate(TI1)
+            Call mma_deallocate(TI2)
          End If
-        Else   ! If page
-         Write(6,*) 'Page not implemented for Timedependent'
-     &            //' perturbations'
-         Call Abend()
-        End If
+*                                                                      *
+************************************************************************
+*                                                                      *
        Else   ! If not timedep
-        If (.not.page) Then
-         Call GetMem('CIDET_TD','ALLO','REAL',ipCIDET,nDet)
-         irc=ipin(ipCI1)
-         call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,Work(ipCIDET),1)
-         irc=ipin(ipci2)
-         Call SigmaVec(Work(ipCIDET),W(ipci2)%Vec,kic)
-         Call GetMem('CIDET_TD','FREE','REAL',ipCIDET,ndet)
-        Else
-         irc=ipnout(ipci2)
-         irc=ipin1(ipCI1,ndet)
-         irc=ipin(ipci2)
-         Call SigmaVec(W(ipCI1)%Vec,W(ipci2)%Vec,kic)
-         irc=opout(ipci1)
-        End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+
+          If (.not.page) Then
+             Call mma_allocate(CIDET,nDet,Label='CIDET')
+             irc=ipin(ipCI1)
+             call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,CIDET,1)
+             irc=ipin(ipci2)
+             Call SigmaVec(CIDET,W(ipci2)%Vec,kic)
+             Call mma_deallocate(CIDET)
+          Else
+             irc=ipnout(ipci2)
+             irc=ipin1(ipCI1,ndet)
+             irc=ipin(ipci2)
+             Call SigmaVec(W(ipCI1)%Vec,W(ipci2)%Vec,kic)
+             irc=opout(ipci1)
+          End If
+*                                                                      *
+************************************************************************
+*                                                                      *
        End If
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
        Return
        End

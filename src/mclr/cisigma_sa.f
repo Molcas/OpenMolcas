@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
        SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,int2s,
-     &                       Int2a,ipCI1,ipCI2,NT)
+     &                       Int2a,ipCI1,ipCI2)
        use ipPage, only: W
        Implicit Real*8(a-h,o-z)
 *
@@ -17,6 +17,7 @@
 
 #include "Input.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "genop.fh"
 #include "glbbas_mclr.fh"
 #include "lbbas1.fh"
@@ -25,9 +26,9 @@
 #include "cstate_mclr.fh"
 
 #include "cicisp_mclr.fh"
-       Character NT
        integer kic(2),opout,nbb(8)
        Real*8 Int1(*), Int2s(*), Int2a(*)
+       Real*8, Allocatable:: CIDET(:)
 *
 *      Interface Anders to Jeppe
 *      This interface initiates Jeppes common block
@@ -106,27 +107,25 @@
        square=.false.
 *
        If (.not.page) Then
-       Call GetMem('CIDET','ALLO','REAL',ipCIDET,nDet)
-       irc=ipin(ipCI1)
-       irc=ipin(ipci2)
-       Do i=0,nroots-1
-       call dcopy_(nCSF(iCSM),W(ipCI1)%Vec(1+i*ncsf(icsm)),1,
-     &            Work(ipCIDET),1)
-       Call SigmaVec(Work(ipCIDET),W(ipci2)%Vec(1+i*ncsf(issm)),kic)
-       Call DSCAL_(nCSF(iCSM),
-     &            weight(i+1),W(ipci2)%Vec(1+i*ncsf(issm)),1)
-       End Do
-       Call GetMem('CIDET','FREE','REAL',ipCIDET,nDet)
-
+          Call mma_allocate(CIDET,nDet,Label='CIDET')
+          irc=ipin(ipCI1)
+          irc=ipin(ipci2)
+          Do i=0,nroots-1
+             call dcopy_(nCSF(iCSM),W(ipCI1)%Vec(1+i*ncsf(icsm)),1,
+     &                   CIDET,1)
+             Call SigmaVec(CIDET,W(ipci2)%Vec(1+i*ncsf(issm)),
+     &                     kic)
+             Call DSCAL_(nCSF(iCSM),weight(i+1),
+     &                   W(ipci2)%Vec(1+i*ncsf(issm)),1)
+          End Do
+          Call mma_deallocate(CIDET)
        Else
-        irc=ipnout(ipci2)
-        irc=ipin1(ipCI1,ndet)
-        irc=ipin(ipci2)
-        Call SigmaVec(W(ipCI1)%Vec,W(ipci2)%Vec,kic)
-        irc=opout(ipci1)
+          irc=ipnout(ipci2)
+          irc=ipin1(ipCI1,ndet)
+          irc=ipin(ipci2)
+          Call SigmaVec(W(ipCI1)%Vec,W(ipci2)%Vec,kic)
+          irc=opout(ipci1)
        End If
 *
        Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_character(NT)
        End

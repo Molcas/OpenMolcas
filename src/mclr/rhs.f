@@ -230,7 +230,7 @@
        If (.NOT.Allocated(MOX)) Call mma_allocate(MOX,1,Label='MOX')
 *
        Call CiSigma(0,State_Sym,iEor(State_sym-1,idsym-1)+1,
-     &             Fix,MOX,rdum,ipCI,ipst,'N')
+     &             Fix,MOX,rdum,ipCI,ipst)
 *
        irc=ipin(ipst)
        If (idsym.eq.1) Then
