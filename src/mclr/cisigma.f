@@ -17,6 +17,7 @@
 
 #include "Input.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "genop.fh"
 #include "glbbas_mclr.fh"
 #include "lbbas1.fh"
@@ -27,6 +28,7 @@
        Real*8 Int1(*), Int2s(*), Int2a(*)
        Character NT
        integer kic(2),opout,nbb(8)
+       Real*8, Allocatable:: CIDET(:)
 *
 *      Interface Anders to Jeppe
 *      This interface initiates Jeppes common block
@@ -107,23 +109,23 @@
 *
        If (.not.page) Then
 
-       Call GetMem('CIDET','ALLO','REAL',ipCIDET,nDet)
+       Call mma_allocate(CIDET,nDet,Label='CIDET')
 #ifdef _MS_
        irc=ipin(ipCI1)
        irc=ipin(ipci2)
        Do i=0,nroots-1
           call dcopy_(nCSF(iCSM),W(ipCI1)%Vec(1+i*ncsf(icsm)),1,
-     &                        Work(ipCIDET),1)
-          Call SigmaVec(Work(ipCIDET),
+     &                        CIDET,1)
+          Call SigmaVec(CIDET,
      &               W(ipci2)%Vec(1+i*ncsf(issm)),kic)
        End Do
 #else
-       call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,Work(ipCIDET),1)
+       call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,CIDET,1)
 
-       Call SigmaVec(Work(ipCIDET),W(ipci2)%Vec,kic)
+       Call SigmaVec(CIDET,W(ipci2)%Vec,kic)
 
 #endif
-       Call GetMem('CIDET','FREE','REAL',ipCIDET,nDet)
+       Call mma_deallocate(CIDET)
        Else
         irc=ipnout(ipci2)
 
