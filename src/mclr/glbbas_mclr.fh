@@ -9,7 +9,6 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 *        KINT2        :
-*        KPINT1        :   Offsets
 *        KPINT2        :
 *        KRHO1        :        Not in use
 *        KSBEVC        :        Not in use
@@ -25,7 +24,7 @@
 *        Rest is for Merethe
 *
       Integer       KINT2,KINT2A,
-     &              KPINT1,KPINT2,
+     &              KPINT2,
      &              KLSM1,KLSM2,
      &              KRHO1,KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,
      &              KSBIA,KSBIB,
@@ -35,8 +34,8 @@
      &              KINH1,
      &              KSOIA(3)
 
-      COMMON/GLBBAS_MCLR/KINT1,KINT2,KINT2A,
-     &              KPINT1,KPINT2,
+      COMMON/GLBBAS_MCLR/KINT2,KINT2A,
+     &              KPINT2,
      &              KLSM1,KLSM2,
      &              KRHO1,KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,
      &              KSBIA,KSBIB,

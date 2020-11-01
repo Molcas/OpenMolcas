@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine SetUp_MCLR(DSYM)
+      use Arrays, only: pInt1
 *
 *   Setup pointers and size of metrixes (includes in Pointers.fh)
 *
@@ -140,7 +141,7 @@
             jOrb=nRs1(jjSym)+nRs2(jjSym)+nRs3(jjSym)
 *
             If (iEOr(iiSym-1,jjSym-1)+1.eq.Dsym) Then
-               iWork(KpINT1+iiSym-1)=iOff
+               pINT1(iiSym)=iOff
                If (iiSym.eq.jjSym) Then
                   iOff=iOff+iOrb*(iOrb+1)/2
                Else
