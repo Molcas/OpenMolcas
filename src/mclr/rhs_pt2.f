@@ -22,7 +22,7 @@ c Avoid unused argument warnings
       End If
 #else
       Subroutine RHS_PT2(rkappa,iprci)
-      use Arrays, only: CMO, DTOC, CNSM
+      use Arrays, only: CMO, DTOC, CNSM, Int1
       use ipPage, only: W
       Implicit Real*8(a-h,o-z)
       Real*8 rKappa(*)
@@ -183,7 +183,7 @@ c Avoid unused argument warnings
 *
 *-- Add one particle hamiltonian here ???
 *
-  ??? Call DaXpY_(ndens2,-rovlp,Work(kint1),1,FMO1,1)
+  ??? Call DaXpY_(ndens2,-rovlp,Int1,1,FMO1,1)
 *
 *==============================================================================*
 *

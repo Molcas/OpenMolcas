@@ -41,7 +41,8 @@
       use Symmetry_Info, only: Symmetry_Info_Free
       use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM, SFock,
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m,
-     &                  CMO_Inv, CMO, DFTP, CFTP, DTOC, CNSM
+     &                  CMO_Inv, CMO, DFTP, CFTP, DTOC, CNSM,
+     &                  Int1
       use negpre, only: SS
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
@@ -250,7 +251,7 @@ c      idp=rtoi
 *     Free arrays allocated by memstr.f
       If (iMethod.eq.2) Call FreeStr
 *     Arrays in inpone.f
-      Call GetMem('ONEHAM','Free','REAL',kint1,nDum)
+      Call mma_deallocate(INT1)
 *     Arrays in detctl.f
       If (iMethod.eq.2) Then
          Call Getmem('TwoOff','Free','INTE',KpINT2,nDum)

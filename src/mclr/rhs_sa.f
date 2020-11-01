@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
        Subroutine rhs_sa(Fock)
+       use Arrays, only: Int1
        Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -112,8 +113,7 @@
       rcorea=Zero
       Do iS=1,nSym
        Do iB=1,nIsh(is)
-       rcorei=rcorei+Two*Work(kint1+ipCM(is)-1+
-     &             nOrb(iS)*(ib-1)+ib-1)
+       rcorei=rcorei+Two*Int1(ipCM(is)+nOrb(iS)*(ib-1)+ib-1)
        End Do
 
        Do iB=1,nAsh(iS)
@@ -123,8 +123,7 @@
          iij=iTri(iib,ijb)
          iiB=nIsh(iS)+ib
          ijB=nIsh(iS)+jb
-         rcorea=rcorea+G1q(iij)*
-     &           Work(kint1+ipCM(is)-1+nOrb(is)*(iib-1)+ijB-1)
+         rcorea=rcorea+G1q(iij)*Int1(ipCM(is)+nOrb(is)*(iib-1)+ijB-1)
         End Do
        End Do
       End Do

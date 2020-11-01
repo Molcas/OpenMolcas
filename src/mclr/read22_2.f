@@ -20,7 +20,7 @@
 *          MOtilde:MO (one index transformed integrals)            *
 *                                                                  *
 ********************************************************************
-      use Arrays, only: CMO
+      use Arrays, only: CMO, Int1
       Implicit Real*8(a-h,o-z)
 #include "real.fh"
 #include "Pointers.fh"
@@ -426,7 +426,7 @@
 *                                                                      *
 ************************************************************************
 *
-      Call DaXpY_(ndens2,One,Work(kint1),1,FockI,1)
+      Call DaXpY_(ndens2,One,Int1,1,FockI,1)
       call dcopy_(ndens2,[0.0d0],0,Fock,1)
 *
       Do iS=1,nSym
@@ -476,7 +476,7 @@
       Do iS=1,nSym
        iptmp=ipCM(iS)
        Do iB=1,nIsh(is)
-       rcorei=rcorei+2.0d0*Work(kint1-1+iptmp)
+       rcorei=rcorei+2.0d0*Int1(iptmp)
        rcor=rcor+2.0d0*Focki(iptmp)
        iptmp=iptmp+nOrb(iS)+1
        End Do
@@ -489,7 +489,7 @@
          iiB=nIsh(iS)+ib
          ijB=nIsh(iS)+jb
          rcorea=rcorea+Work(ipG1t+iij-1)*
-     &           Work(kint1+ipCM(is)-1+nOrb(is)*(iib-1)+ijB-1)
+     &           Int1(ipCM(is)-1+nOrb(is)*(iib-1)+ijB)
 
          rcora=rcora+Work(ipG1t+iij-1)*
      &           Focki(ipCM(is)+nOrb(is)*(iib-1)+ijB-1)

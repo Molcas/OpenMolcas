@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine InpOne
-      use Arrays, only: CMO
+      SubRoutine InpOne()
+      use Arrays, only: CMO, Int1
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -43,8 +43,8 @@
       iisym=2**0
       iRc=-1
       iOpt=0
-      Call GetMem('ONEHAM','ALLO','REAL',kint1,ndens2)
-      kain1=kint1
+      Call mma_allocate(Int1,ndens2,Label='Int1')
+      kain1=ip_of_Work(Int1(1))
       Call GetMem('HAM1','ALLO','REAL',itemp1,leng+10)
       Call GetMem('HAM2','ALLO','REAL',itemp2,ndens2)
       Call GetMem('HAM3','ALLO','REAL',itemp3,ndens2)
@@ -116,7 +116,7 @@ cnf
       End If
 cnf
       ip=1
-      ip2=0
+      ip2=1
       Do iS=1,nSym
         If (nBas(is).ne.0 .AND. nOrb(iS).ne.0) Then
            Call Square(work(itemp1+ip-1),
@@ -125,14 +125,14 @@ cnf
            ip=ip+nBas(is)*(nBas(iS)+1)/2
            Call DGEMM_('T','N',
      &                 nOrb(iS),nBas(iS),nBas(iS),
-     &                 1.0d0,CMO(1+ip2),nBas(iS),
+     &                 1.0d0,CMO(ip2),nBas(iS),
      &                 work(itemp2),nBas(iS),
      &                 0.0d0,Work(iTemp3),nOrb(iS))
            Call DGEMM_('N','N',
      &                 nOrb(is),nOrb(iS),nBas(iS),
      &                 1.0d0,Work(iTemp3),nOrb(iS),
-     &                 CMO(1+ip2),nBas(iS),
-     &                 0.0d0,Work(kint1+ip2),nOrb(iS))
+     &                 CMO(ip2),nBas(iS),
+     &                 0.0d0,Int1(ip2),nOrb(iS))
            ip2=ip2+nBas(is)**2
         End If
       End Do

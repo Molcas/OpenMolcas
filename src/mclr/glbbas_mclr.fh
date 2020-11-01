@@ -8,7 +8,6 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-*         KINT1        :  Core integrals
 *        KINT2        :
 *        KPINT1        :   Offsets
 *        KPINT2        :
@@ -25,7 +24,7 @@
 *
 *        Rest is for Merethe
 *
-      Integer KINT1,KINT2,KINT2A,
+      Integer       KINT2,KINT2A,
      &              KPINT1,KPINT2,
      &              KLSM1,KLSM2,
      &              KRHO1,KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,
