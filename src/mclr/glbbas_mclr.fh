@@ -9,35 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 *        KINT2        :
-*        KRHO1        :        Not in use
-*        KSBEVC        :        Not in use
-*        KSBEVL         :        Not in use
-*        KSBIDT        :        Not in use
-*        KSBCNF        :        Not in use
-*        KH0        :        Not in use
-*        KH0SCR         :        Not in use
-*        KSBIA         :        Not in use
-*        KSBIB        :        Not in use
+*        KINT2A       :
 *        KVEC3        :        Scratch space for pico?
 *
-*        Rest is for Merethe
-*
-      Integer       KINT2,KINT2A,
-     &              KLSM1,KLSM2,
-     &              KRHO1,KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,
-     &              KSBIA,KSBIB,
-     &              KVEC3,
-     &              KISOS2(3),KISOS1(3),KISOP2(3),
-     &              KISOP1(3),KSOIN1(3),KSOIN2(3),
-     &              KINH1,
-     &              KSOIA(3)
+      Integer       KINT2,KINT2A,KVEC3
 
-      COMMON/GLBBAS_MCLR/KINT2,KINT2A,
-     &              KLSM1,KLSM2,
-     &              KRHO1,KSBEVC,KSBEVL,KSBIDT,KSBCNF,KH0,KH0SCR,
-     &              KSBIA,KSBIB,
-     &              KVEC3,
-     &              KISOS2,KISOS1,KISOP2,
-     &              KISOP1,KSOIN1,KSOIN2,
-     &              KINH1,
-     &              KSOIA
+      COMMON/GLBBAS_MCLR/
+     &              KINT2,KINT2A,KVEC3
