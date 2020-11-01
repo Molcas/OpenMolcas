@@ -34,6 +34,7 @@
 #include "Pointers.fh"
 #include "Input.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "machine.fh"
       Real*8 rpre(*)
 *
@@ -45,6 +46,8 @@
       Use Iso_C_Binding
       Real*8, Target :: rpre(*)
       Integer, Pointer :: ipre(:)
+      Real*8, Allocatable:: JA(:), KA(:), Scr(:),
+     &                      Temp1(:,:), Temp2(:), Temp3(:)
       nmm=0
       nmmm=0
       Do iS=1,nSym
@@ -57,9 +60,9 @@
       nmm=nmm**2
 
 *
-      Call GetMem('JInt','Allo','Real',ipJ,n2)
-      Call GetMem('KInt','Allo','Real',ipK,n2)
-      Call GetMem('Scr ','Allo','Real',ipS,n2)
+      Call mma_allocate(JA,n2,Label='JA')
+      Call mma_allocate(KA,n2,Label='KA')
+      Call mma_allocate(Scr,n2,Label='Scr')
 *
       ip=1
       iAdr=0
@@ -69,21 +72,20 @@
          nD=nOrb(js)-nIsh(jS)
          ni=nBas(js)**2
          sign=1.0d0
-         Call GetMem('2TEMP2','ALLO','REAL',ipTemp2,ni)
-         Call GetMem('3TEMP3','ALLO','REAL',ipTemp3,ni)
-         Call GetMem('1Temp1','MAX','Real',ipT1,nTemp)
+         Call mma_allocate(Temp2,ni,Label='Temp2')
+         Call mma_allocate(Temp3,ni,Label='Temp3')
+         Call mma_MaxDBLE(nTemp)
          nTemp=Min(nmm,nTemp/2)
-         Call GetMem('1Temp1','ALLO','Real',ipTemp1,2*nTemp)
-         ipScr=ipTemp1+nTemp
+         Call mma_allocate(Temp1,nTemp,2,Label='Temp1')
          If (nd.eq.0) Goto 100
          Do iB=1,nIsh(iS)
-            call dcopy_(nD**2,[0.0d0],0,Work(ipTemp3),1)
+            call dcopy_(nD**2,[0.0d0],0,Temp3,1)
             ibb=nOrb(is)*(ib-1)+ib-2
 *
 **          Cholesky code
 *
             If (newCho) Then
-              Call preci_cho(ib,is,jS,nD,Work(ipTemp3),
+              Call preci_cho(ib,is,jS,nD,Temp3,
      &                       nOrb(is),nOrb(js),
      &                       Work(ipFIMO+ipCM(is)+ibb),
      &                       Work(ipFAMO+ipCM(is)+ibb),
@@ -91,7 +93,7 @@
      &                       Work(ipFIMO+ipCM(js)-1),
      &                       Work(ipFAMO+ipCM(js)-1),
      &                       Work(ipF0sqMO+ipCM(js)-1),sign,
-     &                       Work(ipJ),Work(ipK),Work(ipS),n2,
+     &                       JA,KA,Scr,n2,
      &                       iAdr) ! OK
 
             Else
@@ -103,7 +105,7 @@
 *               iaib
 *
                If (nash(js).gt.0)
-     &            Call Preciaa(ib,is,js,nd,Work(ipTemp3),
+     &            Call Preciaa(ib,is,js,nd,Temp3,
      &                         nOrb(is),nOrb(js),
      &                         Work(ipFIMO+ipCM(is)+ibb),
      &                         Work(ipFAMO+ipCM(is)+ibb),
@@ -111,7 +113,7 @@
      &                         Work(ipFIMO+ipCM(js)-1),
      &                         Work(ipFAMO+ipCM(js)-1),
      &                         Work(ipF0sqMO+ipCM(js)-1),sign,
-     &                         Work(ipJ),Work(ipK),Work(ipS),n2) ! OK
+     &                         JA,KA,Scr,n2) ! OK
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -119,11 +121,11 @@
 *               ipia
 *
                If ((nOrb(js)-nish(js)-nash(js))*nash(js).gt.0)
-     &            Call Preciba(ib,is,js,nd,Work(ipTemp3),nOrb(js),
+     &            Call Preciba(ib,is,js,nd,Temp3,nOrb(js),
      &                         Work(ipFIMO+ipCM(js)-1),
      &                         Work(ipFAMO+ipCM(js)-1),
      &                         Work(ipF0sqMO+ipCM(js)-1),sign,
-     &                         Work(ipJ),Work(ipK),Work(ipS),n2) ! OK
+     &                         JA,KA,Scr,n2) ! OK
 *
             End If
 *                                                                      *
@@ -133,9 +135,9 @@
 *            ipiq
 *
             If ((nOrb(js)-nish(js)-nash(js)) .gt.0)
-     &         Call Precibb(ib,is,js,nd,Work(ipTemp3),
+     &         Call Precibb(ib,is,js,nd,Temp3,
      &                      nbas(js),norb(js),
-     &                      Work(ipTemp1),Work(ipScr),Work(ipTemp2),
+     &                      Temp1(:,1),Temp1(:,2),Temp2,
      &                      Work(ipFiMo+ipCM(is)+ibb),
      &                      Work(ipFAMO+ipcm(is)+ibb),  ! OK
      &                      Work(ipFiMo+ipCM(js)-1),
@@ -151,11 +153,11 @@
 *
 *            write(6,*) 'Preconditioner i =',iB
 *            Do i=1,min(nd,10)
-*             write(6,'(10F12.8)') (Work(ipTemp3+(j-1)*(2*nd-j+2)/2+i-j),
+*             write(6,'(10F12.8)') (Temp3(1+(j-1)*(2*nd-j+2)/2+i-j),
 *     &                             j=1,i)
 *            End Do
 
-            Call SQM(Work(ipTemp3),rpre(ip),nd)
+            Call SQM(Temp3,rpre(ip),nd)
 
 !            write(*,*)" ====== rpre ====== "
 !            do i=1,nd*nd
@@ -187,13 +189,13 @@
             If (ir.eq.2) nD=nOrb(js)-nRs2(js)
             If (ir.eq.3) nD=nOrb(js)-nRs3(js)
             If (nd.eq.0) Goto 110
-            call dcopy_(nD**2,[0.0d0],0,Work(ipTemp3),1)
+            call dcopy_(nD**2,[0.0d0],0,Temp3,1)
             ndtri=nd*(nd+1)/2
 *
 **  New Cholesky code
 *
             If (newCho) Then
-               Call Preca_cho(ib,is,js,nd,ir,Work(ipTemp3),
+               Call Preca_cho(ib,is,js,nd,ir,Temp3,
      &                        nOrb(is),nOrb(js),
      &                        Work(ipFIMO+ipCM(is)+ibb),
      &                        Work(ipFAMO+ipCM(is)+ibb),
@@ -201,11 +203,11 @@
      &                        Work(ipFIMO+ipCM(js)-1),
      &                        Work(ipFAMO+ipCM(js)-1),
      &                        Work(ipF0SqMO+ipCM(js)-1),sign,
-     &                        Work(ipJ),Work(ipK),Work(ipS),n2,
+     &                        JA,KA,Scr,n2,
      &                        iAdr2)
             Else
             If (nish(js).gt.0)
-     &         Call Precaii(ib,is,js,nd,ir,Work(ipTemp3),
+     &         Call Precaii(ib,is,js,nd,ir,Temp3,
      &                      nOrb(is),nOrb(js),
      &                      Work(ipFIMO+ipCM(is)+ibb),
      &                      Work(ipFAMO+ipCM(is)+ibb),
@@ -213,21 +215,21 @@
      &                      Work(ipFIMO+ipCM(js)-1),
      &                      Work(ipFAMO+ipCM(js)-1),
      &                      Work(ipF0SqMO+ipCM(js)-1),sign,
-     &                      Work(ipJ),Work(ipK),Work(ipS),n2) ! OK
+     &                      JA,KA,Scr,n2) ! OK
 *           Call Precaai(ib,nd,ir,rpre(ip))
 *           Call Precaaa(ib,nd,ir,rpre(ip))
             If (nish(js)*nOrb(js).gt.0)
-     &         Call Precabi(ib,is,js,ir,nd,Work(ipTemp3),nOrb(js),
+     &         Call Precabi(ib,is,js,ir,nd,Temp3,nOrb(js),
      &                      Work(ipFIMO+ipCM(js)-1),
      &                      Work(ipFAMO+ipCM(js)-1),
      &                      Work(ipF0SQMO+ipCM(js)-1),sign,
-     &                      Work(ipJ),Work(ipK),Work(ipScr),n2) !+/-?
+     &                      JA,KA,Temp1(:,2),n2) !+/-?
 *           Call Precaba(ib,nd,ir,rpre(ip))
             If (nOrb(js).gt.0)
      &            Call Precabb_2(ib,is,js,nd,nbas(js),nOrb(js),
-     &                           Work(ipTemp3),
-     &                           Work(ipTemp1),ntemp,Work(ipScr),
-     &                           Work(ipTemp2),
+     &                           Temp3,
+     &                           Temp1(:,1),ntemp,Temp1(:,2),
+     &                           Temp2,
      &                           Work(ipF0SQMO+ipCM(is)+ibb),
      &                           Work(ipFiMo+ipCM(js)-1),
      &                           Work(ipFAMO+ipcm(js)-1) ,
@@ -235,7 +237,7 @@
 *
             EndIf ! newCho
 
-            Call SQM(Work(ipTemp3),rpre(ip),nD)
+            Call SQM(Temp3,rpre(ip),nD)
             irc=0
             call c_f_pointer(c_loc(rpre(ip+nd**2)),ipre,[nd])
             call dgetrf_(nd,nd,rpre(ip),nd,ipre,irc)
@@ -247,16 +249,16 @@
             ip=ip+nD*(nd+1)
          End Do
 110      Continue
-         Call GetMem('1TEMP1','FREE','REAL',ipTemp1,nOrb(js)**2)
-         Call GetMem('2TEMP2','FREE','REAL',ipTemp2,nOrb(js)**2)
-         Call GetMem('3TEMP3','FREE','REAL',ipTemp3,nOrb(js)**2)
+         Call mma_deallocate(Temp1)
+         Call mma_deallocate(Temp2)
+         Call mma_deallocate(Temp3)
       End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('Scr ','Free','Real',ipS,n2)
-      Call GetMem('KInt','Free','Real',ipK,n2)
-      Call GetMem('JInt','Free','Real',ipJ,n2)
+      Call mma_deallocate(Scr)
+      Call mma_deallocate(KA)
+      Call mma_deallocate(JA)
 
 *                                                                      *
 ************************************************************************
