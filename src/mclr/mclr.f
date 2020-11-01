@@ -42,7 +42,7 @@
       use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM, SFock,
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m,
      &                  CMO_Inv, CMO, DFTP, CFTP, DTOC, CNSM,
-     &                  Int1, pINT1
+     &                  Int1, pINT1, pINT2
       use negpre, only: SS
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
@@ -254,7 +254,7 @@ c      idp=rtoi
       Call mma_deallocate(INT1)
 *     Arrays in detctl.f
       If (iMethod.eq.2) Then
-         Call Getmem('TwoOff','Free','INTE',KpINT2,nDum)
+         Call mma_deallocate(pINT2)
          Call mma_deallocate(pINT1)
       End if
 

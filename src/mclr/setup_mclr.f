@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine SetUp_MCLR(DSYM)
-      use Arrays, only: pInt1
+      use Arrays, only: pInt1, pInt2
 *
 *   Setup pointers and size of metrixes (includes in Pointers.fh)
 *
@@ -184,14 +184,14 @@
                Else
                   klOrb=kOrb*lOrb
                End If
-               ip=iiSym-1+nSym*((jjSym-1)+nSym*(kkSym-1))
+               ip=iiSym+nSym*((jjSym-1)+nSym*(kkSym-1))
                If (ijNum.eq.klNum) Then
                   iPlus=ijOrb*(ijOrb+1)/2
                Else
                   iPlus=ijOrb*klOrb
                End If
 *
-               If (iPlus.gt.0) iWork(KpINT2+ip)=iOff
+               If (iPlus.gt.0) pINT2(ip)=iOff
 *
                iOff=iOff+iPlus
 *
@@ -221,7 +221,7 @@
       End Do
       Call Put_iArray('nDelPT',nDel,nSym)
 
-*     Call iWrtMa( iWork(KpINT2),64,8,64,8)
+*     Call iWrtMa(pINT2,64,8,64,8)
 *
       Return
       End

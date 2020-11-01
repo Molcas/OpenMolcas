@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine DetCtl
-      use Arrays, only: pINT1
+      use Arrays, only: pINT1, pINT2
 *
       Implicit Real*8 (A-H,O-Z)
 
@@ -33,8 +33,8 @@
       Call mma_Allocate(pINT1,nSym,Label='pInt1')
       Kapin1=ip_of_Work(pInt1(1))
       pInt1(:)=0
-      Call Getmem('TwoOff','ALLO','INTE',KpINT2,nSym**3)
-      Call iCopy(nSym**3,[0],0,iWork(kpint2),1)
+      Call mma_Allocate(pINT2,nSym**3,Label='pInt2')
+      pInt2(:)=0
 *EAW
       Pntgrp=1
       NOCSF  = 0

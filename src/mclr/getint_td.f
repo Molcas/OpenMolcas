@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE GETINT_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IKSM,JLSM,ICTL,ieaw )
-
+      use Arrays, only: pInt2
 *
 * Outer routine for accessing integral block
 *
@@ -50,11 +50,11 @@
            If (ieaw.ne.0) ip=kint2a
            CALL GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,wORK(ip),
-     &                  iWORK(KPINT2),NSMOB,ICOUL,ieaw )
+     &                  pINT2,NSMOB,ICOUL,ieaw )
           ELSE
            CALL GETINC_ABS_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IKSM,JLSM,wORK(KINT2),
-     &                  iWORK(KPINT2),NSMOB,ICTL)
+     &                  pINT2,NSMOB,ICTL)
 C
 *          Write(*,*)'I am in getinc_td'
 *          Call RECPRT('xint getint',' ',xint,10,1)

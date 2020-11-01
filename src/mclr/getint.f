@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE GETINT_MCLR(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,ICOUL ,ieaw)
-
+      Use Arrays, only: pInt2
 *
 * Outer routine for accessing integral block
 *
@@ -42,11 +42,11 @@
            If (ieaw.ne.0) ip=kint2a
            CALL GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,wORK(ip),
-     &                  iWORK(KPINT2),NSMOB,ICOUL,ieaw )
+     &                  pINT2,NSMOB,ICOUL,ieaw )
           ELSE
            CALL GETINC_ABS(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IXCHNG,IKSM,JLSM,wORK(KINT2),
-     &                  iWORK(KPINT2),NSMOB,ICOUL )
+     &                  pINT2,NSMOB,ICOUL )
           End If
 *
       IF(NTEST.NE.0) THEN

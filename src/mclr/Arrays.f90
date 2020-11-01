@@ -14,7 +14,7 @@ Module Arrays
 Implicit None
 Private
 Public :: Hss, FaMO_spinp, FaMO_spinm, SFock, G2mp, G2pp, G2mm, Fm, Fp, &
-          G1p, G1m, CMO_Inv, CMO, DFTP, CFTP, DTOC, CNSM, INT1, pINT1
+          G1p, G1m, CMO_Inv, CMO, DFTP, CFTP, DTOC, CNSM, INT1, pINT1, pInt2
 #include "detdim.fh"
 Real*8, Allocatable:: Hss(:)
 Real*8, Allocatable:: FaMO_spinp(:), FaMO_spinm(:), SFock(:)
@@ -41,8 +41,10 @@ Type Storage
 End Type Storage
 Type (Storage) :: CNSM(MXCNSM)
 !         INT1        :  Core integrals
-!         PINT1       :   Offsets
+!         PINT1       :   Offsets to symmetry blocks
+!         PINT2       :   Offsets to symmetry blocks
 
 Real*8,  Allocatable::  INT1(:)
 Integer, Allocatable:: pINT1(:)
+Integer, Allocatable:: pINT2(:)
 End Module Arrays
