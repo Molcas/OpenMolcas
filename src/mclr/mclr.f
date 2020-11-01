@@ -59,6 +59,8 @@
 #include "detdim.fh"
 #include "dmrginfo_mclr.fh"
 #include "csfsd.fh"
+      Integer, Allocatable:: ifpK(:), ifpS(:), ifpRHS(:),
+     &            ifpCI(:), ifpSC(:), ifpRHSCI(:)
 
       Logical Reduce_Prt
       External Reduce_Prt
@@ -155,24 +157,24 @@ c      idp=rtoi
 *                                                                      *
 *     File pointers
 *
-      Call GetMem('KapFile','ALLO','INTE',ifpK,nisp)
-      Call ICOPY(nisp,[-1],0,iWork(ifpk),1)
-      Call GetMem('SigFile','ALLO','INTE',ifpS,nisp)
-      Call ICOPY(nisp,[-1],0,iWork(ifps),1)
-      Call GetMem('RHSFile','ALLO','INTE',ifpRHS,nisp)
-      Call ICOPY(nisp,[-1],0,iWork(ifprhs),1)
+      Call mma_allocate(ifpK,nisp,Label='ifpK')
+      ifpK(:)=-1
+      Call mma_allocate(ifpS,nisp,Label='ifpS')
+      ifpS(:)=-1
+      Call mma_allocate(ifpRHS,nisp,'ifpRHS')
+      ifpRHS(:)=-1
       If (iMethod.eq.2) Then
-         Call GetMem('CIFile','ALLO','INTE',ifpCI,nisp)
-         Call ICOPY(nisp,[-1],0,iWork(ifpci),1)
-         Call GetMem('SCFile','ALLO','INTE',ifpSC,nisp)
-         Call ICOPY(nisp,[-1],0,iWork(ifpsc),1)
-         Call GetMem('RHCCIe','ALLO','INTE',ifpRHSCI,nisp)
-         Call ICOPY(nisp,[-1],0,iWork(ifprhsci),1)
+         Call mma_allocate(ifpCI,nisp,Label='ifpCI')
+         Call mma_allocate(ifpSC,nisp,Label='ifpSC')
+         Call mma_allocate(ifpRHSCI,nisp,Label='ifpRHSCI')
       Else
-         ifpCI=1
-         ifpSC=1
-         ifpRHSCI=1
+         Call mma_allocate(ifpCI,   1,Label='ifpCI')
+         Call mma_allocate(ifpSC,   1,Label='ifpSC')
+         Call mma_allocate(ifpRHSCI,   1,Label='ifpRHSCI')
       End If
+      ifpCI(:)=-1
+      ifpSC(:)=-1
+      ifpRHSCI(:)=-1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -183,27 +185,19 @@ c      idp=rtoi
 *     Output is stored on disk
 *
       If (SPINPOL) Then
-         Call WfCtl_SP(iWork(ifpK),iWork(ifpS),iWork(ifpCI),
-     &                 iWork(ifpSC),iWork(ifpRHS),iWork(ifpRHSCI))
+         Call WfCtl_SP(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,ifpRHSCI)
 *     Else if (ELECHESS) Then
-*        Call WfCtl_PCG(iWork(ifpK),iWork(ifpS),iWork(ifpCI),
-*                       iWork(ifpSC),iWork(ifpRHS),iWork(ifpRHSCI))
+*        Call WfCtl_PCG(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,ifpRHSCI)
 *        Call Abend()
       Else if(iMCPD) Then!pdft
-         Call WfCtl_PDFT(iWork(ifpK),iWork(ifpS),iWork(ifpCI),
-     &                 iWork(ifpSC),iWork(ifpRHS),
-     &                 converged,iPL)
+         Call WfCtl_PDFT(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,converged,iPL)
       Else if (SA) Then
-         Call WfCtl_SA(iWork(ifpK),iWork(ifpS),iWork(ifpCI),
-     &                 iWork(ifpSC),iWork(ifpRHS),
-     &                 converged,iPL)
+         Call WfCtl_SA(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,converged,iPL)
       Else If (TimeDep) Then
-         Call WfCtl_td(iWork(ifpK),iWork(ifpS),iWork(ifpCI),
-     &                 iWork(ifpSC),iWork(ifpRHS),iWork(ifpRHSCI),
+         Call WfCtl_td(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,ifpRHSCI,
      &                 converged)
       Else
-         Call WfCtl_Hess(iWork(ifpK),iWork(ifpS),iWork(ifpCI),
-     &                   iWork(ifpSC),iWork(ifpRHS),iWork(ifpRHSCI),
+         Call WfCtl_Hess(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,ifpRHSCI,
      &                   converged)
       End If
 *                                                                      *
@@ -213,21 +207,19 @@ c      idp=rtoi
 *
       If(.not.(TwoStep.and.(StepType.eq.'RUN1'))) Then
          If (PT2.or.SA.or.iMCPD) Then
-            Call Out_PT2(iWork(ifpK),iWork(ifpCI))
+            Call Out_PT2(ifpK,ifpCI)
          Else If (TimeDep) Then
-            Call Output_td(iWork(ifpK),iWork(ifpS),
-     &                     iWork(ifpCI),iWork(ifpSC),
-     &                     iWork(ifpRHS),iWork(ifpRHSCI),converged)
+            Call Output_td(ifpK,ifpS,ifpCI,ifpSC,
+     &                     ifpRHS,ifpRHSCI,converged)
          Else
-            Call Output_mclr(iWork(ifpK),iWork(ifpS),
-     &                       iWork(ifpCI),iWork(ifpSC),
-     &                       iWork(ifpRHS),iWork(ifpRHSCI),converged)
+            Call Output_mclr(ifpK,ifpS,ifpCI,ifpSC,
+     &                       ifpRHS,ifpRHSCI,converged)
             If (mckinley) Call isoloop(Double)
          End If
 *
-         If (RASSI)   Call OutRAS   (iWork(ifpK),iWork(ifpCI))
+         If (RASSI)   Call OutRAS   (ifpK,ifpCI)
 *
-         If (TimeDep) Call OutRAS_td(iWork(ifpK),iWork(ifpCI))
+         If (TimeDep) Call OutRAS_td(ifpK,ifpCI)
       End If
 *                                                                      *
 ************************************************************************
@@ -297,14 +289,12 @@ c      idp=rtoi
       Call GetMem('fisqMO','Free','Real',ipfiMO,ndens2)
       Call GetMem('f0sqMO','Free','Real',ipf0sqMO,ndens2)
 
-      If (iMethod.eq.2) Then
-         Call GetMem('RHCCIe','Free','INTE',ifpRHSCI,nisp)
-         Call GetMem('SCFile','Free','INTE',ifpSC,nisp)
-         Call GetMem('CIFile','Free','INTE',ifpCI,nisp)
-      End If
-      Call GetMem('RHSFile','Free','INTE',ifpRHS,nisp)
-      Call GetMem('SigFile','Free','INTE',ifpS,nisp)
-      Call GetMem('KapFile','Free','INTE',ifpK,nisp)
+      Call mma_deallocate(ifpRHSCI)
+      Call mma_deallocate(ifpSC)
+      Call mma_deallocate(ifpCI)
+      Call mma_deallocate(ifpRHS)
+      Call mma_deallocate(ifpS)
+      Call mma_deallocate(ifpK)
       If (Allocated(SS)) Call mma_deallocate(SS)
 *
 *     Close files
