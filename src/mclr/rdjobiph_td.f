@@ -217,8 +217,8 @@
       End Do
 *
       ipg2   =ip_of_work(G2t)
-      ipg2tmm=ip_of_work(G2t)
-      ipg2tpp=ip_of_Work(G2t)
+      ipg2tmm=ipg2
+      ipg2tpp=ipg2
 
 *---------------------------------------------------------------
 * Rectangular part of the two el dens,

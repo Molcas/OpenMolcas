@@ -27,11 +27,12 @@
 #include "Pointers.fh"
 #include "standard_iounits.fh"
 #include "Input.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "real.fh"
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
       Real*8 Fock(nDens2),FockOut(*), rDens2(*),rDens1(nna,nna)
+      Real*8, Allocatable:: MO(:), Scr(:), G2x(:), Scr1(:,:), Ash(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -54,8 +55,8 @@
       end if
 
       If (newCho) Go to 15
-      Call GetMem('ip_MO','Allo','Real',ip_MO,n2)
-      Call GetMem('ipScr','Allo','Real',ipScr,n2)
+      Call mma_allocate(MO,n2,Label='MO')
+      Call mma_allocate(Scr,n2,Label='Scr')
 *
       Do ipS=1,nSym
          Do kS=1,nSym
@@ -76,12 +77,11 @@
                      Do jA=1,nAsh(jS)
                         jAA=jA+nIsh(jS)
 *
-                        Call Coul(ipS,kS,iS,jS,iAA,jAA,
-     &                            Work(ip_MO),Work(ipScr))
+                        Call Coul(ipS,kS,iS,jS,iAA,jAA,MO,Scr)
 *
                         rD=rDens1(iA+nA(iS),jA+nA(jS))*Two
                         Call DaXpY_(nBas(ipS)*nIsh(kS),rd,
-     &                             Work(ip_MO),1,Fock(ipMat(ipS,Ks)),1)
+     &                              MO,1,Fock(ipMat(ipS,Ks)),1)
 *
                      End Do
                   End Do
@@ -101,15 +101,14 @@
                      Do jA=1,nAsh(jS)
                         jAA=jA+nIsh(jS)
 *
-                        Call Coul(ipS,kS,iS,jS,iA,jAA,
-     &                            Work(ip_MO),Work(ipScr))
+                        Call Coul(ipS,kS,iS,jS,iA,jAA,MO,Scr)
 *
-                        ipM=ip_MO+nIsh(kS)*nBas(ipS)
+                        ipM=1+nIsh(kS)*nBas(ipS)
                         Do kA=1,nAsh(kS)
 *
                            rd=rDens1(kA+nA(kS),jA+nA(jS))
                            Call DaXpY_(nBas(ipS),-rd,
-     &                                Work(ipM),1,Fock(ipF),1)
+     &                                MO(ipM),1,Fock(ipF),1)
                            ipM = ipM + nBas(ipS)
                         End Do
 *
@@ -125,9 +124,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call CreQADD(Fock,rdens2,idsym,Work(ip_MO),Work(ipScr),n2)
-      Call Free_Work(ipScr)
-      Call Free_Work(ip_MO)
+      Call CreQADD(Fock,rdens2,idsym,MO,Scr,n2)
+      Call mma_deallocate(Scr)
+      Call mma_deallocate(MO)
 *
 ************************************************************************
 *       new Cholesky code                                              *
@@ -149,8 +148,8 @@
 *
 **      Unfold 2-DM
 *
-        Call GetMem('G2x','ALLO','REAL',ipG2x,nG2)
-        ipGx=ipG2x
+        Call mma_allocate(G2x,nG2,Label='G2x')
+        ipGx=0
         Do ijS=1,nSym
           Do iS=1,nSym
             jS=iEOR(is-1,ijS-1)+1
@@ -164,8 +163,8 @@ c                 ikl=itri(lAsh+nA(lS),kAsh+nA(kS))
                     Do jAsh=1,nAsh(js)
 c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
                       iij=nna*(jAsh+nA(jS)-1)+iAsh+nA(iS)
-                      Work(ipGx)=rdens2(itri(iij,ikl))
                       ipGx=ipGx+1
+                      G2x(ipGx)=rdens2(itri(iij,ikl))
                     End Do
                   End Do
                 End Do
@@ -176,34 +175,36 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
 *
 **      Get active CMO
 *
-        Call GetMem('Cva','Allo','Real',ipAsh,nVB)
+        Call mma_Allocate(Ash,nVB,Label='Ash')
         ioff=0
         ioff1=0
         Do iS=1,nSym
           ioff2 = ioff + nOrb(iS)*nIsh(iS)
           Do iB=1,nAsh(iS)
             ioff3=ioff2+nOrb(iS)*(iB-1)
-            call dcopy_(nOrb(iS),CMO(1+ioff3),1,
-     &                Work(ipAsh+ioff1+iB-1),nAsh(iS))
+            call dcopy_(nOrb(iS),CMO(1+ioff3),1,Ash(ioff1+iB),nAsh(iS))
           End Do
           ioff=ioff+(nIsh(iS)+nAsh(iS))*nOrb(iS)
           ioff1=ioff1+nAsh(iS)*nOrb(iS)
         End Do
 
 *
-        Call GetMem('Scr','Allo','Real',ipScr1,n2*2)
-        call dcopy_(n2*2,[Zero],0,Work(ipScr1),1)
-        ipScr2=ipScr1+n2
+        Call mma_allocate(Scr1,n2,2,Label='Scr1')
+        Scr1(:,:)=Zero
         ipDA  =ip_of_work(rdens1(1,1))
         ipFock=ip_of_work(Fock(1))
         ipCMO =ip_of_work(CMO(1))
+        ipG2x =ip_of_work(G2x(1))
+        ipScr1=ip_of_work(Scr1(1,1))
+        ipScr2=ip_of_work(Scr1(1,2))
+        ipAsh =ip_of_work(Ash(1))
 *
         Call cho_fock_mclr(ipDA,ipG2x,ipScr1,ipScr2,ipFock,
      &                    [ipAsh],ipCMO,nIsh,nAsh,LuAChoVec)
 *
-        Call GetMem('Scr','Free','Real',ipScr1,n2*2)
-        Call GetMem('Cva','Free','Real',ipAsh,nVB)
-        Call GetMem('G2x','Free','REAL',ipG2x,nG2)
+        Call mma_deallocate(Scr1)
+        Call mma_deallocate(Ash)
+        Call mma_deallocate(G2x)
       EndIf
 *
 ************************************************************************
