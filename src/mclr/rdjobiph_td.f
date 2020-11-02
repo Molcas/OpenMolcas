@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine RdJobIph_td
+      Subroutine RdJobIph_td(CIVec)
 ************************************************************************
 *                                                                      *
 *     Read the contents of the JOBIPH file.                            *
@@ -27,13 +27,13 @@
 #include "Files_mclr.fh"
 #include "glbbas_mclr.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
       Character*72 Line
       Real*8 rdum(1)
       Character(Len=1), Allocatable:: TempTxt(:)
       Real*8, Allocatable::  Tmp2(:), G2tts(:), G2tta(:)
+      Real*8, Allocatable:: CIVec(:,:)
 
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
@@ -134,13 +134,13 @@
 *----------------------------------------------------------------------*
 *     Load the CI vector for the root lRoots                           *
 *----------------------------------------------------------------------*
-      Call GetMem('OCIvec','Allo','Real',ipCI,nConf)
+      Call mma_allocate(CIVec,nConf,1,Label='CIVec')
       iDisk=iToc(4)
       Do i=1,lroots-1
-      Call dDaFile(LuJob,0,Work(ipCI),nConf,iDisk)
+         Call dDaFile(LuJob,0,CIVec,nConf,iDisk)
       End Do
-      Call dDaFile(LuJob,2,Work(ipCI),nConf,iDisk)
-      If (.false.) Call DVcPrt('CI coefficients',' ',Work(ipCI),nConf)
+      Call dDaFile(LuJob,2,CIVec,nConf,iDisk)
+      If (.false.) Call DVcPrt('CI coefficients',' ',CIVec,nConf)
 *----------------------------------------------------------------------*
 *     Load state energy                                                *
 *----------------------------------------------------------------------*

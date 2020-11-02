@@ -361,6 +361,10 @@
               End Do
             End Do
           End Do
+        Else
+          Call mma_allocate(Ash,  1,Label='Ash')
+          Call mma_allocate(DA,  1,Label='DA')
+          Call mma_allocate(G2x,  1,Label='G2x')
         EndIf
 *
 **      Let's go
@@ -397,7 +401,7 @@
         ipKA       = ip_of_Work(KA(1))
         ipAsh      = ip_of_Work(Ash(1))
         ipDA       = ip_of_Work(DA(1))
-        ipG2X      = ip_of_Work(G2X(1))
+        ipG2X      = ip_of_Work(G2x(1))
 !       Call CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2x,ipkappa,
 !    &                   ipJI,ipKI,ipJA,ipKA,ipFockI,ipFockA,
 !    &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
@@ -411,11 +415,9 @@
         Call mma_deallocate(JA)
         Call mma_deallocate(KA)
         Call mma_deallocate(DLT)
-        If (iMethod.eq.iCASSCF) Then
-           Call mma_deallocate(G2x)
-           Call mma_deallocate(Ash)
-           Call mma_deallocate(DA)
-        EndIf
+        Call mma_deallocate(G2x)
+        Call mma_deallocate(Ash)
+        Call mma_deallocate(DA)
       EndIf
 ************************************************************************
 *                                                                      *

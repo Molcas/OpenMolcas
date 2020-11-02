@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine RdJobIph
+      Subroutine RdJobIph(CIVec)
 ************************************************************************
 *                                                                      *
 *     Read the contents of the JOBIPH file.                            *
@@ -29,7 +29,6 @@
 #include "glbbas_mclr.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
 #include "sa.fh"
@@ -41,6 +40,7 @@
       Real*8 rdum(1)
       Character(Len=1), Allocatable:: TempTxt(:)
       Real*8, Allocatable::  Tmp2(:)
+      Real*8, Allocatable:: CIVec(:,:)
 
 *                                                                      *
 ************************************************************************
@@ -238,34 +238,31 @@ C
 !    2) and together with DET numbers from GUGA generation part
 
       if(doDMRG)then  ! yma
-        !ipCI=1
-        ! need to be deleted the 1000 yma
-        Call GetMem('OCIvec','Allo','Real',ipCI,nConf*nroots+1000)
-      ! So, nothing need to be done here ...
+        Call mma_allocate(CIVec,nConf,nroots,Label='CIVec')
       else
-        Call GetMem('OCIvec','Allo','Real',ipCI,nConf*nroots)
+        Call mma_allocate(CIVec,nConf,nroots,Label='CIVec')
         Do i=1,nroots
           j=iroot(i)
           iDisk=iToc(4)
           Do k=1,j-1
             Call dDaFile(LuJob,0,rdum,nConf,iDisk)
           End Do
-          Call dDaFile(LuJob,2,Work(ipCI+(i-1)*nconf),nConf,iDisk)
+          Call dDaFile(LuJob,2,CIVec(:,i),nConf,iDisk)
         End Do
 !#ifdef _DEBUGPRINT_           ! yma umcomment
-        Do i=0,nroots-1            !yma
+        Do i=1,nroots            !yma
           inum=0
           dv_ci2=0.0d0
           do j=1,nconf
 !yma        CI-threshold
-            if(abs(Work(ipCI+nconf*i+j-1)).lt.0.0d0)then
+            if(abs(CIVec(j,i)).lt.0.0d0)then
               inum=inum+1
-              Work(ipCI+nconf*i+j-1)=0.0d0
+              CIVec(j,i)=0.0D0
             else
-              dv_ci2=dv_ci2+Work(ipCI+nconf*i+j-1)**2
+              dv_ci2=dv_ci2+CIVec(j,i)**2
             end if
           end do
-!          Call DVcPrt('CI coefficients',' ',Work(ipCI+nconf*i),nConf)!yma
+!          Call DVcPrt('CI coefficients',' ',CIVec(:,i),nConf)!yma
 !          write(*,*)"dismissed dets num", inum
 !          write(*,*)"absolutely CI^2",dv_ci2
         End DO
@@ -326,7 +323,6 @@ C
             End Do
          End Do
       End Do
-*     Call GetMem(' G1sq','Allo','Real',ipG1,nAct2)
 
       nG1 = nAct*(nAct+1)/2
       Call mma_allocate(G1t,nG1,Label='G1t')

@@ -29,6 +29,7 @@
 #include "Input.fh"
 #include "Files_mclr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "Pointers.fh"
 #include "sa.fh"
 
@@ -36,12 +37,24 @@
 #include "spinfo_mclr.fh"
 #include "dmrginfo_mclr.fh"
       logical ldisk,ipopen
+      Real*8, Allocatable:: CIVec(:,:)
 
 ! ==========================================================
       integer,allocatable::index_SD(:) ! not final version
       real*8,allocatable::vector_cidmrg(:)
 ! ==========================================================
 
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+        Subroutine RdJobIph_td(CIVec)
+        Real*8, Allocatable:: CIVec(:,:)
+        End Subroutine RdJobIph_td
+        Subroutine RdJobIph(CIVec)
+        Real*8, Allocatable:: CIVec(:,:)
+        End Subroutine RdJobIph
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -65,9 +78,9 @@
 *
       If (iMethod.eq.iCASSCF) Then
          If (TimeDep) Then
-            Call RdJobIph_td
+            Call RdJobIph_td(CIVec)
          Else
-            Call RdJobIph
+            Call RdJobIph(CIVec)
          End If
 
 *        Write(6,*) 'Setup of Determinant tables'
@@ -93,7 +106,7 @@
              Call Getmem('CIROOT','ALLO','REAL',ipT,ndets_RGLR)
            else
              Call Getmem('CIROOT','ALLO','REAL',ipT,nconf)
-             call dcopy_(nconf,Work(ipCI+(i-1)*nconf),1,Work(ipT),1)
+             call dcopy_(nconf,CIVec(:,i),1,Work(ipT),1)
            end if
 
            !> If doDMRG
@@ -110,8 +123,7 @@
              ! mma_allocate and mma_deallocate
              allocate(index_SD(ndets_RGLR))
              allocate(vector_cidmrg(ndets_RGLR))
-             call ci_reconstruct(i,ndets_RGLR,vector_cidmrg,
-     &                           index_SD)
+             call ci_reconstruct(i,ndets_RGLR,vector_cidmrg,index_SD)
              do ii=1,ndets_RGLR
                if(abs(vector_cidmrg(ii)).lt.0.0d0)then
                  vector_cidmrg(ii)=0.0d0
@@ -124,7 +136,7 @@
              deallocate(vector_cidmrg)
            end if
 
-           call dcopy_(nconf,Work(ipT),1,Work(ipCI+(i-1)*nconf),1)
+           call dcopy_(nconf,Work(ipT),1,CIVec(:,i),1)
 
           if(doDMRG.and.doMCLR)then !yma
             Call Getmem('CIROOT','FREE','REAL',ipT,ndets_RGLR)
@@ -132,11 +144,10 @@
             Call Getmem('CIROOT','FREE','REAL',ipT,nconf)
           end if
         End Do
-
 *                                                                      *
 ************************************************************************
 *                                                                      *
-        ldisk  =ipopen(nconf,page)
+         ldisk  =ipopen(nconf,page)
 *
 *        If we are computing Lagrangian multipliers we pick up all CI
 *        vectors. For Hessian calculations we pick up just one vector.
@@ -145,13 +156,12 @@ C        Write (*,*) 'iState,SA,nroots=',iState,SA,nroots
          If (SA.or.iMCPD) Then
             ipcii=ipget(nconf*nroots)
             irc=ipin(ipcii)
-            call dcopy_(nconf*nroots,Work(ipCI),1,W(ipcii)%Vec,1)
+            call dcopy_(nconf*nroots,CIVec,1,W(ipcii)%Vec,1)
             nDisp=1
          Else
             ipcii=ipget(nconf)
             irc=ipin(ipcii)
-            ipCI_ = ipCI + (iState-1)*nConf
-            call dcopy_(nConf,Work(ipCI_),1,W(ipcii)%Vec,1)
+            call dcopy_(nConf,CIVec(:,iState),1,W(ipcii)%Vec,1)
             If (iRoot(iState).ne.1) Then
                Write (6,*) 'McKinley does not support computation of'
      &                   //' harmonic frequencies of excited states'
@@ -160,7 +170,11 @@ C        Write (*,*) 'iState,SA,nroots=',iState,SA,nroots
          End If
 C        irc=ipin(ipcii)
 C        Call RecPrt('CI vector',' ',W(ipcii)%Vec,1,nConf)
-         Call Getmem('CIVEC','FREE','REAL',ipci,idum)
+         Call mma_deallocate(CIVec)
+*
+*        At this point we change to ipci being the index of the CI
+*        vector in the ipage utility.
+*
          ipci=ipcii
          irc=ipout(ipci)
 *                                                                      *

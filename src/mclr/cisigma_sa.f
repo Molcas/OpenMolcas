@@ -51,7 +51,7 @@
 *
 *      Two electron integrals
 *      symmetric in perticle one and two
-       if (ipInt1.eq.ip_of_Work(FIMO)) then
+       if (ipInt1.eq.ip_of_Work(FIMO(1))) then
         Call icopy(nsym,nbas,1,nbb,1)
        Else
          Call icopy(nsym,norb,1,nbb,1)
