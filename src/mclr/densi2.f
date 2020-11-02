@@ -18,9 +18,9 @@
 * I12 = 1 => only one-body density
 * I12 = 2 => one- and two-body density matrices
 *
-* Jeppe Olsen,      Oct 94
-* GAS modifications Aug 95
-* Two body density added, '96
+* Jeppe Olsen,      Oct 1994
+* GAS modifications Aug 1995
+* Two body density added, 1996
 *
 * Two-body density is stored as rho2(ijkl)=<l!e(ij)e(kl)-delta(jk)e(il)!r>
 * ijkl = ij*(ij-1)/2+kl, ij.ge.kl
@@ -56,8 +56,9 @@
 *. Before I forget it :
       DIMENSION iSXSTSM(1),IDUMMY(1)
       Integer, Allocatable:: SIOIO(:), CIOIO(:), SBLTP(:)
-      Integer, Allocatable:: STSTS(:), STSTD(:), IX(:,:)
-      Real*8, Allocatable:: CB(:), SB(:), INSCR(:), C2(:)
+      Integer, Allocatable:: STSTS(:), STSTD(:), IX(:,:), OOS(:,:)
+      Real*8, Allocatable:: CB(:), SB(:), INSCR(:), C2(:), XIXS(:,:)
+      Real*8, Allocatable:: CBLTP(:)
 
       IDUM = 0
 CFUE  IPRDEN=0
@@ -154,7 +155,7 @@ CFUE  IPRDEN=0
       CALL mma_allocate(INSCR,INTSCR,Label='INSCR')
 
 *
-*. Arrays giving allowed type combinations '
+*. Arrays giving allowed type combinations
       CALL mma_allocate(SIOIO,NOCTPA*NOCTPB,Label='SIOIO')
       CALL mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
 
@@ -195,29 +196,17 @@ CFUE  IPRDEN=0
       MAXIK = MAX(MAXI,MAXK)
       LSCR3 = MAX(MXSTBL*MXTSOB,MXIJST,MAXIK*MXTSOB*MXTSOB,MXSTBL0)
       CALL mma_allocate(IX,LSCR3,4,Label='IX')
-      CALL GETMEM('XI1S','ALLO','REAL',KXI1S,LSCR3)
-      CALL GETMEM('XI2S','ALLO','REAL',KXI2S,LSCR3)
-      CALL GETMEM('XI3S','ALLO','REAL',KXI3S,LSCR3)
-      CALL GETMEM('XI4S','ALLO','REAL',KXI4S,LSCR3)
+      CALL mma_allocate(XIXS,LSCR3,4,Label='XIXS')
 *. Arrays giving block type
       CALL mma_allocate(SBLTP,NSMST,Label='SBLTP')
-      CALL GETMEM('CBLTP','ALLO','INTE',KCBLTP,NSMST)
+      CALL mma_allocate(CBLTP,NSMST,Label='CBLTP')
 *. Arrays for additional symmetry operation
       KSVST = 1
       CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,SBLTP,iWORK(KSVST))
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,iWORK(KCBLTP),iWORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,CBLTP,iWORK(KSVST))
 *.10 OOS arrayy
       NOOS = NOCTPA*NOCTPB*NSMST
-      CALL GETMEM('OOS1','ALLO','INTE',KOOS1,NOOS)
-      CALL GETMEM('OOS2','ALLO','INTE',KOOS2,NOOS)
-      CALL GETMEM('OOS3','ALLO','INTE',KOOS3,NOOS)
-      CALL GETMEM('OOS4','ALLO','INTE',KOOS4,NOOS)
-      CALL GETMEM('OOS5','ALLO','INTE',KOOS5,NOOS)
-      CALL GETMEM('OOS6','ALLO','INTE',KOOS6,NOOS)
-      CALL GETMEM('OOS7','ALLO','INTE',KOOS7,NOOS)
-      CALL GETMEM('OOS8','ALLO','INTE',KOOS8,NOOS)
-      CALL GETMEM('OOS9','ALLO','INTE',KOOS9,NOOS)
-      CALL GETMEM('OOS10','ALLO','INTE',KOOS10,NOOS)
+      CALL mma_allocate(OOS,NOOS,10,Label='OSS')
 * scratch space containing active one body
       CALL GETMEM('RHO1S','ALLO','REAL',KRHO1S,NACOB ** 2)
 *. For natural orbitals
@@ -238,7 +227,7 @@ CFUE  IPRDEN=0
      &              Str(IBTP)%NSTSO,SIOIO,IDC,
      &              2,IDUMMY,IPRDIA)
 *. Right CI vector
-        CALL SCDTC2_MCLR(R,ISMOST(1,ICSM),iWORK(KCBLTP),NSMST,
+        CALL SCDTC2_MCLR(R,ISMOST(1,ICSM),CBLTP,NSMST,
      &              NOCTPA,NOCTPB,Str(IATP)%NSTSO,
      &              Str(IBTP)%NSTSO,CIOIO,IDC,
      &              2,IDUMMY,IPRDIA)
@@ -247,7 +236,7 @@ CFUE  IPRDEN=0
       IF(ICISTR.EQ.1) THEN
         CALL GASDN2(I12,RHO1,RHO2,R,L,CB,SB,C2,
      &              CIOIO,SIOIO,ISMOST(1,ICSM),
-     &       ISMOST(1,ISSM),iWORK(KCBLTP),SBLTP,
+     &       ISMOST(1,ISSM),CBLTP,SBLTP,
      &       NACOB,
      &       Str(IATP)%NSTSO,Str(IATP)%ISTSO,
      &       Str(IBTP)%NSTSO,Str(IBTP)%ISTSO,
@@ -260,17 +249,16 @@ CFUE  IPRDEN=0
      &       iSXSTSM,STSTS,STSTD,SXDXSX,
      &       ADSXA,ASXAD,NGAS,
      &       Str(IATP)%EL123,Str(IBTP)%EL123,IDC,
-     &       iWORK(KOOS1),iWORK(KOOS2),iWORK(KOOS3),iWORK(KOOS4),
-     &       iWORK(KOOS5),iWORK(KOOS6),iWORK(KOOS7),iWORK(KOOS8),
-     &       iWORK(KOOS9),iWORK(KOOS10),
-     &       IX(:,1),WORK(KXI1S),IX(:,2),WORK(KXI2S),
-     &       IX(:,3),WORK(KXI3S),IX(:,3),WORK(KXI4S),INSCR,
+     &       OOS(:,1), OOS(:,2), OOS(:,3), OOS(:,4), OOS(:,5),
+     &       OOS(:,6), OOS(:,7), OOS(:,8), OOS(:,9), OOS(:,10),
+     &       IX(:,1),XIXS(:,1),IX(:,2),XIXS(:,2),
+     &       IX(:,3),XIXS(:,3),IX(:,3),XIXS(:,4),INSCR,
      &       MXPOBS,IPRDEN,WORK(KRHO1S),LUL,LUR,
      &       PSSIGN,PSSIGN,WORK(KRHO1P),WORK(KXNATO),ieaw,n1,n2)
       ELSE IF(ICISTR.GE.2) THEN
         CALL GASDN2(I12,RHO1,RHO2,R,L,R,L,C2,
      &              CIOIO,SIOIO,ISMOST(1,ICSM),
-     &       ISMOST(1,ISSM),iWORK(KCBLTP),SBLTP,
+     &       ISMOST(1,ISSM),CBLTP,SBLTP,
      &       NACOB,
      &       Str(IATP)%NSTSO,Str(IATP)%ISTSO,
      &       Str(IBTP)%NSTSO,Str(IBTP)%ISTSO,
@@ -283,11 +271,10 @@ CFUE  IPRDEN=0
      &       iSXSTSM,STSTS,STSTD,SXDXSX,
      &       ADSXA,ASXAD,NGAS,
      &       Str(IATP)%EL123,Str(IBTP)%EL123,IDC,
-     &       iWORK(KOOS1),iWORK(KOOS2),iWORK(KOOS3),iWORK(KOOS4),
-     &       iWORK(KOOS5),iWORK(KOOS6),iWORK(KOOS7),iWORK(KOOS8),
-     &       iWORK(KOOS9),iWORK(KOOS10),
-     &       IX(:,1),WORK(KXI1S),IX(:,2),WORK(KXI2S),
-     &       IX(:,3),WORK(KXI3S),IX(:,3),WORK(KXI4S),INSCR,
+     &       OOS(:,1), OOS(:,2), OOS(:,3), OOS(:,4), OOS(:,5),
+     &       OOS(:,6), OOS(:,7), OOS(:,8), OOS(:,9), OOS(:,10),
+     &       IX(:,1),XIXS(:,1),IX(:,2),XIXS(:,2),
+     &       IX(:,3),XIXS(:,3),IX(:,3),XIXS(:,4),INSCR,
      &       MXPOBS,IPRDEN,WORK(KRHO1S),LUL,LUR,
      &       PSSIGN,PSSIGN,WORK(KRHO1P),WORK(KXNATO),ieaw,n1,n2)
       END IF
@@ -299,7 +286,7 @@ CFUE  IPRDEN=0
      &              NOCTPA,NOCTPB,Str(IATP)%NSTSO,
      &              Str(IBTP)%NSTSO,SIOIO,IDC,
      &              1,IDUMMY,IPRDIA)
-        CALL SCDTC2_MCLR(R,ISMOST(1,ICSM),iWORK(KCBLTP),NSMST,
+        CALL SCDTC2_MCLR(R,ISMOST(1,ICSM),CBLTP,NSMST,
      &              NOCTPA,NOCTPB,Str(IATP)%NSTSO,
      &              Str(IBTP)%NSTSO,CIOIO,IDC,
      &              1,IDUMMY,IPRDIA)
@@ -318,22 +305,10 @@ CFUE  IPRDEN=0
       Call mma_deallocate(CIOIO)
       Call mma_deallocate(C2)
       Call mma_deallocate(IX)
-      Call GetMem('XI1S','FREE','Real',KXI1S,IDUM)
-      Call GetMem('XI2S','FREE','Real',KXI2S,IDUM)
-      Call GetMem('XI3S','FREE','Real',KXI3S,IDUM)
-      Call GetMem('XI4S','FREE','Real',KXI4S,IDUM)
+      Call mma_deallocate(XIXS)
       Call mma_deallocate(SBLTP)
-      Call GetMem('CBLTP','FREE','Inte',KCBLTP,IDUM)
-      Call GetMem('OOS1','FREE','Inte',KOOS1,IDUM)
-      Call GetMem('OOS2','FREE','Inte',KOOS2,IDUM)
-      Call GetMem('OOS3','FREE','Inte',KOOS3,IDUM)
-      Call GetMem('OOS4','FREE','Inte',KOOS4,IDUM)
-      Call GetMem('OOS5','FREE','Inte',KOOS5,IDUM)
-      Call GetMem('OOS6','FREE','Inte',KOOS6,IDUM)
-      Call GetMem('OOS7','FREE','Inte',KOOS7,IDUM)
-      Call GetMem('OOS8','FREE','Inte',KOOS8,IDUM)
-      Call GetMem('OOS9','FREE','Inte',KOOS9,IDUM)
-      Call GetMem('OOS10','FREE','Inte',KOOS10,IDUM)
+      Call mma_deallocate(CBLTP)
+      Call mma_deallocate(OOS)
       Call GetMem('RHO1S','FREE','Real',KRHO1S,IDUM)
       Call GetMem('RHO1P','FREE','Real',KRHO1P,IDUM)
       Call GetMem('XNATO','FREE','Real',KXNATO,IDUM)
