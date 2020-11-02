@@ -45,6 +45,7 @@
 #include "crun_mclr.fh"
 #include "dmrginfo_mclr.fh"
       Real*8 DIAG(*)
+      Integer idum(1)
 *
 * ======
 *.Output
@@ -79,7 +80,6 @@
       Call GetMem('KLSMO2','ALLO','INTE',KLBLTP,NSMST)
 
 *
-        KLSVST = 1
 *. Largest NOCTPA*NOCTPB block
       MXOCOC = 0
       DO IISPC = 1, NSPC
@@ -118,12 +118,11 @@
         MNRS1C = MNR1IC(ISPC(IISPC))
         MXRS3C = MXR3IC(ISPC(IISPC))
 *
-        CALL ZBLTP(ISMOST(1,ISM(IISPC)),NSMST,IDC,
-     &       iWORK(KLBLTP),iWORK(KLSVST))
+        CALL ZBLTP(ISMOST(1,ISM(IISPC)),NSMST,IDC,iWORK(KLBLTP),idum)
         CALL IAIBCM_MCLR(MNRS1C,MXRS3C,NOCTPA,NOCTPB,
-     &       Str(IATP)%EL1,Str(IATP)%EL3,
-     &       Str(IBTP)%EL1,Str(IBTP)%EL3,
-     &       iWORK(KLIOIO),IPRDIA)
+     &                   Str(IATP)%EL1,Str(IATP)%EL3,
+     &                   Str(IBTP)%EL1,Str(IBTP)%EL3,
+     &                   iWORK(KLIOIO),IPRDIA)
 *
         IF(ICISTR.LE.1) THEN
           LLUDIA = 0

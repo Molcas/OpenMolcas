@@ -40,7 +40,6 @@
 #include "cicisp_mclr.fh"
 #include "cstate_mclr.fh"
 #include "csm.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "crun_mclr.fh"
 #include "cprnt_mclr.fh"
@@ -58,7 +57,9 @@
       Integer, Allocatable:: SIOIO(:), CIOIO(:), SBLTP(:)
       Integer, Allocatable:: STSTS(:), STSTD(:), IX(:,:), OOS(:,:)
       Real*8, Allocatable:: CB(:), SB(:), INSCR(:), C2(:), XIXS(:,:)
-      Real*8, Allocatable:: CBLTP(:)
+      Real*8, Allocatable:: CBLTP(:), RHO1S(:), RHO1P(:), XNATO(:)
+*     Real*8, Allocatable:: RHO1SM(:), XNATSM(:), OCCSM(:)
+      Integer idum(1)
 
       IDUM = 0
 CFUE  IPRDEN=0
@@ -201,21 +202,20 @@ CFUE  IPRDEN=0
       CALL mma_allocate(SBLTP,NSMST,Label='SBLTP')
       CALL mma_allocate(CBLTP,NSMST,Label='CBLTP')
 *. Arrays for additional symmetry operation
-      KSVST = 1
-      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,SBLTP,iWORK(KSVST))
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,CBLTP,iWORK(KSVST))
+      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,SBLTP,idum)
+      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,CBLTP,idum)
 *.10 OOS arrayy
       NOOS = NOCTPA*NOCTPB*NSMST
       CALL mma_allocate(OOS,NOOS,10,Label='OSS')
 * scratch space containing active one body
-      CALL GETMEM('RHO1S','ALLO','REAL',KRHO1S,NACOB ** 2)
+      CALL mma_allocate(RHO1S,NACOB ** 2,Label='RHO1S')
 *. For natural orbitals
-      CALL GETMEM('RHO1P','ALLO','REAL',KRHO1P,NACOB*(NACOB+1)/2)
-      CALL GETMEM('XNATO','ALLO','REAL',KXNATO,NACOB **2)
+      CALL mma_allocate(RHO1P,NACOB*(NACOB+1)/2,Label='RHO1P')
+      CALL mma_allocate(XNATO,NACOB **2,Label='XNATO')
 *. Natural orbitals in symmetry blocks
-      CALL GETMEM('RHO1SM','ALLO','REAL',KRHO1SM,NACOB ** 2)
-      CALL GETMEM('XNATSM','ALLO','REAL',KXNATSM,NACOB ** 2)
-      CALL GETMEM('OCCSM','ALLO','REAL',KOCCSM,NACOB)
+*     CALL mma_allocate(RHO1SM,NACOB ** 2,Label='RHO1SM')
+*     CALL mma_allocate(XNATSM,NACOB ** 2,Label='XNATSM')
+*     CALL mma_allocate(OCCSM,NACOB,Label='OCCSM')
 *
 *
 *. Transform from combination scaling to determinant scaling
@@ -253,8 +253,8 @@ CFUE  IPRDEN=0
      &       OOS(:,6), OOS(:,7), OOS(:,8), OOS(:,9), OOS(:,10),
      &       IX(:,1),XIXS(:,1),IX(:,2),XIXS(:,2),
      &       IX(:,3),XIXS(:,3),IX(:,3),XIXS(:,4),INSCR,
-     &       MXPOBS,IPRDEN,WORK(KRHO1S),LUL,LUR,
-     &       PSSIGN,PSSIGN,WORK(KRHO1P),WORK(KXNATO),ieaw,n1,n2)
+     &       MXPOBS,IPRDEN,RHO1S,LUL,LUR,
+     &       PSSIGN,PSSIGN,RHO1P,XNATO,ieaw,n1,n2)
       ELSE IF(ICISTR.GE.2) THEN
         CALL GASDN2(I12,RHO1,RHO2,R,L,R,L,C2,
      &              CIOIO,SIOIO,ISMOST(1,ICSM),
@@ -275,8 +275,8 @@ CFUE  IPRDEN=0
      &       OOS(:,6), OOS(:,7), OOS(:,8), OOS(:,9), OOS(:,10),
      &       IX(:,1),XIXS(:,1),IX(:,2),XIXS(:,2),
      &       IX(:,3),XIXS(:,3),IX(:,3),XIXS(:,4),INSCR,
-     &       MXPOBS,IPRDEN,WORK(KRHO1S),LUL,LUR,
-     &       PSSIGN,PSSIGN,WORK(KRHO1P),WORK(KXNATO),ieaw,n1,n2)
+     &       MXPOBS,IPRDEN,RHO1S,LUL,LUR,
+     &       PSSIGN,PSSIGN,RHO1P,XNATO,ieaw,n1,n2)
       END IF
 
       IF(IDC.NE.1.AND.ICISTR.EQ.1) THEN
@@ -309,12 +309,12 @@ CFUE  IPRDEN=0
       Call mma_deallocate(SBLTP)
       Call mma_deallocate(CBLTP)
       Call mma_deallocate(OOS)
-      Call GetMem('RHO1S','FREE','Real',KRHO1S,IDUM)
-      Call GetMem('RHO1P','FREE','Real',KRHO1P,IDUM)
-      Call GetMem('XNATO','FREE','Real',KXNATO,IDUM)
-      Call GetMem('RHO1SM','FREE','Real',KRHO1SM,IDUM)
-      Call GetMem('XNATSM','FREE','Real',KXNATSM,IDUM)
-      Call GetMem('OCCSM','FREE','Real',KOCCSM,IDUM)
+      Call mma_deallocate(RHO1S)
+      Call mma_deallocate(RHO1P)
+      Call mma_deallocate(XNATO)
+*     Call mma_deallocate(RHO1SM)
+*     Call mma_deallocate(XNATSM)
+*     Call mma_deallocate(OCCSM)
 
       RETURN
       END

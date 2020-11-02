@@ -17,7 +17,6 @@
 * eaw 970909
       Implicit Real*8(a-h,o-z)
 #include "WrkSpc.fh"
-
 #include "SysDef.fh"
       Real*8 H(*)
       Character*40 Label
