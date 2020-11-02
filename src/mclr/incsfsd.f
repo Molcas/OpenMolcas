@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine InCSFSD(iState,State_sym,GUGA)
-      use Arrays, only: CNSM
+      use Str_Info, only: CNSM
       Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 #include "cicisp_mclr.fh"

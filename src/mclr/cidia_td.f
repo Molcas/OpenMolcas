@@ -12,7 +12,7 @@
 ************************************************************************
       SubRoutine CIDIA_TD(iSym)
       use Exp, only: nexp, nexp_max
-      use Arrays, only: CNSM
+      use Str_Info, only: CNSM
       use ipPage, only: W
       use negpre
       Implicit Real*8 (a-h,o-z)

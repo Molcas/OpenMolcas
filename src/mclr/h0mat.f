@@ -13,7 +13,6 @@
      &                 NPRCIV,NOCSF,IREFSM,
      &                 IDC,PSSIGN,ECORE,
      &                 VEC1,VEC2,H0SCR,iH0SCR,ieaw)
-      Use Arrays, only: DFTP, DTOC, CNSM
       Use Str_Info
 * Obtain preconditioner space corresponding to internalt space INTSPC
 * Obtain Hamiltonian matrices correponding to this subspacw

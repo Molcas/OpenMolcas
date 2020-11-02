@@ -350,7 +350,6 @@ C?    END IF
 *
       Subroutine CsfInf(lSym,iSpin,MS,iSPC,iPrnt,nsym)
       use Str_Info
-      use Arrays, only: DFTP, CFTP, DTOC, CNSM
 *
       Implicit Real*8 (A-H,O-Z)
 *
@@ -758,7 +757,7 @@ c Avoid unused argument warnings
 *                        CONFIGURATION EXPANSIONS
 *
 * If PSSIGN .ne. 0, spin combinations are used !!
-      Use Arrays, only: DFTP, CFTP, DTOC, CNSM
+      Use Str_Info, only: DFTP, CFTP, DTOC, CNSM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "detdim.fh"
 #include "spinfo_mclr.fh"

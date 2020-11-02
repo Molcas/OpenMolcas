@@ -15,7 +15,7 @@
      &                 NINOC,ECORE,IPRODT,DTOC,
      &                 NORB,ICOMBI,PSSIGN,NTERMS,NDIF0,NDIF1,NDIF2,
      &                 NTEST)
-      Use Str_Info
+      use Str_Info, only: Str
 *
 * Obtain Hamilton matrix over CSFs of configurations ICNL,ICNR
 *

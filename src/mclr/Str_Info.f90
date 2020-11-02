@@ -36,40 +36,47 @@
 !        STSTX        :        Symmetry of excitation connecting strings of given symmetry
 
 Module Str_Info
-      Implicit None
-      Type String_Info
-           Sequence
-           Integer, Pointer:: OCSTR(:)=>Null()
-           Integer, Allocatable:: OCSTR_hidden(:)
-           Integer, Pointer:: STREO(:)=>Null()
-           Integer, Allocatable:: STREO_hidden(:)
-           Integer, Pointer:: STSM(:)=>Null()
-           Integer, Allocatable:: STSM_hidden(:)
-           Integer, Pointer:: STCL(:)=>Null()
-           Integer, Allocatable:: STCL_hidden(:)
-           Integer, Pointer:: NSTSO(:)=>Null()
-           Integer, Allocatable:: NSTSO_hidden(:)
-           Integer, Pointer:: ISTSO(:)=>Null()
-           Integer, Allocatable:: ISTSO_hidden(:)
-           Integer, Pointer:: EL1(:)=>Null()
-           Integer, Allocatable:: EL1_hidden(:)
-           Integer, Pointer:: EL3(:)=>Null()
-           Integer, Allocatable:: EL3_hidden(:)
-           Integer, Pointer:: ACTP(:)=>Null()
-           Integer, Allocatable:: ACTP_hidden(:)
-           Integer, Pointer:: Z(:)=>Null()
-           Integer, Allocatable:: Z_hidden(:)
-           Integer, Pointer:: EL123(:)=>Null()
-           Integer, Allocatable:: EL123_hidden(:)
-           Integer, Allocatable:: STSTMI(:)
-           Integer, Allocatable:: STSTMN(:)
-           Integer, Pointer:: STSTM(:,:)=>Null()
-           Integer, Allocatable:: STSTM_hidden(:,:)
-           Integer, Allocatable:: NUMAP(:)
-           Integer, Allocatable:: NDMAP(:)
-      End Type String_Info
 
-      Type (String_Info), Allocatable, Target:: Str(:)
+Implicit None
+Private
+Public::String_Info, Str, NSTTYP_MAX, ITYP_DUMMY, NSTTYP, NELEC, MNRS1, MXRS1, MNRS3, MXRS3, IZORR, ISTTP, iuniqmp, iuniqtp, &
+        IAZTP,IBZTP,IARTP,IBRTP, NZSTTP,NRSTTP, IATPM1,IATPM2,IBTPM1,IBTPM2, ISTAC, NOCTYP, NSTFTP, INUMAP, INDMAP, MXNSTR,  &
+        DFTP, CFTP, DTOC, Storage, CNSM
+
+
+Type String_Info
+     Sequence
+     Integer, Pointer:: OCSTR(:)=>Null()
+     Integer, Allocatable:: OCSTR_hidden(:)
+     Integer, Pointer:: STREO(:)=>Null()
+     Integer, Allocatable:: STREO_hidden(:)
+     Integer, Pointer:: STSM(:)=>Null()
+     Integer, Allocatable:: STSM_hidden(:)
+     Integer, Pointer:: STCL(:)=>Null()
+     Integer, Allocatable:: STCL_hidden(:)
+     Integer, Pointer:: NSTSO(:)=>Null()
+     Integer, Allocatable:: NSTSO_hidden(:)
+     Integer, Pointer:: ISTSO(:)=>Null()
+     Integer, Allocatable:: ISTSO_hidden(:)
+     Integer, Pointer:: EL1(:)=>Null()
+     Integer, Allocatable:: EL1_hidden(:)
+     Integer, Pointer:: EL3(:)=>Null()
+     Integer, Allocatable:: EL3_hidden(:)
+     Integer, Pointer:: ACTP(:)=>Null()
+     Integer, Allocatable:: ACTP_hidden(:)
+     Integer, Pointer:: Z(:)=>Null()
+     Integer, Allocatable:: Z_hidden(:)
+     Integer, Pointer:: EL123(:)=>Null()
+     Integer, Allocatable:: EL123_hidden(:)
+     Integer, Allocatable:: STSTMI(:)
+     Integer, Allocatable:: STSTMN(:)
+     Integer, Pointer:: STSTM(:,:)=>Null()
+     Integer, Allocatable:: STSTM_hidden(:,:)
+     Integer, Allocatable:: NUMAP(:)
+     Integer, Allocatable:: NDMAP(:)
+End Type String_Info
+
+Type (String_Info), Allocatable, Target:: Str(:)
 !     Integer, Allocatable:: COBSM(:)
 !     Integer, Allocatable:: NIFSJ(:)
 !     Integer, Allocatable:: IFSJ(:)
@@ -96,22 +103,22 @@ Module Str_Info
 !
 !        ISTTP        :        Space (0=zero order)
 !        iuniqmp      :        Unique types (not necessary here just 0order space)
-      Integer, Parameter:: NSTTYP_MAX=6+1   ! "+1" is the dummy layer
-      Integer:: ITYP_DUMMY=0
-      Integer, Private:: i
-      Integer::     NSTTYP,                                         &
-                    NELEC(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
-                    MNRS1(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
-                    MXRS1(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
-                    MNRS3(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
-                    MXRS3(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
-                    IZORR(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
-                    ISTTP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
-                    iuniqmp(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],       &
-                    iuniqtp(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],       &
-                    IAZTP,IBZTP,IARTP(3,10),IBRTP(3,10),            &
-                    NZSTTP,NRSTTP,                                  &
-                    IATPM1,IATPM2,IBTPM1,IBTPM2
+Integer, Parameter:: NSTTYP_MAX=6+1   ! "+1" is the dummy layer
+Integer:: ITYP_DUMMY=0
+Integer i
+Integer::     NSTTYP,                                         &
+              NELEC(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
+              MNRS1(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
+              MXRS1(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
+              MNRS3(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
+              MXRS3(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
+              IZORR(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
+              ISTTP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
+              iuniqmp(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],       &
+              iuniqtp(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],       &
+              IAZTP,IBZTP,IARTP(3,10),IBRTP(3,10),            &
+              NZSTTP,NRSTTP,                                  &
+              IATPM1,IATPM2,IBTPM1,IBTPM2
 
 !        ISTAC                 : Stringtype maping; a(or a+) i -> istac(j,1(2))
 !        NOCTYP                : Number of occupation classes for given type
@@ -120,11 +127,28 @@ Module Str_Info
 !        INDMAP                : Mapping of string type to next more restricted type
 !        MXNSTR                : Largest number of strings of given sym and type
 !
-      Integer:: ISTAC(NSTTYP_MAX,2),                          &
-                NOCTYP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],      &
-                NSTFTP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],      &
-                INUMAP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],      &
-                INDMAP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],      &
-                MXNSTR
+Integer:: ISTAC(NSTTYP_MAX,2),                          &
+          NOCTYP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],      &
+          NSTFTP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],      &
+          INUMAP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],      &
+          INDMAP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],      &
+          MXNSTR
+
+#include "detdim.fh"
+!     DFTP          :        OPEN SHELL DETERMINANTS OF PROTO TYPE
+!     CFTP          :        BRANCHING DIAGRAMS FOR PROTO TYPES
+!     DTOC          :        CSF-DET TRANSFORMATION FOR PROTO TYPES
+!     CNSM(:)%ICONF :        NCNSM  CONFIGURATION EXPANSIONS
+!     CNSM(I)%ICTS  :        adress of determinant I in STRING ordering for
+!                            determinant I in CSF ordering
+!                            reference symmetry IREFSM.
+Integer, Allocatable:: DFTP(:)
+Integer, Allocatable:: CFTP(:)
+Real*8,  Allocatable:: DTOC(:)
+Type Storage
+  Integer, Allocatable:: ICONF(:)
+  Integer, Allocatable:: ICTS(:)
+End Type Storage
+Type (Storage) :: CNSM(MXCNSM)
 
 End Module Str_Info

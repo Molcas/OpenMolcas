@@ -22,7 +22,8 @@ c Avoid unused argument warnings
       End If
 #else
       Subroutine RHS_PT2(rkappa,iprci)
-      use Arrays, only: CMO, DTOC, CNSM, Int1
+      use Arrays, only: CMO, Int1
+      use Str_Info, only: DTOC, CNSM
       use ipPage, only: W
       Implicit Real*8(a-h,o-z)
       Real*8 rKappa(*)

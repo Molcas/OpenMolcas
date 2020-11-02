@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine GugaCtl_MCLR(ipCIL,imode)
 *
-      use Arrays, only: CFTP, CNSM
+      use Str_Info, only: CFTP, CNSM
       Implicit Real*8 (A-H,O-Z)
       Integer A0,B0,C0
 *

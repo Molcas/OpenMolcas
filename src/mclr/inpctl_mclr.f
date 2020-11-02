@@ -21,7 +21,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      use Arrays, only: DTOC
+      use Str_Info, only: DTOC
       use negpre
       use ipPage, only: W
       Implicit Real*8 (a-h,o-z)

@@ -15,10 +15,9 @@ Module Arrays
 Implicit None
 Private
 Public :: Hss, FAMO, FIMO, F0SQMO, FAMO_spinp, FAMO_spinm, SFock, G2mp, G2pp, G2mm, Fm, Fp, &
-          G1p, G1m, CMO_Inv, CMO, DFTP, CFTP, DTOC, CNSM, INT1, pINT1, INT2, pInt2, &
+          G1p, G1m, CMO_Inv, CMO, INT1, pINT1, INT2, pInt2, &
           G2t, G2sq, G1t
 
-#include "detdim.fh"
 Real*8, Allocatable:: Hss(:)
 Real*8, Allocatable:: FAMO(:), FIMO(:), FAMO_spinp(:), FAMO_spinm(:), SFock(:)
 Real*8, Allocatable:: Fm(:), Fp(:)
@@ -32,24 +31,6 @@ Real*8, Allocatable:: G2mp(:), G2pp(:), G2mm(:)
 !     MO coefficients
 Real*8, Allocatable:: CMO(:)
 Real*8, Allocatable:: CMO_Inv(:)
-
-
-!   this section should be moved to str_info
-!     DFTP          :        OPEN SHELL DETERMINANTS OF PROTO TYPE
-!     CFTP          :        BRANCHING DIAGRAMS FOR PROTO TYPES
-!     DTOC          :        CSF-DET TRANSFORMATION FOR PROTO TYPES
-!     CNSM(:)%ICONF :        NCNSM  CONFIGURATION EXPANSIONS
-!     CNSM(I)%ICTS  :        adress of determinant I in STRING ordering for
-!                            determinant I in CSF ordering
-!                            reference symmetry IREFSM.
-Integer, Allocatable:: DFTP(:)
-Integer, Allocatable:: CFTP(:)
-Real*8,  Allocatable:: DTOC(:)
-Type Storage
-  Integer, Allocatable:: ICONF(:)
-  Integer, Allocatable:: ICTS(:)
-End Type Storage
-Type (Storage) :: CNSM(MXCNSM)
 
 !         INT1        :  1-electron integrals
 !         INT2        :  2-electron integrals

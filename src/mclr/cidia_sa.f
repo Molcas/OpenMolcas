@@ -11,7 +11,7 @@
 * Copyright (C) 1996, Anders Bernhardsson                              *
 ************************************************************************
       SubRoutine CIDIA_sa(iSym,ralp,S)
-      use Arrays, only: CNSM
+      use Str_Info, only: CNSM
       use ipPage, only: W
       use negpre
       Implicit Real*8 (a-h,o-z)

@@ -41,9 +41,10 @@
       use Symmetry_Info, only: Symmetry_Info_Free
       use Arrays, only: Hss, FAMO, FAMO_SpinP, FAMO_SpinM, SFock,
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m,
-     &                  CMO_Inv, CMO, DFTP, CFTP, DTOC, CNSM,
+     &                  CMO_Inv, CMO,
      &                  Int1, pINT1, INT2, pINT2, G2t, G2sq, G1t,
      &                  FIMO, F0SQMO
+      use Str_Info, only: DFTP, CFTP, DTOC, CNSM
       use negpre, only: SS
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"

@@ -12,10 +12,10 @@
 ************************************************************************
       Subroutine CSF2SD(CSF,SD,is)
       use ipPage, only: Diskbased
+      Use Str_Info, only: DTOC, CNSM
 *
 *  Transforms a CSF vector to slater determinants
 *
-      Use Arrays, only: DTOC, CNSM
       implicit Real*8(a-h,o-z)
 #include "detdim.fh"
 #include "real.fh"

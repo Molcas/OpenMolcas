@@ -10,7 +10,6 @@
 ************************************************************************
       SUBROUTINE SigmaVec(C,HC,kic)
       Use Str_Info
-      Use Arrays, only: DTOC, CNSM
 *
 * Outer routine for sigma vector generation
 * RAS space
