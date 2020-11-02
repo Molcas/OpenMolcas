@@ -31,7 +31,10 @@
 #include "stdalloc.fh"
 #include "SysDef.fh"
       Character*72 Line
-      Dimension rdum(1)
+      Real*8 rdum(1)
+      Character(Len=1), Allocatable:: TempTxt(:)
+      Real*8, Allocatable::  Tmp2(:), G2tts(:), G2tta(:)
+
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
 *----------------------------------------------------------------------*
@@ -47,19 +50,18 @@
 *----------------------------------------------------------------------*
 *     Read the the system description                                  *
 *----------------------------------------------------------------------*
-      ndum=lenin8*mxorb
-      Call Getmem('TMP','ALLO','CHAR',ipdum,ndum)
+      Call mma_allocate(TempTxt,LENIN8*MxOrb,Label='TempTxt')
       iDisk=iToc(1)
       Call WR_RASSCF_Info(LuJob,2,iDisk,
      &                    nActEl,iSpin,nSym,State_sym,nFro,
      &                    nIsh,nAsh,nDel,
-     &                    nBas,MxSym,cwork(ipdum),LENIN8*mxorb,
+     &                    nBas,MxSym,TempTxt,LENIN8*mxorb,
      &                    nConf,HeaderJP,144,
      &                    TitleJP,4*18*mxTit,PotNuc0,lRoots,
      &                    nRoots,iRoot,mxRoot,
      &                    nRs1,nRs2,nRs3,
      &                    nHole1,nElec3,iPt2,Weight)
-      Call Getmem('TMP','FREE','CHAR',ipdum,ndum)
+      Call mma_deallocate(TempTxt)
 *----------------------------------------------------------------------*
 *     Overwrite the variable lroots if approriate                      *
 *----------------------------------------------------------------------*
@@ -142,15 +144,15 @@
 *----------------------------------------------------------------------*
 *     Load state energy                                                *
 *----------------------------------------------------------------------*
-      Call GetMem('Temp2','Allo','Real',ipTmp2,mxRoot*mxIter)
+      Call mma_allocate(Tmp2,mxRoot*mxIter,Label='Tmp2')
       iDisk=iToc(6)
-      Call dDaFile(LuJob,2,Work(ipTmp2),mxRoot*mxIter,iDisk)
+      Call dDaFile(LuJob,2,Tmp2,mxRoot*mxIter,iDisk)
       ERASSCF(1)=0.0d0
       Do 20 iter=0,mxIter-1
-         Temp=Work(ipTmp2+iter*mxRoot+lRoots-1)
+         Temp=Tmp2(iter*mxRoot+lRoots)
          If ( Temp.ne.0.0D0 ) ERASSCF(1)=Temp
 20    Continue
-      Call GetMem('Temp2','Free','Real',ipTmp2,mxRoot*100)
+      Call mma_deallocate(Tmp2)
 *     If ( debug ) Write(*,*) ' RASSCF energy =',ERASSCF(1)
 *
       nAct  = 0
@@ -184,8 +186,8 @@
 
       Call mma_allocate(G2sq,nAct**4,Label='G2sq')
       Call mma_allocate(G2t,nG2,Label='G2t')
-      Call GetMem(' G2i ','Allo','Real',ipG2tts,nG2)
-      Call GetMem(' G2i ','Allo','Real',ipG2tta,nG2)
+      Call mma_allocate(G2tts,nG2,Label='G2tts')
+      Call mma_allocate(G2tta,nG2,Label='G2tta')
       iDisk=iToc(3)
       Do i=1,lroots-1
          Call dDaFile(LuJob,0,rdum,nG1,iDisk)
@@ -195,8 +197,8 @@
       End Do
       Call dDaFile(LuJob,2,G1t,nG1,iDisk)
       Call dDaFile(LuJob,0,rdum,nG1,iDisk)
-      Call dDaFile(LuJob,2,Work(ipG2tts),nG2,iDisk)
-      Call dDaFile(LuJob,2,Work(ipG2tta),nG2,iDisk)
+      Call dDaFile(LuJob,2,G2tts,nG2,iDisk)
+      Call dDaFile(LuJob,2,G2tta,nG2,iDisk)
 
       Do iB=1,nAct
          Do jB=1,iB
@@ -208,7 +210,7 @@
                   if(iDij.ge.iDkl .and. kB.eq.lB) fact=2.0d00
                   if(iDij.lt.iDkl .and. iB.eq.jB) fact=2.0d00
                   iijkl=itri(iDij,iDkl)
-                  G2t(iijkl)=Fact*Work(ipG2tts+iijkl-1)
+                  G2t(iijkl)=Fact*G2tts(iijkl)
                End Do
             End Do
          End Do
@@ -243,14 +245,13 @@
                   iijkl=itri(iDij,iDkl)
                   iijkl2=iDij2+nact**2*(iDkl2-1)
 *
-                  G2sq(iijkl2)=Fact*(Work(ipG2tts+iijkl-1)+
-     &                                    Work(ipG2tta+iijkl-1)*Fact2)
+                  G2sq(iijkl2)=Fact*(G2tts(iijkl)+G2tta(iijkl)*Fact2)
                End Do
             End Do
          End Do
       End Do
-      Call GetMem('G2i     ','FREE','REAL',ipg2tts,ng2)
-      Call GetMem('G2i     ','FREE','REAL',ipg2tta,ng2)
+      Call mma_deallocate(G2tts)
+      Call mma_deallocate(G2tta)
 *----------------------------------------------------------------------*
 *     exit                                                             *
 *----------------------------------------------------------------------*
