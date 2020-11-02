@@ -29,7 +29,7 @@
 *     active; active,general is needed for rasscf calculation          *
 *     and is not coded yet (ugly bastard) (970109, AB )                *
 ************************************************************************
-      use Arrays, only: FAMO, FIMO
+      use Arrays, only: FAMO, FIMO, F0SQMO
       Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
@@ -93,10 +93,10 @@
      &                      nbas(is),nbas(js),
      &                      FIMO(1+ipCM(is)+ibb),
      &                      FAMO(1+ipCM(is)+ibb),
-     &                      Work(ipF0sqMO+ipCM(is)+ibb),
+     &                      F0sqMO(1+ipCM(is)+ibb),
      &                      FIMO(ipCM(js)),
      &                      FAMO(ipCM(js)),
-     &                      Work(ipF0sqMO+ipCM(js)-1),sign,
+     &                      F0sqMO(ipCM(js)),sign,
      &                      Work(ipJ),Work(ipK),Work(ipS),n2) ! OK
 *
 *              G
@@ -106,7 +106,7 @@
      &         Call Preciba(ib,is,js,nd,Work(ipTemp3),nbas(js),
      y                      FIMO(ipCM(js)),
      &                      FAMO(ipCM(js)),
-     &                      Work(ipF0sqMO+ipCM(js)-1),sign,
+     &                      F0sqMO(ipCM(js)),sign,
      &                      Work(ipJ),Work(ipK),Work(ipS),n2) ! OK
             End If
 *
@@ -169,10 +169,10 @@
      &                      nbas(is),nbas(js),
      &                      FIMO(1+ipCM(is)+ibb),
      &                      FAMO(1+ipCM(is)+ibb),
-     &                      Work(ipF0SqMO+ipCM(is)+ibb),
+     &                      F0SqMO(1+ipCM(is)+ibb),
      &                      FIMO(ipCM(js)),
      &                      FAMO(ipCM(js)),
-     &                      Work(ipF0SqMO+ipCM(js)-1),sign,
+     &                      F0SqMO(ipCM(js)),sign,
      &                      Work(ipJ),Work(ipK),Work(ipS),n2) ! OK
 *           Call Precaai(ib,nd,ir,rpre(ip))
 *           Call Precaaa(ib,nd,ir,rpre(ip))
@@ -180,7 +180,7 @@
      &         Call Precabi(ib,is,js,ir,nd,Work(ipTemp3),nBas(js),
      &                      FIMO(ipCM(js)),
      &                      FAMO(ipCM(js)),
-     &                      Work(ipF0SQMO+ipCM(js)-1),sign,
+     &                      F0SQMO(ipCM(js)),sign,
      &                      Work(ipJ),Work(ipK),Work(ipS),n2) !+/-?
 
 *           Call Precaba(ib,nd,ir,rpre(ip))
@@ -188,10 +188,10 @@
      &         Call Precabb(ib,is,js,nd,nbas(js),Work(ipTemp3),
      &                      Work(ipTemp1),ntemp,Work(ipScr),
      &                      Work(ipTemp2),
-     &                      Work(ipF0SQMO+ipCM(is)+ibb),
+     &                      F0SQMO(1+ipCM(is)+ibb),
      &                      FiMo(ipCM(js)),
      &                      FAMO(ipcm(js)) ,
-     &                      Work(ipF0SQMO+ipCM(js)-1),sign)
+     &                      F0SQMO(ipCM(js)),sign)
             If (.not.timedep) then
                Call SQM(Work(ipTemp3),rpre(ip),nD)
 #ifdef RS6K

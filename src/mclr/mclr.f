@@ -43,12 +43,11 @@
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m,
      &                  CMO_Inv, CMO, DFTP, CFTP, DTOC, CNSM,
      &                  Int1, pINT1, INT2, pINT2, G2t, G2sq, G1t,
-     &                  FIMO
+     &                  FIMO, F0SQMO
       use negpre, only: SS
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "warnings.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "machine.fh"
 #include "SysDef.fh"
@@ -287,7 +286,7 @@ c      idp=rtoi
       Call mma_deallocate(FAMO)
       Call mma_deallocate(Int2)
       Call mma_deallocate(FIMO)
-      Call GetMem('f0sqMO','Free','Real',ipf0sqMO,ndens2)
+      Call mma_deallocate(F0SQMO)
 
       Call mma_deallocate(ifpRHSCI)
       Call mma_deallocate(ifpSC)

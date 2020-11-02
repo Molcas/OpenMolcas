@@ -30,7 +30,7 @@
 *     active; active,general is needed for rasscf calculation
 *     and is not coded yet (ugly bastard) (970109, AB )
 ************************************************************************
-      use Arrays, only: FAMO, FIMO
+      use Arrays, only: FAMO, FIMO, F0SQMO
       Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
@@ -90,10 +90,10 @@
      &                       nOrb(is),nOrb(js),
      &                       FIMO(1+ipCM(is)+ibb),
      &                       FAMO(1+ipCM(is)+ibb),
-     &                       Work(ipF0sqMO+ipCM(is)+ibb),
+     &                       F0sqMO(1+ipCM(is)+ibb),
      &                       FIMO(ipCM(js)),
      &                       FAMO(ipCM(js)),
-     &                       Work(ipF0sqMO+ipCM(js)-1),sign,
+     &                       F0sqMO(ipCM(js)),sign,
      &                       JA,KA,Scr,n2,
      &                       iAdr) ! OK
 
@@ -110,10 +110,10 @@
      &                         nOrb(is),nOrb(js),
      &                         FIMO(1+ipCM(is)+ibb),
      &                         FAMO(1+ipCM(is)+ibb),
-     &                         Work(ipF0sqMO+ipCM(is)+ibb),
+     &                         F0sqMO(1+ipCM(is)+ibb),
      &                         FIMO(ipCM(js)),
      &                         FAMO(ipCM(js)),
-     &                         Work(ipF0sqMO+ipCM(js)-1),sign,
+     &                         F0sqMO(ipCM(js)),sign,
      &                         JA,KA,Scr,n2) ! OK
 *                                                                      *
 ************************************************************************
@@ -125,7 +125,7 @@
      &            Call Preciba(ib,is,js,nd,Temp3,nOrb(js),
      &                         FIMO(ipCM(js)),
      &                         FAMO(ipCM(js)),
-     &                         Work(ipF0sqMO+ipCM(js)-1),sign,
+     &                         F0sqMO(ipCM(js)),sign,
      &                         JA,KA,Scr,n2) ! OK
 *
             End If
@@ -200,10 +200,10 @@
      &                        nOrb(is),nOrb(js),
      &                        FIMO(1+ipCM(is)+ibb),
      &                        FAMO(1+ipCM(is)+ibb),
-     &                        Work(ipF0SqMO+ipCM(is)+ibb),
+     &                        F0SqMO(1+ipCM(is)+ibb),
      &                        FIMO(ipCM(js)),
      &                        FAMO(ipCM(js)),
-     &                        Work(ipF0SqMO+ipCM(js)-1),sign,
+     &                        F0SqMO(ipCM(js)),sign,
      &                        JA,KA,Scr,n2,
      &                        iAdr2)
             Else
@@ -212,10 +212,10 @@
      &                      nOrb(is),nOrb(js),
      &                      FIMO(1+ipCM(is)+ibb),
      &                      FAMO(1+ipCM(is)+ibb),
-     &                      Work(ipF0SqMO+ipCM(is)+ibb),
+     &                      F0SqMO(1+ipCM(is)+ibb),
      &                      FIMO(ipCM(js)),
      &                      FAMO(ipCM(js)),
-     &                      Work(ipF0SqMO+ipCM(js)-1),sign,
+     &                      F0SqMO(ipCM(js)),sign,
      &                      JA,KA,Scr,n2) ! OK
 *           Call Precaai(ib,nd,ir,rpre(ip))
 *           Call Precaaa(ib,nd,ir,rpre(ip))
@@ -223,7 +223,7 @@
      &         Call Precabi(ib,is,js,ir,nd,Temp3,nOrb(js),
      &                      FIMO(ipCM(js)),
      &                      FAMO(ipCM(js)),
-     &                      Work(ipF0SQMO+ipCM(js)-1),sign,
+     &                      F0SQMO(ipCM(js)),sign,
      &                      JA,KA,Temp1(:,2),n2) !+/-?
 *           Call Precaba(ib,nd,ir,rpre(ip))
             If (nOrb(js).gt.0)
@@ -231,10 +231,10 @@
      &                           Temp3,
      &                           Temp1(:,1),ntemp,Temp1(:,2),
      &                           Temp2,
-     &                           Work(ipF0SQMO+ipCM(is)+ibb),
+     &                           F0SQMO(1+ipCM(is)+ibb),
      &                           FiMo(ipCM(js)),
      &                           FAMO(ipcm(js)) ,
-     &                           Work(ipF0SQMO+ipCM(js)-1),sign)
+     &                           F0SQMO(ipCM(js)),sign)
 *
             EndIf ! newCho
 

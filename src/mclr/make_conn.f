@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Make_Conn(F,Kappa,P,D)
+      use Arrays, only: F0SQMO
 c
 c kappa=\bar{kappa}
 c P = \bar{d}
@@ -16,11 +17,9 @@ c D = \bar{D}
 c
 c
       Implicit Real*8 (a-h,o-z)
-
 #include "Input.fh"
 #include "Pointers.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
       Real*8 P(*),D(*),F(*),Kappa(*)
       Real*8 dum(1)
       Real*8, Allocatable:: T1(:), T2(:), T3(:), T4(:)
@@ -42,14 +41,13 @@ c
       Call FockGen(0.0d0,D,P,T2,T3,1)
       Fact=1.0d0
       Do iS=1,nsym
-          ipF=ipF0SqMO+ipMat(is,is)-1
           If (nBas(is).ge.1) Then
              Call DGEMM_('N','N',nBas(is),nBas(is),nBas(is),
      &                  Fact,kappa(ipMat(is,is)),nBas(is),
-     &                       Work(ipF),nBas(is),
+     &                       F0SQMO(ipMat(is,is)),nBas(is),
      &                  1.0D0,F(ipMat(is,is)),nBas(is))
              Call DGEMM_('N','N',nBas(is),nBas(is),nBas(is),
-     &                  -Fact,Work(ipF),nBas(is),
+     &                  -Fact,F0SQMO(ipMat(is,is)),nBas(is),
      &                        Kappa(ipmat(is,is)),nBas(is),
      &                  1.0D0,F(ipMat(is,is)),nBas(is))
          End If

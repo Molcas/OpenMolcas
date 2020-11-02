@@ -11,6 +11,7 @@
 * Copyright (C) 1997, Anders Bernhardsson                              *
 ************************************************************************
       SubRoutine AddGrad(rKappa,rMat,idsym,fact)
+      use Arrays, only: F0SQMO
 *
 *     Purpose:
 *             Adds the contribution from the gradient to
@@ -21,9 +22,7 @@
 *
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
-
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 rkappa(*),rMat(*)
       Real*8, Allocatable:: Tempi(:), Tempj(:)
@@ -37,12 +36,12 @@
 *    T=Brillouin matrix
 *
 
-        Call DGeSub(Work(ipF0SQMO+ipCM(is)-1),nOrb(is),'N',
-     &              Work(ipF0SQMO+ipCM(is)-1),nOrb(is),'T',
+        Call DGeSub(F0SQMO(ipCM(is)),nOrb(is),'N',
+     &              F0SQMO(ipCM(is)),nOrb(is),'T',
      &              Tempi,nOrb(is),
      &              nOrb(is),nOrb(is))
-        Call DGeSub(Work(ipF0SQMO+ipCM(js)-1),nOrb(js),'N',
-     &              Work(ipF0SQMO+ipCM(js)-1),nOrb(js),'T',
+        Call DGeSub(F0SQMO(ipCM(js)),nOrb(js),'N',
+     &              F0SQMO(ipCM(js)),nOrb(js),'T',
      &              Tempj,nOrb(js),
      &              nOrb(js),nOrb(js))
 *

@@ -16,10 +16,8 @@
 *     Constructs the connection parts that is dependend on the first
 *     derivative of the connection.
 *
-      Use Arrays, only: Hss, CMO
+      Use Arrays, only: Hss, CMO, F0SQMO
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -39,7 +37,7 @@
      &  Call DGEMM_('N','N',
      &              nOrb(is),nnj,nnj,
      &              1.0d0,rCon(ipMat(is,js)),nOrb(is),
-     &                    Work(ipF0SQMO+ipCM(jS)-1),nOrb(js),
+     &                    F0SQMO(ipCM(jS)),nOrb(js),
      &              0.0d0,Temp3(ipMat(is,js)),nOrb(is))
 
        End Do

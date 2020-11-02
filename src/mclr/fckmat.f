@@ -14,7 +14,7 @@
 *   Driver for calculation of optimized fock matrix.       *
 *                                                          *
 ************************************************************
-      use Arrays, only: FAMO, FIMO, INT2
+      use Arrays, only: FAMO, FIMO, F0SQMO, INT2
       implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -41,7 +41,7 @@
       nmmm=((nmmm-1)/nRec+1)*nRec
       nmm=nmm*nMMM
       nmm=nmm**2
-      Call GetMem('f0sqMO','Allo','Real',ipf0sqMO,ndens2)
+      Call mma_allocate(F0SQMO,ndens2,Label='F0SQMO')
       Call mma_allocate(FIMO,ndens2,Label='FIMO')
       If (iMethod.eq.2) Then
          Call mma_allocate(Int2,nAtri,Label='Int2')
@@ -59,11 +59,8 @@
 *                                                                      *
 *     Calculate two-electron contribution
 *
-      Call Read22_2(Int2,
-     &              Work(ipF0SqMo),Work(ipQ),
-     &              FIMO,FAMO,
-     &              Work(ipTmp2),Work(ipScr),
-     &              Work(ipT3))
+      Call Read22_2(Int2,F0SQMO,Work(ipQ),FIMO,FAMO,
+     &              Work(ipTmp2),Work(ipScr),Work(ipT3))
 *                                                                      *
 ************************************************************************
 *                                                                      *
