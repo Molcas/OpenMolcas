@@ -174,8 +174,8 @@ C.......... The operator is not sym --> transpose integrals! NT.ne.S
      &                 nbas(js))
             End Do
 
-            kain1= ip_of_work(TI1)
-            KINT2= ip_of_work(TI2)
+            kain1= ip_of_work(TI1(1))
+            KINT2= ip_of_work(TI2(1))
 
          End If  ! End the transpose of integrals.
 *

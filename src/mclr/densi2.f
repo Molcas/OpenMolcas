@@ -55,7 +55,9 @@
       DIMENSION RHO1(*),RHO2(*)
 *. Before I forget it :
       DIMENSION iSXSTSM(1),IDUMMY(1)
-      Integer, Allocatable:: SIOIO(:), SBLTP(:)
+      Integer, Allocatable:: SIOIO(:), CIOIO(:), SBLTP(:)
+      Integer, Allocatable:: STSTS(:), STSTD(:), IX(:,:)
+      Real*8, Allocatable:: CB(:), SB(:), INSCR(:), C2(:)
 
       IDUM = 0
 CFUE  IPRDEN=0
@@ -92,9 +94,9 @@ CFUE  IPRDEN=0
 *
 * string sym, string sym => sx sym
 * string sym, string sym => dx sym
-      CALL GETMEM('KSTSTS','ALLO','INTE',KSTSTS,NSMST ** 2)
-      CALL GETMEM('KSTSTD','ALLO','INTE',KSTSTD,NSMST ** 2)
-      CALL STSTSM_MCLR(iWORK(KSTSTS),iWORK(KSTSTD),NSMST)
+      CALL mma_allocate(STSTS,NSMST ** 2,Label='STSTS')
+      CALL mma_allocate(STSTD,NSMST ** 2,Label='STSTD')
+      CALL STSTSM_MCLR(STSTS,STSTD,NSMST)
 *. Largest block of strings in zero order space
       MAXA0 = IMNMX(Str(IATP)%NSTSO,NSMST*NOCTYP(IATP),2)
       MAXB0 = IMNMX(Str(IBTP)%NSTSO,NSMST*NOCTYP(IBTP),2)
@@ -140,8 +142,8 @@ CFUE  IPRDEN=0
         LSCR1 = MXSOOB
       END IF
       IF(ICISTR.EQ.1) THEN
-        CALL GETMEM('KCB','ALLO','REAL',KCB,LSCR1)
-        CALL GETMEM('KSB','ALLO','REAL',KSB,LSCR1)
+        CALL mma_allocate(CB,LSCR1,Label='CB')
+        CALL mma_allocate(SB,LSCR1,Label='SB')
       END IF
 
 *.SCRATCH space for block of two-electron density matrix
@@ -149,12 +151,12 @@ CFUE  IPRDEN=0
 
       INTSCR = MXTSOB ** 4
 
-      CALL GETMEM('INSCR','ALLO','REAL',KINSCR,INTSCR)
+      CALL mma_allocate(INSCR,INTSCR,Label='INSCR')
 
 *
 *. Arrays giving allowed type combinations '
       CALL mma_allocate(SIOIO,NOCTPA*NOCTPB,Label='SIOIO')
-      CALL GETMEM('CIOIO','ALLO','INTE',KCIOIO,NOCTPA*NOCTPB)
+      CALL mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
 
       CALL IAIBCM_MCLR(MNR1IC(ISSPC),MXR3IC(ISSPC),NOCTPA,NOCTPB,
      &            Str(IATP)%EL1,Str(IATP)%EL3,
@@ -165,7 +167,7 @@ CFUE  IPRDEN=0
       CALL IAIBCM_MCLR(MNR1IC(ICSPC),MXR3IC(ICSPC),NOCTPA,NOCTPB,
      &            Str(IATP)%EL1,Str(IATP)%EL3,
      &            Str(IBTP)%EL1,Str(IBTP)%EL3,
-     &            iWORK(KCIOIO),IPRDEN)
+     &            CIOIO,IPRDEN)
 
 *
 * Get memory requirements
@@ -173,7 +175,7 @@ CFUE  IPRDEN=0
 *
       IATP2 = MIN(IATP+2,ITYP_Dummy)
       IBTP2 = MIN(IBTP+2,ITYP_Dummy)
-      CALL MXRESC(iWORK(KCIOIO),IATP,IBTP,NOCTPA,NOCTPB,NSMST,
+      CALL MXRESC(CIOIO,IATP,IBTP,NOCTPA,NOCTPB,NSMST,
      &            Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
      &            IATP+1,Str(IATP+1)%NSTSO,NOCTYP(IATP+1),
      &            Str(IBTP+1)%NSTSO,NOCTYP(IBTP+1),
@@ -187,17 +189,12 @@ CFUE  IPRDEN=0
 
       LSCR2 = MAX(MXCJ,MXCIJA,MXCIJB,MXCIJAB)
       LSCR12 = MAX(LSCR1,2*LSCR2)
-      CALL GETMEM('KC2','ALLO','REAL',KC2,LSCR12)
-      KSSCR = KC2
-      KCSCR = KC2 + LSCR2
+      CALL mma_allocate(C2,LSCR12,Label='C2')
 *
 *. Space for annihilation/creation mappings
       MAXIK = MAX(MAXI,MAXK)
       LSCR3 = MAX(MXSTBL*MXTSOB,MXIJST,MAXIK*MXTSOB*MXTSOB,MXSTBL0)
-      CALL GETMEM('I1','ALLO','INTE',KI1,LSCR3)
-      CALL GETMEM('I2','ALLO','INTE',KI2,LSCR3)
-      CALL GETMEM('I3','ALLO','INTE',KI3,LSCR3)
-      CALL GETMEM('I4','ALLO','INTE',KI4,LSCR3)
+      CALL mma_allocate(IX,LSCR3,4,Label='IX')
       CALL GETMEM('XI1S','ALLO','REAL',KXI1S,LSCR3)
       CALL GETMEM('XI2S','ALLO','REAL',KXI2S,LSCR3)
       CALL GETMEM('XI3S','ALLO','REAL',KXI3S,LSCR3)
@@ -243,14 +240,13 @@ CFUE  IPRDEN=0
 *. Right CI vector
         CALL SCDTC2_MCLR(R,ISMOST(1,ICSM),iWORK(KCBLTP),NSMST,
      &              NOCTPA,NOCTPB,Str(IATP)%NSTSO,
-     &              Str(IBTP)%NSTSO,iWORK(KCIOIO),IDC,
+     &              Str(IBTP)%NSTSO,CIOIO,IDC,
      &              2,IDUMMY,IPRDIA)
       END IF
 
       IF(ICISTR.EQ.1) THEN
-        CALL GASDN2(I12,RHO1,RHO2,
-     &       R,L,WORK(KCB),WORK(KSB),WORK(KC2),
-     &       iWORK(KCIOIO),SIOIO,ISMOST(1,ICSM),
+        CALL GASDN2(I12,RHO1,RHO2,R,L,CB,SB,C2,
+     &              CIOIO,SIOIO,ISMOST(1,ICSM),
      &       ISMOST(1,ISSM),iWORK(KCBLTP),SBLTP,
      &       NACOB,
      &       Str(IATP)%NSTSO,Str(IATP)%ISTSO,
@@ -260,21 +256,20 @@ CFUE  IPRDEN=0
      &       NSMST,NSMOB,NSMSX,NSMDX,
      &       MXPNGAS,NTSOB,IBTSOB,
      &       MAXK,MAXI,LSCR1,LSCR1,
-     &       WORK(KCSCR),WORK(KSSCR),
-     &       iSXSTSM,iWORK(KSTSTS),iWORK(KSTSTD),SXDXSX,
+     &       C2(LSCR2+1:LSCR12),C2(1:LSCR2),
+     &       iSXSTSM,STSTS,STSTD,SXDXSX,
      &       ADSXA,ASXAD,NGAS,
      &       Str(IATP)%EL123,Str(IBTP)%EL123,IDC,
      &       iWORK(KOOS1),iWORK(KOOS2),iWORK(KOOS3),iWORK(KOOS4),
      &       iWORK(KOOS5),iWORK(KOOS6),iWORK(KOOS7),iWORK(KOOS8),
      &       iWORK(KOOS9),iWORK(KOOS10),
-     &       iWORK(KI1),WORK(KXI1S),iWORK(KI2),WORK(KXI2S),
-     &       iWORK(KI3),WORK(KXI3S),iWORK(KI4),WORK(KXI4S),WORK(KINSCR),
+     &       IX(:,1),WORK(KXI1S),IX(:,2),WORK(KXI2S),
+     &       IX(:,3),WORK(KXI3S),IX(:,3),WORK(KXI4S),INSCR,
      &       MXPOBS,IPRDEN,WORK(KRHO1S),LUL,LUR,
      &       PSSIGN,PSSIGN,WORK(KRHO1P),WORK(KXNATO),ieaw,n1,n2)
       ELSE IF(ICISTR.GE.2) THEN
-        CALL GASDN2(I12,RHO1,RHO2,
-     &       R,L,R,L,WORK(KC2),
-     &       iWORK(KCIOIO),SIOIO,ISMOST(1,ICSM),
+        CALL GASDN2(I12,RHO1,RHO2,R,L,R,L,C2,
+     &              CIOIO,SIOIO,ISMOST(1,ICSM),
      &       ISMOST(1,ISSM),iWORK(KCBLTP),SBLTP,
      &       NACOB,
      &       Str(IATP)%NSTSO,Str(IATP)%ISTSO,
@@ -284,15 +279,15 @@ CFUE  IPRDEN=0
      &       NSMST,NSMOB,NSMSX,NSMDX,
      &       MXPNGAS,NTSOB,IBTSOB,
      &       MAXK,MAXI,LSCR1,LSCR1,
-     &       WORK(KCSCR),WORK(KSSCR),
-     &       iSXSTSM,iWORK(KSTSTS),iWORK(KSTSTD),SXDXSX,
+     &       C2(LSCR2+1:LSCR12),C2(1:LSCR2),
+     &       iSXSTSM,STSTS,STSTD,SXDXSX,
      &       ADSXA,ASXAD,NGAS,
      &       Str(IATP)%EL123,Str(IBTP)%EL123,IDC,
      &       iWORK(KOOS1),iWORK(KOOS2),iWORK(KOOS3),iWORK(KOOS4),
      &       iWORK(KOOS5),iWORK(KOOS6),iWORK(KOOS7),iWORK(KOOS8),
      &       iWORK(KOOS9),iWORK(KOOS10),
-     &       iWORK(KI1),WORK(KXI1S),iWORK(KI2),WORK(KXI2S),
-     &       iWORK(KI3),WORK(KXI3S),iWORK(KI4),WORK(KXI4S),WORK(KINSCR),
+     &       IX(:,1),WORK(KXI1S),IX(:,2),WORK(KXI2S),
+     &       IX(:,3),WORK(KXI3S),IX(:,3),WORK(KXI4S),INSCR,
      &       MXPOBS,IPRDEN,WORK(KRHO1S),LUL,LUR,
      &       PSSIGN,PSSIGN,WORK(KRHO1P),WORK(KXNATO),ieaw,n1,n2)
       END IF
@@ -306,26 +301,23 @@ CFUE  IPRDEN=0
      &              1,IDUMMY,IPRDIA)
         CALL SCDTC2_MCLR(R,ISMOST(1,ICSM),iWORK(KCBLTP),NSMST,
      &              NOCTPA,NOCTPB,Str(IATP)%NSTSO,
-     &              Str(IBTP)%NSTSO,iWORK(KCIOIO),IDC,
+     &              Str(IBTP)%NSTSO,CIOIO,IDC,
      &              1,IDUMMY,IPRDIA)
       END IF
 *
 *     Free memory
 *
-      Call GetMem('KSTSTS','FREE','Inte',KSTSTS,IDUM)
-      Call GetMem('KSTSTD','FREE','Inte',KSTSTD,IDUM)
+      Call mma_deallocate(STSTS)
+      Call mma_deallocate(STSTD)
       If (ICISTR.eq.1) Then
-        Call GetMem('KCB','FREE','Real',KCB,IDUM)
-        Call GetMem('KSB','FREE','Real',KSB,IDUM)
+         Call mma_deallocate(CB)
+         Call mma_deallocate(SB)
       End If
-      Call GetMem('INTSCR','FREE','Real',KINSCR,IDUM)
+      Call mma_deallocate(INSCR)
       Call mma_deallocate(SIOIO)
-      Call GetMem('CIOIO','FREE','Inte',KCIOIO,IDUM)
-      Call GetMem('KC2','FREE','Real',KC2,IDUM)
-      Call GetMem('I1','FREE','Inte',KI1,IDUM)
-      Call GetMem('I2','FREE','Inte',KI2,IDUM)
-      Call GetMem('I3','FREE','Inte',KI3,IDUM)
-      Call GetMem('I4','FREE','Inte',KI4,IDUM)
+      Call mma_deallocate(CIOIO)
+      Call mma_deallocate(C2)
+      Call mma_deallocate(IX)
       Call GetMem('XI1S','FREE','Real',KXI1S,IDUM)
       Call GetMem('XI2S','FREE','Real',KXI2S,IDUM)
       Call GetMem('XI3S','FREE','Real',KXI3S,IDUM)
