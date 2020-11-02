@@ -20,13 +20,11 @@
 *                                                                      *
 ************************************************************************
       use Exp, only: Exp_Close
-      use Arrays, only: SFock, G1m, G2mp, Int2
+      use Arrays, only: SFock, G1m, G2mp, Int2, FIMO
       use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
 *
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
-
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -244,7 +242,7 @@
                irc=opout(-1)
                If (nconf1.gt.1) Then
                Call CISigma(0,State_Sym,state_sym,
-     &                    Work(ipFIMO),Int2,rdum,
+     &                    FIMO,Int2,rdum,
      &                    ipCId,ipS2)
                irc=opout(-1)
                EC=rin_ene+potnuc-ERASSCF(1)

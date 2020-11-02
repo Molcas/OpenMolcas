@@ -20,11 +20,10 @@
 *                                                                      *
 ************************************************************************
       use Exp, only: Exp_Close
-      use Arrays, only: CMO, Int2
+      use Arrays, only: CMO, Int2, FIMO
       use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
 *
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "real.fh"
 #include "Input.fh"
@@ -433,7 +432,7 @@ C
 *
              irc=ipnout(-1)
              if (CI) Call CISigma_td(0,PState_Sym,Pstate_sym,
-     &                    Work(ipFIMO),Int2,rdum,
+     &                    FIMO,Int2,rdum,
      &                    ipCId,ipS2,'S')
 *
 c I want the RASSCF energy of the ACTIVE electrons !!!!

@@ -11,6 +11,7 @@
        SubRoutine CISigma(iispin,iCsym,iSSym,Int1,Int2s,
      &                    Int2a,ipCI1,ipCI2)
        use ipPage, only: W
+       use Arrays, only: FIMO
        Implicit Real*8(a-h,o-z)
 *
 #include "Pointers.fh"
@@ -50,7 +51,7 @@
 *      Two electron integrals
 *      symmetric in perticle one and two
 *
-       if (ipint1.eq.ipfimo) then
+       if (ipInt1.eq.ip_of_Work(FIMO)) then
         Call icopy(nsym,nbas,1,nbb,1)
        Else
          Call icopy(nsym,norb,1,nbb,1)

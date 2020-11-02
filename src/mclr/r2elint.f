@@ -24,7 +24,7 @@
 *
 ************************************************************************
 *
-      use Arrays, only: CMO, G1t, FAMO
+      use Arrays, only: CMO, G1t, FAMO, FIMO
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
@@ -135,12 +135,12 @@
      &             Work(ipFI-1+ipMat(iS,jS)),nBas(iS),
      &             0.0d0,FockI(ipMat(iS,jS)),nOrb(iS))
        Call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(iS),Sign*Facr,
-     &            Work(ipFIMO+ipCM(iS)-1),nOrb(is),
+     &            FIMO(ipCM(iS)),nOrb(is),
      &            rkappa(ipMat(iS,jS)),nOrb(iS),
      &            One,FockI(ipMat(iS,jS)),nOrb(iS))
        Call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(jS),Facr,
      &            rkappa(ipMat(iS,jS)),nOrb(is),
-     &            Work(ipFIMO+ipCM(jS)-1),nOrb(jS),
+     &            FIMO(ipCM(jS)),nOrb(jS),
      &            One,FockI(ipMat(iS,jS)),nOrb(is))
        If (iMethod.eq.iCASSCF) Then
        If (.not.CASINT)

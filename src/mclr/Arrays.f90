@@ -14,13 +14,13 @@ Module Arrays
 
 Implicit None
 Private
-Public :: Hss, FAMO, FAMO_spinp, FAMO_spinm, SFock, G2mp, G2pp, G2mm, Fm, Fp, &
+Public :: Hss, FAMO, FIMO, FAMO_spinp, FAMO_spinm, SFock, G2mp, G2pp, G2mm, Fm, Fp, &
           G1p, G1m, CMO_Inv, CMO, DFTP, CFTP, DTOC, CNSM, INT1, pINT1, INT2, pInt2, &
           G2t, G2sq, G1t
 
 #include "detdim.fh"
 Real*8, Allocatable:: Hss(:)
-Real*8, Allocatable:: FaMO(:), FaMO_spinp(:), FaMO_spinm(:), SFock(:)
+Real*8, Allocatable:: FAMO(:), FIMO(:), FAMO_spinp(:), FAMO_spinm(:), SFock(:)
 Real*8, Allocatable:: Fm(:), Fp(:)
 !     Various one- and two-particle densities
 Real*8, Allocatable:: G1t(:)
@@ -33,6 +33,7 @@ Real*8, Allocatable:: CMO(:)
 Real*8, Allocatable:: CMO_Inv(:)
 
 
+!   this section should be moved to str_info
 !     DFTP          :        OPEN SHELL DETERMINANTS OF PROTO TYPE
 !     CFTP          :        BRANCHING DIAGRAMS FOR PROTO TYPES
 !     DTOC          :        CSF-DET TRANSFORMATION FOR PROTO TYPES

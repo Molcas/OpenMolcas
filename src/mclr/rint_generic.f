@@ -12,7 +12,7 @@
 ************************************************************************
       SubRoutine RInt_Generic(rkappa,rmos,rmoa,Fock,Q,Focki,Focka,
      &                        idsym,reco,jspin)
-      use Arrays, only: CMO_Inv, CMO, G1t, FAMO
+      use Arrays, only: CMO_Inv, CMO, G1t, FAMO, FIMO
 *
 *                              ~
 *     Constructs  F  = <0|[E  ,H]|0> ( + <0|[[E  , Kappa],H]|0> )
@@ -267,12 +267,12 @@
           jS=iEOr(iS-1,iDSym-1)+1
           If (nOrb(iS)*nOrb(jS).ne.0) Then
             Call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(iS),Reco*Fact,
-     &                  Work(ipFIMO+ipCM(iS)-1),nOrb(is),
+     &                  FIMO(ipCM(iS)),nOrb(is),
      &                  rkappa(ipMat(iS,jS)),nOrb(iS),
      &                  One,FockI(ipMat(iS,jS)),nOrb(iS))
             Call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(jS),Fact,
      &                  rkappa(ipMat(iS,jS)),nOrb(is),
-     &                  Work(ipFIMO+ipCM(jS)-1),nOrb(jS),
+     &                  FIMO(ipCM(jS)),nOrb(jS),
      &                  One,FockI(ipMat(iS,jS)),nOrb(is))
             If (iMethod.eq.2) Then
                Call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(iS),

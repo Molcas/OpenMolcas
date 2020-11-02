@@ -22,7 +22,7 @@
 *          MOtilde: MO (one index transformed integrals)               *
 *                                                                      *
 ************************************************************************
-      use Arrays, only: CMO
+      use Arrays, only: CMO, FIMO
       Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
 #include "standard_iounits.fh"
@@ -216,9 +216,9 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
             Do iA=1,nAsh(is)
                Do jA=1,nAsh(js)
                   rd=rDens1(iA+nA(iS),jA+nA(js))
-                  ip1=nBas(iS)*(nIsh(is)+iA-1)+ipCM(is)-1
+                  ip1=nBas(iS)*(nIsh(is)+iA-1)+ipCM(is)
                   ip2=nBas(iS)*(nIsh(js)+jA-1) +ipmat(is,js)
-                 Call DaXpY_(nBas(iS),Rd,Work(ipFIMO+ip1),1,Fock(ip2),1)
+                 Call DaXpY_(nBas(iS),Rd,FIMO(ip1),1,Fock(ip2),1)
                End Do
             End Do
          End If
@@ -229,7 +229,7 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
          Do iS=1,nSym
             If (nBas(iS)*nIsh(iS).gt.0)
      &         Call DaXpY_(nBas(iS)*nIsh(is),Two*d_0,
-     &                    Work(ipFIMO+ipMat(is,is)-1),1,
+     &                    FIMO(ipMat(is,is)),1,
      &                    Fock(ipMat(is,is)),1)
          End Do
       End If

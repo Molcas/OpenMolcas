@@ -22,6 +22,7 @@
 *          MOtilde:MO (one index transformed integrals)                *
 *                                                                      *
 ************************************************************************
+      use Arrays, only: FIMO
       Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
 
@@ -93,9 +94,9 @@
             Do iA=1,nAsh(is)
                Do jA=1,nAsh(js)
                   rd=rDens1(iA+nA(iS)+(jA+nA(js)-1)*nna)
-                  ip1=nBas(iS)*(nIsh(is)+iA-1)+ipCM(is)-1
+                  ip1=nBas(iS)*(nIsh(is)+iA-1)+ipCM(is)
                   ip2=nBas(iS)*(nIsh(js)+jA-1) +ipmat(is,js)
-                 Call DaxPy_(nBAs(iS),Rd,Work(ipFIMO+ip1),1,Fock(ip2),1)
+                 Call DaxPy_(nBAs(iS),Rd,FIMO(ip1),1,Fock(ip2),1)
                End Do
             End Do
          End If

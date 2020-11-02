@@ -9,18 +9,16 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
        FUNCTION GETH1I_MCLR(I,J)
+       use Arrays, only: FIMO
 *
 * Obtain one -electron integral H(IORB,JOB)
 *
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "detdim.fh"
-
-
 #include "Input.fh"
 #include "Pointers.fh"
 #include "orbinp_mclr.fh"
 #include "lbbas1.fh"
-#include "WrkSpc.fh"
 *
       ISM = ISMFTO(I)
       JSM = ISMFTO(J)
@@ -29,7 +27,7 @@
 
       IJ=ipCM(iSM)-1+(J1-1)*NORB(ISM)+I1
 *
-      GETH1I_MCLR = Work(ipFIMO+IJ-1)
+      GETH1I_MCLR = FIMO(IJ)
 *
 *
       RETURN

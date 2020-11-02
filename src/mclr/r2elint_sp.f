@@ -24,7 +24,7 @@
 *
 ************************************************************************
 *
-      use Arrays, only: CMO
+      use Arrays, only: CMO, FIMO
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
@@ -129,12 +129,12 @@ C     Call GetMem('FockI','CHECK','REAL',ipFI,ndens2)
      &             Work(ipFI-1+ipMat(iS,jS)),nBas(iS),
      &             0.0d0,FockI(ipMat(iS,jS)),nBas(iS))
        Call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(iS),Sign*Facr,
-     &            Work(ipFIMO+ipCM(iS)-1),nBas(is),
+     &            FIMO(ipCM(iS)),nBas(is),
      &            rkappa(ipMat(iS,jS)),nBas(iS),
      &            One,FockI(ipMat(iS,jS)),nBas(iS))
        Call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(jS),Facr,
      &            rkappa(ipMat(iS,jS)),nBas(is),
-     &            Work(ipFIMO+ipCM(jS)-1),nBas(jS),
+     &            FIMO(ipCM(jS)),nBas(jS),
      &            One,FockI(ipMat(iS,jS)),nBas(is))
        If (iMethod.eq.2) Then
          Call DGEMM_('T','N',

@@ -24,7 +24,7 @@
 *                                                                      *
 ************************************************************************
       use Exp, only: Exp_Close
-      use Arrays, only: CMO, Int2
+      use Arrays, only: CMO, Int2, FIMO
       use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
       External Rsv_Tsk
@@ -547,8 +547,7 @@ C         iDisp=iDisp+1
 *                                                                      *
               irc=ipnout(-1)
               Call CISigma(0,PState_Sym,Pstate_sym,
-     &                     Work(ipFIMO),Int2,rdum,
-     &                     ipCId,ipS2)
+     &                     FIMO,Int2,rdum,ipCId,ipS2)
               EC=rin_ene+potnuc-ERASSCF(1)
 
               irc=ipin(ipCId)
