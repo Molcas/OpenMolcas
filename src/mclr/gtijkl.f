@@ -9,20 +9,20 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       FUNCTION GTIJKL_MCLR(I,J,K,L)
+      use Arrays, only: Int2
 *
 * Obtain  integral (I J ! K L )
-* where I,J,K and l refers to active orbitals in
-* Type ordering
+* where I,J,K and l refers to active orbitals in type ordering
 *
       IMPLICIT REAL*8(A-H,O-Z)
 #include "detdim.fh"
-#include "WrkSpc.fh"
 #include "glbbas_mclr.fh"
 
 #include "Input.fh"
 #include "orbinp_mclr.fh"
 #include "crun_mclr.fh"
 #include "Pointers.fh"
+
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
       IABS = IREOTS(I)
@@ -36,7 +36,7 @@
       IJ=itri(iABS,JABS)
       KL=itri(kABS,lABS)
 
-      GTIJKL_MCLR = WORK(K2INT+itri(IJ,KL)-1)
+      GTIJKL_MCLR = INT2(itri(IJ,KL))
 *
       RETURN
       END

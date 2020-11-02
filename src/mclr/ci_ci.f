@@ -10,13 +10,14 @@
 ************************************************************************
       Subroutine Ci_Ci(ipcid,ips2)
       use ipPage, only: W
+      use Arrays, only: INT2
       Implicit Real*8(A-h,o-z)
 #include "WrkSpc.fh"
 
 #include "Input.fh"
 #include "Pointers.fh"
       Real*8 rDum(1)
-      Call CISigma_sa(0,state_sym,state_sym,Work(ipFimo),Work(k2int),
+      Call CISigma_sa(0,state_sym,state_sym,Work(ipFimo),Int2,
      &                rDum,ipCId,ips2)
       irc=ipin(ipCId)
       irc=ipin(ipS2)

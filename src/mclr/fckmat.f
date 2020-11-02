@@ -14,7 +14,7 @@
 *   Driver for calculation of optimized fock matrix.       *
 *                                                          *
 ************************************************************
-      use Arrays, only: FAMO
+      use Arrays, only: FAMO, INT2
       implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -44,11 +44,11 @@
       Call GetMem('f0sqMO','Allo','Real',ipf0sqMO,ndens2)
       Call GetMem('fIsqMO','Allo','Real',ipfIMO,ndens2)
       If (iMethod.eq.2) Then
-         Call GetMem('K2Int','Allo','Real',k2int,nAtri)
-         Call FZero(Work(k2int),nAtri)
+         Call mma_allocate(Int2,nAtri,Label='Int2')
       Else
-         k2int=1
+         Call mma_allocate(Int2,1,Label='Int2')
       End If
+      Int2(:)=0.0d0
       Call mma_allocate(FAMO,nDens2,Label='FAMO')
       Call GetMem('Temp4','ALLO','Real',ipQ,nDens2)
       Call GetMem('Temp2','Allo','Real',ipTmp2,2*ndens2)
@@ -59,7 +59,7 @@
 *                                                                      *
 *     Calculate two-electron contribution
 *
-      Call Read22_2(work(k2int),
+      Call Read22_2(Int2,
      &              Work(ipF0SqMo),Work(ipQ),
      &              Work(ipFIMO),FAMO,
      &              Work(ipTmp2),Work(ipScr),

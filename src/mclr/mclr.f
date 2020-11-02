@@ -42,7 +42,7 @@
       use Arrays, only: Hss, FAMO, FAMO_SpinP, FAMO_SpinM, SFock,
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m,
      &                  CMO_Inv, CMO, DFTP, CFTP, DTOC, CNSM,
-     &                  Int1, pINT1, pINT2, G2t, G2sq, G1t
+     &                  Int1, pINT1, INT2, pINT2, G2t, G2sq, G1t
       use negpre, only: SS
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
@@ -284,8 +284,7 @@ c      idp=rtoi
       End If
 *     Arrays allocated in fckmat.f
       Call mma_deallocate(FAMO)
-      nDum=1       ! <---------------
-      If (iMethod.eq.2) Call GetMem('K2Int','Free','Real',k2int,nDum)
+      Call mma_deallocate(Int2)
       Call GetMem('fisqMO','Free','Real',ipfiMO,ndens2)
       Call GetMem('f0sqMO','Free','Real',ipf0sqMO,ndens2)
 

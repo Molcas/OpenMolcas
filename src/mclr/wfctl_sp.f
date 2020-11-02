@@ -20,7 +20,7 @@
 *                                                                      *
 ************************************************************************
       use Exp, only: Exp_Close
-      use Arrays, only: SFock, G1m, G2mp
+      use Arrays, only: SFock, G1m, G2mp, Int2
       use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
 *
@@ -244,7 +244,7 @@
                irc=opout(-1)
                If (nconf1.gt.1) Then
                Call CISigma(0,State_Sym,state_sym,
-     &                    Work(ipFIMO),Work(k2int),rdum,
+     &                    Work(ipFIMO),Int2,rdum,
      &                    ipCId,ipS2)
                irc=opout(-1)
                EC=rin_ene+potnuc-ERASSCF(1)

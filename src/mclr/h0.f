@@ -14,6 +14,7 @@
       Use Exp, only: H0S, H0F, SBIDT
       use negpre
       Use Iso_C_Binding
+      use Arrays, only: Int2
 *
 * frontend to jeppes explicit routines
 *
@@ -59,9 +60,9 @@
 
       nactel=naelci(1)+nbelci(1)
       If (TimeDep) Then
-         EnA=E2_td(Work(ipFiMo),Work(k2int),0,-1)
+         EnA=E2_td(Work(ipFiMo),Int2,0,-1)
       Else
-         EnA=E2(Work(ipFiMo),Work(k2int),0,-1)
+         EnA=E2(Work(ipFiMo),Int2,0,-1)
       End If
       LH0SCR = MAX(6*NSBDET,4*NSBDET+4*NOCOB,MXP1*(MXP1+1)/2+MXP1**2)
       LVEC2 = 2 * NACTEL + MXCSFC**2
