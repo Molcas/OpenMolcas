@@ -38,7 +38,10 @@
       Character*8 Method
       real*8 dv_ci2  ! yma added
       Logical Found
-      Dimension rdum(1)
+      Real*8 rdum(1)
+      Character(Len=1), Allocatable:: TempTxt(:)
+      Real*8, Allocatable::  Tmp2(:)
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -67,8 +70,7 @@
 *----------------------------------------------------------------------*
 *     Read the the system description                                  *
 *----------------------------------------------------------------------*
-      ndum=lenin8*mxorb
-      Call Getmem('TMP','ALLO','CHAR',ipdum,ndum)
+      Call mma_allocate(TempTxt,LENIN8*MxOrb,Label='TempTxt')
       iDisk=iToc(1)
 
 !      write(*,*)"if dmrg, it should be something else "
@@ -91,7 +93,7 @@
 !        call xflush(6)
 !      end do
 
-      Call Getmem('TMP','FREE','CHAR',ipdum,ndum)
+      Call mma_deallocate(TempTxt)
 *----------------------------------------------------------------------*
 *     Overwrite the variable lroots if approriate, i.e if lroot        *
 *     was set by input.                                                *
@@ -273,7 +275,7 @@ C
 *----------------------------------------------------------------------*
 *     Load state energy                                                *
 *----------------------------------------------------------------------*
-      Call GetMem('Temp2','Allo','Real',ipTmp2,mxRoot*mxIter)
+      Call mma_allocate(Tmp2,mxRoot*mxIter,Label='Tmp2')
       iDisk=iToc(6)
 #ifdef _DEBUGPRINT_
       If (debug) Then
@@ -282,13 +284,13 @@ C
          Write(6,*) 'lROOTS: ',lroots
       End If
 #endif
-      Call dDaFile(LuJob,2,Work(ipTmp2),mxRoot*mxIter,iDisk)
+      Call dDaFile(LuJob,2,Tmp2,mxRoot*mxIter,iDisk)
 
       Do  iter=0,mxIter-1
         Do i=1,nroots
           j=iroot(i)
           ! It should be 0.0d0 in DMRG case
-          Temp=Work(ipTmp2+iter*mxRoot+j-1)
+          Temp=Tmp2(iter*mxRoot+j)
           If ( Temp.ne.0.0D0 ) ERASSCF(i)=Temp
 *          If (debug) Write(*,*) ERASSCF(i),i
          End Do
@@ -296,11 +298,11 @@ C
 
 #ifdef _DEBUGPRINT_
       If (debug) Then
-          Write(6,*) (Work(ipTmp2+i),i=0,lroots)
+          Write(6,*) (Tmp2(i),i=1,lroots)
           Write(6,*)'RASSCF energies=',(ERASSCF(i),i=1,nroots)
       End If
 #endif
-      Call GetMem('Temp2','Free','Real',ipTmp2,mxRoot*100)
+      Call mma_deallocate(Tmp2)
 *
       nAct  = 0    ! 1/2
 
