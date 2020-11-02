@@ -106,12 +106,12 @@ cnf
 *
 *------ Don't care about the last arguments: no (CAS-)DFT here I guess)
 *
-     &              'SCF',Zero,iCharge,iSpin,rdum,rdun,0,'1234',Do_DFT)
+     &              'SCF',Zero,iCharge,iSpin,rdum,rdum,0,'1234',Do_DFT)
          Call Daxpy_(leng,One,Htmp,1,Temp1,1)
 *
 *------ Hum, where the hell is FI (Fock Inactive) ???
 *
-*         Call Daxpy_(leng,One,Gtmp,1,FI,1)
+*        Call Daxpy_(leng,One,Gtmp,1,FI,1)
          Call mma_deallocate(Gtmp)
          Call mma_deallocate(Htmp)
          Call mma_deallocate(D1ao)
