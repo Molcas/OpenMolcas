@@ -31,7 +31,7 @@
 #include "cicisp_mclr.fh"
 
       Call mma_Allocate(pINT1,nSym,Label='pInt1')
-      Kapin1=ip_of_Work(pInt1(1))
+      Kapin1=ip_of_iWork(pInt1(1))
       pInt1(:)=0
       Call mma_Allocate(pINT2,nSym**3,Label='pInt2')
       pInt2(:)=0
