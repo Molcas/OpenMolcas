@@ -35,13 +35,12 @@
 *----------------------------------------------------------------------*
 
       Call mma_Allocate(OCIvec,nConf,Label='OCIvec')
-      ipTmp = ip_of_Work(OCIvec)
 
       iDisk=iToc(4)
       idisk1=0
       Do i=1,lroots
        Call dDaFile(LuJob,2,OCIvec,nConf,iDisk)
-       Call Gugactl_MCLR(ipTmp,1)
+       Call Gugactl_MCLR(OCIvec,1)
        Call dDafile(LuCIV,1,OCIvec,nconf,iDisk1)
       End Do
 

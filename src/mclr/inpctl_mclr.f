@@ -99,7 +99,7 @@
            !> If doDMRG
            if(doDMRG.and.doMCLR)then ! yma
            else
-             Call GugaCtl_MCLR(ipT,1)   ! transform to sym. group
+             Call GugaCtl_MCLR(Work(ipT),1)   ! transform to sym. group
            end if
 
 ! Here should be the position for introducing the CI(SR) coefficients

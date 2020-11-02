@@ -41,7 +41,6 @@ c Avoid unused argument warnings
 #include "Pointers.fh"
 
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "glbbas_mclr.fh"
 #include "Files_mclr.fh"
@@ -83,8 +82,7 @@ c Avoid unused argument warnings
 *
 *    CASPT2 mode (split graph)
 *
-         ipT = ip_of_Work(TempCI(1))
-         Call Gugactl_MCLR(ipT,1)
+         Call Gugactl_MCLR(TempCI(1),1)
 #else
 *
 * lucia mode (Symmetric group)
@@ -170,7 +168,7 @@ c Avoid unused argument warnings
 *
       FAO1(:)=0.0D0
       Call FockTwo_Drv(nSym,nBas,nBas,nSkip,
-     &                 DP,Work(ipP2),FAO1,nFlt,
+     &                 DP,DP2),FAO1,nFlt,
      &                 ExFac,nDens2,nBMX)
       Call AO2MO(FAO1,FMO1)
 *

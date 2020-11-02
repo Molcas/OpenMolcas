@@ -8,11 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine GugaCtl_MCLR(ipCIL,imode)
+      Subroutine GugaCtl_MCLR(CIL,imode)
 *
       use Str_Info, only: CFTP, CNSM
       Implicit Real*8 (A-H,O-Z)
       Integer A0,B0,C0
+      Real*8 CIL(*)
 *
 
 #include "Input.fh"
@@ -206,7 +207,7 @@
      &      nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,NICASE,
      &      OrbSym,iWork(LNOCSF),iWork(LIOCSF),
      &      iWork(LNOW),iWork(LIOW),
-     &      iWork(LICASE),Work(ipCIL))
+     &      iWork(LICASE),CIL)
       WRITE(6,103)
 103   FORMAT(/,6X,100(1H-),/)
 
@@ -223,10 +224,10 @@
      &      iMode,jPrint,
      &      CNSM(1)%ICONF,
      &      CFTP,NCNATS(1,State_Sym),NCPCNT,
-     &      Work(ipCIL),Work(ipCInew),minop)
-CEAW970812     &      Work(ipCIL),Work(ipCInew))
-      Call GetMem('OCIvec','Free','Real',ipCIL,nConf)
-      ipCIL = ipCInew
+     &      CIL,Work(ipCInew),minop)
+
+      Call DCopy_(nConf,Work(ipCInew),1,CIL,1)
+      Call GetMem('CIvec','Free','Real',ipCInew,NCONF)
 *
       Call GetMem('ILSG','FREE','INTEGER',LLSGN,NLSGN)
       Call GetMem('IUSG','FREE','INTEGER',LUSGN,NUSGN)
