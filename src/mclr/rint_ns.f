@@ -27,6 +27,7 @@ c
 c Fock is E*d/dx(lambda)
 c rkappa is d/dx(lambda)
 c
+      use Arrays, only: G2sq, G1t
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
@@ -75,8 +76,8 @@ C
       If (iMethod.eq.2) Then
        Call mma_allocate(qA,ndens2,Label='QA')
        Call mma_allocate(qB,ndens2,Label='QB')
-       Call CreQ_td(QB,MT1,Work(ipG2sq),idsym)
-       Call CreQ_td(QA,MT2,Work(ipG2sq),idsym)
+       Call CreQ_td(QB,MT1,G2sq,idsym)
+       Call CreQ_td(QA,MT2,G2sq,idsym)
       End If
 *
 *      Call RECPRT('QB',' ',QB,nDens2,1)
@@ -121,7 +122,7 @@ c
 *        F  = F - F  D
 *         ap   ap  ap ba
 *
-          Dij=Work(ipg1t+itri(iash+nA(js),jAsh+nA(js))-1)
+          Dij=G1t(itri(iash+nA(js),jAsh+nA(js)))
           ipF= ipMat(is,js)+(Nish(js)+iAsh-1)*nBas(is)
           ipFI=ipMat(is,js)+(Nish(js)+jAsh-1)*nBas(is)
 *
@@ -138,7 +139,7 @@ c
         Do jAsh=1,nAsh(is)
          ipF=ipMat(is,js)+nIsh(is)+jAsh-1
          ipFI=ipMat(is,js)+nIsh(is)+iAsh-1
-         Dij=Work(ipg1t+itri(iash+nA(is),jAsh+nA(is))-1)
+         Dij=G1t(itri(iash+nA(is),jAsh+nA(is)))
 
 *
 *                I

@@ -20,7 +20,7 @@
 *          MOtilde:MO (one index transformed integrals)            *
 *                                                                  *
 ********************************************************************
-      use Arrays, only: CMO, Int1
+      use Arrays, only: CMO, Int1, G1t
       Implicit Real*8(a-h,o-z)
 #include "real.fh"
 #include "Pointers.fh"
@@ -115,11 +115,11 @@
      &                            ((jB.gt.nIsh(js)).and.(nAsh(jS).ne.0))
      &                           ) Then
                                  ipD=iTri(jB-nIsh(jS)+nA(jS),
-     &                               iB-nIsh(is)+nA(iS))+ipG1t-1
+     &                               iB-nIsh(is)+nA(iS))
                                  Fact=Two
                                  If (iB.eq.jB) Fact=one
                                  Call DaXpY_(nOrb(kS)*nOrb(lS),
-     &                                      Fact*Work(ipD),
+     &                                      Fact*G1t(ipD),
      &                                      Temp2,1,FockA(ipCM(kS)),1)
                               End If
                            End If
@@ -235,8 +235,8 @@
      &                      ((lB.gt.nIsh(ls)).and.(nAsh(lS).ne.0))
      &                     ) Then
                           ipD=iTri(lB-nIsh(lS)+nA(lS),
-     &                             jB-nIsh(js)+nA(jS))+ipG1t-1
-                          Call DaXpY_(nOrb(iS)*nOrb(kS),-half*Work(ipD),
+     &                             jB-nIsh(js)+nA(jS))
+                          Call DaXpY_(nOrb(iS)*nOrb(kS),-half*G1t(ipD),
      &                               Temp2,1,FockA(ipCM(iS)),1)
                         End If
                      End If
@@ -322,15 +322,12 @@
                ik=ikk+nA(iSym)
                Do ill=1,ikk-1
                  il=ill+nA(iSym)
-                 ikl=ik*(ik-1)/2+il-1
-                 DA(ioffA+(ikk-1)*nAsh(iSym)+ill)=
-     &               Work(ipG1t+ikl)
-                 DA(ioffA+(ill-1)*nAsh(iSym)+ikk)=
-     &               Work(ipG1t+ikl)
+                 ikl=ik*(ik-1)/2+il
+                 DA(ioffA+(ikk-1)*nAsh(iSym)+ill)=G1t(ikl)
+                 DA(ioffA+(ill-1)*nAsh(iSym)+ikk)=G1t(ikl)
                End Do
-               ikl=ik*(ik-1)/2+ik-1
-               DA(ioffA+(ikk-1)*nAsh(iSym)+ikk)=
-     &              Work(ipG1t+ikl)
+               ikl=ik*(ik-1)/2+ik
+               DA(ioffA+(ikk-1)*nAsh(iSym)+ikk)=G1t(ikl)
             End Do
             ioff=ioff+nOrb(iSym)**2
             ioff1=ioff1+nAsh(iSym)*nOrb(iSym)
@@ -453,7 +450,7 @@
                   ni=nA(is)+iAsh
                   nj=nA(is)+jAsh
                   ipD=iTri(ni,nj)
-                  call daxpy_(nOrb(is),Work(ipG1t+ipD-1),
+                  call daxpy_(nOrb(is),G1t(ipD),
      &                       FockI(ipi),1,
      &                       Fock (ipj),1)
                End Do
@@ -488,11 +485,9 @@
          iij=iTri(iib,ijb)
          iiB=nIsh(iS)+ib
          ijB=nIsh(iS)+jb
-         rcorea=rcorea+Work(ipG1t+iij-1)*
-     &           Int1(ipCM(is)-1+nOrb(is)*(iib-1)+ijB)
+         rcorea=rcorea+G1t(iij)*Int1(ipCM(is)-1+nOrb(is)*(iib-1)+ijB)
 
-         rcora=rcora+Work(ipG1t+iij-1)*
-     &           Focki(ipCM(is)+nOrb(is)*(iib-1)+ijB-1)
+         rcora=rcora+G1t(iij)*Focki(ipCM(is)+nOrb(is)*(iib-1)+ijB-1)
         End Do
        End Do
       End Do

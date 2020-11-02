@@ -11,19 +11,26 @@
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
 Module Arrays
+
 Implicit None
 Private
 Public :: Hss, FaMO_spinp, FaMO_spinm, SFock, G2mp, G2pp, G2mm, Fm, Fp, &
           G1p, G1m, CMO_Inv, CMO, DFTP, CFTP, DTOC, CNSM, INT1, pINT1, pInt2, &
-          G2t
+          G2t, G2sq, G1t
+
 #include "detdim.fh"
 Real*8, Allocatable:: Hss(:)
 Real*8, Allocatable:: FaMO_spinp(:), FaMO_spinm(:), SFock(:)
-Real*8, Allocatable:: G2mp(:), G2pp(:), G2mm(:)
 Real*8, Allocatable:: Fm(:), Fp(:)
+!     Various one- and two-particle densities
+Real*8, Allocatable:: G1t(:)
 Real*8, Allocatable:: G1p(:), G1m(:)
-Real*8, Allocatable:: CMO_Inv(:)
+Real*8, Allocatable:: G2t(:)
+Real*8, Allocatable:: G2sq(:)
+Real*8, Allocatable:: G2mp(:), G2pp(:), G2mm(:)
+!     MO coefficients
 Real*8, Allocatable:: CMO(:)
+Real*8, Allocatable:: CMO_Inv(:)
 
 
 !     DFTP          :        OPEN SHELL DETERMINANTS OF PROTO TYPE
@@ -41,6 +48,7 @@ Type Storage
   Integer, Allocatable:: ICTS(:)
 End Type Storage
 Type (Storage) :: CNSM(MXCNSM)
+
 !         INT1        :  Core integrals
 !         PINT1       :   Offsets to symmetry blocks
 !         PINT2       :   Offsets to symmetry blocks
@@ -49,6 +57,4 @@ Real*8,  Allocatable::  INT1(:)
 Integer, Allocatable:: pINT1(:)
 Integer, Allocatable:: pINT2(:)
 
-!       One- and two-particle densities
-Real*8,  Allocatable::  G2t(:)
 End Module Arrays

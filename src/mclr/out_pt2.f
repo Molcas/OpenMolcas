@@ -613,6 +613,7 @@ c --------------------------------------------------------------------------
 c
       Subroutine OITD(rK,isym,D,Dtmp,act)
 *
+      use Arrays, only: G1t
       Implicit Real*8(a-h,o-z)
 
 #include "Input.fh"
@@ -638,7 +639,7 @@ c
         Do iB=1,nAsh(iS)
          Do jB=1,nAsh(iS)
           Dtmp(1+(ipCM(iS)+ib+nIsh(is)+(jB+nIsh(is)-1)*nOrb(is)-1)-1)=
-     &    Work(ipG1t+(itri((nA(is)+ib),(nA(is)+jb)))-1)
+     &    G1t((itri((nA(is)+ib),(nA(is)+jb))))
          End Do
         End Do
        End Do

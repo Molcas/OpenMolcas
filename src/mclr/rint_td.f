@@ -11,6 +11,7 @@
 * Copyright (C) Jonna Stalring                                         *
 ************************************************************************
       SubRoutine RInt_td(ekappa,mkappa,isym)
+      use Arrays, only: G1t
 c
 c
 *******************************************************
@@ -94,7 +95,7 @@ c
                    iA=nA(is)+ib
                    jA=nA(is)+jb
                    ip2=itri(iA,jA)
-                   Dens(ip)=Work(ipG1t+ip2-1)
+                   Dens(ip)=G1t(ip2)
                 End Do
              End Do
           End Do

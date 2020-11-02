@@ -12,7 +12,7 @@
 ************************************************************************
       SubRoutine RInt_Generic(rkappa,rmos,rmoa,Fock,Q,Focki,Focka,
      &                        idsym,reco,jspin)
-      use Arrays, only: CMO_Inv, CMO
+      use Arrays, only: CMO_Inv, CMO, G1t
 *
 *                              ~
 *     Constructs  F  = <0|[E  ,H]|0> ( + <0|[[E  , Kappa],H]|0> )
@@ -190,7 +190,7 @@
               iA=nA(is)+ib
               jA=nA(is)+jb
               ip2=itri(iA,jA)
-              DA(ip)=Work(ipG1t+ip2-1)
+              DA(ip)=G1t(ip2)
              End Do
             End Do
 *MGD to check
@@ -325,7 +325,7 @@
                Do jAsh=1,nAsh(js)
                   ipF=ipMat(js,is)+nIsh(js)+jAsh-1
                   ipFI=ipMat(is,js)+(nIsh(js)+iAsh-1)*nOrb(is)
-                  Dij=Work(ipg1t+itri(iash+nA(js),jAsh+nA(js))-1)
+                  Dij=G1t(itri(iash+nA(js),jAsh+nA(js)))
 
 *                I
 *        F  = F - F  D

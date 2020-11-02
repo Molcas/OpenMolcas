@@ -21,7 +21,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      use Arrays, only: CMO, G2t
+      use Arrays, only: CMO, G2t, G1t
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -327,17 +327,17 @@ C
 *     Call GetMem(' G1sq','Allo','Real',ipG1,nAct2)
 
       nG1 = nAct*(nAct+1)/2
-      Call GetMem(' G1 ','Allo','Real',ipG1t,nG1)
+      Call mma_allocate(G1t,nG1,Label='G1t')
       nG2=nG1*(nG1+1)/2
       Call mma_allocate(G2t,nG2,Label='G2t')
-      Call RDDENS(Work(ipG1t),ng1,G2t,ng2)
-      ipg1=ipg1t
+      Call RDDENS(G1t,ng1,G2t,ng2)
+      ipg1=ip_of_Work(G1t)
       ipG2=ip_of_Work(G2t)
       ipg2tmm=ipg2
       ipg2tpp=ipg2
 
 #ifdef _DEBUGPRINT_
-      Call Triprt('G1',' ',Work(ipG1t),ntash)
+      Call Triprt('G1',' ',G1t,ntash)
       Call Triprt('G2',' ',G2t,ng1)
 #endif
 

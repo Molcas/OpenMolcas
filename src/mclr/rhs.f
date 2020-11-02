@@ -34,7 +34,7 @@
 *         Theoretical Chemistry, University of Lund                *
 ********************************************************************
       use ipPage, only: W
-      use Arrays, only: G2t
+      use Arrays, only: G2t, G1t
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 
@@ -192,7 +192,7 @@
      &            Temp5(ipMat(js,is)),1,Temp7(ipMat(js,is)),1)
          Do iAsh=1,nAsh(iS)
           Do jAsh=1,nAsh(is)
-           Dij=Work(ipg1t+itri(iash+nA(is),jAsh+nA(is))-1)
+           Dij=G1t(itri(iash+nA(is),jAsh+nA(is)))
 *
 *           F~=F~+DFi~
 *

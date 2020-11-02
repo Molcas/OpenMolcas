@@ -21,7 +21,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      Use Arrays, only: CMO, G2t
+      Use Arrays, only: CMO, G2t, G2sq, G1t
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "Files_mclr.fh"
@@ -172,9 +172,9 @@
 * One electron dens - triang stor.
 *-----------------------------------
       nG1 = nAct*(nAct+1)/2
-      Call GetMem(' G1 ','Allo','Real',ipG1t,nG1)
-      call dcopy_(nG1,[0.0d0],0,Work(ipG1t),1)
-      ipG1=ipg1t
+      Call mma_allocate(G1t,nG1,Label='G1t')
+      G1t(:)=0.0d0
+      ipG1=ip_of_Work(G1t)
 *
 *--------------------------------------------------
 * Triangular part of two electron dens,
@@ -182,7 +182,7 @@
 *--------------------------------------------------
       nG2=nG1*(nG1+1)/2
 
-      Call GetMem(' G2 ','Allo','Real',ipG2sq,nAct**4)
+      Call mma_allocate(G2sq,nAct**4,Label='G2sq')
       Call mma_allocate(G2t,nG2,Label='G2t')
       Call GetMem(' G2i ','Allo','Real',ipG2tts,nG2)
       Call GetMem(' G2i ','Allo','Real',ipG2tta,nG2)
@@ -193,7 +193,7 @@
          Call dDaFile(LuJob,0,rdum,nG2,iDisk)
          Call dDaFile(LuJob,0,rdum,nG2,iDisk)
       End Do
-      Call dDaFile(LuJob,2,Work(ipG1t),nG1,iDisk)
+      Call dDaFile(LuJob,2,G1t,nG1,iDisk)
       Call dDaFile(LuJob,0,rdum,nG1,iDisk)
       Call dDaFile(LuJob,2,Work(ipG2tts),nG2,iDisk)
       Call dDaFile(LuJob,2,Work(ipG2tta),nG2,iDisk)
@@ -243,7 +243,7 @@
                   iijkl=itri(iDij,iDkl)
                   iijkl2=iDij2+nact**2*(iDkl2-1)
 *
-                  Work(ipG2sq+iijkl2-1)=Fact*(Work(ipG2tts+iijkl-1)+
+                  G2sq(iijkl2)=Fact*(Work(ipG2tts+iijkl-1)+
      &                                    Work(ipG2tta+iijkl-1)*Fact2)
                End Do
             End Do

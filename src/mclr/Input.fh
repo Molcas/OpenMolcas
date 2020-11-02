@@ -161,9 +161,9 @@ c
 *
 *     Pointers to densities oneelectron(Act),oneelectron (Act <delta|E|0>)
 *                           twoelectron(Act) , (act<delta|E|0>)
-      Integer ipg1,ipg1t,ipg2,ipg2sq
+      Integer ipg1,ipg2
 *
-      Common /Densities/ipg1,ipg1t,ipg2,ipg2sq
+      Common /Densities/ipg1,ipg2
 *
 *     Ask Jeppe!!!
 *     We all want a happy LUCIA

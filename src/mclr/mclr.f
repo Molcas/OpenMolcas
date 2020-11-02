@@ -42,7 +42,7 @@
       use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM, SFock,
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m,
      &                  CMO_Inv, CMO, DFTP, CFTP, DTOC, CNSM,
-     &                  Int1, pINT1, pINT2, G2t
+     &                  Int1, pINT1, pINT2, G2t, G2sq, G1t
       use negpre, only: SS
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
@@ -233,8 +233,6 @@ c      idp=rtoi
 *                                                                      *
 *     Deallocate memory
 *
-      nDum=1
-*
 *     Arrays in csf.f
       If (iMethod.eq.2) Then
          Call mma_deallocate(DTOC)
@@ -265,8 +263,8 @@ c      idp=rtoi
 *     Arrays in rdjobip_td.f and rdjobiph.f
       If (iMethod.eq.2) Then
          Call mma_deallocate(G2t)
-         If (Timedep) Call GetMem(' G2 ','Free','Real',ipG2sq,nDum)
-         Call GetMem(' G1 ','Free','Real',ipG1t,nDum)
+         If (Timedep) Call mma_deallocate(G2sq)
+         Call mma_deallocate(G1t)
          Call mma_deallocate(CMO)
       End If
 
@@ -284,6 +282,7 @@ c      idp=rtoi
          Call mma_deallocate(G1m)
          Call mma_deallocate(SFock)
       End If
+      nDum=1
 *     Arrays allocated in fckmat.f
       Call GetMem('FASQMO','Free','Real',ipFAMO,ndens2)
       If (iMethod.eq.2) Call GetMem('K2Int','Free','Real',k2int,nDum)

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Real*8 Function E2_td(FockI,rMo,loper,idisp)
+      use Arrays, only: G2sq
 *
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
@@ -40,7 +41,7 @@
                         ijkl=itri(ij,itri(k,l))
                         kl2=k+(l-1)*nna
                         ijkl2=ij2+(kl2-1)*nna**2
-                        E22=E22+0.5d0*work(ipg2sq+ijkl2-1)*rmo(ijkl)
+                        E22=E22+0.5d0*G2sq(ijkl2)*rmo(ijkl)
                      End Do
                   End Do
                End Do

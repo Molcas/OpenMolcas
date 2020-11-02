@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Prec_td(pre2,DigPrec,isym)
+      use Arrays, only: G1t
 *
 *     pre2      Preconditioner from Prec
 *     DigPrec Output - Diagonal of prec2
@@ -51,7 +52,7 @@
                    iA=nA(is)+ib
                    jA=nA(is)+jb
                    ip2=itri(iA,jA)
-                   Work(ipDens+ip-1)=Work(ipG1t+ip2-1)
+                   Work(ipDens+ip-1)=G1t(ip2)
               End Do
            End Do
       End Do

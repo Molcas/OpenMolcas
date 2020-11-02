@@ -34,6 +34,7 @@
 *         Theoretical Chemistry, University of Lund                *
 ********************************************************************
       use ipPage, only: W
+      use Arrays, only: G2sq, G1t
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Pointers.fh"
@@ -166,8 +167,7 @@
        Call DaXpY_(nDens2,One,Temp4,1,FIX,1)
 *
 
-       If (iMethod.eq.2)
-     &  Call CreQ_td(Temp6,MOT,Work(ipG2sq),loper+1)
+       If (iMethod.eq.2) Call CreQ_td(Temp6,MOT,G2sq,loper+1)
 *
        Do iS=1,nSym
         jS=iEOr(iS-1,loper)+1
@@ -180,7 +180,7 @@
      &            Temp5(ipMat(js,is)),1,Temp7(ipMat(js,is)),1)
          Do iAsh=1,nAsh(iS)
           Do jAsh=1,nAsh(is)
-           Dij=Work(ipg1t+itri(iash+nA(is),jAsh+nA(is))-1)
+           Dij=G1t(itri(iash+nA(is),jAsh+nA(is)))
 *
 *           F~=F~+DFi~
 *

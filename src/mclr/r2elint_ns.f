@@ -24,7 +24,7 @@
 *
 ************************************************************************
 *
-      use Arrays, only: CMO
+      use Arrays, only: CMO, G1t
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
@@ -104,7 +104,7 @@ c THIS IS THE ENTIRE DENSITY FOR MULTICONF
           iA=nA(is)+ib
           jA=nA(is)+jb
           ip2=itri(iA,jA)
-          Work(ipDA+ip-1)=Work(ipG1t+ip2-1)
+          Work(ipDA+ip-1)=G1t(ip2)
          End Do
         End Do
        End Do
