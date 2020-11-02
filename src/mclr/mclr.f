@@ -39,7 +39,7 @@
       Use Basis_Info, only: Basis_Info_Free
       Use Center_Info, only: Center_Info_Free
       use Symmetry_Info, only: Symmetry_Info_Free
-      use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM, SFock,
+      use Arrays, only: Hss, FAMO, FAMO_SpinP, FAMO_SpinM, SFock,
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m,
      &                  CMO_Inv, CMO, DFTP, CFTP, DTOC, CNSM,
      &                  Int1, pINT1, pINT2, G2t, G2sq, G1t
@@ -282,9 +282,9 @@ c      idp=rtoi
          Call mma_deallocate(G1m)
          Call mma_deallocate(SFock)
       End If
-      nDum=1
 *     Arrays allocated in fckmat.f
-      Call GetMem('FASQMO','Free','Real',ipFAMO,ndens2)
+      Call mma_deallocate(FAMO)
+      nDum=1       ! <---------------
       If (iMethod.eq.2) Call GetMem('K2Int','Free','Real',k2int,nDum)
       Call GetMem('fisqMO','Free','Real',ipfiMO,ndens2)
       Call GetMem('f0sqMO','Free','Real',ipf0sqMO,ndens2)

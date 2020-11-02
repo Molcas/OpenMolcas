@@ -30,6 +30,7 @@
 *     active; active,general is needed for rasscf calculation
 *     and is not coded yet (ugly bastard) (970109, AB )
 ************************************************************************
+      use Arrays, only: FAMO
       Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
@@ -88,10 +89,10 @@
               Call preci_cho(ib,is,jS,nD,Temp3,
      &                       nOrb(is),nOrb(js),
      &                       Work(ipFIMO+ipCM(is)+ibb),
-     &                       Work(ipFAMO+ipCM(is)+ibb),
+     &                       FAMO(1+ipCM(is)+ibb),
      &                       Work(ipF0sqMO+ipCM(is)+ibb),
      &                       Work(ipFIMO+ipCM(js)-1),
-     &                       Work(ipFAMO+ipCM(js)-1),
+     &                       FAMO(ipCM(js)),
      &                       Work(ipF0sqMO+ipCM(js)-1),sign,
      &                       JA,KA,Scr,n2,
      &                       iAdr) ! OK
@@ -108,10 +109,10 @@
      &            Call Preciaa(ib,is,js,nd,Temp3,
      &                         nOrb(is),nOrb(js),
      &                         Work(ipFIMO+ipCM(is)+ibb),
-     &                         Work(ipFAMO+ipCM(is)+ibb),
+     &                         FAMO(1+ipCM(is)+ibb),
      &                         Work(ipF0sqMO+ipCM(is)+ibb),
      &                         Work(ipFIMO+ipCM(js)-1),
-     &                         Work(ipFAMO+ipCM(js)-1),
+     &                         FAMO(ipCM(js)),
      &                         Work(ipF0sqMO+ipCM(js)-1),sign,
      &                         JA,KA,Scr,n2) ! OK
 *                                                                      *
@@ -123,7 +124,7 @@
                If ((nOrb(js)-nish(js)-nash(js))*nash(js).gt.0)
      &            Call Preciba(ib,is,js,nd,Temp3,nOrb(js),
      &                         Work(ipFIMO+ipCM(js)-1),
-     &                         Work(ipFAMO+ipCM(js)-1),
+     &                         FAMO(ipCM(js)),
      &                         Work(ipF0sqMO+ipCM(js)-1),sign,
      &                         JA,KA,Scr,n2) ! OK
 *
@@ -139,9 +140,9 @@
      &                      nbas(js),norb(js),
      &                      Temp1(:,1),Temp1(:,2),Temp2,
      &                      Work(ipFiMo+ipCM(is)+ibb),
-     &                      Work(ipFAMO+ipcm(is)+ibb),  ! OK
+     &                      FAMO(1+ipcm(is)+ibb),  ! OK
      &                      Work(ipFiMo+ipCM(js)-1),
-     &                      Work(ipFAMO+ipcm(js)-1),sign)  ! OK
+     &                      FAMO(ipcm(js)),sign)  ! OK
             EndIf ! newCho
 *                                                                      *
 ************************************************************************
@@ -198,10 +199,10 @@
                Call Preca_cho(ib,is,js,nd,ir,Temp3,
      &                        nOrb(is),nOrb(js),
      &                        Work(ipFIMO+ipCM(is)+ibb),
-     &                        Work(ipFAMO+ipCM(is)+ibb),
+     &                        FAMO(1+ipCM(is)+ibb),
      &                        Work(ipF0SqMO+ipCM(is)+ibb),
      &                        Work(ipFIMO+ipCM(js)-1),
-     &                        Work(ipFAMO+ipCM(js)-1),
+     &                        FAMO(ipCM(js)),
      &                        Work(ipF0SqMO+ipCM(js)-1),sign,
      &                        JA,KA,Scr,n2,
      &                        iAdr2)
@@ -210,10 +211,10 @@
      &         Call Precaii(ib,is,js,nd,ir,Temp3,
      &                      nOrb(is),nOrb(js),
      &                      Work(ipFIMO+ipCM(is)+ibb),
-     &                      Work(ipFAMO+ipCM(is)+ibb),
+     &                      FAMO(1+ipCM(is)+ibb),
      &                      Work(ipF0SqMO+ipCM(is)+ibb),
      &                      Work(ipFIMO+ipCM(js)-1),
-     &                      Work(ipFAMO+ipCM(js)-1),
+     &                      FAMO(ipCM(js)),
      &                      Work(ipF0SqMO+ipCM(js)-1),sign,
      &                      JA,KA,Scr,n2) ! OK
 *           Call Precaai(ib,nd,ir,rpre(ip))
@@ -221,7 +222,7 @@
             If (nish(js)*nOrb(js).gt.0)
      &         Call Precabi(ib,is,js,ir,nd,Temp3,nOrb(js),
      &                      Work(ipFIMO+ipCM(js)-1),
-     &                      Work(ipFAMO+ipCM(js)-1),
+     &                      FAMO(ipCM(js)),
      &                      Work(ipF0SQMO+ipCM(js)-1),sign,
      &                      JA,KA,Temp1(:,2),n2) !+/-?
 *           Call Precaba(ib,nd,ir,rpre(ip))
@@ -232,7 +233,7 @@
      &                           Temp2,
      &                           Work(ipF0SQMO+ipCM(is)+ibb),
      &                           Work(ipFiMo+ipCM(js)-1),
-     &                           Work(ipFAMO+ipcm(js)-1) ,
+     &                           FAMO(ipcm(js)) ,
      &                           Work(ipF0SQMO+ipCM(js)-1),sign)
 *
             EndIf ! newCho

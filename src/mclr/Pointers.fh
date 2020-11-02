@@ -13,11 +13,11 @@
      &        ipCI,ipMC(8,8),nDens2,ipf0,ipf0sqmo,
      &        ndensc,ipmatba(8,8),ipMO(8,8,8),iADMO(8,8,8),na(8),
      &        nb(8),nmba,nna,ipfimo,
-     &        ipfamo,ipmo1,k2int,n1dens,n2dens,nconf1,ipg2tpp,
+     &        ipmo1,k2int,n1dens,n2dens,nconf1,ipg2tpp,
      &        ipg2tmm
       Common /Pointers/ ipCI,ipMat,ipMatLT,ipCM,nDens,
      &                  nDensLT,nCMO,ipf0sqmo,
      &                  ipf0,nScrtch,nDensC,ipMc,nDens2,ipmatba,
      &                  ipMO,iADMO,na,nb,nmba,
-     &                  nna,ipfimo,ipfamo,ipmo1,k2int,
+     &                  nna,ipfimo,ipmo1,k2int,
      &                  n1dens,n2dens,nconf1,ipg2tpp,ipg2tmm

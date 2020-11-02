@@ -100,7 +100,7 @@ C     Call GetMem('FockI','CHECK','REAL',ipFI,ndens2)
 
 *     iiii=ipDA
 *     ipDA=ipDI
-*     ipFAMO=ipFIMO
+*     FAMO=FIMO
 *
 *     Construct {kappa,(ij|kl)} and the fock matrix contribution
 *     from one index tranformation of contracted indexes

@@ -24,7 +24,7 @@
 *
 ************************************************************************
 *
-      use Arrays, only: CMO, G1t
+      use Arrays, only: CMO, G1t, FAMO
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
@@ -150,12 +150,12 @@
      &               Work(ipFA-1+ipMat(iS,jS)),nBas(iS),
      &               0.0d0,FockA(ipMat(iS,jS)),nOrb(iS))
          Call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(iS),Sign*Facr,
-     &            Work(ipFAMO+ipCM(iS)-1),nOrb(is),
+     &            FAMO(ipCM(iS)),nOrb(is),
      &            rkappa(ipMat(iS,jS)),nOrb(iS),
      &            One,FockA(ipMat(iS,jS)),nOrb(iS))
          Call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(jS),Facr,
      &            rkappa(ipMat(iS,jS)),nOrb(is),
-     &            Work(ipFAMO+ipCM(jS)-1),nOrb(jS),
+     &            FAMO(ipCM(jS)),nOrb(jS),
      &            One,FockA(ipMat(iS,jS)),nOrb(is))
        End If
        End If

@@ -24,7 +24,7 @@
 *
 ************************************************************************
 *
-      use Arrays, only: CMO, G1t
+      use Arrays, only: CMO, G1t, FAMO
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
@@ -178,12 +178,12 @@ c THIS IS THE ENTIRE DENSITY FOR MULTICONF
      &            One,FockI(ipMat(iS,jS)),nBas(is))
        If (iMethod.eq.2) Then
          Call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(iS),Sign*Facr,
-     &            Work(ipFAMO+ipCM(iS)-1),nBas(is),
+     &            FAMO(ipCM(iS)),nBas(is),
      &            rkappa(ipMat(iS,jS)),nBas(iS),
      &            One,FockA(ipMat(iS,jS)),nBas(iS))
          Call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(jS),Facr,
      &            rkappa(ipMat(iS,jS)),nBas(is),
-     &            Work(ipFAMO+ipCM(jS)-1),nBas(jS),
+     &            FAMO(ipCM(jS)),nBas(jS),
      &            One,FockA(ipMat(iS,jS)),nBas(is))
        End If
        End If

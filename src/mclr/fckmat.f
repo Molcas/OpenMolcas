@@ -14,11 +14,13 @@
 *   Driver for calculation of optimized fock matrix.       *
 *                                                          *
 ************************************************************
+      use Arrays, only: FAMO
       implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
 #include "Pointers.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "machine.fh"
 *
 *                                                                      *
@@ -47,7 +49,7 @@
       Else
          k2int=1
       End If
-      Call GetMem('FASQMO','ALLO','Real',ipFAMO,nDens2)
+      Call mma_allocate(FAMO,nDens2,Label='FAMO')
       Call GetMem('Temp4','ALLO','Real',ipQ,nDens2)
       Call GetMem('Temp2','Allo','Real',ipTmp2,2*ndens2)
       ipScr=ipTmp2+ndens2
@@ -59,7 +61,7 @@
 *
       Call Read22_2(work(k2int),
      &              Work(ipF0SqMo),Work(ipQ),
-     &              Work(ipFIMO),Work(ipFAMO),
+     &              Work(ipFIMO),FAMO,
      &              Work(ipTmp2),Work(ipScr),
      &              Work(ipT3))
 *                                                                      *
