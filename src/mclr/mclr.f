@@ -42,7 +42,7 @@
       use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM, SFock,
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m,
      &                  CMO_Inv, CMO, DFTP, CFTP, DTOC, CNSM,
-     &                  Int1, pINT1, pINT2
+     &                  Int1, pINT1, pINT2, G2t
       use negpre, only: SS
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
@@ -264,7 +264,7 @@ c      idp=rtoi
       End If
 *     Arrays in rdjobip_td.f and rdjobiph.f
       If (iMethod.eq.2) Then
-         Call GetMem(' G2 ','Free','Real',ipG2t,nDum)
+         Call mma_deallocate(G2t)
          If (Timedep) Call GetMem(' G2 ','Free','Real',ipG2sq,nDum)
          Call GetMem(' G1 ','Free','Real',ipG1t,nDum)
          Call mma_deallocate(CMO)

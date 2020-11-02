@@ -21,7 +21,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      use Arrays, only: CMO
+      use Arrays, only: CMO, G2t
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -329,30 +329,23 @@ C
       nG1 = nAct*(nAct+1)/2
       Call GetMem(' G1 ','Allo','Real',ipG1t,nG1)
       nG2=nG1*(nG1+1)/2
-      Call GetMem(' G2 ','Allo','Real',ipG2t,nG2)
-      Call RDDENS(Work(ipG1t),ng1,Work(ipG2t),ng2)
+      Call mma_allocate(G2t,nG2,Label='G2t')
+      Call RDDENS(Work(ipG1t),ng1,G2t,ng2)
       ipg1=ipg1t
-      ipG2=ipG2t
+      ipG2=ip_of_Work(G2t)
       ipg2tmm=ipg2
       ipg2tpp=ipg2
 
 #ifdef _DEBUGPRINT_
       Call Triprt('G1',' ',Work(ipG1t),ntash)
-      Call Triprt('G2',' ',Work(ipG2),ng1)
+      Call Triprt('G2',' ',G2t,ng1)
 #endif
-
-      nG1 = nAct*(nAct+1)/2
-      nG2=nG1*(nG1+1)/2
-
-!      Call Triprt('G1',' ',Work(ipG1t),ntash)
-!      Call Triprt('G2',' ',Work(ipG2),ng1)
 
       if(doDMRG)then ! yma
         call dmrg_dim_change_mclr(LRras2(1:8),nact,0)
         call dmrg_spc_change_mclr(LRras2(1:8),nash)
         call dmrg_spc_change_mclr(LRras2(1:8),nrs2)
       end if
-
 *                                                                      *
 ************************************************************************
 *                                                                      *

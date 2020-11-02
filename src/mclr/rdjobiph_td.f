@@ -21,7 +21,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      Use Arrays, only: CMO
+      Use Arrays, only: CMO, G2t
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "Files_mclr.fh"
@@ -183,7 +183,7 @@
       nG2=nG1*(nG1+1)/2
 
       Call GetMem(' G2 ','Allo','Real',ipG2sq,nAct**4)
-      Call GetMem(' G2 ','Allo','Real',ipG2t,nG2)
+      Call mma_allocate(G2t,nG2,Label='G2t')
       Call GetMem(' G2i ','Allo','Real',ipG2tts,nG2)
       Call GetMem(' G2i ','Allo','Real',ipG2tta,nG2)
       iDisk=iToc(3)
@@ -208,15 +208,15 @@
                   if(iDij.ge.iDkl .and. kB.eq.lB) fact=2.0d00
                   if(iDij.lt.iDkl .and. iB.eq.jB) fact=2.0d00
                   iijkl=itri(iDij,iDkl)
-                  Work(ipG2t+iijkl-1)=Fact*Work(ipG2tts+iijkl-1)
+                  G2t(iijkl)=Fact*Work(ipG2tts+iijkl-1)
                End Do
             End Do
          End Do
       End Do
 *
-      ipg2=ipg2t
-      ipg2tmm=ipg2t
-      ipg2tpp=ipg2t
+      ipg2   =ip_of_work(G2t)
+      ipg2tmm=ip_of_work(G2t)
+      ipg2tpp=ip_of_Work(G2t)
 
 *---------------------------------------------------------------
 * Rectangular part of the two el dens,

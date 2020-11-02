@@ -14,7 +14,8 @@ Module Arrays
 Implicit None
 Private
 Public :: Hss, FaMO_spinp, FaMO_spinm, SFock, G2mp, G2pp, G2mm, Fm, Fp, &
-          G1p, G1m, CMO_Inv, CMO, DFTP, CFTP, DTOC, CNSM, INT1, pINT1, pInt2
+          G1p, G1m, CMO_Inv, CMO, DFTP, CFTP, DTOC, CNSM, INT1, pINT1, pInt2, &
+          G2t
 #include "detdim.fh"
 Real*8, Allocatable:: Hss(:)
 Real*8, Allocatable:: FaMO_spinp(:), FaMO_spinm(:), SFock(:)
@@ -47,4 +48,7 @@ Type (Storage) :: CNSM(MXCNSM)
 Real*8,  Allocatable::  INT1(:)
 Integer, Allocatable:: pINT1(:)
 Integer, Allocatable:: pINT2(:)
+
+!       One- and two-particle densities
+Real*8,  Allocatable::  G2t(:)
 End Module Arrays
