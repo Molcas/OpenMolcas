@@ -54,10 +54,10 @@
       DIMENSION RHO1(*),RHO2(*)
 *. Before I forget it :
       DIMENSION iSXSTSM(1),IDUMMY(1)
-      Integer, Allocatable:: SIOIO(:), CIOIO(:), SBLTP(:)
+      Integer, Allocatable:: SIOIO(:), CIOIO(:), SBLTP(:), CBLTP(:)
       Integer, Allocatable:: STSTS(:), STSTD(:), IX(:,:), OOS(:,:)
       Real*8, Allocatable:: CB(:), SB(:), INSCR(:), C2(:), XIXS(:,:)
-      Real*8, Allocatable:: CBLTP(:), RHO1S(:), RHO1P(:), XNATO(:)
+      Real*8, Allocatable:: RHO1S(:), RHO1P(:), XNATO(:)
 *     Real*8, Allocatable:: RHO1SM(:), XNATSM(:), OCCSM(:)
       Integer idum(1)
 
