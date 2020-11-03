@@ -16,7 +16,7 @@
 
       Label='DLMO'
       Call qpg_dArray(Label,Found,mDLMO)
-      If(.not.Found .or. nDens.eq.0) Then
+      If(.not.Found .or. mDLMO.eq.0) Then
          Call SysAbendMsg('get_dlmo','Did not find:',Label)
       End If
       If (mDLMO/=nDLMO) Then
