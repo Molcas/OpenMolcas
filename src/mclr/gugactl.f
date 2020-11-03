@@ -15,14 +15,16 @@
       Integer A0,B0,C0
       Real*8 CIL(*)
 *
-
 #include "Input.fh"
 #include "Pointers.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
       Integer OrbSym(2*mxBas)
       Parameter (iPrint=0)
+      Integer, Allocatable:: DRT0(:), DOWN0(:), TMP(:), V11(:), DRT(:),
+     &                       DOWN(:), DAW(:)
 *
 *
       ntRas1=0
@@ -88,54 +90,49 @@
       NDRT0=5*NVERT0
       NDOWN0=4*NVERT0
       NTMP=((NLEV+1)*(NLEV+2))/2
-      Call GetMem('DRT0','ALLO','INTEGER',LDRT0,NDRT0)
-      Call GetMem('DOWN','ALLO','INTEGER',LDOWN0,NDOWN0)
-      Call GetMem('LTMP','ALLO','INTEGER',LTMP,NTMP)
+      Call mma_allocate(DRT0,NDRT0,Label='DRT0')
+      Call mma_allocate(DOWN0,NDOWN0,Label='DOWN0')
+      Call mma_allocate(TMP,NTMP,Label='TMP')
       Call DRT0_MCLR  ! Set up the guga table
-     &     (A0,B0,C0,NVERT0,iWork(LDRT0),iWork(LDOWN0),
-     &      NTMP,IWORK(LTMP))
-      If ( iPrint.ge.5 )
-     &   Call PRDRT_MCLR(NVERT0,iWork(LDRT0),iWork(LDOWN0))
-      Call GetMem('LTMP','FREE','INTEGER',LTMP,NTMP)
+     &     (A0,B0,C0,NVERT0,DRT0,DOWN0,NTMP,TMP)
+      If ( iPrint.ge.5 ) Call PRDRT_MCLR(NVERT0,DRT0,DOWN0)
+      Call mma_deallocate(TMP)
 *
       LV1RAS=ntRas1
       LV3RAS=LV1RAS+ntRas2
       LM1RAS=2*LV1RAS-nHole1
       LM3RAS=nActEl-nElec3
-      Call GetMem('LV11','ALLO','INTEGER',LV,NVERT0)
+      Call mma_allocate(V11,NVERT0,Label='V11')
       Call RESTR_MCLR   ! PUT THE RAS CONSTRAINT TO THE DRT TABLE
-     &     (NVERT0,iWork(LDRT0),iWork(LDOWN0),iWork(LV),
+     &     (NVERT0,DRT0,DOWN0,V11,
      &      LV1RAS,LV3RAS,LM1RAS,LM3RAS,NVERT)
 *
       NDRT=5*NVERT
       NDOWN=4*NVERT
-      Call GetMem('DRT1','ALLO','INTEGER',LDRT,NDRT)
-      Call GetMem('DWN1','ALLO','INTEGER',LDOWN,NDOWN)
+      Call mma_allocate(DRT,NDRT,Label='DRT')
+      Call mma_allocate(DOWN,NDOWN,Label='DOWN')
       Call DRT_MCLR  ! Set up the DRT table used in calculation
-     &     (NVERT0,NVERT,iWork(LDRT0),iWork(LDOWN0),iWork(LV),
-     &      iWork(LDRT),iWork(LDOWN))
-!      If ( iPrint.ge.0 ) Call PRDRT_MCLR(NVERT,iWork(LDRT),iWork(LDOWN)) !yma    5
-      Call GetMem('LV11','FREE','INTEGER',LV,NVERT0)
-      Call GetMem('DRT0','FREE','INTEGER',LDRT0,NDRT0)
-      Call GetMem('DOWN','FREE','INTEGER',LDOWN0,NDOWN0)
+     &     (NVERT0,NVERT,DRT0,DOWN0,V11,DRT,DOWN)
+!      If ( iPrint.ge.0 ) Call PRDRT_MCLR(NVERT,DRT,DOWN) !yma    5
+      Call mma_deallocate(V11)
+      Call mma_deallocate(DOWN0)
+      Call mma_deallocate(DRT0)
 *
       NDAW=5*NVERT
-      Call GetMem('DAW1','ALLO','INTEGER',LDAW,NDAW)
-      Call MKDAW_MCLR(NVERT,iWork(LDOWN),iWork(LDAW),iPrint)
+      Call mma_allocate(DAW,NDAW,Label='DAW')
+      Call MKDAW_MCLR(NVERT,DOWN,DAW,iPrint)
 *
       NUP=4*NVERT
       NRAW=5*NVERT
       Call GetMem('LUP1','ALLO','INTEGER',LUP,NUP)
       Call GetMem('RAW1','ALLO','INTEGER',LRAW,NRAW)
       Call MKRAW_MCLR
-     &     (NVERT,iWork(LDOWN),iWork(LDAW),iWork(LUP),iWork(LRAW),
-     &           iPrint)
+     &     (NVERT,DOWN,DAW,iWork(LUP),iWork(LRAW),iPrint)
 *
       NLTV=NLEV+2
       Call GetMem('LTV1','ALLO','INTEGER',LLTV,NLTV)
       Call MKMID_MCLR
-     &     (NVERT,NLEV,iWork(LDRT),
-     &      iWork(LDOWN),iWork(LDAW),iWork(LUP),iWork(LRAW),
+     &     (NVERT,NLEV,DRT,DOWN,DAW,iWork(LUP),iWork(LRAW),
      &      iWork(LLTV),
      &      MIDLEV,NMIDV,MIDV1,MIDV2,MXUP,MXDWN,iPrint)
       Call GetMem('LTV1','FREE','INTEGER',LLTV,NLTV)
@@ -155,7 +152,7 @@
 *     Call GetMem('NCSF','ALLO','INTEGER',LNCSF,nSym)
       Call MKCOT_MCLR
      &     (nSym,NLEV,NVERT,MIDLEV,NMIDV,MIDV1,MIDV2,NWALK,NIPWLK,
-     &      OrbSym,iWork(LDOWN),iWork(LNOW),iWork(LIOW),
+     &      OrbSym,DOWN,iWork(LNOW),iWork(LIOW),
      &      NCSF,iWork(LIOCSF),iWork(LNOCSF),
      &      iWork(LSCR),iPrint)
 *
@@ -176,7 +173,7 @@
       Call GetMem('CASE','ALLO','INTEG',LICASE,NICASE)
       Call MKCLIST_MCLR
      &     (nSym,NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,NICASE,NIPWLK,
-     &      OrbSym,iWork(LDOWN),iWork(LNOW),iWork(LIOW),
+     &      OrbSym,DOWN,iWork(LNOW),iWork(LIOW),
      &      iWork(LICASE),iWork(LSCR),iPrint)
       Call GetMem('SCR1','FREE','INTEG',LSCR,NSCR)
 *
@@ -187,7 +184,7 @@
       Call MKSGNUM_MCLR
      &     (State_sym,nSym,NLEV,
      &       NVERT,MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK,
-     &      iWork(LDOWN),iWork(LUP),iWork(LDAW),iWork(LRAW),
+     &      DOWN,iWork(LUP),DAW,iWork(LRAW),
      &      iWork(LNOW),iWork(LIOW),iWork(LUSGN),iWork(LLSGN),
      &      iWork(LICASE),iPrint)
 *
@@ -218,7 +215,7 @@
 
       Call REORD
      &     (NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,MXUP,MXDWN,
-     &      iWork(LDRT),iWork(LDOWN),iWork(LDAW),
+     &      DRT,DOWN,DAW,
      &      iWork(LUP),iWork(LRAW),iWork(LUSGN),iWork(LLSGN),
      &      nActEl,NLEV,NCONF,NTYP,
      &      iMode,jPrint,
@@ -239,9 +236,9 @@
       Call GetMem('NOW1','FREE','INTEGER',LNOW,NNOW)
       Call GetMem('RAW1','FREE','INTEGER',LRAW,NRAW)
       Call GetMem('LUP1','FREE','INTEGER',LUP,NUP)
-      Call GetMem('DAW1','FREE','INTEGER',LDAW,NDAW)
-      Call GetMem('DWN1','FREE','INTEGER',LDOWN,NDOWN)
-      Call GetMem('DRT1','FREE','INTEGER',LDRT,NDRT)
+      Call mma_deallocate(DAW)
+      Call mma_deallocate(DOWN)
+      Call mma_deallocate(DRT)
 *
 *
       Return
