@@ -329,8 +329,8 @@ C
       nG2=nG1*(nG1+1)/2
       Call mma_allocate(G2t,nG2,Label='G2t')
       Call RDDENS(G1t,ng1,G2t,ng2)
-      ipg1=ip_of_Work(G1t)
-      ipG2=ip_of_Work(G2t)
+      ipg1=ip_of_Work(G1t(1))
+      ipG2=ip_of_Work(G2t(1))
       ipg2tmm=ipg2
       ipg2tpp=ipg2
 
