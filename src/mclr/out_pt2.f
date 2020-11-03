@@ -21,7 +21,6 @@
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
 #include "cicisp_mclr.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "real.fh"
 #include "sa.fh"
@@ -37,7 +36,7 @@
       Real*8, Allocatable:: D_K(:), Tmp(:), K1(:), K2(:), DAO(:),
      &                      D_CI(:), D1(:), P_CI(:), P1(:), Conn(:),
      &                      OCCU(:), CMON(:), DTmp(:), G1q(:), G1m(:),
-     &                      Temp(:), tTmp(:)
+     &                      Temp(:), tTmp(:), DM(:), DMs(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -514,18 +513,17 @@ c
 *
          If (nRoots.ne.1) Then
 *           Write (*,*) 'iR=',iR
-            Call GetMem('DIPM', 'Allo','Real',ipDM,3)
-            Call GetMem('DIPMs','Allo','Real',ipDMs,3*nROOTS)
-            Call Get_dArray('Last Dipole Moments',Work(ipDMs),3*nRoots)
-*           Call RecPrt('Last Dipole Moments',' ',Work(ipDMS),3,nRoots)
-            Call Get_dArray('Dipole Moment',Work(ipDM),3)
-*           Call RecPrt('Dipole Moment',' ',Work(ipDM),1,3)
-            Call DCopy_(3,Work(ipDM),1,
-     &                    Work(ipDMS+(iR-1)*3),1)
-*           Call RecPrt('Last Dipole Moments',' ',Work(ipDMS),3,nRoots)
-            Call Put_dArray('Last Dipole Moments',Work(ipDMs),3*nRoots)
-            Call Free_Work(ipDMs)
-            Call Free_Work(ipDM)
+            Call mma_allocate(DM,3,Label='DM')
+            Call mma_allocate(DMs,3*nROOTS,Label='DMs')
+            Call Get_dArray('Last Dipole Moments',DMs,3*nRoots)
+*           Call RecPrt('Last Dipole Moments',' ',DMS,3,nRoots)
+            Call Get_dArray('Dipole Moment',DM,3)
+*           Call RecPrt('Dipole Moment',' ',DM,1,3)
+            Call DCopy_(3,DM,1,DMS(1+(iR-1)*3),1)
+*           Call RecPrt('Last Dipole Moments',' ',DMS,3,nRoots)
+            Call Put_dArray('Last Dipole Moments',DMs,3*nRoots)
+            Call mma_deallocate(DMs)
+            Call mma_deallocate(DM)
          End If
 ************************************************************************
 *                                                                      *
@@ -542,21 +540,21 @@ c
 c
 c  Write the effective active one el density to disk in the same format as g1q
 c
-c       Call Getmem('TEMP1','ALLO','REAL',ipDeff_act,ndens2)
-c       call dcopy_(nDens2,D_K,1,Work(ipDeff_act),1)
+c       Call mma_allocate(Deff_act,ndens2,Label='Deff_act')
+c       call dcopy_(nDens2,D_K,1,Deff_act,1)
 c       Do is=1,nSym
 c        Do i=1,nish(is)
 c
 c Subtract the inactive density
 c
-c         Work(ipDeff_act+ipmat(is,is)-1+i-1+(i-1)*nbas(is))=
+c         Deff_act(ipmat(is,is)+i-1+(i-1)*nbas(is))=
 c     &   D_K(ipmat(is,is)+i-1+(i-1)*nbas(is))-Two
 c        End Do
 c       End Do
 c
-c      Call Put_DEff(Work(ipDeff_act),ndens2)
+c      Call Put_DEff(Deff_act,ndens2)
 c
-c       Call Getmem('TEMP1','FREE','REAL',ipDeff_act,ndens2)
+c       Call mma_deallocate(Deff_act)
 c
 c--------------------------------------------------
 c
@@ -667,11 +665,13 @@ c
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "real.fh"
       Real*8 Dens(*),CMOO(*),CMON(*),OCCN(*)
-      Call GetMem('TMP','ALLO','REAL',ips,ndens2)
-      Call GetMem('TMP','ALLO','REAL',ips2,ndens2)
+      Real*8, Allocatable:: EVal(:), EVec(:)
+
+      Call mma_allocate(EVec,ndens2,Label='EVec')
+      Call mma_allocate(EVal,ndens2,Label='EVal')
 C
 C         Diagonalize the density matrix and transform orbitals
 C
@@ -686,17 +686,17 @@ C
          ij=0
          Do i=0,nbas(is)-1
             Do j=0,i
-               Work(ipS2+ij)=Dens(ipMat(is,is)+i+j*nbas(is))
                ij=ij+1
+               Eval(ij)=Dens(ipMat(is,is)+i+j*nbas(is))
             End DO
          End DO
-         Call dCopy_(nBas(iS)**2,[Zero],0,Work(ipS),1)
-         Call dCopy_(nBas(is),[One],0,Work(ipS),nbas(is)+1)
-         CALL JACOB(Work(ipS2),Work(ipS),nbas(is),nbas(is))
+         EVec(:)=Zero
+         Call dCopy_(nBas(is),[One],0,EVec,nbas(is)+1)
+         CALL JACOB(EVal,EVec,nbas(is),nbas(is))
          ii=0
          DO i=1,nbas(is)
             ii=ii+i
-            OCCN(io+i)=Work(ips2-1+ii)
+            OCCN(io+i)=Eval(ii)
          END DO
          IST=IO+1
          IEND=IO+NBAS(is)
@@ -707,11 +707,13 @@ C
      &      CALL DGEMM_('N','N',
      &                  NBAS(is),NBAS(is),NBAS(is),
      &                  One,CMOO(ipCM(is)),NBAS(is),
-     &                  Work(ipS),NBAS(is),
+     &                  EVec,NBAS(is),
      &                  Zero,CMON(ipCM(is)),NBAS(is))
          io=io+nbas(is)
       End DO
-      Call GetMem('TMP','FREE','REAL',ips,ndens2)
-      Call GetMem('TMP','FREE','REAL',ips2,ndens2)
+
+      Call mma_deallocate(EVec)
+      Call mma_deallocate(Eval)
+
       Return
       End
