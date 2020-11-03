@@ -107,12 +107,12 @@
           If (Timedep.and.CI) then
             Call GetMem('TEMPCI','ALLO','REAL',ipCITmp,nconf1)
             call dcopy_(nconf1,Work(ipCIp1+nconf1),1,Work(ipCITmp),1)
-            Call Guganew(ipCITmp,0,pstate_sym)
+            Call Guganew(Work(ipCITmp),0,pstate_sym)
             Call DSCAL_(nconf1,-1.0d0,Work(ipCITmp),1)
 *           Call RecPrt(' ',' ',Work(ipCItmp),nconf1,1)
           End If
 
-          If (CI) call Guganew(ipCIp1,0,pstate_sym)
+          If (CI) call Guganew(Work(ipCIp1),0,pstate_sym)
           If (Timedep) then
             If (CI) Then
 *              Call RecPrt(' ',' ',Work(ipCIp1),nconf1,1)

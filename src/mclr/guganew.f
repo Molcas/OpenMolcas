@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine GugaNew(ipCIL,imode,ksym)
+      Subroutine GugaNew(CIL,imode,ksym)
 *
       use Str_Info, only: CFTP, CNSM
       Implicit Real*8 (A-H,O-Z)
@@ -19,6 +19,7 @@
 #include "stdalloc.fh"
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
+      Real*8 CIL(*)
       Integer OrbSym(2*mxBas)
       Integer, Parameter:: iPrint=0
       Integer, Allocatable:: DRT0(:), DOWN0(:), TMP(:), V11(:), DRT(:),
@@ -185,36 +186,26 @@
       WRITE(6,102) PRWTHR
 102   FORMAT(6X,'printout of CI-coefficients larger than',F6.2)
       Call SGPRWF_MCLR(ksym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,
-     &                 NICASE,OrbSym,NOCSF,IOCSF,NOW,IOW,
-     &      ICASE,Work(ipCIL))
+     &                 NICASE,OrbSym,NOCSF,IOCSF,NOW,IOW,ICASE,CIL)
       WRITE(6,103)
 103   FORMAT(/,6X,100(1H-),/)
       End If
       End If
 *
       jPrint=iPrint
-      If (TimeDep) Then
-         Call GetMem('CIvec','Allo','Real',ipCInew,NCONF)
-      Else
-         Call GetMem('CIvec','Allo','Real',ipCInew,NCONF)
-      End If
+      Call GetMem('CIvec','Allo','Real',ipCInew,NCONF)
       Call REORD(NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,MXUP,MXDWN,
      &           DRT,DOWN,DAW,UP,RAW,iWork(LUSGN),iWork(LLSGN),
-     &      nActEl,NLEV,NCONF,NTYP,
-     &      iMode,jPrint,
+     &           nActEl,NLEV,NCONF,NTYP,iMode,jPrint,
      &      CNSM(iss)%ICONF,
      &      CFTP,NCNATS(1,kSym),NCPCNT,
-     &      Work(ipCIL),Work(ipCInew),minop)
+     &      CIL,Work(ipCInew),minop)
       If (imode.eq.0.and.iAnd(kprint,8).eq.8)
      &Call SGPRWF_MCLR(ksym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,
      &                 NICASE,OrbSym,NOCSF,IOCSF,NOW,IOW,
      &      ICASE,Work(ipCInew))
-      If (TimeDep) Then
-         Call GetMem('OCIvec','Free','Real',ipCIL,nConf)
-      Else
-         Call GetMem('OCIvec','Free','Real',ipCIL,nConf)
-      End If
-      ipCIL = ipCInew
+      Call DCopy_(nConf,Work(ipCINew),1,CIL,1)
+      Call GetMem('CIvec','Free','Real',ipCInew,NCONF)
 *
       Call GetMem('ILSG','FREE','INTEGER',LLSGN,NLSGN)
       Call GetMem('IUSG','FREE','INTEGER',LUSGN,NUSGN)
@@ -228,7 +219,6 @@
       Call mma_deallocate(DAW)
       Call mma_deallocate(DOWN)
       Call mma_deallocate(DRT)
-*
 *
       Return
       End

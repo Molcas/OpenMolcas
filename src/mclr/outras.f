@@ -114,7 +114,7 @@
 
                If (iAnd(kprint,8).eq.8)
      &              Write(6,*) 'Perturbation ',ipert
-               If (CI) call Guganew(ipcip1,0,pstate_sym)
+               If (CI) call Guganew(Work(ipcip1),0,pstate_sym)
                If (imethod.eq.2.and.(.not.CI).and.nconfM.eq.1)
      &              Work(ipcip1)=0.0d0
                Call dWrMCk(iRC,iOpt,Label,ipert,Work(ipcip1),isyml)
