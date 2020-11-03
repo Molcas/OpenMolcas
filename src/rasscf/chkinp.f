@@ -29,14 +29,20 @@
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
 #endif
-
-      Implicit Real*8 (A-H,O-Z)
+      use linalg_mod, only: abort_
+      use gas_data, only: iDoGAS, nGAS, iGSOCCX, nGSSH
+      implicit none
 #include "rasdim.fh"
 #include "rasscf.fh"
-#include "gas.fh"
 #include "general.fh"
 #include "output_ras.fh"
 #include "warnings.fh"
+      integer :: ierr, ierr1, ierr2
+      integer :: i, iSym, iAlter
+      integer :: iB0, iA0, iC0
+
+      integer, allocatable :: spin_orbs_per_GAS(:), max_per_GAS(:),
+     &             min_per_GAS(:)
       Parameter (ROUTINE='ChkInp  ')
 *----------------------------------------------------------------------*
 C Local print level (if any)
@@ -164,7 +170,29 @@ C Local print level (if any)
         write(lf,*)'nactel=',nactel,'igsoccx:',igsoccx(ngas,2)
         write(lf,*)'************************************************'
        endif
-      endif
+
+       spin_orbs_per_GAS = sum(ngssh(: nGAS, : nSym), 2) * 2
+       min_per_GAS = igsoccx(:nGAS, 1) - eoshift(igsoccx(:nGAS, 2), -1)
+       max_per_GAS = igsoccx(:nGAS, 2) - eoshift(igsoccx(:nGAS, 1), -1)
+       if (any(spin_orbs_per_GAS < min_per_GAS)) then
+          write(lf, *)
+          write(lf, *) 'The constraint'
+          write(lf, *) '    any(spin_orbs_per_GAS < min_per_GAS)'
+          write(lf, *) 'is violated.'
+          write(lf, *)
+          Call abort_('GASSCF: Pauli forbidden.')
+       end if
+       ! Conceptionally this should not be a problem, but the code
+       ! assumes it to be not the case.
+       if (any(spin_orbs_per_GAS < max_per_GAS)) then
+           write(lf, *)
+           write(lf, *) 'The constraint'
+           write(lf, *) '    any(spin_orbs_per_GAS < min_per_GAS)'
+           write(lf, *) 'is violated.'
+           write(lf, *)
+           Call abort_('GASSCF: Pauli forbidden.')
+       end if
+      end if
       If (NSYM.ne.1 .and. NSYM.ne.2 .and.
      &    NSYM.ne.4 .and. NSYM.ne.8) Then
         Write(LF,*)
