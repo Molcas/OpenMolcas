@@ -29,12 +29,14 @@
 #include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       parameter ( N2 = InfVec_N2 )
       parameter (zero = 0.0D0, one = 1.0D0, xone=-1.0D0)
       parameter (FactCI = -2.0D0, FactXI = 0.5D0)
       Character*6 mode
       Integer   Cho_LK_MaxVecPerBatch
       External  Cho_LK_MaxVecPerBatch
+      Integer, Allocatable:: kOffSh(:,:)
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
@@ -45,8 +47,6 @@
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ******
       NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)
-******
-      kOffSh(i,j) = iWork(ip_kOffSh+nShell*(j-1)+i-1)
 ************************************************************************
 *
       nDen=1
@@ -79,11 +79,11 @@
 *
 **    Compute Shell Offsets ( MOs and transformed vectors)
 *
-      Call GetMem('ip_kOffSh','Allo','Inte',ip_kOffSh,nShell*nSym)
+      Call mma_allocate(kOffSh,nShell,nSym,Label='kOffSh')
       Do iSyma=1,nSym
          LKsh=0
          Do iaSh=1,nShell    ! kOffSh(iSh,iSym)
-            iWork(ip_kOffSh+nShell*(iSyma-1)+iaSh-1) = LKsh
+            kOffSh(iaSh,iSyma) = LKsh
             LKsh = LKsh + nBasSh(iSyma,iaSh)
          End Do
       End Do
@@ -150,7 +150,7 @@ c         !set index arrays at iLoc
             Call Fzero(Work(ipFab),nRS)
           EndIf
 
-          Call GetMem('MaxM','Max','Real',KDUM,LWORK)
+          Call mma_MaxDBLE(LWORK)
           nVec = min(LWORK/(nRS+mTvec+1),min(nVrs,MaxVecPerBatch))
           If (nVec.lt.1) Then
              WRITE(6,*) SECNAM//': Insufficient memory for batch'
@@ -417,7 +417,7 @@ c --- backtransform fock matrix to full storage
 *     TERMINATING                                                    *
 *                                                                    *
 **********************************************************************
-      Call GetMem('ip_kOffSh','Free','Inte',ip_kOffSh,nShell*nSym)
+      Call mma_deallocate(kOffSh)
       Call GetMem('Qmat','FREE','REAL',ipScr,nsBB*nDen)
 
       Return
