@@ -37,7 +37,7 @@
       Real*8, Allocatable:: D_K(:), Tmp(:), K1(:), K2(:), DAO(:),
      &                      D_CI(:), D1(:), P_CI(:), P1(:), Conn(:),
      &                      OCCU(:), CMON(:), DTmp(:), G1q(:), G1m(:),
-     &                      Temp(:)
+     &                      Temp(:), tTmp(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -483,12 +483,15 @@ c
          Call dmat_MCLR(CMON,OCCU,Tmp)
          Call Put_D1ao_Var(Tmp,nTot1)
          Call mma_deallocate(Tmp)
+
          Call mma_allocate(TEMP,nNac,Label='TEMP')
+         Call mma_allocate(tTmp,nNac,Label='tTmp')
          Call get_D1MO(TEMP,nNac)
-         Call get_DLMO(ipTt,nTot1)
-         Call DaxPy_(nTot1,1.0d0,Work(ipTt),1,TEMP,1)
+         Call get_DLMO(tTmp,nNac)
+         Call DaxPy_(nNac,1.0d0,tTmp,1,TEMP,1)
          Call mma_deallocate(TEMP)
-         Call Getmem('DENS','FREE','Real',ipTt,nTot1)
+         Call mma_deallocate(tTmp)
+
          Note='var'
          LuTmp=50
          LuTmp=IsFreeUnit(LuTmp)
