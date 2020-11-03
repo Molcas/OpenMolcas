@@ -176,7 +176,7 @@
       nG1 = nAct*(nAct+1)/2
       Call mma_allocate(G1t,nG1,Label='G1t')
       G1t(:)=0.0d0
-      ipG1=ip_of_Work(G1t)
+      ipG1=ip_of_Work(G1t(1))
 *
 *--------------------------------------------------
 * Triangular part of two electron dens,
@@ -216,7 +216,7 @@
          End Do
       End Do
 *
-      ipg2   =ip_of_work(G2t)
+      ipg2   =ip_of_work(G2t(1))
       ipg2tmm=ipg2
       ipg2tpp=ipg2
 

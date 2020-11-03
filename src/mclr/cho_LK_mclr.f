@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
-      SUBROUTINE CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2,ipkappa,
+      SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,ipG2,ipkappa,
      &                      ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                      ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
@@ -37,6 +37,7 @@ C
 **********************************************************************
 
       Implicit Real*8 (a-h,o-z)
+      Real*8 DLT(*), DI(*)
 #include "warnings.fh"
       Integer   rc,ipScr
       Integer   ipLpq(8,3)
@@ -235,9 +236,9 @@ C *** memory for the Q matrices --- temporary array
 
          Do iS=1,nSym
 *
-**       Create Cholesky orbitals from ipDI
+**       Create Cholesky orbitals from DI
 *
-           Call CD_InCore(Work(ipDI+ISTSQ(iS)),nBas(iS),
+           Call CD_InCore(DI(1+ISTSQ(iS)),nBas(iS),
      &                           Work(ipCM(1)+ISTK(iS)),
      &                           nBas(iS),nChMO(iS),1.0d-12,irc)
            If (.not.Fake_CMO2) Then
@@ -596,6 +597,7 @@ c           !set index arrays at iLoc
             CALL GETMEM('FullV','Allo','Real',ipLF,LFMAX*nVec)
 
             If(JSYM.eq.1)Then
+               ipDLT=ip_of_Work(DLT(1))
 C --- Transform the density to reduced storage
                mode = 'toreds'
                Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,ISSQ,
@@ -1679,7 +1681,7 @@ C
 C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
 *Coulomb term
                If (JSYM.eq.1) Then
-                 ipDA2=ipDA
+                 ipDA2=1
 
                  ipVJ = ipChoT
                  Call dzero(Work(ipVJ),JNUM)
@@ -1695,9 +1697,10 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
 
                      CALL DGEMV_('T',Nav*Naw,JNUM,
      &                          ONE,Work(ipLvtw),Nav*Naw,
-     &                          Work(ipDA2),1,ONE,Work(ipVJ),1)
+     &                          DA(ipDA2),1,ONE,Work(ipVJ),1)
                     EndIf
-                    ipDA2=ipDA+NAv*Naw
+                    ipDA2=1+NAv*Naw  ! Looks very strange! RL
+  ! I would exprect ipDA2=ipDA2+NAv*Naw
                  EndDo
 *
                  CALL DGEMV_('N',nRS,JNUM,
@@ -1771,7 +1774,7 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
                      ipLwb = ipLpq(iSymv,2)+ NAv*NBAS(iSymb)*(JVC-1)
                      Call DGEMM_('T','N',NBAS(iSymb),Nav,Nav,
      &                           ONE,Work(ipLvb),Nav,
-     &                           Work(ipDA),Nav,ZERO,
+     &                           DA,Nav,ZERO,
      &                           Work(ipLwb),NBAS(iSymb))
                    End Do
                    CALL CWTIME(TCINT2,TWINT2)

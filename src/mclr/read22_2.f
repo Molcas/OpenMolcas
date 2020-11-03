@@ -369,7 +369,6 @@
 *
 **      Let's go
 *
-        ipDI    = ip_of_work(Temp2(1))
         ipkappa = ip_Dummy
         ipJI    = ip_of_work(Temp3(1))
         ipKI    = ip_of_work(Scr(1))
@@ -396,13 +395,11 @@
         Call Abend()
 !       ip_CMO_inv = ip_of_work(CMO_Inv(1))
 !       ipCMO      = ip_of_work(CMO(1))
-        ipDLT      = ip_of_Work(DLT(1))
         ipJA       = ip_of_Work(JA(1))
         ipKA       = ip_of_Work(KA(1))
         ipAsh      = ip_of_Work(Ash(1))
-        ipDA       = ip_of_Work(DA(1))
         ipG2X      = ip_of_Work(G2x(1))
-!       Call CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2x,ipkappa,
+!       Call CHO_LK_MCLR(DLT,Temp2,DA,ipG2x,ipkappa,
 !    &                   ipJI,ipKI,ipJA,ipKA,ipFockI,ipFockA,
 !    &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
 !    &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,

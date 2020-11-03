@@ -245,9 +245,6 @@
         iread=2 ! Asks to read the half-transformed Cho vectors
         ip_CMO_Inv = ip_of_work(CMO_Inv(1))
         ipCMO      = ip_of_work(CMO(1))
-        ipDI       = ip_of_Work(DI(1))
-        ipDLT      = ip_of_Work(DLT(1))
-        ipDA       = ip_of_Work(DA(1))
         ipG2x      = ip_of_Work(G2x(1))
         ipJI       = ip_of_Work(CoulExch(1,1))
         ipKI       = ip_of_Work(CoulExch(1,2))
@@ -255,7 +252,7 @@
         ipKA       = ip_of_Work(CoulExch(1,4))
         ipAsh(1)   = ip_of_Work(CVa(1,1))
         ipAsh(2)   = ip_of_Work(CVa(1,2))
-        Call CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2x,ipkappa,
+        Call CHO_LK_MCLR(DLT,DI,DA,ipG2x,ipkappa,
      &                   ipJI,ipKI,ipJA,ipKA,ipFockI,ipFockA,
      &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
