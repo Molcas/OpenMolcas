@@ -17,7 +17,6 @@
 *
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
