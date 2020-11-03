@@ -15,7 +15,6 @@
       Integer A0,B0,C0
 *
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
@@ -25,7 +24,8 @@
       Integer, Allocatable:: DRT0(:), DOWN0(:), TMP(:), V11(:), DRT(:),
      &                       DOWN(:), DAW(:), UP(:), RAW(:), LTV(:),
      &                       NOW(:), IOW(:), NOCSF(:), IOCSF(:), SCR(:),
-     &                       ICASE(:)
+     &                       ICASE(:), USGN(:), LSGN(:)
+      Real*8, Allocatable:: CINEW(:)
 *
 *
       PRWTHR=0.05d0
@@ -169,11 +169,11 @@
 *
       NUSGN=MXUP*NMIDV
       NLSGN=MXDWN*NMIDV
-      Call GetMem('IUSG','ALLO','INTEG',LUSGN,NUSGN)
-      Call GetMem('ILSG','ALLO','INTEG',LLSGN,NLSGN)
+      Call mma_allocate(USGN,NUSGN,Label='USGN')
+      Call mma_allocate(LSGN,NLSGN,Label='LSGN')
       Call MKSGNUM_MCLR(ksym,nSym,NLEV,NVERT,MIDLEV,NMIDV,MXUP,MXDWN,
-     &                  NICASE,NIPWLK,DOWN,UP,DAW,RAW,
-     &      NOW,IOW,iWork(LUSGN),iWork(LLSGN),ICASE,iPrint)
+     &                  NICASE,NIPWLK,DOWN,UP,DAW,RAW,NOW,IOW,USGN,LSGN,
+     &                  ICASE,iPrint)
 *
       If (iPrint.ge.5) Then
       If (imode.eq.0.and.iAnd(kprint,8).eq.8) Then
@@ -193,22 +193,19 @@
       End If
 *
       jPrint=iPrint
-      Call GetMem('CIvec','Allo','Real',ipCInew,NCONF)
-      Call REORD(NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,MXUP,MXDWN,
-     &           DRT,DOWN,DAW,UP,RAW,iWork(LUSGN),iWork(LLSGN),
-     &           nActEl,NLEV,NCONF,NTYP,iMode,jPrint,
-     &      CNSM(iss)%ICONF,
-     &      CFTP,NCNATS(1,kSym),NCPCNT,
-     &      CIL,Work(ipCInew),minop)
+      Call mma_allocate(CInew,NCONF,Label='CINew')
+      Call REORD(NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,MXUP,MXDWN,DRT,
+     &           DOWN,DAW,UP,RAW,USGN,LSGN,nActEl,NLEV,NCONF,NTYP,iMode,
+     &           jPrint,CNSM(iss)%ICONF,CFTP,NCNATS(1,kSym),NCPCNT,
+     &           CIL,CInew,minop)
       If (imode.eq.0.and.iAnd(kprint,8).eq.8)
      &Call SGPRWF_MCLR(ksym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,
-     &                 NICASE,OrbSym,NOCSF,IOCSF,NOW,IOW,
-     &      ICASE,Work(ipCInew))
-      Call DCopy_(nConf,Work(ipCINew),1,CIL,1)
-      Call GetMem('CIvec','Free','Real',ipCInew,NCONF)
+     &                 NICASE,OrbSym,NOCSF,IOCSF,NOW,IOW,ICASE,CInew)
+      Call DCopy_(nConf,CINew,1,CIL,1)
+      Call mma_deallocate(CINew)
 *
-      Call GetMem('ILSG','FREE','INTEGER',LLSGN,NLSGN)
-      Call GetMem('IUSG','FREE','INTEGER',LUSGN,NUSGN)
+      Call mma_deallocate(LSGN)
+      Call mma_deallocate(USGN)
       Call mma_deallocate(ICASE)
       Call mma_deallocate(IOCSF)
       Call mma_deallocate(NOCSF)

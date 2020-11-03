@@ -105,11 +105,6 @@
           If (iAnd(kprint,8).eq.8) Write(6,*) 'Perturbation ',ipert
 
           If (Timedep.and.CI) then
-C           Call GetMem('TEMPCI','ALLO','REAL',ipCITmp,nconf1)
-C           call dcopy_(nconf1,Work(ipCIp1+nconf1),1,Work(ipCITmp),1)
-C           Call Guganew(Work(ipCITmp),0,pstate_sym)
-C           Call DSCAL_(nconf1,-1.0d0,Work(ipCITmp),1)
-*           Call RecPrt(' ',' ',Work(ipCItmp),nconf1,1)
             Call Guganew(Work(ipCIp1+nConf1),0,pstate_sym)
             Call DSCAL_(nconf1,-1.0d0,Work(ipCIp1+nConf1),1)
           End If
@@ -118,20 +113,7 @@ C           Call DSCAL_(nconf1,-1.0d0,Work(ipCITmp),1)
           If (Timedep) then
             If (CI) Then
 *              Call RecPrt(' ',' ',Work(ipCIp1),nconf1,1)
-c              Call GetMem('TEMPCI2','ALLO','REAL',ipCITmp2,nconfM)
-
-c              call dcopy_(nconf1,Work(ipcip1),1,Work(ipCITmp2),1)
-c              call dcopy_(nconf1,Work(ipcitmp),1,
-c    &                     Work(ipCITmp2+nconf1),1)
-*              Call GetMem('TEMPCI','FREE','REAL',ipCITmp,nconf1)
-C             If (imethod.eq.2.and.(.not.CI).and.nconfM.eq.1)  Then
-C                 Work(ipcip1)=0.0d0
-C                 Work(ipcip1+1)=0.0d0
-C             End If
-*             Call RecPrt('M',' ',Work(ipCItmp2),nconfM,1)
-              Call dWrMCk(iRC,iOpt,Label,ipert,Work(ipcip1),isyml)
-C             Call dWrMCk(iRC,iOpt,Label,ipert,Work(ipcitmp2),isyml)
-C             Call GetMem('TEMPCI2','FREE','REAL',ipCITmp2,nconfM)
+               Call dWrMCk(iRC,iOpt,Label,ipert,Work(ipCIp1),isyml)
             End If
           Else
             If (imethod.eq.2.and.(.not.CI).and.nconf1.eq.1)
