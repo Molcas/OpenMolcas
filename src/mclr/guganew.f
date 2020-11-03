@@ -194,7 +194,7 @@
 *
       jPrint=iPrint
       If (TimeDep) Then
-         Call GetMem('CIvec','Allo','Real',ipCInew,2*NCONF)
+         Call GetMem('CIvec','Allo','Real',ipCInew,NCONF)
       Else
          Call GetMem('CIvec','Allo','Real',ipCInew,NCONF)
       End If
@@ -210,7 +210,7 @@
      &                 NICASE,OrbSym,NOCSF,IOCSF,NOW,IOW,
      &      ICASE,Work(ipCInew))
       If (TimeDep) Then
-         Call GetMem('OCIvec','Free','Real',ipCIL,2*nConf)
+         Call GetMem('OCIvec','Free','Real',ipCIL,nConf)
       Else
          Call GetMem('OCIvec','Free','Real',ipCIL,nConf)
       End If

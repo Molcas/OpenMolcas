@@ -59,7 +59,7 @@
           CI=.false.
           If (iMethod.eq.2.and.nconf1.gt.0) CI=.true.
           If (CI.and.nconf1.eq.1.and.isym.eq.1) CI=.false.
-          if (timedep) nconfM=nconfM*2
+          if (Timedep) nconfM=nconfM*2
 *
 *    Allocate areas for scratch and state variables
 *
@@ -102,28 +102,31 @@
           isyml=2**(isym-1)
           ipert=kdisp
 
-          If (iAnd(kprint,8).eq.8)
-     &     Write(6,*) 'Perturbation ',ipert
+          If (iAnd(kprint,8).eq.8) Write(6,*) 'Perturbation ',ipert
+
           If (Timedep.and.CI) then
             Call GetMem('TEMPCI','ALLO','REAL',ipCITmp,nconf1)
-            call dcopy_(nconf1,Work(ipcip1+nconf1),1,Work(ipCITmp),1)
-            Call Guganew(ipciTmp,0,pstate_sym)
+            call dcopy_(nconf1,Work(ipCIp1+nconf1),1,Work(ipCITmp),1)
+            Call Guganew(ipCITmp,0,pstate_sym)
+            Call DSCAL_(nconf1,-1.0d0,Work(ipCITmp),1)
 *           Call RecPrt(' ',' ',Work(ipCItmp),nconf1,1)
           End If
-          If (CI) call Guganew(ipcip1,0,pstate_sym)
+
+          If (CI) call Guganew(ipCIp1,0,pstate_sym)
           If (Timedep) then
             If (CI) Then
-*           Call RecPrt(' ',' ',Work(ipCIp1),nconf1,1)
-              Call GetMem('TEMPCI2','ALLO','REAL',ipCITmp2,nconfM)
-              Call DSCAL_(nconf1,-1.0d0,Work(ipCITmp),1)
-              call dcopy_(nconf1,Work(ipcip1),1,Work(ipCITmp2),1)
-             call dcopy_(nconf1,Work(ipcitmp),1,Work(ipCITmp2+nconf1),1)
-              Call GetMem('TEMPCI','FREE','REAL',ipCITmp,nconf1)
+*              Call RecPrt(' ',' ',Work(ipCIp1),nconf1,1)
+               Call GetMem('TEMPCI2','ALLO','REAL',ipCITmp2,nconfM)
+
+               call dcopy_(nconf1,Work(ipcip1),1,Work(ipCITmp2),1)
+               call dcopy_(nconf1,Work(ipcitmp),1,
+     &                     Work(ipCITmp2+nconf1),1)
+               Call GetMem('TEMPCI','FREE','REAL',ipCITmp,nconf1)
               If (imethod.eq.2.and.(.not.CI).and.nconfM.eq.1)  Then
                   Work(ipcip1)=0.0d0
                   Work(ipcip1+1)=0.0d0
               End If
-*           Call RecPrt('M',' ',Work(ipCItmp2),nconfM,1)
+*             Call RecPrt('M',' ',Work(ipCItmp2),nconfM,1)
               Call dWrMCk(iRC,iOpt,Label,ipert,Work(ipcitmp2),isyml)
               Call GetMem('TEMPCI2','FREE','REAL',ipCITmp2,nconfM)
             End If
