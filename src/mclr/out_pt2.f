@@ -8,15 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       SubRoutine Out_Pt2(iKapDisp,iCIDisp)
+      SubRoutine Out_Pt2(iKapDisp,iCIDisp)
 ********************************************************************
 *                                                                  *
 ********************************************************************
-       use Arrays, only: CMO
-       use ipPage, only: W
-       Implicit Real*8 (a-h,o-z)
+      use Arrays, only: CMO
+      use ipPage, only: W
+      Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
-
 #include "Input.fh"
 #include "Pointers.fh"
 #include "Files_mclr.fh"
@@ -28,18 +27,21 @@
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
 #include "SysDef.fh"
-       Logical CI, Is_Roots_Set
-       Character*80 Note
+      Logical CI, Is_Roots_Set
+      Character(LEN=80) Note
 ! Added for DMRG calculation
-       real*8,allocatable::tmpDe(:,:),tmpP(:),tmpDeM(:,:),tmpPM(:,:,:,:)
-       Integer iKapDisp(nDisp),iCiDisp(nDisp)
-       Character(Len=16) mstate
-       Dimension rdum(1),idum(7,8)
-       Real*8, Allocatable:: D_K(:), Tmp(:)
+      real*8,allocatable::tmpDe(:,:),tmpP(:),tmpDeM(:,:),tmpPM(:,:,:,:)
+      Integer iKapDisp(nDisp),iCiDisp(nDisp)
+      Character(Len=16) mstate
+      Dimension rdum(1),idum(7,8)
+      Real*8, Allocatable:: D_K(:), Tmp(:), K1(:), K2(:), DAO(:),
+     &                      D_CI(:), D1(:), P_CI(:), P1(:), Conn(:),
+     &                      OCCU(:), CMON(:), DTmp(:), G1q(:), G1m(:),
+     &                      Temp(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -60,19 +62,19 @@
        nDLMO=nDLMO*(nDLMO+1)/2
        nPLMO=nDLMO*(nDLMO+1)/2
 *
-       Call GetMem('kappa1','Allo','Real',ipK1,  nDens2)
-       Call Getmem('kappa2','ALLO','Real',ipk2,  nDens2)
-       Call GetMem('ONEDEN','Allo','Real',ipDAO,nDens2)
-       Call GetMem('ONEDEN','Allo','Real',ipD_CI,n1Dens)
-       Call GetMem('ONEDEN','Allo','Real',ipD1,n1Dens)
-       Call Getmem('TWODEN', 'ALLO','Real',ipP_CI,n2Dens)
-       Call Getmem('TWODEN', 'ALLO','Real',ipP1,n2Dens)
-       Call Getmem('Conn', 'ALLO','Real',ipF,nDens2)
-       Call Getmem('OCCU ', 'ALLO','Real',ipO,nbas_tot)
-       Call Getmem('CMO', 'ALLO','Real',ipCMON,ndens2)
+       Call mma_allocate(K1,  nDens2,Label='K1')
+       Call mma_allocate(K2,  nDens2,Label='K2')
+       Call mma_allocate(DAO,nDens2,Label='DAO')
+       Call mma_allocate(D_CI,n1Dens,Label='D_CI')
+       Call mma_allocate(D1,n1Dens,Label='D1')
+       Call mma_allocate(P_CI,n2Dens,Label='P_CI')
+       Call mma_allocate(P1,n2Dens,Label='P1')
+       Call mma_allocate(Conn,nDens2,Label='Conn')
+       Call mma_allocate(OCCU,nbas_tot,Label='OCCU')
+       Call mma_allocate(CMON,ndens2,Label='CMON')
 *      OBS nBuf might not be def.
-       Call Getmem('TMP', 'MAX','Real',ipT,nBuf)
-       Call GetMem('TMPDEN','Allo','Real',ipDtmp,nDens2)
+       Call mma_MaxDBLE(nBuf)
+       Call mma_allocate(Dtmp,nDens2,Label='DTmp')
 
 *
 *
@@ -94,18 +96,18 @@
 *
          Call CIDens_sa(.true.,ipCIp,ipCI,
      &                  State_sym,State_sym,
-     &                  Work(ipP_CI),Work(ipD_CI)) ! \bar{d} and \bar{D}
+     &                  P_CI,D_CI) ! \bar{d} and \bar{D}
 
-! ===========================================================================
+! ======================================================================
          if(doDMRG)then  ! yma
            call dmrg_dim_change_mclr(LRras2(1:8),ntash,0)
            call dmrg_dim_change_mclr(RGras2(1:8),ndim,0)
 
-           ! use mma_allocate later - yma
-           allocate(tmpDe(ndim,ndim))
-           allocate(tmpP(ndim**2*(ndim**2+1)/2))
-           allocate(tmpDeM(ntash,ntash))
-           allocate(tmpPM(ntash,ntash,ntash,ntash))
+           call mma_allocate(tmpDe,ndim,ndim,Label='TmpDe')
+           call mma_allocate(tmpP,ndim**2*(ndim**2+1)/2,Label='tmpP')
+           call mma_allocate(tmpDeM,ntash,ntash,Label='tmpDeM')
+           call mma_allocate(tmpPM,ntash,ntash,ntash,ntash,
+     &                       Label='tmpPM')
            tmpDe=0.0d0
            tmpP=0.0d0
            tmpDeM=0.0d0
@@ -115,10 +117,10 @@
            do i=1,ntash
              do j=1,ntash
                ij=ij+1
-               if(abs(Work(ipD_CI+ij-1)).lt.1.0e-12)then
-                 Work(ipD_CI+ij-1)=0.0d0
+               if(abs(D_CI(ij)).lt.1.0e-12)then
+                 D_CI(ij)=0.0d0
                end if
-               tmpDeM(i,j)=Work(ipD_CI+ij-1)
+               tmpDeM(i,j)=D_CI(ij)
              end do
            end do
 
@@ -143,10 +145,10 @@
                    kl1=ntash*(k-1)+l
                    kl2=ntash*(l-1)+k
                    if(ij1.ge.kl1)then
-                   if(abs(Work(ipP_CI+itri(ij1,kl1)-1)).lt.1.0e-12)then
-                     Work(ipP_CI+itri(ij1,kl1)-1)=0.0d0
+                   if(abs(P_CI(itri(ij1,kl1))).lt.1.0e-12)then
+                     P_CI(itri(ij1,kl1))=0.0d0
                    end if
-                   tmpPM(i,j,k,l)=Work(ipP_CI+itri(ij1,kl1)-1)
+                   tmpPM(i,j,k,l)=P_CI(itri(ij1,kl1))
                    end if
                  End Do
                End Do
@@ -177,17 +179,16 @@
            do i1=1,ndim
              do j1=1,ndim
                ij=ij+1
-               Work(ipD_CI+ij-1)=tmpDe(i1,j1)
+               D_CI(ij)=tmpDe(i1,j1)
              end do
            end do
            do i=1,n2dens
-             Work(ipP_CI+i-1)=tmpP(i)
+             P_CI(i)=tmpP(i)
            end do
-           ! mma_deallocate later
-           deallocate(tmpDe)
-           deallocate(tmpDeM)
-           deallocate(tmpP)
-           deallocate(tmpPM)
+           call mma_deallocate(tmpDe)
+           call mma_deallocate(tmpDeM)
+           call mma_deallocate(tmpP)
+           call mma_deallocate(tmpPM)
            call dmrg_dim_change_mclr(RGras2(1:8),
      &                               ntash,0)
          end if
@@ -200,7 +201,7 @@
 *
          Do i=1,ntAsh
           Do j=1,i
-           Work(ipD1+itri(i,j)-1)=Work(ipD_CI+(i-1)*ntash+j-1)
+           D1(itri(i,j))=D_CI((i-1)*ntash+j)
           End Do
          End Do
 
@@ -218,9 +219,8 @@
              jikl=itri(ji2,kl2)
              ijlk=itri(ij2,lk2)
              jilk=itri(ji2,lk2)
-             Work(ipP1+itri(ij,kl)-1)=Quart*
-     &             (Work(ipP_CI+ijkl-1)+Work(ipP_CI+jikl-1)+
-     &              Work(ipP_CI+ijlk-1)+Work(ipP_CI+jilk-1))
+             P1(itri(ij,kl))=Quart*(P_CI(ijkl)+P_CI(jikl)+
+     &                              P_CI(ijlk)+P_CI(jilk))
             End Do
            End Do
           End Do
@@ -238,7 +238,7 @@
           DO I = 1,IMAX
            II= I*(I+1)/2
            IIKL= KLROW + II
-           Work(ipP1+IIKL-1) = Work(ipP1+IIKL-1)*Half
+           P1(IIKL) = P1(IIKL)*Half
           End Do
          End Do
          End Do
@@ -258,22 +258,22 @@ C          jikl=itri(ji2,kl2)
 C          fact=Half
 C          if(ij.ge.kl .and. k.eq.l) fact=Quart
 C          if(ij.lt.kl .and. i.eq.j) fact=Quart
-C          Work(ipP1+itri(ij,kl)-1)=
-C     &        fact*(Work(ipP_CI+ijkl-1)+Work(ipP_CI+jikl-1))
+C          P1(itri(ij,kl))=
+C     &        fact*(P_CI(ijkl)+P_CI(jikl))
 C         End Do
 C         End Do
 C         End Do
 C         End Do
-C         If (debug) Call triprt('LP',' ',Work(ipp1),(ntash**2+ntash)/2)
+C         If (debug) Call triprt('P1',' ',P1,(ntash**2+ntash)/2)
 c
 c Write the 'bar' densities to disk,  not symmetry blocked.
 c
 
-!         Call Put_DLMO(Work(ipD1),ndim1) ! \bar{D} triangular  ! yma
-!         Call Put_PLMO(Work(ipP1),ndim2) ! \bar{d} triangular  ! yma
+!         Call Put_DLMO(D1,ndim1) ! \bar{D} triangular  ! yma
+!         Call Put_PLMO(P1,ndim2) ! \bar{d} triangular  ! yma
 
-         Call Put_DLMO(Work(ipD1),nDLMO) ! \bar{D} triangular ! original
-         Call Put_PLMO(Work(ipP1),nPLMO) ! \bar{d} triangular ! original
+         Call Put_DLMO(D1,nDLMO) ! \bar{D} triangular ! original
+         Call Put_PLMO(P1,nPLMO) ! \bar{d} triangular ! original
 *
        End If
 *
@@ -283,16 +283,16 @@ c
 *       Read in from disk
 *
        iDisk=iKapDisp(1)
-       Call dDaFile(LuTemp,2,Work(ipK1),nDensC,iDisk) ! Read \bar{kappa}
-       Call Uncompress(work(ipK1),Work(ipK2),1)
+       Call dDaFile(LuTemp,2,K1,nDensC,iDisk) ! Read \bar{kappa}
+       Call Uncompress(K1,K2,1)
 c
 c If we want to estimate the error
 c
        If (esterr) Then
 *        Do iestate=1,lroots
-*          Call calcerr(Work(ipK2),iestate)
+*          Call calcerr(K2,iestate)
 *        End do
-         Call calcerr(Work(ipK2),istate)
+         Call calcerr(K2,istate)
        End If
 *
 *----- First we fix the renormalization contribution
@@ -300,35 +300,34 @@ c
        Call mma_allocate(D_K,nLCMO,Label='D_K')
        Call Get_Fock_Occ(D_K,nLCMO)
 *      Calculates the effective Fock matrix
-       Call Make_Conn(Work(ipF),Work(ipK2),
-     &                Work(ipP_CI),work(ipD_CI))   !ipD_CI not changed
-       Call DaxPy_(ndens2,One,D_K,1,Work(ipF),1)
-*      call dcopy_(ndens2,D_K,1,Work(ipF),1)
-       Call Put_Fock_Occ(Work(ipF),nTot1)
+       Call Make_Conn(Conn,K2,P_CI,D_CI)   !D_CI not changed
+       Call DaxPy_(ndens2,One,D_K,1,Conn,1)
+*      call dcopy_(ndens2,D_K,1,Conn,1)
+       Call Put_Fock_Occ(Conn,nTot1)
 *
 *      Transposed one index transformation of the density
 *      (only the inactive density to store it separately)
 *
-       Call OITD(Work(ipK2),1,Work(ipDAO),Work(ipDtmp),.False.)
+       Call OITD(K2,1,DAO,Dtmp,.False.)
 *
 *      Transformation to AO basis (covariant)
 *
 c
 c Transforms to AO differently dep on last arg.
 c
-       Call TCMO(Work(ipDAO),1,-2)
+       Call TCMO(DAO,1,-2)
 *
 *      Fold AO density and write to disk
 c Mult all terms that are not diag by 2
 *
-       Call FOLD2(nsym,nbas,Work(ipDAO),Work(ipK1))
+       Call FOLD2(nsym,nbas,DAO,K1)
 *
-       Call Put_DLAO(Work(ipk1),ntot1)
+       Call Put_DLAO(K1,ntot1)
 *
 *      Now with active density too, to form the variational density
 *
 !      gives \tilde{D}
-       Call OITD(Work(ipK2),1,D_K,Work(ipDtmp),.True.)
+       Call OITD(K2,1,D_K,Dtmp,.True.)
 *
        Do iS=1,nsym
 c
@@ -338,11 +337,11 @@ c
      &       CALL DGEMM_('N','N',
      &                   NBAS(is),NBAS(is),NBAS(is),
      &                   One,CMO(ipCM(is)),NBAS(is),
-     &                   Work(ipK2+ipmat(is,is)-1),NBAS(is),
-     &                   Zero,Work(ipDAO+ipCM(is)-1),NBAS(is))
+     &                   K2(ipmat(is,is)),NBAS(is),
+     &                   Zero,DAO(ipCM(is)),NBAS(is))
        End Do
 *
-       Call Put_LCMO(Work(ipDAO),nLCMO)
+       Call Put_LCMO(DAO,nLCMO)
 *
        if(doDMRG)then  ! yma
          call dmrg_dim_change_mclr(RGras2(1:8),ntash,0)
@@ -351,17 +350,17 @@ c
 *
        If (isNAC) Then
          ng1=nNAC
-         Call Getmem('TMP', 'ALLO','Real',ipG1q,ng1)
-         Call Get_D1MO(Work(ipG1q),ng1)
+         Call mma_allocate(G1q,ng1,Label='G1q')
+         Call Get_D1MO(G1q,ng1)
          iR = 0 ! set to dummy value.
        Else
          iR=iroot(istate)
          jdisk=itoc(3)
          ng1=itri(ntash,ntash)
          ng2=itri(ng1,ng1)
-         Call Getmem('TMP', 'ALLO','Real',ipG1q,n1dens)
+         Call mma_allocate(G1q,n1dens,Label='G1q')
 c
-c Read active one el dens for state j from JOBIPH and store in ipG1q
+c Read active one el dens for state j from JOBIPH and store in G1q
 c
          Do i=1,iR-1  ! Dummy read until state j
            Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
@@ -369,13 +368,13 @@ c
            Call dDaFile(LUJOB ,0,rdum,ng2,jDisk)
            Call dDaFile(LUJOB ,0,rdum,ng2,jDisk)
          End Do
-         Call dDaFile(LUJOB ,2,Work(ipG1q),ng1,jDisk)
+         Call dDaFile(LUJOB ,2,G1q,ng1,jDisk)
        EndIf
 *
 *    Construct a variationally stable density matrix. In MO
 c
 c D_eff = D^j + \tilde{D} +\bar{D}
-c D_K = (ipG1q + inact) + D_K + ipD_CI
+c D_K = (G1q + inact) + D_K + D_CI
 *
 C
        If (isNAC) Then
@@ -392,16 +391,16 @@ c Note: no inactive part for transition densities
             jAA=jA+na(is)
             D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))=
      &       D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))
-     &      +Work(ipD_CI+iAA-1+(jAA-1)*ntash)
-     &      +Work(ipG1q-1+itri(iAA,jAA))
+     &      +D_CI(iAA+(jAA-1)*ntash)
+     &      +G1q(itri(iAA,jAA))
            End Do
           End Do
          End Do
-         Call Getmem('TMP', 'ALLO','Real',ipT,nBuf/2)
-         Call NatOrb(D_K,CMO,Work(ipCMON),Work(ipO))
-         Call dmat_MCLR(Work(ipCMON),Work(ipO),Work(ipT))
-         Call Put_D1ao_var(Work(ipT),nTot1)
-         Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)
+         Call mma_allocate(Temp,nBuf/2,Label='Temp')
+         Call NatOrb(D_K,CMO,CMON,OCCU)
+         Call dmat_MCLR(CMON,OCCU,Temp)
+         Call Put_D1ao_var(Temp,nTot1)
+         Call mma_deallocate(Temp)
 *
 ** Transform the antisymmetric transition density matrix to AO
 **  (there is no guarantee the symmetry will work here)
@@ -409,10 +408,10 @@ c Note: no inactive part for transition densities
          iDisk=0
          LuDens=20
          Call DaName(LuDens,'MCLRDENS')
-         Call dDaFile(LuDens,2,Work(ipG1q),ng1,iDisk)
+         Call dDaFile(LuDens,2,G1q,ng1,iDisk)
          Call DaClos(LuDens)
-         Call Getmem('D1ao-','ALLO','Real',ipG1m,ndens2)
-         Call DCopy_(ndens2,[Zero],0,Work(ipG1m),1)
+         Call mma_allocate(G1m,ndens2,Label='G1m')
+         G1m(:)=Zero
 * Reconstruct the square matrix
          Do is=1,nSym
           Do iA=1,nash(is)
@@ -421,30 +420,30 @@ c Note: no inactive part for transition densities
            Do jA=1,iA-1
             j=jA+nish(is)
             jAA=jA+na(is)
-            Work(ipG1m+ipmat(is,is)-1+i-1+(j-1)*nbas(is))=
-     &           Work(ipG1q-1+itri(iAA,jAA))
-            Work(ipG1m+ipmat(is,is)-1+j-1+(i-1)*nbas(is))=
-     &          -Work(ipG1q-1+itri(iAA,jAA))
+            G1m(ipmat(is,is)+i-1+(j-1)*nbas(is))=
+     &           G1q(itri(iAA,jAA))
+            G1m(ipmat(is,is)+j-1+(i-1)*nbas(is))=
+     &          -G1q(itri(iAA,jAA))
            End Do
-           Work(ipG1m+ipmat(is,is)-1+i-1+(i-1)*nbas(is))=Zero
+           G1m(ipmat(is,is)+i-1+(i-1)*nbas(is))=Zero
           End Do
          End Do
 * Transform
-         Call TCMO(Work(ipG1m),1,-2)
+         Call TCMO(G1m,1,-2)
 * Save the triangular form
-         iOff=ipG1m
+         iOff=0
          Do is=1,nSym
           ibas=nbas(is)
           Do i=1,ibas
            Do j=1,i
-            Work(iOff-1+itri(i,j))=
-     &        Work(ipG1m+ipmat(is,is)-1+j-1+(i-1)*nbas(is))
+            G1m(iOff+itri(i,j))=
+     &        G1m(ipmat(is,is)+j-1+(i-1)*nbas(is))
            End Do
           End Do
           iOff=iOff+(ibas*ibas+ibas)/2
          End Do
-         Call Put_dArray('D1ao-',Work(ipG1m),nTot1)
-         Call Getmem('D1ao-','FREE','Real',ipG1m,nTot1)
+         Call Put_dArray('D1ao-',G1m,nTot1)
+         Call mma_deallocate(G1m)
 *
        Else
 *
@@ -465,36 +464,36 @@ c
             iAA=iA+na(is)
             jAA=jA+na(is)
 c
-c The active density ipG1q and \bar{D}
+c The active density G1q and \bar{D}
 c
             D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))=
      &       D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))
-     &      +Work(ipD_CI+iAA-1+(jAA-1)*ntash)
-     &      +Work(ipG1q-1+itri(iAA,jAA))
+     &      +D_CI(iAA+(jAA-1)*ntash)
+     &      +G1q(itri(iAA,jAA))
            End Do
           End Do
          End Do
 c
 c Diagonalize the effective density to be able to use Prpt
-c ipO eigenvalues of eff dens
-c ipCMON eigenvectors (new orb coef)
+c OCCU eigenvalues of eff dens
+c CMON eigenvectors (new orb coef)
 c
-         Call NatOrb(D_K,CMO,Work(ipCMON),Work(ipO))
+         Call NatOrb(D_K,CMO,CMON,OCCU)
          Call mma_Allocate(Tmp,nBuf/2,Label='Tmp')
-         Call dmat_MCLR(Work(ipCMON),Work(ipO),Tmp)
+         Call dmat_MCLR(CMON,OCCU,Tmp)
          Call Put_D1ao_Var(Tmp,nTot1)
          Call mma_deallocate(Tmp)
-         Call Getmem('TMP', 'ALLO','Real',ipT,nNac)
-         Call get_D1MO(Work(ipT),nNac)
+         Call mma_allocate(TEMP,nNac,Label='TEMP')
+         Call get_D1MO(TEMP,nNac)
          Call get_DLMO(ipTt,nTot1)
-         Call DaxPy_(nTot1,1.0d0,Work(ipTt),1,Work(ipT),1)
-         Call Getmem('DENS','FREE','Real',ipT,nTot1)
+         Call DaxPy_(nTot1,1.0d0,Work(ipTt),1,TEMP,1)
+         Call mma_deallocate(TEMP)
          Call Getmem('DENS','FREE','Real',ipTt,nTot1)
          Note='var'
          LuTmp=50
          LuTmp=IsFreeUnit(LuTmp)
          Call WrVec('TMPORB',LuTmp,'O',nSym,nBas,nBas,
-     &            rDum,Work(ipO),rDum,iDum,Note)
+     &            rDum,OCCU,rDum,iDum,Note)
          Call Prpt()
 *                                                                      *
 ************************************************************************
@@ -528,7 +527,7 @@ c
 ************************************************************************
 *                                                                      *
        End If
-       Call Getmem('TMP', 'FREE','Real',ipG1q,ng1)
+       Call mma_deallocate(G1q)
 C
 c--------------------------  debug -----
 c
@@ -538,7 +537,7 @@ c
        end if
 
 c
-c  Write the effective active one el density to disk in the same format as ipg1q
+c  Write the effective active one el density to disk in the same format as g1q
 c
 c       Call Getmem('TEMP1','ALLO','REAL',ipDeff_act,ndens2)
 c       call dcopy_(nDens2,D_K,1,Work(ipDeff_act),1)
@@ -559,27 +558,27 @@ c
 c--------------------------------------------------
 c
 c Diagonalize the effective density to be able to use Prpt
-c ipO eigenvalues of eff dens
-c ipCMON eigenvectors (new orb coef)
+c OCCU eigenvalues of eff dens
+c CMON eigenvectors (new orb coef)
 c
-c      Call NatOrb(D_K,Work(ipCMO),Work(ipCMON),Work(ipO))
-c      Call Getmem('TMP', 'ALLO','Real',ipT,nBuf/2)
-c      Call dmat_MCLR(Work(ipCMON),Work(ipO),Work(ipT))
-c      Call Put_D1ao_Var(Work(ipT),nTot1)
+c      Call NatOrb(D_K,CMO,CMON,OCCU)
+c      Call mma_allocate(Temp,nBuf/2,Label='Temp')
+c      Call dmat_MCLR(CMON,OCCU,Temp)
+c      Call Put_D1ao_Var(Temp,nTot1)
 c      Note='var'
 c      LuTmp=50
 c      LuTmp=IsFreeUnit(LuTmp)
 c      Call WrVec('TMPORB',LuTmp,'O',nSym,nBas,nBas,
-c    &            Dum,Work(ipO),Dum,iDum,Note)
+c    &            Dum,OCCU,Dum,iDum,Note)
 c      Call Prpt()
 
 c
-c Standard routine, ipT effective dens in AO
+c Standard routine, Temp effective dens in AO
 c
-*       Call dmat_MCLR(Work(ipCMON),Work(ipO),Work(ipT))
+*       Call dmat_MCLR(CMON,OCCU,Temp)
 c
-*       Call Put_D1ao_Var(Work(ipT),nTot1)
-c      Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)
+*       Call Put_D1ao_Var(Temp,nTot1)
+c      Call mma_deallocate(Temp)
 
        Call Put_iScalar('SA ready',1)
        If (isNAC) Then
@@ -590,18 +589,18 @@ c      Call Getmem('TMP', 'FREE','Real',ipT,nBuf/2)
        If (override) mstate(1:1)='+'
        Call Put_cArray('MCLR Root',mstate,16)
 *
-       Call GetMem('kappa1','FREE','Real',ipK1,  nDens2)
-       Call Getmem('kappa2','FREE','Real',ipk2,  nDens2)
+       Call mma_deallocate(K1)
+       Call mma_deallocate(K2)
+       Call mma_deallocate(DAO)
+       Call mma_deallocate(D_CI)
+       Call mma_deallocate(D1)
+       Call mma_deallocate(P_CI)
+       Call mma_deallocate(P1)
+       Call mma_deallocate(Conn)
+       Call mma_deallocate(OCCU)
+       Call mma_deallocate(CMON)
+       Call mma_deallocate(Dtmp)
        Call mma_deallocate(D_K)
-       Call GetMem('ONEDEN','FREE','Real',ipDAO,nDens2)
-       Call GetMem('ONEDEN','FREE','Real',ipD_CI,n1Dens)
-       Call GetMem('ONEDEN','FREE','Real',ipD1,n1Dens)
-       Call Getmem('TWODEN', 'FREE','Real',ipP_CI,n2Dens)
-       Call Getmem('TWODEN', 'FREE','Real',ipP1,n2Dens)
-       Call Getmem('OCCU ', 'FREE','Real',ipO,nbas_tot)
-       Call Getmem('CMO', 'FREE','Real',ipCMON,ndens2)
-       Call Getmem('conn', 'FREE','Real',ipF,ndens2)
-       Call GetMem('TMPDEN','FREE','REAL',ipDtmp,ndens2)
 
        irc=ipclose(-1)
 *

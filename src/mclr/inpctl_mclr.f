@@ -28,16 +28,14 @@
 
 #include "Input.fh"
 #include "Files_mclr.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "Pointers.fh"
 #include "sa.fh"
-
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
 #include "dmrginfo_mclr.fh"
       logical ldisk,ipopen
-      Real*8, Allocatable:: CIVec(:,:)
+      Real*8, Allocatable:: CIVec(:,:), CITmp(:)
 
 ! ==========================================================
       integer,allocatable::index_SD(:) ! not final version
@@ -52,7 +50,7 @@
         Real*8, Allocatable:: CIVec(:,:)
         End Subroutine RdJobIph_td
         Subroutine RdJobIph(CIVec)
-        Real*8, Allocatable:: CIVec(:,:)
+        Real*8, Allocatable:: CIVec(:,:), CITmp(:)
         End Subroutine RdJobIph
       End Interface
 *                                                                      *
@@ -103,16 +101,16 @@
            ! yma
 !          No need to copy,since there are no CI-vectors
            if(doDMRG.and.doMCLR)then
-             Call Getmem('CIROOT','ALLO','REAL',ipT,ndets_RGLR)
+             Call mma_allocate(CITmp,ndets_RGLR,Label='CITmp')
            else
-             Call Getmem('CIROOT','ALLO','REAL',ipT,nconf)
-             call dcopy_(nconf,CIVec(:,i),1,Work(ipT),1)
+             Call mma_allocate(CITmp,nconf,Label='CITmp')
+             call dcopy_(nconf,CIVec(:,i),1,CITmp,1)
            end if
 
            !> If doDMRG
            if(doDMRG.and.doMCLR)then ! yma
            else
-             Call GugaCtl_MCLR(Work(ipT),1)   ! transform to sym. group
+             Call GugaCtl_MCLR(CITmp,1)   ! transform to sym. group
            end if
 
 ! Here should be the position for introducing the CI(SR) coefficients
@@ -129,20 +127,15 @@
                  vector_cidmrg(ii)=0.0d0
                end if
              end do
-             call CSDTVC_dmrg(work(ipT),vector_cidmrg,2,DTOC,
+             call CSDTVC_dmrg(CITmp,vector_cidmrg,2,DTOC,
      &                     index_SD,ISSM,1,IPRDIA)
              ! mma_allocate and mma_deallocate
              deallocate(index_SD)
              deallocate(vector_cidmrg)
            end if
 
-           call dcopy_(nconf,Work(ipT),1,CIVec(:,i),1)
-
-          if(doDMRG.and.doMCLR)then !yma
-            Call Getmem('CIROOT','FREE','REAL',ipT,ndets_RGLR)
-          else
-            Call Getmem('CIROOT','FREE','REAL',ipT,nconf)
-          end if
+           call dcopy_(nconf,CITmp,1,CIVec(:,i),1)
+           Call mma_deallocate(CITmp)
         End Do
 *                                                                      *
 ************************************************************************
