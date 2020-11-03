@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
-      SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,ipG2,ipkappa,
+      SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
      &                      ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
      &                      ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
@@ -37,7 +37,7 @@ C
 **********************************************************************
 
       Implicit Real*8 (a-h,o-z)
-      Real*8 DLT(*), DI(*)
+      Real*8 DLT(*), DI(*), G2(*), Kappa(*)
 #include "warnings.fh"
       Integer   rc,ipScr
       Integer   ipLpq(8,3)
@@ -255,7 +255,7 @@ C *** memory for the Q matrices --- temporary array
 *
              Call DGEMM_('N','N',nChMO(iS),nBas(iS),nBas(iS),1.0d0,
      &                  Work(ipTmp2+ISTK(iS)),nChMO(iS),
-     &                  Work(ipkappa+ISTSQ(iS)),nBas(iS),
+     &                  kappa(1+ISTSQ(iS)),nBas(iS),
      &                  0.0d0,Work(ipTmp+ISTK(iS)),nChMO(iS))
 *
 **         AO transform
@@ -291,7 +291,7 @@ C --- Vector MO transformation screening thresholds
       xtau(2) = xtau(1) ! dummy init
 
       If (.not.Fake_CMO2) Then
-        norm=sqrt(ddot_(nsBB,Work(ipkappa),1,Work(ipkappa),1))
+        norm=sqrt(ddot_(nsBB,kappa,1,kappa,1))
         xtau(2)=Sqrt((LKThr/Max(1,nnO))*dmpk)*norm
         dmpk=min(norm,1.0d-2)
         thrv(2)=(LKThr/(Max(1,nnO)*NumVT))*dmpk**2
@@ -1614,9 +1614,9 @@ C --------------------------------------------------------------------
 *~Lxy=Lv~w Gxyvw
 *MGD probably additional nSym loop
                      ipLtxy = ipLpq(iSymv,2) + NAv*Naw*(JVC-1)
-                     ipG    = ipG2
+                     ipG    = 1
                      CALL DGEMV_('N',NAv*Naw,NAv*Naw,
-     &                  ONE,Work(ipG),NAv*Naw,
+     &                  ONE,G2(ipG),NAv*Naw,
      &                  Work(ipLvtw),1,ZERO,Work(ipLtxy),1)
 *Qpx=Lpy ~Lxy
                      ipQpx=ipScr+nsAB
@@ -1729,11 +1729,11 @@ C --------------------------------------------------------------------
                       Nax=nAsh(iSymx)
                       Nay=nAsh(iSymy)
 
-                      ipG    = ipG2 +iASQ(isymb,iSymv,iSymx)
+                      ipG    = 1+iASQ(isymb,iSymv,iSymx)
 
                       If(NAx*Nay.ne.0)Then
                        Call DGEMM_('N','N',Nav*Naw,JNUM,NAx*Nay,
-     &                              One,Work(ipG),NAv*Naw,
+     &                              One,G2(ipG),NAv*Naw,
      &                              Work(ipLpq(iSymy,2)),NAx*Nay,
      &                              ONE,Work(ipLpq(iSymv,3)),Nav*Naw)
                       EndIf
@@ -2114,7 +2114,7 @@ C--- have performed screening in the meanwhile
      &                     Work(ipScr+ioff),nBas(jS),
      &                     0.0d0,Work(ipScr+nsAB+ioff),nBas(jS))
               Call DGEMM_('N','N',nBas(jS),nAsh(iS),nBas(jS),
-     &                    -1.0d0,Work(ipkappa+ISTSQ(iS)),nBas(jS),
+     &                    -1.0d0,kappa(1+ISTSQ(iS)),nBas(jS),
      &                     Work(ipScr+nsAB+ioff),nBas(jS),
      &                     1.0d0,Work(ipQ+ioff),nBas(jS))
             EndIf

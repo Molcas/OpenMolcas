@@ -95,7 +95,6 @@
         Fake_CMO2=.false.
         DoAct=.true.
 *
-        ipkappa  =ip_of_work(rkappa(1))
         ipFockI  =ip_of_work(FockI(1))
         ipFockA  =ip_of_work(FockA(1))
         ipMO1    =ip_of_work(rmos(1))
@@ -245,14 +244,13 @@
         iread=2 ! Asks to read the half-transformed Cho vectors
         ip_CMO_Inv = ip_of_work(CMO_Inv(1))
         ipCMO      = ip_of_work(CMO(1))
-        ipG2x      = ip_of_Work(G2x(1))
         ipJI       = ip_of_Work(CoulExch(1,1))
         ipKI       = ip_of_Work(CoulExch(1,2))
         ipJA       = ip_of_Work(CoulExch(1,3))
         ipKA       = ip_of_Work(CoulExch(1,4))
         ipAsh(1)   = ip_of_Work(CVa(1,1))
         ipAsh(2)   = ip_of_Work(CVa(1,2))
-        Call CHO_LK_MCLR(DLT,DI,DA,ipG2x,ipkappa,
+        Call CHO_LK_MCLR(DLT,DI,DA,G2x,rkappa,
      &                   ipJI,ipKI,ipJA,ipKA,ipFockI,ipFockA,
      &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,

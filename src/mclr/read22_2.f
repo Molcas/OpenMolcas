@@ -33,6 +33,7 @@
       Real*8 Fock(nDens2),FockI(nDens2),FockA(nDens2),
      &       Temp2(nDens2),Temp3(ndens2),Q(nDens2),
      &       MO1(*), Scr(*)
+*     Real*8 rDum(1)
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: DLT(:), JA(:), KA(:), Ash(:), DA(:), G2x(:)
 *                                                                      *
@@ -369,7 +370,6 @@
 *
 **      Let's go
 *
-        ipkappa = ip_Dummy
         ipJI    = ip_of_work(Temp3(1))
         ipKI    = ip_of_work(Scr(1))
         ipFockI = ip_of_work(FockI(1))
@@ -398,8 +398,7 @@
         ipJA       = ip_of_Work(JA(1))
         ipKA       = ip_of_Work(KA(1))
         ipAsh      = ip_of_Work(Ash(1))
-        ipG2X      = ip_of_Work(G2x(1))
-!       Call CHO_LK_MCLR(DLT,Temp2,DA,ipG2x,ipkappa,
+!       Call CHO_LK_MCLR(DLT,Temp2,DA,G2x,rdum,
 !    &                   ipJI,ipKI,ipJA,ipKA,ipFockI,ipFockA,
 !    &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
 !    &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
