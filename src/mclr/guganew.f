@@ -22,7 +22,9 @@
       Integer OrbSym(2*mxBas)
       Integer, Parameter:: iPrint=0
       Integer, Allocatable:: DRT0(:), DOWN0(:), TMP(:), V11(:), DRT(:),
-     &                       DOWN(:), DAW(:), UP(:), RAW(:), LTV(:)
+     &                       DOWN(:), DAW(:), UP(:), RAW(:), LTV(:),
+     &                       NOW(:), IOW(:), NOCSF(:), IOCSF(:), SCR(:),
+     &                       ICASE(:)
 *
 *
       PRWTHR=0.05d0
@@ -138,16 +140,14 @@
       NNOCSF=NMIDV*(nSym**2)
       NIOCSF=NNOCSF
       NSCR=3*(NLEV+1)
-      Call GetMem('NOW1','ALLO','INTEGER',LNOW,NNOW)
-      Call GetMem('IOW1','ALLO','INTEGER',LIOW,NIOW)
-      Call GetMem('NCSF','ALLO','INTEGER',LNOCSF,NNOCSF)
-      Call GetMem('ICSF','ALLO','INTEGER',LIOCSF,NIOCSF)
-      Call GetMem('SCR1','ALLO','INTEGER',LSCR,NSCR)
-*     Call GetMem('NCSF','ALLO','INTEGER',LNCSF,nSym)
+      Call mma_allocate(NOW,NNOW,Label='NOW')
+      Call mma_allocate(IOW,NIOW,Label='IOW')
+      Call mma_allocate(NOCSF,NNOCSF,Label='NOCSF')
+      Call mma_allocate(IOCSF,NIOCSF,Label='IOCSF')
+      Call mma_allocate(SCR,NSCR,Label='SCR')
       Call MKCOT_MCLR(nSym,NLEV,NVERT,MIDLEV,NMIDV,MIDV1,MIDV2,NWALK,
-     &                NIPWLK,OrbSym,DOWN,iWork(LNOW),iWork(LIOW),
-     &                NCSF,iWork(LIOCSF),iWork(LNOCSF),
-     &                 iWork(LSCR),iPrint)
+     &                NIPWLK,OrbSym,DOWN,NOW,IOW,NCSF,IOCSF,NOCSF,
+     &                SCR,iPrint)
 *
 *     If ( nConf.ne.NCSF(state_sym) ) then
 *        Write (*,*)
@@ -161,22 +161,18 @@
 *
       NILNDW=NWALK
       NICASE=NWALK*NIPWLK
-      Call GetMem('CASE','ALLO','INTEG',LICASE,NICASE)
-      Call MKCLIST_MCLR
-     &     (nSym,NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,NICASE,NIPWLK,
-     &      OrbSym,DOWN,iWork(LNOW),iWork(LIOW),
-     &      iWork(LICASE),iWork(LSCR),iPrint)
-      Call GetMem('SCR1','FREE','INTEG',LSCR,NSCR)
+      Call mma_allocate(ICASE,NICASE,Label='ICASE')
+      Call MKCLIST_MCLR(nSym,NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,NICASE,
+     &                  NIPWLK,OrbSym,DOWN,NOW,IOW,ICASE,SCR,iPrint)
+      Call mma_deallocate(SCR)
 *
       NUSGN=MXUP*NMIDV
       NLSGN=MXDWN*NMIDV
       Call GetMem('IUSG','ALLO','INTEG',LUSGN,NUSGN)
       Call GetMem('ILSG','ALLO','INTEG',LLSGN,NLSGN)
-      Call MKSGNUM_MCLR(ksym,nSym,NLEV,
-     &       NVERT,MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK,
-     &      DOWN,UP,DAW,RAW,
-     &      iWork(LNOW),iWork(LIOW),iWork(LUSGN),iWork(LLSGN),
-     &      iWork(LICASE),iPrint)
+      Call MKSGNUM_MCLR(ksym,nSym,NLEV,NVERT,MIDLEV,NMIDV,MXUP,MXDWN,
+     &                  NICASE,NIPWLK,DOWN,UP,DAW,RAW,
+     &      NOW,IOW,iWork(LUSGN),iWork(LLSGN),ICASE,iPrint)
 *
       If (iPrint.ge.5) Then
       If (imode.eq.0.and.iAnd(kprint,8).eq.8) Then
@@ -188,12 +184,9 @@
      &         6X,100(1H-),/)
       WRITE(6,102) PRWTHR
 102   FORMAT(6X,'printout of CI-coefficients larger than',F6.2)
-      Call SGPRWF_MCLR
-     &     (ksym,PRWTHR,
-     &      nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,NICASE,
-     &      OrbSym,iWork(LNOCSF),iWork(LIOCSF),
-     &      iWork(LNOW),iWork(LIOW),
-     &      iWork(LICASE),Work(ipCIL))
+      Call SGPRWF_MCLR(ksym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,
+     &                 NICASE,OrbSym,NOCSF,IOCSF,NOW,IOW,
+     &      ICASE,Work(ipCIL))
       WRITE(6,103)
 103   FORMAT(/,6X,100(1H-),/)
       End If
@@ -213,12 +206,9 @@
      &      CFTP,NCNATS(1,kSym),NCPCNT,
      &      Work(ipCIL),Work(ipCInew),minop)
       If (imode.eq.0.and.iAnd(kprint,8).eq.8)
-     &Call SGPRWF_MCLR
-     &     (ksym,PRWTHR,
-     &      nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,NICASE,
-     &      OrbSym,iWork(LNOCSF),iWork(LIOCSF),
-     &      iWork(LNOW),iWork(LIOW),
-     &      iWork(LICASE),Work(ipCInew))
+     &Call SGPRWF_MCLR(ksym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,
+     &                 NICASE,OrbSym,NOCSF,IOCSF,NOW,IOW,
+     &      ICASE,Work(ipCInew))
       If (TimeDep) Then
          Call GetMem('OCIvec','Free','Real',ipCIL,2*nConf)
       Else
@@ -228,12 +218,11 @@
 *
       Call GetMem('ILSG','FREE','INTEGER',LLSGN,NLSGN)
       Call GetMem('IUSG','FREE','INTEGER',LUSGN,NUSGN)
-      Call GetMem('CASE','FREE','INTEGER',LICASE,NICASE)
-*     Call GetMem('NCSF','FREE','INTEGER',LNCSF,nSym)
-      Call GetMem('ICSF','FREE','INTEGER',LIOCSF,NIOCSF)
-      Call GetMem('NCSF','FREE','INTEGER',LNOCSF,NNOCSF)
-      Call GetMem('IOW1','FREE','INTEGER',LIOW,NIOW)
-      Call GetMem('NOW1','FREE','INTEGER',LNOW,NNOW)
+      Call mma_deallocate(ICASE)
+      Call mma_deallocate(IOCSF)
+      Call mma_deallocate(NOCSF)
+      Call mma_deallocate(IOW)
+      Call mma_deallocate(NOW)
       Call mma_deallocate(RAW)
       Call mma_deallocate(UP)
       Call mma_deallocate(DAW)
