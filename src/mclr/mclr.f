@@ -248,7 +248,7 @@ c      idp=rtoi
       End Do
 
 *     Free arrays allocated by memstr.f
-      If (iMethod.eq.2) Call FreeStr
+      If (iMethod.eq.2) Call FreeStr()
 *     Arrays in inpone.f
       Call mma_deallocate(INT1)
 *     Arrays in detctl.f
