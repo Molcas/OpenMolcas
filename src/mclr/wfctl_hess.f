@@ -31,7 +31,6 @@
 *
 #include "standard_iounits.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -70,6 +69,7 @@
      &                      Temp1(:), Temp2(:), Temp3(:), Temp4(:),
      &                      Sc1(:), Sc2(:), Sc3(:),
      &                      Dens(:), Pens(:), rmoaa(:)
+      Integer, Allocatable:: List(:,:)
 
 *
 *----------------------------------------------------------------------*
@@ -120,14 +120,14 @@
 *
 *     Set up parallelization over the loop over perturbations
 *
-      Call Allocate_iWork(ipList,2*nDisp)
+      Call mma_allocate(List,2,nDisp,Label='List')
       iDisp=0
       Do iSym=kksym,kkksym
         iDEnd=lDisp(iSym)
         Do jDisp=1,iDEnd
            iDisp=iDisp+1
-           iWork(ipList+(iDisp-1)*2  )=iSym
-           iWork(ipList+(iDisp-1)*2+1)=jDisp
+           List(1,iDisp)=iSym
+           List(2,iDisp)=jDisp
         End Do
       End Do
 *
@@ -170,8 +170,8 @@
            End If
         End If
 #endif
-        iSym =iWork(ipList+(iDisp-1)*2  )
-        jDisp=iWork(ipList+(iDisp-1)*2+1)
+        iSym =List(1,iDisp)
+        jDisp=List(2,iDisp)
 *
         Write (SLine,'(A,I3,A)')
      &        ' Solving CP(CAS)HF equations for perturbation ',
@@ -897,7 +897,7 @@ C         Write(LuWr,Fmt2//'A)')'Writing response to one-file.'
       End If
 
       Call Free_Tsk(id)
-      Call Free_iWork(ipList)
+      Call mma_deallocate(List)
 *                                                                      *
 ************************************************************************
 *                                                                      *
