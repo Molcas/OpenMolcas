@@ -95,11 +95,6 @@
         Fake_CMO2=.false.
         DoAct=.true.
 *
-        ipFockI  =ip_of_work(FockI(1))
-        ipFockA  =ip_of_work(FockA(1))
-        ipMO1    =ip_of_work(rmos(1))
-        ipQ      =ip_of_work(Q(1))
-*
 **      Form inactive density
 *
         Call mma_Allocate(DI,nDens2,Label='DI')
@@ -237,20 +232,22 @@
 
         call dcopy_(ndens2,[0.0d0],0,FockA,1)
         call dcopy_(ndens2,[0.0d0],0,FockI,1)
-        call dcopy_(nATri,[0.0d0],0,Work(ipMO1),1)
+        call dcopy_(nATri,[0.0d0],0,rMOs,1)
 *
 **      Compute the whole thing
 *
         iread=2 ! Asks to read the half-transformed Cho vectors
+        ipFockI  =ip_of_work(FockI(1))
+        ipFockA  =ip_of_work(FockA(1))
+        ipMO1    =ip_of_work(rmos(1))
+        ipQ      =ip_of_work(Q(1))
         ip_CMO_Inv = ip_of_work(CMO_Inv(1))
         ipCMO      = ip_of_work(CMO(1))
-        ipJA       = ip_of_Work(CoulExch(1,3))
-        ipKA       = ip_of_Work(CoulExch(1,4))
         ipAsh(1)   = ip_of_Work(CVa(1,1))
         ipAsh(2)   = ip_of_Work(CVa(1,2))
         Call CHO_LK_MCLR(DLT,DI,DA,G2x,rkappa,
      &                   CoulExch(:,1),CoulExch(:,2),
-     &                   ipJA,ipKA,
+     &                   CoulExch(:,3),CoulExch(:,4),
      &                   ipFockI,ipFockA,
      &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,

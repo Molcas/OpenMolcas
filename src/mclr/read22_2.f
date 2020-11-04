@@ -393,11 +393,9 @@
         Call Abend()
 !       ip_CMO_inv = ip_of_work(CMO_Inv(1))
 !       ipCMO      = ip_of_work(CMO(1))
-        ipJA       = ip_of_Work(JA(1))
-        ipKA       = ip_of_Work(KA(1))
         ipAsh      = ip_of_Work(Ash(1))
 !       Call CHO_LK_MCLR(DLT,Temp2,DA,G2x,rdum,
-!    &                   Temp3,Scr,ipJA,ipKA,ipFockI,ipFockA,
+!    &                   Temp3,Scr,JA,KA,ipFockI,ipFockA,
 !    &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
 !    &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
 !    &                   LuAChoVec,LuIChoVec,istore)

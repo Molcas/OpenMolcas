@@ -11,7 +11,7 @@
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
       SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
-     &                      JI,KI,ipJA,ipKA,ipFkI,ipFkA,
+     &                      JI,KI,JA,KA,ipFkI,ipFkA,
      &                      ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                      LuAChoVec,LuIChoVec,iAChoVec)
@@ -37,7 +37,8 @@ C
 **********************************************************************
 
       Implicit Real*8 (a-h,o-z)
-      Real*8 DLT(*), DI(*), DA(*), G2(*), Kappa(*), JI(*), KI(*)
+      Real*8 DLT(*), DI(*), DA(*), G2(*), Kappa(*), JI(*), KI(*),
+     &       JA(*), KA(*)
 #include "warnings.fh"
       Integer   rc,ipScr
       Integer   ipLpq(8,3)
@@ -1829,10 +1830,10 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
                      Do is=1,NBAS(iSymb)
                       ipLtvb = ipLpq(iSymv,1)+ NAv*NBAS(iSymb)*(JVC-1)
      &                        + Nav*(is-1)
-                      ipFock=ipKA+nBas(iSymb)*(is-1)+ISTSQ(iSymb)
+                      ipFock=1+nBas(iSymb)*(is-1)+ISTSQ(iSymb)
                       CALL DGEMV_('N',NBAS(iSymb),Nav,
      &                     -FactXI,Work(ipLwb),NBAS(iSymb),
-     &                     Work(ipLtvb),1,ONE,Work(ipFock),1)
+     &                     Work(ipLtvb),1,ONE,KA(ipFock),1)
 
                     EndDo
                    End Do
@@ -1865,6 +1866,7 @@ C ---------------- END (TW|XY) EVALUATION -----------------------
 c --- backtransform fock matrix to full storage
                mode = 'tofull'
                ipJI = ip_of_Work(JI(1))
+               ipJA = ip_of_Work(JA(1))
                Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,ISSQ,
      &                                 ipJI,ipFab,mode)
                If (DoAct) Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,
@@ -1923,9 +1925,9 @@ C--- have performed screening in the meanwhile
       Do iSym=1,nSym
 
          ipFI = 1     + ISTLT(iSym)
-         ipFAc= ipJA  + ISTLT(iSym)
+         ipFAc= 1     + ISTLT(iSym)
          ipKI = 1     + ISTSQ(iSym)
-         ipKAc= ipKA  + ISTSQ(iSym)
+         ipKAc= 1     + ISTSQ(iSym)
          ipFS = ipFkI + ISTSQ(iSym)
          ipFA = ipFkA + ISTSQ(iSym)
 
@@ -1957,10 +1959,10 @@ C--- have performed screening in the meanwhile
                   ibg = ioffb + ib
 
                   jF = ipFI - 1 + iTri(iag,ibg)
-                  jFA= ipFac- 1 + iTri(iag,ibg)
+                  jFA= ipFAc- 1 + iTri(iag,ibg)
 
-                  jKa = ipKac- 1 + nBas(iSym)*(ibg-1) + iag
-                  jKa2= ipKac- 1 + nBas(iSym)*(iag-1) + ibg
+                  jKA = ipKAc- 1 + nBas(iSym)*(ibg-1) + iag
+                  jKA2= ipKAc- 1 + nBas(iSym)*(iag-1) + ibg
 
                   jS = ipFS - 1 + nBas(iSym)*(ibg-1) + iag
                   jSA= ipFA - 1 + nBas(iSym)*(ibg-1) + iag
@@ -1968,9 +1970,9 @@ C--- have performed screening in the meanwhile
                   Work(jS) = JI(jF) + KI(jK) + KI(jK2)
 *                 Work(jS) = JI(jF)
 *                 Work(jS) = KI(jK) +KI(jK2)
-                  Work(jSA)= Work(jFa)+ Work(jKa)+ Work(jKa2)
-*                 Work(jSA)= Work(jFa)
-*                 Work(jSA)= Work(jKa)+ Work(jKa2)
+                  Work(jSA)= JA(jFA)+ KA(jKA)+ KA(jKA2)
+*                 Work(jSA)= JA(jFA)
+*                 Work(jSA)= KA(jKA)+ KA(jKA2)
 
                 End Do
 
@@ -2085,18 +2087,18 @@ C--- have performed screening in the meanwhile
             Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
      &                  1.0d0,Work(ipFkA+ISTSQ(iS)),nBas(iS),
      &                  Work(ipCMO+ISTSQ(iS)),nBas(iS),0.0d0,
-     &                  Work(ipJA+ISTSQ(iS)),nBas(jS))
+     &                  JA(1+ISTSQ(iS)),nBas(jS))
             Call DGEMM_('T','N',nBas(jS),nBas(jS),nBas(iS),
-     &                  1.0d0,Work(ipJA+ISTSQ(iS)),
+     &                  1.0d0,JA(1+ISTSQ(iS)),
      &                  nBas(iS),Work(ipCMO+ISTSQ(jS)),nBas(jS),
      &                  0.0d0,Work(ipFkA+ISTSQ(iS)),nBas(jS))
           EndIf
           Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
      &                1.0d0,Work(ipFkI+ISTSQ(iS)),nBas(iS),
      &                Work(ipCMO+ISTSQ(iS)),nBas(iS),0.0d0,
-     &                Work(ipJA+ISTSQ(iS)),nBas(jS))
+     &                JA(1+ISTSQ(iS)),nBas(jS))
           Call DGEMM_('T','N',nBas(jS),nBas(jS),nBas(iS),
-     &                1.0d0,Work(ipJA+ISTSQ(iS)),
+     &                1.0d0,JA(1+ISTSQ(iS)),
      &                nBas(iS),Work(ipCMO+ISTSQ(jS)),nBas(jS),
      &                0.0d0,Work(ipFkI+ISTSQ(iS)),nBas(jS))
           If (DoAct) Then
