@@ -108,9 +108,8 @@
         Call mma_deallocate(Smat)
       EndIf
 *
-      ipCMO = ip_of_work(CMO(1))
       Call SetUp_CASPT2_Tra(nSym,nBas,nOrb,nIsh,nAsh,
-     &                      nFro,nDel,ipCMO,nDens2,
+     &                      nFro,nDel,CMO,nDens2,
      &                      LuTri1,LuTri2,LuHlf2,LuHlf3)
       iType=3  ! Means that TraCtl is called by MCLR
 
