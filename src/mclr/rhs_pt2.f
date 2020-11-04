@@ -42,7 +42,6 @@ c Avoid unused argument warnings
 
 #include "Input.fh"
 #include "stdalloc.fh"
-#include "glbbas_mclr.fh"
 #include "Files_mclr.fh"
 #ifndef _DEBUGED_
 #include "detdim.fh"

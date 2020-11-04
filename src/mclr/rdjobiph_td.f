@@ -25,7 +25,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "Files_mclr.fh"
-#include "glbbas_mclr.fh"
 #include "Pointers.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"

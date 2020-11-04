@@ -29,7 +29,6 @@
 #include "SysDef.fh"
 #include "Pointers.fh"
 #include "stdalloc.fh"
-#include "glbbas_mclr.fh"
 #include "Files_mclr.fh"
 #include "sa.fh"
       Real*8 kappa(*)

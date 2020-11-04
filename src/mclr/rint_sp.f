@@ -24,7 +24,6 @@
 #include "Pointers.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-#include "glbbas_mclr.fh"
 #include "spin.fh"
       Real*8 rkappa(nDensC),Sigma(nDensC), Focki(ndens2),rMOs(*),rmoa(*)
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), Scr(:)

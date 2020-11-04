@@ -26,9 +26,6 @@
 #include "csm.fh"
 #include "genop.fh"
 *. Type of operator in action
-
-
-#include "glbbas_mclr.fh"
       Dimension XINT(*)
 *
        NTEST=0

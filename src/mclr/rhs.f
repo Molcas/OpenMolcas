@@ -42,8 +42,6 @@
 #include "disp_mclr.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-*for the integrals needed in sigma gen
-#include "glbbas_mclr.fh"
 #include "lbbas1.fh"
 
       Character*8 Label

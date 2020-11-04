@@ -14,8 +14,8 @@
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "glbbas_mclr.fh"
       Real*8 H1DIA(*)
+
       i=1
       Do iS=1,nSym
        ii=ipCM(iS)+nOrb(iS)*(nIsh(iS)-1)+nIsh(iS)-1

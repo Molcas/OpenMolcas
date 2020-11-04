@@ -31,10 +31,8 @@ c
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-#include "glbbas_mclr.fh"
       Real*8 Fock(nDens2),rkappa(nDens2),
      &       Focki(ndens2),rMO(*)
       Real*8, Allocatable:: FA(:), MT1(:), MT2(:), QA(:), QB(:)
@@ -59,10 +57,10 @@ C
             Call RecPrt(' ' ,' ',focki(jpCMO),nBas(iSym),nBas(iSym))
             jpCMO=jpCMO+nBas(iSym)*nBas(iSym)
        End do
-       jpCMO=ipFA
+       jpCMO=1
        Do  iSym=1,nSym
             Write(6,'(A,i2.2)') 'Active fockmatrix     = ',iSym
-            Call RecPrt(' ' ,' ',Work(jpCMO),nBas(iSym),nBas(iSym))
+            Call RecPrt(' ' ,' ',FA(jpCMO),nBas(iSym),nBas(iSym))
             jpCMO=jpCMO+nBas(iSym)*nBas(iSym)
        end do
       End If

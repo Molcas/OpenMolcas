@@ -27,7 +27,6 @@
 #include "standard_iounits.fh"
 #include "Input.fh"
 #include "stdalloc.fh"
-#include "glbbas_mclr.fh"
 #include "Files_mclr.fh"
       Real*8 Fock(nDens2),FockI(nDens2),FockA(nDens2),
      &       Temp2(nDens2),Temp3(ndens2),Q(nDens2),

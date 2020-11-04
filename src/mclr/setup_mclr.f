@@ -16,9 +16,7 @@
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 * for the integrals needed in sigma gen
-#include "glbbas_mclr.fh"
 #include "Input.fh"
-#include "WrkSpc.fh"
       integer dsym
 *                                                                      *
 ************************************************************************

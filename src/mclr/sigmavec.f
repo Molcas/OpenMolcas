@@ -36,7 +36,6 @@
 
 #include "Input.fh"
 #include "cprnt_mclr.fh"
-#include "glbbas_mclr.fh"
 #include "genop.fh"
 #include "csmprd.fh"
       Dimension C(*),HC(*),kic(2)

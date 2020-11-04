@@ -14,11 +14,8 @@
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
-
 #include "SysDef.fh"
-#include "glbbas_mclr.fh"
 #include "Files_mclr.fh"
 #include "real.fh"
 #include "sa.fh"

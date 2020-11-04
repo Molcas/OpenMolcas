@@ -40,10 +40,8 @@
 #include "Pointers.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 * for the integrals needed in sigma gen
-#include "glbbas_mclr.fh"
 #include "lbbas1.fh"
       Character(LEN=8) Label
       Logical CI

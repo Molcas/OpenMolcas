@@ -18,8 +18,6 @@ C
 #include "detdim.fh"
 #include "Pointers.fh"
 #include "orbinp_mclr.fh"
-#include "glbbas_mclr.fh"
-#include "WrkSpc.fh"
       DIMENSION RJ(NACOB,NACOB),RK(NACOB,nACOB)
 
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)

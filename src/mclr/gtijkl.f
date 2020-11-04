@@ -16,8 +16,6 @@
 *
       IMPLICIT REAL*8(A-H,O-Z)
 #include "detdim.fh"
-#include "glbbas_mclr.fh"
-
 #include "Input.fh"
 #include "orbinp_mclr.fh"
 #include "crun_mclr.fh"

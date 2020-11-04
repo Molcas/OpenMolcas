@@ -20,7 +20,6 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "genop.fh"
-#include "glbbas_mclr.fh"
 #include "lbbas1.fh"
 #include "cands.fh"
 #include "detdim.fh"

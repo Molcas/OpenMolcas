@@ -24,7 +24,6 @@
 #include "Input.fh"
 #include "Pointers.fh"
 #include "stdalloc.fh"
-#include "glbbas_mclr.fh"
 #include "standard_iounits.fh"
       Real*8 Fock(nDens2),focka(nDens2),rkappa(nDens2),
      &       Focki(ndens2),Q(ndens2),rMOs(*),rmoa(*)

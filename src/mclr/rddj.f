@@ -24,7 +24,6 @@
 #include "Pointers.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
-#include "glbbas_mclr.fh"
 #include "Files_mclr.fh"
 #include "sa.fh"
       Real*8 G1r(*), G1Q(*),G2r(*)
