@@ -618,7 +618,6 @@ c
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
 #include "real.fh"
 #include "sa.fh"
       Real*8 rK(*),D(*),Dtmp(*)

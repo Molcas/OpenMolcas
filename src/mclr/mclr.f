@@ -56,7 +56,6 @@
 #include "blksize.fh"
 #include "sa.fh"
 #include "Pointers.fh"
-#include "lbbas1.fh"
 #include "detdim.fh"
 #include "dmrginfo_mclr.fh"
 #include "csfsd.fh"

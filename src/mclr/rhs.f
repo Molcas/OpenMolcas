@@ -37,12 +37,9 @@
       use Arrays, only: G2t, G1t
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
-
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "lbbas1.fh"
 
       Character*8 Label
       Logical CI

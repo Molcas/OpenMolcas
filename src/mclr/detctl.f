@@ -20,21 +20,16 @@
 #include "genop.fh"
 #include "cprnt_mclr.fh"
 #include "cstate_mclr.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
-*EAW
 #include "Files_mclr.fh"
 #include "spinfo_mclr.fh"
-*
-#include "lbbas1.fh"
 #include "cicisp_mclr.fh"
 
       Call mma_Allocate(pINT1,nSym,Label='pInt1')
-      Kapin1=ip_of_iWork(pInt1(1))
       pInt1(:)=0
       Call mma_Allocate(pINT2,nSym**3,Label='pInt2')
       pInt2(:)=0
-*EAW
+
       Pntgrp=1
       NOCSF  = 0
       idenmt=0

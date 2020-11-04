@@ -41,8 +41,6 @@
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "stdalloc.fh"
-* for the integrals needed in sigma gen
-#include "lbbas1.fh"
       Character(LEN=8) Label
       Logical CI
       Real*8 Temp1(nDens),rKappa(nDens),Temp4(nDens),

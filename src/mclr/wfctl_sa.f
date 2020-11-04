@@ -23,9 +23,7 @@
       use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
 *
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
-
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"

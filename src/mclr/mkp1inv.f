@@ -14,7 +14,6 @@
 #include "Pointers.fh"
 
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "incdia.fh"
       Real*8 rdia(*)

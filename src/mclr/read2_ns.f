@@ -54,7 +54,6 @@
       Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
-#include "WrkSpc.fh"
       Real*8 rkappa(nDens2),FockA(nDens2),FockI(nDens2),
      &       Temp1(ntemp),Temp2(nDens2),
      &       temp3(nDens2),Temp4(nDens2),

@@ -126,9 +126,6 @@
       End Do
       ndens=ndens2
 *
-*    Pointers stored in glbbas, just for making LUCIA happy
-*
-*
 *  To begin with we assume that we have permutation symmetry
 *
       if(iMethod.eq.2) then

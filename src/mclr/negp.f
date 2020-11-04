@@ -15,7 +15,6 @@
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "real.fh"
       integer opout

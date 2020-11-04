@@ -17,7 +17,6 @@
 
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "WrkSpc.fh"
 *
       Character*8 Label
       Real*8 FockI(nDens2),Temp2(ndens2),Temp3(nDens2),Temp4(ndens2),

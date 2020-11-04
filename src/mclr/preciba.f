@@ -36,7 +36,6 @@
       use Arrays, only: G1t
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "Pointers.fh"
       Real*8  Fock(nba,nba),Focki(nba,nba),FockA(nba,nba)
       Real*8 rOut(*), A_J(nScr), A_K(nScr), Scr(nScr)

@@ -29,7 +29,6 @@
 #include "Input.fh"
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
-#include "WrkSpc.fh"
 #include "sa.fh"
       Parameter ( nCom=38 )
       Character*72 Line

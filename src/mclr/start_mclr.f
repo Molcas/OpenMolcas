@@ -27,7 +27,6 @@
 #include "Input.fh"
 #include "Pointers.fh"
 #include "Files_mclr.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Character(LEN=5) Fname
       Real*8, Allocatable:: STmat(:), Smat(:)

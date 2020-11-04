@@ -14,7 +14,6 @@
 
 #include "real.fh"
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "Pointers.fh"
 #include "stdalloc.fh"
       Real*8, Allocatable :: R(:,:)

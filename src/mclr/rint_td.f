@@ -35,7 +35,6 @@ c
 c
       Implicit Real*8 (a-h,o-z)
 c
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "Input.fh"
 #include "real.fh"

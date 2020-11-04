@@ -481,7 +481,6 @@ c Avoid unused argument warnings
 * the determinant normalization
 *
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       DIMENSION IDET(NOPEN,NDET),ICSF(NOPEN,NCSF)
       DIMENSION CDC(NDET,NCSF)
@@ -1376,7 +1375,7 @@ C
 *----------------------------------------------------------------------
 *
       SUBROUTINE DETSTR_MCLR(IDET,IASTR,IBSTR,NEL,NAEL,NBEL,NORB,
-     *ISIGN,IWORK,IPRNT)
+     *                       ISIGN,IWORK,IPRNT)
 
 C
 C A DETERMINANT,IDET,IS GIVEN AS A SET OF OCCUPIED SPIN ORBITALS,

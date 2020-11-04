@@ -24,7 +24,6 @@
 #include "Input.fh"
       PARAMETER (LIOTAB=512*512)
 #include "Pointers.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "toc.fh"
 #include "Files_mclr.fh"

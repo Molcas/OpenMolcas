@@ -14,7 +14,6 @@
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Integer ip(8), iip(8)
       Real*8 A(*)

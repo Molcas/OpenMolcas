@@ -287,7 +287,6 @@ c Avoid unused argument warnings
 #include "Pointers.fh"
 
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 DAO(*),FockMO(*),Fock(*)
       Real*8, Allocatable:: Temp1(:), Temp2(:)
@@ -324,7 +323,6 @@ c Avoid unused argument warnings
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8, Allocatable:: Temp1(:), Temp2(:)
 

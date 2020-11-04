@@ -38,7 +38,6 @@
 *
       IMPLICIT REAL*8(A-H,O-Z)
 #include "detdim.fh"
-#include "WrkSpc.fh"
 #include "orbinp_mclr.fh"
 *
 * =======

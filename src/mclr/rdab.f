@@ -12,7 +12,6 @@
       use Arrays, only: CMO
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "Input.fh"
 #include "SysDef.fh"

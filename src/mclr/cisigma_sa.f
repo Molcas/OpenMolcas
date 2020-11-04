@@ -11,16 +11,14 @@
        SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
      &                       Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
        use ipPage, only: W
-       use Arrays, only: FIMO, KAIN1, KINT2, KINT2A
+       use Arrays, only: FIMO, KAIN1, KINT2, KINT2A, pInt1
        Implicit Real*8(a-h,o-z)
 *
 #include "Pointers.fh"
 
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "genop.fh"
-#include "lbbas1.fh"
 #include "cands.fh"
 #include "detdim.fh"
 #include "cstate_mclr.fh"
@@ -91,11 +89,11 @@
        If (ndet.eq.0) Return
        iOP=iEOr(iCSM-1,iSSm-1)+1
        If (iOp.eq.1) Then
-         Call iCopy(nSym,ipCM,1,iWork(kapin1),1)
+         Call iCopy(nSym,ipCM,1,pInt1,1)
        Else
          Do iS=1,nSym
           jS=iEor(iS-1,iOp-1)+1
-          iWork(kapin1+is-1)=ipMat(is,jS)
+          pInt1(is)=ipMat(is,jS)
          End Do
        End If
 *

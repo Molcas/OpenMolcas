@@ -18,7 +18,6 @@
 #include "Input.fh"
 #include "Pointers.fh"
 #include "orbinp_mclr.fh"
-#include "lbbas1.fh"
 *
       ISM = ISMFTO(I)
       JSM = ISMFTO(J)
