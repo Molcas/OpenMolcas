@@ -23,7 +23,6 @@
 #include "real.fh"
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "glbbas_mclr.fh"
 #include "standard_iounits.fh"
@@ -76,8 +75,8 @@
 *
         If (iMethod.eq.2) Then
            Call mma_allocate(QTemp,ndens2,Label='QTemp')
-           Call CreQ(Q,MT1,Work(ipG2tpp),idsym)
-           Call CreQ(QTemp,MT2,Work(ipG2tmm),idsym)
+           Call CreQ(Q,MT1,G2t,idsym)
+           Call CreQ(QTemp,MT2,G2t,idsym)
 #ifdef _DEBUGPRINT_
            Write (LuWr,*) 'Q=',DDot_(nDens2,Q,1,Q,1)
            Write (LuWr,*) 'QTemp=',DDot_(nDens2,QTemp,1,QTemp,1)

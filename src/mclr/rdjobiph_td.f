@@ -215,9 +215,6 @@
          End Do
       End Do
 *
-      ipg2tmm=ip_of_work(G2t(1))
-      ipg2tpp=ip_of_work(G2t(1))
-
 *---------------------------------------------------------------
 * Rectangular part of the two el dens,
 * symmetric and asymmetric contributions added
