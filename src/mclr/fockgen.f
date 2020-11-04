@@ -191,15 +191,11 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
 *
         Call mma_allocate(Scr1,n2,2,Label='Scr1')
         Scr1(:,:)=Zero
-        ipDA  =ip_of_work(rdens1(1,1))
         ipFock=ip_of_work(Fock(1))
         ipCMO =ip_of_work(CMO(1))
-        ipG2x =ip_of_work(G2x(1))
-        ipScr1=ip_of_work(Scr1(1,1))
-        ipScr2=ip_of_work(Scr1(1,2))
         ipAsh =ip_of_work(Ash(1))
 *
-        Call cho_fock_mclr(ipDA,ipG2x,ipScr1,ipScr2,ipFock,
+        Call cho_fock_mclr(rdens1,G2x,Scr1(:,1),Scr1(:,2),ipFock,
      &                    [ipAsh],ipCMO,nIsh,nAsh,LuAChoVec)
 *
         Call mma_deallocate(Scr1)

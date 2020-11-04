@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
-      SUBROUTINE CHO_Fock_MCLR(ipDA,ipG2,ipJA,ipKA,ipFkA,
+      SUBROUTINE CHO_Fock_MCLR(DA,G2,JA,KA,ipFkA,
      &                      ipAsh,ipCMO,nIsh,nAsh,LuAChoVec)
 
 ************************************************************************
@@ -30,6 +30,7 @@
 #include "choorb.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
+      Real*8 DA(*), G2(*), JA(*), KA(*)
       parameter ( N2 = InfVec_N2 )
       parameter (zero = 0.0D0, one = 1.0D0, xone=-1.0D0)
       parameter (FactCI = -2.0D0, FactXI = 0.5D0)
@@ -268,7 +269,7 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
 
                  CALL DGEMV_('T',Nav*Naw,JNUM,
      &                  ONE,Work(ipLvtw),Nav*Naw,
-     &                  Work(ipDA),1,ZERO,Work(ipVJ),1)
+     &                  DA,1,ZERO,Work(ipVJ),1)
 *
                  CALL DGEMV_('N',nRS,JNUM,
      &                -FactCI,Work(ipLrs),nRS,
@@ -286,9 +287,8 @@ C --------------------------------------------------------------------
                   ipLvb = ipLpq(iSymv,1) + NAv*NBAS(iSymb)*(JVC-1)
                   ipLvw = ipLpq(iSymv,2) + NAv*Naw*(JVC-1)
                   ipLxy = ipLpq(iSymv,3) + NAv*Naw*(JVC-1)
-                  ipG    = ipG2
                   CALL DGEMV_('N',NAv*Naw,NAv*Naw,
-     &               ONE,Work(ipG),NAv*Naw,
+     &               ONE,G2,NAv*Naw,
      &               Work(ipLvw),1,ZERO,Work(ipLxy),1)
 *Qpx=Lpy Lxy
                   ipQpx=ipScr
@@ -309,7 +309,7 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
                    ipLwb = ipLpq(iSymv,2)+ NAv*NBAS(iSymb)*(JVC-1)
                    Call DGEMM_('T','N',NBAS(iSymb),Nav,Nav,
      &                         ONE,Work(ipLvb),Nav,
-     &                         Work(ipDA),Nav,ZERO,
+     &                         DA,Nav,ZERO,
      &                         Work(ipLwb),NBAS(iSymb))
                  End Do
 *                 CALL CWTIME(TCINT2,TWINT2)
@@ -320,10 +320,10 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
                    Do is=1,NBAS(iSymb)
                     ipLtvb = ipLpq(iSymv,1)+ NAv*NBAS(iSymb)*(JVC-1)
      &                      + Nav*(is-1)
-                    ipFock=ipKA+nBas(iSymb)*(is-1)
+                    ipFock=1+nBas(iSymb)*(is-1)
                     CALL DGEMV_('N',NBAS(iSymb),Nav,
      &                   -FactXI,Work(ipLwb),NBAS(iSymb),
-     &                   Work(ipLtvb),1,ONE,Work(ipFock),1)
+     &                   Work(ipLtvb),1,ONE,KA(ipFock),1)
 
                   EndDo
                  End Do
@@ -340,6 +340,7 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
 c --- backtransform fock matrix to full storage
           If(JSYM.eq.1)Then
              mode = 'tofull'
+             ipJA = ip_of_Work(JA)
              Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,
      &                           ISSQ,ipJA,ipFab,mode)
           Call GetMem('rsFC','Free','Real',ipFab,nRS)
@@ -359,8 +360,8 @@ c --- backtransform fock matrix to full storage
 **    Accumulate Coulomb and Exchange contributions
 *
       Do iSym=1,nSym
-         ipFAc= ipJA + ISTLT(iSym)
-         ipKAc= ipKA  + ISTSQ(iSym)
+         ipFAc= 1 + ISTLT(iSym)
+         ipKAc= 1  + ISTSQ(iSym)
          ipFA = ipFkA + ISTSQ(iSym)
 
          Do iaSh=1,nShell
@@ -377,12 +378,12 @@ c --- backtransform fock matrix to full storage
                   iag = ioffa + ia
                   ibg = ioffb + ib
 
-                  jFA= ipFac- 1 + iTri(iag,ibg)
+                  jFA = ipFAc- 1 + iTri(iag,ibg)
                   jKa = ipKac- 1 + nBas(iSym)*(ibg-1) + iag
                   jKa2= ipKac- 1 + nBas(iSym)*(iag-1) + ibg
 
                   jSA= ipFA - 1 + nBas(iSym)*(ibg-1) + iag
-                  Work(jSA)= Work(jFa)+ Work(jKa)+ Work(jKa2)
+                  Work(jSA)= JA(jFA)+ KA(jKa)+ KA(jKa2)
                 End Do
                End Do
             End Do
@@ -398,11 +399,11 @@ c --- backtransform fock matrix to full storage
           Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
      &                1.0d0,Work(ipFkA+ISTSQ(iS)),nBas(iS),
      &                Work(ipCMO+ISTSQ(iS)),nBas(iS),0.0d0,
-     &                Work(ipJA+ISTSQ(iS)),nBas(jS))
+     &                JA(1+ISTSQ(iS)),nBas(jS))
           call dcopy_(nBas(jS)*nBas(iS),[0.0d0],0,
      &                Work(ipFkA+ISTSQ(iS)),1)
           Call DGEMM_('T','N',nBas(jS),nIsh(jS),nBas(iS),
-     &                1.0d0,Work(ipJA+ISTSQ(iS)),
+     &                1.0d0,JA(1+ISTSQ(iS)),
      &                nBas(iS),Work(ipCMO+ISTSQ(jS)),nBas(jS),
      &                0.0d0,Work(ipFkA+ISTSQ(iS)),nBas(jS))
           ioff=nIsh(iS)*nBas(jS)+ISTSQ(iS)
