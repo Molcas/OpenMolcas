@@ -337,8 +337,6 @@ C         iDisp=iDisp+1
           If (PT2) then
              Call RHS_PT2(Temp4,ipST)
           Else
-             kain=ip_of_Work(Kappa(1))
-
              Call RHS(Sigma,Kappa,Temp1,
      &                Temp3,Sc2,dKappa,
      &                Sc3,

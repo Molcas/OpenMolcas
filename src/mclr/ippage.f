@@ -249,8 +249,7 @@
              n(ii)=nn
           End If
 *
-!         ip1=ii
-          ip1=ip_of_Work(W(ii)%Vec(1))
+          ip1=ii
 *
        Else If (Status(ii).eq.On_Disk) Then
 *
@@ -267,8 +266,7 @@
           Call dDafile(Lu_ip,Read,W(ii)%Vec,nnn,idisk)
           Status(ii)=In_Memory
 *
-!         ip1=ii
-          ip1=ip_of_Work(W(ii)%Vec(1))
+          ip1=ii
 *
        Else If (Status(ii).eq.Null_Vector) Then
 *

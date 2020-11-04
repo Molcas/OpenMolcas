@@ -38,7 +38,6 @@
 *
 *      OK first tell Jeppe where the integrals are.
 
-       ipInt2a= ip_of_Work(Int2a(1))
        !> yma: notice the nconf1 if DMRG
 *
        If (nconf1.eq.0) return
