@@ -15,7 +15,9 @@
 #include "Input.fh"
 #include "Pointers.fh"
       Real*8 rDum(1)
-      Call CISigma_sa(0,state_sym,state_sym,FIMO,Int2,rDum,ipCId,ips2)
+
+      Call CISigma_sa(0,state_sym,state_sym,FIMO,Int2,rDum,ipCId,ips2,
+     &                .True.)
       irc=ipin(ipCId)
       irc=ipin(ipS2)
       Do i=0,nroots-1

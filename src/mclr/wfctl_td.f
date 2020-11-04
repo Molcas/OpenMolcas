@@ -374,7 +374,7 @@ c
 *              Adjusted to timedep
                Call CISigma_td(jspin,State_Sym,pstate_sym,
      &                      Temp4,rmoaa,rdum,
-     &                      ipCI,ipS1,'T')
+     &                      ipCI,ipS1,'T',.True.)
                Clock(iTimeKC)=Clock(iTimeKC)+Tim3
 *
 *              This will give us a better
@@ -433,7 +433,7 @@ C
              irc=ipnout(-1)
              if (CI) Call CISigma_td(0,PState_Sym,Pstate_sym,
      &                    FIMO,Int2,rdum,
-     &                    ipCId,ipS2,'S')
+     &                    ipCId,ipS2,'S',.True.)
 *
 c I want the RASSCF energy of the ACTIVE electrons !!!!
 c EC=-E[act]           E[RASSCF]=E[inact]+E[act]+E[nuc]

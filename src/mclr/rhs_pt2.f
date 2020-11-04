@@ -190,7 +190,7 @@ c Avoid unused argument warnings
 *
 *     <i|Sigma> = <i|F|0> - <0|F|0><i|0>+CI_a+CI_b
 *
-      Call CISigma(0,State_sym,State_sym,FMO1,rdum,rdum,ipci,iprci)
+      Call CISigma(0,State_sym,State_sym,FMO1,rdum,rdum,ipci,iprci,.False.)
       irc=ipin(iprci)
       irc=ipin(ipci)
       rE=ddot_(nconf1,W(iprci)%Vec,1,W(ipci)%Vec,1)

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
        SubRoutine CISigma_td(iispin,iCsym,iSSym,Int1,Int2s,
-     &                       Int2a,ipCI1,ipCI2,NT)
+     &                       Int2a,ipCI1,ipCI2,NT, Have_2_el )
        use ipPage, only: W
        Implicit Real*8(a-h,o-z)
 c
@@ -30,6 +30,7 @@ c
 #include "cicisp_mclr.fh"
        Character NT
        integer kic(2),opout
+       Logical Have_2_el
        Real*8 Int1(*), Int2s(*), Int2a(*)
        Real*8, Allocatable:: CIDET(:), TI1(:), TI2(:)
 
@@ -43,7 +44,6 @@ c
 *      OK first tell Jeppe where the integrals are.
 *
        If (nconf1.eq.0) return
-       ipInt2s=ip_of_Work(Int2s(1))
        ipInt2a=ip_of_Work(Int2a(1))
 *
 *      One electron integrals
@@ -54,8 +54,8 @@ c
 *      symmetric in perticle one and two
 *
 *
-       KINT2= ipInt2s
-       KINT2a=ipint2a
+       KINT2 = ip_of_Work(Int2s(1))
+       KINT2a= ip_of_Work(Int2a(1))
 *
 *      Two electron integrals
 *      anti symmetric in perticle one and two
@@ -65,10 +65,10 @@ c
 *
 *      Do we have any twoelectron integrals?
 *
-       If (ipInt2s.eq.0) Then  !????
-         i12=1
-       Else
+       If (Have_2_el) Then
          i12=2
+       Else
+         i12=1
        End If
 C
 *

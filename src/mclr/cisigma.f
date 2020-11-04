@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
        SubRoutine CISigma(iispin,iCsym,iSSym,Int1,Int2s,
-     &                    Int2a,ipCI1,ipCI2)
+     &                    Int2a,ipCI1,ipCI2, Have_2_el)
        use ipPage, only: W
        use Arrays, only: FIMO
        Implicit Real*8(a-h,o-z)
@@ -27,6 +27,7 @@
 #include "cstate_mclr.fh"
 #include "cicisp_mclr.fh"
        Real*8 Int1(*), Int2s(*), Int2a(*)
+       Logical Have_2_el
        integer kic(2),opout,nbb(8)
        Real*8, Allocatable:: CIDET(:)
 *
@@ -39,8 +40,6 @@
 *
        !> yma: notice the nconf1 if DMRG
 
-       ipInt2s= ip_of_Work(Int2s(1))
-       ipInt2a= ip_of_Work(Int2a(1))
        If (nconf1.eq.0) return
 *
 *      One electron integrals
@@ -56,21 +55,21 @@
          Call icopy(nsym,norb,1,nbb,1)
        End if
 *
-       KINT2=ipint2s
+       KINT2=ip_of_Work(Int2s(1))
 *
 *      Two electron integrals
 *      anti symmetric in perticle one and two
 *
-       KINT2a=ipint2a
+       KINT2a= ip_of_Work(Int2a(1))
 *
        irefsm=iCSym
 *
 *      Do we have any twoelectron integrals?
 *
-       If (ipInt2s.eq.0) Then
-         i12=1
-       Else
+       If (Have_2_el) Then
          i12=2
+       Else
+         i12=1
        End If
 *
 *      Symmetry of Sigma vector

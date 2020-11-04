@@ -266,7 +266,7 @@
 
       iprci = ipget(nconf3)
       Call CISigma_sa(0,State_sym,State_sym,FMO1,FMO2t,
-     &                rdum,ipci,ipST)
+     &                rdum,ipci,ipST,.True.)
       Call mma_deallocate(FMO2t)
 
       troot = (irlxroot - 1)
