@@ -228,10 +228,9 @@
      &    Call ABXpY(MOT,MOX,idsym)
 *
       If (CI) Then
-       If (.NOT.Allocated(MOX)) Call mma_allocate(MOX,1,Label='MOX')
 *
        Call CiSigma(0,State_Sym,iEor(State_sym-1,idsym-1)+1,
-     &             Fix,nDens2,MOX,rdum,ipCI,ipst,.True.)
+     &             Fix,nDens2,MOX,SIZE(MOX),rdum,ipCI,ipst,.True.)
 *
        irc=ipin(ipst)
        If (idsym.eq.1) Then

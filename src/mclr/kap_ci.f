@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Kap_CI(h1,nh1,h2,ipS1)
+      Subroutine Kap_CI(h1,nh1,h2,nh2,ipS1)
       use ipPage, only: W
       Implicit Real*8(a-h,o-z)
 
@@ -18,11 +18,11 @@
 #include "Pointers.fh"
 #include "stdalloc.fh"
       Real*8, Allocatable :: R(:,:)
-      Real*8 h1(nh1), h2(*)
+      Real*8 h1(nh1), h2(nh2)
       Real*8 rDum(1)
 
-      Call CISigma_sa(0,state_sym,state_sym,h1,nh1,h2,rdum,ipCI,ipS1,
-     &                .True.)
+      Call CISigma_sa(0,state_sym,state_sym,h1,nh1,h2,nh2,rdum,ipCI,
+     &                ipS1,.True.)
 
       irc=ipin(ipS1)
       irc=ipin(ipCI)

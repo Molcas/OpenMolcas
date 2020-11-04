@@ -466,7 +466,7 @@
      &                 Temp3,Temp4,Sc3,
      &                 isym,reco,jspin)
 
-      Call Kap_CI(Temp4,nDens2,rmoaa,ipCIOUT)
+      Call Kap_CI(Temp4,nDens2,rmoaa,n2Dens,ipCIOUT)
       Call Ci_Ci(ipcid,ipS2)
       Call CI_KAP(ipCid,Sc1,Sc3,isym)
 

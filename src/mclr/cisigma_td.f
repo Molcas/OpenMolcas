@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       SubRoutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,
+       SubRoutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
      &                       Int2a,ipCI1,ipCI2,NT, Have_2_el )
        use ipPage, only: W
        use Arrays, only: KAIN1, TI1
@@ -32,7 +32,7 @@ c
        Character NT
        integer kic(2),opout
        Logical Have_2_el
-       Real*8 Int2s(*), Int2a(*)
+       Real*8 Int2s(nInt2s), Int2a(*)
        Real*8, Target:: Int1(nInt1)
        Real*8, Allocatable:: CIDET(:), TI2(:)
 

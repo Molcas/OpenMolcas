@@ -266,7 +266,7 @@
 
       iprci = ipget(nconf3)
       Call CISigma_sa(0,State_sym,State_sym,FMO1,nDens2,FMO2t,
-     &                rdum,ipci,ipST,.True.)
+     &                SIZE(FMO2t),rdum,ipci,ipST,.True.)
       Call mma_deallocate(FMO2t)
 
       troot = (irlxroot - 1)
@@ -762,7 +762,7 @@
       Call RInt_generic(SC1,rmoaa,rdum,Sc2,Temp3,Temp4,Sc3,
      &                 isym,reco,jspin)
 
-      Call Kap_CI(Temp4,nDens2,rmoaa,ipCIOUT)
+      Call Kap_CI(Temp4,nDens2,rmoaa,n2Dens,ipCIOUT)
       Call Ci_Ci(ipcid,ipS2)
       Call CI_KAP(ipCid,Sc1,Sc3,isym)
 
