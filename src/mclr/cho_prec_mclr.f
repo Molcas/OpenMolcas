@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
-      SUBROUTINE CHO_Prec_MCLR(ipCMO,nIsh,nAsh,LuAChoVec,LuChoInt)
+      SUBROUTINE CHO_Prec_MCLR(CMO,nIsh,nAsh,LuAChoVec,LuChoInt)
 ************************************************************************
 *                                                                      *
 *  Author : M. G. Delcey                                               *
@@ -26,6 +26,7 @@
 *                                                                      *
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
+      Real*8 CMO(*)
 #include "warnings.fh"
       Character*13 SECNAM
       Parameter (SECNAM = 'CHO_PREC_MCLR')
@@ -305,7 +306,7 @@
           ipCMOt(iSym)=ipCMOt(1)+ioff2
           Do j=1,nIshe(iSym)
             ioff3=ioff+nBas(iSym)*(nIshb(iSym)+j-1)
-            call dcopy_(nBas(iSym),Work(ipCMO+ioff3),1,
+            call dcopy_(nBas(iSym),CMO(1+ioff3),1,
      &                 Work(ipCMOt(isym)+j-1),nIshe(iSym))
           End Do
           ioff =ioff +nBas(iSym)**2
@@ -455,7 +456,7 @@ c         !set index arrays at iLoc
             If (jSym.eq.1) Then
 *             The end of ipChoT is allocated for Lii^J
               ipLii=ipChoT+(nIP-ntotie)*nVec
-              ipMO=ipCMO
+              ipMO=1
               Do isym=1,nsym
                 Do ii=1,nIshe(iSym)
                   ipMO=ipMO+ISTSQ(iSym)
@@ -464,7 +465,7 @@ c         !set index arrays at iLoc
                   ipLiii=ipLii+(ii-1)*JNUM
                   Call dGeMV_('T',nBas(iSym),JNUM,
      &                       1.0d0,Work(ipLip),nBas(iSym)*nIshe(iSym),
-     &                             Work(ipMOi),1,
+     &                             CMO(ipMOi),1,
      &                       0.0d0,Work(ipLiii),1)
                 End Do
 *                ipMO=ipMO+nIsh(iSym)*nBas(iSym)
@@ -544,11 +545,11 @@ c         !set index arrays at iLoc
              Do i=1,nsym
                Do j=1,JNUM
                  ipLtp=ipLpq(i)+(j-1)*(nBas(i)*nAsh(i))
-                 ipMO=ipCMO+ioff+nBas(i)*(nIsh(i)+nAshb(i))
+                 ipMO=1+ioff+nBas(i)*(nIsh(i)+nAshb(i))
                  Do k=0,nAshe(i)-1
                    Call dGeMV_('N',nAshb(i)+k+1,nBas(i),
      &                         1.0d0,Work(ipLtp),nAsh(i),
-     &                               Work(ipMO+k*nBas(i)),1,
+     &                               CMO(ipMO+k*nBas(i)),1,
      &                         0.0d0,Work(ipLtu),1)
                    ipLtu=ipLtu+(nAshb(i)+k+1)
                  EndDo
@@ -630,7 +631,8 @@ c         !set index arrays at iLoc
         Do isym=1,nSym
           ksym=MulD2h(iSym,jsym)
           nvirt=nBas(kSym)-nIsh(kSym)
-          ipMO=ipCMO+ISTSQ(kSym)+nBas(kSym)*nIsh(kSym)
+          ipMO=1+ISTSQ(kSym)+nBas(kSym)*nIsh(kSym)
+
           Do ii=1,nIshe(isym)
 *
 **          MO transform ( i i | p q)
@@ -640,17 +642,17 @@ c         !set index arrays at iLoc
               ip2=ipiiab+nab*(isum-1)
               ioff2=0
               Do ksym2=1,nsym
-                ipMO2=ipCMO+ioff2+nBas(kSym2)*nIsh(kSym2)
+                ipMO2=1+ioff2+nBas(kSym2)*nIsh(kSym2)
                 nvirt2=nBas(kSym2)-nIsh(kSym2)
                 Do j=1,nvirt2
                   ipMOj=ipMO2+(j-1)*nBas(kSym2)
                   ipIntj=ipInt+(j-1)*nBas(kSym2)
                   Call DSPMV_('U',nBas(kSym2),1.0d0,Work(ip2),
-     &                       Work(ipMOj),1,0.0d0,Work(ipIntj),1)
+     &                       CMO(ipMOj),1,0.0d0,Work(ipIntj),1)
                 End Do
                 Call DGEMM_('T','N',nvirt2,nvirt2,nBas(kSym2),
      &                      1.0d0,Work(ipInt),nBas(kSym2),
-     &                            Work(ipMO2),nBas(kSym2),
+     &                            CMO(ipMO2),nBas(kSym2),
      &                      0.0d0,Work(ip2)  ,nvirt2)
 *
                 call DDAFILE(LuChoInt(1),1,Work(ip2),nvirt2**2,iAdr)
@@ -668,11 +670,11 @@ c         !set index arrays at iLoc
 *
             Call DGEMM_('N','N',nBas(kSym),nvirt,nBas(kSym),
      &                  1.0d0,Work(ip1)  ,nBas(kSym),
-     &                        Work(ipMO),nBas(kSym),
+     &                        CMO(ipMO),nBas(kSym),
      &                  0.0d0,Work(ipInt),nBas(kSym))
             Call DGEMM_('T','N',nvirt,nvirt,nBas(kSym),
      &                  1.0d0,Work(ipInt),nBas(kSym),
-     &                        Work(ipMO),nBas(kSym),
+     &                        CMO(ipMO),nBas(kSym),
      &                  0.0d0,Work(ip1)  ,nvirt)
 *
             Do i=1,ksym-1
@@ -700,7 +702,7 @@ c         !set index arrays at iLoc
             End Do
           End Do
 *
-          ipMO=ipCMO+ISTSQ(iSym)
+          ipMO=1+ISTSQ(iSym)
           na2=nAshe(ksym)*nAshb(ksym)+nAshe(ksym)*(nAshe(ksym)+1)/2
           Do itu=1,na2
             If (jsym.eq.1) Then
@@ -708,18 +710,18 @@ c         !set index arrays at iLoc
               ip2=iptupq+npq*(isum2-1)
               ioff2=0
               Do ksym2=1,nsym
-                ipMO2=ipCMO+ioff2
+                ipMO2=1+ioff2
                 Do j=1,nBas(ksym2)
                   ipMOj=ipMO2+(j-1)*nBas(kSym2)
                   ipIntj=ipInt+(j-1)*nBas(kSym2)
                   Call DSPMV_('U',nBas(kSym2),1.0d0,Work(ip2),
-     &                       Work(ipMOj),1,0.0d0,Work(ipIntj),1)
+     &                       CMO(ipMOj),1,0.0d0,Work(ipIntj),1)
                 End Do
                 If (nBas(ksym2).gt.0) Then
                   Call DGEMM_('T','N',nBas(ksym2),nBas(kSym2),
      &                              nBas(kSym2),1.0d0,
      &                              Work(ipInt),nBas(kSym2),
-     &                              Work(ipMO2),nBas(kSym2),
+     &                              CMO(ipMO2),nBas(kSym2),
      &                        0.0d0,Work(ip2)  ,nBas(kSym2))
                   call DDAFILE(LuChoInt(2),1,Work(ip2),nBas(kSym2)**2,
      &            iAdrtu)
@@ -736,11 +738,11 @@ c         !set index arrays at iLoc
 *
             Call DGEMM_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),
      &                  1.0d0,Work(ip3)  ,nBas(iSym),
-     &                        Work(ipMO),nBas(iSym),
+     &                        CMO(ipMO),nBas(iSym),
      &                  0.0d0,Work(ipInt),nBas(iSym))
             Call DGEMM_('T','N',nBas(iSym),nBas(iSym),nBas(iSym),
      &                  1.0d0,Work(ipInt),nBas(iSym),
-     &                        Work(ipMO),nBas(iSym),
+     &                        CMO(ipMO),nBas(iSym),
      &                  0.0d0,Work(ip3) ,nBas(iSym))
             Do i=1,isym-1
                 iAdrtu=iAdrtu+nBas(i)**2

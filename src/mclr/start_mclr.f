@@ -162,11 +162,7 @@
 **    With Cholesky there is no other choice than computing some
 **    integrals used for the preconditioner
 *
-      If (NewCho) Then
-         ipCMO = ip_of_work(CMO(1))
-         Call cho_prec_mclr(ipCMO,nIsh,nASh,LuAChoVec,LuChoInt)
-      EndIf
-
+      If (NewCho) Call cho_prec_mclr(CMO,nIsh,nASh,LuAChoVec,LuChoInt)
 *
 *----------------------------------------------------------------------*
 *     exit                                                             *
