@@ -11,7 +11,7 @@
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
       SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
-     &                      JI,KI,JA,KA,ipFkI,ipFkA,
+     &                      JI,KI,JA,KA,FkI,FkA,
      &                      ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                      LuAChoVec,LuIChoVec,iAChoVec)
@@ -38,7 +38,7 @@ C
 
       Implicit Real*8 (a-h,o-z)
       Real*8 DLT(*), DI(*), DA(*), G2(*), Kappa(*), JI(*), KI(*),
-     &       JA(*), KA(*)
+     &       JA(*), KA(*), FkI(*), FkA(*)
 #include "warnings.fh"
       Integer   rc,ipScr
       Integer   ipLpq(8,3)
@@ -1928,8 +1928,8 @@ C--- have performed screening in the meanwhile
          ipFAc= 1     + ISTLT(iSym)
          ipKI = 1     + ISTSQ(iSym)
          ipKAc= 1     + ISTSQ(iSym)
-         ipFS = ipFkI + ISTSQ(iSym)
-         ipFA = ipFkA + ISTSQ(iSym)
+         ipFS = 1     + ISTSQ(iSym)
+         ipFA = 1     + ISTSQ(iSym)
 
          Do iaSh=1,nShell
 
@@ -1967,12 +1967,12 @@ C--- have performed screening in the meanwhile
                   jS = ipFS - 1 + nBas(iSym)*(ibg-1) + iag
                   jSA= ipFA - 1 + nBas(iSym)*(ibg-1) + iag
 
-                  Work(jS) = JI(jF) + KI(jK) + KI(jK2)
-*                 Work(jS) = JI(jF)
-*                 Work(jS) = KI(jK) +KI(jK2)
-                  Work(jSA)= JA(jFA)+ KA(jKA)+ KA(jKA2)
-*                 Work(jSA)= JA(jFA)
-*                 Work(jSA)= KA(jKA)+ KA(jKA2)
+                  FkI(jS) = JI(jF) + KI(jK) + KI(jK2)
+*                 FkI(jS) = JI(jF)
+*                 FkI(jS) = KI(jK) +KI(jK2)
+                  FkA(jSA)= JA(jFA)+ KA(jKA)+ KA(jKA2)
+*                 FkA(jSA)= JA(jFA)
+*                 FkA(jSA)= KA(jKA)+ KA(jKA2)
 
                 End Do
 
@@ -2085,22 +2085,22 @@ C--- have performed screening in the meanwhile
         If (nBas(iS).ne.0) Then
           If (DoAct) Then
             Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
-     &                  1.0d0,Work(ipFkA+ISTSQ(iS)),nBas(iS),
+     &                  1.0d0,FkA(1+ISTSQ(iS)),nBas(iS),
      &                  Work(ipCMO+ISTSQ(iS)),nBas(iS),0.0d0,
      &                  JA(1+ISTSQ(iS)),nBas(jS))
             Call DGEMM_('T','N',nBas(jS),nBas(jS),nBas(iS),
      &                  1.0d0,JA(1+ISTSQ(iS)),
      &                  nBas(iS),Work(ipCMO+ISTSQ(jS)),nBas(jS),
-     &                  0.0d0,Work(ipFkA+ISTSQ(iS)),nBas(jS))
+     &                  0.0d0,FkA(1+ISTSQ(iS)),nBas(jS))
           EndIf
           Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
-     &                1.0d0,Work(ipFkI+ISTSQ(iS)),nBas(iS),
+     &                1.0d0,FkI(1+ISTSQ(iS)),nBas(iS),
      &                Work(ipCMO+ISTSQ(iS)),nBas(iS),0.0d0,
      &                JA(1+ISTSQ(iS)),nBas(jS))
           Call DGEMM_('T','N',nBas(jS),nBas(jS),nBas(iS),
      &                1.0d0,JA(1+ISTSQ(iS)),
      &                nBas(iS),Work(ipCMO+ISTSQ(jS)),nBas(jS),
-     &                0.0d0,Work(ipFkI+ISTSQ(iS)),nBas(jS))
+     &                0.0d0,FkI(1+ISTSQ(iS)),nBas(jS))
           If (DoAct) Then
             If (Fake_CMO2) Then
               Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
@@ -2219,11 +2219,11 @@ c Print the Fock-matrix
       WRITE(6,'(6X,A)')
       WRITE(6,'(6X,A)')'***** INACTIVE FOCK MATRIX ***** '
       DO ISYM=1,NSYM
-        ISFI=ipFkI+ISTSQ(ISYM)
+        ISFI=1+ISTSQ(ISYM)
         IF( NBAS(ISYM).GT.0 ) THEN
           WRITE(6,'(6X,A)')
           WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          call CHO_OUTPUT(Work(ISFI),1,NBAS(ISYM),1,NBAS(ISYM),
+          call CHO_OUTPUT(FkI(ISFI),1,NBAS(ISYM),1,NBAS(ISYM),
      &                    NBAS(ISYM),NBAS(ISYM),1,6)
         ENDIF
       END DO

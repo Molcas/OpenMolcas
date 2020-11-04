@@ -370,8 +370,6 @@
 *
 **      Let's go
 *
-        ipFockI = ip_of_work(FockI(1))
-        ipFockA = ip_of_work(FockA(1))
         ipMO1   = ip_of_work(MO1(1))
         ipQ     = ip_of_work(Q(1))
         Call mma_allocate(JA,nDens2,Label='JA')
@@ -395,7 +393,7 @@
 !       ipCMO      = ip_of_work(CMO(1))
         ipAsh      = ip_of_Work(Ash(1))
 !       Call CHO_LK_MCLR(DLT,Temp2,DA,G2x,rdum,
-!    &                   Temp3,Scr,JA,KA,ipFockI,ipFockA,
+!    &                   Temp3,Scr,JA,KA,FockI,FockA,
 !    &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
 !    &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
 !    &                   LuAChoVec,LuIChoVec,istore)
