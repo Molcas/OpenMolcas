@@ -39,19 +39,18 @@
 *
        !> yma: notice the nconf1 if DMRG
 
-       ipInt1 = ip_of_Work(Int1(1))
        ipInt2s= ip_of_Work(Int2s(1))
        ipInt2a= ip_of_Work(Int2a(1))
        If (nconf1.eq.0) return
 *
 *      One electron integrals
 *
-       KAIN1=ipInt1
+       KAIN1=ip_of_Work(Int1(1))
 *
 *      Two electron integrals
 *      symmetric in perticle one and two
 *
-       if (ipInt1.eq.ip_of_Work(FIMO(1))) then
+       if (ip_of_Work(Int1(1)).eq.ip_of_Work(FIMO(1))) then
         Call icopy(nsym,nbas,1,nbb,1)
        Else
          Call icopy(nsym,norb,1,nbb,1)

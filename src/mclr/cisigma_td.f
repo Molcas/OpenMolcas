@@ -43,13 +43,12 @@ c
 *      OK first tell Jeppe where the integrals are.
 *
        If (nconf1.eq.0) return
-       ipInt1 =ip_of_Work(Int1(1))
        ipInt2s=ip_of_Work(Int2s(1))
        ipInt2a=ip_of_Work(Int2a(1))
 *
 *      One electron integrals
 *
-       KAIN1=ipInt1
+       KAIN1=ip_of_Work(Int1(1))
 *
 *      Two electron integrals
 *      symmetric in perticle one and two
@@ -66,7 +65,7 @@ c
 *
 *      Do we have any twoelectron integrals?
 *
-       If (ipInt2s.eq.0) Then
+       If (ipInt2s.eq.0) Then  !????
          i12=1
        Else
          i12=2
