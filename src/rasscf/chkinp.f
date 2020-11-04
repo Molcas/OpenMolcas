@@ -41,8 +41,8 @@
       integer :: i, iSym, iAlter
       integer :: iB0, iA0, iC0
 
-      integer, allocatable :: spin_orbs_per_GAS(:), max_per_GAS(:),
-     &             min_per_GAS(:)
+      integer :: spin_orbs_per_GAS(nGAS), max_per_GAS(nGAS),
+     &             min_per_GAS(nGAS)
       Parameter (ROUTINE='ChkInp  ')
 *----------------------------------------------------------------------*
 C Local print level (if any)
