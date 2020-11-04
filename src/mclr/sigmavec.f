@@ -31,7 +31,6 @@
 #include "cicisp_mclr.fh"
 #include "cstate_mclr.fh"
 #include "csm.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "crun_mclr.fh"
 
@@ -40,7 +39,6 @@
 #include "glbbas_mclr.fh"
 #include "genop.fh"
 #include "csmprd.fh"
-      Logical allokc,allokc2
       Dimension C(*),HC(*),kic(2)
       Integer sxstsm(1)
       Dimension idummy(1)
@@ -50,8 +48,9 @@
      &                       I1(:), I2(:), I3(:), I4(:),
      &                       OOS(:,:)
       Real*8, Allocatable:: SB(:), CB(:), INSCR(:),
-     &                      XI1S(:), XI2S(:), XI3S(:), XI4S(:),
-     &                      C2(:), CJRES(:), SIRES(:)
+     &                      XI1S(:), XI2S(:), XI3S(:), XI4S(:)
+      Real*8, Target, Allocatable:: C2(:), CJRES(:), SIRES(:)
+      Real*8, Pointer:: pC2(:), pCJRES(:), pSIRES(:)
 
       LUC=0
       LUHC=0
@@ -226,32 +225,26 @@
 *
       LSCR12 = MAX(LSCR1,2*LSCR2)
 *
-      AlloKC=.false.
-      AlloKc2=.false.
       IF(IDIAG .EQ. 2 ) THEN
 *. PICO diagonalizer uses block KVEC3, use this as scratch block
         Write (6,*) 'Unchartered territory!'
         Call Abend()
-        KC2 = KVEC3
+*       pC2 => VEC3 ! this is not clear yet.
         IF ( 2 * LSCR2 .GT. LSCR1 ) THEN
-           AlloKC=.true.
            Call mma_allocate(CJRES,LSCR2,Label='CJRES')
-           KCJRES = ip_of_Work(CJRES(1))
+           pCJRES => CJRES
            Call mma_allocate(SIRES,LSCR2,Label='SIRES')
-           KSIRES = ip_of_Work(SIRES(1))
+           pSIRES => SIRES
         ELSE
-           KCJRES = KC2
-           KSIRES = KC2 + LSCR2
+*          pCJRES => VEC3                ! dito
+*          pSIRES => VEC3(1+LSCR2:)     ! dito
         END IF
       ELSE
-        AlloKC2=.true.
         Call mma_allocate(C2,LSCR12,Label='C2')
-        KC2 = ip_of_Work(C2(1))
-        KCJRES = KC2
-        KSIRES = KC2 + LSCR2
+        pC2 => C2
+        pCJRES => C2
+        pSIRES => C2(1+LSCR2:)
       END IF
-      KSSCR = KSIRES
-      KCSCR = KCJRES
 *
 *     Symmetry handling symmetry allowed/forbidden
 *
@@ -297,7 +290,7 @@
       call dcopy_(NSDET,[ZERO],0,HC,1)
 *
       IF(ICISTR.EQ.1) THEN
-      CALL RASSG4(C,HC,CB,SB,wORK(KC2),
+      CALL RASSG4(C,HC,CB,SB,pC2,
      &            CIOIO,SIOIO,ISMOST(1,ICSM),
      &            ISMOST(1,ISSM),CBLTP,SBLTP,
      &            NORB1,NORB2,NORB3,NACOB,
@@ -307,7 +300,7 @@
      &            NSMST,NSMOB,NSMSX,NSMDX,NTSOB,IBTSOB,ITSOB,
      &            MAXIJ,MAXK,MAXI,ICISTR,IINSTR,INTSCR,LSCR1,
      &            LSCR1,
-     &            INSCR,wORK(KCSCR),wORK(KSSCR),
+     &            INSCR,pCJRES,pSIRES,
      &            SXSTSM,STSTS,STSTD,SXDXSX,
      &            ADSXA,ASXAD,
      &            Str(IATP)%EL1,Str(IATP)%EL3,
@@ -319,7 +312,7 @@
      &            I3,XI3S,I4,XI4S,
      &            IDOH2,
      &            SVST,PSSIGN,IPRDIA,LLUC,LLUHC,IST,
-     &            WORK(KCJRES),WORK(KSIRES),NOPARt,TimeDep)
+     &            pCJRES,pSIRES,NOPARt,TimeDep)
 
       Else
        Call SysHalt('sigmavec')
@@ -368,11 +361,12 @@
         Call mma_deallocate(SB)
       End If
       Call mma_deallocate(SVST)
-      IF (AlloKc ) THEN
-        Call mma_deallocate(CJRES)
-        Call mma_deallocate(SIRES)
-      End If
-      IF (AlloKc2) Call mma_deallocate(C2)
+      If (Associated(pC2)) pC2=>Null()
+      If (Associated(pCJRES)) pCJRES=>Null()
+      If (Associated(pSIRES)) pSIRES=>Null()
+      IF (Allocated(C2)) Call mma_deallocate(C2)
+      If (Allocated(CJRES)) Call mma_deallocate(CJRES)
+      If (Allocated(SIRES)) Call mma_deallocate(SIRES)
 *
       RETURN
       END
