@@ -37,6 +37,7 @@
 *   rOut        :       Submatrix                                      *
 *                                                                      *
 ************************************************************************
+      use Arrays, only: G1t
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
 #include "WrkSpc.fh"
@@ -106,7 +107,7 @@
 *
 *        2*(delta(bc)-D(bc))
 *
-         rDens=sign*(-work(ipg1-1+itri(iCC,iBB)))
+         rDens=sign*(-G1t(itri(iCC,iBB)))
          If (iCC.eq.iBB) rdens=rdens+sign
          rDens=2.0D0*rDens
 *
@@ -141,7 +142,7 @@
 ************************************************************************
 *                                                                      *
       rFock = sign*2.0d0*Fockii + sign*2.0d0*Fockai - sign*Fockti
-      rdens=sign*2.0d0*Work(ipG1-1+itri(ibb ,ibb))
+      rdens=sign*2.0d0*G1t(itri(ibb ,ibb))
       i=0 ! dummy initialize
 *
       Do jA=1,nIsh(jS)

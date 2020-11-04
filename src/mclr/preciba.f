@@ -33,6 +33,7 @@
 *     rOut        :       Submatrix                                    *
 *                                                                      *
 ************************************************************************
+      use Arrays, only: G1t
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
 #include "WrkSpc.fh"
@@ -65,7 +66,7 @@
          Do jB=1,nAsh(jS)
             jBB=jB+nIsh(jS)
 *           Get D_(ja,jb)
-            rDens=-sign*Work(ipg1-1+(iTri(jA+nA(jS),jB+nA(jS))))
+            rDens=-sign*G1t((iTri(jA+nA(jS),jB+nA(jS))))
             If (jA.eq.jB) rDens=rdens+sign*2.0d0
 *
             ivB=(jBB-1)*nBas(jS) + nO + 1

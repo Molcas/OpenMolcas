@@ -33,6 +33,7 @@
 *   rOut        :       Submatrix
 *
 ************************************************************************
+      use Arrays, only: G1t
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
@@ -101,7 +102,7 @@
          End If
       End Do
 *
-      rho=sign*2.0d0*Work(ipg1-1+itri(iib,iib))
+      rho=sign*2.0d0*G1t(itri(iib,iib))
       Do iI=nAsh(js)+nIsh(js)+1,nBas(js)
          rOut(ip)=rout(ip)-2.0d0*rF+Rho*FockI(iI,ii)+Temp2(ii,ii)
          ip=ip+1

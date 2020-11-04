@@ -35,6 +35,7 @@
 *     rOut        :       Submatrix
 *
 ************************************************************************
+      use Arrays, only: G1t
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
@@ -121,8 +122,8 @@
                ACbb=A_J(iAC)
                AbCb=A_K(iAC)
 *
-               rDens1=-sign*Work(ipg1-1+itri(jAA,jCC))
-               rDens2=-sign*Work(ipg1-1+itri(jBB,jCC))
+               rDens1=-sign*G1t(itri(jAA,jCC))
+               rDens2=-sign*G1t(itri(jBB,jCC))
                If (jAA.eq.jCC) rDens1=rdens1+sign
                If (jBB.eq.jCC) rDens2=rdens2+sign
 *
@@ -145,7 +146,7 @@
             jBB=jB+nA(jS)
             jjB=jB+nIsh(js)
             i=itri1(jA,jB)
-            rDens=Work(ipG1+itri(jbb,jAA)-1)
+            rDens=G1t(itri(jbb,jAA))
             rout(i)=rout(i)+Sign*(2.0d0*rdens*Fockii + ! (ib,ib)+
      &              2.0d0*(2.0d0*Focki(jjA,jjB)+
      &              2.0d0*FockA(jjA,jjB)-Fock(jjB,jjA)))

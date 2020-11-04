@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Real*8 Function E2(FockI,rMo,loper,idisp)
+      use Arrays, only: G1t
 *
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
@@ -54,7 +55,7 @@
                   jAA=ja+nA(js)
                   jAB=jA+nIsh(js)
                   ipF=(iab-1)*norb(is)+jab+ipCM(is)-1
-                  E22=E22+Focki(ipf)*Work(ipg1+itri(iaa,jaa)-1)
+                  E22=E22+Focki(ipf)*G1t(itri(iaa,jaa))
                End Do
             End Do
          End Do

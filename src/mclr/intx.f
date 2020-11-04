@@ -11,7 +11,7 @@
       subRoutine INTX(FockI,Temp1,Temp2,Temp3,Temp4,Fock,
      &                rMo,loper,idisp,r)
 *
-      use Arrays, only: CMO
+      use Arrays, only: G1t, CMO
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 
@@ -194,7 +194,7 @@
      &    Then
            rde=2.0d0
           Else If  (i.gt.nish(is).and.j.gt.nish(is)) Then
-           rde=Work(ipG1-1+itri(i-nish(is)+nA(is),
+           rde=G1t(itri(i-nish(is)+nA(is),
      &           j-nIsh(is)+nA(is)))
           Else
            rde=0.0d0
