@@ -237,8 +237,6 @@
 **      Compute the whole thing
 *
         iread=2 ! Asks to read the half-transformed Cho vectors
-        ipMO1    =ip_of_work(rmos(1))
-        ipQ      =ip_of_work(Q(1))
         ip_CMO_Inv = ip_of_work(CMO_Inv(1))
         ipCMO      = ip_of_work(CMO(1))
         ipAsh(1)   = ip_of_Work(CVa(1,1))
@@ -247,7 +245,7 @@
      &                   CoulExch(:,1),CoulExch(:,2),
      &                   CoulExch(:,3),CoulExch(:,4),
      &                   FockI,FockA,
-     &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
+     &                   rMOs,Q,ipAsh,ipCMO,ip_CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
 *

@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
      &                      JI,KI,JA,KA,FkI,FkA,
-     &                      ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
+     &                      MO1,Q,ipAsh,ipCMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                      LuAChoVec,LuIChoVec,iAChoVec)
 
@@ -38,7 +38,7 @@ C
 
       Implicit Real*8 (a-h,o-z)
       Real*8 DLT(*), DI(*), DA(*), G2(*), Kappa(*), JI(*), KI(*),
-     &       JA(*), KA(*), FkI(*), FkA(*)
+     &       JA(*), KA(*), FkI(*), FkA(*), MO1(*), Q(*)
 #include "warnings.fh"
       Integer   rc,ipScr
       Integer   ipLpq(8,3)
@@ -2014,7 +2014,7 @@ C--- have performed screening in the meanwhile
                       iklx=lAsh-1+(kAsh-1)*nAsh(lS)
                       ilkx=kAsh-1+(lAsh-1)*nAsh(kS)
 
-                      ipG=ipMO1+itri(iij,ikl)-1
+                      ipG=1+itri(iij,ikl)-1
                       ipGx=ipMOScr+iASQ(iS,jS,kS)+
      &                     iklx*nAsh(iS)*nAsh(jS)+iijx
                       ipGx2=ipMOScr+iASQ(iS,jS,kS)+
@@ -2031,7 +2031,7 @@ C--- have performed screening in the meanwhile
      &                     iijx*nAsh(iS)*nAsh(jS)+ilkx
                       ipGx8=ipMOScr+iASQ(iS,jS,kS)+
      &                     ijix*nAsh(iS)*nAsh(jS)+ilkx
-                      Work(ipG)=0.5d0*
+                      MO1(ipG)=0.5d0*
      &(Work(ipGx)+Work(ipGx2)+Work(ipGx3)+Work(ipGx4)+
      & Work(ipGx5)+Work(ipGx6)+Work(ipGx7)+Work(ipGx8))
 
@@ -2063,9 +2063,9 @@ C--- have performed screening in the meanwhile
                       Fac2=1.0d0
                       If (lAsh+kAOff(lS).eq.kAsh+kAOff(kS)) Fac2=2.0d0
                       If (iij.ne.ikl) Fac2=Fac2*0.5d0
-                      ipG=ipMO1+itri(iij,ikl)-1
+                      ipG=1+itri(iij,ikl)-1
                       ipGx=ipMOScr+(iklx-1)*na2+iijx-1
-                      Work(ipG)=Work(ipG)+Fac1*Fac2*Work(ipGx)
+                      MO1(ipG)=MO1(ipG)+Fac1*Fac2*Work(ipGx)
                     End Do
                   End Do
                 End Do
@@ -2106,12 +2106,12 @@ C--- have performed screening in the meanwhile
               Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
      &                     1.0d0,Work(ipCMO+ISTSQ(iS)),nBas(jS),
      &                     Work(ipScr+ioff),nBas(jS),
-     &                     0.0d0,Work(ipQ+ioff),nBas(jS))
+     &                     0.0d0,Q(1+ioff),nBas(jS))
             Else
               Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
      &                     1.0d0,Work(ipCMO+ISTSQ(iS)),nBas(jS),
      &                     Work(ipScr+nsAB+ioff),nBas(jS),
-     &                     0.0d0,Work(ipQ+ioff),nBas(jS))
+     &                     0.0d0,Q(1+ioff),nBas(jS))
               Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
      &                     1.0d0,Work(ipCMO+ISTSQ(iS)),nBas(jS),
      &                     Work(ipScr+ioff),nBas(jS),
@@ -2119,7 +2119,7 @@ C--- have performed screening in the meanwhile
               Call DGEMM_('N','N',nBas(jS),nAsh(iS),nBas(jS),
      &                    -1.0d0,kappa(1+ISTSQ(iS)),nBas(jS),
      &                     Work(ipScr+nsAB+ioff),nBas(jS),
-     &                     1.0d0,Work(ipQ+ioff),nBas(jS))
+     &                     1.0d0,Q(1+ioff),nBas(jS))
             EndIf
             ioff=ioff+nBas(iS)*nAsh(iS)
           EndIf
