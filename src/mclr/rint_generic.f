@@ -237,15 +237,13 @@
 **      Compute the whole thing
 *
         iread=2 ! Asks to read the half-transformed Cho vectors
-        ip_CMO_Inv = ip_of_work(CMO_Inv(1))
-        ipCMO      = ip_of_work(CMO(1))
         ipAsh(1)   = ip_of_Work(CVa(1,1))
         ipAsh(2)   = ip_of_Work(CVa(1,2))
         Call CHO_LK_MCLR(DLT,DI,DA,G2x,rkappa,
      &                   CoulExch(:,1),CoulExch(:,2),
      &                   CoulExch(:,3),CoulExch(:,4),
      &                   FockI,FockA,
-     &                   rMOs,Q,ipAsh,ipCMO,ip_CMO_inv,
+     &                   rMOs,Q,ipAsh,CMO,CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
 *

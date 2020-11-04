@@ -34,8 +34,10 @@
      &       Temp2(nDens2),Temp3(ndens2),Q(nDens2),
      &       MO1(*), Scr(*)
 *     Real*8 rDum(1)
+      Integer ipAsh(2)
       Logical Fake_CMO2,DoAct
-      Real*8, Allocatable:: DLT(:), JA(:), KA(:), Ash(:), DA(:), G2x(:)
+      Real*8, Allocatable:: DLT(:), JA(:), KA(:), CVa(:,:), DA(:),
+     &                      G2x(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -308,7 +310,8 @@
             End Do
             nG2=nG2+nAG2**2
           End Do
-          Call mma_allocate(Ash,nVB,Label='Ash')
+          Call mma_allocate(CVa,nVB,2,Label='CVa')
+          CVa(:,:)=0.0d0
           Call mma_allocate(DA,na2,Label='DA')
 *
           ioff=0
@@ -319,7 +322,7 @@
             do ikk=1,nAsh(iSym)
                ioff3=ioff2+nOrb(iSym)*(ikk-1)
                call dcopy_(nOrb(iSym),CMO(1+ioff3),1,
-     &                   Ash(ioff1+ikk),nAsh(iSym))
+     &                   CVa(ioff1+ikk,1),nAsh(iSym))
                ik=ikk+nA(iSym)
                Do ill=1,ikk-1
                  il=ill+nA(iSym)
@@ -333,7 +336,7 @@
             ioff=ioff+nOrb(iSym)**2
             ioff1=ioff1+nAsh(iSym)*nOrb(iSym)
             ioffA=ioffA+nAsh(iSym)*nAsh(iSym)
-*            iofftA=ioffA+nAsh(iSym)*(nAsh(iSym)+1)/2
+*           iofftA=ioffA+nAsh(iSym)*(nAsh(iSym)+1)/2
           End Do
           Call DScal_(na2,half,DA,1)
 *
@@ -363,7 +366,7 @@
             End Do
           End Do
         Else
-          Call mma_allocate(Ash,  1,Label='Ash')
+          Call mma_allocate(CVa,  1,2,Label='CVa')
           Call mma_allocate(DA,  1,Label='DA')
           Call mma_allocate(G2x,  1,Label='G2x')
         EndIf
@@ -382,17 +385,13 @@
         call dcopy_(nDens2,[0.0d0],0,Q,1)
 *
         istore=1 ! Ask to store the half-transformed vectors
-! BIGOT FIXME
-        Call WarningMessage(2,
-     &     'There is probably a bug here, ipAsh should have two '//
-     &     'elements.')
+        Call WarningMessage(2,'This is not tested.')
         Call Abend()
-!       ip_CMO_inv = ip_of_work(CMO_Inv(1))
-!       ipCMO      = ip_of_work(CMO(1))
-        ipAsh      = ip_of_Work(Ash(1))
+        ipAsh(1)      = ip_of_Work(CVa(:,1))
+        ipAsh(2)      = ip_of_Work(CVa(:,2))
 !       Call CHO_LK_MCLR(DLT,Temp2,DA,G2x,rdum,
 !    &                   Temp3,Scr,JA,KA,FockI,FockA,
-!    &                   MO1,Q,ipAsh,ipCMO,ip_CMO_inv,
+!    &                   MO1,Q,ipAsh,CMO,CMO_inv,
 !    &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
 !    &                   LuAChoVec,LuIChoVec,istore)
         nAtri=nAct*(nAct+1)/2
@@ -404,7 +403,7 @@
         Call mma_deallocate(KA)
         Call mma_deallocate(DLT)
         Call mma_deallocate(G2x)
-        Call mma_deallocate(Ash)
+        Call mma_deallocate(Cva)
         Call mma_deallocate(DA)
       EndIf
 ************************************************************************
