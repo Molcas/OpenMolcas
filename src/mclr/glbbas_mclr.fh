@@ -8,11 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-*        KINT2        :
-*        KINT2A       :
 *        KVEC3        :        Scratch space for pico?
 *
-      Integer       KINT2,KINT2A,KVEC3
+      Integer       KVEC3
 
-      COMMON/GLBBAS_MCLR/
-     &              KINT2,KINT2A,KVEC3
+      COMMON/GLBBAS_MCLR/ KVEC3

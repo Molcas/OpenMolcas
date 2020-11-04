@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE GETINT_MCLR(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                  IXCHNG,IKSM,JLSM,ICOUL ,ieaw)
-      Use Arrays, only: pInt2
+     &                       IXCHNG,IKSM,JLSM,ICOUL ,ieaw)
+      Use Arrays, only: pInt2, KINT2, KINT2A
 *
 * Outer routine for accessing integral block
 *
@@ -21,10 +21,6 @@
 * and NOHSOO (no spin-other-orbit) added by Merethe 19/10-95
 #include "crun_mclr.fh"
 *./ORBINP/  : NOBPTS used
-*.Memory
-#include "WrkSpc.fh"
-*
-
 #include "Input.fh"
 #include "orbinp_mclr.fh"
 #include "csm.fh"
@@ -38,14 +34,18 @@
        NTEST=0
 *
           IF(.not.square) THEN
-           ip=kint2
-           If (ieaw.ne.0) ip=kint2a
-           CALL GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                  IXCHNG,IKSM,JLSM,wORK(ip),
-     &                  pINT2,NSMOB,ICOUL,ieaw )
+           If (ieaw.ne.0) Then
+              CALL GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
+     &                     IXCHNG,IKSM,JLSM,KINT2a,
+     &                     pINT2,NSMOB,ICOUL,ieaw )
+           Else
+              CALL GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
+     &                     IXCHNG,IKSM,JLSM,KINT2,
+     &                     pINT2,NSMOB,ICOUL,ieaw )
+           End If
           ELSE
            CALL GETINC_ABS(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                  IXCHNG,IKSM,JLSM,wORK(KINT2),
+     &                  IXCHNG,IKSM,JLSM,KINT2,
      &                  pINT2,NSMOB,ICOUL )
           End If
 *

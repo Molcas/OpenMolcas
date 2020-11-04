@@ -21,7 +21,7 @@
       Real*8 h1(nh1), h2(nh2)
       Real*8 rDum(1)
 
-      Call CISigma_sa(0,state_sym,state_sym,h1,nh1,h2,nh2,rdum,ipCI,
+      Call CISigma_sa(0,state_sym,state_sym,h1,nh1,h2,nh2,rdum,1,ipCI,
      &                ipS1,.True.)
 
       irc=ipin(ipS1)

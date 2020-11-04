@@ -230,6 +230,8 @@
       AlloKc2=.false.
       IF(IDIAG .EQ. 2 ) THEN
 *. PICO diagonalizer uses block KVEC3, use this as scratch block
+        Write (6,*) 'Unchartered territory!'
+        Call Abend()
         KC2 = KVEC3
         IF ( 2 * LSCR2 .GT. LSCR1 ) THEN
            AlloKC=.true.

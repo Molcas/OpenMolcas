@@ -488,7 +488,7 @@ C         iDisp=iDisp+1
 *                                                                      *
              If (CI) Then
                 Call CISigma(jspin,State_Sym,pstate_sym,
-     &                       Temp4,nDens2,rmoaa,SIZE(rmoaa),rdum,
+     &                       Temp4,nDens2,rmoaa,SIZE(rmoaa),rdum,1,
      &                       ipCI,ipS1,.True.)
                 Clock(iTimeKC)=Clock(iTimeKC)+Tim3
 #ifdef _DEBUGPRINT_
@@ -547,7 +547,7 @@ C         iDisp=iDisp+1
 *                                                                      *
               irc=ipnout(-1)
               Call CISigma(0,PState_Sym,Pstate_sym,
-     &                     FIMO,SIZE(FIMO),Int2,SIZE(Int2),rdum,ipCId,
+     &                     FIMO,SIZE(FIMO),Int2,SIZE(Int2),rdum,1,ipCId,
      &                     ipS2,.True.)
               EC=rin_ene+potnuc-ERASSCF(1)
 

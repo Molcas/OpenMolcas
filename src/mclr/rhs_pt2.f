@@ -190,14 +190,14 @@ c Avoid unused argument warnings
 *
 *     <i|Sigma> = <i|F|0> - <0|F|0><i|0>+CI_a+CI_b
 *
-      Call CISigma(0,State_sym,State_sym,FMO1,nDens2,rdum,1,rdum,ipci,
+      Call CISigma(0,State_sym,State_sym,FMO1,nDens2,rdum,1,rdum,1,ipci,
      &             iprci,.False.)
       irc=ipin(iprci)
       irc=ipin(ipci)
       rE=ddot_(nconf1,W(iprci)%Vec,1,W(ipci)%Vec,1)
       Call Daxpy_(nconf1,1.0d0,TempCI,1,W(iprci)%Vec,1)
       Call Daxpy_(nconf1,-rE,W(ipCI)%Vec,1,W(iprci)%Vec,1)
-*==============================================================================*
+*======================================================================*
 *
 *     D^CAS*P(PT2+CAS)
 *
@@ -207,19 +207,19 @@ c Avoid unused argument warnings
 *
       Call DFock(DP,FMO2,K2)
 *
-*==============================================================================*
+*======================================================================*
 *
 *     Add all orbital terms together
 *
       Call Daxpy_(nDens2,1.0d0,K2,1,K1,1)
       call daxpy_(ndens2,1.0d0,TempK,1,K1,1)
 *
-*==============================================================================*
+*======================================================================*
 *
 *  OKIDOKI Two things are needed, first of all the symmetric fockmatrix for the
 *  connection term:
 *
-*==============================================================================*
+*======================================================================*
 *
 *---  Calculate efficent Fock matrix in AO basis (contravariant,folded)
 *     and write to disk. Woba

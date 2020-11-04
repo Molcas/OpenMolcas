@@ -9,9 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
        SubRoutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
-     &                       Int2a,ipCI1,ipCI2,NT, Have_2_el )
+     &                       Int2a,nInt2a,ipCI1,ipCI2,NT, Have_2_el )
        use ipPage, only: W
-       use Arrays, only: KAIN1, TI1
+       use Arrays, only: KAIN1, KINT2, KINT2A, TI1, TI2
        Implicit Real*8(a-h,o-z)
 c
 c For the timeindep case ipS1 and ipS2 will be half as long
@@ -32,9 +32,8 @@ c
        Character NT
        integer kic(2),opout
        Logical Have_2_el
-       Real*8 Int2s(nInt2s), Int2a(*)
-       Real*8, Target:: Int1(nInt1)
-       Real*8, Allocatable:: CIDET(:), TI2(:)
+       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+       Real*8, Allocatable:: CIDET(:)
 
        itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
@@ -55,8 +54,8 @@ c
 *      symmetric in perticle one and two
 *
 *
-       KINT2 = ip_of_Work(Int2s(1))
-       KINT2a= ip_of_Work(Int2a(1))
+       KINT2 => Int2s
+       KINT2a=> Int2a
 *
 *      Two electron integrals
 *      anti symmetric in perticle one and two
@@ -179,13 +178,14 @@ C.......... The operator is not sym --> transpose integrals! NT.ne.S
      &                 nbas(js))
             End Do
 
-            kain1=>TI1
-            KINT2= ip_of_work(TI2(1))
+            KAIN1=>TI1
+            KINT2=>TI2
 
             irc=ipin(ipci2)
             Call SigmaVec(CIDET,W(ipci2)%Vec(1+nconf1),kic)
 
-            kain1=>Null()
+            KAIN1=>Null()
+            KINT2=>Null()
             Call mma_deallocate(TI1)
             Call mma_deallocate(TI2)
 

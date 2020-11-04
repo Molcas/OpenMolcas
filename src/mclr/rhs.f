@@ -230,7 +230,7 @@
       If (CI) Then
 *
        Call CiSigma(0,State_Sym,iEor(State_sym-1,idsym-1)+1,
-     &             Fix,nDens2,MOX,SIZE(MOX),rdum,ipCI,ipst,.True.)
+     &             Fix,nDens2,MOX,SIZE(MOX),rdum,1,ipCI,ipst,.True.)
 *
        irc=ipin(ipst)
        If (idsym.eq.1) Then

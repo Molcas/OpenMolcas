@@ -9,9 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
        SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
-     &                       Int2a,ipCI1,ipCI2, Have_2_el)
+     &                       Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
        use ipPage, only: W
-       use Arrays, only: FIMO, KAIN1
+       use Arrays, only: FIMO, KAIN1, KINT2, KINT2A
        Implicit Real*8(a-h,o-z)
 *
 #include "Pointers.fh"
@@ -29,8 +29,7 @@
 #include "cicisp_mclr.fh"
        integer kic(2),opout,nbb(8)
        Logical Have_2_el
-       Real*8, Target:: Int1(nInt1)
-       Real*8  Int2s(nInt2s), Int2a(*)
+       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
        Real*8, Allocatable:: CIDET(:)
 *
 *      Interface Anders to Jeppe
@@ -57,12 +56,12 @@
          Call icopy(nsym,norb,1,nbb,1)
        End if
 *
-       KINT2= ip_of_Work(Int2s(1))
+       KINT2=>Int2s
 *
 *      Two electron integrals
 *      anti symmetric in perticle one and two
 *
-       KINT2a= ip_of_Work(Int2a(1))
+       KINT2A=>Int2a
 *
        irefsm=iCSym
 *
