@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
-      SUBROUTINE CHO_Fock_MCLR(DA,G2,JA,KA,ipFkA,
-     &                      ipAsh,ipCMO,nIsh,nAsh,LuAChoVec)
+      SUBROUTINE CHO_Fock_MCLR(DA,G2,JA,KA,FkA,
+     &                         CVa,nVB,CMO,nIsh,nAsh,LuAChoVec)
 
 ************************************************************************
 *                                                                      *
@@ -23,14 +23,14 @@
       Character*13 SECNAM
       Parameter (SECNAM = 'CHO_FOCK_MCLR')
       Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8),kaOff(8),ipLpq(8,3)
-      Integer   ipAsh(*),ipAorb(8,2),LuAChoVec(8)
+      Integer   ipAorb(8,2),LuAChoVec(8)
       Integer   nAsh(8),nIsh(8)
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-      Real*8 DA(*), G2(*), JA(*), KA(*)
+      Real*8 DA(*), G2(*), JA(*), KA(*), FkA(*), CMO(*), CVa(nVB,2)
       parameter ( N2 = InfVec_N2 )
       parameter (zero = 0.0D0, one = 1.0D0, xone=-1.0D0)
       parameter (FactCI = -2.0D0, FactXI = 0.5D0)
@@ -90,7 +90,7 @@
       End Do
 *
       DO jDen=1,nDen
-         ipAorb(1,jDen)= ipAsh(jDen)
+         ipAorb(1,jDen)= ip_of_work(CVa(1,jDen))
          DO ISYM=2,NSYM
             ipAorb(iSym,jDen) = ipAorb(iSym-1,jDen)
      &                        + nAsh(iSym-1)*nBas(iSym-1)
@@ -362,7 +362,7 @@ c --- backtransform fock matrix to full storage
       Do iSym=1,nSym
          ipFAc= 1 + ISTLT(iSym)
          ipKAc= 1  + ISTSQ(iSym)
-         ipFA = ipFkA + ISTSQ(iSym)
+         ipFA = 1 + ISTSQ(iSym)
 
          Do iaSh=1,nShell
             ioffa = kOffSh(iaSh,iSym)
@@ -383,7 +383,7 @@ c --- backtransform fock matrix to full storage
                   jKa2= ipKac- 1 + nBas(iSym)*(iag-1) + ibg
 
                   jSA= ipFA - 1 + nBas(iSym)*(ibg-1) + iag
-                  Work(jSA)= JA(jFA)+ KA(jKa)+ KA(jKa2)
+                  FkA(jSA)= JA(jFA)+ KA(jKa)+ KA(jKa2)
                 End Do
                End Do
             End Do
@@ -397,20 +397,20 @@ c --- backtransform fock matrix to full storage
         jS=iS
         If (nBas(iS).ne.0) Then
           Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
-     &                1.0d0,Work(ipFkA+ISTSQ(iS)),nBas(iS),
-     &                Work(ipCMO+ISTSQ(iS)),nBas(iS),0.0d0,
+     &                1.0d0,FkA(1+ISTSQ(iS)),nBas(iS),
+     &                CMO(1+ISTSQ(iS)),nBas(iS),0.0d0,
      &                JA(1+ISTSQ(iS)),nBas(jS))
           call dcopy_(nBas(jS)*nBas(iS),[0.0d0],0,
-     &                Work(ipFkA+ISTSQ(iS)),1)
+     &                FkA(1+ISTSQ(iS)),1)
           Call DGEMM_('T','N',nBas(jS),nIsh(jS),nBas(iS),
      &                1.0d0,JA(1+ISTSQ(iS)),
-     &                nBas(iS),Work(ipCMO+ISTSQ(jS)),nBas(jS),
-     &                0.0d0,Work(ipFkA+ISTSQ(iS)),nBas(jS))
+     &                nBas(iS),CMO(1+ISTSQ(jS)),nBas(jS),
+     &                0.0d0,FkA(1+ISTSQ(iS)),nBas(jS))
           ioff=nIsh(iS)*nBas(jS)+ISTSQ(iS)
           Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
-     &                 1.0d0,Work(ipCMO+ISTSQ(iS)),nBas(jS),
+     &                 1.0d0,CMO(1+ISTSQ(iS)),nBas(jS),
      &                 Work(ipScr+ISTSQ(iS)),nBas(jS),0.0d0,
-     &                 Work(ipFkA+ioff),nBas(jS))
+     &                 FkA(1+ioff),nBas(jS))
         EndIf
       End Do
 **********************************************************************

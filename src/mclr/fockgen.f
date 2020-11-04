@@ -32,7 +32,7 @@
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
       Real*8 Fock(nDens2),FockOut(*), rDens2(*),rDens1(nna,nna)
-      Real*8, Allocatable:: MO(:), Scr(:), G2x(:), Scr1(:,:), Ash(:)
+      Real*8, Allocatable:: MO(:), Scr(:), G2x(:), Scr1(:,:), CVa(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -175,14 +175,16 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
 *
 **      Get active CMO
 *
-        Call mma_Allocate(Ash,nVB,Label='Ash')
+        Call mma_Allocate(CVa,nVB,2,Label='CVa')
+        CVa(:,:)=0.0d0
         ioff=0
         ioff1=0
         Do iS=1,nSym
           ioff2 = ioff + nOrb(iS)*nIsh(iS)
           Do iB=1,nAsh(iS)
             ioff3=ioff2+nOrb(iS)*(iB-1)
-            call dcopy_(nOrb(iS),CMO(1+ioff3),1,Ash(ioff1+iB),nAsh(iS))
+            call dcopy_(nOrb(iS),CMO(1+ioff3),1,
+     &                           CVa(ioff1+iB,1),nAsh(iS))
           End Do
           ioff=ioff+(nIsh(iS)+nAsh(iS))*nOrb(iS)
           ioff1=ioff1+nAsh(iS)*nOrb(iS)
@@ -191,15 +193,12 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
 *
         Call mma_allocate(Scr1,n2,2,Label='Scr1')
         Scr1(:,:)=Zero
-        ipFock=ip_of_work(Fock(1))
-        ipCMO =ip_of_work(CMO(1))
-        ipAsh =ip_of_work(Ash(1))
 *
-        Call cho_fock_mclr(rdens1,G2x,Scr1(:,1),Scr1(:,2),ipFock,
-     &                    [ipAsh],ipCMO,nIsh,nAsh,LuAChoVec)
+        Call cho_fock_mclr(rdens1,G2x,Scr1(:,1),Scr1(:,2),Fock,
+     &                    CVa,nVB,CMO,nIsh,nAsh,LuAChoVec)
 *
         Call mma_deallocate(Scr1)
-        Call mma_deallocate(Ash)
+        Call mma_deallocate(CVa)
         Call mma_deallocate(G2x)
       EndIf
 *
