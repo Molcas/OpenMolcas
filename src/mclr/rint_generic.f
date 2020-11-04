@@ -29,7 +29,6 @@
 #include "standard_iounits.fh"
       Real*8 Fock(nDens2),focka(nDens2),rkappa(nDens2),
      &       Focki(ndens2),Q(ndens2),rMOs(*),rmoa(*)
-      Integer ipAsh(2)
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:), DI(:),
      &                      DLT(:), Dens2(:), DA(:), G2x(:),
@@ -237,13 +236,11 @@
 **      Compute the whole thing
 *
         iread=2 ! Asks to read the half-transformed Cho vectors
-        ipAsh(1)   = ip_of_Work(CVa(1,1))
-        ipAsh(2)   = ip_of_Work(CVa(1,2))
         Call CHO_LK_MCLR(DLT,DI,DA,G2x,rkappa,
      &                   CoulExch(:,1),CoulExch(:,2),
      &                   CoulExch(:,3),CoulExch(:,4),
      &                   FockI,FockA,
-     &                   rMOs,Q,ipAsh,CMO,CMO_inv,
+     &                   rMOs,Q,CVa,nVB,CMO,CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
 *

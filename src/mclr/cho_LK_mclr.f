@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
      &                      JI,KI,JA,KA,FkI,FkA,
-     &                      MO1,Q,ipAsh,CMO,CMO_inv,
+     &                      MO1,Q,CVa, nVB, CMO,CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                      LuAChoVec,LuIChoVec,iAChoVec)
 
@@ -39,9 +39,9 @@ C
       Implicit Real*8 (a-h,o-z)
       Real*8 DLT(*), DI(*), DA(*), G2(*), Kappa(*), JI(*), KI(*),
      &       JA(*), KA(*), FkI(*), FkA(*), MO1(*), Q(*),
-     &       CMO(*), CMO_Inv(*)
+     &       CMO(*), CMO_Inv(*), CVa(nVB,2)
 #include "warnings.fh"
-      Integer   rc,ipScr
+      Integer   rc,ipScr, nVB
       Integer   ipLpq(8,3)
       Integer   iSkip(8),kOff(8),kaOff(8)
       Integer   ISTLT(8),ISTSQ(8),ISTK(8),ISSQ(8,8),iASQ(8,8,8)
@@ -49,7 +49,7 @@ C
       Real*8    tread(2),tcoul(2),texch(2),tintg(2),tact(2)
       Real*8    tint1(2),tint2(2),tint3(2),tQmat(2)
       Real*8    tmotr(2),tscrn(2)
-      Integer   ipAsh(2),ipAorb(8,2),nChMo(8)
+      Integer   ipAorb(8,2),nChMo(8)
       Integer   ipMO(2),ipYk(2),ipMLk(2),ipIndsh(2),ipSk(2)
       Integer   ipMSQ(2),ipCM(2),ipY(2),ipML(2),ipIndx(2),ipSksh(2)
       Logical   Debug,timings,DoRead,DoReord,DoScreen
@@ -209,7 +209,7 @@ c --------------------
 
         DO jDen=1,nDen
 
-           ipAorb(1,jDen)= ipAsh(jDen)
+           ipAorb(1,jDen)= ip_of_Work(CVa(1,jDen))
 
            DO ISYM=2,NSYM
 

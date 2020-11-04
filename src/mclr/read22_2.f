@@ -34,7 +34,6 @@
      &       Temp2(nDens2),Temp3(ndens2),Q(nDens2),
      &       MO1(*), Scr(*)
 *     Real*8 rDum(1)
-      Integer ipAsh(2)
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: DLT(:), JA(:), KA(:), CVa(:,:), DA(:),
      &                      G2x(:)
@@ -366,9 +365,12 @@
             End Do
           End Do
         Else
-          Call mma_allocate(CVa,  1,2,Label='CVa')
-          Call mma_allocate(DA,  1,Label='DA')
-          Call mma_allocate(G2x,  1,Label='G2x')
+          nVB=1
+          na2=1
+          nG2=1
+          Call mma_allocate(CVa,nVB,2,Label='CVa')
+          Call mma_allocate(DA,na2,Label='DA')
+          Call mma_allocate(G2x,nG2,Label='G2x')
         EndIf
 *
 **      Let's go
@@ -387,11 +389,9 @@
         istore=1 ! Ask to store the half-transformed vectors
         Call WarningMessage(2,'This is not tested.')
         Call Abend()
-        ipAsh(1)      = ip_of_Work(CVa(:,1))
-        ipAsh(2)      = ip_of_Work(CVa(:,2))
 !       Call CHO_LK_MCLR(DLT,Temp2,DA,G2x,rdum,
 !    &                   Temp3,Scr,JA,KA,FockI,FockA,
-!    &                   MO1,Q,ipAsh,CMO,CMO_inv,
+!    &                   MO1,Q,CVa,nVB,CMO,CMO_inv,
 !    &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
 !    &                   LuAChoVec,LuIChoVec,istore)
         nAtri=nAct*(nAct+1)/2
