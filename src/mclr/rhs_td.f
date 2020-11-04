@@ -216,10 +216,10 @@
       If (CI) Then
        If (iAnd(ntPert(idisp),2**3).ne.0) Then
           Call CiSigma_td(0,State_Sym,iEor(State_sym-1,idsym-1)+1,
-     &                    Fix,MOX,rdum,ipCI,ipst,'N',.True.)
+     &                    Fix,nDens2,MOX,rdum,ipCI,ipst,'N',.True.)
        Else
           Call CiSigma_td(0,State_Sym,iEor(State_sym-1,idsym-1)+1,
-     &                    Fix,rdum,rdum,ipCI,ipst,'N',.False.)
+     &                    Fix,nDens2,rdum,rdum,ipCI,ipst,'N',.False.)
        End If
 C
        irc=ipin(ipST)

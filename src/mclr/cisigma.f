@@ -8,10 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       SubRoutine CISigma(iispin,iCsym,iSSym,Int1,Int2s,
+       SubRoutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,
      &                    Int2a,ipCI1,ipCI2, Have_2_el)
        use ipPage, only: W
-       use Arrays, only: FIMO
+       use Arrays, only: FIMO, KAIN1
        Implicit Real*8(a-h,o-z)
 *
 #include "Pointers.fh"
@@ -26,7 +26,8 @@
 #include "detdim.fh"
 #include "cstate_mclr.fh"
 #include "cicisp_mclr.fh"
-       Real*8 Int1(*), Int2s(*), Int2a(*)
+       Real*8, Target:: Int1(nInt1)
+       Real*8 Int2s(*), Int2a(*)
        Logical Have_2_el
        integer kic(2),opout,nbb(8)
        Real*8, Allocatable:: CIDET(:)
@@ -44,7 +45,7 @@
 *
 *      One electron integrals
 *
-       KAIN1=ip_of_Work(Int1(1))
+       KAIN1=>Int1
 *
 *      Two electron integrals
 *      symmetric in perticle one and two

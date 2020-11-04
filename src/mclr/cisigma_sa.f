@@ -8,10 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,int2s,
+       SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,int2s,
      &                       Int2a,ipCI1,ipCI2, Have_2_el)
        use ipPage, only: W
-       use Arrays, only: FIMO
+       use Arrays, only: FIMO, KAIN1
        Implicit Real*8(a-h,o-z)
 *
 #include "Pointers.fh"
@@ -29,7 +29,8 @@
 #include "cicisp_mclr.fh"
        integer kic(2),opout,nbb(8)
        Logical Have_2_el
-       Real*8 Int1(*), Int2s(*), Int2a(*)
+       Real*8, Target:: Int1(nInt1)
+       Real*8  Int2s(*), Int2a(*)
        Real*8, Allocatable:: CIDET(:)
 *
 *      Interface Anders to Jeppe
@@ -46,7 +47,7 @@
 *
 *      One electron integrals
 *
-       KAIN1=ip_of_Work(Int1(1))
+       KAIN1=>Int1
 *
 *      Two electron integrals
 *      symmetric in perticle one and two

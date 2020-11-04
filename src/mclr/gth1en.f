@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       FUNCTION GTH1EN(IORB,ITP,ISM,JORB,JTP,JSM)
+      use Arrays, only: KAIN1
 *
 * One-electron integral for active
 * orbitals (IORB,ITP,ISM),(JORB,JTP,JSM)
@@ -21,7 +22,7 @@
 #include "Input.fh"
 #include "orbinp_mclr.fh"
       GTH1EN =
-     &GTH1ES_MCLR(IREOTS(1),iWORK(KAPIN1),wORK(KAIN1),IBSO,
+     &GTH1ES_MCLR(IREOTS(1),iWORK(KAPIN1),KAIN1,IBSO,
      &            IBTSOB,IORB,ITP,ISM,JORB,JTP,JSM)
       RETURN
       END

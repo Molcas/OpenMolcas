@@ -8,7 +8,6 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-*        KAIN1        :        One electron integrals
 *        KAPIN1        :         Pointer to symmetries
-      Integer KAIN1,KAPIN1
-      COMMON/LBBAS1/KAIN1,KAPIN1
+      Integer KAPIN1
+      COMMON/LBBAS1/KAPIN1

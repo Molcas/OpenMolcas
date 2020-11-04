@@ -150,7 +150,7 @@ c Avoid unused argument warnings
 *
       Call UnFold_MCLR(DCAS,DCAS2)
 *
-*==============================================================================*
+*======================================================================*
 *
 *
 *---  Make Fock matrixes
@@ -184,13 +184,14 @@ c Avoid unused argument warnings
 *
   ??? Call DaXpY_(ndens2,-rovlp,Int1,1,FMO1,1)
 *
-*==============================================================================*
+*======================================================================*
 *
 *---- CI Vector
 *
 *     <i|Sigma> = <i|F|0> - <0|F|0><i|0>+CI_a+CI_b
 *
-      Call CISigma(0,State_sym,State_sym,FMO1,rdum,rdum,ipci,iprci,.False.)
+      Call CISigma(0,State_sym,State_sym,FMO1,nDens2,rdum,rdum,ipci,
+     &             iprci,.False.)
       irc=ipin(iprci)
       irc=ipin(ipci)
       rE=ddot_(nconf1,W(iprci)%Vec,1,W(ipci)%Vec,1)
