@@ -370,8 +370,6 @@
 *
 **      Let's go
 *
-        ipJI    = ip_of_work(Temp3(1))
-        ipKI    = ip_of_work(Scr(1))
         ipFockI = ip_of_work(FockI(1))
         ipFockA = ip_of_work(FockA(1))
         ipMO1   = ip_of_work(MO1(1))
@@ -399,7 +397,7 @@
         ipKA       = ip_of_Work(KA(1))
         ipAsh      = ip_of_Work(Ash(1))
 !       Call CHO_LK_MCLR(DLT,Temp2,DA,G2x,rdum,
-!    &                   ipJI,ipKI,ipJA,ipKA,ipFockI,ipFockA,
+!    &                   Temp3,Scr,ipJA,ipKA,ipFockI,ipFockA,
 !    &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
 !    &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
 !    &                   LuAChoVec,LuIChoVec,istore)

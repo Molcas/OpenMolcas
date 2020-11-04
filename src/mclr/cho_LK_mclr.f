@@ -11,7 +11,7 @@
 * Copyright (C) Mickael G. Delcey                                      *
 ************************************************************************
       SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
-     &                      ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
+     &                      JI,KI,ipJA,ipKA,ipFkI,ipFkA,
      &                      ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                      LuAChoVec,LuIChoVec,iAChoVec)
@@ -37,7 +37,7 @@ C
 **********************************************************************
 
       Implicit Real*8 (a-h,o-z)
-      Real*8 DLT(*), DI(*), G2(*), Kappa(*)
+      Real*8 DLT(*), DI(*), G2(*), Kappa(*), JI(*), KI(*)
 #include "warnings.fh"
       Integer   rc,ipScr
       Integer   ipLpq(8,3)
@@ -1310,7 +1310,7 @@ C------------------------------------------------------------
 
                                iOffAB = nnBfShp(iShp,lSym)
 
-                               ipKI = ipK + ISTSQ(lSym) + iOffAB
+                               ipKI = 1 + ISTSQ(lSym) + iOffAB
 
                                xFab = sqrt(abs(Work(ipFaa)*Work(ipFbb)))
 
@@ -1335,7 +1335,7 @@ C --------------------------------------------------------------------
      &                                           nBsa,
      &                                           Work(ipLab(ibsh,1)),
      &                                           nBsb,
-     &                                       ONE,Work(ipKI),
+     &                                       ONE,KI(ipKI),
      &                                               nBsa)
 
                                EndIf
@@ -1380,7 +1380,7 @@ C --------------------------------------------------------------------
 
                                iOffAB = nnBfShp(iShp,lSym)
 
-                               ipKI = ipK + ISTSQ(lSym) + iOffAB
+                               ipKI = 1 + ISTSQ(lSym) + iOffAB
 
                                xFab = sqrt(abs(Work(ipFaa)*Work(ipFbb)))
 
@@ -1404,7 +1404,7 @@ C --------------------------------------------------------------------
      &                                           JNUM,
      &                                           Work(ipLab(ibsh,1)),
      &                                           JNUM,
-     &                                       ONE,Work(ipKI),
+     &                                       ONE,KI(ipKI),
      &                                               nBs)
 
                                EndIf
@@ -1864,6 +1864,7 @@ C ---------------- END (TW|XY) EVALUATION -----------------------
             If(JSYM.eq.1)Then
 c --- backtransform fock matrix to full storage
                mode = 'tofull'
+               ipJI = ip_of_Work(JI(1))
                Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,ISSQ,
      &                                 ipJI,ipFab,mode)
                If (DoAct) Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,
@@ -1921,9 +1922,9 @@ C--- have performed screening in the meanwhile
 * --- Accumulate Coulomb and Exchange contributions
       Do iSym=1,nSym
 
-         ipFI = ipJI + ISTLT(iSym)
-         ipFAc= ipJA + ISTLT(iSym)
-         ipKI = ipK   + ISTSQ(iSym)
+         ipFI = 1     + ISTLT(iSym)
+         ipFAc= ipJA  + ISTLT(iSym)
+         ipKI = 1     + ISTSQ(iSym)
          ipKAc= ipKA  + ISTSQ(iSym)
          ipFS = ipFkI + ISTSQ(iSym)
          ipFA = ipFkA + ISTSQ(iSym)
@@ -1964,12 +1965,12 @@ C--- have performed screening in the meanwhile
                   jS = ipFS - 1 + nBas(iSym)*(ibg-1) + iag
                   jSA= ipFA - 1 + nBas(iSym)*(ibg-1) + iag
 
-                  Work(jS) = Work(jF) + Work(jK) + Work(jK2)
-*                  Work(jS) = Work(jF)
-*                  Work(jS) = Work(jK) + Work(jK2)
+                  Work(jS) = JI(jF) + KI(jK) + Work(jK2)
+*                 Work(jS) = JI(jF)
+*                 Work(jS) = KI(jK) + Work(jK2)
                   Work(jSA)= Work(jFa)+ Work(jKa)+ Work(jKa2)
-*                  Work(jSA)= Work(jFa)
-*                  Work(jSA)= Work(jKa)+ Work(jKa2)
+*                 Work(jSA)= Work(jFa)
+*                 Work(jSA)= Work(jKa)+ Work(jKa2)
 
                 End Do
 
