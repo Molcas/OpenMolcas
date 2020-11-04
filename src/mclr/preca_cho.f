@@ -27,10 +27,9 @@
 *     Written by M.G. Delcey, november 2014                            *
 *                                                                      *
 ************************************************************************
-      use Arrays, only: G1t
+      use Arrays, only: G1t, G2t
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "Pointers.fh"
       Real*8 Fock(nbaj,nbaj),FockA(nBaj,nBaj),Focki(nbaj,nbaj)
       Real*8 rout(nd*(nd+1)/2), A_J(nScr), A_K(nScr), Scr(nScr)
@@ -76,10 +75,10 @@
                 If (lsym.eq.js) Then
                   If (iJK.eq.1) Then
                     rDens2=2.0d0*sign*
-     &                Work(ipg2-1+itri(itri(jCC,jDD),itri(iBB,iBB)))
+     &                G2t(itri(itri(jCC,jDD),itri(iBB,iBB)))
                   Else
                     rDens2=2.0d0*sign*
-     &                work(ipg2-1+itri(itri(iBB,jDD),itri(jCC,iBB)))
+     &                G2t(itri(itri(iBB,jDD),itri(jCC,iBB)))
                   EndIf
 *
                   rDensaii=factor*rDens2

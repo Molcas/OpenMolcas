@@ -12,7 +12,7 @@
 ************************************************************************
       SubRoutine RInt_Generic(rkappa,rmos,rmoa,Fock,Q,Focki,Focka,
      &                        idsym,reco,jspin)
-      use Arrays, only: CMO_Inv, CMO, G1t, FAMO, FIMO
+      use Arrays, only: CMO_Inv, CMO, G1t, G2t, FAMO, FIMO
 *
 *                              ~
 *     Constructs  F  = <0|[E  ,H]|0> ( + <0|[[E  , Kappa],H]|0> )
@@ -212,9 +212,8 @@
                     Do iAsh=1,nAsh(is)
                       Do jAsh=1,nAsh(js)
                         iij =itri(iAsh+nA(is),jAsh+nA(jS))
-                        ipG=ipG2+itri(iij,ikl)-1
                         ipGx=ipGx+1
-                        G2x(ipGx)=Work(ipG)
+                        G2x(ipGx)=G2t(itri(iij,ikl))
                       End Do
                     End Do
                   End Do

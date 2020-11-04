@@ -9,13 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Real*8 Function E2(FockI,rMo,loper,idisp)
-      use Arrays, only: G1t
+      use Arrays, only: G1t, G2t
 *
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "WrkSpc.fh"
 
       Real*8 FockI(nCMO),rMO(*)
       Logical Go
@@ -40,7 +39,7 @@
                   Do k=1,nna
                      Do l=1,nna
                         ijkl=itri(ij,itri(k,l))
-                        E22=E22+0.5d0*work(ipg2+ijkl-1)*rmo(ijkl)
+                        E22=E22+0.5d0*G2t(ijkl)*rmo(ijkl)
                      End Do
                   End Do
                End Do

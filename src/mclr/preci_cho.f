@@ -26,12 +26,11 @@
 *     Written by M.G. Delcey, November 2014                            *
 *                                                                      *
 ************************************************************************
-      use Arrays, only: G1t
+      use Arrays, only: G1t, G2t
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
 #include "standard_iounits.fh"
-#include "WrkSpc.fh"
       Real*8 focki(nbaj,nbaj),fock(nbaj,nbaj),focka(nbaj,nbaj),
      &       rout(*), A_J(nScr), A_K(nScr), Scr(nScr)
 *                                                                      *
@@ -77,10 +76,10 @@
                   jjB=jB+nA(jS)
                   i=itri1(jA,jB)
                   If (iJK.eq.1) Then
-                    rDens1=2.0d0*sign*work(ipg2-1+
-     &                          (itri(itri(jjC,jjD),itri(jjB,jjA))))
+                    rDens1=2.0d0*sign*G2t(
+     &                          itri(itri(jjC,jjD),itri(jjB,jjA)))
                   Else
-                   rDens1=4.0d0*sign*work(ipg2-1+
+                   rDens1=4.0d0*sign*G2t(
      &                          (itri(itri(jjB,jjD),itri(jjC,jjA))))
                   EndIf
                   rout(i)=rout(i)+rDens1*aabb

@@ -215,9 +215,8 @@
          End Do
       End Do
 *
-      ipg2   =ip_of_work(G2t(1))
-      ipg2tmm=ipg2
-      ipg2tpp=ipg2
+      ipg2tmm=ip_of_work(G2t(1))
+      ipg2tpp=ip_of_work(G2t(1))
 
 *---------------------------------------------------------------
 * Rectangular part of the two el dens,

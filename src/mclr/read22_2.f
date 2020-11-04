@@ -20,13 +20,12 @@
 *          MOtilde:MO (one index transformed integrals)            *
 *                                                                  *
 ********************************************************************
-      use Arrays, only: CMO, Int1, G1t
+      use Arrays, only: CMO, Int1, G1t, G2t
       Implicit Real*8(a-h,o-z)
 #include "real.fh"
 #include "Pointers.fh"
 #include "standard_iounits.fh"
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "glbbas_mclr.fh"
 #include "Files_mclr.fh"
@@ -146,7 +145,7 @@
 *    Construct Q matrix: Q = sum(jkl)(pj|kl)d
 *                         pi                 ijkl
       If (iMethod.eq.iCASSCF) Then
-         Call CreQ2(Q,Work(ipG2),1,Temp2,Scr,nDens2)
+         Call CreQ2(Q,G2t,1,Temp2,Scr,nDens2)
 *
 *        Sort out MO (ij|kl)
 *
@@ -354,9 +353,8 @@
                     Do iAsh=1,nAsh(is)
                       Do jAsh=1,nAsh(js)
                         iij =itri(iAsh+nA(is),jAsh+nA(jS))
-                        ipG=ipG2+itri(iij,ikl)-1
                         ipGx=ipGx+1
-                        G2x(ipGx)=Work(ipG)
+                        G2x(ipGx)=G2t(itri(iij,ikl))
                       End Do
                     End Do
                   End Do

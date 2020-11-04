@@ -33,11 +33,10 @@
 *   rOut        :       Submatrix
 *
 ************************************************************************
-      use Arrays, only: G1t
+      use Arrays, only: G1t, G2t
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
       Real*8 rout(*)
       Real*8 Focki(no,no),Focka(no,no),
      &       Fock(no,no)
@@ -77,7 +76,7 @@
          If (kBB.gt.nish(ks).and.kCC.gt.nish(ks)) Then
            kkB=kBB+nA(ks)-nish(ks)
            kkC=kCC+nA(ks)-Nish(ks)
-           rDens1=sign*2.0d0*Work(ipG2-1+
+           rDens1=sign*2.0d0*G2t(
      &            itri(itri(iib,iib),itri(kkb,kkc)))
 *
            If (kbb.ne.kcc) rdens1=rdens1*2.0d0
@@ -106,7 +105,7 @@
           Call EXCH(js,ks,js,ks,jb,lb,Temp1,Scr)
           ipT=1
           If (LB.gt.nISH(ks).and.jb.gt.nish(ks)) Then
-           rDens2=sign*4.0d0*Work(ipG2-1+
+           rDens2=sign*4.0d0*G2t(
      &         itri(itri(iib,kkc),itri(kkb,iib)))
            Call DaXpY_(nO**2,rDens2,Temp1(ipT),1,Temp2,1)
           End If

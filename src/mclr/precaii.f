@@ -37,10 +37,9 @@
 *   rOut        :       Submatrix                                      *
 *                                                                      *
 ************************************************************************
-      use Arrays, only: G1t
+      use Arrays, only: G1t, G2t
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "Pointers.fh"
       Real*8 Fock(nbaj,nbaj),FockA(nBaj,nBaj),Focki(nbaj,nbaj)
       Real*8 rout(nd*(nd+1)/2), A_J(nScr), A_K(nScr), Scr(nScr)
@@ -78,12 +77,12 @@
 *
 *                    gamma(cdbb)=gamma(bbcd)
 *
-                     rDens1=sign*Work(ipg2-1+itri(itri(jCC,jDD),
+                     rDens1=sign*G2t(itri(itri(jCC,jDD),
      &                           itri(iBB,iBB)))
 *
 *                    gamma(bdcb)
 *
-                     rDens2=sign*work(ipg2-1+itri(itri(iBB,jDD),
+                     rDens2=sign*G2t(itri(itri(iBB,jDD),
      &                           itri(jCC,iBB)))
 *
 *                    (cd|ij)

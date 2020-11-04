@@ -159,12 +159,6 @@ c
       Real*8  UserP, UserT(64)
       Common /UserInput/ UserT, UserP, nUserPT, nsRot
 *
-*     Pointers to densities oneelectron(Act),oneelectron (Act <delta|E|0>)
-*                           twoelectron(Act) , (act<delta|E|0>)
-      Integer ipg2
-*
-      Common /Densities/ipg2
-*
 *     Ask Jeppe!!!
 *     We all want a happy LUCIA
 *

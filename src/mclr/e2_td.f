@@ -15,7 +15,6 @@
 #include "Pointers.fh"
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "WrkSpc.fh"
 
 *
       Real*8 FockI(nCMO),rMO(*)

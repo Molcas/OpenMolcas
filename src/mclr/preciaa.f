@@ -35,12 +35,11 @@
 *     rOut        :       Submatrix
 *
 ************************************************************************
-      use Arrays, only: G1t
+      use Arrays, only: G1t, G2t
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
 #include "standard_iounits.fh"
-#include "WrkSpc.fh"
       Real*8 focki(nbaj,nbaj),fock(nbaj,nbaj),focka(nbaj,nbaj),
      &       rout(*), A_J(nScr), A_K(nScr), Scr(nScr)
 *                                                                      *
@@ -82,10 +81,8 @@
                      jjB=jB+nA(jS)
                      i=itri1(jA,jB)
 *
-                     rDens1=sign*work(ipg2-1+
-     &                          (itri(itri(jjC,jjD),itri(jjB,jjA))))
-                     rDens2=sign*work(ipg2-1+
-     &                          (itri(itri(jjB,jjD),itri(jjC,jjA))))
+                     rDens1=sign*G2t(itri(itri(jjC,jjD),itri(jjB,jjA)))
+                     rDens2=sign*G2t(itri(itri(jjB,jjD),itri(jjC,jjA)))
 *
                      rout(i)=rout(i)+2.0d0*rDens1*aabb
      &                              +4.0d0*rDens2*abab
