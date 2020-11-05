@@ -51,7 +51,7 @@
       Integer   Cho_LK_MaxVecPerBatch
       External  Cho_LK_MaxVecPerBatch
       Real*8, Allocatable:: iiab(:), iirs(:), tupq(:), turs(:),
-     &                      CMOt(:), Lrs(:), ChoT(:)
+     &                      CMOt(:), Lrs(:), ChoT(:), Integral(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -624,7 +624,7 @@ c         !set index arrays at iLoc
 
 *
         CALL CWTIME(TCR1,TWR1)
-        Call GetMem('MOt-int','Allo','Real',ipInt,maxpq)
+        Call mma_allocate(Integral,maxpq,Label='Integral')
         ip1=ipiaib
         ip3=iptpuq
         isum=0
@@ -647,16 +647,16 @@ c         !set index arrays at iLoc
                 nvirt2=nBas(kSym2)-nIsh(kSym2)
                 Do j=1,nvirt2
                   ipMOj=ipMO2+(j-1)*nBas(kSym2)
-                  ipIntj=ipInt+(j-1)*nBas(kSym2)
+                  ipIntj=1+(j-1)*nBas(kSym2)
                   Call DSPMV_('U',nBas(kSym2),1.0d0,iiab(ip2),
-     &                       CMO(ipMOj),1,0.0d0,Work(ipIntj),1)
+     &                       CMO(ipMOj),1,0.0d0,Integral(ipIntj),1)
                 End Do
                 Call DGEMM_('T','N',nvirt2,nvirt2,nBas(kSym2),
-     &                      1.0d0,Work(ipInt),nBas(kSym2),
+     &                      1.0d0,Integral,nBas(kSym2),
      &                            CMO(ipMO2),nBas(kSym2),
-     &                      0.0d0,Work(ip2)  ,nvirt2)
+     &                      0.0d0,iiab(ip2)  ,nvirt2)
 *
-                call DDAFILE(LuChoInt(1),1,Work(ip2),nvirt2**2,iAdr)
+                call DDAFILE(LuChoInt(1),1,iiab(ip2),nvirt2**2,iAdr)
 *
                 ip2=ip2+nBas(kSym2)**2
                 ioff2 =ioff2 +nBas(kSym2)**2
@@ -672,9 +672,9 @@ c         !set index arrays at iLoc
             Call DGEMM_('N','N',nBas(kSym),nvirt,nBas(kSym),
      &                  1.0d0,iiab(ip1:)  ,nBas(kSym),
      &                        CMO(ipMO),nBas(kSym),
-     &                  0.0d0,Work(ipInt),nBas(kSym))
+     &                  0.0d0,Integral,nBas(kSym))
             Call DGEMM_('T','N',nvirt,nvirt,nBas(kSym),
-     &                  1.0d0,Work(ipInt),nBas(kSym),
+     &                  1.0d0,Integral,nBas(kSym),
      &                        CMO(ipMO),nBas(kSym),
      &                  0.0d0,iiab(ip1:)  ,nvirt)
 *
@@ -714,14 +714,14 @@ c         !set index arrays at iLoc
                 ipMO2=1+ioff2
                 Do j=1,nBas(ksym2)
                   ipMOj=ipMO2+(j-1)*nBas(kSym2)
-                  ipIntj=ipInt+(j-1)*nBas(kSym2)
+                  ipIntj=1+(j-1)*nBas(kSym2)
                   Call DSPMV_('U',nBas(kSym2),1.0d0,tupq(ip2),
-     &                       CMO(ipMOj),1,0.0d0,Work(ipIntj),1)
+     &                       CMO(ipMOj),1,0.0d0,Integral(ipIntj),1)
                 End Do
                 If (nBas(ksym2).gt.0) Then
                   Call DGEMM_('T','N',nBas(ksym2),nBas(kSym2),
      &                              nBas(kSym2),1.0d0,
-     &                              Work(ipInt),nBas(kSym2),
+     &                              Integral,nBas(kSym2),
      &                              CMO(ipMO2),nBas(kSym2),
      &                        0.0d0,tupq(ip2)  ,nBas(kSym2))
                   call DDAFILE(LuChoInt(2),1,tupq(ip2),nBas(kSym2)**2,
@@ -740,9 +740,9 @@ c         !set index arrays at iLoc
             Call DGEMM_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),
      &                  1.0d0,tupq(ip3)  ,nBas(iSym),
      &                        CMO(ipMO),nBas(iSym),
-     &                  0.0d0,Work(ipInt),nBas(iSym))
+     &                  0.0d0,Integral,nBas(iSym))
             Call DGEMM_('T','N',nBas(iSym),nBas(iSym),nBas(iSym),
-     &                  1.0d0,Work(ipInt),nBas(iSym),
+     &                  1.0d0,Integral,nBas(iSym),
      &                        CMO(ipMO),nBas(iSym),
      &                  0.0d0,tupq(ip3) ,nBas(iSym))
             Do i=1,isym-1
@@ -767,7 +767,7 @@ c         !set index arrays at iLoc
         tMO(1) = tMO(1) + (TCR2 - TCR1)
         tMO(2) = tMO(2) + (TWR2 - TWR1)
 *
-        Call GetMem('MOt-int','Free','Real',ipInt,maxpq)
+        Call mma_deallocate(Integral)
 *
         Do i=1,nsym
           nIshb(i)=nIshb(i)+nIshe(i)  ! now those are done!
