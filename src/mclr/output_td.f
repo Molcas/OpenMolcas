@@ -10,9 +10,9 @@
 *                                                                      *
 * Copyright (C) 1996, Anders Bernhardsson                              *
 ************************************************************************
-       SubRoutine OutPut_td(iKapDisp,isigdisp,iCiDisp,
-     &                      iCiSigDisp,iRHSDisp,iRHSCIDisp,
-     &                      converged)
+      SubRoutine OutPut_td(iKapDisp,isigdisp,iCiDisp,
+     &                     iCiSigDisp,iRHSDisp,iRHSCIDisp,
+     &                     converged)
 ********************************************************************
 *                                                                  *
 * Contracts the response coefficient to the hessian                *
@@ -32,36 +32,44 @@
 * Author: Anders Bernhardsson, 1996                                *
 *         Theoretical Chemistry, University of Lund                *
 ********************************************************************
-       use Arrays, only: Hss
-       use ipPage, only: W
-       Implicit Real*8 (a-h,o-z)
+      use Arrays, only: Hss
+      use ipPage, only: W
+      Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 #include "Input.fh"
 #include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
 #include "cicisp_mclr.fh"
-#include "WrkSpc.fh"
-       Character*8 Label
-       Character*20 Label2
-       Integer Pstate_sym,ldisp2(8),ielec(3)
-       Integer iKapDisp(nDisp),isigdisp(nDisp),
-     &         iCiDisp(nDisp),iCiSigDisp(nDisp),
-     &         iRHSDisp(nDisp),iRHSCiDisp(nDisp)
-       Logical elec,converged(8),CI
-       Real*8 Pola(6)
+#include "stdalloc.fh"
+      Character*8 Label
+      Character*20 Label2
+      Integer Pstate_sym,ldisp2(8),ielec(3)
+      Integer iKapDisp(nDisp),isigdisp(nDisp),
+     &        iCiDisp(nDisp),iCiSigDisp(nDisp),
+     &        iRHSDisp(nDisp),iRHSCiDisp(nDisp)
+      Logical elec_On,converged(8),CI
+      Real*8 Pola(6)
+      Real*8, Allocatable:: RHss(:)
+      Real*8, Allocatable:: Kap1(:), Kap2(:), sKap(:),
+     &                     rKap1(:),rKap2(:)
+      Real*8, Allocatable:: Hess(:), Hess2(:), Temp(:), ELEC(:),
+     &                      EG(:), ELOUT(:)
+      Integer, Allocatable:: NrDisp(:), DegDisp(:)
+*                                                                  *
+********************************************************************
+*                                                                  *
+      debug=.false.
+      nHss=SIZE(Hss)
+      nhess=nDisp*(nDisp+1)/2
+      Call mma_allocate(RHss,nHss,Label='RHss')
+      RHss(:)=0.0d0
 *
-       debug=.false.
-       nHss=SIZE(Hss)
-       nhess=nDisp*(nDisp+1)/2
-       Call GetMem('RESPH','ALLO','REAL',ipRHss,nHss)
-       call dcopy_(nHss,[0.0d0],0,Work(ipRHss),1)
-*
-*-------------------------------------------------------------------*
+*------------------------------------------------------------------*
 *
 * Ok construct hessian
 *
-*-------------------------------------------------------------------*
+*------------------------------------------------------------------*
 *
        mSym=0
        kSym=0
@@ -92,11 +100,11 @@
 *
 *    Allocate areas for scratch and state variables
 *
-          Call GetMem('kappa1','Allo','Real',ipKap1,nDensC)
-          Call GetMem('kappa2','Allo','Real',ipKap2,nDensC)
-          Call GetMem('skappa','Allo','Real',ipsKap,nDensC)
-          Call Getmem('rkappa1','ALLO','Real',iprkap1,nDensC)
-          Call Getmem('rkappa2','ALLO','Real',iprkap2,nDensC)
+          Call mma_allocate(Kap1,nDensC,Label='Kap1')
+          Call mma_allocate(Kap2,nDensC,Label='Kap2')
+          Call mma_allocate(sKap,nDensC,Label='sKap')
+          Call mma_allocate(rkap1,nDensC,Label='rKap1')
+          Call mma_allocate(rkap2,nDensC,Label='rKap2')
 *
 *
           If (CI) Then
@@ -129,13 +137,13 @@
 *
           iDisk=iKapDisp(iDisp)
           Len=nDensC
-          Call dDaFile(LuTemp,2,Work(ipKap1),Len,iDisk)
+          Call dDaFile(LuTemp,2,Kap1,Len,iDisk)
           iDisk=iSigDisp(iDisp)
-          Call dDaFile(LuTemp,2,Work(ipSKap),Len,iDisk)
+          Call dDaFile(LuTemp,2,SKap,Len,iDisk)
           iDisk=iRHSDisp(iDisp)
-          Call dDaFile(LuTemp,2,Work(iprKap1),Len,iDisk)
-          Do i=0,ndensC-1
-           Work(ipSKap+i)=-Work(ipSKap+i)-Work(iprKap1+i)
+          Call dDaFile(LuTemp,2,rKap1,Len,iDisk)
+          Do i=1,ndensC
+           SKap(i)=-SKap(i)-rKap1(i)
           End Do
 
           If (CI) Then
@@ -178,11 +186,11 @@
                If (.not.lCalc(kDisp+ksym)) Goto 120
                iDisk=iKapDisp(kDisp+kSym)
                Len=nDensC
-               Call dDaFile(LuTemp,2,Work(ipKap2),Len,iDisk)
+               Call dDaFile(LuTemp,2,Kap2,Len,iDisk)
 *
-*               Call Recprt('ipkap2',' ',Work(ipkap2),nDensC,1)
-*               Call Recprt('ipSkap',' ',Work(ipSkap),nDensC,1)
-              rTempk1=-1.0d0*DDot_(nDensC,Work(ipKap2),1,Work(ipSKap),1)
+*               Call Recprt('kap2',' ',kap2,nDensC,1)
+*               Call Recprt('Skap',' ',Skap,nDensC,1)
+              rTempk1=-1.0d0*DDot_(nDensC,Kap2,1,SKap,1)
 *
                if (CI) Then
                 ilen=nCI
@@ -198,7 +206,7 @@
 *
                iDisk=iRHSDisp(kDisp+kSym)
                Len=nDensC
-               Call dDaFile(LuTemp,2,Work(iprKap2),Len,iDisk)
+               Call dDaFile(LuTemp,2,rKap2,Len,iDisk)
                If (CI) Then
                  ilen=nCI
                  idis=iRHSCIDisp(kdisp+ksym)
@@ -208,13 +216,12 @@
 *
                Fact=1.0d0
                If (kdisp.eq.jdisp) Fact=2.0d0
-*               Call Recprt('ipkap1',' ',Work(ipkap1),nDensC,1)
-*               Call Recprt('iprkap2',' ',Work(iprkap2),nDensC,1)
+*               Call Recprt('kap1',' ',kap1,nDensC,1)
+*               Call Recprt('rkap2',' ',rkap2,nDensC,1)
                rTempk2=-1.0d0*Fact*
-     &                DDot_(nDensC,Work(ipKap1),1,Work(iprKap2),1)
+     &                DDot_(nDensC,Kap1,1,rKap2,1)
                If (kdisp.ne.jdisp) Then
-               rtempk3=-1.0d0*DDot_(nDensC,Work(iprKap1),1,
-     &                  Work(ipKap2),1)
+               rtempk3=-1.0d0*DDot_(nDensC,rKap1,1,Kap2,1)
                Else
                 rTempk3=0.0d0
                End if
@@ -246,36 +253,35 @@
                Mini=Min(kDisp,jDisp)
                index=mSym+Maxi*(Maxi-1)/2+Mini
 *
-               Work(ipRhss-1+Index)=Work(ipRhss-1+Index)+
-     &             0.5d0*(rTempk1+rtempk2+rtempk3+
-     &             rtempc1+rtempc2+rtempc3)
+               RHss(Index)=RHss(Index)+
+     &                     0.5d0*(rTempk1+rtempk2+rtempk3+
+     &                            rtempc1+rtempc2+rtempc3)
 *
  120       Continue
 
 **********************************************************************
 *
  110     Continue
-       kSym=kSym+lDisp(iSym)
-       mSym=mSym+lDisp(iSym)*(lDisp(iSym)+1)/2
+         kSym=kSym+lDisp(iSym)
+         mSym=mSym+lDisp(iSym)*(lDisp(iSym)+1)/2
 *
 *    Free areas for scratch and state variables
 *
-*
-*
-          Call Getmem('rkappa2','FREE','Real',iprkap2,nDensC)
-          Call Getmem('rkappa1','FREE','Real',iprkap1,nDensC)
-          Call GetMem('skappa','FREE','Real',ipsKap,nDensC)
-          Call GetMem('kappa2','FREE','Real',ipKap2,nDensC)
-          Call GetMem('kappa1','FREE','Real',ipKap1,nDensC)
+          Call mma_deallocate(rKap2)
+          Call mma_deallocate(rKap1)
+          Call mma_deallocate(sKap)
+          Call mma_deallocate(Kap2)
+          Call mma_deallocate(Kap1)
           If (CI)  irc=ipclose(ipcip1)
  100  Continue
-      Call GetMem('HESS','ALLO','REAL',ipHess,nHss)
-      Call GetMem('HESS','ALLO','REAL',ipHess2,nHss)
-      Call GetMem('Temp','ALLO','REAL',ipTemp,nHss)
-      Call GetMem('ELEC','ALLO','REAL',ipELEC,3*ndisp)
-      Call GetMem('ELEC2','ALLO','REAL',ipELEC2,3*ndisp)
-      Call GetMem('EG  ','ALLO','REAL',ipEG  ,3*ndisp)
-      Call GetMem('ELOUT','ALLO','REAL',ipELOUT,3*ndisp)
+
+      Call mma_allocate(Hess,nHss,Label='Hess')
+      Call mma_allocate(Hess2,nHss,Label='Hess2')
+      Call mma_allocate(Temp,nHss,Label='Temp')
+      Call mma_allocate(ELEC,3*ndisp,Label='ELEC')
+      Call mma_allocate(EG  ,3*ndisp,Label='EG')
+      Call mma_allocate(ELOUT,3*ndisp,Label='ELOUT')
+
       If (iMethod.eq.2)  irc=ipclose(-1)
 *
 *-------------------------------------------------------------------*
@@ -289,63 +295,63 @@
 *     constructed in mckinley.
 *
       call dcopy_(6,[0.0d0],0,pola,1)
-      elec=.False.
+      elec_On=.False.
       If (Mckinley) Then
          idum=1
          iopt=128
          irc=3*ndisp
          Label='DOTELGR'
-         Call drdMCk(irc,iopt,LaBeL,idum,Work(ipEG),idum)
-         elec=.true.
-         if (irc.ne.0) elec=.false.
+         Call drdMCk(irc,iopt,LaBeL,idum,EG,idum)
+         elec_On=.true.
+         if (irc.ne.0) elec_On=.false.
       End If
-      call dcopy_(nHss,Hss,1,Work(iphess2),1)
+      call dcopy_(nHss,Hss,1,Hess2,1)
       If (debug) Then
-         ip=ipHess2
+         ip=1
          Do iSym=1,nSym
           Write(label2,'(A,I2)') 'CHessian symmetry',iSym
           If (lDisp(iSym).ne.0)
-     &    Call TriPrt(label2,' ',Work(ip),lDisp(iSym))
+     &    Call TriPrt(label2,' ',Hess2(ip),lDisp(iSym))
          ip=ip+ldisp(isym)*(1+ldisp(isym))/2
          End Do
       End If
 *
       If (debug) Then
-       Call MMSORT2(Work(ipHESS2),Work(ipELEC),pola,ielec)
-       Call Recprt('CONN',' ',Work(ipElec),3*nDisp,1)
+       Call MMSORT2(HESS2,ELEC,pola,ielec)
+       Call Recprt('CONN',' ',Elec,3*nDisp,1)
       End If
 *
 C
-*      Call recprt('iprhss',' ',Work(ipRHss),nHss,1)
-*      Call recprt('iphess',' ',Work(ipHess),nHss,1)
+*      Call recprt('rhss',' ',RHss,nHss,1)
+*      Call recprt('hess',' ',Hess,nHss,1)
 C
-      Call DaXpY_(mSym,1.0d0,Work(ipRHss),1,Work(ipHess2),1)
+      Call DaXpY_(mSym,1.0d0,RHss,1,Hess2,1)
 *
       If (debug) Then
-       Call MMSORT2(Work(ipRHSS),Work(ipELEC),pola,ielec)
-       Call Recprt('RESP',' ',Work(ipElec),3*nDisp,1)
+       Call MMSORT2(RHSS,ELEC,pola,ielec)
+       Call Recprt('RESP',' ',Elec,3*nDisp,1)
       End If
 *
-      Call MMSORT2(Work(ipHESS2),Work(ipELEC),pola,ielec)
+      Call MMSORT2(HESS2,ELEC,pola,ielec)
 *
       If (debug) Then
-       Call Recprt('R+C',' ',Work(ipElec),3*nDisp,1)
-       ip=ipHess2
+       Call Recprt('R+C',' ',Elec,3*nDisp,1)
+       ip=1
        Do iSym=1,nSym
         Write(label2,'(A,I2)') 'Hessian symmetry',iSym
         If (lDisp(iSym).ne.0)
-     &   Call TriPrt(label2,' ',Work(ip),lDisp(iSym))
+     &   Call TriPrt(label2,' ',Hess2(ip),lDisp(iSym))
         ip=ip+ldisp(isym)*(1+ldisp(isym))/2
        End Do
       End If
-      Call mmSort(Work(ipHess2),Work(ipHess),ldisp2)
+      Call mmSort(Hess2,Hess,ldisp2)
 
       If (McKinley) Then
 *
         iRC=-1
         iOpt=0
         Label='StatHess'
-        Call dRdMck(iRC,iOpt,Label,idum,Work(ipTemp),idum)
+        Call dRdMck(iRC,iOpt,Label,idum,Temp,idum)
         If (iRC.ne.0) Then
            Write (6,*)
            Write (6,*) ' *** Error in subroutine OUTPUT_TD ***'
@@ -354,22 +360,22 @@ C
         End If
 *
         If (debug) Then
-         ip=ipTemp
+         ip=1
          Do iSym=1,nSym
           Write(label2,'(a,i2)') 'SHessian symmetry',iSym
           If (lDisp2(iSym).ne.0)
-     &    Call TriPrt(label2,' ',Work(ip),lDisp2(iSym))
+     &    Call TriPrt(label2,' ',Temp(ip),lDisp2(iSym))
          ip=ip+ldisp2(isym)*(1+ldisp2(isym))/2
          End Do
         End If
-        Call DaXpY_(mSym,1.0d0,Work(ipTemp),1,Work(ipHess),1)
+        Call DaXpY_(mSym,1.0d0,Temp,1,Hess,1)
       End If
       If (debug) Then
-        ip=ipHess
+        ip=1
         Do iSym=1,nSym
           Write(label2,'(a,i2)') 'Hessian symmetry',iSym
           If (lDisp2(iSym).ne.0)
-     &    Call TriPrt(label2,' ',Work(ip),lDisp2(iSym))
+     &    Call TriPrt(label2,' ',Hess(ip),lDisp2(iSym))
           ip=ip+ldisp2(isym)*(1+ldisp2(isym))/2
         End Do
       End If
@@ -379,7 +385,7 @@ C
        iRC=-1
        iOpt=0
        Label='Hess    '
-       Call dWrMck(iRC,iOpt,Label,iDum,Work(ipHess),iDum)
+       Call dWrMck(iRC,iOpt,Label,iDum,Hess,iDum)
        If (iRC.ne.0) Then
          Write (6,*)
          Write (6,*) ' *** Error in subroutine OUTPUT_TD ***'
@@ -388,19 +394,19 @@ C
        End If
 *
        Call Put_iScalar('No of Internal coordinates',ldisp2(1))
-       Call Put_AnalHess(Work(ipHess),ldisp2(1)*(ldisp2(1)+1)/2)
+       Call Put_AnalHess(Hess,ldisp2(1)*(ldisp2(1)+1)/2)
 *
       End If
       If (.true.) Then
        iRC=-1
        iOpt=0
-       Call GetMem('NRDISP','ALLO','INTE',ipnrdisp,ndisp)
-       Call RdMck(irc,iopt,'NRCTDISP',idum,iWork(ipnrDisp),idum)
+       Call mma_allocate(NrDisp,ndisp,Label='NrDisp')
+       Call RdMck(irc,iopt,'NRCTDISP',idum,NrDisp,idum)
        iRC=-1
        iOpt=0
-       Call GetMem('DEGDISP','ALLO','INTE',ipdegdisp,ndisp)
-       Label='DEGDISP '
-       Call RdMck(irc,iopt,Label,idum,iWork(ipDegDisp),idum)
+       Call mma_allocate(DegDisp,ndisp,Label='DegDisp')
+       Label='DegDisp '
+       Call RdMck(irc,iopt,Label,idum,DegDisp,idum)
        If (iRC.ne.0) Then
          Write (6,*)
          Write (6,*) ' *** Error in subroutine OUTPUT_TD ***'
@@ -408,12 +414,12 @@ C
          Write (6,*)
        End If
        If (debug)
-     &  Call HssPrt_MCLR(iwork(ipdegdisp),Work(ipHess),ldisp2)
-       call daxpy_(3*ndisp,-1.0d0,Work(ipEG),1,Work(ipELEC),1)
-       If (debug.and.elec)
-     &  Call Recprt('ELEC-ST',' ',Work(ipEG),3*nDisp,1)
-       If (debug.and.elec)
-     &  Call Recprt('ELEC-TOT',' ',Work(ipElec),3*nDisp,1)
+     &  Call HssPrt_MCLR(DegDisp,Hess,ldisp2)
+       call daxpy_(3*ndisp,-1.0d0,EG,1,ELEC,1)
+       If (debug.and.elec_On)
+     &  Call Recprt('ELEC-ST',' ',EG,3*nDisp,1)
+       If (debug.and.elec_On)
+     &  Call Recprt('ELEC-TOT',' ',Elec,3*nDisp,1)
 *
        Lu_10=10
        Lu_10=IsFreeUnit(Lu_10)
@@ -421,11 +427,9 @@ C
 c       Open(unit=Lu_10, file='UNSYM')
 *
        If (Mckinley) Then
-           Call FreqAnal(iwork(ipdegdisp),iWork(ipnrdisp),work(ipHess),
-     &               converged,Work(ipELEC),ielec,Work(ipelout),
-     &               ldisp2,Lu_10)
-           Call Niclas(work(ipHess),coor,Lu_10)
-*          Call Niclas(work(ipHess),coor)
+           Call FreqAnal(DegDisp,NrDisp,Hess,converged,ELEC,ielec,ELOUT,
+     &                   ldisp2,Lu_10)
+           Call Niclas(Hess,coor,Lu_10)
        End If
        Write(6,*)
        Write(6,*)
@@ -446,22 +450,20 @@ c       Open(unit=Lu_10, file='UNSYM')
 *
        Call TriPrt(' ',' ',Pola,3)
        close(Lu_10)
-       Call GetMem('NRDISP','FREE','INTE',ipnrdisp,ndisp)
-       Call GetMem('NRDISP','FREE','INTE',ipdegdisp,ndisp)
+       Call mma_deallocate(NrDisp)
+       Call mma_deallocate(DegDisp)
       End If
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*
 *
-*      Call Getmem('output','CHECK','REAL',idum,idum)
-      Call GetMem('Temp','FREE','REAL',ipTemp,nHss)
-      Call GetMem('HESS','FREE','REAL',ipHess,nHss)
-      Call GetMem('HESS','FREE','REAL',ipHess2,nHss)
-      Call GetMem('RESPH','FREE','REAL',ipRHss,nHss)
-      Call GetMem('EG  ','Free','REAL',ipEG  ,3*ndisp)
-      Call GetMem('ELEC2','Free','REAL',ipELEC2,3*ndisp)
-      Call GetMem('Temp','FREE','REAL',ipELEC,3*ndisp)
-      Call GetMem('Temp','FREE','REAL',ipELOUT,3*ndisp)
+      Call mma_deallocate(ELOUT)
+      Call mma_deallocate(EG)
+      Call mma_deallocate(ELEC)
+      Call mma_deallocate(Temp)
+      Call mma_deallocate(Hess2)
+      Call mma_deallocate(Hess)
+      Call mma_deallocate(RHss)
 *
       Return
       End
