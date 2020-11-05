@@ -15,7 +15,6 @@
      &                      MO1,Q,CVa, nVB, CMO,CMO_inv,
      &                      nOrb,nAsh,nIsh,doAct,Fake_CMO2,
      &                      LuAChoVec,LuIChoVec,iAChoVec)
-
 **********************************************************************
 *  Author : M. G. Delcey based on cho_LK_rassi_x
 *
@@ -34,14 +33,13 @@ C      a,b,g,d:  AO-index
 C      k:        MO-index   belonging to (Inactive)
 C      v,w,x,y:  MO-indeces belonging to (Active)
 C
-**********************************************************************
 
       Implicit Real*8 (a-h,o-z)
       Real*8 DLT(*), DI(*), DA(*), G2(*), Kappa(*), JI(*), KI(*),
      &       JA(*), KA(*), FkI(*), FkA(*), MO1(*), Q(*),
      &       CMO(*), CMO_Inv(*), CVa(nVB,2)
 #include "warnings.fh"
-      Integer   rc,ipScr, nVB
+      Integer   rc, nVB
       Integer   ipLpq(8,3)
       Integer   iSkip(8),kOff(8),kaOff(8)
       Integer   ISTLT(8),ISTSQ(8),ISTK(8),ISSQ(8,8),iASQ(8,8,8)
@@ -70,6 +68,7 @@ C
 #include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "para_info.fh"
 
       Real*8 LKThr
@@ -82,8 +81,10 @@ C
       External  Cho_LK_MaxVecPerBatch
       Real*8    Cho_LK_ScreeningThreshold
       External  Cho_LK_ScreeningThreshold
-
+      Real*8, Allocatable:: Scr(:), MOScr(:)
+*                                                                      *
 ************************************************************************
+*                                                                      *
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
@@ -110,7 +111,9 @@ C
 ****** next is a trick to save memory. Memory in "location 2" is used
 ******      to store this offset array defined later on
       iOffShp(i,j) = iWork(ip_iiBstRSh+nSym*nnShl-1+nSym*(j-1)+i)
+*                                                                      *
 ************************************************************************
+*                                                                      *
 
 
 #ifdef _DEBUGPRINT_
@@ -221,11 +224,11 @@ c --------------------
         END DO
 
 C *** memory for the Q matrices --- temporary array
-        Call GetMem('Qmat','ALLO','REAL',ipScr,nsAB*nDen)
-        Call Fzero(Work(ipScr),nsAB*nDen)
+        Call mma_allocate(Scr,nsAB*nDen,Label='Scr')
+        Scr(:)=0.0d0
 *MGD improve that
-        Call GetMem('MOScr','ALLO','REAL',ipMOScr,nnA**4)
-        Call Fzero(Work(ipMOScr),nnA**4)
+        Call mma_allocate(MOScr,nnA**4,Label='MOScr')
+        MOScr(:)=0.0d0
       End If
 **************************************************
       If (Deco) Then
@@ -1621,11 +1624,11 @@ C --------------------------------------------------------------------
      &                  ONE,G2(ipG),NAv*Naw,
      &                  Work(ipLvtw),1,ZERO,Work(ipLtxy),1)
 *Qpx=Lpy ~Lxy
-                     ipQpx=ipScr+nsAB
+                     ipQpx=1+nsAB
                      Call DGEMM_('T','N',NBAS(iSymb),NAw,Nav,
      &                          2.0d0,Work(ipLvb),NAv,
      &                          Work(ipLtxy),Naw,
-     &                         ONE,Work(ipQpx),NBAS(iSymb))
+     &                         ONE,Scr(ipQpx),NBAS(iSymb))
                       CALL CWTIME(TCINT3,TWINT3)
                       tQmat(1) = tQmat(1) + (TCINT3 - TCINT4)
                       tQmat(2) = tQmat(2) + (TWINT3 - TWINT4)
@@ -1663,12 +1666,12 @@ C *************** EVALUATION OF THE (TW|XY) INTEGRALS ***********
                       If (.not.Fake_CMO2) ipLvtw=ipLpq(iSymx,3)
 
 * (tu|v~w) = Ltu*Lv~w
-                        ipaMO=ipMOScr+iASQ(iSymb,iSymv,iSymx)
+                        ipaMO=1+iASQ(iSymb,iSymv,iSymx)
                         Call DGEMM_('N','T',Nav*Naw,NAx*Nay,
      &                              JNUM,ONE,
      &                              Work(ipLvw), NAv*Naw,
      &                              Work(ipLvtw),NAx*Nay,
-     &                              ONE,Work(ipaMO),NAv*Naw)
+     &                              ONE,MOScr(ipaMO),NAv*Naw)
                      ENdIf
  21                  Continue
                    EndDo
@@ -1716,7 +1719,7 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
 C --------------------------------------------------------------------
 C --- Formation of the Q matrix Qpx = L~py Lvw Gxyvw
 C --------------------------------------------------------------------
-               ipQpx=ipScr
+               ipQpx=1
                Do iSymb=1,nSym
 
                   iSymv = MulD2h(JSYM,iSymb)
@@ -1748,7 +1751,7 @@ C --------------------------------------------------------------------
                       Call DGEMM_('T','N',NBAS(iSymb),NAw,Nav,
      &                           One,Work(ipLvb),NAv,
      &                           Work(ipLxy),Nav,
-     &                           ONE,Work(ipQpx),NBAS(iSymb))
+     &                           ONE,Scr(ipQpx),NBAS(iSymb))
                     End Do
                     ipQpx=ipQpx+nBas(iSymb)*Naw
 
@@ -1801,11 +1804,11 @@ C --------------------------------------------------------------------
                      Do JVC=1,JNUM
                       ipLvtb= ipLpq(iSymv,1) + NAv*NBAS(iSymb)*(JVC-1)
                       ipLxy = ipLpq(iSymv,3) + NAv*Naw*(JVC-1)
-                      ipQpx=ipScr+nsAB
+                      ipQpx=1+nsAB
                       Call DGEMM_('T','N',NBAS(iSymb),NAw,Nav,
      &                           One,Work(ipLvtb),NAv,
      &                           Work(ipLxy),Naw,
-     &                           ONE,Work(ipQpx),NBAS(iSymb))
+     &                           ONE,Scr(ipQpx),NBAS(iSymb))
                      End Do
                      CALL CWTIME(TCINT2,TWINT2)
                      tQmat(1) = tQmat(1) + (TCINT2 - TCINT3)
@@ -2016,25 +2019,19 @@ C--- have performed screening in the meanwhile
                       ilkx=kAsh-1+(lAsh-1)*nAsh(kS)
 
                       ipG=1+itri(iij,ikl)-1
-                      ipGx=ipMOScr+iASQ(iS,jS,kS)+
-     &                     iklx*nAsh(iS)*nAsh(jS)+iijx
-                      ipGx2=ipMOScr+iASQ(iS,jS,kS)+
-     &                     ilkx*nAsh(iS)*nAsh(jS)+iijx
-                      ipGx3=ipMOScr+iASQ(iS,jS,kS)+
-     &                     iklx*nAsh(iS)*nAsh(jS)+ijix
-                      ipGx4=ipMOScr+iASQ(iS,jS,kS)+
-     &                     ilkx*nAsh(iS)*nAsh(jS)+ijix
-                      ipGx5=ipMOScr+iASQ(iS,jS,kS)+
-     &                     iijx*nAsh(iS)*nAsh(jS)+iklx
-                      ipGx6=ipMOScr+iASQ(iS,jS,kS)+
-     &                     ijix*nAsh(iS)*nAsh(jS)+iklx
-                      ipGx7=ipMOScr+iASQ(iS,jS,kS)+
-     &                     iijx*nAsh(iS)*nAsh(jS)+ilkx
-                      ipGx8=ipMOScr+iASQ(iS,jS,kS)+
-     &                     ijix*nAsh(iS)*nAsh(jS)+ilkx
+                      ipGx =1+iASQ(iS,jS,kS)+iklx*nAsh(iS)*nAsh(jS)+iijx
+                      ipGx2=1+iASQ(iS,jS,kS)+ilkx*nAsh(iS)*nAsh(jS)+iijx
+                      ipGx3=1+iASQ(iS,jS,kS)+iklx*nAsh(iS)*nAsh(jS)+ijix
+                      ipGx4=1+iASQ(iS,jS,kS)+ilkx*nAsh(iS)*nAsh(jS)+ijix
+                      ipGx5=1+iASQ(iS,jS,kS)+iijx*nAsh(iS)*nAsh(jS)+iklx
+                      ipGx6=1+iASQ(iS,jS,kS)+ijix*nAsh(iS)*nAsh(jS)+iklx
+                      ipGx7=1+iASQ(iS,jS,kS)+iijx*nAsh(iS)*nAsh(jS)+ilkx
+                      ipGx8=1+iASQ(iS,jS,kS)+ijix*nAsh(iS)*nAsh(jS)+ilkx
                       MO1(ipG)=0.5d0*
-     &(Work(ipGx)+Work(ipGx2)+Work(ipGx3)+Work(ipGx4)+
-     & Work(ipGx5)+Work(ipGx6)+Work(ipGx7)+Work(ipGx8))
+     &                        (MOScr(ipGx )+MOScr(ipGx2)+
+     &                         MOScr(ipGx3)+MOScr(ipGx4)+
+     &                         MOScr(ipGx5)+MOScr(ipGx6)+
+     &                         MOScr(ipGx7)+MOScr(ipGx8))
 
                     End Do
                   End Do
@@ -2065,8 +2062,8 @@ C--- have performed screening in the meanwhile
                       If (lAsh+kAOff(lS).eq.kAsh+kAOff(kS)) Fac2=2.0d0
                       If (iij.ne.ikl) Fac2=Fac2*0.5d0
                       ipG=1+itri(iij,ikl)-1
-                      ipGx=ipMOScr+(iklx-1)*na2+iijx-1
-                      MO1(ipG)=MO1(ipG)+Fac1*Fac2*Work(ipGx)
+                      ipGx=1+(iklx-1)*na2+iijx-1
+                      MO1(ipG)=MO1(ipG)+Fac1*Fac2*MOScr(ipGx)
                     End Do
                   End Do
                 End Do
@@ -2106,20 +2103,20 @@ C--- have performed screening in the meanwhile
             If (Fake_CMO2) Then
               Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
      &                     1.0d0,CMO(1+ISTSQ(iS)),nBas(jS),
-     &                     Work(ipScr+ioff),nBas(jS),
+     &                     Scr(1+ioff),nBas(jS),
      &                     0.0d0,Q(1+ioff),nBas(jS))
             Else
               Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
      &                     1.0d0,CMO(1+ISTSQ(iS)),nBas(jS),
-     &                     Work(ipScr+nsAB+ioff),nBas(jS),
+     &                     Scr(1+nsAB+ioff),nBas(jS),
      &                     0.0d0,Q(1+ioff),nBas(jS))
               Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
      &                     1.0d0,CMO(1+ISTSQ(iS)),nBas(jS),
-     &                     Work(ipScr+ioff),nBas(jS),
-     &                     0.0d0,Work(ipScr+nsAB+ioff),nBas(jS))
+     &                     Scr(1+ioff),nBas(jS),
+     &                     0.0d0,Scr(1+nsAB+ioff),nBas(jS))
               Call DGEMM_('N','N',nBas(jS),nAsh(iS),nBas(jS),
      &                    -1.0d0,kappa(1+ISTSQ(iS)),nBas(jS),
-     &                     Work(ipScr+nsAB+ioff),nBas(jS),
+     &                     Scr(1+nsAB+ioff),nBas(jS),
      &                     1.0d0,Q(1+ioff),nBas(jS))
             EndIf
             ioff=ioff+nBas(iS)*nAsh(iS)
@@ -2132,8 +2129,8 @@ C--- have performed screening in the meanwhile
 
 
       If (DoAct) Then
-        Call GetMem('Qmat','FREE','REAL',ipScr,nsAB*nDen)
-        Call GetMem('MOScr','FREE','REAL',ipMOScr,nnA**4)
+        Call mma_deallocate(Scr)
+        Call mma_deallocate(MOScr)
       EndIf
       Call GetMem('F(k)ss','Free','Real',ipFk,MxBasSh+nShell)
       Call GetMem('ip_SvShp','Free','Real',ip_SvShp,2*nnShl)
