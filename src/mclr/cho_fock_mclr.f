@@ -38,6 +38,7 @@
       Integer   Cho_LK_MaxVecPerBatch
       External  Cho_LK_MaxVecPerBatch
       Integer, Allocatable:: kOffSh(:,:)
+      Real*8, Allocatable:: Scr(:), Fab(:), Lrs(:), LF(:)
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
@@ -97,8 +98,8 @@
          END DO
       END DO
 *     memory for the Q matrices --- temporary array
-      Call GetMem('Qmat','ALLO','REAL',ipScr,nsBB*nDen)
-      Call Fzero(Work(ipScr),nsBB*nDen)
+      Call mma_allocate(Scr,nsBB*nDen,Label='Scr')
+      Scr(:)=Zero
 *
       MaxVecPerBatch=Cho_LK_MaxVecPerBatch()
 *
@@ -147,8 +148,8 @@ c         !set index arrays at iLoc
 
           nRS = nDimRS(JSYM,JRED)
           If (jSym.eq.1) Then
-            Call GetMem('rsFC','Allo','Real',ipFab,nRS)
-            Call Fzero(Work(ipFab),nRS)
+            Call mma_allocate(Fab,nRS,Label='Fab')
+            Fab(:)=Zero
           EndIf
 
           Call mma_MaxDBLE(LWORK)
@@ -165,8 +166,8 @@ c         !set index arrays at iLoc
           End If
           LREAD = nRS*nVec
 
-          Call GetMem('rsL','Allo','Real',ipLrs,LREAD)
-          CALL GetMem('FullV','Allo','Real',ipLF,mTvec*nVec)
+          Call mma_allocate(Lrs,LREAD,Label='Lrs')
+          CALL mma_allocate(LF,mTvec*nVec,Label='LF')
 
           nBatch = (nVrs-1)/nVec + 1
 
@@ -188,7 +189,7 @@ c         !set index arrays at iLoc
             JVEC = nVec*(iBatch-1) + iVrs
             IVEC2 = JVEC - 1 + JNUM
 
-            CALL CHO_VECRD(Work(ipLrs),LREAD,JVEC,IVEC2,JSYM,
+            CALL CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,
      &                     NUMV,IREDC,MUSED)
 
             If (NUMV.le.0 .or.NUMV.ne.JNUM ) then
@@ -208,7 +209,7 @@ C -------------------------------------------------------------
 
                 k = Muld2h(i,JSYM)
 
-                ipLpq(k,1) = ipLF + lChoa   ! Lvb,J
+                ipLpq(k,1) = 1 + lChoa   ! Lvb,J
                 ipLpq(k,2) = ipLpq(k,1)     ! Lvi,J i general MO index
      &                     + nAsh(k)*nBas(i)*JNUM
                 ipLpq(k,3) = ipLpq(k,2)     ! L~vi,J ~ transformed index
@@ -229,7 +230,7 @@ C -------------------------------------------------------------
                 k = Muld2h(i,JSYM)
                 lvec=nAsh(k)*nBas(i)*JNUM
                 iAdr=(JVEC-1)*nAsh(k)*nBas(i)+ioff
-                call DDAFILE(LuAChoVec(Jsym),2,Work(ipLpq(k,1)),
+                call DDAFILE(LuAChoVec(Jsym),2,LF(ipLpq(k,1)),
      &                       lvec,iAdr)
                 ioff=ioff+nAsh(k)*nBas(i)*NumCho(jSym)
              End Do
@@ -253,9 +254,9 @@ C --------------------------------------------------------------------
                   ipLvb = ipLpq(iSymv,1) + NAv*NBAS(iSymb)*(JVC-1)
                   ipLvw = ipLpq(iSymv,2) + NAv*Naw*(JVC-1)
                   CALL DGEMM_('N','T',NAv,Naw,NBAS(iSymb),
-     &                       One,Work(ipLvb),NAv,
+     &                       One,LF(ipLvb),NAv,
      &                       Work(ipAOrb(iSymb,1)),Naw,
-     &                      Zero,Work(ipLvw),NAv)
+     &                      Zero,LF(ipLvw),NAv)
                  End Do
 *                 CALL CWTIME(TCINT2,TWINT2)
 *                 tint1(1) = tint1(1) + (TCINT2 - TCINT3)
@@ -268,12 +269,12 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
                  ipLvtw = ipLpq(iSymv,2)
 
                  CALL DGEMV_('T',Nav*Naw,JNUM,
-     &                  ONE,Work(ipLvtw),Nav*Naw,
-     &                  DA,1,ZERO,Work(ipVJ),1)
+     &                  ONE,LF(ipLvtw),Nav*Naw,
+     &                  DA,1,ZERO,LF(ipVJ),1)
 *
                  CALL DGEMV_('N',nRS,JNUM,
-     &                -FactCI,Work(ipLrs),nRS,
-     &                Work(ipVJ),1,1.0d0,Work(ipFab),1)
+     &                -FactCI,Lrs,nRS,
+     &                LF(ipVJ),1,1.0d0,Fab,1)
 
 *                 CALL CWTIME(TCINT2,TWINT2)
 *                 tact(1) = tact(1) + (TCINT2 - TCINT3)
@@ -289,13 +290,12 @@ C --------------------------------------------------------------------
                   ipLxy = ipLpq(iSymv,3) + NAv*Naw*(JVC-1)
                   CALL DGEMV_('N',NAv*Naw,NAv*Naw,
      &               ONE,G2,NAv*Naw,
-     &               Work(ipLvw),1,ZERO,Work(ipLxy),1)
+     &               LF(ipLvw),1,ZERO,LF(ipLxy),1)
 *Qpx=Lpy Lxy
-                  ipQpx=ipScr
                   Call DGEMM_('T','N',NBAS(iSymb),NAw,Nav,
-     &                       One,Work(ipLvb),NAv,
-     &                       Work(ipLxy),Naw,
-     &                      ONE,Work(ipQpx),NBAS(iSymb))
+     &                       One,LF(ipLvb),NAv,
+     &                       LF(ipLxy),Naw,
+     &                      ONE,Scr,NBAS(iSymb))
                  End Do
 *                 CALL CWTIME(TCINT3,TWINT3)
 *                 tQmat(1) = tQmat(1) + (TCINT3 - TCINT2)
@@ -308,9 +308,9 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
                    ipLvb = ipLpq(iSymv,1)+ NAv*NBAS(iSymb)*(JVC-1)
                    ipLwb = ipLpq(iSymv,2)+ NAv*NBAS(iSymb)*(JVC-1)
                    Call DGEMM_('T','N',NBAS(iSymb),Nav,Nav,
-     &                         ONE,Work(ipLvb),Nav,
+     &                         ONE,LF(ipLvb),Nav,
      &                         DA,Nav,ZERO,
-     &                         Work(ipLwb),NBAS(iSymb))
+     &                         LF(ipLwb),NBAS(iSymb))
                  End Do
 *                 CALL CWTIME(TCINT2,TWINT2)
 *                 tact(1) = tact(1) + (TCINT2 - TCINT3)
@@ -322,8 +322,8 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
      &                      + Nav*(is-1)
                     ipFock=1+nBas(iSymb)*(is-1)
                     CALL DGEMV_('N',NBAS(iSymb),Nav,
-     &                   -FactXI,Work(ipLwb),NBAS(iSymb),
-     &                   Work(ipLtvb),1,ONE,KA(ipFock),1)
+     &                   -FactXI,LF(ipLwb),NBAS(iSymb),
+     &                   LF(ipLtvb),1,ONE,KA(ipFock),1)
 
                   EndDo
                  End Do
@@ -341,12 +341,13 @@ c --- backtransform fock matrix to full storage
           If(JSYM.eq.1)Then
              mode = 'tofull'
              ipJA = ip_of_Work(JA)
+             ipFab= ip_of_Work(Fab)
              Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,
      &                           ISSQ,ipJA,ipFab,mode)
-          Call GetMem('rsFC','Free','Real',ipFab,nRS)
+             Call mma_deallocate(Fab)
           EndIf
-          Call GetMem('rsL','Free','Real',ipLrs,LREAD)
-          CALL GetMem('FullV','Free','Real',ipLF,mTvec*nVec)
+          Call mma_deallocate(Lrs)
+          Call mma_deallocate(LF)
  999      Continue
         End Do  ! loop over red sets
  1000   CONTINUE
@@ -409,7 +410,7 @@ c --- backtransform fock matrix to full storage
           ioff=nIsh(iS)*nBas(jS)+ISTSQ(iS)
           Call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),
      &                 1.0d0,CMO(1+ISTSQ(iS)),nBas(jS),
-     &                 Work(ipScr+ISTSQ(iS)),nBas(jS),0.0d0,
+     &                 Scr(1+ISTSQ(iS)),nBas(jS),0.0d0,
      &                 FkA(1+ioff),nBas(jS))
         EndIf
       End Do
@@ -418,8 +419,8 @@ c --- backtransform fock matrix to full storage
 *     TERMINATING                                                    *
 *                                                                    *
 **********************************************************************
+      Call mma_deallocate(Scr)
       Call mma_deallocate(kOffSh)
-      Call GetMem('Qmat','FREE','REAL',ipScr,nsBB*nDen)
 
       Return
       END
