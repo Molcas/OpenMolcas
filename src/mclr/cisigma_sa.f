@@ -11,7 +11,7 @@
        SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
      &                       Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
        use ipPage, only: W
-       use Arrays, only: FIMO, KAIN1, KINT2, KINT2A, pInt1
+       use Arrays, only: KAIN1, KINT2, KINT2A, pInt1
        Implicit Real*8(a-h,o-z)
 *
 #include "Pointers.fh"
@@ -24,7 +24,7 @@
 #include "cstate_mclr.fh"
 
 #include "cicisp_mclr.fh"
-       integer kic(2),opout,nbb(8)
+       integer kic(2),opout
        Logical Have_2_el
        Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
        Real*8, Allocatable:: CIDET(:)
@@ -46,11 +46,6 @@
 *
 *      Two electron integrals
 *      symmetric in perticle one and two
-       if (ip_of_Work(Int1(1)).eq.ip_of_Work(FIMO(1))) then
-        Call icopy(nsym,nbas,1,nbb,1)
-       Else
-         Call icopy(nsym,norb,1,nbb,1)
-       End if
 *
        KINT2=>Int2s
 *
