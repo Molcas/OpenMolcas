@@ -286,7 +286,7 @@ C
                   Call GASync()
                   Len=nDensC
                   Call FZero(Kap2,Len)
-                  Call GADSum(pKap2,Len)
+                  Call GADSum(Kap2,Len)
                   Call FZero(rKap2,Len)
                   Call GADSum(rKap2,Len)
                   If (CI) Then

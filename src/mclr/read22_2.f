@@ -384,13 +384,11 @@
         call dcopy_(nDens2,[0.0d0],0,Q,1)
 *
         istore=1 ! Ask to store the half-transformed vectors
-        Call WarningMessage(2,'This is not tested.')
-        Call Abend()
-!       Call CHO_LK_MCLR(DLT,Temp2,DA,G2x,rdum,
-!    &                   Temp3,Scr,JA,KA,FockI,FockA,
-!    &                   MO1,Q,CVa,nVB,CMO,CMO_inv,
-!    &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
-!    &                   LuAChoVec,LuIChoVec,istore)
+        Call CHO_LK_MCLR(DLT,Temp2,DA,G2x,rdum,
+     &                   Temp3,Scr,JA,KA,FockI,FockA,
+     &                   MO1,Q,CVa,nVB,CMO,CMO_inv,
+     &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
+     &                   LuAChoVec,LuIChoVec,istore)
         nAtri=nAct*(nAct+1)/2
         nAtri=nAtri*(nAtri+1)/2
         Call DScal_(nAtri,0.25D0,MO1,1)
