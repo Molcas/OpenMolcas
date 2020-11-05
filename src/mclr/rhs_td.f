@@ -60,7 +60,7 @@
       Integer ipCI1, ipCI2
       Character(LEN=1) NT
       Logical Have_2_el
-      End SubRoutine CISigma_sa
+      End SubRoutine CISigma_td
       End Interface
 *                                                                     *
 ***********************************************************************
