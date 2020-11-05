@@ -41,6 +41,7 @@
 #include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Character*50 CFmt
       parameter ( N2 = InfVec_N2 )
       parameter (zero = 0.0D0, one = 1.0D0, xone=-1.0D0)
@@ -49,13 +50,18 @@
       parameter (DoRead = .false. )
       Integer   Cho_LK_MaxVecPerBatch
       External  Cho_LK_MaxVecPerBatch
+      Real*8, Allocatable:: iiab(:)
+*                                                                      *
 ************************************************************************
+*                                                                      *
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 ******
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
+*                                                                      *
 ************************************************************************
+*                                                                      *
       timings=.false.
       CALL CWTIME(TCstart1,TWstart1)
       do i=1,2            ! 1 --> CPU   2 --> Wall
@@ -126,7 +132,7 @@
 **      or if batching is required
 *
         Call GetMem('MaxM','Max','Real',KDUM,LWORK)
-        Call GAIGOP_SCAL(LWORK,'min')
+        Call mma_MaxDBLE(LWORK)
 *
         Do i=1,nsym
           nIshb(i)=0
@@ -221,14 +227,14 @@
         End Do
         nip=nip+ntotie ! for Lii^J
 *
-        Call GetMem('iiab','Allo','Real',ipiiab,libatch)
+        Call mma_allocate(iiab,libatch,Label='iiab')
         nab=0
         If ((jsym.eq.1).and.(ntotie.gt.0)) Then
           nab=npq
           Call GetMem('iirs','Allo','Real',ipiirs,ntotie*maxRS)
         EndIf
-        ipiaib=ipiiab+nab*ntotie
-        Call dcopy_(libatch,[0.0d0],0,Work(ipiiab),1)
+        ipiaib=1+nab*ntotie
+        iiab(:)=0.0d0
 
 *init for compilers
         iptupq=ip_Dummy
@@ -441,7 +447,7 @@ c         !set index arrays at iLoc
                  Call DGEMM_('N','T',nBas(kSym),nBas(kSym),JNUM,
      &                        1.0d0,Work(ipLip),nBas(kSym)*nIshe(iSym),
      &                              Work(ipLip),nBas(kSym)*nIshe(iSym),
-     &                        1.0d0,Work(ip1)  ,nBas(kSym))
+     &                        1.0d0,iiab(ip1:)  ,nBas(kSym))
                  ip1=ip1+nBas(kSym)**2
               End Do
             End Do
@@ -590,7 +596,7 @@ c         !set index arrays at iLoc
 *
           If (jsym.eq.1) Then
             Do i=1,ntotie
-              ip1=ipiiab+nab*(i-1)
+              ip1=ip_of_Work(iiab(1))+nab*(i-1)
               ipRS1=ipiirs+nRS*(i-1)
               mode = 'tofull'
               Call play_rassi_sto(irc,iLoc,JSYM,ISTSQ,ISSQ,
@@ -639,7 +645,7 @@ c         !set index arrays at iLoc
 *
             If (jsym.eq.1) Then
               isum=isum+1
-              ip2=ipiiab+nab*(isum-1)
+              ip2=1+nab*(isum-1)
               ioff2=0
               Do ksym2=1,nsym
                 ipMO2=1+ioff2+nBas(kSym2)*nIsh(kSym2)
@@ -647,7 +653,7 @@ c         !set index arrays at iLoc
                 Do j=1,nvirt2
                   ipMOj=ipMO2+(j-1)*nBas(kSym2)
                   ipIntj=ipInt+(j-1)*nBas(kSym2)
-                  Call DSPMV_('U',nBas(kSym2),1.0d0,Work(ip2),
+                  Call DSPMV_('U',nBas(kSym2),1.0d0,iiab(ip2),
      &                       CMO(ipMOj),1,0.0d0,Work(ipIntj),1)
                 End Do
                 Call DGEMM_('T','N',nvirt2,nvirt2,nBas(kSym2),
@@ -669,7 +675,7 @@ c         !set index arrays at iLoc
 **      MO transform ( i p | i q)
 *
             Call DGEMM_('N','N',nBas(kSym),nvirt,nBas(kSym),
-     &                  1.0d0,Work(ip1)  ,nBas(kSym),
+     &                  1.0d0,iiab(ip1:)  ,nBas(kSym),
      &                        CMO(ipMO),nBas(kSym),
      &                  0.0d0,Work(ipInt),nBas(kSym))
             Call DGEMM_('T','N',nvirt,nvirt,nBas(kSym),
@@ -773,7 +779,7 @@ c         !set index arrays at iLoc
           nAshb(i)=nAshb(i)+nAshe(i)  ! now those are done!
         EndDo
         Call GetMem('CMOt','Free','Real',ipCMOt(1),nCMO)
-        Call GetMem('iiab','Free','Real',ipiiab,libatch)
+        Call mma_deallocate(iiab)
         If (ntotae.gt.0)
      &     Call GetMem('tupq','Free','Real',iptupq,labatch)
         If (taskleft) Go to 50  ! loop over i/t batches
