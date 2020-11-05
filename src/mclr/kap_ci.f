@@ -19,7 +19,22 @@
       Real*8, Allocatable :: R(:,:)
       Real*8 h1(nh1), h2(nh2)
       Real*8 rDum(1)
-
+*                                                                      *
+************************************************************************
+*                                                                      *
+       Interface
+       SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
+     &                       Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
+       Integer iispin, iCsym, iSSym
+       Integer nInt1, nInt2s, nInt2a
+       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+       Integer ipCI1, ipCI2
+       Logical Have_2_el
+       End SubRoutine CISigma_sa
+       End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
       Call CISigma_sa(0,state_sym,state_sym,h1,nh1,h2,nh2,rdum,1,ipCI,
      &                ipS1,.True.)
 
