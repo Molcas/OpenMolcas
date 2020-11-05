@@ -50,7 +50,8 @@
       parameter (DoRead = .false. )
       Integer   Cho_LK_MaxVecPerBatch
       External  Cho_LK_MaxVecPerBatch
-      Real*8, Allocatable:: iiab(:), iirs(:), tupq(:)
+      Real*8, Allocatable:: iiab(:), iirs(:), tupq(:), turs(:),
+     &                      CMOt(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -283,8 +284,8 @@
            nab=0
            If (jsym.eq.1) Then
              nab=npq
-             If (ntue.gt.0)
-     &          Call GetMem('turs','Allo','Real',ipturs,ntue*maxRS)
+             If (ntue.gt.0) Call mma_allocate(turs,ntue*maxRS,
+     &                                        Label='turs')
            EndIf
            iptpuq=1+nab*ntue
            tupq(:)=0.0D0
@@ -299,7 +300,8 @@
         Do i=1,nsym
           nCMO=nCMO+nIshe(i)*nBas(i)
         End Do
-        Call GetMem('CMOt','Allo','Real',ipCMOt(1),nCMO)
+        Call mma_allocate(CMOt,nCMO,Label='CMOt')
+        ipCMOt(1)=1
         ioff =0
         ioff2=0
         Do iSym=1,nsym
@@ -307,7 +309,7 @@
           Do j=1,nIshe(iSym)
             ioff3=ioff+nBas(iSym)*(nIshb(iSym)+j-1)
             call dcopy_(nBas(iSym),CMO(1+ioff3),1,
-     &                 Work(ipCMOt(isym)+j-1),nIshe(iSym))
+     &                 CMOt(ipCMOt(isym)+j-1),nIshe(iSym))
           End Do
           ioff =ioff +nBas(iSym)**2
           ioff2=ioff2+nBas(iSym)*nIshe(iSym)
@@ -339,11 +341,10 @@ c         !set index arrays at iLoc
 
           If (jSym.eq.1) Then
             If (ntotie.gt.0) iirs(:)=0.0D0
-            If (ntue.gt.0)
-     &         call dcopy_(ntue*nRS,[0.0d0],0,Work(ipturs),1)
+            If (ntue.gt.0) turs(:)=0.0d0
           EndIf
 
-          Call GetMem('MaxM','Max','Real',KDUM,LWORKe)
+          Call mma_MaxDBLE(LWORKe)
           nVec= min(LWORKE/(nRS+max(nip,ntp)),min(nVrs,MaxVecPerBatch))
           If (nVec.lt.1) Then
             WRITE(6,*) SECNAM//': Insufficient memory for J batch'
@@ -413,9 +414,12 @@ c         !set index arrays at iLoc
             kMOs = 1  !
             nMOs = 1  ! Active MOs (1st set)
 *
+            inc = ip_of_Work(CMOt(1))
+            ipCMOt(:) = ipCMOt(:) - 1 + inc
             CALL CHO_X_getVtra(irc,Work(ipLrs),LREAD,jVEC,JNUM,
      &                        JSYM,iSwap,IREDC,nMOs,kMOs,ipCMOt,
      &                        nIshe,ipLpq,iSkip,DoRead)
+            ipCMOt(:) = ipCMOt(:) + 1 - inc
 
             if (irc.ne.0) then
                rc = irc
@@ -560,7 +564,7 @@ c         !set index arrays at iLoc
 ************************************************************************
 **           Formation of the (tu|rs) integral
 *
-             ipInt=ipturs
+             ipInt=1
              ipLtu=ipChoT+(ntp-ntue)*nVec
              Do i=1,nsym
                na2=nAshe(i)*nAshb(i)+nAshe(i)*(nAshe(i)+1)/2
@@ -568,7 +572,7 @@ c         !set index arrays at iLoc
                  Call DGEMM_('N','T',nRS,na2,JNUM,
      &                       1.0d0,Work(ipLrs),nRS,
      &                             Work(ipLtu),na2,
-     &                       1.0d0,Work(ipInt),nRS)
+     &                       1.0d0,turs(ipInt),nRS)
                  ipLtu=ipLtu+na2*JNUM
                  ipInt=ipInt+nRS*na2
                End If
@@ -597,9 +601,8 @@ c         !set index arrays at iLoc
             End Do
             Do i=1,ntue
               ip1=ip_of_Work(tupq(1))+npq*(i-1)
-              ipRS1=ipturs+nrs*(i-1)
+              ipRS1=ip_of_Work(turs(1))+nrs*(i-1)
               mode = 'tofull'
-*              Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,ISSQ,
               Call play_rassi_sto(irc,iLoc,JSYM,ISTSQ,ISSQ,
      &                                   ip1,ipRS1,mode)
             End Do
@@ -612,8 +615,7 @@ c         !set index arrays at iLoc
 *
         If (jsym.eq.1) Then
           If (ntotie.gt.0) Call mma_deallocate(iirs)
-          If (ntue.gt.0)
-     &      Call GetMem('turs','Free','Real',ipturs,ntue*maxRS)
+          If (ntue.gt.0) Call mma_deallocate(turs)
         EndIf
 *
 ** MGD  Gather integrals from parallel runs
@@ -770,7 +772,7 @@ c         !set index arrays at iLoc
           nIshb(i)=nIshb(i)+nIshe(i)  ! now those are done!
           nAshb(i)=nAshb(i)+nAshe(i)  ! now those are done!
         EndDo
-        Call GetMem('CMOt','Free','Real',ipCMOt(1),nCMO)
+        Call mma_deallocate(CMOt)
         Call mma_deallocate(iiab)
         If (ntotae.gt.0) Call mma_deallocate(tupq)
         If (taskleft) Go to 50  ! loop over i/t batches
