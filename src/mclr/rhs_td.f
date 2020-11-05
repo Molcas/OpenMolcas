@@ -44,21 +44,37 @@
       Character(LEN=8) Label
       Logical CI
       Real*8 Temp1(nDens),rKappa(nDens),Temp4(nDens),
-     &      Temp2(nDens),Temp3(nDens),CMO(nCMO),Temp5(nDens),
-     &      Temp6(nDens),temp7(ndens)
+     &       Temp2(nDens),Temp3(nDens),CMO(nCMO),Temp5(nDens),
+     &       Temp6(nDens),temp7(ndens)
       Real*8 rDum(1)
       Real*8, Allocatable:: FiX(:),MOX(:),MOT(:),MOT2(:)
-
+*                                                                     *
+***********************************************************************
+*                                                                     *
+      Interface
+      SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
+     &                       Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
+      Integer iispin, iCsym, iSSym
+      Integer nInt1, nInt2s, nInt2a
+      Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+      Integer ipCI1, ipCI2
+      Logical Have_2_el
+      End SubRoutine CISigma_sa
+      End Interface
+*                                                                     *
+***********************************************************************
+*                                                                     *
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-
-*
+*                                                                     *
+***********************************************************************
+*                                                                     *
       debug=.true.
       iRC=-1
       idsym=loper+1
       iOpt=0
       iOp=2**loper
 *
-*-------------------------------------------------------------------*
+*------------------------------------------------------------------*
 *
 *     Read in connection matrix
 *     and transform it to MO basis
