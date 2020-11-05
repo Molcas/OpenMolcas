@@ -340,8 +340,8 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
 c --- backtransform fock matrix to full storage
           If(JSYM.eq.1)Then
              mode = 'tofull'
-             ipJA = ip_of_Work(JA)
-             ipFab= ip_of_Work(Fab)
+             ipJA = ip_of_Work(JA(1))
+             ipFab= ip_of_Work(Fab(1))
              Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,
      &                           ISSQ,ipJA,ipFab,mode)
              Call mma_deallocate(Fab)
