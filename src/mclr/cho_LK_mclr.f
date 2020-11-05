@@ -81,7 +81,8 @@ C
       External  Cho_LK_MaxVecPerBatch
       Real*8    Cho_LK_ScreeningThreshold
       External  Cho_LK_ScreeningThreshold
-      Real*8, Allocatable:: Scr(:), MOScr(:)
+      Real*8, Allocatable:: Scr(:), MOScr(:), Tmp(:), DIAG(:),
+     &                      Fk(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -236,8 +237,8 @@ C *** memory for the Q matrices --- temporary array
          ipCM(2)=ipCM(1)+(nDen-1)*nsBB
          ipMSQ(1)=ipCM(1)
          ipMSQ(2)=ipCM(2)
-         Call GetMem('Tmp','Allo','Real',ipTmp,nsBB*nDen)
-         ipTmp2=ipTmp+(nDen-1)*nsBB
+         Call mma_allocate(Tmp,nsBB*nDen,Label='Tmp')
+         ipTmp2=1+(nDen-1)*nsBB
 
          Do iS=1,nSym
 *
@@ -254,24 +255,24 @@ C *** memory for the Q matrices --- temporary array
              Call DGEMM_('T','T',nChMO(iS),nBas(iS),nBas(iS),1.0d0,
      &                  Work(ipCM(1)+ISTK(iS)),nBas(iS),
      &                  CMO_Inv(1+ISTSQ(iS)),nBas(iS),
-     &                  0.0d0,Work(ipTmp2+ISTK(iS)),nChMO(iS))
+     &                  0.0d0,Tmp(ipTmp2+ISTK(iS)),nChMO(iS))
 *
 **       Create one-index transformed Cholesky orbitals
 *
              Call DGEMM_('N','N',nChMO(iS),nBas(iS),nBas(iS),1.0d0,
-     &                  Work(ipTmp2+ISTK(iS)),nChMO(iS),
+     &                  Tmp(ipTmp2+ISTK(iS)),nChMO(iS),
      &                  kappa(1+ISTSQ(iS)),nBas(iS),
-     &                  0.0d0,Work(ipTmp+ISTK(iS)),nChMO(iS))
+     &                  0.0d0,Tmp(1+ISTK(iS)),nChMO(iS))
 *
 **         AO transform
 *
              Call DGEMM_('N','T',nBas(iS),nChMO(iS),nBas(iS),1.0d0,
      &                    CMO(1+ISTSQ(iS)),nBas(iS),
-     &                    Work(ipTmp+ISTK(iS)),nChMO(iS),
+     &                    Tmp(1+ISTK(iS)),nChMO(iS),
      &                    0.0d0,Work(ipCM(2)+ISTK(iS)),nBas(iS))
            EndIf
          End Do
-         Call GetMem('Tmp','FREE','Real',ipTmp,nsBB*nDen)
+         Call mma_deallocate(Tmp)
 
       EndIf
 
@@ -312,7 +313,7 @@ C --- Vector MO transformation screening thresholds
          tau    =tau    /MaxRedT
       EndIf
 
-      CALL GETMEM('diagI','Allo','Real',ipDIAG,NNBSTRT(1))
+      CALL mma_allocate(DIAG,NNBSTRT(1),Label='DIAG')
 
 #if defined (_MOLCAS_MPP_)
       If (nProcs.gt.1 .and. Update .and. Is_Real_Par()) Then
@@ -325,7 +326,7 @@ C --- Vector MO transformation screening thresholds
       EndIf
 #endif
 C *************** Read the diagonal integrals (stored as 1st red set)
-      If (Update) CALL CHO_IODIAG(Work(ipDIAG),2) ! 2 means "read"
+      If (Update) CALL CHO_IODIAG(DIAG,2) ! 2 means "read"
 
 c --- allocate memory for sqrt(D(a,b)) stored in full (squared) dim
       CALL GETMEM('diahI','Allo','Real',ipDIAH,NNBSQ)
@@ -386,8 +387,9 @@ C *** Compute Shell Offsets ( MOs and transformed vectors)
 
 
 C --- allocate memory for the diagonal elements of the Fock matrix
-      Call GetMem('F(k)ss','Allo','Real',ipFk,MxBasSh+nShell)
-      Call FZero(Work(ipFk),MxBasSh+nShell)
+      Call mma_allocate(Fk,MxBasSh+nShell,Label='Fk')
+      ipFk = ip_of_Work(Fk(1))
+      Fk(:)=0.0D0
 
 C *** Determine S:= sum_l C(l)[k]^2  in each shell of C(a,k)
       Do jDen=1,nDen
@@ -736,6 +738,7 @@ c ---                              compound symmetry JSYM are computed
 c --------------------------------------------------------------------
                    mode = 'tosqrt'
                    ired1 = 1 ! location of the 1st red set
+                   ipDIAG = ip_of_Work(DIAG(1))
                    Call play_rassi_sto(irc,ired1,JSYM,ISTLT,ISSQ,
      &                                     ipDIAH,ipDIAG,mode)
 
@@ -1200,8 +1203,6 @@ C -------------------------------------
 
                                   Do ia=1,nBasSh(lSym,iaSh)
 
-                                     ipFia = ipFk + ia - 1
-
                                      ipLai = ipLab(iaSh,kDen)
      &                                     + nBasSh(lSym,iaSh)*(jv-1)
      &                                     + ia - 1
@@ -1210,7 +1211,7 @@ C -------------------------------------
      &                                     + nBasSh(lSym,iaSh)*(jv-1)
      &                                     + ia - 1
 
-                                     Work(ipFia) = xfjv*Work(ipFia)
+                                     Fk(ia) = xfjv*Fk(ia)
      &                                        + Work(ipLai)*Work(ipLaj)
                                   End Do
                                End Do
@@ -1244,7 +1245,6 @@ C ---  Faa,[k] = sum_J  LJa[k2]*LJa[k1]
 C -------------------------------------
                                Do ia=1,nBasSh(lSym,iaSh)
 
-                                  ipFia = ipFk + ia - 1
 
                                   Do jv=1,JNUM
 
@@ -1258,7 +1258,7 @@ C -------------------------------------
      &                                     + JNUM*(ia-1)
      &                                     + jv - 1
 
-                                     Work(ipFia) = xfjv*Work(ipFia)
+                                     Fk(ia) = xfjv*Fk(ia)
      &                                        + Work(ipLai)*Work(ipLaj)
                                   End Do
                                End Do
@@ -1291,7 +1291,7 @@ C------------------------------------------------------------
 
                             iaSh = iWork(ipIndSh(1)+lSh)
 
-                            ipFaa = ipFk + MxBasSh + iaSh - 1
+                            ipFaa = MxBasSh + iaSh
 
                             iaSkip=Min(1,Max(0,
      &                            abs(ipLab(iaSh,1)-ipAbs))) ! = 1 or 0
@@ -1304,7 +1304,7 @@ C------------------------------------------------------------
 
                                ibSh = iWork(ipIndSh(kDen)+mSh)
 
-                               ipFbb = ipFk + MxBasSh + ibSh - 1
+                               ipFbb = MxBasSh + ibSh
 
                                ibSkip = Min(1,Max(0,
      &                                  abs(ipLab(ibSh,kDen)-ipAbs)))
@@ -1317,7 +1317,7 @@ C------------------------------------------------------------
 
                                ipKI = 1 + ISTSQ(lSym) + iOffAB
 
-                               xFab = sqrt(abs(Work(ipFaa)*Work(ipFbb)))
+                               xFab = sqrt(abs(Fk(ipFaa)*Fk(ipFbb)))
 
                                If (Work(ipMLk(1)+lSh-1)*
      &                             Work(ipMLk(kDen)+mSh-1).lt.tau) Then
@@ -1361,7 +1361,7 @@ C --------------------------------------------------------------------
 
                             iaSh = iWork(ipIndSh(1)+lSh)
 
-                            ipFaa = ipFk + MxBasSh + iaSh - 1
+                            ipFaa = MxBasSh + iaSh
 
                             iaSkip=Min(1,Max(0,
      &                            abs(ipLab(iaSh,1)-ipAbs))) ! = 1 or 0
@@ -1374,7 +1374,7 @@ C --------------------------------------------------------------------
 
                                ibSh = iWork(ipIndSh(kDen)+mSh)
 
-                               ipFbb = ipFk + MxBasSh + ibSh - 1
+                               ipFbb = MxBasSh + ibSh
 
                                ibSkip = Min(1,Max(0,
      &                                  abs(ipLab(ibSh,kDen)-ipAbs)))
@@ -1387,7 +1387,7 @@ C --------------------------------------------------------------------
 
                                ipKI = 1 + ISTSQ(lSym) + iOffAB
 
-                               xFab = sqrt(abs(Work(ipFaa)*Work(ipFbb)))
+                               xFab = sqrt(abs(Fk(ipFaa)*Fk(ipFbb)))
 
                                If (Work(ipMLk(1)+lSh-1)*
      &                             Work(ipMLk(kDen)+mSh-1).lt.tau) Then
@@ -2132,7 +2132,7 @@ C--- have performed screening in the meanwhile
         Call mma_deallocate(Scr)
         Call mma_deallocate(MOScr)
       EndIf
-      Call GetMem('F(k)ss','Free','Real',ipFk,MxBasSh+nShell)
+      Call mma_deallocate(Fk)
       Call GetMem('ip_SvShp','Free','Real',ip_SvShp,2*nnShl)
       Call GetMem('ip_iShp_rs','Free','Inte',ip_iShp_rs,nnShl_tot)
       Call GetMem('ip_nnBfShp','Free','Inte',ip_nnBfShp,nnShl_2*nSym)
@@ -2150,7 +2150,7 @@ C--- have performed screening in the meanwhile
       If (nProcs.gt.1 .and. Update .and. Is_Real_Par())
      &    CALL GETMEM('diagJ','Free','Real',ipjDIAG,NNBSTMX)
 #endif
-      CALL GETMEM('diagI','Free','Real',ipDIAG,NNBSTRT(1))
+      Call mma_deallocate(DIAG)
 
       If (Deco) Call GetMem('ChoMOs','Free','Real',ipCM(1),nsBB*nDen)
 
