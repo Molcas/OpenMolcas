@@ -50,7 +50,7 @@
       parameter (DoRead = .false. )
       Integer   Cho_LK_MaxVecPerBatch
       External  Cho_LK_MaxVecPerBatch
-      Real*8, Allocatable:: iiab(:)
+      Real*8, Allocatable:: iiab(:), iirs(:), tupq(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -131,8 +131,8 @@
 **      Check for maxmem to see if integrals would fit in memory
 **      or if batching is required
 *
-        Call GetMem('MaxM','Max','Real',KDUM,LWORK)
         Call mma_MaxDBLE(LWORK)
+        Call GAIGOP_SCAL(LWORK,'min')
 *
         Do i=1,nsym
           nIshb(i)=0
@@ -231,14 +231,10 @@
         nab=0
         If ((jsym.eq.1).and.(ntotie.gt.0)) Then
           nab=npq
-          Call GetMem('iirs','Allo','Real',ipiirs,ntotie*maxRS)
+          Call mma_allocate(iirs,ntotie*maxRS,Label='iirs')
         EndIf
         ipiaib=1+nab*ntotie
         iiab(:)=0.0d0
-
-*init for compilers
-        iptupq=ip_Dummy
-        iptpuq=iptupq
 *
         If (taskleft) Then
            ntotae=0
@@ -283,21 +279,19 @@
              ntp  =ntp + nAsh(i)*(nBas(k)+nAshe(i))
            End Do
 
-           If (ntotae.gt.0)
-     &        Call GetMem('tupq','Allo','Real',iptupq,labatch)
+           If (ntotae.gt.0) Call mma_allocate(tupq,labatch,Label='tupq')
            nab=0
            If (jsym.eq.1) Then
              nab=npq
              If (ntue.gt.0)
      &          Call GetMem('turs','Allo','Real',ipturs,ntue*maxRS)
            EndIf
-           iptpuq=iptupq+nab*ntue
-           call dcopy_(labatch,[0.0d0],0,Work(iptupq),1)
+           iptpuq=1+nab*ntue
+           tupq(:)=0.0D0
            If (taskleft) Then
               write(6,*) 'Batching loop a'
            EndIf
         EndIf
-*FIXME: can iptpuq be uninitialized?
 *
 **    Transpose CMO
 *
@@ -344,8 +338,7 @@ c         !set index arrays at iLoc
           nRS = nDimRS(JSYM,JRED)
 
           If (jSym.eq.1) Then
-            If (ntotie.gt.0)
-     &         call dcopy_(ntotie*nRS,[0.0d0],0,Work(ipiirs),1)
+            If (ntotie.gt.0) iirs(:)=0.0D0
             If (ntue.gt.0)
      &         call dcopy_(ntue*nRS,[0.0d0],0,Work(ipturs),1)
           EndIf
@@ -489,7 +482,7 @@ c         !set index arrays at iLoc
               Call DGEMM_('N','N',nRS,ntotie,JNUM,
      &                    1.0d0,Work(ipLrs),nRS,
      &                          Work(ipLii),JNUM,
-     &                    1.0d0,Work(ipiirs),nRS)
+     &                    1.0d0,iirs,nRS)
             CALL CWTIME(TCR2,TWR2)
             tform2(1) = tform2(1) + (TCR2 - TCR1)
             tform2(2) = tform2(2) + (TWR2 - TWR1)
@@ -531,7 +524,7 @@ c         !set index arrays at iLoc
                     Call DGER(nBas(i),nBas(i),
      &                        1.0d0,Work(ipLtp),nAsh(k),
      &                              Work(ipLuq),nAsh(k),
-     &                              Work(ipInt),nBas(i))
+     &                              tupq(ipInt),nBas(i))
                   End Do
                 End Do
                 ioff=ioff+nAshe(k)*(2*nAshb(k)+nAshe(k)+1)/2*
@@ -597,13 +590,13 @@ c         !set index arrays at iLoc
           If (jsym.eq.1) Then
             Do i=1,ntotie
               ip1=ip_of_Work(iiab(1))+nab*(i-1)
-              ipRS1=ipiirs+nRS*(i-1)
+              ipRS1=ip_of_Work(iirs(1))+nRS*(i-1)
               mode = 'tofull'
               Call play_rassi_sto(irc,iLoc,JSYM,ISTSQ,ISSQ,
      &                                   ip1,ipRS1,mode)
             End Do
             Do i=1,ntue
-              ip1=iptupq+npq*(i-1)
+              ip1=ip_of_Work(tupq(1))+npq*(i-1)
               ipRS1=ipturs+nrs*(i-1)
               mode = 'tofull'
 *              Call play_rassi_sto(irc,iLoc,JSYM,ISTLT,ISSQ,
@@ -618,8 +611,7 @@ c         !set index arrays at iLoc
         End Do ! reduced set JRED
 *
         If (jsym.eq.1) Then
-          If (ntotie.gt.0)
-     &      Call GetMem('iirs','Free','Real',ipiirs,ntotie*maxRS)
+          If (ntotie.gt.0) Call mma_deallocate(iirs)
           If (ntue.gt.0)
      &      Call GetMem('turs','Free','Real',ipturs,ntue*maxRS)
         EndIf
@@ -681,12 +673,12 @@ c         !set index arrays at iLoc
             Call DGEMM_('T','N',nvirt,nvirt,nBas(kSym),
      &                  1.0d0,Work(ipInt),nBas(kSym),
      &                        CMO(ipMO),nBas(kSym),
-     &                  0.0d0,Work(ip1)  ,nvirt)
+     &                  0.0d0,iiab(ip1:)  ,nvirt)
 *
             Do i=1,ksym-1
                 iAdr=iAdr+(nBas(i)-nIsh(i))**2
             End Do
-            call DDAFILE(LuChoInt(1),1,Work(ip1),nvirt**2,iAdr)
+            call DDAFILE(LuChoInt(1),1,iiab(ip1:),nvirt**2,iAdr)
             Do i=ksym+1,nsym
                 iAdr=iAdr+(nBas(i)-nIsh(i))**2
             End Do
@@ -713,14 +705,14 @@ c         !set index arrays at iLoc
           Do itu=1,na2
             If (jsym.eq.1) Then
               isum2=isum2+1
-              ip2=iptupq+npq*(isum2-1)
+              ip2=1+npq*(isum2-1)
               ioff2=0
               Do ksym2=1,nsym
                 ipMO2=1+ioff2
                 Do j=1,nBas(ksym2)
                   ipMOj=ipMO2+(j-1)*nBas(kSym2)
                   ipIntj=ipInt+(j-1)*nBas(kSym2)
-                  Call DSPMV_('U',nBas(kSym2),1.0d0,Work(ip2),
+                  Call DSPMV_('U',nBas(kSym2),1.0d0,tupq(ip2),
      &                       CMO(ipMOj),1,0.0d0,Work(ipIntj),1)
                 End Do
                 If (nBas(ksym2).gt.0) Then
@@ -728,8 +720,8 @@ c         !set index arrays at iLoc
      &                              nBas(kSym2),1.0d0,
      &                              Work(ipInt),nBas(kSym2),
      &                              CMO(ipMO2),nBas(kSym2),
-     &                        0.0d0,Work(ip2)  ,nBas(kSym2))
-                  call DDAFILE(LuChoInt(2),1,Work(ip2),nBas(kSym2)**2,
+     &                        0.0d0,tupq(ip2)  ,nBas(kSym2))
+                  call DDAFILE(LuChoInt(2),1,tupq(ip2),nBas(kSym2)**2,
      &            iAdrtu)
 *
                   ip2=ip2+nBas(kSym2)**2
@@ -743,18 +735,18 @@ c         !set index arrays at iLoc
 **        MO transform ( t p | u q)
 *
             Call DGEMM_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),
-     &                  1.0d0,Work(ip3)  ,nBas(iSym),
+     &                  1.0d0,tupq(ip3)  ,nBas(iSym),
      &                        CMO(ipMO),nBas(iSym),
      &                  0.0d0,Work(ipInt),nBas(iSym))
             Call DGEMM_('T','N',nBas(iSym),nBas(iSym),nBas(iSym),
      &                  1.0d0,Work(ipInt),nBas(iSym),
      &                        CMO(ipMO),nBas(iSym),
-     &                  0.0d0,Work(ip3) ,nBas(iSym))
+     &                  0.0d0,tupq(ip3) ,nBas(iSym))
             Do i=1,isym-1
                 iAdrtu=iAdrtu+nBas(i)**2
             End Do
 
-            call DDAFILE(LuChoInt(2),1,Work(ip3),nBas(iSym)**2,iAdrtu)
+            call DDAFILE(LuChoInt(2),1,tupq(ip3),nBas(iSym)**2,iAdrtu)
 
             Do i=isym+1,nsym
 *               j=MulD2h(i,jsym)
@@ -780,8 +772,7 @@ c         !set index arrays at iLoc
         EndDo
         Call GetMem('CMOt','Free','Real',ipCMOt(1),nCMO)
         Call mma_deallocate(iiab)
-        If (ntotae.gt.0)
-     &     Call GetMem('tupq','Free','Real',iptupq,labatch)
+        If (ntotae.gt.0) Call mma_deallocate(tupq)
         If (taskleft) Go to 50  ! loop over i/t batches
 *
  999    Continue
