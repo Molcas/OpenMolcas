@@ -40,28 +40,43 @@
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "stdalloc.fh"
-
-      Character*8 Label
+      Character(LEN=8) Label
       Logical CI
       Real*8 E2
       Real*8 Temp1(nDens),rKappa(nDens),Temp4(nDens),
-     &      Temp2(nDens),Temp3(nDens),CMO(nCMO),Temp5(nDens),
-     &      Temp6(nDens),temp7(ndens)
+     &       Temp2(nDens),Temp3(nDens),CMO(nCMO),Temp5(nDens),
+     &       Temp6(nDens),temp7(ndens)
       Real*8 rDum(1)
       Real*8, Allocatable:: MOX(:), MOT(:), FIX(:), MOT2(:)
-
+*                                                                     *
+***********************************************************************
+*                                                                     *
+      Interface
+      SubRoutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
+     &                   Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
+       Integer iispin, iCsym, iSSym
+       Integer nInt1, nInt2s, nInt2a
+       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+       Integer ipCI1, ipCI2
+       Logical Have_2_el
+      End SubRoutine CISigma
+      End Interface
+*                                                                     *
+***********************************************************************
+*                                                                     *
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-
-*
+*                                                                     *
+***********************************************************************
+*                                                                     *
       one=1.0d0
       debug=.true.
       iRC=-1
       idsym=loper+1
       iOpt=0
       iOp=2**loper
-*
-*-------------------------------------------------------------------*
-*
+*                                                                     *
+***********************************************************************
+*                                                                     *
 *     Read in connection matrix
 *     and transform it to MO basis
 *
@@ -225,7 +240,7 @@
       If (CI) Then
 *
        Call CiSigma(0,State_Sym,iEor(State_sym-1,idsym-1)+1,
-     &             Fix,nDens2,MOX,SIZE(MOX),rdum,1,ipCI,ipst,.True.)
+     &              FIX,nDens2,MOX,SIZE(MOX),rdum,1,ipCI,ipst,.True.)
 *
        irc=ipin(ipst)
        If (idsym.eq.1) Then
