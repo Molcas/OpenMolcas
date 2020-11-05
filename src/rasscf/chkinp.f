@@ -175,21 +175,23 @@ C Local print level (if any)
        min_per_GAS = igsoccx(:nGAS, 1) - eoshift(igsoccx(:nGAS, 2), -1)
        max_per_GAS = igsoccx(:nGAS, 2) - eoshift(igsoccx(:nGAS, 1), -1)
        if (any(spin_orbs_per_GAS < min_per_GAS)) then
-          write(lf, *)
-          write(lf, *) 'The constraint'
-          write(lf, *) '    any(spin_orbs_per_GAS < min_per_GAS)'
-          write(lf, *) 'is violated.'
-          write(lf, *)
+      write(lf, *)
+      write(lf, *) 'In at least one GAS space, the minimum required '
+      write(lf, *) 'particle number by GAS constraints '
+      write(lf, *) 'is larger than the particle number '
+      write(lf, *) 'allowed by the Pauli principle.'
+      write(lf, *)
           Call abort_('GASSCF: Pauli forbidden.')
        end if
        ! Conceptionally this should not be a problem, but the code
        ! assumes it to be not the case.
        if (any(spin_orbs_per_GAS < max_per_GAS)) then
-           write(lf, *)
-           write(lf, *) 'The constraint'
-           write(lf, *) '    any(spin_orbs_per_GAS < min_per_GAS)'
-           write(lf, *) 'is violated.'
-           write(lf, *)
+      write(lf, *)
+      write(lf, *) 'In at least one GAS space, the maximum allowed '
+      write(lf, *) 'particle number by GAS constraints '
+      write(lf, *) 'is larger than the particle number '
+      write(lf, *) 'allowed by the Pauli principle.'
+      write(lf, *)
            Call abort_('GASSCF: Pauli forbidden.')
        end if
       end if
