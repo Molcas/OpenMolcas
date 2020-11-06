@@ -53,11 +53,22 @@
 *----------------------------------------------------------------------*
 *
        Interface
+
+         SubRoutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
+     &                      Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
+         Integer iispin, iCsym, iSSym
+         Integer nInt1, nInt2s, nInt2a
+         Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+         Integer ipCI1, ipCI2
+         Logical Have_2_el
+         End SubRoutine CISigma
+
          SubRoutine FockGen_sp(d_0,rDens1,rdens2,Fock,fockout,idsym)
          Real*8 d_0
          Real*8 rDens1(*), rdens2(*), Fock(*), fockout(*)
          Integer idsym
          End SubRoutine FockGen_sp
+
        End Interface
 *
 *----------------------------------------------------------------------*
