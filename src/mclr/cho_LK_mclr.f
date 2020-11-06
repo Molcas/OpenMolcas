@@ -82,7 +82,7 @@ C
       Real*8    Cho_LK_ScreeningThreshold
       External  Cho_LK_ScreeningThreshold
       Real*8, Allocatable:: Scr(:), MOScr(:), Tmp(:), DIAG(:),
-     &                      Fk(:)
+     &                      Fk(:), DIAH(:), AbsC(:)
 #if defined (_MOLCAS_MPP_)
       Real*8, Allocatable:: jDiag(:)
 #endif
@@ -118,7 +118,6 @@ C
 *                                                                      *
 ************************************************************************
 *                                                                      *
-
 
 #ifdef _DEBUGPRINT_
 c      Debug=.true.
@@ -332,11 +331,11 @@ C *************** Read the diagonal integrals (stored as 1st red set)
       If (Update) CALL CHO_IODIAG(DIAG,2) ! 2 means "read"
 
 c --- allocate memory for sqrt(D(a,b)) stored in full (squared) dim
-      CALL GETMEM('diahI','Allo','Real',ipDIAH,NNBSQ)
-      CALL FZERO(Work(ipDIAH),NNBSQ)
+      CALL mma_allocate(DIAH,NNBSQ,Label='DIAH')
+      DIAH(:)=0.0D0
 
 c --- allocate memory for the abs(C(l)[k])
-      Call GetMem('absc','Allo','Real',ipAbs,MaxB)
+      Call mma_allocate(AbsC,MaxB,Label='AbsC')
 
       Do jDen=1,nDen
 c --- allocate memory for the Y(l)[k] vectors
@@ -741,6 +740,7 @@ c --------------------------------------------------------------------
                    mode = 'tosqrt'
                    ired1 = 1 ! location of the 1st red set
                    ipDIAG = ip_of_Work(DIAG(1))
+                   ipDIAH = ip_of_Work(DIAH(1))
                    Call play_rassi_sto(irc,ired1,JSYM,ISTLT,ISSQ,
      &                                     ipDIAH,ipDIAG,mode)
 
@@ -779,12 +779,12 @@ c --------------------------------------------------------------------
 C------------------------------------------------------------------
 C --- Setup the screening
 C------------------------------------------------------------------
-                     ipDIH = ipDIAH + ISSQ(lSym,kSym)
+                     ipDIH = 1 + ISSQ(lSym,kSym)
 
                      Do jDen=1,nDen
 
                         Do ik=0,nBas(kSym)-1
-                           Work(ipAbs+ik) = abs(Work(ipMO(jDen)+ik))
+                           AbsC(1+ik) = abs(Work(ipMO(jDen)+ik))
                         End Do
 
                         If (lSym.ge.kSym) Then
@@ -794,8 +794,8 @@ C===============================================================
                            nBs = Max(1,nBas(lSym))
 
                            CALL DGEMV_('N',nBas(lSym),nBas(kSym),
-     &                                ONE,Work(ipDIH),nBs,
-     &                                    Work(ipAbs),1,
+     &                                ONE,DIAH(ipDIH),nBs,
+     &                                    AbsC,1,
      &                               ZERO,Work(ipYk(jDen)),1)
 
                         Else
@@ -805,8 +805,8 @@ C===============================================================
                            nBs = Max(1,nBas(kSym))
 
                            CALL DGEMV_('T',nBas(kSym),nBas(lSym),
-     &                                ONE,Work(ipDIH),nBs,
-     &                                    Work(ipAbs),1,
+     &                                ONE,DIAH(ipDIH),nBs,
+     &                                    AbsC,1,
      &                               ZERO,Work(ipYk(jDen)),1)
 
                         EndIf
@@ -971,6 +971,8 @@ C ---  || La,J[k] ||  .le.  || Lab,J || * || Cb[k] ||
 
                       CALL CWTIME(TCT1,TWT1)
 
+
+                      ipAbsC = ip_of_Work(AbsC(1))
                       Do jDen=1,nDen
 
                          IF (lSym.ge.kSym) Then
@@ -1084,14 +1086,14 @@ c --- iaSh vector LaJ[k] can be neglected because identically zero
 
                              iWork(ip_Lab+nShell*(jDen-1)+iaSh-1) =
      &                             ipLab(iaSh,jDen)*Min(1,ibcount)
-     &                           + ipAbs*(1-Min(1,ibcount))
+     &                           + ipAbsC*(1-Min(1,ibcount))
 
 
                            End Do
                            Do iSh=iWork(ipIndSh(jDen))+1,nshell
                              iaSh = iWork(ipIndSh(jDen)+iSh)
                              iWork(ip_Lab+nShell*(jDen-1)+iaSh-1) =
-     &                             ipAbs
+     &                             ipAbsC
                            End Do
 
 
@@ -1157,14 +1159,14 @@ c --- iaSh vector LaJ[k] can be neglected because identically zero
 
                                iWork(ip_Lab+nShell*(jDen-1)+iaSh-1) =
      &                               ipLab(iaSh,jDen)*Min(1,ibcount)
-     &                             + ipAbs*(1-Min(1,ibcount))
+     &                             + ipAbsC*(1-Min(1,ibcount))
 
 
                             End Do
                             Do iSh=iWork(ipIndSh(jDen))+1,nshell
                               iaSh = iWork(ipIndSh(jDen)+iSh)
                               iWork(ip_Lab+nShell*(jDen-1)+iaSh-1) =
-     &                              ipAbs
+     &                              ipAbsC
                             End Do
 
                          EndIf
@@ -1190,10 +1192,10 @@ C --- Prepare the J-screening
                             ipFaa = ipFk + MxBasSh + iaSh - 1
 
                             iaSkip=Min(1,Max(0,
-     &                             abs(ipLab(iaSh,1)-ipAbs))) ! = 1 or 0
+     &                             abs(ipLab(iaSh,1)-ipAbsC))) ! = 1 or 0
 
                             jaSkip=Min(1,Max(0,
-     &                             abs(ipLab(iaSh,kDen)-ipAbs)))
+     &                             abs(ipLab(iaSh,kDen)-ipAbsC)))
 
                             Do i=1,iaSkip*jaSkip  ! 0 or 1
 
@@ -1236,10 +1238,10 @@ C -------------------------------------
                             ipFaa = ipFk + MxBasSh + iaSh - 1
 
                             iaSkip=Min(1,Max(0,
-     &                             abs(ipLab(iaSh,1)-ipAbs))) ! = 1 or 0
+     &                             abs(ipLab(iaSh,1)-ipAbsC))) ! = 1 or 0
 
                             jaSkip=Min(1,Max(0,
-     &                             abs(ipLab(iaSh,kDen)-ipAbs)))
+     &                             abs(ipLab(iaSh,kDen)-ipAbsC)))
 
                             Do i=1,iaSkip*jaSkip
 
@@ -1296,7 +1298,7 @@ C------------------------------------------------------------
                             ipFaa = MxBasSh + iaSh
 
                             iaSkip=Min(1,Max(0,
-     &                            abs(ipLab(iaSh,1)-ipAbs))) ! = 1 or 0
+     &                            abs(ipLab(iaSh,1)-ipAbsC))) ! = 1 or 0
 
                             iOffSha = kOffSh(iaSh,lSym)
 
@@ -1309,7 +1311,7 @@ C------------------------------------------------------------
                                ipFbb = MxBasSh + ibSh
 
                                ibSkip = Min(1,Max(0,
-     &                                  abs(ipLab(ibSh,kDen)-ipAbs)))
+     &                                  abs(ipLab(ibSh,kDen)-ipAbsC)))
 
                                iShp = nShell*(iaSh-1) + ibSh
 
@@ -1366,7 +1368,7 @@ C --------------------------------------------------------------------
                             ipFaa = MxBasSh + iaSh
 
                             iaSkip=Min(1,Max(0,
-     &                            abs(ipLab(iaSh,1)-ipAbs))) ! = 1 or 0
+     &                            abs(ipLab(iaSh,1)-ipAbsC))) ! = 1 or 0
 
                             iOffSha = kOffSh(iaSh,lSym)
 
@@ -1379,7 +1381,7 @@ C --------------------------------------------------------------------
                                ipFbb = MxBasSh + ibSh
 
                                ibSkip = Min(1,Max(0,
-     &                                  abs(ipLab(ibSh,kDen)-ipAbs)))
+     &                                  abs(ipLab(ibSh,kDen)-ipAbsC)))
 
                                iShp = nShell*(iaSh-1) + ibSh
 
@@ -2146,8 +2148,8 @@ C--- have performed screening in the meanwhile
          Call GetMem('MLk','Free','Real',ipML(jDen),nShell*nnO)
          Call GetMem('yc','Free','Real',ipY(jDen),MaxB*nnO)
       End Do
-      Call GetMem('absc','Free','Real',ipAbs,MaxB)
-      CALL GETMEM('diahI','Free','Real',ipDIAH,NNBSQ)
+      Call mma_deallocate(AbsC)
+      Call mma_deallocate(DIAH)
 #if defined (_MOLCAS_MPP_)
       If (Allocated(jDIAG)) CALL mma_deallocate(jDIAG)
 #endif
