@@ -243,7 +243,7 @@
            ntp=0      ! do not allocate those
            labatch=0
            iptpuq=-1
-           write(6,*) 'Batching loop i'
+*          write(6,*) 'Batching loop i'
         Else
 *
 **        Batching T loop
