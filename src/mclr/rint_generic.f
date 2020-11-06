@@ -28,9 +28,28 @@
       Real*8 Fock(nDens2),focka(nDens2),rkappa(nDens2),
      &       Focki(ndens2),Q(ndens2),rMOs(*),rmoa(*)
       Logical Fake_CMO2,DoAct
+      Integer ipAsh(2)
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:), DI(:),
      &                      DLT(:), Dens2(:), DA(:), G2x(:),
      &                      CoulExch(:,:), CVa(:,:)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+        SUBROUTINE CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2,ipkappa,
+     &                         ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
+     &                         ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
+     &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
+     &                         LuAChoVec,LuIChoVec,iAChoVec)
+        Integer ipDLT,ipDI,ipDA,ipG2,ipkappa,
+     &          ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
+     &          ipMO1,ipQ,ipAsh(2),ipCMO,ip_CMO_inv
+        Integer nOrb(8),nAsh(8),nIsh(8)
+        Logical doAct,Fake_CMO2
+        Integer LuAChoVec(8),LuIChoVec(8)
+        Integer iAChoVec
+        End SUBROUTINE CHO_LK_MCLR
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -232,12 +251,28 @@
 *
 **      Compute the whole thing
 *
+        ipDLT     = ip_of_Work(DLT(1))
+        ipDI      = ip_of_Work(DI(1))
+        ipDA      = ip_of_Work(DA(1))
+        ipG2      = ip_of_Work(G2x(1))
+        ipkappa   = ip_of_Work(rkappa(1))
+        ipJI      = ip_of_Work(CoulExch(1,1))
+        ipK       = ip_of_Work(CoulExch(1,2))
+        ipJA      = ip_of_Work(CoulExch(1,3))
+        ipKA      = ip_of_Work(CoulExch(1,4))
+        ipFkI     = ip_of_Work(FockI(1))
+        ipFkA     = ip_of_Work(FockA(1))
+        ipMO1     = ip_of_Work(rMOs(1))
+        ipQ       = ip_of_Work(Q(1))
+        ipAsh(1)  = ip_of_Work(CVa(1,1))
+        ipAsh(2)  = ip_of_Work(CVa(1,2))
+        ipCMO     = ip_of_Work(CMO(1))
+        ip_CMO_inv= ip_of_Work(CMO_inv(1))
         iread=2 ! Asks to read the half-transformed Cho vectors
-        Call CHO_LK_MCLR(DLT,DI,DA,G2x,rkappa,
-     &                   CoulExch(:,1),CoulExch(:,2),
-     &                   CoulExch(:,3),CoulExch(:,4),
-     &                   FockI,FockA,
-     &                   rMOs,Q,CVa,nVB,CMO,CMO_inv,
+                                                                               *
+        Call CHO_LK_MCLR(ipDLT,ipDI,ipDA,ipG2,ipkappa,
+     &                   ipJI,ipK,ipJA,ipKA,ipFkI,ipFkA,
+     &                   ipMO1,ipQ,ipAsh,ipCMO,ip_CMO_inv,
      &                   nIsh, nAsh,nIsh,DoAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,iread)
 *
