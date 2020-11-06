@@ -70,7 +70,19 @@
      &                      Sc1(:), Sc2(:), Sc3(:),
      &                      Dens(:), Pens(:), rmoaa(:)
       Integer, Allocatable:: List(:,:)
-
+*                                                                     *
+***********************************************************************
+*                                                                     *
+      Interface
+      SubRoutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
+     &                   Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
+       Integer iispin, iCsym, iSSym
+       Integer nInt1, nInt2s, nInt2a
+       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+       Integer ipCI1, ipCI2
+       Logical Have_2_el
+      End SubRoutine CISigma
+      End Interface
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
