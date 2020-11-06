@@ -61,6 +61,19 @@
      &                      FT99(:), Temp5(:)
       Real*8, Allocatable:: lmroots(:), lmroots_new(:), Kap_New(:),
      &                      Kap_New_Temp(:)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+       SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
+     &                       Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
+       Integer iispin, iCsym, iSSym
+       Integer nInt1, nInt2s, nInt2a
+       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+       Integer ipCI1, ipCI2
+       Logical Have_2_el
+       End SubRoutine CISigma_sa
+      End Interface
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
