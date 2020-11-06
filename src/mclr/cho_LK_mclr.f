@@ -83,6 +83,9 @@ C
       External  Cho_LK_ScreeningThreshold
       Real*8, Allocatable:: Scr(:), MOScr(:), Tmp(:), DIAG(:),
      &                      Fk(:)
+#if defined (_MOLCAS_MPP_)
+      Real*8, Allocatable:: jDiag(:)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -321,8 +324,8 @@ C --- Vector MO transformation screening thresholds
          Do i=1,nSym
             NNBSTMX = Max(NNBSTMX,NNBSTR(i,1))
          End Do
-         CALL GETMEM('diagJ','Allo','Real',ipjDIAG,NNBSTMX)
-         Call FZero(Work(ipjDIAG),NNBSTMX)
+         CALL mma_allocate(jDIAG,NNBSTMX,Label='jDIAG')
+         jDIAG(:)=0.0D0
       EndIf
 #endif
 C *************** Read the diagonal integrals (stored as 1st red set)
@@ -681,7 +684,7 @@ C --- Estimate the diagonals :   D(a,b) = sum_J (Lab,J)^2
 C
                If (Estimate) Then
 
-                  Call Fzero(Work(ipDiag+iiBstR(jSym,1)),NNBSTR(jSym,1))
+                  Call Fzero(Diag(1+iiBstR(jSym,1)),NNBSTR(jSym,1))
 
                   Do krs=1,nRS
 
@@ -692,8 +695,7 @@ C
 
                         ipL = ipLrs + nRS*(jvc-1)
 
-                        Work(ipDiag+jrs-1) = Work(ipDiag+jrs-1)
-     &                                  + Work(ipL+krs-1)**2
+                        Diag(jrs) = Diag(jrs) + Work(ipL+krs-1)**2
 
                      End Do
 
@@ -1458,8 +1460,8 @@ C --- subtraction is done in the 1st reduced set
                      Do jvc=1,JNUM
 
                         ipL = ipLrs + nRS*(jvc-1)
-                        Work(ipjDiag+jrs-1) = Work(ipjDiag+jrs-1)
-     &                                      + Work(ipL+krs-1)**2
+                        jDiag(jrs) = jDiag(jrs)
+     &                             + Work(ipL+krs-1)**2
                      End Do
 
                    End Do
@@ -1474,7 +1476,7 @@ C --- subtraction is done in the 1st reduced set
                      Do jvc=1,JNUM
 
                         ipL = ipLrs + nRS*(jvc-1)
-                        Work(ipDiag+jrs-1) = Work(ipDiag+jrs-1)
+                        Diag(jrs) = Diag(jrs)
      &                                     - Work(ipL+krs-1)**2
                      End Do
 
@@ -1491,7 +1493,7 @@ C --- subtraction is done in the 1st reduced set
                      Do jvc=1,JNUM
 
                         ipL = ipLrs + nRS*(jvc-1)
-                        Work(ipDiag+jrs-1) = Work(ipDiag+jrs-1)
+                        Diag(jrs) = Diag(jrs)
      &                                     - Work(ipL+krs-1)**2
                      End Do
 
@@ -1903,10 +1905,10 @@ C --- Screening control section
 #if defined (_MOLCAS_MPP_)
             If (nProcs.gt.1 .and. Update .and. DoScreen
      &          .and. Is_Real_Par()) Then
-               Call GaDsum(Work(ipjDiag),nnBSTR(JSYM,1))
-               Call Daxpy_(nnBSTR(JSYM,1),xone,Work(ipjDiag),1,
-     &                    Work(ipDiag+iiBstR(JSYM,1)),1)
-               Call Fzero(Work(ipjDiag),nnBSTR(JSYM,1))
+               Call GaDsum(jDiag,nnBSTR(JSYM,1))
+               Call Daxpy_(nnBSTR(JSYM,1),xone,jDiag,1,
+     &                    DIAG(1+iiBstR(JSYM,1)),1)
+               Call Fzero(jDiag,nnBSTR(JSYM,1))
             EndIf
 C--- Need to activate the screening to setup the contributing shell
 C--- indeces the first time the loop is entered .OR. whenever other nodes
@@ -2147,8 +2149,7 @@ C--- have performed screening in the meanwhile
       Call GetMem('absc','Free','Real',ipAbs,MaxB)
       CALL GETMEM('diahI','Free','Real',ipDIAH,NNBSQ)
 #if defined (_MOLCAS_MPP_)
-      If (nProcs.gt.1 .and. Update .and. Is_Real_Par())
-     &    CALL GETMEM('diagJ','Free','Real',ipjDIAG,NNBSTMX)
+      If (Allocated(jDIAG)) CALL mma_deallocate(jDIAG)
 #endif
       Call mma_deallocate(DIAG)
 
