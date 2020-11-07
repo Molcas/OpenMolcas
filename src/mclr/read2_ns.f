@@ -54,13 +54,13 @@
       Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
-      Real*8 rkappa(nDens2),FockA(nDens2),FockI(nDens2),
-     &       Temp1(ntemp),Temp2(nDens2),
-     &       temp3(nDens2),Temp4(nDens2),
-     &       rmo1(nMba),rmo2(nmba),
-     &       CMO(nCMO),DA(nCMO),DI(nCMO),
-     &       DA24(nDens2),DI24(nDens2),
-     &       DA13(nDens2),DI13(nDens2)
+      Real*8 rkappa(*),FockA(*),FockI(*),
+     &       Temp1(ntemp),Temp2(*),
+     &       temp3(*),Temp4(*),
+     &       rmo1(*),rmo2(*),
+     &       CMO(*),DA(*),DI(*),
+     &       DA24(*),DI24(*),
+     &       DA13(*),DI13(*)
       Parameter ( half  = 0.5d0 )
       Parameter ( One   = 1.0d0 )
       Parameter ( Two   = 2.0d0 )
