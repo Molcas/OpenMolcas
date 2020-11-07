@@ -4,7 +4,7 @@
 * Symmetry: -
 * Features tested: SEW,SCF,RASSCF,MCLR(time)
 * Responsible person: P.-O. Widmark 041230
-* Comments: Test of timdependent polarizabilities in MCLR + RICD
+* Comments: Test of time-dependent polarizabilities in MCLR + RICD
 *-------------------------------------------------------------------------------
  &SEWARD &END
 Title
