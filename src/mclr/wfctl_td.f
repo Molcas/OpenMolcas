@@ -53,6 +53,20 @@
      &                      Temp1(:), Temp2(:), Temp3(:), Temp4(:),
      &                      Sc1(:), Sc2(:), Sc3(:), TempTD(:),
      &                      Dens(:), Pens(:), rmoaa(:)
+*                                                                     *
+***********************************************************************
+*                                                                     *
+      Interface
+      SubRoutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
+     &                       Int2a,nInt2a,ipCI1,ipCI2,NT,Have_2_el)
+      Integer iispin, iCsym, iSSym
+      Integer nInt1, nInt2s, nInt2a
+      Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+      Integer ipCI1, ipCI2
+      Character(LEN=1) NT
+      Logical Have_2_el
+      End SubRoutine CISigma_td
+      End Interface
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
