@@ -21,9 +21,9 @@
 *     iDSym  : Symmetry of transformation
 *     sign   : 1:real -1:complex
 *     jspin  : 0:singlet 1:triplet
-*
+*                                                                      *
 ************************************************************************
-*
+*                                                                      *
       use Arrays, only: CMO, G1t, FAMO, FIMO
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
@@ -35,10 +35,38 @@
      &       FockA(nDens2)
       Real*8 rdum(1)
       Real*8, Allocatable:: T1(:), Tmp2(:), T3(:), T4(:), DIL(:),
-     &                      DI(:), DIR(:), FI(:), Scr(:), FI1(:),
+     &                      DI(:), DIR(:), FI(:), FI1(:),
      &                      K1(:), DAL(:), DAR(:), DA(:), FA1(:)
-
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+        SubRoutine Read2_ns(rMO1,rMO2,FockI,FockA,
+     &                      Temp1,nTemp,Temp2,Temp3,Temp4,
+     &                      DI13,DI24,DI,
+     &                      DA13,DA24,DA,
+     &                      rkappa,idsym,
+     &                      Signa,Fact,jSpin,lfat,lfit,lMOt,CMO)
+           Real*8 rmo1(*), rmo2(*), FockA(*), FockI(*), Temp1(ntemp)
+           Integer ntemp
+           Real*8 Temp2(*), Temp3(*), Temp4(*),
+     &            DI13(*), DI24(*), DI(*),
+     &            DA13(*), DA24(*), DA(*),
+     &            rkappa(*)
+           Integer idsym
+           Real*8 Signa,Fact
+           Integer jSpin
+           Logical lFAt,lFIt,lmot
+           Real*8 CMO(*)
+        End SubRoutine Read2_ns
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+*
+************************************************************************
+*
 
       ndens22=ndens2
       iAM=0
@@ -53,7 +81,6 @@
       imem=nDens22
 
       Call mma_allocate(T1,imem,Label='T1')
-      Call mma_allocate(Scr,imem,Label='Scr')
       Call mma_allocate(Tmp2,nDens22,Label='Tmp2')
       Call mma_allocate(T3,nDens22,Label='T3')
       Call mma_allocate(T4,nDens22,Label='T4')
@@ -126,7 +153,7 @@ c THIS IS THE ENTIRE DENSITY FOR MULTICONF
       FacR=Fact
       Call Read2_ns(rmo1,rmo2,
      &           FockI,FockA,
-     &           T1,imem,Scr,Tmp2,
+     &           T1,imem,Tmp2,
      &           T3,T4,
      &           DIR,DIL,
      &           DI,
@@ -155,7 +182,7 @@ c THIS IS THE ENTIRE DENSITY FOR MULTICONF
       End If
       Call Read2_ns(rdum,rdum,
      &           FI1,FA1,
-     &           T1,imem,Scr,Tmp2,
+     &           T1,imem,Tmp2,
      &           T3,T4,
      &           DIR,DIL,
      &           DI,
@@ -206,7 +233,6 @@ c THIS IS THE ENTIRE DENSITY FOR MULTICONF
       Call mma_deallocate(T4)
       Call mma_deallocate(T3)
       Call mma_deallocate(Tmp2)
-      Call mma_deallocate(Scr)
       Call mma_deallocate(T1)
 
 *                                                                      *

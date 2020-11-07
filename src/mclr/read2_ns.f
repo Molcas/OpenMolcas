@@ -11,7 +11,7 @@
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
        SubRoutine Read2_ns(rMO1,rMO2,FockI,FockA,
-     &                  Temp1,nTemp,Scr,Temp2,Temp3,Temp4,
+     &                  Temp1,nTemp,Temp2,Temp3,Temp4,
      &                  DI13,DI24,DI,
      &                  DA13,DA24,DA,
      &                  rkappa,idsym,
@@ -698,7 +698,6 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-        Call Unused_real(Scr)
         Call Unused_real_array(CMO)
       End If
       End
