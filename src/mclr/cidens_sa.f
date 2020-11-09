@@ -9,11 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine CIDens_sa(RSP,iLS,iRS,iL,iR,rP,rD)
-
+      use ipPage, only: W
       Implicit Real*8(a-h,o-z)
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "crun_mclr.fh"
 
 #include "Input.fh"
@@ -24,7 +24,10 @@
       Real*8 rP(*),rD(*)
       Logical RSP
       integer opout
+      Real*8, Allocatable:: De(:), Pe(:), CIL(:), CIR(:)
+
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+
 * LS = CI
 *
 *     Ok, we once more want to hide Jeppe's routines from
@@ -67,27 +70,29 @@
         n2dens=n1dens*(n1dens+1)/2
       end if
 
-      Call GetMem('1Dens2','ALLO','Real',ipDe,n1dens)
-      Call GetMem('2Dens2','ALLO','Real',ipP,n2dens)
+      Call mma_allocate(De,n1dens,Label='De')
+      Call mma_allocate(Pe,n2dens,Label='Pe')
       call dcopy_(n1dens,[0.0d0],0,rD,1)
       call dcopy_(n2dens,[0.0d0],0,rP,1)
+
 *
       nConfL=Max(ncsf(il),nint(xispsm(il,1)))
       nConfR=Max(ncsf(iR),nint(xispsm(iR,1)))
 
-      Call GetMem('CIL','ALLO','REAL',ipL,nConfL)
-      Call GetMem('CIR','ALLO','REAL',ipR,nConfR)
+      Call mma_allocate(CIL,nConfL,Label='CIL')
+      Call mma_allocate(CIR,nConfR,Label='CIR')
 *
       Do i=0,nroots-1
-        Call CSF2SD(Work(ipin(iLS)+i*ncsf(il)),Work(ipL),iL)
-        irc=opout(ils)
-        Call CSF2SD(Work(ipin(iRS)+i*ncsf(ir)),Work(ipR),iR)
-        irc=opout(irs)
+        irc=ipin(iLS)
+        irc=ipin(iRS)
+        Call CSF2SD(W(iLS)%Vec(1+i*ncsf(il)),CIL,iL)
+        irc=opout(iLS)
+        Call CSF2SD(W(iRS)%Vec(1+i*ncsf(ir)),CIR,iR)
+        irc=opout(iRS)
         irc=ipnout(-1)
         icsm=iR
         issm=iL
-        Call Densi2(2,Work(ipDe),Work(ipP),
-     &               Work(ipL),Work(ipR),0,0,0,n1dens,n2dens)
+        Call Densi2(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
 
         If (RSP) Then
            Do iA=1,nnA
@@ -100,7 +105,7 @@
                  kl2=nna*(la-1)+ka
                  if (ij1.ge.kl1)
      &           rp(itri(ij1,kl1))=rp(itri(ij1,kl1))+weight(1+i)*(
-     &            Work(ipp-1+itri(ij1,kl1))+work(ipp-1+itri(ij2,kl2)))
+     &            Pe(itri(ij1,kl1))+Pe(itri(ij2,kl2)))
                 End Do
                End Do
              End Do
@@ -110,19 +115,19 @@
                  ij1=nnA*(iA-1)+ja
                  ij2=nna*(ja-1)+ia
                  rD(ij1)=rD(ij1)+
-     *                weight(1+i)*(Work(ipDe-1+ij1)+work(ipDe-1+ij2))
+     *                weight(1+i)*(De(ij1)+De(ij2))
               End Do
            End Do
         Else
-           call daxpy_(n2dens,weight(i+1),Work(ipp),1,rp,1)
-           call daxpy_(n1dens,Weight(i+1),Work(ipDe),1,rD,1)
+           call daxpy_(n2dens,weight(i+1),Pe,1,rp,1)
+           call daxpy_(n1dens,Weight(i+1),De,1,rD,1)
         End If
       End Do
 *
-      Call GetMem('CIL','FREE','REAL',ipL,nConfL)
-      Call GetMem('CIR','FREE','REAL',ipR,nConfR)
-      Call GetMem('1Dens2','Free','Real',ipDe,n1dens)
-      Call GetMem('2Dens2','Free','Real',ipP,n2dens)
+      Call mma_deallocate(CIL)
+      Call mma_deallocate(CIR)
+      Call mma_deallocate(Pe)
+      Call mma_deallocate(De)
 
       if(doDMRG)then
         call dmrg_dim_change_mclr(RGras2(1:8),ndim,0)

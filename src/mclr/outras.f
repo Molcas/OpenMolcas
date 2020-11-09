@@ -30,11 +30,12 @@
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
 #include "cicisp_mclr.fh"
-#include "WrkSpc.fh"
-      Character*8 Label
+#include "stdalloc.fh"
+      Character(LEN=8) Label
       Integer Pstate_sym
       Integer iKapDisp(nDisp),iCiDisp(nDisp)
       Logical CI
+      Real*8, Allocatable:: Kap1(:), Kap2(:), Kap3(:), CIp1(:)
 *
 *-------------------------------------------------------------------*
 *
@@ -46,6 +47,7 @@
       Write(6,*) '      Writing response to disk in Split guga '//
      &     'GUGA format'
       Write(6,*)
+
       idisp=0
       Do iSym=1,nSym
          rsuM=0.0d0
@@ -59,11 +61,11 @@
 *
 *    Allocate areas for scratch and state variables
 *
-         Call GetMem('kappa1','Allo','Real',ipKap1,nDens2)
-         Call GetMem('kappa2','Allo','Real',ipKap2,nDens2)
-         Call GetMem('kappa3','Allo','Real',ipKap3,nDens2)
+         Call mma_allocate(Kap1,nDens2,Label='Kap1')
+         Call mma_allocate(Kap2,nDens2,Label='Kap2')
+         Call mma_allocate(Kap3,nDens2,Label='Kap3')
          If (CI) Then
-            Call GetMem('CI1','Allo','Real',ipcip1,nconfM)
+            Call mma_allocate(CIp1,nconfM,Label='CIp1')
             call InCSFSD(Pstate_sym,State_sym,.true.)
          End If
          Do jDisp=1,lDisp(iSym)
@@ -74,27 +76,27 @@
                iDisk=iKapDisp(iDisp)
                If (iDisk.ne.-1) Then
                   Len=nDensC
-                  Call dDaFile(LuTemp,2,Work(ipKap1),Len,iDisk)
-                  Call Uncompress(Work(ipKap1),Work(ipKap3),isym)
+                  Call dDaFile(LuTemp,2,Kap1,Len,iDisk)
+                  Call Uncompress(Kap1,Kap3,isym)
                   If (CI) Then
                      ilen=nconfM
                      idis=iCIDisp(iDisp)
-                     Call dDaFile(LuTemp,2,Work(ipCIp1),iLen,iDis)
+                     Call dDaFile(LuTemp,2,CIp1,iLen,iDis)
                   End If
                   Call GASync()
                Else
                   Call GASync()
                   Len=nDensC
-                  Call FZero(Work(ipKap1),Len)
-                  Call GADSum(Work(ipKap1),Len)
+                  Call FZero(Kap1,Len)
+                  Call GADSum(Kap1,Len)
                   If (CI) Then
                      len=nconfM
-                     Call FZero(Work(ipCIp1),Len)
-                     Call GADSum(Work(ipCIp1),Len)
+                     Call FZero(CIp1,Len)
+                     Call GADSum(CIp1,Len)
                   End If
                End If
                Call GASync()
-               Call TCMO(Work(ipKap3),isym,-1)
+               Call TCMO(Kap3,isym,-1)
                irc=ndens2
                Label='KAPPA   '
                iopt=128
@@ -103,7 +105,7 @@
                write(6,'(A,I5," jDisp: ",I5," and iSym:",I5)')
      &           "Writing KAPPA and CI in mclr for iDisp:",
      &           iDisp, jDisp, iSym
-               Call dWrMCk(iRC,iOpt,Label,ipert,Work(ipKap3),isyml)
+               Call dWrMCk(iRC,iOpt,Label,ipert,Kap3,isyml)
                if (irc.ne.0) Call SysAbendMsg('outras','Error in wrmck',
      &              'label=KAPPA')
                irc=nconfM
@@ -114,10 +116,10 @@
 
                If (iAnd(kprint,8).eq.8)
      &              Write(6,*) 'Perturbation ',ipert
-               If (CI) call Guganew(ipcip1,0,pstate_sym)
+               If (CI) call Guganew(CIp1,0,pstate_sym)
                If (imethod.eq.2.and.(.not.CI).and.nconfM.eq.1)
-     &              Work(ipcip1)=0.0d0
-               Call dWrMCk(iRC,iOpt,Label,ipert,Work(ipcip1),isyml)
+     &              CIp1(1)=0.0d0
+               Call dWrMCk(iRC,iOpt,Label,ipert,CIp1,isyml)
                if (irc.ne.0) Call SysAbendMsg('outras','Error in wrmck',
      &              ' ')
             End If
@@ -128,16 +130,11 @@
 *     Free areas for scratch and state variables
 *
 *
-*
-         If (CI)  Then
-            Call GetMem('CI1','Free','Real',ipcip1,nconfM)
-         End If
-*        Call GetMem('KICONF2','FREE','INTE',kiconf(2),idum)
-         Call Getmem('rkappa3','FREE','Real',ipkap3,nDensC)
-         Call Getmem('rkappa2','FREE','Real',ipkap2,nDensC)
-         Call Getmem('rkappa1','FREE','Real',ipkap1,nDensC)
+         If (CI) Call mma_deallocate(CIp1)
+         Call mma_deallocate(Kap3)
+         Call mma_deallocate(Kap2)
+         Call mma_deallocate(Kap1)
       End Do
-
 *
       Return
       End

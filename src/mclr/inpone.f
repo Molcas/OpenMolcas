@@ -8,21 +8,23 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine InpOne
+      SubRoutine InpOne()
+      use Arrays, only: CMO, Int1, KAIN1
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
 #include "Files_mclr.fh"
-#include "glbbas_mclr.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "real.fh"
 #include "rctfld.fh"
       Logical Do_ESPF,First,Dff,Do_DFT,NonEq
       Character*8 Label
-      Dimension idum(1)
-      Real*8, Allocatable:: D1ao(:)
+      Integer idum(1)
+      Real*8  rdum(1)
+      Real*8, Allocatable:: D1ao(:), Nuc(:)
+      Real*8, Allocatable:: Temp1(:), Temp2(:), Temp3(:)
+      Real*8, Allocatable:: HTmp(:), GTmp(:)
 *
       iRc=-1
       iOpt=1
@@ -42,12 +44,14 @@
       iisym=2**0
       iRc=-1
       iOpt=0
-      Call GetMem('ONEHAM','ALLO','REAL',kint1,ndens2)
-      kain1=kint1
-      Call GetMem('HAM1','ALLO','REAL',itemp1,leng+10)
-      Call GetMem('HAM2','ALLO','REAL',itemp2,ndens2)
-      Call GetMem('HAM3','ALLO','REAL',itemp3,ndens2)
-      Call RdOne(iRc,iOpt,Label,1,Work(itemp1),iisym)
+      Call mma_allocate(Int1,ndens2,Label='Int1')
+      kain1=>Int1
+
+      Call mma_allocate(Temp1,leng+10,Label='Temp1')
+      Call mma_allocate(Temp2,ndens2,Label='Temp2')
+      Call mma_allocate(Temp3,ndens2,Label='Temp3')
+
+      Call RdOne(iRc,iOpt,Label,1,Temp1,iisym)
       If (iRC.ne.0)  Then
          Write (6,*) 'InpOne: Error reading ONEINT'
          Write (6,'(A,A)') 'Label=',Label
@@ -59,12 +63,12 @@ cnf
 *     field and ESPF calculations
 *
       Tot_Nuc_Charge=Zero
-      Call GetMem('Nuclear charges','Allo','Real',ipNuc,nAtoms)
-      Call Get_dArray('Effective nuclear Charge',Work(ipNuc),nAtoms)
-      Do iNuc = 0, nAtoms-1
-        Tot_Nuc_Charge = Tot_Nuc_Charge + Work(ipNuc+iNuc)
+      Call mma_allocate(Nuc,nAtoms,Label='Nuc')
+      Call Get_dArray('Effective nuclear Charge',Nuc,nAtoms)
+      Do iNuc = 1, nAtoms
+        Tot_Nuc_Charge = Tot_Nuc_Charge + Nuc(iNuc)
       End Do
-      Call GetMem('Nuclear charges','Free','Real',ipNuc,nAtoms)
+      Call mma_deallocate(Nuc)
       Tot_El_Charge = Zero
       Do iSym = 1, nSym
          Tot_El_Charge = Tot_El_Charge
@@ -85,10 +89,10 @@ cnf
 *------ Scratch for one- and two-electron type contributions
 *------ + variational density-matrix
 *
-         Call GetMem('Htmp','Allo','Real',iHtmp,leng)
-         Call GetMem('Gtmp','Allo','Real',iGtmp,leng)
-         Call dCopy_(leng,[Zero],0,Work(iHtmp),1)
-         Call dCopy_(leng,[Zero],0,Work(iGtmp),1)
+         Call mma_allocate(Htmp,leng,Label='Htmp')
+         Call mma_allocate(Gtmp,leng,Label='Gtmp')
+         Htmp(:)=Zero
+         Gtmp(:)=Zero
          Call mma_allocate(D1ao,leng,Label='D1ao')
          Call Get_D1ao(D1ao,leng)
 *
@@ -97,47 +101,45 @@ cnf
          Dff=.False.
          Do_DFT=.True.
          Call Get_dScalar('PotNuc',PotNuc)
-         Call DrvXV(Work(iHtmp),Work(iGtmp),D1ao,
-     &              PotNuc,leng,First,Dff,NonEq,lRF,
+         Call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,
 *
 *------ Don't care about the last arguments: no (CAS-)DFT here I guess)
 *
-     &              'SCF',Zero,iCharge,iSpin,Work(ip_Dummy),
-     &              Work(ip_Dummy),0,'1234',Do_DFT)
-         Call Daxpy_(leng,One,Work(iHtmp),1,Work(itemp1),1)
+     &              'SCF',Zero,iCharge,iSpin,rdum,rdum,0,'1234',Do_DFT)
+         Call Daxpy_(leng,One,Htmp,1,Temp1,1)
 *
 *------ Hum, where the hell is FI (Fock Inactive) ???
 *
-*         Call Daxpy_(leng,One,Work(iGtmp),1,FI,1)
-         Call GetMem('Gtmp','Free','Real',iGtmp,leng)
-         Call GetMem('Htmp','Free','Real',iHtmp,leng)
+*        Call Daxpy_(leng,One,Gtmp,1,FI,1)
+         Call mma_deallocate(Gtmp)
+         Call mma_deallocate(Htmp)
          Call mma_deallocate(D1ao)
       End If
 cnf
       ip=1
-      ip2=0
+      ip2=1
       Do iS=1,nSym
         If (nBas(is).ne.0 .AND. nOrb(iS).ne.0) Then
-           Call Square(work(itemp1+ip-1),
-     &                   work(itemp2),
+           Call Square(Temp1(ip),
+     &                   Temp2,
      &                   1,nBas(is),nBas(is))
            ip=ip+nBas(is)*(nBas(iS)+1)/2
            Call DGEMM_('T','N',
      &                 nOrb(iS),nBas(iS),nBas(iS),
-     &                 1.0d0,Work(ipCMO+ip2),nBas(iS),
-     &                 work(itemp2),nBas(iS),
-     &                 0.0d0,Work(iTemp3),nOrb(iS))
+     &                 1.0d0,CMO(ip2),nBas(iS),
+     &                 Temp2,nBas(iS),
+     &                 0.0d0,Temp3,nOrb(iS))
            Call DGEMM_('N','N',
      &                 nOrb(is),nOrb(iS),nBas(iS),
-     &                 1.0d0,Work(iTemp3),nOrb(iS),
-     &                 Work(ipCMO+ip2),nBas(iS),
-     &                 0.0d0,Work(kint1+ip2),nOrb(iS))
+     &                 1.0d0,Temp3,nOrb(iS),
+     &                 CMO(ip2),nBas(iS),
+     &                 0.0d0,Int1(ip2),nOrb(iS))
            ip2=ip2+nBas(is)**2
         End If
       End Do
-      Call GetMem('HAM1','Free','REAL',itemp1,leng)
-      Call GetMem('HAM2','Free','REAL',itemp2,leng)
-      Call GetMem('HAM3','Free','REAL',itemp3,leng)
+      Call mma_deallocate(Temp1)
+      Call mma_deallocate(Temp2)
+      Call mma_deallocate(Temp3)
 
       Return
       End

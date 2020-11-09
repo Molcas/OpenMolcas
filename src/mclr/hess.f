@@ -13,13 +13,11 @@
       SubRoutine Hess(FockC,FockX,rCon,Temp1,Temp2,Temp3,
      &                Temp4, idsym,jdisp,idisp)
 *
-*     Constructs the connection parts that is
-*     dependend on the first derivative of
-*     the connection
+*     Constructs the connection parts that is dependend on the first
+*     derivative of the connection.
 *
+      Use Arrays, only: Hss, CMO, F0SQMO
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-
 #include "Input.fh"
 #include "disp_mclr.fh"
 #include "Pointers.fh"
@@ -39,7 +37,7 @@
      &  Call DGEMM_('N','N',
      &              nOrb(is),nnj,nnj,
      &              1.0d0,rCon(ipMat(is,js)),nOrb(is),
-     &              Work(ipF0SQMO+ipCM(jS)-1),nOrb(js),
+     &                    F0SQMO(ipCM(jS)),nOrb(js),
      &              0.0d0,Temp3(ipMat(is,js)),nOrb(is))
 
        End Do
@@ -96,7 +94,7 @@
               If (nBas(is)*nBas(js).ne.0) Then
               Call DGEMM_('T','N',
      &                    nOrb(iS),nBAs(jS),nBas(iS),
-     &                    1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
+     &                    1.0d0,CMO(ipCM(iS)),nBas(iS),
      &                    Temp2(ipMat(iS,jS)),nBas(iS),
      &                    0.0d0,Temp4,nOrb(is))
               call dcopy_(nBas(is)*nBas(js),[0.0d0],0,
@@ -104,7 +102,7 @@
               Call DGEMM_('N','N',
      &                    nOrb(iS),nOrb(jS),nBas(jS),
      &                    1.0d0,Temp4,nOrb(iS),
-     &                    Work(ipCMO+ipCM(jS)-1),nBas(jS),
+     &                    CMO(ipCM(jS)),nBas(jS),
      &                    0.0d0,Temp2(ipMat(iS,jS)),nOrb(iS))
 *    &                    nOrb(iS),nBas(jS),nB(jS))
               if (is.ne.js) Then
@@ -112,7 +110,7 @@
      &                   temp2(ipMat(js,is)),1)
               Call DGEMM_('T','T',
      &                    nOrb(js),nOrb(iS),nBas(js),
-     &                    1.0d0,Work(ipCMO+ipCM(js)-1),nBas(js),
+     &                    1.0d0,CMO(ipCM(js)),nBas(js),
      &                    Temp4,nOrb(is),
      &                    0.0d0,Temp2(ipMat(js,is)),nOrb(js))
 *    &                    nbas(js),nBas(js),nB(iS))
@@ -125,9 +123,8 @@
          Fact=1.0d0
          If (kDisp.eq.jDisp) Fact=2.0d0
          Indx=nIn+Max(kDisp,jDisp)*(Max(kDisp,jDisp)-1)/2+
-     &             Min(kDisp,jDisp)-1+iphss
-         Work(Indx)=Work(Indx)-
-     &             fact*ddot_(nDens2,Temp2,1,Temp3,1)
+     &             Min(kDisp,jDisp)
+         Hss(Indx)=Hss(Indx)-fact*ddot_(nDens2,Temp2,1,Temp3,1)
  310  Continue
       Return
       End

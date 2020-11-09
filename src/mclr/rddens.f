@@ -15,10 +15,11 @@
 
 #include "SysDef.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "Files_mclr.fh"
       Real*8 D1(nd1),d2(nd2)
-      Dimension rdum(1)
+      Real*8 rdum(1)
+      Real*8, Allocatable:: G2tt(:), D2t(:), D1t(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -26,29 +27,29 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      call dcopy_(nd1,[0.0d0],0,d1,1)
-      Call Getmem('TDEND','ALLO','REAL',ipG2tt,nd2)
-      Call Getmem('TDEND','ALLO','REAL',ipD2,nd2)
-      Call Getmem('TDEND','ALLO','REAL',ipD1,nd1)
-      call dcopy_(nd2,[0.0d0],0,Work(ipg2tt),1)
+      d1(:)=0.0d0
+      Call mma_allocate(G2tt,nd2,Label='G2tt')
+      Call mma_allocate(D2t,nd2,Label='D2t')
+      Call mma_allocate(D1t,nd1,Label='D1t')
+      G2tt(:)=0.0d0
       jDisk = ITOC(3)
       Do i=1,lroots
          W=0.0d0
          Do j=1,nroots
             If (iroot(j).eq.i) W=Weight(j)
          End Do
-         Call dDaFile(LUJOB ,2,Work(ipD1),nd1,jDisk)
+         Call dDaFile(LUJOB ,2,D1t,nd1,jDisk)
          Call dDaFile(LUJOB ,0,rdum,nd1,jDisk)
-         Call dDaFile(LUJOB ,2,Work(ipD2),ND2,jDisk)
+         Call dDaFile(LUJOB ,2,D2t,ND2,jDisk)
          Call dDaFile(LUJOB ,0,rdum,ND2,jDisk)
          If (W.ne.0.0d0) Then
-            call daxpy_(nd2,w,Work(ipD2),1,Work(ipG2tt),1)
-            call daxpy_(nd1,w,Work(ipD1),1,D1,1)
+            call daxpy_(nd2,w,D2t,1,G2tt,1)
+            call daxpy_(nd1,w,D1t,1,D1,1)
          End If
 !         Write(*,*) i,w,"LUJOB",LUJOB
 !        Call Triprt('D',' ',D1,ntash)
       End Do
-      Call Put_D2AV(Work(ipG2tt),nd2)
+      Call Put_D2AV(G2tt,nd2)
       Call Put_D1AV(D1,nd1)
 *
       Do iB=1,ntash
@@ -61,14 +62,14 @@
           if(iDij.ge.iDkl .and. kB.eq.lB) fact=2.0d00
           if(iDij.lt.iDkl .and. iB.eq.jB) fact=2.0d00
           iijkl=itri(iDij,iDkl)
-          D2(iijkl)=Fact*Work(ipG2tt+iijkl-1)
+          D2(iijkl)=Fact*G2tt(iijkl)
          End Do
         End Do
        End Do
       End Do
 c
-      Call Getmem('TDEND','FREE','REAL',ipG2tt,nd2)
-      Call Getmem('TDEND','FREE','REAL',ipD2,nd2)
-      Call Getmem('TDEND','FREE','REAL',ipD1,nd1)
+      Call mma_deallocate(G2tt)
+      Call mma_deallocate(D2t)
+      Call mma_deallocate(D1t)
       Return
       End

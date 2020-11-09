@@ -31,19 +31,18 @@
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
 #include "cicisp_mclr.fh"
-#include "WrkSpc.fh"
-       Character*8 Label
+#include "stdalloc.fh"
+       Character(LEN=8) Label
        Integer Pstate_sym
        Integer iKapDisp(nDisp),iCiDisp(nDisp)
        Logical CI
+       Real*8, Allocatable:: Kap1(:), Kap2(:), Kap3(:), CIp1(:,:)
 *
 *-------------------------------------------------------------------*
 *
 * Ok construct hessian
 *
 *-------------------------------------------------------------------*
-*
-*       Call RecPrt('iKapDisp',' ',Work(iKapDisp),,1)
 *
        Write(6,*)
        Write(6,*) '      Writing response to disk in Split guga '//
@@ -59,15 +58,19 @@
           CI=.false.
           If (iMethod.eq.2.and.nconf1.gt.0) CI=.true.
           If (CI.and.nconf1.eq.1.and.isym.eq.1) CI=.false.
-          if (timedep) nconfM=nconfM*2
+          if (Timedep) nconfM=nconfM*2
 *
 *    Allocate areas for scratch and state variables
 *
-          Call GetMem('kappa1','Allo','Real',ipKap1,nDens2)
-          Call GetMem('kappa2','Allo','Real',ipKap2,nDens2)
-          Call GetMem('kappa3','Allo','Real',ipKap3,nDens2)
+          Call mma_allocate(Kap1,nDens2,Label='Kap1')
+          Call mma_allocate(Kap2,nDens2,Label='Kap2')
+          Call mma_allocate(Kap3,nDens2,Label='Kap3')
           If (CI) Then
-           Call GetMem('CI1','Allo','Real',ipcip1,nconfM)
+             If (TimeDep) Then
+                Call mma_allocate(CIp1,nconf1,2,Label='CIp1')
+             Else
+                Call mma_allocate(CIp1,nconf1,1,Label='CIp1')
+             End If
            call InCSFSD(Pstate_sym,State_sym,.true.)
           End If
         Do 110 jDisp=1,lDisp(iSym)
@@ -78,23 +81,22 @@
 *---------------------------------------------------------
 * LuTemp temp file in wfctl where the response is written
 *---------------------------------------------------------
-          Call dDaFile(LuTemp,2,Work(ipKap1),Len,iDisk)
-*          if (ndensc.ne.0)
-*     &      Call RecPrt('K',' ',Work(ipkap1),ndensc,1)
-          Call Uncompress(Work(ipKap1),Work(ipKap3),isym)
+          Call dDaFile(LuTemp,2,Kap1,Len,iDisk)
+*         if (ndensc.ne.0) Call RecPrt('K',' ',Kap1,ndensc,1)
+          Call Uncompress(Kap1,Kap3,isym)
           If (CI) Then
-           ilen=nconfM
-           idis=iCIDisp(iDisp)
-           Call dDaFile(LuTemp,2,Work(ipCIp1),iLen,iDis)
-*           Call RecPrt(' ',' ',Work(ipCIp1),nconfM,1)
+             ilen=nconfM
+             idis=iCIDisp(iDisp)
+             Call dDaFile(LuTemp,2,CIp1,iLen,iDis)
+*            Call RecPrt(' ',' ',CIp1,nconfM,1)
           End If
-          Call TCMO(Work(ipKap3),isym,-1)
+          Call TCMO(Kap3,isym,-1)
           irc=ndens2
           Label='KAPPA   '
           iopt=128
           isyml=2**(isym-1)
           ipert=kdisp
-          Call dWrMCk(iRC,iOpt,Label,ipert,Work(ipKap3),isyml)
+          Call dWrMCk(iRC,iOpt,Label,ipert,Kap3,isyml)
           if (irc.ne.0) Call Abend()
           irc=nconfM
           iopt=128
@@ -102,35 +104,23 @@
           isyml=2**(isym-1)
           ipert=kdisp
 
-          If (iAnd(kprint,8).eq.8)
-     &     Write(6,*) 'Perturbation ',ipert
+          If (iAnd(kprint,8).eq.8) Write(6,*) 'Perturbation ',ipert
+
           If (Timedep.and.CI) then
-            Call GetMem('TEMPCI','ALLO','REAL',ipCITmp,nconf1)
-            call dcopy_(nconf1,Work(ipcip1+nconf1),1,Work(ipCITmp),1)
-            Call Guganew(ipciTmp,0,pstate_sym)
-*           Call RecPrt(' ',' ',Work(ipCItmp),nconf1,1)
+            Call Guganew(CIp1(:,2),0,pstate_sym)
+            Call DSCAL_(nconf1,-1.0d0,CIp1(:,2),1)
           End If
-          If (CI) call Guganew(ipcip1,0,pstate_sym)
+
+          If (CI) call Guganew(CIp1(:,1),0,pstate_sym)
           If (Timedep) then
             If (CI) Then
-*           Call RecPrt(' ',' ',Work(ipCIp1),nconf1,1)
-              Call GetMem('TEMPCI2','ALLO','REAL',ipCITmp2,nconfM)
-              Call DSCAL_(nconf1,-1.0d0,Work(ipCITmp),1)
-              call dcopy_(nconf1,Work(ipcip1),1,Work(ipCITmp2),1)
-             call dcopy_(nconf1,Work(ipcitmp),1,Work(ipCITmp2+nconf1),1)
-              Call GetMem('TEMPCI','FREE','REAL',ipCITmp,nconf1)
-              If (imethod.eq.2.and.(.not.CI).and.nconfM.eq.1)  Then
-                  Work(ipcip1)=0.0d0
-                  Work(ipcip1+1)=0.0d0
-              End If
-*           Call RecPrt('M',' ',Work(ipCItmp2),nconfM,1)
-              Call dWrMCk(iRC,iOpt,Label,ipert,Work(ipcitmp2),isyml)
-              Call GetMem('TEMPCI2','FREE','REAL',ipCITmp2,nconfM)
+*              Call RecPrt(' ',' ',CIp1,nconfM,1)
+               Call dWrMCk(iRC,iOpt,Label,ipert,CIp1,isyml)
             End If
           Else
             If (imethod.eq.2.and.(.not.CI).and.nconf1.eq.1)
-     &            Work(ipcip1)=0.0d0
-            Call dWrMCk(iRC,iOpt,Label,ipert,Work(ipcip1),isyml)
+     &         CIp1(1,1)=0.0d0
+            Call dWrMCk(iRC,iOpt,Label,ipert,CIp1,isyml)
             if (irc.ne.0) Call Abend()
           End If
 **********************************************************************
@@ -139,15 +129,10 @@
 *
 *    Free areas for scratch and state variables
 *
-*
-*
-          If (CI)  Then
-          Call GetMem('CI1','Free','Real',ipcip1,nconfM)
-          End If
-*         Call GetMem('KICONF2','FREE','INTE',kiconf(2),idum)
-          Call Getmem('rkappa3','FREE','Real',ipkap3,nDensC)
-          Call Getmem('rkappa2','FREE','Real',ipkap2,nDensC)
-          Call Getmem('rkappa1','FREE','Real',ipkap1,nDensC)
+          If (CI) Call mma_deallocate(CIp1)
+          Call mma_deallocate(Kap3)
+          Call mma_deallocate(Kap2)
+          Call mma_deallocate(Kap1)
  100  Continue
 
 *
