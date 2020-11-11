@@ -44,6 +44,7 @@
       Real*8, Allocatable:: Coor1(:,:), Coor2(:,:)
       Real*8, Allocatable:: E_IRC(:), C_IRC(:,:), G_IRC(:,:)
       Integer, Allocatable:: Information(:)
+      Real*8, Allocatable:: Tmp(:)
 *
       Lu=6
       nSaddle_Max=100
@@ -441,13 +442,13 @@ c      End If
 *        completed.
 *
          ENew=Energy(iter)+ed
-         Call Allocate_Work(ipTmp,nSaddle)
+         Call mma_allocate(Tmp,nSaddle,Label='Tmp')
 *
 *        Store the info for later generation of MOLDEN formated files
 *
-         Call Get_dArray('Saddle',Work(ipTmp),nSaddle)
-         E_Reac=Work(ipTmp+6*nAtom  )
-         E_Prod=Work(ipTmp+6*nAtom+1)
+         Call Get_dArray('Saddle',Tmp,nSaddle)
+         E_Reac=Tmp(6*nAtom+1)
+         E_Prod=Tmp(6*nAtom+2)
 *
          Call Allocate_Work(ipE,nSaddle_Max)
          Call Allocate_Work(ipC,3*nAtom*nSaddle_Max)
@@ -462,11 +463,11 @@ c      End If
             iSaddle=1
             If (E_Reac.le.E_Prod) Then
                Work(ipE+(iSaddle-1))=E_Reac
-               call dcopy_(3*nAtom,Work(ipTmp        ),1,
+               call dcopy_(3*nAtom,Tmp(1:3*nAtom),1,
      &                    Work(ipC+(iSaddle-1)*3*nAtom),1)
             Else
                Work(ipE+(iSaddle-1))=E_Prod
-               call dcopy_(3*nAtom,Work(ipTmp+3*nAtom),1,
+               call dcopy_(3*nAtom,Tmp(3*nAtom+1:6*nAtom),1,
      &                    Work(ipC+(iSaddle-1)*3*nAtom),1)
             End If
             call dcopy_(3*nAtom,[Zero],0,
@@ -514,26 +515,26 @@ c      End If
 *
 *        Update info on the runfile.
 *
-         Call Get_dArray('Saddle',Work(ipTmp),nSaddle)
-         E1=Work(ipTmp+6*nAtom  )
-         E2=Work(ipTmp+6*nAtom+1)
+         Call Get_dArray('Saddle',Tmp,nSaddle)
+         E1=Tmp(6*nAtom+1)
+         E2=Tmp(6*nAtom+2)
 C        Write (6,*) 'ENew=',ENew
 C        Write (6,*) 'E1,E2=',E1,E2
          If (E1.le.E2) Then
 C           Write (6,*) 'Update reactant'
-            Work(ipTmp+6*nAtom  )=Energy(iter)
+            Tmp(6*nAtom+1)=Energy(iter)
             E1=Energy(iter)
-            call dcopy_(3*nAtom,Cx(1,iter),1,Work(ipTmp        ),1)
+            Tmp(1:3*nAtom)=Cx(:,iter)
          Else
 C           Write (6,*) 'Update product'
-            Work(ipTmp+6*nAtom+1)=Energy(iter)
+            Tmp(6*nAtom+2)=Energy(iter)
             E2=Energy(iter)
-            call dcopy_(3*nAtom,Cx(1,iter),1,Work(ipTmp+3*nAtom),1)
+            Tmp(3*nAtom+1:6*nAtom)=Cx(:,iter)
          End If
 *        Set flag that seward should process the info! This should not
 *        be done for the final macro iteration.
-         If (.Not.FindTS) Work(ipTmp+6*nAtom+4)=One
-         Call Put_dArray('Saddle',Work(ipTmp),nSaddle)
+         If (.Not.FindTS) Tmp(6*nAtom+5)=One
+         Call Put_dArray('Saddle',Tmp,nSaddle)
 *
          End Do
 *
@@ -555,7 +556,7 @@ C           Write (6,*) 'Update product'
             Call Get_iScalar('nMEP',iSaddle_r)
          Else
             Work(ipE_r)=E_Reac
-            call dcopy_(3*nAtom,Work(ipTmp),1,Work(ipC_r),1)
+            call dcopy_(3*nAtom,Tmp(1:3*nAtom),1,Work(ipC_r),1)
             Call FZero(Work(ipG_r),3*nAtom)
             iSaddle_r=1
          End If
@@ -572,7 +573,7 @@ C           Write (6,*) 'Update product'
             Call Get_iScalar('nMEP',iSaddle_p)
          Else
             Work(ipE_p)=E_Prod
-            call dcopy_(3*nAtom,Work(ipTmp+3*nAtom),1,Work(ipC_p),1)
+            call dcopy_(3*nAtom,Tmp(3*nAtom+1:6*nAtom),1,Work(ipC_p),1)
             Call FZero(Work(ipG_p),3*nAtom)
             iSaddle_p=1
          End If
@@ -617,7 +618,7 @@ C           Write (6,*) 'Update product'
 *        data for the next macro iteration.
 *
          If (.Not.FindTS) Then
-            Call Free_Work(ipTmp)
+            Call mma_deallocate(Tmp)
 C           Write (*,*) 'Reset $SubProject'
 *
 *           Reset $SubProject for the next macro iteration.
@@ -652,7 +653,7 @@ C              Write (6,*) 'SubProject=.Prod'
             Stop=.False.
          Else
             Call NameRun('RUNFILE')
-            Call Free_Work(ipTmp)
+            Call mma_deallocate(Tmp)
             nSaddle=0
             Call Put_dArray('Saddle',[Zero],nSaddle)
             Call Put_iScalar('nMEP',nSaddle)
@@ -755,14 +756,14 @@ C              Write (6,*) 'SubProject=.Prod'
 *        this may be an indication of an ill-behaved constraint
          If (iMEP.ge.1) Then
             Call Allocate_Work(ipC,3*nAtom*(nMEP+1))
-            Call Allocate_Work(ipTmp,3*nAtom)
+            Call mma_Allocate(Tmp,3*nAtom,Label='Tmp')
             Call Get_dArray('MEP-Coor',Work(ipC),3*nAtom*(nMEP+1))
             ipPrev=ipC+iMEP*3*nAtom
 *           Using hypersphere measure, even with "transverse" MEPs,
 *           this should not be a problem
-            Call SphInt(Cx(1,iter),nAtom,ip_Dummy,refDist,Work(ipTmp),
+            Call SphInt(Cx(1,iter),nAtom,ip_Dummy,refDist,Tmp,
      &         .False.,.False.,'dummy   ',Work(ip_Dummy),.False.)
-            Call SphInt(Cx(1,iter),nAtom,ipPrev,prevDist,Work(ipTmp),
+            Call SphInt(Cx(1,iter),nAtom,ipPrev,prevDist,Tmp,
      &         .False.,.False.,'dummy   ',Work(ip_Dummy),.False.)
             If (prevDist.lt.Half*refDist) Then
                TurnBack=.True.
@@ -772,7 +773,7 @@ C              Write (6,*) 'SubProject=.Prod'
                Terminate=.True.
             End If
             Call Free_Work(ipC)
-            Call Free_Work(ipTmp)
+            Call mma_deallocate(Tmp)
          End If
 *
        End If
