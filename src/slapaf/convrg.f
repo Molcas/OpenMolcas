@@ -20,6 +20,7 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "weighting.fh"
 #include "nadc.fh"
 #include "print.fh"
@@ -28,18 +29,21 @@
      &       Gx(3*nAtom,iter+1),GNrm(iter),Energy(iter+1),
      &       qInt(nInter,iter+1),Maxed,MaxErr
       Character Lbl(nInter)*8, Stat(0:MaxItr)*128, GrdLbl*8, StpLbl*8
-      Character*6 UpMeth, HUpMet, ConLbl(5)*5
-      Character*1 Step_Trunc
-      Character*16 StdIn
-      Character*80 Point_Desc
-      Character*16 MEP_Text
+      Character(LEN=6) UpMeth, HUpMet, ConLbl(5)*5
+      Character(LEN=1) Step_Trunc
+      Character(LEN=16) StdIn
+      Character(LEN=80) Point_Desc
+      Character(LEN=16) MEP_Text
       Integer   iNeg(2)
       Logical Stop, Conv1, Baker, GoOn,Analytic_hessian, MEP,
      &        Found, Terminate, Numerical, Last_Energy, rMEP,
      &        Just_Frequencies, Saddle, FindTS, eMEPTest, eTest,
      &        IRCRestart, Conv2, ConvTmp, TSReg, BadConstraint,
      &        TurnBack
-      Character*8 Temp
+      Character(LEN=8) Temp
+      Real*8, Allocatable:: Coor1(:,:), Coor2(:,:)
+      Real*8, Allocatable:: E_IRC(:), C_IRC(:,:), G_IRC(:,:)
+      Integer, Allocatable:: Information(:)
 *
       Lu=6
       nSaddle_Max=100
@@ -78,13 +82,13 @@
          Temp(7:8)='  '
       End If
 *
-      Call GetMem('x','Allo','Real',ipx,3*mTtAtm)
-      Call GetMem('y','Allo','Real',ipy,3*mTtAtm)
-      Call AtmLst(Cx(1,iter  ),nAtom,Work(ipx),mTtAtm)
-      Call AtmLst(Cx(1,iter+1),nAtom,Work(ipy),mTtAtm)
-      Call OptRMS_Slapaf(Work(ipx),Work(ipy),mTtAtm,RMS,RMSMax)
-      Call GetMem('y','Free','Real',ipy,3*mTtAtm)
-      Call GetMem('x','Free','Real',ipx,3*mTtAtm)
+      Call mma_allocate(Coor1,3,mTtAtm,Label='Coor1')
+      Call mma_allocate(Coor2,3,mTtAtm,Label='Coor2')
+      Call AtmLst(Cx(1,iter  ),nAtom,Coor1,mTtAtm)
+      Call AtmLst(Cx(1,iter+1),nAtom,Coor2,mTtAtm)
+      Call OptRMS_Slapaf(Coor1,Coor2,mTtAtm,RMS,RMSMax)
+      Call mma_deallocate(Coor1)
+      Call mma_deallocate(Coor2)
 *
       If (kIter.ne.iter .and. kIter.eq.1) Then
          Fabs   = GNrm(kiter)
@@ -732,13 +736,13 @@ C              Write (6,*) 'SubProject=.Prod'
 *        Compute energy difference and RMS between last two structures
 *
          eDiffMEP=Work(ipE+(iMEP))-Work(ipE+(iMEP-1))
-         Call GetMem('x','Allo','Real',ipx,3*mTtAtm)
-         Call GetMem('y','Allo','Real',ipy,3*mTtAtm)
-         Call AtmLst(Work(ipC+(iMEP-1)*3*nAtom),nAtom,Work(ipx),mTtAtm)
-         Call AtmLst(Work(ipC+(iMEP  )*3*nAtom),nAtom,Work(ipy),mTtAtm)
-         Call OptRMS_Slapaf(Work(ipx),Work(ipy),mTtAtm,RMS,RMSMax)
-         Call GetMem('x','Free','Real',ipx,3*mTtAtm)
-         Call GetMem('y','Free','Real',ipy,3*mTtAtm)
+         Call mma_allocate(Coor1,3,mTtAtm,Label='Coor1')
+         Call mma_allocate(Coor2,3,mTtAtm,Label='Coor2')
+         Call AtmLst(Work(ipC+(iMEP-1)*3*nAtom),nAtom,Coor1,mTtAtm)
+         Call AtmLst(Work(ipC+(iMEP  )*3*nAtom),nAtom,Coor2,mTtAtm)
+         Call OptRMS_Slapaf(Coor1,Coor2,mTtAtm,RMS,RMSMax)
+         Call mma_deallocate(Coor1)
+         Call mma_deallocate(Coor2)
 *
          Call Free_Work(ipE)
          Call Free_Work(ipG)
@@ -943,38 +947,34 @@ C              Write (6,*) 'SubProject=.Prod'
                   nBackward=iMEP+1
                   Call qpg_dArray('IRC-Energies',Found,nForward)
                   nIRC=nForward+nBackward-1
-                  Call GetMem('IRCE','Allo','Real',ipE_IRC,nIRC)
-                  Call GetMem('IRCC','Allo','Real',ipC_IRC,3*nAtom*nIRC)
-                  Call GetMem('IRCG','Allo','Real',ipG_IRC,3*nAtom*nIRC)
+                  Call mma_allocate(E_IRC,nIRC,Label='E_IRC')
+                  Call mma_allocate(C_IRC,3*nAtom,nIRC,Label='C_IRC')
+                  Call mma_allocate(G_IRC,3*nAtom,nIRC,Label='G_IRC')
 *
                   j=0
                   Do i = nBackward, 1, -1
                      j = j+1
-                     Work(ipE_IRC+(j-1))=Work(ipE+(i-1))
+                     E_IRC(j)=Work(ipE+(i-1))
                      call dcopy_(3*nAtom,
-     &                          Work(ipC+(i-1)*3*nAtom),1,
-     &                          Work(ipC_IRC+(j-1)*3*nAtom),1)
+     &                          Work(ipC+(i-1)*3*nAtom),1,C_IRC(:,j),1)
                      call dcopy_(3*nAtom,
-     &                          Work(ipG+(i-1)*3*nAtom),1,
-     &                          Work(ipG_IRC+(j-1)*3*nAtom),1)
+     &                          Work(ipG+(i-1)*3*nAtom),1,G_IRC(:,j),1)
                   End Do
 *
-                  Call Get_dArray('IRC-Energies',
-     &                            Work(ipE_IRC+(nBackward-1)),nForward)
-                  Call Get_dArray('IRC-Coor',
-     &                            Work(ipC_IRC+(nBackward-1)*3*nAtom),
+                  Call Get_dArray('IRC-Energies',E_IRC(nBackward),
+     &                            nForward)
+                  Call Get_dArray('IRC-Coor',C_IRC(:,nBackward:nIRC),
      &                            nForward*3*nAtom)
-                  Call Get_dArray('IRC-Grad',
-     &                            Work(ipG_IRC+(nBackward-1)*3*nAtom),
+                  Call Get_dArray('IRC-Grad',G_IRC(:,nBackward:nIRC),
      &                            nForward*3*nAtom)
 *
-                  Call Intergeo('MD_IRC',Work(ipE_IRC),Work(ipC_IRC),
-     &                          Work(ipG_IRC),nAtom,nIRC)
+                  Call Intergeo('MD_IRC',E_IRC,C_IRC,G_IRC,nAtom,nIRC)
 *
-                  Call Free_Work(ipG_IRC)
-                  Call Free_Work(ipC_IRC)
-                  Call Free_Work(ipE_IRC)
+                  Call mma_deallocate(G_IRC)
+                  Call mma_deallocate(C_IRC)
+                  Call mma_deallocate(E_IRC)
                End If
+
                Call Free_Work(ipG)
                Call Free_Work(ipC)
                Call Free_Work(ipE)
@@ -1040,10 +1040,11 @@ C              Write (6,*) 'SubProject=.Prod'
 *
           iMEP=0
           Call Put_iScalar('nMEP',iMEP)
-          Call GetMem(' iter','Allo','Inte',ipItr,7)
-          iWork(ipItr)=-99     ! Deactivate the record
-          Call Put_iArray('Slapaf Info 1',iWork(ipItr),7)
-          Call GetMem(' iter','Free','Inte',ipItr,7)
+          Call mma_allocate(Information,7,Label='Information')
+          Information(:)=0
+          Information(1)=-99     ! Deactivate the record
+          Call Put_iArray('Slapaf Info 1',Information,7)
+          Call mma_deallocate(Information)
           iOff_Iter=0
           Call Put_iScalar('iOff_Iter',iOff_Iter)
 *
