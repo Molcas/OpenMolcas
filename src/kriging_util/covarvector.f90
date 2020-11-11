@@ -37,7 +37,7 @@ SUBROUTINE covarVector(gh)
       i = Index_PGEK(i_eff)
 !     1st derivatives second part of eq. (4)
       diffxi(:) = 2.0D0*rl(:,i)/l(i)
-      i0 = nPoints + 1 + (i-1)*(nPoints-nD)
+      i0 = nPoints + 1 + (i_eff-1)*(nPoints-nD)
       i1 = i0 + (nPoints-nD) - 1
       cv(i0:i1,1,1) = cvMatFder(1+nD:nPoints) * diffxi(1+nD:nPoints)
     enddo

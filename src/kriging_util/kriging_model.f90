@@ -169,8 +169,8 @@ SUBROUTINE kriging_model()
   CALL DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO )
 #endif
   If (INFO.ne.0) Then
-    Write (6,*) 'k: INFO.ne.0'
-    Write (6,*) 'k: INFO=',INFO
+    Write (6,*) 'kriging_model: INFO.ne.0'
+    Write (6,*) 'kriging_model: INFO=',INFO
     Call Abend()
   End If
 #ifdef _DEBUGPRINT_

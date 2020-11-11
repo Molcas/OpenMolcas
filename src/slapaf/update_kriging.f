@@ -222,7 +222,7 @@
      &                   Kriging_Hessian,qBeta,iOpt_RS,
      &                   First_MicroIteration,iter,qBeta_Disp)
 #ifdef _DEBUGPRINT_
-         Write (6,*) 'Update_kriging: Step_Trunc',Step_Trunc
+         Write (6,*) 'After Update_inner: Step_Trunc',Step_Trunc
          Call RecPrt('New Coord',' ',qInt,nInter,iterAI+1)
          Call RecPrt('Grad',' ',Grad,nInter,iterAI)
 #endif
@@ -333,6 +333,7 @@
             Write (6,*) GrdMx.gt.Min(ThrGrd*OneHalf,GrdMx_ini)
             Write (6,*) RMS.gt.ThrGrd*Four
             Write (6,*) RMSMx.gt.ThrGrd*Six
+            Write (6,*) 'Step_Trunc=',Step_Trunc
 #endif
 *           Ensure that the initial gradient is reduced,
 *           except in the last micro iteration

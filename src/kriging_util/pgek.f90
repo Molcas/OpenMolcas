@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
-#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 SUBROUTINE pgek()
 use kriging_mod, only: x, y, nPoints, nInter, Index_PGEK, nInter_Eff
 Implicit None
@@ -18,7 +18,11 @@ Implicit None
 #include "stdalloc.fh"
 Real*8, Allocatable:: Mean_univariate(:)
 Real*8, Allocatable:: Variance_univariate(:), Variance_bivariate(:)
-Integer i, j, l, k
+!#define _MI_SORT_
+#ifdef _MI_SORT_
+Integer k
+#endif
+Integer i, j, l
 Real*8 tmp, dx, dy, Fact
 ! Mutual information array
 !Real*8 MI(nInter)
@@ -50,9 +54,9 @@ Call mma_allocate(Mean_univariate,nInter+1,Label='Mean_univariate')
 Call mma_allocate(Variance_univariate,nInter+1,Label='Variance_univariate')
 Call mma_allocate(Variance_bivariate,nInter,Label='Variance_bivariate')
 Call mma_allocate(MI,nInter,Label='MI')
-Call mma_allocate(px,nPoints,nInter,Label='px')
+Call mma_allocate(px,nInter,nPoints,Label='px')
 Call mma_allocate(py,nPoints,Label='py')
-Call mma_allocate(pxy,nPoints,nInter,Label='pxy')
+Call mma_allocate(pxy,nInter,nPoints,Label='pxy')
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -125,7 +129,7 @@ Write (6,*) 'The Gaussian bandwidth, h=',h
 #endif
 
 
-!  a) Compute px(i,l)
+!  a) Compute px(l,i)
 
 Do l = 1, nInter
    Sigma_2=Variance_Univariate(l)
@@ -135,7 +139,7 @@ Do l = 1, nInter
 !  or for some other reason. Then the kernel function effectively is a Dirac delta function.
 !
    If (Sigma_2<1.0D-10) Then
-      px(:,l)=One/DBLE(nPoints)
+      px(l,:)=One/DBLE(nPoints)
    Else
       N_norm= (Fact / SQRT(Sigma_2))
       Do i = 1, nPoints
@@ -149,7 +153,7 @@ Do l = 1, nInter
             tmp=tmp+K_u_j
          End Do
 
-         px(i,l)=tmp/DBLE(nPoints)
+         px(l,i)=tmp/DBLE(nPoints)
 
       End Do
    End If
@@ -157,11 +161,11 @@ End Do
 
 !  b) Compute py(i)
 
-Sigma_2=Variance_Univariate(nPoints+1)
+Sigma_2=Variance_Univariate(nInter+1)
 N_norm= (Fact / SQRT(Sigma_2))
 !Write (6,*) 'Sigma_2=',Sigma_2
 Do i = 1, nPoints
-!   Write (6,*) 'i=',i
+!    Write (6,*) 'i=',i
 
    tmp=Zero
    Do j = 1, nPoints
@@ -175,13 +179,13 @@ Do i = 1, nPoints
 
 End Do
 #ifdef _DEBUGPRINT_
-Call RecPrt('Probablity px(i,l)',' ',px,nPoints,nInter)
-Call RecPrt('Probablity py(l)',' ',py,nPoints,1)
+Call RecPrt('Probability px(i,l)',' ',px,nInter,nPoints)
+Call RecPrt('Probability py(l)',' ',py,nPoints,1)
 #endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-! 2) the bivariate case, pxy(i,l)
+! 2) the bivariate case, pxy(l,i)
 
 d=Two
 h = (Four/((Two*d + One)*DBLE(nPoints)))**(One/(Four+d)) ! the Gaussian bandwidth
@@ -202,42 +206,47 @@ Do l = 1, nInter
    Sigma2(2,1)=Sigma2(1,2)
    Sigma2(2,2)=Variance_univariate(nInter+1) ! p(y^2)
    Det_Sigma2=Sigma2(1,1)*Sigma2(2,2)-Sigma2(1,2)*Sigma2(2,1)  ! The determinant of the 2 x 2 sigma matrix
-   Sigma2_Inverse(1,1)= Sigma2(2,2)/Det_Sigma2
-   Sigma2_Inverse(1,2)=-Sigma2(1,2)/Det_Sigma2
-   Sigma2_Inverse(2,1)=-Sigma2(2,1)/Det_Sigma2
-   Sigma2_Inverse(2,2)= Sigma2(1,1)/Det_Sigma2
 #ifdef _DEBUGPRINT_
-!  Call RecPrt('Sigma2',' ',Sigma2,2,2)
-!  Write (6,*) 'Det(Sigma2)=',Det_Sigma2
-!  Call RecPrt('Sigma2_Inverse',' ',Sigma2_Inverse,2,2)
+   Call RecPrt('Sigma2','(2E12.4)',Sigma2,2,2)
+   Write (6,'(A,E12.4)') 'Det(Sigma2)=           ',Det_Sigma2
+   Write (6,'(A,E12.4)') 'Sqrt(ABS(Det(Sigma2)))=',SQRT(ABS(Det_Sigma2))
 #endif
+   If ( Variance_univariate(l)<1.0D-10 .or. ABS(Det_Sigma2)<1.0D-20 ) Then
+      pxy(l,:)=One/DBLE(nPoints)
+   Else
+      Sigma2_Inverse(1,1)= Sigma2(2,2)/Det_Sigma2
+      Sigma2_Inverse(1,2)=-Sigma2(1,2)/Det_Sigma2
+      Sigma2_Inverse(2,1)=-Sigma2(2,1)/Det_Sigma2
+      Sigma2_Inverse(2,2)= Sigma2(1,1)/Det_Sigma2
+!     Call RecPrt('Sigma2_Inverse','(2E10.2)',Sigma2_Inverse,2,2)
+      N_norm = (Fact / SQRT(Det_Sigma2))
+      Do i = 1, nPoints
 
-   N_norm = (Fact / SQRT(Det_Sigma2))
-   Do i = 1, nPoints
 
+         tmp=Zero
+         Do j = 1, nPoints
+            dx = x(l,i)-x(l,j)
+            dy = y(i)-y(j)
+            u_j = ( dx*dx * Sigma2_Inverse(1,1)   &
+                   +dx*dy * Sigma2_Inverse(1,2)   &
+                   +dy*dx * Sigma2_Inverse(2,1)   &
+                   +dy*dy * Sigma2_Inverse(2,2) ) &
+                  / h**2
+!           Write (6,*)' u_j=',u_j
+            K_u_j = N_norm * Exp(-u_j/Two)
+!           Write (6,*)' K_u_j=',K_u_j
+            tmp=tmp+K_u_j
+         End Do
 
-      tmp=Zero
-      Do j = 1, nPoints
-         dx = x(l,i)-x(l,j)
-         dy = y(i)-y(j)
-         u_j = ( dx*dx * Sigma2_Inverse(1,1)   &
-                +dx*dy * Sigma2_Inverse(1,2)   &
-                +dy*dx * Sigma2_Inverse(2,1)   &
-                +dy*dy * Sigma2_Inverse(2,2) ) &
-               / h**2
-!        Write (6,*)' u_j=',u_j
-         K_u_j = N_norm * Exp(-u_j/Two)
-!        Write (6,*)' K_u_j=',K_u_j
-         tmp=tmp+K_u_j
+         pxy(l,i)=tmp/DBLE(nPoints)
+
       End Do
-
-      pxy(i,l)=tmp/DBLE(nPoints)
-
-   End Do
+   End If
+!  Write (*,*) 'pxy(l,:)=',pxy(l,:)
 End Do
 
 #ifdef _DEBUGPRINT_
-Call RecPrt('Probablity pxy(i,l)',' ',pxy,nPoints,nInter)
+Call RecPrt('Probability pxy(l,i)',' ',pxy,nInter,nPoints)
 #endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -251,7 +260,7 @@ Do l = 1, nInter
    tmp=Zero
    If (Variance_univariate(l)>1.0D-10) Then
       Do i = 1, nPoints
-         tmp = tmp + pxy(i,l) * log10( pxy(i,l) / (  px(i,l) * py(i)) )
+         tmp = tmp + pxy(l,i) * log10( pxy(l,i) / (  px(l,i) * py(i)) )
       End Do
    End If
    MI(l)=tmp
@@ -270,6 +279,7 @@ End Do
 
 nInter_Eff=0
 Do i = 1, nInter
+#ifdef _MI_SORT_
    k = 0
    tmp=-One
    Do j = 1, nInter
@@ -286,7 +296,26 @@ Do i = 1, nInter
       MI(k)=-Two
       Index_PGEK(i)=k
    End If
+#else
+!  If (Abs(Variance_bivariate(i))>5.0D-15) Then
+   If (Abs(Variance_bivariate(i))>1.0D-14) Then
+      nInter_eff=nInter_eff+1
+      Index_PGEK(nInter_eff)=i
+   End If
+#endif
 End Do
+!
+! code debugging with full lists and forward and backward order.
+!
+!nInter_Eff = nInter
+!Do i = 1, nInter
+!   Index_PGEK(i)=nInter-i+1
+!End Do
+!nInter_Eff = nInter
+!Do i = 1, nInter
+!   Index_PGEK(i)=i
+!End Do
+#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 Write (6,*) 'nInter_eff=',nInter_eff
 Write (6,*) 'Index_PGEK=',(Index_PGEK(i),i=1,nInter_eff)

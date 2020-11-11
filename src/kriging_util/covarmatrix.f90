@@ -135,7 +135,7 @@ SUBROUTINE covarMatrix()
 !
     diffx_i(1+nD:nPoints,1+nD:nPoints) = -2.0D0*r(1+nD:nPoints,1+nD:nPoints,i)/l(i)
 !
-    do j_Eff = i,nInter_Eff
+    do j_Eff = i_Eff, nInter_Eff
       j = Index_PGEK(j_Eff)
       j0 = nPoints + 1 + (j_Eff-1)*(nPoints-nD)
       j1 = j0 + (nPoints-nD) - 1

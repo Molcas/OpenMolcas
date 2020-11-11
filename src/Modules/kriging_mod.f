@@ -77,10 +77,16 @@
       nPoints      = nPoints_In
       nD           = MAX(0,MIN(nD_In,nPoints-nD_In))
 
+!
+!     Allocate arrays for data or energies, coordinates, and gradients
+!
       Call mma_Allocate(x,nInter,nPoints,Label="x")
       Call mma_Allocate(y,nPoints,Label="y")
       Call mma_Allocate(dy,nInter*(nPoints-nD),Label="dy")
 
+!     The code will use partial GEK with indirect addressing. However,
+!     here we defaults the index array so that it behaves as conventional GEK.
+!
       Call mma_Allocate(Index_PGEK,nInter,Label='Index_PGEK')
       Do i = 1,nInter
          Index_PGEK(i)=i
