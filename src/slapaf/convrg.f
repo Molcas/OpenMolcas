@@ -44,6 +44,8 @@
       Real*8, Allocatable:: Coor1(:,:), Coor2(:,:)
       Real*8, Allocatable:: E_IRC(:), C_IRC(:,:), G_IRC(:,:)
       Real*8, Allocatable:: E_S(:), C_S(:,:), G_S(:,:)
+      Real*8, Allocatable:: E_R(:), C_R(:,:), G_R(:,:)
+      Real*8, Allocatable:: E_P(:), C_P(:,:), G_P(:,:)
       Integer, Allocatable:: Information(:)
       Real*8, Allocatable:: Tmp(:)
 *
@@ -540,36 +542,36 @@ C           Write (6,*) 'Update product'
 *        after each macro iteration
 *
          Call NameRun('RUNREAC')
-         Call Allocate_Work(ipE_r,nSaddle_Max)
-         Call Allocate_Work(ipC_r,3*nAtom*nSaddle_Max)
-         Call Allocate_Work(ipG_r,3*nAtom*nSaddle_Max)
+         Call mma_allocate(E_r,nSaddle_Max,Label='E_r')
+         Call mma_allocate(C_r,3*nAtom,nSaddle_Max,Label='C_r')
+         Call mma_allocate(G_r,3*nAtom,nSaddle_Max,Label='G_r')
          Call Qpg_iScalar('nMEP',Found)
          if(Found) Then
-            Call Get_dArray('MEP-Energies',Work(ipE_r),nSaddle_Max)
-            Call Get_dArray('MEP-Coor',Work(ipC_r),3*nAtom*nSaddle_Max)
-            Call Get_dArray('MEP-Grad',Work(ipG_r),3*nAtom*nSaddle_Max)
+            Call Get_dArray('MEP-Energies',E_r,nSaddle_Max)
+            Call Get_dArray('MEP-Coor',C_r,3*nAtom*nSaddle_Max)
+            Call Get_dArray('MEP-Grad',G_r,3*nAtom*nSaddle_Max)
             Call Get_iScalar('nMEP',iSaddle_r)
          Else
-            Work(ipE_r)=E_Reac
-            call dcopy_(3*nAtom,Tmp(1:3*nAtom),1,Work(ipC_r),1)
-            Call FZero(Work(ipG_r),3*nAtom)
+            E_r(1)=E_Reac
+            C_r(:,1) = Tmp(1:3*nAtom)
+            G_r(:,:) = Zero
             iSaddle_r=1
          End If
 *
          Call NameRun('RUNPROD')
-         Call Allocate_Work(ipE_p,nSaddle_Max)
-         Call Allocate_Work(ipC_p,3*nAtom*nSaddle_Max)
-         Call Allocate_Work(ipG_p,3*nAtom*nSaddle_Max)
+         Call mma_allocate(E_p,nSaddle_Max,Label='E_p')
+         Call mma_allocate(C_p,3*nAtom,nSaddle_Max,Label='C_p')
+         Call mma_allocate(G_p,3*nAtom,nSaddle_Max,Label='G_p')
          Call Qpg_iScalar('nMEP',Found)
          if(Found) Then
-            Call Get_dArray('MEP-Energies',Work(ipE_p),nSaddle_Max)
-            Call Get_dArray('MEP-Coor',Work(ipC_p),3*nAtom*nSaddle_Max)
-            Call Get_dArray('MEP-Grad',Work(ipG_p),3*nAtom*nSaddle_Max)
+            Call Get_dArray('MEP-Energies',E_p,nSaddle_Max)
+            Call Get_dArray('MEP-Coor',C_p,3*nAtom*nSaddle_Max)
+            Call Get_dArray('MEP-Grad',G_p,3*nAtom*nSaddle_Max)
             Call Get_iScalar('nMEP',iSaddle_p)
          Else
-            Work(ipE_p)=E_Prod
-            call dcopy_(3*nAtom,Tmp(3*nAtom+1:6*nAtom),1,Work(ipC_p),1)
-            Call FZero(Work(ipG_p),3*nAtom)
+            E_p(1)=E_Prod
+            C_p(:,1) = Tmp(3*nAtom+1:6*nAtom)
+            G_p(:,:) = Zero
             iSaddle_p=1
          End If
 *
@@ -578,33 +580,28 @@ C           Write (6,*) 'Update product'
          jSaddle=iSaddle_r
          Do iSaddle=iSaddle_p, 1, -1
             jSaddle=jSaddle+1
-            Work(ipE_r+(jSaddle-1))=Work(ipE_p+(iSaddle-1))
-            call dcopy_(3*nAtom,Work(ipC_p+(iSaddle-1)*3*nAtom),1,
-     &                         Work(ipC_r+(jSaddle-1)*3*nAtom),1)
-            call dcopy_(3*nAtom,Work(ipG_p+(iSaddle-1)*3*nAtom),1,
-     &                         Work(ipG_r+(jSaddle-1)*3*nAtom),1)
+            E_r(jSaddle) = E_p(iSaddle)
+            C_r(:,jSaddle) = C_p(:,iSaddle)
+            G_r(:,jSaddle) = G_p(:,iSaddle)
          End Do
-         Call Free_Work(ipG_p)
-         Call Free_Work(ipC_p)
-         Call Free_Work(ipE_p)
+         Call mma_deallocate(G_p)
+         Call mma_deallocate(C_p)
+         Call mma_deallocate(E_p)
 *
 *        Align the structures sequentially, only for visualization
 *        (gradients are not changed, though)
 * TODO   Rotate the gradients too
 *
-         jindex=ipC_r
          Do iSaddle=1,iSaddle_r+iSaddle_p-1
-            iindex=jindex+3*nAtom
-            Call Align(Work(iindex),Work(jindex),nAtom)
-            jindex=iindex
+            Call Align(C_r(:,iSaddle+1),C_r(:,iSaddle),nAtom)
          End Do
 *
-         Call Intergeo('MD_SADDLE',Work(ipE_r),Work(ipC_r),
-     &                 Work(ipG_r),nAtom,iSaddle_r+iSaddle_p)
+         Call Intergeo('MD_SADDLE',E_r,C_r,
+     &                 G_r,nAtom,iSaddle_r+iSaddle_p)
 *
-         Call Free_Work(ipG_r)
-         Call Free_Work(ipC_r)
-         Call Free_Work(ipE_r)
+         Call mma_deallocate(G_r)
+         Call mma_deallocate(C_r)
+         Call mma_deallocate(E_r)
 *
 *                                                                      *
 ************************************************************************
