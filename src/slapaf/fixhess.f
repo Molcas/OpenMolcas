@@ -14,9 +14,11 @@
 #include "real.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 H(nH,nH), MF(3*nAtoms)
       Integer iNeg(2)
       Logical AnalHess, AllowFindTS, Corrected, Too_Small, Found
+      Real*8, Allocatable:: EVal(:), LowVal(:), LowVec(:,:), Tmp(:,:)
 *
       iRout=211
       iPrint=nPrint(iRout)
@@ -34,15 +36,15 @@
       ZTh=1.0D-12
       HHigh=1.0D0
 *
-      Call GetMem('EVal','Allo','Real',ipEVal,nH*(nH+1)/2)
+      Call mma_allocate(EVal,nH*(nH+1)/2,Label='EVal')
 *
 *---- Copy elements for H
 *
       SumHii=Zero
       Do i = 1, nH
          Do j = 1, i
-            ij=i*(i-1)/2 + j + ipEVal -1
-            Work(ij)=H(i,j)
+            ij=i*(i-1)/2 + j
+            EVal(ij)=H(i,j)
          End Do
          SumHii=SumHii+H(i,i)
       End Do
@@ -50,7 +52,7 @@
 #ifdef _DEBUGPRINT_
       Write (Lu,*) 'FixHess: SumHii=',SumHii
       Call RecPrt('FixHess: Hessian',' ',H,nH,nH)
-      Call TriPrt('FixHess: H',' ',Work(ipEVal),nH)
+      Call TriPrt('FixHess: H',' ',EVal,nH)
 #endif
 
 *
@@ -66,49 +68,49 @@
       End If
       nVStep=2
       Found=.False.
-      Call Allocate_Work(ipLowVal,NumVal)
-      Call Allocate_Work(ipLowVec,NumVal*nH)
-      Call DZero(Work(ipLowVec),NumVal*nH)
+      Call mma_allocate(LowVal,NumVal,Label='LowVal')
+      Call mma_allocate(LowVec,nH,NumVal,Label='LowVec')
+      LowVec(:,:) = Zero
 *---- Stop when the highest eigenvalue found is larger than HTh * 10
       Do While (.Not.Found)
-        Call Davidson(Work(ipEVal),nH,
-     &                NumVal,Work(ipLowVal),Work(ipLowVec),iStatus)
+        Call Davidson(EVal,nH,NumVal,LowVal,LowVec,iStatus)
 #ifdef _DEBUGPRINT_
-        Call RecPrt(' Eigenvalues',' ',Work(ipLowVal),1,NumVal)
-        Call RecPrt(' Eigenvectors',' ',Work(ipLowVec),nH,NumVal)
+        Call RecPrt(' Eigenvalues',' ',LowVal,1,NumVal)
+        Call RecPrt(' Eigenvectors',' ',LowVec,nH,NumVal)
 #endif
         If (iStatus.gt.0) Then
           Call SysWarnMsg('FixHess',
      &      'Davidson procedure did not converge','')
         End If
-        If ((Work(ipLowVal+NumVal-1).gt.Ten*HTh).or.(NumVal.ge.nH)) Then
+        If ((LowVal(NumVal).gt.Ten*HTh).or.(NumVal.ge.nH)) Then
           Found=.True.
         Else
 *----     Increase the number of eigenpairs to compute
           Call Allocate_Work(ipTmp,NumVal*nH)
-          call dcopy_(NumVal*nH,Work(ipLowVec),1,Work(ipTmp),1)
-          Call Free_Work(ipLowVal)
-          Call Free_Work(ipLowVec)
+          Call mma_allocate(Tmp,nH,NumVal,Label='Tmp')
+          Tmp(:,:)=LowVec(:,:)
+          Call mma_deallocate(LowVal)
+          Call mma_deallocate(LowVec)
 *----     At some point, start doubling the number
           If (NumVal.ge.16) NVStep=NumVal
           nVStep=Min(nVStep,nH-NumVal)
           NumVal=NumVal+nVStep
-          Call Allocate_Work(ipLowVal,NumVal)
-          Call Allocate_Work(ipLowVec,NumVal*nH)
-          call dcopy_((NumVal-nVStep)*nH,Work(ipTmp),1,Work(ipLowVec),1)
-          Call DZero(Work(ipLowVec+(NumVal-nVStep)*nH),nVStep*nH)
-          Call DZero(Work(ipLowVal),NumVal)
-          Call Free_Work(ipTmp)
+          Call mma_allocate(LowVal,NumVal,Label='LowVal')
+          LowVal(:)=Zero
+          Call mma_allocate(LowVec,nH,NumVal,Label='LowVec')
+          LowVec(:,:)=Zero
+          LowVec(:,1:NumVal-nVStep) = Tmp(:,:)
+          Call mma_deallocate(Tmp)
         End If
       End Do
-      Call GetMem('EVal','Free','Real',ipEVal,nH*(nH+1)/2)
+      Call mma_deallocate(EVal)
 *
 *---- Apply corrections if any ...
 *
       Call GetMem('FixVal','Allo','Real',ipFixVal,NumVal)
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' Eigenvalues',' ',Work(ipLowVal),1,NumVal)
-      Call RecPrt(' Eigenvectors',' ',Work(ipLowVec),nH,NumVal)
+      Call RecPrt(' Eigenvalues',' ',LowVal,1,NumVal)
+      Call RecPrt(' Eigenvectors',' ',LowVec,nH,NumVal)
 #endif
       iNeg(1)=0
       jNeg=0
@@ -116,7 +118,7 @@
       iLow=0
 *     with sorted eigenvalues, jNeg=iNeg, iLow=1
       Do i = 1, NumVal
-         temp=Work(i+ipLowVal-1)
+         temp=LowVal(i)
          Work(i+ipFixVal-1)=temp
          If (temp.lt.rlow) Then
             rlow=temp
@@ -225,8 +227,7 @@
 *------------- Store the eigenvector which we are following
 *
                Mode=jNeg
-               ipFrom=ipLowVec + (Mode-1)*nH
-               Call ReacX(Work(ipFrom),nH,MF,3*nAtoms)
+               Call ReacX(LowVec(:,Mode),nH,MF,3*nAtoms)
 #ifdef _DEBUGPRINT_
                Write (Lu,'(A,I3)') ' Store Original mode:',Mode
                Call RecPrt(' Reaction mode',' ',MF,3,nAtoms)
@@ -243,8 +244,7 @@
                Test=Zero
                Call GetMem('Rx','Allo','Real',ipRx,3*nAtoms)
                Do i = 1, NumVal
-                  ipFrom=ipLowVec + (i-1)*nH
-                  Call ReacX(Work(ipFrom),nH,Work(ipRx),3*nAtoms)
+                  Call ReacX(LowVec(:,i),nH,Work(ipRx),3*nAtoms)
                   dRx=Sqrt(DDot_(3*nAtoms,Work(ipRx),1,Work(ipRx),1))
                   rq=Abs(DDot_(3*nAtoms,MF,1,Work(ipRx),1))/dRx
                   If (rq.gt.Test) Then
@@ -286,8 +286,7 @@
                End If
 *
                Work(Mode+ipFixVal-1) = -Abs(Work(Mode+ipFixVal-1))
-               ipFrom=ipLowVec + (Mode-1)*nH
-               Call ReacX(Work(ipFrom),nH,MF,3*nAtoms)
+               Call ReacX(LowVec(:,Mode),nH,MF,3*nAtoms)
 #ifdef _DEBUGPRINT_
                Write (Lu,'(A,1X,I3)') ' Store mode:',Mode
                Call RecPrt(' New Reaction mode',' ',MF,3,nAtoms)
@@ -306,8 +305,7 @@
 *------------- Store the eigenvector which we are following
 *
                Mode=iLow
-               ipFrom=ipLowVec + (Mode-1)*nH
-               Call ReacX(Work(ipFrom),nH,MF,3*nAtoms)
+               Call ReacX(LowVec(:,Mode),nH,MF,3*nAtoms)
 #ifdef _DEBUGPRINT_
                Write (Lu,'(A,I3)') ' Store Original mode:',Mode
                Call RecPrt(' Reaction mode',' ',MF,3,nAtoms)
@@ -324,8 +322,7 @@
                Test=Zero
                Call GetMem('Rx','Allo','Real',ipRx,3*nAtoms)
                Do i = 1, NumVal
-                  ipFrom=ipLowVec + (i-1)*nH
-                  Call ReacX(Work(ipFrom),nH,Work(ipRx),3*nAtoms)
+                  Call ReacX(LowVec(:,i),nH,Work(ipRx),3*nAtoms)
                   dRx=Sqrt(DDot_(3*nAtoms,Work(ipRx),1,Work(ipRx),1))
                   rq=Abs(DDot_(3*nAtoms,MF,1,Work(ipRx),1))/dRx
                   If (rq.gt.Test) Then
@@ -352,8 +349,7 @@
 #endif
                End if
 *
-               ipFrom=ipLowVec + (Mode-1)*nH
-               Call ReacX(Work(ipFrom),nH,MF,3*nAtoms)
+               Call ReacX(LowVec(:,Mode),nH,MF,3*nAtoms)
 #ifdef _DEBUGPRINT_
                Write (Lu,'(A,1X,I3)') ' Store mode:',Mode
                Call RecPrt(' New Reaction mode',' ',MF,3,nAtoms)
@@ -381,8 +377,7 @@
 *------------- Store the eigenvector which we are following
 *
                Mode=iLow
-               ipFrom=ipLowVec + (Mode-1)*nH
-               Call ReacX(Work(ipFrom),nH,MF,3*nAtoms)
+               Call ReacX(LowVec(:,Mode),nH,MF,3*nAtoms)
 #ifdef _DEBUGPRINT_
                Write (Lu,'(A,I3)') ' Store Original mode:',Mode
                Call RecPrt(' Reaction mode',' ',MF,3,nAtoms)
@@ -399,8 +394,7 @@
                Test=Zero
                Call GetMem('Rx','Allo','Real',ipRx,3*nAtoms)
                Do i = 1, NumVal
-                  ipFrom=ipLowVec + (i-1)*nH
-                  Call ReacX(Work(ipFrom),nH,Work(ipRx),3*nAtoms)
+                  Call ReacX(LowVec(:,i),nH,Work(ipRx),3*nAtoms)
                   dRx=Sqrt(DDot_(3*nAtoms,Work(ipRx),1,Work(ipRx),1))
                   rq=Abs(DDot_(3*nAtoms,MF,1,Work(ipRx),1))/dRx
                   If (rq.gt.Test) Then
@@ -427,8 +421,7 @@
 #endif
                End if
 *
-               ipFrom=ipLowVec + (Mode-1)*nH
-               Call ReacX(Work(ipFrom),nH,MF,3*nAtoms)
+               Call ReacX(LowVec(:,Mode),nH,MF,3*nAtoms)
 #ifdef _DEBUGPRINT_
                Write (Lu,'(A,1X,I3)') ' Store mode:',Mode
                Call RecPrt(' New Reaction mode',' ',MF,3,nAtoms)
@@ -477,7 +470,7 @@
       Write (Lu,*)' Analysis of the Hessian'
       Write (Lu,*)
       Call RecPrt(' Eigenvalues',' ',Work(ipFixVal),1,NumVal)
-      Call RecPrt(' Eigenvectors',' ',Work(ipLowVec),nH,NumVal)
+      Call RecPrt(' Eigenvectors',' ',LowVec,nH,NumVal)
 #endif
 *                                                                      *
 ************************************************************************
@@ -497,14 +490,13 @@
          iNeg(1)=0
          Do i=1,NumVal
            If (Work(i+ipFixVal-1).lt.Zero) iNeg(1)=iNeg(1)+1
-           FixVal=Work(i+ipFixVal-1)-Work(i+ipLowVal-1)
+           FixVal=Work(i+ipFixVal-1)-LowVal(i)
            If (Abs(FixVal).gt.1.0D-12) Then
-             FixVal=Work(i+ipFixVal-1)+Work(i+ipLowVal-1)
+             FixVal=Work(i+ipFixVal-1)+LowVal(i)
 *
 *            H |i>
 *
-             iVec=ipLowVec+(i-1)*nH
-             Call dGeMV_('N',nH,nH,One,H,nH,Work(iVec),1,
+             Call dGeMV_('N',nH,nH,One,H,nH,LowVec(:,i),1,
      &                            Zero,Work(ipVect),1)
 *
 *            H' = (I-|i><i|) H (I-|i><i|) + val_new |i><i|
@@ -515,9 +507,9 @@
 *
              Do j=1,nH
                Do k=1,nH
-                 H(j,k)=H(j,k)-Work(j+ipVect-1)*Work(k+iVec-1)
-     &                        -Work(k+ipVect-1)*Work(j+iVec-1)
-     &                        +FixVal*Work(j+iVec-1)*Work(k+iVec-1)
+                 H(j,k)=H(j,k)-Work(j+ipVect-1)*LowVec(k,i)
+     &                        -Work(k+ipVect-1)*LowVec(j,i)
+     &                        +FixVal*LowVec(j,i)*LowVec(k,i)
                End Do
              End Do
            End If
@@ -531,8 +523,8 @@
       End If
 *
       Call GetMem('FixVal','Free','Real',ipFixVal,NumVal)
-      Call Free_Work(ipLowVal)
-      Call Free_Work(ipLowVec)
+      Call mma_deallocate(LowVal)
+      Call mma_deallocate(LowVec)
 *                                                                      *
 ************************************************************************
 *                                                                      *
