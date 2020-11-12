@@ -46,6 +46,8 @@
       Real*8, Allocatable:: E_S(:), C_S(:,:), G_S(:,:)
       Real*8, Allocatable:: E_R(:), C_R(:,:), G_R(:,:)
       Real*8, Allocatable:: E_P(:), C_P(:,:), G_P(:,:)
+      Real*8, Allocatable:: E_MEP(:), C_MEP(:,:), G_MEP(:,:)
+      Real*8, Allocatable:: L_MEP(:), Cu_MEP(:)
       Integer, Allocatable:: Information(:)
       Real*8, Allocatable:: Tmp(:)
 *
@@ -695,51 +697,48 @@ C              Write (6,*) 'SubProject=.Prod'
 *
 *        Save information for the current step
 *
-         Call Allocate_Work(ipE,nMEP+1)
-         Call Allocate_Work(ipC,3*nAtom*(nMEP+1))
-         Call Allocate_Work(ipG,3*nAtom*(nMEP+1))
+         Call mma_allocate(E_MEP,nMEP+1,Label='E_MEP')
+         Call mma_allocate(C_MEP,3*nAtom,nMEP+1,Label='C_MEP')
+         Call mma_allocate(G_MEP,3*nAtom,nMEP+1,Label='G_MEP')
          If (iMEP.gt.1) Then
-            Call Get_dArray('MEP-Energies',Work(ipE),nMEP+1)
-            Call Get_dArray('MEP-Coor',Work(ipC),3*nAtom*(nMEP+1))
-            Call Get_dArray('MEP-Grad',Work(ipG),3*nAtom*(nMEP+1))
+            Call Get_dArray('MEP-Energies',E_MEP,nMEP+1)
+            Call Get_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
+            Call Get_dArray('MEP-Grad',G_MEP,3*nAtom*(nMEP+1))
          Else
-            Call FZero(Work(ipE),nMEP+1)
-            Call FZero(Work(ipC),3*nAtom*(nMEP+1))
-            Call FZero(Work(ipG),3*nAtom*(nMEP+1))
-            Work(ipE+(iMEP-1))=Energy(iOff_iter+1)
-            call dcopy_(3*nAtom,Cx(1,iOff_iter+1),1,
-     &                 Work(ipC+(iMEP-1)*3*nAtom),1)
-            call dcopy_(3*nAtom,Gx(1,iOff_iter+1),1,
-     &                 Work(ipG+(iMEP-1)*3*nAtom),1)
+            E_MEP(:)=Zero
+            C_MEP(:,:)=Zero
+            G_MEP(:,:)=Zero
+            E_MEP(iMEP)=Energy(iOff_iter+1)
+            C_MEP(:,iMEP)= Cx(:,iOff_iter+1)
+            G_MEP(:,iMEP)= Gx(:,iOff_iter+1)
          End If
 *
-         Work(ipE+iMEP)=Energy(iter)
-         call dcopy_(3*nAtom,Cx(1,iter),1,Work(ipC+(iMEP)*3*nAtom),1)
-         call dcopy_(3*nAtom,Gx(1,iter),1,Work(ipG+(iMEP)*3*nAtom),1)
-         Call Put_dArray('MEP-Energies',Work(ipE),nMEP+1)
-         Call Put_dArray('MEP-Coor',Work(ipC),3*nAtom*(nMEP+1))
-         Call Put_dArray('MEP-Grad',Work(ipG),3*nAtom*(nMEP+1))
+         E_MEP(iMEP+1)=Energy(iter)
+         C_MEP(:,iMEP+1)= Cx(:,iter)
+         G_MEP(:,iMEP+1)= Gx(:,iter)
+         Call Put_dArray('MEP-Energies',E_MEP,nMEP+1)
+         Call Put_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
+         Call Put_dArray('MEP-Grad',G_MEP,3*nAtom*(nMEP+1))
          Call Put_iScalar('nMEP',iMEP)
 *
 *        Save the path so far (energies, coordinates and forces)
 *
-         Call Intergeo('MD_MEP',Work(ipE),Work(ipC),Work(ipG),nAtom,
-     &                 iMEP+1)
+         Call Intergeo('MD_MEP',E_MEP,C_MEP,G_MEP,nAtom,iMEP+1)
 *
 *        Compute energy difference and RMS between last two structures
 *
-         eDiffMEP=Work(ipE+(iMEP))-Work(ipE+(iMEP-1))
+         eDiffMEP=E_MEP(iMEP+1)-E_MEP(iMEP)
          Call mma_allocate(Coor1,3,mTtAtm,Label='Coor1')
          Call mma_allocate(Coor2,3,mTtAtm,Label='Coor2')
-         Call AtmLst(Work(ipC+(iMEP-1)*3*nAtom),nAtom,Coor1,mTtAtm)
-         Call AtmLst(Work(ipC+(iMEP  )*3*nAtom),nAtom,Coor2,mTtAtm)
+         Call AtmLst(C_MEP(:,iMEP),nAtom,Coor1,mTtAtm)
+         Call AtmLst(C_MEP(:,iMEP+1),nAtom,Coor1,mTtAtm)
          Call OptRMS_Slapaf(Coor1,Coor2,mTtAtm,RMS,RMSMax)
          Call mma_deallocate(Coor1)
          Call mma_deallocate(Coor2)
 *
-         Call Free_Work(ipE)
-         Call Free_Work(ipG)
-         Call Free_Work(ipC)
+         Call mma_deallocate(G_MEP)
+         Call mma_deallocate(C_MEP)
+         Call mma_deallocate(E_MEP)
 *
        Else
 *
@@ -747,10 +746,11 @@ C              Write (6,*) 'SubProject=.Prod'
 *        is getting too close to the previous converged structure,
 *        this may be an indication of an ill-behaved constraint
          If (iMEP.ge.1) Then
-            Call Allocate_Work(ipC,3*nAtom*(nMEP+1))
+            Call mma_allocate(C_MEP,3*nAtom,nMEP+1,Label='C_MEP')
             Call mma_Allocate(Tmp,3*nAtom,Label='Tmp')
-            Call Get_dArray('MEP-Coor',Work(ipC),3*nAtom*(nMEP+1))
-            ipPrev=ipC+iMEP*3*nAtom
+            Call Get_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
+
+            ipPrev=ip_of_work(C_MEP(1,iMEP+1))
 *           Using hypersphere measure, even with "transverse" MEPs,
 *           this should not be a problem
             Call SphInt(Cx(1,iter),nAtom,ip_Dummy,refDist,Tmp,
@@ -764,7 +764,7 @@ C              Write (6,*) 'SubProject=.Prod'
                iStop=0
                Terminate=.True.
             End If
-            Call Free_Work(ipC)
+            Call mma_deallocate(C_MEP)
             Call mma_deallocate(Tmp)
          End If
 *
@@ -907,12 +907,12 @@ C              Write (6,*) 'SubProject=.Prod'
 *
          If (Conv1.and.Terminate) Then
             If (IRC.ne.0) Then
-               Call Allocate_Work(ipE,nMEP+1)
-               Call Allocate_Work(ipC,3*nAtom*(nMEP+1))
-               Call Allocate_Work(ipG,3*nAtom*(nMEP+1))
-               Call Get_dArray('MEP-Energies',Work(ipE),nMEP+1)
-               Call Get_dArray('MEP-Coor',Work(ipC),3*nAtom*(nMEP+1))
-               Call Get_dArray('MEP-Grad',Work(ipG),3*nAtom*(nMEP+1))
+               Call mma_allocate(E_MEP,nMEP+1,Label='E_MEP')
+               Call mma_allocate(C_MEP,3*nAtom,nMEP+1,Label='C_MEP')
+               Call mma_allocate(G_MEP,3*nAtom,nMEP+1,Label='G_MEP')
+               Call Get_dArray('MEP-Energies',E_MEP,nMEP+1)
+               Call Get_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
+               Call Get_dArray('MEP-Grad',G_MEP,3*nAtom*(nMEP+1))
                If (IRC.eq.1) Then
                   IRCRestart=.True.
                   IRC=-1
@@ -920,16 +920,15 @@ C              Write (6,*) 'SubProject=.Prod'
 *
 *                 Store away data for IRC molden file. Forward part.
 *
-                  Call Put_dArray('IRC-Energies',Work(ipE),iMEP+1)
-                  Call Put_dArray('IRC-Coor',Work(ipC),3*nAtom*(iMEP+1))
-                  Call Put_dArray('IRC-Grad',Work(ipG),3*nAtom*(iMEP+1))
+                  Call Put_dArray('IRC-Energies',E_MEP,iMEP+1)
+                  Call Put_dArray('IRC-Coor',C_MEP,3*nAtom*(iMEP+1))
+                  Call Put_dArray('IRC-Grad',G_MEP,3*nAtom*(iMEP+1))
                   Call Put_dArray('Ref_Geom',Cx,3*nAtom)
 *
 *                 Write a temporary file
 *                 (will be overwritten when the backward part is done)
 *
-                  Call Intergeo('MD_IRC',Work(ipE),Work(ipC),Work(ipG),
-     &                 nAtom,iMEP+1)
+                  Call Intergeo('MD_IRC',E_MEP,C_MEP,G_MEP,nAtom,iMEP+1)
 *
                   Terminate=.False.
 *
@@ -947,11 +946,9 @@ C              Write (6,*) 'SubProject=.Prod'
                   j=0
                   Do i = nBackward, 1, -1
                      j = j+1
-                     E_IRC(j)=Work(ipE+(i-1))
-                     call dcopy_(3*nAtom,
-     &                          Work(ipC+(i-1)*3*nAtom),1,C_IRC(:,j),1)
-                     call dcopy_(3*nAtom,
-     &                          Work(ipG+(i-1)*3*nAtom),1,G_IRC(:,j),1)
+                     E_IRC(j)=E_MEP(i)
+                     C_IRC(:,j) = C_MEP(:,i)
+                     G_IRC(:,j) = G_MEP(:,i)
                   End Do
 *
                   Call Get_dArray('IRC-Energies',E_IRC(nBackward),
@@ -968,9 +965,9 @@ C              Write (6,*) 'SubProject=.Prod'
                   Call mma_deallocate(E_IRC)
                End If
 
-               Call Free_Work(ipG)
-               Call Free_Work(ipC)
-               Call Free_Work(ipE)
+               Call mma_deallocate(G_MEP)
+               Call mma_deallocate(C_MEP)
+               Call mma_deallocate(E_MEP)
             End If
          End If
 *
@@ -982,47 +979,46 @@ C              Write (6,*) 'SubProject=.Prod'
 *        Print out the path so far
 *
          If ((iMEP.ge.1).and.(iPrint.ge.5)) Then
-            Call Allocate_Work(ipE,nMEP+1)
-            Call Allocate_Work(ipC,3*nAtom*(nMEP+1))
-            Call Allocate_Work(ipLen,nMEP+1)
-            Call Allocate_Work(ipCur,nMEP+1)
-            Call Get_dArray('MEP-Energies',Work(ipE),nMEP+1)
-            Call Get_dArray('MEP-Coor',Work(ipC),3*nAtom*(nMEP+1))
-            Call Get_dArray('MEP-Lengths',Work(ipLen),nMEP+1)
-            Call Get_dArray('MEP-Curvatures',Work(ipCur),nMEP+1)
+            Call mma_allocate(E_MEP,nMEP+1,Label='E_MEP')
+            Call mma_allocate(C_MEP,3*nAtom,nMEP+1,Label='C_MEP')
+            Call mma_allocate(L_MEP,nMEP+1,Label='L_MEP')
+            Call mma_allocate(Cu_MEP,nMEP+1,Label='Cu_MEP')
+            Call Get_dArray('MEP-Energies',E_MEP,nMEP+1)
+            Call Get_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
+            Call Get_dArray('MEP-Lengths',L_MEP,nMEP+1)
+            Call Get_dArray('MEP-Curvatures',Cu_MEP,nMEP+1)
             Write (6,*)
             CumLen=Zero
-            If (Work(ipCur+iMEP).ge.Zero) Then
+            If (Cu_MEP(1+iMEP).ge.Zero) Then
                Write(6,*) '         Cumul.'
                Write(6,*) 'Point  Length (bohr)       Energy  Curvature'
                Write(6,*) '--------------------------------------------'
                Do i = 0, iMEP
-                  CumLen=CumLen+Work(ipLen+i)
-                  Write (6,200) i,CumLen,Work(ipE+i),Work(ipCur+i)
+                  CumLen=CumLen+L_MEP(1+i)
+                  Write (6,200) i,CumLen,E_MEP(1+i),Cu_MEP(1+i)
                End Do
             Else
                Write(6,*) '         Cumul.'
                Write(6,*) 'Point  Length (bohr)       Energy'
                Write(6,*) '---------------------------------'
                Do i = 0, iMEP
-                  CumLen=CumLen+Work(ipLen+i)
-                  Write (6,200) i,CumLen,Work(ipE+i)
+                  CumLen=CumLen+L_MEP(1+i)
+                  Write (6,200) i,CumLen,E_MEP(1+i)
                End Do
             End If
 200         Format (1X,I5,1X,F10.6,1X,F16.8,1X,F10.6)
             If (iPrint.gt.6) Then
                Write (6,*)
                Do i = 0, iMEP
-                  Call RecPrt(' Coordinates',' ',Work(ipC+i*3*nAtom),
-     &                        3,nAtom)
+                  Call RecPrt(' Coordinates',' ',C_MEP(:,i+1),3,nAtom)
                End Do
             End If
             Call CollapseOutput(0,'IRC/Minimum Energy Path Information')
             Write(6,*)
-            Call Free_Work(ipE)
-            Call Free_Work(ipC)
-            Call Free_Work(ipLen)
-            Call Free_Work(ipCur)
+            Call mma_deallocate(E_MEP)
+            Call mma_deallocate(C_MEP)
+            Call mma_deallocate(L_MEP)
+            Call mma_deallocate(Cu_MEP)
          End If
 *
       End If
