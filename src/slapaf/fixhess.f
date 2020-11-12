@@ -18,7 +18,8 @@
       Real*8 H(nH,nH), MF(3*nAtoms)
       Integer iNeg(2)
       Logical AnalHess, AllowFindTS, Corrected, Too_Small, Found
-      Real*8, Allocatable:: EVal(:), LowVal(:), LowVec(:,:), Tmp(:,:)
+      Real*8, Allocatable:: EVal(:), LowVal(:), LowVec(:,:), Tmp(:,:),
+     &                      FixVal(:), Rx(:,:), Vect(:)
 *
       iRout=211
       iPrint=nPrint(iRout)
@@ -86,7 +87,6 @@
           Found=.True.
         Else
 *----     Increase the number of eigenpairs to compute
-          Call Allocate_Work(ipTmp,NumVal*nH)
           Call mma_allocate(Tmp,nH,NumVal,Label='Tmp')
           Tmp(:,:)=LowVec(:,:)
           Call mma_deallocate(LowVal)
@@ -107,7 +107,7 @@
 *
 *---- Apply corrections if any ...
 *
-      Call GetMem('FixVal','Allo','Real',ipFixVal,NumVal)
+      Call mma_allocate(FixVal,NumVal,Label='FixVal')
 #ifdef _DEBUGPRINT_
       Call RecPrt(' Eigenvalues',' ',LowVal,1,NumVal)
       Call RecPrt(' Eigenvectors',' ',LowVec,nH,NumVal)
@@ -119,7 +119,7 @@
 *     with sorted eigenvalues, jNeg=iNeg, iLow=1
       Do i = 1, NumVal
          temp=LowVal(i)
-         Work(i+ipFixVal-1)=temp
+         FixVal(i)=temp
          If (temp.lt.rlow) Then
             rlow=temp
             iLow=i
@@ -135,9 +135,9 @@
 *
             If (Abs(temp).lt.ZTh) Then
                temp=Zero
-               Work(i+ipFixVal-1)=Zero
+               FixVal(i)=Zero
             Else
-               Work(i+ipFixVal-1)=Sign(HTh,temp)
+               FixVal(i)=Sign(HTh,temp)
             End If
          End If
          If (temp.lt.Zero) Then
@@ -150,7 +150,7 @@
 *             Change the sign and if just too large reduce the value
 *             to the default of HHigh.
 *
-               Work(i+ipFixVal-1)=Min(HHigh,Abs(Work(i+ipFixVal-1)))
+               FixVal(i)=Min(HHigh,Abs(FixVal(i)))
                Corrected=.True.
             End If
          End If
@@ -242,21 +242,21 @@
 #endif
                iTest=0
                Test=Zero
-               Call GetMem('Rx','Allo','Real',ipRx,3*nAtoms)
+               Call mma_allocate(Rx,3,nAtoms,Label='Rx')
                Do i = 1, NumVal
-                  Call ReacX(LowVec(:,i),nH,Work(ipRx),3*nAtoms)
-                  dRx=Sqrt(DDot_(3*nAtoms,Work(ipRx),1,Work(ipRx),1))
-                  rq=Abs(DDot_(3*nAtoms,MF,1,Work(ipRx),1))/dRx
+                  Call ReacX(LowVec(:,i),nH,Rx,3*nAtoms)
+                  dRx=Sqrt(DDot_(3*nAtoms,Rx,1,Rx,1))
+                  rq=Abs(DDot_(3*nAtoms,MF,1,Rx,1))/dRx
                   If (rq.gt.Test) Then
                      iTest=i
                      Test=rq
                   End If
-                  Temp=Work(i+ipFixVal-1)
+                  Temp=FixVal(i)
 #ifdef _DEBUGPRINT_
                   Write (6,*) '<old|new>,H_new=',rq,Temp
 #endif
                End Do
-               Call GetMem('Rx','Free','Real',ipRx,3*nAtoms)
+               Call mma_deallocate(Rx)
 *
 *              Only iTest and jNeg may be touched
                If (iTest.eq.jNeg) Then
@@ -273,7 +273,7 @@
 #ifdef _DEBUGPRINT_
                      Write (Lu,*) 'Keep old eigenvector!',Mode
 #endif
-                     Work(jNeg+ipFixVal-1) = Abs(Work(jNeg+ipFixVal-1))
+                     FixVal(jNeg) = Abs(FixVal(jNeg))
                      Corrected=.True.
 *                 Prefer the new eigenvector if the Hessian is analytical
 *                 or if the best overlap is poor
@@ -285,7 +285,7 @@
                   End if
                End If
 *
-               Work(Mode+ipFixVal-1) = -Abs(Work(Mode+ipFixVal-1))
+               FixVal(Mode) = -Abs(FixVal(Mode))
                Call ReacX(LowVec(:,Mode),nH,MF,3*nAtoms)
 #ifdef _DEBUGPRINT_
                Write (Lu,'(A,1X,I3)') ' Store mode:',Mode
@@ -320,21 +320,21 @@
 #endif
                iTest=0
                Test=Zero
-               Call GetMem('Rx','Allo','Real',ipRx,3*nAtoms)
+               Call mma_allocate(Rx,3,nAtoms,Label='Rx')
                Do i = 1, NumVal
-                  Call ReacX(LowVec(:,i),nH,Work(ipRx),3*nAtoms)
-                  dRx=Sqrt(DDot_(3*nAtoms,Work(ipRx),1,Work(ipRx),1))
-                  rq=Abs(DDot_(3*nAtoms,MF,1,Work(ipRx),1))/dRx
+                  Call ReacX(LowVec(:,i),nH,Rx,3*nAtoms)
+                  dRx=Sqrt(DDot_(3*nAtoms,Rx,1,Rx,1))
+                  rq=Abs(DDot_(3*nAtoms,MF,1,Rx,1))/dRx
                   If (rq.gt.Test) Then
                      iTest=i
                      Test=rq
                   End If
-                  Temp=Work(i+ipFixVal-1)
+                  Temp=FixVal(i)
 #ifdef _DEBUGPRINT_
                   Write (6,*) '<old|new>,H_new=',rq,Temp
 #endif
                End Do
-               Call GetMem('Rx','Free','Real',ipRx,3*nAtoms)
+               Call mma_deallocate(Rx)
 *
 *              Keep the old vector if there is significant overlap
 *              Note: there could be a better vector not in the computed set
@@ -357,7 +357,7 @@
 *
             End If
 *
-            Work(Mode+ipFixVal-1) = - Half * Abs(Work(Mode+ipFixVal-1))
+            FixVal(Mode) = - Half * Abs(FixVal(Mode))
             Corrected=.True.
 #ifdef _DEBUGPRINT_
             Write (Lu,'(A,I2,A)')
@@ -392,21 +392,21 @@
 #endif
                iTest=0
                Test=Zero
-               Call GetMem('Rx','Allo','Real',ipRx,3*nAtoms)
+               Call mma_allocate(Rx,3,nAtoms,Label='Rx')
                Do i = 1, NumVal
-                  Call ReacX(LowVec(:,i),nH,Work(ipRx),3*nAtoms)
-                  dRx=Sqrt(DDot_(3*nAtoms,Work(ipRx),1,Work(ipRx),1))
-                  rq=Abs(DDot_(3*nAtoms,MF,1,Work(ipRx),1))/dRx
+                  Call ReacX(LowVec(:,i),nH,Rx,3*nAtoms)
+                  dRx=Sqrt(DDot_(3*nAtoms,Rx,1,Rx,1))
+                  rq=Abs(DDot_(3*nAtoms,MF,1,Rx,1))/dRx
                   If (rq.gt.Test) Then
                      iTest=i
                      Test=rq
                   End If
-                  Temp=Work(i+ipFixVal-1)
+                  Temp=FixVal(i)
 #ifdef _DEBUGPRINT_
                   Write (6,*) '<old|new>,H_new=',rq,Temp
 #endif
                End Do
-               Call GetMem('Rx','Free','Real',ipRx,3*nAtoms)
+               Call mma_deallocate(Rx)
 *
 *              Keep the old vector if there is significant overlap
 *              Note: there could be a better vector not in the computed set
@@ -435,13 +435,13 @@
 *
             Fact=Ten**2
             Do i = 1, NumVal
-               Temp = Work(i+ipFixVal-1)
+               Temp = FixVal(i)
                If (i.eq.Mode) Then
-                  Work(i+ipFixVal-1) = -Abs(Temp)
+                  FixVal(i) = -Abs(Temp)
                Else If (Temp.lt.0) Then
-                  Work(i+ipFixVal-1) = Abs(Temp) * Fact
+                  FixVal(i) = Abs(Temp) * Fact
                Else
-                  Work(i+ipFixVal-1) = Abs(Temp)
+                  FixVal(i) = Abs(Temp)
                End If
             End Do
             Corrected=.True.
@@ -469,7 +469,7 @@
       Write (Lu,*)
       Write (Lu,*)' Analysis of the Hessian'
       Write (Lu,*)
-      Call RecPrt(' Eigenvalues',' ',Work(ipFixVal),1,NumVal)
+      Call RecPrt(' Eigenvalues',' ',FixVal,1,NumVal)
       Call RecPrt(' Eigenvectors',' ',LowVec,nH,NumVal)
 #endif
 *                                                                      *
@@ -481,23 +481,21 @@
       If (Corrected) Then
 *
          If (iPrint.ge.99) Then
-            Call RecPrt(' Corrected eigenvalues',' ',
-     &                  Work(ipFixVal),1,NumVal)
+            Call RecPrt(' Corrected eigenvalues',' ',FixVal,1,NumVal)
             Call RecPrt(' Hessian',' ',H,nH,nH)
          End If
 *
-         Call GetMem('Vect','Allo','Real',ipVect,nH)
+         Call mma_allocate(Vect,nH,Label='Vect')
          iNeg(1)=0
          Do i=1,NumVal
-           If (Work(i+ipFixVal-1).lt.Zero) iNeg(1)=iNeg(1)+1
-           FixVal=Work(i+ipFixVal-1)-LowVal(i)
-           If (Abs(FixVal).gt.1.0D-12) Then
-             FixVal=Work(i+ipFixVal-1)+LowVal(i)
+           If (FixVal(i).lt.Zero) iNeg(1)=iNeg(1)+1
+           Fix_Val=FixVal(i)-LowVal(i)
+           If (Abs(Fix_Val).gt.1.0D-12) Then
+             Fix_Val=FixVal(i)+LowVal(i)
 *
 *            H |i>
 *
-             Call dGeMV_('N',nH,nH,One,H,nH,LowVec(:,i),1,
-     &                            Zero,Work(ipVect),1)
+             Call dGeMV_('N',nH,nH,One,H,nH,LowVec(:,i),1,Zero,Vect,1)
 *
 *            H' = (I-|i><i|) H (I-|i><i|) + val_new |i><i|
 *               = H - H|i> <i| - |i> <i|H + (val_old + val_new) |i> <i|
@@ -507,14 +505,14 @@
 *
              Do j=1,nH
                Do k=1,nH
-                 H(j,k)=H(j,k)-Work(j+ipVect-1)*LowVec(k,i)
-     &                        -Work(k+ipVect-1)*LowVec(j,i)
-     &                        +FixVal*LowVec(j,i)*LowVec(k,i)
+                 H(j,k)=H(j,k)-Vect(j)*LowVec(k,i)
+     &                        -Vect(k)*LowVec(j,i)
+     &                        +Fix_Val*LowVec(j,i)*LowVec(k,i)
                End Do
              End Do
            End If
          End Do
-         Call GetMem('Vect','Free','Real',ipVect,nH)
+         Call mma_deallocate(Vect)
 *
       End If
 *
@@ -522,7 +520,7 @@
          Call RecPrt('FixHess: Hessian',' ',H,nH,nH)
       End If
 *
-      Call GetMem('FixVal','Free','Real',ipFixVal,NumVal)
+      Call mma_deallocate(FixVal)
       Call mma_deallocate(LowVal)
       Call mma_deallocate(LowVec)
 *                                                                      *
