@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 1990,1994,1995, Jeppe Olsen                            *
 ************************************************************************
-      SUBROUTINE FREESTR
-*
+      SUBROUTINE FREESTR()
+      Use Str_Info
 *
 * Free pointers for saving information about strings and
 * their mappings
@@ -36,17 +36,10 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 *
 #include "detdim.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "orbinp_mclr.fh"
-#include "strinp_mclr.fh"
-#include "strbas_mclr.fh"
 #include "csm.fh"
-#include "stinf_mclr.fh"
 *. Start of string information
-*     CALL MEMMAN(KSTINF,IDUMMY,'FREE  ',IDUMMY,'DUMMY ')
-      NTEST = 0
-      IF(NTEST.NE.0)
-     &WRITE(6,*) ' First word with string information',KSTINF
 * =====================================================================
 *
 * 1 : String information
@@ -55,70 +48,81 @@
 *
       nDum=1
       IIITEST = 1
-      DO 10 ITYP = 1, NSTTYP
+      DO ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
 *.  Offsets for occupation of strings and reordering array
-          Call GetMem('OCSTR ','Free','INTEGER',KOCSTR(ITYP),nDum)
-          Call GetMem('STREO','Free','INTEGER',KSTREO(ITYP),nDum)
+          Str(ITYP)%OCSTR => Null()
+          Call mma_deallocate(Str(ITYP)%OCSTR_Hidden)
+          Str(ITYP)%STREO => Null()
+          Call mma_deallocate(Str(ITYP)%STREO_Hidden)
 *. Symmetry and class of each string
-          Call GetMem('STSM  ','Free','INTEGER',KSTSM(ITYP),nDum)
-          Call GetMem('STCL  ','Free','INTEGER',KSTCL(ITYP),nDum)
+          Str(ITYP)%STSM => Null()
+          Call mma_deallocate(Str(ITYP)%STSM_Hidden)
+          Str(ITYP)%STCL => Null()
+          Call mma_deallocate(Str(ITYP)%STCL_Hidden)
         ELSE
-          IITYP = - IUNIQTP(ITYP)
-          KSTREO(ITYP) = KSTREO(IITYP)
-          KSTSM(ITYP)  = KSTSM(IITYP)
-          KSTCL(ITYP)  = KSTCL(IITYP)
+          Str(ITYP)%OCSTR => Null()
+          Str(ITYP)%STREO => Null()
+          Str(ITYP)%STSM => Null()
+          Str(ITYP)%STCL => Null()
         END IF
-   10 CONTINUE
+      END DO
+
 *. Number of strings per symmetry and occupation
       DO ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
-        Call GetMem('NSTSO ','Free','INTEGER',KNSTSO(ITYP),nDum)
+          Str(ITYP)%NSTSO=> Null()
+          Call mma_deallocate(Str(ITYP)%NSTSO_Hidden)
 *. Offset of strings per symmetry and occupation
-        Call GetMem('ISTSO ','Free','INTEGER',KISTSO(ITYP),nDum)
+          Str(ITYP)%ISTSO=> Null()
+          Call mma_deallocate(Str(ITYP)%ISTSO_Hidden)
 *. Number of electrons in RAS1 and RAS3 per sub type, is sub-type active
-        Call GetMem('IEL1  ','Free','INTEGER',KEL1(ITYP),nDum)
-        Call GetMem('IEL3  ','Free','INTEGER',KEL3(ITYP),nDum)
-        Call GetMem('ACTP ','Free','INTEGER',KACTP(ITYP),nDum)
+          Str(ITYP)%EL1  => Null()
+          Call mma_deallocate(Str(ITYP)%EL1_Hidden)
+          Str(ITYP)%EL3  => Null()
+          Call mma_deallocate(Str(ITYP)%EL3_Hidden)
+          Str(ITYP)%ACTP => Null()
+          Call mma_deallocate(Str(ITYP)%ACTP_Hidden)
 CMS: New array introduced according to Jeppes new strinfo representation
-        Call GetMem('KEL123','Free','INTEGER',KEL123(ITYP),nDum)
+          Str(ITYP)%EL123=> Null()
+          Call mma_deallocate(Str(ITYP)%EL123_Hidden)
 **. Lexical adressing of arrays: NB! Not allocated here in Jeppes new version!
-        Call GetMem('Zmat  ','Free','INTEGER',KZ(ITYP),nDum)
+          Str(ITYP)%Z    => Null()
+          Call mma_deallocate(Str(ITYP)%Z_Hidden)
         ELSE
 *. redirect
           IITYP = - IUNIQTP(ITYP)
-          KNSTSO(ITYP) = KNSTSO(IITYP)
-          KISTSO(ITYP) = KISTSO(IITYP)
-          KEL1(ITYP)   = KEL1(IITYP)
-          KEL3(ITYP)   = KEL3(IITYP)
-          KACTP(ITYP)  = KACTP(IITYP)
-          KZ(ITYP)     = KZ(IITYP)
-          KEL123(ITYP) = KEL123(IITYP)
+          Str(ITYP)%NSTSO => Null()
+          Str(ITYP)%ISTSO => Null()
+          Str(ITYP)%EL1   => Null()
+          Str(ITYP)%EL3   => Null()
+          Str(ITYP)%ACTP  => Null()
+          Str(ITYP)%EL123 => Null()
+          Str(ITYP)%Z     => Null()
         END IF
       END DO
+
 *. Mappings between different string types
       DO ITYP = 1, NSTTYP
           NSTRIN = NSTFTP(ITYP)
           IF(ISTAC(ITYP,2).NE.0.AND.ISTAC(ITYP,1).NE.0) THEN
 *.creation on string allowed , use full orbital notation
-            LENGTH = NACOB*NSTRIN
-*. No explicit offset or length. NEW:
-            KSTSTMI(ITYP) = 0
-            KSTSTMN(ITYP) = 0
+             LENGTH = NACOB*NSTRIN
+             Call mma_deallocate(Str(ITYP)%STSTMI)
+             Call mma_deallocate(Str(ITYP)%STSTMN)
           ELSE IF(ISTAC(ITYP,1).NE.0.AND.ISTAC(ITYP,2).EQ.0) THEN
 
 *. only annihilation allowed, use compact scheme
-            LENGTH = NELEC(ITYP)*NSTRIN
-*. No explicit offset or length. NEW:
-            KSTSTMI(ITYP) = 0
-            KSTSTMN(ITYP) =  0
+             LENGTH = NELEC(ITYP)*NSTRIN
+             Call mma_deallocate(Str(ITYP)%STSTMI)
+             Call mma_deallocate(Str(ITYP)%STSTMN)
 CMS: New else block
           ELSE IF (ISTAC(ITYP,1).EQ.0.AND.ISTAC(ITYP,2).NE.0) THEN
 *. Only creation allowed, use compact scheme with offsets
 *
 *. Explicit offsets and lengths
-            Call GetMem('STSTMI','Free','INTEGER',KSTSTMI(ITYP),nDum)
-            Call GetMem('STSTMN','Free','INTEGER',KSTSTMN(ITYP),nDum)
+             Call mma_deallocate(Str(ITYP)%STSTMI)
+             Call mma_deallocate(Str(ITYP)%STSTMN)
           END IF
 *. has this map been constructed before ?
           IIIITEST = 0
@@ -161,30 +165,39 @@ CMS: New else block
  1211       CONTINUE
           END IF
           IF(IMNEW.EQ.1) THEN
-            Call GetMem('CREMAP','Free','INTE',KSTSTM(ITYP,1),nDum)
-            Call GetMem('ANNMAP','Free','INTE',KSTSTM(ITYP,2),nDum)
+            Call mma_deallocate(Str(ITYP)%STSTM_Hidden)
+            Str(ITYP)%STSTM => Null()
           ELSE
-            KSTSTM(ITYP,1) = KSTSTM(-IUNIQMP(ITYP),1)
-            KSTSTM(ITYP,2) = KSTSTM(-IUNIQMP(ITYP),2)
+            Str(ITYP)%STSTM => Null()
           END IF
       END DO
 *. Symmetry of conjugated orbitals and orbital excitations
-*     KCOBSM,KNIFSJ,KIFSJ,KIFSJO
-      Call GetMem('Cobsm ','Free','INTEGER',KCOBSM,nDum)
-      Call GetMem('Nifsj ','Free','INTEGER',KNIFSJ,nDum)
-      Call GetMem('Ifsj  ','Free','INTEGER',KIFSJ,nDum)
-      Call GetMem('Ifsjo ','Free','INTEGER',KIFSJO,nDum)
+*     COBSM,NIFSJ,IFSJ,IFSJO
+!     Call mma_deallocate(COBSM)
+!     Call mma_deallocate(NIFSJ)
+!     Call mma_deallocate(IFSJ)
+!     Call mma_deallocate(IFSJO)
 *. Symmetry of excitation connecting  strings of given symmetry
-      Call GetMem('Ststx ','Free','INTEGER',KSTSTX,nDum)
+!     Call mma_deallocate(STSTX)
 *
 **. Up and down mappings of strings containing the same number of electrons
 *
       DO 70 ITYP = 1, NSTTYP
-       IF(INUMAP(ITYP).NE.0)
-     &Call GetMem('Numup ','Free','INTEGER',KNUMAP(ITYP),nDum)
-       IF(INDMAP(ITYP).NE.0)
-     &Call GetMem('Ndmup ','Free','INTEGER',KNDMAP(ITYP),nDum)
+       IF(INUMAP(ITYP).NE.0) Call mma_deallocate(Str(ITYP)%NUMAP)
+       IF(INDMAP(ITYP).NE.0) Call mma_deallocate(Str(ITYP)%NDMAP)
    70 CONTINUE
 *
+*
+*     Some dummy dallocations
+*
+      ITYP=ITYP_Dummy
+      Str(ITYP)%NSTSO => Null()
+      Call mma_deallocate(Str(ITYP)%NSTSO_Hidden)
+      Str(ITYP)%EL1  => Null()
+      Call mma_deallocate(Str(ITYP)%EL1_Hidden)
+      Str(ITYP)%EL3  => Null()
+      Call mma_deallocate(Str(ITYP)%EL3_Hidden)
+
+
       RETURN
       END

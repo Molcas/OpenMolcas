@@ -11,6 +11,7 @@
 * Copyright (C) Jeppe Olsen                                            *
 ************************************************************************
       SUBROUTINE STRTYP(MS2,NACTEL,MNRS10,MXRS30,IPRNT)
+      use Str_Info
 *
 * construct input common blocks /STRINP/
 * from /LUCINP/ and /ORBINP/
@@ -28,7 +29,6 @@
 * Jeppe Olsen ,  Dec.24 ,Almaden
 *                Last Revision March 31
 *
-#include "strinp_mclr.fh"
 * Where INTXC is internal excitation level 1 => no int exc
 *                                          2 => single int exc
 *                                          3 => double int exc
@@ -39,14 +39,15 @@
 * ISTTP = 3 => reference  space ,single internal excitations
 *
 *
+      ISTAC(:,:)=0
       NTEST = 0000
       NTEST = MAX(NTEST,IPRNT)
 *. Number of alpha and beta electrons
       NAEL = (MS2 + NACTEL ) / 2
       NBEL = (NACTEL - MS2 ) / 2
-      IF(NAEL + NBEL .NE. NACTEL ) THEN
-        Write (6,*) 'STRTYP: NAEL + NBEL .NE. NACTEL'
-        Write (6,*) 'NAEL,NBEL,NACTEL=',NAEL,NBEL,NACTEL
+      IF (NAEL + NBEL .NE. NACTEL ) THEN
+         Write (6,*) 'STRTYP: NAEL + NBEL .NE. NACTEL'
+         Write (6,*) 'NAEL,NBEL,NACTEL=',NAEL,NBEL,NACTEL
 ************************************************************************
 *     The argument iPL was missing so I inserted this piece inside the
 *     stars to calculate it the same way as in the start of mclr.f
@@ -65,13 +66,14 @@
 *. Strings in zero order space
 * =============================
 *. Type : alpha-strings
-      NELEC(1) = NAEL
-      MNRS1(1) = MAX(0,MNRS10-MIN(NBEL,NORB1))
-      MXRS1(1) = MIN(NAEL,NORB1,MXRS10)
-      MNRS3(1) = MAX(0,MNRS30-MIN(NBEL,NORB3))
-      MXRS3(1) = MIN(NAEL,NORB3,MXRS30)
       ITYPE = 1
-      IAZTP = 1
+      IAZTP = ITYPE
+      NELEC(ITYPE) = NAEL
+      MNRS1(ITYPE) = MAX(0,MNRS10-MIN(NBEL,NORB1))
+      MXRS1(ITYPE) = MIN(NAEL,NORB1,MXRS10)
+      MNRS3(ITYPE) = MAX(0,MNRS30-MIN(NBEL,NORB3))
+      MXRS3(ITYPE) = MIN(NAEL,NORB3,MXRS30)
+
       IZORR(ITYPE) = 1
       ISTTP(ITYPE) = 0
 *. Type : single annihilated alphastrings
@@ -140,6 +142,11 @@
       END IF
 *
       NSTTYP = ITYPE
+      IF(NSTTYP>NSTTYP_Max) THEN
+        Write (6,*) 'STRTYP: NSTTYP>NSTTYP_Max'
+        Write (6,*) 'STRTYP: NSTTYP=',NSTTYP
+        Call Abend()
+      END IF
       IF(NTEST.GE.1) THEN
         WRITE(6,*) ' Information about string types generated '
         WRITE(6,*) ' ========================================='

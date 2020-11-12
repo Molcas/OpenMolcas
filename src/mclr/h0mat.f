@@ -13,6 +13,7 @@
      &                 NPRCIV,NOCSF,IREFSM,
      &                 IDC,PSSIGN,ECORE,
      &                 VEC1,VEC2,H0SCR,iH0SCR,ieaw)
+      Use Str_Info
 * Obtain preconditioner space corresponding to internalt space INTSPC
 * Obtain Hamiltonian matrices correponding to this subspacw
 *
@@ -28,17 +29,15 @@
 *
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "detdim.fh"
-#include "strbas_mclr.fh"
 #include "cicisp_mclr.fh"
-#include "stinf_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "csfbas_mclr.fh"
-#include "WrkSpc.fh"
+*#include "stdalloc.fh"
 *. Offsets for CSF information
 *
       DIMENSION H0(*)
       DIMENSION ISBCNF(*),ISBDET(*)
       dimension vec1(*),vec2(*),h0scr(*),ih0scr(*)
+*     Integer, Allocatable:: IOCOC(:)
 *
 * Info on actual internal subspace
       iprt=100
@@ -56,12 +55,11 @@
       NOCTPA = NOCTYP(IATP)
       NOCTPB = NOCTYP(IBTP)
 *. Allowed combination of alpha and beta strings
-*     Call Getmem('IOCOC ','ALLO','INTE' ,KIOCOC,NOCTPA*NOCTPB)
-*     CALL MEMMAN(KIOCOC,NOCTPA*NOCTPB,'ADDL  ',2,'IOCOC ')
-*     CALL IAIBCM_MCLR(MNR1,MXR3,NOCTPA,NOCTPB,iWORK(KEL1(IATP)),
-*    &            iWORK(KEL3(IATP)),iWORK(KEL1(IBTP)),
-*    &            iWORK(KEL3(IBTP)),
-*    &            iWORK(KIOCOC),NTEST)
+*     Call mma_allocate(IOCOC,NOCTPA*NOCTPB,Label='IOCOC')
+*     CALL IAIBCM_MCLR(MNR1,MXR3,NOCTPA,NOCTPB,
+*    &            Str(IATP)%EL1,Str(IATP)%EL3,
+*    &            Str(IBTP)%EL1,Str(IBTP)%EL3,
+*    &            IOCOC,NTEST)
 *
       IF(IDC.EQ.1) THEN
         ICOMBI = 0
@@ -79,13 +77,13 @@
 * strings are unsigned
 *       ISTSGN = 0
 *       CALL H0SD(LUHDIA,LBLK,VEC1,IWAY,NSBDET,NAEL,NBEL,
-*    &            ISMOST(1,IREFSM),WORK(KIOCOC),
+*    &            ISMOST(1,IREFSM),IOCOC,
 *    &            IHAMSM,H0,NOCOB,0,
 *    &            ECORE,ICOMBI,PSIGN,NPRCIV,SBEVC,
 *    &            SBEVL,1,NCIVAR,ISBDET,ISBIA,ISBIB,
 *    &            MXP1,MXP2,MXQ,
 *    &            MP1CSF,MP2CSF,MQCSF,
-*    &            iWORK(KOCSTR(IATP)),iWORK(KOCSTR(IBTP)),
+*    &            Str(IATP)%OCSTR, Str(IBTP)%OCSTR,
 *    &            ISTSGN,IDUMMY,IDUMMY,
 *    &            INTSPC,IPRT)
 *     ELSE IF (NOCSF.EQ.0) THEN
@@ -93,8 +91,8 @@
         IPWAY = 2
         CALL H0CSF(H0,ISBDET,ISBCNF,
      &       MXP1,MXP2,MXQ,
-     &       WORK(KDTOC),
-     &       iWORK(KDFTP),iWORK(KICONF(ieaw)),
+     &       DTOC,
+     &       DFTP,CNSM(ieaw)%ICONF,
      &       IREFSM,ECORE,NINOB,NOCOB,
      &       H0SCR,iH0SCR,NCNASM(IREFSM),
      &       NAEL+NBEL,NAEL,NBEL,IPWAY,
@@ -103,9 +101,8 @@
      &       VEC1,VEC2,IPRT,INTSPC,ICOMBI,PSIGN)
 *     END IF
 *
-*
-*
-*     Call Getmem('IOCOC ','FREE','INTE' ,KIOCOC,NOCTPA*NOCTPB)
+*     Call mma_deallocate(IOCOC)
+
       RETURN
       IF (.FALSE.) CALL Unused_integer(NOCSF)
       END

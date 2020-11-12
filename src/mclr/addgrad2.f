@@ -11,6 +11,7 @@
 * Copyright (C) 1997, Anders Bernhardsson                              *
 ************************************************************************
       SubRoutine AddGrad2(rMat,idsym,fact)
+      use Arrays, only: F0SQMO
 *
 *     Purpose:
 *             Adds the contribution from the gradient to
@@ -21,31 +22,31 @@
 *
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
-
 #include "Input.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 rMat(*)
+      Real*8, Allocatable:: Temp(:)
+
       Do iS=1,nSym
-        If (nOrb(is)*nOrb(is).gt.0) Then
-        Call Getmem('OJTEMP','ALLO','REAL',ipTemp,nOrb(is)**2)
+        If (nOrb(is)*nOrb(is)==0) Cycle
+        Call mma_allocate(Temp,nOrb(is)**2,Label='Temp')
 *
 *    T=Brillouin matrix
 *
-
-        Call DGeSub(Work(ipF0SQMO+ipCM(is)-1),nOrb(is),'N',
-     &              Work(ipF0SQMO+ipCM(is)-1),nOrb(is),'T',
-     &              Work(ipTemp),nOrb(is),
+        Call DGeSub(F0SQMO(ipCM(is)),nOrb(is),'N',
+     &              F0SQMO(ipCM(is)),nOrb(is),'T',
+     &              Temp,nOrb(is),
      &              nOrb(is),nOrb(is))
 *
 *               t           t
 *   +1/2 { Kappa T - T kappa  }
 *
 *
-        Call DaXpY_(nOrb(is)**2,-2.0d0*Fact,Work(ipTemp),1,
+        Call DaXpY_(nOrb(is)**2,-2.0d0*Fact,Temp,1,
      &              rMat(ipMat(is,is)),1)
-        Call Getmem('OJTEMP','FREE','REAL',ipTemp,nOrb(is)**2)
-      End If
+        Call mma_deallocate(Temp)
       End Do
+
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(idsym)

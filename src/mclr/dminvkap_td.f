@@ -17,7 +17,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
       Real*8 rOut(*),rin(*),DigPrec(*)
 *
 *-------------------------------------------------------------------------

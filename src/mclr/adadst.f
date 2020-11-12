@@ -13,6 +13,7 @@
       SUBROUTINE ADADST(IOBTP,IOBSM,IOBOFF,NIOB,JOBTP,JOBSM,JOBOFF,NJOB,
      &                  IJORD,ICLS,ISM,IGRP,KMIN,KMAX,I1,XI1S,NK,
      &                  NKDIM,IEND)
+      use Str_Info
 *
 *
 * Obtain mappings
@@ -38,11 +39,7 @@
 *
       IMPLICIT REAL*8(A-H,O-Z)
 #include "detdim.fh"
-#include "WrkSpc.fh"
 #include "orbinp_mclr.fh"
-#include "strinp_mclr.fh"
-#include "stinf_mclr.fh"
-#include "strbas_mclr.fh"
 *
 * =======
 *. Output
@@ -82,17 +79,16 @@ C        write(6,*) ' Unique string group for mappings ',KGRP
 *
       CALL ADADS1(NK,I1,XI1S,IOBSM,IOBTP,IOBOFF,NIOB,
      &           JOBSM,JOBTP,JOBOFF,NJOB,IJORD,NKDIM,
-     &           ICLS,ISM,iWORK(KSTSTM(KGRP,1)),
-     &           iWORK(KSTSTM(KGRP,2)),I2MPF,L2MP,
-     &           iWORK(KSTSTMI(KGRP)), iWORK(KSTSTMN(KGRP)),
-     &           iWORK(KSTSTM(JGRP,1)),iWORK(KSTSTM(JGRP,2)),
+     &           ICLS,ISM,Str(KGRP)%STSTM(:,1),
+     &           Str(KGRP)%STSTM(:,2),I2MPF,L2MP,
+     &           Str(KGRP)%STSTMI, Str(KGRP)%STSTMN,
+     &           Str(JGRP)%STSTM(:,1),Str(JGRP)%STSTM(:,2),
      &           I1MPF,L1MP,
-     &           iWORK(KSTSTMI(JGRP)), iWORK(KSTSTMN(JGRP)),
-     &           iWORK(KEL1(IGRP)),
-     &           iWORK(KEL3(IGRP)),iWORK(KEL1(IGRP+2)),
-     &           iWORK(KEL3(IGRP+2)),iWORK(KISTSO(IGRP)),
-     &           iWORK(KNSTSO(IGRP)),iWORK(KISTSO(IGRP+2)),
-     &           iWORK(KNSTSO(IGRP+2)),NOCTYP(IGRP),NOCTYP(IGRP+2),
+     &           Str(JGRP)%STSTMI, Str(JGRP)%STSTMN,
+     &           Str(IGRP  )%EL1,Str(IGRP  )%EL3,
+     &           Str(IGRP+2)%EL1,Str(IGRP+2)%EL3,Str(IGRP)%ISTSO,
+     &           Str(iGRP)%NSTSO,Str(IGRP+2)%ISTSO,
+     &           Str(IGRP+2)%NSTSO,NOCTYP(IGRP),NOCTYP(IGRP+2),
      &           NORB1,NORB2,NORB3,NACOB,KMAX,KMIN,IEND)
 *
       RETURN

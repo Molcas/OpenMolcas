@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1996, Anders Bernhardsson                              *
 ************************************************************************
-       SubRoutine OutPut_Mclr(iKapDisp,isigdisp,iCiDisp,
+       SubRoutine OutPut_MCLR(iKapDisp,isigdisp,iCiDisp,
      &                        iCiSigDisp,iRHSDisp,iRHSCIDisp,
      &                        converged)
 ********************************************************************
@@ -32,25 +32,32 @@
 * Author: Anders Bernhardsson, 1996                                *
 *         Theoretical Chemistry, University of Lund                *
 ********************************************************************
-       Implicit Real*8 (a-h,o-z)
+      Use Arrays, only: Hss
+      use ipPage, only: W
+      Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
-
 #include "Input.fh"
 #include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
 #include "cicisp_mclr.fh"
-#include "WrkSpc.fh"
-       Character*8 Label
+#include "stdalloc.fh"
+      Character(LEN=8) Label
 #ifdef _DEBUGPRINT_
-       Character*20 Label2
+      Character(LEN=20) Label2
 #endif
-       Integer Pstate_sym,ldisp2(8),ielec(3)
-       Integer iKapDisp(nDisp),isigdisp(nDisp),
-     &         iCiDisp(nDisp),iCiSigDisp(nDisp),
-     &         iRHSDisp(nDisp),iRHSCiDisp(nDisp)
-       Logical elec,converged(8),CI
-       Real*8 Pola(6)
+      Integer Pstate_sym,ldisp2(8),ielec(3)
+      Integer iKapDisp(nDisp),isigdisp(nDisp),
+     &        iCiDisp(nDisp),iCiSigDisp(nDisp),
+     &        iRHSDisp(nDisp),iRHSCiDisp(nDisp)
+      Logical elec_On,converged(8),CI
+      Real*8 Pola(6)
+      Real*8, Allocatable:: RHss(:)
+      Real*8, Allocatable:: Kap1(:), Kap2(:), sKap(:),
+     &                     rKap1(:),rKap2(:)
+      Real*8, Allocatable:: Hess(:), Hess2(:), Temp(:), ELEC(:),
+     &                      EG(:), ELOUT(:)
+      Integer, Allocatable:: NrDisp(:), DegDisp(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -64,13 +71,10 @@
 #else
        debug=.false.
 #endif
-       nHss=0
-       Do iS=1,nSym
-        nHss=nHss+lDisp(is)*(lDisp(is)+1)/2
-       End Do
-       nhess=nDIsp*(nDisp+1)/2
-       Call GetMem('RESPH','ALLO','REAL',ipRHss,nHss)
-       call dcopy_(nHss,[0.0d0],0,Work(ipRHss),1)
+      nHss=SIZE(Hss)
+      nhess=nDisp*(nDisp+1)/2
+      Call mma_allocate(RHss,nHss,Label='RHss')
+      RHss(:)=0.0d0
 *
 *-------------------------------------------------------------------*
 *
@@ -103,11 +107,11 @@
 *
 *         Allocate areas for scratch and state variables
 *
-          Call GetMem('kappa1','Allo','Real',ipKap1,nDensC)
-          Call GetMem('kappa2','Allo','Real',ipKap2,nDensC)
-          Call GetMem('skappa','Allo','Real',ipsKap,nDensC)
-          Call Getmem('rkappa1','ALLO','Real',iprkap1,nDensC)
-          Call Getmem('rkappa2','ALLO','Real',iprkap2,nDensC)
+          Call mma_allocate(Kap1,nDensC,Label='Kap1')
+          Call mma_allocate(Kap2,nDensC,Label='Kap2')
+          Call mma_allocate(sKap,nDensC,Label='sKap')
+          Call mma_allocate(rkap1,nDensC,Label='rKap1')
+          Call mma_allocate(rkap2,nDensC,Label='rKap2')
 *
 *
           If (CI) Then
@@ -145,76 +149,82 @@
 *
           If (iDisk.ne.-1) Then
               Len=nDensC
-              Call dDaFile(LuTemp,2,Work(ipKap1),Len,iDisk)
+              Call dDaFile(LuTemp,2,Kap1,Len,iDisk)
               iDisk=iSigDisp(iDisp)
-              Call dDaFile(LuTemp,2,Work(ipSKap),Len,iDisk)
+              Call dDaFile(LuTemp,2,SKap,Len,iDisk)
               iDisk=iRHSDisp(iDisp)
-              Call dDaFile(LuTemp,2,Work(iprKap1),Len,iDisk)
-              Do i=0,ndensC-1
-                 Work(ipSKap+i)=-Work(ipSKap+i)-Work(iprKap1+i)
+              Call dDaFile(LuTemp,2,rKap1,Len,iDisk)
+              Do i=1,ndensC
+                 SKap(i)=-SKap(i)-rKap1(i)
               End Do
 C
-*             Call Recprt('ORB-RHS',' ',Work(iprKap1),nDensC,1)
+*             Call Recprt('ORB-RHS',' ',rKap1,nDensC,1)
 *             Write(*,*)'ddot orb-resp',
-*     &            ddot_(ndensC,Work(ipKap1),1,Work(ipKap1),1)
+*     &            ddot_(ndensC,Kap1,1,Kap1,1)
 *             Write(*,*)'ddot orb-sigma',
-*     &            ddot_(ndensC,Work(ipSKap),1,Work(ipSKap),1)
+*     &            ddot_(ndensC,SKap,1,SKap,1)
 *             Write(*,*)'ddot orb-rhs',
-*     &            ddot_(ndensC,Work(iprKap1),1,Work(iprKap1),1)
+*     &            ddot_(ndensC,rKap1,1,rKap1,1)
 C
 *
-             Call GADSum(Work(ipKap1),Len)
-             Call GADSum(Work(ipSKap),Len)
-             Call GADSum(Work(iprKap1),Len)
+             Call GADSum(Kap1,Len)
+             Call GADSum(SKap,Len)
+             Call GADSum(rKap1,Len)
 
              If (CI) Then
                 ilen=nconf1
                 idis=iCIDisp(iDisp)
-                Call dDaFile(LuTemp,2,Work(ipin(ipCIp1)),iLen,iDis)
+                irc=ipin(ipCIp1)
+                Call dDaFile(LuTemp,2,W(ipCIp1)%Vec,iLen,iDis)
                 idis=iCISigDisp(idisp)
-                Call dDaFile(LuTemp,2,Work(ipin(ipSp)),iLen,iDis)
+                irc=ipin(ipSp)
+                Call dDaFile(LuTemp,2,W(ipSp)%Vec,iLen,iDis)
                 idis=iRHSCIDisp(idisp)
-                Call dDaFile(LuTemp,2,Work(ipin(iprp1)),iLen,iDis)
+                irc=ipin(iprp1)
+                Call dDaFile(LuTemp,2,W(iprp1)%Vec,iLen,iDis)
                 ii=ipin(ipSp)
                 jj=ipin(iprp1)
-                Do i=0,nConf1-1
-                   Work(ii+i)= -Work(ii+i)-Work(jj+i)
+                Do i=1,nConf1
+                   W(ipSp)%Vec(i)= -W(ipSp)%Vec(i)-W(iprp1)%Vec(i)
                 End Do
 C
 *               Write(*,*)'ddot ci-resp',
-*     &               ddot_(nConf1,Work(ipin(ipcip1)),1,
-*     &                      Work(ipin(ipcip1)),1)
+*     &               ddot_(nConf1,W(ipcip1)%Vec,1,
+*     &                            W(ipcip1)%Vec,1)
 *               Write(*,*)'ddot ci-sigma',
-*     &               ddot_(nConf1,Work(ipin(ipSp)),1,
-*     &                      Work(ipin(ipSp)),1)
+*     &               ddot_(nConf1,W(ipSp)%Vec,1,
+*     &                            W(ipSp)%Vec,1)
 *               Write(*,*)'ddot ci-rhs',
-*     &               ddot_(nConf1,Work(ipin(iprp1)),1,
-*     &                      Work(ipin(iprp1)),1)
+*     &               ddot_(nConf1,W(iprp1)%Vec,1,
+*     &                            W(iprp1)%Vec,1)
 C
-                Call GADSum(Work(ipin(ipCIp1)),iLen)
-                Call GADSum(Work(ipin(ipSp  )),iLen)
-                Call GADSum(Work(ipin(ipRp1 )),iLen)
+                Call GADSum(W(ipCIp1)%Vec,iLen)
+                Call GADSum(W(ipSp  )%Vec,iLen)
+                Call GADSum(W(ipRp1 )%Vec,iLen)
              End If
 *
           Else
 *
                             Len = nDensC
-             Call FZero(Work(ipKap1),Len)
-             Call GADSum(Work(ipKap1),Len)
-             Call FZero(Work(ipSKap),Len)
-             Call GADSum(Work(ipSKap),Len)
-             Call FZero(Work(iprKap1),Len)
-             Call GADSum(Work(iprKap1),Len)
+             Kap1(1:Len)=0.0D0
+             Call GADSum(Kap1,Len)
+             sKap(1:Len)=0.0D0
+             Call GADSum(SKap,Len)
+             rKap1(1:Len)=0.0D0
+             Call GADSum(rKap1,Len)
 *
              If (CI) Then
 *
                 ilen=nconf1
-                Call FZero(Work(ipin(ipCIp1)),iLen)
-                Call GADSum(Work(ipin(ipCIp1)),iLen)
-                Call FZero(Work(ipin(ipSp  )),iLen)
-                Call GADSum(Work(ipin(ipSp  )),iLen)
-                Call FZero(Work(ipin(ipRp1 )),iLen)
-                Call GADSum(Work(ipin(ipRp1 )),iLen)
+                irc=ipin(ipCIp1)
+                Call FZero(W(ipCIp1)%Vec,iLen)
+                Call GADSum(W(ipCIp1)%Vec,iLen)
+                irc=ipin(ipSp  )
+                Call FZero(W(ipSp  )%Vec,iLen)
+                Call GADSum(W(ipSp  )%Vec,iLen)
+                irc=ipin(ipRp1 )
+                Call FZero(W(ipRp1 )%Vec,iLen)
+                Call GADSum(W(ipRp1 )%Vec,iLen)
 *
              End If
 *
@@ -244,26 +254,28 @@ C
                iDisk=iKapDisp(kDisp+kSym)
                If (iDisk.ne.-1) Then
                   Len=nDensC
-                  Call dDaFile(LuTemp,2,Work(ipKap2),Len,iDisk)
+                  Call dDaFile(LuTemp,2,Kap2,Len,iDisk)
                   iDisk=iRHSDisp(kDisp+kSym)
-                  Call dDaFile(LuTemp,2,Work(iprKap2),Len,iDisk)
+                  Call dDaFile(LuTemp,2,rKap2,Len,iDisk)
 
                   Call GASync()
-                  Call GADSum(Work(ipKap2 ),Len)
-                  Call GADSum(Work(iprKap2),Len)
+                  Call GADSum(Kap2,Len)
+                  Call GADSum(rKap2,Len)
 
                   If (CI) Then
                      ilen=nconf1
                      idis=iCIDisp(kDisp+ksym)
-                     Call dDaFile(LuTemp,2,Work(ipin(ipCIp2)),iLen,iDis)
+                     irc=ipin(ipCIp2)
+                     Call dDaFile(LuTemp,2,W(ipCIp2)%Vec,iLen,iDis)
                      idis=iRHSCIDisp(kdisp+ksym)
-                     Call dDaFile(LuTemp,2,Work(ipin(iprp2)),iLen,iDis)
-                     rTempc1=DDot_(nConf1,Work(ipin(ipCIp2)),1,
-     &                                   Work(ipin(ipsp)),1)
+                     irc=ipin(iprp2)
+                     Call dDaFile(LuTemp,2,W(iprp2)%Vec,iLen,iDis)
+                     irc=ipin(ipsp)
+                     rTempc1=DDot_(nConf1,W(ipCIp2)%Vec,1,W(ipsp)%Vec,1)
 
-                          Call GASync()
-                     Call GADSum(Work(ipin(ipCIp2)),iLen)
-                     Call GADSum(Work(ipin(iprp2 )),iLen)
+                     Call GASync() ! <----------------- NOTE!
+                     Call GADSum(W(ipCIp2)%Vec,iLen)
+                     Call GADSum(W(iprp2 )%Vec,iLen)
 
                   Else
                      rtempc1=0.0d0
@@ -273,47 +285,49 @@ C
 *
                   Call GASync()
                   Len=nDensC
-                  Call FZero(Work(ipKap2 ),Len)
-                  Call GADSum(Work(ipKap2 ),Len)
-                  Call FZero(Work(iprKap2),Len)
-                  Call GADSum(Work(iprKap2),Len)
+                  Call FZero(Kap2,Len)
+                  Call GADSum(Kap2,Len)
+                  Call FZero(rKap2,Len)
+                  Call GADSum(rKap2,Len)
                   If (CI) Then
                      ilen=nconf1
-                          Call GASync()
-                     Call FZero(Work(ipin(ipCIp2)),iLen)
-                     Call GADSum(Work(ipin(ipCIp2)),iLen)
-                     Call FZero(Work(ipin(iprp2 )),iLen)
-                     Call GADSum(Work(ipin(iprp2 )),iLen)
-                     rTempc1=DDot_(nConf1,Work(ipin(ipCIp2)),1,
-     &                                   Work(ipin(ipsp)),1)
+                     Call GASync()   ! <----------------- NOTE!
+                     irc=ipin(ipCIp2)
+                     Call FZero(W(ipCIp2)%Vec,iLen)
+                     Call GADSum(W(ipCIp2)%Vec,iLen)
+                     irc=ipin(iprp2 )
+                     Call FZero(W(iprp2 )%Vec,iLen)
+                     Call GADSum(W(iprp2 )%Vec,iLen)
+                     irc=ipin(ipsp)
+                     rTempc1=DDot_(nConf1,W(ipCIp2)%Vec,1,W(ipsp)%Vec,1)
                   Else
                      rtempc1=0.0d0
                   End If
 *
                End If
 *
-               rTempk1=DDot_(nDensC,Work(ipKap2),1,Work(ipSKap),1)
+               rTempk1=DDot_(nDensC,Kap2,1,SKap,1)
 *
                Fact=1.0d0
                If (kdisp.eq.jdisp) Fact=2.0d0
-               rTempk2=Fact*
-     &                DDot_(nDensC,Work(ipKap1),1,Work(iprKap2),1)
+               rTempk2=Fact*DDot_(nDensC,Kap1,1,rKap2,1)
                If (kdisp.ne.jdisp) Then
-               rtempk3=1.0d0*DDot_(nDensC,Work(iprKap1),1,
-     &                  Work(ipKap2),1)
+               rtempk3=1.0d0*DDot_(nDensC,rKap1,1,Kap2,1)
                Else
                 rTempk3=0.0d0
                End if
                If (CI) Then
                  Fact=1.0d0
                  If (kdisp.eq.jdisp) Fact=2.0d0
+                  irc=ipin(ipCip1)
+                  irc=ipin(iprp2)
                   rTempc2=Fact*
-     &                DDot_(nConf1,Work(ipin(ipCip1)),1,
-     &                            Work(ipin(iprp2)),1)
+     &                DDot_(nConf1,W(ipCip1)%Vec,1,W(iprp2)%Vec,1)
                  If (kdisp.ne.jdisp) Then
+                  irc=ipin(iprp1)
+                  irc=ipin(ipCIp2)
                   rtempc3=1.0d0*
-     &                DDot_(nConf1,Work(ipin(iprp1)),1,
-     &                            Work(ipin(ipCIp2)),1)
+     &                DDot_(nConf1,W(iprp1)%Vec,1,W(ipCIp2)%Vec,1)
                  Else
                   rTempc3=0.0d0
                  End if
@@ -330,7 +344,7 @@ C
                Mini=Min(kDisp,jDisp)
                index=mSym+Maxi*(Maxi-1)/2+Mini
 *
-               Work(ipRhss-1+Index)=Work(ipRhss-1+Index)+
+               Rhss(Index)=Rhss(Index)+
      &             rTempk1+rtempk2+rtempk3+
      &             rtempc1+rtempc2+rtempc3
 *
@@ -344,21 +358,21 @@ C
 *
 *    Free areas for scratch and state variables
 *
-          Call Getmem('rkappa2','FREE','Real',iprkap2,nDensC)
-          Call Getmem('rkappa1','FREE','Real',iprkap1,nDensC)
-          Call GetMem('skappa','FREE','Real',ipsKap,nDensC)
-          Call GetMem('kappa2','FREE','Real',ipKap2,nDensC)
-          Call GetMem('kappa1','FREE','Real',ipKap1,nDensC)
+          Call mma_deallocate(rKap2)
+          Call mma_deallocate(rKap1)
+          Call mma_deallocate(sKap)
+          Call mma_deallocate(Kap2)
+          Call mma_deallocate(Kap1)
           If (CI)  irc=ipclose(ipcip1)
  100  Continue
-      Call GetMem('HESS','ALLO','REAL',ipHess,nHss)
-      Call GetMem('HESS','ALLO','REAL',ipHess2,nHss)
-      Call GetMem('Temp','ALLO','REAL',ipTemp,nHss)
-      Call FZero(Work(ipTemp),nHss)
-      Call GetMem('Temp','ALLO','REAL',ipELEC,3*ndisp)
-C     Call GetMem('Temp','ALLO','REAL',ipELEC2,3*ndisp)
-      Call GetMem('Temp','ALLO','REAL',ipEG  ,3*ndisp)
-      Call GetMem('Temp','ALLO','REAL',ipELOUT,3*ndisp)
+
+      Call mma_allocate(Hess,nHss,Label='Hess')
+      Call mma_allocate(Hess2,nHss,Label='Hess2')
+      Call mma_allocate(Temp,nHss,Label='Temp')
+      Temp(:)=0.0D0
+      Call mma_allocate(ELEC,3*ndisp,Label='ELEC')
+      Call mma_allocate(EG  ,3*ndisp,Label='EG')
+      Call mma_allocate(ELOUT,3*ndisp,Label='ELOUT')
       irc=ipclose(-1)
 *
 *-------------------------------------------------------------------*
@@ -376,71 +390,65 @@ C     Call GetMem('Temp','ALLO','REAL',ipELEC2,3*ndisp)
       iopt=128
       irc=3*ndisp
       Label='DOTELGR'
-      Call drdMCk(irc,iopt,LaBeL,idum,Work(ipEG),idum)
-      elec=.true.
-      if (irc.ne.0) elec=.false.
-                Call GADsum(Work(iphss), nhss)
-      call dcopy_(nhss,Work(iphss),1,Work(iphess2),1)
+      Call drdMCk(irc,iopt,LaBeL,idum,EG,idum)
+      elec_On=.true.
+      if (irc.ne.0) elec_On=.false.
+                Call GADsum(Hss,nHss)
+      call dcopy_(nHss,Hss,1,Hess2,1)
 #ifdef _DEBUGPRINT_
       If (debug) Then
-         ip=ipHess2
+         ip=1
          Do iSym=1,nSym
            Write(label2,'(A,I2)') 'CHessian symmetry',iSym
             If (lDisp(iSym).ne.0)
-     &         Call TriPrt(label2,' ',Work(ip),lDisp(iSym))
+     &         Call TriPrt(label2,' ',Hess2(ip),lDisp(iSym))
             ip=ip+ldisp(isym)*(1+ldisp(isym))/2
          End Do
       End If
 *
       If (debug) Then
-       Call MMSORT2(Work(ipHESS2),Work(ipELEC),pola,ielec)
-       Call Recprt('CONN',' ',Work(ipElec),3*nDisp,1)
+       Call MMSORT2(HESS2,ELEC,pola,ielec)
+       Call Recprt('CONN',' ',Elec,3*nDisp,1)
       End If
 *
 C
 c       Write(*,*)'I am here 1'
-       Call Recprt('ipRhss','(5G20.10) ',Work(ipRHss),nhss,1)
-       Call Recprt('iphss','(5G20.10) ',Work(ipHss),nhss,1)
+       Call Recprt('Rhss','(5G20.10) ',RHss,nhss,1)
+       Call Recprt('Hss','(5G20.10) ',Hss,nHss,1)
 #endif
 C
-      Call DaXpY_(mSym,1.0d0,Work(ipRHss),1,Work(ipHess2),1)
+      Call DaXpY_(mSym,1.0d0,RHss,1,Hess2,1)
 *
 #ifdef _DEBUGPRINT_
       If (debug) Then
-       Call MMSORT2(Work(ipRHSS),Work(ipELEC),pola,ielec)
-       Call Recprt('RESP',' ',Work(ipElec),3*nDisp,1)
+       Call MMSORT2(RHSS,ELEC,pola,ielec)
+       Call Recprt('RESP',' ',Elec,3*nDisp,1)
       End If
 #endif
 *
-      Call MMSORT2(Work(ipHESS2),Work(ipELEC),pola,ielec)
+      Call MMSORT2(HESS2,ELEC,pola,ielec)
 *
 #ifdef _DEBUGPRINT_
       If (debug) Then
-       Call Recprt('R+C',' ',Work(ipElec),3*nDisp,1)
-       ip=ipHess2
+       Call Recprt('R+C',' ',Elec,3*nDisp,1)
+       ip=1
        Do iSym=1,nSym
         Write(label2,'(A,I2)') 'Hessian symmetry',iSym
         If (lDisp(iSym).ne.0)
-     &   Call TriPrt(label2,' ',Work(ip),lDisp(iSym))
+     &   Call TriPrt(label2,' ',Hess2(ip),lDisp(iSym))
         ip=ip+ldisp(isym)*(1+ldisp(isym))/2
        End Do
       End If
 #endif
 *
-      Call mmSort(Work(ipHess2),Work(ipHess),ldisp2)
+      Call mmSort(Hess2,Hess,ldisp2)
 *
-#ifdef _DEBUGPRINT_
-C
-cvv       Write(*,*)'I am here'
-c       Call Recprt('iphess2',' ',Work(ipHess2),nhss,1)
-c       Call HssPrt_MCLR(iwork(ipdegdisp),Work(ipHess2),ldisp2)
-#endif
       If (McKinley) Then
 *
          iRC=-1
          iOpt=0
          Label='StatHess'
-         Call dRdMck(iRC,iOpt,Label,idum,Work(ipTemp),idum)
+         Call dRdMck(iRC,iOpt,Label,idum,Temp,idum)
          If (iRC.ne.0) Then
             Write (6,*) 'OutPut: Error reading MCKINT'
             Write (6,'(A,A)') 'Label=',Label
@@ -449,24 +457,24 @@ c       Call HssPrt_MCLR(iwork(ipdegdisp),Work(ipHess2),ldisp2)
 *
 #ifdef _DEBUGPRINT_
          If (debug) Then
-            ip=ipTemp
+            ip=1
             Do iSym=1,nSym
                Write(label2,'(a,i2)') 'SHessian symmetry',iSym
                If (lDisp2(iSym).ne.0)
-     &            Call TriPrt(label2,' ',Work(ip),lDisp2(iSym))
+     &            Call TriPrt(label2,' ',Temp(ip),lDisp2(iSym))
                ip=ip+ldisp2(isym)*(1+ldisp2(isym))/2
             End Do
          End If
 #endif
-         Call DaXpY_(mSym,1.0d0,Work(ipTemp),1,Work(ipHess),1)
+         Call DaXpY_(mSym,1.0d0,Temp,1,Hess,1)
       End If
 #ifdef _DEBUGPRINT_
       If (debug) Then
-        ip=ipHess
+        ip=1
         Do iSym=1,nSym
           Write(label2,'(a,i2)') 'Hessian symmetry',iSym
           If (lDisp2(iSym).ne.0)
-     &    Call TriPrt(label2,' ',Work(ip),lDisp2(iSym))
+     &    Call TriPrt(label2,' ',Hess(ip),lDisp2(iSym))
           ip=ip+ldisp2(isym)*(1+ldisp2(isym))/2
         End Do
       End If
@@ -477,26 +485,26 @@ c       Call HssPrt_MCLR(iwork(ipdegdisp),Work(ipHess2),ldisp2)
          iRC=-1
          iOpt=0
          Label='Hess    '
-         Call dWrMck(iRC,iOpt,Label,iDum,Work(ipHess),iDum)
+         Call dWrMck(iRC,iOpt,Label,iDum,Hess,iDum)
          If (iRC.ne.0) Then
             Write (6,*) 'OutPut: Error writing to MCKINT'
             Write (6,'(A,A)') 'Label=',Label
             Call Abend()
          End If
          Call Put_iScalar('No of Internal coordinates',ldisp2(1))
-         Call Put_AnalHess(Work(ipHess),ldisp2(1)*(ldisp2(1)+1)/2)
+         Call Put_AnalHess(Hess,ldisp2(1)*(ldisp2(1)+1)/2)
       End If
 *
       If (.true.) Then
        iRC=-1
        iOpt=0
-       Call GetMem('NRDISP','ALLO','INTE',ipnrdisp,ndisp)
-       Call RdMck(irc,iopt,'NRCTDISP',idum,iWork(ipnrDisp),idum)
+       Call mma_allocate(NrDisp,ndisp,Label='NrDisp')
+       Call RdMck(irc,iopt,'NRCTDISP',idum,NrDisp,idum)
        iRC=-1
        iOpt=0
-       Call GetMem('DEGDISP','ALLO','INTE',ipdegdisp,ndisp)
-       Label='DEGDISP'
-       Call RdMck(irc,iopt,Label,idum,iWork(ipDegDisp),idum)
+       Call mma_allocate(DegDisp,ndisp,Label='DegDisp')
+       Label='DegDisp'
+       Call RdMck(irc,iopt,Label,idum,DegDisp,idum)
        If (iRC.ne.0) Then
           Write (6,*) 'OutPut: Error reading RELAX'
           Write (6,'(A,A)') 'Label=',Label
@@ -504,15 +512,15 @@ c       Call HssPrt_MCLR(iwork(ipdegdisp),Work(ipHess2),ldisp2)
        End If
 C
 *       If (debug)
-*        Call HssPrt_MCLR(iwork(ipdegdisp),Work(ipHess),ldisp2)
-*       Call Recprt('iphess',' ',Work(ipHess),nhss,1)
+*        Call HssPrt_MCLR(DegDisp,Hess,ldisp2)
+*       Call Recprt('hess',' ',Hess,nhss,1)
 C
-       call daxpy_(3*ndisp,-1.0d0,Work(ipEG),1,Work(ipELEC),1)
+       call daxpy_(3*ndisp,-1.0d0,EG,1,ELEC,1)
 #ifdef _DEBUGPRINT_
-       If (debug.and.elec)
-     &  Call Recprt('ELEC-ST',' ',Work(ipEG),3*nDisp,1)
-       If (debug.and.elec)
-     &  Call Recprt('ELEC-TOT',' ',Work(ipElec),3*nDisp,1)
+       If (debug.and.elec_On)
+     &  Call Recprt('ELEC-ST',' ',EG,3*nDisp,1)
+       If (debug.and.elec_On)
+     &  Call Recprt('ELEC-TOT',' ',Elec,3*nDisp,1)
 #endif
 *
        Lu_10=10
@@ -521,10 +529,10 @@ C
 c       Open(unit=Lu_10, file='UNSYM')
 *
        If (Mckinley) Then
-           Call FreqAnal(iwork(ipdegdisp),iWork(ipnrdisp),work(ipHess),
-     &               converged,Work(ipELEC),ielec,Work(ipelout),
+           Call FreqAnal(DegDisp,NrDisp,Hess,
+     &               converged,ELEC,ielec,elout,
      &               ldisp2,Lu_10)
-           Call Niclas(work(ipHess),coor,Lu_10)
+           Call Niclas(Hess,coor,Lu_10)
        End If
        Write(6,*)
        Write(6,*)
@@ -544,21 +552,20 @@ c       Open(unit=Lu_10, file='UNSYM')
 *
        Call TriPrt(' ',' ',Pola,3)
        close(Lu_10)
-       Call GetMem('NRDISP','FREE','INTE',ipnrdisp,ndisp)
-       Call GetMem('DEGDISP','FREE','INTE',ipdegdisp,ndisp)
+       Call mma_deallocate(NrDisp)
+       Call mma_deallocate(DegDisp)
       End If
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*
 *
-
-      Call GetMem('Temp','FREE','REAL',ipTemp,nHss)
-      Call GetMem('HESS','FREE','REAL',ipHess,nHss)
-      Call GetMem('HESS','FREE','REAL',ipHess2,nHss)
-      Call GetMem('RESPH','FREE','REAL',ipRHss,nHss)
-      Call GetMem('Temp','FREE','REAL',ipELEC,3*ndisp)
-      Call GetMem('Temp','Free','REAL',ipEG  ,3*ndisp)
-      Call GetMem('Temp','FREE','REAL',ipELOUT,3*ndisp)
+      Call mma_deallocate(ELOUT)
+      Call mma_deallocate(EG)
+      Call mma_deallocate(ELEC)
+      Call mma_deallocate(Temp)
+      Call mma_deallocate(Hess2)
+      Call mma_deallocate(Hess)
+      Call mma_deallocate(RHss)
 *
       Return
       End

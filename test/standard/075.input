@@ -55,6 +55,7 @@
   Thrshld = 5.0D-6 1.0D-3
 
 >>> EndDo
+*&MCLR
 
 
 >>FILE checkfile

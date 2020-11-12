@@ -9,15 +9,15 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine DMinvCI_td(rin,rout,rome,idsym)
+      use ipPage, only: W
+      use negpre
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
-#include "WrkSpc.fh"
+#include "real.fh"
 #include "Pointers.fh"
-#include "negpre.fh"
 #include "incdia.fh"
 
       Real*8 rout(*),rin(*)
-*
 *                                    -1           -1
 *                               (H -E) |0><0|(H -E)|Sigma>
 *                  -1             0            0
@@ -27,32 +27,37 @@
 *                                           0
 *
       if (nconf1.gt.1) then
-
-        Do i=1,nconf1
-          rout(i)=rin(i)/(Work(ipin(ipdia)+i-1)+rome)
-        End Do
-
+         irc=ipin(ipdia)
+         Do i=1,nconf1
+            rout(i)=rin(i)/(W(ipdia)%Vec(i)+rome)
+         End Do
 *
-* To asure orthogonal response if response is in same symmetry as wavefunction
+*        To asure orthogonal response if response is in same symmetry as
+*        wavefunction
 *
-        If (idsym.eq.1) Then
-          r1=ddot_(nconf1,Work(ipin(ipci)),1,rout,1)
+         If (idsym.eq.1) Then
+            irc=ipin(ipCI)
+            r1=ddot_(nconf1,W(ipCI)%Vec,1,rout,1)
 
-          r2=0.0d0
-          Do i=0,nconf1-1
-            r2=r2+Work(ipIn(ipci)+i)**2/(Work(ipin(ipDia)+i)+rome)
-          End Do
+            r2=0.0d0
+            irc=ipin(ipDia)
+            Do i=1,nconf1
+               r2=r2+W(ipCI)%Vec(i)**2/(W(ipDia)%Vec(i)+rome)
+            End Do
 
-          Do i=1,nconf1
-            rout(i)=rout(i)-r1/r2*Work(ipin(ipci)+i-1)/
-     &               (Work(ipin(ipDia)+i-1)+rome)
-          end do
-        end if
+            Do i=1,nconf1
+               rout(i)=rout(i)-r1/r2*W(ipCI)%Vec(i)/
+     &               (W(ipDia)%Vec(i)+rome)
+            end do
+         end if
 
       else
-        call dcopy_(nconf1,rin,1,rout,1)
+
+        rout(1:nConf1) = rin(1:nConf1)
+
       end if
 
-      Call DSCAL_(nconf1,0.5d0,rout,1)
+      rout(1:nConf1) = Half * rout(1:nConf1)
+
       return
       end

@@ -24,14 +24,19 @@
 *
 ************************************************************************
 *
+      use Arrays, only: CMO, G1t, FAMO, FIMO
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Logical lFI,lFA,lMo
       Parameter ( One = 1.0d0 )
       Real*8 rKappa(nDens2),rMO1(nMba),rmo2(*),FockI(nDens2),
      &       FockA(nDens2)
+      Real*8, Allocatable:: T1(:), Tmp2(:), T3(:), T4(:), DIL(:),
+     &                      DI(:), DIR(:), FI(:),
+     &                      DAL(:), DAR(:), DA(:), FA(:)
+
 *
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
@@ -46,47 +51,48 @@
        iBM=Max(iBM,nBAs(i))
       End Do
       imem=nDens22
-      Call GetMem('Temp1','ALLO','REAL',ipT1,imem)
-      Call GetMem('Temp2','ALLO','REAL',ipTmp2,nDens22)
-      Call GetMem('Temp3','ALLO','REAL',ipT3,nDens22)
-      Call GetMem('Temp4','ALLO','REAL',ipT4,nDens22)
-      Call GetMem('DIL  ','ALLO','REAL',ipDIL,nDens2)
-      Call GetMem('DI   ','ALLO','REAL',ipDI,nCMO)
-      Call GetMem('DIR  ','ALLO','REAL',ipDIR,nDens2)
-      Call GetMem('FociI','ALLO','REAL',ipFI,ndens2)
 
-      call dcopy_(ndens2,[0.0d0],0,FockI,1)
-      call dcopy_(ndens2,[0.0d0],0,Work(ipFI),1)
-      call dcopy_(ndens2,[0.0d0],0,FockA,1)
-      call dcopy_(ndens2,[0.0d0],0,Work(ipDir),1)
-      call dcopy_(ndens2,[0.0d0],0,Work(ipDil),1)
-      call dcopy_(ncmo,[0.0d0],0,Work(ipDi),1)
+      Call mma_allocate(T1,imem,Label='T1')
+      Call mma_allocate(Tmp2,nDens22,Label='Tmp2')
+      Call mma_allocate(T3,nDens22,Label='T3')
+      Call mma_allocate(T4,nDens22,Label='T4')
+      Call mma_allocate(DIL,nDens2,Label='DIL')
+      Call mma_allocate(DI,nCMO,Label='DI')
+      Call mma_allocate(DIR,nDens2,Label='DIR')
+      Call mma_allocate(FI,ndens2,Label='FI')
+
+      FockI(:)=0.0d0
+      FockA(:)=0.0d0
+      FI(:)   =0.0d0
+      DI(:)   =0.0d0
+      DIL(:)  =0.0d0
+      DIR(:)  =0.0d0
       lFI=.true.
       lFa=.false.
       lMo=.false.
       If (iMethod.eq.2) Then
-         Call GetMem('DAL  ','ALLO','REAL',ipDAL,nDens2)
-         Call GetMem('DAR  ','ALLO','REAL',ipDAR,nDens2)
-         Call GetMem('DA   ','ALLO','REAL',ipDA,nCMO)
-         Call GetMem('FockA','ALLO','REAL',ipFA,nDens2)
+         Call mma_allocate(DAL,nDens2,Label='DAL')
+         Call mma_allocate(DAR,nDens2,Label='DAR')
+         Call mma_allocate(DA,nCMO,Label='DA')
+         Call mma_allocate(FA,nDens2,Label='FA')
          lFa=.true.
          lMo=.true.
-         call dcopy_(ndens2,[0.0d0],0,Work(ipFA),1)
-         call dcopy_(ndens2,[0.0d0],0,Work(ipDar),1)
-         call dcopy_(ndens2,[0.0d0],0,Work(ipDal),1)
-         call dcopy_(ncmo,[0.0d0],0,Work(ipDa),1)
       Else
-         ipDAL = ip_Dummy
-         ipDAR = ip_Dummy
-         ipDA  = ip_Dummy
-         ipFA  = ip_Dummy
+         Call mma_allocate(DAL,1,Label='DAL')
+         Call mma_allocate(DAR,1,Label='DAR')
+         Call mma_allocate(DA,1,Label='DA')
+         Call mma_allocate(FA,1,Label='FA')
       End If
+      FA(:) =0.0d0
+      DA(:) =0.0d0
+      DAL(:)=0.0d0
+      DAR(:)=0.0d0
 
       Do iS=1,nSym
-      Do iB=1,nIsh(iS)
-      ip=ipCM(iS)+(ib-1)*nOrb(is)+ib-1
-      Work(ipDI+ip-1)=2.0d0
-      End Do
+         Do iB=1,nIsh(iS)
+            ip=ipCM(iS)+(ib-1)*nOrb(is)+ib-1
+            DI(ip)=2.0d0
+         End Do
       End Do
       If (iMethod.eq.2) Then
        Do iS=1,nSym
@@ -96,7 +102,7 @@
           iA=nA(is)+ib
           jA=nA(is)+jb
           ip2=itri(iA,jA)
-          Work(ipDA+ip-1)=Work(ipG1t+ip2-1)
+          DA(ip)=G1t(ip2)
          End Do
         End Do
        End Do
@@ -108,16 +114,16 @@
       FacR=Fact
       Call Read2_2(rmo1,rmo2,
      &         FockI,FockA,
-     &         Work(ipT1),imem,
-     &         Work(ipTmp2),
-     &         Work(ipT3),Work(ipT4),
-     &         Work(ipDIR),Work(ipDIL),
-     &         Work(ipDI),
-     &         Work(ipDAR),Work(ipDAL),
-     &         Work(ipDA),
+     &         T1,imem,
+     &         Tmp2,
+     &         T3,T4,
+     &         DIR,DIL,
+     &         DI,
+     &         DAR,DAL,
+     &         DA,
      &         rkappa,idsym,Sign,Facr,jSpin,
      &         lFA,lfi,lMo,
-     &         Work(ipCMO))
+     &         CMO)
 *
 *       call recprt('1 FockI ','',FockI,nDens2,1)
 *       call recprt('1 FockA ','',FockA,nDens2,1)
@@ -130,31 +136,31 @@
        If (.not.CASINT)
      & Call DGEMM_('T','N',
      &             nOrb(iS),nOrb(jS),nBas(iS),
-     &             1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
-     &             Work(ipFI-1+ipMat(iS,jS)),nBas(iS),
+     &             1.0d0,CMO(ipCM(iS)),nBas(iS),
+     &             FI(ipMat(iS,jS)),nBas(iS),
      &             0.0d0,FockI(ipMat(iS,jS)),nOrb(iS))
        Call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(iS),Sign*Facr,
-     &            Work(ipFIMO+ipCM(iS)-1),nOrb(is),
+     &            FIMO(ipCM(iS)),nOrb(is),
      &            rkappa(ipMat(iS,jS)),nOrb(iS),
      &            One,FockI(ipMat(iS,jS)),nOrb(iS))
        Call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(jS),Facr,
      &            rkappa(ipMat(iS,jS)),nOrb(is),
-     &            Work(ipFIMO+ipCM(jS)-1),nOrb(jS),
+     &            FIMO(ipCM(jS)),nOrb(jS),
      &            One,FockI(ipMat(iS,jS)),nOrb(is))
        If (iMethod.eq.iCASSCF) Then
        If (.not.CASINT)
      &   Call DGEMM_('T','N',
      &               nOrb(iS),nOrb(jS),nBas(iS),
-     &               1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
-     &               Work(ipFA-1+ipMat(iS,jS)),nBas(iS),
+     &               1.0d0,CMO(ipCM(iS)),nBas(iS),
+     &               FA(ipMat(iS,jS)),nBas(iS),
      &               0.0d0,FockA(ipMat(iS,jS)),nOrb(iS))
          Call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(iS),Sign*Facr,
-     &            Work(ipFAMO+ipCM(iS)-1),nOrb(is),
+     &            FAMO(ipCM(iS)),nOrb(is),
      &            rkappa(ipMat(iS,jS)),nOrb(iS),
      &            One,FockA(ipMat(iS,jS)),nOrb(iS))
          Call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(jS),Facr,
      &            rkappa(ipMat(iS,jS)),nOrb(is),
-     &            Work(ipFAMO+ipCM(jS)-1),nOrb(jS),
+     &            FAMO(ipCM(jS)),nOrb(jS),
      &            One,FockA(ipMat(iS,jS)),nOrb(is))
        End If
        End If
@@ -163,19 +169,21 @@
 !       call recprt('2 FockI ','',FockI,nDens2,1)
 !       call recprt('2 FockA ','',FockA,nDens2,1)
 
-      If (iMethod.eq.2) Then
-        Call GetMem('FockA','FREE','REAL',ipFA,nF)
-        Call GetMem('DAR  ','FREE','REAL',ipDAR,nDens2)
-        Call GetMem('DA   ','FREE','REAL',ipDA,nDens2)
-        Call GetMem('DAL  ','FREE','REAL',ipDAL,nDens2)
-      End If
-      Call GetMem('FociI','Free','REAL',ipFI,nF)
-      Call GetMem('DIR  ','FREE','REAL',ipDIR,nDens2)
-      Call GetMem('DIL  ','FREE','REAL',ipDIL,nDens2)
-      Call GetMem('DI   ','FREE','REAL',ipDI,nDens2)
-      Call GetMem('Temp4','FREE','REAL',ipT4,nDens2)
-      Call GetMem('Temp3','FREE','REAL',ipT3,nDens2)
-      Call GetMem('Temp2','FREE','REAL',ipTmp2,nDens2)
-      Call GetMem('Temp1','FREE','REAL',ipT1,imem)
+      Call mma_deallocate(DA)
+      Call mma_deallocate(DAR)
+      Call mma_deallocate(DAL)
+      Call mma_deallocate(FA)
+      Call mma_deallocate(FI)
+      Call mma_deallocate(DIR)
+      Call mma_deallocate(DI)
+      Call mma_deallocate(DIL)
+      Call mma_deallocate(T4)
+      Call mma_deallocate(T3)
+      Call mma_deallocate(Tmp2)
+      Call mma_deallocate(T1)
+
       Return
+c Avoid unused argument warnings
+      IF (.FALSE.) CALL Unused_integer(nF)
+
       End

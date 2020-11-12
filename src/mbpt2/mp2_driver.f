@@ -332,12 +332,12 @@
         norb(i)=norb(i)-nfro(i)
       end do
             Call SetUp_CASPT2_Tra(nSym,nBas,nOrb,nIsh,nAsh,
-     &                            nFro,nDel,mAdCMO,lthCMO,
+     &                            nFro,nDel,Work(mAdCMO),lthCMO,
      &                            LuIntM,LuHlf1,LuHlf2,LuHlf3)
 * End of patch
          Else
             Call SetUp_CASPT2_Tra(nSym,nBas,nIsh,nIsh,nAsh,
-     &                            nFro_tra,nDel_tra,mAdCMO,lthCMO,
+     &                            nFro_tra,nDel_tra,Work(mAdCMO),lthCMO,
      &                            LuIntM,LuHlf1,LuHlf2,LuHlf3)
          End If
          If(.NOT.DoCholesky) then
