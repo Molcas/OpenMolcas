@@ -13,6 +13,7 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "info_slapaf.fh"
 #include "print.fh"
 #include "SysDef.fh"
@@ -21,6 +22,8 @@
       External Get_SuperName
 #include "angstr.fh"
 #include "weighting.fh"
+      Integer, Allocatable:: Information(:)
+      Real*8, Allocatable:: Cx_p(:,:), CC(:,:), RV(:,:)
 *
       LOGICAL do_printcoords, do_fullprintcoords, Just_Frequencies,
      &        Found, Numerical
@@ -38,9 +41,9 @@
 ************************************************************************
 *                                                                      *
 *---  Write information of this iteration to the RLXITR file
-      Call GetMem(' iter','Allo','Inte',ipItr,7)
+      Call mma_allocate(Information,7,Label='Information')
       If (Stop) Then
-         iWork(ipItr)=-99     ! Deactivate the record
+         Information(1)=-99     ! Deactivate the record
          iOff_Iter=0
          Call Put_iScalar('iOff_Iter',iOff_Iter)
 *
@@ -60,27 +63,27 @@
       Else
          Call qpg_iArray('Slapaf Info 1',Found,nSlap)
          If (Found) Then
-            Call Get_iArray('Slapaf Info 1',iWork(ipItr),7)
-            If (iWork(ipItr).ne.-99) iWork(ipItr)=MaxItr
+            Call Get_iArray('Slapaf Info 1',Information,7)
+            If (Information(1).ne.-99) Information(1)=MaxItr
          Else
-            iWork(ipItr)=MaxItr
+            Information(1)=MaxItr
          End If
       End If
 *
       SuperName=Get_Supername()
       If (SuperName.ne.'numerical_gradient') Then
-         iWork(ipItr+1)=Iter
-         iWork(ipItr+2)=mTROld ! # symm. transl /rot.
+         Information(2)=Iter
+         Information(3)=mTROld ! # symm. transl /rot.
          If (lOld_Implicit) Then
-            iWork(ipItr+3)=1
+            Information(4)=1
          Else
-            iWork(ipItr+3)=0
+            Information(4)=0
          End If
-         iWork(ipItr+4)=ipEner-ipRlx
-         iWork(ipItr+5)=ipCx-ipRlx
-         iWork(ipItr+6)=ipGx-ipRlx
-         Call Put_iArray('Slapaf Info 1',iWork(ipItr),7)
-         Call GetMem(' iter','Free','Inte',ipItr,7)
+         Information(5)=ipEner-ipRlx
+         Information(6)=ipCx-ipRlx
+         Information(7)=ipGx-ipRlx
+         Call Put_iArray('Slapaf Info 1',Information,7)
+         Call mma_deallocate(Information)
          Call Put_dArray('Slapaf Info 2',Work(ipRlx),Lngth)
          Call Put_cArray('Slapaf Info 3',Stat(0),(MaxItr+1)*128)
          Call Put_dArray('qInt',Work(ipqInt),nqInt)
@@ -112,14 +115,11 @@
 *
       Call Get_iScalar('Pseudo atoms',nsAtom_p)
       If (nsAtom_p.gt.0) Then
-         Call GetMem('Coor_p','Allo','Real',ipCx_p,3*nsAtom_p)
-         Call Get_dArray('Pseudo Coordinates',Work(ipCx_p),3*nsAtom_p)
-      Else
-         ipCx_p=ip_Dummy
+         Call mma_allocate(Cx_p,3,nsAtom_p,Label='Cx_p')
+         Call Get_dArray('Pseudo Coordinates',Cx_p,3*nsAtom_p)
       End If
 *
-      Call GetMem('Carcor','Allo','Real',ipCC,
-     &            3*nIrrep*(nsAtom+nsAtom_p))
+      Call mma_Allocate(CC,3,nIrrep*(nsAtom+nsAtom_p),Label='CC')
       nTemp = 0
       Do isAtom = 1, nsAtom + nsAtom_p
          If (isAtom.le.nsAtom) Then
@@ -127,9 +127,10 @@
             y1 = Work(ipCoor-1+(isAtom-1)*3+2)
             z1 = Work(ipCoor-1+(isAtom-1)*3+3)
          Else
-            x1 = Work(ipCx_p-1+(isAtom-1-nsAtom)*3+1)
-            y1 = Work(ipCx_p-1+(isAtom-1-nsAtom)*3+2)
-            z1 = Work(ipCx_p-1+(isAtom-1-nsAtom)*3+3)
+            jsAtom = isAtom - nsAtom
+            x1 = Cx_p(1,jsAtom)
+            y1 = Cx_p(2,jsAtom)
+            z1 = Cx_p(3,jsAtom)
          End If
          Do 6001 iIrrep = 0, nIrrep-1
             x2 = x1
@@ -138,10 +139,13 @@
             If (iAnd(2,iOper(iIrrep)).ne.0) y2 = - y2
             z2 = z1
             If (iAnd(4,iOper(iIrrep)).ne.0) z2 = - z2
+*
+*           Check if it is already in the list
+*
             Do iTemp = 1, nTemp
-               r = (x2-Work(ipCC-1+(iTemp-1)*3+1))**2 +
-     &             (y2-Work(ipCC-1+(iTemp-1)*3+2))**2 +
-     &             (z2-Work(ipCC-1+(iTemp-1)*3+3))**2
+               r = (x2-CC(1,iTemp))**2 +
+     &             (y2-CC(2,iTemp))**2 +
+     &             (z2-CC(3,iTemp))**2
                If (r.eq.Zero) Go To 6001
             End Do
             nTemp = nTemp + 1
@@ -150,9 +154,9 @@
                Write (6,*) 'nTemp.gt.nIrrep*nsAtom'
                Call Abend()
             End If
-            Work(ipCC-1+(nTemp-1)*3+1) = x2
-            Work(ipCC-1+(nTemp-1)*3+2) = y2
-            Work(ipCC-1+(nTemp-1)*3+3) = z2
+            CC(1,nTemp) = x2
+            CC(2,nTemp) = y2
+            CC(3,nTemp) = z2
             If (isAtom.le.nsAtom) Then
                LblTMP(nTemp)=AtomLbl(isAtom)
             Else
@@ -189,11 +193,11 @@
          iOff = nTemp - nsAtom_p + 1
          Call OutCoor(
      &'* Pseudo charge coordinates for the next iteration / Bohr     *',
-     &    LblTMP(iOff),nsAtom_p,Work(ipCx_p),3,nsAtom_p,.False.)
+     &    LblTMP(iOff),nsAtom_p,Cx_p,3,nsAtom_p,.False.)
          Call OutCoor(
      &'* Pseudo Charge coordinates for the next iteration / Angstrom *',
-     &    LblTMP(iOff),nsAtom_p,Work(ipCx_p),3,nsAtom_p,.True.)
-         Call Free_Work(ipCx_p)
+     &    LblTMP(iOff),nsAtom_p,Cx_p,3,nsAtom_p,.True.)
+         Call mma_deallocate(Cx_p)
       End If
 *
       IF (do_printcoords) THEN
@@ -202,20 +206,19 @@
 *
          IF (do_fullprintcoords) THEN
            If (nTemp.ge.2)
-     &     Call Dstncs(LblTMP,Work(ipCC),nTemp,
-     &                 angstr,Max_Center,5)
+     &     Call Dstncs(LblTMP,CC,nTemp,angstr,Max_Center,5)
 *
            If (nTemp.ge.3)
-     &     Call Angles(LblTMP,Work(ipCC),nTemp,Rtrnc,Max_Center)
+     &     Call Angles(LblTMP,CC,nTemp,Rtrnc,Max_Center)
 *
            If (nTemp.ge.4)
-     &     Call Dihedr(LblTMP,Work(ipCC),nTemp,Rtrnc,Max_Center)
+     &     Call Dihedr(LblTMP,CC,nTemp,Rtrnc,Max_Center)
          END IF
       END IF
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('Carcor','Free','Real',ipCC,3*nIrrep*nsAtom)
+      Call mma_deallocate(CC)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -264,29 +267,29 @@
 *
        If (iAnd(iOptC,128).ne.128 .and. Stop ) Then
 *
-           Call GetMem('ReacV','Allo','Real',ipRV,3*nsAtom)
-           Call dcopy_(3*nsAtom,Work(ipMF),1,Work(ipRV),1)
+           Call mma_allocate(RV,3,nsAtom,Label='RV')
+           Call dcopy_(3*nsAtom,Work(ipMF),1,RV,1)
            Do i=0,nsAtom-1
              xWeight=Work(ipWeights+i)
-             Call DScal_(3,One/xWeight,Work(ipRV+3*i),1)
+             RV(:,i+1) = RV(:,i+1)/xWeight
            End Do
            Call OutCoor('* The Cartesian Reaction vector'//
      &                  '                         *',
-     &                  AtomLbl,nsAtom,Work(ipRV),3,nsAtom,.True.)
+     &                  AtomLbl,nsAtom,RV,3,nsAtom,.True.)
 
            Call f_Inquire('RUNREAC',Found)
            If (Found) Then
               Call NameRun('RUNREAC')
-              Call Put_dArray('Reaction Vector',Work(ipRV),3*nsAtom)
+              Call Put_dArray('Reaction Vector',RV,3*nsAtom)
            End If
            Call f_Inquire('RUNPROD',Found)
            If (Found) Then
               Call NameRun('RUNPROD')
-              Call Put_dArray('Reaction Vector',Work(ipRV),3*nsAtom)
+              Call Put_dArray('Reaction Vector',RV,3*nsAtom)
            End If
            Call NameRun('RUNFILE')
-           Call Put_dArray('Reaction Vector',Work(ipRV),3*nsAtom)
-           Call GetMem('ReacV','Free','Real',ipRV,3*nsAtom)
+           Call Put_dArray('Reaction Vector',RV,3*nsAtom)
+           Call mma_deallocate(RV)
            iDo_dDipM=0
            Call GF_on_the_fly(iDo_dDipM)
 *
