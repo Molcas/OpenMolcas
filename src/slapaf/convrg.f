@@ -43,6 +43,7 @@
       Character(LEN=8) Temp
       Real*8, Allocatable:: Coor1(:,:), Coor2(:,:)
       Real*8, Allocatable:: E_IRC(:), C_IRC(:,:), G_IRC(:,:)
+      Real*8, Allocatable:: E_S(:), C_S(:,:), G_S(:,:)
       Integer, Allocatable:: Information(:)
       Real*8, Allocatable:: Tmp(:)
 *
@@ -450,56 +451,50 @@ c      End If
          E_Reac=Tmp(6*nAtom+1)
          E_Prod=Tmp(6*nAtom+2)
 *
-         Call Allocate_Work(ipE,nSaddle_Max)
-         Call Allocate_Work(ipC,3*nAtom*nSaddle_Max)
-         Call Allocate_Work(ipG,3*nAtom*nSaddle_Max)
+         Call mma_allocate(E_S,nSaddle_Max,Label='E_S')
+         Call mma_allocate(C_S,3*nAtom,nSaddle_Max,Label='C_S')
+         Call mma_allocate(G_S,3*nAtom,nSaddle_Max,Label='G_S')
          If (iSaddle.eq.0) Then
 *
 *           Initiate with data from the starting points
 *
-            Call FZero(Work(ipE),nSaddle_Max)
-            Call FZero(Work(ipC),3*nAtom*nSaddle_Max)
-            Call FZero(Work(ipG),3*nAtom*nSaddle_Max)
+            E_S(:)=Zero
+            C_S(:,:)=Zero
+            G_S(:,:)=Zero
             iSaddle=1
             If (E_Reac.le.E_Prod) Then
-               Work(ipE+(iSaddle-1))=E_Reac
-               call dcopy_(3*nAtom,Tmp(1:3*nAtom),1,
-     &                    Work(ipC+(iSaddle-1)*3*nAtom),1)
+               E_S(iSaddle)=E_Reac
+               C_S(:,iSaddle) = Tmp(1:3*nAtom)
             Else
-               Work(ipE+(iSaddle-1))=E_Prod
-               call dcopy_(3*nAtom,Tmp(3*nAtom+1:6*nAtom),1,
-     &                    Work(ipC+(iSaddle-1)*3*nAtom),1)
+               E_S(iSaddle)=E_Prod
+               C_S(:,iSaddle) = Tmp(3*nAtom+1:6*nAtom)
             End If
-            call dcopy_(3*nAtom,[Zero],0,
-     &                 Work(ipG+(iSaddle-1)*3*nAtom),1)
 *
          Else
 *
-            Call Get_dArray('MEP-Energies',Work(ipE),nSaddle_Max)
-            Call Get_dArray('MEP-Coor',Work(ipC),3*nAtom*nSaddle_Max)
-            Call Get_dArray('MEP-Grad',Work(ipG),3*nAtom*nSaddle_Max)
+            Call Get_dArray('MEP-Energies',E_S,nSaddle_Max)
+            Call Get_dArray('MEP-Coor',C_S,3*nAtom*nSaddle_Max)
+            Call Get_dArray('MEP-Grad',G_S,3*nAtom*nSaddle_Max)
 *
          End If
 *
 *        Add the new data
 *
          iSaddle=iSaddle+1
-         Work(ipE+(iSaddle-1))=Energy(iter)
-         call dcopy_(3*nAtom,Cx(1,iter),1,
-     &              Work(ipC+(iSaddle-1)*3*nAtom),1)
-         call dcopy_(3*nAtom,Gx(1,iter),1,
-     &              Work(ipG+(iSaddle-1)*3*nAtom),1)
+         E_S(iSaddle)=Energy(iter)
+         C_S(:,iSaddle) = Cx(:,iter)
+         G_S(:,iSaddle) = Gx(:,iter)
 *
 *        Put data on RUNFILE
 *
-         Call Put_dArray('MEP-Energies',Work(ipE),nSaddle_Max)
-         Call Put_dArray('MEP-Coor',Work(ipC),3*nAtom*nSaddle_Max)
-         Call Put_dArray('MEP-Grad',Work(ipG),3*nAtom*nSaddle_Max)
+         Call Put_dArray('MEP-Energies',E_S,nSaddle_Max)
+         Call Put_dArray('MEP-Coor',C_S,3*nAtom*nSaddle_Max)
+         Call Put_dArray('MEP-Grad',G_S,3*nAtom*nSaddle_Max)
          Call Put_iScalar('nMEP',iSaddle)
 *
-         Call Free_Work(ipG)
-         Call Free_Work(ipC)
-         Call Free_Work(ipE)
+         Call mma_deallocate(G_S)
+         Call mma_deallocate(C_S)
+         Call mma_deallocate(E_S)
 *                                                                      *
 ************************************************************************
 *                                                                      *
