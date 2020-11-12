@@ -14,20 +14,21 @@
       Use NewH_mod
       Implicit None
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
+      Integer, Allocatable:: IsMM(:)
       Logical Curvilinear, Redundant
       Integer nsAtom, nInter
 *
-      Integer iAtom, i, nAtMM, ipIsMM
+      Integer iAtom, i, nAtMM
 *
 *---- If redundant Cartesians and no symmetry, use unit matrix for MM atoms
 *
       If (Redundant.and.(.not.Curvilinear).and.
      &    (3*nsAtom.eq.nInter)) Then
          Call mma_allocate(UpdMask,nInter,label="UpdMask")
-         Call MMCount(nsAtom,nAtMM,ipIsMM)
+         Call mma_allocate(IsMM,nsAtom,Label='IsMM')
+         Call MMCount(nsAtom,nAtMM,IsMM)
          Do iAtom=1,nsAtom
-            If (iWork(ipIsMM+iAtom-1).eq.1) Then
+            If (IsMM(iAtom).eq.1) Then
                Do i=1,3
                  UpdMask((iAtom-1)*3+i)=1
                End Do
@@ -37,7 +38,7 @@
                End Do
             End If
          End Do
-         Call GetMem('IsMM for atoms','Free','Inte',ipIsMM,nsAtom)
+         Call mma_deallocate(IsMM)
       End If
 *
       Return
