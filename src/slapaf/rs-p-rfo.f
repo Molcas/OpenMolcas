@@ -46,6 +46,8 @@
 #include "print.fh"
       Real*8 H(nInter,nInter), g(nInter), dq(nInter), Lambda
       Real*8, Allocatable:: Mat(:), Val(:), Vec(:,:), Tmp(:,:)
+      Real*8, Allocatable:: MatN(:), ValN(:), VecN(:), TmpN(:),
+     &        StepN(:), GradN(:)
 *
       Character*6 UpMeth
       Character*1 Step_Trunc
@@ -137,13 +139,13 @@
       Thr=1.0D-7
       If (nNeg.gt.0) Then
          mInter=nNeg+1
-         Call GetMem('StepN','Allo','Real',ipNStep,nInter)
-         Call GetMem('GradN','Allo','Real',ipNGrad,nInter)
-         Call GetMem('VectorN','Allo','Real',ipNVec,mInter)
-         Call GetMem('ValuesN','Allo','Real',ipNVal,1)
-         Call GetMem('MatrixN','Allo','Real',ipNMat,mInter*(mInter+1)/2)
-         Call Allocate_Work(ipNTmp,mInter)
-         Call DZero(Work(ipNTmp),mInter)
+         Call mma_allocate(StepN,nInter,Label='StepN')
+         Call mma_allocate(GradN,nInter,Label='GradN')
+         Call mma_allocate(VecN,mInter,Label='VecN')
+         Call mma_allocate(ValN,1,Label='ValN')
+         Call mma_allocate(MatN,mInter*(mInter+1)/2,Label='MatN')
+         Call mma_allocate(TmpN,mInter,Label='TmpN')
+         TmpN(:)=Zero
       End If
       mInter=nInter+1
       Call GetMem('StepP','Allo','Real',ipPStep,nInter)
@@ -175,42 +177,39 @@
 *           (Note that, since we are interested in the largest eigenvalue,
 *            the whole matrix is multiplied by -1, so we actually find the
 *            smallest eigenvalue and change its sign)
-            Call DZero(Work(ipNGrad),nInter)
-            Call DZero(Work(ipNMat),mInter*(mInter+1)/2)
+            GradN(:)=Zero
+            MatN(:) =Zero
             j=mInter*(mInter-1)/2
             Do i=1,nNeg
-               Work(ipNMat+i*(i+1)/2-1)=-Val(i)/A_RFO
+               MatN(i*(i+1)/2)=-Val(i)/A_RFO
                gv=DDot_(nInter,g,1,Vec(:,i),1)
-               Work(ipNMat+j+i-1)=gv/Sqrt(A_RFO)
-               Call DaXpY_(nInter,gv,Vec(:,i),1,Work(ipNGrad),1)
+               MatN(j+i)=gv/Sqrt(A_RFO)
+               Call DaXpY_(nInter,gv,Vec(:,i),1,GradN,1)
             End Do
 *
 *--------   Solve the partial RFO system for the negative subspace
-            call dcopy_(mInter,Work(ipNTmp),1,Work(ipNVec),1)
-            Call Davidson(Work(ipNMat),mInter,1,Work(ipNVal),
-     &                                          Work(ipNVec),iStatus)
-            call dcopy_(mInter,Work(ipNVec),1,Work(ipNTmp),1)
+            VecN(:) = TmpN(:)
+            Call Davidson(MatN,mInter,1,ValN,VecN,iStatus)
+            VecN(:) = TmpN(:)
             If (iStatus.gt.0) Then
                Call SysWarnMsg('RS_P_RFO',
      &              'Davidson procedure did not converge','')
             End If
-            Call DScal_(1,-One,Work(ipNVal),1)
+            ValN(:) = - ValN(:)
 *
 *--------   Scale the eigenvector (combines eqs. (5) and (23))
 *           Convert to full space and add to complete step
-            Call DScal_(nNeg,One/(Sqrt(A_RFO)*Work(ipNVec+nNeg)),
-     &                      Work(ipNVec),1)
+            Call DScal_(nNeg,One/(Sqrt(A_RFO)*VecN(1+nNeg)),VecN,1)
             Call dGeMV_('N',nInter,nNeg,One,Vec,nInter,
-     &                                     Work(ipNVec),1,
-     &                                 Zero,Work(ipNStep),1)
-            Call DaXpY_(nInter,One,Work(ipNStep),1,dq,1)
-            dqdq_max=Sqrt(DDot_(nInter,Work(ipNStep),1,Work(ipNStep),1))
+     &                                  VecN,1,Zero,StepN,1)
+            Call DaXpY_(nInter,One,StepN,1,dq,1)
+            dqdq_max=Sqrt(DDot_(nInter,StepN,1,StepN,1))
 *           write (Lu,*) 'dqdq_max=',dqdq_max
 !           Sign
-            EigVal_r=-DDot_(nInter,Work(ipNStep),1,Work(ipNGrad),1)
+            EigVal_r=-DDot_(nInter,StepN,1,GradN,1)
             If (iPrint.ge.99) Then
-               Call RecPrt('dq_r',' ',Work(ipNStep),1,nInter)
-               Call RecPrt(' g_r',' ',Work(ipNGrad),1,nInter)
+               Call RecPrt('dq_r',' ',StepN,1,nInter)
+               Call RecPrt(' g_r',' ',GradN,1,nInter)
                Write (Lu,*) 'Lambda=',EigVal_r
             End If
             If (EigVal_r.lt.-Thr) Then
@@ -336,12 +335,12 @@
 
       If (nNeg.gt.0) Then
          mInter=nNeg+1
-         Call GetMem('StepN','Free','Real',ipNStep,nInter)
-         Call GetMem('GradN','Free','Real',ipNGrad,nInter)
-         Call GetMem('VectorN','Free','Real',ipNVec,mInter)
-         Call GetMem('ValuesN','Free','Real',ipNVal,1)
-         Call GetMem('MatrixN','Free','Real',ipNMat,mInter*(mInter+1)/2)
-         Call Free_Work(ipNTmp)
+         Call mma_deallocate(StepN)
+         Call mma_deallocate(GradN)
+         Call mma_deallocate(VecN)
+         Call mma_deallocate(ValN)
+         Call mma_deallocate(MatN)
+         Call mma_deallocate(TmpN)
       End If
       mInter=nInter+1
       Call GetMem('StepP','Free','Real',ipPStep,nInter)
