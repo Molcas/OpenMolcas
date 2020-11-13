@@ -30,7 +30,9 @@
       Character*1 Step_trunc
       Integer AixRm, iNeg(2)
       Integer nGB
-      Real*8, Allocatable:: GB(:)
+      Real*8 rDum(1)
+      Real*8, Allocatable:: GB(:), DFC(:), dss(:), Tmp(:), HX(:),
+     &                      HQ(:), KtB(:)
 *
       Lu=6
       iRout = 32
@@ -279,24 +281,24 @@
          Call dCopy_(3*nsAtom,Work(ipCx+Iter*3*nsAtom),1,
      &                        Work(ipCoor),1)
       Else
-         Call GetMem(' DFC  ', 'Allo','Real',ipDFC, 3*nsAtom)
-         Call GetMem(' dss  ', 'Allo','Real',ipdss, nQQ)
-         Call GetMem(' qTemp', 'Allo','Real',ipTmp, nQQ)
+         Call mma_allocate(DFC, 3*nsAtom,Label='DFC')
+         Call mma_allocate(dss, nQQ,Label='dss')
+         Call mma_allocate(Tmp, nQQ,Label='Tmp')
          PrQ=.False.
          Error=.False.
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Work(ipCoor),
      &               ipB,Work(ipCM),Lbl,Work(ipShf),ipqInt,
-     &               ipdqInt,Work(ipDFC),Work(ipdss),Work(ipTmp),
+     &               ipdqInt,DFC,dss,Tmp,
      &               AtomLbl,iSym,Smmtrc,Degen,
      &               Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
      &               User_Def,nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &               iCoSet,rHidden,ipRef,Redundant,nqInt,MaxItr,iRef,
      &               Error)
-         Call GetMem(' qTemp', 'Free','Real',ipTmp, nQQ)
-         Call GetMem(' dss  ', 'Free','Real',ipdss, nQQ)
-         Call GetMem(' DFC  ', 'Free','Real',ipDFC, 3*nsAtom)
+         Call mma_deallocate(DFC)
+         Call mma_deallocate(dss)
+         Call mma_deallocate(Tmp)
       End If
 *                                                                      *
 ************************************************************************
@@ -380,46 +382,52 @@
             nGB=3*nsAtom
             Call mma_allocate(GB,nGB,Label='GB')
             Call Get_Grad(GB,nGB)
+
             Call Qpg_dArray('Hss_X',Found,nHX)
-            Call GetMem('HssX','Allo','Real',ipHX,nHX)
-            Call Get_dArray('Hss_X',Work(ipHX),nHX)
+            Call mma_allocate(HX,nHX,Label='HX')
+            Call Get_dArray('Hss_X',HX,nHX)
+
             Call Qpg_dArray('Hss_Q',Found,nHQ)
-            Call GetMem('HssQ','Allo','Real',ipHQ,nHQ)
-            Call Get_dArray('Hss_Q',Work(ipHQ),nHQ)
+            Call mma_allocate(HQ,nHQ,Label='HQ')
+            Call Get_dArray('Hss_Q',HQ,nHQ)
+
             Call Qpg_dArray('KtB',Found,nKtB)
-            Call GetMem('KtB','Allo','Real',ipKtB,nKtB)
-            Call Get_dArray('KtB',Work(ipKtB),nKtB)
+            Call mma_allocate(KtB,nKtB,Label='KtB')
+            Call Get_dArray('KtB',KtB,nKtB)
+
             Call Get_iScalar('No of Internal coordinates',nIntCoor)
 *           Write data in backup file
             Call NameRun('RUNBACK')
             Call Put_Grad(GB,nGB)
-            Call Put_dArray('Hss_X',Work(ipHX),nHX)
-            Call Put_dArray('Hss_Q',Work(ipHQ),nHQ)
-            Call Put_dArray('Hss_upd',Work(ip_Dummy),0)
-            Call Put_dArray('Hess',Work(ipHQ),nHQ)
-            Call Put_dArray('KtB',Work(ipKtB),nKtB)
+            Call Put_dArray('Hss_X',HX,nHX)
+            Call Put_dArray('Hss_Q',HQ,nHQ)
+            Call Put_dArray('Hss_upd',rdum,0)
+            Call Put_dArray('Hess',HQ,nHQ)
+            Call Put_dArray('KtB',KtB,nKtB)
             Call Put_iScalar('No of Internal coordinates',nIntCoor)
 *           Pretend the Hessian is analytical
             nHX2=Int(Sqrt(Dble(nHX)))
             iOff=0
             Do i=1,nHX2
                Do j=1,i
-                  Work(ipHx+iOff)=Work(ipHX+(i-1)*nHX2+(j-1))
                   iOff=iOff+1
+                  HX(iOff)=HX((i-1)*nHX2+j)
                End Do
             End Do
-            Call Put_AnalHess(Work(ipHX),iOff)
+
+            Call Put_AnalHess(HX,iOff)
             Call NameRun('#Pop')
+
             Call mma_deallocate(GB)
-            Call GetMem('HssX','Free','Real',ipHX,nHX)
-            Call GetMem('HssQ','Free','Real',ipHQ,nHQ)
-            Call GetMem('KtB','Free','Real',ipKtB,nKtB)
+            Call mma_deallocate(HX)
+            Call mma_deallocate(HQ)
+            Call mma_deallocate(KtB)
 *
 *           Restore and remove the backup runfile
 *
             Call fCopy('RUNBACK','RUNFILE',iErr)
-            If (iErr.ne.0) Call Abend
-            If (AixRm('RUNBACK').ne.0) Call Abend
+            If (iErr.ne.0) Call Abend()
+            If (AixRm('RUNBACK').ne.0) Call Abend()
          End If
       End If
 *
