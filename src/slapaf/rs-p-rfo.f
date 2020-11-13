@@ -42,8 +42,10 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
       Real*8 H(nInter,nInter), g(nInter), dq(nInter), Lambda
+      Real*8, Allocatable:: Mat(:), Val(:), Vec(:,:), Tmp(:,:)
 *
       Character*6 UpMeth
       Character*1 Step_Trunc
@@ -64,14 +66,14 @@
       nVStep=2
       Found=.False.
       Thr=1.0D-6
-      Call GetMem('Vector','Allo','Real',ipVec,nInter*NumVal)
-      Call GetMem('Values','Allo','Real',ipVal,NumVal)
-      Call GetMem('Matrix','Allo','Real',ipMat,nInter*(nInter+1)/2)
-      Call DZero(Work(ipVec),NumVal*nInter)
+      Call mma_allocate(Vec,nInter,NumVal,Label='Vec')
+      Call mma_allocate(Val,NumVal,Label='Val')
+      Call mma_allocate(Mat,nInter*(nInter+1)/2,Label='Mat')
+      Vec(:,:)=Zero
       Do i = 1, nInter
          Do j = 1, i
-            ij = i*(i-1)/2+j-1
-            Work(ipMat+ij)=H(i,j)
+            ij = i*(i-1)/2+j
+            Mat(ij)=H(i,j)
          End Do
       End Do
 *                                                                      *
@@ -80,42 +82,43 @@
 *---- Find the negative eigenvalue(s)
 *     Stop when the highest eigenvalue found is larger than Thr
       Do While (.Not.Found)
-        Call Davidson(Work(ipMat),nInter,NumVal,
-     &                Work(ipVal),Work(ipVec),iStatus)
+        Call Davidson(Mat,nInter,NumVal,Val,Vec,iStatus)
         If (iStatus.gt.0) Then
           Call SysWarnMsg('RS_P_RFO',
      &      'Davidson procedure did not converge','')
         End If
-        If ((Work(ipVal+NumVal-1).gt.Thr).or.(NumVal.ge.nInter)) Then
+        If ((Val(NumVal).gt.Thr).or.(NumVal.ge.nInter)) Then
           Found=.True.
         Else
 *----     Increase the number of eigenpairs to compute
-          Call Allocate_Work(ipTmp,NumVal*nInter)
-          call dcopy_(NumVal*nInter,Work(ipVec),1,Work(ipTmp),1)
-          Call GetMem('Vector','Free','Real',ipVec,nInter*NumVal)
-          Call GetMem('Values','Free','Real',ipVal,NumVal)
+          Call mma_allocate(Tmp,nInter,NumVal,Label='Tmp')
+          Tmp(:,:) = Vec(:,:)
+          Call mma_deallocate(Vec)
+          Call mma_deallocate(Val)
+
           NumVal=Min(NumVal+nVStep,nInter)
-          Call GetMem('Vector','Allo','Real',ipVec,nInter*NumVal)
-          Call GetMem('Values','Allo','Real',ipVal,NumVal)
-         call dcopy_((NumVal-nVStep)*nInter,Work(ipTmp),1,Work(ipVec),1)
-          Call DZero(Work(ipVec+(NumVal-nVStep)*nInter),nVStep*nInter)
-          Call DZero(Work(ipVal),NumVal)
-          Call Free_Work(ipTmp)
+
+          Call mma_allocate(Vec,nInter,NumVal,Label='Vec')
+          Vec(:,:)=Zero
+          Call mma_allocate(Val,NumVal,Label='Val')
+          Val(:)=Zero
+
+          Vec(:,1:NumVal-nVStep) = Tmp(:,:)
+
+          Call mma_deallocate(Tmp)
         End If
       End Do
-      Call GetMem('Matrix','Free','Real',ipMat,nInter*(nInter+1)/2)
+      Call mma_deallocate(Mat)
 *
       nNeg=0
       i=NumVal
       Do While ((i.ge.0).and.(nNeg.eq.0))
+         If (Val(i).lt.Zero) nNeg=i
          i=i-1
-         If (Work(ipVal+i).lt.Zero) nNeg=i+1
       End Do
       If (iPrint.ge.99) Then
-         Call RecPrt(' In RS_P_RFO: Eigenvalues',' ',Work(ipVal),
-     &               1,NumVal)
-         Call RecPrt(' In RS_P_RFO: Eigenvectors',' ',Work(ipVec),
-     &               nInter,NumVal)
+         Call RecPrt(' In RS_P_RFO: Eigenvalues',' ',Val,1,NumVal)
+         Call RecPrt(' In RS_P_RFO: Eigenvectors',' ',Vec,nInter,NumVal)
          Write (Lu,*) ' nNeg=',nNeg
       End If
 *
@@ -176,11 +179,10 @@
             Call DZero(Work(ipNMat),mInter*(mInter+1)/2)
             j=mInter*(mInter-1)/2
             Do i=1,nNeg
-               Work(ipNMat+i*(i+1)/2-1)=-Work(ipVal+i-1)/A_RFO
-               gv=DDot_(nInter,g,1,Work(ipVec+(i-1)*nInter),1)
+               Work(ipNMat+i*(i+1)/2-1)=-Val(i)/A_RFO
+               gv=DDot_(nInter,g,1,Vec(:,i),1)
                Work(ipNMat+j+i-1)=gv/Sqrt(A_RFO)
-               Call DaXpY_(nInter,gv,Work(ipVec+(i-1)*nInter),1,
-     &                              Work(ipNGrad),1)
+               Call DaXpY_(nInter,gv,Vec(:,i),1,Work(ipNGrad),1)
             End Do
 *
 *--------   Solve the partial RFO system for the negative subspace
@@ -198,7 +200,7 @@
 *           Convert to full space and add to complete step
             Call DScal_(nNeg,One/(Sqrt(A_RFO)*Work(ipNVec+nNeg)),
      &                      Work(ipNVec),1)
-            Call dGeMV_('N',nInter,nNeg,One,Work(ipVec),nInter,
+            Call dGeMV_('N',nInter,nNeg,One,Vec,nInter,
      &                                     Work(ipNVec),1,
      &                                 Zero,Work(ipNStep),1)
             Call DaXpY_(nInter,One,Work(ipNStep),1,dq,1)
@@ -236,18 +238,16 @@
 *        interferences
          call dcopy_(nInter,g,1,Work(ipPGrad),1)
          Do i=1,nNeg
-           gv=DDot_(nInter,Work(ipPGrad),1,Work(ipVec+(i-1)*nInter),1)
-           Call DaXpY_(nInter,-gv,Work(ipVec+(i-1)*nInter),1,
-     &                           Work(ipPGrad),1)
+           gv=DDot_(nInter,Work(ipPGrad),1,Vec(:,i),1)
+           Call DaXpY_(nInter,-gv,Vec(:,i),1,Work(ipPGrad),1)
          End Do
          Do j=1,nInter
            call dcopy_(j,H(1,j),1,Work(ipPMat+j*(j-1)/2),1)
            Do i=1,nNeg
-             ii=(i-1)*nInter-1
              Do k=1,j
                jk=j*(j-1)/2+k-1
-               Work(ipPMat+jk)=Work(ipPMat+jk)-(Work(ipVal+i-1)-Ten)*
-     &                           Work(ipVec+ii+j)*Work(ipVec+ii+k)
+               Work(ipPMat+jk)=Work(ipPMat+jk)-(Val(i)-Ten)*
+     &                           Vec(j,i)*Vec(k,i)
              End Do
            End Do
            Call DScal_(j,One/A_RFO,Work(ipPMat+j*(j-1)/2),1)
@@ -330,8 +330,10 @@
          End If
 *
  997  Continue
-      Call GetMem('Vector','Free','Real',ipVec,nInter*NumVal)
-      Call GetMem('Values','Free','Real',ipVal,NumVal)
+
+      Call mma_deallocate(Vec)
+      Call mma_deallocate(Val)
+
       If (nNeg.gt.0) Then
          mInter=nNeg+1
          Call GetMem('StepN','Free','Real',ipNStep,nInter)
