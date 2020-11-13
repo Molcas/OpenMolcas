@@ -15,9 +15,12 @@
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 dMass(nAtom), Degen(3*nAtom), Cx(3*nAtom,nIter)
       Integer iANr(nAtom)
       Logical Smmtrc(3*nAtom),DDV_Schlegel,Found
+      Integer, Allocatable:: TabAI(:), AN(:)
+      Real*8, Allocatable:: TR(:), Vec(:), Coor(:,:), Tmp(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -30,31 +33,32 @@
 *---- Find the translational and rotational eigenvectors for the
 *     current structure.
 *
-      Call Allocate_Work(ipTR,18*nAtom)
-      Call FZero(Work(ipTR),18*nAtom)
+      Call mma_allocate(TR,18*nAtom,Label='TR')
+      TR(:)=Zero
 *
       Call TRPGen(nDim,nAtom,Cx(1,iIter),Degen,Smmtrc,mTR,dMass,.False.,
-     &            Work(ipTR))
+     &            TR)
 *
-*     Call RecPrt('Work(ipTR)',' ',Work(ipTR),nDim,mTR)
+*     Call RecPrt('TR',' ',TR,nDim,mTR)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('TabAI','Allo','Inte',ip_TabAI,2*mTtAtm)
-      Call GetMem('Vect','Allo','Real',ipVec,3*mTtAtm*nDim)
-      Call GetMem('AN','Allo','Inte',ipAN,mTtAtm)
-      Call GetMem('Coor','Allo','Real',ipCoor,3*mTtAtm)
+      Call mma_Allocate(TabAI,2*mTtAtm,Label='TabAI')
+      Call mma_Allocate(Vec,3*mTtAtm*nDim,Label='Vec')
+      Call mma_Allocate(AN,mTtAtm,Label='AN')
+      Call mma_Allocate(Coor,3,mTtAtm,Label='Coor')
 *
 *-----Generate Grand atoms list
 *
-      Call GenCoo(Cx(1,iIter),nAtom,Work(ipCoor),
-     &            mTtAtm,Work(ipVec),Smmtrc,nDim,iAnr,iWork(ipAN),
-     &            iWork(ip_TabAI),Degen)
+      Call GenCoo(Cx(1,iIter),nAtom,Coor,mTtAtm,Vec,Smmtrc,nDim,iAnr,
+     &            AN,TabAI,Degen)
 *
 *---- Are there some hidden frozen atoms ?
 *
       nHidden = 0
       nMDstep = 0
+      ipCoor = ip_of_Work(Coor(1,1))
+      ipAN   = ip_of_iWork(AN(1))
       If (rHidden.ge.Two) Call Hidden(mTtAtm,ipCoor,ipAN,nHidden,
      &                                rHidden,nMDstep)
 *
@@ -62,8 +66,8 @@
 *
       ThrB=0.0D0  ! dummy
       mTtAtm = mTtAtm+nHidden
-      Call Box(Work(ipCoor),mTtAtm,iWork(ipAN),iOptC,
-     &         ddV_Schlegel,ip_TabB,ip_TabA,nBonds,nMax,ThrB)
+      Call Box(Coor,mTtAtm,AN,iOptC,ddV_Schlegel,ip_TabB,ip_TabA,nBonds,
+     &         nMax,ThrB)
       mTtAtm = mTtAtm-nHidden
 *                                                                      *
 ************************************************************************
@@ -72,10 +76,10 @@
 *     far from the TS, let us get a reduced threshold to avoid
 *     wasting our time
 *
-      Call Allocate_Work(ipTmp,nSaddle)
-      Call Get_dArray('Saddle',Work(ipTmp),nSaddle)
+      Call mma_allocate(Tmp,nSaddle,Label='Tmp')
+      Call Get_dArray('Saddle',Tmp,nSaddle)
       Found=.false.
-      If (Work(ipTmp+nSaddle-2).gt.0.50d0) Then
+      If (Tmp(nSaddle-1).gt.0.50d0) Then
          Do i=0,nBonds-1
             If (iWork(ip_TabB+3*i+2).eq.2) Then
                Found=.true.
@@ -91,15 +95,15 @@
      &             'Convergence threshold reduced')
          EndIf
       EndIf
-      Call Free_Work(ipTmp)
+      Call mma_deallocate(Tmp)
 *
       Call Free_iWork(ip_TabA)
       Call Free_iWork(ip_TabB)
-      Call GetMem('Coor','Free','Real',ipCoor,3*mTtAtm)
-      Call GetMem('AN','Free','Inte',ipAN,mTtAtm)
-      Call GetMem('Vect','Free','Real',ipVec,3*mTtAtm*nDim)
-      Call GetMem('TabAI','Free','Inte',ip_TabAI,2*mTtAtm)
-      Call Free_Work(ipTR)
+      Call mma_deallocate(Coor)
+      Call mma_deallocate(AN)
+      Call mma_deallocate(Vec)
+      Call mma_deallocate(TabAI)
+      Call mma_deallocate(TR)
 *                                                                      *
 ************************************************************************
 *                                                                      *
