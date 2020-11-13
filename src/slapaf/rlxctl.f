@@ -195,7 +195,7 @@
 *----------------------------------------------------------------------*
 *
          Call Freq2(iter,Work(ipdqInt),Work(ipShf),nQQ,Delta,Stop,
-     &              Work(ipqInt),.Not.User_Def,nsAtom,Work(ipCM))
+     &              Work(ipqInt))
          UpMeth='NumHss'
       Else
          Go To 777
@@ -237,7 +237,7 @@
 *
       If (Kriging .and. Iter.ge.nspAI) Then
          Call Update_Kriging(
-     &               Iter,MaxItr,NmIter,iInt,nFix,nQQ,Work(ipqInt),
+     &               Iter,MaxItr,iInt,nFix,nQQ,Work(ipqInt),
      &               Work(ipShf),Work(ipdqInt),iOptC,Beta,Beta_Disp,
      &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
@@ -246,7 +246,7 @@
      &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,Work(ipMF),
-     &               iOptH,HUpMet,kIter,GNrm_Threshold,
+     &               iOptH,HUpMet,GNrm_Threshold,
      &               IRC,Work(ipCM),HrmFrq_Show,
      &               CnstWght,Curvilinear,Degen,ThrEne,ThrGrd,iRow)
       Else

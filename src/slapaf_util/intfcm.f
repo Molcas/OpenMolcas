@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine IntFcm(ipH,nQQ,lOld,lOld_Implicit,nsAtom,iter)
+      SubRoutine IntFcm(ipH,nQQ,lOld,lOld_Implicit,iter)
 ************************************************************************
 *                                                                      *
 * Object: to initialize the Hessian matrix for the first iteration.    *
@@ -38,14 +38,14 @@
      &                              Work(ipH),nQQ,nQQ)
 *
       If (lOld .AND. iter.eq.1) Then
-         Call OldFcm(ipH,nQQ,nsAtom,iPrint,'RUNOLD')
+         Call OldFcm(ipH,nQQ,iPrint,'RUNOLD')
       Else If (iter.eq.1) Then
          Call qpg_iScalar('IRC',IRC)
          If (.Not.IRC) Then
             Call qpg_dArray('Hess',Hess_Found,nHess)
             If (Hess_Found.And.(nHess.gt.0)) Then
                lOld_Implicit=.True.
-               Call OldFcm(ipH,nQQ,nsAtom,iPrint,'RUNFILE')
+               Call OldFcm(ipH,nQQ,iPrint,'RUNFILE')
             Else
                ipH =  ip_Dummy
             End If

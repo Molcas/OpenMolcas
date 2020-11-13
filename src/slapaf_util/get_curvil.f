@@ -11,7 +11,7 @@
       Subroutine Get_CurviL(
      &              nq,nqRF,nqB,nqA,nqT,nqO,
      &              nAtoms,iIter,nIter,Cx,jStab,
-     &              nStab,nDim,Smmtrc,Process,Value,nB,
+     &              nStab,Smmtrc,Process,Value,nB,
      &              iANr,qLbl,iRef,
      &              fconst,rMult,iOptC,LuIC,Name,Indq,iPrv,
      &              dMass,iCoSet,Grad_all,iGlow,iGhi,Proc_dB,
@@ -47,8 +47,8 @@
       Call RF_Coord(
      &              nq,
      &              nAtoms,iIter,nIter,Cx,jStab,
-     &              nStab,nDim,Smmtrc,Process,Value,nB,
-     &              iANr,qLbl,iRef,
+     &              nStab,Smmtrc,Process,Value,nB,
+     &              qLbl,iRef,
      &              fconst,rMult,LuIC,Indq,
      &              dMass,iCoSet,Proc_dB,mB_Tot,mdB_Tot,
      &              BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
@@ -58,7 +58,7 @@
       Call Bond_List(
      &              nq,
      &              nAtoms,iIter,nIter,Cx,jStab,
-     &              nStab,nDim,Smmtrc,Process,Value,nB,
+     &              nStab,Smmtrc,Process,Value,nB,
      &              iANr,qLbl,fconst,
      &              rMult,iOptC,LuIC,Name,Indq,
      &              Proc_dB,iTabBonds,nBonds,iTabAI,mAtoms,
@@ -70,7 +70,7 @@
       Call Angle_List(
      &              nq,
      &              nAtoms,iIter,nIter,Cx,jStab,
-     &              nStab,nDim,Smmtrc,Process,Value,nB,
+     &              nStab,Smmtrc,Process,Value,nB,
      &              iANr,qLbl,iRef,
      &              fconst,rMult,LuIC,Name,Indq,
      &              Grad_all,iGlow,iGhi,iPrv,Proc_dB,
@@ -83,7 +83,7 @@
       Call Torsion_List(
      &              nq,
      &              nAtoms,iIter,nIter,Cx,jStab,
-     &              nStab,nDim,Smmtrc,Process,Value,nB,
+     &              nStab,Smmtrc,Process,Value,nB,
      &              iANr,qLbl,iRef,
      &              fconst,rMult,LuIC,Name,Indq,iPrv,Proc_dB,
      &              iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
@@ -95,7 +95,7 @@
       Call OutOfPlane_List(
      &              nq,
      &              nAtoms,iIter,nIter,Cx,jStab,
-     &              nStab,nDim,Smmtrc,Process,Value,nB,
+     &              nStab,Smmtrc,Process,Value,nB,
      &              iANr,qLbl,iRef,
      &              fconst,rMult,LuIC,Name,Indq,iPrv,Proc_dB,
      &              iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,

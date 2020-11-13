@@ -316,11 +316,12 @@
       End If
 #else
       Return
-* Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Then
         Call Unused_logical(SaveMEP)
         Call Unused_logical(IRCRestart)
       End If
+#endif
 #endif
       End Subroutine Chkpnt_update_MEP
 *                                                                      *

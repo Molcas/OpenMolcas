@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1994, Roland Lindh                                     *
 ************************************************************************
-      Subroutine C1DIIS(q,nInter,nIter,dq,H,g,error,B,RHS,iPvt,
+      Subroutine C1DIIS(q,nInter,nIter,dq,H,g,error,B,RHS,
      &                  nFix,iP,iOptC,MinWdw)
 ************************************************************************
 *                                                                      *
@@ -29,7 +29,7 @@
       Real*8 q(nInter,nIter+1), dq(nInter,nIter),
      &       H(nInter,nInter), g(nInter,nIter+1),
      &       error(nInter,nIter), B((nIter+1)*(nIter+1)), RHS(nIter+1)
-      Integer   iPvt(nIter+1), iP(nIter), iRc
+      Integer   iP(nIter), iRc
 *
 *     Statement function
 *
@@ -161,9 +161,6 @@
 *
 *-----Solve linear equation system
 *
-*     Call DGeF(B,mIter+1,mIter+1,iPvt)
-*     iOpt=0
-*     Call DGeS(B,mIter+1,mIter+1,iPvt,RHS,iOpt)
       Call Gauss(mIter+1,mIter+1,B,RHS,RHS)
       If (iPrint.ge.99) Call RecPrt(' The solution vector',
      &   ' ',RHS,1,mIter+1)
@@ -208,6 +205,4 @@
 *
       Call Free_Work(ipA)
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer_array(iPvt)
       End

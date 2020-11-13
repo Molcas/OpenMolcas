@@ -91,7 +91,7 @@
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6, File1*8, File2*8, Step_Trunc_
-      Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:), dg(:),
+      Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:),
      &                      RHS(:), ErrVec(:,:), EMtrx(:,:)
       Integer, Allocatable:: Pvt(:), Index(:), iFlip(:)
       Real*8, Allocatable:: R(:,:), dRdq(:,:,:), CInt(:), CInt0(:),
@@ -121,7 +121,6 @@
       Step_Trunc='N'
       nA = (Max(mInter,kIter)+1)**2
       Call mma_Allocate(AMat,nA,Label='AMat')
-      Call mma_Allocate(dg,mInter,Label='dg')
       Call mma_Allocate(Pvt,kIter+1,Label='Pvt')
       Call mma_Allocate(Index,kIter,Label='Index')
       Call mma_Allocate(ErrVec,mInter,(kIter+1),Label='ErrVec')
@@ -305,7 +304,7 @@ C           Write (6,*) 'tBeta=',tBeta
                Step_Trunc_=Step_Trunc
                Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
      &                   ErrVec,EMtrx,RHS,
-     &                   Pvt,dg,AMat,nA,
+     &                   Pvt,AMat,nA,
      &                   ed,iOptC,qBeta,nFix,Index,UpMeth,
      &                   Energy,Line_Search,Step_Trunc_,Thr_RS)
                If (Step_Trunc.eq.'N') Step_Trunc=' '
@@ -429,7 +428,7 @@ C           Write (6,*) 'tBeta=',tBeta
      &                   iRow_c,Value,cInt,cInt0,Lbl(nInter+1),
      &                   AtomLbl,Cx(1,lIter),
      &                   (lIter.eq.kIter).and.First_MicroIteration,
-     &                   jStab,nStab,mxdc,Mult,Smmtrc,nDimBC,
+     &                   jStab,nStab,mxdc,Mult,
      &                   dBM,Value0,lIter,iFlip,dMass)
 *
 *           Assemble r
@@ -651,9 +650,9 @@ C           Write (6,*) 'tBeta=',tBeta
             Call Con_Opt(R,dRdq,T,Grad,rLambda,qInt,Shift,dy,dx,
      &                dEdq,du,x,dEdx,Wess,GNrm(kIter),
      &                nWndw,Hessian,nInter,kIter,iOptC,Mode_,MF,
-     &                iOptH_,HUpMet,jPrint,Energy_L,nLambda,mIter,nRowH,
+     &                iOptH_,HUpMet,jPrint,Energy_L,nLambda,nRowH,
      &                ErrVec,EMtrx,RHS,Pvt,
-     &                dg,AMat,nA,ed,qBeta,qBeta_Disp,nFix,
+     &                AMat,nA,ed,qBeta,qBeta_Disp,nFix,
      &                Index,UpMeth,Line_Search,Step_Trunc,Lbl,
      &                GrdLbl,StpLbl,GrdMax,StpMax,d2L,nsAtom,
      &                IRC,CnstWght,iOpt_RS,Thr_RS,iter,
@@ -709,7 +708,6 @@ C           Write (6,*) 'tBeta=',tBeta
       Call mma_Deallocate(ErrVec)
       Call mma_Deallocate(Index)
       Call mma_Deallocate(Pvt)
-      Call mma_Deallocate(dg)
       Call mma_Deallocate(AMat)
 *
       Return

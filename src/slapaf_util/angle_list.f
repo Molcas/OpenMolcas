@@ -11,7 +11,7 @@
       Subroutine Angle_List(
      &                 nq,
      &                 nAtoms,iIter,nIter,Cx,jStab,
-     &                 nStab,nDim,Smmtrc,Process,Value,
+     &                 nStab,Smmtrc,Process,Value,
      &                 nB,iANr,qLbl,iRef,
      &                 fconst,rMult,LuIC,Name,Indq,
      &                 Grad_all,iGlow,iGhi,iPrv,Proc_dB,
@@ -90,7 +90,7 @@
          iDCR(2) = iTabAI(2,mAtom_)
 
          nNeighbor_m = iTabAtoms(1,0,mAtom_)
-         nCoBond_m=nCoBond(mAtom_,mAtoms,nMax,iTabBonds,nBonds,
+         nCoBond_m=nCoBond(mAtom_,mAtoms,nMax,iTabBonds,
      &                     nBonds,iTabAtoms)
          If (nNeighbor_m.lt.2) Go To 100
 *
@@ -98,7 +98,7 @@
             iAtom_ = iTabAtoms(1,iNeighbor,mAtom_)
             iAtom = iTabAI(1,iAtom_)
             nNeighbor_i = iTabAtoms(1,0,iAtom_)
-            nCoBond_i=nCoBond(iAtom_,mAtoms,nMax,iTabBonds,nBonds,
+            nCoBond_i=nCoBond(iAtom_,mAtoms,nMax,iTabBonds,
      &                        nBonds,iTabAtoms)
             ir = iTabRow(iANr(iAtom))
             Ind(1) = iAtom
@@ -127,7 +127,7 @@
                jAtom_ = iTabAtoms(1,jNeighbor,mAtom_)
                jAtom = iTabAI(1,jAtom_)
                nNeighbor_j = iTabAtoms(1,0,jAtom_)
-               nCoBond_j=nCoBond(jAtom_,mAtoms,nMax,iTabBonds,nBonds,
+               nCoBond_j=nCoBond(jAtom_,mAtoms,nMax,iTabBonds,
      &                           nBonds,iTabAtoms)
                If (nCoBond_i.ge.8 .and.
      &             nCoBond_j.ge.8 .and.
@@ -410,7 +410,7 @@ C                 Do k = 1, 2
 *
                         Call LBend(A,nCent,Val,
      &                             Grad_all(1,nq,iIter),
-     &                             .False.,.False.,
+     &                             .False.,
      &                             '        ',Hess,Proc_dB,Axis,
      &                             Perp_Axis(1,k),(k.eq.2))
 *
@@ -447,7 +447,7 @@ C                 Do k = 1, 2
                         Call ProjSym(nAtoms,nCent,Ind,nStab,
      &                               jStab,A,iDCR,
      &                               Grad_all(1,nq,iIter),
-     &                               Smmtrc,nDim,Hess,
+     &                               Smmtrc,Hess,
      &                               mB_Tot,mdB_Tot,
      &                               BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                               Proc_dB,nqB,nB,nq,rMult(nq))
@@ -542,7 +542,7 @@ C                 Do k = 1, 2
                      Call ProjSym(nAtoms,nCent,Ind,nStab,
      &                            jStab,A,iDCR,
      &                            Grad_all(1,nq,iIter),
-     &                            Smmtrc,nDim,Hess,
+     &                            Smmtrc,Hess,
      &                            mB_Tot,mdB_Tot,
      &                            BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                            Proc_dB,nqB,nB,nq,rMult(nq))

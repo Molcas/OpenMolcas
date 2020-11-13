@@ -11,7 +11,7 @@
       Subroutine Torsion_List(
      &                 nq,
      &                 nAtoms,iIter,nIter,Cx,jStab,
-     &                 nStab,nDim,Smmtrc,Process,Value,
+     &                 nStab,Smmtrc,Process,Value,
      &                 nB,iANr,qLbl,iRef,
      &                 fconst,rMult,LuIC,Name,Indq,iPrv,Proc_dB,
      &                 iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
@@ -155,14 +155,14 @@
 #endif
 *
             nNeighbor_j = iTabAtoms(1,0,jAtom_)
-            nCoBond_j=nCoBond(jAtom_,mAtoms,nMax,iTabBonds,nBonds,
+            nCoBond_j=nCoBond(jAtom_,mAtoms,nMax,iTabBonds,
      &                        nBonds,iTabAtoms)
-            nFgBond_j=nFgBond(jAtom_,mAtoms,nMax,iTabBonds,nBonds,
+            nFgBond_j=nFgBond(jAtom_,mAtoms,nMax,iTabBonds,
      &                        nBonds,iTabAtoms)
             nNeighbor_k = iTabAtoms(1,0,kAtom_)
-            nCoBond_k=nCoBond(kAtom_,mAtoms,nMax,iTabBonds,nBonds,
+            nCoBond_k=nCoBond(kAtom_,mAtoms,nMax,iTabBonds,
      &                        nBonds,iTabAtoms)
-            nFgBond_k=nFgBond(kAtom_,mAtoms,nMax,iTabBonds,nBonds,
+            nFgBond_k=nFgBond(kAtom_,mAtoms,nMax,iTabBonds,
      &                        nBonds,iTabAtoms)
             If ( nCoBond_j.lt.2.and.nFgBond_j.eq.0) Go To 250
             If ( nCoBond_k.lt.2.and.nFgBond_k.eq.0) Go To 250
@@ -175,9 +175,9 @@
 *
          Do iNeighbor = 1, nNeighbor_j
             iAtom_ = iTabAtoms(1,iNeighbor,jAtom_)
-            nCoBond_i=nCoBond(iAtom_,mAtoms,nMax,iTabBonds,nBonds,
+            nCoBond_i=nCoBond(iAtom_,mAtoms,nMax,iTabBonds,
      &                        nBonds,iTabAtoms)
-            nFgBond_i=nFgBond(iAtom_,mAtoms,nMax,iTabBonds,nBonds,
+            nFgBond_i=nFgBond(iAtom_,mAtoms,nMax,iTabBonds,
      &                        nBonds,iTabAtoms)
             jBond  = iTabAtoms(2,iNeighbor,jAtom_)
             If (jBond.eq.iBond) Go To 301
@@ -283,9 +283,9 @@
 *
             Do lNeighbor = 1, nNeighbor_k
                lAtom_ = iTabAtoms(1,lNeighbor,kAtom_)
-               nCoBond_l=nCoBond(lAtom_,mAtoms,nMax,iTabBonds,nBonds,
+               nCoBond_l=nCoBond(lAtom_,mAtoms,nMax,iTabBonds,
      &                           nBonds,iTabAtoms)
-               nFgBond_l=nFgBond(lAtom_,mAtoms,nMax,iTabBonds,nBonds,
+               nFgBond_l=nFgBond(lAtom_,mAtoms,nMax,iTabBonds,
      &                           nBonds,iTabAtoms)
                lAtom = iTabAI(1,lAtom_)
                Ind(4) = lAtom
@@ -672,7 +672,7 @@
 *
                   Call ProjSym(nAtoms,nCent,Ind,nStab,
      &                         jStab,A,iDCR,Grad,
-     &                         Smmtrc,nDim,Hess,
+     &                         Smmtrc,Hess,
      &                         mB_Tot,mdB_Tot,
      &                         BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                         Proc_dB,nqB,nB,nq,rMult(nq))

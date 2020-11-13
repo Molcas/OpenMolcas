@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Bond_List(
      &                 nq,nAtoms,iIter,nIter,Cx,jStab,
-     &                 nStab,nDim,Smmtrc,Process,Value,
+     &                 nStab,Smmtrc,Process,Value,
      &                 nB,iANr,qLbl,fconst,
      &                 rMult,iOptC,LuIC,Name,Indq,
      &                 Proc_dB,iTabBonds,nBonds,
@@ -236,7 +236,7 @@
 *-----------   Project the gradient vector
 *
                Call ProjSym(nAtoms,nCent,Ind,nStab,jStab,A,
-     &                      iDCR,Grad,Smmtrc,nDim,
+     &                      iDCR,Grad,Smmtrc,
      &                      Hess,mB_Tot,mdB_Tot,
      &                      BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                      Proc_dB,mqB,nB,nq,rMult(nq))

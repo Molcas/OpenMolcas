@@ -754,9 +754,9 @@ C              Write (6,*) 'SubProject=.Prod'
 *           Using hypersphere measure, even with "transverse" MEPs,
 *           this should not be a problem
             Call SphInt(Cx(1,iter),nAtom,ip_Dummy,refDist,Tmp,
-     &         .False.,.False.,'dummy   ',Work(ip_Dummy),.False.)
+     &         .False.,'dummy   ',Work(ip_Dummy),.False.)
             Call SphInt(Cx(1,iter),nAtom,ipPrev,prevDist,Tmp,
-     &         .False.,.False.,'dummy   ',Work(ip_Dummy),.False.)
+     &         .False.,'dummy   ',Work(ip_Dummy),.False.)
             If (prevDist.lt.Half*refDist) Then
                TurnBack=.True.
                Conv1=.True.

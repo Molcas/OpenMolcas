@@ -8,8 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine NACInt(xyz,nCent,H12,Bf,lWrite_,lWarn,Label,dBf,ldB,
-     &                  lIter)
+      Subroutine NACInt(xyz,nCent,H12,Bf,lWrite_,Label,dBf,ldB)
       Implicit Real*8  (a-h,o-z)
 #include "info_slapaf.fh"
 #include "real.fh"
@@ -17,7 +16,7 @@
 #include "WrkSpc.fh"
 #include "constants.fh"
       Real*8   Bf(3,nCent), xyz(3,nCent), dBf(3*nCent,3*nCent)
-      Logical lWrite_, ldB, lWarn
+      Logical lWrite_, ldB
       Character*8 Label
 *
 *
@@ -53,9 +52,4 @@ C     Call RecPrt('Bf',' ',Bf,3,nCent)
       End If
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_logical(lWarn)
-         Call Unused_integer(lIter)
-      End If
       End

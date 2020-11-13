@@ -12,7 +12,7 @@
 ************************************************************************
       SubRoutine Cllct2(Strng,Vector,dVector,Value,Names,nAtom,Coor,
      &                  nCntr,mCntr,xyz,Grad,Ind,Type,rMss,qMss,Lbl,
-     &                  lWrite,jStab,nStab,mxdc,Deg,Smmtrc,Hess,lIter)
+     &                  lWrite,jStab,nStab,mxdc,Deg,Hess,lIter)
 ************************************************************************
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
@@ -40,7 +40,7 @@
       Integer   Ind(nCntr+mCntr,2), nStab(mxdc),
      &          jStab(0:7,mxdc), iDCR(MxAtom)
 
-      Logical lWrite, ldB, lWarn, PSPrint, Smmtrc(3,nAtom)
+      Logical lWrite, ldB, lWarn, PSPrint
 *
       iRout = 50
       iPrint = nPrint(iRout)
@@ -161,7 +161,7 @@
          Grad(1,1) = One
          If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
      &          ' : x-component=',Value,'/ bohr'
-         Deg=D_Cart(Ind(1,1),nStab,jStab,mxdc,nIrrep)
+         Deg=D_Cart(Ind(1,1),nStab,mxdc,nIrrep)
       Else If (Type.eq.'Y     ') Then
          Value = xyz(2,1)
          call dcopy_(3,[Zero],0,Grad,1)
@@ -169,7 +169,7 @@
          Grad(2,1) = One
          If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
      &          ' : y-component=',Value,'/ bohr'
-         Deg=D_Cart(Ind(1,1),nStab,jStab,mxdc,nIrrep)
+         Deg=D_Cart(Ind(1,1),nStab,mxdc,nIrrep)
       Else If (Type.eq.'Z     ') Then
          Value = xyz(3,1)
          call dcopy_(3,[Zero],0,Grad,1)
@@ -177,18 +177,18 @@
          Grad(3,1) = One
          If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
      &          ' : z-component=',Value,'/ bohr'
-         Deg=D_Cart(Ind(1,1),nStab,jStab,mxdc,nIrrep)
+         Deg=D_Cart(Ind(1,1),nStab,mxdc,nIrrep)
       Else If (Type.eq.'STRTCH') Then
          Call Strtch(xyz,nCntr,Value,Grad,lWrite,Lbl,Hess,ldB)
          Deg=D_Bond(Ind,Ind(1,2),nStab,jStab,mxdc,nIrrep)
       Else If (Type.eq.'LBEND1')Then
          Call CoSys(xyz,Axis,Perp_Axis)
-         Call LBend(xyz,nCntr,Value,Grad,lWrite,lWarn,Lbl,Hess,ldB,
+         Call LBend(xyz,nCntr,Value,Grad,lWrite,Lbl,Hess,ldB,
      &              Axis,Perp_Axis(1,1),.False.)
          Deg=D_Bend(Ind,Ind(1,2),nStab,jStab,mxdc,nIrrep)
       Else If (Type.eq.'LBEND2')Then
          Call CoSys(xyz,Axis,Perp_Axis)
-         Call LBend(xyz,nCntr,Value,Grad,lWrite,lWarn,Lbl,Hess,ldB,
+         Call LBend(xyz,nCntr,Value,Grad,lWrite,Lbl,Hess,ldB,
      &              Axis,Perp_Axis(1,2),.True.)
          Deg=D_Bend(Ind,Ind(1,2),nStab,jStab,mxdc,nIrrep)
       Else If (Type.eq.'BEND  ')Then
@@ -201,22 +201,19 @@
          Call OutOfP(xyz,nCntr,Value,Grad,lWrite,lWarn,Lbl,Hess,ldB)
          Deg=D_Trsn(Ind,Ind(1,2),nStab,jStab,mxdc,nIrrep)
       Else If (Type(1:3).eq.'NAC')Then
-         Call NACInt(xyz,nCntr,Value,Grad,lWrite,lWarn,Lbl,Hess,ldB,
-     &               lIter)
+         Call NACInt(xyz,nCntr,Value,Grad,lWrite,Lbl,Hess,ldB)
          Deg=One
       Else If (Type(1:5).eq.'EDIFF')Then
-         Call ConInt(xyz,nCntr,Value,Grad,lWrite,lWarn,Lbl,Hess,ldB,
-     &               lIter)
+         Call ConInt(xyz,nCntr,Value,Grad,lWrite,Lbl,Hess,ldB,lIter)
          Deg=One
       Else If (Type(1:6).eq.'SPHERE')Then
-         Call SphInt(xyz,nCntr,ip_Dummy,Value,Grad,lWrite,lWarn,Lbl,
-     &               Hess,ldB)
+         Call SphInt(xyz,nCntr,ip_Dummy,Value,Grad,lWrite,Lbl,Hess,ldB)
          Deg=One
       Else If (Type(1:6).eq.'TRANSV')Then
-         Call Transverse(xyz,nCntr,Value,Grad,lWrite,lWarn,Lbl,Hess,ldB)
+         Call Transverse(xyz,nCntr,Value,Grad,lWrite,Lbl,Hess,ldB)
          Deg=One
       Else If (Type.eq.'DISSOC')Then
-         Call Dissoc(xyz,nCntr,mCntr,qMss,nAtom,Value,Grad,lWrite,
+         Call Dissoc(xyz,nCntr,mCntr,qMss,Value,Grad,lWrite,
      &               Lbl,Hess,ldB)
          Deg=One
       Else
@@ -230,7 +227,7 @@
       Deg=Sqrt(Deg)
 *
       Call ProjSym2(nAtom,nCent,Ind,nStab,jStab,xyz,
-     &             iDCR,Grad,Vector,Smmtrc,Hess,dVector)
+     &             iDCR,Grad,Vector,Hess,dVector)
       If (iPrint.ge.99) Then
          Call RecPrt(' symmetry adapted vector',
      &                              ' ',Vector,3,nAtom)

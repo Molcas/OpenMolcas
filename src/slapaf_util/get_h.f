@@ -53,7 +53,7 @@
          Call Get_dArray('BMtrx',Work(ipBOld),nX*nInter)
       End If
 *
-      Call Get_H_(nX,Work(ipBOld),mInter,nInter,Work(ipH),Degen,
+      Call Get_H_(nX,Work(ipBOld),mInter,nInter,Work(ipH),
      &            Work(ipTmp2),Work(ip_H),Smmtrc,nsAtom)
 *
       Call Free_Work(ipBOld)
@@ -62,14 +62,14 @@
 *
       Return
       End
-      Subroutine Get_H_(nX,BMtrx,mInter,nInter,H,Degen,
+      Subroutine Get_H_(nX,BMtrx,mInter,nInter,H,
      &                 Tmp2,Tmp3,Smmtrc,nAtom)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
       Logical Smmtrc(3,nAtom)
-      Real*8 BMtrx(nX,nInter), H(nInter,nInter),Degen(3,nAtom),
+      Real*8 BMtrx(nX,nInter), H(nInter,nInter),
      &       Tmp2(nX**2), Tmp3(nX**2)
 *                                                                      *
 ************************************************************************
@@ -133,6 +133,4 @@
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(Degen)
       End

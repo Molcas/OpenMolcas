@@ -88,7 +88,7 @@
          Write (6,*) ' Bondtype:',(
      &               iTabBonds(3,iTabAtoms(2,i,iAtom)),i=1,nn)
          Write (6,*) ' nCoBond :', nCoBond(iAtom,nAtoms,nMax,iTabBonds,
-     &                                     nBonds,nBondMax,iTabAtoms)
+     &                                     nBondMax,iTabAtoms)
 
       End Do
       Write (6,*)

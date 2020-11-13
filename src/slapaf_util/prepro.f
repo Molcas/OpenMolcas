@@ -60,7 +60,7 @@
 *-----Initiate the force constant matrix in internal coordinate
 *     basis, excluding rotation and translation.
 *
-      Call IntFcm(ipH,nQQ,lOld,lOld_Implicit,nAtom,iter)
+      Call IntFcm(ipH,nQQ,lOld,lOld_Implicit,iter)
 *
 *     Write to runfile only on the first iteration and that there
 *     was not an already defined Hessian.

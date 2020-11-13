@@ -43,7 +43,7 @@
       DipM(3)=0.0D0
       Call GF(nX,mInter,nInter,Work(ipTmp1),Work(ipTmp2),
      &        Work(ipEVec),Work(ipEVal),Work(ipRedMas),
-     &        iNeg,iDo_dDipM,Work(ipdDipM),mTR,Smmtrc,nAtom,DipM)
+     &        iNeg,Work(ipdDipM),mTR,Smmtrc,nAtom,DipM)
 *
       Call Free_Work(ipTmp2)
       Call Free_Work(ipTmp1)

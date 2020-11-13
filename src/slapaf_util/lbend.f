@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine LBend(Cent,nCent,Fir,Bf,lWrite,lWarn,Label,dBf,ldB,
+      Subroutine LBend(Cent,nCent,Fir,Bf,lWrite,Label,dBf,ldB,
      &                  Axis,Perp_Axis1,Force)
       Implicit Real*8  (a-h,o-z)
 #include "real.fh"
@@ -18,7 +18,7 @@
      &        BRjk(3,2), dBRjk(3,2,3,2), Fir,
      &        uMtrx(3,3), uVec(3,3), Scr1(3,3), Scr2(3,3),
      &        Axis(3),Perp_Axis1(3), Cent(3,3)
-      Logical lWrite, ldB, lWarn, Linear, Force
+      Logical lWrite, ldB, Linear, Force
       Character*8 Label
 *
       iRout=220
@@ -389,6 +389,4 @@
          End If
       End If
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_logical(lWarn)
       End

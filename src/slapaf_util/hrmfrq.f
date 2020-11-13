@@ -41,9 +41,8 @@
       Call GetMem('tmp1','Allo','Real',iptmp1,nX**2)
       Call GetMem('tmp2','Allo','Real',iptmp2,nX**2)
 *
-      iDo_dDipM=1
       Call GF(nX,mInter,nInter,Work(ipTmp1),Work(ipTmp2),Work(ipEVec),
-     &        Work(ipEVal),Work(ipRedMas),iNeg,iDo_dDipM,dDipM,mTR,
+     &        Work(ipEVal),Work(ipRedMas),iNeg,dDipM,mTR,
      &        Smmtrc,nAtom,DipM)
 *
       Call GetMem('tmp2','Free','Real',iptmp2,(3*nAtom)**2)

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1994, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine Newq(q,nInter,nIter,dq,H,g,error,B,RHS,iPvt,dg,
+      SubRoutine Newq(q,nInter,nIter,dq,H,g,error,B,RHS,iPvt,
      &                Scrt1,nScrt1,dqHdq,iOptC,
      &                Beta,nFix,iP,UpMeth,Energy,
      &                Line_Search,Step_Trunc,Thr_RS)
@@ -29,7 +29,7 @@
       Logical Print
       Real*8 q(nInter,nIter+1), dq(nInter,nIter), g(nInter,nIter),
      &       error(nInter,nIter+1), B((nIter+1)*(nIter+1)),
-     &       RHS(nIter+1), dg(nInter),
+     &       RHS(nIter+1),
      &       Scrt1(nScrt1), Energy(nIter), H(nInter,nInter)
       Integer   iPvt(nIter+1), iP(nIter)
       Character*6 UpMeth
@@ -123,7 +123,7 @@ C     Call View(H,nInter,print)
          UpMeth='c1DIIS'
          MinWdw=5
          Call C1DIIS(q,nInter,nIter,dq,H,g,error,B,RHS,iPvt,nFix,
-     &               iP,iOptC,MinWdw)
+     &               iOptC,MinWdw)
          Beta_New=Sqrt(DDot_(nInter,dq(1,nIter),1,dq(1,nIter),1))
          If (Beta_New.gt.Beta) Then
             Call DScal_(nInter,Beta/Beta_New,dq(1,nIter),1)
@@ -251,6 +251,4 @@ C     Call View(H,nInter,print)
       Call RecPrt('Newq: g',' ',g,nInter,nIter)
 #endif
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(dg)
       End

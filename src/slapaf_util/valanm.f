@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine ValANM(nAtom,nInter,nIter,Bmx,Degen,rInt,Cx,Label,
-     &                  iPrint,nWndw)
+     &                  nWndw)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -82,6 +82,4 @@
 #endif
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(iPrint)
       End

@@ -129,7 +129,7 @@
          Call Get_Curvil
      &          (nq,nqRF,nqB,nqA,nqT,nqO,
      &           nAtoms,iIter,nIter,Cx,jStab,
-     &           nStab,nDim,Smmtrc,Proc,Dum,1,iANr,cDum,
+     &           nStab,Smmtrc,Proc,Dum,1,iANr,cDum,
      &           iRef,Dum,Dum,iOptC,LuIC,
      &           Name,iDum,iIter,dMass,iCoSet,Dum,
      &           iDum(1),iDum(1),
@@ -194,7 +194,7 @@
       Call Get_Curvil
      &          (iq,iqRF,iqR,iqA,iqT,iqO,
      &           nAtoms,iIter,nIter,Cx,jStab,
-     &           nStab,nDim,Smmtrc,Proc,
+     &           nStab,Smmtrc,Proc,
      &           Work(ipqVal),nq,iANr,cWork(ipqLbl),
      &           iRef,Work(ipf_c),Work(ipMult),iOptC,
      &           LuIC,Name,iWork(ipInd),iIter,dMass,iCoSet,Work(ipGRef),
@@ -413,7 +413,7 @@ C        iEnd = 1
          Call Get_Curvil
      &             (iq,iqRF,iqR,iqA,iqT,iqO,
      &              nAtoms,jIter,nIter,Cx,jStab,
-     &              nStab,nDim,Smmtrc,Proc,
+     &              nStab,Smmtrc,Proc,
      &              Work(ipqVal),nq,iANr,cWork(ipqLbl),
      &              iRef, Work(ipf_c),Work(ipMult),
      &              iOptC,LuIC,Name,iWork(ipInd),iIter,dMass,iCoSet,

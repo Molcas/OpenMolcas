@@ -53,7 +53,7 @@
      &                Work(ipValue),Work(ipcInt),Work(ipcInt0),
      &                Lbl,AtomLbl,Work(ipCoor_l),
      &                lWrite,jStab,nStab,mxdc,
-     &                Work(ipMult),Smmtrc,nDimBC,Work(ipdBMx),
+     &                Work(ipMult),Work(ipdBMx),
      &                Work(ipValue0),Iter,iWork(ip_iFlip),
      &                Work(ipCM))
 *        Call RecPrt('dr/dx',' ',Work(ipBMx),n3,nLambda)
