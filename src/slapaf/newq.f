@@ -25,7 +25,7 @@
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Logical Print
       Real*8 q(nInter,nIter+1), dq(nInter,nIter), g(nInter,nIter),
      &       error(nInter,nIter+1), B((nIter+1)*(nIter+1)),
@@ -35,7 +35,7 @@
       Character*6 UpMeth
       Character*1 Step_Trunc
       Logical Line_Search
-*     Logical Fail
+      Real*8, Allocatable:: t_q(:), t_g(:), t_dq(:)
 *
       Lu=6
       iRout = 113
@@ -64,13 +64,13 @@ C     Call View(H,nInter,print)
       If (iPrint.ge.6) Write (Lu,*)
       If (Line_Search) Then
          If (nIter.ge.2) Then
-            Call GetMem('tmp_q ','Allo','Real',ipt_q ,nInter)
-            Call GetMem('tmp_g ','Allo','Real',ipt_g ,nInter)
-            Call GetMem('tmp_dq','Allo','Real',ipt_dq,nInter)
+            Call mma_allocate(t_q ,nInter,Label='t_q')
+            Call mma_allocate(t_g ,nInter,Label='t_g')
+            Call mma_allocate(t_dq,nInter,Label='t_dq')
 *
-            call dcopy_(nInter,dq(1,nIter-1),1,Work(ipt_dq),1)
-            call dcopy_(nInter, q(1,nIter  ),1,Work(ipt_q ),1)
-            call dcopy_(nInter, g(1,nIter  ),1,Work(ipt_g ),1)
+            call dcopy_(nInter,dq(1,nIter-1),1,t_dq,1)
+            call dcopy_(nInter, q(1,nIter  ),1,t_q ,1)
+            call dcopy_(nInter, g(1,nIter  ),1,t_g ,1)
 *
             Call LnSrch(Energy,q,dq,g,nInter,nIter,dqHdq)
          Else
@@ -205,21 +205,21 @@ C     Call View(H,nInter,print)
          End If
          call dcopy_(nInter,q(1,nIter),1,q(1,nIter+1),1)
          Call DaXpY_(nInter,One,dq(1,nIter),1,q(1,nIter+1),1)
-         call dcopy_(nInter,Work(ipt_q ),1, q(1,nIter  ),1)
+         call dcopy_(nInter,t_q ,1, q(1,nIter  ),1)
          call dcopy_(nInter,q(1,nIter+1),1,dq(1,nIter),1)
          Call DaXpY_(nInter,-One,q(1,nIter),1,dq(1,nIter),1)
 *
-         call dcopy_(nInter,Work(ipt_dq), 1,dq(1,nIter-1),1)
-         call dcopy_(nInter,Work(ipt_g ),1, g(1,nIter  ),1)
+         call dcopy_(nInter,t_dq, 1,dq(1,nIter-1),1)
+         call dcopy_(nInter,t_g , 1, g(1,nIter  ),1)
          If (iPrint.ge.99) Then
             Call RecPrt(' Newq: q ',' ',q, nInter,nIter+1)
             Call RecPrt(' Newq: dq',' ',dq,nInter,nIter  )
             Call RecPrt(' Newq: g ',' ',g, nInter,nIter)
          End If
 *
-         Call GetMem('tmp_q ','Free','Real',ipt_q ,nInter)
-         Call GetMem('tmp_g ','Free','Real',ipt_g ,nInter)
-         Call GetMem('tmp_dq','Free','Real',ipt_dq,nInter)
+         Call mma_deallocate(t_q)
+         Call mma_deallocate(t_g)
+         Call mma_deallocate(t_dq)
       End If
 *
 *-----Estimate energy at the relaxed geometry

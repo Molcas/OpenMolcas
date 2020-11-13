@@ -24,14 +24,14 @@
      &          Cx(3*nAtom,kIter+1)
       Character :: Lbl(nInter)*8,Name(nAtom)*(LENIN)
 
-      Real*8, Allocatable :: DFC(:),dss(:),qTemp(:)
-      Integer :: ipC,ipBMx,ip_qInt,ip_dqInt,ipShift
+      Real*8, Allocatable :: DFC(:),dss(:),qTemp(:), Coor(:)
+      Integer :: ipBMx,ip_qInt,ip_dqInt,ipShift
       Logical :: Numerical,PrQ,Error,SaveBMx
       Integer, External :: ip_of_Work
 *
-      Call GetMem('Coor','ALLO','REAL',ipC,(3*nAtom))
+      Call mma_allocate(Coor,3*nAtom,Label='Coor')
       Call GetMem('BMx','ALLO','REAL',ipBMx,(3*nAtom)*nInter)
-      Call dCopy_(3*nAtom,Work(ipCx+(kIter-1)*3*nsAtom),1,Work(ipC),1)
+      Call dCopy_(3*nAtom,Work(ipCx+(kIter-1)*3*nsAtom),1,Coor,1)
       Call dCopy_((3*nAtom)*nInter,BMx,1,Work(ipBMx),1)
 *
       ip_qInt=ip_of_Work(qInt(1,1))
@@ -46,7 +46,7 @@
       Call mma_allocate(qTemp,nInter,Label='qTemp')
       Force_dB=SaveBMx
 *
-      Call NewCar(kIter,nBVec,nLines,nAtom,nDim,nInter,Work(ipC),
+      Call NewCar(kIter,nBVec,nLines,nAtom,nDim,nInter,Coor,
      &            ipBMx,dMass,Lbl,kShift,ip_qInt,ip_dqInt,DFC,dss,
      &            qTemp,Name,iSym,Smmtrc,Degen,
      &            Work(ipGx),Cx,mTtAtm,iWork(ipANr),iOptH,
@@ -60,7 +60,7 @@
       Call mma_deallocate(dss)
       Call mma_deallocate(qTemp)
       If (SaveBMx) Call dCopy_((3*nAtom)*nInter,Work(ipBMx),1,BMx,1)
-      Call GetMem('Coor','FREE','REAL',ipC,(3*nAtom))
+      Call mma_deallocate(Coor)
       Call GetMem('BMx','FREE','REAL',ipBMx,(3*nAtom)**2)
 *
       End Subroutine NewCar_Kriging
