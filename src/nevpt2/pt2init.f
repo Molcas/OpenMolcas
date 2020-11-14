@@ -38,8 +38,8 @@
 #include "mxdm.fh"
 #include "caspt2.fh"
       ! Save current directory into the CurrDir string
-      call get_environment_variable("CurrDir", curr_dir)
-      call get_environment_variable("Project", molcas_project)
+      call GetEnvF("CurrDir", curr_dir)
+      call GetEnvF("Project", molcas_project)
 
       ! call the Molcas routine to check whether we're using Cholesky
       call DecideOnCholesky(do_cholesky)
