@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine PrInp_MCLR(iPL)
+      use Exp, only: nexp_max
 ************************************************************************
 *                                                                      *
 *     Echo input                                                       *

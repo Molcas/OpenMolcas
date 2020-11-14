@@ -84,7 +84,6 @@
      &       Alpha(nZeta), Beta(nZeta), Gamma(nEta), Delta(nEta),
      &       CoorAC(3,2), Coora(3,4), Coori(3,4), Array(nArray),
      &       PAO(nT,nPAO), Hess(nHess)
-*    &       rkab(nZeta),rdcd(neta)
       Integer iAnga(4), IndGrd(3,4,0:7), Index1(3,4),
      &          nOp(4), iuvwx(4),   JndGrd(3,4,0:7), lOp(4),
      &          IndHss(4,3,4,3,0:7),Index2(3,4,4),

@@ -33,10 +33,10 @@
 *     rOut          :         Submatrix                                *
 *                                                                      *
 ************************************************************************
+      use Arrays, only: G1t, G2t
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
       Real*8 Fock(nba,nba),Focki(nba,nba),FockA(nba,nba),rOut(*),
      &       A_J(nScr),A_K(nScr),Scr(nScr)
 *                                                                      *
@@ -73,16 +73,16 @@
                Do jB=1,nIsh(jS)
                   ip=itri1(jB,nd-jVert+1)
 *
-                  Fact1=-2.0d0*Work(ipG2-1+itri(itAA,itri(kAA,lAA)))
+                  Fact1=-2.0d0*G2t(itri(itAA,itri(kAA,lAA)))
                   Fact2=-4.0d0*
-     &                 Work(ipG2-1+(itri(itri(iAA,kAA),itri(iAA,lAA))))
+     &                 G2t(itri(itri(iAA,kAA),itri(iAA,lAA)))
 *
                   If (kaa.eq.iaa)
-     &               Fact2=Fact2+8.0d0*Work(ipG1-1+itri(iAA,lAA))
+     &               Fact2=Fact2+8.0d0*G1t(itri(iAA,lAA))
                   If (laa.eq.iaa)
-     &               Fact1=Fact1-2.0d0*Work(ipG1-1+itri(iAA,kAA))
+     &               Fact1=Fact1-2.0d0*G1t(itri(iAA,kAA))
                   If (laa.eq.iaa)
-     &               Fact2=Fact2-2.0d0*Work(ipG1-1+itri(iAA,kAA))
+     &               Fact2=Fact2-2.0d0*G1t(itri(iAA,kAA))
 *
                   ivj=(jB-1)*nBas(jS)+no+1
                   Call DaXpY_(jVert,Sign*Fact1,
@@ -102,7 +102,7 @@
 *                                                                      *
       Do jB=1,nIsh(jS)
          ip=itri1(jB,nd-jVert+1)
-         Fact=(2.0d0-2.0d0*Work(ipG1-1+itAA))
+         Fact=(2.0d0-2.0d0*G1t(itAA))
          Call DaxPy_(jVert,Sign*Fact,FockI(nO+1,jB),1,rOut(ip),1)
          Fact=2.0d0
          Call DaxPy_(jVert,Sign*Fact,FockA(nO+1,jB),1,rOut(ip),1)

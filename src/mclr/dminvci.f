@@ -9,12 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine DMinvCI(ipSigma,rout,rC_HE_C,idsym)
+      use Exp, only: NewPre
+      use ipPage, only: W
+      use negpre
       Implicit Real*8(a-h,o-z)
 
+#include "real.fh"
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "Pointers.fh"
-#include "negpre.fh"
 #include "incdia.fh"
 
       Real*8 rout(*)
@@ -29,42 +31,48 @@
 *                                           0
 *
       If (nconf1.gt.1) Then
-      Call exphinvv(Work(ipin(ipdia)),Work(ipin(ipsigma)),
-     &               rout,0.0d0,1.0d0)
-      irc=ipout(ipsigma)
-      irc=opout(ipdia)
-*
-*      OBS <0|(H-E)|Sigma>=0 if idsym=/=1
 
-
-      If (NewPre.and.idsym.eq.1) Then
+         irc=ipin(ipdia)
+         irc=ipin(ipSigma)
+         Call exphinvv(W(ipdia)%Vec,W(ipsigma)%Vec,rout,Zero,One)
+         irc=ipout(ipsigma)
+         irc=opout(ipdia)
 *
+*        OBS <0|(H-E)|Sigma>=0 if idsym=/=1
+
+         If (NewPre.and.idsym.eq.1) Then
 *                    -1
-*    rcoeff=<0|(H -E) |Sigma>
-*                0
-*          -------------------
-*                     -1
-*             <0|(H -E) |0>
-*                  0
-*
-       If (.not.ngp) Then
-        rcoeff=ddot_(nconf1,rout,1,Work(ipin(ipCI)),1)
-     &         /rC_HE_C
-*
+*           rcoeff=<0|(H -E) |Sigma>
+*                       0
+*                 -------------------
 *                            -1
-*      rout=rout-rocoeff*(H -E) |0>
-*                        0
+*                    <0|(H -E) |0>
+*                         0
 *
-        Call exphinvv(Work(ipin(ipdia)),Work(ipin(ipci)),
-     &              rOUT,1.0d0,-rcoeff)
-        irc=opout(ipci)
-       Else
-        Call NEGP(ipdia,ipsigma,rout)
-       End If
-      End If
-      Call DSCAL_(nconf1,0.5d0,rout,1)
-      else
-       call dcopy_(nconf1,Work(ipin(ipsigma)),1,rout,1)
-      end if
+            If (.not.ngp) Then
+               irc=ipin(ipCI)
+               rcoeff=ddot_(nconf1,rout,1,W(ipCI)%Vec,1)/rC_HE_C
+*
+*                                     -1
+*              rout=rout-rocoeff*(H -E) |0>
+*                                  0
+               irc=ipin(ipdia)
+               Call exphinvv(W(ipdia)%Vec,W(ipci)%Vec,rOUT,One,-rcoeff)
+               irc=opout(ipCI)
+            Else
+               Call NEGP(ipdia,ipSigma,rout)
+            End If
+
+         End If
+
+         Call DSCAL_(nconf1,Half,rout,1)
+
+      Else
+
+         irc=ipin(ipsigma)
+         rout(1:nConf1)=W(ipSigma)%Vec(:)
+
+      End if
+
       return
       end

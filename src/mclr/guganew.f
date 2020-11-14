@@ -8,19 +8,24 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine GugaNew(ipCIL,imode,ksym)
+      Subroutine GugaNew(CIL,imode,ksym)
 *
+      use Str_Info, only: CFTP, CNSM
       Implicit Real*8 (A-H,O-Z)
       Integer A0,B0,C0
 *
-
 #include "Input.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "detdim.fh"
-#include "csfbas_mclr.fh"
 #include "spinfo_mclr.fh"
+      Real*8 CIL(*)
       Integer OrbSym(2*mxBas)
-      Parameter (iPrint=0)
+      Integer, Parameter:: iPrint=0
+      Integer, Allocatable:: DRT0(:), DOWN0(:), TMP(:), V11(:), DRT(:),
+     &                       DOWN(:), DAW(:), UP(:), RAW(:), LTV(:),
+     &                       NOW(:), IOW(:), NOCSF(:), IOCSF(:), SCR(:),
+     &                       ICASE(:), USGN(:), LSGN(:)
+      Real*8, Allocatable:: CINEW(:)
 *
 *
       PRWTHR=0.05d0
@@ -88,57 +93,46 @@
       NDRT0=5*NVERT0
       NDOWN0=4*NVERT0
       NTMP=((NLEV+1)*(NLEV+2))/2
-      Call GetMem('DRT0','ALLO','INTEGER',LDRT0,NDRT0)
-      Call GetMem('DOWN','ALLO','INTEGER',LDOWN0,NDOWN0)
-      Call GetMem('LTMP','ALLO','INTEGER',LTMP,NTMP)
-      Call DRT0_MCLR
-     &     (A0,B0,C0,NVERT0,iWork(LDRT0),iWork(LDOWN0),
-     &      NTMP,IWORK(LTMP))
-      If ( iPrint.ge.5 )
-     &   Call PRDRT_MCLR(NVERT0,iWork(LDRT0),iWork(LDOWN0))
-      Call GetMem('LTMP','FREE','INTEGER',LTMP,NTMP)
+      Call mma_allocate(DRT0,NDRT0,Label='DRT0')
+      Call mma_allocate(DOWN0,NDOWN0,Label='DOWN0')
+      Call mma_allocate(TMP,NTMP,Label='TMP')
+      Call DRT0_MCLR (A0,B0,C0,NVERT0,DRT0,DOWN0,NTMP,TMP)
+      If ( iPrint.ge.5 ) Call PRDRT_MCLR(NVERT0,DRT0,DOWN0)
+      Call mma_deallocate(TMP)
 *
       LV1RAS=ntRas1
       LV3RAS=LV1RAS+ntRas2
       LM1RAS=2*LV1RAS-nHole1
       LM3RAS=nActEl-nElec3
-      Call GetMem('LV11','ALLO','INTEGER',LV,NVERT0)
-      Call RESTR_MCLR
-     &     (NVERT0,iWork(LDRT0),iWork(LDOWN0),iWork(LV),
-     &      LV1RAS,LV3RAS,LM1RAS,LM3RAS,NVERT)
+      Call mma_allocate(V11,NVERT0,Label='V11')
+      Call RESTR_MCLR(NVERT0,DRT0,DOWN0,V11,LV1RAS,LV3RAS,LM1RAS,
+     &                LM3RAS,NVERT)
 *
       NDRT=5*NVERT
       NDOWN=4*NVERT
-      Call GetMem('DRT1','ALLO','INTEGER',LDRT,NDRT)
-      Call GetMem('DWN1','ALLO','INTEGER',LDOWN,NDOWN)
-      Call DRT_MCLR
-     &     (NVERT0,NVERT,iWork(LDRT0),iWork(LDOWN0),iWork(LV),
-     &      iWork(LDRT),iWork(LDOWN))
-      If ( iPrint.ge.5 ) Call PRDRT_MCLR(NVERT,iWork(LDRT),iWork(LDOWN))
-      Call GetMem('LV11','FREE','INTEGER',LV,NVERT0)
-      Call GetMem('DRT0','FREE','INTEGER',LDRT0,NDRT0)
-      Call GetMem('DOWN','FREE','INTEGER',LDOWN0,NDOWN0)
+      Call mma_allocate(DRT,NDRT,Label='DRT')
+      Call mma_allocate(DOWN,NDOWN,Label='DOWN')
+      Call DRT_MCLR(NVERT0,NVERT,DRT0,DOWN0,V11,DRT,DOWN)
+      If ( iPrint.ge.5 ) Call PRDRT_MCLR(NVERT,DRT,DOWN)
+      Call mma_deallocate(V11)
+      Call mma_deallocate(DRT0)
+      Call mma_deallocate(DOWN0)
 *
       NDAW=5*NVERT
-      Call GetMem('DAW1','ALLO','INTEGER',LDAW,NDAW)
-      Call MKDAW_MCLR(NVERT,iWork(LDOWN),iWork(LDAW),iPrint)
+      Call mma_allocate(DAW,NDAW,Label='DAW')
+      Call MKDAW_MCLR(NVERT,DOWN,DAW,iPrint)
 *
       NUP=4*NVERT
       NRAW=5*NVERT
-      Call GetMem('LUP1','ALLO','INTEGER',LUP,NUP)
-      Call GetMem('RAW1','ALLO','INTEGER',LRAW,NRAW)
-      Call MKRAW_MCLR
-     &     (NVERT,iWork(LDOWN),iWork(LDAW),iWork(LUP),iWork(LRAW),
-     &           iPrint)
+      Call mma_allocate(UP,NUP,Label='UP')
+      Call mma_allocate(RAW,NRAW,Label='RAW')
+      Call MKRAW_MCLR(NVERT,DOWN,DAW,UP,RAW,iPrint)
 *
       NLTV=NLEV+2
-      Call GetMem('LTV1','ALLO','INTEGER',LLTV,NLTV)
-      Call MKMID_MCLR
-     &     (NVERT,NLEV,iWork(LDRT),
-     &      iWork(LDOWN),iWork(LDAW),iWork(LUP),iWork(LRAW),
-     &      iWork(LLTV),
-     &      MIDLEV,NMIDV,MIDV1,MIDV2,MXUP,MXDWN,iPrint)
-      Call GetMem('LTV1','FREE','INTEGER',LLTV,NLTV)
+      Call mma_allocate(LTV,NLTV,Label='LTV')
+      Call MKMID_MCLR(NVERT,NLEV,DRT,DOWN,DAW,UP,RAW,LTV,
+     &                MIDLEV,NMIDV,MIDV1,MIDV2,MXUP,MXDWN,iPrint)
+      Call mma_deallocate(LTV)
 *
       NIPWLK=1+(MIDLEV-1)/15
       NIPWLK=MAX(NIPWLK,1+(NLEV-MIDLEV-1)/15)
@@ -147,17 +141,14 @@
       NNOCSF=NMIDV*(nSym**2)
       NIOCSF=NNOCSF
       NSCR=3*(NLEV+1)
-      Call GetMem('NOW1','ALLO','INTEGER',LNOW,NNOW)
-      Call GetMem('IOW1','ALLO','INTEGER',LIOW,NIOW)
-      Call GetMem('NCSF','ALLO','INTEGER',LNOCSF,NNOCSF)
-      Call GetMem('ICSF','ALLO','INTEGER',LIOCSF,NIOCSF)
-      Call GetMem('SCR1','ALLO','INTEGER',LSCR,NSCR)
-*     Call GetMem('NCSF','ALLO','INTEGER',LNCSF,nSym)
-      Call MKCOT_MCLR
-     &     (nSym,NLEV,NVERT,MIDLEV,NMIDV,MIDV1,MIDV2,NWALK,NIPWLK,
-     &      OrbSym,iWork(LDOWN),iWork(LNOW),iWork(LIOW),
-     &      NCSF,iWork(LIOCSF),iWork(LNOCSF),
-     &      iWork(LSCR),iPrint)
+      Call mma_allocate(NOW,NNOW,Label='NOW')
+      Call mma_allocate(IOW,NIOW,Label='IOW')
+      Call mma_allocate(NOCSF,NNOCSF,Label='NOCSF')
+      Call mma_allocate(IOCSF,NIOCSF,Label='IOCSF')
+      Call mma_allocate(SCR,NSCR,Label='SCR')
+      Call MKCOT_MCLR(nSym,NLEV,NVERT,MIDLEV,NMIDV,MIDV1,MIDV2,NWALK,
+     &                NIPWLK,OrbSym,DOWN,NOW,IOW,NCSF,IOCSF,NOCSF,
+     &                SCR,iPrint)
 *
 *     If ( nConf.ne.NCSF(state_sym) ) then
 *        Write (*,*)
@@ -171,23 +162,18 @@
 *
       NILNDW=NWALK
       NICASE=NWALK*NIPWLK
-      Call GetMem('CASE','ALLO','INTEG',LICASE,NICASE)
-      Call MKCLIST_MCLR
-     &     (nSym,NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,NICASE,NIPWLK,
-     &      OrbSym,iWork(LDOWN),iWork(LNOW),iWork(LIOW),
-     &      iWork(LICASE),iWork(LSCR),iPrint)
-      Call GetMem('SCR1','FREE','INTEG',LSCR,NSCR)
+      Call mma_allocate(ICASE,NICASE,Label='ICASE')
+      Call MKCLIST_MCLR(nSym,NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,NICASE,
+     &                  NIPWLK,OrbSym,DOWN,NOW,IOW,ICASE,SCR,iPrint)
+      Call mma_deallocate(SCR)
 *
       NUSGN=MXUP*NMIDV
       NLSGN=MXDWN*NMIDV
-      Call GetMem('IUSG','ALLO','INTEG',LUSGN,NUSGN)
-      Call GetMem('ILSG','ALLO','INTEG',LLSGN,NLSGN)
-      Call MKSGNUM_MCLR
-     &     (ksym,nSym,NLEV,
-     &       NVERT,MIDLEV,NMIDV,MXUP,MXDWN,NICASE,NIPWLK,
-     &      iWork(LDOWN),iWork(LUP),iWork(LDAW),iWork(LRAW),
-     &      iWork(LNOW),iWork(LIOW),iWork(LUSGN),iWork(LLSGN),
-     &      iWork(LICASE),iPrint)
+      Call mma_allocate(USGN,NUSGN,Label='USGN')
+      Call mma_allocate(LSGN,NLSGN,Label='LSGN')
+      Call MKSGNUM_MCLR(ksym,nSym,NLEV,NVERT,MIDLEV,NMIDV,MXUP,MXDWN,
+     &                  NICASE,NIPWLK,DOWN,UP,DAW,RAW,NOW,IOW,USGN,LSGN,
+     &                  ICASE,iPrint)
 *
       If (iPrint.ge.5) Then
       If (imode.eq.0.and.iAnd(kprint,8).eq.8) Then
@@ -199,61 +185,37 @@
      &         6X,100(1H-),/)
       WRITE(6,102) PRWTHR
 102   FORMAT(6X,'printout of CI-coefficients larger than',F6.2)
-      Call SGPRWF_MCLR
-     &     (ksym,PRWTHR,
-     &      nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,NICASE,
-     &      OrbSym,iWork(LNOCSF),iWork(LIOCSF),
-     &      iWork(LNOW),iWork(LIOW),
-     &      iWork(LICASE),Work(ipCIL))
+      Call SGPRWF_MCLR(ksym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,
+     &                 NICASE,OrbSym,NOCSF,IOCSF,NOW,IOW,ICASE,CIL)
       WRITE(6,103)
 103   FORMAT(/,6X,100(1H-),/)
       End If
       End If
 *
       jPrint=iPrint
-      If (TimeDep) Then
-         Call GetMem('CIvec','Allo','Real',ipCInew,2*NCONF)
-      Else
-         Call GetMem('CIvec','Allo','Real',ipCInew,NCONF)
-      End If
-      Call REORD
-     &     (NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,MXUP,MXDWN,
-     &      iWork(LDRT),iWork(LDOWN),iWork(LDAW),
-     &      iWork(LUP),iWork(LRAW),iWork(LUSGN),iWork(LLSGN),
-     &      nActEl,NLEV,NCONF,NTYP,
-     &      iMode,jPrint,
-     &      iWork(KICONF(iss)),
-     &      iWork(KCFTP),NCNATS(1,kSym),NCPCNT,
-     &      Work(ipCIL),Work(ipCInew),minop)
+      Call mma_allocate(CInew,NCONF,Label='CINew')
+      Call REORD(NLEV,NVERT,MIDLEV,MIDV1,MIDV2,NMIDV,MXUP,MXDWN,DRT,
+     &           DOWN,DAW,UP,RAW,USGN,LSGN,nActEl,NLEV,NCONF,NTYP,iMode,
+     &           jPrint,CNSM(iss)%ICONF,CFTP,NCNATS(1,kSym),NCPCNT,
+     &           CIL,CInew,minop)
       If (imode.eq.0.and.iAnd(kprint,8).eq.8)
-     &Call SGPRWF_MCLR
-     &     (ksym,PRWTHR,
-     &      nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,NICASE,
-     &      OrbSym,iWork(LNOCSF),iWork(LIOCSF),
-     &      iWork(LNOW),iWork(LIOW),
-     &      iWork(LICASE),Work(ipCInew))
-CEAW970812     &      Work(ipCIL),Work(ipCInew))
-      If (TimeDep) Then
-         Call GetMem('OCIvec','Free','Real',ipCIL,2*nConf)
-      Else
-         Call GetMem('OCIvec','Free','Real',ipCIL,nConf)
-      End If
-      ipCIL = ipCInew
+     &Call SGPRWF_MCLR(ksym,PRWTHR,nSym,NLEV,NCONF,MIDLEV,NMIDV,NIPWLK,
+     &                 NICASE,OrbSym,NOCSF,IOCSF,NOW,IOW,ICASE,CInew)
+      Call DCopy_(nConf,CINew,1,CIL,1)
+      Call mma_deallocate(CINew)
 *
-      Call GetMem('ILSG','FREE','INTEGER',LLSGN,NLSGN)
-      Call GetMem('IUSG','FREE','INTEGER',LUSGN,NUSGN)
-      Call GetMem('CASE','FREE','INTEGER',LICASE,NICASE)
-*     Call GetMem('NCSF','FREE','INTEGER',LNCSF,nSym)
-      Call GetMem('ICSF','FREE','INTEGER',LIOCSF,NIOCSF)
-      Call GetMem('NCSF','FREE','INTEGER',LNOCSF,NNOCSF)
-      Call GetMem('IOW1','FREE','INTEGER',LIOW,NIOW)
-      Call GetMem('NOW1','FREE','INTEGER',LNOW,NNOW)
-      Call GetMem('RAW1','FREE','INTEGER',LRAW,NRAW)
-      Call GetMem('LUP1','FREE','INTEGER',LUP,NUP)
-      Call GetMem('DAW1','FREE','INTEGER',LDAW,NDAW)
-      Call GetMem('DWN1','FREE','INTEGER',LDOWN,NDOWN)
-      Call GetMem('DRT1','FREE','INTEGER',LDRT,NDRT)
-*
+      Call mma_deallocate(LSGN)
+      Call mma_deallocate(USGN)
+      Call mma_deallocate(ICASE)
+      Call mma_deallocate(IOCSF)
+      Call mma_deallocate(NOCSF)
+      Call mma_deallocate(IOW)
+      Call mma_deallocate(NOW)
+      Call mma_deallocate(RAW)
+      Call mma_deallocate(UP)
+      Call mma_deallocate(DAW)
+      Call mma_deallocate(DOWN)
+      Call mma_deallocate(DRT)
 *
       Return
       End

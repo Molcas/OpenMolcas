@@ -32,7 +32,6 @@
       External TNAI1, Fake, Cff2D
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "disp.fh"
 #include "disp2.fh"
 
@@ -60,7 +59,6 @@ c     If (iPrint.ge.99) Then
 c        Write (*,*) ' In NAGrd: nArr=',nArr
 c     End If
       nGrad=lDisp(0)
-      Call GetMem('Grad','Allo','REAL',ipGrad,nGrad)
 *
       nRys=nHer
 *
@@ -227,7 +225,6 @@ c    &            Call RecPrt('In NaGrd FI',' ',Final,nb,nrOp)
  101     Continue
  111     kdc = kdc + dbsc(kCnttp)%nCntr
  100  Continue
-      Call GetMem('Grad','Free','REAL',ipGrad,nGrad)
 *
       Return
 c Avoid unused argument warnings

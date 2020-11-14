@@ -614,6 +614,8 @@
 *     and rotational invariance of the energy.
 *
       If (TRSymm) Then
+         Write (6,*) 'Unsupported option: TRSymm'
+         Call Abend()
          iSym(1) = 0
          iSym(2) = 0
          iSym(3) = 0
