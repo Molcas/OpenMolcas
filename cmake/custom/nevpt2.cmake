@@ -40,6 +40,10 @@ else()
   set(mod_dir ${MAIN_MOD_DIR}/nevpt2)
 endif()
 
+if (LINALG STREQUAL "Internal")
+  set (LINALG_LIBRARIES $<TARGET_FILE:blas> $<TARGET_FILE:lapack>)
+endif()
+
 # CMake does not support passing lists inside lists, so we need to
 # replace the semicolons in the lists and pass them as normal strings
 # and then replace the new separators with semicolons on the other side
@@ -84,15 +88,17 @@ endif()
 set(reference_git_repo https://github.com/qcscine/nevpt2.git)
 # set(reference_git_tag release-3.0) # uncomment before merging into master, since before merging we expect more patches into upstream
 
+
 set(EP_PROJECT nevpt2_ext)
 
 # Enabling source changes to keep ExternalProject happy
 set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
 
+
 ExternalProject_Add(${EP_PROJECT}
                     PREFIX ${CUSTOM_NEVPT2_LOCATION}
                     GIT_REPOSITORY ${reference_git_repo}
-                    GIT_TAG ${reference_git_tag}
+                 #   GIT_TAG ${reference_git_tag}
                     CMAKE_ARGS "${NEVPT2CMakeArgs}"
                     INSTALL_DIR "${PROJECT_BINARY_DIR}/qcmaquis"
                    )
@@ -113,4 +119,4 @@ set (CMAKE_DISABLE_SOURCE_CHANGES ON)
 ExternalProject_Get_Property(${EP_PROJECT} BINARY_DIR)
 
 set(NEVPT2_INCLUDE ${mod_dir} PARENT_SCOPE)
-set(NEVPT2_LIBRARIES ${BINARY_DIR}/${CMAKE_FIND_LIBRARY_PREFIXES}qdnevpt2.a ${BINARY_DIR}/${CMAKE_FIND_LIBRARY_PREFIXES}AUXLIB_F.a PARENT_SCOPE)
+set(NEVPT2_LIBRARIES ${BINARY_DIR}/${CMAKE_FIND_LIBRARY_PREFIXES}qdnevpt2.a ${LINALG_LIBRARIES} ${BINARY_DIR}/${CMAKE_FIND_LIBRARY_PREFIXES}AUXLIB_F.a PARENT_SCOPE)

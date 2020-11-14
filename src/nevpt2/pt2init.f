@@ -24,7 +24,6 @@
       use info_state_energy  ! energies
       use info_orbital_space ! orbital specifications read from JobIph
       use nevpt2wfn
-
       implicit none
 
       logical, external :: mh5_is_hdf5
@@ -38,7 +37,6 @@
       real*8, allocatable :: readbuf(:,:)
 #include "mxdm.fh"
 #include "caspt2.fh"
-
       ! Save current directory into the CurrDir string
       call get_environment_variable("CurrDir", curr_dir)
       call get_environment_variable("Project", molcas_project)
@@ -73,11 +71,11 @@
       ! if not found, exit
 
 #ifdef _HDF5_
+
 #ifdef _WARNING_WORKAROUND_
       ! fix a compiler warning/error about possibly uninitialized variables
       allocate(character(len=0)::refwfnfile)
 #endif
-
       refwfnfile = trim(refwfn_in)
       If (.not.mh5_is_hdf5(refwfnfile)) Then
         ! try $Project.dmrgscf.h5

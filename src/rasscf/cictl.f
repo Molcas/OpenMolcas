@@ -66,7 +66,6 @@
       Logical Exist,Do_ESPF
 *JB   variables for state rotation on final states
       Logical do_rotate
-
       ! function defined in misc_util/pcm_on.f
       Logical, external :: PCM_On
 
@@ -499,7 +498,6 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
            end if
          end if
          if(.not.DoSplitCAS) then
-
            if(doDMRG)then
 #ifdef _DMRG_
              ! Get also spin density at the last iteration

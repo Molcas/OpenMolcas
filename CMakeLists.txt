@@ -56,19 +56,19 @@ if (${CMAKE_VERSION} VERSION_LESS 3.1)
     set (CMAKE_Fortran_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
   endif ()
   if (NOT DEFINED CMAKE_Fortran_ARCHIVE_APPEND)
-    set (CMAKE_Fortran_ARCHIVE_APPEND "<CMAKE_AR> q  <TARGET> <LINK_FLAGS> <OBJECTS>")
+    set (CMAKE_Fortran_ARCHIVE_APPEND "<CMAKE_AR> q <TARGET> <LINK_FLAGS> <OBJECTS>")
   endif ()
   if (NOT DEFINED CMAKE_C_ARCHIVE_CREATE)
     set (CMAKE_C_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
   endif ()
   if (NOT DEFINED CMAKE_C_ARCHIVE_APPEND)
-    set (CMAKE_C_ARCHIVE_APPEND "<CMAKE_AR> q  <TARGET> <LINK_FLAGS> <OBJECTS>")
+    set (CMAKE_C_ARCHIVE_APPEND "<CMAKE_AR> q <TARGET> <LINK_FLAGS> <OBJECTS>")
   endif ()
   if (NOT DEFINED CMAKE_CXX_ARCHIVE_CREATE)
     set (CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
   endif ()
   if (NOT DEFINED CMAKE_CXX_ARCHIVE_APPEND)
-    set (CMAKE_CXX_ARCHIVE_APPEND "<CMAKE_AR> q  <TARGET> <LINK_FLAGS> <OBJECTS>")
+    set (CMAKE_CXX_ARCHIVE_APPEND "<CMAKE_AR> q <TARGET> <LINK_FLAGS> <OBJECTS>")
   endif ()
 endif ()
 
@@ -159,6 +159,7 @@ endif ()
 if (";Debug;Garble;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};" OR BIGOT)
   add_compile_definitions (_WARNING_WORKAROUND_)
 endif ()
+
 
 # External projects
 option (MSYM    "Activate MSYM support (requires External/libmsym submodule)."                               OFF)
@@ -1159,7 +1160,6 @@ if (MPI)
     endif ()
   endif ()
   message ("-- MPI_IMPLEMENTATION: ${MPI_IMPLEMENTATION}")
-
   if (MPI_IMPLEMENTATION STREQUAL "mpich" AND
       CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
       CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL 10.0)
@@ -1235,6 +1235,7 @@ if (LINALG STREQUAL "MKL")
   if (NOT MKLROOT STREQUAL MKLROOT_LAST)
     # reset MKL paths
     set (MKL_INCLUDE_PATH "${MKLROOT}/include" CACHE PATH "location of MKL include files." FORCE)
+
     if (PLATFORM STREQUAL "MacOS")
       if (ADDRMODE EQUAL 64)
         set (libpath "${MKLROOT}/lib")
@@ -1814,6 +1815,7 @@ endif ()
 
 if (MSYM)
   message ("Configuring MSYM support:")
+
   set (proj ${extprojsdir}/libmsym)
   set (proj_bin ${PROJECT_BINARY_DIR}/External/libmsym)
   if (EXISTS ${proj}/CMakeLists.txt)
@@ -1843,6 +1845,7 @@ endif ()
 
 if (DMRG)
   message ("Configuring QCMaquis DMRG support:")
+
   if (QCMaquis_ROOT OR DEFINED ENV{QCMaquis_ROOT})
     if (DEFINED ENV{QCMaquis_ROOT})
       set (QCMaquis_ROOT $ENV{QCMaquis_ROOT})
@@ -1862,12 +1865,8 @@ if (DMRG)
   ## Builds with build subdirectory outside the source tree require the second argument of add_subdirectory
   add_subdirectory (${proj_bin} ${proj_bin})
 
-  get_directory_property (${DMRG_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${DMRG_INCLUDE})
-  get_directory_property (${MAQUIS_DMRG_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${MAQUIS_DMRG_LIBRARIES})
   include_directories (${DMRG_INCLUDE})
 
-  get_directory_property (${HDF5_QCM_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${HDF5_QCM_INCLUDE})
-  get_directory_property (${HDF5_QCM_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${HDF5_QCM_LIBRARIES})
   include_directories (${HDF5_QCM_INCLUDE})
 
   message ("Enabled QCMaquis DMRG support.")
@@ -2050,6 +2049,7 @@ if (NEVPT2)
 
   message ("Enabling NEVPT2 support.")
   message ("-- NEVPT2_LIBRARIES: ${NEVPT2_LIBRARIES}")
+
 else ()
   message ("NEVPT2 support DISABLED")
 endif ()
@@ -2781,7 +2781,6 @@ foreach (prog ${progs})
 
   list (APPEND PROGRAM_EXECUTABLES ${prog}.exe)
 endforeach (prog)
-
 # Libraries that require QCMaquis-OpenMolcas interface
 # must link with libstdc++ and against QCMaquis libraries
 # (CXX linker does NOT work on some architectures)

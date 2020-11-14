@@ -49,7 +49,6 @@ if(SINGLE_MOD_DIR)
 else()
   set(mod_dir ${MAIN_MOD_DIR}/qcmaquis)
 endif()
-
 set (CMAKE_DISABLE_SOURCE_CHANGES ON)
 
 if(MPI)
@@ -105,6 +104,20 @@ elseif (LINALG STREQUAL "Accelerate")
   list(APPEND QCMaquisCMakeArgs
     "-DBLAS_LAPACK_SELECTOR:STRING=veclib"
     )
+elseif (LINALG STREQUAL "Internal")
+
+  # To link QCMaquis with Fortran static libraries, we
+  # need to add -lgfortran for gfortran
+  # It seems that ${CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES}
+  # is not suited for this because it contains also other unnecessary libraries
+
+  if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+    set (Fortran_RUNTIME_LIBRARY "gfortran")
+  endif()
+
+  list(APPEND QCMaquisCMakeArgs
+    "-DBLAS_LAPACK_SELECTOR=manual"
+    "-DMAQUISLapack_LIBRARIES=$<$<BOOL:Fortran_RUNTIME_LIBRARY>:${Fortran_RUNTIME_LIBRARY}\ >$<TARGET_FILE:blas>\ $<TARGET_FILE:lapack>")
 endif ()
 
 
@@ -188,7 +201,7 @@ set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
                         "-DLAPACK_64_BIT:BOOL=ON")
     endif()
 
-    set(EP_CMAKE_CACHE_ARGS "-DBUILD_SYMMETRIES:STRING=TwoU1;TwoU1PG;SU2U1PG;SU2U1"
+    set(EP_CMAKE_CACHE_ARGS "-DBUILD_SYMMETRIES:STRING=TwoU1PG;SU2U1PG"
                             "${QCMaquis_OPENMP}"
                             "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
                             "-DDMRG_NUMSYMM:STRING=6"
@@ -237,13 +250,14 @@ set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
     ExternalProject_Add(${EP_PROJECT}
         PREFIX ${extprojpath}
         GIT_REPOSITORY ${reference_git_repo}
-        GIT_TAG ${reference_git_commit}
+      #  GIT_TAG ${reference_git_commit}
+
         SOURCE_SUBDIR dmrg
         CMAKE_ARGS ${EP_CMAKE_ARGS}
         CMAKE_CACHE_ARGS ${EP_CMAKE_CACHE_ARGS}
+        LIST_SEPARATOR '\'
         INSTALL_DIR ${LOCAL_QCM_INSTALL_PATH}
         )
-
 
     # Retrieve information about linking to the shared library
     # Unfortunately with external project we need to hard-code the library paths and all the rpath
@@ -330,7 +344,7 @@ else()
       ${MAQUIS_DMRG_LIBRARIES}
     PARENT_SCOPE)
 endif()
-
 # add HDF5 QCMaquis interface libraries
 set(HDF5_QCM_INCLUDE ${mod_dir} PARENT_SCOPE)
 set(HDF5_QCM_LIBRARIES qcmaquis-hdf5-interface PARENT_SCOPE)
+
