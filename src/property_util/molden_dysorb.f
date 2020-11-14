@@ -268,9 +268,9 @@ c      End If
 *                                                                      *
 *     Write atomic information
 *
-      Write (MF,'(A)') '[N_ATOMS]'
+      Write (MF,'(A)') '[N_Atoms]'
       Write (MF,*) natom
-      Write (MF,'(A)') '[ATOMS] (AU)'
+      Write (MF,'(A)') '[Atoms] (AU)'
       Do iatom=1,natom
         Write (MF,99) AtomLabel(iatom),iatom,int(Znuc(iatom)),
      &                (coor(i,iatom),i=1,3)
