@@ -41,13 +41,14 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 H(nInter,nInter), g(nInter), dq(nInter), Lambda
       Real*8, Allocatable:: Mat(:), Val(:), Vec(:,:), Tmp(:,:)
       Real*8, Allocatable:: MatN(:), ValN(:), VecN(:), TmpN(:),
      &        StepN(:), GradN(:)
+      Real*8, Allocatable:: MatP(:), ValP(:), VecP(:), TmpP(:),
+     &        StepP(:), GradP(:)
 *
       Character*6 UpMeth
       Character*1 Step_Trunc
@@ -148,13 +149,13 @@
          TmpN(:)=Zero
       End If
       mInter=nInter+1
-      Call GetMem('StepP','Allo','Real',ipPStep,nInter)
-      Call GetMem('GradP','Allo','Real',ipPGrad,nInter)
-      Call GetMem('VectorP','Allo','Real',ipPVec,mInter)
-      Call GetMem('ValuesP','Allo','Real',ipPVal,1)
-      Call GetMem('MatrixP','Allo','Real',ipPMat,mInter*(mInter+1)/2)
-      Call Allocate_Work(ipPTmp,mInter)
-      Call DZero(Work(ipPTmp),mInter)
+      Call mma_allocate(StepP,nInter,Label='StepP')
+      Call mma_allocate(GradP,nInter,Label='GradP')
+      Call mma_allocate(VecP,mInter,Label='VecP')
+      Call mma_allocate(ValP,1,Label='ValP')
+      Call mma_allocate(MatP,mInter*(mInter+1)/2,Label='MatP')
+      Call mma_allocate(TmpP,mInter,Label='TmpP')
+      TmpP(:) = Zero
  998  Continue
          Iter=Iter+1
 *        Write (Lu,*) 'Iter=',Iter
@@ -235,48 +236,45 @@
 *        are simply projected out from the gradient and the eigenvalues
 *        are shifted to a large positive arbitrary value (10), to avoid
 *        interferences
-         call dcopy_(nInter,g,1,Work(ipPGrad),1)
+         GradP(:) = g(:)
          Do i=1,nNeg
-           gv=DDot_(nInter,Work(ipPGrad),1,Vec(:,i),1)
-           Call DaXpY_(nInter,-gv,Vec(:,i),1,Work(ipPGrad),1)
+           gv=DDot_(nInter,GradP(:),1,Vec(:,i),1)
+           Call DaXpY_(nInter,-gv,Vec(:,i),1,GradP(:),1)
          End Do
          Do j=1,nInter
-           call dcopy_(j,H(1,j),1,Work(ipPMat+j*(j-1)/2),1)
+           call dcopy_(j,H(1,j),1,MatP(1+j*(j-1)/2),1)
            Do i=1,nNeg
              Do k=1,j
-               jk=j*(j-1)/2+k-1
-               Work(ipPMat+jk)=Work(ipPMat+jk)-(Val(i)-Ten)*
-     &                           Vec(j,i)*Vec(k,i)
+               jk=j*(j-1)/2+k
+               MatP(jk)=MatP(jk)-(Val(i)-Ten)*Vec(j,i)*Vec(k,i)
              End Do
            End Do
-           Call DScal_(j,One/A_RFO,Work(ipPMat+j*(j-1)/2),1)
+           Call DScal_(j,One/A_RFO,MatP(1+j*(j-1)/2),1)
          End Do
-         Call DZero(Work(ipPMat+mInter*(mInter-1)/2),mInter)
-         Call DaXpY_(nInter,-One/Sqrt(A_RFO),Work(ipPGrad),1,
-     &                     Work(ipPMat+mInter*(mInter-1)/2),1)
+         Call DZero(MatP(1+mInter*(mInter-1)/2),mInter)
+         Call DaXpY_(nInter,-One/Sqrt(A_RFO),GradP(:),1,
+     &                     MatP(1+mInter*(mInter-1)/2),1)
 *
 *----    Solve the partial RFO system for the positive subspace
-         call dcopy_(mInter,Work(ipPTmp),1,Work(ipPVec),1)
-         Call Davidson(Work(ipPMat),mInter,1,Work(ipPVal),Work(ipPVec),
-     &                 iStatus)
+         call dcopy_(mInter,TmpP(:),1,VecP(:),1)
+         Call Davidson(MatP,mInter,1,ValP,VecP,iStatus)
          If (iStatus.gt.0) Then
            Call SysWarnMsg('RS_P_RFO',
      &          'Davidson procedure did not converge','')
          End If
-         call dcopy_(mInter,Work(ipPVec),1,Work(ipPTmp),1)
-         call dcopy_(nInter,Work(ipPVec),1,Work(ipPStep),1)
+         TmpP(1:mInter) = VecP(1:mInter)
+         StepP(1:nInter) = VecP(1:nInter)
 *
 *----    Scale the eigenvector (combines eqs. (5) and (23))
 *        Add to complete step
-         Call DScal_(nInter,One/(Sqrt(A_RFO)*Work(ipPVec+nInter)),
-     &                     Work(ipPStep),1)
-         Call DaXpY_(nInter,One,Work(ipPStep),1,dq,1)
-         dqdq_min=Sqrt(DDot_(nInter,Work(ipPStep),1,Work(ipPStep),1))
+         Call DScal_(nInter,One/(Sqrt(A_RFO)*VecP(1+nInter)),StepP,1)
+         Call DaXpY_(nInter,One,StepP,1,dq,1)
+         dqdq_min=Sqrt(DDot_(nInter,StepP,1,StepP,1))
 *        write (Lu,*) 'dqdq_min=',dqdq_min
-         EigVal_t=-DDot_(nInter,Work(ipPStep),1,Work(ipPGrad),1) ! Sign
+         EigVal_t=-DDot_(nInter,StepP,1,GradP,1) ! Sign
          If (iPrint.ge.99) Then
-           Call RecPrt('dq_t',' ',Work(ipPStep),1,nInter)
-           Call RecPrt(' g_t',' ',Work(ipPGrad),1,nInter)
+           Call RecPrt('dq_t',' ',StepP,1,nInter)
+           Call RecPrt(' g_t',' ',GradP,1,nInter)
            Write (Lu,*) 'Lambda=',EigVal_t
          End If
          If (EigVal_t.gt.Thr) Then
@@ -343,12 +341,12 @@
          Call mma_deallocate(TmpN)
       End If
       mInter=nInter+1
-      Call GetMem('StepP','Free','Real',ipPStep,nInter)
-      Call GetMem('GradP','Free','Real',ipPGrad,nInter)
-      Call GetMem('VectorP','Free','Real',ipPVec,mInter)
-      Call GetMem('ValuesP','Free','Real',ipPVal,1)
-      Call GetMem('MatrixP','Free','Real',ipPMat,mInter*(mInter+1)/2)
-      Call Free_Work(ipPTmp)
+      Call mma_deallocate(StepP)
+      Call mma_deallocate(GradP)
+      Call mma_deallocate(VecP)
+      Call mma_deallocate(ValP)
+      Call mma_deallocate(MatP)
+      Call mma_deallocate(TmpP)
 *
       If (iPrint.ge.6) Then
          Write (Lu,*)
