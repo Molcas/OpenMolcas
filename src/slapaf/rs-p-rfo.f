@@ -190,12 +190,12 @@
 *--------   Solve the partial RFO system for the negative subspace
             VecN(:) = TmpN(:)
             Call Davidson(MatN,mInter,1,ValN,VecN,iStatus)
-            VecN(:) = TmpN(:)
+            TmpN(:) = VecN(:)
             If (iStatus.gt.0) Then
                Call SysWarnMsg('RS_P_RFO',
      &              'Davidson procedure did not converge','')
             End If
-            ValN(:) = - ValN(:)
+            ValN(1) = - ValN(1)
 *
 *--------   Scale the eigenvector (combines eqs. (5) and (23))
 *           Convert to full space and add to complete step
