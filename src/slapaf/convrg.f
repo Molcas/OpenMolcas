@@ -731,7 +731,7 @@ C              Write (6,*) 'SubProject=.Prod'
          Call mma_allocate(Coor1,3,mTtAtm,Label='Coor1')
          Call mma_allocate(Coor2,3,mTtAtm,Label='Coor2')
          Call AtmLst(C_MEP(:,iMEP),nAtom,Coor1,mTtAtm)
-         Call AtmLst(C_MEP(:,iMEP+1),nAtom,Coor1,mTtAtm)
+         Call AtmLst(C_MEP(:,iMEP+1),nAtom,Coor2,mTtAtm)
          Call OptRMS_Slapaf(Coor1,Coor2,mTtAtm,RMS,RMSMax)
          Call mma_deallocate(Coor1)
          Call mma_deallocate(Coor2)
