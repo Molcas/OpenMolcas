@@ -11,7 +11,6 @@
 * Copyright (C) 2020, Roland Lindh                                     *
 ************************************************************************
       Subroutine Energy_Kriging_Layer(qInt,Energy,nInter)
-      Use Limbo
       Implicit None
 #include "stdalloc.fh"
       Integer nInter
@@ -20,7 +19,7 @@
 *
       Call mma_allocate(qInt_s,nInter,Label='qInt_s')
 *
-      Call Trans_K(U,qInt,qInt_s,nInter,1)
+      Call Trans_K(qInt,qInt_s,nInter,1)
       Call Energy_Kriging(qInt_s,Energy,nInter)
 *
       Call mma_deallocate(qInt_s)

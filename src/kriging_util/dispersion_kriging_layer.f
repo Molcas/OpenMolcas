@@ -11,7 +11,6 @@
 * Copyright (C) 2020, Roland Lindh                                     *
 ************************************************************************
       Subroutine Dispersion_Kriging_Layer(qInt,E_Disp,nInter)
-      Use Limbo
       Implicit None
 #include "stdalloc.fh"
       Integer nInter
@@ -20,7 +19,7 @@
 *
       Call mma_allocate(qInt_s,nInter,Label='qInt_s')
 *
-      Call Trans_K(U,qInt,qInt_s,nInter,1)
+      Call Trans_K(qInt,qInt_s,nInter,1)
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call RecPrt('Dispersion_Kriging_Layer: qInt',' ',qInt,nInter,1)

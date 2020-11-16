@@ -11,7 +11,6 @@
 * Copyright (C) 2020, Roland Lindh                                     *
 ************************************************************************
       Subroutine Hessian_Kriging_Layer(qInt,Hessian,nInter)
-      Use Limbo
       Implicit None
 #include "stdalloc.fh"
       Integer nInter
@@ -25,10 +24,10 @@
       Call mma_allocate(qInt_s,nInter,Label='qInt_s')
       Call mma_allocate(Hessian_s,nInter,nInter,Label='Hessian_s')
 *
-      Call Trans_K(U,qInt,qInt_s,nInter,1)
+      Call Trans_K(qInt,qInt_s,nInter,1)
       Call Hessian_kriging(qInt_s,Hessian,nInter)
-      Call BackTrans_K (U,Hessian,Hessian_s,nInter,nInter)
-      Call BackTrans_K2(U,Hessian_s,Hessian,nInter,nInter)
+      Call BackTrans_K (Hessian,Hessian_s,nInter,nInter)
+      Call BackTrans_Kt(Hessian_s,Hessian,nInter,nInter)
 *
       Call mma_deallocate(Hessian_s)
       Call mma_deallocate(qInt_s)

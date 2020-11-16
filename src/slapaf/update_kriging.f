@@ -479,7 +479,7 @@
 *     Deallocating memory used by Kriging
 *
       Call mma_deallocate(Hessian)
-      Call Close_Kriging()
+      Call Finish_Kriging()
 *                                                                      *
 ************************************************************************
 *                                                                      *
