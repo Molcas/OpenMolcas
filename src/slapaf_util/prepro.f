@@ -12,20 +12,22 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "info_slapaf.fh"
 #include "print.fh"
       Real*8 Coor(3,nAtom)
+      Real*8 rDum(1)
       Logical CofM
+      Real*8, Allocatable:: TR(:)
 *
       iRout=134
       iPrint=nPrint(iRout)
 *
       CofM = Iter.eq.1 .and. lNmHss
-      Call Allocate_Work(ipTR,18*nAtom)
-      Call FZero(Work(ipTR),18*nAtom)
-      Call TRPGen(nDimBC,nAtom,Coor,Degen,Smmtrc,mTR,Work(ipCM),CofM,
-     &            Work(ipTR))
-      Call Free_Work(ipTR)
+      Call mma_allocate(TR,18*nAtom,Label='TR')
+      TR(:)=Zero
+      Call TRPGen(nDimBC,nAtom,Coor,Degen,Smmtrc,mTR,Work(ipCM),CofM,TR)
+      Call mma_deallocate(TR)
       If (lNmHss) Then
          If (Iter.eq.1) mTROld=mTR
          If (iter.le.2*(nDimBC-mTROld)+1.and.iter.ne.1)
@@ -67,7 +69,7 @@
 *
       If (iter.eq.1.and.lOld) Then
          Call Put_dArray('Hss_Q',Work(ipH),nQQ**2)
-         Call Put_dArray('Hss_upd',Work(ip_Dummy),0)
+         Call Put_dArray('Hss_upd',rDum,0)
          Call Free_Work(ipH)
       End If
 *

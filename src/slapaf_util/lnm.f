@@ -18,6 +18,7 @@
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "angstr.fh"
       Real*8 Cart(3,nAtoms+nHidden), Hess(3*nAtoms*(3*nAtoms+1)/2),
      &       Cx(3*mAtoms,nIter),
@@ -30,7 +31,8 @@
      &        Found, RunOld
       Character*180 Line,Get_Ln
       External Get_Ln
-      Dimension XYZ(3)
+      Real*8 XYZ(3)
+      Real*8, Allocatable:: TanVec(:), HTanVec(:), HTmp(:)
 
       iRout=120
       iPrint=nPrint(iRout)
@@ -132,8 +134,8 @@ cnf
          If (nMDstep .gt. 0) Then
             NTT = 3*nAtoms*(3*nAtoms+1)/2
             Fact = One/Dble(nMDstep)
-            Call Allocate_Work(ipHtmp,NTT)
-            Call dCopy_(NTT,[Zero],0,Work(ipHtmp),1)
+            Call mma_allocate(Htmp,NTT,Label='Htmp')
+            Htmp(:)=Zero
             iMDsnap = IsFreeUnit(1)
             Call Molcas_Open(iMDsnap,'snap.hess')
             Line = Get_Ln(iMDsnap)
@@ -162,12 +164,12 @@ cnf
                End If
                Call ddV(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,
      &            iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
-               Call daxpy_(NTT,Fact,Hess,1,Work(ipHtmp),1)
+               Call daxpy_(NTT,Fact,Hess,1,Htmp,1)
             End Do
             Close(iMDsnap)
             Call Free_iWork(MMkept)
-            Call dCopy_(NTT,Work(ipHtmp),1,Hess,1)
-            Call Free_Work(ipHtmp)
+            Call dCopy_(NTT,Htmp,1,Hess,1)
+            Call mma_deallocate(Htmp)
          Else
             Call ddV(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,
      &            iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
@@ -234,34 +236,36 @@ cnf
                Call Abend()
             End If
 *
-            Call GetMem('TanVec','ALLO','REAL',ipTan,nRP+nRP**2)
-            Call FZero(Work(ipTan),nRP+nRP**2)
-            ipHTan = ipTan + nRP
-            Call Get_dArray('TanVec',Work(ipTan),nRP)
+            Call mma_allocate(TanVec,nRP,Label='TanVec')
+            Call mma_allocate(HTanVec,nRP**2,Label='HTanVec')
+            TanVec(:)=Zero
+            HTanVec(:)=Zero
+
+            Call Get_dArray('TanVec',TanVec,nRP)
 *
-*           Call RecPrt('TanVec',' ',Work(ipTan),nRP,1)
+*           Call RecPrt('TanVec',' ',TanVec,nRP,1)
             i = 0
             Do ix = 1, nRP
                If (Smmtrc(ix)) Then
                   i = i + 1
-                  Work(ipTan+i-1)=Work(ipTan+ix-1)
+                  TanVec(i)=TanVec(ix)
                End If
             End Do
             nRP = nDim
-*           Call RecPrt('TanVec',' ',Work(ipTan),nRP,1)
+*           Call RecPrt('TanVec',' ',TanVec,nRP,1)
 *
 *           Compute H|i>
 *
             Call dGeMV_('N',nRP,nRP,
      &                 1.0d0,scrt1,nRP,
-     &                       Work(ipTan),1,
-     &                 0.0d0,Work(ipHTan),1)
+     &                       TanVec,1,
+     &                 0.0d0,HTanVec,1)
 *
 *           Compute <i|H|i>
 *
             eigen=0.0d0
-            Do i=0,nRP-1
-               eigen=eigen+Work(ipHTan+i)*Work(ipTan+i)
+            Do i=1,nRP
+               eigen=eigen+HTanVec(i)*TanVec(i)
             End Do
 *           Write (*,*) 'Eigen=',eigen
             If (eigen.lt.Zero) Go To 98
@@ -271,14 +275,15 @@ cnf
             Do i=0,nRP-1
                Do j=0,nRP-1
                   scrt1(nRP*i+j+1) = scrt1(nRP*i+j+1)
-     &                             - Work(ipHTan+i)*Work(ipTan+j)
-     &                             - Work(ipTan+i)*Work(ipHTan+j)
+     &                             - HTanVec(1+i)*TanVec(1+j)
+     &                             - TanVec(1+i)*HTanVec(1+j)
                End Do
             End Do
 *
 *
  98         Continue
-            Call GetMem('TanVec','FREE','REAL',ipTan,nRP+nRP**2)
+            Call mma_deallocate(HTanVec)
+            Call mma_deallocate(TanVec)
          End If
 *        Call RecPrt('Scrt1(final)',' ',Scrt1,nDim,nDim)
 *                                                                      *
