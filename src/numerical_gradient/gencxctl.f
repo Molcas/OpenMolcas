@@ -11,6 +11,7 @@
 * Copyright (C) 2013, Roland Lindh                                     *
 ************************************************************************
       Subroutine genCxCTL(iStop,Cartesian,rDelta)
+      use Slapaf_Info, only: Cx
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -23,6 +24,7 @@
 #include "info_slapaf.fh"
       Parameter(nLbl=10*MxAtom)
 #include "real.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "nadc.fh"
 #include "weighting.fh"
@@ -81,7 +83,7 @@
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
      &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
-     &           Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
+     &           Work(ipGx),mTtAtm,iWork(ipANr),iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,nqInt,
@@ -234,7 +236,7 @@
      &               Lbl,Work(ipShf),ipqInt,ipdqInt,
      &               Work(ipDCF),Work(ipdss),Work(ipTmp),
      &               AtomLbl,iSym,Smmtrc,
-     &               Degen,Work(ipGx),Work(ipCx),mTtAtm,
+     &               Degen,Work(ipGx),Cx,mTtAtm,
      &               iWork(ipANr),iOptH,User_Def,
      &               nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS, Analytic_Hessian,
@@ -291,6 +293,7 @@
          Call GetMem('dqInt', 'Free','Real',ipdqInt, nqInt)
          Call GetMem('qInt', 'Free','Real',ipqInt, nqInt)
       End If
+      Call mma_deallocate(Cx)
       Call GetMem('Relax', 'Free','Real',ipRlx, Lngth)
       Call GetMem('Grad',  'Free','Real',ipGrd, 3*nsAtom)
       Call GetMem('Coord', 'Free','Real',ipCoor,3*nsAtom)

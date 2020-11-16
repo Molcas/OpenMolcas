@@ -31,7 +31,7 @@
 *
       Call mma_allocate(Coor,3*nAtom,Label='Coor')
       Call GetMem('BMx','ALLO','REAL',ipBMx,(3*nAtom)*nInter)
-      Call dCopy_(3*nAtom,Work(ipCx+(kIter-1)*3*nsAtom),1,Coor,1)
+      Call dCopy_(3*nAtom,Cx(1,kIter),1,Coor,1)
       Call dCopy_((3*nAtom)*nInter,BMx,1,Work(ipBMx),1)
 *
       ip_qInt=ip_of_Work(qInt(1,1))

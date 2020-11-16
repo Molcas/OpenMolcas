@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991,1997, Roland Lindh                                *
 ************************************************************************
-      SubRoutine Cllct2(Strng,Vector,dVector,Value,Names,nAtom,Coor,
+      SubRoutine Cllct2(Strng,Vector,dVector,Value,Names,nAtom,
      &                  nCntr,mCntr,xyz,Grad,Ind,Type,rMss,qMss,Lbl,
      &                  lWrite,jStab,nStab,mxdc,Deg,Smmtrc,Hess,lIter)
 ************************************************************************
@@ -22,6 +22,7 @@
 *             June '97 (R. Lindh)                                      *
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iOper
+      use Slapaf_Info, only: Cx
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -32,7 +33,7 @@
       Character*(LENIN5)Label
       Character*(LENIN) Name
       Character Oper*3, Type*6, Lbl*8
-      Real*8 Coor(3,nAtom), Vector(3,nAtom), xyz(3,nCntr+mCntr),
+      Real*8 Vector(3,nAtom), xyz(3,nCntr+mCntr),
      &       Grad(3,nCntr+mCntr), dVector(3,nAtom,3,nAtom),
      &       Axis(3),
      &       Perp_Axis(3,2),rMss(nAtom), qMss(nCntr+mCntr),
@@ -51,7 +52,7 @@
       If (iPrint.gt.20) PSPrint = .True.
       If (iPrint.ge.99) Then
          Call RecPrt(' In Cllct2: Coor',' ',
-     &                               Coor,3,nAtom)
+     &                               Cx(:,:,lIter),3,nAtom)
          Call RecPrt('rMss',' ',rMss,1,nAtom)
       End If
 *
@@ -134,7 +135,7 @@
 *
          Ind(ixyz,1) = jsAtom
          Ind(ixyz,2) = iPhase
-         call dcopy_(3,Coor(1,jsAtom),1,xyz(1,ixyz),1)
+         call dcopy_(3,Cx(:,jsAtom,lIter),1,xyz(1,ixyz),1)
 *--------Generate actual coordinate
          If (iAnd(iPhase,1).ne.0) xyz(1,ixyz) = - xyz(1,ixyz)
          If (iAnd(iPhase,2).ne.0) xyz(2,ixyz) = - xyz(2,ixyz)

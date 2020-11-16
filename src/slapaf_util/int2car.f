@@ -162,7 +162,7 @@
      &              ip_qInt,Lbl,Coor,nDim,dMass,
      &              Name,Smmtrc,
      &              Degen,BSet,HSet,iter+1,ip_dqInt,
-     &              ipShift,Gx,Cx,mTtAtm,iANr,iOptH,User_Def,
+     &              ipShift,Gx,mTtAtm,iANr,iOptH,User_Def,
      &              nStab,jStab,Curvilinear,Numerical,
      &              DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,
      &              PrQ,mxdc,iCoSet,lOld,rHidden,

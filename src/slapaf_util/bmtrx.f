@@ -12,19 +12,20 @@
      &                 ip_rInt,Lbl,Coor,nDim,dMass,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
-     &                 ipShift,Gx,Cx,mTtAtm,iAnr,iOptH,User_Def,
+     &                 ipShift,Gx,mTtAtm,iAnr,iOptH,User_Def,
      &                 nStab,jStab,Curvilinear,Numerical,
      &                 DDV_Schlegel,HWRS,Analytic_Hessian,
      &                 iOptC,PrQ,mxdc,iCoSet,lOld,
      &                 rHidden,nFix,nQQ,iIter,Redundant,nqInt,MaxItr,
      &                 nWndw)
+      Use Slapaf_Info, Only: Cx
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
       Real*8 Coor(3,nAtom),  dMass(nAtom), Degen(3*nAtom),
-     &       Gx(3*nAtom,nIter), Cx(3*nAtom,nIter)
+     &       Gx(3*nAtom,nIter)
       Character Lbl(nInter)*8,Name(nAtom)*(LENIN)
       Integer   iAnr(nAtom),
      &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
@@ -74,8 +75,8 @@
       Call Allocate_Work(ipTR,18*nAtom)
       Call FZero(Work(ipTR),18*nAtom)
 *
-      Call TRPGen(nDim,nAtom,Cx(1,iIter),Degen,Smmtrc,mTR,dMass,.False.,
-     &            Work(ipTR))
+      Call TRPGen(nDim,nAtom,Cx(1,1,iIter),Degen,Smmtrc,mTR,dMass,
+     &            .False.,Work(ipTR))
 *
       Call Allocate_Work(ipTRnew,3*nAtom*mTR)
       Call FZero(Work(ipTRnew),3*nAtom*mTR)
@@ -101,9 +102,8 @@
 *
 *-----Generate Grand atoms list
 *
-      Call GenCoo(Cx(1,iIter),nAtom,Work(ipCoor),
-     &            mTtAtm,Work(ipVec),Smmtrc,nDim,iAnr,iWork(ipAN),
-     &            iWork(ip_TabAI),Degen)
+      Call GenCoo(Cx(1,1,iIter),nAtom,Work(ipCoor),mTtAtm,Work(ipVec),
+     &            Smmtrc,nDim,iAnr,iWork(ipAN),iWork(ip_TabAI),Degen)
 *
 *---- Are there some hidden frozen atoms ?
 *
@@ -140,7 +140,7 @@
       If (HSet.or..Not.(Curvilinear.or.User_Def))
      &   Call LNM(Work(ipCoor),mTtAtm,Work(ipEVal),Work(ip_Hss_X),
      &            Work(ipScr2),Work(ipVec),nAtom,nDim,iWork(ipAN),
-     &            Smmtrc,Cx,Gx,nIter,iOptH,Degen, DDV_Schlegel,
+     &            Smmtrc,Gx,nIter,iOptH,Degen, DDV_Schlegel,
      &            Analytic_Hessian,iOptC,iWork(ip_TabB),iWork(ip_TabA),
      &            nBonds,nMax,nHidden,nMDstep,ipMMKept)
 *
@@ -173,7 +173,7 @@
      &                 ip_rInt,Lbl,Coor,nDim,dMass,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
-     &                 Gx,Cx,mTtAtm,iAnr,
+     &                 Gx,mTtAtm,iAnr,
      &                 nStab,jStab,Numerical,
      &                 HWRS,Analytic_Hessian,
      &                 iOptC,PrQ,mxdc,iCoSet,lOld,
@@ -202,7 +202,7 @@
      &                 ip_rInt,Coor,nDim,dMass,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
-     &                 Gx,Cx,mTtAtm,iAnr,
+     &                 Gx,mTtAtm,iAnr,
      &                 nStab,jStab,Numerical,
      &                 HWRS,Analytic_Hessian,
      &                 iOptC,PrQ,mxdc,iCoSet,lOld,
@@ -227,7 +227,7 @@
      &                 ip_rInt,Coor,nDim,dMass,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
-     &                 Gx,Cx,mTtAtm,iAnr,
+     &                 Gx,mTtAtm,iAnr,
      &                 nStab,jStab,Numerical,
      &                 HWRS,Analytic_Hessian,
      &                 iOptC,PrQ,mxdc,iCoSet,lOld,

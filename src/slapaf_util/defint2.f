@@ -11,7 +11,7 @@
 * Copyright (C) 1991,1997, Roland Lindh                                *
 ************************************************************************
       SubRoutine DefInt2(BVct,dBVct,nBvct,Labels,BMtrx,mInt,nAtom,
-     &                   nLines,Value,rInt,rInt0,Lbl,Name,Coor,
+     &                   nLines,Value,rInt,rInt0,Lbl,Name,
      &                   lWrite,jStab,nStab,mxdc,
      &                   rMult,Smmtrc,nDim,dBMtrx,Value0,lIter,
      &                   iFlip,dMass)
@@ -32,7 +32,7 @@
 #include "Molcas.fh"
       Real*8 BVct(3*nAtom,nBVct), dBVct(3*nAtom,3*nAtom,nBVct),
      &       Value(nBVct), BMtrx(3*nAtom,mInt),
-     &       rInt(mInt), Coor(3,nAtom), rInt0(mInt),
+     &       rInt(mInt), rInt0(mInt),
      &       rMult(nBVct,nBVct), dMass(nAtom),
      &       dBMtrx(3*nAtom,3*nAtom,mInt), Value0(nBVct), MaxErr
       Character Line*120, Labels(nBVct)*8, Type*6, Format*8,
@@ -272,7 +272,7 @@ c      Open(Lu_UDC,File=filnam,Form='FORMATTED',Status='OLD')
          Call GetMem('Hess', 'Allo','Real',ipHess,(3*msAtom)**2)
 *
          Call Cllct2(Line(nGo:nTemp),BVct(1,iBVct),
-     &               dBVct(1,1,iBVct),Value(iBVct),Name,nAtom,Coor,
+     &               dBVct(1,1,iBVct),Value(iBVct),Name,nAtom,
      &               nCntr,mCntr,Work(ipxyz),Work(ipGrad),iWork(ipInd),
      &               Type,dMass,Work(ipMass),
      &               Labels(iBVct),lWrite,jStab,

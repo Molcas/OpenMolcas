@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Init2
+      use Slapaf_Info, only: Cx
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
@@ -54,6 +55,7 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
          iWork(ipScr1+2)=-99
          Call Put_iArray('Slapaf Info 1',iWork(ipScr1),7)
       End If
+
 *     iNew  =iWork(ipScr1)
       iter  =iWork(ipScr1+1)+1
       If (iter.ge.MaxItr+1) Then
@@ -91,6 +93,9 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
       ipL    = ipMF    +      l1
       ipqInt = ip_Dummy
       ipdqInt= ip_Dummy
+*
+      Call mma_allocate(Cx,3,nsAtom,MaxItr+1,Label='Cx')
+      Cx(:,:,:) = Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -114,6 +119,8 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
          If (SuperName.ne.'numerical_gradient') Then
             Call Get_dArray('Slapaf Info 2',Work(ipRlx),Lngth)
             Call Get_cArray('Slapaf Info 3',Stat,(MaxItr+1)*128)
+*
+            Call DCopy_(l1*(MaxItr+1),Work(ipCx),1,Cx,1)
          Else
             iter=1
          End If
@@ -135,11 +142,14 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
 *
       ipOff = (iter-1)*3*nsAtom + ipCx
       call dcopy_(3*nsAtom,Work(ipCoor),1,Work(ipOff),1)
+      call dcopy_(3*nsAtom,Work(ipCoor),1,Cx(:,:,iter),1)
       If (iter.gt.1) Then
         Tmp=Zero
-        Do i=0,3*nsAtom-1
-          Tmp=Max(Tmp,Abs(Work(ipOff+i)-Work(ipOff-3*nsAtom+i)))
-          If (Tmp.gt.Zero) Exit
+        Do i = 1, nsAtom
+           Do j = 1, 3
+              Tmp=Max(Tmp,Abs(Cx(j,i,iter)-Cx(j,i,iter-1)))
+           End Do
+           If (Tmp.gt.Zero) Exit
         End Do
         If (Tmp.eq.Zero) Then
           Call WarningMessage(2,'Error in Init2')
@@ -195,7 +205,9 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
 *           Not defined: default reference structure to the starting
 *           structure.
 *
-            If (.Not.Ref_Geom) ipRef=ipCx
+            If (.Not.Ref_Geom) Then
+               ipRef = ip_of_Work(Cx(1,1,1))
+            End If
             Call Put_dArray('Ref_Geom',Work(ipRef),3*nsAtom)
          End If
       Else

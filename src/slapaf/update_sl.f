@@ -16,7 +16,7 @@
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
-     &                     rLambda,Cx,GrdMax,StpMax,GrdLbl,StpLbl,
+     &                     rLambda,GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,MF,
      &                     iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
@@ -53,7 +53,6 @@
 *      Smmtrc         : logical flag for symmetry properties           *
 *      nDimBC         : dimension of redundant coordinates(?)          *
 *      rLambda        : vector for Lagrange multipliers                *
-*      Cx             : pointer to cartesian coordinates               *
 *      iNeg           : Hessian index                                  *
 *      Labels         : character string of primitive int. coord.      *
 *      nLabels        : length of Labels                               *
@@ -84,8 +83,7 @@
       Real*8 qInt(nInter,MaxItr), Shift(nInter,MaxItr),
      &       Grad(nInter,MaxItr), GNrm(MaxItr), Energy(MaxItr),
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
-     &       dMass(nsAtom), Degen(3*nsAtom), MF(3*nsAtom),
-     &       Cx(3*nsAtom,MaxItr+1)
+     &       dMass(nsAtom), Degen(3*nsAtom), MF(3*nsAtom)
       Integer jStab(0:7,nsAtom), nStab(nsAtom), iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show, Curvilinear
@@ -140,7 +138,7 @@
      &                   Lbl,GNrm,Energy,UpMeth,ed,Line_Search,
      &                   Step_Trunc,nLambda,iRow_c,nsAtom,AtomLbl,
      &                   mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
-     &                   rLambda,Cx,GrdMax,StpMax,GrdLbl,StpLbl,
+     &                   rLambda,GrdMax,StpMax,GrdLbl,StpLbl,
      &                   iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                   nWndw,Mode,MF,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,dMass,
@@ -172,7 +170,7 @@
      &                Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,Energy,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                iRow_c,nsAtom,AtomLbl,mxdc,jStab,
-     &                nStab,BMx,Smmtrc,nDimBC,rLambda,Cx,
+     &                nStab,BMx,Smmtrc,nDimBC,rLambda,
      &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                Labels,nLabels,FindTS,TSC,nRowH,
      &                nWndw,Mode,MF,

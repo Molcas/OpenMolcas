@@ -16,7 +16,7 @@
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
-     &                     rLambda,Cx,GrdMax,StpMax,GrdLbl,StpLbl,
+     &                     rLambda,GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,MF,
      &                     iOptH,HUpMet,mIter,GNrm_Threshold,IRC,
@@ -53,7 +53,6 @@
 *      Smmtrc         : logical flag for symmetry properties           *
 *      nDimBC         : dimension of redundant coordinates(?)          *
 *      rLambda        : vector for Lagrange multipliers                *
-*      Cx             : Cartesian coordinates                          *
 *      iNeg           : Hessian index                                  *
 *      Labels         : character string of primitive int. coord.      *
 *      nLabels        : length of Labels                               *
@@ -81,8 +80,7 @@
       Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter),
      &       Grad(nInter,kIter), GNrm(kIter), Energy(kIter),
      &       dMass(nsAtom), BMx(3*nsAtom,3*nsAtom),
-     &       rLambda(nLambda,kIter+1), Degen(3*nsAtom), MF(3*nsAtom),
-     &       Cx(3*nsAtom,kIter+1)
+     &       rLambda(nLambda,kIter+1), Degen(3*nsAtom), MF(3*nsAtom)
       Integer jStab(0:7,nsAtom), nStab(nsAtom),
      &        iNeg(2)
 *    &        iNeg(2), jNeg(2)
@@ -427,7 +425,7 @@ C           Write (6,*) 'tBeta=',tBeta
 *                                                                     *
             Call DefInt2(BVec,dBVec,nBVec,Labels,BM,nLambda,nsAtom,
      &                   iRow_c,Value,cInt,cInt0,Lbl(nInter+1),
-     &                   AtomLbl,Cx(1,lIter),
+     &                   AtomLbl,
      &                   (lIter.eq.kIter).and.First_MicroIteration,
      &                   jStab,nStab,mxdc,Mult,Smmtrc,nDimBC,
      &                   dBM,Value0,lIter,iFlip,dMass)

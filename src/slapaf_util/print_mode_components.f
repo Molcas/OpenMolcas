@@ -29,6 +29,7 @@
 ************************************************************************
       Subroutine Print_Mode_Components(Modes,Freq,nModes,lModes,lDisp)
       use Symmetry_Info, only: nIrrep
+      use Slapaf_Info, only: Cx
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -51,11 +52,22 @@
       Character(Len=24), Allocatable :: Label(:)
       Character(Len=180), External :: Get_Ln_EOF
       Real*8, External :: DDot_
+      Integer, External :: ip_of_Work
+      Real*8, Allocatable:: Bk_Cx(:,:,:)
 *
 *
 *---- Ugly hack: backup all "global" slapaf variables in case this is
 *                called from inside slapaf
 *
+*     Note, this routine might be called from outside the Slapaf
+*     environment. In which case there is no backup to be made.
+*
+      If (Allocated(Cx)) Then
+         Call mma_allocate(Bk_Cx,3,nsAtom,MaxItr+1,Label='Bk_Cx')
+         Bk_Cx(:,:,:) = Cx(:,:,:)
+         Call mma_deallocate(Cx)
+      End If
+
       Bk_iSym(:)=iSym(:)
       Bk_iCoSet(0:7,:)=iCoSet(0:7,:)
       Bk_nStab(:)=nStab(:)
@@ -90,7 +102,7 @@
       Bk_nSupSy=nSupSy
       Bk_ipBOld=ipBOld
       Bk_lif=lif
-      Bk_ipCx=ipCx
+      Bk_ipCx= ipCx
       Bk_ipGx=ipGx
       Bk_ipANr=ipANr
       Bk_iOptC=iOptC
@@ -261,7 +273,7 @@
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
      &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
-     &           Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
+     &           Work(ipGx),mTtAtm,iWork(ipANr),iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,nqInt,
@@ -567,5 +579,11 @@
       ipNADC=Bk_ipNADC
       iState(:)=Bk_iState(:)
 *
+      If (Allocated(Bk_Cx)) Then
+         Cx(:,:,:) = Bk_Cx(:,:,:)
+         Call mma_deallocate(Bk_Cx)
+      Else
+         Call mma_deallocate(Cx)
+      End If
 *
       End Subroutine

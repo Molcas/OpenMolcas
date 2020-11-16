@@ -23,7 +23,7 @@
       Real*8, Intent(InOut) :: drdq(mInt,nLambda)
       Integer, Intent(Out) :: mLambda
 *
-      Integer n3,nBV,i,iLambda,iOff,iOff2,ipCoor_l
+      Integer n3,nBV,i,iLambda,iOff,iOff2
       Integer ipBMx,ipdBMx,ipBVc,ipdBVc,ipcInt,ipcInt0,ipValue,ipValue0,
      &        ipMult,ip_iFlip
       Real*8 RR
@@ -47,11 +47,10 @@
          Call GetMem('dBMx','Allo','Real',ipdBMx,nLambda*n3**2)
          Call GetMem('iFlip','Allo','Inte',ip_iFlip,nBV)
 *
-         ipCoor_l=ipCx+(Iter-1)*n3
          Call DefInt2(Work(ipBVc),Work(ipdBVc),nBV,Labels,
      &                Work(ipBMx),nLambda,nsAtom,iRow_c,
      &                Work(ipValue),Work(ipcInt),Work(ipcInt0),
-     &                Lbl,AtomLbl,Work(ipCoor_l),
+     &                Lbl,AtomLbl,
      &                lWrite,jStab,nStab,mxdc,
      &                Work(ipMult),Smmtrc,nDimBC,Work(ipdBMx),
      &                Work(ipValue0),Iter,iWork(ip_iFlip),

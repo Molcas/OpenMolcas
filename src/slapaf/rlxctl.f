@@ -11,6 +11,7 @@
       Subroutine RlxCtl(iStop)
       Use Chkpnt
       Use kriging_mod, only: Kriging, nspAI
+      Use Slapaf_Info, only: Cx
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -132,7 +133,7 @@
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
      &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
-     &           Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
+     &           Work(ipGx),mTtAtm,iWork(ipANr),iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,nqInt,
@@ -160,7 +161,7 @@
 ************************************************************************
 *                                                                      *
       Call Reset_ThrGrd(nsAtom,nDimBC,Work(ipCM),Smmtrc,
-     &                  Degen,Iter,Work(ipCx),mTtAtm,iWork(ipANr),
+     &                  Degen,Iter,Cx,mTtAtm,iWork(ipANr),
      &                  DDV_Schlegel,iOptC,rHidden,ThrGrd)
 *                                                                      *
 ************************************************************************
@@ -242,7 +243,7 @@
      &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
      &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
-     &               Smmtrc,nDimBC,Work(ipL),Work(ipCx),Work(ipGx),
+     &               Smmtrc,nDimBC,Work(ipL),Cx,Work(ipGx),
      &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,Work(ipMF),
@@ -256,7 +257,7 @@
      &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
      &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
-     &               Smmtrc,nDimBC,Work(ipL),Work(ipCx),GrdMax,
+     &               Smmtrc,nDimBC,Work(ipL),GrdMax,
      &               StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,Work(ipMF),
@@ -278,8 +279,7 @@
 *     (if not already done by Kriging)
 *
       If (Kriging .and. Iter.ge.nspAI) Then
-         Call dCopy_(3*nsAtom,Work(ipCx+Iter*3*nsAtom),1,
-     &                        Work(ipCoor),1)
+         Call dCopy_(3*nsAtom,Cx(1,1,Iter+1),1,Work(ipCoor),1)
       Else
          Call mma_allocate(DFC, 3*nsAtom,Label='DFC')
          Call mma_allocate(dss, nQQ,Label='dss')
@@ -291,7 +291,7 @@
      &               ipB,Work(ipCM),Lbl,Work(ipShf),ipqInt,
      &               ipdqInt,DFC,dss,Tmp,
      &               AtomLbl,iSym,Smmtrc,Degen,
-     &               Work(ipGx),Work(ipCx),mTtAtm,iWork(ipANr),iOptH,
+     &               Work(ipGx),Cx,mTtAtm,iWork(ipANr),iOptH,
      &               User_Def,nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &               iCoSet,rHidden,ipRef,Redundant,nqInt,MaxItr,iRef,
@@ -311,7 +311,7 @@
       Call DecideOnESPF(Do_ESPF)
       If (Do_ESPF) Then
        Call LA_Morok(nsAtom,work(ipCoor),2)
-       call dcopy_(3*nsAtom,Work(ipCoor),1,Work(ipCx+3*nsAtom*Iter),1)
+       call dcopy_(3*nsAtom,Work(ipCoor),1,Cx(1,1,Iter+1),1)
       End If
 *                                                                      *
 ************************************************************************
@@ -336,9 +336,7 @@
 *     optimization.
 *
       If ((lNmHss.or.lRowH).and.kIter.eq.1) Then
-         ip_1=ipCx
-         ip_x=ipCx+(iter-1)*3*nsAtom
-         call dcopy_(3*nsAtom,Work(ip_1),1,Work(ip_x),1)
+         call dcopy_(3*nsAtom,Cx(1,1,1),1,Cx(1,1,iter),1)
       End If
 *
 *---- Print statistics and check on convergence
@@ -349,7 +347,7 @@
      &            Work(ipdqInt),Lbl,Work(ipGNrm),
      &            Work(ipEner),Stat,MaxItr,Stop,iStop,ThrCons,
      &            ThrEne,ThrGrd,MxItr,UpMeth,HUpMet,mIntEff,Baker,
-     &            Work(ipCx),Work(ipGx),nsAtom,mTtAtm,ed,
+     &            Cx,Work(ipGx),nsAtom,mTtAtm,ed,
      &            iNeg,GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &            Analytic_Hessian,rMEP,MEP,nMEP,
      &            (lNmHss.or.lRowH).and.iter.le.NmIter,
@@ -462,6 +460,7 @@
           Call GetMem('dqInt', 'Free','Real',ipdqInt, nqInt)
           Call GetMem('qInt', 'Free','Real',ipqInt, nqInt)
       End If
+      Call mma_deallocate(Cx)
       Call GetMem('Relax', 'Free','Real',ipRlx, Lngth)
       Call GetMem('Grad',  'Free','Real',ipGrd, 3*nsAtom)
       Call GetMem('Coord', 'Free','Real',ipCoor,3*nsAtom)

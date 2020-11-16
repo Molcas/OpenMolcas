@@ -13,7 +13,7 @@
      &                 ip_rInt,Lbl,Coor,nDim,dMass,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
-     &                 Gx,Cx,mTtAtm,iAnr,
+     &                 Gx,mTtAtm,iAnr,
      &                 nStab,jStab,Numerical,
      &                 HWRS,Analytic_Hessian,
      &                 iOptC,PrQ,mxdc,iCoSet,lOld,
@@ -24,7 +24,7 @@
 #include "WrkSpc.fh"
 #include "print.fh"
       Real*8 Coor(3,nAtom), dMass(nAtom), Degen(3*nAtom),
-     &       Gx(3*nAtom,nIter), Cx(3*nAtom,nIter)
+     &       Gx(3*nAtom,nIter)
       Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
       Integer   iAnr(nAtom),
      &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
@@ -132,7 +132,6 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_real_array(Cx)
          Call Unused_integer(mTtAtm)
          Call Unused_integer_array(iAnr)
          Call Unused_logical(HWRS)

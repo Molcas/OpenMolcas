@@ -244,6 +244,7 @@
 *                                                                      *
       Subroutine Chkpnt_update()
 #ifdef _HDF5_
+      use Slapaf_Info, only: Cx
 #  include "info_slapaf.fh"
 #  include "WrkSpc.fh"
 #  include "stdalloc.fh"
@@ -276,9 +277,9 @@
 *     coordinates
       Call mh5_resize_dset(chkpnt_coor, [3,nsAtom,Iter_all])
       Call mh5_put_dset_array_real(chkpnt_coor,
-     &     Work(ipCx+N3*(Iter-1)), [3,nsAtom,1], [0,0,Iter_all-1])
+     &     Cx(1,1,Iter), [3,nsAtom,1], [0,0,Iter_all-1])
 *     new coordinates
-      Call mh5_put_dset(chkpnt_new,Work(ipCx+N3*Iter))
+      Call mh5_put_dset(chkpnt_new,Cx(1,1,Iter))
 *     forces
       Call mh5_resize_dset(chkpnt_force, [3,nsAtom,Iter_all])
       Call mh5_put_dset_array_real(chkpnt_force,

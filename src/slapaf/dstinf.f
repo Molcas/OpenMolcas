@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine DstInf(iStop,Just_Frequencies,Numerical)
       use Symmetry_Info, only: nIrrep, iOper
+      use Slapaf_Info, only: Cx
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -58,8 +59,8 @@
             GxFix(:,:) = - GxFix(:,:)
             Call Put_Grad(GxFix,3*nsAtom)
             Call mma_deallocate(GxFix)
-            Call Put_dArray('Unique Coordinates',Work(ipCx),3*nsAtom)
-            Call Put_Coord_New(Work(ipCx),nsAtom)
+            Call Put_dArray('Unique Coordinates',Cx,3*nsAtom)
+            Call Put_Coord_New(Cx,nsAtom)
          End If
       Else
          Call qpg_iArray('Slapaf Info 1',Found,nSlap)
@@ -85,6 +86,9 @@
          Information(7)=ipGx-ipRlx
          Call Put_iArray('Slapaf Info 1',Information,7)
          Call mma_deallocate(Information)
+
+         Call Dcopy_(3*nsAtom*(MaxItr+1),Cx,1,Work(ipCx),1)
+
          Call Put_dArray('Slapaf Info 2',Work(ipRlx),Lngth)
          Call Put_cArray('Slapaf Info 3',Stat(0),(MaxItr+1)*128)
          Call Put_dArray('qInt',Work(ipqInt),nqInt)
@@ -225,8 +229,7 @@
 *                                                                      *
 *---  Write the new cartesian symmetry coordinates on GEONEW
 *
-      jpCoor = ipCx + iter*3*nsAtom
-      Call Put_Coord_New(Work(jpCoor),nsAtom)
+      Call Put_Coord_New(Cx(1,1,iter+1),nsAtom)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -236,7 +239,7 @@
       Call f_Inquire('RUNFILE2',Found)
       If (Found) Then
          Call NameRun('RUNFILE2')
-         Call Put_Coord_New(Work(jpCoor),nsAtom)
+         Call Put_Coord_New(Cx(1,1,iter+1),nsAtom)
          Call NameRun('RUNFILE')
       End If
 *

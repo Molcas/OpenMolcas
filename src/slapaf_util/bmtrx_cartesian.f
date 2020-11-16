@@ -11,17 +11,18 @@
       Subroutine BMtrx_Cartesian(
      &                 nLines,ipBMx,nAtom,nInter,ip_rInt,Coor,nDim,
      &                 dMass,Name,Smmtrc,Degen,BSet,HSet,
-     &                 nIter,ip_drInt,Gx,Cx,mTtAtm,iAnr,nStab,jStab,
+     &                 nIter,ip_drInt,Gx,mTtAtm,iAnr,nStab,jStab,
      &                 Numerical,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &                 iCoSet,lOld,nFix,mTR,TRVec,ipEVal,ip_Hss_x,
      &                 ip_KtB,nQQ,Redundant,nqInt,MaxItr,nWndw)
+      use Slapaf_Info, only: Cx
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
       Real*8 Coor(3,nAtom), dMass(nAtom), Degen(3*nAtom),
-     &       Gx(3*nAtom,nIter), Cx(3*nAtom,nIter), TRVec(nDim,mTR)
+     &       Gx(3*nAtom,nIter), TRVec(nDim,mTR)
       Character Name(nAtom)*(LENIN)
       Integer   iAnr(nAtom),
      &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)

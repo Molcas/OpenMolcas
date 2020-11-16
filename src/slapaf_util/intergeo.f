@@ -15,6 +15,7 @@
 *---------------------------------*
       use Symmetry_Info, only: nIrrep
       use Phase_Info
+      use Slapaf_Info, only: Cx
       implicit real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "WrkSpc.fh"
@@ -137,15 +138,15 @@
 *                                                                      *
 *     Set up the desymmetrization of the coordinates
 *
-      ixyz   = ipCx
+      ixyz   = 0
       ixyz_p = ipCx_p
       MaxDCR=0
       Call mma_allocate(icoset2,[0,7],[0,7],[1,msAtom+msAtom_p],
      &                  label='icoset2')
       Do ndc = 1, msAtom + msAtom_p
          If (ndc.le.msAtom) Then
-            iChxyz=iChAtm(Work(ixyz  ))
-            ixyz   = ixyz   + 3
+            ixyz   = ixyz   + 1
+            iChxyz=iChAtm(Cx(1,ixyz,1))
          Else
             iChxyz=iChAtm(Work(ixyz_p))
             ixyz_p = ixyz_p + 3

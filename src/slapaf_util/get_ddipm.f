@@ -19,7 +19,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-
+      use Slapaf_Info, only: Cx
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "WrkSpc.fh"
@@ -49,7 +49,7 @@
       End If
 *
       Call Get_dDipM_(nX,Work(ipBOld),Work(ipTROld),mInter,nInter,Degen,
-     &                Work(ipTmp2),dDipM,mTROld,Work(ipCx),Smmtrc,
+     &                Work(ipTmp2),dDipM,mTROld,Cx,Smmtrc,
      &                nsAtom,DipM)
 *
       If (mTROld.gt.0) Call Free_Work(ipTROld)
