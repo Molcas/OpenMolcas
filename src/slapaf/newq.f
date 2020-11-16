@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1994, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine Newq(q,nInter,nIter,dq,H,g,error,B,RHS,iPvt,
+      SubRoutine Newq(q,nInter,nIter,dq,H,g,error,B,RHS,
      &                Scrt1,nScrt1,dqHdq,iOptC,
      &                Beta,nFix,iP,UpMeth,Energy,
      &                Line_Search,Step_Trunc,Thr_RS)
@@ -31,7 +31,7 @@
      &       error(nInter,nIter+1), B((nIter+1)*(nIter+1)),
      &       RHS(nIter+1),
      &       Scrt1(nScrt1), Energy(nIter), H(nInter,nInter)
-      Integer   iPvt(nIter+1), iP(nIter)
+      Integer   iP(nIter)
       Character*6 UpMeth
       Character*1 Step_Trunc
       Logical Line_Search
@@ -122,8 +122,8 @@ C     Call View(H,nInter,print)
 *
          UpMeth='c1DIIS'
          MinWdw=5
-         Call C1DIIS(q,nInter,nIter,dq,H,g,error,B,RHS,iPvt,nFix,
-     &               iOptC,MinWdw)
+         Call C1DIIS(q,nInter,nIter,dq,H,g,error,B,RHS,nFix,
+     &               iP,iOptC,MinWdw)
          Beta_New=Sqrt(DDot_(nInter,dq(1,nIter),1,dq(1,nIter),1))
          If (Beta_New.gt.Beta) Then
             Call DScal_(nInter,Beta/Beta_New,dq(1,nIter),1)

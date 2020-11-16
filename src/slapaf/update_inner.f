@@ -93,7 +93,7 @@
      &          HUpMet*6, File1*8, File2*8, Step_Trunc_
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:),
      &                      RHS(:), ErrVec(:,:), EMtrx(:,:)
-      Integer, Allocatable:: Pvt(:), Index(:), iFlip(:)
+      Integer, Allocatable:: Index(:), iFlip(:)
       Real*8, Allocatable:: R(:,:), dRdq(:,:,:), CInt(:), CInt0(:),
      &                      T(:,:), d2L(:,:,:), BM(:,:), dBM(:,:,:),
      &                      Energy_L(:), dEdx(:,:), x(:,:), du(:),
@@ -121,7 +121,6 @@
       Step_Trunc='N'
       nA = (Max(mInter,kIter)+1)**2
       Call mma_Allocate(AMat,nA,Label='AMat')
-      Call mma_Allocate(Pvt,kIter+1,Label='Pvt')
       Call mma_Allocate(Index,kIter,Label='Index')
       Call mma_Allocate(ErrVec,mInter,(kIter+1),Label='ErrVec')
       Call mma_Allocate(EMtrx,kIter+1,kIter+1,Label='EMtrx')
@@ -304,7 +303,7 @@ C           Write (6,*) 'tBeta=',tBeta
                Step_Trunc_=Step_Trunc
                Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
      &                   ErrVec,EMtrx,RHS,
-     &                   Pvt,AMat,nA,
+     &                   AMat,nA,
      &                   ed,iOptC,qBeta,nFix,Index,UpMeth,
      &                   Energy,Line_Search,Step_Trunc_,Thr_RS)
                If (Step_Trunc.eq.'N') Step_Trunc=' '
@@ -651,7 +650,7 @@ C           Write (6,*) 'tBeta=',tBeta
      &                dEdq,du,x,dEdx,Wess,GNrm(kIter),
      &                nWndw,Hessian,nInter,kIter,iOptC,Mode_,MF,
      &                iOptH_,HUpMet,jPrint,Energy_L,nLambda,nRowH,
-     &                ErrVec,EMtrx,RHS,Pvt,
+     &                ErrVec,EMtrx,RHS,
      &                AMat,nA,ed,qBeta,qBeta_Disp,nFix,
      &                Index,UpMeth,Line_Search,Step_Trunc,Lbl,
      &                GrdLbl,StpLbl,GrdMax,StpMax,d2L,nsAtom,
@@ -707,7 +706,6 @@ C           Write (6,*) 'tBeta=',tBeta
       Call mma_Deallocate(EMtrx)
       Call mma_Deallocate(ErrVec)
       Call mma_Deallocate(Index)
-      Call mma_Deallocate(Pvt)
       Call mma_Deallocate(AMat)
 *
       Return
