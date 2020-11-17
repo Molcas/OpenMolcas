@@ -14,13 +14,28 @@
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 dMass(nAtom), Degen(3*nAtom), Cx(3*nAtom,nIter)
       Integer iANr(nAtom)
       Logical Smmtrc(3*nAtom),DDV_Schlegel,Found
       Integer, Allocatable:: TabAI(:), AN(:)
       Real*8, Allocatable:: TR(:), Vec(:), Coor(:,:), Tmp(:)
+      Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+        Subroutine Box(Coor,nAtoms,iANr,iOptC,Schlegel,TabB,TabA,nBonds,
+     &                nMax)
+        Integer nAtoms
+        Real*8 Coor(3,nAtoms)
+        Integer iANr(nAtoms)
+        Integer iOptC
+        Logical Schlegel
+        Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
+        Integer nBonds, nMax
+        End Subroutine Box
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -65,8 +80,7 @@
 *-----Generate bond list
 *
       mTtAtm = mTtAtm+nHidden
-      Call Box(Coor,mTtAtm,AN,iOptC,ddV_Schlegel,ip_TabB,ip_TabA,nBonds,
-     &         nMax)
+      Call Box(Coor,mTtAtm,AN,iOptC,ddV_Schlegel,TabB,TabA,nBonds,nMax)
       mTtAtm = mTtAtm-nHidden
 *                                                                      *
 ************************************************************************
@@ -79,8 +93,8 @@
       Call Get_dArray('Saddle',Tmp,nSaddle)
       Found=.false.
       If (Tmp(nSaddle-1).gt.0.50d0) Then
-         Do i=0,nBonds-1
-            If (iWork(ip_TabB+3*i+2).eq.2) Then
+         Do i=1,nBonds
+            If (TabB(3,i).eq.2) Then
                Found=.true.
                Go To 20
             EndIf
@@ -96,8 +110,8 @@
       EndIf
       Call mma_deallocate(Tmp)
 *
-      Call Free_iWork(ip_TabA)
-      Call Free_iWork(ip_TabB)
+      Call mma_deallocate(TabA)
+      Call mma_deallocate(TabB)
       Call mma_deallocate(Coor)
       Call mma_deallocate(AN)
       Call mma_deallocate(Vec)

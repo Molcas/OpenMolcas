@@ -8,14 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Box(Coor,nAtoms,iANr,iOptC,Schlegel,ip_TabB,ip_TabA,
-     &               nBonds,nMax)
+      Subroutine Box(Coor,nAtoms,iANr,iOptC,Schlegel,TabB,TabA,nBonds,
+     &               nMax)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 Coor(3,nAtoms)
       Integer iANr(nAtoms)
       Logical Schlegel
+      Integer, Allocatable:: TabB(:,:), TabA(:,:,:), iBox(:,:),
+     &                       Tab(:,:,:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -81,22 +83,19 @@ cnf      nMax=40
 c AOM Fixed this size to account for double VdW counting
       nBondMax=nAtoms*(nAtoms+1)
 c AOM
-      Call GetMem('TabB','Allo','Inte',ip_TabB,3*nBondMax)
-      Call GetMem('TabA','Allo','Inte',ip_TabA,2*(nMax+1)*nAtoms)
-      Call GetMem('Tab ','Allo','Inte',ip_Tab,(nMax+1)*nx*ny*nz)
-      Call GetMem('Box ','Allo','Inte',ip_iBox,3*nAtoms)
+      Call mma_allocate(TabB,3,nBondMax,Label='TabB')
+      Call mma_allocate(TabA,[1,2],[0,nMax],[1,nAtoms],Label='TabA')
+      Call mma_allocate(Tab,[0,nMax],[1,nx],[1,ny],[1,nz],Label='Tab')
+      Call mma_allocate(iBox,3,nAtoms,Label='iBox')
 *
-      Call Sort_to_Box(Coor,nAtoms,iWork(ip_Tab),nMax,nx,ny,nz,
-     &                 iWork(ip_iBox),iANr,
-     &                 xmin,ymin,zmin,Box_Size)
+      Call Sort_to_Box(Coor,nAtoms,Tab,nMax,nx,ny,nz,
+     &                 iBox,iANr,xmin,ymin,zmin,Box_Size)
 *
-      Call Find_Bonds(Coor,nAtoms,iWork(ip_Tab),nMax,nx,ny,nz,
-     &                iWork(ip_iBox),iANr,Schlegel,iOptC,
-     &                iWork(ip_TabB),nBonds,nBondMax,
-     &                iWork(ip_TabA),ThrB)
+      Call Find_Bonds(Coor,nAtoms,Tab,nMax,nx,ny,nz,iBox,iANr,
+     &                Schlegel,iOptC,TabB,nBonds,nBondMax,TabA,ThrB)
 *
-      Call Free_iWork(ip_iBox)
-      Call Free_iWork(ip_Tab)
+      Call mma_deallocate(iBox)
+      Call mma_deallocate(Tab)
 *
       Return
       End

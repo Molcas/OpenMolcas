@@ -23,6 +23,7 @@
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
       Real*8 Coor(3,nAtom),  dMass(nAtom), Degen(3*nAtom),
      &       Gx(3*nAtom,nIter)
@@ -34,6 +35,23 @@
      &        HWRS, Analytic_Hessian, PrQ, lOld
       External Get_SuperName
       Character*100 Get_SuperName
+      Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
+      Integer, External:: ip_of_iWork
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+        Subroutine Box(Coor,nAtoms,iANr,iOptC,Schlegel,TabB,TabA,nBonds,
+     &                nMax)
+        Integer nAtoms
+        Real*8 Coor(3,nAtoms)
+        Integer iANr(nAtoms)
+        Integer iOptC
+        Logical Schlegel
+        Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
+        Integer nBonds, nMax
+        End Subroutine Box
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -117,7 +135,7 @@
 *
       mTtAtm = mTtAtm+nHidden
       Call Box(Work(ipCoor),mTtAtm,iWork(ipAN),iOptC,
-     &         ddV_Schlegel,ip_TabB,ip_TabA,nBonds,nMax)
+     &         ddV_Schlegel,TabB,TabA,nBonds,nMax)
       mTtAtm = mTtAtm-nHidden
 *                                                                      *
 ************************************************************************
@@ -140,7 +158,7 @@
      &   Call LNM(Work(ipCoor),mTtAtm,Work(ipEVal),Work(ip_Hss_X),
      &            Work(ipScr2),Work(ipVec),nAtom,nDim,iWork(ipAN),
      &            Smmtrc,nIter,iOptH,Degen, DDV_Schlegel,
-     &            Analytic_Hessian,iOptC,iWork(ip_TabB),iWork(ip_TabA),
+     &            Analytic_Hessian,iOptC,TabB,TabA,
      &            nBonds,nMax,nHidden,nMDstep,ipMMKept)
 *
       Call GetMem('scr2','Free','Real',ipScr2,(3*mTtAtm)**2)
@@ -194,8 +212,10 @@
 *
          If (nHidden.ne.0) Then
             Call Box(Work(ipCoor),mTtAtm,iWork(ipAN),iOptC,
-     &               ddV_Schlegel,ip_TabB,ip_TabA,nBonds,nMax)
+     &               ddV_Schlegel,TabB,TabA,nBonds,nMax)
          End If
+         ip_TabA = ip_of_iWork(TabA(1,0,1))
+         ip_TabB = ip_of_iWork(TabB(1,1))
          Call BMtrx_Internal(
      &                 ipBMx,nAtom,
      &                 ip_rInt,nDim,dMass,
@@ -250,8 +270,8 @@
       End If
       Call Free_Work(ip_Hss_X)
       Call GetMem('EVal','Free','Real',ipEVal,(3*mTtAtm)*(3*mTtAtm+1)/2)
-      Call Free_iWork(ip_TabA)
-      Call Free_iWork(ip_TabB)
+      Call mma_deallocate(TabA)
+      Call mma_deallocate(TabB)
       Call GetMem('Coor','Free','Real',ipCoor,3*mTtAtm)
       Call GetMem('AN','Free','Inte',ipAN,mTtAtm)
       Call GetMem('Vect','Free','Real',ipVec,3*mTtAtm*nDim)
