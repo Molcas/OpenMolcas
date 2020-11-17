@@ -8,16 +8,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Force(nFix,GrdX,nAtom,nInter,BMx,Name,Iter,
-     &                 Grad,Lbl,Degen)
+      Subroutine Force(nFix,GrdX,nAtom,nInter,BMx,Name,Iter,Grad,Lbl,
+     &                 Degen)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "Molcas.fh"
       Real*8 GrdX(3*nAtom), BMx(3*nAtom,3*nAtom),
      &       Grad(nInter,Iter), Degen(3*nAtom)
       Character Name(nAtom)*(LENIN), Lbl(nInter)*8
-      Dimension Dummy(1)
+      Real*8 Dummy(1)
+      Real*8, Allocatable:: Frc(:)
 *
 #ifdef _DEBUGPRINT_
       Call RecPrt('In Force:BMx ',' ',BMx ,3*nAtom,nInter)
@@ -30,14 +31,14 @@
 *     energy functional will have zero gradient with respect to the
 *     frozen parameters.
 *
-      Call GetMem('Force','Allo','Real',ipFrc,3*nAtom)
+      Call mma_allocate(Frc,3*nAtom,Label='Frc')
 *
 *     Compute the norm of the cartesian force vector.
 *
 *     |dE/dx|=Sqrt(dE/dx|u|dE/dx)
 *
       Do i = 1, 3*nAtom
-         Work(i +ipFrc-1) = Degen(i)*GrdX(i)
+         Frc(i) = Degen(i)*GrdX(i)
       End Do
 *                                                                      *
 ************************************************************************
@@ -49,7 +50,7 @@
       M = 3*nAtom
       N = nInter
       NRHS=1
-      Call Eq_Solver('N',M,N,NRHS,BMx,.TRUE.,Dummy,Work(ipFrc),
+      Call Eq_Solver('N',M,N,NRHS,BMx,.TRUE.,Dummy,Frc,
      &               Grad(1,Iter))
 #ifdef _DEBUGPRINT_
       Call RecPrt(' Internal Forces in au before FIXIC ',
@@ -71,7 +72,7 @@
      &            Name,nAtom,GrdX,3,nAtom)
 #endif
 *
-      Call GetMem('Force','Free','Real',ipFrc,3*nAtom)
+      Call mma_deallocate(Frc)
 *
       Return
 #ifndef _DEBUGPRINT_

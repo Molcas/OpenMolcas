@@ -11,12 +11,13 @@
       subroutine ddV(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,
      &               iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "sbs.fh"
       Real*8 Cart(3,nAtoms+nHidden),Hess((3*nAtoms)*(3*nAtoms+1)/2)
       Integer   iANr(nAtoms+nHidden), iTabBonds(3,nBonds),
      &          iTabAtoms(2,0:nMax,nAtoms+nHidden)
       Logical Schlegel
+      Real*8, Allocatable:: HBig(:)
 *
 *  Temporary big hessian
 *
@@ -27,24 +28,24 @@
 ************************************************************************
       If (nHidden.gt.0) Then
          nTot = nAtoms+nHidden
-         Call Allocate_Work(ipHBig,(3*nTot)*(3*nTot+1)/2)
+         Call mma_allocate(HBig,(3*nTot)*(3*nTot+1)/2,Label='HBig')
 *
 * Temporary turn on the translational/rotational invariance
 *
          iSBS = iEOr(iSBS,2**7)
          iSBS = iEOr(iSBS,2**8)
-         Call ddV_(Cart,nTot,Work(ipHBig),iANr,Schlegel,iOptC,iTabBonds,
+         Call ddV_(Cart,nTot,HBig,iANr,Schlegel,iOptC,iTabBonds,
      &             iTabAtoms,nBonds,nMax,nHidden)
          iSBS = iOr(iSBS,2**7)
          iSBS = iOr(iSBS,2**8)
-         Call dCopy_((3*nAtoms)*(3*nAtoms+1)/2,Work(ipHBig),1,Hess,1)
+         Call dCopy_((3*nAtoms)*(3*nAtoms+1)/2,HBig,1,Hess,1)
 #ifdef _DEBUGPRINT_
          write(6,*) 'DDV: Improved Hessian'
          Call RecPrt('Coord (with hidden atoms):',' ',Cart,3,nTot)
-         Call TriPrt('Hessian (hidden atoms):',' ',Work(ipHBig),3*nTot)
+         Call TriPrt('Hessian (hidden atoms):',' ',HBig,3*nTot)
          Call TriPrt('Hessian (normal):',' ',Hess,3*nAtoms)
 #endif
-         Call Free_Work(ipHBig)
+         Call mma_deallocate(HBig)
       Else
          Call ddV_(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,iTabBonds,
      &             iTabAtoms,nBonds,nMax,nHidden)
@@ -59,6 +60,7 @@
 #include "print.fh"
 #include "sbs.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 Cart(3,nAtoms),rij(3),rjk(3),rkl(3),
      &       Hess((3*nAtoms)*(3*nAtoms+1)/2),si(3),sj(3),sk(3),
      &       sl(3),sm(3),x(2),y(2),z(2),
@@ -70,6 +72,7 @@
      &        Invariant(3)
 *
       Real*8 Trans(3), RotVec(3), RotMat(3,3)
+      Real*8, Allocatable:: xMass(:)
 *
 #include "warnings.fh"
 #define _FMIN_
@@ -129,10 +132,10 @@
       TransVar=iAnd(iSBS,2**7).eq. 2**7
       RotVar  =iAnd(iSBS,2**8).eq. 2**8
 *
-      Call Allocate_Work(ip_xMass,nAtoms)
-      Call Get_Mass_All(Work(ip_xMass),nAtoms-nHidden)
+      Call mma_allocate(xMass,nAtoms,Label='xMass')
+      Call Get_Mass_All(xMass,nAtoms-nHidden)
       Do iAtom=nAtoms-nHidden+1,nAtoms
-         Work(ip_xMass+iAtom-1)=rMass(iANr(iAtom))
+         xMass(iAtom)=rMass(iANr(iAtom))
       End Do
 *                                                                      *
 ************************************************************************
@@ -155,12 +158,12 @@
 *
       TMass=Zero
       Do iAtom = 1, nAtoms
-         TMass=TMass+Work(ip_xMass+iAtom-1)
+         TMass=TMass+xMass(iAtom)
       End Do
       Do iAtom = 1, nAtoms
-         f1=Work(ip_xMass+iAtom-1)/TMass
+         f1=xMass(iAtom)/TMass
          Do jAtom = 1, iAtom-1
-            f2=Work(ip_xMass+jAtom-1)/TMass
+            f2=xMass(jAtom)/TMass
 *
             f_const=Max(Trans_Const,f_const_Min_)
             gmm=Fact*f_const*f1*f2
@@ -227,14 +230,14 @@ c     End If
       Call Allocate_Work(ip_CurrXYZ,3*nAtoms)
       Do iAtom = 1, nAtoms
          If (iANr(iAtom).le.0) Then
-            Work(ip_xMass-1+iAtom) = 1.0D-10
+            xMass(iAtom) = 1.0D-10
          End If
       End Do
       nOrder=1
       Call FZero(Trans,3)
       Call FZero(RotVec,3)
       call dcopy_(3*nAtoms,Cart,1,Work(ip_CurrXYZ),1)
-      Call RotDer(nAtoms,Work(ip_xMass),Work(ip_CurrXYZ),Cart,
+      Call RotDer(nAtoms,xMass,Work(ip_CurrXYZ),Cart,
      &            Trans,RotAng,
      &            RotVec,RotMat,nOrder,Work(ip_Grad),dum)
       Call Free_Work(ip_CurrXYZ)
@@ -370,7 +373,7 @@ c     End If
       Call DiagMtrx_T(Hess,n3,iNeg)
 #endif
  778  Continue
-      Call Free_Work(ip_xMass)
+      Call mma_deallocate(xMass)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1169,31 +1172,34 @@ C                 tij=Max(tij,f_const_Min_)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
       character*16 filnam
       Real*8 H(*)
       Logical Exist
+      Real*8, Allocatable:: EVal(:), EVec(:), rK(:), qEVec(:)
+      Integer, External:: ip_of_Work
 *
       Lu=6
       iRout=22
       iprint=nPrint(iRout)
 *
-      Call GetMem('EVal','Allo','Real',ipEVal,nH*(nH+1)/2)
-      Call GetMem('EVec','Allo','Real',ipEVec,nH*nH)
+      Call mma_allocate(EVal,nH*(nH+1)/2,Label='EVal')
+      Call mma_allocate(EVec,nH*nH,Label='EVec')
 *
 *---- Copy elements for H
 *
-      call dcopy_(nH*(nH+1)/2,H,1,Work(ipEVal),1)
+      call dcopy_(nH*(nH+1)/2,H,1,EVal,1)
 *
 *---- Set up a unit matrix
 *
-      call dcopy_(nH*nH,[Zero],0,Work(ipEVec),1)
-      call dcopy_(nH,[One],0,Work(ipEVec),nH+1)
+      call dcopy_(nH*nH,[Zero],0,EVec,1)
+      call dcopy_(nH,[One],0,EVec,nH+1)
 *
 *---- Compute eigenvalues and eigenvectors
 *
-      Call NIDiag_new(Work(ipEVal),Work(ipEVec),nH,nH,0)
-      Call Jacord(Work(ipEVal),Work(ipEVec),nH,nH)
+      Call NIDiag_new(EVal,EVec,nH,nH,0)
+      Call Jacord(EVal,EVec,nH,nH)
 *
 *---- Print out the result
 *
@@ -1205,7 +1211,7 @@ C                 tij=Max(tij,f_const_Min_)
         Write (Lu,*)
         Write (Lu,*) 'Eigenvalues of the Hessian'
         Write (Lu,*)
-        Write (Lu,'(5G20.6)') (Work(i*(i+1)/2+ipEVal-1),i=1,nH)
+        Write (Lu,'(5G20.6)') (EVal(i*(i+1)/2),i=1,nH)
       END IF
 *
       call f_Inquire('SPCINX',Exist)
@@ -1225,13 +1231,13 @@ c         Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
 *
          If (nQQ.eq.nH) Then
 *
-           Call GetMem('rK','Allo','Real',iprK,nq*nQQ)
-           Call GetMem('qEVec','Allo','Real',ipqEVec,nq*nH)
-           Call Print_qEVec(Work(ipEVec),nH,ipEVal,nq,
-     &                      Work(iprK),Work(ipqEVec),LuTmp)
+           Call mma_allocate(rK,nq*nQQ,Label='rK')
+           Call mma_allocate(qEVec,nq*nH,Label='qEVec')
+           ipEVal = ip_of_Work(EVal(1))
+           Call Print_qEVec(EVec,nH,ipEVal,nq,rK,qEVec,LuTmp)
 *
-           Call GetMem('qEVec','Free','Real',ipqEVec,nq*nH)
-           Call GetMem('rK','Free','Real',iprK,nq*nQQ)
+           Call mma_deallocate(qEVec)
+           Call mma_deallocate(rk)
 *
          Else
 *
@@ -1240,7 +1246,7 @@ c         Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
            Write (Lu,*)
            Do i = 1, nH
               Write (Lu,'(10F10.5)')
-     &              (Work((j-1)*nH+i+ipEVec-1),j=1,nH)
+     &              (EVec((j-1)*nH+i),j=1,nH)
            End Do
          End If
 *
@@ -1251,13 +1257,13 @@ c         Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
          Write (Lu,*) 'Eigenvectors of the Hessian'
          Write (Lu,*)
          Do i = 1, nH
-            Write (Lu,'(10F10.5)') (Work((j-1)*nH+i+ipEVec-1),j=1,nH)
+            Write (Lu,'(10F10.5)') (EVec((j-1)*nH+i),j=1,nH)
          End Do
 *
       End If
 *
-      Call GetMem('EVec','Free','Real',ipEVec,nH*nH)
-      Call GetMem('EVal','Free','Real',ipEVal,nH*(nH+1)/2)
+      Call mma_deallocate(EVec)
+      Call mma_deallocate(EVal)
 *
       Return
       End
