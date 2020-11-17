@@ -64,10 +64,9 @@
 *
 *-----Generate bond list
 *
-      ThrB=0.0D0  ! dummy
       mTtAtm = mTtAtm+nHidden
       Call Box(Coor,mTtAtm,AN,iOptC,ddV_Schlegel,ip_TabB,ip_TabA,nBonds,
-     &         nMax,ThrB)
+     &         nMax)
       mTtAtm = mTtAtm-nHidden
 *                                                                      *
 ************************************************************************

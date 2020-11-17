@@ -8,8 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine ConInt(xyz,nCent,dE,Bf,lWrite_,lWarn,Label,dBf,ldB,
-     &                  lIter)
+      Subroutine ConInt(xyz,nCent,dE,Bf,lWrite_,Label,dBf,ldB,lIter)
       Implicit Real*8  (a-h,o-z)
 #include "info_slapaf.fh"
 #include "real.fh"
@@ -17,7 +16,7 @@
 #include "WrkSpc.fh"
 #include "constants.fh"
       Real*8   Bf(3,nCent), xyz(3,nCent), dBf(3*nCent,3*nCent)
-      Logical lWrite_, ldB, lWarn
+      Logical lWrite_, ldB
       Character*8 Label
 *
 *
@@ -195,6 +194,4 @@ C------------- Absolute value ----------
       End If
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_logical(lWarn)
       End

@@ -118,7 +118,7 @@
 *------- Broyden-Fletcher-Goldfarb-Shanno update
 *
          HUpMet=' BFGS '
-         Call  DFP(H,nInter,gi,dq(1,nIter-1),dg)
+         Call DFP(H,nInter,gi,dq(1,nIter-1),dg)
 *
       Else If (Test(5)) Then
 *
@@ -130,7 +130,7 @@
      &              dq(1,nIter-1),1,
      &              One,dg,1)
          If (iPrint.ge.99) Call RecPrt(' NewH: gamma',' ',dg,nInter,1)
-         Call MSP(H,gi,dg,dq(1,nIter-1),nInter)
+         Call MSP(H,dg,dq(1,nIter-1),nInter)
 *
       Else If (Test(7)) Then
 *
@@ -153,16 +153,7 @@
 *------- TS_BFGS update
 *
          HUpMet='TSBFGS'
-*
-*        Some precalculations:
-         Do i=1,nInter
-            gi(i) = -g(i,nIter-1)
-            If (DoMask) Then
-               If (UpdMask(i).ne.0) gi(i) = Zero
-            End If
-         End Do
-*
-         Call TS_BFGS(dq(1,nIter-1),dg,gi,H,nInter)
+         Call TS_BFGS(dq(1,nIter-1),dg,H,nInter)
 *
       Else
 *

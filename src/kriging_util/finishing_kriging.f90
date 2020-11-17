@@ -35,6 +35,7 @@ Subroutine Finish_Kriging()
   Call mma_deallocate(cvMatFder)
   Call mma_deallocate(cvMatSder)
   Call mma_deallocate(cvMatTder)
+  If (Allocated(layer_U)) Call mma_deallocate(layer_U)
 !
   return
 End Subroutine Finish_Kriging

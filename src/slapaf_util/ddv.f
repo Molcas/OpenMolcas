@@ -236,7 +236,7 @@ c     End If
       call dcopy_(3*nAtoms,Cart,1,Work(ip_CurrXYZ),1)
       Call RotDer(nAtoms,Work(ip_xMass),Work(ip_CurrXYZ),Cart,
      &            Trans,RotAng,
-     &            RotVec,RotMat,nOrder,Work(ip_Grad),dum,dum,dum)
+     &            RotVec,RotMat,nOrder,Work(ip_Grad),dum)
       Call Free_Work(ip_CurrXYZ)
 *
 *
@@ -983,7 +983,7 @@ C           Write (*,*) 'jAtom=',jAtom
             iBond = iTabAtoms(2,iNb0,iAtom)
             iBondType=iTabBonds(3,iBond)
 C           Write (*,*) 'iBondType=',iBondType
-            nCoBond_j=nCoBond(jAtom,nAtoms,nMax,iTabBonds,nBonds,
+            nCoBond_j=nCoBond(jAtom,nAtoms,nMax,iTabBonds,
      &                        nBonds,iTabAtoms)
             If (nCoBond_j.gt.1) Go To 447
 *           If (iBondType.eq.vdW_Bond) Go To 447

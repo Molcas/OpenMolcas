@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Box(Coor,nAtoms,iANr,iOptC,Schlegel,ip_TabB,ip_TabA,
-     &               nBonds,nMax,ThrB_)
+     &               nBonds,nMax)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -33,7 +33,6 @@
 #ifdef _DEBUGPRINT_
       Call RecPrt('Box: Coor',' ',Coor,3,nAtoms)
       Write (6,*) 'Box: ThrB=',ThrB
-      Write (6,*) 'Box: ThrB_=',ThrB_
 #endif
 *
       xmin= 1.0D+10
@@ -100,8 +99,4 @@ c AOM
       Call Free_iWork(ip_Tab)
 *
       Return
-#ifndef _DEBUGPRINT_
-c Avoid unused argument warnings
-      If (.False.) Call Unused_real(Thrb_)
-#endif
       End

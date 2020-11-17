@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine LNM(Cart,nAtoms,Hess,Scrt1,Scrt2,Vctrs,
-     &               mAtoms,nDim,iAnr,Smmtrc,Gx,nIter,iOptH,
+     &               mAtoms,nDim,iAnr,Smmtrc,nIter,iOptH,
      &               Degen,Schlegel,Analytic_Hessian,
      &               iOptC,iTabBonds,iTabAtoms,nBonds,nMax,nHidden,
      &               nMDstep,MMkept)
@@ -21,7 +21,7 @@
 #include "stdalloc.fh"
 #include "angstr.fh"
       Real*8 Cart(3,nAtoms+nHidden), Hess(3*nAtoms*(3*nAtoms+1)/2),
-     &       Gx(3*mAtoms,nIter), Scrt1((3*nAtoms)**2),
+     &       Scrt1((3*nAtoms)**2),
      *       Scrt2((3*nAtoms)**2), Vctrs(3*nAtoms,nDim),
      &       Degen(3*mAtoms)
       Integer   iANr(nAtoms+nHidden), iTabBonds(3,nBonds),
@@ -303,9 +303,4 @@ cnf
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _WARNING_WORKAROUND_
-      If (.False.) Then
-         Call Unused_real_array(Gx)
-      End If
-#endif
       End

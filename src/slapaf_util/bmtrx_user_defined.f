@@ -13,10 +13,10 @@
      &                 ip_rInt,Lbl,Coor,nDim,dMass,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
-     &                 Gx,mTtAtm,iAnr,
+     &                 Gx,
      &                 nStab,jStab,Numerical,
-     &                 HWRS,Analytic_Hessian,
-     &                 iOptC,PrQ,mxdc,iCoSet,lOld,
+     &                 Analytic_Hessian,
+     &                 iOptC,mxdc,lOld,
      &                 nFix,mTR,ip_KtB,nQQ,Redundant,nqInt,MaxItr)
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
@@ -26,10 +26,9 @@
       Real*8 Coor(3,nAtom), dMass(nAtom), Degen(3*nAtom),
      &       Gx(3*nAtom,nIter)
       Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
-      Integer   iAnr(nAtom),
-     &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
+      Integer   nStab(nAtom), jStab(0:7,nAtom)
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
-     &        Numerical, HWRS, Analytic_Hessian, PrQ, lOld, Proc_dB
+     &        Numerical, Analytic_Hessian, lOld, Proc_dB
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -130,12 +129,4 @@
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(mTtAtm)
-         Call Unused_integer_array(iAnr)
-         Call Unused_logical(HWRS)
-         Call Unused_logical(PrQ)
-         Call Unused_integer_array(iCoSet)
-      End If
       End

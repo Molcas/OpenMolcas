@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine GF(nX,mInter,nInter,Tmp1,Tmp2,EVec,EVal,RedM,
-     &              iNeg,iDo_dDipM,dDipM,mTR,Smmtrc,nAtom,DipM)
+     &              iNeg,dDipM,mTR,Smmtrc,nAtom,DipM)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -101,6 +101,4 @@
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(iDo_dDipM)
       End

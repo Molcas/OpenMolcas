@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2005, Christian Ander                                  *
 ************************************************************************
-      Subroutine ts_bfgs(dq,y,gi,H,nH)
+      Subroutine ts_bfgs(dq,y,H,nH)
       Implicit None
 *     Hessian update method; TS-BFGS ; Bofill - "Remarks on the
 *     Updated Hessian Matrix Methods" 2003.
@@ -21,7 +21,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     gi    :  gradient                   (nH)
 *     dq    :  Perturbation Geometry      (nH)
 *     y     :  Difference in Gradient     (nH)
 *     WorkM :  Temporary working matrix   (nH,nH)
@@ -35,7 +34,7 @@
 #include "real.fh"
 #include "stdalloc.fh"
       Integer nH, i, j
-      Real*8 H(nH,nH), dq(nH), y(nH), gi(nH)
+      Real*8 H(nH,nH), dq(nH), y(nH)
       Real*8 a, b, f, WorkR, ddot_
       Real*8, Dimension(:,:), Allocatable :: WorkM
       Real*8, Dimension(:), Allocatable :: WorkV, v, u
@@ -164,6 +163,4 @@
       Call mma_deallocate(v)
       Call mma_deallocate(u)
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(gi)
       End

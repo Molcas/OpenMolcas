@@ -8,15 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine SphInt(xyz,nCent,iOfRef,RR0,Bf,l_Write,lWarn,Label,
-     &                  dBf,ldB)
+      Subroutine SphInt(xyz,nCent,iOfRef,RR0,Bf,l_Write,Label,dBf,ldB)
       Implicit Real*8  (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "weighting.fh"
 #include "info_slapaf.fh"
       Real*8   Bf(3,nCent), xyz(3,nCent), dBf(3,nCent,3,nCent)
-      Logical l_Write, ldB, lWarn
+      Logical l_Write, ldB
       Character*8 Label
 *
       xyz0(i,j)=Work(ipRef_+(j-1)*3+i-1)
@@ -120,6 +119,4 @@ C        Call RecPrt('dBf',' ',dBf,3*nCent,3*nCent)
       End If
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_logical(lWarn)
       End

@@ -8,11 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine MSP(B,Bd,Gamma,Delta,nDim)
+      Subroutine MSP(B,Gamma,Delta,nDim)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
-      Real*8 B(nDim,nDim), Bd(nDim),Gamma(nDim),Delta(nDim)
+      Real*8 B(nDim,nDim),Gamma(nDim),Delta(nDim)
 *
 *                              T       T            ( T)
 *                    |(1-phi)/d g phi/d d|        | (g )
@@ -51,6 +51,4 @@
      &   Call RecPrt(' MSP: Updated Hessian',' ',B,nDim,nDim)
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(Bd)
       End

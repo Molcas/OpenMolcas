@@ -18,12 +18,12 @@
       Call Allocate_Work(ipG,nX**2)
       Call Allocate_Work(ipGInv,nX**2)
 *
-      Call mk_G_(Work(ipG),Work(ipGInv),nX,mInter,nsAtom,.Not.User_Def,
+      Call mk_G_(Work(ipG),Work(ipGInv),mInter,nsAtom,.Not.User_Def,
      &           CurviLinear,Smmtrc,Degen,Work(ipCM))
 *
       Return
       End
-      Subroutine mk_G_(G,GInv,nX,mInter,nAtom,Auto,nrc,Smmtrc,Degen,
+      Subroutine mk_G_(G,GInv,mInter,nAtom,Auto,nrc,Smmtrc,Degen,
      &                 dMass)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -62,6 +62,4 @@
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(nX)
       End

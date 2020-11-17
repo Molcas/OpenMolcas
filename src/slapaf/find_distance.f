@@ -53,10 +53,10 @@
         Call Align(Point,Ref,nAtom)
         If (MEP_Type.eq.'SPHERE') Then
           Call SphInt(Point,nAtom,ip_Dummy,R,Dummy,
-     &                .False.,.False.,'dummy   ',Work(ip_Dummy),.False.)
+     &                .False.,'dummy   ',Work(ip_Dummy),.False.)
         Else If (MEP_Type.eq.'TRANSVERSE') Then
           Call Transverse(Point,nAtom,R,Dummy,
-     &                .False.,.False.,'dummy   ',Work(ip_Dummy),.False.)
+     &                .False.,'dummy   ',Work(ip_Dummy),.False.)
         End If
 
 *       Stop if too many iterations or if the constraint is moving

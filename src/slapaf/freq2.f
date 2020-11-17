@@ -8,15 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Freq2(nIter,Grdn,Shift,nInter,Delta,Stop,
-     &                qInt,ANM,nAtom,dMass)
+      Subroutine Freq2(nIter,Grdn,Shift,nInter,Delta,Stop,qInt)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
       Real*8 Grdn(nInter,nIter), Shift(nInter,nIter),
-     &       qInt(nInter,nIter+1), dMass(nAtom)
-      Logical Stop, ANM
+     &       qInt(nInter,nIter+1)
+      Logical Stop
 *
       iRout = 183
       iPrint = nPrint(iRout)
@@ -32,9 +31,4 @@
       End If
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_logical(ANM)
-         Call Unused_real_array(dMass)
-      End If
       End

@@ -115,10 +115,9 @@
 *
 *-----Generate bond list
 *
-      ThrB=0.0D0  ! dummy
       mTtAtm = mTtAtm+nHidden
       Call Box(Work(ipCoor),mTtAtm,iWork(ipAN),iOptC,
-     &         ddV_Schlegel,ip_TabB,ip_TabA,nBonds,nMax,ThrB)
+     &         ddV_Schlegel,ip_TabB,ip_TabA,nBonds,nMax)
       mTtAtm = mTtAtm-nHidden
 *                                                                      *
 ************************************************************************
@@ -140,7 +139,7 @@
       If (HSet.or..Not.(Curvilinear.or.User_Def))
      &   Call LNM(Work(ipCoor),mTtAtm,Work(ipEVal),Work(ip_Hss_X),
      &            Work(ipScr2),Work(ipVec),nAtom,nDim,iWork(ipAN),
-     &            Smmtrc,Gx,nIter,iOptH,Degen, DDV_Schlegel,
+     &            Smmtrc,nIter,iOptH,Degen, DDV_Schlegel,
      &            Analytic_Hessian,iOptC,iWork(ip_TabB),iWork(ip_TabA),
      &            nBonds,nMax,nHidden,nMDstep,ipMMKept)
 *
@@ -173,10 +172,10 @@
      &                 ip_rInt,Lbl,Coor,nDim,dMass,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
-     &                 Gx,mTtAtm,iAnr,
+     &                 Gx,
      &                 nStab,jStab,Numerical,
-     &                 HWRS,Analytic_Hessian,
-     &                 iOptC,PrQ,mxdc,iCoSet,lOld,
+     &                 Analytic_Hessian,
+     &                 iOptC,mxdc,lOld,
      &                 nFix,mTR,ip_KtB,nQQ,Redundant,nqInt,MaxItr)
 *                                                                      *
 ************************************************************************
@@ -195,20 +194,20 @@
 *
          If (nHidden.ne.0) Then
             Call Box(Work(ipCoor),mTtAtm,iWork(ipAN),iOptC,
-     &               ddV_Schlegel,ip_TabB,ip_TabA,nBonds,nMax,ThrB)
+     &               ddV_Schlegel,ip_TabB,ip_TabA,nBonds,nMax)
          End If
          Call BMtrx_Internal(
-     &                 nLines,ipBMx,nAtom,nInter,
-     &                 ip_rInt,Coor,nDim,dMass,
+     &                 ipBMx,nAtom,
+     &                 ip_rInt,nDim,dMass,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
      &                 Gx,mTtAtm,iAnr,
      &                 nStab,jStab,Numerical,
      &                 HWRS,Analytic_Hessian,
-     &                 iOptC,PrQ,mxdc,iCoSet,lOld,
-     &                 nFix,iIter,mTR,Work(ipTR),ip_TabAI,
+     &                 iOptC,PrQ,iCoSet,lOld,
+     &                 iIter,mTR,Work(ipTR),ip_TabAI,
      &                 ip_TabA,ip_TabB,nBonds,nMax,
-     &                 iIter,ip_KtB,nQQ,Redundant,nqInt,MaxItr,nWndw)
+     &                 iIter,ip_KtB,nQQ,nqInt,MaxItr,nWndw)
 *
 *------- Set the Labels for internal coordinates.
 *
@@ -223,15 +222,12 @@
 ************************************************************************
 *                                                                      *
          Call BMtrx_Cartesian(
-     &                 nLines,ipBMx,nAtom,nInter,
-     &                 ip_rInt,Coor,nDim,dMass,
+     &                 ipBMx,nAtom,nInter,
+     &                 ip_rInt,nDim,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
-     &                 Gx,mTtAtm,iAnr,
-     &                 nStab,jStab,Numerical,
-     &                 HWRS,Analytic_Hessian,
-     &                 iOptC,PrQ,mxdc,iCoSet,lOld,
-     &                 nFix,mTR,Work(ipTR),ipEVal,ip_Hss_X,
+     &                 Gx,mTtAtm,
+     &                 PrQ,lOld,mTR,Work(ipTR),ipEVal,ip_Hss_X,
      &                 ip_KtB,nQQ,Redundant,nqInt,MaxItr,nWndw)
 *
 *------- Set the Labels for cartesian normal modes.

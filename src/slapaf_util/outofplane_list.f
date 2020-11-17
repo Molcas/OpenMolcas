@@ -13,7 +13,7 @@
       Subroutine OutOfPlane_List(
      &                 nq,
      &                 nAtoms,iIter,nIter,Cx,jStab,
-     &                 nStab,nDim,Smmtrc,Process,Value,
+     &                 nStab,Smmtrc,Process,Value,
      &                 nB,iANr,qLbl,iRef,
      &                 fconst,rMult,LuIC,Name,Indq,iPrv,Proc_dB,
      &                 iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
@@ -128,9 +128,9 @@
             Write (6,*) 'E,R=',Name(iAtom),ChOp(iDCR(4)),
      &                         Name(jAtom),ChOp(iDCR(1))
 #endif
-            nCoBond_j=nCoBond(jAtom_,mAtoms,nMax,iTabBonds,nBonds,
+            nCoBond_j=nCoBond(jAtom_,mAtoms,nMax,iTabBonds,
      &                        nBonds,iTabAtoms)
-            nFgBond_j=nFgBond(jAtom_,mAtoms,nMax,iTabBonds,nBonds,
+            nFgBond_j=nFgBond(jAtom_,mAtoms,nMax,iTabBonds,
      &                        nBonds,iTabAtoms)
             If (nCoBond_j.gt.1.and.nFgBond_j.eq.0) Go To 201
             If (iDCR(4).ne.iOper(0)) Go To 201
@@ -598,7 +598,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
 *
                      Call ProjSym(nAtoms,nCent,Ind,nStab,
      &                            jStab,A,iDCR,Grad,
-     &                            Smmtrc,nDim,Hess,
+     &                            Smmtrc,Hess,
      &                            mB_Tot,mdB_Tot,
      &                            BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                            Proc_dB,nqB,nB,nq,rMult(nq))

@@ -62,6 +62,10 @@
       real*8, parameter :: h = 1e-5, eps = 1e-13, eps2 = 1e-10
 ! eps avoid to become singular in 1st der & eps2 in 2nd der
       integer :: prev_ns, m_t, counttimes
+!
+!     Transformation matrix for kriging_layer routines
+!
+      real*8, allocatable :: layer_U(:,:)
 
       contains
 

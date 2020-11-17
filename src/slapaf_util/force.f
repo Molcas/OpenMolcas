@@ -69,12 +69,14 @@
       Call PrList('Cartesian forces which will be relaxed'
      &            //' hartree/bohr',
      &            Name,nAtom,GrdX,3,nAtom)
-#else
-c Avoid unused argument warnings
-      If (.False.) Call Unused_character(Name)
 #endif
 *
       Call GetMem('Force','Free','Real',ipFrc,3*nAtom)
 *
       Return
+#ifndef _DEBUGPRINT_
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_character(Name)
+#endif
+#endif
       End

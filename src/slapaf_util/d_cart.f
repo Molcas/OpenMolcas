@@ -8,10 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Function d_cart(Ind,nStab,jStab,mxdc,nSym)
+      Function d_cart(Ind,nStab,mxdc,nSym)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-      Integer jStab(0:7,mxdc), nStab(mxdc), Ind(1)
+      Integer nStab(mxdc), Ind(1)
       Real*8 d_cart
 *                                                                      *
 ************************************************************************
@@ -32,6 +32,4 @@
 *     Write (*,*) ' d_cart=',d_cart
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer_array(jStab)
       End

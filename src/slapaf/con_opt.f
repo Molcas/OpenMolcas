@@ -15,7 +15,7 @@
      &                   dEdx,W,GNrm,nWndw,
      &                   Hess,nInter,nIter,iOptC,Mode,MF,
      &                   iOptH,HUpMet,jPrint,Energy,nLambda,
-     &                   mIter,nRowH,Err,EMx,RHS,iPvt,dg,A,nA,ed,
+     &                   nRowH,Err,EMx,RHS,A,nA,ed,
      &                   Beta,Beta_Disp,nFix,iP,UpMeth,
      &                   Line_Search,Step_Trunc,Lbl,GrdLbl,StpLbl,
      &                   GrdMax,StpMax,d2rdq2,nsAtom,IRC,CnstWght,
@@ -64,9 +64,9 @@
      &       Hess(nInter,nInter),
      &       Energy(nIter),
      &       Err(nInter,nIter+1), EMx((nIter+1)**2), RHS(nIter+1),
-     &       dg(mIter), A(nA), d2rdq2(nInter,nInter,nLambda),
+     &       A(nA), d2rdq2(nInter,nInter,nLambda),
      &       MF(3*nsAtom)
-      Integer iPvt(nInter+1), iP(nInter), iNeg(2)
+      Integer iP(nInter), iNeg(2)
       Logical Line_Search, Found, IRC_setup, First_MicroIteration,
      &        Recompute_disp
       Character HUpMet*6, UpMeth*6, Step_Trunc*1, Lbl(nInter+nLambda)*8,
@@ -947,7 +947,7 @@ C           Write (6,*) 'gBeta=',gBeta
          Do
             Step_Trunc_=Step_Trunc
             Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
-     &                RHS,iPvt,dg,A,nA,ed,iOptC,tBeta,
+     &                RHS,A,nA,ed,iOptC,tBeta,
      &                nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc_,
      &                Thr_RS)
             If (Step_Trunc.eq.'N') Step_Trunc=' '

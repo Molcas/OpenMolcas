@@ -9,11 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine BMtrx_Cartesian(
-     &                 nLines,ipBMx,nAtom,nInter,ip_rInt,Coor,nDim,
-     &                 dMass,Name,Smmtrc,Degen,BSet,HSet,
-     &                 nIter,ip_drInt,Gx,mTtAtm,iAnr,nStab,jStab,
-     &                 Numerical,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &                 iCoSet,lOld,nFix,mTR,TRVec,ipEVal,ip_Hss_x,
+     &                 ipBMx,nAtom,nInter,ip_rInt,nDim,
+     &                 Name,Smmtrc,Degen,BSet,HSet,
+     &                 nIter,ip_drInt,Gx,mTtAtm,
+     &                 PrQ,lOld,mTR,TRVec,ipEVal,ip_Hss_x,
      &                 ip_KtB,nQQ,Redundant,nqInt,MaxItr,nWndw)
       use Slapaf_Info, only: Cx
       Implicit Real*8 (a-h,o-z)
@@ -21,13 +20,9 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 Coor(3,nAtom), dMass(nAtom), Degen(3*nAtom),
-     &       Gx(3*nAtom,nIter), TRVec(nDim,mTR)
+      Real*8 Degen(3*nAtom), Gx(3*nAtom,nIter), TRVec(nDim,mTR)
       Character Name(nAtom)*(LENIN)
-      Integer   iAnr(nAtom),
-     &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
-      Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
-     &        Numerical, HWRS, Analytic_Hessian, PrQ, lOld
+      Logical Smmtrc(3*nAtom), BSet, HSet, Redundant, PrQ, lOld
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -345,27 +340,11 @@
 *---- Compute the value and gradient vectors in the new basis.
 *
       Call ValANM(nAtom,nQQ,nIter,Work(ipBmx),Degen,
-     &            Work(ip_rInt),Cx,'Values',iPrint,nWndw)
+     &            Work(ip_rInt),Cx,'Values',nWndw)
       If (BSet) Call ValANM(nAtom,nQQ,nIter,Work(ipBMx),Degen,
-     &                      Work(ip_drInt),Gx,'Gradients',iPrint,nWndw)
+     &                      Work(ip_drInt),Gx,'Gradients',nWndw)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(nLines)
-         Call Unused_real_array(Coor)
-         Call Unused_real_array(dMass)
-         Call Unused_integer_array(iAnr)
-         Call Unused_integer_array(nStab)
-         Call Unused_integer_array(jStab)
-         Call Unused_logical(Numerical)
-         Call Unused_logical(HWRS)
-         Call Unused_logical(Analytic_Hessian)
-         Call Unused_integer(iOptC)
-         Call Unused_integer(mxdc)
-         Call Unused_integer_array(iCoSet)
-         Call Unused_integer(nFix)
-      End If
       End

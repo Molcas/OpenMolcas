@@ -13,7 +13,7 @@
       SubRoutine DefInt2(BVct,dBVct,nBvct,Labels,BMtrx,mInt,nAtom,
      &                   nLines,Value,rInt,rInt0,Lbl,Name,
      &                   lWrite,jStab,nStab,mxdc,
-     &                   rMult,Smmtrc,nDim,dBMtrx,Value0,lIter,
+     &                   rMult,dBMtrx,Value0,lIter,
      &                   iFlip,dMass)
 ************************************************************************
 *                                                                      *
@@ -37,7 +37,7 @@
      &       dBMtrx(3*nAtom,3*nAtom,mInt), Value0(nBVct), MaxErr
       Character Line*120, Labels(nBVct)*8, Type*6, Format*8,
      &          Temp*120, Lbl(mInt)*8, Name(nAtom)*(LENIN),filnam*16
-      Logical lWrite, Smmtrc(3,nAtom), Start, rInt0_on_file,
+      Logical lWrite, Start, rInt0_on_file,
      &        rInt0_in_memory, InSlapaf
       Integer Flip, NoFlip, StrnLn
       External StrnLn
@@ -276,7 +276,7 @@ c      Open(Lu_UDC,File=filnam,Form='FORMATTED',Status='OLD')
      &               nCntr,mCntr,Work(ipxyz),Work(ipGrad),iWork(ipInd),
      &               Type,dMass,Work(ipMass),
      &               Labels(iBVct),lWrite,jStab,
-     &               nStab,mxdc,rMult(iBVct,iBVct),Smmtrc,
+     &               nStab,mxdc,rMult(iBVct,iBVct),
      &               Work(ipHess),lIter)
 *
          If (Type.eq.'TRSN  ' .and.
@@ -651,6 +651,4 @@ C              Write (Lu,*) 'Flip Sign for ',Labels(iBVct)
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(nDim)
       End

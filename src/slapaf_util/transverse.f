@@ -8,8 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Transverse(xyz,nCent,HDist,Bf,l_write,lWarn,Label,dBf,
-     &                      ldB)
+      Subroutine Transverse(xyz,nCent,HDist,Bf,l_write,Label,dBf,ldB)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -17,7 +16,7 @@
 #include "info_slapaf.fh"
       Real*8 Bf(3,nCent), xyz(3,nCent), dBf(3,nCent,3,nCent)
 
-      Logical l_Write, ldB, lWarn, lTrans
+      Logical l_Write, ldB, lTrans
       Character*8 Label
 *                                                                      *
 ************************************************************************
@@ -132,6 +131,4 @@ c     Call RecPrt('Bf',' ',Bf,3,nCent)
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_logical(lWarn)
       End

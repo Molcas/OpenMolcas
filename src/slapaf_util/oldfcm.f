@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine OLDFCM(ipH,nQQ,nsAtom,iPrint,RunOld)
+      Subroutine OLDFCM(ipH,nQQ,iPrint,RunOld)
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -78,6 +78,4 @@
 *
 *...  Epilogue, end
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(nsAtom)
       End

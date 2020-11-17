@@ -12,8 +12,7 @@
 ************************************************************************
       Subroutine SetUp_Kriging(nRaw,nInter,qInt,Grad,Energy,
      &                         Hessian_HMF)
-      Use kriging_mod, only: blavAI, set_l
-      Use Limbo
+      Use kriging_mod, only: blavAI, set_l, layer_U
       Implicit None
 #include "stdalloc.fh"
 #include "real.fh"
@@ -26,11 +25,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call mma_allocate(U,nInter,nInter,Label='U')
+      Call mma_allocate(layer_U,nInter,nInter,Label='layer_U')
 *
-      U(:,:)=Zero
+      layer_U(:,:)=Zero
       Do i=1,nInter
-         U(i,i)=One
+         layer_U(i,i)=One
       End Do
 *
       Call mma_allocate(Hessian,nInter,nInter,Label='Hessian')
@@ -43,10 +42,10 @@
          End Do
       End Do
 *     Call TriPrt('HTri(raw)',' ',HTri,nInter)
-      Call NIDiag_new(HTri,U,nInter,nInter,0)
-*     U(:,:)=Zero
+      Call NIDiag_new(HTri,layer_U,nInter,nInter,0)
+*     layer_U(:,:)=Zero
 *     Do i=1,nInter
-*        U(i,i)=One
+*        layer_U(i,i)=One
 *     End Do
 *     Call TriPrt('HTri',' ',HTri,nInter)
       Hessian(:,:) = Zero
@@ -85,8 +84,8 @@
 *
 *     Transform to the basis which diagonalizes the HMF Hessian.
 *
-      Call Trans_K(U,qInt,qInt_s,nInter,nRaw)
-      Call Trans_K(U,Grad,Grad_s,nInter,nRaw)
+      Call Trans_K(qInt,qInt_s,nInter,nRaw)
+      Call Trans_K(Grad,Grad_s,nInter,nRaw)
 *                                                                      *
 ************************************************************************
 *                                                                      *

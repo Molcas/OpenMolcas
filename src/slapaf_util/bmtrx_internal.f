@@ -9,25 +9,25 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine BMtrx_Internal(
-     &                 nLines,ipBMx,nAtom,nInter,ip_rInt,Coor,nDim,
+     &                 ipBMx,nAtom,ip_rInt,nDim,
      &                 dMass,Name,Smmtrc,Degen,BSet,HSet,
      &                 nIter,ip_drInt,Gx,mTtAtm,iAnr,nStab,jStab,
-     &                 Numerical,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &                 iCoSet,lOld,nFix,iIter,mTR,TRVec,ip_TabAI,
+     &                 Numerical,HWRS,Analytic_Hessian,iOptC,PrQ,
+     &                 iCoSet,lOld,iIter,mTR,TRVec,ip_TabAI,
      &                 ip_TabA,ip_TabB,nBonds,nMax,
-     &                 iRef,ip_KtB,nQQ,Redundant,nqInt,MaxItr,nWndw)
+     &                 iRef,ip_KtB,nQQ,nqInt,MaxItr,nWndw)
       use Slapaf_Info, only: Cx
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 Coor(3,nAtom), dMass(nAtom), Degen(3*nAtom),
+      Real*8 dMass(nAtom), Degen(3*nAtom),
      &       Gx(3*nAtom,nIter), TRVec(nDim,mTR)
       Character Name(nAtom)*(LENIN)
       Integer   iAnr(nAtom), nStab(nAtom), jStab(0:7,nAtom),
      &          iCoSet(0:7,nAtom)
-      Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
+      Logical Smmtrc(3*nAtom), BSet, HSet,
      &        Numerical, HWRS, Analytic_Hessian, PrQ, lOld
 *                                                                      *
 ************************************************************************
@@ -56,14 +56,4 @@
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(nLines)
-         Call Unused_integer(nInter)
-         Call Unused_real_array(Coor)
-         Call Unused_integer(mxdc)
-         Call Unused_integer(nFix)
-         Call Unused_real_array(TRVec)
-         Call Unused_logical(Redundant)
-      End If
       End

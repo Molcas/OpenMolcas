@@ -12,7 +12,7 @@
 *               2020, Ignacio Fdez. Galvan                             *
 ************************************************************************
       Subroutine Update_kriging(
-     &                     iter,MaxItr,NmIter,iInt,nFix,nInter,qInt,
+     &                     iter,MaxItr,iInt,nFix,nInter,qInt,
      &                     Shift,
      &                     Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
@@ -21,7 +21,7 @@
      &                     rLambda,Cx,Gx,GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,MF,
-     &                     iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
+     &                     iOptH,HUpMet,GNrm_Threshold,IRC,
      &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
      &                     Degen,ThrEne,ThrGrd,nLines)
 ************************************************************************
@@ -188,7 +188,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         kIter_=iterAI
+         kIter=iterAI
 #ifdef _DEBUGPRINT_
          Write (6,*)
          Write (6,*) 'Do iterAI: ',iterAI
@@ -217,7 +217,7 @@
      &                   nStab,BMx,Smmtrc,nDimBC,rLambda,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                   Labels,nLabels,FindTS,TSC,nRowH,nWndw_,Mode,
-     &                   MF,iOptH,HUpMet,kIter_,GNrm_Threshold,IRC,
+     &                   MF,iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
      &                   dMass,HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
      &                   First_MicroIteration,iter,qBeta_Disp)
@@ -479,7 +479,7 @@
 *     Deallocating memory used by Kriging
 *
       Call mma_deallocate(Hessian)
-      Call Close_Kriging()
+      Call Finish_Kriging()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -500,8 +500,4 @@
       Call Put_dArray('TROld',Dummy(1),0)
 *
       Return
-#ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_integer(kIter)
-      If (.False.) Call Unused_integer(NmIter)
-#endif
       End Subroutine Update_Kriging

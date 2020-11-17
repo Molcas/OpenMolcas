@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine Dissoc(xyz,nCntr,mCntr,rMss,nsAtom,Dist,B,lWrite,
+      SubRoutine Dissoc(xyz,nCntr,mCntr,rMss,Dist,B,lWrite,
      &                  Label,dB,ldB)
       Implicit Real*8 (A-H,O-Z)
 ************************************************************************
@@ -144,6 +144,4 @@
 #endif
       End If
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(nsAtom)
       End
