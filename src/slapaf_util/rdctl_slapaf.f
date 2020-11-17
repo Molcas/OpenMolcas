@@ -11,8 +11,10 @@
       Subroutine RdCtl_Slapaf(iRow,iInt,nFix,LuSpool,Dummy_Call)
       use kriging_mod
       use Symmetry_Info, only: Symmetry_Info_Get
+      use Slapaf_Info, only: Gx
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
 #include "info_slapaf.fh"
 #include "nadc.fh"
@@ -26,6 +28,7 @@
       External Get_SuperName
       Character*100 Get_SuperName
       Character*100 SuperName
+      Real*8, Allocatable:: DIR(:,:)
 *
 *     Compare with inputil.f. Note that here Line is defined in
 *     info:slapaf.fh. Otherwise the common cgetln should be
@@ -1204,18 +1207,15 @@ C              Write (6,*) 'RUNFILE: Found=',Found
                Call Put_dArray('Transverse',Work(ipTmpRx),3*nsAtom)
             Else
 *        The direction is given by the gradient, but in weighted coordinates
-               Call Allocate_Work(ipDir,3*nsAtom)
-               iOff=0
-               ip_Grd=ipGx+(iter-1)*3*nsAtom
+               Call mma_allocate(Dir,3,nsAtom,Label='Dir')
                Do iAtom=1,nsAtom
                   xWeight=Work(ipWeights+iAtom-1)
                   Do ixyz=1,3
-                     Work(ipDir+iOff)=Work(ip_Grd+iOff)/xWeight
-                     iOff=iOff+1
+                     Dir(ixyz,iAtom)=Gx(ixyz,iAtom,iter)/xWeight
                   End Do
                End Do
-               Call Put_dArray('Transverse',Work(ipDir),3*nsAtom)
-               Call Free_Work(ipDir)
+               Call Put_dArray('Transverse',Dir,3*nsAtom)
+               Call mma_deallocate(Dir)
             End If
          End If
       End If

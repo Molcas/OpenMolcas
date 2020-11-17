@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Init2
-      use Slapaf_Info, only: Cx
+      use Slapaf_Info, only: Cx, Gx, Gx0
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
@@ -22,7 +22,6 @@
 #include "SysDef.fh"
       Character*100 Get_SuperName, SuperName
       External Get_SuperName
-      Real*8, Allocatable:: Grad0(:)
 * Beijing Test
       Logical Exist_2,lMMGrd, Found
       Real*8 Columbus_Energy(2)
@@ -96,6 +95,10 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
 *
       Call mma_allocate(Cx,3,nsAtom,MaxItr+1,Label='Cx')
       Cx(:,:,:) = Zero
+      Call mma_allocate(Gx,3,nsAtom,MaxItr+1,Label='Gx')
+      Gx(:,:,:) = Zero
+      Call mma_allocate(Gx0,3,nsAtom,MaxItr+1,Label='Gx0')
+      Gx0(:,:,:) = Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -121,6 +124,8 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
             Call Get_cArray('Slapaf Info 3',Stat,(MaxItr+1)*128)
 *
             Call DCopy_(l1*(MaxItr+1),Work(ipCx),1,Cx,1)
+            Call DCopy_(l1*(MaxItr+1),Work(ipGx),1,Gx,1)
+            Call DCopy_(l1*(MaxItr+1),Work(ipGx0),1,Gx0,1)
          Else
             iter=1
          End If
@@ -161,8 +166,7 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
           Call Quit_OnUserError()
         End If
       End If
-      ipOff = (iter-1)*3*nsAtom + ipGx
-      call dcopy_(3*nsAtom,Work(ipGrd) ,1,Work(ipOff),1)
+      call dcopy_(3*nsAtom,Work(ipGrd) ,1,Gx(1,1,iter),1)
 * In case of a QM/MM geometry optimization, all the old MM gradients are
 * replaced by the new one (both gradients are stored on the Runfile).
 *
@@ -171,15 +175,14 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
       If (lMMGrd) Then
          Call Allocate_Work(ipMMGrd,6*nsAtom)
          Call Get_dArray('MM Grad',Work(ipMMGrd),3*nsAtom*2)
-         Do iN = 0, iter-2
-            ipOff = ipGx + iN*3*nsAtom
-            Write(6,*) 'Grad at iteration :',iN+1
-            Call RecPrt('Old:',' ',Work(ipOff),3,nsAtom)
+         Do iN = 1, iter-1
+            Write(6,*) 'Grad at iteration :',iN
+            Call RecPrt('Old:',' ',Gx(1,1,iN),3,nsAtom)
             Call DaXpY_(3*nsAtom,-One,Work(ipMMGrd),1,
-     &                               Work(ipOff),  1)
+     &                               Gx(1,1,iN),  1)
             Call DaXpY_(3*nsAtom, One,Work(ipMMGrd+3*nsAtom),1,
-     &                               Work(ipOff),           1)
-            Call RecPrt('New:',' ',Work(ipOff),3,nsAtom)
+     &                               Gx(1,1,iN),  1)
+            Call RecPrt('New:',' ',Gx(1,1,iN),3,nsAtom)
          End Do
          Call Free_Work(ipMMGrd)
       End If
@@ -326,12 +329,8 @@ c     Work(ipEner+iter-1)=Energy
                Call SysAbendmsg('Get_Molecule','Did not find:',
      &                          'Grad State2')
             End If
-            Call GetMem('Grad2','Allo','Real',ipGrad0,Length)
-            Call Get_dArray('Grad State2',Work(ipGrad0),Length)
-            ipOff = (iter-1)*3*nsAtom + ipGx0
-            call dcopy_(3*nsAtom,Work(ipGrad0) ,1,Work(ipOff),1)
-            Call DScal_(3*nsAtom,-One,Work(ipOff),1)
-            Call Free_Work(ipGrad0)
+            Call Get_dArray('Grad State2',Gx0(1,1,iter),Length)
+            Gx0(:,:,iter) = -Gx0(:,:,iter)
 *
          End If
          If (iMode.eq.3) Then
@@ -370,12 +369,8 @@ C              Write (6,*) 'iRoot=',iRoot
             Work(ipEner0+iter-1)=E0
 *
             nGrad=3*nsAtom
-            Call mma_Allocate(Grad0,nGrad,Label='Grad0')
-            Call Get_Grad(Grad0,nGrad)
-            ipOff = (iter-1)*3*nsAtom + ipGx0
-            call dcopy_(3*nsAtom,Grad0 ,1,Work(ipOff),1)
-            Call DScal_(3*nsAtom,-One,Work(ipOff),1)
-            Call mma_deallocate(Grad0)
+            Call Get_Grad(Gx0(1,1,iter),nGrad)
+            Gx0(:,:,iter) = -Gx0(:,:,iter)
 *
             Call NameRun('RUNFILE')
             TwoRunFiles = .True.

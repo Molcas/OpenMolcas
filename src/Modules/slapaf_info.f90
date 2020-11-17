@@ -13,6 +13,8 @@
 Module Slapaf_Info
 implicit none
 Private
-Public:: Cx
+Public:: Cx, Gx, Gx0
 Real*8, Allocatable:: Cx(:,:,:)
+Real*8, Allocatable:: Gx(:,:,:)
+Real*8, Allocatable:: Gx0(:,:,:)
 End Module Slapaf_Info

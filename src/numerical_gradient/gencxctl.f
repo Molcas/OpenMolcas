@@ -11,7 +11,7 @@
 * Copyright (C) 2013, Roland Lindh                                     *
 ************************************************************************
       Subroutine genCxCTL(iStop,Cartesian,rDelta)
-      use Slapaf_Info, only: Cx
+      use Slapaf_Info, only: Cx, Gx, Gx0
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -294,6 +294,8 @@
          Call GetMem('qInt', 'Free','Real',ipqInt, nqInt)
       End If
       Call mma_deallocate(Cx)
+      Call mma_deallocate(Gx)
+      Call mma_deallocate(Gx0)
       Call GetMem('Relax', 'Free','Real',ipRlx, Lngth)
       Call GetMem('Grad',  'Free','Real',ipGrd, 3*nsAtom)
       Call GetMem('Coord', 'Free','Real',ipCoor,3*nsAtom)

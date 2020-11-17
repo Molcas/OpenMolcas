@@ -11,6 +11,7 @@
 * Copyright (C) 2015,2016, Ignacio Fdez. Galvan                        *
 ************************************************************************
       Subroutine Process_Gradients()
+      use Slapaf_Info, only: Gx, Gx0
       Implicit None
 #include "WrkSpc.fh"
 #include "real.fh"
@@ -18,7 +19,7 @@
 #include "nadc.fh"
 #include "stdalloc.fh"
       Logical Found
-      Integer i,ipOff,nRoots,RC,Read_Grad,Columbus
+      Integer i,nRoots,RC,Read_Grad,Columbus
       Real*8, Allocatable :: Grads(:,:), Ener(:)
       Real*8 E0, E1
       External Read_Grad
@@ -94,9 +95,8 @@
       End If
       Work(ipEner+iter-1)=Ener(iState(1))
       E1=Ener(iState(1))
-      ipOff=ipGx+(iter-1)*3*nsAtom
-      Call dCopy_(3*nsAtom,Grads(1,1),1,Work(ipOff),1)
-      Call dScal_(3*nsAtom,-One,Work(ipOff),1)
+      Call dCopy_(3*nsAtom,Grads(1,1),1,Gx(1,1,iter),1)
+      Gx(:,:,iter) = -Gx(:,:,iter)
 *
 *     For a two-RunFile job, read the second (lower) energy
 *     and gradient from RUNFILE2
@@ -129,12 +129,10 @@
         If (NADC) Then
           Work(ipEner+iter-1)=(E1+E0)*Half
           Work(ipEner0+iter-1)=E1-E0
-          ipOff=ipGx+(iter-1)*3*nsAtom
-          Call daXpY_(3*nsAtom,-One,Grads(1,2),1,Work(ipOff),1)
-          Call dScal_(3*nsAtom,Half,Work(ipOff),1)
-          ipOff=ipGx0+(iter-1)*3*nsAtom
-          Call dCopy_(3*nsAtom,Grads(1,2),1,Work(ipOff),1)
-          Call daXpY_(3*nsAtom,-One,Grads(1,1),1,Work(ipOff),1)
+          Call daXpY_(3*nsAtom,-One,Grads(1,2),1,Gx(1,1,iter),1)
+          Gx(:,:,iter) = Half * Gx(:,:,iter)
+          Call dCopy_(3*nsAtom,Grads(1,2),1,Gx0(1,1,iter),1)
+          Call daXpY_(3*nsAtom,-One,Grads(1,1),1,Gx0(1,1,iter),1)
           Call Get_iScalar('Columbus',Columbus)
           If (Columbus.ne.1) Then
             Call GetMem('NADC','Allo','Real',ipNADC,3*nsAtom)
@@ -145,15 +143,14 @@
 *
             If (RC.lt.0) Then
               ApproxNADC=.True.
-              Call Branching_Plane_Update(Work(ipGx),Work(ipGx0),
+              Call Branching_Plane_Update(Gx,Gx0,
      &                                    Work(ipNADC),3*nsAtom,iter)
             End If
           End If
         Else
           Work(ipEner0+iter-1)=E0
-          ipOff=ipGx0+(iter-1)*3*nsAtom
-          Call dCopy_(3*nsAtom,Grads(1,2),1,Work(ipOff),1)
-          Call dScal_(3*nsAtom,-One,Work(ipOff),1)
+          Call dCopy_(3*nsAtom,Grads(1,2),1,Gx0(1,1,iter),1)
+          Gx0(1,1,iter) = -Gx0(1,1,iter)
         End If
       End If
 *

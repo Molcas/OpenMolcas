@@ -11,8 +11,9 @@
 * From: D.R. Yarkony, J. Phys. Chem. A 105 (2001) 6277-6293
 * and: J. Chem. Theory Comput. 12 (2016) 3636-3653
       Subroutine CI_Summary(Lu)
+      use Slapaf_Info, only: Gx, Gx0
       Implicit None
-      Integer Lu, n, ip_g, ip_h, ip_s, i
+      Integer Lu, n, ip_h, i
       Real*8, Dimension(:), Allocatable :: g, h, tmp
       Real*8 gg, hh, gh, sg, sh, dgh, deltagh, beta_ang, norm_g, norm_h,
      &       st, srel, shead, peaked, bif, aux
@@ -26,8 +27,6 @@
 #include "real.fh"
 *
       n=3*nsAtom
-      ip_s=ipGx+(iter-1)*n
-      ip_g=ipGx0+(iter-1)*n
       ip_h=ipNADC
       Call mma_Allocate(g,n)
       Call mma_Allocate(h,n)
@@ -36,16 +35,16 @@
 *     Note that d(E1-E0)/dx is stored, but we want to use d((E1-E0)/2)/dx
 *     (and forces instead of gradients)
 *
-      gg=dDot_(n,Work(ip_g),1,Work(ip_g),1)*Quart
+      gg=dDot_(n,Gx0(1,1,iter),1,Gx0(1,1,iter),1)*Quart
       hh=dDot_(n,Work(ip_h),1,Work(ip_h),1)
-      gh=-dDot_(n,Work(ip_g),1,Work(ip_h),1) !Factor 2 included
+      gh=-dDot_(n,Gx0(1,1,iter),1,Work(ip_h),1) !Factor 2 included
       beta_ang=Atan2(gh,gg-hh)*Half
-      Call dCopy_(n,Work(ip_g),1,g,1)
+      Call dCopy_(n,Gx0(1,1,iter),1,g,1)
       Call dScal_(n,-Half*Cos(beta_ang),g,1)
       Call dAxpY_(n,Sin(beta_ang),Work(ip_h),1,g,1)
       Call dCopy_(n,Work(ip_h),1,h,1)
       Call dScal_(n,Cos(beta_ang),h,1)
-      Call dAxpY_(n,Half*Sin(beta_ang),Work(ip_g),1,h,1)
+      Call dAxpY_(n,Half*Sin(beta_ang),Gx0(1,1,iter),1,h,1)
       gg=dDot_(n,g,1,g,1)
       hh=dDot_(n,h,1,h,1)
       norm_g=Sqrt(gg)
@@ -71,8 +70,8 @@
         norm_g=norm_h
         norm_h=aux
       End If
-      sg=-dDot_(n,Work(ip_s),1,g,1)
-      sh=-dDot_(n,Work(ip_s),1,h,1)
+      sg=-dDot_(n,Gx(1,1,iter),1,g,1)
+      sh=-dDot_(n,Gx(1,1,iter),1,h,1)
 *     Ensure that the tilt heading will be in the first quadrant
 *     this fixes the signs of the x and y vectors
       If (sg.lt.Zero) Then
@@ -133,9 +132,9 @@
       Write(Lu,*)
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Gradient difference','',work(ip_g),n,1)
+      Call RecPrt('Gradient difference','',Gx0(1,1,iter),n,1)
       Call RecPrt('Coupling vector','',work(ip_h),n,1)
-      Call RecPrt('Average gradient','',work(ip_s),n,1)
+      Call RecPrt('Average gradient','',Gx(1,1,iter),n,1)
       Write(Lu,100) 'Beta angle:',beta_ang
       Write(Lu,*)
 #endif

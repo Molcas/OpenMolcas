@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine DstInf(iStop,Just_Frequencies,Numerical)
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: Cx
+      use Slapaf_Info, only: Cx, Gx, Gx0
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -55,7 +55,7 @@
          If (Just_Frequencies) Then
             Call Put_dScalar('Last Energy',Work(ipEner))
             Call mma_allocate(GxFix,3,nsAtom,Label='GxFix')
-            call dcopy_(3*nsAtom,Work(ipGx),1,GxFix,1)
+            call dcopy_(3*nsAtom,Gx,1,GxFix,1)
             GxFix(:,:) = - GxFix(:,:)
             Call Put_Grad(GxFix,3*nsAtom)
             Call mma_deallocate(GxFix)
@@ -88,6 +88,8 @@
          Call mma_deallocate(Information)
 
          Call Dcopy_(3*nsAtom*(MaxItr+1),Cx,1,Work(ipCx),1)
+         Call Dcopy_(3*nsAtom*(MaxItr+1),Gx,1,Work(ipGx),1)
+         Call Dcopy_(3*nsAtom*(MaxItr+1),Gx0,1,Work(ipGx0),1)
 
          Call Put_dArray('Slapaf Info 2',Work(ipRlx),Lngth)
          Call Put_cArray('Slapaf Info 3',Stat(0),(MaxItr+1)*128)

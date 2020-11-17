@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine ConInt(xyz,nCent,dE,Bf,lWrite_,Label,dBf,ldB,lIter)
+      use Slapaf_Info, only: Gx, Gx0
       Implicit Real*8  (a-h,o-z)
 #include "info_slapaf.fh"
 #include "real.fh"
@@ -90,11 +91,8 @@ C------- Absolute value ----------
 *
 *---- Compute the WDC B-matrix
 *
-      iOff = 0
-      ipGrad1=(lIter-1)*3*nsAtom + ipGx
-      ipGrad0=(lIter-1)*3*nsAtom + ipGx0
-C     Call RecPrt('Grad1',' ',Work(ipGrad1),3,nCent)
-C     Call RecPrt('Grad0',' ',Work(ipGrad0),3,nCent)
+C     Call RecPrt('Grad1',' ',Gx(1,1,lIter),3,nCent)
+C     Call RecPrt('Grad0',' ',Gx0(1,1,lIter),3,nCent)
       Do iCent = 1, nCent
          Fact=DBLE(iDeg(xyz(1,iCent)))
 C        Write (6,*) 'Fact=',Fact
@@ -103,10 +101,10 @@ C        Write (6,*) 'Fact=',Fact
             If (iOpt.eq.1) Then
 C------------- Linear ------------------
                If (NADC) Then
-                  Bf(iCar,iCent)=-Work(ipGrad0+iOff)
+                  Bf(iCar,iCent)=-Gx0(iCar,iCent,lIter)
                Else
-                  Bf(iCar,iCent)=-(Work(ipGrad1+iOff)
-     &                            -Work(ipGrad0+iOff))
+                  Bf(iCar,iCent)=-(Gx(iCar,iCent,lIter)
+     &                          -Gx0(iCar,iCent,lIter))
                End If
             Else If (iOpt.eq.2) Then
 C------------- Quadratic ---------------
@@ -117,35 +115,34 @@ C------------- Quadratic ---------------
                If (NADC) Then
                   If (Abs(E0).gt.1.0D-5) Then
                      Bf(iCar,iCent)=-Two*E0
-     &                             *Work(ipGrad0+iOff)
+     &                             *Gx0(iCar,iCent,lIter)
                   Else
                      Bf(iCar,iCent)=-Two*1.0D-5
-     &                             *Work(ipGrad0+iOff)
+     &                             *Gx0(iCar,iCent,lIter)
                   End If
                Else
                   If (Abs(E1-E0).gt.1.0D-5) Then
                      Bf(iCar,iCent)=-Two*(E1-E0)
-     &                             *(Work(ipGrad1+iOff)
-     &                              -Work(ipGrad0+iOff))
+     &                             *(Gx(iCar,iCent,lIter)
+     &                              -Gx0(iCar,iCent,lIter))
                   Else
                      Bf(iCar,iCent)=-Two*1.0D-5
-     &                             *(Work(ipGrad1+iOff)
-     &                              -Work(ipGrad0+iOff))
+     &                             *(Gx(iCar,iCent,lIter)
+     &                              -Gx0(iCar,iCent,lIter))
                   End If
                End If
             Else If (iOpt.eq.3) Then
 C------------- Absolute value ----------
                If (NADC) Then
-                  Bf(iCar,iCent)=-Sign(One,E0)*(Work(ipGrad0+iOff))
+                  Bf(iCar,iCent)=-Sign(One,E0)*Gx0(iCar,iCent,lIter)
                Else
                   Bf(iCar,iCent)=-Sign(One,E1-E0)
-     &                          *(Work(ipGrad1+iOff)
-     &                           -Work(ipGrad0+iOff))
+     &                             *(Gx(iCar,iCent,lIter)
+     &                              -Gx0(iCar,iCent,lIter))
                End If
             End If
 *
             Bf(iCar,iCent)=Fact*Bf(iCar,iCent)
-            iOff = iOff+1
          End Do
       End Do
 *     Call RecPrt('Bf',' ',Bf,3,nCent)
@@ -169,21 +166,32 @@ C---------- Linear ------------------
          Else If (iOpt.eq.2) Then
 C---------- Quadratic ---------------
             Call FZero(dBf,(3*nCent)**2)
-            Do ix = 0, nGrad-1
-               Do iy = 0, nGrad-1
+
+            ix = 0
+            Do iCent = 1, nCent
+            Do i   = 1, 3
+               ix = ix + 1
+
+               iy=0
+               Do jCent = 1, nCent
+               Do j   = 1, 3
+                 iy = iy + 1
                   If (NADC) Then
-                     dBf(1+ix,1+iy)=-Two*
-     &                               Work(ipGrad0+ix)
-     &                             * Work(ipGrad0+iy)
+                     dBf(ix,iy)=-Two*
+     &                               Gx0(i,iCent,lIter)
+     &                             * Gx0(j,jCent,lIter)
                   Else
-                     dBf(1+ix,1+iy)=-Two*
-     &                              (Work(ipGrad1+ix)-
-     &                               Work(ipGrad0+ix))
-     &                             *(Work(ipGrad1+iy)-
-     &                               Work(ipGrad0+iy))
+                     dBf(ix,iy)=-Two*
+     &                              (Gx(i,iCent,lIter)-
+     &                               Gx0(i,iCent,lIter))
+     &                             *(Gx(j,jCent,lIter)-
+     &                               Gx0(j,jCent,lIter))
                   End If
                End Do
+               End Do
             End Do
+            End Do
+
          Else If (iOpt.eq.3) Then
 C------------- Absolute value ----------
             Call FZero(dBf,(3*nCent)**2)

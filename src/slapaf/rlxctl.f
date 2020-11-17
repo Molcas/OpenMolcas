@@ -11,7 +11,7 @@
       Subroutine RlxCtl(iStop)
       Use Chkpnt
       Use kriging_mod, only: Kriging, nspAI
-      Use Slapaf_Info, only: Cx
+      Use Slapaf_Info, only: Cx, Gx, Gx0
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -133,7 +133,7 @@
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
      &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
-     &           Work(ipGx),mTtAtm,iWork(ipANr),iOptH,
+     &           Gx,mTtAtm,iWork(ipANr),iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,nqInt,
@@ -169,8 +169,7 @@
 *                                                                      *
 *-----Compute the norm of the Cartesian gradient.
 *
-      ipOff = (iter-1)*3*nsAtom + ipGx
-      Call G_Nrm(Work(ipOff),nsAtom,nQQ,Work(ipGNrm),iter,
+      Call G_Nrm(Gx(1,1,iter),nsAtom,nQQ,Work(ipGNrm),iter,
      &           Work(ipdqInt),Degen,mIntEff)
       If (nPrint(116).ge.6) Call ListU(Lu,Lbl,Work(ipdqInt),nQQ,iter)
 *                                                                      *
@@ -243,7 +242,7 @@
      &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
      &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
-     &               Smmtrc,nDimBC,Work(ipL),Cx,Work(ipGx),
+     &               Smmtrc,nDimBC,Work(ipL),Cx,Gx,
      &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,Work(ipMF),
@@ -291,7 +290,7 @@
      &               ipB,Work(ipCM),Lbl,Work(ipShf),ipqInt,
      &               ipdqInt,DFC,dss,Tmp,
      &               AtomLbl,iSym,Smmtrc,Degen,
-     &               Work(ipGx),Cx,mTtAtm,iWork(ipANr),iOptH,
+     &               Gx,Cx,mTtAtm,iWork(ipANr),iOptH,
      &               User_Def,nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &               iCoSet,rHidden,ipRef,Redundant,nqInt,MaxItr,iRef,
@@ -347,7 +346,7 @@
      &            Work(ipdqInt),Lbl,Work(ipGNrm),
      &            Work(ipEner),Stat,MaxItr,Stop,iStop,ThrCons,
      &            ThrEne,ThrGrd,MxItr,UpMeth,HUpMet,mIntEff,Baker,
-     &            Cx,Work(ipGx),nsAtom,mTtAtm,ed,
+     &            Cx,Gx,nsAtom,mTtAtm,ed,
      &            iNeg,GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &            Analytic_Hessian,rMEP,MEP,nMEP,
      &            (lNmHss.or.lRowH).and.iter.le.NmIter,
@@ -461,6 +460,8 @@
           Call GetMem('qInt', 'Free','Real',ipqInt, nqInt)
       End If
       Call mma_deallocate(Cx)
+      Call mma_deallocate(Gx)
+      Call mma_deallocate(Gx0)
       Call GetMem('Relax', 'Free','Real',ipRlx, Lngth)
       Call GetMem('Grad',  'Free','Real',ipGrd, 3*nsAtom)
       Call GetMem('Coord', 'Free','Real',ipCoor,3*nsAtom)

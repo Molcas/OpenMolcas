@@ -29,7 +29,7 @@
 ************************************************************************
       Subroutine Print_Mode_Components(Modes,Freq,nModes,lModes,lDisp)
       use Symmetry_Info, only: nIrrep
-      use Slapaf_Info, only: Cx
+      use Slapaf_Info, only: Cx, Gx, Gx0
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -54,6 +54,8 @@
       Real*8, External :: DDot_
       Integer, External :: ip_of_Work
       Real*8, Allocatable:: Bk_Cx(:,:,:)
+      Real*8, Allocatable:: Bk_Gx(:,:,:)
+      Real*8, Allocatable:: Bk_Gx0(:,:,:)
 *
 *
 *---- Ugly hack: backup all "global" slapaf variables in case this is
@@ -66,6 +68,16 @@
          Call mma_allocate(Bk_Cx,3,nsAtom,MaxItr+1,Label='Bk_Cx')
          Bk_Cx(:,:,:) = Cx(:,:,:)
          Call mma_deallocate(Cx)
+      End If
+      If (Allocated(Gx)) Then
+         Call mma_allocate(Bk_Gx,3,nsAtom,MaxItr+1,Label='Bk_Gx')
+         Bk_Gx(:,:,:) = Gx(:,:,:)
+         Call mma_deallocate(Gx)
+      End If
+      If (Allocated(Gx0)) Then
+         Call mma_allocate(Bk_Gx0,3,nsAtom,MaxItr+1,Label='Bk_Gx0')
+         Bk_Gx0(:,:,:) = Gx0(:,:,:)
+         Call mma_deallocate(Gx0)
       End If
 
       Bk_iSym(:)=iSym(:)
@@ -584,6 +596,18 @@
          Call mma_deallocate(Bk_Cx)
       Else
          Call mma_deallocate(Cx)
+      End If
+      If (Allocated(Bk_Gx)) Then
+         Gx(:,:,:) = Bk_Gx(:,:,:)
+         Call mma_deallocate(Bk_Gx)
+      Else
+         Call mma_deallocate(Gx)
+      End If
+      If (Allocated(Bk_Gx0)) Then
+         Gx0(:,:,:) = Bk_Gx0(:,:,:)
+         Call mma_deallocate(Bk_Gx0)
+      Else
+         Call mma_deallocate(Gx0)
       End If
 *
       End Subroutine
