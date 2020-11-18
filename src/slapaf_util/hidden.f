@@ -18,13 +18,16 @@
 #include "angstr.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "periodic_table.fh"
       Logical Do_ESPF,Exist,Exist2
-      Character*180 Line
-      Character*180 Get_Ln
-      External Get_Ln
-      Dimension XYZ(3)
-      Character*2 Symbol
+      Character(LEN=180) Line
+      Character(LEN=180), External::  Get_Ln
+      Real*8 XYZ(3)
+      Character(LEN=2) Symbol
+      Character(LEN=LENIN), Allocatable:: LabMMO(:)
+      Real*8, Allocatable:: h_xyz(:,:)
+      Integer, Allocatable:: h_AN(:)
 *
       iPL = iPrintLevel(-1)
 *     iPL=99
@@ -60,9 +63,9 @@
                   If (iPL.gt.3) Write(6,'(A,I5,A)')'Found ',nHidden,
      &                                    ' hidden atoms.'
                   If(nHidden.gt.0) Then
-                     Call Allocate_Work(ip_h_xyz,3*nHidden)
-                     Call Allocate_iWork(ip_h_AN,nHidden)
-                     Do iHidden = 0, nHidden-1
+                     Call mma_allocate(h_xyz,3,nHidden,Label='h_xyz')
+                     Call mma_allocate(h_AN,nHidden,Label='h_AN')
+                     Do iHidden = 1, nHidden
                         Line=Get_Ln(ITkQMMM)
                         If (Index(Line,'MMCoord').eq.0) Then
                            Write(6,*) 'Error in hidden.',
@@ -71,11 +74,11 @@
                            Call Quit_onUserError()
                         End If
                         Call Get_I1(2,iAtNum)
-                        iWork(ip_h_AN+iHidden) = -iAtNum
+                        h_AN(iHidden) = -iAtNum
                         Call Get_F(3,XYZ,3)
-                        Work(ip_h_xyz+3*iHidden  ) = XYZ(1)/Angstr
-                        Work(ip_h_xyz+3*iHidden+1) = XYZ(2)/Angstr
-                        Work(ip_h_xyz+3*iHidden+2) = XYZ(3)/Angstr
+                        h_xyz(1,iHidden) = XYZ(1)/Angstr
+                        h_xyz(2,iHidden) = XYZ(2)/Angstr
+                        h_xyz(3,iHidden) = XYZ(3)/Angstr
                      End Do
                   End If
                Else If (Index(Line,'MD ').ne.0) Then
@@ -94,35 +97,33 @@
          End If
          If (Exist2) Then
             nHidden=nHidden/3
-            Call Allocate_Work(ip_h_xyz,3*nHidden)
-            Call Allocate_iWork(ip_h_AN,nHidden)
-            Call GetMem('LabMMO','ALLO','CHAR',ipLabMMO,LENIN*nHidden)
-            Call Get_dArray('MMO Coords',Work(ip_h_xyz),nHidden*3)
-            Call Get_cArray('MMO Labels',cWork(ipLabMMO),LENIN*nHidden)
-            Do iHidden = 0, nHidden-1
-               Symbol(1:1) = cWork(ipLabMMO+iHidden*LENIN)
-               Symbol(2:2) = cWork(ipLabMMO+iHidden*LENIN+1)
+            Call mma_allocate(h_xyz,3,nHidden,Label='h_xyz')
+            Call mma_allocate(h_AN,nHidden,Label='h_AN')
+            Call mma_allocate(LabMMO,nHidden,Label='LabMMO')
+            Call Get_dArray('MMO Coords',h_xyz,nHidden*3)
+            Call Get_cArray('MMO Labels',LabMMO,LENIN*nHidden)
+            Do iHidden = 1, nHidden
+               Symbol(1:1) = LabMMO(iHidden)(1:1)
+               Symbol(2:2) = LabMMO(iHidden)(2:2)
                If (Symbol(2:2).Eq.'_') Symbol = ' '//Symbol(1:1)
                Do i = 0, Num_Elem
                   If (Ptab(i) == Symbol) Then
-                     Work(ip_h_AN+iHidden) = -i
+                     h_AN(iHidden) = -i
                      Exit
                   End If
                End Do
             End Do
-            Call GetMem('LabMMO','FREE','CHAR',ipLabMMO,
-     &                  LENIN*nHidden)
+            Call mma_deallocate(LabMMO)
          End If
       End If
-      If (iPL.gt.3) Call RecPrt('Hidden coord:',' ',Work(ip_h_xyz),3,
-     &                          nHidden)
+      If (iPL.gt.3) Call RecPrt('Hidden coord:',' ',h_xyz,3,nHidden)
 *
 *  Select the hidden atoms to be kept.
 *
       nKept = 0
-      If (nHidden .gt. 0) Call Select_hidden(mTtAtm,nHidden,
-     &                Work(ipCoor),Work(ip_h_xyz),iWork(ip_h_AN),
-     &                nKept,rHidden,iPL)
+      If (nHidden .gt. 0)
+     &   Call Select_hidden(mTtAtm,nHidden,Work(ipCoor),h_xyz,h_AN,
+     &                      nKept,rHidden,iPL)
 *
 *  Copy all the arrays needed by box and nlm
 *
@@ -142,10 +143,10 @@
 *
          iKept = 0
          Do iHidden = 0, (nHidden-1)
-            If (iWork(ip_h_AN+iHidden) .gt. 0) Then
-               Call dCopy_(3,Work(ip_h_xyz+3*iHidden),1,
-     &                      Work(ipCoor_h+3*(mTtAtm+iKept)),1)
-               iAN = iWork(ip_h_AN+iHidden)
+            If (h_AN(1+iHidden) .gt. 0) Then
+               Call dCopy_(3,h_xyz(:,1+iHidden),1,
+     &                     Work(ipCoor_h+3*(mTtAtm+iKept)),1)
+               iAN = h_AN(1+iHidden)
                iWork(ipAN_h+mTtAtm+iKept) = iAN
                iKept = iKept + 1
             End If
@@ -154,8 +155,8 @@
             Write(6,'(A)') ' Hidden: wrong number of kept hidden atoms.'
             Call Quit_OnUserError()
          End If
-         Call Free_Work(ip_h_xyz)
-         Call Free_iWork(ip_h_AN)
+         Call mma_deallocate(h_AN)
+         Call mma_deallocate(h_xyz)
          Call GetMem('Coor','Free','Real',ipCoor,3*mTtAtm)
          Call GetMem('AN','Free','Inte',ipAN,mTtAtm)
 *
