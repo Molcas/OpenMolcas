@@ -22,28 +22,27 @@
 *                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
-*             May '91                                                  *
+*             May 1991                                                 *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "Molcas.fh"
       Real*8 BVct(3*nAtom,nBVct), Value(nBVct), BMtrx(3*nAtom,nQQ),
-     &       rInt(nQQ), Coor(3,nAtom), dMass(nAtom),
-     &       rMult(nBVct)
+     &       rInt(nQQ), Coor(3,nAtom), dMass(nAtom), rMult(nBVct)
       Character Labels(nBVct)*8, Type*6, Temp*120, Lbl(nQQ)*8, cNum*4,
      &          Name(nAtom)*(LENIN), Line*120, Format*8, filnam*16
-      Logical First, lWrite, Flip, lPIC(6*nAtom), lAtom(nAtom), lErr,
-     &        Redundant
+      Logical Flip, lPIC(6*nAtom), lAtom(nAtom), Redundant
       Integer nStab(mxdc), jStab(0:7,mxdc)
-      Save First
-      Data First/.True./
-*
-      lWrite = .False.
-      lErr = .False.
+      Logical, Save:: First=.True.
+      Logical :: lWrite = .False., lErr = .False.
+      Integer, Allocatable:: Ind(:)
+      Real*8, Allocatable:: xyz(:), Tmp2(:), Mass(:), TM(:)
+
       iRout = 30
       iPrint = nPrint(iRout)
+
       If (iPrint.ge.6) lWrite = .True.
       Do i = 1, 6*nAtom
          lPIC(i)  = .True.
@@ -226,16 +225,16 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
          End If
 *
          msAtom = nCntr + mCntr
-         Call GetMem('xyz ','Allo','Real',ipxyz ,3*msAtom)
-         Call GetMem('Temp','Allo','Real',ipTemp,3*msAtom)
-         Call GetMem('Ind ','Allo','Inte',ipInd ,2*msAtom)
-         Call GetMem('Mass','Allo','Real',ipMass,2*msAtom)
-         Call GetMem('TMtrx','Allo','Real',ipTM,9*nAtom*(nCntr+mCntr))
+         Call mma_allocate(xyz ,3*msAtom,Label='xyz')
+         Call mma_allocate(Tmp2,3*msAtom,Label='Tmp2')
+         Call mma_allocate(Ind ,2*msAtom,Label='Ind')
+         Call mma_allocate(Mass,2*msAtom,Label='Mass')
+         Call mma_allocate(TM,9*nAtom*(nCntr+mCntr),Label='TM')
 *
          Call Cllct(Line(nGo:nTemp),BVct(1,iBVct),Value_Temp,
      &              Name,nAtom,Coor,nCntr,mCntr,
-     &              Work(ipxyz),Work(ipTemp),iWork(ipInd),Type,
-     &              dMass,Work(ipMass),Work(ipTM),lWrite,
+     &              xyz,Tmp2,Ind,Type,
+     &              dMass,Mass,TM,lWrite,
      &              Labels(iBVct),lWrite,jStab,nStab,mxdc,
      &              rMult(iBVct),lAtom)
 *
@@ -256,11 +255,11 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
          End If
 
 *
-         Call GetMem('TMtrx','Free','Real',ipTM,9*nAtom*(nCntr+mCntr))
-         Call GetMem('Mass','Free','Real',ipMass,2*msAtom)
-         Call GetMem('Ind ','Free','Inte',ipInd ,2*msAtom)
-         Call GetMem('Temp','Free','Real',ipTemp,3*msAtom)
-         Call GetMem('xyz ','Free','Real',ipxyz ,3*msAtom)
+         Call mma_deallocate(TM)
+         Call mma_deallocate(Mass)
+         Call mma_deallocate(Ind)
+         Call mma_deallocate(Tmp2)
+         Call mma_deallocate(xyz)
 *
  10   Continue
       Call WarningMessage(2,'Error in DefInt')
