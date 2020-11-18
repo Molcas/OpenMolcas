@@ -19,6 +19,7 @@
 #include "info_slapaf.fh"
 #include "print.fh"
       Logical Is_Roots_Set
+      Integer, Allocatable:: Information(:)
 #include "SysDef.fh"
       Character*100 Get_SuperName, SuperName
       External Get_SuperName
@@ -44,27 +45,27 @@
 *
 *     Get the gradient information from the runfile.
 *
-      Call GetMem('Scr1','Allo','Inte',ipScr1,7)
+      Call mma_allocate(Information,7,Label='Information')
       Call qpg_iArray('Slapaf Info 1',Exist,itmp)
-      If (Exist) Call Get_iArray('Slapaf Info 1',iWork(ipScr1),7)
+      If (Exist) Call Get_iArray('Slapaf Info 1',Information,7)
 *
-      If (.Not.Exist.or.(Exist.and.iWork(ipScr1).eq.-99)) Then
+      If (.Not.Exist.or.(Exist.and.Information(1).eq.-99)) Then
 C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
-         Call IZero(iWork(ipScr1),7)
-         iWork(ipScr1+2)=-99
-         Call Put_iArray('Slapaf Info 1',iWork(ipScr1),7)
+         Information(:)=0
+         Information(3)=-99
+         Call Put_iArray('Slapaf Info 1',Information,7)
       End If
 
-*     iNew  =iWork(ipScr1)
-      iter  =iWork(ipScr1+1)+1
+*     iNew  =Information(1)
+      iter  =Information(2)+1
       If (iter.ge.MaxItr+1) Then
          Write (6,*) 'Increase MaxItr in info_slapaf.fh'
          Call WarningMessage(2,'iter.ge.MaxItr+1')
          Call Abend()
       End If
-      mTROld=iWork(ipScr1+2)
-      lOld_Implicit= iWork(ipScr1+3).eq.1
-      Call GetMem('Scr1','Free','Inte',ipScr1,7)
+      mTROld=Information(3)
+      lOld_Implicit= Information(4).eq.1
+      Call mma_deallocate(Information)
 *
 *---  Pick up information from previous iterations
 *
