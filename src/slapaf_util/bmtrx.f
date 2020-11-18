@@ -35,9 +35,10 @@
      &        HWRS, Analytic_Hessian, PrQ, lOld
       External Get_SuperName
       Character(LEN=100) Get_SuperName
-      Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
+      Integer, Allocatable:: TabB(:,:), TabA(:,:,:), TabAI(:,:), AN(:)
       Integer, External:: ip_of_iWork
-      Real*8, Allocatable:: TR(:), TRNew(:), TROld(:), Scr2(:)
+      Real*8, Allocatable:: TR(:), TRNew(:), TROld(:), Scr2(:),
+     &                      Vec(:,:), Coor2(:,:), EVal(:), Hss_X(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -113,29 +114,30 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('TabAI','Allo','Inte',ip_TabAI,2*mTtAtm)
-      Call GetMem('Vect','Allo','Real',ipVec,3*mTtAtm*nDim)
-      Call GetMem('AN','Allo','Inte',ipAN,mTtAtm)
-      Call GetMem('Coor','Allo','Real',ipCoor,3*mTtAtm)
+      Call mma_allocate(TabAI,2,mTtAtm,Label='TabAI')
+      Call mma_allocate(Vec,3*mTtAtm,nDim,Label='Vec')
+      Call mma_allocate(AN,mTtAtm,Label='AN')
+      Call mma_allocate(Coor2,3,mTtAtm,Label='Coor2')
 *
 *-----Generate Grand atoms list
 *
-      Call GenCoo(Cx(1,1,iIter),nAtom,Work(ipCoor),mTtAtm,Work(ipVec),
-     &            Smmtrc,nDim,iAnr,iWork(ipAN),iWork(ip_TabAI),Degen)
+      Call GenCoo(Cx(1,1,iIter),nAtom,Coor2,mTtAtm,Vec,Smmtrc,nDim,iAnr,
+     &            AN,TabAI,Degen)
 *
 *---- Are there some hidden frozen atoms ?
 *
       nHidden = 0
       ipMMKept = 0
       nMDstep = 0
+      ipAN = ip_of_iWork(AN(1))
+      ipCoor = ip_of_Work(Coor2(1,1))
       If (rHidden.ge.Two) Call Hidden(mTtAtm,ipCoor,ipAN,nHidden,
      &                                rHidden,nMDstep)
 *
 *-----Generate bond list
 *
       mTtAtm = mTtAtm+nHidden
-      Call Box(Work(ipCoor),mTtAtm,iWork(ipAN),iOptC,
-     &         ddV_Schlegel,TabB,TabA,nBonds,nMax)
+      Call Box(Coor2,mTtAtm,AN,iOptC,ddV_Schlegel,TabB,TabA,nBonds,nMax)
       mTtAtm = mTtAtm-nHidden
 *                                                                      *
 ************************************************************************
@@ -149,19 +151,17 @@
 *                                                                      *
 *---- Compute the raw Cartesian Hessian
 *
-      Call GetMem('EVal','Allo','Real',ipEVal,
-     &            (3*mTtAtm)*(3*mTtAtm+1)/2)
-      Call GetMem('scr1','Allo','Real',ip_Hss_X,(3*mTtAtm)**2)
+      Call mma_allocate(EVal,(3*mTtAtm)*(3*mTtAtm+1)/2,Label='EVal')
+      Call mma_Allocate(Hss_X,(3*mTtAtm)**2,Label='Hss_X')
       Call mma_allocate(Scr2,(3*mTtAtm)**2,Label='Scr2')
 *
       If (HSet.or..Not.(Curvilinear.or.User_Def))
-     &   Call LNM(Work(ipCoor),mTtAtm,Work(ipEVal),Work(ip_Hss_X),
-     &            Scr2,Work(ipVec),nAtom,nDim,iWork(ipAN),
-     &            Smmtrc,nIter,iOptH,Degen, DDV_Schlegel,
-     &            Analytic_Hessian,iOptC,TabB,TabA,
-     &            nBonds,nMax,nHidden,nMDstep,ipMMKept)
+     &   Call LNM(Coor2,mTtAtm,EVal,Hss_X,Scr2,Vec,nAtom,nDim,AN,Smmtrc,
+     &            nIter,iOptH,Degen, DDV_Schlegel,Analytic_Hessian,
+     &            iOptC,TabB,TabA,nBonds,nMax,nHidden,nMDstep,ipMMKept)
 *
       Call mma_deallocate(Scr2)
+      Call mma_deallocate(Coor2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -211,11 +211,12 @@
 *------- Re-generate the bonds if there were hidden atoms
 *
          If (nHidden.ne.0) Then
-            Call Box(Work(ipCoor),mTtAtm,iWork(ipAN),iOptC,
-     &               ddV_Schlegel,TabB,TabA,nBonds,nMax)
+            Call Box(Coor,mTtAtm,AN,iOptC,ddV_Schlegel,TabB,TabA,nBonds,
+     &               nMax)
          End If
          ip_TabA = ip_of_iWork(TabA(1,0,1))
          ip_TabB = ip_of_iWork(TabB(1,1))
+         ip_TabAI= ip_of_iWork(TabAI(1,1))
          Call BMtrx_Internal(
      &                 ipBMx,nAtom,
      &                 ip_rInt,nDim,dMass,
@@ -241,6 +242,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+         ipEVal = ip_of_Work(EVal(1))
+         ip_Hss_X = ip_of_Work(Hss_X(1))
          Call BMtrx_Cartesian(
      &                 ipBMx,nAtom,nInter,
      &                 ip_rInt,nDim,
@@ -264,18 +267,17 @@
 ************************************************************************
 *                                                                      *
       If ((BSet.and.HSet.and..NOT.lOld)) Then
-         Call Put_dArray('Hss_X',Work(ip_Hss_X),nDim**2)
+         Call Put_dArray('Hss_X',Hss_X,nDim**2)
          Call Put_dArray('KtB',Work(ip_KtB),nDim*nQQ)
          Call Free_Work(ip_KtB)
       End If
-      Call Free_Work(ip_Hss_X)
-      Call GetMem('EVal','Free','Real',ipEVal,(3*mTtAtm)*(3*mTtAtm+1)/2)
+      Call mma_deallocate(Hss_X)
+      Call mma_deallocate(EVal)
       Call mma_deallocate(TabA)
       Call mma_deallocate(TabB)
-      Call GetMem('Coor','Free','Real',ipCoor,3*mTtAtm)
-      Call GetMem('AN','Free','Inte',ipAN,mTtAtm)
-      Call GetMem('Vect','Free','Real',ipVec,3*mTtAtm*nDim)
-      Call GetMem('TabAI','Free','Inte',ip_TabAI,2*mTtAtm)
+      Call mma_deallocate(AN)
+      Call mma_deallocate(Vec)
+      Call mma_deallocate(TabAI)
 *                                                                      *
 ************************************************************************
 *                                                                      *
