@@ -13,7 +13,7 @@
       Subroutine CurviL(nAtoms,nDim,Cx,Gx,nIter,iIter,iRef,nStab,
      &                  jStab,Degen,Smmtrc,mTR,TRVec,
      &                  ip_rInt,ip_drInt,HSet,BSet,ipBMx,Numerical,iANr,
-     &                  HWRS,Analytic_Hessian,iOptC,Name,PrQ,Proj,
+     &                  HWRS,Analytic_Hessian,iOptC,Name,PrQ,
      &                  dMass,iCoSet,iTabBonds,
      &                  iTabAtoms,nBonds,nMax,iTabAI,mAtoms,lOld,
      &                  ip_KtB_Hessian,nQQ,nqInt,MaxItr,nWndw)
@@ -31,24 +31,22 @@
 #include "warnings.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "db.fh"
 #include "print.fh"
-      Real*8 Cx(3*nAtoms,nIter), Degen(3*nAtoms),
-     &       Gx(3*nAtoms,nIter), Proj(nDim), dMass(nAtoms),
-     &       TRVec(nDim,mTR)
-      Integer nStab(nAtoms), iCoSet(0:7,nAtoms),
-     &        jStab(0:7,nAtoms), iANr(nAtoms), iDum(6),
-     &        iTabBonds(3,nBonds), iTabAtoms(0:nMax,nAtoms),
-     &        iTabAI(2,mAtoms)
-      Logical Smmtrc(3*nAtoms), HSet, BSet, Proc, Numerical, g12K,
-     &        HWRS, Analytic_Hessian, PrQ,
-     &        Proc_dB, lOld, Proc_H
-      Character filnam*32
-      Character*(LENIN) Name(nAtoms)
-      Character*14 cDum
-      Dimension Dum(1)
-      Save g12K
-      Data g12K/.False./
+      Real*8 Cx(3*nAtoms,nIter), Degen(3*nAtoms), Gx(3*nAtoms,nIter),
+     &       dMass(nAtoms), TRVec(nDim,mTR)
+      Integer nStab(nAtoms), iCoSet(0:7,nAtoms), jStab(0:7,nAtoms),
+     &        iANr(nAtoms), iDum(6), iTabBonds(3,nBonds),
+     &        iTabAtoms(0:nMax,nAtoms), iTabAI(2,mAtoms)
+      Logical Smmtrc(3*nAtoms), HSet, BSet, Proc, Numerical, HWRS,
+     &        Analytic_Hessian, PrQ, Proc_dB, lOld, Proc_H
+      Character(LEN=32) filnam
+      Character(LEN=LENIN) Name(nAtoms)
+      Character(LEN=14) cDum
+      Real*8 Dum(1)
+      Logical, Save:: g12K=.False.
+      Real*8, Allocatable:: Proj(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -62,6 +60,10 @@
       iRout=128
       iPrint=nPrint(iRout)+1
 #endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call mma_allocate(Proj,nDim,Label='Proj')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -616,6 +618,7 @@ C        iEnd = 1
       Call GetMem('Q-Values','Free','Real',ipQVal,nq*nIter)
 *
       Call Free_Work(ipDegen)
+      Call mma_deallocate(Proj)
 *
       Close (LuIC)
 *                                                                      *

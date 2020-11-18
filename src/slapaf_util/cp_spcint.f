@@ -10,9 +10,11 @@
 ************************************************************************
       Subroutine cp_SpcInt
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-      Character*14  qLbl,filnam*16
+#include "stdalloc.fh"
+      Character*14  qLbl, filnam*16
       Logical Exist
+      Real*8, Allocatable:: rK(:)
+
 *     Write (*,*) ' Copy files'
 *
 *.... Copy file SPCINX to SPCIN1
@@ -32,12 +34,12 @@ c      Open(luTmp2,File=filnam,Form='unformatted',Status='unknown')
 *
       Read (LuTmp1) nq,nQQ
       Write(LuTmp2) nq,nQQ
-      Call GetMem('Temp_rK','Allo','Real',ipTmp,nQQ)
+      Call mma_allocate(rK,nQQ,Label='rK')
       Do iq = 1, nq
-         Read (LuTmp1) qLbl,(Work(ipTmp+i),i=0,nQQ-1)
-         Write(LuTmp2) qLbl,(Work(ipTmp+i),i=0,nQQ-1)
+         Read (LuTmp1) qLbl,(rK(i),i=1,nQQ)
+         Write(LuTmp2) qLbl,(rK(i),i=1,nQQ)
       End Do
-      Call GetMem('Temp_rK','Free','Real',ipTmp,nQQ)
+      Call mma_deallocate(rK)
 *
       Close  (LuTmp1)
       Close  (LuTmp2)

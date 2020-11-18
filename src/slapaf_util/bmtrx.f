@@ -34,9 +34,10 @@
      &        User_Def, Curvilinear, Numerical, DDV_Schlegel,
      &        HWRS, Analytic_Hessian, PrQ, lOld
       External Get_SuperName
-      Character*100 Get_SuperName
+      Character(LEN=100) Get_SuperName
       Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
       Integer, External:: ip_of_iWork
+      Real*8, Allocatable:: TR(:), TRNew(:), TROld(:), Scr2(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -90,26 +91,25 @@
 *---- Find the translational and rotational eigenvectors for the
 *     current structure.
 *
-      Call Allocate_Work(ipTR,18*nAtom)
-      Call FZero(Work(ipTR),18*nAtom)
+      Call mma_allocate(TR,18*nAtom,Label='TR')
+      TR(:)=Zero
 *
       Call TRPGen(nDim,nAtom,Cx(1,1,iIter),Degen,Smmtrc,mTR,dMass,
-     &            .False.,Work(ipTR))
+     &            .False.,TR)
 *
-      Call Allocate_Work(ipTRnew,3*nAtom*mTR)
-      Call FZero(Work(ipTRnew),3*nAtom*mTR)
+      Call mma_allocate(TRnew,3*nAtom*mTR,Label='TRNew')
+      TRNew(:)=Zero
       i = 0
       Do ix = 1, 3*nAtom
          If (Smmtrc(ix)) Then
             i = i + 1
-            iOff = ipTRnew + ix - 1
-            call dcopy_(mTR,Work(ipTR+i-1),-nDim,Work(iOff),3*nAtom)
+            call dcopy_(mTR,TR(i),-nDim,TRNew(ix),3*nAtom)
          End If
       End Do
-      Call Put_dArray('TR',Work(ipTRnew),3*nAtom*mTR)
-      Call Free_Work(ipTRnew)
+      Call Put_dArray('TR',TRnew,3*nAtom*mTR)
+      Call mma_deallocate(TRnew)
 *
-*     Call RecPrt('Work(ipTR)',' ',Work(ipTR),nDim,mTR)
+*     Call RecPrt('TR',' ',TR,nDim,mTR)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -152,16 +152,16 @@
       Call GetMem('EVal','Allo','Real',ipEVal,
      &            (3*mTtAtm)*(3*mTtAtm+1)/2)
       Call GetMem('scr1','Allo','Real',ip_Hss_X,(3*mTtAtm)**2)
-      Call GetMem('scr2','Allo','Real',ipScr2,(3*mTtAtm)**2)
+      Call mma_allocate(Scr2,(3*mTtAtm)**2,Label='Scr2')
 *
       If (HSet.or..Not.(Curvilinear.or.User_Def))
      &   Call LNM(Work(ipCoor),mTtAtm,Work(ipEVal),Work(ip_Hss_X),
-     &            Work(ipScr2),Work(ipVec),nAtom,nDim,iWork(ipAN),
+     &            Scr2,Work(ipVec),nAtom,nDim,iWork(ipAN),
      &            Smmtrc,nIter,iOptH,Degen, DDV_Schlegel,
      &            Analytic_Hessian,iOptC,TabB,TabA,
      &            nBonds,nMax,nHidden,nMDstep,ipMMKept)
 *
-      Call GetMem('scr2','Free','Real',ipScr2,(3*mTtAtm)**2)
+      Call mma_deallocate(Scr2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -225,7 +225,7 @@
      &                 nStab,jStab,Numerical,
      &                 HWRS,Analytic_Hessian,
      &                 iOptC,PrQ,iCoSet,lOld,
-     &                 iIter,mTR,Work(ipTR),ip_TabAI,
+     &                 iIter,mTR,TR,ip_TabAI,
      &                 ip_TabA,ip_TabB,nBonds,nMax,
      &                 iIter,ip_KtB,nQQ,nqInt,MaxItr,nWndw)
 *
@@ -247,7 +247,7 @@
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
      &                 Gx,mTtAtm,
-     &                 PrQ,lOld,mTR,Work(ipTR),ipEVal,ip_Hss_X,
+     &                 PrQ,lOld,mTR,TR,ipEVal,ip_Hss_X,
      &                 ip_KtB,nQQ,Redundant,nqInt,MaxItr,nWndw)
 *
 *------- Set the Labels for cartesian normal modes.
@@ -296,28 +296,24 @@
 *
       If ((nIter.eq.1.and.BSet).and.
      &    (Get_SuperName().ne.'numerical_gradient')) Then
-         Call Allocate_Work(ipBMxOld,3*nAtom*nQQ)
-         Call FZero(Work(ipBmxOld),3*nAtom*nQQ)
-         call dcopy_(3*nAtom*nQQ,Work(ipBMx),1,Work(ipBMxOld),1)
-         Call Put_dArray('BMxOld',Work(ipBMxOld),3*nAtom*nQQ)
-         Call Free_Work(ipBMxOld)
+
+         Call Put_dArray('BMxOld',Work(ipBMx),3*nAtom*nQQ)
+
          If (mTR.ne.0) Then
-            Call Allocate_Work(ipTROld,3*nAtom*mTR)
-            Call FZero(Work(ipTROld),3*nAtom*mTR)
+            Call mma_allocate(TROld,3*nAtom*mTR,Label='TROld')
+            TROld(:)=Zero
 #ifdef _DEBUGPRINT_
-            Call RecPrt('TRVec',' ',Work(ipTR),3*nAtom,mTR)
+            Call RecPrt('TRVec',' ',TR,3*nAtom,mTR)
 #endif
             i = 0
             Do ix = 1, 3*nAtom
                If (Smmtrc(ix)) Then
                   i = i + 1
-                  iOff = ipTROld + ix - 1
-                  call dcopy_(mTR,Work(ipTR+i-1),-nDim,
-     &                           Work(iOff),3*nAtom)
+                  call dcopy_(mTR,TR(i),-nDim,TROld(ix),3*nAtom)
                End If
             End Do
-            Call Put_dArray('TROld',Work(ipTROld),3*nAtom*mTR)
-            Call Free_Work(ipTROld)
+            Call Put_dArray('TROld',TROld,3*nAtom*mTR)
+            Call mma_deallocate(TROld)
          End If
       End IF
 *
@@ -326,7 +322,7 @@
 #ifdef _DEBUGPRINT_
       Call RecPrt(' The BMtrx',' ',Work(ipBMx),3*nAtom,nQQ)
 #endif
-      Call Free_Work(ipTR)
+      Call mma_deallocate(TR)
 *                                                                      *
 ************************************************************************
 *                                                                      *
