@@ -100,7 +100,7 @@ c         Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
            Write (Lu,*)
            Do i = 1, nH
               Write (Lu,'(1X,10F10.5)')
-     &              (EVac((j-1)*nH+i),j=1,nH)
+     &              (EVec((j-1)*nH+i),j=1,nH)
            End Do
          End If
 *

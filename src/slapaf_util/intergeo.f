@@ -175,7 +175,6 @@
                y=Crd(2,ndc,iIter)
                z=Crd(3,ndc,iIter)
             Else
-               ixyz_p = ipCx_p + 3*(ndc-msAtom-1)
                x=Cx_p(1,ndc-msAtom)
                y=Cx_p(2,ndc-msAtom)
                z=Cx_p(3,ndc-msAtom)
