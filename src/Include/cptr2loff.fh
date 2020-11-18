@@ -16,9 +16,9 @@
           integer :: buffer
         end function
         integer function c_cptr2loff(buffer)
-          character(*) :: buffer
+          character(len=*) :: buffer
         end function
-        integer function dc_cptr2loff(buffer)
+        integer function z_cptr2loff(buffer)
           complex*16 :: buffer
         end function
       end interface
