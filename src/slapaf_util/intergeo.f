@@ -149,7 +149,7 @@
             ixyz   = ixyz   + 1
             iChxyz=iChAtm(Cx(1,ixyz,1))
          Else
-            ixyz_p = ixyz_p + 31
+            ixyz_p = ixyz_p + 1
             iChxyz=iChAtm(Cx_p(1,ixyz_p))
          End If
          Call Stblz(iChxyz,nStab2(ndc),jStab(0,ndc),
