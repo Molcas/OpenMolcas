@@ -1233,8 +1233,8 @@ c         Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
 *
            Call mma_allocate(rK,nq*nQQ,Label='rK')
            Call mma_allocate(qEVec,nq*nH,Label='qEVec')
-           ipEVal = ip_of_Work(EVal(1))
-           Call Print_qEVec(EVec,nH,ipEVal,nq,rK,qEVec,LuTmp)
+
+           Call Print_qEVec(EVec,nH,EVal,nq,rK,qEVec,LuTmp)
 *
            Call mma_deallocate(qEVec)
            Call mma_deallocate(rk)

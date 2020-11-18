@@ -39,11 +39,14 @@
       real*8 ddot_
       INTEGER mk,old_mk,mink,maxk,ig,info,nTmp,iter,maxiter
       INTEGER i,j,ii,jj
-      INTEGER ipVec,ipTmp,ipVal,ipDum,ipIndex
+      INTEGER ipTmp
       INTEGER ipDiag,ipTVec,ipTAV,ipTRes
       LOGICAL Last,Augmented,Reduced
       external ddot_
       PARAMETER (Thr=1.0D-7, maxiter=300, Thr2=1.0D-16, Thr3=1.0D-16)
+      Real*8 rDum(1)
+      Real*8, Allocatable:: Vec2(:), Val(:), Tmp(:)
+      Integer, Allocatable:: Index(:)
 *
 #include "stdalloc.fh"
 #include "real.fh"
@@ -83,29 +86,28 @@
 *      and return
 *
       IF (mk.GE.n) THEN
-        CALL GetMem('Values ','Allo','Real',ipVal,n)
-        CALL GetMem('Vectors','Allo','Real',ipVec,n*n)
-        CALL DZero(Work(ipVec),n*n)
+        CALL mma_allocate(Val,n,Label='Val')
+        CALL mma_allocate(Vec2,n*n,Label='Vec2')
+        CALL DZero(Vec,n*n)
         DO j=1,n
           jj=(j-1)*n
           DO i=1,j
-            Work(ipVec+jj+i-1)=A(j*(j-1)/2+i)
+            Vec2(jj+i)=A(j*(j-1)/2+i)
           END DO
         END DO
-        CALL Allocate_Work(ipDum,1)
-        call dsyev_('V','U',n,Work(ipVec),n,Work(ipVal),Work(ipDum),
-     &                       -1,info)
-        nTmp=INT(Work(ipDum))
-        CALL Allocate_Work(ipTmp,nTmp)
-        call dsyev_('V','U',n,Work(ipVec),n,Work(ipVal),Work(ipTmp),
-     &                       nTmp,info)
-        CALL JacOrd2(Work(ipVal),Work(ipVec),n,n)
-        CALL Free_Work(ipTmp)
-        CALL Free_Work(ipDum)
-        call dcopy_(k,Work(ipVal),1,Eig,1)
-        call dcopy_(n*k,Work(ipVec),1,Vec,1)
-        CALL GetMem('Values ','Free','Real',ipVal,n)
-        CALL GetMem('Vectors','Free','Real',ipVec,n*n)
+        call dsyev_('V','U',n,Vec2,n,Val,rDum,-1,info)
+        nTmp=INT(rDum(1))
+
+        CALL mma_allocate(Tmp,nTmp,Label='Tmp')
+        call dsyev_('V','U',n,Vec2,n,Val,Tmp,nTmp,info)
+        CALL JacOrd2(Val,Vec2,n,n)
+        CALL mma_deallocate(Tmp)
+
+        call dcopy_(k,Val,1,Eig,1)
+        call dcopy_(n*k,Vec2,1,Vec,1)
+
+        CALL mma_deallocate(Val)
+        CALL mma_deallocate(Vec2)
 #ifdef _DEBUGPRINT_
         IF (iPrint .GE. 99) THEN
           CALL RecPrt('Eigenvalues',' ',Eig,1,n)
@@ -134,25 +136,25 @@
 
 *---- Build an index of sorted diagonal elements in A
 *
-      CALL Allocate_iWork(ipIndex,n)
+      CALL mma_allocate(Index,n,Label='Index')
       DO i=1,n
-        iWork(ipIndex+i-1)=i
+        Index(i)=i
       END DO
       DO i=1,n
-        ii=iWork(ipIndex+i-1)
+        ii=Index(i)
         Aux=A(ii*(ii+1)/2)
         ii=i
         DO j=i,n
-          jj=iWork(ipIndex+j-1)
+          jj=Index(j)
           IF (A(jj*(jj+1)/2) .LT. Aux) THEN
             Aux=A(jj*(jj+1)/2)
             ii=j
           END IF
         END DO
         IF (ii .NE. i) THEN
-          jj=iWork(ipIndex+ii-1)
-          iWork(ipIndex+ii-1)=iWork(ipIndex+i-1)
-          iWork(ipIndex+i-1)=jj
+          jj=Index(ii)
+          Index(ii)=Index(i)
+          Index(i)=jj
         END IF
       END DO
 
@@ -173,7 +175,7 @@
       CALL DZero(Work(ipTmp),n)
       DO WHILE ((nTmp .LT. mk) .AND. (ii .LT. n))
         ii=ii+1
-        jj=iWork(ipIndex+ii-1)
+        jj=Index(ii)
         Work(ipTmp+jj-1)=One
         CALL Add_Vector(n,nTmp,Sub,Work(ipTmp),Thr3)
         Work(ipTmp+jj-1)=Zero
@@ -192,7 +194,6 @@
       Last=.FALSE.
       old_mk=0
       iter=0
-      CALL Allocate_Work(ipDum,1)
       CALL Allocate_Work(ipDiag,n)
       CALL Allocate_Work(ipTVec,n)
       CALL Allocate_Work(ipTAV,n)
@@ -257,9 +258,8 @@
           WRITE(6,'(2X,A,1X,I5)') 'Solving for subspace size:',mk
 #endif
           call dcopy_(maxk*maxk,Proj,1,EVec,1)
-          call dsyev_('V','L',mk,EVec,maxk,EVal,
-     &                          Work(ipDum),-1,info)
-          nTmp=INT(Work(ipDum))
+          call dsyev_('V','L',mk,EVec,maxk,EVal,rDum,-1,info)
+          nTmp=INT(rDum(1))
           CALL Allocate_Work(ipTmp,nTmp)
           call dsyev_('V','L',mk,EVec,maxk,EVal,
      &                          Work(ipTmp),nTmp,info)
@@ -446,10 +446,13 @@
               END DO
               Work(ipP1+kk*n+kk)=Work(ipP1+kk*n+kk)-EVal(1+i)
             END DO
-            iWork(ipDum)=0
-*           solve the equation
-            CALL CG_Solver(n,n*n,Work(ipP1),iWork(ipDum),Work(ipTRes),
-     &                     Work(ipTmp),info,5)
+            Block
+              Integer iDum(1)
+               iDum(1)=0
+*              solve the equation
+               CALL CG_Solver(n,n*n,Work(ipP1),iDum,Work(ipTRes),
+     &                        Work(ipTmp),info,5)
+            End Block
 #ifdef _DEBUGPRINT_
             WRITE(6,*) 'CG iterations',info
 #endif
@@ -485,7 +488,7 @@
                 DO WHILE ((jj .LT. 1) .AND. (i .LT. n))
                   i=i+1
                   ig=MOD(ig,n)+1
-                  ii=iWork(ipIndex+ig-1)
+                  ii=Index(ig)
                   Work(ipTmp+ii-1)=One
                   jj=mk+jj
                   CALL Add_Vector(n,jj,Sub,Work(ipTmp),Thr3)
@@ -507,12 +510,11 @@
           Reduced=.FALSE.
         END IF
       END DO
-      CALL Free_Work(ipDum)
       CALL Free_Work(ipDiag)
       CALL Free_Work(ipTVec)
       CALL Free_Work(ipTAV)
       CALL Free_Work(ipTRes)
-      CALL Free_iWork(ipIndex)
+      CALL mma_deallocate(Index)
 
 *---- Store the current lowest k eigenvectors (in the full space)
 *      Vec' = Sub * Vec(1:k)
