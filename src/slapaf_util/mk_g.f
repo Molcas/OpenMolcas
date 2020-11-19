@@ -8,23 +8,21 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine mk_G(ipG,ipGInv)
+      Subroutine mk_G(G,GInv,nX)
 #include "info_slapaf.fh"
 #include "WrkSpc.fh"
+      Integer nX
+      Real*8 G(nX*nX), GInv(nX*nX)
 *
-      nX=3*nsAtom
       mInter=mInt + mTROld
 *
-      Call Allocate_Work(ipG,nX**2)
-      Call Allocate_Work(ipGInv,nX**2)
-*
-      Call mk_G_(Work(ipG),Work(ipGInv),mInter,nsAtom,.Not.User_Def,
-     &           CurviLinear,Smmtrc,Degen,Work(ipCM))
+      Call mk_G_Internal(G,GInv,mInter,nsAtom,.Not.User_Def,CurviLinear,
+     &                   Smmtrc,Degen,Work(ipCM))
 *
       Return
       End
-      Subroutine mk_G_(G,GInv,mInter,nAtom,Auto,nrc,Smmtrc,Degen,
-     &                 dMass)
+      Subroutine mk_G_Internal(G,GInv,mInter,nAtom,Auto,nrc,Smmtrc,
+     &                         Degen,dMass)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "constants2.fh"
@@ -37,8 +35,8 @@
 *                                                                      *
 *     Generate the mass tensor
 *
-      Call FZero(G,mInter**2)
-      Call FZero(GInv,mInter**2)
+      G(:,:)=Zero
+      GInv(:)=Zero
       ii = 0
       Do i = 1, nAtom
          Do ix = 1, 3

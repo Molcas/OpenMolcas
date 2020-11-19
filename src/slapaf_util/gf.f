@@ -14,9 +14,11 @@
 #include "real.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Logical Smmtrc(3,nAtom)
       Real*8 dDipM(3,nInter+mTR), DipM(3), Tmp1(nX**2), Tmp2(nX**2),
      &       EVec(2*mInter,mInter), EVal(2*mInter), RedM(mInter)
+      Real*8, Allocatable:: G(:), GInv(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -39,7 +41,9 @@
 *                                                                      *
 *     Generate the G matrix (mass tensor in cartesians)
 *
-      Call Mk_G(ipG,ipGInv)
+      Call mma_allocate(G,nX**2,Label='G')
+      Call mma_allocate(GInv,nX**2,Label='GInv')
+      Call Mk_G(G,GInv,nX)
 *
 *
 *     Get the force constant matrix in cartesians
@@ -50,17 +54,17 @@
 *                                                                      *
 *     Form the GF-matrix (actually G^(1/2)FG^(1/2))
 *
-      Call GF_Mult(Work(ipG),Work(ip_H),Tmp2,mInter)  ! Result in Tmp2
+      Call GF_Mult(G,Work(ip_H),Tmp2,mInter)  ! Result in Tmp2
       Call Free_Work(ip_H)
 *
 *     Compute the frequencies and harmonic eigenfunctions in
 *     Cartesians.
 *
-      Call GF_Harmonic_Frequencies(Work(ipG),Work(ipGInv),Tmp1,Tmp2,
+      Call GF_Harmonic_Frequencies(G,GInv,Tmp1,Tmp2,
      &                             EVec,EVal,RedM,iNeg,nX,mInter)
 *
-      Call Free_Work(ipG)
-      Call Free_Work(ipGInv)
+      Call mma_deallocate(G)
+      Call mma_deallocate(GInv)
 *                                                                      *
 ************************************************************************
 ************************************************************************

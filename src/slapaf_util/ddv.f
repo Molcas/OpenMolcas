@@ -59,7 +59,6 @@
 #include "real.fh"
 #include "print.fh"
 #include "sbs.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 Cart(3,nAtoms),rij(3),rjk(3),rkl(3),
      &       Hess((3*nAtoms)*(3*nAtoms+1)/2),si(3),sj(3),sk(3),
@@ -72,7 +71,7 @@
      &        Invariant(3)
 *
       Real*8 Trans(3), RotVec(3), RotMat(3,3)
-      Real*8, Allocatable:: xMass(:)
+      Real*8, Allocatable:: xMass(:), Grad(:,:,:), CurrXYZ(:,:)
 *
 #include "warnings.fh"
 #define _FMIN_
@@ -226,36 +225,32 @@ c        Write (6,*) ' Add dummy atoms to your input and try again!'
 c        Write (6,*)
 c        Call Quit(_RC_GENERAL_ERROR_)
 c     End If
-      Call Allocate_Work(ip_Grad,3*3*nAtoms)
-      Call Allocate_Work(ip_CurrXYZ,3*nAtoms)
+      Call mma_allocate(Grad,3,3,nAtoms,Label='Grad')
+      Call mma_allocate(CurrXYZ,3,nAtoms,Label='CurrXYZ')
       Do iAtom = 1, nAtoms
          If (iANr(iAtom).le.0) Then
             xMass(iAtom) = 1.0D-10
          End If
       End Do
       nOrder=1
-      Call FZero(Trans,3)
-      Call FZero(RotVec,3)
-      call dcopy_(3*nAtoms,Cart,1,Work(ip_CurrXYZ),1)
-      Call RotDer(nAtoms,xMass,Work(ip_CurrXYZ),Cart,
-     &            Trans,RotAng,
-     &            RotVec,RotMat,nOrder,Work(ip_Grad),dum)
-      Call Free_Work(ip_CurrXYZ)
+      Trans(:)=Zero
+      RotVec(:)=Zero
+      CurrXYZ(:,:)=Cart(:,:)
+      Call RotDer(nAtoms,xMass,CurrXYZ,Cart,Trans,RotAng,
+     &            RotVec,RotMat,nOrder,Grad,dum)
+      Call mma_deallocate(CurrXYZ)
 *
 *
       Do iAtom = 1, nAtoms
-         ix = (iAtom-1)*3 + 1
-         iy = (iAtom-1)*3 + 2
-         iz = (iAtom-1)*3 + 3
-         dO1_dx1 =  Work( (ix-1)*3 +     ip_Grad)
-         dO2_dx1 =  Work( (ix-1)*3 + 1 + ip_Grad)
-         dO3_dx1 =  Work( (ix-1)*3 + 2 + ip_Grad)
-         dO1_dy1 =  Work( (iy-1)*3 +     ip_Grad)
-         dO2_dy1 =  Work( (iy-1)*3 + 1 + ip_Grad)
-         dO3_dy1 =  Work( (iy-1)*3 + 2 + ip_Grad)
-         dO1_dz1 =  Work( (iz-1)*3 +     ip_Grad)
-         dO2_dz1 =  Work( (iz-1)*3 + 1 + ip_Grad)
-         dO3_dz1 =  Work( (iz-1)*3 + 2 + ip_Grad)
+         dO1_dx1 =  Grad(1,1,iAtom)
+         dO2_dx1 =  Grad(2,1,iAtom)
+         dO3_dx1 =  Grad(3,1,iAtom)
+         dO1_dy1 =  Grad(1,2,iAtom)
+         dO2_dy1 =  Grad(2,2,iAtom)
+         dO3_dy1 =  Grad(3,2,iAtom)
+         dO1_dz1 =  Grad(1,3,iAtom)
+         dO2_dz1 =  Grad(2,3,iAtom)
+         dO3_dz1 =  Grad(3,3,iAtom)
          If (Invariant(1)) Then
             dO1_dx1 = Zero
             dO1_dy1 = Zero
@@ -272,18 +267,15 @@ c     End If
             dO3_dz1 = Zero
          End If
          Do jAtom = 1, iAtom-1
-            jx = (jAtom-1)*3 + 1
-            jy = (jAtom-1)*3 + 2
-            jz = (jAtom-1)*3 + 3
-            dO1_dx2 =  Work( (jx-1)*3 +     ip_Grad)
-            dO2_dx2 =  Work( (jx-1)*3 + 1 + ip_Grad)
-            dO3_dx2 =  Work( (jx-1)*3 + 2 + ip_Grad)
-            dO1_dy2 =  Work( (jy-1)*3 +     ip_Grad)
-            dO2_dy2 =  Work( (jy-1)*3 + 1 + ip_Grad)
-            dO3_dy2 =  Work( (jy-1)*3 + 2 + ip_Grad)
-            dO1_dz2 =  Work( (jz-1)*3 +     ip_Grad)
-            dO2_dz2 =  Work( (jz-1)*3 + 1 + ip_Grad)
-            dO3_dz2 =  Work( (jz-1)*3 + 2 + ip_Grad)
+            dO1_dx2 =  Grad(1,1,jAtom)
+            dO2_dx2 =  Grad(2,1,jAtom)
+            dO3_dx2 =  Grad(3,1,jAtom)
+            dO1_dy2 =  Grad(1,2,jAtom)
+            dO2_dy2 =  Grad(2,2,jAtom)
+            dO3_dy2 =  Grad(3,2,jAtom)
+            dO1_dz2 =  Grad(1,3,jAtom)
+            dO2_dz2 =  Grad(2,3,jAtom)
+            dO3_dz2 =  Grad(3,3,jAtom)
             If (Invariant(1)) Then
                dO1_dx2 = Zero
                dO1_dy2 = Zero
@@ -366,7 +358,7 @@ c     End If
      &                      +dO3_dz1*dO3_dz1)
 *
       End Do
-      Call Free_Work(ip_Grad)
+      Call mma_deallocate(Grad)
 #ifdef _DEBUGPRINT_
       Call TriPrt(' In LNM: Hessian after Rotation','(12f12.7)',
      &               Hess,n3)
@@ -1171,7 +1163,6 @@ C                 tij=Max(tij,f_const_Min_)
       Subroutine DiagMtrx_T(H,nH,iNeg)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       character*16 filnam
@@ -1205,7 +1196,7 @@ C                 tij=Max(tij,f_const_Min_)
 *
       iNeg=0
       Do i = 1, nH
-         If (Work(i*(i+1)/2+ipEVal-1).lt.Zero) iNeg=iNeg+1
+         If (EVal(i*(i+1)/2).lt.Zero) iNeg=iNeg+1
       End Do
       IF (iprint.gt.5) THEN
         Write (Lu,*)
