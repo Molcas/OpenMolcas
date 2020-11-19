@@ -46,7 +46,7 @@
       Character(LEN=14) cDum
       Real*8 Dum(1)
       Logical, Save:: g12K=.False.
-      Real*8, Allocatable:: Proj(:)
+      Real*8, Allocatable:: Proj(:), Temp2(:), KtM(:,:), Degen2(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -100,16 +100,16 @@
          Call FZero(Work(ip_drInt),nqInt)
       End If
 *
-      Call Allocate_Work(ipDegen,nDim)
+      Call mma_allocate(Degen2,nDim)
       i=0
       Do ix = 1, 3*nAtoms
          If (Smmtrc(ix)) Then
-            Work(ipDegen+i) = Degen(ix)
             i = i + 1
+            Degen2(i) = Degen(ix)
          End If
       End Do
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Work(ipDegen)',' ',Work(ipDegen),nDim,1)
+      Call RecPrt('Degen2',' ',Degen2,nDim,1)
 #endif
 *                                                                      *
 ************************************************************************
@@ -318,14 +318,13 @@
 *---- Print the nonreduntant coordinates.
 *
       If (PrQ) Then
-         Call GetMem('Temp2','Allo','Real',ipTemp2,nq*nQQ)
-         call dcopy_(nQQ*nq,Work(ipK),1,Work(ipTemp2),1)
+         Call mma_allocate(Temp2,nq*nQQ,Label='Temp2')
+         call dcopy_(nQQ*nq,Work(ipK),1,Temp2,1)
          Do iq = 0, nq-1
-            Call DScal_(nQQ,One/Work(ipMult+iq),Work(ipTemp2+iq),nq)
+            Call DScal_(nQQ,One/Work(ipMult+iq),Temp2(1+iq),nq)
          End Do
-         Call PrintQ(Work(ipTemp2),cWork(ipqLbl),nq,nQQ,LuIC,
-     &               Work(ipMult))
-         Call GetMem('Temp2','Free','Real',ipTemp2,nq*nQQ)
+         Call PrintQ(Temp2,cWork(ipqLbl),nq,nQQ,LuIC,Work(ipMult))
+         Call mma_deallocate(Temp2)
       End If
 *                                                                      *
 ************************************************************************
@@ -523,7 +522,7 @@ C        iEnd = 1
             Do iQQ = 1, nQQ
                Do iDim = 1, nDim
                   ij = (iQQ-1)*nDim + iDim -1 + ip_KtB
-                  Work(ij) = Work(ij) / Work(ipDegen+iDim-1)
+                  Work(ij) = Work(ij) / Degen2(iDim)
                End Do
             End Do
 *
@@ -532,7 +531,7 @@ C        iEnd = 1
             N = nQQ
             NRHS=1
             Call Eq_Solver('N',M,N,NRHS,Work(ip_KtB   ),.False.,
-     &                     Work(ipDegen),Work(iOff),Work(ip))
+     &                     Degen2,Work(iOff),Work(ip))
 *           Call RecPrt('Work(iOff)',' ',Work(iOff),nDim,1)
 *           Call RecPrt('KtB   ',' ',Work(ipKtB   ),nQQ,nDim)
 *           Call RecPrt('drInt',' ',Work(ip),nQQ,1)
@@ -571,18 +570,18 @@ C        iEnd = 1
          jIter = nIter
          mIter = 1
       End If
-      Call GetMem('KtM','Allo','Real',ipKtM,nQQ*nq)
+      Call mma_allocate(KtM,nQQ,nq,Label='KtM')
       Do iq = 0, nq-1
          Alpha=Work(ipMult+iq)
          Do iQQ = 0, nQQ-1
             temp = Work(ipK+iQQ*nq+iq)*Alpha
-            Work(ipKtM+iq*nQQ+iQQ)=temp
+            KtM(iQQ+1,iq+1)=temp
          End Do
       End Do
       ip = ip_rInt + (jIter-1)*(nDim-mTR)
       Call DGEMM_('N','N',
      &            nQQ,mIter,nq,
-     &            1.0d0,Work(ipKtM),nQQ,
+     &            1.0d0,KtM,nQQ,
      &                  Work(ipqV),nq,
      &            0.0d0,Work(ip),nQQ)
 *                                                                      *
@@ -605,7 +604,7 @@ C        iEnd = 1
 *                                                                      *
 *---- Deallocate memory
 *
-      Call GetMem('KtM','Free','Real',ipKtM,nQQ*nq)
+      Call mma_deallocate(KtM)
       If (BSet .or. Numerical)
      &   Call GetMem('GxR','Free','Real',ipGxR,nDim*nIter)
       Call GetMem('K(t)B','Free','Real',ipKtB,nQQ*nDim)
@@ -617,7 +616,7 @@ C        iEnd = 1
       Call GetMem('q-Labels','Free','Char',ipqLbl,14*nq)
       Call GetMem('Q-Values','Free','Real',ipQVal,nq*nIter)
 *
-      Call Free_Work(ipDegen)
+      Call mma_deallocate(Degen2)
       Call mma_deallocate(Proj)
 *
       Close (LuIC)

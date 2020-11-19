@@ -242,16 +242,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         ipEVal = ip_of_Work(EVal(1))
-         ip_Hss_X = ip_of_Work(Hss_X(1))
-         Call BMtrx_Cartesian(
-     &                 ipBMx,nAtom,nInter,
-     &                 ip_rInt,nDim,
-     &                 Name,Smmtrc,
-     &                 Degen,BSet,HSet,nIter,ip_drInt,
-     &                 Gx,mTtAtm,
-     &                 PrQ,lOld,mTR,TR,ipEVal,ip_Hss_X,
-     &                 ip_KtB,nQQ,Redundant,nqInt,MaxItr,nWndw)
+         Call BMtrx_Cartesian(ipBMx,nAtom,nInter,ip_rInt,nDim,Name,
+     &                        Smmtrc,Degen,BSet,HSet,nIter,ip_drInt,
+     &                        Gx,mTtAtm,PrQ,lOld,mTR,TR,EVal,Hss_X,
+     &                        ip_KtB,nQQ,Redundant,nqInt,MaxItr,nWndw)
 *
 *------- Set the Labels for cartesian normal modes.
 *

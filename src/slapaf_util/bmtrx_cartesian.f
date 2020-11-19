@@ -12,7 +12,7 @@
      &                 ipBMx,nAtom,nInter,ip_rInt,nDim,
      &                 Name,Smmtrc,Degen,BSet,HSet,
      &                 nIter,ip_drInt,Gx,mTtAtm,
-     &                 PrQ,lOld,mTR,TRVec,ipEVal,ip_Hss_x,
+     &                 PrQ,lOld,mTR,TRVec,EVal,Hss_x,
      &                 ip_KtB,nQQ,Redundant,nqInt,MaxItr,nWndw)
       use Slapaf_Info, only: Cx
       Implicit Real*8 (a-h,o-z)
@@ -23,6 +23,8 @@
       Real*8 Degen(3*nAtom), Gx(3*nAtom,nIter), TRVec(nDim,mTR)
       Character Name(nAtom)*(LENIN)
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant, PrQ, lOld
+      Real*8 Eval(3*mTtAtm*(3*mTtAtm+1)/2)
+      Real*8 Hss_x((3*mTtAtm)**2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -95,9 +97,9 @@
                Temp = 0.0D0
                Do k = 1, nDim
                   kx = iWork(ipInd+k-1)
-                  ik=(i-1)*nDim+k -1 + ip_Hss_x
+                  ik=(i-1)*nDim+k
                   Temp = Temp
-     &                 + Work(ik) * Sqrt(Degen(kx))
+     &                 + Hss_X(ik) * Sqrt(Degen(kx))
      &                 * TRVec(k,j)
                End Do
                Work(ipHi+(j-1)*nDim+i-1) = Temp
@@ -114,9 +116,9 @@
             ix = iWork(ipInd+i-1)
             Do j = 1, i
                jx = iWork(ipInd+j-1)
-               ij = (j-1)*nDim + i -1 + ip_Hss_x
-               ji = (i-1)*nDim + j -1 + ip_Hss_x
-               Temp = Half*(Work(ij)+Work(ji))
+               ij = (j-1)*nDim + i
+               ji = (i-1)*nDim + j
+               Temp = Half*(Hss_x(ij)+Hss_x(ji))
 *define UNIT_MM
 #ifndef UNIT_MM
 *
@@ -135,8 +137,8 @@
                End Do
 #endif
 *
-               Work(ij)=Temp
-               Work(ji)=Temp
+               Hss_X(ij)=Temp
+               Hss_X(ji)=Temp
             End Do
          End Do
          Call Free_Work(ipiHi)
@@ -221,9 +223,9 @@
                Temp = 0.0D0
                Do k = 1, nDim
                   kx = iWork(ipInd+k-1)
-                  ik=(i-1)*nDim+k -1 + ip_Hss_x
+                  ik=(i-1)*nDim+k
                   Temp = Temp
-     &                 + Work(ik) * Sqrt(Degen(kx))
+     &                 + Hss_X(ik) * Sqrt(Degen(kx))
      &                 * TRVec(k,j)
                End Do
                Work(ipHi+(j-1)*nDim+i-1) = Temp
@@ -240,10 +242,10 @@
             ix = iWork(ipInd+i-1)
             Do j = 1, i
                jx = iWork(ipInd+j-1)
-               ijTri=i*(i-1)/2 + j -1 + ipEVal
-               ij = (j-1)*nDim + i -1 + ip_Hss_x
-               ji = (i-1)*nDim + j -1 + ip_Hss_x
-               Work(ijTri) = Half*(Work(ij)+Work(ji))
+               ijTri=i*(i-1)/2 + j
+               ij = (j-1)*nDim + i
+               ji = (i-1)*nDim + j
+               EVal(ijTri) = Half*(Hss_X(ij)+Hss_X(ji))
 *
 *              Here we shift the eigenvectors corresponding to tran-
 *              lations and rotations down to negative faked eigen-
@@ -252,7 +254,7 @@
                Do iTR = 1, mTR
                   Omega = -DBLE(iTR)
                   Hii   = Work(ipiHi+iTR-1)
-                  Work(ijTri) = Work(ijTri)
+                  Eval(ijTri) = Eval(ijTri)
      &                 + Sqrt(Degen(ix)) * (
      &                 - TRVec(i,iTR) * Work(ipHi+(iTR-1)*nDim+j-1)
      &                 - Work(ipHi+(iTR-1)*nDim+i-1) * TRVec(j,iTR)
@@ -260,8 +262,8 @@
      &                                     )* Sqrt(Degen(jx))
                End Do
 *
-               Work(ij)=Work(ijTri)
-               Work(ji)=Work(ijTri)
+               Hss_X(ij)=EVal(ijTri)
+               Hss_X(ji)=EVal(ijTri)
             End Do
          End Do
          Call Free_Work(ipiHi)
@@ -269,9 +271,9 @@
          Call Free_iWork(ipInd)
 #ifdef _DEBUGPRINT_
          Call TriPrt(' The Projected Model Hessian','(5G20.10)',
-     &               Work(ipEVal),nDim)
+     &               EVal,nDim)
          Call RecPrt(' The Projected Model Hessian','(5G20.10)',
-     &               Work(ip_Hss_x),nDim,nDim)
+     &               Hss_x,nDim,nDim)
 #endif
 *                                                                      *
 ************************************************************************
@@ -279,7 +281,7 @@
 *        Compute the eigen vectors for the Cartesian Hessian
 *
          Call GetMem('EVec','Allo','Real',ipEVec,(3*mTtAtm)**2)
-         Call Hess_Vec(mTtAtm,Work(ipEVal),Work(ipEVec),nAtom,nDim)
+         Call Hess_Vec(mTtAtm,EVal,Work(ipEVec),nAtom,nDim)
 *                                                                      *
 ************************************************************************
 *                                                                      *
