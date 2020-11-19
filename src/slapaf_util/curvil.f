@@ -46,7 +46,8 @@
       Character(LEN=14) cDum
       Real*8 Dum(1)
       Logical, Save:: g12K=.False.
-      Real*8, Allocatable:: Proj(:), Temp2(:), KtM(:,:), Degen2(:)
+      Real*8, Allocatable:: Proj(:), Temp2(:), KtM(:,:), Degen2(:),
+     &                      EVal(:), G(:), GxR(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -290,9 +291,9 @@
 ************************************************************************
 *                                                                      *
       If (BSet) Then
-         Call GetMem('G','Allo','Real',ipG,nq*nq)
-         Call GetMem('EVal','Allo','Real',ipEVal,nq*(nq+1)/2)
-         Call ElRed2(nq,ndim,Work(ipG),Work(ipEVal),Work(ipK),nK,Proj,
+         Call mma_allocate(G,nq*nq,Label='G')
+         Call mma_allocate(EVal,nq*(nq+1)/2,Label='EVal')
+         Call ElRed2(nq,ndim,G,EVal,Work(ipK),nK,Proj,
      &               g12K,Thr_ElRed,Work(ip_B),iWork(ip_iB),mB_Tot,
      &               iWork(ip_nqB))
 
@@ -300,8 +301,8 @@
             Call Remove_TR(nq,ndim,nQQ,Work(ipK),nK,TRVec,mTR,
      &                     Work(ip_B),iWork(ip_iB),iWork(ip_nqB),mB_Tot)
          End If
-         Call GetMem('EVal','Free','Real',ipEVal,nq*(nq+1)/2)
-         Call GetMem('G','Free','Real',ipG,nq*nq)
+         Call mma_deallocate(EVal)
+         Call mma_deallocate(G)
 *
          Call Put_dArray('K',Work(ipK),nq*nQQ)
       Else
@@ -367,24 +368,23 @@
 *
       If (BSet) Then
 *------- Produce list of compressed cartesian gradients.
-         Call GetMem('GxR','Allo','Real',ipGxR,nDim*nIter)
-         iOff = ipGxR
+         Call mma_allocate(GxR,nDim,nIter,Label='GxR')
          Do jIter = 1, nIter
-            Call NRed(Gx(1,jIter),Work(iOff),3*nAtoms,nDim,Smmtrc)
-            iOff = iOff + nDim
+            Call NRed(Gx(:,jIter),GxR(:,jIter),3*nAtoms,nDim,Smmtrc)
          End Do
 *
          iSt = nIter
          iEnd = iSt - Min(nIter,nWndw+1) + 1
 C        iEnd = 1
-         iOff = (nIter-1)*nDim + ipGxR
+         iOff = nIter
       Else
          If (Numerical) Then
-            Call GetMem('GxR','Allo','Real',ipGxR,nDim)
-            iOff = ipGxR
-            Call NRed(Gx(1,nIter),Work(iOff),3*nAtoms,nDim,Smmtrc)
+            Call mma_allocate(GxR,nDim,1,Label='GxR')
+            iOff = 1
+            Call NRed(Gx(1,nIter),GxR(:,1),3*nAtoms,nDim,Smmtrc)
          Else
-            iOff = ip_Dummy
+            Call mma_allocate(GxR,1,1,Label='GxR')
+            iOff = 1
          End If
          iEnd=nIter
          iSt =nIter
@@ -531,12 +531,12 @@ C        iEnd = 1
             N = nQQ
             NRHS=1
             Call Eq_Solver('N',M,N,NRHS,Work(ip_KtB   ),.False.,
-     &                     Degen2,Work(iOff),Work(ip))
-*           Call RecPrt('Work(iOff)',' ',Work(iOff),nDim,1)
+     &                     Degen2,GxR(:,iOff),Work(ip))
+*           Call RecPrt('GxR(:,iSt',' ',GxR(:,iOff),nDim,1)
 *           Call RecPrt('KtB   ',' ',Work(ipKtB   ),nQQ,nDim)
 *           Call RecPrt('drInt',' ',Work(ip),nQQ,1)
 
-            iOff = iOff - nDim
+            iOff = iOff - 1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -554,6 +554,9 @@ C        iEnd = 1
 ************************************************************************
 *                                                                      *
          End If
+*                                                                      *
+************************************************************************
+*                                                                      *
       End Do
 *                                                                      *
 ************************************************************************
@@ -605,8 +608,7 @@ C        iEnd = 1
 *---- Deallocate memory
 *
       Call mma_deallocate(KtM)
-      If (BSet .or. Numerical)
-     &   Call GetMem('GxR','Free','Real',ipGxR,nDim*nIter)
+      If (Allocated(GxR)) Call mma_deallocate(GxR)
       Call GetMem('K(t)B','Free','Real',ipKtB,nQQ*nDim)
       Call GetMem('EVec','Free','Real',ipK,nq**2)
       Call GetMem('GRef','Free','Real',ipGRef,9*nqA*nIter)

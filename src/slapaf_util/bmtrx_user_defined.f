@@ -22,18 +22,16 @@
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "print.fh"
+#include "stdalloc.fh"
       Real*8 Coor(3,nAtom), dMass(nAtom), Degen(3*nAtom),
      &       Gx(3*nAtom,nIter)
       Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
       Integer   nStab(nAtom), jStab(0:7,nAtom)
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
      &        Numerical, Analytic_Hessian, lOld, Proc_dB
-*                                                                      *
-************************************************************************
-*                                                                      *
-      iRout=133
-      iPrint=nPrint(iRout)
+      Real*8, Allocatable:: Degen2(:)
+      Character(LEN=8), Allocatable:: Lab(:)
+      Real*8, Allocatable:: Mult(:), BVec(:), Val(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -51,12 +49,12 @@
       End If
       Call Allocate_Work(ipBmx,3*nAtom*nQQ)
       Call FZero(Work(ipBMx),3*nAtom*nQQ)
-      Call GetMem('rMult','Allo','Real',ipMult,nBVec)
-      Call GetMem('BVec','Allo','Real',ipBVec,nBVec*3*nAtom)
-      Call FZero(Work(ipBVec),nBVec*3*nAtom)
-      Call GetMem('Val','Allo','Real',ipVal,nBVec)
-      Call FZero(Work(ipVal),nBVec)
-      Call GetMem('Lab','Allo','Char',ipLab,nBVec*8)
+      Call mma_allocate(Mult,nBVec,Label='Mult')
+      Call mma_allocate(BVec,nBVec*3*nAtom,Label='BVec')
+      BVec(:)=Zero
+      Call mma_allocate(Val,nBVec,Label='Val')
+      Val(:)=Zero
+      Call mma_allocate(Lab,nBVec,Label='Lab')
 *
 *-----Compute the B matrix in symmetry distinct basis and the
 *     internal coordinates.
@@ -71,15 +69,15 @@
       End If
 *
       ip = ip_rInt + (nIter-1)*nQQ
-      Call DefInt(Work(ipBVec),nBVec,cWork(ipLab),Work(ipBMx),nQQ,
-     &            nAtom,nLines,Work(ipVal),Work(ip),Lbl,Name,
-     &            Coor,dMass,jStab,nStab,mxdc,Work(ipMult),
+      Call DefInt(BVec,nBVec,Lab,Work(ipBMx),nQQ,
+     &            nAtom,nLines,Val,Work(ip),Lbl,Name,
+     &            Coor,dMass,jStab,nStab,mxdc,Mult,
      &            nDim-mTR,Redundant)
 *
-      Call GetMem('Lab','Free','Char',ipLab,nBVec*8)
-      Call GetMem('Val','Free','Real',ipVal,nBVec)
-      Call GetMem('BVec','Free','Real',ipBVec,nBVec*3*nAtom)
-      Call GetMem('rMult','Free','Real',ipMult,nBVec)
+      Call mma_deallocate(Lab)
+      Call mma_deallocate(Val)
+      Call mma_deallocate(BVec)
+      Call mma_deallocate(Mult)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -93,12 +91,12 @@
       If (HSet.and..NOT.lOld.and.BSet) Then
          Call Allocate_Work(ip_KtB,nDim*nQQ)
 *
-         Call Allocate_Work(ipDegen,nDim)
+         Call mma_allocate(Degen2,nDim,Label='Degen2')
          i=0
          Do ix = 1, 3*nAtom
             If (Smmtrc(ix)) Then
-               Work(ipDegen+i) = Degen(ix)
                i = i + 1
+               Degen2(i) = Degen(ix)
             End If
          End Do
 *
@@ -117,11 +115,11 @@
          Do iInter = 1, nQQ
             Do iDim = 1, nDim
                ij = (iInter-1)*nDim + iDim - 1 + ip_KtB
-*              Work(ij) = Work(ij) / Sqrt(Work(ipDegen+iDim-1))
-               Work(ij) = Work(ij) / Work(ipDegen+iDim-1)
+*              Work(ij) = Work(ij) / Sqrt(Degen2(iDim))
+               Work(ij) = Work(ij) / Degen2(iDim)
             End Do
          End Do
-         Call Free_Work(ipDegen)
+         Call mma_deallocate(Degen2)
       Else
          ip_KtB = ip_Dummy
       End If
