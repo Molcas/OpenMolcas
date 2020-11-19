@@ -47,7 +47,10 @@
       Real*8 Dum(1)
       Logical, Save:: g12K=.False.
       Real*8, Allocatable:: Proj(:), Temp2(:), KtM(:,:), Degen2(:),
-     &                      EVal(:), G(:), GxR(:,:)
+     &                      EVal(:), G(:), GxR(:,:), qVal(:,:),
+     &                      F_c(:)
+      Character(LEN=14), Allocatable:: qLbl(:)
+      Integer, Allocatable:: Ind(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -174,16 +177,16 @@
       Call GetMem('nqB','Allo','Inte',ip_nqB,nq)
       mq=nq
 *
-      Call GetMem('q-Values','Allo','Real',ipqVal,nq*nIter)
-      Call GetMem('q-Labels','Allo','Char',ipqLbl,14*nq)
-      Call GetMem('F_const','Allo','Real',ipf_c,nq)
+      Call mma_allocate(qVal,nq,nIter,Label='qVal')
+      Call mma_allocate(qLbl,nq,Label='qLbl')
+      Call mma_allocate(F_c,nq,Label='F_c')
       Call GetMem('Mult','Allo','Real',ipMult,nq)
-      Call GetMem('Ind','Allo','Inte',ipInd,3*nq)
+      Call mma_allocate(Ind,3,nq,Label='Ind')
       Call GetMem('GRef','Allo','Real',ipGRef,9*nqA*nIter)
 *
-      Call FZero(Work(ipf_c),nq)
+      F_c(:) = Zero
       Call FZero(Work(ipMult),nq)
-      Call FZero(Work(ipqVal),nq*nIter)
+      qVal(:,:) = Zero
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -198,9 +201,9 @@
      &          (iq,iqRF,iqR,iqA,iqT,iqO,
      &           nAtoms,iIter,nIter,Cx,jStab,
      &           nStab,Smmtrc,Proc,
-     &           Work(ipqVal),nq,iANr,cWork(ipqLbl),
-     &           iRef,Work(ipf_c),Work(ipMult),iOptC,
-     &           LuIC,Name,iWork(ipInd),iIter,dMass,iCoSet,Work(ipGRef),
+     &           qVal,nq,iANr,qLbl,
+     &           iRef,F_c,Work(ipMult),iOptC,
+     &           LuIC,Name,Ind,iIter,dMass,iCoSet,Work(ipGRef),
      &           iGlow,iGHi,
      &           Proc_dB,
      &           iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
@@ -224,9 +227,9 @@
       If (iPrint.ge.49) Then
          Write (6,*) 'nq, nqB, nqA, nqT, nqO=',
      &             nq, nqB, nqA, nqT, nqO
-         Call RecPrt('q-values',' ',Work(ipqVal),nq,nIter)
+         Call RecPrt('q-values',' ',qVal,nq,nIter)
          Call RecPrt('Force Constant matrix in redundant basis',' ',
-     &            Work(ipf_c),1,nq)
+     &               F_c,1,nq)
          Call RecPrt('Multiplicity factors',' ',Work(ipMult),1,nq)
          Call RecPrt('Cx',' ',Cx,3*nAtoms,nIter)
          Call RecPrt('Gx',' ',Gx,3*nAtoms,nIter)
@@ -258,7 +261,7 @@
          i = 0
          Do iq = 0, nq-1
             nB = iWork(ip_nqB+iq)
-            Call DScal_(nB,Work(ipf_c+iq),Work(ip_B+i),1)
+            Call DScal_(nB,F_c(1+iq),Work(ip_B+i),1)
             i = i + nB
          End Do
 *ifdef _DEBUGPRINT_
@@ -324,7 +327,7 @@
          Do iq = 0, nq-1
             Call DScal_(nQQ,One/Work(ipMult+iq),Temp2(1+iq),nq)
          End Do
-         Call PrintQ(Temp2,cWork(ipqLbl),nq,nQQ,LuIC,Work(ipMult))
+         Call PrintQ(Temp2,qLbl,nq,nQQ,LuIC,Work(ipMult))
          Call mma_deallocate(Temp2)
       End If
 *                                                                      *
@@ -415,9 +418,9 @@ C        iEnd = 1
      &             (iq,iqRF,iqR,iqA,iqT,iqO,
      &              nAtoms,jIter,nIter,Cx,jStab,
      &              nStab,Smmtrc,Proc,
-     &              Work(ipqVal),nq,iANr,cWork(ipqLbl),
-     &              iRef, Work(ipf_c),Work(ipMult),
-     &              iOptC,LuIC,Name,iWork(ipInd),iIter,dMass,iCoSet,
+     &              qVal,nq,iANr,qLbl,
+     &              iRef, F_c,Work(ipMult),
+     &              iOptC,LuIC,Name,Ind,iIter,dMass,iCoSet,
      &              Work(ipGRef),iGlow,iGHi,
      &              Proc_dB,
      &              iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
@@ -565,11 +568,9 @@ C        iEnd = 1
 *          t
 *     Q = K M q
 *
-      ipqV=ipqVal
       jIter = 1
       mIter = nIter
       If (.Not.BSet) Then
-         ipqV = (nIter-1)*nq + ipqVal
          jIter = nIter
          mIter = 1
       End If
@@ -585,7 +586,7 @@ C        iEnd = 1
       Call DGEMM_('N','N',
      &            nQQ,mIter,nq,
      &            1.0d0,KtM,nQQ,
-     &                  Work(ipqV),nq,
+     &                  qVal(:,jIter),nq,
      &            0.0d0,Work(ip),nQQ)
 *                                                                      *
 ************************************************************************
@@ -593,7 +594,7 @@ C        iEnd = 1
 #ifdef _DEBUGPRINT_
       If (iPrint.ge.49) Then
          Call RecPrt(' The K Matrix',' ',Work(ipK),nq,nQQ)
-         Call RecPrt(' q-values',' ',Work(ipqVal),nq,nIter)
+         Call RecPrt(' q-values',' ',qVal,nq,nIter)
          Call RecPrt('Q-values',' ',Work(ip_rInt),nQQ,nIter)
          Call RecPrt('Cx',' ',Cx,3*nAtoms,nIter)
       End If
@@ -612,11 +613,11 @@ C        iEnd = 1
       Call GetMem('K(t)B','Free','Real',ipKtB,nQQ*nDim)
       Call GetMem('EVec','Free','Real',ipK,nq**2)
       Call GetMem('GRef','Free','Real',ipGRef,9*nqA*nIter)
-      Call GetMem('Ind','Free','Inte',ipInd,3*nq)
+      Call mma_deallocate(Ind)
       Call GetMem('Mult','Free','Real',ipMult,nq)
-      Call GetMem('F_const','Free','Real',ipf_c,nq)
-      Call GetMem('q-Labels','Free','Char',ipqLbl,14*nq)
-      Call GetMem('Q-Values','Free','Real',ipQVal,nq*nIter)
+      Call mma_deallocate(F_c)
+      Call mma_deallocate(qLbl)
+      Call mma_deallocate(qVal)
 *
       Call mma_deallocate(Degen2)
       Call mma_deallocate(Proj)
