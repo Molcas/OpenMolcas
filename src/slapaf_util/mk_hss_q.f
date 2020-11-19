@@ -23,7 +23,7 @@
          If (lRowH) Then
             If (BSet.and.HSet) Call Hss_q()
             Call RowHessian(NmIter,mInt,nRowH,mRowH,Delta/2.5d0,
-     &                      Work(ipShf),Work(ipqInt),Work(ipdqInt))
+     &                      Work(ipdqInt))
          Else
             Call FormNumHess(iter,Work(ipdqInt),Work(ipShf),mInt,Delta,
      &                       Stop,Work(ipqInt),nsAtom,Cubic,iNeg,

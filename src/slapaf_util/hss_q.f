@@ -25,9 +25,11 @@
      &                 nDim,Curvilinear)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 Degen(3*nAtom),Grad(nQQ)
       Logical Smmtrc(3*nAtom), Analytic_Hessian, Curvilinear
+      Real*8 rDum(1)
+      Real*8, Allocatable:: Hss_X(:), Degen2(:), Hss_Q(:), KtB(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -41,24 +43,24 @@
 *
 *     Pickup d^2E/dx^2
 *
-      Call Allocate_Work(ip_Hss_x,nDim**2)
-      Call Get_dArray('Hss_X',Work(ip_Hss_x),nDim**2)
-      Call Allocate_Work(ip_KtB,nDim*nQQ)
-      Call Get_dArray('KtB',Work(ip_KtB),nDim*nQQ)
+      Call mma_allocate(Hss_x,nDim**2,Label='Hss_X')
+      Call Get_dArray('Hss_X',Hss_x,nDim**2)
+      Call mma_allocate(KtB,nDim*nQQ,Label='KtB')
+      Call Get_dArray('KtB',KtB,nDim*nQQ)
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Hss_x',' ',Work(ip_Hss_X),nDim,nDim)
+      Call RecPrt('Hss_x',' ',Hss_X,nDim,nDim)
 #endif
 *
-      Call Allocate_Work(ipDegen,nDim)
+      Call mma_allocate(Degen2,nDim,Label='nDim')
       i=0
       Do ix = 1, 3*nAtom
          If (Smmtrc(ix)) Then
-            Work(ipDegen+i) = Degen(ix)
             i = i + 1
+            Degen2(i) = Degen(ix)
          End If
       End Do
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Work(ipDegen)',' ',Work(ipDegen),nDim,1)
+      Call RecPrt('Degen2',' ',Degen2,nDim,1)
 #endif
 *
       If (Analytic_Hessian.and.Curvilinear) Then
@@ -67,25 +69,25 @@
 *
 *        and form d^2E/dx^2 - d^2Q/dx^2 dE/dQ
 *
-         Call dBuu(Work(ipDegen),nQQ,nDim,Grad,Work(ip_Hss_X),.False.)
+         Call dBuu(Degen2,nQQ,nDim,Grad,Hss_X,.False.)
 #ifdef _DEBUGPRINT_
-         Call RecPrt('H(X)-BtgQ',' ',Work(ip_Hss_X),nDim,nDim)
+         Call RecPrt('H(X)-BtgQ',' ',Hss_X,nDim,nDim)
 #endif
       End If
 *
-      Call Allocate_Work(ip_Hss_Q,nQQ**2)
-      Call Hess_Tra(Work(ip_Hss_X),nDim,Work(ipDegen),
-     &              Work(ip_KtB),nQQ,Work(ip_Hss_Q))
+      Call mma_allocate(Hss_Q,nQQ**2,Label='Hss_Q')
+      Call Hess_Tra(Hss_X,nDim,Degen2,
+     &              KtB,nQQ,Hss_Q)
 *
-      Call Put_dArray('Hss_Q',Work(ip_Hss_Q),nQQ**2)
-      Call Put_dArray('Hss_upd',Work(ip_Dummy),0)
+      Call Put_dArray('Hss_Q',Hss_Q,nQQ**2)
+      Call Put_dArray('Hss_upd',rDum,0)
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Hss_Q: Hessian',' ',Work(ip_Hss_Q),nQQ,nQQ)
+      Call RecPrt('Hss_Q: Hessian',' ',Hss_Q,nQQ,nQQ)
 #endif
-      Call Free_Work(ip_Hss_Q)
-      Call Free_Work(ipDegen)
-      Call Free_Work(ip_KtB)
-      Call Free_Work(ip_Hss_X)
+      Call mma_deallocate(Hss_Q)
+      Call mma_deallocate(KtB)
+      Call mma_deallocate(Degen2)
+      Call mma_deallocate(Hss_X)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -10,26 +10,28 @@
 *                                                                      *
 * Copyright (C) Giovanni Ghigo                                         *
 ************************************************************************
-      Subroutine RowHessian(nIter,nInter,nRowH,mRowH,Delta,dq,q,g)
+      Subroutine RowHessian(nIter,nInter,nRowH,mRowH,Delta,g)
       Implicit Real*8 (A-H,O-Z)
-      Real*8 dq(nInter,nIter), g(nInter,nIter),q(nInter,nIter+1)
+      Real*8 g(nInter,nIter)
       Integer mRowH(10)
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
+      Real*8 rDum(1)
+      Real*8, Allocatable:: Hss_Q(:,:)
 *
-      Call Allocate_Work(ipH,nInter**2)
-      Call Get_dArray('Hss_Q',Work(ipH),nInter**2)
-      Call Put_dArray('Hss_upd',Work(ip_Dummy),0)
+      Call mma_allocate(Hss_Q,nInter,nInter,Label='Hss_Q')
+      Call Get_dArray('Hss_Q',Hss_Q,nInter**2)
+      Call Put_dArray('Hss_upd',rDum,0)
 *
-      Call RowHessian_(nIter,nInter,nRowH,mRowH,Delta,Work(ipH),dq,q,g)
+      Call RowHessian_internal(nIter,nInter,nRowH,mRowH,Delta,Hss_Q,g)
       Write (6,*)
       Write (6,*) ' Partial numerical differentiation is finished!'
 *
-      Call Put_dArray('Hss_Q',Work(ipH),nInter**2)
-      Call Free_Work(ipH)
+      Call Put_dArray('Hss_Q',Hss_Q,nInter**2)
+      Call mma_deallocate(Hss_Q)
 *
       Return
       End
-      Subroutine RowHessian_(nIter,nInter,nRowH,mRowH,Delta,H,dq,q,g)
+      Subroutine RowHessian_Internal(nIter,nInter,nRowH,mRowH,Delta,H,g)
 ************************************************************************
 *                                                                      *
 * Object: Numerical estimation of single rows and columns of Hessian   *
@@ -38,24 +40,15 @@
 *                                                                      *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-      Real*8 dq(nInter,nIter), g(nInter,nIter),H(nInter,nInter),
-     &       q(nInter,nIter+1)
+      Real*8 g(nInter,nIter),H(nInter,nInter)
       Integer mRowH(10)
-#include "print.fh"
 #include "real.fh"
 *
-      iRout = 184
-      iPrint = nPrint(iRout)
-*
-      If (iPrint.ge.99) then
-         Write(6,*)
-         Write(6,*) 'RowHessian:'
-         Call RecPrt('Initial Hessian',' ',H,nInter,nInter)
-         Call RecPrt('Displacement dq','(10F9.6)',dq,nInter,nIter)
-         Call RecPrt('Coordinates   q:','(10F9.6)', q,nInter,nIter)
-         Call RecPrt('Gradient      g:','(10F9.6)', g,nInter,nIter)
-         call XFlush (6)
-      EndIf
+#ifdef _DEBUGPRINT_
+      Write(6,*) 'RowHessian:'
+      Call RecPrt('Initial Hessian',' ',H,nInter,nInter)
+      Call RecPrt('Gradient      g:','(10F9.6)', g,nInter,nIter)
+#endif
 *
 * --- Evaluate the Hessian
 *
@@ -66,20 +59,18 @@
             H(jInter,iInter) = H(iInter,jInter)
          End Do
       EndDo
-      If (iPrint.ge.98) then
-         Call RecPrt('Final Hessian',' ',H,nInter,nInter)
-         call XFlush (6)
-      EndIf
 *
 * --- Symmetrize
 *
       Do iInter = 1, nInter
          Do jInter = 1, nInter
-            dElement = (H(iInter,jInter)+H(jInter,iInter))/2.0d0
+            dElement = (H(iInter,jInter)+H(jInter,iInter))/Two
             H(iInter,jInter) = dElement
             H(jInter,iInter) = dElement
          EndDo
       EndDo
-
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Final Hessian',' ',H,nInter,nInter)
+#endif
       Return
       End

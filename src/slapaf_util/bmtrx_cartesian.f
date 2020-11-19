@@ -19,12 +19,15 @@
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
       Real*8 Degen(3*nAtom), Gx(3*nAtom,nIter), TRVec(nDim,mTR)
       Character Name(nAtom)*(LENIN)
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant, PrQ, lOld
       Real*8 Eval(3*mTtAtm*(3*mTtAtm+1)/2)
       Real*8 Hss_x((3*mTtAtm)**2)
+      Real*8, Allocatable:: EVec(:)
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -47,9 +50,9 @@
             Call FZero(Work(ip_rInt),nqInt)
             Call FZero(Work(ip_drInt),nqInt)
          End If
-         Call Allocate_Work(ipEVec,nDim**2)
-         Call FZero(Work(ipEVec),nDim**2)
-         call dcopy_(nDim,[One],0,Work(ipEVec),nDim+1)
+         Call mma_allocate(EVec,nDim**2,Label='EVec')
+         EVec(:)=Zero
+         call dcopy_(nDim,[One],0,EVec,nDim+1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -57,8 +60,8 @@
 *
          Call Allocate_Work(ipBMx,(3*nAtom)*nQQ)
          Call FZero(Work(ipBMx), (3*nAtom)*nQQ)
-         ipFrom = ipEVec
-         Call BPut(Work(ipFrom),nDim,Work(ipBMx),3*nAtom,Smmtrc,
+         ipFrom = 1
+         Call BPut(EVec(ipFrom),nDim,Work(ipBMx),3*nAtom,Smmtrc,
      &             nQQ,Degen)
          If (iPrint.ge.19) Call RecPrt('In Bmtrx: B',' ',Work(ipBMx),
      &                                 3*nAtom,nQQ)
@@ -280,8 +283,8 @@
 *                                                                      *
 *        Compute the eigen vectors for the Cartesian Hessian
 *
-         Call GetMem('EVec','Allo','Real',ipEVec,(3*mTtAtm)**2)
-         Call Hess_Vec(mTtAtm,EVal,Work(ipEVec),nAtom,nDim)
+         Call mma_allocate(EVec,(3*mTtAtm)**2,Label='EVec')
+         Call Hess_Vec(mTtAtm,EVal,EVec,nAtom,nDim)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -289,8 +292,8 @@
 *
          Call Allocate_Work(ipBMx,(3*nAtom)**2)
          Call FZero(Work(ipBMx), (3*nAtom)**2)
-         ipFrom = ipEVec + mTR*nDim
-         Call BPut(Work(ipFrom),nDim,Work(ipBMx),3*nAtom,Smmtrc,
+         ipFrom = 1 + mTR*nDim
+         Call BPut(EVec(ipFrom),nDim,Work(ipBMx),3*nAtom,Smmtrc,
      &             nQQ,Degen)
          If (iPrint.ge.19) Call RecPrt('In Bmtrx: B',' ',Work(ipBMx),
      &                                 3*nAtom,nQQ)
@@ -320,7 +323,7 @@
             End If
          End Do
 *
-         call dcopy_(nDim*nQQ,Work(ipFrom),1,Work(ip_KtB),1)
+         call dcopy_(nDim*nQQ,EVec(ipFrom),1,Work(ip_KtB),1)
          Do iInter = 1, nQQ
             Do iDim = 1, nDim
                ij = (iInter-1)*nDim + iDim - 1 + ip_KtB
@@ -334,7 +337,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('EVec','Free','Real',ipEVec,(3*mTtAtm)**2)
+      Call mma_deallocate(EVec)
 *                                                                      *
 ************************************************************************
 *                                                                      *
