@@ -111,6 +111,7 @@
 
 .intel13:
   variables:
+    install_path: "~/install"
     cache_file: |
       set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
       set (HDF5 "OFF" CACHE STRING "turn off HDF5")
@@ -121,14 +122,11 @@
     pre_compile_script: |
       . /usr/local/bin/setupintel.sh
       export PATH=$${PWD}:$${PATH}
-      touch pymolcas
     pre_make_script: |
       $${make} only_objs
       cmake -D EXTRA_FFLAGS="" .
     pre_run_script: |
       . /usr/local/bin/setupintel.sh
-      export PATH=$${PWD}:$${PATH}
-      touch pymolcas
     CC: "icc"
     CXX: "icpc"
     FC: "ifort"
@@ -144,10 +142,6 @@
       set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
     pre_compile_script: |
       export PATH=$${PWD}:/opt/NAG/Fortran-amd64/6.0/bin:$${PATH}
-      touch pymolcas
-    pre_run_script: |
-      export PATH=$${PWD}:/home/tester/bin/:$${PATH}
-      touch pymolcas
     CC: "gcc"
     CXX: "g++"
     FC: "nagfor"
@@ -211,7 +205,7 @@
       set (QCMaquis_NAME "GitLab CI" CACHE STRING "QCMaquis name")
       set (QCMaquis_EMAIL "gitlab.ci@example.com" CACHE STRING "QCMaquis e-mail")
     pre_run_script: |
-      . ${CI_PROJECT_DIR}/build/qcmaquis/bin/qcmaquis.sh
+      . install_dir/qcmaquis/bin/qcmaquis.sh
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"

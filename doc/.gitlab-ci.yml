@@ -49,7 +49,7 @@ doc:
     - cd build
     - cmake ..
     - export PDF_FILE="../Manual.pdf"
-    - make doc_all
+    - make doc_all install
     # Now build doxygen doc
     - cd ../doc/doxygen
     - >
@@ -59,12 +59,15 @@ doc:
     #- echo 'CALLER_GRAPH = YES' >> Doxyfile
     - doxygen
   after_script:
+    - |
+      if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
+    - mv ${install_path} install_dir
     - cat doc/doxygen/doxygen.log
   artifacts:
     reports:
       dotenv: variables.env
     paths:
-      - build/doc
+      - install_dir
       - doc/doxygen/html
     expire_in: 1 day
   <<: *doc-build
@@ -76,9 +79,10 @@ pages:
   stage: deploy
   interruptible: false
   script:
+    - |
     - mkdir -p public
-    - mv build/doc/html public/sphinx
-    - mv build/doc/latex/Manual.pdf public/
+    - mv install_dir/doc/html public/sphinx
+    - mv install_dir/doc/latex/Manual.pdf public/
     - mv doc/doxygen/html public/doxygen
     - du -sh public/*
   needs:

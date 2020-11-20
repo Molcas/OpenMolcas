@@ -117,27 +117,27 @@ include:
       if [ -n "${extra}" ] ; then
         echo 'set (EXTRA "$ENV{extra}" CACHE PATH "location of molcas-extra")' >> flags.cmake
       fi
+      if [ -n "${install_path}" ] ; then
+        echo 'set (CMAKE_INSTALL_PREFIX "$ENV{install_path}" CACHE PATH "Location where OpenMolcas will be installed")' >> flags.cmake
+      else
+        export install_path="/opt/OpenMolcas"
+      fi
+      echo 'set (INSTALL_TESTS "ON" CACHE PATH "Install the test files and verify script.")' >> flags.cmake
     - cmake -C flags.cmake ..
     - |
       if [ -n "${pre_make_script}" ] ; then
         eval "${pre_make_script}"
       fi
-    - ${make}
-    - pymolcas verify 000 -k
-    # some clean up to reduce artifact size
-    - >
-      shopt -s globstar ; rm -rf **/CMakeFiles
-    # special post-script that may be needed in some installations
-    # (not using after_script because it would be overwritten)
-    - cd ..
+    - ${make} install
+    - cd ${install_path}
+    - ./pymolcas verify 000 -k
+  after_script:
     - |
-      if [ -n "${post_compile_script}" ] ; then
-        eval "${post_compile_script}"
-      fi
+      if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
+    - mv ${install_path} install_dir
   artifacts:
     paths:
-      - build/
-      - molcas-extra/
+      - install_dir
     expire_in: 1 day
     when: always
   <<: *compile-jobs
@@ -152,42 +152,33 @@ include:
       if [ -n "${pre_run_script}" ] ; then
         eval "${pre_run_script}"
       fi
-    # install/restore extra files that were included in the artifacts
     - |
-      if [ -n "${extra}" ] ; then
-        sbin/install_driver.sh molcas-extra/molcas.driver
-        mkdir -p ${extra}
-        cp -a molcas-extra/test ${extra}
-      fi
-    - sbin/install_pymolcas.sh build/Tools/pymolcas/pymolcas_
-    - cd build
+      if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
+    - mv install_dir ${install_path}
+    - cd ${install_path}
     # default if no tests specified is .all
     - |
       if [ -z "${tests}" ] ; then export tests=".all" ; fi
     # run only a subset of the tests if specified
     - |
       if [ -n "${CI_NODE_INDEX}" ] ; then
-        pymolcas verify --flatlist ${tests} > filelist
+        ./pymolcas verify --flatlist ${tests} > filelist
         if ( ! which python && which python3 ) ; then
-          sed -i -e 's/env python/env python3/' ../Tools/verify/split_tests.py
-          sed -i -e 's/env python/env python3/' ../Tools/verify/get_keywords.py
+          sed -i -e 's/env python/env python3/' ${CI_PROJECT_DIR}/Tools/verify/split_tests.py
+          sed -i -e 's/env python/env python3/' ${CI_PROJECT_DIR}/Tools/verify/get_keywords.py
         fi
-        ../Tools/verify/split_tests.py filelist ${CI_NODE_TOTAL} ${CI_NODE_INDEX} > fl
-        pymolcas verify --status --postproc "\$MOLCAS_SOURCE/Tools/verify/get_keywords.py \$project.out keylist" --fromfile fl
+        ${CI_PROJECT_DIR}/Tools/verify/split_tests.py filelist ${CI_NODE_TOTAL} ${CI_NODE_INDEX} > fl
+        ./pymolcas verify --status --postproc "${CI_PROJECT_DIR}/Tools/verify/get_keywords.py \$project.out keylist" --fromfile fl
       else
-        pymolcas verify --status --postproc "\$MOLCAS_SOURCE/Tools/verify/get_keywords.py \$project.out keylist" ${tests}
-      fi
-    # special post-script that may be needed in some installations
-    # (not using after_script because it would be overwritten)
-    - |
-      if [ -n "${post_run_script}" ] ; then
-        eval "${post_run_script}"
+        ./pymolcas verify --status --postproc "${CI_PROJECT_DIR}/Tools/verify/get_keywords.py \$project.out keylist" ${tests}
       fi
   after_script:
     - |
-      cp -L build/test/result result
-      cp -Lr build/test/failed failed
-      cp -L build/test/tmp/keylist keylist
+      if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
+    - |
+      cp -L ${install_path}/test/result result
+      cp -Lr ${install_path}/test/failed failed
+      cp -L ${install_path}/test/tmp/keylist keylist
   artifacts:
     paths:
       - result
