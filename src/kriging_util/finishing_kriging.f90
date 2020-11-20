@@ -17,8 +17,6 @@ Subroutine Finish_Kriging()
 !
 !       write(6,*) 'Deallocating all kriging variables'
   Call mma_deallocate(Index_PGEK)
-  Call mma_deallocate(x)
-  Call mma_deallocate(y)
   Call Deallocate_protected()
   Call mma_deallocate(x0)
   Call mma_deallocate(full_R)
