@@ -235,7 +235,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      ipNADC=ip_Dummy
       NADC=.False.
       ApproxNADC=.False.
       Call Get_iScalar('Columbus',Columbus)

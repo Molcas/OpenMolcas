@@ -29,7 +29,7 @@
 ************************************************************************
       Subroutine Print_Mode_Components(Modes,Freq,nModes,lModes,lDisp)
       use Symmetry_Info, only: nIrrep
-      use Slapaf_Info, only: Cx, Gx, Gx0
+      use Slapaf_Info, only: Cx, Gx, Gx0, NAC
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -56,6 +56,7 @@
       Real*8, Allocatable:: Bk_Cx(:,:,:)
       Real*8, Allocatable:: Bk_Gx(:,:,:)
       Real*8, Allocatable:: Bk_Gx0(:,:,:)
+      Real*8, Allocatable:: Bk_NAC(:,:)
 *
 *
 *---- Ugly hack: backup all "global" slapaf variables in case this is
@@ -78,6 +79,11 @@
          Call mma_allocate(Bk_Gx0,3,nsAtom,MaxItr+1,Label='Bk_Gx0')
          Bk_Gx0(:,:,:) = Gx0(:,:,:)
          Call mma_deallocate(Gx0)
+      End If
+      If (Allocated(NAC)) Then
+         Call mma_allocate(Bk_NAC,3,nsAtom,Label='Bk_NAC')
+         Bk_NAC(:,:) = NAC(:,:)
+         Call mma_deallocate(NAC)
       End If
 
       Bk_iSym(:)=iSym(:)
@@ -230,7 +236,6 @@
       Bk_NADC=NADC
       Bk_EDiffZero=EDiffZero
       Bk_ApproxNADC=ApproxNADC
-      Bk_ipNADC=ipNADC
       Bk_iState(:)=iState(:)
 *
       iRout = 55
@@ -412,7 +417,7 @@
       Call GetMem('iBM','Free','Inte',ip_iB,mB_Tot)
       Call GetMem('nqB','Free','Inte',ip_nqB,mq)
       Call GetMem(' B ',    'Free','Real',ipB,   (nsAtom*3)**2)
-      If (ipNADC.ne.ip_Dummy) Call Free_Work(ipNADC)
+      If (Allocated(NAC)) Call mma_deallocate(NAC)
       If (ipqInt.ne.ip_Dummy) Then
          Call GetMem('dqInt', 'Free','Real',ipdqInt, nqInt)
          Call GetMem('qInt',  'Free','Real',ipqInt,  nqInt)
@@ -588,7 +593,6 @@
       NADC=Bk_NADC
       EDiffZero=Bk_EDiffZero
       ApproxNADC=Bk_ApproxNADC
-      ipNADC=Bk_ipNADC
       iState(:)=Bk_iState(:)
 *
       If (Allocated(Bk_Cx)) Then
@@ -608,6 +612,12 @@
          Call mma_deallocate(Bk_Gx0)
       Else
          Call mma_deallocate(Gx0)
+      End If
+      If (Allocated(Bk_NAC)) Then
+         NAC(:,:) = Bk_NAC(:,:)
+         Call mma_deallocate(Bk_NAC)
+      Else
+        If (Allocated(NAC)) Call mma_deallocate(NAC)
       End If
 *
       End Subroutine

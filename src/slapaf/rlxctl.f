@@ -11,7 +11,7 @@
       Subroutine RlxCtl(iStop)
       Use Chkpnt
       Use kriging_mod, only: Kriging, nspAI
-      Use Slapaf_Info, only: Cx, Gx, Gx0
+      Use Slapaf_Info, only: Cx, Gx, Gx0, NAC
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -452,7 +452,7 @@
       If (ip_idB.ne.ip_iDummy) Call Free_iWork(ip_idB)
       If (ip_nqB.ne.ip_iDummy) Call Free_iWork(ip_nqB)
 *
-      If (ipNADC.ne.ip_Dummy) Call Free_Work(ipNADC)
+      If (Allocated(NAC)) Call mma_deallocate(NAC)
       If (Ref_Geom) Call Free_Work(ipRef)
       If (Ref_Grad) Call Free_Work(ipGradRef)
       If (lRP)      Call Free_Work(ipR12)

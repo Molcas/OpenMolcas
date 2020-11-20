@@ -11,7 +11,7 @@
 * Copyright (C) 2015,2016, Ignacio Fdez. Galvan                        *
 ************************************************************************
       Subroutine Process_Gradients()
-      use Slapaf_Info, only: Gx, Gx0
+      use Slapaf_Info, only: Gx, Gx0, NAC
       Implicit None
 #include "WrkSpc.fh"
 #include "real.fh"
@@ -135,16 +135,15 @@
           Call daXpY_(3*nsAtom,-One,Grads(1,1),1,Gx0(1,1,iter),1)
           Call Get_iScalar('Columbus',Columbus)
           If (Columbus.ne.1) Then
-            Call GetMem('NADC','Allo','Real',ipNADC,3*nsAtom)
-            Call dCopy_(3*nsAtom,Grads(1,3),1,Work(ipNADC),1)
+            Call mma_allocate(NAC,3,nsAtom,Label='NAC')
+            Call dCopy_(3*nsAtom,Grads(1,3),1,NAC,1)
 *
 *           If the coupling derivative vector could not be calculated,
 *           use an approximate one.
 *
             If (RC.lt.0) Then
               ApproxNADC=.True.
-              Call Branching_Plane_Update(Gx,Gx0,
-     &                                    Work(ipNADC),3*nsAtom,iter)
+              Call Branching_Plane_Update(Gx,Gx0,NAC,3*nsAtom,iter)
             End If
           End If
         Else

@@ -69,4 +69,4 @@
 #include "nadc.fh"
 *
       Logical Bk_NADC, Bk_EDiffZero, Bk_ApproxNADC
-      Integer Bk_ipNADC, Bk_iState(2)
+      Integer Bk_iState(2)

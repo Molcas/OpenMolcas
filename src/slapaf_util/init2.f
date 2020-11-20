@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Init2
-      use Slapaf_Info, only: Cx, Gx, Gx0
+      use Slapaf_Info, only: Cx, Gx, Gx0, NAC
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
@@ -335,8 +335,8 @@ c     Work(ipEner+iter-1)=Energy
 *
          End If
          If (iMode.eq.3) Then
-            Call GetMem('NADC','Allo','Real',ipNADC,Length)
-            Call Get_dArray('NADC',Work(ipNADC),Length)
+            Call mma_allocate(NAC,3,Length/3,Label='NAC')
+            Call Get_dArray('NADC',NAC,Length)
          End If
 *
       Else

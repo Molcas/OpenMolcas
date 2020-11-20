@@ -10,10 +10,11 @@
 ************************************************************************
 * From: D.R. Yarkony, J. Phys. Chem. A 105 (2001) 6277-6293
 * and: J. Chem. Theory Comput. 12 (2016) 3636-3653
+************************************************************************
       Subroutine CI_Summary(Lu)
-      use Slapaf_Info, only: Gx, Gx0
+      use Slapaf_Info, only: Gx, Gx0, NAC
       Implicit None
-      Integer Lu, n, ip_h, i
+      Integer Lu, n, i
       Real*8, Dimension(:), Allocatable :: g, h, tmp
       Real*8 gg, hh, gh, sg, sh, dgh, deltagh, beta_ang, norm_g, norm_h,
      &       st, srel, shead, peaked, bif, aux
@@ -27,7 +28,6 @@
 #include "real.fh"
 *
       n=3*nsAtom
-      ip_h=ipNADC
       Call mma_Allocate(g,n)
       Call mma_Allocate(h,n)
 *
@@ -36,13 +36,13 @@
 *     (and forces instead of gradients)
 *
       gg=dDot_(n,Gx0(1,1,iter),1,Gx0(1,1,iter),1)*Quart
-      hh=dDot_(n,Work(ip_h),1,Work(ip_h),1)
-      gh=-dDot_(n,Gx0(1,1,iter),1,Work(ip_h),1) !Factor 2 included
+      hh=dDot_(n,NAC,1,NAC,1)
+      gh=-dDot_(n,Gx0(1,1,iter),1,NAC,1) !Factor 2 included
       beta_ang=Atan2(gh,gg-hh)*Half
       Call dCopy_(n,Gx0(1,1,iter),1,g,1)
       Call dScal_(n,-Half*Cos(beta_ang),g,1)
-      Call dAxpY_(n,Sin(beta_ang),Work(ip_h),1,g,1)
-      Call dCopy_(n,Work(ip_h),1,h,1)
+      Call dAxpY_(n,Sin(beta_ang),NAC,1,g,1)
+      Call dCopy_(n,NAC,1,h,1)
       Call dScal_(n,Cos(beta_ang),h,1)
       Call dAxpY_(n,Half*Sin(beta_ang),Gx0(1,1,iter),1,h,1)
       gg=dDot_(n,g,1,g,1)
@@ -133,7 +133,7 @@
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call RecPrt('Gradient difference','',Gx0(1,1,iter),n,1)
-      Call RecPrt('Coupling vector','',work(ip_h),n,1)
+      Call RecPrt('Coupling vector','',NAC,n,1)
       Call RecPrt('Average gradient','',Gx(1,1,iter),n,1)
       Write(Lu,100) 'Beta angle:',beta_ang
       Write(Lu,*)

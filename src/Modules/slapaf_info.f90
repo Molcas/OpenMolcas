@@ -13,8 +13,9 @@
 Module Slapaf_Info
 implicit none
 Private
-Public:: Cx, Gx, Gx0
-Real*8, Allocatable:: Cx(:,:,:)
-Real*8, Allocatable:: Gx(:,:,:)
-Real*8, Allocatable:: Gx0(:,:,:)
+Public:: Cx, Gx, Gx0, NAC
+Real*8, Allocatable:: Cx(:,:,:)     ! list of Cartesian coordinates
+Real*8, Allocatable:: Gx(:,:,:)     ! list of Cartesian Gradients, State 1
+Real*8, Allocatable:: Gx0(:,:,:)    ! list of Cartesian Gradients, State 2 for optimization of conical intersections
+Real*8, Allocatable:: NAC(:,:)      ! list of Cartesian non-adiabatic coupling vector
 End Module Slapaf_Info
