@@ -18,7 +18,7 @@
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
-     &                     rLambda,Cx,Gx,GrdMax,StpMax,GrdLbl,StpLbl,
+     &                     rLambda,GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,MF,
      &                     iOptH,HUpMet,GNrm_Threshold,IRC,
@@ -32,6 +32,7 @@
 ************************************************************************
       Use kriging_mod, only: Max_Microiterations,
      &                       Thr_microiterations
+      Use Slapaf_Info, only: Cx, Gx
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -40,10 +41,8 @@
       Real*8 qInt(nInter,MaxItr), Shift(nInter,MaxItr),
      &       Grad(nInter,MaxItr), GNrm(MaxItr), Energy(MaxItr),
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
-     &       dMass(nsAtom), Degen(3*nsAtom), dEner,
-     &       Cx(3*nsAtom,Iter+1), Gx(3*nsAtom,Iter), MF(3*nsAtom)
-      Integer jStab(0:7,nsAtom), nStab(nsAtom),
-     &        iNeg(2)
+     &       dMass(nsAtom), Degen(3*nsAtom), dEner, MF(3*nsAtom)
+      Integer jStab(0:7,nsAtom), nStab(nsAtom),iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show, Curvilinear,
      &        First_MicroIteration, Error
@@ -52,7 +51,7 @@
      &          HUpMet*6
       Character GrdLbl_Save*8
       Real*8 Dummy(1)
-      Real*8, Allocatable:: Hessian(:,:), Temp(:,:)
+      Real*8, Allocatable:: Hessian(:,:), Temp(:,:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -150,8 +149,10 @@
 *     Let the accepted variance be set as a fraction of the
 *     largest component in the gradient.
       tmp=0.0D0
-      Do i = 1, 3*nsAtom
-         tmp = Max(tmp,Abs(Gx(i,iter)))
+      Do i = 1, nsAtom
+         Do j = 1, 3
+            tmp = Max(tmp,Abs(Gx(j,i,iter)))
+         End Do
       End Do
 *
 *     Temporary code until we have figured out this for constrained
@@ -166,8 +167,10 @@
       tmp=99.0D0
       Do j = 1, iter
          tmp0=0.0D0
-         Do i = 1, 3*nsAtom
-            tmp0 = Max(tmp0,Abs(Gx(i,j)))
+         Do i = 1, nsAtom
+            Do k = 1, 3
+               tmp0 = Max(tmp0,Abs(Gx(k,i,j)))
+            End Do
          End Do
          tmp=Min(tmp,tmp0)
       End Do
@@ -234,7 +237,7 @@
          Error=(iterK.ge.1)
          Call NewCar_Kriging(iterAI,nLines,nsAtom,nDimBC,nInter,BMx,
      &                       dMass,Lbl,Shift,qInt,Grad,AtomLbl,
-     &                       Cx,.True.,iter,Error)
+     &                       .True.,iter,Error)
 #ifdef _DEBUGPRINT_
          Call RecPrt('New Coord (after NewCar)','',qInt,nInter,iterAI+1)
 #endif
@@ -356,8 +359,8 @@
          If (Step_Trunc.eq.'.') Step_Trunc=' '
 *        Check total displacement from initial structure
          If (Force_RS) Then
-            Call mma_allocate(Temp,3*nsAtom,1)
-            Temp(:,1)=Cx(:,iterAI)-Cx(:,iter)
+            Call mma_allocate(Temp,3,nsAtom,1,Label='Temp')
+            Temp(:,:,1)=Cx(:,:,iterAI)-Cx(:,:,iter)
             RMS =Sqrt(DDot_(3*nsAtom,Temp,1,Temp,1)/DBLE(3*nsAtom))
             If (RMS.gt.(Three*Beta_)) Step_trunc='*'
             Call mma_deAllocate(Temp)
@@ -431,7 +434,7 @@
      &                                   Shift(1,iterAI-1),1)
             Call NewCar_Kriging(iterAI-1,nLines,nsAtom,nDimBC,nInter,
      &                          BMx,dMass,Lbl,Shift,qInt,Grad,AtomLbl,
-     &                          Cx,.True.,iter)
+     &                          .True.,iter)
             Energy(iterAI)=OS_Energy
             If (Max_OS.gt.0) Then
                If (UpMeth(4:4).ne.' ') UpMeth(5:6)='**'
@@ -450,7 +453,7 @@
 *     for the next macro iteration.
 *
       qInt(:,iter+1)=qInt(:,iterAI)
-      Cx(:,iter+1)=Cx(:,iterAI)
+      Cx(:,:,iter+1)=Cx(:,:,iterAI)
 *
 *     Update the shift vector
 *

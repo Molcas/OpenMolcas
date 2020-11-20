@@ -160,9 +160,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Reset_ThrGrd(nsAtom,nDimBC,Work(ipCM),Smmtrc,
-     &                  Degen,Iter,Cx,mTtAtm,iWork(ipANr),
-     &                  DDV_Schlegel,iOptC,rHidden,ThrGrd)
+      Call Reset_ThrGrd(nsAtom,nDimBC,Work(ipCM),Smmtrc,Degen,Iter,
+     &                  mTtAtm,iWork(ipANr),DDV_Schlegel,iOptC,rHidden,
+     &                  ThrGrd)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -242,7 +242,7 @@
      &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
      &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
-     &               Smmtrc,nDimBC,Work(ipL),Cx,Gx,
+     &               Smmtrc,nDimBC,Work(ipL),
      &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,Work(ipMF),
@@ -290,7 +290,7 @@
      &               ipB,Work(ipCM),Lbl,Work(ipShf),ipqInt,
      &               ipdqInt,DFC,dss,Tmp,
      &               AtomLbl,iSym,Smmtrc,Degen,
-     &               Gx,Cx,mTtAtm,iWork(ipANr),iOptH,
+     &               mTtAtm,iWork(ipANr),iOptH,
      &               User_Def,nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &               iCoSet,rHidden,ipRef,Redundant,nqInt,MaxItr,iRef,
@@ -346,12 +346,13 @@
      &            Work(ipdqInt),Lbl,Work(ipGNrm),
      &            Work(ipEner),Stat,MaxItr,Stop,iStop,ThrCons,
      &            ThrEne,ThrGrd,MxItr,UpMeth,HUpMet,mIntEff,Baker,
-     &            Cx,Gx,nsAtom,mTtAtm,ed,
+     &            nsAtom,mTtAtm,ed,
      &            iNeg,GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &            Analytic_Hessian,rMEP,MEP,nMEP,
      &            (lNmHss.or.lRowH).and.iter.le.NmIter,
      &            Just_Frequencies,FindTS,ipCoor,eMEPTest,nLambda,
      &            TSReg,ThrMEP)
+
       Call Free_Work(ipShf)
 *
 ************************************************************************

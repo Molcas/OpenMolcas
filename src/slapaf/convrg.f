@@ -11,12 +11,13 @@
       Subroutine Convrg(iter,kIter, nInter, qInt, Shift, Grad,
      &                  Lbl,GNrm,Energy,Stat,MaxItr,Stop,iStop,ThrCons,
      &                  ThrEne, ThrGrd, MxItr, UpMeth, HUpMet, mIntEff,
-     &                  Baker, Cx,Gx,nAtom,mTtAtm,ed,iNeg,
+     &                  Baker, nAtom,mTtAtm,ed,iNeg,
      &                  GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &                  Analytic_hessian,rMEP,MEP,nMEP,Numerical,
      &                  Just_Frequencies,FindTS,ipCoor,eMEPTest,nLambda,
      &                  TSReg,ThrMEP)
       Use Chkpnt
+      Use Slapaf_Info, only: Cx, Gx
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -25,9 +26,8 @@
 #include "nadc.fh"
 #include "print.fh"
 #include "warnings.fh"
-      Real*8 Shift(nInter,iter),Grad(nInter,iter),Cx(3*nAtom,iter+1),
-     &       Gx(3*nAtom,iter+1),GNrm(iter),Energy(iter+1),
-     &       qInt(nInter,iter+1),Maxed,MaxErr
+      Real*8 Shift(nInter,iter),Grad(nInter,iter),GNrm(iter),
+     &       Energy(iter+1),qInt(nInter,iter+1),Maxed,MaxErr
       Character Lbl(nInter)*8, Stat(0:MaxItr)*128, GrdLbl*8, StpLbl*8
       Character(LEN=6) UpMeth, HUpMet, ConLbl(5)*5
       Character(LEN=1) Step_Trunc
@@ -42,11 +42,11 @@
      &        TurnBack
       Character(LEN=8) Temp
       Real*8, Allocatable:: Coor1(:,:), Coor2(:,:)
-      Real*8, Allocatable:: E_IRC(:), C_IRC(:,:), G_IRC(:,:)
-      Real*8, Allocatable:: E_S(:), C_S(:,:), G_S(:,:)
+      Real*8, Allocatable:: E_IRC(:), C_IRC(:,:,:), G_IRC(:,:,:)
+      Real*8, Allocatable:: E_S(:), C_S(:,:,:), G_S(:,:,:)
       Real*8, Allocatable:: E_R(:), C_R(:,:), G_R(:,:)
       Real*8, Allocatable:: E_P(:), C_P(:,:), G_P(:,:)
-      Real*8, Allocatable:: E_MEP(:), C_MEP(:,:), G_MEP(:,:)
+      Real*8, Allocatable:: E_MEP(:), C_MEP(:,:,:), G_MEP(:,:,:)
       Real*8, Allocatable:: L_MEP(:), Cu_MEP(:)
       Integer, Allocatable:: Information(:)
       Real*8, Allocatable:: Tmp(:)
@@ -90,8 +90,8 @@
 *
       Call mma_allocate(Coor1,3,mTtAtm,Label='Coor1')
       Call mma_allocate(Coor2,3,mTtAtm,Label='Coor2')
-      Call AtmLst(Cx(1,iter  ),nAtom,Coor1,mTtAtm)
-      Call AtmLst(Cx(1,iter+1),nAtom,Coor2,mTtAtm)
+      Call AtmLst(Cx(:,:,iter  ),nAtom,Coor1,mTtAtm)
+      Call AtmLst(Cx(:,:,iter+1),nAtom,Coor2,mTtAtm)
       Call OptRMS_Slapaf(Coor1,Coor2,mTtAtm,RMS,RMSMax)
       Call mma_deallocate(Coor1)
       Call mma_deallocate(Coor2)
@@ -106,7 +106,7 @@
       Fabs = Max(Zero,Fabs)
       E0 = E + ed
       Energy(iter+1)=E0
-      Call FZero(Gx(1,iter+1),3*nAtom)
+      Gx(:,:,iter+1)=Zero
       If (kiter.eq.1) Then
          eChng=Zero
       Else
@@ -456,22 +456,23 @@ c      End If
          E_Prod=Tmp(6*nAtom+2)
 *
          Call mma_allocate(E_S,nSaddle_Max,Label='E_S')
-         Call mma_allocate(C_S,3*nAtom,nSaddle_Max,Label='C_S')
-         Call mma_allocate(G_S,3*nAtom,nSaddle_Max,Label='G_S')
+         Call mma_allocate(C_S,3,nAtom,nSaddle_Max,Label='C_S')
+         Call mma_allocate(G_S,3,nAtom,nSaddle_Max,Label='G_S')
          If (iSaddle.eq.0) Then
 *
 *           Initiate with data from the starting points
 *
             E_S(:)=Zero
-            C_S(:,:)=Zero
-            G_S(:,:)=Zero
+            C_S(:,:,:)=Zero
+            G_S(:,:,:)=Zero
             iSaddle=1
             If (E_Reac.le.E_Prod) Then
                E_S(iSaddle)=E_Reac
-               C_S(:,iSaddle) = Tmp(1:3*nAtom)
+               Call DCopy_(3*nAtom,Tmp(1:3*nAtom),1,C_S(:,:,iSaddle),1)
             Else
                E_S(iSaddle)=E_Prod
-               C_S(:,iSaddle) = Tmp(3*nAtom+1:6*nAtom)
+               Call DCopy_(3*nAtom,Tmp(3*nAtom+1:6*nAtom),1,
+     &                     C_S(:,:,iSaddle),1)
             End If
 *
          Else
@@ -486,8 +487,8 @@ c      End If
 *
          iSaddle=iSaddle+1
          E_S(iSaddle)=Energy(iter)
-         C_S(:,iSaddle) = Cx(:,iter)
-         G_S(:,iSaddle) = Gx(:,iter)
+         C_S(:,:,iSaddle) = Cx(:,:,iter)
+         G_S(:,:,iSaddle) = Gx(:,:,iter)
 *
 *        Put data on RUNFILE
 *
@@ -523,12 +524,12 @@ C        Write (6,*) 'E1,E2=',E1,E2
 C           Write (6,*) 'Update reactant'
             Tmp(6*nAtom+1)=Energy(iter)
             E1=Energy(iter)
-            Tmp(1:3*nAtom)=Cx(:,iter)
+            Call DCopy_(3*nAtom,Cx(:,:,iter),1,Tmp(1:3*nAtom),1)
          Else
 C           Write (6,*) 'Update product'
             Tmp(6*nAtom+2)=Energy(iter)
             E2=Energy(iter)
-            Tmp(3*nAtom+1:6*nAtom)=Cx(:,iter)
+            Call DCopy_(3*nAtom,Cx(:,:,iter),1,Tmp(3*nAtom+1:6*nAtom),1)
          End If
 *        Set flag that seward should process the info! This should not
 *        be done for the final macro iteration.
@@ -698,24 +699,24 @@ C              Write (6,*) 'SubProject=.Prod'
 *        Save information for the current step
 *
          Call mma_allocate(E_MEP,nMEP+1,Label='E_MEP')
-         Call mma_allocate(C_MEP,3*nAtom,nMEP+1,Label='C_MEP')
-         Call mma_allocate(G_MEP,3*nAtom,nMEP+1,Label='G_MEP')
+         Call mma_allocate(C_MEP,3,nAtom,nMEP+1,Label='C_MEP')
+         Call mma_allocate(G_MEP,3,nAtom,nMEP+1,Label='G_MEP')
          If (iMEP.gt.1) Then
             Call Get_dArray('MEP-Energies',E_MEP,nMEP+1)
             Call Get_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
             Call Get_dArray('MEP-Grad',G_MEP,3*nAtom*(nMEP+1))
          Else
             E_MEP(:)=Zero
-            C_MEP(:,:)=Zero
-            G_MEP(:,:)=Zero
+            C_MEP(:,:,:)=Zero
+            G_MEP(:,:,:)=Zero
             E_MEP(iMEP)=Energy(iOff_iter+1)
-            C_MEP(:,iMEP)= Cx(:,iOff_iter+1)
-            G_MEP(:,iMEP)= Gx(:,iOff_iter+1)
+            C_MEP(:,:,iMEP)= Cx(:,:,iOff_iter+1)
+            G_MEP(:,:,iMEP)= Gx(:,:,iOff_iter+1)
          End If
 *
          E_MEP(iMEP+1)=Energy(iter)
-         C_MEP(:,iMEP+1)= Cx(:,iter)
-         G_MEP(:,iMEP+1)= Gx(:,iter)
+         C_MEP(:,:,iMEP+1)= Cx(:,:,iter)
+         G_MEP(:,:,iMEP+1)= Gx(:,:,iter)
          Call Put_dArray('MEP-Energies',E_MEP,nMEP+1)
          Call Put_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
          Call Put_dArray('MEP-Grad',G_MEP,3*nAtom*(nMEP+1))
@@ -730,8 +731,8 @@ C              Write (6,*) 'SubProject=.Prod'
          eDiffMEP=E_MEP(iMEP+1)-E_MEP(iMEP)
          Call mma_allocate(Coor1,3,mTtAtm,Label='Coor1')
          Call mma_allocate(Coor2,3,mTtAtm,Label='Coor2')
-         Call AtmLst(C_MEP(:,iMEP),nAtom,Coor1,mTtAtm)
-         Call AtmLst(C_MEP(:,iMEP+1),nAtom,Coor2,mTtAtm)
+         Call AtmLst(C_MEP(:,:,iMEP  ),nAtom,Coor1,mTtAtm)
+         Call AtmLst(C_MEP(:,:,iMEP+1),nAtom,Coor2,mTtAtm)
          Call OptRMS_Slapaf(Coor1,Coor2,mTtAtm,RMS,RMSMax)
          Call mma_deallocate(Coor1)
          Call mma_deallocate(Coor2)
@@ -746,16 +747,16 @@ C              Write (6,*) 'SubProject=.Prod'
 *        is getting too close to the previous converged structure,
 *        this may be an indication of an ill-behaved constraint
          If (iMEP.ge.1) Then
-            Call mma_allocate(C_MEP,3*nAtom,nMEP+1,Label='C_MEP')
+            Call mma_allocate(C_MEP,3,nAtom,nMEP+1,Label='C_MEP')
             Call mma_Allocate(Tmp,3*nAtom,Label='Tmp')
             Call Get_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
 
-            ipPrev=ip_of_work(C_MEP(1,iMEP+1))
+            ipPrev=ip_of_work(C_MEP(1,1,iMEP+1))
 *           Using hypersphere measure, even with "transverse" MEPs,
 *           this should not be a problem
-            Call SphInt(Cx(1,iter),nAtom,ip_Dummy,refDist,Tmp,
+            Call SphInt(Cx(:,:,iter),nAtom,ip_Dummy,refDist,Tmp,
      &         .False.,'dummy   ',Work(ip_Dummy),.False.)
-            Call SphInt(Cx(1,iter),nAtom,ipPrev,prevDist,Tmp,
+            Call SphInt(Cx(:,:,iter),nAtom,ipPrev,prevDist,Tmp,
      &         .False.,'dummy   ',Work(ip_Dummy),.False.)
             If (prevDist.lt.Half*refDist) Then
                TurnBack=.True.
@@ -799,7 +800,7 @@ C              Write (6,*) 'SubProject=.Prod'
             BadConstraint=.False.
             Call MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,
      &                   ResGrad,BadConstraint)
-            Call dCopy_(3*nAtom,Cx(1,iter+1),1,Work(ipCoor),1)
+            Call dCopy_(3*nAtom,Cx(:,:,iter+1),1,Work(ipCoor),1)
             Call Put_iScalar('iOff_Iter',iter)
          End If
 *
@@ -908,8 +909,8 @@ C              Write (6,*) 'SubProject=.Prod'
          If (Conv1.and.Terminate) Then
             If (IRC.ne.0) Then
                Call mma_allocate(E_MEP,nMEP+1,Label='E_MEP')
-               Call mma_allocate(C_MEP,3*nAtom,nMEP+1,Label='C_MEP')
-               Call mma_allocate(G_MEP,3*nAtom,nMEP+1,Label='G_MEP')
+               Call mma_allocate(C_MEP,3,nAtom,nMEP+1,Label='C_MEP')
+               Call mma_allocate(G_MEP,3,nAtom,nMEP+1,Label='G_MEP')
                Call Get_dArray('MEP-Energies',E_MEP,nMEP+1)
                Call Get_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
                Call Get_dArray('MEP-Grad',G_MEP,3*nAtom*(nMEP+1))
@@ -940,22 +941,22 @@ C              Write (6,*) 'SubProject=.Prod'
                   Call qpg_dArray('IRC-Energies',Found,nForward)
                   nIRC=nForward+nBackward-1
                   Call mma_allocate(E_IRC,nIRC,Label='E_IRC')
-                  Call mma_allocate(C_IRC,3*nAtom,nIRC,Label='C_IRC')
-                  Call mma_allocate(G_IRC,3*nAtom,nIRC,Label='G_IRC')
+                  Call mma_allocate(C_IRC,3,nAtom,nIRC,Label='C_IRC')
+                  Call mma_allocate(G_IRC,3,nAtom,nIRC,Label='G_IRC')
 *
                   j=0
                   Do i = nBackward, 1, -1
                      j = j+1
                      E_IRC(j)=E_MEP(i)
-                     C_IRC(:,j) = C_MEP(:,i)
-                     G_IRC(:,j) = G_MEP(:,i)
+                     C_IRC(:,:,j) = C_MEP(:,:,i)
+                     G_IRC(:,:,j) = G_MEP(:,:,i)
                   End Do
 *
                   Call Get_dArray('IRC-Energies',E_IRC(nBackward),
      &                            nForward)
-                  Call Get_dArray('IRC-Coor',C_IRC(:,nBackward:nIRC),
+                  Call Get_dArray('IRC-Coor',C_IRC(:,:,nBackward:nIRC),
      &                            nForward*3*nAtom)
-                  Call Get_dArray('IRC-Grad',G_IRC(:,nBackward:nIRC),
+                  Call Get_dArray('IRC-Grad',G_IRC(:,:,nBackward:nIRC),
      &                            nForward*3*nAtom)
 *
                   Call Intergeo('MD_IRC',E_IRC,C_IRC,G_IRC,nAtom,nIRC)
@@ -980,7 +981,7 @@ C              Write (6,*) 'SubProject=.Prod'
 *
          If ((iMEP.ge.1).and.(iPrint.ge.5)) Then
             Call mma_allocate(E_MEP,nMEP+1,Label='E_MEP')
-            Call mma_allocate(C_MEP,3*nAtom,nMEP+1,Label='C_MEP')
+            Call mma_allocate(C_MEP,3,nAtom,nMEP+1,Label='C_MEP')
             Call mma_allocate(L_MEP,nMEP+1,Label='L_MEP')
             Call mma_allocate(Cu_MEP,nMEP+1,Label='Cu_MEP')
             Call Get_dArray('MEP-Energies',E_MEP,nMEP+1)
@@ -1010,7 +1011,7 @@ C              Write (6,*) 'SubProject=.Prod'
             If (iPrint.gt.6) Then
                Write (6,*)
                Do i = 0, iMEP
-                  Call RecPrt(' Coordinates',' ',C_MEP(:,i+1),3,nAtom)
+                  Call RecPrt(' Coordinates',' ',C_MEP(:,:,i+1),3,nAtom)
                End Do
             End If
             Call CollapseOutput(0,'IRC/Minimum Energy Path Information')
@@ -1044,7 +1045,7 @@ C              Write (6,*) 'SubProject=.Prod'
           Call Put_dArray('Unique Coordinates',Cx,3*nAtom)
           Call Put_Coord_New(Cx,nAtom)
           call dcopy_(3*nAtom,Cx,1,Work(ipCoor),1)
-          call dcopy_(3*nAtom,Cx,1,Cx(1,iter+1),1)
+          call dcopy_(3*nAtom,Cx,1,Cx(:,:,iter+1),1)
       End If
 *                                                                      *
 ************************************************************************

@@ -11,9 +11,9 @@
 * Copyright (C) 2019, Ignacio Fdez. Galvan                             *
 ************************************************************************
       Subroutine NewCar_Kriging(kIter,nLines,nAtom,nDim,nInter,BMx,
-     &                          dMass,Lbl,kShift,qInt,dqInt,Name,Cx,
+     &                          dMass,Lbl,kShift,qInt,dqInt,Name,
      &                          SaveBMx,RefIter,Error)
-      use Slapaf_Info, only: Gx
+      use Slapaf_Info, only: Cx
       Implicit None
 #include "info_slapaf.fh"
 #include "db.fh"
@@ -21,8 +21,7 @@
 #include "WrkSpc.fh"
       Integer :: kIter,nLines,nAtom,nDim,nInter,RefIter
       Real*8 :: BMx(3*nAtom,nInter),dMass(nAtom),kShift(nInter,kIter),
-     &          qInt(nInter,MaxItr),dqInt(nInter,MaxItr),
-     &          Cx(3*nAtom,kIter+1)
+     &          qInt(nInter,MaxItr),dqInt(nInter,MaxItr)
       Character :: Lbl(nInter)*8,Name(nAtom)*(LENIN)
 
       Real*8, Allocatable :: DFC(:),dss(:),qTemp(:), Coor(:)
@@ -32,7 +31,7 @@
 *
       Call mma_allocate(Coor,3*nAtom,Label='Coor')
       Call GetMem('BMx','ALLO','REAL',ipBMx,(3*nAtom)*nInter)
-      Call dCopy_(3*nAtom,Cx(1,kIter),1,Coor,1)
+      Call dCopy_(3*nAtom,Cx(:,:,kIter),1,Coor,1)
       Call dCopy_((3*nAtom)*nInter,BMx,1,Work(ipBMx),1)
 *
       ip_qInt=ip_of_Work(qInt(1,1))
@@ -50,7 +49,7 @@
       Call NewCar(kIter,nBVec,nLines,nAtom,nDim,nInter,Coor,
      &            ipBMx,dMass,Lbl,kShift,ip_qInt,ip_dqInt,DFC,dss,
      &            qTemp,Name,iSym,Smmtrc,Degen,
-     &            Gx,Cx,mTtAtm,iWork(ipANr),iOptH,
+     &            mTtAtm,iWork(ipANr),iOptH,
      &            User_Def,nStab,jStab,Curvilinear,Numerical,
      &            DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &            iCoSet,rHidden,ipRef,Redundant,nqInt,MaxItr,

@@ -12,12 +12,13 @@
      &                  ipBMx,dMass,nLines,DFC,
      &                  nDim,Lbl,Name,iSym,
      &                  Smmtrc,Degen,iter,
-     &                  ip_dqInt,Gx,Cx,mTtAtm,iANr,iOptH,
+     &                  ip_dqInt,mTtAtm,iANr,iOptH,
      &                  User_Def,nStab,jStab,Curvilinear,
      &                  Numerical,DDV_Schlegel,HWRS,
      &                  Analytic_Hessian,iOptC,PrQ,mxdc,
      &                  iCoSet,rHidden,Error,ipRef,Redundant,nqInt,
      &                  MaxItr,iRef)
+      use Slapaf_Info, only: Cx, Gx
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -33,11 +34,8 @@
 #include "Molcas.fh"
 #include "warnings.fh"
       Parameter(NRHS=1)
-      Real*8 dSS(nInter,NRHS), rInt(nInter), dMass(nAtom),
-     &       DFC(3*nAtom,NRHS),
-     &       Coor(3,nAtom), Degen(3*nAtom),
-     &       Gx(3*nAtom,iter), Cx(3*nAtom,iter+1),
-     &       cMass(3)
+      Real*8 dSS(nInter,NRHS), rInt(nInter), dMass(nAtom), cMass(3),
+     &       DFC(3*nAtom,NRHS), Coor(3,nAtom), Degen(3*nAtom)
       Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
       Integer   iSym(3), iANr(nAtom),
      &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
@@ -139,16 +137,16 @@
 *        Dirty fix of zeros
 *
          Do iAtom = 1, nAtom
-            If (Cx((iAtom-1)*3+1,Iter).eq.Zero .and.
+            If (Cx(1,iAtom,Iter).eq.Zero .and.
      &          Abs(Coor(1,iAtom)).lt.1.0D-13) Coor(1,iAtom)=Zero
-            If (Cx((iAtom-1)*3+2,Iter).eq.Zero .and.
+            If (Cx(2,iAtom,Iter).eq.Zero .and.
      &          Abs(Coor(2,iAtom)).lt.1.0D-13) Coor(2,iAtom)=Zero
-            If (Cx((iAtom-1)*3+3,Iter).eq.Zero .and.
+            If (Cx(3,iAtom,Iter).eq.Zero .and.
      &          Abs(Coor(3,iAtom)).lt.1.0D-13) Coor(3,iAtom)=Zero
          End Do
 *
          Call CofMss(Coor,dMass,nAtom,.False.,cMass,iSym)
-         call dcopy_(3*nAtom,Coor,1,Cx(1,Iter+1),1)
+         call dcopy_(3*nAtom,Coor,1,Cx(:,:,Iter+1),1)
          If (iPrint.ge.99)
      &      Call PrList('Symmetry Distinct Nuclear Coordinates / Bohr',
      &                   Name,nAtom,Coor,3,nAtom)
@@ -243,7 +241,7 @@
 *
       Invar=(iAnd(iSBS,2**7).eq.0).and.(iAnd(iSBS,2**8).eq.0)
       If (WeightedConstraints.and.Invar)
-     &   Call Align(Cx(1,iter+1),Work(ipRef),nAtom)
+     &   Call Align(Cx(:,:,iter+1),Work(ipRef),nAtom)
 *                                                                      *
 ************************************************************************
 *                                                                      *
