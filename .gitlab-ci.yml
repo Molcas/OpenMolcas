@@ -130,7 +130,7 @@ include:
       fi
     - ${make} install
     - cd ${install_path}
-    - ./pymolcas verify 000 -k
+    - ./pymolcas verify --keep 000
   after_script:
     - |
       if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi

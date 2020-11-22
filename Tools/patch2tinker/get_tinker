@@ -143,23 +143,8 @@ fi
 
 # Adaptation of the Makefile is required
 echo "Modifying Tinker Makefile."
-perl <<EDIT
-open(IN,"<Makefile");
-open(UT,">Makefile.new");
-\$this=0;
- while(\$line=<IN>)
-  {
-   \$line="TINKERDIR=$MOLCAS/tinker\n" if(\$line=~/^TINKERDIR/);
-#   if(\$line=~/^F77 =/) {\$this=-1};
-#   if(\$line=~/#F77 = \/usr\/bin\/gfortran/) {\$this=1;}
-#   if(\$line=~/##/) {\$this=0;}
-#   if(\$this==1) { \$line=~s/^#//;}
-#   if(\$this==-1) { \$line='#'.\$line;}
-   print UT \$line;
-  }
-EDIT
 mv Makefile Makefile.orig
-mv Makefile.new Makefile
+sed -e "/^TINKERDIR/s#.*#TINKERDIR = $MOLCAS\/tinker#" Makefile.orig > Makefile
 if [ ! -d ../bin ]; then
    mkdir  ../bin
 fi
