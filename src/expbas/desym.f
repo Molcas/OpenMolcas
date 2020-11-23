@@ -63,16 +63,24 @@
       logical :: Exist, y_cart, Found
 
       real(wp) :: check_CMO, check_energy, check_occupation
-      integer :: nAtom, nData, nTest, nDeg
+      real(wp) :: temporary
+      integer :: nAtom, nData, nTest, nDeg, nTot, nTot2
       integer :: iCnttp, iAngMx_Valence
       integer :: nB, iS
       integer :: ipCent, ipCent2, ipCent3
       integer :: ipPhase, ipC2, ipV, ipC2_ab, ipV_ab
-      integer :: iUHF
-      integer :: iatom, iDeg
+      integer :: mInd, mInd_ab
+      integer :: ipAux, mAdIndt, mAdOcc, mAdEor
+      integer :: mAdCMO, ipAux_ab, mAdIndt_ab, mAdOcc_ab, mAdEor_ab,
+     &  mAdCMO_ab
+      integer :: iUHF, Lu_, iLen, iErr
+      integer :: iatom, iDeg, ishell
       integer :: iIrrep
+      integer :: iTempOrd
 
-      integer :: mdc, kk, i, ik, k
+      integer :: iPL, jPL
+
+      integer :: mdc, kk, i, j, ik, k, l, kk_Max, ii, iB, ipp, ic, iv
       integer :: icontr, nBasisi, icntr
 
 
