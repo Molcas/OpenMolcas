@@ -43,11 +43,12 @@
       use definitions, only: wp
       use linalg_mod, only: abort_, verify_
       use Symmetry_Info, only: nIrrep, lIrrep
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use sorting, only: swap
       implicit none
 #include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "info_expbas.fh"
-#include "stdalloc.fh"
       integer, intent(in) :: iUHF
 
       real(wp), parameter :: EorbThr = 50._wp
@@ -689,6 +690,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 
 *********************  energy sorting + sort memory ********************
         call dcopy_(nTot,Work(mAdEor),1,Work(ipAux),1)
+        Work(ipAux : ipAux + nTot - 1)=Work(mAdEor : mAdEor + nTot - 1)
         do i=0, nTot-1
           iOrdEor(i)=i
         end do
@@ -696,12 +698,8 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
         do i=0,nTot-2
             do k=i+1,nTot-1
               if(work(ipAux+k) < Work(ipAux+i)) then
-                temporary=work(ipAux+i)
-                work(ipAux+i)=Work(ipAux+k)
-                work(ipAux+k)=temporary
-                iTempOrd=iOrdEor(i)
-                iOrdEor(i)=iOrdEor(k)
-                iOrdEor(k)= iTempOrd
+                call swap(work(ipAux + i), work(ipAux + k))
+                call swap(iOrdEor(i), iOrdEor(k))
               end if
             end do
         end do
