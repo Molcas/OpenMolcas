@@ -12,10 +12,11 @@
 ************************************************************************
 #include "compiler_features.h"
       module sorting
+        use definitions, only: wp
         implicit none
         private
         public ::
-     &    sort, argsort,  tAlgorithm, algorithms, bubble_sort_trsh
+     &    sort, argsort,  tAlgorithm, algorithms, bubble_sort_trsh, swap
 #ifndef INTERNAL_PROC_ARG
         public :: compare_int_t
 #endif
@@ -45,7 +46,8 @@
           end function
 
           logical pure function compare_real_t(x, y)
-            real*8, intent(in) :: x, y
+            import :: wp
+            real(wp), intent(in) :: x, y
           end function
         end interface
 
@@ -79,10 +81,14 @@
 
 #ifndef INTERNAL_PROC_ARG
         integer, pointer :: mod_iV(:)
-        real*8, pointer :: mod_rV(:)
+        real(wp), pointer :: mod_rV(:)
         procedure(compare_int_t), pointer :: mod_comp_int
         procedure(compare_real_t), pointer :: mod_comp_real
 #endif
+
+        interface swap
+          module procedure i_swap, r_swap
+        end interface
 
         contains
 
@@ -133,7 +139,7 @@
 
 
         function R1D_argsort(V, compare, algorithm) result(idx)
-          real*8, target, intent(inout) :: V(:)
+          real(wp), target, intent(inout) :: V(:)
           procedure(compare_real_t) :: compare
           type(tAlgorithm), intent(in), optional :: algorithm
           type(tAlgorithm)  :: algorithm_
@@ -237,9 +243,15 @@
           end do
         end subroutine bubble_sort
 
-        subroutine swap(a, b)
+        subroutine i_swap(a, b)
           integer, intent(inout) :: a, b
           integer :: t
+          t = a; a = b; b = t
+        end subroutine
+
+        subroutine r_swap(a, b)
+          real(wp), intent(inout) :: a, b
+          real :: t
           t = a; a = b; b = t
         end subroutine
 
