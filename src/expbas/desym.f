@@ -45,10 +45,11 @@
       use Symmetry_Info, only: nIrrep, lIrrep
       implicit none
 #include "Molcas.fh"
-#include "real.fh"
 #include "WrkSpc.fh"
 #include "info_expbas.fh"
 #include "stdalloc.fh"
+      integer, intent(in) :: iUHF
+
       real(wp), parameter :: EorbThr = 50._wp
       real(wp) :: Coor(3, MxAtom), Znuc(MxAtom)
       character(len=LENIN) :: AtomLabel(MxAtom)
@@ -73,7 +74,7 @@
       integer :: mAdCMO, ipAux_ab, mAdIndt_ab, mAdOcc_ab, mAdEor_ab,
      &  mAdCMO_ab, mpunt, kindt
       integer :: ipOrdC1, ipOccC1, ipOrdC2
-      integer :: iUHF, Lu_, iLen, iErr, notSymm
+      integer :: Lu_, iErr, notSymm
       integer :: iatom, iDeg, ishell
       integer :: iIrrep, iWfType, iWF
       integer :: iTempOrd
@@ -86,9 +87,9 @@
 
 
 
-      integer :: iPrintLevel, mylen
+      integer :: iPrintLevel
       logical :: reduce_prt
-      external :: reduce_prt, iPrintLevel, mylen
+      external :: reduce_prt, iPrintLevel
 
       integer, parameter :: nNumber=61
       character(len=1), parameter ::
@@ -165,8 +166,8 @@
       Call GetMem('CMO2','ALLO','REAL',ipC2,nB**2)
       Call GetMem('VECTOR','ALLO','REAL',ipV,nB**2)
       call dcopy_(nB**2,[0._wp],0,Work(ipV),1)
-        Call FZero(Work(ipC2),nB**2)
-      If (iUHF.eq.1) Then
+      Call FZero(Work(ipC2),nB**2)
+      If (iUHF == 1) Then
          Call GetMem('CMO2','ALLO','REAL',ipC2_ab,nB**2)
          Call GetMem('VECTOR','ALLO','REAL',ipV_ab,nB**2)
          call dcopy_(nB**2,[0._wp],0,Work(ipV_ab),1)
@@ -202,7 +203,7 @@
           Do iDeg=1,nDeg             ! loop over centers
             iAtom=iAtom+1
 *
-            If (dbsc(iCnttp)%nVal.gt.6) Then
+            If (dbsc(iCnttp)%nVal > 6) Then
                Write (6,*) 'Desym: too high angular momentum!'
                write (6,*) 'iCnttp and dbsc(iCnttp)%nVal= '
      &                 ,iCnttp, dbsc(iCnttp)%nVal
@@ -213,7 +214,7 @@
               ishell=dbsc(iCnttp)%iVal+l
               nBasisi=Shells(iShell)%nBasis
 *              write(6,*) 'nBasisi', Shells(iShell)%nBasis
-              If (nBasisi.gt.nNumber) Then
+              If (nBasisi > nNumber) Then
                  Write (6,*) 'Desym: too many contracted functions!'
                  Write (6,*) 'nBasisi=',Shells(iShell)%nBasis
                  Call Abend()
@@ -225,7 +226,7 @@ CC              Do icontr=1,nBasisi
 *
 *
 *
-                If (l.eq.0) Then
+                If (l == 0) Then
                   Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'01s     '//
@@ -235,7 +236,7 @@ CC              Do icontr=1,nBasisi
 *     &                kk,gtolabel(kk),iAtom
                   End do
                 End If
-                If (l.eq.1) Then
+                If (l == 1) Then
                   Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'02px    '//
@@ -261,7 +262,7 @@ CC              Do icontr=1,nBasisi
 *     &                kk,gtolabel(kk),iAtom
                   End do
                 End If
-                If ((l.eq.2).and.(.not.y_cart)) Then
+                If ((l == 2).and.(.not.y_cart)) Then
                   Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'03d02-  '//
@@ -293,7 +294,7 @@ CC              Do icontr=1,nBasisi
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                 End If
-                If ((l.eq.3).and.(.not.y_cart)) Then
+                If ((l == 3).and.(.not.y_cart)) Then
                   Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'04f03-  '//
@@ -337,7 +338,7 @@ CC              Do icontr=1,nBasisi
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                 End If
-                If ((l.eq.4).and.(.not.y_cart)) Then
+                If ((l == 4).and.(.not.y_cart)) Then
                   Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'05g04-  '//
@@ -393,7 +394,7 @@ CC              Do icontr=1,nBasisi
                    iWork(ipCent3+kk-1)=iAtom
                   End do
                 EndIf
-                If ((l.eq.5).and.(.not.y_cart)) Then
+                If ((l == 5).and.(.not.y_cart)) Then
                   Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'06h05+  '//
@@ -467,8 +468,8 @@ CC              Do icontr=1,nBasisi
  996    Continue
       End Do
       kk_Max=kk
-      If (nB.gt.kk_max) Then
-         Write (6,*) 'nB.gt.kk_max'
+      If (nB > kk_max) Then
+         Write (6,*) 'nB > kk_max'
          Write (6,*) 'nB,kk_Max=',nB,kk_Max
          Go To 999
       End If
@@ -494,7 +495,7 @@ CC              Do icontr=1,nBasisi
       Call FZero(Work(mAdOcc),nTot)
       Call FZero(Work(mAdEor),nTot)
       Call FZero(Work(mAdCMO),nTot2)
-      If (iUHF.eq.1) Then
+      If (iUHF == 1) Then
          Call GetMem('Aux','ALLO','REAL',ipAux_ab,nTot)
          Call GetMem('INDT','Allo','Inte',mAdIndt_ab,ntot)
          Call GetMem('IndType','Allo','Inte',mInd_ab,56)
@@ -521,15 +522,14 @@ CC              Do icontr=1,nBasisi
 *
       Lu_=75
       FilesOrb=EB_FileOrb
-      If (mylen(FilesOrb).eq.0) FilesOrb='INPORB'
+      If (len(FilesOrb) == 0) FilesOrb='INPORB'
       if(DoExpbas) FilesOrb='EXPORB'
-      iLen=mylen(FilesOrb)
-        Call RdVec_(FilesOrb(:iLen),Lu_,'COEI',iUHF,nIrrep,nBas,nBas,
+        Call RdVec_(trim(FilesOrb),Lu_,'COEI',iUHF,nIrrep,nBas,nBas,
      &            Work(mAdCMO),Work(mAdCMO_ab),
      &            Work(mAdOcc),Work(mAdOcc_ab),
      &            Work(mAdEor),Work(mAdEor_ab),
      &            iWork(mAdIndt),VTitle,1,iErr,iWfType)
-       if(iUHF.eq.1) then
+       if (iUHF == 1) then
          write(6,*) 'DESY keyword not implemented for DODS wf!'
          Call Abend()
        end if
@@ -545,7 +545,7 @@ CC              Do icontr=1,nBasisi
 *
       Call Dens_IF_SCF(Work(ipC2),Work(mAdCMO),'F')
       Call GetMem('CMO','Free','Real',mAdCMO,nTot2)
-      If (iUHF.eq.1) Then
+      If (iUHF == 1) Then
          Call Dens_IF_SCF(Work(ipC2_ab),Work(mAdCMO_ab),'F')
          Call GetMem('CMO','Free','Real',mAdCMO_ab,nTot2)
       End If
@@ -602,10 +602,10 @@ CC              Do icontr=1,nBasisi
         Do iB=1,nBas(iIrrep)
           i=i+1
 *
-          If (iB.eq.1) Then
+          If (iB == 1) Then
             ik=1
           else
-            If (label(i-1).eq.label(i)) Then
+            If (label(i-1) == label(i)) Then
               ik=ik+1
             else
               ik=1
@@ -621,20 +621,20 @@ CC              Do icontr=1,nBasisi
 *
 CC          write(6,*)'j, gtolabel(j), i, label(i)//number(ik), ik',
 CC     &        j,'   ', gtolabel(j),i, label(i)//number(ik), ik
-            If (gtolabel(j).eq.label(i)//number(ik)) Then
+            If (gtolabel(j) == label(i)//number(ik)) Then
               Do k=1,8
                 ipc=(i-1)*8+k-1
                 ipp=ipc
-                If (iWork(ipCent+ipc).eq.iWork(ipcent3+j-1)) Then
+                If (iWork(ipCent+ipc) == iWork(ipcent3+j-1)) Then
                   Do ii=1,nB
                     ic=(ii-1)*nB+(i-1)
                     iv=(ii-1)*nB+(j-1)
-                    If (MolWgh.eq.0) Then
+                    If (MolWgh == 0) Then
                        Work(ipV+iv) = Work(ipV+iv)
      &                              + Work(ipC2+ic)
      &                              * DBLE(iWork(ipPhase+ipp))
      &                              / DBLE(iWork(ipcent2+i-1))
-                       If (iUHF.eq.1) Work(ipV_ab+iv) = Work(ipV_ab+iv)
+                       If (iUHF == 1) Work(ipV_ab+iv) = Work(ipV_ab+iv)
      &                              + Work(ipC2_ab+ic)
      &                              * DBLE(iWork(ipPhase+ipp))
      &                              / DBLE(iWork(ipcent2+i-1))
@@ -643,7 +643,7 @@ CC     &        j,'   ', gtolabel(j),i, label(i)//number(ik), ik
      &                              + Work(ipC2+ic)
      &                              * DBLE(iWork(ipPhase+ipp))
      &                              / Sqrt(DBLE(iWork(ipcent2+i-1)))
-                       If (iUHF.eq.1) Work(ipV_ab+iv) = Work(ipV_ab+iv)
+                       If (iUHF == 1) Work(ipV_ab+iv) = Work(ipV_ab+iv)
      &                              + Work(ipC2_ab+ic)
      &                              * DBLE(iWork(ipPhase+ipp))
      &                              / Sqrt(DBLE(iWork(ipcent2+i-1)))
@@ -668,7 +668,7 @@ C          Write (MF,*) 'Sym= ',MO_Label(i+1)
 C          Write (MF,103) Work(mAdEOr+i)
 C          Write (MF,*) 'Spin= Alpha'
 C          Write (MF,104) Work(mAdOcc+i)
-          If (Work(mAdEOr+i).lt.0.0D0) Then
+          If (Work(mAdEOr+i) < 0.0D0) Then
           Check_Energy     = Check_Energy
      &                     + Work(mAdEOr+i)*DBLE(i)
           End If
@@ -681,7 +681,7 @@ C            Write (MF,100) j,Work(ipV+ii+j-1)
           End Do
         End If
 *
-        If (iUHF.eq.1) Then
+        If (iUHF == 1) Then
            If (Work(mAdEOr_ab+i).le.EorbThr) Then
 C             Write (MF,*) 'Sym= ',MO_Label(i+1)
 C             Write (MF,103) Work(mAdEOr_ab+i)
@@ -713,7 +713,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 
         do i=0,nTot-2
             do k=i+1,nTot-1
-              if(work(ipAux+k).lt.Work(ipAux+i)) then
+              if(work(ipAux+k) < Work(ipAux+i)) then
                 temporary=work(ipAux+i)
                 work(ipAux+i)=Work(ipAux+k)
                 work(ipAux+k)=temporary
@@ -751,7 +751,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
         do iIrrep=0,nIrrep-1
            Do i=1,7
                 do j=0,nBas(iIrrep)-1
-                  if(iWork(mpunt+j).eq.i) iA(i)=iA(i)+1
+                  if(iWork(mpunt+j) == i) iA(i)=iA(i)+1
                 end do
            End Do
            mpunt=mpunt+nBas(iIrrep)
@@ -771,7 +771,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 
         do i=0,nTot-2
             do k=i+1,nTot-1
-              if(Work(ipOccC1+k).gt.Work(ipOccC1+i)) then
+              if(Work(ipOccC1+k) > Work(ipOccC1+i)) then
                 temporary=work(ipOccC1+i)
                 work(ipOccC1+i)=Work(ipOccC1+k)
                 work(ipOccC1+k)=temporary
@@ -811,7 +811,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     If (iUHF.lt.2)
+*     If (iUHF < 2)
 *    & Call Add_Info('MOLDEN_CMO',       Check_CMO,       1,2)
 *     Call Add_Info('MOLDEN_Occupation',Check_Occupation,1,2)
 *     Call Add_Info('MOLDEN_Energy    ',Check_Energy    ,1,2)
@@ -820,7 +820,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 *                                                                      *
       iPL=iPrintLevel(-1)
       jPL=iPL
-      If (Reduce_Prt().and.iPL.lt.3) jPL=0
+      If (Reduce_Prt().and.iPL < 3) jPL=0
       If (jPL.ge.3) Then
          Write (6,*)
          Write (6,*) ' INPORB_C1 file was generated!'
@@ -837,7 +837,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
       Call GetMem('Aux','FREE','REAL',ipAux,nTot)
       Call GetMem('INDT','Free','Inte',mAdIndt,nTot)
       Call GetMem('IndType','Free','Inte',mInd,56)
-      If (iUHF.eq.1) Then
+      If (iUHF == 1) Then
          Call GetMem('Eor','Free','Real',mAdEor_ab,nTot)
          Call GetMem('Occ','Free','Real',mAdOcc_ab,nTot)
          Call GetMem('Aux','FREE','REAL',ipAux_ab,nTot)
@@ -848,7 +848,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
       Call GetMem('IPHASE','FREE','INTE',ipPhase,8*nB)
       Call GetMem('nCENT','FREE','INTE',ipCent2,nB)
       Call GetMem('ICENTER','FREE','INTE',ipCent3,nB)
-      If (iUHF.eq.1) Then
+      If (iUHF == 1) Then
          Call GetMem('CMO2','FREE','REAL',ipC2_ab,nB**2)
          Call GetMem('VECTOR','FREE','REAL',ipV_ab,nB**2)
       End If
