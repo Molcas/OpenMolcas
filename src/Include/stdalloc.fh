@@ -140,6 +140,16 @@
            integer, intent(in) :: l1(2), l2(2), l3(2), l4(2)
            character(len=*), optional, intent(in) :: label
          end subroutine
+         subroutine imma_allo_4D(buffer,n1,n2,n3,n4,label)
+           integer, allocatable, intent(inout) :: buffer(:,:,:,:)
+           integer, intent(in) :: n1, n2, n3, n4
+           character(len=*), optional, intent(in) :: label
+         end subroutine
+         subroutine imma_allo_4D_lim(buffer,l1,l2,l3,l4,label)
+           integer, allocatable, intent(inout) :: buffer(:,:,:,:)
+           integer, intent(in) :: l1(2), l2(2), l3(2), l4(2)
+           character(len=*), optional, intent(in) :: label
+         end subroutine
 
 ! 5D allocate
          subroutine dmma_allo_5D(buffer,n1,n2,n3,n4,n5,label)
@@ -223,6 +233,9 @@
          end subroutine
          subroutine zmma_free_4D(buffer)
            complex*16, allocatable, intent(inout) :: buffer(:,:,:,:)
+         end subroutine
+         subroutine imma_free_4D(buffer)
+           integer, allocatable, intent(inout) :: buffer(:,:,:,:)
          end subroutine
 
 ! 5D deallocate

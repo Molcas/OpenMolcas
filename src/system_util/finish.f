@@ -12,7 +12,6 @@
 ************************************************************************
       subroutine finish(rc)
       use Symmetry_Info, only: Symmetry_Info_Free
-      use Isotopes, only: Free_Isotopes
 #ifndef _HAVE_EXTRA_
       Use Prgm
 #endif
@@ -27,7 +26,6 @@ C     called to do the actual termination.
       integer :: iwarn
 
       Call Symmetry_Info_Free()
-      Call Free_Isotopes()
 
       if(nfld_tim.gt.0) Call GetMem('iGATim','Free','Real',
      &                  iGATim,iDum)
