@@ -312,14 +312,11 @@ C           NADC= .False. ! for debugging
       End If
 *
 *...  Check if there is an analytic Hessian
-      Call Get_AnalHess(ipHess,nHess)
-      Analytic_Hessian=nHess.ne.0
-      If (Analytic_Hessian) Call Free_Work(ipHess)
+      Call qpg_dArray('Analytic Hessian',Analytic_Hessian,nHess)
+
       If (.Not.Analytic_Hessian) Then
          Call NameRun('RUNOLD')
-         Call Get_AnalHess(ipHess,nHess)
-         Analytic_Hessian=nHess.ne.0
-         If (Analytic_Hessian) Call Free_Work(ipHess)
+         Call qpg_dArray('Analytic Hessian',Analytic_Hessian,nHess)
          Call NameRun('#Pop')
       End If
 *                                                                      *
