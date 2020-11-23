@@ -43,8 +43,7 @@
       use definitions, only: wp
       use linalg_mod, only: abort_, verify_
       use Symmetry_Info, only: nIrrep, lIrrep
-      Implicit Real*8 (a-h,o-z)
-!       implicit none
+      implicit none
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -72,15 +71,17 @@
       integer :: mInd, mInd_ab
       integer :: ipAux, mAdIndt, mAdOcc, mAdEor
       integer :: mAdCMO, ipAux_ab, mAdIndt_ab, mAdOcc_ab, mAdEor_ab,
-     &  mAdCMO_ab
-      integer :: iUHF, Lu_, iLen, iErr
+     &  mAdCMO_ab, mpunt, kindt
+      integer :: ipOrdC1, ipOccC1, ipOrdC2
+      integer :: iUHF, Lu_, iLen, iErr, notSymm
       integer :: iatom, iDeg, ishell
-      integer :: iIrrep
+      integer :: iIrrep, iWfType, iWF
       integer :: iTempOrd
 
       integer :: iPL, jPL
 
       integer :: mdc, kk, i, j, ik, k, l, kk_Max, ii, iB, ipp, ic, iv
+      integer :: ipc
       integer :: icontr, nBasisi, icntr
 
 
@@ -163,12 +164,12 @@
       Call GetMem('ICENTER','ALLO','INTE',ipCent3,nB)
       Call GetMem('CMO2','ALLO','REAL',ipC2,nB**2)
       Call GetMem('VECTOR','ALLO','REAL',ipV,nB**2)
-      call dcopy_(nB**2,[Zero],0,Work(ipV),1)
+      call dcopy_(nB**2,[0._wp],0,Work(ipV),1)
         Call FZero(Work(ipC2),nB**2)
       If (iUHF.eq.1) Then
          Call GetMem('CMO2','ALLO','REAL',ipC2_ab,nB**2)
          Call GetMem('VECTOR','ALLO','REAL',ipV_ab,nB**2)
-         call dcopy_(nB**2,[Zero],0,Work(ipV_ab),1)
+         call dcopy_(nB**2,[0._wp],0,Work(ipV_ab),1)
          Call FZero(Work(ipC2_ab),nB**2)
       Else
          ipC2_ab=ip_Dummy
