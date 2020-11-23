@@ -45,7 +45,7 @@
       use Symmetry_Info, only: nIrrep, lIrrep
       use stdalloc, only: mma_allocate, mma_deallocate
       use sorting, only: swap, sort, argsort
-      use sorting_funcs, only: geq_r
+      use sorting_funcs, only: leq_r
       implicit none
 #include "Molcas.fh"
 #include "WrkSpc.fh"
@@ -58,7 +58,8 @@
       character(len=512) :: FilesOrb
       character(len=LENIN8), allocatable :: label(:)
       character(len=8) :: MO_Label(maxbfn)
-      integer :: ibas_lab(MxAtom), nOrb(8), iA(7), iOrdEor(0:maxbfn-1)
+      integer :: ibas_lab(MxAtom), nOrb(8), iA(7)
+      integer, allocatable :: iOrdEor(:)
       character(len=LENIN8+1) :: gtolabel(maxbfn)
       character(len=50) :: VTitle
       character(len=128) :: SymOrbName
@@ -692,18 +693,28 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 
 *********************  energy sorting + sort memory ********************
         ipAux(:) = Work(mAdEor : mAdEor + nTot - 1)
-        iOrdEor = [(i, i = 0, nTot - 1)]
+        allocate(iOrdEor(0 : nTot - 1))
+        iOrdEor(:) = [(i, i = 0, nTot - 1)]
 
-!         iOrdEor = argsort(ipAux, geq_r)
+        block
+            integer :: test_idx(lbound(iOrdEor, 1) : ubound(iOrdEor, 1))
+            integer :: i
 
-        do i = 0, nTot - 2
-          do k = i + 1, nTot - 1
-            if(ipAux(k) < ipAux(i)) then
-              call swap(ipAux(i), ipAux(k))
-              call swap(iOrdEor(i), iOrdEor(k))
-            end if
-          end do
-        end do
+            test_idx = argsort(ipAux, leq_r) - 1
+
+            do i = 0, nTot - 2
+              do k = i + 1, nTot - 1
+                if (ipAux(i) > ipAux(k)) then
+                  call swap(ipAux(i), ipAux(k))
+                  call swap(iOrdEor(i), iOrdEor(k))
+                end if
+              end do
+            end do
+
+            do i = lbound(test_idx, 1), ubound(test_idx, 1)
+                write(*, *) test_idx(i), iOrdEor(i)
+            end do
+        end block
 ***************************** MOs sorting ******************************
         Call GetMem('OrdC1','ALLO','REAL',ipOrdC1,nTot**2)
         Call FZero(Work(ipOrdC1),nTot**2)
