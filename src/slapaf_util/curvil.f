@@ -48,7 +48,7 @@
       Logical, Save:: g12K=.False.
       Real*8, Allocatable:: Proj(:), Temp2(:), KtM(:,:), Degen2(:),
      &                      EVal(:), G(:), GxR(:,:), qVal(:,:),
-     &                      F_c(:)
+     &                      F_c(:), KtB(:), K(:), GRef(:), Mult(:)
       Character(LEN=14), Allocatable:: qLbl(:)
       Integer, Allocatable:: Ind(:,:)
 *                                                                      *
@@ -180,12 +180,12 @@
       Call mma_allocate(qVal,nq,nIter,Label='qVal')
       Call mma_allocate(qLbl,nq,Label='qLbl')
       Call mma_allocate(F_c,nq,Label='F_c')
-      Call GetMem('Mult','Allo','Real',ipMult,nq)
+      Call mma_allocate(Mult,nq,Label='Mult')
       Call mma_allocate(Ind,3,nq,Label='Ind')
-      Call GetMem('GRef','Allo','Real',ipGRef,9*nqA*nIter)
+      Call mma_allocate(GRef,9*nqA*nIter,Label='GRef')
 *
       F_c(:) = Zero
-      Call FZero(Work(ipMult),nq)
+      Mult(:)= Zero
       qVal(:,:) = Zero
 *                                                                      *
 ************************************************************************
@@ -202,8 +202,8 @@
      &           nAtoms,iIter,nIter,Cx,jStab,
      &           nStab,Smmtrc,Proc,
      &           qVal,nq,iANr,qLbl,
-     &           iRef,F_c,Work(ipMult),iOptC,
-     &           LuIC,Name,Ind,iIter,dMass,iCoSet,Work(ipGRef),
+     &           iRef,F_c,Mult,iOptC,
+     &           LuIC,Name,Ind,iIter,dMass,iCoSet,GRef,
      &           iGlow,iGHi,
      &           Proc_dB,
      &           iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
@@ -230,7 +230,7 @@
          Call RecPrt('q-values',' ',qVal,nq,nIter)
          Call RecPrt('Force Constant matrix in redundant basis',' ',
      &               F_c,1,nq)
-         Call RecPrt('Multiplicity factors',' ',Work(ipMult),1,nq)
+         Call RecPrt('Multiplicity factors',' ',Mult,1,nq)
          Call RecPrt('Cx',' ',Cx,3*nAtoms,nIter)
          Call RecPrt('Gx',' ',Gx,3*nAtoms,nIter)
       End If
@@ -247,8 +247,8 @@
 *---- Start processing the B matrix for the current structure to
 *     generate the K matrix (dQ/dq).
 *
-      Call GetMem('EVec','Allo','Real',ipK,nq**2)
-      Call GetMem('K(t)B','Allo','Real',ipKtB,nDim**2)
+      Call mma_allocate(K,nq**2,Label='K')
+      Call mma_allocate(KtB,nDim**2,Label='KtB')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -287,7 +287,7 @@
       i = 0
       Do iq = 0, nq-1
          nB = iWork(ip_nqB+iq)
-         Call DScal_(nB,Work(ipMult+iq),Work(ip_B+i),1)
+         Call DScal_(nB,Mult(1+iq),Work(ip_B+i),1)
          i = i + nB
       End Do
 *                                                                      *
@@ -296,24 +296,24 @@
       If (BSet) Then
          Call mma_allocate(G,nq*nq,Label='G')
          Call mma_allocate(EVal,nq*(nq+1)/2,Label='EVal')
-         Call ElRed2(nq,ndim,G,EVal,Work(ipK),nK,Proj,
+         Call ElRed2(nq,ndim,G,EVal,K,nK,Proj,
      &               g12K,Thr_ElRed,Work(ip_B),iWork(ip_iB),mB_Tot,
      &               iWork(ip_nqB))
 
          If (nK.gt.nQQ) Then
-            Call Remove_TR(nq,ndim,nQQ,Work(ipK),nK,TRVec,mTR,
+            Call Remove_TR(nq,ndim,nQQ,K,nK,TRVec,mTR,
      &                     Work(ip_B),iWork(ip_iB),iWork(ip_nqB),mB_Tot)
          End If
          Call mma_deallocate(EVal)
          Call mma_deallocate(G)
 *
-         Call Put_dArray('K',Work(ipK),nq*nQQ)
+         Call Put_dArray('K',K,nq*nQQ)
       Else
-         Call Get_dArray('K',Work(ipK),nq*nQQ)
+         Call Get_dArray('K',K,nq*nQQ)
       End If
 #ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
-         Call RecPrt('K',' ',Work(ipK),nq,nQQ)
+         Call RecPrt('K',' ',K,nq,nQQ)
       End If
 #endif
 *                                                                      *
@@ -323,11 +323,11 @@
 *
       If (PrQ) Then
          Call mma_allocate(Temp2,nq*nQQ,Label='Temp2')
-         call dcopy_(nQQ*nq,Work(ipK),1,Temp2,1)
-         Do iq = 0, nq-1
-            Call DScal_(nQQ,One/Work(ipMult+iq),Temp2(1+iq),nq)
+         call dcopy_(nQQ*nq,K,1,Temp2,1)
+         Do iq = 1, nq
+            Call DScal_(nQQ,One/Mult(iq),Temp2(iq),nq)
          End Do
-         Call PrintQ(Temp2,qLbl,nq,nQQ,LuIC,Work(ipMult))
+         Call PrintQ(Temp2,qLbl,nq,nQQ,LuIC,Mult)
          Call mma_deallocate(Temp2)
       End If
 *                                                                      *
@@ -419,9 +419,9 @@ C        iEnd = 1
      &              nAtoms,jIter,nIter,Cx,jStab,
      &              nStab,Smmtrc,Proc,
      &              qVal,nq,iANr,qLbl,
-     &              iRef, F_c,Work(ipMult),
+     &              iRef, F_c,Mult,
      &              iOptC,LuIC,Name,Ind,iIter,dMass,iCoSet,
-     &              Work(ipGRef),iGlow,iGHi,
+     &              GRef,iGlow,iGHi,
      &              Proc_dB,
      &              iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
      &              nB_Tot,ndB_Tot,
@@ -446,19 +446,19 @@ C        iEnd = 1
          i = 0
          Do iq = 0, nq-1
             nB = iWork(ip_nqB+iq)
-            Call DScal_(nB,Work(ipMult+iq),Work(ip_B+i),1)
+            Call DScal_(nB,Mult(1+iq),Work(ip_B+i),1)
             i = i + nB
          End Do
-         Call FZero(Work(ipKtB),nQQ*nDim)
+         Ktb(1:nQQ*nDim)=Zero
          Do iQQ = 0, nQQ-1
             i = 0
             Do iq = 0, nq-1
                nB = iWork(ip_nqB+iq)
                Do iB = 0, nB-1
                   iDim = iWork(ip_iB+i)
-                  Work((iDim-1)*nQQ + iQQ + ipKtB) =
-     &                 Work((iDim-1)*nQQ + iQQ + ipKtB)
-     &               + Work(iQQ*nq+iq+ipK)
+                  KtB((iDim-1)*nQQ + iQQ + 1) =
+     &                 KtB((iDim-1)*nQQ + iQQ + 1)
+     &               + K(iQQ*nq+iq+1)
      &               * Work(i+ip_B)
                   i = i + 1
                End Do
@@ -466,8 +466,8 @@ C        iEnd = 1
          End Do
 #ifdef _DEBUGPRINT_
          If (iPrint.ge.99) Then
-            Call RecPrt(' The K matrix',' ',Work(ipK),nq,nQQ)
-            Call RecPrt(' The K(t)B matrix',' ',Work(ipKtB),nQQ,nDim)
+            Call RecPrt(' The K matrix',' ',K,nq,nQQ)
+            Call RecPrt(' The K(t)B matrix',' ',KtB,nQQ,nDim)
          End If
 #endif
 *                                                                      *
@@ -488,8 +488,8 @@ C        iEnd = 1
                   iDim = iDim + 1
                   Do iQQ = 1, nQQ
                      iXQ = (iQQ-1)*nX + iX + ipBMx - 1
-                     iQD = (iDim-1)*nQQ + iQQ + ipKtB -1
-                     Work(iXQ) = Work(iQD)
+                     iQD = (iDim-1)*nQQ + iQQ
+                     Work(iXQ) = KtB(iQD)
                   End Do
                Else
                   Do iQQ = 1, nQQ
@@ -518,7 +518,7 @@ C        iEnd = 1
 *           KtB is stored nQQ, nDim
 *
             Call Allocate_Work(ip_KtB,nDim*nQQ)
-            Call TRNSPS(nQQ,nDim,Work(ipKtB   ),Work(ip_KtB))
+            Call TRNSPS(nQQ,nDim,KtB,Work(ip_KtB))
 *
 *           Strip KtB of the degeneracy factor (full).
 *
@@ -536,7 +536,7 @@ C        iEnd = 1
             Call Eq_Solver('N',M,N,NRHS,Work(ip_KtB   ),.False.,
      &                     Degen2,GxR(:,iOff),Work(ip))
 *           Call RecPrt('GxR(:,iSt',' ',GxR(:,iOff),nDim,1)
-*           Call RecPrt('KtB   ',' ',Work(ipKtB   ),nQQ,nDim)
+*           Call RecPrt('KtB   ',' ',KtB,nQQ,nDim)
 *           Call RecPrt('drInt',' ',Work(ip),nQQ,1)
 
             iOff = iOff - 1
@@ -575,11 +575,11 @@ C        iEnd = 1
          mIter = 1
       End If
       Call mma_allocate(KtM,nQQ,nq,Label='KtM')
-      Do iq = 0, nq-1
-         Alpha=Work(ipMult+iq)
-         Do iQQ = 0, nQQ-1
-            temp = Work(ipK+iQQ*nq+iq)*Alpha
-            KtM(iQQ+1,iq+1)=temp
+      Do iq = 1, nq
+         Alpha=Mult(iq)
+         Do iQQ = 1, nQQ
+            temp = K(iq+(iQQ-1)*nq)*Alpha
+            KtM(iQQ,iq)=temp
          End Do
       End Do
       ip = ip_rInt + (jIter-1)*(nDim-mTR)
@@ -593,7 +593,7 @@ C        iEnd = 1
 *                                                                      *
 #ifdef _DEBUGPRINT_
       If (iPrint.ge.49) Then
-         Call RecPrt(' The K Matrix',' ',Work(ipK),nq,nQQ)
+         Call RecPrt(' The K Matrix',' ',K,nq,nQQ)
          Call RecPrt(' q-values',' ',qVal,nq,nIter)
          Call RecPrt('Q-values',' ',Work(ip_rInt),nQQ,nIter)
          Call RecPrt('Cx',' ',Cx,3*nAtoms,nIter)
@@ -610,11 +610,11 @@ C        iEnd = 1
 *
       Call mma_deallocate(KtM)
       If (Allocated(GxR)) Call mma_deallocate(GxR)
-      Call GetMem('K(t)B','Free','Real',ipKtB,nQQ*nDim)
-      Call GetMem('EVec','Free','Real',ipK,nq**2)
-      Call GetMem('GRef','Free','Real',ipGRef,9*nqA*nIter)
+      Call mma_deallocate(KtB)
+      Call mma_deallocate(K)
+      Call mma_deallocate(GRef)
       Call mma_deallocate(Ind)
-      Call GetMem('Mult','Free','Real',ipMult,nq)
+      Call mma_deallocate(Mult)
       Call mma_deallocate(F_c)
       Call mma_deallocate(qLbl)
       Call mma_deallocate(qVal)
