@@ -44,7 +44,8 @@
       use linalg_mod, only: abort_, verify_
       use Symmetry_Info, only: nIrrep, lIrrep
       use stdalloc, only: mma_allocate, mma_deallocate
-      use sorting, only: swap
+      use sorting, only: swap, sort, argsort
+      use sorting_funcs, only: geq_r
       implicit none
 #include "Molcas.fh"
 #include "WrkSpc.fh"
@@ -692,6 +693,8 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 *********************  energy sorting + sort memory ********************
         ipAux(:) = Work(mAdEor : mAdEor + nTot - 1)
         iOrdEor = [(i, i = 0, nTot - 1)]
+
+!         iOrdEor = argsort(ipAux, geq_r)
 
         do i = 0, nTot - 2
           do k = i + 1, nTot - 1
