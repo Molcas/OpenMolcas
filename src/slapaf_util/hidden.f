@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Hidden(mTtAtm,ipCoor,ipAN,nHidden,rHidden,nMDstep)
+      Subroutine Hidden(mTtAtm,Coor,AN,nHidden,rHidden,nMDstep)
       Implicit Real*8 (a-h,o-z)
 *
 *  Add to the Grand atom list some hidden atoms, coming e.g.
@@ -17,9 +17,12 @@
 #include "Molcas.fh"
 #include "angstr.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "periodic_table.fh"
+      Real*8, Allocatable:: Coor(:,:)
+      Integer, Allocatable:: AN(:)
+      Real*8, Allocatable:: Coor_h(:,:)
+      Integer, Allocatable:: AN_h(:)
       Logical Do_ESPF,Exist,Exist2
       Character(LEN=180) Line
       Character(LEN=180), External::  Get_Ln
@@ -122,7 +125,7 @@
 *
       nKept = 0
       If (nHidden .gt. 0)
-     &   Call Select_hidden(mTtAtm,nHidden,Work(ipCoor),h_xyz,h_AN,
+     &   Call Select_hidden(mTtAtm,nHidden,Coor,h_xyz,h_AN,
      &                      nKept,rHidden,iPL)
 *
 *  Copy all the arrays needed by box and nlm
@@ -133,22 +136,21 @@
             If (nMDstep.gt.0) Write(6,'(8X,I5,A)') nMDstep,' mean Hess'
          End If
          mTot = mTtAtm + nKept
-         Call Allocate_Work(ipCoor_h,3*mTot)
-         Call Allocate_iWork(ipAN_h,mTot)
+         Call mma_allocate(Coor_h,3,mTot,Label='Coor_h')
+         Call mma_allocate(AN_h,mTot,Label='AN_h')
 *
-         Call dCopy_(3*mTtAtm,Work(ipCoor),1,Work(ipCoor_h),1)
-         Call iCopy(mTtAtm,iWork(ipAN),1,iWork(ipAN_h),1)
+         Call dCopy_(3*mTtAtm,Coor,1,Coor_h,1)
+         Call iCopy(mTtAtm,AN,1,AN_h,1)
 *
 *  Copy the kept hidden atom coordinates, atom numbers and masses
 *
          iKept = 0
-         Do iHidden = 0, (nHidden-1)
-            If (h_AN(1+iHidden) .gt. 0) Then
-               Call dCopy_(3,h_xyz(:,1+iHidden),1,
-     &                     Work(ipCoor_h+3*(mTtAtm+iKept)),1)
-               iAN = h_AN(1+iHidden)
-               iWork(ipAN_h+mTtAtm+iKept) = iAN
+         Do iHidden = 1, nHidden
+            If (h_AN(iHidden) .gt. 0) Then
                iKept = iKept + 1
+               Call dCopy_(3,h_xyz(:,iHidden),1,
+     &                     Coor_h(:,mTtAtm+iKept),1)
+               AN_h(mTtAtm+iKept) = h_AN(iHidden)
             End If
          End Do
          If (iKept .ne. nKept) Then
@@ -157,16 +159,20 @@
          End If
          Call mma_deallocate(h_AN)
          Call mma_deallocate(h_xyz)
-         Call GetMem('Coor','Free','Real',ipCoor,3*mTtAtm)
-         Call GetMem('AN','Free','Inte',ipAN,mTtAtm)
+         Call mma_deallocate(Coor)
+         Call mma_deallocate(AN)
 *
 *  The end
 *
-         ipCoor  = ipCoor_h
-         ipAN    = ipAN_h
+         Call mma_allocate(Coor,3,mTot,Label='Coor')
+         Coor(:,:)=Coor_h(:,:)
+         Call mma_deallocate(Coor_h)
+         Call mma_allocate(AN,mTot,Label='AN')
+         AN(:)=AN_h(:)
+         Call mma_deallocate(AN_h)
 *
          If (iPL .gt. 3) Then
-            Call RecPrt('Hidden: Coor',' ',Work(ipCoor),3,mTot)
+            Call RecPrt('Hidden: Coor',' ',Coor,3,mTot)
          End If
       End If
       nHidden = nKept

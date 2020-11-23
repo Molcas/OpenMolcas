@@ -53,6 +53,14 @@
         Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
         Integer nBonds, nMax
         End Subroutine Box
+        Subroutine Hidden(mTtAtm,Coor,AN,nHidden,rHidden,nMDstep)
+        Integer mTtAtm
+        Real*8, Allocatable:: Coor(:,:)
+        Integer, Allocatable:: AN(:)
+        Integer nHidden
+        Real*8 rHidden
+        Integer nMDStep
+        End Subroutine Hidden
       End Interface
 *                                                                      *
 ************************************************************************
@@ -129,9 +137,7 @@
       nHidden = 0
       ipMMKept = 0
       nMDstep = 0
-      ipAN = ip_of_iWork(AN(1))
-      ipCoor = ip_of_Work(Coor2(1,1))
-      If (rHidden.ge.Two) Call Hidden(mTtAtm,ipCoor,ipAN,nHidden,
+      If (rHidden.ge.Two) Call Hidden(mTtAtm,Coor2,AN,nHidden,
      &                                rHidden,nMDstep)
 *
 *-----Generate bond list
@@ -211,8 +217,8 @@
 *------- Re-generate the bonds if there were hidden atoms
 *
          If (nHidden.ne.0) Then
-            Call Box(Coor,mTtAtm,AN,iOptC,ddV_Schlegel,TabB,TabA,nBonds,
-     &               nMax)
+            Call Box(Coor2,mTtAtm,AN,iOptC,ddV_Schlegel,TabB,TabA,
+     &               nBonds,nMax)
          End If
          ip_TabA = ip_of_iWork(TabA(1,0,1))
          ip_TabB = ip_of_iWork(TabB(1,1))

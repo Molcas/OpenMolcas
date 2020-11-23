@@ -36,6 +36,14 @@
         Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
         Integer nBonds, nMax
         End Subroutine Box
+        Subroutine Hidden(mTtAtm,Coor,AN,nHidden,rHidden,nMDstep)
+        Integer mTtAtm
+        Real*8, Allocatable:: Coor(:,:)
+        Integer, Allocatable:: AN(:)
+        Integer nHidden
+        Real*8 rHidden
+        Integer nMDStep
+        End Subroutine Hidden
       End Interface
 *                                                                      *
 ************************************************************************
@@ -73,9 +81,7 @@
 *
       nHidden = 0
       nMDstep = 0
-      ipCoor = ip_of_Work(Coor(1,1))
-      ipAN   = ip_of_iWork(AN(1))
-      If (rHidden.ge.Two) Call Hidden(mTtAtm,ipCoor,ipAN,nHidden,
+      If (rHidden.ge.Two) Call Hidden(mTtAtm,Coor,AN,nHidden,
      &                                rHidden,nMDstep)
 *
 *-----Generate bond list
