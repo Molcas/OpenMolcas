@@ -71,9 +71,10 @@
       integer :: ipCent, ipCent2, ipCent3
       integer :: ipPhase, ipC2, ipV, ipC2_ab, ipV_ab
       integer :: mInd, mInd_ab
-      integer :: ipAux, mAdIndt, mAdOcc, mAdEor
+      integer :: mAdIndt, mAdOcc, mAdEor
       integer :: mAdCMO, ipAux_ab, mAdIndt_ab, mAdOcc_ab, mAdEor_ab,
      &  mAdCMO_ab, mpunt, kindt
+      real(wp), allocatable :: ipAux(:)
       integer :: ipOrdC1, ipOccC1, ipOrdC2
       integer :: Lu_, iErr, notSymm
       integer :: iatom, iDeg, ishell
@@ -466,13 +467,13 @@ CC              Do icontr=1,nBasisi
          nTot=nTot+nBas(iS)
          nTot2=nTot2+nBas(iS)**2
       End Do
-      Call GetMem('Aux','ALLO','REAL',ipAux,nTot)
+      allocate(ipAux(0 : nTot - 1))
+      ipAux(:) = 0._wp
       Call GetMem('INDT','Allo','Inte',mAdIndt,ntot)
       Call GetMem('IndType','Allo','Inte',mInd,56)
       Call GetMem('Occ','Allo','Real',mAdOcc,nTot )
       Call GetMem('Eor','Allo','Real',mAdEor,nTot )
       Call GetMem('CMO','Allo','Real',mAdCMO,nTot2)
-      Call FZero(Work(ipAux),nTot)
       Call IZero(iWork(mAdIndt),nTot)
       Call IZero(iWork(mInd),56)
       Call FZero(Work(mAdOcc),nTot)
@@ -689,16 +690,15 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 ***************************** START SORTING ****************************
 
 *********************  energy sorting + sort memory ********************
-        call dcopy_(nTot,Work(mAdEor),1,Work(ipAux),1)
-        Work(ipAux : ipAux + nTot - 1)=Work(mAdEor : mAdEor + nTot - 1)
+        ipAux(:) = Work(mAdEor : mAdEor + nTot - 1)
         do i=0, nTot-1
           iOrdEor(i)=i
         end do
 
         do i=0,nTot-2
             do k=i+1,nTot-1
-              if(work(ipAux+k) < Work(ipAux+i)) then
-                call swap(work(ipAux + i), work(ipAux + k))
+              if(ipAux(k) < ipAux(i)) then
+                call swap(ipAux(i), ipAux(k))
                 call swap(iOrdEor(i), iOrdEor(k))
               end if
             end do
@@ -785,7 +785,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
        Call WrVec_(SymOrbName,iWF,'COEI',iUHF,notSymm,[nTot],[nTot],
      &            Work(ipOrdC2),Work(ipV_ab),
      &            Work(iPOccC1),Work(mAdOcc_ab),
-     &            Work(ipAux),Work(ipAux_ab),
+     &            ipAux,Work(ipAux_ab),
      &            iWork(mInd),VTitle,iWFtype)
        call Add_Info('desym CMO',Work(ipOrdC2),999,8)
 *                                                                      *
@@ -814,7 +814,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
       Call GetMem('OrdC2','FREE','REAL',ipOrdC2,nTot**2)
       Call GetMem('Eor','Free','Real',mAdEor,nTot)
       Call GetMem('Occ','Free','Real',mAdOcc,nTot)
-      Call GetMem('Aux','FREE','REAL',ipAux,nTot)
+      deallocate(ipAux)
       Call GetMem('INDT','Free','Inte',mAdIndt,nTot)
       Call GetMem('IndType','Free','Inte',mInd,56)
       If (iUHF == 1) Then
