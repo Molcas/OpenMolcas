@@ -74,8 +74,8 @@
       integer :: mAdIndt, mAdOcc, mAdEor
       integer :: mAdCMO, ipAux_ab, mAdIndt_ab, mAdOcc_ab, mAdEor_ab,
      &  mAdCMO_ab, mpunt, kindt
-      real(wp), allocatable :: ipAux(:)
-      integer :: ipOrdC1, ipOccC1, ipOrdC2
+      real(wp), allocatable :: ipAux(:), ipOccC1(:)
+      integer :: ipOrdC1, ipOrdC2
       integer :: Lu_, iErr, notSymm
       integer :: iatom, iDeg, ishell
       integer :: iIrrep, iWfType, iWF
@@ -705,36 +705,28 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
         Call GetMem('OrdC1','ALLO','REAL',ipOrdC1,nTot**2)
         Call FZero(Work(ipOrdC1),nTot**2)
         do i=0,nTot-1
-            do k=0,nTot-1
-              work(ipOrdC1+nTot*i+k)=work(ipV+nTot*iOrdEor(i)+k)
-            end do
+          do k=0,nTot-1
+            work(ipOrdC1+nTot*i+k)=work(ipV+nTot*iOrdEor(i)+k)
+          end do
         end do
 ************************* Occupation sorting ***************************
-        Call GetMem('OccC1','ALLO','REAL',ipOccC1,nTot)
-        Call FZero(Work(ipOccC1),nTot)
-        do i=0,nTot-1
-          Work(ipOccC1+i) = Work(mAdOcc+iOrdEor(i))
-        end do
+        allocate(ipOccC1(0 : nTot - 1))
+        ipOccC1(:) = Work(mAdOcc + iOrdEor(:))
 *************************   index sorting   ****************************
-        mpunt=mAdIndt
-        do iIrrep=0,nIrrep-1
-          mpunt=mpunt+nBas(iIrrep)
-        end do
 
-        do i=1,7
-          iA(i)=0
-        end do
+        mpunt = sum(nBas(0 : nIrrep - 1))
+        iA(1 : 7) = 0
         kindt=mInd
         mpunt=mAdIndt
         do iIrrep=0,nIrrep-1
            Do i=1,7
-                do j=0,nBas(iIrrep)-1
-                  if(iWork(mpunt+j) == i) iA(i)=iA(i)+1
-                end do
+              do j=0,nBas(iIrrep)-1
+                if(iWork(mpunt+j) == i) iA(i)=iA(i)+1
+              end do
            End Do
            mpunt=mpunt+nBas(iIrrep)
         end do
-        call icopy(7,iA,1,iWork(kindt),1)
+        iWork(kindt : kindt + 7 - 1) = iA(1 : 7)
 ****************************************************************************
 
 *    Energy after first sorting work(ipAux)
@@ -742,20 +734,13 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 *    Occupation after sorting   Work(ipOccC1)
 
 ******* Natural Active Orbitals (energy = Zero) are sorted by Occ Numb ***********
-
-        do i=0, nTot-1
-          iOrdEor(i)=i
-        end do
+        iOrdEor = [(i, i = 0, nTot - 1)]
 
         do i=0,nTot-2
             do k=i+1,nTot-1
-              if(Work(ipOccC1+k) > Work(ipOccC1+i)) then
-                temporary=work(ipOccC1+i)
-                work(ipOccC1+i)=Work(ipOccC1+k)
-                work(ipOccC1+k)=temporary
-                iTempOrd=iOrdEor(i)
-                iOrdEor(i)=iOrdEor(k)
-                iOrdEor(k)= iTempOrd
+              if(ipOccC1(k) > ipOccC1(i)) then
+                call swap(ipOccC1(k), ipOccC1(i))
+                call swap(iOrdEor(i), iOrdEor(k))
               end if
             end do
         end do
@@ -782,7 +767,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
        VTitle = 'Basis set desymmetrized orbital file DESORB'
        Call WrVec_(SymOrbName,iWF,'COEI',iUHF,notSymm,[nTot],[nTot],
      &            Work(ipOrdC2),Work(ipV_ab),
-     &            Work(iPOccC1),Work(mAdOcc_ab),
+     &            iPOccC1,Work(mAdOcc_ab),
      &            ipAux,Work(ipAux_ab),
      &            iWork(mInd),VTitle,iWFtype)
        call Add_Info('desym CMO',Work(ipOrdC2),999,8)
@@ -807,7 +792,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('OccC1','FREE','REAL',ipOccC1,nTot)
+      deallocate(ipOccC1)
       Call GetMem('OrdC1','FREE','REAL',ipOrdC1,nTot**2)
       Call GetMem('OrdC2','FREE','REAL',ipOrdC2,nTot**2)
       Call GetMem('Eor','Free','Real',mAdEor,nTot)
@@ -841,4 +826,11 @@ c103  format('Ene= ',F10.4)
 c104  format('Occup= ',F10.5)
 
       Return
+
+      contains
+
+        logical pure function orb_energy_geq(i, j)
+          integer, intent(in) :: i, j
+          orb_energy_geq = ipAux(i) >= ipAux(j)
+        end function
       End
