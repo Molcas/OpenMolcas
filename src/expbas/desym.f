@@ -40,45 +40,57 @@
 ************************************************************************
       use Basis_Info
       use Center_Info
+      use definitions, only: wp
+      use linalg_mod, only: abort_, verify_
       use Symmetry_Info, only: nIrrep, lIrrep
       Implicit Real*8 (a-h,o-z)
+!       implicit none
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "info_expbas.fh"
 #include "stdalloc.fh"
-      Parameter (EorbThr = 50.D0 )
-      Real*8 Coor(3,MxAtom),Znuc(MxAtom)
-      Character*(LENIN) AtomLabel(MxAtom)
-      Character*512 FilesOrb
-      Character*(LENIN8), Allocatable :: label(:)
-      Character*8 MO_Label(maxbfn)
-      Parameter (nNumber=61)
-      Character Number(nNumber)
-      Integer ibas_lab(MxAtom), nOrb(8),iA(7), iOrdEor(0:maxbfn-1)
-      Character*(LENIN8+1) gtolabel(maxbfn)
-*      Character*8 Filename
-      Character*50 VTitle
-      character*128 SymOrbName
-      Logical Exist,y_cart,Found, Reduce_Prt
-      External Reduce_Prt
+      real(wp), parameter :: EorbThr = 50._wp
+      real(wp) :: Coor(3, MxAtom), Znuc(MxAtom)
+      character(len=LENIN) :: AtomLabel(MxAtom)
+      character(len=512) :: FilesOrb
+      character(len=LENIN8), allocatable :: label(:)
+      character(len=8) :: MO_Label(maxbfn)
+      integer :: ibas_lab(MxAtom), nOrb(8), iA(7), iOrdEor(0:maxbfn-1)
+      character(len=LENIN8+1) :: gtolabel(maxbfn)
+      character(len=50) :: VTitle
+      character(len=128) :: SymOrbName
+      logical :: Exist, y_cart, Found
 
-      data number /'1','2','3','4','5','6','7','8','9','0',
-     &             'a','b','c','d','e','f','g','h','i','j',
-     &             'k','l','m','n','o','p','q','r','s','t',
-     &             'u','v','w','x','y','z','A','B','C','D',
-     &             'E','F','G','H','I','J','K','L','M','N',
-     &             'O','P','Q','R','S','T','V','W','X','Y',
-     &             'Z'/
-      data iRc/0/
-      save iRc
+      real(wp) :: check_CMO, check_energy, check_occupation
+      integer :: nAtom, nData, nTest
+      integer :: iCnttp, iAngMx_Valence
+      integer :: nB, iS
+      integer :: ipCent, ipCent2, ipCent3
+      integer :: ipPhase
+
+      integer :: iPrintLevel, mylen
+      logical :: reduce_prt
+      external :: reduce_prt, iPrintLevel, mylen
+
+      integer, parameter :: nNumber=61
+      character(len=1), parameter ::
+     &  number(nNumber) =
+     &           ['1','2','3','4','5','6','7','8','9','0',
+     &            'a','b','c','d','e','f','g','h','i','j',
+     &            'k','l','m','n','o','p','q','r','s','t',
+     &            'u','v','w','x','y','z','A','B','C','D',
+     &            'E','F','G','H','I','J','K','L','M','N',
+     &            'O','P','Q','R','S','T','V','W','X','Y',
+     &            'Z']
+      integer, save :: iRc = 0
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Check_CMO=Zero
-      Check_Energy=Zero
-      Check_Occupation=Zero
-      y_cart=.false.
+      Check_CMO = 0._wp
+      Check_Energy = 0._wp
+      Check_Occupation = 0._wp
+      y_cart = .false.
 
 *                                                                      *
 ************************************************************************
