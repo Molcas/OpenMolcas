@@ -63,11 +63,19 @@
       logical :: Exist, y_cart, Found
 
       real(wp) :: check_CMO, check_energy, check_occupation
-      integer :: nAtom, nData, nTest
+      integer :: nAtom, nData, nTest, nDeg
       integer :: iCnttp, iAngMx_Valence
       integer :: nB, iS
       integer :: ipCent, ipCent2, ipCent3
-      integer :: ipPhase
+      integer :: ipPhase, ipC2, ipV, ipC2_ab, ipV_ab
+      integer :: iUHF
+      integer :: iatom, iDeg
+      integer :: iIrrep
+
+      integer :: mdc, kk, i, ik, k
+      integer :: icontr, nBasisi, icntr
+
+
 
       integer :: iPrintLevel, mylen
       logical :: reduce_prt
