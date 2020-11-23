@@ -38,8 +38,8 @@
 *   END                                                                *
 *                                                                      *
 ************************************************************************
-      use Basis_Info
-      use Center_Info
+      use Basis_Info, only: nBas, nCnttp, dbsc, Shells, MolWgh
+      use Center_Info, only: dc
       use definitions, only: wp
       use linalg_mod, only: abort_, verify_
       use Symmetry_Info, only: nIrrep, lIrrep
@@ -85,8 +85,6 @@
       integer :: ipc
       integer :: icontr, nBasisi, icntr
 
-
-
       integer :: iPrintLevel
       logical :: reduce_prt
       external :: reduce_prt, iPrintLevel
@@ -110,16 +108,10 @@
       Check_Occupation = 0._wp
       y_cart = .false.
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      write(6,*) 'Start option DeSymmetrization'
 
-      Call f_Inquire('RUNFILE',Exist)
-      If (.Not.Exist) then
-       Write (6,*) 'Error finding RUNFILE'
-       Call Abend()
-      Endif
+      Call f_Inquire('RUNFILE', Exist)
+      call verify_(exist, 'Error finding RUNFILE')
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -131,34 +123,24 @@
 *     This call will also fill info.fh and the dynamic storage in
 *     Work(ipInf)
 *
-      Call Inter1       (AtomLabel,iBas_Lab,Coor,Znuc,nAtom)
-      Call Qpg_iArray('nOrb',Found,nData)
+      Call Inter1(AtomLabel, iBas_Lab, Coor, Znuc, nAtom)
+      Call Qpg_iArray('nOrb', Found, nData)
       If (Found) Then
-         Call Get_iArray('nOrb',nOrb,nData)
+         Call Get_iArray('nOrb', nOrb, nData)
       Else
-         Call iCopy(nIrrep,nBas,1,nOrb,1)
+         nOrb(: nIrrep) = nBas( : nIrrep)
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iAngMx_Valence=0
-      Do iCnttp = 1, nCnttp
-         If (.Not.dbsc(iCnttp)%Aux .and.
-     &       .Not.dbsc(iCnttp)%Frag ) Then
-            nTest=dbsc(iCnttp)%nVal-1
-            iAngMx_Valence=Max(iAngMx_Valence,nTest)
-         End If
-      End Do
+      iAngMx_Valence = maxval(dbsc%nVal - 1,
+     &                        mask= .not. (dbsc%Aux .or.  dbsc%Frag))
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Compute memory requirements and allocate memory
 *
-      nB=0
-      Do iS=0,nirrep-1
-       nB=nB+nBas(is)
-      End Do
-*      write(6,*) 'nB=',nB
+      nB = sum(nBas(0 : nIrrep - 1))
       Call GetMem('ICENT','ALLO','INTE',ipCent,8*nB)
       Call GetMem('IPHASE','ALLO','INTE',ipPhase,8*nB)
       Call GetMem('nCENT','ALLO','INTE',ipCent2,nB)
