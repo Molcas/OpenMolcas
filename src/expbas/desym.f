@@ -691,17 +691,15 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 
 *********************  energy sorting + sort memory ********************
         ipAux(:) = Work(mAdEor : mAdEor + nTot - 1)
-        do i=0, nTot-1
-          iOrdEor(i)=i
-        end do
+        iOrdEor = [(i, i = 0, nTot - 1)]
 
-        do i=0,nTot-2
-            do k=i+1,nTot-1
-              if(ipAux(k) < ipAux(i)) then
-                call swap(ipAux(i), ipAux(k))
-                call swap(iOrdEor(i), iOrdEor(k))
-              end if
-            end do
+        do i = 0, nTot - 2
+          do k = i + 1, nTot - 1
+            if(ipAux(k) < ipAux(i)) then
+              call swap(ipAux(i), ipAux(k))
+              call swap(iOrdEor(i), iOrdEor(k))
+            end if
+          end do
         end do
 ***************************** MOs sorting ******************************
         Call GetMem('OrdC1','ALLO','REAL',ipOrdC1,nTot**2)
