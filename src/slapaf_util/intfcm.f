@@ -10,34 +10,49 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine IntFcm(ipH,nQQ,lOld,lOld_Implicit)
+      SubRoutine IntFcm(lOld,lOld_Implicit)
 ************************************************************************
 *                                                                      *
 * Object: to initialize the Hessian matrix for the first iteration.    *
 *                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
-*             May '91                                                  *
+*             May 1991                                                 *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
+      Real*8 rDum(1)
       Logical lOld, lOld_Implicit, Hess_Found, IRC
-*
-      iRout = 51
-      iPrint = nPrint(iRout)
+      Real*8, Allocatable:: Hess(:)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+        Subroutine OldFcm(Hess,nQQ,Lbl)
+        Real*8, Allocatable:: Hess(:)
+        Integer nQQ
+        Character*(*) Lbl
+        End Subroutine OldFcm
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
 *     Read force constant matrix from old interphase
 *
       If (lOld) Then
 *
-*        Expl
+*        Explicit request to use an old force constant matrix stored
+*        on an old runfile.
 
-         Call OldFcm(ipH,nQQ,'RUNOLD')
+         Call OldFcm(Hess,nQQ,'RUNOLD')
 
       Else
-
+*
+*        If this is not an IRC calculation explore if the runfile
+*        contains a Hessian. If so, pull it off the runfile.
+*
          Call qpg_iScalar('IRC',IRC)
 
          If (.Not.IRC) Then
@@ -45,9 +60,7 @@
 
             If (Hess_Found.And.(nHess.gt.0)) Then
                lOld_Implicit=.True.
-               Call OldFcm(ipH,nQQ,'RUNFILE')
-            Else
-               ipH =  ip_Dummy
+               Call OldFcm(Hess,nQQ,'RUNFILE')
             End If
 
          End If
@@ -55,8 +68,16 @@
       End If
 
       If (.Not.lOld.and.lOld_Implicit) lOld=.True.
-      If (iPrint.ge.99.and.lOld) Call RecPrt('IntFcm: Final Hessian',
-     &                       ' ',Work(ipH),nQQ,nQQ)
+
+      If (lOld) Then
+#ifdef _DEBUGPRINT_
+         Call RecPrt('IntFcm: Final Hessian',' ',Hess,nQQ,nQQ)
+#endif
+         Call Put_dArray('Hss_Q',Hess,nQQ**2)
+         Call Put_dArray('Hss_upd',rDum,0)
+         Call mma_deallocate(Hess)
+      End If
+
 *
       Return
       End

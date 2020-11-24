@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine OLDFCM(ipH,nQQ,RunOld)
+      Subroutine OLDFCM(Hess,nQQ,RunOld)
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -16,10 +16,11 @@
 *              interphase.                                             *
 *                                                                      *
 ************************************************************************
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Character*8 Method
       Character*(*) RunOld
       Logical Found
+      Real*8, Allocatable:: Hess(:)
 *
 *...  Prologue
 *
@@ -47,8 +48,8 @@
          Call SysAbendmsg('OldFcm','Did not find:','Hess')
       End If
 
-      Call GetMem('Hess','Allo','Real',ipRlx,nHess)
-      Call get_dArray('Hess',Work(ipRlx),nHess)
+      Call mma_Allocate(Hess,nHess,Label='Hess')
+      Call get_dArray('Hess',Hess,nHess)
 
       lHess = iInter**2
       If ( nHess.ne.lHess ) Then
@@ -67,10 +68,9 @@
      &   'SLAPAF has been supplied with an old force constant matrix.'
       Write(6,'(6X,3A)') 'It is based on ',Method,' calculations.'
       Write(6,'(6X,A,F18.10)')'The final energy was',Energy
-      Call RecPrt(' OldFcm',' ',Work(ipRlx),iInter,iInter)
+      Call RecPrt(' OldFcm',' ',Hess,iInter,iInter)
 #endif
 *
-      ipH = ipRlx
       nQQ = iINter
 *
 *...  Epilogue, end

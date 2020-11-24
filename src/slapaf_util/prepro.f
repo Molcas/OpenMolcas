@@ -64,14 +64,7 @@
 *     Write to runfile only on the first iteration and that there
 *     was not an already defined Hessian.
 *
-      If (iter.eq.1) Then
-         Call IntFcm(ipH,nQQ,lOld,lOld_Implicit)
-         If (lOld) Then
-            Call Put_dArray('Hss_Q',Work(ipH),nQQ**2)
-            Call Put_dArray('Hss_upd',rDum,0)
-            Call Free_Work(ipH)
-         End If
-      End If
+      If (iter.eq.1) Call IntFcm(lOld,lOld_Implicit)
       If (.Not.lOld.and.lOld_Implicit) lOld=.True.
 *
 *-----Symmetrize forces

@@ -28,7 +28,7 @@
       External Get_SuperName
       Character*100 Get_SuperName
       Character*100 SuperName
-      Real*8, Allocatable:: DIR(:,:)
+      Real*8, Allocatable:: DIR(:,:), Tmp(:), TmpRx(:)
 *
 *     Compare with inputil.f. Note that here Line is defined in
 *     info:slapaf.fh. Otherwise the common cgetln should be
@@ -974,8 +974,8 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 ****** REAC ************************************************************
 *                                                                      *
  996  Explicit_IRC=.True.
-      Call GetMem('TmpRx','Allo','Real',ipTmpRx,3*nsAtom)
-      Call Read_v(LuRd,Work(ipTmpRx),1,3*nsAtom,1,iErr)
+      Call mma_allocate(TmpRx,3*nsAtom,Label='TmpRx')
+      Call Read_v(LuRd,TmpRx,1,3*nsAtom,1,iErr)
       If (IErr.ne.0) Then
          Call WarningMessage(2,'Error in RdCtl_Slapaf')
          Write (Lu,*)
@@ -1148,7 +1148,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *
          If (Explicit_IRC.and.iMEP.eq.0) Then
 *           Case 1)
-            call dcopy_(3*nsAtom,Work(ipTmpRx),1,Work(ipMF),1)
+            call dcopy_(3*nsAtom,TmpRx,1,Work(ipMF),1)
          Else If (iMEP.eq.0) Then
             Call NameRun('RUNOLD')
             Call qpg_dArray('Reaction Vector',Found,nRx)
@@ -1204,7 +1204,7 @@ C              Write (6,*) 'RUNFILE: Found=',Found
          If (.Not.Found.And..Not.Ref_Grad) Then
 *        Assume the initial reaction vector is already massaged
             If (Explicit_IRC) Then
-               Call Put_dArray('Transverse',Work(ipTmpRx),3*nsAtom)
+               Call Put_dArray('Transverse',TmpRx,3*nsAtom)
             Else
 *        The direction is given by the gradient, but in weighted coordinates
                Call mma_allocate(Dir,3,nsAtom,Label='Dir')
@@ -1220,7 +1220,7 @@ C              Write (6,*) 'RUNFILE: Found=',Found
          End If
       End If
 *
-      If (Explicit_IRC) Call Free_Work(ipTmpRx)
+      If (Explicit_IRC) Call mma_deallocate(TmpRx)
 *
 *     Activate MPS update of Hessian if FindTS
 *
@@ -1257,11 +1257,11 @@ C              Write (6,*) 'RUNFILE: Found=',Found
 *
       Call qpg_dArray('Saddle',Found,nSaddle)
       If (Found.and.nSaddle.ne.0) Then
-         Call Allocate_Work(ipTmp,nSaddle)
-         Call Get_dArray('Saddle',Work(ipTmp),nSaddle)
-         HSR0=Work(ipTmp+nSaddle-3)
-         HSR=Work(ipTmp+nSaddle-2)
-         Update=Work(ipTmp+nSaddle-1)
+         Call mma_allocate(Tmp,nSaddle,Label='Tmp')
+         Call Get_dArray('Saddle',Tmp,nSaddle)
+         HSR0  =Tmp(nSaddle-2)
+         HSR   =Tmp(nSaddle-1)
+         Update=Tmp(nSaddle)
          If (Update.eq.2.0d0) Then
 *
 *           Enable FindTS procedure
@@ -1296,7 +1296,7 @@ C           Write (6,*) 'Enable FindTS procedure'
      &                             nLambda,iRow_c)
 
          End If
-         Call Free_Work(ipTmp)
+         Call mma_deallocate(Tmp)
       End If
 *                                                                      *
 ************************************************************************
