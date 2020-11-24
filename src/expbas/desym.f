@@ -63,7 +63,7 @@
       character(len=512) :: FilesOrb
       character(len=LENIN8), allocatable :: label(:)
       character(len=8) :: MO_Label(maxbfn)
-      integer :: ibas_lab(MxAtom), nOrb(8), new_idx(orbital_kinds)
+      integer :: ibas_lab(MxAtom), nOrb(8), new_idx(0 : orbital_kinds-1)
       integer, allocatable :: iOrdEor(:)
       character(len=LENIN8+1) :: gtolabel(maxbfn)
       character(len=50) :: VTitle
@@ -78,10 +78,10 @@
       integer :: ipCent, ipCent2, ipCent3
       integer :: ipPhase, ipC2, ipV, ipC2_ab, ipV_ab
       integer :: mInd_ab
-      integer :: mAdIndt, mAdOcc, mAdEor
+      integer :: mAdOcc, mAdEor
       integer :: mAdCMO, ipAux_ab, mAdIndt_ab, mAdOcc_ab, mAdEor_ab,
-     &  mAdCMO_ab, mpunt
-!       integer, allocatable :: mAdIndt(:)
+     &  mAdCMO_ab
+      integer, allocatable :: old_idx(:)
       real(wp), allocatable :: new_orb_E(:), new_occ(:)
       real(wp), allocatable :: new_CMO(:, :)
       integer :: Lu_, iErr, notSymm
@@ -476,12 +476,12 @@ CC              Do icontr=1,nBasisi
          nTot2=nTot2+nBas(iS)**2
       End Do
       allocate(new_orb_E(0 : nTot - 1))
+      allocate(old_idx(0 : nTot - 1))
       new_orb_E(:) = 0._wp
-      Call GetMem('INDT','Allo','Inte',mAdIndt,ntot)
+      old_idx = 0
       Call GetMem('Occ','Allo','Real',mAdOcc,nTot )
       Call GetMem('Eor','Allo','Real',mAdEor,nTot )
       Call GetMem('CMO','Allo','Real',mAdCMO,nTot2)
-      Call IZero(iWork(mAdIndt),nTot)
       Call FZero(Work(mAdOcc),nTot)
       Call FZero(Work(mAdEor),nTot)
       Call FZero(Work(mAdCMO),nTot2)
@@ -518,7 +518,7 @@ CC              Do icontr=1,nBasisi
      &            Work(mAdCMO),Work(mAdCMO_ab),
      &            Work(mAdOcc),Work(mAdOcc_ab),
      &            Work(mAdEor),Work(mAdEor_ab),
-     &            iWork(mAdIndt),VTitle,1,iErr,iWfType)
+     &            old_idx,VTitle,1,iErr,iWfType)
        if (iUHF == 1) then
          write(6,*) 'DESY keyword not implemented for DODS wf!'
          Call Abend()
@@ -714,16 +714,14 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 *************************   index sorting   ****************************
 
         new_idx(:) = 0
-        mpunt = mAdIndt
 
-        do iIrrep = 0, nIrrep - 1
-            do i = 1, orbital_kinds
-              do j = 0, nBas(iIrrep) - 1
-                if(iWork(mpunt + j) == i) new_idx(i) = new_idx(i) + 1
-              end do
-           end do
-           mpunt = mpunt + nBas(iIrrep)
+        do i = lbound(old_idx, 1), ubound(old_idx, 1)
+            new_idx(old_idx(i) - 1) = new_idx(old_idx(i) - 1) + 1
         end do
+
+        write(*, *) '====='
+        write(*, *) new_idx
+        write(*, *) '====='
 
 ****************************************************************************
 
@@ -782,12 +780,12 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
       Call GetMem('Eor','Free','Real',mAdEor,nTot)
       Call GetMem('Occ','Free','Real',mAdOcc,nTot)
       deallocate(new_orb_E)
-      Call GetMem('INDT','Free','Inte',mAdIndt,nTot)
+      deallocate(old_idx)
       If (iUHF == 1) Then
          Call GetMem('Eor','Free','Real',mAdEor_ab,nTot)
          Call GetMem('Occ','Free','Real',mAdOcc_ab,nTot)
          Call GetMem('Aux','FREE','REAL',ipAux_ab,nTot)
-         Call GetMem('INDT','Free','Inte',mAdIndt,nTot)
+         Call GetMem('INDT','Free','Inte',mAdIndt_ab,nTot)
          Call GetMem('IndType','Free','Inte',mInd_ab,56)
       End If
       Call GetMem('ICENT','FREE','INTE',ipCent,8*nB)
@@ -811,4 +809,14 @@ c104  format('Occup= ',F10.5)
       Return
 
       contains
+
+!         pure function frequency(N) result(res)
+!             integer, intent(in) :: N(:)
+!             integer, allocatable :: res(:)
+!             integer :: i
+!             allocate(res(maxval(N)), source=0)
+!             do i = 1, size(N)
+!                 res(N(i)) = res(N(i)) + 1
+!             end do
+!         end function
       End
