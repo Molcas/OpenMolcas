@@ -1,45 +1,45 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2009, Giovanni Li Manni                                *
-*               2009, Francesco Aquilante                              *
-*               2020, Oskar Weser                                      *
-************************************************************************
-* symmetry-----> C1 INPORB
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2009, Giovanni Li Manni                                *
+!               2009, Francesco Aquilante                              *
+!               2020, Oskar Weser                                      *
+!***********************************************************************
+! symmetry-----> C1 INPORB
       Subroutine desym(iUHF)
-************************************************************************
-*                                                                      *
-* Purpose: Convert INPORB file with symmetry to DeSymOrb               *
-*          file with C1 symmetry.                                      *
-*                                                                      *
-*          G. Li Manni, F. Aquilante, University of Geneva, June 2009. *
-*          Oskar Weser, MPI FKF Stuttgart,  November 2020.             *
-*                                                                      *
-* Example of input:                                                    *
-*                                                                      *
-*   &SEWARD                                                            *
-*    coord                                                             *
-*     file.xyz                                                         *
-*    basis                                                             *
-*     ano-rcc-mb                                                       *
-*    oneonly                                                           *
-*    nodk                                                              *
-*                                                                      *
-*   >>COPY $CurrDir/scf_sym.ScfOrb INPORB                              *
-*                                                                      *
-*   &EXPBAS                                                            *
-*    NoEx                                                              *
-*    Desy                                                              *
-*   END                                                                *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! Purpose: Convert INPORB file with symmetry to DeSymOrb               *
+!          file with C1 symmetry.                                      *
+!                                                                      *
+!          G. Li Manni, F. Aquilante, University of Geneva, June 2009. *
+!          Oskar Weser, MPI FKF Stuttgart,  November 2020.             *
+!                                                                      *
+! Example of input:                                                    *
+!                                                                      *
+!   &SEWARD                                                            *
+!    coord                                                             *
+!     file.xyz                                                         *
+!    basis                                                             *
+!     ano-rcc-mb                                                       *
+!    oneonly                                                           *
+!    nodk                                                              *
+!                                                                      *
+!   >>COPY $CurrDir/scf_sym.ScfOrb INPORB                              *
+!                                                                      *
+!   &EXPBAS                                                            *
+!    NoEx                                                              *
+!    Desy                                                              *
+!   END                                                                *
+!                                                                      *
+!***********************************************************************
       use Basis_Info, only: nBas, nCnttp, dbsc, Shells, MolWgh
       use Center_Info, only: dc
       use definitions, only: wp
@@ -113,9 +113,9 @@
      &            'O','P','Q','R','S','T','V','W','X','Y',
      &            'Z']
       integer, save :: iRc = 0
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Check_CMO = 0._wp
       Check_Energy = 0._wp
       Check_Occupation = 0._wp
@@ -125,17 +125,17 @@
       Call f_Inquire('RUNFILE', Exist)
       call verify_(exist, 'Error finding RUNFILE')
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-*-----Read the characteristics of all different basis sets,
-*     provide each atom with a nuclear charge and establish
-*     a link between an atom and its basis set ---
-*
-*     NOTICE!!!
-*     This call will also fill info.fh and the dynamic storage in
-*     Work(ipInf)
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!-----Read the characteristics of all different basis sets,
+!     provide each atom with a nuclear charge and establish
+!     a link between an atom and its basis set ---
+!
+!     NOTICE!!!
+!     This call will also fill info.fh and the dynamic storage in
+!     Work(ipInf)
+!
       Call Inter1(AtomLabel, iBas_Lab, Coor, Znuc, nAtom)
       Call Qpg_iArray('nOrb', Found, nData)
       If (Found) Then
@@ -143,16 +143,16 @@
       Else
          nOrb(: nIrrep) = nBas( : nIrrep)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       iAngMx_Valence = maxval(dbsc%nVal - 1,
      &                        mask= .not. (dbsc%Aux .or.  dbsc%Frag))
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Compute memory requirements and allocate memory
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Compute memory requirements and allocate memory
+!
       nB = sum(nBas(0 : nIrrep - 1))
       Call GetMem('ICENT','ALLO','INTE',ipCent,8*nB)
       Call GetMem('IPHASE','ALLO','INTE',ipPhase,8*nB)
@@ -171,64 +171,64 @@
          ipC2_ab=ip_Dummy
          ipV_ab =ip_Dummy
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Read exponents and contraction coefficients of each unique basis.
-*     Write the present basis set (iCnttp) to the molden.input file for
-*     the appropriate atoms.
-*     Moreover, a list is constructed which contains a label for each
-*     GTO (gtolabel). This list follows the MOLDEN order of GTOs.
-*     Later this list will be used in the transformation of sabf (the
-*     symmetry adapted basis functions).
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Read exponents and contraction coefficients of each unique basis.
+!     Write the present basis set (iCnttp) to the molden.input file for
+!     the appropriate atoms.
+!     Moreover, a list is constructed which contains a label for each
+!     GTO (gtolabel). This list follows the MOLDEN order of GTOs.
+!     Later this list will be used in the transformation of sabf (the
+!     symmetry adapted basis functions).
+!
       iatom=0
       mdc=0
       kk=0
-*
-*            write(6,*)'nCnttp', nCnttp
+!
+!            write(6,*)'nCnttp', nCnttp
       Do iCnttp=1,nCnttp             ! loop over unique basis sets
-         If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag) Go To 996
-*
-*         write(6,*)'dbsc(iCntt)%nCntr',dbsc(iCnttp)%nCntr
+         If (.not. (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag)) then
+!
+!         write(6,*)'dbsc(iCntt)%nCntr',dbsc(iCnttp)%nCntr
         Do iCntr=1,dbsc(iCnttp)%nCntr! loop over symmetry unique centers
           mdc=mdc+1
           nDeg=nIrrep/dc(mdc)%nStab
-*            write(6,*)'nDeg', nDeg
+!            write(6,*)'nDeg', nDeg
           Do iDeg=1,nDeg             ! loop over centers
             iAtom=iAtom+1
-*
+!
             If (dbsc(iCnttp)%nVal > 6) Then
                Write (6,*) 'Desym: too high angular momentum!'
                write (6,*) 'iCnttp and dbsc(iCnttp)%nVal= '
      &                 ,iCnttp, dbsc(iCnttp)%nVal
                Call Abend()
             End If
-*
+!
             Do l=0,dbsc(iCnttp)%nVal-1
               ishell=dbsc(iCnttp)%iVal+l
               nBasisi=Shells(iShell)%nBasis
-*              write(6,*) 'nBasisi', Shells(iShell)%nBasis
+!              write(6,*) 'nBasisi', Shells(iShell)%nBasis
               If (nBasisi > nNumber) Then
                  Write (6,*) 'Desym: too many contracted functions!'
                  Write (6,*) 'nBasisi=',Shells(iShell)%nBasis
                  Call Abend()
               End If
-*
-*             Iterate over each contracted GTO
-*
-CC              Do icontr=1,nBasisi
-*
-*
-*
+!
+!             Iterate over each contracted GTO
+!
+!C              Do icontr=1,nBasisi
+!
+!
+!
                 If (l == 0) Then
                   Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'01s     '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
-*                   write(6,*)'kk, gtolabel(kk), iAtom',
-*     &                kk,gtolabel(kk),iAtom
+!                   write(6,*)'kk, gtolabel(kk), iAtom',
+!     &                kk,gtolabel(kk),iAtom
                   End do
                 End If
                 If (l == 1) Then
@@ -237,24 +237,24 @@ CC              Do icontr=1,nBasisi
                    gtolabel(kk)=AtomLabel(iAtom)//'02px    '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
-*                   write(6,*)'kk, gtolabel(kk), iAtom',
-*     &                kk,gtolabel(kk),iAtom
+!                   write(6,*)'kk, gtolabel(kk), iAtom',
+!     &                kk,gtolabel(kk),iAtom
                   End do
                   Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'02py    '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
-*                   write(6,*)'kk, gtolabel(kk), iAtom',
-*     &                kk,gtolabel(kk),iAtom
+!                   write(6,*)'kk, gtolabel(kk), iAtom',
+!     &                kk,gtolabel(kk),iAtom
                   End do
                   Do icontr=1,nBasisi
                    kk=kk+1
                    gtolabel(kk)=AtomLabel(iAtom)//'02pz    '//
      &                          number(icontr)
                    iWork(ipCent3+kk-1)=iAtom
-*                   write(6,*)'kk, gtolabel(kk), iAtom',
-*     &                kk,gtolabel(kk),iAtom
+!                   write(6,*)'kk, gtolabel(kk), iAtom',
+!     &                kk,gtolabel(kk),iAtom
                   End do
                 End If
                 If ((l == 2).and.(.not.y_cart)) Then
@@ -460,18 +460,19 @@ CC              Do icontr=1,nBasisi
             End Do
           End Do
         End Do
- 996    Continue
+        end if
       End Do
       kk_Max=kk
       If (nB > kk_max) Then
          Write (6,*) 'nB > kk_max'
          Write (6,*) 'nB,kk_Max=',nB,kk_Max
-         Go To 999
+         call ClsSew()
+         return
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
       nTot=0
       nTot2=0
       Do iS=0,nIrrep-1
@@ -508,10 +509,10 @@ CC              Do icontr=1,nBasisi
          mAdEor_ab=ip_Dummy
          mAdCMO_ab=ip_Dummy
       End If
-*
-*
-*---- Read HF CMOs from file
-*
+!
+!
+!---- Read HF CMOs from file
+!
       Lu_=75
       FilesOrb=EB_FileOrb
       If (len_trim(FilesOrb) == 0) FilesOrb='INPORB'
@@ -530,38 +531,38 @@ CC              Do icontr=1,nBasisi
           return
         end if
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Get the coeff. of sym adapted basis functions (ipC2)
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Get the coeff. of sym adapted basis functions (ipC2)
+!
       Call Dens_IF_SCF(Work(ipC2),Work(mAdCMO),'F')
       Call GetMem('CMO','Free','Real',mAdCMO,nTot2)
       If (iUHF == 1) Then
          Call Dens_IF_SCF(Work(ipC2_ab),Work(mAdCMO_ab),'F')
          Call GetMem('CMO','Free','Real',mAdCMO_ab,nTot2)
       End If
-*        write(6,*)'write work(ipC2) in .out'
-*        write(6,*) (Work(k), k=ipC2,ipC2+nTot2-1)
+!        write(6,*)'write work(ipC2) in .out'
+!        write(6,*) (Work(k), k=ipC2,ipC2+nTot2-1)
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      Back 'transformation' of the symmetry adapted basis functions.
-*      Probably somewhat clumsy, but it seems to work.If someone
-*      knows a more elegant way to do it, please improve this part!
-*
-*      PART 1: Obtain symmetry information (soout), construct a label
-*              for each sabf, which will be used in part 2 to find the
-*              corresponding GTO in the MOLDEN list by comparing with
-*              gtolabel
-*
-*      nB       --- Total number of contracted basis functions
-*      ipcent2  --- degeneracy of a basis function
-*      ipCent   --- centres over which the basis function is
-*                   delocalized
-*      ipPhase  --- phase of the AO in the linear combination
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!      Back 'transformation' of the symmetry adapted basis functions.
+!      Probably somewhat clumsy, but it seems to work.If someone
+!      knows a more elegant way to do it, please improve this part!
+!
+!      PART 1: Obtain symmetry information (soout), construct a label
+!              for each sabf, which will be used in part 2 to find the
+!              corresponding GTO in the MOLDEN list by comparing with
+!              gtolabel
+!
+!      nB       --- Total number of contracted basis functions
+!      ipcent2  --- degeneracy of a basis function
+!      ipCent   --- centres over which the basis function is
+!                   delocalized
+!      ipPhase  --- phase of the AO in the linear combination
+!
       Call mma_allocate(Label,MaxBfn+MaxBfn_Aux,label='Label')
       Call icopy(8*nB,[0],0,iWork(ipPhase),1)
       Call icopy(8*nB,[0],0,iWork(ipCent),1)
@@ -575,25 +576,25 @@ CC              Do icontr=1,nBasisi
           ipc=ipc+1
         End Do
       End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-* Part 2: -Take a MOLCAS symmetry functions (loop i)
-*         -Find the corresponding label in the MOLDEN list (loop j)
-*         -Copy the coeff of the sabf in the MOLDEN MO (vector), multiply
-*          by the appropriate factor (ipPhase),and divide by the number of
-*          centres over which the sabf is delocalized (ipCent3).
-*         -The vectors are copied by rows!
-*
-*     loop over MOLCAS symmetry functions
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
+! Part 2: -Take a MOLCAS symmetry functions (loop i)
+!         -Find the corresponding label in the MOLDEN list (loop j)
+!         -Copy the coeff of the sabf in the MOLDEN MO (vector), multiply
+!          by the appropriate factor (ipPhase),and divide by the number of
+!          centres over which the sabf is delocalized (ipCent3).
+!         -The vectors are copied by rows!
+!
+!     loop over MOLCAS symmetry functions
       i=0
       ik=0
       Do iIrrep=0,nIrrep-1
-*
+!
         Do iB=1,nBas(iIrrep)
           i=i+1
-*
+!
           If (iB == 1) Then
             ik=1
           else
@@ -603,16 +604,16 @@ CC              Do icontr=1,nBasisi
               ik=1
             End If
           End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
           Write (MO_Label(i),'(I5,A3)') iB,lirrep(iIrrep)
-*
+!
           Do j=1,nB
-*
-*
-CC          write(6,*)'j, gtolabel(j), i, label(i)//number(ik), ik',
-CC     &        j,'   ', gtolabel(j),i, label(i)//number(ik), ik
+!
+!
+!C          write(6,*)'j, gtolabel(j), i, label(i)//number(ik), ik',
+!C     &        j,'   ', gtolabel(j),i, label(i)//number(ik), ik
             If (gtolabel(j) == label(i)//number(ik)) Then
               Do k=1,8
                 ipc=(i-1)*8+k-1
@@ -648,18 +649,18 @@ CC     &        j,'   ', gtolabel(j),i, label(i)//number(ik), ik
         End Do
       End Do
       Call mma_deallocate(Label)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      Dump vector in the molden.input file
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!      Dump vector in the molden.input file
+!
       ii=0
       Do i=0,nB-1
         If (Work(mAdEOr+i).le.EorbThr) Then
-C          Write (MF,*) 'Sym= ',MO_Label(i+1)
-C          Write (MF,103) Work(mAdEOr+i)
-C          Write (MF,*) 'Spin= Alpha'
-C          Write (MF,104) Work(mAdOcc+i)
+!          Write (MF,*) 'Sym= ',MO_Label(i+1)
+!          Write (MF,103) Work(mAdEOr+i)
+!          Write (MF,*) 'Spin= Alpha'
+!          Write (MF,104) Work(mAdOcc+i)
           If (Work(mAdEOr+i) < 0.0D0) Then
           Check_Energy     = Check_Energy
      &                     + Work(mAdEOr+i)*DBLE(i)
@@ -667,33 +668,33 @@ C          Write (MF,104) Work(mAdOcc+i)
           Check_Occupation = Check_Occupation
      &                     +Work(mAdOcc+i)*DBLE(i)
           Do j=1,nB
-C            Write (MF,100) j,Work(ipV+ii+j-1)
+!            Write (MF,100) j,Work(ipV+ii+j-1)
             Check_CMO = Check_CMO
      &                + Work(ipV+ii+j-1)**2
           End Do
         End If
-*
+!
         If (iUHF == 1) Then
            If (Work(mAdEOr_ab+i).le.EorbThr) Then
-C             Write (MF,*) 'Sym= ',MO_Label(i+1)
-C             Write (MF,103) Work(mAdEOr_ab+i)
-C             Write (MF,*) 'Spin= Beta'
-C             Write (MF,104) Work(mAdOcc_ab+i)
+!             Write (MF,*) 'Sym= ',MO_Label(i+1)
+!             Write (MF,103) Work(mAdEOr_ab+i)
+!             Write (MF,*) 'Spin= Beta'
+!             Write (MF,104) Work(mAdOcc_ab+i)
           Check_Energy     = Check_Energy
      &                     + Work(mAdEOr_ab+i)*DBLE(i)
           Check_Occupation = Check_Occupation
      &                     +Work(mAdOcc_ab+i)*DBLE(i)
               Do j=1,nB
-C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
+!                Write (MF,100) j,Work(ipV_ab+ii+j-1)
                  Check_CMO = Check_CMO
      &                     + Work(ipV_ab+ii+j-1)**2
               End Do
            End If
         End If
-*
+!
         ii=ii+nB
       End Do
-***************************** START SORTING ****************************
+!**************************** START SORTING ****************************
 
        allocate(iOrdEor(0 : nTot - 1))
        allocate(new_CMO(0 : nTot - 1, 0 : nTot - 1))
@@ -734,16 +735,16 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
      &            new_orb_E,Work(ipAux_ab),
      &            n_kinds,VTitle,iWFtype)
        call Add_Info('desym CMO',new_CMO,999,8)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     If (iUHF < 2)
-*    & Call Add_Info('MOLDEN_CMO',       Check_CMO,       1,2)
-*     Call Add_Info('MOLDEN_Occupation',Check_Occupation,1,2)
-*     Call Add_Info('MOLDEN_Energy    ',Check_Energy    ,1,2)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     If (iUHF < 2)
+!    & Call Add_Info('MOLDEN_CMO',       Check_CMO,       1,2)
+!     Call Add_Info('MOLDEN_Occupation',Check_Occupation,1,2)
+!     Call Add_Info('MOLDEN_Energy    ',Check_Energy    ,1,2)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       iPL=iPrintLevel(-1)
       jPL=iPL
       If (Reduce_Prt().and.iPL < 3) jPL=0
@@ -752,9 +753,9 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
          Write (6,*) ' INPORB_C1 file was generated!'
          Write (6,*)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       deallocate(new_occ)
       deallocate(new_CMO)
       Call GetMem('Eor','Free','Real',mAdEor,nTot)
@@ -778,25 +779,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
       End If
       Call GetMem('CMO2','FREE','REAL',ipC2,nB**2)
       Call GetMem('VECTOR','FREE','REAL',ipV,nB**2)
-C 998  Close (MF)
- 999  Call ClsSew
-*
-C -------------FORMATS-------------
-c100  format(I4,3x,F16.8)
-c103  format('Ene= ',F10.4)
-c104  format('Occup= ',F10.5)
 
-      Return
+      call ClsSew()
 
-      contains
-
-!         pure function frequency(N) result(res)
-!             integer, intent(in) :: N(:)
-!             integer, allocatable :: res(:)
-!             integer :: i
-!             allocate(res(maxval(N)), source=0)
-!             do i = 1, size(N)
-!                 res(N(i)) = res(N(i)) + 1
-!             end do
-!         end function
-      End
+      end subroutine
