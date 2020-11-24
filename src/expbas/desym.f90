@@ -640,36 +640,6 @@ contains
             End Do
         End Do
         Call mma_deallocate(Label)
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
-        !      Dump vector in the molden.input file
-        !
-        ii = 0
-        Do i = 0, nB - 1
-        If (Work(mAdEOr + i) <= EorbThr) Then
-            If (Work(mAdEOr + i) < 0.0D0) Then
-                Check_Energy = Check_Energy + Work(mAdEOr + i) * real(i, wp)
-            End If
-            Check_Occupation = Check_Occupation + Work(mAdOcc + i) * real(i, wp)
-            Do j = 1, nB
-                Check_CMO = Check_CMO + Work(ipV + ii + j - 1)**2
-            End Do
-        End If
-        !
-        If (iUHF == 1) Then
-            If (Work(mAdEOr_ab + i) <= EorbThr) Then
-                Check_Energy = Check_Energy + Work(mAdEOr_ab + i) * real(i, wp)
-                Check_Occupation = Check_Occupation &
-                                    + Work(mAdOcc_ab + i) * real(i, wp)
-                Do j = 1, nB
-                    Check_CMO = Check_CMO + Work(ipV_ab + ii + j - 1)**2
-                End Do
-            End If
-        End If
-        !
-        ii = ii + nB
-        End Do
         !**************************** START SORTING ****************************
 
         allocate (iOrdEor(0:nTot - 1))
