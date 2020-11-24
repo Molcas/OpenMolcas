@@ -45,7 +45,7 @@
       use Symmetry_Info, only: nIrrep, lIrrep
       use stdalloc, only: mma_allocate, mma_deallocate
       use sorting, only: swap, sort, argsort
-      use sorting_funcs, only: leq_r
+      use sorting_funcs, only: leq_r, geq_r
       implicit none
 #include "Molcas.fh"
 #include "WrkSpc.fh"
@@ -76,8 +76,8 @@
       integer :: mAdIndt, mAdOcc, mAdEor
       integer :: mAdCMO, ipAux_ab, mAdIndt_ab, mAdOcc_ab, mAdEor_ab,
      &  mAdCMO_ab, mpunt, kindt
-      real(wp), allocatable :: ipAux(:), ipOccC1(:)
-      integer :: ipOrdC1, ipOrdC2
+      real(wp), allocatable :: new_orb_E(:), ipOccC1(:)
+      real(wp), allocatable :: new_CMO(:, :)
       integer :: Lu_, iErr, notSymm
       integer :: iatom, iDeg, ishell
       integer :: iIrrep, iWfType, iWF
@@ -469,8 +469,8 @@ CC              Do icontr=1,nBasisi
          nTot=nTot+nBas(iS)
          nTot2=nTot2+nBas(iS)**2
       End Do
-      allocate(ipAux(0 : nTot - 1))
-      ipAux(:) = 0._wp
+      allocate(new_orb_E(0 : nTot - 1))
+      new_orb_E(:) = 0._wp
       Call GetMem('INDT','Allo','Inte',mAdIndt,ntot)
       Call GetMem('IndType','Allo','Inte',mInd,56)
       Call GetMem('Occ','Allo','Real',mAdOcc,nTot )
@@ -692,53 +692,16 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 ***************************** START SORTING ****************************
 
 *********************  energy sorting + sort memory ********************
-        ipAux(:) = Work(mAdEor : mAdEor + nTot - 1)
         allocate(iOrdEor(0 : nTot - 1))
-        iOrdEor(:) = [(i, i = 0, nTot - 1)]
+        iOrdEor(:) = argsort(Work(mAdEor : mAdEor + nTot - 1) , leq_r)-1
 
-        block
-            integer :: test_idx(lbound(iOrdEor, 1) : ubound(iOrdEor, 1))
-            real(wp) ::
-     &          energy(lbound(iOrdEor, 1) : ubound(iOrdEor, 1))
-            integer :: i, n
+        new_orb_E(:) = Work(mAdEor + iOrdEor)
 
-            energy(:) = ipAux(:)
-            test_idx = argsort(energy, leq_r) - 1
-
-!             do i = 0, nTot - 2
-!               do k = i + 1, nTot - 1
-!                 if (ipAux(i) > ipAux(k)) then
-!                   call swap(ipAux(i), ipAux(k))
-!                   call swap(iOrdEor(i), iOrdEor(k))
-!                 end if
-!               end do
-!             end do
-
-            do n = nTot, 2, -1
-                do i = 0, n - 2
-                    if (ipAux(i) > ipAux(i + 1)) then
-                      call swap(ipAux(i), ipAux(i + 1))
-                      call swap(iOrdEor(i), iOrdEor(i + 1))
-                    end if
-                end do
-            end do
-
-            write(*, *) lbound(test_idx, 1), ubound(test_idx, 1)
-            write(*, *) lbound(iOrdEor, 1), ubound(iOrdEor, 1)
-            do i = lbound(test_idx, 1), ubound(test_idx, 1)
-!                 if (test_idx(i) /= iOrdEor(i)) then
-                    write(*, *) i, test_idx(i), iOrdEor(i)
-                    write(*, *) energy(test_idx(i)), ipAux(i)
-                    write(*, *)
-!                 end if
-            end do
-        end block
 ***************************** MOs sorting ******************************
-        Call GetMem('OrdC1','ALLO','REAL',ipOrdC1,nTot**2)
-        Call FZero(Work(ipOrdC1),nTot**2)
+        allocate(new_CMO(0 : nTot - 1, 0 : nTot - 1))
         do i=0,nTot-1
           do k=0,nTot-1
-            work(ipOrdC1+nTot*i+k)=work(ipV+nTot*iOrdEor(i)+k)
+            new_CMO(k, i) = work(ipV+nTot*iOrdEor(i)+k)
           end do
         end do
 ************************* Occupation sorting ***************************
@@ -746,51 +709,39 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
         ipOccC1(:) = Work(mAdOcc + iOrdEor(:))
 *************************   index sorting   ****************************
 
-        mpunt = sum(nBas(0 : nIrrep - 1))
         iA(1 : 7) = 0
-        kindt=mInd
-        mpunt=mAdIndt
-        do iIrrep=0,nIrrep-1
-           Do i=1,7
-              do j=0,nBas(iIrrep)-1
-                if(iWork(mpunt+j) == i) iA(i)=iA(i)+1
+        kindt = mInd
+        mpunt = mAdIndt
+        do iIrrep = 0, nIrrep-1
+           do i = 1, 7
+              do j = 0, nBas(iIrrep) - 1
+                if(iWork(mpunt + j) == i) iA(i) = iA(i) + 1
               end do
-           End Do
-           mpunt=mpunt+nBas(iIrrep)
+           end do
+           mpunt = mpunt + nBas(iIrrep)
         end do
         iWork(kindt : kindt + 7 - 1) = iA(1 : 7)
+
+        write(*, *) iWork(kindt : kindt + 7 - 1)
 ****************************************************************************
 
-*    Energy after first sorting work(ipAux)
+*    Energy after first sorting work(new_orb_E)
 *    MO after sorting           Work(ipOrdC1)
 *    Occupation after sorting   Work(ipOccC1)
 
 ******* Natural Active Orbitals (energy = Zero) are sorted by Occ Numb ***********
-        iOrdEor = [(i, i = 0, nTot - 1)]
+        iOrdEor(:) = argsort(ipOccC1, geq_r) - 1
 
-        do i=0,nTot-2
-            do k=i+1,nTot-1
-              if(ipOccC1(k) > ipOccC1(i)) then
-                call swap(ipOccC1(k), ipOccC1(i))
-                call swap(iOrdEor(i), iOrdEor(k))
-              end if
-            end do
-        end do
+        ipOccC1(:) = ipOccC1(iOrdEor)
 ***************************** MOs sorting ******************************
-        Call GetMem('OrdC2','ALLO','REAL',ipOrdC2,nTot**2)
-        Call FZero(Work(ipOrdC2),nTot**2)
-        do i=0,nTot-1
-            do k=0,nTot-1
-              work(ipOrdC2+nTot*i+k)=work(ipOrdC1+nTot*iOrdEor(i)+k)
-            end do
-        end do
+        new_CMO(:, :) = new_CMO(:, iOrdEor)
 ************************* Orbital Energy sorting ***************************
 * Energy sorting here it is not needed as the sorting is taking place only at
 * Active orbital level for which energy are zeroes (not defined).
 *        Call GetMem('EorC2','ALLO','REAL',ipEorC2,nTot)
 *        Call FZero(Work(ipEorC2),nTot)
 *        do i=0,nTot-1
-*          Work(ipEorC2+i) = Work(ipAux+iOrdEor(i))
+*          Work(ipEorC2+i) = Work(new_orb_E+iOrdEor(i))
 *        end do
 ******************************  print output **************************
        notSymm=1
@@ -798,11 +749,11 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
        SymOrbName='DESORB'
        VTitle = 'Basis set desymmetrized orbital file DESORB'
        Call WrVec_(SymOrbName,iWF,'COEI',iUHF,notSymm,[nTot],[nTot],
-     &            Work(ipOrdC2),Work(ipV_ab),
+     &            new_CMO,Work(ipV_ab),
      &            iPOccC1,Work(mAdOcc_ab),
-     &            ipAux,Work(ipAux_ab),
+     &            new_orb_E,Work(ipAux_ab),
      &            iWork(mInd),VTitle,iWFtype)
-       call Add_Info('desym CMO',Work(ipOrdC2),999,8)
+       call Add_Info('desym CMO',new_CMO,999,8)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -825,11 +776,10 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 ************************************************************************
 *                                                                      *
       deallocate(ipOccC1)
-      Call GetMem('OrdC1','FREE','REAL',ipOrdC1,nTot**2)
-      Call GetMem('OrdC2','FREE','REAL',ipOrdC2,nTot**2)
+      deallocate(new_CMO)
       Call GetMem('Eor','Free','Real',mAdEor,nTot)
       Call GetMem('Occ','Free','Real',mAdOcc,nTot)
-      deallocate(ipAux)
+      deallocate(new_orb_E)
       Call GetMem('INDT','Free','Inte',mAdIndt,nTot)
       Call GetMem('IndType','Free','Inte',mInd,56)
       If (iUHF == 1) Then
@@ -863,6 +813,6 @@ c104  format('Occup= ',F10.5)
 
         logical pure function orb_energy_geq(i, j)
           integer, intent(in) :: i, j
-          orb_energy_geq = ipAux(i) >= ipAux(j)
+          orb_energy_geq = new_orb_E(i) >= new_orb_E(j)
         end function
       End
