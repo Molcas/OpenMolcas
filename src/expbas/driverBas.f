@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine driverBas()
+      use desymmetrize_mod, only: desym
 
       implicit none
 #include "info_expbas.fh"
@@ -16,7 +17,7 @@
       COMMON /iret/ ireturn
       call Readinp_expbas()
       if(DoExpbas) Call expbas(ireturn)
-      if(DoDesy)   Call desym(0)
+      if(DoDesy) Call desym(0)
 
       Return
       end
