@@ -700,34 +700,37 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
             integer :: test_idx(lbound(iOrdEor, 1) : ubound(iOrdEor, 1))
             real(wp) ::
      &          energy(lbound(iOrdEor, 1) : ubound(iOrdEor, 1))
-            integer :: i
+            integer :: i, n
 
             energy(:) = ipAux(:)
             test_idx = argsort(energy, leq_r) - 1
 
-            do i = 0, nTot - 2
-              do k = i + 1, nTot - 1
-                if (ipAux(i) > ipAux(k)) then
-                  call swap(ipAux(i), ipAux(k))
-                  call swap(iOrdEor(i), iOrdEor(k))
-                end if
-              end do
-            end do
-
-!             do i = lbound(test_idx, 1), ubound(test_idx, 1) - 1
-!               if (ipAux(iOrdEor(i)) > ipAux(iOrdEor(i + 1))) then
-!                   write(*, *) 'A'
-!               end if
+!             do i = 0, nTot - 2
+!               do k = i + 1, nTot - 1
+!                 if (ipAux(i) > ipAux(k)) then
+!                   call swap(ipAux(i), ipAux(k))
+!                   call swap(iOrdEor(i), iOrdEor(k))
+!                 end if
+!               end do
 !             end do
+
+            do n = nTot, 2, -1
+                do i = 0, n - 2
+                    if (ipAux(i) > ipAux(i + 1)) then
+                      call swap(ipAux(i), ipAux(i + 1))
+                      call swap(iOrdEor(i), iOrdEor(i + 1))
+                    end if
+                end do
+            end do
 
             write(*, *) lbound(test_idx, 1), ubound(test_idx, 1)
             write(*, *) lbound(iOrdEor, 1), ubound(iOrdEor, 1)
             do i = lbound(test_idx, 1), ubound(test_idx, 1)
-                if (test_idx(i) /= iOrdEor(i)) then
+!                 if (test_idx(i) /= iOrdEor(i)) then
                     write(*, *) i, test_idx(i), iOrdEor(i)
                     write(*, *) energy(test_idx(i)), ipAux(i)
                     write(*, *)
-                end if
+!                 end if
             end do
         end block
 ***************************** MOs sorting ******************************
