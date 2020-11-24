@@ -14,13 +14,16 @@
      &                       lDoubleIso,Curvilinear)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
       Real*8 Grdn(nInter,nIter), Shift(nInter,nIter), UserT(64), UserP,
      &       qInt(nInter,nIter+1), DipM(3,nIter), Degen(3,nAtom)
       Logical Stop, Cubic, Smmtrc(3,nAtom), lTherm, lDoubleIso, Found,
      &        Curvilinear
       Integer nUserPT, nsRot
+      Real*8 rDum(1)
+      Real*8, Allocatable:: FEq(:), dDipM(:), KtB(:), HB(:), Hx(:),
+     &                      Degen2(:), H(:), IRInt(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -29,91 +32,89 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Allocate_Work(ipdDipM,3*(nInter+mTR))
-      Call FZero(Work(ipdDipM),3*(nInter+mTR))
+      Call mma_allocate(dDipM,3*(nInter+mTR),Label='dDipM')
+      dDipM(:)=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *-----Form the Hessian matrix via a 2-point numerical differentiation.
 *
       Stop = .False.
-      Call Allocate_Work(ipH,nInter**2)
+      Call mma_allocate(H,nInter**2,Label='H')
       If (Cubic) Then
-         Call Allocate_Work(ipFEq,nInter**3)
+         Call mma_allocate(FEq,nInter**3,Label='FEq')
       Else
-         ipFEq=ip_Dummy
+         Call mma_allocate(FEq,1,Label='FEq')
       End If
-      Call NmHess(Shift,nInter,Grdn,nIter,Work(ipH),Delta,qInt,
-     &            Work(ipFEq),Cubic,DipM,Work(ipdDipM))
+      Call NmHess(Shift,nInter,Grdn,nIter,H,Delta,qInt,FEq,Cubic,DipM,
+     &            dDipM)
       Write (6,*)
       Write (6,*) ' Numerical differentiation is finished!'
       If (iPrint.GE.98) Call RecPrt(' Numerical force constant matrix',
-     &     ' ',Work(ipH),nInter,nInter)
+     &     ' ',H,nInter,nInter)
 *
-      Call Add_Info('Numerical Hessian',Work(ipH),nInter**2,2)
-      Call Put_dArray('Hss_Q',Work(ipH),nInter**2)
-      Call Put_dArray('Hss_upd',Work(ip_Dummy),0)
+      Call Add_Info('Numerical Hessian',H,nInter**2,2)
+      Call Put_dArray('Hss_Q',H,nInter**2)
+      Call Put_dArray('Hss_upd',rDum,0)
 *
 *-----That is in internal coordinates, now transform it to Cartesians
 *     d^2E/dx^2 = dQ/dx d^2E/dQ^2 dQ/dx + d^2Q/dx^2 dE/dQ
 *
-      Call Qpg_dArray('KtB',Found,nKB)
+      Call Qpg_dArray('KtB',Found,nKtB)
       If (.Not.Found) Call Abend()
-      nDim=nKB/nInter
-      Call Allocate_Work(ipKB,nDim*nInter)
-      Call Allocate_Work(ipHB,nDim*nInter)
-      Call Allocate_Work(ipHx,nDim**2)
-      Call Allocate_Work(ipDegen,nDim)
-      Call Get_dArray('KtB',Work(ipKB),nKB)
-      Call DGeMM_('N','T',nInter,nDim,nInter,One,Work(ipH),nInter,
-     &                    Work(ipKB),nDim,Zero,Work(ipHB),nInter)
-      Call DGeMM_('T','T',nDim,nDim,nInter,One,Work(ipHB),nInter,
-     &                    Work(ipKB),nDim,Zero,Work(ipHx),nDim)
+      nDim=nKtB/nInter
+      Call mma_allocate(KtB,nDim*nInter,Label='KtB')
+      Call mma_allocate(HB,nDim*nInter,Label='HB')
+      Call mma_allocate(Hx,nDim**2,Label='Hx')
+      Call mma_allocate(Degen2,nDim,Label='Degen2')
+      Call Get_dArray('KtB',KtB,nKtB)
+      Call DGeMM_('N','T',nInter,nDim,nInter,One,H,nInter,
+     &                    KtB,nDim,Zero,HB,nInter)
+      Call DGeMM_('T','T',nDim,nDim,nInter,One,HB,nInter,
+     &                    KtB,nDim,Zero,Hx,nDim)
       i=0
       Do ii=1,nAtom
          Do ij=1,3
             If (Smmtrc(ij,ii)) Then
-               Work(ipDegen+i) = Degen(ij,ii)
                i=i+1
+               Degen2(i) = Degen(ij,ii)
             End If
          End Do
       End Do
 *
       If (Curvilinear) Then
 *        Compute and add the d^2Q/dx^2 dE/dQ part
-         Call dBuu(Work(ipDegen),nInter,nDim,Grdn(1,1),Work(ipHx),
-     &             .True.)
+         Call dBuu(Degen2,nInter,nDim,Grdn(1,1),Hx,.True.)
       End If
 *
-      Call Put_dArray('Hss_X',Work(ipHx),nDim**2)
-      Call Free_Work(ipKB)
-      Call Free_Work(ipHB)
-      Call Free_Work(ipHx)
-      Call Free_Work(ipDegen)
-      Call Free_Work(ipH)
+      Call Put_dArray('Hss_X',Hx,nDim**2)
+      Call mma_deallocate(KtB)
+      Call mma_deallocate(HB)
+      Call mma_deallocate(Hx)
+      Call mma_deallocate(Degen2)
+      Call mma_deallocate(H)
 *
       If (Cubic) Then
          Call RecPrt(' Numerical cubic force constant matrix',' ',
-     &               Work(ipFEq),nInter**2,nInter)
-         Call Add_Info('Numerical anharm. cons.',Work(ipFEq),
+     &               FEq,nInter**2,nInter)
+         Call Add_Info('Numerical anharm. cons.',FEq,
      &                 nInter**3,2)
-         Call Free_Work(ipFEq)
       End If
+      Call mma_deallocate(FEq)
 *
 *---- Do an harmonic frequency analysis
 *
-      Call Allocate_Work(ipIRInt,nInter+mTR)
-      Call HrmFrq(nAtom,nInter,iNeg,
-     &            Work(ipdDipM),mTR,Smmtrc,DipM,Work(ipIRInt),
+      Call mma_allocate(IRInt,nInter+mTR,Label='IRInt')
+      Call HrmFrq(nAtom,nInter,iNeg,dDipM,mTR,Smmtrc,DipM,IRInt,
      &            UserT, UserP, nUserPT, nsRot, lTherm, lDoubleIso)
-      Call Add_Info('Numerical IR Intensities',Work(ipIRInt),
+      Call Add_Info('Numerical IR Intensities',IRInt,
      &              nInter,2)
-      Call Free_Work(ipIRInt)
+      Call mma_deallocate(IRInt)
       Write (6,*)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Free_Work(ipdDipM)
+      Call mma_deallocate(dDipM)
 *                                                                      *
 ************************************************************************
 *                                                                      *

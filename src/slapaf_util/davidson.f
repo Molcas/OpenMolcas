@@ -39,7 +39,6 @@
       real*8 ddot_
       INTEGER mk,old_mk,mink,maxk,ig,info,nTmp,iter,maxiter
       INTEGER i,j,ii,jj
-      INTEGER ipTmp
       INTEGER ipDiag,ipTVec,ipTAV,ipTRes
       LOGICAL Last,Augmented,Reduced
       external ddot_
@@ -165,24 +164,24 @@
 *      The rest is set to zero, just in case
 *
       nTmp=0
-      CALL Allocate_Work(ipTmp,n)
+      CALL mma_allocate(Tmp,n,Label='Tmp')
       DO i=1,k
-        call dcopy_(n,Vec(1,i),1,Work(ipTmp),1)
-        CALL Add_Vector(n,nTmp,Sub,Work(ipTmp),Thr3)
+        call dcopy_(n,Vec(1,i),1,Tmp,1)
+        CALL Add_Vector(n,nTmp,Sub,Tmp,Thr3)
       END DO
 *
       ii=0
-      CALL DZero(Work(ipTmp),n)
+      Tmp(:)=Zero
       DO WHILE ((nTmp .LT. mk) .AND. (ii .LT. n))
         ii=ii+1
         jj=Index(ii)
-        Work(ipTmp+jj-1)=One
-        CALL Add_Vector(n,nTmp,Sub,Work(ipTmp),Thr3)
-        Work(ipTmp+jj-1)=Zero
+        Tmp(jj)=One
+        CALL Add_Vector(n,nTmp,Sub,Tmp,Thr3)
+        Tmp(jj)=Zero
       END DO
 *     ig will be a global counter to loop across all n base vectors
       ig=ii
-      CALL Free_Work(ipTmp)
+      CALL mma_deallocate(Tmp)
       CALL DZero(Sub(1+mk*n),(maxk-mk)*n)
 
 *---- Iterative procedure starts here
@@ -214,21 +213,21 @@
 *        Ab = A * Sub
 *        Only the new vectors since the last iterations need to be calculated
 *
-        CALL Allocate_Work(ipTmp,n)
+        CALL mma_allocate(Tmp,n,Label='Tmp')
         DO i=1,n
 *         Reconstruct a row (or column) of the matrix A
           DO j=1,i
-            Work(ipTmp+j-1)=A(i*(i-1)/2+j)
+            Tmp(j)=A(i*(i-1)/2+j)
           END DO
           DO j=i+1,n
-            Work(ipTmp+j-1)=A(j*(j-1)/2+i)
+            Tmp(j)=A(j*(j-1)/2+i)
           END DO
 *         Compute the i-th element of each new column
           DO j=old_mk,mk-1
-            Ab(j*n+i)=DDot_(n,Work(ipTmp),1,Sub(1+j*n),1)
+            Ab(j*n+i)=DDot_(n,Tmp,1,Sub(1+j*n),1)
           END DO
         END DO
-        CALL Free_Work(ipTmp)
+        CALL mma_deallocate(Tmp)
 
 *----   Compute the matrix to diagonalize (symmetric)
 *        Proj = Sub^t * Ab
@@ -260,10 +259,9 @@
           call dcopy_(maxk*maxk,Proj,1,EVec,1)
           call dsyev_('V','L',mk,EVec,maxk,EVal,rDum,-1,info)
           nTmp=INT(rDum(1))
-          CALL Allocate_Work(ipTmp,nTmp)
-          call dsyev_('V','L',mk,EVec,maxk,EVal,
-     &                          Work(ipTmp),nTmp,info)
-          CALL Free_Work(ipTmp)
+          CALL mma_allocate(Tmp,nTmp,Label='Tmp')
+          call dsyev_('V','L',mk,EVec,maxk,EVal,Tmp,nTmp,info)
+          CALL mma_deallocate(Tmp)
           CALL JacOrd2(EVal,EVec,mk,maxk)
           call dcopy_(k,EVal,1,Eig,1)
 #ifdef _DEBUGPRINT_
@@ -332,12 +330,12 @@
 #ifdef _DEBUGPRINT_
           WRITE(6,'(2X,A,1X,I5)') 'Reducing search space to',mink
 #endif
-          CALL Allocate_Work(ipTmp,mink*n)
+          CALL mma_allocate(Tmp,mink*n,Label='Tmp')
           CALL DGeMM_('N','N',n,mink,mk,One,Sub,n,
      &                                      EVec,maxk,
-     &                                  Zero,Work(ipTmp),n)
-          call dcopy_(mink*n,Work(ipTmp),1,Sub,1)
-          CALL Free_Work(ipTmp)
+     &                                  Zero,Tmp,n)
+          call dcopy_(mink*n,Tmp,1,Sub,1)
+          CALL mma_deallocate(Tmp)
 
 *----     To make sure Sub' is orthonormal, add the vectors one by one
 *
@@ -376,7 +374,7 @@
 *        (different possible variants)
 *
         ELSE
-          CALL Allocate_Work(ipTmp,n)
+          CALL mma_allocate(Tmp,n,Label='Tmp')
           Conv=Zero
           jj=0
           DO i=0,k-1
@@ -404,7 +402,7 @@
             END DO
 *           scale
             DO j=0,n-1
-              Work(ipTmp+j)=Work(ipTRes+j)*Work(ipDiag+j)
+              Tmp(1+j)=Work(ipTRes+j)*Work(ipDiag+j)
             END DO
 #elif DAV_METH == DAV_IIGD
 *           Diagonal matrix to scale the vectors: 1/(A(j,j)-Val(i))
@@ -414,18 +412,18 @@
             END DO
 *           scale
             DO j=0,n-1
-              Work(ipTmp+j)=Work(ipTRes+j)*Work(ipDiag+j)
+              Tmp(1+j)=Work(ipTRes+j)*Work(ipDiag+j)
             END DO
             Alpha=Zero
             DO j=0,n-1
               Alpha=Alpha+Work(ipDiag+j)*Work(ipTVec+j)**2
             END DO
-            Alpha=DDot_(n,Work(ipTVec),1,Work(ipTmp),1)/Alpha
+            Alpha=DDot_(n,Work(ipTVec),1,Tmp,1)/Alpha
 *           subtract
             DO j=0,n-1
               Work(ipTVec+j)=Work(ipTVec+j)*Work(ipDiag+j)
             END DO
-            call daxpy_(n,-Alpha,Work(ipTVec),1,Work(ipTmp),1)
+            call daxpy_(n,-Alpha,Work(ipTVec),1,Tmp,1)
 #elif DAV_METH == DAV_GJD
 *   DO NOT USE THIS VARIANT!
 * This is not practical as it stands, the equation should be
@@ -451,7 +449,7 @@
                iDum(1)=0
 *              solve the equation
                CALL CG_Solver(n,n*n,Work(ipP1),iDum,Work(ipTRes),
-     &                        Work(ipTmp),info,5)
+     &                        Tmp,info,5)
             End Block
 #ifdef _DEBUGPRINT_
             WRITE(6,*) 'CG iterations',info
@@ -460,7 +458,7 @@
 #endif
             IF (mk+jj .LE. n-1) THEN
               jj=mk+jj
-              CALL Add_Vector(n,jj,Sub,Work(ipTmp),Thr3)
+              CALL Add_Vector(n,jj,Sub,Tmp,Thr3)
               jj=jj-mk
             END IF
           END DO
@@ -483,16 +481,16 @@
               WRITE(6,'(A)') 'Process stagnated'
 #endif
               IF (mk .LT. maxk) THEN
-                CALL DZero(Work(ipTmp),n)
+                CALL DZero(Tmp,n)
                 i=0
                 DO WHILE ((jj .LT. 1) .AND. (i .LT. n))
                   i=i+1
                   ig=MOD(ig,n)+1
                   ii=Index(ig)
-                  Work(ipTmp+ii-1)=One
+                  Tmp(ii)=One
                   jj=mk+jj
-                  CALL Add_Vector(n,jj,Sub,Work(ipTmp),Thr3)
-                  Work(ipTmp+ii-1)=Zero
+                  CALL Add_Vector(n,jj,Sub,Tmp,Thr3)
+                  Tmp(ii)=Zero
                   jj=jj-mk
                 END DO
                 mk=MIN(mk+jj,n)
@@ -506,7 +504,7 @@
               Augmented=.TRUE.
             END IF
           END IF
-          CALL Free_Work(ipTmp)
+          CALL mma_deallocate(Tmp)
           Reduced=.FALSE.
         END IF
       END DO
