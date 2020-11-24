@@ -715,18 +715,27 @@ contains
 
         contains
 
-            !> Sort non-strict first by occupation descendingly
-            !>      and second by energy ascendingly.
+            !> @brief
+            !>  Comparison function for generic sort.
+            !>
+            !> @details
+            !>  Sort non-strict i.e. (compare(i, j) .and. compare(j, i)) can be true)
+            !>  Sort first by orbital kind ascendingly (frozen, inactive, RAS1, ...),
+            !>      second by occupation number descendingly (2.0, 2.0, 1.x, 0., ...),
+            !>      third by energy ascendingly (-3., -2., -2., 0., 1., ...).
+            !>  Note, that `sort` uses a stable sorting algorithm.
             pure function compare(i, j) result(res)
                 integer, intent(in) :: i, j
                 logical :: res
 
-                if (occ(i) /= occ(j)) then
+                if (kind_per_orb(i) /= kind_per_orb(j)) then
+                    res = kind_per_orb(i) < kind_per_orb(j)
+                else if (occ(i) /= occ(j)) then
                     res = occ(i) > occ(j)
                 else if (energy(i) /= energy(j)) then
                     res = energy(i) < energy(j)
                 else
-                    ! All values are equal and our comparison has
+                    ! All relevant values are equal and our comparison has
                     ! to be non-strict.
                     res = .true.
                 end if
