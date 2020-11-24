@@ -12,12 +12,13 @@
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "warnings.fh"
       Real*8 B(M,*),Degen(M),dSS(*),DFC(*)
       Logical Curvilinear
-      Character*1 Mode
-      Dimension Temp(1)
+      Character(LEN=1) Mode
+      Real*8 Temp(1)
+      Real*8, Allocatable:: A(:), Btmp(:), Work(:)
 *define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
@@ -27,38 +28,38 @@
       LDA=M
       LDB=Max(1,M,N)
       If (Mode.eq.'T') Then
-         Call Allocate_Work(ipA,M*M)
-         Call FZero(Work(ipA),M*M)
-         call dcopy_(M*N,B,1,Work(ipA),1)
+         Call mma_allocate(A,M*M,Label='A')
+         A(:)=Zero
+         call dcopy_(M*N,B,1,A,1)
          If (.NOT.Curvilinear) Then
-            Do i = 0, M-1
-               Call DScal_(M,Sqrt(Degen(i+1)),Work(ipA+i),M)
+            Do i = 1, M
+               Call DScal_(M,Sqrt(Degen(i)),A(i),M)
             End Do
          End If
 #ifdef _DEBUGPRINT_
-         Call RecPrt('A',' ',Work(ipA),M,M)
+         Call RecPrt('A',' ',A,M,M)
 #endif
       Else
-         Call Allocate_Work(ipA,M*N)
-         call dcopy_(M*N,B,1,Work(ipA),1)
+         Call mma_allocate(A,M*N,Label='A')
+         call dcopy_(M*N,B,1,A,1)
          If (.NOT.Curvilinear) Then
-            Do i = 0, M-1
-               Call DScal_(N,Sqrt(Degen(i+1)),Work(ipA+i),M)
+            Do i = 1, M
+               Call DScal_(N,Sqrt(Degen(i)),A(i),M)
             End Do
          End If
 #ifdef _DEBUGPRINT_
-         Call RecPrt('A',' ',Work(ipA),M,N)
+         Call RecPrt('A',' ',A,M,N)
 #endif
       End If
 *
-      Call Allocate_Work(ipB,LDB*NRHS)
-      Call FZero(Work(ipB),LDB*NRHS)
+      Call mma_allocate(Btmp,LDB*NRHS,Label='Btmp')
+      Btmp(:)=Zero
 *
-      jpB=ipB
+      jpB=1
       If (Mode.eq.'T') Then
          Do iRHS = 1, nRHS
             ij = (iRHS-1)*N + 1
-            call dcopy_(N,dss(ij),1,Work(jpB),1)
+            call dcopy_(N,dss(ij),1,Btmp(jpB),1)
             jpB=jpB+LDB
          End Do
       Else
@@ -69,27 +70,25 @@
             If (.Not.Curvilinear) Then
                Do i = 0, M-1
                   ij = (iRHS-1)*M + i+1
-                  Work(jpB+i) = dss(ij)*Sqrt(Degen(i+1))
+                  Btmp(jpB+i) = dss(ij)*Sqrt(Degen(i+1))
                End Do
             Else
                ij = (iRHS-1)*M + 1
-               call dcopy_(M,dss(ij),1,Work(jpB),1)
+               call dcopy_(M,dss(ij),1,Btmp(jpB),1)
             End If
             jpB=jpB+LDB
          End Do
       End If
 #ifdef _DEBUGPRINT_
-      Call RecPrt('B(in)',' ',Work(ipB),LDB,NRHS)
+      Call RecPrt('B(in)',' ',Btmp,LDB,NRHS)
 #endif
 *
       LWork=-1
-      call dgels_(Mode,M,N,NRHS,Work(ipA),LDA,Work(ipB),LDB,
-     &           Temp,LWork,INFO)
+      call dgels_(Mode,M,N,NRHS,A,LDA,Btmp,LDB,Temp,LWork,INFO)
 *     Write (6,*) 'Temp,INFO=',Temp,INFO
       LWork=INT(Temp(1))
-      Call Allocate_Work(ipWork,LWork)
-      call dgels_(Mode,M,N,NRHS,Work(ipA),LDA,Work(ipB),LDB,
-     &           Work(ipWork),LWork,INFO)
+      Call mma_allocate(Work,LWork,Label='Work')
+      call dgels_(Mode,M,N,NRHS,A,LDA,Btmp,LDB,Work,LWork,INFO)
       If (INFO.gt.0) Then
          Call WarningMessage(2,'Error in Eq_Solver')
          Write (6,*)
@@ -101,31 +100,31 @@
       End If
 *
 #ifdef _DEBUGPRINT_
-      Call RecPrt('B(out)',' ',Work(ipB),LDB,NRHS)
+      Call RecPrt('B(out)',' ',Btmp,LDB,NRHS)
 #endif
-      jpB=ipB
+      jpB=1
       If (Mode.eq.'T') Then
          Do iRHS = 1, nRHS
             If (.Not.Curvilinear) Then
                Do i = 0, M-1
-                  Work(jpB+i) = Work(jpB+i)/Sqrt(Degen(i+1))
+                  Btmp(jpB+i) = Btmp(jpB+i)/Sqrt(Degen(i+1))
                End Do
             End If
             ij = (iRHS-1)*M + 1
-            call dcopy_(M,Work(jpB),1,DFC(ij),1)
+            call dcopy_(M,Btmp(jpB),1,DFC(ij),1)
             jpB=jpB+LDB
          End Do
       Else
          Do iRHS = 1, nRHS
             ij = (iRHS-1)*N + 1
-            call dcopy_(N,Work(jpB),1,DFC(ij),1)
+            call dcopy_(N,Btmp(jpB),1,DFC(ij),1)
             jpB=jpB+LDB
          End Do
       End If
 *
-      Call Free_Work(ipWork)
-      Call Free_Work(ipB)
-      Call Free_Work(ipA)
+      Call mma_deallocate(Work)
+      Call mma_deallocate(Btmp)
+      Call mma_deallocate(A)
 *                                                                      *
 ************************************************************************
 *                                                                      *

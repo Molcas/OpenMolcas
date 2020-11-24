@@ -26,7 +26,8 @@
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant, PrQ, lOld
       Real*8 Eval(3*mTtAtm*(3*mTtAtm+1)/2)
       Real*8 Hss_x((3*mTtAtm)**2)
-      Real*8, Allocatable:: EVec(:)
+      Real*8, Allocatable:: EVec(:), Hi(:,:), iHi(:)
+      Integer, Allocatable:: Ind(:)
 
 *                                                                      *
 ************************************************************************
@@ -80,45 +81,44 @@
 *        rotational and translations directions and to make sure that
 *        the matrix is not singular.
 *
-         Call Allocate_iWork(ipInd,nDim)
+         Call mma_allocate(Ind,nDim,Label='Ind')
          iInd=0
          Do i = 1, 3*nAtom
             If (Smmtrc(i)) Then
-               iWork(ipInd+iInd)=i
                iInd=iInd+1
+               Ind(iInd)=i
             End If
          End Do
 *
 *        Compute H|i>
 *
-         Call Allocate_Work(ipHi,mTR*nDim)
-         Call Allocate_Work(ipiHi,mTR)
-         Call FZero(Work(ipHi),mTR*nDim)
+         Call mma_allocate(Hi,nDim,mTR,Label='Hi')
+         Call mma_allocate(iHi,mTR,Label='iHi')
+         Hi(:,:)=Zero
 *
          Do j = 1, mTR
             Do i = 1, nDim
                Temp = 0.0D0
                Do k = 1, nDim
-                  kx = iWork(ipInd+k-1)
+                  kx = Ind(k)
                   ik=(i-1)*nDim+k
                   Temp = Temp
      &                 + Hss_X(ik) * Sqrt(Degen(kx))
      &                 * TRVec(k,j)
                End Do
-               Work(ipHi+(j-1)*nDim+i-1) = Temp
+               Hi(i,j) = Temp
             End Do
          End Do
-*        Call RecPrt('Hi',' ',Work(ipHi),nDim,mTR)
+*        Call RecPrt('Hi',' ',Hi,nDim,mTR)
          Do iTR = 1, mTR
-            Work(ipiHi+iTR-1) = DDot_(nDim,TRVec(1,iTR),1,
-     &                                    Work(ipHi+(iTR-1)*nDim),1)
+            iHi(iTR) = DDot_(nDim,TRVec(1,iTR),1,Hi(:,iTR),1)
          End Do
-*        Call RecPrt('iHi',' ',Work(ipiHi),mTR,1)
+*        Call RecPrt('iHi',' ',iHi,mTR,1)
 *
          Do i = 1, nDim
-            ix = iWork(ipInd+i-1)
+            ix = Ind(i)
             Do j = 1, i
-               jx = iWork(ipInd+j-1)
+               jx = Ind(j)
                ij = (j-1)*nDim + i
                ji = (i-1)*nDim + j
                Temp = Half*(Hss_x(ij)+Hss_x(ji))
@@ -130,11 +130,11 @@
 *
                Do iTR = 1, mTR
                   Omega = 1.0D+5
-                  Hii   = Work(ipiHi+iTR-1)
+                  Hii   = iHi(iTR)
                   Temp = Temp
      &                 + Sqrt(Degen(ix)) * (
-     &                 - TRVec(i,iTR) * Work(ipHi+(iTR-1)*nDim+j-1)
-     &                 - Work(ipHi+(iTR-1)*nDim+i-1) * TRVec(j,iTR)
+     &                 - TRVec(i,iTR) * Hi(j,iTR)
+     &                 - Hi(i,iTR) * TRVec(j,iTR)
      &                 + TRVec(i,iTR) * (Omega+Hii) * TRVec(j,iTR)
      &                                     )* Sqrt(Degen(jx))
                End Do
@@ -144,9 +144,9 @@
                Hss_X(ji)=Temp
             End Do
          End Do
-         Call Free_Work(ipiHi)
-         Call Free_Work(ipHi)
-         Call Free_iWork(ipInd)
+         Call mma_deallocate(iHi)
+         Call mma_deallocate(Hi)
+         Call mma_deallocate(Ind)
 *
 *        Clean up the gradient wrt translational and rotational
 *        component.
@@ -206,45 +206,44 @@
 *        translations. The eigenvalues are shifted to negative
 *        eigenvalues.
 *
-         Call Allocate_iWork(ipInd,nDim)
+         Call mma_allocate(Ind,nDim,Label='Ind')
          iInd=0
          Do i = 1, 3*nAtom
             If (Smmtrc(i)) Then
-               iWork(ipInd+iInd)=i
                iInd=iInd+1
+               Ind(iInd)=i
             End If
          End Do
 *
 *        Compute H|i>
 *
-         Call Allocate_Work(ipHi,mTR*nDim)
-         Call Allocate_Work(ipiHi,mTR)
-         Call FZero(Work(ipHi),mTR*nDim)
+         Call mma_allocate(Hi,nDim,mTR,Label='Hi')
+         Call mma_allocate(iHi,mTR,Label='iHi')
+         Hi(:,:)=Zero
 *
          Do j = 1, mTR
             Do i = 1, nDim
                Temp = 0.0D0
                Do k = 1, nDim
-                  kx = iWork(ipInd+k-1)
+                  kx = Ind(k)
                   ik=(i-1)*nDim+k
                   Temp = Temp
      &                 + Hss_X(ik) * Sqrt(Degen(kx))
      &                 * TRVec(k,j)
                End Do
-               Work(ipHi+(j-1)*nDim+i-1) = Temp
+               Hi(i,j) = Temp
             End Do
          End Do
-*        Call RecPrt('Hi',' ',Work(ipHi),nDim,mTR)
+*        Call RecPrt('Hi',' ',Hi,nDim,mTR)
          Do iTR = 1, mTR
-            Work(ipiHi+iTR-1) = DDot_(nDim,TRVec(1,iTR),1,
-     &                                    Work(ipHi+(iTR-1)*nDim),1)
+            iHi(iTR) = DDot_(nDim,TRVec(1,iTR),1,Hi(:,iTR),1)
          End Do
-*        Call RecPrt('iHi',' ',Work(ipiHi),mTR,1)
+*        Call RecPrt('iHi',' ',iHi,mTR,1)
 *
          Do i = 1, nDim
-            ix = iWork(ipInd+i-1)
+            ix = Ind(i)
             Do j = 1, i
-               jx = iWork(ipInd+j-1)
+               jx = Ind(j)
                ijTri=i*(i-1)/2 + j
                ij = (j-1)*nDim + i
                ji = (i-1)*nDim + j
@@ -256,11 +255,11 @@
 *
                Do iTR = 1, mTR
                   Omega = -DBLE(iTR)
-                  Hii   = Work(ipiHi+iTR-1)
+                  Hii   = iHi(iTR)
                   Eval(ijTri) = Eval(ijTri)
      &                 + Sqrt(Degen(ix)) * (
-     &                 - TRVec(i,iTR) * Work(ipHi+(iTR-1)*nDim+j-1)
-     &                 - Work(ipHi+(iTR-1)*nDim+i-1) * TRVec(j,iTR)
+     &                 - TRVec(i,iTR) * Hi(j,iTR)
+     &                 - Hi(i,iTR) * TRVec(j,iTR)
      &                 + TRVec(i,iTR) * (Omega+Hii) * TRVec(j,iTR)
      &                                     )* Sqrt(Degen(jx))
                End Do
@@ -269,9 +268,9 @@
                Hss_X(ji)=EVal(ijTri)
             End Do
          End Do
-         Call Free_Work(ipiHi)
-         Call Free_Work(ipHi)
-         Call Free_iWork(ipInd)
+         Call mma_deallocate(iHi)
+         Call mma_deallocate(Hi)
+         Call mma_deallocate(Ind)
 #ifdef _DEBUGPRINT_
          Call TriPrt(' The Projected Model Hessian','(5G20.10)',
      &               EVal,nDim)
