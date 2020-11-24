@@ -648,37 +648,22 @@ contains
         ii = 0
         Do i = 0, nB - 1
         If (Work(mAdEOr + i) <= EorbThr) Then
-            !          Write (MF,*) 'Sym= ',MO_Label(i+1)
-            !          Write (MF,103) Work(mAdEOr+i)
-            !          Write (MF,*) 'Spin= Alpha'
-            !          Write (MF,104) Work(mAdOcc+i)
             If (Work(mAdEOr + i) < 0.0D0) Then
-                Check_Energy = Check_Energy &
-                               + Work(mAdEOr + i) * DBLE(i)
+                Check_Energy = Check_Energy + Work(mAdEOr + i) * real(i, wp)
             End If
-            Check_Occupation = Check_Occupation &
-                               + Work(mAdOcc + i) * DBLE(i)
+            Check_Occupation = Check_Occupation + Work(mAdOcc + i) * real(i, wp)
             Do j = 1, nB
-                !            Write (MF,100) j,Work(ipV+ii+j-1)
-                Check_CMO = Check_CMO &
-                            + Work(ipV + ii + j - 1)**2
+                Check_CMO = Check_CMO + Work(ipV + ii + j - 1)**2
             End Do
         End If
         !
         If (iUHF == 1) Then
             If (Work(mAdEOr_ab + i) <= EorbThr) Then
-                !             Write (MF,*) 'Sym= ',MO_Label(i+1)
-                !             Write (MF,103) Work(mAdEOr_ab+i)
-                !             Write (MF,*) 'Spin= Beta'
-                !             Write (MF,104) Work(mAdOcc_ab+i)
-                Check_Energy = Check_Energy &
-                               + Work(mAdEOr_ab + i) * DBLE(i)
+                Check_Energy = Check_Energy + Work(mAdEOr_ab + i) * real(i, wp)
                 Check_Occupation = Check_Occupation &
-                                   + Work(mAdOcc_ab + i) * DBLE(i)
+                                    + Work(mAdOcc_ab + i) * real(i, wp)
                 Do j = 1, nB
-                    !                Write (MF,100) j,Work(ipV_ab+ii+j-1)
-                    Check_CMO = Check_CMO &
-                                + Work(ipV_ab + ii + j - 1)**2
+                    Check_CMO = Check_CMO + Work(ipV_ab + ii + j - 1)**2
                 End Do
             End If
         End If
