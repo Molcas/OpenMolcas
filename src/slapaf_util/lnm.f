@@ -66,23 +66,25 @@
 *        The Hessian matrix is read in the basis of the symmetric
 *        displacements.
 *
-         Call Get_AnalHess(ipHess,Len)
-         RunOld=.False.
-         If (Len.eq.0) Then
+         Len3=ndim
+         Len3=Len3*(Len3+1)/2
+
+         Call qpg_dArray('Analytic Hessian',Found,Len)
+         If (Found) Then
+            Call Get_AnalHess(Hess,Len3)
+            RunOld=.False.
+         Else
             Call NameRun('RUNOLD')
-            Call Get_AnalHess(ipHess,Len)
+            Call qpg_dArray('Analytic Hessian',Found,Len)
+            If (.NOT.Found) Then
+               Call WarningMessage(2,
+     &                      ' Error in LNM: Analytic Hessian not found')
+               Call Abend()
+            End If
+            Call Get_AnalHess(Hess,Len3)
             Call NameRun('#Pop')
             RunOld=.True.
          End If
-         Len3=ndim
-         Len3=Len3*(Len3+1)/2
-         If (Len.ne.Len3) Then
-            Call WarningMessage(2,' Error on RELAX in LNM: Len.ne.Len3')
-            write(6,*) len,len3
-            Call Abend()
-         End If
-         call dcopy_(Len,Work(ipHess),1,Hess,1)
-         Call Free_Work(ipHess)
 *
 *        Modify matrix with degeneracy factors and square the
 *        matrix.
