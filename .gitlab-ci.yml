@@ -240,6 +240,12 @@ checks:
       export MOLCAS=${TMPDIR}
       sbin/check_style || FAILED=1
     - |
+      echo
+      echo "POSSIBLE TEST ISSUES"
+      echo "--------------------"
+      export MOLCAS=${TMPDIR}
+      sbin/check_tests || FAILED=1
+    - |
       if [ "$FAILED" == "1" ] ; then
         false
       fi
