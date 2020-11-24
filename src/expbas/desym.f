@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 2009, Giovanni Li Manni                                *
 *               2009, Francesco Aquilante                              *
+*               2020, Oskar Weser                                      *
 ************************************************************************
 * symmetry-----> C1 INPORB
       Subroutine desym(iUHF)
@@ -19,6 +20,7 @@
 *          file with C1 symmetry.                                      *
 *                                                                      *
 *          G. Li Manni, F. Aquilante, University of Geneva, June 2009. *
+*          Oskar Weser, MPI FKF Stuttgart,  November 2020.             *
 *                                                                      *
 * Example of input:                                                    *
 *                                                                      *
@@ -508,7 +510,7 @@ CC              Do icontr=1,nBasisi
 *
       Lu_=75
       FilesOrb=EB_FileOrb
-      If (len(FilesOrb) == 0) FilesOrb='INPORB'
+      If (len_trim(FilesOrb) == 0) FilesOrb='INPORB'
       if(DoExpbas) FilesOrb='EXPORB'
         Call RdVec_(trim(FilesOrb),Lu_,'COEI',iUHF,nIrrep,nBas,nBas,
      &            Work(mAdCMO),Work(mAdCMO_ab),
