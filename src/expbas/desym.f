@@ -78,7 +78,7 @@
       integer :: mAdIndt, mAdOcc, mAdEor
       integer :: mAdCMO, ipAux_ab, mAdIndt_ab, mAdOcc_ab, mAdEor_ab,
      &  mAdCMO_ab, mpunt, kindt
-      real(wp), allocatable :: new_orb_E(:), ipOccC1(:)
+      real(wp), allocatable :: new_orb_E(:), new_occ(:)
       real(wp), allocatable :: new_CMO(:, :)
       integer :: Lu_, iErr, notSymm
       integer :: iatom, iDeg, ishell
@@ -701,40 +701,42 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 
 ***************************** MOs sorting ******************************
         allocate(new_CMO(0 : nTot - 1, 0 : nTot - 1))
-        do i=0,nTot-1
-          do k=0,nTot-1
+        do i = 0, nTot - 1
+          do k = 0, nTot - 1
             new_CMO(k, i) = work(ipV+nTot*iOrdEor(i)+k)
           end do
         end do
 ************************* Occupation sorting ***************************
-        allocate(ipOccC1(0 : nTot - 1))
-        ipOccC1(:) = Work(mAdOcc + iOrdEor(:))
+        allocate(new_occ(0 : nTot - 1))
+        new_occ(:) = Work(mAdOcc + iOrdEor(:))
 *************************   index sorting   ****************************
 
-        iA(1 : 7) = 0
+        iA(:) = 0
         kindt = mInd
         mpunt = mAdIndt
+
         do iIrrep = 0, nIrrep-1
-           do i = 1, 7
+            do i = 1, 7
               do j = 0, nBas(iIrrep) - 1
                 if(iWork(mpunt + j) == i) iA(i) = iA(i) + 1
               end do
            end do
            mpunt = mpunt + nBas(iIrrep)
         end do
-        iWork(kindt : kindt + 7 - 1) = iA(1 : 7)
 
-        write(*, *) iWork(kindt : kindt + 7 - 1)
+        iWork(kindt : kindt + 7 - 1) = iA(:)
+
+        write(*, *) iA
 ****************************************************************************
 
 *    Energy after first sorting work(new_orb_E)
 *    MO after sorting           Work(ipOrdC1)
-*    Occupation after sorting   Work(ipOccC1)
+*    Occupation after sorting   Work(new_occ)
 
 ******* Natural Active Orbitals (energy = Zero) are sorted by Occ Numb ***********
-        iOrdEor(:) = argsort(ipOccC1, geq_r) - 1
+        iOrdEor(:) = argsort(new_occ, geq_r) - 1
 
-        ipOccC1(:) = ipOccC1(iOrdEor)
+        new_occ(:) = new_occ(iOrdEor)
 ***************************** MOs sorting ******************************
         new_CMO(:, :) = new_CMO(:, iOrdEor)
 ************************* Orbital Energy sorting ***************************
@@ -752,7 +754,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
        VTitle = 'Basis set desymmetrized orbital file DESORB'
        Call WrVec_(SymOrbName,iWF,'COEI',iUHF,notSymm,[nTot],[nTot],
      &            new_CMO,Work(ipV_ab),
-     &            iPOccC1,Work(mAdOcc_ab),
+     &            new_occ,Work(mAdOcc_ab),
      &            new_orb_E,Work(ipAux_ab),
      &            iWork(mInd),VTitle,iWFtype)
        call Add_Info('desym CMO',new_CMO,999,8)
@@ -777,7 +779,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      deallocate(ipOccC1)
+      deallocate(new_occ)
       deallocate(new_CMO)
       Call GetMem('Eor','Free','Real',mAdEor,nTot)
       Call GetMem('Occ','Free','Real',mAdOcc,nTot)
@@ -812,9 +814,4 @@ c104  format('Occup= ',F10.5)
       Return
 
       contains
-
-        logical pure function orb_energy_geq(i, j)
-          integer, intent(in) :: i, j
-          orb_energy_geq = new_orb_E(i) >= new_orb_E(j)
-        end function
       End
