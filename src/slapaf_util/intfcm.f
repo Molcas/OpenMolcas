@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine IntFcm(ipH,nQQ,lOld,lOld_Implicit,iter)
+      SubRoutine IntFcm(ipH,nQQ,lOld,lOld_Implicit)
 ************************************************************************
 *                                                                      *
 * Object: to initialize the Hessian matrix for the first iteration.    *
@@ -28,29 +28,32 @@
       iRout = 51
       iPrint = nPrint(iRout)
 *
-      nQQ = 0
-*
 *     Read force constant matrix from old interphase
-*     or
-*     set it to a unit matrix
 *
-      If (iPrint.ge.99) Call RecPrt('IntFcm: Initial Hessian',' ',
-     &                              Work(ipH),nQQ,nQQ)
+      If (lOld) Then
 *
-      If (lOld .AND. iter.eq.1) Then
-         Call OldFcm(ipH,nQQ,iPrint,'RUNOLD')
-      Else If (iter.eq.1) Then
+*        Expl
+
+         Call OldFcm(ipH,nQQ,'RUNOLD')
+
+      Else
+
          Call qpg_iScalar('IRC',IRC)
+
          If (.Not.IRC) Then
             Call qpg_dArray('Hess',Hess_Found,nHess)
+
             If (Hess_Found.And.(nHess.gt.0)) Then
                lOld_Implicit=.True.
-               Call OldFcm(ipH,nQQ,iPrint,'RUNFILE')
+               Call OldFcm(ipH,nQQ,'RUNFILE')
             Else
                ipH =  ip_Dummy
             End If
+
          End If
+
       End If
+
       If (.Not.lOld.and.lOld_Implicit) lOld=.True.
       If (iPrint.ge.99.and.lOld) Call RecPrt('IntFcm: Final Hessian',
      &                       ' ',Work(ipH),nQQ,nQQ)
