@@ -16,7 +16,6 @@
 #include "info_slapaf.fh"
 #include "print.fh"
       Real*8 Coor(3,nAtom)
-      Real*8 rDum(1)
       Logical CofM
       Real*8, Allocatable:: TR(:)
 *
