@@ -63,7 +63,7 @@
       character(len=512) :: FilesOrb
       character(len=LENIN8), allocatable :: label(:)
       character(len=8) :: MO_Label(maxbfn)
-      integer :: ibas_lab(MxAtom), nOrb(8), new_idx(0 : orbital_kinds-1)
+      integer :: ibas_lab(MxAtom), nOrb(8), new_idx(orbital_kinds)
       integer, allocatable :: iOrdEor(:)
       character(len=LENIN8+1) :: gtolabel(maxbfn)
       character(len=50) :: VTitle
@@ -476,9 +476,8 @@ CC              Do icontr=1,nBasisi
          nTot2=nTot2+nBas(iS)**2
       End Do
       allocate(new_orb_E(0 : nTot - 1))
-      allocate(old_idx(0 : nTot - 1))
+      allocate(old_idx(nTot))
       new_orb_E(:) = 0._wp
-      old_idx = 0
       Call GetMem('Occ','Allo','Real',mAdOcc,nTot )
       Call GetMem('Eor','Allo','Real',mAdEor,nTot )
       Call GetMem('CMO','Allo','Real',mAdCMO,nTot2)
@@ -695,6 +694,17 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 ***************************** START SORTING ****************************
 ***************************** START SORTING ****************************
 
+*************************   index sorting   ****************************
+
+! TODO: sort by index
+
+        new_idx(:) = 0
+
+        do i = lbound(old_idx, 1), ubound(old_idx, 1)
+            new_idx(old_idx(i)) = new_idx(old_idx(i)) + 1
+        end do
+
+
 *********************  energy sorting + sort memory ********************
         allocate(iOrdEor(0 : nTot - 1))
         iOrdEor(:) = argsort(Work(mAdEor : mAdEor + nTot - 1) , leq_r)-1
@@ -711,18 +721,6 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
 ************************* Occupation sorting ***************************
         allocate(new_occ(0 : nTot - 1))
         new_occ(:) = Work(mAdOcc + iOrdEor(:))
-*************************   index sorting   ****************************
-
-        new_idx(:) = 0
-
-        do i = lbound(old_idx, 1), ubound(old_idx, 1)
-            new_idx(old_idx(i) - 1) = new_idx(old_idx(i) - 1) + 1
-        end do
-
-        write(*, *) '====='
-        write(*, *) new_idx
-        write(*, *) '====='
-
 ****************************************************************************
 
 *    Energy after first sorting work(new_orb_E)
