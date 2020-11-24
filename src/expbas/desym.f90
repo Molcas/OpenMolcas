@@ -27,6 +27,20 @@ module desymmetrize_mod
     private
     public :: desym
 
+    integer, parameter :: nNumber = 61
+    character(len=1), parameter :: &
+        number(nNumber) = &
+        ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', &
+         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', &
+         'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', &
+         'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', &
+         'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', &
+         'O', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', &
+         'Z']
+    !> Different kinds of orbitals
+    !> f, i, 1, 2, 3, s, d
+    integer, parameter :: n_orb_kinds = 7
+
 contains
 
 ! symmetry-----> C1 INPORB
@@ -61,9 +75,6 @@ contains
 #include "WrkSpc.fh"
 #include "info_expbas.fh"
         integer, intent(in) :: iUHF
-        !> Different kinds of orbitals
-        !> f, i, 1, 2, 3, s, d
-        integer, parameter :: n_orb_kinds = 7
 
         real(wp), parameter :: EorbThr = 50._wp
         real(wp) :: Coor(3, MxAtom), Znuc(MxAtom)
@@ -82,7 +93,6 @@ contains
         character(len=128) :: SymOrbName
         logical :: Exist, y_cart, Found
 
-        real(wp) :: check_CMO, check_energy, check_occupation
         real(wp) :: temporary
         integer :: nAtom, nData, nTest, nDeg, nTot, nTot2
         integer :: iCnttp, iAngMx_Valence
@@ -99,33 +109,13 @@ contains
         integer :: iIrrep, iWfType, iWF
         integer :: iTempOrd
 
-        integer :: iPL, jPL
-
         integer :: mdc, kk, i, j, ik, k, l, kk_Max, ii, iB, ipp, ic, iv
         integer :: ipc
         integer :: icontr, nBasisi, icntr
 
-        integer :: iPrintLevel
-        logical :: reduce_prt
-        external :: reduce_prt, iPrintLevel
-
-        integer, parameter :: nNumber = 61
-        character(len=1), parameter :: &
-            number(nNumber) = &
-            ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', &
-             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', &
-             'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', &
-             'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', &
-             'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', &
-             'O', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', &
-             'Z']
         integer, save :: iRc = 0
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
-        Check_CMO = 0._wp
-        Check_Energy = 0._wp
-        Check_Occupation = 0._wp
+
+
         y_cart = .false.
 
         Call f_Inquire('RUNFILE', Exist)
@@ -640,6 +630,9 @@ contains
             End Do
         End Do
         Call mma_deallocate(Label)
+
+
+
         !**************************** START SORTING ****************************
 
         allocate (iOrdEor(0:nTot - 1))
@@ -680,22 +673,7 @@ contains
                     new_orb_E, Work(ipAux_ab), &
                     n_kinds, VTitle, iWFtype)
         call Add_Info('desym CMO', new_CMO, 999, 8)
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
-        iPL = iPrintLevel(-1)
-        jPL = iPL
-        If (Reduce_Prt() .and. iPL < 3) jPL = 0
-        If (jPL >= 3) Then
-            Write (6, *)
-            Write (6, *) ' INPORB_C1 file was generated!'
-            Write (6, *)
-        End If
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
+
         deallocate (new_occ)
         deallocate (new_CMO)
         Call GetMem('Eor', 'Free', 'Real', mAdEor, nTot)
