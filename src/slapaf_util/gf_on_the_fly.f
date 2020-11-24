@@ -14,8 +14,12 @@
 #include "info_slapaf.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 DipM(3)
       Integer mDisp(8)
+      Real*8, Allocatable:: EVec(:), EVal(:), RedMas(:), dDipM(:),
+     &                      Tmp1(:), Tmp2(:), IRInt(:), Temp(:),
+     &                      NMod(:)
 *define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
@@ -28,28 +32,27 @@
       mTR=mTROld
       mInter=nInter+mTR
 *
-      Call Allocate_Work(ipEVec,2*nX**2)
-      Call Allocate_Work(ipEVal,2*nX)
-      Call Allocate_Work(ipRedMas,nX)
-      Call Allocate_Work(ipdDipM,3*mInter)
-      Call Allocate_Work(ipTmp1,nX**2)
-      Call Allocate_Work(ipTmp2,nX**2)
-      Call FZero(Work(ipdDipM),3*mInter)
+      Call mma_allocate(EVec,2*nX**2,Label='EVec')
+      Call mma_allocate(EVal,2*nX,Label='EVal')
+      Call mma_allocate(RedMas,nX,Label='RedMas')
+      Call mma_allocate(dDipM,3*mInter,Label='dDipM')
+      dDipM(:)=Zero
+      Call mma_allocate(Tmp1,nX**2,Label='Tmp1')
+      Call mma_allocate(Tmp2,nX**2,Label='Tmp2')
 *                                                                      *
 ************************************************************************
 *                                                                      *
       DipM(1)=0.0D0
       DipM(2)=0.0D0
       DipM(3)=0.0D0
-      Call GF(nX,mInter,nInter,Work(ipTmp1),Work(ipTmp2),
-     &        Work(ipEVec),Work(ipEVal),Work(ipRedMas),
-     &        iNeg,Work(ipdDipM),mTR,Smmtrc,nAtom,DipM)
+      Call GF(nX,mInter,nInter,Tmp1,Tmp2,EVec,EVal,RedMas,
+     &        iNeg,dDipM,mTR,Smmtrc,nAtom,DipM)
 *
-      Call Free_Work(ipTmp2)
-      Call Free_Work(ipTmp1)
+      Call mma_deallocate(Tmp2)
+      Call mma_deallocate(Tmp1)
 #ifdef _DEBUGPRINT_
-      Call RecPrt('EVec',' ',Work(ipEVec),2*nX,nX)
-      Call RecPrt('EVal',' ',Work(ipEVal),2,nX)
+      Call RecPrt('EVec',' ',EVec,2*nX,nX)
+      Call RecPrt('EVal',' ',EVal,2,nX)
 #endif
 *                                                                      *
 ************************************************************************
@@ -80,48 +83,47 @@
       iEl =3
       jSym=1
 *
-      Call Allocate_Work(ipTemp,3*mInter)
+      Call mma_allocate(Temp,3*mInter,Label='Temp')
 *
-      Call DGeTMO(Work(ipdDipM),3,3,nInter,Work(ipTemp),nInter)
+      Call DGeTMO(dDipM,3,3,nInter,Temp,nInter)
 *
-      Call Free_Work(ipdDipM)
-      Call Allocate_Work(ipIRInt,mInter)
+      Call mma_deallocate(dDipM)
+
+      Call mma_allocate(IRInt,mInter,Label='IRInt')
 *
       Lu_10=10
       Lu_10=IsFreeUnit(Lu_10)
       Call Molcas_Open(lu_10,'UNSYM')
 *
       Write(Lu_10,'(A,I1)') '*NORMAL MODES SYMMETRY: ',jsym
-      Call GF_Print(Work(ipEVal),Work(ipEVec),Work(ipTemp),iEl,
-     &              mInter,nInter,iCtl,Work(ipIRInt),Work(ipRedMas),
+      Call GF_Print(EVal,EVec,Temp,iEl,
+     &              mInter,nInter,iCtl,IRInt,RedMas,
      &              Lu_10,iOff)
 *
       Close(Lu_10)
-      Call Free_Work(ipTemp)
+      Call mma_deallocate(Temp)
 *
-      Call Add_Info('Approx. Freq.',Work(ipEVal),nInter,1)
+      Call Add_Info('Approx. Freq.',EVal,nInter,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *-----Save normal modes for later generation of Molden input.
 *
       nDisp=mInter
-      Call GetMem('NMod','Allo','Real',ipNMod,nDisp**2)
-      ipNx=ipNMod
+      Call mma_allocate(NMod,nDisp**2,Label='NMod')
 *
       lModes=0
       nModes=0
       nX=mInter
-      call dcopy_(nX*nInter,Work(ipEVec),2,Work(ipNMod),1)
+      call dcopy_(nX*nInter,EVec,2,NMod,1)
       lModes=lModes+nInter*nX
       nModes=nModes+nInter
 #ifdef _DEBUGPRINT_
-      Call RecPrt('NModes',' ',Work(ipNMod),nX,nInter)
+      Call RecPrt('NModes',' ',NMod,nX,nInter)
 #endif
 *
       If (nIrrep.eq.1) Then
-         Call Print_Mode_Components(Work(ipNMod),Work(ipEVal),
-     &                              nModes,lModes,mDisp)
+         Call Print_Mode_Components(NMod,EVal,nModes,lModes,mDisp)
       End If
 *                                                                      *
 ************************************************************************
@@ -131,16 +133,15 @@
       mSym=1
       Call ICopy(8,[0],0,mDisp,1)
       mDisp(1)=nInter
-      Call Freq_Molden(Work(ipEVal),nModes,Work(ipNMod),lModes,mSym,
-     &                 Work(ipIRInt),mDisp,Work(ipRedMas))
+      Call Freq_Molden(EVal,nModes,NMod,lModes,mSym,IRInt,mDisp,RedMas)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Free_Work(ipNMod)
-      Call Free_Work(ipIRInt)
-      Call Free_Work(ipEVal)
-      Call Free_Work(ipEVec)
-      Call Free_Work(ipRedMas)
+      Call mma_deallocate(NMod)
+      Call mma_deallocate(IRInt)
+      Call mma_deallocate(RedMas)
+      Call mma_deallocate(EVal)
+      Call mma_deallocate(EVec)
 *                                                                      *
 ************************************************************************
 *                                                                      *

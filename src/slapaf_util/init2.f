@@ -20,6 +20,7 @@
 #include "print.fh"
       Logical Is_Roots_Set
       Integer, Allocatable:: Information(:)
+      Real*8, Allocatable:: MMGrd(:,:), Tmp(:), DMs(:,:)
 #include "SysDef.fh"
       Character*100 Get_SuperName, SuperName
       External Get_SuperName
@@ -150,14 +151,14 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
       call dcopy_(3*nsAtom,Work(ipCoor),1,Work(ipOff),1)
       call dcopy_(3*nsAtom,Work(ipCoor),1,Cx(:,:,iter),1)
       If (iter.gt.1) Then
-        Tmp=Zero
+        Temp=Zero
         Do i = 1, nsAtom
            Do j = 1, 3
-              Tmp=Max(Tmp,Abs(Cx(j,i,iter)-Cx(j,i,iter-1)))
+              Temp=Max(Temp,Abs(Cx(j,i,iter)-Cx(j,i,iter-1)))
            End Do
-           If (Tmp.gt.Zero) Exit
+           If (Temp.gt.Zero) Exit
         End Do
-        If (Tmp.eq.Zero) Then
+        If (Temp.eq.Zero) Then
           Call WarningMessage(2,'Error in Init2')
           Write (6,*)
           Write (6,*) '****************** ERROR *********************'
@@ -174,18 +175,16 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
       Call Qpg_dArray('MM Grad',lMMGrd,6*nsAtom)
       lMMGrd = .False.
       If (lMMGrd) Then
-         Call Allocate_Work(ipMMGrd,6*nsAtom)
-         Call Get_dArray('MM Grad',Work(ipMMGrd),3*nsAtom*2)
+         Call mma_allocate(MMGrd,3*nsAtom,2,Label='MMGrd')
+         Call Get_dArray('MM Grad',MMGrd,3*nsAtom*2)
          Do iN = 1, iter-1
             Write(6,*) 'Grad at iteration :',iN
             Call RecPrt('Old:',' ',Gx(1,1,iN),3,nsAtom)
-            Call DaXpY_(3*nsAtom,-One,Work(ipMMGrd),1,
-     &                               Gx(1,1,iN),  1)
-            Call DaXpY_(3*nsAtom, One,Work(ipMMGrd+3*nsAtom),1,
-     &                               Gx(1,1,iN),  1)
+            Call DaXpY_(3*nsAtom,-One,MMGrd(:,1),1,Gx(1,1,iN),  1)
+            Call DaXpY_(3*nsAtom, One,MMGrd(:,2),1,Gx(1,1,iN),  1)
             Call RecPrt('New:',' ',Gx(1,1,iN),3,nsAtom)
          End Do
-         Call Free_Work(ipMMGrd)
+         Call mma_deallocate(MMGrd)
       End If
 *                                                                      *
 ************************************************************************
@@ -256,11 +255,11 @@ C     Call RecPrt('Ref_Geom',' ',Work(ipRef),3,nsAtom)
          If (nRoots.ne.1) Then
             Call Get_iScalar('NumGradRoot',iRoot)
 *           Write (6,*) 'iRoot=',iRoot
-            Call Allocate_Work(ipTmp,nRoots)
-            Call Get_dArray('Last energies',Work(ipTmp),nRoots)
-*           Call RecPrt('Last Energies',' ',Work(ipTmp),1,nRoots)
-            Work(ipEner+iter-1)=Work(ipTmp+(iRoot-1))
-            Call Free_Work(ipTmp)
+            Call mma_allocate(Tmp,nRoots,Label='Tmp')
+            Call Get_dArray('Last energies',Tmp,nRoots)
+*           Call RecPrt('Last Energies',' ',Tmp,1,nRoots)
+            Work(ipEner+iter-1)=Tmp(iRoot)
+            Call mma_deallocate(Tmp)
          Else
             Call Get_dScalar('Last energy',Energy)
          End If
@@ -286,16 +285,14 @@ c     Work(ipEner+iter-1)=Energy
          If (nRoots.ne.1) Then
             Call Get_iScalar('NumGradRoot',iRoot)
 *           Write (6,*) 'iRoot=',iRoot
-            Call Allocate_Work(ipDMs,3*nRoots)
-            Call FZero(Work(ipDMs),3*nRoots)
+            Call mma_allocate(DMs,3,nRoots,Label='DMs')
+            DMs(:,:)=Zero
             Call Qpg_dArray('Last Dipole Moments',Found,nDip)
             If (Found.and.(nDip.eq.3*nRoots)) Then
-               Call Get_dArray('Last Dipole Moments',
-     &                         Work(ipDMs),3*nRoots)
+               Call Get_dArray('Last Dipole Moments',DMs,3*nRoots)
             End If
-            Call dCopy_(3,Work(ipDMs+(iRoot-1)*3),1,
-     &                    Work(ipDipM+(iter-1)*3),1)
-            Call Free_Work(ipDMs)
+            Call dCopy_(3,DMs(:,iRoot),1,Work(ipDipM+(iter-1)*3),1)
+            Call mma_deallocate(DMs)
          Else
             Call Qpg_dArray('Dipole moment',Found,nDip)
             If (Found.and.(nDip.eq.3)) Then
@@ -359,11 +356,11 @@ c     Work(ipEner+iter-1)=Energy
             If (nRoots.ne.1) Then
                Call Get_iScalar('NumGradRoot',iRoot)
 C              Write (6,*) 'iRoot=',iRoot
-               Call Allocate_Work(ipTmp,nRoots)
-               Call Get_dArray('Last energies',Work(ipTmp),nRoots)
-*              Call RecPrt('Last Energies',' ',Work(ipTmp),1,nRoots)
-               E0=Work(ipTmp+(iRoot-1))
-               Call Free_Work(ipTmp)
+               Call mma_allocate(Tmp,nRoots,Label='Tmp')
+               Call Get_dArray('Last energies',Tmp,nRoots)
+*              Call RecPrt('Last Energies',' ',Tmp,1,nRoots)
+               E0=Tmp(iRoot)
+               Call mma_deallocate(Tmp)
             Else
                Call Get_dScalar('Last energy',E0)
             End If

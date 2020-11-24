@@ -24,7 +24,9 @@
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Logical Found
+      Real*8, Allocatable:: H(:), BOld(:), Tmp2(:)
 *
 *define _DEBUGPRINT_
       nX=3*nsAtom
@@ -32,33 +34,34 @@
       nInter=mInt
 *
       Call Allocate_Work(ip_H,nX**2)
-      Call Allocate_Work(ipTmp2,nX**2)
-      Call Allocate_Work(ipH,nInter**2)
+
+      Call mma_allocate(Tmp2,nX**2,Label='Tmp2')
+      Call mma_allocate(H,nInter**2,Label='H')
 *---- If there is an updated Hessian in the runfile, use it;
 *     otherwise use the last computed one.
 *     (Hss_upd must be removed every time Hss_Q is added)
       Call Qpg_dArray('Hss_upd',Found,nHss)
       If (Found.and.(nHss.eq.nInter**2)) Then
-         Call Get_dArray('Hss_upd',Work(ipH),nInter**2)
+         Call Get_dArray('Hss_upd',H,nInter**2)
       Else
-         Call Get_dArray('Hss_Q',Work(ipH),nInter**2)
+         Call Get_dArray('Hss_Q',H,nInter**2)
       End If
-      Call Allocate_Work(ipBOld,nX*nInter)
+      Call mma_allocate(BOld,nX*nInter,Label='BOld')
 *---- If there is an old BMx stored, use it;
 *     otherwise use the current BMx
       Call Qpg_dArray('BMxOld',Found,nBMx)
       If (Found.and.(nBMx.eq.nX*nInter)) Then
-         Call Get_dArray('BMxOld',Work(ipBOld),nX*nInter)
+         Call Get_dArray('BMxOld',BOld,nX*nInter)
       Else
-         Call Get_dArray('BMtrx',Work(ipBOld),nX*nInter)
+         Call Get_dArray('BMtrx',BOld,nX*nInter)
       End If
 *
-      Call Get_H_(nX,Work(ipBOld),mInter,nInter,Work(ipH),
-     &            Work(ipTmp2),Work(ip_H),Smmtrc,nsAtom)
+      Call Get_H_(nX,BOld,mInter,nInter,H,
+     &            Tmp2,Work(ip_H),Smmtrc,nsAtom)
 *
-      Call Free_Work(ipBOld)
-      Call Free_Work(ipH)
-      Call Free_Work(ipTmp2)
+      Call mma_deallocate(BOld)
+      Call mma_deallocate(H)
+      Call mma_deallocate(Tmp2)
 *
       Return
       End

@@ -23,18 +23,20 @@
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 dDipM(3,mInter), DipM(3)
       Logical Found
+      Real*8, Allocatable:: Tmp2(:), BOld(:)
 *
       nX=3*nsAtom
 *
-      Call Allocate_Work(ipTmp2,nX**2)
-      Call Allocate_Work(ipBOld,nX*nInter)
+      Call mma_allocate(Tmp2,nX**2,Label='Tmp2')
+      Call mma_allocate(BOld,nX*nInter,Label='BOld')
       Call Qpg_dArray('BMxOld',Found,nBMx)
       If (Found.and.(nBMx.eq.nX*nInter)) Then
-         Call Get_dArray('BMxOld',Work(ipBOld),nX*nInter)
+         Call Get_dArray('BMxOld',BOld,nX*nInter)
       Else
-         Call Get_dArray('BMtrx',Work(ipBOld),nX*nInter)
+         Call Get_dArray('BMtrx',BOld,nX*nInter)
       End If
       If (mTROld.gt.0) Then
          Call Allocate_Work(ipTROld,nX*mTROld)
@@ -48,13 +50,12 @@
          ipTROld = ip_Dummy
       End If
 *
-      Call Get_dDipM_(nX,Work(ipBOld),Work(ipTROld),mInter,nInter,Degen,
-     &                Work(ipTmp2),dDipM,mTROld,Cx,Smmtrc,
-     &                nsAtom,DipM)
+      Call Get_dDipM_(nX,BOld,Work(ipTROld),mInter,nInter,Degen,
+     &                Tmp2,dDipM,mTROld,Cx,Smmtrc,nsAtom,DipM)
 *
       If (mTROld.gt.0) Call Free_Work(ipTROld)
-      Call Free_Work(ipBOld)
-      Call Free_Work(ipTmp2)
+      Call mma_deallocate(BOld)
+      Call mma_deallocate(Tmp2)
 *
       Return
       End

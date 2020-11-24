@@ -11,7 +11,6 @@
       Subroutine Connect_Fragments(nAtoms,iTabBonds,nBondMax,
      &                             nBonds,Coor,iTabAtoms,nMax,iANr)
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "info_slapaf.fh"
       Real*8 Coor(3,nAtoms)
@@ -19,6 +18,7 @@
      &        iTabBonds(3,nBondMax)
       Integer, Allocatable, Dimension(:) :: iStack
       Integer, Allocatable:: nSet(:)
+      Real*8, Allocatable:: SetDist(:)
 #include "bondtypes.fh"
 *                                                                      *
 ************************************************************************
@@ -153,8 +153,8 @@
 *                                                                      *
 *     Find the shortest distance between every two sets
 *
-      Call Allocate_Work(ipSetDist,iSet*iSet)
-      call dcopy_(iSet*iSet,[1.0D6],0,Work(ipSetDist),1)
+      Call mma_allocate(SetDist,iSet*iSet,Label='SetDist')
+      SetDist(:)= 1.0D6
       Do kAtom = 1, nAtoms
          kSet = nSet(kAtom)
          Do lAtom = kAtom+1, nAtoms
@@ -165,14 +165,14 @@
 *           In (k,l), the minimum distance between the sets k and l
 *           In (l,k), the minimum distance excluding H-H
 *
-            iOff = (Min(kSet,lSet)-1)*iSet + Max(kSet,lSet)-1
-            iOffHH = (Max(kSet,lSet)-1)*iSet + Min(kSet,lSet)-1
+            iOff = (Min(kSet,lSet)-1)*iSet + Max(kSet,lSet)
+            iOffHH = (Max(kSet,lSet)-1)*iSet + Min(kSet,lSet)
             RTest = (Coor(1,kAtom)-Coor(1,lAtom))**2
      &             +(Coor(2,kAtom)-Coor(2,lAtom))**2
      &             +(Coor(3,kAtom)-Coor(3,lAtom))**2
             If (iAnr(kAtom).ne.1 .or. iANr(lAtom).ne.1)
-     &         Work(ipSetDist+iOff) = Min(Work(ipSetDist+iOff),RTest)
-            Work(ipSetDist+iOffHH) = Min(Work(ipSetDist+iOffHH),RTest)
+     &         SetDist(iOff) = Min(SetDist(iOff),RTest)
+            SetDist(iOffHH) = Min(SetDist(iOffHH),RTest)
  501        Continue
          End Do
       End Do
@@ -185,11 +185,11 @@
 *
 *           H-H distances are only considered if the minimum distance
 *           (excluding H-H) is greater than HH_Thr
-            iOff = (kSet-1)*iSet + lSet-1
-            If (Work(ipSetDist+iOff).gt.HH_Thr**2)
+            iOff = (kSet-1)*iSet + lSet
+            If (SetDist(iOff).gt.HH_Thr**2)
      &         iOff = (lSet-1)*iSet + kSet-1
-            If (Work(ipSetDist+iOff).lt.rShort) Then
-               rShort = Work(ipSetDist+iOff)
+            If (SetDist(iOff).lt.rShort) Then
+               rShort = SetDist(iOff)
             End If
          End Do
       End Do
@@ -203,8 +203,8 @@
             If (lSet.eq.kSet) Go To 502
 *
 *           Again, add H-H bonds only if necessary
-            iOff = (Min(kSet,lSet)-1)*iSet + Max(kSet,lSet)-1
-            If ((Work(ipSetDist+iOff).le.HH_Thr**2) .and.
+            iOff = (Min(kSet,lSet)-1)*iSet + Max(kSet,lSet)
+            If ((SetDist(iOff).le.HH_Thr**2) .and.
      &          (iANr(kAtom).eq.1 .and. iANr(lAtom).eq.1)) Go To 502
 *
             RTest = (Coor(1,kAtom)-Coor(1,lAtom))**2
@@ -271,7 +271,7 @@
  502        Continue
          End Do
       End Do
-      Call Free_Work(ipSetDist)
+      Call mma_deallocate(SetDist)
 *
 *     Try again!
       Go To 1

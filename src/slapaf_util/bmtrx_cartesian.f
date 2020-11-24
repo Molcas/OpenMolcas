@@ -26,7 +26,7 @@
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant, PrQ, lOld
       Real*8 Eval(3*mTtAtm*(3*mTtAtm+1)/2)
       Real*8 Hss_x((3*mTtAtm)**2)
-      Real*8, Allocatable:: EVec(:), Hi(:,:), iHi(:)
+      Real*8, Allocatable:: EVec(:), Hi(:,:), iHi(:), Degen2(:)
       Integer, Allocatable:: Ind(:)
 
 *                                                                      *
@@ -313,12 +313,12 @@
       If (HSet.and..NOT.lOld) Then
          Call Allocate_Work(ip_KtB,nDim*nQQ)
 *
-         Call Allocate_Work(ipDegen,nDim)
+         Call mma_allocate(Degen2,nDim,Label='Degen2')
          i=0
          Do ix = 1, 3*nAtom
             If (Smmtrc(ix)) Then
-               Work(ipDegen+i) = Degen(ix)
                i = i + 1
+               Degen2(i) = Degen(ix)
             End If
          End Do
 *
@@ -326,10 +326,10 @@
          Do iInter = 1, nQQ
             Do iDim = 1, nDim
                ij = (iInter-1)*nDim + iDim - 1 + ip_KtB
-               Work(ij) = Work(ij) / Sqrt(Work(ipDegen+iDim-1))
+               Work(ij) = Work(ij) / Sqrt(Degen2(iDim))
             End Do
          End Do
-         Call Free_Work(ipDegen)
+         Call mma_deallocate(Degen2)
       Else
          ip_KtB = ip_Dummy
       End If
