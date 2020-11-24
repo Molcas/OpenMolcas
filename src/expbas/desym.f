@@ -53,6 +53,9 @@
 #include "WrkSpc.fh"
 #include "info_expbas.fh"
       integer, intent(in) :: iUHF
+      !> Different kinds of orbitals
+      !> f, i, 1, 2, 3, s, d
+      integer, parameter :: orbital_kinds = 7
 
       real(wp), parameter :: EorbThr = 50._wp
       real(wp) :: Coor(3, MxAtom), Znuc(MxAtom)
@@ -60,7 +63,7 @@
       character(len=512) :: FilesOrb
       character(len=LENIN8), allocatable :: label(:)
       character(len=8) :: MO_Label(maxbfn)
-      integer :: ibas_lab(MxAtom), nOrb(8), iA(7)
+      integer :: ibas_lab(MxAtom), nOrb(8), new_idx(orbital_kinds)
       integer, allocatable :: iOrdEor(:)
       character(len=LENIN8+1) :: gtolabel(maxbfn)
       character(len=50) :: VTitle
@@ -74,10 +77,11 @@
       integer :: nB, iS
       integer :: ipCent, ipCent2, ipCent3
       integer :: ipPhase, ipC2, ipV, ipC2_ab, ipV_ab
-      integer :: mInd, mInd_ab
+      integer :: mInd_ab
       integer :: mAdIndt, mAdOcc, mAdEor
       integer :: mAdCMO, ipAux_ab, mAdIndt_ab, mAdOcc_ab, mAdEor_ab,
-     &  mAdCMO_ab, mpunt, kindt
+     &  mAdCMO_ab, mpunt
+!       integer, allocatable :: mAdIndt(:)
       real(wp), allocatable :: new_orb_E(:), new_occ(:)
       real(wp), allocatable :: new_CMO(:, :)
       integer :: Lu_, iErr, notSymm
@@ -474,12 +478,10 @@ CC              Do icontr=1,nBasisi
       allocate(new_orb_E(0 : nTot - 1))
       new_orb_E(:) = 0._wp
       Call GetMem('INDT','Allo','Inte',mAdIndt,ntot)
-      Call GetMem('IndType','Allo','Inte',mInd,56)
       Call GetMem('Occ','Allo','Real',mAdOcc,nTot )
       Call GetMem('Eor','Allo','Real',mAdEor,nTot )
       Call GetMem('CMO','Allo','Real',mAdCMO,nTot2)
       Call IZero(iWork(mAdIndt),nTot)
-      Call IZero(iWork(mInd),56)
       Call FZero(Work(mAdOcc),nTot)
       Call FZero(Work(mAdEor),nTot)
       Call FZero(Work(mAdCMO),nTot2)
@@ -711,22 +713,18 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
         new_occ(:) = Work(mAdOcc + iOrdEor(:))
 *************************   index sorting   ****************************
 
-        iA(:) = 0
-        kindt = mInd
+        new_idx(:) = 0
         mpunt = mAdIndt
 
-        do iIrrep = 0, nIrrep-1
-            do i = 1, 7
+        do iIrrep = 0, nIrrep - 1
+            do i = 1, orbital_kinds
               do j = 0, nBas(iIrrep) - 1
-                if(iWork(mpunt + j) == i) iA(i) = iA(i) + 1
+                if(iWork(mpunt + j) == i) new_idx(i) = new_idx(i) + 1
               end do
            end do
            mpunt = mpunt + nBas(iIrrep)
         end do
 
-        iWork(kindt : kindt + 7 - 1) = iA(:)
-
-        write(*, *) iA
 ****************************************************************************
 
 *    Energy after first sorting work(new_orb_E)
@@ -756,7 +754,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
      &            new_CMO,Work(ipV_ab),
      &            new_occ,Work(mAdOcc_ab),
      &            new_orb_E,Work(ipAux_ab),
-     &            iWork(mInd),VTitle,iWFtype)
+     &            new_idx,VTitle,iWFtype)
        call Add_Info('desym CMO',new_CMO,999,8)
 *                                                                      *
 ************************************************************************
@@ -785,7 +783,6 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
       Call GetMem('Occ','Free','Real',mAdOcc,nTot)
       deallocate(new_orb_E)
       Call GetMem('INDT','Free','Inte',mAdIndt,nTot)
-      Call GetMem('IndType','Free','Inte',mInd,56)
       If (iUHF == 1) Then
          Call GetMem('Eor','Free','Real',mAdEor_ab,nTot)
          Call GetMem('Occ','Free','Real',mAdOcc_ab,nTot)
