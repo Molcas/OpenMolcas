@@ -699,22 +699,37 @@ contains
         integer, intent(inout) :: kind_per_orb(nTot)
         real(wp), intent(inout) :: CMO(nTot, nTot), occ(nTot), energy(nTot)
 
-        integer, allocatable :: iOrdEor(:)
+        integer :: i
+        integer, allocatable :: idx(:)
 
-        allocate (iOrdEor(nTot))
+        allocate(idx(nTot))
 
-        iOrdEor(:) = argsort(energy, leq_r)
+        idx = [(i, i = 1, nTot)]
 
-        kind_per_orb(:) = kind_per_orb(iOrdEor)
-        energy(:) = energy(iOrdEor)
-        CMO(:, :) = CMO(:, iOrdEor)
-        occ(:) = occ(iOrdEor)
+        call sort(idx, compare)
 
-        iOrdEor(:) = argsort(occ, geq_r)
+        kind_per_orb(:) = kind_per_orb(idx)
+        energy(:) = energy(idx)
+        CMO(:, :) = CMO(:, idx)
+        occ(:) = occ(idx)
 
-        kind_per_orb(:) = kind_per_orb(iOrdEor)
-        energy(:) = energy(iOrdEor)
-        CMO(:, :) = CMO(:, iOrdEor)
-        occ(:) = occ(iOrdEor)
+        contains
+
+            !> Sort non-strict first by occupation descendingly
+            !>      and second by energy ascendingly.
+            pure function compare(i, j) result(res)
+                integer, intent(in) :: i, j
+                logical :: res
+
+                if (occ(i) /= occ(j)) then
+                    res = occ(i) > occ(j)
+                else if (energy(i) /= energy(j)) then
+                    res = energy(i) < energy(j)
+                else
+                    ! All values are equal and our comparison has
+                    ! to be non-strict.
+                    res = .true.
+                end if
+            end function
     end subroutine
 end module
