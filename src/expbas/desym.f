@@ -55,7 +55,7 @@
       integer, intent(in) :: iUHF
       !> Different kinds of orbitals
       !> f, i, 1, 2, 3, s, d
-      integer, parameter :: orbital_kinds = 7
+      integer, parameter :: n_orb_kinds = 7
 
       real(wp), parameter :: EorbThr = 50._wp
       real(wp) :: Coor(3, MxAtom), Znuc(MxAtom)
@@ -63,7 +63,11 @@
       character(len=512) :: FilesOrb
       character(len=LENIN8), allocatable :: label(:)
       character(len=8) :: MO_Label(maxbfn)
-      integer :: ibas_lab(MxAtom), nOrb(8), new_idx(orbital_kinds)
+      integer :: ibas_lab(MxAtom), nOrb(8)
+      !> This is the orbital kind for each orbital.
+      integer, allocatable :: kind_per_orb(:)
+      !> This is the number of orbitals for every kind.
+      integer :: n_kinds(n_orb_kinds)
       integer, allocatable :: iOrdEor(:)
       character(len=LENIN8+1) :: gtolabel(maxbfn)
       character(len=50) :: VTitle
@@ -81,7 +85,6 @@
       integer :: mAdOcc, mAdEor
       integer :: mAdCMO, ipAux_ab, mAdIndt_ab, mAdOcc_ab, mAdEor_ab,
      &  mAdCMO_ab
-      integer, allocatable :: old_idx(:)
       real(wp), allocatable :: new_orb_E(:), new_occ(:)
       real(wp), allocatable :: new_CMO(:, :)
       integer :: Lu_, iErr, notSymm
@@ -476,7 +479,7 @@ CC              Do icontr=1,nBasisi
          nTot2=nTot2+nBas(iS)**2
       End Do
       allocate(new_orb_E(0 : nTot - 1))
-      allocate(old_idx(nTot))
+      allocate(kind_per_orb(nTot))
       new_orb_E(:) = 0._wp
       Call GetMem('Occ','Allo','Real',mAdOcc,nTot )
       Call GetMem('Eor','Allo','Real',mAdEor,nTot )
@@ -517,7 +520,7 @@ CC              Do icontr=1,nBasisi
      &            Work(mAdCMO),Work(mAdCMO_ab),
      &            Work(mAdOcc),Work(mAdOcc_ab),
      &            Work(mAdEor),Work(mAdEor_ab),
-     &            old_idx,VTitle,1,iErr,iWfType)
+     &            kind_per_orb,VTitle,1,iErr,iWfType)
        if (iUHF == 1) then
          write(6,*) 'DESY keyword not implemented for DODS wf!'
          Call Abend()
@@ -691,57 +694,36 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
         ii=ii+nB
       End Do
 ***************************** START SORTING ****************************
-***************************** START SORTING ****************************
-***************************** START SORTING ****************************
 
-*************************   index sorting   ****************************
+       allocate(iOrdEor(0 : nTot - 1))
+       allocate(new_CMO(0 : nTot - 1, 0 : nTot - 1))
+       allocate(new_occ(0 : nTot - 1))
 
-! TODO: sort by index
+        n_kinds(:) = 0
 
-        new_idx(:) = 0
-
-        do i = lbound(old_idx, 1), ubound(old_idx, 1)
-            new_idx(old_idx(i)) = new_idx(old_idx(i)) + 1
+        do i = lbound(kind_per_orb, 1), ubound(kind_per_orb, 1)
+            n_kinds(kind_per_orb(i)) = n_kinds(kind_per_orb(i)) + 1
         end do
 
 
-*********************  energy sorting + sort memory ********************
-        allocate(iOrdEor(0 : nTot - 1))
-        iOrdEor(:) = argsort(Work(mAdEor : mAdEor + nTot - 1) , leq_r)-1
+       iOrdEor(:) = argsort(Work(mAdEor : mAdEor + nTot - 1) , leq_r)-1
 
-        new_orb_E(:) = Work(mAdEor + iOrdEor)
+       new_orb_E(:) = Work(mAdEor + iOrdEor)
 
-***************************** MOs sorting ******************************
-        allocate(new_CMO(0 : nTot - 1, 0 : nTot - 1))
-        do i = 0, nTot - 1
-          do k = 0, nTot - 1
-            new_CMO(k, i) = work(ipV+nTot*iOrdEor(i)+k)
-          end do
-        end do
-************************* Occupation sorting ***************************
-        allocate(new_occ(0 : nTot - 1))
-        new_occ(:) = Work(mAdOcc + iOrdEor(:))
-****************************************************************************
+       do i = 0, nTot - 1
+         do k = 0, nTot - 1
+           new_CMO(k, i) = work(ipV+nTot*iOrdEor(i)+k)
+         end do
+       end do
 
-*    Energy after first sorting work(new_orb_E)
-*    MO after sorting           Work(ipOrdC1)
-*    Occupation after sorting   Work(new_occ)
+       new_occ(:) = Work(mAdOcc + iOrdEor(:))
 
-******* Natural Active Orbitals (energy = Zero) are sorted by Occ Numb ***********
-        iOrdEor(:) = argsort(new_occ, geq_r) - 1
+       iOrdEor(:) = argsort(new_occ, geq_r) - 1
+       new_occ(:) = new_occ(iOrdEor)
+       new_CMO(:, :) = new_CMO(:, iOrdEor)
 
-        new_occ(:) = new_occ(iOrdEor)
-***************************** MOs sorting ******************************
-        new_CMO(:, :) = new_CMO(:, iOrdEor)
-************************* Orbital Energy sorting ***************************
-* Energy sorting here it is not needed as the sorting is taking place only at
-* Active orbital level for which energy are zeroes (not defined).
-*        Call GetMem('EorC2','ALLO','REAL',ipEorC2,nTot)
-*        Call FZero(Work(ipEorC2),nTot)
-*        do i=0,nTot-1
-*          Work(ipEorC2+i) = Work(new_orb_E+iOrdEor(i))
-*        end do
-******************************  print output **************************
+!> write
+
        notSymm=1
        iWF=9
        SymOrbName='DESORB'
@@ -750,7 +732,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
      &            new_CMO,Work(ipV_ab),
      &            new_occ,Work(mAdOcc_ab),
      &            new_orb_E,Work(ipAux_ab),
-     &            new_idx,VTitle,iWFtype)
+     &            n_kinds,VTitle,iWFtype)
        call Add_Info('desym CMO',new_CMO,999,8)
 *                                                                      *
 ************************************************************************
@@ -778,7 +760,7 @@ C                Write (MF,100) j,Work(ipV_ab+ii+j-1)
       Call GetMem('Eor','Free','Real',mAdEor,nTot)
       Call GetMem('Occ','Free','Real',mAdOcc,nTot)
       deallocate(new_orb_E)
-      deallocate(old_idx)
+      deallocate(kind_per_orb)
       If (iUHF == 1) Then
          Call GetMem('Eor','Free','Real',mAdEor_ab,nTot)
          Call GetMem('Occ','Free','Real',mAdOcc_ab,nTot)
