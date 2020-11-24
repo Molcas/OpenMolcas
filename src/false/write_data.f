@@ -12,7 +12,7 @@
 ************************************************************************
 
       subroutine Write_Data()
-      use stdalloc
+      use stdalloc, only: mma_Allocate, mma_Deallocate
       use False_Global, only: Will_Print
       implicit none
       integer :: nAtoms,nCart,nHess,nRoots,nRelax,i,j,LU,EOF
@@ -123,8 +123,8 @@
             if (not_nac(i,j) /= 0) call Store_Not_Grad(0,i,j)
           end do
         end do
-        call mma_deallocate(not_grad)
-        call mma_deallocate(not_nac)
+        call mma_Deallocate(not_grad)
+        call mma_Deallocate(not_nac)
       end if
 
       return
