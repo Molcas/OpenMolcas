@@ -102,8 +102,8 @@ contains
         integer :: mInd_ab
         integer :: mAdOcc, mAdEor
         integer :: mAdCMO, ipAux_ab, mAdIndt_ab, mAdOcc_ab, mAdEor_ab, mAdCMO_ab
-        real(wp), allocatable :: new_orb_E(:), new_occ(:)
-        real(wp), allocatable :: new_CMO(:, :)
+        real(wp), allocatable :: energy(:), occ(:)
+        real(wp), allocatable :: CMO(:, :)
         integer :: Lu_, iErr, notSymm
         integer :: iatom, iDeg, ishell
         integer :: iIrrep, iWfType, iWF
@@ -462,9 +462,7 @@ contains
             nTot = nTot + nBas(iS)
             nTot2 = nTot2 + nBas(iS)**2
         End Do
-        allocate (new_orb_E(0:nTot - 1))
         allocate (kind_per_orb(nTot))
-        new_orb_E(:) = 0._wp
         Call GetMem('Occ', 'Allo', 'Real', mAdOcc, nTot)
         Call GetMem('Eor', 'Allo', 'Real', mAdEor, nTot)
         Call GetMem('CMO', 'Allo', 'Real', mAdCMO, nTot2)
@@ -554,8 +552,9 @@ contains
         Do iContr = 1, nB
             iWork(ipCent2 + iContr - 1) = 0
             Do k = 1, 8
-                If (iWork(ipCent + ipc) /= 0) &
+                If (iWork(ipCent + ipc) /= 0) then
                     iWork(ipcent2 + iContr - 1) = iWork(ipCent2 + iContr - 1) + 1
+                end if
                 ipc = ipc + 1
             End Do
         End Do
@@ -635,51 +634,44 @@ contains
 
         !**************************** START SORTING ****************************
 
-        allocate (iOrdEor(0:nTot - 1))
-        allocate (new_CMO(0:nTot - 1, 0:nTot - 1))
-        allocate (new_occ(0:nTot - 1))
+        allocate(CMO(0:nTot - 1, 0:nTot - 1))
+        allocate(energy(0:nTot - 1))
+        allocate(occ(0:nTot - 1))
+
+        energy(:) = Work(mAdEor : mAdEor + nTot - 1)
+        occ(:) = Work(mAdOcc : mAdocc + nTot - 1)
+
+        do i = 0, nTot - 1
+            do k = 0, nTot - 1
+                CMO(k, i) = work(ipV + nTot * i + k)
+            end do
+        end do
+
+        call reorder_orbitals(nTot, kind_per_orb, CMO, occ, energy)
 
         n_kinds(:) = 0
-
         do i = lbound(kind_per_orb, 1), ubound(kind_per_orb, 1)
             n_kinds(kind_per_orb(i)) = n_kinds(kind_per_orb(i)) + 1
         end do
 
-        iOrdEor(:) = argsort(Work(mAdEor:mAdEor + nTot - 1), leq_r) - 1
-
-        new_orb_E(:) = Work(mAdEor + iOrdEor)
-
-        do i = 0, nTot - 1
-            do k = 0, nTot - 1
-                new_CMO(k, i) = work(ipV + nTot * iOrdEor(i) + k)
-            end do
-        end do
-
-        new_occ(:) = Work(mAdOcc + iOrdEor(:))
-
-        iOrdEor(:) = argsort(new_occ, geq_r) - 1
-        new_occ(:) = new_occ(iOrdEor)
-        new_CMO(:, :) = new_CMO(:, iOrdEor)
-
-        !> write
 
         notSymm = 1
         iWF = 9
         SymOrbName = 'DESORB'
         VTitle = 'Basis set desymmetrized orbital file DESORB'
         Call WrVec_(SymOrbName, iWF, 'COEI', iUHF, notSymm, [nTot], [nTot], &
-                    new_CMO, Work(ipV_ab), &
-                    new_occ, Work(mAdOcc_ab), &
-                    new_orb_E, Work(ipAux_ab), &
+                    CMO, Work(ipV_ab), &
+                    occ, Work(mAdOcc_ab), &
+                    energy, Work(ipAux_ab), &
                     n_kinds, VTitle, iWFtype)
-        call Add_Info('desym CMO', new_CMO, 999, 8)
+        call Add_Info('desym CMO', CMO, 999, 8)
 
-        deallocate (new_occ)
-        deallocate (new_CMO)
+        deallocate (occ)
+        deallocate (CMO)
+        deallocate (energy)
+        deallocate (kind_per_orb)
         Call GetMem('Eor', 'Free', 'Real', mAdEor, nTot)
         Call GetMem('Occ', 'Free', 'Real', mAdOcc, nTot)
-        deallocate (new_orb_E)
-        deallocate (kind_per_orb)
         If (iUHF == 1) Then
             Call GetMem('Eor', 'Free', 'Real', mAdEor_ab, nTot)
             Call GetMem('Occ', 'Free', 'Real', mAdOcc_ab, nTot)
@@ -700,5 +692,29 @@ contains
 
         call ClsSew()
 
+    end subroutine
+
+    subroutine reorder_orbitals(nTot, kind_per_orb, CMO, occ, energy)
+        integer, intent(in) :: nTot
+        integer, intent(inout) :: kind_per_orb(nTot)
+        real(wp), intent(inout) :: CMO(nTot, nTot), occ(nTot), energy(nTot)
+
+        integer, allocatable :: iOrdEor(:)
+
+        allocate (iOrdEor(nTot))
+
+        iOrdEor(:) = argsort(energy, leq_r)
+
+        kind_per_orb(:) = kind_per_orb(iOrdEor)
+        energy(:) = energy(iOrdEor)
+        CMO(:, :) = CMO(:, iOrdEor)
+        occ(:) = occ(iOrdEor)
+
+        iOrdEor(:) = argsort(occ, geq_r)
+
+        kind_per_orb(:) = kind_per_orb(iOrdEor)
+        energy(:) = energy(iOrdEor)
+        CMO(:, :) = CMO(:, iOrdEor)
+        occ(:) = occ(iOrdEor)
     end subroutine
 end module
