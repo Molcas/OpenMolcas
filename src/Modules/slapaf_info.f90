@@ -13,9 +13,18 @@
 Module Slapaf_Info
 implicit none
 Private
-Public:: Cx, Gx, Gx0, NAC
+Public:: Cx, Gx, Gx0, NAC, Free_Slapaf
 Real*8, Allocatable:: Cx(:,:,:)     ! list of Cartesian coordinates
 Real*8, Allocatable:: Gx(:,:,:)     ! list of Cartesian Gradients, State 1
 Real*8, Allocatable:: Gx0(:,:,:)    ! list of Cartesian Gradients, State 2 for optimization of conical intersections
 Real*8, Allocatable:: NAC(:,:)      ! list of Cartesian non-adiabatic coupling vector
+
+Contains
+  Subroutine Free_Slapaf()
+#include "stdalloc.fh"
+  If (Allocated(Cx)) Call mma_deallocate(Cx)
+  If (Allocated(Gx)) Call mma_deallocate(Gx)
+  If (Allocated(Gx0)) Call mma_deallocate(Gx0)
+  If (Allocated(NAC)) Call mma_deallocate(NAC)
+  End Subroutine Free_Slapaf
 End Module Slapaf_Info

@@ -417,7 +417,6 @@
       Call GetMem('iBM','Free','Inte',ip_iB,mB_Tot)
       Call GetMem('nqB','Free','Inte',ip_nqB,mq)
       Call GetMem(' B ',    'Free','Real',ipB,   (nsAtom*3)**2)
-      If (Allocated(NAC)) Call mma_deallocate(NAC)
       If (ipqInt.ne.ip_Dummy) Then
          Call GetMem('dqInt', 'Free','Real',ipdqInt, nqInt)
          Call GetMem('qInt',  'Free','Real',ipqInt,  nqInt)
@@ -595,6 +594,8 @@
       ApproxNADC=Bk_ApproxNADC
       iState(:)=Bk_iState(:)
 *
+*     Process arrays that is always allocated.
+*
       If (Allocated(Bk_Cx)) Then
          Cx(:,:,:) = Bk_Cx(:,:,:)
          Call mma_deallocate(Bk_Cx)
@@ -613,6 +614,9 @@
       Else
          Call mma_deallocate(Gx0)
       End If
+*
+*     Process arrays that is allocated optionally.
+*
       If (Allocated(Bk_NAC)) Then
          NAC(:,:) = Bk_NAC(:,:)
          Call mma_deallocate(Bk_NAC)
