@@ -11,7 +11,7 @@
 * Copyright (C) 2013, Roland Lindh                                     *
 ************************************************************************
       Subroutine genCxCTL(iStop,Cartesian,rDelta)
-      use Slapaf_Info, only: Gx, Free_Slapaf
+      use Slapaf_Info, only: Gx, dMass, Free_Slapaf
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -81,7 +81,7 @@
       nWndw=iter
       iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
-     &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,
+     &           Work(ipCoor),nDimBC,dMass,AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
      &           Gx,mTtAtm,iWork(ipANr),iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
@@ -232,7 +232,7 @@
          nWndw=Iter
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,mInt,
-     &               Work(ipCoor),ipB,Work(ipCM),
+     &               Work(ipCoor),ipB,dMass,
      &               Lbl,Work(ipShf),ipqInt,ipdqInt,
      &               Work(ipDCF),Work(ipdss),Work(ipTmp),
      &               AtomLbl,iSym,Smmtrc,
@@ -297,7 +297,6 @@
       Call GetMem('Grad',  'Free','Real',ipGrd, 3*nsAtom)
       Call GetMem('Coord', 'Free','Real',ipCoor,3*nsAtom)
       Call GetMem('Anr',   'Free','Inte',ipANr, nsAtom)
-      Call GetMem('Charge','Free','Real',ipCM,  nsAtom)
 *     The weights array length is actually the total number of atoms,
 *     not just symmetry-unique, but that doesn't matter for deallocation
       Call GetMem('Weights','Free','Real',ipWeights,nsAtom)

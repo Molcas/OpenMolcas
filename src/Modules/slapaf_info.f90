@@ -13,11 +13,13 @@
 Module Slapaf_Info
 implicit none
 Private
-Public:: Cx, Gx, Gx0, NAC, Free_Slapaf
+Public:: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Free_Slapaf
 Real*8, Allocatable:: Cx(:,:,:)     ! list of Cartesian coordinates
 Real*8, Allocatable:: Gx(:,:,:)     ! list of Cartesian Gradients, State 1
 Real*8, Allocatable:: Gx0(:,:,:)    ! list of Cartesian Gradients, State 2 for optimization of conical intersections
 Real*8, Allocatable:: NAC(:,:)      ! list of Cartesian non-adiabatic coupling vector
+Real*8, Allocatable:: Q_nuclear(:)  ! list nuclear charges
+Real*8, Allocatable:: dmass(:)      ! list atomic mass in units of (C=12)
 
 Contains
   Subroutine Free_Slapaf()
@@ -26,5 +28,7 @@ Contains
   If (Allocated(Gx)) Call mma_deallocate(Gx)
   If (Allocated(Gx0)) Call mma_deallocate(Gx0)
   If (Allocated(NAC)) Call mma_deallocate(NAC)
+  If (Allocated(Q_nuclear)) Call mma_deallocate(Q_nuclear)
+  If (Allocated(dMass)) Call mma_deallocate(dMass)
   End Subroutine Free_Slapaf
 End Module Slapaf_Info

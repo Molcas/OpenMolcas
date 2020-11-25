@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Get_Molecule(ipCM,ipCoor,ipGrd,AtomLbl,nsAtom,mxdc)
+      Subroutine Get_Molecule(ipCoor,ipGrd,AtomLbl,nsAtom,mxdc)
+      use Slapaf_Info, only: Q_nuclear
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
@@ -38,8 +39,8 @@
       Call Allocate_Work(ipCoor,3*nsAtom)
       Call Get_dArray('Unique Coordinates',Work(ipCoor),3*nsAtom)
 *
-      Call Allocate_Work(ipCM  ,nsAtom)
-      Call Get_dArray('Nuclear charge',Work(ipCM),nsAtom)
+      Call mma_allocate(Q_nuclear,nsAtom)
+      Call Get_dArray('Nuclear charge',Q_nuclear,nsAtom)
 *
       Call Get_iScalar('Grad ready',iGO)
       iJustGrad = iAnd(iGO, 2**0)

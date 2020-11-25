@@ -11,7 +11,7 @@
       Subroutine RlxCtl(iStop)
       Use Chkpnt
       Use kriging_mod, only: Kriging, nspAI
-      Use Slapaf_Info, only: Cx, Gx, Free_Slapaf
+      Use Slapaf_Info, only: Cx, Gx, dMass, Free_Slapaf
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -93,8 +93,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (lCtoF .AND. PrQ) Call Def_CtoF(.False.,Work(ipCM),
-     &                                   nsAtom,AtomLbl,
+      If (lCtoF .AND. PrQ) Call Def_CtoF(.False.,dMass,nsAtom,AtomLbl,
      &                                   Work(ipCoor),jStab,nStab)
 *                                                                      *
 ************************************************************************
@@ -131,7 +130,7 @@
       If (Numerical) nWndw=NmIter
       iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
-     &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,
+     &           Work(ipCoor),nDimBC,dMass,AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
      &           Gx,mTtAtm,iWork(ipANr),iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
@@ -160,7 +159,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Reset_ThrGrd(nsAtom,nDimBC,Work(ipCM),Smmtrc,Degen,Iter,
+      Call Reset_ThrGrd(nsAtom,nDimBC,dMass,Smmtrc,Degen,Iter,
      &                  mTtAtm,iWork(ipANr),DDV_Schlegel,iOptC,rHidden,
      &                  ThrGrd)
 *                                                                      *
@@ -247,7 +246,7 @@
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,Work(ipMF),
      &               iOptH,HUpMet,GNrm_Threshold,
-     &               IRC,Work(ipCM),HrmFrq_Show,
+     &               IRC,dMass,HrmFrq_Show,
      &               CnstWght,Curvilinear,Degen,ThrEne,ThrGrd,iRow)
       Else
          Call Update_sl(
@@ -261,7 +260,7 @@
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,Work(ipMF),
      &               iOptH,HUpMet,kIter,GNrm_Threshold,
-     &               IRC,Work(ipCM),HrmFrq_Show,
+     &               IRC,dMass,HrmFrq_Show,
      &               CnstWght,Curvilinear,Degen)
       End If
 *
@@ -287,7 +286,7 @@
          Error=.False.
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Work(ipCoor),
-     &               ipB,Work(ipCM),Lbl,Work(ipShf),ipqInt,
+     &               ipB,dMass,Lbl,Work(ipShf),ipqInt,
      &               ipdqInt,DFC,dss,Tmp,
      &               AtomLbl,iSym,Smmtrc,Degen,
      &               mTtAtm,iWork(ipANr),iOptH,
@@ -365,8 +364,8 @@
 *
       Call DstInf(iStop,Just_Frequencies,
      &            (lNmHss.or.lRowH) .and.iter.le.NmIter)
-      If (lCtoF) Call Def_CtoF(.True.,Work(ipCM),
-     &         nsAtom,AtomLbl,Work(ipCoor),jStab,nStab)
+      If (lCtoF) Call Def_CtoF(.True.,dMass,nsAtom,AtomLbl,
+     &                         Work(ipCoor),jStab,nStab)
       If (.Not.User_Def .and.
      &   ((lNmHss.and.iter.ge.NmIter).or..Not.lNmHss)) Call cp_SpcInt
 *
@@ -464,7 +463,6 @@
       Call GetMem('Grad',  'Free','Real',ipGrd, 3*nsAtom)
       Call GetMem('Coord', 'Free','Real',ipCoor,3*nsAtom)
       Call GetMem('Anr',   'Free','Inte',ipANr, nsAtom)
-      Call GetMem('Charge','Free','Real',ipCM,  nsAtom)
 *     The weights array length is actually the total number of atoms,
 *     not just symmetry-unique, but that doesn't matter for deallocation
       Call GetMem('Weights','Free','Real',ipWeights,nsAtom)

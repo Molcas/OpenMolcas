@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine Init_SlapAf(iRow)
       use Symmetry_Info, only: nIrrep, iOper
+      use Slapaf_Info, only: q_nuclear, dMass
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -18,6 +19,7 @@
 #include "nadc.fh"
 #include "db.fh"
 #include "print.fh"
+#include "stdalloc.fh"
       Integer   iAdd(0:7) , jPrmt(0:7)
       Logical Same, Do_ESPF, Exist_2, Found, Reduce_Prt
       External Reduce_Prt
@@ -231,7 +233,7 @@
 *...  Read number of atoms, charges, coordinates, gradients and
 *     atom labels
 *
-      Call Get_Molecule(ipCM,ipCoor,ipGrd,AtomLbl,nsAtom,mxdc)
+      Call Get_Molecule(ipCoor,ipGrd,AtomLbl,nsAtom,mxdc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -409,25 +411,20 @@ C           NADC= .False. ! for debugging
 *                                                                      *
 *     Transform charges to masses (C=12)
 *
-      ii = ipCM
+      Call mma_allocate(dMass,nsAtom,Label='dMass')
       Call GetMem('Mass','Allo','Real',ip_xMass,nsAtom)
       Call Get_Mass(Work(ip_xMass),nsAtom)
-*     Call RecPrt(' Charges',' ',Work(ipCM),nsAtom,1)
+*     Call RecPrt(' Charges',' ',Q_nuclear,nsAtom,1)
       Call GetMem('ANr','Allo','Inte',ipANr,nsAtom)
       jj = ipANr
       Do 110 isAtom = 1, nsAtom
-         ind = Int(Work(ii))
+         ind = Int(Q_nuclear(isAtom))
          If (ind.le.0) Then
-*        If (ind.eq.0) Then
-*           Work(ii) = Zero
-*        Else If (ind.eq.-1) Then
-*           Work(ii) = 1.0D99
-            Work(ii) = 1.0D-10
+            dMass(isAtom) = 1.0D-10
          Else
-            Work(ii) = Work(ip_xMass+isAtom-1)
+            dMass(isAtom) = Work(ip_xMass+isAtom-1)
          End If
          iWork(jj)=ind
-         ii = ii + 1
          jj = jj + 1
  110  Continue
       Call GetMem('Mass','Free','Real',ip_xMass,nsAtom)
@@ -468,7 +465,7 @@ C           NADC= .False. ! for debugging
      &                   AtomLbl,nsAtom,Work(ipCoor),3,nsAtom)
       LWrite = .False.
       If (jPrint.ge.99) lWrite=.True.
-      Call CofMss(Work(ipCoor),Work(ipCM),nsAtom,LWrite,cMass,iSym)
+      Call CofMss(Work(ipCoor),dMass,nsAtom,LWrite,cMass,iSym)
       LWrite = .False.
       If (jPrint.ge.99) Call
      &     PrList('Symmetry Distinct Nuclear Forces / au',

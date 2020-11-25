@@ -29,7 +29,7 @@
 ************************************************************************
       Subroutine Print_Mode_Components(Modes,Freq,nModes,lModes,lDisp)
       use Symmetry_Info, only: nIrrep
-      use Slapaf_Info, only: Cx, Gx, Gx0, NAC
+      use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -57,6 +57,8 @@
       Real*8, Allocatable:: Bk_Gx(:,:,:)
       Real*8, Allocatable:: Bk_Gx0(:,:,:)
       Real*8, Allocatable:: Bk_NAC(:,:)
+      Real*8, Allocatable:: Bk_Q_nuclear(:)
+      Real*8, Allocatable:: Bk_dMass(:)
 *
 *
 *---- Ugly hack: backup all "global" slapaf variables in case this is
@@ -84,6 +86,16 @@
          Call mma_allocate(Bk_NAC,3,nsAtom,Label='Bk_NAC')
          Bk_NAC(:,:) = NAC(:,:)
          Call mma_deallocate(NAC)
+      End If
+      If (Allocated(Q_nuclear)) Then
+         Call mma_allocate(Bk_Q_nuclear,nsAtom,Label='Bk_Q_nuclear')
+         Bk_Q_nuclear(:) = Q_nuclear(:)
+         Call mma_deallocate(Q_nuclear)
+      End If
+      If (Allocated(dMass)) Then
+         Call mma_allocate(Bk_dMass,nsAtom,Label='Bk_dMass')
+         Bk_dMass(:) = dMass(:)
+         Call mma_deallocate(dMass)
       End If
 
       Bk_iSym(:)=iSym(:)
@@ -288,7 +300,7 @@
       nWndw=iter
       iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
-     &           Work(ipCoor),nDimBC,Work(ipCM),AtomLbl,
+     &           Work(ipCoor),nDimBC,dMass,AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
      &           Work(ipGx),mTtAtm,iWork(ipANr),iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
@@ -431,7 +443,6 @@
       Call GetMem('Grad',   'Free','Real',ipGrd,    3*nsAtom)
       Call GetMem('Coord',  'Free','Real',ipCoor,   3*nsAtom)
       Call GetMem('Anr',    'Free','Inte',ipANr,    nsAtom)
-      Call GetMem('Charge', 'Free','Real',ipCM,     nsAtom)
       Call GetMem('Weights','Free','Real',ipWeights,nsAtom)
 *                                                                      *
 ************************************************************************
@@ -613,6 +624,18 @@
          Call mma_deallocate(Bk_Gx0)
       Else
          Call mma_deallocate(Gx0)
+      End If
+      If (Allocated(Bk_Q_nuclear)) Then
+         Q_nuclear(:) = Bk_Q_nuclear(:)
+         Call mma_deallocate(Bk_Q_nuclear)
+      Else
+         Call mma_deallocate(Q_nuclear)
+      End If
+      If (Allocated(Bk_dMass)) Then
+         dMass(:) = Bk_dMass(:)
+         Call mma_deallocate(Bk_dMass)
+      Else
+         Call mma_deallocate(dMass)
       End If
 *
 *     Process arrays that is allocated optionally.

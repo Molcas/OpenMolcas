@@ -9,15 +9,15 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine mk_G(G,GInv,nX)
+      use Slapaf_Info, only: dMass
 #include "info_slapaf.fh"
-#include "WrkSpc.fh"
       Integer nX
       Real*8 G(nX*nX), GInv(nX*nX)
 *
       mInter=mInt + mTROld
 *
       Call mk_G_Internal(G,GInv,mInter,nsAtom,.Not.User_Def,CurviLinear,
-     &                   Smmtrc,Degen,Work(ipCM))
+     &                   Smmtrc,Degen,dMass)
 *
       Return
       End

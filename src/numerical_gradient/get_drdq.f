@@ -12,6 +12,7 @@
 *               2015, Ignacio Fdez. Galvan (split from gencxctl)       *
 ************************************************************************
       Subroutine get_drdq(drdq,mLambda)
+      use Slapaf_Info, only: dMass
       Implicit None
 ************************************************************************
 *     subroutine to get the dr/dq vectors for the constraints as given *
@@ -54,7 +55,7 @@
      &                lWrite,jStab,nStab,mxdc,
      &                Work(ipMult),Work(ipdBMx),
      &                Work(ipValue0),Iter,iWork(ip_iFlip),
-     &                Work(ipCM))
+     &                dMass)
 *        Call RecPrt('dr/dx',' ',Work(ipBMx),n3,nLambda)
 *
 *        Assemble dr/dq: Solve  B dr/dq = dr/dx

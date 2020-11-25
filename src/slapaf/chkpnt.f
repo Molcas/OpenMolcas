@@ -79,6 +79,7 @@
 #ifdef _HDF5_
       use Phase_Info
       use Symmetry_Info, only: nIrrep
+      use Slapaf_Info, only: dMass
 #  include "info_slapaf.fh"
 #  include "WrkSpc.fh"
 #  include "stdalloc.fh"
@@ -114,7 +115,7 @@
      &         'CENTER_MASSES', 1, [nsAtom])
       Call mh5_init_attr(dsetid, 'description',
      &    'Nuclear masses, stored as array of size [NATOMS_UNIQUE]')
-      Call mh5_put_dset(dsetid, Work(ipCM))
+      Call mh5_put_dset(dsetid, dMass)
       Call mh5_close_dset(dsetid)
 
 *     atom charges
