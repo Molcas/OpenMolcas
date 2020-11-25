@@ -41,6 +41,16 @@ module desymmetrize_mod
     !> f, i, 1, 2, 3, s, d
     integer, parameter :: n_orb_kinds = 7
 
+
+! NOTE: These global variables are ugly as hell, but we need
+!  it to support the shitty SUN compiler.
+#ifndef INTERNAL_PROC_ARG
+    !> This is the orbital kind for each orbital.
+    integer, allocatable :: kind_per_orb(:)
+    real(wp), allocatable :: energy(:), occ(:)
+    real(wp), allocatable :: CMO(:, :)
+#endif
+
 contains
 
 ! symmetry-----> C1 INPORB
@@ -83,10 +93,12 @@ contains
         character(len=LENIN8), allocatable :: label(:)
         character(len=8) :: MO_Label(maxbfn)
         integer :: ibas_lab(MxAtom), nOrb(8)
+#ifdef INTERNAL_PROC_ARG
         !> This is the orbital kind for each orbital.
         integer, allocatable :: kind_per_orb(:)
         real(wp), allocatable :: energy(:), occ(:)
         real(wp), allocatable :: CMO(:, :)
+#endif
         !> This is the number of orbitals for every kind.
         integer :: n_kinds(n_orb_kinds)
 
@@ -642,7 +654,11 @@ contains
             CMO(:, i + 1) = work(l : l + nTot - 1)
         end do
 
+#ifdef INTERNAL_PROC_ARG
         call reorder_orbitals(nTot, kind_per_orb, CMO, occ, energy)
+#else
+        call reorder_orbitals()
+#endif
 
         n_kinds(:) = 0
         do i = lbound(kind_per_orb, 1), ubound(kind_per_orb, 1)
@@ -688,6 +704,8 @@ contains
         call ClsSew()
 
     end subroutine
+
+#ifdef INTERNAL_PROC_ARG
 
     subroutine reorder_orbitals(nTot, kind_per_orb, CMO, occ, energy)
         integer, intent(in) :: nTot
@@ -736,4 +754,51 @@ contains
                 end if
             end function
     end subroutine
+
+#else
+
+    subroutine reorder_orbitals()
+        integer :: nTot, i
+        integer, allocatable :: idx(:)
+
+        nTot = size(kind_per_orb)
+        allocate(idx(nTot))
+        idx(:) = [(i, i = 1, nTot)]
+
+        call sort(idx, compare)
+
+        kind_per_orb(:) = kind_per_orb(idx)
+        energy(:) = energy(idx)
+        CMO(:, :) = CMO(:, idx)
+        occ(:) = occ(idx)
+    end subroutine
+
+    !> @brief
+    !>  Comparison function for generic sort.
+    !>
+    !> @details
+    !>  Sort non-strict i.e. (compare(i, j) .and. compare(j, i)) can be true)
+    !>  Sort first by orbital kind ascendingly (frozen, inactive, RAS1, ...),
+    !>      second by occupation number descendingly (2.0, 2.0, 1.x, 0., ...),
+    !>      third by energy ascendingly (-3., -2., -2., 0., 1., ...).
+    !>  Note, that `sort` uses a stable sorting algorithm.
+    pure function compare(i, j) result(res)
+        integer, intent(in) :: i, j
+        logical :: res
+
+        if (kind_per_orb(i) /= kind_per_orb(j)) then
+            res = kind_per_orb(i) < kind_per_orb(j)
+        else if (occ(i) /= occ(j)) then
+            res = occ(i) > occ(j)
+        else if (energy(i) /= energy(j)) then
+            res = energy(i) < energy(j)
+        else
+            ! All relevant values are equal and our comparison has
+            ! to be non-strict.
+            res = .true.
+        end if
+    end function
+
+#endif
+
 end module
