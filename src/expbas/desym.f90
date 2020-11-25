@@ -44,7 +44,7 @@ module desymmetrize_mod
 contains
 
 ! symmetry-----> C1 INPORB
-    Subroutine desym(iUHF)
+    Subroutine desym(UHF)
 !***********************************************************************
 !                                                                      *
 ! Purpose: Convert INPORB file with symmetry to DeSymOrb               *
@@ -74,7 +74,7 @@ contains
 #include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "info_expbas.fh"
-        integer, intent(in) :: iUHF
+        logical, intent(in) :: UHF
 
         real(wp), parameter :: EorbThr = 50._wp
         real(wp) :: Coor(3, MxAtom), Znuc(MxAtom)
@@ -85,8 +85,11 @@ contains
         integer :: ibas_lab(MxAtom), nOrb(8)
         !> This is the orbital kind for each orbital.
         integer, allocatable :: kind_per_orb(:)
+        real(wp), allocatable :: energy(:), occ(:)
+        real(wp), allocatable :: CMO(:, :)
         !> This is the number of orbitals for every kind.
         integer :: n_kinds(n_orb_kinds)
+
         character(len=LENIN8 + 1) :: gtolabel(maxbfn)
         character(len=50) :: VTitle
         character(len=128) :: SymOrbName
@@ -100,8 +103,6 @@ contains
         integer :: mInd_ab
         integer :: mAdOcc, mAdEor
         integer :: mAdCMO, ipAux_ab, mAdIndt_ab, mAdOcc_ab, mAdEor_ab, mAdCMO_ab
-        real(wp), allocatable :: energy(:), occ(:)
-        real(wp), allocatable :: CMO(:, :)
         integer :: Lu_, iErr, notSymm
         integer :: iatom, iDeg, ishell
         integer :: iIrrep, iWfType, iWF
@@ -154,7 +155,7 @@ contains
         Call GetMem('VECTOR', 'ALLO', 'REAL', ipV, nB**2)
         call dcopy_(nB**2, [0._wp], 0, Work(ipV), 1)
         Call FZero(Work(ipC2), nB**2)
-        If (iUHF == 1) Then
+        If (UHF) Then
             Call GetMem('CMO2', 'ALLO', 'REAL', ipC2_ab, nB**2)
             Call GetMem('VECTOR', 'ALLO', 'REAL', ipV_ab, nB**2)
             call dcopy_(nB**2, [0._wp], 0, Work(ipV_ab), 1)
@@ -466,7 +467,7 @@ contains
         Call FZero(Work(mAdOcc), nTot)
         Call FZero(Work(mAdEor), nTot)
         Call FZero(Work(mAdCMO), nTot2)
-        If (iUHF == 1) Then
+        If (UHF) Then
             Call GetMem('Aux', 'ALLO', 'REAL', ipAux_ab, nTot)
             Call GetMem('INDT', 'Allo', 'Inte', mAdIndt_ab, ntot)
             Call GetMem('IndType', 'Allo', 'Inte', mInd_ab, 56)
@@ -495,12 +496,12 @@ contains
         FilesOrb = EB_FileOrb
         If (len_trim(FilesOrb) == 0) FilesOrb = 'INPORB'
         if (DoExpbas) FilesOrb = 'EXPORB'
-        Call RdVec_(trim(FilesOrb), Lu_, 'COEI', iUHF, nIrrep, nBas, nBas, &
+        Call RdVec_(trim(FilesOrb), Lu_, 'COEI', merge(1, 0, UHF), nIrrep, nBas, nBas, &
                     Work(mAdCMO), Work(mAdCMO_ab), &
                     Work(mAdOcc), Work(mAdOcc_ab), &
                     Work(mAdEor), Work(mAdEor_ab), &
                     kind_per_orb, VTitle, 1, iErr, iWfType)
-        if (iUHF == 1) then
+        if (UHF) then
             write (6, *) 'DESY keyword not implemented for DODS wf!'
             Call Abend()
         end if
@@ -516,12 +517,10 @@ contains
         !
         Call Dens_IF_SCF(Work(ipC2), Work(mAdCMO), 'F')
         Call GetMem('CMO', 'Free', 'Real', mAdCMO, nTot2)
-        If (iUHF == 1) Then
+        If (UHF) Then
             Call Dens_IF_SCF(Work(ipC2_ab), Work(mAdCMO_ab), 'F')
             Call GetMem('CMO', 'Free', 'Real', mAdCMO_ab, nTot2)
         End If
-        !        write(6,*)'write work(ipC2) in .out'
-        !        write(6,*) (Work(k), k=ipC2,ipC2+nTot2-1)
 
         !                                                                      *
         !***********************************************************************
@@ -604,7 +603,7 @@ contains
                                                          + Work(ipC2 + ic) &
                                                          * DBLE(iWork(ipPhase + ipp)) &
                                                          / DBLE(iWork(ipcent2 + i - 1))
-                                        If (iUHF == 1) Work(ipV_ab + iv) = Work(ipV_ab + iv) &
+                                        If (UHF) Work(ipV_ab + iv) = Work(ipV_ab + iv) &
                                                                            + Work(ipC2_ab + ic) &
                                                                            * DBLE(iWork(ipPhase + ipp)) &
                                                                            / DBLE(iWork(ipcent2 + i - 1))
@@ -613,7 +612,7 @@ contains
                                                          + Work(ipC2 + ic) &
                                                          * DBLE(iWork(ipPhase + ipp)) &
                                                          / Sqrt(DBLE(iWork(ipcent2 + i - 1)))
-                                        If (iUHF == 1) Work(ipV_ab + iv) = Work(ipV_ab + iv) &
+                                        If (UHF) Work(ipV_ab + iv) = Work(ipV_ab + iv) &
                                                                            + Work(ipC2_ab + ic) &
                                                                            * DBLE(iWork(ipPhase + ipp)) &
                                                                            / Sqrt(DBLE(iWork(ipcent2 + i - 1)))
@@ -655,7 +654,7 @@ contains
         iWF = 9
         SymOrbName = 'DESORB'
         VTitle = 'Basis set desymmetrized orbital file DESORB'
-        Call WrVec_(SymOrbName, iWF, 'COEI', iUHF, notSymm, [nTot], [nTot], &
+        Call WrVec_(SymOrbName, iWF, 'COEI', UHF, notSymm, [nTot], [nTot], &
                     CMO, Work(ipV_ab), &
                     occ, Work(mAdOcc_ab), &
                     energy, Work(ipAux_ab), &
@@ -668,7 +667,7 @@ contains
         call mma_deallocate(kind_per_orb)
         Call GetMem('Eor', 'Free', 'Real', mAdEor, nTot)
         Call GetMem('Occ', 'Free', 'Real', mAdOcc, nTot)
-        If (iUHF == 1) Then
+        If (UHF) Then
             Call GetMem('Eor', 'Free', 'Real', mAdEor_ab, nTot)
             Call GetMem('Occ', 'Free', 'Real', mAdOcc_ab, nTot)
             Call GetMem('Aux', 'FREE', 'REAL', ipAux_ab, nTot)
@@ -679,7 +678,7 @@ contains
         Call GetMem('IPHASE', 'FREE', 'INTE', ipPhase, 8 * nB)
         Call GetMem('nCENT', 'FREE', 'INTE', ipCent2, nB)
         Call GetMem('ICENTER', 'FREE', 'INTE', ipCent3, nB)
-        If (iUHF == 1) Then
+        If (UHF) Then
             Call GetMem('CMO2', 'FREE', 'REAL', ipC2_ab, nB**2)
             Call GetMem('VECTOR', 'FREE', 'REAL', ipV_ab, nB**2)
         End If

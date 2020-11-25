@@ -17,7 +17,7 @@
       COMMON /iret/ ireturn
       call Readinp_expbas()
       if(DoExpbas) Call expbas(ireturn)
-      if(DoDesy) Call desym(0)
+      if(DoDesy) Call desym(UHF=.false.)
 
       Return
       end
