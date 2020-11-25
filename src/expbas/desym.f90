@@ -459,7 +459,7 @@ contains
             nTot = nTot + nBas(iS)
             nTot2 = nTot2 + nBas(iS)**2
         End Do
-        allocate (kind_per_orb(nTot))
+        call mma_allocate(kind_per_orb, nTot)
         Call GetMem('Occ', 'Allo', 'Real', mAdOcc, nTot)
         Call GetMem('Eor', 'Allo', 'Real', mAdEor, nTot)
         Call GetMem('CMO', 'Allo', 'Real', mAdCMO, nTot2)
@@ -631,17 +631,16 @@ contains
 
         !**************************** START SORTING ****************************
 
-        allocate(CMO(0:nTot - 1, 0:nTot - 1))
-        allocate(energy(0:nTot - 1))
-        allocate(occ(0:nTot - 1))
+        call mma_allocate(CMO, nTot, nTot)
+        call mma_allocate(occ, nTot)
+        call mma_allocate(energy, nTot)
 
         energy(:) = Work(mAdEor : mAdEor + nTot - 1)
         occ(:) = Work(mAdOcc : mAdocc + nTot - 1)
 
         do i = 0, nTot - 1
-            do k = 0, nTot - 1
-                CMO(k, i) = work(ipV + nTot * i + k)
-            end do
+            l = ipV + nTot * i
+            CMO(:, i + 1) = work(l : l + nTot - 1)
         end do
 
         call reorder_orbitals(nTot, kind_per_orb, CMO, occ, energy)
@@ -663,10 +662,10 @@ contains
                     n_kinds, VTitle, iWFtype)
         call Add_Info('desym CMO', CMO, 999, 8)
 
-        deallocate (occ)
-        deallocate (CMO)
-        deallocate (energy)
-        deallocate (kind_per_orb)
+        call mma_deallocate(occ)
+        call mma_deallocate(CMO)
+        call mma_deallocate(energy)
+        call mma_deallocate(kind_per_orb)
         Call GetMem('Eor', 'Free', 'Real', mAdEor, nTot)
         Call GetMem('Occ', 'Free', 'Real', mAdOcc, nTot)
         If (iUHF == 1) Then
