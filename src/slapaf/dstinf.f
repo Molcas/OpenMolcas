@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine DstInf(iStop,Just_Frequencies,Numerical)
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: Cx, Gx, Gx0
+      use Slapaf_Info, only: Cx, Gx, Gx0, Coor
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -130,9 +130,9 @@
       nTemp = 0
       Do isAtom = 1, nsAtom + nsAtom_p
          If (isAtom.le.nsAtom) Then
-            x1 = Work(ipCoor-1+(isAtom-1)*3+1)
-            y1 = Work(ipCoor-1+(isAtom-1)*3+2)
-            z1 = Work(ipCoor-1+(isAtom-1)*3+3)
+            x1 = Coor(1,isAtom)
+            y1 = Coor(2,isAtom)
+            z1 = Coor(3,isAtom)
          Else
             jsAtom = isAtom - nsAtom
             x1 = Cx_p(1,jsAtom)
@@ -183,17 +183,17 @@
      &               //' printed in the head of the output.'
          Call OutCoor(
      &    '* Nuclear coordinates of the final structure / Bohr     *',
-     &    AtomLbl,nsAtom,Work(ipCoor),3,nsAtom,.False.)
+     &    AtomLbl,nsAtom,Coor,3,nsAtom,.False.)
          Call OutCoor(
      &    '* Nuclear coordinates of the final structure / Angstrom *',
-     &    AtomLbl,nsAtom,Work(ipCoor),3,nsAtom,.True.)
+     &    AtomLbl,nsAtom,Coor,3,nsAtom,.True.)
       Else If (Do_PrintCoords) Then
          Call OutCoor(
      &    '* Nuclear coordinates for the next iteration / Bohr     *',
-     &    AtomLbl,nsAtom,Work(ipCoor),3,nsAtom,.False.)
+     &    AtomLbl,nsAtom,Coor,3,nsAtom,.False.)
          Call OutCoor(
      &    '* Nuclear coordinates for the next iteration / Angstrom *',
-     &    AtomLbl,nsAtom,Work(ipCoor),3,nsAtom,.True.)
+     &    AtomLbl,nsAtom,Coor,3,nsAtom,.True.)
       End If
 *
       If (nsAtom_p.gt.0) Then
@@ -209,7 +209,7 @@
 *
       IF (do_printcoords) THEN
          Call Get_iScalar('N ZMAT',N_ZMAT)
-         If (N_ZMAT.GT.0) Call OutZMAT(nsAtom,Work(ipCoor),N_ZMAT)
+         If (N_ZMAT.GT.0) Call OutZMAT(nsAtom,Coor,N_ZMAT)
 *
          IF (do_fullprintcoords) THEN
            If (nTemp.ge.2)

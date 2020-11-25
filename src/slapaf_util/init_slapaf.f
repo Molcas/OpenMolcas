@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Init_SlapAf(iRow)
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: q_nuclear, dMass
+      use Slapaf_Info, only: q_nuclear, dMass, Coor, Grd
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -233,7 +233,7 @@
 *...  Read number of atoms, charges, coordinates, gradients and
 *     atom labels
 *
-      Call Get_Molecule(ipCoor,ipGrd,AtomLbl,nsAtom,mxdc)
+      Call Get_Molecule(AtomLbl,nsAtom,mxdc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -343,10 +343,9 @@ C           NADC= .False. ! for debugging
 *...  Loop over the unique atoms
       Do 610 isAtom = 1, nsAtom
 *...     Find character of center
-         iAdr = ipCoor -1 + (isAtom-1)*3
          iChxyz=0
          Do i = 1, 3
-            If (Work(iAdr+i).ne.Zero) Then
+            If (Coor(i,isAtom).ne.Zero) Then
                Do iIrrep= 0, nIrrep-1
                   If (iAnd(2**(i-1),iOper(iIrrep)).ne.0)
      &               iChxyz=iOr(iChxyz,2**(i-1))
@@ -435,9 +434,8 @@ C           NADC= .False. ! for debugging
 *
       mTtAtm=0
       Do 4100 isAtom = 1, nsAtom
-         iOff = 3*(isAtom-1) + ipCoor
-         mTtAtm=mTtAtm+iDeg(Work(iOff))
-         tmp = DBLE(iDeg(Work(iOff)))
+         mTtAtm=mTtAtm+iDeg(Coor(:,isAtom))
+         tmp = DBLE(iDeg(Coor(:,isAtom)))
          i=(isAtom-1)*3+1
          Degen(i)=tmp
          i=(isAtom-1)*3+2
@@ -462,14 +460,14 @@ C           NADC= .False. ! for debugging
 *
       If (jPrint.ge.99) Call
      &     Prlist('Symmetry Distinct Nuclear Coordinates / Bohr',
-     &                   AtomLbl,nsAtom,Work(ipCoor),3,nsAtom)
+     &                   AtomLbl,nsAtom,Coor,3,nsAtom)
       LWrite = .False.
       If (jPrint.ge.99) lWrite=.True.
-      Call CofMss(Work(ipCoor),dMass,nsAtom,LWrite,cMass,iSym)
+      Call CofMss(Coor,dMass,nsAtom,LWrite,cMass,iSym)
       LWrite = .False.
       If (jPrint.ge.99) Call
      &     PrList('Symmetry Distinct Nuclear Forces / au',
-     &                   AtomLbl,nsAtom,Work(ipGrd),3,nsAtom)
+     &                   AtomLbl,nsAtom,Grd,3,nsAtom)
 *                                                                      *
 ************************************************************************
 *                                                                      *

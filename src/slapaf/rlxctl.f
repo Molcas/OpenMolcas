@@ -11,7 +11,7 @@
       Subroutine RlxCtl(iStop)
       Use Chkpnt
       Use kriging_mod, only: Kriging, nspAI
-      Use Slapaf_Info, only: Cx, Gx, dMass, Free_Slapaf
+      Use Slapaf_Info, only: Cx, Gx, dMass, Coor, Free_Slapaf
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -94,7 +94,7 @@
 ************************************************************************
 *                                                                      *
       If (lCtoF .AND. PrQ) Call Def_CtoF(.False.,dMass,nsAtom,AtomLbl,
-     &                                   Work(ipCoor),jStab,nStab)
+     &                                   Coor,jStab,nStab)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -114,7 +114,7 @@
       If (Cubic)  NmIter=2*mInt**2+1 ! Full cubic
 *
       If (lTherm .and. iter.EQ.1) then
-         Call Put_dArray('Initial Coordinates',Work(ipCoor),3*nsAtom)
+         Call Put_dArray('Initial Coordinates',Coor,3*nsAtom)
       EndIf
 *
 *---- Fix the definition of internal during numerical differentiation
@@ -130,7 +130,7 @@
       If (Numerical) nWndw=NmIter
       iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
-     &           Work(ipCoor),nDimBC,dMass,AtomLbl,
+     &           Coor,nDimBC,dMass,AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
      &           Gx,mTtAtm,iWork(ipANr),iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
@@ -277,7 +277,7 @@
 *     (if not already done by Kriging)
 *
       If (Kriging .and. Iter.ge.nspAI) Then
-         Call dCopy_(3*nsAtom,Cx(1,1,Iter+1),1,Work(ipCoor),1)
+         Call dCopy_(3*nsAtom,Cx(1,1,Iter+1),1,Coor,1)
       Else
          Call mma_allocate(DFC, 3*nsAtom,Label='DFC')
          Call mma_allocate(dss, nQQ,Label='dss')
@@ -285,7 +285,7 @@
          PrQ=.False.
          Error=.False.
          iRef=0
-         Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Work(ipCoor),
+         Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Coor,
      &               ipB,dMass,Lbl,Work(ipShf),ipqInt,
      &               ipdqInt,DFC,dss,Tmp,
      &               AtomLbl,iSym,Smmtrc,Degen,
@@ -308,8 +308,8 @@
       Do_ESPF = .False.
       Call DecideOnESPF(Do_ESPF)
       If (Do_ESPF) Then
-       Call LA_Morok(nsAtom,work(ipCoor),2)
-       call dcopy_(3*nsAtom,Work(ipCoor),1,Cx(1,1,Iter+1),1)
+       Call LA_Morok(nsAtom,Coor,2)
+       call dcopy_(3*nsAtom,Coor,1,Cx(1,1,Iter+1),1)
       End If
 *                                                                      *
 ************************************************************************
@@ -349,7 +349,7 @@
      &            iNeg,GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &            Analytic_Hessian,rMEP,MEP,nMEP,
      &            (lNmHss.or.lRowH).and.iter.le.NmIter,
-     &            Just_Frequencies,FindTS,ipCoor,eMEPTest,nLambda,
+     &            Just_Frequencies,FindTS,eMEPTest,nLambda,
      &            TSReg,ThrMEP)
 
       Call Free_Work(ipShf)
@@ -365,7 +365,7 @@
       Call DstInf(iStop,Just_Frequencies,
      &            (lNmHss.or.lRowH) .and.iter.le.NmIter)
       If (lCtoF) Call Def_CtoF(.True.,dMass,nsAtom,AtomLbl,
-     &                         Work(ipCoor),jStab,nStab)
+     &                         Coor,jStab,nStab)
       If (.Not.User_Def .and.
      &   ((lNmHss.and.iter.ge.NmIter).or..Not.lNmHss)) Call cp_SpcInt
 *
@@ -460,8 +460,6 @@
           Call GetMem('qInt', 'Free','Real',ipqInt, nqInt)
       End If
       Call GetMem('Relax', 'Free','Real',ipRlx, Lngth)
-      Call GetMem('Grad',  'Free','Real',ipGrd, 3*nsAtom)
-      Call GetMem('Coord', 'Free','Real',ipCoor,3*nsAtom)
       Call GetMem('Anr',   'Free','Inte',ipANr, nsAtom)
 *     The weights array length is actually the total number of atoms,
 *     not just symmetry-unique, but that doesn't matter for deallocation

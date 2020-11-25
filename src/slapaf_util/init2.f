@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Init2
-      use Slapaf_Info, only: Cx, Gx, Gx0, NAC
+      Subroutine Init2()
+      use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Coor, Grd
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
@@ -148,8 +148,8 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
 *-----Save coordinates and gradients from this iteration onto the list.
 *
       ipOff = (iter-1)*3*nsAtom + ipCx
-      call dcopy_(3*nsAtom,Work(ipCoor),1,Work(ipOff),1)
-      call dcopy_(3*nsAtom,Work(ipCoor),1,Cx(:,:,iter),1)
+      call dcopy_(3*nsAtom,Coor,1,Work(ipOff),1)
+      call dcopy_(3*nsAtom,Coor,1,Cx(:,:,iter),1)
       If (iter.gt.1) Then
         Temp=Zero
         Do i = 1, nsAtom
@@ -168,7 +168,7 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
           Call Quit_OnUserError()
         End If
       End If
-      call dcopy_(3*nsAtom,Work(ipGrd) ,1,Gx(1,1,iter),1)
+      call dcopy_(3*nsAtom,Grd ,1,Gx(1,1,iter),1)
 * In case of a QM/MM geometry optimization, all the old MM gradients are
 * replaced by the new one (both gradients are stored on the Runfile).
 *
@@ -229,7 +229,7 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
 *
 *     (disabled for the moment, moving the reference affects the
 *      computation of some vectors for MEP)
-C     If (iter.gt.1) Call Align(Work(ipRef),Work(ipCoor),nsAtom)
+C     If (iter.gt.1) Call Align(Work(ipRef),Coor,nsAtom)
 C     Call RecPrt('Ref_Geom',' ',Work(ipRef),3,nsAtom)
 *                                                                      *
 ************************************************************************

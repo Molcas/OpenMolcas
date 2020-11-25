@@ -11,7 +11,7 @@
 * Copyright (C) 2013, Roland Lindh                                     *
 ************************************************************************
       Subroutine genCxCTL(iStop,Cartesian,rDelta)
-      use Slapaf_Info, only: Gx, dMass, Free_Slapaf
+      use Slapaf_Info, only: Gx, dMass, Coor, Free_Slapaf
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -81,7 +81,7 @@
       nWndw=iter
       iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
-     &           Work(ipCoor),nDimBC,dMass,AtomLbl,
+     &           Coor,nDimBC,dMass,AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
      &           Gx,mTtAtm,iWork(ipANr),iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
@@ -155,7 +155,7 @@
 *     Take a copy of the current structure - the reference
 *     coordinates.
 *
-      call dcopy_(3*nsAtom,Work(ipCoor),1,Work(ip_RefCoor),1)
+      call dcopy_(3*nsAtom,Coor,1,Work(ip_RefCoor),1)
 *
 *     Loop over all displacements which are in the subspace in
 *     which we like to minimize the energy. Hence, this will
@@ -175,7 +175,7 @@
 *
 *        Get a virgin copy of the reference structure
 *
-         call dcopy_(3*nsAtom,Work(ip_RefCoor),1,Work(ipCoor),1)
+         call dcopy_(3*nsAtom,Work(ip_RefCoor),1,Coor,1)
 *
 *        Compute the effective index where to find the data
 *
@@ -232,7 +232,7 @@
          nWndw=Iter
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,mInt,
-     &               Work(ipCoor),ipB,dMass,
+     &               Coor,ipB,dMass,
      &               Lbl,Work(ipShf),ipqInt,ipdqInt,
      &               Work(ipDCF),Work(ipdss),Work(ipTmp),
      &               AtomLbl,iSym,Smmtrc,
@@ -247,7 +247,7 @@
 *
 *        Move the new Cartesian coordinate to the list.
 *
-         call dcopy_(3*nsAtom,Work(ipCoor),1,Work(ip_To),1)
+         call dcopy_(3*nsAtom,Coor,1,Work(ip_To),1)
       End Do
       Call GetMem(' qTemp', 'Free','Real',ipTmp, mInt)
       Call GetMem(' dss  ', 'Free','Real',ipdss, mInt)
@@ -294,15 +294,12 @@
          Call GetMem('qInt', 'Free','Real',ipqInt, nqInt)
       End If
       Call GetMem('Relax', 'Free','Real',ipRlx, Lngth)
-      Call GetMem('Grad',  'Free','Real',ipGrd, 3*nsAtom)
-      Call GetMem('Coord', 'Free','Real',ipCoor,3*nsAtom)
       Call GetMem('Anr',   'Free','Inte',ipANr, nsAtom)
 *     The weights array length is actually the total number of atoms,
 *     not just symmetry-unique, but that doesn't matter for deallocation
       Call GetMem('Weights','Free','Real',ipWeights,nsAtom)
 *
 *-----Terminate the calculations.
-*
 *
       Return
       End

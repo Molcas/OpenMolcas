@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Mk_Hss_Q()
-      use Slapaf_Info, only: Cx
+      use Slapaf_Info, only: Cx, Coor
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "real.fh"
@@ -32,7 +32,7 @@
      &                       Curvilinear)
          End If
 *
-         call dcopy_(3*nsAtom,Cx,1,Work(ipCoor),1)
+         call dcopy_(3*nsAtom,Cx,1,Coor,1)
          Call Get_dArray('BMxOld',Work(ipB),3*nsAtom*mInt)
          ipIn = ipqInt + (Iter-1)*mInt
          call dcopy_(mInt,Work(ipqInt),1,Work(ipIn),1)

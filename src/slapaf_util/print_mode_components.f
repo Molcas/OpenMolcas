@@ -29,7 +29,8 @@
 ************************************************************************
       Subroutine Print_Mode_Components(Modes,Freq,nModes,lModes,lDisp)
       use Symmetry_Info, only: nIrrep
-      use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass
+      use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor,
+     &                       Grd
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -59,6 +60,8 @@
       Real*8, Allocatable:: Bk_NAC(:,:)
       Real*8, Allocatable:: Bk_Q_nuclear(:)
       Real*8, Allocatable:: Bk_dMass(:)
+      Real*8, Allocatable:: Bk_Coor(:,:)
+      Real*8, Allocatable:: Bk_Grd(:,:)
 *
 *
 *---- Ugly hack: backup all "global" slapaf variables in case this is
@@ -96,6 +99,16 @@
          Call mma_allocate(Bk_dMass,nsAtom,Label='Bk_dMass')
          Bk_dMass(:) = dMass(:)
          Call mma_deallocate(dMass)
+      End If
+      If (Allocated(Coor)) Then
+         Call mma_allocate(Bk_Coor,3,nsAtom,Label='Bk_Coor')
+         Bk_Coor(:,:) = Coor(:,:)
+         Call mma_deallocate(Coor)
+      End If
+      If (Allocated(Grd)) Then
+         Call mma_allocate(Bk_Grd,3,nsAtom,Label='Bk_Grd')
+         Bk_Grd(:,:) = Grd(:,:)
+         Call mma_deallocate(Grd)
       End If
 
       Bk_iSym(:)=iSym(:)
@@ -300,7 +313,7 @@
       nWndw=iter
       iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
-     &           Work(ipCoor),nDimBC,dMass,AtomLbl,
+     &           Coor,nDimBC,dMass,AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
      &           Work(ipGx),mTtAtm,iWork(ipANr),iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
@@ -440,8 +453,6 @@
          Call GetMem('ipRef',  'Free','Real',ipRef,    3*nsAtom)
       End If
       Call GetMem('Relax',  'Free','Real',ipRlx,    Lngth)
-      Call GetMem('Grad',   'Free','Real',ipGrd,    3*nsAtom)
-      Call GetMem('Coord',  'Free','Real',ipCoor,   3*nsAtom)
       Call GetMem('Anr',    'Free','Inte',ipANr,    nsAtom)
       Call GetMem('Weights','Free','Real',ipWeights,nsAtom)
 *                                                                      *
@@ -636,6 +647,18 @@
          Call mma_deallocate(Bk_dMass)
       Else
          Call mma_deallocate(dMass)
+      End If
+      If (Allocated(Bk_Coor)) Then
+         Coor(:,:) = Bk_Coor(:,:)
+         Call mma_deallocate(Bk_Coor)
+      Else
+        If (Allocated(Coor)) Call mma_deallocate(Coor)
+      End If
+      If (Allocated(Bk_Grd)) Then
+         Grd(:,:) = Bk_Grd(:,:)
+         Call mma_deallocate(Bk_Grd)
+      Else
+        If (Allocated(Grd)) Call mma_deallocate(Grd)
       End If
 *
 *     Process arrays that is allocated optionally.

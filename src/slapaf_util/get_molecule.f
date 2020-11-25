@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Get_Molecule(ipCoor,ipGrd,AtomLbl,nsAtom,mxdc)
-      use Slapaf_Info, only: Q_nuclear
+      Subroutine Get_Molecule(AtomLbl,nsAtom,mxdc)
+      use Slapaf_Info, only: Q_nuclear, Coor, Grd
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
@@ -20,7 +20,6 @@
       Character*(LENIN) AtomLbl(mxdc)
       Logical TransVar, RotVar, Found
       Integer Columbus
-      Real*8, Allocatable:: Grad(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -36,8 +35,8 @@
          Call Abend()
       End If
 *
-      Call Allocate_Work(ipCoor,3*nsAtom)
-      Call Get_dArray('Unique Coordinates',Work(ipCoor),3*nsAtom)
+      Call mma_allocate(Coor,3,nsAtom,Label='Coor')
+      Call Get_dArray('Unique Coordinates',Coor,3*nsAtom)
 *
       Call mma_allocate(Q_nuclear,nsAtom)
       Call Get_dArray('Nuclear charge',Q_nuclear,nsAtom)
@@ -48,7 +47,7 @@
 ************************************************************************
 *                                                                      *
 *     Allocate gradient (it will be read later)
-*     (This should eventually be removed, as ipGrd is unused...)
+*     (This should eventually be removed, as Grd is unused...)
 *
       Call Get_iScalar('Columbus',columbus)
       If ((iJustGrad.eq.1).and.(columbus.eq.1)) Then
@@ -57,19 +56,16 @@
 *
          Call Get_iScalar('ColGradMode',iMode)
          If (iMode.eq.0) Then
-            Call mma_allocate(Grad,3*nsAtom,Label='Grad')
-            Call Get_Grad(Grad,3*nsAtom)
-            Call GetMem('Grad','Allo','Real',ipGrd,3*nsAtom)
-            Call DCopy_(3*nsAtom,Grad,1,Work(ipGrd),1)
-            Call mma_deallocate(Grad)
+            Call mma_allocate(Grd,3,nsAtom,Label='Grd')
+            Call Get_Grad(Grd,3*nsAtom)
          Else If (iMode.le.3) Then
             Call qpg_dArray('Grad State1',Found,Length)
             If (.not.Found .or. Length.eq.0) Then
                Call SysAbendmsg('Get_Molecule','Did not find:',
      &                          'Grad State1')
             End If
-            Call GetMem('Grad','Allo','Real',ipGrd,Length)
-            Call Get_dArray('Grad State1',Work(ipGrd),Length)
+            Call mma_allocate(Grd,3,nsAtom,Label='Grd')
+            Call Get_dArray('Grad State1',Grd,3*nsAtom)
 *
          End If
          If ( length.ne.3*nsAtom ) Then
@@ -85,8 +81,8 @@
 *
 *        M mode
 *
-         Call GetMem('GRAD','Allo','Real',ipGrd,3*nsAtom)
-         Call FZero(Work(ipGrd),3*nsAtom)
+         Call mma_allocate(Grd,3,nsAtom,Label='Grd')
+         Grd(:,:)=Zero
       End If
 
       Call Get_cArray('Unique Atom Names',AtomLbl,LENIN*nsAtom)

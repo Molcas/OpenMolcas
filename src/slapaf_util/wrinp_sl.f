@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine WrInp_sl(iRow)
       use kriging_mod
+      use Slapaf_Info, only: Coor
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -423,7 +424,7 @@
          Call Banner(Header,2,Len(Header(1))+12)
          Write (Lu,*)
          Call PrList('Symmetry Distinct Nuclear Coordinates / bohr',
-     &                AtomLbl,nsAtom,Work(ipCoor),3,nsAtom)
+     &                AtomLbl,nsAtom,Coor,3,nsAtom)
       End If
 *                                                                      *
 ************************************************************************

@@ -14,10 +14,10 @@
      &                  Baker, nAtom,mTtAtm,ed,iNeg,
      &                  GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &                  Analytic_hessian,rMEP,MEP,nMEP,Numerical,
-     &                  Just_Frequencies,FindTS,ipCoor,eMEPTest,nLambda,
+     &                  Just_Frequencies,FindTS,eMEPTest,nLambda,
      &                  TSReg,ThrMEP)
       Use Chkpnt
-      Use Slapaf_Info, only: Cx, Gx
+      Use Slapaf_Info, only: Cx, Gx, Coor
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -800,7 +800,7 @@ C              Write (6,*) 'SubProject=.Prod'
             BadConstraint=.False.
             Call MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,
      &                   ResGrad,BadConstraint)
-            Call dCopy_(3*nAtom,Cx(:,:,iter+1),1,Work(ipCoor),1)
+            Call dCopy_(3*nAtom,Cx(:,:,iter+1),1,Coor,1)
             Call Put_iScalar('iOff_Iter',iter)
          End If
 *
@@ -1044,7 +1044,7 @@ C              Write (6,*) 'SubProject=.Prod'
           Call Put_Grad(Gx,3*nAtom)
           Call Put_dArray('Unique Coordinates',Cx,3*nAtom)
           Call Put_Coord_New(Cx,nAtom)
-          call dcopy_(3*nAtom,Cx,1,Work(ipCoor),1)
+          call dcopy_(3*nAtom,Cx,1,Coor,1)
           call dcopy_(3*nAtom,Cx,1,Cx(:,:,iter+1),1)
       End If
 *                                                                      *
