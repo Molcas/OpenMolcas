@@ -85,7 +85,6 @@ C        Write (6,*) 'FAST out'
                dBqR=Work(ip_dB+iElem)
                iDim=iWork(iElem*2 + ip_idB  )
                jDim=iWork(iElem*2 + ip_idB+1)
-               ijDim = (jDim-1)*nDim + iDim + ipBuf-1
                dBQQ(iDim,jDim) = dBQQ(iDim,jDim) + rK * dBqR
             End Do
             idB = idB + nElem**2
