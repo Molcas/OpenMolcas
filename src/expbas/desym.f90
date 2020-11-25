@@ -87,14 +87,12 @@ contains
         integer, allocatable :: kind_per_orb(:)
         !> This is the number of orbitals for every kind.
         integer :: n_kinds(n_orb_kinds)
-        integer, allocatable :: iOrdEor(:)
         character(len=LENIN8 + 1) :: gtolabel(maxbfn)
         character(len=50) :: VTitle
         character(len=128) :: SymOrbName
         logical :: Exist, y_cart, Found
 
-        real(wp) :: temporary
-        integer :: nAtom, nData, nTest, nDeg, nTot, nTot2
+        integer :: nAtom, nData, nDeg, nTot, nTot2
         integer :: iCnttp, iAngMx_Valence
         integer :: nB, iS
         integer :: ipCent, ipCent2, ipCent3
@@ -107,7 +105,6 @@ contains
         integer :: Lu_, iErr, notSymm
         integer :: iatom, iDeg, ishell
         integer :: iIrrep, iWfType, iWF
-        integer :: iTempOrd
 
         integer :: mdc, kk, i, j, ik, k, l, kk_Max, ii, iB, ipp, ic, iv
         integer :: ipc
@@ -704,7 +701,7 @@ contains
 
         allocate(idx(nTot))
 
-        idx = [(i, i = 1, nTot)]
+        idx(:) = [(i, i = 1, nTot)]
 
         call sort(idx, compare)
 

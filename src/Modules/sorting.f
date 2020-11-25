@@ -251,7 +251,7 @@
 
         subroutine r_swap(a, b)
           real(wp), intent(inout) :: a, b
-          real :: t
+          real(wp) :: t
           t = a; a = b; b = t
         end subroutine
 
