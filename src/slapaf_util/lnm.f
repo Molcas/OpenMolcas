@@ -11,8 +11,7 @@
       Subroutine LNM(Cart,nAtoms,Hess,Scrt1,Scrt2,Vctrs,
      &               mAtoms,nDim,iAnr,Smmtrc,nIter,iOptH,
      &               Degen,Schlegel,Analytic_Hessian,
-     &               iOptC,iTabBonds,iTabAtoms,nBonds,nMax,nHidden,
-     &               nMDstep,MMkept)
+     &               iOptC,iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
 #include "print.fh"
@@ -129,52 +128,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-cnf
-c   A mean Hessian using some structures extracted form the Tinker MD?
-cnf
-         If (nMDstep .gt. 0) Then
-            NTT = 3*nAtoms*(3*nAtoms+1)/2
-            Fact = One/Dble(nMDstep)
-            Call mma_allocate(Htmp,NTT,Label='Htmp')
-            Htmp(:)=Zero
-            iMDsnap = IsFreeUnit(1)
-            Call Molcas_Open(iMDsnap,'snap.hess')
-            Line = Get_Ln(iMDsnap)
-            If (Line(1:8) .ne. 'NMM') Then
-               Write(6,'(A)') 'LNM: Cannot find NMM in snap.hess'
-               Call Quit_OnUserError()
-            Else
-               Call Get_I1(2,nMMtot)
-            End If
-            Do iSnap = 1, nMDstep
-               iHidden = 0
-               Do iMM = 0,nMMtot-1
-                  Line = Get_Ln(iMDsnap)
-                  If (iWork(MMkept+iMM) .eq. 1) Then
-                     iHidden = iHidden + 1
-                     Call Get_F(3,XYZ,3)
-                     Cart(1,nAtoms+iHidden) = XYZ(1)/Angstr
-                     Cart(2,nAtoms+iHidden) = XYZ(2)/Angstr
-                     Cart(3,nAtoms+iHidden) = XYZ(3)/Angstr
-                  End If
-               End Do
-               If (iHidden .ne. nHidden) Then
-                  Write(6,'(A,2i3)') 'LNM: iHidden ne nHidden',iHidden,
-     &            nHidden
-                  Call Quit_OnUserError()
-               End If
-               Call ddV(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,
+         Call ddV(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,
      &            iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
-               Call daxpy_(NTT,Fact,Hess,1,Htmp,1)
-            End Do
-            Close(iMDsnap)
-            Call Free_iWork(MMkept)
-            Call dCopy_(NTT,Htmp,1,Hess,1)
-            Call mma_deallocate(Htmp)
-         Else
-            Call ddV(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,
-     &            iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
-         End If
 #ifdef _DEBUGPRINT_
          If (iPrint.ge.19)
      &      Call TriPrt(' The Model Hessian','(12f9.5)',Hess,3*nAtoms)

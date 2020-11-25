@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Hidden(mTtAtm,Coor,AN,nHidden,rHidden,nMDstep)
+      Subroutine Hidden(mTtAtm,Coor,AN,nHidden,rHidden)
       Implicit Real*8 (a-h,o-z)
 *
 *  Add to the Grand atom list some hidden atoms, coming e.g.
@@ -40,7 +40,6 @@
 #ifdef _DEBUGPRINT_
       iPL = 4
 #endif
-      nMDstep = 0
       iHidden = 0
       Do_ESPF = .False.
 *
@@ -84,8 +83,6 @@
                         h_xyz(3,iHidden) = XYZ(3)/Angstr
                      End Do
                   End If
-               Else If (Index(Line,'MD ').ne.0) Then
-                  Call Get_I1(2,nMDstep)
                End If
             End Do
             Close (ITkQMMM)
@@ -133,7 +130,6 @@
       If (nKept .gt. 0) Then
          If (iPL .gt. 3) Then
             Write(6,'(A8,I5,A)') 'Hidden: ',nKept,' atoms are kept.'
-            If (nMDstep.gt.0) Write(6,'(8X,I5,A)') nMDstep,' mean Hess'
          End If
          mTot = mTtAtm + nKept
          Call mma_allocate(Coor_h,3,mTot,Label='Coor_h')

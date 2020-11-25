@@ -53,13 +53,12 @@
         Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
         Integer nBonds, nMax
         End Subroutine Box
-        Subroutine Hidden(mTtAtm,Coor,AN,nHidden,rHidden,nMDstep)
+        Subroutine Hidden(mTtAtm,Coor,AN,nHidden,rHidden)
         Integer mTtAtm
         Real*8, Allocatable:: Coor(:,:)
         Integer, Allocatable:: AN(:)
         Integer nHidden
         Real*8 rHidden
-        Integer nMDStep
         End Subroutine Hidden
       End Interface
 *                                                                      *
@@ -135,10 +134,7 @@
 *---- Are there some hidden frozen atoms ?
 *
       nHidden = 0
-      ipMMKept = 0
-      nMDstep = 0
-      If (rHidden.ge.Two) Call Hidden(mTtAtm,Coor2,AN,nHidden,
-     &                                rHidden,nMDstep)
+      If (rHidden.ge.Two) Call Hidden(mTtAtm,Coor2,AN,nHidden,rHidden)
 *
 *-----Generate bond list
 *
@@ -164,7 +160,7 @@
       If (HSet.or..Not.(Curvilinear.or.User_Def))
      &   Call LNM(Coor2,mTtAtm,EVal,Hss_X,Scr2,Vec,nAtom,nDim,AN,Smmtrc,
      &            nIter,iOptH,Degen, DDV_Schlegel,Analytic_Hessian,
-     &            iOptC,TabB,TabA,nBonds,nMax,nHidden,nMDstep,ipMMKept)
+     &            iOptC,TabB,TabA,nBonds,nMax,nHidden)
 *
       Call mma_deallocate(Scr2)
       Call mma_deallocate(Coor2)

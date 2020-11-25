@@ -11,7 +11,7 @@
 * Copyright (C) 2013, Roland Lindh                                     *
 ************************************************************************
       Subroutine genCxCTL(iStop,Cartesian,rDelta)
-      use Slapaf_Info, only: Cx, Gx, Free_Slapaf
+      use Slapaf_Info, only: Gx, Free_Slapaf
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
