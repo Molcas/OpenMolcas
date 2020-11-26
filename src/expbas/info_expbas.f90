@@ -8,7 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Logical DoExpbas, DoDesy
-      Character EB_FileOrb*512
-      Common /Desy_log/ DoExpbas, DoDesy
-      Common /EB_files/ EB_FileOrb
+module info_expbas_mod
+    private
+    public :: DoExpbas, DoDesy, EB_FileOrb
+
+    logical :: DoExpbas, DoDesy
+    character(len=512) :: EB_FileOrb
+end module

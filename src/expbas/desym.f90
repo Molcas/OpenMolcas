@@ -22,6 +22,7 @@ module desymmetrize_mod
     use stdalloc, only: mma_allocate, mma_deallocate
     use sorting, only: swap, sort, argsort
     use sorting_funcs, only: leq_r, geq_r
+    use info_expbas_mod
 
     implicit none
     private
@@ -83,7 +84,6 @@ contains
 !***********************************************************************
 #include "Molcas.fh"
 #include "WrkSpc.fh"
-#include "info_expbas.fh"
         logical, intent(in) :: UHF
 
         real(wp), parameter :: EorbThr = 50._wp
