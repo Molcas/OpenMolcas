@@ -105,7 +105,9 @@ contains
         character(len=LENIN8 + 1) :: gtolabel(maxbfn)
         character(len=50) :: VTitle
         character(len=128) :: SymOrbName
-        logical :: Exist, y_cart, Found
+        logical :: Exist, Found
+        logical, parameter :: y_cart = .false.
+
 
         integer :: nAtom, nData, nDeg, nTot, nTot2
         integer :: iCnttp, iAngMx_Valence
@@ -115,9 +117,10 @@ contains
         integer :: mInd_ab
         integer :: mAdOcc, mAdEor
         integer :: mAdCMO, ipAux_ab, mAdIndt_ab, mAdOcc_ab, mAdEor_ab, mAdCMO_ab
-        integer :: Lu_, iErr, notSymm
+        integer :: file_id, iErr
+        integer, parameter :: notSymm = 1, arbitrary_number = 42
         integer :: iatom, iDeg, ishell
-        integer :: iIrrep, iWfType, iWF
+        integer :: iIrrep, iWfType
 
         integer :: mdc, kk, i, j, ik, k, l, kk_Max, ii, iB, ipp, ic, iv
         integer :: ipc
@@ -125,15 +128,12 @@ contains
 
         integer, save :: iRc = 0
 
+        file_id = arbitrary_number
 
-        y_cart = .false.
 
         Call f_Inquire('RUNFILE', Exist)
         call verify_(exist, 'Error finding RUNFILE')
 
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
         !-----Read the characteristics of all different basis sets,
         !     provide each atom with a nuclear charge and establish
         !     a link between an atom and its basis set ---
@@ -149,13 +149,9 @@ contains
         Else
             nOrb(:nIrrep) = nBas(:nIrrep)
         End If
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
+
         iAngMx_Valence = maxval(dbsc%nVal - 1, mask=.not. (dbsc%Aux .or. dbsc%Frag))
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
+
         !     Compute memory requirements and allocate memory
         !
         nB = sum(nBas(0:nIrrep - 1))
@@ -176,9 +172,7 @@ contains
             ipC2_ab = ip_Dummy
             ipV_ab = ip_Dummy
         End If
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
+
         !     Read exponents and contraction coefficients of each unique basis.
         !     Write the present basis set (iCnttp) to the molden.input file for
         !     the appropriate atoms.
@@ -187,19 +181,12 @@ contains
         !     Later this list will be used in the transformation of sabf (the
         !     symmetry adapted basis functions).
         !
-        iatom = 0
-        mdc = 0
-        kk = 0
-        !
-        !            write(6,*)'nCnttp', nCnttp
+        iatom = 0; mdc = 0; kk = 0
         Do iCnttp = 1, nCnttp             ! loop over unique basis sets
             If (.not. (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag)) then
-                !
-                !         write(6,*)'dbsc(iCntt)%nCntr',dbsc(iCnttp)%nCntr
                 Do iCntr = 1, dbsc(iCnttp)%nCntr! loop over symmetry unique centers
                     mdc = mdc + 1
                     nDeg = nIrrep / dc(mdc)%nStab
-                    !            write(6,*)'nDeg', nDeg
                     Do iDeg = 1, nDeg             ! loop over centers
                         iAtom = iAtom + 1
                         !
@@ -462,16 +449,10 @@ contains
             call ClsSew()
             return
         End If
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
-        !
-        nTot = 0
-        nTot2 = 0
-        Do iS = 0, nIrrep - 1
-            nTot = nTot + nBas(iS)
-            nTot2 = nTot2 + nBas(iS)**2
-        End Do
+
+        nTot = sum(nBas(0 : nIrrep - 1))
+        nTot2 = sum(nBas(0 : nIrrep - 1)**2)
+
         call mma_allocate(kind_per_orb, nTot)
         Call GetMem('Occ', 'Allo', 'Real', mAdOcc, nTot)
         Call GetMem('Eor', 'Allo', 'Real', mAdEor, nTot)
@@ -500,15 +481,12 @@ contains
             mAdEor_ab = ip_Dummy
             mAdCMO_ab = ip_Dummy
         End If
-        !
-        !
+
         !---- Read HF CMOs from file
-        !
-        Lu_ = 75
         FilesOrb = EB_FileOrb
         If (len_trim(FilesOrb) == 0) FilesOrb = 'INPORB'
         if (DoExpbas) FilesOrb = 'EXPORB'
-        Call RdVec_(trim(FilesOrb), Lu_, 'COEI', merge(1, 0, UHF), nIrrep, nBas, nBas, &
+        Call RdVec_(trim(FilesOrb), file_id, 'COEI', merge(1, 0, UHF), nIrrep, nBas, nBas, &
                     Work(mAdCMO), Work(mAdCMO_ab), &
                     Work(mAdOcc), Work(mAdOcc_ab), &
                     Work(mAdEor), Work(mAdEor_ab), &
@@ -522,9 +500,6 @@ contains
             return
         end if
 
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
         !     Get the coeff. of sym adapted basis functions (ipC2)
         !
         Call Dens_IF_SCF(Work(ipC2), Work(mAdCMO), 'F')
@@ -534,9 +509,6 @@ contains
             Call GetMem('CMO', 'Free', 'Real', mAdCMO_ab, nTot2)
         End If
 
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
         !      Back 'transformation' of the symmetry adapted basis functions.
         !      Probably somewhat clumsy, but it seems to work.If someone
         !      knows a more elegant way to do it, please improve this part!
@@ -566,10 +538,6 @@ contains
                 ipc = ipc + 1
             End Do
         End Do
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
-        !
         ! Part 2: -Take a MOLCAS symmetry functions (loop i)
         !         -Find the corresponding label in the MOLDEN list (loop j)
         !         -Copy the coeff of the sabf in the MOLDEN MO (vector), multiply
@@ -594,9 +562,6 @@ contains
                         ik = 1
                     End If
                 End If
-                !                                                                      *
-                !***********************************************************************
-                !                                                                      *
                 Write (MO_Label(i), '(I5,A3)') iB, lirrep(iIrrep)
                 !
                 Do j = 1, nB
@@ -666,11 +631,9 @@ contains
         end do
 
 
-        notSymm = 1
-        iWF = 9
         SymOrbName = 'DESORB'
         VTitle = 'Basis set desymmetrized orbital file DESORB'
-        Call WrVec_(SymOrbName, iWF, 'COEI', merge(1, 0, UHF), notSymm, &
+        Call WrVec_(SymOrbName, file_id, 'COEI', merge(1, 0, UHF), notSymm, &
                     [nTot], [nTot], CMO, Work(ipV_ab), &
                     occ, Work(mAdOcc_ab), energy, Work(ipAux_ab), &
                     n_kinds, VTitle, iWFtype)
