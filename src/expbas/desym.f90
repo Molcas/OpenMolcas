@@ -670,10 +670,9 @@ contains
         iWF = 9
         SymOrbName = 'DESORB'
         VTitle = 'Basis set desymmetrized orbital file DESORB'
-        Call WrVec_(SymOrbName, iWF, 'COEI', UHF, notSymm, [nTot], [nTot], &
-                    CMO, Work(ipV_ab), &
-                    occ, Work(mAdOcc_ab), &
-                    energy, Work(ipAux_ab), &
+        Call WrVec_(SymOrbName, iWF, 'COEI', merge(1, 0, UHF), notSymm, &
+                    [nTot], [nTot], CMO, Work(ipV_ab), &
+                    occ, Work(mAdOcc_ab), energy, Work(ipAux_ab), &
                     n_kinds, VTitle, iWFtype)
         call Add_Info('desym CMO', CMO, 999, 8)
 
