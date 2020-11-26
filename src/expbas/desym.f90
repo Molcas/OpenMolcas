@@ -621,7 +621,7 @@ contains
 
         idx(:) = [(i, i = 1, nTot)]
 
-        call sort(idx, compare)
+        call sort(idx, closure_compare)
 
         kind_per_orb(:) = kind_per_orb(idx)
         energy(:) = energy(idx)
@@ -639,7 +639,7 @@ contains
             !>      second by occupation number descendingly (2.0, 2.0, 1.x, 0., ...),
             !>      third by energy ascendingly (-3., -2., -2., 0., 1., ...).
             !>  Note, that `sort` uses a stable sorting algorithm.
-            pure function compare(i, j) result(res)
+            pure function closure_compare(i, j) result(res)
                 integer, intent(in) :: i, j
                 logical :: res
 
