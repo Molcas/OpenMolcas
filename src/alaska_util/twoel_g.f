@@ -80,6 +80,27 @@
       Integer :: lZeta=0, lEta=0
       Logical EQ, lEmpty
       External EQ, lEmpty
+#ifdef _WARNING_WORKAROUND_
+*Bug in gcc 7: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94270
+      Interface
+      SubRoutine Rysg1(iAnga,nRys,nT,
+     &                 Alpha,Beta,Gamma,Delta,
+     &                 Zeta,ZInv,nZeta,Eta,EInv,nEta,
+     &                 P,lP,Q,lQ,Coori,Coora,CoorAC,
+     &                 Array,nArray,
+     &                 Tvalue,ModU2,Cff2D,
+     &                 PAO,nPAO,Grad,nGrad,IfGrad,IndGrd,kOp,iuvwx)
+      Integer :: iAnga(4),nRys,nT,nZeta,nEta,lP,lQ,nArray,nPAO,
+     &           nGrad,IndGrd(3,4),kOp(4),iuvwx(4)
+      Real*8 :: Alpha(nZeta),Beta(nZeta),Gamma(nEta),Delta(nEta),
+     &          Zeta(nZeta),ZInv(nZeta),Eta(nEta),EInv(nEta),P(lP,3),
+     &          Q(lQ,3),Coori(3,4),Coora(3,4),CoorAC(3,2),Array(nArray),
+     &          PAO(nT,nPAO),Grad(nGrad)
+      Logical :: IfGrad(3,4)
+      External :: Tvalue, ModU2, Cff2D
+      End Subroutine Rysg1
+      End Interface
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *

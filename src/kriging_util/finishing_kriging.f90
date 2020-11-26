@@ -16,10 +16,8 @@ Subroutine Finish_Kriging()
 #include "stdalloc.fh"
 !
 !       write(6,*) 'Deallocating all kriging variables'
-  Call mma_deallocate(x)
-  Call mma_deallocate(y)
+  Call Deallocate_protected()
   Call mma_deallocate(x0)
-  Call mma_deallocate(dy)
   Call mma_deallocate(full_R)
   Call mma_deallocate(full_RInv)
   Call mma_deallocate(dl)

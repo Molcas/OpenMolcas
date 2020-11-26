@@ -37,9 +37,9 @@
 *   rOut        :       Submatrix                                      *
 *                                                                      *
 ************************************************************************
+      use Arrays, only: G1t, G2t
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
-#include "WrkSpc.fh"
 #include "Pointers.fh"
       Real*8 Fock(nbaj,nbaj),FockA(nBaj,nBaj),Focki(nbaj,nbaj)
       Real*8 rout(nd*(nd+1)/2), A_J(nScr), A_K(nScr), Scr(nScr)
@@ -77,12 +77,12 @@
 *
 *                    gamma(cdbb)=gamma(bbcd)
 *
-                     rDens1=sign*Work(ipg2-1+itri(itri(jCC,jDD),
+                     rDens1=sign*G2t(itri(itri(jCC,jDD),
      &                           itri(iBB,iBB)))
 *
 *                    gamma(bdcb)
 *
-                     rDens2=sign*work(ipg2-1+itri(itri(iBB,jDD),
+                     rDens2=sign*G2t(itri(itri(iBB,jDD),
      &                           itri(jCC,iBB)))
 *
 *                    (cd|ij)
@@ -106,7 +106,7 @@
 *
 *        2*(delta(bc)-D(bc))
 *
-         rDens=sign*(-work(ipg1-1+itri(iCC,iBB)))
+         rDens=sign*(-G1t(itri(iCC,iBB)))
          If (iCC.eq.iBB) rdens=rdens+sign
          rDens=2.0D0*rDens
 *
@@ -141,7 +141,7 @@
 ************************************************************************
 *                                                                      *
       rFock = sign*2.0d0*Fockii + sign*2.0d0*Fockai - sign*Fockti
-      rdens=sign*2.0d0*Work(ipG1-1+itri(ibb ,ibb))
+      rdens=sign*2.0d0*G1t(itri(ibb ,ibb))
       i=0 ! dummy initialize
 *
       Do jA=1,nIsh(jS)

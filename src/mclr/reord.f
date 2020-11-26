@@ -18,7 +18,6 @@
      &            IMODE,IPRINT,
      &            ICONF,ISPIN,NCNFTP,NCSFTP,
      &            CIOLD,CINEW,minop)
-CEAW970812     &            CIOLD,CINEW)
 C
 C     AUTHOR:  M.P. FUELSCHER AND J. OLSEN
 C              UNIV. OF LUND, SWEDEN 1990

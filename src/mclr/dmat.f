@@ -42,7 +42,6 @@
 
 
 #include "Input.fh"
-#include "WrkSpc.fh"
 
       iOff1 = 0
       iOff2 = 0

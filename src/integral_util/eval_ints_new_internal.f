@@ -95,7 +95,6 @@
 *
 #include "ndarray.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "setup.fh"
@@ -133,14 +132,8 @@
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
-      ipDDij=ip_Dummy
       mDCRij=1
-      ipDDkl=ip_Dummy
       mDCRkl=1
-      ipDDik=ip_Dummy
-      ipDDil=ip_Dummy
-      ipDDjk=ip_Dummy
-      ipDDjl=ip_Dummy
 *                                                                      *
 ************************************************************************
 *                                                                      *

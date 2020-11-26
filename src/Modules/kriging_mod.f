@@ -44,8 +44,7 @@
 !
 !     We will assume that nPoints_v >= nPoints_g
 !
-      integer, protected :: nInter_save = 0
-      integer, protected :: nPoints_v = 0, nPoints_g = 0
+      integer, protected :: nInter = 0 , nPoints = 0, nD=0
 
       real*8, allocatable ::
      &        rl(:,:), dl(:), full_Rinv(:,:),
@@ -62,21 +61,20 @@
 
       contains
 
-      Subroutine Setup_Kriging(nPoints_In,nD,nInter,x_,dy_,y_)
+      Subroutine Setup_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
 #include "stdalloc.fh"
-      integer :: nPoints_In, nD, nInter, i, j
-      real*8 ::  x_(nInter,nPoints_In)
+      integer :: nPoints_In, nD_In, nInter_In, i, j
+      real*8 ::  x_(nInter_In,nPoints_In)
       real*8 ::         y_(nPoints_In)
-      real*8 :: dy_(nInter,nPoints_In-nD)
+      real*8 :: dy_(nInter_In,nPoints_In)
 
-      nInter_save = nInter
+      nInter = nInter_In
+      nD           = nD_In
+      nPoints      = nPoints_In
 
-      nPoints_v    = nPoints_In
-      nPoints_g    = nPoints_In-nD
-
-      Call mma_Allocate(x,nInter,nPoints_v,Label="x")
-      Call mma_Allocate(dy,nInter*nPoints_g,Label="dy")
-      Call mma_Allocate(y,nPoints_v,Label="y")
+      Call mma_Allocate(x,nInter,nPoints,Label="x")
+      Call mma_Allocate(y,nPoints,Label="y")
+      Call mma_Allocate(dy,nInter*(nPoints-nD),Label="dy")
 
 !x is the n-dimensional internal coordinates
       x(:,:) = x_(:,:)
@@ -91,13 +89,23 @@
 !     gradient, each subblock running over all nPoints_g which
 !     contributes with gradient values.
 !
+!     At this point we also skip those gradients which we will not use in
+!     the kriging.
+!
       do i=1,nInter
-        do j=1,nPoints_g
-          dy(j + (i-1)*nPoints_g) = dy_(i,j)
+        do j=1,nPoints-nD
+          dy(j + (i-1)*(nPoints-nD)) = dy_(i,j+nD)
         enddo
       enddo
 
       return
       end subroutine Setup_kriging
+
+      subroutine Deallocate_protected()
+#include "stdalloc.fh"
+      Call mma_Deallocate(x)
+      Call mma_Deallocate(y)
+      Call mma_Deallocate(dy)
+      end subroutine Deallocate_protected
 
       end module kriging_mod

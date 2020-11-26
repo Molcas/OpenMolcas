@@ -8,19 +8,25 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Get_DLAO(ipDLAO,nDens)
+      Subroutine Get_DLAO(DLAO,nDLAO)
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
       Character*24 Label
       Logical      Found
+      Real*8 DLAO(nDLAO)
 
       Label='DLAO'
-      Call qpg_dArray(Label,Found,nDens)
-      If(.not.Found .or. nDens.eq.0) Then
+      Call qpg_dArray(Label,Found,mDLAO)
+      If(.not.Found .or. mDLAO.eq.0) Then
          Call SysAbendMsg('get_dlao','Did not find:',Label)
       End If
-      Call GetMem('DLAO','Allo','Real',ipDLAO,nDens)
-      Call Get_dArray(Label,Work(ipDLAO),nDens)
+      If (nDLAO/=mDLAO) Then
+         Write (6,*) 'Get_DLAO: nDLAO/=mDLAO'
+         Write (6,*) 'nDLAO=',nDLAO
+         Write (6,*) 'mDLAO=',mDLAO
+         Call Abend()
+      End If
+
+      Call Get_dArray(Label,DLAO,nDLAO)
 
       Return
       End

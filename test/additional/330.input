@@ -55,6 +55,7 @@
     out = 1
 
 >>> END DO
+*&MCLR
 
 ****
 

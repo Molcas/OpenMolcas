@@ -9,12 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine RdAB
+      use Arrays, only: CMO
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
-#include "WrkSpc.fh"
-
+#include "stdalloc.fh"
 #include "Input.fh"
-
 #include "SysDef.fh"
       Character*8 Label
 #include "disp_mclr.fh"
@@ -55,14 +54,17 @@
          ntItri=0
          ntIsqr=0
          ntBsqr=0
+         Length=0
          Do iSym=1,nSym
             ntIsh=ntIsh+nIsh(iSym)
             ntItri=ntItri+nIsh(iSym)*(nIsh(iSym)+1)/2
             ntIsqr=ntIsqr+nIsh(iSym)*nIsh(iSym)
             ntbSQR=ntbsqr+nbas(isym)**2
             norb(isym)=nbas(isym)-ndel(isym)
+            Length=Length+nBas(iSym)*nOrb(iSym)
          End Do
-         Call Get_CMO(ipCMO,Length)
+         Call mma_allocate(CMO,Length,Label='CMO')
+         Call Get_CMO(CMO,Length)
       End If
 
 *

@@ -10,9 +10,10 @@
 ************************************************************************
       Subroutine SuperMac()
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-      Character*8 Method
-      Character*16 StdIn
+#include "stdalloc.fh"
+      Integer, Allocatable:: Scr1(:)
+      Character(LEN=8) Method
+      Character(LEN=16) StdIn
       Logical Do_Cholesky, Do_ESPF, Numerical, Found
 #include "warnings.fh"
 #include "temperatures.fh"
@@ -66,13 +67,13 @@
       Call fCopy('RUNFILE','RUNBACK',iErr)
       If (iErr.ne.0) Call Abend()
 *
-      Call GetMem('Scr1','Allo','Inte',ipScr1,7)
-      iWork(ipScr1)=0
-      iWork(ipScr1+1)=0
-      iWork(ipScr1+2)=-99
-      iWork(ipScr1+3)=0
-      Call Put_iArray('Slapaf Info 1',iWork(ipScr1),7)
-      Call GetMem('Scr1','Free','Inte',ipScr1,7)
+      Call mma_allocate(Scr1,7,Label='Scr1')
+      Scr1(1)=0
+      Scr1(2)=0
+      Scr1(3)=-99
+      Scr1(4)=0
+      Call Put_iArray('Slapaf Info 1',Scr1,7)
+      Call mma_deallocate(Scr1)
       LuInput=11
       LuInput=IsFreeUnit(LuInput)
       Call StdIn_Name(StdIn)

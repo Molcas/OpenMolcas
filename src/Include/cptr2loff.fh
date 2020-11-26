@@ -8,11 +8,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      parameter ( MXSTATE=10)
-      parameter ( luciv=31)
-
-      Real*8 ERAS(MXSTATE),P1(MXSTATE*(MXSTATE+1)/2),
-     &       P1INV(MXSTATE*(MXSTATE+1)/2)
-      Logical ngp
-      Integer ipSS
-      Common/NEGPRE/ERAS,P1,P1INV,ipss,ngp
+      interface cptr2loff
+        integer function d_cptr2loff(buffer)
+          real*8 :: buffer
+        end function
+        integer function i_cptr2loff(buffer)
+          integer :: buffer
+        end function
+        integer function c_cptr2loff(buffer)
+          character(len=*) :: buffer
+        end function
+        integer function z_cptr2loff(buffer)
+          complex*16 :: buffer
+        end function
+      end interface

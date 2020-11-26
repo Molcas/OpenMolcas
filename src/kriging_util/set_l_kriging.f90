@@ -10,14 +10,14 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-SUBROUTINE set_l_kriging(lv,nInter)
+SUBROUTINE set_l_kriging(lv,nInter_In)
   use kriging_mod
-  integer nInter
-  real*8 lv(nInter)
+  integer nInter_In
+  real*8 lv(nInter_In)
 !
 ! Set the characteristic length of all the components of the coordintes.
 !
-  If (nInter.eq.nInter_Save) Then
+  If (nInter_In.eq.nInter) Then
     l(:)=lv(:)
   Else If (nInter.eq.1) Then
     l(:)=lv(1)
