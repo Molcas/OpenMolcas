@@ -11,7 +11,7 @@
 * Copyright (C) 2013, Roland Lindh                                     *
 ************************************************************************
       Subroutine genCxCTL(iStop,Cartesian,rDelta)
-      use Slapaf_Info, only: Gx, dMass, Coor, ANr, Free_Slapaf
+      use Slapaf_Info, only: Gx, dMass, Coor, ANr, Shift, Free_Slapaf
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -82,7 +82,7 @@
       iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
      &           Coor,nDimBC,dMass,AtomLbl,
-     &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
+     &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,
      &           Gx,mTtAtm,ANr,iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
@@ -184,9 +184,8 @@
 *        Update the shift vector, in the space in which we split
 *        the constraints and the reduced subspace.
 *
-         jpShf = ipShf + (Iter-1)*mInt
          Call FZero(Work(ipdu),mInt)
-         Call FZero(Work(jpShf),mInt)
+         Shift(:,iter)=Zero
          jInter = (iDisp+1)/2
          If (Mod(iDisp,2).eq.0) Then
             Work(ipdu-1+jInter) = -rDelta
@@ -201,8 +200,8 @@
          Call DGEMM_('N','N',mInt,1,mInt,
      &               One,Work(ip_T),mInt,
      &                   Work(ipdu),mInt,
-     &               Zero,Work(jpShf),mInt)
-*        Call RecPrt('shf',' ',Work(jpShf),mInt,1)
+     &               Zero,Shift(:,iter),mInt)
+*        Call RecPrt('shf',' ',Shift(:,iter),mInt,1)
 *
 *        Save the value of the displacement in the list.
 *
@@ -221,7 +220,7 @@
 *        the set for which we like to get the Cartesian
 *        coordinates.
 *
-         Call DaXpY_(mInt,One,Work(jpShf),1,Work(ip_To),1)
+         Call DaXpY_(mInt,One,Shift(:,iter),1,Work(ip_To),1)
 *        Call RecPrt('Int    ',' ',Work(ip_To),1,mInt)
 *
 *--------Transform the new internal coordinates to Cartesians
@@ -233,7 +232,7 @@
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,mInt,
      &               Coor,ipB,dMass,
-     &               Lbl,Work(ipShf),ipqInt,ipdqInt,
+     &               Lbl,Shift,ipqInt,ipdqInt,
      &               Work(ipDCF),Work(ipdss),Work(ipTmp),
      &               AtomLbl,iSym,Smmtrc,
      &               Degen,mTtAtm,
@@ -253,7 +252,6 @@
       Call GetMem(' dss  ', 'Free','Real',ipdss, mInt)
       Call GetMem(' DCF  ', 'Free','Real',ipDCF, 3*nsAtom)
 *
-      Call Free_Work(ipShf)
       Call Free_Work(ipdu)
       Call Free_Work(ip_T)
 *

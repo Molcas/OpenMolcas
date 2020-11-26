@@ -11,7 +11,8 @@
       Subroutine RlxCtl(iStop)
       Use Chkpnt
       Use kriging_mod, only: Kriging, nspAI
-      Use Slapaf_Info, only: Cx, Gx, dMass, Coor, ANr, Free_Slapaf
+      Use Slapaf_Info, only: Cx, Gx, dMass, Coor, ANr, Shift,
+     &                       Free_Slapaf
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -131,7 +132,7 @@
       iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
      &           Coor,nDimBC,dMass,AtomLbl,
-     &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
+     &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,
      &           Gx,mTtAtm,ANr,iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
@@ -184,7 +185,7 @@
 *        I) Update geometry for selected numerical differentiation.    *
 *----------------------------------------------------------------------*
 *
-         Call Freq1(iter,nQQ,nRowH,mRowH,Delta/2.5d0,Work(ipShf),
+         Call Freq1(iter,nQQ,nRowH,mRowH,Delta/2.5d0,Shift,
      &              Work(ipqInt))
          UpMeth='RowH  '
       Else If (lNmHss.and.iter.lt.NmIter) Then
@@ -193,7 +194,7 @@
 *        II) Update geometry for full numerical differentiation.       *
 *----------------------------------------------------------------------*
 *
-         Call Freq2(iter,Work(ipdqInt),Work(ipShf),nQQ,Delta,Stop,
+         Call Freq2(iter,Work(ipdqInt),Shift,nQQ,Delta,Stop,
      &              Work(ipqInt))
          UpMeth='NumHss'
       Else
@@ -202,7 +203,7 @@
 *
       Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nQQ,
      &            Work(ipdqInt+(iter-1)*nQQ),
-     &            Work(ipShf+(iter-1)*nQQ),Lbl)
+     &            Shift(:,iter),Lbl)
       iNeg(1)=-99
       iNeg(2)=-99
       HUpMet='None  '
@@ -237,7 +238,7 @@
       If (Kriging .and. Iter.ge.nspAI) Then
          Call Update_Kriging(
      &               Iter,MaxItr,iInt,nFix,nQQ,Work(ipqInt),
-     &               Work(ipShf),Work(ipdqInt),iOptC,Beta,Beta_Disp,
+     &               Work(ipdqInt),iOptC,Beta,Beta_Disp,
      &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
      &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
@@ -251,7 +252,7 @@
       Else
          Call Update_sl(
      &               Iter,MaxItr,NmIter,iInt,nFix,nQQ,Work(ipqInt),
-     &               Work(ipShf),Work(ipdqInt),iOptC,Beta,Beta_Disp,
+     &               Work(ipdqInt),iOptC,Beta,Beta_Disp,
      &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
      &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
@@ -286,7 +287,7 @@
          Error=.False.
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Coor,
-     &               ipB,dMass,Lbl,Work(ipShf),ipqInt,
+     &               ipB,dMass,Lbl,Shift,ipqInt,
      &               ipdqInt,DFC,dss,Tmp,
      &               AtomLbl,iSym,Smmtrc,Degen,
      &               mTtAtm,ANr,iOptH,
@@ -341,7 +342,7 @@
 *
       GoOn = (lNmHss.and.iter.lt.NmIter).OR.(lRowH.and.iter.lt.NmIter)
       TSReg = iAnd(iOptC,8192).eq.8192
-      Call Convrg(iter,kIter,nQQ,Work(ipqInt),Work(ipShf),
+      Call Convrg(iter,kIter,nQQ,Work(ipqInt),Shift,
      &            Work(ipdqInt),Lbl,Work(ipGNrm),
      &            Work(ipEner),Stat,MaxItr,Stop,iStop,ThrCons,
      &            ThrEne,ThrGrd,MxItr,UpMeth,HUpMet,mIntEff,Baker,
@@ -351,8 +352,6 @@
      &            (lNmHss.or.lRowH).and.iter.le.NmIter,
      &            Just_Frequencies,FindTS,eMEPTest,nLambda,
      &            TSReg,ThrMEP)
-
-      Call Free_Work(ipShf)
 *
 ************************************************************************
 *                                                                      *

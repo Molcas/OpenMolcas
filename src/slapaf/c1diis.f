@@ -20,16 +20,17 @@
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
-*             December '94                                             *
+*             December 1994                                            *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 q(nInter,nIter+1), dq(nInter,nIter),
      &       H(nInter,nInter), g(nInter,nIter+1),
      &       error(nInter,nIter), B((nIter+1)*(nIter+1)), RHS(nIter+1)
       Integer   iP(nIter), iRc
+      Real*8, Allocatable:: A(:)
 *
 *     Statement function
 *
@@ -38,10 +39,10 @@
       iRout = 114
       iPrint = nPrint(iRout)
 *
-      Call Allocate_Work(ipA,nInter**2)
-      call dcopy_(nInter**2,H,1,Work(ipA),1)
+      Call mma_allocate(A,nInter**2,Label='A')
+      call dcopy_(nInter**2,H,1,A,1)
       iRc = 0
-      call dpotrf_('U',nInter,Work(ipA),nInter,iRC)
+      call dpotrf_('U',nInter,A,nInter,iRC)
       If (iRC.ne.0) Then
          Write (6,*) 'C1DIIS(DPOTRF): iRC=',iRC
          Call Abend()
@@ -51,7 +52,7 @@
 *
       call dcopy_(nInter*nIter,g,1,Error,1)
       iRc = 0
-      Call DPOTRS('U',nInter,nIter,Work(ipA),nInter,Error,nInter,iRC)
+      Call DPOTRS('U',nInter,nIter,A,nInter,Error,nInter,iRC)
       If (iRC.ne.0) Then
          Write (6,*) 'C1DIIS(DPOTRS): iRC=',iRC
          Call Abend()
@@ -185,7 +186,7 @@
 *     the interpolated gradient vector.
 *
       call dcopy_(nInter,g(1,nIter+1),1,dq(1,nIter),1)
-      Call DPOTRS('U',nInter,1,Work(ipA),nInter,dq(1,nIter),nInter,iRC)
+      Call DPOTRS('U',nInter,1,A,nInter,dq(1,nIter),nInter,iRC)
       If (iRC.ne.0) Then
          Write (6,*) 'C1DIIS(DPOTRS): iRC=',iRC
          Call Abend()
@@ -203,6 +204,6 @@
       If (iPrint.ge.99) Call RecPrt(' dq(corr.)',' ',
      &   dq(1,nIter),1,nInter)
 *
-      Call Free_Work(ipA)
+      Call mma_deallocate(A)
       Return
       End

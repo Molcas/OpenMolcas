@@ -30,7 +30,7 @@
       Subroutine Print_Mode_Components(Modes,Freq,nModes,lModes,lDisp)
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor,
-     &                       Grd, Weights, ANr
+     &                       Grd, Weights, ANr, Shift
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -64,6 +64,7 @@
       Real*8, Allocatable:: Bk_Coor(:,:)
       Real*8, Allocatable:: Bk_Grd(:,:)
       Real*8, Allocatable:: Bk_Weights(:)
+      Real*8, Allocatable:: Bk_Shift(:,:)
 
       Integer, Allocatable:: Bk_ANr(:)
 *
@@ -123,6 +124,12 @@
          Call mma_allocate(Bk_Weights,SIZE(Weights),Label='Bk_Weights')
          Bk_Weights(:) = Weights(:)
          Call mma_deallocate(Weights)
+      End If
+      If (Allocated(Shift)) Then
+         Call mma_allocate(Bk_Shift,SIZE(Shift,1),MaxItr,
+     &                     Label='Bk_Shift')
+         Bk_Shift(:,:) = Shift(:,:)
+         Call mma_deallocate(Shift)
       End If
 
       Bk_iSym(:)=iSym(:)
@@ -328,7 +335,7 @@
       iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
      &           Coor,nDimBC,dMass,AtomLbl,
-     &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
+     &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,
      &           Work(ipGx),mTtAtm,ANr,iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
@@ -459,9 +466,6 @@
       If (ipqInt.ne.ip_Dummy) Then
          Call GetMem('dqInt', 'Free','Real',ipdqInt, nqInt)
          Call GetMem('qInt',  'Free','Real',ipqInt,  nqInt)
-      End If
-      If (BSet) Then
-         Call GetMem('Shift','Free','Real',ipShf,nQQ*iter)
       End If
       If (Ref_Geom) Then
          Call GetMem('ipRef',  'Free','Real',ipRef,    3*nsAtom)
@@ -683,6 +687,18 @@
          Call mma_deallocate(Bk_Weights)
       Else
          Call mma_deallocate(Weights)
+      End If
+      If (Allocated(Bk_Shift)) Then
+
+         If (SIZE(Shift,1)/=SIZE(Bk_Shift,1)) Then
+            Call mma_deallocate(Shift)
+            Call mma_allocate(Shift,SIZE(Bk_Shift,1),MaxItr,
+     &                        Label='Shift')
+         End If
+         Shift(:,:) = Bk_Shift(:,:)
+         Call mma_deallocate(Bk_Shift)
+      Else
+         Call mma_deallocate(Shift)
       End If
 *
 *     Process arrays that is allocated optionally.

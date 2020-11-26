@@ -11,7 +11,7 @@
 * Copyright (C) 2019, Ignacio Fdez. Galvan                             *
 ************************************************************************
       Subroutine NewCar_Kriging(kIter,nLines,nAtom,nDim,nInter,BMx,
-     &                          dMass,Lbl,kShift,qInt,dqInt,Name,
+     &                          dMass,Lbl,Shift,qInt,dqInt,Name,
      &                          SaveBMx,RefIter,Error)
       use Slapaf_Info, only: Cx, ANr
       Implicit None
@@ -20,12 +20,12 @@
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
       Integer :: kIter,nLines,nAtom,nDim,nInter,RefIter
-      Real*8 :: BMx(3*nAtom,nInter),dMass(nAtom),kShift(nInter,kIter),
+      Real*8 :: BMx(3*nAtom,nInter),dMass(nAtom),Shift(nInter,kIter),
      &          qInt(nInter,MaxItr),dqInt(nInter,MaxItr)
       Character :: Lbl(nInter)*8,Name(nAtom)*(LENIN)
 
       Real*8, Allocatable :: DFC(:),dss(:),qTemp(:), Coor(:)
-      Integer :: ipBMx,ip_qInt,ip_dqInt,ipShift
+      Integer :: ipBMx,ip_qInt,ip_dqInt
       Logical :: Numerical,PrQ,Error,SaveBMx
       Integer, External :: ip_of_Work
 *
@@ -36,7 +36,6 @@
 *
       ip_qInt=ip_of_Work(qInt(1,1))
       ip_dqInt=ip_of_Work(dqInt(1,1))
-      ipShift=ip_of_Work(kShift(1,1))
 *
       Numerical=.False.
       PrQ=.False.
@@ -47,7 +46,7 @@
       Force_dB=SaveBMx
 *
       Call NewCar(kIter,nBVec,nLines,nAtom,nDim,nInter,Coor,
-     &            ipBMx,dMass,Lbl,kShift,ip_qInt,ip_dqInt,DFC,dss,
+     &            ipBMx,dMass,Lbl,Shift,ip_qInt,ip_dqInt,DFC,dss,
      &            qTemp,Name,iSym,Smmtrc,Degen,
      &            mTtAtm,ANr,iOptH,
      &            User_Def,nStab,jStab,Curvilinear,Numerical,

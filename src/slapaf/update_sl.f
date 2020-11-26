@@ -11,7 +11,6 @@
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
       Subroutine Update_sl(iter,MaxItr,NmIter,iInt,nFix,nInter,qInt,
-     &                     Shift,
      &                     Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
@@ -59,7 +58,6 @@
 *      CnstWght       : constraints weight                             *
 *                                                                      *
 *    OutPut:                                                           *
-*      Shift(*,iter ) : the shift of the internal coordinates          *
 *      qInt(*,iter +1): the internal coordinates to be used in the     *
 *                       next iteration                                 *
 *      UpMeth         : character label with update method abrivation  *
@@ -74,13 +72,14 @@
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
+      use Slapaf_Info, only: Shift
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "Molcas.fh"
-      Real*8 qInt(nInter,MaxItr), Shift(nInter,MaxItr),
+      Real*8 qInt(nInter,MaxItr),
      &       Grad(nInter,MaxItr), GNrm(MaxItr), Energy(MaxItr),
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
      &       dMass(nsAtom), Degen(3*nsAtom), MF(3*nsAtom)
@@ -99,11 +98,11 @@
       iPrint=nPrint(iRout)
 *
       If (iPrint.ge.99) Then
-         Call RecPrt('Update: qInt',' ',qInt,nInter,Iter)
-         Call RecPrt('Update: Energy',' ',Energy,1,Iter)
-         Call RecPrt('Update: Grad',' ',Grad,nInter,Iter)
-*        Call RecPrt('Update: Shift',' ',Shift,nInter,Iter-1)
-*        Call RecPrt('Update: GNrm',' ',GNrm,Iter,1)
+         Call RecPrt('Update_sl: qInt',' ',qInt,nInter,Iter)
+         Call RecPrt('Update_sl: Energy',' ',Energy,1,Iter)
+         Call RecPrt('Update_sl: Grad',' ',Grad,nInter,Iter)
+         Call RecPrt('Update_sl: Shift',' ',Shift,nInter,Iter-1)
+*        Call RecPrt('Update_sl: GNrm',' ',GNrm,Iter,1)
       End If
 *
       iOpt_RS=0
@@ -128,6 +127,7 @@
          If (iPrint.ge.99) Write(6,*)'UpDate_SL: first iteration'
          iter_=1
          Call mma_Allocate(t_Shift,nInter,iter_,Label='t_Shift')
+         t_Shift(:,:)=Zero
          Call mma_Allocate(t_qInt,nInter,iter_+1,Label='t_qInt')
 *
          t_qInt(:,1)=qInt(:,1)

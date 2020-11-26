@@ -13,7 +13,6 @@
 ************************************************************************
       Subroutine Update_kriging(
      &                     iter,MaxItr,iInt,nFix,nInter,qInt,
-     &                     Shift,
      &                     Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
@@ -32,13 +31,13 @@
 ************************************************************************
       Use kriging_mod, only: Max_Microiterations,
      &                       Thr_microiterations
-      Use Slapaf_Info, only: Cx, Gx
+      Use Slapaf_Info, only: Cx, Gx, Shift
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
-      Real*8 qInt(nInter,MaxItr), Shift(nInter,MaxItr),
+      Real*8 qInt(nInter,MaxItr),
      &       Grad(nInter,MaxItr), GNrm(MaxItr), Energy(MaxItr),
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
      &       dMass(nsAtom), Degen(3*nsAtom), dEner, MF(3*nsAtom)

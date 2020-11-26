@@ -12,13 +12,13 @@
      &                 ip_rInt,Lbl,Coor,nDim,dMass,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
-     &                 ipShift,Gx,mTtAtm,iAnr,iOptH,User_Def,
+     &                 Gx,mTtAtm,iAnr,iOptH,User_Def,
      &                 nStab,jStab,Curvilinear,Numerical,
      &                 DDV_Schlegel,HWRS,Analytic_Hessian,
      &                 iOptC,PrQ,mxdc,iCoSet,lOld,
      &                 rHidden,nFix,nQQ,iIter,Redundant,nqInt,MaxItr,
      &                 nWndw)
-      Use Slapaf_Info, Only: Cx
+      Use Slapaf_Info, Only: Cx, Shift
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -280,11 +280,9 @@
 *---- Compute the shift vector in the basis.
 *
       If (Bset) Then
-         Call GetMem('Shift','Allo','Real',ipShift,nQQ*MaxItr)
-         Call FZero(Work(ipShift),nQQ*MaxItr)
-         Call ShfANM(nQQ,nIter,Work(ip_rInt),Work(ipShift),iPrint)
-      Else
-         ipShift=ip_Dummy
+         Call mma_allocate(Shift,nQQ,MaxItr,Label='Shift')
+         Shift(:,:)=Zero
+         Call ShfANM(nQQ,nIter,Work(ip_rInt),Shift,iPrint)
       End If
 *                                                                      *
 ************************************************************************

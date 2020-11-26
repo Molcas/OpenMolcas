@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Mk_Hss_Q()
-      use Slapaf_Info, only: Cx, Coor
+      use Slapaf_Info, only: Cx, Coor, Shift
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "real.fh"
@@ -25,7 +25,7 @@
             Call RowHessian(NmIter,mInt,nRowH,mRowH,Delta/2.5d0,
      &                      Work(ipdqInt))
          Else
-            Call FormNumHess(iter,Work(ipdqInt),Work(ipShf),mInt,Delta,
+            Call FormNumHess(iter,Work(ipdqInt),Shift,mInt,Delta,
      &                       Stop,Work(ipqInt),nsAtom,Cubic,iNeg,
      &                       Work(ipDipM),mTROld,Smmtrc,Degen,UserT,
      &                       UserP,nUserPT,nsRot,lTherm,lDoubleIso,
