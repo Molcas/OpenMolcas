@@ -247,7 +247,7 @@
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,Work(ipMF),
      &               iOptH,HUpMet,GNrm_Threshold,
-     &               IRC,dMass,HrmFrq_Show,
+     &               IRC,HrmFrq_Show,
      &               CnstWght,Curvilinear,Degen,ThrEne,ThrGrd,iRow)
       Else
          Call Update_sl(
@@ -261,7 +261,7 @@
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,Work(ipMF),
      &               iOptH,HUpMet,kIter,GNrm_Threshold,
-     &               IRC,dMass,HrmFrq_Show,
+     &               IRC,HrmFrq_Show,
      &               CnstWght,Curvilinear,Degen)
       End If
 *

@@ -21,7 +21,7 @@
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,MF,
      &                     iOptH,HUpMet,GNrm_Threshold,IRC,
-     &                     dMass,HrmFrq_Show,CnstWght,Curvilinear,
+     &                     HrmFrq_Show,CnstWght,Curvilinear,
      &                     Degen,ThrEne,ThrGrd,nLines)
 ************************************************************************
 *                                                                      *
@@ -31,7 +31,7 @@
 ************************************************************************
       Use kriging_mod, only: Max_Microiterations,
      &                       Thr_microiterations
-      Use Slapaf_Info, only: Cx, Gx, Shift
+      Use Slapaf_Info, only: Cx, Gx, Shift, dMass
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -40,7 +40,7 @@
       Real*8 qInt(nInter,MaxItr),
      &       Grad(nInter,MaxItr), GNrm(MaxItr), Energy(MaxItr),
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
-     &       dMass(nsAtom), Degen(3*nsAtom), dEner, MF(3*nsAtom)
+     &       Degen(3*nsAtom), dEner, MF(3*nsAtom)
       Integer jStab(0:7,nsAtom), nStab(nsAtom),iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show, Curvilinear,
@@ -220,7 +220,7 @@
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                   Labels,nLabels,FindTS,TSC,nRowH,nWndw_,Mode,
      &                   MF,iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
-     &                   dMass,HrmFrq_Show,CnstWght,Curvilinear,Degen,
+     &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
      &                   First_MicroIteration,iter,qBeta_Disp)
 #ifdef _DEBUGPRINT_
