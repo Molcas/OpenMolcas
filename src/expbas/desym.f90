@@ -55,7 +55,7 @@ module desymmetrize_mod
 contains
 
 ! symmetry-----> C1 INPORB
-    Subroutine desym(UHF)
+    Subroutine desym()
 !***********************************************************************
 !                                                                      *
 ! Purpose: Convert INPORB file with symmetry to DeSymOrb               *
@@ -84,7 +84,6 @@ contains
 !***********************************************************************
 #include "Molcas.fh"
 #include "WrkSpc.fh"
-        logical, intent(in) :: UHF
 
         real(wp), parameter :: EorbThr = 50._wp
         real(wp) :: Coor(3, MxAtom), Znuc(MxAtom)
@@ -104,36 +103,34 @@ contains
 
         character(len=LENIN8 + 1) :: gtolabel(maxbfn)
         character(len=50) :: VTitle
-        character(len=128) :: SymOrbName
-        logical :: Exist, y_cart, Found
+        character(len=128), parameter :: SymOrbName = 'DESORB'
+        logical :: Exist, found
+        logical, parameter :: y_cart = .false.
 
-        integer :: nAtom, nData, nDeg, nTot, nTot2
+        integer :: nAtom, nData, nDeg, nTot, nTot2, nB
         integer :: iCnttp, iAngMx_Valence
-        integer :: nB, iS
         integer :: ipCent, ipCent2, ipCent3
-        integer :: ipPhase, ipC2, ipV, ipC2_ab, ipV_ab
-        integer :: mInd_ab
-        integer :: mAdOcc, mAdEor
-        integer :: mAdCMO, ipAux_ab, mAdIndt_ab, mAdOcc_ab, mAdEor_ab, mAdCMO_ab
-        integer :: Lu_, iErr, notSymm
-        integer :: iatom, iDeg, ishell
-        integer :: iIrrep, iWfType, iWF
+        integer :: ipPhase, ipC2, ipV
+        integer :: mAdOcc, mAdEor,  mAdCMO
+        integer :: file_id, iErr
+        integer, parameter :: arbitrary_magic_number = 42
+        integer :: iatom, iDeg, ishell,  iIrrep
+
+        integer, parameter :: iWfType = 0, notSymm = 1, iWarn = 1, &
+            no_UHF = 0
 
         integer :: mdc, kk, i, j, ik, k, l, kk_Max, ii, iB, ipp, ic, iv
-        integer :: ipc
-        integer :: icontr, nBasisi, icntr
+        integer :: icontr, nBasisi, icntr, ipc
+
+        real(wp) :: dummy(1) = [-1.0]
 
         integer, save :: iRc = 0
 
-
-        y_cart = .false.
+        file_id = arbitrary_magic_number
 
         Call f_Inquire('RUNFILE', Exist)
         call verify_(exist, 'Error finding RUNFILE')
 
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
         !-----Read the characteristics of all different basis sets,
         !     provide each atom with a nuclear charge and establish
         !     a link between an atom and its basis set ---
@@ -149,15 +146,11 @@ contains
         Else
             nOrb(:nIrrep) = nBas(:nIrrep)
         End If
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
+
+
         iAngMx_Valence = maxval(dbsc%nVal - 1, mask=.not. (dbsc%Aux .or. dbsc%Frag))
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
+
         !     Compute memory requirements and allocate memory
-        !
         nB = sum(nBas(0:nIrrep - 1))
         Call GetMem('ICENT', 'ALLO', 'INTE', ipCent, 8 * nB)
         Call GetMem('IPHASE', 'ALLO', 'INTE', ipPhase, 8 * nB)
@@ -167,18 +160,8 @@ contains
         Call GetMem('VECTOR', 'ALLO', 'REAL', ipV, nB**2)
         call dcopy_(nB**2, [0._wp], 0, Work(ipV), 1)
         Call FZero(Work(ipC2), nB**2)
-        If (UHF) Then
-            Call GetMem('CMO2', 'ALLO', 'REAL', ipC2_ab, nB**2)
-            Call GetMem('VECTOR', 'ALLO', 'REAL', ipV_ab, nB**2)
-            call dcopy_(nB**2, [0._wp], 0, Work(ipV_ab), 1)
-            Call FZero(Work(ipC2_ab), nB**2)
-        Else
-            ipC2_ab = ip_Dummy
-            ipV_ab = ip_Dummy
-        End If
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
+
+
         !     Read exponents and contraction coefficients of each unique basis.
         !     Write the present basis set (iCnttp) to the molden.input file for
         !     the appropriate atoms.
@@ -186,13 +169,9 @@ contains
         !     GTO (gtolabel). This list follows the MOLDEN order of GTOs.
         !     Later this list will be used in the transformation of sabf (the
         !     symmetry adapted basis functions).
-        !
-        iatom = 0
-        mdc = 0
-        kk = 0
-        !
-        !            write(6,*)'nCnttp', nCnttp
-        Do iCnttp = 1, nCnttp             ! loop over unique basis sets
+
+        iatom = 0; mdc = 0; kk = 0
+        loop_over_unique_basis_sets : Do iCnttp = 1, nCnttp
             If (.not. (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag)) then
                 !
                 !         write(6,*)'dbsc(iCntt)%nCntr',dbsc(iCnttp)%nCntr
@@ -454,7 +433,8 @@ contains
                     End Do
                 End Do
             end if
-        End Do
+        End Do loop_over_unique_basis_sets
+
         kk_Max = kk
         If (nB > kk_max) Then
             Write (6, *) 'nB > kk_max'
@@ -462,16 +442,10 @@ contains
             call ClsSew()
             return
         End If
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
-        !
-        nTot = 0
-        nTot2 = 0
-        Do iS = 0, nIrrep - 1
-            nTot = nTot + nBas(iS)
-            nTot2 = nTot2 + nBas(iS)**2
-        End Do
+
+        nTot = sum(nBas(0 : nIrrep - 1))
+        nTot2 = sum(nBas(0 : nIrrep - 1)**2)
+
         call mma_allocate(kind_per_orb, nTot)
         Call GetMem('Occ', 'Allo', 'Real', mAdOcc, nTot)
         Call GetMem('Eor', 'Allo', 'Real', mAdEor, nTot)
@@ -479,64 +453,34 @@ contains
         Call FZero(Work(mAdOcc), nTot)
         Call FZero(Work(mAdEor), nTot)
         Call FZero(Work(mAdCMO), nTot2)
-        If (UHF) Then
-            Call GetMem('Aux', 'ALLO', 'REAL', ipAux_ab, nTot)
-            Call GetMem('INDT', 'Allo', 'Inte', mAdIndt_ab, ntot)
-            Call GetMem('IndType', 'Allo', 'Inte', mInd_ab, 56)
-            Call GetMem('Occ', 'Allo', 'Real', mAdOcc_ab, nTot)
-            Call GetMem('Eor', 'Allo', 'Real', mAdEor_ab, nTot)
-            Call GetMem('CMO', 'Allo', 'Real', mAdCMO_ab, nTot2)
-            Call FZero(Work(ipAux_ab), nTot)
-            Call IZero(iWork(mAdIndt_ab), nTot)
-            Call IZero(iWork(mInd_ab), 56)
-            Call FZero(Work(mAdOcc_ab), nTot)
-            Call FZero(Work(mAdEor_ab), nTot)
-            Call FZero(Work(mAdCMO_ab), nTot2)
-        Else
-            ipAux_ab = ip_Dummy
-            mAdIndt_ab = ip_Dummy
-            mInd_ab = ip_Dummy
-            mAdOcc_ab = ip_Dummy
-            mAdEor_ab = ip_Dummy
-            mAdCMO_ab = ip_Dummy
-        End If
-        !
-        !
-        !---- Read HF CMOs from file
-        !
-        Lu_ = 75
-        FilesOrb = EB_FileOrb
-        If (len_trim(FilesOrb) == 0) FilesOrb = 'INPORB'
-        if (DoExpbas) FilesOrb = 'EXPORB'
-        Call RdVec_(trim(FilesOrb), Lu_, 'COEI', merge(1, 0, UHF), nIrrep, nBas, nBas, &
-                    Work(mAdCMO), Work(mAdCMO_ab), &
-                    Work(mAdOcc), Work(mAdOcc_ab), &
-                    Work(mAdEor), Work(mAdEor_ab), &
-                    kind_per_orb, VTitle, 1, iErr, iWfType)
-        if (UHF) then
-            write (6, *) 'DESY keyword not implemented for DODS wf!'
-            Call Abend()
+
+        if (DoExpbas) then
+            FilesOrb = 'EXPORB'
+        else
+            if (len_trim(EB_FileOrb) == 0) then
+                FilesOrb = 'INPORB'
+            else
+                FilesOrb = EB_FileOrb
+            end if
         end if
+
+
+        Call RdVec_(trim(FilesOrb), file_id, 'COEI', no_UHF, nIrrep, nBas, nBas, &
+                    Work(mAdCMO), Dummy, &
+                    Work(mAdOcc), Dummy, &
+                    Work(mAdEor), Dummy, &
+                    kind_per_orb, VTitle, iWarn, iErr, iWfType)
+
         if (iErr /= 0) then
             iRc = 1
             return
         end if
 
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
         !     Get the coeff. of sym adapted basis functions (ipC2)
-        !
         Call Dens_IF_SCF(Work(ipC2), Work(mAdCMO), 'F')
         Call GetMem('CMO', 'Free', 'Real', mAdCMO, nTot2)
-        If (UHF) Then
-            Call Dens_IF_SCF(Work(ipC2_ab), Work(mAdCMO_ab), 'F')
-            Call GetMem('CMO', 'Free', 'Real', mAdCMO_ab, nTot2)
-        End If
 
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
+
         !      Back 'transformation' of the symmetry adapted basis functions.
         !      Probably somewhat clumsy, but it seems to work.If someone
         !      knows a more elegant way to do it, please improve this part!
@@ -566,10 +510,8 @@ contains
                 ipc = ipc + 1
             End Do
         End Do
-        !                                                                      *
-        !***********************************************************************
-        !                                                                      *
-        !
+
+
         ! Part 2: -Take a MOLCAS symmetry functions (loop i)
         !         -Find the corresponding label in the MOLDEN list (loop j)
         !         -Copy the coeff of the sabf in the MOLDEN MO (vector), multiply
@@ -594,11 +536,7 @@ contains
                         ik = 1
                     End If
                 End If
-                !                                                                      *
-                !***********************************************************************
-                !                                                                      *
                 Write (MO_Label(i), '(I5,A3)') iB, lirrep(iIrrep)
-                !
                 Do j = 1, nB
                     !
                     !
@@ -615,19 +553,11 @@ contains
                                                          + Work(ipC2 + ic) &
                                                          * DBLE(iWork(ipPhase + ipp)) &
                                                          / DBLE(iWork(ipcent2 + i - 1))
-                                        If (UHF) Work(ipV_ab + iv) = Work(ipV_ab + iv) &
-                                                                           + Work(ipC2_ab + ic) &
-                                                                           * DBLE(iWork(ipPhase + ipp)) &
-                                                                           / DBLE(iWork(ipcent2 + i - 1))
                                     Else
                                         Work(ipV + iv) = Work(ipV + iv) &
                                                          + Work(ipC2 + ic) &
                                                          * DBLE(iWork(ipPhase + ipp)) &
                                                          / Sqrt(DBLE(iWork(ipcent2 + i - 1)))
-                                        If (UHF) Work(ipV_ab + iv) = Work(ipV_ab + iv) &
-                                                                           + Work(ipC2_ab + ic) &
-                                                                           * DBLE(iWork(ipPhase + ipp)) &
-                                                                           / Sqrt(DBLE(iWork(ipcent2 + i - 1)))
                                     End If
                                 End Do
                             End If
@@ -639,9 +569,7 @@ contains
         Call mma_deallocate(Label)
 
 
-
-        !**************************** START SORTING ****************************
-
+        ! Now resort the orbitals.
         call mma_allocate(CMO, nTot, nTot)
         call mma_allocate(occ, nTot)
         call mma_allocate(energy, nTot)
@@ -660,19 +588,19 @@ contains
         call reorder_orbitals()
 #endif
 
+        ! count the number of orbitals of each kind.
         n_kinds(:) = 0
         do i = lbound(kind_per_orb, 1), ubound(kind_per_orb, 1)
             n_kinds(kind_per_orb(i)) = n_kinds(kind_per_orb(i)) + 1
         end do
 
 
-        notSymm = 1
-        iWF = 9
-        SymOrbName = 'DESORB'
         VTitle = 'Basis set desymmetrized orbital file DESORB'
-        Call WrVec_(SymOrbName, iWF, 'COEI', merge(1, 0, UHF), notSymm, &
-                    [nTot], [nTot], CMO, Work(ipV_ab), &
-                    occ, Work(mAdOcc_ab), energy, Work(ipAux_ab), &
+        Call WrVec_(SymOrbName, file_id, 'COEI', 0, notSymm, &
+                    [nTot], [nTot], &
+                    CMO, dummy, &
+                    occ, dummy, &
+                    energy, dummy, &
                     n_kinds, VTitle, iWFtype)
         call Add_Info('desym CMO', CMO, 999, 8)
 
@@ -682,21 +610,10 @@ contains
         call mma_deallocate(kind_per_orb)
         Call GetMem('Eor', 'Free', 'Real', mAdEor, nTot)
         Call GetMem('Occ', 'Free', 'Real', mAdOcc, nTot)
-        If (UHF) Then
-            Call GetMem('Eor', 'Free', 'Real', mAdEor_ab, nTot)
-            Call GetMem('Occ', 'Free', 'Real', mAdOcc_ab, nTot)
-            Call GetMem('Aux', 'FREE', 'REAL', ipAux_ab, nTot)
-            Call GetMem('INDT', 'Free', 'Inte', mAdIndt_ab, nTot)
-            Call GetMem('IndType', 'Free', 'Inte', mInd_ab, 56)
-        End If
         Call GetMem('ICENT', 'FREE', 'INTE', ipCent, 8 * nB)
         Call GetMem('IPHASE', 'FREE', 'INTE', ipPhase, 8 * nB)
         Call GetMem('nCENT', 'FREE', 'INTE', ipCent2, nB)
         Call GetMem('ICENTER', 'FREE', 'INTE', ipCent3, nB)
-        If (UHF) Then
-            Call GetMem('CMO2', 'FREE', 'REAL', ipC2_ab, nB**2)
-            Call GetMem('VECTOR', 'FREE', 'REAL', ipV_ab, nB**2)
-        End If
         Call GetMem('CMO2', 'FREE', 'REAL', ipC2, nB**2)
         Call GetMem('VECTOR', 'FREE', 'REAL', ipV, nB**2)
 
