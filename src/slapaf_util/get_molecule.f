@@ -63,15 +63,15 @@
                Call SysAbendmsg('Get_Molecule','Did not find:',
      &                          'Grad State1')
             End If
+            If ( length.ne.3*nsAtom ) Then
+               Call WarningMessage(2,'Init: length.ne.3*nsAtom')
+               Write (6,*) 'Grad'
+               Write (6,*) 'length,nsAtom=',length,nsAtom
+               Call Abend()
+            End If
             Call mma_allocate(Grd,3,nsAtom,Label='Grd')
             Call Get_dArray('Grad State1',Grd,3*nsAtom)
 *
-         End If
-         If ( length.ne.3*nsAtom ) Then
-            Call WarningMessage(2,'Init: length.ne.3*nsAtom')
-            Write (6,*) 'Grad'
-            Write (6,*) 'length,nsAtom=',length,nsAtom
-            Call Abend()
          End If
          iJustGrad = 0
          iGO = iOr(iGO,iJustGrad)

@@ -27,10 +27,7 @@
      &          iTabAtoms(2,0:nMax,nAtoms+nHidden)
       Logical Smmtrc(3*mAtoms), Schlegel, Analytic_Hessian,
      &        Found, RunOld
-      Character*180 Line,Get_Ln
-      External Get_Ln
-      Real*8 XYZ(3)
-      Real*8, Allocatable:: TanVec(:), HTanVec(:), HTmp(:)
+      Real*8, Allocatable:: TanVec(:), HTanVec(:)
 
       iRout=120
       iPrint=nPrint(iRout)
