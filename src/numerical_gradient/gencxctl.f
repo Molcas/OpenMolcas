@@ -295,9 +295,6 @@
       End If
       Call GetMem('Relax', 'Free','Real',ipRlx, Lngth)
       Call GetMem('Anr',   'Free','Inte',ipANr, nsAtom)
-*     The weights array length is actually the total number of atoms,
-*     not just symmetry-unique, but that doesn't matter for deallocation
-      Call GetMem('Weights','Free','Real',ipWeights,nsAtom)
 *
 *-----Terminate the calculations.
 *

@@ -30,13 +30,14 @@
       Subroutine Print_Mode_Components(Modes,Freq,nModes,lModes,lDisp)
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor,
-     &                       Grd
+     &                       Grd, Weights
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "real.fh"
+      Real*8 rDum(1)
       Real*8 :: Modes(*), Freq(*), Mx, MinComp
       Integer :: LuInput, iRow, iInt, nFix, iRout,
      &           iPrint, nX, i, j, nB, iq, nAll_Atoms, nUnique_Atoms,
@@ -62,6 +63,7 @@
       Real*8, Allocatable:: Bk_dMass(:)
       Real*8, Allocatable:: Bk_Coor(:,:)
       Real*8, Allocatable:: Bk_Grd(:,:)
+      Real*8, Allocatable:: Bk_Weights(:)
 *
 *
 *---- Ugly hack: backup all "global" slapaf variables in case this is
@@ -109,6 +111,11 @@
          Call mma_allocate(Bk_Grd,3,nsAtom,Label='Bk_Grd')
          Bk_Grd(:,:) = Grd(:,:)
          Call mma_deallocate(Grd)
+      End If
+      If (Allocated(Weights)) Then
+         Call mma_allocate(Bk_Weights,SIZE(Weights),Label='Bk_Weights')
+         Bk_Weights(:) = Weights(:)
+         Call mma_deallocate(Weights)
       End If
 
       Bk_iSym(:)=iSym(:)
@@ -275,7 +282,7 @@
 *---- Remove the Hessian and disable translational and rotational
 *     invariance
 *
-      Call Put_dArray('Hess',Work(ip_Dummy),0)
+      Call Put_dArray('Hess',rDum,0)
       Call Get_iScalar('System BitSwitch',iSBS)
       iSBS=iOr(iSBS,2**7)
       iSBS=iOr(iSBS,2**8)
@@ -454,7 +461,6 @@
       End If
       Call GetMem('Relax',  'Free','Real',ipRlx,    Lngth)
       Call GetMem('Anr',    'Free','Inte',ipANr,    nsAtom)
-      Call GetMem('Weights','Free','Real',ipWeights,nsAtom)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -659,6 +665,12 @@
          Call mma_deallocate(Bk_Grd)
       Else
         If (Allocated(Grd)) Call mma_deallocate(Grd)
+      End If
+      If (Allocated(Bk_Weights)) Then
+         Weights(:) = Bk_Weights(:)
+         Call mma_deallocate(Bk_Weights)
+      Else
+         Call mma_deallocate(Weights)
       End If
 *
 *     Process arrays that is allocated optionally.

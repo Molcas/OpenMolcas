@@ -11,7 +11,7 @@
       Subroutine RdCtl_Slapaf(iRow,iInt,nFix,LuSpool,Dummy_Call)
       use kriging_mod
       use Symmetry_Info, only: Symmetry_Info_Get
-      use Slapaf_Info, only: Gx, Coor
+      use Slapaf_Info, only: Gx, Coor, Weights
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -1209,7 +1209,7 @@ C              Write (6,*) 'RUNFILE: Found=',Found
 *        The direction is given by the gradient, but in weighted coordinates
                Call mma_allocate(Dir,3,nsAtom,Label='Dir')
                Do iAtom=1,nsAtom
-                  xWeight=Work(ipWeights+iAtom-1)
+                  xWeight=Weights(iAtom)
                   Do ixyz=1,3
                      Dir(ixyz,iAtom)=Gx(ixyz,iAtom,iter)/xWeight
                   End Do

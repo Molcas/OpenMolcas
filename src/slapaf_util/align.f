@@ -28,10 +28,10 @@
 ************************************************************************
       Subroutine Align(Coord,Ref,nAtom)
       use Symmetry_Info, only: nIrrep, iOper
+      use Slapaf_Info, only: Weights
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "sbs.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "info_slapaf.fh"
 #include "weighting.fh"
@@ -51,7 +51,7 @@
 
 c     Call RecPrt('Coord before align',' ',Coor_All,3,mAtom)
 
-      Call Superpose_w(Coor_All,Ref_All,Work(ipWeights),mAtom,
+      Call Superpose_w(Coor_All,Ref_All,Weights,mAtom,
      &                 RMS,RMSMax)
 
 *---- Get the stabilizers for each atom (to keep the symmetry)

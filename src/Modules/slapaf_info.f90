@@ -13,7 +13,7 @@
 Module Slapaf_Info
 implicit none
 Private
-Public:: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, Free_Slapaf
+Public:: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, Weights, Free_Slapaf
 !
 ! Arrays always allocated
 !
@@ -24,6 +24,7 @@ Real*8, Allocatable:: Q_nuclear(:)  ! list nuclear charges
 Real*8, Allocatable:: dmass(:)      ! list atomic mass in units of (C=12)
 Real*8, Allocatable:: Coor(:,:)     ! Cartesian coordinates of the last iteraction
 Real*8, Allocatable:: Grd(:,:)      ! gradient of the last iteraction in Cartesian coordinates
+Real*8, Allocatable:: Weights(:)    ! weights of the nuclei
 
 !
 ! Arrays optionally allocated
@@ -40,6 +41,7 @@ Contains
   If (Allocated(dMass)) Call mma_deallocate(dMass)
   If (Allocated(Coor)) Call mma_deallocate(Coor)
   If (Allocated(Grd)) Call mma_deallocate(Grd)
+  If (Allocated(Weights)) Call mma_deallocate(Weights)
 
   If (Allocated(NAC)) Call mma_deallocate(NAC)
   End Subroutine Free_Slapaf

@@ -37,6 +37,7 @@
       Subroutine MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,
      &                   ResGrad,BadConstraint)
       use Symmetry_Info, only: nIrrep
+      use Slapaf_Info, only: Weights
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -96,7 +97,7 @@
       iOff=0
       Do iAtom=1,nAtom
         Fact=Dble(iDeg(Cx(1+iOff,iter)))
-        xWeight=Work(ipWeights+iAtom-1)
+        xWeight=Weights(iAtom)
         TWeight=TWeight+Fact*xWeight
         Do ixyz=1,3
           dPrevDir=dPrevDir+Fact*xWeight*Work(ipPrevDir+iOff)**2
@@ -288,7 +289,7 @@
         iOff=0
         Do iAtom=1,nAtom
           Fact=Dble(iDeg(Cx(1+iOff,iter)))
-          xWeight=Work(ipWeights+iAtom-1)
+          xWeight=Weights(iAtom)
           Do ixyz=1,3
             dDir=dDir+Fact*xWeight*Work(ipDir+iOff)**2
             iOff=iOff+1
@@ -325,7 +326,7 @@
           dDir=Zero
           iOff=0
           Do iAtom=1,nAtom
-            xWeight=Work(ipWeights+iAtom-1)
+            xWeight=Weights(iAtom)
             Do ixyz=1,3
               dDir=dDir+xWeight*Work(ipDisp+iOff)**2
               iOff=iOff+1

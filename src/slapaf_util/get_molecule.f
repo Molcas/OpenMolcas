@@ -9,11 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Get_Molecule(AtomLbl,nsAtom,mxdc)
-      use Slapaf_Info, only: Q_nuclear, Coor, Grd
+      use Slapaf_Info, only: Q_nuclear, Coor, Grd, Weights
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "weighting.fh"
 #include "Molcas.fh"
@@ -111,8 +110,8 @@
       If (Found.And.(nData.ge.nsAtom)) Then
 *        The weights array length is actually the total number of atoms,
 *        not just symmetry-unique, but the symmetry-unique ones are first
-         Call GetMem('Weights','Allo','Real',ipWeights,nData)
-         Call Get_dArray('Weights',Work(ipWeights),nData)
+         Call mma_allocate(Weights,nData,Label='Weights')
+         Call Get_dArray('Weights',Weights,nData)
       Else
          Call SysAbendMsg('Get_Molecule',
      &        'No or wrong weights were found in the RUNFILE.','')

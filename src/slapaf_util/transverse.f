@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Transverse(xyz,nCent,HDist,Bf,l_write,Label,dBf,ldB)
+      use Slapaf_Info, only: Weights
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -58,7 +59,7 @@ c     Call RecPrt('R12',' ',Work(ipR12_),3,nCent)
       TWeight = Zero
       Do iCent = 1, nCent
          Fact = Dble(iDeg(xyz(1,iCent)))
-         xWeight = Fact*Work(ipWeights+iCent-1)
+         xWeight = Fact*Weights(iCent)
          TWeight = TWeight+xWeight
          Do i = 1, 3
             RR_R12 = RR_R12 + xWeight*(r12(i,iCent))**2
@@ -75,7 +76,7 @@ c     Call RecPrt('R12',' ',Work(ipR12_),3,nCent)
       f=Zero
       Do iCent = 1, nCent
          Fact = Dble(iDeg(xyz(1,iCent)))
-         xWeight = Fact*Work(ipWeights+iCent-1)
+         xWeight = Fact*Weights(iCent)
          Do i = 1, 3
             f = f + xWeight*(xyz(i,iCent)-xyz0(i,iCent))*r12(i,iCent)
          End Do
@@ -110,7 +111,7 @@ c     Write (6,*) 'f, RR_R12=',f,RR_R12
 *
          Do iCent = 1, nCent
             Fact = Dble(iDeg(xyz(1,iCent)))
-            xWeight = Fact*Work(ipWeights+iCent-1)
+            xWeight = Fact*Weights(iCent)
             Do i = 1, 3
                Bf(i,iCent) = xWeight*r12(i,iCent)/RR_R12*SqInvTWeight
             End Do

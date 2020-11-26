@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine DstInf(iStop,Just_Frequencies,Numerical)
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: Cx, Gx, Gx0, Coor
+      use Slapaf_Info, only: Cx, Gx, Gx0, Coor, Weights
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -275,9 +275,9 @@
 *
            Call mma_allocate(RV,3,nsAtom,Label='RV')
            Call dcopy_(3*nsAtom,Work(ipMF),1,RV,1)
-           Do i=0,nsAtom-1
-             xWeight=Work(ipWeights+i)
-             RV(:,i+1) = RV(:,i+1)/xWeight
+           Do i=1,nsAtom
+             xWeight=Weights(i)
+             RV(:,i) = RV(:,i)/xWeight
            End Do
            Call OutCoor('* The Cartesian Reaction vector'//
      &                  '                         *',
