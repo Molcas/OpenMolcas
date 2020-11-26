@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Init_SlapAf(iRow)
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: q_nuclear, dMass, Coor, Grd
+      use Slapaf_Info, only: q_nuclear, dMass, Coor, Grd, ANr
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -414,18 +414,16 @@ C           NADC= .False. ! for debugging
       Call GetMem('Mass','Allo','Real',ip_xMass,nsAtom)
       Call Get_Mass(Work(ip_xMass),nsAtom)
 *     Call RecPrt(' Charges',' ',Q_nuclear,nsAtom,1)
-      Call GetMem('ANr','Allo','Inte',ipANr,nsAtom)
-      jj = ipANr
-      Do 110 isAtom = 1, nsAtom
+      Call mma_allocate(ANr,nsAtom,Label='ANr')
+      Do isAtom = 1, nsAtom
          ind = Int(Q_nuclear(isAtom))
          If (ind.le.0) Then
             dMass(isAtom) = 1.0D-10
          Else
             dMass(isAtom) = Work(ip_xMass+isAtom-1)
          End If
-         iWork(jj)=ind
-         jj = jj + 1
- 110  Continue
+         ANr(isAtom)=ind
+      End Do
       Call GetMem('Mass','Free','Real',ip_xMass,nsAtom)
 *                                                                      *
 ************************************************************************

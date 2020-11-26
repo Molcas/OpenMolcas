@@ -11,7 +11,7 @@
       Subroutine RlxCtl(iStop)
       Use Chkpnt
       Use kriging_mod, only: Kriging, nspAI
-      Use Slapaf_Info, only: Cx, Gx, dMass, Coor, Free_Slapaf
+      Use Slapaf_Info, only: Cx, Gx, dMass, Coor, ANr, Free_Slapaf
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -132,7 +132,7 @@
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
      &           Coor,nDimBC,dMass,AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
-     &           Gx,mTtAtm,iWork(ipANr),iOptH,
+     &           Gx,mTtAtm,ANr,iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,nqInt,
@@ -160,7 +160,7 @@
 ************************************************************************
 *                                                                      *
       Call Reset_ThrGrd(nsAtom,nDimBC,dMass,Smmtrc,Degen,Iter,
-     &                  mTtAtm,iWork(ipANr),DDV_Schlegel,iOptC,rHidden,
+     &                  mTtAtm,ANr,DDV_Schlegel,iOptC,rHidden,
      &                  ThrGrd)
 *                                                                      *
 ************************************************************************
@@ -289,7 +289,7 @@
      &               ipB,dMass,Lbl,Work(ipShf),ipqInt,
      &               ipdqInt,DFC,dss,Tmp,
      &               AtomLbl,iSym,Smmtrc,Degen,
-     &               mTtAtm,iWork(ipANr),iOptH,
+     &               mTtAtm,ANr,iOptH,
      &               User_Def,nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &               iCoSet,rHidden,ipRef,Redundant,nqInt,MaxItr,iRef,
@@ -460,7 +460,6 @@
           Call GetMem('qInt', 'Free','Real',ipqInt, nqInt)
       End If
       Call GetMem('Relax', 'Free','Real',ipRlx, Lngth)
-      Call GetMem('Anr',   'Free','Inte',ipANr, nsAtom)
 *
 *-----Terminate the calculations.
 *

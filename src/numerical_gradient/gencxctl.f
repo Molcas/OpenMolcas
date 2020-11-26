@@ -11,7 +11,7 @@
 * Copyright (C) 2013, Roland Lindh                                     *
 ************************************************************************
       Subroutine genCxCTL(iStop,Cartesian,rDelta)
-      use Slapaf_Info, only: Gx, dMass, Coor, Free_Slapaf
+      use Slapaf_Info, only: Gx, dMass, Coor, ANr, Free_Slapaf
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -83,7 +83,7 @@
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
      &           Coor,nDimBC,dMass,AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
-     &           Gx,mTtAtm,iWork(ipANr),iOptH,
+     &           Gx,mTtAtm,ANr,iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,nqInt,
@@ -237,7 +237,7 @@
      &               Work(ipDCF),Work(ipdss),Work(ipTmp),
      &               AtomLbl,iSym,Smmtrc,
      &               Degen,mTtAtm,
-     &               iWork(ipANr),iOptH,User_Def,
+     &               ANr,iOptH,User_Def,
      &               nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS, Analytic_Hessian,
      &               iOptC,PrQ,mxdc,iCoSet,rHidden,ipRef,
@@ -294,7 +294,6 @@
          Call GetMem('qInt', 'Free','Real',ipqInt, nqInt)
       End If
       Call GetMem('Relax', 'Free','Real',ipRlx, Lngth)
-      Call GetMem('Anr',   'Free','Inte',ipANr, nsAtom)
 *
 *-----Terminate the calculations.
 *

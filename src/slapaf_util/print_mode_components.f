@@ -30,7 +30,7 @@
       Subroutine Print_Mode_Components(Modes,Freq,nModes,lModes,lDisp)
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor,
-     &                       Grd, Weights
+     &                       Grd, Weights, ANr
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -64,6 +64,8 @@
       Real*8, Allocatable:: Bk_Coor(:,:)
       Real*8, Allocatable:: Bk_Grd(:,:)
       Real*8, Allocatable:: Bk_Weights(:)
+
+      Integer, Allocatable:: Bk_ANr(:)
 *
 *
 *---- Ugly hack: backup all "global" slapaf variables in case this is
@@ -111,6 +113,11 @@
          Call mma_allocate(Bk_Grd,3,nsAtom,Label='Bk_Grd')
          Bk_Grd(:,:) = Grd(:,:)
          Call mma_deallocate(Grd)
+      End If
+      If (Allocated(ANr)) Then
+         Call mma_allocate(Bk_ANr,nsAtom,Label='Bk_ANr')
+         Bk_ANr(:) = ANr(:)
+         Call mma_deallocate(ANr)
       End If
       If (Allocated(Weights)) Then
          Call mma_allocate(Bk_Weights,SIZE(Weights),Label='Bk_Weights')
@@ -322,7 +329,7 @@
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
      &           Coor,nDimBC,dMass,AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,ipShf,
-     &           Work(ipGx),mTtAtm,iWork(ipANr),iOptH,
+     &           Work(ipGx),mTtAtm,ANr,iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,nqInt,
@@ -460,7 +467,6 @@
          Call GetMem('ipRef',  'Free','Real',ipRef,    3*nsAtom)
       End If
       Call GetMem('Relax',  'Free','Real',ipRlx,    Lngth)
-      Call GetMem('Anr',    'Free','Inte',ipANr,    nsAtom)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -665,6 +671,12 @@
          Call mma_deallocate(Bk_Grd)
       Else
         If (Allocated(Grd)) Call mma_deallocate(Grd)
+      End If
+      If (Allocated(Bk_ANr)) Then
+         ANr(:) = Bk_ANr(:)
+         Call mma_deallocate(Bk_ANr)
+      Else
+         Call mma_deallocate(ANr)
       End If
       If (Allocated(Bk_Weights)) Then
          Weights(:) = Bk_Weights(:)

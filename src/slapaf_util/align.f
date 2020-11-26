@@ -51,8 +51,7 @@
 
 c     Call RecPrt('Coord before align',' ',Coor_All,3,mAtom)
 
-      Call Superpose_w(Coor_All,Ref_All,Weights,mAtom,
-     &                 RMS,RMSMax)
+      Call Superpose_w(Coor_All,Ref_All,Weights,mAtom,RMS,RMSMax)
 
 *---- Get the stabilizers for each atom (to keep the symmetry)
 *     (code copied from init_slapaf)
