@@ -103,32 +103,30 @@ contains
         character(len=LENIN8 + 1) :: gtolabel(maxbfn)
         character(len=50) :: VTitle
         character(len=128) :: SymOrbName
-        logical :: Exist, Found
+        logical :: exists, found
         logical, parameter :: y_cart = .false.
 
 
-        integer :: nAtom, nData, nDeg, nTot, nTot2
+        integer :: nAtom, nData, nDeg, nTot, nTot2, nB
         integer :: iCnttp, iAngMx_Valence
-        integer :: nB, iS
+        integer :: ierr
         integer :: ipCent, ipCent2, ipCent3
         integer :: ipPhase, ipC2, ipV
         integer :: mAdOcc, mAdEor, mAdCMO
-        integer :: file_id, iErr
-        integer, parameter :: notSymm = 1, arbitrary_number = 42, noUHF = 0
-        integer :: iatom, iDeg, ishell
-        integer :: iIrrep, iWfType
+        integer :: file_id, iWfType
+        integer, parameter :: notSymm = 1, arbitrary_number = 42, noUHF = 0, iWarn = 1
+        integer :: iatom, iDeg, ishell, iIrrep
 
         integer :: mdc, kk, i, j, ik, k, l, kk_Max, ii, iB, ipp, ic, iv
-        integer :: ipc
-        integer :: icontr, nBasisi, icntr
+        integer :: ipc, icontr, nBasisi, icntr
 
         integer, save :: iRc = 0
 
         file_id = arbitrary_number
 
 
-        Call f_Inquire('RUNFILE', Exist)
-        call verify_(exist, 'Error finding RUNFILE')
+        Call f_Inquire('RUNFILE', exists)
+        call verify_(exists, 'Error finding RUNFILE')
 
         !-----Read the characteristics of all different basis sets,
         !     provide each atom with a nuclear charge and establish
@@ -139,8 +137,8 @@ contains
         !     Work(ipInf)
         !
         Call Inter1(AtomLabel, iBas_Lab, Coor, Znuc, nAtom)
-        Call Qpg_iArray('nOrb', Found, nData)
-        If (Found) Then
+        Call Qpg_iArray('nOrb', found, nData)
+        If (found) Then
             Call Get_iArray('nOrb', nOrb, nData)
         Else
             nOrb(:nIrrep) = nBas(:nIrrep)
@@ -456,7 +454,7 @@ contains
                     Work(mAdCMO), Work(ip_Dummy), &
                     Work(mAdOcc), Work(ip_Dummy), &
                     Work(mAdEor), Work(ip_Dummy), &
-                    kind_per_orb, VTitle, 1, iErr, iWfType)
+                    kind_per_orb, VTitle, iWarn, iErr, iWfType)
 
         if (iErr /= 0) then
             iRc = 1
