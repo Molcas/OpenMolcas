@@ -17,7 +17,7 @@
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
-     &                     rLambda,GrdMax,StpMax,GrdLbl,StpLbl,
+     &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,MF,
      &                     iOptH,HUpMet,GNrm_Threshold,IRC,
@@ -38,7 +38,7 @@
 #include "Molcas.fh"
 #include "stdalloc.fh"
       Real*8 qInt(nInter,MaxItr), Grad(nInter,MaxItr), Energy(MaxItr),
-     &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
+     &       BMx(3*nsAtom,3*nsAtom),
      &       Degen(3*nsAtom), dEner, MF(3*nsAtom)
       Integer jStab(0:7,nsAtom), nStab(nsAtom),iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
@@ -215,7 +215,7 @@
      &                   Beta_,Beta_Disp_,Lbl,Energy,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                   iRow_c,nsAtom,AtomLbl,mxdc,jStab,
-     &                   nStab,BMx,Smmtrc,nDimBC,rLambda,
+     &                   nStab,BMx,Smmtrc,nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                   Labels,nLabels,FindTS,TSC,nRowH,nWndw_,Mode,
      &                   MF,iOptH,HUpMet,kIter,GNrm_Threshold,IRC,

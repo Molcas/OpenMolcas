@@ -16,7 +16,7 @@
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
-     &                     rLambda,GrdMax,StpMax,GrdLbl,StpLbl,
+     &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,MF,
      &                     iOptH,HUpMet,mIter,GNrm_Threshold,IRC,
@@ -51,7 +51,6 @@
 *      BMx            : the so-called Wilson B matrix                  *
 *      Smmtrc         : logical flag for symmetry properties           *
 *      nDimBC         : dimension of redundant coordinates(?)          *
-*      rLambda        : vector for Lagrange multipliers                *
 *      iNeg           : Hessian index                                  *
 *      Labels         : character string of primitive int. coord.      *
 *      nLabels        : length of Labels                               *
@@ -72,17 +71,15 @@
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
-      use Slapaf_info, only: GNrm, dMass
+      use Slapaf_info, only: GNrm, dMass, Lambda
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
       Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter),
      &       Grad(nInter,kIter), Energy(kIter),
-     &       BMx(3*nsAtom,3*nsAtom),
-     &       rLambda(nLambda,kIter+1), Degen(3*nsAtom), MF(3*nsAtom)
-      Integer jStab(0:7,nsAtom), nStab(nsAtom),
-     &        iNeg(2)
+     &       BMx(3*nsAtom,3*nsAtom), Degen(3*nsAtom), MF(3*nsAtom)
+      Integer jStab(0:7,nsAtom), nStab(nsAtom), iNeg(2)
 *    &        iNeg(2), jNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),FindTS, TSC, HrmFrq_Show,
      &        Found, Curvilinear, Kriging_Hessian, First_MicroIteration
@@ -644,7 +641,7 @@ C           Write (6,*) 'tBeta=',tBeta
               fCart=fCart*0.9D0
             End If
             qBeta=fCart*Beta
-            Call Con_Opt(R,dRdq,T,Grad,rLambda,qInt,Shift,dy,dx,
+            Call Con_Opt(R,dRdq,T,Grad,Lambda,qInt,Shift,dy,dx,
      &                dEdq,du,x,dEdx,Wess,GNrm(kIter),
      &                nWndw,Hessian,nInter,kIter,iOptC,Mode_,MF,
      &                iOptH_,HUpMet,jPrint,Energy_L,nLambda,nRowH,
@@ -675,7 +672,7 @@ C           Write (6,*) 'tBeta=',tBeta
          Write (Lu,*) '* Lagrange multipliers for the constraints *'
          Write (Lu,*) '********************************************'
          Write (Lu,'(1X,A,2X,ES13.6)')
-     &       (Lbl(nInter+iInt),-One*rLambda(iInt,mIter),
+     &       (Lbl(nInter+iInt),-One*Lambda(iInt,mIter),
      &        iInt=1,nLambda)
          Write (Lu,*)
 #endif

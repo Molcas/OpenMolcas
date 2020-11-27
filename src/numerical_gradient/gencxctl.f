@@ -31,7 +31,8 @@
 #include "db.fh"
 #include "print.fh"
       Logical Numerical, PrQ, Cartesian, Found, TSC, Error
-      Character*8 Lbl(nLbl)
+      Character(LEN=8) Lbl(nLbl)
+      Real*8, Allocatable:: DList(:), CList(:,:), du(:), TMx(:)
 *
       Lu=6
 *
@@ -120,10 +121,10 @@
 *     Make lists for all Cartesian coordinates and the
 *     corresponding displacement in internal coordinates
 *
-      Call Allocate_Work(ipCList,2*mInt*3*nsAtom)
-      Call FZero(Work(ipCList),2*mInt*3*nsAtom)
-      Call Allocate_Work(ipDList,mInt)
-      Call FZero(Work(ipDList),mInt)
+      Call mma_allocate(CList,3*nsAtom, 2*mInt,Label='CList')
+      CList(:,:)=Zero
+      Call mma_allocate(DList,mInt,Label='DList')
+      DList(:)=Zero
       Call Allocate_Work(ip_RefCoor,3*nsAtom)
 *                                                                      *
 ************************************************************************
@@ -141,11 +142,11 @@
 *                                                                      *
 *     Get the T-matrix
 *
-      Call Allocate_Work(ip_T,mInt**2)
-      Call TMatrix(Work(ip_T))
+      Call mma_allocate(TMx,mInt**2,Label='TMx')
+      Call TMatrix(TMx)
       Call Put_iScalar('nLambda',nLambda)
-      Call Put_dArray('T-matrix',Work(ip_T),mInt**2)
-*     Call RecPrt('T-matrix',' ',Work(ip_T),mInt,mInt)
+      Call Put_dArray('T-matrix',TMx,mInt**2)
+*     Call RecPrt('T-matrix',' ',TMx,mInt,mInt)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -163,7 +164,7 @@
 *     (3N-6) but also eliminate constrained degrees (3N-6-m)
 *
       nDisp = mInt-nLambda
-      Call GetMem('du','Allo','Real',ipdu,mInt)
+      Call mma_allocate(du,mInt,Label='du')
 *
 *     Loop only over displacement which do not change the constraint.
 *     Note that the constraints are placed first.
@@ -184,28 +185,28 @@
 *        Update the shift vector, in the space in which we split
 *        the constraints and the reduced subspace.
 *
-         Call FZero(Work(ipdu),mInt)
+         du(:)=Zero
          Shift(:,iter)=Zero
          jInter = (iDisp+1)/2
          If (Mod(iDisp,2).eq.0) Then
-            Work(ipdu-1+jInter) = -rDelta
+            du(jInter) = -rDelta
          Else
-            Work(ipdu-1+jInter) =  rDelta
+            du(jInter) =  rDelta
          End If
-*        Call RecPrt('du',' ',Work(ipdu),mInt,1)
+*        Call RecPrt('du',' ',du,mInt,1)
 *
 *        Transform displacement to the internal coordinate
 *        space. This is a simple unitary transformation.
 *
          Call DGEMM_('N','N',mInt,1,mInt,
-     &               One,Work(ip_T),mInt,
-     &                   Work(ipdu),mInt,
+     &               One,TMx,mInt,
+     &                   du,mInt,
      &               Zero,Shift(:,iter),mInt)
 *        Call RecPrt('shf',' ',Shift(:,iter),mInt,1)
 *
 *        Save the value of the displacement in the list.
 *
-         Work(ipDList-1+jInter) = rDelta
+         DList(jInter) = rDelta
 *
 *        Take a copy of the current values of the internal
 *        coordinates.
@@ -242,33 +243,31 @@
      &               iOptC,PrQ,mxdc,iCoSet,rHidden,ipRef,
      &               Redundant,nqInt,MaxItr,iRef,Error)
 *
-         ip_To   = ipCList + (iDisp-1)*3*nsAtom
-*
 *        Move the new Cartesian coordinate to the list.
 *
-         call dcopy_(3*nsAtom,Coor,1,Work(ip_To),1)
+         call dcopy_(3*nsAtom,Coor,1,CList(:,iDisp),1)
       End Do
       Call GetMem(' qTemp', 'Free','Real',ipTmp, mInt)
       Call GetMem(' dss  ', 'Free','Real',ipdss, mInt)
       Call GetMem(' DCF  ', 'Free','Real',ipDCF, 3*nsAtom)
 *
-      Call Free_Work(ipdu)
-      Call Free_Work(ip_T)
+      Call mma_deallocate(du)
+      Call mma_deallocate(TMx)
 *
-*     Call RecPrt('DList',' ',Work(ipDList),1,mInt)
-*     Call RecPrt('CList',' ',Work(ipCList),3*nsAtom,2*mInt)
+*     Call RecPrt('DList',' ',DList,1,mInt)
+*     Call RecPrt('CList',' ',CList,3*nsAtom,2*mInt)
 *
 *     Save the lists on the runfile. To be used in the
 *     numerical gradient module.
 *
-      Call Put_dArray('DList',Work(ipDList),mInt)
-      Call Put_dArray('CList',Work(ipCList),2*mInt*3*nsAtom)
+      Call Put_dArray('DList',DList,mInt)
+      Call Put_dArray('CList',CList,2*mInt*3*nsAtom)
 *
 *     Deallocate temporary memory.
 *
       Call Free_Work(ip_RefCoor)
-      Call Free_Work(ipDList)
-      Call Free_Work(ipCList)
+      Call mma_deallocate(DList)
+      Call mma_deallocate(CList)
 
 *     Alaska only
       iStop=3

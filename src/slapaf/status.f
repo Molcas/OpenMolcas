@@ -33,6 +33,17 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Interface
+      Subroutine Put_cArray(Label,Data,nData)
+      Character*(*) Label
+      Integer       nData
+      Character*(*) Data
+      End Subroutine Put_cArray
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
+
       Lu=6
       iRout = 52
       iPrint = nPrint(iRout)
@@ -123,7 +134,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Put_cArray('Slapaf Info 3',Lines,(nLines+2)*128)
+      Call Put_cArray('Slapaf Info 3',Lines(-1),(nLines+1)*128)
       Call mma_deallocate(Lines)
       Return
       End

@@ -20,43 +20,55 @@
 ************************************************************************
 #include "info_slapaf.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "real.fh"
       Real*8, Intent(InOut) :: drdq(mInt,nLambda)
       Integer, Intent(Out) :: mLambda
 *
       Integer n3,nBV,i,iLambda,iOff,iOff2
-      Integer ipBMx,ipdBMx,ipBVc,ipdBVc,ipcInt,ipcInt0,ipValue,ipValue0,
-     &        ipMult,ip_iFlip
       Real*8 RR
       Real*8, External :: DDot_
 *
-      Character*8 Lbl(mInt), Labels(iRow_c-1)
+      Character(LEN=8) Lbl(mInt), Labels(iRow_c-1)
+      Real*8, Allocatable:: BVc(:), dBVc(:), BMx(:,:), Value(:),
+     &                      Value0(:), cInt(:), cInt0(:), Mult(:),
+     &                      dBMx(:)
+      Integer, Allocatable:: iFlip(:)
 *
       n3=3*nsAtom
 *
       If (nLambda.ne.0) Then
          nBV=iRow_c-nLambda-1
-         Call GetMem('BVec','Allo','Real',ipBVc,n3*nBV)
-         Call GetMem('dBVec','Allo','Real',ipdBVc,nBV*n3**2)
-         Call GetMem('BMx','Allo','Real',ipBMx,n3*nLambda)
-         Call GetMem('Value','Allo','Real',ipValue,nBV)
-         Call GetMem('Value0','Allo','Real',ipValue0,nBV)
-         Call FZero(Work(ipValue0),nBV) ! dummy initiate
-         Call GetMem('cInt','Allo','Real',ipcInt,nLambda)
-         Call GetMem('cInt0','Allo','Real',ipcInt0,nLambda)
-         Call GetMem('Mult','Allo','Real',ipMult,nBV**2)
-         Call GetMem('dBMx','Allo','Real',ipdBMx,nLambda*n3**2)
-         Call GetMem('iFlip','Allo','Inte',ip_iFlip,nBV)
+         Call mma_allocate(BMx,n3,nLambda,Label='BMx')
+
+         Call mma_allocate(BVc,n3*nBV,Label='BVc')
+         Call mma_allocate(dBVc,nBV*n3**2,Label='dBVc')
+         Call mma_allocate(Value,nBV,Label='Value')
+         Call mma_allocate(Value0,nBV,Label='Value0')
+         Value0(:)=Zero
+         Call mma_allocate(cInt,nLambda,Label='cInt')
+         Call mma_allocate(cInt0,nLambda,Label='cInt0')
+         Call mma_allocate(Mult,nBV**2,Label='Mult')
+         Call mma_allocate(dBMx,nLambda*n3**2,Label='dBMx')
+         Call mma_allocate(iFlip,nBV,Label='iFlip')
 *
-         Call DefInt2(Work(ipBVc),Work(ipdBVc),nBV,Labels,
-     &                Work(ipBMx),nLambda,nsAtom,iRow_c,
-     &                Work(ipValue),Work(ipcInt),Work(ipcInt0),
-     &                Lbl,AtomLbl,
-     &                lWrite,jStab,nStab,mxdc,
-     &                Work(ipMult),Work(ipdBMx),
-     &                Work(ipValue0),Iter,iWork(ip_iFlip),
-     &                dMass)
-*        Call RecPrt('dr/dx',' ',Work(ipBMx),n3,nLambda)
+         Call DefInt2(BVc,dBVc,nBV,Labels,BMx,nLambda,nsAtom,iRow_c,
+     &                Value,cInt,cInt0,Lbl,AtomLbl,lWrite,jStab,nStab,
+     &                mxdc,Mult,dBMx,Value0,Iter,iFlip,dMass)
+
+         Call mma_deallocate(iFlip)
+         Call mma_deallocate(dBMx)
+         Call mma_deallocate(Mult)
+         Call mma_deallocate(cInt0)
+         Call mma_deallocate(cInt)
+         Call mma_deallocate(Value0)
+         Call mma_deallocate(Value)
+         Call mma_deallocate(dBVc)
+         Call mma_deallocate(BVc)
+
+#ifdef _DEBUGPRINT_
+         Call RecPrt('BMx',' ',BMx,n3,nLambda)
+#endif
 *
 *        Assemble dr/dq: Solve  B dr/dq = dr/dx
 *
@@ -66,28 +78,20 @@
 *        is propted up with the full degeneracy factor.
 *
          If (.not.Curvilinear) Then
-            iOff=ipBMx
             Do iLambda=1,nLambda
                Do i=1,n3
-                  Work(iOff+i-1)=Work(iOff+i-1)/Degen(i)
+                  BMx(i,iLambda)=BMx(i,iLambda)/Degen(i)
                End Do
-               iOff=iOff+n3
             End Do
          End If
+
          Call Eq_Solver('N',n3,mInt,nLambda,Work(ipB),Curvilinear,Degen,
-     &                  Work(ipBMx),drdq)
-*        Call RecPrt('drdq',' ',drdq,mInt,nLambda)
+     &                  BMx,drdq)
+#ifdef _DEBUGPRINT_
+         Call RecPrt('drdq',' ',drdq,mInt,nLambda)
+#endif
 *
-         Call Free_iWork(ip_iFlip)
-         Call Free_Work(ipdBMx)
-         Call Free_Work(ipMult)
-         Call Free_Work(ipcInt0)
-         Call Free_Work(ipcInt)
-         Call Free_Work(ipValue0)
-         Call Free_Work(ipValue)
-         Call Free_Work(ipBMx)
-         Call Free_Work(ipdBVc)
-         Call Free_Work(ipBVc)
+         Call mma_deallocate(BMx)
       End If
 *
 *     Double check that we don't have any null vectors

@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine DstInf(iStop,Just_Frequencies,Numerical)
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: Cx, Gx, Gx0, GNrm, Coor, Weights
+      use Slapaf_Info, only: Cx, Gx, Gx0, GNrm, Coor, Weights, Lambda
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -91,6 +91,8 @@
          Call Dcopy_(3*nsAtom*(MaxItr+1),Gx  ,1,Work(ipGx  ),1)
          Call Dcopy_(3*nsAtom*(MaxItr+1),Gx0 ,1,Work(ipGx0 ),1)
          Call Dcopy_(         (MaxItr+1),GNrm,1,Work(ipGNrm),1)
+         If (Allocated(Lambda)) Call DCopy_(SIZE(Lambda),Lambda,1,
+     &                                                   Work(ipL),1)
 
          Call Put_dArray('Slapaf Info 2',Work(ipRlx),Lngth)
          Call Put_dArray('qInt',Work(ipqInt),nqInt)

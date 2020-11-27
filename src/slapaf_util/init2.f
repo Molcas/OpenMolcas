@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Init2()
-      use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Coor, Grd, GNrm
+      use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Coor, Grd, GNrm, Lambda
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
@@ -103,6 +103,10 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
       Gx0(:,:,:) = Zero
       Call mma_allocate(GNrm,MaxItr+1,Label='GNrm')
       GNrm(:) = Zero
+      If (mLambda>0) Then
+        Call mma_allocate(Lambda,mLambda,MaxItr+1,Label='Lambda')
+        Lambda(:,:)=Zero
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -127,6 +131,8 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
             Call DCopy_(l1*(MaxItr+1),Work(ipGx  ),1,Gx  ,1)
             Call DCopy_(l1*(MaxItr+1),Work(ipGx0 ),1,Gx0 ,1)
             Call DCopy_(   (MaxItr+1),Work(ipGNrm),1,GNrm,1)
+            If (mLambda>0) Call DCopy_(mLambda*(MaxItr+1),Work(ipL),1,
+     &                                                    Lambda,1)
          Else
             iter=1
          End If

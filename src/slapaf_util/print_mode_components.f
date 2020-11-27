@@ -30,7 +30,7 @@
       Subroutine Print_Mode_Components(Modes,Freq,nModes,lModes,lDisp)
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor,
-     &                       Grd, Weights, ANr, Shift, GNrm
+     &                       Grd, Weights, ANr, Shift, GNrm, Lambda
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -66,6 +66,7 @@
       Real*8, Allocatable:: Bk_Weights(:)
       Real*8, Allocatable:: Bk_Shift(:,:)
       Real*8, Allocatable:: Bk_GNrm(:)
+      Real*8, Allocatable:: Bk_Lambda(:,:)
 
       Integer, Allocatable:: Bk_ANr(:)
 *
@@ -136,6 +137,12 @@
          Call mma_allocate(Bk_GNrm,MaxItr+1,Label='Bk_GNrm')
          Bk_GNrm(:) = GNrm(:)
          Call mma_deallocate(GNrm)
+      End If
+      If (Allocated(Lambda)) Then
+         Call mma_allocate(Bk_Lambda,SIZE(Lambda,1),MaxItr+1,
+     &                     Label='Bk_Lambda')
+         Bk_Lambda(:,:) = Lambda(:,:)
+         Call mma_deallocate(Lambda)
       End If
 
       Bk_iSym(:)=iSym(:)
@@ -718,6 +725,16 @@
          Call mma_deallocate(Bk_NAC)
       Else
         If (Allocated(NAC)) Call mma_deallocate(NAC)
+      End If
+      If (Allocated(Bk_Lambda)) Then
+         If (.NOT.Allocated(Lambda)) Then
+            Call mma_allocate(Lambda,SIZE(Bk_Lambda,1),MaxItr+1,
+     &                        Label='Lambda')
+         End If
+         Lambda(:,:) = Bk_Lambda(:,:)
+         Call mma_deallocate(Bk_Lambda)
+      Else
+        If (Allocated(Lambda)) Call mma_deallocate(Lambda)
       End If
 *
       End Subroutine
