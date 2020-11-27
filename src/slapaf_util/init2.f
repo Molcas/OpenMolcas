@@ -109,9 +109,6 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
 ************************************************************************
 *                                                                      *
 *...     Start iteration
-         Do i = 0, MaxItr
-            Stat(i)=' '
-         End Do
          nqInt=0
 *                                                                      *
 ************************************************************************
@@ -123,7 +120,6 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
          SuperName=Get_Supername()
          If (SuperName.ne.'numerical_gradient') Then
             Call Get_dArray('Slapaf Info 2',Work(ipRlx),Lngth)
-            Call Get_cArray('Slapaf Info 3',Stat,(MaxItr+1)*128)
 *
             Call DCopy_(l1*(MaxItr+1),Work(ipCx),1,Cx,1)
             Call DCopy_(l1*(MaxItr+1),Work(ipGx),1,Gx,1)

@@ -47,7 +47,7 @@
 *
       Character Bk_Char*180, Bk_Header(144)*1, Bk_Line*180,
      &          Bk_BLine*180, Bk_HUpMet*6, Bk_UpMeth*6,
-     &          Bk_AtomLbl(mxdc)*(LENIN), Bk_Stat(0:MaxItr)*128,
+     &          Bk_AtomLbl(mxdc)*(LENIN),
      &          Bk_MEP_Type*10, Bk_MEP_Algo*2
 *
       Logical Bk_isFalcon

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Convrg(iter,kIter, nInter, qInt, Shift, Grad,
-     &                  Lbl,GNrm,Energy,Stat,MaxItr,Stop,iStop,ThrCons,
+     &                  Lbl,GNrm,Energy,MaxItr,Stop,iStop,ThrCons,
      &                  ThrEne, ThrGrd, MxItr, UpMeth, HUpMet, mIntEff,
      &                  Baker, nAtom,mTtAtm,ed,iNeg,
      &                  GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
@@ -28,7 +28,7 @@
 #include "warnings.fh"
       Real*8 Shift(nInter,iter),Grad(nInter,iter),GNrm(iter),
      &       Energy(iter+1),qInt(nInter,iter+1),Maxed,MaxErr
-      Character Lbl(nInter)*8, Stat(0:MaxItr)*128, GrdLbl*8, StpLbl*8
+      Character Lbl(nInter)*8, GrdLbl*8, StpLbl*8
       Character(LEN=6) UpMeth, HUpMet, ConLbl(5)*5
       Character(LEN=1) Step_Trunc
       Character(LEN=16) StdIn
@@ -273,7 +273,7 @@
       End If
       If (.Not.Just_Frequencies) Then
          Call Status(kIter-iOff_Iter,E,Fabs,GrdMax,GrdLbl,StpMax,StpLbl,
-     &               E0,Stat,MaxItr-1,eChng,iNeg,UpMeth,Temp,Step_Trunc,
+     &               E0,MaxItr-1,eChng,iNeg,UpMeth,Temp,Step_Trunc,
      &               .NOT.Numerical)
       End If
 *

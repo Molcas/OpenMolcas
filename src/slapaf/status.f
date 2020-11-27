@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       SubRoutine Status(kIter,Energy,rGrad,GrdMax,GrdLbl,StpMax,
-     &                  StpLbl,Ex,Lines,nLines,delE,iNeg,UpMeth,HUpMet,
+     &                  StpLbl,Ex,nLines,delE,iNeg,UpMeth,HUpMet,
      &                  Step_Trunc,Print_Status)
 ************************************************************************
 *                                                                      *
@@ -24,11 +24,12 @@
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-      Character*128 Lines(-1:nLines), GrdLbl*8, StpLbl*8, UpMeth*6,
-     &              HUpMet*8, Step_Trunc*1
-      Character*8   lNeg
+#include "stdalloc.fh"
+      Character*128 GrdLbl*8, StpLbl*8, UpMeth*6, HUpMet*8, Step_Trunc*1
+      Character*8 lNeg
       Integer iNeg(2)
       Logical Print_Status
+      Character(LEN=128), Allocatable:: Lines(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -36,9 +37,12 @@
       iRout = 52
       iPrint = nPrint(iRout)
 *
+      Call mma_allocate(Lines,[-1,nLines],Label='Lines')
+*
 *     Pick up previous energy
 *
       If (kIter.eq.1) Then
+         Lines(:)=' '
          iter=1
          Write (Lines(-1),'(A)')
      &    '                       Energy '//
@@ -51,6 +55,7 @@
      &    '   Max     Element     Final Energy Update'//
      &    ' Update   Index'
       Else
+         Call Get_cArray('Slapaf Info 3',Lines,(nLines+2)*128)
 *--------Find first blank line
          iter = kIter
       End If
@@ -118,5 +123,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call Put_cArray('Slapaf Info 3',Lines,(nLines+2)*128)
+      Call mma_deallocate(Lines)
       Return
       End

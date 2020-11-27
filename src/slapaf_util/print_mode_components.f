@@ -264,7 +264,6 @@
       Bk_HUpMet=HUpMet
       Bk_UpMeth=UpMeth
       Bk_AtomLbl(:)=AtomLbl(:)
-      Bk_Stat(0:MaxItr)=Stat(0:MaxItr)
       Bk_MEP_Type=MEP_Type
       Bk_MEP_Algo=MEP_Algo
       Bk_isFalcon=isFalcon
@@ -612,7 +611,6 @@
       HUpMet=Bk_HUpMet
       UpMeth=Bk_UpMeth
       AtomLbl(:)=Bk_AtomLbl(:)
-      Stat(0:MaxItr)=Bk_Stat(0:MaxItr)
       MEP_Type=Bk_MEP_Type
       MEP_Algo=Bk_MEP_Algo
       isFalcon=Bk_isFalcon

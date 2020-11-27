@@ -344,7 +344,7 @@
       TSReg = iAnd(iOptC,8192).eq.8192
       Call Convrg(iter,kIter,nQQ,Work(ipqInt),Shift,
      &            Work(ipdqInt),Lbl,Work(ipGNrm),
-     &            Work(ipEner),Stat,MaxItr,Stop,iStop,ThrCons,
+     &            Work(ipEner),MaxItr,Stop,iStop,ThrCons,
      &            ThrEne,ThrGrd,MxItr,UpMeth,HUpMet,mIntEff,Baker,
      &            nsAtom,mTtAtm,ed,
      &            iNeg,GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
