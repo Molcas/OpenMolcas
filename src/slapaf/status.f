@@ -134,7 +134,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Put_cArray('Slapaf Info 3',Lines(-1),(nLines+1)*128)
+      Call Put_cArray('Slapaf Info 3',Lines(-1),(nLines+2)*128)
       Call mma_deallocate(Lines)
       Return
       End

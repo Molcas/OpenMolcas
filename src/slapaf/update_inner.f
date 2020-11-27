@@ -13,7 +13,7 @@
       Subroutine Update_inner(
      &                     kIter,iInt,nFix,nInter,qInt,Shift,
      &                     Grad,iOptC,Beta,Beta_Disp,Lbl,
-     &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
+     &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
@@ -39,7 +39,6 @@
 *      Beta_Disp      : damping factor variance                        *
 *      Lbl            : character labels for internal coordinates      *
 *      nLbl           : length of Lbl                                  *
-*      Energy         : the energy of each iteration                   *
 *      Line_Search    : logical flag for line search                   *
 *      nLambda        : number of constraints                          *
 *      iRow_c         : number of lines on the UDC file                *
@@ -71,13 +70,13 @@
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
-      use Slapaf_info, only: GNrm, dMass, Lambda
+      use Slapaf_info, only: GNrm, dMass, Lambda, Energy
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
       Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter),
-     &       Grad(nInter,kIter), Energy(kIter),
+     &       Grad(nInter,kIter),
      &       BMx(3*nsAtom,3*nsAtom), Degen(3*nsAtom), MF(3*nsAtom)
       Integer jStab(0:7,nsAtom), nStab(nsAtom), iNeg(2)
 *    &        iNeg(2), jNeg(2)
@@ -100,13 +99,14 @@
       Real*8, Allocatable:: QC(:,:,:)
 #endif
       Lu=6
-*#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (Lu,*)'Update_inner:iOpt_RS,Beta,Beta_Disp=',
      &                     iOpt_RS,Beta,Beta_Disp
       Call RecPrt('Update_inner: qInt',' ',qInt,nInter,kIter)
       Call RecPrt('Update_inner: Shift',' ',Shift,nInter,kIter-1)
       Call RecPrt('Update_inner: GNrm',' ',GNrm,kIter,1)
+      Call RecPrt('Update_inner: Energy',' ',Energy,kIter,1)
 #endif
 *
       GrdMax=Zero
@@ -377,7 +377,7 @@ C           Write (6,*) 'tBeta=',tBeta
          Wess(:,:)=Zero
          Call mma_allocate(Energy_L,kIter,Label='Energy_L')
 *
-         Energy_L(:)=Energy(:)
+         Energy_L(:)=Energy(1:kIter)
 *
          If (mInter.gt.nLbl) Then
             Call WarningMessage(2,'Update_inner: mInter.gt.nLbl')

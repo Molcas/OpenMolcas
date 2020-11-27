@@ -245,7 +245,7 @@
 *                                                                      *
       Subroutine Chkpnt_update()
 #ifdef _HDF5_
-      use Slapaf_Info, only: Cx, Gx
+      use Slapaf_Info, only: Cx, Gx, Energy
 #  include "info_slapaf.fh"
 #  include "WrkSpc.fh"
 #  include "stdalloc.fh"
@@ -274,7 +274,7 @@
 *     energies
       Call mh5_resize_dset(chkpnt_ener, [Iter_all])
       Call mh5_put_dset_array_real(chkpnt_ener,
-     &     Work(ipEner+(Iter-1)), [1], [Iter_all-1])
+     &     Energy(Iter), [1], [Iter_all-1])
 *     coordinates
       Call mh5_resize_dset(chkpnt_coor, [3,nsAtom,Iter_all])
       Call mh5_put_dset_array_real(chkpnt_coor,

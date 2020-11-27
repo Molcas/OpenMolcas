@@ -14,7 +14,7 @@
       Subroutine Update_kriging(
      &                     iter,MaxItr,iInt,nFix,nInter,qInt,
      &                     Grad,iOptC,Beta,Beta_Disp,Lbl,
-     &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
+     &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
@@ -31,13 +31,13 @@
 ************************************************************************
       Use kriging_mod, only: Max_Microiterations,
      &                       Thr_microiterations
-      Use Slapaf_Info, only: Cx, Gx, Shift, GNrm, dMass
+      Use Slapaf_Info, only: Cx, Gx, Shift, GNrm, dMass, Energy
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
-      Real*8 qInt(nInter,MaxItr), Grad(nInter,MaxItr), Energy(MaxItr),
+      Real*8 qInt(nInter,MaxItr), Grad(nInter,MaxItr),
      &       BMx(3*nsAtom,3*nsAtom),
      &       Degen(3*nsAtom), dEner, MF(3*nsAtom)
       Integer jStab(0:7,nsAtom), nStab(nsAtom),iNeg(2)
@@ -212,7 +212,7 @@
          nWndw_=nWndw/2 + (iterAI-iter)
          Call Update_inner(
      &                   iterAI,iInt,nFix,nInter,qInt,Shift,Grad,iOptC,
-     &                   Beta_,Beta_Disp_,Lbl,Energy,
+     &                   Beta_,Beta_Disp_,Lbl,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                   iRow_c,nsAtom,AtomLbl,mxdc,jStab,
      &                   nStab,BMx,Smmtrc,nDimBC,

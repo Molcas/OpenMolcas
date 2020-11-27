@@ -12,7 +12,7 @@
 * and: J. Chem. Theory Comput. 12 (2016) 3636-3653
 ************************************************************************
       Subroutine CI_Summary(Lu)
-      use Slapaf_Info, only: Gx, Gx0, NAC
+      use Slapaf_Info, only: Gx, Gx0, NAC, Energy
       Implicit None
       Integer Lu, n, i
       Real*8, Dimension(:), Allocatable :: g, h, tmp
@@ -165,7 +165,7 @@
       End Do
       Call RecPrt('Local y','',tmp,nsAtom,3)
       Write(Lu,*)
-      Write(Lu,110) Work(ipEner+iter-1),sg,sh
+      Write(Lu,110) Energy(iter),sg,sh
       Write(Lu,120) Two*dgh,deltagh
       Call mma_Deallocate(tmp)
       Call CollapseOutput(0,'Conical Intersection Characterization')

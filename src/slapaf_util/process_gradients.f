@@ -11,7 +11,7 @@
 * Copyright (C) 2015,2016, Ignacio Fdez. Galvan                        *
 ************************************************************************
       Subroutine Process_Gradients()
-      use Slapaf_Info, only: Gx, Gx0, NAC
+      use Slapaf_Info, only: Gx, Gx0, NAC, Energy, Energy0
       Implicit None
 #include "WrkSpc.fh"
 #include "real.fh"
@@ -93,7 +93,7 @@
         Call WarningMessage(2,'Too few energies in RUNFILE')
         Call Abend()
       End If
-      Work(ipEner+iter-1)=Ener(iState(1))
+      Energy(iter)=Ener(iState(1))
       E1=Ener(iState(1))
       Call dCopy_(3*nsAtom,Grads(1,1),1,Gx(1,1,iter),1)
       Gx(:,:,iter) = -Gx(:,:,iter)
@@ -127,8 +127,8 @@
 *       change the energies and gradients here on-the-fly.
 *
         If (NADC) Then
-          Work(ipEner+iter-1)=(E1+E0)*Half
-          Work(ipEner0+iter-1)=E1-E0
+          Energy (iter)=(E1+E0)*Half
+          Energy0(iter)=E1-E0
           Call daXpY_(3*nsAtom,-One,Grads(1,2),1,Gx(1,1,iter),1)
           Gx(:,:,iter) = Half * Gx(:,:,iter)
           Call dCopy_(3*nsAtom,Grads(1,2),1,Gx0(1,1,iter),1)
@@ -147,7 +147,7 @@
             End If
           End If
         Else
-          Work(ipEner0+iter-1)=E0
+          Energy0(iter)=E0
           Call dCopy_(3*nsAtom,Grads(1,2),1,Gx0(1,1,iter),1)
           Gx0(1,1,iter) = -Gx0(1,1,iter)
         End If

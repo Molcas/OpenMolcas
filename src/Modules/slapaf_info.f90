@@ -13,7 +13,8 @@
 Module Slapaf_Info
 implicit none
 Private
-Public:: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, ANr, Weights, Shift, GNrm, Lambda, Free_Slapaf
+Public:: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, ANr, Weights, Shift, GNrm, Lambda, &
+         Energy, Energy0, Free_Slapaf
 !
 ! Arrays always allocated
 !
@@ -27,6 +28,8 @@ Real*8, Allocatable:: Grd(:,:)      ! gradient of the last iteraction in Cartesi
 Real*8, Allocatable:: Weights(:)    ! list of weights of ALL centers, however, the symmetry unique are first.
 Real*8, Allocatable:: Shift(:,:)    ! list of displacements in Cartesian coordinates
 Real*8, Allocatable:: GNrm(:)       ! list of the gradient norm for each iteration
+Real*8, Allocatable:: Energy(:)     ! list of the energies of each iteration, State 1
+Real*8, Allocatable:: Energy0(:)    ! list of the energies of each iteration, State 2 for optimization of conical intersections
 
 Integer, Allocatable:: ANr(:)       ! list of atomic numbers
 !
@@ -50,6 +53,8 @@ Contains
   If (Allocated(Shift)) Call mma_deallocate(Shift)
   If (Allocated(GNrm)) Call mma_deallocate(GNrm)
   If (Allocated(Lambda)) Call mma_deallocate(Lambda)
+  If (Allocated(Energy)) Call mma_deallocate(Energy)
+  If (Allocated(Energy0)) Call mma_deallocate(Energy0)
 
   If (Allocated(NAC)) Call mma_deallocate(NAC)
   End Subroutine Free_Slapaf

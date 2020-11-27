@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Convrg(iter,kIter, nInter, qInt, Shift, Grad,
-     &                  Lbl,Energy,MaxItr,Stop,iStop,ThrCons,
+     &                  Lbl,MaxItr,Stop,iStop,ThrCons,
      &                  ThrEne, ThrGrd, MxItr, UpMeth, HUpMet, mIntEff,
      &                  Baker, nAtom,mTtAtm,ed,iNeg,
      &                  GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
@@ -17,7 +17,7 @@
      &                  Just_Frequencies,FindTS,eMEPTest,nLambda,
      &                  TSReg,ThrMEP)
       Use Chkpnt
-      Use Slapaf_Info, only: Cx, Gx, Coor, GNrm
+      Use Slapaf_Info, only: Cx, Gx, Coor, GNrm, Energy
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -26,7 +26,7 @@
 #include "nadc.fh"
 #include "print.fh"
 #include "warnings.fh"
-      Real*8 Shift(nInter,iter),Grad(nInter,iter),Energy(iter+1),
+      Real*8 Shift(nInter,iter),Grad(nInter,iter),
      &       qInt(nInter,iter+1),Maxed,MaxErr
       Character Lbl(nInter)*8, GrdLbl*8, StpLbl*8
       Character(LEN=6) UpMeth, HUpMet, ConLbl(5)*5

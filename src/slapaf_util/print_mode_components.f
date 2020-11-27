@@ -30,7 +30,8 @@
       Subroutine Print_Mode_Components(Modes,Freq,nModes,lModes,lDisp)
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor,
-     &                       Grd, Weights, ANr, Shift, GNrm, Lambda
+     &                       Grd, Weights, ANr, Shift, GNrm, Lambda,
+     &                       Energy, Energy0
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -67,6 +68,8 @@
       Real*8, Allocatable:: Bk_Shift(:,:)
       Real*8, Allocatable:: Bk_GNrm(:)
       Real*8, Allocatable:: Bk_Lambda(:,:)
+      Real*8, Allocatable:: Bk_Energy(:)
+      Real*8, Allocatable:: Bk_Energy0(:)
 
       Integer, Allocatable:: Bk_ANr(:)
 *
@@ -143,6 +146,16 @@
      &                     Label='Bk_Lambda')
          Bk_Lambda(:,:) = Lambda(:,:)
          Call mma_deallocate(Lambda)
+      End If
+      If (Allocated(Energy)) Then
+         Call mma_allocate(Bk_Energy,MaxItr+1,Label='Bk_Energy')
+         Bk_Energy(:) = Energy(:)
+         Call mma_deallocate(Energy)
+      End If
+      If (Allocated(Energy0)) Then
+         Call mma_allocate(Bk_Energy0,MaxItr+1,Label='Bk_Energy0')
+         Bk_Energy0(:) = Energy0(:)
+         Call mma_deallocate(Energy0)
       End If
 
       Bk_iSym(:)=iSym(:)
@@ -716,6 +729,18 @@
          Call mma_deallocate(Bk_GNrm)
       Else
          Call mma_deallocate(GNrm)
+      End If
+      If (Allocated(Bk_Energy)) Then
+         Energy(:) = Bk_Energy(:)
+         Call mma_deallocate(Bk_Energy)
+      Else
+         Call mma_deallocate(Energy)
+      End If
+      If (Allocated(Bk_Energy0)) Then
+         Energy0(:) = Bk_Energy0(:)
+         Call mma_deallocate(Bk_Energy0)
+      Else
+         Call mma_deallocate(Energy0)
       End If
 *
 *     Process arrays that is allocated optionally.

@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Init2()
-      use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Coor, Grd, GNrm, Lambda
+      use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Coor, Grd, GNrm, Lambda,
+     &                       Energy, Energy0
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
@@ -95,6 +96,10 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
       ipqInt = ip_Dummy
       ipdqInt= ip_Dummy
 *
+      Call mma_allocate(Energy,     MaxItr+1,Label='Energy')
+      Energy(:) = Zero
+      Call mma_allocate(Energy0,    MaxItr+1,Label='Energy0')
+      Energy0(:) = Zero
       Call mma_allocate(Cx,3,nsAtom,MaxItr+1,Label='Cx')
       Cx(:,:,:) = Zero
       Call mma_allocate(Gx,3,nsAtom,MaxItr+1,Label='Gx')
@@ -127,10 +132,12 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
          If (SuperName.ne.'numerical_gradient') Then
             Call Get_dArray('Slapaf Info 2',Work(ipRlx),Lngth)
 *
-            Call DCopy_(l1*(MaxItr+1),Work(ipCx  ),1,Cx  ,1)
-            Call DCopy_(l1*(MaxItr+1),Work(ipGx  ),1,Gx  ,1)
-            Call DCopy_(l1*(MaxItr+1),Work(ipGx0 ),1,Gx0 ,1)
-            Call DCopy_(   (MaxItr+1),Work(ipGNrm),1,GNrm,1)
+            Call DCopy_(   (MaxItr+1),Work(ipEner ),1,Energy ,1)
+            Call DCopy_(   (MaxItr+1),Work(ipEner0),1,Energy0,1)
+            Call DCopy_(l1*(MaxItr+1),Work(ipCx   ),1,Cx     ,1)
+            Call DCopy_(l1*(MaxItr+1),Work(ipGx   ),1,Gx     ,1)
+            Call DCopy_(l1*(MaxItr+1),Work(ipGx0  ),1,Gx0    ,1)
+            Call DCopy_(   (MaxItr+1),Work(ipGNrm ),1,GNrm   ,1)
             If (mLambda>0) Call DCopy_(mLambda*(MaxItr+1),Work(ipL),1,
      &                                                    Lambda,1)
          Else
@@ -247,7 +254,7 @@ C     Call RecPrt('Ref_Geom',' ',Work(ipRef),3,nsAtom)
 *
       If (Columbus.eq.1) Then
          Call Get_dArray('MR-CISD energy',Columbus_Energy,2)
-         Work(ipEner+iter-1)=Columbus_Energy(1)
+         Energy(iter)=Columbus_Energy(1)
       Else
          Is_Roots_Set = .False.
          Call Qpg_iScalar('Number of roots',Is_Roots_Set)
@@ -263,16 +270,15 @@ C     Call RecPrt('Ref_Geom',' ',Work(ipRef),3,nsAtom)
             Call mma_allocate(Tmp,nRoots,Label='Tmp')
             Call Get_dArray('Last energies',Tmp,nRoots)
 *           Call RecPrt('Last Energies',' ',Tmp,1,nRoots)
-            Work(ipEner+iter-1)=Tmp(iRoot)
+            Energy(iter)=Tmp(iRoot)
             Call mma_deallocate(Tmp)
          Else
-            Call Get_dScalar('Last energy',Energy)
+            Call Get_dScalar('Last energy',Energy(iter))
          End If
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-c     Work(ipEner+iter-1)=Energy
 *                                                                      *
 ************ columbus interface ****************************************
 *                                                                      *
@@ -325,7 +331,7 @@ c     Work(ipEner+iter-1)=Energy
          If (iMode.eq.2.or.iMode.eq.3) Then
 *
             E0=Columbus_Energy(2)
-            Work(ipEner0+iter-1)=E0
+            Energy0(iter1)=E0
 *
             Call qpg_dArray('Grad State2',Found,Length)
             If (.not.Found .or. Length.eq.0) Then
@@ -369,7 +375,7 @@ C              Write (6,*) 'iRoot=',iRoot
             Else
                Call Get_dScalar('Last energy',E0)
             End If
-            Work(ipEner0+iter-1)=E0
+            Energy0(iter)=E0
 *
             nGrad=3*nsAtom
             Call Get_Grad(Gx0(1,1,iter),nGrad)

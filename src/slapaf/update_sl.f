@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine Update_sl(iter,MaxItr,NmIter,iInt,nFix,nInter,qInt,
      &                     Grad,iOptC,Beta,Beta_Disp,Lbl,
-     &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
+     &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
@@ -38,7 +38,6 @@
 *      Beta           : damping factor                                 *
 *      Lbl            : character labels for internal coordinates      *
 *      nLbl           : length of Lbl                                  *
-*      Energy         : the energy of each iteration                   *
 *      Line_Search    : logical flag for line search                   *
 *      nLambda        : number of contraints                           *
 *      iRow_c         : number of lines on the UDC file                *
@@ -77,7 +76,7 @@
 #include "stdalloc.fh"
 #include "print.fh"
 #include "Molcas.fh"
-      Real*8 qInt(nInter,MaxItr), Grad(nInter,MaxItr), Energy(MaxItr),
+      Real*8 qInt(nInter,MaxItr), Grad(nInter,MaxItr),
      &       BMx(3*nsAtom,3*nsAtom), Degen(3*nsAtom), MF(3*nsAtom)
       Integer jStab(0:7,nsAtom), nStab(nsAtom), iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
@@ -95,7 +94,6 @@
 *
       If (iPrint.ge.99) Then
          Call RecPrt('Update_sl: qInt',' ',qInt,nInter,Iter)
-         Call RecPrt('Update_sl: Energy',' ',Energy,1,Iter)
          Call RecPrt('Update_sl: Grad',' ',Grad,nInter,Iter)
          Call RecPrt('Update_sl: Shift',' ',Shift,nInter,Iter-1)
       End If
@@ -130,7 +128,7 @@
          Call Update_inner(
      &                   iter_,iInt,nFix,nInter,t_qInt,
      &                   t_Shift,Grad,iOptC,Beta,Beta_Disp,
-     &                   Lbl,Energy,UpMeth,ed,Line_Search,
+     &                   Lbl,UpMeth,ed,Line_Search,
      &                   Step_Trunc,nLambda,iRow_c,nsAtom,AtomLbl,
      &                   mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,
@@ -162,7 +160,7 @@
 *
          Call Update_inner(
      &                iter,iInt,nFix,nInter,qInt,Shift,
-     &                Grad,iOptC,Beta,Beta_Disp,Lbl,Energy,
+     &                Grad,iOptC,Beta,Beta_Disp,Lbl,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                iRow_c,nsAtom,AtomLbl,mxdc,jStab,
      &                nStab,BMx,Smmtrc,nDimBC,

@@ -238,7 +238,7 @@
          Call Update_Kriging(
      &               Iter,MaxItr,iInt,nFix,nQQ,Work(ipqInt),
      &               Work(ipdqInt),iOptC,Beta,Beta_Disp,
-     &               Lbl,Work(ipEner),UpMeth,
+     &               Lbl,UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
      &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
      &               Smmtrc,nDimBC,
@@ -252,7 +252,7 @@
          Call Update_sl(
      &               Iter,MaxItr,NmIter,iInt,nFix,nQQ,Work(ipqInt),
      &               Work(ipdqInt),iOptC,Beta,Beta_Disp,
-     &               Lbl,Work(ipEner),UpMeth,
+     &               Lbl,UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
      &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
      &               Smmtrc,nDimBC,GrdMax,
@@ -342,8 +342,7 @@
       GoOn = (lNmHss.and.iter.lt.NmIter).OR.(lRowH.and.iter.lt.NmIter)
       TSReg = iAnd(iOptC,8192).eq.8192
       Call Convrg(iter,kIter,nQQ,Work(ipqInt),Shift,
-     &            Work(ipdqInt),Lbl,
-     &            Work(ipEner),MaxItr,Stop,iStop,ThrCons,
+     &            Work(ipdqInt),Lbl,MaxItr,Stop,iStop,ThrCons,
      &            ThrEne,ThrGrd,MxItr,UpMeth,HUpMet,mIntEff,Baker,
      &            nsAtom,mTtAtm,ed,
      &            iNeg,GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
