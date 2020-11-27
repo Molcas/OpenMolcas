@@ -22,5 +22,5 @@ Subroutine driverBas(ireturn)
       if (ireturn /= 0) return
     end if
 
-    if (DoDesy) Call desym(UHF=.false.)
+    if (DoDesy) Call desym()
 end subroutine
