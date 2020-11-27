@@ -30,7 +30,7 @@
       Subroutine Print_Mode_Components(Modes,Freq,nModes,lModes,lDisp)
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor,
-     &                       Grd, Weights, ANr, Shift
+     &                       Grd, Weights, ANr, Shift, GNrm
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -65,6 +65,7 @@
       Real*8, Allocatable:: Bk_Grd(:,:)
       Real*8, Allocatable:: Bk_Weights(:)
       Real*8, Allocatable:: Bk_Shift(:,:)
+      Real*8, Allocatable:: Bk_GNrm(:)
 
       Integer, Allocatable:: Bk_ANr(:)
 *
@@ -130,6 +131,11 @@
      &                     Label='Bk_Shift')
          Bk_Shift(:,:) = Shift(:,:)
          Call mma_deallocate(Shift)
+      End If
+      If (Allocated(GNrm)) Then
+         Call mma_allocate(Bk_GNrm,MaxItr+1,Label='Bk_GNrm')
+         Bk_GNrm(:) = GNrm(:)
+         Call mma_deallocate(GNrm)
       End If
 
       Bk_iSym(:)=iSym(:)
@@ -697,6 +703,12 @@
          Call mma_deallocate(Bk_Shift)
       Else
          Call mma_deallocate(Shift)
+      End If
+      If (Allocated(Bk_GNrm)) Then
+         GNrm(:) = Bk_GNrm(:)
+         Call mma_deallocate(Bk_GNrm)
+      Else
+         Call mma_deallocate(GNrm)
       End If
 *
 *     Process arrays that is allocated optionally.

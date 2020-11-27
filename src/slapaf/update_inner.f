@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine Update_inner(
      &                     kIter,iInt,nFix,nInter,qInt,Shift,
-     &                     Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,
+     &                     Grad,iOptC,Beta,Beta_Disp,Lbl,
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
@@ -39,7 +39,6 @@
 *      Beta_Disp      : damping factor variance                        *
 *      Lbl            : character labels for internal coordinates      *
 *      nLbl           : length of Lbl                                  *
-*      GNrm           : the norm of the gradient in each iteration     *
 *      Energy         : the energy of each iteration                   *
 *      Line_Search    : logical flag for line search                   *
 *      nLambda        : number of constraints                          *
@@ -73,13 +72,13 @@
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
-      use Slapaf_info, only: dMass
+      use Slapaf_info, only: GNrm, dMass
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
       Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter),
-     &       Grad(nInter,kIter), GNrm(kIter), Energy(kIter),
+     &       Grad(nInter,kIter), Energy(kIter),
      &       BMx(3*nsAtom,3*nsAtom),
      &       rLambda(nLambda,kIter+1), Degen(3*nsAtom), MF(3*nsAtom)
       Integer jStab(0:7,nsAtom), nStab(nsAtom),

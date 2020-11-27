@@ -11,7 +11,7 @@
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
       Subroutine Update_sl(iter,MaxItr,NmIter,iInt,nFix,nInter,qInt,
-     &                     Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,
+     &                     Grad,iOptC,Beta,Beta_Disp,Lbl,
      &                     Energy,UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
@@ -38,7 +38,6 @@
 *      Beta           : damping factor                                 *
 *      Lbl            : character labels for internal coordinates      *
 *      nLbl           : length of Lbl                                  *
-*      GNrm           : the norm of the gradient in each iteration     *
 *      Energy         : the energy of each iteration                   *
 *      Line_Search    : logical flag for line search                   *
 *      nLambda        : number of contraints                           *
@@ -79,8 +78,7 @@
 #include "stdalloc.fh"
 #include "print.fh"
 #include "Molcas.fh"
-      Real*8 qInt(nInter,MaxItr),
-     &       Grad(nInter,MaxItr), GNrm(MaxItr), Energy(MaxItr),
+      Real*8 qInt(nInter,MaxItr), Grad(nInter,MaxItr), Energy(MaxItr),
      &       BMx(3*nsAtom,3*nsAtom), rLambda(nLambda,MaxItr),
      &       Degen(3*nsAtom), MF(3*nsAtom)
       Integer jStab(0:7,nsAtom), nStab(nsAtom), iNeg(2)
@@ -102,7 +100,6 @@
          Call RecPrt('Update_sl: Energy',' ',Energy,1,Iter)
          Call RecPrt('Update_sl: Grad',' ',Grad,nInter,Iter)
          Call RecPrt('Update_sl: Shift',' ',Shift,nInter,Iter-1)
-*        Call RecPrt('Update_sl: GNrm',' ',GNrm,Iter,1)
       End If
 *
       iOpt_RS=0
@@ -135,7 +132,7 @@
          Call Update_inner(
      &                   iter_,iInt,nFix,nInter,t_qInt,
      &                   t_Shift,Grad,iOptC,Beta,Beta_Disp,
-     &                   Lbl,GNrm,Energy,UpMeth,ed,Line_Search,
+     &                   Lbl,Energy,UpMeth,ed,Line_Search,
      &                   Step_Trunc,nLambda,iRow_c,nsAtom,AtomLbl,
      &                   mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
      &                   rLambda,GrdMax,StpMax,GrdLbl,StpLbl,
@@ -167,7 +164,7 @@
 *
          Call Update_inner(
      &                iter,iInt,nFix,nInter,qInt,Shift,
-     &                Grad,iOptC,Beta,Beta_Disp,Lbl,GNrm,Energy,
+     &                Grad,iOptC,Beta,Beta_Disp,Lbl,Energy,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                iRow_c,nsAtom,AtomLbl,mxdc,jStab,
      &                nStab,BMx,Smmtrc,nDimBC,rLambda,

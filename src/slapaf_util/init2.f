@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Init2()
-      use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Coor, Grd
+      use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Coor, Grd, GNrm
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
@@ -101,6 +101,8 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
       Gx(:,:,:) = Zero
       Call mma_allocate(Gx0,3,nsAtom,MaxItr+1,Label='Gx0')
       Gx0(:,:,:) = Zero
+      Call mma_allocate(GNrm,MaxItr+1,Label='GNrm')
+      GNrm(:) = Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -121,9 +123,10 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
          If (SuperName.ne.'numerical_gradient') Then
             Call Get_dArray('Slapaf Info 2',Work(ipRlx),Lngth)
 *
-            Call DCopy_(l1*(MaxItr+1),Work(ipCx),1,Cx,1)
-            Call DCopy_(l1*(MaxItr+1),Work(ipGx),1,Gx,1)
-            Call DCopy_(l1*(MaxItr+1),Work(ipGx0),1,Gx0,1)
+            Call DCopy_(l1*(MaxItr+1),Work(ipCx  ),1,Cx  ,1)
+            Call DCopy_(l1*(MaxItr+1),Work(ipGx  ),1,Gx  ,1)
+            Call DCopy_(l1*(MaxItr+1),Work(ipGx0 ),1,Gx0 ,1)
+            Call DCopy_(   (MaxItr+1),Work(ipGNrm),1,GNrm,1)
          Else
             iter=1
          End If

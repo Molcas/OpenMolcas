@@ -11,7 +11,7 @@
       Subroutine RlxCtl(iStop)
       Use Chkpnt
       Use kriging_mod, only: Kriging, nspAI
-      Use Slapaf_Info, only: Cx, Gx, dMass, Coor, ANr, Shift,
+      Use Slapaf_Info, only: Cx, Gx, dMass, Coor, ANr, Shift, GNrm,
      &                       Free_Slapaf
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
@@ -169,8 +169,7 @@
 *                                                                      *
 *-----Compute the norm of the Cartesian gradient.
 *
-      Call G_Nrm(Gx(1,1,iter),nsAtom,nQQ,Work(ipGNrm),iter,
-     &           Work(ipdqInt),Degen,mIntEff)
+      Call G_Nrm(nsAtom,nQQ,GNrm,iter,Work(ipdqInt),Degen,mIntEff)
       If (nPrint(116).ge.6) Call ListU(Lu,Lbl,Work(ipdqInt),nQQ,iter)
 *                                                                      *
 ************************************************************************
@@ -239,7 +238,7 @@
          Call Update_Kriging(
      &               Iter,MaxItr,iInt,nFix,nQQ,Work(ipqInt),
      &               Work(ipdqInt),iOptC,Beta,Beta_Disp,
-     &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
+     &               Lbl,Work(ipEner),UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
      &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
      &               Smmtrc,nDimBC,Work(ipL),
@@ -253,7 +252,7 @@
          Call Update_sl(
      &               Iter,MaxItr,NmIter,iInt,nFix,nQQ,Work(ipqInt),
      &               Work(ipdqInt),iOptC,Beta,Beta_Disp,
-     &               Lbl,Work(ipGNrm),Work(ipEner),UpMeth,
+     &               Lbl,Work(ipEner),UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
      &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
      &               Smmtrc,nDimBC,Work(ipL),GrdMax,
@@ -343,7 +342,7 @@
       GoOn = (lNmHss.and.iter.lt.NmIter).OR.(lRowH.and.iter.lt.NmIter)
       TSReg = iAnd(iOptC,8192).eq.8192
       Call Convrg(iter,kIter,nQQ,Work(ipqInt),Shift,
-     &            Work(ipdqInt),Lbl,Work(ipGNrm),
+     &            Work(ipdqInt),Lbl,
      &            Work(ipEner),MaxItr,Stop,iStop,ThrCons,
      &            ThrEne,ThrGrd,MxItr,UpMeth,HUpMet,mIntEff,Baker,
      &            nsAtom,mTtAtm,ed,

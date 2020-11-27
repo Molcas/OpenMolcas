@@ -13,7 +13,7 @@
 Module Slapaf_Info
 implicit none
 Private
-Public:: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, ANr, Weights, Shift, Free_Slapaf
+Public:: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, ANr, Weights, Shift, GNrm, Free_Slapaf
 !
 ! Arrays always allocated
 !
@@ -25,7 +25,8 @@ Real*8, Allocatable:: dmass(:)      ! list atomic mass in units of (C=12)
 Real*8, Allocatable:: Coor(:,:)     ! Cartesian coordinates of the last iteraction
 Real*8, Allocatable:: Grd(:,:)      ! gradient of the last iteraction in Cartesian coordinates
 Real*8, Allocatable:: Weights(:)    ! list of weights of ALL centers, however, the symmetry unique are first.
-Real*8, Allocatable:: Shift(:,:)      ! list of displacements in Cartesian coordinates
+Real*8, Allocatable:: Shift(:,:)    ! list of displacements in Cartesian coordinates
+Real*8, Allocatable:: GNrm(:)       ! list of the gradient norm for each iteration
 
 Integer, Allocatable:: ANr(:)       ! list of atomic numbers
 !
@@ -46,6 +47,7 @@ Contains
   If (Allocated(ANr)) Call mma_deallocate(ANr)
   If (Allocated(Weights)) Call mma_deallocate(Weights)
   If (Allocated(Shift)) Call mma_deallocate(Shift)
+  If (Allocated(GNrm)) Call mma_deallocate(GNrm)
 
   If (Allocated(NAC)) Call mma_deallocate(NAC)
   End Subroutine Free_Slapaf
