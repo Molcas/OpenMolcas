@@ -36,13 +36,12 @@
         Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
         Integer nBonds, nMax
         End Subroutine Box
-        Subroutine Hidden(mTtAtm,Coor,AN,nHidden,rHidden,nMDstep)
+        Subroutine Hidden(mTtAtm,Coor,AN,nHidden,rHidden)
         Integer mTtAtm
         Real*8, Allocatable:: Coor(:,:)
         Integer, Allocatable:: AN(:)
         Integer nHidden
         Real*8 rHidden
-        Integer nMDStep
         End Subroutine Hidden
       End Interface
 *                                                                      *
@@ -80,9 +79,7 @@
 *---- Are there some hidden frozen atoms ?
 *
       nHidden = 0
-      nMDstep = 0
-      If (rHidden.ge.Two) Call Hidden(mTtAtm,Coor,AN,nHidden,
-     &                                rHidden,nMDstep)
+      If (rHidden.ge.Two) Call Hidden(mTtAtm,Coor,AN,nHidden,rHidden)
 *
 *-----Generate bond list
 *
