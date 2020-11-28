@@ -49,29 +49,6 @@ if ("${sourcedir}" STREQUAL "${binarydir}")
           "separate build directory and run cmake from there.")
 endif ()
 
-# workaround for CMake bug 14874
-# (i.e., fix for files with same name in different directories)
-if (${CMAKE_VERSION} VERSION_LESS 3.1)
-  if (NOT DEFINED CMAKE_Fortran_ARCHIVE_CREATE)
-    set (CMAKE_Fortran_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
-  endif ()
-  if (NOT DEFINED CMAKE_Fortran_ARCHIVE_APPEND)
-    set (CMAKE_Fortran_ARCHIVE_APPEND "<CMAKE_AR> q <TARGET> <LINK_FLAGS> <OBJECTS>")
-  endif ()
-  if (NOT DEFINED CMAKE_C_ARCHIVE_CREATE)
-    set (CMAKE_C_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
-  endif ()
-  if (NOT DEFINED CMAKE_C_ARCHIVE_APPEND)
-    set (CMAKE_C_ARCHIVE_APPEND "<CMAKE_AR> q <TARGET> <LINK_FLAGS> <OBJECTS>")
-  endif ()
-  if (NOT DEFINED CMAKE_CXX_ARCHIVE_CREATE)
-    set (CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
-  endif ()
-  if (NOT DEFINED CMAKE_CXX_ARCHIVE_APPEND)
-    set (CMAKE_CXX_ARCHIVE_APPEND "<CMAKE_AR> q <TARGET> <LINK_FLAGS> <OBJECTS>")
-  endif ()
-endif ()
-
 # discover some necessary tools
 find_program (GIT "git")
 find_program (PERL "perl")
@@ -639,7 +616,7 @@ set (CFLAGS_GNU_RELEASE "-O2")
 set (CFLAGS_GNU_FAST "-O2")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "GNU")
-set (FFLAGS_GNU_BASIC "")
+set (FFLAGS_GNU_BASIC "-fno-aggressive-loop-optimizations") # It was needed in 4.8 later, maybe not anymore?
 set (FFLAGS_GNU_PREPROCESS "-cpp")
 set (FFLAGS_GNU_OPENMP "-fopenmp")
 set (FFLAGS_GNU_NO_OPENMP "-fmax-stack-var-size=1048576")
@@ -650,13 +627,11 @@ set (FFLAGS_GNU_GARBLE "-O2 -g -Wall -finit-real=snan -finit-integer=730432726 -
 set (FFLAGS_GNU_RELWITHDEBINFO "-O2 -g -Wall")
 set (FFLAGS_GNU_RELEASE "-O2")
 set (FFLAGS_GNU_FAST "-O3")
+set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
 
-if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-  # Fix for GNU Fortran compiler version >= 4.8 to prevent wrong optimization
-  if (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "4.8")
-    set (FFLAGS_GNU_BASIC "${FFLAGS_GNU_BASIC} -fno-aggressive-loop-optimizations")
-    set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
-  endif ()
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
+    CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "4.8")
+  message (FATAL_ERROR "At least version 4.8 is required for the GNU Fortran compiler")
 endif ()
 
 # Add runtime checks
@@ -768,6 +743,11 @@ set (FFLAGS_Intel_GARBLE "-O2 -debug -traceback -warn all,nodeclarations -check 
 set (FFLAGS_Intel_RELWITHDEBINFO "-O2 -debug -traceback -warn all,nodeclarations")
 set (FFLAGS_Intel_RELEASE "-O2 -traceback")
 set (FFLAGS_Intel_FAST "-fast")
+
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" AND
+    CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "13")
+  message (FATAL_ERROR "At least version 13 is required for the Intel Fortran compiler")
+endif ()
 
 # Intel versions prior to 15 used -openmp
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Intel" AND
@@ -2176,11 +2156,7 @@ message ("Configuring runtime environment settings:")
 
 cmake_host_system_information (RESULT host_mem QUERY TOTAL_PHYSICAL_MEMORY)
 cmake_host_system_information (RESULT host_name QUERY HOSTNAME)
-if (${CMAKE_VERSION} VERSION_LESS "3.10.0")
-  set (host_system "unknown")
-else ()
-  cmake_host_system_information (RESULT host_system QUERY OS_NAME)
-endif ()
+cmake_host_system_information (RESULT host_system QUERY OS_NAME)
 
 # memory/disk default sizes
 #==========================
@@ -2818,7 +2794,7 @@ foreach (prog ${progs})
 endforeach ()
 
 # set file-specific flags
-if (BOUNDS AND (${FFLAGS_GNU_BOUNDS} MATCHES "-fsanitize=address"))
+if (BOUNDS AND (${CMAKE_Fortran_FLAGS} MATCHES "-fsanitize=address"))
   set_property (SOURCE ${rassi_src}/prprop.f APPEND_STRING PROPERTY COMPILE_FLAGS " --param=max-vartrack-size=120000000")
 endif ()
 
