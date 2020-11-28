@@ -14,7 +14,7 @@ Module Slapaf_Info
 implicit none
 Private
 Public:: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, ANr, Weights, Shift, GNrm, Lambda, &
-         Energy, Energy0, Free_Slapaf
+         Energy, Energy0, DipM, MF, Free_Slapaf
 !
 ! Arrays always allocated
 !
@@ -30,6 +30,8 @@ Real*8, Allocatable:: Shift(:,:)    ! list of displacements in Cartesian coordin
 Real*8, Allocatable:: GNrm(:)       ! list of the gradient norm for each iteration
 Real*8, Allocatable:: Energy(:)     ! list of the energies of each iteration, State 1
 Real*8, Allocatable:: Energy0(:)    ! list of the energies of each iteration, State 2 for optimization of conical intersections
+Real*8, Allocatable:: MF(:,:)       ! list of Cartesian mode following vectors for each iteration
+Real*8, Allocatable:: DipM(:,:)     ! list of dipole moments for each iteration
 
 Integer, Allocatable:: ANr(:)       ! list of atomic numbers
 !
@@ -41,9 +43,16 @@ Real*8, Allocatable:: Lambda(:,:)     ! list of the Lagrange multipiers
 Contains
   Subroutine Free_Slapaf()
 #include "stdalloc.fh"
+  If (Allocated(Energy)) Call mma_deallocate(Energy)
+  If (Allocated(Energy0)) Call mma_deallocate(Energy0)
+  If (Allocated(DipM)) Call mma_deallocate(DipM)
+  If (Allocated(GNrm)) Call mma_deallocate(GNrm)
   If (Allocated(Cx)) Call mma_deallocate(Cx)
   If (Allocated(Gx)) Call mma_deallocate(Gx)
   If (Allocated(Gx0)) Call mma_deallocate(Gx0)
+  If (Allocated(MF)) Call mma_deallocate(MF)
+  If (Allocated(Lambda)) Call mma_deallocate(Lambda)
+
   If (Allocated(Q_nuclear)) Call mma_deallocate(Q_nuclear)
   If (Allocated(dMass)) Call mma_deallocate(dMass)
   If (Allocated(Coor)) Call mma_deallocate(Coor)
@@ -51,10 +60,6 @@ Contains
   If (Allocated(ANr)) Call mma_deallocate(ANr)
   If (Allocated(Weights)) Call mma_deallocate(Weights)
   If (Allocated(Shift)) Call mma_deallocate(Shift)
-  If (Allocated(GNrm)) Call mma_deallocate(GNrm)
-  If (Allocated(Lambda)) Call mma_deallocate(Lambda)
-  If (Allocated(Energy)) Call mma_deallocate(Energy)
-  If (Allocated(Energy0)) Call mma_deallocate(Energy0)
 
   If (Allocated(NAC)) Call mma_deallocate(NAC)
   End Subroutine Free_Slapaf

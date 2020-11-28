@@ -37,7 +37,7 @@
       Subroutine MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,
      &                   ResGrad,BadConstraint)
       use Symmetry_Info, only: nIrrep
-      use Slapaf_Info, only: Weights
+      use Slapaf_Info, only: Weights, MF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -255,7 +255,7 @@
             Call Get_dArray('Transverse',Work(ipDir),nCoor)
           Else
 *           In the initial iteration of an IRC branch, use the reaction vector
-            Call dCopy_(nCoor,Work(ipMF),1,Work(ipDir),1)
+            Call dCopy_(nCoor,MF,1,Work(ipDir),1)
           End If
         End If
 *

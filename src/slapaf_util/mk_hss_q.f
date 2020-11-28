@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Mk_Hss_Q()
-      use Slapaf_Info, only: Cx, Coor, Shift
+      use Slapaf_Info, only: Cx, Coor, Shift, DipM
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "real.fh"
@@ -27,7 +27,7 @@
          Else
             Call FormNumHess(iter,Work(ipdqInt),Shift,mInt,Delta,
      &                       Stop,Work(ipqInt),nsAtom,Cubic,iNeg,
-     &                       Work(ipDipM),mTROld,Smmtrc,Degen,UserT,
+     &                       DipM,mTROld,Smmtrc,Degen,UserT,
      &                       UserP,nUserPT,nsRot,lTherm,lDoubleIso,
      &                       Curvilinear)
          End If

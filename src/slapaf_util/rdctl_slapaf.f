@@ -11,7 +11,7 @@
       Subroutine RdCtl_Slapaf(iRow,iInt,nFix,LuSpool,Dummy_Call)
       use kriging_mod
       use Symmetry_Info, only: Symmetry_Info_Get
-      use Slapaf_Info, only: Gx, Coor, Weights
+      use Slapaf_Info, only: Gx, Coor, Weights, MF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -1148,14 +1148,14 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *
          If (Explicit_IRC.and.iMEP.eq.0) Then
 *           Case 1)
-            call dcopy_(3*nsAtom,TmpRx,1,Work(ipMF),1)
+            call dcopy_(3*nsAtom,TmpRx,1,MF,1)
          Else If (iMEP.eq.0) Then
             Call NameRun('RUNOLD')
             Call qpg_dArray('Reaction Vector',Found,nRx)
 C           Write (6,*) 'RUNOLD: Found=',Found
             If (Found) Then
 *              Case 2)
-               Call Get_dArray('Reaction Vector',Work(ipMF),3*nsAtom)
+               Call Get_dArray('Reaction Vector',MF,3*nsAtom)
                Call NameRun('RUNFILE')
             Else
                Call NameRun('RUNFILE')
@@ -1163,7 +1163,7 @@ C           Write (6,*) 'RUNOLD: Found=',Found
 C              Write (6,*) 'RUNFILE: Found=',Found
                If (Found) Then
 *                 Case 3)
-                  Call Get_dArray('Reaction Vector',Work(ipMF),3*nsAtom)
+                  Call Get_dArray('Reaction Vector',MF,3*nsAtom)
                Else
                   Call WarningMessage(2,'Error in RdCtl_Slapaf')
                   Write (6,*)
@@ -1177,10 +1177,9 @@ C              Write (6,*) 'RUNFILE: Found=',Found
 *
 *        Fix the direction forward/backwards
 *
-         If (iMEP.eq.0.and.iRC.eq.-1) Call DScal_(3*nsAtom,-1.0D0,
-     &                                           Work(ipMF),1)
+         If (iMEP.eq.0.and.iRC.eq.-1) Call DScal_(3*nsAtom,-1.0D0,MF,1)
          If (iMEP.eq.0.and.MEP_Type.eq.'TRANSVERSE')
-     &      Call Put_dArray('Transverse',Work(ipMF),3*nsAtom)
+     &      Call Put_dArray('Transverse',MF,3*nsAtom)
 *
       End If
 *                                                                      *

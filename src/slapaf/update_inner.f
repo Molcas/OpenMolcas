@@ -18,7 +18,7 @@
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
-     &                     nWndw,Mode,MF,
+     &                     nWndw,Mode,
      &                     iOptH,HUpMet,mIter,GNrm_Threshold,IRC,
      &                     HrmFrq_Show,CnstWght,Curvilinear,
      &                     Degen,Kriging_Hessian,qBeta,iOpt_RS,
@@ -70,14 +70,14 @@
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
-      use Slapaf_info, only: GNrm, dMass, Lambda, Energy
+      use Slapaf_info, only: GNrm, dMass, Lambda, Energy, MF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
       Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter),
      &       Grad(nInter,kIter),
-     &       BMx(3*nsAtom,3*nsAtom), Degen(3*nsAtom), MF(3*nsAtom)
+     &       BMx(3*nsAtom,3*nsAtom), Degen(3*nsAtom)
       Integer jStab(0:7,nsAtom), nStab(nsAtom), iNeg(2)
 *    &        iNeg(2), jNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),FindTS, TSC, HrmFrq_Show,

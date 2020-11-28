@@ -244,7 +244,7 @@
      &               Smmtrc,nDimBC,
      &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
-     &               nWndw,Mode,Work(ipMF),
+     &               nWndw,Mode,
      &               iOptH,HUpMet,GNrm_Threshold,
      &               IRC,HrmFrq_Show,
      &               CnstWght,Curvilinear,Degen,ThrEne,ThrGrd,iRow)
@@ -258,7 +258,7 @@
      &               Smmtrc,nDimBC,GrdMax,
      &               StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
-     &               nWndw,Mode,Work(ipMF),
+     &               nWndw,Mode,
      &               iOptH,HUpMet,kIter,GNrm_Threshold,
      &               IRC,HrmFrq_Show,
      &               CnstWght,Curvilinear,Degen)

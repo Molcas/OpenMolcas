@@ -31,7 +31,7 @@
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor,
      &                       Grd, Weights, ANr, Shift, GNrm, Lambda,
-     &                       Energy, Energy0
+     &                       Energy, Energy0, DipM, MF
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -56,9 +56,17 @@
       Character(Len=180), External :: Get_Ln_EOF
       Real*8, External :: DDot_
       Integer, External :: ip_of_Work
+
+      Real*8, Allocatable:: Bk_Energy(:)
+      Real*8, Allocatable:: Bk_Energy0(:)
+      Real*8, Allocatable:: Bk_DipM(:,:)
+      Real*8, Allocatable:: Bk_GNrm(:)
       Real*8, Allocatable:: Bk_Cx(:,:,:)
       Real*8, Allocatable:: Bk_Gx(:,:,:)
       Real*8, Allocatable:: Bk_Gx0(:,:,:)
+      Real*8, Allocatable:: Bk_MF(:,:)
+      Real*8, Allocatable:: Bk_Lambda(:,:)
+
       Real*8, Allocatable:: Bk_NAC(:,:)
       Real*8, Allocatable:: Bk_Q_nuclear(:)
       Real*8, Allocatable:: Bk_dMass(:)
@@ -66,10 +74,6 @@
       Real*8, Allocatable:: Bk_Grd(:,:)
       Real*8, Allocatable:: Bk_Weights(:)
       Real*8, Allocatable:: Bk_Shift(:,:)
-      Real*8, Allocatable:: Bk_GNrm(:)
-      Real*8, Allocatable:: Bk_Lambda(:,:)
-      Real*8, Allocatable:: Bk_Energy(:)
-      Real*8, Allocatable:: Bk_Energy0(:)
 
       Integer, Allocatable:: Bk_ANr(:)
 *
@@ -156,6 +160,16 @@
          Call mma_allocate(Bk_Energy0,MaxItr+1,Label='Bk_Energy0')
          Bk_Energy0(:) = Energy0(:)
          Call mma_deallocate(Energy0)
+      End If
+      If (Allocated(MF)) Then
+         Call mma_allocate(Bk_MF,3,nsAtom,Label='Bk_MF')
+         Bk_MF(:,:) = MF(:,:)
+         Call mma_deallocate(MF)
+      End If
+      If (Allocated(DipM)) Then
+         Call mma_allocate(Bk_DipM,3,MaxItr+1,Label='Bk_DipM')
+         Bk_DipM(:,:) = DipM(:,:)
+         Call mma_deallocate(DipM)
       End If
 
       Bk_iSym(:)=iSym(:)
@@ -741,6 +755,18 @@
          Call mma_deallocate(Bk_Energy0)
       Else
          Call mma_deallocate(Energy0)
+      End If
+      If (Allocated(Bk_MF)) Then
+         MF(:,:) = Bk_MF(:,:)
+         Call mma_deallocate(Bk_MF)
+      Else
+         Call mma_deallocate(MF)
+      End If
+      If (Allocated(Bk_DipM)) Then
+         DipM(:,:) = Bk_DipM(:,:)
+         Call mma_deallocate(Bk_DipM)
+      Else
+        If (Allocated(DipM)) Call mma_deallocate(DipM)
       End If
 *
 *     Process arrays that is allocated optionally.

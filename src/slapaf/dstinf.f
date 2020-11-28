@@ -11,7 +11,7 @@
       Subroutine DstInf(iStop,Just_Frequencies,Numerical)
       use Symmetry_Info, only: nIrrep, iOper
       use Slapaf_Info, only: Cx, Gx, Gx0, GNrm, Coor, Weights, Lambda,
-     &                       Energy, Energy0
+     &                       Energy, Energy0, DipM, MF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -90,10 +90,12 @@
 
          Call Dcopy_(         (MaxItr+1),Energy ,1,Work(ipEner ),1)
          Call Dcopy_(         (MaxItr+1),Energy0,1,Work(ipEner0),1)
+         Call Dcopy_(         (MaxItr+1),GNrm   ,1,Work(ipGNrm ),1)
+         Call Dcopy_(3*       (MaxItr+1),DipM   ,1,Work(ipDipM ),1)
          Call Dcopy_(3*nsAtom*(MaxItr+1),Cx     ,1,Work(ipCx   ),1)
          Call Dcopy_(3*nsAtom*(MaxItr+1),Gx     ,1,Work(ipGx   ),1)
          Call Dcopy_(3*nsAtom*(MaxItr+1),Gx0    ,1,Work(ipGx0  ),1)
-         Call Dcopy_(         (MaxItr+1),GNrm   ,1,Work(ipGNrm ),1)
+         Call Dcopy_(3*nsAtom           ,MF     ,1,Work(ipMF   ),1)
          If (Allocated(Lambda)) Call DCopy_(SIZE(Lambda),Lambda,1,
      &                                                   Work(ipL),1)
 
@@ -279,7 +281,7 @@
        If (iAnd(iOptC,128).ne.128 .and. Stop ) Then
 *
            Call mma_allocate(RV,3,nsAtom,Label='RV')
-           Call dcopy_(3*nsAtom,Work(ipMF),1,RV,1)
+           Call dcopy_(3*nsAtom,MF,1,RV,1)
            Do i=1,nsAtom
              xWeight=Weights(i)
              RV(:,i) = RV(:,i)/xWeight

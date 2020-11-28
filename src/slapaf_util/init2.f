@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Init2()
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Coor, Grd, GNrm, Lambda,
-     &                       Energy, Energy0
+     &                       Energy, Energy0, MF, DipM
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
@@ -96,18 +96,22 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
       ipqInt = ip_Dummy
       ipdqInt= ip_Dummy
 *
-      Call mma_allocate(Energy,     MaxItr+1,Label='Energy')
+      Call mma_allocate(Energy,          MaxItr+1,Label='Energy')
       Energy(:) = Zero
-      Call mma_allocate(Energy0,    MaxItr+1,Label='Energy0')
+      Call mma_allocate(Energy0,         MaxItr+1,Label='Energy0')
       Energy0(:) = Zero
-      Call mma_allocate(Cx,3,nsAtom,MaxItr+1,Label='Cx')
-      Cx(:,:,:) = Zero
-      Call mma_allocate(Gx,3,nsAtom,MaxItr+1,Label='Gx')
-      Gx(:,:,:) = Zero
-      Call mma_allocate(Gx0,3,nsAtom,MaxItr+1,Label='Gx0')
-      Gx0(:,:,:) = Zero
-      Call mma_allocate(GNrm,MaxItr+1,Label='GNrm')
+      Call mma_allocate(DipM,   3,       MaxItr+1,Label='DipM')
+      DipM(:,:) = Zero
+      Call mma_allocate(GNrm,            MaxItr+1,Label='GNrm')
       GNrm(:) = Zero
+      Call mma_allocate(Cx,     3,nsAtom,MaxItr+1,Label='Cx')
+      Cx(:,:,:) = Zero
+      Call mma_allocate(Gx,     3,nsAtom,MaxItr+1,Label='Gx')
+      Gx(:,:,:) = Zero
+      Call mma_allocate(Gx0,    3,nsAtom,MaxItr+1,Label='Gx0')
+      Gx0(:,:,:) = Zero
+      Call mma_allocate(MF,     3,nsAtom,         Label='MF')
+      MF(:,:) = Zero
       If (mLambda>0) Then
         Call mma_allocate(Lambda,mLambda,MaxItr+1,Label='Lambda')
         Lambda(:,:)=Zero
@@ -134,10 +138,12 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
 *
             Call DCopy_(   (MaxItr+1),Work(ipEner ),1,Energy ,1)
             Call DCopy_(   (MaxItr+1),Work(ipEner0),1,Energy0,1)
+            Call DCopy_(3* (MaxItr+1),Work(ipDipM ),1,DipM   ,1)
+            Call DCopy_(   (MaxItr+1),Work(ipGNrm ),1,GNrm   ,1)
             Call DCopy_(l1*(MaxItr+1),Work(ipCx   ),1,Cx     ,1)
             Call DCopy_(l1*(MaxItr+1),Work(ipGx   ),1,Gx     ,1)
             Call DCopy_(l1*(MaxItr+1),Work(ipGx0  ),1,Gx0    ,1)
-            Call DCopy_(   (MaxItr+1),Work(ipGNrm ),1,GNrm   ,1)
+            Call DCopy_(l1           ,Work(ipMF   ),1,MF     ,1)
             If (mLambda>0) Call DCopy_(mLambda*(MaxItr+1),Work(ipL),1,
      &                                                    Lambda,1)
          Else
@@ -302,19 +308,17 @@ C     Call RecPrt('Ref_Geom',' ',Work(ipRef),3,nsAtom)
             If (Found.and.(nDip.eq.3*nRoots)) Then
                Call Get_dArray('Last Dipole Moments',DMs,3*nRoots)
             End If
-            Call dCopy_(3,DMs(:,iRoot),1,Work(ipDipM+(iter-1)*3),1)
+            Call dCopy_(3,DMs(:,iRoot),1,DipM(:,iter),1)
             Call mma_deallocate(DMs)
          Else
             Call Qpg_dArray('Dipole moment',Found,nDip)
             If (Found.and.(nDip.eq.3)) Then
-               Call Get_dArray('Dipole moment',
-     &                         Work(ipDipM+(iter-1)*3),3)
+               Call Get_dArray('Dipole moment',DipM(:,iter),3)
             Else
-               Call dCopy_(3,[Zero],0,Work(ipDipM+(iter-1)*3),1)
+               DipM(:,iter)=Zero
             End If
          End If
-*        Call RecPrt('Dipole Moment',' ',
-*    &               Work(ipDipM+(iter-1)*3),1,3)
+*        Call RecPrt('Dipole Moment',' ',DipM(:,iter),1,3)
       End If
 *                                                                      *
 ************************************************************************
@@ -331,7 +335,7 @@ C     Call RecPrt('Ref_Geom',' ',Work(ipRef),3,nsAtom)
          If (iMode.eq.2.or.iMode.eq.3) Then
 *
             E0=Columbus_Energy(2)
-            Energy0(iter1)=E0
+            Energy0(iter)=E0
 *
             Call qpg_dArray('Grad State2',Found,Length)
             If (.not.Found .or. Length.eq.0) Then

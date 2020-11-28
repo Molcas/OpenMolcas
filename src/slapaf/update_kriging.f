@@ -19,7 +19,7 @@
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
-     &                     nWndw,Mode,MF,
+     &                     nWndw,Mode,
      &                     iOptH,HUpMet,GNrm_Threshold,IRC,
      &                     HrmFrq_Show,CnstWght,Curvilinear,
      &                     Degen,ThrEne,ThrGrd,nLines)
@@ -38,8 +38,7 @@
 #include "Molcas.fh"
 #include "stdalloc.fh"
       Real*8 qInt(nInter,MaxItr), Grad(nInter,MaxItr),
-     &       BMx(3*nsAtom,3*nsAtom),
-     &       Degen(3*nsAtom), dEner, MF(3*nsAtom)
+     &       BMx(3*nsAtom,3*nsAtom),Degen(3*nsAtom), dEner
       Integer jStab(0:7,nsAtom), nStab(nsAtom),iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show, Curvilinear,
@@ -218,7 +217,7 @@
      &                   nStab,BMx,Smmtrc,nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                   Labels,nLabels,FindTS,TSC,nRowH,nWndw_,Mode,
-     &                   MF,iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
+     &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
      &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
      &                   First_MicroIteration,iter,qBeta_Disp)
