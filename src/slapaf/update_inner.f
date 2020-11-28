@@ -605,7 +605,7 @@ C           Write (6,*) 'tBeta=',tBeta
          Call RecPrt('Scr1',' ',Scr1,nInter*nLambda,nInter)
          Do i = 1, nLambda
             Write (6,*) ' iLambda=',i
-            Call RecPrt('Update_inner: d2L',' ',d2L(1,1,iLambda),
+            Call RecPrt('Update_inner: d2L',' ',d2L(:,:,i),
      &                  nInter,nInter)
          End Do
 #endif

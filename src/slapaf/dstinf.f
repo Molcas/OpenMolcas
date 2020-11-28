@@ -54,7 +54,7 @@
 *        (note the gradient sign must be changed back)
 *
          If (Just_Frequencies) Then
-            Call Put_dScalar('Last Energy',Energy)
+            Call Put_dScalar('Last Energy',Energy(1))
             Call mma_allocate(GxFix,3,nsAtom,Label='GxFix')
             call dcopy_(3*nsAtom,Gx,1,GxFix,1)
             GxFix(:,:) = - GxFix(:,:)
