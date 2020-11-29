@@ -105,7 +105,7 @@
 *     atom labels
       dsetid = mh5_create_dset_str(chkpnt_id,
      &         'CENTER_LABELS', 1, [nsAtom], LENIN)
-      Call mh5_init_attr(dsetid, 'description',
+      Call mh5_init_attr(dsetid, 'DESCRIPTION',
      &     'Unique center labels arranged as one [NATOMS_UNIQUE] block')
       Call mh5_put_dset(dsetid, AtomLbl)
       Call mh5_close_dset(dsetid)
@@ -113,7 +113,7 @@
 *     atom masses
       dsetid = mh5_create_dset_real(chkpnt_id,
      &         'CENTER_MASSES', 1, [nsAtom])
-      Call mh5_init_attr(dsetid, 'description',
+      Call mh5_init_attr(dsetid, 'DESCRIPTION',
      &    'Nuclear masses, stored as array of size [NATOMS_UNIQUE]')
       Call mh5_put_dset(dsetid, dMass)
       Call mh5_close_dset(dsetid)
@@ -121,7 +121,7 @@
 *     atom charges
       dsetid = mh5_create_dset_real(chkpnt_id,
      &         'CENTER_CHARGES', 1, [nsAtom])
-      Call mh5_init_attr(dsetid, 'description',
+      Call mh5_init_attr(dsetid, 'DESCRIPTION',
      &    'Nuclear charges, stored as array of size [NATOMS_UNIQUE]')
       Call mma_allocate(charges, nsAtom)
       Call Get_dArray('Nuclear Charge', charges, nsAtom)
@@ -137,7 +137,7 @@
 *       use the same dataset name as in run2hdf5
       chkpnt_new = mh5_create_dset_real(chkpnt_id,
      &             'CENTER_COORDINATES', 2, [3,nsAtom])
-      Call mh5_init_attr(chkpnt_new, 'description',
+      Call mh5_init_attr(chkpnt_new, 'DESCRIPTION',
      &     'Atom coordinates for new iteration, matrix of size '//
      &     '[NATOMS_UNIQUE,3], stored with atom index varying slowest')
 
@@ -173,7 +173,7 @@
 *     desymmetrization factors
         dsetid = mh5_create_dset_int(chkpnt_id,
      &           'DESYM_FACTORS', 2, [4,mAtom])
-        Call mh5_init_attr(dsetid, 'description',
+        Call mh5_init_attr(dsetid, 'DESCRIPTION',
      &      'Factors for obtaining all coordinates, matrix of size '//
      &      '[NATOMS_ALL,4], each row contains the unique atom index'//
      &      'and the factors with which to multiply the x,y,z '//
@@ -185,7 +185,7 @@
 *     symmetry-unique degrees of freedom (Cartesian indices)
         dsetid = mh5_create_dset_int(chkpnt_id,
      &           'DOF_INDICES', 2, [2, nDimBC])
-        Call mh5_init_attr(dsetid, 'description',
+        Call mh5_init_attr(dsetid, 'DESCRIPTION',
      &      'Indices of the Cartesian degrees of freedom, matrix of '//
      &      'size [DOF, 2], each row contains the atom index and the '//
      &      'Cartesian index (1=x, 2=y, 3=z)')
@@ -199,14 +199,14 @@
 *     energies
       chkpnt_ener = mh5_create_dset_real(chkpnt_id,
      &              'ENERGIES', 1, [0], dyn=.True.)
-      Call mh5_init_attr(chkpnt_ener, 'description',
+      Call mh5_init_attr(chkpnt_ener, 'DESCRIPTION',
      &     'Energies for all iterations as a matrix of size '//
      &     '[ITERATIONS]')
 
 *     atom coordinates
       chkpnt_coor = mh5_create_dset_real(chkpnt_id,
      &              'COORDINATES', 3, [3,nsAtom,0], dyn=.True.)
-      Call mh5_init_attr(chkpnt_coor, 'description',
+      Call mh5_init_attr(chkpnt_coor, 'DESCRIPTION',
      &     'Atom coordinates, matrix of size [ITERATIONS,'//
      &     'NATOMS_UNIQUE,3], stored with iteration varying slowest, '//
      &     'then atom index')
@@ -214,7 +214,7 @@
 *     Cartesian forces (F = -g)
       chkpnt_force = mh5_create_dset_real(chkpnt_id,
      &               'FORCES', 3, [3,nsAtom,0], dyn=.True.)
-      Call mh5_init_attr(chkpnt_force, 'description',
+      Call mh5_init_attr(chkpnt_force, 'DESCRIPTION',
      &     'Cartesian forces, matrix of size [ITERATIONS,'//
      &     'NATOMS_UNIQUE,3], stored with iteration varying slowest, '//
      &     'then atom index')
@@ -222,7 +222,7 @@
 *     Cartesian Hessian
       chkpnt_hess = mh5_create_dset_real(chkpnt_id,
      &              'HESSIAN', 1, [nDimBC*(nDimBC+1)/2])
-      Call mh5_init_attr(chkpnt_hess, 'description',
+      Call mh5_init_attr(chkpnt_hess, 'DESCRIPTION',
      &     'Cartesian Hessian in triangular form, as a vector of '//
      &     'size [DOF*(DOF+1)/2]')
 
@@ -233,7 +233,7 @@
 
         dsetid = mh5_create_dset_int(chkpnt_id,
      &           'MEP_INDICES', 1, [0], dyn=.True.)
-        Call mh5_init_attr(dsetid, 'description',
+        Call mh5_init_attr(dsetid, 'DESCRIPTION',
      &       'Iteration number for each converged MEP step, as a '//
      &       'vector of size [MEP_ITERATIONS]')
       End If
