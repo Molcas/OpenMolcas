@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine BMtrx(nLines,nBVec,ipBMx,nAtom,nInter,
-     &                 ip_rInt,Lbl,Coor,nDim,dMass,
+     &                 Lbl,Coor,nDim,dMass,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
      &                 Gx,mTtAtm,iAnr,iOptH,User_Def,
@@ -18,7 +18,7 @@
      &                 iOptC,PrQ,mxdc,iCoSet,lOld,
      &                 rHidden,nFix,nQQ,iIter,Redundant,nqInt,MaxItr,
      &                 nWndw)
-      Use Slapaf_Info, Only: Cx, Shift
+      Use Slapaf_Info, Only: Cx, Shift, qInt
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -189,7 +189,7 @@
 *                                                                      *
          Call BMtrx_User_Defined(
      &                 nLines,nBVec,ipBMx,nAtom,nInter,
-     &                 ip_rInt,Lbl,Coor,nDim,dMass,
+     &                 Lbl,Coor,nDim,dMass,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
      &                 Gx,
@@ -221,7 +221,7 @@
          ip_TabAI= ip_of_iWork(TabAI(1,1))
          Call BMtrx_Internal(
      &                 ipBMx,nAtom,
-     &                 ip_rInt,nDim,dMass,
+     &                 nDim,dMass,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
      &                 Gx,mTtAtm,iAnr,
@@ -244,7 +244,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call BMtrx_Cartesian(ipBMx,nAtom,nInter,ip_rInt,nDim,Name,
+         Call BMtrx_Cartesian(ipBMx,nAtom,nInter,nDim,Name,
      &                        Smmtrc,Degen,BSet,HSet,nIter,ip_drInt,
      &                        Gx,mTtAtm,PrQ,lOld,mTR,TR,EVal,Hss_X,
      &                        ip_KtB,nQQ,Redundant,nqInt,MaxItr,nWndw)
@@ -282,7 +282,7 @@
       If (Bset) Then
          Call mma_allocate(Shift,nQQ,MaxItr,Label='Shift')
          Shift(:,:)=Zero
-         Call ShfANM(nQQ,nIter,Work(ip_rInt),Shift,iPrint)
+         Call ShfANM(nQQ,nIter,qInt,Shift,iPrint)
       End If
 *                                                                      *
 ************************************************************************
@@ -325,12 +325,11 @@
 *.... Print out the values of the internal coordinates
 *
       If (iPrint.ge.99) Then
-         ip = ip_rint + (nIter-1)*nInter -1
          Write (6,*)
          Write (6,*) ' Internal coordinates'
          Write (6,*)
          Write (6,'(1X,A,2X,F10.4)')
-     &         (Lbl(iInter),Work(ip+iInter),iInter=1,nQQ)
+     &         (Lbl(iInter),qInt(iInter,nIter),iInter=1,nQQ)
       End If
 *                                                                      *
 ************************************************************************

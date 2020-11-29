@@ -12,7 +12,7 @@
 *               2020, Ignacio Fdez. Galvan                             *
 ************************************************************************
       Subroutine Update_kriging(
-     &                     iter,MaxItr,iInt,nFix,nInter,qInt,
+     &                     iter,MaxItr,iInt,nFix,nInter,
      &                     Grad,iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
@@ -31,14 +31,14 @@
 ************************************************************************
       Use kriging_mod, only: Max_Microiterations,
      &                       Thr_microiterations
-      Use Slapaf_Info, only: Cx, Gx, Shift, GNrm, dMass, Energy
+      Use Slapaf_Info, only: Cx, Gx, Shift, GNrm, dMass, Energy, qInt
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
-      Real*8 qInt(nInter,MaxItr), Grad(nInter,MaxItr),
-     &       BMx(3*nsAtom,3*nsAtom),Degen(3*nsAtom), dEner
+      Real*8 Grad(nInter,MaxItr),BMx(3*nsAtom,3*nsAtom),
+     &       Degen(3*nsAtom), dEner
       Integer jStab(0:7,nsAtom), nStab(nsAtom),iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show, Curvilinear,
@@ -88,7 +88,7 @@
       GrdMax_Save=GrdMax
       GrdLbl_Save=GrdLbl
 #ifdef _DEBUGPRINT_
-      Call RecPrt('qInt(0)',  ' ',qInt(1,iFirst),nInter,nRaw)
+      Call RecPrt('qInt(0)',  ' ',qInt(:,iFirst),nInter,nRaw)
       Call RecPrt('Energy(0)',' ',Energy(iFirst),1,nRaw)
       Call RecPrt('Grad(0)',  ' ',Grad(1,iFirst),nInter,nRaw)
       Call RecPrt('Shift',  ' ',Shift(1,iFirst),nInter,nRaw)
@@ -118,7 +118,7 @@
 *     memory -- to be reused for another purpose later.
 *
       Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
-      Call Setup_Kriging(nRaw,nInter,qInt(1,iFirst),
+      Call Setup_Kriging(nRaw,nInter,qInt(:,iFirst),
      &                               Grad(1,iFirst),
      &                               Energy(iFirst),Hessian)
       Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
@@ -197,7 +197,7 @@
 *        Compute the Kriging Hessian
 *
          If (Kriging_Hessian) Then
-            Call Hessian_Kriging_Layer(qInt(1,iterAI),Hessian,nInter)
+            Call Hessian_Kriging_Layer(qInt(:,iterAI),Hessian,nInter)
             Call Put_dArray('Hss_Q',Hessian,nInter**2)
 *           Make fixhess.f treat the Hessian as if it was analytic.
             Call Put_iScalar('HessIter',iterAI)
@@ -233,7 +233,7 @@
 *
          Error=(iterK.ge.1)
          Call NewCar_Kriging(iterAI,nLines,nsAtom,nDimBC,nInter,BMx,
-     &                       dMass,Lbl,Shift,qInt,Grad,AtomLbl,
+     &                       dMass,Lbl,Shift,Grad,AtomLbl,
      &                       .True.,iter,Error)
 #ifdef _DEBUGPRINT_
          Call RecPrt('New Coord (after NewCar)','',qInt,nInter,iterAI+1)

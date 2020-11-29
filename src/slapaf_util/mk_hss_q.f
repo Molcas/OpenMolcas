@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Mk_Hss_Q()
-      use Slapaf_Info, only: Cx, Coor, Shift, DipM
+      use Slapaf_Info, only: Cx, Coor, Shift, DipM, qInt
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "real.fh"
@@ -26,7 +26,7 @@
      &                      Work(ipdqInt))
          Else
             Call FormNumHess(iter,Work(ipdqInt),Shift,mInt,Delta,
-     &                       Stop,Work(ipqInt),nsAtom,Cubic,iNeg,
+     &                       Stop,qInt,nsAtom,Cubic,iNeg,
      &                       DipM,mTROld,Smmtrc,Degen,UserT,
      &                       UserP,nUserPT,nsRot,lTherm,lDoubleIso,
      &                       Curvilinear)
@@ -34,8 +34,7 @@
 *
          call dcopy_(3*nsAtom,Cx,1,Coor,1)
          Call Get_dArray('BMxOld',Work(ipB),3*nsAtom*mInt)
-         ipIn = ipqInt + (Iter-1)*mInt
-         call dcopy_(mInt,Work(ipqInt),1,Work(ipIn),1)
+         call dcopy_(mInt,qInt(:,1),1,qInt(:,Iter),1)
          ipIn = ipdqInt + (Iter-1)*mInt
          call dcopy_(mInt,Work(ipdqInt),1,Work(ipIn),1)
       Else

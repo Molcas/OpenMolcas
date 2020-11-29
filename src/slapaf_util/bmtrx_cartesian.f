@@ -9,12 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine BMtrx_Cartesian(
-     &                 ipBMx,nAtom,nInter,ip_rInt,nDim,
+     &                 ipBMx,nAtom,nInter,nDim,
      &                 Name,Smmtrc,Degen,BSet,HSet,
      &                 nIter,ip_drInt,Gx,mTtAtm,
      &                 PrQ,lOld,mTR,TRVec,EVal,Hss_x,
      &                 ip_KtB,nQQ,Redundant,nqInt,MaxItr,nWndw)
-      use Slapaf_Info, only: Cx
+      use Slapaf_Info, only: Cx, qInt
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -44,11 +44,11 @@
 *
       If (Redundant) Then
          nQQ = nDim
-         If (ip_rInt.eq.ip_Dummy) Then
+         If (.NOT.Allocated(qInt)) Then
             nqInt=nQQ*MaxItr
-            Call GetMem(' qInt','Allo','Real',ip_rInt, nqInt)
+            Call mma_allocate(qInt,nQQ,MaxItr,Label='qInt')
             Call GetMem('dqInt','Allo','Real',ip_drInt,nqInt)
-            Call FZero(Work(ip_rInt),nqInt)
+            qInt(:,:) = Zero
             Call FZero(Work(ip_drInt),nqInt)
          End If
          Call mma_allocate(EVec,nDim**2,Label='EVec')
@@ -194,11 +194,11 @@
 *     N O N - R E D U N D A N T  C A R T E S I A N  C O O R D S
 *
          nQQ=nInter
-         If (ip_rInt.eq.ip_Dummy) Then
+         If (.NOT.Allocated(qInt)) Then
             nqInt=nQQ*MaxItr
-            Call GetMem(' qInt','Allo','Real',ip_rInt, nqInt)
+            Call mma_allocate(qInt,nQQ,MaxItr,Label='qInt')
             Call GetMem('dqInt','Allo','Real',ip_drInt,nqInt)
-            Call FZero(Work(ip_rInt),nqInt)
+            qInt(:,:) = Zero
             Call FZero(Work(ip_drInt),nqInt)
          End If
 *
@@ -343,8 +343,8 @@
 *
 *---- Compute the value and gradient vectors in the new basis.
 *
-      Call ValANM(nAtom,nQQ,nIter,Work(ipBmx),Degen,
-     &            Work(ip_rInt),Cx,'Values',nWndw)
+      Call ValANM(nAtom,nQQ,nIter,Work(ipBmx),Degen,qInt,Cx,'Values',
+     &            nWndw)
       If (BSet) Call ValANM(nAtom,nQQ,nIter,Work(ipBMx),Degen,
      &                      Work(ip_drInt),Gx,'Gradients',nWndw)
 *                                                                      *

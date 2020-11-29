@@ -12,7 +12,7 @@
       Use Chkpnt
       Use kriging_mod, only: Kriging, nspAI
       Use Slapaf_Info, only: Cx, Gx, dMass, Coor, ANr, Shift, GNrm,
-     &                       Free_Slapaf
+     &                       Free_Slapaf, qInt
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -130,7 +130,7 @@
 *
       If (Numerical) nWndw=NmIter
       iRef=0
-      Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
+      Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,Lbl,
      &           Coor,nDimBC,dMass,AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,
      &           Gx,mTtAtm,ANr,iOptH,
@@ -184,8 +184,7 @@
 *        I) Update geometry for selected numerical differentiation.    *
 *----------------------------------------------------------------------*
 *
-         Call Freq1(iter,nQQ,nRowH,mRowH,Delta/2.5d0,Shift,
-     &              Work(ipqInt))
+         Call Freq1(iter,nQQ,nRowH,mRowH,Delta/2.5d0,Shift,qInt)
          UpMeth='RowH  '
       Else If (lNmHss.and.iter.lt.NmIter) Then
 *
@@ -193,8 +192,7 @@
 *        II) Update geometry for full numerical differentiation.       *
 *----------------------------------------------------------------------*
 *
-         Call Freq2(iter,Work(ipdqInt),Shift,nQQ,Delta,Stop,
-     &              Work(ipqInt))
+         Call Freq2(iter,Work(ipdqInt),Shift,nQQ,Delta,Stop,qInt)
          UpMeth='NumHss'
       Else
          Go To 777
@@ -236,7 +234,7 @@
 *
       If (Kriging .and. Iter.ge.nspAI) Then
          Call Update_Kriging(
-     &               Iter,MaxItr,iInt,nFix,nQQ,Work(ipqInt),
+     &               Iter,MaxItr,iInt,nFix,nQQ,
      &               Work(ipdqInt),iOptC,Beta,Beta_Disp,
      &               Lbl,UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
@@ -250,7 +248,7 @@
      &               CnstWght,Curvilinear,Degen,ThrEne,ThrGrd,iRow)
       Else
          Call Update_sl(
-     &               Iter,MaxItr,NmIter,iInt,nFix,nQQ,Work(ipqInt),
+     &               Iter,MaxItr,NmIter,iInt,nFix,nQQ,
      &               Work(ipdqInt),iOptC,Beta,Beta_Disp,
      &               Lbl,UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
@@ -286,7 +284,7 @@
          Error=.False.
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Coor,
-     &               ipB,dMass,Lbl,Shift,ipqInt,
+     &               ipB,dMass,Lbl,Shift,
      &               ipdqInt,DFC,dss,Tmp,
      &               AtomLbl,iSym,Smmtrc,Degen,
      &               mTtAtm,ANr,iOptH,
@@ -341,7 +339,7 @@
 *
       GoOn = (lNmHss.and.iter.lt.NmIter).OR.(lRowH.and.iter.lt.NmIter)
       TSReg = iAnd(iOptC,8192).eq.8192
-      Call Convrg(iter,kIter,nQQ,Work(ipqInt),Shift,
+      Call Convrg(iter,kIter,nQQ,Shift,
      &            Work(ipdqInt),Lbl,MaxItr,Stop,iStop,ThrCons,
      &            ThrEne,ThrGrd,MxItr,UpMeth,HUpMet,mIntEff,Baker,
      &            nsAtom,mTtAtm,ed,
@@ -448,15 +446,14 @@
       If (ip_idB.ne.ip_iDummy) Call Free_iWork(ip_idB)
       If (ip_nqB.ne.ip_iDummy) Call Free_iWork(ip_nqB)
 *
-      Call Free_Slapaf()
       If (Ref_Geom) Call Free_Work(ipRef)
       If (Ref_Grad) Call Free_Work(ipGradRef)
       If (lRP)      Call Free_Work(ipR12)
-      If (ipqInt.ne.ip_Dummy) Then
+      If (Allocated(qInt)) Then
           Call GetMem('dqInt', 'Free','Real',ipdqInt, nqInt)
-          Call GetMem('qInt', 'Free','Real',ipqInt, nqInt)
       End If
       Call GetMem('Relax', 'Free','Real',ipRlx, Lngth)
+      Call Free_Slapaf()
 *
 *-----Terminate the calculations.
 *

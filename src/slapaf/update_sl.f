@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Update_sl(iter,MaxItr,NmIter,iInt,nFix,nInter,qInt,
+      Subroutine Update_sl(iter,MaxItr,NmIter,iInt,nFix,nInter,
      &                     Grad,iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
@@ -32,7 +32,6 @@
 *      iInt           : number of internal coordinates to vary         *
 *      nFix           : number of frozen internal coordinates          *
 *      nInter         : total number of internal coordinates           *
-*      qInt(*,iter )  : the internal coordinates                       *
 *      Grad(*,iter )  : the gradient in the internal coordinates       *
 *      iOptC          : option flag for update methods                 *
 *      Beta           : damping factor                                 *
@@ -55,8 +54,6 @@
 *      CnstWght       : constraints weight                             *
 *                                                                      *
 *    OutPut:                                                           *
-*      qInt(*,iter +1): the internal coordinates to be used in the     *
-*                       next iteration                                 *
 *      UpMeth         : character label with update method abrivation  *
 *      ed             : estimated energy change to the next point      *
 *      Step_Trunc     : character label to denote truncation type      *
@@ -69,14 +66,14 @@
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
-      use Slapaf_Info, only: Shift
+      use Slapaf_Info, only: Shift, qInt
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "Molcas.fh"
-      Real*8 qInt(nInter,MaxItr), Grad(nInter,MaxItr),
+      Real*8 Grad(nInter,MaxItr),
      &       BMx(3*nsAtom,3*nsAtom), Degen(3*nsAtom)
       Integer jStab(0:7,nsAtom), nStab(nsAtom), iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),

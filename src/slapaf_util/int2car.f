@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Int2Car(dSS,rInt,nInter,ip_qInt,Coor,nAtom,nBVct,
+      Subroutine Int2Car(dSS,rInt,nInter,Coor,nAtom,nBVct,
      &                  ipBMx,dMass,nLines,DFC,
      &                  nDim,Lbl,Name,iSym,
      &                  Smmtrc,Degen,iter,
@@ -18,7 +18,7 @@
      &                  Analytic_Hessian,iOptC,PrQ,mxdc,
      &                  iCoSet,rHidden,Error,ipRef,Redundant,nqInt,
      &                  MaxItr,iRef)
-      use Slapaf_Info, only: Cx, Gx
+      use Slapaf_Info, only: Cx, Gx, qInt
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -66,7 +66,7 @@
          Write (Lu,*)
          Write (Lu,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter,1),
      &          iInter=1,nInter)
-         Call RecPrt(' In Int2Car: qInt',' ',Work(ip_qInt),nInter,
+         Call RecPrt(' In Int2Car: qInt',' ',qInt,nInter,
      &               Iter+1)
       End If
 *
@@ -157,7 +157,7 @@
          nFix=0
          nWndw=1
          Call BMtrx(nLines,nBVct,ipBMx,nAtom,nInter,
-     &              ip_qInt,Lbl,Coor,nDim,dMass,
+     &              Lbl,Coor,nDim,dMass,
      &              Name,Smmtrc,
      &              Degen,BSet,HSet,iter+1,ip_dqInt,
      &              Gx,mTtAtm,iANr,iOptH,User_Def,
@@ -172,10 +172,9 @@
          rOld = rMax
          iMax_Old = iMax
          iMax = 1
-         ip = ip_qInt + Iter*nInter -1
          rMax = Zero
          Do i = 1, nInter
-            dSS(i,1) = rInt(i)-Work(ip+i)
+            dSS(i,1) = rInt(i)-qInt(i,Iter+1)
             If (Abs(dSS(i,1)) .gt. Abs(rMax)) Then
                rMax = dSS(i,1)
                iMax = i
@@ -215,9 +214,8 @@
          Write (Lu,*) '***********************************************'
          If (.NOT.User_Def) Call RecPrt('Int2Car: rInt  ','(10F15.10)',
      &                                  rInt,nInter,1)
-         ip = ip_qInt + Iter*nInter
          If (.NOT.User_Def) Call RecPrt('Int2Car: qInt','(10F15.10)',
-     &                                  Work(ip),nInter,1)
+     &                                  qInt(:,Iter+1),nInter,1)
          Write (Lu,*)
          Call Quit(_RC_NOT_CONVERGED_)
       End If

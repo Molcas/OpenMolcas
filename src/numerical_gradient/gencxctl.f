@@ -11,7 +11,8 @@
 * Copyright (C) 2013, Roland Lindh                                     *
 ************************************************************************
       Subroutine genCxCTL(iStop,Cartesian,rDelta)
-      use Slapaf_Info, only: Gx, dMass, Coor, ANr, Shift, Free_Slapaf
+      use Slapaf_Info, only: Gx, dMass, Coor, ANr, Shift, qInt,
+     &                       Free_Slapaf
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -81,7 +82,7 @@
       nFix=0
       nWndw=iter
       iRef=0
-      Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
+      Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,Lbl,
      &           Coor,nDimBC,dMass,AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,
      &           Gx,mTtAtm,ANr,iOptH,
@@ -211,10 +212,8 @@
 *        Take a copy of the current values of the internal
 *        coordinates.
 *
-         ip_From=ipqInt + (Iter-1)*mInt
-         ip_To  =ipqInt + (Jter-1)*mInt
-         call dcopy_(mInt,Work(ip_From),1,Work(ip_To),1)
-*        Call RecPrt('Int_Ref',' ',Work(ip_To),1,mInt)
+         call dcopy_(mInt,qInt(:,Iter),1,qInt(:,Jter),1)
+*        Call RecPrt('Int_Ref',' ',qInt(:,Jter),1,mInt)
 *
 *        To the second set of coordinates add the shift.
 *        This set of internal coordinates corresponds to
@@ -233,7 +232,7 @@
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,mInt,
      &               Coor,ipB,dMass,
-     &               Lbl,Shift,ipqInt,ipdqInt,
+     &               Lbl,Shift,ipdqInt,
      &               Work(ipDCF),Work(ipdss),Work(ipTmp),
      &               AtomLbl,iSym,Smmtrc,
      &               Degen,mTtAtm,
@@ -280,17 +279,16 @@
       If (ip_idB.ne.ip_iDummy) Call Free_iWork(ip_idB)
       If (ip_nqB.ne.ip_iDummy) Call Free_iWork(ip_nqB)
 *
-      Call Free_Slapaf()
       If (Ref_Geom) Call Free_Work(ipRef)
       If (Ref_Grad) Call Free_Work(ipGradRef)
       If (lRP)      Call Free_Work(ipR12)
       Call GetMem(' B ',    'Free','Real',ipB,   (nsAtom*3)**2)
 *
-      If (ipqInt.ne.ip_Dummy) Then
+      If (Allocated(qInt)) Then
          Call GetMem('dqInt', 'Free','Real',ipdqInt, nqInt)
-         Call GetMem('qInt', 'Free','Real',ipqInt, nqInt)
       End If
       Call GetMem('Relax', 'Free','Real',ipRlx, Lngth)
+      Call Free_Slapaf()
 *
 *-----Terminate the calculations.
 *

@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine CurviL(nAtoms,nDim,Cx,Gx,nIter,iIter,iRef,nStab,
      &                  jStab,Degen,Smmtrc,mTR,TRVec,
-     &                  ip_rInt,ip_drInt,HSet,BSet,ipBMx,Numerical,iANr,
+     &                  ip_drInt,HSet,BSet,ipBMx,Numerical,iANr,
      &                  HWRS,Analytic_Hessian,iOptC,Name,PrQ,
      &                  dMass,iCoSet,iTabBonds,
      &                  iTabAtoms,nBonds,nMax,iTabAI,mAtoms,lOld,
@@ -26,6 +26,7 @@
 *              University of Lund, SWEDEN.                             *
 *              2004                                                    *
 ************************************************************************
+      use Slapaf_Info, only: qInt
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"
@@ -96,11 +97,11 @@
 *     at appropriate places.
 *
       nQQ=nDim-mTR
-      If (ip_rInt.eq.ip_Dummy) Then
+      If (.NOT.Allocated(qInt)) Then
          nqInt=nQQ*MaxItr
-         Call GetMem(' qInt','Allo','Real',ip_rInt, nqInt)
+         Call mma_allocate(qInt,nQQ,MaxItr,Label='qInt')
          Call GetMem('dqInt','Allo','Real',ip_drInt,nqInt)
-         Call FZero(Work(ip_rInt),nqInt)
+         qInt(:,:)=Zero
          Call FZero(Work(ip_drInt),nqInt)
       End If
 *
@@ -582,12 +583,11 @@ C        iEnd = 1
             KtM(iQQ,iq)=temp
          End Do
       End Do
-      ip = ip_rInt + (jIter-1)*(nDim-mTR)
       Call DGEMM_('N','N',
      &            nQQ,mIter,nq,
      &            1.0d0,KtM,nQQ,
      &                  qVal(:,jIter),nq,
-     &            0.0d0,Work(ip),nQQ)
+     &            0.0d0,qInt(:,jIter),nQQ)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -595,7 +595,7 @@ C        iEnd = 1
       If (iPrint.ge.49) Then
          Call RecPrt(' The K Matrix',' ',K,nq,nQQ)
          Call RecPrt(' q-values',' ',qVal,nq,nIter)
-         Call RecPrt('Q-values',' ',Work(ip_rInt),nQQ,nIter)
+         Call RecPrt('Q-values',' ',qInt,nQQ,nIter)
          Call RecPrt('Cx',' ',Cx,3*nAtoms,nIter)
       End If
       If (BSet.and.iPrint.ge.49) Then

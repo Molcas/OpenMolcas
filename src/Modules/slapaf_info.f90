@@ -14,7 +14,7 @@ Module Slapaf_Info
 implicit none
 Private
 Public:: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, ANr, Weights, Shift, GNrm, Lambda, &
-         Energy, Energy0, DipM, MF, Free_Slapaf
+         Energy, Energy0, DipM, MF, qInt, Free_Slapaf
 !
 ! Arrays always allocated
 !
@@ -32,6 +32,7 @@ Real*8, Allocatable:: Energy(:)     ! list of the energies of each iteration, St
 Real*8, Allocatable:: Energy0(:)    ! list of the energies of each iteration, State 2 for optimization of conical intersections
 Real*8, Allocatable:: MF(:,:)       ! list of Cartesian mode following vectors for each iteration
 Real*8, Allocatable:: DipM(:,:)     ! list of dipole moments for each iteration
+Real*8, Allocatable:: qInt(:,:)     ! internal coordinates for each iteration
 
 Integer, Allocatable:: ANr(:)       ! list of atomic numbers
 !
@@ -62,5 +63,6 @@ Contains
   If (Allocated(Shift)) Call mma_deallocate(Shift)
 
   If (Allocated(NAC)) Call mma_deallocate(NAC)
+  If (Allocated(qInt)) Call mma_deallocate(qInt)
   End Subroutine Free_Slapaf
 End Module Slapaf_Info

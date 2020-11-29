@@ -31,7 +31,7 @@
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor,
      &                       Grd, Weights, ANr, Shift, GNrm, Lambda,
-     &                       Energy, Energy0, DipM, MF
+     &                       Energy, Energy0, DipM, MF, qInt
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -74,6 +74,7 @@
       Real*8, Allocatable:: Bk_Grd(:,:)
       Real*8, Allocatable:: Bk_Weights(:)
       Real*8, Allocatable:: Bk_Shift(:,:)
+      Real*8, Allocatable:: Bk_qInt(:,:)
 
       Integer, Allocatable:: Bk_ANr(:)
 *
@@ -170,6 +171,12 @@
          Call mma_allocate(Bk_DipM,3,MaxItr+1,Label='Bk_DipM')
          Bk_DipM(:,:) = DipM(:,:)
          Call mma_deallocate(DipM)
+      End If
+      If (Allocated(qInt)) Then
+         Call mma_allocate(Bk_qInt,SIZE(qInt,1),MaxItr,
+     &                     Label='Bk_qInt')
+         Bk_qInt(:,:) = qInt(:,:)
+         Call mma_deallocate(qInt)
       End If
 
       Bk_iSym(:)=iSym(:)
@@ -372,7 +379,7 @@
       nFix=0
       nWndw=iter
       iRef=0
-      Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,ipqInt,Lbl,
+      Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,Lbl,
      &           Coor,nDimBC,dMass,AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,
      &           Work(ipGx),mTtAtm,ANr,iOptH,
@@ -502,9 +509,8 @@
       Call GetMem('iBM','Free','Inte',ip_iB,mB_Tot)
       Call GetMem('nqB','Free','Inte',ip_nqB,mq)
       Call GetMem(' B ',    'Free','Real',ipB,   (nsAtom*3)**2)
-      If (ipqInt.ne.ip_Dummy) Then
-         Call GetMem('dqInt', 'Free','Real',ipdqInt, nqInt)
-         Call GetMem('qInt',  'Free','Real',ipqInt,  nqInt)
+      If (ipdqInt.ne.ip_Dummy) Then
+         Call GetMem('dqInt',  'Free','Real',ipdqInt,  nqInt)
       End If
       If (Ref_Geom) Then
          Call GetMem('ipRef',  'Free','Real',ipRef,    3*nsAtom)
@@ -786,6 +792,16 @@
          Call mma_deallocate(Bk_Lambda)
       Else
         If (Allocated(Lambda)) Call mma_deallocate(Lambda)
+      End If
+      If (Allocated(Bk_qInt)) Then
+         If (.NOT.Allocated(qInt)) Then
+            Call mma_allocate(qInt,SIZE(Bk_qInt,1),MaxItr,
+     &                        Label='qInt')
+         End If
+         qInt(:,:) = Bk_qInt(:,:)
+         Call mma_deallocate(Bk_qInt)
+      Else
+        If (Allocated(qInt)) Call mma_deallocate(qInt)
       End If
 *
       End Subroutine

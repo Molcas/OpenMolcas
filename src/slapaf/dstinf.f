@@ -11,7 +11,7 @@
       Subroutine DstInf(iStop,Just_Frequencies,Numerical)
       use Symmetry_Info, only: nIrrep, iOper
       use Slapaf_Info, only: Cx, Gx, Gx0, GNrm, Coor, Weights, Lambda,
-     &                       Energy, Energy0, DipM, MF
+     &                       Energy, Energy0, DipM, MF, qInt
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -100,7 +100,7 @@
      &                                                   Work(ipL),1)
 
          Call Put_dArray('Slapaf Info 2',Work(ipRlx),Lngth)
-         Call Put_dArray('qInt',Work(ipqInt),nqInt)
+         Call Put_dArray('qInt',qInt,nqInt)
          Call Put_dArray('dqInt',Work(ipdqInt),nqInt)
       End If
       If (Just_Frequencies) Return

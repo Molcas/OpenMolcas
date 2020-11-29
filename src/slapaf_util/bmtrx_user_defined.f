@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine BMtrx_User_Defined(
      &                 nLines,nBVec,ipBMx,nAtom,nInter,
-     &                 ip_rInt,Lbl,Coor,nDim,dMass,
+     &                 Lbl,Coor,nDim,dMass,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,ip_drInt,
      &                 Gx,
@@ -18,6 +18,7 @@
      &                 Analytic_Hessian,
      &                 iOptC,mxdc,lOld,
      &                 nFix,mTR,ip_KtB,nQQ,Redundant,nqInt,MaxItr)
+      use Slapaf_Info, only: qInt
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -40,11 +41,11 @@
       Call Rd_UDIC(nLines,iInt,nFix,nRowH)
       nQQ=iInt+nFix
 *
-      If (ip_rInt.eq.ip_Dummy) Then
+      If (.NOT.Allocated(qInt)) Then
          nqInt=nQQ*MaxItr
-         Call GetMem(' qInt','Allo','Real',ip_rInt, nqInt)
+         Call mma_allocate(qInt,nQQ,MaxItr,Label='qInt')
          Call GetMem('dqInt','Allo','Real',ip_drInt,nqInt)
-         Call FZero(Work(ip_rInt),nqInt)
+         qInt(:,:) = Zero
          Call FZero(Work(ip_drInt),nqInt)
       End If
       Call Allocate_Work(ipBmx,3*nAtom*nQQ)
@@ -68,9 +69,8 @@
 *        Not implimented, sorry
       End If
 *
-      ip = ip_rInt + (nIter-1)*nQQ
       Call DefInt(BVec,nBVec,Lab,Work(ipBMx),nQQ,
-     &            nAtom,nLines,Val,Work(ip),Lbl,Name,
+     &            nAtom,nLines,Val,qInt(:,nIter),Lbl,Name,
      &            Coor,dMass,jStab,nStab,mxdc,Mult,
      &            nDim-mTR,Redundant)
 *

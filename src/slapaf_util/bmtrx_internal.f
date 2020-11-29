@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine BMtrx_Internal(
-     &                 ipBMx,nAtom,ip_rInt,nDim,
+     &                 ipBMx,nAtom,nDim,
      &                 dMass,Name,Smmtrc,Degen,BSet,HSet,
      &                 nIter,ip_drInt,Gx,mTtAtm,iAnr,nStab,jStab,
      &                 Numerical,HWRS,Analytic_Hessian,iOptC,PrQ,
@@ -36,7 +36,7 @@
 *
       Call CurviL(nAtom,nDim,Cx,Gx,nIter,iIter,iRef,nStab,
      &            jStab,Degen,Smmtrc,mTR,TRVec,
-     &            ip_rInt,ip_drInt,HSet,BSet,ipBMx,
+     &            ip_drInt,HSet,BSet,ipBMx,
      &            Numerical,iANr,HWRS,Analytic_Hessian,iOptC,
      &            Name,PrQ,dMass,iCoSet,
      &            iWork(ip_TabB),iWork(ip_TabA),nBonds,nMax,
