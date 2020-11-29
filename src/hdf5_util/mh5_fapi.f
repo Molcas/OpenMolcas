@@ -1750,11 +1750,3 @@
       end if
       lbl = TRIM(name)//C_NULL_CHAR
       end subroutine
-
-      subroutine f2c_upcase(name, lbl)
-      use iso_c_binding
-      implicit none
-      character(len=*) :: name, lbl
-      call f2c_string(name, lbl)
-      call upcase(lbl)
-      end subroutine
