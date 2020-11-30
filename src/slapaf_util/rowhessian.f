@@ -10,28 +10,7 @@
 *                                                                      *
 * Copyright (C) Giovanni Ghigo                                         *
 ************************************************************************
-      Subroutine RowHessian(nIter,nInter,nRowH,mRowH,Delta,g)
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 g(nInter,nIter)
-      Integer mRowH(10)
-#include "stdalloc.fh"
-      Real*8 rDum(1)
-      Real*8, Allocatable:: Hss_Q(:,:)
-*
-      Call mma_allocate(Hss_Q,nInter,nInter,Label='Hss_Q')
-      Call Get_dArray('Hss_Q',Hss_Q,nInter**2)
-      Call Put_dArray('Hss_upd',rDum,0)
-*
-      Call RowHessian_internal(nIter,nInter,nRowH,mRowH,Delta,Hss_Q,g)
-      Write (6,*)
-      Write (6,*) ' Partial numerical differentiation is finished!'
-*
-      Call Put_dArray('Hss_Q',Hss_Q,nInter**2)
-      Call mma_deallocate(Hss_Q)
-*
-      Return
-      End
-      Subroutine RowHessian_Internal(nIter,nInter,nRowH,mRowH,Delta,H,g)
+      Subroutine RowHessian(nIter,nInter,nRowH,mRowH,Delta)
 ************************************************************************
 *                                                                      *
 * Object: Numerical estimation of single rows and columns of Hessian   *
@@ -39,23 +18,35 @@
 * Author: Giovanni Ghigo, University of Torino, Italy                  *
 *                                                                      *
 ************************************************************************
+      use Slapaf_Info, only: dqInt
       Implicit Real*8 (A-H,O-Z)
-      Real*8 g(nInter,nIter),H(nInter,nInter)
+      Real*8, Allocatable:: H(:,:)
       Integer mRowH(10)
+#include "stdalloc.fh"
 #include "real.fh"
+      Real*8 rDum(1)
+*
+      Call mma_allocate(H,nInter,nInter,Label='H')
+      Call Get_dArray('Hss_Q',H,nInter**2)
+      Call Put_dArray('Hss_upd',rDum,0)
 *
 #ifdef _DEBUGPRINT_
       Write(6,*) 'RowHessian:'
       Call RecPrt('Initial Hessian',' ',H,nInter,nInter)
-      Call RecPrt('Gradient      g:','(10F9.6)', g,nInter,nIter)
+      Call RecPrt('Gradient  dqInt:','(10F9.6)', dqInt,nInter,nIter)
 #endif
 *
 * --- Evaluate the Hessian
 *
       Do iRowH = 1, nRowH
          iInter = mRowH(iRowH)
+         If (iIter>nIter) Then
+            Write (6,*) 'RowHessian: iIter>nIter'
+            Call Abend()
+         End If
          Do jInter = 1, nInter
-            H(iInter,jInter) = (g(jInter,1) - g(jInter,iRowH+1)) / Delta
+            H(iInter,jInter) =
+     &         (dqInt(jInter,1) -dqInt(jInter,iRowH+1)) / Delta
             H(jInter,iInter) = H(iInter,jInter)
          End Do
       EndDo
@@ -72,5 +63,8 @@
 #ifdef _DEBUGPRINT_
       Call RecPrt('Final Hessian',' ',H,nInter,nInter)
 #endif
+      Call Put_dArray('Hss_Q',H,nInter**2)
+      Call mma_deallocate(H)
+*
       Return
       End

@@ -33,7 +33,9 @@
 *
       Call DrvUpH(nWndw,nIter,H,nInter,dq,g,iOptH,HUpMet,nRowH,
      &            jPrint,IterHess)
+
       Call Chk4NAN(nInter*nInter,H,ierr)
+
       If (ierr.ne.0) Call SysAbendMsg('Update_H','NaNs in Hessian','')
       If (Store) Call Put_dArray('Hss_upd',H,nInter**2)
 *                                                                      *
@@ -57,9 +59,8 @@
 *                                                                      *
 *     Massage the new Hessian
 *
-      Call FixHess(H,nInter,iOptC,Mode,Tmp,GNrm,
-     &             GNrm_Threshold,iNeg,nAtoms,(IterHess.eq.nIter),
-     &             AllowFindTS)
+      Call FixHess(H,nInter,iOptC,Mode,Tmp,GNrm,GNrm_Threshold,iNeg,
+     &             nAtoms,(IterHess.eq.nIter),AllowFindTS)
 *                                                                      *
 ************************************************************************
 *                                                                      *

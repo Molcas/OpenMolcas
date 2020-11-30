@@ -8,16 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine FormNumHess(nIter,Grdn,Shift,nInter,Delta,Stop,
-     &                       qInt,nAtom,Cubic,iNeg,DipM,mTR,Smmtrc,
+      Subroutine FormNumHess(nIter,nInter,Delta,Stop,
+     &                       nAtom,Cubic,iNeg,DipM,mTR,Smmtrc,
      &                       Degen,UserT,UserP,nUserPT,nsRot,lTherm,
      &                       lDoubleIso,Curvilinear)
+      use Slapaf_Info, only: qInt, Shift, dqInt
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-      Real*8 Grdn(nInter,nIter), Shift(nInter,nIter), UserT(64), UserP,
-     &       qInt(nInter,nIter+1), DipM(3,nIter), Degen(3,nAtom)
+      Real*8 UserT(64), UserP, DipM(3,nIter), Degen(3,nAtom)
       Logical Stop, Cubic, Smmtrc(3,nAtom), lTherm, lDoubleIso, Found,
      &        Curvilinear
       Integer nUserPT, nsRot
@@ -46,8 +46,10 @@
       Else
          Call mma_allocate(FEq,1,Label='FEq')
       End If
-      Call NmHess(Shift,nInter,Grdn,nIter,H,Delta,qInt,FEq,Cubic,DipM,
+
+      Call NmHess(Shift,nInter,dqInt,nIter,H,Delta,qInt,FEq,Cubic,DipM,
      &            dDipM)
+
       Write (6,*)
       Write (6,*) ' Numerical differentiation is finished!'
       If (iPrint.GE.98) Call RecPrt(' Numerical force constant matrix',
@@ -84,7 +86,7 @@
 *
       If (Curvilinear) Then
 *        Compute and add the d^2Q/dx^2 dE/dQ part
-         Call dBuu(Degen2,nInter,nDim,Grdn(1,1),Hx,.True.)
+         Call dBuu(Degen2,nInter,nDim,dqInt(1,1),Hx,.True.)
       End If
 *
       Call Put_dArray('Hss_X',Hx,nDim**2)
@@ -97,18 +99,20 @@
       If (Cubic) Then
          Call RecPrt(' Numerical cubic force constant matrix',' ',
      &               FEq,nInter**2,nInter)
-         Call Add_Info('Numerical anharm. cons.',FEq,
-     &                 nInter**3,2)
+         Call Add_Info('Numerical anharm. cons.',FEq,nInter**3,2)
       End If
       Call mma_deallocate(FEq)
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
 *---- Do an harmonic frequency analysis
 *
       Call mma_allocate(IRInt,nInter+mTR,Label='IRInt')
+
       Call HrmFrq(nAtom,nInter,iNeg,dDipM,mTR,Smmtrc,DipM,IRInt,
      &            UserT, UserP, nUserPT, nsRot, lTherm, lDoubleIso)
-      Call Add_Info('Numerical IR Intensities',IRInt,
-     &              nInter,2)
+
+      Call Add_Info('Numerical IR Intensities',IRInt,nInter,2)
       Call mma_deallocate(IRInt)
       Write (6,*)
 *                                                                      *

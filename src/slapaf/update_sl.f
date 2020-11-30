@@ -79,7 +79,7 @@
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
       Real*8 Dummy(1)
-      Real*8, Allocatable:: t_Shift(:,:), t_qInt(:,:)
+      Real*8, Allocatable:: t_Shift(:,:), t_qInt(:,:), t_dqInt(:,:)
 *
       Logical Kriging_Hessian
 *
@@ -93,9 +93,13 @@
       End If
 *
       iOpt_RS=0
-      Kriging_Hessian =.FALSE.
       qBeta=Beta
       qBeta_Disp=Beta_Disp
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call Mk_Hss_Q()
+      Kriging_Hessian =.FALSE.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -115,8 +119,8 @@
          iter_=1
          Call mma_Allocate(t_Shift,nInter,iter_,Label='t_Shift')
          t_Shift(:,:)=Zero
+
          Call mma_Allocate(t_qInt,nInter,iter_+1,Label='t_qInt')
-*
          t_qInt(:,1)=qInt(:,1)
 *
          Call Update_inner(

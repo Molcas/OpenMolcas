@@ -122,17 +122,16 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-*     Generate the Hessian in internal coordinates and then update it
+*     Pick up the Hessian in internal coordinates and then update it
 *     according to some Hessian update method (BFGS, MSP, etc.)
 *
 *
-      Call mma_Allocate(Hessian,nInter,nInter,Label='Hessian')
       If (Kriging_Hessian) Then
          iOptH_ = iOr(8,iAnd(iOptH,32))
       Else
-         Call Mk_Hss_Q()
          iOptH_ = iOptH
       End If
+      Call mma_Allocate(Hessian,nInter,nInter,Label='Hessian')
       Call Get_dArray('Hss_Q',Hessian,nInter**2)
 *
 *     Perform the Hessian update, in case of GEK it essentially will

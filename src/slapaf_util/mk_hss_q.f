@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Mk_Hss_Q()
-      use Slapaf_Info, only: Cx, Coor, Shift, DipM, qInt, dqInt
+      use Slapaf_Info, only: Cx, Coor, DipM, qInt, dqInt
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "real.fh"
@@ -22,10 +22,9 @@
          Call Put_Coord_New(Cx,nsAtom)
          If (lRowH) Then
             If (BSet.and.HSet) Call Hss_q()
-            Call RowHessian(NmIter,mInt,nRowH,mRowH,Delta/2.5d0,dqInt)
+            Call RowHessian(NmIter,mInt,nRowH,mRowH,Delta/2.5d0)
          Else
-            Call FormNumHess(iter,dqInt,Shift,mInt,Delta,
-     &                       Stop,qInt,nsAtom,Cubic,iNeg,
+            Call FormNumHess(iter,mInt,Delta,Stop,nsAtom,Cubic,iNeg,
      &                       DipM,mTROld,Smmtrc,Degen,UserT,
      &                       UserP,nUserPT,nsRot,lTherm,lDoubleIso,
      &                       Curvilinear)
@@ -36,7 +35,7 @@
          call dcopy_(mInt, qInt(:,1),1, qInt(:,Iter),1)
          call dcopy_(mInt,dqInt(:,1),1,dqInt(:,Iter),1)
       Else
-         If (BSet.and.HSet) Call Hss_q()
+         If (BSet.and.HSet) Call Hss_Q()
       End If
 *                                                                      *
 ************************************************************************
