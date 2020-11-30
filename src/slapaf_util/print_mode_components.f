@@ -198,9 +198,7 @@
       Bk_nRowH=nRowH
       Bk_ipEner=ipEner
       Bk_ipGnrm=ipGnrm
-      Bk_ipdqInt=ipdqInt
       Bk_ipH=ipH
-      Bk_ipQInt=ipQInt
       Bk_NmIter=NmIter
       Bk_ipShf=ipShf
       Bk_ipGrd=ipGrd
@@ -235,7 +233,6 @@
       Bk_ipL=ipL
       Bk_ipEner0=ipEner0
       Bk_ipGx0=ipGx0
-      Bk_nqInt=nqInt
       Bk_nMEP=nMEP
       Bk_ipRef=ipRef
       Bk_ipGradRef=ipGradRef
@@ -541,9 +538,7 @@
       nRowH=Bk_nRowH
       ipEner=Bk_ipEner
       ipGnrm=Bk_ipGnrm
-      ipdqInt=Bk_ipdqInt
       ipH=Bk_ipH
-      ipQInt=Bk_ipQInt
       NmIter=Bk_NmIter
       ipShf=Bk_ipShf
       ipGrd=Bk_ipGrd
@@ -578,7 +573,6 @@
       ipL=Bk_ipL
       ipEner0=Bk_ipEner0
       ipGx0=Bk_ipGx0
-      nqInt=Bk_nqInt
       nMEP=Bk_nMEP
       ipRef=Bk_ipRef
       ipGradRef=Bk_ipGradRef

@@ -45,9 +45,10 @@
 ************************************************************************
 *                                                                      *
 *
-*     Get the gradient information from the runfile.
+*     Get some basic information from the runfile.
 *
       Call mma_allocate(Information,7,Label='Information')
+
       Call qpg_iArray('Slapaf Info 1',Exist,itmp)
       If (Exist) Call Get_iArray('Slapaf Info 1',Information,7)
 *
@@ -58,7 +59,6 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
          Call Put_iArray('Slapaf Info 1',Information,7)
       End If
 
-*     iNew  =Information(1)
       iter  =Information(2)+1
       If (iter.ge.MaxItr+1) Then
          Write (6,*) 'Increase MaxItr in info_slapaf.fh'
@@ -67,8 +67,12 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
       End If
       mTROld=Information(3)
       lOld_Implicit= Information(4).eq.1
+
       Call mma_deallocate(Information)
-*
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
 *---  Pick up information from previous iterations
 *
       l1=3*nsAtom
@@ -93,8 +97,6 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
       ipGx0  = ipGx    +      l1*(MaxItr+1)
       ipMF   = ipGx0   +      l1*(MaxItr+1)
       ipL    = ipMF    +      l1
-      ipqInt = ip_Dummy
-      ipdqInt= ip_Dummy
 *
       Call mma_allocate(Energy,          MaxItr+1,Label='Energy')
       Energy(:) = Zero
@@ -119,16 +121,7 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (iter.eq.1) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
-*...     Start iteration
-         nqInt=0
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Else
+      If (iter/=1) Then
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -167,8 +160,6 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
 *                                                                      *
 *-----Save coordinates and gradients from this iteration onto the list.
 *
-      ipOff = (iter-1)*3*nsAtom + ipCx
-      call dcopy_(3*nsAtom,Coor,1,Work(ipOff),1)
       call dcopy_(3*nsAtom,Coor,1,Cx(:,:,iter),1)
       If (iter.gt.1) Then
         Temp=Zero

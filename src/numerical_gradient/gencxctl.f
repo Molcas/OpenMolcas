@@ -220,8 +220,8 @@
 *        the set for which we like to get the Cartesian
 *        coordinates.
 *
-         Call DaXpY_(mInt,One,Shift(:,iter),1,Work(ip_To),1)
-*        Call RecPrt('Int    ',' ',Work(ip_To),1,mInt)
+         Call DaXpY_(mInt,One,Shift(:,iter),1,qInt(:,Jter),1)
+*        Call RecPrt('Int    ',' ',qInt(:,Jter),1,mInt)
 *
 *--------Transform the new internal coordinates to Cartesians
 *
