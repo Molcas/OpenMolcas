@@ -31,7 +31,7 @@
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor,
      &                       Grd, Weights, ANr, Shift, GNrm, Lambda,
-     &                       Energy, Energy0, DipM, MF, qInt
+     &                       Energy, Energy0, DipM, MF, qInt, dqInt
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -75,6 +75,7 @@
       Real*8, Allocatable:: Bk_Weights(:)
       Real*8, Allocatable:: Bk_Shift(:,:)
       Real*8, Allocatable:: Bk_qInt(:,:)
+      Real*8, Allocatable:: Bk_dqInt(:,:)
 
       Integer, Allocatable:: Bk_ANr(:)
 *
@@ -177,6 +178,12 @@
      &                     Label='Bk_qInt')
          Bk_qInt(:,:) = qInt(:,:)
          Call mma_deallocate(qInt)
+      End If
+      If (Allocated(dqInt)) Then
+         Call mma_allocate(Bk_dqInt,SIZE(dqInt,1),MaxItr,
+     &                     Label='Bk_dqInt')
+         Bk_dqInt(:,:) = dqInt(:,:)
+         Call mma_deallocate(dqInt)
       End If
 
       Bk_iSym(:)=iSym(:)
@@ -381,11 +388,11 @@
       iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,Lbl,
      &           Coor,nDimBC,dMass,AtomLbl,
-     &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,
+     &           Smmtrc,Degen,BSet,HSet,iter,
      &           Work(ipGx),mTtAtm,ANr,iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,nqInt,
+     &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,
      &           MaxItr,nWndw)
 *                                                                      *
 ************************************************************************
@@ -509,9 +516,6 @@
       Call GetMem('iBM','Free','Inte',ip_iB,mB_Tot)
       Call GetMem('nqB','Free','Inte',ip_nqB,mq)
       Call GetMem(' B ',    'Free','Real',ipB,   (nsAtom*3)**2)
-      If (ipdqInt.ne.ip_Dummy) Then
-         Call GetMem('dqInt',  'Free','Real',ipdqInt,  nqInt)
-      End If
       If (Ref_Geom) Then
          Call GetMem('ipRef',  'Free','Real',ipRef,    3*nsAtom)
       End If
@@ -802,6 +806,16 @@
          Call mma_deallocate(Bk_qInt)
       Else
         If (Allocated(qInt)) Call mma_deallocate(qInt)
+      End If
+      If (Allocated(Bk_dqInt)) Then
+         If (.NOT.Allocated(dqInt)) Then
+            Call mma_allocate(dqInt,SIZE(Bk_dqInt,1),MaxItr,
+     &                        Label='dqInt')
+         End If
+         dqInt(:,:) = Bk_dqInt(:,:)
+         Call mma_deallocate(Bk_dqInt)
+      Else
+        If (Allocated(dqInt)) Call mma_deallocate(dqInt)
       End If
 *
       End Subroutine

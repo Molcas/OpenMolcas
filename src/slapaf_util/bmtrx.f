@@ -11,12 +11,12 @@
       Subroutine BMtrx(nLines,nBVec,ipBMx,nAtom,nInter,
      &                 Lbl,Coor,nDim,dMass,
      &                 Name,Smmtrc,
-     &                 Degen,BSet,HSet,nIter,ip_drInt,
+     &                 Degen,BSet,HSet,nIter,
      &                 Gx,mTtAtm,iAnr,iOptH,User_Def,
      &                 nStab,jStab,Curvilinear,Numerical,
      &                 DDV_Schlegel,HWRS,Analytic_Hessian,
      &                 iOptC,PrQ,mxdc,iCoSet,lOld,
-     &                 rHidden,nFix,nQQ,iIter,Redundant,nqInt,MaxItr,
+     &                 rHidden,nFix,nQQ,iIter,Redundant,MaxItr,
      &                 nWndw)
       Use Slapaf_Info, Only: Cx, Shift, qInt
       Implicit Real*8 (a-h,o-z)
@@ -188,15 +188,11 @@
 ************************************************************************
 *                                                                      *
          Call BMtrx_User_Defined(
-     &                 nLines,nBVec,ipBMx,nAtom,nInter,
-     &                 Lbl,Coor,nDim,dMass,
-     &                 Name,Smmtrc,
-     &                 Degen,BSet,HSet,nIter,ip_drInt,
-     &                 Gx,
-     &                 nStab,jStab,Numerical,
-     &                 Analytic_Hessian,
+     &                 nLines,nBVec,ipBMx,nAtom,nInter,Lbl,Coor,nDim,
+     &                 dMass,Name,Smmtrc,Degen,BSet,HSet,nIter,Gx,
+     &                 nStab,jStab,Numerical,Analytic_Hessian,
      &                 iOptC,mxdc,lOld,
-     &                 nFix,mTR,ip_KtB,nQQ,Redundant,nqInt,MaxItr)
+     &                 nFix,mTR,ip_KtB,nQQ,Redundant,MaxItr)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -223,14 +219,14 @@
      &                 ipBMx,nAtom,
      &                 nDim,dMass,
      &                 Name,Smmtrc,
-     &                 Degen,BSet,HSet,nIter,ip_drInt,
+     &                 Degen,BSet,HSet,nIter,
      &                 Gx,mTtAtm,iAnr,
      &                 nStab,jStab,Numerical,
      &                 HWRS,Analytic_Hessian,
      &                 iOptC,PrQ,iCoSet,lOld,
      &                 iIter,mTR,TR,ip_TabAI,
      &                 ip_TabA,ip_TabB,nBonds,nMax,
-     &                 iIter,ip_KtB,nQQ,nqInt,MaxItr,nWndw)
+     &                 iIter,ip_KtB,nQQ,MaxItr,nWndw)
 *
 *------- Set the Labels for internal coordinates.
 *
@@ -245,9 +241,9 @@
 ************************************************************************
 *                                                                      *
          Call BMtrx_Cartesian(ipBMx,nAtom,nInter,nDim,Name,
-     &                        Smmtrc,Degen,BSet,HSet,nIter,ip_drInt,
+     &                        Smmtrc,Degen,BSet,HSet,nIter,
      &                        Gx,mTtAtm,PrQ,lOld,mTR,TR,EVal,Hss_X,
-     &                        ip_KtB,nQQ,Redundant,nqInt,MaxItr,nWndw)
+     &                        ip_KtB,nQQ,Redundant,MaxItr,nWndw)
 *
 *------- Set the Labels for cartesian normal modes.
 *

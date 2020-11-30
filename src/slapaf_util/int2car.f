@@ -12,11 +12,11 @@
      &                  ipBMx,dMass,nLines,DFC,
      &                  nDim,Lbl,Name,iSym,
      &                  Smmtrc,Degen,iter,
-     &                  ip_dqInt,mTtAtm,iANr,iOptH,
+     &                  mTtAtm,iANr,iOptH,
      &                  User_Def,nStab,jStab,Curvilinear,
      &                  Numerical,DDV_Schlegel,HWRS,
      &                  Analytic_Hessian,iOptC,PrQ,mxdc,
-     &                  iCoSet,rHidden,Error,ipRef,Redundant,nqInt,
+     &                  iCoSet,rHidden,Error,ipRef,Redundant,
      &                  MaxItr,iRef)
       use Slapaf_Info, only: Cx, Gx, qInt
       Implicit Real*8 (a-h,o-z)
@@ -159,12 +159,12 @@
          Call BMtrx(nLines,nBVct,ipBMx,nAtom,nInter,
      &              Lbl,Coor,nDim,dMass,
      &              Name,Smmtrc,
-     &              Degen,BSet,HSet,iter+1,ip_dqInt,
+     &              Degen,BSet,HSet,iter+1,
      &              Gx,mTtAtm,iANr,iOptH,User_Def,
      &              nStab,jStab,Curvilinear,Numerical,
      &              DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,
      &              PrQ,mxdc,iCoSet,lOld,rHidden,
-     &              nFix,nQQ,iRef,Redundant,nqInt,MaxItr,nWndw)
+     &              nFix,nQQ,iRef,Redundant,MaxItr,nWndw)
 *
 *--------Check if the final structure is reached and get the
 *        difference between the present structure and the final.

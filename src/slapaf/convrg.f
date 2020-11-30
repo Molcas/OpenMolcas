@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Convrg(iter,kIter, nInter, Shift, Grad,
+      Subroutine Convrg(iter,kIter, nInter, Shift,
      &                  Lbl,MaxItr,Stop,iStop,ThrCons,
      &                  ThrEne, ThrGrd, MxItr, UpMeth, HUpMet, mIntEff,
      &                  Baker, nAtom,mTtAtm,ed,iNeg,
@@ -17,7 +17,7 @@
      &                  Just_Frequencies,FindTS,eMEPTest,nLambda,
      &                  TSReg,ThrMEP)
       Use Chkpnt
-      Use Slapaf_Info, only: Cx, Gx, Coor, GNrm, Energy, qInt
+      Use Slapaf_Info, only: Cx, Gx, Coor, GNrm, Energy, qInt, dqInt
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -26,7 +26,7 @@
 #include "nadc.fh"
 #include "print.fh"
 #include "warnings.fh"
-      Real*8 Shift(nInter,iter),Grad(nInter,iter),Maxed,MaxErr
+      Real*8 Shift(nInter,iter),Maxed,MaxErr
       Character Lbl(nInter)*8, GrdLbl*8, StpLbl*8
       Character(LEN=6) UpMeth, HUpMet, ConLbl(5)*5
       Character(LEN=1) Step_Trunc
@@ -56,9 +56,9 @@
       iPrint=nPrint(116)
       If (iPrint.ge.99) Then
          Call RecPrt('Convrg: Energy',' ',Energy,1,iter)
-         Call RecPrt('Convrg: Grad',' ',Grad,nInter,iter)
          Call RecPrt('Convrg: Shift',' ',Shift,nInter,iter)
          Call RecPrt('Convrg: qInt',' ',qInt,nInter,iter+1)
+         Call RecPrt('Convrg: dqInt',' ',dqInt,nInter,iter)
          Call RecPrt('Convrg: Cx',' ',Cx,3*nAtom,iter+1)
          Call RecPrt('Convrg: Gx',' ',Gx,3*nAtom,iter+1)
       End If
@@ -398,7 +398,7 @@ c     &      ' Geometry Statistics for Geometry Optimization '//
 c     &                    '*********************************'
 c         nPrint(118) = 7
 c         Call List(' Internal coordinates ',Lbl,qInt,nInter,iter+1)
-c         Call List(' Internal forces    ',Lbl,Grad,nInter,iter)
+c         Call List(' Internal forces    ',Lbl,dqInt,nInter,iter)
 c      End If
 *
 *     The energy change should not be too large
@@ -778,7 +778,7 @@ C              Write (6,*) 'SubProject=.Prod'
       kkIter=iter+1
       If (iPrint.ge.8) Then
          Call List(' Internal coordinates ',Lbl,qInt,nInter,kkIter)
-         Call List(' Internal forces    ',Lbl,Grad,nInter,iter)
+         Call List(' Internal forces    ',Lbl,dqInt,nInter,iter)
       End If
 *                                                                      *
 ************************************************************************

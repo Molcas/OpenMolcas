@@ -12,11 +12,11 @@
 ************************************************************************
       Subroutine CurviL(nAtoms,nDim,Cx,Gx,nIter,iIter,iRef,nStab,
      &                  jStab,Degen,Smmtrc,mTR,TRVec,
-     &                  ip_drInt,HSet,BSet,ipBMx,Numerical,iANr,
+     &                  HSet,BSet,ipBMx,Numerical,iANr,
      &                  HWRS,Analytic_Hessian,iOptC,Name,PrQ,
      &                  dMass,iCoSet,iTabBonds,
      &                  iTabAtoms,nBonds,nMax,iTabAI,mAtoms,lOld,
-     &                  ip_KtB_Hessian,nQQ,nqInt,MaxItr,nWndw)
+     &                  ip_KtB_Hessian,nQQ,MaxItr,nWndw)
 ************************************************************************
 *                                                                      *
 *     Objective: to handle curvilinear internal coordinates.           *
@@ -26,7 +26,7 @@
 *              University of Lund, SWEDEN.                             *
 *              2004                                                    *
 ************************************************************************
-      use Slapaf_Info, only: qInt
+      use Slapaf_Info, only: qInt, dqInt
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"
@@ -98,11 +98,10 @@
 *
       nQQ=nDim-mTR
       If (.NOT.Allocated(qInt)) Then
-         nqInt=nQQ*MaxItr
-         Call mma_allocate(qInt,nQQ,MaxItr,Label='qInt')
-         Call GetMem('dqInt','Allo','Real',ip_drInt,nqInt)
-         qInt(:,:)=Zero
-         Call FZero(Work(ip_drInt),nqInt)
+         Call mma_allocate( qInt,nQQ,MaxItr,Label=' qInt')
+         Call mma_allocate(dqInt,nQQ,MaxItr,Label='dqInt')
+          qInt(:,:)=Zero
+         dqInt(:,:)=Zero
       End If
 *
       Call mma_allocate(Degen2,nDim)
@@ -530,15 +529,14 @@ C        iEnd = 1
                End Do
             End Do
 *
-            ip = ip_drInt + (jIter-1)*nQQ
             M = nDim
             N = nQQ
             NRHS=1
             Call Eq_Solver('N',M,N,NRHS,Work(ip_KtB   ),.False.,
-     &                     Degen2,GxR(:,iOff),Work(ip))
+     &                     Degen2,GxR(:,iOff),dqInt(:,jIter))
 *           Call RecPrt('GxR(:,iSt',' ',GxR(:,iOff),nDim,1)
 *           Call RecPrt('KtB   ',' ',KtB,nQQ,nDim)
-*           Call RecPrt('drInt',' ',Work(ip),nQQ,1)
+*           Call RecPrt('drInt',' ',dqInt(:,jIter),nQQ,1)
 
             iOff = iOff - 1
 *                                                                      *
@@ -599,7 +597,7 @@ C        iEnd = 1
          Call RecPrt('Cx',' ',Cx,3*nAtoms,nIter)
       End If
       If (BSet.and.iPrint.ge.49) Then
-          Call RecPrt('Q-gradients',' ',Work(ip_drInt),nQQ,nIter)
+          Call RecPrt('Q-gradients',' ',dqInt,nQQ,nIter)
           Call RecPrt('Gx',' ',Gx,3*nAtoms,nIter)
       End If
 #endif

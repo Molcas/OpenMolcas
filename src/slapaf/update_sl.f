@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Update_sl(iter,MaxItr,NmIter,iInt,nFix,nInter,
-     &                     Grad,iOptC,Beta,Beta_Disp,Lbl,
+      Subroutine Update_sl(iter,NmIter,iInt,nFix,nInter,
+     &                     iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
@@ -27,12 +27,10 @@
 *                                                                      *
 *    Input:                                                            *
 *      iter           : iteration counter                              *
-*      MaxItr         : max number of iterations                       *
 *      NmIter         : number of iteration in numerical approach      *
 *      iInt           : number of internal coordinates to vary         *
 *      nFix           : number of frozen internal coordinates          *
 *      nInter         : total number of internal coordinates           *
-*      Grad(*,iter )  : the gradient in the internal coordinates       *
 *      iOptC          : option flag for update methods                 *
 *      Beta           : damping factor                                 *
 *      Lbl            : character labels for internal coordinates      *
@@ -66,15 +64,14 @@
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
-      use Slapaf_Info, only: Shift, qInt
+      use Slapaf_Info, only: Shift, qInt, dqInt
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "Molcas.fh"
-      Real*8 Grad(nInter,MaxItr),
-     &       BMx(3*nsAtom,3*nsAtom), Degen(3*nsAtom)
+      Real*8 BMx(3*nsAtom,3*nsAtom), Degen(3*nsAtom)
       Integer jStab(0:7,nsAtom), nStab(nsAtom), iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show, Curvilinear
@@ -91,7 +88,7 @@
 *
       If (iPrint.ge.99) Then
          Call RecPrt('Update_sl: qInt',' ',qInt,nInter,Iter)
-         Call RecPrt('Update_sl: Grad',' ',Grad,nInter,Iter)
+         Call RecPrt('Update_sl: dqInt',' ',dqInt,nInter,Iter)
          Call RecPrt('Update_sl: Shift',' ',Shift,nInter,Iter-1)
       End If
 *
@@ -124,7 +121,7 @@
 *
          Call Update_inner(
      &                   iter_,iInt,nFix,nInter,t_qInt,
-     &                   t_Shift,Grad,iOptC,Beta,Beta_Disp,
+     &                   t_Shift,iOptC,Beta,Beta_Disp,
      &                   Lbl,UpMeth,ed,Line_Search,
      &                   Step_Trunc,nLambda,iRow_c,nsAtom,AtomLbl,
      &                   mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
@@ -157,7 +154,7 @@
 *
          Call Update_inner(
      &                iter,iInt,nFix,nInter,qInt,Shift,
-     &                Grad,iOptC,Beta,Beta_Disp,Lbl,
+     &                iOptC,Beta,Beta_Disp,Lbl,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                iRow_c,nsAtom,AtomLbl,mxdc,jStab,
      &                nStab,BMx,Smmtrc,nDimBC,

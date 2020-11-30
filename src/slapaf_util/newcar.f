@@ -9,13 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine NewCar(kIter,nBVec,nLines,nAtom,nDim,nInter,
-     &                  Coor,ipBMx,dMass,Lbl,Shift,ip_dqInt,
+     &                  Coor,ipBMx,dMass,Lbl,Shift,
      &                  DFC,dss,Tmp,Name,iSym,Smmtrc,
      &                  Degen,mTtAtm,iANr,iOptH,User_Def,nStab,
      &                  jStab,Curvilinear,Numerical,DDV_Schlegel,HWRS,
      &                  Analytic_Hessian,iOptC,PrQ,mxdc,iCoSet,rHidden,
-     &                  ipRef,Redundant,nqInt,MaxItr,iRef,Error)
-      use Slapaf_Info, only: qInt
+     &                  ipRef,Redundant,MaxItr,iRef,Error)
+      use Slapaf_Info, only: qInt, dqInt
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -36,7 +36,7 @@
       iPrint=nPrint(iRout)
       If (iPrint.ge.99) Then
          Call RecPrt('NewCar: q',' ',qInt,nInter,kIter+1)
-         Call RecPrt('NewCar: g',' ',Work(ip_dqInt),nInter,kIter)
+         Call RecPrt('NewCar: g',' ',dqInt,nInter,kIter)
          Call RecPrt('NewCar: Shift',' ',Shift,nInter,kIter)
       End If
 *
@@ -57,10 +57,10 @@
 *
       Call Int2Car(dss,Tmp,nInter,Coor,nAtom,nBVec,ipBMx,dMass,
      &             nLines,DFC,ndim,Lbl,Name,iSym,Smmtrc,
-     &             Degen,kIter,ip_dqint,mTtAtm,iANr,iOptH,
+     &             Degen,kIter,mTtAtm,iANr,iOptH,
      &             User_Def,nStab,jStab,Curvilinear,Numerical,
      &             DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &             iCoSet,rHidden,Error,ipRef,Redundant,nqInt,MaxItr,
+     &             iCoSet,rHidden,Error,ipRef,Redundant,MaxItr,
      &             iRef)
 *                                                                      *
 ************************************************************************

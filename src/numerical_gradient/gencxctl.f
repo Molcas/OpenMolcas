@@ -84,11 +84,11 @@
       iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,Lbl,
      &           Coor,nDimBC,dMass,AtomLbl,
-     &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,
+     &           Smmtrc,Degen,BSet,HSet,iter,
      &           Gx,mTtAtm,ANr,iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,nqInt,
+     &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,
      &           MaxItr,nWndw)
 *
       nPrint(30) = nPrint(30)-1
@@ -232,7 +232,7 @@
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,mInt,
      &               Coor,ipB,dMass,
-     &               Lbl,Shift,ipdqInt,
+     &               Lbl,Shift,
      &               Work(ipDCF),Work(ipdss),Work(ipTmp),
      &               AtomLbl,iSym,Smmtrc,
      &               Degen,mTtAtm,
@@ -240,7 +240,7 @@
      &               nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS, Analytic_Hessian,
      &               iOptC,PrQ,mxdc,iCoSet,rHidden,ipRef,
-     &               Redundant,nqInt,MaxItr,iRef,Error)
+     &               Redundant,MaxItr,iRef,Error)
 *
 *        Move the new Cartesian coordinate to the list.
 *
@@ -284,9 +284,6 @@
       If (lRP)      Call Free_Work(ipR12)
       Call GetMem(' B ',    'Free','Real',ipB,   (nsAtom*3)**2)
 *
-      If (Allocated(qInt)) Then
-         Call GetMem('dqInt', 'Free','Real',ipdqInt, nqInt)
-      End If
       Call GetMem('Relax', 'Free','Real',ipRlx, Lngth)
       Call Free_Slapaf()
 *

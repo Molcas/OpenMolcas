@@ -12,13 +12,13 @@
      &                 nLines,nBVec,ipBMx,nAtom,nInter,
      &                 Lbl,Coor,nDim,dMass,
      &                 Name,Smmtrc,
-     &                 Degen,BSet,HSet,nIter,ip_drInt,
+     &                 Degen,BSet,HSet,nIter,
      &                 Gx,
      &                 nStab,jStab,Numerical,
      &                 Analytic_Hessian,
      &                 iOptC,mxdc,lOld,
-     &                 nFix,mTR,ip_KtB,nQQ,Redundant,nqInt,MaxItr)
-      use Slapaf_Info, only: qInt
+     &                 nFix,mTR,ip_KtB,nQQ,Redundant,MaxItr)
+      use Slapaf_Info, only: qInt, dqInt
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -42,11 +42,10 @@
       nQQ=iInt+nFix
 *
       If (.NOT.Allocated(qInt)) Then
-         nqInt=nQQ*MaxItr
          Call mma_allocate(qInt,nQQ,MaxItr,Label='qInt')
-         Call GetMem('dqInt','Allo','Real',ip_drInt,nqInt)
+         Call mma_allocate(dqInt,nQQ,MaxItr,Label='dqInt')
          qInt(:,:) = Zero
-         Call FZero(Work(ip_drInt),nqInt)
+         dqInt(:,:) = Zero
       End If
       Call Allocate_Work(ipBmx,3*nAtom*nQQ)
       Call FZero(Work(ipBMx),3*nAtom*nQQ)
@@ -84,7 +83,7 @@
 *     Compute the gradient
 *
       If (BSet) Call Force(nFix,Gx(1,nIter),nAtom,nQQ,Work(ipBMx),
-     &                     Name,nIter,Work(ip_drInt),Lbl,Degen)
+     &                     Name,nIter,dqInt,Lbl,Degen)
 *                                                                      *
 ************************************************************************
 *                                                                      *

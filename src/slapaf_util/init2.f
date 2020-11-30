@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Init2()
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Coor, Grd, GNrm, Lambda,
-     &                       Energy, Energy0, MF, DipM, qInt
+     &                       Energy, Energy0, MF, DipM, qInt, dqInt
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
@@ -153,10 +153,10 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
          Call qpg_dArray('qInt',Found,nqInt)
          If (Found) Then
             nQQ=nqInt/MaxItr
-            Call mma_allocate(qInt,nQQ,MaxItr,Label='qInt')
-            Call GetMem('dqInt','Allo','Real',ipdqInt,nqInt)
-            Call Get_dArray('qInt',qInt,nQQ*MaxItr)
-            Call Get_dArray('dqInt',Work(ipdqInt),nqInt)
+            Call mma_allocate( qInt,nQQ,MaxItr,Label= 'qInt')
+            Call mma_allocate(dqInt,nQQ,MaxItr,Label='dqInt')
+            Call Get_dArray( 'qInt', qInt,nQQ*MaxItr)
+            Call Get_dArray('dqInt',dqInt,nQQ*MaxItr)
          End If
 *                                                                      *
 ************************************************************************

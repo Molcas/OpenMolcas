@@ -9,15 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Hss_q()
+      use Slapaf_Info, only: dqInt
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
 #include "info_slapaf.fh"
 *
       If (lOld) Return
 *
-      ipdqInt_ref = (iRef-1)*nQQ + ipdqInt
       Call Hss_q_(Degen,nsAtom,nQQ,Smmtrc,Analytic_Hessian,
-     &            Work(ipdqInt_ref),nDimBC,Curvilinear)
+     &            dqInt(:,iRef),nDimBC,Curvilinear)
 *
       Return
       End

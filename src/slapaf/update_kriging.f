@@ -12,8 +12,8 @@
 *               2020, Ignacio Fdez. Galvan                             *
 ************************************************************************
       Subroutine Update_kriging(
-     &                     iter,MaxItr,iInt,nFix,nInter,
-     &                     Grad,iOptC,Beta,Beta_Disp,Lbl,
+     &                     iter,iInt,nFix,nInter,
+     &                     iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
@@ -31,14 +31,14 @@
 ************************************************************************
       Use kriging_mod, only: Max_Microiterations,
      &                       Thr_microiterations
-      Use Slapaf_Info, only: Cx, Gx, Shift, GNrm, dMass, Energy, qInt
+      Use Slapaf_Info, only: Cx, Gx, Shift, GNrm, dMass, Energy, qInt,
+     &                       dqInt
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
-      Real*8 Grad(nInter,MaxItr),BMx(3*nsAtom,3*nsAtom),
-     &       Degen(3*nsAtom), dEner
+      Real*8 BMx(3*nsAtom,3*nsAtom), Degen(3*nsAtom), dEner
       Integer jStab(0:7,nsAtom), nStab(nsAtom),iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show, Curvilinear,
@@ -90,7 +90,7 @@
 #ifdef _DEBUGPRINT_
       Call RecPrt('qInt(0)',  ' ',qInt(:,iFirst),nInter,nRaw)
       Call RecPrt('Energy(0)',' ',Energy(iFirst),1,nRaw)
-      Call RecPrt('Grad(0)',  ' ',Grad(1,iFirst),nInter,nRaw)
+      Call RecPrt('dqInt(0)',  ' ',dqInt(1,iFirst),nInter,nRaw)
       Call RecPrt('Shift',  ' ',Shift(1,iFirst),nInter,nRaw)
 #endif
 *                                                                      *
@@ -117,11 +117,11 @@
 *     Pass the sample points to the GEK procedure and deallocate the
 *     memory -- to be reused for another purpose later.
 *
-      Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
+      Call DScal_(nInter*nRaw,-One,dqInt(1,iFirst),1)
       Call Setup_Kriging(nRaw,nInter,qInt(:,iFirst),
-     &                               Grad(1,iFirst),
+     &                               dqInt(1,iFirst),
      &                               Energy(iFirst),Hessian)
-      Call DScal_(nInter*nRaw,-One,Grad(1,iFirst),1)
+      Call DScal_(nInter*nRaw,-One,dqInt(1,iFirst),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -129,11 +129,11 @@
 *     This is for the case the gradient is already converged, we want
 *     the micro iterations to still reduce the gradient
 *
-      FAbs_ini=Sqrt(DDot_(nInter,Grad(1,iter),1,
-     &                           Grad(1,iter),1)/DBLE(nInter))
+      FAbs_ini=Sqrt(DDot_(nInter,dqInt(1,iter),1,
+     &                           dqInt(1,iter),1)/DBLE(nInter))
       GrdMx_ini=Zero
       Do iInter = 1, nInter
-         GrdMx_ini=Max(GrdMx_ini,Abs(Grad(iInter,iterAI)))
+         GrdMx_ini=Max(GrdMx_ini,Abs(dqInt(iInter,iterAI)))
       End Do
 *                                                                      *
 ************************************************************************
@@ -210,7 +210,7 @@
          First_MicroIteration=iterAI.eq.iter
          nWndw_=nWndw/2 + (iterAI-iter)
          Call Update_inner(
-     &                   iterAI,iInt,nFix,nInter,qInt,Shift,Grad,iOptC,
+     &                   iterAI,iInt,nFix,nInter,qInt,Shift,iOptC,
      &                   Beta_,Beta_Disp_,Lbl,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                   iRow_c,nsAtom,AtomLbl,mxdc,jStab,
@@ -224,7 +224,7 @@
 #ifdef _DEBUGPRINT_
          Write (6,*) 'After Update_inner: Step_Trunc',Step_Trunc
          Call RecPrt('New Coord',' ',qInt,nInter,iterAI+1)
-         Call RecPrt('Grad',' ',Grad,nInter,iterAI)
+         Call RecPrt('dqInt',' ',dqInt,nInter,iterAI)
 #endif
 *
 *        Transform the new internal coordinates to Cartesians
@@ -233,8 +233,7 @@
 *
          Error=(iterK.ge.1)
          Call NewCar_Kriging(iterAI,nLines,nsAtom,nDimBC,nInter,BMx,
-     &                       dMass,Lbl,Shift,Grad,AtomLbl,
-     &                       .True.,iter,Error)
+     &                       dMass,Lbl,Shift,AtomLbl,.True.,iter,Error)
 #ifdef _DEBUGPRINT_
          Call RecPrt('New Coord (after NewCar)','',qInt,nInter,iterAI+1)
 #endif
@@ -259,8 +258,8 @@
 *        the con_opt routine.
 *
          If (nLambda.eq.0 .and. iterAI.gt.iter) Then
-            GNrm(iterAI)=Sqrt(DDot_(nInter,Grad(1,iterAI),1,
-     &                                    Grad(1,iterAI),1))
+            GNrm(iterAI)=Sqrt(DDot_(nInter,dqInt(1,iterAI),1,
+     &                                     dqInt(1,iterAI),1))
          End If
 *                                                                      *
 ************************************************************************
@@ -290,8 +289,8 @@
      &                             nInter)
          Call Dispersion_Kriging_Layer(qInt(1,iterAI+1),E_Disp,nInter)
          Call Gradient_Kriging_layer(qInt(1,iterAI+1),
-     &                               Grad(1,iterAI+1),nInter)
-         Call DScal_(nInter,-One,Grad(1,iterAI+1),1)
+     &                               dqInt(1,iterAI+1),nInter)
+         Call DScal_(nInter,-One,dqInt(1,iterAI+1),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -301,7 +300,7 @@
 #ifdef _DEBUGPRINT_
          Call RecPrt('qInt(x):',' ',qInt,nInter,iterAI)
          Call RecPrt('Ener(x):',' ',Energy,1,iterAI)
-         Call RecPrt('Grad(x):',' ',Grad,nInter,iterAI)
+         Call RecPrt('dqInt(x):',' ',dqInt,nInter,iterAI)
 #endif
 *                                                                      *
 ************************************************************************
@@ -430,7 +429,7 @@
             Call dAXpY_(nInter,OS_Factor,Step_k(1,2),1,
      &                                   Shift(1,iterAI-1),1)
             Call NewCar_Kriging(iterAI-1,nLines,nsAtom,nDimBC,nInter,
-     &                          BMx,dMass,Lbl,Shift,qInt,Grad,AtomLbl,
+     &                          BMx,dMass,Lbl,Shift,AtomLbl,
      &                          .True.,iter)
             Energy(iterAI)=OS_Energy
             If (Max_OS.gt.0) Then
@@ -461,7 +460,7 @@
       ed = Energy(iterAI)-Energy(iter)
 *
       Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nInter,
-     &            Grad(1,iter),Shift(1,iter),Lbl)
+     &            dqInt(1,iter),Shift(1,iter),Lbl)
 *
 *     Stick in the correct value for GrdMax, which might contain a
 *     contribution due to constraints.

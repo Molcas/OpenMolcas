@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine Update_inner(
      &                     kIter,iInt,nFix,nInter,qInt,Shift,
-     &                     Grad,iOptC,Beta,Beta_Disp,Lbl,
+     &                     iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
      &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
@@ -33,7 +33,6 @@
 *      nInter         : total number of internal coordinates           *
 *      qInt(*,kIter)  : the internal coordinates                       *
 *      Shift(*,kIter) : the shift of the internal coordinates          *
-*      Grad(*,kIter)  : the gradient in the internal coordinates       *
 *      iOptC          : option flag for update methods                 *
 *      Beta           : damping factor step length                     *
 *      Beta_Disp      : damping factor variance                        *
@@ -70,13 +69,12 @@
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
-      use Slapaf_info, only: GNrm, dMass, Lambda, Energy, MF
+      use Slapaf_info, only: GNrm, dMass, Lambda, Energy, MF, dqInt
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
       Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter),
-     &       Grad(nInter,kIter),
      &       BMx(3*nsAtom,3*nsAtom), Degen(3*nsAtom)
       Integer jStab(0:7,nsAtom), nStab(nsAtom), iNeg(2)
 *    &        iNeg(2), jNeg(2)
@@ -152,7 +150,7 @@
 #endif
       Call Update_H(nWndw,Hessian,nInter,
      &              mIter,iOptC,Mode,MF,
-     &              Shift(1,kIter-mIter+1),Grad(1,kIter-mIter+1),
+     &              Shift(1,kIter-mIter+1),dqInt(1,kIter-mIter+1),
      &              iNeg,iOptH_,HUpMet,nRowH,jPrint,GNrm(kIter),
      &              GNrm_Threshold,nsAtom,IRC,.True.,
      &              First_MicroIteration)
@@ -271,8 +269,8 @@ C                    xBeta=xBeta*Sf
                   dxdx_last=dxdx
                End If
 *
-               gg=Sqrt(DDot_(nInter-nLambda,Grad(1,iIter),1,
-     &                                     Grad(1,iIter),1))
+               gg=Sqrt(DDot_(nInter-nLambda,dqInt(:,iIter),1,
+     &                                      dqInt(:,iIter),1))
                If (gg.lt.0.75D0*gg_last.and.gg.lt.(Beta-Thr)) Then
 *                 Increase trust radius
 C                 gBeta=gBeta*Sf
@@ -296,7 +294,7 @@ C           Write (6,*) 'tBeta=',tBeta
             Thr_RS=1.0D-7
             Do
                Step_Trunc_=Step_Trunc
-               Call Newq(qInt,mInter,kIter,Shift,Hessian,Grad,
+               Call Newq(qInt,mInter,kIter,Shift,Hessian,dqInt,
      &                   ErrVec,EMtrx,RHS,
      &                   AMat,nA,
      &                   ed,iOptC,qBeta,nFix,Index,UpMeth,
@@ -326,7 +324,7 @@ C           Write (6,*) 'tBeta=',tBeta
 #endif
 *
             Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,mInter,
-     &                  Grad(1,kIter),Shift(1,kIter),Lbl)
+     &                  dqInt(1,kIter),Shift(1,kIter),Lbl)
 *
 *---------- Set shift vector to zero for frozen internal coordinates.
 *
@@ -641,7 +639,7 @@ C           Write (6,*) 'tBeta=',tBeta
               fCart=fCart*0.9D0
             End If
             qBeta=fCart*Beta
-            Call Con_Opt(R,dRdq,T,Grad,Lambda,qInt,Shift,dy,dx,
+            Call Con_Opt(R,dRdq,T,dqInt,Lambda,qInt,Shift,dy,dx,
      &                dEdq,du,x,dEdx,Wess,GNrm(kIter),
      &                nWndw,Hessian,nInter,kIter,iOptC,Mode_,MF,
      &                iOptH_,HUpMet,jPrint,Energy_L,nLambda,nRowH,

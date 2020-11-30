@@ -11,11 +11,11 @@
       Subroutine BMtrx_Internal(
      &                 ipBMx,nAtom,nDim,
      &                 dMass,Name,Smmtrc,Degen,BSet,HSet,
-     &                 nIter,ip_drInt,Gx,mTtAtm,iAnr,nStab,jStab,
+     &                 nIter,Gx,mTtAtm,iAnr,nStab,jStab,
      &                 Numerical,HWRS,Analytic_Hessian,iOptC,PrQ,
      &                 iCoSet,lOld,iIter,mTR,TRVec,ip_TabAI,
      &                 ip_TabA,ip_TabB,nBonds,nMax,
-     &                 iRef,ip_KtB,nQQ,nqInt,MaxItr,nWndw)
+     &                 iRef,ip_KtB,nQQ,MaxItr,nWndw)
       use Slapaf_Info, only: Cx
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
@@ -35,12 +35,11 @@
 *     not done if a numerical Hessian is computed.
 *
       Call CurviL(nAtom,nDim,Cx,Gx,nIter,iIter,iRef,nStab,
-     &            jStab,Degen,Smmtrc,mTR,TRVec,
-     &            ip_drInt,HSet,BSet,ipBMx,
+     &            jStab,Degen,Smmtrc,mTR,TRVec,HSet,BSet,ipBMx,
      &            Numerical,iANr,HWRS,Analytic_Hessian,iOptC,
      &            Name,PrQ,dMass,iCoSet,
      &            iWork(ip_TabB),iWork(ip_TabA),nBonds,nMax,
-     &            iWork(ip_TabAI),mTtAtm,lOld,ip_KtB,nQQ,nqInt,MaxItr,
+     &            iWork(ip_TabAI),mTtAtm,lOld,ip_KtB,nQQ,MaxItr,
      &            nWndw)
 *                                                                      *
 ************************************************************************

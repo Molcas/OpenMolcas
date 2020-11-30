@@ -12,7 +12,7 @@
       Use Chkpnt
       Use kriging_mod, only: Kriging, nspAI
       Use Slapaf_Info, only: Cx, Gx, dMass, Coor, ANr, Shift, GNrm,
-     &                       Free_Slapaf, qInt
+     &                       Free_Slapaf, qInt, dqInt
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -132,11 +132,11 @@
       iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,Lbl,
      &           Coor,nDimBC,dMass,AtomLbl,
-     &           Smmtrc,Degen,BSet,HSet,iter,ipdqInt,
+     &           Smmtrc,Degen,BSet,HSet,iter,
      &           Gx,mTtAtm,ANr,iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,nqInt,
+     &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,
      &           MaxItr,nWndw)
 *
       nPrint(30) = nPrint(30)-1
@@ -169,8 +169,8 @@
 *                                                                      *
 *-----Compute the norm of the Cartesian gradient.
 *
-      Call G_Nrm(nsAtom,nQQ,GNrm,iter,Work(ipdqInt),Degen,mIntEff)
-      If (nPrint(116).ge.6) Call ListU(Lu,Lbl,Work(ipdqInt),nQQ,iter)
+      Call G_Nrm(nsAtom,nQQ,GNrm,iter,dqInt,Degen,mIntEff)
+      If (nPrint(116).ge.6) Call ListU(Lu,Lbl,dqInt,nQQ,iter)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -192,14 +192,13 @@
 *        II) Update geometry for full numerical differentiation.       *
 *----------------------------------------------------------------------*
 *
-         Call Freq2(iter,Work(ipdqInt),Shift,nQQ,Delta,Stop,qInt)
+         Call Freq2(iter,dqInt,Shift,nQQ,Delta,Stop,qInt)
          UpMeth='NumHss'
       Else
          Go To 777
       End If
 *
-      Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nQQ,
-     &            Work(ipdqInt+(iter-1)*nQQ),
+      Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nQQ,dqInt(:,iter),
      &            Shift(:,iter),Lbl)
       iNeg(1)=-99
       iNeg(2)=-99
@@ -234,8 +233,8 @@
 *
       If (Kriging .and. Iter.ge.nspAI) Then
          Call Update_Kriging(
-     &               Iter,MaxItr,iInt,nFix,nQQ,
-     &               Work(ipdqInt),iOptC,Beta,Beta_Disp,
+     &               Iter,iInt,nFix,nQQ,
+     &               iOptC,Beta,Beta_Disp,
      &               Lbl,UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
      &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
@@ -248,8 +247,8 @@
      &               CnstWght,Curvilinear,Degen,ThrEne,ThrGrd,iRow)
       Else
          Call Update_sl(
-     &               Iter,MaxItr,NmIter,iInt,nFix,nQQ,
-     &               Work(ipdqInt),iOptC,Beta,Beta_Disp,
+     &               Iter,NmIter,iInt,nFix,nQQ,
+     &               iOptC,Beta,Beta_Disp,
      &               Lbl,UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
      &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
@@ -284,13 +283,12 @@
          Error=.False.
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Coor,
-     &               ipB,dMass,Lbl,Shift,
-     &               ipdqInt,DFC,dss,Tmp,
+     &               ipB,dMass,Lbl,Shift,DFC,dss,Tmp,
      &               AtomLbl,iSym,Smmtrc,Degen,
      &               mTtAtm,ANr,iOptH,
      &               User_Def,nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &               iCoSet,rHidden,ipRef,Redundant,nqInt,MaxItr,iRef,
+     &               iCoSet,rHidden,ipRef,Redundant,MaxItr,iRef,
      &               Error)
          Call mma_deallocate(DFC)
          Call mma_deallocate(dss)
@@ -340,7 +338,7 @@
       GoOn = (lNmHss.and.iter.lt.NmIter).OR.(lRowH.and.iter.lt.NmIter)
       TSReg = iAnd(iOptC,8192).eq.8192
       Call Convrg(iter,kIter,nQQ,Shift,
-     &            Work(ipdqInt),Lbl,MaxItr,Stop,iStop,ThrCons,
+     &            Lbl,MaxItr,Stop,iStop,ThrCons,
      &            ThrEne,ThrGrd,MxItr,UpMeth,HUpMet,mIntEff,Baker,
      &            nsAtom,mTtAtm,ed,
      &            iNeg,GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
@@ -449,9 +447,6 @@
       If (Ref_Geom) Call Free_Work(ipRef)
       If (Ref_Grad) Call Free_Work(ipGradRef)
       If (lRP)      Call Free_Work(ipR12)
-      If (Allocated(qInt)) Then
-          Call GetMem('dqInt', 'Free','Real',ipdqInt, nqInt)
-      End If
       Call GetMem('Relax', 'Free','Real',ipRlx, Lngth)
       Call Free_Slapaf()
 *

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Mk_Hss_Q()
-      use Slapaf_Info, only: Cx, Coor, Shift, DipM, qInt
+      use Slapaf_Info, only: Cx, Coor, Shift, DipM, qInt, dqInt
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "real.fh"
@@ -22,10 +22,9 @@
          Call Put_Coord_New(Cx,nsAtom)
          If (lRowH) Then
             If (BSet.and.HSet) Call Hss_q()
-            Call RowHessian(NmIter,mInt,nRowH,mRowH,Delta/2.5d0,
-     &                      Work(ipdqInt))
+            Call RowHessian(NmIter,mInt,nRowH,mRowH,Delta/2.5d0,dqInt)
          Else
-            Call FormNumHess(iter,Work(ipdqInt),Shift,mInt,Delta,
+            Call FormNumHess(iter,dqInt,Shift,mInt,Delta,
      &                       Stop,qInt,nsAtom,Cubic,iNeg,
      &                       DipM,mTROld,Smmtrc,Degen,UserT,
      &                       UserP,nUserPT,nsRot,lTherm,lDoubleIso,
@@ -34,9 +33,8 @@
 *
          call dcopy_(3*nsAtom,Cx,1,Coor,1)
          Call Get_dArray('BMxOld',Work(ipB),3*nsAtom*mInt)
-         call dcopy_(mInt,qInt(:,1),1,qInt(:,Iter),1)
-         ipIn = ipdqInt + (Iter-1)*mInt
-         call dcopy_(mInt,Work(ipdqInt),1,Work(ipIn),1)
+         call dcopy_(mInt, qInt(:,1),1, qInt(:,Iter),1)
+         call dcopy_(mInt,dqInt(:,1),1,dqInt(:,Iter),1)
       Else
          If (BSet.and.HSet) Call Hss_q()
       End If

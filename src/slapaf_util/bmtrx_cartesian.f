@@ -11,10 +11,10 @@
       Subroutine BMtrx_Cartesian(
      &                 ipBMx,nAtom,nInter,nDim,
      &                 Name,Smmtrc,Degen,BSet,HSet,
-     &                 nIter,ip_drInt,Gx,mTtAtm,
+     &                 nIter,Gx,mTtAtm,
      &                 PrQ,lOld,mTR,TRVec,EVal,Hss_x,
-     &                 ip_KtB,nQQ,Redundant,nqInt,MaxItr,nWndw)
-      use Slapaf_Info, only: Cx, qInt
+     &                 ip_KtB,nQQ,Redundant,MaxItr,nWndw)
+      use Slapaf_Info, only: Cx, qInt, dqInt
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -45,11 +45,10 @@
       If (Redundant) Then
          nQQ = nDim
          If (.NOT.Allocated(qInt)) Then
-            nqInt=nQQ*MaxItr
             Call mma_allocate(qInt,nQQ,MaxItr,Label='qInt')
-            Call GetMem('dqInt','Allo','Real',ip_drInt,nqInt)
+            Call mma_allocate(dqInt,nQQ,MaxItr,Label='dqInt')
             qInt(:,:) = Zero
-            Call FZero(Work(ip_drInt),nqInt)
+            dqInt(:,:) = Zero
          End If
          Call mma_allocate(EVec,nDim**2,Label='EVec')
          EVec(:)=Zero
@@ -195,11 +194,10 @@
 *
          nQQ=nInter
          If (.NOT.Allocated(qInt)) Then
-            nqInt=nQQ*MaxItr
             Call mma_allocate(qInt,nQQ,MaxItr,Label='qInt')
-            Call GetMem('dqInt','Allo','Real',ip_drInt,nqInt)
+            Call mma_allocate(dqInt,nQQ,MaxItr,Label='dqInt')
             qInt(:,:) = Zero
-            Call FZero(Work(ip_drInt),nqInt)
+            dqInt(:,:) = Zero
          End If
 *
 *------- Project the model Hessian with respect to rotations and
@@ -346,7 +344,7 @@
       Call ValANM(nAtom,nQQ,nIter,Work(ipBmx),Degen,qInt,Cx,'Values',
      &            nWndw)
       If (BSet) Call ValANM(nAtom,nQQ,nIter,Work(ipBMx),Degen,
-     &                      Work(ip_drInt),Gx,'Gradients',nWndw)
+     &                      dqInt,Gx,'Gradients',nWndw)
 *                                                                      *
 ************************************************************************
 *                                                                      *
