@@ -79,7 +79,7 @@
      &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
      &          HUpMet*6
       Real*8 Dummy(1)
-      Real*8, Allocatable:: t_Shift(:,:), t_qInt(:,:), t_dqInt(:,:)
+      Real*8, Allocatable:: t_Shift(:,:), t_qInt(:,:), tmp(:)
 *
       Logical Kriging_Hessian
 *
@@ -117,15 +117,18 @@
 *
          If (iPrint.ge.99) Write(6,*)'UpDate_SL: first iteration'
          iter_=1
-         Call mma_Allocate(t_Shift,nInter,iter_,Label='t_Shift')
-         t_Shift(:,:)=Zero
+         Call mma_Allocate(t_Shift,nInter,SIZE(Shift,2),Label='t_Shift')
+         t_Shift(:,:)=Shift(:,:)
+         Shift(:,:)=Zero
 
-         Call mma_Allocate(t_qInt,nInter,iter_+1,Label='t_qInt')
-         t_qInt(:,1)=qInt(:,1)
+         Call mma_Allocate(t_qInt,nInter,SIZE(qInt,2),Label='t_qInt')
+         t_qInt(:,:)=qInt(:,:)
+         qInt(:,:)=Zero
+         qInt(:,1)=t_qInt(:,1)
 *
          Call Update_inner(
-     &                   iter_,iInt,nFix,nInter,t_qInt,
-     &                   t_Shift,iOptC,Beta,Beta_Disp,
+     &                   iter_,iInt,nFix,nInter,qInt,
+     &                   Shift,iOptC,Beta,Beta_Disp,
      &                   Lbl,UpMeth,ed,Line_Search,
      &                   Step_Trunc,nLambda,iRow_c,nsAtom,AtomLbl,
      &                   mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
@@ -142,9 +145,15 @@
 *------- Move new coordinates to the correct position and compute the
 *        corresponding shift.
 *
-         qInt(:,iter+1)=t_qInt(:,2)
-         Shift(:,iter)=t_qInt(:,2)-qInt(:,iter)
+         Call mma_allocate(Tmp,SIZE(qInt,1),Label='tmp')
+         tmp(:)=qInt(:,2)
+         qInt(:,:)=t_qInt(:,:)
+         qInt(:,iter+1)=tmp(:)
+         Shift(:,:)=t_Shift(:,:)
+         Shift(:,iter)=tmp(:)-qInt(:,iter)
+
 *
+         Call mma_deallocate(tmp)
          Call mma_deallocate(t_qInt)
          Call mma_deallocate(t_Shift)
 *                                                                      *
