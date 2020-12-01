@@ -8,12 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Freq2(nIter,Grdn,Shift,nInter,Delta,Stop,qInt)
+      Subroutine Freq2(nIter,dqInt,Shift,nInter,Delta,Stop,qInt)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 Grdn(nInter,nIter), Shift(nInter,nIter),
+      Real*8 dqInt(nInter,nIter), Shift(nInter,nIter),
      &       qInt(nInter,nIter+1)
       Logical Stop
 *
@@ -23,7 +22,7 @@
 *-----Compute new parameters for numerical differentiation.
 *
       Stop = .False.
-      Call NwShft(Shift,nInter,Grdn,nIter,Delta,qInt)
+      Call NwShft(Shift,nInter,dqInt,nIter,Delta,qInt)
       If (iPrint.gt.6) Then
          Write (6,*) ' Accumulate the gradient for yet one',
      &         ' parameter set'

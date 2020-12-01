@@ -18,7 +18,7 @@
      &                  Analytic_Hessian,iOptC,PrQ,mxdc,
      &                  iCoSet,rHidden,Error,ipRef,Redundant,
      &                  MaxItr,iRef)
-      use Slapaf_Info, only: Cx, Gx, qInt
+      use Slapaf_Info, only: Cx, qInt
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -159,7 +159,7 @@
      &              Lbl,Coor,nDim,dMass,
      &              Name,Smmtrc,
      &              Degen,BSet,HSet,iter+1,
-     &              Gx,mTtAtm,iOptH,User_Def,
+     &              mTtAtm,iOptH,User_Def,
      &              nStab,jStab,Curvilinear,Numerical,
      &              DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,
      &              PrQ,mxdc,iCoSet,lOld,rHidden,
