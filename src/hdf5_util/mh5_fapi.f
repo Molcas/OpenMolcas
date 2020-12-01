@@ -128,6 +128,44 @@
       end if
       end function
 
+      function mh5_open_group (lu, groupname) result (groupid)
+      use iso_c_binding
+      implicit none
+      character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
+      integer :: lu
+      character(len=*) :: groupname
+      integer :: groupid
+      interface
+        function mh5c_open_group(lu, groupname) result(groupid)
+     &   bind(C, name='mh5c_open_group')
+        use iso_c_binding
+        implicit none
+        integer(MOLCAS_C_INT) :: groupid
+        integer(MOLCAS_C_INT), VALUE :: lu
+        character(kind=C_CHAR) :: groupname(*)
+        end function
+      end interface
+      call f2c_string(groupname,mh5_lbl)
+      groupid = mh5c_open_group(lu,mh5_lbl)
+      end function
+
+      subroutine mh5_close_group (id)
+      use iso_c_binding
+      implicit none
+      integer :: id
+      interface
+        function mh5c_close_group(id) result(ierr)
+     &   bind(C, name='mh5c_close_group')
+        use iso_c_binding
+        implicit none
+        integer(MOLCAS_C_INT), VALUE :: id
+        integer(MOLCAS_C_INT) :: ierr
+        end function
+      end interface
+      integer :: ierr
+      ierr = mh5c_close_group(id)
+      end subroutine
+
 *     check for existence of dataset/attribute by id,
 *     where id could be a file or dataset id.
       logical function mh5_exists_dset (id, name)
@@ -147,7 +185,7 @@
         end function
       end interface
       integer :: rc
-      call f2c_upcase(name,mh5_lbl)
+      call f2c_string(name,mh5_lbl)
       rc = mh5c_exists_dset(id, mh5_lbl)
       if      (rc > 0) then
         mh5_exists_dset = .true.
@@ -176,7 +214,7 @@
         end function
       end interface
       integer :: rc
-      call f2c_upcase(name,mh5_lbl)
+      call f2c_string(name,mh5_lbl)
       rc = mh5c_exists_attr(id, mh5_lbl)
       if      (rc > 0) then
         mh5_exists_attr = .true.
@@ -207,7 +245,7 @@
         end function
       end interface
 
-      call f2c_upcase(dsetname,mh5_lbl)
+      call f2c_string(dsetname,mh5_lbl)
       dsetid = mh5c_open_dset(lu,mh5_lbl)
       end function
 
@@ -246,7 +284,7 @@
         end function
       end interface
 
-      call f2c_upcase(attrname,mh5_lbl)
+      call f2c_string(attrname,mh5_lbl)
       attrid = mh5c_open_attr(lu,mh5_lbl)
       end function
 
@@ -289,7 +327,7 @@
         end function
       end interface
 
-      call f2c_upcase(name,mh5_lbl)
+      call f2c_string(name,mh5_lbl)
       dset_id = mh5c_create_attr_scalar_int(lu, mh5_lbl)
       end function
 
@@ -311,7 +349,7 @@
         end function
       end interface
 
-      call f2c_upcase(name,mh5_lbl)
+      call f2c_string(name,mh5_lbl)
       dset_id = mh5c_create_attr_scalar_real(lu, mh5_lbl)
       end function
 
@@ -337,7 +375,7 @@
         end function
       end interface
 
-      call f2c_upcase(name,mh5_lbl)
+      call f2c_string(name,mh5_lbl)
       dset_id = mh5c_create_attr_scalar_str(lu, mh5_lbl, size)
       end function
 
@@ -485,7 +523,7 @@
       end interface
       character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
 
-      call f2c_upcase(name,mh5_lbl)
+      call f2c_string(name,mh5_lbl)
       attr_id = mh5c_create_attr_array_int(lu, mh5_lbl, rank, dims)
       end function
 
@@ -512,7 +550,7 @@
       end interface
       character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
 
-      call f2c_upcase(name,mh5_lbl)
+      call f2c_string(name,mh5_lbl)
       attr_id = mh5c_create_attr_array_real(lu, mh5_lbl, rank, dims)
       end function
 
@@ -541,7 +579,7 @@
       end interface
       character(len=MH5_MAX_LBL_LEN) :: mh5_lbl
 
-      call f2c_upcase(name,mh5_lbl)
+      call f2c_string(name,mh5_lbl)
       attr_id = mh5c_create_attr_array_str(
      &        lu, mh5_lbl, rank, dims, size)
       end function
@@ -852,7 +890,7 @@
         end function
       end interface
 
-      call f2c_upcase(name,mh5_lbl)
+      call f2c_string(name,mh5_lbl)
       dset_id = mh5c_create_dset_scalar_int(lu, mh5_lbl)
       end function
 
@@ -874,7 +912,7 @@
         end function
       end interface
 
-      call f2c_upcase(name,mh5_lbl)
+      call f2c_string(name,mh5_lbl)
       dset_id = mh5c_create_dset_scalar_real(lu, mh5_lbl)
       end function
 
@@ -900,7 +938,7 @@
         end function
       end interface
 
-      call f2c_upcase(name,mh5_lbl)
+      call f2c_string(name,mh5_lbl)
       dset_id = mh5c_create_dset_scalar_str(lu, mh5_lbl, size)
       end function
 
@@ -1063,7 +1101,7 @@
       isdyn = .false.
       if (present(dyn)) isdyn = dyn
 
-      call f2c_upcase(name,mh5_lbl)
+      call f2c_string(name,mh5_lbl)
       if (isdyn) then
         dset_id = mh5c_create_dset_array_dyn_int(lu, mh5_lbl, rank,
      &                                           dims)
@@ -1110,7 +1148,7 @@
       isdyn = .false.
       if (present(dyn)) isdyn = dyn
 
-      call f2c_upcase(name,mh5_lbl)
+      call f2c_string(name,mh5_lbl)
       if (isdyn) then
         dset_id = mh5c_create_dset_array_dyn_real(lu, mh5_lbl, rank,
      &                                            dims)
@@ -1162,7 +1200,7 @@
       isdyn = .false.
       if (present(dyn)) isdyn = dyn
 
-      call f2c_upcase(name,mh5_lbl)
+      call f2c_string(name,mh5_lbl)
       if (isdyn) then
         dset_id = mh5c_create_dset_array_dyn_str(
      &          lu, mh5_lbl, rank, dims, size)
@@ -1702,8 +1740,8 @@
       call mh5_close_dset(dset_id)
       end subroutine
 
-* convert Fortran string to uppercased, null-terminated C string
-      subroutine f2c_upcase(name, lbl)
+* convert Fortran string to null-terminated C string
+      subroutine f2c_string(name, lbl)
       use iso_c_binding
       implicit none
       character(len=*) :: name, lbl
@@ -1711,5 +1749,4 @@
         call AbEnd
       end if
       lbl = TRIM(name)//C_NULL_CHAR
-      call upcase(lbl)
       end subroutine

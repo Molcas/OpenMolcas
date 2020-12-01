@@ -89,7 +89,7 @@
      $        typestring)
         dsetid = mh5_create_dset_str(pt2wfn_id,
      $        'MO_TYPEINDICES', 1, [NBAST],1)
-        call mh5_init_attr(dsetid, 'description',
+        call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Type index of the molecular orbitals '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
         call mh5_put_dset(dsetid, typestring)
@@ -105,21 +105,21 @@
 *     reference energy (for each CI root)
         pt2wfn_refene = mh5_create_dset_real (pt2wfn_id,
      $        'STATE_REFWF_ENERGIES', 1, [NSTATE])
-        call mh5_init_attr(pt2wfn_refene, 'description',
+        call mh5_init_attr(pt2wfn_refene, 'DESCRIPTION',
      $        'Reference energy for each state, '//
      $        'arranged as array of [NSTATES]')
 
 *     PT2 energy (for each CI root)
         pt2wfn_energy = mh5_create_dset_real (pt2wfn_id,
      $        'STATE_PT2_ENERGIES', 1, [NSTATE])
-        call mh5_init_attr(pt2wfn_energy, 'description',
+        call mh5_init_attr(pt2wfn_energy, 'DESCRIPTION',
      $        'PT2 energy for each state, '//
      $        'arranged as array of [NSTATES]')
 
 *     molecular orbital coefficients
         pt2wfn_mocoef = mh5_create_dset_real(pt2wfn_id,
      $        'MO_VECTORS', 1, [NBSQT])
-        call mh5_init_attr(pt2wfn_mocoef, 'description',
+        call mh5_init_attr(pt2wfn_mocoef, 'DESCRIPTION',
      $        'Coefficients of the average orbitals, '//
      $        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
 
@@ -127,7 +127,7 @@
 *     (most probably empty, but left for compatibility)
         pt2wfn_occnum = mh5_create_dset_real(pt2wfn_id,
      $        'MO_OCCUPATIONS', 1, [NBAST])
-        call mh5_init_attr(pt2wfn_occnum, 'description',
+        call mh5_init_attr(pt2wfn_occnum, 'DESCRIPTION',
      $        'Occupation numbers of the average orbitals '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
 
@@ -135,14 +135,14 @@
 *     (most probably empty, but left for compatibility)
         pt2wfn_orbene = mh5_create_dset_real(pt2wfn_id,
      $        'MO_ENERGIES', 1, [NBAST])
-        call mh5_init_attr(pt2wfn_orbene, 'description',
+        call mh5_init_attr(pt2wfn_orbene, 'DESCRIPTION',
      $        'Orbital energies of the average orbitals '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
 
 *     CI data for each root
         pt2wfn_cicoef = mh5_create_dset_real(pt2wfn_id,
      $        'CI_VECTORS', 2, [nConf, NSTATE])
-        call mh5_init_attr(pt2wfn_cicoef, 'description',
+        call mh5_init_attr(pt2wfn_cicoef, 'DESCRIPTION',
      $        'Coefficients of configuration state functions '//
      $        'in Split-GUGA ordering for each STATE, '//
      $        'arranged as matrix of size [NCONF,NSTATES]')
@@ -151,7 +151,7 @@
         If (IFMSCOUP) Then
           pt2wfn_heff = mh5_create_dset_real(pt2wfn_id,
      $        'H_EFF', 2, [NSTATE, NSTATE])
-          call mh5_init_attr(pt2wfn_heff, 'description',
+          call mh5_init_attr(pt2wfn_heff, 'DESCRIPTION',
      $        'Effective (X)MS-CASPT2 Hamiltonian, '//
      $        'arranged as matrix of size [NSTATES,NSTATES]')
         End If
@@ -165,7 +165,7 @@
 
           pt2wfn_dens = mh5_create_dset_real(pt2wfn_id,
      $        'DENSITY_MATRIX', 2, [ndmat, NSTATE])
-          call mh5_init_attr(pt2wfn_dens, 'description',
+          call mh5_init_attr(pt2wfn_dens, 'DESCRIPTION',
      $        '1-body density matrix, arranged as blocks of size '//
      $        'NDMAT=sum([NORB(i)*(NORB(i)+1)/2], i=1,#irreps), '//
      $        'where NORB excludes frozen and deleted orbitals, '//
