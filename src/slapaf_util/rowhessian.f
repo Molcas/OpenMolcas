@@ -40,7 +40,7 @@
 *
       Do iRowH = 1, nRowH
          iInter = mRowH(iRowH)
-         If (iIter>nIter) Then
+         If (iInter>nIter) Then
             Write (6,*) 'RowHessian: iIter>nIter'
             Call Abend()
          End If
