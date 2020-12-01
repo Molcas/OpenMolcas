@@ -13,7 +13,7 @@
       Subroutine NewCar_Kriging(kIter,nLines,nAtom,nDim,nInter,BMx,
      &                          dMass,Lbl,Shift,Name,
      &                          SaveBMx,RefIter,Error)
-      use Slapaf_Info, only: Cx, ANr
+      use Slapaf_Info, only: Cx
       Implicit None
 #include "info_slapaf.fh"
 #include "db.fh"
@@ -44,7 +44,7 @@
       Call NewCar(kIter,nBVec,nLines,nAtom,nDim,nInter,Coor,
      &            ipBMx,dMass,Lbl,Shift,DFC,dss,
      &            qTemp,Name,iSym,Smmtrc,Degen,
-     &            mTtAtm,ANr,iOptH,
+     &            mTtAtm,iOptH,
      &            User_Def,nStab,jStab,Curvilinear,Numerical,
      &            DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &            iCoSet,rHidden,ipRef,Redundant,MaxItr,

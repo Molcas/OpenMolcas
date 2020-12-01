@@ -12,7 +12,7 @@
      &                  ipBMx,dMass,nLines,DFC,
      &                  nDim,Lbl,Name,iSym,
      &                  Smmtrc,Degen,iter,
-     &                  mTtAtm,iANr,iOptH,
+     &                  mTtAtm,iOptH,
      &                  User_Def,nStab,jStab,Curvilinear,
      &                  Numerical,DDV_Schlegel,HWRS,
      &                  Analytic_Hessian,iOptC,PrQ,mxdc,
@@ -37,8 +37,7 @@
       Real*8 dSS(nInter,NRHS), rInt(nInter), dMass(nAtom), cMass(3),
      &       DFC(3*nAtom,NRHS), Coor(3,nAtom), Degen(3*nAtom)
       Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
-      Integer   iSym(3), iANr(nAtom),
-     &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
+      Integer iSym(3), nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
       Logical Smmtrc(3,nAtom), BSet, HSet, User_Def,
      &        Curvilinear, Numerical, DDV_Schlegel, Redundant,
      &        HWRS, Analytic_Hessian, PrQ, lOld, Invar, Error
@@ -160,7 +159,7 @@
      &              Lbl,Coor,nDim,dMass,
      &              Name,Smmtrc,
      &              Degen,BSet,HSet,iter+1,
-     &              Gx,mTtAtm,iANr,iOptH,User_Def,
+     &              Gx,mTtAtm,iOptH,User_Def,
      &              nStab,jStab,Curvilinear,Numerical,
      &              DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,
      &              PrQ,mxdc,iCoSet,lOld,rHidden,

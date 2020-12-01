@@ -11,7 +11,7 @@
       Subroutine NewCar(kIter,nBVec,nLines,nAtom,nDim,nInter,
      &                  Coor,ipBMx,dMass,Lbl,Shift,
      &                  DFC,dss,Tmp,Name,iSym,Smmtrc,
-     &                  Degen,mTtAtm,iANr,iOptH,User_Def,nStab,
+     &                  Degen,mTtAtm,iOptH,User_Def,nStab,
      &                  jStab,Curvilinear,Numerical,DDV_Schlegel,HWRS,
      &                  Analytic_Hessian,iOptC,PrQ,mxdc,iCoSet,rHidden,
      &                  ipRef,Redundant,MaxItr,iRef,Error)
@@ -23,8 +23,7 @@
 #include "Molcas.fh"
       Real*8 Coor(3,nAtom), dMass(nAtom),Shift(nInter,kIter),
      &       DFC(3*nAtom), dss(nInter), Tmp(nInter), Degen(3*nAtom)
-      Integer   iSym(3), iANr(nAtom),
-     &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
+      Integer iSym(3), nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
       Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
       Logical Smmtrc(3,nAtom), User_Def, Redundant,
      &        Curvilinear, Numerical, DDV_Schlegel, HWRS,
@@ -57,7 +56,7 @@
 *
       Call Int2Car(dss,Tmp,nInter,Coor,nAtom,nBVec,ipBMx,dMass,
      &             nLines,DFC,ndim,Lbl,Name,iSym,Smmtrc,
-     &             Degen,kIter,mTtAtm,iANr,iOptH,
+     &             Degen,kIter,mTtAtm,iOptH,
      &             User_Def,nStab,jStab,Curvilinear,Numerical,
      &             DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &             iCoSet,rHidden,Error,ipRef,Redundant,MaxItr,

@@ -12,13 +12,13 @@
      &                 Lbl,Coor,nDim,dMass,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,
-     &                 Gx,mTtAtm,iAnr,iOptH,User_Def,
+     &                 Gx,mTtAtm,iOptH,User_Def,
      &                 nStab,jStab,Curvilinear,Numerical,
      &                 DDV_Schlegel,HWRS,Analytic_Hessian,
      &                 iOptC,PrQ,mxdc,iCoSet,lOld,
      &                 rHidden,nFix,nQQ,iIter,Redundant,MaxItr,
      &                 nWndw)
-      Use Slapaf_Info, Only: Cx, Shift, qInt
+      Use Slapaf_Info, Only: Cx, ANr, Shift, qInt
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -28,8 +28,7 @@
       Real*8 Coor(3,nAtom),  dMass(nAtom), Degen(3*nAtom),
      &       Gx(3*nAtom,nIter)
       Character Lbl(nInter)*8,Name(nAtom)*(LENIN)
-      Integer   iAnr(nAtom),
-     &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
+      Integer   nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
      &        User_Def, Curvilinear, Numerical, DDV_Schlegel,
      &        HWRS, Analytic_Hessian, PrQ, lOld
@@ -128,7 +127,7 @@
 *
 *-----Generate Grand atoms list
 *
-      Call GenCoo(Cx(1,1,iIter),nAtom,Coor2,mTtAtm,Vec,Smmtrc,nDim,iAnr,
+      Call GenCoo(Cx(1,1,iIter),nAtom,Coor2,mTtAtm,Vec,Smmtrc,nDim,ANr,
      &            AN,TabAI,Degen)
 *
 *---- Are there some hidden frozen atoms ?
@@ -220,7 +219,7 @@
      &                 nDim,dMass,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,
-     &                 Gx,mTtAtm,iAnr,
+     &                 Gx,mTtAtm,ANr,
      &                 nStab,jStab,Numerical,
      &                 HWRS,Analytic_Hessian,
      &                 iOptC,PrQ,iCoSet,lOld,

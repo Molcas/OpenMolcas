@@ -386,7 +386,7 @@
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,Lbl,
      &           Coor,nDimBC,dMass,AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,
-     &           Work(ipGx),mTtAtm,ANr,iOptH,
+     &           Work(ipGx),mTtAtm,iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,

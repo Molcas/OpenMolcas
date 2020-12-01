@@ -11,7 +11,7 @@
       Subroutine RlxCtl(iStop)
       Use Chkpnt
       Use kriging_mod, only: Kriging, nspAI
-      Use Slapaf_Info, only: Cx, Gx, dMass, Coor, ANr, Shift, GNrm,
+      Use Slapaf_Info, only: Cx, Gx, dMass, Coor, Shift, GNrm,
      &                       Free_Slapaf, qInt, dqInt
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
@@ -133,7 +133,7 @@
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,Lbl,
      &           Coor,nDimBC,dMass,AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,
-     &           Gx,mTtAtm,ANr,iOptH,
+     &           Gx,mTtAtm,iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,
@@ -161,7 +161,7 @@
 ************************************************************************
 *                                                                      *
       Call Reset_ThrGrd(nsAtom,nDimBC,dMass,Smmtrc,Degen,Iter,
-     &                  mTtAtm,ANr,DDV_Schlegel,iOptC,rHidden,
+     &                  mTtAtm,DDV_Schlegel,iOptC,rHidden,
      &                  ThrGrd)
 *                                                                      *
 ************************************************************************
@@ -285,7 +285,7 @@
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Coor,
      &               ipB,dMass,Lbl,Shift,DFC,dss,Tmp,
      &               AtomLbl,iSym,Smmtrc,Degen,
-     &               mTtAtm,ANr,iOptH,
+     &               mTtAtm,iOptH,
      &               User_Def,nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
      &               iCoSet,rHidden,ipRef,Redundant,MaxItr,iRef,

@@ -9,15 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Reset_ThrGrd(nAtom,nDim,dMass,Smmtrc,Degen,nIter,
-     &                        mTtAtm,iAnr,DDV_Schlegel,iOptC,rHidden,
+     &                        mTtAtm,DDV_Schlegel,iOptC,rHidden,
      &                        ThrGrd)
-      use Slapaf_Info, only: Cx
+      use Slapaf_Info, only: Cx, ANr
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 dMass(nAtom), Degen(3*nAtom)
-      Integer iANr(nAtom)
       Logical Smmtrc(3*nAtom),DDV_Schlegel,Found
       Integer, Allocatable:: TabAI(:), AN(:)
       Real*8, Allocatable:: TR(:), Vec(:), Coor(:,:), Tmp(:)
@@ -73,7 +72,7 @@
 *
 *-----Generate Grand atoms list
 *
-      Call GenCoo(Cx(1,1,iIter),nAtom,Coor,mTtAtm,Vec,Smmtrc,nDim,iAnr,
+      Call GenCoo(Cx(1,1,iIter),nAtom,Coor,mTtAtm,Vec,Smmtrc,nDim,ANr,
      &            AN,TabAI,Degen)
 *
 *---- Are there some hidden frozen atoms ?
