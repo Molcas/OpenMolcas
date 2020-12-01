@@ -20,15 +20,16 @@
 #include "db.fh"
 #include "print.fh"
 #include "stdalloc.fh"
-      Integer   iAdd(0:7) , jPrmt(0:7)
+      Integer   iAdd(0:7)
+      Integer :: jPrmt(0:7)=[1,-1,-1,1,-1,1,1,-1]
       Logical Same, Do_ESPF, Exist_2, Found, Reduce_Prt
       External Reduce_Prt
       Character *8 CMAX
       Integer Columbus
 #include "SysDef.fh"
-      Character*100 Get_SuperName, SuperName
-      External Get_SuperName
-      Data jPrmt/1,-1,-1,1,-1,1,1,-1/
+      Character(LEN=100) SuperName
+      Character(LEN=100), External:: Get_SuperName
+      Real*8, Allocatable:: xMass(:)
 *
 *     Statement function
 *
@@ -411,8 +412,8 @@ C           NADC= .False. ! for debugging
 *     Transform charges to masses (C=12)
 *
       Call mma_allocate(dMass,nsAtom,Label='dMass')
-      Call GetMem('Mass','Allo','Real',ip_xMass,nsAtom)
-      Call Get_Mass(Work(ip_xMass),nsAtom)
+      Call mma_allocate(xMass,nsAtom,xMass)
+      Call Get_Mass(xMass,nsAtom)
 *     Call RecPrt(' Charges',' ',Q_nuclear,nsAtom,1)
       Call mma_allocate(ANr,nsAtom,Label='ANr')
       Do isAtom = 1, nsAtom
@@ -420,11 +421,11 @@ C           NADC= .False. ! for debugging
          If (ind.le.0) Then
             dMass(isAtom) = 1.0D-10
          Else
-            dMass(isAtom) = Work(ip_xMass+isAtom-1)
+            dMass(isAtom) = xMass(isAtom)
          End If
          ANr(isAtom)=ind
       End Do
-      Call GetMem('Mass','Free','Real',ip_xMass,nsAtom)
+      Call mma_deallocate(xMass)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -11,7 +11,7 @@
       Subroutine RdCtl_Slapaf(iRow,iInt,nFix,LuSpool,Dummy_Call)
       use kriging_mod
       use Symmetry_Info, only: Symmetry_Info_Get
-      use Slapaf_Info, only: Gx, Coor, Weights, MF, Atom, nSup
+      use Slapaf_Info, only: Cx, Gx, Weights, MF, Atom, nSup
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -1324,7 +1324,7 @@ CGGd: Coherency with patch 7.1.615 !      If (lNmHss) nPrint(122)=10
 *.....Do some preprocessing due to input choice
 *
       If (Request_Alaska) nPrint(51)=0
-      Call PrePro(iRow,iInt,nFix,nsAtom,mInt,Coor)
+      Call PrePro(iRow,iInt,nFix,nsAtom,mInt,Cx(1,1,iter))
 *                                                                      *
 ************************************************************************
 *                                                                      *
