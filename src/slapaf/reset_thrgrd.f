@@ -8,15 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Reset_ThrGrd(nAtom,nDim,dMass,Smmtrc,Degen,nIter,
+      Subroutine Reset_ThrGrd(nAtom,nDim,Smmtrc,Degen,nIter,
      &                        mTtAtm,DDV_Schlegel,iOptC,rHidden,
      &                        ThrGrd)
-      use Slapaf_Info, only: Cx, ANr
+      use Slapaf_Info, only: Cx, dMass, ANr
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8 dMass(nAtom), Degen(3*nAtom)
+      Real*8 Degen(3*nAtom)
       Logical Smmtrc(3*nAtom),DDV_Schlegel,Found
       Integer, Allocatable:: TabAI(:), AN(:)
       Real*8, Allocatable:: TR(:), Vec(:), Coor(:,:), Tmp(:)

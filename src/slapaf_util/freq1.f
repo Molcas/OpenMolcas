@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Giovanni Ghigo                                         *
 ************************************************************************
-      Subroutine Freq1(nIter,nInter,nRowH,mRowH,Delta,Shift,qInt)
+      Subroutine Freq1(nIter,nInter,nRowH,mRowH,Delta,qInt)
 ************************************************************************
 *                                                                      *
 * Object: Displacements for Numerical estimation of single rows and    *
@@ -20,10 +20,11 @@
 *                                                                      *
 * Author: Giovanni Ghigo, University of Torino, Italy                  *
 ************************************************************************
+      use Slapaf_Info, only: Shift
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
-      Real*8 qInt(nInter,nIter+1), Shift(nInter,nIter)
+      Real*8 qInt(nInter,nIter+1)
       Integer mRowH(10)
 *
       iRout = 183

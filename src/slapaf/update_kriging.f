@@ -31,8 +31,7 @@
 ************************************************************************
       Use kriging_mod, only: Max_Microiterations,
      &                       Thr_microiterations
-      Use Slapaf_Info, only: Cx, Gx, Shift, GNrm, dMass, Energy, qInt,
-     &                       dqInt
+      Use Slapaf_Info, only: Cx, Gx, Shift, GNrm, Energy, qInt, dqInt
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -233,7 +232,7 @@
 *
          Error=(iterK.ge.1)
          Call NewCar_Kriging(iterAI,nLines,nsAtom,nDimBC,nInter,BMx,
-     &                       dMass,Lbl,Shift,AtomLbl,.True.,iter,Error)
+     &                       Lbl,AtomLbl,.True.,iter,Error)
 #ifdef _DEBUGPRINT_
          Call RecPrt('New Coord (after NewCar)','',qInt,nInter,iterAI+1)
 #endif
@@ -429,8 +428,7 @@
             Call dAXpY_(nInter,OS_Factor,Step_k(1,2),1,
      &                                   Shift(1,iterAI-1),1)
             Call NewCar_Kriging(iterAI-1,nLines,nsAtom,nDimBC,nInter,
-     &                          BMx,dMass,Lbl,Shift,AtomLbl,
-     &                          .True.,iter)
+     &                          BMx,Lbl,AtomLbl,.True.,iter)
             Energy(iterAI)=OS_Energy
             If (Max_OS.gt.0) Then
                If (UpMeth(4:4).ne.' ') UpMeth(5:6)='**'

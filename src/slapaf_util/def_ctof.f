@@ -11,8 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 *               2008, Giovanni Ghigo                                   *
 ************************************************************************
-      SubRoutine Def_CtoF(lNew,dMass,
-     &                    nAtom,Name,Coor,jStab,nStab)
+      SubRoutine Def_CtoF(lNew,nAtom,Name,Coor,jStab,nStab)
 ************************************************************************
 *                                                                      *
 *     Author: Giovanni Ghigo, Dep. of General and Organic Chemistry    *
@@ -22,12 +21,13 @@
 *             Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
+      use Slapaf_Info, only: dMass
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "Molcas.fh"
-      Real*8    Coor(3,nAtom), dMass(nAtom)
+      Real*8    Coor(3,nAtom)
       Character Labels*8, Type*6, Temp*120,
      &          Name(nAtom)*(LENIN), Line*120, Format*8, filnam*16
       Logical lWrite, lNew

@@ -11,7 +11,7 @@
 * Copyright (C) 2013, Roland Lindh                                     *
 ************************************************************************
       Subroutine genCxCTL(iStop,Cartesian,rDelta)
-      use Slapaf_Info, only: dMass, Coor, Shift, qInt, Free_Slapaf
+      use Slapaf_Info, only: Coor, Shift, qInt, Free_Slapaf
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -82,7 +82,7 @@
       nWndw=iter
       iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,Lbl,
-     &           Coor,nDimBC,dMass,AtomLbl,
+     &           Coor,nDimBC,AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
@@ -230,8 +230,7 @@
          nWndw=Iter
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,mInt,
-     &               Coor,ipB,dMass,
-     &               Lbl,Shift,
+     &               Coor,ipB,Lbl,
      &               Work(ipDCF),Work(ipdss),Work(ipTmp),
      &               AtomLbl,iSym,Smmtrc,
      &               Degen,mTtAtm,

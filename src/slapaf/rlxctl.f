@@ -11,7 +11,7 @@
       Subroutine RlxCtl(iStop)
       Use Chkpnt
       Use kriging_mod, only: Kriging, nspAI
-      Use Slapaf_Info, only: Cx, dMass, Coor, Shift, GNrm,
+      Use Slapaf_Info, only: Cx, Coor, Shift, GNrm,
      &                       Free_Slapaf, qInt, dqInt
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
@@ -94,7 +94,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (lCtoF .AND. PrQ) Call Def_CtoF(.False.,dMass,nsAtom,AtomLbl,
+      If (lCtoF .AND. PrQ) Call Def_CtoF(.False.,nsAtom,AtomLbl,
      &                                   Coor,jStab,nStab)
 *                                                                      *
 ************************************************************************
@@ -131,7 +131,7 @@
       If (Numerical) nWndw=NmIter
       iRef=0
       Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,Lbl,
-     &           Coor,nDimBC,dMass,AtomLbl,
+     &           Coor,nDimBC,AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
@@ -160,7 +160,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Reset_ThrGrd(nsAtom,nDimBC,dMass,Smmtrc,Degen,Iter,
+      Call Reset_ThrGrd(nsAtom,nDimBC,Smmtrc,Degen,Iter,
      &                  mTtAtm,DDV_Schlegel,iOptC,rHidden,
      &                  ThrGrd)
 *                                                                      *
@@ -184,7 +184,7 @@
 *        I) Update geometry for selected numerical differentiation.    *
 *----------------------------------------------------------------------*
 *
-         Call Freq1(iter,nQQ,nRowH,mRowH,Delta/2.5d0,Shift,qInt)
+         Call Freq1(iter,nQQ,nRowH,mRowH,Delta/2.5d0,qInt)
          UpMeth='RowH  '
       Else If (lNmHss.and.iter.lt.NmIter) Then
 *
@@ -192,7 +192,7 @@
 *        II) Update geometry for full numerical differentiation.       *
 *----------------------------------------------------------------------*
 *
-         Call Freq2(iter,dqInt,Shift,nQQ,Delta,Stop,qInt)
+         Call Freq2(iter,dqInt,nQQ,Delta,Stop,qInt)
          UpMeth='NumHss'
       Else
          Go To 777
@@ -283,7 +283,7 @@
          Error=.False.
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Coor,
-     &               ipB,dMass,Lbl,Shift,DFC,dss,Tmp,
+     &               ipB,Lbl,DFC,dss,Tmp,
      &               AtomLbl,iSym,Smmtrc,Degen,
      &               mTtAtm,iOptH,
      &               User_Def,nStab,jStab,Curvilinear,Numerical,
@@ -337,8 +337,7 @@
 *
       GoOn = (lNmHss.and.iter.lt.NmIter).OR.(lRowH.and.iter.lt.NmIter)
       TSReg = iAnd(iOptC,8192).eq.8192
-      Call Convrg(iter,kIter,nQQ,Shift,
-     &            Lbl,MaxItr,Stop,iStop,ThrCons,
+      Call Convrg(iter,kIter,nQQ,Lbl,MaxItr,Stop,iStop,ThrCons,
      &            ThrEne,ThrGrd,MxItr,UpMeth,HUpMet,mIntEff,Baker,
      &            nsAtom,mTtAtm,ed,
      &            iNeg,GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
@@ -357,8 +356,7 @@
 *
       Call DstInf(iStop,Just_Frequencies,
      &            (lNmHss.or.lRowH) .and.iter.le.NmIter)
-      If (lCtoF) Call Def_CtoF(.True.,dMass,nsAtom,AtomLbl,
-     &                         Coor,jStab,nStab)
+      If (lCtoF) Call Def_CtoF(.True.,nsAtom,AtomLbl,Coor,jStab,nStab)
       If (.Not.User_Def .and.
      &   ((lNmHss.and.iter.ge.NmIter).or..Not.lNmHss)) Call cp_SpcInt
 *

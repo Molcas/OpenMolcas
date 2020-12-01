@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Int2Car(dSS,rInt,nInter,Coor,nAtom,nBVct,
-     &                  ipBMx,dMass,nLines,DFC,
+     &                  ipBMx,nLines,DFC,
      &                  nDim,Lbl,Name,iSym,
      &                  Smmtrc,Degen,iter,
      &                  mTtAtm,iOptH,
@@ -18,7 +18,7 @@
      &                  Analytic_Hessian,iOptC,PrQ,mxdc,
      &                  iCoSet,rHidden,Error,ipRef,Redundant,
      &                  MaxItr,iRef)
-      use Slapaf_Info, only: Cx, qInt
+      use Slapaf_Info, only: Cx, dMass, qInt
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -34,7 +34,7 @@
 #include "Molcas.fh"
 #include "warnings.fh"
       Parameter(NRHS=1)
-      Real*8 dSS(nInter,NRHS), rInt(nInter), dMass(nAtom), cMass(3),
+      Real*8 dSS(nInter,NRHS), rInt(nInter), cMass(3),
      &       DFC(3*nAtom,NRHS), Coor(3,nAtom), Degen(3*nAtom)
       Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
       Integer iSym(3), nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
@@ -156,8 +156,7 @@
          nFix=0
          nWndw=1
          Call BMtrx(nLines,nBVct,ipBMx,nAtom,nInter,
-     &              Lbl,Coor,nDim,dMass,
-     &              Name,Smmtrc,
+     &              Lbl,Coor,nDim,Name,Smmtrc,
      &              Degen,BSet,HSet,iter+1,
      &              mTtAtm,iOptH,User_Def,
      &              nStab,jStab,Curvilinear,Numerical,

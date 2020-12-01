@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Freq2(nIter,dqInt,Shift,nInter,Delta,Stop,qInt)
+      Subroutine Freq2(nIter,dqInt,nInter,Delta,Stop,qInt)
+      use Slapaf_Info, only: Shift
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
-      Real*8 dqInt(nInter,nIter), Shift(nInter,nIter),
-     &       qInt(nInter,nIter+1)
+      Real*8 dqInt(nInter,nIter), qInt(nInter,nIter+1)
       Logical Stop
 *
       iRout = 183

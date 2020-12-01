@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine BMtrx(nLines,nBVec,ipBMx,nAtom,nInter,
-     &                 Lbl,Coor,nDim,dMass,
+     &                 Lbl,Coor,nDim,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,
      &                 mTtAtm,iOptH,User_Def,
@@ -18,14 +18,14 @@
      &                 iOptC,PrQ,mxdc,iCoSet,lOld,
      &                 rHidden,nFix,nQQ,iIter,Redundant,MaxItr,
      &                 nWndw)
-      Use Slapaf_Info, Only: Cx, Gx, ANr, Shift, qInt
+      Use Slapaf_Info, Only: Cx, Gx, dMass, ANr, Shift, qInt
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-      Real*8 Coor(3,nAtom),  dMass(nAtom), Degen(3*nAtom)
+      Real*8 Coor(3,nAtom), Degen(3*nAtom)
       Character Lbl(nInter)*8,Name(nAtom)*(LENIN)
       Integer   nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,

@@ -11,8 +11,7 @@
 * Copyright (C) 2019, Ignacio Fdez. Galvan                             *
 ************************************************************************
       Subroutine NewCar_Kriging(kIter,nLines,nAtom,nDim,nInter,BMx,
-     &                          dMass,Lbl,Shift,Name,
-     &                          SaveBMx,RefIter,Error)
+     &                          Lbl,Name,SaveBMx,RefIter,Error)
       use Slapaf_Info, only: Cx
       Implicit None
 #include "info_slapaf.fh"
@@ -20,13 +19,12 @@
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
       Integer :: kIter,nLines,nAtom,nDim,nInter,RefIter
-      Real*8 :: BMx(3*nAtom,nInter),dMass(nAtom),Shift(nInter,kIter)
+      Real*8 :: BMx(3*nAtom,nInter)
       Character :: Lbl(nInter)*8,Name(nAtom)*(LENIN)
 
       Real*8, Allocatable :: DFC(:),dss(:),qTemp(:), Coor(:)
       Integer :: ipBMx
       Logical :: Numerical,PrQ,Error,SaveBMx
-      Integer, External :: ip_of_Work
 *
       Call mma_allocate(Coor,3*nAtom,Label='Coor')
       Call GetMem('BMx','ALLO','REAL',ipBMx,(3*nAtom)*nInter)
@@ -42,7 +40,7 @@
       Force_dB=SaveBMx
 *
       Call NewCar(kIter,nBVec,nLines,nAtom,nDim,nInter,Coor,
-     &            ipBMx,dMass,Lbl,Shift,DFC,dss,
+     &            ipBMx,Lbl,DFC,dss,
      &            qTemp,Name,iSym,Smmtrc,Degen,
      &            mTtAtm,iOptH,
      &            User_Def,nStab,jStab,Curvilinear,Numerical,
