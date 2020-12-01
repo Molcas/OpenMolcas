@@ -22,26 +22,23 @@
       Real*8 :: BMx(3*nAtom,nInter)
       Character :: Lbl(nInter)*8,Name(nAtom)*(LENIN)
 
-      Real*8, Allocatable :: DFC(:),dss(:),qTemp(:), Coor(:)
+      Real*8, Allocatable :: Coor(:,:)
       Integer :: ipBMx
       Logical :: Numerical,PrQ,Error,SaveBMx
 *
-      Call mma_allocate(Coor,3*nAtom,Label='Coor')
+      Call mma_allocate(Coor,3,nAtom,Label='Coor')
+      Coor(:,:) = Cx(:,:,kIter)
+
       Call GetMem('BMx','ALLO','REAL',ipBMx,(3*nAtom)*nInter)
-      Call dCopy_(3*nAtom,Cx(:,:,kIter),1,Coor,1)
       Call dCopy_((3*nAtom)*nInter,BMx,1,Work(ipBMx),1)
 *
       Numerical=.False.
       PrQ=.False.
 *
-      Call mma_allocate(DFC,3*nAtom,Label='DFC')
-      Call mma_allocate(dss,nInter,Label='dss')
-      Call mma_allocate(qTemp,nInter,Label='qTemp')
       Force_dB=SaveBMx
 *
       Call NewCar(kIter,nBVec,nLines,nAtom,nDim,nInter,Coor,
-     &            ipBMx,Lbl,DFC,dss,
-     &            qTemp,Name,iSym,Smmtrc,Degen,
+     &            ipBMx,Lbl,Name,iSym,Smmtrc,Degen,
      &            mTtAtm,iOptH,
      &            User_Def,nStab,jStab,Curvilinear,Numerical,
      &            DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
@@ -49,11 +46,9 @@
      &            RefIter,Error)
 *
       Force_dB=.False.
-      Call mma_deallocate(DFC)
-      Call mma_deallocate(dss)
-      Call mma_deallocate(qTemp)
-      If (SaveBMx) Call dCopy_((3*nAtom)*nInter,Work(ipBMx),1,BMx,1)
       Call mma_deallocate(Coor)
+
+      If (SaveBMx) Call dCopy_((3*nAtom)*nInter,Work(ipBMx),1,BMx,1)
       Call GetMem('BMx','FREE','REAL',ipBMx,(3*nAtom)**2)
 *
       End Subroutine NewCar_Kriging

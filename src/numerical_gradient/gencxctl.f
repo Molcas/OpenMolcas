@@ -169,9 +169,6 @@
 *     Loop only over displacement which do not change the constraint.
 *     Note that the constraints are placed first.
 *
-      Call GetMem(' DCF  ', 'Allo','Real',ipDCF, 3*nsAtom)
-      Call GetMem(' dss  ', 'Allo','Real',ipdss, mInt)
-      Call GetMem(' qTemp', 'Allo','Real',ipTmp, mInt)
       Do iDisp = 1+2*nLambda, 2*mInt
 *
 *        Get a virgin copy of the reference structure
@@ -231,7 +228,6 @@
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,mInt,
      &               Coor,ipB,Lbl,
-     &               Work(ipDCF),Work(ipdss),Work(ipTmp),
      &               AtomLbl,iSym,Smmtrc,
      &               Degen,mTtAtm,
      &               iOptH,User_Def,
@@ -244,9 +240,6 @@
 *
          call dcopy_(3*nsAtom,Coor,1,CList(:,iDisp),1)
       End Do
-      Call GetMem(' qTemp', 'Free','Real',ipTmp, mInt)
-      Call GetMem(' dss  ', 'Free','Real',ipdss, mInt)
-      Call GetMem(' DCF  ', 'Free','Real',ipDCF, 3*nsAtom)
 *
       Call mma_deallocate(du)
       Call mma_deallocate(TMx)

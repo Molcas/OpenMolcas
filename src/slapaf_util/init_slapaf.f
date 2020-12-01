@@ -412,7 +412,7 @@ C           NADC= .False. ! for debugging
 *     Transform charges to masses (C=12)
 *
       Call mma_allocate(dMass,nsAtom,Label='dMass')
-      Call mma_allocate(xMass,nsAtom,xMass)
+      Call mma_allocate(xMass,nsAtom,Label='xMass')
       Call Get_Mass(xMass,nsAtom)
 *     Call RecPrt(' Charges',' ',Q_nuclear,nsAtom,1)
       Call mma_allocate(ANr,nsAtom,Label='ANr')

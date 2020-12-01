@@ -33,8 +33,7 @@
       Integer AixRm, iNeg(2)
       Integer nGB
       Real*8 rDum(1)
-      Real*8, Allocatable:: GB(:), DFC(:), dss(:), Tmp(:), HX(:),
-     &                      HQ(:), KtB(:)
+      Real*8, Allocatable:: GB(:), HX(:), HQ(:), KtB(:)
 *
       Lu=6
       iRout = 32
@@ -276,23 +275,15 @@
       If (Kriging .and. Iter.ge.nspAI) Then
          Call dCopy_(3*nsAtom,Cx(1,1,Iter+1),1,Coor,1)
       Else
-         Call mma_allocate(DFC, 3*nsAtom,Label='DFC')
-         Call mma_allocate(dss, nQQ,Label='dss')
-         Call mma_allocate(Tmp, nQQ,Label='Tmp')
          PrQ=.False.
          Error=.False.
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Coor,
-     &               ipB,Lbl,DFC,dss,Tmp,
-     &               AtomLbl,iSym,Smmtrc,Degen,
+     &               ipB,Lbl,AtomLbl,iSym,Smmtrc,Degen,
      &               mTtAtm,iOptH,
      &               User_Def,nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &               iCoSet,rHidden,ipRef,Redundant,MaxItr,iRef,
-     &               Error)
-         Call mma_deallocate(DFC)
-         Call mma_deallocate(dss)
-         Call mma_deallocate(Tmp)
+     &               iCoSet,rHidden,ipRef,Redundant,MaxItr,iRef,Error)
       End If
 *                                                                      *
 ************************************************************************
