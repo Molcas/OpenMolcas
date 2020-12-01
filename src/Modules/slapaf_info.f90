@@ -14,7 +14,7 @@ Module Slapaf_Info
 implicit none
 Private
 Public:: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, ANr, Weights, Shift, GNrm, Lambda, &
-         Energy, Energy0, DipM, MF, qInt, dqInt, Free_Slapaf
+         Energy, Energy0, DipM, MF, qInt, dqInt, nSup, Atom, Free_Slapaf
 !
 ! Arrays always allocated
 !
@@ -41,6 +41,10 @@ Integer, Allocatable:: ANr(:)       ! list of atomic numbers
 !
 Real*8, Allocatable:: NAC(:,:)      ! list of Cartesian non-adiabatic coupling vector
 Real*8, Allocatable:: Lambda(:,:)     ! list of the Lagrange multipiers
+!
+! Utility arrays
+!
+Integer, Allocatable:: Atom(:), NSup(:)
 
 Contains
   Subroutine Free_Slapaf()

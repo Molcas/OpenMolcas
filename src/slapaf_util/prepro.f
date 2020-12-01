@@ -9,10 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine PrePro(nLines,iInt,nFix,nAtom,nInter,Coor)
-      use Slapaf_Info, only: dMass, Grd
+      use Slapaf_Info, only: dMass, Grd, Atom, nSup
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "info_slapaf.fh"
 #include "print.fh"
@@ -70,10 +69,9 @@
 *-----Symmetrize forces
 *
       If (LSup) Then
-         Call SupSym(Grd,nAtom,cMass,Coor,nSupSy,
-     &               iWork(ipNSup),iWork(ipAtom))
-         Call GetMem('iAtom ','Free','Inte',ipAtom,nAtom)
-         Call GetMem(' NSUP ','Free','Inte',ipNSup,nSupSy)
+         Call SupSym(Grd,nAtom,cMass,Coor,nSupSy,nSup,Atom)
+         Call mma_deallocate(Atom)
+         Call mma_deallocate(nSup)
       End If
 *
       Return

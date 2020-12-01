@@ -160,7 +160,9 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
 *                                                                      *
 *-----Save coordinates and gradients from this iteration onto the list.
 *
-      call dcopy_(3*nsAtom,Coor,1,Cx(:,:,iter),1)
+      Cx(:,:,iter)=Coor(:,:)
+      Gx(:,:,iter)=Grd(:,:)
+
       If (iter.gt.1) Then
         Temp=Zero
         Do i = 1, nsAtom
@@ -179,7 +181,7 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
           Call Quit_OnUserError()
         End If
       End If
-      call dcopy_(3*nsAtom,Grd ,1,Gx(1,1,iter),1)
+
 * In case of a QM/MM geometry optimization, all the old MM gradients are
 * replaced by the new one (both gradients are stored on the Runfile).
 *

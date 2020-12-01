@@ -11,7 +11,7 @@
       Subroutine RdCtl_Slapaf(iRow,iInt,nFix,LuSpool,Dummy_Call)
       use kriging_mod
       use Symmetry_Info, only: Symmetry_Info_Get
-      use Slapaf_Info, only: Gx, Coor, Weights, MF
+      use Slapaf_Info, only: Gx, Coor, Weights, MF, Atom, nSup
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -401,13 +401,13 @@ cc      Open(Lu_UDIC,File=FilNam,Form='FORMATTED',Status='UNKNOWN')
  911  LSup = .True.
       Char=Get_Ln(LuRd)
       Call Get_I1(1,nSupSy)
-      Call GetMem(' NSup ','Allo','Inte',ipNSup,NSUPSY)
-      Call GetMem('iAtom ','Allo','Inte',ipAtom,nsAtom)
-      iStrt = ipAtom
-      Do 950 i = ipNSup, ipNSup+nSupSy-1
-         Read(LuRd,*,Err=9630)iWork(i),
-     &       (iWork(j),j=iStrt,iStrt+iWork(i)-1)
-         iStrt = iStrt + iWork(i)
+      Call mma_allocate(nSup,NSUPSY,Label='nSup')
+      Call mma_allocate(Atom,nsAtom,Label='Atom')
+      iStrt = 1
+      Do 950 i = 1, nSupSy
+         Read(LuRd,*,Err=9630) nSup(i),
+     &       (Atom(j),j=iStrt,iStrt+nSup(i)-1)
+         iStrt = iStrt + nSup(i)
  950  Continue
       Go To 999
 9630  Call WarningMessage(2,'Error in RdCtl_Slapaf')
