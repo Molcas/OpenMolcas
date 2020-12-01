@@ -68,10 +68,11 @@
 *
       Logical         RFpert,lSquare, Start_Vectors, NonEq, DoFaro
      &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT,DoNOGRAD,
-     &                DoGSOR, kIvo, IfCRPR
+     &                DoGSOR, kIvo, IfCRPR, doDMRG, l_casdft
+
       COMMON/LOGINP/  RFpert,lSquare, Start_Vectors, NonEq, DoFaro
      &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT,DoNOGRAD,
-     &                DoGSOR, kIvo, IfCRPR
+     &                DoGSOR, kIvo, IfCRPR, doDMRG, l_casdft
 *
       REAL*8          PRWTHR,POTNUC,CCI,
      &                ECAS1,RLXGRD,EVAC
@@ -122,6 +123,12 @@
       REAL*8          Acc,Bcc,Aoo,Boo,Avv,Bvv
       Common /DFTFCK/ Acc,Bcc,Aoo,Boo,Avv,Bvv
 *
+
+#ifdef _DMRG_
+      Logical          domcpdftDMRG, twordm_qcm
+      Common /QCMINP/  domcpdftDMRG, twordm_qcm
+#endif
+
 #ifdef _ENABLE_CHEMPS2_DMRG_
       REAL*8           davidson_tol,chemps2_blb,chemps2_noise
       INTEGER          max_sweep,chemps2_lrestart,max_canonical
