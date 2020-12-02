@@ -17,20 +17,21 @@
 #include "info_slapaf.fh"
 #include "db.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
       Integer :: kIter,nLines,nAtom,nDim,nInter,RefIter
       Real*8 :: BMx(3*nAtom,nInter)
+      Integer, External:: ip_of_Work
       Character :: Lbl(nInter)*8,Name(nAtom)*(LENIN)
 
-      Real*8, Allocatable :: Coor(:,:)
+      Real*8, Allocatable :: Coor(:,:), BMx_Tmp(:,:)
       Integer :: ipBMx
       Logical :: Numerical,PrQ,Error,SaveBMx
 *
       Call mma_allocate(Coor,3,nAtom,Label='Coor')
       Coor(:,:) = Cx(:,:,kIter)
 
-      Call GetMem('BMx','ALLO','REAL',ipBMx,(3*nAtom)*nInter)
-      Call dCopy_((3*nAtom)*nInter,BMx,1,Work(ipBMx),1)
+      Call mma_allocate(BMx_tmp,(3*nAtom),nInter,Label='BMx_tmp')
+      ipBMx = ip_of_Work(BMx_tmp(1,1))
+      BMx_tmp(:,:) = BMx(:,:)
 *
       Numerical=.False.
       PrQ=.False.
@@ -48,7 +49,8 @@
       Force_dB=.False.
       Call mma_deallocate(Coor)
 
-      If (SaveBMx) Call dCopy_((3*nAtom)*nInter,Work(ipBMx),1,BMx,1)
-      Call GetMem('BMx','FREE','REAL',ipBMx,(3*nAtom)**2)
+      If (SaveBMx) BMx(:,:) = BMx_tmp(:,:)
+
+      Call mma_deallocate(BMx_tmp)
 *
       End Subroutine NewCar_Kriging

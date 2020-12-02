@@ -49,6 +49,7 @@
       End If
       Call Allocate_Work(ipBmx,3*nAtom*nQQ)
       Call FZero(Work(ipBMx),3*nAtom*nQQ)
+
       Call mma_allocate(Mult,nBVec,Label='Mult')
       Call mma_allocate(BVec,nBVec*3*nAtom,Label='BVec')
       BVec(:)=Zero
