@@ -8,14 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine TRPGen(nDim,nAtom,Coor,Degen,Smmtrc,mTR,dMass,CofM,
-     &                  TRVec)
+      Subroutine TRPGen(nDim,nAtom,Coor,Degen,Smmtrc,mTR,CofM,TRVec)
+      use Slapaf_Info, only: dMass
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-      Real*8 Coor(3,nAtom), Degen(3*nAtom),
-     &       dMass(nAtom), TRVec(3*nAtom*6)
+      Real*8 Coor(3,nAtom), Degen(3*nAtom), TRVec(3*nAtom*6)
       Logical Smmtrc(3*nAtom), CofM
       Logical, Save:: g12K=.True.
       Real*8, Allocatable:: TR(:), Scrt(:), G(:), EVal(:), EVec(:),

@@ -10,19 +10,18 @@
 ************************************************************************
       Subroutine BMtrx_Internal(
      &                 ipBMx,nAtom,nDim,
-     &                 dMass,Name,Smmtrc,Degen,BSet,HSet,
+     &                 Name,Smmtrc,Degen,BSet,HSet,
      &                 nIter,Gx,mTtAtm,iAnr,nStab,jStab,
      &                 Numerical,HWRS,Analytic_Hessian,iOptC,PrQ,
      &                 iCoSet,lOld,iIter,mTR,TRVec,ip_TabAI,
      &                 ip_TabA,ip_TabB,nBonds,nMax,
      &                 iRef,ip_KtB,nQQ,MaxItr,nWndw)
-      use Slapaf_Info, only: Cx
+      use Slapaf_Info, only: Cx, dMass
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-      Real*8 dMass(nAtom), Degen(3*nAtom),
-     &       Gx(3*nAtom,nIter), TRVec(nDim,mTR)
+      Real*8 Degen(3*nAtom), Gx(3*nAtom,nIter), TRVec(nDim,mTR)
       Character Name(nAtom)*(LENIN)
       Integer   iAnr(nAtom), nStab(nAtom), jStab(0:7,nAtom),
      &          iCoSet(0:7,nAtom)

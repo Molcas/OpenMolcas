@@ -11,7 +11,7 @@
       Subroutine Reset_ThrGrd(nAtom,nDim,Smmtrc,Degen,nIter,
      &                        mTtAtm,DDV_Schlegel,iOptC,rHidden,
      &                        ThrGrd)
-      use Slapaf_Info, only: Cx, dMass, ANr
+      use Slapaf_Info, only: Cx, ANr
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -58,8 +58,7 @@
       Call mma_allocate(TR,18*nAtom,Label='TR')
       TR(:)=Zero
 *
-      Call TRPGen(nDim,nAtom,Cx(1,1,iIter),Degen,Smmtrc,mTR,dMass,
-     &            .False.,TR)
+      Call TRPGen(nDim,nAtom,Cx(1,1,iIter),Degen,Smmtrc,mTR,.False.,TR)
 *
 *     Call RecPrt('TR',' ',TR,nDim,mTR)
 *                                                                      *

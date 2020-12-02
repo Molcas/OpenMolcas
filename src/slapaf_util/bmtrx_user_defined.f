@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine BMtrx_User_Defined(
      &                 nLines,nBVec,ipBMx,nAtom,nInter,
-     &                 Lbl,Coor,nDim,dMass,
+     &                 Lbl,Coor,nDim,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,
      &                 Gx,
@@ -18,14 +18,13 @@
      &                 Analytic_Hessian,
      &                 iOptC,mxdc,lOld,
      &                 nFix,mTR,ip_KtB,nQQ,Redundant,MaxItr)
-      use Slapaf_Info, only: qInt, dqInt
+      use Slapaf_Info, only: dMass, qInt, dqInt
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-      Real*8 Coor(3,nAtom), dMass(nAtom), Degen(3*nAtom),
-     &       Gx(3*nAtom,nIter)
+      Real*8 Coor(3,nAtom), Degen(3*nAtom), Gx(3*nAtom,nIter)
       Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
       Integer   nStab(nAtom), jStab(0:7,nAtom)
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,

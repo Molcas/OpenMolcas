@@ -30,8 +30,8 @@
       Coor(:,:) = Cx(:,:,kIter)
 
       Call mma_allocate(BMx_tmp,(3*nAtom),nInter,Label='BMx_tmp')
-      ipBMx = ip_of_Work(BMx_tmp(1,1))
       BMx_tmp(:,:) = BMx(:,:)
+      ipBMx = ip_of_Work(BMx(1,1))
 *
       Numerical=.False.
       PrQ=.False.
@@ -49,7 +49,7 @@
       Force_dB=.False.
       Call mma_deallocate(Coor)
 
-      If (SaveBMx) BMx(:,:) = BMx_tmp(:,:)
+      If (.NOT.SaveBMx) BMx(:,:) = BMx_tmp(:,:)
 
       Call mma_deallocate(BMx_tmp)
 *

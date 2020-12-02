@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine PrePro(nLines,iInt,nFix,nAtom,nInter,Coor)
-      use Slapaf_Info, only: dMass, Grd, Atom, nSup
+      use Slapaf_Info, only: Grd, Atom, nSup
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -25,7 +25,7 @@
       CofM = Iter.eq.1 .and. lNmHss
       Call mma_allocate(TR,18*nAtom,Label='TR')
       TR(:)=Zero
-      Call TRPGen(nDimBC,nAtom,Coor,Degen,Smmtrc,mTR,dMass,CofM,TR)
+      Call TRPGen(nDimBC,nAtom,Coor,Degen,Smmtrc,mTR,CofM,TR)
       Call mma_deallocate(TR)
       If (lNmHss) Then
          If (Iter.eq.1) mTROld=mTR

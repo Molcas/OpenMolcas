@@ -18,7 +18,7 @@
      &                 iOptC,PrQ,mxdc,iCoSet,lOld,
      &                 rHidden,nFix,nQQ,iIter,Redundant,MaxItr,
      &                 nWndw)
-      Use Slapaf_Info, Only: Cx, Gx, dMass, ANr, Shift, qInt
+      Use Slapaf_Info, Only: Cx, Gx, ANr, Shift, qInt
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -100,8 +100,7 @@
       Call mma_allocate(TR,18*nAtom,Label='TR')
       TR(:)=Zero
 *
-      Call TRPGen(nDim,nAtom,Cx(1,1,iIter),Degen,Smmtrc,mTR,dMass,
-     &            .False.,TR)
+      Call TRPGen(nDim,nAtom,Cx(1,1,iIter),Degen,Smmtrc,mTR,.False.,TR)
 *
       Call mma_allocate(TRnew,3*nAtom*mTR,Label='TRNew')
       TRNew(:)=Zero
@@ -187,7 +186,7 @@
 *                                                                      *
          Call BMtrx_User_Defined(
      &                 nLines,nBVec,ipBMx,nAtom,nInter,Lbl,Coor,nDim,
-     &                 dMass,Name,Smmtrc,Degen,BSet,HSet,nIter,Gx,
+     &                 Name,Smmtrc,Degen,BSet,HSet,nIter,Gx,
      &                 nStab,jStab,Numerical,Analytic_Hessian,
      &                 iOptC,mxdc,lOld,
      &                 nFix,mTR,ip_KtB,nQQ,Redundant,MaxItr)
@@ -214,9 +213,7 @@
          ip_TabB = ip_of_iWork(TabB(1,1))
          ip_TabAI= ip_of_iWork(TabAI(1,1))
          Call BMtrx_Internal(
-     &                 ipBMx,nAtom,
-     &                 nDim,dMass,
-     &                 Name,Smmtrc,
+     &                 ipBMx,nAtom,nDim,Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,
      &                 Gx,mTtAtm,ANr,
      &                 nStab,jStab,Numerical,
