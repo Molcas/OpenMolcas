@@ -105,6 +105,10 @@
 *     Compute the new Cartesian coordinates.
 *
       iterMx = 50
+*
+*     We want this procedure not to affect the memory reference of the
+*     B matrix. Hence, we will not deallocate it here.
+      ipBMx_save = ipBMx
       Do jter = 1, iterMx
 *
 *--------Compute the Cartesian shift, solve dq = B^T dx!
@@ -113,7 +117,7 @@
          N = nInter
          Call Eq_Solver('T',M,N,NRHS,Work(ipBMx),Curvilinear,Degen,dSS,
      &                  DFC)
-         Call Free_Work(ipBmx)
+         If (jter>1) Call Free_Work(ipBMx)
 *
          If (iPrint.ge.99)
      &     Call PrList('Symmetry Distinct Nuclear Displacements',
@@ -192,6 +196,7 @@
          End If
 *
       End Do
+*
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -200,9 +205,7 @@
 *     In the former case, the output value indicates if an error has
 *     occurred
 *
-      If (Error) Then
-         Return
-      Else
+      If (.NOT.Error) Then
          Call WarningMessage(2,'Error in Int2Car')
          Write (Lu,*)
          Write (Lu,*) '***********************************************'
@@ -238,6 +241,12 @@
       Invar=(iAnd(iSBS,2**7).eq.0).and.(iAnd(iSBS,2**8).eq.0)
       If (WeightedConstraints.and.Invar)
      &   Call Align(Cx(:,:,iter+1),Work(ipRef),nAtom)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call DCopy_(3*nAtom*nInter,Work(ipBMx),1,Work(ipBMx_Save),1)
+      Call Free_Work(ipBMx)
+      ipBMx=ipBMx_save
 *                                                                      *
 ************************************************************************
 *                                                                      *
