@@ -41,20 +41,22 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "weighting.fh"
 #include "info_slapaf.fh"
       Real*8 Cx(3*nAtom,iter+1),Gx(3*nAtom,iter+1)
       Logical IRCRestart,BadConstraint
       Parameter ( RadToDeg=180.0D0/Pi )
-      Dimension iDum(1)
+      Integer iDum(1)
+      Real*8, Allocatable:: PrevDir(:,:), PostDir(:,:)
 *
 *                                                                      *
 ************************************************************************
 *                                                                      *
       nCoor=3*nAtom
       iPrev_iter=Max(iOff_iter,1)
-      Call Allocate_Work(ipPrevDir,nCoor)
-      Call Allocate_Work(ipPostDir,nCoor)
+      Call mma_allocate(PrevDir,3,nAtom,Label='PrevDir')
+      Call mma_allocate(PostDir,3,nAtom,Label='PostDir')
       Call Allocate_Work(ipDisp,nCoor)
       Call Allocate_Work(ipGrad,nCoor)
       Call Allocate_Work(ipDir,nCoor)
@@ -67,15 +69,15 @@
 *     Grad:    gradient at current MEP point
 *
       If (iter.gt.1) Then
-        Call dCopy_(nCoor,Work(ipRef),1,Work(ipPrevDir),1)
-        Call DaXpY_(nCoor,-One,Cx(1,iPrev_iter),1,Work(ipPrevDir),1)
-        Call dCopy_(nCoor,Cx(1,iter),1,Work(ipPostDir),1)
-        Call DaXpY_(nCoor,-One,Work(ipRef),1,Work(ipPostDir),1)
+        Call dCopy_(nCoor,Work(ipRef),1,PrevDir(:,:),1)
+        Call DaXpY_(nCoor,-One,Cx(:,iPrev_iter),1,PrevDir(:,:),1)
+        Call dCopy_(nCoor,Cx(:,iter),1,PostDir(:,:),1)
+        Call DaXpY_(nCoor,-One,Work(ipRef),1,PostDir(:,:),1)
         Call dCopy_(nCoor,Cx(1,iter),1,Work(ipDisp),1)
         Call DaXpY_(nCoor,-One,Cx(1,iPrev_iter),1,Work(ipDisp),1)
       Else
-        Call DZero(Work(ipPrevDir),nCoor)
-        Call DZero(Work(ipPostDir),nCoor)
+        PrevDir(:,:)=Zero
+        PostDir(:,:)=Zero
         Call DZero(Work(ipDisp),nCoor)
       End If
       Call dCopy_(nCoor,Gx(1,iter),1,Work(ipGrad),1)
@@ -100,18 +102,18 @@
         xWeight=Weights(iAtom)
         TWeight=TWeight+Fact*xWeight
         Do ixyz=1,3
-          dPrevDir=dPrevDir+Fact*xWeight*Work(ipPrevDir+iOff)**2
-          dPostDir=dPostDir+Fact*xWeight*Work(ipPostDir+iOff)**2
+          dPrevDir=dPrevDir+Fact*xWeight*PrevDir(ixyz,iAtom)**2
+          dPostDir=dPostDir+Fact*xWeight*PostDir(ixyz,iAtom)**2
           dDisp=dDisp+Fact*xWeight*Work(ipDisp+iOff)**2
           dGrad=dGrad+Fact*Work(ipGrad+iOff)**2/xWeight
           dPostDirGrad=dPostDirGrad+
-     &        Fact*Work(ipPostDir+iOff)*Work(ipGrad+iOff)
+     &        Fact*PostDir(ixyz,iAtom)*Work(ipGrad+iOff)
           dPrevDirGrad=dPrevDirGrad+
-     &        Fact*Work(ipPrevDir+iOff)*Work(ipGrad+iOff)
+     &        Fact*PrevDir(ixyz,iAtom)*Work(ipGrad+iOff)
           dPrevDirDisp=dPrevDirDisp+
-     &        Fact*xWeight*Work(ipPrevDir+iOff)*Work(ipDisp+iOff)
+     &        Fact*xWeight*PrevDir(ixyz,iAtom)*Work(ipDisp+iOff)
           dPrevDirPostDir=dPrevDirPostDir+
-     &        Fact*xWeight*Work(ipPrevDir+iOff)*Work(ipPostDir+iOff)
+     &        Fact*xWeight*PrevDir(ixyz,iAtom)*PostDir(ixyz,iAtom)
           iOff=iOff+1
         End Do
       End Do
@@ -120,9 +122,9 @@
       dDisp=Sqrt(dDisp)
       dGrad=Sqrt(dGrad)
       If (dPrevDir.gt.Zero)
-     &  Call DScal_(nCoor,One/dPrevDir,Work(ipPrevDir),1)
+     &  Call DScal_(nCoor,One/dPrevDir,PrevDir(:,:),1)
       If (dPostDir.gt.Zero)
-     &  Call DScal_(nCoor,One/dPostDir,Work(ipPostDir),1)
+     &  Call DScal_(nCoor,One/dPostDir,PostDir(:,:),1)
       If (dDisp.gt.Zero)
      &  Call DScal_(nCoor,One/dDisp,Work(ipDisp),1)
       If (dGrad.gt.Zero)
@@ -238,13 +240,13 @@
 *         the plane normal (PrevDir) than the Disp vector, therefore
 *         a negative value is probably better.
           Fact=-0.5D0
-          Call dCopy_(nCoor,Work(ipPrevDir),1,Work(ipDir),1)
+          Call dCopy_(nCoor,PrevDir(:,:),1,Work(ipDir),1)
           Call DScal_(nCoor,Fact,Work(ipDir),1)
           Call DaXpY_(nCoor,(One-Fact)*dPrevDirDisp,Work(ipDisp),1,
      &                                             Work(ipDir),1)
         Else
 *         In the SPHERE case, PostDir is the vector to use
-          Call dCopy_(nCoor,Work(ipPostDir),1,Work(ipDir),1)
+          Call dCopy_(nCoor,PostDir(:,:),1,Work(ipDir),1)
         End If
 *
 *       Special cases
@@ -341,8 +343,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Free_Work(ipPrevDir)
-      Call Free_Work(ipPostDir)
+      Call mma_deallocate(PrevDir)
+      Call mma_deallocate(PostDir)
       Call Free_Work(ipDisp)
       Call Free_Work(ipGrad)
       Call Free_Work(ipDir)
