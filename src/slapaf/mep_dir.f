@@ -48,7 +48,8 @@
       Logical IRCRestart,BadConstraint
       Parameter ( RadToDeg=180.0D0/Pi )
       Integer iDum(1)
-      Real*8, Allocatable:: PrevDir(:,:), PostDir(:,:)
+      Real*8, Allocatable:: PrevDir(:,:), PostDir(:,:), Disp(:,:),
+     &                      Grad(:,:)
 *
 *                                                                      *
 ************************************************************************
@@ -57,8 +58,8 @@
       iPrev_iter=Max(iOff_iter,1)
       Call mma_allocate(PrevDir,3,nAtom,Label='PrevDir')
       Call mma_allocate(PostDir,3,nAtom,Label='PostDir')
-      Call Allocate_Work(ipDisp,nCoor)
-      Call Allocate_Work(ipGrad,nCoor)
+      Call mma_allocate(Disp,3,nAtom,Label='Disp')
+      Call mma_allocate(Grad,3,nAtom,Label='Grad')
       Call Allocate_Work(ipDir,nCoor)
       Call Allocate_Work(ipCen,nCoor)
 *
@@ -73,14 +74,14 @@
         Call DaXpY_(nCoor,-One,Cx(:,iPrev_iter),1,PrevDir(:,:),1)
         Call dCopy_(nCoor,Cx(:,iter),1,PostDir(:,:),1)
         Call DaXpY_(nCoor,-One,Work(ipRef),1,PostDir(:,:),1)
-        Call dCopy_(nCoor,Cx(1,iter),1,Work(ipDisp),1)
-        Call DaXpY_(nCoor,-One,Cx(1,iPrev_iter),1,Work(ipDisp),1)
+        Call dCopy_(nCoor,Cx(:,iter),1,Disp(:,:),1)
+        Call DaXpY_(nCoor,-One,Cx(:,iPrev_iter),1,Disp(:,:),1)
       Else
         PrevDir(:,:)=Zero
         PostDir(:,:)=Zero
-        Call DZero(Work(ipDisp),nCoor)
+        Disp(:,:)   =Zero
       End If
-      Call dCopy_(nCoor,Gx(1,iter),1,Work(ipGrad),1)
+      Call dCopy_(nCoor,Gx(:,iter),1,Grad(:,:),1)
 *
 *     Normalize the vectors in weighted coordinates
 *     and compute some angles that provide information on the path
@@ -104,14 +105,14 @@
         Do ixyz=1,3
           dPrevDir=dPrevDir+Fact*xWeight*PrevDir(ixyz,iAtom)**2
           dPostDir=dPostDir+Fact*xWeight*PostDir(ixyz,iAtom)**2
-          dDisp=dDisp+Fact*xWeight*Work(ipDisp+iOff)**2
-          dGrad=dGrad+Fact*Work(ipGrad+iOff)**2/xWeight
+          dDisp=dDisp+Fact*xWeight*Disp(ixyz,iAtom)**2
+          dGrad=dGrad+Fact*Grad(ixyz,iAtom)**2/xWeight
           dPostDirGrad=dPostDirGrad+
-     &        Fact*PostDir(ixyz,iAtom)*Work(ipGrad+iOff)
+     &        Fact*PostDir(ixyz,iAtom)*Grad(ixyz,iAtom)
           dPrevDirGrad=dPrevDirGrad+
-     &        Fact*PrevDir(ixyz,iAtom)*Work(ipGrad+iOff)
+     &        Fact*PrevDir(ixyz,iAtom)*Grad(ixyz,iAtom)
           dPrevDirDisp=dPrevDirDisp+
-     &        Fact*xWeight*PrevDir(ixyz,iAtom)*Work(ipDisp+iOff)
+     &        Fact*xWeight*PrevDir(ixyz,iAtom)*Disp(ixyz,iAtom)
           dPrevDirPostDir=dPrevDirPostDir+
      &        Fact*xWeight*PrevDir(ixyz,iAtom)*PostDir(ixyz,iAtom)
           iOff=iOff+1
@@ -126,9 +127,9 @@
       If (dPostDir.gt.Zero)
      &  Call DScal_(nCoor,One/dPostDir,PostDir(:,:),1)
       If (dDisp.gt.Zero)
-     &  Call DScal_(nCoor,One/dDisp,Work(ipDisp),1)
+     &  Call DScal_(nCoor,One/dDisp,Disp(:,:),1)
       If (dGrad.gt.Zero)
-     &  Call DScal_(nCoor,One/dGrad,Work(ipGrad),1)
+     &  Call DScal_(nCoor,One/dGrad,Grad(:,:),1)
 *     Any zero vector is assumed to be parallel to any other
       If (dPostDir*dGrad.gt.Zero) Then
         dPostDirGrad=dPostDirGrad/(dPostDir*dGrad)
@@ -242,7 +243,7 @@
           Fact=-0.5D0
           Call dCopy_(nCoor,PrevDir(:,:),1,Work(ipDir),1)
           Call DScal_(nCoor,Fact,Work(ipDir),1)
-          Call DaXpY_(nCoor,(One-Fact)*dPrevDirDisp,Work(ipDisp),1,
+          Call DaXpY_(nCoor,(One-Fact)*dPrevDirDisp,Disp(:,:),1,
      &                                             Work(ipDir),1)
         Else
 *         In the SPHERE case, PostDir is the vector to use
@@ -324,18 +325,18 @@
 *       to try to break symmetry
 *
         If (nIrrep.eq.1) Then
-          Call Random_Vector(nCoor,Work(ipDisp),.True.)
+          Call Random_Vector(nCoor,Disp(:,:),.True.)
           dDir=Zero
           iOff=0
           Do iAtom=1,nAtom
             xWeight=Weights(iAtom)
             Do ixyz=1,3
-              dDir=dDir+xWeight*Work(ipDisp+iOff)**2
+              dDir=dDir+xWeight*Disp(ixyz,iAtom)**2
               iOff=iOff+1
             End Do
           End Do
           Fact=dMEPStep*Sqrt(TWeight/dDir)
-          Call DaXpY_(nCoor,0.05D0*Fact,Work(ipDisp),1,Cx(1,iter+1),1)
+          Call DaXpY_(nCoor,0.05D0*Fact,Disp(:,:),1,Cx(:,iter+1),1)
         End If
         Call Put_dArray('Transverse',Work(ipDir),nCoor)
         If (iter.eq.1) BadConstraint=.False.
@@ -345,8 +346,8 @@
 *                                                                      *
       Call mma_deallocate(PrevDir)
       Call mma_deallocate(PostDir)
-      Call Free_Work(ipDisp)
-      Call Free_Work(ipGrad)
+      Call mma_deallocate(Disp)
+      Call mma_deallocate(Grad)
       Call Free_Work(ipDir)
       Call Free_Work(ipCen)
       Return
