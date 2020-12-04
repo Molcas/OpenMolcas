@@ -638,7 +638,9 @@ contains
             !>  Sort first by orbital kind ascendingly (frozen, inactive, RAS1, ...),
             !>      second by occupation number descendingly (2.0, 2.0, 1.x, 0., ...),
             !>      third by energy ascendingly (-3., -2., -2., 0., 1., ...).
-            !>  Note, that `sort` uses a stable sorting algorithm.
+            !>  Note, that `sort` uses a stable sorting algorithm and since the
+            !>  input orbitals are automatically by irrep the output
+            !>  will be sorted last ascendingly by irrep.
             pure function closure_compare(i, j) result(res)
                 integer, intent(in) :: i, j
                 logical :: res
@@ -691,7 +693,9 @@ contains
     !>  Sort first by orbital kind ascendingly (frozen, inactive, RAS1, ...),
     !>      second by occupation number descendingly (2.0, 2.0, 1.x, 0., ...),
     !>      third by energy ascendingly (-3., -2., -2., 0., 1., ...).
-    !>  Note, that `sort` uses a stable sorting algorithm.
+    !>  Note, that `sort` uses a stable sorting algorithm and since the
+    !>  input orbitals are automatically by irrep the output
+    !>  will be sorted last ascendingly by irrep.
     pure function compare(i, j) result(res)
         integer, intent(in) :: i, j
         logical :: res
