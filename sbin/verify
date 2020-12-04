@@ -967,10 +967,10 @@ for filename in filelist:
       msg(prompt)
     # run pymolcas and capture the return code.
     if opt['debug']:
-      process = sp.Popen([MOLCAS_DRIVER, *cli_opts, infile], stdout=sys.stdout, stderr=sys.stderr)
+      process = sp.Popen([MOLCAS_DRIVER] + cli_opts + [infile], stdout=sys.stdout, stderr=sys.stderr)
     else:
       with open(outfile, 'w+') as fo, open(errfile, 'w+') as fe:
-        process = sp.Popen([MOLCAS_DRIVER, *cli_opts, infile], stdout=fo, stderr=fe)
+        process = sp.Popen([MOLCAS_DRIVER] + cli_opts + [infile], stdout=fo, stderr=fe)
     active_pid = process.pid
     rc = process.wait()
     special = False

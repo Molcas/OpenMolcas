@@ -111,7 +111,7 @@
 
 .intel13:
   variables:
-    install_path: "~/install"
+    install_path: "${CI_PROJECT_DIR}/install"
     cache_file: |
       set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
       set (HDF5 "OFF" CACHE STRING "turn off HDF5")
@@ -123,6 +123,7 @@
       . /usr/local/bin/setupintel.sh
       export PATH=$${PWD}:$${PATH}
       touch pymolcas
+      rm -rf ${install_path}
     pre_make_script: |
       $${make} only_objs
       cmake -D EXTRA_FFLAGS="" .
