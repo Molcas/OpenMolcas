@@ -673,6 +673,14 @@ contains
         energy(:) = energy(idx)
         CMO(:, :) = CMO(:, idx)
         occ(:) = occ(idx)
+
+! There was a wrong and stupid warning from GFortran 4.8
+! If we stop supporting this compiler remove this ugly workaround.
+#ifdef _WARNING_WORKAROUND_
+        if (.false.) then
+            if (compare(1, 2)) continue
+        end if
+#endif
     end subroutine
 
     !> @brief
