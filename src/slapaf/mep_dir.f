@@ -49,7 +49,8 @@
       Parameter ( RadToDeg=180.0D0/Pi )
       Integer iDum(1)
       Real*8, Allocatable:: PrevDir(:,:), PostDir(:,:), Disp(:,:),
-     &                      Grad(:,:)
+     &                      Grad(:,:), Dir(:,:), Cen(:,:),
+     &                      Len(:), Cur(:)
 *
 *                                                                      *
 ************************************************************************
@@ -60,8 +61,8 @@
       Call mma_allocate(PostDir,3,nAtom,Label='PostDir')
       Call mma_allocate(Disp,3,nAtom,Label='Disp')
       Call mma_allocate(Grad,3,nAtom,Label='Grad')
-      Call Allocate_Work(ipDir,nCoor)
-      Call Allocate_Work(ipCen,nCoor)
+      Call mma_allocate(Dir,3,nAtom,Label='Dir')
+      Call mma_allocate(Cen,3,nAtom,Label='Cen')
 *
 *     Obtain some useful vectors:
 *     PrevDir: difference between ref. structure and previous MEP point
@@ -167,19 +168,19 @@
 *
 *     Store the length and curvature values, and print results
 *
-      Call Allocate_Work(ipLen,nMEP+1)
-      Call Allocate_Work(ipCur,nMEP+1)
+      Call mma_allocate(Len,nMEP+1,Label='Len')
+      Call mma_allocate(Cur,nMEP+1,Label='Cur')
       If (iMEP.ge.1) Then
-        Call Get_dArray('MEP-Lengths   ',Work(ipLen),nMEP+1)
-        Call Get_dArray('MEP-Curvatures',Work(ipCur),nMEP+1)
+        Call Get_dArray('MEP-Lengths   ',Len,nMEP+1)
+        Call Get_dArray('MEP-Curvatures',Cur,nMEP+1)
         If (IRC.eq.-1) Then
-          Work(ipLen+iMEP)=-PathLength
+          Len(1+iMEP)=-PathLength
         Else
-          Work(ipLen+iMEP)=PathLength
+          Len(1+iMEP)=PathLength
         End If
-        Work(ipCur+iMEP)=Curvature
-        Call Put_dArray('MEP-Lengths   ',Work(ipLen),nMEP+1)
-        Call Put_dArray('MEP-Curvatures',Work(ipCur),nMEP+1)
+        Cur(1+iMEP)=Curvature
+        Call Put_dArray('MEP-Lengths   ',Len,nMEP+1)
+        Call Put_dArray('MEP-Curvatures',Cur,nMEP+1)
         If ((iMEP.ge.1).and.(iPrint.ge.5)) Then
           If (MEP_Type.eq.'TRANSVERSE') Then
             ConstraintAngle=aCos(dPrevDirGrad)*RadToDeg
@@ -208,13 +209,13 @@
 100       Format(1X,A30,1X,F12.6,1X,A)
         End If
       Else
-        Call DZero(Work(ipLen),nMEP+1)
-        Call DZero(Work(ipCur),nMEP+1)
-        Call Put_dArray('MEP-Lengths   ',Work(ipLen),nMEP+1)
-        Call Put_dArray('MEP-Curvatures',Work(ipCur),nMEP+1)
+        Len(:)=Zero
+        Cur(:)=Zero
+        Call Put_dArray('MEP-Lengths   ',Len,nMEP+1)
+        Call Put_dArray('MEP-Curvatures',Cur,nMEP+1)
       End If
-      Call Free_Work(ipLen)
-      Call Free_Work(ipCur)
+      Call mma_deallocate(Len)
+      Call mma_deallocate(Cur)
 *
 *     Do not mess with the geometry or reference if the next iteration
 *     will be the start of a reverse IRC search.
@@ -241,13 +242,12 @@
 *         the plane normal (PrevDir) than the Disp vector, therefore
 *         a negative value is probably better.
           Fact=-0.5D0
-          Call dCopy_(nCoor,PrevDir(:,:),1,Work(ipDir),1)
-          Call DScal_(nCoor,Fact,Work(ipDir),1)
+          Dir(:,:) = Fact * PrevDir(:,:)
           Call DaXpY_(nCoor,(One-Fact)*dPrevDirDisp,Disp(:,:),1,
-     &                                             Work(ipDir),1)
+     &                                             Dir(:,:),1)
         Else
 *         In the SPHERE case, PostDir is the vector to use
-          Call dCopy_(nCoor,PostDir(:,:),1,Work(ipDir),1)
+          Dir(:,:) = PostDir(:,:)
         End If
 *
 *       Special cases
@@ -255,10 +255,10 @@
         If (iMEP.eq.0) Then
           If (IRC.eq.0) Then
 *           In the initial iteration of a MEP, use the initial direction
-            Call Get_dArray('Transverse',Work(ipDir),nCoor)
+            Call Get_dArray('Transverse',Dir(:,:),nCoor)
           Else
 *           In the initial iteration of an IRC branch, use the reaction vector
-            Call dCopy_(nCoor,MF,1,Work(ipDir),1)
+            Call dCopy_(nCoor,MF,1,Dir(:,:),1)
           End If
         End If
 *
@@ -279,8 +279,8 @@
         Do iLambda=1,nLambda
           If (iLambda.ne.MEPnum) Then
             dd=dDot_(nCoor,Work(iOff),1,Work(iOff),1)
-            drd=dDot_(nCoor,Work(iOff),1,Work(ipDir),1)
-            Call DaXpY_(nCoor,-drd/dd,Work(iOff),1,Work(ipDir),1)
+            drd=dDot_(nCoor,Work(iOff),1,Dir(:,:),1)
+            Call DaXpY_(nCoor,-drd/dd,Work(iOff),1,Dir(:,:),1)
           End If
           iOff=iOff+nCoor
         End Do
@@ -294,7 +294,7 @@
           Fact=Dble(iDeg(Cx(1+iOff,iter)))
           xWeight=Weights(iAtom)
           Do ixyz=1,3
-            dDir=dDir+Fact*xWeight*Work(ipDir+iOff)**2
+            dDir=dDir+Fact*xWeight*Dir(ixyz,iAtom)**2
             iOff=iOff+1
           End Do
         End Do
@@ -307,17 +307,17 @@
 *       For an IRC first step, keep the initial structure as reference
 *
         Fact=dMEPStep*Sqrt(TWeight)/dDir
-        Call dCopy_(nCoor,Cx(1,iter),1,Work(ipCen),1)
+        Call dCopy_(nCoor,Cx(:,iter),1,Cen(:,:),1)
         If (MEP_Algo.eq.'GS') Then
           If ((IRC.eq.0).or.(iMEP.ne.0))
-     &      Call Find_Distance(Cx(1,iter),Work(ipCen),Work(ipDir),
+     &      Call Find_Distance(Cx(:,iter),Cen(:,:),Dir(:,:),
      &                Half*Fact,Half*dMEPStep,nAtom,BadConstraint)
-          If (.Not.rMEP) Call Put_dArray('Ref_Geom',Work(ipCen),nCoor)
-          Call Find_Distance(Work(ipCen),Cx(1,iter+1),Work(ipDir),
+          If (.Not.rMEP) Call Put_dArray('Ref_Geom',Cen(:,:),nCoor)
+          Call Find_Distance(Cen(:,:),Cx(:,iter+1),Dir(:,:),
      &              Half*Fact,Half*dMEPStep,nAtom,BadConstraint)
         Else If (MEP_Algo.eq.'MB') Then
           If (.Not.rMEP) Call Put_dArray('Ref_Geom',Cx(1,iter),nCoor)
-          Call Find_Distance(Cx(1,iter),Cx(1,iter+1),Work(ipDir),
+          Call Find_Distance(Cx(:,iter),Cx(:,iter+1),Dir(:,:),
      &              Fact,dMEPStep,nAtom,BadConstraint)
         End If
 *
@@ -338,7 +338,7 @@
           Fact=dMEPStep*Sqrt(TWeight/dDir)
           Call DaXpY_(nCoor,0.05D0*Fact,Disp(:,:),1,Cx(:,iter+1),1)
         End If
-        Call Put_dArray('Transverse',Work(ipDir),nCoor)
+        Call Put_dArray('Transverse',Dir(:,:),nCoor)
         If (iter.eq.1) BadConstraint=.False.
       End If
 *                                                                      *
@@ -348,7 +348,7 @@
       Call mma_deallocate(PostDir)
       Call mma_deallocate(Disp)
       Call mma_deallocate(Grad)
-      Call Free_Work(ipDir)
-      Call Free_Work(ipCen)
+      Call mma_deallocate(Dir)
+      Call mma_deallocate(Cen)
       Return
       End
