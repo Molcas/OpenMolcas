@@ -657,10 +657,10 @@ for task in tasklist:
           # empty task, match every possible input file
           basenames = find_all_names_from_group(group)
         else:
-          number_string = re.match(r'\d{3}(?:-\d{3})?$', subtask).group(0)
+          number_string = re.match(r'\d{3}(?:-\d{3})?$', subtask)
           if number_string:
             # extract name from number(range)
-            basenames = flatten_numbers(number_string)
+            basenames = flatten_numbers(number_string.group(0))
           else:
             # no number, assume subtask is a basename
             basenames.append(subtask)

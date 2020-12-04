@@ -122,6 +122,7 @@
     pre_compile_script: |
       . /usr/local/bin/setupintel.sh
       export PATH=$${PWD}:$${PATH}
+      touch pymolcas
     pre_make_script: |
       $${make} only_objs
       cmake -D EXTRA_FFLAGS="" .
