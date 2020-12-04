@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-C generic interface for dataset creation
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+! generic interface for dataset creation
 
       interface
 
@@ -40,6 +40,17 @@ C generic interface for dataset creation
       character(len=*) :: name
       end function
 
+      function mh5_open_group (lu, name) result (id)
+      implicit none
+      character(len=*) :: name
+      integer :: lu, id
+      end function
+
+      subroutine mh5_close_group (id)
+      implicit none
+      integer :: id
+      end subroutine
+
       logical function mh5_exists_dset (id, name)
       implicit none
       integer :: id
@@ -52,7 +63,7 @@ C generic interface for dataset creation
       character(len=*) :: name
       end function
 
-*     open/close dataset
+!     open/close dataset
 
       function mh5_open_dset (lu, dsetname) result (dsetid)
       implicit none
@@ -66,7 +77,7 @@ C generic interface for dataset creation
       integer :: dsetid
       end subroutine
 
-*     open/close attribute
+!     open/close attribute
 
       function mh5_open_attr (lu, attrname) result (attrid)
       implicit none
@@ -82,9 +93,9 @@ C generic interface for dataset creation
 
       end interface
 
-*======================
-*     ATTRIBUTES
-*======================
+!======================
+!     ATTRIBUTES
+!======================
 
       interface mh5_create_attr_int
 
@@ -95,8 +106,8 @@ C generic interface for dataset creation
       integer :: dset_id
       end function
 
-      function mh5_create_attr_array_int (lu, name, rank, dims)
-     $        result (attr_id)
+      function mh5_create_attr_array_int (lu, name, rank, dims)         &
+     &        result (attr_id)
       implicit none
       integer :: lu
       character(len=*) :: name
@@ -116,8 +127,8 @@ C generic interface for dataset creation
       integer :: dset_id
       end function
 
-      function mh5_create_attr_array_real (lu, name, rank, dims)
-     $        result (attr_id)
+      function mh5_create_attr_array_real (lu, name, rank, dims)        &
+     &        result (attr_id)
       implicit none
       integer :: lu
       character(len=*) :: name
@@ -137,8 +148,8 @@ C generic interface for dataset creation
       integer :: dset_id
       end function
 
-      function mh5_create_attr_array_str (lu, name, rank, dims, size)
-     $        result (attr_id)
+      function mh5_create_attr_array_str (lu, name, rank, dims, size)   &
+     &        result (attr_id)
       implicit none
       integer :: lu
       character(len=*) :: name
@@ -283,8 +294,8 @@ C generic interface for dataset creation
       real*8 :: buffer(*)
       end subroutine
 
-      subroutine mh5_init_attr_array_str (
-     $       lu, name, rank, dims, buffer, size)
+      subroutine mh5_init_attr_array_str (lu, name, rank, dims, buffer, &
+     &                                    size)
       implicit none
       integer :: lu
       character(len=*) :: name
@@ -342,9 +353,9 @@ C generic interface for dataset creation
 
       end interface
 
-*======================
-*     DATASETS
-*======================
+!======================
+!     DATASETS
+!======================
 
       interface mh5_create_dset_int
 
@@ -355,8 +366,8 @@ C generic interface for dataset creation
       integer :: dset_id
       end function
 
-      function mh5_create_dset_array_int (lu, name, rank, dims, dyn)
-     $        result (dset_id)
+      function mh5_create_dset_array_int (lu, name, rank, dims, dyn)    &
+     &        result (dset_id)
       implicit none
       integer :: lu
       character(len=*) :: name
@@ -377,8 +388,8 @@ C generic interface for dataset creation
       integer :: dset_id
       end function
 
-      function mh5_create_dset_array_real (lu, name, rank, dims, dyn)
-     $        result (dset_id)
+      function mh5_create_dset_array_real (lu, name, rank, dims, dyn)   &
+     &        result (dset_id)
       implicit none
       integer :: lu
       character(len=*) :: name
@@ -399,9 +410,9 @@ C generic interface for dataset creation
       integer :: dset_id
       end function
 
-      function mh5_create_dset_array_str (lu, name, rank, dims, size,
-     $                                    dyn)
-     $        result (dset_id)
+      function mh5_create_dset_array_str (lu, name, rank, dims, size,   &
+     &                                    dyn)                          &
+     &        result (dset_id)
       implicit none
       integer :: lu
       character(len=*) :: name
@@ -529,8 +540,8 @@ C generic interface for dataset creation
       character(len=*) :: value
       end subroutine
 
-      subroutine mh5_init_dset_array_int (lu, name, rank, dims, buffer,
-     $                                    dyn)
+      subroutine mh5_init_dset_array_int (lu, name, rank, dims, buffer, &
+     &                                    dyn)
       implicit none
       integer :: lu
       character(len=*) :: name
@@ -540,8 +551,8 @@ C generic interface for dataset creation
       logical, optional :: dyn
       end subroutine
 
-      subroutine mh5_init_dset_array_real (lu, name, rank, dims, buffer,
-     $                                     dyn)
+      subroutine mh5_init_dset_array_real (lu, name, rank, dims, buffer,&
+     &                                     dyn)
       implicit none
       integer :: lu
       character(len=*) :: name
@@ -551,8 +562,8 @@ C generic interface for dataset creation
       logical, optional :: dyn
       end subroutine
 
-      subroutine mh5_init_dset_array_str (
-     $       lu, name, rank, dims, buffer, size, dyn)
+      subroutine mh5_init_dset_array_str (lu, name, rank, dims, buffer, &
+     &                                    size, dyn)
       implicit none
       integer :: lu
       character(len=*) :: name
@@ -596,8 +607,8 @@ C generic interface for dataset creation
       integer, optional :: exts(*), offs(*)
       end subroutine
 
-      subroutine mh5_fetch_dset_array_real (lu, name, buffer, exts,
-     $                                      offs)
+      subroutine mh5_fetch_dset_array_real (lu, name, buffer, exts,     &
+     &                                      offs)
       implicit none
       integer :: lu
       character(len=*) :: name
