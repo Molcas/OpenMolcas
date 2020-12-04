@@ -18,9 +18,12 @@ Subroutine driverBas(ireturn)
 
     call Readinp_expbas()
     if (DoExpbas) then
-      Call expbas(ireturn)
-      if (ireturn /= 0) return
+        Call expbas(ireturn)
+        if (ireturn /= 0) return
     end if
 
-    if (DoDesy) Call desym()
+    if (DoDesy) then
+        Call desym(ireturn)
+        if (ireturn /= 0) return
+    end if
 end subroutine

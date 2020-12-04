@@ -55,7 +55,7 @@ module desymmetrize_mod
 contains
 
 ! symmetry-----> C1 INPORB
-    Subroutine desym()
+    Subroutine desym(ireturn)
 !***********************************************************************
 !                                                                      *
 ! Purpose: Convert INPORB file with symmetry to DeSymOrb               *
@@ -82,6 +82,9 @@ contains
 !   END                                                                *
 !                                                                      *
 !***********************************************************************
+        integer, intent(out) :: ireturn
+
+        integer :: ierr
 #include "Molcas.fh"
 #include "WrkSpc.fh"
         real(wp), parameter :: EorbThr = 50._wp
@@ -109,7 +112,6 @@ contains
 
         integer :: nAtom, nData, nDeg, nTot, nTot2, nB
         integer :: iCnttp, iAngMx_Valence
-        integer :: ierr
         integer :: ipCent, ipCent2, ipCent3
         integer :: ipPhase, ipC2, ipV
         integer :: mAdOcc, mAdEor, mAdCMO
@@ -120,7 +122,7 @@ contains
         integer :: mdc, kk, i, j, ik, k, l, kk_Max, ii, iB, ipp, ic, iv
         integer :: ipc, icontr, nBasisi, icntr
 
-        integer, save :: iRc = 0
+        ireturn = 0
 
         file_id = arbitrary_number
 
@@ -457,7 +459,7 @@ contains
                     kind_per_orb, VTitle, iWarn, iErr, iWfType)
 
         if (iErr /= 0) then
-            iRc = 1
+            ireturn = 1
             return
         end if
 
