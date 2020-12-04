@@ -13,12 +13,6 @@
 !               2020, Oskar Weser                                      *
 !***********************************************************************
 
-#include "compiler_features.h"
-
-#define USE_CLOSURE_FOR_SORTING (defined(INTERNAL_PROC_ARG) && (! __GNUC__) || GCC_VERSION > 40805 )
-! The old gfortran would be able to have internal procedures as arguments
-! but raises wrong warnings about it being unused.
-
 module desymmetrize_mod
     use Basis_Info, only: nBas, nCnttp, dbsc, Shells, MolWgh
     use Center_Info, only: dc
@@ -51,7 +45,7 @@ module desymmetrize_mod
 
 ! NOTE: These global variables are ugly as hell, but we need
 !  it to support the shitty SUN compiler.
-#if (! USE_CLOSURE_FOR_SORTING)
+#ifndef INTERNAL_PROC_ARG
     !> This is the orbital kind for each orbital.
     integer, allocatable :: kind_per_orb(:)
     real(wp), allocatable :: energy(:), occ(:)
@@ -97,7 +91,7 @@ contains
         character(len=LENIN8), allocatable :: label(:)
         character(len=8) :: MO_Label(maxbfn)
         integer :: ibas_lab(MxAtom), nOrb(8)
-#if (USE_CLOSURE_FOR_SORTING)
+#ifdef INTERNAL_PROC_ARG
         !> This is the orbital kind for each orbital.
         integer, allocatable :: kind_per_orb(:)
         real(wp), allocatable :: energy(:), occ(:)
@@ -574,7 +568,7 @@ contains
             CMO(:, i + 1) = work(l : l + nTot - 1)
         end do
 
-#if USE_CLOSURE_FOR_SORTING
+#ifdef INTERNAL_PROC_ARG
         call reorder_orbitals(nTot, kind_per_orb, CMO, occ, energy)
 #else
         call reorder_orbitals()
@@ -613,7 +607,7 @@ contains
 
     end subroutine
 
-#if USE_CLOSURE_FOR_SORTING
+#ifdef INTERNAL_PROC_ARG
 
     subroutine reorder_orbitals(nTot, kind_per_orb, CMO, occ, energy)
         integer, intent(in) :: nTot
