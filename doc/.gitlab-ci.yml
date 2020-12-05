@@ -82,7 +82,7 @@ pages:
     - |
     - mkdir -p public
     - mv install_dir/doc/html public/sphinx
-    - mv install_dir/doc/latex/Manual.pdf public/
+    - mv install_dir/doc/Manual.pdf public/
     - mv doc/doxygen/html public/doxygen
     - du -sh public/*
   needs:
