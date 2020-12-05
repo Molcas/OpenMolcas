@@ -476,7 +476,7 @@ if opt['h']:
 tasklist = []
 if opt['fromfile']:
   try:
-    with open(opt['fromfile'], 'r') as f:
+    with open(opt['fromfile'], 'r', encoding='utf-8') as f:
       tasklist = f.read().split()
   except:
     error('cannot open file {}'.format(file_list))
@@ -522,7 +522,7 @@ if os.path.exists(os.path.join(MOLCAS, 'sbin', 'find_sources')):
   OPENMOLCAS = sp.check_output('. $MOLCAS/sbin/find_sources ; echo $OPENMOLCAS_SOURCE', shell=True).decode().strip()
   TESTDIRS.append(os.path.join(OPENMOLCAS, 'test'))
 if os.path.exists(os.path.join(MOLCAS, 'test', 'testdirs')):
-  with open(os.path.join(MOLCAS, 'test', 'testdirs'), 'r') as f:
+  with open(os.path.join(MOLCAS, 'test', 'testdirs'), 'r', encoding='utf-8') as f:
     TESTDIRS.extend(f.read().split())
 TESTDIRS.append(os.path.join(MOLCAS, 'test'))
 TESTDIRS = list(OrderedDict.fromkeys(TESTDIRS))
@@ -718,7 +718,7 @@ if opt['failed']:
   failed_list = os.path.join(failed, 'list')
   if os.path.isfile(failed_list):
     try:
-      with open(failed_list, 'r') as f:
+      with open(failed_list, 'r', encoding='utf-8') as f:
         for line in f:
           failed_previously[line.strip()] = True
     except IOError:
@@ -849,15 +849,15 @@ os.symlink(os.path.relpath(log_failed, testdir), failed)
 
 # open the information files
 try:
-  RESULT = open(log_result, 'w+', buffering=1)
+  RESULT = open(log_result, 'w+', encoding='utf-8', buffering=1)
 except:
   error('cannot open file {}'.format(log_result))
 try:
-  TIMING = open(log_timing, 'w+', buffering=1)
+  TIMING = open(log_timing, 'w+', encoding='utf-8', buffering=1)
 except:
   error('cannot open file {}'.format(log_timing))
 try:
-  FAILED_LIST = open(log_failed_list, 'w+', buffering=1)
+  FAILED_LIST = open(log_failed_list, 'w+', encoding='utf-8', buffering=1)
 except:
   error('cannot open file {}'.format(log_failed_list))
 
@@ -969,7 +969,7 @@ for filename in filelist:
     if opt['debug']:
       process = sp.Popen([MOLCAS_DRIVER] + cli_opts + [infile], stdout=sys.stdout, stderr=sys.stderr)
     else:
-      with open(outfile, 'w+') as fo, open(errfile, 'w+') as fe:
+      with open(outfile, 'w+', encoding='utf-8') as fo, open(errfile, 'w+', encoding='utf-8') as fe:
         process = sp.Popen([MOLCAS_DRIVER] + cli_opts + [infile], stdout=fo, stderr=fe)
     active_pid = process.pid
     rc = process.wait()
@@ -1037,7 +1037,7 @@ for filename in filelist:
     elif not opt['debug']:
       print('--- Run: {}'.format(project), file=TIMING)
       try:
-        with open(errfile, 'r') as f:
+        with open(errfile, 'r', encoding='utf-8') as f:
           for line in f:
             print(line, end='', file=TIMING)
       except:

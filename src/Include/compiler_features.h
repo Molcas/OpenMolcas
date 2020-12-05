@@ -54,8 +54,8 @@ incomplete.
 #endif
 
 /* Internal procedures as arguments */
-#if (( __SUNPRO_F90 ) || \
-     ( __PGI && __PGIC__ < 20 ))
+/* PGI 20 ( __PGIC__ >= 20 ) supports it, but it appears to be buggy */
+#if (( __SUNPRO_F90 ) || ( __PGI ))
 #undef INTERNAL_PROC_ARG
 #else
 #define INTERNAL_PROC_ARG

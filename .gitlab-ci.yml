@@ -156,6 +156,7 @@ include:
       if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
     - mv install_dir ${install_path}
     - cd ${install_path}
+    - export TINKER=${CI_PROJECT_DIR}/build/tinker/bin
     # default if no tests specified is .all
     - |
       if [ -z "${tests}" ] ; then export tests=".all" ; fi
