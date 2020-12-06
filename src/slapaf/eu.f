@@ -13,33 +13,33 @@
       Subroutine EU(dq,dg,gi,H,nH)
       Implicit Real*8   (a-h,o-z)
       Real*8 H(nH,nH), dq(nH), dg(nH), gi(nH)
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
+      Real*8, Allocatable:: M(:), WorkM(:), E(:), EVec(:), u(:), v(:),
+     &                      Eval(:), p(:), f(:), WorkV(:)
 *
-      Call Allocate_Work(ip_M,    nH**2      )
-      Call Allocate_Work(ip_WorkM,nH**2      )
-      Call Allocate_Work(ip_E    ,nH**2      )
-      Call Allocate_Work(ip_EVec ,nH**2      )
-      Call Allocate_Work(ip_u    ,nH         )
-      Call Allocate_Work(ip_v    ,nH         )
-      Call Allocate_Work(ip_EVal ,nH*(nH+1)/2)
-      Call Allocate_Work(ip_p    ,nH         )
-      Call Allocate_Work(ip_f    ,nH         )
-      Call Allocate_Work(ip_WorkV,nH         )
+      Call mma_allocate(M,    nH**2      ,Label='M    ')
+      Call mma_allocate(WorkM,nH**2      ,Label='WorkM')
+      Call mma_allocate(E    ,nH**2      ,Label='E    ')
+      Call mma_allocate(EVec ,nH**2      ,Label='EVec ')
+      Call mma_allocate(u    ,nH         ,Label='u    ')
+      Call mma_allocate(v    ,nH         ,Label='v    ')
+      Call mma_allocate(EVal ,nH*(nH+1)/2,Label='Eval ')
+      Call mma_allocate(p    ,nH         ,Label='p    ')
+      Call mma_allocate(f    ,nH         ,Label='f    ')
+      Call mma_allocate(WorkV,nH         ,Label='WorkV')
 *
-      Call EU_(dq,dg,gi,H,nH,Work(ip_M),Work(ip_WorkM),
-     &         Work(ip_E),Work(ip_EVec),Work(ip_u),Work(ip_v),
-     &         Work(ip_Eval),Work(ip_p),Work(ip_f),Work(ip_WorkV))
+      Call EU_(dq,dg,gi,H,nH,M,WorkM,E,EVec,u,v,Eval,p,f,WorkV)
 *
-      Call Free_Work(ip_WorkV)
-      Call Free_Work(ip_f    )
-      Call Free_Work(ip_p    )
-      Call Free_Work(ip_EVal )
-      Call Free_Work(ip_v    )
-      Call Free_Work(ip_u    )
-      Call Free_Work(ip_EVec )
-      Call Free_Work(ip_E    )
-      Call Free_Work(ip_WorkM)
-      Call Free_Work(ip_M   )
+      Call mma_deallocate(WorkV)
+      Call mma_deallocate(f    )
+      Call mma_deallocate(p    )
+      Call mma_deallocate(EVal )
+      Call mma_deallocate(v    )
+      Call mma_deallocate(u    )
+      Call mma_deallocate(EVec )
+      Call mma_deallocate(E    )
+      Call mma_deallocate(WorkM)
+      Call mma_deallocate(M   )
 *
       Return
       End

@@ -50,7 +50,7 @@
       Integer iDum(1)
       Real*8, Allocatable:: PrevDir(:,:), PostDir(:,:), Disp(:,:),
      &                      Grad(:,:), Dir(:,:), Cen(:,:),
-     &                      Len(:), Cur(:)
+     &                      Len(:), Cur(:), drdx(:,:)
 *
 *                                                                      *
 ************************************************************************
@@ -272,19 +272,19 @@
         nLambda_=iDum(1)
         Call iDaFile(LudRdX,2,iDum,1,iAd)
         nCoor_=iDum(1)
-        Call Allocate_Work(ipdrdx,nLambda_*nCoor_)
-        Call dDaFile(LudRdX,2,Work(ipdrdx),nLambda_*nCoor_,iAd)
+        Call mma_allocate(drdx,nCoor_,nLambda_,Label='drdx')
+        Call dDaFile(LudRdX,2,drdx,nLambda_*nCoor_,iAd)
         Call DaClos(LudRdX)
         iOff=ipdrdx
         Do iLambda=1,nLambda
           If (iLambda.ne.MEPnum) Then
-            dd=dDot_(nCoor,Work(iOff),1,Work(iOff),1)
-            drd=dDot_(nCoor,Work(iOff),1,Dir(:,:),1)
-            Call DaXpY_(nCoor,-drd/dd,Work(iOff),1,Dir(:,:),1)
+            dd=dDot_(nCoor,drdx(:,iLambda),1,drdx(:,iLambda),1)
+            drd=dDot_(nCoor,drdx(:,iLambda),1,Dir(:,:),1)
+            Call DaXpY_(nCoor,-drd/dd,drdx(:,iLambda),1,Dir(:,:),1)
           End If
           iOff=iOff+nCoor
         End Do
-        Call Free_Work(ipdrdx)
+        Call mma_deallocate(drdx)
 *
 *       Compute the length of the direction vector in weighted coordinates
 *
