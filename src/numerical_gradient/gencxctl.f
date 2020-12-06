@@ -233,7 +233,7 @@
      &               iOptH,User_Def,
      &               nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS, Analytic_Hessian,
-     &               iOptC,PrQ,mxdc,iCoSet,rHidden,ipRef,
+     &               iOptC,PrQ,mxdc,iCoSet,rHidden,
      &               Redundant,MaxItr,iRef,Error)
 *
 *        Move the new Cartesian coordinate to the list.
@@ -270,7 +270,6 @@
       If (ip_idB.ne.ip_iDummy) Call Free_iWork(ip_idB)
       If (ip_nqB.ne.ip_iDummy) Call Free_iWork(ip_nqB)
 *
-      If (Ref_Geom) Call Free_Work(ipRef)
       If (Ref_Grad) Call Free_Work(ipGradRef)
       If (lRP)      Call Free_Work(ipR12)
       Call GetMem(' B ',    'Free','Real',ipB,   (nsAtom*3)**2)

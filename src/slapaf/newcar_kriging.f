@@ -43,7 +43,7 @@
      &            mTtAtm,iOptH,
      &            User_Def,nStab,jStab,Curvilinear,Numerical,
      &            DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &            iCoSet,rHidden,ipRef,Redundant,MaxItr,
+     &            iCoSet,rHidden,Redundant,MaxItr,
      &            RefIter,Error)
 *
       Force_dB=.False.

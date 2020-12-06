@@ -10,7 +10,8 @@
 ************************************************************************
       Subroutine Init2()
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Coor, Grd, GNrm, Lambda,
-     &                       Energy, Energy0, MF, DipM, qInt, dqInt
+     &                       Energy, Energy0, MF, DipM, qInt, dqInt,
+     &                       RefGeo
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
@@ -211,30 +212,29 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
 
          Call qpg_dArray('Ref_Geom',Found,nData)
          If (Found) Then
-            If (.Not.Ref_Geom) Then
-               Call GetMem('ipRef','Allo','Real',ipRef,3*nsAtom)
-               Ref_Geom=.True.
+            If (.Not.Allocated(RefGeo)) Then
+               Call mma_allocate(RefGeo,3,nsAtom,Label='RefGeo')
             End If
-            Call Get_dArray('Ref_Geom',Work(ipRef),3*nsAtom)
+            Call Get_dArray('Ref_Geom',RefGeo,3*nsAtom)
          Else
 *
 *           Not defined: default reference structure to the starting
 *           structure.
 *
-            If (.Not.Ref_Geom) Then
-               ipRef = ip_of_Work(Cx(1,1,1))
+            If (.Not.Allocated(RefGeo)) Then
+               Call mma_allocate(RefGeo,3,nsAtom,Label='RefGeo')
             End If
-            Call Put_dArray('Ref_Geom',Work(ipRef),3*nsAtom)
+            RefGeo(:,:)=Cx(:,:,1)
+            Call Put_dArray('Ref_Geom',RefGeo,3*nsAtom)
          End If
       Else
 *
 *        Pick up the reference structure.
 *
-         If (.Not.Ref_Geom) Then
-            Call GetMem('ipRef','Allo','Real',ipRef,3*nsAtom)
-            Ref_Geom=.True.
+         If (.Not.Allocated(RefGeo)) Then
+            Call mma_allocate(RefGeo,3,nsAtom,Label='RefGeo')
          End If
-         Call Get_dArray('Ref_Geom',Work(ipRef),3*nsAtom)
+         Call Get_dArray('Ref_Geom',RefGeo,3*nsAtom)
       End If
 *
 *     Align the reference structure to the current one, otherwise
@@ -242,8 +242,8 @@ C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
 *
 *     (disabled for the moment, moving the reference affects the
 *      computation of some vectors for MEP)
-C     If (iter.gt.1) Call Align(Work(ipRef),Coor,nsAtom)
-C     Call RecPrt('Ref_Geom',' ',Work(ipRef),3,nsAtom)
+C     If (iter.gt.1) Call Align(RefGeo,Coor,nsAtom)
+C     Call RecPrt('Ref_Geom',' ',RefGeo,3,nsAtom)
 *                                                                      *
 ************************************************************************
 *                                                                      *

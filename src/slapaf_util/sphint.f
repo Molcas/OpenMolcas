@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SphInt(xyz,nCent,iOfRef,RR0,Bf,l_Write,Label,dBf,ldB)
-      use Slapaf_Info, only: Weights
+      use Slapaf_Info, only: Weights, RefGeo
       Implicit Real*8  (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -28,7 +28,7 @@
 *     Compute the radius of the hypersphere
 *
       If (iOfRef.eq.ip_Dummy) Then
-         ipRef_=ipRef
+         ipRef_=ip_of_Work(RefGeo(1,1))
       Else
          ipRef_=iOfRef
       End If

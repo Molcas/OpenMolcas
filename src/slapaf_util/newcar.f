@@ -13,7 +13,7 @@
      &                  Degen,mTtAtm,iOptH,User_Def,nStab,
      &                  jStab,Curvilinear,Numerical,DDV_Schlegel,HWRS,
      &                  Analytic_Hessian,iOptC,PrQ,mxdc,iCoSet,rHidden,
-     &                  ipRef,Redundant,MaxItr,iRef,Error)
+     &                  Redundant,MaxItr,iRef,Error)
       use Slapaf_Info, only: Shift, qInt
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -59,7 +59,7 @@
      &             Degen,kIter,mTtAtm,iOptH,
      &             User_Def,nStab,jStab,Curvilinear,Numerical,
      &             DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &             iCoSet,rHidden,Error,ipRef,Redundant,MaxItr,
+     &             iCoSet,rHidden,Error,Redundant,MaxItr,
      &             iRef)
 *                                                                      *
 ************************************************************************

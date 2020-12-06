@@ -31,7 +31,8 @@
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor,
      &                       Grd, Weights, ANr, Shift, GNrm, Lambda,
-     &                       Energy, Energy0, DipM, MF, qInt, dqInt
+     &                       Energy, Energy0, DipM, MF, qInt, dqInt,
+     &                       RefGeo
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -76,6 +77,7 @@
       Real*8, Allocatable:: Bk_Shift(:,:)
       Real*8, Allocatable:: Bk_qInt(:,:)
       Real*8, Allocatable:: Bk_dqInt(:,:)
+      Real*8, Allocatable:: Bk_RefGeo(:,:)
 
       Integer, Allocatable:: Bk_ANr(:)
 *
@@ -184,6 +186,11 @@
      &                     Label='Bk_dqInt')
          Bk_dqInt(:,:) = dqInt(:,:)
          Call mma_deallocate(dqInt)
+      End If
+      If (Allocated(RefGeo)) Then
+         Call mma_allocate(Bk_RefGeo,3,nsAtom,Label='Bk_RefGeo')
+         Bk_RefGeo(:,:) = RefGeo(:,:)
+         Call mma_deallocate(RefGeo)
       End If
 
       Bk_iSym(:)=iSym(:)
@@ -512,9 +519,6 @@
       Call GetMem('iBM','Free','Inte',ip_iB,mB_Tot)
       Call GetMem('nqB','Free','Inte',ip_nqB,mq)
       Call GetMem(' B ',    'Free','Real',ipB,   (nsAtom*3)**2)
-      If (Ref_Geom) Then
-         Call GetMem('ipRef',  'Free','Real',ipRef,    3*nsAtom)
-      End If
       Call GetMem('Relax',  'Free','Real',ipRlx,    Lngth)
 *                                                                      *
 ************************************************************************
@@ -770,6 +774,12 @@
          Call mma_deallocate(Bk_DipM)
       Else
         If (Allocated(DipM)) Call mma_deallocate(DipM)
+      End If
+      If (Allocated(Bk_RefGeo)) Then
+         RefGeo(:,:) = Bk_RefGeo(:,:)
+         Call mma_deallocate(Bk_RefGeo)
+      Else
+        If (Allocated(RefGeo)) Call mma_deallocate(RefGeo)
       End If
 *
 *     Process arrays that is allocated optionally.

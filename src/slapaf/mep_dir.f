@@ -37,7 +37,7 @@
       Subroutine MEP_Dir(Cx,Gx,nAtom,iMEP,iOff_iter,iPrint,IRCRestart,
      &                   ResGrad,BadConstraint)
       use Symmetry_Info, only: nIrrep
-      use Slapaf_Info, only: Weights, MF
+      use Slapaf_Info, only: Weights, MF, RefGeo
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -71,10 +71,10 @@
 *     Grad:    gradient at current MEP point
 *
       If (iter.gt.1) Then
-        Call dCopy_(nCoor,Work(ipRef),1,PrevDir(:,:),1)
+        PrevDir(:,:) = RefGeo(:,:)
         Call DaXpY_(nCoor,-One,Cx(:,iPrev_iter),1,PrevDir(:,:),1)
         Call dCopy_(nCoor,Cx(:,iter),1,PostDir(:,:),1)
-        Call DaXpY_(nCoor,-One,Work(ipRef),1,PostDir(:,:),1)
+        PostDir(:,:) = PostDir(:,:) - RefGeo(:,:)
         Call dCopy_(nCoor,Cx(:,iter),1,Disp(:,:),1)
         Call DaXpY_(nCoor,-One,Cx(:,iPrev_iter),1,Disp(:,:),1)
       Else

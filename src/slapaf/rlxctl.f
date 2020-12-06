@@ -283,7 +283,7 @@
      &               mTtAtm,iOptH,
      &               User_Def,nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &               iCoSet,rHidden,ipRef,Redundant,MaxItr,iRef,Error)
+     &               iCoSet,rHidden,Redundant,MaxItr,iRef,Error)
       End If
 *                                                                      *
 ************************************************************************
@@ -433,7 +433,6 @@
       If (ip_idB.ne.ip_iDummy) Call Free_iWork(ip_idB)
       If (ip_nqB.ne.ip_iDummy) Call Free_iWork(ip_nqB)
 *
-      If (Ref_Geom) Call Free_Work(ipRef)
       If (Ref_Grad) Call Free_Work(ipGradRef)
       If (lRP)      Call Free_Work(ipR12)
       Call GetMem('Relax', 'Free','Real',ipRlx, Lngth)

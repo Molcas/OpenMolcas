@@ -16,9 +16,9 @@
      &                  User_Def,nStab,jStab,Curvilinear,
      &                  Numerical,DDV_Schlegel,HWRS,
      &                  Analytic_Hessian,iOptC,PrQ,mxdc,
-     &                  iCoSet,rHidden,Error,ipRef,Redundant,
+     &                  iCoSet,rHidden,Error,Redundant,
      &                  MaxItr,iRef)
-      use Slapaf_Info, only: Cx, dMass, qInt
+      use Slapaf_Info, only: Cx, dMass, qInt, RefGeo
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -239,7 +239,7 @@
 *
       Invar=(iAnd(iSBS,2**7).eq.0).and.(iAnd(iSBS,2**8).eq.0)
       If (WeightedConstraints.and.Invar)
-     &   Call Align(Cx(:,:,iter+1),Work(ipRef),nAtom)
+     &   Call Align(Cx(:,:,iter+1),RefGeo,nAtom)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -12,6 +12,7 @@
 ************************************************************************
       Subroutine Find_Distance(Ref,Point,Dir,Fact,Dist,nAtom,
      &                         BadConstraint)
+      use Slapaf_Info, only: RefGeo
       Implicit None
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -19,10 +20,10 @@
 #include "info_slapaf.fh"
 #include "sbs.fh"
       Integer, Intent(In) :: nAtom
-      Real*8, Intent(In) :: Ref(3*nAtom),Dir(3*nAtom),Fact,Dist
-      Real*8, Intent(Out) :: Point(3*nAtom)
+      Real*8, Intent(In) :: Ref(3,nAtom),Dir(3,nAtom),Fact,Dist
+      Real*8, Intent(Out) :: Point(3,nAtom)
       Logical, Intent(Out) :: BadConstraint
-      Real*8, Allocatable :: OldRef(:),Dummy(:)
+      Real*8, Allocatable :: OldRef(:,:),Dummy(:)
       Real*8 :: R,CurFact,PrevR,Correct
       Real*8, Parameter :: Thr = 1.0d-6
       Integer :: nCoor,i
@@ -32,10 +33,10 @@
 *                                                                      *
       Invar=(iAnd(iSBS,2**7).eq.0).and.(iAnd(iSBS,2**8).eq.0)
       nCoor=3*nAtom
-      Call mma_allocate(OldRef,nCoor)
-      Call mma_allocate(Dummy,nCoor)
-      Call dCopy_(nCoor,Work(ipRef),1,OldRef,1)
-      Call dCopy_(nCoor,Ref,1,Work(ipRef),1)
+      Call mma_allocate(OldRef,3,nAtom,Label='OldRef')
+      Call mma_allocate(Dummy,nCoor,Label='Dummy')
+      OldRef(:,:) = RefGeo(:,:)
+      RefGeo(:,:)    = Ref(:,:)
 
       R=Zero
       CurFact=Zero
@@ -45,12 +46,11 @@
 
 *       Add the scaled direction vector
         CurFact=CurFact+Correct
-        Call dCopy_(nCoor,Ref,1,Point,1)
-        Call daXpY_(nCoor,CurFact,Dir,1,Point,1)
+        Point(:,:) = Ref(:,:) + CurFact * Dir(:,:)
 
 *       Align and measure distance
         PrevR=R
-        Call Align(Point,Ref,nAtom)
+        Call Align(Point(:,:),Ref(:,:),nAtom)
         If (MEP_Type.eq.'SPHERE') Then
           Call SphInt(Point,nAtom,ip_Dummy,R,Dummy,
      &                .False.,'dummy   ',Work(ip_Dummy),.False.)
@@ -67,7 +67,7 @@
       End Do
       BadConstraint=(Abs(One-R/Dist).gt.Thr)
 
-      Call dCopy_(nCoor,OldRef,1,Work(ipRef),1)
+      RefGeo(:,:) = OldRef(:,:)
       Call mma_deallocate(OldRef)
       Call mma_deallocate(Dummy)
 *                                                                      *

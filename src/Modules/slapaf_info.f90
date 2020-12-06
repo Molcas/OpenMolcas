@@ -14,7 +14,7 @@ Module Slapaf_Info
 implicit none
 Private
 Public:: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, ANr, Weights, Shift, GNrm, Lambda, &
-         Energy, Energy0, DipM, MF, qInt, dqInt, nSup, Atom, Free_Slapaf
+         Energy, Energy0, DipM, MF, qInt, dqInt, nSup, Atom, RefGeo, Free_Slapaf
 !
 ! Arrays always allocated
 !
@@ -34,6 +34,7 @@ Real*8, Allocatable:: MF(:,:)       ! list of Cartesian mode following vectors f
 Real*8, Allocatable:: DipM(:,:)     ! list of dipole moments for each iteration
 Real*8, Allocatable:: qInt(:,:)     ! internal coordinates for each iteration
 Real*8, Allocatable:: dqInt(:,:)    ! derivatives of internal coordinates for each iteration
+Real*8, Allocatable:: RefGeo(:,:)   ! Reference geometry in Cartesian coordinates
 
 Integer, Allocatable:: ANr(:)       ! list of atomic numbers
 !
@@ -66,6 +67,7 @@ Contains
   If (Allocated(ANr)) Call mma_deallocate(ANr)
   If (Allocated(Weights)) Call mma_deallocate(Weights)
   If (Allocated(Shift)) Call mma_deallocate(Shift)
+  If (Allocated(RefGeo)) Call mma_deallocate(RefGeo)
 
   If (Allocated(NAC)) Call mma_deallocate(NAC)
   If (Allocated(qInt)) Call mma_deallocate(qInt)

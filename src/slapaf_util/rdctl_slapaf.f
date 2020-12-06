@@ -11,7 +11,7 @@
       Subroutine RdCtl_Slapaf(iRow,iInt,nFix,LuSpool,Dummy_Call)
       use kriging_mod
       use Symmetry_Info, only: Symmetry_Info_Get
-      use Slapaf_Info, only: Cx, Gx, Weights, MF, Atom, nSup
+      use Slapaf_Info, only: Cx, Gx, Weights, MF, Atom, nSup, RefGeo
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -878,8 +878,8 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *                                                                      *
 ****** REFE ************************************************************
 *                                                                      *
- 966  Call GetMem('RefGeom','Allo','Real',ipRef,3*nsAtom)
-      Call Read_v(LuRd,Work(ipRef),1,3*nsAtom,1,iErr)
+ 966  Call mma_allocate(RefGeo,3,nsAtom,Label='RefGeo')
+      Call Read_v(LuRd,RefGeo,1,3*nsAtom,1,iErr)
       If (iErr.ne.0) Then
          Call WarningMessage(2,'Error in RdCtl_Slapaf')
          Write (Lu,*)
@@ -888,7 +888,6 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
          Write (Lu,*) '**********************************'
          Call Quit_OnUserError()
       End If
-      Ref_Geom=.True.
       Go To 999
 *                                                                      *
 ****** RS-P ************************************************************

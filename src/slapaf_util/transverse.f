@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Transverse(xyz,nCent,HDist,Bf,l_write,Label,dBf,ldB)
-      use Slapaf_Info, only: Weights
+      use Slapaf_Info, only: Weights, RefGeo
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -24,7 +24,6 @@
 *                                                                      *
 *     Statement functions
 *
-      xyz0(i,j)=Work(ipRef+(j-1)*3+i-1)
       r12(i,j)=Work(ipR12_+(j-1)*3+i-1)
 *                                                                      *
 ************************************************************************
@@ -78,7 +77,7 @@ c     Call RecPrt('R12',' ',Work(ipR12_),3,nCent)
          Fact = Dble(iDeg(xyz(1,iCent)))
          xWeight = Fact*Weights(iCent)
          Do i = 1, 3
-            f = f + xWeight*(xyz(i,iCent)-xyz0(i,iCent))*r12(i,iCent)
+            f = f + xWeight*(xyz(i,iCent)-RefGeo(i,iCent))*r12(i,iCent)
          End Do
       End Do
 *
