@@ -11,7 +11,8 @@
       Subroutine RdCtl_Slapaf(iRow,iInt,nFix,LuSpool,Dummy_Call)
       use kriging_mod
       use Symmetry_Info, only: Symmetry_Info_Get
-      use Slapaf_Info, only: Cx, Gx, Weights, MF, Atom, nSup, RefGeo
+      use Slapaf_Info, only: Cx, Gx, Weights, MF, Atom, nSup, RefGeo,
+     &                       GradRef
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -905,9 +906,9 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *                                                                      *
 ****** GRAD ************************************************************
 *                                                                      *
- 979  Call GetMem('ReGradient','Allo','Real',ipGradRef,nDimbc)
+ 979  Call mma_allocate(GradRef,3,nDimbc/3,Label='GradRef')
 
-      Call Read_v(LuRd,Work(ipGradRef),1,nDimbc,1,iErr)
+      Call Read_v(LuRd,GradRef,1,nDimbc,1,iErr)
       If (iErr.ne.0) Then
          Call WarningMessage(2,'Error in RdCtl_Slapaf')
          Write (Lu,*)
@@ -920,7 +921,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *     If there is a transverse vector stored, we are not using this one
 *
       Call qpg_dArray('Transverse',Found,nRP)
-      If (.Not. Found) Ref_Grad=.True.
+      If (Found) Call mma_deallocate(GradRef)
       Go To 999
 *                                                                      *
 ****** rMEP ************************************************************

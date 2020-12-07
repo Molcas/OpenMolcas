@@ -264,10 +264,7 @@
 *
 *     Done!
 *
-      If (Ref_Grad) Call Free_Work(ipGradRef)
-      If (lRP)      Call Free_Work(ipR12)
       Call GetMem(' B ',    'Free','Real',ipB,   (nsAtom*3)**2)
-*
       Call GetMem('Relax', 'Free','Real',ipRlx, Lngth)
       Call Free_Slapaf()
 *

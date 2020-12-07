@@ -15,7 +15,7 @@ implicit none
 Private
 Public:: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, ANr, Weights, Shift, GNrm, Lambda, &
          Energy, Energy0, DipM, MF, qInt, dqInt, nSup, Atom, RefGeo, &
-         BM, dBM, iBM, idBM, nqBM, Free_Slapaf
+         BM, dBM, iBM, idBM, nqBM, R12, GradRef, Free_Slapaf
 !
 ! Arrays always allocated
 !
@@ -36,6 +36,8 @@ Real*8, Allocatable:: DipM(:,:)     ! list of dipole moments for each iteration
 Real*8, Allocatable:: qInt(:,:)     ! internal coordinates for each iteration
 Real*8, Allocatable:: dqInt(:,:)    ! derivatives of internal coordinates for each iteration
 Real*8, Allocatable, Target:: RefGeo(:,:)   ! Reference geometry in Cartesian coordinates
+Real*8, Allocatable, Target:: R12(:,:)      ! Reference geometry in R-P calculation (not used right now)
+Real*8, Allocatable, Target:: GradRef(:,:)  ! Reference gradient
 
 ! Arrays for automatic internal coordinates
 Real*8, Allocatable:: BM(:)         ! ...
@@ -75,13 +77,16 @@ Contains
   If (Allocated(ANr)) Call mma_deallocate(ANr)
   If (Allocated(Weights)) Call mma_deallocate(Weights)
   If (Allocated(Shift)) Call mma_deallocate(Shift)
-  If (Allocated(RefGeo)) Call mma_deallocate(RefGeo)
 
   If (Allocated(BM)) Call mma_deallocate(BM)
   If (Allocated(dBM)) Call mma_deallocate(dBM)
   If (Allocated(iBM)) Call mma_deallocate(iBM)
   If (Allocated(idBM)) Call mma_deallocate(idBM)
   If (Allocated(nqBM)) Call mma_deallocate(nqBM)
+
+  If (Allocated(RefGeo)) Call mma_deallocate(RefGeo)
+  If (Allocated(R12)) Call mma_deallocate(R12)
+  If (Allocated(R12)) Call mma_deallocate(GradRef)
 
   If (Allocated(NAC)) Call mma_deallocate(NAC)
   If (Allocated(qInt)) Call mma_deallocate(qInt)

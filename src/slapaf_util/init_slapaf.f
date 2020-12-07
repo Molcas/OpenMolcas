@@ -11,6 +11,7 @@
       Subroutine Init_SlapAf(iRow)
       use Symmetry_Info, only: nIrrep, iOper
       use Slapaf_Info, only: q_nuclear, dMass, Coor, Grd, ANr
+*     use Slapaf_Info, only: R12
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -448,8 +449,8 @@ C           NADC= .False. ! for debugging
 *                                                                      *
 *     Call qpg_dArray('Transverse',lRP,nRP)
 *     If (lRP) Then
-*        Call Allocate_Work(ipR12,nRP)
-*        Call Get_dArray('Transverse',Work(ipR12),nRP)
+*        Call mma_allocate(R12,3,nRP/3,Label='R12')
+*        Call Get_dArray('Transverse',R12,nRP)
 *     End If
 *                                                                      *
 ************************************************************************
