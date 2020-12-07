@@ -44,7 +44,8 @@
       external ddot_
       PARAMETER (Thr=1.0D-7, maxiter=300, Thr2=1.0D-16, Thr3=1.0D-16)
       Real*8 rDum(1)
-      Real*8, Allocatable:: Vec2(:), Val(:), Tmp(:)
+      Real*8, Allocatable:: Vec2(:), Val(:), Tmp(:), Diag(:), TVec(:),
+     &                      TAV(:), TRes(:)
       Integer, Allocatable:: Index(:)
 *
 #include "stdalloc.fh"
@@ -129,9 +130,9 @@
       Call mma_allocate(Proj,maxk*maxk,Label='Proj')
       Call mma_allocate(EVal,maxk     ,Label='EVal')
       Call mma_allocate(EVec,maxk*maxk,Label='EVec')
-      CALL DZero(Ab,n*maxk)
-      CALL DZero(EVal,maxk)
-      CALL DZero(EVec,maxk*maxk)
+      AB(:)   = Zero
+      EVal(:) = Zero
+      EVec(:) = Zero
 
 *---- Build an index of sorted diagonal elements in A
 *
@@ -193,10 +194,10 @@
       Last=.FALSE.
       old_mk=0
       iter=0
-      CALL Allocate_Work(ipDiag,n)
-      CALL Allocate_Work(ipTVec,n)
-      CALL Allocate_Work(ipTAV,n)
-      CALL Allocate_Work(ipTRes,n)
+      CALL mma_allocate(Diag,n,Label='Diag')
+      CALL mma_allocate(TVec,n,Label='TVec')
+      CALL mma_allocate(TAV,n,Label='TAV')
+      CALL mma_allocate(TRes,n,Label='TRes')
       DO WHILE (.NOT. Last)
         iter=iter+1
         IF (iter .GT. 1) call dcopy_(k,Eig,1,Eig_old,1)
@@ -381,80 +382,82 @@
 *           Vector in full space: Sub*Vec(i)
             Call dGeMV_('N',n,mk,One,Sub,n,
      &                              EVec(1+i*maxk),1,
-     &                          Zero,Work(ipTVec),1)
+     &                          Zero,TVec,1)
 *           Product of matrix and vector: Ab*Vec(i)
             Call dGeMV_('N',n,mk,One,Ab,n,
      &                              EVec(1+i*maxk),1,
-     &                          Zero,Work(ipTAV),1)
+     &                          Zero,TAV,1)
 *           Residual: (A-Val(i))*Vec(i) = Ab*Vec(i) - Val(i)*Sub*Vec(i)
-            call dcopy_(n,Work(ipTAV),1,Work(ipTRes),1)
-            call daxpy_(n,-EVal(1+i),Work(ipTVec),1,Work(ipTRes),1)
-            Conv=MAX(Conv,DDot_(n,Work(ipTRes),1,Work(ipTRes),1))
+            call dcopy_(n,TAV,1,TRes,1)
+            call daxpy_(n,-EVal(1+i),TVec,1,TRes,1)
+            Conv=MAX(Conv,DDot_(n,TRes,1,TRes,1))
 
 *----       Scale vector, orthonormalize, and add to subspace
 *
 #define DAV_METH DAV_IIGD
 #if DAV_METH == DAV_DPR
 *           Diagonal matrix to scale the vectors: 1/(A(j,j)-Val(i))
-            DO j=0,n-1
-              Aux=A((j+1)*(j+2)/2)-Eval(1+i)
-              Work(ipDiag+j)=One/SIGN(MAX(ABS(Aux),Thr2),Aux)
+            DO j=1,n
+              Aux=A(j*(j+1)/2)-Eval(1+i)
+              Diag(j)=One/SIGN(MAX(ABS(Aux),Thr2),Aux)
             END DO
 *           scale
-            DO j=0,n-1
-              Tmp(1+j)=Work(ipTRes+j)*Work(ipDiag+j)
+            DO j=1,n
+              Tmp(j)=TRes(j)*Diag(j)
             END DO
 #elif DAV_METH == DAV_IIGD
 *           Diagonal matrix to scale the vectors: 1/(A(j,j)-Val(i))
-            DO j=0,n-1
-              Aux=A((j+1)*(j+2)/2)-EVal(1+i)
-              Work(ipDiag+j)=One/SIGN(MAX(ABS(Aux),Thr2),Aux)
+            DO j=1,n
+              Aux=A(j*(j+1)/2)-EVal(1+i)
+              Diag(j)=One/SIGN(MAX(ABS(Aux),Thr2),Aux)
             END DO
 *           scale
-            DO j=0,n-1
-              Tmp(1+j)=Work(ipTRes+j)*Work(ipDiag+j)
+            DO j=1,n
+              Tmp(j)=TRes(j)*Diag(j)
             END DO
             Alpha=Zero
-            DO j=0,n-1
-              Alpha=Alpha+Work(ipDiag+j)*Work(ipTVec+j)**2
+            DO j=1,n
+              Alpha=Alpha+Diag(j)*TVec(j)**2
             END DO
-            Alpha=DDot_(n,Work(ipTVec),1,Tmp,1)/Alpha
+            Alpha=DDot_(n,TVec,1,Tmp,1)/Alpha
 *           subtract
-            DO j=0,n-1
-              Work(ipTVec+j)=Work(ipTVec+j)*Work(ipDiag+j)
+            DO j=1,n
+              TVec(j)=TVec(j)*Diag(j)
             END DO
-            call daxpy_(n,-Alpha,Work(ipTVec),1,Tmp,1)
+            call daxpy_(n,-Alpha,TVec,1,Tmp,1)
 #elif DAV_METH == DAV_GJD
 *   DO NOT USE THIS VARIANT!
 * This is not practical as it stands, the equation should be
 * solved only approximately, and it is not efficient to do this
 * for each of the possibly many eigenpairs
-            CALL Allocate_Work(ipP1,n*n)
+            Block
+            Real*8, Allocatable:: P1(:)
+            CALL mma_allocate(P1,n*n,Label='P1')
 *           project: (I-|v><v|) (A-e*I) (I-|v><v|) =
 *                    A - e*I + (<v|P>+e)*|v><v| - |v><P| - |P><v|
 *           e = Val(i); |P> = A|v>
-            Aux=DDot_(n,Work(ipTVec),1,Work(ipTAV),1)
+            Aux=DDot_(n,TVec,1,TAV,1)
             DO kk=0,n-1
               ll=kk*(kk+1)/2
               DO ii=0,kk
-                Work(ipP1+ii*n+kk)=A(ll+ii+1)+
-     &            (Aux+EVal(1+i))*Work(ipTVec+ii)*Work(ipTVec+kk)-
-     &            Work(ipTAV+ii)*Work(ipTVec+kk)-
-     &            Work(ipTAV+kk)*Work(ipTVec+ii)
+                P1(1+ii*n+kk)=A(ll+ii+1)+
+     &            (Aux+EVal(1+i))*TVec(1+ii)*TVec(1+kk)-
+     &            TAV(1+ii)*TVec(1+kk)-
+     &            TAV(1+kk)*TVec(1+ii)
               END DO
-              Work(ipP1+kk*n+kk)=Work(ipP1+kk*n+kk)-EVal(1+i)
+              P1(1+kk*n+kk)=P1(1+kk*n+kk)-EVal(1+i)
             END DO
             Block
               Integer iDum(1)
                iDum(1)=0
 *              solve the equation
-               CALL CG_Solver(n,n*n,Work(ipP1),iDum,Work(ipTRes),
-     &                        Tmp,info,5)
+               CALL CG_Solver(n,n*n,P1,iDum,TRes,Tmp,info,5)
             End Block
 #ifdef _DEBUGPRINT_
             WRITE(6,*) 'CG iterations',info
 #endif
-            CALL Free_Work(ipP1)
+            CALL mma_deallocate(P1)
+          End Block
 #endif
             IF (mk+jj .LE. n-1) THEN
               jj=mk+jj
@@ -508,10 +511,10 @@
           Reduced=.FALSE.
         END IF
       END DO
-      CALL Free_Work(ipDiag)
-      CALL Free_Work(ipTVec)
-      CALL Free_Work(ipTAV)
-      CALL Free_Work(ipTRes)
+      CALL mma_deallocate(Diag)
+      CALL mma_deallocate(TVec)
+      CALL mma_deallocate(TAV)
+      CALL mma_deallocate(TRes)
       CALL mma_deallocate(Index)
 
 *---- Store the current lowest k eigenvectors (in the full space)

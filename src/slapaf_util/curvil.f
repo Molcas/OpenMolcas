@@ -50,7 +50,7 @@
       Real*8, Allocatable:: Proj(:), Temp2(:), KtM(:,:), Degen2(:),
      &                      EVal(:), G(:), GxR(:,:), qVal(:,:),
      &                      F_c(:), K(:), GRef(:), Mult(:)
-      Real*8, Allocatable:: KtB(:), KtBt(:,:)
+      Real*8, Allocatable:: KtBu(:), KtBt(:,:)
       Character(LEN=14), Allocatable:: qLbl(:)
       Integer, Allocatable:: Ind(:,:)
 *                                                                      *
@@ -247,7 +247,7 @@
 *     generate the K matrix (dQ/dq).
 *
       Call mma_allocate(K,nq**2,Label='K')
-      Call mma_allocate(KtB,nDim**2,Label='KtB')
+      Call mma_allocate(KtBu,nDim**2,Label='KtBu')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -449,15 +449,15 @@ C        iEnd = 1
             Call DScal_(nB,Mult(iq),BM(i),1)
             i = i + nB
          End Do
-         Ktb(1:nQQ*nDim)=Zero
+         KtBu(1:nQQ*nDim)=Zero
          Do iQQ = 0, nQQ-1
             i = 1
             Do iq = 1, nq
                nB = nqBM(iq)
                Do iB = 0, nB-1
                   iDim = iBM(i)
-                  KtB((iDim-1)*nQQ + iQQ + 1) =
-     &                 KtB((iDim-1)*nQQ + iQQ + 1)
+                  KtBu((iDim-1)*nQQ + iQQ + 1) =
+     &                 KtBu((iDim-1)*nQQ + iQQ + 1)
      &               + K(iQQ*nq+iq) * BM(i)
                   i = i + 1
                End Do
@@ -466,7 +466,7 @@ C        iEnd = 1
 #ifdef _DEBUGPRINT_
          If (iPrint.ge.99) Then
             Call RecPrt(' The K matrix',' ',K,nq,nQQ)
-            Call RecPrt(' The K(t)B matrix',' ',KtB,nQQ,nDim)
+            Call RecPrt(' The K(t)B matrix',' ',KtBu,nQQ,nDim)
          End If
 #endif
 *                                                                      *
@@ -488,7 +488,7 @@ C        iEnd = 1
                   Do iQQ = 1, nQQ
                      iXQ = (iQQ-1)*nX + iX + ipBMx - 1
                      iQD = (iDim-1)*nQQ + iQQ
-                     Work(iXQ) = KtB(iQD)
+                     Work(iXQ) = KtBu(iQD)
                   End Do
                Else
                   Do iQQ = 1, nQQ
@@ -514,10 +514,10 @@ C        iEnd = 1
 *           dq/dx dE/dq = dE/dq
 *
 *           The B-matrix is stored (3*natom x nQQ)
-*           KtB is stored nQQ, nDim
+*           KtBu is stored nQQ, nDim
 *
             Call mma_allocate(KtBt,nDim,nQQ,Label='KtBt')
-            Call TRNSPS(nQQ,nDim,KtB,KtBt)
+            Call TRNSPS(nQQ,nDim,KtBu,KtBt)
 *
 *           Strip KtB of the degeneracy factor (full).
 *
@@ -605,7 +605,7 @@ C        iEnd = 1
 *
       Call mma_deallocate(KtM)
       If (Allocated(GxR)) Call mma_deallocate(GxR)
-      Call mma_deallocate(KtB)
+      Call mma_deallocate(KtBu)
       Call mma_deallocate(K)
       Call mma_deallocate(GRef)
       Call mma_deallocate(Ind)
