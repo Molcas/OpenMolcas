@@ -28,11 +28,12 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "Molcas.fh"
-      Character*(*) Strng
-      Character*(LENIN) Names(nAtom)
-      Character*(LENIN5)Label
-      Character*(LENIN) Name
-      Character Oper*3, Type*6, Lbl*8
+      Character(LEN=*) Strng
+      Character(LEN=LENIN) Names(nAtom)
+      Character(LEN=LENIN5)Label
+      Character(LEN=LENIN) Name
+      Character(LEN=8) Lbl
+      Character Oper*3, Type*6
       Real*8 Vector(3,nAtom), xyz(3,nCntr+mCntr),
      &       Grad(3,nCntr+mCntr), dVector(3,nAtom,3,nAtom),
      &       Axis(3),
@@ -40,8 +41,28 @@
      &       Hess(3,nCntr+mCntr,3,nCntr+mCntr)
       Integer   Ind(nCntr+mCntr,2), nStab(mxdc),
      &          jStab(0:7,mxdc), iDCR(MxAtom)
-
       Logical lWrite, ldB, lWarn, PSPrint
+      Real*8, Allocatable:: Not_Allocated(:,:)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine SphInt(xyz,nCent,OfRef,RR0,Bf,l_Write,Label,dBf,ldB)
+      Integer nCent
+      Real*8  xyz(3,nCent)
+      Real*8, Allocatable, Target:: OfRef(:,:)
+      Real*8  RR0
+      Real*8  Bf(3,nCent)
+      Logical l_Write
+      Character(LEN=8) Label
+      Real*8  dBf(3,nCent,3,nCent)
+      Logical ldB
+      End Subroutine SphInt
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
+
 *
       iRout = 50
       iPrint = nPrint(iRout)
@@ -208,7 +229,8 @@
          Call ConInt(xyz,nCntr,Value,Grad,lWrite,Lbl,Hess,ldB,lIter)
          Deg=One
       Else If (Type(1:6).eq.'SPHERE')Then
-         Call SphInt(xyz,nCntr,ip_Dummy,Value,Grad,lWrite,Lbl,Hess,ldB)
+         Call SphInt(xyz,nCntr,Not_Allocated,Value,Grad,lWrite,Lbl,Hess,
+     &               ldB)
          Deg=One
       Else If (Type(1:6).eq.'TRANSV')Then
          Call Transverse(xyz,nCntr,Value,Grad,lWrite,Lbl,Hess,ldB)

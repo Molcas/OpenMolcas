@@ -470,11 +470,6 @@ C           NADC= .False. ! for debugging
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      ip_B=ip_Dummy
-      ip_dB=ip_Dummy
-      ip_iB=ip_iDummy
-      ip_idB=ip_iDummy
-      ip_nqB=ip_iDummy
       mB_Tot=0
       mdB_Tot=0
       mq=0

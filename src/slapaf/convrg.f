@@ -46,11 +46,32 @@
       Real*8, Allocatable:: E_S(:), C_S(:,:,:), G_S(:,:,:)
       Real*8, Allocatable:: E_R(:), C_R(:,:), G_R(:,:)
       Real*8, Allocatable:: E_P(:), C_P(:,:), G_P(:,:)
-      Real*8, Allocatable:: E_MEP(:), C_MEP(:,:,:), G_MEP(:,:,:)
+      Real*8, Allocatable:: E_MEP(:), G_MEP(:,:,:)
+      Real*8, Allocatable, Target:: C_MEP(:,:,:)
       Real*8, Allocatable:: L_MEP(:), Cu_MEP(:)
       Integer, Allocatable:: Information(:)
       Real*8, Allocatable:: Tmp(:)
-*
+      Real*8, Allocatable, Target:: Not_Allocated(:,:), OfRef(:,:)
+      Real*8 rDum(1,1,1,1)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine SphInt(xyz,nCent,OfRef,RR0,Bf,l_Write,Label,dBf,ldB)
+      Integer nCent
+      Real*8  xyz(3,nCent)
+      Real*8, Allocatable, Target:: OfRef(:,:)
+      Real*8  RR0
+      Real*8  Bf(3,nCent)
+      Logical l_Write
+      Character(LEN=8) Label
+      Real*8  dBf(3,nCent,3,nCent)
+      Logical ldB
+      End Subroutine SphInt
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
       Lu=6
       nSaddle_Max=100
       iRout=116
@@ -748,16 +769,17 @@ C              Write (6,*) 'SubProject=.Prod'
 *        this may be an indication of an ill-behaved constraint
          If (iMEP.ge.1) Then
             Call mma_allocate(C_MEP,3,nAtom,nMEP+1,Label='C_MEP')
+            Call mma_allocate(OfRef,3,nAtom,Label='OfRef')
             Call mma_Allocate(Tmp,3*nAtom,Label='Tmp')
             Call Get_dArray('MEP-Coor',C_MEP,3*nAtom*(nMEP+1))
+            OfRef(:,:)=C_MEP(:,:,iMEP+1)
 
-            ipPrev=ip_of_work(C_MEP(1,1,iMEP+1))
 *           Using hypersphere measure, even with "transverse" MEPs,
 *           this should not be a problem
-            Call SphInt(Cx(:,:,iter),nAtom,ip_Dummy,refDist,Tmp,
-     &         .False.,'dummy   ',Work(ip_Dummy),.False.)
-            Call SphInt(Cx(:,:,iter),nAtom,ipPrev,prevDist,Tmp,
-     &         .False.,'dummy   ',Work(ip_Dummy),.False.)
+            Call SphInt(Cx(:,:,iter),nAtom,Not_Allocated,refDist,Tmp,
+     &         .False.,'dummy   ',rDum,.False.)
+            Call SphInt(Cx(:,:,iter),nAtom,OfRef,prevDist,
+     &                  Tmp,.False.,'dummy   ',rDUm,.False.)
             If (prevDist.lt.Half*refDist) Then
                TurnBack=.True.
                Conv1=.True.
@@ -765,8 +787,9 @@ C              Write (6,*) 'SubProject=.Prod'
                iStop=0
                Terminate=.True.
             End If
-            Call mma_deallocate(C_MEP)
             Call mma_deallocate(Tmp)
+            Call mma_deallocate(OfRef)
+            Call mma_deallocate(C_MEP)
          End If
 *
        End If

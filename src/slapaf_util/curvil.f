@@ -26,7 +26,7 @@
 *              University of Lund, SWEDEN.                             *
 *              2004                                                    *
 ************************************************************************
-      use Slapaf_Info, only: qInt, dqInt
+      use Slapaf_Info, only: qInt, dqInt, BM, dBM, iBM, idBM, nqBM
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"
@@ -167,14 +167,12 @@
 *
 *---- Now allocate some arrays which depend on nq
 *
-      If (ip_B.ne.ip_Dummy) Then
-         Call Free_Work(ip_B)
-         Call Free_iWork(ip_iB)
-         Call Free_iWork(ip_nqB)
-      End If
-      Call GetMem('BM','Allo','Real',ip_B,mB_Tot)
-      Call GetMem('iBM','Allo','Inte',ip_iB,mB_Tot)
-      Call GetMem('nqB','Allo','Inte',ip_nqB,nq)
+      If (Allocated(BM)) Call mma_deallocate(BM)
+      If (Allocated(iBM)) Call mma_deallocate(iBM)
+      If (Allocated(nqBM)) Call mma_deallocate(nqBM)
+      Call mma_allocate(BM,mB_Tot,Label='BM')
+      Call mma_allocate(iBM,mB_Tot,Label='iBM')
+      Call mma_allocate(nqBM,nq,Label='nqBM')
       mq=nq
 *
       Call mma_allocate(qVal,nq,nIter,Label='qVal')
@@ -208,8 +206,8 @@
      &           Proc_dB,
      &           iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
      &           nB_Tot,ndB_Tot,
-     &           Work(ip_B),Dum,iWork(ip_iB),iDum,
-     &           mB_Tot,mdB_Tot,iWork(ip_nqB),Thr_small)
+     &           BM,Dum,iBM,iDum,
+     &           mB_Tot,mdB_Tot,nqBM,Thr_small)
       Rewind(LuIC)
 *
       If (iq.ne.nq) Then
@@ -258,18 +256,18 @@
       If (HWRS) Then
 *------- Scale each coordinate with the force constant
 *
-         i = 0
-         Do iq = 0, nq-1
-            nB = iWork(ip_nqB+iq)
-            Call DScal_(nB,F_c(1+iq),Work(ip_B+i),1)
+         i = 1
+         Do iq = 1, nq
+            nB = nqBM(iq)
+            Call DScal_(nB,F_c(iq),BM(i),1)
             i = i + nB
          End Do
 *ifdef _DEBUGPRINT_
          If (iPrint.ge.99) Then
-            i = 0
-            Do iq = 0, nq-1
-               nB = iWork(ip_nqB+iq)
-               Call RecPrt('fcB',' ',Work(ip_B+i),1,nB)
+            i = 1
+            Do iq = 1, nq
+               nB = nqBM(iq)
+               Call RecPrt('fcB',' ',BM(i),1,nB)
                i = i + nB
             End Do
          End If
@@ -284,10 +282,10 @@
 *           t        t
 *     dQ = K M dq = K M B u dx
 *
-      i = 0
-      Do iq = 0, nq-1
-         nB = iWork(ip_nqB+iq)
-         Call DScal_(nB,Mult(1+iq),Work(ip_B+i),1)
+      i = 1
+      Do iq = 1, nq
+         nB = nqBM(iq)
+         Call DScal_(nB,Mult(iq),BM(i),1)
          i = i + nB
       End Do
 *                                                                      *
@@ -297,12 +295,11 @@
          Call mma_allocate(G,nq*nq,Label='G')
          Call mma_allocate(EVal,nq*(nq+1)/2,Label='EVal')
          Call ElRed2(nq,ndim,G,EVal,K,nK,Proj,
-     &               g12K,Thr_ElRed,Work(ip_B),iWork(ip_iB),mB_Tot,
-     &               iWork(ip_nqB))
+     &               g12K,Thr_ElRed,BM,iBM,mB_Tot,nqBM)
 
          If (nK.gt.nQQ) Then
             Call Remove_TR(nq,ndim,nQQ,K,nK,TRVec,mTR,
-     &                     Work(ip_B),iWork(ip_iB),iWork(ip_nqB),mB_Tot)
+     &                     BM,iBM,nqBM,mB_Tot)
          End If
          Call mma_deallocate(EVal)
          Call mma_deallocate(G)
@@ -403,12 +400,14 @@ C        iEnd = 1
      &            iAnd(iOptC,256).eq.256)
 *        Compute and store dBQQ in the reference structure
          If (Proc_dB) Then
-            If (ip_dB.ne.ip_Dummy) Then
-               Call Free_Work(ip_dB)
-               Call Free_iWork(ip_idB)
-            End If
-            Call GetMem('dBM','Allo','Real',ip_dB,mdB_Tot)
-            Call GetMem('idBM','Allo','Inte',ip_idB,mdB_Tot*2)
+            If (Allocated(dBM)) Call mma_deallocate(dBM)
+            If (Allocated(idBM)) Call mma_deallocate(idBM)
+            Call mma_allocate(dBM,mdB_Tot,Label='dBM')
+            Call mma_allocate(idBM,mdB_Tot*2,Label='idBM')
+         Else
+           If (.NOT.Allocated(dBM)) Call mma_allocate(dBM,1,Label='dBM')
+           If (.NOT.Allocated(idBM)) Call mma_allocate(idBM,1*2,
+     &                                                 Label='idBM')
          End If
 *                                                                      *
 ************************************************************************
@@ -425,8 +424,8 @@ C        iEnd = 1
      &              Proc_dB,
      &              iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
      &              nB_Tot,ndB_Tot,
-     &              Work(ip_B),Work(ip_dB),iWork(ip_iB),iWork(ip_idB),
-     &              mB_Tot,mdB_Tot,iWork(ip_nqB),Thr_small)
+     &              BM,dBM,iBM,idBM,
+     &              mB_Tot,mdB_Tot,nqBM,Thr_small)
          Rewind(LuIC)
 *
          If (iq.ne.nq) Then
@@ -443,23 +442,22 @@ C        iEnd = 1
 *                                         T
 *------- Form the K(t)MB matrix for dQ = K M B u dx
 *
-         i = 0
-         Do iq = 0, nq-1
-            nB = iWork(ip_nqB+iq)
-            Call DScal_(nB,Mult(1+iq),Work(ip_B+i),1)
+         i = 1
+         Do iq = 1, nq
+            nB = nqBM(iq)
+            Call DScal_(nB,Mult(iq),BM(i),1)
             i = i + nB
          End Do
          Ktb(1:nQQ*nDim)=Zero
          Do iQQ = 0, nQQ-1
-            i = 0
-            Do iq = 0, nq-1
-               nB = iWork(ip_nqB+iq)
+            i = 1
+            Do iq = 1, nq
+               nB = nqBM(iq)
                Do iB = 0, nB-1
-                  iDim = iWork(ip_iB+i)
+                  iDim = iBM(i)
                   KtB((iDim-1)*nQQ + iQQ + 1) =
      &                 KtB((iDim-1)*nQQ + iQQ + 1)
-     &               + K(iQQ*nq+iq+1)
-     &               * Work(i+ip_B)
+     &               + K(iQQ*nq+iq) * BM(i)
                   i = i + 1
                End Do
             End Do

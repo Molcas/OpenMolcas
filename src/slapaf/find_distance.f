@@ -23,11 +23,28 @@
       Real*8, Intent(In) :: Ref(3,nAtom),Dir(3,nAtom),Fact,Dist
       Real*8, Intent(Out) :: Point(3,nAtom)
       Logical, Intent(Out) :: BadConstraint
-      Real*8, Allocatable :: OldRef(:,:),Dummy(:)
+      Real*8, Allocatable :: OldRef(:,:),Dummy(:), Not_Allocated(:,:)
       Real*8 :: R,CurFact,PrevR,Correct
       Real*8, Parameter :: Thr = 1.0d-6
       Integer :: nCoor,i
       Logical :: Invar
+      Real*8 rDum(1,1,1,1)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine SphInt(xyz,nCent,OfRef,RR0,Bf,l_Write,Label,dBf,ldB)
+      Integer nCent
+      Real*8  xyz(3,nCent)
+      Real*8, Allocatable, Target:: OfRef(:,:)
+      Real*8  RR0
+      Real*8  Bf(3,nCent)
+      Logical l_Write
+      Character(LEN=8) Label
+      Real*8  dBf(3,nCent,3,nCent)
+      Logical ldB
+      End Subroutine SphInt
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -52,8 +69,8 @@
         PrevR=R
         Call Align(Point(:,:),Ref(:,:),nAtom)
         If (MEP_Type.eq.'SPHERE') Then
-          Call SphInt(Point,nAtom,ip_Dummy,R,Dummy,
-     &                .False.,'dummy   ',Work(ip_Dummy),.False.)
+          Call SphInt(Point,nAtom,Not_Allocated,R,Dummy,
+     &                .False.,'dummy   ',rDum,.False.)
         Else If (MEP_Type.eq.'TRANSVERSE') Then
           Call Transverse(Point,nAtom,R,Dummy,
      &                .False.,'dummy   ',Work(ip_Dummy),.False.)

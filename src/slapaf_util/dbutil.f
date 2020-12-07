@@ -13,8 +13,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      use Slapaf_info, only: dBM, idBM, nqBM
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "db.fh"
       Real*8 dCdQ(nQQ,nLambda), QC(nDim**2,nLambda)
@@ -22,7 +22,7 @@
 *
       QC(:,:)=0.0D0
 
-      If (ip_dB.eq.ip_Dummy) Then
+      If (.NOT.Allocated(dBM)) Then
 C        Write (6,*) 'FAST out'
          Return
       End If
@@ -38,17 +38,17 @@ C        Write (6,*) 'FAST out'
      &            0.0D0,X,mq)
       Call mma_deallocate(K)
 *
-      idB = 0
-      Do iq = 0, mq-1
-         nElem = iWork(ip_nqB + iq)
+      idB = 1
+      Do iq = 1, mq
+         nElem = nqBM(iq)
          Do iElem = idB, idB + (nElem**2)-1
-            dBqR=Work(ip_dB+iElem)
-            iDim=iWork(iElem*2 + ip_idB  )
-            jDim=iWork(iElem*2 + ip_idB+1)
+            dBqR=dBM(iElem)
+            iDim=idBM(1 + (iElem-1)*2)
+            jDim=idBM(2 + (iElem-1)*2)
             ijDim = (jDim-1)*nDim + iDim
             Do iLambda = 1, nLambda
                QC(ijDim,iLambda) = QC(ijDim,iLambda)
-     &                           + X(1+iq,iLambda) * dBqR
+     &                           + X(iq,iLambda) * dBqR
             End Do
          End Do
          idB = idB + nElem**2
@@ -64,27 +64,27 @@ C        Write (6,*) 'FAST out'
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      use Slapaf_Info, only: dBM, idBM, nqBM
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "db.fh"
       Real*8, Allocatable:: dBQQ(:,:), K(:,:)
 
-      If (ip_dB.eq.ip_Dummy) Return
+      If (.NOT.Allocated(dBM)) Return
       Call mma_allocate(dBQQ,nDim, nDim,Label='dBQQ')
       Call mma_allocate(K,mq,nQQ,Label='K')
       Call Get_dArray('K',K,mq*nQQ)
       Do iQQ = 1, nQQ
          dBQQ(:,:) = Zero
-         idB = 0
-         Do iq = 0, mq-1
-            nElem = iWork(ip_nqB + iq)
-            rK = K(iq+1,iQQ)
+         idB = 1
+         Do iq = 1, mq
+            nElem = nqBM(iq)
+            rK = K(iq,iQQ)
             Do iElem = idB, idB + (nElem**2)-1
-               dBqR=Work(ip_dB+iElem)
-               iDim=iWork(iElem*2 + ip_idB  )
-               jDim=iWork(iElem*2 + ip_idB+1)
+               dBqR=dBM(iElem)
+               iDim=idBM(1 + (iElem-1)*2)
+               jDim=idBM(2 + (iElem-1)*2)
                dBQQ(iDim,jDim) = dBQQ(iDim,jDim) + rK * dBqR
             End Do
             idB = idB + nElem**2
@@ -103,16 +103,16 @@ C        Write (6,*) 'FAST out'
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      use Slapaf_Info, only: dBM, idBM, nqBM
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "db.fh"
       Real*8 uM12(nDim), g(nQQ), Hss(nDim,nDim)
       Logical Inv
       Real*8, Allocatable:: Y(:), K(:,:), Temp(:,:)
 *
-      If (ip_dB.eq.ip_Dummy) Then
+      If (.NOT.Allocated(dBM)) Then
          Hss(:,:)=Zero
          Return
       End If
@@ -134,14 +134,14 @@ C        Write (6,*) 'FAST out'
       Call mma_allocate(Temp,nDim,nDim,Label='Temp')
       Temp(:,:)=Zero
 
-      idB = 0
-      Do iq = 0, mq-1
-         YqR = Y(1+iq)
-         nElem = iWork(ip_nqB + iq)
+      idB = 1
+      Do iq = 1, mq
+         YqR = Y(iq)
+         nElem = nqBM(iq)
          Do iElem = idB, idB + (nElem**2)-1
-            dBqR=Work(ip_dB+iElem)
-            iDim=iWork(iElem*2 + ip_idB  )
-            jDim=iWork(iElem*2 + ip_idB+1)
+            dBqR=dBM(iElem)
+            iDim=idBM(1 + (iElem-1)*2)
+            jDim=idBM(2 + (iElem-1)*2)
             Temp(iDim,jDim) = Temp(iDim,jDim) + YqR * dBqR
          End Do
          idB = idB + nElem**2

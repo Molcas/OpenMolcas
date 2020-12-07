@@ -32,7 +32,7 @@
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor,
      &                       Grd, Weights, ANr, Shift, GNrm, Lambda,
      &                       Energy, Energy0, DipM, MF, qInt, dqInt,
-     &                       RefGeo
+     &                       RefGeo, BM, iBM, dBM, idBM, nqBM
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -78,6 +78,12 @@
       Real*8, Allocatable:: Bk_qInt(:,:)
       Real*8, Allocatable:: Bk_dqInt(:,:)
       Real*8, Allocatable:: Bk_RefGeo(:,:)
+
+      Real*8, Allocatable:: Bk_BM(:)
+      Real*8, Allocatable:: Bk_dBM(:)
+      Integer, Allocatable:: Bk_iBM(:)
+      Integer, Allocatable:: Bk_idBM(:)
+      Integer, Allocatable:: Bk_nqBM(:)
 
       Integer, Allocatable:: Bk_ANr(:)
 *
@@ -191,6 +197,31 @@
          Call mma_allocate(Bk_RefGeo,3,nsAtom,Label='Bk_RefGeo')
          Bk_RefGeo(:,:) = RefGeo(:,:)
          Call mma_deallocate(RefGeo)
+      End If
+      If (Allocated(BM)) Then
+         Call mma_allocate(Bk_BM,SIZE(BM),Label='Bk_BM')
+         Bk_BM(:) = BM(:)
+         Call mma_deallocate(BM)
+      End If
+      If (Allocated(dBM)) Then
+         Call mma_allocate(Bk_dBM,SIZE(dBM),Label='Bk_dBM')
+         Bk_dBM(:) = dBM(:)
+         Call mma_deallocate(dBM)
+      End If
+      If (Allocated(iBM)) Then
+         Call mma_allocate(Bk_iBM,SIZE(iBM),Label='Bk_iBM')
+         Bk_iBM(:) = iBM(:)
+         Call mma_deallocate(iBM)
+      End If
+      If (Allocated(idBM)) Then
+         Call mma_allocate(Bk_idBM,SIZE(idBM),Label='Bk_idBM')
+         Bk_idBM(:) = idBM(:)
+         Call mma_deallocate(idBM)
+      End If
+      If (Allocated(nqBM)) Then
+         Call mma_allocate(Bk_nqBM,SIZE(nqBM),Label='Bk_nqBM')
+         Bk_nqBM(:) = nqBM(:)
+         Call mma_deallocate(nqBM)
       End If
 
       Bk_iSym(:)=iSym(:)
@@ -416,13 +447,13 @@
       nX = 3*mTtAtm
       Call mma_allocate(KKtB,mq,nX,label="KKtB")
       Call FZero(KKtB,nX*mq)
-      i=0
+      i=1
       Do iq=1,mq
-         nB=iWork(ip_nqB+iq-1)
+         nB=nqBM(iq)
          Do iB=i,i+nB-1
-            j=iWork(ip_iB+iB)
+            j=iBM(iB)
             Do ii=1,mq
-               KKtB(ii,j)=KKtB(ii,j)+Work(ip_B+iB)*
+               KKtB(ii,j)=KKtB(ii,j)+BM(iB)*
      &            DDot_(nQQ,KTrsp(1,ii),1,KTrsp(1,iq),1)
             End Do
          End Do
@@ -515,9 +546,6 @@
       Call mma_deallocate(Label)
       Call mma_deallocate(IntMod)
       Call mma_deallocate(Sort)
-      Call GetMem('BM','Free','Real',ip_B,mB_Tot)
-      Call GetMem('iBM','Free','Inte',ip_iB,mB_Tot)
-      Call GetMem('nqB','Free','Inte',ip_nqB,mq)
       Call GetMem(' B ',    'Free','Real',ipB,   (nsAtom*3)**2)
       Call GetMem('Relax',  'Free','Real',ipRlx,    Lngth)
 *                                                                      *
@@ -820,5 +848,46 @@
       Else
         If (Allocated(dqInt)) Call mma_deallocate(dqInt)
       End If
+
+      If (Allocated(Bk_BM)) Then
+         If (Allocated(BM)) Call mma_deallocate(BM)
+         Call mma_allocate(BM,SIZE(Bk_BM),Label='BM')
+         BM(:) = Bk_BM(:)
+         Call mma_deallocate(Bk_BM)
+      Else
+         If (Allocated(BM)) Call mma_deallocate(BM)
+      End If
+      If (Allocated(Bk_dBM)) Then
+         If (Allocated(dBM)) Call mma_deallocate(dBM)
+         Call mma_allocate(dBM,SIZE(Bk_dBM),Label='dBM')
+         dBM(:) = Bk_dBM(:)
+         Call mma_deallocate(Bk_dBM)
+      Else
+         If (Allocated(dBM)) Call mma_deallocate(dBM)
+      End If
+      If (Allocated(Bk_iBM)) Then
+         If (Allocated(iBM)) Call mma_deallocate(iBM)
+         Call mma_allocate(iBM,SIZE(Bk_iBM),Label='iBM')
+         iBM(:) = Bk_iBM(:)
+         Call mma_deallocate(Bk_iBM)
+      Else
+         If (Allocated(iBM)) Call mma_deallocate(iBM)
+      End If
+      If (Allocated(Bk_idBM)) Then
+         If (Allocated(idBM)) Call mma_deallocate(idBM)
+         Call mma_allocate(idBM,SIZE(Bk_idBM),Label='idBM')
+         idBM(:) = Bk_idBM(:)
+         Call mma_deallocate(Bk_idBM)
+      Else
+         If (Allocated(idBM)) Call mma_deallocate(idBM)
+      End If
+      If (Allocated(Bk_nqBM)) Then
+         If (Allocated(nqBM)) Call mma_deallocate(nqBM)
+         Call mma_allocate(nqBM,SIZE(Bk_nqBM),Label='nqBM')
+         nqBM(:) = Bk_nqBM(:)
+         Call mma_deallocate(Bk_nqBM)
+      Else
+         If (Allocated(nqBM)) Call mma_deallocate(nqBM)
+      End If
 *
-      End Subroutine
+      End Subroutine Print_Mode_Components

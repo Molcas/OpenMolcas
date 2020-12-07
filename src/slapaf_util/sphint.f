@@ -8,32 +8,29 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine SphInt(xyz,nCent,iOfRef,RR0,Bf,l_Write,Label,dBf,ldB)
+      Subroutine SphInt(xyz,nCent,OfRef,RR0,Bf,l_Write,Label,dBf,ldB)
       use Slapaf_Info, only: Weights, RefGeo
       Implicit Real*8  (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "weighting.fh"
 #include "info_slapaf.fh"
-      Real*8   Bf(3,nCent), xyz(3,nCent), dBf(3,nCent,3,nCent)
+      Real*8  Bf(3,nCent), xyz(3,nCent), dBf(3,nCent,3,nCent)
+      Real*8, Allocatable, Target:: OfRef(:,:)
       Logical l_Write, ldB
       Character*8 Label
-*
-      xyz0(i,j)=Work(ipRef_+(j-1)*3+i-1)
-*
-*
+      Real*8, Pointer:: xyz0(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Compute the radius of the hypersphere
 *
-      If (iOfRef.eq.ip_Dummy) Then
-         ipRef_=ip_of_Work(RefGeo(1,1))
+      If (.NOT.Allocated(OfRef)) Then
+         xyz0 => RefGeo(1:3,1:nCent)
       Else
-         ipRef_=iOfRef
+         xyz0=> OfRef(1:3,1:nCent)
       End If
 C     Call RecPrt('SphInt: xyz',' ',xyz,3,nCent)
-C     Call RecPrt('Ref: xyz0',' ',Work(ipRef_),3,nCent)
+C     Call RecPrt('Ref: xyz0',' ',OfRef,3,nCent)
       RR0=Zero
       TWeight=Zero
       Do iCent = 1, nCent
@@ -119,5 +116,6 @@ C        Call RecPrt('dBf',' ',dBf,3*nCent,3*nCent)
 *
       End If
 *
+      xyz0 => Null()
       Return
       End

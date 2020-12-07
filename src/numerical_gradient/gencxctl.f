@@ -264,12 +264,6 @@
 *
 *     Done!
 *
-      If (ip_B.ne.ip_Dummy) Call Free_Work(ip_B)
-      If (ip_dB.ne.ip_Dummy) Call Free_Work(ip_dB)
-      If (ip_iB.ne.ip_iDummy) Call Free_iWork(ip_iB)
-      If (ip_idB.ne.ip_iDummy) Call Free_iWork(ip_idB)
-      If (ip_nqB.ne.ip_iDummy) Call Free_iWork(ip_nqB)
-*
       If (Ref_Grad) Call Free_Work(ipGradRef)
       If (lRP)      Call Free_Work(ipR12)
       Call GetMem(' B ',    'Free','Real',ipB,   (nsAtom*3)**2)
