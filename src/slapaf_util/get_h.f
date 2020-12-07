@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2010, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Get_H(ip_H)
+      Subroutine Get_H(F,nX)
 ************************************************************************
 *                                                                      *
 *     Object: to get the force constant matrix in cartesians           *
@@ -23,18 +23,15 @@
 ************************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Logical Found
+      Real*8  F(nX**2)
       Real*8, Allocatable:: H(:), BOld(:), Tmp2(:)
 *
 *define _DEBUGPRINT_
-      nX=3*nsAtom
       mInter=mInt + mTROld
       nInter=mInt
 *
-      Call Allocate_Work(ip_H,nX**2)
-
       Call mma_allocate(Tmp2,nX**2,Label='Tmp2')
       Call mma_allocate(H,nInter**2,Label='H')
 *---- If there is an updated Hessian in the runfile, use it;
@@ -56,8 +53,7 @@
          Call Get_dArray('BMtrx',BOld,nX*nInter)
       End If
 *
-      Call Get_H_(nX,BOld,mInter,nInter,H,
-     &            Tmp2,Work(ip_H),Smmtrc,nsAtom)
+      Call Get_H_(nX,BOld,mInter,nInter,H,Tmp2,F,Smmtrc,nsAtom)
 *
       Call mma_deallocate(BOld)
       Call mma_deallocate(H)

@@ -16,7 +16,7 @@
      &                  HWRS,Analytic_Hessian,iOptC,Name,PrQ,
      &                  dMass,iCoSet,iTabBonds,
      &                  iTabAtoms,nBonds,nMax,iTabAI,mAtoms,lOld,
-     &                  ip_KtB_Hessian,nQQ,MaxItr,nWndw)
+     &                  ip_KtB,nQQ,MaxItr,nWndw)
 ************************************************************************
 *                                                                      *
 *     Objective: to handle curvilinear internal coordinates.           *
@@ -49,7 +49,8 @@
       Logical, Save:: g12K=.False.
       Real*8, Allocatable:: Proj(:), Temp2(:), KtM(:,:), Degen2(:),
      &                      EVal(:), G(:), GxR(:,:), qVal(:,:),
-     &                      F_c(:), KtB(:), K(:), GRef(:), Mult(:)
+     &                      F_c(:), K(:), GRef(:), Mult(:)
+      Real*8, Allocatable:: KtB(:), KtBt(:,:)
       Character(LEN=14), Allocatable:: qLbl(:)
       Integer, Allocatable:: Ind(:,:)
 *                                                                      *
@@ -515,25 +516,24 @@ C        iEnd = 1
 *           The B-matrix is stored (3*natom x nQQ)
 *           KtB is stored nQQ, nDim
 *
-            Call Allocate_Work(ip_KtB,nDim*nQQ)
-            Call TRNSPS(nQQ,nDim,KtB,Work(ip_KtB))
+            Call mma_allocate(KtBt,nDim,nQQ,Label='KtBt')
+            Call TRNSPS(nQQ,nDim,KtB,KtBt)
 *
 *           Strip KtB of the degeneracy factor (full).
 *
             Do iQQ = 1, nQQ
                Do iDim = 1, nDim
-                  ij = (iQQ-1)*nDim + iDim -1 + ip_KtB
-                  Work(ij) = Work(ij) / Degen2(iDim)
+                  KtBt(iDim,iQQ) = KtBt(iDim,iQQ) / Degen2(iDim)
                End Do
             End Do
 *
             M = nDim
             N = nQQ
             NRHS=1
-            Call Eq_Solver('N',M,N,NRHS,Work(ip_KtB   ),.False.,
+            Call Eq_Solver('N',M,N,NRHS,KtBt,.False.,
      &                     Degen2,GxR(:,iOff),dqInt(:,jIter))
 *           Call RecPrt('GxR(:,iSt',' ',GxR(:,iOff),nDim,1)
-*           Call RecPrt('KtB   ',' ',KtB,nQQ,nDim)
+*           Call RecPrt('KtB   ',' ',KtBt,nQQ,nDim)
 *           Call RecPrt('drInt',' ',dqInt(:,jIter),nQQ,1)
 
             iOff = iOff - 1
@@ -544,12 +544,11 @@ C        iEnd = 1
 *           Hessian to internal coordinates.
 *
             If (Proc_H) Then
-               ip_KtB_Hessian=ip_KtB
-*              Write (*,*) 'ip_KtB_Hessian=',ip_KtB_Hessian
+               Call Allocate_Work(ip_KtB,nDim*nQQ)
+               Call DCopy_(nDim*nQQ,KtBt,1,Work(ip_KtB),1)
 *              Call RecPrt('KtB',' ',Work(ip_KtB),nDim,nQQ)
-            Else
-               Call Free_Work(ip_KtB)
             End If
+            Call mma_deallocate(KtBt)
 *                                                                      *
 ************************************************************************
 *                                                                      *

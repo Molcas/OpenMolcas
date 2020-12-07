@@ -18,7 +18,7 @@
       Logical Smmtrc(3,nAtom)
       Real*8 dDipM(3,nInter+mTR), DipM(3), Tmp1(nX**2), Tmp2(nX**2),
      &       EVec(2*mInter,mInter), EVal(2*mInter), RedM(mInter)
-      Real*8, Allocatable:: G(:), GInv(:)
+      Real*8, Allocatable:: G(:), GInv(:), F(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -48,14 +48,15 @@
 *
 *     Get the force constant matrix in cartesians
 *
-      Call Get_H(ip_H)
+      Call mma_allocate(F,nX**2,Label='F')
+      Call Get_H(F,nX)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Form the GF-matrix (actually G^(1/2)FG^(1/2))
 *
-      Call GF_Mult(G,Work(ip_H),Tmp2,mInter)  ! Result in Tmp2
-      Call Free_Work(ip_H)
+      Call GF_Mult(G,F,Tmp2,mInter)  ! Result in Tmp2
+      Call mma_deallocate(F)
 *
 *     Compute the frequencies and harmonic eigenfunctions in
 *     Cartesians.
