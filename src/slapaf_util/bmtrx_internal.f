@@ -13,20 +13,21 @@
      &                 Name,Smmtrc,Degen,BSet,HSet,
      &                 nIter,Gx,mTtAtm,iAnr,nStab,jStab,
      &                 Numerical,HWRS,Analytic_Hessian,iOptC,PrQ,
-     &                 iCoSet,lOld,iIter,mTR,TRVec,ip_TabAI,
-     &                 ip_TabA,ip_TabB,nBonds,nMax,
-     &                 iRef,ip_KtB,nQQ,MaxItr,nWndw)
+     &                 iCoSet,lOld,iIter,mTR,TRVec,iTabAI,
+     &                 iTabAtoms,iTabBonds,nBonds,nMax,
+     &                 iRef,nQQ,MaxItr,nWndw)
       use Slapaf_Info, only: Cx, dMass
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
-#include "real.fh"
-#include "WrkSpc.fh"
       Real*8 Degen(3*nAtom), Gx(3*nAtom,nIter), TRVec(nDim,mTR)
       Character Name(nAtom)*(LENIN)
       Integer   iAnr(nAtom), nStab(nAtom), jStab(0:7,nAtom),
      &          iCoSet(0:7,nAtom)
       Logical Smmtrc(3*nAtom), BSet, HSet, Numerical, HWRS,
      &        Analytic_Hessian, PrQ, lOld
+      Integer iTabBonds(3,nBonds), iTabAtoms(0:nMax,nAtom),
+     &        iTabAI(2,mTtAtm)
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -37,8 +38,8 @@
      &            jStab,Degen,Smmtrc,mTR,TRVec,HSet,BSet,ipBMx,
      &            Numerical,iANr,HWRS,Analytic_Hessian,iOptC,
      &            Name,PrQ,dMass,iCoSet,
-     &            iWork(ip_TabB),iWork(ip_TabA),nBonds,nMax,
-     &            iWork(ip_TabAI),mTtAtm,lOld,ip_KtB,nQQ,MaxItr,
+     &            iTabBonds,iTabAtoms,nBonds,nMax,
+     &            iTabAI,mTtAtm,lOld,nQQ,MaxItr,
      &            nWndw)
 *                                                                      *
 ************************************************************************

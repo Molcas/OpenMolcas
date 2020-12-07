@@ -15,7 +15,7 @@ implicit none
 Private
 Public:: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, ANr, Weights, Shift, GNrm, Lambda, &
          Energy, Energy0, DipM, MF, qInt, dqInt, nSup, Atom, RefGeo, &
-         BM, dBM, iBM, idBM, nqBM, R12, GradRef, Free_Slapaf
+         BM, dBM, iBM, idBM, nqBM, R12, GradRef, KtB, Free_Slapaf
 !
 ! Arrays always allocated
 !
@@ -51,11 +51,13 @@ Integer, Allocatable:: ANr(:)       ! list of atomic numbers
 ! Arrays optionally allocated
 !
 Real*8, Allocatable:: NAC(:,:)      ! list of Cartesian non-adiabatic coupling vector
-Real*8, Allocatable:: Lambda(:,:)     ! list of the Lagrange multipiers
+Real*8, Allocatable:: Lambda(:,:)   ! list of the Lagrange multipiers
 !
-! Utility arrays
+! Utility arrays with explicit deallocation, i.e. not via Free_Slapaf()
 !
-Integer, Allocatable:: Atom(:), NSup(:)
+Integer, Allocatable:: Atom(:)      ! Temporary arrays for the super symmetry case
+Integer, Allocatable:: NSup(:)      ! Temporary arrays for the super symmetry case
+Real*8, Allocatable::  KtB(:,:)     ! KtB array for the BMtrx family of subroutines
 
 Contains
   Subroutine Free_Slapaf()

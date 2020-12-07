@@ -17,8 +17,8 @@
      &                 nStab,jStab,Numerical,
      &                 Analytic_Hessian,
      &                 iOptC,mxdc,lOld,
-     &                 nFix,mTR,ip_KtB,nQQ,Redundant,MaxItr)
-      use Slapaf_Info, only: dMass, qInt, dqInt
+     &                 nFix,mTR,nQQ,Redundant,MaxItr)
+      use Slapaf_Info, only: dMass, qInt, dqInt, KtB
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -88,7 +88,7 @@
 ************************************************************************
 *                                                                      *
       If (HSet.and..NOT.lOld.and.BSet) Then
-         Call Allocate_Work(ip_KtB,nDim*nQQ)
+         Call mma_allocate(KtB,nDim,nQQ,Label='KtB')
 *
          Call mma_allocate(Degen2,nDim,Label='Degen2')
          i=0
@@ -104,23 +104,19 @@
             Do ix = 1, 3*nAtom
                If (Smmtrc(ix)) Then
                   i = i + 1
-                  ij = (j-1)*nDim + i - 1 + ip_KtB
                   ixj= (j-1)*3*nAtom + ix - 1 + ipBmx
-                  Work(ij) = Work(ixj)
+                  KtB(i,j) = Work(ixj)
                End If
             End Do
          End Do
 *
          Do iInter = 1, nQQ
             Do iDim = 1, nDim
-               ij = (iInter-1)*nDim + iDim - 1 + ip_KtB
-*              Work(ij) = Work(ij) / Sqrt(Degen2(iDim))
-               Work(ij) = Work(ij) / Degen2(iDim)
+*              KtB(iDim,iInter) = KtB(iDim,iIter) / Sqrt(Degen2(iDim))
+               KtB(iDim,iInter) = KtB(iDim,iIter) / Degen2(iDim)
             End Do
          End Do
          Call mma_deallocate(Degen2)
-      Else
-         ip_KtB = ip_Dummy
       End If
 *                                                                      *
 ************************************************************************

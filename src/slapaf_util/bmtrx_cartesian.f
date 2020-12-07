@@ -13,8 +13,8 @@
      &                 Name,Smmtrc,Degen,BSet,HSet,
      &                 nIter,Gx,mTtAtm,
      &                 PrQ,lOld,mTR,TRVec,EVal,Hss_x,
-     &                 ip_KtB,nQQ,Redundant,MaxItr,nWndw)
-      use Slapaf_Info, only: Cx, qInt, dqInt
+     &                 nQQ,Redundant,MaxItr,nWndw)
+      use Slapaf_Info, only: Cx, qInt, dqInt, KtB
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -309,7 +309,7 @@
 ************************************************************************
 *                                                                      *
       If (HSet.and..NOT.lOld) Then
-         Call Allocate_Work(ip_KtB,nDim*nQQ)
+         Call mma_allocate(KtB,nDim,nQQ,Label='KtB')
 *
          Call mma_allocate(Degen2,nDim,Label='Degen2')
          i=0
@@ -320,16 +320,13 @@
             End If
          End Do
 *
-         call dcopy_(nDim*nQQ,EVec(ipFrom),1,Work(ip_KtB),1)
+         call dcopy_(nDim*nQQ,EVec(ipFrom),1,KtB,1)
          Do iInter = 1, nQQ
             Do iDim = 1, nDim
-               ij = (iInter-1)*nDim + iDim - 1 + ip_KtB
-               Work(ij) = Work(ij) / Sqrt(Degen2(iDim))
+               KtB(iDim,iInter) = KtB(iDim,iInter) / Sqrt(Degen2(iDim))
             End Do
          End Do
          Call mma_deallocate(Degen2)
-      Else
-         ip_KtB = ip_Dummy
       End If
 *                                                                      *
 ************************************************************************

@@ -16,7 +16,7 @@
      &                  HWRS,Analytic_Hessian,iOptC,Name,PrQ,
      &                  dMass,iCoSet,iTabBonds,
      &                  iTabAtoms,nBonds,nMax,iTabAI,mAtoms,lOld,
-     &                  ip_KtB,nQQ,MaxItr,nWndw)
+     &                  nQQ,MaxItr,nWndw)
 ************************************************************************
 *                                                                      *
 *     Objective: to handle curvilinear internal coordinates.           *
@@ -26,7 +26,7 @@
 *              University of Lund, SWEDEN.                             *
 *              2004                                                    *
 ************************************************************************
-      use Slapaf_Info, only: qInt, dqInt, BM, dBM, iBM, idBM, nqBM
+      use Slapaf_Info, only: qInt, dqInt, BM, dBM, iBM, idBM, nqBM, KtB
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"
@@ -73,7 +73,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      ip_KtB_Hessian= ip_Dummy
       Thr_raw=3.0D-2
       If (HWRS) Then
          Thr_ElRed=Thr_raw**2
@@ -544,9 +543,9 @@ C        iEnd = 1
 *           Hessian to internal coordinates.
 *
             If (Proc_H) Then
-               Call Allocate_Work(ip_KtB,nDim*nQQ)
-               Call DCopy_(nDim*nQQ,KtBt,1,Work(ip_KtB),1)
-*              Call RecPrt('KtB',' ',Work(ip_KtB),nDim,nQQ)
+               Call mma_allocate(KtB,nDim,nQQ,Label='KtB')
+               Call DCopy_(nDim*nQQ,KtBt,1,KtB,1)
+*              Call RecPrt('KtB',' ',KtB,nDim,nQQ)
             End If
             Call mma_deallocate(KtBt)
 *                                                                      *

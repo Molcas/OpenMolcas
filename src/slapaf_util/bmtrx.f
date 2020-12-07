@@ -18,7 +18,7 @@
      &                 iOptC,PrQ,mxdc,iCoSet,lOld,
      &                 rHidden,nFix,nQQ,iIter,Redundant,MaxItr,
      &                 nWndw)
-      Use Slapaf_Info, Only: Cx, Gx, ANr, Shift, qInt
+      Use Slapaf_Info, Only: Cx, Gx, ANr, Shift, qInt, KtB
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -34,7 +34,6 @@
       External Get_SuperName
       Character(LEN=100) Get_SuperName
       Integer, Allocatable:: TabB(:,:), TabA(:,:,:), TabAI(:,:), AN(:)
-      Integer, External:: ip_of_iWork
       Real*8, Allocatable:: TR(:), TRNew(:), TROld(:), Scr2(:),
      &                      Vec(:,:), Coor2(:,:), EVal(:), Hss_X(:)
 *                                                                      *
@@ -189,7 +188,7 @@
      &                 Name,Smmtrc,Degen,BSet,HSet,nIter,Gx,
      &                 nStab,jStab,Numerical,Analytic_Hessian,
      &                 iOptC,mxdc,lOld,
-     &                 nFix,mTR,ip_KtB,nQQ,Redundant,MaxItr)
+     &                 nFix,mTR,nQQ,Redundant,MaxItr)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -209,9 +208,6 @@
             Call Box(Coor2,mTtAtm,AN,iOptC,ddV_Schlegel,TabB,TabA,
      &               nBonds,nMax)
          End If
-         ip_TabA = ip_of_iWork(TabA(1,0,1))
-         ip_TabB = ip_of_iWork(TabB(1,1))
-         ip_TabAI= ip_of_iWork(TabAI(1,1))
          Call BMtrx_Internal(
      &                 ipBMx,nAtom,nDim,Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,
@@ -219,9 +215,9 @@
      &                 nStab,jStab,Numerical,
      &                 HWRS,Analytic_Hessian,
      &                 iOptC,PrQ,iCoSet,lOld,
-     &                 iIter,mTR,TR,ip_TabAI,
-     &                 ip_TabA,ip_TabB,nBonds,nMax,
-     &                 iIter,ip_KtB,nQQ,MaxItr,nWndw)
+     &                 iIter,mTR,TR,TabAI,
+     &                 TabA,TabB,nBonds,nMax,
+     &                 iIter,nQQ,MaxItr,nWndw)
 *
 *------- Set the Labels for internal coordinates.
 *
@@ -238,7 +234,7 @@
          Call BMtrx_Cartesian(ipBMx,nAtom,nInter,nDim,Name,
      &                        Smmtrc,Degen,BSet,HSet,nIter,
      &                        Gx,mTtAtm,PrQ,lOld,mTR,TR,EVal,Hss_X,
-     &                        ip_KtB,nQQ,Redundant,MaxItr,nWndw)
+     &                        nQQ,Redundant,MaxItr,nWndw)
 *
 *------- Set the Labels for cartesian normal modes.
 *
@@ -255,8 +251,8 @@
 *                                                                      *
       If ((BSet.and.HSet.and..NOT.lOld)) Then
          Call Put_dArray('Hss_X',Hss_X,nDim**2)
-         Call Put_dArray('KtB',Work(ip_KtB),nDim*nQQ)
-         Call Free_Work(ip_KtB)
+         Call Put_dArray('KtB',KtB,nDim*nQQ)
+         Call mma_deallocate(KtB)
       End If
       Call mma_deallocate(Hss_X)
       Call mma_deallocate(EVal)
