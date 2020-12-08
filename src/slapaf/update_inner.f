@@ -92,12 +92,21 @@
      &                      dEdq(:,:), dx(:,:), dy(:), BVec(:,:),
      &                      Scr1(:), Scr2(:), Value(:), Value0(:),
      &                      Mult(:), dBVec(:), Tmp(:)
-#define _NEW_CODE_
+*                                                                      *
+************************************************************************
+*                                                                      *
+* This option should only be activated after careful debugging.
+* Relevant tests 049, 178, 182, 234
+*                                              RL December 2020
+*#define _NEW_CODE_
+*                                                                      *
+************************************************************************
+*                                                                      *
 #ifdef _NEW_CODE_
       Real*8, Allocatable:: QC(:,:,:)
 #endif
       Lu=6
-!#define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (Lu,*)'Update_inner:iOpt_RS,Beta,Beta_Disp=',
      &                     iOpt_RS,Beta,Beta_Disp
@@ -537,7 +546,7 @@ C           Write (6,*) 'tBeta=',tBeta
                   Do ix = 1, n1
                      If (Smmtrc(ix)) Then
                         i = i + 1
-                        dBM(ix,jx,k) = dBM(ix,jx,k) - QC(i,j,k)
+                        dBM(ix,jx,k) = dBM(ix,jx,k) + QC(i,j,k)
                      End If
                   End Do
                End If
