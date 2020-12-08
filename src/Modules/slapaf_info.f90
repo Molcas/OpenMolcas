@@ -59,6 +59,8 @@ Integer, Allocatable:: Atom(:)      ! Temporary arrays for the super symmetry ca
 Integer, Allocatable:: NSup(:)      ! Temporary arrays for the super symmetry case
 Real*8, Allocatable::  KtB(:,:)     ! KtB array for the BMtrx family of subroutines
 
+Logical:: Initiated=.False.
+Integer nsAtom
 Contains
   Subroutine Free_Slapaf()
 #include "stdalloc.fh"
@@ -97,13 +99,22 @@ Contains
 
 
 
-  Subroutine Get_Slapaf(iter,MaxItr,mTROld,lOld_Implicit)
-  Integer iter, MaxItr, mTROld
+  Subroutine Get_Slapaf(iter,MaxItr,mTROld,lOld_Implicit, nsAtom_In,mLambda)
+  Integer iter, MaxItr, mTROld, nsAtom_In, mLambda
   Logical lOld_Implicit
+#include "real.fh"
 #include "stdalloc.fh"
   Logical Exist
-  Integer itmp
+  Integer itmp, iOff, Lngth
   Integer, Allocatable:: Information(:)
+  Real*8, Allocatable:: Relax(:)
+  Character(LEN=100) SuperName
+  Character(LEN=100), External:: Get_SuperName
+
+  Initiated=.True.
+
+  nsAtom=nsAtom_In
+
   Call mma_allocate(Information,7,Label='Information')
 
   Call qpg_iArray('Slapaf Info 1',Exist,itmp)
@@ -127,22 +138,91 @@ Contains
 
   Call mma_deallocate(Information)
 
+  If (.NOT.Allocated(Energy)) Then
+
+  Call mma_allocate(Energy,          MaxItr+1,Label='Energy')
+  Energy(:) = Zero
+  Call mma_allocate(Energy0,         MaxItr+1,Label='Energy0')
+  Energy0(:) = Zero
+  Call mma_allocate(DipM,   3,       MaxItr+1,Label='DipM')
+  DipM(:,:) = Zero
+  Call mma_allocate(GNrm,            MaxItr+1,Label='GNrm')
+  GNrm(:) = Zero
+  Call mma_allocate(Cx,     3,nsAtom,MaxItr+1,Label='Cx')
+  Cx(:,:,:) = Zero
+  Call mma_allocate(Gx,     3,nsAtom,MaxItr+1,Label='Gx')
+  Gx(:,:,:) = Zero
+  Call mma_allocate(Gx0,    3,nsAtom,MaxItr+1,Label='Gx0')
+  Gx0(:,:,:) = Zero
+  Call mma_allocate(MF,     3,nsAtom,         Label='MF')
+  MF(:,:) = Zero
+  If (mLambda>0) Then
+     Call mma_allocate(Lambda,mLambda,MaxItr+1,Label='Lambda')
+     Lambda(:,:)=Zero
+  End If
+
+  End If
+
+  If (iter==1) Return
+
+  SuperName=Get_Supername()
+  If (SuperName.ne.'numerical_gradient') Then
+
+     Lngth=SIZE(Energy)+SIZE(Energy0)+SIZE(DipM)+SIZE(GNrm)+SIZE(Cx)+SIZE(Gx)  &
+          +SIZE(Gx0)+SIZE(MF)+SIZE(Lambda)
+     Call mma_allocate(Relax,Lngth,Label='Relax')
+     Call Get_dArray('Slapaf Info 2',Relax,Lngth)
+
+     iOff=1
+     Call DCopy_(SIZE(Energy ),Relax(iOff),1,Energy ,1)
+     iOff=iOff+SIZE(Energy)
+     Call DCopy_(SIZE(Energy0),Relax(iOff),1,Energy0,1)
+     iOff=iOff+SIZE(Energy0)
+     Call DCopy_(SIZE(DipM   ),Relax(iOff),1,DipM   ,1)
+     iOff=iOff+SIZE(DipM   )
+     Call DCopy_(SIZE(GNrm   ),Relax(iOff),1,GNrm   ,1)
+     iOff=iOff+SIZE(GNrm   )
+     Call DCopy_(SIZE(Cx     ),Relax(iOff),1,Cx     ,1)
+     iOff=iOff+SIZE(Cx     )
+     Call DCopy_(SIZE(Gx     ),Relax(iOff),1,Gx     ,1)
+     iOff=iOff+SIZE(Gx     )
+     Call DCopy_(SIZE(Gx0    ),Relax(iOff),1,Gx0    ,1)
+     iOff=iOff+SIZE(Gx0    )
+     Call DCopy_(SIZE(MF     ),Relax(iOff),1,MF     ,1)
+     iOff=iOff+SIZE(MF     )
+     If (Allocated(Lambda)) Then
+        Call DCopy_(SIZE(Lambda ),Relax(iOff),1,Lambda ,1)
+        iOff=iOff+SIZE(Lambda )
+     End If
+     Call mma_deallocate(Relax)
+   Else
+     iter=1
+   End If
+
   End Subroutine Get_Slapaf
 
 
 
-  Subroutine Dmp_Slapaf(Stop,Just_Frequencies,Energy,Iter,MaxItr,mTROld, &
-                        lOld_Implicit,ipEner,ipRlx,ipCx,ipGx,nsAtom)
+  Subroutine Dmp_Slapaf(Stop,Just_Frequencies,Energy_In,Iter,MaxItr,mTROld, &
+                        lOld_Implicit,nsAtom)
   Logical Stop, Just_Frequencies, lOld_Implicit
-  Real*8 Energy
-  Integer Iter, MaxItr, mTROld, ipEner, ipRlx, ipCx, ipGx, nsAtom
+  Real*8 Energy_In
+  Integer Iter, MaxItr, mTROld, nsAtom
 #include "stdalloc.fh"
   Integer, Allocatable:: Information(:)
+  Real*8, Allocatable:: Relax(:)
   Real*8, Allocatable:: GxFix(:,:)
-  Integer iOff_Iter, nSlap
+  Integer iOff_Iter, nSlap, iOff, Lngth
   Logical Found
   Character(LEN=100) SuperName
   Character(LEN=100), External:: Get_SuperName
+
+  If (.NOT.Initiated) Then
+     Write (6,*) 'Dmp_Slapaf: Slapaf not initiated!'
+     Call Abend()
+  Else
+     Initiated=.False.
+  End If
 
 !---  Write information of this iteration to the RLXITR file
   Call mma_allocate(Information,7,Label='Information')
@@ -155,7 +235,7 @@ Contains
 !    (note the gradient sign must be changed back)
 !
      If (Just_Frequencies) Then
-        Call Put_dScalar('Last Energy',Energy)
+        Call Put_dScalar('Last Energy',Energy_In)
         Call mma_allocate(GxFix,3,nsAtom,Label='GxFix')
         call dcopy_(3*nsAtom,Gx,1,GxFix,1)
         GxFix(:,:) = - GxFix(:,:)
@@ -183,10 +263,37 @@ Contains
      Else
         Information(4)=0
      End If
-     Information(5)=ipEner-ipRlx
-     Information(6)=ipCx-ipRlx
-     Information(7)=ipGx-ipRlx
+     Information(5)=0
+     Information(6)=SIZE(Energy)+SIZE(Energy0)+SIZE(DipM)+SIZE(GNrm)
+     Information(7)=SIZE(Energy)+SIZE(Energy0)+SIZE(DipM)+SIZE(GNrm)+SIZE(Cx)
      Call Put_iArray('Slapaf Info 1',Information,7)
+
+     Lngth=SIZE(Energy)+SIZE(Energy0)+SIZE(DipM)+SIZE(GNrm)+SIZE(Cx)+SIZE(Gx)  &
+          +SIZE(Gx0)+SIZE(MF)+SIZE(Lambda)
+     Call mma_allocate(Relax,Lngth,Label='Relax')
+     iOff = 1
+     Call DCopy_(SIZE(Energy ),Energy ,1,Relax(iOff),1)
+     iOff = iOff + SIZE(Energy )
+     Call DCopy_(SIZE(Energy0),Energy0,1,Relax(iOff),1)
+     iOff = iOff + SIZE(Energy0)
+     Call DCopy_(SIZE(DipM   ),DipM   ,1,Relax(iOff),1)
+     iOff = iOff + SIZE(DipM   )
+     Call DCopy_(SIZE(GNrm   ),GNrm   ,1,Relax(iOff),1)
+     iOff = iOff + SIZE(GNrm   )
+     Call DCopy_(SIZE(Cx     ),Cx     ,1,Relax(iOff),1)
+     iOff = iOff + SIZE(Cx     )
+     Call DCopy_(SIZE(Gx     ),Gx     ,1,Relax(iOff),1)
+     iOff = iOff + SIZE(Gx     )
+     Call DCopy_(SIZE(Gx0    ),Gx0    ,1,Relax(iOff),1)
+     iOff = iOff + SIZE(Gx0    )
+     Call DCopy_(SIZE(MF     ),MF     ,1,Relax(iOff),1)
+     iOff = iOff + SIZE(MF     )
+     If (Allocated(Lambda)) Then
+        Call DCopy_(SIZE(Lambda ),Lambda ,1,Relax(iOff),1)
+        iOff = iOff + SIZE(Lambda )
+     End If
+     Call Put_dArray('Slapaf Info 2',Relax,Lngth)
+     Call mma_deallocate(Relax)
   End If
   Call mma_deallocate(Information)
 

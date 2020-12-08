@@ -265,7 +265,6 @@
 *     Done!
 *
       Call GetMem(' B ',    'Free','Real',ipB,   (nsAtom*3)**2)
-      Call GetMem('Relax', 'Free','Real',ipRlx, Lngth)
       Call Free_Slapaf()
 *
 *-----Terminate the calculations.

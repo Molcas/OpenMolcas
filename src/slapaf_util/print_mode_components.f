@@ -545,7 +545,6 @@
       Call mma_deallocate(IntMod)
       Call mma_deallocate(Sort)
       Call GetMem(' B ',    'Free','Real',ipB,   (nsAtom*3)**2)
-      Call GetMem('Relax',  'Free','Real',ipRlx,    Lngth)
 *                                                                      *
 ************************************************************************
 *                                                                      *

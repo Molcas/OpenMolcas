@@ -9,22 +9,19 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Init2()
-      use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Coor, Grd, GNrm, Lambda,
-     &                       Energy, Energy0, MF, DipM, qInt, dqInt,
+      use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Coor, Grd,
+     &                       Energy, Energy0, DipM, qInt, dqInt,
      &                       RefGeo, Get_Slapaf
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
 #include "nadc.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "info_slapaf.fh"
 #include "print.fh"
       Logical Is_Roots_Set
       Real*8, Allocatable:: MMGrd(:,:), Tmp(:), DMs(:,:)
 #include "SysDef.fh"
-      Character*100 Get_SuperName, SuperName
-      External Get_SuperName
 * Beijing Test
       Logical Exist_2,lMMGrd, Found
       Real*8 Columbus_Energy(2)
@@ -47,56 +44,14 @@
 *
 *     Get some basic information from the runfile.
 *
-      Call Get_Slapaf(iter, MaxItr, mTROld, lOld_Implicit)
+      Call Get_Slapaf(iter, MaxItr, mTROld, lOld_Implicit,nsAtom,
+     &                mLambda)
 *                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *
 *---  Pick up information from previous iterations
 *
-      l1=3*nsAtom
-      Lngth=
-     &     +(MaxItr+1)            ! Ener
-     &     +(MaxItr+1)            ! Ener0
-     &     +(MaxItr+1)*3          ! DipM
-     &     +(MaxItr+1)            ! GNrm
-     &     +l1*(MaxItr+1)         ! Cx
-     &     +l1*(MaxItr+1)         ! Gx
-     &     +l1*(MaxItr+1)         ! Gx0
-     &     +l1                    ! MF
-     &     +mLambda*(MaxItr+1)    ! L
-      Call GetMem('Relax','Allo','Real',ipRlx,Lngth)
-      Call FZero(Work(ipRlx),Lngth)
-      ipEner = ipRlx
-      ipEner0= ipEner  +          MaxItr+1
-      ipDipM = ipEner0 +          MaxItr+1
-      ipGNrm = ipDipM  +         (MaxItr+1)*3
-      ipCx   = ipGNrm  +          MaxItr+1
-      ipGx   = ipCx    +      l1*(MaxItr+1)
-      ipGx0  = ipGx    +      l1*(MaxItr+1)
-      ipMF   = ipGx0   +      l1*(MaxItr+1)
-      ipL    = ipMF    +      l1
-*
-      Call mma_allocate(Energy,          MaxItr+1,Label='Energy')
-      Energy(:) = Zero
-      Call mma_allocate(Energy0,         MaxItr+1,Label='Energy0')
-      Energy0(:) = Zero
-      Call mma_allocate(DipM,   3,       MaxItr+1,Label='DipM')
-      DipM(:,:) = Zero
-      Call mma_allocate(GNrm,            MaxItr+1,Label='GNrm')
-      GNrm(:) = Zero
-      Call mma_allocate(Cx,     3,nsAtom,MaxItr+1,Label='Cx')
-      Cx(:,:,:) = Zero
-      Call mma_allocate(Gx,     3,nsAtom,MaxItr+1,Label='Gx')
-      Gx(:,:,:) = Zero
-      Call mma_allocate(Gx0,    3,nsAtom,MaxItr+1,Label='Gx0')
-      Gx0(:,:,:) = Zero
-      Call mma_allocate(MF,     3,nsAtom,         Label='MF')
-      MF(:,:) = Zero
-      If (mLambda>0) Then
-        Call mma_allocate(Lambda,mLambda,MaxItr+1,Label='Lambda')
-        Lambda(:,:)=Zero
-      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -104,24 +59,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         SuperName=Get_Supername()
-         If (SuperName.ne.'numerical_gradient') Then
-            Call Get_dArray('Slapaf Info 2',Work(ipRlx),Lngth)
-*
-            Call DCopy_(   (MaxItr+1),Work(ipEner ),1,Energy ,1)
-            Call DCopy_(   (MaxItr+1),Work(ipEner0),1,Energy0,1)
-            Call DCopy_(3* (MaxItr+1),Work(ipDipM ),1,DipM   ,1)
-            Call DCopy_(   (MaxItr+1),Work(ipGNrm ),1,GNrm   ,1)
-            Call DCopy_(l1*(MaxItr+1),Work(ipCx   ),1,Cx     ,1)
-            Call DCopy_(l1*(MaxItr+1),Work(ipGx   ),1,Gx     ,1)
-            Call DCopy_(l1*(MaxItr+1),Work(ipGx0  ),1,Gx0    ,1)
-            Call DCopy_(l1           ,Work(ipMF   ),1,MF     ,1)
-            If (mLambda>0) Call DCopy_(mLambda*(MaxItr+1),Work(ipL),1,
-     &                                                    Lambda,1)
-         Else
-            iter=1
-         End If
-
          Call qpg_dArray('qInt',Found,nqInt)
          If (Found) Then
             nQQ=nqInt/MaxItr
@@ -171,9 +108,9 @@
          Call Get_dArray('MM Grad',MMGrd,3*nsAtom*2)
          Do iN = 1, iter-1
             Write(6,*) 'Grad at iteration :',iN
-            Call RecPrt('Old:',' ',Gx(1,1,iN),3,nsAtom)
-            Call DaXpY_(3*nsAtom,-One,MMGrd(:,1),1,Gx(1,1,iN),  1)
-            Call DaXpY_(3*nsAtom, One,MMGrd(:,2),1,Gx(1,1,iN),  1)
+            Call RecPrt('Old:',' ',Gx(:,:,iN),3,nsAtom)
+            Call DaXpY_(3*nsAtom,-One,MMGrd(:,1),1,Gx(:,:,iN),  1)
+            Call DaXpY_(3*nsAtom, One,MMGrd(:,2),1,Gx(:,:,iN),  1)
             Call RecPrt('New:',' ',Gx(1,1,iN),3,nsAtom)
          End Do
          Call mma_deallocate(MMGrd)

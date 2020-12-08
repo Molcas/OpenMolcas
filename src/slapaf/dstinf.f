@@ -15,7 +15,6 @@
      &                       Dmp_Slapaf
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "info_slapaf.fh"
 #include "print.fh"
@@ -46,26 +45,14 @@
 *---  Write information of this iteration to the RLXITR file
 *
       Call Dmp_Slapaf(Stop,Just_Frequencies,Energy(1),iter,MaxItr,
-     &                mTROld,lOld_Implicit,ipEner,ipRlx,ipCx,ipGx,
-     &                nsAtom)
+     &                mTROld,lOld_Implicit,nsAtom)
 *
       SuperName=Get_Supername()
       If (SuperName.ne.'numerical_gradient') Then
-         Call Dcopy_(         (MaxItr+1),Energy ,1,Work(ipEner ),1)
-         Call Dcopy_(         (MaxItr+1),Energy0,1,Work(ipEner0),1)
-         Call Dcopy_(         (MaxItr+1),GNrm   ,1,Work(ipGNrm ),1)
-         Call Dcopy_(3*       (MaxItr+1),DipM   ,1,Work(ipDipM ),1)
-         Call Dcopy_(3*nsAtom*(MaxItr+1),Cx     ,1,Work(ipCx   ),1)
-         Call Dcopy_(3*nsAtom*(MaxItr+1),Gx     ,1,Work(ipGx   ),1)
-         Call Dcopy_(3*nsAtom*(MaxItr+1),Gx0    ,1,Work(ipGx0  ),1)
-         Call Dcopy_(3*nsAtom           ,MF     ,1,Work(ipMF   ),1)
-         If (Allocated(Lambda)) Call DCopy_(SIZE(Lambda),Lambda,1,
-     &                                                   Work(ipL),1)
-
-         Call Put_dArray('Slapaf Info 2',Work(ipRlx),Lngth)
          Call Put_dArray('qInt',  qInt,SIZE( qInt))
          Call Put_dArray('dqInt',dqInt,SIZE(dqInt))
       End If
+
       If (Just_Frequencies) Return
 *                                                                      *
 ************************************************************************
