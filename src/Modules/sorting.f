@@ -65,6 +65,9 @@
 !>    le = i <= j
 !>  end function
 !>  \endcode
+!>  The module `sorting_funcs` already contains many
+!>  widely used comparison functions.
+!>
 !>  If you want to change the sorting algorithm, you can do so on the fly.
 !>  The default is always a stable sorting algorithm.
 !>  \code{.unparsed}
@@ -176,13 +179,16 @@
 !>
 !>  @details
 !>  The array is sorted until f(v(i), v(i + 1)) is true for all i.
-!>  If you want to sort an array increasingly, just use
+!>  If you e.g. want to sort an array increasingly, just use
 !>  \code{.unparsed}
 !>  logical pure function le(i, j)
 !>    integer, intent(in) :: i, j
 !>    le = i <= j
 !>  end function
 !>  \endcode
+!>  The module `sorting_funcs` already contains many
+!>  widely used comparison functions.
+!>
 !>  The real power of this routine shines, when the array
 !>  is treated as an index array of other matrices or tensors.
 !>  If you want to sort a 2D-matrix according to the column sum,

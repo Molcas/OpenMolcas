@@ -16,6 +16,7 @@
 module test_sorting_mod
     use fruit
     use sorting, only: sort
+    use sorting_funcs, only: geq_r
     use isotopes, only: initialize_isotopes, elementlist
     use definitions, only: wp
     implicit none
@@ -36,6 +37,7 @@ contains
 
         contains
 
+        ! This could also use sorting_funcs::leq_i
         logical pure function leq(i, j)
             integer, intent(in) :: i, j
             leq = i <= j
