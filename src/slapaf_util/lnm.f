@@ -16,7 +16,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "angstr.fh"
       Real*8 Cart(3,nAtoms+nHidden), Hess(3*nAtoms*(3*nAtoms+1)/2),

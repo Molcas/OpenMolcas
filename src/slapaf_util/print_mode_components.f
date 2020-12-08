@@ -36,7 +36,6 @@
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "real.fh"
       Real*8 rDum(1)
@@ -56,7 +55,6 @@
       Character(Len=24), Allocatable :: Label(:)
       Character(Len=180), External :: Get_Ln_EOF
       Real*8, External :: DDot_
-      Integer, External :: ip_of_Work
 
       Real*8, Allocatable:: Bk_Energy(:)
       Real*8, Allocatable:: Bk_Energy0(:)

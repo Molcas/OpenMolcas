@@ -40,7 +40,6 @@
       use Slapaf_Info, only: Weights, MF, RefGeo
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "weighting.fh"
 #include "info_slapaf.fh"

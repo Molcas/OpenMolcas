@@ -13,7 +13,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Logical Smmtrc(3,nAtom)
       Real*8 dDipM(3,nInter+mTR), DipM(3), Tmp1(nX**2), Tmp2(nX**2),

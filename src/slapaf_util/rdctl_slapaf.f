@@ -16,7 +16,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
 #include "info_slapaf.fh"
 #include "nadc.fh"
 #include "weighting.fh"

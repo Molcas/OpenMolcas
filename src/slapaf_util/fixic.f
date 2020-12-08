@@ -11,7 +11,6 @@
       Subroutine FIXIC(nFix,SS,mInt,B,NDIM,F,Label,u)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 SS(mInt), B(nDim*mInt), F(nDim), u(nDim)
       Character(LEN=8) Label(mInt)

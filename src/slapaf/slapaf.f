@@ -12,7 +12,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
 !     Is this usage permitted? - Yingjin
 !#include "dmrginfo_mclr.fh"
       Character*8 ELOOP

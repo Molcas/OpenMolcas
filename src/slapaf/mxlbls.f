@@ -12,8 +12,6 @@
      &                  Lbl)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
       Real*8 Shift(nInter), Grad(nInter)
       Character Lbl(nInter)*8,  GrdLbl*8, StpLbl*8
 *

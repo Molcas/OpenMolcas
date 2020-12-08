@@ -13,7 +13,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 H(nH,nH), MF(3*nAtoms)
       Integer iNeg(2)

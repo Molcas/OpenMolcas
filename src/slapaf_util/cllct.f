@@ -22,7 +22,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "Molcas.fh"
       Character*(*) Strng
       Character*(LENIN) Names(nAtom), Label*(LENIN5), Name*(LENIN)

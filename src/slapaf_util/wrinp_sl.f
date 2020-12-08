@@ -13,7 +13,6 @@
       use Slapaf_Info, only: Coor
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "info_slapaf.fh"
 #include "print.fh"
 #include "constants.fh"

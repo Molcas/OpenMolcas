@@ -13,7 +13,6 @@
       Subroutine Process_Gradients()
       use Slapaf_Info, only: Gx, Gx0, NAC, Energy, Energy0
       Implicit None
-#include "WrkSpc.fh"
 #include "real.fh"
 #include "info_slapaf.fh"
 #include "nadc.fh"

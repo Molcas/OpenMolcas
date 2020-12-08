@@ -15,7 +15,6 @@
       use Slapaf_Info, only: RefGeo
       Implicit None
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "info_slapaf.fh"
 #include "sbs.fh"
@@ -73,7 +72,7 @@
      &                .False.,'dummy   ',rDum,.False.)
         Else If (MEP_Type.eq.'TRANSVERSE') Then
           Call Transverse(Point,nAtom,R,Dummy,
-     &                .False.,'dummy   ',Work(ip_Dummy),.False.)
+     &                .False.,'dummy   ',rDum,.False.)
         End If
 
 *       Stop if too many iterations or if the constraint is moving

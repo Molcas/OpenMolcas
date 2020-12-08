@@ -14,7 +14,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 dDipM(3,nInter+mTR), DipM(3), IRInt(nInter+mTR)

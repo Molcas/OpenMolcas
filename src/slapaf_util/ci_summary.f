@@ -22,7 +22,6 @@
       Character(Len=2) LabA
       Character(Len=40) Description
 #include "info_slapaf.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "nadc.fh"
 #include "real.fh"

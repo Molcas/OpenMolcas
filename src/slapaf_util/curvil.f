@@ -35,7 +35,7 @@
 #include "stdalloc.fh"
 #include "db.fh"
 #include "print.fh"
-      Real*8 Cx(3*nAtoms,nIter), Degen(3*nAtoms), Gx(3*nAtoms,nIter),
+      Real*8 Cx(3,nAtoms,nIter), Degen(3*nAtoms), Gx(3,nAtoms,nIter),
      &       dMass(nAtoms), TRVec(nDim,mTR)
       Integer nStab(nAtoms), iCoSet(0:7,nAtoms), jStab(0:7,nAtoms),
      &        iANr(nAtoms), iDum(6), iTabBonds(3,nBonds),
@@ -370,7 +370,7 @@
 *------- Produce list of compressed cartesian gradients.
          Call mma_allocate(GxR,nDim,nIter,Label='GxR')
          Do jIter = 1, nIter
-            Call NRed(Gx(:,jIter),GxR(:,jIter),3*nAtoms,nDim,Smmtrc)
+            Call NRed(Gx(:,:,jIter),GxR(:,jIter),3*nAtoms,nDim,Smmtrc)
          End Do
 *
          iSt = nIter
@@ -381,7 +381,7 @@ C        iEnd = 1
          If (Numerical) Then
             Call mma_allocate(GxR,nDim,1,Label='GxR')
             iOff = 1
-            Call NRed(Gx(1,nIter),GxR(:,1),3*nAtoms,nDim,Smmtrc)
+            Call NRed(Gx(:,:,nIter),GxR(:,1),3*nAtoms,nDim,Smmtrc)
          Else
             Call mma_allocate(GxR,1,1,Label='GxR')
             iOff = 1

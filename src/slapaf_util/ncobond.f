@@ -11,7 +11,6 @@
       Integer Function nCoBond(iAtom,nAtoms,nMax,iTabBonds,
      &                         nBondMax,iTabAtoms)
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
       Integer iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
 #include "bondtypes.fh"
 *                                                                      *
@@ -28,7 +27,6 @@
       Integer Function nFgBond(iAtom,nAtoms,nMax,iTabBonds,
      &                         nBondMax,iTabAtoms)
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
       Integer iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
 #include "bondtypes.fh"
 *                                                                      *

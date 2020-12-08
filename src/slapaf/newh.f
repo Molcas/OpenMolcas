@@ -22,7 +22,6 @@
       Use NewH_Mod
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Integer nInter, nIter, mIter, iOptH, i, iPrint, iRout, iSing
       Real*8 dq_orig(nInter,nIter), g(nInter,mIter+1), H(nInter,nInter)

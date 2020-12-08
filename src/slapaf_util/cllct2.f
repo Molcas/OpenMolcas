@@ -26,7 +26,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "Molcas.fh"
       Character(LEN=*) Strng
       Character(LEN=LENIN) Names(nAtom)

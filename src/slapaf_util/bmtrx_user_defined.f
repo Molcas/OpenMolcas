@@ -24,7 +24,7 @@
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-      Real*8 Coor(3,nAtom), Degen(3*nAtom), Gx(3*nAtom,nIter)
+      Real*8 Coor(3,nAtom), Degen(3*nAtom), Gx(3,nAtom,nIter)
       Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
       Integer   nStab(nAtom), jStab(0:7,nAtom)
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
@@ -82,7 +82,7 @@
 *                                                                      *
 *     Compute the gradient
 *
-      If (BSet) Call Force(nFix,Gx(1,nIter),nAtom,nQQ,Work(ipBMx),
+      If (BSet) Call Force(nFix,Gx(:,:,nIter),nAtom,nQQ,Work(ipBMx),
      &                     Name,nIter,dqInt,Lbl,Degen)
 *                                                                      *
 ************************************************************************
@@ -112,8 +112,8 @@
 *
          Do iInter = 1, nQQ
             Do iDim = 1, nDim
-*              KtB(iDim,iInter) = KtB(iDim,iIter) / Sqrt(Degen2(iDim))
-               KtB(iDim,iInter) = KtB(iDim,iIter) / Degen2(iDim)
+*              KtB(iDim,iInter) = KtB(iDim,iInter) / Sqrt(Degen2(iDim))
+               KtB(iDim,iInter) = KtB(iDim,iInter) / Degen2(iDim)
             End Do
          End Do
          Call mma_deallocate(Degen2)

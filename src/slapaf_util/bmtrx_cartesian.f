@@ -21,7 +21,7 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-      Real*8 Degen(3*nAtom), Gx(3*nAtom,nIter), TRVec(nDim,mTR)
+      Real*8 Degen(3*nAtom), Gx(3,nAtom,nIter), TRVec(nDim,mTR)
       Character Name(nAtom)*(LENIN)
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant, PrQ, lOld
       Real*8 Eval(3*mTtAtm*(3*mTtAtm+1)/2)
@@ -154,7 +154,7 @@
 *
          If (BSet) Then
 *
-*           Call RecPrt('Gx',' ',Gx(1,nIter),1,3*nAtom)
+*           Call RecPrt('Gx',' ',Gx(:,:,nIter),1,3*nAtom)
 *           Call RecPrt('TRVec',' ',TRVec,nDim,mTR)
 *
             Do iTR = 1, mTR
@@ -163,24 +163,34 @@
 *
                Temp=0.0D0
                iInd=0
-               Do i = 1, 3*nAtom
+               i=0
+               Do iAtom = 1, nAtom
+               Do j = 1, 3
+                  i = i + 1
                   If (Smmtrc(i)) Then
                      iInd=iInd+1
-                     Temp = Temp + Degen(i)*Gx(i,nIter)*TRVec(iInd,iTR)
+                     Temp = Temp + Degen(i)*Gx(j,iAtom,nIter)
+     &                                     *TRVec(iInd,iTR)
                   End If
+               End Do
                End Do
 *
                iInd=0
-               Do i = 1, 3*nAtom
+               i=0
+               Do iAtom = 1, nAtom
+               Do j = 1, 3
+                  i = i + 1
                   If (Smmtrc(i)) Then
                      iInd=iInd+1
-                     Gx(i,nIter) = Gx(i,nIter) - TRVec(iInd,iTR)*Temp
+                     Gx(j,iAtom,nIter) = Gx(j,iAtom,nIter)
+     &                                 - TRVec(iInd,iTR)*Temp
                   End If
+               End Do
                End Do
 *
             End Do
 *
-*           Call RecPrt('Gx',' ',Gx(1,nIter),1,3*nAtom)
+*           Call RecPrt('Gx',' ',Gx(:,:,nIter),1,3*nAtom)
 *
          End If
 *                                                                      *

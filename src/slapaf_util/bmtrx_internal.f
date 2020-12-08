@@ -19,7 +19,7 @@
       use Slapaf_Info, only: Cx, dMass
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
-      Real*8 Degen(3*nAtom), Gx(3*nAtom,nIter), TRVec(nDim,mTR)
+      Real*8 Degen(3*nAtom), Gx(3,nAtom,nIter), TRVec(nDim,mTR)
       Character Name(nAtom)*(LENIN)
       Integer   iAnr(nAtom), nStab(nAtom), jStab(0:7,nAtom),
      &          iCoSet(0:7,nAtom)

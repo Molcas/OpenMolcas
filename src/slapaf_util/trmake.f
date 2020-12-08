@@ -13,7 +13,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
       Real*8 TRVec(6,3*nAtoms), Coor(3,nAtoms),uMtrx(3*nAtoms),
      &       CM(3), dMass(nAtoms)

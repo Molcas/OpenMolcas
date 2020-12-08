@@ -14,7 +14,6 @@
 #include "info_slapaf.fh"
 #include "real.fh"
 #include "nadc.fh"
-#include "WrkSpc.fh"
 #include "constants.fh"
       Real*8   Bf(3,nCent), xyz(3,nCent), dBf(3*nCent,3*nCent)
       Logical lWrite_, ldB

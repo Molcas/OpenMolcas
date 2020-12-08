@@ -66,7 +66,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
       Logical Smmtrc(3,nAtom)
       Real*8 BMtrx(nX,nInter), H(nInter,nInter),
      &       Tmp2(nX**2), Tmp3(nX**2)
