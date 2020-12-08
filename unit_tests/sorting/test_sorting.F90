@@ -16,7 +16,7 @@
 module test_sorting_mod
     use fruit
     use sorting, only: sort
-    use isotopes, only: initialize_isotopes, elementlist, Element_t
+    use isotopes, only: initialize_isotopes, elementlist
     use definitions, only: wp
     implicit none
     private
