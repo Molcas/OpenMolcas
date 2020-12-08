@@ -3,7 +3,7 @@ symmetry
 x y
 basis set
 Te.ECP.Barandiaran.11s10p7d.1s1p2d.16e-CG-AIMP
-Te 0.000000 0.000000 0.0000000 
+Te 0.000000 0.000000 0.0000000
 end of basis
 basis set
 H.ano-l.Widmark.8s4p3d.3s2p1d.
@@ -18,7 +18,7 @@ end of input
 *-------------------------------------------------------------------------------
  &RASSCF  &END
 inactive
-2 1 1 1 
+2 1 1 1
 ras2
 3 1 2 0
 nactel
@@ -31,7 +31,7 @@ end of input
  &COLUMBUS &END
 BEGIN_SECTION_GENERAL
 TITLE
- TeH2: relativistisches ECP 
+ TeH2: relativistisches ECP
 END_SECTION_GENERAL
 BEGIN_SECTION_MRCI
 DRT
@@ -47,7 +47,7 @@ END_DRT
 SUBSPACEDIM
  5
 ITERATIONS
- 40  1 
+ 40  1
 ACCURACY
  0.001
 REFSPACE
@@ -57,7 +57,7 @@ GENSPACE
 EXLVL
  2
 FROZENCORE
- 2 1 1 1  
+ 2 1 1 1
 REFDOCC
  0 0 0 0
 REFRAS
@@ -65,5 +65,5 @@ REFRAS
 REFCAS
  3 1 2 0
 END_SECTION_MRCI
-end of input 
+end of input
 

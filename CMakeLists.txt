@@ -49,29 +49,6 @@ if ("${sourcedir}" STREQUAL "${binarydir}")
           "separate build directory and run cmake from there.")
 endif ()
 
-# workaround for CMake bug 14874
-# (i.e., fix for files with same name in different directories)
-if (${CMAKE_VERSION} VERSION_LESS 3.1)
-  if (NOT DEFINED CMAKE_Fortran_ARCHIVE_CREATE)
-    set (CMAKE_Fortran_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
-  endif ()
-  if (NOT DEFINED CMAKE_Fortran_ARCHIVE_APPEND)
-    set (CMAKE_Fortran_ARCHIVE_APPEND "<CMAKE_AR> q <TARGET> <LINK_FLAGS> <OBJECTS>")
-  endif ()
-  if (NOT DEFINED CMAKE_C_ARCHIVE_CREATE)
-    set (CMAKE_C_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
-  endif ()
-  if (NOT DEFINED CMAKE_C_ARCHIVE_APPEND)
-    set (CMAKE_C_ARCHIVE_APPEND "<CMAKE_AR> q <TARGET> <LINK_FLAGS> <OBJECTS>")
-  endif ()
-  if (NOT DEFINED CMAKE_CXX_ARCHIVE_CREATE)
-    set (CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> cq <TARGET> <LINK_FLAGS> <OBJECTS>")
-  endif ()
-  if (NOT DEFINED CMAKE_CXX_ARCHIVE_APPEND)
-    set (CMAKE_CXX_ARCHIVE_APPEND "<CMAKE_AR> q <TARGET> <LINK_FLAGS> <OBJECTS>")
-  endif ()
-endif ()
-
 # discover some necessary tools
 find_program (GIT "git")
 find_program (PERL "perl")
@@ -97,14 +74,16 @@ endif ()
 set_property (CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS None Debug Garble RelWithDebInfo Release Fast)
 
 # The place where OpenMolcas is installed with make install.
-if (NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set (CMAKE_INSTALL_PREFIX "/opt/OpenMolcas" CACHE STRING
-       "Location where OpenMolcas will be installed.")
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set (CMAKE_INSTALL_PREFIX "/opt/OpenMolcas" CACHE PATH "Location where OpenMolcas will be installed." FORCE)
 endif ()
+set (EXTRA_INSTALL_TARGETS "")
 set (EXTRA_INSTALL_DIRS "")
 
-set (DEBUG_DEFS "${DEBUG_DEFS}" CACHE STRING "Additional user-defined definitions.")
-separate_arguments(DEBUG_DEFS)
+option (INSTALL_TESTS "Install the test files and verify script." OFF)
+
+set (DEBUG_DEFS "${DEBUG_DEFS}" CACHE STRING "Additional user-supplied definitions.")
+separate_arguments (DEBUG_DEFS)
 
 option (BUILD_SHARED_LIBS "Build dynamically-linked molcas library." OFF)
 option (BUILD_STATIC_LIB "Build statically-linked molcas library too." OFF)
@@ -153,12 +132,12 @@ option (TOOLS "Compile supported tools." OFF)
 option (BUILD_TESTING "Build the unit_tests." ON)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_definitions(_ADDITIONAL_RUNTIME_CHECK_)
-endif()
+    add_compile_definitions (_ADDITIONAL_RUNTIME_CHECK_)
+endif ()
 
 if (";Debug;Garble;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};" OR BIGOT)
-    add_compile_definitions(_WARNING_WORKAROUND_)
-endif()
+    add_compile_definitions (_WARNING_WORKAROUND_)
+endif ()
 
 
 # External projects
@@ -254,7 +233,7 @@ if (DMRG)
     else ()
       set (QCMaquis_ROOT "None")
     endif ()
-    set (QCMaquis_ROOT ${QCMaquis_ROOT} CACHE STRING "Specify path to existing QCMaquis installation. This will allow to skip the installation of ALPS/BOOST and QCMaquis.")
+    set (QCMaquis_ROOT ${QCMaquis_ROOT} CACHE PATH "Specify path to existing QCMaquis installation. This will allow to skip the installation of ALPS/BOOST and QCMaquis.")
   endif ()
 endif ()
 
@@ -637,7 +616,7 @@ set (CFLAGS_GNU_RELEASE "-O2")
 set (CFLAGS_GNU_FAST "-O2")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "GNU")
-set (FFLAGS_GNU_BASIC "")
+set (FFLAGS_GNU_BASIC "-fno-aggressive-loop-optimizations") # It was needed in 4.8 later, maybe not anymore?
 set (FFLAGS_GNU_PREPROCESS "-cpp")
 set (FFLAGS_GNU_OPENMP "-fopenmp")
 set (FFLAGS_GNU_NO_OPENMP "-fmax-stack-var-size=1048576")
@@ -648,13 +627,11 @@ set (FFLAGS_GNU_GARBLE "-O2 -g -Wall -finit-real=snan -finit-integer=730432726 -
 set (FFLAGS_GNU_RELWITHDEBINFO "-O2 -g -Wall")
 set (FFLAGS_GNU_RELEASE "-O2")
 set (FFLAGS_GNU_FAST "-O3")
+set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
 
-if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-  # Fix for GNU Fortran compiler version >= 4.8 to prevent wrong optimization
-  if (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "4.8")
-    set (FFLAGS_GNU_BASIC "${FFLAGS_GNU_BASIC} -fno-aggressive-loop-optimizations")
-    set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
-  endif ()
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
+    CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "4.8")
+  message (FATAL_ERROR "At least version 4.8 is required for the GNU Fortran compiler")
 endif ()
 
 # Add runtime checks
@@ -766,6 +743,11 @@ set (FFLAGS_Intel_GARBLE "-O2 -debug -traceback -warn all,nodeclarations -check 
 set (FFLAGS_Intel_RELWITHDEBINFO "-O2 -debug -traceback -warn all,nodeclarations")
 set (FFLAGS_Intel_RELEASE "-O2 -traceback")
 set (FFLAGS_Intel_FAST "-fast")
+
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" AND
+    CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "13")
+  message (FATAL_ERROR "At least version 13 is required for the Intel Fortran compiler")
+endif ()
 
 # Intel versions prior to 15 used -openmp
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Intel" AND
@@ -1869,6 +1851,7 @@ if (MSYM)
     message ("-- MSYM_LIBRARIES: ${MSYM_LIBRARIES}")
 
     list (APPEND EXTERNAL_LIBRARIES ${MSYM_LIBRARIES})
+    list (APPEND EXTRA_INSTALL_TARGETS ${MSYM_LIBRARIES})
   else ()
     set (MSYM_FOUND OFF)
     message ("-- MSYM interface ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
@@ -1907,6 +1890,12 @@ if (DMRG)
   message ("-- DMRG_LIBRARIES: ${DMRG_LIBRARIES}")
 
   list (APPEND EXTERNAL_LIBRARIES ${DMRG_LIBRARIES})
+  list (APPEND EXTRA_INSTALL_DIRS
+    ${PROJECT_BINARY_DIR}/qcmaquis
+    ${PROJECT_BINARY_DIR}/alps
+    ${PROJECT_BINARY_DIR}/pytools
+    ${PROJECT_BINARY_DIR}/template-files
+  )
 else ()
   message ("DMRG support DISABLED")
 endif ()
@@ -1962,6 +1951,7 @@ if (NECI)
     message ("-- NECI_LIBRARIES: ${NECI_LIBRARIES}")
 
     list (APPEND EXTERNAL_LIBRARIES ${NECI_LIBRARIES})
+    list (APPEND EXTRA_INSTALL_TARGETS ${NECI_LIBRARIES})
   else ()
     message ("-- Internal NECI ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
     message ("   An externally configured NECI can still be used")
@@ -2166,11 +2156,7 @@ message ("Configuring runtime environment settings:")
 
 cmake_host_system_information (RESULT host_mem QUERY TOTAL_PHYSICAL_MEMORY)
 cmake_host_system_information (RESULT host_name QUERY HOSTNAME)
-if (${CMAKE_VERSION} VERSION_LESS "3.10.0")
-  set (host_system "unknown")
-else ()
-  cmake_host_system_information (RESULT host_system QUERY OS_NAME)
-endif ()
+cmake_host_system_information (RESULT host_system QUERY OS_NAME)
 
 # memory/disk default sizes
 #==========================
@@ -2808,7 +2794,7 @@ foreach (prog ${progs})
 endforeach ()
 
 # set file-specific flags
-if (BOUNDS AND (${FFLAGS_GNU_BOUNDS} MATCHES "-fsanitize=address"))
+if (BOUNDS AND (${CMAKE_Fortran_FLAGS} MATCHES "-fsanitize=address"))
   set_property (SOURCE ${rassi_src}/prprop.f APPEND_STRING PROPERTY COMPILE_FLAGS " --param=max-vartrack-size=120000000")
 endif ()
 
@@ -2983,7 +2969,7 @@ if (DEFINED EXTRA_DIR)
 endif ()
 # copy the necessary files from sbin
 file (REMOVE_RECURSE ${PROJECT_BINARY_DIR}/sbin)
-foreach (f verify version chkunprint.plx updatetest.plx find_sources have_feature help_basis help_doc)
+foreach (f setup verify version find_sources have_feature help_basis help_doc)
   file (COPY ${OPENMOLCAS_DIR}/sbin/${f} DESTINATION ${PROJECT_BINARY_DIR}/sbin)
 endforeach ()
 if (DEFINED EXTRA_DIR)
@@ -3039,7 +3025,7 @@ else ()
     endif ()
   endif ()
   if (MolGUI)
-    add_dependencies(MolGUI pymolcas)
+    add_dependencies (MolGUI pymolcas)
   endif ()
 endif ()
 
@@ -3175,9 +3161,9 @@ endforeach ()
 #                                                                              #
 ################################################################################
 
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
-    enable_testing()
-    add_subdirectory(unit_tests)
+if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+    enable_testing ()
+    add_subdirectory (unit_tests)
 endif ()
 
 ################################################################################
@@ -3270,17 +3256,28 @@ install (TARGETS
 install (PROGRAMS
   ${PROJECT_BINARY_DIR}/sbin/help_basis
   ${PROJECT_BINARY_DIR}/sbin/help_doc
+  ${PROJECT_BINARY_DIR}/sbin/setup
+  ${PROJECT_BINARY_DIR}/sbin/version
   DESTINATION ${CMAKE_INSTALL_PREFIX}/sbin
 )
 
-if (DEFINED PYMOLCAS_TARGET)
+if (INSTALL_TESTS)
   install (PROGRAMS
-    ${PYMOLCAS_TARGET}
+    ${PROJECT_BINARY_DIR}/sbin/verify
+    ${PROJECT_BINARY_DIR}/sbin/have_feature
     DESTINATION ${CMAKE_INSTALL_PREFIX}/sbin
-    RENAME pymolcas
   )
 
-  install (CODE "execute_process(COMMAND ${OPENMOLCAS_DIR}/sbin/install_pymolcas.sh ${PYMOLCAS_TARGET})")
+  install (DIRECTORY DESTINATION ${CMAKE_INSTALL_PREFIX}/test)
+  install (CODE "execute_process (COMMAND ${OPENMOLCAS_DIR}/sbin/install_tests.sh ${CMAKE_INSTALL_PREFIX}/test)")
+endif ()
+
+if (TARGET pymolcas)
+  install (PROGRAMS
+    ${PYMOLCAS_TARGET}
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/
+    RENAME pymolcas
+  )
 endif ()
 
 install (DIRECTORY
@@ -3308,11 +3305,23 @@ if (DEFINED EXTRA_DIR)
     ${PROJECT_BINARY_DIR}/bin/molcas.exe
     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
   )
-
-  install (CODE "execute_process(COMMAND ${OPENMOLCAS_DIR}/sbin/install_driver.sh ${MOLCAS_DRIVER})")
 endif ()
 
-# Additional directories to install (from external projects)
+# Additional targets, files and directories to install (from external projects)
+if (EXTRA_INSTALL_TARGETS)
+  install (TARGETS
+    ${EXTRA_INSTALL_TARGETS}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+  )
+endif ()
+
+if (EXTRA_INSTALL_FILES)
+  install (TARGETS
+    ${EXTRA_INSTALL_TARGETS}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+  )
+endif ()
+
 foreach (dir ${EXTRA_INSTALL_DIRS})
   install (DIRECTORY
     ${dir}
@@ -3321,6 +3330,15 @@ foreach (dir ${EXTRA_INSTALL_DIRS})
   )
 endforeach ()
 
+if (DMRG)
+  # Fix paths in the sourceable QCMaquis file
+  install (CODE
+    "file (READ \"${PROJECT_BINARY_DIR}/qcmaquis/bin/qcmaquis.sh\" filedata)
+    string (REPLACE \"${PROJECT_BINARY_DIR}\" \"${CMAKE_INSTALL_PREFIX}\" filedata \"$\{filedata\}\")
+    file (WRITE \"${CMAKE_INSTALL_PREFIX}/qcmaquis/bin/qcmaquis.sh\" \"$\{filedata\}\")"
+  )
+endif ()
+
 if (IS_DIRECTORY "$ENV{HOME}/.Molcas")
-  install (CODE "execute_process(COMMAND sh \"-c\" \"cd ${CMAKE_INSTALL_PREFIX}; echo `pwd` > $HOME/.Molcas/molcas 2> /dev/null\")")
+  install (CODE "execute_process (COMMAND sh \"-c\" \"cd ${CMAKE_INSTALL_PREFIX}; echo `pwd` > $HOME/.Molcas/molcas 2> /dev/null\")")
 endif ()

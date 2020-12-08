@@ -1,4 +1,6 @@
-#!/usr/bin/env perl
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 #***********************************************************************
 # This file is part of OpenMolcas.                                     *
 #                                                                      *
@@ -10,6 +12,7 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
 # Copyright (C) 2013, Steven Vancoillie                                *
+#               2020, Ignacio Fdez. Galván                             *
 #***********************************************************************
 #
 # setmtime
@@ -23,70 +26,64 @@
 # last modification time (for several reasons), so one
 # has to extract this from the history of the git repo.
 #
-# Used with Molcas to set modification times of all files
+# Used with OpenMolcas to set modification times of all files
 # in an exported snapshot, e.g. executing the following
-# command inside a Molcas git repository:
+# command inside a OpenMolcas git repository:
 #   $ sbin/setmtime /tmp/snapshot daily-snapshot
 # would set the times of all files under /tmp/snapshot to
-# the latest commit date since daily-snapshot.
+# the latest commit date up to daily-snapshot.
 #
 # Steven Vancoillie, July 2013
+#
+# Ignacio Fdez. Galván, 2020: Translated from Perl to Python
 
-use File::Basename;
+import sys
+import os
+import subprocess as sp
 
-my $MOLCAS_DRIVER;
-$MOLCAS_DRIVER = $ENV{"MOLCAS_DRIVER"} or $MOLCAS_DRIVER = "molcas";
-my $DRIVER_base = basename($MOLCAS_DRIVER);
+thisfile = os.path.basename(__file__)
+MOLCAS_DRIVER = os.environ.get('MOLCAS_DRIVER', 'pymolcas')
+DRIVER_base = os.path.basename(MOLCAS_DRIVER)
 
-my $MOLCAS=$ENV{"MOLCAS"};
-die "MOLCAS not set, use $DRIVER_base setmtime\n" unless ($MOLCAS);
+try:
+  MOLCAS = os.environ['MOLCAS']
+except KeyError:
+  sys.exit('MOLCAS not set, use {} {}'.format(DRIVER_base, thisfile))
 
 # if this is a git repo, sanity check if git exists,
 # otherwise print a warning.
-my $git_exists = 0;
-foreach my $path (split /:/, $ENV{'PATH'}) {
-    if ( -f "$path/git" && -x _ ) {
-        $git_exists = 1;
-        last;
-    }
-}
-if ( not -e "$MOLCAS/.git" or not $git_exists) {
-    print "Error: git not available or not a git repo\n";
-    exit 1;
-}
+try:
+  sp.check_call(['git', '-C', MOLCAS, 'rev-parse', '--git-dir'], stdout=sp.PIPE, stderr=sp.STDOUT)
+except:
+  print('Error: git not available or not a git repo')
+  sys.exit(1)
 
 # parse options
 
-my $snapshot;
-my $directory;
-
-my $n_args = @ARGV;
-if ($n_args == 1) {
-        $directory = $ARGV[0];
-        $snapshot = 'HEAD';
-} elsif ($n_args == 2) {
-        $directory = $ARGV[0];
-        $snapshot = $ARGV[1];
-} else {
-    print "Error: invalid number of arguments to setmtime\n";
-    exit 1;
-}
+n_args = len(sys.argv)
+if n_args == 2:
+  directory = sys.argv[1]
+  snapshot = 'HEAD'
+elif n_args == 3:
+  directory = sys.argv[1]
+  snapshot = sys.argv[2]
+else:
+  print('Error: invalid number of arguments to {}'.format(thisfile))
+  sys.exit(1)
 
 # git a list of access times and files
-my @logbook = `git whatchanged --pretty=%at $snapshot`;
-
-my %seen;
-my $timestamp;
-my $filename;
-foreach (@logbook) {
-    next if /^$/; # skip emtpy lines
-    if (/^:/) {
-        chomp ($filename = (split /\t/)[1]);
-        next if $seen{$filename};
-        my $dst = "$directory/$filename";
-        utime $timestamp, $timestamp, $dst if -f $dst;
-        $seen{$filename} = 1;
-    } else {
-        chomp ($timestamp = $_);
-    }
-}
+seen = []
+logbook = sp.check_output(['git', 'log', '--raw', '--no-merges', '--pretty=%at', snapshot]).decode()
+for line in logbook.split('\n'):
+  if line.strip() == '':
+    continue
+  if line.startswith(':'):
+    filename = line.split('\t')[1].rstrip()
+    if filename in seen:
+      continue
+    dst = os.path.join(directory, filename)
+    if os.path.isfile(dst):
+      os.utime(dst, times=(timestamp, timestamp))
+    seen.append(filename)
+  else:
+    timestamp = int(line)

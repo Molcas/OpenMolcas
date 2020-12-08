@@ -369,8 +369,8 @@ def main():
             fn=args.i
         else:
 
-            # I do not like this termination here, but I still have to figure out how 
-            # to properly do mutually exclusive argparse keywords. 
+            # I do not like this termination here, but I still have to figure out how
+            # to properly do mutually exclusive argparse keywords.
             # I will keep this exit code here in the meanwhile...
             sys.exit('-i input freq file is a required keyword')
 
