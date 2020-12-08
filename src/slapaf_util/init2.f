@@ -11,7 +11,7 @@
       Subroutine Init2()
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Coor, Grd, GNrm, Lambda,
      &                       Energy, Energy0, MF, DipM, qInt, dqInt,
-     &                       RefGeo
+     &                       RefGeo, Get_Slapaf
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
@@ -21,7 +21,6 @@
 #include "info_slapaf.fh"
 #include "print.fh"
       Logical Is_Roots_Set
-      Integer, Allocatable:: Information(:)
       Real*8, Allocatable:: MMGrd(:,:), Tmp(:), DMs(:,:)
 #include "SysDef.fh"
       Character*100 Get_SuperName, SuperName
@@ -48,28 +47,7 @@
 *
 *     Get some basic information from the runfile.
 *
-      Call mma_allocate(Information,7,Label='Information')
-
-      Call qpg_iArray('Slapaf Info 1',Exist,itmp)
-      If (Exist) Call Get_iArray('Slapaf Info 1',Information,7)
-*
-      If (.Not.Exist.or.(Exist.and.Information(1).eq.-99)) Then
-C        Write (6,*) 'Reinitiate Slapaf fields on runfile'
-         Information(:)=0
-         Information(3)=-99
-         Call Put_iArray('Slapaf Info 1',Information,7)
-      End If
-
-      iter  =Information(2)+1
-      If (iter.ge.MaxItr+1) Then
-         Write (6,*) 'Increase MaxItr in info_slapaf.fh'
-         Call WarningMessage(2,'iter.ge.MaxItr+1')
-         Call Abend()
-      End If
-      mTROld=Information(3)
-      lOld_Implicit= Information(4).eq.1
-
-      Call mma_deallocate(Information)
+      Call Get_Slapaf(iter, MaxItr, mTROld, lOld_Implicit)
 *                                                                      *
 ************************************************************************
 ************************************************************************

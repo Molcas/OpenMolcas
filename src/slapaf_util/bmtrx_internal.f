@@ -16,10 +16,9 @@
      &                 iCoSet,lOld,iIter,mTR,TRVec,iTabAI,
      &                 iTabAtoms,iTabBonds,nBonds,nMax,
      &                 iRef,nQQ,MaxItr,nWndw)
-      use Slapaf_Info, only: Cx, dMass
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
-      Real*8 Degen(3*nAtom), Gx(3,nAtom,nIter), TRVec(nDim,mTR)
+      Real*8 Degen(3*nAtom), TRVec(nDim,mTR)
       Character Name(nAtom)*(LENIN)
       Integer   nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
       Logical Smmtrc(3*nAtom), BSet, HSet, Numerical, HWRS,

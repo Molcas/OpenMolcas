@@ -274,14 +274,12 @@
         Call mma_allocate(drdx,nCoor_,nLambda_,Label='drdx')
         Call dDaFile(LudRdX,2,drdx,nLambda_*nCoor_,iAd)
         Call DaClos(LudRdX)
-        iOff=ipdrdx
         Do iLambda=1,nLambda
           If (iLambda.ne.MEPnum) Then
             dd=dDot_(nCoor,drdx(:,iLambda),1,drdx(:,iLambda),1)
             drd=dDot_(nCoor,drdx(:,iLambda),1,Dir(:,:),1)
             Call DaXpY_(nCoor,-drd/dd,drdx(:,iLambda),1,Dir(:,:),1)
           End If
-          iOff=iOff+nCoor
         End Do
         Call mma_deallocate(drdx)
 *
