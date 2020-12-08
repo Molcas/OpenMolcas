@@ -64,9 +64,6 @@
 #include "warnings.fh"
 #include "WrkSpc.fh"
 #include "mama.fh"
-#ifdef _OPENMP
-#include "omp_lib.h"
-#endif
 *
 *
       Character*(*)    NameIn,KeyIn,TypeIn
