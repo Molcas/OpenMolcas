@@ -97,7 +97,7 @@
       Real*8, Allocatable:: QC(:,:,:)
 #endif
       Lu=6
-#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (Lu,*)'Update_inner:iOpt_RS,Beta,Beta_Disp=',
      &                     iOpt_RS,Beta,Beta_Disp
