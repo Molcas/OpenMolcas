@@ -10,11 +10,11 @@
 *                                                                      *
 * Copyright (C) 2004, Roland Lindh                                     *
 ************************************************************************
-      Subroutine CurviL(nAtoms,nDim,Cx,Gx,nIter,iIter,iRef,nStab,
+      Subroutine CurviL(nAtoms,nDim,nIter,iIter,iRef,nStab,
      &                  jStab,Degen,Smmtrc,mTR,TRVec,
-     &                  HSet,BSet,ipBMx,Numerical,iANr,
+     &                  HSet,BSet,ipBMx,Numerical,
      &                  HWRS,Analytic_Hessian,iOptC,Name,PrQ,
-     &                  dMass,iCoSet,iTabBonds,
+     &                  iCoSet,iTabBonds,
      &                  iTabAtoms,nBonds,nMax,iTabAI,mAtoms,lOld,
      &                  nQQ,MaxItr,nWndw)
 ************************************************************************
@@ -26,7 +26,8 @@
 *              University of Lund, SWEDEN.                             *
 *              2004                                                    *
 ************************************************************************
-      use Slapaf_Info, only: qInt, dqInt, BM, dBM, iBM, idBM, nqBM, KtB
+      use Slapaf_Info, only: qInt, dqInt, BM, dBM, iBM, idBM, nqBM, KtB,
+     &                       Cx, Gx, dMass
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"
@@ -35,10 +36,9 @@
 #include "stdalloc.fh"
 #include "db.fh"
 #include "print.fh"
-      Real*8 Cx(3,nAtoms,nIter), Degen(3*nAtoms), Gx(3,nAtoms,nIter),
-     &       dMass(nAtoms), TRVec(nDim,mTR)
+      Real*8 Degen(3*nAtoms), TRVec(nDim,mTR)
       Integer nStab(nAtoms), iCoSet(0:7,nAtoms), jStab(0:7,nAtoms),
-     &        iANr(nAtoms), iDum(6), iTabBonds(3,nBonds),
+     &        iDum(6), iTabBonds(3,nBonds),
      &        iTabAtoms(0:nMax,nAtoms), iTabAI(2,mAtoms)
       Logical Smmtrc(3*nAtoms), HSet, BSet, Proc, Numerical, HWRS,
      &        Analytic_Hessian, PrQ, Proc_dB, lOld, Proc_H
@@ -135,7 +135,7 @@
          Call Get_Curvil
      &          (nq,nqRF,nqB,nqA,nqT,nqO,
      &           nAtoms,iIter,nIter,Cx,jStab,
-     &           nStab,Smmtrc,Proc,Dum,1,iANr,cDum,
+     &           nStab,Smmtrc,Proc,Dum,1,cDum,
      &           iRef,Dum,Dum,iOptC,LuIC,
      &           Name,iDum,iIter,dMass,iCoSet,Dum,
      &           iDum(1),iDum(1),
@@ -199,7 +199,7 @@
      &          (iq,iqRF,iqR,iqA,iqT,iqO,
      &           nAtoms,iIter,nIter,Cx,jStab,
      &           nStab,Smmtrc,Proc,
-     &           qVal,nq,iANr,qLbl,
+     &           qVal,nq,qLbl,
      &           iRef,F_c,Mult,iOptC,
      &           LuIC,Name,Ind,iIter,dMass,iCoSet,GRef,
      &           iGlow,iGHi,
@@ -417,7 +417,7 @@ C        iEnd = 1
      &             (iq,iqRF,iqR,iqA,iqT,iqO,
      &              nAtoms,jIter,nIter,Cx,jStab,
      &              nStab,Smmtrc,Proc,
-     &              qVal,nq,iANr,qLbl,
+     &              qVal,nq,qLbl,
      &              iRef, F_c,Mult,
      &              iOptC,LuIC,Name,Ind,iIter,dMass,iCoSet,
      &              GRef,iGlow,iGHi,

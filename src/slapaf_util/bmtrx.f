@@ -18,7 +18,7 @@
      &                 iOptC,PrQ,mxdc,iCoSet,lOld,
      &                 rHidden,nFix,nQQ,iIter,Redundant,MaxItr,
      &                 nWndw)
-      Use Slapaf_Info, Only: Cx, Gx, ANr, Shift, qInt, KtB
+      Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -185,7 +185,7 @@
 *                                                                      *
          Call BMtrx_User_Defined(
      &                 nLines,nBVec,ipBMx,nAtom,nInter,Lbl,Coor,nDim,
-     &                 Name,Smmtrc,Degen,BSet,HSet,nIter,Gx,
+     &                 Name,Smmtrc,Degen,BSet,HSet,nIter,
      &                 nStab,jStab,Numerical,Analytic_Hessian,
      &                 iOptC,mxdc,lOld,
      &                 nFix,mTR,nQQ,Redundant,MaxItr)
@@ -211,7 +211,7 @@
          Call BMtrx_Internal(
      &                 ipBMx,nAtom,nDim,Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,
-     &                 Gx,mTtAtm,ANr,
+     &                 mTtAtm,
      &                 nStab,jStab,Numerical,
      &                 HWRS,Analytic_Hessian,
      &                 iOptC,PrQ,iCoSet,lOld,
@@ -233,7 +233,7 @@
 *                                                                      *
          Call BMtrx_Cartesian(ipBMx,nAtom,nInter,nDim,Name,
      &                        Smmtrc,Degen,BSet,HSet,nIter,
-     &                        Gx,mTtAtm,PrQ,lOld,mTR,TR,EVal,Hss_X,
+     &                        mTtAtm,PrQ,lOld,mTR,TR,EVal,Hss_X,
      &                        nQQ,Redundant,MaxItr,nWndw)
 *
 *------- Set the Labels for cartesian normal modes.

@@ -11,7 +11,7 @@
       Subroutine BMtrx_Internal(
      &                 ipBMx,nAtom,nDim,
      &                 Name,Smmtrc,Degen,BSet,HSet,
-     &                 nIter,Gx,mTtAtm,iAnr,nStab,jStab,
+     &                 nIter,mTtAtm,nStab,jStab,
      &                 Numerical,HWRS,Analytic_Hessian,iOptC,PrQ,
      &                 iCoSet,lOld,iIter,mTR,TRVec,iTabAI,
      &                 iTabAtoms,iTabBonds,nBonds,nMax,
@@ -21,8 +21,7 @@
 #include "Molcas.fh"
       Real*8 Degen(3*nAtom), Gx(3,nAtom,nIter), TRVec(nDim,mTR)
       Character Name(nAtom)*(LENIN)
-      Integer   iAnr(nAtom), nStab(nAtom), jStab(0:7,nAtom),
-     &          iCoSet(0:7,nAtom)
+      Integer   nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
       Logical Smmtrc(3*nAtom), BSet, HSet, Numerical, HWRS,
      &        Analytic_Hessian, PrQ, lOld
       Integer iTabBonds(3,nBonds), iTabAtoms(0:nMax,nAtom),
@@ -34,10 +33,10 @@
 *-----Recompute the B matrix once each macroIteration, this is
 *     not done if a numerical Hessian is computed.
 *
-      Call CurviL(nAtom,nDim,Cx,Gx,nIter,iIter,iRef,nStab,
+      Call CurviL(nAtom,nDim,nIter,iIter,iRef,nStab,
      &            jStab,Degen,Smmtrc,mTR,TRVec,HSet,BSet,ipBMx,
-     &            Numerical,iANr,HWRS,Analytic_Hessian,iOptC,
-     &            Name,PrQ,dMass,iCoSet,
+     &            Numerical,HWRS,Analytic_Hessian,iOptC,
+     &            Name,PrQ,iCoSet,
      &            iTabBonds,iTabAtoms,nBonds,nMax,
      &            iTabAI,mTtAtm,lOld,nQQ,MaxItr,
      &            nWndw)

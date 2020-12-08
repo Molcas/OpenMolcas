@@ -11,17 +11,17 @@
       Subroutine BMtrx_Cartesian(
      &                 ipBMx,nAtom,nInter,nDim,
      &                 Name,Smmtrc,Degen,BSet,HSet,
-     &                 nIter,Gx,mTtAtm,
+     &                 nIter,mTtAtm,
      &                 PrQ,lOld,mTR,TRVec,EVal,Hss_x,
      &                 nQQ,Redundant,MaxItr,nWndw)
-      use Slapaf_Info, only: Cx, qInt, dqInt, KtB
+      use Slapaf_Info, only: Cx, Gx, qInt, dqInt, KtB
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-      Real*8 Degen(3*nAtom), Gx(3,nAtom,nIter), TRVec(nDim,mTR)
+      Real*8 Degen(3*nAtom), TRVec(nDim,mTR)
       Character Name(nAtom)*(LENIN)
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant, PrQ, lOld
       Real*8 Eval(3*mTtAtm*(3*mTtAtm+1)/2)

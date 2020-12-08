@@ -13,18 +13,17 @@
      &                 Lbl,Coor,nDim,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,
-     &                 Gx,
      &                 nStab,jStab,Numerical,
      &                 Analytic_Hessian,
      &                 iOptC,mxdc,lOld,
      &                 nFix,mTR,nQQ,Redundant,MaxItr)
-      use Slapaf_Info, only: dMass, qInt, dqInt, KtB
+      use Slapaf_Info, only: Gx, dMass, qInt, dqInt, KtB
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-      Real*8 Coor(3,nAtom), Degen(3*nAtom), Gx(3,nAtom,nIter)
+      Real*8 Coor(3,nAtom), Degen(3*nAtom)
       Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
       Integer   nStab(nAtom), jStab(0:7,nAtom)
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
