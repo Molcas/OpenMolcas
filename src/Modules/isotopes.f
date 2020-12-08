@@ -57,7 +57,7 @@
         Module Procedure Isotope_sym, Isotope_num
       End Interface Isotope
 
-      protected :: ElementList
+      Protected :: ElementList
       Public :: MaxAtomNum, Isotope, ElementList, Initialize_Isotopes,
      &          Free_Isotopes, NuclideMass, Element_t
 
@@ -4068,7 +4068,7 @@
 
 *
 * Subroutine(s) to get the Mass of the isotope IsNr belonging to the
-* Element_t Atom. If IsNr=0, the most abundant isotope (or the most
+* Element Atom. If IsNr=0, the most abundant isotope (or the most
 * stable if all are radioactive) is selected. The mass is returned
 * in atomic units (m_e).
 * Atom can be an atomic symbol or an atomic number.
