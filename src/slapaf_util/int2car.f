@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Int2Car(dSS,rInt,nInter,Coor,nAtom,nBVct,
-     &                  ipBMx,nLines,DFC,
+     &                  nLines,DFC,
      &                  nDim,Lbl,Name,iSym,
      &                  Smmtrc,Degen,iter,
      &                  mTtAtm,iOptH,
@@ -18,7 +18,7 @@
      &                  Analytic_Hessian,iOptC,PrQ,mxdc,
      &                  iCoSet,rHidden,Error,Redundant,
      &                  MaxItr,iRef)
-      use Slapaf_Info, only: Cx, dMass, qInt, RefGeo
+      use Slapaf_Info, only: Cx, dMass, qInt, RefGeo, BMx
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -27,7 +27,7 @@
 *                                                                      *
 ************************************************************************
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "weighting.fh"
 #include "sbs.fh"
 #include "print.fh"
@@ -38,13 +38,11 @@
      &       DFC(3*nAtom,NRHS), Coor(3,nAtom), Degen(3*nAtom)
       Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
       Integer iSym(3), nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
-      Logical Smmtrc(3,nAtom), BSet, HSet, User_Def,
+      Logical Smmtrc(3,nAtom), User_Def,
      &        Curvilinear, Numerical, DDV_Schlegel, Redundant,
-     &        HWRS, Analytic_Hessian, PrQ, lOld, Invar, Error
-      Save        BSet, HSet, lOld
+     &        HWRS, Analytic_Hessian, PrQ, Invar, Error
 *
-      Data                 BSet/.False./, HSet/.False./,
-     &     lOld/.False./
+      Logical, Save:: BSet=.False., HSet=.False., lOld=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -106,18 +104,15 @@
 *
       iterMx = 50
 *
-*     We want this procedure not to affect the memory reference of the
-*     B matrix. Hence, we will not deallocate it here.
-      ipBMx_save = ipBMx
       Do jter = 1, iterMx
 *
 *--------Compute the Cartesian shift, solve dq = B^T dx!
 *
          M = 3*nAtom
          N = nInter
-         Call Eq_Solver('T',M,N,NRHS,Work(ipBMx),Curvilinear,Degen,dSS,
+         Call Eq_Solver('T',M,N,NRHS,BMx,Curvilinear,Degen,dSS,
      &                  DFC)
-         If (jter>1) Call Free_Work(ipBMx)
+         Call mma_deallocate(BMx)
 *
          If (iPrint.ge.99)
      &     Call PrList('Symmetry Distinct Nuclear Displacements',
@@ -159,7 +154,7 @@
 *
          nFix=0
          nWndw=1
-         Call BMtrx(nLines,nBVct,ipBMx,nAtom,nInter,
+         Call BMtrx(nLines,nBVct,nAtom,nInter,
      &              Lbl,Coor,nDim,Name,Smmtrc,
      &              Degen,BSet,HSet,iter+1,
      &              mTtAtm,iOptH,User_Def,
@@ -240,12 +235,6 @@
       Invar=(iAnd(iSBS,2**7).eq.0).and.(iAnd(iSBS,2**8).eq.0)
       If (WeightedConstraints.and.Invar)
      &   Call Align(Cx(:,:,iter+1),RefGeo,nAtom)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call DCopy_(3*nAtom*nInter,Work(ipBMx),1,Work(ipBMx_Save),1)
-      Call Free_Work(ipBMx)
-      ipBMx=ipBMx_save
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine CurviL(nAtoms,nDim,nIter,iIter,iRef,nStab,
      &                  jStab,Degen,Smmtrc,mTR,TRVec,
-     &                  HSet,BSet,ipBMx,Numerical,
+     &                  HSet,BSet,Numerical,
      &                  HWRS,Analytic_Hessian,iOptC,Name,PrQ,
      &                  iCoSet,iTabBonds,
      &                  iTabAtoms,nBonds,nMax,iTabAI,mAtoms,lOld,
@@ -27,12 +27,11 @@
 *              2004                                                    *
 ************************************************************************
       use Slapaf_Info, only: qInt, dqInt, BM, dBM, iBM, idBM, nqBM, KtB,
-     &                       Cx, Gx, dMass
+     &                       Cx, Gx, dMass, BMx
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "db.fh"
 #include "print.fh"
@@ -475,8 +474,8 @@ C        iEnd = 1
 *
          If (jIter.eq.nIter) Then
             nX = 3*nAtoms
-            Call Allocate_Work(ipBmx,nX**2)
-            Call FZero(Work(ipBMx),nX**2)
+            Call mma_allocate(BMx,nX,nX,Label='BMx')
+            BMx(:,:)=Zero
 *
 *           modify from compact to full Cartesian storage.
 *
@@ -485,14 +484,12 @@ C        iEnd = 1
                If (Smmtrc(iX)) Then
                   iDim = iDim + 1
                   Do iQQ = 1, nQQ
-                     iXQ = (iQQ-1)*nX + iX + ipBMx - 1
                      iQD = (iDim-1)*nQQ + iQQ
-                     Work(iXQ) = KtBu(iQD)
+                     BMx(iX,iQQ) = KtBu(iQD)
                   End Do
                Else
                   Do iQQ = 1, nQQ
-                     iXQ = (iQQ-1)*nX + iX + ipBMx - 1
-                     Work(iXQ) = Zero
+                     BMx(iX,iQQ) = Zero
                   End Do
                End If
             End Do

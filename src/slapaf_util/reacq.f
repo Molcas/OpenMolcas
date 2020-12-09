@@ -19,22 +19,22 @@
 *     Roland Lindh, Dept. of Theor. Chem., Lund University, Sweden     *
 *     2009                                                             *
 ************************************************************************
+      use Slapaf_Info, only: BMx
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
 #include "info_slapaf.fh"
       Real*8 V_Q(nQ), V_X(nX)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUGPRINT_
-      Call RecPrt('BMx',' ',Work(ipB),nX,nQ)
+      Call RecPrt('BMx',' ',BMx,nX,nQ)
       Call RecPrt('V_X',' ',V_X,nX,1)
 #endif
 *
       M = nX
       N = nQ
       NRHS=1
-      Call Eq_Solver('T',M,N,NRHS,Work(ipB),.FALSE.,Degen,V_X,V_Q)
+      Call Eq_Solver('T',M,N,NRHS,BMx,.FALSE.,Degen,V_X,V_Q)
 *
 #ifdef _DEBUGPRINT_
       Call RecPrt('V_Q',' ',V_Q,nQ,1)

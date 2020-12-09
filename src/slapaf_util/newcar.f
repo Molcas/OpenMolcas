@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine NewCar(kIter,nBVec,nLines,nAtom,nDim,nInter,
-     &                  Coor,ipBMx,Lbl,Name,iSym,Smmtrc,
+     &                  Coor,Lbl,Name,iSym,Smmtrc,
      &                  Degen,mTtAtm,iOptH,User_Def,nStab,
      &                  jStab,Curvilinear,Numerical,DDV_Schlegel,HWRS,
      &                  Analytic_Hessian,iOptC,PrQ,mxdc,iCoSet,rHidden,
@@ -54,7 +54,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Int2Car(dss,Tmp,nInter,Coor,nAtom,nBVec,ipBMx,
+      Call Int2Car(dss,Tmp,nInter,Coor,nAtom,nBVec,
      &             nLines,DFC,ndim,Lbl,Name,iSym,Smmtrc,
      &             Degen,kIter,mTtAtm,iOptH,
      &             User_Def,nStab,jStab,Curvilinear,Numerical,

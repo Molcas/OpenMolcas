@@ -12,14 +12,13 @@
 *               2015, Ignacio Fdez. Galvan (split from gencxctl)       *
 ************************************************************************
       Subroutine get_drdq(drdq,mLambda)
-      use Slapaf_Info, only: dMass
+      use Slapaf_Info, only: dMass, BMx
       Implicit None
 ************************************************************************
 *     subroutine to get the dr/dq vectors for the constraints as given *
 *     in the 'UDC' file.                                               *
 ************************************************************************
 #include "info_slapaf.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "real.fh"
       Real*8, Intent(InOut) :: drdq(mInt,nLambda)
@@ -30,7 +29,7 @@
       Real*8, External :: DDot_
 *
       Character(LEN=8) Lbl(mInt), Labels(iRow_c-1)
-      Real*8, Allocatable:: BVc(:), dBVc(:), BMx(:,:), Value(:),
+      Real*8, Allocatable:: BVc(:), dBVc(:), BMx_t(:,:), Value(:),
      &                      Value0(:), cInt(:), cInt0(:), Mult(:),
      &                      dBMx(:)
       Integer, Allocatable:: iFlip(:)
@@ -39,7 +38,7 @@
 *
       If (nLambda.ne.0) Then
          nBV=iRow_c-nLambda-1
-         Call mma_allocate(BMx,n3,nLambda,Label='BMx')
+         Call mma_allocate(BMx_t,n3,nLambda,Label='BMx_t')
 
          Call mma_allocate(BVc,n3*nBV,Label='BVc')
          Call mma_allocate(dBVc,nBV*n3**2,Label='dBVc')
@@ -52,7 +51,7 @@
          Call mma_allocate(dBMx,nLambda*n3**2,Label='dBMx')
          Call mma_allocate(iFlip,nBV,Label='iFlip')
 *
-         Call DefInt2(BVc,dBVc,nBV,Labels,BMx,nLambda,nsAtom,iRow_c,
+         Call DefInt2(BVc,dBVc,nBV,Labels,BMx_t,nLambda,nsAtom,iRow_c,
      &                Value,cInt,cInt0,Lbl,AtomLbl,lWrite,jStab,nStab,
      &                mxdc,Mult,dBMx,Value0,Iter,iFlip,dMass)
 
@@ -67,7 +66,7 @@
          Call mma_deallocate(BVc)
 
 #ifdef _DEBUGPRINT_
-         Call RecPrt('BMx',' ',BMx,n3,nLambda)
+         Call RecPrt('BMx_t',' ',BMx_t,n3,nLambda)
 #endif
 *
 *        Assemble dr/dq: Solve  B dr/dq = dr/dx
@@ -80,18 +79,18 @@
          If (.not.Curvilinear) Then
             Do iLambda=1,nLambda
                Do i=1,n3
-                  BMx(i,iLambda)=BMx(i,iLambda)/Degen(i)
+                  BMx_t(i,iLambda)=BMx_t(i,iLambda)/Degen(i)
                End Do
             End Do
          End If
 
-         Call Eq_Solver('N',n3,mInt,nLambda,Work(ipB),Curvilinear,Degen,
-     &                  BMx,drdq)
+         Call Eq_Solver('N',n3,mInt,nLambda,BMx,Curvilinear,Degen,
+     &                  BMx_t,drdq)
 #ifdef _DEBUGPRINT_
          Call RecPrt('drdq',' ',drdq,mInt,nLambda)
 #endif
 *
-         Call mma_deallocate(BMx)
+         Call mma_deallocate(BMx_t)
       End If
 *
 *     Double check that we don't have any null vectors

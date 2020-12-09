@@ -15,7 +15,7 @@
      &                     iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
-     &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
+     &                     mxdc,jStab,nStab,Smmtrc,nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
@@ -46,7 +46,6 @@
 *      mxdc           : max number of nsAtom                           *
 *      jStab          : integer list of stabilizers                    *
 *      nStab          : number of stabilizers                          *
-*      BMx            : the so-called Wilson B matrix                  *
 *      Smmtrc         : logical flag for symmetry properties           *
 *      nDimBC         : dimension of redundant coordinates(?)          *
 *      iNeg           : Hessian index                                  *
@@ -69,13 +68,13 @@
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
-      use Slapaf_info, only: GNrm, dMass, Lambda, Energy, MF, dqInt
+      use Slapaf_info, only: GNrm, dMass, Lambda, Energy, MF, dqInt,
+     &                       BMx
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
-      Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter),
-     &       BMx(3*nsAtom,3*nsAtom), Degen(3*nsAtom)
+      Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter), Degen(3*nsAtom)
       Integer jStab(0:7,nsAtom), nStab(nsAtom), iNeg(2)
 *    &        iNeg(2), jNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),FindTS, TSC, HrmFrq_Show,
@@ -105,7 +104,7 @@
       Real*8, Allocatable:: QC(:,:,:)
 #endif
       Lu=6
-*#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (Lu,*)'Update_inner:iOpt_RS,Beta,Beta_Disp=',
      &                     iOpt_RS,Beta,Beta_Disp
@@ -113,6 +112,8 @@
       Call RecPrt('Update_inner: Shift',' ',Shift,nInter,kIter-1)
       Call RecPrt('Update_inner: GNrm',' ',GNrm,kIter,1)
       Call RecPrt('Update_inner: Energy',' ',Energy,kIter,1)
+      n1=3*nsAtom
+      Call RecPrt('Update_inner: dQ/dx(BMx)',' ',BMx,n1,nInter)
 #endif
 *
       GrdMax=Zero
@@ -707,6 +708,9 @@ C           Write (6,*) 'tBeta=',tBeta
       Call mma_Deallocate(ErrVec)
       Call mma_Deallocate(Index)
       Call mma_Deallocate(AMat)
+#ifdef _WARNING_WORKAROUND_
+      If (Smmtrc(1)) i=nDimBC
+#endif
 *
       Return
       End

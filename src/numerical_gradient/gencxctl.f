@@ -11,7 +11,7 @@
 * Copyright (C) 2013, Roland Lindh                                     *
 ************************************************************************
       Subroutine genCxCTL(iStop,Cartesian,rDelta)
-      use Slapaf_Info, only: Coor, Shift, qInt, Free_Slapaf
+      use Slapaf_Info, only: Coor, Shift, qInt, BMx, Free_Slapaf
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -81,7 +81,7 @@
       nFix=0
       nWndw=iter
       iRef=0
-      Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,Lbl,
+      Call BMtrx(iRow,nBVec,nsAtom,mInt,Lbl,
      &           Coor,nDimBC,AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,
      &           mTtAtm,iOptH,
@@ -94,7 +94,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Put_dArray('BMtrx',Work(ipB),3*nsAtom*mInt)
+      Call Put_dArray('BMtrx',BMx,3*nsAtom*mInt)
       Call Put_iScalar('No of Internal coordinates',mInt)
 *
 *     Too many constraints?
@@ -227,7 +227,7 @@
          nWndw=Iter
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,mInt,
-     &               Coor,ipB,Lbl,
+     &               Coor,Lbl,
      &               AtomLbl,iSym,Smmtrc,
      &               Degen,mTtAtm,
      &               iOptH,User_Def,
@@ -264,7 +264,6 @@
 *
 *     Done!
 *
-      Call GetMem(' B ',    'Free','Real',ipB,   (nsAtom*3)**2)
       Call Free_Slapaf()
 *
 *-----Terminate the calculations.

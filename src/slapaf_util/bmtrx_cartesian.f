@@ -9,16 +9,15 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine BMtrx_Cartesian(
-     &                 ipBMx,nAtom,nInter,nDim,
+     &                 nAtom,nInter,nDim,
      &                 Name,Smmtrc,Degen,BSet,HSet,
      &                 nIter,mTtAtm,
      &                 PrQ,lOld,mTR,TRVec,EVal,Hss_x,
      &                 nQQ,Redundant,MaxItr,nWndw)
-      use Slapaf_Info, only: Cx, Gx, qInt, dqInt, KtB
+      use Slapaf_Info, only: Cx, Gx, qInt, dqInt, KtB, BMx
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 Degen(3*nAtom), TRVec(nDim,mTR)
@@ -58,19 +57,19 @@
 *                                                                      *
 *------- Move over the eigenvectors putting to BMx
 *
-         Call Allocate_Work(ipBMx,(3*nAtom)*nQQ)
-         Call FZero(Work(ipBMx), (3*nAtom)*nQQ)
+         Call mma_allocate(BMx,3*nAtom,nQQ,Label='BMx')
+         BMX(:,:)=Zero
          ipFrom = 1
-         Call BPut(EVec(ipFrom),nDim,Work(ipBMx),3*nAtom,Smmtrc,
+         Call BPut(EVec(ipFrom),nDim,BMx,3*nAtom,Smmtrc,
      &             nQQ,Degen)
-         If (iPrint.ge.19) Call RecPrt('In Bmtrx: B',' ',Work(ipBMx),
-     &                                 3*nAtom,nQQ)
+         If (iPrint.ge.19) Call RecPrt('In Bmtrx: B',' ',BMx,3*nAtom,
+     &                                  nQQ)
 *                                                                      *
 ************************************************************************
 *                                                                      *
          If (PrQ.and.nAtom.le.5)
      &      Call List2('Cartesian Redundant',
-     &                 Name,Work(ipBMx),nAtom,nQQ,Smmtrc)
+     &                 Name,BMx,nAtom,nQQ,Smmtrc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -297,19 +296,18 @@
 *                                                                      *
 *------- Move over the eigenvectors putting to BMx
 *
-         Call Allocate_Work(ipBMx,(3*nAtom)**2)
-         Call FZero(Work(ipBMx), (3*nAtom)**2)
+         Call mma_allocate(BMx,3*nAtom,3*nAtom,Label='BMx')
+         BMx(:,:)=Zero
          ipFrom = 1 + mTR*nDim
-         Call BPut(EVec(ipFrom),nDim,Work(ipBMx),3*nAtom,Smmtrc,
-     &             nQQ,Degen)
-         If (iPrint.ge.19) Call RecPrt('In Bmtrx: B',' ',Work(ipBMx),
+         Call BPut(EVec(ipFrom),nDim,BMx,3*nAtom,Smmtrc,nQQ,Degen)
+         If (iPrint.ge.19) Call RecPrt('In Bmtrx: B',' ',BMx,
      &                                 3*nAtom,nQQ)
 *                                                                      *
 ************************************************************************
 *                                                                      *
          If (PrQ.and.nAtom.le.5)
      &      Call List2('Cartesian Approximate Normal Modes',
-     &                  Name,Work(ipBMx),nAtom,nQQ,Smmtrc)
+     &                  Name,BMx,nAtom,nQQ,Smmtrc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -348,9 +346,9 @@
 *
 *---- Compute the value and gradient vectors in the new basis.
 *
-      Call ValANM(nAtom,nQQ,nIter,Work(ipBmx),Degen,qInt,Cx,'Values',
+      Call ValANM(nAtom,nQQ,nIter,BMx,Degen,qInt,Cx,'Values',
      &            nWndw)
-      If (BSet) Call ValANM(nAtom,nQQ,nIter,Work(ipBMx),Degen,
+      If (BSet) Call ValANM(nAtom,nQQ,nIter,BMx,Degen,
      &                      dqInt,Gx,'Gradients',nWndw)
 *                                                                      *
 ************************************************************************

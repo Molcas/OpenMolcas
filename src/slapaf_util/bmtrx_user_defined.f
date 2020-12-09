@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine BMtrx_User_Defined(
-     &                 nLines,nBVec,ipBMx,nAtom,nInter,
+     &                 nLines,nBVec,nAtom,nInter,
      &                 Lbl,Coor,nDim,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,
@@ -17,11 +17,10 @@
      &                 Analytic_Hessian,
      &                 iOptC,mxdc,lOld,
      &                 nFix,mTR,nQQ,Redundant,MaxItr)
-      use Slapaf_Info, only: Gx, dMass, qInt, dqInt, KtB
+      use Slapaf_Info, only: Gx, dMass, qInt, dqInt, KtB, BMx
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 Coor(3,nAtom), Degen(3*nAtom)
       Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
@@ -45,8 +44,8 @@
          qInt(:,:) = Zero
          dqInt(:,:) = Zero
       End If
-      Call Allocate_Work(ipBmx,3*nAtom*nQQ)
-      Call FZero(Work(ipBMx),3*nAtom*nQQ)
+      Call mma_allocate(BMx,3*nAtom,nQQ,Label='BMx')
+      BMx(:,:)=Zero
 
       Call mma_allocate(Mult,nBVec,Label='Mult')
       Call mma_allocate(BVec,nBVec*3*nAtom,Label='BVec')
@@ -67,7 +66,7 @@
 *        Not implimented, sorry
       End If
 *
-      Call DefInt(BVec,nBVec,Lab,Work(ipBMx),nQQ,
+      Call DefInt(BVec,nBVec,Lab,BMx,nQQ,
      &            nAtom,nLines,Val,qInt(:,nIter),Lbl,Name,
      &            Coor,dMass,jStab,nStab,mxdc,Mult,
      &            nDim-mTR,Redundant)
@@ -81,7 +80,7 @@
 *                                                                      *
 *     Compute the gradient
 *
-      If (BSet) Call Force(nFix,Gx(:,:,nIter),nAtom,nQQ,Work(ipBMx),
+      If (BSet) Call Force(nFix,Gx(:,:,nIter),nAtom,nQQ,BMx,
      &                     Name,nIter,dqInt,Lbl,Degen)
 *                                                                      *
 ************************************************************************
@@ -103,8 +102,7 @@
             Do ix = 1, 3*nAtom
                If (Smmtrc(ix)) Then
                   i = i + 1
-                  ixj= (j-1)*3*nAtom + ix - 1 + ipBmx
-                  KtB(i,j) = Work(ixj)
+                  KtB(i,j) = BMx(ix,j)
                End If
             End Do
          End Do

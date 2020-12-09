@@ -14,7 +14,7 @@
      &                     iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
-     &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
+     &                     mxdc,jStab,nStab,Smmtrc,nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
@@ -43,7 +43,6 @@
 *      mxdc           : max number of nsAtom                           *
 *      jStab          : integer list of stabilizers                    *
 *      nStab          : number of stabilizers                          *
-*      BMx            : the so-called Wilson B matrix                  *
 *      Smmtrc         : logical flag for symmetry properties           *
 *      nDimBC         : dimension of redundant coordinates(?)          *
 *      iNeg           : Hessian index                                  *
@@ -70,7 +69,7 @@
 #include "stdalloc.fh"
 #include "print.fh"
 #include "Molcas.fh"
-      Real*8 BMx(3*nsAtom,3*nsAtom), Degen(3*nsAtom)
+      Real*8 Degen(3*nsAtom)
       Integer jStab(0:7,nsAtom), nStab(nsAtom), iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show, Curvilinear
@@ -130,7 +129,7 @@
      &                   Shift,iOptC,Beta,Beta_Disp,
      &                   Lbl,UpMeth,ed,Line_Search,
      &                   Step_Trunc,nLambda,iRow_c,nsAtom,AtomLbl,
-     &                   mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
+     &                   mxdc,jStab,nStab,Smmtrc,nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,
      &                   iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                   nWndw,Mode,
@@ -169,7 +168,7 @@
      &                iOptC,Beta,Beta_Disp,Lbl,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                iRow_c,nsAtom,AtomLbl,mxdc,jStab,
-     &                nStab,BMx,Smmtrc,nDimBC,
+     &                nStab,Smmtrc,nDimBC,
      &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                Labels,nLabels,FindTS,TSC,nRowH,
      &                nWndw,Mode,

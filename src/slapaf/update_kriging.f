@@ -16,7 +16,7 @@
      &                     iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
-     &                     mxdc,jStab,nStab,BMx,Smmtrc,nDimBC,
+     &                     mxdc,jStab,nStab,Smmtrc,nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
@@ -37,7 +37,7 @@
 #include "print.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
-      Real*8 BMx(3*nsAtom,3*nsAtom), Degen(3*nsAtom), dEner
+      Real*8 Degen(3*nsAtom), dEner
       Integer jStab(0:7,nsAtom), nStab(nsAtom),iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show, Curvilinear,
@@ -53,7 +53,7 @@
 *                                                                      *
 *     Different hardwired kriging options
 *
-*#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 *#define _OVERSHOOT_
 *                                                                      *
 ************************************************************************
@@ -213,7 +213,7 @@
      &                   Beta_,Beta_Disp_,Lbl,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                   iRow_c,nsAtom,AtomLbl,mxdc,jStab,
-     &                   nStab,BMx,Smmtrc,nDimBC,
+     &                   nStab,Smmtrc,nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                   Labels,nLabels,FindTS,TSC,nRowH,nWndw_,Mode,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
@@ -231,7 +231,7 @@
 *        not totally consistent)
 *
          Error=(iterK.ge.1)
-         Call NewCar_Kriging(iterAI,nLines,nsAtom,nDimBC,nInter,BMx,
+         Call NewCar_Kriging(iterAI,nLines,nsAtom,nDimBC,nInter,
      &                       Lbl,AtomLbl,.True.,iter,Error)
 #ifdef _DEBUGPRINT_
          Call RecPrt('New Coord (after NewCar)','',qInt,nInter,iterAI+1)
@@ -428,7 +428,7 @@
             Call dAXpY_(nInter,OS_Factor,Step_k(1,2),1,
      &                                   Shift(1,iterAI-1),1)
             Call NewCar_Kriging(iterAI-1,nLines,nsAtom,nDimBC,nInter,
-     &                          BMx,Lbl,AtomLbl,.True.,iter)
+     &                          Lbl,AtomLbl,.True.,iter)
             Energy(iterAI)=OS_Energy
             If (Max_OS.gt.0) Then
                If (UpMeth(4:4).ne.' ') UpMeth(5:6)='**'

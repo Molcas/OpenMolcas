@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine BMtrx_Internal(
-     &                 ipBMx,nAtom,nDim,
+     &                 nAtom,nDim,
      &                 Name,Smmtrc,Degen,BSet,HSet,
      &                 nIter,mTtAtm,nStab,jStab,
      &                 Numerical,HWRS,Analytic_Hessian,iOptC,PrQ,
@@ -33,7 +33,7 @@
 *     not done if a numerical Hessian is computed.
 *
       Call CurviL(nAtom,nDim,nIter,iIter,iRef,nStab,
-     &            jStab,Degen,Smmtrc,mTR,TRVec,HSet,BSet,ipBMx,
+     &            jStab,Degen,Smmtrc,mTR,TRVec,HSet,BSet,
      &            Numerical,HWRS,Analytic_Hessian,iOptC,
      &            Name,PrQ,iCoSet,
      &            iTabBonds,iTabAtoms,nBonds,nMax,

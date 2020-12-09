@@ -11,7 +11,7 @@
       Subroutine RlxCtl(iStop)
       Use Chkpnt
       Use kriging_mod, only: Kriging, nspAI
-      Use Slapaf_Info, only: Cx, Coor, Shift, GNrm,
+      Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx,
      &                       Free_Slapaf, qInt, dqInt
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
@@ -20,7 +20,6 @@
 #include "info_slapaf.fh"
       Parameter(nLabels=10*MxAtom,nLbl=10*MxAtom)
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "nadc.fh"
 #include "weighting.fh"
 #include "db.fh"
@@ -129,7 +128,7 @@
 *
       If (Numerical) nWndw=NmIter
       iRef=0
-      Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,Lbl,
+      Call BMtrx(iRow,nBVec,nsAtom,mInt,Lbl,
      &           Coor,nDimBC,AtomLbl,
      &           Smmtrc,Degen,BSet,HSet,iter,
      &           mTtAtm,iOptH,
@@ -140,7 +139,7 @@
 *
       nPrint(30) = nPrint(30)-1
 *
-      Call Put_dArray('BMtrx',Work(ipB),3*nsAtom*nQQ)
+      Call Put_dArray('BMtrx',BMx,3*nsAtom*nQQ)
       Call Put_iScalar('No of Internal coordinates',nQQ)
 *
 *     Too many constraints?
@@ -236,7 +235,7 @@
      &               iOptC,Beta,Beta_Disp,
      &               Lbl,UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
-     &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
+     &               AtomLbl,mxdc,jStab,nStab,
      &               Smmtrc,nDimBC,
      &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
@@ -250,7 +249,7 @@
      &               iOptC,Beta,Beta_Disp,
      &               Lbl,UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
-     &               AtomLbl,mxdc,jStab,nStab,Work(ipB),
+     &               AtomLbl,mxdc,jStab,nStab,
      &               Smmtrc,nDimBC,GrdMax,
      &               StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
@@ -279,7 +278,7 @@
          Error=.False.
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Coor,
-     &               ipB,Lbl,AtomLbl,iSym,Smmtrc,Degen,
+     &               Lbl,AtomLbl,iSym,Smmtrc,Degen,
      &               mTtAtm,iOptH,
      &               User_Def,nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
@@ -424,7 +423,6 @@
 *                                                                      *
 *-----Deallocate memory
 *
-      Call GetMem(' B ',    'Free','Real',ipB,   (nsAtom*3)**2)
  999  Continue
 *
       Call Free_Slapaf()

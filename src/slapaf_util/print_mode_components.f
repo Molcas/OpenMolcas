@@ -32,7 +32,7 @@
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor,
      &                       Grd, Weights, ANr, Shift, GNrm, Lambda,
      &                       Energy, Energy0, DipM, MF, qInt, dqInt,
-     &                       RefGeo, BM, iBM, dBM, idBM, nqBM
+     &                       RefGeo, BM, iBM, dBM, idBM, nqBM, BMx
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -76,6 +76,7 @@
       Real*8, Allocatable:: Bk_qInt(:,:)
       Real*8, Allocatable:: Bk_dqInt(:,:)
       Real*8, Allocatable:: Bk_RefGeo(:,:)
+      Real*8, Allocatable:: Bk_BMx(:,:)
 
       Real*8, Allocatable:: Bk_BM(:)
       Real*8, Allocatable:: Bk_dBM(:)
@@ -220,6 +221,12 @@
          Call mma_allocate(Bk_nqBM,SIZE(nqBM),Label='Bk_nqBM')
          Bk_nqBM(:) = nqBM(:)
          Call mma_deallocate(nqBM)
+      End If
+      If (Allocated(BMx)) Then
+         Call mma_allocate(Bk_BMx,SIZE(BMx,1),SIZE(BMx,2),
+     &                     Label='Bk_BMx')
+         Bk_BMx(:,:) = BMx(:,:)
+         Call mma_deallocate(BMx)
       End If
 
       Bk_iSym(:)=iSym(:)
@@ -419,7 +426,7 @@
       nFix=0
       nWndw=iter
       iRef=0
-      Call BMtrx(iRow,nBVec,ipB,nsAtom,mInt,Lbl,
+      Call BMtrx(iRow,nBVec,nsAtom,mInt,Lbl,
      &           Coor,nDimBC,AtomLbl,Smmtrc,Degen,BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
@@ -544,7 +551,6 @@
       Call mma_deallocate(Label)
       Call mma_deallocate(IntMod)
       Call mma_deallocate(Sort)
-      Call GetMem(' B ',    'Free','Real',ipB,   (nsAtom*3)**2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -885,6 +891,15 @@
          Call mma_deallocate(Bk_nqBM)
       Else
          If (Allocated(nqBM)) Call mma_deallocate(nqBM)
+      End If
+      If (Allocated(Bk_BMx)) Then
+         If (Allocated(BMx)) Call mma_deallocate(BMx)
+         Call mma_allocate(BMx,SIZE(Bk_BMx,1),SIZE(Bk_BMx,2),
+     &                     Label='BMx')
+         BMx(:,:) = Bk_BMx(:,:)
+         Call mma_deallocate(Bk_BMx)
+      Else
+         If (Allocated(BMx)) Call mma_deallocate(BMx)
       End If
 *
       End Subroutine Print_Mode_Components

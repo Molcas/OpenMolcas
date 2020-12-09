@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine BMtrx(nLines,nBVec,ipBMx,nAtom,nInter,
+      Subroutine BMtrx(nLines,nBVec,nAtom,nInter,
      &                 Lbl,Coor,nDim,
      &                 Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,
@@ -18,11 +18,10 @@
      &                 iOptC,PrQ,mxdc,iCoSet,lOld,
      &                 rHidden,nFix,nQQ,iIter,Redundant,MaxItr,
      &                 nWndw)
-      Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB
+      Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 Coor(3,nAtom), Degen(3*nAtom)
@@ -61,7 +60,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUGPRINT_
+#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -184,7 +183,7 @@
 ************************************************************************
 *                                                                      *
          Call BMtrx_User_Defined(
-     &                 nLines,nBVec,ipBMx,nAtom,nInter,Lbl,Coor,nDim,
+     &                 nLines,nBVec,nAtom,nInter,Lbl,Coor,nDim,
      &                 Name,Smmtrc,Degen,BSet,HSet,nIter,
      &                 nStab,jStab,Numerical,Analytic_Hessian,
      &                 iOptC,mxdc,lOld,
@@ -209,7 +208,7 @@
      &               nBonds,nMax)
          End If
          Call BMtrx_Internal(
-     &                 ipBMx,nAtom,nDim,Name,Smmtrc,
+     &                 nAtom,nDim,Name,Smmtrc,
      &                 Degen,BSet,HSet,nIter,
      &                 mTtAtm,
      &                 nStab,jStab,Numerical,
@@ -231,7 +230,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call BMtrx_Cartesian(ipBMx,nAtom,nInter,nDim,Name,
+         Call BMtrx_Cartesian(nAtom,nInter,nDim,Name,
      &                        Smmtrc,Degen,BSet,HSet,nIter,
      &                        mTtAtm,PrQ,lOld,mTR,TR,EVal,Hss_X,
      &                        nQQ,Redundant,MaxItr,nWndw)
@@ -280,7 +279,7 @@
       If ((nIter.eq.1.and.BSet).and.
      &    (Get_SuperName().ne.'numerical_gradient')) Then
 
-         Call Put_dArray('BMxOld',Work(ipBMx),3*nAtom*nQQ)
+         Call Put_dArray('BMxOld',BMx,3*nAtom*nQQ)
 
          If (mTR.ne.0) Then
             Call mma_allocate(TROld,3*nAtom*mTR,Label='TROld')
@@ -303,7 +302,7 @@
 *---- Print the B-matrix
 *
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' The BMtrx',' ',Work(ipBMx),3*nAtom,nQQ)
+      Call RecPrt(' The BMtrx',' ',BMx,3*nAtom,nQQ)
 #endif
       Call mma_deallocate(TR)
 *                                                                      *

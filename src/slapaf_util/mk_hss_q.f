@@ -9,11 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Mk_Hss_Q()
-      use Slapaf_Info, only: Cx, Coor, DipM, qInt, dqInt
+      use Slapaf_Info, only: Cx, Coor, DipM, qInt, dqInt, BMx
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 
 *     Compute the Hessian in internal coordinates.
 *
@@ -31,7 +30,7 @@
          End If
 *
          call dcopy_(3*nsAtom,Cx,1,Coor,1)
-         Call Get_dArray('BMxOld',Work(ipB),3*nsAtom*mInt)
+         Call Get_dArray('BMxOld',BMx,3*nsAtom*mInt)
          call dcopy_(mInt, qInt(:,1),1, qInt(:,Iter),1)
          call dcopy_(mInt,dqInt(:,1),1,dqInt(:,Iter),1)
       Else
