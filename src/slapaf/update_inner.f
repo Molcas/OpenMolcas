@@ -545,7 +545,7 @@ C           Write (6,*) 'tBeta=',tBeta
                   Do ix = 1, n1
                      If (Smmtrc(ix)) Then
                         i = i + 1
-                        dBM(ix,jx,k) = dBM(ix,jx,k) + QC(i,j,k)
+                        dBM(ix,jx,k) = dBM(ix,jx,k) - QC(i,j,k)
                      End If
                   End Do
                End If
