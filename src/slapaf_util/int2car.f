@@ -8,8 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Int2Car(dSS,rInt,nInter,Coor,nAtom,nBVct,
-     &                  nLines,DFC,
+      Subroutine Int2Car(nInter,Coor,nAtom,nBVct,nLines,
      &                  nDim,Lbl,Name,iSym,
      &                  Smmtrc,Degen,iter,
      &                  mTtAtm,iOptH,
@@ -18,7 +17,7 @@
      &                  Analytic_Hessian,iOptC,PrQ,mxdc,
      &                  iCoSet,rHidden,Error,Redundant,
      &                  MaxItr,iRef)
-      use Slapaf_Info, only: Cx, dMass, qInt, RefGeo, BMx
+      use Slapaf_Info, only: Cx, dMass, qInt, RefGeo, BMx, Shift
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -34,15 +33,33 @@
 #include "Molcas.fh"
 #include "warnings.fh"
       Parameter(NRHS=1)
-      Real*8 dSS(nInter,NRHS), rInt(nInter), cMass(3),
-     &       DFC(3*nAtom,NRHS), Coor(3,nAtom), Degen(3*nAtom)
+      Real*8 cMass(3),  Coor(3,nAtom), Degen(3*nAtom)
       Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
       Integer iSym(3), nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
       Logical Smmtrc(3,nAtom), User_Def,
      &        Curvilinear, Numerical, DDV_Schlegel, Redundant,
      &        HWRS, Analytic_Hessian, PrQ, Invar, Error
-*
       Logical, Save:: BSet=.False., HSet=.False., lOld=.False.
+      Real*8, Allocatable:: DFC(:), dss(:), rInt(:)
+*                                                                      *
+************************************************************************
+*                                                                      *
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Int2Car: q',' ',qInt,nInter,iter+1)
+      Call RecPrt('Int2Car: Shift',' ',Shift,nInter,iter)
+#endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call mma_allocate(DFC,3*nAtom,Label='DFC')
+      Call mma_allocate(dss,nInter,Label='dss')
+      Call mma_allocate(rInt,nInter,Label='rInt')
+*                                                                      *
+************************************************************************
+*                                                                      *
+      rInt(:) = qInt(:,iter)
+      dss(:) = Shift(:,iter)
+      rInt(:) = rInt(:) + dss(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -61,7 +78,7 @@
          Write (Lu,*)
          Write (Lu,*) ' In Int2Car: Shifts'
          Write (Lu,*)
-         Write (Lu,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter,1),
+         Write (Lu,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter),
      &          iInter=1,nInter)
          Call RecPrt(' In Int2Car: qInt',' ',qInt,nInter,
      &               Iter+1)
@@ -74,8 +91,8 @@
       iMax = 0
       jter = 0
       Do i = 1, nInter
-         If (Abs(dss(i,1)) .gt. Abs(rMax)) Then
-            rMax = dss(i,1)
+         If (Abs(dss(i)) .gt. Abs(rMax)) Then
+            rMax = dss(i)
             iMax = i
          End If
       End Do
@@ -123,7 +140,7 @@
          dx2=Zero
          denom=Zero
          Do ix = 1, 3*nAtom
-            dx2 = dx2 + Degen(ix)*DFC(ix,1)**2
+            dx2 = dx2 + Degen(ix)*DFC(ix)**2
             denom=denom+Degen(ix)
          End Do
          dx_RMS = Sqrt(dx2/denom)
@@ -171,9 +188,9 @@
          iMax = 1
          rMax = Zero
          Do i = 1, nInter
-            dSS(i,1) = rInt(i)-qInt(i,Iter+1)
-            If (Abs(dSS(i,1)) .gt. Abs(rMax)) Then
-               rMax = dSS(i,1)
+            dSS(i) = rInt(i)-qInt(i,Iter+1)
+            If (Abs(dSS(i)) .gt. Abs(rMax)) Then
+               rMax = dSS(i)
                iMax = i
             End If
          End Do
@@ -186,7 +203,7 @@
             Write (Lu,*)
             Write (Lu,*) ' Displacement of internal coordinates'
             Write (Lu,*)
-            Write (Lu,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter,1),
+            Write (Lu,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter),
      &             iInter=1,nInter)
          End If
 *
@@ -235,6 +252,12 @@
       Invar=(iAnd(iSBS,2**7).eq.0).and.(iAnd(iSBS,2**8).eq.0)
       If (WeightedConstraints.and.Invar)
      &   Call Align(Cx(:,:,iter+1),RefGeo,nAtom)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call mma_deallocate(rInt)
+      Call mma_deallocate(dss)
+      Call mma_deallocate(DFC)
 *                                                                      *
 ************************************************************************
 *                                                                      *
