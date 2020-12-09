@@ -95,10 +95,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-* This option should only be activated after careful debugging.
-* Relevant tests 049, 178, 182, 234
+* This option should careful debugged more.
 *                                              RL December 2020
-*#define _NEW_CODE_
+#define _NEW_CODE_
 *                                                                      *
 ************************************************************************
 *                                                                      *
