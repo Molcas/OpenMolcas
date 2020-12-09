@@ -1169,7 +1169,6 @@ C                 tij=Max(tij,f_const_Min_)
       Real*8 H(*)
       Logical Exist
       Real*8, Allocatable:: EVal(:), EVec(:), rK(:), qEVec(:)
-      Integer, External:: ip_of_Work
 *
       Lu=6
       iRout=22

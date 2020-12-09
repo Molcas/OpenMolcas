@@ -150,8 +150,6 @@
       RtRnc=Three
       Max_Center=15
       mode=-99999
-      ipAtom = -1
-      ipNSup = -1
       lRowH  = .False.
       lNmHss = .False.
 * --- ThermoChemistry for Numerical Hessian
