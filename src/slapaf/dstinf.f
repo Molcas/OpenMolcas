@@ -10,8 +10,7 @@
 ************************************************************************
       Subroutine DstInf(iStop,Just_Frequencies,Numerical)
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: Cx, Gx, Gx0, GNrm, Coor, Weights, Lambda,
-     &                       Energy, Energy0, DipM, MF, qInt, dqInt,
+      use Slapaf_Info, only: Cx, Coor, Weights, Energy, MF, qInt, dqInt,
      &                       Dmp_Slapaf
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
