@@ -16,7 +16,6 @@
 
 subroutine chemps2_load2pdm( NAC, PT, CHEMROOT )
 
-  USE HDF5
   USE ISO_C_BINDING
 #ifdef _MOLCAS_MPP_
   USE MPI
@@ -28,9 +27,8 @@ subroutine chemps2_load2pdm( NAC, PT, CHEMROOT )
 
   CHARACTER(LEN=30) :: file_2rdm
 
-  INTEGER( HID_T )   :: file_h5, group_h5, space_h5, dset_h5 ! Handles
-  INTEGER(4)         :: hdferr
-  TYPE( C_PTR )      :: f_ptr
+#include "mh5.fh"
+  INTEGER            :: file_h5, group_h5
   LOGICAL            :: irdm
 
   INTEGER :: i,j,k,l,idx
@@ -41,7 +39,7 @@ subroutine chemps2_load2pdm( NAC, PT, CHEMROOT )
   Logical Is_Real_Par
 #endif
 
-  REAL*8, DIMENSION( 1 : NAC * NAC * NAC * NAC ), TARGET :: two_rdm
+  REAL*8, DIMENSION( NAC * NAC * NAC * NAC ) :: two_rdm
 
   write(rootindex,"(I2)") chemroot-1
   file_2rdm="molcas_2rdm.h5.r"//trim(adjustl(rootindex))
@@ -57,17 +55,11 @@ subroutine chemps2_load2pdm( NAC, PT, CHEMROOT )
 !  if ( MPP().AND.KING() ) then
 !#endif
 
-  CALL h5open_f( hdferr )
-  CALL h5fopen_f( file_2rdm, H5F_ACC_RDONLY_F, file_h5, hdferr )
-  CALL h5gopen_f( file_h5, "2-RDM", group_h5, hdferr )
-  CALL h5dopen_f( group_h5, "elements", dset_h5, hdferr )
-  CALL h5dget_space_f( dset_h5, space_h5, hdferr )
-  f_ptr = C_LOC( two_rdm( 1 ) )
-  CALL h5dread_f( dset_h5, H5T_NATIVE_DOUBLE, f_ptr, hdferr )
-  CALL h5dclose_f( dset_h5 , hdferr )
-  CALL h5sclose_f( space_h5, hdferr )
-  CALL h5gclose_f( group_h5, hdferr )
-  CALL h5fclose_f( file_h5,  hdferr )
+  file_h5 = mh5_open_file_r(file_2rdm)
+  group_h5 = mh5_open_group(file_h5, '2-RDM')
+  call mh5_fetch_dset_array_real(group_h5, 'elements', two_rdm)
+  call mh5_close_group(group_h5)
+  call mh5_close_file(file_h5)
 !#ifdef _MOLCAS_MPP_
 !  end if
 !  call MPI_Bcast( two_rdm, NAC * NAC * NAC * NAC, MPI_DOUBLE_PRECISION, 0,     MPI_COMM_WORLD, IERROR4 )

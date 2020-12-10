@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#***********************************************************************
+
+# Script to get a list of merge requests sorted by merge date,
+# i.e., it gives the history of the "master" branch
+#
+# (this may become redundant whenever GitLab implements sorting by merge date)
+
+import requests
+import datetime
+
+def get_stamp(string):
+  if string is None:
+    return datetime.datetime.fromtimestamp(0)
+  try:
+    return datetime.datetime.fromisoformat(string)
+  except AttributeError:
+    return datetime.datetime.strptime(string, '%Y-%m-%dT%H:%M:%S.%fZ')
+
+MR_list = []
+
+link = 'https://gitlab.com/api/v4/projects/Molcas%2FOpenMolcas/merge_requests/?state=merged&target_branch=master&per_page=100'
+page=0
+while link:
+  page += 1
+  r = requests.get(link)
+  MR_list.extend(r.json())
+  try:
+    link = r.links['next']['url']
+  except KeyError:
+    link = None
+
+for MR in sorted(MR_list, key=lambda i: get_stamp(i['merged_at']))[::-1]:
+  sha = MR['sha']
+  if MR['merge_commit_sha']:
+    sha = MR['merge_commit_sha']
+  if MR['squash_commit_sha']:
+    sha = MR['squash_commit_sha']
+  if MR['merged_at'] is None:
+    date = '?'
+  else:
+    date = get_stamp(MR['merged_at']).strftime('%Y-%m-%d %H:%M')
+  print('!{:<4} {:7.7} ({}) {}'.format(MR['iid'], sha, date, MR['title']))

@@ -36,18 +36,12 @@
      &                Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,
      &                ExFac,VIA_DFT,HALFQ,VIA,HALFQ1,E2act,
      &                CoreShift
-#ifdef _ENABLE_CHEMPS2_DMRG_
-     &                ,davidson_tol,chemps2_blb,chemps2_noise
-#endif
       COMMON/RELAUX/  ENER,CONV,FDIAG,THRE,THRTE,THRSX,ROTMAX,
      &                ECAS,CMAX,WEIGHT,DE,CBLBM,
      &                THREN,THFACT,TMIN,PRETHR,PROTHR,
      &                Tot_Charge,Tot_Nuc_Charge,Tot_El_Charge,
      &                ExFac,VIA_DFT,HALFQ,VIA,HALFQ1,E2act,
      &                CoreShift
-#ifdef _ENABLE_CHEMPS2_DMRG_
-     &                ,davidson_tol,chemps2_blb,chemps2_noise
-#endif
 *
       INTEGER         LROOTS,ICICH,IDIAG,ICIRST,KAVER,KSYM(4),MAXJT,
      &                IXSYM(mxOrb),IPRSEC(7),MAXORBOUT,
@@ -60,9 +54,6 @@
      &                iRlxRoot,n_Det,iAlphaBeta,
      &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,ITCORE,
      &                hRoots,n_keep,hfocc(mxact)
-#ifdef _ENABLE_CHEMPS2_DMRG_
-     &                ,max_sweep,chemps2_lrestart,max_canonical
-#endif
       COMMON/INTINP/  LROOTS,ICICH,IDIAG,ICIRST,KAVER,KSYM,MAXJT,
      &                IXSYM,IPRSEC,MAXORBOUT,
      &                ICI,JCJ,
@@ -74,28 +65,13 @@
      &                iRlxRoot,n_Det,iAlphaBeta,
      &                MxDMRG,INOCALC,ISAVE_EXP,IEXPAND,ITCORE,
      &                hRoots,n_keep,hfocc
-#ifdef _ENABLE_CHEMPS2_DMRG_
-     &                ,max_sweep,chemps2_lrestart,max_canonical
-#endif
 *
       Logical         RFpert,lSquare, Start_Vectors, NonEq, DoFaro
      &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT,DoNOGRAD,
      &                DoGSOR, kIvo, IfCRPR
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
-     &                , Do3RDM
-#endif
-#ifdef _ENABLE_CHEMPS2_DMRG_
-     &                , chemps2_restart
-#endif
       COMMON/LOGINP/  RFpert,lSquare, Start_Vectors, NonEq, DoFaro
      &                ,DOFCIDUMP,DoBlockDMRG,DoGradPDFT,DoNOGRAD,
      &                DoGSOR, kIvo, IfCRPR
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
-     &                , Do3RDM
-#endif
-#ifdef _ENABLE_CHEMPS2_DMRG_
-     &                , chemps2_restart
-#endif
 *
       REAL*8          PRWTHR,POTNUC,CCI,
      &                ECAS1,RLXGRD,EVAC
@@ -145,3 +121,16 @@
 *
       REAL*8          Acc,Bcc,Aoo,Boo,Avv,Bvv
       Common /DFTFCK/ Acc,Bcc,Aoo,Boo,Avv,Bvv
+*
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      REAL*8           davidson_tol,chemps2_blb,chemps2_noise
+      INTEGER          max_sweep,chemps2_lrestart,max_canonical
+      LOGICAL          chemps2_restart
+      Common /CHEMPS2/ davidson_tol,chemps2_blb,chemps2_noise,
+     &                 max_sweep,chemps2_lrestart,max_canonical,
+     &                 chemps2_restart
+#endif
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
+      LOGICAL          Do3RDM
+      Common /B_OR_C/  Do3RDM
+#endif

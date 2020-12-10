@@ -87,4 +87,4 @@ endif
 syn sync fromstart
 
 " Keep the first line as title of the fold
-set foldtext=v:folddashes.substitute(getline(v:foldstart),'','','g') 
+set foldtext=v:folddashes.substitute(getline(v:foldstart),'','','g')

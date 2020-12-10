@@ -12,8 +12,8 @@ do
    echo Running $name ...
    export HomeDir=$Home/$name
    export Project=$name
-   cd $HomeDir   
-#  
+   cd $HomeDir
+#
    rm -f LOG
    for input in `ls -S *input`
    do
@@ -29,4 +29,4 @@ do
    grep -i 'Reference weight:'          LOG >> $Home/result
    echo "MS-CASPT2 energies:"               >> $Home/result
    grep -i '::\s*MS-CASPT2'             LOG >> $Home/result
-done 
+done
