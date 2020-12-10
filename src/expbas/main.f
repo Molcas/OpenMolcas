@@ -12,15 +12,15 @@
 #ifdef _FPE_TRAP_
       Use, Intrinsic :: IEEE_Exceptions
 #endif
-      implicit real*8 (a-h,o-z)
-      Character*20 Module_Name
-      Parameter (Module_Name = 'expbas')
-      COMMON /iret/ ireturn
+      implicit none
+      character(len=20), parameter :: module_name = 'expbas'
+      integer :: ireturn
+
 #ifdef _FPE_TRAP_
       Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
 #endif
 
       Call Start(Module_Name)
-      Call driverBas()
+      Call driverBas(ireturn)
       Call Finish(ireturn)
-      end
+      end program main
