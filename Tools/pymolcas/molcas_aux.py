@@ -105,6 +105,13 @@ def find_molcas(xbin_list=None, here=True):
           set_utf8('MOLCAS', f.read().strip())
         break
 
+  # if MOLCAS is still not defined, try with the driver's location
+  if (get_utf8('MOLCAS', default='') == ''):
+    from __main__ import __file__ as main_file
+    path = dirname(realpath(main_file))
+    if (isfile(join(path, '.molcashome'))):
+      set_utf8('MOLCAS', path)
+
   path = get_utf8('MOLCAS', default='')
 
   # set up LD_LIBRARY_PATH
