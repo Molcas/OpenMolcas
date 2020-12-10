@@ -21,7 +21,7 @@
      &                     nWndw,Mode,
      &                     iOptH,HUpMet,mIter,GNrm_Threshold,IRC,
      &                     HrmFrq_Show,CnstWght,Curvilinear,
-     &                     Degen,Kriging_Hessian,qBeta,iOpt_RS,
+     &                     Kriging_Hessian,qBeta,iOpt_RS,
      &                     First_MicroIteration,Iter,qBeta_Disp)
 ************************************************************************
 *     Object: to update coordinates                                    *
@@ -69,12 +69,12 @@
 *             2000                                                     *
 ************************************************************************
       use Slapaf_info, only: GNrm, dMass, Lambda, Energy, MF, dqInt,
-     &                       BMx
+     &                       BMx, Degen
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
-      Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter), Degen(3*nsAtom)
+      Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter)
       Integer jStab(0:7,nsAtom), nStab(nsAtom), iNeg(2)
 *    &        iNeg(2), jNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),FindTS, TSC, HrmFrq_Show,
@@ -456,7 +456,9 @@ C           Write (6,*) 'tBeta=',tBeta
             If (.NOT.Curvilinear) Then
                Do iLambda=1,nLambda
                   Do i = 1, n1
-                     BM(i,iLambda)=BM(i,iLambda)/Degen(i)
+                     iAtom = (i+2)/3
+                     ixyz = i - (iAtom-1)*3
+                     BM(i,iLambda)=BM(i,iLambda)/Degen(ixyz,iAtom)
                   End Do
                End Do
             End If
@@ -568,8 +570,13 @@ C           Write (6,*) 'tBeta=',tBeta
          If (.NOT.Curvilinear) Then
             Do k = 1, nLambda
                Do j = 1, n1
+                  jAtom = (j+2)/3
+                  jxyz = j - (jAtom-1)*3
                   Do i = 1, n1
-                     dBM(i,j,k)=dBM(i,j,k)/(Degen(i)*Degen(j))
+                     iAtom = (i+2)/3
+                     ixyz = i - (iAtom-1)*3
+                     dBM(i,j,k)=dBM(i,j,k)/(Degen(ixyz,iAtom)
+     &                                     *Degen(jxyz,jAtom))
                   End Do
                End Do
             End Do

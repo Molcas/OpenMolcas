@@ -9,12 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine GenCoo(Cart,nAtom,Coor,mAtom,Vctrs,Smmtrc,
-     &                  nDim,iAnr,jAnr,iTabAI,Degen)
+     &                  nDim,iAnr,jAnr,iTabAI)
       use Symmetry_Info, only: nIrrep, iOper
+      use Slapaf_Info, only: Degen
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-      Real*8 Cart(3,nAtom), Coor(3,mAtom), Vctrs(3*mAtom,nDim), r(3),
-     &       Degen(3*nAtom)
+      Real*8 Cart(3,nAtom), Coor(3,mAtom), Vctrs(3*mAtom,nDim), r(3)
       Integer iAnr(nAtom), jAnr(mAtom), iTabAI(2,mAtom)
       Logical New, SmmTrc(3,nAtom)
 *                                                                      *
@@ -34,7 +34,7 @@
       iSt=1
       iDim = 0
       Do iAtom = 1, nAtom
-         Fact = One/Sqrt(Degen((iAtom-1)*3 + 1))
+         Fact = One/Sqrt(Degen(1,iAtom))
          iEnd=iSt
          jDim=iDim
          call dcopy_(3,Cart(1,iAtom),1,Coor(1,iSt),1)

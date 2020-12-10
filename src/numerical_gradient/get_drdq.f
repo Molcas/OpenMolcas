@@ -12,7 +12,7 @@
 *               2015, Ignacio Fdez. Galvan (split from gencxctl)       *
 ************************************************************************
       Subroutine get_drdq(drdq,mLambda)
-      use Slapaf_Info, only: dMass, BMx
+      use Slapaf_Info, only: dMass, BMx, Degen
       Implicit None
 ************************************************************************
 *     subroutine to get the dr/dq vectors for the constraints as given *
@@ -24,7 +24,7 @@
       Real*8, Intent(InOut) :: drdq(mInt,nLambda)
       Integer, Intent(Out) :: mLambda
 *
-      Integer n3,nBV,i,iLambda,iOff,iOff2
+      Integer n3,nBV,i,iLambda,iOff,iOff2, iAtom, ixyz
       Real*8 RR
       Real*8, External :: DDot_
 *
@@ -79,7 +79,9 @@
          If (.not.Curvilinear) Then
             Do iLambda=1,nLambda
                Do i=1,n3
-                  BMx_t(i,iLambda)=BMx_t(i,iLambda)/Degen(i)
+                  iAtom = (i+2)/3
+                  ixyz  = i - (iAtom-1)*3
+                  BMx_t(i,iLambda)=BMx_t(i,iLambda)/Degen(ixyz,iAtom)
                End Do
             End Do
          End If

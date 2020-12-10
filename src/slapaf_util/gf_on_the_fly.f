@@ -44,8 +44,8 @@
       DipM(1)=0.0D0
       DipM(2)=0.0D0
       DipM(3)=0.0D0
-      Call GF(nX,mInter,nInter,Tmp1,Tmp2,EVec,EVal,RedMas,
-     &        iNeg,dDipM,mTR,Smmtrc,nAtom,DipM)
+      Call GF(nX,mInter,nInter,Tmp1,Tmp2,EVec,EVal,RedMas,iNeg,dDipM,
+     &        mTR,Smmtrc,nAtom,DipM)
 *
       Call mma_deallocate(Tmp2)
       Call mma_deallocate(Tmp1)
@@ -95,8 +95,7 @@
       Call Molcas_Open(lu_10,'UNSYM')
 *
       Write(Lu_10,'(A,I1)') '*NORMAL MODES SYMMETRY: ',jsym
-      Call GF_Print(EVal,EVec,Temp,iEl,
-     &              mInter,nInter,iCtl,IRInt,RedMas,
+      Call GF_Print(EVal,EVec,Temp,iEl,mInter,nInter,iCtl,IRInt,RedMas,
      &              Lu_10,iOff)
 *
       Close(Lu_10)

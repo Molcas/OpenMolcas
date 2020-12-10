@@ -19,7 +19,7 @@
 *     Roland Lindh, Dept. of Theor. Chem., Lund University, Sweden     *
 *     2009                                                             *
 ************************************************************************
-      use Slapaf_Info, only: BMx
+      use Slapaf_Info, only: BMx, Degen
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
       Real*8 V_Q(nQ), V_X(nX)

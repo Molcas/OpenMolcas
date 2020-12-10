@@ -24,7 +24,7 @@
             Call RowHessian(NmIter,mInt,nRowH,mRowH,Delta/2.5d0)
          Else
             Call FormNumHess(iter,mInt,Delta,Stop,nsAtom,Cubic,iNeg,
-     &                       DipM,mTROld,Smmtrc,Degen,UserT,
+     &                       DipM,mTROld,Smmtrc,UserT,
      &                       UserP,nUserPT,nsRot,lTherm,lDoubleIso,
      &                       Curvilinear)
          End If

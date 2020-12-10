@@ -60,8 +60,8 @@
 *     Compute the frequencies and harmonic eigenfunctions in
 *     Cartesians.
 *
-      Call GF_Harmonic_Frequencies(G,GInv,Tmp1,Tmp2,
-     &                             EVec,EVal,RedM,iNeg,nX,mInter)
+      Call GF_Harmonic_Frequencies(G,GInv,Tmp1,Tmp2,EVec,EVal,RedM,
+     &                             iNeg,nX,mInter)
 *
       Call mma_deallocate(G)
       Call mma_deallocate(GInv)

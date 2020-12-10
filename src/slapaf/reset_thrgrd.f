@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Reset_ThrGrd(nAtom,nDim,Smmtrc,Degen,nIter,
+      Subroutine Reset_ThrGrd(nAtom,nDim,Smmtrc,nIter,
      &                        mTtAtm,DDV_Schlegel,iOptC,rHidden,
      &                        ThrGrd)
       use Slapaf_Info, only: Cx, ANr
@@ -16,7 +16,6 @@
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8 Degen(3*nAtom)
       Logical Smmtrc(3*nAtom),DDV_Schlegel,Found
       Integer, Allocatable:: TabAI(:), AN(:)
       Real*8, Allocatable:: TR(:), Vec(:), Coor(:,:), Tmp(:)
@@ -58,7 +57,7 @@
       Call mma_allocate(TR,18*nAtom,Label='TR')
       TR(:)=Zero
 *
-      Call TRPGen(nDim,nAtom,Cx(1,1,iIter),Degen,Smmtrc,mTR,.False.,TR)
+      Call TRPGen(nDim,nAtom,Cx(1,1,iIter),Smmtrc,mTR,.False.,TR)
 *
 *     Call RecPrt('TR',' ',TR,nDim,mTR)
 *                                                                      *
@@ -72,7 +71,7 @@
 *-----Generate Grand atoms list
 *
       Call GenCoo(Cx(1,1,iIter),nAtom,Coor,mTtAtm,Vec,Smmtrc,nDim,ANr,
-     &            AN,TabAI,Degen)
+     &            AN,TabAI)
 *
 *---- Are there some hidden frozen atoms ?
 *

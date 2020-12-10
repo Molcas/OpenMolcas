@@ -15,24 +15,25 @@
 *
       If (lOld) Return
 *
-      Call Hss_q_(Degen,nsAtom,nQQ,Smmtrc,Analytic_Hessian,
+      Call Hss_q_(nsAtom,nQQ,Smmtrc,Analytic_Hessian,
      &            dqInt(:,iRef),nDimBC,Curvilinear)
 *
       Return
       End
-      Subroutine Hss_q_(Degen,nAtom,nQQ,Smmtrc,Analytic_Hessian,Grad,
+      Subroutine Hss_q_(nAtom,nQQ,Smmtrc,Analytic_Hessian,Grad,
      &                 nDim,Curvilinear)
+      use Slapaf_Info, only: Degen
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8 Degen(3*nAtom),Grad(nQQ)
+      Real*8 Grad(nQQ)
       Logical Smmtrc(3*nAtom), Analytic_Hessian, Curvilinear
       Real*8 rDum(1)
       Real*8, Allocatable:: Hss_X(:), Degen2(:), Hss_Q(:), KtB(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUGPRINT_
+#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -53,9 +54,11 @@
       Call mma_allocate(Degen2,nDim,Label='nDim')
       i=0
       Do ix = 1, 3*nAtom
+         iAtom = (ix+2)/3
+         ixyz = ix - (iAtom-1)*3
          If (Smmtrc(ix)) Then
             i = i + 1
-            Degen2(i) = Degen(ix)
+            Degen2(i) = Degen(ixyz,iAtom)
          End If
       End Do
 #ifdef _DEBUGPRINT_
@@ -75,8 +78,7 @@
       End If
 *
       Call mma_allocate(Hss_Q,nQQ**2,Label='Hss_Q')
-      Call Hess_Tra(Hss_X,nDim,Degen2,
-     &              KtB,nQQ,Hss_Q)
+      Call Hess_Tra(Hss_X,nDim,Degen2,KtB,nQQ,Hss_Q)
 *
       Call Put_dArray('Hss_Q',Hss_Q,nQQ**2)
       Call Put_dArray('Hss_upd',rDum,0)

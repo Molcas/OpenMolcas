@@ -9,7 +9,6 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine mk_G(G,GInv,nX)
-      use Slapaf_Info, only: dMass
 #include "info_slapaf.fh"
       Integer nX
       Real*8 G(nX*nX), GInv(nX*nX)
@@ -17,18 +16,17 @@
       mInter=mInt + mTROld
 *
       Call mk_G_Internal(G,GInv,mInter,nsAtom,.Not.User_Def,CurviLinear,
-     &                   Smmtrc,Degen,dMass)
+     &                   Smmtrc)
 *
       Return
       End
-      Subroutine mk_G_Internal(G,GInv,mInter,nAtom,Auto,nrc,Smmtrc,
-     &                         Degen,dMass)
+      Subroutine mk_G_Internal(G,GInv,mInter,nAtom,Auto,nrc,Smmtrc)
+      use Slapaf_Info, only: dMass, Degen
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "constants2.fh"
 *
-      Real*8 G(mInter,mInter), GInv(mInter**2), dMass(nAtom),
-     &       Degen(3,nAtom)
+      Real*8 G(mInter,mInter), GInv(mInter**2)
       Logical Auto, nrc, Smmtrc(3,nAtom)
 *                                                                      *
 ************************************************************************

@@ -54,11 +54,11 @@
      &        TSConstraints, MEPCons, Track, Request_Alaska,
      &        Request_RASSI
 *
-      Real*8 Degen(3*mxdc), cMass(3), Trial(3), ThrEne, ThrGrd,
+      Real*8 cMass(3), Trial(3), ThrEne, ThrGrd,
      &       Beta, Beta_Disp, Delta, Rtrnc, rHidden, ThrCons,
      &       GNrm_Threshold, CnstWght, dMEPStep, rFuzz, ThrMEP
 *
-      Common /rInfSla/ Degen, cMass, Trial, ThrEne, ThrGrd, Beta,
+      Common /rInfSla/ cMass, Trial, ThrEne, ThrGrd, Beta,
      &                 Beta_Disp, Delta, Rtrnc, rHidden, ThrCons,
      &                 GNrm_Threshold, CnstWght, dMEPStep, rFuzz,
      &                 ThrMEP

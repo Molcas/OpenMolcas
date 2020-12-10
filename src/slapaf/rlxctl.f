@@ -130,7 +130,7 @@
       iRef=0
       Call BMtrx(iRow,nBVec,nsAtom,mInt,Lbl,
      &           Coor,nDimBC,AtomLbl,
-     &           Smmtrc,Degen,BSet,HSet,iter,
+     &           Smmtrc,BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
@@ -158,7 +158,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Reset_ThrGrd(nsAtom,nDimBC,Smmtrc,Degen,Iter,
+      Call Reset_ThrGrd(nsAtom,nDimBC,Smmtrc,Iter,
      &                  mTtAtm,DDV_Schlegel,iOptC,rHidden,
      &                  ThrGrd)
 *                                                                      *
@@ -167,7 +167,7 @@
 *                                                                      *
 *-----Compute the norm of the Cartesian gradient.
 *
-      Call G_Nrm(nsAtom,nQQ,GNrm,iter,dqInt,Degen,mIntEff)
+      Call G_Nrm(nsAtom,nQQ,GNrm,iter,dqInt,mIntEff)
       If (nPrint(116).ge.6) Call ListU(Lu,Lbl,dqInt,nQQ,iter)
 *                                                                      *
 ************************************************************************
@@ -242,7 +242,7 @@
      &               nWndw,Mode,
      &               iOptH,HUpMet,GNrm_Threshold,
      &               IRC,HrmFrq_Show,
-     &               CnstWght,Curvilinear,Degen,ThrEne,ThrGrd,iRow)
+     &               CnstWght,Curvilinear,ThrEne,ThrGrd,iRow)
       Else
          Call Update_sl(
      &               Iter,NmIter,iInt,nFix,nQQ,
@@ -256,7 +256,7 @@
      &               nWndw,Mode,
      &               iOptH,HUpMet,kIter,GNrm_Threshold,
      &               IRC,HrmFrq_Show,
-     &               CnstWght,Curvilinear,Degen)
+     &               CnstWght,Curvilinear)
       End If
 *
 #ifdef UNIT_MM
@@ -278,7 +278,7 @@
          Error=.False.
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Coor,
-     &               Lbl,AtomLbl,iSym,Smmtrc,Degen,
+     &               Lbl,AtomLbl,iSym,Smmtrc,
      &               mTtAtm,iOptH,
      &               User_Def,nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
@@ -344,8 +344,8 @@
 *
 *-----Write information to files
 *
-      Call DstInf(iStop,Just_Frequencies,
-     &            (lNmHss.or.lRowH) .and.iter.le.NmIter)
+      Numerical = (lNmHss.or.lRowH) .and. iter.le.NmIter
+      Call DstInf(iStop,Just_Frequencies,Numerical)
       If (lCtoF) Call Def_CtoF(.True.,nsAtom,AtomLbl,Coor,jStab,nStab)
       If (.Not.User_Def .and.
      &   ((lNmHss.and.iter.ge.NmIter).or..Not.lNmHss)) Call cp_SpcInt
@@ -392,6 +392,9 @@
                   HX(iOff)=HX((i-1)*nHX2+j)
                End Do
             End Do
+#ifdef _DEBUGPRINT_
+            Call TriPrt('AnalHess',' ',HX,nHX2
+#endif
 
             Call Put_AnalHess(HX,iOff)
             Call NameRun('#Pop')

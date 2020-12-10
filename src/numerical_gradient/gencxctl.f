@@ -83,7 +83,7 @@
       iRef=0
       Call BMtrx(iRow,nBVec,nsAtom,mInt,Lbl,
      &           Coor,nDimBC,AtomLbl,
-     &           Smmtrc,Degen,BSet,HSet,iter,
+     &           Smmtrc,BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
@@ -229,7 +229,7 @@
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,mInt,
      &               Coor,Lbl,
      &               AtomLbl,iSym,Smmtrc,
-     &               Degen,mTtAtm,
+     &               mTtAtm,
      &               iOptH,User_Def,
      &               nStab,jStab,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS, Analytic_Hessian,

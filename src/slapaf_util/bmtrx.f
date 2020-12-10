@@ -8,23 +8,20 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine BMtrx(nLines,nBVec,nAtom,nInter,
-     &                 Lbl,Coor,nDim,
-     &                 Name,Smmtrc,
-     &                 Degen,BSet,HSet,nIter,
+      Subroutine BMtrx(nLines,nBVec,nAtom,nInter,Lbl,Coor,nDim,
+     &                 Name,Smmtrc,BSet,HSet,nIter,
      &                 mTtAtm,iOptH,User_Def,
      &                 nStab,jStab,Curvilinear,Numerical,
      &                 DDV_Schlegel,HWRS,Analytic_Hessian,
      &                 iOptC,PrQ,mxdc,iCoSet,lOld,
-     &                 rHidden,nFix,nQQ,iIter,Redundant,MaxItr,
-     &                 nWndw)
+     &                 rHidden,nFix,nQQ,iIter,Redundant,MaxItr,nWndw)
       Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-      Real*8 Coor(3,nAtom), Degen(3*nAtom)
+      Real*8 Coor(3,nAtom)
       Character Lbl(nInter)*8,Name(nAtom)*(LENIN)
       Integer   nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
@@ -60,7 +57,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -98,7 +95,7 @@
       Call mma_allocate(TR,18*nAtom,Label='TR')
       TR(:)=Zero
 *
-      Call TRPGen(nDim,nAtom,Cx(1,1,iIter),Degen,Smmtrc,mTR,.False.,TR)
+      Call TRPGen(nDim,nAtom,Cx(1,1,iIter),Smmtrc,mTR,.False.,TR)
 *
       Call mma_allocate(TRnew,3*nAtom*mTR,Label='TRNew')
       TRNew(:)=Zero
@@ -124,7 +121,7 @@
 *-----Generate Grand atoms list
 *
       Call GenCoo(Cx(1,1,iIter),nAtom,Coor2,mTtAtm,Vec,Smmtrc,nDim,ANr,
-     &            AN,TabAI,Degen)
+     &            AN,TabAI)
 *
 *---- Are there some hidden frozen atoms ?
 *
@@ -154,7 +151,7 @@
 *
       If (HSet.or..Not.(Curvilinear.or.User_Def))
      &   Call LNM(Coor2,mTtAtm,EVal,Hss_X,Scr2,Vec,nAtom,nDim,AN,Smmtrc,
-     &            nIter,iOptH,Degen, DDV_Schlegel,Analytic_Hessian,
+     &            nIter,iOptH,DDV_Schlegel,Analytic_Hessian,
      &            iOptC,TabB,TabA,nBonds,nMax,nHidden)
 *
       Call mma_deallocate(Scr2)
@@ -184,7 +181,7 @@
 *                                                                      *
          Call BMtrx_User_Defined(
      &                 nLines,nBVec,nAtom,nInter,Lbl,Coor,nDim,
-     &                 Name,Smmtrc,Degen,BSet,HSet,nIter,
+     &                 Name,Smmtrc,BSet,HSet,nIter,
      &                 nStab,jStab,Numerical,Analytic_Hessian,
      &                 iOptC,mxdc,lOld,
      &                 nFix,mTR,nQQ,Redundant,MaxItr)
@@ -209,7 +206,7 @@
          End If
          Call BMtrx_Internal(
      &                 nAtom,nDim,Name,Smmtrc,
-     &                 Degen,BSet,HSet,nIter,
+     &                 BSet,HSet,nIter,
      &                 mTtAtm,
      &                 nStab,jStab,Numerical,
      &                 HWRS,Analytic_Hessian,
@@ -231,7 +228,7 @@
 ************************************************************************
 *                                                                      *
          Call BMtrx_Cartesian(nAtom,nInter,nDim,Name,
-     &                        Smmtrc,Degen,BSet,HSet,nIter,
+     &                        Smmtrc,BSet,HSet,nIter,
      &                        mTtAtm,PrQ,lOld,mTR,TR,EVal,Hss_X,
      &                        nQQ,Redundant,MaxItr,nWndw)
 *

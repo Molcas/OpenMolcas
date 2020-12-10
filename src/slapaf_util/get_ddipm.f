@@ -19,7 +19,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      use Slapaf_Info, only: Cx
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "stdalloc.fh"
@@ -49,8 +48,8 @@
          Call mma_allocate(TROld,1,Label='TROld')
       End If
 *
-      Call Get_dDipM_(nX,BOld,TROld,mInter,nInter,Degen,
-     &                Tmp2,dDipM,mTROld,Cx,Smmtrc,nsAtom,DipM)
+      Call Get_dDipM_(nX,BOld,TROld,mInter,nInter,Tmp2,dDipM,mTROld,
+     &                Smmtrc,nsAtom,DipM)
 *
       Call mma_deallocate(TROld)
       Call mma_deallocate(BOld)
@@ -58,13 +57,14 @@
 *
       Return
       End
-      Subroutine Get_dDipM_(nX,BMtrx,TRVec,mInter,nInter,Degen,
-     &                     Tmp2,dDipM,mTR,Coor,Smmtrc,nAtom,DipM)
+      Subroutine Get_dDipM_(nX,BMtrx,TRVec,mInter,nInter,
+     &                     Tmp2,dDipM,mTR,Smmtrc,nAtom,DipM)
+      use Slapaf_Info, only: Cx, Degen
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Logical Smmtrc(3,nAtom)
-      Real*8 TRVec(nX,mTR), Degen(3,nAtom), BMtrx(nX,nInter),
-     &       Tmp2(nX**2), Coor(3,nAtom), dDipM(3,nInter+mTR), DipM(3)
+      Real*8 TRVec(nX,mTR), BMtrx(nX,nInter),
+     &       Tmp2(nX**2), dDipM(3,nInter+mTR), DipM(3)
 *
       Real*8 CM(3)
       Parameter ( thr = 1.0D-12 )
@@ -87,7 +87,7 @@
          Do iAtom = 1, nAtom
             rNorm=rNorm+Degen(i,iAtom)
             If (Smmtrc(i,iAtom)) Then
-               CM(i) = CM(i) + Degen(i,iAtom)*Coor(i,iAtom)
+               CM(i) = CM(i) + Degen(i,iAtom)*Cx(i,iAtom,1)
             End If
          End Do
          CM(i)=CM(i)/rNorm
@@ -109,14 +109,14 @@
             Tx = Tx + TRVec((i-1)*3+1,iX)*Degen(1,i)
             Ty = Ty + TRVec((i-1)*3+2,iX)*Degen(2,i)
             Tz = Tz + TRVec((i-1)*3+3,iX)*Degen(3,i)
-            Rx = Rx +(TRVec((i-1)*3+2,iX)*(Coor(3,i)-CM(3)) -
-     &                TRVec((i-1)*3+3,iX)*(Coor(2,i)-CM(2)))
+            Rx = Rx +(TRVec((i-1)*3+2,iX)*(Cx(3,i,1)-CM(3)) -
+     &                TRVec((i-1)*3+3,iX)*(Cx(2,i,1)-CM(2)))
      &              * Degen(1,i)
-            Ry = Ry +(TRVec((i-1)*3+3,iX)*(Coor(1,i)-CM(1)) -
-     &                TRVec((i-1)*3+1,iX)*(Coor(3,i)-CM(3)))
+            Ry = Ry +(TRVec((i-1)*3+3,iX)*(Cx(1,i,1)-CM(1)) -
+     &                TRVec((i-1)*3+1,iX)*(Cx(3,i,1)-CM(3)))
      &              * Degen(2,i)
-            Rz = Rz +(TRVec((i-1)*3+1,iX)*(Coor(2,i)-CM(2)) -
-     &                TRVec((i-1)*3+2,iX)*(Coor(1,i)-CM(1)))
+            Rz = Rz +(TRVec((i-1)*3+1,iX)*(Cx(2,i,1)-CM(2)) -
+     &                TRVec((i-1)*3+2,iX)*(Cx(1,i,1)-CM(1)))
      &              * Degen(3,i)
          End Do
 #ifdef _DEBUGPRINT_

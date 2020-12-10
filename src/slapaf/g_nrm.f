@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine G_Nrm(nAtom,nInter,GNrm,Iter,Grad,Degen,mIntEff)
-      use Slapaf_Info, only: Gx
+      Subroutine G_Nrm(nAtom,nInter,GNrm,Iter,Grad,mIntEff)
+      use Slapaf_Info, only: Gx, Degen
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
-      Real*8 GNrm(Iter),Grad(nInter,Iter),Degen(3,nAtom)
+      Real*8 GNrm(Iter),Grad(nInter,Iter)
 *
 *
 *     Compute the norm of the cartesian force vector.
@@ -21,7 +21,7 @@
 *     |dE/dx|=Sqrt(dE/dx|u|dE/dx)
 *
       Fabs=0.0D0
-      Do i = 1, 3*nAtom
+      Do i = 1, nAtom
          Do j = 1, 3
             Fabs=Fabs+ Degen(j,i)*Gx(j,i,Iter)**2
          End Do

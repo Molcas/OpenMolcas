@@ -10,11 +10,11 @@
 ************************************************************************
       Subroutine NewCar(Iter,nBVct,nLines,nAtom,nDim,nInter,
      &                  Coor,Lbl,Name,iSym,Smmtrc,
-     &                  Degen,mTtAtm,iOptH,User_Def,nStab,
+     &                  mTtAtm,iOptH,User_Def,nStab,
      &                  jStab,Curvilinear,Numerical,DDV_Schlegel,HWRS,
      &                  Analytic_Hessian,iOptC,PrQ,mxdc,iCoSet,rHidden,
      &                  Redundant,MaxItr,iRef,Error)
-      use Slapaf_Info, only: Cx, dMass, qInt, RefGeo, BMx, Shift
+      use Slapaf_Info, only: Cx, dMass, qInt, RefGeo, BMx, Shift, Degen
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -36,7 +36,6 @@
       Character(LEN=LENIN), Intent(In):: Name(nAtom)
       Integer, Intent(In):: iSym(3)
       Logical, Intent(In):: Smmtrc(3,nAtom)
-      Real*8,  Intent(In):: Degen(3*nAtom)
       Integer, Intent(In):: mTtAtm, iOptH
       Logical, Intent(In):: User_Def
       Integer, Intent(In):: nStab(nAtom), jStab(0:7,nAtom)
@@ -152,9 +151,13 @@
 *
          dx2=Zero
          denom=Zero
-         Do ix = 1, 3*nAtom
-            dx2 = dx2 + Degen(ix)*DFC(ix)**2
-            denom=denom+Degen(ix)
+         ix = 0
+         Do iAtom = 1, nAtom
+            Do i = 1, 3
+              ix = ix + 1
+              dx2 = dx2 + Degen(i,iAtom)*DFC(ix)**2
+              denom=denom+Degen(i,iAtom)
+            End Do
          End Do
          dx_RMS = Sqrt(dx2/denom)
 *
@@ -186,7 +189,7 @@
          nWndw=1
          Call BMtrx(nLines,nBVct,nAtom,nInter,
      &              Lbl,Coor,nDim,Name,Smmtrc,
-     &              Degen,BSet,HSet,iter+1,
+     &              BSet,HSet,iter+1,
      &              mTtAtm,iOptH,User_Def,
      &              nStab,jStab,Curvilinear,Numerical,
      &              DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,

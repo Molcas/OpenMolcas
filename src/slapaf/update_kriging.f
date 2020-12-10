@@ -22,7 +22,7 @@
      &                     nWndw,Mode,
      &                     iOptH,HUpMet,GNrm_Threshold,IRC,
      &                     HrmFrq_Show,CnstWght,Curvilinear,
-     &                     Degen,ThrEne,ThrGrd,nLines)
+     &                     ThrEne,ThrGrd,nLines)
 ************************************************************************
 *                                                                      *
 *     Object: to update coordinates                                    *
@@ -37,7 +37,7 @@
 #include "print.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
-      Real*8 Degen(3*nsAtom), dEner
+      Real*8 dEner
       Integer jStab(0:7,nsAtom), nStab(nsAtom),iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show, Curvilinear,
@@ -217,7 +217,7 @@
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                   Labels,nLabels,FindTS,TSC,nRowH,nWndw_,Mode,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
-     &                   HrmFrq_Show,CnstWght,Curvilinear,Degen,
+     &                   HrmFrq_Show,CnstWght,Curvilinear,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
      &                   First_MicroIteration,iter,qBeta_Disp)
 #ifdef _DEBUGPRINT_

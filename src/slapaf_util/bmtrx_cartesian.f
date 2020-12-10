@@ -10,17 +10,16 @@
 ************************************************************************
       Subroutine BMtrx_Cartesian(
      &                 nAtom,nInter,nDim,
-     &                 Name,Smmtrc,Degen,BSet,HSet,
+     &                 Name,Smmtrc,BSet,HSet,
      &                 nIter,mTtAtm,
      &                 PrQ,lOld,mTR,TRVec,EVal,Hss_x,
      &                 nQQ,Redundant,MaxItr,nWndw)
-      use Slapaf_Info, only: Cx, Gx, qInt, dqInt, KtB, BMx
+      use Slapaf_Info, only: Cx, Gx, qInt, dqInt, KtB, BMx, Degen
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-#include "print.fh"
-      Real*8 Degen(3*nAtom), TRVec(nDim,mTR)
+      Real*8 TRVec(nDim,mTR)
       Character Name(nAtom)*(LENIN)
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant, PrQ, lOld
       Real*8 Eval(3*mTtAtm*(3*mTtAtm+1)/2)
@@ -31,8 +30,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout=133
-      iPrint=nPrint(iRout)
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      Call RecPrt('BMtrx_Cartesian: TRVec',' ',TRVec,nDim,mTR)
+      Call RecPrt('BMtrx_Cartesian: Degen',' ',Degen,3,SIZE(Degen,2))
+      Call RecPrt('BMtrx_Cartesian: Hss_x',' ',Hss_x,3*mTtAtm,3*mTtAtm)
+#endif
 *
 *-----Recompute the B matrix once each macroIteration, this is
 *     not done if a numerical Hessian is computed.
@@ -60,10 +63,10 @@
          Call mma_allocate(BMx,3*nAtom,nQQ,Label='BMx')
          BMX(:,:)=Zero
          ipFrom = 1
-         Call BPut(EVec(ipFrom),nDim,BMx,3*nAtom,Smmtrc,
-     &             nQQ,Degen)
-         If (iPrint.ge.19) Call RecPrt('In Bmtrx: B',' ',BMx,3*nAtom,
-     &                                  nQQ)
+         Call BPut(EVec(ipFrom),nDim,BMx,3*nAtom,Smmtrc,nQQ,Degen)
+#ifdef _DEBUGPRINT_
+         Call RecPrt('In Bmtrx: B',' ',BMx,3*nAtom,nQQ)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -99,9 +102,11 @@
                Temp = 0.0D0
                Do k = 1, nDim
                   kx = Ind(k)
+                  iAtom = (kx+2)/3
+                  ixyz = kx - (iAtom-1)*3
                   ik=(i-1)*nDim+k
                   Temp = Temp
-     &                 + Hss_X(ik) * Sqrt(Degen(kx))
+     &                 + Hss_X(ik) * Sqrt(Degen(ixyz,iAtom))
      &                 * TRVec(k,j)
                End Do
                Hi(i,j) = Temp
@@ -115,8 +120,12 @@
 *
          Do i = 1, nDim
             ix = Ind(i)
+            iAtom = (ix+2)/3
+            ixyz = ix - (iAtom-1)*3
             Do j = 1, i
                jx = Ind(j)
+               jAtom = (jx+2)/3
+               jxyz = jx - (jAtom-1)*3
                ij = (j-1)*nDim + i
                ji = (i-1)*nDim + j
                Temp = Half*(Hss_x(ij)+Hss_x(ji))
@@ -130,11 +139,11 @@
                   Omega = 1.0D+5
                   Hii   = iHi(iTR)
                   Temp = Temp
-     &                 + Sqrt(Degen(ix)) * (
+     &                 + Sqrt(Degen(ixyz,iAtom)) * (
      &                 - TRVec(i,iTR) * Hi(j,iTR)
      &                 - Hi(i,iTR) * TRVec(j,iTR)
      &                 + TRVec(i,iTR) * (Omega+Hii) * TRVec(j,iTR)
-     &                                     )* Sqrt(Degen(jx))
+     &                                     )* Sqrt(Degen(jxyz,jAtom))
                End Do
 #endif
 *
@@ -162,13 +171,11 @@
 *
                Temp=0.0D0
                iInd=0
-               i=0
                Do iAtom = 1, nAtom
                Do j = 1, 3
-                  i = i + 1
                   If (Smmtrc(i)) Then
                      iInd=iInd+1
-                     Temp = Temp + Degen(i)*Gx(j,iAtom,nIter)
+                     Temp = Temp + Degen(j,iAtom)*Gx(j,iAtom,nIter)
      &                                     *TRVec(iInd,iTR)
                   End If
                End Do
@@ -233,24 +240,32 @@
                Temp = 0.0D0
                Do k = 1, nDim
                   kx = Ind(k)
+                  kAtom = (kx+2)/3
+                  kxyz = kx - (kAtom-1)*3
                   ik=(i-1)*nDim+k
                   Temp = Temp
-     &                 + Hss_X(ik) * Sqrt(Degen(kx))
+     &                 + Hss_X(ik) * Sqrt(Degen(kxyz,kAtom))
      &                 * TRVec(k,j)
                End Do
                Hi(i,j) = Temp
             End Do
          End Do
-*        Call RecPrt('Hi',' ',Hi,nDim,mTR)
          Do iTR = 1, mTR
             iHi(iTR) = DDot_(nDim,TRVec(1,iTR),1,Hi(:,iTR),1)
          End Do
-*        Call RecPrt('iHi',' ',iHi,mTR,1)
+#ifdef _DEBUGPRINT_
+         Call RecPrt('Hi',' ',Hi,nDim,mTR)
+         Call RecPrt('iHi',' ',iHi,mTR,1)
+#endif
 *
          Do i = 1, nDim
             ix = Ind(i)
+            iAtom = (ix+2)/3
+            ixyz = ix - (iAtom-1)*3
             Do j = 1, i
                jx = Ind(j)
+               jAtom = (jx+2)/3
+               jxyz = jx - (jAtom-1)*3
                ijTri=i*(i-1)/2 + j
                ij = (j-1)*nDim + i
                ji = (i-1)*nDim + j
@@ -264,11 +279,11 @@
                   Omega = -DBLE(iTR)
                   Hii   = iHi(iTR)
                   Eval(ijTri) = Eval(ijTri)
-     &                 + Sqrt(Degen(ix)) * (
+     &                 + Sqrt(Degen(ixyz,iAtom)) * (
      &                 - TRVec(i,iTR) * Hi(j,iTR)
      &                 - Hi(i,iTR) * TRVec(j,iTR)
      &                 + TRVec(i,iTR) * (Omega+Hii) * TRVec(j,iTR)
-     &                                     )* Sqrt(Degen(jx))
+     &                                     )* Sqrt(Degen(jxyz,jAtom))
                End Do
 *
                Hss_X(ij)=EVal(ijTri)
@@ -300,8 +315,9 @@
          BMx(:,:)=Zero
          ipFrom = 1 + mTR*nDim
          Call BPut(EVec(ipFrom),nDim,BMx,3*nAtom,Smmtrc,nQQ,Degen)
-         If (iPrint.ge.19) Call RecPrt('In Bmtrx: B',' ',BMx,
-     &                                 3*nAtom,nQQ)
+#ifdef _DEBUGPRINT_
+         Call RecPrt('In Bmtrx: B',' ',BMx,3*nAtom,nQQ)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -322,9 +338,11 @@
          Call mma_allocate(Degen2,nDim,Label='Degen2')
          i=0
          Do ix = 1, 3*nAtom
+            iAtom = (ix+2)/3
+            ixyz = ix - (iAtom-1)*3
             If (Smmtrc(ix)) Then
                i = i + 1
-               Degen2(i) = Degen(ix)
+               Degen2(i) = Degen(ixyz,iAtom)
             End If
          End Do
 *

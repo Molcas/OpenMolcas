@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2004, Roland Lindh                                     *
 ************************************************************************
-      Subroutine BMtrx_Internal(nAtoms,nDim,Name,Smmtrc,Degen,BSet,HSet,
+      Subroutine BMtrx_Internal(nAtoms,nDim,Name,Smmtrc,BSet,HSet,
      &                          nIter,mAtoms,nStab,jStab,Numerical,HWRS,
      &                          Analytic_Hessian,iOptC,PrQ,iCoSet,lOld,
      &                          iIter,mTR,TRVec,iTabAI,iTabAtoms,
@@ -26,7 +26,7 @@
 *              2004                                                    *
 ************************************************************************
       use Slapaf_Info, only: qInt, dqInt, BM, dBM, iBM, idBM, nqBM, KtB,
-     &                       Cx, Gx, dMass, BMx
+     &                       Cx, Gx, dMass, BMx, Degen
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"
@@ -35,22 +35,21 @@
 #include "db.fh"
 #include "print.fh"
       Integer, Intent(In):: nAtoms, nDim
-      Character(LEN=LENIN), Intent(In):: Name(nAtom)
-      Logical, Intent(In):: Smmtrc(3*nAtom)
-      Real*8, Intent(In):: Degen(3*nAtom)
+      Character(LEN=LENIN), Intent(In):: Name(nAtoms)
+      Logical, Intent(In):: Smmtrc(3*nAtoms)
       Logical, Intent(In):: BSet, HSet
       Integer, Intent(In):: nIter, mAtoms
-      Integer, Intent(In):: nStab(nAtom), jStab(0:7,nAtom)
+      Integer, Intent(In):: nStab(nAtoms), jStab(0:7,nAtoms)
       Logical, Intent(In):: Numerical, HWRS, Analytic_Hessian
       Integer, Intent(In):: iOptC
       Logical, Intent(In):: PrQ
-      Integer, Intent(In):: iCoSet(0:7,nAtom)
+      Integer, Intent(In):: iCoSet(0:7,nAtoms)
       Logical, Intent(In):: lOld
       Integer, Intent(In):: iIter, mTR
       Real*8, Intent(In):: TRVec(nDim,mTR)
       Integer, Intent(In):: iTabBonds(3,nBonds),
-     &                      iTabAtoms(0:nMax,nAtom),
-     &                      iTabAI(2,mTtAtm)
+     &                      iTabAtoms(0:nMax,nAtoms),
+     &                      iTabAI(2,mAtoms)
       Integer, Intent(In):: nBonds,nMax,iRef
       Integer, Intent(InOut):: nQQ
       Integer, Intent(In):: MaxItr, nWndW
@@ -70,7 +69,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -96,9 +95,11 @@
 *
       i=0
       Do iX = 1, 3*nAtoms
+         iAtom = (iX+2)/3
+         ixyz = iX - (iAtom-1)*3
          If (Smmtrc(iX)) Then
             i = i + 1
-            Proj(i)=One/Degen(iX)
+            Proj(i)=One/Degen(ixyz,iAtom)
          End If
       End Do
 *                                                                      *
@@ -121,9 +122,11 @@
       Call mma_allocate(Degen2,nDim)
       i=0
       Do ix = 1, 3*nAtoms
+         iAtom = (ix+2)/3
+         ixyz = ix - (iAtom-1)*3
          If (Smmtrc(ix)) Then
             i = i + 1
-            Degen2(i) = Degen(ix)
+            Degen2(i) = Degen(ixyz,iAtom)
          End If
       End Do
 #ifdef _DEBUGPRINT_

@@ -14,7 +14,7 @@ Module Slapaf_Info
 implicit none
 Private
 Public:: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, ANr, Weights, Shift, GNrm, Lambda, &
-         Energy, Energy0, DipM, MF, qInt, dqInt, nSup, Atom, RefGeo, BMx, &
+         Energy, Energy0, DipM, MF, qInt, dqInt, nSup, Atom, RefGeo, BMx, Degen, &
          BM, dBM, iBM, idBM, nqBM, R12, GradRef, KtB, Free_Slapaf, Get_Slapaf, Dmp_Slapaf
 !
 ! Arrays always allocated
@@ -39,6 +39,7 @@ Real*8, Allocatable, Target:: RefGeo(:,:)   ! Reference geometry in Cartesian co
 Real*8, Allocatable, Target:: R12(:,:)      ! Reference geometry in R-P calculation (not used right now)
 Real*8, Allocatable, Target:: GradRef(:,:)  ! Reference gradient
 Real*8, Allocatable, Target:: Bmx(:,:)      ! the B matrix
+Real*8, Allocatable:: Degen(:,:)    ! list of degeneracy numbers of the unique atoms (three identical entries)
 
 ! Arrays for automatic internal coordinates
 Real*8, Allocatable:: BM(:)         ! ...
@@ -74,6 +75,7 @@ Contains
   If (Allocated(Gx0)) Call mma_deallocate(Gx0)
   If (Allocated(MF)) Call mma_deallocate(MF)
   If (Allocated(Lambda)) Call mma_deallocate(Lambda)
+  If (Allocated(Degen)) Call mma_deallocate(Degen)
 
   If (Allocated(Q_nuclear)) Call mma_deallocate(Q_nuclear)
   If (Allocated(dMass)) Call mma_deallocate(dMass)

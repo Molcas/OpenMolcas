@@ -32,7 +32,8 @@
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor,
      &                       Grd, Weights, ANr, Shift, GNrm, Lambda,
      &                       Energy, Energy0, DipM, MF, qInt, dqInt,
-     &                       RefGeo, BM, iBM, dBM, idBM, nqBM, BMx
+     &                       RefGeo, BM, iBM, dBM, idBM, nqBM, BMx,
+     &                       Degen
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -77,6 +78,7 @@
       Real*8, Allocatable:: Bk_dqInt(:,:)
       Real*8, Allocatable:: Bk_RefGeo(:,:)
       Real*8, Allocatable:: Bk_BMx(:,:)
+      Real*8, Allocatable:: Bk_Degen(:,:)
 
       Real*8, Allocatable:: Bk_BM(:)
       Real*8, Allocatable:: Bk_dBM(:)
@@ -228,6 +230,12 @@
          Bk_BMx(:,:) = BMx(:,:)
          Call mma_deallocate(BMx)
       End If
+      If (Allocated(Degen)) Then
+         Call mma_allocate(Bk_Degen,SIZE(Degen,1),SIZE(Degen,2),
+     &                     Label='Bk_Degen')
+         Bk_Degen(:,:) = Degen(:,:)
+         Call mma_deallocate(Degen)
+      End If
 
       Bk_iSym(:)=iSym(:)
       Bk_iCoSet(0:7,:)=iCoSet(0:7,:)
@@ -301,7 +309,6 @@
       Bk_Track=Track
       Bk_Request_Alaska=Request_Alaska
       Bk_Request_RASSI=Request_RASSI
-      Bk_Degen(:)=Degen(:)
       Bk_cMass(:)=cMass(:)
       Bk_Trial(:)=Trial(:)
       Bk_ThrEne=ThrEne
@@ -392,7 +399,7 @@
       nWndw=iter
       iRef=0
       Call BMtrx(iRow,nBVec,nsAtom,mInt,Lbl,
-     &           Coor,nDimBC,AtomLbl,Smmtrc,Degen,BSet,HSet,iter,
+     &           Coor,nDimBC,AtomLbl,Smmtrc,BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,nStab,jStab,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
@@ -597,7 +604,6 @@
       Track=Bk_Track
       Request_Alaska=Bk_Request_Alaska
       Request_RASSI=Bk_Request_RASSI
-      Degen(:)=Bk_Degen(:)
       cMass(:)=Bk_cMass(:)
       Trial(:)=Bk_Trial(:)
       ThrEne=Bk_ThrEne
@@ -830,6 +836,15 @@
          Call mma_deallocate(Bk_BMx)
       Else
          If (Allocated(BMx)) Call mma_deallocate(BMx)
+      End If
+      If (Allocated(Bk_Degen)) Then
+         If (Allocated(Degen)) Call mma_deallocate(Degen)
+         Call mma_allocate(Degen,SIZE(Bk_Degen,1),SIZE(Bk_Degen,2),
+     &                     Label='Degen')
+         Degen(:,:) = Bk_Degen(:,:)
+         Call mma_deallocate(Bk_Degen)
+      Else
+         If (Allocated(Degen)) Call mma_deallocate(Degen)
       End If
 *
       End Subroutine Print_Mode_Components

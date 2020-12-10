@@ -10,9 +10,10 @@
 ************************************************************************
       Subroutine LNM(Cart,nAtoms,Hess,Scrt1,Scrt2,Vctrs,
      &               mAtoms,nDim,iAnr,Smmtrc,nIter,iOptH,
-     &               Degen,Schlegel,Analytic_Hessian,
+     &               Schlegel,Analytic_Hessian,
      &               iOptC,iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
       use Symmetry_Info, only: nIrrep
+      use Slapaf_Info, only: Degen
       Implicit Real*8 (a-h,o-z)
 #include "print.fh"
 #include "real.fh"
@@ -20,8 +21,7 @@
 #include "angstr.fh"
       Real*8 Cart(3,nAtoms+nHidden), Hess(3*nAtoms*(3*nAtoms+1)/2),
      &       Scrt1((3*nAtoms)**2),
-     *       Scrt2((3*nAtoms)**2), Vctrs(3*nAtoms,nDim),
-     &       Degen(3*mAtoms)
+     *       Scrt2((3*nAtoms)**2), Vctrs(3*nAtoms,nDim)
       Integer   iANr(nAtoms+nHidden), iTabBonds(3,nBonds),
      &          iTabAtoms(2,0:nMax,nAtoms+nHidden)
       Logical Smmtrc(3*mAtoms), Schlegel, Analytic_Hessian,
@@ -30,16 +30,14 @@
 
       iRout=120
       iPrint=nPrint(iRout)
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      iPrint=99
-      If (iPrint.ge.19) Then
-         Call RecPrt('In LNM: Cart',' ',Cart,3,nAtoms)
-         If (nHidden.ne.0) Call RecPrt('In LNM: Cart(hidden atoms)',' ',
-     &                                 Cart(1,nAtoms+1),3,nHidden)
-         Call RecPrt('In LNM: Vctrs',' ',Vctrs,3*nAtoms,nDim)
-         Write (6,*) 'iAnr=',iANr
-         Write (6,*) 'Analytic Hessian=',Analytic_Hessian
-      End If
+      Call RecPrt('In LNM: Cart',' ',Cart,3,nAtoms)
+      If (nHidden.ne.0) Call RecPrt('In LNM: Cart(hidden atoms)',' ',
+     &                              Cart(1,nAtoms+1),3,nHidden)
+      Call RecPrt('In LNM: Vctrs',' ',Vctrs,3*nAtoms,nDim)
+      Write (6,*) 'iAnr=',iANr
+      Write (6,*) 'Analytic Hessian=',Analytic_Hessian
 #endif
 *                                                                      *
 ************************************************************************
@@ -80,6 +78,10 @@
             Call NameRun('#Pop')
             RunOld=.True.
          End If
+#ifdef _DEBUGPRINT_
+         Call TriPrt('LNM: Analytic Hessian',' ',Hess,nDim)
+         Call RecPrt('LNM: Degen',' ',Degen,SIZE(Degen,1),SIZE(Degen,2))
+#endif
 *
 *        Modify matrix with degeneracy factors and square the
 *        matrix.
@@ -87,16 +89,21 @@
          Call FZero(Scrt1,nDim**2)
          ii = 0
          Do i = 1, 3*mAtoms
+            iAtom=(i+2)/3
+            ixyz = i - (iAtom-1)*3
             If (Smmtrc(i)) Then
                ii = ii + 1
                jj = 0
                Do j = 1, i
+                  jAtom=(j+2)/3
+                  jxyz = j - (jAtom-1)*3
                   If (Smmtrc(j)) Then
                      jj = jj + 1
                      ijTri=ii*(ii-1)/2 + jj
                      ij = (jj-1)*ndim + ii
                      ji = (ii-1)*ndim + jj
-                     Tmp= Hess(ijTri)*sqrt(degen(i)*degen(j))
+                     Tmp= Hess(ijTri)*sqrt(degen(ixyz,iAtom)
+     &                                    *degen(jxyz,jAtom))
                      Scrt1(ij) = Tmp
                      Scrt1(ji) = Tmp
                   End If

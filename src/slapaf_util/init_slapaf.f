@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Init_SlapAf(iRow)
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: q_nuclear, dMass, Coor, Grd, ANr
+      use Slapaf_Info, only: q_nuclear, dMass, Coor, Grd, ANr, Degen
 *     use Slapaf_Info, only: R12
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -187,7 +187,6 @@
       Call ICopy(mxdc,[0],0,nStab,1)
       Call ICopy(8*mxdc,[0],0,iCoSet,1)
       Call ICopy(8*mxdc,[0],0,jStab,1)
-      call dcopy_(3*mxdc,[Zero],0,Degen,1)
       do 180 i = 1, 3*mxdc
          Smmtrc(i) = .False.
  180  Continue
@@ -430,17 +429,17 @@ C           NADC= .False. ! for debugging
 *-----Compute the multiplicities of the cartesian coordinates.
 *
       mTtAtm=0
-      Do 4100 isAtom = 1, nsAtom
+      Call mma_Allocate(Degen,3,nsAtom,Label='Degen')
+      Do isAtom = 1, nsAtom
          mTtAtm=mTtAtm+iDeg(Coor(:,isAtom))
          tmp = DBLE(iDeg(Coor(:,isAtom)))
-         i=(isAtom-1)*3+1
-         Degen(i)=tmp
-         i=(isAtom-1)*3+2
-         Degen(i)=tmp
-         i=(isAtom-1)*3+3
-         Degen(i)=tmp
- 4100 Continue
-*     Call RecPrt('Degen',' ',Degen,1,3*nsAtom)
+         Do i = 1, 3
+            Degen(i,isAtom)=tmp
+         End Do
+      End Do
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Degen',' ',Degen,3,nsAtom)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
