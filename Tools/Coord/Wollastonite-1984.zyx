@@ -3,9 +3,9 @@
 *
 *  Wollastonite (CaSiO3)
 *
-*    Reference: 
+*    Reference:
 *    Ohashi Y
-*    Physics and Chemistry of Minerals 10 (1984) 217-229 
+*    Physics and Chemistry of Minerals 10 (1984) 217-229
 *    Cell parameters:
 *    a    =15.424 b   =7.324  c    =7.0692
 *    alpha=90     beta=95.371     gamma=90
@@ -29,7 +29,7 @@ O   .5090  .1218 .2367
 O   .2991  .3703 .6708
 O   .3914  .8761 .2753
 O   .3639  .1970 .4053
-O   .3637  .5550 .4056 
+O   .3637  .5550 .4056
 
 #unit
 x           y     z
@@ -47,4 +47,4 @@ x           y     z
 1 1 1
 
 #do draw
-sphere 
+sphere

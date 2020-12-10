@@ -26,7 +26,7 @@ inactive
 ras1
 1 1 0 0 0 0 0 0
 ras2
-0 0 2 2 0 0 1 1 
+0 0 2 2 0 0 1 1
 nactel
 8 2 0
 lumorb
@@ -41,7 +41,7 @@ end of input
  &COLUMBUS &END
 BEGIN_SECTION_GENERAL
 TITLE
- p-Benzyne  CAS/AUX 
+ p-Benzyne  CAS/AUX
 NCPU
  4
 MEMORY
@@ -56,12 +56,12 @@ SYMMETRY
 NROOT
  1
 ELECTRONS
- 40 0 0 
+ 40 0 0
 END_DRT
 SUBSPACEDIM
  5
 ITERATIONS
- 40  1 
+ 40  1
 ACCURACY
  0.001
 REFSPACE
@@ -82,5 +82,5 @@ REFAUX
  0 0 0 0 0 0 0 0
 PARALLEL
 END_SECTION_MRCI
-end of input 
+end of input
 

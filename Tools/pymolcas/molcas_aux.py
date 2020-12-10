@@ -75,7 +75,7 @@ def utf8_open(*args, **kwargs):
     return io.open(*args, encoding='utf-8', **kwargs)
 
 def dotmolcas(filename):
-  return join(expanduser('~/.Molcas'), filename)
+  return join(expanduser('~'), '.Molcas', filename)
 
 def find_molcas(xbin_list=None, here=True):
   '''Find a molcas installation and define MOLCAS

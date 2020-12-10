@@ -1,4 +1,6 @@
-#!/usr/bin/env perl
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 #***********************************************************************
 # This file is part of OpenMolcas.                                     *
 #                                                                      *
@@ -10,179 +12,118 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
 # Copyright (C) 2016, Steven Vancoillie                                *
+#               2020, Ignacio Fdez. Galván                             *
 #***********************************************************************
 #
 # codecov
 #
-# Front-end for lcov/gcov code coverage of Molcas.
+# Front-end for lcov/gcov code coverage of OpenMolcas.
 # For usage documentation read the help subroutines.
 #
 # Steven Vancoillie, beginning of 2016
+#
+# Ignacio Fdez. Galván, 2020: Translated from Perl to Python
 
-# perl modules
-use warnings;
-use Getopt::Long;
-use Cwd;
-use File::Basename;
-use File::Copy;
-use File::Path;
-use File::Spec;
-use File::Which;
-use File::Find;
-use POSIX qw(strftime);
+import sys
+import os
+import subprocess as sp
 
-# use proper locale
-use POSIX qw(locale_h);
-setlocale(LC_ALL, "C");
+import signal
+import argparse
+import shutil
 
-# set hot pipes, flushes output
-$| = 1;
+def print_stdout(text):
+  sys.stdout.write(text.encode())
+
+def msg(text):
+  if not opt['quiet']:
+    print_stdout(text)
+
+def error(text):
+  if not opt['quiet']:
+    print('Error: {}'.format(text), file=sys.stderr)
+  sys.exit(1)
+
+# disable stdout buffering
+# (note that we should use print_stdout instead of print)
+sys.stdout = os.fdopen(sys.stdout.fileno(), 'wb', 0)
 
 # my name
-my $me = "codecov";
+thisfile = os.path.basename(__file__)
 
 # trap interrupt
-$SIG{INT} = sub { error("\nSTOP: user has terminated $me!\n") };
+signal.signal(signal.SIGINT, lambda *args: error('\nSTOP: user has terminated {}'.format(thisfile)))
 
-# store environment info
-my $MACHINE=`uname -a`;
-chomp ($MACHINE);
-my @DATE = localtime;
-my $DATE = strftime("%c",@DATE);
-
-my $starting_cwd = cwd;
-
-my @SAVED_OPTIONS = @ARGV;
-
-# default options
-my %opt = ();
-GetOptions ( \%opt,
-             "h",
-             "help",
-             "quiet",
-             "start",
-             "prep",
-             "measure",
-             "html",
-             "summary",
-             "name=s",
-           ) or help(1);
+# command-line options
+try:
+  parser = argparse.ArgumentParser(add_help=False, usage='{} [options]'.format(thisfile))
+  parser.add_argument('-h', '--help', action='store_true', help='print the help (you\'re reading it)')
+  parser.add_argument('-q', '--quiet', action='store_true', help='do not print any output (useful in script)')
+  parser.add_argument('--name', default='test', help='choose a custom string NAME for the output directory (default: test)')
+  parser.add_argument('--start', action='store_true', help=argparse.SUPPRESS)
+  parser.add_argument('--prep', action='store_true', help=argparse.SUPPRESS)
+  parser.add_argument('--measure', action='store_true', help=argparse.SUPPRESS)
+  parser.add_argument('--html', action='store_true', help=argparse.SUPPRESS)
+  parser.add_argument('--summary', action='store_true', help=argparse.SUPPRESS)
+  opt = vars(parser.parse_args(sys.argv[1:]))
+except:
+  parser.print_help()
+  sys.exit(1)
 
 # do we need help?
-help(0) if ($opt{h} or $opt{help});
+if opt['help']:
+  parser.print_help()
+  sys.exit(0)
 
 #-------------------------------------------------
 # set up global Molcas settings used for each test
 #-------------------------------------------------
-my $MOLCAS_DRIVER;
-$MOLCAS_DRIVER = $ENV{"MOLCAS_DRIVER"} or $MOLCAS_DRIVER = "molcas";
-my $DRIVER_base = basename($MOLCAS_DRIVER);
+MOLCAS_DRIVER = os.environ.get('MOLCAS_DRIVER', 'pymolcas')
+DRIVER_base = os.path.basename(MOLCAS_DRIVER)
 
-my $MOLCAS = $ENV{"MOLCAS"} or
-  die "MOLCAS not set, use: $DRIVER_base $me\n";
+try:
+  MOLCAS = os.environ['MOLCAS']
+except KeyError:
+  sys.exit('MOLCAS not set, use {} {}'.format(DRIVER_base, thisfile))
 
 # defaults
+covdir = os.path.join(MOLCAS, 'code_coverage')
+bascov = os.path.join(covdir, 'base.cov')
+totcov = os.path.join(covdir, 'total.cov')
+netcov = os.path.join(covdir, 'net.cov')
+testcov = os.path.join(covdir, '{}.cov'.format(opt['name']))
+htmldir = os.path.join(covdir, 'html')
 
-$opt{name} = "test"
-    unless defined $opt{name};
+if opt['start']:
+  if os.path.isdir(covdir):
+    shutil.rmtree(covdir)
+  os.mkdir(covdir)
+  os.mkdir(htmldir)
+  msg('{}: running lcov to establish a baseline... '.format(thisfile))
+  sp.call(['lcov', '--quiet', '--capture', '--initial', '--base-directory', MOLCAS, '--directory', MOLCAS, '-o', bascov])
+  sp.call(['lcov', '--quiet', '-a', bascov, '-o', totcov])
+  msg('done\n')
 
-my $covdir = File::Spec->catdir($MOLCAS, 'code_coverage');
-my $bascov = File::Spec->catfile($covdir, 'base.cov');
-my $totcov = File::Spec->catfile($covdir, 'total.cov');
-my $netcov = File::Spec->catfile($covdir, 'net.cov');
-my $testcov = File::Spec->catfile($covdir, $opt{name} . '.cov');
-my $htmldir = File::Spec->catdir($covdir, 'html');
+if opt['prep']:
+  msg('{}: running lcov to reset counters... '.format(thisfile))
+  sp.call(['lcov', '--quiet', '--zerocounters', '--base-directory', MOLCAS, '--directory', MOLCAS])
+  msg('done\n')
+  sys.exit(0)
 
+if opt['measure']:
+  msg('{}: running lcov to obtain code coverage... '.format(thisfile))
+  sp.call(['lcov', '--quiet', '--capture', '--base-directory', MOLCAS, '--directory', MOLCAS, '-o', testcov, '--test-name', opt['name']])
+  sp.call(['lcov', '--quiet', '-a', testcov, '-a', totcov, '-o', totcov])
+  msg('done\n')
 
-if ($opt{start}) {
-    File::Path->remove_tree($covdir) if (-d $covdir);
-    mkdir $covdir;
-    mkdir $htmldir;
-    msg("$me: running lcov to establish a baseline...");
-    system("lcov --quiet --capture --initial --base-directory $MOLCAS --directory $MOLCAS -o $bascov");
-    system("lcov --quiet -a $bascov -o $totcov");
-    msg("done\n");
-}
+if opt['html']:
+  msg('{}: generating html pages for analysis... '.format(thisfile))
+  sp.call(['lcov', '--quiet', '-a', bascov, '-a', totcov, '-o', netcov, '--test-name', 'molcas_verify'])
+  sp.call(['genhtml', '--quiet', '--show-details', '-o', htmldir, netcov])
+  msg('done\n')
+  msg('point your browser to the following URL:\n{}/index.html\n'.format(htmldir))
+  sys.exit(0)
 
-
-if ($opt{prep}) {
-    msg("$me: run lcov to reset counters...");
-    system("lcov --quiet --zerocounters --base-directory $MOLCAS --directory $MOLCAS");
-    msg("done\n");
-    exit 0;
-}
-
-if ($opt{measure}) {
-    msg("$me: running lcov to obtain code coverage...");
-    system("lcov --quiet --capture --base-directory $MOLCAS --directory $MOLCAS -o $testcov --test-name $opt{name}");
-    system("lcov --quiet -a $testcov -a $totcov -o $totcov");
-    msg("done\n");
-}
-
-if ($opt{html}) {
-    msg("$me: generating html pages for analysis...");
-    system("lcov --quiet -a $bascov -a $totcov -o $netcov --test-name molcas_verify");
-    system("genhtml --quiet --show-details -o $htmldir $netcov");
-    msg("done\n");
-    msg("point your browser to the following URL:\n$htmldir/index.html\n");
-    exit 0;
-}
-
-if ($opt{summary}) {
-    system("lcov --summary $netcov");
-}
-
-exit 0;
-
-########################################################################
-# subroutines
-########################################################################
-
-#----------------------------------------------------------
-# extended help information with explanation of all options
-#----------------------------------------------------------
-
-sub help {
-        print "./$me [options]\n";
-        print <<'EOF';
-
-options:
-
-    -h|--help           print the help (you're reading it)
-
-    --quiet             do not print any output (useful in scripts)
-
-    --reset             clear any existing code-coverage data from the Molcas installation
-
-    --name NAME         choose a custom string NAME for the output directory
-                        (default: molcas_code_coverage)
-
-Any options can be used also in a short form, as long
-as it can be uniquely identified, e.g. -h instead of
---help or -r instead of --reset, etc.
-
-Examples:
-
-EOF
-        exit shift(@_);
-}
-
-# output control
-#---------------
-
-sub msg {
-        print @_ unless ($opt{quiet});
-}
-
-sub msg_nl {
-        unless ($opt{quiet}) {
-                while (my $line = shift) {
-                        print "$line\n";
-                }
-        }
-}
-
-sub error {
-        print STDERR "Error: @_" unless ($opt{quiet});
-        exit 1;
-}
+if opt['summary']:
+  sp.call(['lcov', '--summary', netcov])
+  pass

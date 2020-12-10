@@ -90,7 +90,7 @@
      $        typestring)
         dsetid = mh5_create_dset_str(pt2wfn_id,
      $        'MO_TYPEINDICES', 1, [NBAST],1)
-        call mh5_init_attr(dsetid, 'description',
+        call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Type index of the molecular orbitals '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
         call mh5_put_dset(dsetid, typestring)
@@ -122,27 +122,27 @@
       !> reference energy (for each state)
         pt2wfn_refene = mh5_create_dset_real (pt2wfn_id,
      $        'STATE_REFWF_ENERGIES', 1, [nr_states])
-        call mh5_init_attr(pt2wfn_refene, 'description',
+        call mh5_init_attr(pt2wfn_refene, 'DESCRIPTION',
      $        'Reference energy for each state, '//
      $        'arranged as array of [nr_states]')
 
       !> PT2 energy (SC for each state)
       pt2wfn_energy_sc = mh5_create_dset_real (pt2wfn_id,
      $      'STATE_PT2_ENERGIES_SC', 1, [nr_states])
-      call mh5_init_attr(pt2wfn_energy_sc, 'description',
+      call mh5_init_attr(pt2wfn_energy_sc, 'DESCRIPTION',
      $      'PT2 energy (SC) for each state, '//
      $      'arranged as array of [nr_states]')
       !> effective Hamiltonian (SC)
         pt2wfn_heff_sc = mh5_create_dset_real(pt2wfn_id,
      &        'H_EFF_SC', 2, [nr_states, nr_states])
-        call mh5_init_attr(pt2wfn_heff_sc, 'description',
+        call mh5_init_attr(pt2wfn_heff_sc, 'DESCRIPTION',
      &        'Effective QD-NEVPT2 hamiltonian (SC), '//
      &        'arranged as matrix of size [nr_states,nr_states]')
 
       !> molecular orbital coefficients
         pt2wfn_mocoef = mh5_create_dset_real(pt2wfn_id,
      $        'MO_VECTORS', 1, [NBSQT])
-        call mh5_init_attr(pt2wfn_mocoef, 'description',
+        call mh5_init_attr(pt2wfn_mocoef, 'DESCRIPTION',
      $        'Coefficients of the average orbitals, '//
      $        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
 
@@ -150,13 +150,13 @@
         !> PT2 energy (PC for each state) - default
         pt2wfn_energy_pc = mh5_create_dset_real (pt2wfn_id,
      $        'STATE_PT2_ENERGIES', 1, [nr_states])
-        call mh5_init_attr(pt2wfn_energy_pc, 'description',
+        call mh5_init_attr(pt2wfn_energy_pc, 'DESCRIPTION',
      $        'PT2 energy (PC) for each state, '//
      $        'arranged as array of [nr_states]')
         !> effective Hamiltonian (PC) - default
         pt2wfn_heff_pc = mh5_create_dset_real(pt2wfn_id,
      &        'H_EFF', 2, [nr_states, nr_states])
-        call mh5_init_attr(pt2wfn_heff_pc, 'description',
+        call mh5_init_attr(pt2wfn_heff_pc, 'DESCRIPTION',
      &        'Effective QD-NEVPT2 hamiltonian (PC), '//
      &        'arranged as matrix of size [nr_states,nr_states]')
 
@@ -166,7 +166,7 @@
         !> maximum allowed filename length is equal to MH5_MAX_LBL_LEN=256
         pt2wfn_ref_checkpoint = mh5_create_dset_str(pt2wfn_id,
      $        'QCMAQUIS_CHECKPOINT', 1, [nr_states], 256)
-        call mh5_init_attr(pt2wfn_ref_checkpoint,'description',
+        call mh5_init_attr(pt2wfn_ref_checkpoint,'DESCRIPTION',
      $        'QCMaquis checkpoint directory names for each root'//
      $        ' in [nr_states].')
 #endif

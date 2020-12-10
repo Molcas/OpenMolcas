@@ -1,11 +1,11 @@
 
 VERSION="7.9"
-echo "runit  $VERSION" | sed -e 's/\$//g' | sed -e 's/: /  /g' 
+echo "runit  $VERSION" | sed -e 's/\$//g' | sed -e 's/: /  /g'
 
 if [ -z "$1" ]; then
  echo "usage:  ./runit <Project name> "
  exit
-fi 
+fi
 MPROJ=`echo $1| sed -e 's/\.input$//'`
 echo "Project name=" $MPROJ
 echo "creating temporary directory " `pwd` "/CTMP"
@@ -17,7 +17,7 @@ export Project=$MPROJ
  if [ -d $CTMP ];
   then
   rm -rf $CTMP
-  fi 
+  fi
  mkdir $CTMP
  cd $CTMP
  cp ../$Project.input .
