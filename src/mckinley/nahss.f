@@ -37,7 +37,7 @@
 
 *     Local variables
       Integer iDCRT(0:7), Index(3,4)
-      Logical TstFnc, TF, EQ,IfG(0:3),Tr(0:3)
+      Logical EQ,IfG(0:3),Tr(0:3)
 #ifdef _PATHSCALE_
       Save Fact
 #endif
@@ -49,11 +49,10 @@
      &        JndHss(0:3,0:2,0:3,0:2,0:7),
      &        mOp(4), iuvwx(4)
       Logical JfHss(0:3,0:2,0:3,0:2),JfGrd(0:2,0:3)
+      Logical, External :: TF
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       itri(i1,i2)=MAX(i1,i2)*(MAX(i1,i2)-1)/2+MIN(i1,i2)
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
 #ifdef _DEBUGPRINT_
       Write (6,*) ' In NAHss: nArr=',nArr

@@ -65,13 +65,12 @@
 *     Local variables
       Real*8 C(3), TC(3), CoorAC(3,2), Coori(3,4), Coora(3,4)
       Integer iDCRT(0:7), iAnga(4), iuvwx(4), lOp(4), JndGrd(3,4)
-      Logical EQ, JfGrad(3,4), TstFnc, TF
+      Logical EQ, JfGrad(3,4)
+      Logical, External :: TF
 *
 *     Statement function for Cartesian index
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
       iRout = 193
       iPrint = nPrint(iRout)

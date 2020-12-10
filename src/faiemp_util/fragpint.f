@@ -85,7 +85,7 @@
 #endif
       Data    iTwoj/1,2,4,8,16,32,64,128/
 *
-      Integer i,j,ixyz,nElem,iTri,nGrid,
+      Integer i,j,ixyz,nElem,iTri,
      &        iAng,iBas,iAO,iCmp,iCnttp,iComp,
      &        iCurCenter,iCurCnttp,iCurMdc,iIC,iIrrep,iLoc,iPrim,
      &        ip,ipF1,ipF2,ipIJ,ipK1,ipK2,ipP1,ipP2,ipTmp,ipZ1,ipZ2,
@@ -720,7 +720,6 @@ c Avoid unused argument warnings
         Call Unused_integer(nHer)
         Call Unused_integer_array(iCho)
         Call Unused_real_array(PtChrg)
-        Call Unused_integer(nGrid)
         Call Unused_integer(iAddPot)
       End If
       End

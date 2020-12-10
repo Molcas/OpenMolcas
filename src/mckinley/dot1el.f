@@ -58,11 +58,12 @@ c     Character ChOper(0:7)*3
       Integer iDCRR(0:7), iDCRT(0:7), iStabM(0:7),iCoM(0:7,0:7),
      &          IndHss(0:1,0:2,0:1,0:2,0:7), nOp(2),
      &           iStabO(0:7),lOper(nComp),IndGrd(0:2,0:1,0:7)
-      Logical AeqB, EQ, TstFnc, DiffOp, IfHss(0:1,0:2,0:1,0:2),
-     &        TF,Chck,ifgrd(0:2,0:1)
+      Logical AeqB, EQ, DiffOp, IfHss(0:1,0:2,0:1,0:2),
+     &        Chck,ifgrd(0:2,0:1)
       Real*8, Allocatable:: Zeta(:), ZI(:), Kappa(:), PCoor(:,:),
      &                      Kern(:), Fnl(:), Scrt1(:), Scrt2(:),
      &                      DAO(:), DSOpr(:), DSO(:)
+      Logical, External :: TF, TstFnc
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -82,8 +83,6 @@ c     Character ChOper(0:7)*3
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       itri(i1,i2)=MAX(i1,i2)*(MAX(i1,i2)-1)/2+MIN(i1,i2)
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
       call dcopy_(nHess,[Zero],0,Hess,1)
 *

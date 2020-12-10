@@ -29,9 +29,8 @@
 #include "SysDef.fh"
       Real*8 CGrad(3,MxAtom)
       dimension GradIn(nGrad),A(3)
-      Logical TF,TstFnc
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
+      Logical, External :: TF
+*
       mdc=0
       iIrrep=0
 *
