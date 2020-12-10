@@ -17,21 +17,30 @@ SUBROUTINE matern(dh, m, d1, d2)
   integer d1,d2,i
   REAL*8 a,d,dh(d1,d2),m(d1,d2)
   REAL*8, Allocatable :: d0(:,:)
-  INTEGER*8 c
 !
   Call mma_Allocate(d0,d1,d2,label="d0")
 !
-! For this expresion you can check https://en.wikipedia.org/wiki/Mat%C3%A9rn_covariance_function
-! and equations (11) and (12) on ref.
   d0(:,:) = sqrt(dh)
-  c = idint(pAI)
-  a = Gamma(pAI+1)/Gamma(2*pAI+1)
-  m = 0.0D0
-  do i=0, c
-    d=DBLE(i)
-    m = m + (Gamma(pAI+1.0D0+d)/(Gamma(d+1.D0)*Gamma(pAI+1.0D0-d)))*(2.0D0*Sqrt(2.0D0*pAI+1.0D0)*d0)**(pAI-i)
-  enddo
-  m = a*m*exp(-sqrt(2.0D0*pAI+1)*d0)
+  select case (pAI)
+    case (0) ! v = 1/2
+      m = exp(-d0)
+    case (1) ! v = 3/2
+      m = exp(-sqrt(3.0D0)*d0) * ( sqrt(3.0D0)*d0 + 1.0D0 )
+    case (2) ! v = 5/2
+      m = exp(-sqrt(5.0D0)*d0) * ( 5.0D0/3.0D0*d0**2 + sqrt(5.0D0)*d0 + 1.0D0 )
+    case (3) ! v = 7/2
+      m = exp(-sqrt(7.0D0)*d0) * ( 7.0D0/15.0D0*sqrt(7.0D0)*d0**3 + 14.0D0/5.0D0*d0**2 + sqrt(7.0D0)*d0 + 1.0D0 )
+    case default
+      ! For this expresion you can check https://en.wikipedia.org/wiki/Mat%C3%A9rn_covariance_function
+      ! and equations (11) and (12) on ref.
+      a = Gamma(pAI+1.0D0)/Gamma(2.0D0*pAI+1.0D0)
+      m = 0.0D0
+      do i = 0, pAI
+        d = dble(i)
+        m = m + (Gamma(pAI+1.0D0+d)/(Gamma(d+1.0D0)*Gamma(pAI+1.0D0-d)))*(2.0D0*Sqrt(2.0D0*pAI+1.0D0)*d0)**(pAI-i)
+      enddo
+      m = a*m*exp(-sqrt(2.0D0*pAI+1.0D0)*d0)
+  end select
 !
   Call mma_deallocate(d0)
 !

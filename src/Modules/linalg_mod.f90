@@ -492,7 +492,7 @@ contains
         ! avoid unused dummy warning
         if (.false.) then
           select type(self)
-            type is (CanonicalBasisCanonicalize_t)
+            class default
           end select
         end if
 #endif
