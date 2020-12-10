@@ -86,7 +86,7 @@
      &           Smmtrc,BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,Curvilinear,Numerical,
-     &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
+     &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
      &           lOld,rHidden,nFix,nQQ,iRef,Redundant,
      &           MaxItr,nWndw)
 *
@@ -233,7 +233,7 @@
      &               iOptH,User_Def,
      &               Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS, Analytic_Hessian,
-     &               iOptC,PrQ,mxdc,rHidden,
+     &               iOptC,PrQ,rHidden,
      &               Redundant,MaxItr,iRef,Error)
 *
 *        Move the new Cartesian coordinate to the list.

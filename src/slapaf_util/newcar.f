@@ -12,7 +12,7 @@
      &                  Coor,Lbl,Name,iSym,Smmtrc,
      &                  mTtAtm,iOptH,User_Def,
      &                  Curvilinear,Numerical,DDV_Schlegel,HWRS,
-     &                  Analytic_Hessian,iOptC,PrQ,mxdc,rHidden,
+     &                  Analytic_Hessian,iOptC,PrQ,rHidden,
      &                  Redundant,MaxItr,iRef,Error)
       use Slapaf_Info, only: Cx, dMass, qInt, RefGeo, BMx, Shift, Degen
       Implicit Real*8 (a-h,o-z)
@@ -42,7 +42,6 @@
      &                      Analytic_Hessian
       Integer, Intent(In):: iOptC
       Logical, Intent(In):: PrQ
-      Integer, Intent(In):: mxdc
       Real*8,  Intent(In):: rHidden
       Logical, Intent(In):: Redundant
       Integer, Intent(In):: MaxItr, iRef
@@ -192,7 +191,7 @@
      &              mTtAtm,iOptH,User_Def,
      &              Curvilinear,Numerical,
      &              DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,
-     &              PrQ,mxdc,lOld,rHidden,
+     &              PrQ,lOld,rHidden,
      &              nFix,nQQ,iRef,Redundant,MaxItr,nWndw)
 *
 *--------Check if the final structure is reached and get the

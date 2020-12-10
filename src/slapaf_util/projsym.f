@@ -8,11 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine ProjSym(nAtoms,nCent,Ind,nStab,jStab,A,
-     &                   iDCRs,B,Smmtrc,dB,
+      Subroutine ProjSym(nAtoms,nCent,Ind,A,iDCRs,B,Smmtrc,dB,
      &                   mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,
-     &                   nB_Tot,ndB_Tot,Proc_dB,nqB,nB,iq,
-     &                   rMult)
+     &                   nB_Tot,ndB_Tot,Proc_dB,nqB,nB,iq,rMult)
+      use Slapaf_Info, only: jStab, nStab
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"
@@ -20,8 +19,8 @@
 #include "real.fh"
       Real*8 Tx(3,MxAtom), A(3,nCent), B(3,nCent), ATemp(3),
      &       dB(3,nCent,3,nCent), BM(nB_Tot), dBM(ndB_Tot)
-      Integer   Ind(nCent), nStab(nAtoms), jStab(0:7,nAtoms),
-     &          iDCRs(nCent), iBM(nB_Tot), idBM(2,ndB_Tot), nqB(nB)
+      Integer   Ind(nCent), iDCRs(nCent), iBM(nB_Tot), idBM(2,ndB_Tot),
+     &          nqB(nB)
       Logical Smmtrc(3,nAtoms), Proc_dB
 *
 #ifdef _DEBUGPRINT_

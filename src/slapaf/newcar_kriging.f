@@ -37,7 +37,7 @@
       Call NewCar(kIter,nBVec,nLines,nAtom,nDim,nInter,Coor,
      &            Lbl,Name,iSym,Smmtrc,mTtAtm,iOptH,
      &            User_Def,Curvilinear,Numerical,
-     &            DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
+     &            DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
      &            rHidden,Redundant,MaxItr,
      &            RefIter,Error)
 *

@@ -8,10 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Function d_cart(Ind,nStab,mxdc,nSym)
+      Function d_cart(Ind,nSym)
+      use Slapaf_Info, only: nStab
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-      Integer nStab(mxdc), Ind(1)
+      Integer Ind(1)
       Real*8 d_cart
 *                                                                      *
 ************************************************************************

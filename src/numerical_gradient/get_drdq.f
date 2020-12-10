@@ -53,7 +53,7 @@
 *
          Call DefInt2(BVc,dBVc,nBV,Labels,BMx_t,nLambda,nsAtom,iRow_c,
      &                Value,cInt,cInt0,Lbl,AtomLbl,lWrite,
-     &                mxdc,Mult,dBMx,Value0,Iter,iFlip,dMass)
+     &                Mult,dBMx,Value0,Iter,iFlip,dMass)
 
          Call mma_deallocate(iFlip)
          Call mma_deallocate(dBMx)

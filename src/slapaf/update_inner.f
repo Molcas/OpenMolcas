@@ -15,7 +15,7 @@
      &                     iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
-     &                     mxdc,Smmtrc,nDimBC,
+     &                     Smmtrc,nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
@@ -43,7 +43,6 @@
 *      iRow_c         : number of lines on the UDC file                *
 *      nsAtom         : number of symmetry unique atoms                *
 *      AtomLbl        : character string with atom labels              *
-*      mxdc           : max number of nsAtom                           *
 *      Smmtrc         : logical flag for symmetry properties           *
 *      nDimBC         : dimension of redundant coordinates(?)          *
 *      iNeg           : Hessian index                                  *
@@ -426,8 +425,7 @@ C           Write (6,*) 'tBeta=',tBeta
      &                   iRow_c,Value,cInt,cInt0,Lbl(nInter+1),
      &                   AtomLbl,
      &                   (lIter.eq.kIter).and.First_MicroIteration,
-     &                   mxdc,Mult,
-     &                   dBM,Value0,lIter,iFlip,dMass)
+     &                   Mult,dBM,Value0,lIter,iFlip,dMass)
 *
 *           Assemble r
 *

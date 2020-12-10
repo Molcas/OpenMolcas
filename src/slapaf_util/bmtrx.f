@@ -13,7 +13,7 @@
      &                 mTtAtm,iOptH,User_Def,
      &                 Curvilinear,Numerical,
      &                 DDV_Schlegel,HWRS,Analytic_Hessian,
-     &                 iOptC,PrQ,mxdc,lOld,
+     &                 iOptC,PrQ,lOld,
      &                 rHidden,nFix,nQQ,iIter,Redundant,MaxItr,nWndw)
       Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx
       Implicit Real*8 (a-h,o-z)
@@ -182,7 +182,7 @@
      &                 nLines,nBVec,nAtom,nInter,Lbl,Coor,nDim,
      &                 Name,Smmtrc,BSet,HSet,nIter,
      &                 Numerical,Analytic_Hessian,
-     &                 iOptC,mxdc,lOld,
+     &                 iOptC,lOld,
      &                 nFix,mTR,nQQ,Redundant,MaxItr)
 *                                                                      *
 ************************************************************************

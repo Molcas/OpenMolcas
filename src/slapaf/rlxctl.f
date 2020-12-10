@@ -11,7 +11,7 @@
       Subroutine RlxCtl(iStop)
       Use Chkpnt
       Use kriging_mod, only: Kriging, nspAI
-      Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx, jStab, nStab,
+      Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx,
      &                       Free_Slapaf, qInt, dqInt
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
@@ -92,8 +92,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (lCtoF .AND. PrQ) Call Def_CtoF(.False.,nsAtom,AtomLbl,
-     &                                   Coor,jStab,nStab)
+      If (lCtoF .AND. PrQ) Call Def_CtoF(.False.,nsAtom,AtomLbl,Coor)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -133,7 +132,7 @@
      &           Smmtrc,BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,Curvilinear,Numerical,
-     &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
+     &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
      &           lOld,rHidden,nFix,nQQ,iRef,Redundant,
      &           MaxItr,nWndw)
 *
@@ -235,7 +234,7 @@
      &               iOptC,Beta,Beta_Disp,
      &               Lbl,UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
-     &               AtomLbl,mxdc,
+     &               AtomLbl,
      &               Smmtrc,nDimBC,
      &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
@@ -249,7 +248,7 @@
      &               iOptC,Beta,Beta_Disp,
      &               Lbl,UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
-     &               AtomLbl,mxdc,
+     &               AtomLbl,
      &               Smmtrc,nDimBC,GrdMax,
      &               StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
@@ -281,7 +280,7 @@
      &               Lbl,AtomLbl,iSym,Smmtrc,
      &               mTtAtm,iOptH,
      &               User_Def,Curvilinear,Numerical,
-     &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
+     &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
      &               rHidden,Redundant,MaxItr,iRef,Error)
       End If
 *                                                                      *
@@ -346,7 +345,7 @@
 *
       Numerical = (lNmHss.or.lRowH) .and. iter.le.NmIter
       Call DstInf(iStop,Just_Frequencies,Numerical)
-      If (lCtoF) Call Def_CtoF(.True.,nsAtom,AtomLbl,Coor,jStab,nStab)
+      If (lCtoF) Call Def_CtoF(.True.,nsAtom,AtomLbl,Coor)
       If (.Not.User_Def .and.
      &   ((lNmHss.and.iter.ge.NmIter).or..Not.lNmHss)) Call cp_SpcInt
 *

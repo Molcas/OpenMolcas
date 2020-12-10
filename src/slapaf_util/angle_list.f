@@ -444,8 +444,7 @@ C                 Do k = 1, 2
 *
 *---------------------- Project the gradient vector
 *
-                        Call ProjSym(nAtoms,nCent,Ind,nStab,
-     &                               jStab,A,iDCR,
+                        Call ProjSym(nAtoms,nCent,Ind,A,iDCR,
      &                               Grad_all(1,nq,iIter),
      &                               Smmtrc,Hess,
      &                               mB_Tot,mdB_Tot,
@@ -539,8 +538,7 @@ C                 Do k = 1, 2
 *
 *------------------- Project the gradient vector
 *
-                     Call ProjSym(nAtoms,nCent,Ind,nStab,
-     &                            jStab,A,iDCR,
+                     Call ProjSym(nAtoms,nCent,Ind,A,iDCR,
      &                            Grad_all(1,nq,iIter),
      &                            Smmtrc,Hess,
      &                            mB_Tot,mdB_Tot,

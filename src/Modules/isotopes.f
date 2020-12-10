@@ -46,7 +46,7 @@
       End Type Iso_t
       Type Element_t
         Character(Len=2) :: Symbol
-        Integer :: Z, Nat
+        Integer :: Z, Natural
         Type(Iso_t), Allocatable :: Isotopes(:)
       End Type Element_t
       Integer, Parameter :: MaxAtomNum=118
@@ -59,7 +59,7 @@
 
       Protected :: ElementList
       Public :: MaxAtomNum, Isotope, ElementList, Initialize_Isotopes,
-     &          Free_Isotopes, NuclideMass
+     &          Free_Isotopes, NuclideMass, Element_t
 
 *
 * Private extensions to mma interfaces

@@ -12,8 +12,7 @@
 *               2008, Giovanni Ghigo                                   *
 ************************************************************************
       SubRoutine CllCtoF(Strng,Names,nAtom,Coor,nCntr,mCntr,
-     &                   xyz,Temp,Ind,Type,rMss,qMss,Lbl,
-     &                                 jStab,nStab,mxdc)
+     &                   xyz,Temp,Ind,Type,rMss,qMss,Lbl)
 ************************************************************************
 *                                                                      *
 *     Author: Giovanni Ghigo, Dep. of General and Organic Chemistry    *
@@ -35,8 +34,7 @@
       Real*8 Coor(3,nAtom), xyz(3,nCntr+mCntr),
      &       Temp(3,nCntr+mCntr), rMss(nAtom), qMss(nCntr+mCntr),
      &       Axis(3), Perp_Axis(3,2)
-      Integer   Ind(nCntr+mCntr,2), nStab(mxdc),
-     &          jStab(0:7,mxdc)
+      Integer   Ind(nCntr+mCntr,2)
       Logical lWrite, ldB, lWarn
       Dimension Dummy(1)
 *
@@ -142,43 +140,43 @@
          Temp(1,1) = One
          If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
      &          ' : x-component=',Value,'/ bohr'
-         Deg=D_Cart(Ind,nStab,mxdc,nIrrep)
+         Deg=D_Cart(Ind,nIrrep)
       Else If (Type.eq.'Y     ') Then
          Value = xyz(2,1)
          call dcopy_(3,[Zero],0,Temp,1)
          Temp(2,1) = One
          If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
      &          ' : y-component=',Value,'/ bohr'
-         Deg=D_Cart(Ind,nStab,mxdc,nIrrep)
+         Deg=D_Cart(Ind,nIrrep)
       Else If (Type.eq.'Z     ') Then
          Value = xyz(3,1)
          call dcopy_(3,[Zero],0,Temp,1)
          Temp(3,1) = One
          If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
      &          ' : z-component=',Value,'/ bohr'
-         Deg=D_Cart(Ind,nStab,mxdc,nIrrep)
+         Deg=D_Cart(Ind,nIrrep)
       Else If (Type.eq.'STRTCH') Then
          Call Strtch(xyz,nCent,Value,Temp,lWrite,Lbl,Dummy,ldB)
-         Deg=D_Bond(Ind,Ind(1,2),nStab,jStab,mxdc,nIrrep)
+         Deg=D_Bond(Ind,Ind(1,2),nIrrep)
       Else If (Type.eq.'LBEND1')Then
          Call CoSys(xyz,Axis,Perp_Axis)
          Call LBend(xyz,nCent,Value,Temp,lWrite,Lbl,Dummy,ldB,
      &              Axis,Perp_Axis(1,1),.False.)
-         Deg=D_Bend(Ind,Ind(1,2),nStab,jStab,mxdc,nIrrep)
+         Deg=D_Bend(Ind,Ind(1,2),nIrrep)
       Else If (Type.eq.'LBEND2')Then
          Call CoSys(xyz,Axis,Perp_Axis)
          Call LBend(xyz,nCent,Value,Temp,lWrite,Lbl,Dummy,ldB,
      &              Axis,Perp_Axis(1,2),.True.)
-         Deg=D_Bend(Ind,Ind(1,2),nStab,jStab,mxdc,nIrrep)
+         Deg=D_Bend(Ind,Ind(1,2),nIrrep)
       Else If (Type.eq.'BEND  ')Then
          Call Bend(xyz,nCent,Value,Temp,lWrite,lWarn,Lbl,Dummy,ldB)
-         Deg=D_Bend(Ind,Ind(1,2),nStab,jStab,mxdc,nIrrep)
+         Deg=D_Bend(Ind,Ind(1,2),nIrrep)
       Else If (Type.eq.'TRSN  ')Then
          Call Trsn(xyz,nCent,Value,Temp,lWrite,lWarn,Lbl,Dummy,ldB)
-         Deg=D_Trsn(Ind,Ind(1,2),nStab,jStab,mxdc,nIrrep)
+         Deg=D_Trsn(Ind,Ind(1,2),nIrrep)
       Else If (Type.eq.'OUTOFP')Then
          Call OutOfP(xyz,nCent,Value,Temp,lWrite,lWarn,Lbl,Dummy,ldB)
-         Deg=D_Trsn(Ind,Ind(1,2),nStab,jStab,mxdc,nIrrep)
+         Deg=D_Trsn(Ind,Ind(1,2),nIrrep)
       Else If (Type.eq.'DISSOC')Then
          Call Dissoc(xyz,nCntr,mCntr,qMss,Value,Temp,lWrite,
      &               Lbl,Dummy,ldB)

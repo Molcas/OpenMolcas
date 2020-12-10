@@ -419,7 +419,7 @@
      &           Coor,nDimBC,AtomLbl,Smmtrc,BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,Curvilinear,Numerical,
-     &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
+     &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
      &           lOld,rHidden,nFix,nQQ,iRef,Redundant,
      &           MaxItr,nWndw)
 *                                                                      *

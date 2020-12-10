@@ -12,7 +12,7 @@
 ************************************************************************
       SubRoutine DefInt(BVct,nBVct,Labels,BMtrx,nQQ,nAtom,nLines,Value,
      &                  rInt,Lbl,Name,Coor,dMass,
-     &                  mxdc,rMult,nDim,Redundant)
+     &                  rMult,nDim,Redundant)
 ************************************************************************
 *                                                                      *
 * Object: to generate the B matrix which is the transformation matrix  *
@@ -234,7 +234,7 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
      &              Name,nAtom,Coor,nCntr,mCntr,
      &              xyz,Tmp2,Ind,Type,
      &              dMass,Mass,TM,lWrite,
-     &              Labels(iBVct),lWrite,mxdc,
+     &              Labels(iBVct),lWrite,
      &              rMult(iBVct),lAtom)
 *
          If (.Not.First .and.

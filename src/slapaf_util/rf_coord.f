@@ -16,7 +16,7 @@
      &                 Proc_dB,mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: jStab, nStab, iCoSet
+      use Slapaf_Info, only: nStab, iCoSet
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "stdalloc.fh"
@@ -169,7 +169,7 @@ C           fconst(nq)=Sqrt(Fact*Trans_Const)
 *
 *--------   Project the gradient vector
 *
-            Call ProjSym(nAtoms,nCent,Ind,nStab,jStab,currXYZ,
+            Call ProjSym(nAtoms,nCent,Ind,currXYZ,
      &                   iDCR,Grad,Smmtrc,
      &                   Hess,mB_Tot,mdB_Tot,
      &                   BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
@@ -257,7 +257,7 @@ C        Call RecPrt('Grad (Rot)',' ',Grad,3,nCent)
 *
 *--------   Project the gradient vector
 *
-            Call ProjSym(nAtoms,nCent,Ind,nStab,jStab,currXYZ,
+            Call ProjSym(nAtoms,nCent,Ind,currXYZ,
      &                   iDCR,Grad,Smmtrc,
      &                   Hess,mB_Tot,mdB_Tot,
      &                   BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,

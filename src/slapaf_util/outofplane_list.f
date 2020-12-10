@@ -596,8 +596,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
 *
 *------------------- Project the gradient vector
 *
-                     Call ProjSym(nAtoms,nCent,Ind,nStab,
-     &                            jStab,A,iDCR,Grad,
+                     Call ProjSym(nAtoms,nCent,Ind,A,iDCR,Grad,
      &                            Smmtrc,Hess,
      &                            mB_Tot,mdB_Tot,
      &                            BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,

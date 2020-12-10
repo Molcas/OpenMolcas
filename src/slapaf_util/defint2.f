@@ -12,8 +12,7 @@
 ************************************************************************
       SubRoutine DefInt2(BVct,dBVct,nBvct,Labels,BMtrx,mInt,nAtom,
      &                   nLines,Value,rInt,rInt0,Lbl,Name,
-     &                   lWrite,mxdc,
-     &                   rMult,dBMtrx,Value0,lIter,
+     &                   lWrite,rMult,dBMtrx,Value0,lIter,
      &                   iFlip,dMass)
 ************************************************************************
 *                                                                      *
@@ -273,7 +272,7 @@ c      Open(Lu_UDC,File=filnam,Form='FORMATTED',Status='OLD')
          Call Cllct2(Line(nGo:nTemp),BVct(1,iBVct),dBVct(1,1,iBVct),
      &               Value(iBVct),Name,nAtom,nCntr,mCntr,xyz,Grad,
      &               Ind,Type,dMass,Mass,Labels(iBVct),lWrite,
-     &               mxdc,rMult(iBVct,iBVct),Hess,lIter)
+     &               rMult(iBVct,iBVct),Hess,lIter)
 *
          If (Type.eq.'TRSN  ' .and.
      &       Abs(Value(iBVct)).lt.Pi*Half) iFlip(iBVct)=NoFlip

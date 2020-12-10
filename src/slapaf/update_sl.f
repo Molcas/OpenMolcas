@@ -14,7 +14,7 @@
      &                     iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
-     &                     mxdc,Smmtrc,nDimBC,
+     &                     Smmtrc,nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
@@ -39,7 +39,6 @@
 *      iRow_c         : number of lines on the UDC file                *
 *      nsAtom         : number of symmetry unique atoms                *
 *      AtomLbl        : character string with atom labels              *
-*      mxdc           : max number of nsAtom                           *
 *      Smmtrc         : logical flag for symmetry properties           *
 *      nDimBC         : dimension of redundant coordinates(?)          *
 *      iNeg           : Hessian index                                  *
@@ -125,7 +124,7 @@
      &                   Shift,iOptC,Beta,Beta_Disp,
      &                   Lbl,UpMeth,ed,Line_Search,
      &                   Step_Trunc,nLambda,iRow_c,nsAtom,AtomLbl,
-     &                   mxdc,Smmtrc,nDimBC,
+     &                   Smmtrc,nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,
      &                   iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                   nWndw,Mode,
@@ -163,7 +162,7 @@
      &                iter,iInt,nFix,nInter,qInt,Shift,
      &                iOptC,Beta,Beta_Disp,Lbl,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
-     &                iRow_c,nsAtom,AtomLbl,mxdc,
+     &                iRow_c,nsAtom,AtomLbl,
      &                Smmtrc,nDimBC,
      &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                Labels,nLabels,FindTS,TSC,nRowH,
