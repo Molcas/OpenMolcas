@@ -12,13 +12,13 @@
       Integer   mxdc,MaxItr
       Parameter(mxdc=MxAtom,MaxItr=2000)
 *
-      Integer   iSym(3), iCoSet(0:7,mxdc), nStab(mxdc),
+      Integer   iSym(3),
      &          iRef, nQQ, mRowH(10), nRowH,
      &          NmIter,
      &          iter, Lngth, nDimBC,
      &          MxItr, mInt, Max_Center,
      &          nSupSy, lif,
-     &          iOptC, mode, mTROld, nWndw, iOptH, jStab(0:7,mxdc),
+     &          iOptC, mode, mTROld, nWndw, iOptH,
      &          nLambda, iRow_c,
      &          nMEP, nBVec, IRC,
      &          mTtAtm, nsAtom, MEPnum,
@@ -30,7 +30,7 @@
      &          MxItr, mInt, Max_Center,
      &          nSupSy, lif, mTtAtm,
      &          iOptC, mode, mTROld, nWndw, iOptH,
-     &          nStab, iCoSet, jStab, NmIter,
+     &          NmIter,
      &          nLambda, iRow_c, nMEP,
      &          nBVec, IRC, MEPnum,
      &          RootMap

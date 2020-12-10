@@ -12,7 +12,7 @@
 ************************************************************************
       SubRoutine Cllct2(Strng,Vector,dVector,Value,Names,nAtom,
      &                  nCntr,mCntr,xyz,Grad,Ind,Type,rMss,qMss,Lbl,
-     &                  lWrite,jStab,nStab,mxdc,Deg,Hess,lIter)
+     &                  lWrite,mxdc,Deg,Hess,lIter)
 ************************************************************************
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
@@ -22,7 +22,7 @@
 *             June '97 (R. Lindh)                                      *
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: Cx
+      use Slapaf_Info, only: Cx, nStab, jStab
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -38,8 +38,7 @@
      &       Axis(3),
      &       Perp_Axis(3,2),rMss(nAtom), qMss(nCntr+mCntr),
      &       Hess(3,nCntr+mCntr,3,nCntr+mCntr)
-      Integer   Ind(nCntr+mCntr,2), nStab(mxdc),
-     &          jStab(0:7,mxdc), iDCR(MxAtom)
+      Integer   Ind(nCntr+mCntr,2), iDCR(MxAtom)
       Logical lWrite, ldB, lWarn, PSPrint
       Real*8, Allocatable:: Not_Allocated(:,:)
 *                                                                      *

@@ -10,9 +10,9 @@
 ************************************************************************
       Subroutine NewCar(Iter,nBVct,nLines,nAtom,nDim,nInter,
      &                  Coor,Lbl,Name,iSym,Smmtrc,
-     &                  mTtAtm,iOptH,User_Def,nStab,
-     &                  jStab,Curvilinear,Numerical,DDV_Schlegel,HWRS,
-     &                  Analytic_Hessian,iOptC,PrQ,mxdc,iCoSet,rHidden,
+     &                  mTtAtm,iOptH,User_Def,
+     &                  Curvilinear,Numerical,DDV_Schlegel,HWRS,
+     &                  Analytic_Hessian,iOptC,PrQ,mxdc,rHidden,
      &                  Redundant,MaxItr,iRef,Error)
       use Slapaf_Info, only: Cx, dMass, qInt, RefGeo, BMx, Shift, Degen
       Implicit Real*8 (a-h,o-z)
@@ -38,12 +38,11 @@
       Logical, Intent(In):: Smmtrc(3,nAtom)
       Integer, Intent(In):: mTtAtm, iOptH
       Logical, Intent(In):: User_Def
-      Integer, Intent(In):: nStab(nAtom), jStab(0:7,nAtom)
       Logical, Intent(In):: Curvilinear, Numerical, DDV_Schlegel, HWRS,
      &                      Analytic_Hessian
       Integer, Intent(In):: iOptC
       Logical, Intent(In):: PrQ
-      Integer, Intent(In):: mxdc, iCoSet(0:7,nAtom)
+      Integer, Intent(In):: mxdc
       Real*8,  Intent(In):: rHidden
       Logical, Intent(In):: Redundant
       Integer, Intent(In):: MaxItr, iRef
@@ -191,9 +190,9 @@
      &              Lbl,Coor,nDim,Name,Smmtrc,
      &              BSet,HSet,iter+1,
      &              mTtAtm,iOptH,User_Def,
-     &              nStab,jStab,Curvilinear,Numerical,
+     &              Curvilinear,Numerical,
      &              DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,
-     &              PrQ,mxdc,iCoSet,lOld,rHidden,
+     &              PrQ,mxdc,lOld,rHidden,
      &              nFix,nQQ,iRef,Redundant,MaxItr,nWndw)
 *
 *--------Check if the final structure is reached and get the

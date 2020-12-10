@@ -10,15 +10,15 @@
 ************************************************************************
 #include "info_slapaf.fh"
 *
-      Integer Bk_iSym(3), Bk_iCoSet(0:7,mxdc),
-     &        Bk_nStab(mxdc), Bk_iRef,
+      Integer Bk_iSym(3),
+     &        Bk_iRef,
      &        Bk_nQQ, Bk_mRowH(10), Bk_nRowH,
      &        Bk_NmIter,
      &        Bk_iter, Bk_Lngth,
      &        Bk_nDimBC, Bk_MxItr, Bk_mInt,
      &        Bk_Max_Center, Bk_nSupSy,
      &        Bk_lif, Bk_iOptC, Bk_mode,
-     &        Bk_mTROld, Bk_nWndw, Bk_iOptH, Bk_jStab(0:7,mxdc),
+     &        Bk_mTROld, Bk_nWndw, Bk_iOptH,
      &        Bk_nLambda, Bk_iRow_c,
      &        Bk_nMEP,
      &        Bk_nBVec, Bk_IRC,

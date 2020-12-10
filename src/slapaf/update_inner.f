@@ -15,7 +15,7 @@
      &                     iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
-     &                     mxdc,jStab,nStab,Smmtrc,nDimBC,
+     &                     mxdc,Smmtrc,nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
@@ -44,8 +44,6 @@
 *      nsAtom         : number of symmetry unique atoms                *
 *      AtomLbl        : character string with atom labels              *
 *      mxdc           : max number of nsAtom                           *
-*      jStab          : integer list of stabilizers                    *
-*      nStab          : number of stabilizers                          *
 *      Smmtrc         : logical flag for symmetry properties           *
 *      nDimBC         : dimension of redundant coordinates(?)          *
 *      iNeg           : Hessian index                                  *
@@ -69,13 +67,13 @@
 *             2000                                                     *
 ************************************************************************
       use Slapaf_info, only: GNrm, dMass, Lambda, Energy, MF, dqInt,
-     &                       BMx, Degen
+     &                       BMx, Degen, nStab
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
       Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter)
-      Integer jStab(0:7,nsAtom), nStab(nsAtom), iNeg(2)
+      Integer iNeg(2)
 *    &        iNeg(2), jNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),FindTS, TSC, HrmFrq_Show,
      &        Found, Curvilinear, Kriging_Hessian, First_MicroIteration
@@ -428,7 +426,7 @@ C           Write (6,*) 'tBeta=',tBeta
      &                   iRow_c,Value,cInt,cInt0,Lbl(nInter+1),
      &                   AtomLbl,
      &                   (lIter.eq.kIter).and.First_MicroIteration,
-     &                   jStab,nStab,mxdc,Mult,
+     &                   mxdc,Mult,
      &                   dBM,Value0,lIter,iFlip,dMass)
 *
 *           Assemble r

@@ -10,11 +10,11 @@
 ************************************************************************
       Subroutine Get_CurviL(
      &              nq,nqRF,nqB,nqA,nqT,nqO,
-     &              nAtoms,iIter,nIter,Cx,jStab,
-     &              nStab,Smmtrc,Process,Value,nB,
+     &              nAtoms,iIter,nIter,Cx,
+     &              Smmtrc,Process,Value,nB,
      &              qLbl,iRef,
      &              fconst,rMult,iOptC,LuIC,Name,Indq,iPrv,
-     &              dMass,iCoSet,Grad_all,iGlow,iGhi,Proc_dB,
+     &              dMass,Grad_all,iGlow,iGhi,Proc_dB,
      &              iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
      &              mB_Tot,mdB_Tot,
      &              BM,dBM,iBM,idBM,
@@ -25,14 +25,13 @@
      &       Value(nB,nIter), rMult(nB), dMass(nAtoms),
      &       Grad_all(9,iGlow:iGhi,nIter),
      &       BM(nB_Tot),dBM(ndB_Tot)
-      Integer nStab(nAtoms),
-     &        jStab(0:7,nAtoms), Indq(3,nB), iCoSet(0:7,nAtoms),
+      Integer Indq(3,nB),
      &        iTabBonds(3,nBonds), iTabAtoms(2,0:nMax,mAtoms),
      &        iTabAI(2,mAtoms), iBM(nB_Tot), idBM(2,ndB_Tot), mqB(nB)
       Logical Smmtrc(3,nAtoms), Process, Proc_dB
-      Character*14 qLbl(nB)
+      Character(LEN=14) qLbl(nB)
 #include "Molcas.fh"
-      Character*(LENIN) Name(nAtoms)
+      Character(LEN=LENIN) Name(nAtoms)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -47,19 +46,19 @@
       nq_=nq
       Call RF_Coord(
      &              nq,
-     &              nAtoms,iIter,nIter,Cx,jStab,
-     &              nStab,Smmtrc,Process,Value,nB,
+     &              nAtoms,iIter,nIter,Cx,
+     &              Smmtrc,Process,Value,nB,
      &              qLbl,iRef,
      &              fconst,rMult,LuIC,Indq,
-     &              dMass,iCoSet,Proc_dB,mB_Tot,mdB_Tot,
+     &              dMass,Proc_dB,mB_Tot,mdB_Tot,
      &              BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
       nqRF=nq-nq_
 *
       nq_=nq
       Call Bond_List(
      &              nq,
-     &              nAtoms,iIter,nIter,Cx,jStab,
-     &              nStab,Smmtrc,Process,Value,nB,
+     &              nAtoms,iIter,nIter,Cx,
+     &              Smmtrc,Process,Value,nB,
      &              ANr,qLbl,fconst,
      &              rMult,iOptC,LuIC,Name,Indq,
      &              Proc_dB,iTabBonds,nBonds,iTabAI,mAtoms,
@@ -70,8 +69,8 @@
       nq_=nq
       Call Angle_List(
      &              nq,
-     &              nAtoms,iIter,nIter,Cx,jStab,
-     &              nStab,Smmtrc,Process,Value,nB,
+     &              nAtoms,iIter,nIter,Cx,
+     &              Smmtrc,Process,Value,nB,
      &              ANr,qLbl,iRef,
      &              fconst,rMult,LuIC,Name,Indq,
      &              Grad_all,iGlow,iGhi,iPrv,Proc_dB,
@@ -83,8 +82,8 @@
       nq_=nq
       Call Torsion_List(
      &              nq,
-     &              nAtoms,iIter,nIter,Cx,jStab,
-     &              nStab,Smmtrc,Process,Value,nB,
+     &              nAtoms,iIter,nIter,Cx,
+     &              Smmtrc,Process,Value,nB,
      &              ANr,qLbl,iRef,
      &              fconst,rMult,LuIC,Name,Indq,iPrv,Proc_dB,
      &              iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
@@ -95,8 +94,8 @@
       nq_=nq
       Call OutOfPlane_List(
      &              nq,
-     &              nAtoms,iIter,nIter,Cx,jStab,
-     &              nStab,Smmtrc,Process,Value,nB,
+     &              nAtoms,iIter,nIter,Cx,
+     &              Smmtrc,Process,Value,nB,
      &              ANr,qLbl,iRef,
      &              fconst,rMult,LuIC,Name,Indq,iPrv,Proc_dB,
      &              iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,

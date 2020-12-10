@@ -11,6 +11,7 @@
 * Copyright (C) 2015, Ignacio Fdez. Galvan                             *
 ************************************************************************
       Subroutine TMatrix(TMx)
+      use Slapaf_Info, only: nStab
       Implicit None
 ************************************************************************
 *     subroutine to get the T matrix that defines the constrained and  *

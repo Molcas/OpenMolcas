@@ -36,9 +36,9 @@
 *
       Call NewCar(kIter,nBVec,nLines,nAtom,nDim,nInter,Coor,
      &            Lbl,Name,iSym,Smmtrc,mTtAtm,iOptH,
-     &            User_Def,nStab,jStab,Curvilinear,Numerical,
+     &            User_Def,Curvilinear,Numerical,
      &            DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &            iCoSet,rHidden,Redundant,MaxItr,
+     &            rHidden,Redundant,MaxItr,
      &            RefIter,Error)
 *
       Force_dB=.False.

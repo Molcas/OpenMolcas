@@ -11,8 +11,8 @@
 * Copyright (C) 2004, Roland Lindh                                     *
 ************************************************************************
       Subroutine BMtrx_Internal(nAtoms,nDim,Name,Smmtrc,BSet,HSet,
-     &                          nIter,mAtoms,nStab,jStab,Numerical,HWRS,
-     &                          Analytic_Hessian,iOptC,PrQ,iCoSet,lOld,
+     &                          nIter,mAtoms,Numerical,HWRS,
+     &                          Analytic_Hessian,iOptC,PrQ,lOld,
      &                          iIter,mTR,TRVec,iTabAI,iTabAtoms,
      &                          iTabBonds,nBonds,nMax,iRef,nQQ,MaxItr,
      &                          nWndw)
@@ -39,11 +39,9 @@
       Logical, Intent(In):: Smmtrc(3*nAtoms)
       Logical, Intent(In):: BSet, HSet
       Integer, Intent(In):: nIter, mAtoms
-      Integer, Intent(In):: nStab(nAtoms), jStab(0:7,nAtoms)
       Logical, Intent(In):: Numerical, HWRS, Analytic_Hessian
       Integer, Intent(In):: iOptC
       Logical, Intent(In):: PrQ
-      Integer, Intent(In):: iCoSet(0:7,nAtoms)
       Logical, Intent(In):: lOld
       Integer, Intent(In):: iIter, mTR
       Real*8, Intent(In):: TRVec(nDim,mTR)
@@ -151,10 +149,10 @@
       Do While (Thr_small.gt.1.0D-6)
          Call Get_Curvil
      &          (nq,nqRF,nqB,nqA,nqT,nqO,
-     &           nAtoms,iIter,nIter,Cx,jStab,
-     &           nStab,Smmtrc,Proc,Dum,1,cDum,
+     &           nAtoms,iIter,nIter,Cx,
+     &           Smmtrc,Proc,Dum,1,cDum,
      &           iRef,Dum,Dum,iOptC,LuIC,
-     &           Name,iDum,iIter,dMass,iCoSet,Dum,
+     &           Name,iDum,iIter,dMass,Dum,
      &           iDum(1),iDum(1),
      &           Proc_dB,
      &           iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
@@ -214,11 +212,11 @@
 *
       Call Get_Curvil
      &          (iq,iqRF,iqR,iqA,iqT,iqO,
-     &           nAtoms,iIter,nIter,Cx,jStab,
-     &           nStab,Smmtrc,Proc,
+     &           nAtoms,iIter,nIter,Cx,
+     &           Smmtrc,Proc,
      &           qVal,nq,qLbl,
      &           iRef,F_c,Mult,iOptC,
-     &           LuIC,Name,Ind,iIter,dMass,iCoSet,GRef,
+     &           LuIC,Name,Ind,iIter,dMass,GRef,
      &           iGlow,iGHi,
      &           Proc_dB,
      &           iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
@@ -432,11 +430,11 @@ C        iEnd = 1
 *                                                                      *
          Call Get_Curvil
      &             (iq,iqRF,iqR,iqA,iqT,iqO,
-     &              nAtoms,jIter,nIter,Cx,jStab,
-     &              nStab,Smmtrc,Proc,
+     &              nAtoms,jIter,nIter,Cx,
+     &              Smmtrc,Proc,
      &              qVal,nq,qLbl,
      &              iRef, F_c,Mult,
-     &              iOptC,LuIC,Name,Ind,iIter,dMass,iCoSet,
+     &              iOptC,LuIC,Name,Ind,iIter,dMass,
      &              GRef,iGlow,iGHi,
      &              Proc_dB,
      &              iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,

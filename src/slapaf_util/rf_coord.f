@@ -9,13 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine RF_Coord(
-     &                 nq,nAtoms,iIter,nIter,Cx,jStab,
-     &                 nStab,Smmtrc,Process,Value,
+     &                 nq,nAtoms,iIter,nIter,Cx,
+     &                 Smmtrc,Process,Value,
      &                 nB,qLbl,iRef,fconst,
-     &                 rMult,LuIC,Indq,dMass,iCoSet,
+     &                 rMult,LuIC,Indq,dMass,
      &                 Proc_dB,mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
       use Symmetry_Info, only: nIrrep, iOper
+      use Slapaf_Info, only: jStab, nStab, iCoSet
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "stdalloc.fh"
@@ -26,8 +27,7 @@
      &       dMass(nAtoms), fconst(nB), Value(nB,nIter), rMult(nB),
      &       Trans(3), RotVec(3), RotMat(3,3),
      &       BM(nB_Tot), dBM(ndB_Tot)
-      Integer   nStab(nAtoms), iCoSet(0:7,nAtoms),
-     &          jStab(0:7,nAtoms), nqB(nB),
+      Integer   nqB(nB),
      &          Indq(3,nB), iBM(nB_Tot), idBM(2,ndB_Tot)
       Logical Smmtrc(3,nAtoms), Process, PSPrint,
      &        TransVar, RotVar, Proc_dB, Invariant

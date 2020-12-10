@@ -10,14 +10,15 @@
 ************************************************************************
       Subroutine Torsion_List(
      &                 nq,
-     &                 nAtoms,iIter,nIter,Cx,jStab,
-     &                 nStab,Smmtrc,Process,Value,
+     &                 nAtoms,iIter,nIter,Cx,
+     &                 Smmtrc,Process,Value,
      &                 nB,iANr,qLbl,iRef,
      &                 fconst,rMult,LuIC,Name,Indq,iPrv,Proc_dB,
      &                 iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &                 mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
       use Symmetry_Info, only: nIrrep, iOper
+      use Slapaf_Info, only: jStab, nStab
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Parameter (mB = 4*3)
@@ -25,8 +26,7 @@
      &       fconst(nB), Value(nB,nIter),
      &       Ref(3,4), Prv(3,4), rMult(nB), Grad_ref(9),
      &       BM(nB_Tot), dBM(ndB_Tot)
-      Integer   nStab(nAtoms), iANr(nAtoms),
-     &          iDCRR(0:7), jStab(0:7,nAtoms),
+      Integer   iANr(nAtoms), iDCRR(0:7),
      &          iStabM(0:7), Ind(4), iDCR(4), iDCRT(0:7),
      &          iDCRS(0:7), iStabN(0:7), iStabO(0:7), iChOp(0:7),
      &          Indq(3,nB), iDCRX(0:7), iDCRY(0:7), nqB(nB),

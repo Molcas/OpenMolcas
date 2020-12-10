@@ -33,7 +33,7 @@
      &                       Grd, Weights, ANr, Shift, GNrm, Lambda,
      &                       Energy, Energy0, DipM, MF, qInt, dqInt,
      &                       RefGeo, BM, iBM, dBM, idBM, nqBM, BMx,
-     &                       Degen
+     &                       Degen, nStab, jStab, iCoSet
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -87,6 +87,9 @@
       Integer, Allocatable:: Bk_nqBM(:)
 
       Integer, Allocatable:: Bk_ANr(:)
+      Integer, Allocatable:: Bk_jStab(:,:)
+      Integer, Allocatable:: Bk_nStab(:)
+      Integer, Allocatable:: Bk_iCoSet(:,:)
 *
 *
 *---- Ugly hack: backup all "global" slapaf variables in case this is
@@ -236,10 +239,25 @@
          Bk_Degen(:,:) = Degen(:,:)
          Call mma_deallocate(Degen)
       End If
+      If (Allocated(jStab)) Then
+         Call mma_allocate(Bk_jStab,[0,7],[1,SIZE(jStab,2)],
+     &                     Label='Bk_jStab')
+         Bk_jStab(:,:) = jStab(:,:)
+         Call mma_deallocate(jStab)
+      End If
+      If (Allocated(iCoSet)) Then
+         Call mma_allocate(Bk_iCoSet,[0,7],[1,SIZE(iCoSet,2)],
+     &                     Label='Bk_iCoSet')
+         Bk_iCoSet(:,:) = iCoSet(:,:)
+         Call mma_deallocate(iCoSet)
+      End If
+      If (Allocated(nStab)) Then
+         Call mma_allocate(Bk_nStab,SIZE(nStab,1),Label='Bk_nStab')
+         Bk_nStab(:) = nStab(:)
+         Call mma_deallocate(nStab)
+      End If
 
       Bk_iSym(:)=iSym(:)
-      Bk_iCoSet(0:7,:)=iCoSet(0:7,:)
-      Bk_nStab(:)=nStab(:)
       Bk_iRef=iRef
       Bk_nQQ=nQQ
       Bk_mRowH(:)=mRowH(:)
@@ -258,7 +276,6 @@
       Bk_mTROld=mTROld
       Bk_nWndw=nWndw
       Bk_iOptH=iOptH
-      Bk_jStab(0:7,:)=jStab(0:7,:)
       Bk_nLambda=nLambda
       Bk_iRow_c=iRow_c
       Bk_nMEP=nMEP
@@ -401,9 +418,9 @@
       Call BMtrx(iRow,nBVec,nsAtom,mInt,Lbl,
      &           Coor,nDimBC,AtomLbl,Smmtrc,BSet,HSet,iter,
      &           mTtAtm,iOptH,
-     &           User_Def,nStab,jStab,Curvilinear,Numerical,
+     &           User_Def,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,
+     &           lOld,rHidden,nFix,nQQ,iRef,Redundant,
      &           MaxItr,nWndw)
 *                                                                      *
 ************************************************************************
@@ -533,8 +550,6 @@
       If (AixRm('RUNBCK2').ne.0) Call Abend
 *
       iSym(:)=Bk_iSym(:)
-      iCoSet(0:7,:)=Bk_iCoSet(0:7,:)
-      nStab(:)=Bk_nStab(:)
       iRef=Bk_iRef
       nQQ=Bk_nQQ
       mRowH(:)=Bk_mRowH(:)
@@ -553,7 +568,6 @@
       mTROld=Bk_mTROld
       nWndw=Bk_nWndw
       iOptH=Bk_iOptH
-      jStab(0:7,:)=Bk_jStab(0:7,:)
       nLambda=Bk_nLambda
       iRow_c=Bk_iRow_c
       nMEP=Bk_nMEP
@@ -845,6 +859,32 @@
          Call mma_deallocate(Bk_Degen)
       Else
          If (Allocated(Degen)) Call mma_deallocate(Degen)
+      End If
+      If (Allocated(Bk_jStab)) Then
+         If (Allocated(jStab)) Call mma_deallocate(jStab)
+         Call mma_allocate(jStab,[0,7],[1,SIZE(Bk_jStab,2)],
+     &                     Label='jStab')
+         jStab(:,:) = Bk_jStab(:,:)
+         Call mma_deallocate(Bk_jStab)
+      Else
+         If (Allocated(jStab)) Call mma_deallocate(jStab)
+      End If
+      If (Allocated(Bk_iCoSet)) Then
+         If (Allocated(iCoSet)) Call mma_deallocate(iCoSet)
+         Call mma_allocate(iCoSet,[0,7],[1,SIZE(Bk_iCoSet,2)],
+     &                     Label='iCoSet')
+         iCoSet(:,:) = Bk_iCoSet(:,:)
+         Call mma_deallocate(Bk_iCoSet)
+      Else
+         If (Allocated(iCoSet)) Call mma_deallocate(iCoSet)
+      End If
+      If (Allocated(Bk_nStab)) Then
+         If (Allocated(nStab)) Call mma_deallocate(nStab)
+         Call mma_allocate(nStab,SIZE(Bk_nStab,1),Label='nStab')
+         nStab(:) = Bk_nStab(:)
+         Call mma_deallocate(Bk_nStab)
+      Else
+         If (Allocated(nStab)) Call mma_deallocate(nStab)
       End If
 *
       End Subroutine Print_Mode_Components

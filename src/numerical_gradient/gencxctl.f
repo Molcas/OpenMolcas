@@ -85,9 +85,9 @@
      &           Coor,nDimBC,AtomLbl,
      &           Smmtrc,BSet,HSet,iter,
      &           mTtAtm,iOptH,
-     &           User_Def,nStab,jStab,Curvilinear,Numerical,
+     &           User_Def,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,
+     &           lOld,rHidden,nFix,nQQ,iRef,Redundant,
      &           MaxItr,nWndw)
 *
       nPrint(30) = nPrint(30)-1
@@ -231,9 +231,9 @@
      &               AtomLbl,iSym,Smmtrc,
      &               mTtAtm,
      &               iOptH,User_Def,
-     &               nStab,jStab,Curvilinear,Numerical,
+     &               Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS, Analytic_Hessian,
-     &               iOptC,PrQ,mxdc,iCoSet,rHidden,
+     &               iOptC,PrQ,mxdc,rHidden,
      &               Redundant,MaxItr,iRef,Error)
 *
 *        Move the new Cartesian coordinate to the list.

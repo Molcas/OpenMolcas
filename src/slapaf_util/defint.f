@@ -12,7 +12,7 @@
 ************************************************************************
       SubRoutine DefInt(BVct,nBVct,Labels,BMtrx,nQQ,nAtom,nLines,Value,
      &                  rInt,Lbl,Name,Coor,dMass,
-     &                  jStab,nStab,mxdc,rMult,nDim,Redundant)
+     &                  mxdc,rMult,nDim,Redundant)
 ************************************************************************
 *                                                                      *
 * Object: to generate the B matrix which is the transformation matrix  *
@@ -34,7 +34,6 @@
       Character Labels(nBVct)*8, Type*6, Temp*120, Lbl(nQQ)*8, cNum*4,
      &          Name(nAtom)*(LENIN), Line*120, Format*8, filnam*16
       Logical Flip, lPIC(6*nAtom), lAtom(nAtom), Redundant
-      Integer nStab(mxdc), jStab(0:7,mxdc)
       Logical, Save:: First=.True.
       Logical :: lWrite = .False., lErr = .False.
       Integer, Allocatable:: Ind(:)
@@ -235,7 +234,7 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
      &              Name,nAtom,Coor,nCntr,mCntr,
      &              xyz,Tmp2,Ind,Type,
      &              dMass,Mass,TM,lWrite,
-     &              Labels(iBVct),lWrite,jStab,nStab,mxdc,
+     &              Labels(iBVct),lWrite,mxdc,
      &              rMult(iBVct),lAtom)
 *
          If (.Not.First .and.

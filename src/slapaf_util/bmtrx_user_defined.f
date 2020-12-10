@@ -13,7 +13,7 @@
      &                 Lbl,Coor,nDim,
      &                 Name,Smmtrc,
      &                 BSet,HSet,nIter,
-     &                 nStab,jStab,Numerical,
+     &                 Numerical,
      &                 Analytic_Hessian,
      &                 iOptC,mxdc,lOld,
      &                 nFix,mTR,nQQ,Redundant,MaxItr)
@@ -24,7 +24,6 @@
 #include "stdalloc.fh"
       Real*8 Coor(3,nAtom)
       Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
-      Integer   nStab(nAtom), jStab(0:7,nAtom)
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
      &        Numerical, Analytic_Hessian, lOld, Proc_dB
       Real*8, Allocatable:: Degen2(:)
@@ -72,7 +71,7 @@
 *
       Call DefInt(BVec,nBVec,Lab,BMx,nQQ,
      &            nAtom,nLines,Val,qInt(:,nIter),Lbl,Name,
-     &            Coor,dMass,jStab,nStab,mxdc,Mult,
+     &            Coor,dMass,mxdc,Mult,
      &            nDim-mTR,Redundant)
 *
       Call mma_deallocate(Lab)

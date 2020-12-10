@@ -10,7 +10,8 @@
 ************************************************************************
       Subroutine Init_SlapAf(iRow)
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: q_nuclear, dMass, Coor, Grd, ANr, Degen
+      use Slapaf_Info, only: q_nuclear, dMass, Coor, Grd, ANr, Degen,
+     &                       jStab, nStab, iCoSet
 *     use Slapaf_Info, only: R12
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -184,9 +185,6 @@
       ThrCons = 1.0D10
       Delta  = 1.0D-2
       nWndw = 5
-      Call ICopy(mxdc,[0],0,nStab,1)
-      Call ICopy(8*mxdc,[0],0,iCoSet,1)
-      Call ICopy(8*mxdc,[0],0,jStab,1)
       do 180 i = 1, 3*mxdc
          Smmtrc(i) = .False.
  180  Continue
@@ -337,6 +335,13 @@ C           NADC= .False. ! for debugging
 *                                                                      *
 *---  Compute the number of total symmetric displacements
 *
+      Call mma_allocate(jStab ,[0,7],[1,nsAtom],Label='jStab ')
+      Call mma_allocate(nStab ,      [1,nsAtom],Label='nStab ')
+      Call mma_allocate(iCoSet,[0,7],[1,nsAtom],Label='iCoSet')
+      jStab(:,:)=0
+      nStab(:)=0
+      iCoSet(:,:)=0
+
       nDimbc = 0
 *...  Loop over the unique atoms
       Do 610 isAtom = 1, nsAtom

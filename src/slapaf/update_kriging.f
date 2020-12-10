@@ -16,7 +16,7 @@
      &                     iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,AtomLbl,
-     &                     mxdc,jStab,nStab,Smmtrc,nDimBC,
+     &                     mxdc,Smmtrc,nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
@@ -38,7 +38,7 @@
 #include "Molcas.fh"
 #include "stdalloc.fh"
       Real*8 dEner
-      Integer jStab(0:7,nsAtom), nStab(nsAtom),iNeg(2)
+      Integer iNeg(2)
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show, Curvilinear,
      &        First_MicroIteration, Error
@@ -212,8 +212,8 @@
      &                   iterAI,iInt,nFix,nInter,qInt,Shift,iOptC,
      &                   Beta_,Beta_Disp_,Lbl,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
-     &                   iRow_c,nsAtom,AtomLbl,mxdc,jStab,
-     &                   nStab,Smmtrc,nDimBC,
+     &                   iRow_c,nsAtom,AtomLbl,mxdc,
+     &                   Smmtrc,nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                   Labels,nLabels,FindTS,TSC,nRowH,nWndw_,Mode,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,

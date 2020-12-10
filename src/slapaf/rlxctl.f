@@ -11,7 +11,7 @@
       Subroutine RlxCtl(iStop)
       Use Chkpnt
       Use kriging_mod, only: Kriging, nspAI
-      Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx,
+      Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx, jStab, nStab,
      &                       Free_Slapaf, qInt, dqInt
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
@@ -132,9 +132,9 @@
      &           Coor,nDimBC,AtomLbl,
      &           Smmtrc,BSet,HSet,iter,
      &           mTtAtm,iOptH,
-     &           User_Def,nStab,jStab,Curvilinear,Numerical,
+     &           User_Def,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &           iCoSet,lOld,rHidden,nFix,nQQ,iRef,Redundant,
+     &           lOld,rHidden,nFix,nQQ,iRef,Redundant,
      &           MaxItr,nWndw)
 *
       nPrint(30) = nPrint(30)-1
@@ -235,7 +235,7 @@
      &               iOptC,Beta,Beta_Disp,
      &               Lbl,UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
-     &               AtomLbl,mxdc,jStab,nStab,
+     &               AtomLbl,mxdc,
      &               Smmtrc,nDimBC,
      &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
@@ -249,7 +249,7 @@
      &               iOptC,Beta,Beta_Disp,
      &               Lbl,UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
-     &               AtomLbl,mxdc,jStab,nStab,
+     &               AtomLbl,mxdc,
      &               Smmtrc,nDimBC,GrdMax,
      &               StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
@@ -280,9 +280,9 @@
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Coor,
      &               Lbl,AtomLbl,iSym,Smmtrc,
      &               mTtAtm,iOptH,
-     &               User_Def,nStab,jStab,Curvilinear,Numerical,
+     &               User_Def,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &               iCoSet,rHidden,Redundant,MaxItr,iRef,Error)
+     &               rHidden,Redundant,MaxItr,iRef,Error)
       End If
 *                                                                      *
 ************************************************************************

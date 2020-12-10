@@ -12,13 +12,14 @@
 ************************************************************************
       SubRoutine Cllct(Strng,Vector,Value,Names,nAtom,Coor,nCntr,mCntr,
      &                 xyz,Temp,Ind,Type,rMss,qMss,TMtrx,First,Lbl,
-     &                 lWrite,jStab,nStab,mxdc,Deg,lAtom)
+     &                 lWrite,mxdc,Deg,lAtom)
 ************************************************************************
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             May '91                                                  *
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iOper
+      use Slapaf_Info, only: jStab, nStab
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -29,8 +30,7 @@
       Real*8 Coor(3,nAtom), Vector(3,nAtom), xyz(3,nCntr+mCntr),
      &       Temp(3,nCntr+mCntr), rMss(nAtom), qMss(nCntr+mCntr),
      &       TMtrx(3,nAtom,3,(nCntr+mCntr)), Axis(3), Perp_Axis(3,2)
-      Integer   Ind(nCntr+mCntr,2), nStab(mxdc),
-     &          jStab(0:7,mxdc)
+      Integer   Ind(nCntr+mCntr,2)
       Logical First, lWrite, ldB, lWarn, lAtom(nAtom)
       Dimension Dummy(1)
 *

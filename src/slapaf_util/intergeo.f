@@ -15,7 +15,7 @@
 *---------------------------------*
       use Symmetry_Info, only: nIrrep
       use Phase_Info
-      use Slapaf_Info, only: Cx
+      use Slapaf_Info, only: Cx, jStab, nStab
       implicit real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "stdalloc.fh"

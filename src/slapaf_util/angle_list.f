@@ -10,8 +10,8 @@
 ************************************************************************
       Subroutine Angle_List(
      &                 nq,
-     &                 nAtoms,iIter,nIter,Cx,jStab,
-     &                 nStab,Smmtrc,Process,Value,
+     &                 nAtoms,iIter,nIter,Cx,
+     &                 Smmtrc,Process,Value,
      &                 nB,iANr,qLbl,iRef,
      &                 fconst,rMult,LuIC,Name,Indq,
      &                 Grad_all,iGlow,iGhi,iPrv,Proc_dB,
@@ -19,6 +19,7 @@
      &                 mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB,Thr_small)
       use Symmetry_Info, only: nIrrep, iOper
+      use Slapaf_Info, only: jStab, nStab
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -30,8 +31,7 @@
      &       Grad_Ref(9), Axis(3), Perp_Axis(3,2), Grad(mB),
      &       Grad_all(9,iGlow:iGhi,nIter),
      &       BM(nB_Tot), dBM(ndB_Tot)
-      Integer   nStab(nAtoms), iANr(nAtoms),
-     &          iDCRR(0:7), jStab(0:7,nAtoms),
+      Integer   iANr(nAtoms), iDCRR(0:7),
      &          iStabM(0:7), Ind(3), iDCR(3), iDCRT(0:7),
      &          iStabN(0:7), iChOp(0:7), Indq(3,nB), nqB(nB),
      &          iTabBonds(3,nBonds), iTabAI(2,mAtoms),

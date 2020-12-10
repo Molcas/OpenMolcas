@@ -12,7 +12,7 @@
 ************************************************************************
       SubRoutine DefInt2(BVct,dBVct,nBvct,Labels,BMtrx,mInt,nAtom,
      &                   nLines,Value,rInt,rInt0,Lbl,Name,
-     &                   lWrite,jStab,nStab,mxdc,
+     &                   lWrite,mxdc,
      &                   rMult,dBMtrx,Value0,lIter,
      &                   iFlip,dMass)
 ************************************************************************
@@ -39,7 +39,7 @@
       Logical lWrite, Start, rInt0_on_file,rInt0_in_memory, InSlapaf
       Integer, Parameter:: Flip=1, NoFlip=0
       Integer, External:: StrnLn
-      Integer nStab(mxdc), jStab(0:7,mxdc), iFlip(nBVct)
+      Integer iFlip(nBVct)
       Character(LEN=100), External:: Get_SuperName
       Integer, Allocatable:: Ind(:), tpc(:)
       Real*8, Allocatable:: Hess(:), Mass(:), Grad(:), xyz(:), r0(:)
@@ -272,8 +272,8 @@ c      Open(Lu_UDC,File=filnam,Form='FORMATTED',Status='OLD')
 *
          Call Cllct2(Line(nGo:nTemp),BVct(1,iBVct),dBVct(1,1,iBVct),
      &               Value(iBVct),Name,nAtom,nCntr,mCntr,xyz,Grad,
-     &               Ind,Type,dMass,Mass,Labels(iBVct),lWrite,jStab,
-     &               nStab,mxdc,rMult(iBVct,iBVct),Hess,lIter)
+     &               Ind,Type,dMass,Mass,Labels(iBVct),lWrite,
+     &               mxdc,rMult(iBVct,iBVct),Hess,lIter)
 *
          If (Type.eq.'TRSN  ' .and.
      &       Abs(Value(iBVct)).lt.Pi*Half) iFlip(iBVct)=NoFlip

@@ -11,9 +11,9 @@
       Subroutine BMtrx(nLines,nBVec,nAtom,nInter,Lbl,Coor,nDim,
      &                 Name,Smmtrc,BSet,HSet,nIter,
      &                 mTtAtm,iOptH,User_Def,
-     &                 nStab,jStab,Curvilinear,Numerical,
+     &                 Curvilinear,Numerical,
      &                 DDV_Schlegel,HWRS,Analytic_Hessian,
-     &                 iOptC,PrQ,mxdc,iCoSet,lOld,
+     &                 iOptC,PrQ,mxdc,lOld,
      &                 rHidden,nFix,nQQ,iIter,Redundant,MaxItr,nWndw)
       Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx
       Implicit Real*8 (a-h,o-z)
@@ -23,7 +23,6 @@
 #include "print.fh"
       Real*8 Coor(3,nAtom)
       Character Lbl(nInter)*8,Name(nAtom)*(LENIN)
-      Integer   nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
      &        User_Def, Curvilinear, Numerical, DDV_Schlegel,
      &        HWRS, Analytic_Hessian, PrQ, lOld
@@ -182,7 +181,7 @@
          Call BMtrx_User_Defined(
      &                 nLines,nBVec,nAtom,nInter,Lbl,Coor,nDim,
      &                 Name,Smmtrc,BSet,HSet,nIter,
-     &                 nStab,jStab,Numerical,Analytic_Hessian,
+     &                 Numerical,Analytic_Hessian,
      &                 iOptC,mxdc,lOld,
      &                 nFix,mTR,nQQ,Redundant,MaxItr)
 *                                                                      *
@@ -208,9 +207,9 @@
      &                 nAtom,nDim,Name,Smmtrc,
      &                 BSet,HSet,nIter,
      &                 mTtAtm,
-     &                 nStab,jStab,Numerical,
+     &                 Numerical,
      &                 HWRS,Analytic_Hessian,
-     &                 iOptC,PrQ,iCoSet,lOld,
+     &                 iOptC,PrQ,lOld,
      &                 iIter,mTR,TR,TabAI,
      &                 TabA,TabB,nBonds,nMax,
      &                 iIter,nQQ,MaxItr,nWndw)
