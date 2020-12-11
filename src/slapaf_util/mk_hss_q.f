@@ -13,9 +13,13 @@
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "real.fh"
-
+*
 *     Compute the Hessian in internal coordinates.
 *
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Mk_Hss_Q: DipM',' ',DipM,SIZE(DipM,1),SIZE(DipM,2))
+#endif
       If ((lNmHss.or.lRowH).and.iter.eq.NmIter) Then
          Call Put_dArray('Unique Coordinates',Cx,3*nsAtom)
          Call Put_Coord_New(Cx,nsAtom)
@@ -24,7 +28,7 @@
             Call RowHessian(NmIter,mInt,nRowH,mRowH,Delta/2.5d0)
          Else
             Call FormNumHess(iter,mInt,Delta,Stop,nsAtom,Cubic,iNeg,
-     &                       DipM,mTROld,Smmtrc,UserT,
+     &                       DipM,mTROld,UserT,
      &                       UserP,nUserPT,nsRot,lTherm,lDoubleIso,
      &                       Curvilinear)
          End If

@@ -79,7 +79,7 @@
 #ifdef _HDF5_
       use Phase_Info
       use Symmetry_Info, only: nIrrep
-      use Slapaf_Info, only: dMass, nStab, iCoSet, AtomLbl
+      use Slapaf_Info, only: dMass, nStab, iCoSet, AtomLbl, Smmtrc
 #  include "info_slapaf.fh"
 #  include "stdalloc.fh"
       Character :: lIrrep(24)
@@ -159,7 +159,7 @@
             desym(4,mAtom) = iPhase(3,iCoSet(j,i))
           End Do
           Do j=1,3
-            If (.Not.Smmtrc(3*(i-1)+j)) Cycle
+            If (.Not.Smmtrc(j,i)) Cycle
             k = k+1
             symdof(1,k) = i
             symdof(2,k) = j

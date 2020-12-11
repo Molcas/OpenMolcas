@@ -14,7 +14,7 @@
      &                     iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,
-     &                     Smmtrc,nDimBC,
+     &                     nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
@@ -38,7 +38,6 @@
 *      nLambda        : number of contraints                           *
 *      iRow_c         : number of lines on the UDC file                *
 *      nsAtom         : number of symmetry unique atoms                *
-*      Smmtrc         : logical flag for symmetry properties           *
 *      nDimBC         : dimension of redundant coordinates(?)          *
 *      iNeg           : Hessian index                                  *
 *      Labels         : character string of primitive int. coord.      *
@@ -65,8 +64,7 @@
 #include "print.fh"
 #include "Molcas.fh"
       Integer iNeg(2)
-      Logical Line_Search, Smmtrc(3*nsAtom),
-     &        FindTS, TSC, HrmFrq_Show, Curvilinear
+      Logical Line_Search, FindTS, TSC, HrmFrq_Show, Curvilinear
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, UpMeth*6,
      &          HUpMet*6
@@ -123,7 +121,7 @@
      &                   Shift,iOptC,Beta,Beta_Disp,
      &                   Lbl,UpMeth,ed,Line_Search,
      &                   Step_Trunc,nLambda,iRow_c,nsAtom,
-     &                   Smmtrc,nDimBC,
+     &                   nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,
      &                   iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                   nWndw,Mode,
@@ -162,7 +160,7 @@
      &                iOptC,Beta,Beta_Disp,Lbl,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                iRow_c,nsAtom,
-     &                Smmtrc,nDimBC,
+     &                nDimBC,
      &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                Labels,nLabels,FindTS,TSC,nRowH,
      &                nWndw,Mode,

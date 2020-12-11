@@ -9,16 +9,16 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine FormNumHess(nIter,nInter,Delta,Stop,
-     &                       nAtom,Cubic,iNeg,DipM,mTR,Smmtrc,
+     &                       nAtom,Cubic,iNeg,DipM,mTR,
      &                       UserT,UserP,nUserPT,nsRot,lTherm,
      &                       lDoubleIso,Curvilinear)
-      use Slapaf_Info, only: qInt, Shift, dqInt, Degen
+      use Slapaf_Info, only: qInt, Shift, dqInt, Degen, Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 UserT(64), UserP, DipM(3,nIter)
-      Logical Stop, Cubic, Smmtrc(3,nAtom), lTherm, lDoubleIso, Found,
+      Logical Stop, Cubic, lTherm, lDoubleIso, Found,
      &        Curvilinear
       Integer nUserPT, nsRot
       Real*8 rDum(1)
@@ -109,7 +109,7 @@
 *
       Call mma_allocate(IRInt,nInter+mTR,Label='IRInt')
 
-      Call HrmFrq(nAtom,nInter,iNeg,dDipM,mTR,Smmtrc,DipM,IRInt,
+      Call HrmFrq(nAtom,nInter,iNeg,dDipM,mTR,DipM,IRInt,
      &            UserT, UserP, nUserPT, nsRot, lTherm, lDoubleIso)
 
       Call Add_Info('Numerical IR Intensities',IRInt,nInter,2)

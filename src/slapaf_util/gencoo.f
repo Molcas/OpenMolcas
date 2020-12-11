@@ -8,15 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine GenCoo(Cart,nAtom,Coor,mAtom,Vctrs,Smmtrc,
-     &                  nDim,iAnr,jAnr,iTabAI)
+      Subroutine GenCoo(Cart,nAtom,Coor,mAtom,Vctrs,nDim,iAnr,jAnr,
+     &                  iTabAI)
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: Degen
+      use Slapaf_Info, only: Degen, Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Real*8 Cart(3,nAtom), Coor(3,mAtom), Vctrs(3*mAtom,nDim), r(3)
       Integer iAnr(nAtom), jAnr(mAtom), iTabAI(2,mAtom)
-      Logical New, SmmTrc(3,nAtom)
+      Logical New
 *                                                                      *
 ************************************************************************
 *                                                                      *

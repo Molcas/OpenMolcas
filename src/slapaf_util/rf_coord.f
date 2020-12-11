@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine RF_Coord(
      &                 nq,nAtoms,iIter,nIter,Cx,
-     &                 Smmtrc,Process,Value,
+     &                 Process,Value,
      &                 nB,qLbl,iRef,fconst,
      &                 rMult,LuIC,Indq,
      &                 Proc_dB,mB_Tot,mdB_Tot,
@@ -28,7 +28,7 @@
      &       BM(nB_Tot), dBM(ndB_Tot)
       Integer   nqB(nB),
      &          Indq(3,nB), iBM(nB_Tot), idBM(2,ndB_Tot)
-      Logical Smmtrc(3,nAtoms), Process, PSPrint,
+      Logical Process, PSPrint,
      &        TransVar, RotVar, Proc_dB, Invariant
       Character*3 TR_type(6)
       Character*14 Label, qLbl(nB)
@@ -168,8 +168,8 @@ C           fconst(nq)=Sqrt(Fact*Trans_Const)
 *
 *--------   Project the gradient vector
 *
-            Call ProjSym(nAtoms,nCent,Ind,currXYZ,
-     &                   iDCR,Grad,Smmtrc,
+            Call ProjSym(nCent,Ind,currXYZ,
+     &                   iDCR,Grad,
      &                   Hess,mB_Tot,mdB_Tot,
      &                   BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                   Proc_dB,nqB,nB,nq,rMult(nq))
@@ -256,8 +256,8 @@ C        Call RecPrt('Grad (Rot)',' ',Grad,3,nCent)
 *
 *--------   Project the gradient vector
 *
-            Call ProjSym(nAtoms,nCent,Ind,currXYZ,
-     &                   iDCR,Grad,Smmtrc,
+            Call ProjSym(nCent,Ind,currXYZ,
+     &                   iDCR,Grad,
      &                   Hess,mB_Tot,mdB_Tot,
      &                   BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                   Proc_dB,nqB,nB,nq,rMult(nq))

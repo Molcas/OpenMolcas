@@ -9,13 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine BMtrx(nLines,nBVec,nAtom,nInter,Lbl,Coor,nDim,
-     &                 Smmtrc,BSet,HSet,nIter,
+     &                 BSet,HSet,nIter,
      &                 mTtAtm,iOptH,User_Def,
      &                 Curvilinear,Numerical,
      &                 DDV_Schlegel,HWRS,Analytic_Hessian,
      &                 iOptC,PrQ,lOld,
      &                 rHidden,nFix,nQQ,iIter,Redundant,MaxItr,nWndw)
-      Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx
+      Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx, Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -23,7 +23,7 @@
 #include "print.fh"
       Real*8 Coor(3,nAtom)
       Character Lbl(nInter)*8
-      Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
+      Logical BSet, HSet, Redundant,
      &        User_Def, Curvilinear, Numerical, DDV_Schlegel,
      &        HWRS, Analytic_Hessian, PrQ, lOld
       External Get_SuperName
@@ -94,13 +94,15 @@
       Call mma_allocate(TR,18*nAtom,Label='TR')
       TR(:)=Zero
 *
-      Call TRPGen(nDim,nAtom,Cx(1,1,iIter),Smmtrc,mTR,.False.,TR)
+      Call TRPGen(nDim,nAtom,Cx(1,1,iIter),mTR,.False.,TR)
 *
       Call mma_allocate(TRnew,3*nAtom*mTR,Label='TRNew')
       TRNew(:)=Zero
       i = 0
       Do ix = 1, 3*nAtom
-         If (Smmtrc(ix)) Then
+         iAtom = (ix+2)/3
+         ixyz = ix - (iAtom-1)*3
+         If (Smmtrc(ixyz,iAtom)) Then
             i = i + 1
             call dcopy_(mTR,TR(i),-nDim,TRNew(ix),3*nAtom)
          End If
@@ -119,7 +121,7 @@
 *
 *-----Generate Grand atoms list
 *
-      Call GenCoo(Cx(1,1,iIter),nAtom,Coor2,mTtAtm,Vec,Smmtrc,nDim,ANr,
+      Call GenCoo(Cx(1,1,iIter),nAtom,Coor2,mTtAtm,Vec,nDim,ANr,
      &            AN,TabAI)
 *
 *---- Are there some hidden frozen atoms ?
@@ -149,7 +151,7 @@
       Call mma_allocate(Scr2,(3*mTtAtm)**2,Label='Scr2')
 *
       If (HSet.or..Not.(Curvilinear.or.User_Def))
-     &   Call LNM(Coor2,mTtAtm,EVal,Hss_X,Scr2,Vec,nAtom,nDim,AN,Smmtrc,
+     &   Call LNM(Coor2,mTtAtm,EVal,Hss_X,Scr2,Vec,nAtom,nDim,AN,
      &            nIter,iOptH,DDV_Schlegel,Analytic_Hessian,
      &            iOptC,TabB,TabA,nBonds,nMax,nHidden)
 *
@@ -180,7 +182,7 @@
 *                                                                      *
          Call BMtrx_User_Defined(
      &                 nLines,nBVec,nAtom,nInter,Lbl,Coor,nDim,
-     &                 Smmtrc,BSet,HSet,nIter,
+     &                 BSet,HSet,nIter,
      &                 Numerical,Analytic_Hessian,
      &                 iOptC,lOld,
      &                 nFix,mTR,nQQ,Redundant,MaxItr)
@@ -204,7 +206,7 @@
      &               nBonds,nMax)
          End If
          Call BMtrx_Internal(
-     &                 nAtom,nDim,Smmtrc,
+     &                 nAtom,nDim,
      &                 BSet,HSet,nIter,
      &                 mTtAtm,
      &                 Numerical,
@@ -227,7 +229,7 @@
 ************************************************************************
 *                                                                      *
          Call BMtrx_Cartesian(nAtom,nInter,nDim,
-     &                        Smmtrc,BSet,HSet,nIter,
+     &                        BSet,HSet,nIter,
      &                        mTtAtm,PrQ,lOld,mTR,TR,EVal,Hss_X,
      &                        nQQ,Redundant,MaxItr,nWndw)
 *
@@ -285,7 +287,9 @@
 #endif
             i = 0
             Do ix = 1, 3*nAtom
-               If (Smmtrc(ix)) Then
+               iAtom = (ix+2)/3
+               ixyz = ix - (iAtom-1)*3
+               If (Smmtrc(ixyz,iAtom)) Then
                   i = i + 1
                   call dcopy_(mTR,TR(i),-nDim,TROld(ix),3*nAtom)
                End If

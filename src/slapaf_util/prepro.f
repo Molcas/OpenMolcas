@@ -25,7 +25,7 @@
       CofM = Iter.eq.1 .and. lNmHss
       Call mma_allocate(TR,18*nAtom,Label='TR')
       TR(:)=Zero
-      Call TRPGen(nDimBC,nAtom,Coor,Smmtrc,mTR,CofM,TR)
+      Call TRPGen(nDimBC,nAtom,Coor,mTR,CofM,TR)
       Call mma_deallocate(TR)
       If (lNmHss) Then
          If (Iter.eq.1) mTROld=mTR

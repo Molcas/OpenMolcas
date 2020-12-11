@@ -11,7 +11,7 @@
       Subroutine Init_SlapAf(iRow)
       use Symmetry_Info, only: nIrrep, iOper
       use Slapaf_Info, only: q_nuclear, dMass, Coor, Grd, ANr, Degen,
-     &                       jStab, nStab, iCoSet, AtomLbl
+     &                       jStab, nStab, iCoSet, AtomLbl, Smmtrc
 *     use Slapaf_Info, only: R12
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -185,9 +185,6 @@
       ThrCons = 1.0D10
       Delta  = 1.0D-2
       nWndw = 5
-      do 180 i = 1, 3*mxdc
-         Smmtrc(i) = .False.
- 180  Continue
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -338,9 +335,11 @@ C           NADC= .False. ! for debugging
       Call mma_allocate(jStab ,[0,7],[1,nsAtom],Label='jStab ')
       Call mma_allocate(nStab ,      [1,nsAtom],Label='nStab ')
       Call mma_allocate(iCoSet,[0,7],[1,nsAtom],Label='iCoSet')
+      Call mma_allocate(Smmtrc,3,nsAtom,Label='Smmtrc')
       jStab(:,:)=0
       nStab(:)=0
       iCoSet(:,:)=0
+      Smmtrc(:,:)=.False.
 
       nDimbc = 0
 *...  Loop over the unique atoms
@@ -405,7 +404,7 @@ C           NADC= .False. ! for debugging
                If (iAdd(jCoSet).eq.0) Go To 611
  645        Continue
             nDimbc = nDimbc + 1
-            Smmtrc(3*(isAtom-1)+i)=.True.
+            Smmtrc(i,isAtom)=.True.
  611     Continue
  610  Continue
 *                                                                      *

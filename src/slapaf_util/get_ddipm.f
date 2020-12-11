@@ -15,7 +15,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -49,7 +49,7 @@
       End If
 *
       Call Get_dDipM_(nX,BOld,TROld,mInter,nInter,Tmp2,dDipM,mTROld,
-     &                Smmtrc,nsAtom,DipM)
+     &                nsAtom,DipM)
 *
       Call mma_deallocate(TROld)
       Call mma_deallocate(BOld)
@@ -58,11 +58,10 @@
       Return
       End
       Subroutine Get_dDipM_(nX,BMtrx,TRVec,mInter,nInter,
-     &                     Tmp2,dDipM,mTR,Smmtrc,nAtom,DipM)
-      use Slapaf_Info, only: Cx, Degen
+     &                     Tmp2,dDipM,mTR,nAtom,DipM)
+      use Slapaf_Info, only: Cx, Degen, Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-      Logical Smmtrc(3,nAtom)
       Real*8 TRVec(nX,mTR), BMtrx(nX,nInter),
      &       Tmp2(nX**2), dDipM(3,nInter+mTR), DipM(3)
 *

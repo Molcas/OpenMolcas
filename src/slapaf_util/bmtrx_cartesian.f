@@ -10,18 +10,18 @@
 ************************************************************************
       Subroutine BMtrx_Cartesian(
      &                 nAtom,nInter,nDim,
-     &                 Smmtrc,BSet,HSet,
+     &                 BSet,HSet,
      &                 nIter,mTtAtm,
      &                 PrQ,lOld,mTR,TRVec,EVal,Hss_x,
      &                 nQQ,Redundant,MaxItr,nWndw)
       use Slapaf_Info, only: Cx, Gx, qInt, dqInt, KtB, BMx, Degen,
-     &                       AtomLbl
+     &                       AtomLbl, Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 TRVec(nDim,mTR)
-      Logical Smmtrc(3*nAtom), BSet, HSet, Redundant, PrQ, lOld
+      Logical BSet, HSet, Redundant, PrQ, lOld
       Real*8 Eval(3*mTtAtm*(3*mTtAtm+1)/2)
       Real*8 Hss_x((3*mTtAtm)**2)
       Real*8, Allocatable:: EVec(:), Hi(:,:), iHi(:), Degen2(:)
@@ -84,7 +84,9 @@
          Call mma_allocate(Ind,nDim,Label='Ind')
          iInd=0
          Do i = 1, 3*nAtom
-            If (Smmtrc(i)) Then
+            iAtom = (i+2)/3
+            ixyz = i - (iAtom-1)*3
+            If (Smmtrc(ixyz,iAtom)) Then
                iInd=iInd+1
                Ind(iInd)=i
             End If
@@ -172,7 +174,7 @@
                iInd=0
                Do iAtom = 1, nAtom
                Do j = 1, 3
-                  If (Smmtrc(i)) Then
+                  If (Smmtrc(j,iAtom)) Then
                      iInd=iInd+1
                      Temp = Temp + Degen(j,iAtom)*Gx(j,iAtom,nIter)
      &                                     *TRVec(iInd,iTR)
@@ -181,11 +183,9 @@
                End Do
 *
                iInd=0
-               i=0
                Do iAtom = 1, nAtom
                Do j = 1, 3
-                  i = i + 1
-                  If (Smmtrc(i)) Then
+                  If (Smmtrc(j,iAtom)) Then
                      iInd=iInd+1
                      Gx(j,iAtom,nIter) = Gx(j,iAtom,nIter)
      &                                 - TRVec(iInd,iTR)*Temp
@@ -222,7 +222,9 @@
          Call mma_allocate(Ind,nDim,Label='Ind')
          iInd=0
          Do i = 1, 3*nAtom
-            If (Smmtrc(i)) Then
+            iAtom = (i+2)/3
+            ixyz = i - (iAtom-1)*3
+            If (Smmtrc(ixyz,iAtom)) Then
                iInd=iInd+1
                Ind(iInd)=i
             End If
@@ -339,7 +341,7 @@
          Do ix = 1, 3*nAtom
             iAtom = (ix+2)/3
             ixyz = ix - (iAtom-1)*3
-            If (Smmtrc(ix)) Then
+            If (Smmtrc(ixyz,iAtom)) Then
                i = i + 1
                Degen2(i) = Degen(ixyz,iAtom)
             End If

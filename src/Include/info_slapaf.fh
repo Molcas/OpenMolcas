@@ -35,7 +35,7 @@
      &          nBVec, IRC, MEPnum,
      &          RootMap
 *
-      Logical Smmtrc(3*mxdc), Stop, lWrite, Exist, Change,
+      Logical Stop, lWrite, Exist, Change,
      &        lSup, lOld, CurviLinear,lRowH, HSet, BSet,
      &        lNmHss, Cubic, PDH, Baker, Schlegel,
      &        DDV_Schlegel, Line_Search, HWRS, Analytic_Hessian,
@@ -44,7 +44,7 @@
      &        Redundant, lCtoF, lSoft, CallLast, TwoRunFiles,
      &        TSConstraints, MEPCons, Track, Request_Alaska,
      &        Request_RASSI
-      Common /lInfSla/ Smmtrc, Stop, lWrite, Exist, Change,
+      Common /lInfSla/ Stop, lWrite, Exist, Change,
      &        lSup, lOld, CurviLinear,lRowH,rMEP, HSet, BSet,
      &        lNmHss, Cubic, PDH, Baker, Schlegel,
      &        DDV_Schlegel, Line_Search, HWRS, Analytic_Hessian,

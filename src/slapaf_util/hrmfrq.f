@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine HrmFrq(nAtom,nInter,iNeg,dDipM,mTR,Smmtrc,DipM,
+      Subroutine HrmFrq(nAtom,nInter,iNeg,dDipM,mTR,DipM,
      &                  IRInt, UserT, UserP, nUserPT, nsRot, lTherm,
      &                  lDoubleIso)
       Implicit Real*8 (a-h,o-z)
@@ -17,7 +17,7 @@
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 dDipM(3,nInter+mTR), DipM(3), IRInt(nInter+mTR)
-      Logical Smmtrc(3,nAtom), lTherm, lDoubleIso
+      Logical lTherm, lDoubleIso
       Integer mDisp(8), nUserPT, nsRot
       Real*8  UserT(64), UserP
       Real*8, Allocatable:: EVec(:), EVal(:), RedMas(:), Tmp1(:),
@@ -44,7 +44,7 @@
       Call mma_allocate(tmp2,nX**2,Label='tmp2')
 *
       Call GF(nX,mInter,nInter,Tmp1,Tmp2,EVec,EVal,RedMas,iNeg,dDipM,
-     &        mTR,Smmtrc,nAtom,DipM)
+     &        mTR,nAtom,DipM)
 *
       Call mma_deallocate(tmp2)
       Call mma_deallocate(tmp1)

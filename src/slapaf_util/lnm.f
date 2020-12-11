@@ -9,11 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine LNM(Cart,nAtoms,Hess,Scrt1,Scrt2,Vctrs,
-     &               mAtoms,nDim,iAnr,Smmtrc,nIter,iOptH,
+     &               mAtoms,nDim,iAnr,nIter,iOptH,
      &               Schlegel,Analytic_Hessian,
      &               iOptC,iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
       use Symmetry_Info, only: nIrrep
-      use Slapaf_Info, only: Degen
+      use Slapaf_Info, only: Degen, Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "print.fh"
 #include "real.fh"
@@ -24,7 +24,7 @@
      *       Scrt2((3*nAtoms)**2), Vctrs(3*nAtoms,nDim)
       Integer   iANr(nAtoms+nHidden), iTabBonds(3,nBonds),
      &          iTabAtoms(2,0:nMax,nAtoms+nHidden)
-      Logical Smmtrc(3*mAtoms), Schlegel, Analytic_Hessian,
+      Logical Schlegel, Analytic_Hessian,
      &        Found, RunOld
       Real*8, Allocatable:: TanVec(:), HTanVec(:)
 
@@ -91,13 +91,13 @@
          Do i = 1, 3*mAtoms
             iAtom=(i+2)/3
             ixyz = i - (iAtom-1)*3
-            If (Smmtrc(i)) Then
+            If (Smmtrc(ixyz,iAtom)) Then
                ii = ii + 1
                jj = 0
                Do j = 1, i
                   jAtom=(j+2)/3
                   jxyz = j - (jAtom-1)*3
-                  If (Smmtrc(j)) Then
+                  If (Smmtrc(jxyz,jAtom)) Then
                      jj = jj + 1
                      ijTri=ii*(ii-1)/2 + jj
                      ij = (jj-1)*ndim + ii
@@ -205,7 +205,9 @@
 *           Call RecPrt('TanVec',' ',TanVec,nRP,1)
             i = 0
             Do ix = 1, nRP
-               If (Smmtrc(ix)) Then
+               iAtom = (ix+2)/3
+               ixyz = ix - (iAtom-1)*3
+               If (Smmtrc(ixyz,iAtom)) Then
                   i = i + 1
                   TanVec(i)=TanVec(ix)
                End If

@@ -11,7 +11,7 @@
       Subroutine Get_CurviL(
      &              nq,nqRF,nqB,nqA,nqT,nqO,
      &              nAtoms,iIter,nIter,Cx,
-     &              Smmtrc,Process,Value,nB,
+     &              Process,Value,nB,
      &              qLbl,iRef,
      &              fconst,rMult,iOptC,LuIC,Indq,iPrv,
      &              Grad_all,iGlow,iGhi,Proc_dB,
@@ -26,7 +26,7 @@
       Integer Indq(3,nB),
      &        iTabBonds(3,nBonds), iTabAtoms(2,0:nMax,mAtoms),
      &        iTabAI(2,mAtoms), iBM(nB_Tot), idBM(2,ndB_Tot), mqB(nB)
-      Logical Smmtrc(3,nAtoms), Process, Proc_dB
+      Logical Process, Proc_dB
       Character(LEN=14) qLbl(nB)
 #include "Molcas.fh"
 *                                                                      *
@@ -44,7 +44,7 @@
       Call RF_Coord(
      &              nq,
      &              nAtoms,iIter,nIter,Cx,
-     &              Smmtrc,Process,Value,nB,
+     &              Process,Value,nB,
      &              qLbl,iRef,
      &              fconst,rMult,LuIC,Indq,
      &              Proc_dB,mB_Tot,mdB_Tot,
@@ -55,7 +55,7 @@
       Call Bond_List(
      &              nq,
      &              nAtoms,iIter,nIter,Cx,
-     &              Smmtrc,Process,Value,nB,
+     &              Process,Value,nB,
      &              ANr,qLbl,fconst,
      &              rMult,iOptC,LuIC,Indq,
      &              Proc_dB,iTabBonds,nBonds,iTabAI,mAtoms,
@@ -67,7 +67,7 @@
       Call Angle_List(
      &              nq,
      &              nAtoms,iIter,nIter,Cx,
-     &              Smmtrc,Process,Value,nB,
+     &              Process,Value,nB,
      &              ANr,qLbl,iRef,
      &              fconst,rMult,LuIC,Indq,
      &              Grad_all,iGlow,iGhi,iPrv,Proc_dB,
@@ -80,7 +80,7 @@
       Call Torsion_List(
      &              nq,
      &              nAtoms,iIter,nIter,Cx,
-     &              Smmtrc,Process,Value,nB,
+     &              Process,Value,nB,
      &              ANr,qLbl,iRef,
      &              fconst,rMult,LuIC,Indq,iPrv,Proc_dB,
      &              iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
@@ -92,7 +92,7 @@
       Call OutOfPlane_List(
      &              nq,
      &              nAtoms,iIter,nIter,Cx,
-     &              Smmtrc,Process,Value,nB,
+     &              Process,Value,nB,
      &              ANr,qLbl,iRef,
      &              fconst,rMult,LuIC,Indq,iPrv,Proc_dB,
      &              iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,

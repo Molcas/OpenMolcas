@@ -11,20 +11,19 @@
       Subroutine BMtrx_User_Defined(
      &                 nLines,nBVec,nAtom,nInter,
      &                 Lbl,Coor,nDim,
-     &                 Smmtrc,
      &                 BSet,HSet,nIter,
      &                 Numerical,
      &                 Analytic_Hessian,
      &                 iOptC,lOld,
      &                 nFix,mTR,nQQ,Redundant,MaxItr)
-      use Slapaf_Info, only: Gx, qInt, dqInt, KtB, BMx, Degen
+      use Slapaf_Info, only: Gx, qInt, dqInt, KtB, BMx, Degen, Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 Coor(3,nAtom)
       Character Lbl(nInter)*8
-      Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
+      Logical BSet, HSet, Redundant,
      &        Numerical, Analytic_Hessian, lOld, Proc_dB
       Real*8, Allocatable:: Degen2(:)
       Character(LEN=8), Allocatable:: Lab(:)
@@ -95,7 +94,7 @@
          Do ix = 1, 3*nAtom
             iAtom = (ix+2)/3
             ixyz = ix - (iAtom-1)*3
-            If (Smmtrc(ix)) Then
+            If (Smmtrc(ixyz,iAtom)) Then
                i = i + 1
                Degen2(i) = Degen(ixyz,iAtom)
             End If
@@ -104,7 +103,9 @@
          Do j = 1, nQQ
             i = 0
             Do ix = 1, 3*nAtom
-               If (Smmtrc(ix)) Then
+               iAtom = (ix+2)/3
+               ixyz = ix - (iAtom-1)*3
+               If (Smmtrc(ixyz,iAtom)) Then
                   i = i + 1
                   KtB(i,j) = BMx(ix,j)
                End If

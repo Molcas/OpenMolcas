@@ -25,7 +25,7 @@
      &        Bk_mTtAtm, Bk_nsAtom, Bk_MEPnum,
      &        Bk_RootMap(MxRoot)
 *
-      Logical Bk_Smmtrc(3*mxdc), Bk_Stop, Bk_lWrite, Bk_Exist,
+      Logical Bk_Stop, Bk_lWrite, Bk_Exist,
      &        Bk_Change, Bk_lSup, Bk_lOld, Bk_CurviLinear, Bk_lRowH,
      &        Bk_HSet, Bk_BSet, Bk_lNmHss, Bk_Cubic, Bk_PDH, Bk_Baker,
      &        Bk_Schlegel, Bk_DDV_Schlegel, Bk_Line_Search, Bk_HWRS,

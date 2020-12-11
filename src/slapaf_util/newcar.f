@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine NewCar(Iter,nBVct,nLines,nAtom,nDim,nInter,
-     &                  Coor,Lbl,iSym,Smmtrc,
+     &                  Coor,Lbl,iSym,
      &                  mTtAtm,iOptH,User_Def,
      &                  Curvilinear,Numerical,DDV_Schlegel,HWRS,
      &                  Analytic_Hessian,iOptC,PrQ,rHidden,
@@ -35,7 +35,6 @@
       Real*8,  Intent(InOut):: Coor(3,nAtom)
       Character(LEN=8), Intent(In):: Lbl(nInter)
       Integer, Intent(In):: iSym(3)
-      Logical, Intent(In):: Smmtrc(3,nAtom)
       Integer, Intent(In):: mTtAtm, iOptH
       Logical, Intent(In):: User_Def
       Logical, Intent(In):: Curvilinear, Numerical, DDV_Schlegel, HWRS,
@@ -186,7 +185,7 @@
          nFix=0
          nWndw=1
          Call BMtrx(nLines,nBVct,nAtom,nInter,
-     &              Lbl,Coor,nDim,Smmtrc,
+     &              Lbl,Coor,nDim,
      &              BSet,HSet,iter+1,
      &              mTtAtm,iOptH,User_Def,
      &              Curvilinear,Numerical,

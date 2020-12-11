@@ -35,7 +35,7 @@
       Force_dB=SaveBMx
 *
       Call NewCar(kIter,nBVec,nLines,nAtom,nDim,nInter,Coor,
-     &            Lbl,iSym,Smmtrc,mTtAtm,iOptH,
+     &            Lbl,iSym,mTtAtm,iOptH,
      &            User_Def,Curvilinear,Numerical,
      &            DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
      &            rHidden,Redundant,MaxItr,

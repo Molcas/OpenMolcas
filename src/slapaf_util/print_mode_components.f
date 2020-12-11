@@ -33,7 +33,8 @@
      &                       Grd, Weights, ANr, Shift, GNrm, Lambda,
      &                       Energy, Energy0, DipM, MF, qInt, dqInt,
      &                       RefGeo, BM, iBM, dBM, idBM, nqBM, BMx,
-     &                       Degen, nStab, jStab, iCoSet, AtomLbl
+     &                       Degen, nStab, jStab, iCoSet, AtomLbl,
+     &                       Smmtrc
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -91,7 +92,7 @@
       Integer, Allocatable:: Bk_nStab(:)
       Integer, Allocatable:: Bk_iCoSet(:,:)
       Character(LEN=LENIN), Allocatable:: Bk_AtomLbl(:)
-
+      Logical, Allocatable:: Bk_Smmtrc(:,:)
 *
 *
 *---- Ugly hack: backup all "global" slapaf variables in case this is
@@ -263,6 +264,11 @@
          Bk_AtomLbl(:) = AtomLbl(:)
          Call mma_deallocate(AtomLbl)
       End If
+      If (Allocated(Smmtrc)) Then
+         Call mma_allocate(Bk_Smmtrc,3,SIZE(Smmtrc,2),Label='Bk_Smmtrc')
+         Bk_Smmtrc(:,:) = Smmtrc(:,:)
+         Call mma_deallocate(Smmtrc)
+      End If
 
       Bk_iSym(:)=iSym(:)
       Bk_iRef=iRef
@@ -292,7 +298,6 @@
       Bk_nsAtom=nsAtom
       Bk_MEPnum=MEPnum
       Bk_RootMap(:)=RootMap(:)
-      Bk_Smmtrc(:)=Smmtrc(:)
       Bk_Stop=Stop
       Bk_lWrite=lWrite
       Bk_Exist=Exist
@@ -422,7 +427,7 @@
       nWndw=iter
       iRef=0
       Call BMtrx(iRow,nBVec,nsAtom,mInt,Lbl,
-     &           Coor,nDimBC,Smmtrc,BSet,HSet,iter,
+     &           Coor,nDimBC,BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
@@ -583,7 +588,6 @@
       nsAtom=Bk_nsAtom
       MEPnum=Bk_MEPnum
       RootMap(:)=Bk_RootMap(:)
-      Smmtrc(:)=Bk_Smmtrc(:)
       Stop=Bk_Stop
       lWrite=Bk_lWrite
       Exist=Bk_Exist
@@ -898,6 +902,14 @@
          Call mma_deallocate(Bk_AtomLbl)
       Else
          If (Allocated(AtomLbl)) Call mma_deallocate(AtomLbl)
+      End If
+      If (Allocated(Bk_Smmtrc)) Then
+         If (Allocated(Smmtrc)) Call mma_deallocate(Smmtrc)
+         Call mma_allocate(Smmtrc,3,SIZE(Bk_Smmtrc,2),Label='Smmtrc')
+         Smmtrc(:,:) = Bk_Smmtrc(:,:)
+         Call mma_deallocate(Bk_Smmtrc)
+      Else
+         If (Allocated(Smmtrc)) Call mma_deallocate(Smmtrc)
       End If
 *
       End Subroutine Print_Mode_Components

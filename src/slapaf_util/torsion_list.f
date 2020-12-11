@@ -11,7 +11,7 @@
       Subroutine Torsion_List(
      &                 nq,
      &                 nAtoms,iIter,nIter,Cx,
-     &                 Smmtrc,Process,Value,
+     &                 Process,Value,
      &                 nB,iANr,qLbl,iRef,
      &                 fconst,rMult,LuIC,Indq,iPrv,Proc_dB,
      &                 iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
@@ -32,7 +32,7 @@
      &          Indq(3,nB), iDCRX(0:7), iDCRY(0:7), nqB(nB),
      &          iTabBonds(3,nBonds), iTabAI(2,mAtoms),
      &          iTabAtoms(2,0:nMax,mAtoms), iBM(nB_Tot),idBM(2,ndB_Tot)
-      Logical Smmtrc(3,nAtoms), Process,
+      Logical Process,
      &        MinBas, Help, Proc_dB, R_Stab_A, Torsion_Check
       Character*14 Label, qLbl(nB)
       Character*3 ChOp(0:7)
@@ -669,8 +669,8 @@
 *
 *---------------- Project the gradient vector
 *
-                  Call ProjSym(nAtoms,nCent,Ind,A,iDCR,Grad,
-     &                         Smmtrc,Hess,
+                  Call ProjSym(nCent,Ind,A,iDCR,Grad,
+     &                         Hess,
      &                         mB_Tot,mdB_Tot,
      &                         BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                         Proc_dB,nqB,nB,nq,rMult(nq))

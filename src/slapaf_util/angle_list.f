@@ -11,7 +11,7 @@
       Subroutine Angle_List(
      &                 nq,
      &                 nAtoms,iIter,nIter,Cx,
-     &                 Smmtrc,Process,Value,
+     &                 Process,Value,
      &                 nB,iANr,qLbl,iRef,
      &                 fconst,rMult,LuIC,Indq,
      &                 Grad_all,iGlow,iGhi,iPrv,Proc_dB,
@@ -36,7 +36,7 @@
      &          iStabN(0:7), iChOp(0:7), Indq(3,nB), nqB(nB),
      &          iTabBonds(3,nBonds), iTabAI(2,mAtoms),
      &          iTabAtoms(2,0:nMax,mAtoms), iBM(nB_Tot),idBM(2,ndB_Tot)
-      Logical Smmtrc(3,nAtoms), Process, PSPrint,
+      Logical Process, PSPrint,
      &        MinBas, Help, Proc_dB, R_Stab_A
       Character*14 Label, qLbl(nB)
       Character*3 ChOp(0:7)
@@ -443,9 +443,9 @@ C                 Do k = 1, 2
 *
 *---------------------- Project the gradient vector
 *
-                        Call ProjSym(nAtoms,nCent,Ind,A,iDCR,
+                        Call ProjSym(nCent,Ind,A,iDCR,
      &                               Grad_all(1,nq,iIter),
-     &                               Smmtrc,Hess,
+     &                               Hess,
      &                               mB_Tot,mdB_Tot,
      &                               BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                               Proc_dB,nqB,nB,nq,rMult(nq))
@@ -537,9 +537,9 @@ C                 Do k = 1, 2
 *
 *------------------- Project the gradient vector
 *
-                     Call ProjSym(nAtoms,nCent,Ind,A,iDCR,
+                     Call ProjSym(nCent,Ind,A,iDCR,
      &                            Grad_all(1,nq,iIter),
-     &                            Smmtrc,Hess,
+     &                            Hess,
      &                            mB_Tot,mdB_Tot,
      &                            BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                            Proc_dB,nqB,nB,nq,rMult(nq))

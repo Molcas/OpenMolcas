@@ -53,7 +53,7 @@
          Call Get_dArray('BMtrx',BOld,nX*nInter)
       End If
 *
-      Call Get_H_(nX,BOld,mInter,nInter,H,Tmp2,F,Smmtrc,nsAtom)
+      Call Get_H_(nX,BOld,mInter,nInter,H,Tmp2,F,nsAtom)
 *
       Call mma_deallocate(BOld)
       Call mma_deallocate(H)
@@ -61,12 +61,11 @@
 *
       Return
       End
-      Subroutine Get_H_(nX,BMtrx,mInter,nInter,H,
-     &                 Tmp2,Tmp3,Smmtrc,nAtom)
+      Subroutine Get_H_(nX,BMtrx,mInter,nInter,H,Tmp2,Tmp3,nAtom)
+      use Slapaf_Info, only: Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
-      Logical Smmtrc(3,nAtom)
       Real*8 BMtrx(nX,nInter), H(nInter,nInter),
      &       Tmp2(nX**2), Tmp3(nX**2)
 *                                                                      *

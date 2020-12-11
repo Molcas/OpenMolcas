@@ -15,25 +15,25 @@
 *
       If (lOld) Return
 *
-      Call Hss_q_(nsAtom,nQQ,Smmtrc,Analytic_Hessian,
-     &            dqInt(:,iRef),nDimBC,Curvilinear)
+      Call Hss_q_(nsAtom,nQQ,Analytic_Hessian,dqInt(:,iRef),nDimBC,
+     &            Curvilinear)
 *
       Return
       End
-      Subroutine Hss_q_(nAtom,nQQ,Smmtrc,Analytic_Hessian,Grad,
-     &                 nDim,Curvilinear)
-      use Slapaf_Info, only: Degen
+      Subroutine Hss_q_(nAtom,nQQ,Analytic_Hessian,Grad,nDim,
+     &                  Curvilinear)
+      use Slapaf_Info, only: Degen, Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 Grad(nQQ)
-      Logical Smmtrc(3*nAtom), Analytic_Hessian, Curvilinear
+      Logical Analytic_Hessian, Curvilinear
       Real*8 rDum(1)
       Real*8, Allocatable:: Hss_X(:), Degen2(:), Hss_Q(:), KtB(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -56,7 +56,7 @@
       Do ix = 1, 3*nAtom
          iAtom = (ix+2)/3
          ixyz = ix - (iAtom-1)*3
-         If (Smmtrc(ix)) Then
+         If (Smmtrc(ixyz,iAtom)) Then
             i = i + 1
             Degen2(i) = Degen(ixyz,iAtom)
          End If

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2004, Roland Lindh                                     *
 ************************************************************************
-      Subroutine BMtrx_Internal(nAtoms,nDim,Smmtrc,BSet,HSet,
+      Subroutine BMtrx_Internal(nAtoms,nDim,BSet,HSet,
      &                          nIter,mAtoms,Numerical,HWRS,
      &                          Analytic_Hessian,iOptC,PrQ,lOld,
      &                          iIter,mTR,TRVec,iTabAI,iTabAtoms,
@@ -26,7 +26,7 @@
 *              2004                                                    *
 ************************************************************************
       use Slapaf_Info, only: qInt, dqInt, BM, dBM, iBM, idBM, nqBM, KtB,
-     &                       Cx, Gx, BMx, Degen
+     &                       Cx, Gx, BMx, Degen, Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"
@@ -35,7 +35,6 @@
 #include "db.fh"
 #include "print.fh"
       Integer, Intent(In):: nAtoms, nDim
-      Logical, Intent(In):: Smmtrc(3*nAtoms)
       Logical, Intent(In):: BSet, HSet
       Integer, Intent(In):: nIter, mAtoms
       Logical, Intent(In):: Numerical, HWRS, Analytic_Hessian
@@ -94,7 +93,7 @@
       Do iX = 1, 3*nAtoms
          iAtom = (iX+2)/3
          ixyz = iX - (iAtom-1)*3
-         If (Smmtrc(iX)) Then
+         If (Smmtrc(ixyz,iAtom)) Then
             i = i + 1
             Proj(i)=One/Degen(ixyz,iAtom)
          End If
@@ -121,7 +120,7 @@
       Do ix = 1, 3*nAtoms
          iAtom = (ix+2)/3
          ixyz = ix - (iAtom-1)*3
-         If (Smmtrc(ix)) Then
+         If (Smmtrc(ixyz,iAtom)) Then
             i = i + 1
             Degen2(i) = Degen(ixyz,iAtom)
          End If
@@ -149,7 +148,7 @@
          Call Get_Curvil
      &          (nq,nqRF,nqB,nqA,nqT,nqO,
      &           nAtoms,iIter,nIter,Cx,
-     &           Smmtrc,Proc,Dum,1,cDum,
+     &           Proc,Dum,1,cDum,
      &           iRef,Dum,Dum,iOptC,LuIC,
      &           iDum,iIter,Dum,
      &           iDum(1),iDum(1),
@@ -212,7 +211,7 @@
       Call Get_Curvil
      &          (iq,iqRF,iqR,iqA,iqT,iqO,
      &           nAtoms,iIter,nIter,Cx,
-     &           Smmtrc,Proc,
+     &           Proc,
      &           qVal,nq,qLbl,
      &           iRef,F_c,Mult,iOptC,
      &           LuIC,Ind,iIter,GRef,
@@ -430,7 +429,7 @@ C        iEnd = 1
          Call Get_Curvil
      &             (iq,iqRF,iqR,iqA,iqT,iqO,
      &              nAtoms,jIter,nIter,Cx,
-     &              Smmtrc,Proc,
+     &              Proc,
      &              qVal,nq,qLbl,
      &              iRef, F_c,Mult,
      &              iOptC,LuIC,Ind,iIter,
@@ -496,7 +495,9 @@ C        iEnd = 1
 *
             iDim = 0
             Do iX = 1, nX
-               If (Smmtrc(iX)) Then
+               iAtom = (iX+2)/3
+               ixyz = iX - (iAtom-1)*3
+               If (Smmtrc(ixyz,iAtom)) Then
                   iDim = iDim + 1
                   Do iQQ = 1, nQQ
                      iQD = (iDim-1)*nQQ + iQQ

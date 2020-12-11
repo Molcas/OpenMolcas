@@ -45,7 +45,7 @@
       DipM(2)=0.0D0
       DipM(3)=0.0D0
       Call GF(nX,mInter,nInter,Tmp1,Tmp2,EVec,EVal,RedMas,iNeg,dDipM,
-     &        mTR,Smmtrc,nAtom,DipM)
+     &        mTR,nAtom,DipM)
 *
       Call mma_deallocate(Tmp2)
       Call mma_deallocate(Tmp1)

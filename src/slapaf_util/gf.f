@@ -9,12 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine GF(nX,mInter,nInter,Tmp1,Tmp2,EVec,EVal,RedM,
-     &              iNeg,dDipM,mTR,Smmtrc,nAtom,DipM)
+     &              iNeg,dDipM,mTR,nAtom,DipM)
+      use Slapaf_Info, only: Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
 #include "stdalloc.fh"
-      Logical Smmtrc(3,nAtom)
       Real*8 dDipM(3,nInter+mTR), DipM(3), Tmp1(nX**2), Tmp2(nX**2),
      &       EVec(2*mInter,mInter), EVal(2*mInter), RedM(mInter)
       Real*8, Allocatable:: G(:), GInv(:), F(:)
@@ -22,7 +22,7 @@
 ************************************************************************
 *                                                                      *
       iRout=138
-*define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call RecPrt('GF: dDipM',' ',dDipM,3,nInter)
       Call RecPrt('GF: DipM',' ',DipM,3,1)

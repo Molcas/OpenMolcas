@@ -15,7 +15,7 @@
      &                     iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,iRow_c,nsAtom,
-     &                     Smmtrc,nDimBC,
+     &                     nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
@@ -42,7 +42,6 @@
 *      nLambda        : number of constraints                          *
 *      iRow_c         : number of lines on the UDC file                *
 *      nsAtom         : number of symmetry unique atoms                *
-*      Smmtrc         : logical flag for symmetry properties           *
 *      nDimBC         : dimension of redundant coordinates(?)          *
 *      iNeg           : Hessian index                                  *
 *      Labels         : character string of primitive int. coord.      *
@@ -65,7 +64,7 @@
 *             2000                                                     *
 ************************************************************************
       use Slapaf_info, only: GNrm, Lambda, Energy, MF, dqInt,
-     &                       BMx, Degen, nStab
+     &                       BMx, Degen, nStab, Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
@@ -73,7 +72,7 @@
       Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter)
       Integer iNeg(2)
 *    &        iNeg(2), jNeg(2)
-      Logical Line_Search, Smmtrc(3*nsAtom),FindTS, TSC, HrmFrq_Show,
+      Logical Line_Search, FindTS, TSC, HrmFrq_Show,
      &        Found, Curvilinear, Kriging_Hessian, First_MicroIteration
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
      &          Labels(nLabels)*8, UpMeth*6,
@@ -535,12 +534,16 @@ C           Write (6,*) 'tBeta=',tBeta
          Do k = 1, nLambda
             j = 0
             Do jx = 1, n1
-               If (Smmtrc(jx)) Then
+               jAtom = (jx+2)/3
+               jxyz = jx - (jAtom-1)*3
+               If (Smmtrc(jxyz,jAtom)) Then
                   j = j + 1
 *
                   i=0
                   Do ix = 1, n1
-                     If (Smmtrc(ix)) Then
+                     iAtom = (ix+2)/3
+                     ixyz = ix - (iAtom-1)*3
+                     If (Smmtrc(ixyz,iAtom)) Then
                         i = i + 1
                         dBM(ix,jx,k) = dBM(ix,jx,k) - QC(i,j,k)
                      End If
@@ -710,7 +713,7 @@ C           Write (6,*) 'tBeta=',tBeta
       Call mma_Deallocate(Index)
       Call mma_Deallocate(AMat)
 #ifdef _WARNING_WORKAROUND_
-      If (Smmtrc(1)) i=nDimBC
+      If (Smmtrc(1,1)) i=nDimBC
 #endif
 *
       Return

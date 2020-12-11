@@ -8,14 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine TRMake(TRVec,Coor,nAtoms,nTR,uMtrx,Smmtrc,nDim,CofM)
-      use Slapaf_Info, only: dMass
+      Subroutine TRMake(TRVec,Coor,nAtoms,nTR,uMtrx,nDim,CofM)
+      use Slapaf_Info, only: dMass, Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 TRVec(6,3*nAtoms), Coor(3,nAtoms), uMtrx(3*nAtoms), CM(3)
-      Logical SymDsp, Smmtrc(3,nAtoms), TransVar, RotVar, CofM
+      Logical SymDsp, TransVar, RotVar, CofM
 *
       iRout = 131
       iPrint=nPrint(iRout)

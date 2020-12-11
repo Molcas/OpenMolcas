@@ -8,14 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine TRPGen(nDim,nAtom,Coor,Smmtrc,mTR,CofM,TRVec)
-      use Slapaf_Info, only: Degen
+      Subroutine TRPGen(nDim,nAtom,Coor,mTR,CofM,TRVec)
+      use Slapaf_Info, only: Degen, Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 Coor(3,nAtom), TRVec(3*nAtom*6)
-      Logical Smmtrc(3*nAtom), CofM
+      Logical CofM
       Logical, Save:: g12K=.True.
       Real*8, Allocatable:: TR(:), Scrt(:), G(:), EVal(:), EVec(:),
      &                      U(:)
@@ -30,7 +30,7 @@
 *     B    (nTR x nDim)
 *      tr
 *
-      Call TRMake(TR,Coor,nAtom,nTR,Degen,Smmtrc,nDim,CofM)
+      Call TRMake(TR,Coor,nAtom,nTR,Degen,nDim,CofM)
 *
       TRVec(1:nTR*nDim) = TR(1:nTR*nDim)
 *
@@ -47,11 +47,9 @@
       Call mma_allocate(U,nDim,Label='U')
       U(:) = One
       i=0
-      iX = 0
       Do iAtom = 1, nAtom
       Do ixyz = 1, 3
-         iX = iX + 1
-         If (Smmtrc(iX)) Then
+         If (Smmtrc(ixyz,iAtom)) Then
             i = i + 1
             Call DScal_(nTR,Sqrt(Degen(ixyz,iAtom)),
      &                  TRVec((i-1)*nTR+1),1)

@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Bond_List(
      &                 nq,nAtoms,iIter,nIter,Cx,
-     &                 Smmtrc,Process,Value,
+     &                 Process,Value,
      &                 nB,iANr,qLbl,fconst,
      &                 rMult,iOptC,LuIC,Indq,
      &                 Proc_dB,iTabBonds,nBonds,
@@ -29,7 +29,7 @@
      &          iStabM(0:7), Ind(2), iDCR(2), iANr(nAtoms), iChOp(0:7),
      &          Indq(3,nB), iTabBonds(3,nBonds), iTabAI(2,mAtoms),
      &          iBM(nB_Tot), idBM(2,ndB_Tot), mqB(nB)
-      Logical Smmtrc(3,nAtoms), Process, Proc_dB,Help, R_Stab_A
+      Logical Process, Proc_dB,Help, R_Stab_A
       Character*14 Label, qLbl(nB)
       Character*3 ChOp(0:7)
       Character*(LENIN4) Lbls(2)
@@ -235,8 +235,8 @@
 *
 *-----------   Project the gradient vector
 *
-               Call ProjSym(nAtoms,nCent,Ind,A,
-     &                      iDCR,Grad,Smmtrc,
+               Call ProjSym(nCent,Ind,A,
+     &                      iDCR,Grad,
      &                      Hess,mB_Tot,mdB_Tot,
      &                      BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                      Proc_dB,mqB,nB,nq,rMult(nq))

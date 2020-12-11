@@ -1,4 +1,4 @@
-************************************************************************
+**********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -129,7 +129,7 @@
       iRef=0
       Call BMtrx(iRow,nBVec,nsAtom,mInt,Lbl,
      &           Coor,nDimBC,
-     &           Smmtrc,BSet,HSet,iter,
+     &           BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
@@ -157,7 +157,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Reset_ThrGrd(nsAtom,nDimBC,Smmtrc,Iter,
+      Call Reset_ThrGrd(nsAtom,nDimBC,Iter,
      &                  mTtAtm,DDV_Schlegel,iOptC,rHidden,
      &                  ThrGrd)
 *                                                                      *
@@ -234,7 +234,7 @@
      &               iOptC,Beta,Beta_Disp,
      &               Lbl,UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
-     &               Smmtrc,nDimBC,
+     &               nDimBC,
      &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,
@@ -247,7 +247,7 @@
      &               iOptC,Beta,Beta_Disp,
      &               Lbl,UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
-     &               Smmtrc,nDimBC,GrdMax,
+     &               nDimBC,GrdMax,
      &               StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,
@@ -275,7 +275,7 @@
          Error=.False.
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Coor,
-     &               Lbl,iSym,Smmtrc,
+     &               Lbl,iSym,
      &               mTtAtm,iOptH,
      &               User_Def,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
