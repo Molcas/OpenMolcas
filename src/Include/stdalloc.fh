@@ -54,6 +54,16 @@
            integer, intent(in) :: l1(2)
            character(len=*), optional, intent(in) :: label
          end subroutine
+         subroutine lmma_allo_1D(buffer,n1,label)
+           logical, allocatable, intent(inout) :: buffer(:)
+           integer, intent(in) :: n1
+           character(len=*), optional, intent(in) :: label
+         end subroutine
+         subroutine lmma_allo_1D_lim(buffer,l1,label)
+           logical, allocatable, intent(inout) :: buffer(:)
+           integer, intent(in) :: l1(2)
+           character(len=*), optional, intent(in) :: label
+         end subroutine
 
 ! 2D allocate
          subroutine dmma_allo_2D(buffer,n1,n2,label)
@@ -203,6 +213,9 @@
          end subroutine
          subroutine cmma_free_1D(buffer)
            character(*), allocatable, intent(inout) :: buffer(:)
+         end subroutine
+         subroutine lmma_free_1D(buffer)
+           logical, allocatable, intent(inout) :: buffer(:)
          end subroutine
 
 ! 2D deallocate
