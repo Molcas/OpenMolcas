@@ -15,7 +15,7 @@
 *---------------------------------*
       use Symmetry_Info, only: nIrrep
       use Phase_Info
-      use Slapaf_Info, only: Cx, jStab, nStab
+      use Slapaf_Info, only: Cx, nStab
       implicit real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "stdalloc.fh"
@@ -23,8 +23,7 @@
 #include "periodic_table.fh"
       Real*8 Charge(Mxdc), Crd(3,nAtm,nIter),Enrg(nIter),
      &       Grd(3,nAtm,nIter)
-      Integer nStab2(Mxdc)
-      Integer, Allocatable :: icoset2(:,:,:)
+      Integer, Allocatable :: icoset2(:,:,:), jStab2(:,:), nStab2(:)
       Character*(*) FileName
       Real*8, Allocatable:: Cx_p(:,:)
 *
@@ -144,6 +143,10 @@
       MaxDCR=0
       Call mma_allocate(icoset2,[0,7],[0,7],[1,msAtom+msAtom_p],
      &                  label='icoset2')
+      Call mma_allocate(jStab2,[0,7],[1,msAtom+msAtom_p],
+     &                  label='jStab2')
+      Call mma_allocate(nStab2,[1,msAtom+msAtom_p],
+     &                  label='nStab2')
       Do ndc = 1, msAtom + msAtom_p
          If (ndc.le.msAtom) Then
             ixyz   = ixyz   + 1
@@ -152,7 +155,7 @@
             ixyz_p = ixyz_p + 1
             iChxyz=iChAtm(Cx_p(1,ixyz_p))
          End If
-         Call Stblz(iChxyz,nStab2(ndc),jStab(0,ndc),
+         Call Stblz(iChxyz,nStab2(ndc),jStab2(0,ndc),
      &              MaxDCR,iCoSet2(0,0,ndc))
       End Do
 *                                                                      *
@@ -222,6 +225,8 @@
             End do
          End do
       End Do
+      Call mma_deallocate(nStab2)
+      Call mma_deallocate(jStab2)
       Call mma_deallocate(icoset2)
 *
       Close(Lu_Molden)
