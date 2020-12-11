@@ -21,7 +21,6 @@
 *             Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
-      use Slapaf_Info, only: dMass
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -183,7 +182,7 @@ c      iBVct = 0
       Call mma_allocate(Mass,2,msAtom,Label='Mass')
 *
       Call CllCtoF(Line(nGo:nTemp),nAtom,Coor,nCntr,mCntr,xyz,
-     &             Temp2,Ind,Type,dMass,Mass,Labels)
+     &             Temp2,Ind,Type,Mass,Labels)
 *
       Call mma_deallocate(Mass)
       Call mma_deallocate(Ind)

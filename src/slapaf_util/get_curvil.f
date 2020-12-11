@@ -14,17 +14,15 @@
      &              Smmtrc,Process,Value,nB,
      &              qLbl,iRef,
      &              fconst,rMult,iOptC,LuIC,Indq,iPrv,
-     &              dMass,Grad_all,iGlow,iGhi,Proc_dB,
+     &              Grad_all,iGlow,iGhi,Proc_dB,
      &              iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
      &              mB_Tot,mdB_Tot,
      &              BM,dBM,iBM,idBM,
      &              nB_Tot,ndB_Tot,mqB,Thr_small)
       use Slapaf_Info, only: ANr
       Implicit Real*8 (a-h,o-z)
-      Real*8 Cx(3,nAtoms,nIter), fconst(nB),
-     &       Value(nB,nIter), rMult(nB), dMass(nAtoms),
-     &       Grad_all(9,iGlow:iGhi,nIter),
-     &       BM(nB_Tot),dBM(ndB_Tot)
+      Real*8 Cx(3,nAtoms,nIter), fconst(nB), Value(nB,nIter), rMult(nB),
+     &       Grad_all(9,iGlow:iGhi,nIter), BM(nB_Tot),dBM(ndB_Tot)
       Integer Indq(3,nB),
      &        iTabBonds(3,nBonds), iTabAtoms(2,0:nMax,mAtoms),
      &        iTabAI(2,mAtoms), iBM(nB_Tot), idBM(2,ndB_Tot), mqB(nB)
@@ -49,7 +47,7 @@
      &              Smmtrc,Process,Value,nB,
      &              qLbl,iRef,
      &              fconst,rMult,LuIC,Indq,
-     &              dMass,Proc_dB,mB_Tot,mdB_Tot,
+     &              Proc_dB,mB_Tot,mdB_Tot,
      &              BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
       nqRF=nq-nq_
 *

@@ -12,7 +12,7 @@
 *               2015, Ignacio Fdez. Galvan (split from gencxctl)       *
 ************************************************************************
       Subroutine get_drdq(drdq,mLambda)
-      use Slapaf_Info, only: dMass, BMx, Degen
+      use Slapaf_Info, only: BMx, Degen
       Implicit None
 ************************************************************************
 *     subroutine to get the dr/dq vectors for the constraints as given *
@@ -53,7 +53,7 @@
 *
          Call DefInt2(BVc,dBVc,nBV,Labels,BMx_t,nLambda,nsAtom,iRow_c,
      &                Value,cInt,cInt0,Lbl,lWrite,
-     &                Mult,dBMx,Value0,Iter,iFlip,dMass)
+     &                Mult,dBMx,Value0,Iter,iFlip)
 
          Call mma_deallocate(iFlip)
          Call mma_deallocate(dBMx)

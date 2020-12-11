@@ -12,8 +12,7 @@
 ************************************************************************
       SubRoutine DefInt2(BVct,dBVct,nBvct,Labels,BMtrx,mInt,nAtom,
      &                   nLines,Value,rInt,rInt0,Lbl,
-     &                   lWrite,rMult,dBMtrx,Value0,lIter,
-     &                   iFlip,dMass)
+     &                   lWrite,rMult,dBMtrx,Value0,lIter,iFlip)
 ************************************************************************
 *                                                                      *
 * Object: to generate the B matrix for the constraints                 *
@@ -31,7 +30,7 @@
 #include "Molcas.fh"
       Real*8 BVct(3*nAtom,nBVct), dBVct(3*nAtom,3*nAtom,nBVct),
      &       Value(nBVct), BMtrx(3*nAtom,mInt), rInt(mInt), rInt0(mInt),
-     &       rMult(nBVct,nBVct), dMass(nAtom),
+     &       rMult(nBVct,nBVct),
      &       dBMtrx(3*nAtom,3*nAtom,mInt), Value0(nBVct), MaxErr
       Character Line*120, Labels(nBVct)*8, Type*6, Format*8,
      &          Temp*120, Lbl(mInt)*8, filnam*16
@@ -271,7 +270,7 @@ c      Open(Lu_UDC,File=filnam,Form='FORMATTED',Status='OLD')
 *
          Call Cllct2(Line(nGo:nTemp),BVct(1,iBVct),dBVct(1,1,iBVct),
      &               Value(iBVct),nAtom,nCntr,mCntr,xyz,Grad,
-     &               Ind,Type,dMass,Mass,Labels(iBVct),lWrite,
+     &               Ind,Type,Mass,Labels(iBVct),lWrite,
      &               rMult(iBVct,iBVct),Hess,lIter)
 *
          If (Type.eq.'TRSN  ' .and.

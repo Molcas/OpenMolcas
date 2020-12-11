@@ -8,14 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine CofMss(Coor,dMass,nsAtom,LWrite,cMass,iSym)
+      Subroutine CofMss(Coor,nsAtom,LWrite,cMass,iSym)
 ************************************************************************
 *     Object: To calculate the molecular mass, the center of mass and  *
 *             move the coordinates so origo is the center of mass.     *
 ************************************************************************
+      use Slapaf_Info, only: dMass
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-      Real*8 COOR(3,nsAtom), dMass(nsAtom), cMass(3)
+      Real*8 COOR(3,nsAtom), cMass(3)
       Integer iSym(3)
       Logical LWRITE
 *

@@ -26,7 +26,7 @@
 *              2004                                                    *
 ************************************************************************
       use Slapaf_Info, only: qInt, dqInt, BM, dBM, iBM, idBM, nqBM, KtB,
-     &                       Cx, Gx, dMass, BMx, Degen
+     &                       Cx, Gx, BMx, Degen
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"
@@ -151,7 +151,7 @@
      &           nAtoms,iIter,nIter,Cx,
      &           Smmtrc,Proc,Dum,1,cDum,
      &           iRef,Dum,Dum,iOptC,LuIC,
-     &           iDum,iIter,dMass,Dum,
+     &           iDum,iIter,Dum,
      &           iDum(1),iDum(1),
      &           Proc_dB,
      &           iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
@@ -215,7 +215,7 @@
      &           Smmtrc,Proc,
      &           qVal,nq,qLbl,
      &           iRef,F_c,Mult,iOptC,
-     &           LuIC,Ind,iIter,dMass,GRef,
+     &           LuIC,Ind,iIter,GRef,
      &           iGlow,iGHi,
      &           Proc_dB,
      &           iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
@@ -433,7 +433,7 @@ C        iEnd = 1
      &              Smmtrc,Proc,
      &              qVal,nq,qLbl,
      &              iRef, F_c,Mult,
-     &              iOptC,LuIC,Ind,iIter,dMass,
+     &              iOptC,LuIC,Ind,iIter,
      &              GRef,iGlow,iGHi,
      &              Proc_dB,
      &              iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,

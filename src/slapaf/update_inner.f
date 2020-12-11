@@ -64,7 +64,7 @@
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
-      use Slapaf_info, only: GNrm, dMass, Lambda, Energy, MF, dqInt,
+      use Slapaf_info, only: GNrm, Lambda, Energy, MF, dqInt,
      &                       BMx, Degen, nStab
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -423,7 +423,7 @@ C           Write (6,*) 'tBeta=',tBeta
             Call DefInt2(BVec,dBVec,nBVec,Labels,BM,nLambda,nsAtom,
      &                   iRow_c,Value,cInt,cInt0,Lbl(nInter+1),
      &                   (lIter.eq.kIter).and.First_MicroIteration,
-     &                   Mult,dBM,Value0,lIter,iFlip,dMass)
+     &                   Mult,dBM,Value0,lIter,iFlip)
 *
 *           Assemble r
 *

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine TRPGen(nDim,nAtom,Coor,Smmtrc,mTR,CofM,TRVec)
-      use Slapaf_Info, only: dMass, Degen
+      use Slapaf_Info, only: Degen
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -30,7 +30,7 @@
 *     B    (nTR x nDim)
 *      tr
 *
-      Call TRMake(TR,Coor,nAtom,nTR,Degen,Smmtrc,nDim,dMass,CofM)
+      Call TRMake(TR,Coor,nAtom,nTR,Degen,Smmtrc,nDim,CofM)
 *
       TRVec(1:nTR*nDim) = TR(1:nTR*nDim)
 *

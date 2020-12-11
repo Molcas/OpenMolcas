@@ -17,7 +17,7 @@
      &                 Analytic_Hessian,
      &                 iOptC,lOld,
      &                 nFix,mTR,nQQ,Redundant,MaxItr)
-      use Slapaf_Info, only: Gx, dMass, qInt, dqInt, KtB, BMx, Degen
+      use Slapaf_Info, only: Gx, qInt, dqInt, KtB, BMx, Degen
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -71,7 +71,7 @@
 *
       Call DefInt(BVec,nBVec,Lab,BMx,nQQ,
      &            nAtom,nLines,Val,qInt(:,nIter),Lbl,
-     &            Coor,dMass,Mult,nDim-mTR,Redundant)
+     &            Coor,Mult,nDim-mTR,Redundant)
 *
       Call mma_deallocate(Lab)
       Call mma_deallocate(Val)

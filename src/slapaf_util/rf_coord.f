@@ -12,19 +12,18 @@
      &                 nq,nAtoms,iIter,nIter,Cx,
      &                 Smmtrc,Process,Value,
      &                 nB,qLbl,iRef,fconst,
-     &                 rMult,LuIC,Indq,dMass,
+     &                 rMult,LuIC,Indq,
      &                 Proc_dB,mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: nStab, iCoSet
+      use Slapaf_Info, only: nStab, iCoSet, dMass
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "stdalloc.fh"
 #include "real.fh"
 #include "sbs.fh"
 #include "print.fh"
-      Real*8 Cx(3,nAtoms,nIter),
-     &       dMass(nAtoms), fconst(nB), Value(nB,nIter), rMult(nB),
+      Real*8 Cx(3,nAtoms,nIter), fconst(nB), Value(nB,nIter), rMult(nB),
      &       Trans(3), RotVec(3), RotMat(3,3),
      &       BM(nB_Tot), dBM(ndB_Tot)
       Integer   nqB(nB),

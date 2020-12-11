@@ -14,7 +14,7 @@
      &                  Curvilinear,Numerical,DDV_Schlegel,HWRS,
      &                  Analytic_Hessian,iOptC,PrQ,rHidden,
      &                  Redundant,MaxItr,iRef,Error)
-      use Slapaf_Info, only: Cx, dMass, qInt, RefGeo, BMx, Shift, Degen,
+      use Slapaf_Info, only: Cx, qInt, RefGeo, BMx, Shift, Degen,
      &                       AtomLbl
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
@@ -174,7 +174,7 @@
      &          Abs(Coor(3,iAtom)).lt.1.0D-13) Coor(3,iAtom)=Zero
          End Do
 *
-         Call CofMss(Coor,dMass,nAtom,.False.,cMass,iSym)
+         Call CofMss(Coor,nAtom,.False.,cMass,iSym)
          call dcopy_(3*nAtom,Coor,1,Cx(:,:,Iter+1),1)
          If (iPrint.ge.99)
      &      Call PrList('Symmetry Distinct Nuclear Coordinates / Bohr',

@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       SubRoutine Cllct(Strng,Vector,Value,nAtom,Coor,nCntr,mCntr,
-     &                 xyz,Temp,Ind,Type,rMss,qMss,TMtrx,First,Lbl,
+     &                 xyz,Temp,Ind,Type,qMss,TMtrx,First,Lbl,
      &                 lWrite,Deg,lAtom)
 ************************************************************************
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
@@ -19,7 +19,7 @@
 *             May '91                                                  *
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: AtomLbl
+      use Slapaf_Info, only: dMass, AtomLbl
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -28,7 +28,7 @@
       Character Label*(LENIN5), Name*(LENIN)
       Character Oper*3, Type*6, Lbl*8
       Real*8 Coor(3,nAtom), Vector(3,nAtom), xyz(3,nCntr+mCntr),
-     &       Temp(3,nCntr+mCntr), rMss(nAtom), qMss(nCntr+mCntr),
+     &       Temp(3,nCntr+mCntr), qMss(nCntr+mCntr),
      &       TMtrx(3,nAtom,3,(nCntr+mCntr)), Axis(3), Perp_Axis(3,2)
       Integer   Ind(nCntr+mCntr,2)
       Logical First, lWrite, ldB, lWarn, lAtom(nAtom)
@@ -120,7 +120,7 @@
          If (iAnd(iPhase,1).ne.0) xyz(1,ixyz) = - xyz(1,ixyz)
          If (iAnd(iPhase,2).ne.0) xyz(2,ixyz) = - xyz(2,ixyz)
          If (iAnd(iPhase,4).ne.0) xyz(3,ixyz) = - xyz(3,ixyz)
-         If (Type.eq.'DISSOC') qMss(ixyz) = rMss(jsAtom)
+         If (Type.eq.'DISSOC') qMss(ixyz) = dMass(jsAtom)
          iFrst = iEnd + 1
  10   Continue
 *

@@ -12,7 +12,7 @@
 *               2008, Giovanni Ghigo                                   *
 ************************************************************************
       SubRoutine CllCtoF(Strng,nAtom,Coor,nCntr,mCntr,
-     &                   xyz,Temp,Ind,Type,rMss,qMss,Lbl)
+     &                   xyz,Temp,Ind,Type,qMss,Lbl)
 ************************************************************************
 *                                                                      *
 *     Author: Giovanni Ghigo, Dep. of General and Organic Chemistry    *
@@ -24,7 +24,7 @@
 *             May '91                                                  *
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: AtomLbl
+      use Slapaf_Info, only: dMass, AtomLbl
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -32,7 +32,7 @@
       Character*(*) Strng
       Character Label*(LENIN1), Name*(LENIN), Oper*3, Type*6, Lbl*8
       Real*8 Coor(3,nAtom), xyz(3,nCntr+mCntr),
-     &       Temp(3,nCntr+mCntr), rMss(nAtom), qMss(nCntr+mCntr),
+     &       Temp(3,nCntr+mCntr), qMss(nCntr+mCntr),
      &       Axis(3), Perp_Axis(3,2)
       Integer   Ind(nCntr+mCntr,2)
       Logical lWrite, ldB, lWarn
@@ -122,7 +122,7 @@
          If (iAnd(iPhase,1).ne.0) xyz(1,ixyz) = - xyz(1,ixyz)
          If (iAnd(iPhase,2).ne.0) xyz(2,ixyz) = - xyz(2,ixyz)
          If (iAnd(iPhase,4).ne.0) xyz(3,ixyz) = - xyz(3,ixyz)
-         If (Type.eq.'DISSOC') qMss(ixyz) = rMss(jsAtom)
+         If (Type.eq.'DISSOC') qMss(ixyz) = dMass(jsAtom)
          iFrst = iEnd + 1
  10   Continue
 *

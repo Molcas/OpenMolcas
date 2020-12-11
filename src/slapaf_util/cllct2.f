@@ -11,7 +11,7 @@
 * Copyright (C) 1991,1997, Roland Lindh                                *
 ************************************************************************
       SubRoutine Cllct2(Strng,Vector,dVector,Value,nAtom,
-     &                  nCntr,mCntr,xyz,Grad,Ind,Type,rMss,qMss,Lbl,
+     &                  nCntr,mCntr,xyz,Grad,Ind,Type,qMss,Lbl,
      &                  lWrite,Deg,Hess,lIter)
 ************************************************************************
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
@@ -22,7 +22,7 @@
 *             June '97 (R. Lindh)                                      *
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: Cx, AtomLbl
+      use Slapaf_Info, only: Cx, dMass, AtomLbl
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -35,10 +35,10 @@
       Real*8 Vector(3,nAtom), xyz(3,nCntr+mCntr),
      &       Grad(3,nCntr+mCntr), dVector(3,nAtom,3,nAtom),
      &       Axis(3),
-     &       Perp_Axis(3,2),rMss(nAtom), qMss(nCntr+mCntr),
+     &       Perp_Axis(3,2), qMss(nCntr+mCntr),
      &       Hess(3,nCntr+mCntr,3,nCntr+mCntr)
       Integer   Ind(nCntr+mCntr,2), iDCR(MxAtom)
-      Logical lWrite, ldB, lWarn, PSPrint
+      Logical lWrite, ldB, lWarn
       Real*8, Allocatable:: Not_Allocated(:,:)
 *                                                                      *
 ************************************************************************
@@ -66,13 +66,10 @@
       ldB=.True.
       lWarn  = lWrite
       If (iPrint.gt.20) lWrite = .True.
-      PSPrint=.False.
-      If (iPrint.gt.20) PSPrint = .True.
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In Cllct2: Coor',' ',
-     &                               Cx(:,:,lIter),3,nAtom)
-         Call RecPrt('rMss',' ',rMss,1,nAtom)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' In Cllct2: Coor',' ',Cx(:,:,lIter),3,nAtom)
+      Call RecPrt('dMass',' ',dMass,1,nAtom)
+#endif
 *
       iFrst = 1
       iEnd  = 1
@@ -158,7 +155,7 @@
          If (iAnd(iPhase,1).ne.0) xyz(1,ixyz) = - xyz(1,ixyz)
          If (iAnd(iPhase,2).ne.0) xyz(2,ixyz) = - xyz(2,ixyz)
          If (iAnd(iPhase,4).ne.0) xyz(3,ixyz) = - xyz(3,ixyz)
-         If (Type.eq.'DISSOC') qMss(ixyz) = rMss(jsAtom)
+         If (Type.eq.'DISSOC') qMss(ixyz) = dMass(jsAtom)
 *
       End Do  ! Do ixyz = 1, nCntr+mCntr
 *

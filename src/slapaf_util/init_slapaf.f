@@ -464,7 +464,7 @@ C           NADC= .False. ! for debugging
      &                   AtomLbl,nsAtom,Coor,3,nsAtom)
       LWrite = .False.
       If (jPrint.ge.99) lWrite=.True.
-      Call CofMss(Coor,dMass,nsAtom,LWrite,cMass,iSym)
+      Call CofMss(Coor,nsAtom,LWrite,cMass,iSym)
       LWrite = .False.
       If (jPrint.ge.99) Call
      &     PrList('Symmetry Distinct Nuclear Forces / au',

@@ -11,8 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       SubRoutine DefInt(BVct,nBVct,Labels,BMtrx,nQQ,nAtom,nLines,Value,
-     &                  rInt,Lbl,Coor,dMass,
-     &                  rMult,nDim,Redundant)
+     &                  rInt,Lbl,Coor,rMult,nDim,Redundant)
 ************************************************************************
 *                                                                      *
 * Object: to generate the B matrix which is the transformation matrix  *
@@ -31,7 +30,7 @@
 #include "stdalloc.fh"
 #include "Molcas.fh"
       Real*8 BVct(3*nAtom,nBVct), Value(nBVct), BMtrx(3*nAtom,nQQ),
-     &       rInt(nQQ), Coor(3,nAtom), dMass(nAtom), rMult(nBVct)
+     &       rInt(nQQ), Coor(3,nAtom), rMult(nBVct)
       Character Labels(nBVct)*8, Type*6, Temp*120, Lbl(nQQ)*8, cNum*4,
      &          Line*120, Format*8, filnam*16
       Logical Flip, lPIC(6*nAtom), lAtom(nAtom), Redundant
@@ -234,7 +233,7 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
          Call Cllct(Line(nGo:nTemp),BVct(1,iBVct),Value_Temp,
      &              nAtom,Coor,nCntr,mCntr,
      &              xyz,Tmp2,Ind,Type,
-     &              dMass,Mass,TM,lWrite,
+     &              Mass,TM,lWrite,
      &              Labels(iBVct),lWrite,
      &              rMult(iBVct),lAtom)
 *
