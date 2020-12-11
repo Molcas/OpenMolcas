@@ -27,11 +27,6 @@
 *     Read initial data
 *
       Call Get_iScalar('Unique atoms',nsAtom)
-      If (nsAtom.gt.mxdc) Then
-         Call WarningMessage(2,'Init: nsAtom.gt.mxdc')
-         Write (6,*) 'nsAtom,mxdc=',nsAtom,mxdc
-         Call Abend()
-      End If
 *
       Call mma_allocate(Coor,3,nsAtom,Label='Coor')
       Call Get_dArray('Unique Coordinates',Coor,3*nsAtom)
