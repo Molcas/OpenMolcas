@@ -15,7 +15,7 @@ implicit none
 Private
 Public:: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, ANr, Weights, Shift, GNrm, Lambda, &
          Energy, Energy0, DipM, MF, qInt, dqInt, nSup, Atom, RefGeo, BMx, Degen, jStab, nStab, iCoSet, &
-         BM, dBM, iBM, idBM, nqBM, R12, GradRef, KtB, Free_Slapaf, Get_Slapaf, Dmp_Slapaf
+         BM, dBM, iBM, idBM, nqBM, R12, GradRef, KtB, AtomLbl, Free_Slapaf, Get_Slapaf, Dmp_Slapaf
 !
 ! Arrays always allocated
 !
@@ -41,6 +41,8 @@ Real*8, Allocatable, Target:: GradRef(:,:)  ! Reference gradient
 Real*8, Allocatable, Target:: Bmx(:,:)      ! the B matrix
 Real*8, Allocatable:: Degen(:,:)    ! list of degeneracy numbers of the unique atoms (three identical entries)
 Integer, Allocatable:: jStab(:,:), iCoset(:,:), nStab(:) ! stabilizer and cosets information for the indivudual centers
+#include "LenIn.fh"
+Character(LEN=LENIN), Allocatable:: AtomLbl(:) ! atomic labels
 
 ! Arrays for automatic internal coordinates
 Real*8, Allocatable:: BM(:)         ! ...
@@ -80,6 +82,7 @@ Contains
   If (Allocated(jStab)) Call mma_deallocate(jStab)
   If (Allocated(iCoSet)) Call mma_deallocate(iCoSet)
   If (Allocated(nStab)) Call mma_deallocate(nStab)
+  If (Allocated(AtomLbl)) Call mma_deallocate(AtomLbl)
 
   If (Allocated(Q_nuclear)) Call mma_deallocate(Q_nuclear)
   If (Allocated(dMass)) Call mma_deallocate(dMass)

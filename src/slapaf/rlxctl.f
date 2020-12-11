@@ -92,7 +92,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (lCtoF .AND. PrQ) Call Def_CtoF(.False.,nsAtom,AtomLbl,Coor)
+      If (lCtoF .AND. PrQ) Call Def_CtoF(.False.,nsAtom,Coor)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -128,7 +128,7 @@
       If (Numerical) nWndw=NmIter
       iRef=0
       Call BMtrx(iRow,nBVec,nsAtom,mInt,Lbl,
-     &           Coor,nDimBC,AtomLbl,
+     &           Coor,nDimBC,
      &           Smmtrc,BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,Curvilinear,Numerical,
@@ -234,7 +234,6 @@
      &               iOptC,Beta,Beta_Disp,
      &               Lbl,UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
-     &               AtomLbl,
      &               Smmtrc,nDimBC,
      &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
@@ -248,7 +247,6 @@
      &               iOptC,Beta,Beta_Disp,
      &               Lbl,UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
-     &               AtomLbl,
      &               Smmtrc,nDimBC,GrdMax,
      &               StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               Labels,nLabels,FindTS,TSConstraints,nRowH,
@@ -277,7 +275,7 @@
          Error=.False.
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Coor,
-     &               Lbl,AtomLbl,iSym,Smmtrc,
+     &               Lbl,iSym,Smmtrc,
      &               mTtAtm,iOptH,
      &               User_Def,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
@@ -345,7 +343,7 @@
 *
       Numerical = (lNmHss.or.lRowH) .and. iter.le.NmIter
       Call DstInf(iStop,Just_Frequencies,Numerical)
-      If (lCtoF) Call Def_CtoF(.True.,nsAtom,AtomLbl,Coor)
+      If (lCtoF) Call Def_CtoF(.True.,nsAtom,Coor)
       If (.Not.User_Def .and.
      &   ((lNmHss.and.iter.ge.NmIter).or..Not.lNmHss)) Call cp_SpcInt
 *

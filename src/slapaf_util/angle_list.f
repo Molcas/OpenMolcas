@@ -13,13 +13,13 @@
      &                 nAtoms,iIter,nIter,Cx,
      &                 Smmtrc,Process,Value,
      &                 nB,iANr,qLbl,iRef,
-     &                 fconst,rMult,LuIC,Name,Indq,
+     &                 fconst,rMult,LuIC,Indq,
      &                 Grad_all,iGlow,iGhi,iPrv,Proc_dB,
      &                 iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &                 mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB,Thr_small)
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: jStab, nStab
+      use Slapaf_Info, only: jStab, nStab, AtomLbl
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -40,7 +40,6 @@
      &        MinBas, Help, Proc_dB, R_Stab_A
       Character*14 Label, qLbl(nB)
       Character*3 ChOp(0:7)
-      Character*(LENIN) Name(nAtoms)
       Character*(LENIN4) Lbls(3)
 #include "bondtypes.fh"
 #define _FMIN_
@@ -365,11 +364,11 @@ C                 Do k = 1, 2
 *
                      nqA = nqA + 1
                      iF1=1
-                     Call NxtWrd(Name(iAtom),iF1,iE1)
-                     Lbls(1)=Name(iAtom)(iF1:iE1)
+                     Call NxtWrd(AtomLbl(iAtom),iF1,iE1)
+                     Lbls(1)=AtomLbl(iAtom)(iF1:iE1)
                      iF2=1
-                     Call NxtWrd(Name(mAtom),iF2,iE2)
-                     Lbls(2)=Name(mAtom)(iF2:iE2)
+                     Call NxtWrd(AtomLbl(mAtom),iF2,iE2)
+                     Lbls(2)=AtomLbl(mAtom)(iF2:iE2)
                      If (kDCRR.ne.0) Then
                         Lbls(2)(iE2+1:iE2+1)='('
                         Lbls(2)(iE2+2:iE2+1+iChOp(kDCRR))=
@@ -379,8 +378,8 @@ C                 Do k = 1, 2
                         Call NxtWrd(Lbls(2),iF2,iE2)
                      End If
                      iF3=1
-                     Call NxtWrd(Name(jAtom),iF3,iE3)
-                     Lbls(3)=Name(jAtom)(iF3:iE3)
+                     Call NxtWrd(AtomLbl(jAtom),iF3,iE3)
+                     Lbls(3)=AtomLbl(jAtom)(iF3:iE3)
                      If (kDCRT.ne.0) Then
                         Lbls(3)(iE3+1:iE3+1)='('
                         Lbls(3)(iE3+2:iE3+1+iChOp(kDCRT))=
@@ -463,11 +462,11 @@ C                 Do k = 1, 2
 *
                   nqA = nqA + 1
                   iF1=1
-                  Call NxtWrd(Name(iAtom),iF1,iE1)
-                  Lbls(1)=Name(iAtom)(iF1:iE1)
+                  Call NxtWrd(AtomLbl(iAtom),iF1,iE1)
+                  Lbls(1)=AtomLbl(iAtom)(iF1:iE1)
                   iF2=1
-                  Call NxtWrd(Name(mAtom),iF2,iE2)
-                  Lbls(2)=Name(mAtom)(iF2:iE2)
+                  Call NxtWrd(AtomLbl(mAtom),iF2,iE2)
+                  Lbls(2)=AtomLbl(mAtom)(iF2:iE2)
                   If (kDCRR.ne.0) Then
                      Lbls(2)(iE2+1:iE2+1)='('
                      Lbls(2)(iE2+2:iE2+1+iChOp(kDCRR))=
@@ -477,8 +476,8 @@ C                 Do k = 1, 2
                      Call NxtWrd(Lbls(2),iF2,iE2)
                   End If
                   iF3=1
-                  Call NxtWrd(Name(jAtom),iF3,iE3)
-                  Lbls(3)=Name(jAtom)(iF3:iE3)
+                  Call NxtWrd(AtomLbl(jAtom),iF3,iE3)
+                  Lbls(3)=AtomLbl(jAtom)(iF3:iE3)
                   If (kDCRT.ne.0) Then
                      Lbls(3)(iE3+1:iE3+1)='('
                      Lbls(3)(iE3+2:iE3+1+iChOp(kDCRT))=

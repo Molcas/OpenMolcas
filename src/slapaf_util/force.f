@@ -8,15 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Force(nFix,GrdX,nAtom,nInter,BMx,Name,Iter,Grad,Lbl,
-     &                 Degen)
+      Subroutine Force(nFix,GrdX,nAtom,nInter,BMx,Iter,Grad,Lbl,Degen)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
 #include "Molcas.fh"
       Real*8 GrdX(3*nAtom), BMx(3*nAtom,3*nAtom),
      &       Grad(nInter,Iter), Degen(3*nAtom)
-      Character Name(nAtom)*(LENIN), Lbl(nInter)*8
+      Character Lbl(nInter)*8
       Real*8 Dummy(1)
       Real*8, Allocatable:: Frc(:)
 *
@@ -67,17 +66,15 @@
 *-----Write cartesian symmetry distinct forces which will be relaxed.
 *
 #ifdef _DEBUGPRINT_
+      BLOCK
+      use Slapaf_Info: only: AtomLbl
       Call PrList('Cartesian forces which will be relaxed'
      &            //' hartree/bohr',
-     &            Name,nAtom,GrdX,3,nAtom)
+     &            AtomLbl,nAtom,GrdX,3,nAtom)
+      END BLOCK
 #endif
 *
       Call mma_deallocate(Frc)
 *
       Return
-#ifndef _DEBUGPRINT_
-#ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_character(Name)
-#endif
-#endif
       End

@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       SubRoutine DefInt(BVct,nBVct,Labels,BMtrx,nQQ,nAtom,nLines,Value,
-     &                  rInt,Lbl,Name,Coor,dMass,
+     &                  rInt,Lbl,Coor,dMass,
      &                  rMult,nDim,Redundant)
 ************************************************************************
 *                                                                      *
@@ -24,6 +24,7 @@
 *             University of Lund, SWEDEN                               *
 *             May 1991                                                 *
 ************************************************************************
+      use Slapaf_Info, only: AtomLbl
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -32,7 +33,7 @@
       Real*8 BVct(3*nAtom,nBVct), Value(nBVct), BMtrx(3*nAtom,nQQ),
      &       rInt(nQQ), Coor(3,nAtom), dMass(nAtom), rMult(nBVct)
       Character Labels(nBVct)*8, Type*6, Temp*120, Lbl(nQQ)*8, cNum*4,
-     &          Name(nAtom)*(LENIN), Line*120, Format*8, filnam*16
+     &          Line*120, Format*8, filnam*16
       Logical Flip, lPIC(6*nAtom), lAtom(nAtom), Redundant
       Logical, Save:: First=.True.
       Logical :: lWrite = .False., lErr = .False.
@@ -231,7 +232,7 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
          Call mma_allocate(TM,9*nAtom*(nCntr+mCntr),Label='TM')
 *
          Call Cllct(Line(nGo:nTemp),BVct(1,iBVct),Value_Temp,
-     &              Name,nAtom,Coor,nCntr,mCntr,
+     &              nAtom,Coor,nCntr,mCntr,
      &              xyz,Tmp2,Ind,Type,
      &              dMass,Mass,TM,lWrite,
      &              Labels(iBVct),lWrite,
@@ -516,7 +517,7 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
             Write (6,*)
             Write (6,*) '*********** ERROR ****************'
             Write (6,*) ' No Coordinate defined for atom:  '
-            Write (6,*) ' ',Name(i)
+            Write (6,*) ' ',AtomLbl(i)
             Write (6,*) '**********************************'
             Write (6,*)
             lErr = .True.

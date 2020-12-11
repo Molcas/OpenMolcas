@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2004, Roland Lindh                                     *
 ************************************************************************
-      Subroutine BMtrx_Internal(nAtoms,nDim,Name,Smmtrc,BSet,HSet,
+      Subroutine BMtrx_Internal(nAtoms,nDim,Smmtrc,BSet,HSet,
      &                          nIter,mAtoms,Numerical,HWRS,
      &                          Analytic_Hessian,iOptC,PrQ,lOld,
      &                          iIter,mTR,TRVec,iTabAI,iTabAtoms,
@@ -35,7 +35,6 @@
 #include "db.fh"
 #include "print.fh"
       Integer, Intent(In):: nAtoms, nDim
-      Character(LEN=LENIN), Intent(In):: Name(nAtoms)
       Logical, Intent(In):: Smmtrc(3*nAtoms)
       Logical, Intent(In):: BSet, HSet
       Integer, Intent(In):: nIter, mAtoms
@@ -152,7 +151,7 @@
      &           nAtoms,iIter,nIter,Cx,
      &           Smmtrc,Proc,Dum,1,cDum,
      &           iRef,Dum,Dum,iOptC,LuIC,
-     &           Name,iDum,iIter,dMass,Dum,
+     &           iDum,iIter,dMass,Dum,
      &           iDum(1),iDum(1),
      &           Proc_dB,
      &           iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
@@ -216,7 +215,7 @@
      &           Smmtrc,Proc,
      &           qVal,nq,qLbl,
      &           iRef,F_c,Mult,iOptC,
-     &           LuIC,Name,Ind,iIter,dMass,GRef,
+     &           LuIC,Ind,iIter,dMass,GRef,
      &           iGlow,iGHi,
      &           Proc_dB,
      &           iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
@@ -434,7 +433,7 @@ C        iEnd = 1
      &              Smmtrc,Proc,
      &              qVal,nq,qLbl,
      &              iRef, F_c,Mult,
-     &              iOptC,LuIC,Name,Ind,iIter,dMass,
+     &              iOptC,LuIC,Ind,iIter,dMass,
      &              GRef,iGlow,iGHi,
      &              Proc_dB,
      &              iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,

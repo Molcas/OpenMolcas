@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine WrInp_sl(iRow)
       use kriging_mod
-      use Slapaf_Info, only: Coor
+      use Slapaf_Info, only: Coor, AtomLbl
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "info_slapaf.fh"

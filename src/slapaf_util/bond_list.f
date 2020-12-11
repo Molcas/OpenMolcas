@@ -12,12 +12,12 @@
      &                 nq,nAtoms,iIter,nIter,Cx,
      &                 Smmtrc,Process,Value,
      &                 nB,iANr,qLbl,fconst,
-     &                 rMult,iOptC,LuIC,Name,Indq,
+     &                 rMult,iOptC,LuIC,Indq,
      &                 Proc_dB,iTabBonds,nBonds,
      &                 iTabAI,mAtoms,mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: jStab, nStab
+      use Slapaf_Info, only: jStab, nStab, AtomLbl
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -32,7 +32,6 @@
       Logical Smmtrc(3,nAtoms), Process, Proc_dB,Help, R_Stab_A
       Character*14 Label, qLbl(nB)
       Character*3 ChOp(0:7)
-      Character*(LENIN) Name(nAtoms)
       Character*(LENIN4) Lbls(2)
 #include "bondtypes.fh"
 #define _FMIN_
@@ -59,7 +58,7 @@
       Write (6,*)
       Write (6,*) 'Process=',Process
       Call RecPrt('CX',' ',CX,3*nAtoms,nIter)
-      Write (6,'(20(1X,A))') (Name(i),i=1,nAtoms)
+      Write (6,'(20(1X,A))') (AtomLbl(i),i=1,nAtoms)
       Write (6,*)
       Write (6,*) ' iTabAI'
       Write (6,*)
@@ -167,11 +166,11 @@
 *
             nqB = nqB + 1
             iF1=1
-            Call NxtWrd(Name(iAtom),iF1,iE1)
-            Lbls(1)=Name(iAtom)(iF1:iE1)
+            Call NxtWrd(AtomLbl(iAtom),iF1,iE1)
+            Lbls(1)=AtomLbl(iAtom)(iF1:iE1)
             iF2=1
-            Call NxtWrd(Name(jAtom),iF2,iE2)
-            Lbls(2)=Name(jAtom)(iF2:iE2)
+            Call NxtWrd(AtomLbl(jAtom),iF2,iE2)
+            Lbls(2)=AtomLbl(jAtom)(iF2:iE2)
             If (kDCRR.ne.0) Then
                Lbls(2)(iE2+1:iE2+1)='('
                Lbls(2)(iE2+2:iE2+1+iChOp(kDCRR))=

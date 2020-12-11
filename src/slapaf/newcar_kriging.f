@@ -11,14 +11,14 @@
 * Copyright (C) 2019, Ignacio Fdez. Galvan                             *
 ************************************************************************
       Subroutine NewCar_Kriging(kIter,nLines,nAtom,nDim,nInter,
-     &                          Lbl,Name,SaveBMx,RefIter,Error)
+     &                          Lbl,SaveBMx,RefIter,Error)
       use Slapaf_Info, only: Cx, BMx
       Implicit None
 #include "info_slapaf.fh"
 #include "db.fh"
 #include "stdalloc.fh"
       Integer :: kIter,nLines,nAtom,nDim,nInter,RefIter
-      Character :: Lbl(nInter)*8,Name(nAtom)*(LENIN)
+      Character :: Lbl(nInter)*8
 
       Real*8, Allocatable :: Coor(:,:), BMx_Tmp(:,:)
       Logical :: Numerical,PrQ,Error,SaveBMx
@@ -35,7 +35,7 @@
       Force_dB=SaveBMx
 *
       Call NewCar(kIter,nBVec,nLines,nAtom,nDim,nInter,Coor,
-     &            Lbl,Name,iSym,Smmtrc,mTtAtm,iOptH,
+     &            Lbl,iSym,Smmtrc,mTtAtm,iOptH,
      &            User_Def,Curvilinear,Numerical,
      &            DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
      &            rHidden,Redundant,MaxItr,

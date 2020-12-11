@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 *               2008, Giovanni Ghigo                                   *
 ************************************************************************
-      SubRoutine CllCtoF(Strng,Names,nAtom,Coor,nCntr,mCntr,
+      SubRoutine CllCtoF(Strng,nAtom,Coor,nCntr,mCntr,
      &                   xyz,Temp,Ind,Type,rMss,qMss,Lbl)
 ************************************************************************
 *                                                                      *
@@ -24,12 +24,12 @@
 *             May '91                                                  *
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iOper
+      use Slapaf_Info, only: AtomLbl
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
 #include "Molcas.fh"
       Character*(*) Strng
-      Character*(LENIN) Names(nAtom)
       Character Label*(LENIN1), Name*(LENIN), Oper*3, Type*6, Lbl*8
       Real*8 Coor(3,nAtom), xyz(3,nCntr+mCntr),
      &       Temp(3,nCntr+mCntr), rMss(nAtom), qMss(nCntr+mCntr),
@@ -101,7 +101,7 @@
 *
          jsAtom = 0
          Do 20 isAtom = 1, nAtom
-            If (Name.eq.Names(isAtom)) jsAtom = isAtom
+            If (Name.eq.AtomLbl(isAtom)) jsAtom = isAtom
  20      Continue
          If (jsAtom.eq.0) Then
             Call WarningMessage(2,'Error in CllctOF')

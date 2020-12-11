@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine BMtrx(nLines,nBVec,nAtom,nInter,Lbl,Coor,nDim,
-     &                 Name,Smmtrc,BSet,HSet,nIter,
+     &                 Smmtrc,BSet,HSet,nIter,
      &                 mTtAtm,iOptH,User_Def,
      &                 Curvilinear,Numerical,
      &                 DDV_Schlegel,HWRS,Analytic_Hessian,
@@ -22,7 +22,7 @@
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 Coor(3,nAtom)
-      Character Lbl(nInter)*8,Name(nAtom)*(LENIN)
+      Character Lbl(nInter)*8
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
      &        User_Def, Curvilinear, Numerical, DDV_Schlegel,
      &        HWRS, Analytic_Hessian, PrQ, lOld
@@ -180,7 +180,7 @@
 *                                                                      *
          Call BMtrx_User_Defined(
      &                 nLines,nBVec,nAtom,nInter,Lbl,Coor,nDim,
-     &                 Name,Smmtrc,BSet,HSet,nIter,
+     &                 Smmtrc,BSet,HSet,nIter,
      &                 Numerical,Analytic_Hessian,
      &                 iOptC,lOld,
      &                 nFix,mTR,nQQ,Redundant,MaxItr)
@@ -204,7 +204,7 @@
      &               nBonds,nMax)
          End If
          Call BMtrx_Internal(
-     &                 nAtom,nDim,Name,Smmtrc,
+     &                 nAtom,nDim,Smmtrc,
      &                 BSet,HSet,nIter,
      &                 mTtAtm,
      &                 Numerical,
@@ -226,7 +226,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call BMtrx_Cartesian(nAtom,nInter,nDim,Name,
+         Call BMtrx_Cartesian(nAtom,nInter,nDim,
      &                        Smmtrc,BSet,HSet,nIter,
      &                        mTtAtm,PrQ,lOld,mTR,TR,EVal,Hss_X,
      &                        nQQ,Redundant,MaxItr,nWndw)

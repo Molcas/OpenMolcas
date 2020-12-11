@@ -13,7 +13,7 @@
      &              nAtoms,iIter,nIter,Cx,
      &              Smmtrc,Process,Value,nB,
      &              qLbl,iRef,
-     &              fconst,rMult,iOptC,LuIC,Name,Indq,iPrv,
+     &              fconst,rMult,iOptC,LuIC,Indq,iPrv,
      &              dMass,Grad_all,iGlow,iGhi,Proc_dB,
      &              iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
      &              mB_Tot,mdB_Tot,
@@ -31,7 +31,6 @@
       Logical Smmtrc(3,nAtoms), Process, Proc_dB
       Character(LEN=14) qLbl(nB)
 #include "Molcas.fh"
-      Character(LEN=LENIN) Name(nAtoms)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -60,7 +59,7 @@
      &              nAtoms,iIter,nIter,Cx,
      &              Smmtrc,Process,Value,nB,
      &              ANr,qLbl,fconst,
-     &              rMult,iOptC,LuIC,Name,Indq,
+     &              rMult,iOptC,LuIC,Indq,
      &              Proc_dB,iTabBonds,nBonds,iTabAI,mAtoms,
      &              mB_Tot,mdB_Tot,
      &              BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
@@ -72,7 +71,7 @@
      &              nAtoms,iIter,nIter,Cx,
      &              Smmtrc,Process,Value,nB,
      &              ANr,qLbl,iRef,
-     &              fconst,rMult,LuIC,Name,Indq,
+     &              fconst,rMult,LuIC,Indq,
      &              Grad_all,iGlow,iGhi,iPrv,Proc_dB,
      &              iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &              mB_Tot,mdB_Tot,
@@ -85,7 +84,7 @@
      &              nAtoms,iIter,nIter,Cx,
      &              Smmtrc,Process,Value,nB,
      &              ANr,qLbl,iRef,
-     &              fconst,rMult,LuIC,Name,Indq,iPrv,Proc_dB,
+     &              fconst,rMult,LuIC,Indq,iPrv,Proc_dB,
      &              iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &              mB_Tot,mdB_Tot,
      &              BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
@@ -97,7 +96,7 @@
      &              nAtoms,iIter,nIter,Cx,
      &              Smmtrc,Process,Value,nB,
      &              ANr,qLbl,iRef,
-     &              fconst,rMult,LuIC,Name,Indq,iPrv,Proc_dB,
+     &              fconst,rMult,LuIC,Indq,iPrv,Proc_dB,
      &              iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &              mB_Tot,mdB_Tot,
      &              BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)

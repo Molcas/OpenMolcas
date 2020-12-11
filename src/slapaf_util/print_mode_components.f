@@ -33,7 +33,7 @@
      &                       Grd, Weights, ANr, Shift, GNrm, Lambda,
      &                       Energy, Energy0, DipM, MF, qInt, dqInt,
      &                       RefGeo, BM, iBM, dBM, idBM, nqBM, BMx,
-     &                       Degen, nStab, jStab, iCoSet
+     &                       Degen, nStab, jStab, iCoSet, AtomLbl
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -90,6 +90,8 @@
       Integer, Allocatable:: Bk_jStab(:,:)
       Integer, Allocatable:: Bk_nStab(:)
       Integer, Allocatable:: Bk_iCoSet(:,:)
+      Character(LEN=LENIN), Allocatable:: Bk_AtomLbl(:)
+
 *
 *
 *---- Ugly hack: backup all "global" slapaf variables in case this is
@@ -252,9 +254,14 @@
          Call mma_deallocate(iCoSet)
       End If
       If (Allocated(nStab)) Then
-         Call mma_allocate(Bk_nStab,SIZE(nStab,1),Label='Bk_nStab')
+         Call mma_allocate(Bk_nStab,SIZE(nStab),Label='Bk_nStab')
          Bk_nStab(:) = nStab(:)
          Call mma_deallocate(nStab)
+      End If
+      If (Allocated(AtomLbl)) Then
+         Call mma_allocate(Bk_AtomLbl,SIZE(AtomLbl),Label='Bk_AtomLbl')
+         Bk_AtomLbl(:) = AtomLbl(:)
+         Call mma_deallocate(AtomLbl)
       End If
 
       Bk_iSym(:)=iSym(:)
@@ -352,7 +359,6 @@
       Bk_BLine=BLine
       Bk_HUpMet=HUpMet
       Bk_UpMeth=UpMeth
-      Bk_AtomLbl(:)=AtomLbl(:)
       Bk_MEP_Type=MEP_Type
       Bk_MEP_Algo=MEP_Algo
       Bk_isFalcon=isFalcon
@@ -416,7 +422,7 @@
       nWndw=iter
       iRef=0
       Call BMtrx(iRow,nBVec,nsAtom,mInt,Lbl,
-     &           Coor,nDimBC,AtomLbl,Smmtrc,BSet,HSet,iter,
+     &           Coor,nDimBC,Smmtrc,BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
@@ -644,7 +650,6 @@
       BLine=Bk_BLine
       HUpMet=Bk_HUpMet
       UpMeth=Bk_UpMeth
-      AtomLbl(:)=Bk_AtomLbl(:)
       MEP_Type=Bk_MEP_Type
       MEP_Algo=Bk_MEP_Algo
       isFalcon=Bk_isFalcon
@@ -885,6 +890,14 @@
          Call mma_deallocate(Bk_nStab)
       Else
          If (Allocated(nStab)) Call mma_deallocate(nStab)
+      End If
+      If (Allocated(Bk_AtomLbl)) Then
+         If (Allocated(AtomLbl)) Call mma_deallocate(AtomLbl)
+         Call mma_allocate(AtomLbl,SIZE(Bk_AtomLbl,1),Label='AtomLbl')
+         AtomLbl(:) = Bk_AtomLbl(:)
+         Call mma_deallocate(Bk_AtomLbl)
+      Else
+         If (Allocated(AtomLbl)) Call mma_deallocate(AtomLbl)
       End If
 *
       End Subroutine Print_Mode_Components

@@ -11,7 +11,7 @@
       Subroutine Init_SlapAf(iRow)
       use Symmetry_Info, only: nIrrep, iOper
       use Slapaf_Info, only: q_nuclear, dMass, Coor, Grd, ANr, Degen,
-     &                       jStab, nStab, iCoSet
+     &                       jStab, nStab, iCoSet, AtomLbl
 *     use Slapaf_Info, only: R12
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -229,7 +229,7 @@
 *...  Read number of atoms, charges, coordinates, gradients and
 *     atom labels
 *
-      Call Get_Molecule(AtomLbl,nsAtom,mxdc)
+      Call Get_Molecule(nsAtom)
 *                                                                      *
 ************************************************************************
 *                                                                      *

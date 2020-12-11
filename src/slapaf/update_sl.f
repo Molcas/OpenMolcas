@@ -13,7 +13,7 @@
       Subroutine Update_sl(iter,NmIter,iInt,nFix,nInter,
      &                     iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
-     &                     nLambda,iRow_c,nsAtom,AtomLbl,
+     &                     nLambda,iRow_c,nsAtom,
      &                     Smmtrc,nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
@@ -38,7 +38,6 @@
 *      nLambda        : number of contraints                           *
 *      iRow_c         : number of lines on the UDC file                *
 *      nsAtom         : number of symmetry unique atoms                *
-*      AtomLbl        : character string with atom labels              *
 *      Smmtrc         : logical flag for symmetry properties           *
 *      nDimBC         : dimension of redundant coordinates(?)          *
 *      iNeg           : Hessian index                                  *
@@ -69,7 +68,7 @@
       Logical Line_Search, Smmtrc(3*nsAtom),
      &        FindTS, TSC, HrmFrq_Show, Curvilinear
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
-     &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
+     &          Labels(nLabels)*8, UpMeth*6,
      &          HUpMet*6
       Real*8 Dummy(1)
       Real*8, Allocatable:: t_Shift(:,:), t_qInt(:,:), tmp(:)
@@ -123,7 +122,7 @@
      &                   iter_,iInt,nFix,nInter,qInt,
      &                   Shift,iOptC,Beta,Beta_Disp,
      &                   Lbl,UpMeth,ed,Line_Search,
-     &                   Step_Trunc,nLambda,iRow_c,nsAtom,AtomLbl,
+     &                   Step_Trunc,nLambda,iRow_c,nsAtom,
      &                   Smmtrc,nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,
      &                   iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
@@ -162,7 +161,7 @@
      &                iter,iInt,nFix,nInter,qInt,Shift,
      &                iOptC,Beta,Beta_Disp,Lbl,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
-     &                iRow_c,nsAtom,AtomLbl,
+     &                iRow_c,nsAtom,
      &                Smmtrc,nDimBC,
      &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                Labels,nLabels,FindTS,TSC,nRowH,

@@ -1110,7 +1110,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *
 *     Final fixes
 *
-      Call Fix_UDC(iRow_c,nLambda,AtomLbl,nsAtom,nStab,.True.)
+      Call Fix_UDC(iRow_c,nLambda,nsAtom,nStab,.True.)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991,1997, Roland Lindh                                *
 ************************************************************************
-      SubRoutine Cllct2(Strng,Vector,dVector,Value,Names,nAtom,
+      SubRoutine Cllct2(Strng,Vector,dVector,Value,nAtom,
      &                  nCntr,mCntr,xyz,Grad,Ind,Type,rMss,qMss,Lbl,
      &                  lWrite,Deg,Hess,lIter)
 ************************************************************************
@@ -22,13 +22,12 @@
 *             June '97 (R. Lindh)                                      *
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: Cx
+      use Slapaf_Info, only: Cx, AtomLbl
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
 #include "Molcas.fh"
       Character(LEN=*) Strng
-      Character(LEN=LENIN) Names(nAtom)
       Character(LEN=LENIN5)Label
       Character(LEN=LENIN) Name
       Character(LEN=8) Lbl
@@ -139,7 +138,7 @@
      &       Type(1:6).ne.'TRANSV'        ) Then
             jsAtom = 0
             Do isAtom = 1, nAtom
-               If (Name.eq.Names(isAtom)) jsAtom = isAtom
+               If (Name.eq.AtomLbl(isAtom)) jsAtom = isAtom
             End Do
             If (jsAtom.eq.0) Then
                Call WarningMessage(2,

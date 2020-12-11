@@ -82,7 +82,7 @@
       nWndw=iter
       iRef=0
       Call BMtrx(iRow,nBVec,nsAtom,mInt,Lbl,
-     &           Coor,nDimBC,AtomLbl,
+     &           Coor,nDimBC,
      &           Smmtrc,BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,Curvilinear,Numerical,
@@ -227,8 +227,7 @@
          nWndw=Iter
          iRef=0
          Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,mInt,
-     &               Coor,Lbl,
-     &               AtomLbl,iSym,Smmtrc,
+     &               Coor,Lbl,iSym,Smmtrc,
      &               mTtAtm,
      &               iOptH,User_Def,
      &               Curvilinear,Numerical,

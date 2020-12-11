@@ -52,7 +52,7 @@
          Call mma_allocate(iFlip,nBV,Label='iFlip')
 *
          Call DefInt2(BVc,dBVc,nBV,Labels,BMx_t,nLambda,nsAtom,iRow_c,
-     &                Value,cInt,cInt0,Lbl,AtomLbl,lWrite,
+     &                Value,cInt,cInt0,Lbl,lWrite,
      &                Mult,dBMx,Value0,Iter,iFlip,dMass)
 
          Call mma_deallocate(iFlip)

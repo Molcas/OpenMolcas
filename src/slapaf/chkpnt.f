@@ -79,7 +79,7 @@
 #ifdef _HDF5_
       use Phase_Info
       use Symmetry_Info, only: nIrrep
-      use Slapaf_Info, only: dMass, nStab, iCoSet
+      use Slapaf_Info, only: dMass, nStab, iCoSet, AtomLbl
 #  include "info_slapaf.fh"
 #  include "stdalloc.fh"
       Character :: lIrrep(24)

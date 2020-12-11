@@ -9,12 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine NewCar(Iter,nBVct,nLines,nAtom,nDim,nInter,
-     &                  Coor,Lbl,Name,iSym,Smmtrc,
+     &                  Coor,Lbl,iSym,Smmtrc,
      &                  mTtAtm,iOptH,User_Def,
      &                  Curvilinear,Numerical,DDV_Schlegel,HWRS,
      &                  Analytic_Hessian,iOptC,PrQ,rHidden,
      &                  Redundant,MaxItr,iRef,Error)
-      use Slapaf_Info, only: Cx, dMass, qInt, RefGeo, BMx, Shift, Degen
+      use Slapaf_Info, only: Cx, dMass, qInt, RefGeo, BMx, Shift, Degen,
+     &                       AtomLbl
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -32,8 +33,7 @@
       Parameter(NRHS=1)
       Integer, Intent(In):: Iter, nBVct, nLines, nAtom, nInter
       Real*8,  Intent(InOut):: Coor(3,nAtom)
-      Character(LEN=8), Intent(In):: Lbl(nInter)*8
-      Character(LEN=LENIN), Intent(In):: Name(nAtom)
+      Character(LEN=8), Intent(In):: Lbl(nInter)
       Integer, Intent(In):: iSym(3)
       Logical, Intent(In):: Smmtrc(3,nAtom)
       Integer, Intent(In):: mTtAtm, iOptH
@@ -143,7 +143,7 @@
 *
          If (iPrint.ge.99)
      &     Call PrList('Symmetry Distinct Nuclear Displacements',
-     &                 Name,nAtom,DFC,3,nAtom)
+     &                 AtomLbl,nAtom,DFC,3,nAtom)
 *
 *        Compute the RMS in Cartesian Coordinates.
 *
@@ -178,7 +178,7 @@
          call dcopy_(3*nAtom,Coor,1,Cx(:,:,Iter+1),1)
          If (iPrint.ge.99)
      &      Call PrList('Symmetry Distinct Nuclear Coordinates / Bohr',
-     &                   Name,nAtom,Coor,3,nAtom)
+     &                   AtomLbl,nAtom,Coor,3,nAtom)
 *
 *--------Compute new values q and the Wilson B-matrix for the new
 *        geometry with the current new set of Cartesian coordinates.
@@ -186,7 +186,7 @@
          nFix=0
          nWndw=1
          Call BMtrx(nLines,nBVct,nAtom,nInter,
-     &              Lbl,Coor,nDim,Name,Smmtrc,
+     &              Lbl,Coor,nDim,Smmtrc,
      &              BSet,HSet,iter+1,
      &              mTtAtm,iOptH,User_Def,
      &              Curvilinear,Numerical,

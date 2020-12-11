@@ -15,7 +15,7 @@
      &                     iter,iInt,nFix,nInter,
      &                     iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
-     &                     nLambda,iRow_c,nsAtom,AtomLbl,
+     &                     nLambda,iRow_c,nsAtom,
      &                     Smmtrc,nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
@@ -43,7 +43,7 @@
      &        FindTS, TSC, HrmFrq_Show, Curvilinear,
      &        First_MicroIteration, Error
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
-     &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
+     &          Labels(nLabels)*8, UpMeth*6,
      &          HUpMet*6
       Character GrdLbl_Save*8
       Real*8 Dummy(1)
@@ -212,7 +212,7 @@
      &                   iterAI,iInt,nFix,nInter,qInt,Shift,iOptC,
      &                   Beta_,Beta_Disp_,Lbl,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
-     &                   iRow_c,nsAtom,AtomLbl,
+     &                   iRow_c,nsAtom,
      &                   Smmtrc,nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                   Labels,nLabels,FindTS,TSC,nRowH,nWndw_,Mode,
@@ -232,7 +232,7 @@
 *
          Error=(iterK.ge.1)
          Call NewCar_Kriging(iterAI,nLines,nsAtom,nDimBC,nInter,
-     &                       Lbl,AtomLbl,.True.,iter,Error)
+     &                       Lbl,.True.,iter,Error)
 #ifdef _DEBUGPRINT_
          Call RecPrt('New Coord (after NewCar)','',qInt,nInter,iterAI+1)
 #endif
@@ -428,7 +428,7 @@
             Call dAXpY_(nInter,OS_Factor,Step_k(1,2),1,
      &                                   Shift(1,iterAI-1),1)
             Call NewCar_Kriging(iterAI-1,nLines,nsAtom,nDimBC,nInter,
-     &                          Lbl,AtomLbl,.True.,iter)
+     &                          Lbl,.True.,iter)
             Energy(iterAI)=OS_Energy
             If (Max_OS.gt.0) Then
                If (UpMeth(4:4).ne.' ') UpMeth(5:6)='**'

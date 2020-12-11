@@ -34,7 +34,7 @@
 *     Get the NG constraint vectors
 *
       Call Merge_Constraints('UDC.NG','','UDC',nLambda,iRow_c)
-      Call Fix_UDC(iRow_c,nLambda,AtomLbl,nsAtom,nStab,.True.)
+      Call Fix_UDC(iRow_c,nLambda,nsAtom,nStab,.True.)
       Call mma_Allocate(C2,mInt,nLambda)
       Call get_drdq(C2,Lambda2)
 *

@@ -11,23 +11,23 @@
       Subroutine DstInf(iStop,Just_Frequencies,Numerical)
       use Symmetry_Info, only: nIrrep, iOper
       use Slapaf_Info, only: Cx, Coor, Weights, Energy, MF, qInt, dqInt,
-     &                       Dmp_Slapaf
+     &                       Dmp_Slapaf, AtomLbl
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
 #include "info_slapaf.fh"
 #include "print.fh"
 #include "SysDef.fh"
-      Character*2 Element(MxAtom)
 #include "angstr.fh"
 #include "weighting.fh"
       Real*8, Allocatable:: Cx_p(:,:), CC(:,:), RV(:,:), xyz(:,:)
 *
       LOGICAL do_printcoords, do_fullprintcoords, Just_Frequencies,
      &        Found, Numerical
-      Character*(LENIN) LblTMP(mxdc*nIrrep)
       Character(LEN=100) SuperName
       Character(LEN=100), External:: Get_SuperName
+      Character(LEN=LENIN), Allocatable:: LblTMP(:)
+      Character(LEN=2), Allocatable:: Element(:)
 
 *                                                                      *
 ************************************************************************
@@ -83,6 +83,7 @@
 *
       Call mma_Allocate(CC,3,nIrrep*(nsAtom+nsAtom_p),Label='CC')
       nTemp = 0
+      Call mma_Allocate(LblTMP,nIrrep*(nsAtom+nsAtom_p),Label='LblTMP')
       Do isAtom = 1, nsAtom + nsAtom_p
          If (isAtom.le.nsAtom) Then
             x1 = Coor(1,isAtom)
@@ -180,6 +181,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call mma_deallocate(LblTMP)
       Call mma_deallocate(CC)
 *                                                                      *
 ************************************************************************
@@ -205,6 +207,7 @@
       If (.Not.Numerical) Then
          Call Get_nAtoms_All(nCoord)
          Call mma_allocate(xyz,3,nCoord,Label='xyz')
+         Call mma_allocate(Element,nCoord,Label='Element')
          Call Get_Coord_New_All(xyz,nCoord)
          Call Get_Name_All(Element)
 *
@@ -218,6 +221,7 @@
      &            (Angstr*xyz(j,i),j=1,3)
          End Do
          Close (Lu_xyz)
+         Call mma_deallocate(Element)
          Call mma_deallocate(xyz)
       End If
 *                                                                      *

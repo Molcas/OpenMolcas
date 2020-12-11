@@ -14,7 +14,7 @@
      &                     kIter,iInt,nFix,nInter,qInt,Shift,
      &                     iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
-     &                     nLambda,iRow_c,nsAtom,AtomLbl,
+     &                     nLambda,iRow_c,nsAtom,
      &                     Smmtrc,nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
@@ -42,7 +42,6 @@
 *      nLambda        : number of constraints                          *
 *      iRow_c         : number of lines on the UDC file                *
 *      nsAtom         : number of symmetry unique atoms                *
-*      AtomLbl        : character string with atom labels              *
 *      Smmtrc         : logical flag for symmetry properties           *
 *      nDimBC         : dimension of redundant coordinates(?)          *
 *      iNeg           : Hessian index                                  *
@@ -77,7 +76,7 @@
       Logical Line_Search, Smmtrc(3*nsAtom),FindTS, TSC, HrmFrq_Show,
      &        Found, Curvilinear, Kriging_Hessian, First_MicroIteration
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
-     &          Labels(nLabels)*8, AtomLbl(nsAtom)*(LENIN), UpMeth*6,
+     &          Labels(nLabels)*8, UpMeth*6,
      &          HUpMet*6, File1*8, File2*8, Step_Trunc_
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:),
      &                      RHS(:), ErrVec(:,:), EMtrx(:,:)
@@ -209,7 +208,7 @@
             End If
          End If
          Call Merge_Constraints(File1,File2,'UDC',nLambda,iRow_c)
-         Call Fix_UDC(iRow_c,nLambda,AtomLbl,nsAtom,nStab,.False.)
+         Call Fix_UDC(iRow_c,nLambda,nsAtom,nStab,.False.)
       End If
 *                                                                      *
 ************************************************************************
@@ -423,7 +422,6 @@ C           Write (6,*) 'tBeta=',tBeta
 *                                                                     *
             Call DefInt2(BVec,dBVec,nBVec,Labels,BM,nLambda,nsAtom,
      &                   iRow_c,Value,cInt,cInt0,Lbl(nInter+1),
-     &                   AtomLbl,
      &                   (lIter.eq.kIter).and.First_MicroIteration,
      &                   Mult,dBM,Value0,lIter,iFlip,dMass)
 *

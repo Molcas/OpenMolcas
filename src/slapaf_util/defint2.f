@@ -11,7 +11,7 @@
 * Copyright (C) 1991,1997, Roland Lindh                                *
 ************************************************************************
       SubRoutine DefInt2(BVct,dBVct,nBvct,Labels,BMtrx,mInt,nAtom,
-     &                   nLines,Value,rInt,rInt0,Lbl,Name,
+     &                   nLines,Value,rInt,rInt0,Lbl,
      &                   lWrite,rMult,dBMtrx,Value0,lIter,
      &                   iFlip,dMass)
 ************************************************************************
@@ -34,7 +34,7 @@
      &       rMult(nBVct,nBVct), dMass(nAtom),
      &       dBMtrx(3*nAtom,3*nAtom,mInt), Value0(nBVct), MaxErr
       Character Line*120, Labels(nBVct)*8, Type*6, Format*8,
-     &          Temp*120, Lbl(mInt)*8, Name(nAtom)*(LENIN),filnam*16
+     &          Temp*120, Lbl(mInt)*8, filnam*16
       Logical lWrite, Start, rInt0_on_file,rInt0_in_memory, InSlapaf
       Integer, Parameter:: Flip=1, NoFlip=0
       Integer, External:: StrnLn
@@ -270,7 +270,7 @@ c      Open(Lu_UDC,File=filnam,Form='FORMATTED',Status='OLD')
          Call mma_allocate(Hess,(3*msAtom)**2,Label='Hess')
 *
          Call Cllct2(Line(nGo:nTemp),BVct(1,iBVct),dBVct(1,1,iBVct),
-     &               Value(iBVct),Name,nAtom,nCntr,mCntr,xyz,Grad,
+     &               Value(iBVct),nAtom,nCntr,mCntr,xyz,Grad,
      &               Ind,Type,dMass,Mass,Labels(iBVct),lWrite,
      &               rMult(iBVct,iBVct),Hess,lIter)
 *

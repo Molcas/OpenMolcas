@@ -11,7 +11,7 @@
       Subroutine BMtrx_User_Defined(
      &                 nLines,nBVec,nAtom,nInter,
      &                 Lbl,Coor,nDim,
-     &                 Name,Smmtrc,
+     &                 Smmtrc,
      &                 BSet,HSet,nIter,
      &                 Numerical,
      &                 Analytic_Hessian,
@@ -23,7 +23,7 @@
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 Coor(3,nAtom)
-      Character Lbl(nInter)*8, Name(nAtom)*(LENIN)
+      Character Lbl(nInter)*8
       Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
      &        Numerical, Analytic_Hessian, lOld, Proc_dB
       Real*8, Allocatable:: Degen2(:)
@@ -70,7 +70,7 @@
       End If
 *
       Call DefInt(BVec,nBVec,Lab,BMx,nQQ,
-     &            nAtom,nLines,Val,qInt(:,nIter),Lbl,Name,
+     &            nAtom,nLines,Val,qInt(:,nIter),Lbl,
      &            Coor,dMass,Mult,nDim-mTR,Redundant)
 *
       Call mma_deallocate(Lab)
@@ -83,7 +83,7 @@
 *     Compute the gradient
 *
       If (BSet) Call Force(nFix,Gx(:,:,nIter),nAtom,nQQ,BMx,
-     &                     Name,nIter,dqInt,Lbl,Degen)
+     &                     nIter,dqInt,Lbl,Degen)
 *                                                                      *
 ************************************************************************
 *                                                                      *

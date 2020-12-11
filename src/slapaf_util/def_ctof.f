@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 *               2008, Giovanni Ghigo                                   *
 ************************************************************************
-      SubRoutine Def_CtoF(lNew,nAtom,Name,Coor)
+      SubRoutine Def_CtoF(lNew,nAtom,Coor)
 ************************************************************************
 *                                                                      *
 *     Author: Giovanni Ghigo, Dep. of General and Organic Chemistry    *
@@ -29,7 +29,7 @@
 #include "Molcas.fh"
       Real*8    Coor(3,nAtom)
       Character Labels*8, Type*6, Temp*120,
-     &          Name(nAtom)*(LENIN), Line*120, Format*8, filnam*16
+     &          Line*120, Format*8, filnam*16
       Logical lWrite, lNew
       Integer, Allocatable:: Ind(:,:)
       Real*8, Allocatable:: xyz(:,:), Temp2(:,:), Mass(:,:)
@@ -182,7 +182,7 @@ c      iBVct = 0
       Call mma_allocate(Ind ,2,msAtom,Label='Ind')
       Call mma_allocate(Mass,2,msAtom,Label='Mass')
 *
-      Call CllCtoF(Line(nGo:nTemp),Name,nAtom,Coor,nCntr,mCntr,xyz,
+      Call CllCtoF(Line(nGo:nTemp),nAtom,Coor,nCntr,mCntr,xyz,
      &             Temp2,Ind,Type,dMass,Mass,Labels)
 *
       Call mma_deallocate(Mass)

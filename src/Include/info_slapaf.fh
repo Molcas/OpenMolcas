@@ -70,10 +70,10 @@
      &                    lDoubleIso
 *
       Character Char*180, Header(144)*1, Line*180, BLine*180, HUpMet*6,
-     &          UpMeth*6, AtomLbl(mxdc)*(LENIN),
+     &          UpMeth*6,
      &          MEP_Type*10, MEP_Algo*2
       Common /chInfSla/ Char, Header, Line, BLine, HUpMet, UpMeth,
-     &                  AtomLbl, MEP_Type, MEP_Algo
+     &                  MEP_Type, MEP_Algo
 *
       Logical isFalcon
       Common /lFalcon/ isFalcon
