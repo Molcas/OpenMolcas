@@ -16,7 +16,7 @@
      &                     nLambda,iRow_c,nsAtom,
      &                     nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
-     &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
+     &                     iNeg,nLbl,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
      &                     iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
      &                     HrmFrq_Show,CnstWght,Curvilinear)
@@ -40,8 +40,6 @@
 *      nsAtom         : number of symmetry unique atoms                *
 *      nDimBC         : dimension of redundant coordinates(?)          *
 *      iNeg           : Hessian index                                  *
-*      Labels         : character string of primitive int. coord.      *
-*      nLabels        : length of Labels                               *
 *      CnstWght       : constraints weight                             *
 *                                                                      *
 *    OutPut:                                                           *
@@ -66,8 +64,7 @@
       Integer iNeg(2)
       Logical Line_Search, FindTS, TSC, HrmFrq_Show, Curvilinear
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
-     &          Labels(nLabels)*8, UpMeth*6,
-     &          HUpMet*6
+     &          UpMeth*6, HUpMet*6
       Real*8 Dummy(1)
       Real*8, Allocatable:: t_Shift(:,:), t_qInt(:,:), tmp(:)
 *
@@ -123,7 +120,7 @@
      &                   Step_Trunc,nLambda,iRow_c,nsAtom,
      &                   nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,
-     &                   iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
+     &                   iNeg,nLbl,FindTS,TSC,nRowH,
      &                   nWndw,Mode,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
      &                   HrmFrq_Show,CnstWght,Curvilinear,
@@ -162,7 +159,7 @@
      &                iRow_c,nsAtom,
      &                nDimBC,
      &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
-     &                Labels,nLabels,FindTS,TSC,nRowH,
+     &                FindTS,TSC,nRowH,
      &                nWndw,Mode,
      &                iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
      &                HrmFrq_Show,CnstWght,Curvilinear,

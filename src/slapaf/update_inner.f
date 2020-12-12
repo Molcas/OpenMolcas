@@ -17,7 +17,7 @@
      &                     nLambda,iRow_c,nsAtom,
      &                     nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
-     &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
+     &                     iNeg,nLbl,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
      &                     iOptH,HUpMet,mIter,GNrm_Threshold,IRC,
      &                     HrmFrq_Show,CnstWght,Curvilinear,
@@ -44,8 +44,6 @@
 *      nsAtom         : number of symmetry unique atoms                *
 *      nDimBC         : dimension of redundant coordinates(?)          *
 *      iNeg           : Hessian index                                  *
-*      Labels         : character string of primitive int. coord.      *
-*      nLabels        : length of Labels                               *
 *      CnstWght       : constraints weight                             *
 *                                                                      *
 *    OutPut:                                                           *
@@ -75,8 +73,7 @@
       Logical Line_Search, FindTS, TSC, HrmFrq_Show,
      &        Found, Curvilinear, Kriging_Hessian, First_MicroIteration
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
-     &          Labels(nLabels)*8, UpMeth*6,
-     &          HUpMet*6, File1*8, File2*8, Step_Trunc_
+     &          UpMeth*6, HUpMet*6, File1*8, File2*8, Step_Trunc_
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:),
      &                      RHS(:), ErrVec(:,:), EMtrx(:,:)
       Integer, Allocatable:: Index(:), iFlip(:)
@@ -388,12 +385,6 @@ C           Write (6,*) 'tBeta=',tBeta
          End If
 *
          nBVec=iRow_c-nLambda-1
-         If (nBVec.gt.nLabels) Then
-            Call WarningMessage(2,'Update_inner: nBVec.gt.nLabels')
-            Write (6,*) 'nBVec=',nBVec
-            Write (6,*) 'nLabels=',nLabels
-            Call Abend()
-         End If
 *
          n1=3*nsAtom
          n2=n1**2
@@ -419,7 +410,7 @@ C           Write (6,*) 'tBeta=',tBeta
 *                                                                     *
 ***********************************************************************
 *                                                                     *
-            Call DefInt2(BVec,dBVec,nBVec,Labels,BM,nLambda,nsAtom,
+            Call DefInt2(BVec,dBVec,nBVec,BM,nLambda,nsAtom,
      &                   iRow_c,Value,cInt,cInt0,Lbl(nInter+1),
      &                   (lIter.eq.kIter).and.First_MicroIteration,
      &                   Mult,dBM,Value0,lIter,iFlip)

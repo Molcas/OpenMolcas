@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991,1997, Roland Lindh                                *
 ************************************************************************
-      SubRoutine DefInt2(BVct,dBVct,nBvct,Labels,BMtrx,mInt,nAtom,
+      SubRoutine DefInt2(BVct,dBVct,nBvct,BMtrx,mInt,nAtom,
      &                   nLines,Value,rInt,rInt0,Lbl,
      &                   lWrite,rMult,dBMtrx,Value0,lIter,iFlip)
 ************************************************************************
@@ -32,7 +32,7 @@
      &       Value(nBVct), BMtrx(3*nAtom,mInt), rInt(mInt), rInt0(mInt),
      &       rMult(nBVct,nBVct),
      &       dBMtrx(3*nAtom,3*nAtom,mInt), Value0(nBVct), MaxErr
-      Character Line*120, Labels(nBVct)*8, Type*6, Format*8,
+      Character Line*120, Type*6, Format*8,
      &          Temp*120, Lbl(mInt)*8, filnam*16
       Logical lWrite, Start, rInt0_on_file,rInt0_in_memory, InSlapaf
       Integer, Parameter:: Flip=1, NoFlip=0
@@ -41,8 +41,10 @@
       Character(LEN=100), External:: Get_SuperName
       Integer, Allocatable:: Ind(:), tpc(:)
       Real*8, Allocatable:: Hess(:), Mass(:), Grad(:), xyz(:), r0(:)
+      Character(LEN=8), Allocatable:: Labels(:)
 #include "angstr.fh"
 
+      Call mma_allocate(Labels,nBVct,Label='Labels')
       Lu=6
 *
 *     Initiate some stuff for automatic setting of
@@ -644,5 +646,6 @@ C              Write (Lu,*) 'Flip Sign for ',Labels(iBVct)
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call mma_deallocate(Labels)
       Return
       End

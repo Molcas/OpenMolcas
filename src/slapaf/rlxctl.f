@@ -18,7 +18,7 @@
 *     Program for determination of the new molecular geometry          *
 ************************************************************************
 #include "info_slapaf.fh"
-      Parameter(nLabels=10*MxAtom,nLbl=10*MxAtom)
+      Parameter(nLbl=10*MxAtom)
 #include "real.fh"
 #include "nadc.fh"
 #include "weighting.fh"
@@ -27,7 +27,7 @@
 #include "stdalloc.fh"
       Logical Numerical, GoOn, PrQ, TSReg,
      &        Do_ESPF, Just_Frequencies, Found, Error
-      Character*8 GrdLbl, StpLbl, Labels(nLabels), Lbl(nLbl)
+      Character*8 GrdLbl, StpLbl, Lbl(nLbl)
       Character*1 Step_trunc
       Integer AixRm, iNeg(2)
       Integer nGB
@@ -236,7 +236,7 @@
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
      &               nDimBC,
      &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
-     &               Labels,nLabels,FindTS,TSConstraints,nRowH,
+     &               FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,
      &               iOptH,HUpMet,GNrm_Threshold,
      &               IRC,HrmFrq_Show,
@@ -249,7 +249,7 @@
      &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
      &               nDimBC,GrdMax,
      &               StpMax,GrdLbl,StpLbl,iNeg,nLbl,
-     &               Labels,nLabels,FindTS,TSConstraints,nRowH,
+     &               FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,
      &               iOptH,HUpMet,kIter,GNrm_Threshold,
      &               IRC,HrmFrq_Show,

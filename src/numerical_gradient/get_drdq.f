@@ -28,7 +28,7 @@
       Real*8 RR
       Real*8, External :: DDot_
 *
-      Character(LEN=8) Lbl(mInt), Labels(iRow_c-1)
+      Character(LEN=8) Lbl(mInt)
       Real*8, Allocatable:: BVc(:), dBVc(:), BMx_t(:,:), Value(:),
      &                      Value0(:), cInt(:), cInt0(:), Mult(:),
      &                      dBMx(:)
@@ -51,7 +51,7 @@
          Call mma_allocate(dBMx,nLambda*n3**2,Label='dBMx')
          Call mma_allocate(iFlip,nBV,Label='iFlip')
 *
-         Call DefInt2(BVc,dBVc,nBV,Labels,BMx_t,nLambda,nsAtom,iRow_c,
+         Call DefInt2(BVc,dBVc,nBV,BMx_t,nLambda,nsAtom,iRow_c,
      &                Value,cInt,cInt0,Lbl,lWrite,
      &                Mult,dBMx,Value0,Iter,iFlip)
 

@@ -18,7 +18,7 @@
      &                     nLambda,iRow_c,nsAtom,
      &                     nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
-     &                     iNeg,nLbl,Labels,nLabels,FindTS,TSC,nRowH,
+     &                     iNeg,nLbl,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
      &                     iOptH,HUpMet,GNrm_Threshold,IRC,
      &                     HrmFrq_Show,CnstWght,Curvilinear,
@@ -42,8 +42,7 @@
       Logical Line_Search, FindTS, TSC, HrmFrq_Show, Curvilinear,
      &        First_MicroIteration, Error
       Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
-     &          Labels(nLabels)*8, UpMeth*6,
-     &          HUpMet*6
+     &          UpMeth*6, HUpMet*6
       Character GrdLbl_Save*8
       Real*8 Dummy(1)
       Real*8, Allocatable:: Hessian(:,:), Temp(:,:,:)
@@ -214,7 +213,7 @@
      &                   iRow_c,nsAtom,
      &                   nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
-     &                   Labels,nLabels,FindTS,TSC,nRowH,nWndw_,Mode,
+     &                   FindTS,TSC,nRowH,nWndw_,Mode,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
      &                   HrmFrq_Show,CnstWght,Curvilinear,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
