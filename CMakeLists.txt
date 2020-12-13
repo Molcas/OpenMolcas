@@ -3025,7 +3025,7 @@ else ()
     endif ()
   endif ()
   if (MolGUI)
-    add_dependencies (MolGUI pymolcas)
+    add_dependencies (MolGUI pymolcas_target)
   endif ()
 endif ()
 
@@ -3272,11 +3272,10 @@ if (INSTALL_TESTS)
   install (CODE "execute_process (COMMAND ${OPENMOLCAS_DIR}/sbin/install_tests.sh ${CMAKE_INSTALL_PREFIX}/test)")
 endif ()
 
-if (TARGET pymolcas)
+if (TARGET pymolcas_target)
   install (PROGRAMS
-    ${PYMOLCAS_TARGET}
+    ${PYMOLCAS_SCRIPT}
     DESTINATION ${CMAKE_INSTALL_PREFIX}/
-    RENAME pymolcas
   )
 endif ()
 

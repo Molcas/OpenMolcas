@@ -13,10 +13,8 @@
       use Center_Info
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-      Logical TF,tstfnc
+      Logical, External :: TF
       Real*8 Grad(*)
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
       idisp=0
       do jIrrep=0,nirrep-1
        Do Jcar=1,3

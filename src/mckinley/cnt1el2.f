@@ -56,17 +56,16 @@
       Integer nOp(2), ip(8),ipc(0:7),
      &          iDCRR(0:7), iDCRT(0:7), iStabM(0:7), iStabO(0:7),
      &          IndGrd(0:7)
-      Logical AeqB,TstFnc,TF,IfGrd(3,2),EQ,DiffOP,DiffCnt,Trans(2)
+      Logical AeqB,IfGrd(3,2),EQ,DiffOP,DiffCnt,Trans(2)
       Integer, Parameter:: iTwoj(0:7)=[1,2,4,8,16,32,64,128]
       Character(LEN=8) Lab_dsk
       Real*8, Allocatable:: Zeta(:), ZI(:), PCoor(:,:), Kappa(:),
      &                      Kern(:), Fnl(:), ScrSph(:), SO(:),
      &                      Integrals(:), Scr(:)
+      Logical, External :: TF
 *
-*     Statement functions
+*     Statement function
 *
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
 *-----Compute the number of blocks from each component of the operator

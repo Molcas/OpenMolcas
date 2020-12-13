@@ -49,12 +49,7 @@ C***********************************************************************C
       REAL*8 SCR(nSCR)
       DIMENSION IOFF(*)
       Integer IndGrd(0:7)
-      Logical TF, TstFnc
-* Statement Function
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
-
-
+      Logical, External :: TF
 *
 * Main Loop on all  geometrical displacements to perform
 * calculation of NonAdiabatic Couplings

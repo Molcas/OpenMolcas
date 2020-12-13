@@ -54,16 +54,15 @@
       Integer iDCRR(0:7), iDCRT(0:7), iStabM(0:7),iCoM(0:7,0:7),
      &           nOp(2),
      &           iStabO(0:7),IndGrd(2,3,3,0:7)
-      Logical AeqB, EQ, TstFnc, DiffOp, TF
+      Logical AeqB, EQ, DiffOp
       Real*8, Allocatable:: Zeta(:), ZI(:), Kappa(:), PCoor(:,:),
      &                      Kern(:), Scrt1(:), Scrt2(:), DAO(:),
      &                      DSOpr(:), DSO(:)
+      Logical, External :: TF
 *
-*     Statement functions
+*     Statement function
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
       call dcopy_(nGrad,[Zero],0,Hess,1)
 *
