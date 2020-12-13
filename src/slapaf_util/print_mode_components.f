@@ -35,6 +35,7 @@
      &                       RefGeo, BM, iBM, dBM, idBM, nqBM, BMx,
      &                       Degen, nStab, jStab, iCoSet, AtomLbl,
      &                       Smmtrc
+      use Slapaf_Parameters, only: iRow
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -42,7 +43,7 @@
 #include "real.fh"
       Real*8 rDum(1)
       Real*8 :: Modes(*), Freq(*), Mx, MinComp
-      Integer :: LuInput, iRow, iInt, nFix, iRout,
+      Integer :: LuInput, iInt, nFix, iRout,
      &           iPrint, nX, i, j, nB, iq, nAll_Atoms, nUnique_Atoms,
      &           iB, lDisp(nIrrep), nModes, lModes, LuIC, ii, im, nK,
      &           iErr, PLback
@@ -93,6 +94,7 @@
       Integer, Allocatable:: Bk_iCoSet(:,:)
       Character(LEN=LENIN), Allocatable:: Bk_AtomLbl(:)
       Logical, Allocatable:: Bk_Smmtrc(:,:)
+      Integer Bk_iRow
 *
 *
 *---- Ugly hack: backup all "global" slapaf variables in case this is
@@ -376,6 +378,7 @@
       Bk_EDiffZero=EDiffZero
       Bk_ApproxNADC=ApproxNADC
       Bk_iState(:)=iState(:)
+      Bk_iRow = iRow
 *
       iRout = 55
       iPrint=nPrint(iRout)
@@ -410,7 +413,8 @@
       Call StdIn_Name(StdIn)
       Call Molcas_open(LuInput,StdIn)
 *
-      Call RdCtl_Slapaf(iRow,iInt,nFix,LuInput,.True.)
+      iRow=0
+      Call RdCtl_Slapaf(iInt,nFix,LuInput,.True.)
       Curvilinear = .True.
       Cartesian = .Not. Curvilinear
       Numerical = .False.
@@ -426,7 +430,7 @@
       nFix=0
       nWndw=iter
       iRef=0
-      Call BMtrx(iRow,nBVec,nsAtom,mInt,Lbl,
+      Call BMtrx(nBVec,nsAtom,mInt,Lbl,
      &           Coor,nDimBC,BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,Curvilinear,Numerical,
@@ -666,6 +670,7 @@
       EDiffZero=Bk_EDiffZero
       ApproxNADC=Bk_ApproxNADC
       iState(:)=Bk_iState(:)
+      iRow = Bk_iRow
 *
 *     Process arrays that is always allocated.
 *

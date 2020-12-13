@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine NewCar(Iter,nBVct,nLines,nAtom,nDim,nInter,
+      Subroutine NewCar(Iter,nBVct,nAtom,nDim,nInter,
      &                  Coor,Lbl,iSym,
      &                  mTtAtm,iOptH,User_Def,
      &                  Curvilinear,Numerical,DDV_Schlegel,HWRS,
@@ -31,7 +31,7 @@
 #include "Molcas.fh"
 #include "warnings.fh"
       Parameter(NRHS=1)
-      Integer, Intent(In):: Iter, nBVct, nLines, nAtom, nInter
+      Integer, Intent(In):: Iter, nBVct, nAtom, nInter
       Real*8,  Intent(InOut):: Coor(3,nAtom)
       Character(LEN=8), Intent(In):: Lbl(nInter)
       Integer, Intent(In):: iSym(3)
@@ -184,7 +184,7 @@
 *
          nFix=0
          nWndw=1
-         Call BMtrx(nLines,nBVct,nAtom,nInter,
+         Call BMtrx(nBVct,nAtom,nInter,
      &              Lbl,Coor,nDim,
      &              BSet,HSet,iter+1,
      &              mTtAtm,iOptH,User_Def,

@@ -8,8 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine PrePro(nLines,iInt,nFix,nAtom,nInter,Coor)
+      Subroutine PrePro(iInt,nFix,nAtom,nInter,Coor)
       use Slapaf_Info, only: Grd, Atom, nSup
+      use Slapaf_Parameters, only: iRow
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -36,16 +37,16 @@
       End If
 *
 *-----Operate according to two modes
-*     nLines.gt.0 : user supplied internal coordinates
-*     nLines.le.0 : Cartesian or Internal Coordinates
+*     iRow.gt.0 : user supplied internal coordinates
+*     iRow.le.0 : Cartesian or Internal Coordinates
 *
       nRowH = 0
       nInter = nDimBC - mTR
-      If (nLines.gt.0) Then
+      If (iRow.gt.0) Then
 *
 *--------Find the number of active and frozen internal coordinates.
 *
-         Call Rd_UDIC(nLines,iInt,nFix,nRowH)
+         Call Rd_UDIC(iInt,nFix,nRowH)
          nQQ=iInt+nFix
          If (nRowH.GT.0) then
             lRowH=.True.

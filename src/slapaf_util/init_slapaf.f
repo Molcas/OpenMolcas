@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Init_SlapAf(iRow)
+      Subroutine Init_SlapAf()
       use Symmetry_Info, only: nIrrep, iOper
       use Slapaf_Info, only: q_nuclear, dMass, Coor, Grd, ANr, Degen,
      &                       jStab, nStab, iCoSet, AtomLbl, Smmtrc
@@ -59,7 +59,6 @@
 ************************************************************************
 *                                                                      *
       IRC=0
-      iRow=0
       iRow_c=0
       nBVec=0
       lif = 0

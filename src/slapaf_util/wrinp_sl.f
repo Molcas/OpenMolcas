@@ -8,9 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine WrInp_sl(iRow)
+      Subroutine WrInp_sl()
       use kriging_mod
       use Slapaf_Info, only: Coor, AtomLbl
+      use Slapaf_Parameters, only: iRow
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "info_slapaf.fh"

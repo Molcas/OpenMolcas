@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine BMtrx(nLines,nBVec,nAtom,nInter,Lbl,Coor,nDim,
+      Subroutine BMtrx(nBVec,nAtom,nInter,Lbl,Coor,nDim,
      &                 BSet,HSet,nIter,
      &                 mTtAtm,iOptH,User_Def,
      &                 Curvilinear,Numerical,
@@ -181,7 +181,7 @@
 ************************************************************************
 *                                                                      *
          Call BMtrx_User_Defined(
-     &                 nLines,nBVec,nAtom,nInter,Lbl,Coor,nDim,
+     &                 nBVec,nAtom,nInter,Lbl,Coor,nDim,
      &                 BSet,HSet,nIter,
      &                 Numerical,Analytic_Hessian,
      &                 iOptC,lOld,

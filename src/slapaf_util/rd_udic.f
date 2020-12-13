@@ -11,11 +11,12 @@
 * Copyright (C) Roland Lindh                                           *
 *               Giovanni Ghigo                                         *
 ************************************************************************
-      SubRoutine Rd_UDIC(nLines,iInt,nFix,nRowH)
+      SubRoutine Rd_UDIC(iInt,nFix,nRowH)
 ************************************************************************
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
+      use Slapaf_Parameters, only: iRow
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -35,7 +36,7 @@ c      Open(Lu_UDIC,File=filnam,Form='FORMATTED',Status='OLD')
 *
 *     Find begining of definitions of internal coordinates
 *
-      Do iLines = 1, nLines
+      Do iLines = 1, iRow
          Read(Lu_UDIC,'(A)') Temp
          Call UpCase(Temp)
          If (Temp(1:4).eq.'VARY') Go To 100
@@ -47,7 +48,7 @@ c      Open(Lu_UDIC,File=filnam,Form='FORMATTED',Status='OLD')
       iInt = 0
       nFix = 0
       nRowH = 0 ! Number of Rows of Hessian Numerically estimated
-      Do jLines = iLines+1, nLines
+      Do jLines = iLines+1, iRow
          Read(Lu_UDIC,'(A)') Temp
          Call UpCase(Temp)
          If (Temp(1:3).eq.'FIX') Go To 200
@@ -61,14 +62,14 @@ c      Open(Lu_UDIC,File=filnam,Form='FORMATTED',Status='OLD')
       Go To 400
 *
  200  Continue
-      Do kLines = jLines+1, nLines
+      Do kLines = jLines+1, iRow
          Read(Lu_UDIC,'(A)') Temp
          Call UpCase(Temp)
          If (Temp(1:4).eq.'ROWH') Go To 300
 *------- Do not count line if continuation character
          If (Index(Temp,'&').eq.0) nFix=nFix+1
       End Do
- 300  Do lLines = kLines+1, nLines
+ 300  Do lLines = kLines+1, iRow
          Read(Lu_UDIC,'(A)') Temp
          Call UpCase(Temp)
 *------- Do not count line if continuation character

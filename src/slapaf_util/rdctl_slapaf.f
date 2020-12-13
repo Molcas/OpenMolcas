@@ -8,11 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine RdCtl_Slapaf(iRow,iInt,nFix,LuSpool,Dummy_Call)
+      Subroutine RdCtl_Slapaf(iInt,nFix,LuSpool,Dummy_Call)
       use kriging_mod
       use Symmetry_Info, only: Symmetry_Info_Get
       use Slapaf_Info, only: Cx, Gx, Weights, MF, Atom, nSup, RefGeo,
      &                       GradRef, nStab
+      use Slapaf_Parameters, only: iRow
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -55,7 +56,7 @@
 *-----Initiate some parameters
 *
       Call Symmetry_Info_Get()
-      Call Init_Slapaf(iRow)
+      Call Init_Slapaf()
       iPrint=nPrint(iRout)
       iSetAll=2**30 - 1
 *
@@ -206,7 +207,6 @@ C     Write (Lu,*) iOptC
       New_Line=1
       Lu_UDIC=91
       FilNam='UDIC'
-cc      Open(Lu_UDIC,File=FilNam,Form='FORMATTED',Status='UNKNOWN')
       call molcas_open(Lu_UDIC,FilNam)
       ReWind(Lu_UDIC)
 *
@@ -1118,7 +1118,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *     been read.
 *
       If ((.Not.ThrInp).and.(.Not.Baker)) ThrEne=Zero
-      Call Init2
+      Call Init2()
 *     Gradients are not needed at the first iteration of a numerical
 *     Hessian procedure (and only that, i.e. MxItr=0)
       FirstNum = (lRowH.or.lNmHss.or.Cubic)
@@ -1323,7 +1323,7 @@ CGGd: Coherency with patch 7.1.615 !      If (lNmHss) nPrint(122)=10
 *.....Do some preprocessing due to input choice
 *
       If (Request_Alaska) nPrint(51)=0
-      Call PrePro(iRow,iInt,nFix,nsAtom,mInt,Cx(1,1,iter))
+      Call PrePro(iInt,nFix,nsAtom,mInt,Cx(1,1,iter))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1358,7 +1358,7 @@ CGGd: Coherency with patch 7.1.615 !      If (lNmHss) nPrint(122)=10
 *     gradients on the runfile. We will come back!!!
 *
       If (SuperName.eq.'slapaf') Then
-         If (.Not.Request_Alaska) Call WrInp_sl(iRow)
+         If (.Not.Request_Alaska) Call WrInp_sl()
       End If
 *                                                                      *
 ************************************************************************

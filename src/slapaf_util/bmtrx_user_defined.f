@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine BMtrx_User_Defined(
-     &                 nLines,nBVec,nAtom,nInter,
+     &                 nBVec,nAtom,nInter,
      &                 Lbl,Coor,nDim,
      &                 BSet,HSet,nIter,
      &                 Numerical,
@@ -37,7 +37,7 @@
 *                                                                      *
 *.... Section for user defined internal coordinates
 *
-      Call Rd_UDIC(nLines,iInt,nFix,nRowH)
+      Call Rd_UDIC(iInt,nFix,nRowH)
       nQQ=iInt+nFix
 *
       If (.NOT.Allocated(qInt)) Then
@@ -69,7 +69,7 @@
       End If
 *
       Call DefInt(BVec,nBVec,Lab,BMx,nQQ,
-     &            nAtom,nLines,Val,qInt(:,nIter),Lbl,
+     &            nAtom,Val,qInt(:,nIter),Lbl,
      &            Coor,Mult,nDim-mTR,Redundant)
 *
       Call mma_deallocate(Lab)

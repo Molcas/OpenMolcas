@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine DefInt(BVct,nBVct,Labels,BMtrx,nQQ,nAtom,nLines,Value,
+      SubRoutine DefInt(BVct,nBVct,Labels,BMtrx,nQQ,nAtom,Value,
      &                  rInt,Lbl,Coor,rMult,nDim,Redundant)
 ************************************************************************
 *                                                                      *
@@ -24,6 +24,7 @@
 *             May 1991                                                 *
 ************************************************************************
       use Slapaf_Info, only: AtomLbl
+      use Slapaf_Parameters, only: iRow
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -70,7 +71,7 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
          Write (6,'(80A)') ('*',i=1,60)
          Write (6,*) ' User-Defined Internal coordinates'
          Write (6,'(80A)') ('-',i=1,60)
-         Do iLines = 1, nLines
+         Do iLines = 1, iRow
             Read (Lu_UDIC,'(A)') Temp
             Write (6,'(A)') Temp
          End Do
@@ -90,7 +91,7 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
 *     internal coordinates.
 *
       iBVct = 0
-      Do 10 iLines = 1, nLines
+      Do 10 iLines = 1, iRow
          Flip=.False.
          Read (Lu_UDIC,'(A)') Line
          Temp=Line
@@ -282,7 +283,7 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
       jLines=iLines
  201  Continue
          jLines=jLines+1
-         If (jLines.gt.nLines) Go To 200
+         If (jLines.gt.iRow) Go To 200
 *
 *------- Jump over the FIX keyword if present
 *
@@ -395,11 +396,11 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
 *
             If (Index(Line,'&').ne.0) Then
                jLines=jLines+1
-               If (jLines.gt.nLines) Then
+               If (jLines.gt.iRow) Then
                   Call WarningMessage(2,'Error in DefInt')
                   Write(6,*)
                   Write(6,*) '********** ERROR *********'
-                  Write(6,*) ' DefInt: jLines.gt.nLines '
+                  Write(6,*) ' DefInt: jLines.gt.iRow '
                   Write(6,*) '**************************'
                   Call Quit_OnUserError()
                End If
@@ -438,7 +439,7 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
 * --- Skip the  RowH  section of input ---
 *
  30   jLines=jLines+1
-      If (jLines.gt.nLines) Go To 200
+      If (jLines.gt.iRow) Go To 200
       Read (Lu_UDIC,'(A)') Line
       Temp = Line
       Call UpCase(Temp)
