@@ -27,8 +27,8 @@
 #include "stdalloc.fh"
       Logical Numerical, GoOn, PrQ, TSReg,
      &        Do_ESPF, Just_Frequencies, Found, Error
-      Character*8 GrdLbl, StpLbl, Lbl(nLbl)
-      Character*1 Step_trunc
+      Character(LEN=8) GrdLbl, StpLbl, Lbl(nLbl)
+      Character(LEN=1) Step_trunc
       Integer AixRm, iNeg(2)
       Integer nGB
       Real*8 rDum(1)
@@ -48,7 +48,7 @@
       LuSpool=21
       Call SpoolInp(LuSpool)
 *
-      Call RdCtl_Slapaf(iRow,iInt,nFix,LuSpool,.False.)
+      Call RdCtl_Slapaf(iInt,nFix,LuSpool,.False.)
 *
       Call Close_LuSpool(LuSpool)
 *
@@ -127,7 +127,7 @@
 *
       If (Numerical) nWndw=NmIter
       iRef=0
-      Call BMtrx(iRow,nBVec,nsAtom,mInt,Lbl,
+      Call BMtrx(nBVec,nsAtom,mInt,Lbl,
      &           Coor,nDimBC,
      &           BSet,HSet,iter,
      &           mTtAtm,iOptH,
@@ -233,20 +233,20 @@
      &               Iter,iInt,nFix,nQQ,
      &               iOptC,Beta,Beta_Disp,
      &               Lbl,UpMeth,
-     &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
+     &               ed,Line_Search,Step_Trunc,nLambda,nsAtom,
      &               nDimBC,
      &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,
      &               iOptH,HUpMet,GNrm_Threshold,
      &               IRC,HrmFrq_Show,
-     &               CnstWght,Curvilinear,ThrEne,ThrGrd,iRow)
+     &               CnstWght,Curvilinear,ThrEne,ThrGrd)
       Else
          Call Update_sl(
      &               Iter,NmIter,iInt,nFix,nQQ,
      &               iOptC,Beta,Beta_Disp,
      &               Lbl,UpMeth,
-     &               ed,Line_Search,Step_Trunc,nLambda,iRow_c,nsAtom,
+     &               ed,Line_Search,Step_Trunc,nLambda,nsAtom,
      &               nDimBC,GrdMax,
      &               StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &               FindTS,TSConstraints,nRowH,
@@ -274,7 +274,7 @@
          PrQ=.False.
          Error=.False.
          iRef=0
-         Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,nQQ,Coor,
+         Call NewCar(Iter,nBVec,nsAtom,nDimBC,nQQ,Coor,
      &               Lbl,iSym,
      &               mTtAtm,iOptH,
      &               User_Def,Curvilinear,Numerical,

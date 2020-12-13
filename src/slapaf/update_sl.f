@@ -13,7 +13,7 @@
       Subroutine Update_sl(iter,NmIter,iInt,nFix,nInter,
      &                     iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
-     &                     nLambda,iRow_c,nsAtom,
+     &                     nLambda,nsAtom,
      &                     nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,FindTS,TSC,nRowH,
@@ -36,7 +36,6 @@
 *      nLbl           : length of Lbl                                  *
 *      Line_Search    : logical flag for line search                   *
 *      nLambda        : number of contraints                           *
-*      iRow_c         : number of lines on the UDC file                *
 *      nsAtom         : number of symmetry unique atoms                *
 *      nDimBC         : dimension of redundant coordinates(?)          *
 *      iNeg           : Hessian index                                  *
@@ -117,7 +116,7 @@
      &                   iter_,iInt,nFix,nInter,qInt,
      &                   Shift,iOptC,Beta,Beta_Disp,
      &                   Lbl,UpMeth,ed,Line_Search,
-     &                   Step_Trunc,nLambda,iRow_c,nsAtom,
+     &                   Step_Trunc,nLambda,nsAtom,
      &                   nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,
      &                   iNeg,nLbl,FindTS,TSC,nRowH,
@@ -156,7 +155,7 @@
      &                iter,iInt,nFix,nInter,qInt,Shift,
      &                iOptC,Beta,Beta_Disp,Lbl,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
-     &                iRow_c,nsAtom,
+     &                nsAtom,
      &                nDimBC,
      &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                FindTS,TSC,nRowH,

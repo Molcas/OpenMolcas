@@ -14,7 +14,7 @@
      &                     kIter,iInt,nFix,nInter,qInt,Shift,
      &                     iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
-     &                     nLambda,iRow_c,nsAtom,
+     &                     nLambda,nsAtom,
      &                     nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,FindTS,TSC,nRowH,
@@ -40,7 +40,6 @@
 *      nLbl           : length of Lbl                                  *
 *      Line_Search    : logical flag for line search                   *
 *      nLambda        : number of constraints                          *
-*      iRow_c         : number of lines on the UDC file                *
 *      nsAtom         : number of symmetry unique atoms                *
 *      nDimBC         : dimension of redundant coordinates(?)          *
 *      iNeg           : Hessian index                                  *
@@ -63,6 +62,7 @@
 ************************************************************************
       use Slapaf_info, only: GNrm, Lambda, Energy, MF, dqInt,
      &                       BMx, Degen, nStab, Smmtrc
+      use Slapaf_Parameters, only: iRow_c
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"

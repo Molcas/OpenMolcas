@@ -15,14 +15,14 @@
      &                     iter,iInt,nFix,nInter,
      &                     iOptC,Beta,Beta_Disp,Lbl,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
-     &                     nLambda,iRow_c,nsAtom,
+     &                     nLambda,nsAtom,
      &                     nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,nLbl,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
      &                     iOptH,HUpMet,GNrm_Threshold,IRC,
      &                     HrmFrq_Show,CnstWght,Curvilinear,
-     &                     ThrEne,ThrGrd,nLines)
+     &                     ThrEne,ThrGrd)
 ************************************************************************
 *                                                                      *
 *     Object: to update coordinates                                    *
@@ -210,7 +210,7 @@
      &                   iterAI,iInt,nFix,nInter,qInt,Shift,iOptC,
      &                   Beta_,Beta_Disp_,Lbl,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
-     &                   iRow_c,nsAtom,
+     &                   nsAtom,
      &                   nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
      &                   FindTS,TSC,nRowH,nWndw_,Mode,
@@ -229,7 +229,7 @@
 *        not totally consistent)
 *
          Error=(iterK.ge.1)
-         Call NewCar_Kriging(iterAI,nLines,nsAtom,nDimBC,nInter,
+         Call NewCar_Kriging(iterAI,nsAtom,nDimBC,nInter,
      &                       Lbl,.True.,iter,Error)
 #ifdef _DEBUGPRINT_
          Call RecPrt('New Coord (after NewCar)','',qInt,nInter,iterAI+1)
@@ -425,7 +425,7 @@
          If ((OS_Disp.gt.E_Disp).And.(OS_Disp.lt.Beta_Disp_)) Then
             Call dAXpY_(nInter,OS_Factor,Step_k(1,2),1,
      &                                   Shift(1,iterAI-1),1)
-            Call NewCar_Kriging(iterAI-1,nLines,nsAtom,nDimBC,nInter,
+            Call NewCar_Kriging(iterAI-1,nsAtom,nDimBC,nInter,
      &                          Lbl,.True.,iter)
             Energy(iterAI)=OS_Energy
             If (Max_OS.gt.0) Then

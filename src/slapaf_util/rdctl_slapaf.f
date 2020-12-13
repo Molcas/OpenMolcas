@@ -13,7 +13,7 @@
       use Symmetry_Info, only: Symmetry_Info_Get
       use Slapaf_Info, only: Cx, Gx, Weights, MF, Atom, nSup, RefGeo,
      &                       GradRef, nStab
-      use Slapaf_Parameters, only: iRow
+      use Slapaf_Parameters, only: iRow, iRow_c
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"

@@ -35,7 +35,7 @@
      &                       RefGeo, BM, iBM, dBM, idBM, nqBM, BMx,
      &                       Degen, nStab, jStab, iCoSet, AtomLbl,
      &                       Smmtrc
-      use Slapaf_Parameters, only: iRow
+      use Slapaf_Parameters, only: iRow, iRow_c
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -94,7 +94,6 @@
       Integer, Allocatable:: Bk_iCoSet(:,:)
       Character(LEN=LENIN), Allocatable:: Bk_AtomLbl(:)
       Logical, Allocatable:: Bk_Smmtrc(:,:)
-      Integer Bk_iRow
 *
 *
 *---- Ugly hack: backup all "global" slapaf variables in case this is
@@ -414,6 +413,7 @@
       Call Molcas_open(LuInput,StdIn)
 *
       iRow=0
+      iRow_c=0
       Call RdCtl_Slapaf(iInt,nFix,LuInput,.True.)
       Curvilinear = .True.
       Cartesian = .Not. Curvilinear

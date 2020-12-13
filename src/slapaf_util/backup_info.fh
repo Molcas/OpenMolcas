@@ -11,7 +11,7 @@
 #include "info_slapaf.fh"
 *
       Integer Bk_iSym(3),
-     &        Bk_iRef,
+     &        Bk_iRef, Bk_iRow,
      &        Bk_nQQ, Bk_mRowH(10), Bk_nRowH,
      &        Bk_NmIter,
      &        Bk_iter, Bk_Lngth,

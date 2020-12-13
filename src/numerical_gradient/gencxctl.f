@@ -46,7 +46,7 @@
       LuSpool=21
       Call SpoolInp(LuSpool)
 *
-      Call RdCtl_Slapaf(iRow,iInt,nFix,LuSpool,.True.)
+      Call RdCtl_Slapaf(iInt,nFix,LuSpool,.True.)
       Curvilinear=.FALSE.
       Cartesian  =.NOT.Curvilinear
       Numerical = .False. ! Just to define it, value is irrelevant here!
@@ -81,7 +81,7 @@
       nFix=0
       nWndw=iter
       iRef=0
-      Call BMtrx(iRow,nBVec,nsAtom,mInt,Lbl,
+      Call BMtrx(nBVec,nsAtom,mInt,Lbl,
      &           Coor,nDimBC,
      &           BSet,HSet,iter,
      &           mTtAtm,iOptH,
@@ -226,7 +226,7 @@
          Error=.False.
          nWndw=Iter
          iRef=0
-         Call NewCar(Iter,nBVec,iRow,nsAtom,nDimBC,mInt,
+         Call NewCar(Iter,nBVec,nsAtom,nDimBC,mInt,
      &               Coor,Lbl,iSym,mTtAtm,
      &               iOptH,User_Def,
      &               Curvilinear,Numerical,

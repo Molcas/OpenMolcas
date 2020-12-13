@@ -19,7 +19,7 @@
      &          MxItr, mInt, Max_Center,
      &          nSupSy, lif,
      &          iOptC, mode, mTROld, nWndw, iOptH,
-     &          nLambda, iRow_c,
+     &          nLambda,
      &          nMEP, nBVec, IRC,
      &          mTtAtm, nsAtom, MEPnum,
      &          RootMap(MxRoot)
@@ -31,7 +31,7 @@
      &          nSupSy, lif, mTtAtm,
      &          iOptC, mode, mTROld, nWndw, iOptH,
      &          NmIter,
-     &          nLambda, iRow_c, nMEP,
+     &          nLambda, nMEP,
      &          nBVec, IRC, MEPnum,
      &          RootMap
 *
