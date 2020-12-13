@@ -380,16 +380,18 @@ test:intel13:
   needs:
     - build:intel13
 
-# Disable NAG, since the runner is unavailable
-#build:nag:
-#  extends: .nag
-#  <<: *compile
-#test:nag:
-#  extends: .nag
-#  <<: *run-tests
-#  needs:
-#    - build:nag
-#    - tinker
+build:nag:
+  extends: .nag
+  <<: *compile
+test:nag:
+  extends: .nag
+  <<: *run-tests
+  needs:
+    - build:nag
+    - tinker
+  parallel: 4
+  tags:
+    - docker
 
 build:garble:
   extends: .garble
