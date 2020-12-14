@@ -38,6 +38,7 @@
      &                   ResGrad,BadConstraint)
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: Weights, MF, RefGeo
+      use Slapaf_Parameters, only: IRC
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"

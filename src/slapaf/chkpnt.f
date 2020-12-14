@@ -29,6 +29,7 @@
       Subroutine Chkpnt_open()
 #ifdef _HDF5_
       use Symmetry_Info, only: nIrrep
+      use Slapaf_Parameters, only: IRC
 #  include "info_slapaf.fh"
       Character(Len=3) :: level
       Logical :: create

@@ -20,7 +20,7 @@
      &          nSupSy, lif,
      &          iOptC, mode, mTROld, nWndw,
      &          nLambda,
-     &          nMEP, nBVec, IRC,
+     &          nMEP, nBVec,
      &          mTtAtm, nsAtom, MEPnum,
      &          RootMap(MxRoot)
       Common /iInfSla/ iSym,nsAtom,
@@ -32,7 +32,7 @@
      &          iOptC, mode, mTROld, nWndw,
      &          NmIter,
      &          nLambda, nMEP,
-     &          nBVec, IRC, MEPnum,
+     &          nBVec, MEPnum,
      &          RootMap
 *
       Logical Stop, lWrite, Exist, Change,
@@ -40,7 +40,7 @@
      &        lNmHss, Cubic, PDH, Baker,
      &        Line_Search, Analytic_Hessian,
      &        FirstCall, FindTS, MEP, Ref_Geom, lRP, User_Def, Ref_Grad,
-     &        rMEP, lOld_Implicit, HrmFrq_Show, eMEPtest,
+     &        rMEP, lOld_Implicit, eMEPtest,
      &        Redundant, lCtoF, lSoft, CallLast, TwoRunFiles,
      &        TSConstraints, MEPCons, Track, Request_Alaska,
      &        Request_RASSI
@@ -49,7 +49,7 @@
      &        lNmHss, Cubic, PDH, Baker,
      &        Line_Search, Analytic_Hessian,
      &        FirstCall, FindTS, MEP, Ref_Geom, lRP, User_Def, Ref_Grad,
-     &        lOld_Implicit, HrmFrq_Show, eMEPtest,
+     &        lOld_Implicit, eMEPtest,
      &        Redundant, lCtoF, lSoft, CallLast, TwoRunFiles,
      &        TSConstraints, MEPCons, Track, Request_Alaska,
      &        Request_RASSI

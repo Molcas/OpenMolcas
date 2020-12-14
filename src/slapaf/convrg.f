@@ -27,6 +27,7 @@
 #include "nadc.fh"
 #include "print.fh"
 #include "warnings.fh"
+      Integer:: IRC=0
       Real*8 Maxed, MaxErr
       Character GrdLbl*8, StpLbl*8
       Character(LEN=6) UpMeth, ConLbl(5)*5
@@ -702,11 +703,7 @@ C              Write (6,*) 'SubProject=.Prod'
 *-----Book keeping for minimum energy path search
 *
       Call Qpg_iScalar('IRC',Found)
-      If (Found) Then
-         Call Get_iScalar('IRC',IRC)
-      Else
-         IRC=0
-      End If
+      If (Found) Call Get_iScalar('IRC',IRC)
 *
       TurnBack=.False.
       If (MEP.or.rMEP) Then

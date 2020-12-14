@@ -36,7 +36,8 @@
      &                       Degen, nStab, jStab, iCoSet, AtomLbl,
      &                       Smmtrc, Lbl
       use Slapaf_Parameters, only: iRow, iRow_c, iInt, nFix,
-     &                             ddV_Schlegel, HWRS, iOptH, HUpMet
+     &                             ddV_Schlegel, HWRS, iOptH, HUpMet,
+     &                             HrmFrq_Show, IRC
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"

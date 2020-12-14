@@ -18,7 +18,7 @@
      &                   nRowH,Err,EMx,RHS,A,nA,ed,
      &                   Beta,Beta_Disp,nFix,iP,UpMeth,
      &                   Line_Search,Step_Trunc,Lbl,GrdLbl,StpLbl,
-     &                   GrdMax,StpMax,d2rdq2,nsAtom,IRC,CnstWght,
+     &                   GrdMax,StpMax,d2rdq2,nsAtom,CnstWght,
      &                   iOpt_RS,Thr_RS,iter_,
      &                   First_Microiteration)
 ************************************************************************
@@ -49,6 +49,7 @@
 *             July 2003                                                *
 ************************************************************************
       Use kriging_mod, only: Max_MicroIterations
+      use Slapaf_Parameters, only: IRC
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"

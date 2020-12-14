@@ -13,12 +13,14 @@
 Module Slapaf_Parameters
 implicit none
 Private
-Public:: iRow, iRow_c, iInt, nFix, ddV_Schlegel, HWRS, iOptH, HUpMet
+Public:: iRow, iRow_c, iInt, nFix, ddV_Schlegel, HWRS, iOptH, HUpMet, HrmFrq_Show, IRC
 Integer:: iRow=0
 Integer:: iRow_c=0
 Integer:: iInt=0
 Integer:: nFix=0
+Integer:: IRC=0
 
+Logical:: HrmFrq_Show=.False.
 Logical:: ddV_Schlegel=.False.
 Logical:: HWRS=.True.
 !                                                                      *

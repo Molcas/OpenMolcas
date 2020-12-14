@@ -20,8 +20,8 @@
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
-     &                     GNrm_Threshold,IRC,
-     &                     HrmFrq_Show,CnstWght,Curvilinear,
+     &                     GNrm_Threshold,
+     &                     CnstWght,Curvilinear,
      &                     ThrEne,ThrGrd)
 ************************************************************************
 *                                                                      *
@@ -40,7 +40,7 @@
 #include "stdalloc.fh"
       Real*8 dEner
       Integer iNeg(2)
-      Logical Line_Search, FindTS, TSC, HrmFrq_Show, Curvilinear,
+      Logical Line_Search, FindTS, TSC, Curvilinear,
      &        First_MicroIteration, Error
       Character GrdLbl*8, StpLbl*8, Step_Trunc, UpMeth*6
       Character GrdLbl_Save*8
@@ -214,8 +214,8 @@
      &                   nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
      &                   FindTS,TSC,nRowH,nWndw_,Mode,
-     &                   kIter,GNrm_Threshold,IRC,
-     &                   HrmFrq_Show,CnstWght,Curvilinear,
+     &                   kIter,GNrm_Threshold,
+     &                   CnstWght,Curvilinear,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
      &                   First_MicroIteration,iter,qBeta_Disp)
 #ifdef _DEBUGPRINT_

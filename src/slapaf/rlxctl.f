@@ -29,7 +29,8 @@
      &        Do_ESPF, Just_Frequencies, Found, Error
       Character(LEN=8) GrdLbl, StpLbl
       Character(LEN=1) Step_trunc
-      Integer AixRm, iNeg(2)
+      Integer, External:: AixRm
+      Integer iNeg(2)
       Integer nGB
       Real*8 rDum(1)
       Real*8, Allocatable:: GB(:), HX(:), HQ(:), KtB(:)
@@ -77,7 +78,6 @@
 ************************************************************************
 *                                                                      *
       PrQ= .Not.Request_Alaska
-*     PrQ=.True.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -85,7 +85,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*-----Compute the Wilson B-matrices, this describe the transformations
+*-----Compute the Wilson B-matrices, which describe the transformations
 *     between internal and Cartesian coordinates. Values of the
 *     Internal coordinates are computed too.
 *
@@ -226,7 +226,6 @@
      &               FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,
      &               GNrm_Threshold,
-     &               IRC,HrmFrq_Show,
      &               CnstWght,Curvilinear,ThrEne,ThrGrd)
       Else
          Call Update_sl(
@@ -239,7 +238,6 @@
      &               FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,
      &               kIter,GNrm_Threshold,
-     &               IRC,HrmFrq_Show,
      &               CnstWght,Curvilinear)
       End If
 *

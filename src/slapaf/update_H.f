@@ -11,8 +11,9 @@
       Subroutine Update_H(nWndw,H,nInter,nIter,
      &                    iOptC,Mode,MF,dq,g,iNeg,iOptH,
      &                    nRowH,jPrint,GNrm,
-     &                    GNrm_Threshold,nAtoms,IRC,Store,
+     &                    GNrm_Threshold,nAtoms,Store,
      &                    AllowFindTS)
+      use Slapaf_Parameters, only: IRC
       Implicit Real*8 (a-h,o-z)
 #include "stdalloc.fh"
 #include "real.fh"

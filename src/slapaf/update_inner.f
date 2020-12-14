@@ -19,8 +19,8 @@
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
-     &                     mIter,GNrm_Threshold,IRC,
-     &                     HrmFrq_Show,CnstWght,Curvilinear,
+     &                     mIter,GNrm_Threshold,
+     &                     CnstWght,Curvilinear,
      &                     Kriging_Hessian,qBeta,iOpt_RS,
      &                     First_MicroIteration,Iter,qBeta_Disp)
 ************************************************************************
@@ -58,7 +58,8 @@
 ************************************************************************
       use Slapaf_info, only: GNrm, Lambda, Energy, MF, dqInt,
      &                       BMx, Degen, nStab, Smmtrc, Lbl
-      use Slapaf_Parameters, only: iRow_c, iInt, nFix, iOptH
+      use Slapaf_Parameters, only: iRow_c, iInt, nFix, iOptH,
+     &                             HrmFrq_Show
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
@@ -66,7 +67,7 @@
       Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter)
       Integer iNeg(2)
 *    &        iNeg(2), jNeg(2)
-      Logical Line_Search, FindTS, TSC, HrmFrq_Show,
+      Logical Line_Search, FindTS, TSC,
      &        Found, Curvilinear, Kriging_Hessian, First_MicroIteration
       Character GrdLbl*8, StpLbl*8, Step_Trunc,
      &          UpMeth*6, File1*8, File2*8, Step_Trunc_
@@ -149,7 +150,7 @@
      &              mIter,iOptC,Mode,MF,
      &              Shift(1,kIter-mIter+1),dqInt(1,kIter-mIter+1),
      &              iNeg,iOptH_,nRowH,jPrint,GNrm(kIter),
-     &              GNrm_Threshold,nsAtom,IRC,.True.,
+     &              GNrm_Threshold,nsAtom,.True.,
      &              First_MicroIteration)
 *
 *     Call RecPrt('Update_inner: Hessian',' ',Hessian,nInter,nInter)
@@ -650,7 +651,7 @@ C           Write (6,*) 'tBeta=',tBeta
      &                AMat,nA,ed,qBeta,qBeta_Disp,nFix,
      &                Index,UpMeth,Line_Search,Step_Trunc,Lbl,
      &                GrdLbl,StpLbl,GrdMax,StpMax,d2L,nsAtom,
-     &                IRC,CnstWght,iOpt_RS,Thr_RS,iter,
+     &                CnstWght,iOpt_RS,Thr_RS,iter,
      &                First_Microiteration)
             If (iOpt_RS.eq.1) Exit
 *

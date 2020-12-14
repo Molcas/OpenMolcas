@@ -23,7 +23,7 @@
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 rDum(1)
-      Logical lOld, lOld_Implicit, Hess_Found, IRC
+      Logical lOld, lOld_Implicit, Hess_Found, Found_IRC
       Real*8, Allocatable:: Hess(:)
 *                                                                      *
 ************************************************************************
@@ -53,9 +53,9 @@
 *        If this is not an IRC calculation explore if the runfile
 *        contains a Hessian. If so, pull it off the runfile.
 *
-         Call qpg_iScalar('IRC',IRC)
+         Call qpg_iScalar('IRC',Found_IRC)
 
-         If (.Not.IRC) Then
+         If (.Not.Found_IRC) Then
             Call qpg_dArray('Hess',Hess_Found,nHess)
 
             If (Hess_Found.And.(nHess.gt.0)) Then

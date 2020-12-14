@@ -18,8 +18,8 @@
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
-     &                     kIter,GNrm_Threshold,IRC,
-     &                     HrmFrq_Show,CnstWght,Curvilinear)
+     &                     kIter,GNrm_Threshold,
+     &                     CnstWght,Curvilinear)
 ************************************************************************
 *                                                                      *
 *     Object: to update coordinates                                    *
@@ -57,7 +57,7 @@
 #include "print.fh"
 #include "Molcas.fh"
       Integer iNeg(2)
-      Logical Line_Search, FindTS, TSC, HrmFrq_Show, Curvilinear
+      Logical Line_Search, FindTS, TSC, Curvilinear
       Character GrdLbl*8, StpLbl*8, Step_Trunc, UpMeth*6
       Real*8 Dummy(1)
       Real*8, Allocatable:: t_Shift(:,:), t_qInt(:,:), tmp(:)
@@ -116,8 +116,8 @@
      &                   GrdMax,StpMax,GrdLbl,StpLbl,
      &                   iNeg,FindTS,TSC,nRowH,
      &                   nWndw,Mode,
-     &                   kIter,GNrm_Threshold,IRC,
-     &                   HrmFrq_Show,CnstWght,Curvilinear,
+     &                   kIter,GNrm_Threshold,
+     &                   CnstWght,Curvilinear,
      &                   Kriging_Hessian,qBeta,iOpt_RS,.True.,iter_,
      &                   qBeta_Disp)
 *                                                                      *
@@ -155,8 +155,8 @@
      &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
      &                FindTS,TSC,nRowH,
      &                nWndw,Mode,
-     &                kIter,GNrm_Threshold,IRC,
-     &                HrmFrq_Show,CnstWght,Curvilinear,
+     &                kIter,GNrm_Threshold,
+     &                CnstWght,Curvilinear,
      &                Kriging_Hessian,qBeta,iOpt_RS,.True.,iter,
      &                qBeta_Disp)
 *                                                                      *

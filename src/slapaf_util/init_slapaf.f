@@ -58,7 +58,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      IRC=0
       nBVec=0
       lif = 0
       jPrint=10
@@ -76,7 +75,6 @@
       nMEP=MaxItr
       Ref_Grad=.False.
       rHidden = Zero
-      HrmFrq_Show=.False.
       eMEPTest=.True.
       MEP_Type='SPHERE'
       dMEPStep=0.1D0
