@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine DefInt(nBVct,BMtrx,nQQ,nAtom,rInt,Lbl,Coor,nDim,
-     &                  Redundant)
+      SubRoutine DefInt(nBVct,BMtrx,nQQ,nAtom,rInt,Lbl,Coor,nDim)
 ************************************************************************
 *                                                                      *
 * Object: to generate the B matrix which is the transformation matrix  *
@@ -24,7 +23,7 @@
 *             May 1991                                                 *
 ************************************************************************
       use Slapaf_Info, only: AtomLbl
-      use Slapaf_Parameters, only: iRow
+      use Slapaf_Parameters, only: iRow, Redundant
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -33,7 +32,7 @@
       Real*8 BMtrx(3*nAtom,nQQ), rInt(nQQ), Coor(3,nAtom)
       Character Type*6, Temp*120, Lbl(nQQ)*8, cNum*4,
      &          Line*120, Format*8, filnam*16
-      Logical Flip, lPIC(6*nAtom), lAtom(nAtom), Redundant
+      Logical Flip, lPIC(6*nAtom), lAtom(nAtom)
       Logical, Save:: First=.True.
       Logical :: lWrite = .False., lErr = .False.
       Integer, Allocatable:: Ind(:)

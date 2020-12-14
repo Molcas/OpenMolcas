@@ -17,10 +17,10 @@
      &                     nLambda,nsAtom,
      &                     nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
-     &                     iNeg,FindTS,TSC,nRowH,
+     &                     iNeg,TSC,nRowH,
      &                     nWndw,Mode,
      &                     mIter,GNrm_Threshold,
-     &                     CnstWght,Curvilinear,
+     &                     CnstWght,
      &                     Kriging_Hessian,qBeta,iOpt_RS,
      &                     First_MicroIteration,Iter,qBeta_Disp)
 ************************************************************************
@@ -59,7 +59,7 @@
       use Slapaf_info, only: GNrm, Lambda, Energy, MF, dqInt,
      &                       BMx, Degen, nStab, Smmtrc, Lbl
       use Slapaf_Parameters, only: iRow_c, iInt, nFix, iOptH,
-     &                             HrmFrq_Show
+     &                             HrmFrq_Show, Curvilinear, FindTS
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
@@ -67,8 +67,8 @@
       Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter)
       Integer iNeg(2)
 *    &        iNeg(2), jNeg(2)
-      Logical Line_Search, FindTS, TSC,
-     &        Found, Curvilinear, Kriging_Hessian, First_MicroIteration
+      Logical Line_Search, TSC,
+     &        Found, Kriging_Hessian, First_MicroIteration
       Character GrdLbl*8, StpLbl*8, Step_Trunc,
      &          UpMeth*6, File1*8, File2*8, Step_Trunc_
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:),

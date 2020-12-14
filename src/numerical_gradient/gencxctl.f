@@ -12,6 +12,7 @@
 ************************************************************************
       Subroutine genCxCTL(iStop,Cartesian,rDelta)
       use Slapaf_Info, only: Coor, Shift, qInt, BMx, Free_Slapaf
+      use Slapaf_Parameters, only: Curvilinear
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -71,9 +72,9 @@
      &           Coor,nDimBC,
      &           BSet,HSet,iter,
      &           mTtAtm,
-     &           User_Def,Curvilinear,Numerical,
+     &           User_Def,Numerical,
      &           Analytic_Hessian,iOptC,PrQ,
-     &           lOld,rHidden,nQQ,iRef,Redundant,
+     &           lOld,rHidden,nQQ,iRef,
      &           MaxItr,nWndw)
 *
       nPrint(30) = nPrint(30)-1
@@ -215,10 +216,10 @@
          Call NewCar(Iter,nBVec,nsAtom,nDimBC,mInt,
      &               Coor,iSym,mTtAtm,
      &               User_Def,
-     &               Curvilinear,Numerical,
+     &               Numerical,
      &               Analytic_Hessian,
      &               iOptC,PrQ,rHidden,
-     &               Redundant,MaxItr,iRef,Error)
+     &               MaxItr,iRef,Error)
 *
 *        Move the new Cartesian coordinate to the list.
 *

@@ -18,10 +18,10 @@
      &                     nLambda,nsAtom,
      &                     nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
-     &                     iNeg,FindTS,TSC,nRowH,
+     &                     iNeg,TSC,nRowH,
      &                     nWndw,Mode,
      &                     GNrm_Threshold,
-     &                     CnstWght,Curvilinear,
+     &                     CnstWght,
      &                     ThrEne,ThrGrd)
 ************************************************************************
 *                                                                      *
@@ -40,8 +40,7 @@
 #include "stdalloc.fh"
       Real*8 dEner
       Integer iNeg(2)
-      Logical Line_Search, FindTS, TSC, Curvilinear,
-     &        First_MicroIteration, Error
+      Logical Line_Search, TSC, First_MicroIteration, Error
       Character GrdLbl*8, StpLbl*8, Step_Trunc, UpMeth*6
       Character GrdLbl_Save*8
       Real*8 Dummy(1)
@@ -213,9 +212,9 @@
      &                   nsAtom,
      &                   nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
-     &                   FindTS,TSC,nRowH,nWndw_,Mode,
+     &                   TSC,nRowH,nWndw_,Mode,
      &                   kIter,GNrm_Threshold,
-     &                   CnstWght,Curvilinear,
+     &                   CnstWght,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
      &                   First_MicroIteration,iter,qBeta_Disp)
 #ifdef _DEBUGPRINT_

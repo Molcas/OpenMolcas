@@ -15,7 +15,7 @@
      &                 Numerical,
      &                 Analytic_Hessian,
      &                 iOptC,lOld,
-     &                 mTR,nQQ,Redundant,MaxItr)
+     &                 mTR,nQQ,MaxItr)
       use Slapaf_Info, only: Gx, qInt, dqInt, KtB, BMx, Degen, Smmtrc
       use Slapaf_Parameters, only: iInt, nFix
       Implicit Real*8 (a-h,o-z)
@@ -24,8 +24,7 @@
 #include "stdalloc.fh"
       Real*8 Coor(3,nAtom)
       Character Lbl(nInter)*8
-      Logical BSet, HSet, Redundant,
-     &        Numerical, Analytic_Hessian, lOld, Proc_dB
+      Logical BSet, HSet, Numerical, Analytic_Hessian, lOld, Proc_dB
       Real*8, Allocatable:: Degen2(:)
 *                                                                      *
 ************************************************************************
@@ -61,8 +60,7 @@
 *        Not implimented, sorry
       End If
 *
-      Call DefInt(nBVec,BMx,nQQ,nAtom,qInt(:,nIter),Lbl,Coor,nDim-mTR,
-     &            Redundant)
+      Call DefInt(nBVec,BMx,nQQ,nAtom,qInt(:,nIter),Lbl,Coor,nDim-mTR)
 *                                                                      *
 ************************************************************************
 *                                                                      *

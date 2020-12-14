@@ -66,8 +66,6 @@
       Stop  = .False.
       lSup = .False.
       Baker = .False.
-      FindTS=.False.
-      Curvilinear=.True.
       Ref_Geom=.False.
       nLambda=0
       MEP = .False.
@@ -83,7 +81,6 @@
       NmIter=0
       HSet=.False.
       BSet=.False.
-      Redundant=.False.
       lSoft=.False.
       rFuzz=0.5D0
       isFalcon=.False.

@@ -14,12 +14,12 @@
      &                  Baker, nAtom,mTtAtm,ed,iNeg,
      &                  GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &                  Analytic_hessian,rMEP,MEP,nMEP,Numerical,
-     &                  Just_Frequencies,FindTS,eMEPTest,nLambda,
+     &                  Just_Frequencies,eMEPTest,nLambda,
      &                  TSReg,ThrMEP)
       Use Chkpnt
       Use Slapaf_Info, only: Cx, Gx, Coor, GNrm, Energy, Shift, qInt,
      &                       dqInt, Lbl
-      use Slapaf_Parameters, only: HUpMet
+      use Slapaf_Parameters, only: HUpMet, FindTS
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -38,7 +38,7 @@
       Integer   iNeg(2)
       Logical Stop, Conv1, Baker, GoOn,Analytic_hessian, MEP,
      &        Found, Terminate, Numerical, Last_Energy, rMEP,
-     &        Just_Frequencies, Saddle, FindTS, eMEPTest, eTest,
+     &        Just_Frequencies, Saddle, eMEPTest, eTest,
      &        IRCRestart, Conv2, ConvTmp, TSReg, BadConstraint,
      &        TurnBack
       Character(LEN=8) Temp

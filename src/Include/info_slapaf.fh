@@ -36,21 +36,21 @@
      &          RootMap
 *
       Logical Stop, lWrite, Exist, Change,
-     &        lSup, lOld, CurviLinear,lRowH, HSet, BSet,
+     &        lSup, lOld, lRowH, HSet, BSet,
      &        lNmHss, Cubic, PDH, Baker,
      &        Line_Search, Analytic_Hessian,
-     &        FirstCall, FindTS, MEP, Ref_Geom, lRP, User_Def, Ref_Grad,
+     &        FirstCall, MEP, Ref_Geom, lRP, User_Def, Ref_Grad,
      &        rMEP, lOld_Implicit, eMEPtest,
-     &        Redundant, lCtoF, lSoft, CallLast, TwoRunFiles,
+     &        lCtoF, lSoft, CallLast, TwoRunFiles,
      &        TSConstraints, MEPCons, Track, Request_Alaska,
      &        Request_RASSI
       Common /lInfSla/ Stop, lWrite, Exist, Change,
-     &        lSup, lOld, CurviLinear,lRowH,rMEP, HSet, BSet,
+     &        lSup, lOld, lRowH,rMEP, HSet, BSet,
      &        lNmHss, Cubic, PDH, Baker,
      &        Line_Search, Analytic_Hessian,
-     &        FirstCall, FindTS, MEP, Ref_Geom, lRP, User_Def, Ref_Grad,
+     &        FirstCall, MEP, Ref_Geom, lRP, User_Def, Ref_Grad,
      &        lOld_Implicit, eMEPtest,
-     &        Redundant, lCtoF, lSoft, CallLast, TwoRunFiles,
+     &        lCtoF, lSoft, CallLast, TwoRunFiles,
      &        TSConstraints, MEPCons, Track, Request_Alaska,
      &        Request_RASSI
 *

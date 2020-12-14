@@ -11,11 +11,12 @@
       Subroutine NewCar(Iter,nBVct,nAtom,nDim,nInter,
      &                  Coor,iSym,
      &                  mTtAtm,User_Def,
-     &                  Curvilinear,Numerical,
+     &                  Numerical,
      &                  Analytic_Hessian,iOptC,PrQ,rHidden,
-     &                  Redundant,MaxItr,iRef,Error)
+     &                  MaxItr,iRef,Error)
       use Slapaf_Info, only: Cx, qInt, RefGeo, BMx, Shift, Degen,
      &                       AtomLbl, Lbl
+      use Slapaf_Parameters, only: Curvilinear
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -36,11 +37,10 @@
       Integer, Intent(In):: iSym(3)
       Integer, Intent(In):: mTtAtm
       Logical, Intent(In):: User_Def
-      Logical, Intent(In):: Curvilinear, Numerical, Analytic_Hessian
+      Logical, Intent(In):: Numerical, Analytic_Hessian
       Integer, Intent(In):: iOptC
       Logical, Intent(In):: PrQ
       Real*8,  Intent(In):: rHidden
-      Logical, Intent(In):: Redundant
       Integer, Intent(In):: MaxItr, iRef
       Logical, Intent(InOut):: Error
 *
@@ -185,10 +185,10 @@
      &              Coor,nDim,
      &              BSet,HSet,iter+1,
      &              mTtAtm,User_Def,
-     &              Curvilinear,Numerical,
+     &              Numerical,
      &              Analytic_Hessian,iOptC,
      &              PrQ,lOld,rHidden,
-     &              nQQ,iRef,Redundant,MaxItr,nWndw)
+     &              nQQ,iRef,MaxItr,nWndw)
 *
 *--------Check if the final structure is reached and get the
 *        difference between the present structure and the final.

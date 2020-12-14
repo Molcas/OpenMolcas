@@ -13,7 +13,7 @@
 ************************************************************************
       Subroutine get_drdq(drdq,mLambda)
       use Slapaf_Info, only: BMx, Degen
-      use Slapaf_Parameters, only: iRow_c
+      use Slapaf_Parameters, only: iRow_c, Curvilinear
       Implicit None
 ************************************************************************
 *     subroutine to get the dr/dq vectors for the constraints as given *

@@ -37,7 +37,8 @@
      &                       Smmtrc, Lbl
       use Slapaf_Parameters, only: iRow, iRow_c, iInt, nFix,
      &                             ddV_Schlegel, HWRS, iOptH, HUpMet,
-     &                             HrmFrq_Show, IRC
+     &                             HrmFrq_Show, IRC, Curvilinear,
+     &                             Redundant, FindTS
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -443,9 +444,9 @@
       Call BMtrx(nBVec,nsAtom,mInt,
      &           Coor,nDimBC,BSet,HSet,iter,
      &           mTtAtm,
-     &           User_Def,Curvilinear,Numerical,
+     &           User_Def,Numerical,
      &           Analytic_Hessian,iOptC,PrQ,
-     &           lOld,rHidden,nQQ,iRef,Redundant,
+     &           lOld,rHidden,nQQ,iRef,
      &           MaxItr,nWndw)
 *                                                                      *
 ************************************************************************

@@ -120,9 +120,9 @@
      &           Coor,nDimBC,
      &           BSet,HSet,iter,
      &           mTtAtm,
-     &           User_Def,Curvilinear,Numerical,
+     &           User_Def,Numerical,
      &           Analytic_Hessian,iOptC,PrQ,
-     &           lOld,rHidden,nQQ,iRef,Redundant,
+     &           lOld,rHidden,nQQ,iRef,
      &           MaxItr,nWndw)
 *
       nPrint(30) = nPrint(30)-1
@@ -210,7 +210,7 @@
       If (lRowH.or.lNmHss) kIter = iter - (NmIter-1)
 *define UNIT_MM
 #ifdef UNIT_MM
-      Call Init_UpdMask(Curvilinear, Redundant, nsAtom, nInter)
+      Call Init_UpdMask(nsAtom, nInter)
 #endif
 *
 *     Update geometry
@@ -223,10 +223,10 @@
      &               ed,Line_Search,Step_Trunc,nLambda,nsAtom,
      &               nDimBC,
      &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
-     &               FindTS,TSConstraints,nRowH,
+     &               TSConstraints,nRowH,
      &               nWndw,Mode,
      &               GNrm_Threshold,
-     &               CnstWght,Curvilinear,ThrEne,ThrGrd)
+     &               CnstWght,ThrEne,ThrGrd)
       Else
          Call Update_sl(
      &               Iter,NmIter,nQQ,
@@ -235,10 +235,10 @@
      &               ed,Line_Search,Step_Trunc,nLambda,nsAtom,
      &               nDimBC,GrdMax,
      &               StpMax,GrdLbl,StpLbl,iNeg,
-     &               FindTS,TSConstraints,nRowH,
+     &               TSConstraints,nRowH,
      &               nWndw,Mode,
      &               kIter,GNrm_Threshold,
-     &               CnstWght,Curvilinear)
+     &               CnstWght)
       End If
 *
 #ifdef UNIT_MM
@@ -261,9 +261,9 @@
          iRef=0
          Call NewCar(Iter,nBVec,nsAtom,nDimBC,nQQ,Coor,
      &               iSym,mTtAtm,
-     &               User_Def,Curvilinear,Numerical,
+     &               User_Def,Numerical,
      &               Analytic_Hessian,iOptC,PrQ,
-     &               rHidden,Redundant,MaxItr,iRef,Error)
+     &               rHidden,MaxItr,iRef,Error)
       End If
 *                                                                      *
 ************************************************************************
@@ -314,7 +314,7 @@
      &            iNeg,GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &            Analytic_Hessian,rMEP,MEP,nMEP,
      &            (lNmHss.or.lRowH).and.iter.le.NmIter,
-     &            Just_Frequencies,FindTS,eMEPTest,nLambda,
+     &            Just_Frequencies,eMEPTest,nLambda,
      &            TSReg,ThrMEP)
 *
 ************************************************************************

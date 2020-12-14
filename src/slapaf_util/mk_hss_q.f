@@ -29,8 +29,7 @@
          Else
             Call FormNumHess(iter,mInt,Delta,Stop,nsAtom,Cubic,iNeg,
      &                       DipM,mTROld,UserT,
-     &                       UserP,nUserPT,nsRot,lTherm,lDoubleIso,
-     &                       Curvilinear)
+     &                       UserP,nUserPT,nsRot,lTherm,lDoubleIso)
          End If
 *
          call dcopy_(3*nsAtom,Cx,1,Coor,1)

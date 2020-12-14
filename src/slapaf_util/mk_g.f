@@ -15,18 +15,19 @@
 *
       mInter=mInt + mTROld
 *
-      Call mk_G_Internal(G,GInv,mInter,nsAtom,.Not.User_Def,CurviLinear)
+      Call mk_G_Internal(G,GInv,mInter,nsAtom,.Not.User_Def)
 *
       Return
       End
-      Subroutine mk_G_Internal(G,GInv,mInter,nAtom,Auto,nrc)
+      Subroutine mk_G_Internal(G,GInv,mInter,nAtom,Auto)
       use Slapaf_Info, only: dMass, Degen, Smmtrc
+      use Slapaf_Parameters, only: Curvilinear
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "constants2.fh"
 *
       Real*8 G(mInter,mInter), GInv(mInter**2)
-      Logical Auto, nrc
+      Logical Auto
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -39,7 +40,7 @@
          Do ix = 1, 3
             If (Smmtrc(ix,i)) Then
                ii = ii + 1
-               If (Auto.and..Not.nrc) Then
+               If (Auto.and..Not.Curvilinear) Then
                   G(ii,ii) = Degen(ix,i)/dMass(i)
                Else
                   G(ii,ii) = One/(Degen(ix,i)*dMass(i))

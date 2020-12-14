@@ -15,19 +15,18 @@
 *
       If (lOld) Return
 *
-      Call Hss_q_(nsAtom,nQQ,Analytic_Hessian,dqInt(:,iRef),nDimBC,
-     &            Curvilinear)
+      Call Hss_q_(nsAtom,nQQ,Analytic_Hessian,dqInt(:,iRef),nDimBC)
 *
       Return
       End
-      Subroutine Hss_q_(nAtom,nQQ,Analytic_Hessian,Grad,nDim,
-     &                  Curvilinear)
+      Subroutine Hss_q_(nAtom,nQQ,Analytic_Hessian,Grad,nDim)
       use Slapaf_Info, only: Degen, Smmtrc
+      use Slapaf_Parameters, only: Curvilinear
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 Grad(nQQ)
-      Logical Analytic_Hessian, Curvilinear
+      Logical Analytic_Hessian
       Real*8 rDum(1)
       Real*8, Allocatable:: Hss_X(:), Degen2(:), Hss_Q(:), KtB(:)
 *                                                                      *

@@ -11,15 +11,15 @@
       Subroutine FormNumHess(nIter,nInter,Delta,Stop,
      &                       nAtom,Cubic,iNeg,DipM,mTR,
      &                       UserT,UserP,nUserPT,nsRot,lTherm,
-     &                       lDoubleIso,Curvilinear)
+     &                       lDoubleIso)
       use Slapaf_Info, only: qInt, Shift, dqInt, Degen, Smmtrc
+      use Slapaf_Parameters, only: Curvilinear
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 UserT(64), UserP, DipM(3,nIter)
-      Logical Stop, Cubic, lTherm, lDoubleIso, Found,
-     &        Curvilinear
+      Logical Stop, Cubic, lTherm, lDoubleIso, Found
       Integer nUserPT, nsRot
       Real*8 rDum(1)
       Real*8, Allocatable:: FEq(:), dDipM(:), KtB(:), HB(:), Hx(:),

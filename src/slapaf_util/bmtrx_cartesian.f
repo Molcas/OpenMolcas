@@ -13,15 +13,16 @@
      &                 BSet,HSet,
      &                 nIter,mTtAtm,
      &                 PrQ,lOld,mTR,TRVec,EVal,Hss_x,
-     &                 nQQ,Redundant,MaxItr,nWndw)
+     &                 nQQ,MaxItr,nWndw)
       use Slapaf_Info, only: Cx, Gx, qInt, dqInt, KtB, BMx, Degen,
      &                       AtomLbl, Smmtrc
+      use Slapaf_Parameters, only: Redundant
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 TRVec(nDim,mTR)
-      Logical BSet, HSet, Redundant, PrQ, lOld
+      Logical BSet, HSet, PrQ, lOld
       Real*8 Eval(3*mTtAtm*(3*mTtAtm+1)/2)
       Real*8 Hss_x((3*mTtAtm)**2)
       Real*8, Allocatable:: EVec(:), Hi(:,:), iHi(:), Degen2(:)

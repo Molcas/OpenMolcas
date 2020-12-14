@@ -11,19 +11,20 @@
       Subroutine BMtrx(nBVec,nAtom,nInter,Coor,nDim,
      &                 BSet,HSet,nIter,
      &                 mTtAtm,User_Def,
-     &                 Curvilinear,Numerical,
+     &                 Numerical,
      &                 Analytic_Hessian,
      &                 iOptC,PrQ,lOld,
-     &                 rHidden,nQQ,iIter,Redundant,MaxItr,nWndw)
+     &                 rHidden,nQQ,iIter,MaxItr,nWndw)
       Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx, Smmtrc,
      &                       Lbl
+      Use Slapaf_Parameters, only: Curvilinear, Redundant
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 Coor(3,nAtom)
-      Logical BSet, HSet, Redundant,User_Def, Curvilinear, Numerical,
+      Logical BSet, HSet, User_Def, Numerical,
      &        Analytic_Hessian, PrQ, lOld
       External Get_SuperName
       Character(LEN=100) Get_SuperName
@@ -183,7 +184,7 @@
      &                 BSet,HSet,nIter,
      &                 Numerical,Analytic_Hessian,
      &                 iOptC,lOld,
-     &                 mTR,nQQ,Redundant,MaxItr)
+     &                 mTR,nQQ,MaxItr)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -229,7 +230,7 @@
          Call BMtrx_Cartesian(nAtom,nInter,nDim,
      &                        BSet,HSet,nIter,
      &                        mTtAtm,PrQ,lOld,mTR,TR,EVal,Hss_X,
-     &                        nQQ,Redundant,MaxItr,nWndw)
+     &                        nQQ,MaxItr,nWndw)
 *
 *------- Set the Labels for cartesian normal modes.
 *

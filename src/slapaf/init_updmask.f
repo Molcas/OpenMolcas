@@ -10,12 +10,12 @@
 *                                                                      *
 * Copyright (C) 2019, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Init_UpdMask(Curvilinear, Redundant, nsAtom, nInter)
+      Subroutine Init_UpdMask(nsAtom, nInter)
       Use NewH_mod
+      use Slapaf_Parameters, only: Curvilinear, Redundant
       Implicit None
 #include "stdalloc.fh"
       Integer, Allocatable:: IsMM(:)
-      Logical Curvilinear, Redundant
       Integer nsAtom, nInter
 *
       Integer iAtom, i, nAtMM
