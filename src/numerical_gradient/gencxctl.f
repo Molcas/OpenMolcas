@@ -70,9 +70,9 @@
       Call BMtrx(nBVec,nsAtom,mInt,
      &           Coor,nDimBC,
      &           BSet,HSet,iter,
-     &           mTtAtm,iOptH,
+     &           mTtAtm,
      &           User_Def,Curvilinear,Numerical,
-     &           HWRS,Analytic_Hessian,iOptC,PrQ,
+     &           Analytic_Hessian,iOptC,PrQ,
      &           lOld,rHidden,nQQ,iRef,Redundant,
      &           MaxItr,nWndw)
 *
@@ -214,9 +214,9 @@
          iRef=0
          Call NewCar(Iter,nBVec,nsAtom,nDimBC,mInt,
      &               Coor,iSym,mTtAtm,
-     &               iOptH,User_Def,
+     &               User_Def,
      &               Curvilinear,Numerical,
-     &               HWRS, Analytic_Hessian,
+     &               Analytic_Hessian,
      &               iOptC,PrQ,rHidden,
      &               Redundant,MaxItr,iRef,Error)
 *

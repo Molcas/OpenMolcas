@@ -13,6 +13,7 @@
       Use kriging_mod, only: Kriging, nspAI
       Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx,
      &                       Free_Slapaf, qInt, dqInt, Lbl
+      use Slapaf_Parameters, only: HUpMet
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -118,9 +119,9 @@
       Call BMtrx(nBVec,nsAtom,mInt,
      &           Coor,nDimBC,
      &           BSet,HSet,iter,
-     &           mTtAtm,iOptH,
+     &           mTtAtm,
      &           User_Def,Curvilinear,Numerical,
-     &           HWRS,Analytic_Hessian,iOptC,PrQ,
+     &           Analytic_Hessian,iOptC,PrQ,
      &           lOld,rHidden,nQQ,iRef,Redundant,
      &           MaxItr,nWndw)
 *
@@ -224,7 +225,7 @@
      &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
      &               FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,
-     &               iOptH,HUpMet,GNrm_Threshold,
+     &               GNrm_Threshold,
      &               IRC,HrmFrq_Show,
      &               CnstWght,Curvilinear,ThrEne,ThrGrd)
       Else
@@ -237,7 +238,7 @@
      &               StpMax,GrdLbl,StpLbl,iNeg,
      &               FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,
-     &               iOptH,HUpMet,kIter,GNrm_Threshold,
+     &               kIter,GNrm_Threshold,
      &               IRC,HrmFrq_Show,
      &               CnstWght,Curvilinear)
       End If
@@ -261,9 +262,9 @@
          Error=.False.
          iRef=0
          Call NewCar(Iter,nBVec,nsAtom,nDimBC,nQQ,Coor,
-     &               iSym,mTtAtm,iOptH,
+     &               iSym,mTtAtm,
      &               User_Def,Curvilinear,Numerical,
-     &               HWRS,Analytic_Hessian,iOptC,PrQ,
+     &               Analytic_Hessian,iOptC,PrQ,
      &               rHidden,Redundant,MaxItr,iRef,Error)
       End If
 *                                                                      *
@@ -310,7 +311,7 @@
       GoOn = (lNmHss.and.iter.lt.NmIter).OR.(lRowH.and.iter.lt.NmIter)
       TSReg = iAnd(iOptC,8192).eq.8192
       Call Convrg(iter,kIter,nQQ,MaxItr,Stop,iStop,ThrCons,
-     &            ThrEne,ThrGrd,MxItr,UpMeth,HUpMet,mIntEff,Baker,
+     &            ThrEne,ThrGrd,MxItr,UpMeth,mIntEff,Baker,
      &            nsAtom,mTtAtm,ed,
      &            iNeg,GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &            Analytic_Hessian,rMEP,MEP,nMEP,

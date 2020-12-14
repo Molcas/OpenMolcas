@@ -67,11 +67,9 @@
       Stop  = .False.
       lSup = .False.
       Baker = .False.
-      Schlegel=.False.
       FindTS=.False.
       Curvilinear=.True.
       Ref_Geom=.False.
-      HWRS=.True.
       nLambda=0
       MEP = .False.
       rMEP= .False.
@@ -127,21 +125,6 @@
       iOptC=iOr(iOptC,512)
       iOptC=iOr(iOptC,1024)
       iOptC=iOr(iOptC,2048)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Hessian update
-* 1   iOptH=00000001 (  1) Meyer (disabled)
-* 2   iOptH=00000010 (  2) BP (disabled)
-* 3   iOptH=00000100 (  4) BFGS
-* 4   iOptH=00001000 (  8) None
-* 5   iOptH=00010000 ( 16) MPS, for TS search
-* 6   iOptH=-.1..... ( 32) Not used
-* 7   iOptH=01000000 ( 64) EU, for TS search
-* 8   iOptH=10000000 (128) TS-BFGS, for TS search
-*
-      iOptH=4
-      HUpMet=' None '
 *                                                                      *
 ************************************************************************
 *                                                                      *

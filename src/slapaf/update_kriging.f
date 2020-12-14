@@ -20,7 +20,7 @@
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
-     &                     iOptH,HUpMet,GNrm_Threshold,IRC,
+     &                     GNrm_Threshold,IRC,
      &                     HrmFrq_Show,CnstWght,Curvilinear,
      &                     ThrEne,ThrGrd)
 ************************************************************************
@@ -42,7 +42,7 @@
       Integer iNeg(2)
       Logical Line_Search, FindTS, TSC, HrmFrq_Show, Curvilinear,
      &        First_MicroIteration, Error
-      Character GrdLbl*8, StpLbl*8, Step_Trunc, UpMeth*6, HUpMet*6
+      Character GrdLbl*8, StpLbl*8, Step_Trunc, UpMeth*6
       Character GrdLbl_Save*8
       Real*8 Dummy(1)
       Real*8, Allocatable:: Hessian(:,:), Temp(:,:,:)
@@ -214,7 +214,7 @@
      &                   nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
      &                   FindTS,TSC,nRowH,nWndw_,Mode,
-     &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
+     &                   kIter,GNrm_Threshold,IRC,
      &                   HrmFrq_Show,CnstWght,Curvilinear,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
      &                   First_MicroIteration,iter,qBeta_Disp)

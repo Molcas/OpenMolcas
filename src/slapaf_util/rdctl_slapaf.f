@@ -13,7 +13,8 @@
       use Symmetry_Info, only: Symmetry_Info_Get
       use Slapaf_Info, only: Cx, Gx, Weights, MF, Atom, nSup, RefGeo,
      &                       GradRef, nStab, Lbl
-      use Slapaf_Parameters, only: iRow, iRow_c, ddV_Schlegel
+      use Slapaf_Parameters, only: iRow, iRow_c, ddV_Schlegel, HWRS,
+     &                             iOptH
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -173,7 +174,6 @@ C     Write (Lu,*) iOptC
       If (Char(1:4).eq.'RMEP') Go To 980
       If (Char(1:4).eq.'RS-P') Go To 967
       If (Char(1:4).eq.'RTRN') Go To 962
-      If (Char(1:4).eq.'SCHL') Go To 927
       If (Char(1:4).eq.'SUPS') Go To 911
       If (Char(1:4).eq.'TFOF') Go To 110
       If (Char(1:4).eq.'THER') Go To 9451
@@ -610,11 +610,6 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 ****** BAKE ************************************************************
 *                                                                      *
 926   Baker = .True.
-      Go To 999
-*                                                                      *
-****** SCHL ************************************************************
-*                                                                      *
-927   Schlegel = .True.
       Go To 999
 *                                                                      *
 ****** DDVS ************************************************************

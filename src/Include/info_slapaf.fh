@@ -18,7 +18,7 @@
      &          iter, Lngth, nDimBC,
      &          MxItr, mInt, Max_Center,
      &          nSupSy, lif,
-     &          iOptC, mode, mTROld, nWndw, iOptH,
+     &          iOptC, mode, mTROld, nWndw,
      &          nLambda,
      &          nMEP, nBVec, IRC,
      &          mTtAtm, nsAtom, MEPnum,
@@ -29,7 +29,7 @@
      &          iter, Lngth, nDimBC,
      &          MxItr, mInt, Max_Center,
      &          nSupSy, lif, mTtAtm,
-     &          iOptC, mode, mTROld, nWndw, iOptH,
+     &          iOptC, mode, mTROld, nWndw,
      &          NmIter,
      &          nLambda, nMEP,
      &          nBVec, IRC, MEPnum,
@@ -37,8 +37,8 @@
 *
       Logical Stop, lWrite, Exist, Change,
      &        lSup, lOld, CurviLinear,lRowH, HSet, BSet,
-     &        lNmHss, Cubic, PDH, Baker, Schlegel,
-     &        Line_Search, HWRS, Analytic_Hessian,
+     &        lNmHss, Cubic, PDH, Baker,
+     &        Line_Search, Analytic_Hessian,
      &        FirstCall, FindTS, MEP, Ref_Geom, lRP, User_Def, Ref_Grad,
      &        rMEP, lOld_Implicit, HrmFrq_Show, eMEPtest,
      &        Redundant, lCtoF, lSoft, CallLast, TwoRunFiles,
@@ -46,8 +46,8 @@
      &        Request_RASSI
       Common /lInfSla/ Stop, lWrite, Exist, Change,
      &        lSup, lOld, CurviLinear,lRowH,rMEP, HSet, BSet,
-     &        lNmHss, Cubic, PDH, Baker, Schlegel,
-     &        Line_Search, HWRS, Analytic_Hessian,
+     &        lNmHss, Cubic, PDH, Baker,
+     &        Line_Search, Analytic_Hessian,
      &        FirstCall, FindTS, MEP, Ref_Geom, lRP, User_Def, Ref_Grad,
      &        lOld_Implicit, HrmFrq_Show, eMEPtest,
      &        Redundant, lCtoF, lSoft, CallLast, TwoRunFiles,
@@ -69,10 +69,10 @@
       Common /ThermoChem/ UserT, UserP, nUserPT, nsRot, lTherm,
      &                    lDoubleIso
 *
-      Character Char*180, Header(144)*1, Line*180, BLine*180, HUpMet*6,
+      Character Char*180, Header(144)*1, Line*180, BLine*180,
      &          UpMeth*6,
      &          MEP_Type*10, MEP_Algo*2
-      Common /chInfSla/ Char, Header, Line, BLine, HUpMet, UpMeth,
+      Common /chInfSla/ Char, Header, Line, BLine, UpMeth,
      &                  MEP_Type, MEP_Algo
 *
       Logical isFalcon

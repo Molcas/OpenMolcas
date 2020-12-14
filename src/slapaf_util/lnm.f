@@ -9,11 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine LNM(Cart,nAtoms,Hess,Scrt1,Scrt2,Vctrs,
-     &               mAtoms,nDim,iAnr,nIter,iOptH,
+     &               mAtoms,nDim,iAnr,nIter,
      &               Analytic_Hessian,
      &               iOptC,iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: Degen, Smmtrc
+      use Slapaf_Parameters, only: iOptH
       Implicit Real*8 (a-h,o-z)
 #include "print.fh"
 #include "real.fh"

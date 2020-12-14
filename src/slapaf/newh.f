@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1995, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine NewH(nInter,nIter,dq_orig,g,H,iOptH,HUpMet,mIter)
+      SubRoutine NewH(nInter,nIter,dq_orig,g,H,iOptH,mIter)
 ************************************************************************
 *                                                                      *
 * Object: Driver for inverse Hessian update.                           *
@@ -20,12 +20,12 @@
 *             January '95                                              *
 ************************************************************************
       Use NewH_Mod
+      use Slapaf_parameters, only: HUpMet
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Integer nInter, nIter, mIter, iOptH, i, iPrint, iRout, iSing
       Real*8 dq_orig(nInter,nIter), g(nInter,mIter+1), H(nInter,nInter)
-      Character*6 HUpMet
       Logical Test, DoMask
       Real*8, Dimension(:), Allocatable :: dg, gi
       Real*8, Dimension(:,:), Allocatable :: dq

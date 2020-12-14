@@ -19,7 +19,7 @@
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
-     &                     iOptH,HUpMet,mIter,GNrm_Threshold,IRC,
+     &                     mIter,GNrm_Threshold,IRC,
      &                     HrmFrq_Show,CnstWght,Curvilinear,
      &                     Kriging_Hessian,qBeta,iOpt_RS,
      &                     First_MicroIteration,Iter,qBeta_Disp)
@@ -58,7 +58,7 @@
 ************************************************************************
       use Slapaf_info, only: GNrm, Lambda, Energy, MF, dqInt,
      &                       BMx, Degen, nStab, Smmtrc, Lbl
-      use Slapaf_Parameters, only: iRow_c, iInt, nFix
+      use Slapaf_Parameters, only: iRow_c, iInt, nFix, iOptH
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
@@ -69,7 +69,7 @@
       Logical Line_Search, FindTS, TSC, HrmFrq_Show,
      &        Found, Curvilinear, Kriging_Hessian, First_MicroIteration
       Character GrdLbl*8, StpLbl*8, Step_Trunc,
-     &          UpMeth*6, HUpMet*6, File1*8, File2*8, Step_Trunc_
+     &          UpMeth*6, File1*8, File2*8, Step_Trunc_
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:),
      &                      RHS(:), ErrVec(:,:), EMtrx(:,:)
       Integer, Allocatable:: Index(:), iFlip(:)
@@ -148,7 +148,7 @@
       Call Update_H(nWndw,Hessian,nInter,
      &              mIter,iOptC,Mode,MF,
      &              Shift(1,kIter-mIter+1),dqInt(1,kIter-mIter+1),
-     &              iNeg,iOptH_,HUpMet,nRowH,jPrint,GNrm(kIter),
+     &              iNeg,iOptH_,nRowH,jPrint,GNrm(kIter),
      &              GNrm_Threshold,nsAtom,IRC,.True.,
      &              First_MicroIteration)
 *
@@ -645,7 +645,7 @@ C           Write (6,*) 'tBeta=',tBeta
             Call Con_Opt(R,dRdq,T,dqInt,Lambda,qInt,Shift,dy,dx,
      &                dEdq,du,x,dEdx,Wess,GNrm(kIter),
      &                nWndw,Hessian,nInter,kIter,iOptC,Mode_,MF,
-     &                iOptH_,HUpMet,jPrint,Energy_L,nLambda,nRowH,
+     &                iOptH_,jPrint,Energy_L,nLambda,nRowH,
      &                ErrVec,EMtrx,RHS,
      &                AMat,nA,ed,qBeta,qBeta_Disp,nFix,
      &                Index,UpMeth,Line_Search,Step_Trunc,Lbl,

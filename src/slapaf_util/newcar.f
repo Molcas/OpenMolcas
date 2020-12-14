@@ -10,8 +10,8 @@
 ************************************************************************
       Subroutine NewCar(Iter,nBVct,nAtom,nDim,nInter,
      &                  Coor,iSym,
-     &                  mTtAtm,iOptH,User_Def,
-     &                  Curvilinear,Numerical,HWRS,
+     &                  mTtAtm,User_Def,
+     &                  Curvilinear,Numerical,
      &                  Analytic_Hessian,iOptC,PrQ,rHidden,
      &                  Redundant,MaxItr,iRef,Error)
       use Slapaf_Info, only: Cx, qInt, RefGeo, BMx, Shift, Degen,
@@ -34,10 +34,9 @@
       Integer, Intent(In):: Iter, nBVct, nAtom, nInter
       Real*8,  Intent(InOut):: Coor(3,nAtom)
       Integer, Intent(In):: iSym(3)
-      Integer, Intent(In):: mTtAtm, iOptH
+      Integer, Intent(In):: mTtAtm
       Logical, Intent(In):: User_Def
-      Logical, Intent(In):: Curvilinear, Numerical, HWRS,
-     &                      Analytic_Hessian
+      Logical, Intent(In):: Curvilinear, Numerical, Analytic_Hessian
       Integer, Intent(In):: iOptC
       Logical, Intent(In):: PrQ
       Real*8,  Intent(In):: rHidden
@@ -185,9 +184,9 @@
          Call BMtrx(nBVct,nAtom,nInter,
      &              Coor,nDim,
      &              BSet,HSet,iter+1,
-     &              mTtAtm,iOptH,User_Def,
+     &              mTtAtm,User_Def,
      &              Curvilinear,Numerical,
-     &              HWRS,Analytic_Hessian,iOptC,
+     &              Analytic_Hessian,iOptC,
      &              PrQ,lOld,rHidden,
      &              nQQ,iRef,Redundant,MaxItr,nWndw)
 *

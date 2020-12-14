@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Convrg(iter,kIter, nInter,
      &                  MaxItr,Stop,iStop,ThrCons,
-     &                  ThrEne, ThrGrd, MxItr, UpMeth, HUpMet, mIntEff,
+     &                  ThrEne, ThrGrd, MxItr, UpMeth, mIntEff,
      &                  Baker, nAtom,mTtAtm,ed,iNeg,
      &                  GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &                  Analytic_hessian,rMEP,MEP,nMEP,Numerical,
@@ -19,6 +19,7 @@
       Use Chkpnt
       Use Slapaf_Info, only: Cx, Gx, Coor, GNrm, Energy, Shift, qInt,
      &                       dqInt, Lbl
+      use Slapaf_Parameters, only: HUpMet
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -28,7 +29,7 @@
 #include "warnings.fh"
       Real*8 Maxed, MaxErr
       Character GrdLbl*8, StpLbl*8
-      Character(LEN=6) UpMeth, HUpMet, ConLbl(5)*5
+      Character(LEN=6) UpMeth, ConLbl(5)*5
       Character(LEN=1) Step_Trunc
       Character(LEN=16) StdIn
       Character(LEN=80) Point_Desc
@@ -95,17 +96,16 @@
             Call NameRun('RUNFILE')
          End If
       End If
+      Temp=' '
       If (Analytic_Hessian) Then
          If (HUPMET.eq.'  No  '.or.HUPMET.eq.' None ') Then
 *           Temp='Analytic'
             Temp='Computed'
          Else
             Temp(1:6)= HUPMET(1:6)
-            Temp(7:8)='  '
          End if
       Else
          Temp(1:6)= HUPMET(1:6)
-         Temp(7:8)='  '
       End If
 *
       Call mma_allocate(Coor1,3,mTtAtm,Label='Coor1')

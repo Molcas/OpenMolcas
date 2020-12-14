@@ -13,11 +13,28 @@
 Module Slapaf_Parameters
 implicit none
 Private
-Public:: iRow, iRow_c, iInt, nFix, ddV_Schlegel
+Public:: iRow, iRow_c, iInt, nFix, ddV_Schlegel, HWRS, iOptH, HUpMet
 Integer:: iRow=0
 Integer:: iRow_c=0
 Integer:: iInt=0
 Integer:: nFix=0
 
 Logical:: ddV_Schlegel=.False.
+Logical:: HWRS=.True.
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Hessian update
+! 1   iOptH=00000001 (  1) Meyer (disabled)
+! 2   iOptH=00000010 (  2) BP (disabled)
+! 3   iOptH=00000100 (  4) BFGS
+! 4   iOptH=00001000 (  8) None
+! 5   iOptH=00010000 ( 16) MPS, for TS search
+! 6   iOptH=-.1..... ( 32) Not used
+! 7   iOptH=01000000 ( 64) EU, for TS search
+! 8   iOptH=10000000 (128) TS-BFGS, for TS search
+!
+Integer:: iOptH=4
+Character(LEN=6):: HUpMet=' None '
+
 End Module Slapaf_Parameters

@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Update_H(nWndw,H,nInter,nIter,
      &                    iOptC,Mode,MF,dq,g,iNeg,iOptH,
-     &                    HUpMet,nRowH,jPrint,GNrm,
+     &                    nRowH,jPrint,GNrm,
      &                    GNrm_Threshold,nAtoms,IRC,Store,
      &                    AllowFindTS)
       Implicit Real*8 (a-h,o-z)
@@ -20,7 +20,6 @@
      &       g(nInter,nIter), MF(3*nAtoms)
       Integer iNeg(2)
       Logical Old_MF, Store, AllowFindTS
-      Character*6 HUpMet
       Real*8, Allocatable:: Tmp(:)
 *                                                                      *
 ************************************************************************
@@ -31,8 +30,7 @@
 *     The anharmonic constants used here is the most recently
 *     updated version.
 *
-      Call DrvUpH(nWndw,nIter,H,nInter,dq,g,iOptH,HUpMet,nRowH,
-     &            jPrint,IterHess)
+      Call DrvUpH(nWndw,nIter,H,nInter,dq,g,iOptH,nRowH,jPrint,IterHess)
 
       Call Chk4NAN(nInter*nInter,H,ierr)
 

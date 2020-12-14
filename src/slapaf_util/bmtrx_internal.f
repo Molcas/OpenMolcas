@@ -11,7 +11,7 @@
 * Copyright (C) 2004, Roland Lindh                                     *
 ************************************************************************
       Subroutine BMtrx_Internal(nAtoms,nDim,BSet,HSet,
-     &                          nIter,mAtoms,Numerical,HWRS,
+     &                          nIter,mAtoms,Numerical,
      &                          Analytic_Hessian,iOptC,PrQ,lOld,
      &                          iIter,mTR,TRVec,iTabAI,iTabAtoms,
      &                          iTabBonds,nBonds,nMax,iRef,nQQ,MaxItr,
@@ -27,6 +27,7 @@
 ************************************************************************
       use Slapaf_Info, only: qInt, dqInt, BM, dBM, iBM, idBM, nqBM, KtB,
      &                       Cx, Gx, BMx, Degen, Smmtrc
+      use Slapaf_Parameters, only: HWRS
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"
@@ -37,7 +38,7 @@
       Integer, Intent(In):: nAtoms, nDim
       Logical, Intent(In):: BSet, HSet
       Integer, Intent(In):: nIter, mAtoms
-      Logical, Intent(In):: Numerical, HWRS, Analytic_Hessian
+      Logical, Intent(In):: Numerical, Analytic_Hessian
       Integer, Intent(In):: iOptC
       Logical, Intent(In):: PrQ
       Logical, Intent(In):: lOld

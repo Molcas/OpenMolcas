@@ -10,9 +10,9 @@
 ************************************************************************
       Subroutine BMtrx(nBVec,nAtom,nInter,Coor,nDim,
      &                 BSet,HSet,nIter,
-     &                 mTtAtm,iOptH,User_Def,
+     &                 mTtAtm,User_Def,
      &                 Curvilinear,Numerical,
-     &                 HWRS,Analytic_Hessian,
+     &                 Analytic_Hessian,
      &                 iOptC,PrQ,lOld,
      &                 rHidden,nQQ,iIter,Redundant,MaxItr,nWndw)
       Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx, Smmtrc,
@@ -24,7 +24,7 @@
 #include "print.fh"
       Real*8 Coor(3,nAtom)
       Logical BSet, HSet, Redundant,User_Def, Curvilinear, Numerical,
-     &        HWRS, Analytic_Hessian, PrQ, lOld
+     &        Analytic_Hessian, PrQ, lOld
       External Get_SuperName
       Character(LEN=100) Get_SuperName
       Integer, Allocatable:: TabB(:,:), TabA(:,:,:), TabAI(:,:), AN(:)
@@ -150,7 +150,7 @@
 *
       If (HSet.or..Not.(Curvilinear.or.User_Def))
      &   Call LNM(Coor2,mTtAtm,EVal,Hss_X,Scr2,Vec,nAtom,nDim,AN,
-     &            nIter,iOptH,Analytic_Hessian,
+     &            nIter,Analytic_Hessian,
      &            iOptC,TabB,TabA,nBonds,nMax,nHidden)
 *
       Call mma_deallocate(Scr2)
@@ -208,7 +208,7 @@
      &                 BSet,HSet,nIter,
      &                 mTtAtm,
      &                 Numerical,
-     &                 HWRS,Analytic_Hessian,
+     &                 Analytic_Hessian,
      &                 iOptC,PrQ,lOld,
      &                 iIter,mTR,TR,TabAI,
      &                 TabA,TabB,nBonds,nMax,

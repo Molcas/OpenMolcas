@@ -14,7 +14,7 @@
       Subroutine Con_Opt(r,drdq,T,dEdq,rLambda,q,dq,dy,dx,dEdq_,du,x,
      &                   dEdx,W,GNrm,nWndw,
      &                   Hess,nInter,nIter,iOptC,Mode,MF,
-     &                   iOptH,HUpMet,jPrint,Energy,nLambda,
+     &                   iOptH,jPrint,Energy,nLambda,
      &                   nRowH,Err,EMx,RHS,A,nA,ed,
      &                   Beta,Beta_Disp,nFix,iP,UpMeth,
      &                   Line_Search,Step_Trunc,Lbl,GrdLbl,StpLbl,
@@ -69,7 +69,7 @@
       Integer iP(nInter), iNeg(2)
       Logical Line_Search, Found, IRC_setup, First_MicroIteration,
      &        Recompute_disp
-      Character HUpMet*6, UpMeth*6, Step_Trunc*1, Lbl(nInter+nLambda)*8,
+      Character UpMeth*6, Step_Trunc*1, Lbl(nInter+nLambda)*8,
      &          GrdLbl*8, StpLbl*8, StpLbl_Save*8, Step_Trunc_*1
       Real*8, Allocatable:: dq_xy(:), Trans(:), Tmp1(:), Tmp2(:,:)
       Real*8, Allocatable:: RT(:,:), RTInv(:,:), RRR(:,:), RRInv(:,:),
@@ -870,7 +870,7 @@ C           Write (6,*) 'gBeta=',gBeta
       If (Step_Trunc.eq.'N') Step_Trunc=' '
       Call Update_H(nWndw,Hessian,nInter,
      &              nIter,iOptC_Temp,Mode,MF,
-     &              dq,dEdq_,iNeg,iOptH,HUpMet,nRowH,
+     &              dq,dEdq_,iNeg,iOptH,nRowH,
      &              jPrint,Dummy,Dummy,nsAtom,IRC,.False.,.False.)
 
 #ifdef _DEBUGPRINT_

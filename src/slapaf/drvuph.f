@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine DrvUpH(nWndw,nIter,H,nInter,
-     &                  dq,g,iOptH,HUpMet,nRowH,
+     &                  dq,g,iOptH,nRowH,
      &                  jPrint,IterHess)
       Use NewH_mod
       Implicit Real*8 (a-h,o-z)
@@ -17,7 +17,6 @@
 #include "print.fh"
       Real*8 H(nInter,nInter), dq(nInter,nIter), g(nInter,nIter+1)
       Logical Found, DoMask,Test
-      Character*6 HUpMet
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -84,7 +83,7 @@
      &   Call RecPrt('DrvUpH: Initial Hessian',' ',H,nInter,nInter)
       Do lIter=iSt,nIter
          If (jPrint.ge.99) Write(Lu,*)'DrvUpH: Call NewH, lIter=',lIter
-         Call NewH(nInter,lIter,dq,g,H,iOptH,HUpMet,nIter)
+         Call NewH(nInter,lIter,dq,g,H,iOptH,nIter)
       End Do
       If (jPrint.ge.99)
      &   Call RecPrt('DrvUpH: Updated Hessian',' ',H,nInter,nInter)

@@ -28,7 +28,7 @@
       Logical Bk_Stop, Bk_lWrite, Bk_Exist,
      &        Bk_Change, Bk_lSup, Bk_lOld, Bk_CurviLinear, Bk_lRowH,
      &        Bk_HSet, Bk_BSet, Bk_lNmHss, Bk_Cubic, Bk_PDH, Bk_Baker,
-     &        Bk_Schlegel, Bk_DDV_Schlegel, Bk_Line_Search, Bk_HWRS,
+     &        Bk_DDV_Schlegel, Bk_Line_Search, Bk_HWRS,
      &        Bk_Analytic_Hessian, Bk_FirstCall, Bk_FindTS, Bk_MEP,
      &        Bk_Ref_Geom, Bk_lRP, Bk_User_Def, Bk_Ref_Grad, Bk_rMEP,
      &        Bk_lOld_Implicit, Bk_HrmFrq_Show, Bk_eMEPtest,

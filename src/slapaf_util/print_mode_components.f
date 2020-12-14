@@ -36,7 +36,7 @@
      &                       Degen, nStab, jStab, iCoSet, AtomLbl,
      &                       Smmtrc, Lbl
       use Slapaf_Parameters, only: iRow, iRow_c, iInt, nFix,
-     &                             ddV_Schlegel
+     &                             ddV_Schlegel, HWRS, iOptH, HUpMet
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -319,7 +319,6 @@
       Bk_Cubic=Cubic
       Bk_PDH=PDH
       Bk_Baker=Baker
-      Bk_Schlegel=Schlegel
       Bk_DDV_Schlegel=DDV_Schlegel
       Bk_Line_Search=Line_Search
       Bk_HWRS=HWRS
@@ -442,9 +441,9 @@
       iRef=0
       Call BMtrx(nBVec,nsAtom,mInt,
      &           Coor,nDimBC,BSet,HSet,iter,
-     &           mTtAtm,iOptH,
+     &           mTtAtm,
      &           User_Def,Curvilinear,Numerical,
-     &           HWRS,Analytic_Hessian,iOptC,PrQ,
+     &           Analytic_Hessian,iOptC,PrQ,
      &           lOld,rHidden,nQQ,iRef,Redundant,
      &           MaxItr,nWndw)
 *                                                                      *
@@ -615,7 +614,6 @@
       Cubic=Bk_Cubic
       PDH=Bk_PDH
       Baker=Bk_Baker
-      Schlegel=Bk_Schlegel
       DDV_Schlegel=Bk_DDV_Schlegel
       Line_Search=Bk_Line_Search
       HWRS=Bk_HWRS
