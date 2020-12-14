@@ -13,7 +13,9 @@
 Module Slapaf_Parameters
 implicit none
 Private
-Public:: iRow, iRow_c
+Public:: iRow, iRow_c, iInt, nFix
 Integer:: iRow=0
 Integer:: iRow_c=0
+Integer:: iInt=0
+Integer:: nFix=0
 End Module Slapaf_Parameters
