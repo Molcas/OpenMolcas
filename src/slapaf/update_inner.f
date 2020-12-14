@@ -15,7 +15,6 @@
      &                     iOptC,Beta,Beta_Disp,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,nsAtom,
-     &                     nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,TSC,nRowH,
      &                     nWndw,Mode,
@@ -37,7 +36,6 @@
 *      Line_Search    : logical flag for line search                   *
 *      nLambda        : number of constraints                          *
 *      nsAtom         : number of symmetry unique atoms                *
-*      nDimBC         : dimension of redundant coordinates(?)          *
 *      iNeg           : Hessian index                                  *
 *      CnstWght       : constraints weight                             *
 *                                                                      *
@@ -59,7 +57,8 @@
       use Slapaf_info, only: GNrm, Lambda, Energy, MF, dqInt,
      &                       BMx, Degen, nStab, Smmtrc, Lbl
       use Slapaf_Parameters, only: iRow_c, iInt, nFix, iOptH,
-     &                             HrmFrq_Show, Curvilinear, FindTS
+     &                             HrmFrq_Show, Curvilinear, FindTS,
+     &                             nBVec, nDimBC
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"

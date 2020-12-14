@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2019, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      Subroutine NewCar_Kriging(kIter,nAtom,nDim,nInter,SaveBMx,RefIter,
+      Subroutine NewCar_Kriging(kIter,nAtom,nInter,SaveBMx,RefIter,
      &                          Error)
       use Slapaf_Info, only: Cx, BMx
       Implicit None
@@ -33,7 +33,7 @@
 *
       Force_dB=SaveBMx
 *
-      Call NewCar(kIter,nBVec,nAtom,nDim,nInter,Coor,
+      Call NewCar(kIter,nAtom,nInter,Coor,
      &            iSym,mTtAtm,
      &            User_Def,Numerical,
      &            Analytic_Hessian,iOptC,PrQ,

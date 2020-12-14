@@ -14,7 +14,6 @@
      &                     iOptC,Beta,Beta_Disp,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,nsAtom,
-     &                     nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,TSC,nRowH,
      &                     nWndw,Mode,
@@ -33,7 +32,6 @@
 *      Line_Search    : logical flag for line search                   *
 *      nLambda        : number of contraints                           *
 *      nsAtom         : number of symmetry unique atoms                *
-*      nDimBC         : dimension of redundant coordinates(?)          *
 *      iNeg           : Hessian index                                  *
 *      CnstWght       : constraints weight                             *
 *                                                                      *
@@ -112,7 +110,6 @@
      &                   Shift,iOptC,Beta,Beta_Disp,
      &                   UpMeth,ed,Line_Search,
      &                   Step_Trunc,nLambda,nsAtom,
-     &                   nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,
      &                   iNeg,TSC,nRowH,
      &                   nWndw,Mode,
@@ -151,7 +148,6 @@
      &                iOptC,Beta,Beta_Disp,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                nsAtom,
-     &                nDimBC,
      &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
      &                TSC,nRowH,
      &                nWndw,Mode,

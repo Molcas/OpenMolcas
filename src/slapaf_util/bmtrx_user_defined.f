@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine BMtrx_User_Defined(
-     &                 nBVec,nAtom,nInter,
+     &                 nAtom,nInter,
      &                 Lbl,Coor,nDim,
      &                 BSet,HSet,nIter,
      &                 Numerical,
@@ -17,7 +17,7 @@
      &                 iOptC,lOld,
      &                 mTR,nQQ,MaxItr)
       use Slapaf_Info, only: Gx, qInt, dqInt, KtB, BMx, Degen, Smmtrc
-      use Slapaf_Parameters, only: iInt, nFix
+      use Slapaf_Parameters, only: iInt, nFix, nBVec
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"

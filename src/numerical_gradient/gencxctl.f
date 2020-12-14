@@ -68,8 +68,8 @@
 *
       nWndw=iter
       iRef=0
-      Call BMtrx(nBVec,nsAtom,mInt,
-     &           Coor,nDimBC,
+      Call BMtrx(nsAtom,mInt,
+     &           Coor,
      &           BSet,HSet,iter,
      &           mTtAtm,
      &           User_Def,Numerical,
@@ -213,7 +213,7 @@
          Error=.False.
          nWndw=Iter
          iRef=0
-         Call NewCar(Iter,nBVec,nsAtom,nDimBC,mInt,
+         Call NewCar(Iter,nsAtom,mInt,
      &               Coor,iSym,mTtAtm,
      &               User_Def,
      &               Numerical,

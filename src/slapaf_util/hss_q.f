@@ -15,13 +15,13 @@
 *
       If (lOld) Return
 *
-      Call Hss_q_(nsAtom,nQQ,Analytic_Hessian,dqInt(:,iRef),nDimBC)
+      Call Hss_q_(nsAtom,nQQ,Analytic_Hessian,dqInt(:,iRef))
 *
       Return
       End
-      Subroutine Hss_q_(nAtom,nQQ,Analytic_Hessian,Grad,nDim)
+      Subroutine Hss_q_(nAtom,nQQ,Analytic_Hessian,Grad)
       use Slapaf_Info, only: Degen, Smmtrc
-      use Slapaf_Parameters, only: Curvilinear
+      use Slapaf_Parameters, only: Curvilinear, nDimBC
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -42,15 +42,15 @@
 *
 *     Pickup d^2E/dx^2
 *
-      Call mma_allocate(Hss_x,nDim**2,Label='Hss_X')
-      Call Get_dArray('Hss_X',Hss_x,nDim**2)
-      Call mma_allocate(KtB,nDim*nQQ,Label='KtB')
-      Call Get_dArray('KtB',KtB,nDim*nQQ)
+      Call mma_allocate(Hss_x,nDimBC**2,Label='Hss_X')
+      Call Get_dArray('Hss_X',Hss_x,nDimBC**2)
+      Call mma_allocate(KtB,nDimBC*nQQ,Label='KtB')
+      Call Get_dArray('KtB',KtB,nDimBC*nQQ)
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Hss_x',' ',Hss_X,nDim,nDim)
+      Call RecPrt('Hss_x',' ',Hss_X,nDimBC,nDimBC)
 #endif
 *
-      Call mma_allocate(Degen2,nDim,Label='nDim')
+      Call mma_allocate(Degen2,nDimBC,Label='Degen2')
       i=0
       Do ix = 1, 3*nAtom
          iAtom = (ix+2)/3
@@ -61,7 +61,7 @@
          End If
       End Do
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Degen2',' ',Degen2,nDim,1)
+      Call RecPrt('Degen2',' ',Degen2,nDimBC,1)
 #endif
 *
       If (Analytic_Hessian.and.Curvilinear) Then
@@ -70,14 +70,14 @@
 *
 *        and form d^2E/dx^2 - d^2Q/dx^2 dE/dQ
 *
-         Call dBuu(Degen2,nQQ,nDim,Grad,Hss_X,.False.)
+         Call dBuu(Degen2,nQQ,nDimBC,Grad,Hss_X,.False.)
 #ifdef _DEBUGPRINT_
-         Call RecPrt('H(X)-BtgQ',' ',Hss_X,nDim,nDim)
+         Call RecPrt('H(X)-BtgQ',' ',Hss_X,nDimBC,nDimBC)
 #endif
       End If
 *
       Call mma_allocate(Hss_Q,nQQ**2,Label='Hss_Q')
-      Call Hess_Tra(Hss_X,nDim,Degen2,KtB,nQQ,Hss_Q)
+      Call Hess_Tra(Hss_X,nDimBC,Degen2,KtB,nQQ,Hss_Q)
 *
       Call Put_dArray('Hss_Q',Hss_Q,nQQ**2)
       Call Put_dArray('Hss_upd',rDum,0)

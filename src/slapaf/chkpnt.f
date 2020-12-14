@@ -81,6 +81,7 @@
       use Phase_Info
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: dMass, nStab, iCoSet, AtomLbl, Smmtrc
+      use Slapaf_Parameters, only: nDimBC
 #  include "info_slapaf.fh"
 #  include "stdalloc.fh"
       Character :: lIrrep(24)
@@ -246,6 +247,7 @@
       Subroutine Chkpnt_update()
 #ifdef _HDF5_
       use Slapaf_Info, only: Cx, Gx, Energy
+      use Slapaf_Parameters, only: nDimBC
 #  include "info_slapaf.fh"
 #  include "stdalloc.fh"
       Integer :: N3, i, j

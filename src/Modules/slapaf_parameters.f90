@@ -14,12 +14,14 @@ Module Slapaf_Parameters
 implicit none
 Private
 Public:: iRow, iRow_c, iInt, nFix, ddV_Schlegel, HWRS, iOptH, HUpMet, HrmFrq_Show, IRC, &
-         Curvilinear, Redundant, FindTS
+         nBVec, nDimBC, Curvilinear, Redundant, FindTS
 Integer:: iRow=0
 Integer:: iRow_c=0
 Integer:: iInt=0
 Integer:: nFix=0
 Integer:: IRC=0
+Integer:: nBVec=0
+Integer:: nDimBC=0
 
 Logical:: Curvilinear=.True.
 Logical:: Redundant=.False.

@@ -62,18 +62,13 @@
 *
 *        Alaska/RASSI only
          iStop=3
-
-         Go To 999
-      End If
-
-      If (isFalcon) Then
+         Call Free_Slapaf()
+         Return
+       Else If (isFalcon) Then
          iStop=1
-         Goto 999
+         Call Free_Slapaf()
+         Return
       End if
-*                                                                      *
-************************************************************************
-*                                                                      *
-      jPrint=nPrint(iRout)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -116,8 +111,8 @@
 *
       If (Numerical) nWndw=NmIter
       iRef=0
-      Call BMtrx(nBVec,nsAtom,mInt,
-     &           Coor,nDimBC,
+      Call BMtrx(nsAtom,mInt,
+     &           Coor,
      &           BSet,HSet,iter,
      &           mTtAtm,
      &           User_Def,Numerical,
@@ -146,7 +141,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Reset_ThrGrd(nsAtom,nDimBC,Iter,mTtAtm,iOptC,rHidden,ThrGrd)
+      Call Reset_ThrGrd(nsAtom,Iter,mTtAtm,iOptC,rHidden,ThrGrd)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -221,7 +216,6 @@
      &               iOptC,Beta,Beta_Disp,
      &               UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,nsAtom,
-     &               nDimBC,
      &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
      &               TSConstraints,nRowH,
      &               nWndw,Mode,
@@ -233,7 +227,7 @@
      &               iOptC,Beta,Beta_Disp,
      &               UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,nsAtom,
-     &               nDimBC,GrdMax,
+     &               GrdMax,
      &               StpMax,GrdLbl,StpLbl,iNeg,
      &               TSConstraints,nRowH,
      &               nWndw,Mode,
@@ -259,7 +253,7 @@
          PrQ=.False.
          Error=.False.
          iRef=0
-         Call NewCar(Iter,nBVec,nsAtom,nDimBC,nQQ,Coor,
+         Call NewCar(Iter,nsAtom,nQQ,Coor,
      &               iSym,mTtAtm,
      &               User_Def,Numerical,
      &               Analytic_Hessian,iOptC,PrQ,
@@ -407,12 +401,9 @@
 *                                                                      *
 *-----Deallocate memory
 *
- 999  Continue
-*
       Call Free_Slapaf()
 *
 *-----Terminate the calculations.
-*
 *
       Return
       End

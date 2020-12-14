@@ -38,7 +38,7 @@
       use Slapaf_Parameters, only: iRow, iRow_c, iInt, nFix,
      &                             ddV_Schlegel, HWRS, iOptH, HUpMet,
      &                             HrmFrq_Show, IRC, Curvilinear,
-     &                             Redundant, FindTS
+     &                             Redundant, FindTS, nBVec, nDimBC
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -441,8 +441,8 @@
       PrQ=.False.
       nWndw=iter
       iRef=0
-      Call BMtrx(nBVec,nsAtom,mInt,
-     &           Coor,nDimBC,BSet,HSet,iter,
+      Call BMtrx(nsAtom,mInt,
+     &           Coor,BSet,HSet,iter,
      &           mTtAtm,
      &           User_Def,Numerical,
      &           Analytic_Hessian,iOptC,PrQ,

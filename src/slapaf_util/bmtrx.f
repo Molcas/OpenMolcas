@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine BMtrx(nBVec,nAtom,nInter,Coor,nDim,
+      Subroutine BMtrx(nAtom,nInter,Coor,
      &                 BSet,HSet,nIter,
      &                 mTtAtm,User_Def,
      &                 Numerical,
@@ -17,7 +17,7 @@
      &                 rHidden,nQQ,iIter,MaxItr,nWndw)
       Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx, Smmtrc,
      &                       Lbl
-      Use Slapaf_Parameters, only: Curvilinear, Redundant
+      Use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -93,7 +93,7 @@
       Call mma_allocate(TR,18*nAtom,Label='TR')
       TR(:)=Zero
 *
-      Call TRPGen(nDim,nAtom,Cx(1,1,iIter),mTR,.False.,TR)
+      Call TRPGen(nDimBC,nAtom,Cx(1,1,iIter),mTR,.False.,TR)
 *
       Call mma_allocate(TRnew,3*nAtom*mTR,Label='TRNew')
       TRNew(:)=Zero
@@ -103,24 +103,24 @@
          ixyz = ix - (iAtom-1)*3
          If (Smmtrc(ixyz,iAtom)) Then
             i = i + 1
-            call dcopy_(mTR,TR(i),-nDim,TRNew(ix),3*nAtom)
+            call dcopy_(mTR,TR(i),-nDimBC,TRNew(ix),3*nAtom)
          End If
       End Do
       Call Put_dArray('TR',TRnew,3*nAtom*mTR)
       Call mma_deallocate(TRnew)
 *
-*     Call RecPrt('TR',' ',TR,nDim,mTR)
+*     Call RecPrt('TR',' ',TR,nDimBC,mTR)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Call mma_allocate(TabAI,2,mTtAtm,Label='TabAI')
-      Call mma_allocate(Vec,3*mTtAtm,nDim,Label='Vec')
+      Call mma_allocate(Vec,3*mTtAtm,nDimBC,Label='Vec')
       Call mma_allocate(AN,mTtAtm,Label='AN')
       Call mma_allocate(Coor2,3,mTtAtm,Label='Coor2')
 *
 *-----Generate Grand atoms list
 *
-      Call GenCoo(Cx(1,1,iIter),nAtom,Coor2,mTtAtm,Vec,nDim,ANr,
+      Call GenCoo(Cx(1,1,iIter),nAtom,Coor2,mTtAtm,Vec,nDimBC,ANr,
      &            AN,TabAI)
 *
 *---- Are there some hidden frozen atoms ?
@@ -150,7 +150,7 @@
       Call mma_allocate(Scr2,(3*mTtAtm)**2,Label='Scr2')
 *
       If (HSet.or..Not.(Curvilinear.or.User_Def))
-     &   Call LNM(Coor2,mTtAtm,EVal,Hss_X,Scr2,Vec,nAtom,nDim,AN,
+     &   Call LNM(Coor2,mTtAtm,EVal,Hss_X,Scr2,Vec,nAtom,nDimBC,AN,
      &            nIter,Analytic_Hessian,
      &            iOptC,TabB,TabA,nBonds,nMax,nHidden)
 *
@@ -180,7 +180,7 @@
 ************************************************************************
 *                                                                      *
          Call BMtrx_User_Defined(
-     &                 nBVec,nAtom,nInter,Lbl,Coor,nDim,
+     &                 nAtom,nInter,Lbl,Coor,nDimBC,
      &                 BSet,HSet,nIter,
      &                 Numerical,Analytic_Hessian,
      &                 iOptC,lOld,
@@ -205,7 +205,7 @@
      &               nBonds,nMax)
          End If
          Call BMtrx_Internal(
-     &                 nAtom,nDim,
+     &                 nAtom,nDimBC,
      &                 BSet,HSet,nIter,
      &                 mTtAtm,
      &                 Numerical,
@@ -227,7 +227,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call BMtrx_Cartesian(nAtom,nInter,nDim,
+         Call BMtrx_Cartesian(nAtom,nInter,nDimBC,
      &                        BSet,HSet,nIter,
      &                        mTtAtm,PrQ,lOld,mTR,TR,EVal,Hss_X,
      &                        nQQ,MaxItr,nWndw)
@@ -246,8 +246,8 @@
 ************************************************************************
 *                                                                      *
       If ((BSet.and.HSet.and..NOT.lOld)) Then
-         Call Put_dArray('Hss_X',Hss_X,nDim**2)
-         Call Put_dArray('KtB',KtB,nDim*nQQ)
+         Call Put_dArray('Hss_X',Hss_X,nDimBC**2)
+         Call Put_dArray('KtB',KtB,nDimBC*nQQ)
          Call mma_deallocate(KtB)
       End If
       Call mma_deallocate(Hss_X)
@@ -290,7 +290,7 @@
                ixyz = ix - (iAtom-1)*3
                If (Smmtrc(ixyz,iAtom)) Then
                   i = i + 1
-                  call dcopy_(mTR,TR(i),-nDim,TROld(ix),3*nAtom)
+                  call dcopy_(mTR,TR(i),-nDimBC,TROld(ix),3*nAtom)
                End If
             End Do
             Call Put_dArray('TROld',TROld,3*nAtom*mTR)

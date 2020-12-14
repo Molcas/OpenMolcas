@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine NewCar(Iter,nBVct,nAtom,nDim,nInter,
+      Subroutine NewCar(Iter,nAtom,nInter,
      &                  Coor,iSym,
      &                  mTtAtm,User_Def,
      &                  Numerical,
@@ -32,7 +32,7 @@
 #include "Molcas.fh"
 #include "warnings.fh"
       Parameter(NRHS=1)
-      Integer, Intent(In):: Iter, nBVct, nAtom, nInter
+      Integer, Intent(In):: Iter, nAtom, nInter
       Real*8,  Intent(InOut):: Coor(3,nAtom)
       Integer, Intent(In):: iSym(3)
       Integer, Intent(In):: mTtAtm
@@ -181,8 +181,8 @@
 *        geometry with the current new set of Cartesian coordinates.
 *
          nWndw=1
-         Call BMtrx(nBVct,nAtom,nInter,
-     &              Coor,nDim,
+         Call BMtrx(nAtom,nInter,
+     &              Coor,
      &              BSet,HSet,iter+1,
      &              mTtAtm,User_Def,
      &              Numerical,

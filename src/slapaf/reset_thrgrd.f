@@ -8,9 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Reset_ThrGrd(nAtom,nDim,nIter,mTtAtm,
-     &                        iOptC,rHidden,ThrGrd)
+      Subroutine Reset_ThrGrd(nAtom,nIter,mTtAtm,iOptC,rHidden,ThrGrd)
       use Slapaf_Info, only: Cx, ANr
+      use Slapaf_Parameters, only: nDimBC
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -55,20 +55,20 @@
       Call mma_allocate(TR,18*nAtom,Label='TR')
       TR(:)=Zero
 *
-      Call TRPGen(nDim,nAtom,Cx(1,1,iIter),mTR,.False.,TR)
+      Call TRPGen(nDimBC,nAtom,Cx(1,1,iIter),mTR,.False.,TR)
 *
-*     Call RecPrt('TR',' ',TR,nDim,mTR)
+*     Call RecPrt('TR',' ',TR,nDimBC,mTR)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Call mma_Allocate(TabAI,2*mTtAtm,Label='TabAI')
-      Call mma_Allocate(Vec,3*mTtAtm*nDim,Label='Vec')
+      Call mma_Allocate(Vec,3*mTtAtm*nDimBC,Label='Vec')
       Call mma_Allocate(AN,mTtAtm,Label='AN')
       Call mma_Allocate(Coor,3,mTtAtm,Label='Coor')
 *
 *-----Generate Grand atoms list
 *
-      Call GenCoo(Cx(1,1,iIter),nAtom,Coor,mTtAtm,Vec,nDim,ANr,
+      Call GenCoo(Cx(1,1,iIter),nAtom,Coor,mTtAtm,Vec,nDimBC,ANr,
      &            AN,TabAI)
 *
 *---- Are there some hidden frozen atoms ?

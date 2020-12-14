@@ -16,7 +16,6 @@
      &                     iOptC,Beta,Beta_Disp,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,nsAtom,
-     &                     nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,TSC,nRowH,
      &                     nWndw,Mode,
@@ -50,7 +49,7 @@
 *                                                                      *
 *     Different hardwired kriging options
 *
-#define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 *#define _OVERSHOOT_
 *                                                                      *
 ************************************************************************
@@ -210,7 +209,6 @@
      &                   Beta_,Beta_Disp_,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                   nsAtom,
-     &                   nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
      &                   TSC,nRowH,nWndw_,Mode,
      &                   kIter,GNrm_Threshold,
@@ -228,8 +226,7 @@
 *        not totally consistent)
 *
          Error=(iterK.ge.1)
-         Call NewCar_Kriging(iterAI,nsAtom,nDimBC,nInter,.True.,iter,
-     &                       Error)
+         Call NewCar_Kriging(iterAI,nsAtom,nInter,.True.,iter,Error)
 #ifdef _DEBUGPRINT_
          Call RecPrt('New Coord (after NewCar)','',qInt,nInter,iterAI+1)
 #endif
@@ -424,8 +421,7 @@
          If ((OS_Disp.gt.E_Disp).And.(OS_Disp.lt.Beta_Disp_)) Then
             Call dAXpY_(nInter,OS_Factor,Step_k(1,2),1,
      &                                   Shift(1,iterAI-1),1)
-            Call NewCar_Kriging(iterAI-1,nsAtom,nDimBC,nInter,
-     &                          .True.,iter)
+            Call NewCar_Kriging(iterAI-1,nsAtom,nInter,.True.,iter)
             Energy(iterAI)=OS_Energy
             If (Max_OS.gt.0) Then
                If (UpMeth(4:4).ne.' ') UpMeth(5:6)='**'
