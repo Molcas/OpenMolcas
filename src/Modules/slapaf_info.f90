@@ -15,7 +15,7 @@ implicit none
 Private
 Public:: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, ANr, Weights, Shift, GNrm, Lambda, &
          Energy, Energy0, DipM, MF, qInt, dqInt, nSup, Atom, RefGeo, BMx, Degen, jStab, nStab, iCoSet, &
-         BM, dBM, iBM, idBM, nqBM, R12, GradRef, KtB, AtomLbl, Smmtrc, &
+         BM, dBM, iBM, idBM, nqBM, R12, GradRef, KtB, AtomLbl, Smmtrc, Lbl, &
          Free_Slapaf, Get_Slapaf, Dmp_Slapaf
 !
 ! Arrays always allocated
@@ -45,6 +45,7 @@ Integer, Allocatable:: jStab(:,:), iCoset(:,:), nStab(:) ! stabilizer and cosets
 #include "LenIn.fh"
 Character(LEN=LENIN), Allocatable:: AtomLbl(:) ! atomic labels
 Logical, Allocatable:: Smmtrc(:,:)    ! Array with logical symmetry information on if a Cartesian is symmetric or not.
+Character(LEN=8), Allocatable:: Lbl(:) ! Labels for internl coordinates and constraints
 
 ! Arrays for automatic internal coordinates
 Real*8, Allocatable:: BM(:)         ! ...
@@ -86,6 +87,7 @@ Contains
   If (Allocated(nStab)) Call mma_deallocate(nStab)
   If (Allocated(AtomLbl)) Call mma_deallocate(AtomLbl)
   If (Allocated(Smmtrc)) Call mma_deallocate(Smmtrc)
+  If (Allocated(Lbl)) Call mma_deallocate(Lbl)
 
   If (Allocated(Q_nuclear)) Call mma_deallocate(Q_nuclear)
   If (Allocated(dMass)) Call mma_deallocate(dMass)

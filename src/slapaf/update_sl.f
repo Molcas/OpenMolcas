@@ -10,13 +10,13 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Update_sl(iter,NmIter,iInt,nFix,nInter,
-     &                     iOptC,Beta,Beta_Disp,Lbl,
+      Subroutine Update_sl(iter,NmIter,nInter,
+     &                     iOptC,Beta,Beta_Disp,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,nsAtom,
      &                     nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
-     &                     iNeg,nLbl,FindTS,TSC,nRowH,
+     &                     iNeg,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
      &                     iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
      &                     HrmFrq_Show,CnstWght,Curvilinear)
@@ -27,13 +27,9 @@
 *    Input:                                                            *
 *      iter           : iteration counter                              *
 *      NmIter         : number of iteration in numerical approach      *
-*      iInt           : number of internal coordinates to vary         *
-*      nFix           : number of frozen internal coordinates          *
 *      nInter         : total number of internal coordinates           *
 *      iOptC          : option flag for update methods                 *
 *      Beta           : damping factor                                 *
-*      Lbl            : character labels for internal coordinates      *
-*      nLbl           : length of Lbl                                  *
 *      Line_Search    : logical flag for line search                   *
 *      nLambda        : number of contraints                           *
 *      nsAtom         : number of symmetry unique atoms                *
@@ -62,8 +58,7 @@
 #include "Molcas.fh"
       Integer iNeg(2)
       Logical Line_Search, FindTS, TSC, HrmFrq_Show, Curvilinear
-      Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
-     &          UpMeth*6, HUpMet*6
+      Character GrdLbl*8, StpLbl*8, Step_Trunc, UpMeth*6, HUpMet*6
       Real*8 Dummy(1)
       Real*8, Allocatable:: t_Shift(:,:), t_qInt(:,:), tmp(:)
 *
@@ -113,13 +108,13 @@
          qInt(:,1)=t_qInt(:,1)
 *
          Call Update_inner(
-     &                   iter_,iInt,nFix,nInter,qInt,
+     &                   iter_,nInter,qInt,
      &                   Shift,iOptC,Beta,Beta_Disp,
-     &                   Lbl,UpMeth,ed,Line_Search,
+     &                   UpMeth,ed,Line_Search,
      &                   Step_Trunc,nLambda,nsAtom,
      &                   nDimBC,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,
-     &                   iNeg,nLbl,FindTS,TSC,nRowH,
+     &                   iNeg,FindTS,TSC,nRowH,
      &                   nWndw,Mode,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
      &                   HrmFrq_Show,CnstWght,Curvilinear,
@@ -152,12 +147,12 @@
 *        Conventional optimization.
 *
          Call Update_inner(
-     &                iter,iInt,nFix,nInter,qInt,Shift,
-     &                iOptC,Beta,Beta_Disp,Lbl,
+     &                iter,nInter,qInt,Shift,
+     &                iOptC,Beta,Beta_Disp,
      &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                nsAtom,
      &                nDimBC,
-     &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
+     &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
      &                FindTS,TSC,nRowH,
      &                nWndw,Mode,
      &                iOptH,HUpMet,kIter,GNrm_Threshold,IRC,

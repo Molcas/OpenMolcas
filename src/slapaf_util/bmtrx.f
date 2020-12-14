@@ -8,21 +8,21 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine BMtrx(nBVec,nAtom,nInter,Lbl,Coor,nDim,
+      Subroutine BMtrx(nBVec,nAtom,nInter,Coor,nDim,
      &                 BSet,HSet,nIter,
      &                 mTtAtm,iOptH,User_Def,
      &                 Curvilinear,Numerical,
      &                 DDV_Schlegel,HWRS,Analytic_Hessian,
      &                 iOptC,PrQ,lOld,
      &                 rHidden,nQQ,iIter,Redundant,MaxItr,nWndw)
-      Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx, Smmtrc
+      Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx, Smmtrc,
+     &                       Lbl
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 Coor(3,nAtom)
-      Character Lbl(nInter)*8
       Logical BSet, HSet, Redundant,
      &        User_Def, Curvilinear, Numerical, DDV_Schlegel,
      &        HWRS, Analytic_Hessian, PrQ, lOld

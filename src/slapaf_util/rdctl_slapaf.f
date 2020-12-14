@@ -12,7 +12,7 @@
       use kriging_mod
       use Symmetry_Info, only: Symmetry_Info_Get
       use Slapaf_Info, only: Cx, Gx, Weights, MF, Atom, nSup, RefGeo,
-     &                       GradRef, nStab
+     &                       GradRef, nStab, Lbl
       use Slapaf_Parameters, only: iRow, iRow_c
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -1296,6 +1296,11 @@ C           Write (6,*) 'Enable FindTS procedure'
          End If
          Call mma_deallocate(Tmp)
       End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+      nLbl=Max(3*nsAtom+nLambda,iRow+iRow_c)
+      Call mma_allocate(Lbl,nLbl,Label='Lbl')
 *                                                                      *
 ************************************************************************
 *                                                                      *

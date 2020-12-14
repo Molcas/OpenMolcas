@@ -22,7 +22,6 @@
 *             2013, November                                           *
 ************************************************************************
 #include "info_slapaf.fh"
-      Parameter(nLbl=10*MxAtom)
 #include "real.fh"
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
@@ -31,7 +30,6 @@
 #include "db.fh"
 #include "print.fh"
       Logical Numerical, PrQ, Cartesian, Found, TSC, Error
-      Character(LEN=8) Lbl(nLbl)
       Real*8, Allocatable:: DList(:), CList(:,:), du(:), TMx(:)
 *
       Lu=6
@@ -46,7 +44,7 @@
       LuSpool=21
       Call SpoolInp(LuSpool)
 *
-      Call RdCtl_Slapaf(iInt,nFix,LuSpool,.True.)
+      Call RdCtl_Slapaf(LuSpool,.True.)
       Curvilinear=.FALSE.
       Cartesian  =.NOT.Curvilinear
       Numerical = .False. ! Just to define it, value is irrelevant here!
@@ -56,17 +54,6 @@
 ************************************************************************
 *                                                                      *
       jPrint=nPrint(iRout)
-*
-      If (nLbl.lt.nBVec) Then
-         Call WarningMessage(2,'Error in GenCxCTL')
-         Write (Lu,*)
-         Write (Lu,*) '**********************'
-         Write (Lu,*) ' ERROR: nLbl.lt.nBVec '
-         Write (Lu,*) ' nLbl=',nLbl
-         Write (Lu,*) ' nBVec=',nBVec
-         Write (Lu,*) '**********************'
-         Call Quit_OnUserError()
-      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -78,16 +65,15 @@
       HSet=.False.
       PrQ=.False.
 *
-      nFix=0
       nWndw=iter
       iRef=0
-      Call BMtrx(nBVec,nsAtom,mInt,Lbl,
+      Call BMtrx(nBVec,nsAtom,mInt,
      &           Coor,nDimBC,
      &           BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
-     &           lOld,rHidden,nFix,nQQ,iRef,Redundant,
+     &           lOld,rHidden,nQQ,iRef,Redundant,
      &           MaxItr,nWndw)
 *
       nPrint(30) = nPrint(30)-1
@@ -227,7 +213,7 @@
          nWndw=Iter
          iRef=0
          Call NewCar(Iter,nBVec,nsAtom,nDimBC,mInt,
-     &               Coor,Lbl,iSym,mTtAtm,
+     &               Coor,iSym,mTtAtm,
      &               iOptH,User_Def,
      &               Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS, Analytic_Hessian,

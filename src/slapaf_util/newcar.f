@@ -9,13 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine NewCar(Iter,nBVct,nAtom,nDim,nInter,
-     &                  Coor,Lbl,iSym,
+     &                  Coor,iSym,
      &                  mTtAtm,iOptH,User_Def,
      &                  Curvilinear,Numerical,DDV_Schlegel,HWRS,
      &                  Analytic_Hessian,iOptC,PrQ,rHidden,
      &                  Redundant,MaxItr,iRef,Error)
       use Slapaf_Info, only: Cx, qInt, RefGeo, BMx, Shift, Degen,
-     &                       AtomLbl
+     &                       AtomLbl, Lbl
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -33,7 +33,6 @@
       Parameter(NRHS=1)
       Integer, Intent(In):: Iter, nBVct, nAtom, nInter
       Real*8,  Intent(InOut):: Coor(3,nAtom)
-      Character(LEN=8), Intent(In):: Lbl(nInter)
       Integer, Intent(In):: iSym(3)
       Integer, Intent(In):: mTtAtm, iOptH
       Logical, Intent(In):: User_Def
@@ -184,7 +183,7 @@
 *
          nWndw=1
          Call BMtrx(nBVct,nAtom,nInter,
-     &              Lbl,Coor,nDim,
+     &              Coor,nDim,
      &              BSet,HSet,iter+1,
      &              mTtAtm,iOptH,User_Def,
      &              Curvilinear,Numerical,

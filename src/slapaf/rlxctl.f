@@ -12,13 +12,12 @@
       Use Chkpnt
       Use kriging_mod, only: Kriging, nspAI
       Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx,
-     &                       Free_Slapaf, qInt, dqInt
+     &                       Free_Slapaf, qInt, dqInt, Lbl
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
 ************************************************************************
 #include "info_slapaf.fh"
-      Parameter(nLbl=10*MxAtom)
 #include "real.fh"
 #include "nadc.fh"
 #include "weighting.fh"
@@ -27,7 +26,7 @@
 #include "stdalloc.fh"
       Logical Numerical, GoOn, PrQ, TSReg,
      &        Do_ESPF, Just_Frequencies, Found, Error
-      Character(LEN=8) GrdLbl, StpLbl, Lbl(nLbl)
+      Character(LEN=8) GrdLbl, StpLbl
       Character(LEN=1) Step_trunc
       Integer AixRm, iNeg(2)
       Integer nGB
@@ -48,7 +47,7 @@
       LuSpool=21
       Call SpoolInp(LuSpool)
 *
-      Call RdCtl_Slapaf(iInt,nFix,LuSpool,.False.)
+      Call RdCtl_Slapaf(LuSpool,.False.)
 *
       Call Close_LuSpool(LuSpool)
 *
@@ -73,17 +72,6 @@
 ************************************************************************
 *                                                                      *
       jPrint=nPrint(iRout)
-*
-      If (nLbl.lt.nBVec) Then
-         Call WarningMessage(2,'Error in RlxCtl')
-         Write (Lu,*)
-         Write (Lu,*) '**********************'
-         Write (Lu,*) ' ERROR: nLbl.lt.nBVec '
-         Write (Lu,*) ' nLbl=',nLbl
-         Write (Lu,*) ' nBVec=',nBVec
-         Write (Lu,*) '**********************'
-         Call Quit_OnUserError()
-      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -127,13 +115,13 @@
 *
       If (Numerical) nWndw=NmIter
       iRef=0
-      Call BMtrx(nBVec,nsAtom,mInt,Lbl,
+      Call BMtrx(nBVec,nsAtom,mInt,
      &           Coor,nDimBC,
      &           BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
-     &           lOld,rHidden,nFix,nQQ,iRef,Redundant,
+     &           lOld,rHidden,nQQ,iRef,Redundant,
      &           MaxItr,nWndw)
 *
       nPrint(30) = nPrint(30)-1
@@ -230,12 +218,12 @@
 *
       If (Kriging .and. Iter.ge.nspAI) Then
          Call Update_Kriging(
-     &               Iter,iInt,nFix,nQQ,
+     &               Iter,nQQ,
      &               iOptC,Beta,Beta_Disp,
-     &               Lbl,UpMeth,
+     &               UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,nsAtom,
      &               nDimBC,
-     &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
+     &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
      &               FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,
      &               iOptH,HUpMet,GNrm_Threshold,
@@ -243,12 +231,12 @@
      &               CnstWght,Curvilinear,ThrEne,ThrGrd)
       Else
          Call Update_sl(
-     &               Iter,NmIter,iInt,nFix,nQQ,
+     &               Iter,NmIter,nQQ,
      &               iOptC,Beta,Beta_Disp,
-     &               Lbl,UpMeth,
+     &               UpMeth,
      &               ed,Line_Search,Step_Trunc,nLambda,nsAtom,
      &               nDimBC,GrdMax,
-     &               StpMax,GrdLbl,StpLbl,iNeg,nLbl,
+     &               StpMax,GrdLbl,StpLbl,iNeg,
      &               FindTS,TSConstraints,nRowH,
      &               nWndw,Mode,
      &               iOptH,HUpMet,kIter,GNrm_Threshold,
@@ -275,8 +263,7 @@
          Error=.False.
          iRef=0
          Call NewCar(Iter,nBVec,nsAtom,nDimBC,nQQ,Coor,
-     &               Lbl,iSym,
-     &               mTtAtm,iOptH,
+     &               iSym,mTtAtm,iOptH,
      &               User_Def,Curvilinear,Numerical,
      &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
      &               rHidden,Redundant,MaxItr,iRef,Error)
@@ -324,7 +311,7 @@
 *
       GoOn = (lNmHss.and.iter.lt.NmIter).OR.(lRowH.and.iter.lt.NmIter)
       TSReg = iAnd(iOptC,8192).eq.8192
-      Call Convrg(iter,kIter,nQQ,Lbl,MaxItr,Stop,iStop,ThrCons,
+      Call Convrg(iter,kIter,nQQ,MaxItr,Stop,iStop,ThrCons,
      &            ThrEne,ThrGrd,MxItr,UpMeth,HUpMet,mIntEff,Baker,
      &            nsAtom,mTtAtm,ed,
      &            iNeg,GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Convrg(iter,kIter, nInter,
-     &                  Lbl,MaxItr,Stop,iStop,ThrCons,
+     &                  MaxItr,Stop,iStop,ThrCons,
      &                  ThrEne, ThrGrd, MxItr, UpMeth, HUpMet, mIntEff,
      &                  Baker, nAtom,mTtAtm,ed,iNeg,
      &                  GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
@@ -18,7 +18,7 @@
      &                  TSReg,ThrMEP)
       Use Chkpnt
       Use Slapaf_Info, only: Cx, Gx, Coor, GNrm, Energy, Shift, qInt,
-     &                       dqInt
+     &                       dqInt, Lbl
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -27,7 +27,7 @@
 #include "print.fh"
 #include "warnings.fh"
       Real*8 Maxed, MaxErr
-      Character Lbl(nInter)*8, GrdLbl*8, StpLbl*8
+      Character GrdLbl*8, StpLbl*8
       Character(LEN=6) UpMeth, HUpMet, ConLbl(5)*5
       Character(LEN=1) Step_Trunc
       Character(LEN=16) StdIn

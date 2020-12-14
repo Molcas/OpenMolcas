@@ -34,7 +34,7 @@
      &                       Energy, Energy0, DipM, MF, qInt, dqInt,
      &                       RefGeo, BM, iBM, dBM, idBM, nqBM, BMx,
      &                       Degen, nStab, jStab, iCoSet, AtomLbl,
-     &                       Smmtrc
+     &                       Smmtrc, Lbl
       use Slapaf_Parameters, only: iRow, iRow_c, iInt, nFix
       Implicit None
 #include "backup_info.fh"
@@ -53,7 +53,7 @@
       Integer, Parameter :: nLbl=10*MxAtom
       Integer, External :: IsFreeUnit, iPrintLevel, AixRm
       Logical :: Cartesian, Numerical, PrQ, Found
-      Character(Len=8) :: Lbl(nLbl),Filename
+      Character(Len=8) :: Filename
       Character(Len=16) :: StdIn
       Character(Len=24), Allocatable :: Label(:)
       Character(Len=180), External :: Get_Ln_EOF
@@ -94,6 +94,7 @@
       Integer, Allocatable:: Bk_iCoSet(:,:)
       Character(LEN=LENIN), Allocatable:: Bk_AtomLbl(:)
       Logical, Allocatable:: Bk_Smmtrc(:,:)
+      Character(LEN=8), Allocatable:: Bk_Lbl(:)
 *
 *
 *---- Ugly hack: backup all "global" slapaf variables in case this is
@@ -270,6 +271,11 @@
          Bk_Smmtrc(:,:) = Smmtrc(:,:)
          Call mma_deallocate(Smmtrc)
       End If
+      If (Allocated(Lbl)) Then
+         Call mma_allocate(Bk_Lbl,SIZE(Lbl),Label='Bk_Lbl')
+         Bk_Lbl(:) = Lbl(:)
+         Call mma_deallocate(Lbl)
+      End If
 
       Bk_iSym(:)=iSym(:)
       Bk_iRef=iRef
@@ -433,7 +439,7 @@
       PrQ=.False.
       nWndw=iter
       iRef=0
-      Call BMtrx(nBVec,nsAtom,mInt,Lbl,
+      Call BMtrx(nBVec,nsAtom,mInt,
      &           Coor,nDimBC,BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,Curvilinear,Numerical,
@@ -920,6 +926,14 @@
          Call mma_deallocate(Bk_Smmtrc)
       Else
          If (Allocated(Smmtrc)) Call mma_deallocate(Smmtrc)
+      End If
+      If (Allocated(Bk_Lbl)) Then
+         If (Allocated(Lbl)) Call mma_deallocate(Lbl)
+         Call mma_allocate(Lbl,SIZE(Bk_Lbl),Label='Lbl')
+         Lbl(:) = Bk_Lbl(:)
+         Call mma_deallocate(Bk_Lbl)
+      Else
+         If (Allocated(Lbl)) Call mma_deallocate(Lbl)
       End If
 *
       End Subroutine Print_Mode_Components

@@ -12,13 +12,13 @@
 *               2020, Ignacio Fdez. Galvan                             *
 ************************************************************************
       Subroutine Update_kriging(
-     &                     iter,iInt,nFix,nInter,
-     &                     iOptC,Beta,Beta_Disp,Lbl,
+     &                     iter,nInter,
+     &                     iOptC,Beta,Beta_Disp,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,nsAtom,
      &                     nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
-     &                     iNeg,nLbl,FindTS,TSC,nRowH,
+     &                     iNeg,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
      &                     iOptH,HUpMet,GNrm_Threshold,IRC,
      &                     HrmFrq_Show,CnstWght,Curvilinear,
@@ -31,7 +31,8 @@
 ************************************************************************
       Use kriging_mod, only: Max_Microiterations,
      &                       Thr_microiterations
-      Use Slapaf_Info, only: Cx, Gx, Shift, GNrm, Energy, qInt, dqInt
+      Use Slapaf_Info, only: Cx, Gx, Shift, GNrm, Energy, qInt, dqInt,
+     &                       Lbl
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -41,8 +42,7 @@
       Integer iNeg(2)
       Logical Line_Search, FindTS, TSC, HrmFrq_Show, Curvilinear,
      &        First_MicroIteration, Error
-      Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
-     &          UpMeth*6, HUpMet*6
+      Character GrdLbl*8, StpLbl*8, Step_Trunc, UpMeth*6, HUpMet*6
       Character GrdLbl_Save*8
       Real*8 Dummy(1)
       Real*8, Allocatable:: Hessian(:,:), Temp(:,:,:)
@@ -207,12 +207,12 @@
          First_MicroIteration=iterAI.eq.iter
          nWndw_=nWndw/2 + (iterAI-iter)
          Call Update_inner(
-     &                   iterAI,iInt,nFix,nInter,qInt,Shift,iOptC,
-     &                   Beta_,Beta_Disp_,Lbl,
+     &                   iterAI,nInter,qInt,Shift,iOptC,
+     &                   Beta_,Beta_Disp_,
      &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
      &                   nsAtom,
      &                   nDimBC,
-     &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,nLbl,
+     &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
      &                   FindTS,TSC,nRowH,nWndw_,Mode,
      &                   iOptH,HUpMet,kIter,GNrm_Threshold,IRC,
      &                   HrmFrq_Show,CnstWght,Curvilinear,
@@ -229,8 +229,8 @@
 *        not totally consistent)
 *
          Error=(iterK.ge.1)
-         Call NewCar_Kriging(iterAI,nsAtom,nDimBC,nInter,
-     &                       Lbl,.True.,iter,Error)
+         Call NewCar_Kriging(iterAI,nsAtom,nDimBC,nInter,.True.,iter,
+     &                       Error)
 #ifdef _DEBUGPRINT_
          Call RecPrt('New Coord (after NewCar)','',qInt,nInter,iterAI+1)
 #endif
@@ -426,7 +426,7 @@
             Call dAXpY_(nInter,OS_Factor,Step_k(1,2),1,
      &                                   Shift(1,iterAI-1),1)
             Call NewCar_Kriging(iterAI-1,nsAtom,nDimBC,nInter,
-     &                          Lbl,.True.,iter)
+     &                          .True.,iter)
             Energy(iterAI)=OS_Energy
             If (Max_OS.gt.0) Then
                If (UpMeth(4:4).ne.' ') UpMeth(5:6)='**'

@@ -11,13 +11,13 @@
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
       Subroutine Update_inner(
-     &                     kIter,iInt,nFix,nInter,qInt,Shift,
-     &                     iOptC,Beta,Beta_Disp,Lbl,
+     &                     kIter,nInter,qInt,Shift,
+     &                     iOptC,Beta,Beta_Disp,
      &                     UpMeth,ed,Line_Search,Step_Trunc,
      &                     nLambda,nsAtom,
      &                     nDimBC,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
-     &                     iNeg,nLbl,FindTS,TSC,nRowH,
+     &                     iNeg,FindTS,TSC,nRowH,
      &                     nWndw,Mode,
      &                     iOptH,HUpMet,mIter,GNrm_Threshold,IRC,
      &                     HrmFrq_Show,CnstWght,Curvilinear,
@@ -28,16 +28,12 @@
 *                                                                      *
 *    Input:                                                            *
 *      kIter          : iteration counter                              *
-*      iInt           : number of internal coordinates to vary         *
-*      nFix           : number of frozen internal coordinates          *
 *      nInter         : total number of internal coordinates           *
 *      qInt(*,kIter)  : the internal coordinates                       *
 *      Shift(*,kIter) : the shift of the internal coordinates          *
 *      iOptC          : option flag for update methods                 *
 *      Beta           : damping factor step length                     *
 *      Beta_Disp      : damping factor variance                        *
-*      Lbl            : character labels for internal coordinates      *
-*      nLbl           : length of Lbl                                  *
 *      Line_Search    : logical flag for line search                   *
 *      nLambda        : number of constraints                          *
 *      nsAtom         : number of symmetry unique atoms                *
@@ -61,8 +57,8 @@
 *             2000                                                     *
 ************************************************************************
       use Slapaf_info, only: GNrm, Lambda, Energy, MF, dqInt,
-     &                       BMx, Degen, nStab, Smmtrc
-      use Slapaf_Parameters, only: iRow_c
+     &                       BMx, Degen, nStab, Smmtrc, Lbl
+      use Slapaf_Parameters, only: iRow_c, iInt, nFix
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
@@ -72,7 +68,7 @@
 *    &        iNeg(2), jNeg(2)
       Logical Line_Search, FindTS, TSC, HrmFrq_Show,
      &        Found, Curvilinear, Kriging_Hessian, First_MicroIteration
-      Character Lbl(nLbl)*8, GrdLbl*8, StpLbl*8, Step_Trunc,
+      Character GrdLbl*8, StpLbl*8, Step_Trunc,
      &          UpMeth*6, HUpMet*6, File1*8, File2*8, Step_Trunc_
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:),
      &                      RHS(:), ErrVec(:,:), EMtrx(:,:)
@@ -377,10 +373,10 @@ C           Write (6,*) 'tBeta=',tBeta
 *
          Energy_L(:)=Energy(1:kIter)
 *
-         If (mInter.gt.nLbl) Then
-            Call WarningMessage(2,'Update_inner: mInter.gt.nLbl')
-            Write (6,*) 'mInter=',mInter
-            Write (6,*) 'nLbl=',nLbl
+         If (nInter+nLambda.gt.SIZE(Lbl)) Then
+            Call WarningMessage(2,'Update_inner: mInter.gt.SIZE(Lbl)')
+            Write (6,*) 'nInter,nLambda=',nInter,nLambda
+            Write (6,*) 'SIZE(Lbl)=',SIZE(Lbl)
             Call Abend()
          End If
 *
