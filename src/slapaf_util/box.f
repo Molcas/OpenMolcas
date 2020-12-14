@@ -8,14 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Box(Coor,nAtoms,iANr,iOptC,Schlegel,TabB,TabA,nBonds,
-     &               nMax)
+      Subroutine Box(Coor,nAtoms,iANr,iOptC,TabB,TabA,nBonds,nMax)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 Coor(3,nAtoms)
       Integer iANr(nAtoms)
-      Logical Schlegel
       Integer, Allocatable:: TabB(:,:), TabA(:,:,:), iBox(:,:),
      &                       Tab(:,:,:,:)
 *                                                                      *
@@ -92,7 +90,7 @@ c AOM
      &                 iBox,iANr,xmin,ymin,zmin,Box_Size)
 *
       Call Find_Bonds(Coor,nAtoms,Tab,nMax,nx,ny,nz,iBox,iANr,
-     &                Schlegel,iOptC,TabB,nBonds,nBondMax,TabA,ThrB)
+     &                iOptC,TabB,nBonds,nBondMax,TabA,ThrB)
 *
       Call mma_deallocate(iBox)
       Call mma_deallocate(Tab)

@@ -13,9 +13,11 @@
 Module Slapaf_Parameters
 implicit none
 Private
-Public:: iRow, iRow_c, iInt, nFix
+Public:: iRow, iRow_c, iInt, nFix, ddV_Schlegel
 Integer:: iRow=0
 Integer:: iRow_c=0
 Integer:: iInt=0
 Integer:: nFix=0
+
+Logical:: ddV_Schlegel=.False.
 End Module Slapaf_Parameters

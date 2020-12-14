@@ -8,14 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Reset_ThrGrd(nAtom,nDim,nIter,mTtAtm,DDV_Schlegel,
+      Subroutine Reset_ThrGrd(nAtom,nDim,nIter,mTtAtm,
      &                        iOptC,rHidden,ThrGrd)
       use Slapaf_Info, only: Cx, ANr
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Logical DDV_Schlegel,Found
+      Logical Found
       Integer, Allocatable:: TabAI(:), AN(:)
       Real*8, Allocatable:: TR(:), Vec(:), Coor(:,:), Tmp(:)
       Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
@@ -23,13 +23,12 @@
 ************************************************************************
 *                                                                      *
       Interface
-        Subroutine Box(Coor,nAtoms,iANr,iOptC,Schlegel,TabB,TabA,nBonds,
+        Subroutine Box(Coor,nAtoms,iANr,iOptC,TabB,TabA,nBonds,
      &                nMax)
         Integer nAtoms
         Real*8 Coor(3,nAtoms)
         Integer iANr(nAtoms)
         Integer iOptC
-        Logical Schlegel
         Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
         Integer nBonds, nMax
         End Subroutine Box
@@ -80,7 +79,7 @@
 *-----Generate bond list
 *
       mTtAtm = mTtAtm+nHidden
-      Call Box(Coor,mTtAtm,AN,iOptC,ddV_Schlegel,TabB,TabA,nBonds,nMax)
+      Call Box(Coor,mTtAtm,AN,iOptC,TabB,TabA,nBonds,nMax)
       mTtAtm = mTtAtm-nHidden
 *                                                                      *
 ************************************************************************

@@ -9,8 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Bond_Tester(Coor,nAtoms,iTab,nx,ny,nz,ix,iy,iz,iAtom,
-     &                       iRow,iANr,Schlegel,iOptC,iTabBonds,nBonds,
+     &                       iRow,iANr,iOptC,iTabBonds,nBonds,
      &                       nBondMax,iTabAtoms,nMax,ThrB,ThrB_vdW)
+      use Slapaf_Parameters, only: ddV_Schlegel
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #define _VDW_
@@ -18,7 +19,7 @@
       Real*8 Coor(3,nAtoms)
       Integer iTab(0:nMax,nx,ny,nz), iANr(nAtoms),
      &        iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
-      Logical Help, Schlegel
+      Logical Help
       Real*8 A(3)
 #define _OLD_CODE
 #ifndef _OLD_CODE_
@@ -80,7 +81,7 @@ C        If (iAtom.le.jAtom) Cycle Box
 *
 *--------Test if we have a bond iAtom-jAtom
 *
-         If (Schlegel.or.Help) Then
+         If (ddV_Schlegel.or.Help) Then
             Rab=Sqrt(rij2)
             RabCov=CovRad(iANr(iAtom))+CovRad(iANr(jAtom))
 #ifdef _DEBUGPRINT_

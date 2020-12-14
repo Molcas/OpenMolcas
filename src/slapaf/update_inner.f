@@ -79,6 +79,7 @@
      &                      dEdq(:,:), dx(:,:), dy(:), BVec(:,:),
      &                      Scr1(:), Scr2(:), Value(:), Value0(:),
      &                      Mult(:), dBVec(:), Tmp(:)
+      Character(LEN=8), Allocatable:: Lbl_Tmp(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -374,10 +375,13 @@ C           Write (6,*) 'tBeta=',tBeta
          Energy_L(:)=Energy(1:kIter)
 *
          If (nInter+nLambda.gt.SIZE(Lbl)) Then
-            Call WarningMessage(2,'Update_inner: mInter.gt.SIZE(Lbl)')
-            Write (6,*) 'nInter,nLambda=',nInter,nLambda
-            Write (6,*) 'SIZE(Lbl)=',SIZE(Lbl)
-            Call Abend()
+            Call mma_allocate(Lbl_tmp,nInter+nLambda,Label='Lbl_tmp')
+            Lbl_tmp(:)=''
+            Lbl_tmp(1:SIZE(Lbl))=Lbl(:)
+            Call mma_deallocate(Lbl)
+            Call mma_allocate(Lbl,nInter+nLambda,Label='Lbl')
+            Lbl(:)=Lbl_tmp(:)
+            call mma_deallocate(Lbl_tmp)
          End If
 *
          nBVec=iRow_c-nLambda-1

@@ -9,13 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Find_Bonds(Coor,nAtoms,iTab,nMax,nx,ny,nz,iBox,iANr,
-     &                      Schlegel,iOptC,iTabBonds,nBonds,
+     &                      iOptC,iTabBonds,nBonds,
      &                      nBondMax,iTabAtoms,ThrB)
       Implicit Real*8 (a-h,o-z)
       Real*8 Coor(3,nAtoms)
       Integer iTab(0:nMax,nx,ny,nz), iBox(3,nAtoms), iANr(nAtoms),
      &        iTabBonds(3,nBondMax), iTabAtoms(2,0:nMax,nAtoms)
-      Logical Schlegel
 #include "bondtypes.fh"
 *                                                                      *
 ************************************************************************
@@ -60,7 +59,7 @@
             Do jy = iy-1, iy+1
                Do jz = iz-1, iz+1
                   Call Bond_Tester(Coor,nAtoms,iTab,nx,ny,nz,jx,jy,jz,
-     &                             iAtom,iRow,iANr,Schlegel,iOptC,
+     &                             iAtom,iRow,iANr,iOptC,
      &                             iTabBonds,nBonds,nBondMax,iTabAtoms,
      &                             nMax,ThrB,1.0D+99)
 
@@ -125,7 +124,7 @@
             Do jy = iy-1, iy+1
                Do jz = iz-1, iz+1
                   Call Bond_Tester(Coor,nAtoms,iTab,nx,ny,nz,jx,jy,jz,
-     &                             iAtom,iRow,iANr,Schlegel,iOptC,
+     &                             iAtom,iRow,iANr,iOptC,
      &                             iTabBonds,nBonds,nBondMax,iTabAtoms,
      &                             nMax,ThrB,ThrB_vdW)
 

@@ -11,7 +11,7 @@
       Subroutine NewCar(Iter,nBVct,nAtom,nDim,nInter,
      &                  Coor,iSym,
      &                  mTtAtm,iOptH,User_Def,
-     &                  Curvilinear,Numerical,DDV_Schlegel,HWRS,
+     &                  Curvilinear,Numerical,HWRS,
      &                  Analytic_Hessian,iOptC,PrQ,rHidden,
      &                  Redundant,MaxItr,iRef,Error)
       use Slapaf_Info, only: Cx, qInt, RefGeo, BMx, Shift, Degen,
@@ -36,7 +36,7 @@
       Integer, Intent(In):: iSym(3)
       Integer, Intent(In):: mTtAtm, iOptH
       Logical, Intent(In):: User_Def
-      Logical, Intent(In):: Curvilinear, Numerical, DDV_Schlegel, HWRS,
+      Logical, Intent(In):: Curvilinear, Numerical, HWRS,
      &                      Analytic_Hessian
       Integer, Intent(In):: iOptC
       Logical, Intent(In):: PrQ
@@ -187,7 +187,7 @@
      &              BSet,HSet,iter+1,
      &              mTtAtm,iOptH,User_Def,
      &              Curvilinear,Numerical,
-     &              DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,
+     &              HWRS,Analytic_Hessian,iOptC,
      &              PrQ,lOld,rHidden,
      &              nQQ,iRef,Redundant,MaxItr,nWndw)
 *

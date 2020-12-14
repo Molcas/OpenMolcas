@@ -11,7 +11,7 @@
       Subroutine WrInp_sl()
       use kriging_mod
       use Slapaf_Info, only: Coor, AtomLbl
-      use Slapaf_Parameters, only: iRow
+      use Slapaf_Parameters, only: iRow, ddV_Schlegel
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "info_slapaf.fh"

@@ -72,7 +72,7 @@
      &           BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,Curvilinear,Numerical,
-     &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
+     &           HWRS,Analytic_Hessian,iOptC,PrQ,
      &           lOld,rHidden,nQQ,iRef,Redundant,
      &           MaxItr,nWndw)
 *
@@ -216,7 +216,7 @@
      &               Coor,iSym,mTtAtm,
      &               iOptH,User_Def,
      &               Curvilinear,Numerical,
-     &               DDV_Schlegel,HWRS, Analytic_Hessian,
+     &               HWRS, Analytic_Hessian,
      &               iOptC,PrQ,rHidden,
      &               Redundant,MaxItr,iRef,Error)
 *

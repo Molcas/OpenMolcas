@@ -12,7 +12,7 @@
      &                 BSet,HSet,nIter,
      &                 mTtAtm,iOptH,User_Def,
      &                 Curvilinear,Numerical,
-     &                 DDV_Schlegel,HWRS,Analytic_Hessian,
+     &                 HWRS,Analytic_Hessian,
      &                 iOptC,PrQ,lOld,
      &                 rHidden,nQQ,iIter,Redundant,MaxItr,nWndw)
       Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx, Smmtrc,
@@ -23,8 +23,7 @@
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 Coor(3,nAtom)
-      Logical BSet, HSet, Redundant,
-     &        User_Def, Curvilinear, Numerical, DDV_Schlegel,
+      Logical BSet, HSet, Redundant,User_Def, Curvilinear, Numerical,
      &        HWRS, Analytic_Hessian, PrQ, lOld
       External Get_SuperName
       Character(LEN=100) Get_SuperName
@@ -35,13 +34,12 @@
 ************************************************************************
 *                                                                      *
       Interface
-        Subroutine Box(Coor,nAtoms,iANr,iOptC,Schlegel,TabB,TabA,nBonds,
+        Subroutine Box(Coor,nAtoms,iANr,iOptC,TabB,TabA,nBonds,
      &                nMax)
         Integer nAtoms
         Real*8 Coor(3,nAtoms)
         Integer iANr(nAtoms)
         Integer iOptC
-        Logical Schlegel
         Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
         Integer nBonds, nMax
         End Subroutine Box
@@ -132,7 +130,7 @@
 *-----Generate bond list
 *
       mTtAtm = mTtAtm+nHidden
-      Call Box(Coor2,mTtAtm,AN,iOptC,ddV_Schlegel,TabB,TabA,nBonds,nMax)
+      Call Box(Coor2,mTtAtm,AN,iOptC,TabB,TabA,nBonds,nMax)
       mTtAtm = mTtAtm-nHidden
 *                                                                      *
 ************************************************************************
@@ -152,7 +150,7 @@
 *
       If (HSet.or..Not.(Curvilinear.or.User_Def))
      &   Call LNM(Coor2,mTtAtm,EVal,Hss_X,Scr2,Vec,nAtom,nDim,AN,
-     &            nIter,iOptH,DDV_Schlegel,Analytic_Hessian,
+     &            nIter,iOptH,Analytic_Hessian,
      &            iOptC,TabB,TabA,nBonds,nMax,nHidden)
 *
       Call mma_deallocate(Scr2)
@@ -202,7 +200,7 @@
 *------- Re-generate the bonds if there were hidden atoms
 *
          If (nHidden.ne.0) Then
-            Call Box(Coor2,mTtAtm,AN,iOptC,ddV_Schlegel,TabB,TabA,
+            Call Box(Coor2,mTtAtm,AN,iOptC,TabB,TabA,
      &               nBonds,nMax)
          End If
          Call BMtrx_Internal(

@@ -35,7 +35,8 @@
      &                       RefGeo, BM, iBM, dBM, idBM, nqBM, BMx,
      &                       Degen, nStab, jStab, iCoSet, AtomLbl,
      &                       Smmtrc, Lbl
-      use Slapaf_Parameters, only: iRow, iRow_c, iInt, nFix
+      use Slapaf_Parameters, only: iRow, iRow_c, iInt, nFix,
+     &                             ddV_Schlegel
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -443,7 +444,7 @@
      &           Coor,nDimBC,BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,Curvilinear,Numerical,
-     &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
+     &           HWRS,Analytic_Hessian,iOptC,PrQ,
      &           lOld,rHidden,nQQ,iRef,Redundant,
      &           MaxItr,nWndw)
 *                                                                      *

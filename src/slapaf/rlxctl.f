@@ -120,7 +120,7 @@
      &           BSet,HSet,iter,
      &           mTtAtm,iOptH,
      &           User_Def,Curvilinear,Numerical,
-     &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
+     &           HWRS,Analytic_Hessian,iOptC,PrQ,
      &           lOld,rHidden,nQQ,iRef,Redundant,
      &           MaxItr,nWndw)
 *
@@ -145,9 +145,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Reset_ThrGrd(nsAtom,nDimBC,Iter,
-     &                  mTtAtm,DDV_Schlegel,iOptC,rHidden,
-     &                  ThrGrd)
+      Call Reset_ThrGrd(nsAtom,nDimBC,Iter,mTtAtm,iOptC,rHidden,ThrGrd)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -265,7 +263,7 @@
          Call NewCar(Iter,nBVec,nsAtom,nDimBC,nQQ,Coor,
      &               iSym,mTtAtm,iOptH,
      &               User_Def,Curvilinear,Numerical,
-     &               DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
+     &               HWRS,Analytic_Hessian,iOptC,PrQ,
      &               rHidden,Redundant,MaxItr,iRef,Error)
       End If
 *                                                                      *

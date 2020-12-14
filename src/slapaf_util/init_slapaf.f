@@ -69,7 +69,6 @@
       Baker = .False.
       Schlegel=.False.
       FindTS=.False.
-      DDV_Schlegel=.False.
       Curvilinear=.True.
       Ref_Geom=.False.
       HWRS=.True.

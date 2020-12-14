@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine LNM(Cart,nAtoms,Hess,Scrt1,Scrt2,Vctrs,
      &               mAtoms,nDim,iAnr,nIter,iOptH,
-     &               Schlegel,Analytic_Hessian,
+     &               Analytic_Hessian,
      &               iOptC,iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: Degen, Smmtrc
@@ -24,8 +24,7 @@
      *       Scrt2((3*nAtoms)**2), Vctrs(3*nAtoms,nDim)
       Integer   iANr(nAtoms+nHidden), iTabBonds(3,nBonds),
      &          iTabAtoms(2,0:nMax,nAtoms+nHidden)
-      Logical Schlegel, Analytic_Hessian,
-     &        Found, RunOld
+      Logical Analytic_Hessian, Found, RunOld
       Real*8, Allocatable:: TanVec(:), HTanVec(:)
 
       iRout=120
@@ -131,7 +130,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call ddV(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,
+         Call ddV(Cart,nAtoms,Hess,iANr,iOptC,
      &            iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
 #ifdef _DEBUGPRINT_
          If (iPrint.ge.19)

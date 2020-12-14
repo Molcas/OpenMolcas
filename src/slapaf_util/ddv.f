@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      subroutine ddV(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,
+      subroutine ddV(Cart,nAtoms,Hess,iANr,iOptC,
      &               iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
       Implicit Real*8 (a-h,o-z)
 #include "stdalloc.fh"
@@ -16,7 +16,6 @@
       Real*8 Cart(3,nAtoms+nHidden),Hess((3*nAtoms)*(3*nAtoms+1)/2)
       Integer   iANr(nAtoms+nHidden), iTabBonds(3,nBonds),
      &          iTabAtoms(2,0:nMax,nAtoms+nHidden)
-      Logical Schlegel
       Real*8, Allocatable:: HBig(:)
 *
 *  Temporary big hessian
@@ -34,7 +33,7 @@
 *
          iSBS = iEOr(iSBS,2**7)
          iSBS = iEOr(iSBS,2**8)
-         Call ddV_(Cart,nTot,HBig,iANr,Schlegel,iOptC,iTabBonds,
+         Call ddV_(Cart,nTot,HBig,iANr,iOptC,iTabBonds,
      &             iTabAtoms,nBonds,nMax,nHidden)
          iSBS = iOr(iSBS,2**7)
          iSBS = iOr(iSBS,2**8)
@@ -47,14 +46,15 @@
 #endif
          Call mma_deallocate(HBig)
       Else
-         Call ddV_(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,iTabBonds,
+         Call ddV_(Cart,nAtoms,Hess,iANr,iOptC,iTabBonds,
      &             iTabAtoms,nBonds,nMax,nHidden)
       End If
       End
 *
-      Subroutine ddV_(Cart,nAtoms,Hess,iANr,Schlegel,iOptC,iTabBonds,
+      Subroutine ddV_(Cart,nAtoms,Hess,iANr,iOptC,iTabBonds,
      &               iTabAtoms,nBonds,nMax,nHidden)
       use Symmetry_Info, only: nIrrep, iOper
+      use Slapaf_Parameters, only: ddV_Schlegel
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -67,7 +67,7 @@
      &       ril(3), rik(3)
       Integer   iANr(nAtoms), iTabBonds(3,nBonds),
      &          iTabAtoms(2,0:nMax,nAtoms)
-      Logical Schlegel, MinBas, Help, TransVar, RotVar, Torsion_Check,
+      Logical MinBas, Help, TransVar, RotVar, Torsion_Check,
      &        Invariant(3)
 *
       Real*8 Trans(3), RotVec(3), RotMat(3,3)
@@ -387,7 +387,7 @@ C        If (iBondType.gt.Magic_Bond) Go To 10
          r0=rAv(kr,lr)
          alpha=aAv(kr,lr)
 *
-         If (Schlegel.or.Help) Then
+         If (ddV_Schlegel.or.Help) Then
             Rab=Sqrt(rkl2)
             RabCov=CovRad(iANr(kAtom))+CovRad(iANr(lAtom))
             If ((kr.eq.1.and.lr.eq.1).or.Help) Then
@@ -508,7 +508,7 @@ C10      Continue
                rij2 = xij**2 + yij**2 + zij**2
                rrij=sqrt(rij2)
 *
-               If (Schlegel.or.Help) Then
+               If (ddV_Schlegel.or.Help) Then
                   Rab=rmi
                   RabCov=CovRad(iANr(iAtom))+CovRad(iANr(mAtom))
                   Rbc=rmj
@@ -824,7 +824,7 @@ C              If (kBondType.eq.vdW_Bond) Go To 222
                Write (6,*) 'rkl=',rkl,rkl2
 #endif
 *
-               If (Schlegel.or.Help) Then
+               If (ddV_Schlegel.or.Help) Then
                   Rab=Sqrt(rij2)
                   RabCov=(CovRadT(iANr(iAtom))
      &                   +CovRadT(iANr(jAtom)))/bohr
@@ -1057,7 +1057,7 @@ C                 Write (*,*) 'Help=',Help
      &                        CosFi2,CosFi3,CosFi4
 #endif
 *
-                  If (Schlegel.or.Help) Then
+                  If (ddV_Schlegel.or.Help) Then
 *
 *------------------- I do not have a clue to how this will really work!
 *
