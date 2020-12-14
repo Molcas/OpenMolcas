@@ -388,7 +388,6 @@ test:nag:
   <<: *run-tests
   needs:
     - build:nag
-    - tinker
   parallel: 4
   tags:
     - docker
