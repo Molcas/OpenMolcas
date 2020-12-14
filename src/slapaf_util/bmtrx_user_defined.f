@@ -15,8 +15,9 @@
      &                 Numerical,
      &                 Analytic_Hessian,
      &                 iOptC,lOld,
-     &                 nFix,mTR,nQQ,Redundant,MaxItr)
+     &                 mTR,nQQ,Redundant,MaxItr)
       use Slapaf_Info, only: Gx, qInt, dqInt, KtB, BMx, Degen, Smmtrc
+      use Slapaf_Parameters, only: iInt, nFix
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -26,8 +27,6 @@
       Logical BSet, HSet, Redundant,
      &        Numerical, Analytic_Hessian, lOld, Proc_dB
       Real*8, Allocatable:: Degen2(:)
-      Character(LEN=8), Allocatable:: Lab(:)
-      Real*8, Allocatable:: Mult(:), BVec(:), Val(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -49,12 +48,6 @@
       Call mma_allocate(BMx,3*nAtom,nQQ,Label='BMx')
       BMx(:,:)=Zero
 
-      Call mma_allocate(Mult,nBVec,Label='Mult')
-      Call mma_allocate(BVec,nBVec*3*nAtom,Label='BVec')
-      BVec(:)=Zero
-      Call mma_allocate(Val,nBVec,Label='Val')
-      Val(:)=Zero
-      Call mma_allocate(Lab,nBVec,Label='Lab')
 *
 *-----Compute the B matrix in symmetry distinct basis and the
 *     internal coordinates.
@@ -68,14 +61,8 @@
 *        Not implimented, sorry
       End If
 *
-      Call DefInt(BVec,nBVec,Lab,BMx,nQQ,
-     &            nAtom,Val,qInt(:,nIter),Lbl,
-     &            Coor,Mult,nDim-mTR,Redundant)
-*
-      Call mma_deallocate(Lab)
-      Call mma_deallocate(Val)
-      Call mma_deallocate(BVec)
-      Call mma_deallocate(Mult)
+      Call DefInt(nBVec,BMx,nQQ,nAtom,qInt(:,nIter),Lbl,Coor,nDim-mTR,
+     &            Redundant)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine RdCtl_Slapaf(iInt,nFix,LuSpool,Dummy_Call)
+      Subroutine RdCtl_Slapaf(LuSpool,Dummy_Call)
       use kriging_mod
       use Symmetry_Info, only: Symmetry_Info_Get
       use Slapaf_Info, only: Cx, Gx, Weights, MF, Atom, nSup, RefGeo,
@@ -905,9 +905,9 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *                                                                      *
 ****** GRAD ************************************************************
 *                                                                      *
- 979  Call mma_allocate(GradRef,3,nDimbc/3,Label='GradRef')
+ 979  Call mma_allocate(GradRef,3,nsAtom,Label='GradRef')
 
-      Call Read_v(LuRd,GradRef,1,nDimbc,1,iErr)
+      Call Read_v(LuRd,GradRef,1,3*nsAtom,1,iErr)
       If (iErr.ne.0) Then
          Call WarningMessage(2,'Error in RdCtl_Slapaf')
          Write (Lu,*)
@@ -1323,7 +1323,7 @@ CGGd: Coherency with patch 7.1.615 !      If (lNmHss) nPrint(122)=10
 *.....Do some preprocessing due to input choice
 *
       If (Request_Alaska) nPrint(51)=0
-      Call PrePro(iInt,nFix,nsAtom,mInt,Cx(1,1,iter))
+      Call PrePro(nsAtom,mInt,Cx(1,1,iter))
 *                                                                      *
 ************************************************************************
 *                                                                      *

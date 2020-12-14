@@ -182,7 +182,6 @@
 *--------Compute new values q and the Wilson B-matrix for the new
 *        geometry with the current new set of Cartesian coordinates.
 *
-         nFix=0
          nWndw=1
          Call BMtrx(nBVct,nAtom,nInter,
      &              Lbl,Coor,nDim,
@@ -191,7 +190,7 @@
      &              Curvilinear,Numerical,
      &              DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,
      &              PrQ,lOld,rHidden,
-     &              nFix,nQQ,iRef,Redundant,MaxItr,nWndw)
+     &              nQQ,iRef,Redundant,MaxItr,nWndw)
 *
 *--------Check if the final structure is reached and get the
 *        difference between the present structure and the final.

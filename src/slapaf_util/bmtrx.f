@@ -14,7 +14,7 @@
      &                 Curvilinear,Numerical,
      &                 DDV_Schlegel,HWRS,Analytic_Hessian,
      &                 iOptC,PrQ,lOld,
-     &                 rHidden,nFix,nQQ,iIter,Redundant,MaxItr,nWndw)
+     &                 rHidden,nQQ,iIter,Redundant,MaxItr,nWndw)
       Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx, Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
@@ -185,7 +185,7 @@
      &                 BSet,HSet,nIter,
      &                 Numerical,Analytic_Hessian,
      &                 iOptC,lOld,
-     &                 nFix,mTR,nQQ,Redundant,MaxItr)
+     &                 mTR,nQQ,Redundant,MaxItr)
 *                                                                      *
 ************************************************************************
 *                                                                      *

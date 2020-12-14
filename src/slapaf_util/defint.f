@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine DefInt(BVct,nBVct,Labels,BMtrx,nQQ,nAtom,Value,
-     &                  rInt,Lbl,Coor,rMult,nDim,Redundant)
+      SubRoutine DefInt(nBVct,BMtrx,nQQ,nAtom,rInt,Lbl,Coor,nDim,
+     &                  Redundant)
 ************************************************************************
 *                                                                      *
 * Object: to generate the B matrix which is the transformation matrix  *
@@ -30,15 +30,24 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "Molcas.fh"
-      Real*8 BVct(3*nAtom,nBVct), Value(nBVct), BMtrx(3*nAtom,nQQ),
-     &       rInt(nQQ), Coor(3,nAtom), rMult(nBVct)
-      Character Labels(nBVct)*8, Type*6, Temp*120, Lbl(nQQ)*8, cNum*4,
+      Real*8 BMtrx(3*nAtom,nQQ), rInt(nQQ), Coor(3,nAtom)
+      Character Type*6, Temp*120, Lbl(nQQ)*8, cNum*4,
      &          Line*120, Format*8, filnam*16
       Logical Flip, lPIC(6*nAtom), lAtom(nAtom), Redundant
       Logical, Save:: First=.True.
       Logical :: lWrite = .False., lErr = .False.
       Integer, Allocatable:: Ind(:)
       Real*8, Allocatable:: xyz(:), Tmp2(:), Mass(:), TM(:)
+      Real*8, Allocatable:: BVct(:,:), Value(:), rMult(:)
+      Character(LEN=8), Allocatable:: Labels(:)
+
+      Call mma_allocate(BVct,3*nAtom,nBVct,Label='BVct')
+      Call mma_allocate(Value,nBVct,Label='Value')
+      Call mma_allocate(rMult,nBVct,Label='rMult')
+      Call mma_allocate(Labels,nBVct,Label='Labels')
+      BVct(:,:)=Zero
+      Value(:)=Zero
+
 
       iRout = 30
       iPrint = nPrint(iRout)
@@ -542,5 +551,11 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
 
       Close(Lu_UDIC)
       First = .False.
+
+      Call mma_deallocate(Labels)
+      Call mma_deallocate(rMult)
+      Call mma_deallocate(Value)
+      Call mma_deallocate(BVct)
+
       Return
       End

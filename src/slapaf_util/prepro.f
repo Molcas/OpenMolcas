@@ -8,9 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine PrePro(iInt,nFix,nAtom,nInter,Coor)
+      Subroutine PrePro(nAtom,nInter,Coor)
       use Slapaf_Info, only: Grd, Atom, nSup
-      use Slapaf_Parameters, only: iRow
+      use Slapaf_Parameters, only: iRow, iInt, nFix
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"

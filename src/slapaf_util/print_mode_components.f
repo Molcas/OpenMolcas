@@ -35,7 +35,7 @@
      &                       RefGeo, BM, iBM, dBM, idBM, nqBM, BMx,
      &                       Degen, nStab, jStab, iCoSet, AtomLbl,
      &                       Smmtrc
-      use Slapaf_Parameters, only: iRow, iRow_c
+      use Slapaf_Parameters, only: iRow, iRow_c, iInt, nFix
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -43,7 +43,7 @@
 #include "real.fh"
       Real*8 rDum(1)
       Real*8 :: Modes(*), Freq(*), Mx, MinComp
-      Integer :: LuInput, iInt, nFix, iRout,
+      Integer :: LuInput, iRout,
      &           iPrint, nX, i, j, nB, iq, nAll_Atoms, nUnique_Atoms,
      &           iB, lDisp(nIrrep), nModes, lModes, LuIC, ii, im, nK,
      &           iErr, PLback
@@ -291,7 +291,6 @@
       Bk_nWndw=nWndw
       Bk_iOptH=iOptH
       Bk_nLambda=nLambda
-      Bk_iRow_c=iRow_c
       Bk_nMEP=nMEP
       Bk_nBVec=nBVec
       Bk_IRC=IRC
@@ -378,6 +377,9 @@
       Bk_ApproxNADC=ApproxNADC
       Bk_iState(:)=iState(:)
       Bk_iRow = iRow
+      Bk_iRow_c=iRow_c
+      Bk_nFix = nFix
+      Bk_iInt = iInt
 *
       iRout = 55
       iPrint=nPrint(iRout)
@@ -414,7 +416,9 @@
 *
       iRow=0
       iRow_c=0
-      Call RdCtl_Slapaf(iInt,nFix,LuInput,.True.)
+      nFix=0
+      iInt=0
+      Call RdCtl_Slapaf(LuInput,.True.)
       Curvilinear = .True.
       Cartesian = .Not. Curvilinear
       Numerical = .False.
@@ -427,7 +431,6 @@
       BSet=.True.
       HSet=.False.
       PrQ=.False.
-      nFix=0
       nWndw=iter
       iRef=0
       Call BMtrx(nBVec,nsAtom,mInt,Lbl,
@@ -435,7 +438,7 @@
      &           mTtAtm,iOptH,
      &           User_Def,Curvilinear,Numerical,
      &           DDV_Schlegel,HWRS,Analytic_Hessian,iOptC,PrQ,
-     &           lOld,rHidden,nFix,nQQ,iRef,Redundant,
+     &           lOld,rHidden,nQQ,iRef,Redundant,
      &           MaxItr,nWndw)
 *                                                                      *
 ************************************************************************
@@ -584,7 +587,6 @@
       nWndw=Bk_nWndw
       iOptH=Bk_iOptH
       nLambda=Bk_nLambda
-      iRow_c=Bk_iRow_c
       nMEP=Bk_nMEP
       nBVec=Bk_nBVec
       IRC=Bk_IRC
@@ -671,6 +673,9 @@
       ApproxNADC=Bk_ApproxNADC
       iState(:)=Bk_iState(:)
       iRow = Bk_iRow
+      iRow_c=Bk_iRow_c
+      nFix = Bk_nFix
+      iInt = Bk_iInt
 *
 *     Process arrays that is always allocated.
 *
