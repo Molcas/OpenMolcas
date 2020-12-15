@@ -13,7 +13,7 @@
      &              nAtoms,iIter,nIter,Cx,
      &              Process,Value,nB,
      &              qLbl,iRef,
-     &              fconst,rMult,iOptC,LuIC,Indq,iPrv,
+     &              fconst,rMult,LuIC,Indq,iPrv,
      &              Grad_all,iGlow,iGhi,Proc_dB,
      &              iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,
      &              mB_Tot,mdB_Tot,
@@ -57,7 +57,7 @@
      &              nAtoms,iIter,nIter,Cx,
      &              Process,Value,nB,
      &              ANr,qLbl,fconst,
-     &              rMult,iOptC,LuIC,Indq,
+     &              rMult,LuIC,Indq,
      &              Proc_dB,iTabBonds,nBonds,iTabAI,mAtoms,
      &              mB_Tot,mdB_Tot,
      &              BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)

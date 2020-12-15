@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      subroutine ddV(Cart,nAtoms,Hess,iANr,iOptC,
+      subroutine ddV(Cart,nAtoms,Hess,iANr,
      &               iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
       Implicit Real*8 (a-h,o-z)
 #include "stdalloc.fh"
@@ -33,7 +33,7 @@
 *
          iSBS = iEOr(iSBS,2**7)
          iSBS = iEOr(iSBS,2**8)
-         Call ddV_(Cart,nTot,HBig,iANr,iOptC,iTabBonds,
+         Call ddV_(Cart,nTot,HBig,iANr,iTabBonds,
      &             iTabAtoms,nBonds,nMax,nHidden)
          iSBS = iOr(iSBS,2**7)
          iSBS = iOr(iSBS,2**8)
@@ -46,15 +46,15 @@
 #endif
          Call mma_deallocate(HBig)
       Else
-         Call ddV_(Cart,nAtoms,Hess,iANr,iOptC,iTabBonds,
+         Call ddV_(Cart,nAtoms,Hess,iANr,iTabBonds,
      &             iTabAtoms,nBonds,nMax,nHidden)
       End If
       End
 *
-      Subroutine ddV_(Cart,nAtoms,Hess,iANr,iOptC,iTabBonds,
+      Subroutine ddV_(Cart,nAtoms,Hess,iANr,iTabBonds,
      &               iTabAtoms,nBonds,nMax,nHidden)
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Parameters, only: ddV_Schlegel
+      use Slapaf_Parameters, only: ddV_Schlegel, iOptC
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"

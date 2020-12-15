@@ -12,8 +12,8 @@
 ************************************************************************
       Subroutine Update_inner(
      &                     kIter,nInter,qInt,Shift,
-     &                     iOptC,Beta,Beta_Disp,
-     &                     UpMeth,ed,Line_Search,Step_Trunc,
+     &                     Beta,Beta_Disp,
+     &                     ed,Line_Search,Step_Trunc,
      &                     nLambda,nsAtom,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,TSC,nRowH,
@@ -30,7 +30,6 @@
 *      nInter         : total number of internal coordinates           *
 *      qInt(*,kIter)  : the internal coordinates                       *
 *      Shift(*,kIter) : the shift of the internal coordinates          *
-*      iOptC          : option flag for update methods                 *
 *      Beta           : damping factor step length                     *
 *      Beta_Disp      : damping factor variance                        *
 *      Line_Search    : logical flag for line search                   *
@@ -42,7 +41,6 @@
 *    OutPut:                                                           *
 *      qInt(*,kIter+1): the internal coordinates to be used in the     *
 *                       next iteration                                 *
-*      UpMeth         : character label with update method abrivation  *
 *      ed             : estimated energy change to the next point      *
 *      Step_Trunc     : character label to denote truncation type      *
 *      GrdMax         : largest gradient component                     *
@@ -58,7 +56,7 @@
      &                       BMx, Degen, nStab, Smmtrc, Lbl
       use Slapaf_Parameters, only: iRow_c, iInt, nFix, iOptH,
      &                             HrmFrq_Show, Curvilinear, FindTS,
-     &                             nBVec, nDimBC
+     &                             nBVec, nDimBC, iOptC
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
@@ -69,7 +67,7 @@
       Logical Line_Search, TSC,
      &        Found, Kriging_Hessian, First_MicroIteration
       Character GrdLbl*8, StpLbl*8, Step_Trunc,
-     &          UpMeth*6, File1*8, File2*8, Step_Trunc_
+     &          File1*8, File2*8, Step_Trunc_
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:),
      &                      RHS(:), ErrVec(:,:), EMtrx(:,:)
       Integer, Allocatable:: Index(:), iFlip(:)
@@ -294,7 +292,7 @@ C           Write (6,*) 'tBeta=',tBeta
                Call Newq(qInt,mInter,kIter,Shift,Hessian,dqInt,
      &                   ErrVec,EMtrx,RHS,
      &                   AMat,nA,
-     &                   ed,iOptC,qBeta,nFix,Index,UpMeth,
+     &                   ed,qBeta,nFix,Index,
      &                   Energy,Line_Search,Step_Trunc_,Thr_RS)
                If (Step_Trunc.eq.'N') Step_Trunc=' '
                If (iOpt_RS.eq.0) Then
@@ -644,11 +642,11 @@ C           Write (6,*) 'tBeta=',tBeta
             qBeta=fCart*Beta
             Call Con_Opt(R,dRdq,T,dqInt,Lambda,qInt,Shift,dy,dx,
      &                dEdq,du,x,dEdx,Wess,GNrm(kIter),
-     &                nWndw,Hessian,nInter,kIter,iOptC,Mode_,MF,
+     &                nWndw,Hessian,nInter,kIter,Mode_,MF,
      &                iOptH_,jPrint,Energy_L,nLambda,nRowH,
      &                ErrVec,EMtrx,RHS,
      &                AMat,nA,ed,qBeta,qBeta_Disp,nFix,
-     &                Index,UpMeth,Line_Search,Step_Trunc,Lbl,
+     &                Index,Line_Search,Step_Trunc,Lbl,
      &                GrdLbl,StpLbl,GrdMax,StpMax,d2L,nsAtom,
      &                CnstWght,iOpt_RS,Thr_RS,iter,
      &                First_Microiteration)

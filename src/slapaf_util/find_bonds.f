@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Find_Bonds(Coor,nAtoms,iTab,nMax,nx,ny,nz,iBox,iANr,
-     &                      iOptC,iTabBonds,nBonds,
+     &                      iTabBonds,nBonds,
      &                      nBondMax,iTabAtoms,ThrB)
       Implicit Real*8 (a-h,o-z)
       Real*8 Coor(3,nAtoms)
@@ -59,7 +59,7 @@
             Do jy = iy-1, iy+1
                Do jz = iz-1, iz+1
                   Call Bond_Tester(Coor,nAtoms,iTab,nx,ny,nz,jx,jy,jz,
-     &                             iAtom,iRow,iANr,iOptC,
+     &                             iAtom,iRow,iANr,
      &                             iTabBonds,nBonds,nBondMax,iTabAtoms,
      &                             nMax,ThrB,1.0D+99)
 
@@ -124,7 +124,7 @@
             Do jy = iy-1, iy+1
                Do jz = iz-1, iz+1
                   Call Bond_Tester(Coor,nAtoms,iTab,nx,ny,nz,jx,jy,jz,
-     &                             iAtom,iRow,iANr,iOptC,
+     &                             iAtom,iRow,iANr,
      &                             iTabBonds,nBonds,nBondMax,iTabAtoms,
      &                             nMax,ThrB,ThrB_vdW)
 

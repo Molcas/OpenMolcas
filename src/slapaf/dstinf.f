@@ -12,6 +12,7 @@
       use Symmetry_Info, only: nIrrep, iOper
       use Slapaf_Info, only: Cx, Coor, Weights, Energy, MF, qInt, dqInt,
      &                       Dmp_Slapaf, AtomLbl
+      use Slapaf_Parameters, only: MaxItr, iOptC
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"

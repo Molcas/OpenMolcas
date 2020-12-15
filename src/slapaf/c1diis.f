@@ -11,7 +11,7 @@
 * Copyright (C) 1994, Roland Lindh                                     *
 ************************************************************************
       Subroutine C1DIIS(q,nInter,nIter,dq,H,g,error,B,RHS,
-     &                  nFix,iP,iOptC,MinWdw)
+     &                  nFix,iP,MinWdw)
 ************************************************************************
 *                                                                      *
 *         References:                                                  *
@@ -22,6 +22,7 @@
 *             University of Lund, SWEDEN                               *
 *             December 1994                                            *
 ************************************************************************
+      use Slapaf_Parameters, only: iOptC
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"

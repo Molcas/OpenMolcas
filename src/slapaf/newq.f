@@ -11,8 +11,8 @@
 * Copyright (C) 1994, Roland Lindh                                     *
 ************************************************************************
       SubRoutine Newq(q,nInter,nIter,dq,H,g,error,B,RHS,
-     &                Scrt1,nScrt1,dqHdq,iOptC,
-     &                Beta,nFix,iP,UpMeth,Energy,
+     &                Scrt1,nScrt1,dqHdq,
+     &                Beta,nFix,iP,Energy,
      &                Line_Search,Step_Trunc,Thr_RS)
 ************************************************************************
 *                                                                      *
@@ -22,6 +22,7 @@
 *             University of Lund, SWEDEN                               *
 *             December '94                                             *
 ************************************************************************
+      use Slapaf_Parameters, only: iOptC, UpMeth
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -32,7 +33,6 @@
      &       RHS(nIter+1),
      &       Scrt1(nScrt1), Energy(nIter), H(nInter,nInter)
       Integer   iP(nIter)
-      Character*6 UpMeth
       Character*1 Step_Trunc
       Logical Line_Search
       Real*8, Allocatable:: t_q(:), t_g(:), t_dq(:)
@@ -122,8 +122,7 @@ C     Call View(H,nInter,print)
 *
          UpMeth='c1DIIS'
          MinWdw=5
-         Call C1DIIS(q,nInter,nIter,dq,H,g,error,B,RHS,nFix,
-     &               iP,iOptC,MinWdw)
+         Call C1DIIS(q,nInter,nIter,dq,H,g,error,B,RHS,nFix,iP,MinWdw)
          Beta_New=Sqrt(DDot_(nInter,dq(1,nIter),1,dq(1,nIter),1))
          If (Beta_New.gt.Beta) Then
             Call DScal_(nInter,Beta/Beta_New,dq(1,nIter),1)
@@ -139,7 +138,7 @@ C     Call View(H,nInter,print)
 *
          UpMeth='c2DIIS'
          Call C2DIIS(q,nInter,nIter,dq,H,g,error,B,RHS,
-     &               Scrt1,nScrt1,nFix,iP,iOptC)
+     &               Scrt1,nScrt1,nFix,iP)
          Beta_New=Sqrt(DDot_(nInter,dq(1,nIter),1,dq(1,nIter),1))
          If (Beta_New.gt.Beta) Then
             Call DScal_(nInter,Beta/Beta_New,dq(1,nIter),1)

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Reset_ThrGrd(nAtom,nIter,mTtAtm,iOptC,rHidden,ThrGrd)
+      Subroutine Reset_ThrGrd(nAtom,nIter,mTtAtm,rHidden,ThrGrd)
       use Slapaf_Info, only: Cx, ANr
       use Slapaf_Parameters, only: nDimBC
       Implicit Real*8 (a-h,o-z)
@@ -23,12 +23,11 @@
 ************************************************************************
 *                                                                      *
       Interface
-        Subroutine Box(Coor,nAtoms,iANr,iOptC,TabB,TabA,nBonds,
+        Subroutine Box(Coor,nAtoms,iANr,TabB,TabA,nBonds,
      &                nMax)
         Integer nAtoms
         Real*8 Coor(3,nAtoms)
         Integer iANr(nAtoms)
-        Integer iOptC
         Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
         Integer nBonds, nMax
         End Subroutine Box
@@ -79,7 +78,7 @@
 *-----Generate bond list
 *
       mTtAtm = mTtAtm+nHidden
-      Call Box(Coor,mTtAtm,AN,iOptC,TabB,TabA,nBonds,nMax)
+      Call Box(Coor,mTtAtm,AN,TabB,TabA,nBonds,nMax)
       mTtAtm = mTtAtm-nHidden
 *                                                                      *
 ************************************************************************

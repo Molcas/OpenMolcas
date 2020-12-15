@@ -13,10 +13,10 @@
      &                 BSet,HSet,
      &                 nIter,mTtAtm,
      &                 PrQ,lOld,mTR,TRVec,EVal,Hss_x,
-     &                 nQQ,MaxItr,nWndw)
+     &                 nQQ,nWndw)
       use Slapaf_Info, only: Cx, Gx, qInt, dqInt, KtB, BMx, Degen,
      &                       AtomLbl, Smmtrc
-      use Slapaf_Parameters, only: Redundant
+      use Slapaf_Parameters, only: Redundant, MaxItr
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"

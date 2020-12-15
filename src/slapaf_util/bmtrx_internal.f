@@ -12,10 +12,9 @@
 ************************************************************************
       Subroutine BMtrx_Internal(nAtoms,nDim,BSet,HSet,
      &                          nIter,mAtoms,Numerical,
-     &                          iOptC,PrQ,lOld,
+     &                          PrQ,lOld,
      &                          iIter,mTR,TRVec,iTabAI,iTabAtoms,
-     &                          iTabBonds,nBonds,nMax,iRef,nQQ,MaxItr,
-     &                          nWndw)
+     &                          iTabBonds,nBonds,nMax,iRef,nQQ,nWndw)
 ************************************************************************
 *                                                                      *
 *     Objective: to handle curvilinear internal coordinates.           *
@@ -27,7 +26,7 @@
 ************************************************************************
       use Slapaf_Info, only: qInt, dqInt, BM, dBM, iBM, idBM, nqBM, KtB,
      &                       Cx, Gx, BMx, Degen, Smmtrc
-      use Slapaf_Parameters, only: HWRS, Analytic_Hessian
+      use Slapaf_Parameters, only: HWRS, Analytic_Hessian, MaxItr, iOptC
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"
@@ -39,7 +38,6 @@
       Logical, Intent(In):: BSet, HSet
       Integer, Intent(In):: nIter, mAtoms
       Logical, Intent(In):: Numerical
-      Integer, Intent(In):: iOptC
       Logical, Intent(In):: PrQ
       Logical, Intent(In):: lOld
       Integer, Intent(In):: iIter, mTR
@@ -49,7 +47,7 @@
      &                      iTabAI(2,mAtoms)
       Integer, Intent(In):: nBonds,nMax,iRef
       Integer, Intent(InOut):: nQQ
-      Integer, Intent(In):: MaxItr, nWndW
+      Integer, Intent(In):: nWndW
 
       Integer iDum(6)
       Logical Proc, Proc_dB, Proc_H
@@ -150,7 +148,7 @@
      &          (nq,nqRF,nqB,nqA,nqT,nqO,
      &           nAtoms,iIter,nIter,Cx,
      &           Proc,Dum,1,cDum,
-     &           iRef,Dum,Dum,iOptC,LuIC,
+     &           iRef,Dum,Dum,LuIC,
      &           iDum,iIter,Dum,
      &           iDum(1),iDum(1),
      &           Proc_dB,
@@ -214,7 +212,7 @@
      &           nAtoms,iIter,nIter,Cx,
      &           Proc,
      &           qVal,nq,qLbl,
-     &           iRef,F_c,Mult,iOptC,
+     &           iRef,F_c,Mult,
      &           LuIC,Ind,iIter,GRef,
      &           iGlow,iGHi,
      &           Proc_dB,
@@ -433,7 +431,7 @@ C        iEnd = 1
      &              Proc,
      &              qVal,nq,qLbl,
      &              iRef, F_c,Mult,
-     &              iOptC,LuIC,Ind,iIter,
+     &              LuIC,Ind,iIter,
      &              GRef,iGlow,iGHi,
      &              Proc_dB,
      &              iTabBonds,iTabAtoms,nBonds,nMax,iTabAI,mAtoms,

@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       SubRoutine Status(kIter,Energy,rGrad,GrdMax,GrdLbl,StpMax,
-     &                  StpLbl,Ex,nLines,delE,iNeg,UpMeth,HUpMet,
+     &                  StpLbl,Ex,nLines,delE,iNeg,HUpMet,
      &                  Step_Trunc,Print_Status)
 ************************************************************************
 *                                                                      *
@@ -21,11 +21,12 @@
 *             University of Lund, SWEDEN                               *
 *             May '91                                                  *
 ************************************************************************
+      use Slapaf_Parameters, only: UpMeth
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Character*128 GrdLbl*8, StpLbl*8, UpMeth*6, HUpMet*8, Step_Trunc*1
+      Character*128 GrdLbl*8, StpLbl*8, HUpMet*8, Step_Trunc*1
       Character*8 lNeg
       Integer iNeg(2)
       Logical Print_Status

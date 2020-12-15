@@ -11,8 +11,8 @@
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
       Subroutine Update_sl(iter,NmIter,nInter,
-     &                     iOptC,Beta,Beta_Disp,
-     &                     UpMeth,ed,Line_Search,Step_Trunc,
+     &                     Beta,Beta_Disp,
+     &                     ed,Line_Search,Step_Trunc,
      &                     nLambda,nsAtom,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,TSC,nRowH,
@@ -27,7 +27,6 @@
 *      iter           : iteration counter                              *
 *      NmIter         : number of iteration in numerical approach      *
 *      nInter         : total number of internal coordinates           *
-*      iOptC          : option flag for update methods                 *
 *      Beta           : damping factor                                 *
 *      Line_Search    : logical flag for line search                   *
 *      nLambda        : number of contraints                           *
@@ -36,7 +35,6 @@
 *      CnstWght       : constraints weight                             *
 *                                                                      *
 *    OutPut:                                                           *
-*      UpMeth         : character label with update method abrivation  *
 *      ed             : estimated energy change to the next point      *
 *      Step_Trunc     : character label to denote truncation type      *
 *      GrdMax         : largest gradient component                     *
@@ -56,7 +54,7 @@
 #include "Molcas.fh"
       Integer iNeg(2)
       Logical Line_Search, TSC
-      Character GrdLbl*8, StpLbl*8, Step_Trunc, UpMeth*6
+      Character GrdLbl*8, StpLbl*8, Step_Trunc
       Real*8 Dummy(1)
       Real*8, Allocatable:: t_Shift(:,:), t_qInt(:,:), tmp(:)
 *
@@ -107,8 +105,8 @@
 *
          Call Update_inner(
      &                   iter_,nInter,qInt,
-     &                   Shift,iOptC,Beta,Beta_Disp,
-     &                   UpMeth,ed,Line_Search,
+     &                   Shift,Beta,Beta_Disp,
+     &                   ed,Line_Search,
      &                   Step_Trunc,nLambda,nsAtom,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,
      &                   iNeg,TSC,nRowH,
@@ -145,8 +143,8 @@
 *
          Call Update_inner(
      &                iter,nInter,qInt,Shift,
-     &                iOptC,Beta,Beta_Disp,
-     &                UpMeth,ed,Line_Search,Step_Trunc,nLambda,
+     &                Beta,Beta_Disp,
+     &                ed,Line_Search,Step_Trunc,nLambda,
      &                nsAtom,
      &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
      &                TSC,nRowH,

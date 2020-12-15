@@ -11,7 +11,7 @@
 * Copyright (C) 1994,1995, Roland Lindh                                *
 ************************************************************************
       Subroutine C2DIIS(q,nInter,nIter,dq,H,g,error,B,RHS,
-     &                  Scrt1,nScrt1,nFix,iP,iOptC)
+     &                  Scrt1,nScrt1,nFix,iP)
 ************************************************************************
 *                                                                      *
 *         References:                                                  *
@@ -23,6 +23,7 @@
 *                                                                      *
 *             Modified for anharmonic constants by R. Lindh, Oct. '95  *
 ************************************************************************
+      use Slapaf_Parameters, only: iOptC
       Implicit Real*8 (a-h,o-z)
 #include "print.fh"
 #include "real.fh"

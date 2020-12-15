@@ -39,7 +39,8 @@
      &                             ddV_Schlegel, HWRS, iOptH, HUpMet,
      &                             HrmFrq_Show, IRC, Curvilinear,
      &                             Redundant, FindTS, nBVec, nDimBC,
-     &                             User_Def, Analytic_Hessian
+     &                             User_Def, Analytic_Hessian, MaxItr,
+     &                             iOptC, UpMeth
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -446,9 +447,8 @@
      &           Coor,BSet,HSet,iter,
      &           mTtAtm,
      &           Numerical,
-     &           iOptC,PrQ,
-     &           lOld,rHidden,nQQ,iRef,
-     &           MaxItr,nWndw)
+     &           PrQ,
+     &           lOld,rHidden,nQQ,iRef,nWndw)
 *                                                                      *
 ************************************************************************
 *                                                                      *

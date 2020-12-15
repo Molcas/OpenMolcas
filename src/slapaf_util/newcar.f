@@ -12,8 +12,8 @@
      &                  Coor,iSym,
      &                  mTtAtm,
      &                  Numerical,
-     &                  iOptC,PrQ,rHidden,
-     &                  MaxItr,iRef,Error)
+     &                  PrQ,rHidden,
+     &                  iRef,Error)
       use Slapaf_Info, only: Cx, qInt, RefGeo, BMx, Shift, Degen,
      &                       AtomLbl, Lbl
       use Slapaf_Parameters, only: Curvilinear, User_Def
@@ -37,10 +37,9 @@
       Integer, Intent(In):: iSym(3)
       Integer, Intent(In):: mTtAtm
       Logical, Intent(In):: Numerical
-      Integer, Intent(In):: iOptC
       Logical, Intent(In):: PrQ
       Real*8,  Intent(In):: rHidden
-      Integer, Intent(In):: MaxItr, iRef
+      Integer, Intent(In):: iRef
       Logical, Intent(InOut):: Error
 *
       Real*8 cMass(3)
@@ -185,9 +184,8 @@
      &              BSet,HSet,iter+1,
      &              mTtAtm,
      &              Numerical,
-     &              iOptC,
      &              PrQ,lOld,rHidden,
-     &              nQQ,iRef,MaxItr,nWndw)
+     &              nQQ,iRef,nWndw)
 *
 *--------Check if the final structure is reached and get the
 *        difference between the present structure and the final.

@@ -36,8 +36,8 @@
       Call NewCar(kIter,nAtom,nInter,Coor,
      &            iSym,mTtAtm,
      &            Numerical,
-     &            iOptC,PrQ,
-     &            rHidden,MaxItr,
+     &            PrQ,
+     &            rHidden,
      &            RefIter,Error)
 *
       Force_dB=.False.

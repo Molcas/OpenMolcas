@@ -13,7 +13,7 @@
       use Slapaf_Info, only: q_nuclear, dMass, Coor, Grd, ANr, Degen,
      &                       jStab, nStab, iCoSet, AtomLbl, Smmtrc
 *     use Slapaf_Info, only: R12
-      use Slapaf_Parameters, only: nDimBC, Analytic_Hessian
+      use Slapaf_Parameters, only: nDimBC, Analytic_Hessian, MaxItr
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "info_slapaf.fh"
@@ -91,35 +91,6 @@
       Track=.False.
       Request_Alaska=.False.
       Request_RASSI=.False.
-*                                                                      *
-************************************************************************
-*                                                                      *
-*.... Optimization method. DO NOT EVER GO BEYOND BIT 30!!!
-*
-*      iOptC=000000000 (  0) No optimization
-*   0  iOptC=000000001 (  1) Quasi Newton-Raphson
-*   1  iOptC=000000010 (  2) c1-DIIS
-*   2  iOptC=000000100 (  4) c2-DIIS
-*   3  iOptC=000001000 (  8) RS-RFO
-*   4  iOptC=00001.... ( 16) DIIS, <dx|dx>
-*   5  iOptC=00010.... ( 32) DIIS, <dx|g>
-*   6  iOptC=00100.... ( 64) DIIS, <g|g>
-*   7  iOptC=01....... (128) Minimum, if not set TS search
-*   8  iOptC=10....... (256) Optimization with constraint
-*   9  iOptC           (512) set: RS-I-RFO, unset: RS-P-RFO
-*  10  iOptC          (1024) HMF augmented with weak interactions
-*  11  iOptC          (2048) augmented HMF used for selection of
-*                            internal coordinates
-*  12  iOptC          (4096) set if FindTS
-*  13  iOptC          (8192) set if FindTS and in TS regime
-*
-      UpMeth='  RF  '
-      iOptC=8
-      iOptC=iOr(iOptC,64 )
-      iOptC=iOr(iOptC,128)
-      iOptC=iOr(iOptC,512)
-      iOptC=iOr(iOptC,1024)
-      iOptC=iOr(iOptC,2048)
 *                                                                      *
 ************************************************************************
 *                                                                      *

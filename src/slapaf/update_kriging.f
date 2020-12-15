@@ -13,8 +13,8 @@
 ************************************************************************
       Subroutine Update_kriging(
      &                     iter,nInter,
-     &                     iOptC,Beta,Beta_Disp,
-     &                     UpMeth,ed,Line_Search,Step_Trunc,
+     &                     Beta,Beta_Disp,
+     &                     ed,Line_Search,Step_Trunc,
      &                     nLambda,nsAtom,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,TSC,nRowH,
@@ -32,6 +32,7 @@
      &                       Thr_microiterations
       Use Slapaf_Info, only: Cx, Gx, Shift, GNrm, Energy, qInt, dqInt,
      &                       Lbl
+      use Slapaf_Parameters, only: UpMeth
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -40,7 +41,7 @@
       Real*8 dEner
       Integer iNeg(2)
       Logical Line_Search, TSC, First_MicroIteration, Error
-      Character GrdLbl*8, StpLbl*8, Step_Trunc, UpMeth*6
+      Character GrdLbl*8, StpLbl*8, Step_Trunc
       Character GrdLbl_Save*8
       Real*8 Dummy(1)
       Real*8, Allocatable:: Hessian(:,:), Temp(:,:,:)
@@ -205,9 +206,9 @@
          First_MicroIteration=iterAI.eq.iter
          nWndw_=nWndw/2 + (iterAI-iter)
          Call Update_inner(
-     &                   iterAI,nInter,qInt,Shift,iOptC,
+     &                   iterAI,nInter,qInt,Shift,
      &                   Beta_,Beta_Disp_,
-     &                   UpMeth,ed,Line_Search,Step_Trunc,nLambda,
+     &                   ed,Line_Search,Step_Trunc,nLambda,
      &                   nsAtom,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
      &                   TSC,nRowH,nWndw_,Mode,

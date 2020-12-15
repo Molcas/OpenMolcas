@@ -12,12 +12,12 @@
      &                 BSet,HSet,nIter,
      &                 mTtAtm,
      &                 Numerical,
-     &                 iOptC,PrQ,lOld,
-     &                 rHidden,nQQ,iIter,MaxItr,nWndw)
+     &                 PrQ,lOld,
+     &                 rHidden,nQQ,iIter,nWndw)
       Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx, Smmtrc,
      &                       Lbl
       Use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC,
-     &                             User_Def
+     &                             User_Def, MaxItr
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -34,12 +34,11 @@
 ************************************************************************
 *                                                                      *
       Interface
-        Subroutine Box(Coor,nAtoms,iANr,iOptC,TabB,TabA,nBonds,
+        Subroutine Box(Coor,nAtoms,iANr,TabB,TabA,nBonds,
      &                nMax)
         Integer nAtoms
         Real*8 Coor(3,nAtoms)
         Integer iANr(nAtoms)
-        Integer iOptC
         Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
         Integer nBonds, nMax
         End Subroutine Box
@@ -130,7 +129,7 @@
 *-----Generate bond list
 *
       mTtAtm = mTtAtm+nHidden
-      Call Box(Coor2,mTtAtm,AN,iOptC,TabB,TabA,nBonds,nMax)
+      Call Box(Coor2,mTtAtm,AN,TabB,TabA,nBonds,nMax)
       mTtAtm = mTtAtm-nHidden
 *                                                                      *
 ************************************************************************
@@ -151,7 +150,7 @@
       If (HSet.or..Not.(Curvilinear.or.User_Def))
      &   Call LNM(Coor2,mTtAtm,EVal,Hss_X,Scr2,Vec,nAtom,nDimBC,AN,
      &            nIter,
-     &            iOptC,TabB,TabA,nBonds,nMax,nHidden)
+     &            TabB,TabA,nBonds,nMax,nHidden)
 *
       Call mma_deallocate(Scr2)
       Call mma_deallocate(Coor2)
@@ -182,8 +181,8 @@
      &                 nAtom,nInter,Lbl,Coor,nDimBC,
      &                 BSet,HSet,nIter,
      &                 Numerical,
-     &                 iOptC,lOld,
-     &                 mTR,nQQ,MaxItr)
+     &                 lOld,
+     &                 mTR,nQQ)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -200,7 +199,7 @@
 *------- Re-generate the bonds if there were hidden atoms
 *
          If (nHidden.ne.0) Then
-            Call Box(Coor2,mTtAtm,AN,iOptC,TabB,TabA,
+            Call Box(Coor2,mTtAtm,AN,TabB,TabA,
      &               nBonds,nMax)
          End If
          Call BMtrx_Internal(
@@ -208,10 +207,10 @@
      &                 BSet,HSet,nIter,
      &                 mTtAtm,
      &                 Numerical,
-     &                 iOptC,PrQ,lOld,
+     &                 PrQ,lOld,
      &                 iIter,mTR,TR,TabAI,
      &                 TabA,TabB,nBonds,nMax,
-     &                 iIter,nQQ,MaxItr,nWndw)
+     &                 iIter,nQQ,nWndw)
 *
 *------- Set the Labels for internal coordinates.
 *
@@ -228,7 +227,7 @@
          Call BMtrx_Cartesian(nAtom,nInter,nDimBC,
      &                        BSet,HSet,nIter,
      &                        mTtAtm,PrQ,lOld,mTR,TR,EVal,Hss_X,
-     &                        nQQ,MaxItr,nWndw)
+     &                        nQQ,nWndw)
 *
 *------- Set the Labels for cartesian normal modes.
 *

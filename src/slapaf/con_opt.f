@@ -13,10 +13,10 @@
 ************************************************************************
       Subroutine Con_Opt(r,drdq,T,dEdq,rLambda,q,dq,dy,dx,dEdq_,du,x,
      &                   dEdx,W,GNrm,nWndw,
-     &                   Hess,nInter,nIter,iOptC,Mode,MF,
+     &                   Hess,nInter,nIter,Mode,MF,
      &                   iOptH,jPrint,Energy,nLambda,
      &                   nRowH,Err,EMx,RHS,A,nA,ed,
-     &                   Beta,Beta_Disp,nFix,iP,UpMeth,
+     &                   Beta,Beta_Disp,nFix,iP,
      &                   Line_Search,Step_Trunc,Lbl,GrdLbl,StpLbl,
      &                   GrdMax,StpMax,d2rdq2,nsAtom,CnstWght,
      &                   iOpt_RS,Thr_RS,iter_,
@@ -49,7 +49,7 @@
 *             July 2003                                                *
 ************************************************************************
       Use kriging_mod, only: Max_MicroIterations
-      use Slapaf_Parameters, only: IRC
+      use Slapaf_Parameters, only: IRC, iOptC
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -70,7 +70,7 @@
       Integer iP(nInter), iNeg(2)
       Logical Line_Search, Found, IRC_setup, First_MicroIteration,
      &        Recompute_disp
-      Character UpMeth*6, Step_Trunc*1, Lbl(nInter+nLambda)*8,
+      Character Step_Trunc*1, Lbl(nInter+nLambda)*8,
      &          GrdLbl*8, StpLbl*8, StpLbl_Save*8, Step_Trunc_*1
       Real*8, Allocatable:: dq_xy(:), Trans(:), Tmp1(:), Tmp2(:,:)
       Real*8, Allocatable:: RT(:,:), RTInv(:,:), RRR(:,:), RRInv(:,:),
@@ -872,7 +872,7 @@ C           Write (6,*) 'gBeta=',gBeta
       Call Update_H(nWndw,Hessian,nInter,
      &              nIter,iOptC_Temp,Mode,MF,
      &              dq,dEdq_,iNeg,iOptH,nRowH,
-     &              jPrint,Dummy,Dummy,nsAtom,IRC,.False.,.False.)
+     &              jPrint,Dummy,Dummy,nsAtom,.False.,.False.)
 
 #ifdef _DEBUGPRINT_
       Call RecPrt('Con_Opt: Hessian(updated)',' ',Hessian,nInter,nInter)
@@ -948,8 +948,8 @@ C           Write (6,*) 'gBeta=',gBeta
          Do
             Step_Trunc_=Step_Trunc
             Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
-     &                RHS,A,nA,ed,iOptC,tBeta,
-     &                nFix,ip,UpMeth,Energy,Line_Search,Step_Trunc_,
+     &                RHS,A,nA,ed,tBeta,
+     &                nFix,ip,Energy,Line_Search,Step_Trunc_,
      &                Thr_RS)
             If (Step_Trunc.eq.'N') Step_Trunc=' '
             If (iOpt_RS.eq.0) Then

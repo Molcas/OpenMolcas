@@ -13,7 +13,7 @@
       Use kriging_mod, only: Kriging, nspAI
       Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx,
      &                       Free_Slapaf, qInt, dqInt, Lbl
-      use Slapaf_Parameters, only: HUpMet, User_Def
+      use Slapaf_Parameters, only: HUpMet, User_Def, iOptC, UpMeth
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -116,9 +116,9 @@
      &           BSet,HSet,iter,
      &           mTtAtm,
      &           Numerical,
-     &           iOptC,PrQ,
+     &           PrQ,
      &           lOld,rHidden,nQQ,iRef,
-     &           MaxItr,nWndw)
+     &           nWndw)
 *
       nPrint(30) = nPrint(30)-1
 *
@@ -141,7 +141,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Reset_ThrGrd(nsAtom,Iter,mTtAtm,iOptC,rHidden,ThrGrd)
+      Call Reset_ThrGrd(nsAtom,Iter,mTtAtm,rHidden,ThrGrd)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -213,8 +213,7 @@
       If (Kriging .and. Iter.ge.nspAI) Then
          Call Update_Kriging(
      &               Iter,nQQ,
-     &               iOptC,Beta,Beta_Disp,
-     &               UpMeth,
+     &               Beta,Beta_Disp,
      &               ed,Line_Search,Step_Trunc,nLambda,nsAtom,
      &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
      &               TSConstraints,nRowH,
@@ -224,8 +223,7 @@
       Else
          Call Update_sl(
      &               Iter,NmIter,nQQ,
-     &               iOptC,Beta,Beta_Disp,
-     &               UpMeth,
+     &               Beta,Beta_Disp,
      &               ed,Line_Search,Step_Trunc,nLambda,nsAtom,
      &               GrdMax,
      &               StpMax,GrdLbl,StpLbl,iNeg,
@@ -256,8 +254,8 @@
          Call NewCar(Iter,nsAtom,nQQ,Coor,
      &               iSym,mTtAtm,
      &               Numerical,
-     &               iOptC,PrQ,
-     &               rHidden,MaxItr,iRef,Error)
+     &               PrQ,
+     &               rHidden,iRef,Error)
       End If
 *                                                                      *
 ************************************************************************
@@ -302,8 +300,8 @@
 *
       GoOn = (lNmHss.and.iter.lt.NmIter).OR.(lRowH.and.iter.lt.NmIter)
       TSReg = iAnd(iOptC,8192).eq.8192
-      Call Convrg(iter,kIter,nQQ,MaxItr,Stop,iStop,ThrCons,
-     &            ThrEne,ThrGrd,MxItr,UpMeth,mIntEff,Baker,
+      Call Convrg(iter,kIter,nQQ,Stop,iStop,ThrCons,
+     &            ThrEne,ThrGrd,MxItr,mIntEff,Baker,
      &            nsAtom,mTtAtm,ed,
      &            iNeg,GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &            rMEP,MEP,nMEP,

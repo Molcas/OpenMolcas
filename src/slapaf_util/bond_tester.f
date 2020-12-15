@@ -9,9 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Bond_Tester(Coor,nAtoms,iTab,nx,ny,nz,ix,iy,iz,iAtom,
-     &                       iRow,iANr,iOptC,iTabBonds,nBonds,
+     &                       iRow,iANr,iTabBonds,nBonds,
      &                       nBondMax,iTabAtoms,nMax,ThrB,ThrB_vdW)
-      use Slapaf_Parameters, only: ddV_Schlegel
+      use Slapaf_Parameters, only: ddV_Schlegel, iOptC
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #define _VDW_

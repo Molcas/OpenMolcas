@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine LNM(Cart,nAtoms,Hess,Scrt1,Scrt2,Vctrs,
      &               mAtoms,nDim,iAnr,nIter,
-     &               iOptC,iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
+     &               iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: Degen, Smmtrc
       use Slapaf_Parameters, only: iOptH, Analytic_Hessian
@@ -130,7 +130,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call ddV(Cart,nAtoms,Hess,iANr,iOptC,
+         Call ddV(Cart,nAtoms,Hess,iANr,
      &            iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
 #ifdef _DEBUGPRINT_
          If (iPrint.ge.19)

@@ -14,7 +14,8 @@ Module Slapaf_Parameters
 implicit none
 Private
 Public:: iRow, iRow_c, iInt, nFix, ddV_Schlegel, HWRS, iOptH, HUpMet, HrmFrq_Show, IRC, &
-         nBVec, nDimBC, Curvilinear, Redundant, FindTS, User_Def, Analytic_Hessian
+         nBVec, nDimBC, Curvilinear, Redundant, FindTS, User_Def, Analytic_Hessian, MaxItr, &
+         UpMeth, iOptC
 Integer:: iRow=0
 Integer:: iRow_c=0
 Integer:: iInt=0
@@ -22,6 +23,7 @@ Integer:: nFix=0
 Integer:: IRC=0
 Integer:: nBVec=0
 Integer:: nDimBC=0
+Integer, Parameter:: MaxItr=2000
 
 Logical:: Curvilinear=.True.
 Logical:: Redundant=.False.
@@ -46,5 +48,28 @@ Logical:: Analytic_Hessian=.False.
 !
 Integer:: iOptH=4
 Character(LEN=6):: HUpMet=' None '
-
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!.... Optimization method. DO NOT EVER GO BEYOND BIT 30!!!
+!
+!      iOptC=000000000 (  0) No optimization
+!   0  iOptC=000000001 (  1) Quasi Newton-Raphson
+!   1  iOptC=000000010 (  2) c1-DIIS
+!   2  iOptC=000000100 (  4) c2-DIIS
+!   3  iOptC=000001000 (  8) RS-RFO
+!   4  iOptC=00001.... ( 16) DIIS, <dx|dx>
+!   5  iOptC=00010.... ( 32) DIIS, <dx|g>
+!   6  iOptC=00100.... ( 64) DIIS, <g|g>
+!   7  iOptC=01....... (128) Minimum, if not set TS search
+!   8  iOptC=10....... (256) Optimization with constraint
+!   9  iOptC           (512) set: RS-I-RFO, unset: RS-P-RFO
+!  10  iOptC          (1024) HMF augmented with weak interactions
+!  11  iOptC          (2048) augmented HMF used for selection of
+!                            internal coordinates
+!  12  iOptC          (4096) set if FindTS
+!  13  iOptC          (8192) set if FindTS and in TS regime
+!
+Character(LEN=6):: UpMeth='  RF  '
+Integer:: iOptC=2**3 + 2**6 + 2**7 + 2**9 + 2**10 + 2**11
 End Module Slapaf_Parameters

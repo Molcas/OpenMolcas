@@ -13,10 +13,11 @@
      &                 Lbl,Coor,nDim,
      &                 BSet,HSet,nIter,
      &                 Numerical,
-     &                 iOptC,lOld,
-     &                 mTR,nQQ,MaxItr)
+     &                 lOld,
+     &                 mTR,nQQ)
       use Slapaf_Info, only: Gx, qInt, dqInt, KtB, BMx, Degen, Smmtrc
-      use Slapaf_Parameters, only: iInt, nFix, nBVec, Analytic_Hessian
+      use Slapaf_Parameters, only: iInt, nFix, nBVec, Analytic_Hessian,
+     &                             MaxItr, iOptC
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"

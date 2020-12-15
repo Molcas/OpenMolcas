@@ -9,8 +9,6 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 #include "Molcas.fh"
-      Integer   mxdc,MaxItr
-      Parameter(mxdc=MxAtom,MaxItr=2000)
 *
       Integer   iSym(3),
      &          iRef, nQQ, mRowH(10), nRowH,
@@ -18,7 +16,7 @@
      &          iter, Lngth,
      &          MxItr, mInt, Max_Center,
      &          nSupSy, lif,
-     &          iOptC, mode, mTROld, nWndw,
+     &          mode, mTROld, nWndw,
      &          nLambda,
      &          nMEP,
      &          mTtAtm, nsAtom, MEPnum,
@@ -29,7 +27,7 @@
      &          iter, Lngth,
      &          MxItr, mInt, Max_Center,
      &          nSupSy, lif, mTtAtm,
-     &          iOptC, mode, mTROld, nWndw,
+     &          mode, mTROld, nWndw,
      &          NmIter,
      &          nLambda, nMEP,
      &          MEPnum,
@@ -70,9 +68,8 @@
      &                    lDoubleIso
 *
       Character Char*180, Header(144)*1, Line*180, BLine*180,
-     &          UpMeth*6,
      &          MEP_Type*10, MEP_Algo*2
-      Common /chInfSla/ Char, Header, Line, BLine, UpMeth,
+      Common /chInfSla/ Char, Header, Line, BLine,
      &                  MEP_Type, MEP_Algo
 *
       Logical isFalcon

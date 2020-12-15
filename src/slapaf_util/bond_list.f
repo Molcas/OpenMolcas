@@ -12,12 +12,13 @@
      &                 nq,nAtoms,iIter,nIter,Cx,
      &                 Process,Value,
      &                 nB,iANr,qLbl,fconst,
-     &                 rMult,iOptC,LuIC,Indq,
+     &                 rMult,LuIC,Indq,
      &                 Proc_dB,iTabBonds,nBonds,
      &                 iTabAI,mAtoms,mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
       use Symmetry_Info, only: nIrrep, iOper
       use Slapaf_Info, only: jStab, nStab, AtomLbl
+      use Slapaf_Parameters, only: iOptC
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"

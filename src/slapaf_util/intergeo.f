@@ -21,21 +21,21 @@
 #include "stdalloc.fh"
 #include "angstr.fh"
 #include "periodic_table.fh"
-      Real*8 Charge(Mxdc), Crd(3,nAtm,nIter),Enrg(nIter),
-     &       Grd(3,nAtm,nIter)
+      Real*8 Crd(3,nAtm,nIter),Enrg(nIter), Grd(3,nAtm,nIter)
       Integer, Allocatable :: icoset2(:,:,:), jStab2(:,:), nStab2(:)
       Character*(*) FileName
-      Real*8, Allocatable:: Cx_p(:,:)
-*
+      Real*8, Allocatable:: Cx_p(:,:), Charge(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Pick information for centers and pseudo centers
 *
       Call Get_iScalar('Unique atoms',msAtom)
-      Call Get_dArray('Nuclear charge',Charge,msAtom)
-*
       Call Get_iScalar('Pseudo atoms',msAtom_p)
+*
+      Call mma_Allocate(Charge,msAtom+msAtom_p,Label='Charge')
+      Call Get_dArray('Nuclear charge',Charge,msAtom)
+
       If (msAtom_p.gt.0) Then
          Call Get_dArray('Pseudo charge',Charge(msAtom+1),msAtom_p)
          Call mma_allocate(Cx_p,3,msAtom_p,Label='Cx_p')
@@ -234,6 +234,7 @@
 ************************************************************************
 *                                                                      *
       If (Allocated(Cx_p)) Call mma_deallocate(Cx_p)
+      Call mma_deallocate(Charge)
 *                                                                      *
 ************************************************************************
 *                                                                      *

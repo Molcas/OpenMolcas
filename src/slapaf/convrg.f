@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Convrg(iter,kIter, nInter,
-     &                  MaxItr,Stop,iStop,ThrCons,
-     &                  ThrEne, ThrGrd, MxItr, UpMeth, mIntEff,
+     &                  Stop,iStop,ThrCons,
+     &                  ThrEne, ThrGrd, MxItr, mIntEff,
      &                  Baker, nAtom,mTtAtm,ed,iNeg,
      &                  GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &                  rMEP,MEP,nMEP,Numerical,
@@ -19,7 +19,8 @@
       Use Chkpnt
       Use Slapaf_Info, only: Cx, Gx, Coor, GNrm, Energy, Shift, qInt,
      &                       dqInt, Lbl
-      use Slapaf_Parameters, only: HUpMet, FindTS, Analytic_Hessian
+      use Slapaf_Parameters, only: HUpMet, FindTS, Analytic_Hessian,
+     &                             MaxItr
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -30,7 +31,7 @@
       Integer:: IRC=0
       Real*8 Maxed, MaxErr
       Character GrdLbl*8, StpLbl*8
-      Character(LEN=6) UpMeth, ConLbl(5)*5
+      Character(LEN=5) ConLbl(5)
       Character(LEN=1) Step_Trunc
       Character(LEN=16) StdIn
       Character(LEN=80) Point_Desc
@@ -294,7 +295,7 @@
       End If
       If (.Not.Just_Frequencies) Then
          Call Status(kIter-iOff_Iter,E,Fabs,GrdMax,GrdLbl,StpMax,StpLbl,
-     &               E0,MaxItr-1,eChng,iNeg,UpMeth,Temp,Step_Trunc,
+     &               E0,MaxItr-1,eChng,iNeg,Temp,Step_Trunc,
      &               .NOT.Numerical)
       End If
 *
