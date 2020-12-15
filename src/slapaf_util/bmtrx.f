@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine BMtrx(nAtom,nInter,Coor,
-     &                 BSet,HSet,nIter,
+     &                 nIter,
      &                 mTtAtm,
      &                 Numerical,
      &                 PrQ,lOld,
@@ -17,14 +17,14 @@
       Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx, Smmtrc,
      &                       Lbl
       Use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC,
-     &                             User_Def, MaxItr
+     &                             User_Def, MaxItr, BSet, HSet
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 Coor(3,nAtom)
-      Logical BSet, HSet, Numerical, PrQ, lOld
+      Logical Numerical, PrQ, lOld
       External Get_SuperName
       Character(LEN=100) Get_SuperName
       Integer, Allocatable:: TabB(:,:), TabA(:,:,:), TabAI(:,:), AN(:)
@@ -179,7 +179,7 @@
 *                                                                      *
          Call BMtrx_User_Defined(
      &                 nAtom,nInter,Lbl,Coor,nDimBC,
-     &                 BSet,HSet,nIter,
+     &                 nIter,
      &                 Numerical,
      &                 lOld,
      &                 mTR,nQQ)
@@ -204,7 +204,7 @@
          End If
          Call BMtrx_Internal(
      &                 nAtom,nDimBC,
-     &                 BSet,HSet,nIter,
+     &                 nIter,
      &                 mTtAtm,
      &                 Numerical,
      &                 PrQ,lOld,
@@ -225,7 +225,7 @@
 ************************************************************************
 *                                                                      *
          Call BMtrx_Cartesian(nAtom,nInter,nDimBC,
-     &                        BSet,HSet,nIter,
+     &                        nIter,
      &                        mTtAtm,PrQ,lOld,mTR,TR,EVal,Hss_X,
      &                        nQQ,nWndw)
 *

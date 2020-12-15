@@ -13,7 +13,8 @@
       Use kriging_mod, only: Kriging, nspAI
       Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx,
      &                       Free_Slapaf, qInt, dqInt, Lbl
-      use Slapaf_Parameters, only: HUpMet, User_Def, iOptC, UpMeth
+      use Slapaf_Parameters, only: HUpMet, User_Def, iOptC, UpMeth,
+     &                             HSet, BSet
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -113,7 +114,7 @@
       iRef=0
       Call BMtrx(nsAtom,mInt,
      &           Coor,
-     &           BSet,HSet,iter,
+     &           iter,
      &           mTtAtm,
      &           Numerical,
      &           PrQ,

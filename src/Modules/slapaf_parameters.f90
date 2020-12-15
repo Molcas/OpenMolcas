@@ -15,7 +15,7 @@ implicit none
 Private
 Public:: iRow, iRow_c, iInt, nFix, ddV_Schlegel, HWRS, iOptH, HUpMet, HrmFrq_Show, IRC, &
          nBVec, nDimBC, Curvilinear, Redundant, FindTS, User_Def, Analytic_Hessian, MaxItr, &
-         UpMeth, iOptC
+         UpMeth, iOptC, HSet, BSet
 Integer:: iRow=0
 Integer:: iRow_c=0
 Integer:: iInt=0
@@ -33,6 +33,9 @@ Logical:: ddV_Schlegel=.False.
 Logical:: HWRS=.True.
 Logical:: User_Def=.False.
 Logical:: Analytic_Hessian=.False.
+Logical:: HSet=.False.
+Logical:: BSet=.False.
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *

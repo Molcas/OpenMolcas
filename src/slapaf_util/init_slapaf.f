@@ -79,8 +79,6 @@
       MEP_Algo='GS'
       MEPnum=0
       NmIter=0
-      HSet=.False.
-      BSet=.False.
       lSoft=.False.
       rFuzz=0.5D0
       isFalcon=.False.

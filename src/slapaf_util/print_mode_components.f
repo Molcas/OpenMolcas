@@ -40,7 +40,7 @@
      &                             HrmFrq_Show, IRC, Curvilinear,
      &                             Redundant, FindTS, nBVec, nDimBC,
      &                             User_Def, Analytic_Hessian, MaxItr,
-     &                             iOptC, UpMeth
+     &                             iOptC, UpMeth, HSet, BSet
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -444,7 +444,7 @@
       nWndw=iter
       iRef=0
       Call BMtrx(nsAtom,mInt,
-     &           Coor,BSet,HSet,iter,
+     &           Coor,iter,
      &           mTtAtm,
      &           Numerical,
      &           PrQ,

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2004, Roland Lindh                                     *
 ************************************************************************
-      Subroutine BMtrx_Internal(nAtoms,nDim,BSet,HSet,
+      Subroutine BMtrx_Internal(nAtoms,nDimBC,
      &                          nIter,mAtoms,Numerical,
      &                          PrQ,lOld,
      &                          iIter,mTR,TRVec,iTabAI,iTabAtoms,
@@ -26,7 +26,8 @@
 ************************************************************************
       use Slapaf_Info, only: qInt, dqInt, BM, dBM, iBM, idBM, nqBM, KtB,
      &                       Cx, Gx, BMx, Degen, Smmtrc
-      use Slapaf_Parameters, only: HWRS, Analytic_Hessian, MaxItr, iOptC
+      use Slapaf_Parameters, only: HWRS, Analytic_Hessian, MaxItr,
+     &                             iOptC, BSet, HSet
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"
@@ -34,14 +35,13 @@
 #include "stdalloc.fh"
 #include "db.fh"
 #include "print.fh"
-      Integer, Intent(In):: nAtoms, nDim
-      Logical, Intent(In):: BSet, HSet
+      Integer, Intent(In):: nAtoms, nDimBC
       Integer, Intent(In):: nIter, mAtoms
       Logical, Intent(In):: Numerical
       Logical, Intent(In):: PrQ
       Logical, Intent(In):: lOld
       Integer, Intent(In):: iIter, mTR
-      Real*8, Intent(In):: TRVec(nDim,mTR)
+      Real*8, Intent(In):: TRVec(nDimBC,mTR)
       Integer, Intent(In):: iTabBonds(3,nBonds),
      &                      iTabAtoms(0:nMax,nAtoms),
      &                      iTabAI(2,mAtoms)
@@ -77,7 +77,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call mma_allocate(Proj,nDim,Label='Proj')
+      Call mma_allocate(Proj,nDimBC,Label='Proj')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -106,7 +106,7 @@
 *     some of the elements. This is handled by inserting the u matrix
 *     at appropriate places.
 *
-      nQQ=nDim-mTR
+      nQQ=nDimBC-mTR
       If (.NOT.Allocated(qInt)) Then
          Call mma_allocate( qInt,nQQ,MaxItr,Label=' qInt')
          Call mma_allocate(dqInt,nQQ,MaxItr,Label='dqInt')
@@ -114,7 +114,7 @@
          dqInt(:,:)=Zero
       End If
 *
-      Call mma_allocate(Degen2,nDim)
+      Call mma_allocate(Degen2,nDimBC)
       i=0
       Do ix = 1, 3*nAtoms
          iAtom = (ix+2)/3
@@ -125,7 +125,7 @@
          End If
       End Do
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Degen2',' ',Degen2,nDim,1)
+      Call RecPrt('Degen2',' ',Degen2,nDimBC,1)
 #endif
 *                                                                      *
 ************************************************************************
@@ -258,7 +258,7 @@
 *     generate the K matrix (dQ/dq).
 *
       Call mma_allocate(K,nq**2,Label='K')
-      Call mma_allocate(KtBu,nDim**2,Label='KtBu')
+      Call mma_allocate(KtBu,nDimBC**2,Label='KtBu')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -306,11 +306,11 @@
       If (BSet) Then
          Call mma_allocate(G,nq*nq,Label='G')
          Call mma_allocate(EVal,nq*(nq+1)/2,Label='EVal')
-         Call ElRed2(nq,ndim,G,EVal,K,nK,Proj,
+         Call ElRed2(nq,nDimBC,G,EVal,K,nK,Proj,
      &               g12K,Thr_ElRed,BM,iBM,mB_Tot,nqBM)
 
          If (nK.gt.nQQ) Then
-            Call Remove_TR(nq,ndim,nQQ,K,nK,TRVec,mTR,
+            Call Remove_TR(nq,nDimBC,nQQ,K,nK,TRVec,mTR,
      &                     BM,iBM,nqBM,mB_Tot)
          End If
          Call mma_deallocate(EVal)
@@ -380,9 +380,9 @@
 *
       If (BSet) Then
 *------- Produce list of compressed cartesian gradients.
-         Call mma_allocate(GxR,nDim,nIter,Label='GxR')
+         Call mma_allocate(GxR,nDimBC,nIter,Label='GxR')
          Do jIter = 1, nIter
-            Call NRed(Gx(:,:,jIter),GxR(:,jIter),3*nAtoms,nDim,Smmtrc)
+            Call NRed(Gx(:,:,jIter),GxR(:,jIter),3*nAtoms,nDimBC,Smmtrc)
          End Do
 *
          iSt = nIter
@@ -391,9 +391,9 @@ C        iEnd = 1
          iOff = nIter
       Else
          If (Numerical) Then
-            Call mma_allocate(GxR,nDim,1,Label='GxR')
+            Call mma_allocate(GxR,nDimBC,1,Label='GxR')
             iOff = 1
-            Call NRed(Gx(:,:,nIter),GxR(:,1),3*nAtoms,nDim,Smmtrc)
+            Call NRed(Gx(:,:,nIter),GxR(:,1),3*nAtoms,nDimBC,Smmtrc)
          Else
             Call mma_allocate(GxR,1,1,Label='GxR')
             iOff = 1
@@ -460,7 +460,7 @@ C        iEnd = 1
             Call DScal_(nB,Mult(iq),BM(i),1)
             i = i + nB
          End Do
-         KtBu(1:nQQ*nDim)=Zero
+         KtBu(1:nQQ*nDimBC)=Zero
          Do iQQ = 0, nQQ-1
             i = 1
             Do iq = 1, nq
@@ -477,7 +477,7 @@ C        iEnd = 1
 #ifdef _DEBUGPRINT_
          If (iPrint.ge.99) Then
             Call RecPrt(' The K matrix',' ',K,nq,nQQ)
-            Call RecPrt(' The K(t)B matrix',' ',KtBu,nQQ,nDim)
+            Call RecPrt(' The K(t)B matrix',' ',KtBu,nQQ,nDimBC)
          End If
 #endif
 *                                                                      *
@@ -525,26 +525,26 @@ C        iEnd = 1
 *           dq/dx dE/dq = dE/dq
 *
 *           The B-matrix is stored (3*natom x nQQ)
-*           KtBu is stored nQQ, nDim
+*           KtBu is stored nQQ, nDimBC
 *
-            Call mma_allocate(KtBt,nDim,nQQ,Label='KtBt')
-            Call TRNSPS(nQQ,nDim,KtBu,KtBt)
+            Call mma_allocate(KtBt,nDimBC,nQQ,Label='KtBt')
+            Call TRNSPS(nQQ,nDimBC,KtBu,KtBt)
 *
 *           Strip KtB of the degeneracy factor (full).
 *
             Do iQQ = 1, nQQ
-               Do iDim = 1, nDim
+               Do iDim = 1, nDimBC
                   KtBt(iDim,iQQ) = KtBt(iDim,iQQ) / Degen2(iDim)
                End Do
             End Do
 *
-            M = nDim
+            M = nDimBC
             N = nQQ
             NRHS=1
             Call Eq_Solver('N',M,N,NRHS,KtBt,.False.,
      &                     Degen2,GxR(:,iOff),dqInt(:,jIter))
-*           Call RecPrt('GxR(:,iSt',' ',GxR(:,iOff),nDim,1)
-*           Call RecPrt('KtB   ',' ',KtBt,nQQ,nDim)
+*           Call RecPrt('GxR(:,iSt',' ',GxR(:,iOff),nDimBC,1)
+*           Call RecPrt('KtB   ',' ',KtBt,nQQ,nDimBC)
 *           Call RecPrt('drInt',' ',dqInt(:,jIter),nQQ,1)
 
             iOff = iOff - 1
@@ -555,9 +555,9 @@ C        iEnd = 1
 *           Hessian to internal coordinates.
 *
             If (Proc_H) Then
-               Call mma_allocate(KtB,nDim,nQQ,Label='KtB')
-               Call DCopy_(nDim*nQQ,KtBt,1,KtB,1)
-*              Call RecPrt('KtB',' ',KtB,nDim,nQQ)
+               Call mma_allocate(KtB,nDimBC,nQQ,Label='KtB')
+               Call DCopy_(nDimBC*nQQ,KtBt,1,KtB,1)
+*              Call RecPrt('KtB',' ',KtB,nDimBC,nQQ)
             End If
             Call mma_deallocate(KtBt)
 *                                                                      *

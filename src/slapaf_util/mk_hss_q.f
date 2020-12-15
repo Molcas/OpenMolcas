@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine Mk_Hss_Q()
       use Slapaf_Info, only: Cx, Coor, DipM, qInt, dqInt, BMx
+      use Slapaf_Parameters, only: BSet, HSet
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "real.fh"
@@ -24,7 +25,7 @@
          Call Put_dArray('Unique Coordinates',Cx,3*nsAtom)
          Call Put_Coord_New(Cx,nsAtom)
          If (lRowH) Then
-            If (BSet.and.HSet) Call Hss_q()
+            If (BSet.and.HSet) Call Hss_Q()
             Call RowHessian(NmIter,mInt,nRowH,mRowH,Delta/2.5d0)
          Else
             Call FormNumHess(iter,mInt,Delta,Stop,nsAtom,Cubic,iNeg,

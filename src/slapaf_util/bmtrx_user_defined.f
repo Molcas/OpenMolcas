@@ -11,20 +11,20 @@
       Subroutine BMtrx_User_Defined(
      &                 nAtom,nInter,
      &                 Lbl,Coor,nDim,
-     &                 BSet,HSet,nIter,
+     &                 nIter,
      &                 Numerical,
      &                 lOld,
      &                 mTR,nQQ)
       use Slapaf_Info, only: Gx, qInt, dqInt, KtB, BMx, Degen, Smmtrc
       use Slapaf_Parameters, only: iInt, nFix, nBVec, Analytic_Hessian,
-     &                             MaxItr, iOptC
+     &                             MaxItr, iOptC, BSet, HSet
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 Coor(3,nAtom)
       Character Lbl(nInter)*8
-      Logical BSet, HSet, Numerical, lOld, Proc_dB
+      Logical Numerical, lOld, Proc_dB
       Real*8, Allocatable:: Degen2(:)
 *                                                                      *
 ************************************************************************

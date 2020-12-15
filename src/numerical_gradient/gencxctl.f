@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine genCxCTL(iStop,Cartesian,rDelta)
       use Slapaf_Info, only: Coor, Shift, qInt, BMx, Free_Slapaf
-      use Slapaf_Parameters, only: Curvilinear
+      use Slapaf_Parameters, only: Curvilinear, HSet, BSet
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -70,7 +70,7 @@
       iRef=0
       Call BMtrx(nsAtom,mInt,
      &           Coor,
-     &           BSet,HSet,iter,
+     &           iter,
      &           mTtAtm,
      &           Numerical,
      &           PrQ,

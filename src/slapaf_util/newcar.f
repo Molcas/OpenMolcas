@@ -16,7 +16,7 @@
      &                  iRef,Error)
       use Slapaf_Info, only: Cx, qInt, RefGeo, BMx, Shift, Degen,
      &                       AtomLbl, Lbl
-      use Slapaf_Parameters, only: Curvilinear, User_Def
+      use Slapaf_Parameters, only: Curvilinear, User_Def, BSet, HSet
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -44,7 +44,8 @@
 *
       Real*8 cMass(3)
       Logical Invar
-      Logical, Save:: BSet=.False., HSet=.False., lOld=.False.
+      Logical:: BSet_Save, HSet_Save
+      Logical, Save:: lOld=.False.
       Real*8, Allocatable:: DFC(:), dss(:), rInt(:)
 *                                                                      *
 ************************************************************************
@@ -179,13 +180,19 @@
 *        geometry with the current new set of Cartesian coordinates.
 *
          nWndw=1
+         BSet_Save=BSet
+         HSet_Save=HSet
+         BSet=.False.
+         HSet=.False.
          Call BMtrx(nAtom,nInter,
      &              Coor,
-     &              BSet,HSet,iter+1,
+     &              iter+1,
      &              mTtAtm,
      &              Numerical,
      &              PrQ,lOld,rHidden,
      &              nQQ,iRef,nWndw)
+         BSet=BSet_Save
+         HSet=HSet_Save
 *
 *--------Check if the final structure is reached and get the
 *        difference between the present structure and the final.
