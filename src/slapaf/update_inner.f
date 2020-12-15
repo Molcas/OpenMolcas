@@ -19,7 +19,6 @@
      &                     iNeg,TSC,nRowH,
      &                     nWndw,Mode,
      &                     mIter,GNrm_Threshold,
-     &                     CnstWght,
      &                     Kriging_Hessian,qBeta,iOpt_RS,
      &                     First_MicroIteration,Iter,qBeta_Disp)
 ************************************************************************
@@ -36,7 +35,6 @@
 *      nLambda        : number of constraints                          *
 *      nsAtom         : number of symmetry unique atoms                *
 *      iNeg           : Hessian index                                  *
-*      CnstWght       : constraints weight                             *
 *                                                                      *
 *    OutPut:                                                           *
 *      qInt(*,kIter+1): the internal coordinates to be used in the     *
@@ -648,7 +646,7 @@ C           Write (6,*) 'tBeta=',tBeta
      &                AMat,nA,ed,qBeta,qBeta_Disp,nFix,
      &                Index,Line_Search,Step_Trunc,Lbl,
      &                GrdLbl,StpLbl,GrdMax,StpMax,d2L,nsAtom,
-     &                CnstWght,iOpt_RS,Thr_RS,iter,
+     &                iOpt_RS,Thr_RS,iter,
      &                First_Microiteration)
             If (iOpt_RS.eq.1) Exit
 *

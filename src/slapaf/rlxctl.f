@@ -118,7 +118,7 @@
      &           mTtAtm,
      &           Numerical,
      &           PrQ,
-     &           lOld,rHidden,nQQ,iRef,
+     &           lOld,nQQ,iRef,
      &           nWndw)
 *
       nPrint(30) = nPrint(30)-1
@@ -142,7 +142,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Reset_ThrGrd(nsAtom,Iter,mTtAtm,rHidden,ThrGrd)
+      Call Reset_ThrGrd(nsAtom,Iter,mTtAtm,ThrGrd)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -220,7 +220,7 @@
      &               TSConstraints,nRowH,
      &               nWndw,Mode,
      &               GNrm_Threshold,
-     &               CnstWght,ThrEne,ThrGrd)
+     &               ThrEne,ThrGrd)
       Else
          Call Update_sl(
      &               Iter,NmIter,nQQ,
@@ -230,8 +230,7 @@
      &               StpMax,GrdLbl,StpLbl,iNeg,
      &               TSConstraints,nRowH,
      &               nWndw,Mode,
-     &               kIter,GNrm_Threshold,
-     &               CnstWght)
+     &               kIter,GNrm_Threshold)
       End If
 *
 #ifdef UNIT_MM
@@ -256,7 +255,7 @@
      &               iSym,mTtAtm,
      &               Numerical,
      &               PrQ,
-     &               rHidden,iRef,Error)
+     &               iRef,Error)
       End If
 *                                                                      *
 ************************************************************************

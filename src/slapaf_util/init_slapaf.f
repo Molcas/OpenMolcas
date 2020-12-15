@@ -72,7 +72,6 @@
       rMEP= .False.
       nMEP=MaxItr
       Ref_Grad=.False.
-      rHidden = Zero
       eMEPTest=.True.
       MEP_Type='SPHERE'
       dMEPStep=0.1D0
@@ -114,7 +113,6 @@
 *     The threshold for restricted variance optimization.
       Beta_Disp=0.30D0
       GNrm_Threshold=0.2D0
-      CnstWght=1.0D0
       Call DecideOnESPF(Do_ESPF)
       If (Do_ESPF) Then
          ThrGrd = 0.003D0

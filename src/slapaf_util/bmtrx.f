@@ -13,11 +13,12 @@
      &                 mTtAtm,
      &                 Numerical,
      &                 PrQ,lOld,
-     &                 rHidden,nQQ,iIter,nWndw)
+     &                 nQQ,iIter,nWndw)
       Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx, Smmtrc,
      &                       Lbl
       Use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC,
-     &                             User_Def, MaxItr, BSet, HSet
+     &                             User_Def, MaxItr, BSet, HSet,
+     &                             rHidden
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -42,12 +43,11 @@
         Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
         Integer nBonds, nMax
         End Subroutine Box
-        Subroutine Hidden(mTtAtm,Coor,AN,nHidden,rHidden)
+        Subroutine Hidden(mTtAtm,Coor,AN,nHidden)
         Integer mTtAtm
         Real*8, Allocatable:: Coor(:,:)
         Integer, Allocatable:: AN(:)
         Integer nHidden
-        Real*8 rHidden
         End Subroutine Hidden
       End Interface
 *                                                                      *
@@ -124,7 +124,7 @@
 *---- Are there some hidden frozen atoms ?
 *
       nHidden = 0
-      If (rHidden.ge.Two) Call Hidden(mTtAtm,Coor2,AN,nHidden,rHidden)
+      If (rHidden.ge.Two) Call Hidden(mTtAtm,Coor2,AN,nHidden)
 *
 *-----Generate bond list
 *

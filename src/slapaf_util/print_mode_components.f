@@ -40,7 +40,8 @@
      &                             HrmFrq_Show, IRC, Curvilinear,
      &                             Redundant, FindTS, nBVec, nDimBC,
      &                             User_Def, Analytic_Hessian, MaxItr,
-     &                             iOptC, UpMeth, HSet, BSet
+     &                             iOptC, UpMeth, HSet, BSet, rHidden,
+     &                             CnstWght
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -448,7 +449,7 @@
      &           mTtAtm,
      &           Numerical,
      &           PrQ,
-     &           lOld,rHidden,nQQ,iRef,nWndw)
+     &           lOld,nQQ,iRef,nWndw)
 *                                                                      *
 ************************************************************************
 *                                                                      *

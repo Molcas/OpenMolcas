@@ -8,9 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Reset_ThrGrd(nAtom,nIter,mTtAtm,rHidden,ThrGrd)
+      Subroutine Reset_ThrGrd(nAtom,nIter,mTtAtm,ThrGrd)
       use Slapaf_Info, only: Cx, ANr
-      use Slapaf_Parameters, only: nDimBC
+      use Slapaf_Parameters, only: nDimBC, rHidden
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -31,12 +31,11 @@
         Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
         Integer nBonds, nMax
         End Subroutine Box
-        Subroutine Hidden(mTtAtm,Coor,AN,nHidden,rHidden)
+        Subroutine Hidden(mTtAtm,Coor,AN,nHidden)
         Integer mTtAtm
         Real*8, Allocatable:: Coor(:,:)
         Integer, Allocatable:: AN(:)
         Integer nHidden
-        Real*8 rHidden
         End Subroutine Hidden
       End Interface
 *                                                                      *
@@ -73,7 +72,7 @@
 *---- Are there some hidden frozen atoms ?
 *
       nHidden = 0
-      If (rHidden.ge.Two) Call Hidden(mTtAtm,Coor,AN,nHidden,rHidden)
+      If (rHidden.ge.Two) Call Hidden(mTtAtm,Coor,AN,nHidden)
 *
 *-----Generate bond list
 *

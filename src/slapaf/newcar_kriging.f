@@ -37,7 +37,6 @@
      &            iSym,mTtAtm,
      &            Numerical,
      &            PrQ,
-     &            rHidden,
      &            RefIter,Error)
 *
       Force_dB=.False.

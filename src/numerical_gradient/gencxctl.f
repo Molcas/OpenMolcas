@@ -74,7 +74,7 @@
      &           mTtAtm,
      &           Numerical,
      &           PrQ,
-     &           lOld,rHidden,nQQ,iRef,nWndw)
+     &           lOld,nQQ,iRef,nWndw)
 *
       nPrint(30) = nPrint(30)-1
 *                                                                      *
@@ -215,7 +215,7 @@
          Call NewCar(Iter,nsAtom,mInt,
      &               Coor,iSym,mTtAtm,
      &               Numerical,
-     &               PrQ,rHidden,
+     &               PrQ,
      &               iRef,Error)
 *
 *        Move the new Cartesian coordinate to the list.

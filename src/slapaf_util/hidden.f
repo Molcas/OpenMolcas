@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Hidden(mTtAtm,Coor,AN,nHidden,rHidden)
+      Subroutine Hidden(mTtAtm,Coor,AN,nHidden)
       Implicit Real*8 (a-h,o-z)
 *
 *  Add to the Grand atom list some hidden atoms, coming e.g.
@@ -123,7 +123,7 @@
       nKept = 0
       If (nHidden .gt. 0)
      &   Call Select_hidden(mTtAtm,nHidden,Coor,h_xyz,h_AN,
-     &                      nKept,rHidden,iPL)
+     &                      nKept,iPL)
 *
 *  Copy all the arrays needed by box and nlm
 *

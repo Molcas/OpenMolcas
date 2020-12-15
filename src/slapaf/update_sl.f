@@ -17,8 +17,7 @@
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     iNeg,TSC,nRowH,
      &                     nWndw,Mode,
-     &                     kIter,GNrm_Threshold,
-     &                     CnstWght)
+     &                     kIter,GNrm_Threshold)
 ************************************************************************
 *                                                                      *
 *     Object: to update coordinates                                    *
@@ -32,7 +31,6 @@
 *      nLambda        : number of contraints                           *
 *      nsAtom         : number of symmetry unique atoms                *
 *      iNeg           : Hessian index                                  *
-*      CnstWght       : constraints weight                             *
 *                                                                      *
 *    OutPut:                                                           *
 *      ed             : estimated energy change to the next point      *
@@ -112,7 +110,6 @@
      &                   iNeg,TSC,nRowH,
      &                   nWndw,Mode,
      &                   kIter,GNrm_Threshold,
-     &                   CnstWght,
      &                   Kriging_Hessian,qBeta,iOpt_RS,.True.,iter_,
      &                   qBeta_Disp)
 *                                                                      *
@@ -150,7 +147,6 @@
      &                TSC,nRowH,
      &                nWndw,Mode,
      &                kIter,GNrm_Threshold,
-     &                CnstWght,
      &                Kriging_Hessian,qBeta,iOpt_RS,.True.,iter,
      &                qBeta_Disp)
 *                                                                      *

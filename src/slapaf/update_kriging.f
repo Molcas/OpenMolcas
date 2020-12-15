@@ -20,7 +20,6 @@
      &                     iNeg,TSC,nRowH,
      &                     nWndw,Mode,
      &                     GNrm_Threshold,
-     &                     CnstWght,
      &                     ThrEne,ThrGrd)
 ************************************************************************
 *                                                                      *
@@ -213,7 +212,6 @@
      &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
      &                   TSC,nRowH,nWndw_,Mode,
      &                   kIter,GNrm_Threshold,
-     &                   CnstWght,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
      &                   First_MicroIteration,iter,qBeta_Disp)
 #ifdef _DEBUGPRINT_

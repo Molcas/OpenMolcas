@@ -12,7 +12,7 @@
      &                  Coor,iSym,
      &                  mTtAtm,
      &                  Numerical,
-     &                  PrQ,rHidden,
+     &                  PrQ,
      &                  iRef,Error)
       use Slapaf_Info, only: Cx, qInt, RefGeo, BMx, Shift, Degen,
      &                       AtomLbl, Lbl
@@ -38,7 +38,6 @@
       Integer, Intent(In):: mTtAtm
       Logical, Intent(In):: Numerical
       Logical, Intent(In):: PrQ
-      Real*8,  Intent(In):: rHidden
       Integer, Intent(In):: iRef
       Logical, Intent(InOut):: Error
 *
@@ -189,7 +188,7 @@
      &              iter+1,
      &              mTtAtm,
      &              Numerical,
-     &              PrQ,lOld,rHidden,
+     &              PrQ,lOld,
      &              nQQ,iRef,nWndw)
          BSet=BSet_Save
          HSet=HSet_Save
