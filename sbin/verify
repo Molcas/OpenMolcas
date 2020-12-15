@@ -500,7 +500,10 @@ try:
   MOLCAS = os.environ['MOLCAS']
 except KeyError:
   sys.exit('MOLCAS not set, use {} {}'.format(DRIVER_base, thisfile))
-MOLCAS_ID = sp.check_output([MOLCAS_DRIVER, 'version', '-l'], cwd=MOLCAS).decode().strip()
+try:
+  MOLCAS_ID = sp.check_output([MOLCAS_DRIVER, 'version', '-l'], cwd=MOLCAS).decode().strip()
+except:
+  MOLCAS_ID = None
 MACHINE = sp.check_output(['uname', '-a']).decode().strip()
 date = datetime.datetime.today()
 DATE = date.strftime('%c')
@@ -768,6 +771,9 @@ if not (filelist or none):
 # set up the infrastructure
 #--------------------------
 
+if MOLCAS_ID is None:
+  error('Could not find [Open]Molcas version')
+
 # the base directory for running tests
 if not os.path.isdir(testdir):
   try:
@@ -815,9 +821,9 @@ MOLCAS_ID = sp.check_output([MOLCAS_DRIVER, 'version', '-l'], cwd=MOLCAS).decode
 if opt['generate']:
   if 'dirty' in MOLCAS_ID:
     error('''\
-******************************************************
-Dirty Molcas installation, cannot generate check files
-******************************************************
+************************************************************
+Dirty [Open]Molcas installation, cannot generate check files
+************************************************************
   The compiled version of molcas does not correspond
 to a clean source tree (does not match a git commit).
 For reproducibility's sake generation of check files

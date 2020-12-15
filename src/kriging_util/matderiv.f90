@@ -18,7 +18,7 @@ SUBROUTINE matderiv(diff_Order, d, m, d1, d2)
   real*8 d(d1,d2),m(d1,d2)
 !
 ! Local variables
-  integer p0,k
+  integer k
   real*8 nr,kr,a,t
   real*8, Allocatable :: b(:,:), dh(:,:), c(:,:)
 !
@@ -31,15 +31,14 @@ SUBROUTINE matderiv(diff_Order, d, m, d1, d2)
 ! Analytic or Numerical Derivatives
 !
   if (anMd) then
-    p0=int(pAI)
     t=sqrt(2.0D0*pAI+1.0D0)
     dh(:,:) = sqrt(d)
-    c(:,:)=(2.0D0*pAI+1)/(2.0D0*pAI-1)*exp(-t*dh)
+    c(:,:)=(2.0D0*pAI+1.0D0)/(2.0D0*pAI-1.0D0)*exp(-t*dh)
     if (pAI.gt.3.or.pAI.lt.1) then
       Write(6,*) 'Analytical Matern derivatives (anamat=.True.)'
-      Write(6,*) 'is only valid for pAI = 1, 2 and 3(v = 3/2, 5/2 and 7/2)'
+      Write(6,*) 'is only valid for pAI = 1, 2 and 3 (v = 3/2, 5/2 and 7/2)'
     else
-      select case (p0)
+      select case (pAI)
         case (1)
           select case (diff_Order)
             case (1)

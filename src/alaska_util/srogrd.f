@@ -67,13 +67,12 @@
       Real*8 C(3), TC(3)
       Integer iDCRT(0:7), iuvwx(4), lOp(4), JndGrd(3,4)
       Character*80 Label
-      Logical JfGrad(3,4), TstFnc, TF, ABeq(3), EQ
+      Logical JfGrad(3,4), ABeq(3), EQ
+      Logical, External :: TF
 *
 *     Statement function for Cartesian index
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
       iRout = 191
       iPrint = nPrint(iRout)

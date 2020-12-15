@@ -62,13 +62,12 @@
 *     Local variables
       Real*8 TC(3), C(3)
       Integer iDCRT(0:7), iuvwx(4), lOp(4), JndGrd(3,4)
-      Logical ABeq(3), JfGrad(3,4), TstFnc, TF, EQ
+      Logical ABeq(3), JfGrad(3,4), EQ
+      Logical, External :: TF
 *
 *-----Statement function for Cartesian index
 *
       nElem(k)=(k+1)*(k+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
       iRout = 122
       iPrint = nPrint(iRout)

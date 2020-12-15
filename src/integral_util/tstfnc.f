@@ -79,6 +79,14 @@
 *
       Return
       End Function TstFnc
+*
+      Logical Function TF(mdc,iIrrep,iComp)
+      Use Center_Info, Only : dc
+      Implicit Real*8 (a-h,o-z)
+      Logical, External :: TstFnc
+      TF = TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab)
+      End Function TF
+*
       Integer Function iPrmt_(iCom)
 ************************************************************************
 *     Returns the phase factor of a basis function under a symmetry    *
