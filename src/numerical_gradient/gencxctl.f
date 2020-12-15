@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine genCxCTL(iStop,Cartesian,rDelta)
       use Slapaf_Info, only: Coor, Shift, qInt, BMx, Free_Slapaf
-      use Slapaf_Parameters, only: Curvilinear, HSet, BSet
+      use Slapaf_Parameters, only: Curvilinear, HSet, BSet, PrQ
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -30,7 +30,7 @@
 #include "weighting.fh"
 #include "db.fh"
 #include "print.fh"
-      Logical Numerical, PrQ, Cartesian, Found, TSC, Error
+      Logical Numerical, Cartesian, Found, TSC, Error
       Real*8, Allocatable:: DList(:), CList(:,:), du(:), TMx(:)
 *
       Lu=6
@@ -73,8 +73,7 @@
      &           iter,
      &           mTtAtm,
      &           Numerical,
-     &           PrQ,
-     &           lOld,nQQ,iRef,nWndw)
+     &           nQQ,iRef,nWndw)
 *
       nPrint(30) = nPrint(30)-1
 *                                                                      *
@@ -212,11 +211,8 @@
          Error=.False.
          nWndw=Iter
          iRef=0
-         Call NewCar(Iter,nsAtom,mInt,
-     &               Coor,iSym,mTtAtm,
-     &               Numerical,
-     &               PrQ,
-     &               iRef,Error)
+         Call NewCar(Iter,nsAtom,mInt,Coor,iSym,mTtAtm,
+     &               Numerical,iRef,Error)
 *
 *        Move the new Cartesian coordinate to the list.
 *

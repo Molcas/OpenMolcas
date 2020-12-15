@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine IntFcm(lOld,lOld_Implicit)
+      SubRoutine IntFcm(lOld_Implicit)
 ************************************************************************
 *                                                                      *
 * Object: to initialize the Hessian matrix for the first iteration.    *
@@ -19,11 +19,12 @@
 *             University of Lund, SWEDEN                               *
 *             May 1991                                                 *
 ************************************************************************
+      use Slapaf_Parameters, only: lOld
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 rDum(1)
-      Logical lOld, lOld_Implicit, Hess_Found, Found_IRC
+      Logical lOld_Implicit, Hess_Found, Found_IRC
       Real*8, Allocatable:: Hess(:)
 *                                                                      *
 ************************************************************************

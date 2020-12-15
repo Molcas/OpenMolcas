@@ -13,6 +13,7 @@
       Subroutine NewCar_Kriging(kIter,nAtom,nInter,SaveBMx,RefIter,
      &                          Error)
       use Slapaf_Info, only: Cx, BMx
+      use Slapaf_Parameters, only: PrQ
       Implicit None
 #include "info_slapaf.fh"
 #include "db.fh"
@@ -20,7 +21,7 @@
       Integer :: kIter,nAtom,nInter,RefIter
 
       Real*8, Allocatable :: Coor(:,:), BMx_Tmp(:,:)
-      Logical :: Numerical,PrQ,Error,SaveBMx
+      Logical :: Numerical,PrQ_Save,Error,SaveBMx
 *
       Call mma_allocate(Coor,3,nAtom,Label='Coor')
       Coor(:,:) = Cx(:,:,kIter)
@@ -29,16 +30,15 @@
       BMx_tmp(:,:) = BMx(:,:)
 *
       Numerical=.False.
+      PrQ_Save=PrQ
       PrQ=.False.
 *
       Force_dB=SaveBMx
 *
-      Call NewCar(kIter,nAtom,nInter,Coor,
-     &            iSym,mTtAtm,
-     &            Numerical,
-     &            PrQ,
-     &            RefIter,Error)
+      Call NewCar(kIter,nAtom,nInter,Coor,iSym,mTtAtm,
+     &            Numerical,RefIter,Error)
 *
+      PrQ=PrQ_Save
       Force_dB=.False.
       Call mma_deallocate(Coor)
 

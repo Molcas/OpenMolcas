@@ -16,7 +16,8 @@
       use Slapaf_Parameters, only: iRow, iRow_c, ddV_Schlegel, HWRS,
      &                             iOptH, HrmFrq_Show, IRC, Curvilinear,
      &                             Redundant, FindTS, nBVec, User_Def,
-     &                             MaxItr, iOptC, rHidden, CnstWght
+     &                             MaxItr, iOptC, rHidden, CnstWght,
+     &                             lOld
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"

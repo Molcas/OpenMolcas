@@ -61,7 +61,6 @@
 *                                                                      *
       lif = 0
       jPrint=10
-      lOld = .False.
       lOld_Implicit = .False.
       Stop  = .False.
       lSup = .False.

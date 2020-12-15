@@ -12,11 +12,11 @@
      &                  Coor,iSym,
      &                  mTtAtm,
      &                  Numerical,
-     &                  PrQ,
      &                  iRef,Error)
       use Slapaf_Info, only: Cx, qInt, RefGeo, BMx, Shift, Degen,
      &                       AtomLbl, Lbl
-      use Slapaf_Parameters, only: Curvilinear, User_Def, BSet, HSet
+      use Slapaf_Parameters, only: Curvilinear, User_Def, BSet, HSet,
+     &                             lOld
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -37,14 +37,12 @@
       Integer, Intent(In):: iSym(3)
       Integer, Intent(In):: mTtAtm
       Logical, Intent(In):: Numerical
-      Logical, Intent(In):: PrQ
       Integer, Intent(In):: iRef
       Logical, Intent(InOut):: Error
 *
       Real*8 cMass(3)
       Logical Invar
-      Logical:: BSet_Save, HSet_Save
-      Logical, Save:: lOld=.False.
+      Logical:: BSet_Save, HSet_Save, lOld_Save
       Real*8, Allocatable:: DFC(:), dss(:), rInt(:)
 *                                                                      *
 ************************************************************************
@@ -181,17 +179,19 @@
          nWndw=1
          BSet_Save=BSet
          HSet_Save=HSet
+         lOld_Save=lOld
          BSet=.False.
          HSet=.False.
+         lOld=.False.
          Call BMtrx(nAtom,nInter,
      &              Coor,
      &              iter+1,
      &              mTtAtm,
      &              Numerical,
-     &              PrQ,lOld,
      &              nQQ,iRef,nWndw)
          BSet=BSet_Save
          HSet=HSet_Save
+         lOld=lOld_Save
 *
 *--------Check if the final structure is reached and get the
 *        difference between the present structure and the final.

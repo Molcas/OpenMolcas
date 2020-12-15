@@ -10,7 +10,8 @@
 ************************************************************************
       Subroutine PrePro(nAtom,nInter,Coor)
       use Slapaf_Info, only: Grd, Atom, nSup
-      use Slapaf_Parameters, only: iRow, iInt, nFix, Redundant, nDimBC
+      use Slapaf_Parameters, only: iRow, iInt, nFix, Redundant, nDimBC,
+     &                             lOld
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -64,7 +65,7 @@
 *     Write to runfile only on the first iteration and that there
 *     was not an already defined Hessian.
 *
-      If (iter.eq.1) Call IntFcm(lOld,lOld_Implicit)
+      If (iter.eq.1) Call IntFcm(lOld_Implicit)
       If (.Not.lOld.and.lOld_Implicit) lOld=.True.
 *
 *-----Symmetrize forces

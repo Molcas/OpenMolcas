@@ -14,7 +14,7 @@
       Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx,
      &                       Free_Slapaf, qInt, dqInt, Lbl
       use Slapaf_Parameters, only: HUpMet, User_Def, iOptC, UpMeth,
-     &                             HSet, BSet
+     &                             HSet, BSet, PrQ
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -26,7 +26,7 @@
 #include "db.fh"
 #include "print.fh"
 #include "stdalloc.fh"
-      Logical Numerical, GoOn, PrQ, TSReg,
+      Logical Numerical, GoOn, TSReg,
      &        Do_ESPF, Just_Frequencies, Found, Error
       Character(LEN=8) GrdLbl, StpLbl
       Character(LEN=1) Step_trunc
@@ -117,8 +117,7 @@
      &           iter,
      &           mTtAtm,
      &           Numerical,
-     &           PrQ,
-     &           lOld,nQQ,iRef,
+     &           nQQ,iRef,
      &           nWndw)
 *
       nPrint(30) = nPrint(30)-1
@@ -251,11 +250,8 @@
          PrQ=.False.
          Error=.False.
          iRef=0
-         Call NewCar(Iter,nsAtom,nQQ,Coor,
-     &               iSym,mTtAtm,
-     &               Numerical,
-     &               PrQ,
-     &               iRef,Error)
+         Call NewCar(Iter,nsAtom,nQQ,Coor,iSym,mTtAtm,
+     &               Numerical,iRef,Error)
       End If
 *                                                                      *
 ************************************************************************

@@ -34,7 +34,7 @@
      &          RootMap
 *
       Logical Stop, lWrite, Exist, Change,
-     &        lSup, lOld, lRowH,
+     &        lSup, lRowH,
      &        lNmHss, Cubic, PDH, Baker,
      &        Line_Search,
      &        FirstCall, MEP, Ref_Geom, lRP, Ref_Grad,
@@ -43,7 +43,7 @@
      &        TSConstraints, MEPCons, Track, Request_Alaska,
      &        Request_RASSI
       Common /lInfSla/ Stop, lWrite, Exist, Change,
-     &        lSup, lOld, lRowH,rMEP,
+     &        lSup, lRowH,rMEP,
      &        lNmHss, Cubic, PDH, Baker,
      &        Line_Search,
      &        FirstCall, MEP, Ref_Geom, lRP, Ref_Grad,

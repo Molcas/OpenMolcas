@@ -11,17 +11,17 @@
       Subroutine BMtrx_Cartesian(
      &                 nAtom,nInter,nDim,
      &                 nIter,mTtAtm,
-     &                 PrQ,lOld,mTR,TRVec,EVal,Hss_x,
+     &                 mTR,TRVec,EVal,Hss_x,
      &                 nQQ,nWndw)
       use Slapaf_Info, only: Cx, Gx, qInt, dqInt, KtB, BMx, Degen,
      &                       AtomLbl, Smmtrc
-      use Slapaf_Parameters, only: Redundant, MaxItr, BSet, HSet
+      use Slapaf_Parameters, only: Redundant, MaxItr, BSet, HSet, PrQ,
+     &                             lOld
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 TRVec(nDim,mTR)
-      Logical PrQ, lOld
       Real*8 Eval(3*mTtAtm*(3*mTtAtm+1)/2)
       Real*8 Hss_x((3*mTtAtm)**2)
       Real*8, Allocatable:: EVec(:), Hi(:,:), iHi(:), Degen2(:)

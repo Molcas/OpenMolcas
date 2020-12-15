@@ -13,7 +13,8 @@
       use Slapaf_Info, only: Coor, AtomLbl
       use Slapaf_Parameters, only: iRow, ddV_Schlegel, HWRS, iOptH, IRC,
      &                             Curvilinear, Redundant, FindTS,
-     &                             Analytic_Hessian, iOptC, rHidden
+     &                             Analytic_Hessian, iOptC, rHidden,
+     &                             lOld
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "info_slapaf.fh"
