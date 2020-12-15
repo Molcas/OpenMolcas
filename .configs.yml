@@ -101,8 +101,6 @@
     pre_make_script: |
       $${make} only_objs
       cmake -D EXTRA_FFLAGS="" .
-    pre_run_script: |
-      . /opt/intel/composerxe/linux/bin/compilervars.sh intel64
     CC: "icc"
     CXX: "icpc"
     FC: "ifort"
@@ -126,8 +124,6 @@
     pre_make_script: |
       $${make} only_objs
       cmake -D EXTRA_FFLAGS="" .
-    pre_run_script: |
-      . /usr/local/bin/setupintel.sh
     CC: "icc"
     CXX: "icpc"
     FC: "ifort"
