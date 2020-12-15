@@ -11,20 +11,18 @@
       Subroutine BMtrx(nAtom,nInter,Coor,
      &                 nIter,
      &                 mTtAtm,
-     &                 Numerical,
      &                 nQQ,iIter,nWndw)
       Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx, Smmtrc,
      &                       Lbl
       Use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC,
      &                             User_Def, MaxItr, BSet, HSet,
-     &                             rHidden, lOld
+     &                             rHidden, lOld, Numerical
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 Coor(3,nAtom)
-      Logical Numerical
       External Get_SuperName
       Character(LEN=100) Get_SuperName
       Integer, Allocatable:: TabB(:,:), TabA(:,:,:), TabAI(:,:), AN(:)
@@ -179,7 +177,6 @@
          Call BMtrx_User_Defined(
      &                 nAtom,nInter,Lbl,Coor,nDimBC,
      &                 nIter,
-     &                 Numerical,
      &                 mTR,nQQ)
 *                                                                      *
 ************************************************************************
@@ -204,7 +201,6 @@
      &                 nAtom,nDimBC,
      &                 nIter,
      &                 mTtAtm,
-     &                 Numerical,
      &                 iIter,mTR,TR,TabAI,
      &                 TabA,TabB,nBonds,nMax,
      &                 iIter,nQQ,nWndw)

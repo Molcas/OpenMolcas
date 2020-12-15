@@ -14,7 +14,7 @@
       Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx,
      &                       Free_Slapaf, qInt, dqInt, Lbl
       use Slapaf_Parameters, only: HUpMet, User_Def, iOptC, UpMeth,
-     &                             HSet, BSet, PrQ
+     &                             HSet, BSet, PrQ, Numerical
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -26,8 +26,7 @@
 #include "db.fh"
 #include "print.fh"
 #include "stdalloc.fh"
-      Logical Numerical, GoOn, TSReg,
-     &        Do_ESPF, Just_Frequencies, Found, Error
+      Logical GoOn, TSReg, Do_ESPF, Just_Frequencies, Found, Error
       Character(LEN=8) GrdLbl, StpLbl
       Character(LEN=1) Step_trunc
       Integer, External:: AixRm
@@ -116,7 +115,6 @@
      &           Coor,
      &           iter,
      &           mTtAtm,
-     &           Numerical,
      &           nQQ,iRef,
      &           nWndw)
 *
@@ -250,8 +248,7 @@
          PrQ=.False.
          Error=.False.
          iRef=0
-         Call NewCar(Iter,nsAtom,nQQ,Coor,iSym,mTtAtm,
-     &               Numerical,iRef,Error)
+         Call NewCar(Iter,nsAtom,nQQ,Coor,iSym,mTtAtm,iRef,Error)
       End If
 *                                                                      *
 ************************************************************************
@@ -296,12 +293,12 @@
 *
       GoOn = (lNmHss.and.iter.lt.NmIter).OR.(lRowH.and.iter.lt.NmIter)
       TSReg = iAnd(iOptC,8192).eq.8192
+      Numerical=(lNmHss.or.lRowH).and.iter.le.NmIter
       Call Convrg(iter,kIter,nQQ,Stop,iStop,ThrCons,
      &            ThrEne,ThrGrd,MxItr,mIntEff,Baker,
      &            nsAtom,mTtAtm,ed,
      &            iNeg,GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &            rMEP,MEP,nMEP,
-     &            (lNmHss.or.lRowH).and.iter.le.NmIter,
      &            Just_Frequencies,eMEPTest,nLambda,
      &            TSReg,ThrMEP)
 *
@@ -314,7 +311,7 @@
 *-----Write information to files
 *
       Numerical = (lNmHss.or.lRowH) .and. iter.le.NmIter
-      Call DstInf(iStop,Just_Frequencies,Numerical)
+      Call DstInf(iStop,Just_Frequencies)
       If (lCtoF) Call Def_CtoF(.True.,nsAtom,Coor)
       If (.Not.User_Def .and.
      &   ((lNmHss.and.iter.ge.NmIter).or..Not.lNmHss)) Call cp_SpcInt

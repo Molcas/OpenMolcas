@@ -8,11 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine DstInf(iStop,Just_Frequencies,Numerical)
+      Subroutine DstInf(iStop,Just_Frequencies)
       use Symmetry_Info, only: nIrrep, iOper
       use Slapaf_Info, only: Cx, Coor, Weights, Energy, MF, qInt, dqInt,
      &                       Dmp_Slapaf, AtomLbl
-      use Slapaf_Parameters, only: MaxItr, iOptC
+      use Slapaf_Parameters, only: MaxItr, iOptC, Numerical
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -24,7 +24,7 @@
       Real*8, Allocatable:: Cx_p(:,:), CC(:,:), RV(:,:), xyz(:,:)
 *
       LOGICAL do_printcoords, do_fullprintcoords, Just_Frequencies,
-     &        Found, Numerical
+     &        Found
       Character(LEN=100) SuperName
       Character(LEN=100), External:: Get_SuperName
       Character(LEN=LENIN), Allocatable:: LblTMP(:)

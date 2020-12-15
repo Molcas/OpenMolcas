@@ -11,7 +11,6 @@
       Subroutine NewCar(Iter,nAtom,nInter,
      &                  Coor,iSym,
      &                  mTtAtm,
-     &                  Numerical,
      &                  iRef,Error)
       use Slapaf_Info, only: Cx, qInt, RefGeo, BMx, Shift, Degen,
      &                       AtomLbl, Lbl
@@ -36,7 +35,6 @@
       Real*8,  Intent(InOut):: Coor(3,nAtom)
       Integer, Intent(In):: iSym(3)
       Integer, Intent(In):: mTtAtm
-      Logical, Intent(In):: Numerical
       Integer, Intent(In):: iRef
       Logical, Intent(InOut):: Error
 *
@@ -187,7 +185,6 @@
      &              Coor,
      &              iter+1,
      &              mTtAtm,
-     &              Numerical,
      &              nQQ,iRef,nWndw)
          BSet=BSet_Save
          HSet=HSet_Save

@@ -41,7 +41,7 @@
      &                             Redundant, FindTS, nBVec, nDimBC,
      &                             User_Def, Analytic_Hessian, MaxItr,
      &                             iOptC, UpMeth, HSet, BSet, rHidden,
-     &                             CnstWght, PrQ, lOld
+     &                             CnstWght, PrQ, lOld, Numerical
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -58,7 +58,7 @@
       Integer, Dimension(:), Allocatable :: Sort
       Integer, Parameter :: nLbl=10*MxAtom
       Integer, External :: IsFreeUnit, iPrintLevel, AixRm
-      Logical :: Cartesian, Numerical, Found
+      Logical :: Cartesian, Found
       Character(Len=8) :: Filename
       Character(Len=16) :: StdIn
       Character(Len=24), Allocatable :: Label(:)
@@ -448,7 +448,6 @@
       Call BMtrx(nsAtom,mInt,
      &           Coor,iter,
      &           mTtAtm,
-     &           Numerical,
      &           nQQ,iRef,nWndw)
 *                                                                      *
 ************************************************************************

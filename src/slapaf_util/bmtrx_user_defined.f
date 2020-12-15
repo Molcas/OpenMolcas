@@ -12,18 +12,18 @@
      &                 nAtom,nInter,
      &                 Lbl,Coor,nDim,
      &                 nIter,
-     &                 Numerical,
      &                 mTR,nQQ)
       use Slapaf_Info, only: Gx, qInt, dqInt, KtB, BMx, Degen, Smmtrc
       use Slapaf_Parameters, only: iInt, nFix, nBVec, Analytic_Hessian,
-     &                             MaxItr, iOptC, BSet, HSet, lOld
+     &                             MaxItr, iOptC, BSet, HSet, lOld,
+     &                             Numerical
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 Coor(3,nAtom)
       Character Lbl(nInter)*8
-      Logical Numerical, Proc_dB
+      Logical Proc_dB
       Real*8, Allocatable:: Degen2(:)
 *                                                                      *
 ************************************************************************
