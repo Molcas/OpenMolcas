@@ -110,7 +110,7 @@ SUBROUTINE kriging_model()
                     C,m_t,            &
               0.0D0,A,m_t)
 !
-! For safty measures set the value-value to zero and then reintroduce the
+! For safety measures set the value-value to zero and then reintroduce the
 ! eigenvalues from the previous diagonalization.
 !
   A(1:nPoints,1:nPoints)=0.0D0
@@ -127,7 +127,7 @@ SUBROUTINE kriging_model()
   D(1:nPoints)=1.0D0
   D(nPoints+1:)=0.0D0
 !
-! Transform the vector to the new basus
+! Transform the vector to the new basis
 !
   B(:)=0.0D0
   Call dgemm_('T','N',m_t,1,m_t,      &

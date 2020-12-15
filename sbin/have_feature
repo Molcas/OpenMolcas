@@ -126,8 +126,10 @@ while [ -n "$1" ]; do
     "hdf5")
       Echo "Processing feature: $FEATURE"
       if ! find_library libhdf5 gateway ; then
-        Echo "Not compiled!"
-        RC=1
+        if ! find_symbol H5Fopen gateway ; then
+          Echo "Not compiled!"
+          RC=1
+        fi
       fi
       Echo
       ;;

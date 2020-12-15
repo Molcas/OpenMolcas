@@ -4068,7 +4068,7 @@
 
 *
 * Subroutine(s) to get the Mass of the isotope IsNr belonging to the
-* Element Atom. If IsNr=0, the most abundant isotope (or the most
+* element Atom. If IsNr=0, the most abundant isotope (or the most
 * stable if all are radioactive) is selected. The mass is returned
 * in atomic units (m_e).
 * Atom can be an atomic symbol or an atomic number.
@@ -4162,9 +4162,10 @@
       NuclideMass = -1.0d0
       If ((Z < 1) .or. (Z .gt. MaxAtomNum)) Return
       Do i=1,Size(ElementList(Z)%Isotopes,1)
-        If (ElementList(Z)%Isotopes(i)%A .ne. A) Cycle
-        NuclideMass = uToau*ElementList(Z)%Isotopes(i)%m
-        Exit
+        If (ElementList(Z)%Isotopes(i)%A .eq. A) Then
+          NuclideMass = uToau*ElementList(Z)%Isotopes(i)%m
+          Exit
+        End If
       End Do
 
       End Function NuclideMass

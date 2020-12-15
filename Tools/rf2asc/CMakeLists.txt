@@ -17,7 +17,7 @@ file (RELATIVE_PATH tooldir ${BASE_DIR} ${CMAKE_CURRENT_LIST_DIR})
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/${tooldir})
 
 foreach (prog IN ITEMS rf2asc asc2rf testrf)
-  add_executable(${prog}.exe ${prog}.f)
+  add_executable (${prog}.exe ${prog}.f)
   target_link_libraries (${prog}.exe molcas)
   target_link_libraries (${prog}.exe ${EXTERNAL_LIBRARIES})
   target_include_directories (${prog}.exe PRIVATE ${PROJECT_SOURCE_DIR}/${runfile_util_src})

@@ -22,9 +22,10 @@
 #include "disp.fh"
 #include "disp2.fh"
       Logical JfHss(4,3,4,3),IfHss(4,3,4,3),JfGrd(3,4),IfGrd(3,4),
-     &        TF,TstFnc,IfG(4),JfG(4),ldot
+     &        IfG(4),JfG(4),ldot
       Integer IndHss(4,3,4,3,0:7),JndHss(4,3,4,3,0:7),
      &        IndGrd(3,4,0:7),JndGrd(3,4,0:7),iCo(4)
+      Logical, External :: TF, TstFnc
 *define _OLD_CODE_
 #ifdef _OLD_CODE_
       Integer iCom(0:7,0:7),iStabM(0:7), idcrr(0:7)
@@ -32,8 +33,6 @@
 #endif
 *
       Ind(i1,i2)=i1*(i1-1)/2+i2
-      TF(mdc,iIrrep,iComp) = TstFnc(dc(mdc)%iCoSet,
-     &                              iIrrep,iComp,dc(mdc)%nStab)
 *
        nnIrrep=nIrrep
        Call lCopy(12,[.false.],0,ifgrd,1)
