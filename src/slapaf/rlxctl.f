@@ -13,7 +13,7 @@
       Use kriging_mod, only: Kriging, nspAI
       Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx,
      &                       Free_Slapaf, qInt, dqInt, Lbl
-      use Slapaf_Parameters, only: HUpMet
+      use Slapaf_Parameters, only: HUpMet, User_Def
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -115,8 +115,8 @@
      &           Coor,
      &           BSet,HSet,iter,
      &           mTtAtm,
-     &           User_Def,Numerical,
-     &           Analytic_Hessian,iOptC,PrQ,
+     &           Numerical,
+     &           iOptC,PrQ,
      &           lOld,rHidden,nQQ,iRef,
      &           MaxItr,nWndw)
 *
@@ -255,8 +255,8 @@
          iRef=0
          Call NewCar(Iter,nsAtom,nQQ,Coor,
      &               iSym,mTtAtm,
-     &               User_Def,Numerical,
-     &               Analytic_Hessian,iOptC,PrQ,
+     &               Numerical,
+     &               iOptC,PrQ,
      &               rHidden,MaxItr,iRef,Error)
       End If
 *                                                                      *
@@ -306,7 +306,7 @@
      &            ThrEne,ThrGrd,MxItr,UpMeth,mIntEff,Baker,
      &            nsAtom,mTtAtm,ed,
      &            iNeg,GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
-     &            Analytic_Hessian,rMEP,MEP,nMEP,
+     &            rMEP,MEP,nMEP,
      &            (lNmHss.or.lRowH).and.iter.le.NmIter,
      &            Just_Frequencies,eMEPTest,nLambda,
      &            TSReg,ThrMEP)
@@ -368,7 +368,7 @@
                End Do
             End Do
 #ifdef _DEBUGPRINT_
-            Call TriPrt('AnalHess',' ',HX,nHX2
+            Call TriPrt('AnalHess',' ',HX,nHX2)
 #endif
 
             Call Put_AnalHess(HX,iOff)

@@ -14,7 +14,7 @@ Module Slapaf_Parameters
 implicit none
 Private
 Public:: iRow, iRow_c, iInt, nFix, ddV_Schlegel, HWRS, iOptH, HUpMet, HrmFrq_Show, IRC, &
-         nBVec, nDimBC, Curvilinear, Redundant, FindTS
+         nBVec, nDimBC, Curvilinear, Redundant, FindTS, User_Def, Analytic_Hessian
 Integer:: iRow=0
 Integer:: iRow_c=0
 Integer:: iInt=0
@@ -29,6 +29,8 @@ Logical:: FindTS=.False.
 Logical:: HrmFrq_Show=.False.
 Logical:: ddV_Schlegel=.False.
 Logical:: HWRS=.True.
+Logical:: User_Def=.False.
+Logical:: Analytic_Hessian=.False.
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -15,19 +15,21 @@
 *
       mInter=mInt + mTROld
 *
-      Call mk_G_Internal(G,GInv,mInter,nsAtom,.Not.User_Def)
+      Call mk_G_Internal(G,GInv,mInter,nsAtom)
 *
       Return
       End
-      Subroutine mk_G_Internal(G,GInv,mInter,nAtom,Auto)
+      Subroutine mk_G_Internal(G,GInv,mInter,nAtom)
       use Slapaf_Info, only: dMass, Degen, Smmtrc
-      use Slapaf_Parameters, only: Curvilinear
+      use Slapaf_Parameters, only: Curvilinear, User_Def
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "constants2.fh"
 *
       Real*8 G(mInter,mInter), GInv(mInter**2)
       Logical Auto
+
+      Auto=.Not.User_Def
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -10,13 +10,13 @@
 ************************************************************************
       Subroutine NewCar(Iter,nAtom,nInter,
      &                  Coor,iSym,
-     &                  mTtAtm,User_Def,
+     &                  mTtAtm,
      &                  Numerical,
-     &                  Analytic_Hessian,iOptC,PrQ,rHidden,
+     &                  iOptC,PrQ,rHidden,
      &                  MaxItr,iRef,Error)
       use Slapaf_Info, only: Cx, qInt, RefGeo, BMx, Shift, Degen,
      &                       AtomLbl, Lbl
-      use Slapaf_Parameters, only: Curvilinear
+      use Slapaf_Parameters, only: Curvilinear, User_Def
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -36,8 +36,7 @@
       Real*8,  Intent(InOut):: Coor(3,nAtom)
       Integer, Intent(In):: iSym(3)
       Integer, Intent(In):: mTtAtm
-      Logical, Intent(In):: User_Def
-      Logical, Intent(In):: Numerical, Analytic_Hessian
+      Logical, Intent(In):: Numerical
       Integer, Intent(In):: iOptC
       Logical, Intent(In):: PrQ
       Real*8,  Intent(In):: rHidden
@@ -184,9 +183,9 @@
          Call BMtrx(nAtom,nInter,
      &              Coor,
      &              BSet,HSet,iter+1,
-     &              mTtAtm,User_Def,
+     &              mTtAtm,
      &              Numerical,
-     &              Analytic_Hessian,iOptC,
+     &              iOptC,
      &              PrQ,lOld,rHidden,
      &              nQQ,iRef,MaxItr,nWndw)
 *

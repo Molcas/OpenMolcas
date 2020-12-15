@@ -10,22 +10,21 @@
 ************************************************************************
       Subroutine BMtrx(nAtom,nInter,Coor,
      &                 BSet,HSet,nIter,
-     &                 mTtAtm,User_Def,
+     &                 mTtAtm,
      &                 Numerical,
-     &                 Analytic_Hessian,
      &                 iOptC,PrQ,lOld,
      &                 rHidden,nQQ,iIter,MaxItr,nWndw)
       Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx, Smmtrc,
      &                       Lbl
-      Use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC
+      Use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC,
+     &                             User_Def
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 Coor(3,nAtom)
-      Logical BSet, HSet, User_Def, Numerical,
-     &        Analytic_Hessian, PrQ, lOld
+      Logical BSet, HSet, Numerical, PrQ, lOld
       External Get_SuperName
       Character(LEN=100) Get_SuperName
       Integer, Allocatable:: TabB(:,:), TabA(:,:,:), TabAI(:,:), AN(:)
@@ -151,7 +150,7 @@
 *
       If (HSet.or..Not.(Curvilinear.or.User_Def))
      &   Call LNM(Coor2,mTtAtm,EVal,Hss_X,Scr2,Vec,nAtom,nDimBC,AN,
-     &            nIter,Analytic_Hessian,
+     &            nIter,
      &            iOptC,TabB,TabA,nBonds,nMax,nHidden)
 *
       Call mma_deallocate(Scr2)
@@ -182,7 +181,7 @@
          Call BMtrx_User_Defined(
      &                 nAtom,nInter,Lbl,Coor,nDimBC,
      &                 BSet,HSet,nIter,
-     &                 Numerical,Analytic_Hessian,
+     &                 Numerical,
      &                 iOptC,lOld,
      &                 mTR,nQQ,MaxItr)
 *                                                                      *
@@ -209,7 +208,6 @@
      &                 BSet,HSet,nIter,
      &                 mTtAtm,
      &                 Numerical,
-     &                 Analytic_Hessian,
      &                 iOptC,PrQ,lOld,
      &                 iIter,mTR,TR,TabAI,
      &                 TabA,TabB,nBonds,nMax,

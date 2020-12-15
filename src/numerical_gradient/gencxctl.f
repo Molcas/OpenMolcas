@@ -72,8 +72,8 @@
      &           Coor,
      &           BSet,HSet,iter,
      &           mTtAtm,
-     &           User_Def,Numerical,
-     &           Analytic_Hessian,iOptC,PrQ,
+     &           Numerical,
+     &           iOptC,PrQ,
      &           lOld,rHidden,nQQ,iRef,
      &           MaxItr,nWndw)
 *
@@ -215,9 +215,7 @@
          iRef=0
          Call NewCar(Iter,nsAtom,mInt,
      &               Coor,iSym,mTtAtm,
-     &               User_Def,
      &               Numerical,
-     &               Analytic_Hessian,
      &               iOptC,PrQ,rHidden,
      &               MaxItr,iRef,Error)
 *

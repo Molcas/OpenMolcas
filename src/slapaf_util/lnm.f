@@ -10,11 +10,10 @@
 ************************************************************************
       Subroutine LNM(Cart,nAtoms,Hess,Scrt1,Scrt2,Vctrs,
      &               mAtoms,nDim,iAnr,nIter,
-     &               Analytic_Hessian,
      &               iOptC,iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: Degen, Smmtrc
-      use Slapaf_Parameters, only: iOptH
+      use Slapaf_Parameters, only: iOptH, Analytic_Hessian
       Implicit Real*8 (a-h,o-z)
 #include "print.fh"
 #include "real.fh"
@@ -25,7 +24,7 @@
      *       Scrt2((3*nAtoms)**2), Vctrs(3*nAtoms,nDim)
       Integer   iANr(nAtoms+nHidden), iTabBonds(3,nBonds),
      &          iTabAtoms(2,0:nMax,nAtoms+nHidden)
-      Logical Analytic_Hessian, Found, RunOld
+      Logical Found, RunOld
       Real*8, Allocatable:: TanVec(:), HTanVec(:)
 
       iRout=120

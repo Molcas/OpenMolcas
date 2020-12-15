@@ -17,7 +17,7 @@
 #include "info_slapaf.fh"
 #include "db.fh"
 #include "stdalloc.fh"
-      Integer :: kIter,nAtom,nDim,nInter,RefIter
+      Integer :: kIter,nAtom,nInter,RefIter
 
       Real*8, Allocatable :: Coor(:,:), BMx_Tmp(:,:)
       Logical :: Numerical,PrQ,Error,SaveBMx
@@ -35,8 +35,8 @@
 *
       Call NewCar(kIter,nAtom,nInter,Coor,
      &            iSym,mTtAtm,
-     &            User_Def,Numerical,
-     &            Analytic_Hessian,iOptC,PrQ,
+     &            Numerical,
+     &            iOptC,PrQ,
      &            rHidden,MaxItr,
      &            RefIter,Error)
 *
