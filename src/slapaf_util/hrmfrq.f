@@ -29,12 +29,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      mInter = nInter + mTR
+      nDoF = nInter + mTR
       nX = 3*nAtom
 *
-      Call mma_allocate(EVec,2*mInter**2,Label='EVec')
-      Call mma_allocate(EVal,2*mInter,Label='EVal')
-      Call mma_allocate(RedMas,mInter,Label='RedMas')
+      Call mma_allocate(EVec,2*nDoF**2,Label='EVec')
+      Call mma_allocate(EVal,2*nDoF,Label='EVal')
+      Call mma_allocate(RedMas,nDoF,Label='RedMas')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -43,7 +43,7 @@
       Call mma_allocate(tmp1,nX**2,Label='tmp1')
       Call mma_allocate(tmp2,nX**2,Label='tmp2')
 *
-      Call GF(nX,mInter,nInter,Tmp1,Tmp2,EVec,EVal,RedMas,iNeg,dDipM,
+      Call GF(nX,nDoF,nInter,Tmp1,Tmp2,EVec,EVal,RedMas,iNeg,dDipM,
      &        mTR,nAtom,DipM)
 *
       Call mma_deallocate(tmp2)
@@ -74,7 +74,7 @@
       iEl =3
       iSym=1
 *
-      Call mma_allocate(Temp,3*mInter,Label='Temp')
+      Call mma_allocate(Temp,3*nDoF,Label='Temp')
       Call DGeTMO(dDipM,3,3,nInter,Temp,nInter)
 *
       Lu_10=10
@@ -82,7 +82,7 @@
       Call Molcas_Open(lu_10,'UNSYM')
 *
       Write(Lu_10,'(A,I1)') '*NORMAL MODES SYMMETRY: ',isym
-      Call GF_Print(EVal,EVec,Temp,iEl,mInter,nInter,iCtl,IRInt,RedMas,
+      Call GF_Print(EVal,EVec,Temp,iEl,nDoF,nInter,iCtl,IRInt,RedMas,
      &             Lu_10,iOff)
 *
       Close(Lu_10)
@@ -102,12 +102,12 @@
 *                                                                      *
 *-----Save normal modes for later generation of Molden input.
 *
-      nDisp=mInter
+      nDisp=nDoF
       Call mma_allocate(NMod,nDisp**2,Label='NMod')
 *
       lModes=0
       nModes=0
-      nX=mInter
+      nX=nDoF
       call dcopy_(nX*nInter,EVec,2,NMod,1)
       lModes=lModes+nInter*nX
       nModes=nModes+nInter

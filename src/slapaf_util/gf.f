@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine GF(nX,mInter,nInter,Tmp1,Tmp2,EVec,EVal,RedM,
+      Subroutine GF(nX,nDoF,nInter,Tmp1,Tmp2,EVec,EVal,RedM,
      &              iNeg,dDipM,mTR,nAtom,DipM)
       use Slapaf_Info, only: Smmtrc
       Implicit Real*8 (a-h,o-z)
@@ -16,7 +16,7 @@
 #include "print.fh"
 #include "stdalloc.fh"
       Real*8 dDipM(3,nInter+mTR), DipM(3), Tmp1(nX**2), Tmp2(nX**2),
-     &       EVec(2*mInter,mInter), EVal(2*mInter), RedM(mInter)
+     &       EVec(2*nDoF,nDoF), EVal(2*nDoF), RedM(nDoF)
       Real*8, Allocatable:: G(:), GInv(:), F(:)
 *                                                                      *
 ************************************************************************
@@ -54,14 +54,14 @@
 *                                                                      *
 *     Form the GF-matrix (actually G^(1/2)FG^(1/2))
 *
-      Call GF_Mult(G,F,Tmp2,mInter)  ! Result in Tmp2
+      Call GF_Mult(G,F,Tmp2,nDoF)  ! Result in Tmp2
       Call mma_deallocate(F)
 *
 *     Compute the frequencies and harmonic eigenfunctions in
 *     Cartesians.
 *
       Call GF_Harmonic_Frequencies(G,GInv,Tmp1,Tmp2,EVec,EVal,RedM,
-     &                             iNeg,nX,mInter)
+     &                             iNeg,nX,nDoF)
 *
       Call mma_deallocate(G)
       Call mma_deallocate(GInv)
@@ -71,14 +71,14 @@
 *                                                                      *
 *     Compute the dipole moment derivative in Cartesians.
 *
-      Call Get_dDipM(dDipM,DipM,mInter,nInter)
+      Call Get_dDipM(dDipM,DipM,nDoF,nInter)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *    Transform from cartesian to normal coordinates
 *
-      Do iNC = 1, mInter
-         call dcopy_(mInter,EVec(1,iNC),2,Tmp2,1)
+      Do iNC = 1, nDoF
+         call dcopy_(nDoF,EVec(1,iNC),2,Tmp2,1)
          ix = (iNC-1)*3 + 1
          iy = (iNC-1)*3 + 2
          iz = (iNC-1)*3 + 3
@@ -97,9 +97,9 @@
             End Do
          End Do
       End Do
-      call dcopy_(3*mInter,Tmp1,1,dDipM,1)
+      call dcopy_(3*nDoF,Tmp1,1,dDipM,1)
 #ifdef _DEBUGPRINT_
-      Call RecPrt('dDipM(normal coord.)',' ',dDipM,3,mInter)
+      Call RecPrt('dDipM(normal coord.)',' ',dDipM,3,nDoF)
 #endif
 *                                                                      *
 ************************************************************************

@@ -29,7 +29,7 @@
       Real*8, Allocatable:: H(:), BOld(:), Tmp2(:)
 *
 *define _DEBUGPRINT_
-      mInter=mInt + mTROld
+      nDoF=mInt + mTROld
       nInter=mInt
 *
       Call mma_allocate(Tmp2,nX**2,Label='Tmp2')
@@ -53,7 +53,7 @@
          Call Get_dArray('BMtrx',BOld,nX*nInter)
       End If
 *
-      Call Get_H_(nX,BOld,mInter,nInter,H,Tmp2,F,nsAtom)
+      Call Get_H_(nX,BOld,nDoF,nInter,H,Tmp2,F,nsAtom)
 *
       Call mma_deallocate(BOld)
       Call mma_deallocate(H)
@@ -61,7 +61,7 @@
 *
       Return
       End
-      Subroutine Get_H_(nX,BMtrx,mInter,nInter,H,Tmp2,Tmp3,nAtom)
+      Subroutine Get_H_(nX,BMtrx,nDoF,nInter,H,Tmp2,Tmp3,nAtom)
       use Slapaf_Info, only: Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -85,7 +85,7 @@
                iix = (i-1)*3 + ix
                ii = ii + 1
                Do j = 1, nInter
-                  ij = (j-1)*mInter + ii
+                  ij = (j-1)*nDoF + ii
 
                   tmp_ij=Zero
                   Do k = 1, nInter
@@ -99,7 +99,7 @@
          End Do
       End Do
 *
-      Do i = 1, mInter
+      Do i = 1, nDoF
 *
          jj = 0
          Do j = 1, nAtom
@@ -108,10 +108,10 @@
                If (Smmtrc(jx,j)) Then
                   jjx=(j-1)*3+jx
                   jj = jj + 1
-                  ij = (jj-1)*mInter + i
+                  ij = (jj-1)*nDoF + i
                   tmp_ij=Zero
                   Do k = 1, nInter
-                     ik = (k-1)*mInter + i
+                     ik = (k-1)*nDoF + i
                      tmp_ij=tmp_ij+Tmp2(ik)*BMtrx(jjx,k)
                   End Do
                   Tmp3(ij)=tmp_ij
@@ -123,9 +123,9 @@
       End Do
 *
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Hessian (cartesian)',' ',Tmp3,mInter,mInter)
+      Call RecPrt('Hessian (cartesian)',' ',Tmp3,nDoF,nDoF)
 #endif
-      Call Put_dArray('FC-Matrix',Tmp3,mInter**2)
+      Call Put_dArray('FC-Matrix',Tmp3,nDoF**2)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -13,20 +13,20 @@
       Integer nX
       Real*8 G(nX*nX), GInv(nX*nX)
 *
-      mInter=mInt + mTROld
+      nDoF=mInt + mTROld
 *
-      Call mk_G_Internal(G,GInv,mInter,nsAtom)
+      Call mk_G_Internal(G,GInv,nDoF,nsAtom)
 *
       Return
       End
-      Subroutine mk_G_Internal(G,GInv,mInter,nAtom)
+      Subroutine mk_G_Internal(G,GInv,nDoF,nAtom)
       use Slapaf_Info, only: dMass, Degen, Smmtrc
       use Slapaf_Parameters, only: Curvilinear, User_Def
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "constants2.fh"
 *
-      Real*8 G(mInter,mInter), GInv(mInter**2)
+      Real*8 G(nDoF,nDoF), GInv(nDoF**2)
       Logical Auto
 
       Auto=.Not.User_Def
@@ -47,14 +47,14 @@
                Else
                   G(ii,ii) = One/(Degen(ix,i)*dMass(i))
                End If
-               jj = (ii-1)*mInter + ii
+               jj = (ii-1)*nDoF + ii
                GInv(jj) = One/(G(ii,ii)*UTOAU)
             End If
          End Do
       End Do
 #ifdef _DEBUGPRINT_
-      Call RecPrt('G (cartesian)',' ',G,mInter,mInter)
-      Call RecPrt('G-1 (cartesian)',' ',GInv,mInter,mInter)
+      Call RecPrt('G (cartesian)',' ',G,nDoF,nDoF)
+      Call RecPrt('G-1 (cartesian)',' ',GInv,nDoF,nDoF)
 #endif
 *                                                                      *
 ************************************************************************

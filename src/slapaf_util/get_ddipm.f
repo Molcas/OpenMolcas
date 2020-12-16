@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Get_dDipM(dDipM,DipM,mInter,nInter)
+      Subroutine Get_dDipM(dDipM,DipM,nDoF,nInter)
 ************************************************************************
 *                                                                      *
 *     Objective: to compute the dipole moment derivative in Cartesians *
@@ -22,7 +22,7 @@
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "stdalloc.fh"
-      Real*8 dDipM(3,mInter), DipM(3)
+      Real*8 dDipM(3,nDoF), DipM(3)
       Logical Found
       Real*8, Allocatable:: Tmp2(:), BOld(:), TROld(:)
 *
@@ -48,7 +48,7 @@
          Call mma_allocate(TROld,1,Label='TROld')
       End If
 *
-      Call Get_dDipM_(nX,BOld,TROld,mInter,nInter,Tmp2,dDipM,mTROld,
+      Call Get_dDipM_(nX,BOld,TROld,nDoF,nInter,Tmp2,dDipM,mTROld,
      &                nsAtom,DipM)
 *
       Call mma_deallocate(TROld)
@@ -57,7 +57,7 @@
 *
       Return
       End
-      Subroutine Get_dDipM_(nX,BMtrx,TRVec,mInter,nInter,
+      Subroutine Get_dDipM_(nX,BMtrx,TRVec,nDoF,nInter,
      &                     Tmp2,dDipM,mTR,nAtom,DipM)
       use Slapaf_Info, only: Cx, Degen, Smmtrc
       Implicit Real*8 (a-h,o-z)
@@ -192,9 +192,9 @@
          End Do
 *
       End Do
-      call dcopy_(3*mInter,Tmp2,1,dDipM,1)
+      call dcopy_(3*nDoF,Tmp2,1,dDipM,1)
 #ifdef _DEBUGPRINT_
-      Call RecPrt('dDipM(cartesian)',' ',dDipM,3,mInter)
+      Call RecPrt('dDipM(cartesian)',' ',dDipM,3,nDoF)
 #endif
 *                                                                      *
 ************************************************************************

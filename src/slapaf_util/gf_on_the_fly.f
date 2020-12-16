@@ -29,12 +29,12 @@
       nAtom=nsAtom
       nInter=mInt
       mTR=mTROld
-      mInter=nInter+mTR
+      nDoF=nInter+mTR
 *
       Call mma_allocate(EVec,2*nX**2,Label='EVec')
       Call mma_allocate(EVal,2*nX,Label='EVal')
       Call mma_allocate(RedMas,nX,Label='RedMas')
-      Call mma_allocate(dDipM,3*mInter,Label='dDipM')
+      Call mma_allocate(dDipM,3*nDoF,Label='dDipM')
       dDipM(:)=Zero
       Call mma_allocate(Tmp1,nX**2,Label='Tmp1')
       Call mma_allocate(Tmp2,nX**2,Label='Tmp2')
@@ -44,7 +44,7 @@
       DipM(1)=0.0D0
       DipM(2)=0.0D0
       DipM(3)=0.0D0
-      Call GF(nX,mInter,nInter,Tmp1,Tmp2,EVec,EVal,RedMas,iNeg,dDipM,
+      Call GF(nX,nDoF,nInter,Tmp1,Tmp2,EVec,EVal,RedMas,iNeg,dDipM,
      &        mTR,nAtom,DipM)
 *
       Call mma_deallocate(Tmp2)
@@ -82,20 +82,20 @@
       iEl =3
       jSym=1
 *
-      Call mma_allocate(Temp,3*mInter,Label='Temp')
+      Call mma_allocate(Temp,3*nDoF,Label='Temp')
 *
       Call DGeTMO(dDipM,3,3,nInter,Temp,nInter)
 *
       Call mma_deallocate(dDipM)
 
-      Call mma_allocate(IRInt,mInter,Label='IRInt')
+      Call mma_allocate(IRInt,nDoF,Label='IRInt')
 *
       Lu_10=10
       Lu_10=IsFreeUnit(Lu_10)
       Call Molcas_Open(lu_10,'UNSYM')
 *
       Write(Lu_10,'(A,I1)') '*NORMAL MODES SYMMETRY: ',jsym
-      Call GF_Print(EVal,EVec,Temp,iEl,mInter,nInter,iCtl,IRInt,RedMas,
+      Call GF_Print(EVal,EVec,Temp,iEl,nDoF,nInter,iCtl,IRInt,RedMas,
      &              Lu_10,iOff)
 *
       Close(Lu_10)
@@ -107,12 +107,12 @@
 *                                                                      *
 *-----Save normal modes for later generation of Molden input.
 *
-      nDisp=mInter
+      nDisp=nDoF
       Call mma_allocate(NMod,nDisp**2,Label='NMod')
 *
       lModes=0
       nModes=0
-      nX=mInter
+      nX=nDoF
       call dcopy_(nX*nInter,EVec,2,NMod,1)
       lModes=lModes+nInter*nX
       nModes=nModes+nInter
