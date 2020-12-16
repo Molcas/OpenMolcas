@@ -33,10 +33,6 @@
       Character(LEN=100), External:: Get_SuperName
       Real*8, Allocatable:: xMass(:)
 *
-*     Statement function
-*
-      iPrmt(i,j) = jPrmt(iAnd(i,j))
-*
 ************************************************************************
 ************************** StartUp section   ***************************
 ************************************************************************
@@ -335,7 +331,7 @@ C           NADC= .False. ! for debugging
                   Call WarningMessage(2,' Error finding coset element')
                   Call Abend()
                End If
-               iAdd(n) = iAdd(n) + iPrmt(iOper(iIrrep),iComp)
+               iAdd(n) = iAdd(n) + jPrmt(iAnd(iOper(iIrrep),iComp))
  640        Continue
             Do 645 jCoSet = 0, nCoSet-1
                If (iAdd(jCoSet).eq.0) Go To 611
