@@ -53,11 +53,11 @@
      &        Request_RASSI
 *
       Real*8 cMass(3), Trial(3), ThrEne, ThrGrd,
-     &       Beta, Beta_Disp, Delta, Rtrnc, ThrCons,
+     &       Delta, Rtrnc, ThrCons,
      &       GNrm_Threshold, dMEPStep, rFuzz, ThrMEP
 *
-      Common /rInfSla/ cMass, Trial, ThrEne, ThrGrd, Beta,
-     &                 Beta_Disp, Delta, Rtrnc, ThrCons,
+      Common /rInfSla/ cMass, Trial, ThrEne, ThrGrd,
+     &                 Delta, Rtrnc, ThrCons,
      &                 GNrm_Threshold, dMEPStep, rFuzz,
      &                 ThrMEP
 *

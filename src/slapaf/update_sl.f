@@ -11,7 +11,6 @@
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
       Subroutine Update_sl(iter,NmIter,nInter,
-     &                     Beta,Beta_Disp,
      &                     ed,Line_Search,Step_Trunc,
      &                     nLambda,nsAtom,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
@@ -45,6 +44,7 @@
 *             2000                                                     *
 ************************************************************************
       use Slapaf_Info, only: Shift, qInt, dqInt
+      use Slapaf_Parameters, only: Beta, Beta_disp
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"

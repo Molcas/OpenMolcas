@@ -13,7 +13,6 @@
 ************************************************************************
       Subroutine Update_kriging(
      &                     iter,nInter,
-     &                     Beta,Beta_Disp,
      &                     ed,Line_Search,Step_Trunc,
      &                     nLambda,nsAtom,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
@@ -31,7 +30,7 @@
      &                       Thr_microiterations
       Use Slapaf_Info, only: Cx, Gx, Shift, GNrm, Energy, qInt, dqInt,
      &                       Lbl
-      use Slapaf_Parameters, only: UpMeth
+      use Slapaf_Parameters, only: UpMeth, Beta, Beta_Disp
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"

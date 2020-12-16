@@ -39,7 +39,7 @@
       Real*8 Bk_cMass(3), Bk_Trial(3), Bk_ThrEne,
      &       Bk_ThrGrd, Bk_Beta, Bk_Delta, Bk_Rtrnc,
      &       Bk_rHidden, Bk_ThrCons, Bk_GNrm_Threshold, Bk_CnstWght,
-     &       Bk_dMEPStep, Bk_rFuzz, Bk_ThrMEP
+     &       Bk_dMEPStep, Bk_rFuzz, Bk_ThrMEP, Bk_Beta_Disp
 *
       Logical Bk_lTherm, Bk_lDoubleIso
       Integer Bk_nUserPT, Bk_nsRot

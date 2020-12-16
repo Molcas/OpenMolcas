@@ -211,7 +211,6 @@
       If (Kriging .and. Iter.ge.nspAI) Then
          Call Update_Kriging(
      &               Iter,nQQ,
-     &               Beta,Beta_Disp,
      &               ed,Line_Search,Step_Trunc,nLambda,nsAtom,
      &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
      &               TSConstraints,nRowH,
@@ -221,7 +220,6 @@
       Else
          Call Update_sl(
      &               Iter,NmIter,nQQ,
-     &               Beta,Beta_Disp,
      &               ed,Line_Search,Step_Trunc,nLambda,nsAtom,
      &               GrdMax,
      &               StpMax,GrdLbl,StpLbl,iNeg,

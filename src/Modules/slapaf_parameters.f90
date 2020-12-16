@@ -15,7 +15,7 @@ implicit none
 Private
 Public:: iRow, iRow_c, iInt, nFix, ddV_Schlegel, HWRS, iOptH, HUpMet, HrmFrq_Show, IRC, &
          nBVec, nDimBC, Curvilinear, Redundant, FindTS, User_Def, Analytic_Hessian, MaxItr, &
-         UpMeth, iOptC, HSet, BSet, rHidden, CnstWght, PrQ, lOld, Numerical
+         UpMeth, iOptC, HSet, BSet, rHidden, CnstWght, PrQ, lOld, Numerical, Beta, Beta_Disp
 Integer:: iRow=0
 Integer:: iRow_c=0
 Integer:: iInt=0
@@ -39,9 +39,12 @@ Logical:: PrQ=.False.
 Logical:: lOld=.False.
 Logical:: Numerical=.False.
 
+
 #include "real.fh"
 Real*8:: rHidden=Zero
 Real*8:: CnstWght=One
+Real*8:: Beta = 0.30D0    !     The threshold for restricted step optimization.
+Real*8:: Beta_Disp=0.30D0 !     The threshold for restricted variance optimization.
 
 !                                                                      *
 !***********************************************************************

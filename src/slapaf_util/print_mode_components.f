@@ -41,7 +41,8 @@
      &                             Redundant, FindTS, nBVec, nDimBC,
      &                             User_Def, Analytic_Hessian, MaxItr,
      &                             iOptC, UpMeth, HSet, BSet, rHidden,
-     &                             CnstWght, PrQ, lOld, Numerical
+     &                             CnstWght, PrQ, lOld, Numerical, Beta,
+     &                             Beta_Disp
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"
@@ -354,6 +355,7 @@
       Bk_ThrEne=ThrEne
       Bk_ThrGrd=ThrGrd
       Bk_Beta=Beta
+      Bk_Beta_Disp=Beta_Disp
       Bk_Delta=Delta
       Bk_Rtrnc=Rtrnc
       Bk_rHidden=rHidden
@@ -646,7 +648,7 @@
       Trial(:)=Bk_Trial(:)
       ThrEne=Bk_ThrEne
       ThrGrd=Bk_ThrGrd
-      Beta=Bk_Beta
+      Beta_Disp=Bk_Beta_Disp
       Delta=Bk_Delta
       Rtrnc=Bk_Rtrnc
       rHidden=Bk_rHidden
