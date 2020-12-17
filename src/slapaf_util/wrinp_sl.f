@@ -14,7 +14,8 @@
       use Slapaf_Parameters, only: iRow, ddV_Schlegel, HWRS, iOptH, IRC,
      &                             Curvilinear, Redundant, FindTS,
      &                             Analytic_Hessian, iOptC, rHidden,
-     &                             lOld, Beta, Beta_Disp, Line_Search
+     &                             lOld, Beta, Beta_Disp, Line_Search,
+     &                             GNrm_Threshold
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "info_slapaf.fh"

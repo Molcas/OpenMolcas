@@ -79,7 +79,6 @@
       isFalcon=.False.
       CallLast=.True.
       TwoRunFiles=.False.
-      TSConstraints=.False.
       MEPCons=.False.
       Track=.False.
       Request_Alaska=.False.
@@ -104,7 +103,6 @@
 *
       Cubic  = .False.
       PDH    = .True.
-      GNrm_Threshold=0.2D0
       Call DecideOnESPF(Do_ESPF)
       If (Do_ESPF) Then
          ThrGrd = 0.003D0

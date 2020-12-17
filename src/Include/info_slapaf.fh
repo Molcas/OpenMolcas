@@ -39,7 +39,7 @@
      &        FirstCall, MEP, Ref_Geom, lRP, Ref_Grad,
      &        rMEP, lOld_Implicit, eMEPtest,
      &        lCtoF, lSoft, CallLast, TwoRunFiles,
-     &        TSConstraints, MEPCons, Track, Request_Alaska,
+     &        MEPCons, Track, Request_Alaska,
      &        Request_RASSI
       Common /lInfSla/ Stop, lWrite, Exist, Change,
      &        lSup, lRowH,rMEP,
@@ -47,16 +47,16 @@
      &        FirstCall, MEP, Ref_Geom, lRP, Ref_Grad,
      &        lOld_Implicit, eMEPtest,
      &        lCtoF, lSoft, CallLast, TwoRunFiles,
-     &        TSConstraints, MEPCons, Track, Request_Alaska,
+     &        MEPCons, Track, Request_Alaska,
      &        Request_RASSI
 *
       Real*8 cMass(3), Trial(3), ThrEne, ThrGrd,
      &       Delta, Rtrnc, ThrCons,
-     &       GNrm_Threshold, dMEPStep, rFuzz, ThrMEP
+     &       dMEPStep, rFuzz, ThrMEP
 *
       Common /rInfSla/ cMass, Trial, ThrEne, ThrGrd,
      &                 Delta, Rtrnc, ThrCons,
-     &                 GNrm_Threshold, dMEPStep, rFuzz,
+     &                 dMEPStep, rFuzz,
      &                 ThrMEP
 *
       Logical   lTherm, lDoubleIso

@@ -42,7 +42,8 @@
      &                             User_Def, Analytic_Hessian, MaxItr,
      &                             iOptC, UpMeth, HSet, BSet, rHidden,
      &                             CnstWght, PrQ, lOld, Numerical, Beta,
-     &                             Beta_Disp, Line_Search
+     &                             Beta_Disp, Line_Search,
+     &                             TSConstraints, GNrm_Threshold
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"

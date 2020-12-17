@@ -208,13 +208,12 @@
          If (Kriging .and. Iter.ge.nspAI) Then
             Call Update_Kriging(Iter,nQQ,ed,Step_Trunc,
      &                          nLambda,nsAtom,GrdMax,StpMax,GrdLbl,
-     &                          StpLbl,TSConstraints,nRowH,
-     &                          nWndw,Mode,GNrm_Threshold,ThrEne,ThrGrd)
+     &                          StpLbl,nRowH,
+     &                          nWndw,Mode,ThrEne,ThrGrd)
          Else
             Call Update_sl(Iter,NmIter,nQQ,ed,Step_Trunc,
      &                     nLambda,nsAtom,GrdMax,StpMax,GrdLbl,StpLbl,
-     &                     TSConstraints,nRowH,nWndw,Mode,kIter,
-     &                     GNrm_Threshold)
+     &                     nRowH,nWndw,Mode,kIter)
          End If
 *
 #ifdef UNIT_MM

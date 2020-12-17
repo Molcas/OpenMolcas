@@ -11,7 +11,7 @@
       Subroutine Update_H(nWndw,H,nInter,nIter,
      &                    iOptC,Mode,MF,dq,g,iOptH,
      &                    nRowH,jPrint,GNrm,
-     &                    GNrm_Threshold,nAtoms,Store,
+     &                    nAtoms,Store,
      &                    AllowFindTS)
       use Slapaf_Parameters, only: IRC
       Implicit Real*8 (a-h,o-z)
@@ -57,7 +57,7 @@
 *                                                                      *
 *     Massage the new Hessian
 *
-      Call FixHess(H,nInter,iOptC,Mode,Tmp,GNrm,GNrm_Threshold,
+      Call FixHess(H,nInter,iOptC,Mode,Tmp,GNrm,
      &             nAtoms,(IterHess.eq.nIter),AllowFindTS)
 *                                                                      *
 ************************************************************************

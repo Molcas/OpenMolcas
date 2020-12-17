@@ -14,9 +14,8 @@
      &                     ed,Step_Trunc,
      &                     nLambda,nsAtom,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
-     &                     TSC,nRowH,
-     &                     nWndw,Mode,
-     &                     kIter,GNrm_Threshold)
+     &                     nRowH,
+     &                     nWndw,Mode,kIter)
 ************************************************************************
 *                                                                      *
 *     Object: to update coordinates                                    *
@@ -48,7 +47,6 @@
 #include "stdalloc.fh"
 #include "print.fh"
 #include "Molcas.fh"
-      Logical TSC
       Character GrdLbl*8, StpLbl*8, Step_Trunc
       Real*8 Dummy(1)
       Real*8, Allocatable:: t_Shift(:,:), t_qInt(:,:), tmp(:)
@@ -104,9 +102,9 @@
      &                   ed,
      &                   Step_Trunc,nLambda,nsAtom,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,
-     &                   TSC,nRowH,
+     &                   nRowH,
      &                   nWndw,Mode,
-     &                   kIter,GNrm_Threshold,
+     &                   kIter,
      &                   Kriging_Hessian,qBeta,iOpt_RS,.True.,iter_,
      &                   qBeta_Disp)
 *                                                                      *
@@ -141,9 +139,9 @@
      &                ed,Step_Trunc,nLambda,
      &                nsAtom,
      &                GrdMax,StpMax,GrdLbl,StpLbl,
-     &                TSC,nRowH,
+     &                nRowH,
      &                nWndw,Mode,
-     &                kIter,GNrm_Threshold,
+     &                kIter,
      &                Kriging_Hessian,qBeta,iOpt_RS,.True.,iter,
      &                qBeta_Disp)
 *                                                                      *

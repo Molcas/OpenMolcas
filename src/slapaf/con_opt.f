@@ -872,7 +872,7 @@ C           Write (6,*) 'gBeta=',gBeta
       Call Update_H(nWndw,Hessian,nInter,
      &              nIter,iOptC_Temp,Mode,MF,
      &              dq,dEdq_,iOptH,nRowH,
-     &              jPrint,Dummy,Dummy,nsAtom,.False.,.False.)
+     &              jPrint,Dummy,nsAtom,.False.,.False.)
 
 #ifdef _DEBUGPRINT_
       Call RecPrt('Con_Opt: Hessian(updated)',' ',Hessian,nInter,nInter)

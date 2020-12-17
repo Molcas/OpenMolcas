@@ -8,9 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine FixHess(H,nH,iOptC,Mode,MF,GNrm,GNrm_Threshold,
+      Subroutine FixHess(H,nH,iOptC,Mode,MF,GNrm,
      &                   nAtoms,AnalHess,AllowFindTS)
-      use Slapaf_Parameters, only: iNeg
+      use Slapaf_Parameters, only: iNeg, GNrm_Threshold
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"

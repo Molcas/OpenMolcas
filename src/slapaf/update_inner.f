@@ -16,9 +16,9 @@
      &                     ed,Step_Trunc,
      &                     nLambda,nsAtom,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
-     &                     TSC,nRowH,
+     &                     nRowH,
      &                     nWndw,Mode,
-     &                     mIter,GNrm_Threshold,
+     &                     mIter,
      &                     Kriging_Hessian,qBeta,iOpt_RS,
      &                     First_MicroIteration,Iter,qBeta_Disp)
 ************************************************************************
@@ -52,13 +52,14 @@
      &                       BMx, Degen, nStab, Smmtrc, Lbl
       use Slapaf_Parameters, only: iRow_c, iInt, nFix, iOptH,
      &                             HrmFrq_Show, Curvilinear, FindTS,
-     &                             nBVec, nDimBC, iOptC, iNeg
+     &                             nBVec, nDimBC, iOptC, iNeg,
+     &                             TSConstraints, GNrm_Threshold
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
       Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter)
-      Logical TSC, Found, Kriging_Hessian, First_MicroIteration
+      Logical Found, Kriging_Hessian, First_MicroIteration
       Character GrdLbl*8, StpLbl*8, Step_Trunc,
      &          File1*8, File2*8, Step_Trunc_
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:),
@@ -139,7 +140,7 @@
      &              mIter,iOptC,Mode,MF,
      &              Shift(1,kIter-mIter+1),dqInt(1,kIter-mIter+1),
      &              iOptH_,nRowH,jPrint,GNrm(kIter),
-     &              GNrm_Threshold,nsAtom,.True.,
+     &              nsAtom,.True.,
      &              First_MicroIteration)
 *
 *     Call RecPrt('Update_inner: Hessian',' ',Hessian,nInter,nInter)
@@ -176,14 +177,14 @@
       If (FindTS.and.First_MicroIteration) Then
          File1='UDC'
          File2='TSC'
-         If (.not.TSC) File2=''
+         If (.not.TSConstraints) File2=''
          If (iNeg(1).ge.1) Then
             If ((GNrm(kIter).le.GNrm_Threshold).or.Found) Then
 *              Change to MFRF optimization.
                Mask=1+2+4+8+16+32+64+256+512+1024+2048+8192
                iOptC=iAnd(iOptC,Mask)
                Call Put_lScalar('TS Search',.True.)
-               If (TSC) Then
+               If (TSConstraints) Then
                   File2=''
                Else
                   File1=''

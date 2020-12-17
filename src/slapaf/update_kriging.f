@@ -16,9 +16,8 @@
      &                     ed,Step_Trunc,
      &                     nLambda,nsAtom,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
-     &                     TSC,nRowH,
+     &                     nRowH,
      &                     nWndw,Mode,
-     &                     GNrm_Threshold,
      &                     ThrEne,ThrGrd)
 ************************************************************************
 *                                                                      *
@@ -37,7 +36,7 @@
 #include "Molcas.fh"
 #include "stdalloc.fh"
       Real*8 dEner
-      Logical TSC, First_MicroIteration, Error
+      Logical First_MicroIteration, Error
       Character GrdLbl*8, StpLbl*8, Step_Trunc
       Character GrdLbl_Save*8
       Real*8 Dummy(1)
@@ -208,8 +207,8 @@
      &                   ed,Step_Trunc,nLambda,
      &                   nsAtom,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,
-     &                   TSC,nRowH,nWndw_,Mode,
-     &                   kIter,GNrm_Threshold,
+     &                   nRowH,nWndw_,Mode,
+     &                   kIter,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
      &                   First_MicroIteration,iter,qBeta_Disp)
 #ifdef _DEBUGPRINT_
