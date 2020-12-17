@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Update_H(nWndw,H,nInter,nIter,
-     &                    iOptC,Mode,MF,dq,g,iNeg,iOptH,
+     &                    iOptC,Mode,MF,dq,g,iOptH,
      &                    nRowH,jPrint,GNrm,
      &                    GNrm_Threshold,nAtoms,Store,
      &                    AllowFindTS)
@@ -19,7 +19,6 @@
 #include "real.fh"
       Real*8 H(nInter,nInter), dq(nInter,nIter),
      &       g(nInter,nIter), MF(3*nAtoms)
-      Integer iNeg(2)
       Logical Old_MF, Store, AllowFindTS
       Real*8, Allocatable:: Tmp(:)
 *                                                                      *
@@ -58,7 +57,7 @@
 *                                                                      *
 *     Massage the new Hessian
 *
-      Call FixHess(H,nInter,iOptC,Mode,Tmp,GNrm,GNrm_Threshold,iNeg,
+      Call FixHess(H,nInter,iOptC,Mode,Tmp,GNrm,GNrm_Threshold,
      &             nAtoms,(IterHess.eq.nIter),AllowFindTS)
 *                                                                      *
 ************************************************************************

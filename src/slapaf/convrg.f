@@ -11,7 +11,7 @@
       Subroutine Convrg(iter,kIter, nInter,
      &                  Stop,iStop,ThrCons,
      &                  ThrEne, ThrGrd, MxItr, mIntEff,
-     &                  Baker, nAtom,mTtAtm,ed,iNeg,
+     &                  Baker, nAtom,mTtAtm,ed,
      &                  GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &                  rMEP,MEP,nMEP,
      &                  Just_Frequencies,eMEPTest,nLambda,
@@ -20,7 +20,7 @@
       Use Slapaf_Info, only: Cx, Gx, Coor, GNrm, Energy, Shift, qInt,
      &                       dqInt, Lbl
       use Slapaf_Parameters, only: HUpMet, FindTS, Analytic_Hessian,
-     &                             MaxItr, Numerical
+     &                             MaxItr, Numerical, iNeg
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -36,7 +36,6 @@
       Character(LEN=16) StdIn
       Character(LEN=80) Point_Desc
       Character(LEN=16) MEP_Text
-      Integer   iNeg(2)
       Logical Stop, Conv1, Baker, GoOn, MEP,
      &        Found, Terminate, Last_Energy, rMEP,
      &        Just_Frequencies, Saddle, eMEPTest, eTest,
@@ -295,7 +294,7 @@
       End If
       If (.Not.Just_Frequencies) Then
          Call Status(kIter-iOff_Iter,E,Fabs,GrdMax,GrdLbl,StpMax,StpLbl,
-     &               E0,MaxItr-1,eChng,iNeg,Temp,Step_Trunc,
+     &               E0,MaxItr-1,eChng,Temp,Step_Trunc,
      &               .NOT.Numerical)
       End If
 *

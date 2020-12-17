@@ -13,10 +13,10 @@
 ************************************************************************
       Subroutine Update_kriging(
      &                     iter,nInter,
-     &                     ed,Line_Search,Step_Trunc,
+     &                     ed,Step_Trunc,
      &                     nLambda,nsAtom,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
-     &                     iNeg,TSC,nRowH,
+     &                     TSC,nRowH,
      &                     nWndw,Mode,
      &                     GNrm_Threshold,
      &                     ThrEne,ThrGrd)
@@ -37,8 +37,7 @@
 #include "Molcas.fh"
 #include "stdalloc.fh"
       Real*8 dEner
-      Integer iNeg(2)
-      Logical Line_Search, TSC, First_MicroIteration, Error
+      Logical TSC, First_MicroIteration, Error
       Character GrdLbl*8, StpLbl*8, Step_Trunc
       Character GrdLbl_Save*8
       Real*8 Dummy(1)
@@ -206,9 +205,9 @@
          Call Update_inner(
      &                   iterAI,nInter,qInt,Shift,
      &                   Beta_,Beta_Disp_,
-     &                   ed,Line_Search,Step_Trunc,nLambda,
+     &                   ed,Step_Trunc,nLambda,
      &                   nsAtom,
-     &                   GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
+     &                   GrdMax,StpMax,GrdLbl,StpLbl,
      &                   TSC,nRowH,nWndw_,Mode,
      &                   kIter,GNrm_Threshold,
      &                   Kriging_Hessian,qBeta,iOpt_RS,

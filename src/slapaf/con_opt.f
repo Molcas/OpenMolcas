@@ -17,7 +17,7 @@
      &                   iOptH,jPrint,Energy,nLambda,
      &                   nRowH,Err,EMx,RHS,A,nA,ed,
      &                   Beta,Beta_Disp,nFix,iP,
-     &                   Line_Search,Step_Trunc,Lbl,GrdLbl,StpLbl,
+     &                   Step_Trunc,Lbl,GrdLbl,StpLbl,
      &                   GrdMax,StpMax,d2rdq2,nsAtom,
      &                   iOpt_RS,Thr_RS,iter_,
      &                   First_Microiteration)
@@ -67,8 +67,8 @@
      &       Err(nInter,nIter+1), EMx((nIter+1)**2), RHS(nIter+1),
      &       A(nA), d2rdq2(nInter,nInter,nLambda),
      &       MF(3*nsAtom)
-      Integer iP(nInter), iNeg(2)
-      Logical Line_Search, Found, IRC_setup, First_MicroIteration,
+      Integer iP(nInter)
+      Logical Found, IRC_setup, First_MicroIteration,
      &        Recompute_disp
       Character Step_Trunc*1, Lbl(nInter+nLambda)*8,
      &          GrdLbl*8, StpLbl*8, StpLbl_Save*8, Step_Trunc_*1
@@ -871,7 +871,7 @@ C           Write (6,*) 'gBeta=',gBeta
       If (Step_Trunc.eq.'N') Step_Trunc=' '
       Call Update_H(nWndw,Hessian,nInter,
      &              nIter,iOptC_Temp,Mode,MF,
-     &              dq,dEdq_,iNeg,iOptH,nRowH,
+     &              dq,dEdq_,iOptH,nRowH,
      &              jPrint,Dummy,Dummy,nsAtom,.False.,.False.)
 
 #ifdef _DEBUGPRINT_
@@ -949,7 +949,7 @@ C           Write (6,*) 'gBeta=',gBeta
             Step_Trunc_=Step_Trunc
             Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
      &                RHS,A,nA,ed,tBeta,
-     &                nFix,ip,Energy,Line_Search,Step_Trunc_,
+     &                nFix,ip,Energy,Step_Trunc_,
      &                Thr_RS)
             If (Step_Trunc.eq.'N') Step_Trunc=' '
             If (iOpt_RS.eq.0) Then

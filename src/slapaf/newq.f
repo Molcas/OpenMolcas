@@ -13,7 +13,7 @@
       SubRoutine Newq(q,nInter,nIter,dq,H,g,error,B,RHS,
      &                Scrt1,nScrt1,dqHdq,
      &                Beta,nFix,iP,Energy,
-     &                Line_Search,Step_Trunc,Thr_RS)
+     &                Step_Trunc,Thr_RS)
 ************************************************************************
 *                                                                      *
 * Object: Driver for optimization procedures.                          *
@@ -22,7 +22,7 @@
 *             University of Lund, SWEDEN                               *
 *             December '94                                             *
 ************************************************************************
-      use Slapaf_Parameters, only: iOptC, UpMeth
+      use Slapaf_Parameters, only: iOptC, UpMeth, Line_Search
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -34,7 +34,6 @@
      &       Scrt1(nScrt1), Energy(nIter), H(nInter,nInter)
       Integer   iP(nIter)
       Character*1 Step_Trunc
-      Logical Line_Search
       Real*8, Allocatable:: t_q(:), t_g(:), t_dq(:)
 *
       Lu=6

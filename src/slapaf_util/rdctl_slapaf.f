@@ -17,7 +17,7 @@
      &                             iOptH, HrmFrq_Show, IRC, Curvilinear,
      &                             Redundant, FindTS, nBVec, User_Def,
      &                             MaxItr, iOptC, rHidden, CnstWght,
-     &                             lOld, Beta, Beta_Disp
+     &                             lOld, Beta, Beta_Disp, Line_Search
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"

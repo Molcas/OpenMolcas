@@ -14,7 +14,7 @@
       Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx,
      &                       Free_Slapaf, qInt, dqInt, Lbl
       use Slapaf_Parameters, only: HUpMet, User_Def, iOptC, UpMeth,
-     &                             HSet, BSet, PrQ, Numerical
+     &                             HSet, BSet, PrQ, Numerical, iNeg
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -25,11 +25,11 @@
 #include "weighting.fh"
 #include "db.fh"
 #include "stdalloc.fh"
+#include "print.fh"
       Logical GoOn, TSReg, Do_ESPF, Just_Frequencies, Found, Error
       Character(LEN=8) GrdLbl, StpLbl
       Character(LEN=1) Step_trunc
       Integer, External:: AixRm
-      Integer iNeg(2)
       Integer nGB
       Real*8 rDum(1)
       Real*8, Allocatable:: GB(:), HX(:), HQ(:), KtB(:)
@@ -110,12 +110,7 @@
 *
       If (Numerical) nWndw=NmIter
       iRef=0
-      Call BMtrx(nsAtom,mInt,
-     &           Coor,
-     &           iter,
-     &           mTtAtm,
-     &           nQQ,iRef,
-     &           nWndw)
+      Call BMtrx(nsAtom,mInt,Coor,iter,mTtAtm,nQQ,iRef,nWndw)
 *
       nPrint(30) = nPrint(30)-1
 *
@@ -177,8 +172,7 @@
 *
          Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nQQ,dqInt(:,iter),
      &               Shift(:,iter),Lbl)
-         iNeg(1)=-99
-         iNeg(2)=-99
+         iNeg(:)=-99
          HUpMet='None  '
          Stop = .False.
          nPrint(116)=nPrint(116)-3
@@ -212,14 +206,14 @@
 *        Update geometry
 *
          If (Kriging .and. Iter.ge.nspAI) Then
-            Call Update_Kriging(Iter,nQQ,ed,Line_Search,Step_Trunc,
+            Call Update_Kriging(Iter,nQQ,ed,Step_Trunc,
      &                          nLambda,nsAtom,GrdMax,StpMax,GrdLbl,
-     &                          StpLbl,iNeg,TSConstraints,nRowH,
+     &                          StpLbl,TSConstraints,nRowH,
      &                          nWndw,Mode,GNrm_Threshold,ThrEne,ThrGrd)
          Else
-            Call Update_sl(Iter,NmIter,nQQ,ed,Line_Search,Step_Trunc,
+            Call Update_sl(Iter,NmIter,nQQ,ed,Step_Trunc,
      &                     nLambda,nsAtom,GrdMax,StpMax,GrdLbl,StpLbl,
-     &                     iNeg,TSConstraints,nRowH,nWndw,Mode,kIter,
+     &                     TSConstraints,nRowH,nWndw,Mode,kIter,
      &                     GNrm_Threshold)
          End If
 *
@@ -289,7 +283,7 @@
       Call Convrg(iter,kIter,nQQ,Stop,iStop,ThrCons,
      &            ThrEne,ThrGrd,MxItr,mIntEff,Baker,
      &            nsAtom,mTtAtm,ed,
-     &            iNeg,GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
+     &            GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
      &            rMEP,MEP,nMEP,
      &            Just_Frequencies,eMEPTest,nLambda,
      &            TSReg,ThrMEP)

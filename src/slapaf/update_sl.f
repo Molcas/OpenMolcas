@@ -11,10 +11,10 @@
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
       Subroutine Update_sl(iter,NmIter,nInter,
-     &                     ed,Line_Search,Step_Trunc,
+     &                     ed,Step_Trunc,
      &                     nLambda,nsAtom,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
-     &                     iNeg,TSC,nRowH,
+     &                     TSC,nRowH,
      &                     nWndw,Mode,
      &                     kIter,GNrm_Threshold)
 ************************************************************************
@@ -26,10 +26,8 @@
 *      NmIter         : number of iteration in numerical approach      *
 *      nInter         : total number of internal coordinates           *
 *      Beta           : damping factor                                 *
-*      Line_Search    : logical flag for line search                   *
 *      nLambda        : number of contraints                           *
 *      nsAtom         : number of symmetry unique atoms                *
-*      iNeg           : Hessian index                                  *
 *                                                                      *
 *    OutPut:                                                           *
 *      ed             : estimated energy change to the next point      *
@@ -50,8 +48,7 @@
 #include "stdalloc.fh"
 #include "print.fh"
 #include "Molcas.fh"
-      Integer iNeg(2)
-      Logical Line_Search, TSC
+      Logical TSC
       Character GrdLbl*8, StpLbl*8, Step_Trunc
       Real*8 Dummy(1)
       Real*8, Allocatable:: t_Shift(:,:), t_qInt(:,:), tmp(:)
@@ -104,10 +101,10 @@
          Call Update_inner(
      &                   iter_,nInter,qInt,
      &                   Shift,Beta,Beta_Disp,
-     &                   ed,Line_Search,
+     &                   ed,
      &                   Step_Trunc,nLambda,nsAtom,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,
-     &                   iNeg,TSC,nRowH,
+     &                   TSC,nRowH,
      &                   nWndw,Mode,
      &                   kIter,GNrm_Threshold,
      &                   Kriging_Hessian,qBeta,iOpt_RS,.True.,iter_,
@@ -141,9 +138,9 @@
          Call Update_inner(
      &                iter,nInter,qInt,Shift,
      &                Beta,Beta_Disp,
-     &                ed,Line_Search,Step_Trunc,nLambda,
+     &                ed,Step_Trunc,nLambda,
      &                nsAtom,
-     &                GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
+     &                GrdMax,StpMax,GrdLbl,StpLbl,
      &                TSC,nRowH,
      &                nWndw,Mode,
      &                kIter,GNrm_Threshold,

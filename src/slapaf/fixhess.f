@@ -9,13 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine FixHess(H,nH,iOptC,Mode,MF,GNrm,GNrm_Threshold,
-     &                   iNeg,nAtoms,AnalHess,AllowFindTS)
+     &                   nAtoms,AnalHess,AllowFindTS)
+      use Slapaf_Parameters, only: iNeg
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
 #include "stdalloc.fh"
       Real*8 H(nH,nH), MF(3*nAtoms)
-      Integer iNeg(2)
       Logical AnalHess, AllowFindTS, Corrected, Too_Small, Found
       Real*8, Allocatable:: EVal(:), LowVal(:), LowVec(:,:), Tmp(:,:),
      &                      FixVal(:), Rx(:,:), Vect(:)

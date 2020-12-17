@@ -13,10 +13,10 @@
       Subroutine Update_inner(
      &                     kIter,nInter,qInt,Shift,
      &                     Beta,Beta_Disp,
-     &                     ed,Line_Search,Step_Trunc,
+     &                     ed,Step_Trunc,
      &                     nLambda,nsAtom,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
-     &                     iNeg,TSC,nRowH,
+     &                     TSC,nRowH,
      &                     nWndw,Mode,
      &                     mIter,GNrm_Threshold,
      &                     Kriging_Hessian,qBeta,iOpt_RS,
@@ -31,10 +31,8 @@
 *      Shift(*,kIter) : the shift of the internal coordinates          *
 *      Beta           : damping factor step length                     *
 *      Beta_Disp      : damping factor variance                        *
-*      Line_Search    : logical flag for line search                   *
 *      nLambda        : number of constraints                          *
 *      nsAtom         : number of symmetry unique atoms                *
-*      iNeg           : Hessian index                                  *
 *                                                                      *
 *    OutPut:                                                           *
 *      qInt(*,kIter+1): the internal coordinates to be used in the     *
@@ -54,16 +52,13 @@
      &                       BMx, Degen, nStab, Smmtrc, Lbl
       use Slapaf_Parameters, only: iRow_c, iInt, nFix, iOptH,
      &                             HrmFrq_Show, Curvilinear, FindTS,
-     &                             nBVec, nDimBC, iOptC
+     &                             nBVec, nDimBC, iOptC, iNeg
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
       Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter)
-      Integer iNeg(2)
-*    &        iNeg(2), jNeg(2)
-      Logical Line_Search, TSC,
-     &        Found, Kriging_Hessian, First_MicroIteration
+      Logical TSC, Found, Kriging_Hessian, First_MicroIteration
       Character GrdLbl*8, StpLbl*8, Step_Trunc,
      &          File1*8, File2*8, Step_Trunc_
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:),
@@ -143,7 +138,7 @@
       Call Update_H(nWndw,Hessian,nInter,
      &              mIter,iOptC,Mode,MF,
      &              Shift(1,kIter-mIter+1),dqInt(1,kIter-mIter+1),
-     &              iNeg,iOptH_,nRowH,jPrint,GNrm(kIter),
+     &              iOptH_,nRowH,jPrint,GNrm(kIter),
      &              GNrm_Threshold,nsAtom,.True.,
      &              First_MicroIteration)
 *
@@ -289,7 +284,7 @@ C           Write (6,*) 'tBeta=',tBeta
      &                   ErrVec,EMtrx,RHS,
      &                   AMat,nA,
      &                   ed,qBeta,nFix,Index,
-     &                   Energy,Line_Search,Step_Trunc_,Thr_RS)
+     &                   Energy,Step_Trunc_,Thr_RS)
                If (Step_Trunc.eq.'N') Step_Trunc=' '
                If (iOpt_RS.eq.0) Then
                   If (Step_Trunc_.eq.'N') Step_Trunc_=' '
@@ -642,7 +637,7 @@ C           Write (6,*) 'tBeta=',tBeta
      &                iOptH_,jPrint,Energy_L,nLambda,nRowH,
      &                ErrVec,EMtrx,RHS,
      &                AMat,nA,ed,qBeta,qBeta_Disp,nFix,
-     &                Index,Line_Search,Step_Trunc,Lbl,
+     &                Index,Step_Trunc,Lbl,
      &                GrdLbl,StpLbl,GrdMax,StpMax,d2L,nsAtom,
      &                iOpt_RS,Thr_RS,iter,
      &                First_Microiteration)

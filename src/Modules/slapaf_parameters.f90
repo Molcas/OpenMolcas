@@ -15,7 +15,8 @@ implicit none
 Private
 Public:: iRow, iRow_c, iInt, nFix, ddV_Schlegel, HWRS, iOptH, HUpMet, HrmFrq_Show, IRC, &
          nBVec, nDimBC, Curvilinear, Redundant, FindTS, User_Def, Analytic_Hessian, MaxItr, &
-         UpMeth, iOptC, HSet, BSet, rHidden, CnstWght, PrQ, lOld, Numerical, Beta, Beta_Disp
+         UpMeth, iOptC, HSet, BSet, rHidden, CnstWght, PrQ, lOld, Numerical, Beta, Beta_Disp, &
+         Line_Search, iNeg
 Integer:: iRow=0
 Integer:: iRow_c=0
 Integer:: iInt=0
@@ -24,6 +25,7 @@ Integer:: IRC=0
 Integer:: nBVec=0
 Integer:: nDimBC=0
 Integer, Parameter:: MaxItr=2000
+Integer:: iNeg(2)=[0,0]
 
 Logical:: Curvilinear=.True.
 Logical:: Redundant=.False.
@@ -38,6 +40,7 @@ Logical:: BSet=.False.
 Logical:: PrQ=.False.
 Logical:: lOld=.False.
 Logical:: Numerical=.False.
+Logical:: Line_Search=.True.
 
 
 #include "real.fh"

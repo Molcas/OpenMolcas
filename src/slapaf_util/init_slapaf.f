@@ -13,7 +13,8 @@
       use Slapaf_Info, only: q_nuclear, dMass, Coor, Grd, ANr, Degen,
      &                       jStab, nStab, iCoSet, AtomLbl, Smmtrc
 *     use Slapaf_Info, only: R12
-      use Slapaf_Parameters, only: nDimBC, Analytic_Hessian, MaxItr
+      use Slapaf_Parameters, only: nDimBC, Analytic_Hessian, MaxItr,
+     &                             Line_Search
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "info_slapaf.fh"
