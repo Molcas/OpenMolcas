@@ -72,7 +72,7 @@
 
       !> general wavefunction attributes
         call mh5_init_attr (pt2wfn_id,'SPINMULT', nSpin)
-        call mh5_init_attr (pt2wfn_id,'LSYM', lSym)
+        call mh5_init_attr (pt2wfn_id,'LSYM', stSym)
         call mh5_init_attr (pt2wfn_id,'NACTEL', nr_active_electrons)
         call mh5_init_attr (pt2wfn_id,'NHOLE1', 0)
         call mh5_init_attr (pt2wfn_id,'NELEC3', 0)

@@ -23,12 +23,12 @@ c from SGA CSFs to split-graph-GUGA CSFs.
 
 c NAC      rasscf.fh
 c NACTEL   general.fh
-c LSYM     general.fh
+c STSYM    general.fh
 c IPR      rasscf.fh
 c KICONF   csfbas.fh
 c KCFTP    csfbas.fh
       call getmem('kcnf','allo','inte',ivkcnf,nactel)
-      call reord2(nac,nactel,lsym,imode,
+      call reord2(nac,nactel,stsym,imode,
      >  iwork(kiconf(1)),iwork(kcftp),
      >  cfrom,cto,iWork(ivkcnf))
       call getmem('kcnf','free','inte',ivkcnf,nactel)

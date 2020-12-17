@@ -167,42 +167,36 @@
       implicit none
       integer :: attr_id
       integer :: value
-      integer :: ierr
       end subroutine
 
       subroutine mh5_put_attr_scalar_real (attr_id, value)
       implicit none
       integer :: attr_id
       real*8 :: value
-      integer :: ierr
       end subroutine
 
       subroutine mh5_put_attr_scalar_str (attr_id, value)
       implicit none
       integer :: attr_id
       character(len=*) :: value
-      integer :: ierr
       end subroutine
 
       subroutine mh5_put_attr_array_int (attr_id, buffer)
       implicit none
       integer :: attr_id
       integer :: buffer(*)
-      integer :: ierr
       end subroutine
 
       subroutine mh5_put_attr_array_real (attr_id, buffer)
       implicit none
       integer :: attr_id
       real*8 :: buffer(*)
-      integer :: ierr
       end subroutine
 
       subroutine mh5_put_attr_array_str (attr_id, buffer)
       implicit none
       integer :: attr_id
       character :: buffer(*)
-      integer :: ierr
       end subroutine
 
       end interface
@@ -213,42 +207,36 @@
       implicit none
       integer :: attr_id
       integer :: value
-      integer :: ierr
       end subroutine
 
       subroutine mh5_get_attr_scalar_real (attr_id, value)
       implicit none
       integer :: attr_id
       real*8 :: value
-      integer :: ierr
       end subroutine
 
       subroutine mh5_get_attr_scalar_str (attr_id, value)
       implicit none
       integer :: attr_id
       character(len=*) :: value
-      integer :: ierr
       end subroutine
 
       subroutine mh5_get_attr_array_int (attr_id, buffer)
       implicit none
       integer :: attr_id
       integer :: buffer(*)
-      integer :: ierr
       end subroutine
 
       subroutine mh5_get_attr_array_real (attr_id, buffer)
       implicit none
       integer :: attr_id
       real*8 :: buffer(*)
-      integer :: ierr
       end subroutine
 
       subroutine mh5_get_attr_array_str (attr_id, buffer)
       implicit none
       integer :: attr_id
       character :: buffer(*)
-      integer :: ierr
       end subroutine
 
       end interface
@@ -474,21 +462,18 @@
       implicit none
       integer :: dset_id
       integer :: value
-      integer :: ierr
       end subroutine
 
       subroutine mh5_get_dset_scalar_real (dset_id, value)
       implicit none
       integer :: dset_id
       real*8 :: value
-      integer :: ierr
       end subroutine
 
       subroutine mh5_get_dset_scalar_str (dset_id, value)
       implicit none
       integer :: dset_id
       character(len=*) :: value
-      integer :: ierr
       end subroutine
 
       subroutine mh5_get_dset_array_int (dset_id, buffer, exts, offs)
@@ -496,7 +481,6 @@
       integer :: dset_id
       integer :: buffer(*)
       integer, optional :: exts(*), offs(*)
-      integer :: ierr
       end subroutine
 
       subroutine mh5_get_dset_array_real (dset_id, buffer, exts, offs)
@@ -504,7 +488,6 @@
       integer :: dset_id
       real*8 :: buffer(*)
       integer, optional :: exts(*), offs(*)
-      integer :: ierr
       end subroutine
 
       subroutine mh5_get_dset_array_str (dset_id, buffer, exts, offs)
@@ -512,7 +495,6 @@
       integer :: dset_id
       character :: buffer(*)
       integer, optional :: exts(*), offs(*)
-      integer :: ierr
       end subroutine
 
       end interface

@@ -94,7 +94,7 @@ C to JOBMIX, we use the same TOC array, IADR15.
 * of uninitialized memory does not get its knickers twisted
       CALL DCOPY_(MXROOT,[0.0D0],0,WEIGHT,1)
       CALL WR_RASSCF_INFO(JOBMIX,1,iAd15,
-     &                    NACTEL,ISPIN,NSYM,LSYM,
+     &                    NACTEL,ISPIN,NSYM,STSYM,
      &                    NFRO,NISH,NASH,NDEL,NBAS,8,
      &                    NAME,LENIN8*MXORB,NCONF,HEADER,144,
      &                    TITLE,4*18*MXTIT,POTNUC,
@@ -207,7 +207,7 @@ C Write a diagonal Hamiltonian in the JOBMIX:
             IF(IPRGLB.GE.USUAL) THEN
               WRITE(6,'(1x,a,i3)')
      &        ' The CI coefficients for the MIXED state nr. ',ISTATE
-              CALL PRWF_CP2(LSYM,NCONF,WORK(LCI2),CITHR)
+              CALL PRWF_CP2(STSYM,NCONF,WORK(LCI2),CITHR)
             END IF
           END IF
           IDISK=IWORK(LIDIST-1+ISTATE)

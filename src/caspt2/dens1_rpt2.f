@@ -107,11 +107,11 @@
           ISU=ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)
-          ISSG=MUL(ISTU,LSYM)
+          ISSG=MUL(ISTU,STSYM)
           NSGM=NCSF(ISSG)
           IF(NSGM.EQ.0) GOTO 500
 * GETSGM2 computes E_UT acting on CI and saves it on SGM1
-          CALL GETSGM2(LU,LT,LSYM,CI,SGM1)
+          CALL GETSGM2(LU,LT,STSYM,CI,SGM1)
           IF(ISTU.EQ.1) THEN
             GTU=DDOT_(NSGM,CI,1,SGM1,1)
             G1(IT,IU)=GTU

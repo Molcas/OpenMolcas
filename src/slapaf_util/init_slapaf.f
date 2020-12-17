@@ -256,13 +256,13 @@ C        Write (6,*) 'See if CI'
          Call Qpg_iScalar('ISPIN',Found)
          If (Found) Then
             Call Get_iScalar('ISPIN',ISPIN1)
-            Call Get_iScalar('LSYM',LSYM1)
+            Call Get_iScalar('STSYM',LSYM1)
          Else
             ISPIN1=0
             LSYM1=0
          End If
 C        Write (6,*) 'iSpin=',ISPIN1
-C        Write (6,*) 'lSym=',LSYM1
+C        Write (6,*) 'stSym=',LSYM1
 *
          Call f_Inquire('RUNFILE2',Exist_2)
 C        Write (6,*) 'Exist_2=',Exist_2
@@ -271,7 +271,7 @@ C        Write (6,*) 'Exist_2=',Exist_2
             Call Qpg_iScalar('ISPIN',Found)
             If (Found) Then
                Call Get_iScalar('ISPIN',ISPIN2)
-               Call Get_iScalar('LSYM',LSYM2)
+               Call Get_iScalar('STSYM',LSYM2)
             Else
                ISPIN2=0
                LSYM2=0
@@ -282,7 +282,7 @@ C        Write (6,*) 'Exist_2=',Exist_2
             LSYM2 = LSYM1
          End If
 C        Write (6,*) 'iSpin=',ISPIN1,ISPIN2
-C        Write (6,*) 'lSym=',LSYM1,LSYM2
+C        Write (6,*) 'stSym=',LSYM1,LSYM2
 *
 *
 *        Do not add the constraint at the NumGrad stage

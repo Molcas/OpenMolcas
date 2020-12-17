@@ -179,7 +179,7 @@ C     Convert the CI-vector from CSF to Det. basis
               call dcopy_(nconf, work(ivec1), 1, work(kctemp),1)
               call dcopy_(ndet, [0.0d0], 0, work(ksigtemp), 1)
               CALL csdtvc(work(kctemp), work(ksigtemp), 1, work(kdtoc)
-     &           ,iwork(kicts(1)), LSym, 1)
+     &           ,iwork(kicts(1)), stSym, 1)
               call dcopy_(ndet, [0.0d0], 0, work(ksigtemp), 1)
               c_pointer = kctemp
 C     Calling Lucia to determine the sigma vector
@@ -187,7 +187,7 @@ C     Calling Lucia to determine the sigma vector
 C     Set mark so densi_master knows that the Sigma-vector exists on disk.
               iSigma_on_disk = 1
               CALL CSDTVC(work(iVec2), work(kctemp), 2, work(kdtoc),
-     &           iWork(kicts(1)), LSym, 1)
+     &           iWork(kicts(1)), stSym, 1)
 
               If ( iprlev.ge.DEBUG ) then
                 FP=DNRM2_(NCONF,WORK(IVEC2),1)

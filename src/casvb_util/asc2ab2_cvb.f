@@ -28,7 +28,6 @@
       call occupy_cvb(nkdet,nel,locc,locc(nalf+1))
       inddet=1
 200   continue
-      tip=party_cvb(locc,nel)
       call dscal_(nvec,party_cvb(locc,nel),detvec(inddet,1),ndet)
       call loind_cvb(nel,nalf,nkdet,mindet,maxdet,
      >               locc,locc(nalf+1),inddet,xdet,*200)

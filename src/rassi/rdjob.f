@@ -34,7 +34,7 @@
 #  include "mh5.fh"
       integer :: refwfn_id
 
-      integer :: ref_nSym, ref_lSym, ref_nBas(mxSym), ref_iSpin
+      integer :: ref_nSym, ref_stSym, ref_nBas(mxSym), ref_iSpin
       integer :: ref_nfro(mxSym), ref_nish(mxSym), ref_nrs1(mxSym),
      &           ref_nrs2(mxSym), ref_nrs3(mxSym), ref_nssh(mxSym),
      &           ref_ndel(mxSym), ref_nash(mxSym)
@@ -92,7 +92,7 @@
       call mh5_fetch_attr (refwfn_id,'MOLCAS_MODULE', molcas_module)
       call mh5_fetch_attr (refwfn_id,'SPINMULT', ref_iSpin)
       call mh5_fetch_attr (refwfn_id,'NSYM', ref_nSym)
-      call mh5_fetch_attr (refwfn_id,'LSYM', ref_lSym)
+      call mh5_fetch_attr (refwfn_id,'LSYM', ref_stSym)
       call mh5_fetch_attr (refwfn_id,'NBAS', ref_nBas)
 
       call mh5_fetch_attr (refwfn_id,'NACTEL', ref_nactel)
@@ -283,7 +283,7 @@
       NHOLE1(JOB)=ref_nhole1
       NELE3(JOB)=ref_nelec3
       MLTPLT(JOB)=ref_iSpin
-      IRREP(JOB)=ref_lSym
+      IRREP(JOB)=ref_stSym
       NCONF(JOB)=ref_nConf
       NROOTS(JOB)=ref_nroots
 

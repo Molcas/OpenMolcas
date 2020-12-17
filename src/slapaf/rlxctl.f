@@ -34,7 +34,6 @@
 *
       Lu=6
       iRout = 32
-      iPrint=nPrint(iRout)
       StpLbl=' '
       GrdLbl=' '
       Just_Frequencies=.False.
@@ -70,8 +69,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      jPrint=nPrint(iRout)
-*
       If (nLbl.lt.nBVec) Then
          Call WarningMessage(2,'Error in RlxCtl')
          Write (Lu,*)

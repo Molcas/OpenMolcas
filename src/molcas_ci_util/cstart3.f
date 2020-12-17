@@ -125,7 +125,7 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
               Do i = 1,lRoots
                 call mh5_fetch_dset_array_real(mh5id,'CI_VECTORS',
      $                  Work(iTmp1),[nconf,1],[0,i-1])
-                Call Reord2(NAC,NACTEL,LSYM,1,
+                Call Reord2(NAC,NACTEL,STSYM,1,
      &                  iWork(KICONF(1)),iWork(KCFTP),
      &                  Work(iTmp1),C,iwork(ivkcnf))
                 Call Save_CI_vec(i,nConf,C,LuDavid)
@@ -168,7 +168,7 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
           Do i = 1,lRoots
             Call DDafile(JOBOLD,2,Work(iTmp1),nConf,iDisk)
             call GetMem('kcnf','allo','inte',ivkcnf,nactel)
-            Call Reord2(NAC,NACTEL,LSYM,1,
+            Call Reord2(NAC,NACTEL,STSYM,1,
      &              iWork(KICONF(1)),iWork(KCFTP),
      &              Work(iTmp1),C,iwork(ivkcnf))
             call GetMem('kcnf','free','inte',ivkcnf,nactel)

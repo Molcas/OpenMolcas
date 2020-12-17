@@ -44,7 +44,7 @@
       Lu=6
       nSaddle_Max=100
       iRout=116
-      iPrint=nPrint(116)
+      iPrint=nPrint(iRout)
       If (iPrint.ge.99) Then
          Call RecPrt('Convrg: Energy',' ',Energy,1,iter)
          Call RecPrt('Convrg: Grad',' ',Grad,nInter,iter)
@@ -436,7 +436,7 @@ c      End If
 *        Here if a macro iteration in the Saddle TS optimization is
 *        completed.
 *
-         ENew=Energy(iter)+ed
+C        ENew=Energy(iter)+ed
          Call Allocate_Work(ipTmp,nSaddle)
 *
 *        Store the info for later generation of MOLDEN formated files

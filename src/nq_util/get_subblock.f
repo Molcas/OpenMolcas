@@ -68,8 +68,7 @@ cGLM     &       F_xca(mGrid),F_xcb(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid),
      &       xyz0(3,2)
       Real*8 TmpPUVX(nTmpPUVX)
-      Logical InBox(MxAtom), Do_Grad, lCar(3),
-     &        More_to_come
+      Logical InBox(MxAtom), Do_Grad, More_to_come
       Logical Do_Mo,Do_TwoEl,l_Xhol
       Character*4 DFTFOCK
       Integer LOE_DB,LTEG_DB
@@ -370,9 +369,6 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
       nGrad_Eff=0
       If (Do_Grad) Then
          Call ICopy(3*nShell*nSym,[0],0,List_G,1)
-         lCar(1)=.False.
-         lCar(2)=.False.
-         lCar(3)=.False.
          Do ilist_s = 1, nlist_s
             iShell=list_s(1,ilist_s)
             iSym  =list_s(2,ilist_s)
@@ -383,7 +379,6 @@ C     Write (6,*) 'Reduction=',DBLE(nAOs_Eff**2)/DBLE(nAOs**2)
      &              iSD(12,iShell).eq.1) .and.
      &             List_G(1+iCar,ilist_s).eq.0) Then
                   nGrad_Eff=nGrad_Eff+1
-                  lCar(iCar+1)=.True.
 *
 *                 For pseudo centers note that there will not be a
 *                 gradient computed for this center.

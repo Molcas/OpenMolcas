@@ -73,7 +73,7 @@
           iOrb=iOrb+1
         End Do
       End Do
-      lSymMolpro=iChMolpro(lSym)
+      lSymMolpro=iChMolpro(stSym)
 
       NRDM_ORDER=2
       If (NACTEL.EQ.1) NRDM_ORDER=1

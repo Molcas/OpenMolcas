@@ -52,7 +52,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      LuWr=6
       R_Grid(1)=Work(ip_Coor(iNQ)  )
       R_Grid(2)=Work(ip_Coor(iNQ)+1)
       R_Grid(3)=Work(ip_Coor(iNQ)+2)

@@ -39,14 +39,11 @@
 #include "rasdim.fh"
 #include "general.fh"
 
-      Integer case, state_symmetry
+      Integer case
       Integer   off_PUVX, off_Dmat, off_Fmat
       Dimension off_PUVX(mxSym), off_Dmat(mxSym), off_Fmat(mxSym)
 
       iTri(i)=(i*i-i)/2
-
-*     nasty, but necessary
-      state_symmetry=lSym
 
 *     generate offsets
 
@@ -346,9 +343,6 @@
         End Do
       End Do
 
-*     nasty, but necessary
-      lSym=state_symmetry
-
       Return
       End
 
@@ -384,7 +378,6 @@
 #include "general.fh"
 #include "WrkSpc.fh"
 
-      Integer  state_symmetry
       Integer   off_Fmat
       Dimension  off_Fmat(mxSym)
       Integer off_Bas(mxSym),off_ish(mxSym)
@@ -394,9 +387,6 @@
       Integer count_tmp
 
       iTri(i)=(i*i-i)/2
-
-*     nasty, but necessary
-      state_symmetry=lSym
 
 *     generate offsets
 
@@ -506,9 +496,6 @@
 
 ************************************************************************
 
-*     nasty, but necessary
-      lSym=state_symmetry
-
       Return
       End
 
@@ -542,15 +529,13 @@
 #include "rasdim.fh"
 #include "general.fh"
 
-      Integer case, state_symmetry
+      Integer case
       Integer   off_PUVX, off_Dmat, off_Fmat
       Dimension off_PUVX(mxSym), off_Dmat(mxSym), off_Fmat(mxSym)
 
       iTri(i)=(i*i-i)/2
 
       Call unused_real(ExFac)
-*     nasty, but necessary
-      state_symmetry=lSym
 
 *     generate offsets
 
@@ -840,9 +825,6 @@
           End Do
         End Do
       End Do
-
-*     nasty, but necessary
-      lSym=state_symmetry
 
       Return
       End

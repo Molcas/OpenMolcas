@@ -119,10 +119,6 @@
                dFdRby = dF_dRho(ipdRyb,iGrid)
                dFdRaz = dF_dRho(ipdRza,iGrid)
                dFdRbz = dF_dRho(ipdRzb,iGrid)
-      tmp3=dFdRax*t0+dFdRay*t1+dFdRaz*t2-
-     &     dFdRbx*t3-dFdRby*t4-dFdRbz*t5
-      tmp4=dFdRax*t6+dFdRay*t7+dFdRaz*t8+
-     &     dFdRbx*t9+dFdRby*t10+dFdRbz*t11
 *
               tmp1= (Rho(1,iGrid)*Rho(6,iGrid)-Rho(2,iGrid)*
      &                                Rho(3,iGrid))*(dFdRbx-dFdRax)+
@@ -152,7 +148,6 @@
                dF_dRho(ipRb,iGrid) = rab1*
      &                             (dFdRb-dFdRa) +
      &                              rab1*rab1*tmp2
-c     &                              tmp4
                dF_dRho(ipdRxb,iGrid) = rab1*
      &                             (dFdRbx-dFdRax)
                dF_dRho(ipdRyb,iGrid) = rab1*

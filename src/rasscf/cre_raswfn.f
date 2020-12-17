@@ -55,7 +55,7 @@
 
 *     general wavefunction attributes
       call mh5_init_attr (wfn_fileid,'SPINMULT', iSpin)
-      call mh5_init_attr (wfn_fileid,'LSYM', lSym)
+      call mh5_init_attr (wfn_fileid,'LSYM', stSym)
       call mh5_init_attr (wfn_fileid,'NACTEL', nActEl)
       call mh5_init_attr (wfn_fileid,'NHOLE1', nHole1)
       call mh5_init_attr (wfn_fileid,'NELEC3', nElec3)

@@ -249,19 +249,19 @@ C Finally, loop again over symmetries, transforming the CI:
             IF(NA.GT.0) THEN
               IF(NR1.GT.0) THEN
                 ISTART=NAES(ISYM)+1
-                CALL TRACI_RPT2(ISTART,NR1,TORB(ITO),LSYM,
+                CALL TRACI_RPT2(ISTART,NR1,TORB(ITO),STSYM,
      &                                         NCONF,WORK(LCI))
               END IF
               ITO=ITO+NR1**2
               IF(NR2.GT.0) THEN
                 ISTART=NAES(ISYM)+NR1+1
-                CALL TRACI_RPT2(ISTART,NR2,TORB(ITO),LSYM,
+                CALL TRACI_RPT2(ISTART,NR2,TORB(ITO),STSYM,
      &                                         NCONF,WORK(LCI))
               END IF
               ITO=ITO+NR2**2
               IF(NR3.GT.0) THEN
                 ISTART=NAES(ISYM)+NR1+NR2+1
-                CALL TRACI_RPT2(ISTART,NR3,TORB(ITO),LSYM,
+                CALL TRACI_RPT2(ISTART,NR3,TORB(ITO),STSYM,
      &                                         NCONF,WORK(LCI))
               END IF
             END IF

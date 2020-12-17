@@ -21,7 +21,7 @@
         ener(1,iter)=emy
       else
         do 100 jroot=1,lroots
-        ener(jroot,iter)=esym(lsym)
+        ener(jroot,iter)=esym(stsym)
 100     continue
       endif
       iterci=n_iter

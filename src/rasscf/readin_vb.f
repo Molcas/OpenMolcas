@@ -61,7 +61,7 @@
 *---  process SPIN command --------------------------------------------*
       ispin=ispin_j
 *---  process SYMM command --------------------------------------------*
-      lsym=lsym_j
+      stsym=lsym_j
 *---  process FROZ command --------------------------------------------*
       call imove_cvb(nfro_j,nfro,mxsym)
 *---  process INAC command --------------------------------------------*

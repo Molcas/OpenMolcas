@@ -104,7 +104,7 @@
       WRITE(6,Fmt2//'A,T45,F6.1)')'Spin quantum number',
      &                           0.5D0*DBLE(ISPIN-1)
       WRITE(6,Fmt2//'A,T45,I6)')'State symmetry',
-     &                           LSYM
+     &                           STSYM
       WRITE(6,Fmt2//'A,T40,I11)')'Number of CSFs',
      &                           NCONF
       WRITE(6,Fmt2//'A,T45,I6)')'Number of root(s) available',

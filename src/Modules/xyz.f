@@ -51,7 +51,7 @@
       Real*8, Dimension(:,:,:), Allocatable, Intent(In) :: Rot
       Real*8, Dimension(:,:), Allocatable, Intent(In) :: Trans
       Logical, Optional, Intent(In) :: Replace
-      Character (Len=MAXLEN) :: Line, FName, CurrDir, Dum
+      Character (Len=MAXLEN) :: Line, FName, CurrDir
       Integer :: Error, NumAt, i, Lxyz, Idx
       Logical :: Found, Rep
       Integer, External :: IsFreeUnit
@@ -225,20 +225,20 @@
      &              Shape(Mat))
       Idx = Index(' '//Line, ' SCALE ')
       If (Idx .gt. 0) Then
-        Read(Line(Idx:),*,IOStat=Error) Dum, Mat(1,1)
+        Read(Line(Idx+5:),*,IOStat=Error) Mat(1,1)
         Mat(2,1) = Mat(1,1)
         Mat(3,1) = Mat(1,1)
       End If
       Idx = Index(' '//Line, ' SCALEX ')
-      If (Idx .gt. 0) Read(Line(Idx:),*,IOStat=Error) Dum, Mat(1,1)
+      If (Idx .gt. 0) Read(Line(Idx+6:),*,IOStat=Error) Mat(1,1)
       Idx = Index(' '//Line, ' SCALEY ')
-      If (Idx .gt. 0) Read(Line(Idx:),*,IOStat=Error) Dum, Mat(2,1)
+      If (Idx .gt. 0) Read(Line(Idx+6:),*,IOStat=Error) Mat(2,1)
       Idx = Index(' '//Line, ' SCALEZ ')
-      If (Idx .gt. 0) Read(Line(Idx:),*,IOStat=Error) Dum, Mat(3,1)
+      If (Idx .gt. 0) Read(Line(Idx+6:),*,IOStat=Error) Mat(3,1)
       Idx = Index(' '//Line, ' ROT ')
-      If (Idx .gt. 0) Read(Line(Idx:),*,IOStat=Error) Dum, Mat(:,2:4)
+      If (Idx .gt. 0) Read(Line(Idx+3:),*,IOStat=Error) Mat(:,2:4)
       Idx = Index(' '//Line, ' TRANS ')
-      If (Idx .gt. 0) Read(Line(Idx:),*,IOStat=Error) Dum, Mat(:,5)
+      If (Idx .gt. 0) Read(Line(Idx+5:),*,IOStat=Error) Mat(:,5)
 !     If Rot and Trans are given in the input, they override
 !     the inline transformations
       If (Allocated(Rot)) Then

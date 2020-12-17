@@ -58,8 +58,8 @@
 *                                                                      *
       If (nBonds.lt.2) Return
       iRout=150
-      iPrint=nPrint(iRout)
 #ifdef _DEBUGPRINT_
+      iPrint=nPrint(iRout)
       iPrint=99
 #endif
 *
@@ -73,7 +73,6 @@
 *
 *---- Loop over bends
 *
-      bohr=CONST_BOHR_RADIUS_IN_SI_ * 1.0D+10
       MinBas=.False.
       If (MinBas) Then
          Fact=1.3d0
@@ -97,7 +96,6 @@
          Do iNeighbor = 1, nNeighbor_m
             iAtom_ = iTabAtoms(1,iNeighbor,mAtom_)
             iAtom = iTabAI(1,iAtom_)
-            nNeighbor_i = iTabAtoms(1,0,iAtom_)
             nCoBond_i=nCoBond(iAtom_,mAtoms,nMax,iTabBonds,nBonds,
      &                        nBonds,iTabAtoms)
             ir = iTabRow(iANr(iAtom))
@@ -126,7 +124,6 @@
             Do jNeighbor = 1, nNeighbor_m
                jAtom_ = iTabAtoms(1,jNeighbor,mAtom_)
                jAtom = iTabAI(1,jAtom_)
-               nNeighbor_j = iTabAtoms(1,0,jAtom_)
                nCoBond_j=nCoBond(jAtom_,mAtoms,nMax,iTabBonds,nBonds,
      &                           nBonds,iTabAtoms)
                If (nCoBond_i.ge.8 .and.
@@ -262,13 +259,9 @@
                   rim2=(Ref(1,1)-Ref(1,2))**2
      &                +(Ref(2,1)-Ref(2,2))**2
      &                +(Ref(3,1)-Ref(3,2))**2
-                  Rab=Sqrt(rim2)
-                  RabCov=CovRad(iANr(iAtom))+CovRad(iANr(mAtom))
                   rmj2=(Ref(1,2)-Ref(1,3))**2
      &                +(Ref(2,2)-Ref(2,3))**2
      &                +(Ref(3,2)-Ref(3,3))**2
-                  Rbc=Sqrt(rmj2)
-                  RbcCov=CovRad(iANr(jAtom))+CovRad(iANr(mAtom))
                   If (ir.eq.1.or.jr.eq.1) Then
                      f_Const=A_Bend(1)
                   Else

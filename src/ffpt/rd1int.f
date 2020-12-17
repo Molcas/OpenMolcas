@@ -22,8 +22,6 @@
       Implicit Real*8 ( A-H,O-Z )
 *
 #include "input.fh"
-#include "WrkSpc.fh"
-*
 *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -31,10 +29,6 @@
 *     Read one-electron integral file header etc.                      *
 *                                                                      *
 *----------------------------------------------------------------------*
-*
-      iOpt=0
-      iComp=1
-      iSyLbl=0
 *
       Call Get_cArray('Seward Title',Header,144)
       Call Get_iScalar('nSym',nSym)

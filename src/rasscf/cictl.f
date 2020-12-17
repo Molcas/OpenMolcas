@@ -760,7 +760,7 @@ c
           END IF
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
          if(.not.iDoGas)then
-          Call Reord2(NAC,NACTEL,LSYM,0,
+          Call Reord2(NAC,NACTEL,STSYM,0,
      &                iWork(KICONF(1)),iWork(KCFTP),
      &                Work(LW4),Work(LW11),iWork(ivkcnf))
 c        end if
@@ -809,7 +809,7 @@ C.. printout of the wave function
      c                 prwthr,' for root', i
             Write(LF,'(6X,A,F15.6)')
      c                'energy=',ener(i,iter)
-          call gasprwf(iwork(lw12),nac,nactel,lsym,iwork(kiconf(1)),
+          call gasprwf(iwork(lw12),nac,nactel,stsym,iwork(kiconf(1)),
      c                 iwork(kcftp),work(lw4),iwork(ivkcnf))
           End If
          end if
@@ -832,7 +832,7 @@ C.. printout of the wave function
           END IF
 * reorder it according to the split graph GUGA conventions
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
-          Call Reord2(NAC,NACTEL,LSYM,0,
+          Call Reord2(NAC,NACTEL,STSYM,0,
      &                iWork(KICONF(1)),iWork(KCFTP),
      &                Work(LW4),Work(LW11),iWork(ivkcnf))
           call getmem('kcnf','free','inte',ivkcnf,nactel)

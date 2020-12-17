@@ -128,8 +128,8 @@ CSVC: initialize the reference wavefunction info
 *        call mh5_fetch_attr (refwfn_id, 'TITLE', Title)
         call mh5_fetch_attr (refwfn_id,'SPINMULT', iSpin)
         call mh5_fetch_attr (refwfn_id,'NSYM', ref_nSym)
-        call mh5_fetch_attr (refwfn_id,'LSYM', lSym)
-        call mh5_fetch_attr (refwfn_id, 'NBAS', ref_nBas)
+        call mh5_fetch_attr (refwfn_id,'LSYM', stSym)
+        call mh5_fetch_attr (refwfn_id,'NBAS', ref_nBas)
 
         call mh5_fetch_attr (refwfn_id,'NACTEL', nActEl)
         call mh5_fetch_attr (refwfn_id,'NHOLE1', nHole1)
@@ -178,7 +178,7 @@ C Another title field is read from input a little later, it is called
 C TITLE2. That one is printed out in PRINP_CASPT2.
         IAD15=IADR15(1)
         CALL WR_RASSCF_Info(refwfn_id,2,iAd15,
-     &                      NACTEL,ISPIN,REF_NSYM,LSYM,
+     &                      NACTEL,ISPIN,REF_NSYM,STSYM,
      &                      NFRO,NISH,NASH,NDEL,REF_NBAS,8,
      &                      NAME,LENIN8*MXORB,NCONF,HEADER,144,
      &                      TITLE,4*18*mxTit,POTNUC,

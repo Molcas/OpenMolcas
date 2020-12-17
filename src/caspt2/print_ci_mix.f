@@ -75,7 +75,7 @@
         End Do
         Write(6,'(1X,A,I3)')
      &     ' The CI coefficients for the MIXED state nr. ',iState
-        Call PrWf_CP2(lSym,nConf,mCI,CITHR)
+        Call PrWf_CP2(stSym,nConf,mCI,CITHR)
       End Do
 
       Call CollapseOutput(0,'Mixed CI coefficients:')

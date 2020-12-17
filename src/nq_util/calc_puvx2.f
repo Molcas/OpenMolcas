@@ -15,13 +15,11 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "WrkSpc.fh"
-      Integer off_Ash(mxSym), off_BasAsh(mxSym),
+      Integer off_BasAsh(mxSym),
      &        off_PUVX(mxSym),off_Bas(mxSym)
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),
      &       dF_dRho(ndF_dRho,nCoor)
-*
-      lsym_tmp=lsym
 *
 *      Check dimensions: This is inconsistent! RL
 *
@@ -35,7 +33,6 @@
       iStack  = 0
       iStack1 = 0
       Do iSym = 1,nSym
-        off_Ash(iSym)    = iStack
         off_Bas(iSym)    = iStack1
         off_BasAsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)
         iStack1 = iStack1 + nBas(iSym)
@@ -96,7 +93,6 @@
                   Do iU = 1,jAsh
                   jU = iU + off_BasAsh(jSym)
                     Do iP = 1,iOrb
-                      iT = iP - iIsh
                       iPUVX=iPUVX+1
                       jP = iP     +   off_Bas(iSym)
       If(ndF_dRho/nD.eq.4) Then
@@ -168,8 +164,6 @@
         End Do
       End Do
 *
-      lsym=lsym_tmp
-*
       Return
       End
 
@@ -187,8 +181,7 @@
 #include "ksdft.fh"
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_PUVX(mxSym),off_Bas(mxSym),
-     &        off_ish(mxSym),off_BasIsh(mxSym),
-     &        off_BasVsh(mxSym)
+     &        off_BasIsh(mxSym)
       Integer   off_Dmat, off_Fmat
       Dimension off_Dmat(mxSym), off_Fmat(mxSym)
 
@@ -209,27 +202,18 @@
       thrsrho2=1.0d-15
       thrspi=1.0d-30
 *
-      lsym_tmp=lsym
-
-      Call Unused_real_array(RhoI)
-      Call Unused_real_array(RhoA)
-
       iStack  = 0
       iStack1 = 0
       iStack2 = 0
-      off_ish(:) = 0
       off_Ash(:) = 0
       off_Bas(:) = 0
       off_BasAsh(:) = 0
       off_BasIsh(:) = 0
-      off_BasVsh(:) = 0
       ntot1 = 0
 
       Do iSym = 1,nSym
-        off_ish(isym)    = iStack2
         off_Ash(iSym)    = iStack
         off_Bas(iSym)    = iStack1
-        off_BasVsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)+nAsh(iSym)
         off_BasAsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)
         off_BasIsh(iSym) = iStack1+nFro(iSym)
         ntot1 = iTrii(nBas(iSym),nBas(iSym)) + ntot1
@@ -302,7 +286,6 @@
                   Do iU = 1,jAsh
                   jU = iU + off_BasAsh(jSym)
                     Do iP = 1,iOrb
-                      iT = iP - iIsh
                       iPUVX=iPUVX+1
                       jP = iP     +   off_Bas(iSym)
                     Do iGrid=1,nCoor
@@ -372,7 +355,6 @@
             Do lSym = 1,kSym !sym for x
               lOrb = nOrb(lSym)
               lAsh = nAsh(lSym)
-              lIsh = nIsh(lSym)
               klSym = 1 + ieor(kSym-1,lSym-1)
 
 *             find cases
@@ -389,7 +371,7 @@
 !Symmetry case (II|II)
 100             Continue
                 iFoff = off_Fmat(iSym)
-                iDoff = off_Dmat(iSym)
+                !iDoff = off_Dmat(iSym)
                 Do iV = 1,kIsh
                   jV = iV + off_basIsh(kSym)
                   iX=iV
@@ -744,7 +726,7 @@
 !Symmetry case (II|KK)
 200             Continue
                 iFoff = off_Fmat(iSym)
-                kDoff = off_Dmat(kSym)
+                !kDoff = off_Dmat(kSym)
                 Do iV = 1,kIsh
                   jV = iV + off_basIsh(ksym)
                   iX=iV
@@ -1097,9 +1079,10 @@
 !      Call Put_dArray('FA_V',Work(ifav),ntot1)
 !      CALL GETMEM('FI_V','FREE','REAL',ifiv,ntot1)
 !      CALL GETMEM('FA_V','FREE','REAL',ifav,ntot1)
-      lsym=lsym_tmp
 *
       Return
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
       End
 
 
@@ -1113,9 +1096,6 @@
 #include "general.fh"
 #include "WrkSpc.fh"
 #include "ksdft.fh"
-      Integer off_Ash(mxSym), off_BasAsh(mxSym),
-     &        off_Bas(mxSym)!,off_Ish(mxSym)!,off_Fmat(mxSym),
-!     &        off_Dmat(mxSym)
       Integer off_basIsh(mxSym),off_Fmat(mxSym)
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
@@ -1129,16 +1109,9 @@
       thrsrho=1.0d-15
       thrsrho2=1.0d-15
 *
-      Call Unused_real_array(RhoI)
-      Call Unused_real_array(RhoA)
-
-      lsym_tmp=lsym
       iStack  = 0
       iStack1 = 0
       Do iSym = 1,nSym
-        off_Ash(iSym)    = iStack
-        off_Bas(iSym)    = iStack1
-        off_BasAsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)
         off_BasIsh(iSym) = iStack1+nFro(iSym)
         iStack1 = iStack1 + nBas(iSym)
         iStack  = iStack  + nAsh(iSym)
@@ -1156,14 +1129,13 @@
 !OE pieces - both orbs must be in the same irrep, eh?
       Do iSym = 1,nSym
         iOrb = nOrb(iSym)
-        iAsh = nAsh(iSym)
-        iIsh = nIsh(iSym)
+        !iAsh = nAsh(iSym)
+        !iIsh = nIsh(iSym)
         Do iV = 1,iOrb!iIsh+iAsh+iVsh
           jV = iV + off_BasIsh(iSym)
           do iX = 1,iV
             jX = iX + off_BasIsh(iSym)
             VX = off_Fmat(iSym) + iTri(iV,iX)
-            fact=1.0d0
             Do iGrid = 1, nCoor
             dTot=Rho(1,iGrid)+Rho(2,iGrid)
             ratio = 0.0d0
@@ -1190,8 +1162,9 @@
           End do
         End Do
       End Do
-           lsym=lsym_tmp
       Return
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
       End
 
       Subroutine Calc_OTOEf(OE,TabMO,mAO,nCoor,nTabMOs
@@ -1204,9 +1177,6 @@
 #include "general.fh"
 #include "WrkSpc.fh"
 #include "ksdft.fh"
-      Integer off_Ash(mxSym), off_BasAsh(mxSym),
-     &        off_Bas(mxSym)
-!     &        off_Dmat(mxSym)
       Integer off_basIsh(mxSym),off_Fmat(mxSym)
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
@@ -1226,16 +1196,9 @@
       Bb1=-3.794733192d+2
       Cb1=-8.538149682d+1
 *
-      Call Unused_real_array(RhoI)
-      Call Unused_real_array(RhoA)
-
-      lsym_tmp=lsym
       iStack  = 0
       iStack1 = 0
       Do iSym = 1,nSym
-        off_Ash(iSym)    = iStack
-        off_Bas(iSym)    = iStack1
-        off_BasAsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)
         off_BasIsh(iSym) = iStack1+nFro(iSym)
         iStack1 = iStack1 + nBas(iSym)
         iStack  = iStack  + nAsh(iSym)
@@ -1253,14 +1216,13 @@
 !OE pieces - both orbs must be in the same irrep, eh?
       Do iSym = 1,nSym
         iOrb = nOrb(iSym)
-        iAsh = nAsh(iSym)
-        iIsh = nIsh(iSym)
+        !iAsh = nAsh(iSym)
+        !iIsh = nIsh(iSym)
         Do iV = 1,iOrb!iIsh+iAsh
           jV = iV + off_BasIsh(iSym)
           do iX = 1,iV
             jX = iX + off_BasIsh(iSym)
             VX = off_Fmat(iSym) + iTri(iV,iX)
-            fact=1.0d0
             Do iGrid = 1, nCoor
             dTot=Rho(1,iGrid)+Rho(2,iGrid)
             ratio = 0.0d0
@@ -1300,10 +1262,9 @@
           End do
         End Do
       End Do
-
-           lsym=lsym_tmp
-
       Return
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
       End
 
       Function Delta(x,y)
@@ -1329,10 +1290,9 @@
 #include "WrkSpc.fh"
 #include "ksdft.fh"
       Integer nIrrep
-      Integer off_Ash(mxSym), off_BasAsh(mxSym),
+      Integer off_BasAsh(mxSym),
      &        off_PUVX(mxSym),off_Bas(mxSym),
-     &        off_ish(mxSym),off_BasIsh(mxSym),
-     &        off_BasVsh(mxSym)
+     &        off_BasIsh(mxSym)
       Integer   off_Dmat, off_Fmat
       Dimension off_Dmat(mxSym), off_Fmat(mxSym)
 
@@ -1357,25 +1317,15 @@
       Bb1=-3.794733192d+2
       Cb1=-8.538149682d+1
 *
-      Call Unused_real_array(RhoI)
-      Call Unused_real_array(RhoA)
-      lsym_tmp=lsym
-
       iStack  = 0
       iStack1 = 0
       iStack2 = 0
-      off_ish(:) = 0
-      off_Ash(:) = 0
       off_Bas(:) = 0
       off_BasAsh(:) = 0
       off_BasIsh(:) = 0
-      off_BasVsh(:) = 0
 
       Do iSym = 1,nSym
-        off_ish(isym)    = iStack2
-        off_Ash(iSym)    = iStack
         off_Bas(iSym)    = iStack1
-        off_BasVsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)+nAsh(iSym)
         off_BasAsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)
         off_BasIsh(iSym) = iStack1+nFro(iSym)
         ntot1 = iTrii(nBas(iSym),nBas(iSym))
@@ -1448,7 +1398,6 @@
                   Do iU = 1,jAsh
                   jU = iU + off_BasAsh(jSym)
                     Do iP = 1,iOrb
-                      iT = iP - iIsh
                       iPUVX=iPUVX+1
                       jP = iP     +   off_Bas(iSym)
                     Do iGrid=1,nCoor
@@ -1600,7 +1549,6 @@
 
 !      Call Put_dArray('TEP_I',Work(iTMPP),count_tmp)
       CALL GETMEM('PUVX_TMP','Free','REAL',iTMPP,count_tmp)
-      lsym=lsym_tmp
 
 !OK - potential modifications - for the iTMPP terms calculated above,
 !maybe I really only want the third case - the active-active case.
@@ -1643,7 +1591,6 @@
             kIsh = nIsh(kSym)
             Do lSym = 1,kSym !sym for x
               lAsh = nAsh(lSym)
-              lIsh = nIsh(lSym)
               klSym = 1 + ieor(kSym-1,lSym-1)
 
 *             find cases
@@ -2315,8 +2262,9 @@
 !      Call Put_dArray('FA_V',Work(ifav),ntot1)
 !      CALL GETMEM('FI_V','FREE','REAL',ifiv,ntot1)
 !      CALL GETMEM('FA_V','FREE','REAL',ifav,ntot1)
-      lsym=lsym_tmp
       Return
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
       End
 
       Subroutine Calc_OTPUVX_FTLSDA2(PUVX,TabMO,mAO,nCoor,nTabMOs
@@ -2331,8 +2279,7 @@
 #include "ksdft.fh"
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_PUVX(mxSym),off_Bas(mxSym),
-     &        off_ish(mxSym),off_BasIsh(mxSym),
-     &        off_BasVsh(mxSym)
+     &        off_BasIsh(mxSym)
       Integer   off_Dmat, off_Fmat
       Dimension off_Dmat(mxSym), off_Fmat(mxSym)
 
@@ -2352,33 +2299,24 @@
       thrsrho=1.0d-15
       thrsrho2=1.0d-15
       thrspi=1.0d-30
-      thrsCEH=1.0d-24
       thrsrho3=0.9000000000d0
       thrsrho4=1.1500000000d0
       Ab1=-4.756065601d+2
       Bb1=-3.794733192d+2
       Cb1=-8.538149682d+1
 *
-      Call Unused_real_array(RhoI)
-      Call Unused_real_array(RhoA)
-      lsym_tmp=lsym
-
       iStack  = 0
       iStack1 = 0
       iStack2 = 0
-      off_ish(:) = 0
       off_Ash(:) = 0
       off_Bas(:) = 0
       off_BasAsh(:) = 0
       off_BasIsh(:) = 0
-      off_BasVsh(:) = 0
       ntot1 = 0
 
       Do iSym = 1,nSym
-        off_ish(isym)    = iStack2
         off_Ash(iSym)    = iStack
         off_Bas(iSym)    = iStack1
-        off_BasVsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)+nAsh(iSym)
         off_BasAsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)
         off_BasIsh(iSym) = iStack1+nFro(iSym)
         ntot1 = iTrii(nBas(iSym),nBas(iSym)) + ntot1
@@ -2439,7 +2377,6 @@
                   Do iU = 1,jAsh
                   jU = iU + off_BasAsh(jSym)
                     Do iP = 1,iOrb
-                      iT = iP - iIsh
                       iPUVX=iPUVX+1
                       jP = iP     +   off_Bas(iSym)
 
@@ -2528,7 +2465,6 @@
             Do lSym = 1,kSym !sym for x
               lOrb = nOrb(lSym)
               lAsh = nAsh(lSym)
-              lIsh = nIsh(lSym)
               klSym = 1 + ieor(kSym-1,lSym-1)
 
 *             find cases
@@ -2545,7 +2481,7 @@
 !Symmetry case (II|II)
 100             Continue
                 iFoff = off_Fmat(iSym)
-                iDoff = off_Dmat(iSym)
+                !iDoff = off_Dmat(iSym)
                 Do iV = 1,kIsh
                   jV = iV + off_basIsh(kSym)
                   iX=iV
@@ -3111,7 +3047,7 @@
 !Symmetry case (II|KK)
 200             Continue
                 iFoff = off_Fmat(iSym)
-                kDoff = off_Dmat(kSym)
+                !kDoff = off_Dmat(kSym)
                 Do iV = 1,kIsh
                   jV = iV + off_basIsh(ksym)
                   iX=iV
@@ -3705,9 +3641,9 @@
 !      CALL GETMEM('FI_V','FREE','REAL',ifiv,ntot1)
 !      CALL GETMEM('FA_V','FREE','REAL',ifav,ntot1)
 *
-      lsym=lsym_tmp
-*
       Return
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
       End
 
       Subroutine Calc_OTOE_FTLSDA(OE,TabMO,mAO,nCoor,nTabMOs
@@ -3720,7 +3656,7 @@
 #include "general.fh"
 #include "WrkSpc.fh"
 #include "ksdft.fh"
-      Integer off_Ash(mxSym), off_BasAsh(mxSym),
+      Integer off_BasAsh(mxSym),
      &        off_PUVX(mxSym),off_Bas(mxSym)!,off_Fmat(mxSym),
 !     &        off_Dmat(mxSym)
       Integer nIrrep
@@ -3736,18 +3672,13 @@
       thrsrho3=0.9000000000d0
       thrsrho4=1.1500000000d0
       thrspi=1.0d-30
-      thrsCEH=1.0d-24
       Ab1=-4.756065601d+2
       Bb1=-3.794733192d+2
       Cb1=-8.538149682d+1
 *
-      Call Unused_real_array(RhoI)
-      Call Unused_real_array(RhoA)
-      lsym_tmp=lsym
       iStack  = 0
       iStack1 = 0
       Do iSym = 1,nSym
-        off_Ash(iSym)    = iStack
         off_Bas(iSym)    = iStack1
         off_BasAsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)
         iStack1 = iStack1 + nBas(iSym)
@@ -3843,17 +3774,6 @@
                       end if
 *End CEH -OE addition
                   End Do     ! iGrid
-
-
-                  Do iU = 1,jIsh+jAsh
-                  jU = iU + off_BasAsh(jSym)
-                    Do iP = 1,iOrb
-                      iT = iP - iIsh
-                      iPUVX=iPUVX+1
-                      jP = iP     +   off_Bas(iSym)
-
-                    End Do
-                  End Do
                 End Do
               End Do
             End If
@@ -3861,9 +3781,10 @@
           End Do
         End Do
       End Do
-           lsym=lsym_tmp
 
       Return
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
       End
       Subroutine Calc_OTOE_ft(OE,TabMO,mAO,nCoor,nTabMOs
      &                       ,P2_ontop,nP2_ontop,Rho,nRho,
@@ -3875,9 +3796,6 @@
 #include "general.fh"
 #include "WrkSpc.fh"
 #include "ksdft.fh"
-      Integer off_Ash(mxSym), off_BasAsh(mxSym),
-     &        off_Bas(mxSym)!,off_Fmat(mxSym),
-!     &        off_Dmat(mxSym)
       Integer off_basIsh(mxSym),off_Fmat(mxSym)
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
@@ -3899,15 +3817,9 @@
       Bb1=-3.794733192d+2
       Cb1=-8.538149682d+1
 *
-      Call Unused_real_array(RhoI)
-      Call Unused_real_array(RhoA)
-      lsym_tmp=lsym
       iStack  = 0
       iStack1 = 0
       Do iSym = 1,nSym
-        off_Ash(iSym)    = iStack
-        off_Bas(iSym)    = iStack1
-        off_BasAsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)
         off_BasIsh(iSym) = iStack1+nFro(iSym)
         iStack1 = iStack1 + nBas(iSym)
         iStack  = iStack  + nAsh(iSym)
@@ -3925,8 +3837,8 @@
 !OE pieces - both orbs must be in the same irrep, eh?
       Do iSym = 1,nSym
         iOrb = nOrb(iSym)
-        iAsh = nAsh(iSym)
-        iIsh = nIsh(iSym)
+        !iAsh = nAsh(iSym)
+        !iIsh = nIsh(iSym)
         Do iV = 1,iOrb!iIsh+iAsh
           jV = iV + off_BasIsh(iSym)
           do iX = 1,iV
@@ -3978,9 +3890,9 @@
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-           lsym=lsym_tmp
-
       Return
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
       End
 
 
@@ -3998,8 +3910,7 @@
       Integer nIrrep
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_PUVX(mxSym),off_Bas(mxSym),
-     &        off_ish(mxSym),off_BasIsh(mxSym),
-     &        off_BasVsh(mxSym)
+     &        off_BasIsh(mxSym)
       Integer   off_Dmat, off_Fmat
       Dimension off_Dmat(mxSym), off_Fmat(mxSym)
 
@@ -4020,29 +3931,20 @@
       thrsrho2=1.0d-15
       thrspi=1.0d-30
 *
-      lsym_tmp=lsym
-
-      Call Unused_real_array(RhoI)
-      Call Unused_real_array(RhoA)
-
       Call CPU_Time(time1)
 
       iStack  = 0
       iStack1 = 0
       iStack2 = 0
-      off_ish(:) = 0
       off_Ash(:) = 0
       off_Bas(:) = 0
       off_BasAsh(:) = 0
       off_BasIsh(:) = 0
-      off_BasVsh(:) = 0
       ntot1 = 0
 
       Do iSym = 1,nSym
-        off_ish(isym)    = iStack2
         off_Ash(iSym)    = iStack
         off_Bas(iSym)    = iStack1
-        off_BasVsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)+nAsh(iSym)
         off_BasAsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)
         off_BasIsh(iSym) = iStack1+nFro(iSym)
         ntot1 = iTrii(nBas(iSym),nBas(iSym)) + ntot1
@@ -4116,7 +4018,6 @@
                   Do iU = 1,jAsh
                   jU = iU + off_BasAsh(jSym)
                     Do iP = 1,iOrb
-                      iT = iP - iIsh
                       iPUVX=iPUVX+1
                       jP = iP     +   off_Bas(iSym)
                     Do iGrid=1,nCoor
@@ -4226,7 +4127,6 @@
             Do lSym = 1,kSym !sym for x
               lOrb = nOrb(lSym)
               lAsh = nAsh(lSym)
-              lIsh = nIsh(lSym)
               klSym = 1 + ieor(kSym-1,lSym-1)
 
 *             find cases
@@ -4243,7 +4143,7 @@
 !Symmetry case (II|II)
 100             Continue
                 iFoff = off_Fmat(iSym)
-                iDoff = off_Dmat(iSym)
+                !iDoff = off_Dmat(iSym)
                 Do iV = 1,kIsh
                   jV = iV + off_basIsh(kSym)
                   iX=iV
@@ -4919,7 +4819,7 @@
 !Symmetry case (II|KK)
 200             Continue
                 iFoff = off_Fmat(iSym)
-                iDoff = off_Dmat(kSym)
+                !iDoff = off_Dmat(kSym)
                 Do iV = 1,kIsh
                   jV = iV + off_basIsh(ksym)
                   iX=iV
@@ -5565,9 +5465,10 @@
 !      Call Put_dArray('FA_V',Work(ifav),ntot1)
 !      CALL GETMEM('FI_V','FREE','REAL',ifiv,ntot1)
 !      CALL GETMEM('FA_V','FREE','REAL',ifav,ntot1)
-      lsym=lsym_tmp
 *
       Return
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
       End
 
       Subroutine Calc_OTPUVXGGA_ft(PUVX,TabMO,mAO,nCoor,nTabMOs
@@ -5583,8 +5484,7 @@
       Integer nIrrep
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_PUVX(mxSym),off_Bas(mxSym),
-     &        off_ish(mxSym),off_BasIsh(mxSym),
-     &        off_BasVsh(mxSym)
+     &        off_BasIsh(mxSym)
       Integer   off_Dmat, off_Fmat
       Dimension off_Dmat(mxSym), off_Fmat(mxSym)
 
@@ -5604,34 +5504,24 @@
       thrsrho=1.0d-15
       thrsrho2=1.0d-15
       thrspi=1.0d-30
-      thrsCEH=1.0d-24
       thrsrho3=0.9000000000d0
       thrsrho4=1.1500000000d0
       Ab1=-4.756065601d+2
       Bb1=-3.794733192d+2
       Cb1=-8.538149682d+1
 *
-      lsym_tmp=lsym
-
-      Call Unused_real_array(RhoI)
-      Call Unused_real_array(RhoA)
-
       iStack  = 0
       iStack1 = 0
       iStack2 = 0
-      off_ish(:) = 0
       off_Ash(:) = 0
       off_Bas(:) = 0
       off_BasAsh(:) = 0
       off_BasIsh(:) = 0
-      off_BasVsh(:) = 0
       ntot1 = 0
 
       Do iSym = 1,nSym
-        off_ish(isym)    = iStack2
         off_Ash(iSym)    = iStack
         off_Bas(iSym)    = iStack1
-        off_BasVsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)+nAsh(iSym)
         off_BasAsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)
         off_BasIsh(iSym) = iStack1+nFro(iSym)
         ntot1 = iTrii(nBas(iSym),nBas(iSym)) + ntot1
@@ -5705,7 +5595,6 @@
                   Do iU = 1,jAsh
                   jU = iU + off_BasAsh(jSym)
                     Do iP = 1,iOrb
-                      iT = iP - iIsh
                       iPUVX=iPUVX+1
                       jP = iP     +   off_Bas(iSym)
                     Do iGrid=1,nCoor
@@ -5927,7 +5816,6 @@
             Do lSym = 1,kSym !sym for x
               lOrb = nOrb(lSym)
               lAsh = nAsh(lSym)
-              lIsh = nIsh(lSym)
               klSym = 1 + ieor(kSym-1,lSym-1)
 
 *             find cases
@@ -5944,7 +5832,7 @@
 !Symmetry case (II|II)
 100             Continue
                 iFoff = off_Fmat(iSym)
-                iDoff = off_Dmat(iSym)
+                !iDoff = off_Dmat(iSym)
                 Do iV = 1,kIsh
                   jV = iV + off_basIsh(kSym)
                   iX=iV
@@ -6066,12 +5954,12 @@
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                        d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -8150,7 +8038,7 @@
 !Symmetry case (II|KK)
 200             Continue
                 iFoff = off_Fmat(iSym)
-                iDoff = off_Dmat(kSym)
+                !iDoff = off_Dmat(kSym)
                 Do iV = 1,kIsh
                   jV = iV + off_basIsh(ksym)
                   iX=iV
@@ -10386,9 +10274,10 @@
 !      Call Put_dArray('FA_V',Work(ifav),ntot1)
 !      CALL GETMEM('FI_V','FREE','REAL',ifiv,ntot1)
 !      CALL GETMEM('FA_V','FREE','REAL',ifav,ntot1)
-      lsym=lsym_tmp
 *
       Return
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
       End
 
 
@@ -10404,9 +10293,6 @@
 #include "WrkSpc.fh"
 #include "ksdft.fh"
       Integer nIrrep
-      Integer off_Ash(mxSym), off_BasAsh(mxSym),
-     &        off_Bas(mxSym)!,off_Fmat(mxSym),
-!     &        off_Dmat(mxSym)
       Integer off_basIsh(mxSym),off_Fmat(mxSym)
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
@@ -10419,13 +10305,9 @@
       thrsrho=1.0d-15
       thrsrho2=1.0d-15
 *
-      lsym_tmp=lsym
       iStack  = 0
       iStack1 = 0
       Do iSym = 1,nSym
-        off_Ash(iSym)    = iStack
-        off_Bas(iSym)    = iStack1
-        off_BasAsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)
         off_BasIsh(iSym) = iStack1+nFro(iSym)
         iStack1 = iStack1 + nBas(iSym)
         iStack  = iStack  + nAsh(iSym)
@@ -10438,15 +10320,12 @@
         iStack = iStack + (iOrb*iOrb + iOrb)/2
       end do
 *
-      Call Unused_real_array(RhoI)
-      Call Unused_real_array(RhoA)
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !OE pieces - both orbs must be in the same irrep, eh?
       Do iSym = 1,nSym
         iOrb = nOrb(iSym)
-        iAsh = nAsh(iSym)
-        iIsh = nIsh(iSym)
+        !iAsh = nAsh(iSym)
+        !iIsh = nIsh(iSym)
         Do iV = 1,iOrb!iIsh+iAsh
           jV = iV + off_BasIsh(iSym)
           do iX = 1,iV
@@ -10549,8 +10428,9 @@
           End do
         End Do
       End Do
-           lsym=lsym_tmp
       Return
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
       End
 
       Subroutine Calc_OTOEGGA_ft(OE,TabMO,mAO,nCoor,nTabMOs
@@ -10564,9 +10444,6 @@
 #include "WrkSpc.fh"
 #include "ksdft.fh"
       Integer nIrrep
-      Integer off_Ash(mxSym), off_BasAsh(mxSym),
-     &        off_Bas(mxSym)!,off_Fmat(mxSym),
-!     &        off_Dmat(mxSym)
       Integer off_basIsh(mxSym),off_Fmat(mxSym)
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
@@ -10584,20 +10461,13 @@
       Bb1=-3.794733192d+2
       Cb1=-8.538149682d+1
 *
-      lsym_tmp=lsym
       iStack  = 0
       iStack1 = 0
       Do iSym = 1,nSym
-        off_Ash(iSym)    = iStack
-        off_Bas(iSym)    = iStack1
-        off_BasAsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)
         off_BasIsh(iSym) = iStack1+nFro(iSym)
         iStack1 = iStack1 + nBas(iSym)
         iStack  = iStack  + nAsh(iSym)
       End Do
-
-      Call Unused_real_array(RhoI)
-      Call Unused_real_array(RhoA)
 
       iStack = 0
       do iSym=1,nSym
@@ -10611,8 +10481,8 @@
 !OE pieces - both orbs must be in the same irrep, eh?
       Do iSym = 1,nSym
         iOrb = nOrb(iSym)
-        iAsh = nAsh(iSym)
-        iIsh = nIsh(iSym)
+        !iAsh = nAsh(iSym)
+        !iIsh = nIsh(iSym)
         Do iV = 1,iOrb!iIsh+iAsh
           jV = iV + off_BasIsh(iSym)
           do iX = 1,iV
@@ -10844,8 +10714,9 @@
           End do
         End Do
       End Do
-           lsym=lsym_tmp
       Return
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
       End
       Subroutine Calc_OTPUVXGGA_2(PUVX,TabMO,mAO,nCoor,nTabMOs
      &                       ,P2_ontop,nP2_ontop,Rho,nRho,
@@ -10860,8 +10731,7 @@
       Integer nIrrep
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_PUVX(mxSym),off_Bas(mxSym),
-     &        off_ish(mxSym),off_BasIsh(mxSym),
-     &        off_BasVsh(mxSym)
+     &        off_BasIsh(mxSym)
       Integer   off_Dmat, off_Fmat
       Dimension off_Dmat(mxSym), off_Fmat(mxSym)
 
@@ -10884,29 +10754,20 @@
       thrsrho2=1.0d-15
       thrspi=1.0d-30
 *
-      lsym_tmp=lsym
-
-      Call Unused_real_array(RhoI)
-      Call Unused_real_array(RhoA)
-
       Call CPU_Time(time1)
 
       iStack  = 0
       iStack1 = 0
       iStack2 = 0
-      off_ish(:) = 0
       off_Ash(:) = 0
       off_Bas(:) = 0
       off_BasAsh(:) = 0
       off_BasIsh(:) = 0
-      off_BasVsh(:) = 0
       ntot1 = 0
 
       Do iSym = 1,nSym
-        off_ish(isym)    = iStack2
         off_Ash(iSym)    = iStack
         off_Bas(iSym)    = iStack1
-        off_BasVsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)+nAsh(iSym)
         off_BasAsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)
         off_BasIsh(iSym) = iStack1+nFro(iSym)
         ntot1 = iTrii(nBas(iSym),nBas(iSym)) + ntot1
@@ -11057,7 +10918,6 @@
                   Do iU = 1,jAsh
                   jU = iU + off_BasAsh(jSym)
                     Do iP = 1,iOrb
-                      iT = iP - iIsh
                       iPUVX=iPUVX+1
                       jP = iP     +   off_Bas(iSym)
                     Do iGrid=1,nCoor
@@ -11288,7 +11148,6 @@
             Do lSym = 1,kSym !sym for x
               lOrb = nOrb(lSym)
               lAsh = nAsh(lSym)
-              lIsh = nIsh(lSym)
               klSym = 1 + ieor(kSym-1,lSym-1)
 
 *             find cases
@@ -11305,7 +11164,7 @@
 !Symmetry case (II|II)
 100             Continue
                 iFoff = off_Fmat(iSym)
-                iDoff = off_Dmat(iSym)
+                !iDoff = off_Dmat(iSym)
                 Do iV = 1,kIsh
                   jV = iV + off_basIsh(kSym)
                   iX=iV
@@ -12041,7 +11900,7 @@
 !Symmetry case (II|KK)
 200             Continue
                 iFoff = off_Fmat(iSym)
-                iDoff = off_Dmat(kSym)
+                !iDoff = off_Dmat(kSym)
                 Do iV = 1,kIsh
                   jV = iV + off_basIsh(ksym)
                   iX=iV
@@ -12805,7 +12664,8 @@
 !      Call Put_dArray('FA_V',Work(ifav),ntot1)
 !      CALL GETMEM('FI_V','FREE','REAL',ifiv,ntot1)
 !      CALL GETMEM('FA_V','FREE','REAL',ifav,ntot1)
-      lsym=lsym_tmp
 *
       Return
+      Call Unused_real_array(RhoI)
+      Call Unused_real_array(RhoA)
       End

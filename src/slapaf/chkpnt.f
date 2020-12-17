@@ -83,7 +83,7 @@
 #  include "WrkSpc.fh"
 #  include "stdalloc.fh"
       Character :: lIrrep(24)
-      Integer :: dsetid, attrid, mAtom, i, j, k
+      Integer :: dsetid, mAtom, i, j, k
       Real*8, Allocatable :: charges(:)
       Integer, Allocatable :: desym(:,:), symdof(:,:)
 
@@ -228,7 +228,7 @@
 *     MEP/IRC information
       If (MEP.or.rMEP) Then
         Call mh5_init_attr(chkpnt_id, 'MEP_STEP', dMEPStep)
-        attrid = mh5_create_attr_int(chkpnt_id, 'MEP_ITERATIONS')
+        Call mh5_init_attr(chkpnt_id, 'MEP_ITERATIONS', 0)
 
         dsetid = mh5_create_dset_int(chkpnt_id,
      &           'MEP_INDICES', 1, [0], dyn=.True.)
