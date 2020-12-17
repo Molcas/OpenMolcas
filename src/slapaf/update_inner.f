@@ -15,7 +15,6 @@
      &                     Beta,Beta_Disp,
      &                     ed,Step_Trunc,
      &                     nLambda,nsAtom,
-     &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     nRowH,
      &                     nWndw,
      &                     mIter,
@@ -39,10 +38,6 @@
 *                       next iteration                                 *
 *      ed             : estimated energy change to the next point      *
 *      Step_Trunc     : character label to denote truncation type      *
-*      GrdMax         : largest gradient component                     *
-*      StpMax         : largest step component                         *
-*      GrdLbl         : character label of component with GrdMax       *
-*      StpLbl         : character label of component with StpLbl       *
 *                                                                      *
 *                                                                      *
 *     Author: Roland Lindh                                             *
@@ -53,15 +48,15 @@
       use Slapaf_Parameters, only: iRow_c, iInt, nFix, iOptH,
      &                             HrmFrq_Show, Curvilinear, FindTS,
      &                             nBVec, nDimBC, iOptC, iNeg,
-     &                             TSConstraints, GNrm_Threshold, Mode
+     &                             TSConstraints, GNrm_Threshold, Mode,
+     &                             GrdMax, StpMax
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
       Real*8 qInt(nInter,kIter+1), Shift(nInter,kIter)
       Logical Found, Kriging_Hessian, First_MicroIteration
-      Character GrdLbl*8, StpLbl*8, Step_Trunc,
-     &          File1*8, File2*8, Step_Trunc_
+      Character Step_Trunc, File1*8, File2*8, Step_Trunc_
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:),
      &                      RHS(:), ErrVec(:,:), EMtrx(:,:)
       Integer, Allocatable:: Index(:), iFlip(:)
@@ -310,8 +305,7 @@ C           Write (6,*) 'tBeta=',tBeta
                Write (6,*) 'Step_Trunc=',Step_Trunc
 #endif
 *
-            Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nInter,
-     &                  dqInt(1,kIter),Shift(1,kIter),Lbl)
+            Call MxLbls(nInter,dqInt(1,kIter),Shift(1,kIter),Lbl)
 *
 *---------- Set shift vector to zero for frozen internal coordinates.
 *
@@ -640,7 +634,7 @@ C           Write (6,*) 'tBeta=',tBeta
      &                ErrVec,EMtrx,RHS,
      &                AMat,nA,ed,qBeta,qBeta_Disp,nFix,
      &                Index,Step_Trunc,Lbl,
-     &                GrdLbl,StpLbl,GrdMax,StpMax,d2L,nsAtom,
+     &                d2L,nsAtom,
      &                iOpt_RS,Thr_RS,iter,
      &                First_Microiteration)
             If (iOpt_RS.eq.1) Exit

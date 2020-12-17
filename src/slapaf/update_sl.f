@@ -13,7 +13,6 @@
       Subroutine Update_sl(iter,NmIter,nInter,
      &                     ed,Step_Trunc,
      &                     nLambda,nsAtom,
-     &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     nRowH,
      &                     nWndw,kIter)
 ************************************************************************
@@ -31,10 +30,6 @@
 *    OutPut:                                                           *
 *      ed             : estimated energy change to the next point      *
 *      Step_Trunc     : character label to denote truncation type      *
-*      GrdMax         : largest gradient component                     *
-*      StpMax         : largest step component                         *
-*      GrdLbl         : character label of component with GrdMax       *
-*      StpLbl         : character label of component with StpLbl       *
 *                                                                      *
 *                                                                      *
 *     Author: Roland Lindh                                             *
@@ -47,7 +42,7 @@
 #include "stdalloc.fh"
 #include "print.fh"
 #include "Molcas.fh"
-      Character GrdLbl*8, StpLbl*8, Step_Trunc
+      Character Step_Trunc
       Real*8 Dummy(1)
       Real*8, Allocatable:: t_Shift(:,:), t_qInt(:,:), tmp(:)
 *
@@ -101,7 +96,6 @@
      &                   Shift,Beta,Beta_Disp,
      &                   ed,
      &                   Step_Trunc,nLambda,nsAtom,
-     &                   GrdMax,StpMax,GrdLbl,StpLbl,
      &                   nRowH,
      &                   nWndw,
      &                   kIter,
@@ -138,7 +132,6 @@
      &                Beta,Beta_Disp,
      &                ed,Step_Trunc,nLambda,
      &                nsAtom,
-     &                GrdMax,StpMax,GrdLbl,StpLbl,
      &                nRowH,
      &                nWndw,
      &                kIter,

@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nInter,Grad,Shift,
-     &                  Lbl)
+      Subroutine MxLbls(nInter,Grad,Shift,Lbl)
+      use Slapaf_Parameters, only: GrdLbl,StpLbl,GrdMax,StpMax
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Real*8 Shift(nInter), Grad(nInter)
-      Character Lbl(nInter)*8,  GrdLbl*8, StpLbl*8
+      Character Lbl(nInter)*8
 *
 *     Call RecPrt('MxLbls:Shift',' ',Shift,nInter,1)
 *     Call RecPrt('MxLbls:Grad',' ',Grad,nInter,1)

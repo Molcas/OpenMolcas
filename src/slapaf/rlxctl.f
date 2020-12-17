@@ -27,7 +27,6 @@
 #include "stdalloc.fh"
 #include "print.fh"
       Logical GoOn, TSReg, Do_ESPF, Just_Frequencies, Found, Error
-      Character(LEN=8) GrdLbl, StpLbl
       Character(LEN=1) Step_trunc
       Integer, External:: AixRm
       Integer nGB
@@ -37,8 +36,6 @@
 ************************************************************************
 *                                                                      *
       Lu=6
-      StpLbl=' '
-      GrdLbl=' '
       Just_Frequencies=.False.
 *                                                                      *
 ************************************************************************
@@ -170,8 +167,7 @@
             UpMeth='NumHss'
          End If
 *
-         Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nQQ,dqInt(:,iter),
-     &               Shift(:,iter),Lbl)
+         Call MxLbls(nQQ,dqInt(:,iter),Shift(:,iter),Lbl)
          iNeg(:)=-99
          HUpMet='None  '
          Stop = .False.
@@ -206,14 +202,11 @@
 *        Update geometry
 *
          If (Kriging .and. Iter.ge.nspAI) Then
-            Call Update_Kriging(Iter,nQQ,ed,Step_Trunc,
-     &                          nLambda,nsAtom,GrdMax,StpMax,GrdLbl,
-     &                          StpLbl,nRowH,
-     &                          nWndw,ThrEne,ThrGrd)
+            Call Update_Kriging(Iter,nQQ,ed,Step_Trunc,nLambda,nsAtom,
+     &                          nRowH,nWndw,ThrEne,ThrGrd)
          Else
             Call Update_sl(Iter,NmIter,nQQ,ed,Step_Trunc,
-     &                     nLambda,nsAtom,GrdMax,StpMax,GrdLbl,StpLbl,
-     &                     nRowH,nWndw,kIter)
+     &                     nLambda,nsAtom,nRowH,nWndw,kIter)
          End If
 *
 #ifdef UNIT_MM
@@ -281,10 +274,8 @@
       Numerical=(lNmHss.or.lRowH).and.iter.le.NmIter
       Call Convrg(iter,kIter,nQQ,Stop,iStop,ThrCons,
      &            ThrEne,ThrGrd,MxItr,mIntEff,Baker,
-     &            nsAtom,mTtAtm,ed,
-     &            GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
-     &            rMEP,MEP,nMEP,
-     &            Just_Frequencies,eMEPTest,nLambda,
+     &            nsAtom,mTtAtm,ed,GoOn,Step_Trunc,
+     &            rMEP,MEP,nMEP,Just_Frequencies,eMEPTest,nLambda,
      &            TSReg,ThrMEP)
 *
 ************************************************************************

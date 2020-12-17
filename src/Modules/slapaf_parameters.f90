@@ -16,7 +16,8 @@ Private
 Public:: iRow, iRow_c, iInt, nFix, ddV_Schlegel, HWRS, iOptH, HUpMet, HrmFrq_Show, IRC, &
          nBVec, nDimBC, Curvilinear, Redundant, FindTS, User_Def, Analytic_Hessian, MaxItr, &
          UpMeth, iOptC, HSet, BSet, rHidden, CnstWght, PrQ, lOld, Numerical, Beta, Beta_Disp, &
-         Line_Search, iNeg, TSConstraints, GNrm_Threshold, Mode
+         Line_Search, iNeg, TSConstraints, GNrm_Threshold, Mode, GrdLbl, GrdMax, &
+         StpLbl, StpMax
 Integer:: iRow=0
 Integer:: iRow_c=0
 Integer:: iInt=0
@@ -51,7 +52,9 @@ Real*8:: CnstWght=One
 Real*8:: Beta = 0.30D0    !     The threshold for restricted step optimization.
 Real*8:: Beta_Disp=0.30D0 !     The threshold for restricted variance optimization.
 Real*8:: GNrm_Threshold=0.2D0
+Real*8:: GrdMax=Zero, StpMax=Zero
 
+Character(LEN=8):: GrdLbl='', StpLbl=''
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -89,6 +92,6 @@ Character(LEN=6):: HUpMet=' None '
 !  12  iOptC          (4096) set if FindTS
 !  13  iOptC          (8192) set if FindTS and in TS regime
 !
-Character(LEN=6):: UpMeth='  RF  '
 Integer:: iOptC=2**3 + 2**6 + 2**7 + 2**9 + 2**10 + 2**11
+Character(LEN=6):: UpMeth='  RF  '
 End Module Slapaf_Parameters

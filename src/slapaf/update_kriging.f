@@ -15,7 +15,6 @@
      &                     iter,nInter,
      &                     ed,Step_Trunc,
      &                     nLambda,nsAtom,
-     &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     nRowH,
      &                     nWndw,
      &                     ThrEne,ThrGrd)
@@ -29,7 +28,8 @@
      &                       Thr_microiterations
       Use Slapaf_Info, only: Cx, Gx, Shift, GNrm, Energy, qInt, dqInt,
      &                       Lbl
-      use Slapaf_Parameters, only: UpMeth, Beta, Beta_Disp
+      use Slapaf_Parameters, only: UpMeth, Beta, Beta_Disp, GrdLbl,
+     &                             GrdMax
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -37,7 +37,7 @@
 #include "stdalloc.fh"
       Real*8 dEner
       Logical First_MicroIteration, Error
-      Character GrdLbl*8, StpLbl*8, Step_Trunc
+      Character Step_Trunc
       Character GrdLbl_Save*8
       Real*8 Dummy(1)
       Real*8, Allocatable:: Hessian(:,:), Temp(:,:,:)
@@ -206,7 +206,6 @@
      &                   Beta_,Beta_Disp_,
      &                   ed,Step_Trunc,nLambda,
      &                   nsAtom,
-     &                   GrdMax,StpMax,GrdLbl,StpLbl,
      &                   nRowH,nWndw_,
      &                   kIter,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
@@ -446,8 +445,7 @@
 *
       ed = Energy(iterAI)-Energy(iter)
 *
-      Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nInter,
-     &            dqInt(1,iter),Shift(1,iter),Lbl)
+      Call MxLbls(nInter,dqInt(1,iter),Shift(1,iter),Lbl)
 *
 *     Stick in the correct value for GrdMax, which might contain a
 *     contribution due to constraints.

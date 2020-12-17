@@ -17,8 +17,8 @@
      &                   iOptH,jPrint,Energy,nLambda,
      &                   nRowH,Err,EMx,RHS,A,nA,ed,
      &                   Beta,Beta_Disp,nFix,iP,
-     &                   Step_Trunc,Lbl,GrdLbl,StpLbl,
-     &                   GrdMax,StpMax,d2rdq2,nsAtom,
+     &                   Step_Trunc,Lbl,
+     &                   d2rdq2,nsAtom,
      &                   iOpt_RS,Thr_RS,iter_,
      &                   First_Microiteration)
 ************************************************************************
@@ -50,7 +50,8 @@
 ************************************************************************
       Use kriging_mod, only: Max_MicroIterations
       use Slapaf_Info, only: MF
-      use Slapaf_Parameters, only: IRC, iOptC, CnstWght
+      use Slapaf_Parameters, only: IRC, iOptC, CnstWght, StpLbl,
+     &                             StpMax, GrdMax
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -71,7 +72,7 @@
       Logical Found, IRC_setup, First_MicroIteration,
      &        Recompute_disp
       Character Step_Trunc*1, Lbl(nInter+nLambda)*8,
-     &          GrdLbl*8, StpLbl*8, StpLbl_Save*8, Step_Trunc_*1
+     &          StpLbl_Save*8, Step_Trunc_*1
       Real*8, Allocatable:: dq_xy(:), Trans(:), Tmp1(:), Tmp2(:,:)
       Real*8, Allocatable:: RT(:,:), RTInv(:,:), RRR(:,:), RRInv(:,:),
      &                      RR(:,:), Tdy(:), Tr(:), WTr(:),
@@ -1052,8 +1053,7 @@ C           Write (6,*) 'gBeta=',gBeta
 *                                                                      *
 *     StpMax from q
 *
-      Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nInter,
-     &            dEdq_(1,nIter),dq(1,nIter),Lbl)
+      Call MxLbls(nInter,dEdq_(1,nIter),dq(1,nIter),Lbl)
 *
 *     GrdMax for dEdx
 *
@@ -1067,8 +1067,7 @@ C           Write (6,*) 'gBeta=',gBeta
          Do i = 1, nInter-nLambda
             Write (Lbl(i),'(A,I3.3)') 'dEdx',i
          End Do
-         Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nInter-nLambda,
-     &               dEdx(1,nIter),dx(1,nIter),Lbl)
+         Call MxLbls(nInter-nLambda,dEdx(1,nIter),dx(1,nIter),Lbl)
          StpMax=StpMax_Save
          StpLbl=StpLbl_Save
          Call Real2Char(Tmp1,Lbl,(nInter-nLambda)*8)

@@ -12,7 +12,7 @@
      &                  Stop,iStop,ThrCons,
      &                  ThrEne, ThrGrd, MxItr, mIntEff,
      &                  Baker, nAtom,mTtAtm,ed,
-     &                  GoOn,Step_Trunc,GrdMax,StpMax,GrdLbl,StpLbl,
+     &                  GoOn,Step_Trunc,
      &                  rMEP,MEP,nMEP,
      &                  Just_Frequencies,eMEPTest,nLambda,
      &                  TSReg,ThrMEP)
@@ -20,7 +20,7 @@
       Use Slapaf_Info, only: Cx, Gx, Coor, GNrm, Energy, Shift, qInt,
      &                       dqInt, Lbl
       use Slapaf_Parameters, only: HUpMet, FindTS, Analytic_Hessian,
-     &                             MaxItr, Numerical, iNeg
+     &                             MaxItr, Numerical, iNeg, GrdMax
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -30,7 +30,6 @@
 #include "warnings.fh"
       Integer:: IRC=0
       Real*8 Maxed, MaxErr
-      Character GrdLbl*8, StpLbl*8
       Character(LEN=5) ConLbl(5)
       Character(LEN=1) Step_Trunc
       Character(LEN=16) StdIn
@@ -292,11 +291,9 @@
          iPrint    =iPrint+1
          nPrint(53)=nPrint(53)+1
       End If
-      If (.Not.Just_Frequencies) Then
-         Call Status(kIter-iOff_Iter,E,Fabs,GrdMax,GrdLbl,StpMax,StpLbl,
-     &               E0,MaxItr-1,eChng,Temp,Step_Trunc,
-     &               .NOT.Numerical)
-      End If
+      If (.Not.Just_Frequencies)
+     &   Call Status(kIter-iOff_Iter,E,Fabs,E0,MaxItr-1,eChng,Temp,
+     &               Step_Trunc,.NOT.Numerical)
 *
       If (Baker) Then
          If (iPrint.ge.5) Then
