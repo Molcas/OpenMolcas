@@ -9,25 +9,25 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Bond_List(
-     &                 nq,nAtoms,iIter,nIter,Cx,
+     &                 nq,nsAtom,iIter,nIter,Cx,
      &                 Process,Value,
-     &                 nB,iANr,qLbl,fconst,
+     &                 nB,qLbl,fconst,
      &                 rMult,LuIC,Indq,
      &                 Proc_dB,iTabBonds,nBonds,
      &                 iTabAI,mAtoms,mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: jStab, nStab, AtomLbl
+      use Slapaf_Info, only: jStab, nStab, AtomLbl, ANr
       use Slapaf_Parameters, only: iOptC
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
       Parameter (mB=2*3)
-      Real*8 Cx(3,nAtoms,nIter), A(3,2), Grad(mB), Hess(mB**2),
+      Real*8 Cx(3,nsAtom,nIter), A(3,2), Grad(mB), Hess(mB**2),
      &       fconst(nB), Value(nB,nIter), rMult(nB),
      &       BM(nB_Tot), dBM(ndB_Tot)
       Integer   iDCRR(0:7),
-     &          iStabM(0:7), Ind(2), iDCR(2), iANr(nAtoms), iChOp(0:7),
+     &          iStabM(0:7), Ind(2), iDCR(2), iChOp(0:7),
      &          Indq(3,nB), iTabBonds(3,nBonds), iTabAI(2,mAtoms),
      &          iBM(nB_Tot), idBM(2,ndB_Tot), mqB(nB)
       Logical Process, Proc_dB,Help, R_Stab_A
@@ -58,8 +58,8 @@
       Write (6,*) ' ---> Enter Bonds.'
       Write (6,*)
       Write (6,*) 'Process=',Process
-      Call RecPrt('CX',' ',CX,3*nAtoms,nIter)
-      Write (6,'(20(1X,A))') (AtomLbl(i),i=1,nAtoms)
+      Call RecPrt('CX',' ',CX,3*nsAtom,nIter)
+      Write (6,'(20(1X,A))') (AtomLbl(i),i=1,nsAtom)
       Write (6,*)
       Write (6,*) ' iTabAI'
       Write (6,*)
@@ -97,8 +97,8 @@
             If (iDCR(1).ne.iOper(0)) Go To 2
             If (R_Stab_A(iDCR(2),jStab(0,iAtom),nStab(iAtom)) .and.
      &          iDCR(2).ne.iOper(0)) Go To 2
-            iRow = iANr(iAtom)
-            jRow = iANr(jAtom)
+            iRow = ANr(iAtom)
+            jRow = ANr(jAtom)
 #ifdef _DEBUGPRINT_
             Write (6,*) 'iAtom,jAtom=',iAtom,jAtom
 #endif
@@ -198,7 +198,7 @@
             If (Process) Then
 *
                Indq(1,nq) = 1
-               Indq(2,nq) = (jAtom-1)*nAtoms + iAtom
+               Indq(2,nq) = (jAtom-1)*nsAtom + iAtom
                Indq(3,nq) = kDCRR+1
 *
                Rij2=(A(1,1)-A(1,2))**2
@@ -206,7 +206,7 @@
      &             +(A(3,1)-A(3,2))**2
                Rab=Sqrt(Rij2)
                If (Help) Then
-                  RabCov=CovRad(iANr(iAtom))+CovRad(iANr(jAtom))
+                  RabCov=CovRad(ANr(iAtom))+CovRad(ANr(jAtom))
                   If ((iRow.eq.1.and.jRow.eq.1).or.Help) Then
 *                    Bond a la Fischer & Almlof
                      f_Const=A_StrH(1)*EXP(-A_StrH(2)*(Rab-RabCov))

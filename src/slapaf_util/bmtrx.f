@@ -8,10 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine BMtrx(nAtom,nInter,Coor,
-     &                 nIter,
-     &                 mTtAtm,
-     &                 nQQ,iIter,nWndw)
+      Subroutine BMtrx(nsAtom,nInter,Coor,nIter,mTtAtm,nQQ,iIter,nWndw)
       Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx, Smmtrc,
      &                       Lbl
       Use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC,
@@ -22,7 +19,7 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-      Real*8 Coor(3,nAtom)
+      Real*8 Coor(3,nsAtom)
       External Get_SuperName
       Character(LEN=100) Get_SuperName
       Integer, Allocatable:: TabB(:,:), TabA(:,:,:), TabAI(:,:), AN(:)
@@ -32,11 +29,11 @@
 ************************************************************************
 *                                                                      *
       Interface
-        Subroutine Box(Coor,nAtoms,iANr,TabB,TabA,nBonds,
+        Subroutine Box(Coor,nsAtom,iANr,TabB,TabA,nBonds,
      &                nMax)
-        Integer nAtoms
-        Real*8 Coor(3,nAtoms)
-        Integer iANr(nAtoms)
+        Integer nsAtom
+        Real*8 Coor(3,nsAtom)
+        Integer iANr(nsAtom)
         Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
         Integer nBonds, nMax
         End Subroutine Box
@@ -85,23 +82,23 @@
 *---- Find the translational and rotational eigenvectors for the
 *     current structure.
 *
-      Call mma_allocate(TR,18*nAtom,Label='TR')
+      Call mma_allocate(TR,18*nsAtom,Label='TR')
       TR(:)=Zero
 *
-      Call TRPGen(nDimBC,nAtom,Cx(1,1,iIter),mTR,.False.,TR)
+      Call TRPGen(nDimBC,nsAtom,Cx(1,1,iIter),mTR,.False.,TR)
 *
-      Call mma_allocate(TRnew,3*nAtom*mTR,Label='TRNew')
+      Call mma_allocate(TRnew,3*nsAtom*mTR,Label='TRNew')
       TRNew(:)=Zero
       i = 0
-      Do ix = 1, 3*nAtom
+      Do ix = 1, 3*nsAtom
          iAtom = (ix+2)/3
          ixyz = ix - (iAtom-1)*3
          If (Smmtrc(ixyz,iAtom)) Then
             i = i + 1
-            call dcopy_(mTR,TR(i),-nDimBC,TRNew(ix),3*nAtom)
+            call dcopy_(mTR,TR(i),-nDimBC,TRNew(ix),3*nsAtom)
          End If
       End Do
-      Call Put_dArray('TR',TRnew,3*nAtom*mTR)
+      Call Put_dArray('TR',TRnew,3*nsAtom*mTR)
       Call mma_deallocate(TRnew)
 *
 *     Call RecPrt('TR',' ',TR,nDimBC,mTR)
@@ -115,7 +112,7 @@
 *
 *-----Generate Grand atoms list
 *
-      Call GenCoo(Cx(1,1,iIter),nAtom,Coor2,mTtAtm,Vec,nDimBC,ANr,
+      Call GenCoo(Cx(1,1,iIter),nsAtom,Coor2,mTtAtm,Vec,nDimBC,ANr,
      &            AN,TabAI)
 *
 *---- Are there some hidden frozen atoms ?
@@ -145,7 +142,7 @@
       Call mma_allocate(Scr2,(3*mTtAtm)**2,Label='Scr2')
 *
       If (HSet.or..Not.(Curvilinear.or.User_Def))
-     &   Call LNM(Coor2,mTtAtm,EVal,Hss_X,Scr2,Vec,nAtom,nDimBC,AN,
+     &   Call LNM(Coor2,mTtAtm,EVal,Hss_X,Scr2,Vec,nsAtom,nDimBC,AN,
      &            nIter,
      &            TabB,TabA,nBonds,nMax,nHidden)
 *
@@ -175,7 +172,7 @@
 ************************************************************************
 *                                                                      *
          Call BMtrx_User_Defined(
-     &                 nAtom,nInter,Lbl,Coor,nDimBC,
+     &                 nsAtom,nInter,Lbl,Coor,nDimBC,
      &                 nIter,
      &                 mTR,nQQ)
 *                                                                      *
@@ -198,7 +195,7 @@
      &               nBonds,nMax)
          End If
          Call BMtrx_Internal(
-     &                 nAtom,nDimBC,
+     &                 nsAtom,nDimBC,
      &                 nIter,
      &                 mTtAtm,
      &                 iIter,mTR,TR,TabAI,
@@ -217,7 +214,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call BMtrx_Cartesian(nAtom,nInter,nDimBC,
+         Call BMtrx_Cartesian(nsAtom,nInter,nDimBC,
      &                        nIter,
      &                        mTtAtm,mTR,TR,EVal,Hss_X,
      &                        nQQ,nWndw)
@@ -266,24 +263,24 @@
       If ((nIter.eq.1.and.BSet).and.
      &    (Get_SuperName().ne.'numerical_gradient')) Then
 
-         Call Put_dArray('BMxOld',BMx,3*nAtom*nQQ)
+         Call Put_dArray('BMxOld',BMx,3*nsAtom*nQQ)
 
          If (mTR.ne.0) Then
-            Call mma_allocate(TROld,3*nAtom*mTR,Label='TROld')
+            Call mma_allocate(TROld,3*nsAtom*mTR,Label='TROld')
             TROld(:)=Zero
 #ifdef _DEBUGPRINT_
-            Call RecPrt('TRVec',' ',TR,3*nAtom,mTR)
+            Call RecPrt('TRVec',' ',TR,3*nsAtom,mTR)
 #endif
             i = 0
-            Do ix = 1, 3*nAtom
+            Do ix = 1, 3*nsAtom
                iAtom = (ix+2)/3
                ixyz = ix - (iAtom-1)*3
                If (Smmtrc(ixyz,iAtom)) Then
                   i = i + 1
-                  call dcopy_(mTR,TR(i),-nDimBC,TROld(ix),3*nAtom)
+                  call dcopy_(mTR,TR(i),-nDimBC,TROld(ix),3*nsAtom)
                End If
             End Do
-            Call Put_dArray('TROld',TROld,3*nAtom*mTR)
+            Call Put_dArray('TROld',TROld,3*nsAtom*mTR)
             Call mma_deallocate(TROld)
          End If
       End IF
@@ -291,7 +288,7 @@
 *---- Print the B-matrix
 *
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' The BMtrx',' ',BMx,3*nAtom,nQQ)
+      Call RecPrt(' The BMtrx',' ',BMx,3*nsAtonsAtom,nQQ)
 #endif
       Call mma_deallocate(TR)
 *                                                                      *

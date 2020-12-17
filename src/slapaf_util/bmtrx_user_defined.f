@@ -8,11 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine BMtrx_User_Defined(
-     &                 nAtom,nInter,
-     &                 Lbl,Coor,nDim,
-     &                 nIter,
-     &                 mTR,nQQ)
+      Subroutine BMtrx_User_Defined(nsAtom,nInter,Lbl,Coor,nDim,nIter,
+     &                              mTR,nQQ)
       use Slapaf_Info, only: Gx, qInt, dqInt, KtB, BMx, Degen, Smmtrc
       use Slapaf_Parameters, only: iInt, nFix, nBVec, Analytic_Hessian,
      &                             MaxItr, iOptC, BSet, HSet, lOld,
@@ -21,7 +18,7 @@
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8 Coor(3,nAtom)
+      Real*8 Coor(3,nsAtom)
       Character Lbl(nInter)*8
       Logical Proc_dB
       Real*8, Allocatable:: Degen2(:)
@@ -43,7 +40,7 @@
          qInt(:,:) = Zero
          dqInt(:,:) = Zero
       End If
-      Call mma_allocate(BMx,3*nAtom,nQQ,Label='BMx')
+      Call mma_allocate(BMx,3*nsAtom,nQQ,Label='BMx')
       BMx(:,:)=Zero
 
 *
@@ -59,13 +56,13 @@
 *        Not implimented, sorry
       End If
 *
-      Call DefInt(nBVec,BMx,nQQ,nAtom,qInt(:,nIter),Lbl,Coor,nDim-mTR)
+      Call DefInt(nBVec,BMx,nQQ,nsAtom,qInt(:,nIter),Lbl,Coor,nDim-mTR)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Compute the gradient
 *
-      If (BSet) Call Force(nFix,Gx(:,:,nIter),nAtom,nQQ,BMx,
+      If (BSet) Call Force(nFix,Gx(:,:,nIter),nsAtom,nQQ,BMx,
      &                     nIter,dqInt,Lbl,Degen)
 *                                                                      *
 ************************************************************************
@@ -75,7 +72,7 @@
 *
          Call mma_allocate(Degen2,nDim,Label='Degen2')
          i=0
-         Do ix = 1, 3*nAtom
+         Do ix = 1, 3*nsAtom
             iAtom = (ix+2)/3
             ixyz = ix - (iAtom-1)*3
             If (Smmtrc(ixyz,iAtom)) Then
@@ -86,7 +83,7 @@
 *
          Do j = 1, nQQ
             i = 0
-            Do ix = 1, 3*nAtom
+            Do ix = 1, 3*nsAtom
                iAtom = (ix+2)/3
                ixyz = ix - (iAtom-1)*3
                If (Smmtrc(ixyz,iAtom)) Then

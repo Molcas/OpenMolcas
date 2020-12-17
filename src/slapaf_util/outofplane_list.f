@@ -12,9 +12,9 @@
 ************************************************************************
       Subroutine OutOfPlane_List(
      &                 nq,
-     &                 nAtoms,iIter,nIter,Cx,
+     &                 nsAtom,iIter,nIter,Cx,
      &                 Process,Value,
-     &                 nB,iANr,qLbl,iRef,
+     &                 nB,qLbl,iRef,
      &                 fconst,rMult,LuIC,Indq,iPrv,Proc_dB,
      &                 iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &                 mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
@@ -24,17 +24,16 @@
 *     of-plane angle. RL, Tokyo June, 2004.                            *
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: nStab, jStab, AtomLbl
+      use Slapaf_Info, only: nStab, jStab, AtomLbl, ANr
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
       Parameter (mB = 4*3)
-      Real*8 Cx(3,nAtoms,nIter), A(3,4), Grad(mB), Hess(mB**2),
+      Real*8 Cx(3,nsAtom,nIter), A(3,4), Grad(mB), Hess(mB**2),
      &       fconst(nB), Value(nB,nIter),
      &       Ref(3,4), Prv(3,4), rMult(nB),
      &       Grad_ref(9), RX4Y(3,3), BM(nB_Tot), dBM(ndB_Tot)
-      Integer   iANr(nAtoms), iDCRR(0:7),
-     &          iStabM(0:7), Ind(4), iDCR(4), iDCRT(0:7),
+      Integer   iDCRR(0:7), iStabM(0:7), Ind(4), iDCR(4), iDCRT(0:7),
      &          iDCRS(0:7), iStabN(0:7), iStabO(0:7), iChOp(0:7),
      &          Indq(3,nB), iDCRX(0:7), iDCRY(0:7), nqB(nB),
      &          iTabBonds(3,nBonds), iTabAI(2,mAtoms),
@@ -113,8 +112,8 @@
             End If
             iAtom=iTabAI(1,iAtom_)
             jAtom=iTabAI(1,jAtom_)
-            ir = iTabRow(iANr(iAtom))
-            jr = iTabRow(iANr(jAtom))
+            ir = iTabRow(ANr(iAtom))
+            jr = iTabRow(ANr(jAtom))
             Ind(1) = jAtom
             Ind(4) = iAtom
 *
@@ -209,8 +208,8 @@
                If (kBond.eq.jBond) Go To 301
 *
                kAtom=iTabAI(1,kAtom_)
-               ik_=nAtoms*(kAtom-1)+iAtom
-               kr = iTabRow(iANr(kAtom))
+               ik_=nsAtom*(kAtom-1)+iAtom
+               kr = iTabRow(ANr(kAtom))
                Ind(2) = kAtom
                iDCR(2)=iTabAI(2,kAtom_)
 *
@@ -245,8 +244,8 @@
                   Write (6,*) 'lAtom=', lAtom
 #endif
 *
-                  il_=nAtoms*(lAtom-1)+iAtom
-                  lr = iTabRow(iANr(lAtom))
+                  il_=nsAtom*(lAtom-1)+iAtom
+                  lr = iTabRow(ANr(lAtom))
                   Ind(3) = lAtom
                   iDCR(3)=iTabAI(2,lAtom_)
 C                 If (kAtom.gt.lAtom) Go To 401
@@ -576,9 +575,9 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   If (Process) Then
 *
                      Indq(1,nq)=6
-                     ij = (jAtom-1)*nAtoms + iAtom
-                     kl = (lAtom-1)*nAtoms + kAtom
-                     Indq(2,nq) = (kl-1)*nAtoms**2 + ij
+                     ij = (jAtom-1)*nsAtom + iAtom
+                     kl = (lAtom-1)*nsAtom + kAtom
+                     Indq(2,nq) = (kl-1)*nsAtom**2 + ij
                      ijDCR = kDCRT*8 + kDCRR+1
                      Indq(3,nq) = kDCRS*8**2 + ijDCR
 *

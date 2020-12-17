@@ -10,24 +10,23 @@
 ************************************************************************
       Subroutine Torsion_List(
      &                 nq,
-     &                 nAtoms,iIter,nIter,Cx,
+     &                 nsAtom,iIter,nIter,Cx,
      &                 Process,Value,
-     &                 nB,iANr,qLbl,iRef,
+     &                 nB,qLbl,iRef,
      &                 fconst,rMult,LuIC,Indq,iPrv,Proc_dB,
      &                 iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &                 mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: jStab, nStab, AtomLbl
+      use Slapaf_Info, only: jStab, nStab, AtomLbl, ANr
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Parameter (mB = 4*3)
-      Real*8 Cx(3,nAtoms,nIter), A(3,4), Grad(mB), Hess(mB**2),
+      Real*8 Cx(3,nsAtom,nIter), A(3,4), Grad(mB), Hess(mB**2),
      &       fconst(nB), Value(nB,nIter),
      &       Ref(3,4), Prv(3,4), rMult(nB), Grad_ref(9),
      &       BM(nB_Tot), dBM(ndB_Tot)
-      Integer   iANr(nAtoms), iDCRR(0:7),
-     &          iStabM(0:7), Ind(4), iDCR(4), iDCRT(0:7),
+      Integer   iDCRR(0:7), iStabM(0:7), Ind(4), iDCR(4), iDCRT(0:7),
      &          iDCRS(0:7), iStabN(0:7), iStabO(0:7), iChOp(0:7),
      &          Indq(3,nB), iDCRX(0:7), iDCRY(0:7), nqB(nB),
      &          iTabBonds(3,nBonds), iTabAI(2,mAtoms),
@@ -136,8 +135,8 @@
 *
             jAtom = iTabAI(1,jAtom_)
             kAtom = iTabAI(1,kAtom_)
-            jr = iTabRow(iANr(jAtom))
-            kr = iTabRow(iANr(kAtom))
+            jr = iTabRow(ANr(jAtom))
+            kr = iTabRow(ANr(kAtom))
             Ind(2) = jAtom
             Ind(3) = kAtom
             iDCR(2) = iTabAI(2,jAtom_)
@@ -194,7 +193,7 @@
 *    &          nCoBond_k.ge.8      ) Go To 301
             iAtom = iTabAI(1,iAtom_)
             If (iBondType.gt.Magic_Bond .and. iAtom.eq.iMagic) Go To 301
-            ir = iTabRow(iANr(iAtom))
+            ir = iTabRow(ANr(iAtom))
             Ind(1) = iAtom
             iDCR(1)= iTabAI(2,iAtom_)
             If (R_Stab_A(iDCR(1),jStab(0,iAtom),nStab(iAtom)))
@@ -261,8 +260,8 @@
      &             +(Ref(2,1)-Ref(2,2))**2
      &             +(Ref(3,1)-Ref(3,2))**2
                Rab=Sqrt(rij2)
-               RabCov=(CovRadT(iANr(iAtom))
-     &               +CovRadT(iANr(jAtom)))/bohr
+               RabCov=(CovRadT(ANr(iAtom))
+     &               +CovRadT(ANr(jAtom)))/bohr
                r0=Zero
                Alpha=Zero
                f_Const_ij=Zero
@@ -308,7 +307,7 @@
 *
                If (iBondType.gt.Magic_Bond .and. lAtom.eq.iMagic)
      &            Go To 401
-               lr = iTabRow(iANr(lAtom))
+               lr = iTabRow(ANr(lAtom))
                kDCRT= iDCR(3)
                kDCRTS=iDCR(4)
                kDCRS=iEor(kDCRTS,kDCRT)
@@ -381,8 +380,8 @@
      &                +(Ref(2,3)-Ref(2,4))**2
      &                +(Ref(3,3)-Ref(3,4))**2
                   Rcd=Sqrt(rkl2)
-                  RcdCov=(CovRadT(iANr(kAtom))
-     &                  +CovRadT(iANr(lAtom)))/bohr
+                  RcdCov=(CovRadT(ANr(kAtom))
+     &                  +CovRadT(ANr(lAtom)))/bohr
                Else
                   r0=rAV(kr,lr)
                   rkl2=(Ref(1,3)-Ref(1,4))**2
@@ -477,8 +476,8 @@
      &                +(Ref(2,2)-Ref(2,3))**2
      &                +(Ref(3,2)-Ref(3,3))**2
                   Rbc=Sqrt(rjk2)
-                  RbcCov=(CovRadT(iANr(jAtom))
-     &                  +CovRadT(iANr(kAtom)))/bohr
+                  RbcCov=(CovRadT(ANr(jAtom))
+     &                  +CovRadT(ANr(kAtom)))/bohr
                   Diff=RbcCov-Rbc
                   If (Diff.lt.Zero) Diff = Zero
                   f_Const=A_Trsn(1)+A_Trsn(2)*Diff
@@ -531,7 +530,7 @@
 *
                mCent=3
                delta = (15.0D0/180.D0)*Pi
-               If (nAtoms.eq.4) delta = -Ten
+               If (nsAtom.eq.4) delta = -Ten
                Call Bend(Ref(1,1),mCent,Fi2,Grad_ref,.False.,
      &                   .False.,'        ',Hess,.False.)
                If (Fi2.gt.Pi-delta) Go To 401
@@ -637,9 +636,9 @@
                If (Process) Then
 *
                   Indq(1,nq)=5
-                  ij = (jAtom-1)*nAtoms + iAtom
-                  kl = (lAtom-1)*nAtoms + kAtom
-                  Indq(2,nq) = (kl-1)*nAtoms**2 + ij
+                  ij = (jAtom-1)*nsAtom + iAtom
+                  kl = (lAtom-1)*nsAtom + kAtom
+                  Indq(2,nq) = (kl-1)*nsAtom**2 + ij
                   ijDCR = kDCRT*8 + kDCRR+1
                   Indq(3,nq) = kDCRS*8**2 + ijDCR
 *

@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Get_CurviL(
      &              nq,nqRF,nqB,nqA,nqT,nqO,
-     &              nAtoms,iIter,nIter,Cx,
+     &              nsAtom,iIter,nIter,Cx,
      &              Process,Value,nB,
      &              qLbl,iRef,
      &              fconst,rMult,LuIC,Indq,iPrv,
@@ -19,9 +19,8 @@
      &              mB_Tot,mdB_Tot,
      &              BM,dBM,iBM,idBM,
      &              nB_Tot,ndB_Tot,mqB,Thr_small)
-      use Slapaf_Info, only: ANr
       Implicit Real*8 (a-h,o-z)
-      Real*8 Cx(3,nAtoms,nIter), fconst(nB), Value(nB,nIter), rMult(nB),
+      Real*8 Cx(3,nsAtom,nIter), fconst(nB), Value(nB,nIter), rMult(nB),
      &       Grad_all(9,iGlow:iGhi,nIter), BM(nB_Tot),dBM(ndB_Tot)
       Integer Indq(3,nB),
      &        iTabBonds(3,nBonds), iTabAtoms(2,0:nMax,mAtoms),
@@ -43,7 +42,7 @@
       nq_=nq
       Call RF_Coord(
      &              nq,
-     &              nAtoms,iIter,nIter,Cx,
+     &              nsAtom,iIter,nIter,Cx,
      &              Process,Value,nB,
      &              qLbl,iRef,
      &              fconst,rMult,LuIC,Indq,
@@ -54,9 +53,9 @@
       nq_=nq
       Call Bond_List(
      &              nq,
-     &              nAtoms,iIter,nIter,Cx,
+     &              nsAtom,iIter,nIter,Cx,
      &              Process,Value,nB,
-     &              ANr,qLbl,fconst,
+     &              qLbl,fconst,
      &              rMult,LuIC,Indq,
      &              Proc_dB,iTabBonds,nBonds,iTabAI,mAtoms,
      &              mB_Tot,mdB_Tot,
@@ -66,9 +65,9 @@
       nq_=nq
       Call Angle_List(
      &              nq,
-     &              nAtoms,iIter,nIter,Cx,
+     &              nsAtom,iIter,nIter,Cx,
      &              Process,Value,nB,
-     &              ANr,qLbl,iRef,
+     &              qLbl,iRef,
      &              fconst,rMult,LuIC,Indq,
      &              Grad_all,iGlow,iGhi,iPrv,Proc_dB,
      &              iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
@@ -79,9 +78,9 @@
       nq_=nq
       Call Torsion_List(
      &              nq,
-     &              nAtoms,iIter,nIter,Cx,
+     &              nsAtom,iIter,nIter,Cx,
      &              Process,Value,nB,
-     &              ANr,qLbl,iRef,
+     &              qLbl,iRef,
      &              fconst,rMult,LuIC,Indq,iPrv,Proc_dB,
      &              iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &              mB_Tot,mdB_Tot,
@@ -91,9 +90,9 @@
       nq_=nq
       Call OutOfPlane_List(
      &              nq,
-     &              nAtoms,iIter,nIter,Cx,
+     &              nsAtom,iIter,nIter,Cx,
      &              Process,Value,nB,
-     &              ANr,qLbl,iRef,
+     &              qLbl,iRef,
      &              fconst,rMult,LuIC,Indq,iPrv,Proc_dB,
      &              iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &              mB_Tot,mdB_Tot,

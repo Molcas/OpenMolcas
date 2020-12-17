@@ -8,11 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine BMtrx_Cartesian(
-     &                 nAtom,nInter,nDim,
-     &                 nIter,mTtAtm,
-     &                 mTR,TRVec,EVal,Hss_x,
-     &                 nQQ,nWndw)
+      Subroutine BMtrx_Cartesian(nsAtom,nInter,nDim,nIter,mTtAtm,
+     &                           mTR,TRVec,EVal,Hss_x,nQQ,nWndw)
       use Slapaf_Info, only: Cx, Gx, qInt, dqInt, KtB, BMx, Degen,
      &                       AtomLbl, Smmtrc
       use Slapaf_Parameters, only: Redundant, MaxItr, BSet, HSet, PrQ,
@@ -60,18 +57,18 @@
 *                                                                      *
 *------- Move over the eigenvectors putting to BMx
 *
-         Call mma_allocate(BMx,3*nAtom,nQQ,Label='BMx')
+         Call mma_allocate(BMx,3*nsAtom,nQQ,Label='BMx')
          BMX(:,:)=Zero
          ipFrom = 1
-         Call BPut(EVec(ipFrom),nDim,BMx,3*nAtom,Smmtrc,nQQ,Degen)
+         Call BPut(EVec(ipFrom),nDim,BMx,3*nsAtom,Smmtrc,nQQ,Degen)
 #ifdef _DEBUGPRINT_
-         Call RecPrt('In Bmtrx: B',' ',BMx,3*nAtom,nQQ)
+         Call RecPrt('In Bmtrx: B',' ',BMx,3*nsAtom,nQQ)
 #endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         If (PrQ.and.nAtom.le.5) Call List2('Cartesian Redundant',
-     &                                     AtomLbl,BMx,nAtom,nQQ,Smmtrc)
+         If (PrQ.and.nsAtom.le.5) Call List2('Cartesian Redundant',
+     &                                    AtomLbl,BMx,nsAtom,nQQ,Smmtrc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -83,7 +80,7 @@
 *
          Call mma_allocate(Ind,nDim,Label='Ind')
          iInd=0
-         Do i = 1, 3*nAtom
+         Do i = 1, 3*nsAtom
             iAtom = (i+2)/3
             ixyz = i - (iAtom-1)*3
             If (Smmtrc(ixyz,iAtom)) Then
@@ -163,7 +160,7 @@
 *
          If (BSet) Then
 *
-*           Call RecPrt('Gx',' ',Gx(:,:,nIter),1,3*nAtom)
+*           Call RecPrt('Gx',' ',Gx(:,:,nIter),1,3*nsAtom)
 *           Call RecPrt('TRVec',' ',TRVec,nDim,mTR)
 *
             Do iTR = 1, mTR
@@ -172,7 +169,7 @@
 *
                Temp=0.0D0
                iInd=0
-               Do iAtom = 1, nAtom
+               Do iAtom = 1, nsAtom
                Do j = 1, 3
                   If (Smmtrc(j,iAtom)) Then
                      iInd=iInd+1
@@ -183,7 +180,7 @@
                End Do
 *
                iInd=0
-               Do iAtom = 1, nAtom
+               Do iAtom = 1, nsAtom
                Do j = 1, 3
                   If (Smmtrc(j,iAtom)) Then
                      iInd=iInd+1
@@ -195,7 +192,7 @@
 *
             End Do
 *
-*           Call RecPrt('Gx',' ',Gx(:,:,nIter),1,3*nAtom)
+*           Call RecPrt('Gx',' ',Gx(:,:,nIter),1,3*nsAtom)
 *
          End If
 *                                                                      *
@@ -221,7 +218,7 @@
 *
          Call mma_allocate(Ind,nDim,Label='Ind')
          iInd=0
-         Do i = 1, 3*nAtom
+         Do i = 1, 3*nsAtom
             iAtom = (i+2)/3
             ixyz = i - (iAtom-1)*3
             If (Smmtrc(ixyz,iAtom)) Then
@@ -306,25 +303,25 @@
 *        Compute the eigen vectors for the Cartesian Hessian
 *
          Call mma_allocate(EVec,(3*mTtAtm)**2,Label='EVec')
-         Call Hess_Vec(mTtAtm,EVal,EVec,nAtom,nDim)
+         Call Hess_Vec(mTtAtm,EVal,EVec,nsAtom,nDim)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *------- Move over the eigenvectors putting to BMx
 *
-         Call mma_allocate(BMx,3*nAtom,3*nAtom,Label='BMx')
+         Call mma_allocate(BMx,3*nsAtom,3*nsAtom,Label='BMx')
          BMx(:,:)=Zero
          ipFrom = 1 + mTR*nDim
-         Call BPut(EVec(ipFrom),nDim,BMx,3*nAtom,Smmtrc,nQQ,Degen)
+         Call BPut(EVec(ipFrom),nDim,BMx,3*nsAtom,Smmtrc,nQQ,Degen)
 #ifdef _DEBUGPRINT_
-         Call RecPrt('In Bmtrx: B',' ',BMx,3*nAtom,nQQ)
+         Call RecPrt('In Bmtrx: B',' ',BMx,3*nsAtom,nQQ)
 #endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         If (PrQ.and.nAtom.le.5)
+         If (PrQ.and.nsAtom.le.5)
      &      Call List2('Cartesian Approximate Normal Modes',
-     &                  AtomLbl,BMx,nAtom,nQQ,Smmtrc)
+     &                  AtomLbl,BMx,nsAtom,nQQ,Smmtrc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -338,7 +335,7 @@
 *
          Call mma_allocate(Degen2,nDim,Label='Degen2')
          i=0
-         Do ix = 1, 3*nAtom
+         Do ix = 1, 3*nsAtom
             iAtom = (ix+2)/3
             ixyz = ix - (iAtom-1)*3
             If (Smmtrc(ixyz,iAtom)) Then
@@ -365,8 +362,8 @@
 *
 *---- Compute the value and gradient vectors in the new basis.
 *
-      Call ValANM(nAtom,nQQ,nIter,BMx,Degen,qInt,Cx,'Values',nWndw)
-      If (BSet) Call ValANM(nAtom,nQQ,nIter,BMx,Degen,
+      Call ValANM(nsAtom,nQQ,nIter,BMx,Degen,qInt,Cx,'Values',nWndw)
+      If (BSet) Call ValANM(nsAtom,nQQ,nIter,BMx,Degen,
      &                      dqInt,Gx,'Gradients',nWndw)
 *                                                                      *
 ************************************************************************

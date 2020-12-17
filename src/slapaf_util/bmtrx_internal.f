@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 2004, Roland Lindh                                     *
 ************************************************************************
-      Subroutine BMtrx_Internal(nAtoms,nDimBC,
-     &                          nIter,mAtoms,
+      Subroutine BMtrx_Internal(nsAtom,nDimBC,nIter,mAtoms,
      &                          iIter,mTR,TRVec,iTabAI,iTabAtoms,
      &                          iTabBonds,nBonds,nMax,iRef,nQQ,nWndw)
 ************************************************************************
@@ -35,12 +34,12 @@
 #include "stdalloc.fh"
 #include "db.fh"
 #include "print.fh"
-      Integer, Intent(In):: nAtoms, nDimBC
+      Integer, Intent(In):: nsAtom, nDimBC
       Integer, Intent(In):: nIter, mAtoms
       Integer, Intent(In):: iIter, mTR
       Real*8, Intent(In):: TRVec(nDimBC,mTR)
       Integer, Intent(In):: iTabBonds(3,nBonds),
-     &                      iTabAtoms(0:nMax,nAtoms),
+     &                      iTabAtoms(0:nMax,nsAtom),
      &                      iTabAI(2,mAtoms)
       Integer, Intent(In):: nBonds,nMax,iRef
       Integer, Intent(InOut):: nQQ
@@ -86,7 +85,7 @@
       End If
 *
       i=0
-      Do iX = 1, 3*nAtoms
+      Do iX = 1, 3*nsAtom
          iAtom = (iX+2)/3
          ixyz = iX - (iAtom-1)*3
          If (Smmtrc(ixyz,iAtom)) Then
@@ -113,7 +112,7 @@
 *
       Call mma_allocate(Degen2,nDimBC)
       i=0
-      Do ix = 1, 3*nAtoms
+      Do ix = 1, 3*nsAtom
          iAtom = (ix+2)/3
          ixyz = ix - (iAtom-1)*3
          If (Smmtrc(ixyz,iAtom)) Then
@@ -143,7 +142,7 @@
       Do While (Thr_small.gt.1.0D-6)
          Call Get_Curvil
      &          (nq,nqRF,nqB,nqA,nqT,nqO,
-     &           nAtoms,iIter,nIter,Cx,
+     &           nsAtom,iIter,nIter,Cx,
      &           Proc,Dum,1,cDum,
      &           iRef,Dum,Dum,LuIC,
      &           iDum,iIter,Dum,
@@ -206,7 +205,7 @@
 *
       Call Get_Curvil
      &          (iq,iqRF,iqR,iqA,iqT,iqO,
-     &           nAtoms,iIter,nIter,Cx,
+     &           nsAtom,iIter,nIter,Cx,
      &           Proc,
      &           qVal,nq,qLbl,
      &           iRef,F_c,Mult,
@@ -238,8 +237,8 @@
          Call RecPrt('Force Constant matrix in redundant basis',' ',
      &               F_c,1,nq)
          Call RecPrt('Multiplicity factors',' ',Mult,1,nq)
-         Call RecPrt('Cx',' ',Cx,3*nAtoms,nIter)
-         Call RecPrt('Gx',' ',Gx,3*nAtoms,nIter)
+         Call RecPrt('Cx',' ',Cx,3*nsAtom,nIter)
+         Call RecPrt('Gx',' ',Gx,3*nsAtom,nIter)
       End If
 #endif
 *
@@ -379,7 +378,7 @@
 *------- Produce list of compressed cartesian gradients.
          Call mma_allocate(GxR,nDimBC,nIter,Label='GxR')
          Do jIter = 1, nIter
-            Call NRed(Gx(:,:,jIter),GxR(:,jIter),3*nAtoms,nDimBC,Smmtrc)
+            Call NRed(Gx(:,:,jIter),GxR(:,jIter),3*nsAtom,nDimBC,Smmtrc)
          End Do
 *
          iSt = nIter
@@ -390,7 +389,7 @@ C        iEnd = 1
          If (Numerical) Then
             Call mma_allocate(GxR,nDimBC,1,Label='GxR')
             iOff = 1
-            Call NRed(Gx(:,:,nIter),GxR(:,1),3*nAtoms,nDimBC,Smmtrc)
+            Call NRed(Gx(:,:,nIter),GxR(:,1),3*nsAtom,nDimBC,Smmtrc)
          Else
             Call mma_allocate(GxR,1,1,Label='GxR')
             iOff = 1
@@ -424,7 +423,7 @@ C        iEnd = 1
 *                                                                      *
          Call Get_Curvil
      &             (iq,iqRF,iqR,iqA,iqT,iqO,
-     &              nAtoms,jIter,nIter,Cx,
+     &              nsAtom,jIter,nIter,Cx,
      &              Proc,
      &              qVal,nq,qLbl,
      &              iRef, F_c,Mult,
@@ -483,7 +482,7 @@ C        iEnd = 1
 *------- Store the B matrix for the last structure
 *
          If (jIter.eq.nIter) Then
-            nX = 3*nAtoms
+            nX = 3*nsAtom
             Call mma_allocate(BMx,nX,nX,Label='BMx')
             BMx(:,:)=Zero
 *
@@ -599,11 +598,11 @@ C        iEnd = 1
          Call RecPrt(' The K Matrix',' ',K,nq,nQQ)
          Call RecPrt(' q-values',' ',qVal,nq,nIter)
          Call RecPrt('Q-values',' ',qInt,nQQ,nIter)
-         Call RecPrt('Cx',' ',Cx,3*nAtoms,nIter)
+         Call RecPrt('Cx',' ',Cx,3*nsAtom,nIter)
       End If
       If (BSet.and.iPrint.ge.49) Then
           Call RecPrt('Q-gradients',' ',dqInt,nQQ,nIter)
-          Call RecPrt('Gx',' ',Gx,3*nAtoms,nIter)
+          Call RecPrt('Gx',' ',Gx,3*nsAtom,nIter)
       End If
 #endif
 *                                                                      *

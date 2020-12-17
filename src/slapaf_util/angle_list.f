@@ -10,29 +10,28 @@
 ************************************************************************
       Subroutine Angle_List(
      &                 nq,
-     &                 nAtoms,iIter,nIter,Cx,
+     &                 nsAtom,iIter,nIter,Cx,
      &                 Process,Value,
-     &                 nB,iANr,qLbl,iRef,
+     &                 nB,qLbl,iRef,
      &                 fconst,rMult,LuIC,Indq,
      &                 Grad_all,iGlow,iGhi,iPrv,Proc_dB,
      &                 iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &                 mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB,Thr_small)
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: jStab, nStab, AtomLbl
+      use Slapaf_Info, only: jStab, nStab, AtomLbl, ANr
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
 #include "Molcas.fh"
       Parameter (mB = 3*3)
-      Real*8 Cx(3,nAtoms,nIter), A(3,3), Hess(mB**2),
+      Real*8 Cx(3,nsAtom,nIter), A(3,3), Hess(mB**2),
      &       fconst(nB),Value(nB,nIter), rMult(nB),
      &       Ref(3,3), Prv(3,3),
      &       Grad_Ref(9), Axis(3), Perp_Axis(3,2), Grad(mB),
      &       Grad_all(9,iGlow:iGhi,nIter),
      &       BM(nB_Tot), dBM(ndB_Tot)
-      Integer   iANr(nAtoms), iDCRR(0:7),
-     &          iStabM(0:7), Ind(3), iDCR(3), iDCRT(0:7),
+      Integer   iDCRR(0:7), iStabM(0:7), Ind(3), iDCR(3), iDCRT(0:7),
      &          iStabN(0:7), iChOp(0:7), Indq(3,nB), nqB(nB),
      &          iTabBonds(3,nBonds), iTabAI(2,mAtoms),
      &          iTabAtoms(2,0:nMax,mAtoms), iBM(nB_Tot),idBM(2,ndB_Tot)
@@ -84,7 +83,7 @@
 *
       Do mAtom_ = 1, mAtoms
          mAtom = iTabAI(1,mAtom_)
-         mr = iTabRow(iANr(mAtom))
+         mr = iTabRow(ANr(mAtom))
          Ind(2) = mAtom
          iDCR(2) = iTabAI(2,mAtom_)
 
@@ -99,7 +98,7 @@
             nNeighbor_i = iTabAtoms(1,0,iAtom_)
             nCoBond_i=nCoBond(iAtom_,mAtoms,nMax,iTabBonds,
      &                        nBonds,iTabAtoms)
-            ir = iTabRow(iANr(iAtom))
+            ir = iTabRow(ANr(iAtom))
             Ind(1) = iAtom
             iDCR(1) = iTabAI(2,iAtom_)
 *
@@ -132,7 +131,7 @@
      &             nCoBond_j.ge.8 .and.
      &             nCoBond_m.ge.8       ) Go To 300
 *
-               jr = iTabRow(iANr(jAtom))
+               jr = iTabRow(ANr(jAtom))
                Ind(3) = jAtom
                iDCR(3) = iTabAI(2,jAtom_)
                If (R_Stab_A(iDCR(3),jStab(0,iAtom),nStab(iAtom)) .and.
@@ -262,12 +261,12 @@
      &                +(Ref(2,1)-Ref(2,2))**2
      &                +(Ref(3,1)-Ref(3,2))**2
                   Rab=Sqrt(rim2)
-                  RabCov=CovRad(iANr(iAtom))+CovRad(iANr(mAtom))
+                  RabCov=CovRad(ANr(iAtom))+CovRad(ANr(mAtom))
                   rmj2=(Ref(1,2)-Ref(1,3))**2
      &                +(Ref(2,2)-Ref(2,3))**2
      &                +(Ref(3,2)-Ref(3,3))**2
                   Rbc=Sqrt(rmj2)
-                  RbcCov=CovRad(iANr(jAtom))+CovRad(iANr(mAtom))
+                  RbcCov=CovRad(ANr(jAtom))+CovRad(ANr(mAtom))
                   If (ir.eq.1.or.jr.eq.1) Then
                      f_Const=A_Bend(1)
                   Else
@@ -426,8 +425,8 @@ C                 Do k = 1, 2
                         End If
 *
                         Indq(1,nq)=2+k
-                        mi = (iAtom-1)*nAtoms + mAtom
-                        Indq(2,nq)= (jAtom-1)*nAtoms**2 + mi
+                        mi = (iAtom-1)*nsAtom + mAtom
+                        Indq(2,nq)= (jAtom-1)*nsAtom**2 + mi
                         Indq(3,nq)= kDCRT*8 + kDCRR+1
 *
                         f_Const=Max(f_Const,f_Const_Min)
@@ -521,8 +520,8 @@ C                 Do k = 1, 2
                      End If
 *
                      Indq(1,nq)=2
-                     mi = (iAtom-1)*nAtoms + mAtom
-                     Indq(2,nq)= (jAtom-1)*nAtoms**2 + mi
+                     mi = (iAtom-1)*nsAtom + mAtom
+                     Indq(2,nq)= (jAtom-1)*nsAtom**2 + mi
                      Indq(3,nq)= kDCRT*8 + kDCRR+1
 *
                      If (.Not.Help .and.
