@@ -24,7 +24,6 @@
 #include "nadc.fh"
 #include "weighting.fh"
 #include "db.fh"
-#include "print.fh"
 #include "stdalloc.fh"
       Logical GoOn, TSReg, Do_ESPF, Just_Frequencies, Found, Error
       Character(LEN=8) GrdLbl, StpLbl
@@ -34,10 +33,10 @@
       Integer nGB
       Real*8 rDum(1)
       Real*8, Allocatable:: GB(:), HX(:), HQ(:), KtB(:)
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
       Lu=6
-      iRout = 32
-      iPrint=nPrint(iRout)
       StpLbl=' '
       GrdLbl=' '
       Just_Frequencies=.False.
@@ -155,84 +154,79 @@
 *     Accumulate gradient for complete or partial numerical
 *     differentiation of the Hessian.
 *
-      If (lRowH.and.iter.lt.NmIter) Then
+      If ((lRowH.and.iter.lt.NmIter) .or.
+     &        (lNmHss.and.iter.lt.NmIter)) Then
+
+         If (lRowH.and.iter.lt.NmIter) Then
 *
 *----------------------------------------------------------------------*
 *        I) Update geometry for selected numerical differentiation.    *
 *----------------------------------------------------------------------*
 *
-         Call Freq1(iter,nQQ,nRowH,mRowH,Delta/2.5d0,qInt)
-         UpMeth='RowH  '
-      Else If (lNmHss.and.iter.lt.NmIter) Then
+            Call Freq1(iter,nQQ,nRowH,mRowH,Delta/2.5d0,qInt)
+            UpMeth='RowH  '
+         Else
 *
 *----------------------------------------------------------------------*
 *        II) Update geometry for full numerical differentiation.       *
 *----------------------------------------------------------------------*
 *
-         Call Freq2(iter,dqInt,nQQ,Delta,Stop,qInt)
-         UpMeth='NumHss'
-      Else
-         Go To 777
-      End If
+            Call Freq2(iter,dqInt,nQQ,Delta,Stop,qInt)
+            UpMeth='NumHss'
+         End If
 *
-      Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nQQ,dqInt(:,iter),
-     &            Shift(:,iter),Lbl)
-      iNeg(1)=-99
-      iNeg(2)=-99
-      HUpMet='None  '
-      Stop = .False.
-      nPrint(116)=nPrint(116)-3
-      nPrint( 52)=nPrint( 52)-1  ! Status
-      nPrint( 53)=nPrint( 53)-1
-      nPrint( 54)=nPrint( 54)-1
-      Write (6,*) ' Accumulate the gradient for selected '//
-     &            'numerical differentiation.'
-      Write (6,'(1x,i5,1x,a,1x,i5)') iter,'of',NmIter
-      Ed=Zero
-      Step_Trunc=' '
-         Go To 666
-*
- 777  Continue
+         Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nQQ,dqInt(:,iter),
+     &               Shift(:,iter),Lbl)
+         iNeg(1)=-99
+         iNeg(2)=-99
+         HUpMet='None  '
+         Stop = .False.
+         nPrint(116)=nPrint(116)-3
+         nPrint( 52)=nPrint( 52)-1  ! Status
+         nPrint( 53)=nPrint( 53)-1
+         nPrint( 54)=nPrint( 54)-1
+         Write (6,*) ' Accumulate the gradient for selected '//
+     &               'numerical differentiation.'
+         Write (6,'(1x,i5,1x,a,1x,i5)') iter,'of',NmIter
+         Ed=Zero
+         Step_Trunc=' '
 *                                                                      *
 ************************************************************************
+************************************************************************
 *                                                                      *
-*-----Compute updated geometry in Internal coordinates
+      Else
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
+*--------Compute updated geometry in Internal coordinates
 *
-      Step_Trunc=' '
-      ed=zero
-      If (lRowH.or.lNmHss) kIter = iter - (NmIter-1)
+         Step_Trunc=' '
+         ed=zero
+         If (lRowH.or.lNmHss) kIter = iter - (NmIter-1)
 *define UNIT_MM
 #ifdef UNIT_MM
-      Call Init_UpdMask(nsAtom, nInter)
+         Call Init_UpdMask(nsAtom, nInter)
 #endif
 *
-*     Update geometry
+*        Update geometry
 *
-      If (Kriging .and. Iter.ge.nspAI) Then
-         Call Update_Kriging(
-     &               Iter,nQQ,
-     &               ed,Line_Search,Step_Trunc,nLambda,nsAtom,
-     &               GrdMax,StpMax,GrdLbl,StpLbl,iNeg,
-     &               TSConstraints,nRowH,
-     &               nWndw,Mode,
-     &               GNrm_Threshold,
-     &               ThrEne,ThrGrd)
-      Else
-         Call Update_sl(
-     &               Iter,NmIter,nQQ,
-     &               ed,Line_Search,Step_Trunc,nLambda,nsAtom,
-     &               GrdMax,
-     &               StpMax,GrdLbl,StpLbl,iNeg,
-     &               TSConstraints,nRowH,
-     &               nWndw,Mode,
-     &               kIter,GNrm_Threshold)
-      End If
+         If (Kriging .and. Iter.ge.nspAI) Then
+            Call Update_Kriging(Iter,nQQ,ed,Line_Search,Step_Trunc,
+     &                          nLambda,nsAtom,GrdMax,StpMax,GrdLbl,
+     &                          StpLbl,iNeg,TSConstraints,nRowH,
+     &                          nWndw,Mode,GNrm_Threshold,ThrEne,ThrGrd)
+         Else
+            Call Update_sl(Iter,NmIter,nQQ,ed,Line_Search,Step_Trunc,
+     &                     nLambda,nsAtom,GrdMax,StpMax,GrdLbl,StpLbl,
+     &                     iNeg,TSConstraints,nRowH,nWndw,Mode,kIter,
+     &                     GNrm_Threshold)
+         End If
 *
 #ifdef UNIT_MM
-      Call Free_UpdMask()
+         Call Free_UpdMask()
 #endif
-*
- 666  Continue
+      End If
 *                                                                      *
 ************************************************************************
 ************************************************************************

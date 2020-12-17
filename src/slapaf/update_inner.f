@@ -104,12 +104,11 @@
       GrdMax=Zero
       StpMax=Zero
 *
-      mInter=nInter
       Step_Trunc='N'
-      nA = (Max(mInter,kIter)+1)**2
+      nA = (Max(nInter,kIter)+1)**2
       Call mma_Allocate(AMat,nA,Label='AMat')
       Call mma_Allocate(Index,kIter,Label='Index')
-      Call mma_Allocate(ErrVec,mInter,(kIter+1),Label='ErrVec')
+      Call mma_Allocate(ErrVec,nInter,(kIter+1),Label='ErrVec')
       Call mma_Allocate(EMtrx,kIter+1,kIter+1,Label='EMtrx')
       Call mma_Allocate(RHS,kIter+1)
 *                                                                      *
@@ -154,11 +153,11 @@
 *
 *     Save the number of internal coordinates on the runfile.
 *
-      Call Put_iScalar('No of Internal coordinates',mInter)
+      Call Put_iScalar('No of Internal coordinates',nInter)
 *
 *     Save the force constant matrix on the runfile.
 *
-      Call Put_dArray('Hess',Hessian,mInter**2)
+      Call Put_dArray('Hess',Hessian,nInter**2)
 *
 *     Optional frequency analysis
 *
@@ -225,8 +224,7 @@
             Else
               fCart=fCart*0.9D0
             End If
-            mInter=nInter+nLambda
-            nA = (Max(mInter,kIter)+1)**2
+            nA = (Max(nInter,kIter)+1)**2
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -247,7 +245,7 @@
 *
                If (iIter.ne.kIter) Then
                   dxdx=
-     &             Sqrt(DDot_(mInter,Shift(1,iIter),1,Shift(1,iIter),1))
+     &             Sqrt(DDot_(nInter,Shift(1,iIter),1,Shift(1,iIter),1))
 *
                   If (dxdx.lt.0.75D0*dxdx_last.and.
      &                dxdx.lt.(Beta-Thr)) Then
@@ -287,7 +285,7 @@ C           Write (6,*) 'tBeta=',tBeta
             Thr_RS=1.0D-7
             Do
                Step_Trunc_=Step_Trunc
-               Call Newq(qInt,mInter,kIter,Shift,Hessian,dqInt,
+               Call Newq(qInt,nInter,kIter,Shift,Hessian,dqInt,
      &                   ErrVec,EMtrx,RHS,
      &                   AMat,nA,
      &                   ed,qBeta,nFix,Index,
@@ -316,7 +314,7 @@ C           Write (6,*) 'tBeta=',tBeta
                Write (6,*) 'Step_Trunc=',Step_Trunc
 #endif
 *
-            Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,mInter,
+            Call MxLbls(GrdMax,StpMax,GrdLbl,StpLbl,nInter,
      &                  dqInt(1,kIter),Shift(1,kIter),Lbl)
 *
 *---------- Set shift vector to zero for frozen internal coordinates.
