@@ -11,7 +11,7 @@
 * Copyright (C) 1994, Roland Lindh                                     *
 ************************************************************************
       SubRoutine Newq(q,nInter,nIter,dq,H,g,error,B,RHS,
-     &                Scrt1,nScrt1,dqHdq,
+     &                Scrt1,nScrt1,
      &                Beta,nFix,iP,Energy,
      &                Step_Trunc,Thr_RS)
 ************************************************************************
@@ -22,7 +22,7 @@
 *             University of Lund, SWEDEN                               *
 *             December '94                                             *
 ************************************************************************
-      use Slapaf_Parameters, only: iOptC, UpMeth, Line_Search
+      use Slapaf_Parameters, only: iOptC, UpMeth, Line_Search, E_Delta
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -53,7 +53,7 @@
       print=.true.
 C     Call View(H,nInter,print)
 *
-      dqHdq=Zero
+      E_Delta=Zero
 *
 *---- Perform first a linear search for the last two points
 *     to find minimum along the direction of the last step.
@@ -71,7 +71,7 @@ C     Call View(H,nInter,print)
             call dcopy_(nInter, q(1,nIter  ),1,t_q ,1)
             call dcopy_(nInter, g(1,nIter  ),1,t_g ,1)
 *
-            Call LnSrch(Energy,q,dq,g,nInter,nIter,dqHdq)
+            Call LnSrch(Energy,q,dq,g,nInter,nIter,E_Delta)
          Else
             If (iPrint.ge.6) Write (Lu,*)
      &          '-- First iteration no line search'
@@ -161,13 +161,13 @@ C     Call View(H,nInter,print)
 *------------- Restricted Step Partitioned RFO
 *
                Call RS_P_RFO(H,g(1,nIter),nInter,dq(1,nIter),
-     &                       UpMeth,dqHdq,Beta,Step_Trunc)
+     &                       UpMeth,E_Delta,Beta,Step_Trunc)
             Else
 *
 *------------- Restricted Step Image RFO
 *
                Call RS_I_RFO(H,g(1,nIter),nInter,dq(1,nIter),
-     &                       UpMeth,dqHdq,Beta,Step_Trunc,Thr_RS)
+     &                       UpMeth,E_Delta,Beta,Step_Trunc,Thr_RS)
             End If
 *
          Else
@@ -176,7 +176,7 @@ C     Call View(H,nInter,print)
 *
 *
             Call RS_RFO(H,g(1,nIter),nInter,dq(1,nIter),
-     &                  UpMeth,dqHdq,Beta,Step_Trunc,Thr_RS)
+     &                  UpMeth,E_Delta,Beta,Step_Trunc,Thr_RS)
 *
          End If
 *                                                                      *
@@ -235,7 +235,7 @@ C     Call View(H,nInter,print)
          Call dGeMV_('N',nInter,nInter,
      &              Half,H,nInter,dq(1,nIter),1,
      &              One,Scrt1,1)
-         dqHdq=DDot_(nInter,Scrt1,1,dq(1,nIter),1)
+         E_Delta=DDot_(nInter,Scrt1,1,dq(1,nIter),1)
       End If
 *
       Do i = 1, nInter
@@ -243,7 +243,7 @@ C     Call View(H,nInter,print)
       End Do
 *
 #ifdef _DEBUGPRINT_
-      Write (Lu,*) ' dqHdq=',dqHdq
+      Write (Lu,*) ' E_Delta=',E_Delta
       Call RecPrt('Newq: q',' ',q,nInter,nIter+1)
       Call RecPrt('Newq: dq',' ',dq,nInter,nIter)
       Call RecPrt('Newq: g',' ',g,nInter,nIter)

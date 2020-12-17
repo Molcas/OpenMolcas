@@ -15,7 +15,7 @@
      &                   dEdx,W,GNrm,nWndw,
      &                   Hess,nInter,nIter,
      &                   iOptH,jPrint,Energy,nLambda,
-     &                   nRowH,Err,EMx,RHS,A,nA,ed,
+     &                   nRowH,Err,EMx,RHS,A,nA,
      &                   Beta,Beta_Disp,nFix,iP,
      &                   Step_Trunc,Lbl,
      &                   d2rdq2,nsAtom,
@@ -51,7 +51,7 @@
       Use kriging_mod, only: Max_MicroIterations
       use Slapaf_Info, only: MF
       use Slapaf_Parameters, only: IRC, iOptC, CnstWght, StpLbl,
-     &                             StpMax, GrdMax
+     &                             StpMax, GrdMax, E_Delta
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -586,7 +586,8 @@ C           Write (6,*) 'gBeta=',gBeta
 *
 *           l^T (r + drdq^T dq)
 *
-            ed = ed - DDot_(nLambda,rLambda(1,iIter),1,Tmp1,1)
+            E_Delta = E_Delta
+     &              - DDot_(nLambda,rLambda(1,iIter),1,Tmp1,1)
             Call mma_deallocate(Tmp1)
 *
 *---------- Term due to coupling
@@ -604,7 +605,7 @@ C           Write (6,*) 'gBeta=',gBeta
 *
 *           Note the sign conflict.
 *
-            ed = ed - DDot_(nInter,Tr,1,dEdq,1)
+            E_Delta = E_Delta - DDot_(nInter,Tr,1,dEdq,1)
 *
             Call mma_allocate(WTr,nInter,Label='WTr')
 *
@@ -616,7 +617,7 @@ C           Write (6,*) 'gBeta=',gBeta
      &                  Zero,WTr,nInter)
 *
 *            dy^T T_b^T W T_b dy
-            ed = ed + Half * DDot_(nInter,Tr,1,WTr,1)
+            E_Delta = E_Delta + Half * DDot_(nInter,Tr,1,WTr,1)
             Call mma_deallocate(WTr)
             Call mma_deallocate(Tr)
          End If
@@ -949,8 +950,7 @@ C           Write (6,*) 'gBeta=',gBeta
          Do
             Step_Trunc_=Step_Trunc
             Call Newq(x,nInter-nLambda,nIter,dx,W,dEdx,Err,EMx,
-     &                RHS,A,nA,ed,tBeta,
-     &                nFix,ip,Energy,Step_Trunc_,
+     &                RHS,A,nA,tBeta,nFix,ip,Energy,Step_Trunc_,
      &                Thr_RS)
             If (Step_Trunc.eq.'N') Step_Trunc=' '
             If (iOpt_RS.eq.0) Then

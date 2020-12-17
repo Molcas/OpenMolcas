@@ -13,7 +13,7 @@
 ************************************************************************
       Subroutine Update_kriging(
      &                     iter,nInter,
-     &                     ed,Step_Trunc,
+     &                     Step_Trunc,
      &                     nLambda,nsAtom,
      &                     nRowH,
      &                     nWndw,
@@ -29,7 +29,7 @@
       Use Slapaf_Info, only: Cx, Gx, Shift, GNrm, Energy, qInt, dqInt,
      &                       Lbl
       use Slapaf_Parameters, only: UpMeth, Beta, Beta_Disp, GrdLbl,
-     &                             GrdMax
+     &                             GrdMax, E_Delta
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -204,7 +204,7 @@
          Call Update_inner(
      &                   iterAI,nInter,qInt,Shift,
      &                   Beta_,Beta_Disp_,
-     &                   ed,Step_Trunc,nLambda,
+     &                   Step_Trunc,nLambda,
      &                   nsAtom,
      &                   nRowH,nWndw_,
      &                   kIter,
@@ -443,7 +443,7 @@
 *
 *     Update the predicted energy change
 *
-      ed = Energy(iterAI)-Energy(iter)
+      E_Delta = Energy(iterAI)-Energy(iter)
 *
       Call MxLbls(nInter,dqInt(1,iter),Shift(1,iter),Lbl)
 *

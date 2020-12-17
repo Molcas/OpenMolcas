@@ -17,7 +17,7 @@ Public:: iRow, iRow_c, iInt, nFix, ddV_Schlegel, HWRS, iOptH, HUpMet, HrmFrq_Sho
          nBVec, nDimBC, Curvilinear, Redundant, FindTS, User_Def, Analytic_Hessian, MaxItr, &
          UpMeth, iOptC, HSet, BSet, rHidden, CnstWght, PrQ, lOld, Numerical, Beta, Beta_Disp, &
          Line_Search, iNeg, TSConstraints, GNrm_Threshold, Mode, GrdLbl, GrdMax, &
-         StpLbl, StpMax
+         StpLbl, StpMax, E_Delta
 Integer:: iRow=0
 Integer:: iRow_c=0
 Integer:: iInt=0
@@ -53,6 +53,7 @@ Real*8:: Beta = 0.30D0    !     The threshold for restricted step optimization.
 Real*8:: Beta_Disp=0.30D0 !     The threshold for restricted variance optimization.
 Real*8:: GNrm_Threshold=0.2D0
 Real*8:: GrdMax=Zero, StpMax=Zero
+Real*8:: E_Delta=Zero
 
 Character(LEN=8):: GrdLbl='', StpLbl=''
 !                                                                      *

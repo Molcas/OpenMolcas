@@ -11,7 +11,7 @@
       Subroutine Convrg(iter,kIter, nInter,
      &                  Stop,iStop,ThrCons,
      &                  ThrEne, ThrGrd, MxItr, mIntEff,
-     &                  Baker, nAtom,mTtAtm,ed,
+     &                  Baker, nAtom,mTtAtm,
      &                  GoOn,Step_Trunc,
      &                  rMEP,MEP,nMEP,
      &                  Just_Frequencies,eMEPTest,nLambda,
@@ -20,7 +20,8 @@
       Use Slapaf_Info, only: Cx, Gx, Coor, GNrm, Energy, Shift, qInt,
      &                       dqInt, Lbl
       use Slapaf_Parameters, only: HUpMet, FindTS, Analytic_Hessian,
-     &                             MaxItr, Numerical, iNeg, GrdMax
+     &                             MaxItr, Numerical, iNeg, GrdMax,
+     &                             E_Delta
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -124,7 +125,7 @@
          E = Energy(iter)
       End If
       Fabs = Max(Zero,Fabs)
-      E0 = E + ed
+      E0 = E + E_delta
       Energy(iter+1)=E0
       Gx(:,:,iter+1)=Zero
       If (kiter.eq.1) Then
@@ -422,8 +423,9 @@ c      End If
 *
 *     The energy change should not be too large
       Maxed=1.0d2
-      If (Abs(ed).gt.Maxed) Then
-         Write (6,*) 'The predicted energy change is too large: ',ed
+      If (Abs(E_Delta).gt.Maxed) Then
+         Write (6,*) 'The predicted energy change is too large: ',
+     &                E_Delta
          Write (6,'(A)') ' This can''t be right!'
          Write (6,'(A)') ' This job will be terminated.'
          iStop=8
@@ -464,7 +466,7 @@ c      End If
 *        Here if a macro iteration in the Saddle TS optimization is
 *        completed.
 *
-         ENew=Energy(iter)+ed
+         ENew=Energy(iter)+E_Delta
          Call mma_allocate(Tmp,nSaddle,Label='Tmp')
 *
 *        Store the info for later generation of MOLDEN formated files

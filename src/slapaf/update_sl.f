@@ -11,7 +11,7 @@
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
       Subroutine Update_sl(iter,NmIter,nInter,
-     &                     ed,Step_Trunc,
+     &                     Step_Trunc,
      &                     nLambda,nsAtom,
      &                     nRowH,
      &                     nWndw,kIter)
@@ -28,7 +28,6 @@
 *      nsAtom         : number of symmetry unique atoms                *
 *                                                                      *
 *    OutPut:                                                           *
-*      ed             : estimated energy change to the next point      *
 *      Step_Trunc     : character label to denote truncation type      *
 *                                                                      *
 *                                                                      *
@@ -94,7 +93,6 @@
          Call Update_inner(
      &                   iter_,nInter,qInt,
      &                   Shift,Beta,Beta_Disp,
-     &                   ed,
      &                   Step_Trunc,nLambda,nsAtom,
      &                   nRowH,
      &                   nWndw,
@@ -130,7 +128,7 @@
          Call Update_inner(
      &                iter,nInter,qInt,Shift,
      &                Beta,Beta_Disp,
-     &                ed,Step_Trunc,nLambda,
+     &                Step_Trunc,nLambda,
      &                nsAtom,
      &                nRowH,
      &                nWndw,

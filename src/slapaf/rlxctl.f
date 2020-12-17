@@ -14,7 +14,8 @@
       Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx,
      &                       Free_Slapaf, qInt, dqInt, Lbl
       use Slapaf_Parameters, only: HUpMet, User_Def, iOptC, UpMeth,
-     &                             HSet, BSet, PrQ, Numerical, iNeg
+     &                             HSet, BSet, PrQ, Numerical, iNeg,
+     &                             E_Delta
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -178,7 +179,7 @@
          Write (6,*) ' Accumulate the gradient for selected '//
      &               'numerical differentiation.'
          Write (6,'(1x,i5,1x,a,1x,i5)') iter,'of',NmIter
-         Ed=Zero
+         E_Delta=Zero
          Step_Trunc=' '
 *                                                                      *
 ************************************************************************
@@ -192,7 +193,7 @@
 *--------Compute updated geometry in Internal coordinates
 *
          Step_Trunc=' '
-         ed=zero
+         E_Delta=zero
          If (lRowH.or.lNmHss) kIter = iter - (NmIter-1)
 *define UNIT_MM
 #ifdef UNIT_MM
@@ -202,10 +203,10 @@
 *        Update geometry
 *
          If (Kriging .and. Iter.ge.nspAI) Then
-            Call Update_Kriging(Iter,nQQ,ed,Step_Trunc,nLambda,nsAtom,
+            Call Update_Kriging(Iter,nQQ,Step_Trunc,nLambda,nsAtom,
      &                          nRowH,nWndw,ThrEne,ThrGrd)
          Else
-            Call Update_sl(Iter,NmIter,nQQ,ed,Step_Trunc,
+            Call Update_sl(Iter,NmIter,nQQ,Step_Trunc,
      &                     nLambda,nsAtom,nRowH,nWndw,kIter)
          End If
 *
@@ -274,7 +275,7 @@
       Numerical=(lNmHss.or.lRowH).and.iter.le.NmIter
       Call Convrg(iter,kIter,nQQ,Stop,iStop,ThrCons,
      &            ThrEne,ThrGrd,MxItr,mIntEff,Baker,
-     &            nsAtom,mTtAtm,ed,GoOn,Step_Trunc,
+     &            nsAtom,mTtAtm,GoOn,Step_Trunc,
      &            rMEP,MEP,nMEP,Just_Frequencies,eMEPTest,nLambda,
      &            TSReg,ThrMEP)
 *

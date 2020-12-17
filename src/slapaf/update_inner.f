@@ -13,7 +13,7 @@
       Subroutine Update_inner(
      &                     kIter,nInter,qInt,Shift,
      &                     Beta,Beta_Disp,
-     &                     ed,Step_Trunc,
+     &                     Step_Trunc,
      &                     nLambda,nsAtom,
      &                     nRowH,
      &                     nWndw,
@@ -36,7 +36,6 @@
 *    OutPut:                                                           *
 *      qInt(*,kIter+1): the internal coordinates to be used in the     *
 *                       next iteration                                 *
-*      ed             : estimated energy change to the next point      *
 *      Step_Trunc     : character label to denote truncation type      *
 *                                                                      *
 *                                                                      *
@@ -279,7 +278,7 @@ C           Write (6,*) 'tBeta=',tBeta
                Call Newq(qInt,nInter,kIter,Shift,Hessian,dqInt,
      &                   ErrVec,EMtrx,RHS,
      &                   AMat,nA,
-     &                   ed,qBeta,nFix,Index,
+     &                   qBeta,nFix,Index,
      &                   Energy,Step_Trunc_,Thr_RS)
                If (Step_Trunc.eq.'N') Step_Trunc=' '
                If (iOpt_RS.eq.0) Then
@@ -632,7 +631,7 @@ C           Write (6,*) 'tBeta=',tBeta
      &                nWndw,Hessian,nInter,kIter,
      &                iOptH_,jPrint,Energy_L,nLambda,nRowH,
      &                ErrVec,EMtrx,RHS,
-     &                AMat,nA,ed,qBeta,qBeta_Disp,nFix,
+     &                AMat,nA,qBeta,qBeta_Disp,nFix,
      &                Index,Step_Trunc,Lbl,
      &                d2L,nsAtom,
      &                iOpt_RS,Thr_RS,iter,
