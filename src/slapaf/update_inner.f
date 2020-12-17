@@ -17,7 +17,7 @@
      &                     nLambda,nsAtom,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     nRowH,
-     &                     nWndw,Mode,
+     &                     nWndw,
      &                     mIter,
      &                     Kriging_Hessian,qBeta,iOpt_RS,
      &                     First_MicroIteration,Iter,qBeta_Disp)
@@ -48,12 +48,12 @@
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
-      use Slapaf_info, only: GNrm, Lambda, Energy, MF, dqInt,
+      use Slapaf_info, only: GNrm, Lambda, Energy, dqInt,
      &                       BMx, Degen, nStab, Smmtrc, Lbl
       use Slapaf_Parameters, only: iRow_c, iInt, nFix, iOptH,
      &                             HrmFrq_Show, Curvilinear, FindTS,
      &                             nBVec, nDimBC, iOptC, iNeg,
-     &                             TSConstraints, GNrm_Threshold
+     &                             TSConstraints, GNrm_Threshold, Mode
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
@@ -137,7 +137,7 @@
       jPrint=5
 #endif
       Call Update_H(nWndw,Hessian,nInter,
-     &              mIter,iOptC,Mode,MF,
+     &              mIter,iOptC,
      &              Shift(1,kIter-mIter+1),dqInt(1,kIter-mIter+1),
      &              iOptH_,nRowH,jPrint,GNrm(kIter),
      &              nsAtom,.True.,
@@ -608,7 +608,8 @@ C           Write (6,*) 'tBeta=',tBeta
 *                                                                      *
 *------- Compute updated geometry in Internal coordinates
 *
-         Mode_=0
+         Mode_Save=Mode
+         Mode=0
          M=3*nsAtom
          N=nInter
          NRHS=1
@@ -634,7 +635,7 @@ C           Write (6,*) 'tBeta=',tBeta
             qBeta=fCart*Beta
             Call Con_Opt(R,dRdq,T,dqInt,Lambda,qInt,Shift,dy,dx,
      &                dEdq,du,x,dEdx,Wess,GNrm(kIter),
-     &                nWndw,Hessian,nInter,kIter,Mode_,MF,
+     &                nWndw,Hessian,nInter,kIter,
      &                iOptH_,jPrint,Energy_L,nLambda,nRowH,
      &                ErrVec,EMtrx,RHS,
      &                AMat,nA,ed,qBeta,qBeta_Disp,nFix,
@@ -655,6 +656,7 @@ C           Write (6,*) 'tBeta=',tBeta
      &                   Sqrt(dDot_(3,Tmp(i),nsAtom,Tmp(i),nsAtom)))
             End Do
          End Do
+         Mode=Mode_Save
          Call mma_deallocate(Tmp)
 *
 #ifdef _DEBUGPRINT_

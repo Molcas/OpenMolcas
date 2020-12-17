@@ -15,7 +15,7 @@
      &                     nLambda,nsAtom,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     nRowH,
-     &                     nWndw,Mode,kIter)
+     &                     nWndw,kIter)
 ************************************************************************
 *                                                                      *
 *     Object: to update coordinates                                    *
@@ -103,7 +103,7 @@
      &                   Step_Trunc,nLambda,nsAtom,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,
      &                   nRowH,
-     &                   nWndw,Mode,
+     &                   nWndw,
      &                   kIter,
      &                   Kriging_Hessian,qBeta,iOpt_RS,.True.,iter_,
      &                   qBeta_Disp)
@@ -140,7 +140,7 @@
      &                nsAtom,
      &                GrdMax,StpMax,GrdLbl,StpLbl,
      &                nRowH,
-     &                nWndw,Mode,
+     &                nWndw,
      &                kIter,
      &                Kriging_Hessian,qBeta,iOpt_RS,.True.,iter,
      &                qBeta_Disp)

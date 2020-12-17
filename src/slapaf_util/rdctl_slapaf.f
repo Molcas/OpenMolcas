@@ -18,7 +18,7 @@
      &                             Redundant, FindTS, nBVec, User_Def,
      &                             MaxItr, iOptC, rHidden, CnstWght,
      &                             lOld, Beta, Beta_Disp, Line_Search,
-     &                             TSConstraints, GNrm_Threshold
+     &                             TSConstraints, GNrm_Threshold, Mode
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"

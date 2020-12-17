@@ -209,11 +209,11 @@
             Call Update_Kriging(Iter,nQQ,ed,Step_Trunc,
      &                          nLambda,nsAtom,GrdMax,StpMax,GrdLbl,
      &                          StpLbl,nRowH,
-     &                          nWndw,Mode,ThrEne,ThrGrd)
+     &                          nWndw,ThrEne,ThrGrd)
          Else
             Call Update_sl(Iter,NmIter,nQQ,ed,Step_Trunc,
      &                     nLambda,nsAtom,GrdMax,StpMax,GrdLbl,StpLbl,
-     &                     nRowH,nWndw,Mode,kIter)
+     &                     nRowH,nWndw,kIter)
          End If
 *
 #ifdef UNIT_MM

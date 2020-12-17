@@ -13,7 +13,7 @@
 ************************************************************************
       Subroutine Con_Opt(r,drdq,T,dEdq,rLambda,q,dq,dy,dx,dEdq_,du,x,
      &                   dEdx,W,GNrm,nWndw,
-     &                   Hess,nInter,nIter,Mode,MF,
+     &                   Hess,nInter,nIter,
      &                   iOptH,jPrint,Energy,nLambda,
      &                   nRowH,Err,EMx,RHS,A,nA,ed,
      &                   Beta,Beta_Disp,nFix,iP,
@@ -49,6 +49,7 @@
 *             July 2003                                                *
 ************************************************************************
       Use kriging_mod, only: Max_MicroIterations
+      use Slapaf_Info, only: MF
       use Slapaf_Parameters, only: IRC, iOptC, CnstWght
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -65,8 +66,7 @@
      &       Hess(nInter,nInter),
      &       Energy(nIter),
      &       Err(nInter,nIter+1), EMx((nIter+1)**2), RHS(nIter+1),
-     &       A(nA), d2rdq2(nInter,nInter,nLambda),
-     &       MF(3*nsAtom)
+     &       A(nA), d2rdq2(nInter,nInter,nLambda)
       Integer iP(nInter)
       Logical Found, IRC_setup, First_MicroIteration,
      &        Recompute_disp
@@ -870,7 +870,7 @@ C           Write (6,*) 'gBeta=',gBeta
 #endif
       If (Step_Trunc.eq.'N') Step_Trunc=' '
       Call Update_H(nWndw,Hessian,nInter,
-     &              nIter,iOptC_Temp,Mode,MF,
+     &              nIter,iOptC_Temp,
      &              dq,dEdq_,iOptH,nRowH,
      &              jPrint,Dummy,nsAtom,.False.,.False.)
 

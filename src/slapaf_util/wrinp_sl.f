@@ -15,7 +15,7 @@
      &                             Curvilinear, Redundant, FindTS,
      &                             Analytic_Hessian, iOptC, rHidden,
      &                             lOld, Beta, Beta_Disp, Line_Search,
-     &                             GNrm_Threshold
+     &                             GNrm_Threshold, Mode
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "info_slapaf.fh"

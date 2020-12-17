@@ -8,14 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine FixHess(H,nH,iOptC,Mode,MF,GNrm,
-     &                   nAtoms,AnalHess,AllowFindTS)
-      use Slapaf_Parameters, only: iNeg, GNrm_Threshold
+      Subroutine FixHess(H,nH,iOptC,MF,GNrm,nsAtom,AnalHess,AllowFindTS)
+      use Slapaf_Parameters, only: iNeg, GNrm_Threshold, Mode
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
 #include "stdalloc.fh"
-      Real*8 H(nH,nH), MF(3*nAtoms)
+      Real*8 H(nH,nH), MF(3,nsAtom)
       Logical AnalHess, AllowFindTS, Corrected, Too_Small, Found
       Real*8, Allocatable:: EVal(:), LowVal(:), LowVec(:,:), Tmp(:,:),
      &                      FixVal(:), Rx(:,:), Vect(:)
@@ -226,10 +225,10 @@
 *------------- Store the eigenvector which we are following
 *
                Mode=jNeg
-               Call ReacX(LowVec(:,Mode),nH,MF,3*nAtoms)
+               Call ReacX(LowVec(:,Mode),nH,MF,3*nsAtom)
 #ifdef _DEBUGPRINT_
                Write (Lu,'(A,I3)') ' Store Original mode:',Mode
-               Call RecPrt(' Reaction mode',' ',MF,3,nAtoms)
+               Call RecPrt(' Reaction mode',' ',MF,3,nsAtom)
 #endif
 *
             Else
@@ -237,15 +236,15 @@
 *------------- Check that it is the correct eigenvector!
 *
 #ifdef _DEBUGPRINT_
-               Call RecPrt(' Old Reaction mode',' ',MF,3,nAtoms)
+               Call RecPrt(' Old Reaction mode',' ',MF,3,nsAtom)
 #endif
                iTest=0
                Test=Zero
-               Call mma_allocate(Rx,3,nAtoms,Label='Rx')
+               Call mma_allocate(Rx,3,nsAtom,Label='Rx')
                Do i = 1, NumVal
-                  Call ReacX(LowVec(:,i),nH,Rx,3*nAtoms)
-                  dRx=Sqrt(DDot_(3*nAtoms,Rx,1,Rx,1))
-                  rq=Abs(DDot_(3*nAtoms,MF,1,Rx,1))/dRx
+                  Call ReacX(LowVec(:,i),nH,Rx,3*nsAtom)
+                  dRx=Sqrt(DDot_(3*nsAtom,Rx,1,Rx,1))
+                  rq=Abs(DDot_(3*nsAtom,MF,1,Rx,1))/dRx
                   If (rq.gt.Test) Then
                      iTest=i
                      Test=rq
@@ -285,10 +284,10 @@
                End If
 *
                FixVal(Mode) = -Abs(FixVal(Mode))
-               Call ReacX(LowVec(:,Mode),nH,MF,3*nAtoms)
+               Call ReacX(LowVec(:,Mode),nH,MF,3*nsAtom)
 #ifdef _DEBUGPRINT_
                Write (Lu,'(A,1X,I3)') ' Store mode:',Mode
-               Call RecPrt(' New Reaction mode',' ',MF,3,nAtoms)
+               Call RecPrt(' New Reaction mode',' ',MF,3,nsAtom)
 #endif
 *
             End If
@@ -304,10 +303,10 @@
 *------------- Store the eigenvector which we are following
 *
                Mode=iLow
-               Call ReacX(LowVec(:,Mode),nH,MF,3*nAtoms)
+               Call ReacX(LowVec(:,Mode),nH,MF,3*nsAtom)
 #ifdef _DEBUGPRINT_
                Write (Lu,'(A,I3)') ' Store Original mode:',Mode
-               Call RecPrt(' Reaction mode',' ',MF,3,nAtoms)
+               Call RecPrt(' Reaction mode',' ',MF,3,nsAtom)
 #endif
 *
             Else
@@ -315,15 +314,15 @@
 *------------- Find the eigenvector with the best overlap
 *
 #ifdef _DEBUGPRINT_
-               Call RecPrt(' Old Reaction mode',' ',MF,3,nAtoms)
+               Call RecPrt(' Old Reaction mode',' ',MF,3,nsAtom)
 #endif
                iTest=0
                Test=Zero
-               Call mma_allocate(Rx,3,nAtoms,Label='Rx')
+               Call mma_allocate(Rx,3,nsAtom,Label='Rx')
                Do i = 1, NumVal
-                  Call ReacX(LowVec(:,i),nH,Rx,3*nAtoms)
-                  dRx=Sqrt(DDot_(3*nAtoms,Rx,1,Rx,1))
-                  rq=Abs(DDot_(3*nAtoms,MF,1,Rx,1))/dRx
+                  Call ReacX(LowVec(:,i),nH,Rx,3*nsAtom)
+                  dRx=Sqrt(DDot_(3*nsAtom,Rx,1,Rx,1))
+                  rq=Abs(DDot_(3*nsAtom,MF,1,Rx,1))/dRx
                   If (rq.gt.Test) Then
                      iTest=i
                      Test=rq
@@ -348,10 +347,10 @@
 #endif
                End if
 *
-               Call ReacX(LowVec(:,Mode),nH,MF,3*nAtoms)
+               Call ReacX(LowVec(:,Mode),nH,MF,3*nsAtom)
 #ifdef _DEBUGPRINT_
                Write (Lu,'(A,1X,I3)') ' Store mode:',Mode
-               Call RecPrt(' New Reaction mode',' ',MF,3,nAtoms)
+               Call RecPrt(' New Reaction mode',' ',MF,3,nsAtom)
 #endif
 *
             End If
@@ -376,10 +375,10 @@
 *------------- Store the eigenvector which we are following
 *
                Mode=iLow
-               Call ReacX(LowVec(:,Mode),nH,MF,3*nAtoms)
+               Call ReacX(LowVec(:,Mode),nH,MF,3*nsAtom)
 #ifdef _DEBUGPRINT_
                Write (Lu,'(A,I3)') ' Store Original mode:',Mode
-               Call RecPrt(' Reaction mode',' ',MF,3,nAtoms)
+               Call RecPrt(' Reaction mode',' ',MF,3,nsAtom)
 #endif
 *
             Else
@@ -387,15 +386,15 @@
 *------------- Find the eigenvector with the best overlap
 *
 #ifdef _DEBUGPRINT_
-              Call RecPrt(' Old Reaction mode',' ',MF,3,nAtoms)
+              Call RecPrt(' Old Reaction mode',' ',MF,3,nsAtom)
 #endif
                iTest=0
                Test=Zero
-               Call mma_allocate(Rx,3,nAtoms,Label='Rx')
+               Call mma_allocate(Rx,3,nsAtom,Label='Rx')
                Do i = 1, NumVal
-                  Call ReacX(LowVec(:,i),nH,Rx,3*nAtoms)
-                  dRx=Sqrt(DDot_(3*nAtoms,Rx,1,Rx,1))
-                  rq=Abs(DDot_(3*nAtoms,MF,1,Rx,1))/dRx
+                  Call ReacX(LowVec(:,i),nH,Rx,3*nsAtom)
+                  dRx=Sqrt(DDot_(3*nsAtom,Rx,1,Rx,1))
+                  rq=Abs(DDot_(3*nsAtom,MF,1,Rx,1))/dRx
                   If (rq.gt.Test) Then
                      iTest=i
                      Test=rq
@@ -420,10 +419,10 @@
 #endif
                End if
 *
-               Call ReacX(LowVec(:,Mode),nH,MF,3*nAtoms)
+               Call ReacX(LowVec(:,Mode),nH,MF,3*nsAtom)
 #ifdef _DEBUGPRINT_
                Write (Lu,'(A,1X,I3)') ' Store mode:',Mode
-               Call RecPrt(' New Reaction mode',' ',MF,3,nAtoms)
+               Call RecPrt(' New Reaction mode',' ',MF,3,nsAtom)
 #endif
 *
             End If

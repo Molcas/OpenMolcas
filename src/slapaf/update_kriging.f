@@ -17,7 +17,7 @@
      &                     nLambda,nsAtom,
      &                     GrdMax,StpMax,GrdLbl,StpLbl,
      &                     nRowH,
-     &                     nWndw,Mode,
+     &                     nWndw,
      &                     ThrEne,ThrGrd)
 ************************************************************************
 *                                                                      *
@@ -207,7 +207,7 @@
      &                   ed,Step_Trunc,nLambda,
      &                   nsAtom,
      &                   GrdMax,StpMax,GrdLbl,StpLbl,
-     &                   nRowH,nWndw_,Mode,
+     &                   nRowH,nWndw_,
      &                   kIter,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
      &                   First_MicroIteration,iter,qBeta_Disp)
