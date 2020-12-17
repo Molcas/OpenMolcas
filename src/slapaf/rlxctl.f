@@ -205,7 +205,7 @@
 *
          If (Kriging .and. Iter.ge.nspAI) Then
             Call Update_Kriging(Iter,nQQ,Step_Trunc,nLambda,nsAtom,
-     &                          nWndw,ThrEne,ThrGrd)
+     &                          nWndw)
          Else
             Call Update_sl(Iter,NmIter,nQQ,Step_Trunc,
      &                     nLambda,nsAtom,nWndw,kIter)
@@ -276,7 +276,7 @@
       TSReg = iAnd(iOptC,8192).eq.8192
       Numerical=(lNmHss.or.Allocated(mRowH)).and.iter.le.NmIter
       Call Convrg(iter,kIter,nQQ,Stop,iStop,ThrCons,
-     &            ThrEne,ThrGrd,MxItr,mIntEff,Baker,
+     &            MxItr,mIntEff,Baker,
      &            nsAtom,mTtAtm,GoOn,Step_Trunc,
      &            rMEP,MEP,nMEP,Just_Frequencies,eMEPTest,nLambda,
      &            TSReg,ThrMEP)

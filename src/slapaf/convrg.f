@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Convrg(iter,kIter, nInter,
      &                  Stop,iStop,ThrCons,
-     &                  ThrEne, ThrGrd, MxItr, mIntEff,
+     &                  MxItr, mIntEff,
      &                  Baker, nAtom,mTtAtm,
      &                  GoOn,Step_Trunc,
      &                  rMEP,MEP,nMEP,
@@ -21,7 +21,7 @@
      &                       dqInt, Lbl
       use Slapaf_Parameters, only: HUpMet, FindTS, Analytic_Hessian,
      &                             MaxItr, Numerical, iNeg, GrdMax,
-     &                             E_Delta
+     &                             E_Delta, ThrEne, ThrGrd
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"

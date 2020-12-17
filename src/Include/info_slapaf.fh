@@ -10,53 +10,30 @@
 ************************************************************************
 #include "Molcas.fh"
 *
-      Integer   iSym(3),
-     &          iRef, nQQ,
-     &          NmIter,
-     &          iter, Lngth,
-     &          MxItr, mInt, Max_Center,
-     &          nSupSy, lif,
-     &          mTROld, nWndw,
-     &          nLambda,
-     &          nMEP,
-     &          mTtAtm, nsAtom, MEPnum,
-     &          RootMap(MxRoot)
-      Common /iInfSla/ iSym,nsAtom,
-     &               iRef, nQQ,
-     &          iter, Lngth,
-     &          MxItr, mInt, Max_Center,
-     &          nSupSy, lif, mTtAtm,
-     &          mTROld, nWndw,
-     &          NmIter,
-     &          nLambda, nMEP,
-     &          MEPnum,
-     &          RootMap
+      Integer   iSym(3), iRef, nQQ, NmIter, iter, Lngth,
+     &          MxItr, mInt, Max_Center, nSupSy, lif, mTROld, nWndw,
+     &          nLambda, nMEP, mTtAtm, nsAtom, MEPnum, RootMap(MxRoot)
+      Common /iInfSla/ iSym,nsAtom, iRef, nQQ, iter, Lngth,
+     &          MxItr, mInt, Max_Center, nSupSy, lif, mTtAtm,
+     &          mTROld, nWndw, NmIter, nLambda, nMEP, MEPnum, RootMap
 *
-      Logical Stop, lWrite, Exist, Change,
-     &        lSup,
-     &        lNmHss, Cubic, PDH, Baker,
-     &        FirstCall, MEP, Ref_Geom, lRP, Ref_Grad,
-     &        rMEP, lOld_Implicit, eMEPtest,
-     &        lCtoF, lSoft, CallLast, TwoRunFiles,
-     &        MEPCons, Track, Request_Alaska,
+      Logical Stop, lWrite, Exist, Change, lSup, lNmHss, Cubic, PDH,
+     &        Baker, FirstCall, MEP, Ref_Geom, lRP, Ref_Grad, rMEP,
+     &        lOld_Implicit, eMEPtest, lCtoF, lSoft, CallLast,
+     &        TwoRunFiles, MEPCons, Track, Request_Alaska,
      &        Request_RASSI
-      Common /lInfSla/ Stop, lWrite, Exist, Change,
-     &        lSup, rMEP,
+      Common /lInfSla/ Stop, lWrite, Exist, Change, lSup, rMEP,
      &        lNmHss, Cubic, PDH, Baker,
      &        FirstCall, MEP, Ref_Geom, lRP, Ref_Grad,
      &        lOld_Implicit, eMEPtest,
      &        lCtoF, lSoft, CallLast, TwoRunFiles,
-     &        MEPCons, Track, Request_Alaska,
-     &        Request_RASSI
+     &        MEPCons, Track, Request_Alaska, Request_RASSI
 *
-      Real*8 cMass(3), Trial(3), ThrEne, ThrGrd,
-     &       Delta, Rtrnc, ThrCons,
+      Real*8 cMass(3), Trial(3), Delta, Rtrnc, ThrCons,
      &       dMEPStep, rFuzz, ThrMEP
 *
-      Common /rInfSla/ cMass, Trial, ThrEne, ThrGrd,
-     &                 Delta, Rtrnc, ThrCons,
-     &                 dMEPStep, rFuzz,
-     &                 ThrMEP
+      Common /rInfSla/ cMass, Trial, Delta, Rtrnc, ThrCons,
+     &                 dMEPStep, rFuzz, ThrMEP
 *
       Logical   lTherm, lDoubleIso
       Integer   nUserPT, nsRot

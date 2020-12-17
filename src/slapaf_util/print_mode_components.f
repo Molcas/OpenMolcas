@@ -43,7 +43,8 @@
      &                             iOptC, UpMeth, HSet, BSet, rHidden,
      &                             CnstWght, PrQ, lOld, Numerical, Beta,
      &                             Beta_Disp, Line_Search,
-     &                             TSConstraints, GNrm_Threshold, Mode
+     &                             TSConstraints, GNrm_Threshold, Mode,
+     &                             ThrEne, ThrGrd
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"

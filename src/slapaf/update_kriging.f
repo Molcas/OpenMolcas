@@ -15,8 +15,7 @@
      &                     iter,nInter,
      &                     Step_Trunc,
      &                     nLambda,nsAtom,
-     &                     nWndw,
-     &                     ThrEne,ThrGrd)
+     &                     nWndw)
 ************************************************************************
 *                                                                      *
 *     Object: to update coordinates                                    *
@@ -28,7 +27,7 @@
       Use Slapaf_Info, only: Cx, Gx, Shift, GNrm, Energy, qInt, dqInt,
      &                       Lbl
       use Slapaf_Parameters, only: UpMeth, Beta, Beta_Disp, GrdLbl,
-     &                             GrdMax, E_Delta
+     &                             GrdMax, E_Delta, ThrEne, ThrGrd
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
