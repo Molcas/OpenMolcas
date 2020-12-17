@@ -15,7 +15,7 @@
      &                   dEdx,W,GNrm,nWndw,
      &                   Hess,nInter,nIter,
      &                   iOptH,jPrint,Energy,nLambda,
-     &                   nRowH,Err,EMx,RHS,A,nA,
+     &                   Err,EMx,RHS,A,nA,
      &                   Beta,Beta_Disp,nFix,iP,
      &                   Step_Trunc,Lbl,
      &                   d2rdq2,nsAtom,
@@ -81,7 +81,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) '****************************************************'
@@ -873,7 +873,7 @@ C           Write (6,*) 'gBeta=',gBeta
       If (Step_Trunc.eq.'N') Step_Trunc=' '
       Call Update_H(nWndw,Hessian,nInter,
      &              nIter,iOptC_Temp,
-     &              dq,dEdq_,iOptH,nRowH,
+     &              dq,dEdq_,iOptH,
      &              jPrint,Dummy,nsAtom,.False.,.False.)
 
 #ifdef _DEBUGPRINT_

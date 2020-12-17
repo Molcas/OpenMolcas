@@ -13,7 +13,6 @@
       Subroutine Update_sl(iter,NmIter,nInter,
      &                     Step_Trunc,
      &                     nLambda,nsAtom,
-     &                     nRowH,
      &                     nWndw,kIter)
 ************************************************************************
 *                                                                      *
@@ -34,7 +33,7 @@
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
-      use Slapaf_Info, only: Shift, qInt, dqInt
+      use Slapaf_Info, only: Shift, qInt
       use Slapaf_Parameters, only: Beta, Beta_disp
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -50,11 +49,10 @@
       iRout=153
       iPrint=nPrint(iRout)
 *
-      If (iPrint.ge.99) Then
-         Call RecPrt('Update_sl: qInt',' ',qInt,nInter,Iter)
-         Call RecPrt('Update_sl: dqInt',' ',dqInt,nInter,Iter)
-         Call RecPrt('Update_sl: Shift',' ',Shift,nInter,Iter-1)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Update_sl: qInt',' ',qInt,nInter,Iter)
+      Call RecPrt('Update_sl: Shift',' ',Shift,nInter,Iter-1)
+#endif
 *
       iOpt_RS=0
       qBeta=Beta
@@ -79,7 +77,9 @@
 *        Hessian we like the step to be relative to the initial
 *        structure.
 *
-         If (iPrint.ge.99) Write(6,*)'UpDate_SL: first iteration'
+#ifdef _DEBUGPRINT_
+         Write(6,*)'UpDate_SL: first iteration'
+#endif
          iter_=1
          Call mma_Allocate(t_Shift,nInter,SIZE(Shift,2),Label='t_Shift')
          t_Shift(:,:)=Shift(:,:)
@@ -94,7 +94,6 @@
      &                   iter_,nInter,qInt,
      &                   Shift,Beta,Beta_Disp,
      &                   Step_Trunc,nLambda,nsAtom,
-     &                   nRowH,
      &                   nWndw,
      &                   kIter,
      &                   Kriging_Hessian,qBeta,iOpt_RS,.True.,iter_,
@@ -130,7 +129,6 @@
      &                Beta,Beta_Disp,
      &                Step_Trunc,nLambda,
      &                nsAtom,
-     &                nRowH,
      &                nWndw,
      &                kIter,
      &                Kriging_Hessian,qBeta,iOpt_RS,.True.,iter,
@@ -145,14 +143,13 @@
 *
 *-----Write out the shift in internal coordinates basis.
 *
-      If (iPrint.ge.99) Then
-         Call RecPrt(
-     &      'Shifts in internal coordinate basis / au or rad',
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Shifts in internal coordinate basis / au or rad',
      &      ' ',Shift,nInter,Iter)
-         Call RecPrt(
-     &      'qInt in internal coordinate basis / au or rad',
+      Call RecPrt('qInt in internal coordinate basis / au or rad',
      &      ' ',qInt,nInter,Iter+1)
-      End If
+#endif
+
 *
 *---- Remove unneeded fields from the runfile
       Dummy(1)=-Zero

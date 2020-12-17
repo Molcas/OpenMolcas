@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Giovanni Ghigo                                         *
 ************************************************************************
-      Subroutine RowHessian(nIter,nInter,nRowH,mRowH,Delta)
+      Subroutine RowHessian(nIter,nInter,Delta)
 ************************************************************************
 *                                                                      *
 * Object: Numerical estimation of single rows and columns of Hessian   *
@@ -18,14 +18,18 @@
 * Author: Giovanni Ghigo, University of Torino, Italy                  *
 *                                                                      *
 ************************************************************************
-      use Slapaf_Info, only: dqInt
+      use Slapaf_Info, only: dqInt, mRowH
       Implicit Real*8 (A-H,O-Z)
       Real*8, Allocatable:: H(:,:)
-      Integer mRowH(10)
 #include "stdalloc.fh"
 #include "real.fh"
       Real*8 rDum(1)
 *
+      If (.NOT.Allocated(mRowH)) Then
+         Write (6,*) 'RowHessian: .NOT.Allocated(mRowH)'
+         Call Abend()
+      End If
+
       Call mma_allocate(H,nInter,nInter,Label='H')
       Call Get_dArray('Hss_Q',H,nInter**2)
       Call Put_dArray('Hss_upd',rDum,0)
@@ -38,7 +42,7 @@
 *
 * --- Evaluate the Hessian
 *
-      Do iRowH = 1, nRowH
+      Do iRowH = 1, SIZE(mRowH)
          iInter = mRowH(iRowH)
          If (iInter>nIter) Then
             Write (6,*) 'RowHessian: iIter>nIter'

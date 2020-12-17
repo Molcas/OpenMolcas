@@ -10,22 +10,21 @@
 *                                                                      *
 * Copyright (C) Giovanni Ghigo                                         *
 ************************************************************************
-      Subroutine Freq1(nIter,nInter,nRowH,mRowH,Delta,qInt)
+      Subroutine Freq1(nIter,nInter,Delta,qInt)
 ************************************************************************
 *                                                                      *
 * Object: Displacements for Numerical estimation of single rows and    *
 *         columns of Hessian                                           *
 *                                                                      *
-* Called from: RlxCtl when lRowH=.True.                                *
+* Called from: RlxCtl when Aloocated(mRowH)=.True.                     *
 *                                                                      *
 * Author: Giovanni Ghigo, University of Torino, Italy                  *
 ************************************************************************
-      use Slapaf_Info, only: Shift
+      use Slapaf_Info, only: Shift, mRowH
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
       Real*8 qInt(nInter,nIter+1)
-      Integer mRowH(10)
 *
       iRout = 183
       iPrint = nPrint(iRout)
@@ -39,6 +38,8 @@
 *-----Compute the new shift
 *
       call dcopy_(nInter,[Zero],0,Shift(1,nIter),1)
+      nRowH=0
+      If (Allocated(mRowH)) nRowH=SIZE(mRowH)
       If (nIter.le.nRowH) then
          kInter = mRowH(nIter)
          Shift(kInter,nIter) = Delta

@@ -15,7 +15,7 @@ implicit none
 Private
 Public:: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, ANr, Weights, Shift, GNrm, Lambda, &
          Energy, Energy0, DipM, MF, qInt, dqInt, nSup, Atom, RefGeo, BMx, Degen, jStab, nStab, iCoSet, &
-         BM, dBM, iBM, idBM, nqBM, R12, GradRef, KtB, AtomLbl, Smmtrc, Lbl, &
+         BM, dBM, iBM, idBM, nqBM, R12, GradRef, KtB, AtomLbl, Smmtrc, Lbl, mRowH, &
          Free_Slapaf, Get_Slapaf, Dmp_Slapaf
 !
 ! Arrays always allocated
@@ -60,6 +60,7 @@ Integer, Allocatable:: ANr(:)       ! list of atomic numbers
 !
 Real*8, Allocatable:: NAC(:,:)      ! list of Cartesian non-adiabatic coupling vector
 Real*8, Allocatable:: Lambda(:,:)   ! list of the Lagrange multipiers
+Integer, Allocatable:: mRowH(:)     ! rows of the Hessian to be explicitly computed
 !
 ! Utility arrays with explicit deallocation, i.e. not via Free_Slapaf()
 !
@@ -111,6 +112,7 @@ Contains
   If (Allocated(NAC)) Call mma_deallocate(NAC)
   If (Allocated(qInt)) Call mma_deallocate(qInt)
   If (Allocated(dqInt)) Call mma_deallocate(dqInt)
+  If (Allocated(mRowH)) Call mma_deallocate(mRowH)
   End Subroutine Free_Slapaf
 
 

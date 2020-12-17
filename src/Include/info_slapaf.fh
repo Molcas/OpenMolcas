@@ -11,7 +11,7 @@
 #include "Molcas.fh"
 *
       Integer   iSym(3),
-     &          iRef, nQQ, mRowH(10), nRowH,
+     &          iRef, nQQ,
      &          NmIter,
      &          iter, Lngth,
      &          MxItr, mInt, Max_Center,
@@ -22,8 +22,7 @@
      &          mTtAtm, nsAtom, MEPnum,
      &          RootMap(MxRoot)
       Common /iInfSla/ iSym,nsAtom,
-     &               iRef, nQQ, mRowH,
-     &          nRowH,
+     &               iRef, nQQ,
      &          iter, Lngth,
      &          MxItr, mInt, Max_Center,
      &          nSupSy, lif, mTtAtm,
@@ -34,7 +33,7 @@
      &          RootMap
 *
       Logical Stop, lWrite, Exist, Change,
-     &        lSup, lRowH,
+     &        lSup,
      &        lNmHss, Cubic, PDH, Baker,
      &        FirstCall, MEP, Ref_Geom, lRP, Ref_Grad,
      &        rMEP, lOld_Implicit, eMEPtest,
@@ -42,7 +41,7 @@
      &        MEPCons, Track, Request_Alaska,
      &        Request_RASSI
       Common /lInfSla/ Stop, lWrite, Exist, Change,
-     &        lSup, lRowH,rMEP,
+     &        lSup, rMEP,
      &        lNmHss, Cubic, PDH, Baker,
      &        FirstCall, MEP, Ref_Geom, lRP, Ref_Grad,
      &        lOld_Implicit, eMEPtest,

@@ -15,7 +15,6 @@
      &                     iter,nInter,
      &                     Step_Trunc,
      &                     nLambda,nsAtom,
-     &                     nRowH,
      &                     nWndw,
      &                     ThrEne,ThrGrd)
 ************************************************************************
@@ -206,7 +205,7 @@
      &                   Beta_,Beta_Disp_,
      &                   Step_Trunc,nLambda,
      &                   nsAtom,
-     &                   nRowH,nWndw_,
+     &                   nWndw_,
      &                   kIter,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
      &                   First_MicroIteration,iter,qBeta_Disp)

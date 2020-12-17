@@ -12,7 +12,7 @@
       use kriging_mod
       use Symmetry_Info, only: Symmetry_Info_Get
       use Slapaf_Info, only: Cx, Gx, Weights, MF, Atom, nSup, RefGeo,
-     &                       GradRef, nStab, Lbl
+     &                       GradRef, nStab, Lbl, mRowH
       use Slapaf_Parameters, only: iRow, iRow_c, ddV_Schlegel, HWRS,
      &                             iOptH, HrmFrq_Show, IRC, Curvilinear,
      &                             Redundant, FindTS, nBVec, User_Def,
@@ -1120,7 +1120,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       Call Init2()
 *     Gradients are not needed at the first iteration of a numerical
 *     Hessian procedure (and only that, i.e. MxItr=0)
-      FirstNum = (lRowH.or.lNmHss.or.Cubic)
+      FirstNum = (Allocated(mRowH).or.lNmHss.or.Cubic)
      &           .and.(Iter.eq.1).and.(MxItr.eq.0)
       If ((SuperName.eq.'slapaf').and.(.not.FirstNum)) Then
          If (Track) Then
@@ -1372,7 +1372,7 @@ CGGd: Coherency with patch 7.1.615 !      If (lNmHss) nPrint(122)=10
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (lNmHss.and.lRowH) then
+      If (lNmHss.and.Allocated(mRowH)) then
          Call WarningMessage(2,'Error in RdCtl_Slapaf')
        Write (Lu,*)
        Write (Lu,*) '**************************************************'

@@ -88,7 +88,6 @@
 *                                                                      *
       RtRnc=Three
       Max_Center=15
-      lRowH  = .False.
       lNmHss = .False.
 * --- ThermoChemistry for Numerical Hessian
       lTherm = .False.

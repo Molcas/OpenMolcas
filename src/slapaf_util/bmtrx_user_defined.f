@@ -34,7 +34,7 @@
 *                                                                      *
 *.... Section for user defined internal coordinates
 *
-      Call Rd_UDIC(iInt,nFix,nRowH)
+      Call Rd_UDIC(iInt,nFix,nRowH) ! nRowH is not used!
       nQQ=iInt+nFix
 *
       If (.NOT.Allocated(qInt)) Then

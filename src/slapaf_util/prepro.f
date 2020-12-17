@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine PrePro(nAtom,nInter,Coor)
-      use Slapaf_Info, only: Grd, Atom, nSup
+      use Slapaf_Info, only: Grd, Atom, nSup, mRowH
       use Slapaf_Parameters, only: iRow, iInt, nFix, Redundant, nDimBC,
      &                             lOld
       Implicit Real*8 (a-h,o-z)
@@ -50,7 +50,7 @@
          Call Rd_UDIC(iInt,nFix,nRowH)
          nQQ=iInt+nFix
          If (nRowH.GT.0) then
-            lRowH=.True.
+            Call mma_allocate(mRowH,nRowH,Label='mRowH')
             Call Rd_UDIC_RowH(nQQ,nRowH,mRowH)
          EndIf
          If (nQQ.gt.nInter) Redundant=.True.

@@ -11,7 +11,7 @@
       Subroutine RlxCtl(iStop)
       Use Chkpnt
       Use kriging_mod, only: Kriging, nspAI
-      Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx,
+      Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx, mRowH,
      &                       Free_Slapaf, qInt, dqInt, Lbl
       use Slapaf_Parameters, only: HUpMet, User_Def, iOptC, UpMeth,
      &                             HSet, BSet, PrQ, Numerical, iNeg,
@@ -88,7 +88,8 @@
 *---- Compute number of steps for numerical differentiation
 *
       NmIter=1
-      If (lRowH)  NmIter=nRowH+1     ! Numerical only for some rows
+      ! Numerical only for some rows
+      If (Allocated(mRowH))  NmIter=SIZE(mRowH)+1
       If (lNmHss) NmIter=2*mInt+1    ! Full numerical
       If (Cubic)  NmIter=2*mInt**2+1 ! Full cubic
 *
@@ -100,7 +101,7 @@
       If (lNmHss.and.iter.lt.NmIter.and.iter.ne.1) nPrint(122)=5
 *
 *---- Do not overwrite numerical Hessian
-      If ((lNmHss.or.lRowH)
+      If ((lNmHss.or.Allocated(mRowH))
      &    .and.(iter.gt.NmIter.or.iter.lt.NmIter)) HSet = .False.
 *
 *---- Set logical to indicate status during numerical differentiation
@@ -147,16 +148,16 @@
 *     Accumulate gradient for complete or partial numerical
 *     differentiation of the Hessian.
 *
-      If ((lRowH.and.iter.lt.NmIter) .or.
+      If ((Allocated(mRowH).and.iter.lt.NmIter) .or.
      &        (lNmHss.and.iter.lt.NmIter)) Then
 
-         If (lRowH.and.iter.lt.NmIter) Then
+         If (Allocated(mRowH).and.iter.lt.NmIter) Then
 *
 *----------------------------------------------------------------------*
 *        I) Update geometry for selected numerical differentiation.    *
 *----------------------------------------------------------------------*
 *
-            Call Freq1(iter,nQQ,nRowH,mRowH,Delta/2.5d0,qInt)
+            Call Freq1(iter,nQQ,Delta/2.5d0,qInt)
             UpMeth='RowH  '
          Else
 *
@@ -194,7 +195,7 @@
 *
          Step_Trunc=' '
          E_Delta=zero
-         If (lRowH.or.lNmHss) kIter = iter - (NmIter-1)
+         If (Allocated(mRowH).or.lNmHss) kIter = iter - (NmIter-1)
 *define UNIT_MM
 #ifdef UNIT_MM
          Call Init_UpdMask(nsAtom, nInter)
@@ -204,10 +205,10 @@
 *
          If (Kriging .and. Iter.ge.nspAI) Then
             Call Update_Kriging(Iter,nQQ,Step_Trunc,nLambda,nsAtom,
-     &                          nRowH,nWndw,ThrEne,ThrGrd)
+     &                          nWndw,ThrEne,ThrGrd)
          Else
             Call Update_sl(Iter,NmIter,nQQ,Step_Trunc,
-     &                     nLambda,nsAtom,nRowH,nWndw,kIter)
+     &                     nLambda,nsAtom,nWndw,kIter)
          End If
 *
 #ifdef UNIT_MM
@@ -247,7 +248,7 @@
 *                                                                      *
 *     Adjust some print levels
 *
-      If ((lNmHss.or.lRowH).and.iter.eq.NmIter) Then
+      If ((lNmHss.or.Allocated(mRowH)).and.iter.eq.NmIter) Then
 *
 *        If only frequencies no more output
 *
@@ -264,15 +265,16 @@
 *     Fix correct reference structure in case of Numerical Hessian
 *     optimization.
 *
-      If ((lNmHss.or.lRowH).and.kIter.eq.1) Then
+      If ((lNmHss.or.Allocated(mRowH)).and.kIter.eq.1) Then
          call dcopy_(3*nsAtom,Cx(1,1,1),1,Cx(1,1,iter),1)
       End If
 *
 *---- Print statistics and check on convergence
 *
-      GoOn = (lNmHss.and.iter.lt.NmIter).OR.(lRowH.and.iter.lt.NmIter)
+      GoOn = (lNmHss.and.iter.lt.NmIter) .OR.
+     &       (Allocated(mRowH).and.iter.lt.NmIter)
       TSReg = iAnd(iOptC,8192).eq.8192
-      Numerical=(lNmHss.or.lRowH).and.iter.le.NmIter
+      Numerical=(lNmHss.or.Allocated(mRowH)).and.iter.le.NmIter
       Call Convrg(iter,kIter,nQQ,Stop,iStop,ThrCons,
      &            ThrEne,ThrGrd,MxItr,mIntEff,Baker,
      &            nsAtom,mTtAtm,GoOn,Step_Trunc,
@@ -287,7 +289,7 @@
 *
 *-----Write information to files
 *
-      Numerical = (lNmHss.or.lRowH) .and. iter.le.NmIter
+      Numerical = (lNmHss.or.Allocated(mRowH)) .and. iter.le.NmIter
       Call DstInf(iStop,Just_Frequencies)
       If (lCtoF) Call Def_CtoF(.True.,nsAtom,Coor)
       If (.Not.User_Def .and.

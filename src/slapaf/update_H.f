@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Update_H(nWndw,H,nInter,nIter,
      &                    iOptC,dq,g,iOptH,
-     &                    nRowH,jPrint,GNrm,
+     &                    jPrint,GNrm,
      &                    nAtoms,Store,
      &                    AllowFindTS)
       use Slapaf_Info, only: MF
@@ -30,7 +30,7 @@
 *     The anharmonic constants used here is the most recently
 *     updated version.
 *
-      Call DrvUpH(nWndw,nIter,H,nInter,dq,g,iOptH,nRowH,jPrint,IterHess)
+      Call DrvUpH(nWndw,nIter,H,nInter,dq,g,iOptH,jPrint,IterHess)
 
       Call Chk4NAN(nInter*nInter,H,ierr)
 

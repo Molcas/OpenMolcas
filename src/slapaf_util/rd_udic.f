@@ -98,32 +98,15 @@ c      Open(Lu_UDIC,File=filnam,Form='FORMATTED',Status='OLD')
       Character*8 cLbl
       Character*120 Temp
       Character*16 filnam
-      Integer mRowH(10)
+      Integer mRowH(nRowH)
 *
-*
-* nMaxRowH is the maximum number of internal coordinates that can be
-* specified for the numerical estimation of rows (and column) of the
-* hessian matrix. The mRowH(10) is defined everywhere is used. There
-* are no limitation, in principle, to nMaxRowH.
-*
-      nMaxRowH = 10
 *
       Lu=6
       Lu_UDIC=91
       filnam='UDIC'
       call molcas_open(Lu_UDIC,filnam)
       Rewind(Lu_UDIC)
-      Do iRowH = 1, nMaxRowH
-         mRowH(iRowH) = 0
-      EndDo
-      If (nRowH.GT.nMaxRowH) then
-         Call WarningMessage(2,'Error in rd_udic')
-         Write (Lu,*) '***************************************'
-         Write (Lu,*) ' ERROR: Too many coordinates in ROWH ! '
-         Write (Lu,*) '        Max ',nMaxRowH
-         Write (Lu,*) '***************************************'
-         Call Quit_OnUserError()
-      EndIf
+      mRowH(:)=0
 *
 *     Find begining of definitions of internal coordinates
 *

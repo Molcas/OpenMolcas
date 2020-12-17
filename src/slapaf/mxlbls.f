@@ -15,8 +15,10 @@
       Real*8 Shift(nInter), Grad(nInter)
       Character Lbl(nInter)*8
 *
-*     Call RecPrt('MxLbls:Shift',' ',Shift,nInter,1)
-*     Call RecPrt('MxLbls:Grad',' ',Grad,nInter,1)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('MxLbls:Shift',' ',Shift,nInter,1)
+      Call RecPrt('MxLbls:Grad',' ',Grad,nInter,1)
+#endif
 *
       GrdMax=Zero
       StpMax=Zero
@@ -30,9 +32,11 @@
            StpLbl=Lbl(i)
          End If
       End Do
-*     Write (*,*) ' Tmp output in MxLbls'
-*     Write (*,*) GrdLbl,' ',GrdMax
-*     Write (*,*) StpLbl,' ',StpMax
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' Tmp output in MxLbls'
+      Write (6,*) GrdLbl,' ',GrdMax
+      Write (6,*) StpLbl,' ',StpMax
+#endif
 *
       Return
       End

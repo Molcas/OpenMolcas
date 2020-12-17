@@ -15,7 +15,6 @@
      &                     Beta,Beta_Disp,
      &                     Step_Trunc,
      &                     nLambda,nsAtom,
-     &                     nRowH,
      &                     nWndw,
      &                     mIter,
      &                     Kriging_Hessian,qBeta,iOpt_RS,
@@ -133,7 +132,7 @@
       Call Update_H(nWndw,Hessian,nInter,
      &              mIter,iOptC,
      &              Shift(1,kIter-mIter+1),dqInt(1,kIter-mIter+1),
-     &              iOptH_,nRowH,jPrint,GNrm(kIter),
+     &              iOptH_,jPrint,GNrm(kIter),
      &              nsAtom,.True.,
      &              First_MicroIteration)
 *
@@ -629,7 +628,7 @@ C           Write (6,*) 'tBeta=',tBeta
             Call Con_Opt(R,dRdq,T,dqInt,Lambda,qInt,Shift,dy,dx,
      &                dEdq,du,x,dEdx,Wess,GNrm(kIter),
      &                nWndw,Hessian,nInter,kIter,
-     &                iOptH_,jPrint,Energy_L,nLambda,nRowH,
+     &                iOptH_,jPrint,Energy_L,nLambda,
      &                ErrVec,EMtrx,RHS,
      &                AMat,nA,qBeta,qBeta_Disp,nFix,
      &                Index,Step_Trunc,Lbl,

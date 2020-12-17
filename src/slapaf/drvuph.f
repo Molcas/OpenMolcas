@@ -8,10 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine DrvUpH(nWndw,nIter,H,nInter,
-     &                  dq,g,iOptH,nRowH,
-     &                  jPrint,IterHess)
+      Subroutine DrvUpH(nWndw,nIter,H,nInter,dq,g,iOptH,jPrint,IterHess)
       Use NewH_mod
+      use Slapaf_Info, only: mRowH
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -38,7 +37,7 @@
       Else
          IterHess=0
       End If
-      If (nRowH.GT.0) iSt=Max(iSt,nRowH+2)
+      If (Allocated(mRowH)) iSt=Max(iSt,SIZE(mRowH)+2)
       If (jPrint.ge.99) Then
          Write(Lu,*) 'DrvUpH: iSt,kIter=',iSt,nIter
          Call RecPrt('DrvUpH: Initial Hessian',' ',H,nInter,nInter)

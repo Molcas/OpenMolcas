@@ -12,7 +12,7 @@
 *
       Integer Bk_iSym(3),
      &        Bk_iRef, Bk_iRow, Bk_nFix, Bk_iInt,
-     &        Bk_nQQ, Bk_mRowH(10), Bk_nRowH,
+     &        Bk_nQQ,
      &        Bk_NmIter,
      &        Bk_iter, Bk_Lngth,
      &        Bk_nDimBC, Bk_MxItr, Bk_mInt,
@@ -26,7 +26,7 @@
      &        Bk_RootMap(MxRoot)
 *
       Logical Bk_Stop, Bk_lWrite, Bk_Exist,
-     &        Bk_Change, Bk_lSup, Bk_lOld, Bk_CurviLinear, Bk_lRowH,
+     &        Bk_Change, Bk_lSup, Bk_lOld, Bk_CurviLinear,
      &        Bk_HSet, Bk_BSet, Bk_lNmHss, Bk_Cubic, Bk_PDH, Bk_Baker,
      &        Bk_DDV_Schlegel, Bk_Line_Search, Bk_HWRS,
      &        Bk_Analytic_Hessian, Bk_FirstCall, Bk_FindTS, Bk_MEP,

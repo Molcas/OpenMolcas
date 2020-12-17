@@ -34,7 +34,7 @@
      &                       Energy, Energy0, DipM, MF, qInt, dqInt,
      &                       RefGeo, BM, iBM, dBM, idBM, nqBM, BMx,
      &                       Degen, nStab, jStab, iCoSet, AtomLbl,
-     &                       Smmtrc, Lbl
+     &                       Smmtrc, Lbl, mRowH
       use Slapaf_Parameters, only: iRow, iRow_c, iInt, nFix,
      &                             ddV_Schlegel, HWRS, iOptH, HUpMet,
      &                             HrmFrq_Show, IRC, Curvilinear,
@@ -103,6 +103,7 @@
       Character(LEN=LENIN), Allocatable:: Bk_AtomLbl(:)
       Logical, Allocatable:: Bk_Smmtrc(:,:)
       Character(LEN=8), Allocatable:: Bk_Lbl(:)
+      Integer, Allocatable:: Bk_mRowH(:)
 *
 *
 *---- Ugly hack: backup all "global" slapaf variables in case this is
@@ -284,12 +285,15 @@
          Bk_Lbl(:) = Lbl(:)
          Call mma_deallocate(Lbl)
       End If
+      If (Allocated(mRowH)) Then
+         Call mma_allocate(Bk_mRowH,SIZE(mRowH),Label='Bk_mRowH')
+         Bk_mRowH(:) = mRowH(:)
+         Call mma_deallocate(mRowH)
+      End If
 
       Bk_iSym(:)=iSym(:)
       Bk_iRef=iRef
       Bk_nQQ=nQQ
-      Bk_mRowH(:)=mRowH(:)
-      Bk_nRowH=nRowH
       Bk_NmIter=NmIter
       Bk_iter=iter
       Bk_Lngth=Lngth
@@ -319,7 +323,6 @@
       Bk_lSup=lSup
       Bk_lOld=lOld
       Bk_CurviLinear=CurviLinear
-      Bk_lRowH=lRowH
       Bk_HSet=HSet
       Bk_BSet=BSet
       Bk_lNmHss=lNmHss
@@ -582,8 +585,6 @@
       iSym(:)=Bk_iSym(:)
       iRef=Bk_iRef
       nQQ=Bk_nQQ
-      mRowH(:)=Bk_mRowH(:)
-      nRowH=Bk_nRowH
       NmIter=Bk_NmIter
       iter=Bk_iter
       Lngth=Bk_Lngth
@@ -613,7 +614,6 @@
       lSup=Bk_lSup
       lOld=Bk_lOld
       CurviLinear=Bk_CurviLinear
-      lRowH=Bk_lRowH
       HSet=Bk_HSet
       BSet=Bk_BSet
       lNmHss=Bk_lNmHss
@@ -939,6 +939,14 @@
          Call mma_deallocate(Bk_Lbl)
       Else
          If (Allocated(Lbl)) Call mma_deallocate(Lbl)
+      End If
+      If (Allocated(Bk_mRowH)) Then
+         If (Allocated(mRowH)) Call mma_deallocate(mRowH)
+         Call mma_allocate(mRowH,SIZE(Bk_mRowH),Label='mRowH')
+         mRowH(:) = Bk_mRowH(:)
+         Call mma_deallocate(Bk_mRowH)
+      Else
+         If (Allocated(mRowH)) Call mma_deallocate(mRowH)
       End If
 *
       End Subroutine Print_Mode_Components

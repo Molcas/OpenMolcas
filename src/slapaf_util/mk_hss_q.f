@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Mk_Hss_Q()
-      use Slapaf_Info, only: Cx, Coor, DipM, qInt, dqInt, BMx
+      use Slapaf_Info, only: Cx, Coor, DipM, qInt, dqInt, BMx, mRowH
       use Slapaf_Parameters, only: BSet, HSet
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
@@ -21,12 +21,12 @@
 #ifdef _DEBUGPRINT_
       Call RecPrt('Mk_Hss_Q: DipM',' ',DipM,SIZE(DipM,1),SIZE(DipM,2))
 #endif
-      If ((lNmHss.or.lRowH).and.iter.eq.NmIter) Then
+      If ((lNmHss.or.Allocated(mRowH)).and.iter.eq.NmIter) Then
          Call Put_dArray('Unique Coordinates',Cx,3*nsAtom)
          Call Put_Coord_New(Cx,nsAtom)
-         If (lRowH) Then
+         If (Allocated(mRowH)) Then
             If (BSet.and.HSet) Call Hss_Q()
-            Call RowHessian(NmIter,mInt,nRowH,mRowH,Delta/2.5d0)
+            Call RowHessian(NmIter,mInt,Delta/2.5d0)
          Else
             Call FormNumHess(iter,mInt,Delta,Stop,nsAtom,Cubic,iNeg,
      &                       DipM,mTROld,UserT,
