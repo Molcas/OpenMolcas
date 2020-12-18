@@ -44,7 +44,7 @@
 *---  Write information of this iteration to the RLXITR file
 *
       Call Dmp_Slapaf(Stop,Just_Frequencies,Energy(1),iter,MaxItr,
-     &                mTROld,lOld_Implicit,nsAtom)
+     &                mTROld,lOld_Implicit,SIZE(Coor,2))
 *
       SuperName=Get_Supername()
       If (SuperName.ne.'numerical_gradient') Then
@@ -82,16 +82,17 @@
          Call Get_dArray('Pseudo Coordinates',Cx_p,3*nsAtom_p)
       End If
 *
-      Call mma_Allocate(CC,3,nIrrep*(nsAtom+nsAtom_p),Label='CC')
+      Call mma_Allocate(CC,3,nIrrep*(SIZE(Coor,2)+nsAtom_p),Label='CC')
       nTemp = 0
-      Call mma_Allocate(LblTMP,nIrrep*(nsAtom+nsAtom_p),Label='LblTMP')
-      Do isAtom = 1, nsAtom + nsAtom_p
-         If (isAtom.le.nsAtom) Then
+      Call mma_Allocate(LblTMP,nIrrep*(SIZE(Coor,2)+nsAtom_p),
+     &                  Label='LblTMP')
+      Do isAtom = 1, SIZE(Coor,2) + nsAtom_p
+         If (isAtom.le.SIZE(Coor,2)) Then
             x1 = Coor(1,isAtom)
             y1 = Coor(2,isAtom)
             z1 = Coor(3,isAtom)
          Else
-            jsAtom = isAtom - nsAtom
+            jsAtom = isAtom - SIZE(Coor,2)
             x1 = Cx_p(1,jsAtom)
             y1 = Cx_p(2,jsAtom)
             z1 = Cx_p(3,jsAtom)
@@ -113,15 +114,15 @@
                If (r.eq.Zero) Go To 6001
             End Do
             nTemp = nTemp + 1
-            If (nTemp.gt.nIrrep*(nsAtom+nsAtom_p)) Then
+            If (nTemp.gt.nIrrep*(SIZE(Coor,2)+nsAtom_p)) Then
                Call WarningMessage(2,'Error in DstInf')
-               Write (6,*) 'nTemp.gt.nIrrep*nsAtom'
+               Write (6,*) 'nTemp.gt.nIrrep*SIZE(Coor,2)'
                Call Abend()
             End If
             CC(1,nTemp) = x2
             CC(2,nTemp) = y2
             CC(3,nTemp) = z2
-            If (isAtom.le.nsAtom) Then
+            If (isAtom.le.SIZE(Coor,2)) Then
                LblTMP(nTemp)=AtomLbl(isAtom)
             Else
                LblTMP(nTemp)='PC'
@@ -140,17 +141,17 @@
      &               //' printed in the head of the output.'
          Call OutCoor(
      &    '* Nuclear coordinates of the final structure / Bohr     *',
-     &    AtomLbl,nsAtom,Coor,3,nsAtom,.False.)
+     &    AtomLbl,SIZE(Coor,2),Coor,3,SIZE(Coor,2),.False.)
          Call OutCoor(
      &    '* Nuclear coordinates of the final structure / Angstrom *',
-     &    AtomLbl,nsAtom,Coor,3,nsAtom,.True.)
+     &    AtomLbl,SIZE(Coor,2),Coor,3,SIZE(Coor,2),.True.)
       Else If (Do_PrintCoords) Then
          Call OutCoor(
      &    '* Nuclear coordinates for the next iteration / Bohr     *',
-     &    AtomLbl,nsAtom,Coor,3,nsAtom,.False.)
+     &    AtomLbl,SIZE(Coor,2),Coor,3,SIZE(Coor,2),.False.)
          Call OutCoor(
      &    '* Nuclear coordinates for the next iteration / Angstrom *',
-     &    AtomLbl,nsAtom,Coor,3,nsAtom,.True.)
+     &    AtomLbl,SIZE(Coor,2),Coor,3,SIZE(Coor,2),.True.)
       End If
 *
       If (nsAtom_p.gt.0) Then
@@ -166,7 +167,7 @@
 *
       IF (do_printcoords) THEN
          Call Get_iScalar('N ZMAT',N_ZMAT)
-         If (N_ZMAT.GT.0) Call OutZMAT(nsAtom,Coor,N_ZMAT)
+         If (N_ZMAT.GT.0) Call OutZMAT(SIZE(Coor,2),Coor,N_ZMAT)
 *
          IF (do_fullprintcoords) THEN
            If (nTemp.ge.2)
@@ -189,7 +190,7 @@
 *                                                                      *
 *---  Write the new cartesian symmetry coordinates on GEONEW
 *
-      Call Put_Coord_New(Cx(1,1,iter+1),nsAtom)
+      Call Put_Coord_New(Cx(1,1,iter+1),SIZE(Coor,2))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -199,7 +200,7 @@
       Call f_Inquire('RUNFILE2',Found)
       If (Found) Then
          Call NameRun('RUNFILE2')
-         Call Put_Coord_New(Cx(1,1,iter+1),nsAtom)
+         Call Put_Coord_New(Cx(1,1,iter+1),SIZE(Coor,2))
          Call NameRun('RUNFILE')
       End If
 *
@@ -233,28 +234,28 @@
 *
        If (iAnd(iOptC,128).ne.128 .and. Stop ) Then
 *
-           Call mma_allocate(RV,3,nsAtom,Label='RV')
-           Call dcopy_(3*nsAtom,MF,1,RV,1)
-           Do i=1,nsAtom
+           Call mma_allocate(RV,3,SIZE(Coor,2),Label='RV')
+           Call dcopy_(3*SIZE(Coor,2),MF,1,RV,1)
+           Do i=1,SIZE(Coor,2)
              xWeight=Weights(i)
              RV(:,i) = RV(:,i)/xWeight
            End Do
            Call OutCoor('* The Cartesian Reaction vector'//
      &                  '                         *',
-     &                  AtomLbl,nsAtom,RV,3,nsAtom,.True.)
+     &                  AtomLbl,SIZE(Coor,2),RV,3,SIZE(Coor,2),.True.)
 
            Call f_Inquire('RUNREAC',Found)
            If (Found) Then
               Call NameRun('RUNREAC')
-              Call Put_dArray('Reaction Vector',RV,3*nsAtom)
+              Call Put_dArray('Reaction Vector',RV,3*SIZE(Coor,2))
            End If
            Call f_Inquire('RUNPROD',Found)
            If (Found) Then
               Call NameRun('RUNPROD')
-              Call Put_dArray('Reaction Vector',RV,3*nsAtom)
+              Call Put_dArray('Reaction Vector',RV,3*SIZE(Coor,2))
            End If
            Call NameRun('RUNFILE')
-           Call Put_dArray('Reaction Vector',RV,3*nsAtom)
+           Call Put_dArray('Reaction Vector',RV,3*SIZE(Coor,2))
            Call mma_deallocate(RV)
            iDo_dDipM=0
            Call GF_on_the_fly(iDo_dDipM)

@@ -29,6 +29,7 @@
       Subroutine Chkpnt_open()
 #ifdef _HDF5_
       use Symmetry_Info, only: nIrrep
+      use Slapaf_Info, only: Coor
       use Slapaf_Parameters, only: IRC
 #  include "info_slapaf.fh"
       Character(Len=3) :: level
@@ -53,7 +54,7 @@
         Call mh5_fetch_attr(chkpnt_id, 'NSYM', tmp)
         If (tmp.ne.nIrrep) create = .True.
         Call mh5_fetch_attr(chkpnt_id, 'NATOMS_UNIQUE', tmp)
-        If (tmp.ne.nsAtom) create = .True.
+        If (tmp.ne.SIZE(Coor,2)) create = .True.
         Call mh5_fetch_attr(chkpnt_id, 'ITERATIONS', tmp)
         If (IRC.eq.-1) Then
           If (Iter.ge.tmp) create = .True.
@@ -80,7 +81,8 @@
 #ifdef _HDF5_
       use Phase_Info
       use Symmetry_Info, only: nIrrep
-      use Slapaf_Info, only: dMass, nStab, iCoSet, AtomLbl, Smmtrc
+      use Slapaf_Info, only: dMass, nStab, iCoSet, AtomLbl, Smmtrc,
+     &                       Coor
       use Slapaf_Parameters, only: nDimBC
 #  include "info_slapaf.fh"
 #  include "stdalloc.fh"
@@ -99,13 +101,13 @@
       Call mh5_init_attr(chkpnt_id, 'IRREP_LABELS',
      &                   1, [nIrrep], lIrrep, 3)
 
-      Call mh5_init_attr(chkpnt_id, 'NATOMS_UNIQUE', nsAtom)
+      Call mh5_init_attr(chkpnt_id, 'NATOMS_UNIQUE', SIZE(Coor,2))
 
       Call mh5_init_attr(chkpnt_id, 'DOF', nDimBC)
 
 *     atom labels
       dsetid = mh5_create_dset_str(chkpnt_id,
-     &         'CENTER_LABELS', 1, [nsAtom], LENIN)
+     &         'CENTER_LABELS', 1, [SIZE(Coor,2)], LENIN)
       Call mh5_init_attr(dsetid, 'DESCRIPTION',
      &     'Unique center labels arranged as one [NATOMS_UNIQUE] block')
       Call mh5_put_dset(dsetid, AtomLbl)
@@ -113,7 +115,7 @@
 
 *     atom masses
       dsetid = mh5_create_dset_real(chkpnt_id,
-     &         'CENTER_MASSES', 1, [nsAtom])
+     &         'CENTER_MASSES', 1, [SIZE(Coor,2)])
       Call mh5_init_attr(dsetid, 'DESCRIPTION',
      &    'Nuclear masses, stored as array of size [NATOMS_UNIQUE]')
       Call mh5_put_dset(dsetid, dMass)
@@ -121,11 +123,11 @@
 
 *     atom charges
       dsetid = mh5_create_dset_real(chkpnt_id,
-     &         'CENTER_CHARGES', 1, [nsAtom])
+     &         'CENTER_CHARGES', 1, [SIZE(Coor,2)])
       Call mh5_init_attr(dsetid, 'DESCRIPTION',
      &    'Nuclear charges, stored as array of size [NATOMS_UNIQUE]')
-      Call mma_allocate(charges, nsAtom)
-      Call Get_dArray('Nuclear Charge', charges, nsAtom)
+      Call mma_allocate(charges, SIZE(Coor,2))
+      Call Get_dArray('Nuclear Charge', charges, SIZE(Coor,2))
       Call mh5_put_dset(dsetid, charges)
       Call mma_deallocate(charges)
       Call mh5_close_dset(dsetid)
@@ -137,7 +139,7 @@
 *     atom coordinates (new iteration)
 *       use the same dataset name as in run2hdf5
       chkpnt_new = mh5_create_dset_real(chkpnt_id,
-     &             'CENTER_COORDINATES', 2, [3,nsAtom])
+     &             'CENTER_COORDINATES', 2, [3,SIZE(Coor,2)])
       Call mh5_init_attr(chkpnt_new, 'DESCRIPTION',
      &     'Atom coordinates for new iteration, matrix of size '//
      &     '[NATOMS_UNIQUE,3], stored with atom index varying slowest')
@@ -145,14 +147,14 @@
       If (nIrrep.gt.1) Then
 
         mAtom = 0
-        Do i=1,nsAtom
+        Do i=1,SIZE(Coor,2)
           mAtom = mAtom+nIrrep/nStab(i)
         End Do
         Call mma_allocate(desym, 4, mAtom)
         Call mma_allocate(symdof, 2, nDimBC)
         mAtom = 0
         k = 0
-        Do i=1,nsAtom
+        Do i=1,SIZE(Coor,2)
           Do j=0,nIrrep/nStab(i)-1
             mAtom = mAtom+1
             desym(1,mAtom) = i
@@ -206,7 +208,7 @@
 
 *     atom coordinates
       chkpnt_coor = mh5_create_dset_real(chkpnt_id,
-     &              'COORDINATES', 3, [3,nsAtom,0], dyn=.True.)
+     &              'COORDINATES', 3, [3,SIZE(Coor,2),0], dyn=.True.)
       Call mh5_init_attr(chkpnt_coor, 'DESCRIPTION',
      &     'Atom coordinates, matrix of size [ITERATIONS,'//
      &     'NATOMS_UNIQUE,3], stored with iteration varying slowest, '//
@@ -214,7 +216,7 @@
 
 *     Cartesian forces (F = -g)
       chkpnt_force = mh5_create_dset_real(chkpnt_id,
-     &               'FORCES', 3, [3,nsAtom,0], dyn=.True.)
+     &               'FORCES', 3, [3,SIZE(Coor,2),0], dyn=.True.)
       Call mh5_init_attr(chkpnt_force, 'DESCRIPTION',
      &     'Cartesian forces, matrix of size [ITERATIONS,'//
      &     'NATOMS_UNIQUE,3], stored with iteration varying slowest, '//
@@ -269,7 +271,7 @@
         End Do
       End If
 
-      N3 = 3*nsAtom
+      N3 = 3*SIZE(Cx,2)
 *     iterations
       Call mh5_put_attr(chkpnt_iter, Iter_all)
 *     energies
@@ -277,15 +279,15 @@
       Call mh5_put_dset_array_real(chkpnt_ener,
      &     Energy(Iter), [1], [Iter_all-1])
 *     coordinates
-      Call mh5_resize_dset(chkpnt_coor, [3,nsAtom,Iter_all])
+      Call mh5_resize_dset(chkpnt_coor, [3,SIZE(Cx,2),Iter_all])
       Call mh5_put_dset_array_real(chkpnt_coor,
-     &     Cx(1,1,Iter), [3,nsAtom,1], [0,0,Iter_all-1])
+     &     Cx(1,1,Iter), [3,SIZE(Cx,2),1], [0,0,Iter_all-1])
 *     new coordinates
       Call mh5_put_dset(chkpnt_new,Cx(1,1,Iter+1))
 *     forces
-      Call mh5_resize_dset(chkpnt_force, [3,nsAtom,Iter_all])
+      Call mh5_resize_dset(chkpnt_force, [3,SIZE(Cx,2),Iter_all])
       Call mh5_put_dset_array_real(chkpnt_force,
-     &     Gx(1,1,Iter), [3,nsAtom,1], [0,0,Iter_all-1])
+     &     Gx(1,1,Iter), [3,SIZE(Cx,2),1], [0,0,Iter_all-1])
 *     Hessian
       If (Found) Then
         Call mh5_put_dset(chkpnt_hess,Hss_X(1))

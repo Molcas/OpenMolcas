@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine GF_on_the_Fly(iDo_dDipM)
       use Symmetry_Info, only: nIrrep
+      use Slapaf_Info, only:  Coor
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "real.fh"
@@ -25,8 +26,8 @@
 *                                                                      *
       lUt=6
 *
-      nX=3*nsAtom
-      nAtom=nsAtom
+      nX=3*SIZE(Coor,2)
+      nAtom=SIZE(Coor,2)
       nInter=mInt
       mTR=mTROld
       nDoF=nInter+mTR

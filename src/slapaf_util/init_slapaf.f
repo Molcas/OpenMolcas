@@ -156,7 +156,8 @@
 *...  Read number of atoms, charges, coordinates, gradients and
 *     atom labels
 *
-      Call Get_Molecule(nsAtom)
+      Call Get_Molecule()
+      nsAtom=SIZE(Coor,2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -262,10 +263,10 @@ C           NADC= .False. ! for debugging
 *                                                                      *
 *---  Compute the number of total symmetric displacements
 *
-      Call mma_allocate(jStab ,[0,7],[1,nsAtom],Label='jStab ')
-      Call mma_allocate(nStab ,      [1,nsAtom],Label='nStab ')
-      Call mma_allocate(iCoSet,[0,7],[1,nsAtom],Label='iCoSet')
-      Call mma_allocate(Smmtrc,3,nsAtom,Label='Smmtrc')
+      Call mma_allocate(jStab ,[0,7],[1,SIZE(Coor,2)],Label='jStab ')
+      Call mma_allocate(nStab ,      [1,SIZE(Coor,2)],Label='nStab ')
+      Call mma_allocate(iCoSet,[0,7],[1,SIZE(Coor,2)],Label='iCoSet')
+      Call mma_allocate(Smmtrc,3,SIZE(Coor,2),Label='Smmtrc')
       jStab(:,:)=0
       nStab(:)=0
       iCoSet(:,:)=0
@@ -273,7 +274,7 @@ C           NADC= .False. ! for debugging
 
       nDimbc = 0
 *...  Loop over the unique atoms
-      Do 610 isAtom = 1, nsAtom
+      Do 610 isAtom = 1, SIZE(Coor,2)
 *...     Find character of center
          iChxyz=0
          Do i = 1, 3
@@ -293,7 +294,7 @@ C           NADC= .False. ! for debugging
          End Do
          nStab(isAtom)=nStb
 *...     Find the coset representatives
-         iCoSet(0,nsAtom) = 0      ! Put in the unit operator
+         iCoSet(0,SIZE(Coor,2)) = 0      ! Put in the unit operator
          nCoSet = 1
          Do iIrrep = 1, nIrrep-1
             itest=iAnd(iChxyz,iOper(iIrrep))
@@ -342,12 +343,12 @@ C           NADC= .False. ! for debugging
 *                                                                      *
 *     Transform charges to masses (C=12)
 *
-      Call mma_allocate(dMass,nsAtom,Label='dMass')
-      Call mma_allocate(xMass,nsAtom,Label='xMass')
-      Call Get_Mass(xMass,nsAtom)
-*     Call RecPrt(' Charges',' ',Q_nuclear,nsAtom,1)
-      Call mma_allocate(ANr,nsAtom,Label='ANr')
-      Do isAtom = 1, nsAtom
+      Call mma_allocate(dMass,SIZE(Coor,2),Label='dMass')
+      Call mma_allocate(xMass,SIZE(Coor,2),Label='xMass')
+      Call Get_Mass(xMass,SIZE(Coor,2))
+*     Call RecPrt(' Charges',' ',Q_nuclear,SIZE(Coor,2),1)
+      Call mma_allocate(ANr,SIZE(Coor,2),Label='ANr')
+      Do isAtom = 1, SIZE(Coor,2)
          ind = Int(Q_nuclear(isAtom))
          If (ind.le.0) Then
             dMass(isAtom) = 1.0D-10
@@ -363,8 +364,8 @@ C           NADC= .False. ! for debugging
 *-----Compute the multiplicities of the cartesian coordinates.
 *
       mTtAtm=0
-      Call mma_Allocate(Degen,3,nsAtom,Label='Degen')
-      Do isAtom = 1, nsAtom
+      Call mma_Allocate(Degen,3,SIZE(Coor,2),Label='Degen')
+      Do isAtom = 1, SIZE(Coor,2)
          mTtAtm=mTtAtm+iDeg(Coor(:,isAtom))
          tmp = DBLE(iDeg(Coor(:,isAtom)))
          Do i = 1, 3
@@ -372,7 +373,7 @@ C           NADC= .False. ! for debugging
          End Do
       End Do
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Degen',' ',Degen,3,nsAtom)
+      Call RecPrt('Degen',' ',Degen,3,SIZE(Coor,2))
 #endif
 *                                                                      *
 ************************************************************************
@@ -390,14 +391,14 @@ C           NADC= .False. ! for debugging
 *
       If (jPrint.ge.99) Call
      &     Prlist('Symmetry Distinct Nuclear Coordinates / Bohr',
-     &                   AtomLbl,nsAtom,Coor,3,nsAtom)
+     &                   AtomLbl,SIZE(Coor,2),Coor,3,SIZE(Coor,2))
       LWrite = .False.
       If (jPrint.ge.99) lWrite=.True.
-      Call CofMss(Coor,nsAtom,LWrite,cMass,iSym)
+      Call CofMss(Coor,SIZE(Coor,2),LWrite,cMass,iSym)
       LWrite = .False.
       If (jPrint.ge.99) Call
      &     PrList('Symmetry Distinct Nuclear Forces / au',
-     &                   AtomLbl,nsAtom,Grd,3,nsAtom)
+     &                   AtomLbl,SIZE(Coor,2),Grd,3,SIZE(Coor,2))
 *                                                                      *
 ************************************************************************
 *                                                                      *

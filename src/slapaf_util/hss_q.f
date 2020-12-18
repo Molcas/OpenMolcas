@@ -16,11 +16,11 @@
 *
       If (lOld) Return
 *
-      Call Hss_q_(nsAtom,nQQ,dqInt(:,iRef))
+      Call Hss_q_(nQQ,dqInt(:,iRef))
 *
       Return
       End
-      Subroutine Hss_q_(nAtom,nQQ,Grad)
+      Subroutine Hss_q_(nQQ,Grad)
       use Slapaf_Info, only: Degen, Smmtrc
       use Slapaf_Parameters, only: Curvilinear, nDimBC, Analytic_Hessian
       Implicit Real*8 (a-h,o-z)
@@ -33,6 +33,10 @@
 ************************************************************************
 *                                                                      *
 *#define _DEBUGPRINT_
+*                                                                      *
+************************************************************************
+*                                                                      *
+      nAtom=SIZE(Degen,2)
 *                                                                      *
 ************************************************************************
 *                                                                      *

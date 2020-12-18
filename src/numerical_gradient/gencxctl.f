@@ -69,7 +69,7 @@
 *
       nWndw=iter
       iRef=0
-      Call BMtrx(nsAtom,mInt,
+      Call BMtrx(SIZE(Coor,2),mInt,
      &           Coor,
      &           iter,
      &           mTtAtm,
@@ -79,7 +79,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Put_dArray('BMtrx',BMx,3*nsAtom*mInt)
+      Call Put_dArray('BMtrx',BMx,SIZE(Coor)*mInt)
       Call Put_iScalar('No of Internal coordinates',mInt)
 *
 *     Too many constraints?
@@ -106,11 +106,11 @@
 *     Make lists for all Cartesian coordinates and the
 *     corresponding displacement in internal coordinates
 *
-      Call mma_allocate(CList,3*nsAtom, 2*mInt,Label='CList')
+      Call mma_allocate(CList,SIZE(Coor), 2*mInt,Label='CList')
       CList(:,:)=Zero
       Call mma_allocate(DList,mInt,Label='DList')
       DList(:)=Zero
-      Call Allocate_Work(ip_RefCoor,3*nsAtom)
+      Call Allocate_Work(ip_RefCoor,SIZE(Coor))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -141,7 +141,7 @@
 *     Take a copy of the current structure - the reference
 *     coordinates.
 *
-      call dcopy_(3*nsAtom,Coor,1,Work(ip_RefCoor),1)
+      call dcopy_(SIZE(Coor),Coor,1,Work(ip_RefCoor),1)
 *
 *     Loop over all displacements which are in the subspace in
 *     which we like to minimize the energy. Hence, this will
@@ -158,7 +158,7 @@
 *
 *        Get a virgin copy of the reference structure
 *
-         call dcopy_(3*nsAtom,Work(ip_RefCoor),1,Coor,1)
+         call dcopy_(SIZE(Coor),Work(ip_RefCoor),1,Coor,1)
 *
 *        Compute the effective index where to find the data
 *
@@ -211,24 +211,24 @@
          Error=.False.
          nWndw=Iter
          iRef=0
-         Call NewCar(Iter,nsAtom,mInt,Coor,iSym,mTtAtm,iRef,Error)
+         Call NewCar(Iter,SIZE(Coor,2),mInt,Coor,iSym,mTtAtm,iRef,Error)
 *
 *        Move the new Cartesian coordinate to the list.
 *
-         call dcopy_(3*nsAtom,Coor,1,CList(:,iDisp),1)
+         call dcopy_(SIZE(Coor),Coor,1,CList(:,iDisp),1)
       End Do
 *
       Call mma_deallocate(du)
       Call mma_deallocate(TMx)
 *
 *     Call RecPrt('DList',' ',DList,1,mInt)
-*     Call RecPrt('CList',' ',CList,3*nsAtom,2*mInt)
+*     Call RecPrt('CList',' ',CList,SIZE(Coor),2*mInt)
 *
 *     Save the lists on the runfile. To be used in the
 *     numerical gradient module.
 *
-      Call Put_dArray('DList',DList,mInt)
-      Call Put_dArray('CList',CList,2*mInt*3*nsAtom)
+      Call Put_dArray('DList',DList,SIZE(DList))
+      Call Put_dArray('CList',CList,SIZE(CList))
 *
 *     Deallocate temporary memory.
 *

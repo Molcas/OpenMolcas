@@ -45,7 +45,7 @@
 *
 *     Get some basic information from the runfile.
 *
-      Call Get_Slapaf(iter, MaxItr, mTROld, lOld_Implicit,nsAtom,
+      Call Get_Slapaf(iter, MaxItr, mTROld, lOld_Implicit,SIZE(Coor,2),
      &                mLambda)
 *                                                                      *
 ************************************************************************
@@ -82,7 +82,7 @@
 
       If (iter.gt.1) Then
         Temp=Zero
-        Do i = 1, nsAtom
+        Do i = 1, SIZE(Coor,2)
            Do j = 1, 3
               Temp=Max(Temp,Abs(Cx(j,i,iter)-Cx(j,i,iter-1)))
            End Do
@@ -102,17 +102,17 @@
 * In case of a QM/MM geometry optimization, all the old MM gradients are
 * replaced by the new one (both gradients are stored on the Runfile).
 *
-      Call Qpg_dArray('MM Grad',lMMGrd,6*nsAtom)
+      Call Qpg_dArray('MM Grad',lMMGrd,6*SIZE(Coor,2))
       lMMGrd = .False.
       If (lMMGrd) Then
-         Call mma_allocate(MMGrd,3*nsAtom,2,Label='MMGrd')
-         Call Get_dArray('MM Grad',MMGrd,3*nsAtom*2)
+         Call mma_allocate(MMGrd,3*SIZE(Coor,2),2,Label='MMGrd')
+         Call Get_dArray('MM Grad',MMGrd,3*SIZE(Coor,2)*2)
          Do iN = 1, iter-1
             Write(6,*) 'Grad at iteration :',iN
-            Call RecPrt('Old:',' ',Gx(:,:,iN),3,nsAtom)
-            Call DaXpY_(3*nsAtom,-One,MMGrd(:,1),1,Gx(:,:,iN),  1)
-            Call DaXpY_(3*nsAtom, One,MMGrd(:,2),1,Gx(:,:,iN),  1)
-            Call RecPrt('New:',' ',Gx(1,1,iN),3,nsAtom)
+            Call RecPrt('Old:',' ',Gx(:,:,iN),3,SIZE(Coor,2))
+            Call DaXpY_(3*SIZE(Coor,2),-One,MMGrd(:,1),1,Gx(:,:,iN),  1)
+            Call DaXpY_(3*SIZE(Coor,2), One,MMGrd(:,2),1,Gx(:,:,iN),  1)
+            Call RecPrt('New:',' ',Gx(1,1,iN),3,SIZE(Coor,2))
          End Do
          Call mma_deallocate(MMGrd)
       End If
@@ -129,28 +129,28 @@
          Call qpg_dArray('Ref_Geom',Found,nData)
          If (Found) Then
             If (.Not.Allocated(RefGeo)) Then
-               Call mma_allocate(RefGeo,3,nsAtom,Label='RefGeo')
+               Call mma_allocate(RefGeo,3,SIZE(Coor,2),Label='RefGeo')
             End If
-            Call Get_dArray('Ref_Geom',RefGeo,3*nsAtom)
+            Call Get_dArray('Ref_Geom',RefGeo,3*SIZE(Coor,2))
          Else
 *
 *           Not defined: default reference structure to the starting
 *           structure.
 *
             If (.Not.Allocated(RefGeo)) Then
-               Call mma_allocate(RefGeo,3,nsAtom,Label='RefGeo')
+               Call mma_allocate(RefGeo,3,SIZE(Coor,2),Label='RefGeo')
             End If
             RefGeo(:,:)=Cx(:,:,1)
-            Call Put_dArray('Ref_Geom',RefGeo,3*nsAtom)
+            Call Put_dArray('Ref_Geom',RefGeo,3*SIZE(Coor,2))
          End If
       Else
 *
 *        Pick up the reference structure.
 *
          If (.Not.Allocated(RefGeo)) Then
-            Call mma_allocate(RefGeo,3,nsAtom,Label='RefGeo')
+            Call mma_allocate(RefGeo,3,SIZE(Coor,2),Label='RefGeo')
          End If
-         Call Get_dArray('Ref_Geom',RefGeo,3*nsAtom)
+         Call Get_dArray('Ref_Geom',RefGeo,3*SIZE(Coor,2))
       End If
 *
 *     Align the reference structure to the current one, otherwise
@@ -158,8 +158,8 @@
 *
 *     (disabled for the moment, moving the reference affects the
 *      computation of some vectors for MEP)
-C     If (iter.gt.1) Call Align(RefGeo,Coor,nsAtom)
-C     Call RecPrt('Ref_Geom',' ',RefGeo,3,nsAtom)
+C     If (iter.gt.1) Call Align(RefGeo,Coor,SIZE(Coor,2))
+C     Call RecPrt('Ref_Geom',' ',RefGeo,3,SIZE(Coor,2))
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -292,7 +292,7 @@ C              Write (6,*) 'iRoot=',iRoot
             End If
             Energy0(iter)=E0
 *
-            nGrad=3*nsAtom
+            nGrad=3*SIZE(Coor,2)
             Call Get_Grad(Gx0(1,1,iter),nGrad)
             Gx0(:,:,iter) = -Gx0(:,:,iter)
 *

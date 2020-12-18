@@ -11,7 +11,7 @@
 * Copyright (C) 2015, Ignacio Fdez. Galvan                             *
 ************************************************************************
       Subroutine TMatrix(TMx)
-      use Slapaf_Info, only: nStab
+      use Slapaf_Info, only: nStab, Coor
       use Slapaf_Parameters, only: iRow_c
       Implicit None
 ************************************************************************
@@ -35,7 +35,7 @@
 *     Get the NG constraint vectors
 *
       Call Merge_Constraints('UDC.NG','','UDC',nLambda,iRow_c)
-      Call Fix_UDC(iRow_c,nLambda,nsAtom,nStab,.True.)
+      Call Fix_UDC(iRow_c,nLambda,SIZE(Coor,2),nStab,.True.)
       Call mma_Allocate(C2,mInt,nLambda)
       Call get_drdq(C2,Lambda2)
 *

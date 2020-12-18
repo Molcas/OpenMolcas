@@ -21,6 +21,7 @@
 *             Uppsala University, Sweden                               *
 *             October 2010                                             *
 ************************************************************************
+      use Slapaf_Info, only: Coor
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "stdalloc.fh"
@@ -53,7 +54,7 @@
          Call Get_dArray('BMtrx',BOld,nX*nInter)
       End If
 *
-      Call Get_H_(nX,BOld,nDoF,nInter,H,Tmp2,F,nsAtom)
+      Call Get_H_(nX,BOld,nDoF,nInter,H,Tmp2,F,SIZE(Coor,2))
 *
       Call mma_deallocate(BOld)
       Call mma_deallocate(H)

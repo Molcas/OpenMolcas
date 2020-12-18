@@ -26,7 +26,7 @@
 #include "nadc.fh"
 #include "real.fh"
 *
-      n=3*nsAtom
+      n=3*SIZE(Gx,2)
       Call mma_Allocate(g,n)
       Call mma_Allocate(h,n)
 *
@@ -151,18 +151,18 @@
       Write(Lu,*)
       Write(Lu,*) 'Local linear representation:'
       Call mma_Allocate(tmp,n)
-      Do i=1,nsAtom
-        tmp(0*nsAtom+i) = g((i-1)*3+1)
-        tmp(1*nsAtom+i) = g((i-1)*3+2)
-        tmp(2*nsAtom+i) = g((i-1)*3+3)
+      Do i=1,SIZE(Gx,2)
+        tmp(0*SIZE(Gx,2)+i) = g((i-1)*3+1)
+        tmp(1*SIZE(Gx,2)+i) = g((i-1)*3+2)
+        tmp(2*SIZE(Gx,2)+i) = g((i-1)*3+3)
       End Do
-      Call RecPrt('Local x','',tmp,nsAtom,3)
-      Do i=1,nsAtom
-        tmp(0*nsAtom+i) = h((i-1)*3+1)
-        tmp(1*nsAtom+i) = h((i-1)*3+2)
-        tmp(2*nsAtom+i) = h((i-1)*3+3)
+      Call RecPrt('Local x','',tmp,SIZE(Gx,2),3)
+      Do i=1,SIZE(Gx,2)
+        tmp(0*SIZE(Gx,2)+i) = h((i-1)*3+1)
+        tmp(1*SIZE(Gx,2)+i) = h((i-1)*3+2)
+        tmp(2*SIZE(Gx,2)+i) = h((i-1)*3+3)
       End Do
-      Call RecPrt('Local y','',tmp,nsAtom,3)
+      Call RecPrt('Local y','',tmp,SIZE(Gx,2),3)
       Write(Lu,*)
       Write(Lu,110) Energy(iter),sg,sh
       Write(Lu,120) Two*dgh,deltagh

@@ -19,6 +19,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      use Slapaf_Info, only: Coor
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "stdalloc.fh"
@@ -26,7 +27,7 @@
       Logical Found
       Real*8, Allocatable:: Tmp2(:), BOld(:), TROld(:)
 *
-      nX=3*nsAtom
+      nX=3*SIZE(Coor,2)
 *
       Call mma_allocate(Tmp2,nX**2,Label='Tmp2')
       Call mma_allocate(BOld,nX*nInter,Label='BOld')
@@ -49,7 +50,7 @@
       End If
 *
       Call Get_dDipM_(nX,BOld,TROld,nDoF,nInter,Tmp2,dDipM,mTROld,
-     &                nsAtom,DipM)
+     &                SIZE(Coor,2),DipM)
 *
       Call mma_deallocate(TROld)
       Call mma_deallocate(BOld)

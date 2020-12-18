@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Get_Molecule(nsAtom)
+      Subroutine Get_Molecule()
       use Slapaf_Info, only: Q_nuclear, Coor, Grd, Weights, AtomLbl
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"

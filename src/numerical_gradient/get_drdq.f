@@ -35,7 +35,7 @@
      &                      dBMx(:)
       Integer, Allocatable:: iFlip(:)
 *
-      n3=3*nsAtom
+      n3=SIZE(Degen)
 *
       If (nLambda.ne.0) Then
          nBV=iRow_c-nLambda-1
@@ -52,7 +52,8 @@
          Call mma_allocate(dBMx,nLambda*n3**2,Label='dBMx')
          Call mma_allocate(iFlip,nBV,Label='iFlip')
 *
-         Call DefInt2(BVc,dBVc,nBV,BMx_t,nLambda,nsAtom,iRow_c,
+         Call DefInt2(BVc,dBVc,nBV,BMx_t,nLambda,
+     &                SIZE(Degen,2),iRow_c,
      &                Value,cInt,cInt0,Lbl,lWrite,
      &                Mult,dBMx,Value0,Iter,iFlip)
 
