@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Reset_ThrGrd(nIter,mTtAtm,ThrGrd)
       use Slapaf_Info, only: Cx
-      use Slapaf_Parameters, only: nDimBC, rHidden
+      use Slapaf_Parameters, only: nDimBC
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -30,8 +30,7 @@
         Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
         Integer nBonds, nMax
         End Subroutine Box
-        Subroutine Hidden(mTtAtm,Coor,AN,nHidden)
-        Integer mTtAtm
+        Subroutine Hidden(Coor,AN,nHidden)
         Real*8, Allocatable:: Coor(:,:)
         Integer, Allocatable:: AN(:)
         Integer nHidden
@@ -73,8 +72,7 @@
 *
 *---- Are there some hidden frozen atoms ?
 *
-      nHidden = 0
-      If (rHidden.ge.Two) Call Hidden(mTtAtm,Coor,AN,nHidden)
+      Call Hidden(Coor,AN,nHidden)
 *
 *-----Generate bond list
 *

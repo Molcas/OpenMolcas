@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Hidden(mTtAtm,Coor,AN,nHidden)
+      Subroutine Hidden(Coor,AN,nHidden)
+      use Slapaf_Parameters, only: rHidden
       Implicit Real*8 (a-h,o-z)
 *
 *  Add to the Grand atom list some hidden atoms, coming e.g.
@@ -32,8 +33,10 @@
       Real*8, Allocatable:: h_xyz(:,:)
       Integer, Allocatable:: h_AN(:)
 *
+      nHidden = 0
+      If (rHidden.lt.Two) Return
       iPL = iPrintLevel(-1)
-*     iPL=99
+      mTtAtm = SIZE(Coor,2)
 *
 *#define _DEBUGPRINT_
 *

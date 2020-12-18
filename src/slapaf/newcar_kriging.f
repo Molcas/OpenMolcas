@@ -10,20 +10,19 @@
 *                                                                      *
 * Copyright (C) 2019, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      Subroutine NewCar_Kriging(kIter,nAtom,nInter,SaveBMx,RefIter,
-     &                          Error)
+      Subroutine NewCar_Kriging(kIter,nInter,SaveBMx,RefIter,Error)
       use Slapaf_Info, only: Cx, BMx
       use Slapaf_Parameters, only: PrQ, Numerical
       Implicit None
 #include "info_slapaf.fh"
 #include "db.fh"
 #include "stdalloc.fh"
-      Integer :: kIter,nAtom,nInter,RefIter
+      Integer :: kIter,nInter,RefIter
 
       Real*8, Allocatable :: Coor(:,:), BMx_Tmp(:,:)
       Logical :: Numerical_Save,PrQ_Save,Error,SaveBMx
 *
-      Call mma_allocate(Coor,3,nAtom,Label='Coor')
+      Call mma_allocate(Coor,3,SIZE(Cx,2),Label='Coor')
       Coor(:,:) = Cx(:,:,kIter)
 
       Call mma_allocate(BMx_tmp,SIZE(BMx,1),SIZE(BMx,2),Label='BMx_tmp')
@@ -37,7 +36,8 @@
 *
       Force_dB=SaveBMx
 *
-      Call NewCar(kIter,nAtom,nInter,Coor,iSym,mTtAtm,RefIter,Error)
+      Call NewCar(kIter,SIZE(Coor,2),nInter,Coor,iSym,mTtAtm,RefIter,
+     &            Error)
 *
       Numerical=Numerical_Save
       PrQ=PrQ_Save

@@ -56,10 +56,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nsAtom=SIZE(Cx,2)
-*                                                                      *
-************************************************************************
-*                                                                      *
       iRout=153
       iPrint=nPrint(iRout)
 *
@@ -142,7 +138,7 @@
 *     Let the accepted variance be set as a fraction of the
 *     largest component in the gradient.
       tmp=0.0D0
-      Do i = 1, nsAtom
+      Do i = 1, SIZE(Gx,2)
          Do j = 1, 3
             tmp = Max(tmp,Abs(Gx(j,i,iter)))
          End Do
@@ -160,7 +156,7 @@
       tmp=99.0D0
       Do j = 1, iter
          tmp0=0.0D0
-         Do i = 1, nsAtom
+         Do i = 1, SIZE(Gx,2)
             Do k = 1, 3
                tmp0 = Max(tmp0,Abs(Gx(k,i,j)))
             End Do
@@ -209,7 +205,6 @@
      &                   iterAI,nInter,qInt,Shift,
      &                   Beta_,Beta_Disp_,
      &                   Step_Trunc,nLambda,
-     &                   nsAtom,
      &                   nWndw_,
      &                   kIter,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
@@ -225,7 +220,7 @@
 *        not totally consistent)
 *
          Error=(iterK.ge.1)
-         Call NewCar_Kriging(iterAI,nsAtom,nInter,.True.,iter,Error)
+         Call NewCar_Kriging(iterAI,nInter,.True.,iter,Error)
 #ifdef _DEBUGPRINT_
          Call RecPrt('New Coord (after NewCar)','',qInt,nInter,iterAI+1)
 #endif
@@ -347,9 +342,10 @@
          If (Step_Trunc.eq.'.') Step_Trunc=' '
 *        Check total displacement from initial structure
          If (Force_RS) Then
-            Call mma_allocate(Temp,3,nsAtom,1,Label='Temp')
+            Call mma_allocate(Temp,3,SIZE(Cx,2),1,Label='Temp')
             Temp(:,:,1)=Cx(:,:,iterAI)-Cx(:,:,iter)
-            RMS =Sqrt(DDot_(3*nsAtom,Temp,1,Temp,1)/DBLE(3*nsAtom))
+            RMS = Sqrt(DDot_(3*SIZE(Cx,2),Temp,1,Temp,1)
+     &          / DBLE(3*SIZE(Cx,2)) )
             If (RMS.gt.(Three*Beta_)) Step_trunc='*'
             Call mma_deAllocate(Temp)
          End If
@@ -420,7 +416,7 @@
          If ((OS_Disp.gt.E_Disp).And.(OS_Disp.lt.Beta_Disp_)) Then
             Call dAXpY_(nInter,OS_Factor,Step_k(1,2),1,
      &                                   Shift(1,iterAI-1),1)
-            Call NewCar_Kriging(iterAI-1,nsAtom,nInter,.True.,iter)
+            Call NewCar_Kriging(iterAI-1,nInter,.True.,iter)
             Energy(iterAI)=OS_Energy
             If (Max_OS.gt.0) Then
                If (UpMeth(4:4).ne.' ') UpMeth(5:6)='**'

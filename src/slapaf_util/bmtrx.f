@@ -13,15 +13,14 @@
      &                       Lbl
       Use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC,
      &                             User_Def, MaxItr, BSet, HSet,
-     &                             rHidden, lOld, Numerical
+     &                             lOld, Numerical
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 Coor(3,nsAtom)
-      External Get_SuperName
-      Character(LEN=100) Get_SuperName
+      Character(LEN=100), External:: Get_SuperName
       Integer, Allocatable:: TabB(:,:), TabA(:,:,:), TabAI(:,:), AN(:)
       Real*8, Allocatable:: TR(:), TRNew(:), TROld(:), Scr2(:),
      &                      Vec(:,:), Coor2(:,:), EVal(:), Hss_X(:)
@@ -36,8 +35,7 @@
         Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
         Integer nBonds, nMax
         End Subroutine Box
-        Subroutine Hidden(mTtAtm,Coor,AN,nHidden)
-        Integer mTtAtm
+        Subroutine Hidden(Coor,AN,nHidden)
         Real*8, Allocatable:: Coor(:,:)
         Integer, Allocatable:: AN(:)
         Integer nHidden
@@ -115,8 +113,7 @@
 *
 *---- Are there some hidden frozen atoms ?
 *
-      nHidden = 0
-      If (rHidden.ge.Two) Call Hidden(mTtAtm,Coor2,AN,nHidden)
+      Call Hidden(Coor2,AN,nHidden)
 *
 *-----Generate bond list
 *

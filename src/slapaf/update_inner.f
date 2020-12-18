@@ -14,7 +14,7 @@
      &                     kIter,nInter,qInt,Shift,
      &                     Beta,Beta_Disp,
      &                     Step_Trunc,
-     &                     nLambda,nsAtom,
+     &                     nLambda,
      &                     nWndw,
      &                     mIter,
      &                     Kriging_Hessian,qBeta,iOpt_RS,
@@ -77,6 +77,13 @@
 #ifdef _NEW_CODE_
       Real*8, Allocatable:: QC(:,:,:)
 #endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+      nsAtom=SIZE(Degen,2)
+*                                                                      *
+************************************************************************
+*                                                                      *
       Lu=6
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_

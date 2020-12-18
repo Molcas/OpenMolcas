@@ -22,7 +22,6 @@
 *      nInter         : total number of internal coordinates           *
 *      Beta           : damping factor                                 *
 *      nLambda        : number of contraints                           *
-*      nsAtom         : number of symmetry unique atoms                *
 *                                                                      *
 *    OutPut:                                                           *
 *      Step_Trunc     : character label to denote truncation type      *
@@ -31,7 +30,7 @@
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
-      use Slapaf_Info, only: Shift, qInt, Coor
+      use Slapaf_Info, only: Shift, qInt
       use Slapaf_Parameters, only: Beta, Beta_disp
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -46,11 +45,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nsAtom=SIZE(Coor,2)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
       iRout=153
       iPrint=nPrint(iRout)
 *
@@ -98,7 +92,7 @@
          Call Update_inner(
      &                   iter_,nInter,qInt,
      &                   Shift,Beta,Beta_Disp,
-     &                   Step_Trunc,nLambda,nsAtom,
+     &                   Step_Trunc,nLambda,
      &                   nWndw,
      &                   kIter,
      &                   Kriging_Hessian,qBeta,iOpt_RS,.True.,iter_,
@@ -133,7 +127,6 @@
      &                iter,nInter,qInt,Shift,
      &                Beta,Beta_Disp,
      &                Step_Trunc,nLambda,
-     &                nsAtom,
      &                nWndw,
      &                kIter,
      &                Kriging_Hessian,qBeta,iOpt_RS,.True.,iter,
