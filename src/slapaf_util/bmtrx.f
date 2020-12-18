@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine BMtrx(nsAtom,nInter,Coor,nIter,mTtAtm,nQQ,iIter,nWndw)
-      Use Slapaf_Info, Only: Cx, ANr, Shift, qInt, KtB, BMx, Smmtrc,
+      Use Slapaf_Info, Only: Cx, Shift, qInt, KtB, BMx, Smmtrc,
      &                       Lbl
       Use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC,
      &                             User_Def, MaxItr, BSet, HSet,

@@ -14,7 +14,7 @@
       Subroutine Update_kriging(
      &                     iter,nInter,
      &                     Step_Trunc,
-     &                     nLambda,nsAtom,
+     &                     nLambda,
      &                     nWndw)
 ************************************************************************
 *                                                                      *
@@ -53,7 +53,13 @@
 #ifdef _OVERSHOOT_
       Real*8, Allocatable:: Step_k(:,:)
 #endif
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
+      nsAtom=SIZE(Cx,2)
+*                                                                      *
+************************************************************************
+*                                                                      *
       iRout=153
       iPrint=nPrint(iRout)
 *

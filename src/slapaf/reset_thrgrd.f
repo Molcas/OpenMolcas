@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Reset_ThrGrd(nsAtom,nIter,mTtAtm,ThrGrd)
-      use Slapaf_Info, only: Cx, ANr
+      Subroutine Reset_ThrGrd(nIter,mTtAtm,ThrGrd)
+      use Slapaf_Info, only: Cx
       use Slapaf_Parameters, only: nDimBC, rHidden
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
@@ -37,6 +37,10 @@
         Integer nHidden
         End Subroutine Hidden
       End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
+      nsAtom=SIZE(Cx,2)
 *                                                                      *
 ************************************************************************
 *                                                                      *

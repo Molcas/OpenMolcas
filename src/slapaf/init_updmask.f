@@ -10,15 +10,18 @@
 *                                                                      *
 * Copyright (C) 2019, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Init_UpdMask(nsAtom, nInter)
+      Subroutine Init_UpdMask(nInter)
       Use NewH_mod
       use Slapaf_Parameters, only: Curvilinear, Redundant
+      use Slapaf_Info, only: Coor
       Implicit None
 #include "stdalloc.fh"
       Integer, Allocatable:: IsMM(:)
       Integer nsAtom, nInter
 *
       Integer iAtom, i, nAtMM
+
+      nsAtom=SIZE(Coor,2)
 *
 *---- If redundant Cartesians and no symmetry, use unit matrix for MM atoms
 *

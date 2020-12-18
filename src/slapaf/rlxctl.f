@@ -73,7 +73,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (lCtoF .AND. PrQ) Call Def_CtoF(.False.,nsAtom,Coor)
+      If (lCtoF .AND. PrQ) Call Def_CtoF(.False.)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -94,7 +94,7 @@
       If (Cubic)  NmIter=2*mInt**2+1 ! Full cubic
 *
       If (lTherm .and. iter.EQ.1) then
-         Call Put_dArray('Initial Coordinates',Coor,3*nsAtom)
+         Call Put_dArray('Initial Coordinates',Coor,SIZE(Coor))
       EndIf
 *
 *---- Fix the definition of internal during numerical differentiation
@@ -109,11 +109,11 @@
 *
       If (Numerical) nWndw=NmIter
       iRef=0
-      Call BMtrx(nsAtom,mInt,Coor,iter,mTtAtm,nQQ,iRef,nWndw)
+      Call BMtrx(SIZE(Coor,2),mInt,Coor,iter,mTtAtm,nQQ,iRef,nWndw)
 *
       nPrint(30) = nPrint(30)-1
 *
-      Call Put_dArray('BMtrx',BMx,3*nsAtom*nQQ)
+      Call Put_dArray('BMtrx',BMx,SIZE(Coor)*nQQ)
       Call Put_iScalar('No of Internal coordinates',nQQ)
 *
 *     Too many constraints?
@@ -132,14 +132,14 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Reset_ThrGrd(nsAtom,Iter,mTtAtm,ThrGrd)
+      Call Reset_ThrGrd(Iter,mTtAtm,ThrGrd)
 *                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *
 *-----Compute the norm of the Cartesian gradient.
 *
-      Call G_Nrm(nsAtom,nQQ,GNrm,iter,dqInt,mIntEff)
+      Call G_Nrm(nQQ,GNrm,iter,dqInt,mIntEff)
       If (nPrint(116).ge.6) Call ListU(Lu,Lbl,dqInt,nQQ,iter)
 *                                                                      *
 ************************************************************************
@@ -198,17 +198,16 @@
          If (Allocated(mRowH).or.lNmHss) kIter = iter - (NmIter-1)
 *define UNIT_MM
 #ifdef UNIT_MM
-         Call Init_UpdMask(nsAtom, nInter)
+         Call Init_UpdMask(nInter)
 #endif
 *
 *        Update geometry
 *
          If (Kriging .and. Iter.ge.nspAI) Then
-            Call Update_Kriging(Iter,nQQ,Step_Trunc,nLambda,nsAtom,
-     &                          nWndw)
+            Call Update_Kriging(Iter,nQQ,Step_Trunc,nLambda,nWndw)
          Else
             Call Update_sl(Iter,NmIter,nQQ,Step_Trunc,
-     &                     nLambda,nsAtom,nWndw,kIter)
+     &                     nLambda,nWndw,kIter)
          End If
 *
 #ifdef UNIT_MM
@@ -223,12 +222,12 @@
 *     (if not already done by Kriging)
 *
       If (Kriging .and. Iter.ge.nspAI) Then
-         Call dCopy_(3*nsAtom,Cx(1,1,Iter+1),1,Coor,1)
+         Coor(:,:) = Cx(:,:,Iter+1)
       Else
          PrQ=.False.
          Error=.False.
          iRef=0
-         Call NewCar(Iter,nsAtom,nQQ,Coor,iSym,mTtAtm,iRef,Error)
+         Call NewCar(Iter,Size(Coor,2),nQQ,Coor,iSym,mTtAtm,iRef,Error)
       End If
 *                                                                      *
 ************************************************************************
@@ -240,8 +239,8 @@
       Do_ESPF = .False.
       Call DecideOnESPF(Do_ESPF)
       If (Do_ESPF) Then
-       Call LA_Morok(nsAtom,Coor,2)
-       call dcopy_(3*nsAtom,Coor,1,Cx(1,1,Iter+1),1)
+       Call LA_Morok(SIZE(Coor,2),Coor,2)
+       Cx(:,:,Iter+1) = Coor(:,:)
       End If
 *                                                                      *
 ************************************************************************
@@ -266,7 +265,7 @@
 *     optimization.
 *
       If ((lNmHss.or.Allocated(mRowH)).and.kIter.eq.1) Then
-         call dcopy_(3*nsAtom,Cx(1,1,1),1,Cx(1,1,iter),1)
+         Cx(:,:,iter) = Cx(:,:,1)
       End If
 *
 *---- Print statistics and check on convergence
@@ -277,7 +276,7 @@
       Numerical=(lNmHss.or.Allocated(mRowH)).and.iter.le.NmIter
       Call Convrg(iter,kIter,nQQ,Stop,iStop,ThrCons,
      &            MxItr,mIntEff,Baker,
-     &            nsAtom,mTtAtm,GoOn,Step_Trunc,
+     &            mTtAtm,GoOn,Step_Trunc,
      &            rMEP,MEP,nMEP,Just_Frequencies,eMEPTest,nLambda,
      &            TSReg,ThrMEP)
 *
@@ -291,7 +290,7 @@
 *
       Numerical = (lNmHss.or.Allocated(mRowH)) .and. iter.le.NmIter
       Call DstInf(iStop,Just_Frequencies)
-      If (lCtoF) Call Def_CtoF(.True.,nsAtom,Coor)
+      If (lCtoF) Call Def_CtoF(.True.)
       If (.Not.User_Def .and.
      &   ((lNmHss.and.iter.ge.NmIter).or..Not.lNmHss)) Call cp_SpcInt
 *
@@ -302,7 +301,7 @@
          Call f_Inquire('RUNBACK',Found)
          If (Found) Then
 *           Read data
-            nGB=3*nsAtom
+            nGB=SIZE(Coor)
             Call mma_allocate(GB,nGB,Label='GB')
             Call Get_Grad(GB,nGB)
 

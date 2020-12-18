@@ -11,7 +11,7 @@
       Subroutine Convrg(iter,kIter, nInter,
      &                  Stop,iStop,ThrCons,
      &                  MxItr, mIntEff,
-     &                  Baker, nAtom,mTtAtm,
+     &                  Baker, mTtAtm,
      &                  GoOn,Step_Trunc,
      &                  rMEP,MEP,nMEP,
      &                  Just_Frequencies,eMEPTest,nLambda,
@@ -70,6 +70,10 @@
       Logical ldB
       End Subroutine SphInt
       End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
+      nAtom=SIZE(Cx,2)
 *                                                                      *
 ************************************************************************
 *                                                                      *

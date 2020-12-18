@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine G_Nrm(nAtom,nInter,GNrm,Iter,Grad,mIntEff)
+      Subroutine G_Nrm(nInter,GNrm,Iter,Grad,mIntEff)
       use Slapaf_Info, only: Gx, Degen
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -21,7 +21,7 @@
 *     |dE/dx|=Sqrt(dE/dx|u|dE/dx)
 *
       Fabs=0.0D0
-      Do i = 1, nAtom
+      Do i = 1, SIZE(Gx,2)
          Do j = 1, 3
             Fabs=Fabs+ Degen(j,i)*Gx(j,i,Iter)**2
          End Do

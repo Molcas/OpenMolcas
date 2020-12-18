@@ -10,9 +10,7 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Update_sl(iter,NmIter,nInter,
-     &                     Step_Trunc,
-     &                     nLambda,nsAtom,
+      Subroutine Update_sl(iter,NmIter,nInter,Step_Trunc,nLambda,
      &                     nWndw,kIter)
 ************************************************************************
 *                                                                      *
@@ -33,7 +31,7 @@
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
-      use Slapaf_Info, only: Shift, qInt
+      use Slapaf_Info, only: Shift, qInt, Coor
       use Slapaf_Parameters, only: Beta, Beta_disp
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -45,6 +43,13 @@
       Real*8, Allocatable:: t_Shift(:,:), t_qInt(:,:), tmp(:)
 *
       Logical Kriging_Hessian
+*                                                                      *
+************************************************************************
+*                                                                      *
+      nsAtom=SIZE(Coor,2)
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
       iRout=153
       iPrint=nPrint(iRout)

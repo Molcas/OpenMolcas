@@ -11,8 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 *               2008, Giovanni Ghigo                                   *
 ************************************************************************
-      SubRoutine CllCtoF(Strng,nAtom,Coor,nCntr,mCntr,
-     &                   xyz,Temp,Ind,Type,qMss,Lbl)
+      SubRoutine CllCtoF(Strng,nCntr,mCntr,xyz,Temp,Ind,Type,qMss,Lbl)
 ************************************************************************
 *                                                                      *
 *     Author: Giovanni Ghigo, Dep. of General and Organic Chemistry    *
@@ -24,20 +23,22 @@
 *             May '91                                                  *
 ************************************************************************
       use Symmetry_Info, only: nIrrep, iOper
-      use Slapaf_Info, only: dMass, AtomLbl
+      use Slapaf_Info, only: dMass, AtomLbl, Coor
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
 #include "Molcas.fh"
       Character*(*) Strng
       Character Label*(LENIN1), Name*(LENIN), Oper*3, Type*6, Lbl*8
-      Real*8 Coor(3,nAtom), xyz(3,nCntr+mCntr),
+      Real*8 xyz(3,nCntr+mCntr),
      &       Temp(3,nCntr+mCntr), qMss(nCntr+mCntr),
      &       Axis(3), Perp_Axis(3,2)
       Integer   Ind(nCntr+mCntr,2)
       Logical lWrite, ldB, lWarn
       Dimension Dummy(1)
 *
+      nAtom = SIZE(Coor,2)
+
       iRout = 50
       iPrint = nPrint(iRout)
       ldB=.False.
