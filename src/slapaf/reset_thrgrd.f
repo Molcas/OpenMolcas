@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Reset_ThrGrd(nAtom,nIter,mTtAtm,ThrGrd)
+      Subroutine Reset_ThrGrd(nsAtom,nIter,mTtAtm,ThrGrd)
       use Slapaf_Info, only: Cx, ANr
       use Slapaf_Parameters, only: nDimBC, rHidden
       Implicit Real*8 (a-h,o-z)
@@ -23,11 +23,10 @@
 ************************************************************************
 *                                                                      *
       Interface
-        Subroutine Box(Coor,nAtoms,iANr,TabB,TabA,nBonds,
-     &                nMax)
-        Integer nAtoms
-        Real*8 Coor(3,nAtoms)
-        Integer iANr(nAtoms)
+        Subroutine Box(Coor,nsAtom,iANr,TabB,TabA,nBonds,nMax)
+        Integer nsAtom
+        Real*8 Coor(3,nsAtom)
+        Integer iANr(nsAtom)
         Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
         Integer nBonds, nMax
         End Subroutine Box
@@ -50,10 +49,10 @@
 *---- Find the translational and rotational eigenvectors for the
 *     current structure.
 *
-      Call mma_allocate(TR,18*nAtom,Label='TR')
+      Call mma_allocate(TR,18*nsAtom,Label='TR')
       TR(:)=Zero
 *
-      Call TRPGen(nDimBC,nAtom,Cx(1,1,iIter),mTR,.False.,TR)
+      Call TRPGen(nDimBC,nsAtom,Cx(1,1,iIter),mTR,.False.,TR)
 *
 *     Call RecPrt('TR',' ',TR,nDimBC,mTR)
 *                                                                      *
@@ -66,8 +65,7 @@
 *
 *-----Generate Grand atoms list
 *
-      Call GenCoo(Cx(1,1,iIter),nAtom,Coor,mTtAtm,Vec,nDimBC,ANr,
-     &            AN,TabAI)
+      Call GenCoo(Cx(1,1,iIter),nsAtom,Coor,mTtAtm,Vec,nDimBC,AN,TabAI)
 *
 *---- Are there some hidden frozen atoms ?
 *

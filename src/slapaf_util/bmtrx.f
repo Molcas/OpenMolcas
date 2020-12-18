@@ -29,8 +29,7 @@
 ************************************************************************
 *                                                                      *
       Interface
-        Subroutine Box(Coor,nsAtom,iANr,TabB,TabA,nBonds,
-     &                nMax)
+        Subroutine Box(Coor,nsAtom,iANr,TabB,TabA,nBonds,nMax)
         Integer nsAtom
         Real*8 Coor(3,nsAtom)
         Integer iANr(nsAtom)
@@ -112,8 +111,7 @@
 *
 *-----Generate Grand atoms list
 *
-      Call GenCoo(Cx(1,1,iIter),nsAtom,Coor2,mTtAtm,Vec,nDimBC,ANr,
-     &            AN,TabAI)
+      Call GenCoo(Cx(1,1,iIter),nsAtom,Coor2,mTtAtm,Vec,nDimBC,AN,TabAI)
 *
 *---- Are there some hidden frozen atoms ?
 *
