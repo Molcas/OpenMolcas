@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine RF_Coord(
-     &                 nq,nAtoms,iIter,nIter,Cx,
+     &                 nq,nsAtom,iIter,nIter,Cx,
      &                 Process,Value,
      &                 nB,qLbl,iRef,fconst,
      &                 rMult,LuIC,Indq,
@@ -23,7 +23,7 @@
 #include "real.fh"
 #include "sbs.fh"
 #include "print.fh"
-      Real*8 Cx(3,nAtoms,nIter), fconst(nB), Value(nB,nIter), rMult(nB),
+      Real*8 Cx(3,nsAtom,nIter), fconst(nB), Value(nB,nIter), rMult(nB),
      &       Trans(3), RotVec(3), RotMat(3,3),
      &       BM(nB_Tot), dBM(ndB_Tot)
       Integer   nqB(nB),
@@ -57,7 +57,7 @@
 *---- Find nCent and allocate
 *
       nCent=0
-      Do iAtom = 1, nAtoms
+      Do iAtom = 1, nsAtom
          nCent=nCent+nIrrep/nStab(iAtom)
       End Do
       mB = nCent*3
@@ -73,7 +73,7 @@
 *---- Find index of RF center (origin), etc
 *
       iCent=0
-      Do iAtom = 1, nAtoms
+      Do iAtom = 1, nsAtom
 *
          Do i = 0, nIrrep/nStab(iAtom)-1
             iCent = iCent + 1

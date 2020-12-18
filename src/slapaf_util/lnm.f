@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine LNM(Cart,nAtoms,Hess,Scrt1,Scrt2,Vctrs,
-     &               mAtoms,nDim,iAnr,nIter,
+      Subroutine LNM(Cart,mTtAtm,Hess,Scrt1,Scrt2,Vctrs,
+     &               nsAtom,nDim,iAnr,nIter,
      &               iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: Degen, Smmtrc
@@ -19,11 +19,11 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "angstr.fh"
-      Real*8 Cart(3,nAtoms+nHidden), Hess(3*nAtoms*(3*nAtoms+1)/2),
-     &       Scrt1((3*nAtoms)**2),
-     *       Scrt2((3*nAtoms)**2), Vctrs(3*nAtoms,nDim)
-      Integer   iANr(nAtoms+nHidden), iTabBonds(3,nBonds),
-     &          iTabAtoms(2,0:nMax,nAtoms+nHidden)
+      Real*8 Cart(3,mTtAtm+nHidden), Hess(3*mTtAtm*(3*mTtAtm+1)/2),
+     &       Scrt1((3*mTtAtm)**2),
+     *       Scrt2((3*mTtAtm)**2), Vctrs(3*mTtAtm,nDim)
+      Integer   iANr(mTtAtm+nHidden), iTabBonds(3,nBonds),
+     &          iTabAtoms(2,0:nMax,mTtAtm+nHidden)
       Logical Found, RunOld
       Real*8, Allocatable:: TanVec(:), HTanVec(:)
 
@@ -31,10 +31,10 @@
       iPrint=nPrint(iRout)
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call RecPrt('In LNM: Cart',' ',Cart,3,nAtoms)
+      Call RecPrt('In LNM: Cart',' ',Cart,3,mTtAtm)
       If (nHidden.ne.0) Call RecPrt('In LNM: Cart(hidden atoms)',' ',
-     &                              Cart(1,nAtoms+1),3,nHidden)
-      Call RecPrt('In LNM: Vctrs',' ',Vctrs,3*nAtoms,nDim)
+     &                              Cart(1,mTtAtm+1),3,nHidden)
+      Call RecPrt('In LNM: Vctrs',' ',Vctrs,3*mTtAtm,nDim)
       Write (6,*) 'iAnr=',iANr
       Write (6,*) 'Analytic Hessian=',Analytic_Hessian
 #endif
@@ -87,7 +87,7 @@
 *
          Call FZero(Scrt1,nDim**2)
          ii = 0
-         Do i = 1, 3*mAtoms
+         Do i = 1, 3*nsAtom
             iAtom=(i+2)/3
             ixyz = i - (iAtom-1)*3
             If (Smmtrc(ixyz,iAtom)) Then
@@ -111,8 +111,8 @@
          End Do
 #ifdef _DEBUGPRINT_
          Call TriPrt('Hessian(anal.)',' ',Hess,nDim)
-         Write (6,*) 'nDim,nAtoms,mAtoms=',
-     &                nDim,nAtoms,mAtoms
+         Write (6,*) 'nDim,mTtAtm,nsAtom=',
+     &                nDim,mTtAtm,nsAtom
          Call RecPrt('Hessian(anal.)',' ',Scrt1,nDim,nDim)
 #endif
 *
@@ -130,51 +130,51 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call ddV(Cart,nAtoms,Hess,iANr,
+         Call ddV(Cart,mTtAtm,Hess,iANr,
      &            iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
 #ifdef _DEBUGPRINT_
          If (iPrint.ge.19)
-     &      Call TriPrt(' The Model Hessian','(12f9.5)',Hess,3*nAtoms)
+     &      Call TriPrt(' The Model Hessian','(12f9.5)',Hess,3*mTtAtm)
 #endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *----    Square the matrix
 *
-         Do i = 1, 3*nAtoms
+         Do i = 1, 3*mTtAtm
             Do j = 1, i
                ijTri=i*(i-1)/2 + j
-               ij = (j-1)*(3*nAtoms) + i
-               ji = (i-1)*(3*nAtoms) + j
+               ij = (j-1)*(3*mTtAtm) + i
+               ji = (i-1)*(3*mTtAtm) + j
                Scrt1(ij) = Hess(ijTri)
                Scrt1(ji) = Hess(ijTri)
             End Do
          End Do
-*        Call RecPrt('Scrt1',' ',Scrt1,3*nAtoms,3*nAtoms)
+*        Call RecPrt('Scrt1',' ',Scrt1,3*mTtAtm,3*mTtAtm)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUGPRINT_
          If (iPrint.ge.19)
-     &      Call RecPrt(' Scrt1',' ',Scrt1,3*nAtoms,3*nAtoms)
+     &      Call RecPrt(' Scrt1',' ',Scrt1,3*mTtAtm,3*mTtAtm)
 #endif
          If (nIrrep.eq.1) Go To 99
 *
 *------  Now project out the total symmetric part of the Hessian
 *
          Call DGEMM_('N','N',
-     &               3*nAtoms,nDim,3*nAtoms,
-     &               1.0d0,Scrt1,3*nAtoms,
-     &               Vctrs,3*nAtoms,
-     &               0.0d0,Scrt2,3*nAtoms)
+     &               3*mTtAtm,nDim,3*mTtAtm,
+     &               1.0d0,Scrt1,3*mTtAtm,
+     &               Vctrs,3*mTtAtm,
+     &               0.0d0,Scrt2,3*mTtAtm)
 #ifdef _DEBUGPRINT_
          If (iPrint.ge.19)
-     &      Call RecPrt(' Scrt2',' ',Scrt2,3*nAtoms,nDim)
+     &      Call RecPrt(' Scrt2',' ',Scrt2,3*mTtAtm,nDim)
 #endif
          Call DGEMM_('T','N',
-     &               nDim,nDim,3*nAtoms,
-     &               1.0d0,Vctrs,3*nAtoms,
-     &               Scrt2,3*nAtoms,
+     &               nDim,nDim,3*mTtAtm,
+     &               1.0d0,Vctrs,3*mTtAtm,
+     &               Scrt2,3*mTtAtm,
      &               0.0d0,Scrt1,nDim)
 #ifdef _DEBUGPRINT_
          If (iPrint.ge.19)
@@ -188,9 +188,9 @@
 *
          Call qpg_darray('TanVec',Found,nRP)
          If (Found) Then
-            If (nRP.ne.3*mAtoms) Then
-               Call WarningMessage(2,' Error in LNM: nRP.ne.3*mAtoms')
-               Write (6,*) 'nRP,3*mAtoms=',nRP,mAtoms
+            If (nRP.ne.3*nsAtom) Then
+               Call WarningMessage(2,' Error in LNM: nRP.ne.3*nsAtom')
+               Write (6,*) 'nRP,3*nsAtom=',nRP,nsAtom
                Call Abend()
             End If
 *

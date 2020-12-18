@@ -8,14 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      subroutine ddV(Cart,nAtoms,Hess,iANr,
+      subroutine ddV(Cart,mTtAtm,Hess,iANr,
      &               iTabBonds,iTabAtoms,nBonds,nMax,nHidden)
       Implicit Real*8 (a-h,o-z)
 #include "stdalloc.fh"
 #include "sbs.fh"
-      Real*8 Cart(3,nAtoms+nHidden),Hess((3*nAtoms)*(3*nAtoms+1)/2)
-      Integer   iANr(nAtoms+nHidden), iTabBonds(3,nBonds),
-     &          iTabAtoms(2,0:nMax,nAtoms+nHidden)
+      Real*8 Cart(3,mTtAtm+nHidden),Hess((3*mTtAtm)*(3*mTtAtm+1)/2)
+      Integer   iANr(mTtAtm+nHidden), iTabBonds(3,nBonds),
+     &          iTabAtoms(2,0:nMax,mTtAtm+nHidden)
       Real*8, Allocatable:: HBig(:)
 *
 *  Temporary big hessian
@@ -26,7 +26,7 @@
 *                                                                      *
 ************************************************************************
       If (nHidden.gt.0) Then
-         nTot = nAtoms+nHidden
+         nTot = mTtAtm+nHidden
          Call mma_allocate(HBig,(3*nTot)*(3*nTot+1)/2,Label='HBig')
 *
 * Temporary turn on the translational/rotational invariance
@@ -37,21 +37,21 @@
      &             iTabAtoms,nBonds,nMax,nHidden)
          iSBS = iOr(iSBS,2**7)
          iSBS = iOr(iSBS,2**8)
-         Call dCopy_((3*nAtoms)*(3*nAtoms+1)/2,HBig,1,Hess,1)
+         Call dCopy_((3*mTtAtm)*(3*mTtAtm+1)/2,HBig,1,Hess,1)
 #ifdef _DEBUGPRINT_
          write(6,*) 'DDV: Improved Hessian'
          Call RecPrt('Coord (with hidden atoms):',' ',Cart,3,nTot)
          Call TriPrt('Hessian (hidden atoms):',' ',HBig,3*nTot)
-         Call TriPrt('Hessian (normal):',' ',Hess,3*nAtoms)
+         Call TriPrt('Hessian (normal):',' ',Hess,3*mTtAtm)
 #endif
          Call mma_deallocate(HBig)
       Else
-         Call ddV_(Cart,nAtoms,Hess,iANr,iTabBonds,
+         Call ddV_(Cart,mTtAtm,Hess,iANr,iTabBonds,
      &             iTabAtoms,nBonds,nMax,nHidden)
       End If
       End
 *
-      Subroutine ddV_(Cart,nAtoms,Hess,iANr,iTabBonds,
+      Subroutine ddV_(Cart,mTtAtm,Hess,iANr,iTabBonds,
      &               iTabAtoms,nBonds,nMax,nHidden)
       use Symmetry_Info, only: nIrrep, iOper
       use Slapaf_Parameters, only: ddV_Schlegel, iOptC
@@ -60,13 +60,13 @@
 #include "print.fh"
 #include "sbs.fh"
 #include "stdalloc.fh"
-      Real*8 Cart(3,nAtoms),rij(3),rjk(3),rkl(3),
-     &       Hess((3*nAtoms)*(3*nAtoms+1)/2),si(3),sj(3),sk(3),
+      Real*8 Cart(3,mTtAtm),rij(3),rjk(3),rkl(3),
+     &       Hess((3*mTtAtm)*(3*mTtAtm+1)/2),si(3),sj(3),sk(3),
      &       sl(3),sm(3),x(2),y(2),z(2),
      &       xyz(3,4), C(3,4), Dum(1),
      &       ril(3), rik(3)
-      Integer   iANr(nAtoms), iTabBonds(3,nBonds),
-     &          iTabAtoms(2,0:nMax,nAtoms)
+      Integer   iANr(mTtAtm), iTabBonds(3,nBonds),
+     &          iTabAtoms(2,0:nMax,mTtAtm)
       Logical MinBas, Help, TransVar, RotVar, Torsion_Check,
      &        Invariant(3)
 *
@@ -94,7 +94,7 @@
       nqB=0
       nqT=0
       nqO=0
-      Do iAtom = 1, nAtoms
+      Do iAtom = 1, mTtAtm
 *
          nNeighbor_i = iTabAtoms(1,0,iAtom)
          Write (6,*) 'iAtom,nNeighbor=',iAtom,nNeighbor_i
@@ -117,7 +117,7 @@
          Fact=One
       End If
       rZero=1.0d-10
-      n3=3*nAtoms
+      n3=3*mTtAtm
 *
       call dcopy_((n3*(n3+1)/2),[Zero],0,Hess,1)
 #ifdef _DEBUGPRINT_
@@ -131,9 +131,9 @@
       TransVar=iAnd(iSBS,2**7).eq. 2**7
       RotVar  =iAnd(iSBS,2**8).eq. 2**8
 *
-      Call mma_allocate(xMass,nAtoms,Label='xMass')
-      Call Get_Mass_All(xMass,nAtoms-nHidden)
-      Do iAtom=nAtoms-nHidden+1,nAtoms
+      Call mma_allocate(xMass,mTtAtm,Label='xMass')
+      Call Get_Mass_All(xMass,mTtAtm-nHidden)
+      Do iAtom=mTtAtm-nHidden+1,mTtAtm
          xMass(iAtom)=rMass(iANr(iAtom))
       End Do
 *                                                                      *
@@ -156,10 +156,10 @@
       If (.Not.RotVar) Fact=2.0D-2
 *
       TMass=Zero
-      Do iAtom = 1, nAtoms
+      Do iAtom = 1, mTtAtm
          TMass=TMass+xMass(iAtom)
       End Do
-      Do iAtom = 1, nAtoms
+      Do iAtom = 1, mTtAtm
          f1=xMass(iAtom)/TMass
          Do jAtom = 1, iAtom-1
             f2=xMass(jAtom)/TMass
@@ -215,7 +215,7 @@
       End Do
       If (Invariant(1).and.Invariant(2).and.Invariant(3)) Go To 778
 *
-c     If (nAtoms.le.2) Then
+c     If (mTtAtm.le.2) Then
 c        Call WarningMessage(2,'Error in ddV')
 c        Write (6,*)
 c        Write (6,*) ' Warning!'
@@ -225,9 +225,9 @@ c        Write (6,*) ' Add dummy atoms to your input and try again!'
 c        Write (6,*)
 c        Call Quit(_RC_GENERAL_ERROR_)
 c     End If
-      Call mma_allocate(Grad,3,3,nAtoms,Label='Grad')
-      Call mma_allocate(CurrXYZ,3,nAtoms,Label='CurrXYZ')
-      Do iAtom = 1, nAtoms
+      Call mma_allocate(Grad,3,3,mTtAtm,Label='Grad')
+      Call mma_allocate(CurrXYZ,3,mTtAtm,Label='CurrXYZ')
+      Do iAtom = 1, mTtAtm
          If (iANr(iAtom).le.0) Then
             xMass(iAtom) = 1.0D-10
          End If
@@ -236,12 +236,12 @@ c     End If
       Trans(:)=Zero
       RotVec(:)=Zero
       CurrXYZ(:,:)=Cart(:,:)
-      Call RotDer(nAtoms,xMass,CurrXYZ,Cart,Trans,RotAng,
+      Call RotDer(mTtAtm,xMass,CurrXYZ,Cart,Trans,RotAng,
      &            RotVec,RotMat,nOrder,Grad,dum)
       Call mma_deallocate(CurrXYZ)
 *
 *
-      Do iAtom = 1, nAtoms
+      Do iAtom = 1, mTtAtm
          dO1_dx1 =  Grad(1,1,iAtom)
          dO2_dx1 =  Grad(2,1,iAtom)
          dO3_dx1 =  Grad(3,1,iAtom)
@@ -459,7 +459,7 @@ C10      Continue
 *     Hessian for bending
 *
       If (nBonds.lt.2) Go To 999
-      Do mAtom = 1, nAtoms
+      Do mAtom = 1, mTtAtm
          mr=iTabRow(iANr(mAtom))
 *
          nNeighbor=iTabAtoms(1,0,mAtom)
@@ -570,7 +570,7 @@ chjw modified
 *-------------Non-linear case
 *
               Thr_Line=Sin(Pi*25.0d0/180.0D0)
-              If (nAtoms.eq.3) Thr_Line=rZero
+              If (mTtAtm.eq.3) Thr_Line=rZero
               If (SinPhi.gt.Thr_Line) Then
                 si(1)=(xmi/rmi*cosphi-xmj/rmj)/(rmi*sinphi)
                 si(2)=(ymi/rmi*cosphi-ymj/rmj)/(rmi*sinphi)
@@ -873,7 +873,7 @@ C              If (kBondType.eq.vdW_Bond) Go To 222
                tij = Max(tij,f_const_Min_)
                If (Torsion_Check(iAtom,jAtom,kAtom,lAtom,
      &                           xyz,iTabAtoms,
-     &                           nMax,nAtoms) )Then
+     &                           nMax,mTtAtm) )Then
                   tij = Max(tij,10.0D0*f_const_Min_)
                End If
 #ifdef _DEBUGPRINT_
@@ -963,7 +963,7 @@ C              If (kBondType.eq.vdW_Bond) Go To 222
 C     Go To 999
       If (nBonds.lt.3) Go To 999
 *
-      Do iAtom = 1, nAtoms
+      Do iAtom = 1, mTtAtm
 *
          nNeighbor_i = iTabAtoms(1,0,iAtom)
 C        Write (*,*) 'iAtom,nNeighbor_i=',iAtom,nNeighbor_i
@@ -978,7 +978,7 @@ C           Write (*,*) 'jAtom=',jAtom
             iBond = iTabAtoms(2,iNb0,iAtom)
             iBondType=iTabBonds(3,iBond)
 C           Write (*,*) 'iBondType=',iBondType
-            nCoBond_j=nCoBond(jAtom,nAtoms,nMax,iTabBonds,
+            nCoBond_j=nCoBond(jAtom,mTtAtm,nMax,iTabBonds,
      &                        nBonds,iTabAtoms)
             If (nCoBond_j.gt.1) Go To 447
 *           If (iBondType.eq.vdW_Bond) Go To 447

@@ -143,8 +143,7 @@
 *
       If (HSet.or..Not.(Curvilinear.or.User_Def))
      &   Call LNM(Coor2,mTtAtm,EVal,Hss_X,Scr2,Vec,nsAtom,nDimBC,AN,
-     &            nIter,
-     &            TabB,TabA,nBonds,nMax,nHidden)
+     &            nIter,TabB,TabA,nBonds,nMax,nHidden)
 *
       Call mma_deallocate(Scr2)
       Call mma_deallocate(Coor2)

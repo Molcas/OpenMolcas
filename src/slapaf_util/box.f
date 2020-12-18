@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Box(Coor,nAtoms,iANr,TabB,TabA,nBonds,nMax)
+      Subroutine Box(Coor,mTtAtm,iANr,TabB,TabA,nBonds,nMax)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8 Coor(3,nAtoms)
-      Integer iANr(nAtoms)
+      Real*8 Coor(3,mTtAtm)
+      Integer iANr(mTtAtm)
       Integer, Allocatable:: TabB(:,:), TabA(:,:,:), iBox(:,:),
      &                       Tab(:,:,:,:)
 *                                                                      *
@@ -23,15 +23,15 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (nAtoms.lt.2) Then
-         Write (6,*) 'Too few atoms to relax: nAtoms=',nAtoms
-         Call WarningMessage(2,'nAtoms.lt.2')
+      If (mTtAtm.lt.2) Then
+         Write (6,*) 'Too few atoms to relax: mTtAtm=',mTtAtm
+         Call WarningMessage(2,'mTtAtm.lt.2')
          Call Abend()
       End If
 *
       ThrB=0.40D0
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Box: Coor',' ',Coor,3,nAtoms)
+      Call RecPrt('Box: Coor',' ',Coor,3,mTtAtm)
       Write (6,*) 'Box: ThrB=',ThrB
 #endif
 *
@@ -44,7 +44,7 @@
 *
 *---- Establish boundaries
 *
-      Do iAtom = 1, nAtoms
+      Do iAtom = 1, mTtAtm
          xmin=Min(xmin,Coor(1,iAtom))
          xmax=Max(xmax,Coor(1,iAtom))
          ymin=Min(ymin,Coor(2,iAtom))
@@ -79,17 +79,17 @@
       nMax=100
 cnf      nMax=40
 c AOM Fixed this size to account for double VdW counting
-      nBondMax=nAtoms*(nAtoms+1)
+      nBondMax=mTtAtm*(mTtAtm+1)
 c AOM
       Call mma_allocate(TabB,3,nBondMax,Label='TabB')
-      Call mma_allocate(TabA,[1,2],[0,nMax],[1,nAtoms],Label='TabA')
+      Call mma_allocate(TabA,[1,2],[0,nMax],[1,mTtAtm],Label='TabA')
       Call mma_allocate(Tab,[0,nMax],[1,nx],[1,ny],[1,nz],Label='Tab')
-      Call mma_allocate(iBox,3,nAtoms,Label='iBox')
+      Call mma_allocate(iBox,3,mTtAtm,Label='iBox')
 *
-      Call Sort_to_Box(Coor,nAtoms,Tab,nMax,nx,ny,nz,
+      Call Sort_to_Box(Coor,mTtAtm,Tab,nMax,nx,ny,nz,
      &                 iBox,iANr,xmin,ymin,zmin,Box_Size)
 *
-      Call Find_Bonds(Coor,nAtoms,Tab,nMax,nx,ny,nz,iBox,iANr,
+      Call Find_Bonds(Coor,mTtAtm,Tab,nMax,nx,ny,nz,iBox,iANr,
      &                TabB,nBonds,nBondMax,TabA,ThrB)
 *
       Call mma_deallocate(iBox)

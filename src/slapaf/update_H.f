@@ -11,7 +11,7 @@
       Subroutine Update_H(nWndw,H,nInter,nIter,
      &                    iOptC,dq,g,iOptH,
      &                    jPrint,GNrm,
-     &                    nAtoms,Store,
+     &                    nsAtom,Store,
      &                    AllowFindTS)
       use Slapaf_Info, only: MF
       use Slapaf_Parameters, only: IRC, Mode
@@ -42,9 +42,9 @@
 *                                                                      *
 *     Check if we have an old reaction mode
 *
-      Old_MF=DDot_(3*nAtoms,MF,1,MF,1).ne.Zero
+      Old_MF=DDot_(3*nsAtom,MF,1,MF,1).ne.Zero
       Old_MF = Old_MF .and. Mode.ne.0 .and. IRC.eq.0
-      Call mma_allocate(Tmp,3,nAtoms,Label='Tmp')
+      Call mma_allocate(Tmp,3,nsAtom,Label='Tmp')
       If (Old_MF) Then
          If (jPrint.ge.6)
      &      Write (6,*) ' Reading old reaction mode from disk'
@@ -57,7 +57,7 @@
 *                                                                      *
 *     Massage the new Hessian
 *
-      Call FixHess(H,nInter,iOptC,Tmp,GNrm,nAtoms,(IterHess.eq.nIter),
+      Call FixHess(H,nInter,iOptC,Tmp,GNrm,nsAtom,(IterHess.eq.nIter),
      &             AllowFindTS)
 *                                                                      *
 ************************************************************************
