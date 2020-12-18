@@ -86,8 +86,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 112
 #ifdef _DEBUGPRINT_
+      iRout = 112
       iPrint = nPrint(iRout)
 #endif
 *                                                                      *
@@ -780,9 +780,9 @@ c         end do
 C        If (Do_Hess)
 C    &      Call d2Rho_dR2_LDA(Dens,nDens,nD,dRho_dR,d2Rho_dr2,
 C    &                         ndRho_dr,mGrid,list_s,nlist_s,
-C    &                         TabAO,ipTabAO,mAO,nTabAO,nSym,
-C    &                         nGrad_Eff,list_g,Maps2p,
-C    &                         nShell,Grid_Type,Fixed_Grid,
+C    &                         TabAO,ipTabAO,mAO,nTabAO,
+C    &                         nGrad_Eff,list_g,
+C    &                         Grid_Type,Fixed_Grid,
 C    &                         Work(ip_Fact),ndc,Work(ipTmp),T_X,
 C    &                         list_bas,Index,nIndex)
 *

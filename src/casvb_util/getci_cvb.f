@@ -34,9 +34,6 @@
         call abend_cvb()
       endif
 
-      if(iwr.eq.0)cirec=strtci
-      if(iwr.eq.1)cirec=savvbci
-
       if(iwr.eq.0)then
         if(ip(1).ge.1)then
           write(6,'(a)')' '
@@ -100,9 +97,6 @@
         write(6,*)' Unsupported format in GETCI :',iform_ci(icivec)
         call abend_cvb()
       endif
-
-      if(iwr.eq.0)cirec=strtci
-      if(iwr.eq.1)cirec=savvbci
 
       if(iwr.eq.0)then
         if(ip(1).ge.1)then

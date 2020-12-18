@@ -72,7 +72,7 @@ c  'GRDWRNGT'
       elseif(istr.eq.8)then
 c  'EIGWRNG '
         call real_cvb(daux,1,nread,1)
-        eigwrntol=daux(1)
+        eigwrngtol=daux(1)
       elseif(istr.eq.9)then
 c  'SINGUL'
         call int_cvb(iaux,1,nread,1)

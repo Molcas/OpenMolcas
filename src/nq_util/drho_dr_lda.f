@@ -92,8 +92,6 @@
          mdci       =iSD(10,iS)
          index_i    =list_bas(2,ilist_s)
 *
-         lDCRE=NrOpr(kDCRE)
-*
          Call ICopy(3,list_g(1,ilist_s),1,IndGrd_Eff(1,1),1)
          n1 = IndGrd_Eff(1,1) + IndGrd_Eff(2,1) + IndGrd_Eff(3,1)
 *
@@ -109,8 +107,6 @@
             mdcj       =iSD(10,jS)
             jShell     =iSD(11,jS)
             index_j    =list_bas(2,jlist_s)
-*
-            lDCRR=NrOpr(kDCRR)
 *
             Call ICopy(3,list_g(1,jlist_s),1,IndGrd_Eff(1,2),1)
             n2 = IndGrd_Eff(1,2) + IndGrd_Eff(2,2) + IndGrd_Eff(3,2)

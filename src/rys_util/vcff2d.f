@@ -43,11 +43,10 @@
 *     Local arrays
       Character*30 Label
 #endif
-      Logical AeqB, CeqD, EQ, PrintB10, PrintB00, PrintB01
-*
-      iRout = 14
+      Logical AeqB, CeqD, EQ
 *
 #ifdef _DEBUGPRINT_
+      Logical PrintB10, PrintB00, PrintB01
       Call RecPrt(' In vCff2D: Coori',' ',Coori,3,4)
       Call RecPrt(' In vCff2D: U2',' ',U2,nRys,nT)
       Call RecPrt(' in vCff2d: Zeta',' ',Zeta,1,nT)
@@ -57,9 +56,11 @@
 #endif
       AeqB = EQ(Coori(1,1),Coori(1,2))
       CeqD = EQ(Coori(1,3),Coori(1,4))
+#ifdef _DEBUGPRINT_
       PrintB10=.False.
       PrintB01=.False.
       PrintB00=.False.
+#endif
 *
       nabMax = la+lb
       ncdMax = lc+ld
@@ -73,23 +74,29 @@
             B01(iRys,iT) = ( h12 - tmp * Zeta(iT))*EInv(iT)
          EndDo
       EndDo
+#ifdef _DEBUGPRINT_
       PrintB10=.True.
       PrintB01=.True.
       PrintB00=.True.
+#endif
          Else If (ncdMax.eq.0 .and. nabMax.ge.2) Then
       Do iT = 1, nT
          Do iRys = 1, nRys
             B10(iRys,iT) = ( h12 - h12 * U2(iRys,iT) * Eta(iT))*ZInv(iT)
          EndDo
       EndDo
+#ifdef _DEBUGPRINT_
       PrintB10=.True.
+#endif
          Else If (nabMax.eq.0 .and. ncdMax.ge.2) Then
       Do iT = 1, nT
          Do iRys = 1, nRys
             B01(iRys,iT) =( h12 - h12 * U2(iRys,iT) * Zeta(iT))*EInv(iT)
          EndDo
       EndDo
+#ifdef _DEBUGPRINT_
       PrintB01=.True.
+#endif
          Else If (ncdMax.eq.1 .and. nabMax.ge.2) Then
       Do iT = 1, nT
          Do iRys = 1, nRys
@@ -98,8 +105,10 @@
             B10(iRys,iT) = ( h12 - tmp * Eta(iT))*ZInv(iT)
          EndDo
       EndDo
+#ifdef _DEBUGPRINT_
       PrintB10=.True.
       PrintB00=.True.
+#endif
          Else If (nabMax.eq.1 .and. ncdMax.ge.2) Then
       Do iT = 1, nT
          Do iRys = 1, nRys
@@ -108,15 +117,19 @@
             B01(iRys,iT) = ( h12 - tmp * Zeta(iT))*EInv(iT)
          EndDo
       EndDo
+#ifdef _DEBUGPRINT_
       PrintB01=.True.
       PrintB00=.True.
+#endif
          Else  If (nabMax.eq.1 .and. ncdMax.eq.1) Then
       Do iT = 1, nT
          Do iRys = 1, nRys
             B00(iRys,iT) = h12*U2(iRys,iT)
          EndDo
       EndDo
+#ifdef _DEBUGPRINT_
       PrintB00=.True.
+#endif
          End If
 *
       If (nabMax.ne.0 .and. ncdMax.ne.0) Then

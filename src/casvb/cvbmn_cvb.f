@@ -27,7 +27,6 @@ c  ICODE=2 end of variational calculation (print summary)
       call cvbstart_cvb_lt9(icode)
       call main_cvb()
       call setretvals_cvb(esym,n_iter)
-      call cvbfinish_cvb(icode)
       Call Lucia_Util('CLOSE',iDummy,iDummy,Dummy)
       return
       end

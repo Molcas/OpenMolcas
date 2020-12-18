@@ -38,7 +38,7 @@
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
       Integer mGrid
 
-      REAL*8 F6, F43, Pi34, F13,
+      REAL*8 Pi34, F13,
      &RS,RSP,Zeta,dZdA,dZdB,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ,
      &  P, EUEG, EUEGPA,EUEGPB
       REAL*8 PA,GAA,TauA,FA,FPA,FGA,FTA,EUA,ChiA,EUPA,ChiAP,
@@ -99,8 +99,6 @@ C     Parameters for M06-2X
               r12= 0.000000D+00
       endif
 
-      F6=6.0d0
-      F43 = F4 / F3
       Pi34 = F3 / (F4*Pi)
       F13 = F1 / F3
       DTol = T_X
@@ -117,7 +115,6 @@ C     Parameters for M06-2X
             grdrhoa_y=Rho(ipdRy,iGrid)
             grdrhoa_z=Rho(ipdRz,iGrid)
             GAA=grdrhoa_x**2+grdrhoa_y**2+grdrhoa_z**2
-            GammaA=sqrt(GAA)
             TauA = Rho(ipTau,iGrid)
             Call vs98ss(PA,GAA,TauA,FA,FPA,FGA,FTA,EUA,ZA,
      &                  ChiA,EUPA,ChiAP,ChiAG,ZAP,ZAT,ijzy)
@@ -173,7 +170,6 @@ C     Parameters for M06-2X
             grdrhoa_y=Rho(ipdRya,iGrid)
             grdrhoa_z=Rho(ipdRza,iGrid)
             GAA=grdrhoa_x**2+grdrhoa_y**2+grdrhoa_z**2
-            GammaA=sqrt(GAA)
             TauA = Rho(ipTaua,iGrid)
             Call vs98ss(PA,GAA,TauA,FA,FPA,FGA,FTA,EUA,ZA,
      &                  ChiA,EUPA,ChiAP,ChiAG,ZAP,ZAT,ijzy)
@@ -193,7 +189,6 @@ C     Parameters for M06-2X
             grdrhob_y=Rho(ipdRyb,iGrid)
             grdrhob_z=Rho(ipdRzb,iGrid)
             GBB=grdrhob_x**2+grdrhob_y**2+grdrhob_z**2
-            GammaB=sqrt(GBB)
             TauB = Rho(ipTaub,iGrid)
             Call vs98ss(PB,GBB,TauB,FB,FPB,FGB,FTB,EUB,ZB,
      &                  ChiB,EUPB,ChiBP,ChiBG,ZBP,ZBT,ijzy)
@@ -269,10 +264,10 @@ C
       REAL*8 PX, GX, TX, F, FP, FG, FT, DTol, Z, ZP, ZT
       REAL*8 EUEG, Chi, EUEGP, ChiP, ChiG, cf, gcc
       REAL*8 Zero, F1, F2, F3, F4, F5, F8, F11
-      REAL*8 Pi, Pi34, F13, F23, F43, F53, F83, F113
+      REAL*8 Pi, Pi34, F13, F23, F53, F83
       REAL*8 RS, D, RSP, PotLC, DX, DZ, dgdP, dgdG, dgdT
       REAL*8 E,DP, DG, DT, rhoo, rho43, rho53, rho83
-      REAL*8 rrho, F4o3, rho13, kc, xk, zk, gc, dgdx, dgdz
+      REAL*8 rrho, F4o3, kc, xk, zk, gc, dgdx, dgdz
       REAL*8 d2LdSS, d2LdSZ, d2LdZZ, dLdS, dLdZ
 
       Data Zero/0.0d0/, F1/1.0d0/, F2/2.0d0/, F3/3.0d0/,
@@ -345,14 +340,11 @@ C     Parameters for M06-2X
         Pi34 = F3 / (F4*Pi)
         F13 = F1 / F3
         F23 = F2 / F3
-        F43 = F2 * F23
         F53 = F5 / F3
         F83 = F8 / F3
-        F113 = F11 / F3
         rhoo = PX
         rrho = 1.0D0/rhoo
         rho43 = rhoo**F4o3
-        rho13 = rho43*rrho
         rho53 = rhoo**F53
         rho83 = rho53*rhoo
 

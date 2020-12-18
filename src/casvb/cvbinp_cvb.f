@@ -17,6 +17,5 @@
       call hello_cvb()
       call parse_init_cvb(luinp)
       call input_cvb()
-      call cvbfinish_cvb(icode+10)
       return
       end

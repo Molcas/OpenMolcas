@@ -26,7 +26,6 @@
 c  ICONFS
       call rdioff_cvb(4,recinp,ioffs)
       call rdis_cvb(iw(ll(15)),nconf*noe,recinp,ioffs)
-      iskip=ll(15)-1
       return
       entry mksymelm_cvb()
       call rdioff_cvb(8,recinp,ioffs)

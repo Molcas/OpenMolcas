@@ -36,7 +36,7 @@
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
       Integer mGrid
 
-      REAL*8 F6, F43, Pi34, F13,
+      REAL*8 Pi34, F13,
      &RS,RSP,Zeta,dZdA,dZdB,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ,
      &  P, EUEG
       REAL*8 PA,GAA,TauA,FA,FPA,FGA,FTA,EUA,ChiA,EUPA,ChiAP,ChiAG
@@ -81,8 +81,6 @@ C     Parameters for M06-2X Correlation
          sopp4= -1.852891D+01
       endif
 *
-      F6=6.0d0
-      F43 = F4 / F3
       Pi34 = F3 / (F4*Pi)
       F13 = F1 / F3
 *
@@ -228,8 +226,8 @@ C
       REAL*8 EUEG, Chi, EUEGP, ChiP, ChiG
       REAL*8 Zero, Pt25, F1, F2, F3, F4, F5, F6, F8, F11
       REAL*8 ss, sss0,sss1, sss2, sss3, sss4, Css
-      REAL*8 Pi, Pi34, F13, F23, F43, F53, F83, F113
-      REAL*8 RS, FDUEG, D, Fscc, RSP, dFsccP, dFsccG
+      REAL*8 Pi, Pi34, F13, F23, F83
+      REAL*8 RS, D, Fscc, RSP, dFsccP, dFsccG
       REAL*8 E, W, U, dFsccT, dUdChi, dWdU, dWdP, dWdG
       REAL*8 d2LdSS,d2LdSZ,d2LdZZ,PotLC,dLdS,dLdZ
 
@@ -294,11 +292,8 @@ C       TX = Zero
         Pi34 = F3 / (F4*Pi)
         F13 = F1 / F3
         F23 = F2 / F3
-        F43 = F2 * F23
-        F53 = F5 / F3
         F83 = F8 / F3
-        F113 = F11 / F3
-        FDUEG = (F3/F5)*(F6*Pi*Pi)**F23
+C        FDUEG = (F3/F5)*(F6*Pi*Pi)**F23
         RS = (Pi34/PX) ** F13
         Call lsdac(RS,F1,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
         EUEG = PX*PotLC
@@ -405,8 +400,8 @@ c
       REAL*8 Small
       REAL*8 S, Zeta, FZeta,dfZdz,d2fZdz
       REAL*8 Zero, One, Two, Three, Four, Nine, F8, F27
-      REAL*8 OMZ, OPZ, OMZ2, OPZ2, OMZ3, OPZ3
-      REAL*8 F13, F43, F49, F827
+      REAL*8 OMZ, OPZ, OMZ3, OPZ3
+      REAL*8 F13, F43, F49
       data Zero/0.0d0/, One/1.0d0/, Two/2.0d0/, Three/3.0d0/,
      $  Four/4.0d0/, Nine/9.0d0/, F8/8.0D0/, F27/27.0D0/
 C
@@ -416,12 +411,9 @@ C
       d2fZdz = Zero
       OMZ = One - Zeta
       OPZ = One + Zeta
-      OMZ2 = OMZ**2
-      OPZ2 = OPZ**2
       F13 = One / Three
       F43 = Four / Three
       F49 = Four / Nine
-      F827 = F8 / F27
       If(OMZ.gt.Small) then
         OMZ3 = OMZ ** F13
         fZeta = fZeta + OMZ*OMZ3

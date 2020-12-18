@@ -92,7 +92,7 @@ c
 c
 c     help variables
 c
-       integer sa1,sa2,sa3,sa4,ssp,ssq,pq
+       integer sa1,sa2,sa3,ssp,ssq,pq
        integer nhelp1,nhelp2,nhelp3,nhelp4,nhelp5
        integer nhelp6,nhelp7,nhelp8,nhelp9,nhelp10
        integer ia,ib,ibm
@@ -190,7 +190,6 @@ c
        sa1=mapda(ia,3)
        sa2=mapda(ia,4)
        sa3=mapda(ia,5)
-       sa4=mapda(ia,6)
 c
        ib=mapib(sa1,sa2,sa3)
 c

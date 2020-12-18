@@ -12,8 +12,8 @@
 ************************************************************************
       Subroutine d2Rho_dR2_LDA(Dens,nDens,nD,dRho_dR,d2Rho_dR2,ndRho_dR,
      &                         mGrid,list_s,nlist_s,
-     &                         TabAO,ipTabAO,mAO,nTabAO,nSym,
-     &                         nGrad_Eff,list_g,Maps2p,nShell,
+     &                         TabAO,ipTabAO,mAO,nTabAO,
+     &                         nGrad_Eff,list_g,
      &                         Grid_type,Fixed_Grid,Fact,ndc,TabAOMax,
      &                         T_X,list_bas,Index,nIndex)
 ************************************************************************
@@ -36,8 +36,7 @@
       Integer On, Off
       Parameter (On=1, Off=0)
       Integer list_s(2,nlist_s), list_g(3,nlist_s),
-     &        ipTabAO(nlist_s), Maps2p(nShell,0:nSym-1),
-     &        list_bas(2,nlist_s), Index(nIndex)
+     &        ipTabAO(nlist_s), list_bas(2,nlist_s), Index(nIndex)
       Integer Grid_Type, Fixed_Grid
       Real*8 Dens(nDens,nD), TabAO(nTabAO), Fact(ndc**2),
      &       dRho_dR(ndRho_dR,mGrid,nGrad_Eff), Phase(3,2),
@@ -90,7 +89,6 @@
          kDCRE   =list_s(2,ilist_s)
          iShell     =iSD(11,iS)
          mdci       =iSD(10,iS)
-         iPrim      =iSD( 5,iS)
          index_i    =list_bas(2,ilist_s)
 *
          lDCRE=NrOpr(kDCRE)
@@ -98,7 +96,6 @@
          Phase(2,1)=DBLE(dc(mdci)%nStab)
          Phase(3,1)=DBLE(dc(mdci)%nStab)
 *
-         jNQ=Maps2p(iS,lDCRE)
          Call ICopy(3,list_g(1,ilist_s),1,IndGrd_Eff(1,1),1)
          n1 = IndGrd_Eff(1,1) + IndGrd_Eff(2,1) + IndGrd_Eff(3,1)
 *
@@ -111,7 +108,6 @@
             jCmp       =iSD( 2,jS)
             jBas       =iSD( 3,jS)
             jBas_Eff   =list_bas(1,jlist_s)
-            jPrim      =iSD( 5,jS)
             mdcj       =iSD(10,jS)
             jShell     =iSD(11,jS)
             index_j    =list_bas(2,jlist_s)
@@ -121,7 +117,6 @@
             Phase(2,2)=DBLE(dc(mdcj)%nStab)
             Phase(3,2)=DBLE(dc(mdcj)%nStab)
 *
-            kNQ=Maps2p(jS,lDCRR)
             Call ICopy(3,list_g(1,jlist_s),1,IndGrd_Eff(1,2),1)
             n2 = IndGrd_Eff(1,2) + IndGrd_Eff(2,2) + IndGrd_Eff(3,2)
             If (n1+n2.eq.0) Go To 98

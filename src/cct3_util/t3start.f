@@ -1333,7 +1333,7 @@ c
 c
 c     help parameters
 c
-       integer lunrst,rc1,iteration
+       integer lunrst,rc1
 c
 c
 c1    open file savename
@@ -1373,7 +1373,7 @@ c
 c7    get energy,niter
        if (iokey.eq.1) then
 c      Fortran IO
-       read (lunrst,end=1) eccsd,iteration
+       read (lunrst,end=1) eccsd,rc1
        else
 c
 c      MOLCAS IO
@@ -1386,7 +1386,6 @@ c
  1      write(6,*) ' ENERGY AND NIT WAS NOT IN SAVE FILE, CHANGED TO 0'
        write(6,*) ' USE CCSD ENERGY FROM CCSD OUTPUT FILE'
        eccsd=0.0d0
-       iteration=0
 c
  999   if (iokey.eq.1) then
 c      Fortran IO
@@ -1455,7 +1454,7 @@ c
 c
 c       help variable
 c
-        integer lun,bullshit
+        integer lun
 c
         lun=1
         Call Molcas_Open(Lun,'T3tEne')
@@ -1464,7 +1463,7 @@ c
 c       read blank, since there is Symimin,imin,Symjmin,jmin
 c       on first line
 c
-        read (lun,*) bullshit
+        read (lun,*) i
 c
         read (lun,*) symi,symj
         read (lun,*) i,j

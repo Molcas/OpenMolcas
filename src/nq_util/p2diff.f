@@ -92,24 +92,24 @@
                P2_z=Rho(5,iGrid)*Rho(2,iGrid)+
      &              Rho(1,iGrid)*Rho(8,iGrid)
 
-      t0 = (1.D0/2.D0+rho_tot/det/2)*rho_x/det+(P2_x-(rho_tot/2+det/2)*
-     &rho_x)*rho_tot/det**3
-      t1 = (1.D0/2.D0+rho_tot/det/2)*rho_y/det+(P2_y-(rho_tot/2+det/2)*
-     &rho_y)*rho_tot/det**3
-      t2 = (1.D0/2.D0+rho_tot/det/2)*rho_z/det+(P2_z-(rho_tot/2+det/2)*
-     &rho_z)*rho_tot/det**3
-      t3 = (1.D0/2.D0+rho_tot/det/2)*rho_x/det+(P2_x-(rho_tot/2+det/2)*
-     &rho_x)*rho_tot/det**3
-      t4 = (1.D0/2.D0+rho_tot/det/2)*rho_y/det+(P2_y-(rho_tot/2+det/2)*
-     &rho_y)*rho_tot/det**3
-      t5 = (1.D0/2.D0+rho_tot/det/2)*rho_z/det+(P2_z-(rho_tot/2+det/2)*
-     &rho_z)*rho_tot/det**3
-      t6 = -rho_x/det**2-2*(P2_x-(rho_tot/2+det/2)*rho_x)/det**3
-      t7 = -rho_y/det**2-2*(P2_y-(rho_tot/2+det/2)*rho_y)/det**3
-      t8 = -rho_z/det**2-2*(P2_z-(rho_tot/2+det/2)*rho_z)/det**3
-      t9 = rho_x/det**2+2*(P2_x-(rho_tot/2+det/2)*rho_x)/det**3
-      t10 = rho_y/det**2+2*(P2_y-(rho_tot/2+det/2)*rho_y)/det**3
-      t11 = rho_z/det**2+2*(P2_z-(rho_tot/2+det/2)*rho_z)/det**3
+c     t0 = (1.D0/2.D0+rho_tot/det/2)*rho_x/det+(P2_x-(rho_tot/2+det/2)*
+c    &rho_x)*rho_tot/det**3
+c     t1 = (1.D0/2.D0+rho_tot/det/2)*rho_y/det+(P2_y-(rho_tot/2+det/2)*
+c    &rho_y)*rho_tot/det**3
+c     t2 = (1.D0/2.D0+rho_tot/det/2)*rho_z/det+(P2_z-(rho_tot/2+det/2)*
+c    &rho_z)*rho_tot/det**3
+c     t3 = (1.D0/2.D0+rho_tot/det/2)*rho_x/det+(P2_x-(rho_tot/2+det/2)*
+c    &rho_x)*rho_tot/det**3
+c     t4 = (1.D0/2.D0+rho_tot/det/2)*rho_y/det+(P2_y-(rho_tot/2+det/2)*
+c    &rho_y)*rho_tot/det**3
+c     t5 = (1.D0/2.D0+rho_tot/det/2)*rho_z/det+(P2_z-(rho_tot/2+det/2)*
+c    &rho_z)*rho_tot/det**3
+c     t6 = -rho_x/det**2-2*(P2_x-(rho_tot/2+det/2)*rho_x)/det**3
+c     t7 = -rho_y/det**2-2*(P2_y-(rho_tot/2+det/2)*rho_y)/det**3
+c     t8 = -rho_z/det**2-2*(P2_z-(rho_tot/2+det/2)*rho_z)/det**3
+c     t9 = rho_x/det**2+2*(P2_x-(rho_tot/2+det/2)*rho_x)/det**3
+c     t10 = rho_y/det**2+2*(P2_y-(rho_tot/2+det/2)*rho_y)/det**3
+c     t11 = rho_z/det**2+2*(P2_z-(rho_tot/2+det/2)*rho_z)/det**3
                rab1 = 1.0d0/(Rho(1,iGrid)-Rho(2,iGrid))
                dFdRa  = dF_dRho(ipRa,iGrid)
                dFdRb  = dF_dRho(ipRb,iGrid)

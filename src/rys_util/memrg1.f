@@ -39,7 +39,7 @@ c     iPrint = nPrint(iRout)
       nRys = (la+lb+lc+ld+2 +1)/2
 *
       MemPrm = 0
-      nPAO = nElem(la)*nElem(lb)*nElem(lc)*nElem(ld)
+*     nPAO = nElem(la)*nElem(lb)*nElem(lc)*nElem(ld)
 *     1st order gradient of [ab|cd]
 *     MemPrm = MemPrm + nPAO * 9
       nabMax = la+lb +1

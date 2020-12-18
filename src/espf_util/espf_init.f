@@ -28,6 +28,5 @@
       Call GetMem('ExtPot','ALLO','REAL',ipExt,natom*MxExtPotComp)
       call dcopy_(MxExtPotComp*natom,[Zero],0,Work(ipExt),1)
 *
-      iReturn=0
       Return
       End

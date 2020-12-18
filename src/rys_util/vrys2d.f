@@ -48,7 +48,6 @@
 *
       iOffy =   nArg*lRys
       iOffz = 2*nArg*lRys
-      tTwo = Two
       If (nabMax.eq.0 .and. ncdMax.eq.0) Then
       Else
 *

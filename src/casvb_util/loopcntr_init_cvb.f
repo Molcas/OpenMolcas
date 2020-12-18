@@ -271,9 +271,10 @@ c  Next loop iteration :
       ioptstep=noptstep+1
 
 1000  continue
-      do ioptim=1,noptim
-      if(iopt2step(ioptim).eq.ioptstep)goto 1100
+      do i=1,noptim
+      if(iopt2step(i).eq.ioptstep)goto 1099
       enddo
+1099  ioptim=i
 1100  loopcntr_iterate_cvb=(ioptim.le.noptim)
       return
       end

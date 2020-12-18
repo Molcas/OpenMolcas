@@ -36,7 +36,6 @@
       bConst=0.1320d0
       dConst=0.3490d0
       cConst=0.25330d0
-      Cf=2.8712340001881918D0
       Rho_min=T_X*1.0D-2
 *
       Do iGrid=1,mGrid
@@ -49,11 +48,9 @@
          Rhoz=2.0d0*Rho(4,iGrid)
          gradRho2=Rhox*Rhox+Rhoy*Rhoy+Rhoz*Rhoz
          grad2Rho=2.0d0*Rho(5,iGrid)
-         P2=P2_ontop(1,iGrid)
          P2x=P2_ontop(2,iGrid)
          P2y=P2_ontop(3,iGrid)
          P2z=P2_ontop(4,iGrid)
-         gradP22=P2x*P2x+P2y*P2y+P2z*P2z
          grad2P2=P2_ontop(5,iGrid)
          P2sp=P2_ontop(6,iGrid)
          gradP2gradRho=Rhox*P2x+Rhoy*P2y+Rhoz*P2z
@@ -65,11 +62,9 @@
          Rhoz=Rho(5,iGrid)+Rho(8,iGrid)
          gradRho2=Rhox*Rhox+Rhoy*Rhoy+Rhoz*Rhoz
          grad2Rho=Rho(9,iGrid)+Rho(10,iGrid)
-         P2 =P2_ontop(1,iGrid)
          P2x=P2_ontop(2,iGrid)
          P2y=P2_ontop(3,iGrid)
          P2z=P2_ontop(4,iGrid)
-         gradP22=P2x*P2x+P2y*P2y+P2z*P2z
          grad2P2=P2_ontop(5,iGrid)
          P2sp=P2_ontop(6,iGrid)
          gradP2gradRho=Rhox*P2x+Rhoy*P2y+Rhoz*P2z
@@ -81,7 +76,6 @@
       t2 = 1/t1
       t4 = 1+dConst*t2
       t5 = 1/t4
-      denom = 1.D0*t5
       T2_term = -aConst*Rho_tot*t5
       t10 = t4**2
       dT2_dRho = -aConst*t5-aConst*t2/t10*dConst/3
@@ -98,7 +92,6 @@
       t10 = t2**2
       t12 = 1/t10/Rho_tot
       t14 = t1*t9*t12
-      Z_term = -t14
       t15 = t1*cConst
       t16 = Rho_tot**2
       t17 = t16*Rho_tot

@@ -16,7 +16,6 @@
 #include "MolProp.fh"
 #include "warnings.fh"
 
-      Integer      nBondCount(mxAtomMP)
       Character*3  EndKey
 *Jose Character*4  TestLabe(0:nAtoms), KWord
       Character*4   KWord
@@ -88,7 +87,6 @@
 * Get the input for bonds
 981   LAllCenters=.True.
       Do i=1,MxAtomMP
-         nBondCount(i)=0
          NUB(i) = 0
          Do j=1,MxAtomMP
             NBI(i,j) = 0

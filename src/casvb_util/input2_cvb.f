@@ -161,7 +161,6 @@ c  Set absym and use just lowest spin value if spinbas=determinants :
         i2s_min=nel_fr(ifrag)
         do iS=1,nS_fr(ifrag)
         if(i2s_fr(iS,ifrag).ne.0)absym(1)=.false.
-        is2_min=min(i2s_min,i2s_fr(iS,ifrag))
         enddo
         if(kbasis.eq.6)then
           nS_fr(ifrag)=1

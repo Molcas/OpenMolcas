@@ -249,8 +249,6 @@
      &                D_DS(:,3:nFckDim+2),nh1,nFckDim,
      &                Do_Grad,
      &                Grad,nGrad,DFTFOCK)
-*   calculate v_T, Subsys A
-      Xint_Ts_A=dDot_(nh1,F_DFT(:,3),1,D_DS(:,3),1)
 *---
       Call wrap_DrvNQ(KSDFT,F_DFT(:,3:nFckDim+2),nFckDim,Func_A,
      &                D_DS(:,3:nFckDim+2),nh1,nFckDim,
@@ -492,7 +490,7 @@ c Avoid unused argument warnings
 *                                                                      *
        If (KSDFT.eq.'LDTF/LSDA ' .or.
      &     KSDFT.eq.'LDTF/LDA  ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
          Call DrvNQ(LSDA_emb,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -506,7 +504,7 @@ c Avoid unused argument warnings
 *                                                                      *
        Else If (KSDFT.eq.'LDTF/LSDA5' .or.
      &          KSDFT.eq.'LDTF/LDA5 ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
          Call DrvNQ(LSDA5_emb,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -519,7 +517,7 @@ c Avoid unused argument warnings
 *      LDTF/PBE   (Thomas-Fermi for KE)                                *
 *                                                                      *
        Else If (KSDFT.eq.'LDTF/PBE  ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
          Call DrvNQ(PBE_emb,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -532,7 +530,7 @@ c Avoid unused argument warnings
 *      NDSD/PBE   (NDSD for KE)                                        *
 *                                                                      *
        Else If (KSDFT.eq.'NDSD/PBE  ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=meta_GGA_type2
          Call DrvNQ(PBE_emb2,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -545,7 +543,7 @@ c Avoid unused argument warnings
 *      LDTF/BLYP  (Thomas-Fermi for KE)                                *
 *                                                                      *
        Else If (KSDFT.eq.'LDTF/BLYP ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
          Call DrvNQ(BLYP_emb,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -558,7 +556,7 @@ c Avoid unused argument warnings
 *      NDSD/BLYP  (NDSD for KE)                                        *
 *                                                                      *
        Else If (KSDFT.eq.'NDSD/BLYP ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=meta_GGA_type2
          Call DrvNQ(BLYP_emb2,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -571,7 +569,7 @@ c Avoid unused argument warnings
 *      Kinetic only  (Thomas-Fermi)                                    *
 *                                                                      *
        Else If (KSDFT.eq.'TF_only') Then
-         ExFac=Zero
+         !ExFac=Zero
          Functional_type=LDA_type
          Call DrvNQ(Ts_only_emb,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -584,7 +582,7 @@ c Avoid unused argument warnings
 *      HUNTER  (von Weizsacker KE, no calc of potential)               *
 *                                                                      *
        Else If (KSDFT.eq.'HUNTER') Then
-         ExFac=Zero
+         !ExFac=Zero
          Functional_type=GGA_type
          Call DrvNQ(vW_hunter,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -597,7 +595,7 @@ c Avoid unused argument warnings
 *      NUCATT                                                          *
 *                                                                      *
        Else If (KSDFT.eq.'NUCATT_EMB') Then
-         ExFac=Zero
+         !ExFac=Zero
          Functional_type=LDA_type
          Call DrvNQ(nucatt_emb,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -609,7 +607,7 @@ c Avoid unused argument warnings
 *                                                                      *
 *     Checker
       Else If (KSDFT.eq.'CHECKER') Then
-         ExFac=Zero
+         !ExFac=Zero
          Functional_type=meta_GGA_type2
          Call DrvNQ(Checker,F_DFT,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -680,7 +678,7 @@ c Avoid unused argument warnings
 *                                                                      *
        If (KSDFT.eq.'LDTF/LSDA ' .or.
      &     KSDFT.eq.'LDTF/LDA  ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
          Call DrvNQ(VWN_III_emb,F_corr,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -694,7 +692,7 @@ c Avoid unused argument warnings
 *                                                                      *
        Else If (KSDFT.eq.'LDTF/LSDA5' .or.
      &          KSDFT.eq.'LDTF/LDA5 ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=LDA_type
          Call DrvNQ(VWN_V_emb,F_corr,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -708,7 +706,7 @@ c Avoid unused argument warnings
 *                                                                      *
        Else If (KSDFT.eq.'LDTF/PBE  ' .or.
      &          KSDFT.eq.'NDSD/PBE  ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
          Call DrvNQ(cPBE_emb,F_corr,nFckDim,Func,
      &              D_DS,nh1,nD_DS,
@@ -722,7 +720,7 @@ c Avoid unused argument warnings
 *                                                                      *
        Else If (KSDFT.eq.'LDTF/BLYP ' .or.
      &          KSDFT.eq.'NDSD/BLYP ') Then
-         ExFac=Get_ExFac(KSDFT(6:10))
+         !ExFac=Get_ExFac(KSDFT(6:10))
          Functional_type=GGA_type
          Call DrvNQ(cBLYP_emb,F_corr,nFckDim,Func,
      &              D_DS,nh1,nD_DS,

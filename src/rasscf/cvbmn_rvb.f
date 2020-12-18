@@ -24,6 +24,5 @@ c  ICODE=2 end of variational calculation (print summary)
       call cvbstart_rvb_lt9(icode)
       call main_cvb()
       call setretvals_cvb(esym,n_iter)
-      call cvbfinish_cvb(icode)
       return
       end

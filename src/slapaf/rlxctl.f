@@ -33,7 +33,6 @@
       Real*8, Allocatable:: GB(:)
 *
       Lu=6
-      iRout = 32
       StpLbl=' '
       GrdLbl=' '
       Just_Frequencies=.False.

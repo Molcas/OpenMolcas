@@ -29,10 +29,9 @@
       Real*8 Zeta(nT), P(nT,3), rKapab(nT), T(nT), Fact(nT),
      &       ZEInv(nT)
 *
+#ifdef _DEBUGPRINT_
       iRout = 244
       iPrint = nPrint(iRout)
-*
-#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' Zeta in TERIS',' ',Zeta,nT,1)
          Call RecPrt(' P in TERIS',' ',P,nT,3)

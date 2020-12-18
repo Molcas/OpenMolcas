@@ -44,17 +44,8 @@
 #ifdef _DEBUGPRINT_
 *     Local arrays
       Character*30 Label
-#endif
-*
-      iRout = 14
-      iPrint = nPrint(iRout)
-*
-#ifdef _DEBUGPRINT_
-      iPrint=99
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In Cff2dq: Coori',' ',Coori,3,4)
-         Call RecPrt(' In Cff2dq: U2',' ',U2,nRys,nT)
-      End If
+      Call RecPrt(' In Cff2dq: Coori',' ',Coori,3,4)
+      Call RecPrt(' In Cff2dq: U2',' ',U2,nRys,nT)
 #endif
       AeqB = EQ(Coori(1,1),Coori(1,2))
       CeqD = EQ(Coori(1,3),Coori(1,4))

@@ -83,7 +83,6 @@ c#include "print.fh"
 *
          ixabcd = ixabc + ixd
          iyabcd = iyabc + iyd
-         izabcd = izabc + izd
 *
 *        Compute all desired gradients with respect to an x-component.
 *

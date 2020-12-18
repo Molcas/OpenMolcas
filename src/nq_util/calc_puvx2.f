@@ -72,7 +72,6 @@
       Do iSym = 1,nSym
         iOrb = nOrb(iSym)
         iAsh = nAsh(iSym)
-        iIsh = nIsh(iSym)
         iPUVX = off_PUVX(iSym)
         Do jSym = 1,nSym
           jAsh = nAsh(jSym)
@@ -182,8 +181,7 @@
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_PUVX(mxSym),off_Bas(mxSym),
      &        off_BasIsh(mxSym)
-      Integer   off_Dmat, off_Fmat
-      Dimension off_Dmat(mxSym), off_Fmat(mxSym)
+      Integer off_Fmat(mxSym)
 
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
@@ -319,7 +317,7 @@
 !Construction of Fock matrix pieces
       iStack = 0
       Do iSym = 1,nSym
-         off_Dmat(iSym) = iStack
+         !off_Dmat(iSym) = iStack
          iAsh = nAsh(iSym)
          iStack = iStack+ (iAsh*iAsh+iAsh)/2
       End Do
@@ -2280,8 +2278,7 @@
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_PUVX(mxSym),off_Bas(mxSym),
      &        off_BasIsh(mxSym)
-      Integer   off_Dmat, off_Fmat
-      Dimension off_Dmat(mxSym), off_Fmat(mxSym)
+      Integer off_Fmat(mxSym)
 
 
       Dimension TabMO(mAO,nCoor,nTabMOs),
@@ -2429,7 +2426,7 @@
 !Construction of Fock matrix pieces
       iStack = 0
       Do iSym = 1,nSym
-         off_Dmat(iSym) = iStack
+         !off_Dmat(iSym) = iStack
          iAsh = nAsh(iSym)
          iStack = iStack+ (iAsh*iAsh+iAsh)/2
       End Do
@@ -2452,7 +2449,6 @@
         iOrb = nOrb(iSym)
         iAsh = nAsh(iSym)
         iIsh = nIsh(iSym)
-        iPUVX = off_PUVX(iSym)
         Do jSym = 1,nSym !sym for u
           jOrb = nOrb(jSym)
           jAsh = nAsh(jSym)
@@ -3657,8 +3653,7 @@
 #include "WrkSpc.fh"
 #include "ksdft.fh"
       Integer off_BasAsh(mxSym),
-     &        off_PUVX(mxSym),off_Bas(mxSym)!,off_Fmat(mxSym),
-!     &        off_Dmat(mxSym)
+     &        off_PUVX(mxSym)
       Integer nIrrep
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
@@ -3679,7 +3674,6 @@
       iStack  = 0
       iStack1 = 0
       Do iSym = 1,nSym
-        off_Bas(iSym)    = iStack1
         off_BasAsh(iSym) = iStack1+nIsh(iSym)+nFro(iSym)
         iStack1 = iStack1 + nBas(iSym)
         iStack  = iStack  + nAsh(iSym)
@@ -3710,11 +3704,8 @@
       Do iSym = 1,nSym
         iOrb = nOrb(iSym)
         iAsh = nAsh(iSym)
-        iIsh = nIsh(iSym)
-        iPUVX = off_PUVX(iSym)
         Do jSym = 1,nSym
           jAsh = nAsh(jSym)
-          jIsh = nIsh(jSym)
           ijSym = 1 + ieor(iSym-1,jSym-1)
           Do kSym = 1,nSym
             kAsh = nAsh(kSym)
@@ -3911,8 +3902,7 @@
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_PUVX(mxSym),off_Bas(mxSym),
      &        off_BasIsh(mxSym)
-      Integer   off_Dmat, off_Fmat
-      Dimension off_Dmat(mxSym), off_Fmat(mxSym)
+      Integer off_Fmat(mxSym)
 
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
@@ -3921,7 +3911,6 @@
       Real*8 D1MO(nD1MO)
       Integer count_tmp
       Real*8 DVX
-      real*8 Fact
       Real*8 time1,time2
       Integer case
       iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
@@ -3992,7 +3981,6 @@
 * BUILD PUVX potentials
 !Note - I really only need the TUVX potentials.  Area for speedup.
 ************************************************************************
-      Fact = 1.00d0
       Do iSym = 1,nSym
         iOrb = nOrb(iSym)
         iAsh = nAsh(iSym)
@@ -4091,7 +4079,6 @@
 !Construction of Fock matrix pieces
       iStack = 0
       Do iSym = 1,nSym
-         off_Dmat(iSym) = iStack
          iAsh = nAsh(iSym)
          iStack = iStack+ (iAsh*iAsh+iAsh)/2
       End Do
@@ -5485,8 +5472,7 @@
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_PUVX(mxSym),off_Bas(mxSym),
      &        off_BasIsh(mxSym)
-      Integer   off_Dmat, off_Fmat
-      Dimension off_Dmat(mxSym), off_Fmat(mxSym)
+      Integer off_Fmat(mxSym)
 
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
@@ -5496,7 +5482,6 @@
       real*8 V_puvx
       Integer count_tmp
       Real*8 DVX
-      real*8 Fact
       Integer case
       iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
       iTri(i)=(i*i-i)/2
@@ -5569,7 +5554,6 @@
 * BUILD PUVX potentials
 !Note - I really only need the TUVX potentials.  Area for speedup.
 ************************************************************************
-      Fact = 1.00d0
       Do iSym = 1,nSym
         iOrb = nOrb(iSym)
         iAsh = nAsh(iSym)
@@ -5705,12 +5689,12 @@
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                        d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -5780,7 +5764,7 @@
 !Construction of Fock matrix pieces
       iStack = 0
       Do iSym = 1,nSym
-         off_Dmat(iSym) = iStack
+         !off_Dmat(iSym) = iStack
          iAsh = nAsh(iSym)
          iStack = iStack+ (iAsh*iAsh+iAsh)/2
       End Do
@@ -6136,12 +6120,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                        d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -6318,12 +6302,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -6499,12 +6483,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -6681,12 +6665,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -6863,12 +6847,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -7056,12 +7040,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -7238,12 +7222,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -7420,12 +7404,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -7601,12 +7585,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -7783,12 +7767,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -7965,12 +7949,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -8160,12 +8144,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -8342,12 +8326,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -8524,12 +8508,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -8706,12 +8690,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -8888,12 +8872,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -9070,12 +9054,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -9263,12 +9247,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -9445,12 +9429,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -9627,12 +9611,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -9809,12 +9793,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -9991,12 +9975,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -10173,12 +10157,12 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                       RHOPx=Rho(3,iGrid)+Rho(6,iGrid)
                       RHOPy=Rho(4,iGrid)+Rho(7,iGrid)
                       RHOPz=Rho(5,iGrid)+Rho(8,iGrid)
-                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
-     &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
-                       Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
-     &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
-                       Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
-     &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
+c                      Zetax =Deriv*((4.0D0*P2_ontop(2,iGrid)
+c    &                     /(dTot**2.0D0))-(2.0D0*ratio*RHOPx/dTot))
+c                      Zetay =Deriv*((4.0D0*P2_ontop(3,iGrid)
+c    &                    /(dTot**2.0D0))-(2.0D0*ratio*RHOPy/dTot))
+c                      Zetaz =Deriv*((4.0D0*P2_ontop(4,iGrid)
+c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
                         d_Zetax =Deriv*(4.0D0/(dTot**2.0D0)*SQMOPx
      &                          -2.0D0*RHOPx/dTot*d_ratio)
      &                          +((4.0D0*P2_ontop(2,iGrid)
@@ -10331,7 +10315,6 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
           do iX = 1,iV
             jX = iX + off_BasIsh(iSym)
             VX = off_Fmat(iSym) + iTri(iV,iX)
-            fact=1.0d0
             Do iGrid = 1, nCoor
             dTot=Rho(1,iGrid)+Rho(2,iGrid)
               if (dTot.ge.thrsrho) then
@@ -10488,7 +10471,6 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
           do iX = 1,iV
             jX = iX + off_BasIsh(iSym)
             VX = off_Fmat(iSym) + iTri(iV,iX)
-            fact=1.0d0
             Do iGrid = 1, nCoor
             dTot=Rho(1,iGrid)+Rho(2,iGrid)
               if (dTot.ge.thrsrho) then
@@ -10732,8 +10714,7 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
       Integer off_Ash(mxSym), off_BasAsh(mxSym),
      &        off_PUVX(mxSym),off_Bas(mxSym),
      &        off_BasIsh(mxSym)
-      Integer   off_Dmat, off_Fmat
-      Dimension off_Dmat(mxSym), off_Fmat(mxSym)
+      Integer off_Fmat(mxSym)
 
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
@@ -10742,7 +10723,6 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
       Real*8 D1MO(nD1MO)
       Integer count_tmp
       Real*8 DVX
-      real*8 Fact
       Real*8 time1,time2
       Integer iftmpo,sztmp,ipq
       Real*8 junk_test,junk_test_t
@@ -10892,7 +10872,6 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
 * BUILD PUVX potentials
 !Note - I really only need the TUVX potentials.  Area for speedup.
 ***********************************************************************
-      Fact = 1.00d0
       Do iSym = 1,nSym
         iOrb = nOrb(iSym)
         iAsh = nAsh(iSym)
@@ -10989,7 +10968,7 @@ c    &                   /(dTot**2.0D0))-(2.0D0*ratio*RHOPz/dTot))
 !Construction of Fock matrix pieces
       iStack = 0
       Do iSym = 1,nSym
-         off_Dmat(iSym) = iStack
+         !off_Dmat(iSym) = iStack
          iAsh = nAsh(iSym)
          iStack = iStack+ (iAsh*iAsh+iAsh)/2
       End Do

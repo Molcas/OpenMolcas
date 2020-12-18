@@ -38,9 +38,6 @@
 *
       nElem(i) = (i+1)*(i+2)/2
 *
-      iRout = 248
-      iPrint = nPrint(iRout)
-*
       call dcopy_(9,[Zero],0,Temp,1)
 *
       ii = la*(la+1)*(la+2)/6
@@ -91,7 +88,6 @@
 *
          ixabcd = ixbcd + ixa
          iyabcd = iybcd + iya
-         izabcd = izbcd + iza
 *
 *
 *        Compute all desired gradients with respect to an x-component.
