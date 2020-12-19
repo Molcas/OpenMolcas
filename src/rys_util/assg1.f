@@ -79,7 +79,6 @@
 *
          ixbcd = ixcd + ixb
          iybcd = iycd + iyb
-         izbcd = izcd + izb
 *
       Do 400 ipa = 1, nElem(la)
          ixa = ixyz(1,ii+ipa)

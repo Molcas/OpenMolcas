@@ -36,11 +36,9 @@
       Character*(*) Name
       character*256 value
       character*1024 message
-      isdev=0
       value=' '
       call getenvf('MOLCAS_ISDEV',value)
       if(value.eq.'PRODUCTION') then
-      isdev=1
       return
       endif
       if(value.eq.' '.or.value.ne.Name) then
@@ -49,7 +47,6 @@
      * 'e.g. to publish the results -- you must contact;'//
      * Name//' to find the conditions applied;;'//
      * 'Alternatively you may either use the production version;'
-      isdev=1
       Call WarningMessage(2,message)
       return
       endif

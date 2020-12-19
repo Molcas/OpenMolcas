@@ -81,16 +81,16 @@
             Else
                rho_tot=Rho(1,iGrid)+Rho(2,iGrid)
                OnTop=Rho(1,iGrid)*Rho(2,iGrid)
-               det=sqrt(rho_tot*rho_tot-4.0d0*OnTop)
-               rho_x=Rho(3,iGrid)+Rho(6,iGrid)
-               rho_y=Rho(4,iGrid)+Rho(7,iGrid)
-               rho_z=Rho(5,iGrid)+Rho(8,iGrid)
-               P2_x=Rho(3,iGrid)*Rho(2,iGrid)+
-     &              Rho(1,iGrid)*Rho(6,iGrid)
-               P2_y=Rho(4,iGrid)*Rho(2,iGrid)+
-     &              Rho(1,iGrid)*Rho(7,iGrid)
-               P2_z=Rho(5,iGrid)*Rho(2,iGrid)+
-     &              Rho(1,iGrid)*Rho(8,iGrid)
+c              det=sqrt(rho_tot*rho_tot-4.0d0*OnTop)
+c              rho_x=Rho(3,iGrid)+Rho(6,iGrid)
+c              rho_y=Rho(4,iGrid)+Rho(7,iGrid)
+c              rho_z=Rho(5,iGrid)+Rho(8,iGrid)
+c              P2_x=Rho(3,iGrid)*Rho(2,iGrid)+
+c    &              Rho(1,iGrid)*Rho(6,iGrid)
+c              P2_y=Rho(4,iGrid)*Rho(2,iGrid)+
+c    &              Rho(1,iGrid)*Rho(7,iGrid)
+c              P2_z=Rho(5,iGrid)*Rho(2,iGrid)+
+c    &              Rho(1,iGrid)*Rho(8,iGrid)
 
 c     t0 = (1.D0/2.D0+rho_tot/det/2)*rho_x/det+(P2_x-(rho_tot/2+det/2)*
 c    &rho_x)*rho_tot/det**3

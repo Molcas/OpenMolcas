@@ -45,7 +45,6 @@
       iadDen=1
       iadVec=1
       iadOcc=1
-      iOpt = 1
 #ifdef _HDF5_
       If (mh5_is_hdf5(FName)) Then
          id_file=mh5_open_file_r(FName)

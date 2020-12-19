@@ -94,7 +94,6 @@
       lOp(1) = iOper(kOp(1))
       lOp(2) = iOper(kOp(2))
 *
-      iComp = 1
       kdc = 0
       Do 1960 kCnttp = 1, nCnttp
          If (.Not.dbsc(kCnttp)%ECP) Go To 1961

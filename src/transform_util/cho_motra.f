@@ -174,7 +174,7 @@ C
       Character*6 BName
 
       Real*8    tread(2),tmotr1(2),tmotr2(2)
-      Logical   Debug,timings,DoRead,Do_int
+      Logical   timings,DoRead,Do_int
       Integer   nPorb(8),ipOrb(8)
       Integer   ipLpb(8),iSkip(8)
       Integer   LunChVF(8),kOff(8),iOffB(8),nOB(8)
@@ -211,14 +211,6 @@ C
 ******
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
-
-
-#ifdef _DEBUGPRINT_
-      Debug=.true.
-#else
-      Debug=.false.
-#endif
-
 
 #ifdef _HDF5_QCM_
       ! Leon 13.6.2017: Avoid opening a regular file if HDF5 is used

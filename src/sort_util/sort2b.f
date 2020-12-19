@@ -99,7 +99,6 @@
             If ( lVRec.lt.mxVRec ) nSave=iSave
          End Do
          If ( nSave.eq.0 ) then
-            iRC=001
             Write(6,*)
             Write(6,'(2X,A,I3.3,A)')
      &      '*** Error in SORT2B ***'
@@ -113,7 +112,6 @@
             lVRec=lVRec+IntLen(iSave)
          End Do
          If ( lVRec.gt.mxVRec ) then
-            iRC=002
             Write(6,*)
             Write(6,'(2X,A,I3.3,A)')
      &      '*** Error in SORT2B ***'
@@ -128,7 +126,6 @@
 *----------------------------------------------------------------------*
          Call PKR8(iOpt,nSave,llVRec,SrtArr(iStart),PkVal(lTop+1))
          If ( llVRec.ne.lVRec ) then
-            iRC=003
             Write(6,*)
             Write(6,'(2X,A,I3.3,A)')
      &      '*** Error in SORT2B ***'

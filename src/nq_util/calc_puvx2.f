@@ -3652,8 +3652,7 @@
 #include "general.fh"
 #include "WrkSpc.fh"
 #include "ksdft.fh"
-      Integer off_BasAsh(mxSym),
-     &        off_PUVX(mxSym)
+      Integer off_BasAsh(mxSym)
       Integer nIrrep
       Dimension TabMO(mAO,nCoor,nTabMOs),
      &       Weights(nCoor),P2_ontop(nP2_ontop,nCoor),
@@ -3681,7 +3680,6 @@
 *
       iStack = 0
       Do iSym = 1,nSym
-        off_PUVX(iSym) = iStack
         iOrb = nOrb(iSym)
         Do jSym = 1,nSym
           jAsh = nAsh(jSym)

@@ -71,12 +71,10 @@ C     ------------
       If (.not.Silent) Call CWTime(C1,W1)
       nIter = 0
       Functional = 0.0d0
-      Gradient = 1.0d15
       Call GetGrad_ER(Functional,GradNorm,Work(ipRmat),CMO,
      &                nBasis,nOrb2Loc,Timing)
       OldFunctional = Functional
       FirstFunctional = Functional
-      FirstGradient = GradNorm
       Delta = Functional
       If (.not.Silent) Then
          Call CWTime(C2,W2)

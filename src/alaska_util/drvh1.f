@@ -304,24 +304,24 @@ CAOM>
          Do iMltpl = 0, lMax
             Do ix = iMltpl, 0, -1
                If (Mod(ix,2).eq.0) Then
-                  iSymX=1
+*                 iSymX=1
                Else
                   ixyz=1
-                  iSymX=2**IrrFnc(ixyz)
+*                 iSymX=2**IrrFnc(ixyz)
                End If
                Do iy = iMltpl-ix, 0, -1
                   If (Mod(iy,2).eq.0) Then
-                     iSymY=1
+*                    iSymY=1
                   Else
                      ixyz=2
-                     iSymY=2**IrrFnc(ixyz)
+*                    iSymY=2**IrrFnc(ixyz)
                   End If
                   iz = iMltpl-ix-iy
                   If (Mod(iz,2).eq.0) Then
-                     iSymZ=1
+*                    iSymZ=1
                   Else
                      ixyz=4
-                     iSymZ=2**IrrFnc(ixyz)
+*                    iSymZ=2**IrrFnc(ixyz)
                   End If
 *                 lOper(iComp) = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
 *-----------------Compute only total symmetric contributions

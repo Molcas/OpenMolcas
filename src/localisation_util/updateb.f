@@ -41,13 +41,13 @@ C
          kOff_s = ip0 + nOrb2Loc*(iMO_s-1)
          kOff_t = ip0 + nOrb2Loc*(iMO_t-1)
          kOff_ss = kOff_s + iMO_s
-         kOff_ts = kOff_s + iMO_t
          kOff_st = kOff_t + iMO_s
          kOff_tt = kOff_t + iMO_t
          Dss = Work(kOff_ss)
          Dst = Work(kOff_st)
          Dtt = Work(kOff_tt)
 #if defined (_DEBUGPRINT_)
+         kOff_ts = kOff_s + iMO_t
          Dts = Work(kOff_ts)
          Tst = Dst - Dts
          If (abs(Tst) .gt. 1.0d-14) Then

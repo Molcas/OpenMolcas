@@ -322,6 +322,9 @@ CONTAINS
 
       CLOSE(UNIT=LUINTM,STATUS='KEEP')
 
+#ifdef _WARNING_WORKAROUND_
+      IF (.FALSE.) CALL Unused_integer(X)
+#endif
    END SUBROUTINE fmm_read_in_raw_data
 
 !-------------------------------------------------------------------------------

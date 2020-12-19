@@ -63,8 +63,6 @@
 *
       nElem(i) = (i+1)*(i+2)/2
 *
-      iRout = 10
-      iPrint = nPrint(iRout)
       la = iAnga(1)
       lb = iAnga(2)
       lc = iAnga(3)
@@ -327,7 +325,6 @@
       Mem0 = Mem0 - Mem3 - 1
       MinXtr = Min(MinXtr,Mem0)
 *
-      MemSum=Mem1+Mem2+Mem3
       Mem2 = Mem2 + Mem3
 *
       ipMem2 = ipMem1 + Mem1

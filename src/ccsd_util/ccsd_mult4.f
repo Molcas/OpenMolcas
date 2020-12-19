@@ -292,7 +292,7 @@ c     help variables
 c
        integer nhelp1,nhelp2,nhelp4
        integer nhelp41,nhelp42
-       integer ntest1,ntest2
+       integer ntest2
        integer sa1,sa2,sa3,sb1,sb2,sa23
        integer ia,ib,iy,ix
        integer possct
@@ -307,11 +307,11 @@ c
 c1.1  define limitations - A p,q>r must be tested - ntest1
 c     - B p>q must be tested - ntest2
 c
-       if (mapda(0,6).eq.2) then
-       ntest1=1
-       else
-       ntest1=0
-       end if
+c      if (mapda(0,6).eq.2) then
+c      ntest1=1
+c      else
+c      ntest1=0
+c      end if
 c
        if (mapdb(0,6).eq.1) then
        ntest2=1

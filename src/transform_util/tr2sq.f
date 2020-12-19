@@ -50,8 +50,6 @@ CPAM98     &              LMOR2,LMOS2,IAD13,ITP,ITQ,ITR,ITS
       DIMENSION CMO(NCMO)
       DIMENSION X1(*),X2(*),X3(*),RUPQ(*),URPQ(*),TUPQ(*)
 
-
-      Kount=0
       NSYMP=(NSYM**2+NSYM)/2
       NORU=NBR*NOCS
       NOUR=NBS*NOCR

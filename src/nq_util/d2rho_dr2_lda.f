@@ -91,7 +91,6 @@
          mdci       =iSD(10,iS)
          index_i    =list_bas(2,ilist_s)
 *
-         lDCRE=NrOpr(kDCRE)
          Phase(1,1)=DBLE(dc(mdci)%nStab)
          Phase(2,1)=DBLE(dc(mdci)%nStab)
          Phase(3,1)=DBLE(dc(mdci)%nStab)
@@ -112,7 +111,6 @@
             jShell     =iSD(11,jS)
             index_j    =list_bas(2,jlist_s)
 *
-            lDCRR=NrOpr(kDCRR)
             Phase(1,2)=DBLE(dc(mdcj)%nStab)
             Phase(2,2)=DBLE(dc(mdcj)%nStab)
             Phase(3,2)=DBLE(dc(mdcj)%nStab)

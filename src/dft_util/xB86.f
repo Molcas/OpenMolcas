@@ -114,8 +114,6 @@ C     parameter(xldacff=0.930525736349100025D0)
       r43 = rho**four3
 * lda part:
 C     xlda=-xldacff*r43
-* Note: Use x=sqrt(gamma)/rho**four3
-      x = sqrt(gamma_s)/r43
 
       B88 = -b*gamma/(g*gamma/r43 + r43)
 

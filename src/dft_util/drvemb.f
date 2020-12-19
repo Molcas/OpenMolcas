@@ -733,7 +733,7 @@ c Avoid unused argument warnings
 *     Checker                                                          *
 *                                                                      *
       Else If (KSDFT.eq.'CHECKER') Then
-         ExFac=Zero
+         !ExFac=Zero
          Functional_type=meta_GGA_type2
          Call DrvNQ(Checker,F_corr,nFckDim,Func,
      &              D_DS,nh1,nD_DS,

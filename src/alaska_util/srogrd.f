@@ -37,7 +37,6 @@
 *      lb    : total angular momentum of ket gaussian                  *
 *      A     : center of bra gaussian                                  *
 *      B     : center of ket gaussian                                  *
-*      nRys  : order of Rys- or Hermite-Gauss polynomial               *
 *      Array : Auxiliary memory as requested by ECPMem                 *
 *      nArr  : length of Array                                         *
 *      Ccoor : coordinates of the operator, zero for symmetric oper.   *
@@ -85,8 +84,6 @@
          Write (6,*) ' In SROGrd: la,lb=',' ',la,lb
       End If
 *
-      nRys=nHer
-*
       nDAO= nElem(la)*nElem(lb)
       iIrrep = 0
       iuvwx(1) = dc(mdc)%nStab
@@ -94,7 +91,6 @@
       lOp(1) = iOper(kOp(1))
       lOp(2) = iOper(kOp(2))
 *
-      iComp = 1
       kdc = 0
       Do 1960 kCnttp = 1, nCnttp
          If (.Not.dbsc(kCnttp)%ECP) Go To 1961

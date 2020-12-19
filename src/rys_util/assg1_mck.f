@@ -73,7 +73,6 @@ c#include "print.fh"
 *
          ixabc = ixab + ixc
          iyabc = iyab + iyc
-         izabc = izab + izc
 *
       Do 400 ipd = 1, nElem(ld)
          ipdll=ipd+ll

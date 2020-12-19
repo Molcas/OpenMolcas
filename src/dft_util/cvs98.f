@@ -264,10 +264,10 @@ C
       REAL*8 PX, GX, TX, F, FP, FG, FT, DTol, Z, ZP, ZT
       REAL*8 EUEG, Chi, EUEGP, ChiP, ChiG, cf, gcc
       REAL*8 Zero, F1, F2, F3, F4, F5, F8, F11
-      REAL*8 Pi, Pi34, F13, F23, F53, F83
+      REAL*8 Pi, Pi34, F13, F53, F83
       REAL*8 RS, D, RSP, PotLC, DX, DZ, dgdP, dgdG, dgdT
-      REAL*8 E,DP, DG, DT, rhoo, rho43, rho53, rho83
-      REAL*8 rrho, F4o3, kc, xk, zk, gc, dgdx, dgdz
+      REAL*8 E,DP, DG, DT, rhoo, rho53, rho83
+      REAL*8 F4o3, kc, xk, zk, gc, dgdx, dgdz
       REAL*8 d2LdSS, d2LdSZ, d2LdZZ, dLdS, dLdZ
 
       Data Zero/0.0d0/, F1/1.0d0/, F2/2.0d0/, F3/3.0d0/,
@@ -339,12 +339,9 @@ C     Parameters for M06-2X
         Pi = F4*ATan(F1)
         Pi34 = F3 / (F4*Pi)
         F13 = F1 / F3
-        F23 = F2 / F3
         F53 = F5 / F3
         F83 = F8 / F3
         rhoo = PX
-        rrho = 1.0D0/rhoo
-        rho43 = rhoo**F4o3
         rho53 = rhoo**F53
         rho83 = rho53*rhoo
 

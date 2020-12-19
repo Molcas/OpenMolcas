@@ -226,7 +226,7 @@ C
       REAL*8 EUEG, Chi, EUEGP, ChiP, ChiG
       REAL*8 Zero, Pt25, F1, F2, F3, F4, F5, F6, F8, F11
       REAL*8 ss, sss0,sss1, sss2, sss3, sss4, Css
-      REAL*8 Pi, Pi34, F13, F23, F83
+      REAL*8 Pi, Pi34, F13, F83
       REAL*8 RS, D, Fscc, RSP, dFsccP, dFsccG
       REAL*8 E, W, U, dFsccT, dUdChi, dWdU, dWdP, dWdG
       REAL*8 d2LdSS,d2LdSZ,d2LdZZ,PotLC,dLdS,dLdZ
@@ -291,7 +291,6 @@ C       TX = Zero
         Pi = F4*ATan(F1)
         Pi34 = F3 / (F4*Pi)
         F13 = F1 / F3
-        F23 = F2 / F3
         F83 = F8 / F3
 C        FDUEG = (F3/F5)*(F6*Pi*Pi)**F23
         RS = (Pi34/PX) ** F13

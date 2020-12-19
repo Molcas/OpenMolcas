@@ -29,7 +29,7 @@
       Character*(*) Label
       Character*120 Line
       Real*8 Array(nArray)
-      Character*32 File_Name
+c     Character*32 File_Name
 c     Logical Exist
       Character*30 Junk
       Character*8 Toll
@@ -55,10 +55,10 @@ c then do not add info - just return immidiately
 #endif
 c Number - is a number of exported variables from an array.
       Number=20
-      File_Name='molcas_info'
+c     File_Name='molcas_info'
       if(iToll.eq.0) iToll=8
 *
-      Lu_Info=99
+c     Lu_Info=99
 *
 *---------------------------------------------------------------------*
 *     Check the file status                                           *

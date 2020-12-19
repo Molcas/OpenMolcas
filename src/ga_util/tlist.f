@@ -59,7 +59,7 @@ c      real*8  distrib,PQpTsk,TskLw,TskHi,MinPQ1,a,fint,tskmin,tskmax
 #include "para_info.fh"
 #include "WrkSpc.fh"
 #include "status.fh"
-      save ntasks_alloc
+C     save ntasks_alloc
       fint(a)=dble(int(a))
       MinPQ1= MinPQ
       MxnTsk1=MxnTsk
@@ -76,13 +76,13 @@ C     P  = nSkal*(nSkal+1)/2
       End If
       if(Alloc) then
         ipTskQ = 0
-        ntasks_alloc = 0
+C       ntasks_alloc = 0
       end if
       nTasks = nint(Min(PQ,dble(MxnTsk1*nProcs)))
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
 *
       if(Alloc) then
-        ntasks_alloc=ntasks
+C       ntasks_alloc=ntasks
         Call GetMem('TskMap','ALLO','Real',ipTskM,2*nTasks)
         call dcopy_(2*nTasks,[Zero],0,Work(ipTskM),1)
         Call GetMem('TskQ','ALLO','Real',ipTskQ,2*nTasks)

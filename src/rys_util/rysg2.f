@@ -128,7 +128,6 @@
 *
       ip = 1
 
-      ipFinal=ip
       MemFinal=9*nt*nElem(la)*nElem(lb)*nElem(lc)*nElem(ld)
       ip=ip+MemFinal
 *
