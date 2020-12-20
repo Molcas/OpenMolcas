@@ -11,7 +11,7 @@
 * Copyright (C) 2013, Roland Lindh                                     *
 *               2015, Ignacio Fdez. Galvan (split from gencxctl)       *
 ************************************************************************
-      Subroutine get_drdq(drdq,mInt_,nLambda_,mLambda) !fix the _ later!
+      Subroutine get_drdq(drdq,mInt,nLambda,mLambda,Iter,lWrite)
       use Slapaf_Info, only: BMx, Degen
       use Slapaf_Parameters, only: iRow_c, Curvilinear
       Implicit None
@@ -19,12 +19,13 @@
 *     subroutine to get the dr/dq vectors for the constraints as given *
 *     in the 'UDC' file.                                               *
 ************************************************************************
-#include "info_slapaf.fh"
-#include "stdalloc.fh"
 #include "real.fh"
-      Real*8, Intent(InOut) :: drdq(mInt_,nLambda_)
-      Integer, Intent(In) :: mInt_, nLambda_
-      Integer, Intent(Out) :: mLambda
+#include "stdalloc.fh"
+      Real*8,  Intent(InOut) :: drdq(mInt,nLambda)
+      Integer, Intent(In)    :: mInt, nLambda
+      Integer, Intent(Out)   :: mLambda
+      Integer, Intent(In)    :: Iter
+      Logical, Intent(In)    :: lWrite
 *
       Integer n3,nBV,i,iLambda,iOff,iOff2, iAtom, ixyz
       Real*8 RR
@@ -38,23 +39,23 @@
 *
       n3=SIZE(Degen)
 *
-      If (nLambda_.ne.0) Then
-         nBV=iRow_c-nLambda_-1
-         Call mma_allocate(BMx_t,n3,nLambda_,Label='BMx_t')
+      If (nLambda.ne.0) Then
+         nBV=iRow_c-nLambda-1
+         Call mma_allocate(BMx_t,n3,nLambda,Label='BMx_t')
 
          Call mma_allocate(BVc,n3*nBV,Label='BVc')
          Call mma_allocate(dBVc,nBV*n3**2,Label='dBVc')
          Call mma_allocate(Value,nBV,Label='Value')
          Call mma_allocate(Value0,nBV,Label='Value0')
          Value0(:)=Zero
-         Call mma_allocate(cInt,nLambda_,Label='cInt')
-         Call mma_allocate(cInt0,nLambda_,Label='cInt0')
+         Call mma_allocate(cInt,nLambda,Label='cInt')
+         Call mma_allocate(cInt0,nLambda,Label='cInt0')
          Call mma_allocate(Mult,nBV**2,Label='Mult')
-         Call mma_allocate(dBMx,nLambda_*n3**2,Label='dBMx')
+         Call mma_allocate(dBMx,nLambda*n3**2,Label='dBMx')
          Call mma_allocate(iFlip,nBV,Label='iFlip')
-         Call mma_allocate(Lbl,mInt_,Label='Lbl')
+         Call mma_allocate(Lbl,mInt,Label='Lbl')
 *
-         Call DefInt2(BVc,dBVc,nBV,BMx_t,nLambda_,
+         Call DefInt2(BVc,dBVc,nBV,BMx_t,nLambda,
      &                SIZE(Degen,2),iRow_c,
      &                Value,cInt,cInt0,Lbl,lWrite,
      &                Mult,dBMx,Value0,Iter,iFlip)
@@ -71,18 +72,18 @@
          Call mma_deallocate(BVc)
 
 #ifdef _DEBUGPRINT_
-         Call RecPrt('BMx_t',' ',BMx_t,n3,nLambda_)
+         Call RecPrt('BMx_t',' ',BMx_t,n3,nLambda)
 #endif
 *
 *        Assemble dr/dq: Solve  B dr/dq = dr/dx
 *
-         Call FZero(drdq,nLambda_*mInt_)
+         Call FZero(drdq,nLambda*mInt)
 *
 *        Temporary fix of the dC/dx vector which always
 *        is propted up with the full degeneracy factor.
 *
          If (.not.Curvilinear) Then
-            Do iLambda=1,nLambda_
+            Do iLambda=1,nLambda
                Do i=1,n3
                   iAtom = (i+2)/3
                   ixyz  = i - (iAtom-1)*3
@@ -91,10 +92,10 @@
             End Do
          End If
 
-         Call Eq_Solver('N',n3,mInt_,nLambda_,BMx,Curvilinear,Degen,
+         Call Eq_Solver('N',n3,mInt,nLambda,BMx,Curvilinear,Degen,
      &                  BMx_t,drdq)
 #ifdef _DEBUGPRINT_
-         Call RecPrt('drdq',' ',drdq,mInt_,nLambda_)
+         Call RecPrt('drdq',' ',drdq,mInt,nLambda)
 #endif
 *
          Call mma_deallocate(BMx_t)
@@ -104,21 +105,21 @@
 *
       iOff=1
       iOff2=1
-      mLambda=nLambda_
-      Do iLambda=1,nLambda_
-         RR=Sqrt(DDot_(mInt_,drdq(1,iOff),1,drdq(1,iOff),1))
+      mLambda=nLambda
+      Do iLambda=1,nLambda
+         RR=Sqrt(DDot_(mInt,drdq(1,iOff),1,drdq(1,iOff),1))
          If (RR.lt.1.0D-12) Then
             Write (6,*) 'Warning: constraint ',iLambda,
      &                  ' has a null vector, I''ll remove it!'
             mLambda=mLambda-1
          Else
             If (iOff.ne.iOff2)
-     &         Call dCopy_(mInt_,drdq(1,iOff),1,drdq(1,iOff2),1)
+     &         Call dCopy_(mInt,drdq(1,iOff),1,drdq(1,iOff2),1)
             iOff2=iOff2+1
          End If
          iOff=iOff+1
       End Do
-      If (mLambda.lt.nLambda_)
-     &   Call FZero(drdq(1,mLambda+1),mInt_*(nLambda_-mLambda))
+      If (mLambda.lt.nLambda)
+     &   Call FZero(drdq(1,mLambda+1),mInt*(nLambda-mLambda))
 *
       End Subroutine get_drdq

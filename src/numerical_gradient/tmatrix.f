@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2015, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      Subroutine TMatrix(TMx)
+      Subroutine TMatrix(TMx,mInt_)
       use Slapaf_Info, only: nStab, Coor
       use Slapaf_Parameters, only: iRow_c
       Implicit None
@@ -18,10 +18,11 @@
 *     subroutine to get the T matrix that defines the constrained and  *
 *     unconstrained subspaces.                                         *
 ************************************************************************
-#include "info_slapaf.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8, Intent(InOut) :: TMx(mInt,mInt)
+#include "info_slapaf.fh"
+      Real*8,  Intent(InOut) :: TMx(mInt_,mInt_)
+      Integer, Intent(In)    :: mInt_
 *
       Integer Lambda1,Lambda2
       Logical Invert
@@ -30,14 +31,14 @@
 *     Get the global constraint vectors
 *
       Call mma_Allocate(C1,mInt,nLambda)
-      Call get_drdq(C1,mInt,nLambda,Lambda1)
+      Call get_drdq(C1,mInt,nLambda,Lambda1,Iter,lWrite)
 *
 *     Get the NG constraint vectors
 *
       Call Merge_Constraints('UDC.NG','','UDC',nLambda,iRow_c)
       Call Fix_UDC(iRow_c,nLambda,SIZE(Coor,2),nStab,.True.)
       Call mma_Allocate(C2,mInt,nLambda)
-      Call get_drdq(C2,mInt,nLambda,Lambda2)
+      Call get_drdq(C2,mInt,nLambda,Lambda2,Iter,lWrite)
 *
 *     Combine both sets of constraints and get the T matrix
 *

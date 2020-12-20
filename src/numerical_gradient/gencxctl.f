@@ -128,7 +128,7 @@
 *     Get the T-matrix
 *
       Call mma_allocate(TMx,mInt**2,Label='TMx')
-      Call TMatrix(TMx)
+      Call TMatrix(TMx,mInt)
       Call Put_iScalar('nLambda',nLambda)
       Call Put_dArray('T-matrix',TMx,mInt**2)
 *     Call RecPrt('T-matrix',' ',TMx,mInt,mInt)
