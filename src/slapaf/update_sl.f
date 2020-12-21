@@ -10,8 +10,7 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Update_sl(iter,NmIter,nInter,Step_Trunc,nLambda,
-     &                     nWndw,kIter)
+      Subroutine Update_sl(iter,NmIter,nInter,Step_Trunc,nWndw,kIter)
 ************************************************************************
 *                                                                      *
 *     Object: to update coordinates                                    *
@@ -21,7 +20,6 @@
 *      NmIter         : number of iteration in numerical approach      *
 *      nInter         : total number of internal coordinates           *
 *      Beta           : damping factor                                 *
-*      nLambda        : number of contraints                           *
 *                                                                      *
 *    OutPut:                                                           *
 *      Step_Trunc     : character label to denote truncation type      *
@@ -89,14 +87,9 @@
          qInt(:,:)=Zero
          qInt(:,1)=t_qInt(:,1)
 *
-         Call Update_inner(
-     &                   iter_,nInter,qInt,
-     &                   Shift,Beta,Beta_Disp,
-     &                   Step_Trunc,nLambda,
-     &                   nWndw,
-     &                   kIter,
-     &                   Kriging_Hessian,qBeta,iOpt_RS,.True.,iter_,
-     &                   qBeta_Disp)
+         Call Update_inner(iter_,nInter,qInt,Shift,Beta,Beta_Disp,
+     &                    Step_Trunc,nWndw,kIter,Kriging_Hessian,qBeta,
+     &                    iOpt_RS,.True.,iter_,qBeta_Disp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -123,14 +116,9 @@
 *                                                                      *
 *        Conventional optimization.
 *
-         Call Update_inner(
-     &                iter,nInter,qInt,Shift,
-     &                Beta,Beta_Disp,
-     &                Step_Trunc,nLambda,
-     &                nWndw,
-     &                kIter,
-     &                Kriging_Hessian,qBeta,iOpt_RS,.True.,iter,
-     &                qBeta_Disp)
+         Call Update_inner(iter,nInter,qInt,Shift,Beta,Beta_Disp,
+     &                     Step_Trunc,nWndw,kIter,Kriging_Hessian,qBeta,
+     &                     iOpt_RS,.True.,iter,qBeta_Disp)
 *                                                                      *
 ************************************************************************
 *                                                                      *

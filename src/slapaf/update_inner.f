@@ -14,7 +14,6 @@
      &                     kIter,nInter,qInt,Shift,
      &                     Beta,Beta_Disp,
      &                     Step_Trunc,
-     &                     nLambda,
      &                     nWndw,
      &                     mIter,
      &                     Kriging_Hessian,qBeta,iOpt_RS,
@@ -29,8 +28,6 @@
 *      Shift(*,kIter) : the shift of the internal coordinates          *
 *      Beta           : damping factor step length                     *
 *      Beta_Disp      : damping factor variance                        *
-*      nLambda        : number of constraints                          *
-*      nsAtom         : number of symmetry unique atoms                *
 *                                                                      *
 *    OutPut:                                                           *
 *      qInt(*,kIter+1): the internal coordinates to be used in the     *
@@ -47,7 +44,7 @@
      &                             HrmFrq_Show, Curvilinear, FindTS,
      &                             nBVec, nDimBC, iOptC, iNeg,
      &                             TSConstraints, GNrm_Threshold, Mode,
-     &                             GrdMax, StpMax
+     &                             GrdMax, StpMax, nLambda
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"

@@ -15,7 +15,7 @@
      &                       Free_Slapaf, qInt, dqInt, Lbl
       use Slapaf_Parameters, only: HUpMet, User_Def, iOptC, UpMeth,
      &                             HSet, BSet, PrQ, Numerical, iNeg,
-     &                             E_Delta, nLambda
+     &                             E_Delta
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -115,20 +115,6 @@
 *
       Call Put_dArray('BMtrx',BMx,SIZE(Coor)*nQQ)
       Call Put_iScalar('No of Internal coordinates',nQQ)
-*
-*     Too many constraints?
-*
-      If (nLambda.gt.nQQ) Then
-         Call WarningMessage(2,'Error in RlxCtl')
-         Write (Lu,*)
-         Write (Lu,*) '********************************************'
-         Write (Lu,*) ' ERROR: nLambda.gt.nQQ'
-         Write (Lu,*) ' nLambda=',nLambda
-         Write (Lu,*) ' nQQ=',nQQ
-         Write (Lu,*) ' There are more constraints than coordinates'
-         Write (Lu,*) '********************************************'
-         Call Quit_OnUserError()
-      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -204,10 +190,9 @@
 *        Update geometry
 *
          If (Kriging .and. Iter.ge.nspAI) Then
-            Call Update_Kriging(Iter,nQQ,Step_Trunc,nLambda,nWndw)
+            Call Update_Kriging(Iter,nQQ,Step_Trunc,nWndw)
          Else
-            Call Update_sl(Iter,NmIter,nQQ,Step_Trunc,
-     &                     nLambda,nWndw,kIter)
+            Call Update_sl(Iter,NmIter,nQQ,Step_Trunc,nWndw,kIter)
          End If
 *
 #ifdef UNIT_MM
@@ -274,11 +259,9 @@
      &       (Allocated(mRowH).and.iter.lt.NmIter)
       TSReg = iAnd(iOptC,8192).eq.8192
       Numerical=(lNmHss.or.Allocated(mRowH)).and.iter.le.NmIter
-      Call Convrg(iter,kIter,nQQ,Stop,iStop,ThrCons,
-     &            MxItr,mIntEff,Baker,
-     &            mTtAtm,GoOn,Step_Trunc,
-     &            rMEP,MEP,nMEP,Just_Frequencies,eMEPTest,nLambda,
-     &            TSReg,ThrMEP)
+      Call Convrg(iter,kIter,nQQ,Stop,iStop,ThrCons,MxItr,mIntEff,Baker,
+     &            mTtAtm,GoOn,Step_Trunc,rMEP,MEP,nMEP,Just_Frequencies,
+     &            eMEPTest,TSReg,ThrMEP)
 *
 ************************************************************************
 *                                                                      *

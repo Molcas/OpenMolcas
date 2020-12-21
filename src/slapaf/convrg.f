@@ -8,20 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Convrg(iter,kIter, nInter,
-     &                  Stop,iStop,ThrCons,
-     &                  MxItr, mIntEff,
-     &                  Baker, mTtAtm,
-     &                  GoOn,Step_Trunc,
-     &                  rMEP,MEP,nMEP,
-     &                  Just_Frequencies,eMEPTest,nLambda,
-     &                  TSReg,ThrMEP)
+      Subroutine Convrg(iter,kIter, nInter,Stop,iStop,ThrCons,MxItr,
+     &                  mIntEff,Baker, mTtAtm,GoOn,Step_Trunc,rMEP,MEP,
+     &                  nMEP,Just_Frequencies,eMEPTest,TSReg,ThrMEP)
       Use Chkpnt
       Use Slapaf_Info, only: Cx, Gx, Coor, GNrm, Energy, Shift, qInt,
      &                       dqInt, Lbl
       use Slapaf_Parameters, only: HUpMet, FindTS, Analytic_Hessian,
      &                             MaxItr, Numerical, iNeg, GrdMax,
-     &                             E_Delta, ThrEne, ThrGrd
+     &                             E_Delta, ThrEne, ThrGrd, nLambda
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"

@@ -13,7 +13,7 @@
      &                       Lbl
       Use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC,
      &                             User_Def, MaxItr, BSet, HSet,
-     &                             lOld, Numerical
+     &                             lOld, Numerical, nLambda
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -296,6 +296,22 @@
          Write (6,*)
          Write (6,'(1X,A,2X,F10.4)')
      &         (Lbl(iInter),qInt(iInter,nIter),iInter=1,nQQ)
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Too many constraints?
+*
+      If (nLambda.gt.nQQ) Then
+         Call WarningMessage(2,'Error in RlxCtl')
+         Write (Lu,*)
+         Write (Lu,*) '********************************************'
+         Write (Lu,*) ' ERROR: nLambda.gt.nQQ'
+         Write (Lu,*) ' nLambda=',nLambda
+         Write (Lu,*) ' nQQ=',nQQ
+         Write (Lu,*) ' There are more constraints than coordinates'
+         Write (Lu,*) '********************************************'
+         Call Quit_OnUserError()
       End If
 *                                                                      *
 ************************************************************************

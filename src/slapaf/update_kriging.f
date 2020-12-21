@@ -11,11 +11,7 @@
 * Copyright (C) 2019,2020, Roland Lindh                                *
 *               2020, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      Subroutine Update_kriging(
-     &                     iter,nInter,
-     &                     Step_Trunc,
-     &                     nLambda,
-     &                     nWndw)
+      Subroutine Update_kriging(iter,nInter,Step_Trunc,nWndw)
 ************************************************************************
 *                                                                      *
 *     Object: to update coordinates                                    *
@@ -27,7 +23,8 @@
       Use Slapaf_Info, only: Cx, Gx, Shift, GNrm, Energy, qInt, dqInt,
      &                       Lbl
       use Slapaf_Parameters, only: UpMeth, Beta, Beta_Disp, GrdLbl,
-     &                             GrdMax, E_Delta, ThrEne, ThrGrd
+     &                             GrdMax, E_Delta, ThrEne, ThrGrd,
+     &                             nLambda
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -204,7 +201,7 @@
          Call Update_inner(
      &                   iterAI,nInter,qInt,Shift,
      &                   Beta_,Beta_Disp_,
-     &                   Step_Trunc,nLambda,
+     &                   Step_Trunc,
      &                   nWndw_,
      &                   kIter,
      &                   Kriging_Hessian,qBeta,iOpt_RS,
