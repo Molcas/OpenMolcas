@@ -404,8 +404,7 @@ C     Write (Lu,*) iOptC
 *     Reapeat nsg times
 *     nmem, (ind.., i = 1, nmem)
 *
- 911  LSup = .True.
-      Char=Get_Ln(LuRd)
+ 911  Char=Get_Ln(LuRd)
       Call Get_I1(1,nSupSy)
       Call mma_allocate(nSup,NSUPSY,Label='nSup')
       Call mma_allocate(Atom,nsAtom,Label='Atom')

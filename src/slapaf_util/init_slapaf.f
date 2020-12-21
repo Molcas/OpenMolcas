@@ -60,7 +60,6 @@
       jPrint=10
       lOld_Implicit = .False.
       Stop  = .False.
-      lSup = .False.
       Baker = .False.
       Ref_Geom=.False.
       MEP = .False.

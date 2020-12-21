@@ -302,7 +302,6 @@
       Bk_MxItr=MxItr
       Bk_mInt=mInt
       Bk_Max_Center=Max_Center
-      Bk_nSupSy=nSupSy
       Bk_lif=lif
       Bk_iOptC=iOptC
       Bk_mode=mode
@@ -321,7 +320,6 @@
       Bk_lWrite=lWrite
       Bk_Exist=Exist
       Bk_Change=Change
-      Bk_lSup=lSup
       Bk_lOld=lOld
       Bk_CurviLinear=CurviLinear
       Bk_HSet=HSet
@@ -592,7 +590,6 @@
       MxItr=Bk_MxItr
       mInt=Bk_mInt
       Max_Center=Bk_Max_Center
-      nSupSy=Bk_nSupSy
       lif=Bk_lif
       iOptC=Bk_iOptC
       mode=Bk_mode
@@ -611,7 +608,6 @@
       lWrite=Bk_lWrite
       Exist=Bk_Exist
       Change=Bk_Change
-      lSup=Bk_lSup
       lOld=Bk_lOld
       CurviLinear=Bk_CurviLinear
       HSet=Bk_HSet

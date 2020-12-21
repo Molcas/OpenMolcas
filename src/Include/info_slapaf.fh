@@ -11,18 +11,18 @@
 #include "Molcas.fh"
 *
       Integer   nQQ, NmIter, iter, Lngth,
-     &          MxItr, mInt, Max_Center, nSupSy, lif, mTROld, nWndw,
+     &          MxItr, mInt, Max_Center, lif, mTROld, nWndw,
      &          nMEP, mTtAtm, nsAtom, MEPnum, RootMap(MxRoot)
       Common /iInfSla/ nsAtom, nQQ, iter, Lngth,
-     &          MxItr, mInt, Max_Center, nSupSy, lif, mTtAtm,
+     &          MxItr, mInt, Max_Center, lif, mTtAtm,
      &          mTROld, nWndw, NmIter, nMEP, MEPnum, RootMap
 *
-      Logical Stop, lWrite, Exist, Change, lSup, lNmHss, Cubic, PDH,
+      Logical Stop, lWrite, Exist, Change, lNmHss, Cubic, PDH,
      &        Baker, FirstCall, MEP, Ref_Geom, lRP, Ref_Grad, rMEP,
      &        lOld_Implicit, eMEPtest, lCtoF, lSoft, CallLast,
      &        TwoRunFiles, MEPCons, Track, Request_Alaska,
      &        Request_RASSI
-      Common /lInfSla/ Stop, lWrite, Exist, Change, lSup, rMEP,
+      Common /lInfSla/ Stop, lWrite, Exist, Change, rMEP,
      &        lNmHss, Cubic, PDH, Baker,
      &        FirstCall, MEP, Ref_Geom, lRP, Ref_Grad,
      &        lOld_Implicit, eMEPtest,

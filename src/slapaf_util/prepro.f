@@ -70,8 +70,8 @@
 *
 *-----Symmetrize forces
 *
-      If (LSup) Then
-         Call SupSym(Grd,nAtom,cMass,Coor,nSupSy,nSup,Atom)
+      If (Allocated(nSup)) Then
+         Call SupSym(Grd,nAtom,cMass,Coor,SIZE(nSup),nSup,Atom)
          Call mma_deallocate(Atom)
          Call mma_deallocate(nSup)
       End If
