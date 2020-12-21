@@ -15,7 +15,7 @@
 *     use Slapaf_Info, only: R12
       use Slapaf_Parameters, only: nDimBC, Analytic_Hessian, MaxItr,
      &                             Line_Search, ThrEne, ThrGrd, ThrCons,
-     &                             ThrMEP
+     &                             ThrMEP, Header
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "info_slapaf.fh"
@@ -63,17 +63,12 @@
       Stop  = .False.
       Ref_Geom=.False.
       Ref_Grad=.False.
-      MEP_Type='SPHERE'
-      dMEPStep=0.1D0
-      MEP_Algo='GS'
-      MEPnum=0
       NmIter=0
       lSoft=.False.
       rFuzz=0.5D0
       isFalcon=.False.
       CallLast=.True.
       TwoRunFiles=.False.
-      MEPCons=.False.
       Track=.False.
       Request_Alaska=.False.
       Request_RASSI=.False.
@@ -124,10 +119,6 @@
          End Do
       End If
 *
-*                                                                      *
-************************************************************************
-*                                                                      *
-      BLine = ' '
 *                                                                      *
 ************************************************************************
 *                                                                      *

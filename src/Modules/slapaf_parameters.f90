@@ -18,7 +18,10 @@ Public:: iRow, iRow_c, iInt, nFix, ddV_Schlegel, HWRS, iOptH, HUpMet, HrmFrq_Sho
          UpMeth, iOptC, HSet, BSet, rHidden, CnstWght, PrQ, lOld, Numerical, Beta, Beta_Disp, &
          Line_Search, iNeg, TSConstraints, GNrm_Threshold, Mode, GrdLbl, GrdMax, &
          StpLbl, StpMax, E_Delta, ThrEne, ThrGrd, nLambda, iRef, ThrCons, ThrMEP, Baker,  &
-         eMEPTest, rMEP, MEP, nMEP
+         eMEPTest, rMEP, MEP, nMEP, MEPNum, MEPCons, dMEPStep, MEP_Type, MEP_Algo, Header
+
+Integer i
+
 Integer:: iRow=0
 Integer:: iRow_c=0
 Integer:: iInt=0
@@ -32,6 +35,7 @@ Integer:: Mode=-1
 Integer:: nLambda=0
 Integer:: iRef=0
 Integer:: nMEP=MaxItr
+Integer:: MEPNum=0
 
 Logical:: Curvilinear=.True.
 Logical:: Redundant=.False.
@@ -51,7 +55,8 @@ Logical:: TSConstraints=.False.
 Logical:: Baker=.False.            ! convergence a la Baker
 Logical:: eMEPTest=.True.
 Logical:: rMEP=.False.
-Logical::  MEP=.False.
+Logical:: MEP=.False.
+Logical:: MEPCons=.False.
 
 
 #include "real.fh"
@@ -64,8 +69,12 @@ Real*8:: GrdMax=Zero, StpMax=Zero
 Real*8:: E_Delta=Zero
 Real*8:: ThrEne=Zero, ThrGrd=Zero
 Real*8:: ThrCons=Zero, ThrMEP=Zero
+Real*8:: dMEPStep=0.1D0
 
 Character(LEN=8):: GrdLbl='', StpLbl=''
+Character(LEN=10):: MEP_TYPE='SPHERE'
+Character(LEN=2):: MEP_Algo='GS'
+Character(LEN=1):: Header(144)=[('',i=1,144)]
 !                                                                      *
 !***********************************************************************
 !                                                                      *

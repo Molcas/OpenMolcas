@@ -38,7 +38,8 @@
      &                   ResGrad,BadConstraint)
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: Weights, MF, RefGeo
-      use Slapaf_Parameters, only: IRC, nLambda, rMEP, MEP, nMEP
+      use Slapaf_Parameters, only: IRC, nLambda, rMEP, MEP, nMEP,
+     &                             MEPNum, dMEPStep, MEP_Type, MEP_Algo
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"

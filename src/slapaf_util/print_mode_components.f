@@ -46,7 +46,9 @@
      &                             TSConstraints, GNrm_Threshold, Mode,
      &                             ThrEne, ThrGrd, nLambda, iRef,
      &                             ThrCons, ThrMEP, Baker, eMEPTest,
-     &                             rMEP, MEP, nMEP
+     &                             rMEP, MEP, nMEP, MEPNum, MEPCons,
+     &                             dMEPStep, MEP_Type, MEP_Algo,
+     &                             Header
       use thermochem
       Implicit None
 #include "backup_info.fh"
@@ -69,6 +71,7 @@
       Character(Len=16) :: StdIn
       Character(Len=24), Allocatable :: Label(:)
       Character(Len=180), External :: Get_Ln_EOF
+      Character(LEN=180):: Line
       Real*8, External :: DDot_
 
       Real*8, Allocatable:: Bk_Energy(:)
@@ -295,6 +298,7 @@
          Call mma_deallocate(mRowH)
       End If
 
+      Bk_Header(:)=Header(:)
       Bk_iRef=iRef
       Bk_nQQ=nQQ
       Bk_NmIter=NmIter
@@ -376,10 +380,6 @@
       Bk_nsRot=nsRot
       Bk_UserT(:)=UserT(:)
       Bk_UserP=UserP
-      Bk_Char=Char
-      Bk_Header(:)=Header(:)
-      Bk_Line=Line
-      Bk_BLine=BLine
       Bk_HUpMet=HUpMet
       Bk_UpMeth=UpMeth
       Bk_MEP_Type=MEP_Type
@@ -583,6 +583,7 @@
       If (iErr.ne.0) Call Abend()
       If (AixRm('RUNBCK2').ne.0) Call Abend
 *
+      Header(:)=Bk_Header(:)
       iRef=Bk_iRef
       nQQ=Bk_nQQ
       NmIter=Bk_NmIter
@@ -663,10 +664,6 @@
       nsRot=Bk_nsRot
       UserT(:)=Bk_UserT(:)
       UserP=Bk_UserP
-      Char=Bk_Char
-      Header(:)=Bk_Header(:)
-      Line=Bk_Line
-      BLine=Bk_BLine
       HUpMet=Bk_HUpMet
       UpMeth=Bk_UpMeth
       MEP_Type=Bk_MEP_Type

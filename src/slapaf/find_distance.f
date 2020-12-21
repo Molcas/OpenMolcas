@@ -13,6 +13,7 @@
       Subroutine Find_Distance(Ref,Point,Dir,Fact,Dist,nAtom,
      &                         BadConstraint)
       use Slapaf_Info, only: RefGeo
+      use Slapaf_Parameters, only: MEP_Type
       Implicit None
 #include "real.fh"
 #include "stdalloc.fh"

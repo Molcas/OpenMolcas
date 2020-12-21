@@ -17,6 +17,7 @@
       Character*128 FileName
       Character*16 StdIn, JOB1, JOB2
       Character*8 Method
+      Character(LEN=180):: Line
       Logical Exists
 *                                                                      *
 ************************************************************************

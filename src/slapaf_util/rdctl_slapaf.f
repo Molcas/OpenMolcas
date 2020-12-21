@@ -22,7 +22,8 @@
      &                             TSConstraints, GNrm_Threshold, Mode,
      &                             ThrEne, ThrGrd, nLambda, ThrCons,
      &                             ThrMEP, Baker, eMEPTest, rMEP, MEP,
-     &                             nMEP
+     &                             nMEP, MEPNum, MEPCons, dMEPStep,
+     &                             MEP_Type, MEP_Algo
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -32,12 +33,13 @@
 #include "print.fh"
       Logical Found, Dummy_Call
       Character*8 Command
-      Character*180 Get_Ln
+      Character(LEN=180) Get_Ln
       Character*16 FilNam
       Character*3 MEPLab
-      External Get_SuperName
-      Character*100 Get_SuperName
-      Character*100 SuperName
+      Character(LEN=100), External:: Get_SuperName
+      Character(LEN=100) SuperName
+      Character(LEN=180), Parameter:: BLine=''
+      Character(LEN=180):: Line='', Char=''
       Real*8, Allocatable:: DIR(:,:), Tmp(:), TmpRx(:)
 *
 *     Compare with inputil.f. Note that here Line is defined in

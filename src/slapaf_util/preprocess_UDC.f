@@ -32,6 +32,7 @@
 *> @param[in]  iPrint Print level
 ************************************************************************
       SUBROUTINE Preprocess_UDC(Lu,iPrint)
+      use Slapaf_parameters, only: MEPCons, MEP_Type
       IMPLICIT NONE
       INTEGER :: Lu,iPrint,iPos,Error,nLines,i,j
       CHARACTER(LEN=180) :: Line1,Line2,EDiffName,Get_Ln

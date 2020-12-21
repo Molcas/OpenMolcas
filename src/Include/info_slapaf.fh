@@ -10,33 +10,24 @@
 ************************************************************************
 #include "Molcas.fh"
 *
-      Integer   nQQ, NmIter, iter, Lngth,
-     &          MxItr, mInt, Max_Center, lif, mTROld, nWndw,
-     &          mTtAtm, nsAtom, MEPnum, RootMap(MxRoot)
+      Integer   nQQ, NmIter, iter, Lngth, MxItr, mInt, Max_Center, lif,
+     &          mTROld, nWndw, mTtAtm, nsAtom, RootMap(MxRoot)
       Common /iInfSla/ nsAtom, nQQ, iter, Lngth,
      &          MxItr, mInt, Max_Center, lif, mTtAtm,
-     &          mTROld, nWndw, NmIter, MEPnum, RootMap
+     &          mTROld, nWndw, NmIter, RootMap
 *
       Logical Stop, lWrite, Exist, Change, lNmHss, Cubic, PDH,
-     &        FirstCall, Ref_Geom, lRP, Ref_Grad,
-     &        lOld_Implicit, lCtoF, lSoft, CallLast,
-     &        TwoRunFiles, MEPCons, Track, Request_Alaska,
+     &        FirstCall, Ref_Geom, lRP, Ref_Grad, lOld_Implicit, lCtoF,
+     &        lSoft, CallLast, TwoRunFiles, Track, Request_Alaska,
      &        Request_RASSI
-      Common /lInfSla/ Stop, lWrite, Exist, Change,
-     &        lNmHss, Cubic, PDH,
-     &        FirstCall, Ref_Geom, lRP, Ref_Grad,
-     &        lOld_Implicit,
-     &        lCtoF, lSoft, CallLast, TwoRunFiles,
-     &        MEPCons, Track, Request_Alaska, Request_RASSI
+      Common /lInfSla/ Stop, lWrite, Exist, Change,lNmHss, Cubic, PDH,
+     &        FirstCall, Ref_Geom, lRP, Ref_Grad, lOld_Implicit, lCtoF,
+     &        lSoft, CallLast, TwoRunFiles, Track, Request_Alaska,
+     &        Request_RASSI
 *
-      Real*8 cMass(3), Trial(3), Delta, Rtrnc, dMEPStep, rFuzz
+      Real*8 cMass(3), Trial(3), Delta, Rtrnc, rFuzz
 *
-      Common /rInfSla/ cMass, Trial, Delta, Rtrnc, dMEPStep, rFuzz
-*
-      Character Char*180, Header(144)*1, Line*180, BLine*180,
-     &          MEP_Type*10, MEP_Algo*2
-      Common /chInfSla/ Char, Header, Line, BLine,
-     &                  MEP_Type, MEP_Algo
+      Common /rInfSla/ cMass, Trial, Delta, Rtrnc, rFuzz
 *
       Logical isFalcon
       Common /lFalcon/ isFalcon
