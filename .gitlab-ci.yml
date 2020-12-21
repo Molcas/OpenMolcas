@@ -379,6 +379,9 @@ test:intel13:
   <<: *run-tests
   needs:
     - build:intel13
+  parallel: 2
+  tags:
+    - docker
 
 build:nag:
   extends: .nag
