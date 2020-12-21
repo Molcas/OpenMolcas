@@ -10,10 +10,10 @@
 ************************************************************************
 #include "Molcas.fh"
 *
-      Integer   iSym(3), iRef, nQQ, NmIter, iter, Lngth,
+      Integer   iRef, nQQ, NmIter, iter, Lngth,
      &          MxItr, mInt, Max_Center, nSupSy, lif, mTROld, nWndw,
      &          nMEP, mTtAtm, nsAtom, MEPnum, RootMap(MxRoot)
-      Common /iInfSla/ iSym,nsAtom, iRef, nQQ, iter, Lngth,
+      Common /iInfSla/ nsAtom, iRef, nQQ, iter, Lngth,
      &          MxItr, mInt, Max_Center, nSupSy, lif, mTtAtm,
      &          mTROld, nWndw, NmIter, nMEP, MEPnum, RootMap
 *

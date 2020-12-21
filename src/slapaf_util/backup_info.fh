@@ -10,8 +10,7 @@
 ************************************************************************
 #include "info_slapaf.fh"
 *
-      Integer Bk_iSym(3),
-     &        Bk_iRef, Bk_iRow, Bk_nFix, Bk_iInt,
+      Integer Bk_iRef, Bk_iRow, Bk_nFix, Bk_iInt,
      &        Bk_nQQ,
      &        Bk_NmIter,
      &        Bk_iter, Bk_Lngth,

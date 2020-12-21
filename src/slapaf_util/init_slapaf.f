@@ -247,19 +247,6 @@ C           NADC= .False. ! for debugging
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---  Set up of symmetry and degeneracy
-*
-      Call ICopy(3,[0],0,iSym,1)
-      Do 600 iIrrep = 1, Min(4,nIrrep-1)
-         jIrrep = iIrrep
-         If (iIrrep.eq.3) jIrrep = 4
-         Do 601 k = 1, 3
-            If (iAnd(iOper(jIrrep),2**(k-1)).ne.0) iSym(k) = 2**(k-1)
- 601     Continue
- 600  Continue
-*                                                                      *
-************************************************************************
-*                                                                      *
 *---  Compute the number of total symmetric displacements
 *
       Call mma_allocate(jStab ,[0,7],[1,SIZE(Coor,2)],Label='jStab ')
@@ -391,9 +378,6 @@ C           NADC= .False. ! for debugging
       If (jPrint.ge.99) Call
      &     Prlist('Symmetry Distinct Nuclear Coordinates / Bohr',
      &                   AtomLbl,SIZE(Coor,2),Coor,3,SIZE(Coor,2))
-      LWrite = .False.
-      If (jPrint.ge.99) lWrite=.True.
-      Call CofMss(Coor,SIZE(Coor,2),LWrite,cMass,iSym)
       LWrite = .False.
       If (jPrint.ge.99) Call
      &     PrList('Symmetry Distinct Nuclear Forces / au',

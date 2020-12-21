@@ -292,7 +292,6 @@
          Call mma_deallocate(mRowH)
       End If
 
-      Bk_iSym(:)=iSym(:)
       Bk_iRef=iRef
       Bk_nQQ=nQQ
       Bk_NmIter=NmIter
@@ -583,7 +582,6 @@
       If (iErr.ne.0) Call Abend()
       If (AixRm('RUNBCK2').ne.0) Call Abend
 *
-      iSym(:)=Bk_iSym(:)
       iRef=Bk_iRef
       nQQ=Bk_nQQ
       NmIter=Bk_NmIter

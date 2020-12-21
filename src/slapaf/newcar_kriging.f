@@ -36,7 +36,7 @@
 *
       Force_dB=SaveBMx
 *
-      Call NewCar(kIter,SIZE(Coor,2),nInter,Coor,iSym,mTtAtm,RefIter,
+      Call NewCar(kIter,SIZE(Coor,2),nInter,Coor,mTtAtm,RefIter,
      &            Error)
 *
       Numerical=Numerical_Save

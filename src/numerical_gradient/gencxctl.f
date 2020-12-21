@@ -193,7 +193,7 @@
          Error=.False.
          nWndw=Iter
          iRef=0
-         Call NewCar(Iter,SIZE(Coor,2),mInt,Coor,iSym,mTtAtm,iRef,Error)
+         Call NewCar(Iter,SIZE(Coor,2),mInt,Coor,mTtAtm,iRef,Error)
 *
 *        Move the new Cartesian coordinate to the list.
 *
