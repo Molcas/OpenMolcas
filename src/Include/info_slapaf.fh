@@ -18,22 +18,20 @@
      &          mTROld, nWndw, NmIter, nMEP, MEPnum, RootMap
 *
       Logical Stop, lWrite, Exist, Change, lNmHss, Cubic, PDH,
-     &        Baker, FirstCall, MEP, Ref_Geom, lRP, Ref_Grad, rMEP,
+     &        FirstCall, MEP, Ref_Geom, lRP, Ref_Grad, rMEP,
      &        lOld_Implicit, eMEPtest, lCtoF, lSoft, CallLast,
      &        TwoRunFiles, MEPCons, Track, Request_Alaska,
      &        Request_RASSI
       Common /lInfSla/ Stop, lWrite, Exist, Change, rMEP,
-     &        lNmHss, Cubic, PDH, Baker,
+     &        lNmHss, Cubic, PDH,
      &        FirstCall, MEP, Ref_Geom, lRP, Ref_Grad,
      &        lOld_Implicit, eMEPtest,
      &        lCtoF, lSoft, CallLast, TwoRunFiles,
      &        MEPCons, Track, Request_Alaska, Request_RASSI
 *
-      Real*8 cMass(3), Trial(3), Delta, Rtrnc, ThrCons,
-     &       dMEPStep, rFuzz, ThrMEP
+      Real*8 cMass(3), Trial(3), Delta, Rtrnc, dMEPStep, rFuzz
 *
-      Common /rInfSla/ cMass, Trial, Delta, Rtrnc, ThrCons,
-     &                 dMEPStep, rFuzz, ThrMEP
+      Common /rInfSla/ cMass, Trial, Delta, Rtrnc, dMEPStep, rFuzz
 *
       Character Char*180, Header(144)*1, Line*180, BLine*180,
      &          MEP_Type*10, MEP_Algo*2

@@ -14,7 +14,8 @@
      &                       jStab, nStab, iCoSet, AtomLbl, Smmtrc
 *     use Slapaf_Info, only: R12
       use Slapaf_Parameters, only: nDimBC, Analytic_Hessian, MaxItr,
-     &                             Line_Search, ThrEne, ThrGrd
+     &                             Line_Search, ThrEne, ThrGrd, ThrCons,
+     &                             ThrMEP
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "info_slapaf.fh"
@@ -60,7 +61,6 @@
       jPrint=10
       lOld_Implicit = .False.
       Stop  = .False.
-      Baker = .False.
       Ref_Geom=.False.
       MEP = .False.
       rMEP= .False.

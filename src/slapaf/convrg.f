@@ -8,15 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Convrg(iter,kIter, nInter,Stop,iStop,ThrCons,MxItr,
-     &                  mIntEff,Baker, mTtAtm,GoOn,Step_Trunc,rMEP,MEP,
-     &                  nMEP,Just_Frequencies,eMEPTest,TSReg,ThrMEP)
+      Subroutine Convrg(iter,kIter, nInter,Stop,iStop,MxItr,
+     &                  mIntEff,mTtAtm,GoOn,Step_Trunc,rMEP,MEP,
+     &                  nMEP,Just_Frequencies,eMEPTest)
       Use Chkpnt
       Use Slapaf_Info, only: Cx, Gx, Coor, GNrm, Energy, Shift, qInt,
      &                       dqInt, Lbl
       use Slapaf_Parameters, only: HUpMet, FindTS, Analytic_Hessian,
      &                             MaxItr, Numerical, iNeg, GrdMax,
-     &                             E_Delta, ThrEne, ThrGrd, nLambda
+     &                             E_Delta, ThrEne, ThrGrd, nLambda,
+     &                             iOptC, ThrCons, ThrMEP, Baker
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -31,7 +32,7 @@
       Character(LEN=16) StdIn
       Character(LEN=80) Point_Desc
       Character(LEN=16) MEP_Text
-      Logical Stop, Conv1, Baker, GoOn, MEP,
+      Logical Stop, Conv1, GoOn, MEP,
      &        Found, Terminate, Last_Energy, rMEP,
      &        Just_Frequencies, Saddle, eMEPTest, eTest,
      &        IRCRestart, Conv2, ConvTmp, TSReg, BadConstraint,
@@ -69,6 +70,7 @@
 ************************************************************************
 *                                                                      *
       nAtom=SIZE(Cx,2)
+      TSReg = iAnd(iOptC,8192).eq.8192
 *                                                                      *
 ************************************************************************
 *                                                                      *

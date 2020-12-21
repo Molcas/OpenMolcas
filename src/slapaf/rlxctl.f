@@ -14,7 +14,7 @@
       Use kriging_mod, only: Kriging, nspAI
       Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx, mRowH,
      &                       Free_Slapaf, qInt, dqInt, Lbl
-      use Slapaf_Parameters, only: HUpMet, User_Def, iOptC, UpMeth,
+      use Slapaf_Parameters, only: HUpMet, User_Def, UpMeth,
      &                             HSet, BSet, PrQ, Numerical, iNeg,
      &                             E_Delta, iRef
       Implicit Real*8 (a-h,o-z)
@@ -28,7 +28,7 @@
 #include "db.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-      Logical GoOn, TSReg, Do_ESPF, Just_Frequencies, Found, Error
+      Logical GoOn, Do_ESPF, Just_Frequencies, Found, Error
       Character(LEN=1) Step_trunc
       Integer, External:: AixRm
       Integer nGB
@@ -259,11 +259,10 @@
 *
       GoOn = (lNmHss.and.iter.lt.NmIter) .OR.
      &       (Allocated(mRowH).and.iter.lt.NmIter)
-      TSReg = iAnd(iOptC,8192).eq.8192
       Numerical=(lNmHss.or.Allocated(mRowH)).and.iter.le.NmIter
-      Call Convrg(iter,kIter,nQQ,Stop,iStop,ThrCons,MxItr,mIntEff,Baker,
+      Call Convrg(iter,kIter,nQQ,Stop,iStop,MxItr,mIntEff,
      &            mTtAtm,GoOn,Step_Trunc,rMEP,MEP,nMEP,Just_Frequencies,
-     &            eMEPTest,TSReg,ThrMEP)
+     &            eMEPTest)
 *
 ************************************************************************
 *                                                                      *

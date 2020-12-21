@@ -44,7 +44,8 @@
      &                             CnstWght, PrQ, lOld, Numerical, Beta,
      &                             Beta_Disp, Line_Search,
      &                             TSConstraints, GNrm_Threshold, Mode,
-     &                             ThrEne, ThrGrd, nLambda, iRef
+     &                             ThrEne, ThrGrd, nLambda, iRef,
+     &                             ThrCons, ThrMEP, Baker
       use thermochem
       Implicit None
 #include "backup_info.fh"
