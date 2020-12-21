@@ -29,8 +29,7 @@
             Call RowHessian(NmIter,mInt,Delta/2.5d0)
          Else
             Call FormNumHess(iter,mInt,Delta,Stop,nsAtom,Cubic,iNeg,
-     &                       DipM,mTROld,UserT,
-     &                       UserP,nUserPT,nsRot,lTherm,lDoubleIso)
+     &                       DipM,mTROld)
          End If
 *
          call dcopy_(3*nsAtom,Cx,1,Coor,1)

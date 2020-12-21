@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine RdCtl_Slapaf(LuSpool,Dummy_Call)
       use kriging_mod
+      use ThermoChem
       use Symmetry_Info, only: Symmetry_Info_Get
       use Slapaf_Info, only: Cx, Gx, Weights, MF, Atom, nSup, RefGeo,
      &                       GradRef, nStab, Lbl, mRowH

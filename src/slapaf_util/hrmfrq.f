@@ -8,18 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine HrmFrq(nAtom,nInter,iNeg,dDipM,mTR,DipM,
-     &                  IRInt, UserT, UserP, nUserPT, nsRot, lTherm,
-     &                  lDoubleIso)
+      Subroutine HrmFrq(nAtom,nInter,iNeg,dDipM,mTR,DipM,IRInt)
+      use thermochem
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 dDipM(3,nInter+mTR), DipM(3), IRInt(nInter+mTR)
-      Logical lTherm, lDoubleIso
-      Integer mDisp(8), nUserPT, nsRot
-      Real*8  UserT(64), UserP
+      Integer mDisp(8)
       Real*8, Allocatable:: EVec(:), EVal(:), RedMas(:), Tmp1(:),
      &                      Tmp2(:), Temp(:), NMod(:)
 *                                                                      *

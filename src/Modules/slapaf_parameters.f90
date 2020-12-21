@@ -11,7 +11,7 @@
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
 Module Slapaf_Parameters
-implicit none
+Implicit none
 Private
 Public:: iRow, iRow_c, iInt, nFix, ddV_Schlegel, HWRS, iOptH, HUpMet, HrmFrq_Show, IRC, &
          nBVec, nDimBC, Curvilinear, Redundant, FindTS, User_Def, Analytic_Hessian, MaxItr, &

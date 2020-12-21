@@ -35,12 +35,6 @@
       Common /rInfSla/ cMass, Trial, Delta, Rtrnc, ThrCons,
      &                 dMEPStep, rFuzz, ThrMEP
 *
-      Logical   lTherm, lDoubleIso
-      Integer   nUserPT, nsRot
-      Real*8    UserT(64), UserP
-      Common /ThermoChem/ UserT, UserP, nUserPT, nsRot, lTherm,
-     &                    lDoubleIso
-*
       Character Char*180, Header(144)*1, Line*180, BLine*180,
      &          MEP_Type*10, MEP_Algo*2
       Common /chInfSla/ Char, Header, Line, BLine,

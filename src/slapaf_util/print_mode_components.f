@@ -45,6 +45,7 @@
      &                             Beta_Disp, Line_Search,
      &                             TSConstraints, GNrm_Threshold, Mode,
      &                             ThrEne, ThrGrd, nLambda, iRef
+      use thermochem
       Implicit None
 #include "backup_info.fh"
 #include "print.fh"

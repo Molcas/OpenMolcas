@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine RlxCtl(iStop)
       Use Chkpnt
+      use thermochem, only: lTherm
       Use kriging_mod, only: Kriging, nspAI
       Use Slapaf_Info, only: Cx, Coor, Shift, GNrm, BMx, mRowH,
      &                       Free_Slapaf, qInt, dqInt, Lbl

@@ -88,16 +88,6 @@
       RtRnc=Three
       Max_Center=15
       lNmHss = .False.
-* --- ThermoChemistry for Numerical Hessian
-      lTherm = .False.
-      lDoubleIso = .False.
-      nUserPT= 0
-      UserP = 1.0d0
-      Do i=1, 64
-        UserT(i) = 0.0d0
-      EndDo
-      nsRot = 0
-*
       Cubic  = .False.
       PDH    = .True.
       Call DecideOnESPF(Do_ESPF)
