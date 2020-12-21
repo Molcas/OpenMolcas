@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine TMatrix(TMx,mInt_)
       use Slapaf_Info, only: nStab, Coor
-      use Slapaf_Parameters, only: iRow_c
+      use Slapaf_Parameters, only: iRow_c, nLambda
       Implicit None
 ************************************************************************
 *     subroutine to get the T matrix that defines the constrained and  *

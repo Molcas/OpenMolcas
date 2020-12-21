@@ -19,7 +19,7 @@
      &                             MaxItr, iOptC, rHidden, CnstWght,
      &                             lOld, Beta, Beta_Disp, Line_Search,
      &                             TSConstraints, GNrm_Threshold, Mode,
-     &                             ThrEne, ThrGrd
+     &                             ThrEne, ThrGrd, nLambda
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"

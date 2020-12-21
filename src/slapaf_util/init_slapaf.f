@@ -63,7 +63,6 @@
       lSup = .False.
       Baker = .False.
       Ref_Geom=.False.
-      nLambda=0
       MEP = .False.
       rMEP= .False.
       nMEP=MaxItr

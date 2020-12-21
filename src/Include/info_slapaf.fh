@@ -12,10 +12,10 @@
 *
       Integer   iSym(3), iRef, nQQ, NmIter, iter, Lngth,
      &          MxItr, mInt, Max_Center, nSupSy, lif, mTROld, nWndw,
-     &          nLambda, nMEP, mTtAtm, nsAtom, MEPnum, RootMap(MxRoot)
+     &          nMEP, mTtAtm, nsAtom, MEPnum, RootMap(MxRoot)
       Common /iInfSla/ iSym,nsAtom, iRef, nQQ, iter, Lngth,
      &          MxItr, mInt, Max_Center, nSupSy, lif, mTtAtm,
-     &          mTROld, nWndw, NmIter, nLambda, nMEP, MEPnum, RootMap
+     &          mTROld, nWndw, NmIter, nMEP, MEPnum, RootMap
 *
       Logical Stop, lWrite, Exist, Change, lSup, lNmHss, Cubic, PDH,
      &        Baker, FirstCall, MEP, Ref_Geom, lRP, Ref_Grad, rMEP,

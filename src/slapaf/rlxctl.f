@@ -15,7 +15,7 @@
      &                       Free_Slapaf, qInt, dqInt, Lbl
       use Slapaf_Parameters, only: HUpMet, User_Def, iOptC, UpMeth,
      &                             HSet, BSet, PrQ, Numerical, iNeg,
-     &                             E_Delta
+     &                             E_Delta, nLambda
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
