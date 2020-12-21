@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Hss_q()
       use Slapaf_Info, only: dqInt
-      use Slapaf_Parameters, only: lOld
+      use Slapaf_Parameters, only: lOld, iRef
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 *

@@ -15,7 +15,7 @@
      &                       Free_Slapaf, qInt, dqInt, Lbl
       use Slapaf_Parameters, only: HUpMet, User_Def, iOptC, UpMeth,
      &                             HSet, BSet, PrQ, Numerical, iNeg,
-     &                             E_Delta
+     &                             E_Delta, iRef
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -109,7 +109,7 @@
 *
       If (Numerical) nWndw=NmIter
       iRef=0
-      Call BMtrx(SIZE(Coor,2),mInt,Coor,iter,mTtAtm,nQQ,iRef,nWndw)
+      Call BMtrx(SIZE(Coor,2),mInt,Coor,iter,mTtAtm,nQQ,nWndw)
 *
       nPrint(30) = nPrint(30)-1
 *
@@ -212,7 +212,7 @@
          PrQ=.False.
          Error=.False.
          iRef=0
-         Call NewCar(Iter,Size(Coor,2),nQQ,Coor,mTtAtm,iRef,Error)
+         Call NewCar(Iter,Size(Coor,2),nQQ,Coor,mTtAtm,Error)
       End If
 *                                                                      *
 ************************************************************************

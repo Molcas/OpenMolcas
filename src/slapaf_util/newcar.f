@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine NewCar(Iter,nAtom,nInter,Coor,mTtAtm,iRef,Error)
+      Subroutine NewCar(Iter,nAtom,nInter,Coor,mTtAtm,Error)
       use Slapaf_Info, only: Cx, qInt, RefGeo, BMx, Shift, Degen,
      &                       AtomLbl, Lbl
       use Slapaf_Parameters, only: Curvilinear, User_Def, BSet, HSet,
@@ -31,10 +31,8 @@
       Integer, Intent(In):: Iter, nAtom, nInter
       Real*8,  Intent(InOut):: Coor(3,nAtom)
       Integer, Intent(In):: mTtAtm
-      Integer, Intent(In):: iRef
       Logical, Intent(InOut):: Error
 *
-      Real*8 cMass(3)
       Logical Invar
       Logical:: BSet_Save, HSet_Save, lOld_Save
       Real*8, Allocatable:: DFC(:), dss(:), rInt(:)
@@ -180,7 +178,7 @@
      &              Coor,
      &              iter+1,
      &              mTtAtm,
-     &              nQQ,iRef,nWndw)
+     &              nQQ,nWndw)
          BSet=BSet_Save
          HSet=HSet_Save
          lOld=lOld_Save

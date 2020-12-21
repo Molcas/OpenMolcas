@@ -13,7 +13,7 @@
       Subroutine genCxCTL(iStop,Cartesian,rDelta)
       use Slapaf_Info, only: Coor, Shift, qInt, BMx, Free_Slapaf
       use Slapaf_Parameters, only: Curvilinear, HSet, BSet, PrQ,
-     &                             Numerical, nLambda
+     &                             Numerical, nLambda, iRef
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -69,7 +69,7 @@
 *
       nWndw=iter
       iRef=0
-      Call BMtrx(SIZE(Coor,2),mInt,Coor,iter,mTtAtm,nQQ,iRef,nWndw)
+      Call BMtrx(SIZE(Coor,2),mInt,Coor,iter,mTtAtm,nQQ,nWndw)
 *
       nPrint(30) = nPrint(30)-1
 *                                                                      *
@@ -193,7 +193,7 @@
          Error=.False.
          nWndw=Iter
          iRef=0
-         Call NewCar(Iter,SIZE(Coor,2),mInt,Coor,mTtAtm,iRef,Error)
+         Call NewCar(Iter,SIZE(Coor,2),mInt,Coor,mTtAtm,Error)
 *
 *        Move the new Cartesian coordinate to the list.
 *

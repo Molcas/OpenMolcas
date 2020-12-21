@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine BMtrx(nsAtom,nInter,Coor,nIter,mTtAtm,nQQ,iIter,nWndw)
+      Subroutine BMtrx(nsAtom,nInter,Coor,nIter,mTtAtm,nQQ,nWndw)
       Use Slapaf_Info, Only: Cx, Shift, qInt, KtB, BMx, Smmtrc,
      &                       Lbl
       Use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC,
      &                             User_Def, MaxItr, BSet, HSet,
-     &                             lOld, Numerical, nLambda
+     &                             lOld, Numerical, nLambda, iRef
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -55,22 +55,22 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     iIter: point at the reference geometry, used for non-redundant
-*            internal coordinate to define the K-matrix and to generate
-*            the raw model Hessian and TR vectors.
+*     iRef: point at the reference geometry, used for non-redundant
+*           internal coordinate to define the K-matrix and to generate
+*           the raw model Hessian and TR vectors.
 *
       If (Numerical) Then
-         iIter = 1               ! Numerical Hessian Computation
-      Else If (iIter.eq.0) Then
+         iRef = 1               ! Numerical Hessian Computation
+      Else If (iRef.eq.0) Then
          If (.Not.BSet) Then
-            iIter = nIter-1      ! Compute cartesian Structure
+            iRef = nIter-1      ! Compute cartesian Structure
          Else
-            iIter = nIter        ! Normal Computation
+            iRef = nIter        ! Normal Computation
          End If
       End If
 *
 #ifdef _DEBUGPRINT_
-      Write (6,*) ' Actual structure from iteration',iIter
+      Write (6,*) ' Actual structure from iteration',iRef
       Write (6,*) ' Last structure from iteration',nIter
 #endif
 *                                                                      *
@@ -82,7 +82,7 @@
       Call mma_allocate(TR,18*nsAtom,Label='TR')
       TR(:)=Zero
 *
-      Call TRPGen(nDimBC,nsAtom,Cx(1,1,iIter),mTR,.False.,TR)
+      Call TRPGen(nDimBC,nsAtom,Cx(1,1,iRef),mTR,.False.,TR)
 *
       Call mma_allocate(TRnew,3*nsAtom*mTR,Label='TRNew')
       TRNew(:)=Zero
@@ -109,7 +109,7 @@
 *
 *-----Generate Grand atoms list
 *
-      Call GenCoo(Cx(1,1,iIter),nsAtom,Coor2,mTtAtm,Vec,nDimBC,AN,TabAI)
+      Call GenCoo(Cx(1,1,iRef),nsAtom,Coor2,mTtAtm,Vec,nDimBC,AN,TabAI)
 *
 *---- Are there some hidden frozen atoms ?
 *
@@ -192,9 +192,9 @@
      &                 nsAtom,nDimBC,
      &                 nIter,
      &                 mTtAtm,
-     &                 iIter,mTR,TR,TabAI,
+     &                 iRef,mTR,TR,TabAI,
      &                 TabA,TabB,nBonds,nMax,
-     &                 iIter,nQQ,nWndw)
+     &                 iRef,nQQ,nWndw)
 *
 *------- Set the Labels for internal coordinates.
 *

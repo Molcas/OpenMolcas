@@ -217,7 +217,10 @@
 *        not totally consistent)
 *
          Error=(iterK.ge.1)
-         Call NewCar_Kriging(iterAI,nInter,.True.,iter,Error)
+         iRef_Save=iRef
+         iRef=iter ! Set the reference geometry
+         Call NewCar_Kriging(iterAI,nInter,.True.,Error)
+         iRef = iRef_Save
 #ifdef _DEBUGPRINT_
          Call RecPrt('New Coord (after NewCar)','',qInt,nInter,iterAI+1)
 #endif
@@ -413,7 +416,10 @@
          If ((OS_Disp.gt.E_Disp).And.(OS_Disp.lt.Beta_Disp_)) Then
             Call dAXpY_(nInter,OS_Factor,Step_k(1,2),1,
      &                                   Shift(1,iterAI-1),1)
-            Call NewCar_Kriging(iterAI-1,nInter,.True.,iter)
+            iRef_Save=iRef
+            iRef=iter ! Set the reference geometry
+            Call NewCar_Kriging(iterAI-1,nInter,.True.,Error)
+            iRef = iRef_Save
             Energy(iterAI)=OS_Energy
             If (Max_OS.gt.0) Then
                If (UpMeth(4:4).ne.' ') UpMeth(5:6)='**'
