@@ -17,7 +17,8 @@ Public:: iRow, iRow_c, iInt, nFix, ddV_Schlegel, HWRS, iOptH, HUpMet, HrmFrq_Sho
          nBVec, nDimBC, Curvilinear, Redundant, FindTS, User_Def, Analytic_Hessian, MaxItr, &
          UpMeth, iOptC, HSet, BSet, rHidden, CnstWght, PrQ, lOld, Numerical, Beta, Beta_Disp, &
          Line_Search, iNeg, TSConstraints, GNrm_Threshold, Mode, GrdLbl, GrdMax, &
-         StpLbl, StpMax, E_Delta, ThrEne, ThrGrd, nLambda, iRef, ThrCons, ThrMEP, Baker
+         StpLbl, StpMax, E_Delta, ThrEne, ThrGrd, nLambda, iRef, ThrCons, ThrMEP, Baker,  &
+         eMEPTest, rMEP, MEP, nMEP
 Integer:: iRow=0
 Integer:: iRow_c=0
 Integer:: iInt=0
@@ -30,6 +31,7 @@ Integer:: iNeg(2)=[0,0]
 Integer:: Mode=-1
 Integer:: nLambda=0
 Integer:: iRef=0
+Integer:: nMEP=MaxItr
 
 Logical:: Curvilinear=.True.
 Logical:: Redundant=.False.
@@ -47,6 +49,9 @@ Logical:: Numerical=.False.
 Logical:: Line_Search=.True.
 Logical:: TSConstraints=.False.
 Logical:: Baker=.False.            ! convergence a la Baker
+Logical:: eMEPTest=.True.
+Logical:: rMEP=.False.
+Logical::  MEP=.False.
 
 
 #include "real.fh"

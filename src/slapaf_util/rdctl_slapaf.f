@@ -21,7 +21,8 @@
      &                             lOld, Beta, Beta_Disp, Line_Search,
      &                             TSConstraints, GNrm_Threshold, Mode,
      &                             ThrEne, ThrGrd, nLambda, ThrCons,
-     &                             ThrMEP, Baker
+     &                             ThrMEP, Baker, eMEPTest, rMEP, MEP,
+     &                             nMEP
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"

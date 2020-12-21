@@ -62,11 +62,7 @@
       lOld_Implicit = .False.
       Stop  = .False.
       Ref_Geom=.False.
-      MEP = .False.
-      rMEP= .False.
-      nMEP=MaxItr
       Ref_Grad=.False.
-      eMEPTest=.True.
       MEP_Type='SPHERE'
       dMEPStep=0.1D0
       MEP_Algo='GS'

@@ -12,20 +12,20 @@
 *
       Integer   nQQ, NmIter, iter, Lngth,
      &          MxItr, mInt, Max_Center, lif, mTROld, nWndw,
-     &          nMEP, mTtAtm, nsAtom, MEPnum, RootMap(MxRoot)
+     &          mTtAtm, nsAtom, MEPnum, RootMap(MxRoot)
       Common /iInfSla/ nsAtom, nQQ, iter, Lngth,
      &          MxItr, mInt, Max_Center, lif, mTtAtm,
-     &          mTROld, nWndw, NmIter, nMEP, MEPnum, RootMap
+     &          mTROld, nWndw, NmIter, MEPnum, RootMap
 *
       Logical Stop, lWrite, Exist, Change, lNmHss, Cubic, PDH,
-     &        FirstCall, MEP, Ref_Geom, lRP, Ref_Grad, rMEP,
-     &        lOld_Implicit, eMEPtest, lCtoF, lSoft, CallLast,
+     &        FirstCall, Ref_Geom, lRP, Ref_Grad,
+     &        lOld_Implicit, lCtoF, lSoft, CallLast,
      &        TwoRunFiles, MEPCons, Track, Request_Alaska,
      &        Request_RASSI
-      Common /lInfSla/ Stop, lWrite, Exist, Change, rMEP,
+      Common /lInfSla/ Stop, lWrite, Exist, Change,
      &        lNmHss, Cubic, PDH,
-     &        FirstCall, MEP, Ref_Geom, lRP, Ref_Grad,
-     &        lOld_Implicit, eMEPtest,
+     &        FirstCall, Ref_Geom, lRP, Ref_Grad,
+     &        lOld_Implicit,
      &        lCtoF, lSoft, CallLast, TwoRunFiles,
      &        MEPCons, Track, Request_Alaska, Request_RASSI
 *

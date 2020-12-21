@@ -261,8 +261,7 @@
      &       (Allocated(mRowH).and.iter.lt.NmIter)
       Numerical=(lNmHss.or.Allocated(mRowH)).and.iter.le.NmIter
       Call Convrg(iter,kIter,nQQ,Stop,iStop,MxItr,mIntEff,
-     &            mTtAtm,GoOn,Step_Trunc,rMEP,MEP,nMEP,Just_Frequencies,
-     &            eMEPTest)
+     &            mTtAtm,GoOn,Step_Trunc,Just_Frequencies)
 *
 ************************************************************************
 *                                                                      *

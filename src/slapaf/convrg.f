@@ -9,15 +9,16 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Convrg(iter,kIter, nInter,Stop,iStop,MxItr,
-     &                  mIntEff,mTtAtm,GoOn,Step_Trunc,rMEP,MEP,
-     &                  nMEP,Just_Frequencies,eMEPTest)
+     &                  mIntEff,mTtAtm,GoOn,Step_Trunc,
+     &                  Just_Frequencies)
       Use Chkpnt
       Use Slapaf_Info, only: Cx, Gx, Coor, GNrm, Energy, Shift, qInt,
      &                       dqInt, Lbl
       use Slapaf_Parameters, only: HUpMet, FindTS, Analytic_Hessian,
      &                             MaxItr, Numerical, iNeg, GrdMax,
      &                             E_Delta, ThrEne, ThrGrd, nLambda,
-     &                             iOptC, ThrCons, ThrMEP, Baker
+     &                             iOptC, ThrCons, ThrMEP, Baker,
+     &                             eMEPTest, rMEP, MEP, nMEP
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -32,9 +33,8 @@
       Character(LEN=16) StdIn
       Character(LEN=80) Point_Desc
       Character(LEN=16) MEP_Text
-      Logical Stop, Conv1, GoOn, MEP,
-     &        Found, Terminate, Last_Energy, rMEP,
-     &        Just_Frequencies, Saddle, eMEPTest, eTest,
+      Logical Stop, Conv1, GoOn, Found, Terminate, Last_Energy,
+     &        Just_Frequencies, Saddle, eTest,
      &        IRCRestart, Conv2, ConvTmp, TSReg, BadConstraint,
      &        TurnBack
       Character(LEN=8) Temp

@@ -83,7 +83,7 @@
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: dMass, nStab, iCoSet, AtomLbl, Smmtrc,
      &                       Coor
-      use Slapaf_Parameters, only: nDimBC
+      use Slapaf_Parameters, only: nDimBC, rMEP, MEP
 #  include "info_slapaf.fh"
 #  include "stdalloc.fh"
       Character :: lIrrep(24)

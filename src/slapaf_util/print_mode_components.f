@@ -45,7 +45,8 @@
      &                             Beta_Disp, Line_Search,
      &                             TSConstraints, GNrm_Threshold, Mode,
      &                             ThrEne, ThrGrd, nLambda, iRef,
-     &                             ThrCons, ThrMEP, Baker
+     &                             ThrCons, ThrMEP, Baker, eMEPTest,
+     &                             rMEP, MEP, nMEP
       use thermochem
       Implicit None
 #include "backup_info.fh"
