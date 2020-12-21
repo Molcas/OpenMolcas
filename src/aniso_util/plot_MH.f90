@@ -21,36 +21,11 @@
   ! local variables
   REAL (wp) :: hmin, hmax, MHmin_exp, MHmax_exp, MHmin_calc, MHmax_calc, MHmin, MHmax
   REAL (wp) :: gnuplot_version
-  INTEGER           :: file_number, istat, iH, iTempMagn, LuPlt, LuData, file_size, StdOut, iErr
+  INTEGER           :: file_number, iH, iTempMagn, LuPlt, LuData, file_size, StdOut, iErr
   LOGICAL           :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
-  CHARACTER(LEN=100):: line1, line2, lineOut, cdummy
+  CHARACTER(LEN=100):: line1, line2, cdummy
   CHARACTER(LEN=100):: gnuplot_CMD, filedat, fileplt
-  CHARACTER(LEN=7) :: color(111)
   INTEGER, EXTERNAL:: AixRm
-
-  color(  1)="#ffffff"; color(  2)="#000000"; color(  3)="#a0a0a0"; color(  4)="#ff0000"; color(  5)="#00c000"
-  color(  6)="#0080ff"; color(  7)="#c000ff"; color(  8)="#00eeee"; color(  9)="#c04000"; color( 10)="#c8c800"
-  color( 11)="#4169e1"; color( 12)="#ffc020"; color( 13)="#008040"; color( 14)="#c080ff"; color( 15)="#306080"
-  color( 16)="#8b0000"; color( 17)="#408000"; color( 18)="#ff80ff"; color( 19)="#7fffd4"; color( 20)="#a52a2a"
-  color( 21)="#ffff00"; color( 22)="#40e0d0"; color( 23)="#000000"; color( 24)="#1a1a1a"; color( 25)="#333333"
-  color( 26)="#4d4d4d"; color( 27)="#666666"; color( 28)="#7f7f7f"; color( 29)="#999999"; color( 30)="#b3b3b3"
-  color( 31)="#c0c0c0"; color( 32)="#cccccc"; color( 33)="#e5e5e5"; color( 34)="#ffffff"; color( 35)="#f03232"
-  color( 36)="#90ee90"; color( 37)="#add8e6"; color( 38)="#f055f0"; color( 39)="#e0ffff"; color( 40)="#eedd82"
-  color( 41)="#ffb6c1"; color( 42)="#afeeee"; color( 43)="#ffd700"; color( 44)="#00ff00"; color( 45)="#006400"
-  color( 46)="#00ff7f"; color( 47)="#228b22"; color( 48)="#2e8b57"; color( 49)="#0000ff"; color( 50)="#00008b"
-  color( 51)="#191970"; color( 52)="#000080"; color( 53)="#0000cd"; color( 54)="#87ceeb"; color( 55)="#00ffff"
-  color( 56)="#ff00ff"; color( 57)="#00ced1"; color( 58)="#ff1493"; color( 59)="#ff7f50"; color( 60)="#f08080"
-  color( 61)="#ff4500"; color( 62)="#fa8072"; color( 63)="#e9967a"; color( 64)="#f0e68c"; color( 65)="#bdb76b"
-  color( 66)="#b8860b"; color( 67)="#f5f5dc"; color( 68)="#a08020"; color( 69)="#ffa500"; color( 70)="#ee82ee"
-  color( 71)="#9400d3"; color( 72)="#dda0dd"; color( 73)="#905040"; color( 74)="#556b2f"; color( 75)="#801400"
-  color( 76)="#801414"; color( 77)="#804014"; color( 78)="#804080"; color( 79)="#8060c0"; color( 80)="#8060ff"
-  color( 81)="#808000"; color( 82)="#ff8040"; color( 83)="#ffa040"; color( 84)="#ffa060"; color( 85)="#ffa070"
-  color( 86)="#ffc0c0"; color( 87)="#ffff80"; color( 88)="#ffffc0"; color( 89)="#cdb79e"; color( 90)="#f0fff0"
-  color( 91)="#a0b6cd"; color( 92)="#c1ffc1"; color( 93)="#cdc0b0"; color( 94)="#7cff40"; color( 95)="#a0ff20"
-  color( 96)="#bebebe"; color( 97)="#d3d3d3"; color( 98)="#d3d3d3"; color( 99)="#a0a0a0"; color(100)="#a0b6cd"
-  color(101)="#000000"; color(102)="#1a1a1a"; color(103)="#333333"; color(104)="#4d4d4d"; color(105)="#666666"
-  color(106)="#7f7f7f"; color(107)="#999999"; color(108)="#b3b3b3"; color(109)="#cccccc"; color(110)="#e5e5e5"
-  color(111)="#ffffff"
 
   dbg=.false.
   iErr=0
@@ -90,11 +65,9 @@
   END IF
 
   ! generate the GNUPLOT script in the $WorkDir
-  lineOut=' '
   line1=' '
   line2=' '
   gnuplot_CMD=' '
-  istat=0
   file_exist=.false.
   is_file_open=.false.
   file_size=0
@@ -297,6 +270,9 @@
   END DO ! iTempMagn
 
   RETURN
+#ifdef _WARNING_WORKAROUND_
+  IF (.FALSE.) CALL UNUSED_CHARACTER(cdummy)
+#endif
   END SUBROUTINE plot_MH_with_Exp
 
 
@@ -315,9 +291,9 @@
   ! local variables
   REAL (wp) :: hmin, hmax, MHmin_calc, MHmax_calc, MHmin, MHmax, r
   REAL (wp) :: gnuplot_version
-  INTEGER           :: file_number, istat, iH, iTempMagn, LuPlt, LuData, ik, ic, file_size, StdOut, iErr
+  INTEGER           :: file_number, iH, iTempMagn, LuPlt, LuData, ik, ic, file_size, StdOut, iErr
   LOGICAL           :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
-  CHARACTER(LEN=100):: line1, line2, lineOut, fmtline, cdummy
+  CHARACTER(LEN=100):: line1, line2, fmtline, cdummy
   CHARACTER(LEN=100):: gnuplot_CMD
   CHARACTER(LEN=7) :: color(111)
   INTEGER, EXTERNAL:: AixRm
@@ -378,11 +354,9 @@
   END IF
 
   ! generate the GNUPLOT script in the $WorkDir
-  lineOut=' '
   line1=' '
   line2=' '
   gnuplot_CMD=' '
-  istat=0
   file_exist=.false.
   is_file_open=.false.
   file_size=0
@@ -611,6 +585,9 @@
   END IF
 
   RETURN
+#ifdef _WARNING_WORKAROUND_
+  IF (.FALSE.) CALL UNUSED_CHARACTER(cdummy)
+#endif
   END SUBROUTINE plot_MH_no_Exp
 
 

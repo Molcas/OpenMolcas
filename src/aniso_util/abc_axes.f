@@ -26,7 +26,7 @@
       Integer, intent(out)        :: iReturn
       ! local variables:
       Integer       :: i
-      Real(kind=8) :: a,b,c,al,bt,gm,cal,cbt,cgm,sal,sbt,sgm,v,pi,x,y,z
+      Real(kind=8) :: a,b,c,al,bt,gm,cal,cbt,cgm,sgm,v,pi,x,y,z
       Real(kind=8) :: xyz2(3,3),pX(3),pY(3),pZ(3)
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ! initializations
@@ -40,8 +40,6 @@
       cal = 0.0_wp
       cbt = 0.0_wp
       cgm = 0.0_wp
-      sal = 0.0_wp
-      sbt = 0.0_wp
       sgm = 0.0_wp
       X   = 0.0_wp
       Y   = 0.0_wp
@@ -60,8 +58,6 @@
       cal = cos(al)
       cbt = cos(bt)
       cgm = cos(gm)
-      sal = sin(al)
-      sbt = sin(bt)
       sgm = sin(gm)
 
       v = sqrt(1.0_wp-cal*cal-cbt*cbt-cgm*cgm+2.0_wp*cal*cbt*cgm )

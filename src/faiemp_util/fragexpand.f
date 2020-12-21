@@ -38,8 +38,7 @@
       Integer     BasisTypes(4),
      &            LenLbl, LuRd, iAtom, ib, iBas, iCnttp, iCntr,
      &            ii, Indx, iSh, iShll, jShll,
-     &            lAng, Last, LenBSL, lSTDINP, mCnttp, mdc, ndc,
-     &            StayAlone
+     &            lAng, Last, LenBSL, lSTDINP, mCnttp, mdc, ndc
       Real*8      x1, y1, z1
       Character*4  label
       Character*13 DefNm
@@ -139,7 +138,6 @@
             If(Indx.eq.0) Then
               Call WhichMolcas(Basis_lib)
               If(Basis_lib(1:1).ne.' ') then
-                StayAlone = 1
                 ib = index(Basis_lib,' ')-1
                 If(ib.lt.1) Call SysAbendMsg('fragexpand',
      &                      'Too long PATH to MOLCAS',' ')

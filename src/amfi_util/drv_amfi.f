@@ -263,7 +263,6 @@
 *                     normal valence might not be adequate.
 *
                       iShll  = dbsc(iCnttp)%iSOC+l
-                      nBas_y = iSD( 3,iSkal)
                       iCase = 1
 *
                    End If

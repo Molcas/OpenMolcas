@@ -27,7 +27,6 @@
 #ifdef _DEBUGPRINT_
       Character*21 chCharge
 #endif
-      Character*30 AddText
       Character*54 Stars
       Logical MakeMean, Bonn, Breit, SameOrb, AIMP, OneOnly, IfTest
       Common /Nucleus/ Charge, Exp_Finite
@@ -39,7 +38,6 @@
       chCharge='  Charge of nucleus: '
 #endif
       OUT=6
-      AddText =' Additional functions in IRS: '
       Stars   ='******************************************************'
       Bonn    =.False.
       Breit   =.False.

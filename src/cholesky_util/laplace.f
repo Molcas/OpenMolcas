@@ -361,7 +361,6 @@ C
       Call ThisIsRestrictedCode('Thomas Bondo Pedersen',
      &        'Laplace quadrature generation (subroutine remez)',.true.)
 C
-!     Dbg = .TRUE.
       Dbg = .FALSE.
       SkpRem = .FALSE.
       Change = .FALSE.
@@ -771,7 +770,6 @@ C
          IRes = 1
          CALL AltErr(K_Lap,Coeff,T,VV,Eps0)
          IF (Eps0.GT.Tol) THEN
-            Eps = 1.0D-07
             CALL PtDiff(IDim,Coeff,T,A)
 C
             IF (Dbg) THEN
@@ -1448,11 +1446,10 @@ C
      *              1.0D+03, 2.0D+03, 3.0D+03, 4.0D+03, 5.0D+03,
      *              6.0D+03, 7.0D+03, 8.0D+03, 9.0D+03, 1.0D+04/
 C
-      LOGICAL Dbg,Trial
+      LOGICAL Trial
 C
 C     ===== Check a larger R value =====
 C
-      Dbg = .FALSE.
       Trial = .FALSE.
 C
       WRITE(IW,'("Demanded accuracy is ",A8,".")')Demand

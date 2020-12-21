@@ -78,15 +78,11 @@
 #include "ofio.fh"
 #endif
       Character*8 Stdnam, ext
-      Character*100 My_Progname,Get_Progname
-      External Get_Progname
       Character*256 tmp
       Character*80 Text
       Character*16 TheName
       Data TheName/'MpDaFile'/
 
-      My_Progname=Get_Progname()
-*
       max_File_Size = MaxFileSizel*10**6
       max_Bytes     = MIN(max_File_Length,max_File_Size)
       n_Bytes       = lBuf

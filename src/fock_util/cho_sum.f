@@ -26,7 +26,7 @@
       Integer   rc,nBas(8),nSym,iUHF
       Integer   ISTSQ(8),ISTLT(8)
       Integer   ipFLT(*),ipFSQ(*)
-      Logical DoExchange(*),Debug
+      Logical DoExchange(*)
 
 
 #include "WrkSpc.fh"
@@ -34,12 +34,6 @@
 **************************************************
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 **************************************************
-
-#ifdef _DEBUGPRINT_
-      Debug=.true.
-#else
-      Debug=.false.
-#endif
 
        if(iUHF.eq.1)then
                nDen=3

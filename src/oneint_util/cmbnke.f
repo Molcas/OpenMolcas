@@ -28,8 +28,8 @@
 *
       Ind(ixyz,ix,iz) = (ixyz-ix)*(ixyz-ix+1)/2 + iz + 1
 *
-      iRout = 134
-      iPrint = nPrint(iRout)
+*     iRout = 134
+*     iPrint = nPrint(iRout)
 *     Call GetMem(' Enter CmbnKE','LIST','REAL',iDum,iDum)
 *
       iComp = 1

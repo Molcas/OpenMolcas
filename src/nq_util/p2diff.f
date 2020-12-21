@@ -80,7 +80,7 @@
 
             Else
                rho_tot=Rho(1,iGrid)+Rho(2,iGrid)
-               OnTop=Rho(1,iGrid)*Rho(2,iGrid)
+c              OnTop=Rho(1,iGrid)*Rho(2,iGrid)
 c              det=sqrt(rho_tot*rho_tot-4.0d0*OnTop)
 c              rho_x=Rho(3,iGrid)+Rho(6,iGrid)
 c              rho_y=Rho(4,iGrid)+Rho(7,iGrid)

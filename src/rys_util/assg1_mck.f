@@ -63,7 +63,6 @@ c#include "print.fh"
 *
          ixab = ixa + ixb
          iyab = iya + iyb
-         izab = iza + izb
 *
       Do 300 ipc = 1, nElem(lc)
          ipckk=ipc+kk

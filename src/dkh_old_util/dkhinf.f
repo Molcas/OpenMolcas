@@ -749,6 +749,9 @@ c
 #endif
 c
       return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(idum1)
+#endif
       end
 c
 c
@@ -1374,6 +1377,9 @@ CMR      write (stdout,1090)
 CMR1090  format (/15X,'All Sxxx matrices have been stored in scr1().')
 c
       return
+#if _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(idum2)
+#endif
       end
 c
 c
@@ -1544,6 +1550,9 @@ CMR      if (tnumber.gt.0) write (stdout,1090)
 CMR1090  format (/15X,'All Txxx matrices have been stored in scr2().')
 c
       return
+#if _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(idum2)
+#endif
       end
 c
 c
@@ -1808,6 +1817,10 @@ c Avoid unused argument warnings
       if (.false.) then
         call Unused_integer(dkhorder)
         call Unused_logical(dkhscfflg)
+#ifdef _WARNING_WORKAROUND_
+        call Unused_integer(idum1)
+        call Unused_integer(order)
+#endif
       end if
       end
 c

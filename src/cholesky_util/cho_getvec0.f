@@ -121,7 +121,6 @@ C-tbp: replaced above code to make use of buffer through cho_vecrd.
          END IF
          NSYS_CALL = NSYS_CALL + 1
          IF (LOCDBG) THEN
-            IADR = INFVEC(IVEC,3,ISYM)
             XNRM = SQRT(DDOT_(NNBSTR(ISYM,3),SCR(KREAD),1,SCR(KREAD),1))
             WRITE(LUPRI,*) SECNAM,': ',
      &                     'Vector:',IVEC,' address: ',

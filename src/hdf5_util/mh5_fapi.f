@@ -79,6 +79,7 @@
       use iso_c_binding
       implicit none
       integer :: lu
+      integer :: ierr
       interface
         function mh5c_close_file(lu) result(ierr)
      &   bind(C, name='mh5c_close_file')
@@ -88,8 +89,9 @@
         integer(MOLCAS_C_INT) :: ierr
         end function
       end interface
-      integer :: ierr
+
       ierr = mh5c_close_file(lu)
+      if (ierr < 0) call abend
       end subroutine
 
 *     check if a file is in the HDF5 format
@@ -153,6 +155,7 @@
       use iso_c_binding
       implicit none
       integer :: id
+      integer :: ierr
       interface
         function mh5c_close_group(id) result(ierr)
      &   bind(C, name='mh5c_close_group')
@@ -162,8 +165,9 @@
         integer(MOLCAS_C_INT) :: ierr
         end function
       end interface
-      integer :: ierr
+
       ierr = mh5c_close_group(id)
+      if (ierr < 0) call abend
       end subroutine
 
 *     check for existence of dataset/attribute by id,
@@ -253,6 +257,7 @@
       use iso_c_binding
       implicit none
       integer :: dsetid
+      integer :: ierr
       interface
         function mh5c_close_dset(dsetid) result(ierr)
      &   bind(C, name='mh5c_close_dset')
@@ -263,7 +268,8 @@
         end function
       end interface
 
-      if (mh5c_close_dset(dsetid) < 0) call abend
+      ierr = mh5c_close_dset(dsetid)
+      if (ierr < 0) call abend
       end subroutine
 
       function mh5_open_attr (lu, attrname) result(attrid)
@@ -292,6 +298,7 @@
       use iso_c_binding
       implicit none
       integer :: attrid
+      integer :: ierr
       interface
         function mh5c_close_attr(attrid) result(ierr)
      &   bind(C, name='mh5c_close_attr')
@@ -302,7 +309,8 @@
         end function
       end interface
 
-      if (mh5c_close_attr(attrid) < 0) call abend
+      ierr = mh5c_close_attr(attrid)
+      if (ierr < 0) call abend
       end subroutine
 
 *======================
@@ -397,6 +405,7 @@
       end interface
 
       ierr = mh5c_put_attr_scalar_int(dset_id, value)
+      if (ierr < 0) call abend
       end subroutine
 
       subroutine mh5_put_attr_scalar_real (dset_id, value)
@@ -417,6 +426,7 @@
       end interface
 
       ierr = mh5c_put_attr_scalar_real(dset_id, value)
+      if (ierr < 0) call abend
       end subroutine
 
       subroutine mh5_put_attr_scalar_str (dset_id, value)
@@ -437,6 +447,7 @@
       end interface
 
       ierr = mh5c_put_attr_scalar_str(dset_id, value)
+      if (ierr < 0) call abend
       end subroutine
 
 
@@ -458,6 +469,7 @@
       end interface
 
       ierr = mh5c_get_attr_scalar_int(dset_id, value)
+      if (ierr < 0) call abend
       end subroutine
 
       subroutine mh5_get_attr_scalar_real (dset_id, value)
@@ -478,6 +490,7 @@
       end interface
 
       ierr = mh5c_get_attr_scalar_real(dset_id, value)
+      if (ierr < 0) call abend
       end subroutine
 
       subroutine mh5_get_attr_scalar_str (dset_id, value)
@@ -498,6 +511,7 @@
       end interface
 
       ierr = mh5c_get_attr_scalar_str(dset_id, value)
+      if (ierr < 0) call abend
       end subroutine
 
       function mh5_create_attr_array_int (lu, name, rank, dims)
@@ -960,6 +974,7 @@
       end interface
 
       ierr = mh5c_put_dset_scalar_int(dset_id, value)
+      if (ierr < 0) call abend
       end subroutine
 
       subroutine mh5_put_dset_scalar_real (dset_id, value)
@@ -980,6 +995,7 @@
       end interface
 
       ierr = mh5c_put_dset_scalar_real(dset_id, value)
+      if (ierr < 0) call abend
       end subroutine
 
       subroutine mh5_put_dset_scalar_str (dset_id, value)
@@ -1000,6 +1016,7 @@
       end interface
 
       ierr = mh5c_put_dset_scalar_str(dset_id, value)
+      if (ierr < 0) call abend
       end subroutine
 
 
@@ -1021,6 +1038,7 @@
       end interface
 
       ierr = mh5c_get_dset_scalar_int(dset_id, value)
+      if (ierr < 0) call abend
       end subroutine
 
       subroutine mh5_get_dset_scalar_real (dset_id, value)
@@ -1041,6 +1059,7 @@
       end interface
 
       ierr = mh5c_get_dset_scalar_real(dset_id, value)
+      if (ierr < 0) call abend
       end subroutine
 
       subroutine mh5_get_dset_scalar_str (dset_id, value)
@@ -1061,6 +1080,7 @@
       end interface
 
       ierr = mh5c_get_dset_scalar_str(dset_id, value)
+      if (ierr < 0) call abend
       end subroutine
 
       function mh5_create_dset_array_int (lu, name, rank, dims, dyn)
@@ -1241,10 +1261,10 @@
         ierr = mh5c_put_dset_array_int(dset_id, exts, offs, buffer)
       else if (present(exts).or.present(offs)) then
         ierr = -1
-        call abend
       else
         ierr = mh5c_put_dset_array_int_full(dset_id, buffer)
       end if
+      if (ierr < 0) call abend
       end subroutine
 
       subroutine mh5_put_dset_array_real (dset_id, buffer, exts, offs)
@@ -1278,10 +1298,10 @@
         ierr = mh5c_put_dset_array_real(dset_id, exts, offs, buffer)
       else if (present(exts).or.present(offs)) then
         ierr = -1
-        call abend
       else
         ierr = mh5c_put_dset_array_real_full(dset_id, buffer)
       end if
+      if (ierr < 0) call abend
       end subroutine
 
       subroutine mh5_put_dset_array_str (dset_id, buffer, exts, offs)
@@ -1315,10 +1335,10 @@
         ierr = mh5c_put_dset_array_str(dset_id, exts, offs, buffer)
       else if (present(exts).or.present(offs)) then
         ierr = -1
-        call abend
       else
         ierr = mh5c_put_dset_array_str_full(dset_id, buffer)
       end if
+      if (ierr < 0) call abend
       end subroutine
 
 
@@ -1353,10 +1373,10 @@
         ierr = mh5c_get_dset_array_int(dset_id, exts, offs, buffer)
       else if (present(exts).or.present(offs)) then
         ierr = -1
-        call abend
       else
         ierr = mh5c_get_dset_array_int_full(dset_id, buffer)
       end if
+      if (ierr < 0) call abend
       end subroutine
 
       subroutine mh5_get_dset_array_real (dset_id, buffer, exts, offs)
@@ -1390,10 +1410,10 @@
         ierr = mh5c_get_dset_array_real(dset_id, exts, offs, buffer)
       else if (present(exts).or.present(offs)) then
         ierr = -1
-        call abend
       else
         ierr = mh5c_get_dset_array_real_full(dset_id, buffer)
       end if
+      if (ierr < 0) call abend
       end subroutine
 
       subroutine mh5_get_dset_array_str (dset_id, buffer, exts, offs)
@@ -1427,10 +1447,10 @@
         ierr = mh5c_get_dset_array_str(dset_id, exts, offs, buffer)
       else if (present(exts).or.present(offs)) then
         ierr = -1
-        call abend
       else
         ierr = mh5c_get_dset_array_str_full(dset_id, buffer)
       end if
+      if (ierr < 0) call abend
       end subroutine
 
       subroutine mh5_extend_dset_array(dset_id, dims)
@@ -1450,9 +1470,7 @@
       end interface
 
       ierr = mh5c_extend_dset_array(dset_id, dims)
-      if (ierr .lt. 0) then
-        call abend
-      end if
+      if (ierr < 0) call abend
       end subroutine
 
       subroutine mh5_get_dset_array_dims(dset_id, dims)
@@ -1472,9 +1490,7 @@
       end interface
 
       ierr = mh5c_get_dset_array_dims(dset_id, dims)
-      if (ierr .lt. 0) then
-        call abend
-      end if
+      if (ierr < 0) call abend
       end subroutine
 
 * Convenience wrappers: 'init' and 'fetch'
@@ -1549,10 +1565,12 @@
         end function
       end interface
       logical :: isdyn
+
       isdyn = .false.
       if (present(dyn)) isdyn = dyn
       dset_id = mh5_create_dset_array_int(lu, name, rank, dims, isdyn)
       ierr = mh5c_put_dset_array_int_full(dset_id, buffer)
+      if (ierr < 0) call abend
       call mh5_close_dset(dset_id)
       end subroutine
 
@@ -1589,10 +1607,12 @@
         end function
       end interface
       logical :: isdyn
+
       isdyn = .false.
       if (present(dyn)) isdyn = dyn
-      dset_id = mh5_create_dset_array_real(lu, name, rank, dims, dyn)
+      dset_id = mh5_create_dset_array_real(lu, name, rank, dims, isdyn)
       ierr = mh5c_put_dset_array_real_full(dset_id, buffer)
+      if (ierr < 0) call abend
       call mh5_close_dset(dset_id)
       end subroutine
 
@@ -1632,11 +1652,13 @@
         end function
       end interface
       logical :: isdyn
+
       isdyn = .false.
       if (present(dyn)) isdyn = dyn
       dset_id = mh5_create_dset_array_str(lu, name, rank, dims, size,
      &                                    isdyn)
       ierr = mh5c_put_dset_array_str_full(dset_id, buffer)
+      if (ierr < 0) call abend
       call mh5_close_dset(dset_id)
       end subroutine
 
@@ -1745,8 +1767,7 @@
       use iso_c_binding
       implicit none
       character(len=*) :: name, lbl
-      if (len(name) .gt. len(lbl)-1) then
-        call AbEnd
-      end if
+
+      if (len(name) > len(lbl)-1) call abend
       lbl = TRIM(name)//C_NULL_CHAR
       end subroutine

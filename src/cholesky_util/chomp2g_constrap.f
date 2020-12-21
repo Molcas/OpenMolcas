@@ -183,7 +183,6 @@
 *        Z-vector
          lZ = nVec*nIQ
          kZ = kEndY
-         kEndZ = kZ + lZ
 *
       nBatL = (NumCho(iSym)-1)/nVec + 1
 

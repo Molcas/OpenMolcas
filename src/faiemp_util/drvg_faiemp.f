@@ -47,7 +47,6 @@
       Real*8   Coor(3,4), Grad(nGrad), Temp(nGrad)
       Integer  iAnga(4), iCmpa(4), iShela(4),iShlla(4),
      &         iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4)
-      Integer  nHrrTb(0:iTabMx,0:iTabMx,2)
       Logical  EQ, Shijij, AeqB, CeqD, lDummy,
      &         DoGrad, DoFock, Indexation,
      &         JfGrad(3,4), ABCDeq, No_Batch, King, Rsv_GTList, MPP,
@@ -60,7 +59,7 @@
       Integer  MemMax,MemPrm
       save     MemPrm
 *
-      Integer  iRout,iPrint,nBT,nBVT,idum,idum1,i,j,iAng,iBasi,iBasn
+      Integer  iRout,iPrint,nBT,nBVT,i,j,iAng,iBasi,iBasn
       Integer  iS,jS,iBasAO,iBsInc,iCar,ijklA,ijS,Indij,iOpt,ijMax
       Integer  ip_ij,ipEI,ipEta,ipiEta,ipMem1,ipMem2,ipP,ipQ
       Integer  iPrem,iPren,ipxA,ipxB,ipxG,ipxD,ipZi,Mem1,Mem2,iPrimi
@@ -71,7 +70,7 @@
       Integer  MemPSO,nab,ncd,nDCRR,nDCRS,nEta,nHmab,nHmcd,nHrrab
       Integer  nij,nijkl,nPairs,nQuad,nRys,nSkal,nSkal_Fragments
       Integer  nSkal_Valence,nSO,nZeta,nBtch
-      Real*8   TMax,PMax,ExFac,CoulFac,Aint,Count,P_Eff,Prem,Pren
+      Real*8   TMax,PMax,Aint,Count,P_Eff,Prem,Pren
       Real*8   TCpu1,TCpu2,ThrAO,TMax_all,TskHi,TskLw,TWall1,TWall2
 *                                                                      *
 ************************************************************************
@@ -89,10 +88,6 @@
       iFnc(3)=0
       iFnc(4)=0
       PMax=Zero
-      idum=0
-      idum1=0
-      ExFac=One
-      CoulFac=One
 *
 *     Handle both the valence and the fragment basis set
 *
@@ -187,8 +182,6 @@
                     End If
                  End Do
               End Do
-              nHrrTb(iAng,jAng,1)=nHrrab
-              nHrrTb(jAng,iAng,1)=nHrrab
            End Do
         End Do
 *                                                                      *

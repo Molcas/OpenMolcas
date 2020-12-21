@@ -304,7 +304,6 @@ C              --------------------------
 C              Start batch loop.
 C              -----------------
 
-               kOffX = kXaibj + LiT2am(iSym)
                Do iBat = 1,nBat
 
                   If (iBat .eq. nBat) Then

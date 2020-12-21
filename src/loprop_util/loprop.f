@@ -72,7 +72,6 @@
       nStateI=1
       nStateF=1
       Delta=0.001D0
-      MpProp_Level=0
       Bond_Threshold=-1.0D0
       iPlot = 0
       iPrint = 0
@@ -111,7 +110,6 @@
 *                                                                      *
 *     Compute the 1-particle density matrix
 *
-      Dlt=-Delta
       iPert = 0
       Call Get_Density_Matrix(ip_D(0),nBas1,nBas2,nBasMax,nBas,nSym,
      &                       ipP,UserDen,PrintDen,SubtractDen,SubScale,

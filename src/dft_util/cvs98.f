@@ -267,7 +267,7 @@ C
       REAL*8 Pi, Pi34, F13, F53, F83
       REAL*8 RS, D, RSP, PotLC, DX, DZ, dgdP, dgdG, dgdT
       REAL*8 E,DP, DG, DT, rhoo, rho53, rho83
-      REAL*8 F4o3, kc, xk, zk, gc, dgdx, dgdz
+      REAL*8 kc, xk, zk, gc, dgdx, dgdz
       REAL*8 d2LdSS, d2LdSZ, d2LdZZ, dLdS, dLdZ
 
       Data Zero/0.0d0/, F1/1.0d0/, F2/2.0d0/, F3/3.0d0/,
@@ -275,7 +275,6 @@ C
      $  gcc/0.00515088d0/,cf/9.115599720d0/
 
 
-      F4o3 = 4.0d0/3.0d0
 C     Parameters for VS98
       if (ijzy.eq.1) then
               r13=   3.270912d-01

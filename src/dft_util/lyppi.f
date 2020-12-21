@@ -41,7 +41,6 @@
 *                                                                      *
 *     Some constants which we need...
 *
-      Pi2  = Pi*Pi
       aConst=0.049180d0
       bConst=0.1320d0
       dConst=0.3490d0

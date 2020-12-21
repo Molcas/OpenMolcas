@@ -99,11 +99,6 @@ C        --------------------------
 
          ISCD = MYSP(ISHLCD)
          CALL CHO_INVPCK(ISP2F(ISCD),ISHLC,ISHLD,.TRUE.)
-         IF (ISHLC .EQ. ISHLD) THEN
-            NUMCD = NBSTSH(ISHLC)*(NBSTSH(ISHLC) + 1)/2
-         ELSE
-            NUMCD = NBSTSH(ISHLC)*NBSTSH(ISHLD)
-         END IF
 
 C        Find out if this shell pair (CD) contributes to
 C        current reduced set.

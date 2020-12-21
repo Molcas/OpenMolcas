@@ -37,7 +37,6 @@
       lcdMin_NA=nabSz(lr-2)+1
       lcdMax_NA=nabSz(lr-1)
       lcd_NA = (lcdMax_NA-lcdMin_NA+1)
-      labcd_NA = lab*lcd_NA
 *
       Call mHRR(la,lb,nFlop,nMem)
       Mem1=Max(lcd_EF,lcd_NA)*nMem

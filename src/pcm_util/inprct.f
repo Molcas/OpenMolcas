@@ -202,8 +202,6 @@
 *
       lRF = .True.
       lRFCav = .True.
-      iRc=-1
-      iOpt=0
       Write(KWord,'(A,F10.5,A,F10.5,A,I4)')
      & 'eps=',Eps,' radius=',rds,' higest moment=',lMax
       Go To 998
@@ -528,7 +526,6 @@ c      write(6,*)'COVR',ii,val
          If (Eps.lt.One) Eps=epscm
 *
          tk5=Half*tk
-         r2=radlat**2
 *
       End If
 *                                                                      *

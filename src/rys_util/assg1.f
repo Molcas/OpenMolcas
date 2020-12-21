@@ -70,7 +70,6 @@
 *
          ixcd = ixc + ixd
          iycd = iyc + iyd
-         izcd = izc + izd
 *
       Do 300 ipb = 1, nElem(lb)
          ixb = ixyz(1,jj+ipb)

@@ -63,7 +63,6 @@ c         Loop on tesserae
             Sum1 = Sum1 + Two * Qtot(iTs) * DerQ * dN / Tessera(4,iTs)
             Sum2 = Sum2 + Qtot(iTs) * Qtot(iTs) * Der1(iTs)
   200     Continue
-          UDer = Fact * (Sum1 + Sum2)
   101   Continue
   100 Continue
 cpcm_solvent

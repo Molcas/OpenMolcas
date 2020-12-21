@@ -52,7 +52,10 @@ C
       Integer   ipPorb,ipFA,ipFI
       Integer   ipDLT(2),ipFLT(2),ipDab(2),ipFab(2)
       Integer   nForb(8),nIorb(8),nAorb(8),nPorb(8),nnA(8,8),nChM(8)
-      Logical   Debug,timings,DoRead,DoTraInt,DoActive
+#ifdef _DEBUGPRINT_
+      Logical   Debug
+#endif
+      Logical   timings,DoRead,DoTraInt,DoActive
       Character*50 CFmt
       Character*10 SECNAM
       Parameter (SECNAM = 'CHO_FMCSCF')
@@ -80,12 +83,8 @@ C
 ************************************************************************
 
 #ifdef _DEBUGPRINT_
-c      Debug=.true.
       Debug=.false.! to avoid double printing in CASSCF-debug
-#else
-      Debug=.false.
 #endif
-
 
       if(ExFac.ne.1.0d0) then
           write(6,*) 'WARNING: if you are running MCPDFT calculations'
@@ -741,7 +740,6 @@ C --- free memory
 
 c Print the Fock-matrix
 #ifdef _DEBUGPRINT_
-
       if(Debug) then !to avoid double printing in CASSCF-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM
