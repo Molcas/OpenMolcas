@@ -48,7 +48,8 @@
      &                             ThrCons, ThrMEP, Baker, eMEPTest,
      &                             rMEP, MEP, nMEP, MEPNum, MEPCons,
      &                             dMEPStep, MEP_Type, MEP_Algo,
-     &                             Header
+     &                             Header, Max_Center, mTROld, RtRnc,
+     &                             Delta, rFuzz
       use thermochem
       Implicit None
 #include "backup_info.fh"
@@ -303,12 +304,10 @@
       Bk_nQQ=nQQ
       Bk_NmIter=NmIter
       Bk_iter=iter
-      Bk_Lngth=Lngth
       Bk_nDimBC=nDimBC
       Bk_MxItr=MxItr
       Bk_mInt=mInt
       Bk_Max_Center=Max_Center
-      Bk_lif=lif
       Bk_iOptC=iOptC
       Bk_mode=mode
       Bk_mTROld=mTROld
@@ -360,7 +359,6 @@
       Bk_Request_Alaska=Request_Alaska
       Bk_Request_RASSI=Request_RASSI
       Bk_cMass(:)=cMass(:)
-      Bk_Trial(:)=Trial(:)
       Bk_ThrEne=ThrEne
       Bk_ThrGrd=ThrGrd
       Bk_Beta=Beta
@@ -588,12 +586,10 @@
       nQQ=Bk_nQQ
       NmIter=Bk_NmIter
       iter=Bk_iter
-      Lngth=Bk_Lngth
       nDimBC=Bk_nDimBC
       MxItr=Bk_MxItr
       mInt=Bk_mInt
       Max_Center=Bk_Max_Center
-      lif=Bk_lif
       iOptC=Bk_iOptC
       mode=Bk_mode
       mTROld=Bk_mTROld
@@ -645,7 +641,6 @@
       Request_Alaska=Bk_Request_Alaska
       Request_RASSI=Bk_Request_RASSI
       cMass(:)=Bk_cMass(:)
-      Trial(:)=Bk_Trial(:)
       ThrEne=Bk_ThrEne
       ThrGrd=Bk_ThrGrd
       Beta_Disp=Bk_Beta_Disp

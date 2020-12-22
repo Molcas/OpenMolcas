@@ -1,4 +1,4 @@
-************************************************************************
+***********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -57,7 +57,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      lif = 0
       jPrint=10
       lOld_Implicit = .False.
       Stop  = .False.
@@ -65,7 +64,6 @@
       Ref_Grad=.False.
       NmIter=0
       lSoft=.False.
-      rFuzz=0.5D0
       isFalcon=.False.
       CallLast=.True.
       TwoRunFiles=.False.
@@ -75,8 +73,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      RtRnc=Three
-      Max_Center=15
       lNmHss = .False.
       Cubic  = .False.
       PDH    = .True.
@@ -92,7 +88,6 @@
       End If
       ThrMEP = ThrGrd
       ThrCons = 1.0D10
-      Delta  = 1.0D-2
       nWndw = 5
 *                                                                      *
 ************************************************************************

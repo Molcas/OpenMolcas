@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine mk_G(G,GInv,nX)
+      use Slapaf_Parameters, only: mTROld
 #include "info_slapaf.fh"
       Integer nX
       Real*8 G(nX*nX), GInv(nX*nX)

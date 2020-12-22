@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Mk_Hss_Q()
       use Slapaf_Info, only: Cx, Coor, DipM, qInt, dqInt, BMx, mRowH
-      use Slapaf_Parameters, only: BSet, HSet
+      use Slapaf_Parameters, only: BSet, HSet, Delta
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "real.fh"
@@ -29,7 +29,7 @@
             Call RowHessian(NmIter,mInt,Delta/2.5d0)
          Else
             Call FormNumHess(iter,mInt,Delta,Stop,nsAtom,Cubic,iNeg,
-     &                       DipM,mTROld)
+     &                       DipM)
          End If
 *
          call dcopy_(3*nsAtom,Cx,1,Coor,1)

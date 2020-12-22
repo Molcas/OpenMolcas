@@ -22,6 +22,7 @@
 *             October 2010                                             *
 ************************************************************************
       use Slapaf_Info, only: Coor
+      use Slapaf_Parameters, only: mTROld
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "stdalloc.fh"

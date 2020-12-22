@@ -11,6 +11,7 @@
       Subroutine GF_on_the_Fly(iDo_dDipM)
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only:  Coor
+      use Slapaf_Parameters, only: mTROld
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "real.fh"

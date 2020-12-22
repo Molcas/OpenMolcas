@@ -10,11 +10,10 @@
 ************************************************************************
 #include "Molcas.fh"
 *
-      Integer   nQQ, NmIter, iter, Lngth, MxItr, mInt, Max_Center, lif,
-     &          mTROld, nWndw, mTtAtm, nsAtom, RootMap(MxRoot)
-      Common /iInfSla/ nsAtom, nQQ, iter, Lngth,
-     &          MxItr, mInt, Max_Center, lif, mTtAtm,
-     &          mTROld, nWndw, NmIter, RootMap
+      Integer   nQQ, NmIter, iter, MxItr, mInt,
+     &          nWndw, mTtAtm, nsAtom, RootMap(MxRoot)
+      Common /iInfSla/ nsAtom, nQQ, iter, MxItr, mInt,
+     &          mTtAtm, nWndw, NmIter, RootMap
 *
       Logical Stop, lWrite, Exist, Change, lNmHss, Cubic, PDH,
      &        FirstCall, Ref_Geom, lRP, Ref_Grad, lOld_Implicit, lCtoF,
@@ -25,9 +24,8 @@
      &        lSoft, CallLast, TwoRunFiles, Track, Request_Alaska,
      &        Request_RASSI
 *
-      Real*8 cMass(3), Trial(3), Delta, Rtrnc, rFuzz
-*
-      Common /rInfSla/ cMass, Trial, Delta, Rtrnc, rFuzz
+      Real*8           cMass(3)
+      Common /rInfSla/ cMass
 *
       Logical isFalcon
       Common /lFalcon/ isFalcon

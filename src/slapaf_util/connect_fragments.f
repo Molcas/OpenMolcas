@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine Connect_Fragments(nAtoms,iTabBonds,nBondMax,
      &                             nBonds,Coor,iTabAtoms,nMax,iANr)
+      use slapaf_parameters, only: rFuzz
       Implicit Real*8 (a-h,o-z)
 #include "stdalloc.fh"
 #include "info_slapaf.fh"
