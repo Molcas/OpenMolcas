@@ -219,7 +219,7 @@
          Error=(iterK.ge.1)
          iRef_Save=iRef
          iRef=iter ! Set the reference geometry
-         Call NewCar_Kriging(iterAI,nQQ,.True.,Error)
+         Call NewCar_Kriging(iterAI,.True.,Error)
          iRef = iRef_Save
 #ifdef _DEBUGPRINT_
          Call RecPrt('New Coord (after NewCar)','',qInt,nQQ,iterAI+1)
@@ -418,7 +418,7 @@
      &                                   Shift(1,iterAI-1),1)
             iRef_Save=iRef
             iRef=iter ! Set the reference geometry
-            Call NewCar_Kriging(iterAI-1,nQQ,.True.,Error)
+            Call NewCar_Kriging(iterAI-1,.True.,Error)
             iRef = iRef_Save
             Energy(iterAI)=OS_Energy
             If (Max_OS.gt.0) Then

@@ -216,7 +216,7 @@
          PrQ=.False.
          Error=.False.
          iRef=0
-         Call NewCar(Iter,Size(Coor,2),nQQ,Coor,mTtAtm,Error)
+         Call NewCar(Iter,Size(Coor,2),Coor,mTtAtm,Error)
       End If
 *                                                                      *
 ************************************************************************

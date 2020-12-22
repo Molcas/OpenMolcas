@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine NewCar(Iter,nAtom,nInter,Coor,mTtAtm,Error)
+      Subroutine NewCar(Iter,nAtom,Coor,mTtAtm,Error)
       use Slapaf_Info, only: Cx, qInt, RefGeo, BMx, Shift, Degen,
      &                       AtomLbl, Lbl
       use Slapaf_Parameters, only: Curvilinear, User_Def, BSet, HSet,
@@ -28,7 +28,7 @@
 #include "Molcas.fh"
 #include "warnings.fh"
       Parameter(NRHS=1)
-      Integer, Intent(In):: Iter, nAtom, nInter
+      Integer, Intent(In):: Iter, nAtom
       Real*8,  Intent(InOut):: Coor(3,nAtom)
       Integer, Intent(In):: mTtAtm
       Logical, Intent(InOut):: Error
@@ -40,15 +40,19 @@
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUGPRINT_
-      Call RecPrt('NewCar: q',' ',qInt,nInter,iter+1)
-      Call RecPrt('NewCar: Shift',' ',Shift,nInter,iter)
+      Call RecPrt('NewCar: q',' ',qInt,nQQ,iter+1)
+      Call RecPrt('NewCar: Shift',' ',Shift,nQQ,iter)
 #endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      nQQ = SIZE(qInt,1)
+*                                                                      *
+************************************************************************
+*                                                                      *
       Call mma_allocate(DFC,3*nAtom,Label='DFC')
-      Call mma_allocate(dss,nInter,Label='dss')
-      Call mma_allocate(rInt,nInter,Label='rInt')
+      Call mma_allocate(dss,nQQ,Label='dss')
+      Call mma_allocate(rInt,nQQ,Label='rInt')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -74,8 +78,8 @@
          Write (Lu,*) ' In NewCar: Shifts'
          Write (Lu,*)
          Write (Lu,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter),
-     &          iInter=1,nInter)
-         Call RecPrt(' In NewCar: qInt',' ',qInt,nInter,
+     &          iInter=1,nQQ)
+         Call RecPrt(' In NewCar: qInt',' ',qInt,nQQ,
      &               Iter+1)
       End If
 *
@@ -85,7 +89,7 @@
       rMax = Zero
       iMax = 0
       jter = 0
-      Do i = 1, nInter
+      Do i = 1, nQQ
          If (Abs(dss(i)) .gt. Abs(rMax)) Then
             rMax = dss(i)
             iMax = i
@@ -105,7 +109,7 @@
          Write (Lu,*)' Internal coordinates of the next macro iteration'
          Write (Lu,*)
          Write (Lu,'(1X,A,2X,F10.4)') (Lbl(iInter),rInt(iInter),
-     &          iInter=1,nInter)
+     &          iInter=1,nQQ)
       End If
       nPrint_33=nPrint(33)
       nPrint_31=nPrint(31)
@@ -121,7 +125,7 @@
 *--------Compute the Cartesian shift, solve dq = B^T dx!
 *
          M = 3*nAtom
-         N = nInter
+         N = nQQ
          Call Eq_Solver('T',M,N,NRHS,BMx,Curvilinear,Degen,dSS,
      &                  DFC)
          Call mma_deallocate(BMx)
@@ -186,7 +190,7 @@
          iMax_Old = iMax
          iMax = 1
          rMax = Zero
-         Do i = 1, nInter
+         Do i = 1, nQQ
             dSS(i) = rInt(i)-qInt(i,Iter+1)
             If (Abs(dSS(i)) .gt. Abs(rMax)) Then
                rMax = dSS(i)
@@ -203,7 +207,7 @@
             Write (Lu,*) ' Displacement of internal coordinates'
             Write (Lu,*)
             Write (Lu,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter),
-     &             iInter=1,nInter)
+     &             iInter=1,nQQ)
          End If
 *
       End Do
@@ -224,9 +228,9 @@
          Write (Lu,*) ' Hint: Try to change the Internal Coordinates. '
          Write (Lu,*) '***********************************************'
          If (.NOT.User_Def) Call RecPrt('NewCar: rInt  ','(10F15.10)',
-     &                                  rInt,nInter,1)
+     &                                  rInt,nQQ,1)
          If (.NOT.User_Def) Call RecPrt('NewCar: qInt','(10F15.10)',
-     &                                  qInt(:,Iter+1),nInter,1)
+     &                                  qInt(:,Iter+1),nQQ,1)
          Write (Lu,*)
          Call Quit(_RC_NOT_CONVERGED_)
       End If
