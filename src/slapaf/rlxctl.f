@@ -17,7 +17,8 @@
       use Slapaf_Parameters, only: HUpMet, User_Def, UpMeth,
      &                             HSet, BSet, PrQ, Numerical, iNeg,
      &                             E_Delta, iRef, Delta, lNmHss, Cubic,
-     &                             Request_Alaska, Request_RASSI
+     &                             Request_Alaska, Request_RASSI, lCtoF,
+     &                             isFalcon
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *

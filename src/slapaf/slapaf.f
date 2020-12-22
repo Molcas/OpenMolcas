@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       subroutine SlapAf(ireturn)
+      use Slapaf_Parameters, only: CallLast, isFalcon
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"

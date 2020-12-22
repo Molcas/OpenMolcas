@@ -28,7 +28,7 @@
      &        Bk_lOld, Bk_CurviLinear,
      &        Bk_HSet, Bk_BSet, Bk_lNmHss, Bk_Cubic, Bk_Baker,
      &        Bk_DDV_Schlegel, Bk_Line_Search, Bk_HWRS,
-     &        Bk_Analytic_Hessian, Bk_FirstCall, Bk_FindTS, Bk_MEP,
+     &        Bk_Analytic_Hessian, Bk_FindTS, Bk_MEP,
      &        Bk_User_Def, Bk_rMEP,
      &        Bk_lOld_Implicit, Bk_HrmFrq_Show, Bk_eMEPtest,
      &        Bk_Redundant, Bk_lCtoF, Bk_lSoft, Bk_CallLast,

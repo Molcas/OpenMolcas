@@ -12,7 +12,8 @@
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Coor, Grd,
      &                       Energy, Energy0, DipM, qInt, dqInt,
      &                       RefGeo, Get_Slapaf
-      use Slapaf_Parameters, only: MaxItr, mTROld, lOld_Implicit
+      use Slapaf_Parameters, only: MaxItr, mTROld, lOld_Implicit,
+     &                             TwoRunFiles
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"

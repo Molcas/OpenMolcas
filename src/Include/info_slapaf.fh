@@ -15,13 +15,8 @@
       Common /iInfSla/ nsAtom, nQQ, iter, MxItr, mInt,
      &          mTtAtm, nWndw, NmIter, RootMap
 *
-      Logical Stop, lWrite,FirstCall, lCtoF,
-     &        lSoft, CallLast, TwoRunFiles, Track
-      Common /lInfSla/ Stop, lWrite,FirstCall, lCtoF,
-     &        lSoft, CallLast, TwoRunFiles, Track
+      Logical          Stop, lWrite
+      Common /lInfSla/ Stop, lWrite
 *
       Real*8           cMass(3)
       Common /rInfSla/ cMass
-*
-      Logical isFalcon
-      Common /lFalcon/ isFalcon

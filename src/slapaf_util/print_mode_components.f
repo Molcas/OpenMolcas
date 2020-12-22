@@ -51,7 +51,8 @@
      &                             Header, Max_Center, mTROld, RtRnc,
      &                             Delta, rFuzz, lNmHss, Cubic,
      &                             Request_Alaska, Request_RASSI,
-     &                             lOld_Implicit
+     &                             lOld_Implicit, CallLast, lSoft,
+     &                             lCtoF, Track, TwoRunFiles, isFalcon
       use thermochem
       Implicit None
 #include "backup_info.fh"
@@ -336,7 +337,6 @@
       Bk_Line_Search=Line_Search
       Bk_HWRS=HWRS
       Bk_Analytic_Hessian=Analytic_Hessian
-      Bk_FirstCall=FirstCall
       Bk_FindTS=FindTS
       Bk_MEP=MEP
       Bk_User_Def=User_Def
@@ -608,7 +608,6 @@
       Line_Search=Bk_Line_Search
       HWRS=Bk_HWRS
       Analytic_Hessian=Bk_Analytic_Hessian
-      FirstCall=Bk_FirstCall
       FindTS=Bk_FindTS
       MEP=Bk_MEP
       User_Def=Bk_User_Def

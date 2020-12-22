@@ -61,11 +61,6 @@
       jPrint=10
       Stop  = .False.
       NmIter=0
-      lSoft=.False.
-      isFalcon=.False.
-      CallLast=.True.
-      TwoRunFiles=.False.
-      Track=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *

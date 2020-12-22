@@ -13,6 +13,7 @@
 ************************************************************************
       Subroutine CI_Summary(Lu)
       use Slapaf_Info, only: Gx, Gx0, NAC, Energy
+      use Slapaf_Parameters, only: CallLast
       Implicit None
       Integer Lu, n, i
       Real*8, Dimension(:), Allocatable :: g, h, tmp

@@ -21,8 +21,8 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "info_slapaf.fh"
-      Real*8,  Intent(InOut) :: TMx(mInt_,mInt_)
       Integer, Intent(In)    :: mInt_
+      Real*8,  Intent(InOut) :: TMx(mInt_,mInt_)
 *
       Integer Lambda1,Lambda2
       Logical Invert

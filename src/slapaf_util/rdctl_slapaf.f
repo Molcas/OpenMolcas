@@ -25,7 +25,8 @@
      &                             nMEP, MEPNum, MEPCons, dMEPStep,
      &                             MEP_Type, MEP_Algo, Max_Center,
      &                             Delta, RtRnc, rFuzz, lNmHss, Cubic,
-     &                             Request_Alaska
+     &                             Request_Alaska, CallLast, lCtoF,
+     &                             Track, isFalcon
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -79,7 +80,6 @@
 *
       iMEP=0
       Explicit_IRC=.False.
-      lCtoF=.False.
       WeightedConstraints=.False.
       ThrInp=.False.
       Call Qpg_iScalar('nMEP',Found)
