@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Update_sl(iter,NmIter,nInter,Step_Trunc,nWndw,kIter)
+      Subroutine Update_sl(iter,NmIter,nQQ,Step_Trunc,nWndw,kIter)
 ************************************************************************
 *                                                                      *
 *     Object: to update coordinates                                    *
@@ -18,7 +18,7 @@
 *    Input:                                                            *
 *      iter           : iteration counter                              *
 *      NmIter         : number of iteration in numerical approach      *
-*      nInter         : total number of internal coordinates           *
+*      nQQ         : total number of internal coordinates           *
 *      Beta           : damping factor                                 *
 *                                                                      *
 *    OutPut:                                                           *
@@ -47,8 +47,8 @@
       iPrint=nPrint(iRout)
 *
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Update_sl: qInt',' ',qInt,nInter,Iter)
-      Call RecPrt('Update_sl: Shift',' ',Shift,nInter,Iter-1)
+      Call RecPrt('Update_sl: qInt',' ',qInt,nQQ,Iter)
+      Call RecPrt('Update_sl: Shift',' ',Shift,nQQ,Iter-1)
 #endif
 *
       iOpt_RS=0
@@ -78,16 +78,16 @@
          Write(6,*)'UpDate_SL: first iteration'
 #endif
          iter_=1
-         Call mma_Allocate(t_Shift,nInter,SIZE(Shift,2),Label='t_Shift')
+         Call mma_Allocate(t_Shift,nQQ,SIZE(Shift,2),Label='t_Shift')
          t_Shift(:,:)=Shift(:,:)
          Shift(:,:)=Zero
 
-         Call mma_Allocate(t_qInt,nInter,SIZE(qInt,2),Label='t_qInt')
+         Call mma_Allocate(t_qInt,nQQ,SIZE(qInt,2),Label='t_qInt')
          t_qInt(:,:)=qInt(:,:)
          qInt(:,:)=Zero
          qInt(:,1)=t_qInt(:,1)
 *
-         Call Update_inner(iter_,nInter,qInt,Shift,Beta,Beta_Disp,
+         Call Update_inner(iter_,nQQ,qInt,Shift,Beta,Beta_Disp,
      &                    Step_Trunc,nWndw,kIter,Kriging_Hessian,qBeta,
      &                    iOpt_RS,.True.,iter_,qBeta_Disp)
 *                                                                      *
@@ -116,7 +116,7 @@
 *                                                                      *
 *        Conventional optimization.
 *
-         Call Update_inner(iter,nInter,qInt,Shift,Beta,Beta_Disp,
+         Call Update_inner(iter,nQQ,qInt,Shift,Beta,Beta_Disp,
      &                     Step_Trunc,nWndw,kIter,Kriging_Hessian,qBeta,
      &                     iOpt_RS,.True.,iter,qBeta_Disp)
 *                                                                      *
@@ -131,9 +131,9 @@
 *
 #ifdef _DEBUGPRINT_
       Call RecPrt('Shifts in internal coordinate basis / au or rad',
-     &      ' ',Shift,nInter,Iter)
+     &      ' ',Shift,nQQ,Iter)
       Call RecPrt('qInt in internal coordinate basis / au or rad',
-     &      ' ',qInt,nInter,Iter+1)
+     &      ' ',qInt,nQQ,Iter+1)
 #endif
 
 *
