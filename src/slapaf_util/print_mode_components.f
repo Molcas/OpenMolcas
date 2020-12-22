@@ -323,8 +323,6 @@
       Bk_RootMap(:)=RootMap(:)
       Bk_Stop=Stop
       Bk_lWrite=lWrite
-      Bk_Exist=Exist
-      Bk_Change=Change
       Bk_lOld=lOld
       Bk_CurviLinear=CurviLinear
       Bk_HSet=HSet
@@ -339,9 +337,7 @@
       Bk_FirstCall=FirstCall
       Bk_FindTS=FindTS
       Bk_MEP=MEP
-      Bk_lRP=lRP
       Bk_User_Def=User_Def
-      Bk_Ref_Grad=Ref_Grad
       Bk_rMEP=rMEP
       Bk_lOld_Implicit=lOld_Implicit
       Bk_HrmFrq_Show=HrmFrq_Show
@@ -447,11 +443,7 @@
       PrQ=.False.
       nWndw=iter
       iRef=0
-*
-      Call BMtrx(nsAtom,mInt,
-     &           Coor,iter,
-     &           mTtAtm,
-     &           nQQ,iRef,nWndw)
+      Call BMtrx(nsAtom,mInt,Coor,iter,mTtAtm,nQQ,nWndw)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -603,8 +595,6 @@
       RootMap(:)=Bk_RootMap(:)
       Stop=Bk_Stop
       lWrite=Bk_lWrite
-      Exist=Bk_Exist
-      Change=Bk_Change
       lOld=Bk_lOld
       CurviLinear=Bk_CurviLinear
       HSet=Bk_HSet
@@ -619,9 +609,7 @@
       FirstCall=Bk_FirstCall
       FindTS=Bk_FindTS
       MEP=Bk_MEP
-      lRP=Bk_lRP
       User_Def=Bk_User_Def
-      Ref_Grad=Bk_Ref_Grad
       rMEP=Bk_rMEP
       lOld_Implicit=Bk_lOld_Implicit
       HrmFrq_Show=Bk_HrmFrq_Show

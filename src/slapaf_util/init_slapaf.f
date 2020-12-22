@@ -16,6 +16,7 @@
       use Slapaf_Parameters, only: nDimBC, Analytic_Hessian, MaxItr,
      &                             Line_Search, ThrEne, ThrGrd, ThrCons,
      &                             ThrMEP, Header
+*     use Slapaf_Parameters, only: lRP
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "info_slapaf.fh"
@@ -60,7 +61,6 @@
       jPrint=10
       lOld_Implicit = .False.
       Stop  = .False.
-      Ref_Grad=.False.
       NmIter=0
       lSoft=.False.
       isFalcon=.False.

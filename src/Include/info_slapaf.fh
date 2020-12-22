@@ -15,12 +15,10 @@
       Common /iInfSla/ nsAtom, nQQ, iter, MxItr, mInt,
      &          mTtAtm, nWndw, NmIter, RootMap
 *
-      Logical Stop, lWrite, Exist, Change,
-     &        FirstCall, lRP, Ref_Grad, lOld_Implicit, lCtoF,
+      Logical Stop, lWrite,FirstCall, lOld_Implicit, lCtoF,
      &        lSoft, CallLast, TwoRunFiles, Track, Request_Alaska,
      &        Request_RASSI
-      Common /lInfSla/ Stop, lWrite, Exist, Change,
-     &        FirstCall, lRP, Ref_Grad, lOld_Implicit, lCtoF,
+      Common /lInfSla/ Stop, lWrite,FirstCall, lOld_Implicit,lCtoF,
      &        lSoft, CallLast, TwoRunFiles, Track, Request_Alaska,
      &        Request_RASSI
 *

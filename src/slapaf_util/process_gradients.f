@@ -17,7 +17,7 @@
 #include "info_slapaf.fh"
 #include "nadc.fh"
 #include "stdalloc.fh"
-      Logical Found
+      Logical Found, Exist
       Integer i,nRoots,RC,Read_Grad,Columbus
       Real*8, Allocatable :: Grads(:,:), Ener(:)
       Real*8 E0, E1

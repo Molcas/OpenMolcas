@@ -1204,7 +1204,7 @@ C              Write (6,*) 'RUNFILE: Found=',Found
 *        If no initial direction given, use the gradient (force)
 *
          Call qpg_dArray('Transverse',Found,nRP)
-         If (.Not.Found.And..Not.Ref_Grad) Then
+         If (.Not.Found) Then
 *        Assume the initial reaction vector is already massaged
             If (Explicit_IRC) Then
                Call Put_dArray('Transverse',TmpRx,3*nsAtom)

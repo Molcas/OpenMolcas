@@ -24,12 +24,12 @@
      &        Bk_mTtAtm, Bk_nsAtom, Bk_MEPnum,
      &        Bk_RootMap(MxRoot)
 *
-      Logical Bk_Stop, Bk_lWrite, Bk_Exist,
-     &        Bk_Change, Bk_lOld, Bk_CurviLinear,
+      Logical Bk_Stop, Bk_lWrite,
+     &        Bk_lOld, Bk_CurviLinear,
      &        Bk_HSet, Bk_BSet, Bk_lNmHss, Bk_Cubic, Bk_Baker,
      &        Bk_DDV_Schlegel, Bk_Line_Search, Bk_HWRS,
      &        Bk_Analytic_Hessian, Bk_FirstCall, Bk_FindTS, Bk_MEP,
-     &        Bk_lRP, Bk_User_Def, Bk_Ref_Grad, Bk_rMEP,
+     &        Bk_User_Def, Bk_rMEP,
      &        Bk_lOld_Implicit, Bk_HrmFrq_Show, Bk_eMEPtest,
      &        Bk_Redundant, Bk_lCtoF, Bk_lSoft, Bk_CallLast,
      &        Bk_TwoRunFiles, Bk_TSConstraints, Bk_MEPCons, Bk_Track,
