@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine BMtrx(nsAtom,nInter,Coor,nIter,mTtAtm,nQQ,nWndw)
+      Subroutine BMtrx(nsAtom,Coor,nIter,mTtAtm,nQQ,nWndw)
       Use Slapaf_Info, Only: Cx, Shift, qInt, KtB, BMx, Smmtrc,
      &                       Lbl
       Use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC,
@@ -165,10 +165,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call BMtrx_User_Defined(
-     &                 nsAtom,nInter,Lbl,Coor,nDimBC,
-     &                 nIter,
-     &                 mTR,nQQ)
+         Call BMtrx_User_Defined(nsAtom,Coor,nDimBC,nIter,mTR,nQQ)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -198,7 +195,7 @@
 *
 *------- Set the Labels for internal coordinates.
 *
-         Do i = 1, nInter
+         Do i = 1, nQQ
             Write (Lbl(i),'(A,I3.3,A)') 'nrc',i,'  '
          End Do
 *                                                                      *
@@ -208,10 +205,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call BMtrx_Cartesian(nsAtom,nInter,nDimBC,
-     &                        nIter,
-     &                        mTtAtm,mTR,TR,EVal,Hss_X,
-     &                        nQQ,nWndw)
+         Call BMtrx_Cartesian(nsAtom,nDimBC,nIter,mTtAtm,mTR,TR,EVal,
+     &                        Hss_X,nQQ,nWndw)
 *
 *------- Set the Labels for cartesian normal modes.
 *

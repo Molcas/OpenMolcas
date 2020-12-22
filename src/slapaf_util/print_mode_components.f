@@ -445,7 +445,7 @@
       PrQ=.False.
       nWndw=iter
       iRef=0
-      Call BMtrx(nsAtom,mInt,Coor,iter,mTtAtm,nQQ,nWndw)
+      Call BMtrx(nsAtom,Coor,iter,mTtAtm,nQQ,nWndw)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -8,9 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine BMtrx_User_Defined(nsAtom,nInter,Lbl,Coor,nDim,nIter,
+      Subroutine BMtrx_User_Defined(nsAtom,Coor,nDim,nIter,
      &                              mTR,nQQ)
-      use Slapaf_Info, only: Gx, qInt, dqInt, KtB, BMx, Degen, Smmtrc
+      use Slapaf_Info, only: Gx, qInt, dqInt, KtB, BMx, Degen, Smmtrc,
+     &                       Lbl
       use Slapaf_Parameters, only: iInt, nFix, nBVec, Analytic_Hessian,
      &                             MaxItr, iOptC, BSet, HSet, lOld,
      &                             Numerical
@@ -19,7 +20,6 @@
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 Coor(3,nsAtom)
-      Character Lbl(nInter)*8
       Logical Proc_dB
       Real*8, Allocatable:: Degen2(:)
 *                                                                      *

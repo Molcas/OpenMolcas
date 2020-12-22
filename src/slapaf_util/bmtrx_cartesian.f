@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine BMtrx_Cartesian(nsAtom,nInter,nDim,nIter,mTtAtm,
+      Subroutine BMtrx_Cartesian(nsAtom,nDimBC,nIter,mTtAtm,
      &                           mTR,TRVec,EVal,Hss_x,nQQ,nWndw)
       use Slapaf_Info, only: Cx, Gx, qInt, dqInt, KtB, BMx, Degen,
      &                       AtomLbl, Smmtrc
@@ -18,7 +18,7 @@
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8 TRVec(nDim,mTR)
+      Real*8 TRVec(nDimBC,mTR)
       Real*8 Eval(3*mTtAtm*(3*mTtAtm+1)/2)
       Real*8 Hss_x((3*mTtAtm)**2)
       Real*8, Allocatable:: EVec(:), Hi(:,:), iHi(:), Degen2(:)
@@ -29,7 +29,7 @@
 *                                                                      *
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call RecPrt('BMtrx_Cartesian: TRVec',' ',TRVec,nDim,mTR)
+      Call RecPrt('BMtrx_Cartesian: TRVec',' ',TRVec,nDimBC,mTR)
       Call RecPrt('BMtrx_Cartesian: Degen',' ',Degen,3,SIZE(Degen,2))
       Call RecPrt('BMtrx_Cartesian: Hss_x',' ',Hss_x,3*mTtAtm,3*mTtAtm)
 #endif
@@ -42,16 +42,16 @@
 *     R E D U N D A N T  C A R T E S I A N  C O O R D S
 *
       If (Redundant) Then
-         nQQ = nDim
+         nQQ = nDimBC
          If (.NOT.Allocated(qInt)) Then
             Call mma_allocate(qInt,nQQ,MaxItr,Label='qInt')
             Call mma_allocate(dqInt,nQQ,MaxItr,Label='dqInt')
             qInt(:,:) = Zero
             dqInt(:,:) = Zero
          End If
-         Call mma_allocate(EVec,nDim**2,Label='EVec')
+         Call mma_allocate(EVec,nDimBC**2,Label='EVec')
          EVec(:)=Zero
-         call dcopy_(nDim,[One],0,EVec,nDim+1)
+         call dcopy_(nDimBC,[One],0,EVec,nDimBC+1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -60,7 +60,7 @@
          Call mma_allocate(BMx,3*nsAtom,nQQ,Label='BMx')
          BMX(:,:)=Zero
          ipFrom = 1
-         Call BPut(EVec(ipFrom),nDim,BMx,3*nsAtom,Smmtrc,nQQ,Degen)
+         Call BPut(EVec(ipFrom),nDimBC,BMx,3*nsAtom,Smmtrc,nQQ,Degen)
 #ifdef _DEBUGPRINT_
          Call RecPrt('In Bmtrx: B',' ',BMx,3*nsAtom,nQQ)
 #endif
@@ -78,7 +78,7 @@
 *        rotational and translations directions and to make sure that
 *        the matrix is not singular.
 *
-         Call mma_allocate(Ind,nDim,Label='Ind')
+         Call mma_allocate(Ind,nDimBC,Label='Ind')
          iInd=0
          Do i = 1, 3*nsAtom
             iAtom = (i+2)/3
@@ -91,18 +91,18 @@
 *
 *        Compute H|i>
 *
-         Call mma_allocate(Hi,nDim,mTR,Label='Hi')
+         Call mma_allocate(Hi,nDimBC,mTR,Label='Hi')
          Call mma_allocate(iHi,mTR,Label='iHi')
          Hi(:,:)=Zero
 *
          Do j = 1, mTR
-            Do i = 1, nDim
+            Do i = 1, nDimBC
                Temp = 0.0D0
-               Do k = 1, nDim
+               Do k = 1, nDimBC
                   kx = Ind(k)
                   iAtom = (kx+2)/3
                   ixyz = kx - (iAtom-1)*3
-                  ik=(i-1)*nDim+k
+                  ik=(i-1)*nDimBC+k
                   Temp = Temp
      &                 + Hss_X(ik) * Sqrt(Degen(ixyz,iAtom))
      &                 * TRVec(k,j)
@@ -110,13 +110,13 @@
                Hi(i,j) = Temp
             End Do
          End Do
-*        Call RecPrt('Hi',' ',Hi,nDim,mTR)
+*        Call RecPrt('Hi',' ',Hi,nDimBC,mTR)
          Do iTR = 1, mTR
-            iHi(iTR) = DDot_(nDim,TRVec(1,iTR),1,Hi(:,iTR),1)
+            iHi(iTR) = DDot_(nDimBC,TRVec(1,iTR),1,Hi(:,iTR),1)
          End Do
 *        Call RecPrt('iHi',' ',iHi,mTR,1)
 *
-         Do i = 1, nDim
+         Do i = 1, nDimBC
             ix = Ind(i)
             iAtom = (ix+2)/3
             ixyz = ix - (iAtom-1)*3
@@ -124,8 +124,8 @@
                jx = Ind(j)
                jAtom = (jx+2)/3
                jxyz = jx - (jAtom-1)*3
-               ij = (j-1)*nDim + i
-               ji = (i-1)*nDim + j
+               ij = (j-1)*nDimBC + i
+               ji = (i-1)*nDimBC + j
                Temp = Half*(Hss_x(ij)+Hss_x(ji))
 *define UNIT_MM
 #ifndef UNIT_MM
@@ -161,7 +161,7 @@
          If (BSet) Then
 *
 *           Call RecPrt('Gx',' ',Gx(:,:,nIter),1,3*nsAtom)
-*           Call RecPrt('TRVec',' ',TRVec,nDim,mTR)
+*           Call RecPrt('TRVec',' ',TRVec,nDimBC,mTR)
 *
             Do iTR = 1, mTR
 *
@@ -204,7 +204,7 @@
 *                                                                      *
 *     N O N - R E D U N D A N T  C A R T E S I A N  C O O R D S
 *
-         nQQ=nInter
+         nQQ=nDimBC - mTR
          If (.NOT.Allocated(qInt)) Then
             Call mma_allocate(qInt,nQQ,MaxItr,Label='qInt')
             Call mma_allocate(dqInt,nQQ,MaxItr,Label='dqInt')
@@ -216,7 +216,7 @@
 *        translations. The eigenvalues are shifted to negative
 *        eigenvalues.
 *
-         Call mma_allocate(Ind,nDim,Label='Ind')
+         Call mma_allocate(Ind,nDimBC,Label='Ind')
          iInd=0
          Do i = 1, 3*nsAtom
             iAtom = (i+2)/3
@@ -229,18 +229,18 @@
 *
 *        Compute H|i>
 *
-         Call mma_allocate(Hi,nDim,mTR,Label='Hi')
+         Call mma_allocate(Hi,nDimBC,mTR,Label='Hi')
          Call mma_allocate(iHi,mTR,Label='iHi')
          Hi(:,:)=Zero
 *
          Do j = 1, mTR
-            Do i = 1, nDim
+            Do i = 1, nDimBC
                Temp = 0.0D0
-               Do k = 1, nDim
+               Do k = 1, nDimBC
                   kx = Ind(k)
                   kAtom = (kx+2)/3
                   kxyz = kx - (kAtom-1)*3
-                  ik=(i-1)*nDim+k
+                  ik=(i-1)*nDimBC+k
                   Temp = Temp
      &                 + Hss_X(ik) * Sqrt(Degen(kxyz,kAtom))
      &                 * TRVec(k,j)
@@ -249,14 +249,14 @@
             End Do
          End Do
          Do iTR = 1, mTR
-            iHi(iTR) = DDot_(nDim,TRVec(1,iTR),1,Hi(:,iTR),1)
+            iHi(iTR) = DDot_(nDimBC,TRVec(1,iTR),1,Hi(:,iTR),1)
          End Do
 #ifdef _DEBUGPRINT_
-         Call RecPrt('Hi',' ',Hi,nDim,mTR)
+         Call RecPrt('Hi',' ',Hi,nDimBC,mTR)
          Call RecPrt('iHi',' ',iHi,mTR,1)
 #endif
 *
-         Do i = 1, nDim
+         Do i = 1, nDimBC
             ix = Ind(i)
             iAtom = (ix+2)/3
             ixyz = ix - (iAtom-1)*3
@@ -265,8 +265,8 @@
                jAtom = (jx+2)/3
                jxyz = jx - (jAtom-1)*3
                ijTri=i*(i-1)/2 + j
-               ij = (j-1)*nDim + i
-               ji = (i-1)*nDim + j
+               ij = (j-1)*nDimBC + i
+               ji = (i-1)*nDimBC + j
                EVal(ijTri) = Half*(Hss_X(ij)+Hss_X(ji))
 *
 *              Here we shift the eigenvectors corresponding to tran-
@@ -293,9 +293,9 @@
          Call mma_deallocate(Ind)
 #ifdef _DEBUGPRINT_
          Call TriPrt(' The Projected Model Hessian','(5G20.10)',
-     &               EVal,nDim)
+     &               EVal,nDimBC)
          Call RecPrt(' The Projected Model Hessian','(5G20.10)',
-     &               Hss_x,nDim,nDim)
+     &               Hss_x,nDimBC,nDimBC)
 #endif
 *                                                                      *
 ************************************************************************
@@ -303,7 +303,7 @@
 *        Compute the eigen vectors for the Cartesian Hessian
 *
          Call mma_allocate(EVec,(3*mTtAtm)**2,Label='EVec')
-         Call Hess_Vec(mTtAtm,EVal,EVec,nsAtom,nDim)
+         Call Hess_Vec(mTtAtm,EVal,EVec,nsAtom,nDimBC)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -311,8 +311,8 @@
 *
          Call mma_allocate(BMx,3*nsAtom,3*nsAtom,Label='BMx')
          BMx(:,:)=Zero
-         ipFrom = 1 + mTR*nDim
-         Call BPut(EVec(ipFrom),nDim,BMx,3*nsAtom,Smmtrc,nQQ,Degen)
+         ipFrom = 1 + mTR*nDimBC
+         Call BPut(EVec(ipFrom),nDimBC,BMx,3*nsAtom,Smmtrc,nQQ,Degen)
 #ifdef _DEBUGPRINT_
          Call RecPrt('In Bmtrx: B',' ',BMx,3*nsAtom,nQQ)
 #endif
@@ -331,9 +331,9 @@
 ************************************************************************
 *                                                                      *
       If (HSet.and..NOT.lOld) Then
-         Call mma_allocate(KtB,nDim,nQQ,Label='KtB')
+         Call mma_allocate(KtB,nDimBC,nQQ,Label='KtB')
 *
-         Call mma_allocate(Degen2,nDim,Label='Degen2')
+         Call mma_allocate(Degen2,nDimBC,Label='Degen2')
          i=0
          Do ix = 1, 3*nsAtom
             iAtom = (ix+2)/3
@@ -344,9 +344,9 @@
             End If
          End Do
 *
-         call dcopy_(nDim*nQQ,EVec(ipFrom),1,KtB,1)
+         call dcopy_(nDimBC*nQQ,EVec(ipFrom),1,KtB,1)
          Do iInter = 1, nQQ
-            Do iDim = 1, nDim
+            Do iDim = 1, nDimBC
                KtB(iDim,iInter) = KtB(iDim,iInter) / Sqrt(Degen2(iDim))
             End Do
          End Do

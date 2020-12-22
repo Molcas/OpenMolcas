@@ -174,11 +174,7 @@
          BSet=.False.
          HSet=.False.
          lOld=.False.
-         Call BMtrx(nAtom,nInter,
-     &              Coor,
-     &              iter+1,
-     &              mTtAtm,
-     &              nQQ,nWndw)
+         Call BMtrx(nAtom,Coor,iter+1,mTtAtm,nQQ,nWndw)
          BSet=BSet_Save
          HSet=HSet_Save
          lOld=lOld_Save
