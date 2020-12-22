@@ -60,7 +60,6 @@
       jPrint=10
       lOld_Implicit = .False.
       Stop  = .False.
-      Ref_Geom=.False.
       Ref_Grad=.False.
       NmIter=0
       lSoft=.False.
@@ -73,9 +72,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      lNmHss = .False.
-      Cubic  = .False.
-      PDH    = .True.
       Call DecideOnESPF(Do_ESPF)
       If (Do_ESPF) Then
          ThrGrd = 0.003D0

@@ -16,7 +16,7 @@
      &                       Free_Slapaf, qInt, dqInt, Lbl
       use Slapaf_Parameters, only: HUpMet, User_Def, UpMeth,
      &                             HSet, BSet, PrQ, Numerical, iNeg,
-     &                             E_Delta, iRef, Delta
+     &                             E_Delta, iRef, Delta, lNmHss, Cubic
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -275,7 +275,7 @@
       Call DstInf(iStop,Just_Frequencies)
       If (lCtoF) Call Def_CtoF(.True.)
       If (.Not.User_Def .and.
-     &   ((lNmHss.and.iter.ge.NmIter).or..Not.lNmHss)) Call cp_SpcInt
+     &   ((lNmHss.and.iter.ge.NmIter).or..Not.lNmHss)) Call cp_SpcInt()
 *
 *-----After a numerical frequencies calculation, restore the original
 *     runfile, but save the useful data (gradient and Hessian)

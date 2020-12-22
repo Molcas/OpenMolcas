@@ -8,16 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine FormNumHess(nIter,nInter,Delta,Stop,nAtom,Cubic,iNeg,
-     &                       DipM)
+      Subroutine FormNumHess(nIter,nInter,Delta,Stop,nAtom,iNeg,DipM)
       use Slapaf_Info, only: qInt, Shift, dqInt, Degen, Smmtrc
-      use Slapaf_Parameters, only: Curvilinear, mTROld
+      use Slapaf_Parameters, only: Curvilinear, mTROld, Cubic
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 DipM(3,nIter)
-      Logical Stop, Cubic, Found
+      Logical Stop, Found
       Real*8 rDum(1)
       Real*8, Allocatable:: FEq(:), dDipM(:), KtB(:), HB(:), Hx(:),
      &                      Degen2(:), H(:), IRInt(:)

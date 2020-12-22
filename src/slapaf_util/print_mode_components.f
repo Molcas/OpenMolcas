@@ -49,7 +49,7 @@
      &                             rMEP, MEP, nMEP, MEPNum, MEPCons,
      &                             dMEPStep, MEP_Type, MEP_Algo,
      &                             Header, Max_Center, mTROld, RtRnc,
-     &                             Delta, rFuzz
+     &                             Delta, rFuzz, lNmHss, Cubic
       use thermochem
       Implicit None
 #include "backup_info.fh"
@@ -331,7 +331,6 @@
       Bk_BSet=BSet
       Bk_lNmHss=lNmHss
       Bk_Cubic=Cubic
-      Bk_PDH=PDH
       Bk_Baker=Baker
       Bk_DDV_Schlegel=DDV_Schlegel
       Bk_Line_Search=Line_Search
@@ -340,7 +339,6 @@
       Bk_FirstCall=FirstCall
       Bk_FindTS=FindTS
       Bk_MEP=MEP
-      Bk_Ref_Geom=Ref_Geom
       Bk_lRP=lRP
       Bk_User_Def=User_Def
       Bk_Ref_Grad=Ref_Grad
@@ -613,7 +611,6 @@
       BSet=Bk_BSet
       lNmHss=Bk_lNmHss
       Cubic=Bk_Cubic
-      PDH=Bk_PDH
       Baker=Bk_Baker
       DDV_Schlegel=Bk_DDV_Schlegel
       Line_Search=Bk_Line_Search
@@ -622,7 +619,6 @@
       FirstCall=Bk_FirstCall
       FindTS=Bk_FindTS
       MEP=Bk_MEP
-      Ref_Geom=Bk_Ref_Geom
       lRP=Bk_lRP
       User_Def=Bk_User_Def
       Ref_Grad=Bk_Ref_Grad
