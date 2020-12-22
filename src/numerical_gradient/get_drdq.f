@@ -21,8 +21,8 @@
 ************************************************************************
 #include "real.fh"
 #include "stdalloc.fh"
-      Real*8,  Intent(InOut) :: drdq(mInt,nLambda)
       Integer, Intent(In)    :: mInt, nLambda
+      Real*8,  Intent(InOut) :: drdq(mInt,nLambda)
       Integer, Intent(Out)   :: mLambda
       Integer, Intent(In)    :: Iter
       Logical, Intent(In)    :: lWrite
