@@ -47,7 +47,7 @@
       Parameter (SecNam='PLF_LDF_JK_2P_4')
 
       Integer i1, i2, i3, i4
-      Integer iShlI, iShlJ, iShlK, iShlL
+      Integer iShlI, iShlK
       Integer iSO, jSO, kSO, lSO
       Integer iSOi, jSOj, kSOk, lSOl
       Integer ii, jj, kk, ll
@@ -91,9 +91,7 @@
          End If
 #endif
          iShlI=SHA
-         iShlJ=SHB
          iShlK=SHC
-         iShlL=SHD
          iShlIJ=SPAB
          iShlKL=SPCD
          Do i4=1,lCmp
@@ -156,9 +154,7 @@
          End If
 #endif
          iShlI=SHC
-         iShlJ=SHD
          iShlK=SHA
-         iShlL=SHB
          iShlIJ=SPCD
          iShlKL=SPAB
          Do i4=1,lCmp

@@ -49,10 +49,6 @@
       Integer, Allocatable :: NTC(:), ICh(:), IsMM(:), nStab(:)
 ************************************************************************
 *                                                                      *
-      LuWr=6
-*                                                                      *
-************************************************************************
-*                                                                      *
       Call ICopy(8,[0],0,nDel,1)
       Call Put_iArray('nFro',nDel,nIrrep) ! put to 0
       Call qpg_iArray('nDel',Found,nData)

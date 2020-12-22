@@ -545,14 +545,13 @@ c
 c
 c     help variables
 c
-       integer symm,symp,symq,symam
+       integer symm,symp,symam
        integer iiv2,lenght,poss,irec0
 c
 c*    loops over symmetry combinations
        do 100 symm=1,nsym
        symam=mul(syma,symm)
        do 101 symp=1,nsym
-       symq=mul(symam,symp)
 c
 c*    def initioal record possition in TEMPDA2
 c     and corresponding possition and lenght in wrk (#2)

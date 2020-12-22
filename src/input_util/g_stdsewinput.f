@@ -72,7 +72,6 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
 *                                                                      *
       Call mma_allocate(Buffer,nBuff,Label='Buffer')
       iErr=0
-      iRout=3
 *                                                                      *
 ************************************************************************
 *                                                                      *

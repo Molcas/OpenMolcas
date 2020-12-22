@@ -30,7 +30,7 @@
 #include "real.fh"
 *
       Character ChTemp*8, Mamn(nMamn)*(LENIN8)
-      Logical kECP, TstFnc
+      Logical TstFnc
       Integer cnt_ico(0:7,*),phase_ico(0:7,*)
 *
 *     Generate list of symmetry adapted or petite list basis functions
@@ -48,7 +48,6 @@
          mdc = 0
          mc  = 1
          Do 201 iCnttp = 1, nCnttp
-            kECP = dbsc(iCnttp)%ECP
             If (dbsc(iCnttp)%Aux.or.dbsc(iCnttp)%Frag) Go To 201
 *
 *           Loop over distinct centers

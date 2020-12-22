@@ -48,7 +48,7 @@
 #endif
 
       Integer i1, i2, i3, i4
-      Integer iShlI, iShlJ, iShlK, iShlL
+      Integer iShlI, iShlJ, iShlK
       Integer iSO, jSO, kSO, lSO
       Integer iSOi, jSOj, kSOk, lSOl
       Integer ii, jj, kk, ll
@@ -86,7 +86,6 @@
       iShlI=SHA
       iShlJ=SHB
       iShlK=SHC
-      iShlL=SHD
       nij=nBasSh(iShlI)*nBasSh(iShlJ)
       Do i4=1,lCmp
          lSO=iAOtSO(iAO(4)+i4,kOp(4))+iAOst(4)

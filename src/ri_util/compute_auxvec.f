@@ -79,7 +79,6 @@
          Do i=0,nIrrep-1
             NChUMx= Max(NChVMx,nU_t(i))
          End Do
-         nQuMax=nQMax*NChUMx
       End If
 *
       DoCAS=lPSO

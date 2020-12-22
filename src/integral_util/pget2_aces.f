@@ -61,9 +61,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+#ifdef _DEBUGPRINT_
       iRout = 39
       iPrint = nPrint(iRout)
-#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Write (6,*) 'nSOs=',nSOs
          Write (6,*) 'iSO2Sh=',iSO2Sh

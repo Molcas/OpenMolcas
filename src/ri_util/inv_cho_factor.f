@@ -80,7 +80,6 @@
 
       Implicit Real*8 (a-h,o-z)
       Integer kCol, nMem, lu_A, lu_Q, lScr, lindep
-      Integer  incr,shft
       Real*8  A_k(*), Am(*), Qm(*), Scr(*), Z(*), X(*), Q_k(*)
       Real*8  thr
 #include "para_info.fh"
@@ -88,9 +87,6 @@
       Parameter ( two = 2.0d0, one = 1.0d0, zero = 0.0d0 )
       Parameter ( thr_neg = -1.0d-8 )
 **********************************************************************
-      incr=1
-      shft=0
-
       If (thr .lt. zero) Then
          Call WarningMessage(2,'Error in Inv_Cho_Factor')
          write(6,*)'thr must be .ge. zero'

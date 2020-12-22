@@ -20,12 +20,9 @@
           Character*(*) DirName,ExtBasDir,type
           Character*512 tmp
           character Molcas*256, CurrDir*256
-          integer iNeedExtra
           integer iAbsName
           logical Exist
-          iNeedExtra=0
           if(ExtBasDir.ne.' ') then
-             iNeedExtra=1
              i=index(ExtBasDir,' ')
              iAbsName=0
              if(ExtBasDir(1:1).ne.'/') then

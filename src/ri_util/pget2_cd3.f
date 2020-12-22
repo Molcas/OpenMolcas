@@ -45,10 +45,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 39
-      iPrint = nPrint(iRout)
 #ifdef _DEBUGPRINT_
-      iPrint=99
       If (iPrint.ge.99) Then
          iComp = 1
          Call PrMtrx(' In PGet2_CD3:DSO ',[iD0Lbl],iComp,1,D0)

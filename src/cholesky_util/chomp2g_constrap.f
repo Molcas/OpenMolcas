@@ -181,7 +181,6 @@
          kY = kEndX
          kEndY = kY + lY
 *        Z-vector
-         lZ = nVec*nIQ
          kZ = kEndY
 *
       nBatL = (NumCho(iSym)-1)/nVec + 1

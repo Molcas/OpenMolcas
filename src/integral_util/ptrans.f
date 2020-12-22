@@ -131,7 +131,6 @@ c Break loop if not acceptable symmetry combination.
         if(klsym.ne.ijsym) goto 1005
 c Break loop if no such symmetry block:
         if(nijkl.eq.0) goto 1005
-        ilsym=jksym
         If (iPrint.ge.99) Write (6,*) ' i,j,k,lsym=',iSym,jSym,kSym,lSym
 c Bypass transformation if no active orbitals:
         if(nxvut.eq.0) goto 300

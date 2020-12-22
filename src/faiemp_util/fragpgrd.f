@@ -74,7 +74,7 @@
       Character*80 Label
       Logical  IfGrad(3,2), JfGrad(3,4), ABeq(3), EQ
       Logical  EnergyWeight
-      Integer  i,j,iIrrep,nElem,ia,ib,iAng,iBas
+      Integer  i,j,nElem,ia,ib,iAng,iBas
       Integer  iRout,iPrint,nSkal,iCar
       Integer  iCent,iCnttp,iCurCenter,iCurCnttp,iCurMdc
       Integer  iGamma,iLoc,ip,ipA,ipAxyz,ipB,ipBxyz,ipCxyz,ipF1,ipF2
@@ -135,7 +135,6 @@
 * Loop over all shells belonging to the fragments
 *
       nDAO = nElem(la)*nElem(lb)
-      iIrrep = 0
       iuvwx(1) = dc(mdc)%nStab
       iuvwx(2) = dc(ndc)%nStab
       lOp(1) = iOper(kOp(1))

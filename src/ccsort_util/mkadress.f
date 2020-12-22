@@ -55,7 +55,7 @@ c
 #include "reorg.fh"
 
        integer NOIPSB(106)
-       integer idispsb(106)
+c      integer idispsb(106)
 c
 c     help variables
 c
@@ -277,7 +277,7 @@ c
        ns(pa,qa,ra)=1
 c
 c
-       idispsb(ispqrs)=idistemp
+c      idispsb(ispqrs)=idistemp
        idishelp=0
 C
 C     ******************************************************************

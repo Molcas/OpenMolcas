@@ -42,7 +42,6 @@
 *
 *     Sparsity check
 *
-      iz2=0
       nz2=0
       minva=max(4,(nPrm2+1)/2)
       Do iCntr2 = 1,nCntr2

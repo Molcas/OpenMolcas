@@ -73,7 +73,6 @@
 
 *     Loop over the first cholesky symmetry
 *
-      kCount=0
       Do jSym = 1, nIrrep
 *
 ***      Check so the symmetry contains vectors

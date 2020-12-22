@@ -31,8 +31,7 @@
 #include "real.fh"
       Real*8 AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
       Integer iShell(4), iAO(4), kOp(4), iAOst(4)
-      Logical Shijij, Shij, Shkl, Qijij, iShij, iShkl, Qij, Qkl,
-     &        iQij, iQkl
+      Logical Shijij, Shij, Shkl, Qijij, iShij, iShkl, iQij, iQkl
 *
       iShij = iShell(1).eq.iShell(2)
       iShkl = iShell(3).eq.iShell(4)
@@ -48,7 +47,6 @@
          jCmpMx = jCmp
          If (Shij) jCmpMx = i1
          Do 200 i2 = 1, jCmpMx
-            Qij = i1.eq.i2
             If (iShell(2).gt.iShell(1)) Then
                i12 = jCmp*(i1-1) + i2
             Else
@@ -58,7 +56,6 @@
                lCmpMx = lCmp
                If (Shkl) lCmpMx = i3
                Do 400 i4 = 1, lCmpMx
-                  Qkl = i3.eq.i4
                   If (iShell(4).gt.iShell(3)) Then
                      i34 = lCmp*(i3-1) + i4
                   Else
@@ -76,7 +73,6 @@
                 lSO = iAOtSO(iAO(4)+i4,kOp(4))+iAOst(4)
 *
                 nkl = 0
-                fac = one
                 Do 120 lAOl = 0, lBas-1
                    lSOl = lSO + lAOl
                    Do 220 kAOk = 0, kBas-1

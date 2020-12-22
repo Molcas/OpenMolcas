@@ -126,7 +126,6 @@ c Break loop if not acceptable symmetry combination.
         if(klsym.ne.ijsym) goto 1005
 c Break loop if no such symmetry block:
         if(nijkl.eq.0) goto 1005
-        ilsym=jksym
         If (iPrint.ge.99) Write (6,*) ' i,j,k,lsym=',iSym,jSym,kSym,lSym
 c Bypass transformation if no active orbitals:
         if(nxvut.eq.0) goto 300
@@ -147,14 +146,6 @@ c Pick up matrix elements and put in a full symmetry block:
               if(itu.ge.ivx .and. iv.eq.ix) fact=2.0d00
               if(itu.lt.ivx .and. it.eq.iu) fact=2.0d00
               scrP(ind)=fact*scrP(ind)
-            end if
-            if(isym.eq.lsym) then
-              itx=i3adr(it,ix)
-              ivu=i3adr(iv,iu)
-            end if
-            if(isym.eq.ksym) then
-              itv=i3adr(it,iv)
-              ixu=i3adr(ix,iu)
             end if
          End do
         End do
@@ -282,14 +273,6 @@ c Put results into correct positions in PSOPam:
               if(itu.ge.ivx .and. iv.eq.ix) fact=2.0d00
               if(itu.lt.ivx .and. it.eq.iu) fact=2.0d00
               scr1(ind)=fact*scr1(ind)
-            end if
-            if(isym.eq.lsym) then
-              itx=i3adr(it,ix)
-              ivu=i3adr(iv,iu)
-            end if
-            if(isym.eq.ksym) then
-              itv=i3adr(it,iv)
-              ixu=i3adr(ix,iu)
             end if
          End do
         End do

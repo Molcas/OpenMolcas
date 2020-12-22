@@ -143,7 +143,6 @@ C          |
       call cwtime(C_AlphaLoop1,W_AlphaLoop1)
       C_ComputeH_AB = 0.0d0
       W_ComputeH_AB = 0.0d0
-      C_ComputeH_BB = 0.0d0
       C_Oper = 0.0d0
       W_Oper = 0.0d0
 

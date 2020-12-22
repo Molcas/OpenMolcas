@@ -166,10 +166,10 @@
      &                            + (nOcc(iSymP) + nVir(iSymP)
      &                            +  nFro(iSymP) + nDel(iSymP))
      &                            * (Li + nFroLeftI(iSymI) - 1) + iP
-                              Lpj =  LiPQprod(iSymP,iSymJ,jBatch)
-     &                            + (nOcc(iSymP) + nVir(iSymP)
-     &                            +  nFro(iSymP) + nDel(iSymP))
-     &                            * (Lj + nFroLeftJ(iSymJ) - 1) + iP
+*                             Lpj =  LiPQprod(iSymP,iSymJ,jBatch)
+*    &                            + (nOcc(iSymP) + nVir(iSymP)
+*    &                            +  nFro(iSymP) + nDel(iSymP))
+*    &                            * (Lj + nFroLeftJ(iSymJ) - 1) + iP
                               If(iBatch.eq.jBatch) Then
                                  ip_ipjb = LiPQRSprod(iSymBJ)
      &                                   + iTri(Lpi,Lbj)

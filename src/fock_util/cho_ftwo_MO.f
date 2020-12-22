@@ -674,7 +674,6 @@ c     &              -FactX(jDen),WORK(KQS1),NBAS(ISYMG),
 c     & WORK(KQS1),NBAS(ISYMD),ONE,Work(ISFSQ),NBAS(ISYMG))
 
 c *** Compute only the LT part of the exchange matrix ***************
-               ipG=0
                ipF=0
                LVK=NUMV*NK
                DO jD=1,NBAS(iSymD)

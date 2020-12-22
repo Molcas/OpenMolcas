@@ -38,17 +38,17 @@ C...  auxiliar constant pool:       ready only up to g-valence/g-core
       Endif
 *
       PI=2.D0*ACOS(0.D0)
-      PIPPI=(0.5D0/PI)**0.75D0
+*     PIPPI=(0.5D0/PI)**0.75D0
       L1=LA
       VPQ=VF(2*NP,ZP)*VF(2*NQ,ZQ)
-      PSMT=0.D0
+*     PSMT=0.D0
 *ls start adding
       Vexch=0.D0
 *ls end adding
 *     loop over angular momentum
       DO 55 ISIM=1,nProj+1
         iCoSh=iCoShll+ISIM-1
-        EDUM=0.5D0*DBLE(ISIM)+0.25D0
+*       EDUM=0.5D0*DBLE(ISIM)+0.25D0
         NR=ISIM
         NS=ISIM
         L2=ISIM
@@ -57,7 +57,6 @@ C...  auxiliar constant pool:       ready only up to g-valence/g-core
         IF(L1.LT.L2) LMT=((L2-1)*L2)/2+L1
         KOMAX=KOSUU(LMT)
 *       loop over core orbitals of a given angular momentum
-        iOff = Shells(iCoSh)%nBasis*Shells(iCoSh)%nExp
         DO 54 ICORB=1,Shells(iCoSh)%nBasis
           OrbPS=0d0
           DO 50 INU=1,KOMAX

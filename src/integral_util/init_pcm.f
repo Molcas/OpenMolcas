@@ -57,7 +57,6 @@ c added mckinley for pcm in second derivatives
 cpcm_solvent end
       If (DoDeriv) Then
          LcNAtm = ISlPar(42)
-         nDeg=3*LcNAtm
          Call mma_allocate(dTes,nTs,lcNAtm,3,Label='dTes')
          Call mma_allocate(dPnt,nTs,lcNAtm,3,3,Label='dPnt')
          Call mma_allocate(dRad,nS ,lcNAtm,3,Label='dRad')

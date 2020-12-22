@@ -71,7 +71,6 @@
       TDensity=.false.
       nStateI=1
       nStateF=1
-      Delta=0.001D0
       Bond_Threshold=-1.0D0
       iPlot = 0
       iPrint = 0

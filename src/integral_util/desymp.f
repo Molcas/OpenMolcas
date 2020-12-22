@@ -58,8 +58,10 @@
 *
       xPrmt(i,j) = Prmt(iAnd(i,j))
 *
+#ifdef _DEBUGPRINT_
       iRout = 38
       iPrint = nPrint(iRout)
+#endif
       Shij = iShell(1).eq.iShell(2)
       Shkl = iShell(3).eq.iShell(4)
       MemSO2 = 1

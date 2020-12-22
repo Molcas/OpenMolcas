@@ -316,7 +316,7 @@ CAOM>
 *                    ixyz=2
 *                    iSymY=2**IrrFnc(ixyz)
 *                 End If
-                  iz = iMltpl-ix-iy
+*                 iz = iMltpl-ix-iy
 *                 If (Mod(iz,2).eq.0) Then
 *                    iSymZ=1
 *                 Else

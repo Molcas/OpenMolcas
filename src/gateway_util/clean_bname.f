@@ -62,5 +62,8 @@
 *
       Clean_BName=BName(1:Offset)//Clean
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(i)
+#endif
 *
       End Function Clean_BName

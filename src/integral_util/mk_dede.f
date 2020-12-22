@@ -44,7 +44,6 @@
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep, iOper
-      use Sizes_of_Seward, only:S
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
 #include "real.fh"
@@ -141,15 +140,6 @@
                Write (6,'(A,A,A,A,A)')
      &            ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
             End If
-*
-*---------- Scratch area for contraction step
-*
-            nScr1 =  S%MaxPrm(iAng)*S%MaxPrm(jAng) *
-     &               nElem(iAng)*nElem(jAng)
-*
-*---------- Scratch area for the transformation to spherical gaussians
-*
-            nScr2=S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
 *
             Call mma_allocate(DAO,Max(iBas*jBas,iPrim*jPrim)*iCmp*jCmp,
      &                        label='DAO')
@@ -370,8 +360,6 @@
 *
 *--------------Change order so it follows what is used in TwoEl
 *
-               iFLOP1 = iBas*iPrim*jPrim + iBas*jPrim*jBas
-               iFLOP2 = iPrim*jPrim*jBas + iBas*iPrim*jBas
                ipStart=ipDeDe+jOffD
                Do j = 1, jPrimj
                   Do i = 1, iPrimi

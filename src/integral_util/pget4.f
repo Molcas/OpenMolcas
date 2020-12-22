@@ -45,10 +45,6 @@
       Integer iTwoj(0:7)
       Data iTwoj/1,2,4,8,16,32,64,128/
 *
-      iRout = 39
-      iPrint = nPrint(iRout)
-      lOper = 1
-*
 *     Prepare some data for Pam
 *
       iiBas(1) = iBas

@@ -66,7 +66,7 @@ c
        integer iup,ilow,jup,jlow,kup,lup,iold,jold,kold,lold
 c
        integer nhelp1,nhelp2,m3
-       integer yes1,yes234,yes5,yes678
+       integer yes234,yes5,yes678
        integer typp
        integer ind(1:4)
 #include "tratoc.fh"
@@ -96,7 +96,7 @@ c
 c
 c:1   combination (ij|kl) -> (ij|kl)
 c     used in types: 1,2,3,4,5,6,7,8 (all)
-       yes1=1
+c      yes1=1
 c
 c:2   combination (ij|kl) -> (ji|kl)
 c:3   combination (ij|kl) -> (ij|lk)
@@ -836,7 +836,7 @@ c
        integer iup,ilow,jup,jlow,kup,lup,iold,jold,kold,lold
 c
 c     help variables
-       integer yes1,yes234,yes5,yes678
+       integer yes234,yes5,yes678
        integer typp
        integer ind(1:4)
 #include "tratoc.fh"
@@ -860,7 +860,7 @@ c
 c
 c:1   combination (ij|kl) -> (ij|kl)
 c     used in types: 1,2,3,4,5,6,7,8 (all)
-       yes1=1
+c      yes1=1
 c
 c:2   combination (ij|kl) -> (ji|kl)
 c:3   combination (ij|kl) -> (ij|lk)
@@ -1146,7 +1146,7 @@ c
 c
 c     help variables
        integer i,j,maxx
-       integer yes1,yes234,yes5,yes678
+       integer yes234,yes5,yes678
        integer typp
        integer ind(1:4)
 #include "tratoc.fh"
@@ -1188,7 +1188,7 @@ c
 c
 c:1   combination (ij|kl) -> (ij|kl)
 c     used in types: 1,2,3,4,5,6,7,8 (all)
-       yes1=1
+c      yes1=1
 c
 c:2   combination (ij|kl) -> (ji|kl)
 c:3   combination (ij|kl) -> (ij|lk)

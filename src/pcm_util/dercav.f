@@ -25,7 +25,6 @@
 *
       dN=Zero ! Dummy initialization.
       Pi = Four*ATan(One)
-      Fact = Two * PI * Eps / (Eps-One)
 c     Double loop on atoms and coordinates
       Do 100 Index1 = 1, nAt3
         iAt1 = Int( (Index1-1)/3 ) + 1
@@ -74,7 +73,10 @@ c     EndDo
 cpcm_solvent end
       Return
 c Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(Q)
+      If (.False.) Then
+         Call Unused_real_(Eps)
+         Call Unused_real_array(Q)
+      End If
       End
 
       Subroutine Der_Norm(ToAng,iAt1,iCoord1,iAt2,iCOord2,nTs,nAt,nS,

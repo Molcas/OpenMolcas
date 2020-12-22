@@ -27,8 +27,6 @@
 #include "print.fh"
       Real*8 Win(nvec,nc,nc), Wout(nvec,nc,nc)
 *
-      iRout = 72
-      iPrint = nPrint(iRout)
 *     Write (*,*) ' In Trns2, nvec,nc=',nVec,nc
       Do 10 ic = 1, nc
          Do 20 id = 1, nc

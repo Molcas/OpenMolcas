@@ -51,8 +51,6 @@
 #ifdef _DEBUGPRINT_
        iPrint=49
 C      iPrint=99
-#else
-       iPrint=5
 #endif
 *                                                                      *
 ************************************************************************
@@ -79,7 +77,6 @@ C      iPrint=99
       DoRys=.True.
       Call SetUp_RW(DoRys,nDiff)
 *
-      iShll=S%Mx_Shll - 1
       mCnttp=nCnttp
 *                                                                      *
 ************************************************************************

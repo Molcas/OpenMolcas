@@ -531,9 +531,9 @@
          RlxLbl='DLAO    '
 !         Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,4))
 ! DMRG with the reduced AS
-           if(doDMRG)then
-             length=ndim1  !yma
-           end if
+           !if(doDMRG)then
+           !  length=ndim1  !yma
+           !end if
          End If
          If (iPrint.ge.99) Call TriPrt(' G2',' ',G2(1,1),nG1)
 *

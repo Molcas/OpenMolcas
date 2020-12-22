@@ -85,11 +85,6 @@
             If (iAOtSO(iAO(2)+i2,j)>0) ix = 2**j
             jSym(j) = ix
 201      Continue
-         If (iShell(2).gt.iShell(1)) then
-            i12 = iCmp(2)*(i1-1) + i2
-         else
-            i12 = iCmp(1)*(i2-1) + i1
-         End If
          Do i3 = 1, iCmp(3)
             Do 301 j = 0, nIrrep-1
                ix = 0
@@ -105,11 +100,6 @@
                   lSym(j) = ix
 401            Continue
                qkl = i3.eq.i4
-               If (iShell(4).gt.iShell(3)) then
-                  i34 = iCmp(4)*(i3-1) + i4
-               else
-                  i34 = iCmp(3)*(i4-1) + i3
-               End If
 *
 *      loop over Irreps which are spanned by the basis function.
 *      again, the loop structure is restricted to ensure unique
@@ -134,8 +124,6 @@
 *            Number of auxiliary basis functions in this symmetry block.
              mm       = iOff(1,j12)
              If (mm.eq.0) Go  To 310
-*            Offset to J12 symmetry block.
-             iOff_J12 = iOff(2,j12)
 *            Effective number of valence basis products in this symmetry
 *            block.
              n3C      = iOff(3,j12)

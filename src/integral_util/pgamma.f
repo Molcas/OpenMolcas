@@ -21,9 +21,6 @@
 #include "rmat.fh"
 #include "gam.fh"
 *
-      iPrint=0
-*
-*
 * initialize arrays
       do m=-2,2*lgamma+2
        do n=-2,2*lgamma+2
@@ -38,26 +35,32 @@
 *
 *  m=0
        m=0
+*      m_gam=m
        do n=0,2*lgamma+2,2
          gammath(0,n+2)=DBLE(n+1)/DBLE(m+n+3)*gammath(0,n)
+*        n_gam=n
 *        hgt=gammat(x)
 *        write(*,*)' m,n,gammath,hgt',m,n,gammath(m,n),hgt
        End Do
        do n=1,2*lgamma+2,2
          gammath(0,n)=0.0d0
+*        n_gam=n
 *        hgt=gammat(x)
 *        write(*,*)' m,n,gammath,hgt',m,n,gammath(m,n),hgt
        End Do
 *
 *  m.gt.0
       do m=1,2*lgamma+2
+*      m_gam=m
        do n=0,2*lgamma+2,2
          gammath(m,n+2)=DBLE(n+1)/DBLE(m+n+3)*gammath(m,n)
+*        n_gam=n
 *        hgt=gammat(x)
 *        write(*,*)' m,n,gammath,hgt',m,n,gammath(m,n),hgt
        End Do
        do n=1,2*lgamma+2,2
          gammath(m,n)=0.0d0
+*        n_gam=n
 *        hgt=gammat(x)
 *        write(*,*)' m,n,gammath,hgt',m,n,gammath(m,n),hgt
        End Do
@@ -72,16 +75,20 @@
 *
 *  m=0
       m=0
+*     m_gam=m
       do n=0,2*lgamma+2
         gammaph(0,n+2)=DBLE(n+1)/DBLE(m+n+2)*gammaph(0,n)
+*       n_gam=n
 *       hgp=gammaf(x)
 *       write(*,*)' m,n,gammaph,hgp',m,n,gammaph(m,n),hgp
       End Do
 *
 *  m.gt.0
       do m=1,2*lgamma+2
+*      m_gam=m
        do n=0,2*lgamma+2
          gammaph(m,n+2)=DBLE(n+1)/DBLE(m+n+2)*gammaph(m,n)
+*        n_gam=n
 *        hgp=gammaf(x)
 *        write(*,*)' m,n,gammaph,hgp',m,n,gammaph(m,n),hgp
        End Do
