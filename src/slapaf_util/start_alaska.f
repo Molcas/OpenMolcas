@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Start_Alaska()
+      use Slapaf_Parameters, only: Request_Alaska, Request_RASSI
       Implicit Real*8 (a-h,o-z)
 #include "print.fh"
 #include "info_slapaf.fh"

@@ -49,7 +49,9 @@
      &                             rMEP, MEP, nMEP, MEPNum, MEPCons,
      &                             dMEPStep, MEP_Type, MEP_Algo,
      &                             Header, Max_Center, mTROld, RtRnc,
-     &                             Delta, rFuzz, lNmHss, Cubic
+     &                             Delta, rFuzz, lNmHss, Cubic,
+     &                             Request_Alaska, Request_RASSI,
+     &                             lOld_Implicit
       use thermochem
       Implicit None
 #include "backup_info.fh"

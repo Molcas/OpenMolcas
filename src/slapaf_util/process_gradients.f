@@ -12,6 +12,7 @@
 ************************************************************************
       Subroutine Process_Gradients()
       use Slapaf_Info, only: Gx, Gx0, NAC, Energy, Energy0
+      use Slapaf_Parameters, only: Request_Alaska
       Implicit None
 #include "real.fh"
 #include "info_slapaf.fh"

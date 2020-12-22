@@ -59,7 +59,6 @@
 ************************************************************************
 *                                                                      *
       jPrint=10
-      lOld_Implicit = .False.
       Stop  = .False.
       NmIter=0
       lSoft=.False.
@@ -67,8 +66,6 @@
       CallLast=.True.
       TwoRunFiles=.False.
       Track=.False.
-      Request_Alaska=.False.
-      Request_RASSI=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *

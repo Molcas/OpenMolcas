@@ -24,7 +24,8 @@
      &                             ThrMEP, Baker, eMEPTest, rMEP, MEP,
      &                             nMEP, MEPNum, MEPCons, dMEPStep,
      &                             MEP_Type, MEP_Algo, Max_Center,
-     &                             Delta, RtRnc, rFuzz, lNmHss, Cubic
+     &                             Delta, RtRnc, rFuzz, lNmHss, Cubic,
+     &                             Request_Alaska
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
