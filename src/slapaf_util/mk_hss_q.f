@@ -10,7 +10,8 @@
 ************************************************************************
       Subroutine Mk_Hss_Q()
       use Slapaf_Info, only: Cx, Coor, DipM, qInt, dqInt, BMx, mRowH
-      use Slapaf_Parameters, only: BSet, HSet, Delta, lNmHss
+      use Slapaf_Parameters, only: BSet, HSet, Delta, lNmHss, nDimBC,
+     &                             mTROld
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "real.fh"
@@ -22,6 +23,7 @@
       Call RecPrt('Mk_Hss_Q: DipM',' ',DipM,SIZE(DipM,1),SIZE(DipM,2))
 #endif
       If ((lNmHss.or.Allocated(mRowH)).and.iter.eq.NmIter) Then
+         mInt = nDimBC - mTROld
          Call Put_dArray('Unique Coordinates',Cx,3*nsAtom)
          Call Put_Coord_New(Cx,nsAtom)
          If (Allocated(mRowH)) Then
@@ -31,10 +33,10 @@
             Call FormNumHess(iter,mInt,Delta,Stop,nsAtom,iNeg,DipM)
          End If
 *
-         call dcopy_(3*nsAtom,Cx,1,Coor,1)
-         Call Get_dArray('BMxOld',BMx,3*nsAtom*mInt)
-         call dcopy_(mInt, qInt(:,1),1, qInt(:,Iter),1)
-         call dcopy_(mInt,dqInt(:,1),1,dqInt(:,Iter),1)
+         Coor(:,:) = Cx(:,:,1)
+         Call Get_dArray('BMxOld',BMx,SIZE(Coor)*SIZE(qInt,1))
+         qInt(:,Iter) = qInt(:,1)
+         dqInt(:,Iter) = dqInt(:,1)
       Else
          If (BSet.and.HSet) Call Hss_Q()
       End If

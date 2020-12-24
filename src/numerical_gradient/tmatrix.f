@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2015, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      Subroutine TMatrix(TMx,mInt_)
+      Subroutine TMatrix(TMx,mInt)
       use Slapaf_Info, only: nStab, Coor
       use Slapaf_Parameters, only: iRow_c, nLambda
       Implicit None
@@ -21,8 +21,8 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "info_slapaf.fh"
-      Integer, Intent(In)    :: mInt_
-      Real*8,  Intent(InOut) :: TMx(mInt_,mInt_)
+      Integer, Intent(In)    :: mInt
+      Real*8,  Intent(InOut) :: TMx(mInt,mInt)
 *
       Integer Lambda1,Lambda2
       Logical Invert

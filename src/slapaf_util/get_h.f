@@ -22,7 +22,7 @@
 *             October 2010                                             *
 ************************************************************************
       use Slapaf_Info, only: Coor
-      use Slapaf_Parameters, only: mTROld
+      use Slapaf_Parameters, only: nDimBC, mTROld
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "stdalloc.fh"
@@ -31,8 +31,8 @@
       Real*8, Allocatable:: H(:), BOld(:), Tmp2(:)
 *
 *define _DEBUGPRINT_
-      nDoF=mInt + mTROld
-      nInter=mInt
+      nDoF=nDimBC
+      nInter=nDimBC-mTROld
 *
       Call mma_allocate(Tmp2,nX**2,Label='Tmp2')
       Call mma_allocate(H,nInter**2,Label='H')

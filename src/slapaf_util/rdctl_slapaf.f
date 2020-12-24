@@ -223,6 +223,7 @@ C     Write (Lu,*) iOptC
       ReWind(Lu_UDIC)
 *
 *     mInt is the number of internal coordinates you will define.
+*     mInt = nDimBC - mTROld
 *     Subroutine DefInt defines the B matrix.
 *     The matrix B relates a shift in an internal coordinate to
 *     shifts in cartesian coordinates,
@@ -1334,7 +1335,7 @@ CGGd: Coherency with patch 7.1.615 !      If (lNmHss) nPrint(122)=10
 *.....Do some preprocessing due to input choice
 *
       If (Request_Alaska) nPrint(51)=0
-      Call PrePro(nsAtom,mInt,Cx(1,1,iter))
+      Call PrePro(nsAtom,Cx(1,1,iter))
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -11,10 +11,9 @@
 #include "info_slapaf.fh"
 *
       Integer Bk_iRef, Bk_iRow, Bk_nFix, Bk_iInt,
-     &        Bk_nQQ,
      &        Bk_NmIter,
      &        Bk_iter,
-     &        Bk_nDimBC, Bk_MxItr, Bk_mInt,
+     &        Bk_nDimBC, Bk_MxItr,
      &        Bk_Max_Center,
      &        Bk_iOptC, Bk_mode,
      &        Bk_mTROld, Bk_nWndw, Bk_iOptH,

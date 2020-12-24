@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine PrePro(nAtom,nInter,Coor)
+      Subroutine PrePro(nAtom,Coor)
       use Slapaf_Info, only: Grd, Atom, nSup, mRowH
       use Slapaf_Parameters, only: iRow, iInt, nFix, Redundant, nDimBC,
      &                             lOld, mTROld, lNmHss, lOld_Implicit
@@ -42,7 +42,6 @@
 *     iRow.le.0 : Cartesian or Internal Coordinates
 *
       nRowH = 0
-      nInter = nDimBC - mTR
       If (iRow.gt.0) Then
 *
 *--------Find the number of active and frozen internal coordinates.
@@ -53,7 +52,7 @@
             Call mma_allocate(mRowH,nRowH,Label='mRowH')
             Call Rd_UDIC_RowH(nQQ,nRowH,mRowH)
          EndIf
-         If (nQQ.gt.nInter) Redundant=.True.
+         If (nQQ.gt.nDimBC-mTR) Redundant=.True.
 *
       Else
 *

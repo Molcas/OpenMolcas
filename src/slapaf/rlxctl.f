@@ -18,7 +18,7 @@
      &                             HSet, BSet, PrQ, Numerical, iNeg,
      &                             E_Delta, iRef, Delta, lNmHss, Cubic,
      &                             Request_Alaska, Request_RASSI, lCtoF,
-     &                             isFalcon
+     &                             isFalcon, nDimBC, mTROld
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -51,6 +51,7 @@
       Call SpoolInp(LuSpool)
 *
       Call RdCtl_Slapaf(LuSpool,.False.)
+      mInt = nDimBC - mTROld
 *
       Call Close_LuSpool(LuSpool)
 *
@@ -114,6 +115,7 @@
       If (Numerical) nWndw=NmIter
       iRef=0
       Call BMtrx(SIZE(Coor,2),Coor,iter,mTtAtm,nQQ,nWndw)
+      nQQ = SIZE(qInt,1)
 *
       nPrint(30) = nPrint(30)-1
 *

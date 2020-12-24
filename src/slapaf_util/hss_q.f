@@ -16,6 +16,7 @@
 *
       If (lOld) Return
 *
+      nQQ=SIZE(dqInt,1)
       Call Hss_q_(nQQ,dqInt(:,iRef))
 *
       Return

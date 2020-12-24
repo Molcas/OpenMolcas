@@ -13,7 +13,8 @@
       Subroutine genCxCTL(iStop,Cartesian,rDelta)
       use Slapaf_Info, only: Coor, Shift, qInt, BMx, Free_Slapaf
       use Slapaf_Parameters, only: Curvilinear, HSet, BSet, PrQ,
-     &                             Numerical, nLambda, iRef
+     &                             Numerical, nLambda, iRef, nDimBC,
+     &                             mTROld
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -33,6 +34,9 @@
 #include "print.fh"
       Logical Cartesian, Found, TSC, Error
       Real*8, Allocatable:: DList(:), CList(:,:), du(:), TMx(:)
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
       Lu=6
 *
@@ -47,6 +51,7 @@
       Call SpoolInp(LuSpool)
 *
       Call RdCtl_Slapaf(LuSpool,.True.)
+      mInt = nDimBC - mTROld
       Curvilinear=.FALSE.
       Cartesian  =.NOT.Curvilinear
       Numerical = .False. ! Just to define it, value is irrelevant here!

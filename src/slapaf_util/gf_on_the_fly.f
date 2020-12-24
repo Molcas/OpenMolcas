@@ -11,7 +11,7 @@
       Subroutine GF_on_the_Fly(iDo_dDipM)
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only:  Coor
-      use Slapaf_Parameters, only: mTROld
+      use Slapaf_Parameters, only: nDimBC, mTROld
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "real.fh"
@@ -29,9 +29,9 @@
 *
       nX=3*SIZE(Coor,2)
       nAtom=SIZE(Coor,2)
-      nInter=mInt
+      nInter=nDimBC-mTROld
       mTR=mTROld
-      nDoF=nInter+mTR
+      nDoF=nDimBC
 *
       Call mma_allocate(EVec,2*nX**2,Label='EVec')
       Call mma_allocate(EVal,2*nX,Label='EVal')

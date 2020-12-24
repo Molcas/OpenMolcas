@@ -10,9 +10,9 @@
 ************************************************************************
 #include "Molcas.fh"
 *
-      Integer   nQQ, NmIter, iter, MxItr, mInt,
+      Integer   NmIter, iter, MxItr,
      &          nWndw, mTtAtm, nsAtom, RootMap(MxRoot)
-      Common /iInfSla/ nsAtom, nQQ, iter, MxItr, mInt,
+      Common /iInfSla/ nsAtom, iter, MxItr,
      &          mTtAtm, nWndw, NmIter, RootMap
 *
       Logical          Stop, lWrite

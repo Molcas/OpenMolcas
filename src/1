@@ -64,7 +64,7 @@
       Integer :: LuInput, iRout,
      &           iPrint, nX, i, j, nB, iq, nAll_Atoms, nUnique_Atoms,
      &           iB, lDisp(nIrrep), nModes, lModes, LuIC, ii, im, nK,
-     &           iErr, PLback, nQQ
+     &           iErr, PLback
       Real*8, Dimension(:,:), Allocatable :: KMtrx, KTrsp, KKtB, IntMod,
      &                                       NMod
       Integer, Dimension(:), Allocatable :: Sort
@@ -444,7 +444,7 @@
       nWndw=iter
       iRef=0
       Call BMtrx(nsAtom,Coor,iter,mTtAtm,nQQ,nWndw)
-      nQQ = SIZE(Shift,1)
+      nQQ = SIZE(qInt,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -574,6 +574,7 @@
 *
       Header(:)=Bk_Header(:)
       iRef=Bk_iRef
+      nQQ=Bk_nQQ
       NmIter=Bk_NmIter
       iter=Bk_iter
       nDimBC=Bk_nDimBC

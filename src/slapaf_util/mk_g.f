@@ -9,14 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine mk_G(G,GInv,nX)
-      use Slapaf_Parameters, only: mTROld
+      use Slapaf_Parameters, only: nDimBC
 #include "info_slapaf.fh"
       Integer nX
       Real*8 G(nX*nX), GInv(nX*nX)
 *
-      nDoF=mInt + mTROld
-*
-      Call mk_G_Internal(G,GInv,nDoF,nsAtom)
+      Call mk_G_Internal(G,GInv,nDimBC,nsAtom)
 *
       Return
       End
