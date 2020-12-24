@@ -222,13 +222,6 @@ C Write natural orbitals to standard output.
         WRITE(6,'(6X,A)') '-----------------------------------------'
       END IF
 
-* The PRPT source code gives the following formula for the
-* scratch space needed:
-      NCOMP=6
-      NTCOMP=15
-      NSCR=(NBSQT+NBAST)/2+6+4*NCOMP+(NBAST*(NBAST+1))/2
-     &      +4+2*NTCOMP*(NTCOMP+1)
-
       nDens=0
       Do i = 1, nSym
          nDens=nDens+nBas(i)*(nBas(i)+1)/2

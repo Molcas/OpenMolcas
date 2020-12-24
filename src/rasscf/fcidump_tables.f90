@@ -134,9 +134,9 @@ contains
 
   subroutine OrbitalTable_unused(table)
     type(OrbitalTable), intent(in) :: table
-    integer :: n
 #ifdef _WARNING_WORKAROUND_
-    if (.false.) n = length(table)
+    return
+    if (length(table).lt.0) continue
 #endif
   end subroutine OrbitalTable_unused
 
@@ -215,9 +215,9 @@ contains
 
   subroutine FockTable_unused(table)
     type(FockTable), intent(in) :: table
-    integer :: n
 #ifdef _WARNING_WORKAROUND_
-    if (.false.) n = length(table)
+    return
+    if (length(table).lt.0) continue
 #endif
   end subroutine FockTable_unused
 
@@ -299,9 +299,9 @@ contains
 
   subroutine TwoElIntTable_unused(table)
     type(TwoElIntTable), intent(in) :: table
-    integer :: n
 #ifdef _WARNING_WORKAROUND_
-    if (.false.) n = length(table)
+    return
+    if (length(table).lt.0) continue
 #endif
   end subroutine TwoElIntTable_unused
 end module fcidump_tables

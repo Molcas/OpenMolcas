@@ -401,10 +401,6 @@ c
         integer PossT,PossMax
 c        jalove
         integer Jal1,Jal2,Jal3
-cmp
-        logical hasEnough
-c
-        hasEnough = .true.
 c
 c2      Distribute memory (and redefine wrksize)
 c

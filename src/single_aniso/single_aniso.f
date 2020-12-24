@@ -107,9 +107,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Integer                   :: nlanth
       Real(kind=8)             :: zmagn(3,3)
       Real(kind=8)             :: rdiff(nstate)
-      Real(kind=8)             :: a(6),HMIN,HMAX
+      Real(kind=8)             :: HMIN,HMAX
       Real(kind=8)             :: cryst(6),coord(3)
-      Real(kind=8)             :: encut_rate,em,Boltz_k,mu_Bohr
+      Real(kind=8)             :: encut_rate,em
       Real(kind=8)             :: zJ, thrs
       Integer, allocatable      :: multiplicity(:)
       !---g-tens-------------------
@@ -170,9 +170,6 @@ c      Real(kind=8) :: F, Fx,Fy,Fz, AT, Ax,Ay,Az, AF, dnrm, dE
       Integer                   :: nss2,nstate2
 
       DBG=.false.
-
-      Boltz_k=0.6950356_wp                    !   in cm-1*K-1
-      mu_Bohr=0.466864374_wp                  !   in cm-1*T-1
 
 c---------------------------------------------------------------------
       ! Allocate memory for all arrays:
@@ -381,7 +378,6 @@ c---------------------------------------------------------------------
       axisoption=1
       nDIMcf=1
       lDIMcf=1
-      a(:)=0.0_wp
       H_torq=0.1_wp ! in Tesla
       T_torq=2.0_wp ! in K
 C  read the input

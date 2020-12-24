@@ -129,8 +129,6 @@ c Avoid unused argument warnings
       RST_triplet=One
 *
       Do_tnsctl=.False.
-      ipDij=1
-      ipDkl=1
       kabcd=0
 *
 #ifdef _DEBUGPRINT_

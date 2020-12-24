@@ -24,19 +24,16 @@
 #include "rasscf_lucia.fh"
 #include "io_util.fh"
 *
-      LOGICAL IPACK
       DIMENSION LREC(MXNTTS),CMOMO(*)
       DIMENSION IDUMMY(1)
 *
       NTEST = 0
       LBLK  = -1
       NDIM  = NTOOB*NTOOB
-      IDUM  = 0
       NCONF = NCSF_PER_SYM(ISSM)
 * JESPER: Should reduce I/O
       LBLOCK = MAX(INT(XISPSM(IREFSM,1)),MXSOOB)
       IF(PSSIGN.NE.0.0D0) LBLOCK = INT(2.0D0*XISPSM(IREFSM,1))
-      IDUM=0
 *
 *. The three scratch  blocks
 C          GET_3BLKS(KVEC1,KVEC2,KC2)
@@ -121,8 +118,6 @@ C_REPLACED BY CALLS BELOW      CALL GET_3BLKS(KVEC1,KVEC2,KVEC3)
         IDISK(LUSC1)=0
         CALL COPVCD(LUC,LUSC1,WORK(KVEC1),0,LBLK)
         CALL COPVCD(LUSC1,LUSC2,WORK(KVEC1),1,LBLK)
-        IPACK = .FALSE.
-        DUMMY = 0.0D0
 *
 *. Transform CI vector : Input on LUHC, output on LUDIA (!)
         CALL COPVCD(LUSC1,LUHC,WORK(KVEC1),1,LBLK)

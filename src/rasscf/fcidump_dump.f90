@@ -43,7 +43,7 @@ contains
     type(FockTable), intent(in) :: fock_table
     type(TwoElIntTable), intent(in) :: two_el_table
     integer, intent(in) :: orbsym(:)
-    integer :: i, j, ireturn, isFreeUnit, LuFCI
+    integer :: i, j, isFreeUnit, LuFCI
 
     LuFCI = isFreeUnit(38)
     call molcas_open(LuFCI, path)
@@ -84,7 +84,6 @@ contains
 ! ========== For testing purposes TO HERE ===============
 
     call FastIO('STATUS')
-    ireturn = 0
 
     return
   end subroutine dump_ascii
@@ -120,7 +119,6 @@ contains
     integer, intent(in) :: orbsym(:)
 #ifdef _HDF5_
     integer :: file_id, dset_id
-    integer :: ireturn
     character :: lIrrep(24)
 
     file_id = mh5_create_file(path)
@@ -193,7 +191,6 @@ contains
     call mh5_close_file(file_id)
 
     call FastIO('STATUS')
-    ireturn = 0
 #else
 ! Avoid unused argument warnings
 #ifdef _WARNING_WORKAROUND_

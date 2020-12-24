@@ -18,13 +18,12 @@
       Dimension DerTes(nTs,nAt,3), DerPunt(nTs,nAt,3,3)
       Dimension DerRad(nS,nAt,3),DerCentr(nS,nAt,3,3)
       Dimension QDer(3,nAt,*)
-      Save Zero,One,Two,Four
-      Data Zero/0.0d0/,One/1.0d0/,Two/2.0d0/,Four/4.0d0/
+      Save Zero,Two
+      Data Zero/0.0d0/,Two/2.0d0/
 *
 *---- Derivative of the cavity factor U_x(q)=2 Pi Eps/(Eps-1) sum_i [Qtot**2 * n_x]
 *
       dN=Zero ! Dummy initialization.
-      Pi = Four*ATan(One)
 c     Double loop on atoms and coordinates
       Do 100 Index1 = 1, nAt3
         iAt1 = Int( (Index1-1)/3 ) + 1

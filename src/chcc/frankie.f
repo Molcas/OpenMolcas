@@ -107,7 +107,7 @@ c
 *     declaration of calling arguments
       Integer ipCMO,lthCMO
       integer nfro_scf(8)
-      integer iskip,nfro
+      integer nfro
 #include "real.fh"
 #include "stdalloc.fh"
 #include "WrkSpc.fh"
@@ -133,7 +133,6 @@ c
 c
 c - transpose MO matrix, skip the frozen occupied orbitals
 c
-      iskip=nbas*nfro
       call mo_transp(Work(ipCMO),CMO_t(:,1+nfro:nOrb),no,nv,ndel,nbas)
 c
       Call mma_deallocate(CMO_t)

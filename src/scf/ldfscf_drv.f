@@ -59,7 +59,6 @@ C
 
       Real*8  ThrPS(2)
       Real*8  FactC(nDen_Max)
-      Real*8  FactX(nDen_Max)
       Integer ip_D(nDen_Max)
       Integer ip_F(nDen_Max)
 
@@ -334,7 +333,6 @@ C--------------------------------------------------------------
       If (ExFac.ne.0.0d0) Then ! Coulomb-and-exchange
          Write(6,'(//,A,A)') SecNam,': Exchange not implemented yet!'
          Call LDF_NotImplemented()
-         FactX(1)=ExFac ! avoid compiler warning
       Else ! Coulomb-only
          ! Set number of density matrices
          nDen=1

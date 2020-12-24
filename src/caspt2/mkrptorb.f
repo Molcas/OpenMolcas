@@ -51,7 +51,7 @@ C     work-array pointers
       INTEGER LXMAT,NXMAT
 #endif
 C     #orbitals per symmetry
-      INTEGER NF,NI,NA,NR1,NR2,NR3,NS,NO,NB
+      INTEGER NI,NA,NR1,NR2,NR3,NS,NO,NB
       INTEGER NSCT,NCMOSCT
 
 
@@ -78,7 +78,6 @@ C     #orbitals per symmetry
 * ICMOSTA,ICMOEND: Section of CMO for each subspace.
       ICMOEND=0
       DO ISYM=1,NSYM
-        NF=NFRO(ISYM)
         NI=NISH(ISYM)
         NA=NASH(ISYM)
         NR1=NRAS1(ISYM)

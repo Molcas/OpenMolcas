@@ -88,7 +88,6 @@ cmp!
 
         integer LuSpool
         character*80 LINE
-        character*80 TITLE
 
 #ifdef _MOLCAS_MPP_
         integer jal1
@@ -173,13 +172,12 @@ c
  5      Read(LuSpool,'(A80)') LINE
        CALL UPCASE(LINE)
        IF( INDEX(LINE,'&CHCC') .EQ. 0 ) GOTO 5
-       TITLE=' '
  6     Read(LuSpool,'(A80)') LINE
        IF(LINE(1:1).EQ.'*') GOTO 6
        CALL UPCASE(LINE)
 c
        IF (LINE(1:4).EQ.'TITL') THEN
-       Read(LuSpool,'(A72)') TITLE
+       Read(LuSpool,*)
 
        ELSE IF (LINE(1:4).EQ.'FROZ') THEN
        Read(LuSpool,*) nfr

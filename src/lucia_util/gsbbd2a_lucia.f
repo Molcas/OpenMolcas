@@ -312,7 +312,6 @@ C                   IKOFF = (IKBOFF-1+IIK-1)*NKBTC*NIBTC+1
               JOFF = IOBPTS(JTYP,JSM)
               KOFF = IOBPTS(KTYP,KSM)
               LOFF = IOBPTS(LTYP,LSM)
-              NTESTO = NTEST
 C?            IF(IOFF.EQ.3.AND.JOFF.EQ.3.AND.KOFF.EQ.4.AND.LOFF.EQ.4)
 C?   &            NTEST = 5000
                   LDUMMY = NKBTC*NIBTC

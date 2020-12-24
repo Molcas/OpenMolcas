@@ -178,7 +178,6 @@ c        ELSE
           DO IJKL = 1, 4
             I4_REO(IJKL) = IJKL
           END DO
-          SIGN4 = 1.0D0
 c        END IF
 *. Type of operators : TP and AC
         DO IJKL = 1, 4
@@ -629,7 +628,6 @@ C?                  END IF
             IF(JLOBSM.EQ.0) GOTO 2950
 *. types + symmetries defined => K strings are defined
             KFRST = 1
-            K2FRST = 1
             DO ISM = 1, NSMOB
               KSM = ADSXA(ISM,IKOBSM)
               DO JSM = 1, NSMOB

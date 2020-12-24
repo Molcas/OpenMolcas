@@ -305,8 +305,9 @@
          PLabel=' '
          rHrmt = One
          iPAMcount=1
-        Do 348 kCnttpPAM = 1, nCnttp
+        Do 348 kCnttpPAM_ = 1, nCnttp
 
+           kCnttpPAM=kCnttpPAM_
            nPAMltpl=dbsc(kCnttpPAM)%nPAM2
 
            If(nPAMltpl.lt.0) Go To 348

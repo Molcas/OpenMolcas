@@ -52,7 +52,7 @@
       integer :: iUnit, isfreeunit, p, q, r, s, pq, rs, ps, rq, psrq,
      &  pqrs, iread, Nalpha, norb, iprlev
       logical :: tExist, switch
-      real*8 :: fac, RDMval, fcalpha, fcbeta, fcnacte
+      real*8 :: fac, RDMval, fcnacte
       real*8 :: D_alpha(size(DMAT)), D_beta(size(DMAT))
       parameter(routine = 'read_neci_RDM')
 
@@ -104,8 +104,6 @@
 
       Nalpha = (nactel + iSpin - 1) / 2
       fac = merge(0.5d0, 1.0d0, switch)
-      fcalpha = 1.0d0 / dble(nalpha - 1)
-      fcbeta = 1.0d0 / dble(nactel - nalpha - 1)
       fcnacte = 1.0d0 / dble(nactel - 1)
 
 *******************************************************************************************

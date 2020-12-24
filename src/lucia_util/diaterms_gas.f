@@ -119,7 +119,6 @@ C?    WRITE(6,*) ' NTEST = ',NTEST
 *                           0.5*SUM(I,J) ( J(I,J) - K(I,J))*N(I)*N(J)
 *
 *. Obtain alpha strings of sym IASM and type IATP
-        IDUM = 0
         IDUM_ARR = 0
         CALL GETSTR_TOTSM_SPGP(      1,   IATP,   IASM,   NAEL, NASTR1,
      &                           IASTR,   NORB,     0,IDUM_ARR,IDUM_ARR)

@@ -39,7 +39,7 @@
 
       INTEGER ID
       INTEGER IST,ISU,ISTU
-      INTEGER IT,IU,LT,LU,LTU
+      INTEGER IT,IU,LT,LU
 
       INTEGER ITASK,LTASK,LTASK2T,LTASK2U,NTASKS
 
@@ -103,7 +103,6 @@
         IST=ISM(LT)
         IT=L2ACT(LT)
         LU=iWork(lTask2U+iTask-1)
-          LTU=iTask
           ISU=ISM(LU)
           IU=L2ACT(LU)
           ISTU=MUL(IST,ISU)

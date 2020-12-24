@@ -55,14 +55,14 @@ c magnetic torque
 !     Real(kind=8), allocatable :: tz(:,:) ! tz(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
 c magnetic and spin moments (i.e. the BIG matrices):
       Character(len=99):: STLNE1, STLNE2
-      Real(kind=8)    :: cm3tomB, g(3),mg(3,3)!,ma_inv(3,3)!,det
+      Real(kind=8)    :: g(3),mg(3,3)!,ma_inv(3,3)!,det
       Real(kind=8)    :: AngStep,AngRad,pi
       Logical          :: DBG
-      Integer          :: IM,I,J,l,mem_local,RtoB,CtoB,nH_torq,nT_torq
+      Integer          :: IM,I,J,l,mem_local,RtoB,CtoB,nT_torq
 
 c      Boltz_k=0.6950356000_wp   !   in cm^-1*K-1
 c      mu_Bohr=0.4668643740_wp   !   in cm-1*T-1
-      cm3tomB=0.5584938904_wp   !   in cm3 * mol-1 * T
+c      cm3tomB=0.5584938904_wp   !   in cm3 * mol-1 * T
       pi=3.1415926535897932384626433832795028841971_wp
 
       Write(6,*)
@@ -105,7 +105,6 @@ c      End Do
         Write(6,'(2X,A,i5,a)') 'The exact diagonalization of the '//
      &       'Zeeman Hamiltonian included ',NM,' exchange states.'
       End If
-      nH_torq=1
       nT_torq=1
 
 c      If (dbg) Then

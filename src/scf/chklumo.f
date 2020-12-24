@@ -138,7 +138,6 @@
             qb=qb+OccVec(i,2)
          End Do
       End If
-      dq=qa-qb
 *     If(iUHF.eq.0) Then
 *        Write(6,'(a,f12.6)') 'Tot charge         ',Tot_charge
 *        Write(6,'(a,f12.6)') 'Tot nuc. charge    ',Tot_nuc_charge

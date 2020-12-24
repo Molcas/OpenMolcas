@@ -89,13 +89,12 @@
       subroutine RDM_to_runfile(DMAT, D1S_MO, PSMAT, PAMAT)
         real*8, intent(in) :: DMAT(nAcpar), D1S_MO(nAcPar),
      &                        PSMAT(nAcpr2), PAMAT(nAcpr2)
-        integer :: iDisk, jDisk
+        integer :: jDisk
 
 ! Put it on the RUNFILE
         call Put_D1MO(DMAT,NACPAR)
         call Put_P2MO(PSMAT,NACPR2)
 ! Save density matrices on disk
-        iDisk = IADR15(4)
         jDisk = IADR15(3)
         call DDafile(JOBIPH, 1, DMAT, NACPAR, jDisk)
         call DDafile(JOBIPH, 1, D1S_MO, NACPAR, jDisk)
@@ -130,15 +129,13 @@
 
       real*8, intent(inout) :: MAT(NacPar)
       real*8, allocatable :: EVC(:), Tmp(:), Tmp2(:), MAT_copy(:)
-      integer :: rc, i, j
+      integer :: i, j
       real*8 :: trace
       character(len=12), parameter :: routine = 'CleanMat'
       logical :: cleanup_required
 
 
-      rc = 0
       If (nacpar .lt. 1) then
-        rc= -1
         write(6,*) 'matrix size < 1.'
         Go To 10
       end if

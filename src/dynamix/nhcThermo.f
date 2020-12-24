@@ -37,7 +37,7 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 #include "dyn.fh"
 #include "constants2.fh"
       PARAMETER  (nh=6)
-      INTEGER     natom,natom3,i,j
+      INTEGER     natom,i,j
       REAL*8      Ekin,kb
       PARAMETER   (kb = CONST_BOLTZMANN_/
      &             (CONV_AU_TO_KJ_*1.0D3))
@@ -57,8 +57,6 @@ CC READ PARAMETERS FROM RUNFILE
       CALL Get_nAtoms_Full(natom)
 
       CALL mma_allocate(Mass,natom)
-
-      natom3=3*natom
 
 C     Read Thermostat Variables
       CALL Get_NHC(NHC,nh)

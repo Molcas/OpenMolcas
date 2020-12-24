@@ -398,7 +398,6 @@ C - Alt 0: Use diagonal approxim., if allowed:
           WORK(LEIG-1+I)=WORK(LB-1+IDIAG)/SD
         END DO
       ELSE
-        NBB=(NIN*(NIN+1))/2
         IJ=0
         DO J=1,NIN
           DO I=1,J

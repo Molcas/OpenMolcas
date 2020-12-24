@@ -66,7 +66,6 @@ C update the disk address in IOFFRHS
       CHARACTER(LEN=*) :: CTYPE
 
 C-SVC: print out DNRM2 of the all RHS components
-      IDISK=0
       NROW=0 ! dummy initialize
       DO ICASE=1,13
         DO ISYM=1,NSYM
@@ -107,7 +106,6 @@ C-SVC: print out DNRM2 of the all RHS components
 #include "WrkSpc.fh"
 
 C-SVC: zero out the entire RHS vector on IVEC
-      IDISK=0
       DO ICASE=1,13
         DO ISYM=1,NSYM
 

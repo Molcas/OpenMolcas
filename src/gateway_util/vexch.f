@@ -37,7 +37,7 @@ C...  auxiliar constant pool:       ready only up to g-valence/g-core
         Call Abend
       Endif
 *
-      PI=2.D0*ACOS(0.D0)
+*     PI=2.D0*ACOS(0.D0)
 *     PIPPI=(0.5D0/PI)**0.75D0
       L1=LA
       VPQ=VF(2*NP,ZP)*VF(2*NQ,ZQ)

@@ -36,7 +36,7 @@ C Local array:
       INTEGER :: NOP1, NOP2, NOP3
 
       REAL*8, ALLOCATABLE :: TRDTMP(:), TRDCI(:), TRDSGM(:)
-      INTEGER :: NTMP, NSGM
+      INTEGER :: NTMP
 
       INTEGER :: I, J, ID
       INTEGER :: ISYM, ISYMT
@@ -133,7 +133,6 @@ C ordinal number of each active orbital.
           END DO
         END DO
 CTEST      WRITE(*,*)' At point 3 in TRDACT. The scalar products:'
-        NSGM=NCONF
         CALL MMA_ALLOCATE(TRDSGM,MXCI)
         DO ITABS=1,NASHT
           ISYMT=IASYM(ITABS)

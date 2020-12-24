@@ -103,7 +103,6 @@ c Loop over all possible symmetry combinations.
       iocmoj=0
       ioDq=0
       do 1020 jsym=0,mirrep-1
-        jksym=ieor(jsym,ksym)
         nj=npam(2,jsym)
         jsta=jend+1
         jend=jend+nj

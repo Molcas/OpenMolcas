@@ -209,7 +209,7 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
          xRHS = dble(mRHS**2)           ! mem. for right hand side
          xLpk = dble(Mem1*nPmax*nKsp)   ! store Cholesky MO vectors
          xPIQK= dble((nPmax*nKsp)**2)   ! store integrals
-         xmNeed= xO + xPIQK + Max(xLpk,2.0D0*xRHS) ! Fmat+integrals+rhs
+*         xmNeed= xO + xPIQK + Max(xLpk,2.0D0*xRHS) ! Fmat+integrals+rhs
 
 * This also looks strange -- nIAc=all the inact+act orbitals no matter what.?
          nIAc =nOkrb

@@ -59,7 +59,7 @@
 *----------------------------------------------------------------------*
 * Local variables.                                                     *
 *----------------------------------------------------------------------*
-      Real*8  Step,Eref,Eplus,Eminus,E_Pred
+      Real*8  Step,Eref,E_Pred
       Real*8  Step_pi,Step_mi,Step_pj,Step_mj,Step_pk,Step_mk
       Real*8  Optim_E
 *define _DEBUGPRINT_
@@ -139,8 +139,6 @@
       Iter=0
       DidChange=.true.
       Step=0.10d0
-      Eminus=1.0D0
-      Eplus =1.0D0
       Call Abend()
 *
 *     Below we explore changes to all triplets that are consistent with

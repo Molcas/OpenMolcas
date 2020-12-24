@@ -76,7 +76,7 @@ c
       Integer       :: MS, ML, MJ
       Integer       :: ij, iLS, nLS, ibasS(100), ibasL(100), ibasJ(100)
       Integer       :: irootL(100), ir, icas, k
-      complex(kind=8) :: CFC(100,100),zl(lDIMcf,lDIMcf)
+      complex(kind=8) :: CFC(100,100)
 !============== End of variable declarations ==========================
       Call mma_allocate(maxes,3,3,'maxes')
       Call mma_allocate(gtens,3,'gtens')
@@ -261,9 +261,6 @@ c                   iopt = 4   -- maxes is the unity matrix ( original Z is the 
           Do I=1,lDIMcf
             Write(6,'(A,I3,A,3X,20(2F9.6,1X))') '|',
      &                 (lDIMcf-1)/2+(1-I),' > :',(Z(j,I),j=1,lDIMcf)
-             do k=1,lDIMcf
-                zl( (lDIMcf-1)/2+(1-I),k)=Z(k,I)
-             enddo
           End Do
         Else
           Do I=1,lDIMcf

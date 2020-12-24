@@ -53,9 +53,6 @@ C?    write(6,*) ' LCISPC : NICISP ', NICISP
 *
       NOCTPA =  NOCTYP(IATP)
       NOCTPB =  NOCTYP(IBTP)
-*
-      IOCTPA = IBSPGPFTP(IATP)
-      IOCTPB = IBSPGPFTP(IBTP)
 *.Local memory
       CALL GETMEM('KLBLTP','ALLO','INTE',KLBLTP,NSMST)
       KLCVST=1

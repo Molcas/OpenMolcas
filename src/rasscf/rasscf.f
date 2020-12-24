@@ -170,7 +170,6 @@
       IfVB=0
       If (ProgName(1:5).eq.'casvb') IfVB=2
 * Default option switches and values, and initial data.
-      EAV1=0.0d0
       THMAX=0.0d0
       Call RasScf_Init()
       Call Seward_Init()

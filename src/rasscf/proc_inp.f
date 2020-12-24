@@ -414,7 +414,6 @@ C   No changing about read in orbital information from INPORB yet.
 *          3: specifications from orbital file
       iOrbData=0
       INVEC=0
-      iHAVECI=0
 * INVEC=0, no source for orbitals (yet)
 *       1, CORE command: compute orbitals from scratch.
 *       2, read from starting orbitals file in INPORB format.

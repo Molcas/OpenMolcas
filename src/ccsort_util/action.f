@@ -975,7 +975,7 @@ c
 c
 c*    reconstruct #2 <_a,m,p,q> for given _a
        call mkampq (wrk,wrksize,
-     & a,syma,ammap)
+     & a,ammap)
 c
 c*    get contributions to INTA2 <m,_a||ef>bbbb, <m,_a||ef>abab
 c     and wtite it there

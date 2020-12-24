@@ -113,7 +113,6 @@
 *                                                                      *
 *---- Write integrals to disc.
 *
-      mpp_state=1
       Do iComp = 1, nComp
          iSmLbl = lOper(iComp)
 *                                                                      *

@@ -107,7 +107,6 @@
          Call Cho_X_final(irc)
          CALL CWTIME(TCR2,TWR2)
          tcpu_reo=(TCR2-TCR1)
-         twal_reo=(TWR2-TWR1)
          write(6,*)
          write(6,*)'      Reordering Cholesky vectors to full storage.'
          write(6,*)'       Elapsed time for the reordering : ',tcpu_reo

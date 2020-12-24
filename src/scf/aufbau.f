@@ -114,13 +114,13 @@ c for RHF we will not use nOccAuf_ab
 *
          UHF_occ=3.0d0-UHF_Size
          mD = 2/nD
+#ifdef _DEBUGPRINT_
          Do iD = 1, nD
             eferm=FermiPop(EOr(1,iD),Occup(1,iD),nOrbAS,RTemp,
      &                     nAuf(iD)*mD,UHF_occ)
-#ifdef _DEBUGPRINT_
             Write (6,'(A,G20.10)')'         E(Fermi)=',eferm
-#endif
          End Do
+#endif
 *
          iOrbAS=0
          Do iSym = 1, nSym
@@ -226,8 +226,12 @@ c for RHF we will not use nOccAuf_ab
 * Local variables:                                                     *
 *----------------------------------------------------------------------*
       Real*8  ef,beta,f,f_old,Step,ff
-      Real*8  x0,x1,x2,y0,y1,y2,z
+      Real*8  x0,x1,x2,y0,y2,z
       Integer i,iter
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      Real*8  y1
+#endif
 *----------------------------------------------------------------------*
 * Initialize                                                           *
 *----------------------------------------------------------------------*
@@ -240,7 +244,6 @@ c for RHF we will not use nOccAuf_ab
 *----------------------------------------------------------------------*
 * Scan for Fermi level                                                 *
 *----------------------------------------------------------------------*
-*define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write(6,'(a)') 'Scan for Fermi energy level'
       Write(6,'(a)') '       ef             y       '
@@ -291,11 +294,11 @@ c         End Do
       Write(6,'(a)') 'Refine Fermi level with interval halving'
       Write(6,'(a)') '       y0            y2             y1       '
       Write(6,'(a)') ' -------------- -------------- --------------'
+      y1=f
 #endif
       x0=ef-Step
       x1=ef
       y0=f_old
-      y1=f
       x2=0.5d0*(x0+x1)
       Iter=0
 200   Continue
@@ -315,7 +318,9 @@ c         End Do
          If(abs(y2).lt.1.0d-9) GoTo 201
          If(y0*y2.le.0.0d0) Then
             x1=x2
+#ifdef _DEBUGPRINT_
             y1=y2
+#endif
          Else
             x0=x2
             y0=y2

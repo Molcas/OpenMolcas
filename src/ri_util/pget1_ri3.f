@@ -78,7 +78,6 @@
 *
       Call CWTime(Cpu1,Wall1)
 *
-      nBas0 = nBas(0)
       iOff1 = nBas(0)
       Fac = One / Four
       PMax=Zero

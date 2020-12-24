@@ -111,7 +111,7 @@ contains
 
 
         integer :: nAtom, nData, nDeg, nTot, nTot2, nB
-        integer :: iCnttp, iAngMx_Valence
+        integer :: iCnttp
         integer :: ipCent, ipCent2, ipCent3
         integer :: ipPhase, ipC2, ipV
         integer :: mAdOcc, mAdEor, mAdCMO
@@ -145,8 +145,6 @@ contains
         Else
             nOrb(:nIrrep) = nBas(:nIrrep)
         End If
-
-        iAngMx_Valence = maxval(dbsc%nVal - 1, mask=.not. (dbsc%Aux .or. dbsc%Frag))
 
         !     Compute memory requirements and allocate memory
         !

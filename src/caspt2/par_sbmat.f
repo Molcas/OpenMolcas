@@ -108,19 +108,27 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
 
 
       IF (CNAME.EQ.'S') THEN
+#ifdef _MOLCAS_MPP_
         LU=LUH0T(1)
+#endif
         IDISK=IDSMAT(iSym,iCase)
         nBlock=(nSize*(nSize+1))/2
       ELSE IF (CNAME.EQ.'B') THEN
+#ifdef _MOLCAS_MPP_
         LU=LUH0T(2)
+#endif
         IDISK=IDBMAT(iSym,iCase)
         nBlock=(nSize*(nSize+1))/2
       ELSE IF (CNAME.EQ.'T') THEN
+#ifdef _MOLCAS_MPP_
         LU=LUH0T(3)
+#endif
         IDISK=IDTMAT(iSym,iCase)
         nBlock=nSize
       ELSE IF (CNAME.EQ.'M') THEN
+#ifdef _MOLCAS_MPP_
         LU=LUH0T(4)
+#endif
         IDISK=IDSTMAT(iSym,iCase)
         nBlock=nSize
       END IF
@@ -171,19 +179,27 @@ C LUSBT into WORK(lg_M)
 
 
       IF (CNAME.EQ.'S') THEN
+#ifdef _MOLCAS_MPP_
         LU=LUH0T(1)
+#endif
         IDISK=IDSMAT(iSym,iCase)
         nBlock=(nSize*(nSize+1))/2
       ELSE IF (CNAME.EQ.'B') THEN
+#ifdef _MOLCAS_MPP_
         LU=LUH0T(2)
+#endif
         IDISK=IDBMAT(iSym,iCase)
         nBlock=(nSize*(nSize+1))/2
       ELSE IF (CNAME.EQ.'T') THEN
+#ifdef _MOLCAS_MPP_
         LU=LUH0T(3)
+#endif
         IDISK=IDTMAT(iSym,iCase)
         nBlock=nSize
       ELSE IF (CNAME.EQ.'M') THEN
+#ifdef _MOLCAS_MPP_
         LU=LUH0T(4)
+#endif
         IDISK=IDSTMAT(iSym,iCase)
         nBlock=nSize
       END IF

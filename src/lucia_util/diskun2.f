@@ -122,9 +122,9 @@ C-jwk      LU_CCVECFL = 27
 
 *. Dumping 1- and 2- electron integrals in formatted form
 * ( LU90 just defined here, it is not exported )
-      LU90  = 90
+c     LU90  = 90
 *. Dumping symmmetry info, MO-AO expansion matrix and property integrals
-      LU91 = 91
+c     LU91 = 91
 *. CC amplitudes in formatted form
 c      LU_CCAMP = 92
 *. Result of CI=> CC conversion

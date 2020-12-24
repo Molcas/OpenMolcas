@@ -367,7 +367,6 @@ c     MemRsv=6*nBT
       Write (6,*)
       Write (6,*) 'Restore thresholds...'
       Write (6,*)
-      SIntTh=SIntTh_old
       EThr=EThr_old
       DThr=DThr_old
       DltNTh=DltNTh_old

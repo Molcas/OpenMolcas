@@ -78,10 +78,6 @@
      & '[',COUNTER,']','ENTRY LUCIA_UTIL','(',Module,')'
 #endif
 *
-* To avoid compiler warnings (I know it's ugly)
-*
-      iCrap = Multd2h(1,1)
-*
 * Make sure the Module variable is in upper case.
 *
       Module_ = Module

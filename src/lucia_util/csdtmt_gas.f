@@ -37,9 +37,6 @@
       INTEGER IPDTCNF(*),IPCSCNF(*)
       DIMENSION DTOC(*)
 *
-      IDUM = 1
-      LDUM = 1
-*
       NTEST = 0
       NTEST = MAX(NTEST,IPRCSF)
 *. Size of largest csf-sd block

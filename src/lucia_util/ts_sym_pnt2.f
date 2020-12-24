@@ -47,7 +47,8 @@
 *. Specific Input
       INTEGER IGRP(NIGRP)
 *. Local scratch
-      INTEGER ISMFGS(MXPNGAS),ITPFGS(MXPNGAS)
+      INTEGER ISMFGS(MXPNGAS)
+C     INTEGER ITPFGS(MXPNGAS)
 C-jwk-cleanup      INTEGER NELFGS(MXPNGAS)
       INTEGER NNSTSGP(MXPNSMST,MXPNGAS)
 *. Output
@@ -57,7 +58,7 @@ C-jwk-cleanup      INTEGER NELFGS(MXPNGAS)
 *. Info on groups of strings in supergroup
       NGASL = 1
       DO IGAS = 1, NIGRP
-       ITPFGS(IGAS) = IGRP(IGAS)
+C      ITPFGS(IGAS) = IGRP(IGAS)
        IF(NELFGP(IGRP(IGAS)).GT.0) NGASL = IGAS
 *. Number of strings per symmetry in each gasspace
 C       CALL ICOPVE2(WORK(KNSTSGP(1)),(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
@@ -104,7 +105,6 @@ C     END DO
       END IF
 *. Loop over symmetry blocks in standard order
       IFIRST = 1
-      ISTRBS = 1
       NSTRINT = 0
  2000 CONTINUE
         IF(IFIRST .EQ. 1 ) THEN

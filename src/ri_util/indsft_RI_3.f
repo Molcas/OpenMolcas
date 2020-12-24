@@ -77,7 +77,6 @@
          Call Abend()
       End If
 *
-      i1=1
       j1=0
       Do i2 = 1, iCmp(2)
          Do 201 j = 0, nIrrep-1

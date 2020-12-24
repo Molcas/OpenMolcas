@@ -166,9 +166,6 @@ c  definitions for blocking barrier
 c  options for automatic fitting of parameters:
       Logical                       :: fitCHI !-- not used so far
       Logical                       :: fitM !-- not used so far
-c  fundamental constants:
-      Real(kind=8)                 :: boltz_k
-      Real(kind=8)                 :: mu_bohr
 
       Integer                       :: iPrint
       Integer                       :: idim
@@ -191,8 +188,6 @@ c      Integer                      :: icase, nmagmult
       dbg=.false.
 c---------------------------------------------------------------------
       ! Constants:
-      boltz_k=0.6950356_wp                    !   in cm^-1*K-1
-      mu_bohr=0.466864374_wp                  !   in cm-1*T-1
       GRAD=.false.
 c---------------------------------------------------------------------
       ! Allocate memory for all arrays:

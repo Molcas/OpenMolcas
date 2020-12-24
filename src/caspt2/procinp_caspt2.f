@@ -43,8 +43,6 @@ C initialize global common-block variables appropriately.
       Integer ISYM
 * State selection
       Integer iGroup, IOFF
-* Error condition
-      Integer IERR
 
 #include "chocaspt2.fh"
 
@@ -352,7 +350,6 @@ C     really parallel or not.
         IF(IPRGLB.GE.TERSE) THEN
           Call WarningMessage(1,'User changed nr of frozen orbitals.')
         END IF
-        IERR=0
         DO I=1,NSYM
           NFI=NFRO(I)+NISH(I)
           IF(NFI.LT.Input%nFro(I)) THEN
@@ -366,7 +363,6 @@ C     really parallel or not.
       ENDIF
 * Set user-specified number of deleted orbitals.
       IF(Input % DELE) THEN
-        IERR=0
         DO I=1,NSYM
           NSD=NSSH(I)+NDEL(I)
           IF(NSD.LT.Input%nDel(I)) THEN

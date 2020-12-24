@@ -55,7 +55,7 @@
 #endif
 *
 *---- Define local variables
-      Character*180  Key, Line, BLIne
+      Character*180  Key, Line
       Character*180 Get_Ln
       External Get_Ln
       Integer nLev,iArray(32)
@@ -99,7 +99,6 @@
 *
       Call ICopy(2*MxPrLv,[0],0,iPrLV,1)
 *
-      BLine=' '
       OccSet=.false.
       FermSet=.false.
       CharSet=.false.

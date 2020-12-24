@@ -96,7 +96,7 @@ C>                   to active indices
       INTEGER L1,LTO,LFROM
       INTEGER MEMMAX, MEMMAX_SAFE
       INTEGER NLEV2
-      INTEGER LDUM,NDUM
+      INTEGER LDUM
       INTEGER NCI,ICSF
 
       REAL*8, EXTERNAL :: DDOT_,DNRM2_
@@ -164,7 +164,6 @@ C Special pair index idx2ij allows true RAS cases to be handled:
 
 * Dummy values necessary for fooling syntax checkers:
       ldum=1
-      ndum=1
       call getmem('memmx','max','real',ldum,memmax)
 
 * Use *almost* all remaining memory:

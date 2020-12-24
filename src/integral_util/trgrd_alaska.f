@@ -28,7 +28,7 @@
 #include "real.fh"
 #include "SysDef.fh"
       Real*8 CGrad(3,MxAtom)
-      dimension GradIn(nGrad),A(3)
+      dimension GradIn(nGrad)
       Logical, External :: TF
 *
       mdc=0
@@ -46,7 +46,6 @@
       Do iCnttp=1,nCnttp_Valence
          Do iCnt=1,dbsc(iCnttp)%nCntr
             mdc=mdc+1
-            A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
             Do iCo=0,nIrrep/dc(mdc)%nStab-1
                kop=dc(mdc)%iCoSet(iCo,0)
                nDispS = IndDsp(mdc,iIrrep)

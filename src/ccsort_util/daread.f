@@ -533,24 +533,23 @@ c
 c     ------------------------
 c
        subroutine mkampq (wrk,wrksize,
-     & a,syma,ammap)
+     & a,ammap)
 c
 c     this routine reconstruct #2 V2<_a,m|p,q> from corresponding TEMPDA2 file
 c
 #include "wrk.fh"
 #include "reorg.fh"
 #include "ccsort.fh"
-       integer a,syma
+       integer a
        integer ammap(1:mbas,1:8,1:8)
 c
 c     help variables
 c
-       integer symm,symp,symam
+       integer symm,symp
        integer iiv2,lenght,poss,irec0
 c
 c*    loops over symmetry combinations
        do 100 symm=1,nsym
-       symam=mul(syma,symm)
        do 101 symp=1,nsym
 c
 c*    def initioal record possition in TEMPDA2

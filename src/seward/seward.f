@@ -64,7 +64,7 @@
 #ifdef _FDE_
 #include "embpotdata.fh"
 #endif
-      Integer iix(2), nChoV(8)
+      Integer nChoV(8)
       Real*8 rrx(2)
       Logical PrPrt_Save, Exist, DoRys, lOPTO
       Real*8  DiagErr(4), Dummy(2)
@@ -76,14 +76,12 @@ C-SVC: identify runfile with a fingerprint
 *                                                                      *
 C     Call Seward_Banner()
       lOPTO = .False.
-      nByte = iiLoc(iix(2)) - iiLoc(iix(1))
       nByte_r = idloc(rrx(2))-idloc(rrx(1))
       Call CWTime(TCpu1,TWall1)
 *
 *     Prologue
 *
       iRout=1
-      LuWr=6
       PrPrt_Save = .False. ! dummy initialize
 *                                                                      *
 ************************************************************************

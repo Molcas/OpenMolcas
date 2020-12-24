@@ -53,9 +53,7 @@
       END IF
 *
       SQ2 = SQRT(2.0D0)
-      SQ2I = 1.0D0/SQ2
 *
-      IBASE = 1
       DO JBLOCK = 1, NBLOCK
 *
         IATP = IBLOCK(1, JBLOCK)

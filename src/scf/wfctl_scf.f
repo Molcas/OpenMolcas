@@ -736,11 +736,6 @@
          If(iUHF.eq.0) Then
             OrbName='SCFORB'
             Note='*  intermediate SCF orbitals'
-            If(KSDFT.eq.'SCF') Then
-               iWFtype=2
-            Else
-               iWFtype=3
-            End If
 
             Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,
      &                  TrM(1,1), Dummy,OccNo(1,1), Dummy,
@@ -753,11 +748,6 @@
          Else
             OrbName='UHFORB'
             Note='*  intermediate UHF orbitals'
-            If(KSDFT.eq.'SCF') Then
-               iWFtype=4
-            Else
-               iWFtype=5
-            End If
             Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,
      &                  TrM(1,1), TrM(1,2),OccNo(1,1),OccNo(1,2),
      &                  Dummy,Dummy, iDummy,Note,3)
