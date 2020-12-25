@@ -64,7 +64,7 @@
       Integer :: LuInput, iRout,
      &           iPrint, nX, i, j, nB, iq, nAll_Atoms, nUnique_Atoms,
      &           iB, lDisp(nIrrep), nModes, lModes, LuIC, ii, im, nK,
-     &           iErr, PLback, nQQ
+     &           iErr, PLback, nQQ, nsAtom
       Real*8, Dimension(:,:), Allocatable :: KMtrx, KTrsp, KKtB, IntMod,
      &                                       NMod
       Integer, Dimension(:), Allocatable :: Sort
@@ -123,6 +123,7 @@
 *     Note, this routine might be called from outside the Slapaf
 *     environment. In which case there is no backup to be made.
 *
+      nsAtom=SIZE(Cx,2)
       If (Allocated(Cx)) Then
          Call mma_allocate(Bk_Cx,3,nsAtom,MaxItr+1,Label='Bk_Cx')
          Bk_Cx(:,:,:) = Cx(:,:,:)
@@ -319,11 +320,9 @@
       Bk_nBVec=nBVec
       Bk_IRC=IRC
       Bk_mTtAtm=mTtAtm
-      Bk_nsAtom=nsAtom
       Bk_MEPnum=MEPnum
       Bk_RootMap(:)=RootMap(:)
       Bk_Stop=Stop
-      Bk_lWrite=lWrite
       Bk_lOld=lOld
       Bk_CurviLinear=CurviLinear
       Bk_HSet=HSet
@@ -443,7 +442,7 @@
       PrQ=.False.
       nWndw=iter
       iRef=0
-      Call BMtrx(nsAtom,Coor,iter,mTtAtm,nWndw)
+      Call BMtrx(SIZE(Coor,2),Coor,iter,mTtAtm,nWndw)
       nQQ = SIZE(Shift,1)
 *                                                                      *
 ************************************************************************
@@ -589,11 +588,9 @@
       nBVec=Bk_nBVec
       IRC=Bk_IRC
       mTtAtm=Bk_mTtAtm
-      nsAtom=Bk_nsAtom
       MEPnum=Bk_MEPnum
       RootMap(:)=Bk_RootMap(:)
       Stop=Bk_Stop
-      lWrite=Bk_lWrite
       lOld=Bk_lOld
       CurviLinear=Bk_CurviLinear
       HSet=Bk_HSet

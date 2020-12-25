@@ -12,32 +12,33 @@
       use Slapaf_Parameters, only: nDimBC
 #include "info_slapaf.fh"
       Integer nX
-      Real*8 G(nX*nX), GInv(nX*nX)
+      Real*8 G(nX,nX), GInv(nX*nX)
 *
-      Call mk_G_Internal(G,GInv,nDimBC,nsAtom)
+      Call mk_G_Internal(G,GInv,nDimBC)
 *
       Return
       End
-      Subroutine mk_G_Internal(G,GInv,nDoF,nAtom)
+      Subroutine mk_G_Internal(G,GInv,nDoF)
       use Slapaf_Info, only: dMass, Degen, Smmtrc
       use Slapaf_Parameters, only: Curvilinear, User_Def
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "constants2.fh"
 *
-      Real*8 G(nDoF,nDoF), GInv(nDoF**2)
+      Real*8 G(nDoF,nDoF), GInv(nDoF,nDoF)
       Logical Auto
 
       Auto=.Not.User_Def
+      nsAtom=SIZE(Smmtrc,2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Generate the mass tensor
 *
       G(:,:)=Zero
-      GInv(:)=Zero
+      GInv(:,:)=Zero
       ii = 0
-      Do i = 1, nAtom
+      Do i = 1, nsAtom
          Do ix = 1, 3
             If (Smmtrc(ix,i)) Then
                ii = ii + 1
@@ -46,8 +47,7 @@
                Else
                   G(ii,ii) = One/(Degen(ix,i)*dMass(i))
                End If
-               jj = (ii-1)*nDoF + ii
-               GInv(jj) = One/(G(ii,ii)*UTOAU)
+               GInv(ii,ii) = One/(G(ii,ii)*UTOAU)
             End If
          End Do
       End Do

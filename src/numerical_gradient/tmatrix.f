@@ -31,14 +31,14 @@
 *     Get the global constraint vectors
 *
       Call mma_Allocate(C1,mInt,nLambda)
-      Call get_drdq(C1,mInt,nLambda,Lambda1,Iter,lWrite)
+      Call get_drdq(C1,mInt,nLambda,Lambda1,Iter)
 *
 *     Get the NG constraint vectors
 *
       Call Merge_Constraints('UDC.NG','','UDC',nLambda,iRow_c)
       Call Fix_UDC(iRow_c,nLambda,SIZE(Coor,2),nStab,.True.)
       Call mma_Allocate(C2,mInt,nLambda)
-      Call get_drdq(C2,mInt,nLambda,Lambda2,Iter,lWrite)
+      Call get_drdq(C2,mInt,nLambda,Lambda2,Iter)
 *
 *     Combine both sets of constraints and get the T matrix
 *

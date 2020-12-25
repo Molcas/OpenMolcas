@@ -419,6 +419,7 @@
 ************************************************************************
 *                                                                      *
       If (iPrint.ge.6) Then
+         nsAtom=SIZE(Coor,2)
          Write (Lu,*)
          Write (Lu,'(A)') ' Header from ONEINT:'
          Call Banner(Header,2,Len(Header(1))+12)

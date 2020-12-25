@@ -115,7 +115,6 @@
 *     atom labels
 *
       Call Get_Molecule()
-      nsAtom=SIZE(Coor,2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -337,7 +336,6 @@ C           NADC= .False. ! for debugging
       If (jPrint.ge.99) Call
      &     Prlist('Symmetry Distinct Nuclear Coordinates / Bohr',
      &                   AtomLbl,SIZE(Coor,2),Coor,3,SIZE(Coor,2))
-      LWrite = .False.
       If (jPrint.ge.99) Call
      &     PrList('Symmetry Distinct Nuclear Forces / au',
      &                   AtomLbl,SIZE(Coor,2),Grd,3,SIZE(Coor,2))

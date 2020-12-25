@@ -24,6 +24,7 @@
 #endif
       If ((lNmHss.or.Allocated(mRowH)).and.iter.eq.NmIter) Then
          mInt = nDimBC - mTROld
+         nsAtom=SIZE(Coor,2)
          Call Put_dArray('Unique Coordinates',Cx,3*nsAtom)
          Call Put_Coord_New(Cx,nsAtom)
          If (Allocated(mRowH)) Then

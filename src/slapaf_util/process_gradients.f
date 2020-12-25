@@ -19,12 +19,13 @@
 #include "nadc.fh"
 #include "stdalloc.fh"
       Logical Found, Exist
-      Integer i,nRoots,RC,Read_Grad,Columbus
+      Integer i,nRoots,RC,Read_Grad,Columbus, nsAtom
       Real*8, Allocatable :: Grads(:,:), Ener(:)
       Real*8 E0, E1
       External Read_Grad
 *
       Request_Alaska=.False.
+      nsAtom=SIZE(Gx,2)
       Call mma_Allocate(Grads,3*nsAtom,3)
 *
 *     First check that all the needed gradients are available

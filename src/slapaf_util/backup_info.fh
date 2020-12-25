@@ -20,10 +20,10 @@
      &        Bk_nLambda, Bk_iRow_c,
      &        Bk_nMEP,
      &        Bk_nBVec, Bk_IRC,
-     &        Bk_mTtAtm, Bk_nsAtom, Bk_MEPnum,
+     &        Bk_mTtAtm, Bk_MEPnum,
      &        Bk_RootMap(MxRoot)
 *
-      Logical Bk_Stop, Bk_lWrite,
+      Logical Bk_Stop,
      &        Bk_lOld, Bk_CurviLinear,
      &        Bk_HSet, Bk_BSet, Bk_lNmHss, Bk_Cubic, Bk_Baker,
      &        Bk_DDV_Schlegel, Bk_Line_Search, Bk_HWRS,

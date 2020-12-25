@@ -10,13 +10,13 @@
 ************************************************************************
 #include "Molcas.fh"
 *
-      Integer   NmIter, iter, MxItr,
-     &          nWndw, mTtAtm, nsAtom, RootMap(MxRoot)
-      Common /iInfSla/ nsAtom, iter, MxItr,
-     &          mTtAtm, nWndw, NmIter, RootMap
+      Integer
+     &    NmIter, iter, MxItr, nWndw, mTtAtm, RootMap(MxRoot)
+      Common /iInfSla/
+     &    NmIter, iter, MxItr, nWndw, mTtAtm, RootMap
 *
-      Logical          Stop, lWrite
-      Common /lInfSla/ Stop, lWrite
+      Logical          Stop
+      Common /lInfSla/ Stop
 *
       Real*8           cMass(3)
       Common /rInfSla/ cMass

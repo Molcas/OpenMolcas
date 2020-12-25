@@ -11,7 +11,7 @@
 * Copyright (C) 2013, Roland Lindh                                     *
 *               2015, Ignacio Fdez. Galvan (split from gencxctl)       *
 ************************************************************************
-      Subroutine get_drdq(drdq,mInt,nLambda,mLambda,Iter,lWrite)
+      Subroutine get_drdq(drdq,mInt,nLambda,mLambda,Iter)
       use Slapaf_Info, only: BMx, Degen
       use Slapaf_Parameters, only: iRow_c, Curvilinear
       Implicit None
@@ -25,7 +25,6 @@
       Real*8,  Intent(InOut) :: drdq(mInt,nLambda)
       Integer, Intent(Out)   :: mLambda
       Integer, Intent(In)    :: Iter
-      Logical, Intent(In)    :: lWrite
 *
       Integer n3,nBV,i,iLambda,iOff,iOff2, iAtom, ixyz
       Real*8 RR
@@ -36,7 +35,9 @@
      &                      Value0(:), cInt(:), cInt0(:), Mult(:),
      &                      dBMx(:)
       Integer, Allocatable:: iFlip(:)
+      Logical :: lWrite
 *
+      lWrite = .FALSE.
       n3=SIZE(Degen)
 *
       If (nLambda.ne.0) Then

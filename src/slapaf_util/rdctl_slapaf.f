@@ -13,7 +13,7 @@
       use ThermoChem
       use Symmetry_Info, only: Symmetry_Info_Get
       use Slapaf_Info, only: Cx, Gx, Weights, MF, Atom, nSup, RefGeo,
-     &                       GradRef, nStab, Lbl, mRowH
+     &                       GradRef, nStab, Lbl, mRowH, Coor
       use Slapaf_Parameters, only: iRow, iRow_c, ddV_Schlegel, HWRS,
      &                             iOptH, HrmFrq_Show, IRC, Curvilinear,
      &                             Redundant, FindTS, nBVec, User_Def,
@@ -71,6 +71,7 @@
 *
       Call Symmetry_Info_Get()
       Call Init_Slapaf()
+      nsAtom=SIZE(Coor,2)
       iPrint=nPrint(iRout)
       iSetAll=2**30 - 1
 *
