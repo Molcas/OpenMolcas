@@ -114,7 +114,7 @@
 *
       If (Numerical) nWndw=NmIter
       iRef=0
-      Call BMtrx(SIZE(Coor,2),Coor,iter,mTtAtm,nQQ,nWndw)
+      Call BMtrx(SIZE(Coor,2),Coor,iter,mTtAtm,nWndw)
       nQQ = SIZE(qInt,1)
 *
       nPrint(30) = nPrint(30)-1

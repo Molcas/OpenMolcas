@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine BMtrx(nsAtom,Coor,nIter,mTtAtm,nQQ,nWndw)
+      Subroutine BMtrx(nsAtom,Coor,nIter,mTtAtm,nWndw)
       Use Slapaf_Info, Only: Cx, Shift, qInt, KtB, BMx, Smmtrc,
      &                       Lbl
       Use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC,
@@ -48,6 +48,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      nQQ = 0
       iRout=133
       iPrint=nPrint(iRout)
 *
