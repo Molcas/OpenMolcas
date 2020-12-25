@@ -52,7 +52,8 @@
      &                             Delta, rFuzz, lNmHss, Cubic,
      &                             Request_Alaska, Request_RASSI,
      &                             lOld_Implicit, CallLast, lSoft,
-     &                             lCtoF, Track, TwoRunFiles, isFalcon
+     &                             lCtoF, Track, TwoRunFiles, isFalcon,
+     &                             Stop
       use thermochem
       Implicit None
 #include "backup_info.fh"
@@ -351,7 +352,6 @@
       Bk_Track=Track
       Bk_Request_Alaska=Request_Alaska
       Bk_Request_RASSI=Request_RASSI
-      Bk_cMass(:)=cMass(:)
       Bk_ThrEne=ThrEne
       Bk_ThrGrd=ThrGrd
       Bk_Beta=Beta
@@ -619,7 +619,6 @@
       Track=Bk_Track
       Request_Alaska=Bk_Request_Alaska
       Request_RASSI=Bk_Request_RASSI
-      cMass(:)=Bk_cMass(:)
       ThrEne=Bk_ThrEne
       ThrGrd=Bk_ThrGrd
       Beta_Disp=Bk_Beta_Disp

@@ -14,9 +14,3 @@
      &    NmIter, iter, MxItr, nWndw, mTtAtm, RootMap(MxRoot)
       Common /iInfSla/
      &    NmIter, iter, MxItr, nWndw, mTtAtm, RootMap
-*
-      Logical          Stop
-      Common /lInfSla/ Stop
-*
-      Real*8           cMass(3)
-      Common /rInfSla/ cMass

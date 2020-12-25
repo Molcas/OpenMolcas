@@ -11,7 +11,7 @@
       Subroutine Mk_Hss_Q()
       use Slapaf_Info, only: Cx, Coor, DipM, qInt, dqInt, BMx, mRowH
       use Slapaf_Parameters, only: BSet, HSet, Delta, lNmHss, nDimBC,
-     &                             mTROld
+     &                             mTROld, Stop
       Implicit Real*8 (a-h,o-z)
 #include "info_slapaf.fh"
 #include "real.fh"
