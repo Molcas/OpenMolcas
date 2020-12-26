@@ -20,7 +20,7 @@ Public:: iRow, iRow_c, iInt, nFix, ddV_Schlegel, HWRS, iOptH, HUpMet, HrmFrq_Sho
          StpLbl, StpMax, E_Delta, ThrEne, ThrGrd, nLambda, iRef, ThrCons, ThrMEP, Baker,  &
          eMEPTest, rMEP, MEP, nMEP, MEPNum, MEPCons, dMEPStep, MEP_Type, MEP_Algo, Header, &
          Max_Center, mTROld, Delta, RtRnc, rFuzz, lNmHss, Cubic, lRP, Request_Alaska, Request_RASSI, &
-         lOld_Implicit, CallLast, lSoft, lCtoF, Track, TwoRunFiles, isFalcon, Stop
+         lOld_Implicit, CallLast, lSoft, lCtoF, Track, TwoRunFiles, isFalcon, Stop, NmIter
 
 Integer i
 
@@ -40,6 +40,7 @@ Integer:: nMEP=MaxItr
 Integer:: MEPNum=0
 Integer:: Max_Center=15
 Integer:: mTROld=0
+Integer:: NmIter=0
 
 Logical:: Curvilinear=.True.
 Logical:: Redundant=.False.
