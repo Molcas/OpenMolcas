@@ -19,7 +19,6 @@
 cvv hand-made loop unrolling to fix a bug in GCC 3.x
       IAD16=0
       INSIN=KBUFF1
-      INUM=IRC(4)-IRC(3)
       CALL CSCALE(indx,INTSYM,C,SQ2)
       CALL CSCALE(indx,INTSYM,S,SQ2INV)
       NVT=IROW(NVIRT+1)

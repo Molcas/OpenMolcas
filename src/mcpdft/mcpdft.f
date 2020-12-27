@@ -90,7 +90,7 @@
       External IsFreeUnit
 
       Logical DSCF
-      Logical lTemp, lOPTO
+      Logical lOPTO
       Character*80 Line
       Logical DoQmat,DoActive
       Logical IfOpened
@@ -158,7 +158,6 @@
       If (ProgName(1:5).eq.'casvb') IfVB=2
 * Default option switches and values, and initial data.
       EAV = 0.0d0
-      EAV1=0.0d0
       Call RasScf_Init_m()
       Call Seward_Init()
 * Open the one-olectron integral file:
@@ -183,7 +182,6 @@
 * substring beginning with '!' with blanks.
 * That copy will be in file 'CleanInput', and its unit number is returned
 * as LUInput in common (included file input_ras.fh) by the following call:
-      LUSpool = 5
       Call cpinp_(LUInput,iRc)
 !      write(*,*) LUINPUT, IRC
 * If something wrong with input file:
@@ -360,8 +358,6 @@ CGG03 Aug 03
       ECAS   = 0.0d0
       ROTMAX = 0.0d0
       ITER   = 0
-      IFINAL = 0
-      TMXTOT = 0.0D0
       Call GetMem('FOcc','ALLO','REAL',ipFocc,nTot1)
 *                                                                      *
 ************************************************************************
@@ -392,7 +388,6 @@ CGG03 Aug 03
       ITER=ITER+1
       If ( ITER.EQ.1 ) THEN
         Start_Vectors=.True.
-        lTemp = lRf
 
 !        Call Get_D1I_RASSCF(Work(LCMO),Work(lD1I))
 
@@ -560,7 +555,6 @@ CGG03 Aug 03
             ExFac=0.0d0
 *        ExFac=Get_ExFac(KSDFT)
         end IF
-      IF(ICIONLY.NE.0) IFINAL=1
 
 *
 * Transform two-electron integrals and compute at the same time
@@ -780,7 +774,6 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      IFINAL=2
       ICICH=0
 *****************************************************************************************
 ***************************           Closing up MC-PDFT      ***************************
@@ -814,7 +807,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
         !  CASDFT_E = ECAS
         !end if
 
-        Elec_Ener = CASDFT_E-PotNuc
+!        Elec_Ener = CASDFT_E-PotNuc
         write(6,*) "PLWO"
         write(6,*) PLWO(:)
 !        Call Calc_E(Work(LDMAT),Work(LDSPN),WORK(LPMAT),

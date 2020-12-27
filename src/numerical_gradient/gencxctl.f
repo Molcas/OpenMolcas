@@ -32,9 +32,6 @@
       Character*8 Lbl(nLbl)
 *
       Lu=6
-*
-      iRout = 32
-      iPrint=nPrint(iRout)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -52,8 +49,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      jPrint=nPrint(iRout)
-*
       If (nLbl.lt.nBVec) Then
          Call WarningMessage(2,'Error in GenCxCTL')
          Write (Lu,*)
@@ -160,7 +155,6 @@
 *     eliminate naturally translational and rotational degrees
 *     (3N-6) but also eliminate constrained degrees (3N-6-m)
 *
-      nDisp = mInt-nLambda
       Call GetMem('du','Allo','Real',ipdu,mInt)
 *
 *     Loop only over displacement which do not change the constraint.

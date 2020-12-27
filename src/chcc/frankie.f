@@ -113,10 +113,6 @@ c
 #include "WrkSpc.fh"
       Real*8, Allocatable:: CMO_t(:,:)
 
-*     declaration of local variables...
-      Logical Debug
-      Data Debug/.False./
-
 #include "SysDef.fh"
 
 *...  Read nSym, Energy, nBas, nOrb, nOcc, nFro, CMO and orbital energies from COMFILE
@@ -177,7 +173,7 @@ C
       Integer   rc,nIsh(*),nAsh(*),nSsh(*)
 
       Real*8    tread(2),tmotr1(2),tmotr2(2)
-      Logical   Debug,timings,DoRead
+      Logical   timings,DoRead
       Integer   nPorb(8),ipOrb(8)
       Integer   ipLpb(8)
 cmp
@@ -208,13 +204,6 @@ cmp
 ******
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
-
-#ifdef _DEBUGPRINT_
-      Debug=.true.
-#else
-      Debug=.false.
-#endif
-
 
 cmp
 cmp!<new 21/04/09

@@ -108,12 +108,10 @@
         WRITE(LU,*)'#  States ',ISTATE,JSTATE,' Active TRD2:'
         DO ISYT=1,NSYM
           DO ISYU=1,NSYM
-            ISYTU=ISYT+NSYM*(ISYU-1)
             DO ISYV=1,ISYT
               LIMX=ISYV
               IF(ISYV.EQ.ISYT) LIMX=ISYU
               DO ISYX=1,LIMX
-                ISYVX=ISYV+NSYM*(ISYX-1)
 !               > Write out one symmetry block (4 indices!) of two-electron
 !               > transition density matrix elements.
 !               > Write a full 'rectangular' array, even if it could be made

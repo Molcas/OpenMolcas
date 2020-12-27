@@ -22,7 +22,7 @@
 #include "constants2.fh"
 #include "stdalloc.fh"
       Real*8 Energy_Ref
-      Integer iOper(0:7), iChCar(3), jStab(0:7), iCoSet(0:7,0:7),
+      Integer iOper(0:7), jStab(0:7), iCoSet(0:7,0:7),
      &        iDispXYZ(3)
       Character*8 Method
       Character AtomLbl(MxAtom)*(LENIN)
@@ -268,9 +268,6 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
          If (iAnd(iOper(i),2).ne.0) iSymY = 2
          If (iAnd(iOper(i),4).ne.0) iSymZ = 4
       End Do
-      iChCar(1) = iSymX
-      iChCar(2) = iSymY
-      iChCar(3) = iSymZ
       MaxDCR = nIrrep
 *                                                                      *
 ************************************************************************
@@ -408,8 +405,8 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *     Save global print level
 *
       iPL_Save=iPrintLevel(-1)
-      iPL_Base=0
-      If (iPL_Save.ge.3) iPl_Base=iPL_Save
+*     iPL_Base=0
+*     If (iPL_Save.ge.3) iPl_Base=iPL_Save
 *
 #ifdef _DEBUGPRINT_
       Call RecPrt('BMtrx',' ',Work(ip_BMtrx),3*nAtoms,mInt)
@@ -900,7 +897,7 @@ C_MPP End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      jPL=iPrintLevel(iPL_Save)
+*     jPL=iPrintLevel(iPL_Save)
       If (iPL_Save.ge.3)
      &    Call RecPrt('Energies','(8G16.10)',EnergyArray,nRoots,mDisp)
       Call mma_Allocate(GradArray,nDisp,nRoots)

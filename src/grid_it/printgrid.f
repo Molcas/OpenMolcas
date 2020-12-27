@@ -302,11 +302,11 @@ c      logical exist
 
       else
        l=1
-       ii=1
+c       ii=1
 c       fullname=outf
 888     i=index(FullName(l:),Slash)
         if(i.gt.0) then
-          ii=i+l
+c          ii=i+l
           l=l+i+1
           goto 888
         endif
@@ -492,11 +492,11 @@ c     &        RealName(1:index(RealName,' '))
        if(isLine.eq.1) LineT='#GridName='
 c       print *,'here',nInc, nBlocks, nCoor
       if(isLUSCUS.eq.1) then
-        NFIRST=nInc
+c        NFIRST=nInc
 
-        if(nBlocks.eq.1) NFIRST=nCoor
+c        if(nBlocks.eq.1) NFIRST=nCoor
 
-      ii=0
+c      ii=0
 c      do i=1,nShowMOs
 c      write(Line,'(A17,1000i12)') ' File_pointers = ',
 c     * ((nFirst*(j-1)+ii)*Sizeof8,j=1,nBlocks)
@@ -608,6 +608,11 @@ c ?? -20?
           endif
 
       return
+* Avoid unused argumet warnings
+      if (.false.) then
+        call Unused_integer(nBlocks)
+        call Unused_integer(nInc)
+      end if
       end
 ********************************
       Subroutine DumpM2Msi(iRun,Luval,LID,nShowMOs,isDensity,nMOs,
@@ -865,7 +870,6 @@ CVV FIXME: no packing.
             dNorm=dNorm+WipOut(j)
           enddo
 *****
-          old=0.000d0
 c          write(6,*) " mCoor=",mCoor
 *****
           if(isLine.eq.0.and.IsLuscus.eq.0) then

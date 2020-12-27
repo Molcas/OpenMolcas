@@ -13,8 +13,6 @@
 #include "SysDef.fh"
 #include "mrci.fh"
 #include "WrkSpc.fh"
-      ILIM=4
-      IF(IFIRST.NE.0)ILIM=2
 * ----------------------------------------------------------------------
       NINDS=(NBITM1+2)*NCHN1
       NBUFS=NBITM1*NCHN1

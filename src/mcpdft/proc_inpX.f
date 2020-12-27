@@ -112,7 +112,7 @@
       Logical :: DoDMRG,DNG
       Character*8 emiloop
       Character*8 inGeo
-      Logical :: MustCopy
+!      Logical :: MustCopy
 
       Intrinsic INDEX,NINT,DBLE,SQRT
 C...Dongxia note for GAS:
@@ -204,7 +204,7 @@ C   No changing about read in orbital information from INPORB yet.
 * How was the program called?
 *PAM 2009  For some particular types of calculations, the input is to be
 * disregarded or overridden, as follows (Roland, esp. numerical diff):
-      MustCopy=.False.
+!      MustCopy=.False.
       If(KeyEXPE) Then
        Call SetPos_m(LUInput,'EXPE',Line,iRc)
        Call ChkIfKey_m()
@@ -216,7 +216,7 @@ C   No changing about read in orbital information from INPORB yet.
          If (.Not.Is_First_Iter()) Then
            KeyCIRE=.true.
            KeyFILE=.false.
-           MustCopy=.true.
+!           MustCopy=.true.
          End If
         Else If (ProgName(1:5).eq.'casvb') Then
          IfVB=2
@@ -226,11 +226,11 @@ C   No changing about read in orbital information from INPORB yet.
         Else If (ProgName(1:11).eq.'last_energy') Then
          KeyCIRE=.true.
          KeyFILE=.false.
-         MustCopy=.true.
+!         MustCopy=.true.
         Else If (ProgName(1:18).eq.'numerical_gradient') Then
          KeyCIRE=.true.
          KeyFILE=.false.
-         MustCopy=.true.
+!         MustCopy=.true.
         End If
       End If
 *PAM2009 Also, CIRESTART would normally also imply that orbitals are

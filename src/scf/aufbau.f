@@ -113,8 +113,8 @@ c for RHF we will not use nOccAuf_ab
       If (Teee) then
 *
          UHF_occ=3.0d0-UHF_Size
-         mD = 2/nD
 #ifdef _DEBUGPRINT_
+         mD = 2/nD
          Do iD = 1, nD
             eferm=FermiPop(EOr(1,iD),Occup(1,iD),nOrbAS,RTemp,
      &                     nAuf(iD)*mD,UHF_occ)

@@ -502,10 +502,8 @@ C
       Real*8,DIMENSION(2) :: vDum
       INTEGER,DIMENSION(7,8) :: v2Dum
       CHARACTER(len=72)Note
-      Logical DoTest
       External ISFREEUNIT
 
-      DoTest=.false.
       Threshold=0.0D-10
       Zero=0.0D0
 

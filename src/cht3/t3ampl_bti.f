@@ -42,7 +42,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none
       integer IUHF,LU(6)
       integer i,nuga,nugc,nga,ngb,ngc,vblock, it1
-      integer NOAB,NNOAB,NUAB,NNUAB,iopt,iout,isp,krem
+      integer NOAB,NNOAB,NUAB,NNUAB,iopt,isp,krem
       real*8 OEH(*),OEP(*),ddot_,ccsdt,ccsdt4,energ(4),tccsd,
      $     ENSCF, RESULT,times(10),
      $     times_parr(10), totcpu, totwal, timerel
@@ -100,8 +100,6 @@ c
 !?      nprocs0=nprocs
 c Uncomment the following to force sequential mode
 !      nprocs=1
-
-      IOUT=IOPT(14)
 
       if (nprocs.gt.1) then
          write(6,'(A,i4,A)') ' Parallel run on ',nprocs,' nodes'

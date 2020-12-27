@@ -181,7 +181,6 @@ c      Integer                      :: icase, nmagmult
       Logical                       :: check_title
       Character(Len=180)            :: Title
       Logical                       :: GRAD
-      Logical                       :: lvM
       Logical                       :: dbg
       Character(Len=180)            :: fname
 
@@ -784,9 +783,6 @@ c---------------------------------------------------------------------
 !             MAGNETIC SUSCEPTIBILITY
 !---------------------------------------------------------------------
        If (compute_susceptibility .AND. (nT>0) ) Then
-          lvM =.false.
-          lvM = compute_magnetization .OR. (Xfield.ne.0.0_wp) .OR.
-     &          compute_torque
 
          ! set nT, T(i) and XTexp(i) arrays:
           Call set_T( nT, nTempMagn, TINPUT, TempMagn, Tmin, Tmax,

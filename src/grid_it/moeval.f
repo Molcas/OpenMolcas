@@ -102,11 +102,6 @@
 *
             Do jAng = 0, nTest-1
                jShll = dbsc(iCnttp)%iVal + jAng
-               If (Shells(jShll)%Prjct ) Then
-                  jCmp = 2*jAng+1
-               Else
-                  jCmp  = nElem(jAng)
-               End If
             End Do
 *
 *           Loop over unique centers of basis set "iCnttp"
@@ -119,11 +114,6 @@
 
                Do jAng = 0, iAng-1
                   jShll = dbsc(iCnttp)%iVal + jAng
-                  If (Shells(jShll)%Prjct ) Then
-                     jCmp = 2*jAng+1
-                  Else
-                     jCmp  = nElem(jAng)
-                  End If
                End Do
 *
 *--------------Allocate memory for SO and AO values

@@ -40,8 +40,6 @@
       LU1INT = 14
 *. Input , property one-electron integral files
       LUPRP  = 15
-*. Sirius interface file
-      LUSIR1 = 16
 *. File containing additional states for transition densities
       LUEXC = 17
 * =================

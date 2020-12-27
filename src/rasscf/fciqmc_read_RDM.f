@@ -50,7 +50,7 @@
 #include "output_ras.fh"
       real*8, intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
       integer :: iUnit, isfreeunit, p, q, r, s, pq, rs, ps, rq, psrq,
-     &  pqrs, iread, Nalpha, norb, iprlev
+     &  pqrs, iread, norb, iprlev
       logical :: tExist, switch
       real*8 :: fac, RDMval, fcnacte
       real*8 :: D_alpha(size(DMAT)), D_beta(size(DMAT))
@@ -102,7 +102,6 @@
       PSMAT(:) = 0.0d0
       PAMAT(:) = 0.0d0
 
-      Nalpha = (nactel + iSpin - 1) / 2
       fac = merge(0.5d0, 1.0d0, switch)
       fcnacte = 1.0d0 / dble(nactel - 1)
 

@@ -223,7 +223,6 @@
 *---  Print header to iterations
 *
       If(KSDFT.eq.'SCF'.or.One_Grid) Call PrBeg(Meth)
-      Temsav=RTemp
       AufBau_Done=.False.
 *                                                                      *
 *======================================================================*

@@ -25,9 +25,6 @@
       Real*8 Array(lArray,nArray)
       Integer Ind(nArray)
 *
-      iRout = 235
-      iPrint = nPrint(iRout)
-*
       Do 100 iArray = nArray, 1, -1
          jArray = Ind(iArray)
          If (jArray.le.0) Then

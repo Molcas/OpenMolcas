@@ -102,7 +102,6 @@
 *
       LuSpool = 17
       Call SpoolInp(LuSpool)
-      LuRd=5
       Rewind(LuSpool)
       Call RdNLst(LuSpool,'MBPT2')
       Blank=' '

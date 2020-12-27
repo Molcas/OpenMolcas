@@ -58,7 +58,7 @@ c      call molcas_open(luonemo,fnonemo)
       idisk=0
       call idafile(luonemo,2,ncone,64,idisk)
       call ddafile(luonemo,2,dum,1,idisk)
-      ecor=dum(1)
+c      ecor=dum(1)
       call idafile(luonemo,2,idum,1,idisk)
       nsym=idum(1)
       call idafile(luonemo,2,nbas,8,idisk)
@@ -125,7 +125,7 @@ c...end of subroutine gugadefault
       parameter ( ncmd=18 )
       parameter ( mxtit=10 )
       character*4 command,cmd(ncmd)
-      character*72  line,title(mxtit)
+      character*72  line
       character*132 modline
       Data Cmd /'TITL','ELEC','SPIN','SYMM','ACTI',
      &          'PRIN','REFE','FIRS','INAC','CIAL',
@@ -166,7 +166,6 @@ c...end of subroutine gugadefault
       end do
       if ( jcmd.ne.0 ) goto 20
       ntit=ntit+1
-      if ( ntit.le.mxtit ) title(ntit)=line
       goto 100
 *
 *---  process electron command ----------------------------------------*
@@ -231,8 +230,6 @@ c...end of subroutine gugadefault
 *
 *---  process first    command ----------------------------------------*
  800  continue
-      ifirst=1
-      ilim=2
       goto 10
 *
 *---  process inactive command ----------------------------------------*
@@ -261,7 +258,6 @@ c...end of subroutine gugadefault
 *
 *---  process interact command ----------------------------------------*
 1200  continue
-      intnum=1
       goto 10
 *
 *---  process nocorr   command ----------------------------------------*
@@ -290,7 +286,6 @@ cbsuo, jun. 30, 2009 - neglect them
 1600  continue
       write (6,*) 'input: non-interact option is redundant and is',
      *            ' ignored!'
-      intnum=0
       goto 10
 *
 *---  process nactel       command -------------------------------------
@@ -659,7 +654,6 @@ c     *    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 0/
       ja_sys=int(n_electron*0.5d0-spin)-norb_dz
       jb_sys=int(spin+spin)
       jc_sys=norb_all-ja_sys-jb_sys
-      jsm_sys=ns_sm
 
       if ( jb_sys .eq.0 ) jroute_sys=1
       if ( jb_sys .eq.1 ) jroute_sys=2
@@ -822,7 +816,6 @@ c...end of arrange_orbital_molcas
       enddo
       jds=1
       jde=mxnode
-      jps=no(norb_inn)+1
       jpe=no(norb_inn+1)
 
       iin(1:max_node)=0
@@ -924,7 +917,6 @@ c...end of arrange_orbital_molcas
 200   call gugadrt_dbl_downwalk()
 c      write(6,*)'  end of drt,nci_dim= ',nci_dim
 c      write(6,*)'number of cfss: ',nci_dim
-      mul=nint(2*spin)+1
       write(6,*)
       write(6,*)'-----------------------------------------------'
       write(6,*)'    csf information'
@@ -1113,8 +1105,6 @@ c
       allocate(iwy(4,0:mxtnode))
       allocate(itm(0:mxtnode))
 
-      nel =n_electron
-      nz  =ng_sm
       nm  =ns_sm
       ndj =n_ref
       no(1:norb_dz+1)=0
@@ -1134,7 +1124,6 @@ c 16 bits
       nabcbit=iintbit/iabcbit
 c 32 bits
       inodbit=32
-      nnodbit=iintbit/inodbit
 
 c v node
       j=0
@@ -1143,7 +1132,6 @@ c v node
       jc0=jc_sys
       write(6,"(4(1x,i4))") ja0,jb0,jc0
       kcm=min(ja0,jc0)
-      kd=(ja0+1)*(jc0+1)*int(jb0+0.5d0*kcm+1)-kcm*(kcm+1)*(kcm+2)/6
 !  v_node
       ja(1)=ja0
       jb(1)=jb0
@@ -1762,7 +1750,6 @@ c508   format(3x,a10,1x,i5,1x,16i8)
      :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
      :    ,jv,jd(8),jt(8),js(8)
       dimension lhsm(8),locu(8,max_ref),lscu(0:8,max_ref)
-      nl_act=norb_act
       ne_act=nel-2*norb_dz
       ne_s=nint(spin*2)
       lhs=nstart_act
@@ -1893,7 +1880,6 @@ c508   format(3x,a10,1x,i5,1x,16i8)
       jc=0
 
       nel =n_electron
-      nz  =ng_sm
       nm  =ns_sm
       no(1:norb_dz-1)=0
       j=0
@@ -1901,7 +1887,6 @@ c508   format(3x,a10,1x,i5,1x,16i8)
       jb0=jb_sys
       jc0=jc_sys
       kcm=min(ja0,jc0)
-      kd=(ja0+1)*(jc0+1)*int(jb0+0.5d0*kcm+1)-kcm*(kcm+1)*(kcm+2)/6
 !  v_node
       ja(1)=ja0
       jb(1)=jb0
@@ -2447,7 +2432,7 @@ c----------- norb_dbl=0 ------------------------------------------------
       enddo
 c----------- norb_dbl=0 ------------------------------------------------
 c----------- norb_dbl<>0 -----------------------------------------------
-200   iwdownv=0
+200   continue
       do im=1,ng_sm
         nnd=0
         nns=0

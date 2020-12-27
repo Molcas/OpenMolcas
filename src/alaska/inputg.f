@@ -75,7 +75,6 @@
       l2DI   = .True.
       HF_Force=.False.
       NO_NUC = .False.
-      State  =  0d0
       Timings_default = Timings
       Xsigma=1.0d4
       dFMD=0.0d0
@@ -422,7 +421,7 @@
  976  Read(LuSpool,'(A)',Err=988) KWord
       If (KWord(1:1).eq.'*') Go To 976
       If (KWord.eq.'')    Go To 976
-      Read(KWord,*) iRoot
+      Read(KWord,*) i
       Go To 998
 *                                                                      *
 ************************************************************************

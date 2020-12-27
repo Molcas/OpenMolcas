@@ -56,7 +56,6 @@
       Real*8  Coor(3,4), Grad(nGrad), Temp(nGrad)
       Integer iAnga(4), iCmpa(4), iShela(4),iShlla(4),
      &        iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4)
-      Integer nHrrTb(0:iTabMx,0:iTabMx,2)
       Logical EQ, Shijij, AeqB, CeqD, lDummy,
      &        DoGrad, DoFock, Indexation,
      &        JfGrad(3,4), ABCDeq, No_Batch, Rsv_GTList,
@@ -82,8 +81,6 @@
       iFnc(3)=0
       iFnc(4)=0
       PMax=Zero
-      idum=0
-      idum1=0
 #ifdef _CD_TIMING_
       Twoel_CPU = 0.0d0
       Twoel_Wall = 0.0d0
@@ -183,8 +180,6 @@
                     End If
                  End Do
               End Do
-              nHrrTb(iAng,jAng,1)=nHrrab
-              nHrrTb(jAng,iAng,1)=nHrrab
            End Do
         End Do
 

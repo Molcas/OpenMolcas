@@ -82,10 +82,8 @@
       Call Get_iScalar('agrad',iForceAnalytical)
       If(iForceAnalytical .eq. 1) Do_Numerical_Cholesky=.False.
 *
-      ExFac=0.0D0
       If (Method.eq.'KS-DFT  '.and.Do_Numerical_Cholesky) Then
          Call Get_cArray('DFT functional',KSDFT,16)
-         ExFac=Get_ExFac(KSDFT)
 *
          If (Do_DF                 .or.                  ! RI/DF
      &       (Do_Cholesky.and.Do_1CCD.and.nSym.eq.1)      ! 1C-CD

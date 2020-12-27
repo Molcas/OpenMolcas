@@ -335,7 +335,6 @@ cmp!
 
         integer LuSpool
         character*80 LINE
-        character*80 TITLE
 cmp
         integer rc
         real*8 FracMem
@@ -407,13 +406,12 @@ c
  5      Read(LuSpool,'(A80)') LINE
        CALL UPCASE(LINE)
        IF( INDEX(LINE,'&CHT3') .EQ. 0 ) GOTO 5
-       TITLE=' '
  6     Read(LuSpool,'(A80)') LINE
        IF(LINE(1:1).EQ.'*') GOTO 6
        CALL UPCASE(LINE)
 c
        IF (LINE(1:4).EQ.'TITL') THEN
-       Read(LuSpool,'(A72)') TITLE
+       Read(LuSpool,*)
 
        ELSE IF (LINE(1:4).EQ.'FROZ') THEN ! FROZen
        Read(LuSpool,*) nfr
@@ -959,7 +957,7 @@ c
         integer nfr,nv,no
         integer NOAB(2),NNOAB(3),NUAB(2),NNUAB(3)
         character*1 ich(3)
-        integer IT,ITLAST,NBF,NOMX,NU,NOO,MX2,NNO,NNU,NUO,NSO
+        integer IT,ITLAST,NBF,NOMX,NU,MX2,NNO,NNU,NUO,NSO
         integer me,nprocs
 c
         COMMON/UHF/NOAB,NNOAB,NUAB,NNUAB,ICH
@@ -1002,7 +1000,6 @@ c??????????????????
         itlast=1
         nbf=nfr+no+nv
         nomx=nbf
-        noo=no
         nu=nv
         mx2=(nbf*(nbf+1))/2
         nno=(no*(no+1))/2
@@ -1675,7 +1672,6 @@ c
         implicit none
 #include "cht3_ccsd1.fh"
 #include "ccsd_t3compat.fh"
-        integer niter
         real*8 E1old,E2old
         real*8 t1(*),t1_tmp(*)
 c
@@ -1696,7 +1692,7 @@ c
         end do
 c
 c
-        read (LunAux) E1old,E2old,niter
+        read (LunAux) E1old,E2old,i
 
         if (printkey.gt.1) then
         write (6,'(A,2(f15.12,1x))') 'Results from CCSD : E1, E2 ',
@@ -1705,36 +1701,6 @@ c
 
         close (LunAux)
 c
-c
-        return
-        end
-c
-c ----------------------
-c
-        subroutine expand3_23 (A,B,dim1,dim2)
-c
-c this routine do :
-c
-c AA(a,bc), b>=c -> BB(a,b,c)
-c
-
-        implicit none
-        integer a,b,c,bc,dim1,dim2
-        real*8 AA(1:dim1,1:(dim2*(dim2+1))/2)
-        real*8 BB(1:dim1,1:dim2,1:dim2)
-c
-        bc=0
-        do b=1,dim2
-        do c=1,b
-        bc=bc+1
-        do a=1,dim1
-c
-        BB(a,b,c)=AA(a,bc)
-        BB(a,c,b)=AA(a,bc)
-c
-        end do
-        end do
-        end do
 c
         return
         end

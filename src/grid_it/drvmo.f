@@ -49,11 +49,10 @@ c      Logical Debug
 *...  Prologue
 c      Debug=.false.
       isEner=1
-      iRout = 2
       ipCutOff=ip_iDummy
 
       dNorm=0
-      ddNorm=0
+c     ddNorm=0
       if(iRun.eq.1.and.levelprint.ge.3) then
        Write (6,*)
        Write (6,'(A,8I5)') 'Irreps  : ',(i,i=1,nIrrep)
@@ -384,7 +383,6 @@ c       Print *, 'HERE header isdone'
 c      if(isAtom.eq.1) goto 6000
 
       iiiCoord=0
-      dtot=0.d0
 c      if(isCutOff.eq.1) nCoor=iiCoord
 cccccccccccccc  main loop starts here  ccccccccccccccccccccccccccccccccc
       iShiftCut=0
