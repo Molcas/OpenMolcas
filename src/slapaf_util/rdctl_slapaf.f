@@ -26,7 +26,7 @@
      &                             MEP_Type, MEP_Algo, Max_Center,
      &                             Delta, RtRnc, rFuzz, lNmHss, Cubic,
      &                             Request_Alaska, CallLast, lCtoF,
-     &                             Track, isFalcon
+     &                             Track, isFalcon, MxItr
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -34,6 +34,7 @@
 #include "nadc.fh"
 #include "weighting.fh"
 #include "print.fh"
+      Real*8 rDum(1)
       Logical Found, Dummy_Call
       Character*8 Command
       Character(LEN=180) Get_Ln
@@ -1135,7 +1136,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
          If (Track) Then
             Call Process_Track()
          Else
-            Call Put_iArray('Root Mapping',RootMap,0)
+            Call Put_iArray('Root Mapping',rDum,0)
          End If
          Call Process_Gradients()
       End If

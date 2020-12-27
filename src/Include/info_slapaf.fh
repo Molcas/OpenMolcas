@@ -10,5 +10,5 @@
 ************************************************************************
 #include "Molcas.fh"
 *
-      Integer          iter, MxItr, nWndw, mTtAtm, RootMap(MxRoot)
-      Common /iInfSla/ iter, MxItr, nWndw, mTtAtm, RootMap
+      Integer          iter, nWndw, mTtAtm
+      Common /iInfSla/ iter, nWndw, mTtAtm

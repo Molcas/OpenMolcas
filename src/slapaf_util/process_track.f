@@ -11,6 +11,7 @@
 * Copyright (C) 2016, Ignacio Fdez. Galvan                             *
 ************************************************************************
       SUBROUTINE Process_Track()
+      use Slapaf_Info, only: RootMap
       use Slapaf_parameters, only: Request_RASSI
       IMPLICIT NONE
 #include "info_slapaf.fh"

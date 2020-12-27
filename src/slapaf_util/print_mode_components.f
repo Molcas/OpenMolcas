@@ -34,7 +34,7 @@
      &                       Energy, Energy0, DipM, MF, qInt, dqInt,
      &                       RefGeo, BM, iBM, dBM, idBM, nqBM, BMx,
      &                       Degen, nStab, jStab, iCoSet, AtomLbl,
-     &                       Smmtrc, Lbl, mRowH
+     &                       Smmtrc, Lbl, mRowH, RootMap
       use Slapaf_Parameters, only: iRow, iRow_c, iInt, nFix,
      &                             ddV_Schlegel, HWRS, iOptH, HUpMet,
      &                             HrmFrq_Show, IRC, Curvilinear,
@@ -53,7 +53,7 @@
      &                             Request_Alaska, Request_RASSI,
      &                             lOld_Implicit, CallLast, lSoft,
      &                             lCtoF, Track, TwoRunFiles, isFalcon,
-     &                             Stop, NmIter
+     &                             Stop, NmIter, MxItr
       use thermochem
       Implicit None
 #include "backup_info.fh"
@@ -116,6 +116,7 @@
       Logical, Allocatable:: Bk_Smmtrc(:,:)
       Character(LEN=8), Allocatable:: Bk_Lbl(:)
       Integer, Allocatable:: Bk_mRowH(:)
+      Integer, Allocatable:: Bk_RootMap(:)
 *
 *
 *---- Ugly hack: backup all "global" slapaf variables in case this is
@@ -303,6 +304,11 @@
          Bk_mRowH(:) = mRowH(:)
          Call mma_deallocate(mRowH)
       End If
+      If (Allocated(RootMap)) Then
+         Call mma_allocate(Bk_RootMap,SIZE(RootMap),Label='Bk_RootMap')
+         Bk_RootMap(:) = RootMap(:)
+         Call mma_deallocate(RootMap)
+      End If
 
       Bk_Header(:)=Header(:)
       Bk_iRef=iRef
@@ -322,7 +328,6 @@
       Bk_IRC=IRC
       Bk_mTtAtm=mTtAtm
       Bk_MEPnum=MEPnum
-      Bk_RootMap(:)=RootMap(:)
       Bk_Stop=Stop
       Bk_lOld=lOld
       Bk_CurviLinear=CurviLinear
@@ -589,7 +594,6 @@
       IRC=Bk_IRC
       mTtAtm=Bk_mTtAtm
       MEPnum=Bk_MEPnum
-      RootMap(:)=Bk_RootMap(:)
       Stop=Bk_Stop
       lOld=Bk_lOld
       CurviLinear=Bk_CurviLinear
@@ -915,6 +919,14 @@
          Call mma_deallocate(Bk_mRowH)
       Else
          If (Allocated(mRowH)) Call mma_deallocate(mRowH)
+      End If
+      If (Allocated(Bk_RootMap)) Then
+         If (Allocated(RootMap)) Call mma_deallocate(RootMap)
+         Call mma_allocate(RootMap,SIZE(Bk_RootMap),Label='RootMap')
+         RootMap(:) = Bk_RootMap(:)
+         Call mma_deallocate(Bk_RootMap)
+      Else
+         If (Allocated(RootMap)) Call mma_deallocate(RootMap)
       End If
 *
       End Subroutine Print_Mode_Components

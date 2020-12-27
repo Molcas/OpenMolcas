@@ -11,11 +11,12 @@
       Subroutine Init_SlapAf()
       use Symmetry_Info, only: nIrrep, iOper
       use Slapaf_Info, only: q_nuclear, dMass, Coor, Grd, ANr, Degen,
-     &                       jStab, nStab, iCoSet, AtomLbl, Smmtrc
+     &                       jStab, nStab, iCoSet, AtomLbl, Smmtrc,
+     &                       RootMap
 *     use Slapaf_Info, only: R12
       use Slapaf_Parameters, only: nDimBC, Analytic_Hessian, MaxItr,
      &                             Line_Search, ThrEne, ThrGrd, ThrCons,
-     &                             ThrMEP, Header
+     &                             ThrMEP, Header, MxItr
 *     use Slapaf_Parameters, only: lRP
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -29,7 +30,7 @@
       Integer :: jPrmt(0:7)=[1,-1,-1,1,-1,1,1,-1]
       Logical Same, Do_ESPF, Exist_2, Found, Reduce_Prt
       External Reduce_Prt
-      Character *8 CMAX
+      Character(LEN=8) CMAX
       Integer Columbus
 #include "SysDef.fh"
       Character(LEN=100) SuperName
@@ -181,12 +182,14 @@ C           NADC= .False. ! for debugging
 *
       Call Qpg_iArray('Root Mapping',Found,nRM)
       If (nRM.gt.0) Then
+         Call mma_allocate(RootMap,nRM,Label='RootMap')
          Call Get_iArray('Root Mapping',RootMap,nRM)
       Else
          Call Qpg_iScalar('Number of roots',Found)
          nRoots = 1
          If (Found) Call Get_iScalar('Number of roots',nRoots)
-         Call iCopy(MxRoot,[0],0,RootMap,1)
+         Call mma_allocate(RootMap,nRoots,Label='RootMap')
+         RootMap(:)=Zero
          Do i=1,nRoots
             RootMap(i)=i
          End Do

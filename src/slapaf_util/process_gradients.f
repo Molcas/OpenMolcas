@@ -11,7 +11,7 @@
 * Copyright (C) 2015,2016, Ignacio Fdez. Galvan                        *
 ************************************************************************
       Subroutine Process_Gradients()
-      use Slapaf_Info, only: Gx, Gx0, NAC, Energy, Energy0
+      use Slapaf_Info, only: Gx, Gx0, NAC, Energy, Energy0, RootMap
       use Slapaf_Parameters, only: Request_Alaska, TwoRunFiles
       Implicit None
 #include "real.fh"
