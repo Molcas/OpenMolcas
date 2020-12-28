@@ -16,7 +16,7 @@
 *     use Slapaf_Info, only: R12
       use Slapaf_Parameters, only: nDimBC, Analytic_Hessian, MaxItr,
      &                             Line_Search, ThrEne, ThrGrd, ThrCons,
-     &                             ThrMEP, Header, MxItr
+     &                             ThrMEP, Header, MxItr, mTtAtm
 *     use Slapaf_Parameters, only: lRP
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -306,7 +306,8 @@ C           NADC= .False. ! for debugging
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*-----Compute the multiplicities of the cartesian coordinates.
+*-----Compute the multiplicities of the cartesian coordinates and the
+*     total number of atoms.
 *
       mTtAtm=0
       Call mma_Allocate(Degen,3,SIZE(Coor,2),Label='Degen')

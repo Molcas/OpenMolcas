@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine NewCar_Kriging(kIter,SaveBMx,Error)
       use Slapaf_Info, only: Cx, BMx
-      use Slapaf_Parameters, only: PrQ, Numerical
+      use Slapaf_Parameters, only: PrQ, Numerical, mTtAtm
       Implicit None
 #include "info_slapaf.fh"
 #include "db.fh"

@@ -10,5 +10,5 @@
 ************************************************************************
 #include "Molcas.fh"
 *
-      Integer          iter, nWndw, mTtAtm
-      Common /iInfSla/ iter, nWndw, mTtAtm
+      Integer          iter, nWndw
+      Common /iInfSla/ iter, nWndw

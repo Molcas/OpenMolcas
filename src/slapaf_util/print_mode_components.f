@@ -53,7 +53,7 @@
      &                             Request_Alaska, Request_RASSI,
      &                             lOld_Implicit, CallLast, lSoft,
      &                             lCtoF, Track, TwoRunFiles, isFalcon,
-     &                             Stop, NmIter, MxItr
+     &                             Stop, NmIter, MxItr, mTtAtm
       use thermochem
       Implicit None
 #include "backup_info.fh"
