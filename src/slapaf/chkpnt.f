@@ -30,7 +30,7 @@
 #ifdef _HDF5_
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: Coor
-      use Slapaf_Parameters, only: IRC
+      use Slapaf_Parameters, only: IRC, iter
 #  include "info_slapaf.fh"
       Character(Len=3) :: level
       Logical :: create
@@ -249,7 +249,7 @@
       Subroutine Chkpnt_update()
 #ifdef _HDF5_
       use Slapaf_Info, only: Cx, Gx, Energy
-      use Slapaf_Parameters, only: nDimBC
+      use Slapaf_Parameters, only: nDimBC, iter
 #  include "info_slapaf.fh"
 #  include "stdalloc.fh"
       Integer :: N3, i, j

@@ -9,6 +9,3 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 #include "Molcas.fh"
-*
-      Integer          iter, nWndw
-      Common /iInfSla/ iter, nWndw

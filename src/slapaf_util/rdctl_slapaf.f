@@ -26,7 +26,7 @@
      &                             MEP_Type, MEP_Algo, Max_Center,
      &                             Delta, RtRnc, rFuzz, lNmHss, Cubic,
      &                             Request_Alaska, CallLast, lCtoF,
-     &                             Track, isFalcon, MxItr
+     &                             Track, isFalcon, MxItr, nWndw, Iter
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"

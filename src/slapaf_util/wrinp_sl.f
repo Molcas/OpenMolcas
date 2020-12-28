@@ -18,7 +18,7 @@
      &                             GNrm_Threshold, Mode, ThrEne, ThrGrd,
      &                             Baker, eMEPTest, rMEP, MEP, nMEP,
      &                             MEP_Type, MEP_Algo, Header, Delta,
-     &                             lNmHss, Cubic, MxItr
+     &                             lNmHss, Cubic, MxItr, nWndw
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "info_slapaf.fh"

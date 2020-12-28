@@ -11,7 +11,9 @@
       Subroutine PrePro(nAtom,Coor)
       use Slapaf_Info, only: Grd, Atom, nSup, mRowH
       use Slapaf_Parameters, only: iRow, iInt, nFix, Redundant, nDimBC,
-     &                             lOld, mTROld, lNmHss, lOld_Implicit
+     &                             lOld, mTROld, lNmHss, lOld_Implicit,
+     &                             iter,
+     &                             iter
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"

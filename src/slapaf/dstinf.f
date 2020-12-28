@@ -13,7 +13,8 @@
       use Slapaf_Info, only: Cx, Coor, Weights, Energy, MF, qInt, dqInt,
      &                       Dmp_Slapaf, AtomLbl
       use Slapaf_Parameters, only: MaxItr, iOptC, Numerical, Max_Center,
-     &                             mTROld, RtRnc, lOld_Implicit, Stop
+     &                             mTROld, RtRnc, lOld_Implicit, Stop,
+     &                             iter
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"

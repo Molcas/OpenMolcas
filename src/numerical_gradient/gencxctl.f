@@ -14,7 +14,7 @@
       use Slapaf_Info, only: Coor, Shift, qInt, BMx, Free_Slapaf
       use Slapaf_Parameters, only: Curvilinear, HSet, BSet, PrQ,
      &                             Numerical, nLambda, iRef, nDimBC,
-     &                             mTROld, mTtAtm
+     &                             mTROld, mTtAtm, nWndw, iter
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
