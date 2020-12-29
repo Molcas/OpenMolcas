@@ -19,7 +19,6 @@
 #include "real.fh"
 #include "nadc.fh"
 #include "stdalloc.fh"
-#include "info_slapaf.fh"
 #include "print.fh"
       Logical Is_Roots_Set
       Real*8, Allocatable:: MMGrd(:,:), Tmp(:), DMs(:,:)

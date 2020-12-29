@@ -17,7 +17,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-#include "info_slapaf.fh"
 #include "print.fh"
       Real*8 Coor(3,nAtom)
       Logical CofM

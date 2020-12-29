@@ -20,7 +20,6 @@
 ************************************************************************
 #include "real.fh"
 #include "stdalloc.fh"
-#include "info_slapaf.fh"
       Integer, Intent(In)    :: mInt
       Real*8,  Intent(InOut) :: TMx(mInt,mInt)
 *

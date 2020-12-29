@@ -12,7 +12,6 @@
       use Slapaf_Parameters, only: Request_Alaska, Request_RASSI
       Implicit Real*8 (a-h,o-z)
 #include "print.fh"
-#include "info_slapaf.fh"
 #include "nadc.fh"
       Character*100 ProgName, Get_ProgName
       Character*128 FileName

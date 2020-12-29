@@ -18,7 +18,6 @@
       Character*8 ELOOP
 ************ columbus interface ****************************************
       Integer Columbus
-#include "info_slapaf.fh"
 #include "warnings.fh"
 *                                                                      *
 ************************************************************************

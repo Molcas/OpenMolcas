@@ -15,7 +15,6 @@
       use Slapaf_Parameters, only: Request_Alaska, TwoRunFiles, iter
       Implicit None
 #include "real.fh"
-#include "info_slapaf.fh"
 #include "nadc.fh"
 #include "stdalloc.fh"
       Logical Found, Exist

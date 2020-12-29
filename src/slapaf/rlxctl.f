@@ -24,7 +24,6 @@
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
 ************************************************************************
-#include "info_slapaf.fh"
 #include "real.fh"
 #include "nadc.fh"
 #include "weighting.fh"

@@ -13,7 +13,6 @@
       use Slapaf_Info, only:  Coor
       use Slapaf_Parameters, only: nDimBC, mTROld
       Implicit Real*8 (a-h,o-z)
-#include "info_slapaf.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 DipM(3)

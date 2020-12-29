@@ -33,7 +33,6 @@
 #include "real.fh"
 #include "sbs.fh"
 #include "stdalloc.fh"
-#include "info_slapaf.fh"
 #include "weighting.fh"
       Real*8 Coord(3*nAtom), Ref(3*nAtom)
       Logical Invar

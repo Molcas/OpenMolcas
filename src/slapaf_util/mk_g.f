@@ -10,7 +10,6 @@
 ************************************************************************
       Subroutine mk_G(G,GInv,nX)
       use Slapaf_Parameters, only: nDimBC
-#include "info_slapaf.fh"
       Integer nX
       Real*8 G(nX,nX), GInv(nX*nX)
 *

@@ -13,7 +13,6 @@
       use slapaf_parameters, only: rFuzz
       Implicit Real*8 (a-h,o-z)
 #include "stdalloc.fh"
-#include "info_slapaf.fh"
       Real*8 Coor(3,nAtoms)
       Integer iTabAtoms(2,0:nMax,nAtoms), iANr(nAtoms),
      &        iTabBonds(3,nBondMax)

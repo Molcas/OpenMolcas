@@ -17,7 +17,6 @@
       Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
-#include "info_slapaf.fh"
 #include "sbs.fh"
       Integer, Intent(In) :: nAtom
       Real*8, Intent(In) :: Ref(3,nAtom),Dir(3,nAtom),Fact,Dist

@@ -20,7 +20,6 @@
 *     use Slapaf_Parameters, only: lRP
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "info_slapaf.fh"
 #include "sbs.fh"
 #include "nadc.fh"
 #include "db.fh"

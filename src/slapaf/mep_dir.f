@@ -45,7 +45,6 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "weighting.fh"
-#include "info_slapaf.fh"
       Real*8 Cx(3*nAtom,iter+1),Gx(3*nAtom,iter+1)
       Logical IRCRestart,BadConstraint
       Parameter ( RadToDeg=180.0D0/Pi )

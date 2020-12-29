@@ -14,7 +14,6 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "weighting.fh"
-#include "info_slapaf.fh"
       Real*8 Bf(3,nCent), xyz(3,nCent), dBf(3,nCent,3,nCent)
       Logical l_Write, ldB, lTrans
       Character(LEN=8) Label

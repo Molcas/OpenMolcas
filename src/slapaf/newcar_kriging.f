@@ -14,7 +14,6 @@
       use Slapaf_Info, only: Cx, BMx
       use Slapaf_Parameters, only: PrQ, Numerical, mTtAtm
       Implicit None
-#include "info_slapaf.fh"
 #include "db.fh"
 #include "stdalloc.fh"
       Integer :: kIter

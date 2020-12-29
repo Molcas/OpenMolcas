@@ -13,7 +13,6 @@
       use Slapaf_Parameters, only: BSet, HSet, Delta, lNmHss, nDimBC,
      &                             mTROld, Stop, NmIter, iter
       Implicit Real*8 (a-h,o-z)
-#include "info_slapaf.fh"
 #include "real.fh"
 *
 *     Compute the Hessian in internal coordinates.

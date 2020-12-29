@@ -37,7 +37,6 @@
       INTEGER :: Lu,iPrint,iPos,Error,nLines,i,j
       CHARACTER(LEN=180) :: Line1,Line2,EDiffName,Get_Ln
       REAL*8 :: EDiffValue
-#include "info_slapaf.fh"
 #include "real.fh"
 #include "nadc.fh"
 

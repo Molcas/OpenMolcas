@@ -11,7 +11,6 @@
       Subroutine ConInt(xyz,nCent,dE,Bf,lWrite_,Label,dBf,ldB,lIter)
       use Slapaf_Info, only: Gx, Gx0, Energy, Energy0
       Implicit Real*8  (a-h,o-z)
-#include "info_slapaf.fh"
 #include "real.fh"
 #include "nadc.fh"
 #include "constants.fh"

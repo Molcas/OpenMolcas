@@ -24,7 +24,6 @@
 *     Author: R. Lindh, Uppsala University                             *
 *             2013, November                                           *
 ************************************************************************
-#include "info_slapaf.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "WrkSpc.fh"

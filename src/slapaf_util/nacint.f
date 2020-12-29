@@ -11,7 +11,6 @@
       Subroutine NACInt(xyz,nCent,H12,Bf,lWrite_,Label,dBf,ldB)
       use Slapaf_Info, only: NAC
       Implicit Real*8  (a-h,o-z)
-#include "info_slapaf.fh"
 #include "real.fh"
 #include "nadc.fh"
 #include "constants.fh"

@@ -250,7 +250,6 @@
 #ifdef _HDF5_
       use Slapaf_Info, only: Cx, Gx, Energy
       use Slapaf_Parameters, only: nDimBC, iter
-#  include "info_slapaf.fh"
 #  include "stdalloc.fh"
       Integer :: N3, i, j
       Logical :: Found
@@ -302,7 +301,6 @@
       Logical, Intent(In) :: SaveMEP
       Logical, Intent(In) :: IRCRestart
 #ifdef _HDF5_
-#  include "info_slapaf.fh"
       Integer :: attrid, dsetid, iMEP
 
       If (IRCRestart) Then

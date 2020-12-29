@@ -17,7 +17,6 @@
       use Phase_Info
       use Slapaf_Info, only: Cx, nStab
       implicit real*8 (a-h,o-z)
-#include "info_slapaf.fh"
 #include "stdalloc.fh"
 #include "angstr.fh"
 #include "periodic_table.fh"

@@ -24,7 +24,6 @@
       use Slapaf_Info, only: Coor
       use Slapaf_Parameters, only: nDimBC, mTROld
       Implicit Real*8 (a-h,o-z)
-#include "info_slapaf.fh"
 #include "stdalloc.fh"
       Logical Found
       Real*8  F(nX**2)
