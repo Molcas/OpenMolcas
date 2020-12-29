@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Convrg(iter,kIter, nInter,Stop,iStop,MxItr,
+      Subroutine Convrg(iter,kIter, nInter,iStop,MxItr,
      &                  mIntEff,mTtAtm,GoOn,Step_Trunc,
      &                  Just_Frequencies)
       Use Chkpnt
@@ -18,7 +18,7 @@
      &                             MaxItr, Numerical, iNeg, GrdMax,
      &                             E_Delta, ThrEne, ThrGrd, nLambda,
      &                             iOptC, ThrCons, ThrMEP, Baker,
-     &                             eMEPTest, rMEP, MEP, nMEP
+     &                             eMEPTest, rMEP, MEP, nMEP, Stop
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -33,7 +33,7 @@
       Character(LEN=16) StdIn
       Character(LEN=80) Point_Desc
       Character(LEN=16) MEP_Text
-      Logical Stop, Conv1, GoOn, Found, Terminate, Last_Energy,
+      Logical Conv1, GoOn, Found, Terminate, Last_Energy,
      &        Just_Frequencies, Saddle, eTest,
      &        IRCRestart, Conv2, ConvTmp, TSReg, BadConstraint,
      &        TurnBack

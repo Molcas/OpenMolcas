@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine FormNumHess(nIter,nInter,Delta,Stop,nAtom,iNeg,DipM)
+      Subroutine FormNumHess(nIter,nInter,Delta,nAtom,iNeg,DipM)
       use Slapaf_Info, only: qInt, Shift, dqInt, Degen, Smmtrc
       use Slapaf_Parameters, only: Curvilinear, mTROld, Cubic
       Implicit Real*8 (a-h,o-z)
@@ -16,7 +16,7 @@
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 DipM(3,nIter)
-      Logical Stop, Found
+      Logical Found
       Real*8 rDum(1)
       Real*8, Allocatable:: FEq(:), dDipM(:), KtB(:), HB(:), Hx(:),
      &                      Degen2(:), H(:), IRInt(:)
@@ -39,7 +39,6 @@
 *                                                                      *
 *-----Form the Hessian matrix via a 2-point numerical differentiation.
 *
-      Stop = .False.
       Call mma_allocate(H,nInter**2,Label='H')
       If (Cubic) Then
          Call mma_allocate(FEq,nInter**3,Label='FEq')

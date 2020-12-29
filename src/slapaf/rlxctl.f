@@ -18,7 +18,7 @@
      &                             HSet, BSet, PrQ, Numerical, iNeg,
      &                             E_Delta, iRef, Delta, lNmHss, Cubic,
      &                             Request_Alaska, Request_RASSI, lCtoF,
-     &                             isFalcon, nDimBC, mTROld, Stop,
+     &                             isFalcon, nDimBC, mTROld,
      &                             NmIter, MxItr, mTtAtm, nWNdw, iter
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
@@ -158,14 +158,12 @@
 *----------------------------------------------------------------------*
 *
             Call Freq2(iter,dqInt,nQQ,Delta,qInt)
-            Stop = .False.
             UpMeth='NumHss'
          End If
 *
          Call MxLbls(nQQ,dqInt(:,iter),Shift(:,iter),Lbl)
          iNeg(:)=-99
          HUpMet='None  '
-         Stop = .False.
          nPrint(116)=nPrint(116)-3
          nPrint( 52)=nPrint( 52)-1  ! Status
          nPrint( 53)=nPrint( 53)-1
@@ -265,7 +263,7 @@
       GoOn = (lNmHss.and.iter.lt.NmIter) .OR.
      &       (Allocated(mRowH).and.iter.lt.NmIter)
       Numerical=(lNmHss.or.Allocated(mRowH)).and.iter.le.NmIter
-      Call Convrg(iter,kIter,nQQ,Stop,iStop,MxItr,mIntEff,
+      Call Convrg(iter,kIter,nQQ,iStop,MxItr,mIntEff,
      &            mTtAtm,GoOn,Step_Trunc,Just_Frequencies)
 *
 ************************************************************************
