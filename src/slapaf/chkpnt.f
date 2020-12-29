@@ -31,7 +31,7 @@
       use Symmetry_Info, only: nIrrep
       use Slapaf_Info, only: Coor
       use Slapaf_Parameters, only: IRC, iter
-#  include "info_slapaf.fh"
+#  include "Molcas.fh"
       Character(Len=3) :: level
       Logical :: create
       Integer :: tmp
@@ -84,7 +84,7 @@
       use Slapaf_Info, only: dMass, nStab, iCoSet, AtomLbl, Smmtrc,
      &                       Coor
       use Slapaf_Parameters, only: nDimBC, rMEP, MEP, dMEPStep
-#  include "info_slapaf.fh"
+#  include "Molcas.fh"
 #  include "stdalloc.fh"
       Character :: lIrrep(24)
       Integer :: dsetid, attrid, mAtom, i, j, k

@@ -18,7 +18,7 @@
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-#include "info_slapaf.fh"
+#include "Molcas.fh"
 #include "print.fh"
 #include "SysDef.fh"
 #include "angstr.fh"
