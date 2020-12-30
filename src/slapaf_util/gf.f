@@ -11,6 +11,7 @@
       Subroutine GF(nX,nDoF,nInter,Tmp1,Tmp2,EVec,EVal,RedM,
      &              iNeg,dDipM,mTR,nAtom,DipM)
       use Slapaf_Info, only: Smmtrc
+      use Slapaf_parameters, only: nDimBC
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -40,9 +41,9 @@
 *                                                                      *
 *     Generate the G matrix (mass tensor in cartesians)
 *
-      Call mma_allocate(G,nX**2,Label='G')
-      Call mma_allocate(GInv,nX**2,Label='GInv')
-      Call Mk_G(G,GInv,nX)
+      Call mma_allocate(G,nDimBC**2,Label='G')
+      Call mma_allocate(GInv,nDimBC**2,Label='GInv')
+      Call Mk_G(G,GInv,nDimBC)
 *
 *
 *     Get the force constant matrix in cartesians

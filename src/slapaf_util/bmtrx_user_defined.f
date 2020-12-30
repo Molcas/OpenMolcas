@@ -8,8 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine BMtrx_User_Defined(nsAtom,Coor,nDim,nIter,
-     &                              mTR,nQQ)
+      Subroutine BMtrx_User_Defined(nsAtom,Coor,nDim,nIter,mTR,nQQ)
       use Slapaf_Info, only: Gx, qInt, dqInt, KtB, BMx, Degen, Smmtrc,
      &                       Lbl
       use Slapaf_Parameters, only: iInt, nFix, nBVec, Analytic_Hessian,
