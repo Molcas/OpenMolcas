@@ -8,30 +8,30 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine GF(nX,nDoF,nInter,Tmp1,Tmp2,EVec,EVal,RedM,
-     &              iNeg,dDipM,mTR,nAtom,DipM)
+      Subroutine GF(nX,nDoF,nInter,EVec,EVal,RedM,iNeg,dDipM,mTR,nAtom,
+     &              DipM)
       use Slapaf_Info, only: Smmtrc
       use Slapaf_parameters, only: nDimBC
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "print.fh"
 #include "stdalloc.fh"
-      Real*8 dDipM(3,nInter+mTR), DipM(3), Tmp1(nX**2), Tmp2(nX**2),
+      Real*8 dDipM(3,nInter+mTR), DipM(3),
      &       EVec(2*nDoF,nDoF), EVal(2*nDoF), RedM(nDoF)
-      Real*8, Allocatable:: G(:), GInv(:), F(:)
+      Real*8, Allocatable:: G(:), GInv(:), F(:), Tmp1(:), Tmp2(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout=138
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call RecPrt('GF: dDipM',' ',dDipM,3,nInter)
       Call RecPrt('GF: DipM',' ',DipM,3,1)
 #endif
+      Call mma_allocate(Tmp1,nX**2,Label='Tmp1')
+      Call mma_allocate(Tmp2,nX**2,Label='Tmp2')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Note that all calculations will be done in the cartesian basis!  *
+*     Note that all calculations will be done in the Cartesian basis!  *
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -102,6 +102,8 @@
 #ifdef _DEBUGPRINT_
       Call RecPrt('dDipM(normal coord.)',' ',dDipM,3,nDoF)
 #endif
+      Call mma_deallocate(Tmp2)
+      Call mma_deallocate(Tmp1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

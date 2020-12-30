@@ -784,25 +784,22 @@
       Else
         If (Allocated(Lambda)) Call mma_deallocate(Lambda)
       End If
+
       If (Allocated(Bk_qInt)) Then
-         If (.NOT.Allocated(qInt)) Then
-            Call mma_allocate(qInt,SIZE(Bk_qInt,1),MaxItr,
-     &                        Label='qInt')
-         End If
+         If (Allocated(qInt)) Call mma_deallocate(qInt)
+         Call mma_allocate(qInt,SIZE(Bk_qInt,1),MaxItr,Label='qInt')
          qInt(:,:) = Bk_qInt(:,:)
          Call mma_deallocate(Bk_qInt)
       Else
-        If (Allocated(qInt)) Call mma_deallocate(qInt)
+         If (Allocated(qInt)) Call mma_deallocate(qInt)
       End If
       If (Allocated(Bk_dqInt)) Then
-         If (.NOT.Allocated(dqInt)) Then
-            Call mma_allocate(dqInt,SIZE(Bk_dqInt,1),MaxItr,
-     &                        Label='dqInt')
-         End If
+         If (Allocated(dqInt)) Call mma_deallocate(dqInt)
+         Call mma_allocate(dqInt,SIZE(Bk_dqInt,1),MaxItr,Label='dqInt')
          dqInt(:,:) = Bk_dqInt(:,:)
          Call mma_deallocate(Bk_dqInt)
       Else
-        If (Allocated(dqInt)) Call mma_deallocate(dqInt)
+         If (Allocated(dqInt)) Call mma_deallocate(dqInt)
       End If
 
       If (Allocated(Bk_BM)) Then

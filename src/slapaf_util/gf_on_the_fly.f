@@ -18,8 +18,7 @@
       Real*8 DipM(3)
       Integer mDisp(8)
       Real*8, Allocatable:: EVec(:), EVal(:), RedMas(:), dDipM(:),
-     &                      Tmp1(:), Tmp2(:), IRInt(:), Temp(:),
-     &                      NMod(:)
+     &                      IRInt(:), Temp(:), NMod(:)
 *define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
@@ -37,19 +36,12 @@
       Call mma_allocate(RedMas,nX,Label='RedMas')
       Call mma_allocate(dDipM,3*nDoF,Label='dDipM')
       dDipM(:)=Zero
-      Call mma_allocate(Tmp1,nX**2,Label='Tmp1')
-      Call mma_allocate(Tmp2,nX**2,Label='Tmp2')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      DipM(1)=0.0D0
-      DipM(2)=0.0D0
-      DipM(3)=0.0D0
-      Call GF(nX,nDoF,nInter,Tmp1,Tmp2,EVec,EVal,RedMas,iNeg,dDipM,
-     &        mTR,nAtom,DipM)
+      DipM(:)=Zero
+      Call GF(nX,nDoF,nInter,EVec,EVal,RedMas,iNeg,dDipM,mTR,nAtom,DipM)
 *
-      Call mma_deallocate(Tmp2)
-      Call mma_deallocate(Tmp1)
 #ifdef _DEBUGPRINT_
       Call RecPrt('EVec',' ',EVec,2*nX,nX)
       Call RecPrt('EVal',' ',EVal,2,nX)

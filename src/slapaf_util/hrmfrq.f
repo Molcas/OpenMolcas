@@ -17,8 +17,7 @@
 #include "print.fh"
       Real*8 dDipM(3,nInter+mTR), DipM(3), IRInt(nInter+mTR)
       Integer mDisp(8)
-      Real*8, Allocatable:: EVec(:), EVal(:), RedMas(:), Tmp1(:),
-     &                      Tmp2(:), Temp(:), NMod(:)
+      Real*8, Allocatable:: EVec(:),EVal(:),RedMas(:),Temp(:),NMod(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -37,14 +36,7 @@
 *                                                                      *
 *-----Compute harmonic frequencies and dipole derivatives
 *
-      Call mma_allocate(tmp1,nX**2,Label='tmp1')
-      Call mma_allocate(tmp2,nX**2,Label='tmp2')
-*
-      Call GF(nX,nDoF,nInter,Tmp1,Tmp2,EVec,EVal,RedMas,iNeg,dDipM,
-     &        mTR,nAtom,DipM)
-*
-      Call mma_deallocate(tmp2)
-      Call mma_deallocate(tmp1)
+      Call GF(nX,nDoF,nInter,EVec,EVal,RedMas,iNeg,dDipM,mTR,nAtom,DipM)
 *                                                                      *
 ************************************************************************
 *                                                                      *
