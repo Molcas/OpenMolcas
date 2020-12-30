@@ -16,7 +16,7 @@
      &                       Free_Slapaf, qInt, dqInt, Lbl
       use Slapaf_Parameters, only: HUpMet, User_Def, UpMeth,
      &                             HSet, BSet, PrQ, Numerical, iNeg,
-     &                             E_Delta, iRef, Delta, lNmHss, Cubic,
+     &                             E_Delta, iRef, lNmHss, Cubic,
      &                             Request_Alaska, Request_RASSI, lCtoF,
      &                             isFalcon, nDimBC, mTROld,
      &                             NmIter, MxItr, mTtAtm, nWNdw, iter
@@ -149,7 +149,7 @@
 *        I) Update geometry for selected numerical differentiation.    *
 *----------------------------------------------------------------------*
 *
-            Call Freq1(iter,nQQ,Delta/2.5d0,qInt)
+            Call Freq1()
             UpMeth='RowH  '
          Else
 *
@@ -157,7 +157,7 @@
 *        II) Update geometry for full numerical differentiation.       *
 *----------------------------------------------------------------------*
 *
-            Call Freq2(iter,dqInt,nQQ,Delta,qInt)
+            Call NwShft()
             UpMeth='NumHss'
          End If
 *

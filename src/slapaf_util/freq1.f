@@ -10,7 +10,15 @@
 *                                                                      *
 * Copyright (C) Giovanni Ghigo                                         *
 ************************************************************************
-      Subroutine Freq1(nIter,nInter,Delta,qInt)
+      Subroutine Freq1()
+      use Slapaf_Info, only: qInt
+      use Slapaf_parameters, only: Delta, iter
+
+      nInter=SIZE(qInt,1)
+      Call Freq1_Internal(iter,nInter,Delta/2.5d0,qInt)
+
+      Contains
+      Subroutine Freq1_Internal(nIter,nInter,Delta,qInt)
 ************************************************************************
 *                                                                      *
 * Object: Displacements for Numerical estimation of single rows and    *
@@ -65,5 +73,7 @@
          Call RecPrt('Final Shift:','(10F9.6)',Shift,nInter,nIter)
          Call RecPrt('Final  q:','(10F9.6)', qInt,nInter,nIter+1)
       EndIf
-      Return
-      End
+      End Subroutine Freq1_Internal
+
+
+      End Subroutine Freq1
