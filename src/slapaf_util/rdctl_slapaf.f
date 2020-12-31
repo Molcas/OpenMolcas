@@ -33,7 +33,7 @@
 #include "nadc.fh"
 #include "weighting.fh"
 #include "print.fh"
-      Real*8 rDum(1)
+      Integer iDum(1)
       Logical Found, Dummy_Call
       Character*8 Command
       Character(LEN=180) Get_Ln
@@ -1135,7 +1135,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
          If (Track) Then
             Call Process_Track()
          Else
-            Call Put_iArray('Root Mapping',rDum,0)
+            Call Put_iArray('Root Mapping',iDum,0)
          End If
          Call Process_Gradients()
       End If

@@ -1,4 +1,4 @@
-***********************************************************************
+o**********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -188,7 +188,7 @@ C           NADC= .False. ! for debugging
          nRoots = 1
          If (Found) Call Get_iScalar('Number of roots',nRoots)
          Call mma_allocate(RootMap,nRoots,Label='RootMap')
-         RootMap(:)=Zero
+         RootMap(:)=0
          Do i=1,nRoots
             RootMap(i)=i
          End Do
