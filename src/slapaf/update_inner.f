@@ -10,35 +10,25 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Update_inner(
-     &                     kIter,nQQ,qInt,Shift,
-     &                     Beta,Beta_Disp,
-     &                     Step_Trunc,
-     &                     nWndw,
-     &                     mIter,
-     &                     Kriging_Hessian,qBeta,iOpt_RS,
-     &                     First_MicroIteration,Iter,qBeta_Disp)
+      Subroutine Update_inner(kIter,Beta,Beta_Disp,Step_Trunc,nWndw,
+     &                        mIter,Kriging_Hessian,qBeta,iOpt_RS,
+     &                        First_MicroIteration,Iter,qBeta_Disp)
 ************************************************************************
 *     Object: to update coordinates                                    *
 *                                                                      *
 *    Input:                                                            *
 *      kIter          : iteration counter                              *
-*      nQQ         : total number of internal coordinates           *
-*      qInt(*,kIter)  : the internal coordinates                       *
-*      Shift(*,kIter) : the shift of the internal coordinates          *
 *      Beta           : damping factor step length                     *
 *      Beta_Disp      : damping factor variance                        *
 *                                                                      *
 *    OutPut:                                                           *
-*      qInt(*,kIter+1): the internal coordinates to be used in the     *
-*                       next iteration                                 *
 *      Step_Trunc     : character label to denote truncation type      *
 *                                                                      *
 *                                                                      *
 *     Author: Roland Lindh                                             *
 *             2000                                                     *
 ************************************************************************
-      use Slapaf_info, only: GNrm, Lambda, Energy, dqInt,
+      use Slapaf_info, only: GNrm, Lambda, Energy, qInt, dqInt, Shift,
      &                       BMx, Degen, nStab, Smmtrc, Lbl
       use Slapaf_Parameters, only: iRow_c, iInt, nFix, iOptH,
      &                             HrmFrq_Show, Curvilinear, FindTS,
@@ -49,7 +39,6 @@
 #include "real.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
-      Real*8 qInt(nQQ,kIter+1), Shift(nQQ,kIter)
       Logical Found, Kriging_Hessian, First_MicroIteration
       Character Step_Trunc, File1*8, File2*8, Step_Trunc_
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:),
@@ -77,6 +66,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      nQQ = SIZE(qInt,1)
       nsAtom=SIZE(Degen,2)
 *                                                                      *
 ************************************************************************

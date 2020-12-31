@@ -18,7 +18,6 @@
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-#include "print.fh"
       Real*8 Coor(3,nsAtom)
       Character(LEN=100), External:: Get_SuperName
       Integer, Allocatable:: TabB(:,:), TabA(:,:,:), TabAI(:,:), AN(:)
@@ -49,8 +48,6 @@
 ************************************************************************
 *                                                                      *
       nQQ = 0
-      iRout=133
-      iPrint=nPrint(iRout)
 *
       Lu=6
 *                                                                      *
@@ -242,7 +239,7 @@
       If (Bset) Then
          Call mma_allocate(Shift,nQQ,MaxItr,Label='Shift')
          Shift(:,:)=Zero
-         Call ShfANM(nQQ,nIter,qInt,Shift,iPrint)
+         Call ShfANM(nQQ,nIter,qInt,Shift)
       End If
 *                                                                      *
 ************************************************************************
@@ -286,13 +283,13 @@
 *                                                                      *
 *.... Print out the values of the internal coordinates
 *
-      If (iPrint.ge.99) Then
-         Write (6,*)
-         Write (6,*) ' Internal coordinates'
-         Write (6,*)
-         Write (6,'(1X,A,2X,F10.4)')
+#ifdef _DEBUGPRINT_
+      Write (6,*)
+      Write (6,*) ' Internal coordinates'
+      Write (6,*)
+      Write (6,'(1X,A,2X,F10.4)')
      &         (Lbl(iInter),qInt(iInter,nIter),iInter=1,nQQ)
-      End If
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *

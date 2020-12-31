@@ -195,9 +195,9 @@
 *        Update geometry
 *
          If (Kriging .and. Iter.ge.nspAI) Then
-            Call Update_Kriging(Iter,nQQ,Step_Trunc,nWndw)
+            Call Update_Kriging(Step_Trunc,nWndw)
          Else
-            Call Update_sl(Iter,NmIter,nQQ,Step_Trunc,nWndw,kIter)
+            Call Update_sl(Step_Trunc,nWndw,kIter)
          End If
 *
 #ifdef UNIT_MM
@@ -275,7 +275,9 @@
 *-----Write information to files
 *
       Numerical = (lNmHss.or.Allocated(mRowH)) .and. iter.le.NmIter
+
       Call DstInf(iStop,Just_Frequencies)
+
       If (lCtoF) Call Def_CtoF(.True.)
       If (.Not.User_Def .and.
      &   ((lNmHss.and.iter.ge.NmIter).or..Not.lNmHss)) Call cp_SpcInt()

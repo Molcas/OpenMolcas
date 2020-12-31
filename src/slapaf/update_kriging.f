@@ -11,7 +11,7 @@
 * Copyright (C) 2019,2020, Roland Lindh                                *
 *               2020, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      Subroutine Update_kriging(iter,nQQ,Step_Trunc,nWndw)
+      Subroutine Update_kriging(Step_Trunc,nWndw)
 ************************************************************************
 *                                                                      *
 *     Object: to update coordinates                                    *
@@ -24,10 +24,9 @@
      &                       Lbl
       use Slapaf_Parameters, only: UpMeth, Beta, Beta_Disp, GrdLbl,
      &                             GrdMax, E_Delta, ThrEne, ThrGrd,
-     &                             nLambda
+     &                             nLambda, iter
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "print.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
       Real*8 dEner
@@ -53,8 +52,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout=153
-      iPrint=nPrint(iRout)
+      nQQ = SIZE(qInt,1)
 *
 #ifdef _DEBUGPRINT_
       Call RecPrt('Update_Kriging: qInt',' ',qInt,nQQ,Iter)
@@ -198,14 +196,11 @@
 *
          First_MicroIteration=iterAI.eq.iter
          nWndw_=nWndw/2 + (iterAI-iter)
-         Call Update_inner(
-     &                   iterAI,nQQ,qInt,Shift,
-     &                   Beta_,Beta_Disp_,
-     &                   Step_Trunc,
-     &                   nWndw_,
-     &                   kIter,
-     &                   Kriging_Hessian,qBeta,iOpt_RS,
-     &                   First_MicroIteration,iter,qBeta_Disp)
+
+         Call Update_inner(iterAI,Beta_,Beta_Disp_,Step_Trunc,nWndw_,
+     &                     kIter,Kriging_Hessian,qBeta,iOpt_RS,
+     &                      First_MicroIteration,iter,qBeta_Disp)
+
 #ifdef _DEBUGPRINT_
          Write (6,*) 'After Update_inner: Step_Trunc',Step_Trunc
          Call RecPrt('New Coord',' ',qInt,nQQ,iterAI+1)
@@ -472,14 +467,12 @@
 *                                                                      *
 *-----Write out the shift in internal coordinate basis.
 *
-      If (iPrint.ge.99) Then
-         Call RecPrt(
-     &      'Shifts in internal coordinate basis / au or rad',
-     &      ' ',Shift,nQQ,Iter)
-         Call RecPrt(
-     &      'qInt in internal coordinate basis / au or rad',
-     &      ' ',qInt,nQQ,Iter+1)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Shifts in internal coordinate basis / au or rad',
+     &            ' ',Shift,nQQ,Iter)
+      Call RecPrt('qInt in internal coordinate basis / au or rad',
+     &            ' ',qInt,nQQ,Iter+1)
+#endif
 *
 *---- Remove unneeded fields from the runfile
       Dummy(1)=-Zero

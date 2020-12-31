@@ -10,16 +10,10 @@
 *                                                                      *
 * Copyright (C) 2000, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Update_sl(iter,NmIter,nQQ,Step_Trunc,nWndw,kIter)
+      Subroutine Update_sl(Step_Trunc,nWndw,kIter)
 ************************************************************************
 *                                                                      *
 *     Object: to update coordinates                                    *
-*                                                                      *
-*    Input:                                                            *
-*      iter           : iteration counter                              *
-*      NmIter         : number of iteration in numerical approach      *
-*      nQQ         : total number of internal coordinates           *
-*      Beta           : damping factor                                 *
 *                                                                      *
 *    OutPut:                                                           *
 *      Step_Trunc     : character label to denote truncation type      *
@@ -29,11 +23,10 @@
 *             2000                                                     *
 ************************************************************************
       use Slapaf_Info, only: Shift, qInt
-      use Slapaf_Parameters, only: Beta, Beta_disp
+      use Slapaf_Parameters, only: Beta, Beta_disp, NmIter, iter
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-#include "print.fh"
 #include "Molcas.fh"
       Character Step_Trunc
       Real*8 Dummy(1)
@@ -43,8 +36,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout=153
-      iPrint=nPrint(iRout)
+      nQQ = SIZE(qInt,1)
 *
 #ifdef _DEBUGPRINT_
       Call RecPrt('Update_sl: qInt',' ',qInt,nQQ,Iter)
@@ -87,9 +79,9 @@
          qInt(:,:)=Zero
          qInt(:,1)=t_qInt(:,1)
 *
-         Call Update_inner(iter_,nQQ,qInt,Shift,Beta,Beta_Disp,
-     &                    Step_Trunc,nWndw,kIter,Kriging_Hessian,qBeta,
-     &                    iOpt_RS,.True.,iter_,qBeta_Disp)
+         Call Update_inner(iter_,Beta,Beta_Disp,Step_Trunc,nWndw,
+     &                     kIter,Kriging_Hessian,qBeta,
+     &                     iOpt_RS,.True.,iter_,qBeta_Disp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -102,7 +94,6 @@
          qInt(:,iter+1)=tmp(:)
          Shift(:,:)=t_Shift(:,:)
          Shift(:,iter)=tmp(:)-qInt(:,iter)
-
 *
          Call mma_deallocate(tmp)
          Call mma_deallocate(t_qInt)
@@ -116,8 +107,8 @@
 *                                                                      *
 *        Conventional optimization.
 *
-         Call Update_inner(iter,nQQ,qInt,Shift,Beta,Beta_Disp,
-     &                     Step_Trunc,nWndw,kIter,Kriging_Hessian,qBeta,
+         Call Update_inner(iter,Beta,Beta_Disp,Step_Trunc,nWndw,kIter,
+     &                     Kriging_Hessian,qBeta,
      &                     iOpt_RS,.True.,iter,qBeta_Disp)
 *                                                                      *
 ************************************************************************
