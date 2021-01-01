@@ -1,4 +1,4 @@
-o**********************************************************************
+************************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
