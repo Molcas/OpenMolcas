@@ -57,7 +57,6 @@
             If (iT.ne.jT) Then !
              indexC=indexc+1 !
              Index1=ipMat(iSym,jSym)+(jBas-1)*nOrb(iSym)+iBas-1 !
-             Index2=ipMat(jSym,iSym)+(iBas-1)*nOrb(jSym)+jBas-1 !
              ArrayOut(IndexC)=ArrayIn(index1) !
             End If !
            Else

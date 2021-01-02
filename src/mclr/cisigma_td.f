@@ -220,4 +220,7 @@ C.......... The operator is not sym --> transpose integrals! NT.ne.S
 *                                                                      *
 *
        Return
+#ifdef _WARNING_WORKAROUND_
+       If (.False.) Call Unused_integer(irc)
+#endif
        End

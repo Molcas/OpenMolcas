@@ -58,7 +58,6 @@ c Avoid unused argument warnings
       NDIF0 = 0
       NDIF1 = 0
       NDIF2 = 0
-      NMAX = 0
 *. Largest configuration block possible
       MXCSFC = 0
       DO 10 ITYP = 1, NTYP

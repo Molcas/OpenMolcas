@@ -113,14 +113,14 @@ c for RHF we will not use nOccAuf_ab
       If (Teee) then
 *
          UHF_occ=3.0d0-UHF_Size
-#ifdef _DEBUGPRINT_
          mD = 2/nD
          Do iD = 1, nD
             eferm=FermiPop(EOr(1,iD),Occup(1,iD),nOrbAS,RTemp,
      &                     nAuf(iD)*mD,UHF_occ)
+#ifdef _DEBUGPRINT_
             Write (6,'(A,G20.10)')'         E(Fermi)=',eferm
-         End Do
 #endif
+         End Do
 *
          iOrbAS=0
          Do iSym = 1, nSym
@@ -194,6 +194,9 @@ c for RHF we will not use nOccAuf_ab
       Call mma_deallocate(Map)
 *
       Return
+#ifdef _WARNING_WORKAROUND_
+      IF (.False.) Call Unused_real(eferm)
+#endif
       End
 ************************************************************************
 *                                                                      *

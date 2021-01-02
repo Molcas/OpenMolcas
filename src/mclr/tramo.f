@@ -135,8 +135,6 @@ c Avoid unused argument warnings
 *    &      nAR*(nAP*nBQ*nBS+nAQ*nBP*nBS),
 *    &      NAR*nAS*nBQ*nBP)
 *
-*     We wont manage it with less than this
-      nLimit=Max(nAP*nBQ+nAQ*nBP,NAR*nAS)
       If (nBuf*iMax+NOUT.le.MemXX) Then
          Incore=0 ! We can do the calculation totally in core
       Else
@@ -446,8 +444,6 @@ c Avoid unused argument warnings
       IAD2=0
       IAD3=0
       IVX=0
-      ii3=0
-      ii2=0
       DO 125 NS=1,nAS
         nr2=(NS-1)*NBR*NBP*NAQ
         nr3=(NS-1)*nBR*NBQ*NAP
@@ -466,7 +462,6 @@ c Avoid unused argument warnings
          IF(INCORE.EQ.1) THEN
            ipq=0
            MemInt=((nBPQ-1)/iMax+1)*iMax
-           MemY=MemXX-MemInt
            ip2=1
            ip5=ip2+((nBPQ-1)/iMax+1)*iMax
            ipX=ip5+iMax+1
@@ -611,7 +606,6 @@ c Avoid unused argument warnings
 *
          IF(INCORE.EQ.1) THEN
            MemInt=((nBPQ-1)/iMax+1)*iMax
-           MemY=MemXX-MemInt
            ip2=1
            ip3=ip2
            ip5=ip3+((nBPQ-1)/iMax+1)*iMax

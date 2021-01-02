@@ -20,7 +20,6 @@
       dimension ismb1(8)
       data ismb1/3,8,34,35,40,44,66,76/
 
-      iorb=lract
       lpnew=0
       do iactploop=1,mh
         lphead=lp_head(iactploop)
@@ -42,7 +41,6 @@
             lpnextrtail=jj_sub(irstep,lprtail)
             if ( lpnextrtail .eq. 0 ) cycle
             ind0=(idb+2)*16+(ilstep-1)*4+irstep
-            jbl=jb(lpltail)
             jbr=jb(lprtail)
             do ni=1,8
               if(ind0.ne.ismb1(ni)) cycle
@@ -68,6 +66,9 @@
       enddo
       mh=lpnew
       call change_vplp_pointer_arrays()
+      return
+! Avoid unused argument warnings
+      if (.false.) call Unused_integer(lract)
       end
 
       subroutine link_b2_at_given_orb(mh,lract)        !b^r:lstep>rstep
@@ -77,7 +78,6 @@
       dimension ismb2(8)
       data ismb2/5,15,37,41,46,47,73,78/
       logical logic_plbr
-      iorb=lract
       lpnew=0
       do iactploop=1,mh
         logic_plbr=logic_br(iactploop)
@@ -101,7 +101,6 @@
             lpnextrtail=jj_sub(irstep,lprtail)
             if ( lpnextrtail .eq. 0 ) cycle
             ind0=(idb+2)*16+(ilstep-1)*4+irstep
-            jbl=jb(lpltail)
             jbr=jb(lprtail)
             do ni=1,8
               if(ind0.ne.ismb2(ni)) cycle
@@ -131,6 +130,9 @@
       enddo
       mh=lpnew
       call change_vplp_pointer_arrays()
+      return
+! Avoid unused argument warnings
+      if (.false.) call Unused_integer(lract)
       end
 
       subroutine link_b3_at_given_orb(mh,lract)      !b&l:lstep>rstep
@@ -140,7 +142,6 @@
       dimension ismb3(8)
       data ismb3/21,25,30,31,53,57,62,63/
 
-      iorb=lract
       lpnew=0
       do iactploop=1,mh
         lphead=lp_head(iactploop)
@@ -162,7 +163,6 @@
             lpnextrtail=jj_sub(irstep,lprtail)
             if ( lpnextrtail .eq. 0 ) cycle
             ind0=(idb+2)*16+(ilstep-1)*4+irstep
-            jbl=jb(lpltail)
             jbr=jb(lprtail)
             do ni=1,8
               if(ind0.ne.ismb3(ni)) cycle
@@ -188,6 +188,9 @@
       enddo
       mh=lpnew
       call change_vplp_pointer_arrays()
+      return
+! Avoid unused argument warnings
+      if (.false.) call Unused_integer(lract)
       end
 
       subroutine link_b4_at_given_orb(mh,lract)         !b&r:lstep<rstep
@@ -197,7 +200,6 @@
       dimension ismb4(8)
       data ismb4/18,19,24,28,50,51,56,60/
 
-      iorb=lract
       lpnew=0
       do iactploop=1,mh
         lphead=lp_head(iactploop)
@@ -219,7 +221,6 @@
             lpnextrtail=jj_sub(irstep,lprtail)
             if ( lpnextrtail .eq. 0 ) cycle
             ind0=(idb+2)*16+(ilstep-1)*4+irstep
-            jbl=jb(lpltail)
             jbr=jb(lprtail)
             do ni=1,8
             if(ind0.ne.ismb4(ni)) cycle
@@ -245,6 +246,9 @@
       enddo
       mh=lpnew
       call change_vplp_pointer_arrays()
+      return
+! Avoid unused argument warnings
+      if (.false.) call Unused_integer(lract)
       end
 
       subroutine link_d10_at_given_orb(mh,lract)
@@ -254,7 +258,6 @@
       dimension ismd10(2)
       data ismd10/29,61/
 
-      iorb=lract
       lpnew=0
       do iactploop=1,mh
         lphead=lp_head(iactploop)
@@ -272,7 +275,6 @@
             lpnextrtail=jj_sub(irstep,lprtail)
               if ( lpnextrtail .eq. 0 ) cycle
             ind0=(idb+2)*16+(ilstep-1)*4+irstep
-            jbl=jb(lpltail)
             jbr=jb(lprtail)
             do ni=1,2
               if(ind0.ne.ismd10(ni)) cycle
@@ -296,6 +298,9 @@
       enddo
       mh=lpnew
       call change_vplp_pointer_arrays()
+      return
+! Avoid unused argument warnings
+      if (.false.) call Unused_integer(lract)
       end
 
       subroutine link_c2_to_given_orb(mh,lrsta,lrend)
@@ -392,7 +397,7 @@ c        logic_br(mh)=.true
         vplp_w0(mh)=1.0d0
         vplp_w1(mh)=1.0d0
       endif
-       if(norb_act.eq.0)  return
+      if(norb_act.eq.0)  return
       do iorb=lrsta,lrend
         lpnew=0
         do iactploop=1,mh
@@ -409,7 +414,7 @@ c        logic_br(mh)=.true
             ilc=istep_occ(ilstep)
             lpnextltail=jjl_sub(ilstep,lpltail)
             if ( lpnextltail .eq. 0 ) cycle
-            do 100 irstep=1,4
+            do irstep=1,4
               irc=istep_occ(irstep)
               if(ilc.ne.irc) cycle
               lpnextrtail=jj_sub(irstep,lprtail)
@@ -426,22 +431,23 @@ c        logic_br(mh)=.true
                 lpnew_ltail(lpnew)=lpnextltail
                 lpnew_rtail(lpnew)=lpnextrtail
                 lplwei=lplwei0
-               lprwei=lprwei0
+                lprwei=lprwei0
                 if(ilstep.ne.1)lplwei=lplwei+iyl(ilstep,lpltail)
                 if(irstep.ne.1)lprwei=lprwei+iy(irstep,lprtail)
                 lpnew_lwei(lpnew)=lplwei
                 lpnew_rwei(lpnew)=lprwei
                 vplpnew_w0(lpnew)=w0*w
                 vplpnew_w1(lpnew)=w1*ww
-            if (vplpnew_w0(lpnew).eq.0.and.vplpnew_w1(lpnew).eq.0)then
-                 lpnew=lpnew-1
-                 cycle
-            endif
-                 goto 100
-             enddo
-100          continue
-           enddo
-         enddo
+                if (vplpnew_w0(lpnew).eq.0.and.vplpnew_w1(lpnew).eq.0)
+     &            then
+                  lpnew=lpnew-1
+                  cycle
+                endif
+                exit
+              enddo
+            enddo
+          enddo
+        enddo
         mh=lpnew
         call change_vplp_pointer_arrays()
       enddo
@@ -466,7 +472,6 @@ c        logic_br(mh)=.true
       if(norb_act.eq.0)  return
       do iorb=lrsta,lrend
         lpnew=0
-        ipnewcoe=1
         do iactploop=1,mh
           lphead=lp_head(iactploop)
           lpltail=lp_ltail(iactploop)
@@ -483,7 +488,7 @@ c         iposib=jb(lprtail)*80
             ilc=istep_occ(ilstep)
             lpnextltail=jjl_sub(ilstep,lpltail)
             if ( lpnextltail .eq. 0 ) cycle
-            do 100 irstep=1,4
+            do irstep=1,4
               irc=istep_occ(irstep)
               if(ilc.ne.irc) cycle
               lpnextrtail=jj_sub(irstep,lprtail)
@@ -497,24 +502,25 @@ c         iposib=jb(lprtail)*80
                 lpnew_ltail(lpnew)=lpnextltail
                 lpnew_rtail(lpnew)=lpnextrtail
                 lplwei=lplwei0
-               lprwei=lprwei0
+                lprwei=lprwei0
                 if(ilstep.ne.1)lplwei=lplwei+iyl(ilstep,lpltail)
                 if(irstep.ne.1)lprwei=lprwei+iy(irstep,lprtail)
                 lpnew_lwei(lpnew)=lplwei
                 lpnew_rwei(lpnew)=lprwei
                 vplpnew_w0(lpnew)=w0*w
                 vplpnew_w1(lpnew)=w1*ww
-             if ( vplpnew_w0(lpnew).eq.0.and.vplpnew_w1(lpnew).eq.0)then
+                if ( vplpnew_w0(lpnew).eq.0.and.vplpnew_w1(lpnew).eq.0)
+     &            then
                   lpnew=lpnew-1
                   cycle
-             endif
+                endif
                 do lr=norb_dz+1,iorb-1
                   lpnew_coe(lr,lpnew)=lp_coe(lr,iactploop)
                 enddo
                 lpnew_coe(iorb,lpnew)=k_coe(jbl,jbr,ilstep,irstep)
-                goto 100
+                exit
+              enddo
             enddo
-100         continue
           enddo
         enddo
         mh=lpnew
@@ -539,8 +545,6 @@ c         iposib=jb(lprtail)*80
         jdr=4
         jr=jj_sub(jdr,jp)
         if(jr.eq.0) cycle
-        jbl=jb(jl)
-        jbr=jb(jr)
         ind0=32+(jdl-1)*4+jdr
 c     start '^'
         if(ind0.ne.ishdrr) cycle
@@ -666,7 +670,6 @@ c     start '^'
       dimension isla2(4)
       data isla2/21,31,57,62/
 
-      iorb=lract
       lpnew=0
       do iactploop=1,mh
         lphead=lp_head(iactploop)
@@ -693,7 +696,6 @@ c     start '^'
             if (jm(lpnextltail).ne.jm(lpnextrtail)) cycle
 
             ind0=(idb+2)*16+(ilstep-1)*4+irstep
-            jbl=jb(lpltail)
             jbr=jb(lprtail)
             do ni=1,4
               if(ind0.ne.isla2(ni)) cycle
@@ -719,6 +721,9 @@ c     start '^'
       enddo
       mh=lpnew
 c      call change_vplp_pointer_arrays()
+      return
+! Avoid unused argument warnings
+      if (.false.) call Unused_integer(lract)
       end
 
       subroutine tail_al_at_given_orb(mh,lract)       !a^l:lstep<rstep
@@ -728,7 +733,6 @@ c      call change_vplp_pointer_arrays()
       dimension isla1(4)
       data isla1/19,24,50,60/
 
-      iorb=lract
       lpnew=0
       do iactploop=1,mh
         lphead=lp_head(iactploop)
@@ -755,7 +759,6 @@ c      call change_vplp_pointer_arrays()
             if (jm(lpnextltail).ne.jm(lpnextrtail)) cycle
 
             ind0=(idb+2)*16+(ilstep-1)*4+irstep
-            jbl=jb(lpltail)
             jbr=jb(lprtail)
             do ni=1,4
               if(ind0.ne.isla1(ni)) cycle
@@ -781,6 +784,9 @@ c      call change_vplp_pointer_arrays()
       enddo
       mh=lpnew
 c      call change_vplp_pointer_arrays()
+      return
+! Avoid unused argument warnings
+      if (.false.) call Unused_integer(lract)
       end
 
       subroutine tail_drr_at_given_orb(mh,lract)       !d^r^r(3,0):locc=
@@ -789,7 +795,6 @@ c      call change_vplp_pointer_arrays()
 #include "pl_structure_h.fh"
       data isld6/45/
 
-      iorb=lract
       lpnew=0
       do iactploop=1,mh
         lphead=lp_head(iactploop)
@@ -806,7 +811,6 @@ c      call change_vplp_pointer_arrays()
         if ( lpnextltail .eq. 0 ) cycle
         irstep=1
         irc=istep_occ(irstep)
-        idocc=abs(ilc-irc)
         lpnextrtail=jj_sub(irstep,lprtail)
         if ( lpnextrtail .eq. 0 ) cycle
 
@@ -815,8 +819,6 @@ c      call change_vplp_pointer_arrays()
             if (jm(lpnextltail).ne.jm(lpnextrtail)) cycle
 
             ind0=(idb+2)*16+(ilstep-1)*4+irstep
-            jbl=jb(lpltail)
-            jbr=jb(lprtail)
             if(ind0.ne.isld6) cycle
             call stermld6(w,ww)
             lpnew=lpnew+1
@@ -837,6 +839,9 @@ c      call change_vplp_pointer_arrays()
       enddo
       mh=lpnew
 c      call change_vplp_pointer_arrays()
+      return
+! Avoid unused argument warnings
+      if (.false.) call Unused_integer(lract)
       end
 
       subroutine tail_drl_at_given_orb(mh,lract)       !d^r^l:locc=rocc
@@ -846,7 +851,6 @@ c      call change_vplp_pointer_arrays()
       dimension isld2(5)
       data isld2/7,38,43,48,74/
         logical logic_plbr
-      iorb=lract
       lpnew=0
       do iactploop=1,mh
         lphead=lp_head(iactploop)
@@ -876,7 +880,6 @@ c      call change_vplp_pointer_arrays()
             if (jm(lpnextltail).ne.jm(lpnextrtail)) cycle
 
             ind0=(idb+2)*16+(ilstep-1)*4+irstep
-            jbl=jb(lpltail)
             jbr=jb(lprtail)
             do ni=1,5
               if(ind0.ne.isld2(ni)) cycle
@@ -902,4 +905,7 @@ c      call change_vplp_pointer_arrays()
       enddo
       mh=lpnew
 c      call change_vplp_pointer_arrays()
+      return
+! Avoid unused argument warnings
+      if (.false.) call Unused_integer(lract)
       end

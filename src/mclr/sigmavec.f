@@ -53,9 +53,8 @@
 
       LUC=0
       LUHC=0
-      iprnt=200
       ZERO = 0.0D0
-      IDUM = 0
+      IDUMMY(1) = 0
       NSDET = NINT(XISPSM(ISSM,ISSPC))
 *
 *. The story of MV7 : I started out from nothing, absolutely zero,

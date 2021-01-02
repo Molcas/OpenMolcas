@@ -19,7 +19,7 @@
       subroutine dbl_space_loop_ijkk_sgezero_g()
 #include "drt_h.fh"
 #include "intsort_h.fh"
-      data dzero/0.d0/
+c      data dzero/0.d0/
 c =============================  g1,2,4,6,7,8 ==========================
 c       zz=' doub_800_v'
       dzero=0.0d0
@@ -1287,7 +1287,7 @@ c======= end g5,40 =================================
 c =============================  g11,12  == (v-s)=======================
 c =============================  g41,42  == (v-t)=======================
       wls1=0.d0
-      wls2=0.d0
+c      wls2=0.d0
       wls1_1=0.d0
       wls1_2=0.d0
       wls2_1=0.d0
@@ -1297,7 +1297,6 @@ c =============================  g41,42  == (v-t)=======================
          iml=lsm_inn(lrl)
          do 20 lrk=lrl+1,norb_dz-2
            imk=lsm_inn(lrk)
-           nkl=lrl+ngw2(lrk)
            do 30 lrj=lrk+1,norb_dz-1
             imj=lsm_inn(lrj)
              do 40 lri=norb_dz,lrj+1,-1

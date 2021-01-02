@@ -102,7 +102,6 @@
       DO ISYM=1,mxsym
         NAO=NASH(ISYM)
         IF(NAO.GT.1) THEN
-          NRAS1=NRS1(ISYM)
           DO NT=2,NAO
             DO NU=1,NT-1
               ITU=ITU+1

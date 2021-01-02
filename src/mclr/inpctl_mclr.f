@@ -184,4 +184,10 @@ C        Call RecPrt('CI vector',' ',W(ipcii)%Vec,1,nConf)
 ************************************************************************
 *                                                                      *
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Then
+         Call Unused_integer(irc)
+         Call Unused_logical(ldisk)
+      End If
+#endif
       End

@@ -17,8 +17,6 @@
 !     :    ,jv,jd(8),jt(8),js(8)
 !      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-      nst=norb_all
-      ndy=norb_ext
 c      do lr0=2,norb_all
 c        do lr=1,lr0-1
 c          vdint(lr,lr0)=voint(lr0,lr)
@@ -67,7 +65,6 @@ c     endif
           if(ndim .eq. 0) cycle
           call diagonal_act_d_g()
           call diagonal_act_c_g()
-          ista=iw_sta(jpad,ipae)+1
         enddo
       enddo
 
@@ -138,7 +135,6 @@ c      write(*,*)  jpad,jpae
         return
       endif
       mp=0
-      nsum=0
 c 520
           mh=0
           me=0
@@ -256,7 +252,6 @@ c     write(*,*)'               ***** start h-diaelm *****'
 c      write(*,*)   '   diagonal_act_d:',jpad,ipae
       allocate(te(maxpl),tee(maxpl),jpe(maxpl),jee(maxpl),jwe(maxpl))
       ndr=0
-      nsum=0
       do lr=norb_dz+1,norb_inn
         jp0=no(lr-1)+1
         jp1=no(lr)
@@ -296,7 +291,6 @@ c 520
 c     start '^'
           do idl=1,4
             if(jj_sub(idl,jp).eq.0) cycle
-            idr=idl
             jbl=jb(jp)
             ind1=idl-1
             if(ind1.eq.0) cycle
@@ -1267,8 +1261,8 @@ c         call prodel(6,wl,iwd,iwa,iwe)
           do lb=lbsta,lbend
             lrb=norb_all-lb+1
             iwe=iwe+1
-            volalb=0.d0
-            vd2lalb=0.d0
+c            volalb=0.d0
+c            vd2lalb=0.d0
             vlop0=-vl0*vsq2
 
            do lr=1,norb_dz
@@ -1376,8 +1370,8 @@ c      the 8 should be changed to ng_sm
           do lb=lbsta,lbend
             lrb=norb_all-lb+1
             iwe=iwe+1
-            volalb=0.d0
-            vd2lalb=0.d0
+c            volalb=0.d0
+c            vd2lalb=0.d0
 
             wg14 =-vl0*vsq2
 
@@ -1443,7 +1437,7 @@ c         call prodel(6,wl,iwd,iwa,iwe)
            lra=norb_all-la+1
 
            iwe=iwe+1
-           vovdla=0.d0
+c          vovdla=0.d0
 
            wg13 =-vl0*dsq2
 
@@ -2324,8 +2318,6 @@ c ------------- end of .......h_delm --------------
 !     :    ,jv,jd(8),jt(8),js(8)
 !      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-      character*10 cc
-        cc=' out_800_d'
         jws0=0
 c      do mra=1,8
        do mra=1,ng_sm
@@ -2429,7 +2421,7 @@ c           call prodel(2,wlt,0,ipat,jwt)
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
       common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
 
-      ndr=88
+!      ndr=88
       goto(100,200,300,400,500,600),idb
 ! in dbl_space
 100   ipae=mg2
@@ -2585,7 +2577,7 @@ c          vector1(mm)=vector1(mm)+wl
 !      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
 c      ndr=88
-       ndr=6
+c      ndr=6
       goto(100,200,300,400,500,600),idb
 ! in dbl_space
 100   ipae=mg2

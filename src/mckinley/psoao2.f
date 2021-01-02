@@ -234,7 +234,6 @@ c     iPrint = nPrint(iRout)
          nTmp2 = 0
       End If
       MemAux = MemPSO + MemScr + nFac*S%nDim + nTmp2 + 4
-      MemB_AUX=MemAux
       If (Mem1+1+MemAux.gt.Mem0) Then
          MaxReq=Max(MaxReq,Mem1+1+MemAux-Mem0)
          QjPrim = .False.
@@ -401,6 +400,5 @@ c     iPrint = nPrint(iRout)
          Mem4 = Mem2
       End If
 *
-      MemSum=Mem1+Mem2+Mem3+MemX+MemFin
       Return
       End

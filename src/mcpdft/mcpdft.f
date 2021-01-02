@@ -137,7 +137,7 @@
 * Set status line for monitor:
       Call StatusLine('MCPDFT:',' Just started.')
 * Set the return code(s)
-      CASDFT_E = 0d0
+      !CASDFT_E = 0d0
       ITERM  = 0
       IRETURN=_RC_ALL_IS_WELL_
 

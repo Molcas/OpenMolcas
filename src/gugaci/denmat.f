@@ -24,14 +24,13 @@ c     character*256 filename
       common /ncprhf/ nrot,nxyz,ndbl,next,nsolv,nres,n_frz,n_all
       parameter (htoklm=627.50956d+00,zero=0.0d+00)
 c     dimension x1e(50000)
-      logical logic_mulroot
+!      logical logic_mulroot
 c================================================
 c    the main subroutine for ci gradient calculations.
 c    ican_a and ican_b save canonical order.
 c    e(*) save the scf orbital energies.
 c    xlgrn(*) save the lagrangian matrix.
 
-      sc0=c_time()
 c-----------------------------------------------------
 c     initialize the integral index nxo by canonical order
       call init_canonical
@@ -43,13 +42,12 @@ c     calculate the ci reduced one and two electron density matrix
       ncount1=ican_a(norb_all)+norb_all
       ncount2=ican_b(ncount1)+ncount1
 
-      logic_mulroot=.false.
-      ndim=mroot*nci_dim
-      if(ndim.le.max_vector) logic_mulroot=.true.
+!      logic_mulroot=.false.
+!      ndim=mroot*nci_dim
+!      if(ndim.le.max_vector) logic_mulroot=.true.
 
       neigen=mroot
       vector1(1:nci_dim)=zero
-      norb2=norb_all*(norb_all+1)/2
 
 ! calculated ci density matrix
 ! need debug here, density matrix is saved in vector2, it is too large t
@@ -80,7 +78,7 @@ c should we calculated two-electronic density matrix ?
 #include "intsort_h.fh"
 #include "files_gugaci.fh"
 #include "grad_h.fh"
-      dimension lsmorb(max_orb),noidx(8),idisk_array(max_root+1)
+      dimension noidx(8),idisk_array(max_root+1)
       REAL*8, pointer :: x(:)
 !      dimension x(1024*1024)
       dimension xfock(max_orb*(max_orb+1)/2)
@@ -103,7 +101,6 @@ c should we calculated two-electronic density matrix ?
         noidx(i)=nidx
         nidx=nidx+nism
         nintone=nintone+nsmint
-        lsmorb(ni+1:nidx)=i
         ni=nidx
       enddo
 
@@ -175,18 +172,15 @@ c write one electron fock matrix into voint
               if(nspqr.ne.nss) cycle
               nos=norb(nss)
 
-              ityp=0
               if(nsr.eq.nss) then
                 nbpq=(nop+nop**2)/2
                 nbrs=(nos+nos**2)/2
                 if(nsp.eq.nsr) then
 c  (ii|ii) type 1 int
                   nintb=(nbpq+nbpq**2)/2
-                  ityp=1
                 else
 c  (ii|jj) type 3 int
                   nintb=nbpq*nbrs
-                  ityp=3
                 endif
               else
                 nbpq=nop*noq
@@ -194,11 +188,9 @@ c  (ii|jj) type 3 int
                 if(nsp.eq.nsr) then
 c (ij|ij) type 2 int
                   nintb=(nbpq+nbpq**2)/2
-                  ityp=2
                 else
 c (ij|kl) type 4 int
                   nintb=nbpq*nbrs
-                  ityp=4
                 endif
               endif
 

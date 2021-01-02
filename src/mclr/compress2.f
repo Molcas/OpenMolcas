@@ -69,35 +69,35 @@
                If (iBas.le.nIsh(isym)) Then
                   iT=0
                   ij=0
-                  ji=j1
+*                 ji=j1
                Else If (iBas.le.nIsh(isym)+nRs1(isym)) Then
                   iT=1
                   ij=0
-                  ji=j1
+*                 ji=j1
                   If (it.gt.jt) Then
                      ij=i1
-                     ji=0
+*                    ji=0
                   End if
                Else If (iBas.le.nIsh(isym)+nRs2(isym)) Then
                   iT=2
                   ij=0
-                  ji=j1
+*                 ji=j1
                   If (it.gt.jt) Then
                      ij=i1
-                     ji=0
+*                    ji=0
                   End if
                Else If (iBas.le.nIsh(isym)+nRs3(isym)) Then
                   iT=3
                   ij=0
-                  ji=j1
+*                 ji=j1
                   If (it.gt.jt) Then
                      ij=i1
-                     ji=0
+*                    ji=0
                   End if
                Else
                  iT=4
                  ij=i1
-                 ji=0
+*                ji=0
                End If
 *                                                                      *
 ************************************************************************

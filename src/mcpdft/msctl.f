@@ -67,7 +67,7 @@
       integer ifocki,ifocka
       integer IADR19(1:30)
       integer LP,NQ,LQ,LPUVX
-      integer  LOEOTP,NACP
+      integer  LOEOTP
       integer jroot
       real*8,dimension(1:nroots) :: Energies
       integer count_tmp1,count_tmp2
@@ -435,7 +435,6 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
                     IADD=IADD+iAsh
                     End If
                     End Do
-          NACP=(NAC+NAC**2)/2
 
       do_pdftPot=.false.
       if(DoGradPDFT.and.jroot.eq.irlxroot) then
@@ -522,7 +521,6 @@ c**************Kinetic energy of active electrons*********
       EactK = dDot_(nTot1,Work(iTmpk),1,Work(iTmpa),1)
 
       EactN = dDot_(nTot1,Work(iTmpn),1,Work(iTmpa),1)
-      EFI = dDot_(nTot1,Work(iFockI),1,Work(iTmpa),1)
 c         call xflush(6)
       EMY  = PotNuc_Ref+Eone+0.5d0*Etwo
 

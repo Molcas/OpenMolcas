@@ -424,7 +424,7 @@ c================================================
 c lyb
 c     xlgrn(norb_all,norb_all) is the lagrange matrix.
 
-      norbf=n_frz+1
+c      norbf=n_frz+1
 c      norbf=1
 
       xlgrn(1:norb_all,1:norb_all)=0.0d0
@@ -512,10 +512,10 @@ c       write(2,'(a9,2i4,f18.10)') 'xlgrn_all',i,j,xlgrn(i,j)
 #include "grad_h.fh"
       common /scratch/ tmpdir,len_str
       character*256 tmpdir
-      character*256 filename
+!      character*256 filename
 
-      filename=tmpdir(1:len_str)//"/density"
-      len=len_str+8
+!      filename=tmpdir(1:len_str)//"/density"
+!      len=len_str+8
 ! Need debug
 !      open(nf22,file=filename(1:len),form='unformatted')
 
@@ -813,7 +813,7 @@ c
       common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
       common /scratch/ tmpdir,len_str
       character*256 tmpdir
-      character*256 filename
+!      character*256 filename
       dimension index_atom(3,numat*(numat+1)/2),ndi0(ndao),ndj0(ndao),
      :          ndk0(ndao),ndl0(ndao),daoint1(ndao)
       dimension dgxyz(3,numat),daoxyz(3,numat)
@@ -823,8 +823,8 @@ c
       npat=numat*(numat+1)/2
       index_atom(1:3,1:npat)=0
 
-      filename=tmpdir(1:len_str)//"/daoints"
-      len=len_str+8
+!      filename=tmpdir(1:len_str)//"/daoints"
+!      len=len_str+8
 
 !      open(40,file=filename(1:len),form='formatted')
 
@@ -926,7 +926,7 @@ c      enddo
 #include "grad_h.fh"
       common /scratch/ tmpdir,len_str
       character*256 tmpdir
-      character*256 filename
+!      character*256 filename
       common /lgrn/ xlgrn(max_orb,max_orb)
       common /iaib/ ican_a(max_orb),ican_b(mtmp+max_orb)
       common /vect/ e(max_orb),cf(max_orb,max_orb),naorbs
@@ -939,8 +939,8 @@ c      enddo
 
       dsaos(1:3,1:numat,1:naorbs*(naorbs+1)/2)=zero
 
-      filename=tmpdir(1:len_str)//"/dfock1"
-      len=len_str+7
+!      filename=tmpdir(1:len_str)//"/dfock1"
+!      len=len_str+7
 
 !      open(500,file=filename(1:len),form='unformatted')
 

@@ -42,9 +42,8 @@
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
       logic_dh=.true.
-      isma=imr
       lpok=jpadlr
-      jmlr=mul_tab(jml,jmr)
+c      jmlr=mul_tab(jml,jmr)
       goto(101,102,103,104,105,106,107,108,109,10,111,112,
      :     113,114,115,116,10,10,119,120,121,122,123,124,125,10),lpok
 !=======================================================================
@@ -311,19 +310,6 @@ c        enddo
       data one/1.0d0/dsq2/1.414213562373d0/vsq2/0.7071067811865d0/
 c      data dsq3/ 1.732050807569d0/
 c      write(6,*)'  sd_wyb'
-      w0_d25=vsq2
-      w0_d26=-one
-      w0_d27d=-vsq2
-      w0_d27v=-vsq2/2
-      w1_d27v=1.5d0*vsq2
-      w0_d28=-vsq2
-      w0_d29=-dsq2
-      w0_d30=-one
-      w0_d31=vsq2
-      w0_d32sd=vsq2/2
-      w1_d32sd=1.5d0*vsq2
-      w0_d32ds=-0.5d0
-      w1_d32ds=-1.5d0
 
       call external_space_plpmode_value_ds()
 
@@ -353,8 +339,7 @@ c        jmlr=mul_tab(jml,jmr)
 #include "lpextmode_h.fh"
 
       logic_dh=.true.
-      isma=mul_tab(iml,imr)
-      jmlr=mul_tab(jml,jmr)
+c      jmlr=mul_tab(jml,jmr)
       lpok=jpadlr
 !      goto(101,102,103,104,10,106,107,108,109,10,111,112,
 !     :     113,114,115,116,10,10,119,120,121,122,123,124,125,10),lpok
@@ -631,18 +616,6 @@ c        enddo
       data dsq3vsq2/1.224744871392d0/
 
 c      write(6,*)'  td_wyb'
-      w0_d43=dsq3vsq2
-      w0_d44d=-dsq3vsq2
-      w1_d44d=dzero
-      w0_d44v=-dsq3/(2*dsq2)
-      w1_d44v=w0_d44v
-      w0_d45=dzero
-      w1_d45=dsq3vsq2
-      w0_d46=dsq3vsq2
-      w0_d47td=-dsq3/(dsq2*2)
-      w1_d47td=-w0_d47td
-      w0_d47dt=-0.5d0
-      w1_d47dt=-w0_d47dt
       call external_space_plpmode_value_dt()
 
       idisk_lp=idisk_array(4)
@@ -672,7 +645,7 @@ c        jmlr=mul_tab(jml,jmr)
 
       logic_dh=.true.
       isma=mul_tab(iml,imr)
-      jmlr=mul_tab(jml,jmr)
+c      jmlr=mul_tab(jml,jmr)
       lpok=jpadlr
 !      goto(101,102,103,10,10,106,107,10,10,10,111,10,
 !     :     113,114,10,10,10,10,119,10,10,10,123,10,125,10),lpok

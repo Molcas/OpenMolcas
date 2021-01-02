@@ -46,8 +46,6 @@
 *
 * =====================================================================
 *
-      nDum=1
-      IIITEST = 1
       DO ITYP = 1, NSTTYP
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
 *.  Offsets for occupation of strings and reordering array
@@ -107,13 +105,11 @@ CMS: New array introduced according to Jeppes new strinfo representation
           NSTRIN = NSTFTP(ITYP)
           IF(ISTAC(ITYP,2).NE.0.AND.ISTAC(ITYP,1).NE.0) THEN
 *.creation on string allowed , use full orbital notation
-             LENGTH = NACOB*NSTRIN
              Call mma_deallocate(Str(ITYP)%STSTMI)
              Call mma_deallocate(Str(ITYP)%STSTMN)
           ELSE IF(ISTAC(ITYP,1).NE.0.AND.ISTAC(ITYP,2).EQ.0) THEN
 
 *. only annihilation allowed, use compact scheme
-             LENGTH = NELEC(ITYP)*NSTRIN
              Call mma_deallocate(Str(ITYP)%STSTMI)
              Call mma_deallocate(Str(ITYP)%STSTMN)
 CMS: New else block

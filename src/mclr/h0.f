@@ -46,7 +46,6 @@
         NVAR = NCSASM(ISYM)
       END  IF
 *
-      LBLK=NVAR
       NSBDET = MXP1 + MXP2 + MXQ
       MXP = MXP1 + MXP2
       LH0T= MXP*(MXP+1)/2 + MXP1*MXQ

@@ -850,19 +850,6 @@ c        enddo
       data dsq2/1.414213562373d0/vsq2/0.7071067811865d0/
 c      data dsq3/ 1.732050807569d0/
 c      write(6,*)'  sd_wyb'
-      w0_d25=vsq2
-      w0_d26=-1.0d0
-      w0_d27d=-vsq2
-      w0_d27v=-vsq2/2
-      w1_d27v=1.5d0*vsq2
-      w0_d28=-vsq2
-      w0_d29=-dsq2
-      w0_d30=-1.0d0
-      w0_d31=vsq2
-      w0_d32sd=vsq2/2
-      w1_d32sd=1.5d0*vsq2
-      w0_d32ds=-0.5d0
-      w1_d32ds=-1.5d0
 
 !      logic_sd=.true.
       call external_space_plpmode_value_sd()
@@ -897,19 +884,6 @@ c        jmlr=mul_tab(jml,jmr)
       data dsq2/1.414213562373d0/vsq2/0.7071067811865d0/
 c      data dsq3/ 1.732050807569d0/
 c      write(6,*)'  sd_wyb'
-      w0_d25=vsq2
-      w0_d26=-1.0d0
-      w0_d27d=-vsq2
-      w0_d27v=-vsq2/2
-      w1_d27v=1.5d0*vsq2
-      w0_d28=-vsq2
-      w0_d29=-dsq2
-      w0_d30=-1.0d0
-      w0_d31=vsq2
-      w0_d32sd=vsq2/2
-      w1_d32sd=1.5d0*vsq2
-      w0_d32ds=-0.5d0
-      w1_d32ds=-1.5d0
 
 !      logic_sd=.true.
       call external_space_plpmode_value_sd()
@@ -2013,20 +1987,6 @@ c        value_lpext(ilwei)=(vint_ci(iposint2)+
       data dsq3/ 1.732050807569d0/
       data dsq3vsq2/1.224744871392d0/
 c      write(6,*)'  td_wyb'
-      w0_d43=dsq3vsq2
-      w0_d44d=-dsq3vsq2
-      w1_d44d=dzero
-      w0_d44v=-dsq3/(2*dsq2)
-      w1_d44v=w0_d44v
-      w0_d45=dzero
-!     w1_d45=dsq3/dsq2
-!      w0_d46=dsq3/dsq2
-      w1_d45=dsq3vsq2
-      w0_d46=dsq3vsq2
-      w0_d47td=-dsq3/(dsq2*2)
-      w1_d47td=-w0_d47td
-      w0_d47dt=-0.5d0
-      w1_d47dt=-w0_d47dt
 
 !      logic_sd=.true.
       call external_space_plpmode_value_td()

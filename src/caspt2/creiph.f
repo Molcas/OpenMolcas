@@ -148,8 +148,8 @@ CSVC: translates orbital index to levels
 * PAM07: Eliminate unsafe IPOSFILE calls, use instead dummy i/o operations
 * to find disk addresses to CI arrays:
       NIDIST=0
-      DO JSTATE=1,NSTATE
-        JSNUM=MSTATE(JSTATE)
+      DO ISTATE=1,NSTATE
+        JSNUM=MSTATE(ISTATE)
         NIDIST=MAX(NIDIST,JSNUM)
       END DO
       CALL GETMEM('DIST','ALLO','INTE',LIDIST,NIDIST)
@@ -196,11 +196,11 @@ C Write a diagonal Hamiltonian in the JOBMIX:
         END IF
         DO ISTATE=1,NSTATE
           CALL DCOPY_(MXCI,[0.0D0],0,WORK(LCI2),1)
-          DO JSTATE=1,NSTATE
-            JSNUM=MSTATE(JSTATE)
+          DO IISTATE=1,NSTATE
+            JSNUM=MSTATE(IISTATE)
             IDISK=IWORK(LIDIST-1+JSNUM)
             CALL DDAFILE(JOBIPH,2,WORK(LCI1),NCONF,IDISK)
-            X=Ueff(JSTATE,ISTATE)
+            X=Ueff(IISTATE,ISTATE)
             CALL DAXPY_(NCONF,X,WORK(LCI1),1,WORK(LCI2),1)
           END DO
           IF(ISCF.EQ.0) THEN
@@ -224,11 +224,11 @@ C in grpini)
         DO ISTATE=1,NSTATE
           ISNUM=MSTATE(ISTATE)
           CALL DCOPY_(MXCI,[0.0D0],0,WORK(LCI2),1)
-          DO JSTATE=1,NSTATE
-            JSNUM=MSTATE(JSTATE)
+          DO IISTATE=1,NSTATE
+            JSNUM=MSTATE(IISTATE)
             IDISK=IWORK(LIDIST-1+JSNUM)
             CALL DDAFILE(JOBIPH,2,WORK(LCI1),NCONF,IDISK)
-            X=U0(JSTATE,ISTATE)
+            X=U0(IISTATE,ISTATE)
             CALL DAXPY_(NCONF,X,WORK(LCI1),1,WORK(LCI2),1)
           END DO
           IDISK=IWORK(LIDIST-1+ISNUM)

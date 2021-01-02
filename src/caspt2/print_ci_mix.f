@@ -23,7 +23,7 @@
 #include "mh5.fh"
 #endif
       Real*8 :: EigVec(nState,nState)
-      Integer :: iState, jSNum, iDisk
+      Integer :: iState, iiState, jSNum, iDisk
       Real*8, Allocatable, Dimension(:) :: cCI, mCI
       Logical :: Close_refwfn
 
@@ -58,8 +58,8 @@
       Do iState=1,nState
         Call FZero(mCI, nConf)
         iDisk=iAdr15(4)
-        Do jState=1,nState
-          jSNum=mState(jState)
+        Do iiState=1,nState
+          jSNum=mState(iiState)
           If (refwfn_is_h5) Then
 #ifdef _HDF5_
             Call mh5_fetch_dset_array_real(
@@ -71,7 +71,7 @@
           Else
             Call dDAFile(refwfn_id,2,cCI,nConf,iDisk)
           End If
-          Call daXpY_(nConf,EigVec(jState,iState),cCI,1,mCI,1)
+          Call daXpY_(nConf,EigVec(iiState,iState),cCI,1,mCI,1)
         End Do
         Write(6,'(1X,A,I3)')
      &     ' The CI coefficients for the MIXED state nr. ',iState

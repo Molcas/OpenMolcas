@@ -2730,8 +2730,8 @@ c     :             vector1(mm),vector1(nn)
           do m=1,lwnu
             mm=mm+1
             nn=nn+1
-              if(mm.gt.nn) mntmp=mm*(mm-1)/2+nn
-              if(nn.gt.mm) mntmp=nn*(nn-1)/2+mm
+c             if(mm.gt.nn) mntmp=mm*(mm-1)/2+nn
+c             if(nn.gt.mm) mntmp=nn*(nn-1)/2+mm
 c             vector2(mntmp)=vector2(mntmp)+wl
             mg67=ican_a(mg7)+mg6
             dm1tmp(mg67)=dm1tmp(mg67)+vector1(nn)*wl*vector1(mm)
@@ -2771,8 +2771,8 @@ c     iwar=mg4
               do iwe=1,isegdownwei
                 mm=iwadl+iwe
                 nn=iwadr+iwe
-              if(mm.gt.nn) mntmp=mm*(mm-1)/2+nn
-              if(nn.gt.mm) mntmp=nn*(nn-1)/2+mm
+c             if(mm.gt.nn) mntmp=mm*(mm-1)/2+nn
+c             if(nn.gt.mm) mntmp=nn*(nn-1)/2+mm
 c             vector2(mntmp)=vector2(mntmp)+wl
             mg67=ican_a(mg7)+mg6
             dm1tmp(mg67)=dm1tmp(mg67)+vector1(nn)*wl*vector1(mm)
@@ -2805,8 +2805,8 @@ c             vector2(mntmp)=vector2(mntmp)+wl
           do iwe=1,isegdownwei
             mm=mm+1                  ! iwl=iwalk_ad
             nn=nn+1                  ! iwl=iwalk_ad
-              if(mm.gt.nn) mntmp=mm*(mm-1)/2+nn
-              if(nn.gt.mm) mntmp=nn*(nn-1)/2+mm
+c             if(mm.gt.nn) mntmp=mm*(mm-1)/2+nn
+c             if(nn.gt.mm) mntmp=nn*(nn-1)/2+mm
 c             vector2(mntmp)=vector2(mntmp)+wl
             mg67=ican_a(mg7)+mg6
             dm1tmp(mg67)=dm1tmp(mg67)+vector1(nn)*wl*vector1(mm)

@@ -74,7 +74,6 @@
       PrOrb=.false.
       SewLab='NONE    '
       Page=.false.
-      OEthrs=1.0d0
       ibreak=2
       nIter=200
       RASSI=.false.

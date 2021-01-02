@@ -128,8 +128,6 @@
 *
       Call CtrlMO(moip,nAco)
 *
-      iiii=0
-      ipdex=0
       ndisp=0
       naco=0
       New_Fock=nirrep.eq.1
@@ -425,7 +423,6 @@ C        Do jS = 1, iS
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jPrim  = iSD( 5,jS)
             jAO    = iSD( 7,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
@@ -439,8 +436,6 @@ C        Do jS = 1, iS
             iShelV(2) = jShell
             iAOV(2) = jAO
 *
-            ijAng = iAng + jAng
-*
             nHrrab=0
             Do i=0,iAng+1
                Do j=0,jAng+1
@@ -450,11 +445,6 @@ C        Do jS = 1, iS
                   End If
                End Do
             End Do
-            If (iShell.ge.jShell) Then
-               ijShll = iShell*(iShell-1)/2+jShell
-            Else
-               ijShll = jShell*(jShell-1)/2+iShell
-            End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -491,8 +481,6 @@ C           Do kS = 1, nSkal
                kShll  = iSD( 0,kS)
                kAng   = iSD( 1,kS)
                kCmp   = iSD( 2,kS)
-               kBas   = iSD( 3,kS)
-               kPrim  = iSD( 5,kS)
                kAO    = iSD( 7,kS)
                mdck   = iSD(10,kS)
                kShell = iSD(11,kS)
@@ -512,8 +500,6 @@ C              Do lS = 1, kS
                   lShll  = iSD( 0,lS)
                   lAng   = iSD( 1,lS)
                   lCmp   = iSD( 2,lS)
-                  lBas   = iSD( 3,lS)
-                  lPrim  = iSD( 5,lS)
                   lAO    = iSD( 7,lS)
                   mdcl   = iSD(10,lS)
                   lShell = iSD(11,lS)
@@ -528,7 +514,6 @@ C              Do lS = 1, kS
                   iAOV(4) = lAO
 *
 *
-                  klAng = kAng + lAng
                   nHrrcd=0
                   Do i=0,kAng+1
                      Do j=0,lAng+1
@@ -541,15 +526,6 @@ C              Do lS = 1, kS
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*-----------------Skip out if no symmetry and integral of
-*                 one center type
-*
-                  If (kShell.ge.lShell) Then
-                     klShll = kShell*(kShell-1)/2+lShell
-                  Else
-                     klShll = lShell*(lShell-1)/2+kShell
-                  End If
-*
 *-----------------The code is working in such away that the MO needs
 *                 upper and lower triangular parts of ij kl but hessian
 *                 needs only lower, check if the integralbatch is lower
@@ -901,17 +877,11 @@ C              Do lS = 1, kS
      &                     jPrimj*lPriml + 1
                     mDjl = Min(nDjl,mDjl)
                     If (.not.lpick) Then
-                     ipddjl1=0
                      ipddjl2=0
-                     ipddil1=0
                      ipddil2=0
-                     ipddkl1=0
                      ipddkl2=0
-                     ipddij1=0
                      ipddij2=0
-                     ipddik1=0
                      ipddik2=0
-                     ipddjk1=0
                      ipddjk2=0
                     End If
 *

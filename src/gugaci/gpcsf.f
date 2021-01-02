@@ -26,7 +26,6 @@ c generate and print csfs
 
       ndr=ndl
       nst=norb_all
-      ndy=norb_ext
       do l=1,norb_ext+norb_act
         nwalk(l)=0
       enddo
@@ -77,7 +76,6 @@ c generate and print csfs
           ndimsum=ndimsum+ndim*jaedownwei*iwupwei
           if(ndim .eq. 0) cycle
           call config_act()
-          ista=iw_sta(jpad,ipae)+1
         enddo
       enddo
       do im=1,8
@@ -192,7 +190,6 @@ c      common/ptlph/jph,jeh,jwh,th,thh
       common/ptlph/jph,jeh,jwh
 c     write(6,*)'               ***** start h-diaelm *****'
 c      write(6,*)   '   diagonal_act_d:',jpad,ipae
-      nsum=0
       do lr=norb_dz+1,norb_inn
         jp0=no(lr-1)+1
         jp1=no(lr)
@@ -341,8 +338,6 @@ c             call prodel(1,wld,0,ipae,iwad)
 !     :    ,jv,jd(8),jt(8),js(8)
 !      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-      character*10 cc
-        cc=' out_800_d'
         jws0=0
       do mra=1,8
         ipae=1+mra
@@ -355,7 +350,7 @@ c             call prodel(1,wld,0,ipae,iwad)
         do la=lasta,laend
 c        jpd=jd(mra)
           jw=jw+1
-          lra=norb_all-la+1
+c         lra=norb_all-la+1
 c        wld=voint(lra,lra)
 c         call prodel(2,wld,0,ipae,jw)
           call prodel_conf(2,0,ipae,jw,la,0,2)      !d
@@ -368,7 +363,7 @@ c       jps=js(1)
       jweis=jws0
       do la=1,norb_ext
 c        jpd=jd(mra)
-        lra=norb_all-la+1
+c       lra=norb_all-la+1
         jweis=jweis+1
 c        wls=2.d0*voint(lra,lra)+vdint(lra,lra)
 c       call prodel(2,wls,0,18,jweis)
@@ -380,10 +375,10 @@ c       call prodel(2,wls,0,18,jweis)
         ipat=9+im
         ipas=17+im
         do la=2,norb_ext
-         lra=norb_all-la+1
+c        lra=norb_all-la+1
          ima=lsm(la)
          do 600 lb=1,la-1
-           lrb=norb_all-lb+1
+c          lrb=norb_all-lb+1
            imb=lsm(lb)
            mr=mul_tab(ima,imb)
            if(mr.ne.im) goto 600

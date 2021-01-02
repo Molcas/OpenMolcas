@@ -23,7 +23,6 @@
       INTEGER NDETS1,NDETS2
       INTEGER LFSBANN1,LFSBANN2
       INTEGER JSORB,LANN1,LANN2
-      INTEGER KOINFO
       LOGICAL IF10,IF01
 #include "SysDef.fh"
 #include "WrkSpc.fh"
@@ -45,7 +44,6 @@ C Nr of active spin-orbitals
 
 C IF10 = Eliminate to the left (state 1)
       IF(IF10) THEN
-       KOINFO=19
 
 C Loop over all spin orbitals ISORB:
        DO ISORB=1,NASORB

@@ -18,12 +18,12 @@
 
       subroutine inner_space_loop_g()
       implicit REAL*8 (a-h,o-z)
-      wsc0=c_time()
+c      wsc0=c_time()
       call dbl_space_loop_g()
-      wsc1=c_time()
+c      wsc1=c_time()
       call act_space_cloop_g()
       call act_space_ploop_g()
-      wsc2=c_time()
+c      wsc2=c_time()
 c      write(6,'(2x,2(a5,f12.4))')'dbl',wsc1-wsc0,'act',wsc2-wsc1
       return
       end
@@ -33,7 +33,6 @@ c      write(6,'(2x,2(a5,f12.4))')'dbl',wsc1-wsc0,'act',wsc2-wsc1
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
       if(norb_act.eq.0) return
-      ni=mod(norb_act,2)
       do ipae=1,25
         jpae=nu_ae(ipae)
         if(jpae.eq.0) cycle
@@ -54,7 +53,6 @@ c      write(6,'(2x,2(a5,f12.4))')'dbl',wsc1-wsc0,'act',wsc2-wsc1
 #include "pl_structure_h.fh"
 
       if(norb_act.eq.0) return
-      ni=mod(norb_act,2)
       do ipae=1,25
         jpae=nu_ae(ipae)
         if(jpae.eq.0) cycle
@@ -128,7 +126,6 @@ c          write(6,'(6i6)')2,mh,lrai,lraj,lrak,0
 c-----------------------------------------------------------
 !line=3 a&r-b&r-d^r^r
           do lrak=lraj+1,norb_inn
-            list=list3(lrai,lraj,lrak)
            call head_ar_at_given_orb(mh,lrai)
             call link_c1_to_given_orb(mh,lrai+1,lraj-1)
             call link_b4_at_given_orb(mh,lraj)
@@ -150,7 +147,6 @@ c          write(6,'(6i6)')5,mh,lrai,lraj,lrak,0
           enddo
 c-----------------------------------------------------------
           do lrak=norb_dz+1,lrai-1
-            list=list3(lrai,lraj,lrak)
 !line=10 d&rr--b^r--a^r
             call head_drr_at_given_orb(mh,lrak)
             logic_br(1:mh)=.true.
@@ -1333,7 +1329,6 @@ c            wl=(vlop0-vlop1)*vint_ci(list)-2*vlop0*vint_ci(list+1) !1.1
 !td(13-5) (22)d&&l(33)b^l(23)
 213   do lri=norb_frz+1,norb_dz
         lmi=lsm_inn(lri)
-        isma=lmi
         if(lmi.ne.jmlr) cycle
         w0td1=w0_td(1)
         w0td4=w0_td(4)
@@ -1584,14 +1579,14 @@ c         wl=wl+nocc*vlop0*(vint_ci(list+1)+tcoe*vint_ci(list))   !act_c
           call prodab_2(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper,nxo)
 
          enddo
-          wl_430=0.d0
+c          wl_430=0.d0
           w0dv2=w0_dv(2)
           ni=mod(norb_dz-lrd,2)
           if(ni.eq.1) w0dv2=-w0dv2
          do lrk=1,lrd-1
 c            list=list3(lr0,lr,lrk)
             vlop0=w0*w0dv2
-c          wl_430=wl_430+vlop0*(vint_ci(list)-2*vint_ci(list+1))       !
+c            wl_430=wl_430+vlop0*(vint_ci(list)-2*vint_ci(list+1))
             wl=vlop0
          call trans_ijkl_intpos(lr,lrk,lr0,lrk,nxo)
           call prodab_2(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper,nxo)
@@ -1653,8 +1648,8 @@ c         wl=wl+nocc*vlop0*(vint_ci(list+1)+tcoe*vint_ci(list))   !act_c
           call prodab_2(3,jpel,iwdl,iwdr,jwl,jwr,wl,jper,nxo)
 
          enddo
-          wl_430=0.d0
-            w0dv2=w0_d1v(2)
+c          wl_430=0.d0
+          w0dv2=w0_d1v(2)
           ni=mod(norb_dz-lrd,2)
           if(ni.eq.1) w0dv2=-w0dv2
          do lrk=1,lrd-1

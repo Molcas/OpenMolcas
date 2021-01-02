@@ -53,7 +53,6 @@
 c     If (iPrint.ge.99) Then
 c        Write (*,*) ' In NAGrd: nArr=',nArr
 c     End If
-      nGrad=lDisp(0)
       call icopy(144*nirrep,[0],0,inddum,1)
       call lcopy(144,[.false.],0,ifdum,1)
 *
@@ -66,7 +65,6 @@ c     End If
       nip = nip + nAlpha*nBeta
       If (nip-1.gt.nArr)
      &   Write (6,*) ' nip-1.gt.nArr'
-      nArray = nArr - nip +1
 *
       iIrrep = 0
       iAng(1) = la
@@ -99,11 +97,8 @@ c     End If
          ipBOff = ipBOff + 1
  210  Continue
 *
-      nDAO = 1
-*
 *-----Loop over nuclear centers
 *
-      nb=nZeta*nElem(la)*nElem(lb)
       kdc = 0
       Do 100 kCnttp = 1, nCnttp
          If (.Not.dbsc(kCnttp)%ECP) Go To 111

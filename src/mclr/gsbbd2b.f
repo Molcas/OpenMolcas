@@ -87,7 +87,6 @@
 *
       NGAS = 3
       ZERO = 0.0D0
-      IROUTE = 3
 *
 *. Symmetry of allowed excitations
       IJSM = STSTSX(IASM,JASM)

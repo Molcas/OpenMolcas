@@ -529,8 +529,8 @@
 #include "general.fh"
 
       Integer case
-      Integer   off_PUVX, off_Dmat, off_Fmat
-      Dimension off_PUVX(mxSym), off_Dmat(mxSym), off_Fmat(mxSym)
+      Integer   off_PUVX, off_Fmat
+      Dimension off_PUVX(mxSym), off_Fmat(mxSym)
 
       iTri(i)=(i*i-i)/2
 
@@ -540,7 +540,6 @@
 
       iStack = 0
       Do iSym = 1,nSym
-         off_Dmat(iSym) = iStack
          iAsh = nAsh(iSym)
          iStack = iStack+ (iAsh*iAsh+iAsh)/2
       End Do

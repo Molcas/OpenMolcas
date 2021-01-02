@@ -45,22 +45,19 @@
       i=2
       If (isym.eq.state_sym) i=1
       If (NOCSF.eq.0) Then
-         ncsf1=NCSASM(ISYM)
          nsd=max(ncsf(isym),nint(XISPSM(ISYM,1)))
          ipdcsfi=ipget(nsd)
-         ipdcsf=ipin(ipdcsfi)
+         irc=ipin(ipdcsfi)
          ipDSDi=ipGet(nSD)
       Else
          nsd=max(ncsf(isym),nint(XISPSM(ISYM,1)))
          ipDSDi=ipGet(nsd)
-         ipdsd=ipin(ipdsdi)
+         irc=ipin(ipdsdi)
       End If
 
       If (nocsf.eq.0) Then
-         nD=NCSASM(ISYM)
          ipdiai=ipdcsfi
       Else
-         nD=idint(XISPSM(ISYM,ISPC(1)))
          ipdiai=ipdsdi
       End If
       LSPC(1)=nSD
@@ -99,5 +96,7 @@
       End If
 
       RETURN
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       END
-

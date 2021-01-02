@@ -32,7 +32,6 @@
 *     sign1  Kappa**t=Sign1*Kappa
 *     sign2  <0|[Qip,H]|0>=Aip+sign2*Api
       r1=DBLE(i1)
-      r2=DBLE(i2)
       Fact=-1.0d0 ! bullshit
       reco=-1.0d0 !(k*a+reco*a*k)
       jspin=1 ! triplet
@@ -126,4 +125,6 @@
       Call mma_deallocate(FOck)
 *
       return
+* Avoid unused argument warnings
+      if (.false.) call Unused_integer(i2)
       end

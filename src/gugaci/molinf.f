@@ -30,7 +30,6 @@ c*************************************************
 c*************************************************
 #include "drt_h.fh"
       common /thresh/ vthreen,vthrealp,vthreresid
-      character*72  title(mxtit)
       parameter ( ncmd=9 )
       character*4 command,cmd(ncmd)
       character*72  line
@@ -43,7 +42,6 @@ c*************************************************
 #ifdef _XIANEST_
      &         '$END'/
 #endif
-      logical logic_restart
 #ifdef MOLPRO
 #else
       call rdnlst(5,"GUGACI")
@@ -99,7 +97,6 @@ c set the default convergence threshhold
       end do
       if ( jcmd.ne.0 ) goto 20
       ntit=ntit+1
-      if ( ntit.le.mxtit ) title(ntit)=line
       goto 100
 *
 *---  process nrroot command ----------------------------------------*
@@ -148,7 +145,6 @@ c set the default convergence threshhold
 
 *---  process restart command ------------------------------------------
  800  continue
-      logic_restart=.true.
       goto 10
 
 *--- End of GUGACI input ----------------------*
@@ -205,7 +201,6 @@ c write date into cidrt for ci calculation
       ns_sm=idum(1)
 ! number of roots to be cal
       call idafile(ludrt,2,idum,1,idisk)
-      nroot=idum(1)
 ! number of corelation electrons
       call idafile(ludrt,2,idum,1,idisk)
       n_electron=idum(1)

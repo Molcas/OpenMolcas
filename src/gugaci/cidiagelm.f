@@ -18,8 +18,6 @@ c ci diagonal elements
 !     :    ,jv,jd(8),jt(8),js(8)
 !      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-      nst=norb_all
-      ndy=norb_ext
       do lr0=2,norb_all
         do lr=1,lr0-1
           vdint(lr,lr0)=voint(lr0,lr)
@@ -65,7 +63,6 @@ c     endif
           if(ndim .eq. 0) cycle
           call diagonal_act_d()
           call diagonal_act_c()
-          ista=iw_sta(jpad,ipae)+1
         enddo
       enddo
       do im=1,ng_sm
@@ -108,10 +105,9 @@ c     endif
         do jpad=1,mxnode
           if(iw_sta(jpad,ipae).eq.0) cycle
           nci_h0=iw_sta(jpad,ipae)
-          goto 200
+          exit
         enddo
       enddo
-200   continue
 
       !do i=1,nci_dim
       !  write(6,"(i8,f18.8)") i,vector1(i)
@@ -149,7 +145,6 @@ c      write(6,*)  jpad,jpae
         return
       endif
       mp=0
-      nsum=0
 c 520
       mh=0
       me=0
@@ -269,7 +264,6 @@ c     write(6,*)'               ***** start h-diaelm *****'
 c      write(6,*)   '   diagonal_act_d:',jpad,ipae
       allocate(te(maxpl),tee(maxpl),jpe(maxpl),jee(maxpl),jwe(maxpl))
       ndr=0
-      nsum=0
       do lr=norb_dz+1,norb_inn
         jp0=no(lr-1)+1
         jp1=no(lr)
@@ -304,7 +298,6 @@ c 520
 c     start '^'
           do idl=1,4
             if(jj_sub(idl,jp).eq.0) cycle
-            idr=idl
             jbl=jb(jp)
             ind1=idl-1
             if(ind1.eq.0) cycle
@@ -1401,8 +1394,6 @@ c ------------- end of delm --------------
 !     :    ,jv,jd(8),jt(8),js(8)
 !      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-      character*10 cc
-        cc=' out_800_d'
         jws0=0
       do mra=1,8
         ipae=1+mra
@@ -1489,7 +1480,7 @@ c  2001.10.2 for norb_act<>0            mg1,mg2,mg3:
 #include "pl_structure_h.fh"
 !      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-      ndr=1
+!      ndr=1
       goto(100,200,300,400,500,600),idb
 ! in dbl_space
 100   ipae=mg2

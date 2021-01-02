@@ -1122,8 +1122,6 @@ c 8 bits
 c 16 bits
       iabcbit=16
       nabcbit=iintbit/iabcbit
-c 32 bits
-      inodbit=32
 
 c v node
       j=0
@@ -1131,7 +1129,6 @@ c v node
       jb0=jb_sys
       jc0=jc_sys
       write(6,"(4(1x,i4))") ja0,jb0,jc0
-      kcm=min(ja0,jc0)
 !  v_node
       ja(1)=ja0
       jb(1)=jb0
@@ -1886,7 +1883,6 @@ c508   format(3x,a10,1x,i5,1x,16i8)
       ja0=ja_sys
       jb0=jb_sys
       jc0=jc_sys
-      kcm=min(ja0,jc0)
 !  v_node
       ja(1)=ja0
       jb(1)=jb0

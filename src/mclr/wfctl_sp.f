@@ -91,7 +91,6 @@
      &                  State_sym,.false.)
 *
         nconf1=ncsf(State_Sym)
-        nConf2=nint(xispsm(State_SYM,1))
         nconf3=nint(xispsm(State_SYM,1))
         Call Setup_MCLR(1)
 *
@@ -203,7 +202,6 @@
           delta=deltac+deltaK
 *         If (delta.eq.0) Goto 300
           delta0=delta
-          ReCo=-1.0d0
           iter=1
 *-----------------------------------------------------------------------------
 *
@@ -525,4 +523,7 @@
 *----------------------------------------------------------------------*
 *
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       End

@@ -956,7 +956,7 @@ c     &                 DDot_(nNuc,[One],0,QSum,1)
 c           Write(6,'(6X,A,F12.6)') 'Total electronic charge=',
 c     &                 DDot_(nNuc,[One],0,QSum,1)
            Write(6,*)
-           TCh=DDot_(nNuc,[One],0,Work(ip_Charge),1)
+c           TCh=DDot_(nNuc,[One],0,Work(ip_Charge),1)
 c           Write(6,'(6X,A,F12.6)') 'Total            charge=',
 c     &                    DDot_(nNuc,[One],0,Work(ip_Charge),1)
 c         Call xml_dDump('FormalCharge','Total charge','a.u',0,TCh,1,1)

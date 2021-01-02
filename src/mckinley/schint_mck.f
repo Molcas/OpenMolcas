@@ -48,8 +48,6 @@
       call dcopy_(3,[One],0,Q,1)
       la = iAnga(1)
       lb = iAnga(2)
-      iCmpa = iCmp(1)
-      jCmpb = iCmp(2)
 *
 *
 *-----Compute primitive integrals to be used in the prescreening
@@ -63,7 +61,6 @@
       mabMax=nabSz(la+lb)
       mcdMin=mabmin
       mcdMax=mabMax
-      mabcd=(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
 *
 *-----Find the proper centers to start of with the angular
 *     momentum on. If la.eq.lb there will excist an
@@ -126,4 +123,6 @@
      &            Work2,nElem(la)*nElem(lb))
 *
       Return
+* Avoid unused argument warnings
+      If (.False.) Call Unused_integer_array(iCmp)
       End

@@ -299,7 +299,8 @@
 *                                                                      *
 *======================================================================*
 *                                                                      *
-      Do 100 iter = iterSt+1, iterSt+nIter(nIterP)
+      Do 100 iter_ = iterSt+1, iterSt+nIter(nIterP)
+         iter = iter_
          IterX=IterX+1
          WarnCfg=.false.
 *
@@ -1028,7 +1029,7 @@
 *                                                                      *
 *     End of iteration loop
 *
- 100  Continue ! iter
+ 100  Continue ! iter_
 *                                                                      *
 *======================================================================*
 *                                                                      *

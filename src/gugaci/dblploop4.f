@@ -17,7 +17,6 @@
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      isma=mul_tab(iml,imr)
       do lri=norb_frz+1,norb_dz
         lmi=lsm_inn(lri)
         do lrj=lri+1,norb_dz
@@ -55,10 +54,7 @@
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      jmlr=mul_tab(jml,jmr)
-      isma=mul_tab(iml,imr)
       do lri=norb_frz+1,norb_dz
-        lmi=lsm_inn(lri)
         do lrd=norb_frz+1,lri-1
           lmd=lsm_inn(lrd)
           if(lmd.ne.jml) cycle
@@ -94,7 +90,6 @@
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      jmlr=mul_tab(jml,jmr)
       isma=mul_tab(iml,imr)
       do lri=norb_frz+1,norb_dz
         lmi=lsm_inn(lri)
@@ -168,7 +163,6 @@
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      jmlr=1
         do lri=norb_frz+1,norb_dz
           lmi=lsm_inn(lri)
           do lrj=lri+1,norb_dz
@@ -313,7 +307,6 @@
         ni=mod(norb_dz-lri,2)
         if(ni.eq.1) w0td1=-w0td1
         ijk=lri-norb_frz+lra
-        intpos=intind_ijka(ijk)
 !-------------------------------------------------------------------
 !t1d1(15-1) (11)a(13)
           do lrk=norb_frz+1,lri-1
@@ -473,7 +466,6 @@
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      jmlr=1
       do lrl=norb_frz+1,norb_dz
         lml=lsm_inn(lrl)
         if(lml.ne.jml) cycle
@@ -515,7 +507,6 @@
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      jmlr=mul_tab(jml,jmr)
       isma=mul_tab(iml,imr)
       do lrl=norb_frz+1,norb_dz-1
         lml=lsm_inn(lrl)
@@ -627,7 +618,6 @@
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      jmlr=mul_tab(jml,jmr)
       isma=mul_tab(iml,imr)
       do lrl=norb_frz+1,norb_dz-1
         lml=lsm_inn(lrl)
@@ -668,7 +658,6 @@
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      jmlr=mul_tab(jml,jmr)
       isma=mul_tab(iml,imr)
       do lrl=norb_frz+1,norb_dz-1
         lml=lsm_inn(lrl)
@@ -709,7 +698,6 @@
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      jmlr=1
       do lrl=norb_frz+1,norb_dz
         lml=lsm_inn(lrl)
         if(lml.ne.jml) cycle
@@ -1289,7 +1277,6 @@
         lmi=lsm_inn(lri)
         do lrj=lri+1,norb_dz
           lmj=lsm_inn(lrj)
-          lmij=mul_tab(lmi,lmj)
           w1st3=w1_st(3)
           ni=mod(lrj-lri,2)
           if(ni.eq.0) then
@@ -1527,7 +1514,6 @@
         lmi=lsm_inn(lri)
         do lrj=lri+1,norb_dz
           lmj=lsm_inn(lrj)
-          lmij=mul_tab(lmi,lmj)
           w1ts3=w1_ts(3)
           ni=mod(lrj-lri,2)
           if(ni.eq.0) then
@@ -2044,7 +2030,6 @@
         lmi=lsm_inn(lri)
         do lrj=lri+1,norb_dz
           lmj=lsm_inn(lrj)
-          lmij=mul_tab(lmi,lmj)
           w0tt1=w0_t1t1(1)
           w1tt1=w1_t1t1(1)
           ni=mod(lrj-lri,2)
@@ -2157,8 +2142,6 @@
               if(lrk.eq.lri) cycle
               if(lrk.eq.lrj) cycle
               lmk=lsm_inn(lrk)
-              lmki=mul_tab(lmk,lmi)
-              lmkj=mul_tab(lmk,lmj)
 !t1t1(12-3)  drl(33)-
 !t1t1(12-3)  drl(33)-c"(11)-
 !t1t1(12-3)  drl(33)-c"(11)-c"(11)-
@@ -2866,7 +2849,6 @@
         lmi=lsm_inn(lri)
         do lrj=lri+1,norb_dz
           lmj=lsm_inn(lrj)
-          lmij=mul_tab(lmi,lmj)
           w1ts3=w1_ts(3)
           ni=mod(lrj-lri,2)
           if(ni.eq.0) then

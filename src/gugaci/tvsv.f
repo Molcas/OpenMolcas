@@ -15,10 +15,10 @@
 #include "lpextmode_h.fh"
       common/lpdisk/idisk_lp,idisk_array(13)
       dsq3=1.732050807568877d0
-      iltype =3
-      irtype =1
-      w0_d48=0.0d0
-      w1_d48=dsq3
+c      iltype =3
+c      irtype =1
+c      w0_d48=0.0d0
+c      w1_d48=dsq3
 
       idisk_lp=idisk_array(6)
 
@@ -45,7 +45,6 @@ c        jmlr=mul_tab(jml,jmr)
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
       logic_dh=.true.
-      isma=iml
       lpok=jpadlr
       jmlr=mul_tab(jml,jmr)
       goto(10,10,10,10,10,106,10,108,10,110,10,10,
@@ -305,10 +304,6 @@ c        jmlr=mul_tab(jml,jmr)
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
       logic_dh=.false.
-      lri=nlg1
-      lrj=nlg2
-      intpos=nlg1
-      isma=iml
 
       if(linelp.eq.3) then
 !line=3 a&r--b&r<-->b^r-a^r
@@ -331,12 +326,9 @@ c        jmlr=mul_tab(jml,jmr)
 #include "lpextmode_h.fh"
       common/lpdisk/idisk_lp,idisk_array(13)
       dsq2=1.414213562373095d0
-      w0_d33=1.0d0
-      w0_d37=-dsq2
       w0g36a=-1.d0
       w1g36a=0.d0
       w0g13a=-dsq2
-      w1g13a=-dsq2
 
 c      iltype =4
 c      irtype =1
@@ -370,7 +362,6 @@ c        jmlr=mul_tab(jml,jmr)
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
       logic_dh=.true.
-      isma=iml
       lpok=jpadlr
       jmlr=mul_tab(jml,jmr)
 !      goto(10,10,10,10,10,106,10,10,10,110,10,10,
@@ -631,10 +622,6 @@ c        jmlr=mul_tab(jml,jmr)
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
       logic_dh=.false.
-      lri=nlg1
-      lrj=nlg2
-      intpos=nlg1
-      isma=iml
 
       if(linelp.eq.3) then
 !line=3 a&r--b&r<-->b^r-a^r

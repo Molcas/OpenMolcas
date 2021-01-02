@@ -111,7 +111,6 @@
       fail=.false.
       Converged(:)=.true.
       lprint=.false.
-      idasave=0
 *     If (SAVE) CALL DANAME(50,'RESIDUALS')
       If (SAVE) Then
          Write (LuWr,*) 'WfCtl: SAVE option not implemented'
@@ -234,7 +233,7 @@ C     Do iSym=kksym,kkksym
 *          Output: Commonblocks (Pointers.fh)
 *
         PState_SYM=iEor(State_Sym-1,iSym-1)+1
-        nConf2=nint(xispsm(PState_SYM,1))
+*       nConf2=nint(xispsm(PState_SYM,1))
 *       nConf2=ndtasm(PState_SYM)
         nconf3=nint(Max(xispsm(PState_SYM,1),xispsm(State_SYM,1)))
 *       nconf3=Max(ndtasm(PState_SYM),ndtasm(State_SYM))
@@ -965,4 +964,7 @@ C         Write(LuWr,Fmt2//'A)')'Writing response to one-file.'
 ************************************************************************
 *                                                                      *
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       End

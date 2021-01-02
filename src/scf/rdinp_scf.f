@@ -34,7 +34,7 @@
 *                                                                      *
 ************************************************************************
       use OccSets
-      use IOBUF
+      use IOBUF, id_IOBuf => id
 *
       Implicit Real*8 (a-h,o-z)
       External Allocdisk

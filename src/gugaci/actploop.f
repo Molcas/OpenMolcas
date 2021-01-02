@@ -616,7 +616,6 @@ c look for partial loops in active space drt and save them into disk
       imlr=mul_tab(iml,imr)
 
       do lra=norb_dz+1,norb_inn
-        lma=lsm_inn(lra)
 !line=9 d&r&l-
           call head_drl_at_given_orb(mh,lra)
           call link_c2_to_given_orb(mh,lra+1,norb_inn)
@@ -1362,7 +1361,6 @@ c look for partial loops in active space drt and save them into disk
 #include "files_gugaci.fh"
       common/count/mhsum,lp_count(22),mhlpmax
       common/lpdisk/idisk_lp,idisk_array(13)
-      dimension info(10)
       line=linelp
       mh=mhlp
       lg1=nlg1
@@ -1374,7 +1372,6 @@ c look for partial loops in active space drt and save them into disk
         mhsum=mhsum-mh
         lp_count(line)=lp_count(line)-1
       endif
-      info=0
 !===========================================================
       jpml=mul_tab(jml,ns_sm)
       jpmr=mul_tab(jmr,ns_sm)

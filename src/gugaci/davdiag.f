@@ -230,7 +230,6 @@ c
           call read_ml(lucidia,1,vector2,nd,2)
           nda=nci_dim*mroot
           call read_bv(lucitv1,1,vector1,nda)
-          vsum=dzero
 !          rewind 7
           do mt=1,mtsta-1
             mtidx=indx(mt)
@@ -245,7 +244,6 @@ c
           mid=indx(mtsta-mtsta0+1)
           vector1(mtidx+1:mtidx+nd)=vector2(mid+1:mid+nd)
           call write_bv(lucitv1,1,vector1,nda)
-          vsum=dzero
           do mt=1,mtsta-1
             vet=vcien(mt)
             mtidx=indx(mt)
@@ -464,7 +462,6 @@ c
       data dzero/0.d0/,dcrita/1.0d-6/,epc/5.0d-3/
       dimension vb1(ncivec*ndim),vb2(ncivec*ndim)
       dimension indx(max_kspace),mjn(2*max_root),vcien(mroot)
-      dimension vdiatmp(2*mroot)
 
 c      write(6,*) "indx",indx(1:2*mroot)
 c      call read_bv(nf8,1,vb2,ndim)
@@ -521,7 +518,6 @@ c      write(6 ,*) "bbs debug 2"
 
       vad=0.d0
       idx=0
-      l=mth_eigen
       do m=1,ndim
         do k=1,mth_eigen
           if(m.eq.mjn(k)) goto 30
@@ -555,7 +551,6 @@ c        read(nf7) vb1(1:ndim)
 c      write(6 ,*) "bbs debug 4"
       call read_ml(lucidia,1,vb2,ndim,1)
 c      call read_bv(nf8,1,vb2,ndim)
-      vdiatmp(2)=vb2(mjntm)
       do i=1,ndim
         vb2(i)=vb1(i)*vb2(i)
       enddo
@@ -993,8 +988,8 @@ c****************************************************************
       common /scratch/ tmpdir,len_str
       character*256 tmpdir
       dimension valpha(max_root),vcien(max_root),vresid(max_root)
-      dimension dav1(max_root),dav2(max_root),dav3(max_root),
-     *          vcml(max_root),remei(max_root)
+c      dimension dav2(max_root),dav3(max_root),remei(max_root)
+      dimension dav1(max_root),vcml(max_root)
       logical log_muliter
 
       vector1=0.d0
@@ -1003,7 +998,7 @@ c****************************************************************
       if(log_muliter) then
         nc=1
         do i=1,mtsta0-1
-          mtidx=indx(i)
+!          mtidx=indx(i)
           call read_ml(lucivec,1,vector1(nc:nc+nci_dim-1),nci_dim,i)
           nc=nc+nci_dim
         enddo
@@ -1053,9 +1048,9 @@ c
 c        demei=dedav2*(n_electron*(n_electron-5)+6)
 c     :       /(n_electron*(n_electron-1))
         dav1(mt)=vcien(mt)-dedav1
-        dav2(mt)=vcien(mt)-dedav2
-        dav3(mt)=vcien(mt)-dedav3
-        remei(mt)=vcien(mt)-demei
+c        dav2(mt)=vcien(mt)-dedav2
+c        dav3(mt)=vcien(mt)-dedav3
+c        remei(mt)=vcien(mt)-demei
 
         write(6,900)
 c        write(6,901) mt,vcien(mt),dav1(mt),dav2(mt),dav3(mt),remei(mt)
@@ -1466,7 +1461,7 @@ c          |ck>=\sigma(vu(i,m)*vector_i),i=1,j
 
       do mt=mtsta,mroot
         mtidx=indx(mt-mtsta+1)
-        venergy=vcien(mt)
+        !venergy=vcien(mt)
         do l=1,nci_dim
           !vector1(mtidx+l)=venergy*vector1(mtidx+l)
           vector1(mtidx+l)=0.d0

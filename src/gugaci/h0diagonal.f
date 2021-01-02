@@ -163,7 +163,6 @@ c===== start  reset_basis ======================================
           do l=1,ndim
             depcc= eval(m)-vad(l)
             if(abs(depcc).lt.depc) depcc=depc
-            tt=vb1(ijmb1+l)
             vb1(ijmb1+l)=(vb2(ijm+l)-vcm(ijm+l)*eval(m))/depcc
             residvb(m)=residvb(m)+vb1(ijmb1+l)*vb1(ijmb1+l)
           enddo
@@ -342,8 +341,6 @@ c
       subroutine norm_a(n,av)  !bv:basis, av:vector for orth and norm
       real*8 av(n),s,ddot_,dcrita
       dcrita=1.0e-10
-      smax2=1.d10
-      smax1=0.0d0
 c     normalization of av_eigenvector.
       s=0.0d0
       s=ddot_(n,av,1,av,1)
@@ -357,10 +354,7 @@ c     normalization of av_eigenvector.
       end
 
       subroutine orth_ab(n,av,bv)  !bv:basis, av:vector for orth
-      real*8 av(n),bv(n),s,ddot_,dcrita
-      dcrita=1.0e-10
-      smax2=1.d10
-      smax1=0.0d0
+      real*8 av(n),bv(n),s,ddot_
 c     orthogonalization av,bv
       s=ddot_(n,av,1,bv,1)
 

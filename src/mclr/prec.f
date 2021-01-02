@@ -191,7 +191,6 @@
             If (ir.eq.3) nD=nOrb(js)-nRs3(js)
             If (nd.eq.0) Goto 110
             call dcopy_(nD**2,[0.0d0],0,Temp3,1)
-            ndtri=nd*(nd+1)/2
 *
 **  New Cholesky code
 *

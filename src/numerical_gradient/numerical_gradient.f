@@ -260,14 +260,6 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
       Call Get_iScalar('nSym',nSym)
       nIrrep=nSym
       Call Get_iArray('Symmetry operations',iOper,nSym)
-      iSymX = 0
-      iSymY = 0
-      iSymZ = 0
-      Do i = 0, nSym-1
-         If (iAnd(iOper(i),1).ne.0) iSymX = 1
-         If (iAnd(iOper(i),2).ne.0) iSymY = 2
-         If (iAnd(iOper(i),4).ne.0) iSymZ = 4
-      End Do
       MaxDCR = nIrrep
 *                                                                      *
 ************************************************************************

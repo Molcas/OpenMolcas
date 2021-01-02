@@ -60,7 +60,6 @@
       Call Exch(jS,iS,jS,iS,iB,iB,A_K,Scr)
 *
       Do jA=1,nAsh(jS)
-         jAA=jA+nIsh(jS)
          ip=itri1(ja,nd-jVert+1)
          Do jB=1,nAsh(jS)
             jBB=jB+nIsh(jS)

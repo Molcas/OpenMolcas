@@ -24,11 +24,11 @@
       Logical JfHss(4,3,4,3),IfHss(4,3,4,3),JfGrd(3,4),IfGrd(3,4),
      &        IfG(4),JfG(4),ldot
       Integer IndHss(4,3,4,3,0:7),JndHss(4,3,4,3,0:7),
-     &        IndGrd(3,4,0:7),JndGrd(3,4,0:7),iCo(4)
+     &        IndGrd(3,4,0:7),JndGrd(3,4,0:7)
       Logical, External :: TF, TstFnc
 *define _OLD_CODE_
 #ifdef _OLD_CODE_
-      Integer iCom(0:7,0:7),iStabM(0:7), idcrr(0:7)
+      Integer iCo(4), iCom(0:7,0:7),iStabM(0:7), idcrr(0:7)
       Logical chck
 #endif
 *
@@ -100,10 +100,12 @@
  4444        Continue
  3333     Continue
       End Do
+#ifdef _OLD_CODE_
       iCo(1)=mdci
       iCo(2)=mdcj
       iCo(3)=mdck
       iCo(4)=mdcl
+#endif
       Call iCopy(144*nirrep,[0],0,IndHss,1)
       Call iCopy(144*nirrep,[0],0,jndHss,1)
       Call lCopy(144,[.false.],0,IfHss,1)
