@@ -21,7 +21,7 @@ C calculate dd, ss and tt space
       w1gdd=-sqrt(3.d0)/sqrt(2.d0)
       idisk_lp=idisk_array(3)
 
-      DO lpblock=1,lpblock_dd
+      DO lpb=1,lpblock_dd
         call read_lp()
         IpaeL=iml+1
         Ipae =imr+1
@@ -654,7 +654,7 @@ C=======================================================================
       call external_space_plpmode_value_ss()
       idisk_lp=idisk_array(13)
 
-      DO lpblock=1,lpblock_ss
+      DO lpb=1,lpblock_ss
         call read_lp()
         IpaeL=iml+17
         Ipae =imr+17
@@ -1096,7 +1096,7 @@ C=======================================================================
       call external_space_plpmode_value_ST()
       idisk_lp=idisk_array(12)
 
-      DO lpblock=1,lpblock_st
+      DO lpb=1,lpblock_st
         call read_lp()
         IpaeL=iml+17
         Ipae =imr+9
@@ -1520,7 +1520,7 @@ C=======================================================================
 
       call external_space_plpmode_value_TS()
       idisk_lp=idisk_array(9)
-      DO lpblock=1,lpblock_ts
+      DO lpb=1,lpblock_ts
         call read_lp()
         IpaeL=iml+9
         Ipae =imr+17
@@ -1943,7 +1943,7 @@ C=======================================================================
       call external_space_plpmode_value_tt()
       idisk_lp=idisk_array(8)
 
-      DO lpblock=1,lpblock_tt
+      DO lpb=1,lpblock_tt
         call read_lp()
         IpaeL=iml+9
         Ipae =imr+9

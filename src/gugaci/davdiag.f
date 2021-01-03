@@ -1042,9 +1042,9 @@ c
 
         dedav1=(1.d0-vcml(mt))*de
         dedav2=dedav1/(vcml(mt))
-        dedav3=dedav1/(2*vcml(mt)-1)
-        demei=dedav2*(n_electron*(n_electron-5)+6)
-     *       /(n_electron*(n_electron-1))
+c        dedav3=dedav1/(2*vcml(mt)-1)
+c        demei=dedav2*(n_electron*(n_electron-5)+6)
+c     *       /(n_electron*(n_electron-1))
 c        demei=dedav2*(n_electron*(n_electron-5)+6)
 c     :       /(n_electron*(n_electron-1))
         dav1(mt)=vcien(mt)-dedav1

@@ -102,7 +102,6 @@ CMS: New array introduced according to Jeppes new strinfo representation
 
 *. Mappings between different string types
       DO ITYP = 1, NSTTYP
-          NSTRIN = NSTFTP(ITYP)
           IF(ISTAC(ITYP,2).NE.0.AND.ISTAC(ITYP,1).NE.0) THEN
 *.creation on string allowed , use full orbital notation
              Call mma_deallocate(Str(ITYP)%STSTMI)

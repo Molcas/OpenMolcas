@@ -461,7 +461,6 @@ c Avoid unused argument warnings
 *
          IF(INCORE.EQ.1) THEN
            ipq=0
-           MemInt=((nBPQ-1)/iMax+1)*iMax
            ip2=1
            ip5=ip2+((nBPQ-1)/iMax+1)*iMax
            ipX=ip5+iMax+1
@@ -605,7 +604,6 @@ c Avoid unused argument warnings
 *****************************************************************
 *
          IF(INCORE.EQ.1) THEN
-           MemInt=((nBPQ-1)/iMax+1)*iMax
            ip2=1
            ip3=ip2
            ip5=ip3+((nBPQ-1)/iMax+1)*iMax

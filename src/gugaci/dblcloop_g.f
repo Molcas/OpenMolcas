@@ -22,7 +22,7 @@
 c      data dzero/0.d0/
 c =============================  g1,2,4,6,7,8 ==========================
 c       zz=' doub_800_v'
-      dzero=0.0d0
+c      dzero=0.0d0
       db=jb_sys
       im=ns_sm
       jpds0=im+17

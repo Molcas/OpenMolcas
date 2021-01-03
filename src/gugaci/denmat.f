@@ -92,7 +92,6 @@ c should we calculated two-electronic density matrix ?
       nintone=0
       nmob=0
       nidx=0
-      ni=0
       do i=1,ng_sm
         nism   = nlsm_all(i)
         nsmint = nism*(nism+1)/2
@@ -101,7 +100,6 @@ c should we calculated two-electronic density matrix ?
         noidx(i)=nidx
         nidx=nidx+nism
         nintone=nintone+nsmint
-        ni=nidx
       enddo
 
       allocate(x(nmob))

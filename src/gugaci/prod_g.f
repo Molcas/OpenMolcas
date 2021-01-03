@@ -2603,7 +2603,8 @@ c      write(nf2,*) 'logic_g49b',logic_g50,logic_g49a,logic_g49b
 100   jpad=mg2
       iwdl=mg3
       iwdr=mg4
-      do ipae=1,25
+      do ipae_=1,25
+        ipae=ipae_ ! ipae is in common block, is this necessary?
         if(nu_ae(ipae).eq.0) cycle
         iwdown=iw_downwei(jpad,ipae)
         if(iwdown.eq.0) cycle
@@ -2717,7 +2718,8 @@ c     :             vector1(mm),vector1(nn)
 100   jpad=mg2
       iwdl=mg3
       iwdr=mg4
-      do ipae=1,25
+      do ipae_=1,25
+        ipae=ipae_ ! ipae is in common block, is this necessary?
         if(nu_ae(ipae).eq.0) cycle
         iwdown=iw_downwei(jpad,ipae)
         if(iwdown.eq.0) cycle
@@ -2843,7 +2845,8 @@ c             vector2(mntmp)=vector2(mntmp)+wl
 100   jpad=mg2
       iwdl=mg3
       iwdr=mg4
-      do ipae=1,25
+      do ipae_=1,25
+        ipae=ipae_ ! ipae is in common block, is this necessary?
         if(nu_ae(ipae).eq.0) cycle
         iwdown=iw_downwei(jpad,ipae)
         if(iwdown.eq.0) cycle
@@ -2957,7 +2960,8 @@ c            vector2(nn)=vector2(nn)+vector1(mm)*wl
       iwdl=mg3
       iwdr=mg4
       mntmp=0
-      do ipae=1,25
+      do ipae_=1,25
+        ipae=ipae_ ! ipae is in common block, is this necessary?
         if(nu_ae(ipae).eq.0) cycle
         iwdown=iw_downwei(jpad,ipae)
         if(iwdown.eq.0) cycle

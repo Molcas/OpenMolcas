@@ -57,7 +57,8 @@ c look for partial loops in active space drt and save them into disk
       idisk_array(10)=idisk_lp
 
       imr=1
-      do iml=1,ng_sm
+      do iml_=1,ng_sm
+        iml=iml_
         call act_lp_search(4,4,1)     !id=4
       enddo
       lpblock_sv=lpblock
@@ -76,8 +77,10 @@ c look for partial loops in active space drt and save them into disk
       lp_count(1:22)=0
       idisk_array(11)=idisk_lp
 
-      do iml=1,ng_sm
-        do imr=1,ng_sm
+      do iml_=1,ng_sm
+        iml=iml_
+        do imr_=1,ng_sm
+          imr=imr_
           call act_lp_search(1,4,2)    !id=1
         enddo
       enddo
@@ -97,8 +100,10 @@ c look for partial loops in active space drt and save them into disk
       lp_count(1:22)=0
       idisk_array(12)=idisk_lp
 
-      do iml=1,ng_sm
-        do imr=1,ng_sm
+      do iml_=1,ng_sm
+        iml=iml_
+        do imr_=1,ng_sm
+          imr=imr_
           call act_lp_search(3,4,3)   !id=3
         enddo
       enddo
@@ -118,8 +123,10 @@ c look for partial loops in active space drt and save them into disk
       lp_count(1:22)=0
       idisk_array(13)=idisk_lp
 
-      do iml=1,ng_sm
-        do imr=1,ng_sm
+      do iml_=1,ng_sm
+        iml=iml_
+        do imr_=1,ng_sm
+          imr=imr_
           call act_lp_search(3,4,4)    !id=3
         enddo
       enddo
@@ -141,7 +148,8 @@ c look for partial loops in active space drt and save them into disk
 
 
       imr=1
-      do iml=1,ng_sm
+      do iml_=1,ng_sm
+        iml=iml_
         call act_lp_search(4,3,1)       !id=4
       enddo
       lpblock_tv=lpblock
@@ -160,8 +168,10 @@ c look for partial loops in active space drt and save them into disk
       lp_count(1:22)=0
       idisk_array(7)=idisk_lp
 
-      do iml=1,ng_sm
-        do imr=1,ng_sm
+      do iml_=1,ng_sm
+        iml=iml_
+        do imr_=1,ng_sm
+          imr=imr_
           call act_lp_search(1,3,2)    !id=1
         enddo
       enddo
@@ -181,8 +191,10 @@ c look for partial loops in active space drt and save them into disk
       lp_count(1:22)=0
       idisk_array(8)=idisk_lp
 
-      do iml=1,ng_sm
-        do imr=1,ng_sm
+      do iml_=1,ng_sm
+        iml=iml_
+        do imr_=1,ng_sm
+          imr=imr_
           call act_lp_search(3,3,3)    !id=3
         enddo
       enddo
@@ -203,8 +215,10 @@ c look for partial loops in active space drt and save them into disk
       lp_count(1:22)=0
       idisk_array(9)=idisk_lp
 
-      do iml=1,ng_sm
-        do imr=1,ng_sm
+      do iml_=1,ng_sm
+        iml=iml_
+        do imr_=1,ng_sm
+          imr=imr_
           call act_lp_search(3,3,4)    !id=3
         enddo
       enddo
@@ -225,7 +239,8 @@ c look for partial loops in active space drt and save them into disk
       idisk_array(2)=idisk_lp
 
       imr=1
-      do iml=1,ng_sm
+      do iml_=1,ng_sm
+        iml=iml_
         call act_lp_search(1,2,1)      !id=1
       enddo
       lpblock_dv=lpblock
@@ -244,8 +259,10 @@ c look for partial loops in active space drt and save them into disk
       lp_count(1:22)=0
       idisk_array(3)=idisk_lp
 
-      do iml=1,ng_sm
-        do imr=1,ng_sm
+      do iml_=1,ng_sm
+        iml=iml_
+        do imr_=1,ng_sm
+          imr=imr_
           call act_lp_search(3,2,2)    !id=3
         enddo
       enddo
@@ -266,8 +283,10 @@ c look for partial loops in active space drt and save them into disk
       lp_count(1:22)=0
       idisk_array(4)=idisk_lp
 
-      do iml=1,ng_sm
-        do imr=1,ng_sm
+      do iml_=1,ng_sm
+        iml=iml_
+        do imr_=1,ng_sm
+          imr=imr_
           call act_lp_search(2,2,3)      !id=2
         enddo
       enddo
@@ -287,8 +306,10 @@ c look for partial loops in active space drt and save them into disk
       lp_count(1:22)=0
       idisk_array(5)=idisk_lp
 
-      do iml=1,ng_sm
-        do imr=1,ng_sm
+      do iml_=1,ng_sm
+        iml=iml_
+        do imr_=1,ng_sm
+          imr=imr_
           call act_lp_search(2,2,4)    !id=2
         enddo
       enddo
@@ -309,7 +330,8 @@ c look for partial loops in active space drt and save them into disk
       idisk_array(1)=idisk_lp
 
       iml=1
-      do imr=1,ng_sm
+      do imr_=1,ng_sm
+        imr=imr_
         call act_lp_search(2,1,2)       !id=2
       enddo
       lpblock_vd=lpblock
@@ -342,7 +364,8 @@ c look for partial loops in active space drt and save them into disk
         jmlend=ng_sm
         if(jptyl.eq.1) jmlsta=ns_sm
         if(jptyl.eq.1) jmlend=ns_sm
-        do jml=jmlsta,jmlend
+        do jml_=jmlsta,jmlend
+          jml=jml_ ! jml is in common block, is this necessary?
           call get_jp(jptyl,jml,jpadl,0)
           if(nu_ad(jpadl).eq.0) cycle
           jpad=jpadl
@@ -356,7 +379,8 @@ c look for partial loops in active space drt and save them into disk
             jmrend=ng_sm
             if(jptyr.eq.1) jmrsta=ns_sm
             if(jptyr.eq.1) jmrend=ns_sm
-            do jmr=jmrsta,jmrend
+            do jmr_=jmrsta,jmrend
+              jmr=jmr_ ! jmr is in common block, is this necessary?
               call get_jp(jptyr,jmr,jpadr,0)
               if(nu_ad(jpadr).eq.0) cycle
               jpad=jpadr

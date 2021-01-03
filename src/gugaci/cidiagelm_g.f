@@ -36,7 +36,8 @@ c      write(*,*)'         jpad,     jpae,     ndim,      nohy'
       jpae=jv
       ipae=1
       jaedownwei=iseg_downwei(ipae)
-      do jpad=1,mxnode
+      do jpad_=1,mxnode
+        jpad=jpad_ ! jpad is in common block, is this necessary?
         iw_sta(jpad,ipae)=ndimsum
         if(nu_ad(jpad).eq.0) cycle
         call seg_drt()
@@ -52,7 +53,8 @@ c      write(*,*)'         jpad,     jpae,     ndim,      nohy'
         ipae=1+im
         if(nu_ae(ipae).eq.0) cycle
         jaedownwei=iseg_downwei(ipae)
-        do jpad=1,mxnode
+        do jpad_=1,mxnode
+          jpad=jpad_ ! jpad is in common block, is this necessary?
           iw_sta(jpad,ipae)=ndimsum
           if(nu_ad(jpad).eq.0) cycle
           call seg_drt()
@@ -73,7 +75,8 @@ c     endif
         ipae=9+im
         if(nu_ae(ipae).eq.0) cycle
         jaedownwei=iseg_downwei(ipae)
-        do jpad=1,mxnode
+        do jpad_=1,mxnode
+          jpad=jpad_ ! jpad is in common block, is this necessary?
           iw_sta(jpad,ipae)=ndimsum
           if(nu_ad(jpad).eq.0) cycle
           call seg_drt()
@@ -90,7 +93,8 @@ c     endif
         ipae=17+im
         jaedownwei=iseg_downwei(ipae)
         if(nu_ae(ipae).eq.0) cycle
-        do jpad=1,mxnode
+        do jpad_=1,mxnode
+          jpad=jpad_ ! jpad is in common block, is this necessary?
           iw_sta(jpad,ipae)=ndimsum
           if(nu_ad(jpad).eq.0) cycle
           call seg_drt()
@@ -1498,7 +1502,8 @@ c        wt0=wt0+voint(lr,lr)+voint(lr,lr)+vdint(lr,lr)
          wt0_1=2.0d0
          wt0_2=1.0d0
          call trans_ijkl_intpos(lr,lr,lr,lr,nxo)
-        do ipae=1,25
+        do ipae_=1,25
+          ipae=ipae_ ! ipae is in common block, is this necessary?
           if(nu_ae(ipae).eq.0) cycle
           iwdownv=iw_downwei(1,ipae)
           do iwa=0,iwdownv-1
@@ -1528,7 +1533,8 @@ c       jps=js(1)
 c         wld=wt0-voint(lr0,lr0)-vdint(lr0,lr0)
 c          wls=wld-voint(lr0,lr0)
            wld_1=1.0d0
-          do ipae=1,25
+          do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpad,ipae)
             do iwa=0,iwdownv-1
@@ -1539,7 +1545,8 @@ c             call prodel(1,wld,0,ipae,iwad)
           enddo
 
           if(jb_sys.gt.0) then
-            do ipae=1,25
+            do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpad1,ipae)
             do iwa=0,iwdownv-1
@@ -1556,7 +1563,8 @@ c             call prodel(1,wld,0,ipae,iwad)
            wls_1=2.0d0
            wls_2=1.0d0
 
-          do ipae=1,25
+          do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpad,ipae)
             do iwa=0,iwdownv-1
@@ -1568,7 +1576,8 @@ c             call prodel(1,wld,0,ipae,iwad)
           enddo
 
           if(jb_sys.gt.0) then
-            do ipae=1,25
+            do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpad1,ipae)
             do iwa=0,iwdownv-1
@@ -1582,7 +1591,8 @@ c             call prodel(1,wld,0,ipae,iwad)
 ! 0.....s_800.
           jpad=17+ns_sm
           iwd=just(lr0,lr0)
-          do ipae=1,25
+          do ipae_=1,25
+          ipae=ipae_ ! ipae is in common block, is this necessary?
           if(nu_ae(ipae).eq.0) cycle
           iwdownv=iw_downwei(jpad,ipae)
           do iwa=0,iwdownv-1
@@ -1615,7 +1625,8 @@ c      lr0 and lr
          call trans_ijkl_intpos(lr,lr,lr,lr,nxo)
          nxo_2=nxo
 
-         do ipae=1,25
+         do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpat,ipae)
             do iwa=0,iwdownv-1
@@ -1667,7 +1678,8 @@ c     1 <= lrd < norb_dz and lrd.ne.lr0.and.lrd.ne.lr
          wld_1=2.0d0
          wld_2=1.0d0
          call trans_ijkl_intpos(lrd,lrd,lrd,lrd,nxo)
-          do ipae=1,25
+          do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpat,ipae)
             do iwa=0,iwdownv-1
@@ -1723,7 +1735,8 @@ c         wt0=wt0-2.d0*vdint(lr,lr0)
            nxo2_0=nxo
            jpad=1
            iwd=0
-           do ipae=1,25
+           do ipae_=1,25
+              ipae=ipae_ ! ipae is in common block, is this necessary?
               if(nu_ae(ipae).eq.0) cycle
               iwdownv=iw_downwei(jpad,ipae)
               do iwa=0,iwdownv-1
@@ -1757,7 +1770,8 @@ c                 call prodel(1,wt0,0,ipae,iwad)
 c              wld=wld+vdint(lr,lrm)
                wld_1=-1.0d0
                wld_2=2.0d0
-               do ipae=1,25
+               do ipae_=1,25
+                  ipae=ipae_ ! ipae is in common block, is this necessary?
                   if(nu_ae(ipae).eq.0) cycle
                      iwdownv=iw_downwei(jpad,ipae)
                   do iwa=0,iwdownv-1
@@ -1788,7 +1802,8 @@ c                        call prodel(1,wld,0,ipae,iwad)
 c              wld=wld+vdint(lrm,lr0)
                wld_1=-1.0d0
                wld_2=2.0d0
-               do ipae=1,25
+               do ipae_=1,25
+                  ipae=ipae_ ! ipae is in common block, is this necessary?
                   if(nu_ae(ipae).eq.0) cycle
                      iwdownv=iw_downwei(jpad,ipae)
                   do iwa=0,iwdownv-1
@@ -1824,7 +1839,8 @@ c      enddo
       if(.not.logic_lij) then
            wt0_1=-2.0d0
            wt0_2=4.0d0
-      do ipae=1,25
+      do ipae_=1,25
+        ipae=ipae_ ! ipae is in common block, is this necessary?
         if(nu_ae(ipae).eq.0) cycle
         iwdownv=iw_downwei(jpad,ipae)
         do iwa=0,iwdownv-1
@@ -1912,7 +1928,8 @@ c          wls1=wt0+(1.50d0-w1)*voint(lr,lr0)-3.d0*vdint(lr,lr0)
             !    ..1.2  (-1/2-w1)*vo(lr0,lr)+vmd(lr0,lr)
            !  w0=-1/2    w1=-(db-1)/(2*db+2)
                endif
-          do ipae=1,25
+          do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpat,ipae)
             do iwa=0,iwdownv-1
@@ -1961,7 +1978,8 @@ c                 call prodel(1,wlt,0,ipae,iwad)
                   wls1_1=-1.0d0
                   wls1_2=2.0d0
                endif
-          do ipae=1,25
+          do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpat,ipae)
             do iwa=0,iwdownv-1
@@ -2009,7 +2027,8 @@ c                 call prodel(1,wlt,0,ipae,iwad)
                   wls1_1=-1.0d0
                   wls1_2=2.0d0
                endif
-          do ipae=1,25
+          do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpat,ipae)
             do iwa=0,iwdownv-1
@@ -2059,7 +2078,8 @@ c                 call prodel(1,wlt,0,ipae,iwad)
                   wls1_1=-1.0d0
                   wls1_2=2.0d0
                endif
-          do ipae=1,25
+          do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpat,ipae)
             do iwa=0,iwdownv-1
@@ -2107,7 +2127,8 @@ c                 call prodel(1,wlt,0,ipae,iwad)
                   wls1_1=-1.0d0
                   wls1_2=2.0d0
                endif
-          do ipae=1,25
+          do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpat,ipae)
             do iwa=0,iwdownv-1
@@ -2158,7 +2179,8 @@ c                 call prodel(1,wlt,0,ipae,iwad)
                   wls1_1=-1.0d0
                   wls1_2=2.0d0
                endif
-          do ipae=1,25
+          do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpat,ipae)
             do iwa=0,iwdownv-1
@@ -2206,7 +2228,8 @@ c                 call prodel(1,wlt,0,ipae,iwad)
                   wls1_1=-1.0d0
                   wls1_2=2.0d0
                endif
-          do ipae=1,25
+          do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpat,ipae)
             do iwa=0,iwdownv-1
@@ -2262,7 +2285,8 @@ c                 call prodel(1,wlt,0,ipae,iwad)
               wls1_2=4.0d0
            endif
 
-          do ipae=1,25
+          do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpat,ipae)
             do iwa=0,iwdownv-1

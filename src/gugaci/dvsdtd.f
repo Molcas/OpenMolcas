@@ -18,7 +18,7 @@
       call external_space_plpmode_value_dv()
 
       idisk_lp=idisk_array(2)
-      do lpblock=1,lpblock_dv
+      do lpb=1,lpblock_dv
         call read_lp()
         ipael=iml+1
         ipae=1
@@ -856,7 +856,7 @@ c      write(6,*)'  sd_wyb'
 
       idisk_lp=idisk_array(11)
 
-      do lpblock=1,lpblock_sd
+      do lpb=1,lpblock_sd
         call read_lp()
         ipael=iml+17
         ipae =imr+1
@@ -890,7 +890,7 @@ c      write(6,*)'  sd_wyb'
 
       idisk_lp=idisk_array(11)
 
-      do lpblock=1,lpblock_sd
+      do lpb=1,lpblock_sd
         call read_lp()
         ipael=iml+17
         ipae =imr+1
@@ -1994,7 +1994,7 @@ c      write(6,*)'  td_wyb'
       call sd_ext_space_w01plp_value()
 
       idisk_lp=idisk_array(7)
-      do lpblock=1,lpblock_td
+      do lpb=1,lpblock_td
         call read_lp()
         ipael=iml+9
         ipae =imr+1
@@ -2838,7 +2838,6 @@ c        enddo
      *      m_jc,m_jd, isegsta,isegupwei,isegdownwei
       ismnodes=ilsm
       ismnoded=irsm
-      ismsd=mul_tab(ismnodes,ismnoded)
       indl=0 !?
       if(iltype.eq.2)indl= 1+ismnodes
       if(iltype.eq.3)indl= 9+ismnodes
@@ -2899,7 +2898,6 @@ c        enddo
      *      m_jc,m_jd, isegsta,isegupwei,isegdownwei
 
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
 
@@ -2990,7 +2988,6 @@ c        enddo
      *      m_jc,m_jd, isegsta,isegupwei,isegdownwei
 
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
 

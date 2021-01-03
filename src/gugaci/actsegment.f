@@ -438,12 +438,9 @@ c        logic_br(mh)=.true
                 lpnew_rwei(lpnew)=lprwei
                 vplpnew_w0(lpnew)=w0*w
                 vplpnew_w1(lpnew)=w1*ww
-                if (vplpnew_w0(lpnew).eq.0.and.vplpnew_w1(lpnew).eq.0)
-     &            then
-                  lpnew=lpnew-1
-                  cycle
-                endif
-                exit
+                if (vplpnew_w0(lpnew).ne.0.or.vplpnew_w1(lpnew).ne.0)
+     &            exit
+                lpnew=lpnew-1
               enddo
             enddo
           enddo
@@ -509,16 +506,15 @@ c         iposib=jb(lprtail)*80
                 lpnew_rwei(lpnew)=lprwei
                 vplpnew_w0(lpnew)=w0*w
                 vplpnew_w1(lpnew)=w1*ww
-                if ( vplpnew_w0(lpnew).eq.0.and.vplpnew_w1(lpnew).eq.0)
+                if (vplpnew_w0(lpnew).ne.0.or.vplpnew_w1(lpnew).ne.0)
      &            then
-                  lpnew=lpnew-1
-                  cycle
+                  do lr=norb_dz+1,iorb-1
+                    lpnew_coe(lr,lpnew)=lp_coe(lr,iactploop)
+                  enddo
+                  lpnew_coe(iorb,lpnew)=k_coe(jbl,jbr,ilstep,irstep)
+                  exit
                 endif
-                do lr=norb_dz+1,iorb-1
-                  lpnew_coe(lr,lpnew)=lp_coe(lr,iactploop)
-                enddo
-                lpnew_coe(iorb,lpnew)=k_coe(jbl,jbr,ilstep,irstep)
-                exit
+                lpnew=lpnew-1
               enddo
             enddo
           enddo
@@ -806,11 +802,9 @@ c      call change_vplp_pointer_arrays()
         w1=vplp_w1(iactploop)
         idb=jb(lprtail)-jb(lpltail)
         ilstep=4
-        ilc=istep_occ(ilstep)
         lpnextltail=jjl_sub(ilstep,lpltail)
         if ( lpnextltail .eq. 0 ) cycle
         irstep=1
-        irc=istep_occ(irstep)
         lpnextrtail=jj_sub(irstep,lprtail)
         if ( lpnextrtail .eq. 0 ) cycle
 

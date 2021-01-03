@@ -306,7 +306,6 @@
         w0td1=w0_t1d1(1)
         ni=mod(norb_dz-lri,2)
         if(ni.eq.1) w0td1=-w0td1
-        ijk=lri-norb_frz+lra
 !-------------------------------------------------------------------
 !t1d1(15-1) (11)a(13)
           do lrk=norb_frz+1,lri-1
@@ -2141,7 +2140,6 @@
             do lrk=1,norb_dz
               if(lrk.eq.lri) cycle
               if(lrk.eq.lrj) cycle
-              lmk=lsm_inn(lrk)
 !t1t1(12-3)  drl(33)-
 !t1t1(12-3)  drl(33)-c"(11)-
 !t1t1(12-3)  drl(33)-c"(11)-c"(11)-

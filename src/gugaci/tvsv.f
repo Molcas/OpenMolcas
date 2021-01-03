@@ -14,7 +14,7 @@
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
       common/lpdisk/idisk_lp,idisk_array(13)
-      dsq3=1.732050807568877d0
+c      dsq3=1.732050807568877d0
 c      iltype =3
 c      irtype =1
 c      w0_d48=0.0d0
@@ -22,7 +22,7 @@ c      w1_d48=dsq3
 
       idisk_lp=idisk_array(6)
 
-      do lpblock=1,lpblock_tv
+      do lpb=1,lpblock_tv
         call read_lp()
         ipael=iml+9
         ipae=1
@@ -338,7 +338,7 @@ c      irtype =1
 
       idisk_lp=idisk_array(10)
 
-      do lpblock=1,lpblock_sv
+      do lpb=1,lpblock_sv
         call read_lp()
         ipael=iml+17
         ipae=1

@@ -378,7 +378,7 @@ C IS H*C CALCULATIONS, ???
 
 !G2G4b
       if ( logic_g2g4a ) then
-        w0lp=w0_plp*w0g2a
+c       w0lp=w0_plp*w0g2a
         w1lp=w1_plp*w1g2a
 
 C       valuelptmp1=w0lp

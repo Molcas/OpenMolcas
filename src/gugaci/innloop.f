@@ -34,10 +34,12 @@ c      write(6,'(2x,2(a5,f12.4))')'dbl',wsc1-wsc0,'act',wsc2-wsc1
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
       if(norb_act.eq.0) return
-      do ipae=1,25
+      do ipae_=1,25
+        ipae=ipae_ ! ipae is in common block, is this necessary?
         jpae=nu_ae(ipae)
         if(jpae.eq.0) cycle
-        do jpad=1,mxnode
+        do jpad_=1,mxnode
+          jpad=jpad_ ! jpad is in common block, is this necessary?
           if(nu_ad(jpad).eq.0) cycle
           call seg_drt()
           if(ndim .eq. 0) cycle
@@ -53,16 +55,19 @@ c      write(6,'(2x,2(a5,f12.4))')'dbl',wsc1-wsc0,'act',wsc2-wsc1
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
       if(norb_act.eq.0) return
-      do ipae=1,25
+      do ipae_=1,25
+        ipae=ipae_ ! ipae is in common block, is this necessary?
         jpae=nu_ae(ipae)
         if(jpae.eq.0) cycle
-        do jpadl=1,mxnode                                ! jpadl
+        do jpadl_=1,mxnode                               ! jpadl
+          jpadl=jpadl_ ! jpadl is in common block, is this necessary?
           if(nu_ad(jpadl).eq.0) cycle
             jpad=jpadl
             call seg_drt()
             if(ndim .eq. 0) cycle
             call copy_to_drtl()
-          do jpad=1,mxnode                                !jpadr
+          do jpad_=1,mxnode                               !jpadr
+            jpad=jpad_ ! jpad is in common block, is this necessary?
             if(nu_ad(jpad).eq.0) cycle
             call seg_drt()
             if(ndim .eq. 0) cycle
@@ -355,7 +360,8 @@ c-----------------------------------------------------------
       lrg=lrg0
       lrs=lrs0
       jph=0
-      do mhlp=1,mh
+      do mhlp_=1,mh
+        mhlp=mhlp_ ! mhlp is in common block, is this necessary?
         jpel=lpnew_ltail(mhlp)
         jper=lpnew_rtail(mhlp)
         jwl =lpnew_lwei(mhlp)
@@ -448,7 +454,8 @@ c      call change_vplp_pointer_arrays()
       line=lin
       lrg=lrg0
       lrs=lrs0
-      do mhlp=1,mh
+      do mhlp_=1,mh
+        mhlp=mhlp_ ! mhlp is in common block, is this necessary?
         jph =lpnew_head(mhlp)
         jpel=lpnew_ltail(mhlp)
         jper=lpnew_rtail(mhlp)

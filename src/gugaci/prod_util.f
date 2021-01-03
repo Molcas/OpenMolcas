@@ -209,7 +209,8 @@ c
       iwdl=mg3
       iwdr=mg4
       ipaeend=25
-      do ipae=1,ipaeend
+      do ipae_=1,ipaeend
+        ipae=ipae_ ! ipae is in common block, is this necessary?
         if(nu_ae(ipae).eq.0) cycle
         iwdown=iw_downwei(jpad,ipae)
         if(iwdown.eq.0) cycle

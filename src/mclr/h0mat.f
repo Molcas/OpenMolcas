@@ -43,8 +43,8 @@
       iprt=100
       intspc=1
 *     luhdia=0
-      IATP = IASTFI(INTSPC)
-      IBTP = IBSTFI(INTSPC)
+*     IATP = IASTFI(INTSPC)
+*     IBTP = IBSTFI(INTSPC)
 *     MNR1 = MNR1IC(INTSPC)
 *     MXR1 = MXR1IC(INTSPC)
 *     MNR3 = MNR3IC(INTSPC)

@@ -18,7 +18,7 @@
       call external_space_plpmode_value_vd()
 
       idisk_lp=idisk_array(1)
-      do lpblock=1,lpblock_vd
+      do lpb=1,lpblock_vd
         call read_lp()
         ipael=1
         ipae =imr+1
@@ -314,7 +314,7 @@ c      write(6,*)'  sd_wyb'
       call external_space_plpmode_value_ds()
 
       idisk_lp=idisk_array(5)
-      do lpblock=1,lpblock_ds
+      do lpb=1,lpblock_ds
         call read_lp()
         ipael=iml+1
         ipae =imr+17
@@ -619,7 +619,7 @@ c      write(6,*)'  td_wyb'
       call external_space_plpmode_value_dt()
 
       idisk_lp=idisk_array(4)
-      do lpblock=1,lpblock_dt
+      do lpb=1,lpblock_dt
         call read_lp()
         ipael=iml+1
         ipae =imr+9
@@ -644,7 +644,6 @@ c        jmlr=mul_tab(jml,jmr)
 #include "lpextmode_h.fh"
 
       logic_dh=.true.
-      isma=mul_tab(iml,imr)
 c      jmlr=mul_tab(jml,jmr)
       lpok=jpadlr
 !      goto(101,102,103,10,10,106,107,10,10,10,111,10,
