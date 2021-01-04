@@ -117,7 +117,7 @@
       Character*8 EMILOOP
 * --------- End Orbital-Free Embedding stuff
 
-      Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
+#include "sxci.fh"
 
       External Get_ProgName
 !      External Get_SuperName
