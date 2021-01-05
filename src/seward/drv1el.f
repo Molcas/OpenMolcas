@@ -1722,21 +1722,8 @@ C     mMltpl=-1 ! Do only overlap.
          Call mma_allocate(iAtmNr2,nCnttp,Label='iAtmNr2')
          Call mma_allocate(Charge2,nCnttp,Label='Charge2')
          Do i=1,nCnttp
-            If (dbsc(i)%ECP  .or.
-     &          dbsc(i)%Aux  .or.
-     &          dbsc(i)%Frag) Then
-               Write (6,*) 'AMFI integrals not available for the'
-     &                   //' non-valence typ of basis set.'
-               Write (6,*) 'If no AMFI integrals are needed, that is'
-     &                   //' there will be no spin-orbit processing,'
-               Write (6,*) ' then add the keyword NOAMFI to the input.'
-               Call Abend()
-            End If
             iAtmNr2(i) = dbsc(i)%AtmNr
             Charge2(i) = dbsc(i)%Charge
-
-c           write(6,*) "iAtmNr2(i)",i, iAtmNr2(i)
-c           write(6,*) "Charge(i)", i, dbsc(i)%Charge
 
             iAtom_Number= dbsc(i)%AtmNr
             If (iAtom_Number<0 .or. iAtom_Number>SIZE(No_AMFI)) Then
