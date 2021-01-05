@@ -13,9 +13,7 @@
 ************************************************************************
 
       module fciqmc_read_RDM
-      use stdalloc, only : mma_allocate, mma_deallocate
-      use general_data, only : iSpin, nActEl
-      use rasscf_data, only : nAc, nAcPar
+      use general_data, only : nActEl
 ! Note that two_el_idx_flatten has also out parameters.
       use index_symmetry, only : two_el_idx_flatten
       use CI_solver_util, only: CleanMat

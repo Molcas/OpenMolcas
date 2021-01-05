@@ -17,11 +17,10 @@ module desymmetrize_mod
     use Basis_Info, only: nBas, nCnttp, dbsc, Shells, MolWgh
     use Center_Info, only: dc
     use definitions, only: wp
-    use linalg_mod, only: abort_, verify_
+    use linalg_mod, only: verify_
     use Symmetry_Info, only: nIrrep, lIrrep
     use stdalloc, only: mma_allocate, mma_deallocate
-    use sorting, only: swap, sort, argsort
-    use sorting_funcs, only: leq_r, geq_r
+    use sorting, only: sort
     use info_expbas_mod
 
     implicit none

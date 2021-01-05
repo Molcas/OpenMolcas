@@ -42,7 +42,7 @@ c version of xian-ci
 
       return
 
-      write(6,'(a18,2x,f10.2,2x,a1)') 'end of grad, takes',sc5-sc0,'s'
+c     write(6,'(a18,2x,f10.2,2x,a1)') 'end of grad, takes',sc5-sc0,'s'
       end
 
 
@@ -822,6 +822,12 @@ c
 
       npat=numat*(numat+1)/2
       index_atom(1:3,1:npat)=0
+
+      ndi0(:)=0
+      ndj0(:)=0
+      ndk0(:)=0
+      ndl0(:)=0
+      daoint1(:)=zero
 
 !      filename=tmpdir(1:len_str)//"/daoints"
 !      len=len_str+8

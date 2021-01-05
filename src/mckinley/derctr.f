@@ -25,11 +25,12 @@
      &        IfG(4),JfG(4),ldot
       Integer IndHss(4,3,4,3,0:7),JndHss(4,3,4,3,0:7),
      &        IndGrd(3,4,0:7),JndGrd(3,4,0:7)
-      Logical, External :: TF, TstFnc
+      Logical, External :: TF
 *define _OLD_CODE_
 #ifdef _OLD_CODE_
       Integer iCo(4), iCom(0:7,0:7),iStabM(0:7), idcrr(0:7)
       Logical chck
+      Logical, External :: TstFnc
 #endif
 *
       Ind(i1,i2)=i1*(i1-1)/2+i2

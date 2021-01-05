@@ -171,7 +171,7 @@ c      write(nf2,*) 'ar_bl_dd_ext'
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
 
       logic_g1415=.false.
       logic_g2g4b=.false.
@@ -279,7 +279,7 @@ c      write(nf2,*) 'ar_bl_dd_ext'
                   logic_g36b=.false.
                   logic_g35b=.false.
                   logic_g34b=.false.
-      data crl/1.0e-8/
+      data crl/1.0d-8/
       if(logic_grad) then
       do lrk=1,norb_dz
          if(lri.eq.lrk)   cycle
@@ -345,7 +345,7 @@ c      write(nf2,*) 'ar_bl_dd_ext'
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
 
       iwuplwei=jpad_upwei(jpadl)
       ilsegdownwei=iseg_downwei(ipael)
@@ -531,7 +531,7 @@ c                  logic_g34b=.false.
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      data crl/1.0e-8/
+      data crl/1.0d-8/
 c                  logic_g1415=.false.
 c                  logic_g2g4b=.false.
 c                  logic_g36b=.false.
@@ -604,7 +604,7 @@ c      call lp_drl_sum_tt_calcuvalue(lri,lrj,n1415,nlp_value)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
 
 c                  logic_g1415=.false.
 c                  logic_g2g4b=.false.

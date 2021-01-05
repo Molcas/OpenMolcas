@@ -42,7 +42,6 @@
       use general_data, only : nActel, iSpin, stSym, mXSym,
      &  nFro, nIsh, nAsh, nDel, nBas, nRs1, nRs2, nRs3, nHole1, nElec3,
      &  nTot, nTot2, nConf
-      use gugx_data, only : ifCas
       use gas_data, only : nGssh
 
 #include "output_ras.fh"
@@ -264,7 +263,7 @@ c     & Work(lCMO), Work(ipOcc), FDIAG, IndType,VecTyp)
 
       subroutine putOrbFile(CMO, orbital_E, iDoGAS)
         use general_data, only : ntot,
-     &    nFro, nIsh, nRs1, nRs2, nRs3, nDel, nAsh, nBas
+     &    nFro, nIsh, nRs1, nRs2, nRs3, nDel, nBas
         use gas_data, only : nGSSH
         real*8, intent(in) :: CMO(:), orbital_E(:)
         logical, intent(in) :: iDoGAS

@@ -15,24 +15,20 @@
 module CC_CI_mod
 #ifdef _MOLCAS_MPP_
     use mpi
+    use definitions, only: MPIInt
 #endif
-    use definitions, only: MPIInt, wp
-    use filesystem, only: chdir_, getcwd_, get_errno_, strerror_, &
-     real_path
+    use definitions, only: wp
+    use filesystem, only: getcwd_, get_errno_, strerror_, real_path
     use linalg_mod, only: verify_, abort_
-    use fortran_strings, only: str
-    use stdalloc, only : mma_allocate, mma_deallocate, mxMem
 
-    use rasscf_data, only: iter, lRoots, nRoots, iRoot, EMY, &
-         S, KSDFT, rotmax, Ener, iAdr15, Weight, nAc, nAcPar, nAcPr2
-    use general_data, only: iSpin, nSym, nConf, JobIPH, &
-         ntot, ntot1, ntot2, nAsh, nBas, nActEl
-    use gugx_data, only: IfCAS
-    use gas_data, only: ngssh, iDoGas, nGAS, iGSOCCX
+    use rasscf_data, only: iter, lRoots, EMY, &
+         S, KSDFT, Ener, nAc, nAcPar, nAcPr2
+    use general_data, only: iSpin, nSym, nConf, &
+         ntot, ntot1, ntot2, nAsh, nActEl
+    use gas_data, only: ngssh, iDoGas
 
     use generic_CI, only: CI_solver_t
-    use index_symmetry, only: one_el_idx, two_el_idx, &
-        one_el_idx_flatten, two_el_idx_flatten
+    use index_symmetry, only: one_el_idx, two_el_idx_flatten
     use CI_solver_util, only: wait_and_read, RDM_to_runfile, &
         CleanMat
 

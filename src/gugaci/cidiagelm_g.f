@@ -1492,7 +1492,7 @@ c            call prodel(6,wl,iwd,iwa,iwe)
 !     :    ,jv,jd(8),jt(8),js(8)
 !      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-      data dzero/0.d0/
+!     data dzero/0.d0/
       logical logic_lij
 
       if(norb_dz.eq.0) return
@@ -1771,7 +1771,8 @@ c              wld=wld+vdint(lr,lrm)
                wld_1=-1.0d0
                wld_2=2.0d0
                do ipae_=1,25
-                  ipae=ipae_ ! ipae is in common block, is this necessary?
+                  ! ipae is in common block, is this necessary?
+                  ipae=ipae_
                   if(nu_ae(ipae).eq.0) cycle
                      iwdownv=iw_downwei(jpad,ipae)
                   do iwa=0,iwdownv-1
@@ -1803,7 +1804,8 @@ c              wld=wld+vdint(lrm,lr0)
                wld_1=-1.0d0
                wld_2=2.0d0
                do ipae_=1,25
-                  ipae=ipae_ ! ipae is in common block, is this necessary?
+                  ! ipae is in common block, is this necessary?
+                  ipae=ipae_
                   if(nu_ae(ipae).eq.0) cycle
                      iwdownv=iw_downwei(jpad,ipae)
                   do iwa=0,iwdownv-1

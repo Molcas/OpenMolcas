@@ -28,7 +28,7 @@ c#include "print.fh"
 *
 *     Statement function
 *
-      nElem(i) = (i+1)*(i+2)/2
+*     nElem(i) = (i+1)*(i+2)/2
 *
 c     iRout = 13
 c     iPrint = nPrint(iRout)

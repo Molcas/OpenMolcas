@@ -175,8 +175,6 @@ contains
 !>  @param[in] cutoff Optional parameter that is set by default to
 !>    fciqmc_tables::cutoff_default.
   subroutine fill_fock(fock_table, Fock, cutoff)
-    use general_data, only : nActEl, nAsh, ntot, ntot1, ntot2
-    use rasscf_data, only : nAcPar
     implicit none
     real*8, intent(in) :: Fock(:)
     type(FockTable), intent(inout) :: fock_table

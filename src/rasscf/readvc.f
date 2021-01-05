@@ -58,11 +58,10 @@
 *                                                                      *
 ************************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
-      use fortran_strings, only : to_upper
 
       use rasscf_data, only : lRoots, nRoots,
      &  iRoot, LENIN8, mxTit, Weight, mXOrb, mXroot,
-     &  maxorbout, nAcPar, iXsym, iAlphaBeta,
+     &  nAcPar, iXsym, iAlphaBeta,
      &  iOverwr, iSUPSM, iCIrst, iPhName, nAcpr2, nOrbT, iClean,
      &  purify, iAdr15
       use general_data, only : nSym, mXSym,

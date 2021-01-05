@@ -26,7 +26,7 @@ contains
 !>  @details
 !>  Create an ASCII formatted FCIDUMP with core energy,
 !>  orbital energies, Fock matrix elements and two electron integrals.
-!>  Contains information about \p nAsh, \p nSym, \p nActEl,
+!>  Contains information about \p nAsh, \p nActEl,
 !>  \p iSpin, and \p stSym.
 !>
 !>  @param[in] EMY Core energy
@@ -35,7 +35,7 @@ contains
 !>  @param[in] two_el_table
   subroutine dump_ascii(path, EMY, orbital_table, fock_table, &
                         two_el_table, orbsym)
-    use general_data, only : nSym, nActEl, iSpin, stSym, nAsh
+    use general_data, only : nActEl, iSpin, stSym, nAsh
     implicit none
     character(len=*), intent(in) :: path
     real*8, intent(in) :: EMY

@@ -27,7 +27,7 @@ c     *****************************************************************
       dimension eval(maxroot),vcm(ndim*mroot),eeval(maxroot)
       dimension residvb(maxroot),valpha(maxroot),deff(maxroot)
       dimension ecrita(maxroot)
-      data depc/1.0e-7/
+      data depc/1.0d-7/
 c**************************************************************
 c
 c      write(6,*) 'generate vector vb2 from matrix a and vector vb1'
@@ -340,7 +340,7 @@ c
 
       subroutine norm_a(n,av)  !bv:basis, av:vector for orth and norm
       real*8 av(n),s,ddot_,dcrita
-      dcrita=1.0e-10
+      dcrita=1.0d-10
 c     normalization of av_eigenvector.
       s=0.0d0
       s=ddot_(n,av,1,av,1)

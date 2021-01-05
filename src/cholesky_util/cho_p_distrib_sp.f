@@ -46,8 +46,6 @@ C
 #include "choptr.fh"
 #include "WrkSpc.fh"
 
-      Integer  Cho_iSumElm
-      External Cho_iSumElm
       Integer  Cho_iFindSmallest
       External Cho_iFindSmallest
 

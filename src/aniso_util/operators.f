@@ -556,8 +556,7 @@ C  new method
       Real(kind=8),intent(out) :: coeffCG
       Real(kind=8)             :: u, fct, s1, s2
       Integer                   :: lb1, lb2, i
-      Logical                   :: check_triangle
-      External                  :: check_triangle, fct
+      External                  :: fct
 c exclude the cases for which CG coefficients are exactly zero
       coeffCG=0.0_wp
       If((al+bt).ne.gm) Return
@@ -637,9 +636,9 @@ c
       Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in) :: a,b,c,d,e,f,g,h,j
       Integer             :: n,nlow,nhig
-      Real(kind=8)       :: dlt,fct,W6J
+      Real(kind=8)       :: W6J
       Logical             :: check_triangle
-      External            :: fct,dlt,W6J,check_triangle
+      External            :: W6J,check_triangle
 
       W9j =0.0_wp
       If(MOD(a+b,2) .ne. MOD(c,2)) Return
@@ -742,9 +741,7 @@ c   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
       Implicit None
       Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in) :: j1, j2, j3, m1, m2, m3
-      Real(kind=8)       :: fct, dlt, coeffCG
-      Logical             :: check_triangle
-      External            :: check_triangle, fct, dlt
+      Real(kind=8)       :: coeffCG
 
       W3J=0.0_wp
       coeffCG=0.0_wp
@@ -979,8 +976,8 @@ c the formula is valid for Tb, Dy, Ho, Er, Tm and Yb only
       Integer, Parameter  :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in) :: La, Sa, LaP, SaP, L, S
       Integer             :: JaP, jm, js, s_orb, l_orb
-      Real(kind=8)       :: WCG, W9J, temp, factor
-      external            :: WCG, W9J
+      Real(kind=8)       :: WCG, temp, factor
+      external            :: WCG
 
       RedME=0.0_wp
       temp=0.0_wp

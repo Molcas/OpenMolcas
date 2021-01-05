@@ -34,8 +34,7 @@
 * mxn should be len(line)/2+1
       parameter (mxn=91)
       common/cgetln/ ncol, jstrt(mxn),jend(mxn)
-      Integer StrnLn
-      External Get_Ln, StrnLn
+      External Get_Ln
       Logical External_UDC, External_Case,
      &        Explicit_IRC, Expert, ThrInp, FirstNum
 #include "angstr.fh"

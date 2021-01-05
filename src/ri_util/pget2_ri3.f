@@ -43,8 +43,7 @@
       Logical Shijij
 *     Local Array
       Integer jSym(0:7), kSym(0:7), lSym(0:7), nAct(0:7)
-      Integer iTwoj(0:7),nCumnnP(0:7),nCumnnP2(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
+      Integer nCumnnP(0:7),nCumnnP2(0:7)
 #include "ymnij.fh"
 *                                                                      *
 ************************************************************************

@@ -1173,7 +1173,9 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           Call RdOne(iRc,iOpt,'OneHam',iComp,Work(iTmp1),iSyLbl)
           If ( iRc.ne.0 ) then
            Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
+#ifdef _FDE_
            Write(LF,*) 'Label = ',Label
+#endif
            Write(LF,*) 'iRc = ',iRc
            Call Abend
           End if
@@ -1395,9 +1397,9 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
      &      'Total time spent (hh:mm:ss):        ',ihh,':',imm,':',iss
           else
             if(doDMRG)then
-#ifdef _DMRG_
               maxtrW = 0.0d0
               maxtrR = -1
+#ifdef _DMRG_
               ITERCI = MAXVAL(dmrg_energy%num_sweeps)
               IROT   = MAXLOC(dmrg_energy%num_sweeps,nroots)
               maxtrW = MAXVAL(dmrg_energy%max_truncW)

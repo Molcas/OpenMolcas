@@ -847,8 +847,6 @@ c        enddo
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
       common/lpdisk/idisk_lp,idisk_array(13)
-      data dsq2/1.414213562373d0/vsq2/0.7071067811865d0/
-c      data dsq3/ 1.732050807569d0/
 c      write(6,*)'  sd_wyb'
 
 !      logic_sd=.true.
@@ -881,8 +879,6 @@ c        jmlr=mul_tab(jml,jmr)
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
       common/lpdisk/idisk_lp,idisk_array(13)
-      data dsq2/1.414213562373d0/vsq2/0.7071067811865d0/
-c      data dsq3/ 1.732050807569d0/
 c      write(6,*)'  sd_wyb'
 
 !      logic_sd=.true.
@@ -1983,9 +1979,6 @@ c        value_lpext(ilwei)=(vint_ci(iposint2)+
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
       common/lpdisk/idisk_lp,idisk_array(13)
-      data dzero/0.d0/dsq2/1.414213562373d0/
-      data dsq3/ 1.732050807569d0/
-      data dsq3vsq2/1.224744871392d0/
 c      write(6,*)'  td_wyb'
 
 !      logic_sd=.true.

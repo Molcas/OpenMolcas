@@ -100,7 +100,7 @@
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
 
       iwuplwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipae)
@@ -280,7 +280,7 @@ c      endif
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
 
       isma=lsm_inn(lri)
       iwuplwei=jpad_upwei(jpad)
@@ -391,7 +391,7 @@ c      endif
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
 
       isma=lsm_inn(lri)
       iwuplwei=jpad_upwei(jpadl)
@@ -654,7 +654,7 @@ c      endif
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
       if(logic_grad) then
       do lrk=1,norb_dz
         if(lrp.eq.lrk) cycle
@@ -724,7 +724,7 @@ c      endif
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
       if(logic_grad) then
         do lrk=1,norb_dz
           if(lrp.eq.lrk) cycle
@@ -793,7 +793,7 @@ c      endif
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
 
       iwuplwei=jpad_upwei(jpadl)
       ilsegdownwei=iseg_downwei(ipael)
@@ -899,7 +899,7 @@ c      endif
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
       iwuplwei=jpad_upwei(jpadl)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
@@ -994,7 +994,7 @@ c      endif
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
       iwuplwei=jpad_upwei(jpadl)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)

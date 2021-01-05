@@ -32,10 +32,8 @@
       Real*8 AOInt(iBas_Eff*jBas_Eff,iCmp,jCmp,nIC),
      &       SOInt(iBas*jBas,nSOInt)
       Integer nOp(2)
-      Real*8 Prmt(0:7)
       Integer iTwoj(0:7), jIC(0:7)
       Data iTwoj/1,2,4,8,16,32,64,128/
-      Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
 *
       iRout = 133
       iPrint = nPrint(iRout)

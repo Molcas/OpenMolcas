@@ -34,7 +34,7 @@
 *                                                                      *
 ************************************************************************
       use OccSets
-      use IOBUF, id_IOBuf => id
+      use IOBuf, only: lDaRec,nSect!,DiskMx_MByte
 *
       Implicit Real*8 (a-h,o-z)
       External Allocdisk

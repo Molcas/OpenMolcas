@@ -426,7 +426,7 @@ C     Call Seward_Banner()
          Call dDafile(Lu_28,1,Buf%Buf,lBuf,iDisk)
          Write (6,*)
          Write (6,'(A)')' Integrals are written in MOLCAS1 format'
-         Write (6,'(I10,A)') IntTot,' Integrals written on Disk'
+         !Write (6,'(I10,A)') IntTot,' Integrals written on Disk'
 *                                                                      *
 ************************************************************************
 *                                                                      *

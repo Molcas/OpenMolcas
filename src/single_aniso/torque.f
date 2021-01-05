@@ -58,7 +58,7 @@ c magnetic and spin moments (i.e. the BIG matrices):
       Real(kind=8)    :: g(3),mg(3,3)!,ma_inv(3,3)!,det
       Real(kind=8)    :: AngStep,AngRad,pi
       Logical          :: DBG
-      Integer          :: IM,I,J,l,mem_local,RtoB,CtoB,nT_torq
+      Integer          :: IM,I,J,mem_local,RtoB,CtoB,nT_torq
 
 c      Boltz_k=0.6950356000_wp   !   in cm^-1*K-1
 c      mu_Bohr=0.4668643740_wp   !   in cm-1*T-1
@@ -194,8 +194,8 @@ c      End If
          dZ(i)=sin(AngRad)
       End Do
       If(dbg) Then
-        Write(6,'(A,I5)') 'Angular grid for Magnetization Torque, '//
-     &                    'Cartesian Component =',L
+!       Write(6,'(A,I5)') 'Angular grid for Magnetization Torque, '//
+!    &                    'Cartesian Component =',L
         Write(6,'(2x,A,4x,A,5x,3(10X,A,10x))') 'Nr.','Angle','X','Y','Z'
         Do i=1,AngPoints
           Write(6,'(I4,F10.3,3x,3F21.14)') i,Ang(i),dX(i),dY(i),dZ(i)

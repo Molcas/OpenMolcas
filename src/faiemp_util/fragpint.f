@@ -97,8 +97,9 @@
       Real*8  Fact,Factor,Xg
 * external functions:
       Integer NrOpr
-      Real*8  DNRM2_
-      External DNRM2_,NrOpr
+      External NrOpr
+c      Real*8  DNRM2_
+c      External DNRM2_
 *
 *     Statement functions
 *

@@ -56,8 +56,6 @@
       Integer   iAnga(4), iCmpa(4), nPam(4,0:7), iiBas(4),
      &          iFnc(4), iAO(4)
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
-      Integer   iTwoj(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
 *
 *     Statement function to compute canonical index
 *

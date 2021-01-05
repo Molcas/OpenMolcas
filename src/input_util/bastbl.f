@@ -158,8 +158,6 @@ c
 c  translate basis file names
 c
       character *(*) Filename
-      Logical King
-      External King
       Integer StrnLn
       External StrnLn
       character *256 DirName, OrigName

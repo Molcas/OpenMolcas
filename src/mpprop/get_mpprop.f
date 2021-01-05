@@ -78,23 +78,24 @@
         Write(iStdOut,*) ' Using the INPORB file'
         If(LFirstRun) Then
           Write(iStdOut,*) ' This is first run of Get_MpProp'
-          Write(iStdOut,*)
-          If(Method.eq.'UHF-SCF') Then
-            Write(iStdOut,*) ' Number of alpha electrons', nOcOB
-          Else
-            Write(iStdOut,*) ' Occupation Number ', nOcOB
-          EndIf
-          Write(iStdOut,*) ' Number of Orbitals' , nOrb
+          !Write(iStdOut,*)
+          !If(Method.eq.'UHF-SCF') Then
+          !  Write(iStdOut,*) ' Number of alpha electrons', nOcOB
+          !Else
+          !  Write(iStdOut,*) ' Occupation Number ', nOcOB
+          !EndIf
+          !Write(iStdOut,*) ' Number of Orbitals' , nOrb
         Else
           Write(iStdOut,*) ' Running Get_MpProp for the second time'
-          Write(iStdOut,*) ' Number beta electrons ', nOcOB
-          Write(iStdOut,*) ' Number of Orbitals' , nOrb
+          !Write(iStdOut,*)
+          !Write(iStdOut,*) ' Number beta electrons ', nOcOB
+          !Write(iStdOut,*) ' Number of Orbitals' , nOrb
         EndIf
       Else
         Write(iStdOut,*)' Using the densities from a Molcas calculation'
       EndIf
       Write(iStdOut,*)
-* Set the varible that knowes the component
+* Set the variable that knows the component
       Do iMltpl = 0,nMltPl
          iComp=0
          Do np=iMltpl,0,-1

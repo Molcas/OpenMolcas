@@ -161,7 +161,7 @@ c
 c
       character*(3) scrchar, dkh_int2char
       integer maxpuop,j,k,idum
-      intrinsic DBLE,DABS,INT
+      intrinsic DBLE,INT
       do 10 j=1,maxuops
         uopsleng(j)=0
         uoporder(j)=0

@@ -224,7 +224,8 @@ C
       integer ijzy
       REAL*8 PX, GX, TX, F, FP, FG, FT, DTol
       REAL*8 EUEG, Chi, EUEGP, ChiP, ChiG
-      REAL*8 Zero, Pt25, F1, F2, F3, F4, F5, F6, F8, F11
+      REAL*8 Zero, Pt25, F1, F2, F3, F4, F8
+C      REAL*8 F5, F6
       REAL*8 ss, sss0,sss1, sss2, sss3, sss4, Css
       REAL*8 Pi, Pi34, F13, F83
       REAL*8 RS, D, Fscc, RSP, dFsccP, dFsccG
@@ -233,8 +234,8 @@ C
 
 
       Data Zero/0.0d0/, Pt25/0.25d0/, F1/1.0d0/, F2/2.0d0/, F3/3.0d0/,
-     $  F4/4.0d0/, F5/5.0d0/, F6/6.0d0/, F8/8.0d0/, F11/11.0d0/,
-     $  Css/0.06d0/
+     $  F4/4.0d0/, F8/8.0d0/, Css/0.06d0/
+C      Data F5/5.0d0/, F6/6.0d0/
 C
 c     DTol=1.0D-7
       ss=1.0D0
@@ -398,11 +399,11 @@ c     evaluate f(Zeta) and its derivatives for lsdac.
 c
       REAL*8 Small
       REAL*8 S, Zeta, FZeta,dfZdz,d2fZdz
-      REAL*8 Zero, One, Two, Three, Four, Nine, F8, F27
+      REAL*8 Zero, One, Two, Three, Four, Nine
       REAL*8 OMZ, OPZ, OMZ3, OPZ3
       REAL*8 F13, F43, F49
       data Zero/0.0d0/, One/1.0d0/, Two/2.0d0/, Three/3.0d0/,
-     $  Four/4.0d0/, Nine/9.0d0/, F8/8.0D0/, F27/27.0D0/
+     $  Four/4.0d0/, Nine/9.0d0/
 C
       Small = 1.0d-14
       FZeta = -Two

@@ -232,7 +232,6 @@ c           call prodel(3,wt,jp,mpe,jw)
 !     :    ,jv,jd(8),jt(8),js(8)
 !      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-      data dzero/0.d0/
       if(norb_dbl.eq.0) return
       do ipae_=1,25
         ipae=ipae_ ! ipae is in common block, is this necessary?

@@ -31,7 +31,7 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-      Character(LEN=1) help_c*1
+      Character(LEN=1) help_c
       Character(LEN=16) FMT
       Character(LEN=LENIN), Allocatable:: Lblxxx(:)
       Real*8, Dimension (:,:), Allocatable :: Centr

@@ -16,7 +16,7 @@
 ! This code was moved from the main gtdmctl.f file for clarity.
 ! - F. Plasser
       SUBROUTINE TRD_PRINT(ISTATE, JSTATE, DO22, TDMAB, TDM2,
-     &                     CMO1, CMO2)
+     &                     CMO1, CMO2, SIJ)
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -33,7 +33,7 @@
 #include "stdalloc.fh"
 ! Variables passed
       INTEGER ISTATE, JSTATE
-      Real*8 TDMAB(*), TDM2(*), CMO1(*), CMO2(*)
+      REAL*8 TDMAB(*), TDM2(*), CMO1(*), CMO2(*), SIJ
       LOGICAL DO22
 ! Other variables
       CHARACTER*3 NUM1,NUM2

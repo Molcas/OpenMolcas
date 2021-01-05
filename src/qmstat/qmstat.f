@@ -25,8 +25,10 @@
       Dimension nOcc(MxBas),natyp(MxAt)
       Character Labjhr*4
 ****************
+#ifdef _MOLCAS_MPP_
       Logical  Is_Real_Par
       External Is_Real_Par
+#endif
 
 *
 *-- The journey begins. Set non-zero return code.

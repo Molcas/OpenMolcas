@@ -73,7 +73,7 @@ CONTAINS
 
       IMPLICIT NONE
       TYPE(scheme_paras), INTENT(IN)  :: scheme
-      TYPE(raw_mm_data),  INTENT(OUT) :: mm_data
+      TYPE(raw_mm_data),  INTENT(INOUT) :: mm_data
 
       INTEGER(INTK) :: i
 

@@ -46,7 +46,7 @@
       use Basis_Info, only: nBas
       use Real_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
-      Intrinsic Max, Min
+      Intrinsic Max
 #include "real.fh"
 #include "print.fh"
       Real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), FMat(nDens),

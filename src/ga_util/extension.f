@@ -16,8 +16,10 @@
       End
       Subroutine Ext_PID(FileName)
       Implicit Real*8 (a-h,o-z)
+#ifdef _MOLCAS_MPP_
       External StrnLn
       Integer StrnLn
+#endif
 #include "unixinfo.fh"
       Character*(*) FileName
 
@@ -34,8 +36,10 @@ c Avoid unused argument warnings
       End
       Subroutine Ext_Rank(FileName)
       Implicit Real*8 (a-h,o-z)
+#ifdef _MOLCAS_MPP_
       External StrnLn
       Integer StrnLn
+#endif
 #include "para_info.fh"
       Character*(*) FileName
 

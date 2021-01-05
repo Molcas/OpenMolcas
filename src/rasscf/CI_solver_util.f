@@ -16,11 +16,10 @@
       module CI_solver_util
 #ifdef _MOLCAS_MPP_
       use mpi
+      use definitions, only: MPIInt
 #endif
-      use definitions, only: wp, MPIInt
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_data, only: lRoots, nRoots, iAdr15,
-     &                       iRoot, Weight, nAc, nAcPar, nAcpr2
+      use rasscf_data, only: iAdr15, nAc, nAcPar, nAcpr2
       use general_data, only: JobIPH
       implicit none
       private

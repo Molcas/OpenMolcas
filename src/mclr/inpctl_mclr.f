@@ -50,7 +50,7 @@
         Real*8, Allocatable:: CIVec(:,:)
         End Subroutine RdJobIph_td
         Subroutine RdJobIph(CIVec)
-        Real*8, Allocatable:: CIVec(:,:), CITmp(:)
+        Real*8, Allocatable:: CIVec(:,:)
         End Subroutine RdJobIph
       End Interface
 *                                                                      *

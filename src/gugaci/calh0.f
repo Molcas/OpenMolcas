@@ -324,7 +324,7 @@ c--------------------------------------------------------------------
       common/config/ndr,nwalk(0:max_orb)
       dimension iselcsf_occ(max_innorb,max_ref)
       dimension iwalktmp(0:max_orb)
-      data dzero/0.d0/dcrita/1.0d-6/epc/5.0d-3/
+      data dzero/0.d0/dcrita/1.0d-6/
 
       call read_ml(lucidia,1,vector1,nci_dim,1)
 

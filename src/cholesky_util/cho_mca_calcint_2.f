@@ -33,7 +33,6 @@ C
       INTEGER NAB(8)
 
       NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
       MYSP(I)=IWORK(ip_MYSP-1+I)
       ISP2F(I)=IWORK(ip_iSP2F-1+I)
 

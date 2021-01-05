@@ -31,7 +31,6 @@
       LOGICAL IF_TRNSF
 
       INTEGER NCES(8),ip_HTVec(8)
-      Integer, External :: Cho_IRange
       INTEGER ISTART(8),NUSE(8)
 
       REAL*8 E,ECORE1,ECORE2

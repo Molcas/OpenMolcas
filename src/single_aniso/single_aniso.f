@@ -131,8 +131,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Real(kind=8) :: tmin, tmax
       !---Oscillator strength----------
 c      Real(kind=8) :: F, Fx,Fy,Fz, AT, Ax,Ay,Az, AF, dnrm, dE
-      Real(kind=8) :: DZNRM2
-      External      :: DZNRM2
       Real(kind=8) :: H_torq, T_torq
       !----BIG ARRAYS------------------
       Real(kind=8), allocatable :: eso(:)

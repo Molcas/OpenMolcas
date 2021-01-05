@@ -30,12 +30,10 @@ c
      *          difeci(max_root),vresid(max_root)
 c      dimension vad(max_vector),th(max_vector)
       logical log_convergance,log_muliter
-      data dzero/0.d0/,depc/1.0d-7/,ecrita/1.0d-8/,dcrita/1.0d-7/
-      data vortho_criterion/1.d-8/,vreth/1.d-4/
+      data dzero/0.d0/,depc/1.0d-7/
+      data vortho_criterion/1.d-8/
 c      data venergy_criterion/1.d-8/
-c     *     valpha_criterion/1.d-7/,vresid_criterion/1.d-8/,
-c     *     vreth/1.d-4/
-
+c     *     valpha_criterion/1.d-7/,vresid_criterion/1.d-8/
 
       venergy_criterion=vthreen
       valpha_criterion=vthrealp
@@ -459,7 +457,7 @@ c
       common /program_control/ logic_tdav,logic_inivec_read,
      *               logic_mr,logic_mrelcas,logic_calpro,
      *               logic_assign_actorb
-      data dzero/0.d0/,dcrita/1.0d-6/,epc/5.0d-3/
+      data dzero/0.d0/
       dimension vb1(ncivec*ndim),vb2(ncivec*ndim)
       dimension indx(max_kspace),mjn(2*max_root),vcien(mroot)
 
@@ -602,7 +600,7 @@ c
      *               logic_mr,logic_mrelcas,logic_calpro,
      *               logic_assign_actorb
 
-      data dzero/0.d0/,dcrita/1.0d-6/,epc/5.0d-3/
+      data dzero/0.d0/
       dimension vb1(ncivec*ndim),vb2(ncivec*ndim),vdia(2*mroot)
       dimension indx(max_kspace),mjn(2*max_root),vcien(mroot)
       dimension mjntmp(mroot*2),vdiatmp(2*mroot)
@@ -862,7 +860,7 @@ c
      *               logic_mr,logic_mrelcas,logic_calpro,
      *               logic_assign_actorb
 
-      data dzero/0.d0/,dcrita/1.0d-6/,epc/5.0d-3/
+      data dzero/0.d0/,epc/5.0d-3/
       dimension vb1(ncivec*ndim),vb2(ncivec*ndim),vdia(2*mroot)
       dimension indx(max_kspace),mjn(2*max_root),vcien(mroot)
       real*8, allocatable :: diagelement(:)
@@ -1041,7 +1039,7 @@ c
         endif
 
         dedav1=(1.d0-vcml(mt))*de
-        dedav2=dedav1/(vcml(mt))
+c        dedav2=dedav1/(vcml(mt))
 c        dedav3=dedav1/(2*vcml(mt)-1)
 c        demei=dedav2*(n_electron*(n_electron-5)+6)
 c     *       /(n_electron*(n_electron-1))
@@ -1180,9 +1178,6 @@ c...end of get_eigvector
       external inn_ext_tt_loop_unpack
       external inn_ext_st_drl_loop_unpack
       external inn_ext_ts_drl_loop_unpack
-      data zero/0.d0/
-*ia32 data zero/0.d0/
-*ia64 data zero/0.e0/
 
       log_prod=1
       sc1=c_time()

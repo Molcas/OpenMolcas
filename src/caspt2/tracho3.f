@@ -29,7 +29,6 @@
       REAL*8 CMO(NBSQT)
 
       INTEGER NCES(8),ip_HTVec(8)
-      Integer, External :: Cho_IRange
       INTEGER ISTART(8),NUSE(8)
       INTEGER IC,ICASE,IRC,ILOC
       INTEGER JSTART
@@ -42,8 +41,6 @@
       INTEGER N,N1,N2
       INTEGER ip_buffy,ip_chspc,ip_ftspc,ip_htspc,ipnt
       INTEGER NUMV,NVECS_RED,NHTOFF,MUSED
-
-      REAL*8, EXTERNAL :: DDOT_
 
 **********************************************************************
 * ======================================================================

@@ -47,9 +47,6 @@
       Logical JfGrd(3,4), kfgrd(3,4), jfg(4)
       Dimension Dum(1)
 *
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-*
-*
 c     If (iPrint.ge.99) Then
 c        Write (*,*) ' In NAGrd: nArr=',nArr
 c     End If

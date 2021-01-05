@@ -50,7 +50,7 @@
 #include "nsd.fh"
 #include "setup.fh"
 *     Local arrays
-      Real*8, Dimension(:), Allocatable :: DeDe2(:)
+      Real*8, Allocatable :: DeDe2(:)
       Integer, Allocatable:: ipOffDA(:,:)
       Real*8  Coor(3,4), Hess(*)
       Integer iAngV(4), iCmpV(4), iShelV(4), iShllV(4),

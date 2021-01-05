@@ -996,7 +996,7 @@ C             Write density 1-matrices in AO basis to disk.
           !> PAM 2011 Nov 3, writing transition matrices if requested
           IF ((IFTRD1.or.IFTRD2).and..not.mstate_dens) THEN
             call trd_print(ISTATE, JSTATE, IFTRD2.AND.IF22,
-     &                    TDMAB,TDM2,CMO1,CMO2)
+     &                    TDMAB,TDM2,CMO1,CMO2,SIJ)
           END IF
 
           !Store SIJ temporarily

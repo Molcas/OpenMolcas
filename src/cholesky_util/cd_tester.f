@@ -281,7 +281,6 @@ C
 
       Integer i
       Real*8  xn2
-      Real*8  dble
 
       If (n .lt. 1) Then
          Err(1) =  9.876543210d15

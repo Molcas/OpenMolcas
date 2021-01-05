@@ -67,7 +67,7 @@
      &                                   Keep_Shell)
          External Integral_RICD
          Real*8 ThrAO
-         Integer iCnttp, jCnttp, nTInc, Lu_A, ijS_req, Keep_Shell
+         Integer iCnttp, jCnttp, nTInt, Lu_A, ijS_req, Keep_Shell
          Logical In_Core
          Real*8, Allocatable :: TInt(:), ADiag(:)
          End Subroutine

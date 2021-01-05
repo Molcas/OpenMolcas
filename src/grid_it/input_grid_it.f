@@ -29,8 +29,6 @@
       Character SelectStr*120
       Character FileStr*256, FileIn*256
       Character MULLprt*80
-      Integer LineNr
-      External LineNr
 *
       AllKeys=
      *'PRIN BINA ASCI NPOI DENS '//

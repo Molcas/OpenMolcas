@@ -46,8 +46,7 @@ C RAS state interaction.
       PARAMETER (ROUTINE='RASSI')
       Logical Fake_CMO2,CLOSEONE
       COMMON / CHO_JOBS / Fake_CMO2
-      INTEGER IRC,ISFREEUNIT
-      EXTERNAL ISFREEUNIT
+      INTEGER IRC
       Real*8, Allocatable:: USOR(:,:),
      &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),
      &                      ENERGY(:), DMAT(:), TDMZZ(:),

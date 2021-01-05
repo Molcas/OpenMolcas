@@ -263,15 +263,15 @@ C
       REAL*8 r13, r14, r15, r16, r17, r18
       REAL*8 PX, GX, TX, F, FP, FG, FT, DTol, Z, ZP, ZT
       REAL*8 EUEG, Chi, EUEGP, ChiP, ChiG, cf, gcc
-      REAL*8 Zero, F1, F2, F3, F4, F5, F8, F11
+      REAL*8 Zero, F1, F3, F4, F5, F8
       REAL*8 Pi, Pi34, F13, F53, F83
       REAL*8 RS, D, RSP, PotLC, DX, DZ, dgdP, dgdG, dgdT
       REAL*8 E,DP, DG, DT, rhoo, rho53, rho83
       REAL*8 kc, xk, zk, gc, dgdx, dgdz
       REAL*8 d2LdSS, d2LdSZ, d2LdZZ, dLdS, dLdZ
 
-      Data Zero/0.0d0/, F1/1.0d0/, F2/2.0d0/, F3/3.0d0/,
-     $  F4/4.0d0/, F5/5.0d0/, F8/8.0d0/, F11/11.0d0/,
+      Data Zero/0.0d0/, F1/1.0d0/, F3/3.0d0/,
+     $  F4/4.0d0/, F5/5.0d0/, F8/8.0d0/,
      $  gcc/0.00515088d0/,cf/9.115599720d0/
 
 

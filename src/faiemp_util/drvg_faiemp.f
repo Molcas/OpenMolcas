@@ -32,7 +32,7 @@
       use Real_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
       Implicit None
-      External King, Rsv_GTList, MPP
+      External Rsv_GTList
 #include "itmax.fh"
 #include "Molcas.fh"
 #include "real.fh"
@@ -49,9 +49,9 @@
      &         iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4)
       Logical  EQ, Shijij, AeqB, CeqD, lDummy,
      &         DoGrad, DoFock, Indexation,
-     &         JfGrad(3,4), ABCDeq, No_Batch, King, Rsv_GTList, MPP,
+     &         JfGrad(3,4), ABCDeq, No_Batch, Rsv_GTList,
      &         FreeK2, Verbose, Triangular
-      Character*7 Format*72
+      Character Format*72
       Logical  lNoSkip
       Integer  nBas_Valence(0:7)
 *

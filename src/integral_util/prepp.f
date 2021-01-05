@@ -49,7 +49,7 @@
       Logical lPrint
       Logical DoCholesky
       Real*8 CoefX,CoefR
-      Character*80 Fmt*60
+      Character Fmt*60
       Real*8, Allocatable:: D1ao(:), D1AV(:), Tmp(:,:)
 *
 *...  Prologue

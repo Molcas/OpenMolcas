@@ -22,7 +22,9 @@
       Real*8 rP(*),rD(*)
       Real*8, Allocatable:: De(:), Pe(:), CIL(:), CIR(:)
 
+#ifdef _DEBUGPRINT_
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+#endif
 
 * LS = CI
 *

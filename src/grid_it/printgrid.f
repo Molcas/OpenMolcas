@@ -632,16 +632,16 @@ c ?? -20?
       Character Line*128
 c     Character fmt*20
 C test
-      character*3 cint
-      character*1 cx(64)
-      data cx /
-     +         '0','1','2','3','4','5','6','7','8','9',
-     +         'a','b','c','d','e','f','g','h','i','j',
-     +         'k','l','m','n','o','p','q','r','s','t',
-     +         'u','v','w','x','y','z','A','B','C','D',
-     +         'E','F','G','H','I','J','K','L','M','N',
-     +         'O','P','Q','R','S','T','U','V','W','X',
-     +         'Y','Z','@','#' /
+c     character*3 cint
+c     character*1 cx(64)
+c     data cx /
+c    +         '0','1','2','3','4','5','6','7','8','9',
+c    +         'a','b','c','d','e','f','g','h','i','j',
+c    +         'k','l','m','n','o','p','q','r','s','t',
+c    +         'u','v','w','x','y','z','A','B','C','D',
+c    +         'E','F','G','H','I','J','K','L','M','N',
+c    +         'O','P','Q','R','S','T','U','V','W','X',
+c    +         'Y','Z','@','#' /
 C test end
       Dimension iWipGRef(*), WipOcc(*), WipMO(*), WipOut(*),
      &   iWipPBlock(*),iWipType(*), iWipNZ(*),WipE(*),
@@ -723,7 +723,7 @@ c no cut off
 
               endif
             else !isBinary
-              write(cint, '(i3.3)') i
+c             write(cint, '(i3.3)') i
               if(isDebug.eq.0) then
 c normal output - just numbers
                if(isCutOff.eq.1) then

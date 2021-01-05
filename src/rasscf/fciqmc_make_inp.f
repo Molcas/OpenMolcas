@@ -13,7 +13,6 @@
 ************************************************************************
 
       module fciqmc_make_inp
-        use stdalloc, only : mma_deallocate
         use linalg_mod, only: verify_
         implicit none
         private
@@ -68,7 +67,6 @@
       subroutine make_inp(path, FCIDUMP_name, readpops,
      &    GAS_spaces, GAS_particles)
       use general_data, only : nActEl, iSpin
-      use stdalloc, only : mma_deallocate
       use fortran_strings, only : str
       character(len=*), intent(in) :: path
       character(len=*), intent(in), optional :: FCIDUMP_name
@@ -237,6 +235,7 @@
       end subroutine make_inp
 
       subroutine cleanup()
+        use stdalloc, only : mma_deallocate
         if (allocated(definedet)) call mma_deallocate(definedet)
       end subroutine cleanup
 

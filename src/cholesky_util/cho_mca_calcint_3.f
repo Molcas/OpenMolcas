@@ -37,7 +37,6 @@ C
       PARAMETER (INFINT = INF_INT, INFIN2 = INF_IN2)
 
       NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
       ISP2F(I)=IWORK(ip_iSP2F-1+I)
 
 C     Initializations.

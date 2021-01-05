@@ -53,7 +53,7 @@ c
 C     integer idum1,idum2,idum3,m,n
       integer idum1,idum2,idum3,m
       logical ctrlflg
-      intrinsic ABS,DBLE,SIGN
+      intrinsic ABS
 c
       idum1=j
       idum2=k

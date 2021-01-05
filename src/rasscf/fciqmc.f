@@ -14,19 +14,23 @@
       module fciqmc
 #ifdef _MOLCAS_MPP_
       use mpi
+      use definitions, only: MPIInt
 #endif
-      use definitions, only: wp, MPIInt, int64, real64
-      use filesystem, only: chdir_, getcwd_, get_errno_, strerror_,
-     &    real_path, basename
+      use definitions, only: wp, int64, real64
+#ifdef _NECI_
+      use filesystem, only: chdir_
+      use stdalloc, only: mxMem
       use fortran_strings, only: str
+#endif
+      use filesystem, only: getcwd_, get_errno_, strerror_,
+     &    real_path, basename
       use linalg_mod, only: abort_
-      use stdalloc, only : mma_allocate, mma_deallocate, mxMem
+      use stdalloc, only: mma_allocate, mma_deallocate
 
-      use rasscf_data, only: iter, lRoots, nRoots, iRoot, EMY,
-     &    S, KSDFT, rotmax, Ener, iAdr15, Weight, nAc, nAcPar, nAcPr2
-      use general_data, only: iSpin, nSym, nConf, JobIPH,
-     &    ntot, ntot1, ntot2, nAsh, nBas
-      use gugx_data, only: IfCAS
+      use rasscf_data, only: iter, lRoots, EMY,
+     &    S, KSDFT, rotmax, Ener, nAc, nAcPar, nAcPr2
+      use general_data, only: iSpin, nSym, nConf,
+     &    ntot, ntot1, ntot2, nAsh
       use gas_data, only: ngssh, iDoGas, nGAS, iGSOCCX
 
       use CI_solver_util, only: wait_and_read, RDM_to_runfile
@@ -41,11 +45,8 @@
       logical :: DoEmbdNECI = .false., DoNECI = .false.
 #include "para_info.fh"
 
+#ifdef _NECI_
       interface
-          integer function isfreeunit(iseed)
-              integer, intent(in) :: iseed
-          end function
-
           subroutine NECImain(fcidmp, input_name, MemSize, NECIen)
             import :: int64, real64
             character(len=*), intent(in) :: fcidmp, input_name
@@ -53,6 +54,7 @@
             real(real64), intent (out) :: NECIen
           end subroutine
       end interface
+#endif
 
 
       type, extends(CI_solver_t) :: fciqmc_solver_t
