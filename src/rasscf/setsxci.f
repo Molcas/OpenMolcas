@@ -17,9 +17,8 @@
 #include "general.fh"
 #include "gas.fh"
 #include "output_ras.fh"
+#include "sxci.fh"
       PARAMETER(ROUTINE='SETSXCI ')
-
-      Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
 
       DIMENSION IOFF_GSSH(mxgas)
 C
@@ -49,10 +48,10 @@ C
       END DO
 
       IF (IPRGLB.GE.DEBUG)THEN
-        WRITE(6,'(1X,A,1X,12I5)')
-     &   'REORDERING VECTOR FOR CI',(IDXCI(I),I=1,ISTOT)
-        WRITE(6,'(1X,A,1X,12I5)')
-     &   'REORDERING VECTOR FOR SX',(IDXSX(I),I=1,ISTOT)
+        WRITE(6,'(1X,A)') 'REORDERING VECTOR FOR CI'
+        WRITE(6,'(1X,12I5)') (IDXCI(I),I=1,ISTOT)
+        WRITE(6,'(1X,A)') 'REORDERING VECTOR FOR SX'
+        WRITE(6,'(1X,12I5)') (IDXSX(I),I=1,ISTOT)
       ENDIF
       RETURN
       END

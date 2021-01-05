@@ -72,7 +72,7 @@
 #include "wadr.fh"
 #include "casvb.fh"
 #include "raswfn.fh"
-      Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
+#include "sxci.fh"
 *     calling arguments
 
       Dimension CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)
