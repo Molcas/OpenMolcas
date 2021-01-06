@@ -13,7 +13,6 @@
       character*(*) prgnam
       character*16 pgnm_local
 #include "unixinfo.fh"
-#include "para_info.fh"
       Logical DoRys
 
 c      ProgName=prgnam

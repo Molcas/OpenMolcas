@@ -33,11 +33,6 @@ subroutine chemps2_load2pdm( NAC, PT, CHEMROOT )
 
   INTEGER :: i,j,k,l,idx
   character(len=10) :: rootindex
-#ifdef _MOLCAS_MPP_
-  EXTERNAL Is_Real_Par, KING
-  Logical KING
-  Logical Is_Real_Par
-#endif
 
   REAL*8, DIMENSION( NAC * NAC * NAC * NAC ) :: two_rdm
 

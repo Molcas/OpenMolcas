@@ -9,13 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MLTR1 (IMLTOP,LST1,X,F,Y)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: MyRank, nProcs, Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION X(*),F(*),Y(*)
       DIMENSION LST1(4,NLST1)
 #include "sigma.fh"
-#include "para_info.fh"
-#ifdef _MOLCAS_MPP_
-#endif
 
 C Given a lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
 C four entries called L1,L2,L3,L4 for short, for a given
@@ -108,6 +108,9 @@ C     F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
      &                   lg_X,NAS1,NIS1,JXOFF,
      &                   F,NFI,NFJ,
      &                   lg_Y,NAS2,NIS2)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
@@ -117,7 +120,6 @@ C     F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
       DIMENSION F(NFI,NFJ)
       DIMENSION LST1(4,NLST1)
 #include "sigma.fh"
-#include "para_info.fh"
 
 #ifdef _MOLCAS_MPP_
 C SVC: Determine the index ranges of the local chunks of lg_X and lg_Y.

@@ -75,10 +75,11 @@ c     N.B. use and destry : V1,V2,V3,V4,M1,M2
 c     N.B. # of read      : 30 + 6
 c     # of write     : 2
 c
+        use Para_Info, only: MyRank
         implicit none
 #include "ccsd2.fh"
 #include "wrk.fh"
-#include "paralell.fh"
+#include "parallel.fh"
 c
        integer lunw3aaaa,lunw3bbbb,lunw3abba,lunw3baab,lunw3aabb,
      & lunw3bbaa

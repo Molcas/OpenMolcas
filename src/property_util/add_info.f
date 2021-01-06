@@ -26,6 +26,10 @@
 *                                                                      *
 ************************************************************************
 *
+      Use Para_Info, Only: MyRank
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par, King
+#endif
       Character*(*) Label
       Character*120 Line
       Real*8 Array(nArray)
@@ -46,7 +50,6 @@ c     Logical is_error
       Character*13 GeoDataF
       Integer iGeoData,iuGeoData
       Integer nIntCoord,iDum(1)
-#include "para_info.fh"
 *------------------------------------------------
 c If this is a fake parallel run (e.g. inside the parallel loop of CASPT2_gradient,
 c then do not add info - just return immidiately

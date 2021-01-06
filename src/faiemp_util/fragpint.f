@@ -70,7 +70,6 @@
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "para_info.fh"
 
 #include "int_interface.fh"
 

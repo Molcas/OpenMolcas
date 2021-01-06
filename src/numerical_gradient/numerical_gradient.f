@@ -12,6 +12,7 @@
 #ifndef _HAVE_EXTRA_
       Use Prgm
 #endif
+      Use Para_Info, Only: MyRank, nProcs, King, Set_Do_Parallel
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "standard_iounits.fh"
@@ -34,8 +35,8 @@
 #if defined (_MOLCAS_MPP_) && !defined(_GA_)
       Character*80  SSTMNGR
       Integer  SSTMODE
-      Logical  Rsv_Tsk_Even,King
-      External Rsv_Tsk_Even,King
+      Logical  Rsv_Tsk_Even
+      External Rsv_Tsk_Even
 #endif
       Logical DispX, DispY, DispZ,Rsv_Tsk, Is_Roots_Set, Found,
      &        External_Coor_List, Do_ESPF, StandAlone, Exist, DoTinker,
@@ -464,8 +465,6 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *                                                                      *
 *     Change output unit
 *
-      Call Get_MyRank(MyRank)
-      Call Get_nProcs(nProcs)
       LuWr_save=LuWr
       If (MyRank.ne.0) Then
          LuWr=55

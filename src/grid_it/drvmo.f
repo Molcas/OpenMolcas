@@ -275,12 +275,12 @@ c       call iXML('nMOs',nMOs)
         Call GetMem('DOValue','ALLO','REAL',ipOut,nInc)
 
 
-      if (imoPack .ne. 0) then
-        Call GetMem('PackedBlock','ALLO','INTE',ipPBlock,nInc)
-      else
+!      if (imoPack .ne. 0) then
+!        Call GetMem('PackedBlock','ALLO','INTE',ipPBlock,nInc)
+!      else
         Call GetMem('PackedBlock','ALLO','INTE',ipPBlock,1)
         iWork(ipPBlock)=0
-      endif
+!      endif
 *
 *.... Allocate memory for the some grid points
 *
@@ -697,11 +697,11 @@ c6000  continue
       endif
       if(isUserGrid.eq.1)
      *  Call GetMem('Grid','FREE','REAL',ipGrid,nGridPoints*3)
-      if (imoPack .ne. 0) then
-        Call GetMem('PackedBlock','FREE','INTE',ipPBlock,nInc)
-      else
+!      if (imoPack .ne. 0) then
+!        Call GetMem('PackedBlock','FREE','INTE',ipPBlock,nInc)
+!      else
         Call GetMem('PackedBlock','FREE','INTE',ipPBlock,1)
-      endif
+!      endif
 
         Call GetMem('Pab' ,'FREE','REAL',ipPab,nMOs)
         Call GetMem('DoIt','FREE','INTE',ipDoIt,nMOs)

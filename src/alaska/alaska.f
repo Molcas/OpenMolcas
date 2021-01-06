@@ -31,6 +31,7 @@
       use Basis_Info
       use Temporary_Parameters
       use RICD_Info, only: Do_RI, Cholesky
+      use Para_Info, only: nProcs, King
       Implicit Real*8 (A-H,O-Z)
       External RF_On
 #include "Molcas.fh"
@@ -44,7 +45,6 @@
 #include "columbus_gamma.fh"
 #include "nac.fh"
 #include "alaska_root.fh"
-#include "para_info.fh"
       Logical DoRys, RF_On, Found
       Character(Len=180) Label
       Real*8, Allocatable:: Grad(:), Temp(:), Tmp(:), Rlx(:,:), CSFG(:)

@@ -37,12 +37,6 @@ subroutine chemps2_load3pdm( NAC, idxG3, NG3, storage, doG3, EPSA, F2, chemroot 
   INTEGER            :: file_h5, group_h5
   character(len=10) :: rootindex
 
-#ifdef _MOLCAS_MPP_
-  EXTERNAL Is_Real_Par, KING
-  Logical KING
-  Logical Is_Real_Par
-#endif
-
   INTEGER :: ip1, ip2, ip3, iq1, iq2, iq3, idx, iG3
 
   REAL*8, DIMENSION( NAC * NAC * NAC * NAC * NAC * NAC ) :: buffer

@@ -14,7 +14,6 @@ c      real*8  distrib,PQpTsk,TskLw,TskHi,MinPQ1,a,fint,tskmin,tskmax
       Logical Triangular,Alloc
 #include "real.fh"
 #include "tlist.fh"
-#include "para_info.fh"
 #include "WrkSpc.fh"
 #include "status.fh"
 c      fint(a)=a-dmod(a,one)
@@ -32,7 +31,6 @@ c      real*8  distrib,PQpTsk,TskLw,TskHi,MinPQ1,a,fint,tskmin,tskmax
       Logical Triangular,Alloc
 #include "real.fh"
 #include "tlist.fh"
-#include "para_info.fh"
 #include "WrkSpc.fh"
 #include "status.fh"
       If (T_Status.eq.Active) return
@@ -44,6 +42,7 @@ c      real*8  distrib,PQpTsk,TskLw,TskHi,MinPQ1,a,fint,tskmin,tskmax
 * removed _entry_
 *
       Subroutine IA_TList(Triangular,P_Eff, Alloc)
+      Use Para_Info, Only: MyRank, nProcs, Is_Real_Par
       implicit real*8 (a-h,o-z)
       real*8  distrib,PQpTsk,TskLw,TskHi,MinPQ1,a,fint,tskmin,tskmax
       Logical Triangular,Alloc
@@ -56,7 +55,6 @@ c      real*8  distrib,PQpTsk,TskLw,TskHi,MinPQ1,a,fint,tskmin,tskmax
       Parameter ( MxnTsk = 100 )
 #include "real.fh"
 #include "tlist.fh"
-#include "para_info.fh"
 #include "WrkSpc.fh"
 #include "status.fh"
 C     save ntasks_alloc
@@ -148,8 +146,8 @@ c     Call RecPrt('TskM',' ',Work(ipTskM),2,nTasks)
       End
 *
       Subroutine Free_TList
+      Use Para_Info, Only: nProcs, Is_Real_Par
 #include "tlist.fh"
-#include "para_info.fh"
 #include "WrkSpc.fh"
 #include "status.fh"
 *

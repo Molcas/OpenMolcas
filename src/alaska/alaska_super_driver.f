@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Alaska_Super_Driver(iRC)
+      use Para_Info, only: nProcs
       Implicit Real*8 (a-h,o-z)
       Character*8 Method
       Logical Do_Cholesky, Numerical, Do_DF, Do_ESPF, StandAlone, Exist,
@@ -24,7 +25,6 @@
 #include "stdalloc.fh"
 #include "nac.fh"
 #include "alaska_root.fh"
-#include "para_info.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

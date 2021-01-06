@@ -153,7 +153,7 @@ c     N.B. use and destroy : all
 c     N.B. # of reads      : 4
 c
 c
-c        Paralell status
+c        Parallel status
 c
 c        Alternatives:
 c
@@ -184,10 +184,11 @@ c        a case on idaaaa, and idbbbb nodes contr. F13.1 and F13.3 resp.
 c        are set (nod add) directly to corresp. F1. On pilot nodes,
 c       cont. F13.2 and F13.4 are standardly added to F1's
 c
+        use Para_Info, only: MyRank
         implicit none
 #include "ccsd1.fh"
 #include "ccsd2.fh"
-#include "paralell.fh"
+#include "parallel.fh"
 #include "wrk.fh"
 c
        integer lunt2o1,lunt2o2,lunt2o3
@@ -202,11 +203,11 @@ c
        integer rc,posst
        integer ssm3,ssm4,ssh4
 c
-c     paralell parameters
+c     parallel parameters
        integer yesa,yesb
 c
 c
-cA0   paralell
+cA0   parallel
 c
 c     I.par.1  - escape, if this node is not reserved for sumoverb_a
 c

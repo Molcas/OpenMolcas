@@ -60,8 +60,6 @@
 
 #include "lucinp.fh"
 
-#include "multd2h.fh"
-
 #include "oper.fh"
 #include "orbinp.fh"
 #include "spinfo_lucia.fh"

@@ -26,6 +26,10 @@
       use Exp, only: Exp_Close
       use Arrays, only: CMO, Int2, FIMO
       use ipPage, only: W
+      use Para_Info, only: myRank, nProcs
+#ifdef _MOLCAS_MPP_
+      use Para_Info, only: Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
       External Rsv_Tsk
 *
@@ -43,7 +47,6 @@
 #include "stdalloc.fh"
 #include "dmrginfo_mclr.fh"
 *
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
 #  include "mafdecls.fh"
@@ -144,7 +147,6 @@
 *
 *     Change output unit
 *
-      Call Get_MyRank(MyRank)
       LuWr_save=LuWr
       If (MyRank.ne.0) Then
          LuWr=55
@@ -899,7 +901,6 @@ C         Write(LuWr,Fmt2//'A)')'Writing response to one-file.'
           End If
       Go To 888
  999  Continue
-      Call Get_nProcs(nProcs)
       If(nProcs.ge.2) Then
        Write (LuWr,*)
        Write (LuWr,*) ' Perturbations were printed only by master node'

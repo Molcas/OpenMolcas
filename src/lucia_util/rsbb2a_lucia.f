@@ -73,8 +73,8 @@
 *
 * Jeppe Olsen, Winter of 1991
 *
+      USE Para_Info, ONLY: MyRank, nProcs
       IMPLICIT REAL*8(A-H,O-Z)
-#include "para_info.fh"
 #include "mxpdim.fh"
 #include "WrkSpc.fh"
 *. General input

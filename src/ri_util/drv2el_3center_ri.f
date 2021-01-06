@@ -55,7 +55,6 @@
 #define _no_nShs_
 #include "iTOffs.fh"
 *
-#include "para_info.fh"
       Character Name_R*6
       Integer iOff_3C(3,0:7), Lu_R(0:7), iAddr_R(0:7), iMax_R(2,0:7),
      &        iTtmp(0:7), NoChoVec(0:7), iOff_Rv(0:7)

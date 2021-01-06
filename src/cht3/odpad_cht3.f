@@ -318,12 +318,12 @@ c
 c       nacitanie vsupu a inicializacia premnennych
 c       a tlac primitivnej hlavicky pre Reord procesz
 c
+        use Para_Info, only: MyRank, nProcs
         implicit none
 #include "cht3_ccsd1.fh"
 #include "cht3_reord.fh"
 cmp
 #include "cholesky.fh"
-#include "para_info.fh"
 #include "ccsd_t3compat.fh"
 cmp
 c
@@ -958,11 +958,11 @@ c
         integer NOAB(2),NNOAB(3),NUAB(2),NNUAB(3)
         character*1 ich(3)
         integer IT,ITLAST,NBF,NOMX,NU,MX2,NNO,NNU,NUO,NSO
-        integer me,nprocs
+cmp!        integer me,nprocs
 c
         COMMON/UHF/NOAB,NNOAB,NUAB,NNUAB,ICH
         COMMON/PARAM/IT,ITLAST,NBF,NOMX,NU,MX2,NNO,NNU,NUO,NSO
-        common /my_mpi_world_com/ me, nprocs
+cmp!        common /my_mpi_world_com/ me, nprocs
 c
 cmp!        include 'task_info_inc'
 cmp!        include 'ws_conn_inc'

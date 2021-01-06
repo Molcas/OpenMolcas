@@ -12,6 +12,7 @@
 CSVC: process CASPT2 input based on the data in the input table, and
 C initialize global common-block variables appropriately.
       Use InputData
+      Use Para_Info, Only: Is_Real_Par
       Implicit None
 #include "rasdim.fh"
 #include "warnings.fh"
@@ -22,7 +23,6 @@ C initialize global common-block variables appropriately.
 #include "stdalloc.fh"
 #include "SysDef.fh"
 #include "ofembed.fh"
-#include "para_info.fh"
 
       Integer iDummy
 

@@ -23,6 +23,7 @@ c
 c     this program calculate noniterative T3 contributions
 c     to CCSD energy
 c
+      use Para_Info, only: MyRank, nProcs
 #include "t31.fh"
 #include "t32.fh"
 c
@@ -43,7 +44,6 @@ cpar
 c
 c       integer nhelp
 c
-#include "para_info.fh"
 c
 cpar
 cstare Call SetTim
@@ -112,7 +112,7 @@ cI.*  set energies=0
       eabb=0.0d0
       ebbb=0.0d0
 c
-cI.par initialize paralell counter
+cI.par initialize parallel counter
       counter=0
 c
 c
@@ -311,7 +311,7 @@ c
 999    format (' I,J,K ',3(i3,1x))
        end if
 c
-cpar    update paralell counter, choose proper id for this 'portion'
+cpar    update parallel counter, choose proper id for this 'portion'
 c       and skip if this portion is not for myRank
         counter=counter+1
         id=mod(counter,nProcs)
@@ -1505,11 +1505,11 @@ c
  1100   continue
 c
 cpar   Separate printing of partial energies e... are
-c      useful only in serial run. For paralell run also
+c      useful only in serial run. For parallel run also
 c      cycle over k is segmented (via paralelization),
 c      so e... are not complete contributions (only sum
 c      over all nodes have some sense). Thus, these values
-c      in paralell run are too dangerous to use separately
+c      in parallel run are too dangerous to use separately
 c      so their printout is supressed.
 c
        if (nProcs.eq.1) then

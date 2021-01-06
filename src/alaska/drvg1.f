@@ -37,6 +37,7 @@
       use Sizes_of_Seward, only:S
       use Real_Info, only: CutInt
       use Symmetry_Info, only: nIrrep
+      use Para_Info, only: nProcs, King
       Implicit Real*8 (A-H,O-Z)
       External Rsv_GTList
 #include "itmax.fh"
@@ -51,7 +52,6 @@
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-#include "para_info.fh"
 *     Local arrays
       Real*8  Coor(3,4), Grad(nGrad), Temp(nGrad)
       Integer iAnga(4), iCmpa(4), iShela(4),iShlla(4),

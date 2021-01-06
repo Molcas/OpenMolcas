@@ -40,6 +40,7 @@
       use Real_Info, only: CutInt
       use RICD_Info, only: Do_RI
       use Symmetry_Info, only: nIrrep
+      use Para_Info, only: nProcs, King
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
 #include "itmax.fh"
@@ -53,7 +54,6 @@
 #include "setup.fh"
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
-#include "para_info.fh"
 *#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
@@ -298,8 +298,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call Get_MyRank(MyRank_)
-C     If (MyRank_.ne.0) Go To 11
+C     If (MyRank.ne.0) Go To 11
 *     big loop over individual tasks, distributed over individual nodes
    10 Continue
 *     make reservation of a task on global task list and get task range

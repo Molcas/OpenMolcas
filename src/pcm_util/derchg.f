@@ -94,7 +94,6 @@ c----------------------------------------------------------------------
       Dimension ISphe(*),Tessera(4,*),DerMat(nTs,*)
       Dimension DerTes(nTs,NAt,3),DerPunt(nTs,NAt,3,3)
       Dimension DerCentr(nS,NAt,3,3)
-      Data Two/2.0d0/
 C
 C     Compute the derivative of the CPCM matrix wrt atom iat, coord. ic
 C

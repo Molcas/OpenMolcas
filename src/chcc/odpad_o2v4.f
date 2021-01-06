@@ -3792,11 +3792,11 @@ c!      drajver procesu na testovanie ktory W3/W4 file
 c        treba na ktorom node
 c        N.B. upraveny drajver o2v4 procesu
 c
+        use Para_Info, only: nProcs
         implicit none
 #include "chcc1.fh"
 #include "o2v4.fh"
 #include "chcc_parcc.fh"
-#include "para_info.fh"
 c
         integer NvGrp,NvSGrp,LunAux
 c
@@ -3953,10 +3953,10 @@ c        Inspect W3 and W4 files requirements of o2v4 procedure
 c        on this node. It checks which of the W3 and W4 files
 c        are used on this node
 c
+        use Para_Info, only: MyRank
         implicit none
 #include "chcc1.fh"
 #include "chcc_parcc.fh"
-#include "para_info.fh"
 #include "o2v4.fh"
 c
         integer NaGrp,NbeGrp,NaSGrp,NbeSgrp

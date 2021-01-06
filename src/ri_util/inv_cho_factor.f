@@ -78,11 +78,13 @@
       SUBROUTINE INV_CHO_FACTOR(A_k,kCol,Am,Qm,nMem,lu_A,lu_Q,Scr,lScr,
      &                          Z,X,thr,Q_k,lindep)
 
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: MyRank, nProcs, Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
       Integer kCol, nMem, lu_A, lu_Q, lScr, lindep
       Real*8  A_k(*), Am(*), Qm(*), Scr(*), Z(*), X(*), Q_k(*)
       Real*8  thr
-#include "para_info.fh"
 #include "warnings.fh"
       Parameter ( two = 2.0d0, one = 1.0d0, zero = 0.0d0 )
       Parameter ( thr_neg = -1.0d-8 )

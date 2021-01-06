@@ -78,8 +78,8 @@
 *
 *
 *
+      USE Para_Info, ONLY: MyRank, nProcs
       IMPLICIT REAL*8(A-H,O-Z)
-#include "para_info.fh"
 #include "WrkSpc.fh"
 #include "loff.fh"
 *. General input

@@ -24,6 +24,7 @@
 *            nIrrep : number of irreps.
 **************************************************************************
       use pso_stuff
+      use Para_Info, Only: Is_Real_Par
       Implicit Real*8 (a-h,o-z)
       Integer nBas_Aux(1:nIrrep), nVec(1:nIrrep)
       Character  Fname*6, Fname2*6, Name_Q*6
@@ -40,7 +41,6 @@
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-#include "para_info.fh"
 *
       parameter ( N2 = InfVec_N2 )
       COMMON  /CHOTIME /timings

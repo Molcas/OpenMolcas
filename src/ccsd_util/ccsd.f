@@ -13,12 +13,13 @@ c
 c
 c     program for CCSD
 c
+       use Para_Info, only: MyRank, nProcs
        Logical run_triples
 c
 #include "ccsd1.fh"
 #include "ccsd2.fh"
 #include "filemgr.fh"
-#include "paralell.fh"
+#include "parallel.fh"
 
 #include "SysDef.fh"
 c

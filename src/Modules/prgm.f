@@ -380,7 +380,7 @@
 
 ! Save some often used variables as module variables, for faster access
       Subroutine PrgmCache
-      Integer, External :: mpp_id
+      Use Para_Info, Only: mpp_id
       Call GetEnvF('WorkDir', WorkDir)
       Call GetEnvF('FastDir', FastDir)
       Call GetEnvF('Project', Project)

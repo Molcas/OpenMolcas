@@ -857,12 +857,14 @@ C With new norm., divide by /SQRT(12)
 CSVC: special routine to save the RHS array. MKRHS works in serial, so
 C in case of a true parallel run we need to put the local array in a
 C global array and then save that to disk in a distributed fashion.
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "WrkSpc.fh"
 #include "caspt2.fh"
-#include "para_info.fh"
 
       NAS=NASUP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)

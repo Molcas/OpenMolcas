@@ -105,6 +105,9 @@
 *                                                                      *
 ************************************************************************
 
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
 
       Logical   timings,DoRead,DoExchange,DoCAS,lSA
@@ -138,7 +141,6 @@
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-#include "para_info.fh"
 #include "print.fh"
       Integer iBDsh(MxShll*8)
       Common /BDshell/ iBDsh

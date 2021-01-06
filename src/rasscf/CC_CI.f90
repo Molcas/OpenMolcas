@@ -16,8 +16,10 @@ module CC_CI_mod
 #ifdef _MOLCAS_MPP_
     use mpi
     use definitions, only: MPIInt
+    use Para_Info, only: Is_Real_Par
 #endif
     use definitions, only: wp
+    use Para_Info, only: MyRank
     use filesystem, only: getcwd_, get_errno_, strerror_, real_path
     use linalg_mod, only: verify_, abort_
 
@@ -38,7 +40,6 @@ module CC_CI_mod
     public :: Do_CC_CI, CC_CI_solver_t, write_RDM
     logical :: Do_CC_CI = .false.
 
-#include "para_info.fh"
 #include "rctfld.fh"
 
     interface

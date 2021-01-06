@@ -10,9 +10,11 @@
 ************************************************************************
       Subroutine Get_Chunk(ip_ChoVec,LenVec,NumVec_,iChoVec,iSym,
      &                     ip_iMap,iVec_Global)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: MyRank, Is_Real_Par
+#endif
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "mafdecls.fh"
 #endif

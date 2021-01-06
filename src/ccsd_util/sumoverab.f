@@ -67,15 +67,16 @@ c     end syma
 c
 c     N.B. nab musi byt dakde deklarovane (daky common)
 c
-c     N.B. II. in paralell.fh there are:
+c     N.B. II. in parallel.fh there are:
 c     nprocab - number of nodeschoosed for 'sumoverab' part
 c     idab    - array of id's of these nodes
 c
+       use Para_Info, only: MyRank
         implicit none
 #include "ccsd1.fh"
 #include "ccsd2.fh"
 #include "wrk.fh"
-#include "paralell.fh"
+#include "parallel.fh"
       INTEGER lunt2o1,lunt2o2,lunt2o3
       integer nabstack,possabstack
       integer niter
@@ -96,7 +97,7 @@ c
       possab=possabstack
 c
 c
-c     I.paralell
+c     I.parallel
 c
 c     I.par.1  - escape, if this node is not reserved for sumoverab
       yes=0

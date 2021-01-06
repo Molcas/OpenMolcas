@@ -15,9 +15,12 @@
 #ifdef _MOLCAS_MPP_
       use mpi
       use definitions, only: MPIInt
+      use Para_Info, only: Is_Real_Par
 #endif
-      use definitions, only: wp, int64, real64
+      use definitions, only: wp
+      use Para_Info, only: MyRank
 #ifdef _NECI_
+      use definitions, only: int64, real64
       use filesystem, only: chdir_
       use stdalloc, only: mxMem
       use fortran_strings, only: str
@@ -43,7 +46,6 @@
       private
       public :: DoNECI, DoEmbdNECI, fciqmc_solver_t
       logical :: DoEmbdNECI = .false., DoNECI = .false.
-#include "para_info.fh"
 
 #ifdef _NECI_
       interface

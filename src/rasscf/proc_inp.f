@@ -18,6 +18,9 @@
 ! module dependencies
       use qcmaquis_interface_environment, only: initialize_dmrg
       use qcmaquis_interface_cfg
+#ifdef _MOLCAS_MPP_
+      use Para_Info, Only: nProcs
+#endif
 #endif
       use active_space_solver_cfg
       use write_orbital_files, only: OrbFiles
@@ -58,7 +61,6 @@
 #ifdef _HDF5_
 #  include "mh5.fh"
 #endif
-#include "para_info.fh"
 *
       Logical Do_OFemb,KEonly,OFE_first,l_casdft
       COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first

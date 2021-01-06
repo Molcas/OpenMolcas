@@ -367,17 +367,17 @@ c     ,       form='unformatted', file=RealName)
 c        write(6,*) '** Create Grid file:',
 c     &        RealName(1:index(RealName,' '))
         write(LuVal) 'a'
-        if (imoPack .ne. 0) then
-          g=2003.9
-          i=0
-          write (LuVal) g
-     +         nMOs, nShowMOs_, nCoor, nInc, nBlocks,
-     +         isCutOff, Cutoff, iiCoord
-          write (LuVal) i
-        else
+!        if (imoPack .ne. 0) then
+!          g=2003.9
+!          i=0
+!          write (LuVal) g
+!     +         nMOs, nShowMOs_, nCoor, nInc, nBlocks,
+!     +         isCutOff, Cutoff, iiCoord
+!          write (LuVal) i
+!        else
           g=1999.0
           write(LuVal) g
-        endif
+!        endif
         write(LuVal) Title1
       endif
 
@@ -433,15 +433,15 @@ c     ,       form='unformatted', file=RealName)
 c        write(6,*) '** Create Grid file',
 c     &        RealName(1:index(RealName,' '))
         write(LuVal_ab) 'a'
-        if (imoPack .ne. 0) then
-          g=2003.9
-          i=0
-          write (LuVal_ab) g
-          write (LuVal_ab) i
-        else
+!        if (imoPack .ne. 0) then
+!          g=2003.9
+!          i=0
+!          write (LuVal_ab) g
+!          write (LuVal_ab) i
+!        else
           g=1999.0
           write(LuVal_ab) g
-        endif
+!        endif
         write(LuVal_ab) Title1
       endif
 
@@ -453,12 +453,12 @@ c     &        RealName(1:index(RealName,' '))
           if (isTheOne.eq.1) then
             write(LuVal_ab,'(a1)') '9'
           else
-            if (imoPack .ne. 0) then
-              write (LuVal_ab,'(a1)') '1'
-              write (LuVal_ab,'(i5)') 0
-            else
+!            if (imoPack .ne. 0) then
+!              write (LuVal_ab,'(a1)') '1'
+!              write (LuVal_ab,'(i5)') 0
+!            else
               write(LuVal_ab,'(a1)') '0'
-            endif
+!            endif
           endif
         if(isDebug.eq.0) then
         Write(Luval_ab,'(a)') Title1
@@ -625,8 +625,8 @@ c ?? -20?
      +  ISLUSCUS, NBYTES,NINLINE)
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
-      Dimension xLimits(4)
-      Integer iYDelta(3)
+!      Dimension xLimits(4)
+!      Integer iYDelta(3)
       Character*1  cMoBlock(*)
       Character Crypt*7, bb
       Character Line*128
@@ -685,23 +685,23 @@ c     >           WipOut,mCoor,nMOs)
             goto 3939
           endif
 
-          if (imoPack .ne. 0) then
-c            Call PackBlock(WipOut,iWipPBlock,mCoor,
-c     >                     xLimits,iYDelta)
-            write (line,9000)
-     *                     0,
-     *                     (xLimits(j),j=1,4),(iYDelta(j),j=1,3)
-            call PrintLine(LuVal,line,73,0)
-
-9000        format ('BHeader=',I2,1X,(4(E10.4,1X),3(I5,1X)))
-            if (isBinary .ne. 0) then
-c              call IArrToChar(iWipPBlock,cMoBlock,mCoor)
-cvv ! NOT CODED YET
-              write (LuVal) (cMoBlock(j),j=1,mCoor*nBytesPackedVal)
-            else
-              write (LuVal,'(I5)') (iWipPBlock(j), j=0,mCoor-1)
-            endif
-          else
+!          if (imoPack .ne. 0) then
+!c            Call PackBlock(WipOut,iWipPBlock,mCoor,
+!c     >                     xLimits,iYDelta)
+!            write (line,9000)
+!     *                     0,
+!     *                     (xLimits(j),j=1,4),(iYDelta(j),j=1,3)
+!            call PrintLine(LuVal,line,73,0)
+!
+!9000        format ('BHeader=',I2,1X,(4(E10.4,1X),3(I5,1X)))
+!            if (isBinary .ne. 0) then
+!c              call IArrToChar(iWipPBlock,cMoBlock,mCoor)
+!cvv ! NOT CODED YET
+!              write (LuVal) (cMoBlock(j),j=1,mCoor*nBytesPackedVal)
+!            else
+!              write (LuVal,'(I5)') (iWipPBlock(j), j=0,mCoor-1)
+!            endif
+!          else
             if (isBinary .eq. 1) then
 c packing late
               if(isCutOff.eq.1) then
@@ -733,7 +733,7 @@ c normal output - just numbers
                   enddo
                else if (isLUSCUS .eq. 1) then
 c NOPACKING
-                if(imoPack.eq.0) then
+!                if(imoPack.eq.0) then
                  call dump_lusc(LID, WipOut,mCoor)
 c debug dump of data
 c
@@ -745,43 +745,43 @@ c     &                       '(',NINLINE,'E',NBYTES,'.4',')'
 c                    write(line, fmt) (WipOut(j-1+ij),ij=1,num)
 c                    call printline(LID,line,NINLINE*NBYTES,0)
 c                  enddo
-                else
-c PACKING NOT implemented
-C                  open(unit=38, file='testgr_'//cint//'.txt')
-                   do j = 1, min(mcoor,10)
-                     iexpnt=int(log10(abs(wipout(j))))
-                     write(6,*) 'num=', wipout(j), 'exp = ', iexpnt
-                     dnum=(1.0D0 + wipout(j)/10.0D0**iexpnt)/2.0D0
-
-                     in1 = int(dnum*64.0d0)
-                     in2 = int((dnum-dble(in1)*64.0D0)*4096.0D0)
-                     iexpnt = iexpnt + 50
-                     write(6,'(1x,3(1x,e18.8),2x,3(1x,i3))')
-     +                      wipout(j), dnum, dexpnt,
-     +                      in1, in2, iexpnt
-                     if (iexpnt .lt. 1) then
-                       iexpnt=1
-                     else if (iexpnt .gt. 64) then
-                       iexpnt=64
-                     end if
-                     write(6,'(1x,3(1x,e18.8),2x,3(1x,i3))')
-     +                      wipout(j), dnum, dexpnt,
-     +                      in1, in2, iexpnt
-c                     write(*,*) '-----------------------'
-
-C     +                      cx(in1), cx(in2), cx(iexpnt)
-                   end do
-C                  close(38)
-c                  xxxmin=9.99d+99
-c                  xxxmax=-9.99d+99
-c                  do j=1,mCoor
-c                    if(wipout(j) .gt. xxxmax) xxxmax = wipout(j)
-c                    if(wipout(j) .lt. xxxmin) xxxmin = wipout(j)
-c                  end do
-C                  write(*, *) 'test min/max', xxxmin, xxxmax
-
-
-                endif !imoPack
+!                else
+!c PACKING NOT implemented
+!C                  open(unit=38, file='testgr_'//cint//'.txt')
+!                   do j = 1, min(mcoor,10)
+!                     iexpnt=int(log10(abs(wipout(j))))
+!                     write(6,*) 'num=', wipout(j), 'exp = ', iexpnt
+!                     dnum=(1.0D0 + wipout(j)/10.0D0**iexpnt)/2.0D0
+!
+!                     in1 = int(dnum*64.0d0)
+!                     in2 = int((dnum-dble(in1)*64.0D0)*4096.0D0)
+!                     iexpnt = iexpnt + 50
+!                     write(6,'(1x,3(1x,e18.8),2x,3(1x,i3))')
+!     +                      wipout(j), dnum, dexpnt,
+!     +                      in1, in2, iexpnt
+!                     if (iexpnt .lt. 1) then
+!                       iexpnt=1
+!                     else if (iexpnt .gt. 64) then
+!                       iexpnt=64
+!                     end if
+!                     write(6,'(1x,3(1x,e18.8),2x,3(1x,i3))')
+!     +                      wipout(j), dnum, dexpnt,
+!     +                      in1, in2, iexpnt
+!c                     write(*,*) '-----------------------'
+!
+!C     +                      cx(in1), cx(in2), cx(iexpnt)
+!                   end do
+!C                  close(38)
+!c                  xxxmin=9.99d+99
+!c                  xxxmax=-9.99d+99
+!c                  do j=1,mCoor
+!c                    if(wipout(j) .gt. xxxmax) xxxmax = wipout(j)
+!c                    if(wipout(j) .lt. xxxmin) xxxmin = wipout(j)
+!c                  end do
+!C                  write(*, *) 'test min/max', xxxmin, xxxmax
+!
+!
+!                endif !imoPack
                else!isCutOff
 C writing of data
                   write (LuVal,'(E10.4)')
@@ -793,7 +793,7 @@ c extended output -
      *       (WipOut(j),WCoor(1,j), WCoor(2,j), Wcoor(3,j) ,j=1,mCoor)
               endif !isDebug
             endif !isBinary
-          endif !imoPack
+!          endif !imoPack
 
         j=iWipGRef(i)
 
@@ -876,39 +876,39 @@ c          write(6,*) " mCoor=",mCoor
             write (line,'(a,i4)') 'Title= ',0
             call PrintLine(LuVal,line,12,1)
           endif
-          if (imoPack.ne.0) then
-c         print *,'pack code'
-c            Call PackBlock(WipOut,iWipPBlock,mCoor,
-c     >                     xLimits,iYDelta)
-c            write (line,9000)
-c     *                    0,
-c     *                    (xLimits(j),j=1,4),(iYDelta(j),j=1,3)
-c            call PrintLine(LuVal,line,73,0)
-c
-c            if (isBinary .ne. 0) then
-c              call IArrToChar(iWipPBlock,cMoBlock,mCoor)
-cvv!!!!!!!
-c              IF (ISLUSCUS .EQ. 1) THEN
-c                RC=C_WRITE(LID, CMOBLOCK, (mCoor*nBytesPackedVal)*RTOB) !!!!!!!!!!!!!!!!!!!!check mCoor*nBytesPackedVal
-c                IF (RC .EQ. 0) THEN
-c                  WRITE(6,*) 'error in writing luscus file!'
-c                  CALL Abend()
-c                END IF
-c              ELSE
-c                write (LuVal) (cMoBlock(j),j=1,mCoor*nBytesPackedVal)
-c              END IF
-c            else
-c              IF (ISLUSCUS .EQ. 1) THEN
-c                RC=C_WRITE(LID, IWIPPBLOCK, (mCoor)*RTOB) !!!!!!!!!!!!!!!!!!!!check mCoor*nBytesPackedVal
-c                IF (RC .EQ. 0) THEN
-c                  WRITE(6,*) 'error in writing luscus file!'
-c                  CALL Abend()
-c                END IF
-c              ELSE
-c                write (LuVal,'(I5)') (iWipPBlock(j), j=1,mCoor)
-c              END IF
-c            endif
-          else
+!          if (imoPack.ne.0) then
+!c         print *,'pack code'
+!c            Call PackBlock(WipOut,iWipPBlock,mCoor,
+!c     >                     xLimits,iYDelta)
+!c            write (line,9000)
+!c     *                    0,
+!c     *                    (xLimits(j),j=1,4),(iYDelta(j),j=1,3)
+!c            call PrintLine(LuVal,line,73,0)
+!c
+!c            if (isBinary .ne. 0) then
+!c              call IArrToChar(iWipPBlock,cMoBlock,mCoor)
+!cvv!!!!!!!
+!c              IF (ISLUSCUS .EQ. 1) THEN
+!c                RC=C_WRITE(LID, CMOBLOCK, (mCoor*nBytesPackedVal)*RTOB) !!!!!!!!!!!!!!!!!!!!check mCoor*nBytesPackedVal
+!c                IF (RC .EQ. 0) THEN
+!c                  WRITE(6,*) 'error in writing luscus file!'
+!c                  CALL Abend()
+!c                END IF
+!c              ELSE
+!c                write (LuVal) (cMoBlock(j),j=1,mCoor*nBytesPackedVal)
+!c              END IF
+!c            else
+!c              IF (ISLUSCUS .EQ. 1) THEN
+!c                RC=C_WRITE(LID, IWIPPBLOCK, (mCoor)*RTOB) !!!!!!!!!!!!!!!!!!!!check mCoor*nBytesPackedVal
+!c                IF (RC .EQ. 0) THEN
+!c                  WRITE(6,*) 'error in writing luscus file!'
+!c                  CALL Abend()
+!c                END IF
+!c              ELSE
+!c                write (LuVal,'(I5)') (iWipPBlock(j), j=1,mCoor)
+!c              END IF
+!c            endif
+!          else
               IF (ISLUSCUS .EQ. 1) THEN
                  call dump_lusc(LID, WipOut,mCoor)
                Endif
@@ -981,7 +981,7 @@ CGG This is only for testing CASDFT functional. It will be restore.
 CGG              write (LuVal,'(E10.4)') (Work(j),j=ipOut,ipOut+mCoor-1)
             endif
           endif
-        endif
+!        endif
 
       if(isLine.eq.1.and.ISLUSCUS.eq.0) then
        do i=1,mCoor
@@ -992,6 +992,13 @@ CGG              write (LuVal,'(E10.4)') (Work(j),j=ipOut,ipOut+mCoor-1)
 
 *
       Return
+* Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_integer(imoPack)
+         Call Unused_integer_array(iWipPBlock)
+         Call Unused_character_array(cMoBlock)
+         Call Unused_integer(nBytesPackedVal)
+      End If
       end
       SUBROUTINE PRTLUSENDGRID(LUVAL)
       CHARACTER LINE*128

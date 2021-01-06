@@ -42,7 +42,6 @@
 #include "rctfld.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-#include "vrsn_gateway.fh"
       Character xLblCnt(MxAtom)*(LENIN)
       Parameter (nMamn=MaxBfn+MaxBfn_Aux)
       Character*(LENIN8), Allocatable :: Mamn(:)

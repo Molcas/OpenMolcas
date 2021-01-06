@@ -39,7 +39,6 @@
       Character xLblCnt(MxAtom)*(LENIN)
       Logical Pseudo
       Integer nDel(8)
-#include "vrsn_seward.fh"
       Logical Found
 *
       Logical DoEMPC

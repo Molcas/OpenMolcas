@@ -38,6 +38,7 @@ C     Thomas Bondo Pedersen, June 2007.
 C
 C     Determine distribution of ShellPairs by dimension.
 C
+      Use Para_Info, Only: MyRank, nProcs
       Implicit None
       Integer mySP(*)
       Integer N_mySP

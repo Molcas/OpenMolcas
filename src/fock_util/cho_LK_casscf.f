@@ -44,7 +44,9 @@ C      u,w,x,y:  MO-indeces belonging to (Active)
 C
 **********************************************************************
 
-
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
 
       Integer   ipLxy(8),ipScr(8,8),ipDIAH(1)
@@ -75,7 +77,6 @@ C
 #include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-#include "para_info.fh"
 
       parameter ( N2 = InfVec_N2 )
       Logical add

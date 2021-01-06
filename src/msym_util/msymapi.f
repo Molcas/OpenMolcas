@@ -47,7 +47,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
-#include "periodic_table.fh"
 #include "WrkSpc.fh"
 #include "constants2.fh"
       Character*2 Element(nAtoms)

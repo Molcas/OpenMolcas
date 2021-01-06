@@ -34,10 +34,13 @@
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif
+      Use Para_Info, Only: MyRank
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
       External NucExp
 #include "Molcas.fh"
-#include "para_info.fh"
 *
 #include "angtp.fh"
 #include "constants.fh"
@@ -58,7 +61,6 @@
 #include "embpotdata.fh"
 #endif
 #include "relae.fh"
-#include "periodic_table.fh"
       Common /AMFn/ iAMFn
 *
       Real*8 Lambda
@@ -4650,9 +4652,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Subroutine LDF_CheckConfig()
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit None
 #include "localdf.fh"
-#include "para_info.fh"
       ! Debug write of unconstrained coefficients:
       ! 1) makes no sense for unconstrained LDF => reset
       ! 2) not implemented in parallel => error

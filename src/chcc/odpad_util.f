@@ -70,12 +70,14 @@ c
 c       nacitanie vsupu a inicializacia premnennych
 c       a tlac primitivnej hlavicky pre Reord procesz
 c
+#ifdef _MOLCAS_MPP_
+        use Para_Info, only: nProcs
+#endif
         implicit none
 #include "chcc1.fh"
 #include "chcc_reord.fh"
 cmp!
 #include "chcc_parcc.fh"
-#include "para_info.fh"
 cmp!
 
 c

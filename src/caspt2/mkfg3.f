@@ -56,6 +56,9 @@ C> @param[out] idxG3 table to translate from process-local array index
 C>                   to active indices
 
       SUBROUTINE MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3)
+#if defined (_MOLCAS_MPP_) && !defined (_GA_)
+      USE Para_Info, ONLY: nProcs, Is_Real_Par, King
+#endif
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -64,7 +67,6 @@ C>                   to active indices
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
 
-#include "para_info.fh"
       LOGICAL RSV_TSK
 
       INTEGER, INTENT(IN) :: IFF

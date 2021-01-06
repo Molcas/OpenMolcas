@@ -32,6 +32,9 @@ C      v,w,x,y:  MO-indeces belonging to (Active)
 C
 **********************************************************************
 
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
       Integer   ipLxy(8),ipScr(8,8)
@@ -63,7 +66,6 @@ C
 #include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-#include "para_info.fh"
 
       Real*8 LKThr
 

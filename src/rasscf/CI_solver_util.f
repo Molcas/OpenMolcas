@@ -17,7 +17,9 @@
 #ifdef _MOLCAS_MPP_
       use mpi
       use definitions, only: MPIInt
+      use Para_Info, only: Is_Real_Par
 #endif
+      use Para_Info, only: MyRank
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_data, only: iAdr15, nAc, nAcPar, nAcpr2
       use general_data, only: JobIPH
@@ -25,7 +27,6 @@
       private
       public :: wait_and_read, RDM_to_runfile,
      &      cleanMat
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
       integer(MPIInt) :: error

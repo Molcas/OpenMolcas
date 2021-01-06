@@ -29,7 +29,6 @@ c
         implicit none
 c
 #include "wrk.fh"
-#include "paralell.fh"
 c
        integer mapd(0:512,1:6)
        integer mapi(1:8,1:8,1:8)
@@ -64,12 +63,12 @@ c        (free zone is not used in GA)
 c        Since T2 amplitudes are no more then oovv, at most V1-V3 space
 c        will be demaged. (acutally V1 and V2 only)
 c
+        use Para_Info, only: nProcs
         implicit none
 c
 #include "wrk.fh"
 #include "ccsd1.fh"
 #include "ccsd2.fh"
-#include "paralell.fh"
 c
 c        help variables
 c
@@ -162,8 +161,9 @@ c
 c
 c        this routine distribute nodes to different parts
 c
+        use Para_Info, only: nProcs
         implicit none
-#include "paralell.fh"
+#include "parallel.fh"
 c
         integer i
         REAL*8 efftot
@@ -486,8 +486,9 @@ c
 c        this routine redefine ideffab vector using infromation about
 c        idle time on each nodes selected for sumoverab process
 c
+        use Para_Info, only: nProcs
         implicit none
-#include "paralell.fh"
+#include "parallel.fh"
 c
 c        help variables
 c
@@ -630,7 +631,7 @@ c        idtot - distribution vector (O)
 c               (idtot(i) -  # of records to be realized by i-th node)
 c
         implicit none
-#include "paralell.fh"
+#include "parallel.fh"
 c
         integer n
         integer idtot(1)

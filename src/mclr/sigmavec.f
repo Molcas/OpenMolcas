@@ -315,7 +315,7 @@
       Else
        Call SysHalt('sigmavec')
 *
-*      IF WE USE DISK REPLACE THE FIRST VARIBLES LIKE THIS
+*      IF WE USE DISK REPLACE THE FIRST VARIABLES LIKE THIS
 *      CALL RASSG4(C,HC,C,HC!,
 *
       End If

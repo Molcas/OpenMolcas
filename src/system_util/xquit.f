@@ -10,14 +10,14 @@
 ************************************************************************
       subroutine xquit(rc)
 CSVC: routine that terminates Molcas properly
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: King
+#endif
       implicit none
       integer rc, lb, ub
 #include "warnings.fh"
       character(len=128) :: msg
       logical, external :: bomb_on_error
-#ifdef _MOLCAS_MPP_
-      logical, external :: King
-#endif
 
       call xflush(6)
 

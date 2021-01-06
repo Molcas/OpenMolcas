@@ -17,13 +17,16 @@
 *
       subroutine False_Program(rc)
       use False_Global, only: Run_Command, Will_Print
+      use Para_Info, only: King
+#ifdef _MOLCAS_MPP_
+      use Para_Info, only: Is_Real_Par
+#endif
       implicit none
       integer, intent(out) :: rc
       character(len=180) :: InFile,OutFile
       integer :: n
       integer, external :: iPrintLevel
       logical, external :: Reduce_Prt
-#include "para_info.fh"
 
       rc = 0
 

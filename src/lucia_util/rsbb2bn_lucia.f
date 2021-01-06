@@ -87,8 +87,8 @@
 *
 * Last change : Aug 2000
 *
+      USE Para_Info, ONLY: MyRank, nProcs
       IMPLICIT REAL*8(A-H,O-Z)
-#include "para_info.fh"
 *. General input
 #include "mxpdim.fh"
 #include "timers.fh"

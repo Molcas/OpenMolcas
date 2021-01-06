@@ -18,6 +18,9 @@
 *--------------------------------------------*
       SUBROUTINE PRPCTL
       USE PT2WFN
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -26,9 +29,6 @@
 #include "eqsolv.fh"
 #include "SysDef.fh"
       Logical FullMlk,lSave,Do_ESPF
-#ifdef _MOLCAS_MPP_
-      LOGICAL Is_Real_Par
-#endif
 
       Character(Len=8) Label
       Character(Len=128) FILENAME,MDNAME

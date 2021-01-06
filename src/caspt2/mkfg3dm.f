@@ -33,6 +33,9 @@ C are required to converge CASPT2 iteration.
 C
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       SUBROUTINE MKFG3DM(IFF,G1,F1,G2,F2,G3,F3,idxG3)
+#if defined (_MOLCAS_MPP_) && !defined (_GA_)
+      USE Para_Info, ONLY: nProcs, Is_Real_Par, King
+#endif
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -40,8 +43,6 @@ C
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
-
-#include "para_info.fh"
 
       INTEGER, INTENT(IN) :: IFF
       REAL*8, INTENT(OUT) :: G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)

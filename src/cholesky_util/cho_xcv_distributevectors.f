@@ -25,6 +25,9 @@ C     Number of 'ga_put' has been remarkably reduced.
 C     Victor P. Vysotskiy, 2014:
 C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
 
+#if !defined (_GA_)
+      Use Para_Info, Only: nProcs
+#endif
       Implicit None
       Integer irc
       Integer nSP_Batch
@@ -82,7 +85,6 @@ C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
 #include "WrkSpc.fh"
 #include "choprint.fh"
 #include "mafdecls.fh"
-#include "cho_para_info.fh"
       Character*12 SecNam
       Parameter (SecNam='Cho_XCV_DV_P')
 

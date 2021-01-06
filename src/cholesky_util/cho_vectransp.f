@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE Cho_VecTransp(Vec,Jin,Jfi,iSym,iRed,iPass)
+      Use Para_Info, Only: MyRank, nProcs
       Implicit Real*8 (a-h,o-z)
       Real*8   Vec(*)
       Integer  Jin, Jfi, iSym, iRed, iPass

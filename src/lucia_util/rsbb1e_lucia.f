@@ -75,8 +75,8 @@
 * Jeppe Olsen, Winter of 1991
 *              IUSE_PH added winter of 97
 *
+      USE Para_Info, ONLY: MyRank, nProcs
       IMPLICIT REAL*8(A-H,O-Z)
-#include "para_info.fh"
 COLD      REAL*8 INPROD
 *. MAX dimensions
 #include "mxpdim.fh"

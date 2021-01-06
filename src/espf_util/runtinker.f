@@ -11,8 +11,11 @@
       Subroutine RunTinker(natom,ipCord,ipMltp,ipIsMM,MltOrd,
      &                     DynExtPot,iQMChg,nAtMM,StandAlone,
      &                     DoDirect)
+      Use Para_Info, Only: MyRank
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
-#include "para_info.fh"
 *
 #include "espf.fh"
 *

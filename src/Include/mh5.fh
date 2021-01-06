@@ -604,7 +604,6 @@
       character(len=*) :: name
       character :: buffer(*)
       integer, optional :: exts(*), offs(*)
-      integer :: size
       end subroutine
 
       end interface

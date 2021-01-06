@@ -35,12 +35,14 @@ c Avoid unused argument warnings
       Return
       End
       Subroutine Ext_Rank(FileName)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: MyRank
+#endif
       Implicit Real*8 (a-h,o-z)
 #ifdef _MOLCAS_MPP_
       External StrnLn
       Integer StrnLn
 #endif
-#include "para_info.fh"
       Character*(*) FileName
 
 #ifdef _MOLCAS_MPP_

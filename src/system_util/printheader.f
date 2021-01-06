@@ -10,6 +10,7 @@
 ************************************************************************
 CSVC: print a banner with module name and runtime information
       subroutine print_module_header(modulename)
+      use Para_Info, only: nProcs
 #ifdef _OPENMP
       use omp_lib
 #endif
@@ -19,7 +20,6 @@ CSVC: print a banner with module name and runtime information
       character(len=100) :: line
       integer :: i
 
-#include "para_info.fh"
 #include "unixinfo.fh"
 #ifdef _MOLCAS_MPP_
       integer :: nprocs_global

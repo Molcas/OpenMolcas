@@ -31,6 +31,9 @@ C      k:        MO-index   belonging to (Frozen+Inactive)
 C
 **********************************************************************
 
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nDen
@@ -60,9 +63,6 @@ C
 #include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-#if defined (_MOLCAS_MPP_)
-#include "para_info.fh"
-#endif
 #include "warnings.fh"
       parameter ( N2 = InfVec_N2 )
       Logical add

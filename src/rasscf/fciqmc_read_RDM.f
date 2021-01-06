@@ -43,8 +43,8 @@
 !>  @paramin[out] PSMAT Average symm. 2-dens matrix
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
       subroutine read_neci_RDM(DMAT, DSPN, PSMAT, PAMAT)
+      use Para_Info, only: MyRank
       implicit none
-#include "para_info.fh"
 #include "output_ras.fh"
       real*8, intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
       integer :: iUnit, isfreeunit, p, q, r, s, pq, rs, ps, rq, psrq,
