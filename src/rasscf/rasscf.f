@@ -136,7 +136,7 @@
 ! actual_iter starts at 0, so iter 1A == 0, 1B == 1, 2 == 2, 3 == 3 and so on
       integer :: actual_iter
 
-      Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
+#include "sxci.fh"
 
       External Get_ProgName
       Character*100 ProgName, Get_ProgName
