@@ -10,9 +10,9 @@
 ************************************************************************
 #ifdef _HDF5_
       SUBROUTINE read_hdf5_init(file_h5,nstate,nss)
+      Use mh5, Only: mh5_open_file_r, mh5_fetch_attr, mh5_close_file
       Implicit None
 #include "stdalloc.fh"
-#include "mh5.fh"
       Character(Len=180),intent(in) ::    file_h5
       Integer, intent(out)      ::    nstate,nss
       ! local variables:
@@ -103,10 +103,12 @@
      &                         multiplicity, eso, esfs,
      &                         U, MM, MS, ML, DM, ANGMOM, EDMOM,
      &                         amfi, HSO )
+      Use mh5, Only: mh5_open_file_r, mh5_fetch_attr, mh5_exists_dset,
+     &               mh5_fetch_dset, mh5_fetch_dset_array_real,
+     &               mh5_close_file
       Implicit None
       Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
 #include "stdalloc.fh"
-#include "mh5.fh"
       Integer, intent(in)           :: nstate,nss
       Integer, intent(out)          :: multiplicity(nstate)
 
@@ -191,7 +193,7 @@ c      END IF
       Call dcopy_(nstate,[0.0_wp],0,etmp,1)
       IF (mh5_exists_dset(fileid,'SFS_ENERGIES')) THEN
 !         found_esfs=.true.
-         Call mh5_fetch_dset_array_real(fileid,'SFS_ENERGIES',etmp)
+         Call mh5_fetch_dset(fileid,'SFS_ENERGIES',etmp)
          RNRM=0.0_wp
          RNRM=dnrm2_(nstate,etmp,1)
          IF ( RNRM.lt.1.0D-50 ) THEN
@@ -223,7 +225,7 @@ c      END IF
       Call dcopy_(nss,[0.0_wp],0,etmp,1)
       IF (mh5_exists_dset(fileid,'SOS_ENERGIES')) THEN
 !         found_eso=.true.
-         Call mh5_fetch_dset_array_real(fileid,'SOS_ENERGIES',etmp)
+         Call mh5_fetch_dset(fileid,'SOS_ENERGIES',etmp)
          RNRM=0.0_wp
          RNRM=dnrm2_(nss,etmp,1)
          IF ( RNRM.lt.1.0D-50 ) THEN
@@ -579,10 +581,12 @@ c----- expand the spin free basis to the spin-orbit basis:
 
       SUBROUTINE read_hdf5_poly( file_h5, nss, nstate,
      &                           eso, MM, MS,iReturn )
+      Use mh5, Only: mh5_open_file_r, mh5_fetch_attr, mh5_exists_dset,
+     &               mh5_fetch_dset, mh5_fetch_dset_array_real,
+     &               mh5_close_file
       Implicit None
       Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
 #include "stdalloc.fh"
-#include "mh5.fh"
       Integer, intent(in)           :: nstate,nss
       Integer                       :: multiplicity(nstate)
       Integer                       :: iReturn
@@ -701,7 +705,7 @@ c      END IF
       Call dcopy_(nss,[0.0_wp],0,etmp,1)
       IF (mh5_exists_dset(fileid,'SOS_ENERGIES')) THEN
 !         found_eso=.true.
-         Call mh5_fetch_dset_array_real(fileid,'SOS_ENERGIES',etmp)
+         Call mh5_fetch_dset(fileid,'SOS_ENERGIES',etmp)
          RNRM=0.0_wp
          RNRM=dnrm2_(nss,etmp,1)
          IF ( RNRM.lt.1.0D-50 ) THEN

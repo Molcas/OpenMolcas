@@ -55,6 +55,10 @@
       use qcmaquis_interface_cfg
       use qcmaquis_interface_wrapper
       use qcmaquis_interface_main, only: file_name_generator
+      use mh5, only: mh5_put_dset
+#endif
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset_array_real
 #endif
 
       Implicit Real* 8 (A-H,O-Z)
@@ -863,7 +867,7 @@ C.. printout of the wave function
         Call GetMem('CIVtmp','Free','Real',LW11,nConf)
       ENDIF
 #ifdef _DMRG_
-          call mh5_put_dset_array_str
+          call mh5_put_dset
      &         (wfn_dmrg_checkpoint,dmrg_file%qcmaquis_checkpoint_file)
 #endif
 

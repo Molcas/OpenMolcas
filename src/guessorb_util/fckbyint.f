@@ -24,6 +24,9 @@
 *                                                                      *
 ************************************************************************
       Subroutine FckByInt(iReturncode,StandAlone)
+#ifdef _HDF5_
+      Use mh5, Only: mh5_put_dset
+#endif
       Implicit Real*8 (a-h,o-z)
 #include "stdalloc.fh"
 #include "Molcas.fh"

@@ -50,7 +50,6 @@
 #include "WrkSpc.fh"
 #include "Files.fh"
 #include "Struct.fh"
-#include "rassiwfn.fh"
 
       Integer ISpin,JOB1,JOB2
       Real*8,DIMENSION(NASHT**2)::TRAD,TRASD
@@ -468,7 +467,6 @@ C     Putting particle-hole pairs in the output
 #include "WrkSpc.fh"
 #include "Files.fh"
 #include "Struct.fh"
-#include "rassiwfn.fh"
 
 C     input variables
       INTEGER NUseSym,LNTO,LEigVal

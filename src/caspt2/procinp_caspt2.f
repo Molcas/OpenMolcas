@@ -12,7 +12,9 @@
 CSVC: process CASPT2 input based on the data in the input table, and
 C initialize global common-block variables appropriately.
       Use InputData
+#ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit None
 #include "rasdim.fh"
 #include "warnings.fh"

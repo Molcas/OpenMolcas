@@ -318,7 +318,9 @@ c
 c       nacitanie vsupu a inicializacia premnennych
 c       a tlac primitivnej hlavicky pre Reord procesz
 c
+#ifdef _MOLCAS_MPP_
         use Para_Info, only: MyRank, nProcs
+#endif
         implicit none
 #include "cht3_ccsd1.fh"
 #include "cht3_reord.fh"

@@ -10,7 +10,9 @@
 ************************************************************************
 CSVC: print a banner with module name and runtime information
       subroutine print_module_header(modulename)
+#ifdef _MOLCAS_MPP_
       use Para_Info, only: nProcs
+#endif
 #ifdef _OPENMP
       use omp_lib
 #endif

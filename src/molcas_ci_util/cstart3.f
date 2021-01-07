@@ -44,6 +44,11 @@
 *                                                                      *
 ************************************************************************
 
+#ifdef _HDF5_
+      Use mh5, Only: mh5_is_hdf5, mh5_open_file_r,
+     &               mh5_fetch_dset_array_real, mh5_close_file
+#endif
+
       Implicit Real*8 (A-H,O-Z)
 
       Dimension C(*) , h0(*) , TUVX(*), iSel(*), ExplE(*), ExplV(*)
@@ -56,9 +61,6 @@
 #include "output_ras.fh"
       PARAMETER (ROUTINE='CSTART  ')
 #include "SysDef.fh"
-#ifdef _HDF5_
-#  include "mh5.fh"
-#endif
 
 c      Dimension iToc(15)
       Character*80 String

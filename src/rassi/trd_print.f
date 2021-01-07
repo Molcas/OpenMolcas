@@ -29,7 +29,6 @@
 #include "WrkSpc.fh"
 #include "Files.fh"
 #include "Struct.fh"
-!#include "rassiwfn.fh"
 #include "stdalloc.fh"
 ! Variables passed
       INTEGER ISTATE, JSTATE

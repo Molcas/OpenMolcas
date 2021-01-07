@@ -89,10 +89,9 @@ Integer Function mpp_id()
 End Function mpp_id
 
 Subroutine Set_Do_Parallel(Par_Status)
-  ! Set to optional to avoid unused argument warnings
-  Logical, Intent(In), Optional :: Par_Status
+  Logical, Intent(In) :: Par_Status
 #ifdef _MOLCAS_MPP_
-  If (Present(Par_Status)) mpp_workshare = (Par_Status .and. (mpp_nprocs > 1))
+  mpp_workshare = (Par_Status .and. (mpp_nprocs > 1))
   If (mpp_workshare) Then
     MyRank = mpp_procid
     nProcs = mpp_nprocs
@@ -102,6 +101,8 @@ Subroutine Set_Do_Parallel(Par_Status)
   End If
 #else
   Return
+! Avoid unused argument warnings
+  If (.False.) Call Unused_logical(Par_Status)
 #endif
 End Subroutine Set_Do_Parallel
 

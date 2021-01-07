@@ -13,15 +13,15 @@
 ************************************************************************
       Subroutine Print_CI_Mix(EigVec)
       Use RefWfn
+#ifdef _HDF5_
+      Use mh5, Only: mh5_open_file_r, mh5_fetch_dset_array_real
+#endif
       Implicit None
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#ifdef _HDF5_
-#include "mh5.fh"
-#endif
       Real*8 :: EigVec(nState,nState)
       Integer :: iState, iiState, jSNum, iDisk
       Real*8, Allocatable, Dimension(:) :: cCI, mCI

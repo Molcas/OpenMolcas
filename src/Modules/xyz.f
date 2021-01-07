@@ -47,6 +47,11 @@
 ! Rot and Trans are transformations to apply to all coordinates in this file
 ! If Replace=.T., the coordinates will replace existing ones, but labels will not be changed
       Subroutine Read_XYZ(Lu,Rot,Trans,Replace)
+#ifdef _HDF5_
+      Use mh5, Only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_attr,
+     &               mh5_fetch_dset, mh5_fetch_dset_array_real,
+     &               mh5_close_file
+#endif
       Integer, Intent(In) :: Lu
       Real*8, Dimension(:,:,:), Allocatable, Intent(In) :: Rot
       Real*8, Dimension(:,:), Allocatable, Intent(In) :: Trans
@@ -61,10 +66,9 @@
 #include "real.fh"
 #include "constants2.fh"
 #ifdef _HDF5_
-#  include "mh5.fh"
 #  include "Molcas.fh"
       Logical :: isH5
-      Integer :: Coord_id, Attr_id, nSym, j, c
+      Integer :: Coord_id, nSym, j, c
       Character (Len=LenIn), Dimension(:), Allocatable :: Labels
       Character (Len=LenIn4), Dimension(:), Allocatable :: Labels4
       Real*8, Dimension(:,:), Allocatable :: Coords
@@ -139,25 +143,22 @@
         Call mh5_fetch_attr(Coord_id,'NSYM',nSym)
 !       read numbers of atoms
         If (nSym .gt. 1) Then
-          Attr_id = mh5_open_attr(Coord_id,'NATOMS_ALL')
+          Call mh5_fetch_attr(Coord_id,'NATOMS_ALL',NumAt)
         Else
-          Attr_id = mh5_open_attr(Coord_id,'NATOMS_UNIQUE')
+          Call mh5_fetch_attr(Coord_id,'NATOMS_UNIQUE',NumAt)
         End If
-        Call mh5_get_attr_scalar_int(Attr_id,NumAt)
         Allocate(ThisGeom(NumAt))
         Allocate(Labels(NumAt),Coords(3,NumAt))
 !       read atom labels
         If (nSym .gt. 1) then
           Allocate(Labels4(NumAt))
-          Call mh5_fetch_dset_array_str(Coord_id,'DESYM_CENTER_LABELS',
-     &                                   Labels4)
+          Call mh5_fetch_dset(Coord_id,'DESYM_CENTER_LABELS',Labels4)
           Do i=1,NumAt
             Labels(i) = Labels4(i)(1:LenIn)
           End Do
           Deallocate(Labels4)
         Else
-          Call mh5_fetch_dset_array_str(Coord_id,'CENTER_LABELS',
-     &                                   Labels)
+          Call mh5_fetch_dset(Coord_id,'CENTER_LABELS',Labels)
         End If
 !       remove numbers from labels
 !       (otherwise there will be problems when symmetric structures

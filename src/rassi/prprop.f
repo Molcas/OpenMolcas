@@ -12,6 +12,9 @@
      &                  EigVec)
       use rassi_global_arrays, only: SODYSAMPS
       USE kVectors
+#ifdef _HDF5_
+      USE mh5, ONLY: mh5_put_dset_array_real
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
 #include "prgm.fh"

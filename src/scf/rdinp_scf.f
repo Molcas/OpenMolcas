@@ -35,6 +35,9 @@
 ************************************************************************
       use OccSets
       use IOBuf, only: lDaRec,nSect!,DiskMx_MByte
+#ifdef _HDF5_
+      use mh5, only: mh5_is_hdf5, mh5_open_file_r
+#endif
 *
       Implicit Real*8 (a-h,o-z)
       External Allocdisk
@@ -50,9 +53,6 @@
 #include "file.fh"
 #include "iprlv.fh"
 #include "ksdft.fh"
-#ifdef _HDF5_
-#  include "mh5.fh"
-#endif
 *
 *---- Define local variables
       Character*180  Key, Line

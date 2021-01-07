@@ -24,13 +24,13 @@
 ************************************************************************
       Subroutine refwfn_init(Filename)
 ************************************************************************
+#ifdef _HDF5_
+      Use mh5, Only: mh5_is_hdf5, mh5_open_file_r
+#endif
       Implicit None
       Character(Len=*) :: Filename
       Integer :: I, IAD15
 
-#ifdef _HDF5_
-#  include "mh5.fh"
-#endif
       refwfn_is_h5 = .False.
 
       ProgName = Get_ProgName()
@@ -81,10 +81,10 @@
 ************************************************************************
       Subroutine refwfn_close
 ************************************************************************
-      Implicit None
 #ifdef _HDF5_
-#  include "mh5.fh"
+      Use mh5, Only: mh5_close_file
 #endif
+      Implicit None
 
 #ifdef _HDF5_
       If (refwfn_is_h5) Then
@@ -105,12 +105,14 @@ CSVC: initialize the reference wavefunction info
 #ifdef _DMRG_
       use qcmaquis_info
 #endif
+#ifdef _HDF5_
+      Use mh5, Only: mh5_fetch_attr, mh5_exists_dset, mh5_fetch_dset
+#endif
       Implicit None
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "stdalloc.fh"
 #ifdef _HDF5_
-#  include "mh5.fh"
       character(Len=1), allocatable :: typestring(:)
 #endif
       Integer iSym, ref_nSym, ref_nBas(mxSym)
@@ -165,7 +167,7 @@ CSVC: initialize the reference wavefunction info
 #ifdef _DMRG_
         If(mh5_exists_dset(refwfn_id, 'QCMAQUIS_CHECKPOINT')) Then
           call qcmaquis_info_init(1,nroots,-1)
-          call mh5_fetch_dset_array_str(refwfn_id,
+          call mh5_fetch_dset(refwfn_id,
      &       'QCMAQUIS_CHECKPOINT', qcm_group_names(1)%states)
         end if
 #endif
@@ -209,14 +211,15 @@ C TITLE2. That one is printed out in PRINP_CASPT2.
       subroutine refwfn_data
 ************************************************************************
 CSVC: initialize the reference wavefunction data
+#ifdef _HDF5_
+      Use mh5, Only: mh5_fetch_attr, mh5_fetch_dset,
+     &               mh5_fetch_dset_array_real
+#endif
       Implicit None
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
-#ifdef _HDF5_
-#  include "mh5.fh"
-#endif
 
       Integer :: I, IAD15, II, IDISK, ID
 
@@ -331,8 +334,7 @@ CSVC: read the L2ACT and LEVEL arrays
 
 #ifdef _HDF5_
       If (refwfn_is_h5) Then
-        call mh5_fetch_dset_array_real(refwfn_id,
-     &         'ROOT_ENERGIES', ROOT_ENERGIES)
+        call mh5_fetch_dset(refwfn_id, 'ROOT_ENERGIES', ROOT_ENERGIES)
       Else
 #endif
 *PAM 2015: We will no longer recompute the RASSCF energies

@@ -31,6 +31,9 @@
 * ********** IBM-3090 Release 88 09 07 **********
 *
 
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #ifdef _ENABLE_CHEMPS2_DMRG_

@@ -66,6 +66,9 @@
 
       use orthonormalization, only : ON_scheme
       use print_RDMs_NECI_format, only: printRDMs_NECI
+#ifdef _HDF5_
+      use mh5, only: mh5_put_attr, mh5_put_dset_array_real
+#endif
 
       Implicit Real*8 (A-H,O-Z)
 

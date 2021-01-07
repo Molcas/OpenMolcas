@@ -78,7 +78,6 @@
 #include "qnctl.fh"
 #include "orthonormalize.fh"
 #include "ciinfo.fh"
-#include "raswfn.fh"
 *JB XMC-PDFT stuff
 #include "mspdft.fh"
       Integer LRState,NRState         ! storing info in Do_Rotate.txt

@@ -18,6 +18,7 @@
       use kVectors
 #ifdef _HDF5_
       use Dens2HDF5
+      use mh5, only: mh5_put_dset_array_real
 #endif
 #ifdef _DMRG_
       use qcmaquis_interface_cfg

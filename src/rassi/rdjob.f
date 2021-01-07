@@ -15,6 +15,12 @@
       use qcmaquis_info
 #endif
       use mspt2_eigenvectors
+#ifdef _HDF5_
+      use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
+     &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
+     &               mh5_fetch_dset_array_real,
+     &               mh5_fetch_dset_array_str, mh5_close_file
+#endif
       IMPLICIT NONE
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -31,7 +37,6 @@
 #include "SysDef.fh"
 #include "stdalloc.fh"
 #ifdef _HDF5_
-#  include "mh5.fh"
       integer :: refwfn_id
 
       integer :: ref_nSym, ref_stSym, ref_nBas(mxSym), ref_iSpin
@@ -213,8 +218,7 @@
       Else If (mh5_exists_dset(refwfn_id, pt2_e_string)) Then
         HAVE_DIAG=.TRUE.
         call mma_allocate(ref_energies,ref_nstates)
-        call mh5_fetch_dset_array_real(refwfn_id,
-     &         pt2_e_string,ref_energies)
+        call mh5_fetch_dset(refwfn_id,pt2_e_string,ref_energies)
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
           ISNUM=root2state(LROOT(ISTATE))
@@ -225,8 +229,7 @@
       Else If (mh5_exists_dset(refwfn_id, 'ROOT_ENERGIES')) Then
         HAVE_DIAG=.TRUE.
         call mma_allocate(ref_energies,ref_nroots)
-        call mh5_fetch_dset_array_real(refwfn_id,
-     &         'ROOT_ENERGIES',ref_energies)
+        call mh5_fetch_dset(refwfn_id,'ROOT_ENERGIES',ref_energies)
         DO I=1,NSTAT(JOB)
           ISTATE=ISTAT(JOB)-1+I
           ISNUM=root2state(LROOT(ISTATE))
@@ -669,6 +672,10 @@ C Where is the CMO data set stored?
 *                                                                      *
 ************************************************************************
       Subroutine rdjob_nstates(JOB)
+#ifdef _HDF5_
+      use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_attr,
+     &               mh5_close_file
+#endif
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "cntrl.fh"
@@ -677,7 +684,6 @@ C Where is the CMO data set stored?
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #ifdef _HDF5_
-#  include "mh5.fh"
       integer :: refwfn_id
       integer :: ref_nstates
 #endif

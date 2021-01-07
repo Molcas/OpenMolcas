@@ -12,7 +12,10 @@
 #ifndef _HAVE_EXTRA_
       Use Prgm
 #endif
-      Use Para_Info, Only: MyRank, nProcs, King, Set_Do_Parallel
+      Use Para_Info, Only: MyRank, nProcs, Set_Do_Parallel
+#if defined (_MOLCAS_MPP_) && !defined(_GA_)
+      Use Para_Info, Only: King
+#endif
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "standard_iounits.fh"

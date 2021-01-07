@@ -54,6 +54,9 @@
       use EFP_Module
       use EFP
 #endif
+#ifdef _HDF5_
+      Use mh5, Only: mh5_put_dset
+#endif
       Implicit Real*8 (a-h,o-z)
 *
 #include "real.fh"

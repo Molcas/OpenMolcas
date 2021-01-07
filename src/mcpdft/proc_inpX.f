@@ -14,6 +14,11 @@
 #ifdef module_DMRG
 !     use molcas_dmrg_interface !stknecht: Maquis-DMRG program
 #endif
+#ifdef _HDF5_
+      Use mh5, Only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
+     &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
+     &               mh5_close_file
+#endif
 
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
@@ -39,7 +44,6 @@
 #include "lucia_ini.fh"
 #include "stdalloc.fh"
 #ifdef _HDF5_
-#  include "mh5.fh"
       character(len=32) :: prgm
 #endif
 *
@@ -62,8 +66,8 @@
       logical Langevin_On
       logical PCM_On
       Integer ipTemp1,ipTemp2,ipTemp3
-* (SVC) added for treatment of alter and supsym
-      Dimension iMAlter(8,2)
+!* (SVC) added for treatment of alter and supsym
+!      Dimension iMAlter(8,2)
       Integer IPRGLB_IN, IPRLOC_IN(7)
 
       Logical DoCholesky,timings,DensityCheck
@@ -1989,14 +1993,14 @@ C orbitals accordingly
           iOffset=iOffset+nBas(iSym)
        End Do
        Call GetMem('Temp1','Free','Inte',ipTemp1,mxOrb)
-* (SVC) If both ALTER and SUPS keyword has been used, then change the IXSYM
-* arrays according to the changed orbital ordering given in ALTER.
-       Do iAlter=1,NAlter
-         iChng1=IXSYM(iMAlter(iAlter,1))
-         iChng2=IXSYM(iMAlter(iAlter,2))
-         IXSYM(iMAlter(iAlter,1))=iChng2
-         IXSYM(iMAlter(iAlter,2))=iChng1
-       End Do
+!* (SVC) If both ALTER and SUPS keyword has been used, then change the IXSYM
+!* arrays according to the changed orbital ordering given in ALTER.
+!       Do iAlter=1,NAlter
+!         iChng1=IXSYM(iMAlter(iAlter,1))
+!         iChng2=IXSYM(iMAlter(iAlter,2))
+!         IXSYM(iMAlter(iAlter,1))=iChng2
+!         IXSYM(iMAlter(iAlter,2))=iChng1
+!       End Do
        Call ChkIfKey_m()
       End If
 *

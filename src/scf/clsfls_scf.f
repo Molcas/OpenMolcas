@@ -31,6 +31,9 @@
 *                                                                      *
 ************************************************************************
 *
+#ifdef _HDF5_
+      Use mh5, Only: mh5_close_file
+#endif
       Implicit Real*8 (a-h,o-z)
 *
 #include "file.fh"

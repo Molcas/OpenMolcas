@@ -26,6 +26,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       SUBROUTINE NhcThermo (vel)
+#ifdef _HDF5_
+      USE mh5, ONLY: mh5_put_dset
+#endif
       IMPLICIT REAL*8 (a-h,o-z)
 #include "prgm.fh"
 #include "Molcas.fh"

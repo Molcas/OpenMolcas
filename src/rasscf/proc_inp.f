@@ -33,6 +33,11 @@
      &  t_RDMsampling, RDMsampling,
      &  totalwalkers, Time, nmCyc, memoryfacspawn,
      &  realspawncutoff, diagshift, definedet, semi_stochastic
+#ifdef _HDF5_
+      use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
+     &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
+     &               mh5_close_file
+#endif
 
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
@@ -58,9 +63,6 @@
 #include "lucia_ini.fh"
 #include "rasscf_lucia.fh"
 *^ needed for passing kint1_pointer
-#ifdef _HDF5_
-#  include "mh5.fh"
-#endif
 *
       Logical Do_OFemb,KEonly,OFE_first,l_casdft
       COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first

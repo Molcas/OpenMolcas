@@ -47,7 +47,6 @@
 #include "casvb.fh"
 #include "wadr.fh"
 #include "rasscf_lucia.fh"
-#include "raswfn.fh"
 #include "ksdft.fh"
       Logical DoActive,DoQmat,DoCholesky
 !      Logical TraOnly

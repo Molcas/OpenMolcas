@@ -72,6 +72,11 @@
       use orthonormalization, only : t_ON_scheme, ON_scheme_values,
      &  orthonormalize
 
+#ifdef _HDF5_
+      use mh5, only: mh5_open_file_r, mh5_exists_dset, mh5_fetch_dset,
+     &               mh5_close_file
+#endif
+
       implicit none
 
 *     global data declarations
@@ -82,7 +87,6 @@
 #include "warnings.fh"
 #include "wadr.fh"
 #include "casvb.fh"
-#include "raswfn.fh"
       Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
 
       real*8 :: CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)

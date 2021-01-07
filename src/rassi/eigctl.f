@@ -14,6 +14,7 @@
       USE rassi_global_arrays, only: JBNUM
 #ifdef _HDF5_
       USE Dens2HDF5
+      USE mh5, ONLY: mh5_put_dset, mh5_put_dset_array_real
 #endif
 #include "compiler_features.h"
 #ifndef POINTER_REMAP

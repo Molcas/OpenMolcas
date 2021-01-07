@@ -20,6 +20,7 @@ subroutine chemps2_load2pdm( NAC, PT, CHEMROOT )
 #ifdef _MOLCAS_MPP_
   USE MPI
 #endif
+  USE mh5, ONLY: mh5_open_file_r, mh5_open_group, mh5_fetch_dset, mh5_close_group, mh5_close_file
 
   IMPLICIT NONE
   INTEGER, INTENT(IN) :: NAC, CHEMROOT
@@ -27,7 +28,6 @@ subroutine chemps2_load2pdm( NAC, PT, CHEMROOT )
 
   CHARACTER(LEN=30) :: file_2rdm
 
-#include "mh5.fh"
   INTEGER            :: file_h5, group_h5
   LOGICAL            :: irdm
 
@@ -52,7 +52,7 @@ subroutine chemps2_load2pdm( NAC, PT, CHEMROOT )
 
   file_h5 = mh5_open_file_r(file_2rdm)
   group_h5 = mh5_open_group(file_h5, '2-RDM')
-  call mh5_fetch_dset_array_real(group_h5, 'elements', two_rdm)
+  call mh5_fetch_dset(group_h5, 'elements', two_rdm)
   call mh5_close_group(group_h5)
   call mh5_close_file(file_h5)
 !#ifdef _MOLCAS_MPP_

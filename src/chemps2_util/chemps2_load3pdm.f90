@@ -20,6 +20,7 @@ subroutine chemps2_load3pdm( NAC, idxG3, NG3, storage, doG3, EPSA, F2, chemroot 
 #ifdef _MOLCAS_MPP_
   USE MPI
 #endif
+  USE mh5, ONLY: mh5_open_file_r, mh5_open_group, mh5_fetch_dset, mh5_close_group, mh5_close_file
 
   IMPLICIT NONE
   INTEGER, INTENT(IN)   :: NAC, NG3, chemroot
@@ -33,7 +34,6 @@ subroutine chemps2_load3pdm( NAC, idxG3, NG3, storage, doG3, EPSA, F2, chemroot 
   CHARACTER(LEN=30) :: file_f4rdm
   LOGICAL           :: irdm, jrdm
 
-#include "mh5.fh"
   INTEGER            :: file_h5, group_h5
   character(len=10) :: rootindex
 
@@ -63,7 +63,7 @@ subroutine chemps2_load3pdm( NAC, idxG3, NG3, storage, doG3, EPSA, F2, chemroot 
     file_h5 = mh5_open_file_r(file_f4rdm)
     group_h5 = mh5_open_group(file_h5, 'F.4-RDM')
   End If
-  call mh5_fetch_dset_array_real(group_h5, 'elements', buffer)
+  call mh5_fetch_dset(group_h5, 'elements', buffer)
   call mh5_close_group(group_h5)
   call mh5_close_file(file_h5)
 !#ifdef _MOLCAS_MPP_

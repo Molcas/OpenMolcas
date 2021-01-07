@@ -37,7 +37,6 @@
 #include "WrkSpc.fh"
 #include "Files.fh"
 #include "Struct.fh"
-#include "rassiwfn.fh"
 #include "stdalloc.fh"
       DIMENSION ISGSTR1(NSGSIZE), ISGSTR2(NSGSIZE)
       DIMENSION ICISTR1(NCISIZE), ICISTR2(NCISIZE)

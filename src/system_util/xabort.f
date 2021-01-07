@@ -10,9 +10,9 @@
 ************************************************************************
       subroutine xabort(rc)
 C     this routine aborts the process(es) with rc
-      use Para_Info, only: Is_Real_Par
 #ifdef _MOLCAS_MPP_
       use mpi
+      use Para_Info, only: Is_Real_Par
 #endif
       implicit none
       integer :: rc
