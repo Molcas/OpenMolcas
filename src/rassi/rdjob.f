@@ -13,13 +13,13 @@
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
       use qcmaquis_info
+      use mh5, only: mh5_fetch_dset_array_str
 #endif
       use mspt2_eigenvectors
 #ifdef _HDF5_
       use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
-     &               mh5_fetch_dset_array_real,
-     &               mh5_fetch_dset_array_str, mh5_close_file
+     &               mh5_fetch_dset_array_real, mh5_close_file
 #endif
       IMPLICIT NONE
 #include "prgm.fh"

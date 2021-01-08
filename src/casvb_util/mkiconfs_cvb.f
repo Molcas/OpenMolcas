@@ -8,12 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine mkiconfs_cvb()
       implicit real*8 (a-h,o-z)
       logical need_cas
-#include "ext_cvb.fh"
+c ... Make: up to date? ...
+      logical, external :: up2date_cvb
+c ... Files/Hamiltonian available ...
+      logical, external :: valid_cvb,ifcasci_cvb,ifhamil_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"

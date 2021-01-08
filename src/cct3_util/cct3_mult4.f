@@ -426,7 +426,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        mapd(i,2)=nhelp1
 c
 c     def sym p,q
@@ -462,7 +462,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        if ((typ.eq.1).and.(sp.eq.sq)) then
        mapd(i,2)=nhelp1*(nhelp1-1)/2
        else
@@ -513,7 +513,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        if ((typ.eq.1).and.(sp.eq.sq)) then
        mapd(i,2)=nhelp1*(nhelp1-1)*nhelp3/2
        else if ((typ.eq.2).and.(sq.eq.sr)) then
@@ -576,7 +576,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        if ((typ.eq.1).and.(sp.eq.sq)) then
        mapd(i,2)=nhelp1*(nhelp2-1)*nhelp3*nhelp4/2
        else if ((typ.eq.2).and.(sq.eq.sr)) then
@@ -670,7 +670,7 @@ c
 c
 c     help variables
 c
-       integer symp,symq,symr,iia,iib,possa,possb,nhelp,lenght
+       integer symp,symq,symr,iia,iib,possa,possb,nhelp,length
        real*8 scal
 c
        rc=0
@@ -722,11 +722,11 @@ cI.2  def parameters of B
        iib=mapib(symp,symq,symr)
        possb=mapdb(iib,1)
 c
-cI.3  lenght must be common for both A and B
-       lenght=mapda(iia,2)
+cI.3  length must be common for both A and B
+       length=mapda(iia,2)
 c
-       if (lenght.gt.0) then
-       call cct3_mr0u3wt (lenght,lenght,lenght,1,1,wrk(possa),
+       if (length.gt.0) then
+       call cct3_mr0u3wt (length,length,length,1,1,wrk(possa),
      & wrk(possb),scal)
        scalar=scalar+scal
        end if
@@ -750,11 +750,11 @@ cII.2 def parameters of B
        iib=mapib(symp,symq,1)
        possb=mapdb(iib,1)
 c
-cII.3 lenght must be common for both A and B
-       lenght=mapda(iia,2)
+cII.3 length must be common for both A and B
+       length=mapda(iia,2)
 c
-       if (lenght.gt.0) then
-       call cct3_mr0u3wt (lenght,lenght,lenght,1,1,wrk(possa),
+       if (length.gt.0) then
+       call cct3_mr0u3wt (length,length,length,1,1,wrk(possa),
      & wrk(possb),scal)
        scalar=scalar+scal
        end if
@@ -777,11 +777,11 @@ cIII.2def parameters of B
        iib=mapib(symp,1,1)
        possb=mapdb(iib,1)
 c
-cIII.3lenght must be common for both A and B
-       lenght=mapda(iia,2)
+cIII.3length must be common for both A and B
+       length=mapda(iia,2)
 c
-       if (lenght.gt.0) then
-       call cct3_mr0u3wt (lenght,lenght,lenght,1,1,wrk(possa),
+       if (length.gt.0) then
+       call cct3_mr0u3wt (length,length,length,1,1,wrk(possa),
      & wrk(possb),scal)
        scalar=scalar+scal
        end if

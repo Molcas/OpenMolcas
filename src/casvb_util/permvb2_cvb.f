@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine permvb2_cvb(v1,iperm,vb,iapr,ixapr,
      >  xalf,xbet,mingrph,maxgrph,
@@ -16,7 +17,6 @@
      >  inda,phsa,indb,phsb,v2,ialg)
       implicit real*8 (a-h,o-w,y-z),integer(x)
       logical vb
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"

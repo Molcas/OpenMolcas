@@ -891,9 +891,9 @@ c     the structure of lunw3xxxx is:
 c
 c     do syma=1,nsym
 c     map of H _a(m,e,j)bbbb (W3(m,e,a,j))
-c     skip cycle over a if lenght of all files is zero
+c     skip cycle over a if length of all files is zero
 c     do a=1,nvx(syma) [ x is a or b ]
-c     if (h1lenght.gt.0) then
+c     if (h1length.gt.0) then
 c     write H(m,e,j)
 c     end if
 c     end do
@@ -907,7 +907,7 @@ c
 c
 c     help variables
 c
-       integer rc,syma,a,h1lenght,posst,aup,aalfayes,iiv1,v1lenght
+       integer rc,syma,a,h1length,posst,aup,aalfayes,iiv1,v1length
 c
 c0    def aalfayes
 c
@@ -935,8 +935,8 @@ c
 c
 c1.2  vanish V1
        iiv1=mapdv1(0,5)
-       v1lenght=mapdv1(iiv1,1)+mapdv1(iiv1,2)-possv10
-       call mv0zero (v1lenght,v1lenght,wrk(possv10))
+       v1length=mapdv1(iiv1,1)+mapdv1(iiv1,2)-possv10
+       call mv0zero (v1length,v1length,wrk(possv10))
 c
 c2    rewind tape lunw3xxxx
        call filemanager (2,lunw3xxxx,rc)
@@ -946,10 +946,10 @@ c
        do 3000 syma=1,nsym
 c
 c3.1  get map of H _a(m,e,j) to mapd,i H1
-       call getmap (lunw3xxxx,possh10,h1lenght,mapdh1,mapih1,rc)
+       call getmap (lunw3xxxx,possh10,h1length,mapdh1,mapih1,rc)
 c
-c3.2  skip cycle over a if lenght of H1 is 0
-       if (h1lenght.eq.0) goto 3000
+c3.2  skip cycle over a if length of H1 is 0
+       if (h1length.eq.0) goto 3000
 c
 c3.3  loop over all a in this symmetry
 c
@@ -961,10 +961,10 @@ c
 c
        do 2500 a=1,aup
 c
-       if (h1lenght.gt.0) then
+       if (h1length.gt.0) then
 c
 c3.3.1read H1 if any
-       call rea (lunw3xxxx,h1lenght,wrk(possh10))
+       call rea (lunw3xxxx,h1length,wrk(possh10))
 c
 c3.3.2insert H1 into V1 for given a and syma
        call add (wrk,wrksize,

@@ -706,8 +706,8 @@ c
 #include "ccsd_t3compat.fh"
 c
         integer a,b,dima,dimb
-cmp        integer lenght
-        integer lenght
+cmp        integer length
+        integer length
         integer lasta,lastb
 c
         real*8 t2(*),tmp(*),t2_tmp(*)
@@ -734,12 +734,12 @@ cmp@@         if (a.eq.NvGrp) dima=nv-((NvGrp-1)*dima)
         dimb=dima
 c
 cmp         write (6,*) 'dima = ',dima
-         lenght=(dima*(dima+1)*no*no)/2
-cmp         write (6,*) 'lenght = ',lenght
-cmp!         write (6,*) 'file size (g77) = ',16+lenght*8
-cmp         write (6,*) 'file size (ifort) = ',8+lenght*8
+         length=(dima*(dima+1)*no*no)/2
+cmp         write (6,*) 'length = ',length
+cmp!         write (6,*) 'file size (g77) = ',16+length*8
+cmp         write (6,*) 'file size (ifort) = ',8+length*8
 c
-        call GetX_t3 (tmp,lenght,LunAux,T2Name(a,b),1,1)
+        call GetX_t3 (tmp,length,LunAux,T2Name(a,b),1,1)
 c
          else ! a>b
 c open the pertinent file
@@ -749,12 +749,12 @@ cmp@@         if (b.eq.NvGrp) dimb=nv-((NvGrp-1)*dimb)
 c
 cmp         write (6,*) 'dima = ',dima
 cmp         write (6,*) 'dimb = ',dimb
-         lenght=dima*dimb*no*no
-cmp         write (6,*) 'lenght = ',lenght
-cmp!         write (6,*) 'file size (g77) = ',16+lenght*8
-cmp         write (6,*) 'file size (ifort) = ',8+lenght*8
+         length=dima*dimb*no*no
+cmp         write (6,*) 'length = ',length
+cmp!         write (6,*) 'file size (g77) = ',16+length*8
+cmp         write (6,*) 'file size (ifort) = ',8+length*8
 c
-        call GetX_t3 (tmp,lenght,LunAux,T2Name(a,b),1,1)
+        call GetX_t3 (tmp,length,LunAux,T2Name(a,b),1,1)
 c
          end if
 c
@@ -1065,7 +1065,7 @@ c
 #include "ccsd_t3compat.fh"
 c
         integer a,b,c,dima,dimb,dimc,occ_ind
-        integer lenght
+        integer length
         integer lasta,lastb,lastc
 c
         real*8 w3(1:(nv*(nv+1))/2,1:nv)
@@ -1101,13 +1101,13 @@ cmp@         if (a.eq.NvGrp) dima=nv-((NvGrp-1)*dima)
 c
 cmp!         write (6,*) 'dima = ',dima
          dimb=dima
-         lenght=(dima*(dima+1)*nc)/2
-cmp!         write (6,*) 'lenght L2Name(a,b) = ',L2Name(a,b),lenght
-cmp!     write (6,*) 'file size (g77) = ',16+lenght*8
+         length=(dima*(dima+1)*nc)/2
+cmp!         write (6,*) 'length L2Name(a,b) = ',L2Name(a,b),length
+cmp!     write (6,*) 'file size (g77) = ',16+length*8
 cmp!         write (6,*) 'file size L2Name(a,b) (ifort) = ',
-cmp!     & L2Name(a,b),8+lenght*8
+cmp!     & L2Name(a,b),8+length*8
 c
-        call GetX_t3 (tmp,lenght,LunAux,L2Name(a,b),1,1)
+        call GetX_t3 (tmp,length,LunAux,L2Name(a,b),1,1)
 c
          else ! a>b
 c open the pertinent file
@@ -1120,13 +1120,13 @@ cmp@@         if (b.eq.NvGrp) dimb=nv-((NvGrp-1)*dimb)
         dimb=DimGrpaR(b)
 c
 cmp!         write (6,*) 'dima, dimb = ',dima,dimb
-         lenght=dima*dimb*nc
-cmp!         write (6,*) 'lenght L2Name(a,b) = ',L2Name(a,b),lenght
-cmp!     write (6,*) 'file size (g77) = ',16+lenght*8
+         length=dima*dimb*nc
+cmp!         write (6,*) 'length L2Name(a,b) = ',L2Name(a,b),length
+cmp!     write (6,*) 'file size (g77) = ',16+length*8
 cmp!         write (6,*) 'file size L2Name(a,b) (ifort) = ',
-cmp!     & L2Name(a,b),8+lenght*8
+cmp!     & L2Name(a,b),8+length*8
 c
-        call GetX_t3 (tmp,lenght,LunAux,L2Name(a,b),1,1)
+        call GetX_t3 (tmp,length,LunAux,L2Name(a,b),1,1)
         end if
 c
 c2.2        map  L2_1(a',b',m) <- tmp(m,a',b')
@@ -1149,12 +1149,12 @@ cmp@@         if (c.eq.NvGrp) dimc=nv-((NvGrp-1)*dimc)
         dimc=DimGrpaR(c)
 c
 cmp!         write (6,*) 'dimc = ',dimc
-         lenght=nc*no*dimc
-cmp!         write (6,*) 'lenght L1Name(c) = ',L1Name(c),lenght
+         length=nc*no*dimc
+cmp!         write (6,*) 'length L1Name(c) = ',L1Name(c),length
 cmp!         write (6,*) 'file size L1Name(c) (ifort) = ',
-cmp!     & L1Name(c),8+8*lenght
+cmp!     & L1Name(c),8+8*length
 c
-        call GetX_t3 (tmp,lenght,LunAux,L1Name(c),1,1)
+        call GetX_t3 (tmp,length,LunAux,L1Name(c),1,1)
 c
 c3.2        extract l1_1 (m,c')_i <- tmp (m,i,c')
 c toto by sa dalo nahradit mapovanim
@@ -1536,19 +1536,19 @@ c
 #include "ccsd_t3compat.fh"
 c
         real*8 tmp(*),l0(*),l1(*),w(*)
-        integer a,dima,lenght,last
+        integer a,dima,length,last
 c
         integer a_tmp
 c
 c1        read tmp(m,IJ)
 c
-        lenght=nc*(no*(no+1))/2
+        length=nc*(no*(no+1))/2
 c
 cmp!        write (6,'(A,A6)') 'L0vcrt ','L0vcrt'
-cmp!        write (6,*) 'lenght = ',lenght
-cmp!        write (6,*) 'file size (ifort) = ',8+8*lenght
+cmp!        write (6,*) 'length = ',length
+cmp!        write (6,*) 'file size (ifort) = ',8+8*length
 c
-        call GetX_t3 (tmp,lenght,LunAux,'L0vctr',1,1)
+        call GetX_t3 (tmp,length,LunAux,'L0vctr',1,1)
 c2        map l0(IJ,m)   <- tmp(m,IJ)
 c
         call Map2_21_t3 (tmp,l0,nc,(no*(no+1)/2))
@@ -1566,11 +1566,11 @@ c
 cmp@@         if (a.eq.NvGrp) dima=nv-((NvGrp-1)*dima)
 c
 cmp!         write (6,*) 'dima = ',dima
-         lenght=nc*no*dima
-cmp!         write (6,*) 'lenght = ',lenght
-cmp!         write (6,*) 'file size (ifort) = ',8+8*lenght
+         length=nc*no*dima
+cmp!         write (6,*) 'length = ',length
+cmp!         write (6,*) 'file size (ifort) = ',8+8*length
 c
-        call GetX_t3 (tmp,lenght,LunAux,L1Name(a),1,1)
+        call GetX_t3 (tmp,length,LunAux,L1Name(a),1,1)
 c
 c5        grow l1(m,I,A)
 c
@@ -1750,7 +1750,7 @@ c
 #include "ccsd_t3compat.fh"
 c
         real*8 tmp(*),l1(*),w(*),l2(*)
-        integer a,b,dima,dimb,lenght,lasta,lastb
+        integer a,b,dima,dimb,length,lasta,lastb
         integer a_tmp,b_tmp
 c
         do a=1,NvGrp
@@ -1758,8 +1758,8 @@ c
 c1        read tmp(m,I,A')
 c
         dima=DimGrpaR(a)
-         lenght=nc*no*dima
-         call GetX_t3 (tmp,lenght,LunAux,L1Name(a),1,1)
+         length=nc*no*dima
+         call GetX_t3 (tmp,length,LunAux,L1Name(a),1,1)
 c
 c5        map l1 (A',I,m) <- tmp (m,I,A')
 c
@@ -1770,8 +1770,8 @@ c
         do b=1,a
 c
         dimb=DimGrpaR(b)
-         lenght=nc*no*dimb
-         call GetX_t3 (tmp,lenght,LunAux,L1Name(b),1,1)
+         length=nc*no*dimb
+         call GetX_t3 (tmp,length,LunAux,L1Name(b),1,1)
 c
 c4        map l2 (m,B',I) <- tmp (m,I,B')
 c
@@ -1976,8 +1976,8 @@ c
 c
         integer ngaf,ngal,ngbf,ngbl
         integer a,b,dima,dimb
-cmp        integer lenght
-        integer lenght
+cmp        integer length
+        integer length
         integer lasta,lastb
         integer length1,length2
 c
@@ -2006,11 +2006,11 @@ c
         dimb=DimGrpaR(b)
 c
          if (a.eq.b) then  ! a=b
-          lenght=(dima*(dima+1)*no*no)/2
-          call GetX_t3 (tmp,lenght,LunAux,T2Name(a,b),1,1)
+          length=(dima*(dima+1)*no*no)/2
+          call GetX_t3 (tmp,length,LunAux,T2Name(a,b),1,1)
          else ! a>b
-          lenght=dima*dimb*no*no
-          call GetX_t3 (tmp,lenght,LunAux,T2Name(a,b),1,1)
+          length=dima*dimb*no*no
+          call GetX_t3 (tmp,length,LunAux,T2Name(a,b),1,1)
          end if
 c
           lasta=0
@@ -2137,7 +2137,7 @@ c
 c
         integer ngaf,ngal,ngbf,ngbl
         integer a,b,dima,dimb
-        integer lenght
+        integer length
         integer lasta,lastb
         integer length1,length2
 c
@@ -2169,11 +2169,11 @@ c
         dimb=DimGrpaR(bb)
 c
          if (aa.eq.bb) then  ! aa=bb
-          lenght=(dima*(dima+1)*no*no)/2
-          call GetX_t3 (tmp,lenght,LunAux,T2Name(aa,bb),1,1)
+          length=(dima*(dima+1)*no*no)/2
+          call GetX_t3 (tmp,length,LunAux,T2Name(aa,bb),1,1)
          else ! aa>bb
-          lenght=dima*dimb*no*no
-          call GetX_t3 (tmp,lenght,LunAux,T2Name(aa,bb),1,1)
+          length=dima*dimb*no*no
+          call GetX_t3 (tmp,length,LunAux,T2Name(aa,bb),1,1)
          end if
 c
           lasta=0
@@ -2333,7 +2333,7 @@ c
 #include "ccsd_t3compat.fh"
 c
         real*8 tmp(*),l1(*),w(*),l2(*)
-        integer a,b,dima,dimb,lenght,lasta,lastb
+        integer a,b,dima,dimb,length,lasta,lastb
         integer a_tmp,b_tmp
 c
         integer ngaf,ngal,ngbf,ngbl
@@ -2349,8 +2349,8 @@ c
 c1        read tmp(m,I,A')
 c
         dima=DimGrpaR(a)
-        lenght=nc*no*dima
-        call GetX_t3 (tmp,lenght,LunAux,L1Name(a),1,1)
+        length=nc*no*dima
+        call GetX_t3 (tmp,length,LunAux,L1Name(a),1,1)
 c
 c5        map l1 (A',I,m) <- tmp (m,I,A')
 c
@@ -2361,8 +2361,8 @@ c
         do b=ngbf,min0(a,ngbl)
 c
         dimb=DimGrpaR(b)
-        lenght=nc*no*dimb
-        call GetX_t3 (tmp,lenght,LunAux,L1Name(b),1,1)
+        length=nc*no*dimb
+        call GetX_t3 (tmp,length,LunAux,L1Name(b),1,1)
 c
 c4        map l2 (m,B',I) <- tmp (m,I,B')
 c
@@ -2490,7 +2490,7 @@ c
 c
         integer ngaf,ngal,ngbf,ngbl
         integer a,b,dima,dimb
-        integer lenght
+        integer length
         integer lasta,lastb
         integer length1,length2
 c
@@ -2522,11 +2522,11 @@ c
         dimb=DimGrpaR(bb)
 c
          if (aa.eq.bb) then  ! aa=bb
-          lenght=(dima*(dima+1)*no*no)/2
-          call GetX_t3 (tmp,lenght,LunAux,T2Name(aa,bb),1,1)
+          length=(dima*(dima+1)*no*no)/2
+          call GetX_t3 (tmp,length,LunAux,T2Name(aa,bb),1,1)
          else ! aa>bb
-          lenght=dima*dimb*no*no
-          call GetX_t3 (tmp,lenght,LunAux,T2Name(aa,bb),1,1)
+          length=dima*dimb*no*no
+          call GetX_t3 (tmp,length,LunAux,T2Name(aa,bb),1,1)
          end if
 c
           lasta=0

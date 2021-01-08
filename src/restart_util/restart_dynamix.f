@@ -13,7 +13,7 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       SUBROUTINE Restart_Dynamix(file_h5res)
       USE mh5, ONLY: mh5_open_file_r, mh5_fetch_attr, mh5_open_attr,
      &               mh5_get_attr, mh5_close_attr, mh5_exists_dset,
-     &               mh5_fetch_dset, mh5_open_dset, mh5_get_dset,
+     &               mh5_fetch_dset, mh5_open_dset, mh5_get_dset_dims,
      &               mh5_close_dset, mh5_close_file
       IMPLICIT NONE
 #include "stdalloc.fh"
@@ -83,7 +83,7 @@ C read velocities and save in RunFile
 
 C read thermostat info and save in RunFile
       dset_id=mh5_open_dset(restart_fileid,'NOSEHOOVER')
-      call mh5_get_dset(dset_id,nh)
+      call mh5_get_dset_dims(dset_id,nh)
       call mh5_close_dset(dset_id)
       CALL mma_allocate(NHC,nh(1))
       call mh5_fetch_dset(restart_fileid,'NOSEHOOVER',NHC)

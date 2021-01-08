@@ -13,8 +13,7 @@
 *     exists, it will be overwritten.
 #ifdef _HDF5_
       use mh5, only: mh5_create_file, mh5_init_attr,
-     &               mh5_create_dset_real, mh5_create_dset_str,
-     &               mh5_close_file
+     &               mh5_create_dset_real, mh5_create_dset_str
       implicit none
 #  include "Molcas.fh"
 #  include "commgo.fh"
@@ -75,8 +74,9 @@
       end
 
       subroutine cls_gsswfn
-      implicit none
 #ifdef _HDF5_
+      use mh5, only: mh5_close_file
+      implicit none
 #  include "gsswfn.fh"
       call mh5_close_file(wfn_fileid)
 #endif

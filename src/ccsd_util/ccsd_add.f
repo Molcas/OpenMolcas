@@ -191,7 +191,7 @@ c
 c
        ib=mapib(sa1,sa2,sa3)
 c
-c     def lenght
+c     def length
        nhelp1=mapda(ia,2)
        if (nhelp1.eq.0) goto 400
 c
@@ -227,7 +227,7 @@ c
 c
        ib=mapib(ssu,sa1,sa2)
 c
-c     def lenght
+c     def length
        nhelp1=mapda(ia,2)
        if (nhelp1.eq.0) goto 4110
 c
@@ -269,7 +269,7 @@ c
        ib=mapib(ssu,sa1,sa2)
        ibm=mapib(sa1,ssu,sa2)
 c
-c     def lenght
+c     def length
        nhelp1=mapda(ia,2)
        if (nhelp1.eq.0) goto 4114
 c
@@ -371,7 +371,7 @@ c
 c
        ib=mapib(sa1,ssu,sa2)
 c
-c     def lenght
+c     def length
        nhelp1=mapda(ia,2)
        if (nhelp1.eq.0) goto 4120
 c
@@ -413,7 +413,7 @@ c
        ib=mapib(sa1,ssu,sa2)
        ibm=mapib(ssu,sa1,sa2)
 c
-c     def lenght
+c     def length
        nhelp1=mapda(ia,2)
        if (nhelp1.eq.0) goto 4124
 c
@@ -517,7 +517,7 @@ c
 c
        ib=mapib(sa1,sa2,ssu)
 c
-c     def lenght
+c     def length
        nhelp1=mapda(ia,2)
        if (nhelp1.eq.0) goto 4130
 c
@@ -560,7 +560,7 @@ c
        ib=mapib(sa1,sa2,ssu)
        ibm=mapib(sa1,sa2,sa3)
 c
-c     def lenght
+c     def length
        nhelp1=mapda(ia,2)
        if (nhelp1.eq.0) goto 4134
 c
@@ -634,7 +634,7 @@ c
 c
        ib=mapib(sa1,sa2,sa3)
 c
-c     def lenght
+c     def length
        nhelp1=mapda(ia,2)
        if (nhelp1.eq.0) goto 4140
 c
@@ -678,7 +678,7 @@ c
        ib=mapib(sa1,sa2,sa3)
        ibm=mapib(sa1,sa2,ssu)
 c
-c     def lenght
+c     def length
        nhelp1=mapda(ia,2)
        if (nhelp1.eq.0) goto 4144
 c
@@ -769,7 +769,7 @@ c@@
 c
        ib=mapib(ssu,ssv,sa1)
 c
-c     def lenght
+c     def length
        nhelp1=mapda(ia,2)
        if (nhelp1.eq.0) goto 4250
 c
@@ -786,7 +786,7 @@ c
 c     calc joined pq index
        pq=(v-1)*nhelp4+u
 c
-c     calc fictive lenghts
+c     calc fictive lengths
        nhelp9=nhelp6*nhelp7
        nhelp10=nhelp4*nhelp5
 c
@@ -822,7 +822,7 @@ c@
 c@@
        ib=mapib(ssp,ssq,sa1)
 c
-c     def lenght
+c     def length
        nhelp1=mapda(ia,2)
        if (nhelp1.eq.0) goto 4254
 c
@@ -836,7 +836,7 @@ c     def dimp,dimq,dimr,dims
        nhelp6=dimm(mapdb(0,3),mapdb(ib,5))
        nhelp7=dimm(mapdb(0,4),mapdb(ib,6))
 c
-c     calc joined pq index and fictive lenght of pq pair
+c     calc joined pq index and fictive length of pq pair
        if (ssp.eq.ssq) then
        pq=(p-1)*(p-2)/2+q
        nhelp10=nhelp4*(nhelp4-1)/2
@@ -845,7 +845,7 @@ c     calc joined pq index and fictive lenght of pq pair
        nhelp10=nhelp4*nhelp5
        end if
 c
-c     calc fictive lenghts
+c     calc fictive lengths
        if (sa1.eq.sa2) then
        nhelp9=nhelp6*(nhelp6-1)/2
        else
@@ -906,7 +906,7 @@ c
 c
        ib=mapib(sa1,sa2,1)
 c
-c     def lenght
+c     def length
        nhelp1=mapda(ia,2)
        if (nhelp1.eq.0) goto 300
 c
@@ -935,7 +935,7 @@ c
 c
        ib=mapib(ssu,sa1,1)
 c
-c     def lenght
+c     def length
        nhelp1=mapda(ia,2)
        if (nhelp1.eq.0) goto 311
 c
@@ -974,7 +974,7 @@ c
 c
        ib=mapib(sa1,ssu,1)
 c
-c     def lenght
+c     def length
        nhelp1=mapda(ia,2)
        if (nhelp1.eq.0) goto 312
 c
@@ -1010,7 +1010,7 @@ c
 c
        ib=mapib(sa1,sa2,1)
 c
-c     def lenght
+c     def length
        nhelp1=mapda(ia,2)
        if (nhelp1.eq.0) goto 313
 c
@@ -1063,7 +1063,7 @@ c
 c
        ib=mapib(sa1,1,1)
 c
-c     def lenght
+c     def length
        nhelp1=mapda(ia,2)
        if (nhelp1.eq.0) goto 200
 c
@@ -1087,7 +1087,7 @@ c
 c
        ib=mapib(ssu,1,1)
 c
-c     def lenght
+c     def length
        nhelp1=mapda(ia,2)
        if (nhelp1.eq.0) goto 211
 c
@@ -1120,7 +1120,7 @@ c
        sa1=mapda(ia,3)
        ib=mapib(sa1,1,1)
 c
-c     def lenght
+c     def length
        nhelp1=mapda(ia,2)
        if (nhelp1.eq.0) goto 212
 c

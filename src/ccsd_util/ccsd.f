@@ -759,25 +759,25 @@ c
 c
 c     help variables
 c
-       integer poss,lenght
+       integer poss,length
        integer nhelp,nzero
        real*8 zerolim
 c
-c     def lenght, poss, zerolim
+c     def length, poss, zerolim
 c
        poss=mapd(1,1)
        nhelp=mapd(0,5)
-       lenght=mapd(nhelp,1)+mapd(nhelp,2)-mapd(1,1)
+       length=mapd(nhelp,1)+mapd(nhelp,2)-mapd(1,1)
        zerolim=1.0d-6
 c
-       if (lenght.gt.0) then
+       if (length.gt.0) then
        nzero=0
-       do 100 nhelp=poss,poss+lenght-1
+       do 100 nhelp=poss,poss+length-1
        if (abs(wrk(nhelp)).lt.zerolim) then
        nzero=nzero+1
        end if
  100    continue
-       pz = dble(100*nzero)/dble(lenght)
+       pz = dble(100*nzero)/dble(length)
        else
        pz=1.0d0
        end if

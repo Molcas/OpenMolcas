@@ -1596,7 +1596,7 @@ c     help variables
 c
        integer iadd,lun,isym,num
 c      integer rc1
-       integer poss,lenght,im
+       integer poss,length,im
 c
 c1    some tests
 c
@@ -1635,17 +1635,17 @@ c
        call idafile (lun,2,mapir,8*8*8,daddr(lun))
 c
        poss=possr0
-       lenght=0
+       length=0
        do im=1,mapdr(0,5)
          mapdr(im,1)=poss
          poss=poss+mapdr(im,2)
-         lenght=lenght+mapdr(im,2)
+         length=length+mapdr(im,2)
 c        write (*,99) ' MAP',(mapdr(im,k),k=1,6)
 c99       format (a3,i8,2x,i8,4(2x,i2))
        end do
 c
-       if (lenght.gt.0) then
-         call ddafile (lun,2,wrk(possr0),lenght,daddr(lun))
+       if (length.gt.0) then
+         call ddafile (lun,2,wrk(possr0),length,daddr(lun))
        end if
 c      call cct3_getmediate (wrk,wrksize,
 c    & lun,possr0,mapdr,mapir,rc1)

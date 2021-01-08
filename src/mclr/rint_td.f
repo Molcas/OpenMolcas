@@ -122,10 +122,10 @@ c            Replace ekappa ekappa=ekappa-wDKt+wKtD
 c*****************************************************
              incx=1
              incy=incx
-             lenght=nbas(is)*nbas(js)
-             call daxpy_(lenght,1.0d0,wDKt(ipmat(is,js)),
+             length=nbas(is)*nbas(js)
+             call daxpy_(length,1.0d0,wDKt(ipmat(is,js)),
      &            incx,ekappa(ipmat(is,js)),incy)
-             call daxpy_(lenght,-1.0d0,wKtD(ipmat(is,js)),
+             call daxpy_(length,-1.0d0,wKtD(ipmat(is,js)),
      &            incx,ekappa(ipmat(is,js)),incy)
           End If
       end do

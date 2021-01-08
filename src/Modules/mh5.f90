@@ -19,7 +19,7 @@ public :: mh5_create_file, mh5_open_file_rw, mh5_open_file_r, mh5_close_file, mh
           mh5_exists_dset, mh5_exists_attr, mh5_open_dset, mh5_close_dset, mh5_open_attr, mh5_close_attr, mh5_create_attr_int, &
           mh5_create_attr_real, mh5_create_attr_str, mh5_put_attr, mh5_get_attr, mh5_init_attr, mh5_fetch_attr, &
           mh5_create_dset_int, mh5_create_dset_real, mh5_create_dset_str, mh5_put_dset, mh5_get_dset, mh5_init_dset, &
-          mh5_fetch_dset, mh5_resize_dset
+          mh5_fetch_dset, mh5_resize_dset, mh5_get_dset_dims
 ! these are needed because assumed-size arguments match only one-dimensional arrays
 public :: mh5_put_dset_array_int, mh5_put_dset_array_real, mh5_fetch_dset_array_real, mh5_fetch_dset_array_str
 
@@ -623,5 +623,15 @@ interface mh5_resize_dset
   end subroutine
 
 end interface mh5_resize_dset
+
+interface mh5_get_dset_dims
+
+  subroutine mh5_get_dset_array_dims(dset_id, dims)
+  implicit none
+  integer :: dset_id
+  integer :: dims(*)
+  end subroutine
+
+end interface mh5_get_dset_dims
 
 end module mh5

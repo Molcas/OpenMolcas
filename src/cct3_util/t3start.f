@@ -27,17 +27,17 @@ c
 c
 c     -----------------------
 c
-       subroutine t3initfiles (lenght)
+       subroutine t3initfiles (length)
 c
 c     this routine distribute work space WRK for required files
 c     for fix mediates it defines also mapd and mapi, for help mediates
-c     it estimates their lenght and distribute WRK (i.e. def poss0 parameters)
+c     it estimates their length and distribute WRK (i.e. def poss0 parameters)
 c
-c     lenght - overal requirements of work space (O)
+c     length - overal requirements of work space (O)
 c
 c     !N.B. This routine cannot run with +OP2 level
 c
-       integer lenght
+       integer length
 c
 #include "t31.fh"
 #include "t32.fh"
@@ -199,7 +199,7 @@ c
 c
 c
 c2    for help files mapps are irrelevant,
-c     here only estimation of maximal lenght is done to
+c     here only estimation of maximal length is done to
 c     define poss0 of help files
 c     we have:
 c     2  W,V files - of vv2 type
@@ -292,13 +292,13 @@ c
  100    continue
 c
 c
-c2.*  def lenghts of N fils
+c2.*  def lengths of N fils
 c
        sizen=0
 c
        do 200 symp=1,nsym
 c     symq is not known for N file
-c     instead of norb(symr) maxnorb will be used so that reallenght<=lenght
+c     instead of norb(symr) maxnorb will be used so that reallength<=length
        sizen=sizen+norb(symp)*maxnorb
  200    continue
 c
@@ -362,7 +362,7 @@ c
        end if
        end if
 c
-       lenght=posst-1
+       length=posst-1
 c
        return
        end

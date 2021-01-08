@@ -256,7 +256,7 @@
       use qcmaquis_info
 #endif
 #ifdef _HDF5_
-      use mh5, only: mh5_close
+      use mh5, only: mh5_close_file
 #endif
       implicit none
 #ifdef _HDF5_

@@ -85,6 +85,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      Use Interfaces_SCF, Only: TraClc_i
       Implicit Real*8 (a-h,o-z)
       External Seconds
       Real*8 Seconds
@@ -122,7 +123,6 @@
 #ifdef _MSYM_
       Real*8 msym_ctx
 #endif
-#include "interfaces_scf.fh"
       Dimension Dummy(1),iDummy(7,8)
 *
 *----------------------------------------------------------------------*

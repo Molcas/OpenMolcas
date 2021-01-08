@@ -44,7 +44,6 @@
       Character*13 DefNm
       Character*80 Ref(2)
       Character*(storageSize) sBasis
-      Equivalence( sBasis, eqBasis)
       Character *256 Basis_lib, Fname
       Logical UnNorm
 #ifdef _DEBUGPRINT_
@@ -129,6 +128,7 @@
             iBas = int(dbsc(iCnttp)%FragCoor(1,iAtom))
             call dcopy_(LineWords,dbsc(iCnttp)%FragType(1,iBas),1,
      &                            eqBasis, 1)
+            sBasis = Transfer(eqBasis,sBasis) ! ???
 *
 *           Get the basis set directory
 *

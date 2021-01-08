@@ -431,15 +431,15 @@ c
 c
 c     ----------------------------------------
 c
-       subroutine zasun  (i1,lenght,
+       subroutine zasun  (i1,length,
      &                    valn,jn,kn,ln)
 c
 c      control routine over zasun process
 c
 c     i1 - number of pivot index (I)
-c     lenght - number of valid integrals in block (I)
+c     length - number of valid integrals in block (I)
 c
-       integer lenght,i1
+       integer length,i1
 #include "reorg.fh"
        real*8 valn(1:nsize,1:mbas)
        integer jn(1:nsize,1:mbas)
@@ -447,10 +447,10 @@ c
        integer ln(1:nsize,1:mbas)
 c
        if (zrkey.eq.1) then
-         call zasun_zr  (i1,lenght,
+         call zasun_zr  (i1,length,
      &                   valn,jn,kn,ln)
        else
-         call zasun_pck  (i1,lenght,
+         call zasun_pck  (i1,length,
      &                    valn,jn,kn,ln)
        end if
 c
@@ -459,20 +459,20 @@ c
 c
 c     ----------------------------------------
 c
-       subroutine zasun_zr  (i1,lenght,
+       subroutine zasun_zr  (i1,length,
      &                       valn,jn,kn,ln)
 c
 c     this routine write one block of 3-indices and appropriate
 c     values of integrals into an opened TEMP-file
 c
 c     i1 - number of pivot index (I)
-c     lenght - number of valid integrals in block (I)
+c     length - number of valid integrals in block (I)
 c     this routine has also jn,kn,ln,valn
 c     and stattemp and tmpnam as inputs, but they are
 c     transpotred through commons  in reorg.fh
 c
        implicit real*8 (a-h,o-z)
-       integer lenght,i1
+       integer length,i1
 #include "reorg.fh"
 
 #include "SysDef.fh"
@@ -495,7 +495,7 @@ c
 c
 c*     pack indexes
 c
-       do m2=1,lenght
+       do m2=1,length
           jkl(m2)=ln(m2,i1)+constj*jn(m2,i1)
           jkl(m2)=jkl(m2)+constk*kn(m2,i1)
        end do
@@ -540,8 +540,8 @@ c@#endif
 c
        end if
 c
-       write (lunpublic) (valn(i,i1),i=1,lenght),
-     &                   (jkl(i),i=1,lenght)
+       write (lunpublic) (valn(i,i1),i=1,length),
+     &                   (jkl(i),i=1,length)
        close (lunpublic)
 c
        else
@@ -549,34 +549,34 @@ c
 c      MOLCAS IO
 c
        call daname (lunpublic,tmpnam(i1))
-       call ddafile (lunpublic,1,valn(1,i1),lenght,stattemp(i1))
-       call idafile (lunpublic,1,jkl,       lenght,stattemp(i1))
+       call ddafile (lunpublic,1,valn(1,i1),length,stattemp(i1))
+       call idafile (lunpublic,1,jkl,       length,stattemp(i1))
        call daclos (lunpublic)
 c
        end if
 c
        nrectemp(i1)=nrectemp(i1)+1
-       lrectemp(i1)=lenght
+       lrectemp(i1)=length
 c
        return
        end
 c
 c     ----------------------------------------
 c
-       subroutine zasun_pck  (i1,lenght,
+       subroutine zasun_pck  (i1,length,
      &                        valn,jn,kn,ln)
 c
 c     this routine write one block of 3-indices and appropriate
 c     values of integrals into an opened TEMP-file
 c
 c     i1 - number of pivot index (I)
-c     lenght - number of valid integrals in block (I)
+c     length - number of valid integrals in block (I)
 c     this routine has also jn,kn,ln,valn
 c     and stattemp and tmpnam as inputs, but they are
 c     transpotred through commons  in reorg.fh
 c
        implicit real*8 (a-h,o-z)
-       integer lenght,i1
+       integer length,i1
 #include "reorg.fh"
 
 #include "SysDef.fh"
@@ -596,25 +596,23 @@ c
        parameter (constk=1024)
 c
        character*(RtoB+ItoB) pp(1:nsize),pphelp
-       character*1 p1help(1:(RtoB+ItoB))
        real*8 rhelp
        integer ihelp
-       equivalence (p1help(1),pphelp)
-       equivalence (p1help(1),rhelp)
-       equivalence (p1help(1+RtoB),ihelp)
 c
 c*     pack indexes and integral values
 c
-       do m2=1,lenght
+       do m2=1,length
        jkl(m2)=ln(m2,i1)+constj*jn(m2,i1)
        end do
-       do m2=1,lenght
+       do m2=1,length
        jkl(m2)=jkl(m2)+constk*kn(m2,i1)
        end do
 c
-       do m2=1,lenght
+       do m2=1,length
        rhelp=valn(m2,i1)
        ihelp=jkl(m2)
+       pphelp(1:RtoB)=transfer(rhelp,pphelp(1:RtoB))
+       pphelp(RtoB+1:)=transfer(ihelp,pphelp(RtoB+1:))
        pp(m2)=pphelp
        end do
 c
@@ -659,7 +657,7 @@ c     &         status='unknown')
 c
        end if
 c
-       call zashlp1 (lunpublic,pp,lenght)
+       call zashlp1 (lunpublic,pp,length)
        close (lunpublic)
 c
        else
@@ -667,24 +665,24 @@ c
 c      MOLCAS IO
 c
        call daname (lunpublic,tmpnam(i1))
-       call cdafile (lunpublic,1,pp,(RtoB+ItoB)*lenght,stattemp(i1))
+       call cdafile (lunpublic,1,pp,(RtoB+ItoB)*length,stattemp(i1))
        call daclos (lunpublic)
 c
        end if
 c
        nrectemp(i1)=nrectemp(i1)+1
-       lrectemp(i1)=lenght
+       lrectemp(i1)=length
 c
        return
        end
 c
 c     ---------
 c
-        subroutine zashlp1 (lunpublic,pp,lenght)
+        subroutine zashlp1 (lunpublic,pp,length)
 
 #include "SysDef.fh"
-        integer lunpublic,lenght
-        character*(RtoB+ItoB) pp(1:lenght)
+        integer lunpublic,length
+        character*(RtoB+ItoB) pp(1:length)
         write (lunpublic) pp
         return
         end

@@ -62,6 +62,7 @@ C
       Real*8  t(l_wt)
       Integer irc
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Integer mGrid
       Parameter (mGrid=20) ! limited by Remez implementation
@@ -69,7 +70,8 @@ C
       Character*8 DefaultGrid
       Parameter (DefaultGrid='MICRO   ')
 
-      Integer     ip_Coeff, l_Coeff
+      Integer     l_Coeff
+      Real*8, Allocatable :: Coeff(:)
       Integer     K_Lap
       Character*8 Demand
       Logical     Inf
@@ -101,11 +103,11 @@ C
          Demand='        '
       End If
       l_Coeff=2*mGrid
-      Call GetMem('LapCoef','Allo','Real',ip_Coeff,l_Coeff)
+      Call mma_Allocate(Coeff,l_Coeff,Label='LapCoef')
       Inf=.false.
-      Call Remez(Verbose,K_Lap,xmin,xmax,Work(ip_Coeff),Demand,Inf)
+      Call Remez(Verbose,K_Lap,xmin,xmax,Coeff,Demand,Inf)
       If (K_Lap.lt.0) Then
-         Call GetMem('LapCoef','Free','Real',ip_Coeff,l_Coeff)
+         Call mma_Deallocate(Coeff)
          irc=-1
          Write(6,'(A,I10)')
      &   'MinimaxLaplace: Remez returned K_Lap=',K_Lap
@@ -114,17 +116,17 @@ C
       If (N.eq.0) N=K_Lap
       If (l_wt.lt.K_Lap) Then
          Do i=1,l_wt
-            w(i)=Work(ip_Coeff+2*(i-1))
-            t(i)=Work(ip_Coeff+2*(i-1)+1)
+            w(i)=Coeff(2*i-1)
+            t(i)=Coeff(2*i)
          End Do
          irc=2
       Else
          Do i=1,K_Lap
-            w(i)=Work(ip_Coeff+2*(i-1))
-            t(i)=Work(ip_Coeff+2*(i-1)+1)
+            w(i)=Coeff(2*i-1)
+            t(i)=Coeff(2*i)
          End Do
       End If
-      Call GetMem('LapCoef','Free','Real',ip_Coeff,l_Coeff)
+      Call mma_Deallocate(Coeff)
 
       End
       Subroutine Remez_SetupPrint(print_to_molcas_log)

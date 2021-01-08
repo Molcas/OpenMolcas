@@ -10,7 +10,6 @@
 ************************************************************************
       subroutine cvbmn_rvb(icode)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 
 #include "optze_cvb.fh"
