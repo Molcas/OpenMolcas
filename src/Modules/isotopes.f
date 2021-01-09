@@ -59,7 +59,7 @@
 
       Protected :: ElementList
       Public :: MaxAtomNum, Isotope, ElementList, Initialize_Isotopes,
-     &          Free_Isotopes, NuclideMass, Element_t
+     &          Free_Isotopes, NuclideMass
 
 *
 * Private extensions to mma interfaces
