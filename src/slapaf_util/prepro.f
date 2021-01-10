@@ -22,9 +22,6 @@
       Logical CofM
       Real*8, Allocatable:: TR(:)
 *
-      iRout=134
-      iPrint=nPrint(iRout)
-*
       CofM = Iter.eq.1 .and. lNmHss
       Call mma_allocate(TR,18*nAtom,Label='TR')
       TR(:)=Zero

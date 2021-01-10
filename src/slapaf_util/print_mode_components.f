@@ -63,8 +63,8 @@
 #include "real.fh"
       Real*8 rDum(1)
       Real*8 :: Modes(*), Freq(*), Mx, MinComp
-      Integer :: LuInput, iRout,
-     &           iPrint, nX, i, j, nB, iq, nAll_Atoms, nUnique_Atoms,
+      Integer :: LuInput,
+     &           nX, i, j, nB, iq, nAll_Atoms, nUnique_Atoms,
      &           iB, lDisp(nIrrep), nModes, lModes, LuIC, ii, im, nK,
      &           iErr, PLback, nQQ, nsAtom
       Real*8, Dimension(:,:), Allocatable :: KMtrx, KTrsp, KKtB, IntMod,
@@ -72,7 +72,7 @@
       Integer, Dimension(:), Allocatable :: Sort
       Integer, Parameter :: nLbl=10*MxAtom
       Integer, External :: IsFreeUnit, iPrintLevel, AixRm
-      Logical :: Cartesian, Found
+      Logical :: Found
       Character(Len=8) :: Filename
       Character(Len=16) :: StdIn
       Character(Len=24), Allocatable :: Label(:)
@@ -396,9 +396,6 @@
       Bk_nFix = nFix
       Bk_iInt = iInt
 *
-      iRout = 55
-      iPrint=nPrint(iRout)
-*
 *---- Make a backup of the runfile, since we are going to change the
 *     internal coordinates definition.
 *
@@ -435,7 +432,6 @@
       iInt=0
       Call RdCtl_Slapaf(LuInput,.True.)
       Curvilinear = .True.
-      Cartesian = .Not. Curvilinear
       Numerical = .False.
 *
       Close(LuInput)

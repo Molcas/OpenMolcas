@@ -27,10 +27,10 @@
       Logical Found, RunOld
       Real*8, Allocatable:: TanVec(:), HTanVec(:)
 
-      iRout=120
-      iPrint=nPrint(iRout)
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
+      iRout=120
+      iPrint=nPrint(iRout)
       Call RecPrt('In LNM: Cart',' ',Cart,3,mTtAtm)
       If (nHidden.ne.0) Call RecPrt('In LNM: Cart(hidden atoms)',' ',
      &                              Cart(1,mTtAtm+1),3,nHidden)

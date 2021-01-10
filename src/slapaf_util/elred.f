@@ -131,7 +131,6 @@
 *---- Remove redundant vectors and form g     K
 *
       nK = 0
-      ThrD=1.0D-13
       Do i = 1, nQ
          ii=i*(i+1)/2
          If (EVal(ii).gt.Thr) Then
@@ -145,12 +144,15 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
 #ifdef _DEBUGPRINT_
       Call RecPrt('ElRed: The NonRedundant eigenvectors',
      &            '(5e21.12)',EVec,nQ,nK)
-       Call RecPrt('ElRed: eigenvalues ','(8E12.4)',
+      Call RecPrt('ElRed: eigenvalues ','(8E12.4)',
      &            EVal,1,nK)
 #endif
 *
  99   Continue
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_real(tmp)
+#endif
       End
 *                                                                      *
 ************************************************************************
@@ -287,7 +289,6 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
 *---- Remove redundant vectors and form g     K
 *
       nK = 0
-      ThrD=1.0D-13
       Do i = 1, nQ
          ii=i*(i+1)/2
          If (EVal(ii).gt.Thr) Then
@@ -307,5 +308,8 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
 *
  99   Continue
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_real(tmp)
+#endif
       End
 

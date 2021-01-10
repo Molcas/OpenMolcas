@@ -58,9 +58,6 @@
       character*16 filnam
       Lu=6
 *
-      iRout = 119
-      iPrint = nPrint(iRout)
-*
       Thr=0.001D+00 ! Threshold for printout.
 *
       mInt=3*nAtom

@@ -59,25 +59,18 @@
 *                                                                      *
 *
       If (nBonds.lt.3) Return
-      iRout=152
-      iPrint=nPrint(iRout)
       nqO=0
       PSPrint=.False.
       Call FZero(Hess,144)
 #ifdef _DEBUGPRINT_
-      iPrint=99
+      iRout=152
+      iPrint=nPrint(iRout)
       If (iPrint.ge.99) PSPrint=.True.
 #endif
 *
 *---- Loop over out-of-plane angles.
 *
-      bohr=CONST_BOHR_RADIUS_IN_SI_ * 1.0D+10
       MinBas=.False.
-      If (MinBas) Then
-         Fact=1.3d0
-      Else
-         Fact=One
-      End If
       nCent=4
 *
 ************************************************************************
@@ -208,7 +201,6 @@
                If (kBond.eq.jBond) Go To 301
 *
                kAtom=iTabAI(1,kAtom_)
-               ik_=nsAtom*(kAtom-1)+iAtom
                kr = iTabRow(ANr(kAtom))
                Ind(2) = kAtom
                iDCR(2)=iTabAI(2,kAtom_)
@@ -244,7 +236,6 @@
                   Write (6,*) 'lAtom=', lAtom
 #endif
 *
-                  il_=nsAtom*(lAtom-1)+iAtom
                   lr = iTabRow(ANr(lAtom))
                   Ind(3) = lAtom
                   iDCR(3)=iTabAI(2,lAtom_)

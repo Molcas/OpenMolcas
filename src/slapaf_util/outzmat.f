@@ -55,7 +55,7 @@
       Integer iZmat(MaxAtoms,3)     ! Obs: Full record
       Real*8 XYZCoords(3,nAtoms), ZMATCoords(3,N_ZMAT), ZMAT(N_ZMAT,3)
       Real*8 CTX(3,4), Bt(3,4), dBt(3,4,3,4)
-      Logical BigTrasl, IfTest
+      Logical IfTest
       Character(LEN=8) Label
       Real*8, Parameter :: ThrsTrasl=1.0d0  ! Threshold for warning
 *
@@ -68,7 +68,6 @@
       LuWr = 6
       todeg = 45.0d0 / ATan(1.0d0)
       dMaxTrasl = 0.0d0
-      BigTrasl = .False.
       Label =' '
       Call dZero(ZMAT,N_ZMAT*3)
       Call dZero(ZMATCoords,N_ZMAT*3)

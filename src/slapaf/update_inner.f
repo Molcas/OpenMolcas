@@ -144,7 +144,6 @@
 *
 *     Optional frequency analysis
 *
-      iDo_dDipM=0
       If (HrmFrq_Show) Call GF_on_the_fly(iDo_DipM)
 
 *                                                                      *

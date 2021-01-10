@@ -17,7 +17,6 @@
       Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
-#include "sbs.fh"
       Integer, Intent(In) :: nAtom
       Real*8, Intent(In) :: Ref(3,nAtom),Dir(3,nAtom),Fact,Dist
       Real*8, Intent(Out) :: Point(3,nAtom)
@@ -26,7 +25,6 @@
       Real*8 :: R,CurFact,PrevR,Correct
       Real*8, Parameter :: Thr = 1.0d-6
       Integer :: nCoor,i
-      Logical :: Invar
       Real*8 rDum(1,1,1,1)
 *                                                                      *
 ************************************************************************
@@ -47,7 +45,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Invar=(iAnd(iSBS,2**7).eq.0).and.(iAnd(iSBS,2**8).eq.0)
       nCoor=3*nAtom
       Call mma_allocate(OldRef,3,nAtom,Label='OldRef')
       Call mma_allocate(Dummy,nCoor,Label='Dummy')

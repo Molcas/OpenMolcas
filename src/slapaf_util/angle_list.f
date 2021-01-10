@@ -55,8 +55,8 @@
 ************************************************************************
 *                                                                      *
       If (nBonds.lt.2) Return
-      iRout=150
 #ifdef _DEBUGPRINT_
+      iRout=150
       iPrint=nPrint(iRout)
       iPrint=99
 #endif

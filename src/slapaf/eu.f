@@ -83,12 +83,13 @@
       Real*8 M(nH,nH), WorkM(nH,nH), E(nH,nH), Evec(nH,nH), H(nH,nH)
       Real*8 dq(nH), u(nH),  v(nH), dg(nH), gi(nH), Eval(nH*(nH+1)/2)
       Real*8 p(nH) , f(nH), WorkV(nH)
-      Real*8 WorkR, de, mi, ddot_, lim
+      Real*8 WorkR, de, ddot_, lim
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *define _DEBUG
 #ifdef _DEBUGPRINT_
+      Real*8 mi
 *     Make a comment in logfile
       write(6,*) 'hello from eu.f'
       Call RecPrt('H matrix',' ',H,nH,nH)
@@ -168,9 +169,11 @@
                de = 1.0d0
             End If
 *
+#ifdef _DEBUGPRINT_
             mi = Exp(-(1.0d0/2.0d0*Abs(Eval(ii)) * p(i)**2 + WorkR +
      &           f(i)**2 / ( 2.0D0*Abs(Eval(ii)) )) / de) *
      &           Sqrt( Abs(Eval(ii)) / (2.0D0*Pi*de) )
+#endif
 *
 *     Experimental! (worked well)
 *
