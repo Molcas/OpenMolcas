@@ -93,7 +93,7 @@
 #  include "raswfn.fh"
       real*8, allocatable :: density_square(:,:)
 #endif
-      Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
+#include "sxci.fh"
 
 #ifndef _DMRG_
       logical :: doDMRG = .false.

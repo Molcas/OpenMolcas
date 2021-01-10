@@ -8,28 +8,26 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine ProjSym(nAtoms,nCent,Ind,nStab,jStab,A,
-     &                   iDCRs,B,Smmtrc,nDim,Print,dB,
+      Subroutine ProjSym(nCent,Ind,A,iDCRs,B,dB,
      &                   mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,
-     &                   nB_Tot,ndB_Tot,Proc_dB,nqB,nB,iq,
-     &                   rMult)
+     &                   nB_Tot,ndB_Tot,Proc_dB,nqB,nB,iq,rMult)
+      use Slapaf_Info, only: jStab, nStab, Smmtrc
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.fh"
 *
 #include "real.fh"
-#include "print.fh"
       Real*8 Tx(3,MxAtom), A(3,nCent), B(3,nCent), ATemp(3),
      &       dB(3,nCent,3,nCent), BM(nB_Tot), dBM(ndB_Tot)
-      Integer   Ind(nCent), nStab(nAtoms), jStab(0:7,nAtoms),
-     &          iDCRs(nCent), iBM(nB_Tot), idBM(2,ndB_Tot), nqB(nB)
-      Logical Smmtrc(3,nAtoms), Print, Proc_dB
+      Integer   Ind(nCent), iDCRs(nCent), iBM(nB_Tot), idBM(2,ndB_Tot),
+     &          nqB(nB)
+      Logical Proc_dB
 *
-      If (Print) Then
+#ifdef _DEBUGPRINT_
          Call RecPrt('B',' ',B,3,nCent)
          Call RecPrt('dB',' ',dB,3*nCent,3*nCent)
          Write (6,*) iDCRs
-      End If
+#endif
 *
 *---- Set up the T-matrix
 *
@@ -112,77 +110,4 @@
  99   Continue
 *
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(nDim)
-      End
-      Subroutine ProjSym2(nAtoms,nCent,Ind,nStab,jStab,A,
-     &                   iDCRs,B,BqR,Smmtrc,Print,dB,dBqR)
-      Implicit Real*8 (a-h,o-z)
-#include "Molcas.fh"
-#include "warnings.fh"
-*
-#include "real.fh"
-#include "print.fh"
-      Real*8 Tx(3,MxAtom), A(3,nCent), B(3,nCent), BqR(3,nAtoms),
-     &       dB(3,nCent,3,nCent), dBqR(3,nAtoms,3,nAtoms), ATemp(3)
-      Integer   Ind(nCent), nStab(nAtoms), jStab(0:7,nAtoms),
-     &          iDCRs(nCent)
-      Logical Smmtrc(3,nAtoms), Print
-*
-      If (Print) Then
-         Call RecPrt('B',' ',B,3,nCent)
-         Call RecPrt('dB',' ',dB,3*nCent,3*nCent)
-         Write (6,*) iDCRs
-      End If
-*
-*---- Set up the T-matrix
-*
-*---- Project away nonsymmetric displacements
-*
-      call dcopy_(3*nCent,[One],0,Tx,1)
-      Do i = 1, nCent
-         Call NonSym(nStab(Ind(i)),jStab(0,Ind(i)),A(1,i),Tx(1,i))
-*
-*------- Rotate vector back to the unique center
-*
-         Call OA(iDCRs(i),Tx(1:3,i),ATemp)
-         Tx(:,i)=ATemp(:)
-      End Do
-*
-*---- The T-matrix is now computed. Now create BqR and dBqR.
-*
-*---- Create BqR
-*
-      Call FZero(BqR,3*nAtoms)
-      Do i = 1, nCent
-         Do ixyz = 1, 3
-            BqR(ixyz,Ind(i)) = BqR(ixyz,Ind(i))
-     &                       + Tx(ixyz,i)*B(ixyz,i)
-         End Do
-      End Do
-      If (Print) Call RecPrt('BqR',' ',BqR,1,3*nAtoms)
-*
-*---- Create dBqR
-*
-      Call FZero(dBqR,(3*nAtoms)**2)
-      Do i = 1, nCent
-         Do ixyz = 1, 3
-*
-            Do j = 1, nCent
-               Do jxyz = 1, 3
-*
-                  dBqR(ixyz,Ind(i),jxyz,Ind(j)) =
-     &               dBqR(ixyz,Ind(i),jxyz,Ind(j))
-     &             + Tx(ixyz,i)*dB(ixyz,i,jxyz,j)*Tx(jxyz,j)
-*
-               End Do
-            End Do
-
-         End Do
-      End Do
-      If (Print) Call RecPrt('dBqR',' ',dBqR,3*nAtoms,3*nAtoms)
-*
-      Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_logical_array(Smmtrc)
       End

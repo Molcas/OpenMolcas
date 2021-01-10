@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Fix_UDC(iRow_c,nLambda,AtomLbl,nsAtom,nStab,Remove)
+      Subroutine Fix_UDC(iRow_c,nLambda,nsAtom,nStab,Remove)
+      use Slapaf_Info, only: AtomLbl
       Implicit Real*8 (A-H,O-Z)
 ************************************************************************
 *                                                                      *
@@ -19,16 +20,15 @@
 ************************************************************************
 #include "Molcas.fh"
       External Get_Ln
-      Character*180 Get_Ln, Line, Line2, Lines(iRow_c)
-      Character*16 FilNam
-      Character*180 Label1, Label2, Label3, Label4, FragLabels(iRow_c),
-     &              SoftLabels(iRow_c)
-      Character AtomLbl(nsAtom)*(LENIN)
+      Character(LEN=180) Get_Ln, Line, Line2, Lines(iRow_c)
+      Character(LEN=16) FilNam
+      Character(LEN=180) Label1, Label2, Label3, Label4,
+     &                   FragLabels(iRow_c),
+     &                   SoftLabels(iRow_c)
       Integer nStab(nsAtom), FragZMat(iRow_c,2),ZMatOffset
       Logical Ignore, Values, Remove
-      External Get_SuperName
-      Character*100 Get_SuperName
-      Character*100 SuperName
+      Character(LEN=100), External:: Get_SuperName
+      Character(LEN=100) SuperName
 *                                                                      *
 ************************************************************************
 *                                                                      *

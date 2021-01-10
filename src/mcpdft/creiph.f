@@ -77,7 +77,7 @@ C
 #include "rasscf.fh"
 #include "WrkSpc.fh"
 #include "general.fh"
-      Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
+#include "sxci.fh"
 
 
       DO I=1,15

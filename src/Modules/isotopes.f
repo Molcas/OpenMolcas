@@ -19,7 +19,7 @@
 *
 * Each item in the the array ElementList contains data for an element:
 *  - %Symbol: symbol
-*  - %Nat: number of natural ocurring isotopes
+*  - %Natural: number of natural ocurring isotopes
 *  - %Isotopes: array with all the isotopes for the element, sorted
 *               by order of abundance (most to least, artificial
 *               sorted by increasing mass number); elements with no
@@ -46,7 +46,7 @@
       End Type Iso_t
       Type Element_t
         Character(Len=2) :: Symbol
-        Integer :: Z, Nat
+        Integer :: Z, Natural
         Type(Iso_t), Allocatable :: Isotopes(:)
       End Type Element_t
       Integer, Parameter :: MaxAtomNum=118
@@ -104,7 +104,7 @@
 #endif
 
       ElementList(1)%Symbol = 'H'
-      ElementList(1)%nat = 3
+      ElementList(1)%Natural = 3
       Call mma_Allocate(ElementList(1)%Isotopes,7)
       ElementList(1)%Isotopes(:) = [
      &  Iso_t(1, 1.00782503223d0),
@@ -116,7 +116,7 @@
      &  Iso_t(7, 7.0527d0) ]
 
       ElementList(2)%Symbol = 'He'
-      ElementList(2)%nat = 2
+      ElementList(2)%Natural = 2
       Call mma_Allocate(ElementList(2)%Isotopes,8)
       ElementList(2)%Isotopes(:) = [
      &  Iso_t(4, 4.00260325413d0),
@@ -129,7 +129,7 @@
      &  Iso_t(10, 10.05279d0) ]
 
       ElementList(3)%Symbol = 'Li'
-      ElementList(3)%nat = 2
+      ElementList(3)%Natural = 2
       Call mma_Allocate(ElementList(3)%Isotopes,11)
       ElementList(3)%Isotopes(:) = [
      &  Iso_t(7, 7.0160034366d0),
@@ -145,7 +145,7 @@
      &  Iso_t(13, 13.06263d0) ]
 
       ElementList(4)%Symbol = 'Be'
-      ElementList(4)%nat = 1
+      ElementList(4)%Natural = 1
       Call mma_Allocate(ElementList(4)%Isotopes,12)
       ElementList(4)%Isotopes(:) = [
      &  Iso_t(9, 9.012183065d0),
@@ -162,7 +162,7 @@
      &  Iso_t(16, 16.06167d0) ]
 
       ElementList(5)%Symbol = 'B'
-      ElementList(5)%nat = 2
+      ElementList(5)%Natural = 2
       Call mma_Allocate(ElementList(5)%Isotopes,16)
       ElementList(5)%Isotopes(:) = [
      &  Iso_t(11, 11.00930536d0),
@@ -183,7 +183,7 @@
      &  Iso_t(21, 21.08129d0) ]
 
       ElementList(6)%Symbol = 'C'
-      ElementList(6)%nat = 3
+      ElementList(6)%Natural = 3
       Call mma_Allocate(ElementList(6)%Isotopes,16)
       ElementList(6)%Isotopes(:) = [
      &  Iso_t(12, 12.0d0),
@@ -204,7 +204,7 @@
      &  Iso_t(23, 23.0689d0) ]
 
       ElementList(7)%Symbol = 'N'
-      ElementList(7)%nat = 2
+      ElementList(7)%Natural = 2
       Call mma_Allocate(ElementList(7)%Isotopes,16)
       ElementList(7)%Isotopes(:) = [
      &  Iso_t(14, 14.00307400443d0),
@@ -225,7 +225,7 @@
      &  Iso_t(25, 25.0601d0) ]
 
       ElementList(8)%Symbol = 'O'
-      ElementList(8)%nat = 3
+      ElementList(8)%Natural = 3
       Call mma_Allocate(ElementList(8)%Isotopes,17)
       ElementList(8)%Isotopes(:) = [
      &  Iso_t(16, 15.99491461957d0),
@@ -247,7 +247,7 @@
      &  Iso_t(28, 28.05591d0) ]
 
       ElementList(9)%Symbol = 'F'
-      ElementList(9)%nat = 1
+      ElementList(9)%Natural = 1
       Call mma_Allocate(ElementList(9)%Isotopes,18)
       ElementList(9)%Isotopes(:) = [
      &  Iso_t(19, 18.99840316273d0),
@@ -270,7 +270,7 @@
      &  Iso_t(31, 31.05971d0) ]
 
       ElementList(10)%Symbol = 'Ne'
-      ElementList(10)%nat = 3
+      ElementList(10)%Natural = 3
       Call mma_Allocate(ElementList(10)%Isotopes,19)
       ElementList(10)%Isotopes(:) = [
      &  Iso_t(20, 19.9924401762d0),
@@ -294,7 +294,7 @@
      &  Iso_t(34, 34.05673d0) ]
 
       ElementList(11)%Symbol = 'Na'
-      ElementList(11)%nat = 1
+      ElementList(11)%Natural = 1
       Call mma_Allocate(ElementList(11)%Isotopes,20)
       ElementList(11)%Isotopes(:) = [
      &  Iso_t(23, 22.989769282d0),
@@ -319,7 +319,7 @@
      &  Iso_t(37, 37.05705d0) ]
 
       ElementList(12)%Symbol = 'Mg'
-      ElementList(12)%nat = 3
+      ElementList(12)%Natural = 3
       Call mma_Allocate(ElementList(12)%Isotopes,22)
       ElementList(12)%Isotopes(:) = [
      &  Iso_t(24, 23.985041697d0),
@@ -346,7 +346,7 @@
      &  Iso_t(40, 40.05218d0) ]
 
       ElementList(13)%Symbol = 'Al'
-      ElementList(13)%nat = 1
+      ElementList(13)%Natural = 1
       Call mma_Allocate(ElementList(13)%Isotopes,23)
       ElementList(13)%Isotopes(:) = [
      &  Iso_t(27, 26.98153853d0),
@@ -374,7 +374,7 @@
      &  Iso_t(43, 43.05147d0) ]
 
       ElementList(14)%Symbol = 'Si'
-      ElementList(14)%nat = 3
+      ElementList(14)%Natural = 3
       Call mma_Allocate(ElementList(14)%Isotopes,24)
       ElementList(14)%Isotopes(:) = [
      &  Iso_t(28, 27.97692653465d0),
@@ -403,7 +403,7 @@
      &  Iso_t(45, 45.03995d0) ]
 
       ElementList(15)%Symbol = 'P'
-      ElementList(15)%nat = 1
+      ElementList(15)%Natural = 1
       Call mma_Allocate(ElementList(15)%Isotopes,24)
       ElementList(15)%Isotopes(:) = [
      &  Iso_t(31, 30.97376199842d0),
@@ -432,7 +432,7 @@
      &  Iso_t(47, 47.03139d0) ]
 
       ElementList(16)%Symbol = 'S'
-      ElementList(16)%nat = 4
+      ElementList(16)%Natural = 4
       Call mma_Allocate(ElementList(16)%Isotopes,24)
       ElementList(16)%Isotopes(:) = [
      &  Iso_t(32, 31.9720711744d0),
@@ -461,7 +461,7 @@
      &  Iso_t(49, 49.02276d0) ]
 
       ElementList(17)%Symbol = 'Cl'
-      ElementList(17)%nat = 2
+      ElementList(17)%Natural = 2
       Call mma_Allocate(ElementList(17)%Isotopes,24)
       ElementList(17)%Isotopes(:) = [
      &  Iso_t(35, 34.968852682d0),
@@ -490,7 +490,7 @@
      &  Iso_t(51, 51.01554d0) ]
 
       ElementList(18)%Symbol = 'Ar'
-      ElementList(18)%nat = 3
+      ElementList(18)%Natural = 3
       Call mma_Allocate(ElementList(18)%Isotopes,24)
       ElementList(18)%Isotopes(:) = [
      &  Iso_t(40, 39.9623831237d0),
@@ -519,7 +519,7 @@
      &  Iso_t(53, 53.00729d0) ]
 
       ElementList(19)%Symbol = 'K'
-      ElementList(19)%nat = 3
+      ElementList(19)%Natural = 3
       Call mma_Allocate(ElementList(19)%Isotopes,25)
       ElementList(19)%Isotopes(:) = [
      &  Iso_t(39, 38.9637064864d0),
@@ -549,7 +549,7 @@
      &  Iso_t(56, 56.00851d0) ]
 
       ElementList(20)%Symbol = 'Ca'
-      ElementList(20)%nat = 6
+      ElementList(20)%Natural = 6
       Call mma_Allocate(ElementList(20)%Isotopes,25)
       ElementList(20)%Isotopes(:) = [
      &  Iso_t(40, 39.962590863d0),
@@ -579,7 +579,7 @@
      &  Iso_t(58, 57.99794d0) ]
 
       ElementList(21)%Symbol = 'Sc'
-      ElementList(21)%nat = 1
+      ElementList(21)%Natural = 1
       Call mma_Allocate(ElementList(21)%Isotopes,26)
       ElementList(21)%Isotopes(:) = [
      &  Iso_t(45, 44.95590828d0),
@@ -610,7 +610,7 @@
      &  Iso_t(61, 61.001d0) ]
 
       ElementList(22)%Symbol = 'Ti'
-      ElementList(22)%nat = 5
+      ElementList(22)%Natural = 5
       Call mma_Allocate(ElementList(22)%Isotopes,26)
       ElementList(22)%Isotopes(:) = [
      &  Iso_t(48, 47.94794198d0),
@@ -641,7 +641,7 @@
      &  Iso_t(63, 62.99375d0) ]
 
       ElementList(23)%Symbol = 'V'
-      ElementList(23)%nat = 2
+      ElementList(23)%Natural = 2
       Call mma_Allocate(ElementList(23)%Isotopes,27)
       ElementList(23)%Isotopes(:) = [
      &  Iso_t(51, 50.94395704d0),
@@ -673,7 +673,7 @@
      &  Iso_t(66, 65.99398d0) ]
 
       ElementList(24)%Symbol = 'Cr'
-      ElementList(24)%nat = 4
+      ElementList(24)%Natural = 4
       Call mma_Allocate(ElementList(24)%Isotopes,27)
       ElementList(24)%Isotopes(:) = [
      &  Iso_t(52, 51.94050623d0),
@@ -705,7 +705,7 @@
      &  Iso_t(68, 67.98403d0) ]
 
       ElementList(25)%Symbol = 'Mn'
-      ElementList(25)%nat = 1
+      ElementList(25)%Natural = 1
       Call mma_Allocate(ElementList(25)%Isotopes,28)
       ElementList(25)%Isotopes(:) = [
      &  Iso_t(55, 54.93804391d0),
@@ -738,7 +738,7 @@
      &  Iso_t(71, 70.98368d0) ]
 
       ElementList(26)%Symbol = 'Fe'
-      ElementList(26)%nat = 4
+      ElementList(26)%Natural = 4
       Call mma_Allocate(ElementList(26)%Isotopes,30)
       ElementList(26)%Isotopes(:) = [
      &  Iso_t(56, 55.93493633d0),
@@ -773,7 +773,7 @@
      &  Iso_t(74, 73.97935d0) ]
 
       ElementList(27)%Symbol = 'Co'
-      ElementList(27)%nat = 1
+      ElementList(27)%Natural = 1
       Call mma_Allocate(ElementList(27)%Isotopes,30)
       ElementList(27)%Isotopes(:) = [
      &  Iso_t(59, 58.93319429d0),
@@ -808,7 +808,7 @@
      &  Iso_t(76, 75.97413d0) ]
 
       ElementList(28)%Symbol = 'Ni'
-      ElementList(28)%nat = 5
+      ElementList(28)%Natural = 5
       Call mma_Allocate(ElementList(28)%Isotopes,32)
       ElementList(28)%Isotopes(:) = [
      &  Iso_t(58, 57.93534241d0),
@@ -845,7 +845,7 @@
      &  Iso_t(79, 78.97025d0) ]
 
       ElementList(29)%Symbol = 'Cu'
-      ElementList(29)%nat = 2
+      ElementList(29)%Natural = 2
       Call mma_Allocate(ElementList(29)%Isotopes,31)
       ElementList(29)%Isotopes(:) = [
      &  Iso_t(63, 62.92959772d0),
@@ -881,7 +881,7 @@
      &  Iso_t(82, 81.97244d0) ]
 
       ElementList(30)%Symbol = 'Zn'
-      ElementList(30)%nat = 5
+      ElementList(30)%Natural = 5
       Call mma_Allocate(ElementList(30)%Isotopes,32)
       ElementList(30)%Isotopes(:) = [
      &  Iso_t(64, 63.92914201d0),
@@ -918,7 +918,7 @@
      &  Iso_t(85, 84.97226d0) ]
 
       ElementList(31)%Symbol = 'Ga'
-      ElementList(31)%nat = 2
+      ElementList(31)%Natural = 2
       Call mma_Allocate(ElementList(31)%Isotopes,32)
       ElementList(31)%Isotopes(:) = [
      &  Iso_t(69, 68.9255735d0),
@@ -955,7 +955,7 @@
      &  Iso_t(87, 86.96824d0) ]
 
       ElementList(32)%Symbol = 'Ge'
-      ElementList(32)%nat = 5
+      ElementList(32)%Natural = 5
       Call mma_Allocate(ElementList(32)%Isotopes,33)
       ElementList(32)%Isotopes(:) = [
      &  Iso_t(74, 73.921177761d0),
@@ -993,7 +993,7 @@
      &  Iso_t(90, 89.96863d0) ]
 
       ElementList(33)%Symbol = 'As'
-      ElementList(33)%nat = 1
+      ElementList(33)%Natural = 1
       Call mma_Allocate(ElementList(33)%Isotopes,33)
       ElementList(33)%Isotopes(:) = [
      &  Iso_t(75, 74.92159457d0),
@@ -1031,7 +1031,7 @@
      &  Iso_t(92, 91.96674d0) ]
 
       ElementList(34)%Symbol = 'Se'
-      ElementList(34)%nat = 6
+      ElementList(34)%Natural = 6
       Call mma_Allocate(ElementList(34)%Isotopes,32)
       ElementList(34)%Isotopes(:) = [
      &  Iso_t(80, 79.9165218d0),
@@ -1068,7 +1068,7 @@
      &  Iso_t(95, 94.9673d0) ]
 
       ElementList(35)%Symbol = 'Br'
-      ElementList(35)%nat = 2
+      ElementList(35)%Natural = 2
       Call mma_Allocate(ElementList(35)%Isotopes,32)
       ElementList(35)%Isotopes(:) = [
      &  Iso_t(79, 78.9183376d0),
@@ -1105,7 +1105,7 @@
      &  Iso_t(98, 97.96946d0) ]
 
       ElementList(36)%Symbol = 'Kr'
-      ElementList(36)%nat = 6
+      ElementList(36)%Natural = 6
       Call mma_Allocate(ElementList(36)%Isotopes,33)
       ElementList(36)%Isotopes(:) = [
      &  Iso_t(84, 83.9114977282d0),
@@ -1143,7 +1143,7 @@
      &  Iso_t(101, 100.96873d0) ]
 
       ElementList(37)%Symbol = 'Rb'
-      ElementList(37)%nat = 2
+      ElementList(37)%Natural = 2
       Call mma_Allocate(ElementList(37)%Isotopes,33)
       ElementList(37)%Isotopes(:) = [
      &  Iso_t(85, 84.9117897379d0),
@@ -1181,7 +1181,7 @@
      &  Iso_t(103, 102.96392d0) ]
 
       ElementList(38)%Symbol = 'Sr'
-      ElementList(38)%nat = 4
+      ElementList(38)%Natural = 4
       Call mma_Allocate(ElementList(38)%Isotopes,35)
       ElementList(38)%Isotopes(:) = [
      &  Iso_t(88, 87.9056125d0),
@@ -1221,7 +1221,7 @@
      &  Iso_t(107, 106.96897d0) ]
 
       ElementList(39)%Symbol = 'Y'
-      ElementList(39)%nat = 1
+      ElementList(39)%Natural = 1
       Call mma_Allocate(ElementList(39)%Isotopes,34)
       ElementList(39)%Isotopes(:) = [
      &  Iso_t(89, 88.9058403d0),
@@ -1260,7 +1260,7 @@
      &  Iso_t(109, 108.96436d0) ]
 
       ElementList(40)%Symbol = 'Zr'
-      ElementList(40)%nat = 5
+      ElementList(40)%Natural = 5
       Call mma_Allocate(ElementList(40)%Isotopes,35)
       ElementList(40)%Isotopes(:) = [
      &  Iso_t(90, 89.9046977d0),
@@ -1300,7 +1300,7 @@
      &  Iso_t(112, 111.9637d0) ]
 
       ElementList(41)%Symbol = 'Nb'
-      ElementList(41)%nat = 1
+      ElementList(41)%Natural = 1
       Call mma_Allocate(ElementList(41)%Isotopes,35)
       ElementList(41)%Isotopes(:) = [
      &  Iso_t(93, 92.906373d0),
@@ -1340,7 +1340,7 @@
      &  Iso_t(115, 114.96634d0) ]
 
       ElementList(42)%Symbol = 'Mo'
-      ElementList(42)%nat = 7
+      ElementList(42)%Natural = 7
       Call mma_Allocate(ElementList(42)%Isotopes,35)
       ElementList(42)%Isotopes(:) = [
      &  Iso_t(98, 97.90540482d0),
@@ -1380,7 +1380,7 @@
      &  Iso_t(117, 116.96117d0) ]
 
       ElementList(43)%Symbol = 'Tc'
-      ElementList(43)%nat = 0
+      ElementList(43)%Natural = 0
       Call mma_Allocate(ElementList(43)%Isotopes,36)
       ElementList(43)%Isotopes(:) = [
      &  Iso_t(98, 97.9072124d0),
@@ -1421,7 +1421,7 @@
      &  Iso_t(120, 119.96187d0) ]
 
       ElementList(44)%Symbol = 'Ru'
-      ElementList(44)%nat = 7
+      ElementList(44)%Natural = 7
       Call mma_Allocate(ElementList(44)%Isotopes,38)
       ElementList(44)%Isotopes(:) = [
      &  Iso_t(102, 101.9043441d0),
@@ -1464,7 +1464,7 @@
      &  Iso_t(124, 123.96305d0) ]
 
       ElementList(45)%Symbol = 'Rh'
-      ElementList(45)%nat = 1
+      ElementList(45)%Natural = 1
       Call mma_Allocate(ElementList(45)%Isotopes,38)
       ElementList(45)%Isotopes(:) = [
      &  Iso_t(103, 102.905498d0),
@@ -1507,7 +1507,7 @@
      &  Iso_t(126, 125.95946d0) ]
 
       ElementList(46)%Symbol = 'Pd'
-      ElementList(46)%nat = 6
+      ElementList(46)%Natural = 6
       Call mma_Allocate(ElementList(46)%Isotopes,38)
       ElementList(46)%Isotopes(:) = [
      &  Iso_t(106, 105.9034804d0),
@@ -1550,7 +1550,7 @@
      &  Iso_t(128, 127.95183d0) ]
 
       ElementList(47)%Symbol = 'Ag'
-      ElementList(47)%nat = 2
+      ElementList(47)%Natural = 2
       Call mma_Allocate(ElementList(47)%Isotopes,38)
       ElementList(47)%Isotopes(:) = [
      &  Iso_t(107, 106.9050916d0),
@@ -1593,7 +1593,7 @@
      &  Iso_t(130, 129.9507d0) ]
 
       ElementList(48)%Symbol = 'Cd'
-      ElementList(48)%nat = 8
+      ElementList(48)%Natural = 8
       Call mma_Allocate(ElementList(48)%Isotopes,39)
       ElementList(48)%Isotopes(:) = [
      &  Iso_t(114, 113.90336509d0),
@@ -1637,7 +1637,7 @@
      &  Iso_t(133, 132.95285d0) ]
 
       ElementList(49)%Symbol = 'In'
-      ElementList(49)%nat = 2
+      ElementList(49)%Natural = 2
       Call mma_Allocate(ElementList(49)%Isotopes,39)
       ElementList(49)%Isotopes(:) = [
      &  Iso_t(115, 114.903878776d0),
@@ -1681,7 +1681,7 @@
      &  Iso_t(135, 134.95005d0) ]
 
       ElementList(50)%Symbol = 'Sn'
-      ElementList(50)%nat = 10
+      ElementList(50)%Natural = 10
       Call mma_Allocate(ElementList(50)%Isotopes,40)
       ElementList(50)%Isotopes(:) = [
      &  Iso_t(120, 119.90220163d0),
@@ -1726,7 +1726,7 @@
      &  Iso_t(138, 137.95184d0) ]
 
       ElementList(51)%Symbol = 'Sb'
-      ElementList(51)%nat = 2
+      ElementList(51)%Natural = 2
       Call mma_Allocate(ElementList(51)%Isotopes,38)
       ElementList(51)%Isotopes(:) = [
      &  Iso_t(121, 120.903812d0),
@@ -1769,7 +1769,7 @@
      &  Iso_t(140, 139.95283d0) ]
 
       ElementList(52)%Symbol = 'Te'
-      ElementList(52)%nat = 8
+      ElementList(52)%Natural = 8
       Call mma_Allocate(ElementList(52)%Isotopes,39)
       ElementList(52)%Isotopes(:) = [
      &  Iso_t(130, 129.906222748d0),
@@ -1813,7 +1813,7 @@
      &  Iso_t(143, 142.95676d0) ]
 
       ElementList(53)%Symbol = 'I'
-      ElementList(53)%nat = 1
+      ElementList(53)%Natural = 1
       Call mma_Allocate(ElementList(53)%Isotopes,39)
       ElementList(53)%Isotopes(:) = [
      &  Iso_t(127, 126.9044719d0),
@@ -1857,7 +1857,7 @@
      &  Iso_t(145, 144.95605d0) ]
 
       ElementList(54)%Symbol = 'Xe'
-      ElementList(54)%nat = 9
+      ElementList(54)%Natural = 9
       Call mma_Allocate(ElementList(54)%Isotopes,40)
       ElementList(54)%Isotopes(:) = [
      &  Iso_t(132, 131.9041550856d0),
@@ -1902,7 +1902,7 @@
      &  Iso_t(148, 147.95813d0) ]
 
       ElementList(55)%Symbol = 'Cs'
-      ElementList(55)%nat = 1
+      ElementList(55)%Natural = 1
       Call mma_Allocate(ElementList(55)%Isotopes,40)
       ElementList(55)%Isotopes(:) = [
      &  Iso_t(133, 132.905451961d0),
@@ -1947,7 +1947,7 @@
      &  Iso_t(151, 150.96258d0) ]
 
       ElementList(56)%Symbol = 'Ba'
-      ElementList(56)%nat = 7
+      ElementList(56)%Natural = 7
       Call mma_Allocate(ElementList(56)%Isotopes,40)
       ElementList(56)%Isotopes(:) = [
      &  Iso_t(138, 137.905247d0),
@@ -1992,7 +1992,7 @@
      &  Iso_t(153, 152.96036d0) ]
 
       ElementList(57)%Symbol = 'La'
-      ElementList(57)%nat = 2
+      ElementList(57)%Natural = 2
       Call mma_Allocate(ElementList(57)%Isotopes,40)
       ElementList(57)%Isotopes(:) = [
      &  Iso_t(139, 138.9063563d0),
@@ -2037,7 +2037,7 @@
      &  Iso_t(155, 154.95901d0) ]
 
       ElementList(58)%Symbol = 'Ce'
-      ElementList(58)%nat = 4
+      ElementList(58)%Natural = 4
       Call mma_Allocate(ElementList(58)%Isotopes,39)
       ElementList(58)%Isotopes(:) = [
      &  Iso_t(140, 139.9054431d0),
@@ -2081,7 +2081,7 @@
      &  Iso_t(157, 156.95705d0) ]
 
       ElementList(59)%Symbol = 'Pr'
-      ElementList(59)%nat = 1
+      ElementList(59)%Natural = 1
       Call mma_Allocate(ElementList(59)%Isotopes,39)
       ElementList(59)%Isotopes(:) = [
      &  Iso_t(141, 140.9076576d0),
@@ -2125,7 +2125,7 @@
      &  Iso_t(159, 158.95589d0) ]
 
       ElementList(60)%Symbol = 'Nd'
-      ElementList(60)%nat = 7
+      ElementList(60)%Natural = 7
       Call mma_Allocate(ElementList(60)%Isotopes,38)
       ElementList(60)%Isotopes(:) = [
      &  Iso_t(142, 141.907729d0),
@@ -2168,7 +2168,7 @@
      &  Iso_t(161, 160.95428d0) ]
 
       ElementList(61)%Symbol = 'Pm'
-      ElementList(61)%nat = 0
+      ElementList(61)%Natural = 0
       Call mma_Allocate(ElementList(61)%Isotopes,38)
       ElementList(61)%Isotopes(:) = [
      &  Iso_t(145, 144.9127559d0),
@@ -2211,7 +2211,7 @@
      &  Iso_t(163, 162.95357d0) ]
 
       ElementList(62)%Symbol = 'Sm'
-      ElementList(62)%nat = 7
+      ElementList(62)%Natural = 7
       Call mma_Allocate(ElementList(62)%Isotopes,38)
       ElementList(62)%Isotopes(:) = [
      &  Iso_t(152, 151.9197397d0),
@@ -2254,7 +2254,7 @@
      &  Iso_t(165, 164.95297d0) ]
 
       ElementList(63)%Symbol = 'Eu'
-      ElementList(63)%nat = 2
+      ElementList(63)%Natural = 2
       Call mma_Allocate(ElementList(63)%Isotopes,38)
       ElementList(63)%Isotopes(:) = [
      &  Iso_t(153, 152.921238d0),
@@ -2297,7 +2297,7 @@
      &  Iso_t(167, 166.95289d0) ]
 
       ElementList(64)%Symbol = 'Gd'
-      ElementList(64)%nat = 7
+      ElementList(64)%Natural = 7
       Call mma_Allocate(ElementList(64)%Isotopes,37)
       ElementList(64)%Isotopes(:) = [
      &  Iso_t(158, 157.9241123d0),
@@ -2339,7 +2339,7 @@
      &  Iso_t(169, 168.9526d0) ]
 
       ElementList(65)%Symbol = 'Tb'
-      ElementList(65)%nat = 1
+      ElementList(65)%Natural = 1
       Call mma_Allocate(ElementList(65)%Isotopes,37)
       ElementList(65)%Isotopes(:) = [
      &  Iso_t(159, 158.9253547d0),
@@ -2381,7 +2381,7 @@
      &  Iso_t(171, 170.95273d0) ]
 
       ElementList(66)%Symbol = 'Dy'
-      ElementList(66)%nat = 7
+      ElementList(66)%Natural = 7
       Call mma_Allocate(ElementList(66)%Isotopes,36)
       ElementList(66)%Isotopes(:) = [
      &  Iso_t(164, 163.9291819d0),
@@ -2422,7 +2422,7 @@
      &  Iso_t(173, 172.95283d0) ]
 
       ElementList(67)%Symbol = 'Ho'
-      ElementList(67)%nat = 1
+      ElementList(67)%Natural = 1
       Call mma_Allocate(ElementList(67)%Isotopes,36)
       ElementList(67)%Isotopes(:) = [
      &  Iso_t(165, 164.9303288d0),
@@ -2463,7 +2463,7 @@
      &  Iso_t(175, 174.95362d0) ]
 
       ElementList(68)%Symbol = 'Er'
-      ElementList(68)%nat = 6
+      ElementList(68)%Natural = 6
       Call mma_Allocate(ElementList(68)%Isotopes,36)
       ElementList(68)%Isotopes(:) = [
      &  Iso_t(166, 165.9302995d0),
@@ -2504,7 +2504,7 @@
      &  Iso_t(177, 176.95399d0) ]
 
       ElementList(69)%Symbol = 'Tm'
-      ElementList(69)%nat = 1
+      ElementList(69)%Natural = 1
       Call mma_Allocate(ElementList(69)%Isotopes,36)
       ElementList(69)%Isotopes(:) = [
      &  Iso_t(169, 168.9342179d0),
@@ -2545,7 +2545,7 @@
      &  Iso_t(179, 178.95534d0) ]
 
       ElementList(70)%Symbol = 'Yb'
-      ElementList(70)%nat = 7
+      ElementList(70)%Natural = 7
       Call mma_Allocate(ElementList(70)%Isotopes,34)
       ElementList(70)%Isotopes(:) = [
      &  Iso_t(174, 173.9388664d0),
@@ -2584,7 +2584,7 @@
      &  Iso_t(181, 180.95589d0) ]
 
       ElementList(71)%Symbol = 'Lu'
-      ElementList(71)%nat = 2
+      ElementList(71)%Natural = 2
       Call mma_Allocate(ElementList(71)%Isotopes,36)
       ElementList(71)%Isotopes(:) = [
      &  Iso_t(175, 174.9407752d0),
@@ -2625,7 +2625,7 @@
      &  Iso_t(185, 184.96362d0) ]
 
       ElementList(72)%Symbol = 'Hf'
-      ElementList(72)%nat = 6
+      ElementList(72)%Natural = 6
       Call mma_Allocate(ElementList(72)%Isotopes,37)
       ElementList(72)%Isotopes(:) = [
      &  Iso_t(180, 179.946557d0),
@@ -2667,7 +2667,7 @@
      &  Iso_t(189, 188.97084d0) ]
 
       ElementList(73)%Symbol = 'Ta'
-      ElementList(73)%nat = 2
+      ElementList(73)%Natural = 2
       Call mma_Allocate(ElementList(73)%Isotopes,38)
       ElementList(73)%Isotopes(:) = [
      &  Iso_t(181, 180.9479958d0),
@@ -2710,7 +2710,7 @@
      &  Iso_t(192, 191.97514d0) ]
 
       ElementList(74)%Symbol = 'W'
-      ElementList(74)%nat = 5
+      ElementList(74)%Natural = 5
       Call mma_Allocate(ElementList(74)%Isotopes,38)
       ElementList(74)%Isotopes(:) = [
      &  Iso_t(184, 183.95093092d0),
@@ -2753,7 +2753,7 @@
      &  Iso_t(194, 193.97367d0) ]
 
       ElementList(75)%Symbol = 'Re'
-      ElementList(75)%nat = 2
+      ElementList(75)%Natural = 2
       Call mma_Allocate(ElementList(75)%Isotopes,40)
       ElementList(75)%Isotopes(:) = [
      &  Iso_t(187, 186.9557501d0),
@@ -2798,7 +2798,7 @@
      &  Iso_t(198, 197.9816d0) ]
 
       ElementList(76)%Symbol = 'Os'
-      ElementList(76)%nat = 7
+      ElementList(76)%Natural = 7
       Call mma_Allocate(ElementList(76)%Isotopes,42)
       ElementList(76)%Isotopes(:) = [
      &  Iso_t(192, 191.961477d0),
@@ -2845,7 +2845,7 @@
      &  Iso_t(202, 201.98595d0) ]
 
       ElementList(77)%Symbol = 'Ir'
-      ElementList(77)%nat = 2
+      ElementList(77)%Natural = 2
       Call mma_Allocate(ElementList(77)%Isotopes,41)
       ElementList(77)%Isotopes(:) = [
      &  Iso_t(193, 192.9629216d0),
@@ -2891,7 +2891,7 @@
      &  Iso_t(204, 203.9896d0) ]
 
       ElementList(78)%Symbol = 'Pt'
-      ElementList(78)%nat = 6
+      ElementList(78)%Natural = 6
       Call mma_Allocate(ElementList(78)%Isotopes,41)
       ElementList(78)%Isotopes(:) = [
      &  Iso_t(195, 194.9647917d0),
@@ -2937,7 +2937,7 @@
      &  Iso_t(206, 205.98966d0) ]
 
       ElementList(79)%Symbol = 'Au'
-      ElementList(79)%nat = 1
+      ElementList(79)%Natural = 1
       Call mma_Allocate(ElementList(79)%Isotopes,42)
       ElementList(79)%Isotopes(:) = [
      &  Iso_t(197, 196.96656879d0),
@@ -2984,7 +2984,7 @@
      &  Iso_t(210, 210.0025d0) ]
 
       ElementList(80)%Symbol = 'Hg'
-      ElementList(80)%nat = 7
+      ElementList(80)%Natural = 7
       Call mma_Allocate(ElementList(80)%Isotopes,46)
       ElementList(80)%Isotopes(:) = [
      &  Iso_t(202, 201.9706434d0),
@@ -3035,7 +3035,7 @@
      &  Iso_t(216, 216.02132d0) ]
 
       ElementList(81)%Symbol = 'Tl'
-      ElementList(81)%nat = 2
+      ElementList(81)%Natural = 2
       Call mma_Allocate(ElementList(81)%Isotopes,43)
       ElementList(81)%Isotopes(:) = [
      &  Iso_t(205, 204.9744278d0),
@@ -3083,7 +3083,7 @@
      &  Iso_t(218, 218.02479d0) ]
 
       ElementList(82)%Symbol = 'Pb'
-      ElementList(82)%nat = 4
+      ElementList(82)%Natural = 4
       Call mma_Allocate(ElementList(82)%Isotopes,43)
       ElementList(82)%Isotopes(:) = [
      &  Iso_t(208, 207.9766525d0),
@@ -3131,7 +3131,7 @@
      &  Iso_t(220, 220.02541d0) ]
 
       ElementList(83)%Symbol = 'Bi'
-      ElementList(83)%nat = 1
+      ElementList(83)%Natural = 1
       Call mma_Allocate(ElementList(83)%Isotopes,41)
       ElementList(83)%Isotopes(:) = [
      &  Iso_t(209, 208.9803991d0),
@@ -3177,7 +3177,7 @@
      &  Iso_t(224, 224.03947d0) ]
 
       ElementList(84)%Symbol = 'Po'
-      ElementList(84)%nat = 0
+      ElementList(84)%Natural = 0
       Call mma_Allocate(ElementList(84)%Isotopes,42)
       ElementList(84)%Isotopes(:) = [
      &  Iso_t(209, 208.9824308d0),
@@ -3224,7 +3224,7 @@
      &  Iso_t(227, 227.04539d0) ]
 
       ElementList(85)%Symbol = 'At'
-      ElementList(85)%nat = 0
+      ElementList(85)%Natural = 0
       Call mma_Allocate(ElementList(85)%Isotopes,39)
       ElementList(85)%Isotopes(:) = [
      &  Iso_t(210, 209.9871479d0),
@@ -3268,7 +3268,7 @@
      &  Iso_t(229, 229.04812d0) ]
 
       ElementList(86)%Symbol = 'Rn'
-      ElementList(86)%nat = 0
+      ElementList(86)%Natural = 0
       Call mma_Allocate(ElementList(86)%Isotopes,39)
       ElementList(86)%Isotopes(:) = [
      &  Iso_t(222, 222.0175782d0),
@@ -3312,7 +3312,7 @@
      &  Iso_t(231, 231.04987d0) ]
 
       ElementList(87)%Symbol = 'Fr'
-      ElementList(87)%nat = 0
+      ElementList(87)%Natural = 0
       Call mma_Allocate(ElementList(87)%Isotopes,35)
       ElementList(87)%Isotopes(:) = [
      &  Iso_t(223, 223.019736d0),
@@ -3352,7 +3352,7 @@
      &  Iso_t(233, 233.05264d0) ]
 
       ElementList(88)%Symbol = 'Ra'
-      ElementList(88)%nat = 0
+      ElementList(88)%Natural = 0
       Call mma_Allocate(ElementList(88)%Isotopes,35)
       ElementList(88)%Isotopes(:) = [
      &  Iso_t(226, 226.0254103d0),
@@ -3392,7 +3392,7 @@
      &  Iso_t(235, 235.05497d0) ]
 
       ElementList(89)%Symbol = 'Ac'
-      ElementList(89)%nat = 0
+      ElementList(89)%Natural = 0
       Call mma_Allocate(ElementList(89)%Isotopes,32)
       ElementList(89)%Isotopes(:) = [
      &  Iso_t(227, 227.0277523d0),
@@ -3429,7 +3429,7 @@
      &  Iso_t(237, 237.05827d0) ]
 
       ElementList(90)%Symbol = 'Th'
-      ElementList(90)%nat = 1
+      ElementList(90)%Natural = 1
       Call mma_Allocate(ElementList(90)%Isotopes,32)
       ElementList(90)%Isotopes(:) = [
      &  Iso_t(232, 232.0380558d0),
@@ -3466,7 +3466,7 @@
      &  Iso_t(239, 239.06077d0) ]
 
       ElementList(91)%Symbol = 'Pa'
-      ElementList(91)%nat = 1
+      ElementList(91)%Natural = 1
       Call mma_Allocate(ElementList(91)%Isotopes,30)
       ElementList(91)%Isotopes(:) = [
      &  Iso_t(231, 231.0358842d0),
@@ -3501,7 +3501,7 @@
      &  Iso_t(241, 241.06408d0) ]
 
       ElementList(92)%Symbol = 'U'
-      ElementList(92)%nat = 3
+      ElementList(92)%Natural = 3
       Call mma_Allocate(ElementList(92)%Isotopes,27)
       ElementList(92)%Isotopes(:) = [
      &  Iso_t(238, 238.0507884d0),
@@ -3533,7 +3533,7 @@
      &  Iso_t(243, 243.06699d0) ]
 
       ElementList(93)%Symbol = 'Np'
-      ElementList(93)%nat = 0
+      ElementList(93)%Natural = 0
       Call mma_Allocate(ElementList(93)%Isotopes,27)
       ElementList(93)%Isotopes(:) = [
      &  Iso_t(237, 237.0481736d0),
@@ -3565,7 +3565,7 @@
      &  Iso_t(245, 245.0708d0) ]
 
       ElementList(94)%Symbol = 'Pu'
-      ElementList(94)%nat = 0
+      ElementList(94)%Natural = 0
       Call mma_Allocate(ElementList(94)%Isotopes,20)
       ElementList(94)%Isotopes(:) = [
      &  Iso_t(244, 244.0642053d0),
@@ -3590,7 +3590,7 @@
      &  Iso_t(247, 247.07419d0) ]
 
       ElementList(95)%Symbol = 'Am'
-      ElementList(95)%nat = 0
+      ElementList(95)%Natural = 0
       Call mma_Allocate(ElementList(95)%Isotopes,20)
       ElementList(95)%Isotopes(:) = [
      &  Iso_t(243, 243.0613813d0),
@@ -3615,7 +3615,7 @@
      &  Iso_t(249, 249.07848d0) ]
 
       ElementList(96)%Symbol = 'Cm'
-      ElementList(96)%nat = 0
+      ElementList(96)%Natural = 0
       Call mma_Allocate(ElementList(96)%Isotopes,21)
       ElementList(96)%Isotopes(:) = [
      &  Iso_t(247, 247.0703541d0),
@@ -3641,7 +3641,7 @@
      &  Iso_t(252, 252.08487d0) ]
 
       ElementList(97)%Symbol = 'Bk'
-      ElementList(97)%nat = 0
+      ElementList(97)%Natural = 0
       Call mma_Allocate(ElementList(97)%Isotopes,21)
       ElementList(97)%Isotopes(:) = [
      &  Iso_t(247, 247.0703073d0),
@@ -3667,7 +3667,7 @@
      &  Iso_t(254, 254.0906d0) ]
 
       ElementList(98)%Symbol = 'Cf'
-      ElementList(98)%nat = 0
+      ElementList(98)%Natural = 0
       Call mma_Allocate(ElementList(98)%Isotopes,20)
       ElementList(98)%Isotopes(:) = [
      &  Iso_t(251, 251.0795886d0),
@@ -3692,7 +3692,7 @@
      &  Iso_t(256, 256.09344d0) ]
 
       ElementList(99)%Symbol = 'Es'
-      ElementList(99)%nat = 0
+      ElementList(99)%Natural = 0
       Call mma_Allocate(ElementList(99)%Isotopes,20)
       ElementList(99)%Isotopes(:) = [
      &  Iso_t(252, 252.08298d0),
@@ -3717,7 +3717,7 @@
      &  Iso_t(258, 258.09952d0) ]
 
       ElementList(100)%Symbol = 'Fm'
-      ElementList(100)%nat = 0
+      ElementList(100)%Natural = 0
       Call mma_Allocate(ElementList(100)%Isotopes,20)
       ElementList(100)%Isotopes(:) = [
      &  Iso_t(257, 257.0951061d0),
@@ -3742,7 +3742,7 @@
      &  Iso_t(260, 260.10281d0) ]
 
       ElementList(101)%Symbol = 'Md'
-      ElementList(101)%nat = 0
+      ElementList(101)%Natural = 0
       Call mma_Allocate(ElementList(101)%Isotopes,18)
       ElementList(101)%Isotopes(:) = [
      &  Iso_t(258, 258.0984315d0),
@@ -3765,7 +3765,7 @@
      &  Iso_t(262, 262.1091d0) ]
 
       ElementList(102)%Symbol = 'No'
-      ElementList(102)%nat = 0
+      ElementList(102)%Natural = 0
       Call mma_Allocate(ElementList(102)%Isotopes,17)
       ElementList(102)%Isotopes(:) = [
      &  Iso_t(259, 259.10103d0),
@@ -3787,7 +3787,7 @@
      &  Iso_t(264, 264.11273d0) ]
 
       ElementList(103)%Symbol = 'Lr'
-      ElementList(103)%nat = 0
+      ElementList(103)%Natural = 0
       Call mma_Allocate(ElementList(103)%Isotopes,16)
       ElementList(103)%Isotopes(:) = [
      &  Iso_t(262, 262.10961d0),
@@ -3808,7 +3808,7 @@
      &  Iso_t(266, 266.11983d0) ]
 
       ElementList(104)%Symbol = 'Rf'
-      ElementList(104)%nat = 0
+      ElementList(104)%Natural = 0
       Call mma_Allocate(ElementList(104)%Isotopes,16)
       ElementList(104)%Isotopes(:) = [
      &  Iso_t(267, 267.12179d0),
@@ -3829,7 +3829,7 @@
      &  Iso_t(268, 268.12397d0) ]
 
       ElementList(105)%Symbol = 'Db'
-      ElementList(105)%nat = 0
+      ElementList(105)%Natural = 0
       Call mma_Allocate(ElementList(105)%Isotopes,16)
       ElementList(105)%Isotopes(:) = [
      &  Iso_t(268, 268.12567d0),
@@ -3850,7 +3850,7 @@
      &  Iso_t(270, 270.13136d0) ]
 
       ElementList(106)%Symbol = 'Sg'
-      ElementList(106)%nat = 0
+      ElementList(106)%Natural = 0
       Call mma_Allocate(ElementList(106)%Isotopes,16)
       ElementList(106)%Isotopes(:) = [
      &  Iso_t(269, 269.12863d0),
@@ -3871,7 +3871,7 @@
      &  Iso_t(273, 273.13958d0) ]
 
       ElementList(107)%Symbol = 'Bh'
-      ElementList(107)%nat = 0
+      ElementList(107)%Natural = 0
       Call mma_Allocate(ElementList(107)%Isotopes,16)
       ElementList(107)%Isotopes(:) = [
      &  Iso_t(270, 270.13336d0),
@@ -3892,7 +3892,7 @@
      &  Iso_t(275, 275.14567d0) ]
 
       ElementList(108)%Symbol = 'Hs'
-      ElementList(108)%nat = 0
+      ElementList(108)%Natural = 0
       Call mma_Allocate(ElementList(108)%Isotopes,15)
       ElementList(108)%Isotopes(:) = [
      &  Iso_t(269, 269.13375d0),
@@ -3912,7 +3912,7 @@
      &  Iso_t(277, 277.1519d0) ]
 
       ElementList(109)%Symbol = 'Mt'
-      ElementList(109)%nat = 0
+      ElementList(109)%Natural = 0
       Call mma_Allocate(ElementList(109)%Isotopes,15)
       ElementList(109)%Isotopes(:) = [
      &  Iso_t(278, 278.15631d0),
@@ -3932,7 +3932,7 @@
      &  Iso_t(279, 279.15808d0) ]
 
       ElementList(110)%Symbol = 'Ds'
-      ElementList(110)%nat = 0
+      ElementList(110)%Natural = 0
       Call mma_Allocate(ElementList(110)%Isotopes,15)
       ElementList(110)%Isotopes(:) = [
      &  Iso_t(281, 281.16451d0),
@@ -3952,7 +3952,7 @@
      &  Iso_t(280, 280.16131d0) ]
 
       ElementList(111)%Symbol = 'Rg'
-      ElementList(111)%nat = 0
+      ElementList(111)%Natural = 0
       Call mma_Allocate(ElementList(111)%Isotopes,12)
       ElementList(111)%Isotopes(:) = [
      &  Iso_t(281, 281.16636d0),
@@ -3969,7 +3969,7 @@
      &  Iso_t(283, 283.17054d0) ]
 
       ElementList(112)%Symbol = 'Cn'
-      ElementList(112)%nat = 0
+      ElementList(112)%Natural = 0
       Call mma_Allocate(ElementList(112)%Isotopes,10)
       ElementList(112)%Isotopes(:) = [
      &  Iso_t(283, 283.17327d0),
@@ -3984,7 +3984,7 @@
      &  Iso_t(285, 285.17712d0) ]
 
       ElementList(113)%Symbol = 'Nh'
-      ElementList(113)%nat = 0
+      ElementList(113)%Natural = 0
       Call mma_Allocate(ElementList(113)%Isotopes,10)
       ElementList(113)%Isotopes(:) = [
      &  Iso_t(287, 287.18339d0),
@@ -3999,7 +3999,7 @@
      &  Iso_t(286, 286.18221d0) ]
 
       ElementList(114)%Symbol = 'Fl'
-      ElementList(114)%nat = 0
+      ElementList(114)%Natural = 0
       Call mma_Allocate(ElementList(114)%Isotopes,5)
       ElementList(114)%Isotopes(:) = [
      &  Iso_t(289, 289.19042d0),
@@ -4009,7 +4009,7 @@
      &  Iso_t(288, 288.18757d0) ]
 
       ElementList(115)%Symbol = 'Mc'
-      ElementList(115)%nat = 0
+      ElementList(115)%Natural = 0
       Call mma_Allocate(ElementList(115)%Isotopes,5)
       ElementList(115)%Isotopes(:) = [
      &  Iso_t(288, 288.19274d0),
@@ -4019,7 +4019,7 @@
      &  Iso_t(291, 291.19707d0) ]
 
       ElementList(116)%Symbol = 'Lv'
-      ElementList(116)%nat = 0
+      ElementList(116)%Natural = 0
       Call mma_Allocate(ElementList(116)%Isotopes,5)
       ElementList(116)%Isotopes(:) = [
      &  Iso_t(293, 293.20449d0),
@@ -4029,7 +4029,7 @@
      &  Iso_t(292, 292.20174d0) ]
 
       ElementList(117)%Symbol = 'Ts'
-      ElementList(117)%nat = 0
+      ElementList(117)%Natural = 0
       Call mma_Allocate(ElementList(117)%Isotopes,4)
       ElementList(117)%Isotopes(:) = [
      &  Iso_t(294, 294.21046d0),
@@ -4038,7 +4038,7 @@
      &  Iso_t(293, 293.20824d0) ]
 
       ElementList(118)%Symbol = 'Og'
-      ElementList(118)%nat = 0
+      ElementList(118)%Natural = 0
       Call mma_Allocate(ElementList(118)%Isotopes,3)
       ElementList(118)%Isotopes(:) = [
      &  Iso_t(294, 294.21392d0),

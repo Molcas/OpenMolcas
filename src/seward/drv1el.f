@@ -91,8 +91,9 @@
       Character*8 Label
       Character*512 FName
       Real*8 Ccoor(3)
-      Integer iAtmNr2(mxdbsc), nComp
-      Real*8 Charge2(mxdbsc)
+      Integer nComp
+      Integer, Allocatable:: iAtmNr2(:)
+      Real*8, Allocatable:: Charge2(:)
       Dimension dum(1),idum(1)
 *
       iRout = 131
@@ -1716,18 +1717,14 @@ C     mMltpl=-1 ! Do only overlap.
 * BP -   Turn off AMFI integrals for certain atom types
 *        as requested by the PAMF keyword
 
-*        Note that Drv_AMFI will onluy process dbsc of valence typ.
+*        Note that Drv_AMFI will only process dbsc of valence typ.
 *        Hence the restriction on the loop.
 
+         Call mma_allocate(iAtmNr2,nCnttp,Label='iAtmNr2')
+         Call mma_allocate(Charge2,nCnttp,Label='Charge2')
          Do i=1,nCnttp
-            If (dbsc(i)%ECP  .or.
-     &          dbsc(i)%Aux  .or.
-     &          dbsc(i)%Frag) Cycle
             iAtmNr2(i) = dbsc(i)%AtmNr
             Charge2(i) = dbsc(i)%Charge
-
-c           write(6,*) "iAtmNr2(i)",i, iAtmNr2(i)
-c           write(6,*) "Charge(i)", i, dbsc(i)%Charge
 
             iAtom_Number= dbsc(i)%AtmNr
             If (iAtom_Number<0 .or. iAtom_Number>SIZE(No_AMFI)) Then
@@ -1746,6 +1743,8 @@ c           write(6,*) "Charge(i)", i, dbsc(i)%Charge
          Call Drv_AMFI(Label,ipList,OperI,nComp,rHrmt,OperC,iAtmNr2,
      &                 Charge2)
 
+         Call mma_deallocate(iAtmNr2)
+         Call mma_deallocate(Charge2)
          Call Deallocate_Auxiliary()
       End If
 ************************************************************************

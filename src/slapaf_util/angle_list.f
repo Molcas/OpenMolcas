@@ -10,37 +10,35 @@
 ************************************************************************
       Subroutine Angle_List(
      &                 nq,
-     &                 nAtoms,iIter,nIter,Cx,jStab,
-     &                 nStab,nDim,Smmtrc,Process,Value,
-     &                 nB,iANr,qLbl,iRef,
-     &                 fconst,rMult,LuIC,Name,Indq,
+     &                 nsAtom,iIter,nIter,Cx,
+     &                 Process,Value,
+     &                 nB,qLbl,iRef,
+     &                 fconst,rMult,LuIC,Indq,
      &                 Grad_all,iGlow,iGhi,iPrv,Proc_dB,
      &                 iTabBonds,nBonds,iTabAI,mAtoms,iTabAtoms,nMax,
      &                 mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB,Thr_small)
       use Symmetry_Info, only: nIrrep, iOper
+      use Slapaf_Info, only: jStab, nStab, AtomLbl, ANr
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
 #include "Molcas.fh"
       Parameter (mB = 3*3)
-      Real*8 Cx(3,nAtoms,nIter), A(3,3), Hess(mB**2),
+      Real*8 Cx(3,nsAtom,nIter), A(3,3), Hess(mB**2),
      &       fconst(nB),Value(nB,nIter), rMult(nB),
      &       Ref(3,3), Prv(3,3),
      &       Grad_Ref(9), Axis(3), Perp_Axis(3,2), Grad(mB),
      &       Grad_all(9,iGlow:iGhi,nIter),
      &       BM(nB_Tot), dBM(ndB_Tot)
-      Integer   nStab(nAtoms), iANr(nAtoms),
-     &          iDCRR(0:7), jStab(0:7,nAtoms),
-     &          iStabM(0:7), Ind(3), iDCR(3), iDCRT(0:7),
+      Integer   iDCRR(0:7), iStabM(0:7), Ind(3), iDCR(3), iDCRT(0:7),
      &          iStabN(0:7), iChOp(0:7), Indq(3,nB), nqB(nB),
      &          iTabBonds(3,nBonds), iTabAI(2,mAtoms),
      &          iTabAtoms(2,0:nMax,mAtoms), iBM(nB_Tot),idBM(2,ndB_Tot)
-      Logical Smmtrc(3,nAtoms), Process, PSPrint,
+      Logical Process, PSPrint,
      &        MinBas, Help, Proc_dB, R_Stab_A
       Character*14 Label, qLbl(nB)
       Character*3 ChOp(0:7)
-      Character*(LENIN) Name(nAtoms)
       Character*(LENIN4) Lbls(3)
 #include "bondtypes.fh"
 #define _FMIN_
@@ -84,21 +82,21 @@
 *
       Do mAtom_ = 1, mAtoms
          mAtom = iTabAI(1,mAtom_)
-         mr = iTabRow(iANr(mAtom))
+         mr = iTabRow(ANr(mAtom))
          Ind(2) = mAtom
          iDCR(2) = iTabAI(2,mAtom_)
 
          nNeighbor_m = iTabAtoms(1,0,mAtom_)
-         nCoBond_m=nCoBond(mAtom_,mAtoms,nMax,iTabBonds,nBonds,
+         nCoBond_m=nCoBond(mAtom_,mAtoms,nMax,iTabBonds,
      &                     nBonds,iTabAtoms)
          If (nNeighbor_m.lt.2) Go To 100
 *
          Do iNeighbor = 1, nNeighbor_m
             iAtom_ = iTabAtoms(1,iNeighbor,mAtom_)
             iAtom = iTabAI(1,iAtom_)
-            nCoBond_i=nCoBond(iAtom_,mAtoms,nMax,iTabBonds,nBonds,
+            nCoBond_i=nCoBond(iAtom_,mAtoms,nMax,iTabBonds,
      &                        nBonds,iTabAtoms)
-            ir = iTabRow(iANr(iAtom))
+            ir = iTabRow(ANr(iAtom))
             Ind(1) = iAtom
             iDCR(1) = iTabAI(2,iAtom_)
 *
@@ -124,13 +122,13 @@
             Do jNeighbor = 1, nNeighbor_m
                jAtom_ = iTabAtoms(1,jNeighbor,mAtom_)
                jAtom = iTabAI(1,jAtom_)
-               nCoBond_j=nCoBond(jAtom_,mAtoms,nMax,iTabBonds,nBonds,
+               nCoBond_j=nCoBond(jAtom_,mAtoms,nMax,iTabBonds,
      &                           nBonds,iTabAtoms)
                If (nCoBond_i.ge.8 .and.
      &             nCoBond_j.ge.8 .and.
      &             nCoBond_m.ge.8       ) Go To 300
 *
-               jr = iTabRow(iANr(jAtom))
+               jr = iTabRow(ANr(jAtom))
                Ind(3) = jAtom
                iDCR(3) = iTabAI(2,jAtom_)
                If (R_Stab_A(iDCR(3),jStab(0,iAtom),nStab(iAtom)) .and.
@@ -358,11 +356,11 @@ C                 Do k = 1, 2
 *
                      nqA = nqA + 1
                      iF1=1
-                     Call NxtWrd(Name(iAtom),iF1,iE1)
-                     Lbls(1)=Name(iAtom)(iF1:iE1)
+                     Call NxtWrd(AtomLbl(iAtom),iF1,iE1)
+                     Lbls(1)=AtomLbl(iAtom)(iF1:iE1)
                      iF2=1
-                     Call NxtWrd(Name(mAtom),iF2,iE2)
-                     Lbls(2)=Name(mAtom)(iF2:iE2)
+                     Call NxtWrd(AtomLbl(mAtom),iF2,iE2)
+                     Lbls(2)=AtomLbl(mAtom)(iF2:iE2)
                      If (kDCRR.ne.0) Then
                         Lbls(2)(iE2+1:iE2+1)='('
                         Lbls(2)(iE2+2:iE2+1+iChOp(kDCRR))=
@@ -372,8 +370,8 @@ C                 Do k = 1, 2
                         Call NxtWrd(Lbls(2),iF2,iE2)
                      End If
                      iF3=1
-                     Call NxtWrd(Name(jAtom),iF3,iE3)
-                     Lbls(3)=Name(jAtom)(iF3:iE3)
+                     Call NxtWrd(AtomLbl(jAtom),iF3,iE3)
+                     Lbls(3)=AtomLbl(jAtom)(iF3:iE3)
                      If (kDCRT.ne.0) Then
                         Lbls(3)(iE3+1:iE3+1)='('
                         Lbls(3)(iE3+2:iE3+1+iChOp(kDCRT))=
@@ -403,7 +401,7 @@ C                 Do k = 1, 2
 *
                         Call LBend(A,nCent,Val,
      &                             Grad_all(1,nq,iIter),
-     &                             .False.,.False.,
+     &                             .False.,
      &                             '        ',Hess,Proc_dB,Axis,
      &                             Perp_Axis(1,k),(k.eq.2))
 *
@@ -420,8 +418,8 @@ C                 Do k = 1, 2
                         End If
 *
                         Indq(1,nq)=2+k
-                        mi = (iAtom-1)*nAtoms + mAtom
-                        Indq(2,nq)= (jAtom-1)*nAtoms**2 + mi
+                        mi = (iAtom-1)*nsAtom + mAtom
+                        Indq(2,nq)= (jAtom-1)*nsAtom**2 + mi
                         Indq(3,nq)= kDCRT*8 + kDCRR+1
 *
                         f_Const=Max(f_Const,f_Const_Min)
@@ -437,10 +435,9 @@ C                 Do k = 1, 2
 *
 *---------------------- Project the gradient vector
 *
-                        Call ProjSym(nAtoms,nCent,Ind,nStab,
-     &                               jStab,A,iDCR,
+                        Call ProjSym(nCent,Ind,A,iDCR,
      &                               Grad_all(1,nq,iIter),
-     &                               Smmtrc,nDim,PSPrint,Hess,
+     &                               Hess,
      &                               mB_Tot,mdB_Tot,
      &                               BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                               Proc_dB,nqB,nB,nq,rMult(nq))
@@ -457,11 +454,11 @@ C                 Do k = 1, 2
 *
                   nqA = nqA + 1
                   iF1=1
-                  Call NxtWrd(Name(iAtom),iF1,iE1)
-                  Lbls(1)=Name(iAtom)(iF1:iE1)
+                  Call NxtWrd(AtomLbl(iAtom),iF1,iE1)
+                  Lbls(1)=AtomLbl(iAtom)(iF1:iE1)
                   iF2=1
-                  Call NxtWrd(Name(mAtom),iF2,iE2)
-                  Lbls(2)=Name(mAtom)(iF2:iE2)
+                  Call NxtWrd(AtomLbl(mAtom),iF2,iE2)
+                  Lbls(2)=AtomLbl(mAtom)(iF2:iE2)
                   If (kDCRR.ne.0) Then
                      Lbls(2)(iE2+1:iE2+1)='('
                      Lbls(2)(iE2+2:iE2+1+iChOp(kDCRR))=
@@ -471,8 +468,8 @@ C                 Do k = 1, 2
                      Call NxtWrd(Lbls(2),iF2,iE2)
                   End If
                   iF3=1
-                  Call NxtWrd(Name(jAtom),iF3,iE3)
-                  Lbls(3)=Name(jAtom)(iF3:iE3)
+                  Call NxtWrd(AtomLbl(jAtom),iF3,iE3)
+                  Lbls(3)=AtomLbl(jAtom)(iF3:iE3)
                   If (kDCRT.ne.0) Then
                      Lbls(3)(iE3+1:iE3+1)='('
                      Lbls(3)(iE3+2:iE3+1+iChOp(kDCRT))=
@@ -516,8 +513,8 @@ C                 Do k = 1, 2
                      End If
 *
                      Indq(1,nq)=2
-                     mi = (iAtom-1)*nAtoms + mAtom
-                     Indq(2,nq)= (jAtom-1)*nAtoms**2 + mi
+                     mi = (iAtom-1)*nsAtom + mAtom
+                     Indq(2,nq)= (jAtom-1)*nsAtom**2 + mi
                      Indq(3,nq)= kDCRT*8 + kDCRR+1
 *
                      If (.Not.Help .and.
@@ -532,10 +529,9 @@ C                 Do k = 1, 2
 *
 *------------------- Project the gradient vector
 *
-                     Call ProjSym(nAtoms,nCent,Ind,nStab,
-     &                            jStab,A,iDCR,
+                     Call ProjSym(nCent,Ind,A,iDCR,
      &                            Grad_all(1,nq,iIter),
-     &                            Smmtrc,nDim,PSPrint,Hess,
+     &                            Hess,
      &                            mB_Tot,mdB_Tot,
      &                            BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                            Proc_dB,nqB,nB,nq,rMult(nq))

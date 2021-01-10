@@ -15,33 +15,33 @@
 *---------------------------------*
       use Symmetry_Info, only: nIrrep
       use Phase_Info
+      use Slapaf_Info, only: Cx, nStab
       implicit real*8 (a-h,o-z)
-#include "info_slapaf.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "angstr.fh"
 #include "periodic_table.fh"
-#include "stdalloc.fh"
-      Real*8 Charge(Mxdc), Crd(3,nAtm,nIter),Enrg(nIter),
-     &       Grd(3,nAtm,nIter)
-      Integer nStab2(Mxdc)
-      Integer, Allocatable :: icoset2(:,:,:)
+      Real*8 Crd(3,nAtm,nIter),Enrg(nIter), Grd(3,nAtm,nIter)
+      Integer, Allocatable :: icoset2(:,:,:), jStab2(:,:), nStab2(:)
       Character*(*) FileName
-*
+      Real*8, Allocatable:: Cx_p(:,:), Charge(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Pick information for centers and pseudo centers
 *
       Call Get_iScalar('Unique atoms',msAtom)
-      Call Get_dArray('Nuclear charge',Charge,msAtom)
-*
       Call Get_iScalar('Pseudo atoms',msAtom_p)
+*
+      Call mma_Allocate(Charge,msAtom+msAtom_p,Label='Charge')
+      Call Get_dArray('Nuclear charge',Charge,msAtom)
+
       If (msAtom_p.gt.0) Then
          Call Get_dArray('Pseudo charge',Charge(msAtom+1),msAtom_p)
-         Call GetMem('Coor_p','Allo','Real',ipCx_p,3*msAtom_p)
-         Call Get_dArray('Pseudo Coordinates',Work(ipCx_p),3*msAtom_p)
+         Call mma_allocate(Cx_p,3,msAtom_p,Label='Cx_p')
+         Call Get_dArray('Pseudo Coordinates',Cx_p,3*msAtom_p)
       Else
-         ipCx_p=ip_Dummy
+         Call mma_allocate(Cx_p,3,1,Label='Cx_p')
+         Cx_p(:,:)=0.0d0
       End If
 *                                                                      *
 ************************************************************************
@@ -137,20 +137,24 @@
 *                                                                      *
 *     Set up the desymmetrization of the coordinates
 *
-      ixyz   = ipCx
-      ixyz_p = ipCx_p
+      ixyz   = 0
+      ixyz_p = 0
       MaxDCR=0
       Call mma_allocate(icoset2,[0,7],[0,7],[1,msAtom+msAtom_p],
      &                  label='icoset2')
+      Call mma_allocate(jStab2,[0,7],[1,msAtom+msAtom_p],
+     &                  label='jStab2')
+      Call mma_allocate(nStab2,[1,msAtom+msAtom_p],
+     &                  label='nStab2')
       Do ndc = 1, msAtom + msAtom_p
          If (ndc.le.msAtom) Then
-            iChxyz=iChAtm(Work(ixyz  ))
-            ixyz   = ixyz   + 3
+            ixyz   = ixyz   + 1
+            iChxyz=iChAtm(Cx(1,ixyz,1))
          Else
-            iChxyz=iChAtm(Work(ixyz_p))
-            ixyz_p = ixyz_p + 3
+            ixyz_p = ixyz_p + 1
+            iChxyz=iChAtm(Cx_p(1,ixyz_p))
          End If
-         Call Stblz(iChxyz,nStab2(ndc),jStab(0,ndc),
+         Call Stblz(iChxyz,nStab2(ndc),jStab2(0,ndc),
      &              MaxDCR,iCoSet2(0,0,ndc))
       End Do
 *                                                                      *
@@ -173,10 +177,9 @@
                y=Crd(2,ndc,iIter)
                z=Crd(3,ndc,iIter)
             Else
-               ixyz_p = ipCx_p + 3*(ndc-msAtom-1)
-               x=Work(ixyz_p  )
-               y=Work(ixyz_p+1)
-               z=Work(ixyz_p+2)
+               x=Cx_p(1,ndc-msAtom)
+               y=Cx_p(2,ndc-msAtom)
+               z=Cx_p(3,ndc-msAtom)
             End If
             Do i=0,nIrrep/nStab2(ndc)-1
                iFacx=iPhase(1,icoset2(i,0,ndc))
@@ -221,15 +224,16 @@
             End do
          End do
       End Do
+      Call mma_deallocate(nStab2)
+      Call mma_deallocate(jStab2)
       Call mma_deallocate(icoset2)
 *
       Close(Lu_Molden)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (msAtom_p.gt.0) Then
-         Call GetMem('Coor_p','Free','Real',ipCx_p,3*msAtom_p)
-      End If
+      If (Allocated(Cx_p)) Call mma_deallocate(Cx_p)
+      Call mma_deallocate(Charge)
 *                                                                      *
 ************************************************************************
 *                                                                      *

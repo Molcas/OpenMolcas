@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine OLDFCM(ipH,nQQ,nsAtom,iPrint,RunOld)
+      Subroutine OLDFCM(Hess,nQQ,RunOld)
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
@@ -16,68 +16,63 @@
 *              interphase.                                             *
 *                                                                      *
 ************************************************************************
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Character*8 Method
       Character*(*) RunOld
       Logical Found
+      Real*8, Allocatable:: Hess(:)
 *
 *...  Prologue
 *
-*...  Set runfile to be RUNOLD
+*...  Set runfile to be the one according to the character string RUNOLD
       Call NameRun(RunOld)
 *
 *...  Get the method used in the old calculation
-         Call Get_cArray('Relax Method',Method,8)
+      Call Get_cArray('Relax Method',Method,8)
 *
 *...  Get the final energy obtained by the last calculation
-*        Call Get_Energy(Energy)
-         Call Get_dScalar('Last energy',Energy)
+*     Call Get_Energy(Energy)
+      Call Get_dScalar('Last energy',Energy)
 *
 *...  Get the number of internal coordinates
-         Call Get_iScalar('No of Internal coordinates',iInter)
-         If ( iInter.le.0 ) Then
-            Call WarningMessage(2,
-     &                  'OldFCM: iInter.le.0')
-            Write (6,*) 'iInter=',iInter
-            Call Abend()
-         End If
+      Call Get_iScalar('No of Internal coordinates',iInter)
+      If ( iInter.le.0 ) Then
+         Call WarningMessage(2,'OldFCM: iInter.le.0')
+         Write (6,*) 'iInter=',iInter
+         Call Abend()
+      End If
 *
 *...  Get the force constant matrix
-         Call qpg_dArray('Hess',Found,nHess)
-         If (.not.Found .or. nHess.eq.0) Then
-            Call SysAbendmsg('OldFcm','Did not find:','Hess')
-         End If
-         Call GetMem('Hess','Allo','Real',ipRlx,nHess)
-         Call get_dArray('Hess',Work(ipRlx),nHess)
+      Call qpg_dArray('Hess',Found,nHess)
+      If (.not.Found .or. nHess.eq.0) Then
+         Call SysAbendmsg('OldFcm','Did not find:','Hess')
+      End If
 
-         lHess = iInter**2
-         If ( nHess.ne.lHess ) Then
-            Call WarningMessage(2,'OldFCM: nHess.ne.lHess')
-            Write (6,*) 'nHess,lHess=',nHess,lHess
-            Call Abend()
-         End If
+      Call mma_Allocate(Hess,nHess,Label='Hess')
+      Call get_dArray('Hess',Hess,nHess)
+
+      lHess = iInter**2
+      If ( nHess.ne.lHess ) Then
+         Call WarningMessage(2,'OldFCM: nHess.ne.lHess')
+         Write (6,*) 'nHess,lHess=',nHess,lHess
+         Call Abend()
+      End If
 *
 *...  Reset runfile to be RUNFILE
       Call NameRun('RUNFILE')
 *
 *...  Echo the input information
-         If (iPrint.ge.6) Then
-         Write(6,*)
-         Write(6,'(6X,A)')
+#ifdef _DEBUGPRINT_
+      Write(6,*)
+      Write(6,'(6X,A)')
      &   'SLAPAF has been supplied with an old force constant matrix.'
-         Write(6,'(6X,3A)')
-     &   'It is based on ',Method,' calculations.'
-         Write(6,'(6X,A,F18.10)')
-     &   'The final energy was',Energy
-         End If
-         If (iPrint.ge.99)
-     &   Call RecPrt(' OldFcm',' ',Work(ipRlx),iInter,iInter)
+      Write(6,'(6X,3A)') 'It is based on ',Method,' calculations.'
+      Write(6,'(6X,A,F18.10)')'The final energy was',Energy
+      Call RecPrt(' OldFcm',' ',Hess,iInter,iInter)
+#endif
 *
-         ipH = ipRlx
-         nQQ = iINter
+      nQQ = iINter
 *
 *...  Epilogue, end
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(nsAtom)
       End

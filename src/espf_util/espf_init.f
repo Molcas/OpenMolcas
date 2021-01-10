@@ -23,7 +23,8 @@
       Call Get_iScalar('Unique atoms',natom)
       Call GetMem('AtomCoord','Allo','Real',ipCord,3*natom)
       Call Get_dArray('Unique Coordinates',Work(ipCord),3*natom)
-      Call MMCount(natom,nAtMM,ipIsMM)
+      Call GetMem('IsMM for atoms','Allo','Inte',ipIsMM,natom)
+      Call MMCount(natom,nAtMM,iWork(ipIsMM))
       nAtQM = natom - nAtMM
       Call GetMem('ExtPot','ALLO','REAL',ipExt,natom*MxExtPotComp)
       call dcopy_(MxExtPotComp*natom,[Zero],0,Work(ipExt),1)

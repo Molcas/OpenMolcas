@@ -42,7 +42,7 @@
       Real*8, Dimension(:,:), Allocatable :: Vec, MEP
       Integer, Dimension(:), Allocatable :: iStab
       Integer ipX2, ipX3
-      Integer ipRef,ipOpt
+      Integer iRef,iOpt
       Real*8, Dimension(:,:), Allocatable :: XYZ
       Real*8 RandVect(3)
 #include "periodic_table.fh"
@@ -550,15 +550,15 @@
             Call Merge_Lists(Mode,nAt)
          End If
          If (Mode.eq.'R') Then
-             ipRef=2
-             ipOpt=1
+             iRef=2
+             iOpt=1
             Write (6,'(A)') '     Reference structure: product side'
             Write (6,'(A,F15.8)') '       Associated Energy: ',E2
             Write (6,'(A)') '     Optimized structure: reactant side'
             Write (6,'(A,F15.8)') '       Associated Energy: ',E1
          Else
-             ipRef=1
-             ipOpt=2
+             iRef=1
+             iOpt=2
             Write (6,'(A)') '     Reference structure: reactant side'
             Write (6,'(A,F15.8)') '       Associated Energy: ',E1
             Write (6,'(A)') '     Optimized structure: product side'
@@ -571,9 +571,9 @@
          Call mma_allocate(XYZ,3*nAt*8,2,label='XYZ')
          iRefAlign=1
          iOptExp  =2
-         Call Expand_Coor(RP_Centers(1,1,ipRef),nAt,
+         Call Expand_Coor(RP_Centers(1,1,iRef),nAt,
      &                    XYZ(1,iRefAlign),mAt)
-         Call Expand_Coor(RP_Centers(1,1,ipOpt),nAt,XYZ(1,iOptExp),mAt)
+         Call Expand_Coor(RP_Centers(1,1,iOpt),nAt,XYZ(1,iOptExp),mAt)
          If (Invar) Then
            Call Superpose_w(XYZ(1,iRefAlign),XYZ(1,iOptExp),W,
      &                      mAt,RMSD,RMax)

@@ -87,7 +87,7 @@
 #include "warnings.fh"
 #include "wadr.fh"
 #include "casvb.fh"
-      Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
+#include "sxci.fh"
 
       real*8 :: CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)
       type(t_ON_scheme), intent(in) :: scheme
@@ -97,7 +97,7 @@
      &    i, j, iTIND, NNwOrd, iSym,
      &    LNEWORD, LTMPXSYM, iErr, IAD19, iJOB,
      &    lll, lJobH, ldJobH, lscr, iDisk,
-     &    jRoot, kRoot, iDXsX, idXCI,
+     &    jRoot, kRoot,
      &    iDummy(1), IADR19(30), iAD15, lEne, nTmp(8)
       real*8 :: Dummy(1), Scal
       real*8, allocatable :: CMO_copy(:)
@@ -338,11 +338,12 @@ C Local print level (if any)
          Call GetMem('Scr','Free','Real',lscr,NACPR2)
         End If
 CSVC: read the L2ACT and LEVEL arrays from the jobiph file
-         IAD19=IADR19(18)
-         IF (IAD19.NE.0) THEN
-           CALL IDAFILE(JOBOLD,2,IDXSX,mxAct,IAD19)
-           CALL IDAFILE(JOBOLD,2,IDXCI,mxAct,IAD19)
-         END IF
+!IFG: disabled, since it breaks when changing active space specification
+        !IAD19=IADR19(18)
+        !IF (IAD19.NE.0) THEN
+        !  CALL IDAFILE(JOBOLD,2,IDXSX,mxAct,IAD19)
+        !  CALL IDAFILE(JOBOLD,2,IDXCI,mxAct,IAD19)
+        !END IF
         If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
           Call DaClos(JOBOLD)
           JOBOLD=-1

@@ -84,7 +84,7 @@ c Special code for closed-shell:
 
 * For the general cases, we use actual CI routine calls, and
 * have to take account of orbital order.
-* We will use level inices LT,LU... in these calls, but produce
+* We will use level indices LT,LU... in these calls, but produce
 * the density matrices with usual active orbital indices.
 * Translation tables L2ACT and LEVEL, in pt2_guga.fh
 

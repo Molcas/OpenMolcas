@@ -26,9 +26,10 @@
       Subroutine Chkpnt_open()
 #ifdef _HDF5_
       Use Symmetry_Info, Only: nIrrep
+      Use Slapaf_Info, Only: Coor
+      Use Slapaf_Parameters, Only: IRC, iter
       Use mh5, Only: mh5_is_hdf5, mh5_open_file_rw, mh5_open_attr,
      &               mh5_open_dset, mh5_fetch_attr
-#  include "info_slapaf.fh"
       Character(Len=3) :: level
       Logical :: create
       Integer :: tmp
@@ -51,7 +52,7 @@
         Call mh5_fetch_attr(chkpnt_id, 'NSYM', tmp)
         If (tmp.ne.nIrrep) create = .True.
         Call mh5_fetch_attr(chkpnt_id, 'NATOMS_UNIQUE', tmp)
-        If (tmp.ne.nsAtom) create = .True.
+        If (tmp.ne.SIZE(Coor,2)) create = .True.
         Call mh5_fetch_attr(chkpnt_id, 'ITERATIONS', tmp)
         If (IRC.eq.-1) Then
           If (Iter.ge.tmp) create = .True.
@@ -78,13 +79,15 @@
 #ifdef _HDF5_
       Use Phase_Info
       Use Symmetry_Info, Only: nIrrep
+      Use Slapaf_Info, Only: dMass, nStab, iCoSet, AtomLbl, Smmtrc,
+     &                       Coor
+      Use Slapaf_Parameters, Only: nDimBC, rMEP, MEP, dMEPStep
       Use mh5, Only: mh5_create_file, mh5_init_attr,
      &               mh5_create_attr_int, mh5_create_dset_str,
      &               mh5_create_dset_real, mh5_create_dset_int,
      &               mh5_put_dset, mh5_put_dset_array_int,
      &               mh5_close_dset
-#  include "info_slapaf.fh"
-#  include "WrkSpc.fh"
+#  include "Molcas.fh"
 #  include "stdalloc.fh"
       Character :: lIrrep(24)
       Integer :: dsetid, mAtom, i, j, k
@@ -101,13 +104,13 @@
       Call mh5_init_attr(chkpnt_id, 'IRREP_LABELS',
      &                   1, [nIrrep], lIrrep, 3)
 
-      Call mh5_init_attr(chkpnt_id, 'NATOMS_UNIQUE', nsAtom)
+      Call mh5_init_attr(chkpnt_id, 'NATOMS_UNIQUE', SIZE(Coor,2))
 
       Call mh5_init_attr(chkpnt_id, 'DOF', nDimBC)
 
 *     atom labels
       dsetid = mh5_create_dset_str(chkpnt_id,
-     &         'CENTER_LABELS', 1, [nsAtom], LENIN)
+     &         'CENTER_LABELS', 1, [SIZE(Coor,2)], LENIN)
       Call mh5_init_attr(dsetid, 'DESCRIPTION',
      &     'Unique center labels arranged as one [NATOMS_UNIQUE] block')
       Call mh5_put_dset(dsetid, AtomLbl)
@@ -115,19 +118,19 @@
 
 *     atom masses
       dsetid = mh5_create_dset_real(chkpnt_id,
-     &         'CENTER_MASSES', 1, [nsAtom])
+     &         'CENTER_MASSES', 1, [SIZE(Coor,2)])
       Call mh5_init_attr(dsetid, 'DESCRIPTION',
      &    'Nuclear masses, stored as array of size [NATOMS_UNIQUE]')
-      Call mh5_put_dset(dsetid, Work(ipCM))
+      Call mh5_put_dset(dsetid, dMass)
       Call mh5_close_dset(dsetid)
 
 *     atom charges
       dsetid = mh5_create_dset_real(chkpnt_id,
-     &         'CENTER_CHARGES', 1, [nsAtom])
+     &         'CENTER_CHARGES', 1, [SIZE(Coor,2)])
       Call mh5_init_attr(dsetid, 'DESCRIPTION',
      &    'Nuclear charges, stored as array of size [NATOMS_UNIQUE]')
-      Call mma_allocate(charges, nsAtom)
-      Call Get_dArray('Nuclear Charge', charges, nsAtom)
+      Call mma_allocate(charges, SIZE(Coor,2))
+      Call Get_dArray('Nuclear Charge', charges, SIZE(Coor,2))
       Call mh5_put_dset(dsetid, charges)
       Call mma_deallocate(charges)
       Call mh5_close_dset(dsetid)
@@ -139,7 +142,7 @@
 *     atom coordinates (new iteration)
 *       use the same dataset name as in run2hdf5
       chkpnt_new = mh5_create_dset_real(chkpnt_id,
-     &             'CENTER_COORDINATES', 2, [3,nsAtom])
+     &             'CENTER_COORDINATES', 2, [3,SIZE(Coor,2)])
       Call mh5_init_attr(chkpnt_new, 'DESCRIPTION',
      &     'Atom coordinates for new iteration, matrix of size '//
      &     '[NATOMS_UNIQUE,3], stored with atom index varying slowest')
@@ -147,14 +150,14 @@
       If (nIrrep.gt.1) Then
 
         mAtom = 0
-        Do i=1,nsAtom
+        Do i=1,SIZE(Coor,2)
           mAtom = mAtom+nIrrep/nStab(i)
         End Do
         Call mma_allocate(desym, 4, mAtom)
         Call mma_allocate(symdof, 2, nDimBC)
         mAtom = 0
         k = 0
-        Do i=1,nsAtom
+        Do i=1,SIZE(Coor,2)
           Do j=0,nIrrep/nStab(i)-1
             mAtom = mAtom+1
             desym(1,mAtom) = i
@@ -163,7 +166,7 @@
             desym(4,mAtom) = iPhase(3,iCoSet(j,i))
           End Do
           Do j=1,3
-            If (.Not.Smmtrc(3*(i-1)+j)) Cycle
+            If (.Not.Smmtrc(j,i)) Cycle
             k = k+1
             symdof(1,k) = i
             symdof(2,k) = j
@@ -208,7 +211,7 @@
 
 *     atom coordinates
       chkpnt_coor = mh5_create_dset_real(chkpnt_id,
-     &              'COORDINATES', 3, [3,nsAtom,0], dyn=.True.)
+     &              'COORDINATES', 3, [3,SIZE(Coor,2),0], dyn=.True.)
       Call mh5_init_attr(chkpnt_coor, 'DESCRIPTION',
      &     'Atom coordinates, matrix of size [ITERATIONS,'//
      &     'NATOMS_UNIQUE,3], stored with iteration varying slowest, '//
@@ -216,7 +219,7 @@
 
 *     Cartesian forces (F = -g)
       chkpnt_force = mh5_create_dset_real(chkpnt_id,
-     &               'FORCES', 3, [3,nsAtom,0], dyn=.True.)
+     &               'FORCES', 3, [3,SIZE(Coor,2),0], dyn=.True.)
       Call mh5_init_attr(chkpnt_force, 'DESCRIPTION',
      &     'Cartesian forces, matrix of size [ITERATIONS,'//
      &     'NATOMS_UNIQUE,3], stored with iteration varying slowest, '//
@@ -248,9 +251,10 @@
 *                                                                      *
       Subroutine Chkpnt_update()
 #ifdef _HDF5_
+      Use Slapaf_Info, Only: Cx, Gx, Energy
+      Use Slapaf_Parameters, Only: nDimBC, iter
       Use mh5, Only: mh5_put_attr, mh5_resize_dset,
      &               mh5_put_dset, mh5_put_dset_array_real
-#  include "info_slapaf.fh"
 #  include "WrkSpc.fh"
 #  include "stdalloc.fh"
       Integer :: N3, i, j
@@ -272,23 +276,23 @@
         End Do
       End If
 
-      N3 = 3*nsAtom
+      N3 = 3*SIZE(Cx,2)
 *     iterations
       Call mh5_put_attr(chkpnt_iter, Iter_all)
 *     energies
       Call mh5_resize_dset(chkpnt_ener, [Iter_all])
       Call mh5_put_dset_array_real(chkpnt_ener,
-     &     Work(ipEner+(Iter-1)), [1], [Iter_all-1])
+     &     Energy(Iter), [1], [Iter_all-1])
 *     coordinates
-      Call mh5_resize_dset(chkpnt_coor, [3,nsAtom,Iter_all])
+      Call mh5_resize_dset(chkpnt_coor, [3,SIZE(Cx,2),Iter_all])
       Call mh5_put_dset_array_real(chkpnt_coor,
-     &     Work(ipCx+N3*(Iter-1)), [3,nsAtom,1], [0,0,Iter_all-1])
+     &     Cx(1,1,Iter), [3,SIZE(Cx,2),1], [0,0,Iter_all-1])
 *     new coordinates
-      Call mh5_put_dset(chkpnt_new,Work(ipCx+N3*Iter))
+      Call mh5_put_dset(chkpnt_new,Cx(1,1,Iter+1))
 *     forces
-      Call mh5_resize_dset(chkpnt_force, [3,nsAtom,Iter_all])
+      Call mh5_resize_dset(chkpnt_force, [3,SIZE(Cx,2),Iter_all])
       Call mh5_put_dset_array_real(chkpnt_force,
-     &     Work(ipGx+N3*(Iter-1)), [3,nsAtom,1], [0,0,Iter_all-1])
+     &     Gx(1,1,Iter), [3,SIZE(Cx,2),1], [0,0,Iter_all-1])
 *     Hessian
       If (Found) Then
         Call mh5_put_dset(chkpnt_hess,Hss_X(1))
@@ -299,33 +303,38 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Subroutine Chkpnt_update_MEP(IRCRestart)
+      Subroutine Chkpnt_update_MEP(SaveMEP,IRCRestart)
 #ifdef _HDF5_
       Use mh5, Only: mh5_init_attr, mh5_open_attr, mh5_get_attr,
      &               mh5_put_attr,  mh5_close_attr, mh5_open_dset,
      &               mh5_resize_dset, mh5_put_dset, mh5_close_dset
 #endif
-      Logical, Intent(In) :: IRCRestart
+      Logical, Intent(In) :: SaveMEP, IRCRestart
 #ifdef _HDF5_
-#  include "info_slapaf.fh"
       Integer :: attrid, dsetid, iMEP
 
       If (IRCRestart) Then
         Call mh5_init_attr(chkpnt_id, 'IRC_RESTART', Iter_all+1)
       End If
-      attrid = mh5_open_attr(chkpnt_id, 'MEP_ITERATIONS')
-      Call mh5_get_attr(attrid, iMEP)
-      iMEP = iMEP+1
-      Call mh5_put_attr(attrid, iMEP)
-      Call mh5_close_attr(attrid)
-      dsetid = mh5_open_dset(chkpnt_id, 'MEP_INDICES')
-      Call mh5_resize_dset(dsetid, [iMEP])
-      Call mh5_put_dset(dsetid, [Iter_all], [1], [iMEP-1])
-      Call mh5_close_dset(dsetid)
+      If (SaveMEP) Then
+        attrid = mh5_open_attr(chkpnt_id, 'MEP_ITERATIONS')
+        Call mh5_get_attr(attrid, iMEP)
+        iMEP = iMEP+1
+        Call mh5_put_attr(attrid, iMEP)
+        Call mh5_close_attr(attrid)
+        dsetid = mh5_open_dset(chkpnt_id, 'MEP_INDICES')
+        Call mh5_resize_dset(dsetid, [iMEP])
+        Call mh5_put_dset(dsetid, [Iter_all], [1], [iMEP-1])
+        Call mh5_close_dset(dsetid)
+      End If
 #else
       Return
-* Avoid unused argument warnings
-      If (.False.) Call Unused_logical(IRCRestart)
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Then
+        Call Unused_logical(SaveMEP)
+        Call Unused_logical(IRCRestart)
+      End If
+#endif
 #endif
       End Subroutine Chkpnt_update_MEP
 *                                                                      *

@@ -29,8 +29,7 @@
 #  include "gugx.fh"
 #  include "gas.fh"
 #  include "input_ras.fh"
-      Integer         IDXCI(mxAct), IDXSX(mxAct)
-      Common /IDSXCI/ IDXCI,        IDXSX
+#  include "sxci.fh"
 
       integer :: dsetid
       integer, dimension(mxsym) :: NTMP1, NTMP2, NTMP3

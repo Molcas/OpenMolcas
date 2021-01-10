@@ -30,21 +30,24 @@
       Logical :: set_l = .False.
       Logical :: ordinary = .False.
       Real*8  :: blvAI
+      Integer :: nD_In=0
+      Logical :: PGEK_On=.False.
 *
 !     Memory for coordinates, value and gradients of the
 !     sample points.
 !
       real*8, allocatable, protected :: x(:,:), y(:), dy(:)
 !
-!     Inter_save: the dimension of the coordinate vector
-!     nPoints_v: the total number of sample points for which the value is
-!                used
-!     nPoinst_g: the total number of sample points for which the
-!                gradients are used
+!     Inter  : the dimension of the coordinate vector
+!     nPoints: the total number of sample points for which the value is
+!              used or the gradient is used
+!     nD     : the total number of sample points less for which the
+!              gradients are used
 !
-!     We will assume that nPoints_v >= nPoints_g
+!     We will assume that nD >= 0
 !
       integer, protected :: nInter = 0 , nPoints = 0, nD=0
+      integer :: nInter_Eff=0
 
       real*8, allocatable ::
      &        rl(:,:), dl(:), full_Rinv(:,:),
@@ -53,28 +56,45 @@
      &        Rones(:), l(:),
      &        gpred(:), hpred(:,:), ll(:),
      &        cvMatFder(:), cvMatSder(:), cvMatTder(:)
+      Integer, Allocatable:: Index_PGEK(:)
       real*8 :: pred, sigma, var
       real*8 :: sb, variance, detR, lh, sbO, sbmev
       real*8, parameter :: h = 1e-5, eps = 1e-13, eps2 = 1e-10
 ! eps avoid to become singular in 1st der & eps2 in 2nd der
       integer :: prev_ns, m_t, counttimes
+!
+!     Transformation matrix for kriging_layer routines
+!
+      real*8, allocatable :: layer_U(:,:)
 
       contains
 
-      Subroutine Setup_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
+      Subroutine Prep_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
 #include "stdalloc.fh"
-      integer :: nPoints_In, nD_In, nInter_In, i, j
+      integer :: nPoints_In, nInter_In, i, j
       real*8 ::  x_(nInter_In,nPoints_In)
       real*8 ::         y_(nPoints_In)
       real*8 :: dy_(nInter_In,nPoints_In)
 
       nInter = nInter_In
-      nD           = nD_In
+      nInter_Eff = nInter
       nPoints      = nPoints_In
+      nD           = MAX(0,MIN(nD_In,nPoints-nD_In))
 
+!
+!     Allocate arrays for data or energies, coordinates, and gradients
+!
       Call mma_Allocate(x,nInter,nPoints,Label="x")
       Call mma_Allocate(y,nPoints,Label="y")
       Call mma_Allocate(dy,nInter*(nPoints-nD),Label="dy")
+
+!     The code will use partial GEK with indirect addressing. However,
+!     here we defaults the index array so that it behaves as conventional GEK.
+!
+      Call mma_Allocate(Index_PGEK,nInter,Label='Index_PGEK')
+      Do i = 1,nInter
+         Index_PGEK(i)=i
+      End Do
 
 !x is the n-dimensional internal coordinates
       x(:,:) = x_(:,:)
@@ -88,6 +108,7 @@
 !     Note the storage as subblocks of the same component of the
 !     gradient, each subblock running over all nPoints_g which
 !     contributes with gradient values.
+!     This will enable a somewhat simpler code later on in the PGEK case.
 !
 !     At this point we also skip those gradients which we will not use in
 !     the kriging.
@@ -99,7 +120,7 @@
       enddo
 
       return
-      end subroutine Setup_kriging
+      end subroutine Prep_kriging
 
       subroutine Deallocate_protected()
 #include "stdalloc.fh"

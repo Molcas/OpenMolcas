@@ -160,7 +160,8 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *
       nAtMM = 0
       If (DoTinker) Then
-         Call MMCount(nAtoms,nAtMM,ipIsMM)
+         Call GetMem('IsMM for atoms','Allo','Inte',ipIsMM,natoms)
+         Call MMCount(nAtoms,nAtMM,iWork(ipIsMM))
          If (nAtMM .gt. 0) Then
             iQMChg = 0
             StandAlone = .False.

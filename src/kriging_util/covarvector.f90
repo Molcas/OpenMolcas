@@ -14,9 +14,10 @@ SUBROUTINE covarVector(gh)
   use kriging_mod
   Implicit None
 #include "stdalloc.fh"
-  integer i,i0,i1,j,j0,j1,k,k0,k1,gh
+  integer i,i0,i1,j,j0,j1,k,k0,k1,gh, i_eff, j_eff, k_eff
   real*8 sdiffxi,sdiffxj,sdiffxk
   real*8, Allocatable ::  diffxi(:),diffxj(:), diffxk(:)
+!#define _DEBUGPRINT_
 
   Call mma_Allocate(diffxi,nPoints,label="diffxi")
   Call mma_Allocate(diffxj,nPoints,label="diffxj")
@@ -32,13 +33,17 @@ SUBROUTINE covarVector(gh)
 !
     call matern(dl, cv(1:nPoints,1,1), nPoints,1)
     call matderiv(1, dl, cvMatFDer, nPoints, 1)
-    do i=1,nInter
+    do i_eff=1,nInter_eff
+      i = Index_PGEK(i_eff)
 !     1st derivatives second part of eq. (4)
       diffxi(:) = 2.0D0*rl(:,i)/l(i)
-      i0 = nPoints + 1 + (i-1)*(nPoints-nD)
+      i0 = nPoints + 1 + (i_eff-1)*(nPoints-nD)
       i1 = i0 + (nPoints-nD) - 1
       cv(i0:i1,1,1) = cvMatFder(1+nD:nPoints) * diffxi(1+nD:nPoints)
     enddo
+#ifdef _DEBUGPRINT_
+    Call RecPrt(' The covector for energies','(12(2x,E9.3))',cv(:,1,1),m_t,1)
+#endif
 ! Covariant vector in Gradient Enhanced Kriging
 !
   else if(gh.eq.1) then
@@ -47,9 +52,10 @@ SUBROUTINE covarVector(gh)
     call matderiv(2, dl, cvMatSder, nPoints, 1)
     do i=1,nInter
       diffxi(:) = 2.0D0*rl(:,i)/l(i)
-      cv(1+nD:nPoints,i,1) = -cvMatFder(1+nD:nPoints) * diffxi(1+nD:nPoints)
-      do j = 1,nInter
-        j0 = nPoints + 1 + (j-1)*(nPoints-nD)
+      cv(1:nPoints,i,1) = -cvMatFder(1:nPoints) * diffxi(1:nPoints)
+      do j_eff = 1,nInter_eff
+        j = Index_PGEK(j_eff)
+        j0 = nPoints + 1 + (j_eff-1)*(nPoints-nD)
         j1 = j0 + (nPoints-nD) - 1
         diffxj(:) = -2.0D0*rl(:,j)/l(j)
         if (i.eq.j) Then
@@ -60,6 +66,9 @@ SUBROUTINE covarVector(gh)
         end if
       enddo
     enddo
+#ifdef _DEBUGPRINT_
+    Call RecPrt(' The covector for gradients','(12(2x,E9.3))',cv(:,:,1),m_t,nInter)
+#endif
 !
   else if(gh.eq.2) then
 !
@@ -78,10 +87,11 @@ SUBROUTINE covarVector(gh)
         else
           cv(1:nPoints,i,j) = cvMatSder(:) * diffxi(:)*diffxj(:)
         end if
-        do k = 1, nInter
+        do k_eff = 1, nInter_eff
+          k = Index_PGEK(k_eff)
           diffxk(:) = 2.0D0*rl(:,k)/l(k)
           sdiffxk = 2.0D0/l(k)**2
-          k0 = nPoints + 1 + (k-1)*(nPoints-nD)
+          k0 = nPoints + 1 + (k_eff-1)*(nPoints-nD)
           k1 = k0 + (nPoints-nD) - 1
           if (i.eq.j.and.j.eq.k) then
             cv(k0:k1,i,j) = cvMatTder(1+nD:nPoints)*diffxi(1+nD:nPoints)*diffxj(1+nD:nPoints)*diffxk(1+nD:nPoints) &

@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
-Subroutine Start_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
+Subroutine Start_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
   use kriging_mod
   Implicit None
 #include "stdalloc.fh"
@@ -21,23 +21,28 @@ Subroutine Start_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
 !    dy_: the gradient of the function at the sample points
 !    x_: the coordinates of the sample points
 !
-  Integer nInter_In,nPoints_In,nD_In
+  Integer nInter_In,nPoints_In
   Real*8 x_(nInter_In,nPoints_In)
   Real*8 y_(nPoints_In)
   Real*8 dy_(nInter_In,nPoints_In)
 !
 !
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
   Call RecPrt('Start_Kriging: x',' ',x_,nInter_In,nPoints_In)
   Call RecPrt('Start_Kriging: y',' ',y_,     1,nPoints_In)
-  Call RecPrt('Start_Kriging: dy',' ',dy_,nInter,nPoints_In)
+  Call RecPrt('Start_Kriging: dy',' ',dy_,nInter_In,nPoints_In)
 #endif
 !
 ! Call Setup_Kriging to store the data in some internally protected arrays and scalars.
 !
-  Call Setup_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
+  Call Prep_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
 !
-!If (nPoints>2) Call PGEK()
+! Development code for partial gradient enhanced Kriging (PGEK) based on Mutual Information between
+! the coordinates and the energy.
+
+  If (PGEK_On .and. nPoints>=2) Call PGEK()
+
 !
 !
 ! m_t is the dimentionality of the square correlation matrix Gradient-Psi
@@ -48,7 +53,11 @@ Subroutine Start_Kriging(nPoints_In,nD_In,nInter_In,x_,dy_,y_)
 ! In the case the nPoint_v last energies and nPoint_g last gradients were use
 ! m_t would be computed as
 !
-  m_t=nPoints + nInter*(nPoints-nD)
+#ifdef _DEBUGPRINT_
+  Write (6,*) 'nD=',nD
+  Write (6,*) 'nPoints_v,nPoints_g=',nPoints,nPoints-nD
+#endif
+  m_t=nPoints + nInter_Eff*(nPoints-nD)
 !
 ! full_R correspond to the gradient of Psi (eq. (2) ref.)
 !
