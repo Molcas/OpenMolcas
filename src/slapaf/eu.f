@@ -89,6 +89,7 @@
 *                                                                      *
 *define _DEBUG
 #ifdef _DEBUGPRINT_
+      Integer ii
       Real*8 mi, de
 *     Make a comment in logfile
       write(6,*) 'hello from eu.f'
@@ -189,8 +190,8 @@
 *     p(i) = 0, so mi is set to zero.
          Else
             M(i,i) = 1.0d0
-            ii = i*(i+1)/2
 #ifdef _DEBUGPRINT_
+            ii = i*(i+1)/2
             write(6,*) "mi = p 1.0  Eigenvalue ",Eval(ii)
 #endif
          End If
