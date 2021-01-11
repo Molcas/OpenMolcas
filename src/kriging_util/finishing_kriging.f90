@@ -16,6 +16,7 @@ Subroutine Finish_Kriging()
 #include "stdalloc.fh"
 !
 !       write(6,*) 'Deallocating all kriging variables'
+  Call mma_deallocate(Index_PGEK)
   Call Deallocate_protected()
   Call mma_deallocate(x0)
   Call mma_deallocate(full_R)
@@ -32,6 +33,7 @@ Subroutine Finish_Kriging()
   Call mma_deallocate(cvMatFder)
   Call mma_deallocate(cvMatSder)
   Call mma_deallocate(cvMatTder)
+  If (Allocated(layer_U)) Call mma_deallocate(layer_U)
 !
   return
 End Subroutine Finish_Kriging

@@ -13,43 +13,47 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      use Slapaf_info, only: dBM, idBM, nqBM
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "db.fh"
       Real*8 dCdQ(nQQ,nLambda), QC(nDim**2,nLambda)
+      Real*8, Allocatable:: X(:,:), K(:,:)
 *
-      Call FZero(QC,nDim**2*nLambda)
-      If (ip_dB.eq.ip_Dummy) Then
+      QC(:,:)=0.0D0
+
+      If (.NOT.Allocated(dBM)) Then
+C        Write (6,*) 'FAST out'
          Return
       End If
-      Call Allocate_Work(ipX,mq*nLambda)
-      Call FZero(Work(ipX),mq*nLambda)
-      Call Allocate_Work(ipK,mq*nQQ)
-      Call Get_dArray('K',Work(ipK),mq*nQQ)
+
+      Call mma_allocate(X,mq,nLambda,Label='X')
+      X(:,:)=0.0D0
+      Call mma_allocate(K,mq,nQQ,Label='K')
+      Call Get_dArray('K',K,mq*nQQ)
 *
       Call DGEMM_('N','N',mq,nLambda,nQQ,
-     &            1.0D0,Work(ipK),mq,
+     &            1.0D0,K,mq,
      &                  dCdQ,nQQ,
-     &            0.0D0,Work(ipX),mq)
-      Call Free_Work(ipK)
+     &            0.0D0,X,mq)
+      Call mma_deallocate(K)
 *
-      idB = 0
-      Do iq = 0, mq-1
-         nElem = iWork(ip_nqB + iq)
+      idB = 1
+      Do iq = 1, mq
+         nElem = nqBM(iq)
          Do iElem = idB, idB + (nElem**2)-1
-            dBqR=Work(ip_dB+iElem)
-            iDim=iWork(iElem*2 + ip_idB  )
-            jDim=iWork(iElem*2 + ip_idB+1)
+            dBqR=dBM(iElem)
+            iDim=idBM(1 + (iElem-1)*2)
+            jDim=idBM(2 + (iElem-1)*2)
             ijDim = (jDim-1)*nDim + iDim
             Do iLambda = 1, nLambda
-               X = Work((iLambda-1)*mq + iq + ipX)
                QC(ijDim,iLambda) = QC(ijDim,iLambda)
-     &                           + X * dBqR
+     &                           + X(iq,iLambda) * dBqR
             End Do
          End Do
          idB = idB + nElem**2
       End Do
-      Call Free_Work(ipX)
+      Call mma_deallocate(X)
 *
       Return
       End
@@ -60,31 +64,35 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      use Slapaf_Info, only: dBM, idBM, nqBM
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
+#include "real.fh"
+#include "stdalloc.fh"
 #include "db.fh"
-      If (ip_dB.eq.ip_Dummy) Return
-      Call GetMem('dBQQ','Allo','Real',ipBuf,nDim**2)
-      Call Allocate_Work(ipK,mq*nQQ)
-      Call Get_dArray('K',Work(ipK),mq*nQQ)
+      Real*8, Allocatable:: dBQQ(:,:), K(:,:)
+
+      If (.NOT.Allocated(dBM)) Return
+      Call mma_allocate(dBQQ,nDim, nDim,Label='dBQQ')
+      Call mma_allocate(K,mq,nQQ,Label='K')
+      Call Get_dArray('K',K,mq*nQQ)
       Do iQQ = 1, nQQ
-         Call FZero(Work(ipBuf),nDim**2)
-         idB = 0
-         Do iq = 0, mq-1
-            nElem = iWork(ip_nqB + iq)
-            rK = Work((iQQ-1)*mq + iq + ipK)
+         dBQQ(:,:) = Zero
+         idB = 1
+         Do iq = 1, mq
+            nElem = nqBM(iq)
+            rK = K(iq,iQQ)
             Do iElem = idB, idB + (nElem**2)-1
-               dBqR=Work(ip_dB+iElem)
-               iDim=iWork(iElem*2 + ip_idB  )
-               jDim=iWork(iElem*2 + ip_idB+1)
-               ijDim = (jDim-1)*nDim + iDim + ipBuf-1
-               Work(ijDim) = Work(ijDim) + rK * dBqR
+               dBqR=dBM(iElem)
+               iDim=idBM(1 + (iElem-1)*2)
+               jDim=idBM(2 + (iElem-1)*2)
+               dBQQ(iDim,jDim) = dBQQ(iDim,jDim) + rK * dBqR
             End Do
             idB = idB + nElem**2
          End Do
-         Call RecPrt('dBQQ',' ',Work(ipBuf),nDim,nDim)
+         Call RecPrt('dBQQ',' ',dBQQ,nDim,nDim)
       End Do
-      Call Free_Work(ipBuf)
+      Call mma_deallocate(dBQQ)
+      Call mma_deallocate(K)
 *
       Return
       End
@@ -95,60 +103,61 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      use Slapaf_Info, only: dBM, idBM, nqBM
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "real.fh"
+#include "stdalloc.fh"
 #include "db.fh"
       Real*8 uM12(nDim), g(nQQ), Hss(nDim,nDim)
       Logical Inv
+      Real*8, Allocatable:: Y(:), K(:,:), Temp(:,:)
 *
-      If (ip_dB.eq.ip_Dummy) Then
-         Call FZero(Hss,nDim**2)
+      If (.NOT.Allocated(dBM)) Then
+         Hss(:,:)=Zero
          Return
       End If
-      Call Allocate_Work(ipY,mq)
-      Call Allocate_Work(ipK,mq*nQQ)
-      Call Get_dArray('K',Work(ipK),mq*nQQ)
+
+      Call mma_allocate(Y,mq,Label='Y')
+      Call mma_allocate(K,mq,nQQ,Label='K')
+      Call Get_dArray('K',K,mq*nQQ)
 *
 *     Compute Y(qR) = Sum_(Q) g(Q) rK(qR,Q)
 *
-      Call FZero(Work(ipY),mq)
+      Y(:) = Zero
       Do iQQ = 1, nQQ
-         ipKk = (iQQ-1)*mq + ipK
-         Call DaXpY_(mq,g(iQQ),Work(ipKk),1,Work(ipY),1)
+         Call DaXpY_(mq,g(iQQ),K(:,iQQ),1,Y,1)
       End Do
-      Call Free_Work(ipK)
+      Call mma_deallocate(K)
 *
 *     Compute Temp = Sum_(qR) Y(qR) * dB(qR)
 *
-      Call GetMem('temp','Allo','Real',ipTemp,nDim**2)
-      Call FZero(Work(ipTemp),nDim**2)
-      idB = 0
-      Do iq = 0, mq-1
-         YqR = Work(ipY+iq)
-         nElem = iWork(ip_nqB + iq)
+      Call mma_allocate(Temp,nDim,nDim,Label='Temp')
+      Temp(:,:)=Zero
+
+      idB = 1
+      Do iq = 1, mq
+         YqR = Y(iq)
+         nElem = nqBM(iq)
          Do iElem = idB, idB + (nElem**2)-1
-            dBqR=Work(ip_dB+iElem)
-            iDim=iWork(iElem*2 + ip_idB  )
-            jDim=iWork(iElem*2 + ip_idB+1)
-            ijDim = (jDim-1)*nDim + iDim + ipTemp-1
-            Work(ijDim) = Work(ijDim) + YqR * dBqR
+            dBqR=dBM(iElem)
+            iDim=idBM(1 + (iElem-1)*2)
+            jDim=idBM(2 + (iElem-1)*2)
+            Temp(iDim,jDim) = Temp(iDim,jDim) + YqR * dBqR
          End Do
          idB = idB + nElem**2
       End Do
-      Call Free_Work(ipY)
+      Call mma_deallocate(Y)
 *
-      If (Inv) Call DScal_(nDim**2,-One,Work(ipTemp),1)
+      If (Inv) Call DScal_(nDim**2,-One,Temp,1)
 *
       Do i = 1, nDim
          Do j = 1, nDim
             xx = Sqrt(uM12(i)*uM12(j))
-            ij = ipTemp + (j-1)*nDim + i - 1
-            Hss(i,j) = Hss(i,j) +  Work(ij) / xx
+            Hss(i,j) = Hss(i,j) + Temp(i,j) / xx
          End Do
       End Do
 *
-      Call Free_Work(ipTemp)
+      Call mma_deallocate(Temp)
 *
       Return
       End

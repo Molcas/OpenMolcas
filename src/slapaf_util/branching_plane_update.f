@@ -44,8 +44,9 @@
       Implicit Real*8 (a-h,o-z)
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 AGV(n,nIter), DGV(n,nIter), CDV(n)
+      Real*8, Allocatable:: x0(:), x1(:)
 *
       iRout = 31
       iPrint = nPrint(iRout)
@@ -57,16 +58,16 @@
          Call RecPrt('DGV',' ',DGV,n,nIter)
          Call RecPrt('CDV (init)',' ',CDV,n,1)
       End If
-      Call Allocate_Work(ipx0,n)
-      Call Allocate_Work(ipx1,n)
+      Call mma_allocate(x0,n,Label='x0')
+      Call mma_allocate(x1,n,Label='x1')
 *
 *     Get the directional vector for the first difference gradient
 *     vector (DGV).
 *
-      call dcopy_(n,DGV,1,Work(ipx0),1)
-      r = One / Sqrt(DDot_(n,Work(ipx0),1,Work(ipx0),1))
-      Call DScal_(n,r,Work(ipx0),1)
-      call dcopy_(n,Work(ipx0),1,Work(ipx1),1)
+      call dcopy_(n,DGV,1,x0,1)
+      r = One / Sqrt(DDot_(n,x0,1,x0,1))
+      Call DScal_(n,r,x0,1)
+      call dcopy_(n,x0,1,x1,1)
 *
 *     Initial guess for the coupling derivative vector (CDV) is the
 *     average gradient vector (AGV).
@@ -74,8 +75,8 @@
 *     so, remove the projection of CDV along DGV and renormalize
 *
       call dcopy_(n,AGV,1,CDV,1)
-      proj = DDot_(n,CDV,1,Work(ipx0),1)
-      Call DaXpY_(n,-proj,Work(ipx0),1,CDV,1)
+      proj = DDot_(n,CDV,1,x0,1)
+      Call DaXpY_(n,-proj,x0,1,CDV,1)
       r = One / Sqrt(DDot_(n,CDV,1,CDV,1))
       Call DScal_(n,r,CDV,1)
       If (iPrint.ge.6) Then
@@ -88,12 +89,12 @@
 *     ipx1: xk,   ~DGV of current iteration
 *
       Do iter=2,nIter
-         call dcopy_(n,DGV(1,iter),1,Work(ipx1),1)
-         r = One / Sqrt(DDot_(n,Work(ipx1),1,Work(ipx1),1))
-         Call DScal_(n,r,Work(ipx1),1)
+         call dcopy_(n,DGV(1,iter),1,x1,1)
+         r = One / Sqrt(DDot_(n,x1,1,x1,1))
+         Call DScal_(n,r,x1,1)
 *
-         xx=DDot_(n,Work(ipx0),1,Work(ipx1),1)
-         yx=DDot_(n,CDV,1,Work(ipx1),1)
+         xx=DDot_(n,x0,1,x1,1)
+         yx=DDot_(n,CDV,1,x1,1)
          yx_xx=Sqrt(yx**2+xx**2)
 *
 *        different signs from the paper, should not matter,
@@ -101,7 +102,7 @@
          alpha=-yx/yx_xx
          beta=xx/yx_xx
          Call DScal_(n,beta,CDV,1)
-         Call DaXpY_(n,alpha,Work(ipx0),1,CDV,1)
+         Call DaXpY_(n,alpha,x0,1,CDV,1)
 *
 *        remove the projection of CDV along DGV and renormalize
 *
@@ -114,8 +115,8 @@
             Write (6,*) 'alpha,beta=',alpha,beta
          End If
 *
-         proj=DDot_(n,CDV,1,Work(ipx1),1)
-         Call DaXpY_(n,-proj,Work(ipx1),1,CDV,1)
+         proj=DDot_(n,CDV,1,x1,1)
+         Call DaXpY_(n,-proj,x1,1,CDV,1)
          r = One / Sqrt(DDot_(n,CDV,1,CDV,1))
          Call DScal_(n,r,CDV,1)
 *
@@ -123,12 +124,12 @@
             Write (6,*) 'r(CDV)=',r
          End IF
 *
-         If (iter.ne.nIter) call dcopy_(n,Work(ipx0),1,Work(ipx1),1)
+         If (iter.ne.nIter) call dcopy_(n,x0,1,x1,1)
 *
       End Do
 *
-      Call Free_Work(ipx1)
-      Call Free_Work(ipx0)
+      Call mma_deallocate(x1)
+      Call mma_deallocate(x0)
       If (iPrint.ge.6) Then
          Call RecPrt('CDV',' ',CDV,n,1)
       End If

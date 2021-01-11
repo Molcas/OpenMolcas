@@ -14,7 +14,7 @@ SUBROUTINE covarMatrix()
   use kriging_mod
   Implicit None
 #include "stdalloc.fh"
-  integer i,j,i0,i1,j0,j1,k
+  integer i,j,i0,i1,j0,j1,k, i_eff, j_eff
   Real*8, Allocatable :: diffx_j(:,:), diffx_i(:,:), matFder(:,:),&
                          matSder(:,:), r(:,:,:), d(:,:)
 !#define _DEBUGPRINT_
@@ -98,11 +98,12 @@ SUBROUTINE covarMatrix()
 !
 ! First line and first column derivative in Psi matrix
 !
-  do i=1,nInter      ! Loop over component of the coordinate to differentiate
+  do i_eff=1,nInter_Eff      ! Loop over component of the coordinate to differentiate
+     i = Index_PGEK(i_eff)
 !
 !   Compute the range of the block in the covariance matrix.
 !
-    i0 = nPoints + 1 + (i-1)*(nPoints-nD)
+    i0 = nPoints + 1 + (i_eff-1)*(nPoints-nD)
     i1 = i0 + (nPoints-nD) - 1
 !
 !   Do an on-the-fly evaluation of the dervative w.r.t x_i
@@ -127,14 +128,16 @@ SUBROUTINE covarMatrix()
   call matderiv(2, d, matSder, nPoints, nPoints)
 !
     ! Second derivatives
-  do i = 1,nInter
-    i0 = nPoints + 1 + (i-1)*(nPoints-nD)
+  do i_Eff = 1,nInter_Eff
+    i = Index_PGEK(i_Eff)
+    i0 = nPoints + 1 + (i_Eff-1)*(nPoints-nD)
     i1 = i0 + (nPoints-nD) - 1
 !
     diffx_i(1+nD:nPoints,1+nD:nPoints) = -2.0D0*r(1+nD:nPoints,1+nD:nPoints,i)/l(i)
 !
-    do j = i,nInter
-      j0 = nPoints + 1 + (j-1)*(nPoints-nD)
+    do j_Eff = i_Eff, nInter_Eff
+      j = Index_PGEK(j_Eff)
+      j0 = nPoints + 1 + (j_Eff-1)*(nPoints-nD)
       j1 = j0 + (nPoints-nD) - 1
 !
       diffx_j(1+nD:nPoints,1+nD:nPoints)  =  2.0D0*r(1+nD:nPoints,1+nD:nPoints,j)/l(j)
@@ -153,8 +156,8 @@ SUBROUTINE covarMatrix()
 
   enddo
 !
-!           Add constants to reflect the error in the energy and the
-!           gradient, respectively.
+! Add constants to reflect the error in the energy and the
+! gradient, respectively.
 !
   do j=1,m_t
     if (j.le.nPoints) then
@@ -164,11 +167,8 @@ SUBROUTINE covarMatrix()
     end if
   end do
 !
-!           defining full_r has strictly positive define sec. 3 of
-!           doi:10.1615/Int.J.UncertaintyQuantification.2013006809
-  ! full_R = abs(full_R)
 #ifdef _DEBUGPRINT_
-  Call RecPrt('full_r Orig:','(14E10.2)',full_R,m_t,m_t)
+  Call RecPrt('The covariance matrix:','(12(2x,E9.3))',full_R,m_t,m_t)
 #endif
 !
   Call mma_deallocate(diffx_j)

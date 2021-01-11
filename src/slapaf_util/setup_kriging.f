@@ -10,13 +10,13 @@
 *                                                                      *
 * Copyright (C) 2020, Roland Lindh                                     *
 ************************************************************************
-      Subroutine SetUp_Kriging(nRaw,nInter,qInt,Grad,Energy,Hessian_HMF)
-      Use kriging_mod, only: blavAI, set_l
-      Use Limbo
+      Subroutine SetUp_Kriging(nRaw,nInter,qInt,Grad,Energy,
+     &                         Hessian_HMF)
+      Use kriging_mod, only: blavAI, set_l, layer_U
       Implicit None
 #include "stdalloc.fh"
 #include "real.fh"
-      Integer nRaw, nInter,i,iInter,jInter,ij, nD
+      Integer nRaw, nInter,i,iInter,jInter,ij
       Real*8 qInt(nInter,nRaw), Grad(nInter,nRaw), Energy(nRaw),
      &       Hessian_HMF(nInter,nInter)
       Real*8 Value_l
@@ -25,11 +25,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call mma_allocate(U,nInter,nInter,Label='U')
+      Call mma_allocate(layer_U,nInter,nInter,Label='layer_U')
 *
-      U(:,:)=Zero
+      layer_U(:,:)=Zero
       Do i=1,nInter
-         U(i,i)=One
+         layer_U(i,i)=One
       End Do
 *
       Call mma_allocate(Hessian,nInter,nInter,Label='Hessian')
@@ -42,10 +42,10 @@
          End Do
       End Do
 *     Call TriPrt('HTri(raw)',' ',HTri,nInter)
-      Call NIDiag_new(HTri,U,nInter,nInter,0)
-*     U(:,:)=Zero
+      Call NIDiag_new(HTri,layer_U,nInter,nInter,0)
+*     layer_U(:,:)=Zero
 *     Do i=1,nInter
-*        U(i,i)=One
+*        layer_U(i,i)=One
 *     End Do
 *     Call TriPrt('HTri',' ',HTri,nInter)
       Hessian(:,:) = Zero
@@ -62,10 +62,11 @@
 *     the kriging hessian reproduce the diagonal value of the HMF
 *     Hessian of the current structure.
 *
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Energy',' ',Energy,1,nRaw)
-      Call RecPrt('qInt',' ',qInt,nInter,nRaw)
-      Call RecPrt('Grad',' ',Grad,nInter,nRaw)
+      Call RecPrt('Setup_kriging: Energy',' ',Energy,1,nRaw)
+      Call RecPrt('Setup_kriging: qInt',' ',qInt,nInter,nRaw)
+      Call RecPrt('Setup_kriging: Grad',' ',Grad,nInter,nRaw)
 #endif
       Call mma_Allocate(Array_l,nInter,Label='Array_l')
       If (Set_l) Then
@@ -83,13 +84,16 @@
 *
 *     Transform to the basis which diagonalizes the HMF Hessian.
 *
-      Call Trans_K(U,qInt,qInt_s,nInter,nRaw)
-      Call Trans_K(U,Grad,Grad_s,nInter,nRaw)
+      Call Trans_K(qInt,qInt_s,nInter,nRaw)
+      Call Trans_K(Grad,Grad_s,nInter,nRaw)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nD=0
-      Call Start_Kriging(nRaw,nD,nInter,qInt_s,Grad_s,Energy)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Setup_kriging: qInt_s',' ',qInt_s,nInter,nRaw)
+      Call RecPrt('Setup_kriging: Grad_s',' ',Grad_s,nInter,nRaw)
+#endif
+      Call Start_Kriging(nRaw,nInter,qInt_s,Grad_s,Energy)
 *
       Call mma_deAllocate(qInt_s)
       Call mma_deAllocate(Grad_s)

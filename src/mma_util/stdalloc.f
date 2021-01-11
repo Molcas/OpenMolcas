@@ -123,6 +123,12 @@
 #undef _DATA_NAME_
 #undef _WITH_LEN_
 
+#define _FUNC_NAME_ l_cptr2loff
+#define _TYPE_ logical
+#include "cptr2loff_template.fh"
+#undef _FUNC_NAME_
+#undef _TYPE_
+
 * type-specific allocation subroutines
 * each #include defines NAME_allo_xD, NAME_allo_xD_lim, and NAME_free_xD
 
@@ -235,6 +241,12 @@
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_
 
+#  define _DIMENSIONS_ 4
+#  define _DEF_LABEL_ 'imma_4D'
+#  include "mma_allo_template.fh"
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+
 #undef _SUBR_NAME_
 #undef _TYPE_
 #undef _DATA_NAME_
@@ -247,6 +259,27 @@
 
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'cmma_1D'
+#  include "mma_allo_template.fh"
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+
+#undef _SUBR_NAME_
+#undef _TYPE_
+
+* logical variants
+* (note that there is no specific _DATA_NAME_ for these)
+
+#define _SUBR_NAME_ lmma
+#define _TYPE_ logical
+
+#  define _DIMENSIONS_ 1
+#  define _DEF_LABEL_ 'lmma_1D'
+#  include "mma_allo_template.fh"
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+
+#  define _DIMENSIONS_ 2
+#  define _DEF_LABEL_ 'lmma_1D'
 #  include "mma_allo_template.fh"
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_
