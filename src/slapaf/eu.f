@@ -79,7 +79,7 @@
 *     mi    :  Used varii                (real*8)
 *
 #include "real.fh"
-      Integer nH, i, j, ij, ii
+      Integer nH, i, j, ij
       Real*8 M(nH,nH), WorkM(nH,nH), E(nH,nH), Evec(nH,nH), H(nH,nH)
       Real*8 dq(nH), u(nH),  v(nH), dg(nH), gi(nH), Eval(nH*(nH+1)/2)
       Real*8 p(nH) , f(nH), WorkV(nH)
@@ -154,10 +154,10 @@
 *     If p(i) = 0 we ignore this mode
          lim  = 0.0000005D0
          if ( p(i).LT.-lim .OR. p(i).GT.lim ) Then
+#ifdef _DEBUGPRINT_
 *
 *     The triangular indexation, ii.
          ii = i*(i+1)/2
-#ifdef _DEBUGPRINT_
 *
 *     Negative sign for the TS-reaction coordinate.
 *     WorkR = (-)f*p
