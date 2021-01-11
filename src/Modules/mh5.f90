@@ -202,7 +202,7 @@ interface mh5_put_attr
   integer :: buffer(*)
   end subroutine
 
-    subroutine mh5_put_attr_array_real (attr_id, buffer)
+  subroutine mh5_put_attr_array_real (attr_id, buffer)
   implicit none
   integer :: attr_id
   real*8 :: buffer(*)

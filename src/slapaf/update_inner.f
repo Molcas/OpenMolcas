@@ -71,9 +71,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Lu=6
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
+      Lu=6
       Write (Lu,*)'Update_inner:iOpt_RS,Beta,Beta_Disp=',
      &                     iOpt_RS,Beta,Beta_Disp
       Call RecPrt('Update_inner: qInt',' ',qInt,nQQ,kIter)
@@ -362,7 +362,6 @@ C           Write (6,*) 'tBeta=',tBeta
          nBVec=iRow_c-nLambda-1
 *
          n1=3*nsAtom
-         n2=n1**2
          Call mma_allocate(BM,n1,nLambda,Label='BM')
          Call mma_allocate(dBM,n1,n1,nLambda,Label='dBM')
 *
@@ -523,7 +522,7 @@ C           Write (6,*) 'tBeta=',tBeta
          Call mma_allocate(Scr2,nQQ*n1*nLambda,Label='Scr2')
          Call mma_allocate(Scr1,nQQ*n1*nLambda,Label='Scr1')
 #ifdef _DEBUGPRINT_
-         Call RecPrt('Update_inner: d^2C/dx^2(dBM)',' ',dBM,n2,
+         Call RecPrt('Update_inner: d^2C/dx^2(dBM)',' ',dBM,n1**2,
      &               nLambda)
 #endif
 *
@@ -545,7 +544,7 @@ C           Write (6,*) 'tBeta=',tBeta
             End Do
          End If
 #ifdef _DEBUGPRINT_
-         Call RecPrt('Update_inner: d^2C/dx^2(dBM)',' ',dBM,n2,
+         Call RecPrt('Update_inner: d^2C/dx^2(dBM)',' ',dBM,n1**2,
      &               nLambda)
 #endif
 *

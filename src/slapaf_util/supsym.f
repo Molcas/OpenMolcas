@@ -97,6 +97,7 @@
 *             move the coordinates so origo is the center of mass.     *
 ************************************************************************
       Real*8 COOR(3,nsAtom), cMass(3)
+      Integer i, j
 *
 *     Calculate the molecular mass.
 *

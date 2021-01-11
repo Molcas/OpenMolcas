@@ -221,7 +221,7 @@
             End If
          Else
             EigVal_r=Zero
-            dqdq_max=Zero
+*           dqdq_max=Zero
          End If
 *
 *        write(Lu,*)

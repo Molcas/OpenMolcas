@@ -15,9 +15,12 @@
 #include "print.fh"
 #include "stdalloc.fh"
       Real*8 H(nH,nH), MF(3,nsAtom)
-      Logical AnalHess, AllowFindTS, Corrected, Too_Small, Found
+      Logical AnalHess, AllowFindTS, Corrected, Found
       Real*8, Allocatable:: EVal(:), LowVal(:), LowVec(:,:), Tmp(:,:),
      &                      FixVal(:), Rx(:,:), Vect(:)
+#ifdef _DEBUGPRINT_
+      Logical Too_Small
+#endif
 *
       iRout=211
       iPrint=nPrint(iRout)
@@ -26,12 +29,12 @@
 #ifdef _DEBUGPRINT_
       Write (6,*) 'AnalHess=',AnalHess
       Call RecPrt('FixHess: H(Start)',' ',H,nH,nH)
+      Lu=6
+      Too_Small=.False.
 #endif
 *
-      Lu=6
       Corrected=.False.
       HTh=1.0d-3
-      Too_Small=.False.
       ZTh=1.0D-12
       HHigh=1.0D0
 *
@@ -124,7 +127,9 @@
          End If
 *        No fixes if the Hessian is analytical
          If (.Not.AnalHess.and.(Abs(temp).lt.HTh)) Then
+#ifdef _DEBUGPRINT_
             Too_Small=.True.
+#endif
             Corrected=.True.
 *
 *           For redundant coordinates we will have some

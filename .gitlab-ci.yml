@@ -348,16 +348,16 @@ test:pgi:
     - tinker
   parallel: 2
 
-build:sun:
-  extends: .sun
-  <<: *compile
-test:sun:
-  extends: .sun
-  <<: *run-tests
-  needs:
-    - build:sun
-    - tinker
-  parallel: 2
+#build:sun:
+#  extends: .sun
+#  <<: *compile
+#test:sun:
+#  extends: .sun
+#  <<: *run-tests
+#  needs:
+#    - build:sun
+#    - tinker
+#  parallel: 2
 
 build:intel:
   extends: .intel

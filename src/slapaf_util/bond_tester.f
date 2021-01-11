@@ -74,7 +74,9 @@ C        If (iAtom.le.jAtom) Cycle Box
          y = Coor(2,iAtom)-Coor(2,jAtom)
          z = Coor(3,iAtom)-Coor(3,jAtom)
          A(:)=Coor(:,iAtom)-Coor(:,jAtom)
+#ifndef _OLD_CODE_
          ANorm = dot_product(A,A)
+#endif
          rij2 = x**2 + y**2 + z**2
          r0 = rAv(iRow,jRow)
          alpha=aAv(iRow,jRow)

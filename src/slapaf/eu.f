@@ -83,13 +83,13 @@
       Real*8 M(nH,nH), WorkM(nH,nH), E(nH,nH), Evec(nH,nH), H(nH,nH)
       Real*8 dq(nH), u(nH),  v(nH), dg(nH), gi(nH), Eval(nH*(nH+1)/2)
       Real*8 p(nH) , f(nH), WorkV(nH)
-      Real*8 WorkR, de, ddot_, lim
+      Real*8 WorkR, ddot_, lim
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *define _DEBUG
 #ifdef _DEBUGPRINT_
-      Real*8 mi
+      Real*8 mi, de
 *     Make a comment in logfile
       write(6,*) 'hello from eu.f'
       Call RecPrt('H matrix',' ',H,nH,nH)
@@ -157,6 +157,7 @@
 *
 *     The triangular indexation, ii.
          ii = i*(i+1)/2
+#ifdef _DEBUGPRINT_
 *
 *     Negative sign for the TS-reaction coordinate.
 *     WorkR = (-)f*p
@@ -169,7 +170,6 @@
                de = 1.0d0
             End If
 *
-#ifdef _DEBUGPRINT_
             mi = Exp(-(1.0d0/2.0d0*Abs(Eval(ii)) * p(i)**2 + WorkR +
      &           f(i)**2 / ( 2.0D0*Abs(Eval(ii)) )) / de) *
      &           Sqrt( Abs(Eval(ii)) / (2.0D0*Pi*de) )
@@ -212,7 +212,6 @@
      &            0.0d0,M,nH)
 #ifdef _DEBUGPRINT_
       Call RecPrt('M-matrix',' ',M,nH,nH)
-#endif
 correct
 *
 *---- Building of error matrix E (equation 5)
@@ -223,7 +222,6 @@ correct
 *     WorkV = M * dq
 *
       WorkR = DDot_(nH,dq,1,dq,1)
-#ifdef _DEBUGPRINT_
       write(6,*)WorkR, " = <dq|dq>, should be one?"
 #endif
       Call DGEMM_('N','N',

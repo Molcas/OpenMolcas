@@ -22,6 +22,6 @@
           complex*16, target, intent(in) :: buffer
         end function
         integer function l_cptr2loff(buffer)
-          logical :: buffer
+          logical, target, intent(in) :: buffer
         end function
       end interface

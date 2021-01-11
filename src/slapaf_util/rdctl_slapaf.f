@@ -1345,7 +1345,7 @@ CGGd: Coherency with patch 7.1.615 !      If (lNmHss) nPrint(122)=10
 *
 *        No micro iterations the first MEP iteration
 *
-         If ((MEP.or.rMEP).and.(iter.eq.1)) miAI=0
+         If ((MEP.or.rMEP).and.(iter.eq.1)) Max_Microiterations=0
 *
 *        Reduce default maximum dispersion during the initial
 *        stage of a FindTS calculation: we don't want to fulfil the

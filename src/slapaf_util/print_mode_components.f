@@ -622,6 +622,7 @@
       Request_RASSI=Bk_Request_RASSI
       ThrEne=Bk_ThrEne
       ThrGrd=Bk_ThrGrd
+      Beta=Bk_Beta
       Beta_Disp=Bk_Beta_Disp
       Delta=Bk_Delta
       Rtrnc=Bk_Rtrnc

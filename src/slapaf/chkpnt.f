@@ -257,7 +257,7 @@
      &               mh5_put_dset, mh5_put_dset_array_real
 #  include "WrkSpc.fh"
 #  include "stdalloc.fh"
-      Integer :: N3, i, j
+      Integer :: i, j
       Logical :: Found
       Real*8, Allocatable :: Hss_X(:)
 
@@ -276,7 +276,6 @@
         End Do
       End If
 
-      N3 = 3*SIZE(Cx,2)
 *     iterations
       Call mh5_put_attr(chkpnt_iter, Iter_all)
 *     energies

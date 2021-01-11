@@ -35,8 +35,7 @@
      &          iStabN(0:7), iChOp(0:7), Indq(3,nB), nqB(nB),
      &          iTabBonds(3,nBonds), iTabAI(2,mAtoms),
      &          iTabAtoms(2,0:nMax,mAtoms), iBM(nB_Tot),idBM(2,ndB_Tot)
-      Logical Process, PSPrint,
-     &        MinBas, Help, Proc_dB, R_Stab_A
+      Logical Process, MinBas, Help, Proc_dB, R_Stab_A
       Character*14 Label, qLbl(nB)
       Character*3 ChOp(0:7)
       Character*(LENIN4) Lbls(3)
@@ -62,10 +61,8 @@
 #endif
 *
       nqA=0
-      PSPrint=.False.
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) PSPrint=.True.
-      If (PSPrint) Write (6,*) ' Enter Bends.'
+      If (iPrint.ge.99) Write (6,*) ' Enter Bends.'
 #endif
       Call FZero(Hess,81)
 *
@@ -155,7 +152,7 @@
      &                'A(',iAtom,',',mAtom,',',jAtom,')'
 *
 #ifdef _DEBUGPRINT_
-               If (PSPrint) Then
+               If (iPrint.ge.99) Then
                   Call RecPrt('A',' ',Cx(1,iAtom,iIter),1,3)
                   Call RecPrt('B',' ',Cx(1,mAtom,iIter),1,3)
                   Call RecPrt('C',' ',Cx(1,jAtom,iIter),1,3)
@@ -174,7 +171,7 @@
                kDCRT=iDCR(3)
 *
 #ifdef _DEBUGPRINT_
-               If (PSPrint) Then
+               If (iPrint.ge.99) Then
                   Write (6,'(10A)') 'U={',
      &                  (ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
                   Write (6,'(10A)') 'V={',
@@ -202,7 +199,7 @@
                End If
 *
 #ifdef _DEBUGPRINT_
-               If (PSPrint) Then
+               If (iPrint.ge.99) Then
                   Write (6,'(10A)') 'N={',
      &                  (ChOp(iStabN(i)),i=0,nStabN-1),'}  '
                End If
@@ -217,7 +214,7 @@
                kDCRR = iDCR(2)
 *
 #ifdef _DEBUGPRINT_
-               If (PSPrint) Then
+               If (iPrint.ge.99) Then
                   Write (6,'(10A)') 'R={',
      &                  (ChOp(iDCRR(i)),i=0,nDCRR-1),'}  '
                   Write (6,'(2A)') 'R=',ChOp(kDCRR)
@@ -235,7 +232,7 @@
      &                    iStabM,nStabM)
 *
 #ifdef _DEBUGPRINT_
-               If (PSPrint) Then
+               If (iPrint.ge.99) Then
                   Write (6,'(10A)') 'M={',
      &                  (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
                End If
@@ -246,7 +243,8 @@
                ideg=nIrrep/nStabM
                Deg=Sqrt(DBLE(iDeg))
 #ifdef _DEBUGPRINT_
-               If (PSPrint) Write (6,*)' nIrrep,nStabM=',nIrrep,nStabM
+               If (iPrint.ge.99) Write (6,*)
+     &            ' nIrrep,nStabM=',nIrrep,nStabM
 #endif
 *
 *------------- Test if coordinate should be included
