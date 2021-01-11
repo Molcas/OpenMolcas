@@ -431,7 +431,7 @@ If (nAux.gt.0) Then
    Do i = 1, nCnttp
       nM1 = dbsc(i)%nM1
       If (nM1.gt.0) Then
-         Call RecPrt('M1xp',' ',dbsc(i)%M1xp,1,nM1)
+!        Call RecPrt('M1xp',' ',dbsc(i)%M1xp,1,nM1)
 !        Call RecPrt('M1cf',' ',dbsc(i)%M1cf,1,nM1)
          rDmp(nAux+1:nAux+nM1,1) = dbsc(i)%M1xp(:)
          nAux = nAux + nM1

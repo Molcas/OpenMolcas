@@ -13,7 +13,6 @@
 #include "print.fh"
 #include "real.fh"
 #include "sbs.fh"
-#include "WrkSpc.fh"
       Real*8 x(3,nAt), y(3,nAt)
       Logical Invar
 *

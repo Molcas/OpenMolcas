@@ -8,24 +8,28 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine PrePro(nLines,iInt,nFix,nAtom,nInter,Coor)
+      Subroutine PrePro(nAtom,Coor)
+      use Slapaf_Info, only: Grd, Atom, nSup, mRowH
+      use Slapaf_Parameters, only: iRow, iInt, nFix, Redundant, nDimBC,
+     &                             lOld, mTROld, lNmHss, lOld_Implicit,
+     &                             iter,
+     &                             iter
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "info_slapaf.fh"
+#include "stdalloc.fh"
 #include "print.fh"
       Real*8 Coor(3,nAtom)
       Logical CofM
+      Real*8, Allocatable:: TR(:)
 *
       iRout=134
       iPrint=nPrint(iRout)
 *
       CofM = Iter.eq.1 .and. lNmHss
-      Call Allocate_Work(ipTR,18*nAtom)
-      Call FZero(Work(ipTR),18*nAtom)
-      Call TRPGen(nDimBC,nAtom,Coor,Degen,Smmtrc,mTR,Work(ipCM),CofM,
-     &            Work(ipTR))
-      Call Free_Work(ipTR)
+      Call mma_allocate(TR,18*nAtom,Label='TR')
+      TR(:)=Zero
+      Call TRPGen(nDimBC,nAtom,Coor,mTR,CofM,TR)
+      Call mma_deallocate(TR)
       If (lNmHss) Then
          If (Iter.eq.1) mTROld=mTR
          If (iter.le.2*(nDimBC-mTROld)+1.and.iter.ne.1)
@@ -35,22 +39,21 @@
       End If
 *
 *-----Operate according to two modes
-*     nLines.gt.0 : user supplied internal coordinates
-*     nLines.le.0 : Cartesian or Internal Coordinates
+*     iRow.gt.0 : user supplied internal coordinates
+*     iRow.le.0 : Cartesian or Internal Coordinates
 *
       nRowH = 0
-      nInter = nDimBC - mTR
-      If (nLines.gt.0) Then
+      If (iRow.gt.0) Then
 *
 *--------Find the number of active and frozen internal coordinates.
 *
-         Call Rd_UDIC(nLines,iInt,nFix,nRowH)
+         Call Rd_UDIC(iInt,nFix,nRowH)
          nQQ=iInt+nFix
          If (nRowH.GT.0) then
-            lRowH=.True.
+            Call mma_allocate(mRowH,nRowH,Label='mRowH')
             Call Rd_UDIC_RowH(nQQ,nRowH,mRowH)
          EndIf
-         If (nQQ.gt.nInter) Redundant=.True.
+         If (nQQ.gt.nDimBC-mTR) Redundant=.True.
 *
       Else
 *
@@ -59,25 +62,18 @@
 *
 *-----Initiate the force constant matrix in internal coordinate
 *     basis, excluding rotation and translation.
-*
-      Call IntFcm(ipH,nQQ,lOld,lOld_Implicit,nAtom,iter)
-*
 *     Write to runfile only on the first iteration and that there
 *     was not an already defined Hessian.
 *
-      If (iter.eq.1.and.lOld) Then
-         Call Put_dArray('Hss_Q',Work(ipH),nQQ**2)
-         Call Put_dArray('Hss_upd',Work(ip_Dummy),0)
-         Call Free_Work(ipH)
-      End If
+      If (iter.eq.1) Call IntFcm(lOld_Implicit)
+      If (.Not.lOld.and.lOld_Implicit) lOld=.True.
 *
 *-----Symmetrize forces
 *
-      If (LSup) Then
-         Call SupSym(Work(ipGrd),nAtom,cMass,Coor,nSupSy,
-     &               iWork(ipNSup),iWork(ipAtom))
-         Call GetMem('iAtom ','Free','Inte',ipAtom,nAtom)
-         Call GetMem(' NSUP ','Free','Inte',ipNSup,nSupSy)
+      If (Allocated(nSup)) Then
+         Call SupSym(Grd,nAtom,Coor,SIZE(nSup),nSup,Atom)
+         Call mma_deallocate(Atom)
+         Call mma_deallocate(nSup)
       End If
 *
       Return

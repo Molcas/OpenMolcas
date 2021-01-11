@@ -11,8 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 *               2008, Giovanni Ghigo                                   *
 ************************************************************************
-      SubRoutine Def_CtoF(lNew,dMass,
-     &                    nAtom,Name,Coor,jStab,nStab)
+      SubRoutine Def_CtoF(lNew)
 ************************************************************************
 *                                                                      *
 *     Author: Giovanni Ghigo, Dep. of General and Organic Chemistry    *
@@ -25,13 +24,13 @@
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "Molcas.fh"
-      Real*8    Coor(3,nAtom), dMass(nAtom)
       Character Labels*8, Type*6, Temp*120,
-     &          Name(nAtom)*(LENIN), Line*120, Format*8, filnam*16
+     &          Line*120, Format*8, filnam*16
       Logical lWrite, lNew
-      Integer nStab(nAtom), jStab(0:7,nAtom)
+      Integer, Allocatable:: Ind(:,:)
+      Real*8, Allocatable:: xyz(:,:), Temp2(:,:), Mass(:,:)
 *
       lWrite = .True.
       Lu=6
@@ -176,20 +175,18 @@ c      iBVct = 0
       End If
 *
       msAtom = nCntr + mCntr
-      Call GetMem('xyz ','Allo','Real',ipxyz ,3*msAtom)
-      Call GetMem('Temp','Allo','Real',ipTemp,3*msAtom)
-      Call GetMem('Ind ','Allo','Inte',ipInd ,2*msAtom)
-      Call GetMem('Mass','Allo','Real',ipMass,2*msAtom)
+      Call mma_allocate(xyz ,3,msAtom,Label='xyz')
+      Call mma_allocate(Temp2,3,msAtom,Label='Temp2')
+      Call mma_allocate(Ind ,2,msAtom,Label='Ind')
+      Call mma_allocate(Mass,2,msAtom,Label='Mass')
 *
-      Call CllCtoF(Line(nGo:nTemp),Name,nAtom,Coor,nCntr,mCntr,
-     &           Work(ipxyz),Work(ipTemp),iWork(ipInd),Type,
-     &           dMass,Work(ipMass),
-     &           Labels,jStab,nStab,nAtom)
+      Call CllCtoF(Line(nGo:nTemp),nCntr,mCntr,xyz,
+     &             Temp2,Ind,Type,Mass,Labels)
 *
-      Call GetMem('Mass','Free','Real',ipMass,2*msAtom)
-      Call GetMem('Ind ','Free','Inte',ipInd ,2*msAtom)
-      Call GetMem('Temp','Free','Real',ipTemp,3*msAtom)
-      Call GetMem('xyz ','Free','Real',ipxyz ,3*msAtom)
+      Call mma_deallocate(Mass)
+      Call mma_deallocate(Ind)
+      Call mma_deallocate(Temp2)
+      Call mma_deallocate(xyz)
 *
       Close(Lu_UDIC)
       Return

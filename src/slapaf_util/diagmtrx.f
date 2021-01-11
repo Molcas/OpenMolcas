@@ -11,11 +11,12 @@
       Subroutine DiagMtrx(H,nH,iNeg)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
       character*16 filnam
       Real*8 H(nH,nH)
       Logical Exist
+      Real*8, Allocatable:: EVal(:), EVec(:), rK(:), qEVec(:)
 *
 
 *
@@ -23,16 +24,16 @@
       iRout=21
       iPrint=nPrint(iRout)
 *
-      Call GetMem('EVal','Allo','Real',ipEVal,nH*(nH+1)/2)
-      Call GetMem('EVec','Allo','Real',ipEVec,nH*nH)
+      Call mma_allocate(EVal,nH*(nH+1)/2,Label='EVal')
+      Call mma_allocate(EVec,nH*nH,Label='EVec')
 *
 *---- Copy elements for H
 *
       SumHii=Zero
       Do i = 1, nH
          Do j = 1, i
-            ij=i*(i-1)/2 + j + ipEval -1
-            Work(ij)=H(i,j)
+            ij=i*(i-1)/2 + j
+            EVal(ij)=H(i,j)
          End Do
          SumHii=SumHii+H(i,i)
       End Do
@@ -40,19 +41,19 @@
 *
 *---- Set up a unit matrix
 *
-      call dcopy_(nH*nH,[Zero],0,Work(ipEVec),1)
-      call dcopy_(nH,[One],0,Work(ipEVec),nH+1)
+      call dcopy_(nH*nH,[Zero],0,EVec,1)
+      call dcopy_(nH,[One],0,EVec,nH+1)
 *
 *---- Compute eigenvalues and eigenvectors
 *
-      Call NIDiag_new(Work(ipEVal),Work(ipEVec),nH,nH,0)
-      Call Jacord(Work(ipEVal),Work(ipEVec),nH,nH)
+      Call NIDiag_new(EVal,EVec,nH,nH,0)
+      Call Jacord(EVal,EVec,nH,nH)
 *
 *---- Print out the result
 *
       iNeg=0
       Do i = 1, nH
-         If (Work(i*(i+1)/2+ipEVal-1).lt.Zero) iNeg=iNeg+1
+         If (EVal(i*(i+1)/2).lt.Zero) iNeg=iNeg+1
       End Do
       IF (iprint.gt.5) THEN
         Write (Lu,*)
@@ -80,27 +81,26 @@ c         Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
 *
          If (nQQ.eq.nH) Then
 *
-           Call GetMem('rK','Allo','Real',iprK,nq*nQQ)
-           Call GetMem('qEVec','Allo','Real',ipqEVec,nq*nH)
+           Call mma_allocate(rK,nq*nQQ,Label='rK')
+           Call mma_allocate(qEVec,nq*nH,Label='qEVec')
 *
-           Call Print_qEVec(Work(ipEVec),nH,ipEVal,nq,
-     &                      Work(iprK),Work(ipqEVec),LuTmp)
+           Call Print_qEVec(EVec,nH,EVal,nq,rK,qEVec,LuTmp)
 *
-           Call GetMem('qEVec','Free','Real',ipqEVec,nq*nH)
-           Call GetMem('rK','Free','Real',iprK,nq*nQQ)
+           Call mma_deallocate(qEVec)
+           Call mma_deallocate(rK)
 *
          Else
 *
            Write (Lu,*)
            Write (Lu,*) 'Eigenvalues of the Hessian'
            Write (Lu,*)
-           Write (Lu,'(1X,10F10.5)') (Work(i*(i+1)/2+ipEVal-1),i=1,nH)
+           Write (Lu,'(1X,10F10.5)') (EVal(i*(i+1)/2),i=1,nH)
            Write (Lu,*)
            Write (Lu,*) 'Eigenvectors of the Hessian'
            Write (Lu,*)
            Do i = 1, nH
               Write (Lu,'(1X,10F10.5)')
-     &              (Work((j-1)*nH+i+ipEVec-1),j=1,nH)
+     &              (EVec((j-1)*nH+i),j=1,nH)
            End Do
          End If
 *
@@ -108,23 +108,22 @@ c         Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
 *
       Else If (iprint.gt.5) Then
 *
-        Call Print_qEVec2(nH,ipEVal,Work(ipEVec))
+         Call Print_qEVec2(nH,EVal,EVec)
 *
       End If
 *
-      Call GetMem('EVec','Free','Real',ipEVec,nH*nH)
-      Call GetMem('EVal','Free','Real',ipEVal,nH*(nH+1)/2)
+      Call mma_deallocate(EVec)
+      Call mma_deallocate(EVal)
 *
       Return
       End
 
 
-      Subroutine Print_qEVec(EVec,nH,ipEVal,nq,rK,qEVec,LuTmp)
+      Subroutine Print_qEVec(EVec,nH,EVal,nq,rK,qEVec,LuTmp)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
-      Real*8 EVec(nH,nH), rK(nq,nH), qEVec(nq,nH)
-      Character*14 qLbl(nq)
+      Real*8 EVec(nH,nH), rK(nq,nH), qEVec(nq,nH), EVal(nH*(nH+1)/2)
+      Character(LEN=14) qLbl(nq)
 *
       Do iq = 1, nq
          Read (LuTmp) qLbl(iq),(rK(iq,iQQ),iQQ=1,nH)
@@ -144,7 +143,7 @@ c         Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
          Write (Lu,*)
          Write (Lu,'(14X,5I10)') (iQQ,iQQ=iiQQ,mQQ)
          Write (Lu,'(1X,A,5F10.6)') 'Eigenvalues   ',
-     &               (Work(iQQ*(iQQ+1)/2+ipEVal-1),iQQ=iiQQ,mQQ)
+     &               (EVal(iQQ*(iQQ+1)/2),iQQ=iiQQ,mQQ)
          Write (Lu,*)
          Do iq = 1, nq
             temp=Sqrt(DDot_(nH,qEVec(iq,1),nq,qEVec(iq,1),nq))
@@ -158,13 +157,12 @@ c         Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
       Return
       End
 
-      Subroutine Print_qEVec2(nH,ipEVal,EVec)
+      Subroutine Print_qEVec2(nH,EVal,EVec)
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-      Real*8 EVec(nH,nH)
-      Character*14 qLbl(nH)
-      Character*14 cLbl
-      Character*120 Temp
+      Real*8 EVec(nH,nH), EVal(nH*(nH+1)/2)
+      Character(LEN=14) qLbl(nH)
+      Character(LEN=14) cLbl
+      Character(LEN=120) Temp
 *
 * --- Skip Primitive Coords
 *
@@ -198,7 +196,7 @@ c         Open(luTmp,File=filnam,Form='unformatted',Status='unknown')
          Write (Lu,*)
          Write (Lu,'(14X,5I10)') (iQQ,iQQ=iiQQ,mQQ)
          Write (Lu,'(1X,A,5F10.6)') 'Eigenvalues   ',
-     &               (Work(iQQ*(iQQ+1)/2+ipEVal-1),iQQ=iiQQ,mQQ)
+     &               (EVal(iQQ*(iQQ+1)/2),iQQ=iiQQ,mQQ)
          Write (Lu,*)
          Do iq = 1, nH
              Write (Lu,'(1X,A,5F10.6)') qLbl(iq),

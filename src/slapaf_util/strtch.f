@@ -80,6 +80,5 @@
          End Do
 *
       End If
-*     Call GetMem('Exit Strtch','Chec','Real',ipMass,2*msAtom)
       Return
       End

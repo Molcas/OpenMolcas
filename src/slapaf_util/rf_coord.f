@@ -9,27 +9,26 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine RF_Coord(
-     &                 nq,nAtoms,iIter,nIter,Cx,jStab,
-     &                 nStab,nDim,Smmtrc,Process,Value,
-     &                 nB,iANr,qLbl,iRef,fconst,
-     &                 rMult,LuIC,Indq,dMass,iCoSet,
+     &                 nq,nsAtom,iIter,nIter,Cx,
+     &                 Process,Value,
+     &                 nB,qLbl,iRef,fconst,
+     &                 rMult,LuIC,Indq,
      &                 Proc_dB,mB_Tot,mdB_Tot,
      &                 BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
       use Symmetry_Info, only: nIrrep, iOper
+      use Slapaf_Info, only: nStab, iCoSet, dMass
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "stdalloc.fh"
 #include "real.fh"
 #include "sbs.fh"
 #include "print.fh"
-      Real*8 Cx(3,nAtoms,nIter),
-     &       dMass(nAtoms), fconst(nB), Value(nB,nIter), rMult(nB),
+      Real*8 Cx(3,nsAtom,nIter), fconst(nB), Value(nB,nIter), rMult(nB),
      &       Trans(3), RotVec(3), RotMat(3,3),
      &       BM(nB_Tot), dBM(ndB_Tot)
-      Integer   nStab(nAtoms), iCoSet(0:7,nAtoms),
-     &          jStab(0:7,nAtoms), nqB(nB),
-     &          iANr(nAtoms), Indq(3,nB), iBM(nB_Tot), idBM(2,ndB_Tot)
-      Logical Smmtrc(3,nAtoms), Process, PSPrint,
+      Integer   nqB(nB),
+     &          Indq(3,nB), iBM(nB_Tot), idBM(2,ndB_Tot)
+      Logical Process, PSPrint,
      &        TransVar, RotVar, Proc_dB, Invariant
       Character*3 TR_type(6)
       Character*14 Label, qLbl(nB)
@@ -39,7 +38,6 @@
      &                                       dRVdxyz, Hess
       Real*8, Dimension(:,:,:), Allocatable :: d2RV
       Integer, Dimension(:), Allocatable :: Ind, iDCR
-      Dimension dum(1)
       Data TR_type/'Tx ','Ty ','Tz ','Ryz','Rzx','Rxy'/
 *
       iRout=151
@@ -59,7 +57,7 @@
 *---- Find nCent and allocate
 *
       nCent=0
-      Do iAtom = 1, nAtoms
+      Do iAtom = 1, nsAtom
          nCent=nCent+nIrrep/nStab(iAtom)
       End Do
       mB = nCent*3
@@ -75,7 +73,7 @@
 *---- Find index of RF center (origin), etc
 *
       iCent=0
-      Do iAtom = 1, nAtoms
+      Do iAtom = 1, nsAtom
 *
          Do i = 0, nIrrep/nStab(iAtom)-1
             iCent = iCent + 1
@@ -94,7 +92,7 @@
       Fact=One
       If (.Not.RotVar) Fact=2.0D-2
 *
-*     Write (6,*) 'nCent,nDim=',nCent,nDim
+*     Write (6,*) 'nCent=',nCent
 *     Write (6,*) (Ind(iCent),iCent=1,nCent)
 *
       TMass = Zero
@@ -170,8 +168,8 @@ C           fconst(nq)=Sqrt(Fact*Trans_Const)
 *
 *--------   Project the gradient vector
 *
-            Call ProjSym(nAtoms,nCent,Ind,nStab,jStab,currXYZ,
-     &                   iDCR,Grad,Smmtrc,nDim,PSPrint,
+            Call ProjSym(nCent,Ind,currXYZ,
+     &                   iDCR,Grad,
      &                   Hess,mB_Tot,mdB_Tot,
      &                   BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                   Proc_dB,nqB,nB,nq,rMult(nq))
@@ -195,7 +193,7 @@ C     Write (6,*) 'RotVar=',RotVar
       Call mma_allocate(d2RV,3,3*nCent,3*nCent,label='d2RV')
 C     Call RecPrt('xMass',' ',xMass,1,nMass)
       Call RotDer(nMass,xMass,currXYZ,ref123,trans,RotAng,
-     &            RotVec,RotMat,nOrder,dRVdXYZ,d2RV,dum,dum)
+     &            RotVec,RotMat,nOrder,dRVdXYZ,d2RV)
 C     Call RecPrt('RotVec',' ',RotVec,1,3)
 C     Call RecPrt('RotMat',' ',RotMat,3,3)
 C     Call RecPrt('dRVdXYZ',' ',dRVdXYZ,3,3*nMass)
@@ -258,8 +256,8 @@ C        Call RecPrt('Grad (Rot)',' ',Grad,3,nCent)
 *
 *--------   Project the gradient vector
 *
-            Call ProjSym(nAtoms,nCent,Ind,nStab,jStab,currXYZ,
-     &                   iDCR,Grad,Smmtrc,nDim,PSPrint,
+            Call ProjSym(nCent,Ind,currXYZ,
+     &                   iDCR,Grad,
      &                   Hess,mB_Tot,mdB_Tot,
      &                   BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,
      &                   Proc_dB,nqB,nB,nq,rMult(nq))
@@ -284,6 +282,4 @@ C     Write (6,*) 'nqRF=',nqRF
       Call mma_deallocate(Hess)
  99   Continue
       Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer_array(iANr)
       End

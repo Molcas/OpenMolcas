@@ -9,5 +9,5 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Logical NADC,EDiffZero,ApproxNADC
-      Integer ipNADC,iState(2)
-      Common /Common_NADC/NADC,ipNADC,EDiffZero,iState,ApproxNADC
+      Integer iState(2)
+      Common /Common_NADC/NADC,EDiffZero,iState,ApproxNADC

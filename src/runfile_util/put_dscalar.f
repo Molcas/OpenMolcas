@@ -135,7 +135,7 @@
          RecLab( 26)='LDF Accuracy    '
          RecLab( 27)='NAD dft energy  '
          RecLab( 28)='GradLim         '
-         RecLab( 29)='StepFactor      '
+         RecLab( 29)='                ' ! Free slot
          RecLab( 30)='Average energy  '
          RecLab( 31)='Timestep        '
          RecLab( 32)='MD_Etot         '
