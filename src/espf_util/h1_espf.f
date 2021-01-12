@@ -199,7 +199,8 @@
       End If
       iQMchg = 1
       If (First .and. Do_DFT) UpdateVMM = .True.
-      If (UpdateVMM) Call RunTinker(natom,ipCord,ipMltp,ipIsMM,MltOrd,
+      If (UpdateVMM) Call RunTinker(natom,ipCord,ipMltp,iWork(ipIsMM),
+     &                              MltOrd,
      &                    DynExtPot,iQMchg,natMM,StandAlone,DoDirect)
 *
 * Read the MM electrostatic potential (and derivatives) from PotFile

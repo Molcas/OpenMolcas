@@ -48,7 +48,8 @@
       Real*8 FX(3)
       Real*8, Allocatable, Dimension(:,:) :: EnergyArray, GradArray,
      &                                       OldGrads
-      Real*8, Allocatable, Dimension(:) :: Grad, GNew
+      Real*8, Allocatable:: Grad(:), GNew(:), MMGrd(:,:)
+      Integer, Allocatable:: IsMM(:)
       Integer rc, Read_Grad
       External Read_Grad
       Parameter (ToHartree = CONV_CAL_TO_J_ /
@@ -160,15 +161,15 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *
       nAtMM = 0
       If (DoTinker) Then
-         Call GetMem('IsMM for atoms','Allo','Inte',ipIsMM,natoms)
-         Call MMCount(nAtoms,nAtMM,iWork(ipIsMM))
+         Call mma_allocate(IsMM,nAtoms,Label='IsMM')
+         Call MMCount(nAtoms,nAtMM,IsMM)
          If (nAtMM .gt. 0) Then
             iQMChg = 0
             StandAlone = .False.
-            Call RunTinker(nAtoms,ipCoor,ipMltp,ipIsMM,MltOrd,
+            Call RunTinker(nAtoms,ipCoor,ipMltp,IsMM,MltOrd,
      &               DynExtPot,iQMchg,iBlabla,StandAlone,DoDirect)
-            Call Allocate_Work(ipMMGrd,3*nAtoms)
-            Call FZero(Work(ipMMGrd),3*nAtoms)
+            Call mma_allocate(MMGrd,3,nAtoms,Label='MMGrd')
+            MMGrd(:,:)=Zero
             ITkQMMM=IsFreeUnit(15)
             Call Molcas_Open(ITkQMMM,'QMMM')
             Line = ' '
@@ -177,14 +178,13 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
                If (Index(Line,'MMGradient') .ne. 0) Then
                   Call Get_I1(2,iAtom)
                   Call Get_F(3,FX,3)
-                  If (iWork(ipIsMM+iAtom-1) .eq. 1)
-     &                Call dCopy_(3,FX,1,Work(ipMMGrd+3*(iAtom-1)),1)
+                  If (IsMM(iAtom) .eq. 1) MMGrd(:,iAtom)=FX(:)
                End If
             End Do
-            Call DScal_(3*nAtoms,Angstrom*ToHartree,Work(ipMMGrd),1)
+            Call DScal_(3*nAtoms,Angstrom*ToHartree,MMGrd,1)
             Close(ITkQMMM)
-            If (iPL_Save .ge. 3) Call RecPrt('MM Grad:',' ',
-     &                                      Work(ipMMGrd),3,nAtoms)
+            If (iPL_Save .ge. 3) Call RecPrt('MM Grad:',' ',MMGrd,3,
+     &                                       nAtoms)
          End If
          If (ipMltp .ne. ip_Dummy) Call Free_Work(ipMltp)
       End If
@@ -322,7 +322,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *
 *           If this is a MM atom, don't make displacements
 *
-            If (DoTinker .and. iWork(ipIsMM+i-1) .eq. 1)
+            If (DoTinker .and. IsMM(i) .eq. 1)
      &        Call IZero(iDispXYZ,3)
             DispX=iDispXYZ(1).ne.0
             DispY=iDispXYZ(2).ne.0
@@ -990,7 +990,7 @@ C_MPP End Do
 *        Add the MM contribution for MM atoms
 *
          If (nAtMM .ne. 0) Then
-            call daxpy_(3*nAtoms,One,Work(ipMMGrd),1,Work(ipTmp),1)
+            call daxpy_(3*nAtoms,One,MMGrd,1,Work(ipTmp),1)
          End If
 *
 *        Apply Morokuma's scheme if needed
@@ -1043,8 +1043,8 @@ C_MPP End Do
       Call mma_Deallocate(Grad)
       Call Free_Work(ipCoor)
       Call Free_Work(ipEnergies_Ref)
-      If (DoTinker) Call Free_Work(ipIsMM)
-      If (nAtMM.gt.0) Call Free_Work(ipMMGrd)
+      If (DoTinker) Call mma_deallocate(IsMM)
+      If (nAtMM.gt.0) Call mma_deallocate(MMGrd)
 *
 *     Since Numerical_Gradient itself cleans up after the modules
 *     then it's necessary to force nfld_tim and nfld_stat to zero,
