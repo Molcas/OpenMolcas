@@ -238,7 +238,6 @@
       If (DoDirect) Then
          Write(ITkPot,'(I10,1X,I2)') nMMq,0
          Do iq = 1, nMMq
-            ibla = iMMqx+(iq-1)*4
             MMqx(1:3,iq)= MMqx(1:3,iq) * Angstrom
             Write(ITkPot,'(4F15.8)') MMqx(1:4,iq)
          End Do
