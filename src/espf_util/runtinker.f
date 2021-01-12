@@ -8,9 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,
-     &                     DynExtPot,iQMChg,nAtMM,StandAlone,
-     &                     DoDirect)
+      Subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,DynExtPot,
+     &                     iQMChg,nAtMM,StandAlone,DoDirect)
       Use Para_Info, Only: MyRank
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
@@ -20,13 +19,22 @@
 #include "espf.fh"
 #include "stdalloc.fh"
 *
-      Integer, Intent(In):: nAtom, IsMM(nAtom)
+      Integer, Intent(In):: nAtom
       Real*8, Intent(In):: Cord(3,nAtom)
+      Integer, Intent(In):: ipMltp
+      Integer, Intent(In):: IsMM(nAtom)
+      Integer, Intent(In):: MltOrd
+      Logical, Intent(InOut):: DynExtPot
+      Integer, Intent(In):: iQMChg
+      Integer, Intent(InOut):: nAtMM
+      Logical, Intent(In):: StandAlone
+      Logical, Intent(In):: DoDirect
+
       Character*180 Line
       Character*180 Get_Ln
       Character*12 ExtPotFormat
       Character*256 TkLine
-      Logical DynExtPot,lFirst,StandAlone,DoDirect
+      Logical lFirst
       Integer RC
       Real*8, Allocatable:: Mull(:), LPC(:), ESPF(:,:), MMqx(:,:)
 1000  Format('Molcas  ',i2,2x,i2)
