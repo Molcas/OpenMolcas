@@ -1284,7 +1284,8 @@ c Simplistic validity check for value
 *     This will also automatically activate finite nuclear mass
 *     correction.
 *
-      KWord=BSLbl(1:Indx-1)
+      KWord=''
+      KWord(1:Indx-1)=BSLbl(1:Indx-1)
       Call UpCase(KWord)
       If (INDEX(KWord,'MUONIC').ne.0) Then
          dbsc(nCnttp)%fMass=
