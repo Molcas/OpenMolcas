@@ -50,6 +50,8 @@
      &                                       OldGrads
       Real*8, Allocatable:: Grad(:), GNew(:), MMGrd(:,:)
       Integer, Allocatable:: IsMM(:)
+      Real*8, Allocatable:: BMtrx(:,:), TMtrx(:,:), Coor(:,:),
+     &                      Energies_Ref(:)
       Integer rc, Read_Grad
       External Read_Grad
       Parameter (ToHartree = CONV_CAL_TO_J_ /
@@ -93,7 +95,7 @@
          nRoots = 1
          iRoot  = 1
       End If
-      Call Allocate_Work(ipEnergies_Ref,nRoots)
+      Call mma_allocate(Energies_Ref,nRoots,Label='Energies_Ref')
 C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
       If (iRoot .gt. nRoots) Then
          Write(LuWr,*)
@@ -108,16 +110,16 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 ************************************************************************
 *                                                                      *
       If (nRoots .gt. 1) Then
-         Call Get_dArray('Last energies',Work(ipEnergies_Ref),nRoots)
+         Call Get_dArray('Last energies',Energies_Ref,nRoots)
       Else
-         Call Get_dScalar('Last energy',Work(ipEnergies_Ref+iRoot-1))
+         Call Get_dScalar('Last energy',Energies_Ref(iRoot))
       End If
       Call Get_iScalar('Unique atoms',nAtoms)
-      Call Allocate_Work(ipCoor,3*nAtoms)
+      Call mma_allocate(Coor,3,nAtoms,Label='Coor')
       Call Get_cArray('Unique Atom Names',AtomLbl,LENIN*nAtoms)
-      Call Get_dArray('Unique Coordinates',Work(ipCoor),3*nAtoms)
+      Call Get_dArray('Unique Coordinates',Coor,3*nAtoms)
       If (iPL_Save.ge.3)
-     &     Call RecPrt('Original coordinates',' ',Work(ipCoor),3,nAtoms)
+     &     Call RecPrt('Original coordinates',' ',Coor,3,nAtoms)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -166,7 +168,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
          If (nAtMM .gt. 0) Then
             iQMChg = 0
             StandAlone = .False.
-            Call RunTinker(nAtoms,ipCoor,ipMltp,IsMM,MltOrd,
+            Call RunTinker(nAtoms,Coor,ipMltp,IsMM,MltOrd,
      &               DynExtPot,iQMchg,iBlabla,StandAlone,DoDirect)
             Call mma_allocate(MMGrd,3,nAtoms,Label='MMGrd')
             MMGrd(:,:)=Zero
@@ -208,22 +210,26 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
          Call Get_iScalar('No of Internal Coordinates',mInt)
          Call Get_iScalar('nLambda',nLambda)
          nBMtrx=(3*nAtoms)*mInt
-         Call GetMem('BMtrx','Allo','Real',ip_BMtrx,nBMtrx)
-         Call GetMem('TMtrx','Allo','Real',ip_TMtrx,mInt**2)
-         Call Get_dArray('BMtrx',Work(ip_BMtrx),nBMtrx)
-         Call Get_dArray('T-Matrix',Work(ip_TMtrx),mInt**2)
+         Call mma_allocate(BMtrx,3*nAtoms,mInt,Label='BMtrx')
+         Call mma_allocate(TMtrx,mInt,mInt,Label='TMtrx')
+         Call Get_dArray('BMtrx',BMtrx,SIZE(BMtrx))
+         Call Get_dArray('T-Matrix',TMtrx,mInt**2)
       Else
          NMCart=.FALSE.
          External_Coor_List=.False.
          mInt=3*nAtoms
          nLambda=0
          nBMtrx=(3*nAtoms)**2
-         Call GetMem('BMtrx','Allo','Real',ip_BMtrx,nBMtrx)
-         Call GetMem('TMtrx','Allo','Real',ip_TMtrx,mInt**2)
-         Call FZero(Work(ip_BMtrx),nBMtrx)
-         call dcopy_(3*nAtoms,[One],0,Work(ip_BMtrx),3*nAtoms+1)
-         Call FZero(Work(ip_TMtrx),mInt**2)
-         call dcopy_(mInt,[One],0,Work(ip_TMtrx),mInt+1)
+         Call mma_allocate(BMtrx,3*nAtoms,3*nAtoms,Label='BMtrx')
+         Call mma_allocate(TMtrx,mInt,mInt,Label='TMtrx')
+         BMtrx(:,:)=Zero
+         Do i = 1, 3*nAtoms
+            BMtrx(i,i)=One
+         End Do
+         TMtrx(:,:)=Zero
+         Do i = 1, mInt
+            TMtrx(i,i)=One
+         End Do
       End If
 *                                                                      *
 ************************************************************************
@@ -244,8 +250,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
             Write (LuWr,*)
             Write (LuWr,'(A,A,A)')
      &    ' Numerical_Gradient: Original ',Method,' Energies:'
-            Write (LuWr,'(G21.14)')
-     &    (Work(ipEnergies_Ref+i-1),i=1,nRoots)
+            Write (LuWr,'(G21.14)') Energies_Ref(:)
             Write (LuWr,*)
          End If
       Else
@@ -298,7 +303,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *
 *           Find the stabilizer of this center
 *
-            iChxyz=iChAtm(Work(ipCoor+(i-1)*3))
+            iChxyz=iChAtm(Coor(:,i))
             Call Stblz(iChxyz,nStab,jStab,MaxDCR,iCoSet)
 *
             Call IZero(iDispXYZ,3)
@@ -327,9 +332,9 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
             DispX=iDispXYZ(1).ne.0
             DispY=iDispXYZ(2).ne.0
             DispZ=iDispXYZ(3).ne.0
-            x0= Work(ipCoor+(i-1)*3  )
-            y0= Work(ipCoor+(i-1)*3+1)
-            z0= Work(ipCoor+(i-1)*3+2)
+            x0= Coor(1,i)
+            y0= Coor(2,i)
+            z0= Coor(3,i)
 *
 *           Find the shortest distance to another atom!
 *
@@ -354,7 +359,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
       Call Allocate_Work(ipDeg,3*nAtoms)
       Call FZero(Work(ipDeg),3*nAtoms)
       Do i = 1, nAtoms
-         rDeg=DBLE(iDeg(Work(ipCoor+(i-1)*3)))
+         rDeg=DBLE(iDeg(Coor(:,i)))
          Work(ipDeg+(i-1)*3  )=rDeg
          Work(ipDeg+(i-1)*3+1)=rDeg
          Work(ipDeg+(i-1)*3+2)=rDeg
@@ -377,7 +382,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *--------   Modify the geometry
 *
             jpXYZ = ipXYZ + (mDisp-1)*3*nAtoms
-            call dcopy_(3*nAtoms,Work(ipCoor),1,Work(jpXYZ),1)
+            call dcopy_(3*nAtoms,Coor,1,Work(jpXYZ),1)
             Sign=One
             If (Mod(iDisp,2).eq.0) Sign=-One
             Work(jpXYZ+icoor-1) = Work(jpXYZ+icoor-1)
@@ -406,8 +411,8 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *     If (iPL_Save.ge.3) iPl_Base=iPL_Save
 *
 #ifdef _DEBUGPRINT_
-      Call RecPrt('BMtrx',' ',Work(ip_BMtrx),3*nAtoms,mInt)
-      Call RecPrt('TMtrx',' ',Work(ip_TMtrx),mInt,mInt)
+      Call RecPrt('BMtrx',' ',BMtrx,3*nAtoms,mInt)
+      Call RecPrt('TMtrx',' ',TMtrx,mInt,mInt)
       Call RecPrt('Degeneracy vector',' ',Work(ipDeg),3,nAtoms)
       Call RecPrt('Coordinate List',' ',Work(ipXYZ),3*nAtoms,mDisp)
 #endif
@@ -882,10 +887,10 @@ C_MPP End Do
       End If
       Call Allocate_Work(ipTmp2,nDisp)
       Do iR=1,nRoots
-        Call Eq_Solver('N',3*nAtoms,nDisp,1,Work(ip_BMtrx),.True.,
+        Call Eq_Solver('N',3*nAtoms,nDisp,1,BMtrx,.True.,
      &                 Work(ip_Dummy),OldGrads(1,iR),Work(ipTmp2))
         Call FZero(OldGrads(1,iR),3*nAtoms)
-        Call Eq_Solver('N',nDisp,nDisp,1,Work(ip_TMtrx),.True.,
+        Call Eq_Solver('N',nDisp,nDisp,1,TMtrx,.True.,
      &                 Work(ip_Dummy),Work(ipTmp2),OldGrads(1,iR))
       End Do
       Call Free_Work(ipTmp2)
@@ -932,7 +937,7 @@ C_MPP End Do
 *              the one which is most likely to be correct.
 *
                If (Abs(Grad(iR)).gt.1.0D-1) Then
-                  Energy_Ref=Work(ipEnergies_Ref+iR-1)
+                  Energy_Ref=Energies_Ref(iR)
                   Grada= (Eplus-Energy_Ref)/Disp
                   Gradb= (Energy_Ref-EMinus)/Disp
                   If (Abs(Grad(iR)/Grada).gt.1.5D0 .or.
@@ -951,7 +956,7 @@ C_MPP End Do
 *
       End Do
 *     Call RecPrt('Grads (old)',' ',OldGrads,3*nAtoms,nRoots)
-*     Call RecPrt('BMtrx',' ',Work(ip_BMtrx),3*nAtoms,nDisp)
+*     Call RecPrt('BMtrx',' ',BMtrx,3*nAtoms,nDisp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -967,14 +972,14 @@ C_MPP End Do
 *        format.
 *
          Call DGEMM_('N','N',nDisp,1,nDisp,
-     &               1.0D0,Work(ip_TMtrx),nDisp,
+     &               1.0D0,TMtrx,nDisp,
      &                     GradArray(1,iR),nDisp,
      &               0.0D0,Work(ipTmp2),nDisp)
 *
 *        Transform internal coordinates to Cartesian.
 *
          Call DGEMM_('N','N',3*nAtoms,1,nDisp,
-     &               1.0d0,Work(ip_BMtrx),3*nAtoms,
+     &               1.0d0,BMtrx,3*nAtoms,
      &                     Work(ipTmp2),nDisp,
      &               0.0d0,Work(ipTmp),3*nAtoms)
 *        Call RecPrt('Tmp',' ',Work(ipTmp),3,nAtoms)
@@ -1035,14 +1040,14 @@ C_MPP End Do
       Call Free_Work(ipDeg)
       Call Free_Work(ipDisp)
       Call Free_Work(ipAll)
-      Call GetMem('TMtrx','Free','Real',ip_TMtrx,nDisp**2)
-      Call GetMem('BMtrx','Free','Real',ip_BMtrx,nBMtrx)
+      Call mma_Deallocate(TMtrx)
+      Call mma_Deallocate(BMtrx)
       Call mma_Deallocate(EnergyArray)
       Call mma_Deallocate(GradArray)
       Call mma_Deallocate(OldGrads)
       Call mma_Deallocate(Grad)
-      Call Free_Work(ipCoor)
-      Call Free_Work(ipEnergies_Ref)
+      Call mma_deallocate(Coor)
+      Call mma_deallocate(Energies_Ref)
       If (DoTinker) Call mma_deallocate(IsMM)
       If (nAtMM.gt.0) Call mma_deallocate(MMGrd)
 *

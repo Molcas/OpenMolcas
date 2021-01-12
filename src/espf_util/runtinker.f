@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine RunTinker(nAtom,ipCord,ipMltp,IsMM,MltOrd,
+      Subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,
      &                     DynExtPot,iQMChg,nAtMM,StandAlone,
      &                     DoDirect)
       Use Para_Info, Only: MyRank
@@ -21,6 +21,7 @@
 #include "stdalloc.fh"
 *
       Integer, Intent(In):: nAtom, IsMM(nAtom)
+      Real*8, Intent(In):: Cord(3,nAtom)
       Character*180 Line
       Character*180 Get_Ln
       Character*12 ExtPotFormat
@@ -59,7 +60,7 @@
           Write(ITkQMMM,1000) iRelax,MltOrd/4
         End If
         Do iAtom = 1, nAtom
-          Write(ITkQMMM,1010)(Work(ipCord+(iAtom-1)*3+K)*Angstrom,K=0,2)
+          Write(ITkQMMM,1010) Cord(:,iAtom)
         End Do
         If (.not.lFirst) Then
           Write(ITkQMMM,'(A)') 'Multipoles'

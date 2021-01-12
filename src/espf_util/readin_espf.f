@@ -381,7 +381,8 @@ ctmp
          DoTinker = DoTinker_old
          DoGromacs = DoGromacs_old
          iQMChg = 0
-         If (DoTinker) Call RunTinker(natom,ipCord,ipMltp,iWork(ipIsMM),
+         If (DoTinker) Call RunTinker(natom,Work(ipCord),ipMltp,
+     &                                iWork(ipIsMM),
      &               MltOrd,DynExtPot,iQMchg,natMM,StandAlone,DoDirect)
 #ifdef _GROMACS_
          If (DoGromacs) Call RunGromacs(natom,Work(ipCord),ipMltp,
@@ -409,7 +410,8 @@ ctmp
 * External potential read from a file
 *
       Else If (nChg .eq. -1) Then
-         If (DoTinker) Call RunTinker(natom,ipCord,ipMltp,iWork(ipIsMM),
+         If (DoTinker) Call RunTinker(natom,Work(ipCord),ipMltp,
+     &                                iWork(ipIsMM),
      &                  MltOrd,DynExtPot,iQMChg,natMM,StandAlone,
      &                  DoDirect)
 #ifdef _GROMACS_
