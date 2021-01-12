@@ -16,17 +16,17 @@
       module CI_solver_util
 #ifdef _MOLCAS_MPP_
       use mpi
+      use definitions, only: MPIInt
+      use Para_Info, only: Is_Real_Par
 #endif
-      use definitions, only: wp, MPIInt
+      use Para_Info, only: MyRank
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_data, only: lRoots, nRoots, iAdr15,
-     &                       iRoot, Weight, nAc, nAcPar, nAcpr2
+      use rasscf_data, only: iAdr15, nAc, nAcPar, nAcpr2
       use general_data, only: JobIPH
       implicit none
       private
       public :: wait_and_read, RDM_to_runfile,
      &      cleanMat
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
       integer(MPIInt) :: error
@@ -89,13 +89,12 @@
       subroutine RDM_to_runfile(DMAT, D1S_MO, PSMAT, PAMAT)
         real*8, intent(in) :: DMAT(nAcpar), D1S_MO(nAcPar),
      &                        PSMAT(nAcpr2), PAMAT(nAcpr2)
-        integer :: iDisk, jDisk
+        integer :: jDisk
 
 ! Put it on the RUNFILE
         call Put_D1MO(DMAT,NACPAR)
         call Put_P2MO(PSMAT,NACPR2)
 ! Save density matrices on disk
-        iDisk = IADR15(4)
         jDisk = IADR15(3)
         call DDafile(JOBIPH, 1, DMAT, NACPAR, jDisk)
         call DDafile(JOBIPH, 1, D1S_MO, NACPAR, jDisk)
@@ -130,15 +129,13 @@
 
       real*8, intent(inout) :: MAT(NacPar)
       real*8, allocatable :: EVC(:), Tmp(:), Tmp2(:), MAT_copy(:)
-      integer :: rc, i, j
+      integer :: i, j
       real*8 :: trace
       character(len=12), parameter :: routine = 'CleanMat'
       logical :: cleanup_required
 
 
-      rc = 0
       If (nacpar .lt. 1) then
-        rc= -1
         write(6,*) 'matrix size < 1.'
         Go To 10
       end if

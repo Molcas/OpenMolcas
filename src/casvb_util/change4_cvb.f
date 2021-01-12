@@ -8,13 +8,19 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine change4_cvb()
       implicit real*8 (a-h,o-z)
       logical changed
       logical ndres_ok
-#include "ext_cvb.fh"
+c ... Files/Hamiltonian available ...
+      logical, external :: ifcasci_cvb,ifhamil_cvb
+c ... Make: up to date? ...
+      logical, external :: up2date_cvb
+c ... Change of dimensioning variables ...
+      logical, external :: chpcmp_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"

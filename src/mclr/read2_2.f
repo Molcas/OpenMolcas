@@ -64,7 +64,7 @@
       Parameter ( half  = 0.5d0 )
       Parameter ( One   = 1.0d0 )
       Parameter ( Two   = 2.0d0 )
-      Logical lFAt,lFIT,lmot,singlet,triplet
+      Logical lFAt,lFIT,lmot,singlet
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -81,14 +81,11 @@
 *
 *
       If (jspin.eq.1) Then
-        Triplet=.true.
         Singlet=.false.
       Else If (jspin.eq.0) Then
         Singlet=.true.
-        Triplet=.false.
       Else
         Singlet=.false.
-        Triplet=.false.
         Write(6,*) 'Error jspin=/=1,0'
         Call Abend()
       End If

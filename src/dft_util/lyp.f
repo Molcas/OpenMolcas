@@ -32,7 +32,6 @@
       Real*8 dF_dRho(ndF_dRho,mGrid),Rho(nRho,mGrid),F_xc(mGrid)
 cGLM     &               F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid)
 *
-      dimension ec(0:4)
       data Cfconst / 2.8712340001881918D0 /
       data aconst,bconst,cconst,dconst
      &        /0.04918d0,0.132d0,0.2533d0,0.349d0/
@@ -141,12 +140,6 @@ cGLM     &               F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid)
       dec34dsa=dec3dsa+dec4dsa
       dec34dsb=dec3dsb+dec4dsb
 
-      ec(0)=ec1+ec2+ec3+ec4
-      ec(1)=ec1
-      ec(2)=ec2
-      ec(3)=ec3
-      ec(4)=ec4
-
       Functional= ec1+ec2+ec3+ec4
       F_xc(iGrid)=F_xc(iGrid)+Coeff*functional
 *                                                                      *
@@ -173,7 +166,6 @@ cGLM     &               F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid)
 *                                                                      *
 *         write(6,*) 'mGrid',mGrid
 *         write(6,*) 'Rho_min',Rho_min
-      tmpC_tot = 0.0d0
       Do iGrid = 1, mGrid
       rhoa=Max(Rho_min,Rho(ipRa,iGrid))
       rhob=Max(Rho_min,Rho(ipRb,iGrid))
@@ -266,12 +258,6 @@ cGLM     &               F_xca(mGrid),F_xcb(mGrid),tmpB(mGrid)
       dec34ds =dec3ds +dec4ds
       dec34dsa=dec3dsa+dec4dsa
       dec34dsb=dec3dsb+dec4dsb
-
-      ec(0)=ec1+ec2+ec3+ec4
-      ec(1)=ec1
-      ec(2)=ec2
-      ec(3)=ec3
-      ec(4)=ec4
 
       Functional= ec1+ec2+ec3+ec4
       F_xc(iGrid)=F_xc(iGrid)+Coeff*functional

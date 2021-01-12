@@ -119,7 +119,6 @@ C     Free the space
 C
       FPI = Four*PI
       Diag = - 1.0694d0 * Sqrt(FPI) / Two
-      Sc_Cond = (Eps - One) / Eps
 C
       Do iTs = 1, nTs
         Qtot(iTs) = Q(1,iTs) + Q(2,iTs)

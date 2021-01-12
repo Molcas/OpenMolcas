@@ -33,7 +33,8 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      use SCF_Arrays
+      Use SCF_Arrays
+      Use Interfaces_SCF, Only: OccDef
       Implicit Real*8 (a-h,o-z)
 *
 #include "mxdm.fh"
@@ -50,7 +51,6 @@
       Character*8 EMILOOP
       Logical FstItr, Semi_Direct
       Real*8 SIntTh
-#include "interfaces_scf.fh"
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -367,7 +367,6 @@ c     MemRsv=6*nBT
       Write (6,*)
       Write (6,*) 'Restore thresholds...'
       Write (6,*)
-      SIntTh=SIntTh_old
       EThr=EThr_old
       DThr=DThr_old
       DltNTh=DltNTh_old

@@ -11,6 +11,6 @@
       Integer nSet
       Parameter (nSet=11)
       Integer Lebedev_order(nSet), Lebedev_npoints(nSet)
-      Data Lebedev_order/5,7,11,17,23,29,35,41,47,53,59/
-      Data Lebedev_npoints/14,26,50,110,194,302,434,590,770,974,1202/
-
+      Parameter (Lebedev_order = [5,7,11,17,23,29,35,41,47,53,59])
+      Parameter (Lebedev_npoints = [14,26,50,110,194,302,434,590,770,
+     &                              974,1202])

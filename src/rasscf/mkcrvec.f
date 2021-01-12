@@ -44,7 +44,6 @@
       End If
       NB=NBAS(1)
       NFI=NFRO(1)+NISH(1)
-      NA=NASH(1)
       Call GetMem('SAO','Allo','Real',LSAO,NB**2)
       Call Square(Work(LSTRI),Work(LSAO),1,NB,NB)
       Call GetMem('STRI','Free','Real',LSTRI,NTOT1+4)

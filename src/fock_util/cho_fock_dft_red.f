@@ -22,7 +22,10 @@ C --- F(ab) = 2 * sum_J  Lab,J * sum_gd  D(gd) * Lgd,J
 C
 C********************************************************
       Implicit Real*8 (a-h,o-z)
-      Logical Debug,add,timings
+#ifdef _DEBUGPRINT_
+      Logical Debug
+#endif
+      Logical add,timings
       Real*8  DLT(*),FLT(*)
       Real*8  tread(2),tcoul(2)
       Character*16  SECNAM
@@ -48,14 +51,10 @@ C********************************************************
 
 #ifdef _DEBUGPRINT_
       Debug=.true.
-#else
-      Debug=.false.
 #endif
 
 
       FactC = one
-
-      IREDC = -1
 
 C --- For Coulomb only, the vectors symmetry is restricted to 1
       JSYM=1
@@ -96,8 +95,6 @@ C ---
         call abend()
       endif
 
-      IREDC=JRED
-
       nRS = nDimRS(JSYM,JRED)
 
       Call GetMem('rsD','Allo','Real',ipDab,nRS)
@@ -132,8 +129,6 @@ C --- BATCH over the vectors in JSYM=1 ----------------------------
 
       nBatch = (nVrs-1)/nVec + 1
 
-      tmp1=0.0D0
-      tmp2=0.0D0
       DO iBatch=1,nBatch
 
          If (iBatch.eq.nBatch) Then

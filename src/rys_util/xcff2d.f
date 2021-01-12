@@ -42,18 +42,12 @@
 #ifdef _DEBUGPRINT_
       Character*30 Label
 #endif
-      Logical AeqB, CeqD, EQ, lB10, lB00, lB01
-*
-      iRout = 14
-      iPrint = nPrint(iRout)
+      Logical AeqB, CeqD, EQ
 *
 #ifdef _DEBUGPRINT_
-      iPrint=99
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In XCff2D: Coori',' ',Coori,3,4)
-         Call RecPrt(' In XCff2D: P',' ',P,nT,3)
-         Call RecPrt(' In XCff2D: Q',' ',Q,nT,3)
-      End If
+      Call RecPrt(' In XCff2D: Coori',' ',Coori,3,4)
+      Call RecPrt(' In XCff2D: P',' ',P,nT,3)
+      Call RecPrt(' In XCff2D: Q',' ',Q,nT,3)
 #endif
       AeqB = EQ(Coori(1,1),Coori(1,2))
       CeqD = EQ(Coori(1,3),Coori(1,4))
@@ -64,11 +58,7 @@
 *
 *---- Compute B10, B00, and B01
 *
-      lB10=.False.
-      lB00=.False.
-      lB01=.False.
       If (nabMax.gt.1) Then
-         lB10=.True.
          Do 10 iT = 1, nT
             Do 31 iRys = 1, nRys
                   B10(iRys,iT,1) = ( h12 -
@@ -79,13 +69,11 @@
          call dcopy_(nRys*nT,B10(1,1,1),1,B10(1,1,3),1)
       End If
       If (lac.ne.0) Then
-         lB00=.True.
          call dcopy_(nRys*nT,U2(1,1),1,B00(1,1,1),1)
          call dcopy_(nRys*nT,U2(1,1),1,B00(1,1,2),1)
          call dcopy_(nRys*nT,U2(1,1),1,B00(1,1,3),1)
       End If
       If (ncdMax.gt.1) Then
-         lB01=.True.
          Do iT = 1, nT
             Do iRys = 1, nRys
                B01(iRys,iT,1) = Two * Zeta(iT) * U2(iRys,iT)

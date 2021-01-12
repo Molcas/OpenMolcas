@@ -9,10 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine IniTim()
+      Use Para_Info, Only: nProcs
       Implicit None
 #include "WrkSpc.fh"
 #include "timtra.fh"
-#include "para_info.fh"
 *
       if(nfld_tim.eq.0) return
       if(nfld_tim.gt.nfldmax) then
@@ -25,10 +25,10 @@
       Return
       End
       SubRoutine IniStat()
+      Use Para_Info, Only: nProcs
       Implicit None
 #include "WrkSpc.fh"
 #include "timtra.fh"
-#include "para_info.fh"
 *
       if(nfld_stat.eq.0) return
       if(nfld_stat.gt.nfldmax) then

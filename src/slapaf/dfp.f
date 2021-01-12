@@ -30,7 +30,6 @@
      &            1.0d0,B,nDim,
      &                  Delta,nDim,
      &            0.0d0,Bd,nDim)
-      dd=DDot_(nDim,Delta,1,Delta,1)
       gd=DDot_(nDim,Gamma,1,Delta,1)
       dBd=DDot_(nDim,Delta,1,Bd,1)
 *

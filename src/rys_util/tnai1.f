@@ -28,9 +28,9 @@
       Real*8 Zeta(nT), Eta(nT), P(nT,3), Q(nT,3),
      &       ZEInv(nT), T(nT)
 *
+#ifdef _DEBUGPRINT_
       iRout = 57
       iPrint = nPrint(iRout)
-#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' Zeta in TNAI1',' ',Zeta,nT,1)
          Call RecPrt(' Eta in TNAI1',' ',Eta,nT,1)

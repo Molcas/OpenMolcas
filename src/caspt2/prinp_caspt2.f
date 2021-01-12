@@ -37,7 +37,7 @@
 #include "output.fh"
 #include "pt2_guga.fh"
       Character(Len=8)   Fmt1,Fmt2
-      Character(Len=120)  Line,BlLine,StLine
+      Character(Len=120)  Line
       Character(Len=3) lIrrep(8)
       Character(Len=20) calctype,FockOpType
 *----------------------------------------------------------------------*
@@ -48,10 +48,6 @@
 *----------------------------------------------------------------------*
       Line=' '
       lLine=Len(Line)
-      Do i=1,lLine
-        BlLine(i:i)=' '
-        StLine(i:i)='*'
-      End Do
       lPaper=132
       left=(lPaper-lLine)/2
       WRITE(Fmt1,'(A,I3.3,A)') '(',left,'X,A)'
@@ -104,7 +100,7 @@
       WRITE(6,Fmt2//'A,T45,F6.1)')'Spin quantum number',
      &                           0.5D0*DBLE(ISPIN-1)
       WRITE(6,Fmt2//'A,T45,I6)')'State symmetry',
-     &                           LSYM
+     &                           STSYM
       WRITE(6,Fmt2//'A,T40,I11)')'Number of CSFs',
      &                           NCONF
       WRITE(6,Fmt2//'A,T45,I6)')'Number of root(s) available',

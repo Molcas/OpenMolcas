@@ -15,14 +15,15 @@
        IMPLICIT REAL*8 (A-H,O-Z)
        Logical run_triples
 #include "reorg.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
+       real*8, allocatable :: FIRAS(:),FI(:)
        fullprint=0
        If (iPrintLevel(-1).LE.0) fullprint=-1
-       Call GetMem('FIRAS','ALLO','REAL',ipFIRAS,mbas*mbas)
-       Call GetMem('FI',   'ALLO','REAL',ipFI,mbas*mbas)
-       call REORG_(Work(ipFIRAS),Work(ipFI),run_triples,IRETURN)
-       Call GetMem('FIRAS','FREE','REAL',ipFIRAS,mbas*mbas)
-       Call GetMem('FI',   'FREE','REAL',ipFI,mbas*mbas)
+       call mma_Allocate(FIRAS,mbas*mbas,Label='FIRAS')
+       call mma_Allocate(FI,mbas*mbas,Label='FI')
+       call REORG_(FIRAS,FI,run_triples,IRETURN)
+       call mma_Deallocate(FIRAS)
+       call mma_Deallocate(FI)
        return
        end
        SUBROUTINE REORG_(FIRAS,FI,run_triples,IRETURN)

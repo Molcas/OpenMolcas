@@ -40,13 +40,7 @@
       MXQ=MQ
       ispc=1
       NDET= NINT(XISPSM(ISYM,ISPC))
-      IF(NOCSF.EQ.1) THEN
-        NVAR=nDET
-      ELSE
-        NVAR = NCSASM(ISYM)
-      END  IF
 *
-      LBLK=NVAR
       NSBDET = MXP1 + MXP2 + MXQ
       MXP = MXP1 + MXP2
       LH0T= MXP*(MXP+1)/2 + MXP1*MXQ

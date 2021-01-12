@@ -29,14 +29,10 @@
       jd = 0
       If (IfGrad(1,4).or.IfGrad(2,4).or.IfGrad(3,4)) jd = 1
       Do 10 ia = 0, la+ja
-         kb = jb
          If (ia.gt.la) jb = 0
          Do 20 ib = 0, lb+jb
-            kc = jc
             If (ia.gt.la.or.ib.gt.lb) jc = 0
             Do 30 ic = 0, lc+jc
-               kd = jd
-               If (ia.gt.la.or.ib.gt.lb.or.ic.gt.lc) kd = jd
                Do 40 id = 0, ld+jd
                   Do 50 iCar = 1, 3
                      If (ja.eq.1.and.ia.eq.la+ja.and.

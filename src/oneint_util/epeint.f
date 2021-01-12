@@ -39,9 +39,6 @@
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
-      iRout = 201
-      iPrint = nPrint(iRout)
-*
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
       iAnga(1) = la

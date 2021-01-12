@@ -84,7 +84,6 @@
       iLen=mylen(FName)
       call f_Inquire (FName(:iLen),okay)
       If ( okay ) Then
-        lOcc=0
         LuInpOrb=50
         Call RdVec(FName(:iLen),LuInpOrb,'COEI',
      &  nSym1,nBas1,nBas1,Work(ipCMO1),Occ1,Eorb1,indt1,VecTit,1,iErr)

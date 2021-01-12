@@ -73,7 +73,6 @@ c      WRITE(*,*)'OUT OF CORE SORT FOR INTEGRALS (TU/RS)',IPQMX3,nbrs
        CALL dDAFILE(LUHLF3,0,TURS,IPQMX3,IAD3S)
       ENDIF
       IAD3=0
-      IOUT3=0
 
 c MaxRS should be given
       IRS=0

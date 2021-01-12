@@ -16,6 +16,7 @@ C     Thomas Bondo Pedersen, May 2010.
 C
 C     Allocate and init array for tracing idle processors
 C
+      Use Para_Info, Only: nProcs
       Implicit None
 #include "choptr2.fh"
 #include "cho_para_info.fh"

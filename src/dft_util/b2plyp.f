@@ -37,7 +37,6 @@
 ************************************************************************
 *                                                                      *
       Coeff_A=0.470D0*CoefX
-      Coeff_B=0.0000*CoefX
       Coeff_C=0.73D0*CoefR
 C    requires 0.27 times MP2 correlation energy from MBPT2
 *                                                                      *

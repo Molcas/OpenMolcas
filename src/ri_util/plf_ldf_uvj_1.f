@@ -48,7 +48,7 @@
 #endif
 
       Integer i1, i2, i3, i4
-      Integer iShlJ, iShlK, iShlL
+      Integer iShlJ, iShlK
       Integer jSO, kSO, lSO
       Integer jSOj, kSOk, lSOl
       Integer jj, kk, ll
@@ -90,7 +90,6 @@
       i1=1
       iShlJ=SHB
       iShlK=SHC
-      iShlL=SHD
       Do i4=1,lCmp
          lSO=iAOtSO(iAO(4)+i4,kOp(4))+iAOst(4)
          Do i3=1,kCmp

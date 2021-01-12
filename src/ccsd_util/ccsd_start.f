@@ -23,26 +23,26 @@ c     reaintsta
 c
 c     -----------------------
 c
-       subroutine initfiles (lenght,lenv,lenn)
+       subroutine initfiles (length,lenv,lenn)
 c
 c     this routine distribute work space WRK for required files
 c     for fix mediates it defines also mapd and mapi, for help mediates
-c     it estimates their lenght and distribute WRK (i.e. def poss0 parameters)
+c     it estimates their length and distribute WRK (i.e. def poss0 parameters)
 c     !N.B. This routine cannot run with +OP2 level
 c
-c       lenght  -  total length of all work space needed
+c       length  -  total length of all work space needed
 c       lenv    -  length of V - type array
 c       lenn    -  length of N - type array
 c
 #include "ccsd1.fh"
 #include "ccsd2.fh"
 c
-       integer lenght,lenv,lenn
+       integer length,lenv,lenn
 c
 c     help variable
 c
        integer posst,symp,symq,sympq,symr,syms
-       integer lenghtv,lenghtm,lenghth,lenghtn
+       integer lengthv,lengthm,lengthh,lengthn
        integer maxnoa,maxnvb,maxnorb
        integer maxov(1:8)
 c
@@ -240,7 +240,7 @@ c
 c
 c
 c2    for help files mapps are irrelevant,
-c     here only estimation of maximal lenght is done to
+c     here only estimation of maximal length is done to
 c     define poss0 of help files
 c     we have:
 c     four V files - of vvoo type
@@ -270,26 +270,26 @@ c
        end if
  100    continue
 c
-c2.*  def lenghts of V,M,H and N fils
+c2.*  def lengths of V,M,H and N fils
 c
-       lenghtv=0
-       lenghtm=0
-       lenghth=0
-       lenghtn=0
+       lengthv=0
+       lengthm=0
+       lengthh=0
+       lengthn=0
 c
        do 200 symp=1,nsym
 c     symq is not known for N file
-c     instead of norb(symr) maxnorb will be used so that reallenght<=lenght
-       lenghtn=lenghtn+norb(symp)*maxnorb
+c     instead of norb(symr) maxnorb will be used so that reallength<=length
+       lengthn=lengthn+norb(symp)*maxnorb
        do 201 symq=1,nsym
        sympq=mmul(symp,symq)
 c     symr is not known for M and H files
-c     instead of noa(symr) maxnoa will be used so that reallenght<=lenght
-       lenghtm=lenghtm+maxov(symp)*maxov(symq)*maxnoa
-       lenghth=lenghth+maxov(symp)*noa(symq)*maxnoa
+c     instead of noa(symr) maxnoa will be used so that reallength<=length
+       lengthm=lengthm+maxov(symp)*maxov(symq)*maxnoa
+       lengthh=lengthh+maxov(symp)*noa(symq)*maxnoa
        do 202 symr=1,nsym
        syms=mmul(sympq,symr)
-       lenghtv=lenghtv+maxov(symp)*maxov(symq)*noa(symr)*noa(syms)
+       lengthv=lengthv+maxov(symp)*maxov(symq)*noa(symr)*noa(syms)
  202    continue
  201    continue
  200    continue
@@ -297,44 +297,44 @@ c
 c2.1  V - files
 c
        possv10=posst
-       posst=posst+lenghtv
+       posst=posst+lengthv
        possv20=posst
-       posst=posst+lenghtv
+       posst=posst+lengthv
        possv30=posst
-       posst=posst+lenghtv
+       posst=posst+lengthv
        possv40=posst
-       posst=posst+lenghtv
-       lenv=lenghtv
+       posst=posst+lengthv
+       lenv=lengthv
 c
 c2.2  M - files
 c
        possm10=posst
-       posst=posst+lenghtm
+       posst=posst+lengthm
        possm20=posst
-       posst=posst+lenghtm
+       posst=posst+lengthm
        possm30=posst
-       posst=posst+lenghtm
+       posst=posst+lengthm
        possm40=posst
-       posst=posst+lenghtm
+       posst=posst+lengthm
 c
 c2.3  H - files
 c
        possh10=posst
-       posst=posst+lenghth
+       posst=posst+lengthh
        possh20=posst
-       posst=posst+lenghth
+       posst=posst+lengthh
        possh30=posst
-       posst=posst+lenghth
+       posst=posst+lengthh
        possh40=posst
-       posst=posst+lenghth
+       posst=posst+lengthh
 c
 c2.4  N,P - files
 c
        possn0=posst
-       posst=posst+lenghtn
+       posst=posst+lengthn
        possp0=posst
-       posst=posst+lenghtn
-       lenn=lenghtn
+       posst=posst+lengthn
+       lenn=lengthn
 c
 c2.5  dedlare space for help matrix D in for matrix multiplication C=AT*B if
 c     mchntyp=2
@@ -349,7 +349,7 @@ c
        end if
 c
 c2.6   def size of Work space
-       lenght=posst-1
+       length=posst-1
 c
        return
        end

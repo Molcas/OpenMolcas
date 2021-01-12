@@ -50,7 +50,6 @@
 #include "WrkSpc.fh"
 #include "Files.fh"
 #include "Struct.fh"
-#include "rassiwfn.fh"
 
       Integer ISpin,JOB1,JOB2
       Real*8,DIMENSION(NASHT**2)::TRAD,TRASD
@@ -468,7 +467,6 @@ C     Putting particle-hole pairs in the output
 #include "WrkSpc.fh"
 #include "Files.fh"
 #include "Struct.fh"
-#include "rassiwfn.fh"
 
 C     input variables
       INTEGER NUseSym,LNTO,LEigVal
@@ -502,10 +500,8 @@ C
       Real*8,DIMENSION(2) :: vDum
       INTEGER,DIMENSION(7,8) :: v2Dum
       CHARACTER(len=72)Note
-      Logical DoTest
       External ISFREEUNIT
 
-      DoTest=.false.
       Threshold=0.0D-10
       Zero=0.0D0
 

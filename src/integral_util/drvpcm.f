@@ -23,9 +23,6 @@
       Real*8, Allocatable:: Cord(:,:), Chrg(:), PCM_charge(:,:),
      &                      V_Slow(:), Q_Slow(:), V_Save(:,:),
      &                      V_Tile(:,:)
-*
-      iRout = 1
-      iPrint = nPrint(iRout)
 *                                                                      *
 ************************************************************************
 *                                                                      *

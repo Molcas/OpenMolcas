@@ -110,7 +110,7 @@
 29555 continue
 
       IF(NAC. GT. 0)
-     &  CALL CIDIA_CI_UTIL(NAC,NCONF,LSYM,WORK(LW4),LW1,TUVX,
+     &  CALL CIDIA_CI_UTIL(NAC,NCONF,STSYM,WORK(LW4),LW1,TUVX,
      &                          LUDAVID)
 ************************************************************************
 * iCaseSplit = 1  : there is NOT CI-RESTART.
@@ -131,7 +131,7 @@
         CALL TRIEXP(LW1,Work(LOCONE),NAC)
         CALL GETMEM('IREOTS','ALLO','INTEGER',IREOTS,NAC)
         CALL GET_IREOTS(IWORK(IREOTS),NAC)
-C        CALL GETMEM('IPCNF','ALLO','INTE',LG1,NCNASM(LSYM))
+C        CALL GETMEM('IPCNF','ALLO','INTE',LG1,NCNASM(STSYM))
 
         call cwtime(C_ABlockDim_sel1,W_ABlockDim_sel1)
         ECORE=0.0D0
@@ -146,7 +146,7 @@ C        CALL GETMEM('IPCNF','ALLO','INTE',LG1,NCNASM(LSYM))
 ************************************************************************
         CALL GETMEM('DiagCSF','ALLO','REAL',ipDiag,nConf)
         Call GetMem('IPCSFtot','Allo','Integer',ipCSFtot,nconf)
-        Call GetMem('IPCNFtot','Allo','Integer',ipCNFtot,NCNASM(LSYM))
+        Call GetMem('IPCNFtot','Allo','Integer',ipCNFtot,NCNASM(STSYM))
         CALL GETMEM('EXHSCR','MAX','REAL',LW2,MXXWS)
         CALL GETMEM('EXHSCR','ALLO','REAL',LW2,MXXWS)
         MXSpli = iDimBlockA
@@ -154,8 +154,8 @@ C        CALL GETMEM('IPCNF','ALLO','INTE',LG1,NCNASM(LSYM))
         CALL ipCSFSplit(Work(ipDiag),iWork(ipCSFtot),iWork(ipCNFtot),
      &                  nConf,MXSpli,
      &                  Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),
-     &                  LSYM,Work(LOCONE),ECORE,NAC,
-     &                  Work(LW2),NCNASM(LSYM),(NAEL+NBEL),NAEL,NBEL,
+     &                  STSYM,Work(LOCONE),ECORE,NAC,
+     &                  Work(LW2),NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,
      &                  Work(LW4),TUVX,
      &                  IPRINT,ExFac,IWORK(IREOTS))
 *        CALL DVCPRT('Diagonal elements of Hamilt. matrix in CSF',' ',
@@ -171,9 +171,9 @@ C        CALL GETMEM('IPCNF','ALLO','INTE',LG1,NCNASM(LSYM))
 *    COMPLETE HAMILTONIAN in energetic order.                          *
 ************************************************************************
         CALL GETMEM('DiagCSF','ALLO','REAL',ipDiag,nConf)
-        CALL GETMEM('DiagCNF','ALLO','REAL',ipDiagCNF,NCNASM(LSYM))
+        CALL GETMEM('DiagCNF','ALLO','REAL',ipDiagCNF,NCNASM(STSYM))
         CALL GetMem('ipCSFtot','Allo','Integer',ipCSFtot,nConf)
-        CALL GETMEM('ipCNFtot','ALLO','Integer',ipCNFtot,NCNASM(LSYM))
+        CALL GETMEM('ipCNFtot','ALLO','Integer',ipCNFtot,NCNASM(STSYM))
         CALL GETMEM('EXHSCR','MAX','REAL',LW2,MXXWS)
         CALL GETMEM('EXHSCR','ALLO','REAL',LW2,MXXWS)
 * 'GapSpli' comes from the input in eV
@@ -184,26 +184,26 @@ C        CALL GETMEM('IPCNF','ALLO','INTE',LG1,NCNASM(LSYM))
         call DiagOrd(Work(ipDiag),Work(ipDiagCNF),
      &             iWork(ipCSFtot),iWork(ipCNFtot),nConf,condition,ITER,
      &              Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),
-     &              LSYM,Work(LOCONE),ECORE,NAC,
-     &              Work(LW2),NCNASM(LSYM),(NAEL+NBEL),NAEL,NBEL,
+     &              STSYM,Work(LOCONE),ECORE,NAC,
+     &              Work(LW2),NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,
      &              TUVX,IPRINT,ExFac,IWORK(IREOTS))
         if (DBG) then
           CALL DVCPRT('Diagonal elements of Hamilt. matrix in CSF',' ',
      &                  Work(ipDiag),nConf)
           CALL DVCPRT('Diagonal elements of Hamilt. matrix in CNF',' ',
-     &                  Work(ipDiagCNF),NCNASM(LSYM))
+     &                  Work(ipDiagCNF),NCNASM(STSYM))
           CALL IVCPRT('Index Array in CSF',' ',
      &                  iWork(ipCSFtot),nConf)
           CALL IVCPRT('Index Array in CNF',' ',
-     &                  iWork(ipCNFtot),NCNASM(LSYM))
+     &                  iWork(ipCNFtot),NCNASM(STSYM))
           write(6,*) 'iDimBlockACNF from DiagOrd : ', iDimBlockACNF
           write(6,*) 'iDimBlockA from DiagOrd : ', iDimBlockA
         end if
         call xflush(6)
         CALL GETMEM('EXHSCR','FREE','REAL',LW2,MXXWS)
-        CALL GETMEM('DiagCNF','free','REAL',ipDiagCNF,NCNASM(LSYM))
+        CALL GETMEM('DiagCNF','free','REAL',ipDiagCNF,NCNASM(STSYM))
 *        CALL GETMEM('DiagCSF','free','REAL',ipDiag,nConf)
-*        CALL GETMEM('indOrdCNF','free','Integer',ipCNFtot,NCNASM(LSYM))
+*        CALL GETMEM('indOrdCNF','free','Integer',ipCNFtot,NCNASM(STSYM))
         end if
 
         if (DBG) then
@@ -225,7 +225,7 @@ C        CALL GETMEM('IPCNF','ALLO','INTE',LG1,NCNASM(LSYM))
 * calculate the dressed HAMILTONIAN matrix (STEP 2)
         iDimBlockTri= iDimBlockA*(iDimBlockA+1)/2
 *        iBCSF = nConf-iDimBlockA
-*        iBCNF = NCNASM(LSYM)-NPCNF
+*        iBCNF = NCNASM(STSYM)-NPCNF
 *        iBMAX = MAX(iBCSF,iDimBlockA)
         CALL GETMEM('AAblock','ALLO','REAL',ipAABlock,iDimBlockTri)
         CALL GETMEM('DHAM','ALLO','REAL',ipDHAM,iDimBlockTri)
@@ -249,14 +249,14 @@ C        CALL GETMEM('IPCNF','ALLO','INTE',LG1,NCNASM(LSYM))
           if (DBG) then
             write(6,*) '*************** Iteration SplitCAS =', iterSplit
           end if
-C          call Compute_Umn(Work(ipBVEC),NPCNF,NCNASM(LSYM),
+C          call Compute_Umn(Work(ipBVEC),NPCNF,NCNASM(STSYM),
 C     &                     EnInSplit,NPCNF+1,1,Work(ipDHAM))
 C         CALL SPLITCSF(Work(ipAABlock),EnInSplit,Work(ipDHAM),
           CALL get_Umn(Work(ipAABlock),EnInSplit,Work(ipDHAM),
      &                  iWork(ipCSFtot),iWork(ipCNFtot),nconf,
      &                  Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),
-     &                  LSYM,Work(LOCONE),ECORE,NAC,
-     &                  NCNASM(LSYM),(NAEL+NBEL),NAEL,NBEL,
+     &                  STSYM,Work(LOCONE),ECORE,NAC,
+     &                  NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,
      &                  iDimBlockA,iDimBlockACNF,Work(LW4),TUVX,
      &                  iterSplit,ITER,
      &                  IPRINT,ExFac,IWORK(IREOTS))
@@ -341,12 +341,12 @@ C         CALL SPLITCSF(Work(ipAABlock),EnInSplit,Work(ipDHAM),
 *         call CmSplit(iWork(ipCSFtot),iWork(ipCNFtot),
           call cwtime(C_get_Cm1,W_get_Cm1)
           call get_Cm (iWork(ipCSFtot),iWork(ipCNFtot),
-     &                 nConf,NCNASM(LSYM),
+     &                 nConf,NCNASM(STSYM),
      &                 iDimBlockA,iDimBlockACNF,
      &                 Work(ipSplitV+(lRootSplit-1)*iDimBlockA),
      &                 lrootSplit,EnFinSplit,
      &                 Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),
-     &                 LSYM,Work(LOCONE),ECORE,
+     &                 STSYM,Work(LOCONE),ECORE,
      &                 NAC,(NAEL+NBEL),NAEL,NBEL,
      &                 Work(LW4),TUVX,
      &                 IPRINT,ExFac,IWORK(IREOTS),
@@ -412,7 +412,7 @@ C         CALL SPLITCSF(Work(ipAABlock),EnInSplit,Work(ipDHAM),
         call getmem('totSplitVec','free','real',ipTotSplitV,nConf)
 *        CALL GetMem('indOrdCSF','free','Integer',ipCSFtot,nConf)
         Call GetMem('IPCSFtot','FREE','Integer',ipCSFtot,nconf)
-        Call GetMem('IPCNFtot','FREE','Integer',ipCNFtot,NCNASM(LSYM))
+        Call GetMem('IPCNFtot','FREE','Integer',ipCNFtot,NCNASM(STSYM))
         CALL GetMem('DiagCSF','FREE','REAL',ipDiag,nConf)
 ************************************************************************
 *            CLEANUP AFTER SPLITCAS                                    *
@@ -424,7 +424,7 @@ C         CALL SPLITCSF(Work(ipAABlock),EnInSplit,Work(ipDHAM),
         CALL GETMEM('AAblock','FREE','REAL',ipAABlock,iDimBlockTri)
         CALL GETMEM('IREOTS','FREE','INTEGER',IREOTS,NAC)
         CALL GETMEM('HONE','FREE','REAL',LOCONE,NAC**2)
-C        CALL GETMEM('IPCNF','FREE','INTE',LG1,NCNASM(LSYM))
+C        CALL GETMEM('IPCNF','FREE','INTE',LG1,NCNASM(STSYM))
 *        Call GetMem('iSel','Free','Integer',lSel,MxSpli)
 
       else
@@ -436,7 +436,7 @@ C        CALL GETMEM('IPCNF','FREE','INTE',LG1,NCNASM(LSYM))
       nAAblock = MXSpli*(MXSpli+1)/2
       CALL GETMEM('HONE','ALLO','REAL',LOCONE,NAC**2)
       Call GetMem('iSel','Allo','Integer',lSel,MxSpli)
-      CALL GETMEM('IPCNF','ALLO','INTE',LG1,NCNASM(LSYM))
+      CALL GETMEM('IPCNF','ALLO','INTE',LG1,NCNASM(STSYM))
       CALL GETMEM('AAblock','ALLO','REAL',ipAABlock,nAAblock)
 * EXPAND ONE-INTS FROM TRIANGULAR PACKING TO FULL STORAGE MODE
       CALL TRIEXP(LW1,Work(LOCONE),NAC)
@@ -448,8 +448,8 @@ C        CALL GETMEM('IPCNF','FREE','INTE',LG1,NCNASM(LSYM))
       CALL GET_IREOTS(IWORK(IREOTS),NAC)
       CALL PHPCSF(Work(ipAABlock),iWork(lSel),iWork(LG1),MXSpli,
      &              Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),
-     &              LSYM,Work(LOCONE),ECORE,NAC,
-     &              Work(LW2),NCNASM(LSYM),(NAEL+NBEL),NAEL,NBEL,
+     &              STSYM,Work(LOCONE),ECORE,NAC,
+     &              Work(LW2),NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,
      &              iDimBlockA,iDimBlockACNF,Work(LW4),TUVX,
      &              IPRINT,ExFac,IWORK(IREOTS))
       CALL GETMEM('EXHSCR','FREE','REAL',LW2,MXXWS)
@@ -529,7 +529,7 @@ C        CALL GETMEM('IPCNF','FREE','INTE',LG1,NCNASM(LSYM))
       CALL GETMEM('IREOTS','FREE','INTEGER',IREOTS,NAC)
       CALL GETMEM('AAblock','FREE','REAL',ipAABlock,nAAblock)
       CALL GETMEM('HONE','FREE','REAL',LOCONE,NAC**2)
-      CALL GETMEM('IPCNF','FREE','INTE',LG1,NCNASM(LSYM))
+      CALL GETMEM('IPCNF','FREE','INTE',LG1,NCNASM(STSYM))
       Call GetMem('iSel','Free','Integer',lSel,MxSpli)
       end if
 *     ^ End of SplitCas/Native Hamiltonian diagonalization
@@ -559,7 +559,7 @@ C        CALL GETMEM('IPCNF','FREE','INTE',LG1,NCNASM(LSYM))
 *      Do i = 1,lRootSplit
         Call DDafile(JOBOLD,2,Work(iTmp1),nConf,iDisk)
         call GetMem('kcnf','allo','inte',ivkcnf,nactel)
-        Call Reord2(NAC,NACTEL,LSYM,1,
+        Call Reord2(NAC,NACTEL,STSYM,1,
      &              iWork(KICONF(1)),iWork(KCFTP),
      &              Work(iTmp1),Work(iTmp2),iwork(ivkcnf))
         call GetMem('kcnf','free','inte',ivkcnf,nactel)

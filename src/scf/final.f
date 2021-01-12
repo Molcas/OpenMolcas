@@ -54,6 +54,10 @@
       use EFP_Module
       use EFP
 #endif
+#ifdef _HDF5_
+      Use mh5, Only: mh5_put_dset
+#endif
+      Use Interfaces_SCF, Only: dOne_SCF
       Implicit Real*8 (a-h,o-z)
 *
 #include "real.fh"
@@ -103,7 +107,6 @@
       Integer nSSh(mxSym), nZero(mxSym)
 #endif
       Integer nFldP
-#include "interfaces_scf.fh"
       Dimension Dummy(1)
 *
 *----------------------------------------------------------------------*

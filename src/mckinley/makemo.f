@@ -44,7 +44,6 @@
      &       C(12),buffer(*)
 *
       iMax=0
-      nMax=0
       mSum=0
       nabcd=iBasi*jBasj*kBask*lBasl
       nijkl=icmp(1)*icmp(2)*icmp(3)*icmp(4)

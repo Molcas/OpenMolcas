@@ -13,9 +13,6 @@
 *                                                                      *
       Module Chkpnt
       Implicit None
-#ifdef _HDF5_
-#  include "mh5.fh"
-#endif
       Character(Len=9) :: basename = 'SLAPAFCHK'
       Character(Len=12) :: filename
       Integer :: chkpnt_id, chkpnt_iter, chkpnt_hess
@@ -28,10 +25,11 @@
 *                                                                      *
       Subroutine Chkpnt_open()
 #ifdef _HDF5_
-      use Symmetry_Info, only: nIrrep
-      use Slapaf_Info, only: Coor
-      use Slapaf_Parameters, only: IRC, iter
-#  include "Molcas.fh"
+      Use Symmetry_Info, Only: nIrrep
+      Use Slapaf_Info, Only: Coor
+      Use Slapaf_Parameters, Only: IRC, iter
+      Use mh5, Only: mh5_is_hdf5, mh5_open_file_rw, mh5_open_attr,
+     &               mh5_open_dset, mh5_fetch_attr
       Character(Len=3) :: level
       Logical :: create
       Integer :: tmp
@@ -79,15 +77,20 @@
 *                                                                      *
       Subroutine Chkpnt_init()
 #ifdef _HDF5_
-      use Phase_Info
-      use Symmetry_Info, only: nIrrep
-      use Slapaf_Info, only: dMass, nStab, iCoSet, AtomLbl, Smmtrc,
+      Use Phase_Info
+      Use Symmetry_Info, Only: nIrrep
+      Use Slapaf_Info, Only: dMass, nStab, iCoSet, AtomLbl, Smmtrc,
      &                       Coor
-      use Slapaf_Parameters, only: nDimBC, rMEP, MEP, dMEPStep
+      Use Slapaf_Parameters, Only: nDimBC, rMEP, MEP, dMEPStep
+      Use mh5, Only: mh5_create_file, mh5_init_attr,
+     &               mh5_create_attr_int, mh5_create_dset_str,
+     &               mh5_create_dset_real, mh5_create_dset_int,
+     &               mh5_put_dset, mh5_put_dset_array_int,
+     &               mh5_close_dset
 #  include "Molcas.fh"
 #  include "stdalloc.fh"
       Character :: lIrrep(24)
-      Integer :: dsetid, attrid, mAtom, i, j, k
+      Integer :: dsetid, mAtom, i, j, k
       Real*8, Allocatable :: charges(:)
       Integer, Allocatable :: desym(:,:), symdof(:,:)
 
@@ -181,7 +184,7 @@
      &      '[NATOMS_ALL,4], each row contains the unique atom index'//
      &      'and the factors with which to multiply the x,y,z '//
      &      'coordinates')
-        Call mh5_put_dset(dsetid, desym(1,1))
+        Call mh5_put_dset_array_int(dsetid, desym)
         Call mh5_close_dset(dsetid)
         Call mma_deallocate(desym)
 
@@ -192,7 +195,7 @@
      &      'Indices of the Cartesian degrees of freedom, matrix of '//
      &      'size [DOF, 2], each row contains the atom index and the '//
      &      'Cartesian index (1=x, 2=y, 3=z)')
-        Call mh5_put_dset(dsetid, symdof(1,1))
+        Call mh5_put_dset_array_int(dsetid, symdof)
         Call mh5_close_dset(dsetid)
         Call mma_deallocate(symdof)
       End If
@@ -232,7 +235,7 @@
 *     MEP/IRC information
       If (MEP.or.rMEP) Then
         Call mh5_init_attr(chkpnt_id, 'MEP_STEP', dMEPStep)
-        attrid = mh5_create_attr_int(chkpnt_id, 'MEP_ITERATIONS')
+        Call mh5_init_attr(chkpnt_id, 'MEP_ITERATIONS', 0)
 
         dsetid = mh5_create_dset_int(chkpnt_id,
      &           'MEP_INDICES', 1, [0], dyn=.True.)
@@ -248,10 +251,13 @@
 *                                                                      *
       Subroutine Chkpnt_update()
 #ifdef _HDF5_
-      use Slapaf_Info, only: Cx, Gx, Energy
-      use Slapaf_Parameters, only: nDimBC, iter
+      Use Slapaf_Info, Only: Cx, Gx, Energy
+      Use Slapaf_Parameters, Only: nDimBC, iter
+      Use mh5, Only: mh5_put_attr, mh5_resize_dset,
+     &               mh5_put_dset, mh5_put_dset_array_real
+#  include "WrkSpc.fh"
 #  include "stdalloc.fh"
-      Integer :: N3, i, j
+      Integer :: i, j
       Logical :: Found
       Real*8, Allocatable :: Hss_X(:)
 
@@ -270,7 +276,6 @@
         End Do
       End If
 
-      N3 = 3*SIZE(Cx,2)
 *     iterations
       Call mh5_put_attr(chkpnt_iter, Iter_all)
 *     energies
@@ -298,8 +303,12 @@
 ************************************************************************
 *                                                                      *
       Subroutine Chkpnt_update_MEP(SaveMEP,IRCRestart)
-      Logical, Intent(In) :: SaveMEP
-      Logical, Intent(In) :: IRCRestart
+#ifdef _HDF5_
+      Use mh5, Only: mh5_init_attr, mh5_open_attr, mh5_get_attr,
+     &               mh5_put_attr,  mh5_close_attr, mh5_open_dset,
+     &               mh5_resize_dset, mh5_put_dset, mh5_close_dset
+#endif
+      Logical, Intent(In) :: SaveMEP, IRCRestart
 #ifdef _HDF5_
       Integer :: attrid, dsetid, iMEP
 
@@ -314,7 +323,7 @@
         Call mh5_close_attr(attrid)
         dsetid = mh5_open_dset(chkpnt_id, 'MEP_INDICES')
         Call mh5_resize_dset(dsetid, [iMEP])
-        Call mh5_put_dset_array_int(dsetid, [Iter_all], [1], [iMEP-1])
+        Call mh5_put_dset(dsetid, [Iter_all], [1], [iMEP-1])
         Call mh5_close_dset(dsetid)
       End If
 #else
@@ -332,6 +341,7 @@
 *                                                                      *
       Subroutine Chkpnt_close()
 #ifdef _HDF5_
+      Use mh5, Only: mh5_close_file
       Call mh5_close_file(chkpnt_id)
 #endif
       End Subroutine Chkpnt_close

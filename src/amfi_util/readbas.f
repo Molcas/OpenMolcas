@@ -24,11 +24,9 @@
       Integer, Allocatable:: nOff(:,:)
       Character*4 Word
       Character*4 Symmetry
-      Character*15 lLimit
+#ifdef _DEBUGPRINT_
       Character*21 chCharge
-      Character*32 NofPrim
-      Character*30 AddText
-      Character*33 Nofcont
+#endif
       Character*54 Stars
       Logical MakeMean, Bonn, Breit, SameOrb, AIMP, OneOnly, IfTest
       Common /Nucleus/ Charge, Exp_Finite
@@ -37,13 +35,9 @@
 *
 #ifdef _DEBUGPRINT_
       IfTest=.True.
+      chCharge='  Charge of nucleus: '
 #endif
       OUT=6
-      Llimit  =' Max. l-value: '
-      chCharge='  Charge of nucleus: '
-      NofPrim =' Number of primitive functions: '
-      NofCont =' Number of contracted functions: '
-      AddText =' Additional functions in IRS: '
       Stars   ='******************************************************'
       Bonn    =.False.
       Breit   =.False.

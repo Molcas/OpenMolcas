@@ -47,7 +47,6 @@
 #include "casvb.fh"
 #include "wadr.fh"
 #include "rasscf_lucia.fh"
-#include "raswfn.fh"
 #include "ksdft.fh"
       Logical DoActive,DoQmat,DoCholesky
 !      Logical TraOnly
@@ -67,12 +66,12 @@
       integer ifocki,ifocka
       integer IADR19(1:30)
       integer LP,NQ,LQ,LPUVX
-      integer  LOEOTP,NACP,NACP2
-      integer vdisk,jroot
+      integer  LOEOTP
+      integer jroot
       real*8,dimension(1:nroots) :: Energies
       integer count_tmp1,count_tmp2
       integer  i_off1,i_off2,ifone
-      integer isym,iorb,iash,iish,jsym
+      integer isym,iash,jsym
       integer LUGS
       LOGICAL Do_Rotate
       COMMON /MSPDFT/ Do_Rotate
@@ -213,7 +212,6 @@ c      end if
        IADR19(:)=0
        Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
        IADR15 = IADR19
-       vDisk =  IADR19(4)
        dmDisk = IADR19(3)
 !       Call GetMem('jVector','Allo','Real',ijVec,nConf)
        Call GetMem('D1Active','Allo','Real',iD1Act,NACPAR)
@@ -436,9 +434,6 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
                     IADD=IADD+iAsh
                     End If
                     End Do
-          NACP=(NAC+NAC**2)/2
-          NACP2=(NACP+NACP**2)/2
-          NCEH2=1
 
       do_pdftPot=.false.
       if(DoGradPDFT.and.jroot.eq.irlxroot) then
@@ -525,9 +520,7 @@ c**************Kinetic energy of active electrons*********
       EactK = dDot_(nTot1,Work(iTmpk),1,Work(iTmpa),1)
 
       EactN = dDot_(nTot1,Work(iTmpn),1,Work(iTmpa),1)
-      EFI = dDot_(nTot1,Work(iFockI),1,Work(iTmpa),1)
 c         call xflush(6)
-      Eact = EactK + EactN + EFI
       EMY  = PotNuc_Ref+Eone+0.5d0*Etwo
 
       CASDFT_Funct = 0.0D0
@@ -1006,10 +999,8 @@ cPS         call xflush(6)
 
       Do iSym = 1,nSym
         iBas = nBas(iSym)
-        iOrb = nOrb(iSym)
-        iFro = nFro(iSym)
-        iAct = nAsh(iSym)
-        iIsh = nIsh(iSym)
+!        iAct = nAsh(iSym)
+!        iIsh = nIsh(iSym)
 
       !FI + FA + V_oe
 

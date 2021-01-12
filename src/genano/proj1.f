@@ -74,7 +74,6 @@ c      Open(unit=17,file='PROJ',form='FORMATTED')
             Do 210 i=1,nB
             Do 211 j=1,nB
                indT=min(i,j)+max(i,j)*(max(i,j)-1)/2
-               indS=i+nB*(j-1)
                DAO(i,j)=tDsym(iSymbk(iBlk)-1+indT)
                Ovlp(i,j)=Ssym(iSymbk(iBlk)-1+indT)
 211         Continue

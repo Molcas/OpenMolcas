@@ -46,7 +46,6 @@
       Implicit Real*8 (a-h,o-z)
       Implicit Integer (i-n)
       Character*180 STDINP(mxAtom*2)
-      Character*80 Blank
       Character*180 aDebug
       Character*12 Angstring
 #include "constants.fh"
@@ -92,7 +91,6 @@ C Coords(_,i): X, Y, Z, coordinates (in Angstrom) for atom -i-.
       EndDo
       nBasis = 0
       iErr   = 0
-      Blank = ' '
       Angstring = '  / Angstrom'
 
 * Reading input

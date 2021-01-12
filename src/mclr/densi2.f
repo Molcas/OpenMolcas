@@ -100,8 +100,6 @@ CFUE  IPRDEN=0
       CALL mma_allocate(STSTD,NSMST ** 2,Label='STSTD')
       CALL STSTSM_MCLR(STSTS,STSTD,NSMST)
 *. Largest block of strings in zero order space
-      MAXA0 = IMNMX(Str(IATP)%NSTSO,NSMST*NOCTYP(IATP),2)
-      MAXB0 = IMNMX(Str(IBTP)%NSTSO,NSMST*NOCTYP(IBTP),2)
       MXSTBL0 = MXNSTR
 *. Largest number of strings of given symmetry and type
       MAXA = 0
@@ -135,7 +133,6 @@ CFUE  IPRDEN=0
        MXTSOB = MAX(MXTSOB,NOBPTS(IOBTP,IOBSM))
       END DO
       END DO
-      MAXIJ = MXTSOB ** 2
 *.Local scratch arrays for blocks of C and sigma
       LSCR1 = 0
       IF(ICISTR.LE.2) THEN

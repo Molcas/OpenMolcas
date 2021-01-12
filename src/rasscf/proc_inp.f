@@ -18,6 +18,9 @@
 ! module dependencies
       use qcmaquis_interface_environment, only: initialize_dmrg
       use qcmaquis_interface_cfg
+#ifdef _MOLCAS_MPP_
+      use Para_Info, Only: nProcs
+#endif
 #endif
       use active_space_solver_cfg
       use write_orbital_files, only: OrbFiles
@@ -30,6 +33,11 @@
      &  t_RDMsampling, RDMsampling,
      &  totalwalkers, Time, nmCyc, memoryfacspawn,
      &  realspawncutoff, diagshift, definedet, semi_stochastic
+#ifdef _HDF5_
+      use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
+     &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
+     &               mh5_close_file
+#endif
 
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
@@ -55,10 +63,6 @@
 #include "lucia_ini.fh"
 #include "rasscf_lucia.fh"
 *^ needed for passing kint1_pointer
-#ifdef _HDF5_
-#  include "mh5.fh"
-#endif
-#include "para_info.fh"
 *
       Logical Do_OFemb,KEonly,OFE_first,l_casdft
       COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
@@ -414,7 +418,6 @@ C   No changing about read in orbital information from INPORB yet.
 *          3: specifications from orbital file
       iOrbData=0
       INVEC=0
-      iHAVECI=0
 * INVEC=0, no source for orbitals (yet)
 *       1, CORE command: compute orbitals from scratch.
 *       2, read from starting orbitals file in INPORB format.
@@ -1710,7 +1713,7 @@ CIgorS End
 * PAM Jan 2014 -- do not take POTNUC from JOBIPH; take it directly
 * from runfile, where it was stored by seward.
         iAd19=iAdr19(1)
-        CALL WR_RASSCF_Info(JobOld,2,iAd19,NACTEL,ISPIN,NSYM,LSYM,
+        CALL WR_RASSCF_Info(JobOld,2,iAd19,NACTEL,ISPIN,NSYM,STSYM,
      &                      NFRO,NISH,NASH,NDEL,NBAS,
      &                      mxSym,lJobH1,LENIN8*mxOrb,NCONF,
      &                      lJobH2,2*72,JobTit,4*18*mxTit,
@@ -2114,23 +2117,23 @@ C orbitals accordingly
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
        Line=Get_Ln(LUInput)
        ReadStatus=' Failure reading symmetry index after SYMM keyword.'
-       Read(Line,*,Err=9920) LSYM
+       Read(Line,*,Err=9920) STSYM
        ReadStatus=' O.K. reading symmetry index after SYMM keyword.'
-       If (DBG) Write(6,*) ' State symmetry index ',LSYM
+       If (DBG) Write(6,*) ' State symmetry index ',STSYM
        Call ChkIfKey()
-* If LSYM has not been set, normally it should be defaulted to 1.
-* Exception: if this is a high-spin OS case, these often require LSYM.ne.1:
+* If STSYM has not been set, normally it should be defaulted to 1.
+* Exception: if this is a high-spin OS case, these often require STSYM.ne.1:
       ELSE
-        LSYM=1
+        STSYM=1
         IF(ISPIN.eq.NASHT+1) THEN
          DO ISYM=1,NSYM
           NA=NASH(ISYM)
-          IF(NA.ne.2*(NA/2)) LSYM=MUL(LSYM,ISYM)
+          IF(NA.ne.2*(NA/2)) STSYM=MUL(STSYM,ISYM)
          END DO
         END IF
       END IF
-      Call put_iscalar('LSYM',LSYM)
-      If (DBG) Write(6,*)' State symmetry LSYM=',LSYM
+      Call put_iscalar('STSYM',STSYM)
+      If (DBG) Write(6,*)' State symmetry STSYM=',STSYM
 *
 * =======================================================================
 *
@@ -3209,7 +3212,7 @@ C Test read failed. JOBOLD cannot be used.
         call initialize_dmrg(
      &!>>>>>>>>>>>>>>>>>>>>>>>>>>>>   DMRGSCF wave function    <<<<<<<<<<<<<<<<<<<<<<<<<!
      &           nsym,              ! Number of irreps
-     &           lsym,              !    Target irreps            DEFAULT:       1
+     &           stsym,             !    Target irreps            DEFAULT:       1
      &           nactel,            ! Number of electrons
      &           ispin,             ! Multiple                    DEFAULT: singlet(1)
      &           nroots,            ! Number of roots             DEFAULT:       1
@@ -3292,7 +3295,7 @@ C Test read failed. JOBOLD cannot be used.
       nactel_Molcas    = nactel
       ms2_Molcas       = ms2
       ispin_Molcas     = ispin
-      lsym_Molcas      = lsym
+      lsym_Molcas      = stsym
       NHOLE1_Molcas    = NHOLE1
       NELEC3_Molcas    = NELEC3
       itmax_Molcas     = itmax
@@ -3343,7 +3346,7 @@ C Test read failed. JOBOLD cannot be used.
 * ===============================================================
       IF (ICICH.EQ.1) THEN
         CALL GETMEM('UG2SG','ALLO','INTE',LUG2SG,NCONF)
-        CALL UG2SG(NROOTS,NCONF,NAC,NACTEL,LSYM,IPR,
+        CALL UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,IPR,
      *             IWORK(KICONF(1)),IWORK(KCFTP),IWORK(LUG2SG),
      *             ICI,JCJ,CCI,MXROOT)
         CALL GETMEM('UG2SG','FREE','INTE',LUG2SG,NCONF)

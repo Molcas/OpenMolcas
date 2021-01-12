@@ -30,8 +30,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      P_i = Zero ! dummy initialize
-*
 *     iNQ is the index of the current atomic grid to which these grid
 *     points belong.
 *

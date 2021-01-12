@@ -57,11 +57,14 @@
 #include "stdalloc.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-      INTEGER iPrint,iRout
 #include "print.fh"
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      INTEGER iPrint,iRout
 
       iRout=216
       iPrint=nPrint(iRout)
+#endif
       n=m+1
 
 *define _DEBUGPRINT_

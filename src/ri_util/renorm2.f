@@ -231,7 +231,6 @@
             Call RecPrt('QVec',' ',Work(ipQVec),nBasisi,m)
 #endif
 *
-            iOff=0
             Do iCase = 1, 2
                call dcopy_(nExpi*nBasisi,
      &                     Shells(iShll)%Cff_c(1,1,iCase),1,

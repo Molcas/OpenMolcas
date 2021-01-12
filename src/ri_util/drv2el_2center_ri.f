@@ -62,9 +62,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 9
-      iPrint = nPrint(iRout)
-*
       Call StatusLine(' Seward:',' Computing 2-center RI integrals')
 *                                                                      *
 ************************************************************************
@@ -221,7 +218,6 @@ c      Call RecPrt('ip_Tmp',' ',Work(ip_Tmp),nSkal,nSkal)
 *
                nB = nBas_Aux(iIrrep)
                If (iIrrep.eq.0) nB = nB - 1 ! subtract dummy af
-               ip_Save = ip_A_n
                Do kCol = 1+kCol_Irrep(iIrrep), mB+kCol_Irrep(iIrrep)
 *
 *                 Write the A-vector to file

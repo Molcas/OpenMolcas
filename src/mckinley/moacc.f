@@ -123,7 +123,6 @@ c#include "print.fh"
           do iSPert=0,nIrrep-1
           If (pert(isPert)) Then
            rFact2=rFact*DBLE(iChtbl(ispert,nop(icnt)))
-           llash=0
            k=abs(indgrd(icar,icnt,ispert))
            j=0
            Do lIrr=0,nIrrep-1
@@ -156,7 +155,6 @@ c#include "print.fh"
           do iSPert=0,nIrrep-1
           If (pert(isPert)) Then
            rFact2=rFact*DBLE(iChtbl(ispert,nop(icnt)))
-           llash=0
            k=abs(indgrd(icar,icnt,ispert))
            j=0
            Do lIrr=0,nIrrep-1

@@ -26,14 +26,6 @@
      &        itOffs(0:nSym-1,0:nSym-1,0:nSym-1), MapOrg(4)
       Logical Shijij,IJeqKL
 *
-* some dummy assignments to avoid compiler warnings about unused
-* variables.
-*
-      If (nSym.gt.0.and.nSkal.gt.0) Then
-         iDummy_2  = itOffs(0,0,0)
-         iDummy_3  = MapOrg(1)
-      End If
-*
 * call sorting routine
 *
       If (nSym==1) Then
@@ -50,8 +42,11 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_integer_array(MapOrg)
          Call Unused_real_array(SOInt)
          Call Unused_integer(nSOint)
          Call Unused_integer_array(iSOSym)
+         Call Unused_integer(nSkal)
+         Call Unused_integer_array(itOffs)
       End If
       End

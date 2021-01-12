@@ -33,7 +33,6 @@
       INTEGER LSGM1,LG1TMP
 
       INTEGER I
-      REAL*8, EXTERNAL :: DDOT_,DNRM2_
 
 
       IF(NLEV.GT.0) THEN

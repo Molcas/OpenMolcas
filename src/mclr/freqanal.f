@@ -233,7 +233,7 @@
 #include "constants2.fh"
       Real*8 EVal(nDim), EVec(2,nX,nDim),dDipM(ndim,iel),IRInt(nDim)
       Parameter(Inc=6)
-      Character*80 Format, Line*120
+      Character*80 Format
       Character*(LENIN6) ChDisp(3*MxAtom),Label
       character*(10) char_num
       character charx
@@ -295,7 +295,6 @@
            Write (LUt,*)
 *
            Write(Format,'(A,I3,A)') '(8x,',Jnc,'F12.5)'
-           Line=' '
            Write (LUt,Format) (EVal(i),i=iHarm,iHarm+Jnc-1)
            Write (LUt,*)
 

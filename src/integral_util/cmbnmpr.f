@@ -15,7 +15,7 @@
 *     Author: K.Pfingst                                                *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-      External gammat,gammaf
+*     External gammat,gammaf
 #include "print.fh"
 #include "real.fh"
 #include "rmat.fh"

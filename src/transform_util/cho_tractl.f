@@ -140,7 +140,6 @@ CGG   ------------------------------------------------------------------
       Call Cho_X_final(irc)
       CALL CWTIME(TCR2,TWR2)
       tcpu_reo=(TCR2-TCR1)
-      twal_reo=(TWR2-TWR1)
       write(6,*) ' Reordering of the Cholesky vectors to full storage. '
       write(6,*) ' Elapsed time for the reordering section: ',tcpu_reo
       write(6,*) ' CPU time for the reordering section: ',tcpu_reo
@@ -386,7 +385,6 @@ CGG   ------------------------------------------------------------------
 CGG   ------------------------------------------------------------------
 
 *         Start Loop on I, J, A, B Symmetries
-          nSymP=(nSym**2+nSym)/2
           Do iSymI = 1, nSym
             Do iSymJ = 1, iSymI
               Do iSymA = 1, nSym

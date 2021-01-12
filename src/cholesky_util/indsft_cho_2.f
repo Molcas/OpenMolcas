@@ -73,10 +73,6 @@
      &   Call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
       memSO2 = 0
 
-      If (nSOs .gt. 0) Then ! to make some compilers happy
-         iDummy_2 = iSOSym(1,1)
-      End If
-
       NUMC = NBSTSH(SHC)
       NUMD = NBSTSH(SHD)
       NUMA = NBSTSH(SHA)
@@ -173,9 +169,6 @@ C to avoid stupid compiler warnings:
                 End If
              End If
 *
-             iSymi=max(j1,j2)+1
-             jSymj=min(j1,j2)+1
-*
              Do 310 j3 = 0, nIrrep-1
                 If (kSym(j3).eq.0) go to 310
                 j4 = ieor(j12,j3)
@@ -203,9 +196,6 @@ C to avoid stupid compiler warnings:
                 jSO = iAOtSO(iAO(2)+i2,j2)+iAOst(2)+iOffSO(j2)
                 kSO = iAOtSO(iAO(3)+i3,j3)+iAOst(3)+iOffSO(j3)
                 lSO = iAOtSO(iAO(4)+i4,j4)+iAOst(4)+iOffSO(j4)
-*
-                kSymk=max(j3,j4)+1
-                lSyml=min(j3,j4)+1
 *
                 nijkl = 0
                 Do lSOl = lSO, lSO+lBas-1
@@ -369,4 +359,6 @@ C to avoid stupid compiler warnings:
 100   Continue
 *
       Return
+* Avoid unused argument warnings
+      If (.False.) Call Unused_integer_array(iSOSym)
       End

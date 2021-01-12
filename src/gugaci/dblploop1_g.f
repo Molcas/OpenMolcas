@@ -589,7 +589,7 @@ C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           LMIJ=MUL_TAB(LMI,LMJ)
           IF(LMIJ.NE.JML.OR.JML.NE.JMR) CYCLE
           IF(JWL.GE.JWR.AND.JB_SYS.EQ.0) CYCLE
-          WL=0.D0
+C          WL=0.D0
           IWDL=JUST(LRI,LRJ)
           IWDR=IWDL
 !SS(1-15) (22)-Drl(11)-
@@ -2464,7 +2464,6 @@ C          WL=VINT_CI(LIST)*VLOP0
           W0SD11=W0_SD(11)
           W1SD11=W1_SD(11)
           W0SD14=W0_SD(14)
-          W1SD14=0.D0
           NI=MOD(NORB_DZ-LRJ,2)
           IF(NI.EQ.1) THEN
             W0SD2 =-W0SD2
@@ -2917,7 +2916,6 @@ C          CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
           W0SD10=W0_SD1(10)
           W1SD10=W1_SD1(10)
           W0SD11=W0_SD1(11)
-          W1SD11=0.D0
           W0SD12=W0_SD1(12)
           W0SD13=W0_SD1(13)
           NI=MOD(NORB_DZ-LRJ,2)
@@ -3249,7 +3247,6 @@ C         CALL PRODAB(3,JPEL,IWDL1,IWDR,JWL,JWR,WL,JPER)
 !TD(13-5) (22)D&&l(33)B^l(23)
       DO LRI=NORB_FRZ+1,NORB_DZ
         LMI=LSM_INN(LRI)
-        ISMA=LMI
         IF(LMI.NE.JMLR) CYCLE
         W0TD1=W0_TD(1)
         W0TD4=W0_TD(4)
@@ -3465,7 +3462,6 @@ C       CALL PRODAB(3,JPEL,IWDL,IWDR,JWL,JWR,WL,JPER)
 !T1D1(15-5) (11)D&&l(33)B^l(13)
       DO LRI=NORB_FRZ+1,NORB_DZ
         LMI=LSM_INN(LRI)
-        ISMA=LMI
         IF(LMI.NE.JMLR) CYCLE
         W0TD1=W0_T1D1(1)
         W0TD4=W0_T1D1(4)

@@ -227,7 +227,6 @@
          ii=ip_Z+i-1
          j=jOrb(i)
          Fock(j)=Work(ii)
-         kk=ip_ZZ+i-1
       End Do
       Call GetMem('eta_ik','Free','Real',ip_eta,2*nX**2+1)
 

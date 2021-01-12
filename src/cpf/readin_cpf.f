@@ -188,7 +188,7 @@ C Note: NORB(i)=NBAS(i)-NPFRO(i)-NPDEL(i)
       Read(5,'(A)',End=991) Line
       If ( Line(1:1).eq.'*' ) Goto 1000
 CPAM97      Read(Line,*,Err=992) ETrsh
-      Read(Line,*,Err=992) DUMMY
+      Read(Line,*)
       WRITE(6,*)' WARNING: The obsolete ETRS command is ignored.'
       Goto 10
 *

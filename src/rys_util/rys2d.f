@@ -36,19 +36,11 @@
      &       B01(nArg*lRys*3)
 #ifdef _DEBUGPRINT_
       Character*30 Label
-#endif
-*
-      iRout = 15
-      iPrint = nPrint(iRout)
-#ifdef _DEBUGPRINT_
-      iPrint=99
-      If (iPrint.ge.59) Then
-         If (nabMax.gt.0) Call RecPrt('PAWP',' ',PAWP,nArg,lRys*3)
-         If (ncdMax.gt.0) Call RecPrt('QCWQ',' ',QCWQ,nArg,lRys*3)
-         If (laa.ne.0) Call RecPrt(' B10',' ',B10,nArg*lRys,3)
-         If (lac.ne.0) Call RecPrt(' B00',' ',B00,nArg*lRys,3)
-         If (lcc.ne.0) Call RecPrt(' B01',' ',B01,nArg*lRys,3)
-      End If
+      If (nabMax.gt.0) Call RecPrt('PAWP',' ',PAWP,nArg,lRys*3)
+      If (ncdMax.gt.0) Call RecPrt('QCWQ',' ',QCWQ,nArg,lRys*3)
+      If (laa.ne.0) Call RecPrt(' B10',' ',B10,nArg*lRys,3)
+      If (lac.ne.0) Call RecPrt(' B00',' ',B00,nArg*lRys,3)
+      If (lcc.ne.0) Call RecPrt(' B01',' ',B01,nArg*lRys,3)
 #endif
 *
 *     Compute 2D integrals with index (0,0). Observe that the z
@@ -153,21 +145,19 @@
       End If
 *
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Then
-         Do 600 iab = 0, nabMax
-            Do 610 icd = 0, ncdMax
-               Write (Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(x)'
-               Call RecPrt(Label,' ',
-     &                     xyz2D(1,iab,icd),lRys,nArg)
-               Write (Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(y)'
-               Call RecPrt(Label,' ',
-     &                     xyz2D(1+nArg*lRys,iab,icd),lRys,nArg)
-               Write (Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(z)'
-               Call RecPrt(Label,' ',
-     &                     xyz2D(1+2*nArg*lRys,iab,icd),lRys,nArg)
- 610        Continue
- 600     Continue
-      End If
+      Do 600 iab = 0, nabMax
+         Do 610 icd = 0, ncdMax
+            Write (Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(x)'
+            Call RecPrt(Label,' ',
+     &                  xyz2D(1,iab,icd),lRys,nArg)
+            Write (Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(y)'
+            Call RecPrt(Label,' ',
+     &                  xyz2D(1+nArg*lRys,iab,icd),lRys,nArg)
+            Write (Label,'(A,I2,A,I2,A)') ' 2D(',iab,',',icd,')(z)'
+            Call RecPrt(Label,' ',
+     &                  xyz2D(1+2*nArg*lRys,iab,icd),lRys,nArg)
+ 610     Continue
+ 600  Continue
 #else
 c Avoid unused argument warnings
       If (.False.) Then

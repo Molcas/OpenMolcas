@@ -99,8 +99,7 @@ c     use Temporary_parameters, only: force_part_c, force_part_p
       Integer iAnga(4), iCmpa(4), nPam(4,0:7), iiBas(4), iAO(4),
      &        iFnc(4)
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
-      Integer iTwoj(0:7),iMemB
-      Data iTwoj/1,2,4,8,16,32,64,128/
+      Integer iMemB
 *
 *     Statement function to compute canonical index
 *
@@ -234,7 +233,6 @@ c     iPrint = nPrint(iRout)
          nTmp2 = 0
       End If
       MemAux = MemPSO + MemScr + nFac*S%nDim + nTmp2 + 4
-      MemB_AUX=MemAux
       If (Mem1+1+MemAux.gt.Mem0) Then
          MaxReq=Max(MaxReq,Mem1+1+MemAux-Mem0)
          QjPrim = .False.
@@ -401,6 +399,5 @@ c     iPrint = nPrint(iRout)
          Mem4 = Mem2
       End If
 *
-      MemSum=Mem1+Mem2+Mem3+MemX+MemFin
       Return
       End

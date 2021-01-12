@@ -72,7 +72,6 @@
      &        iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4),
      &        nAct(0:7)
       Integer ipXmi(5)
-      Integer nHrrTb(0:iTabMx,0:iTabMx,2)
       Logical EQ, Shijij, AeqB, CeqD, DoGrad, DoFock, Indexation,
      &        JfGrad(3,4), ABCDeq, No_Batch, Rsv_Tsk2, Found,
      &        FreeK2, Verbose
@@ -110,8 +109,6 @@
       iFnc(3)=0
       iFnc(4)=0
       PMax=Zero
-      idum=0
-      idum1=0
       call dcopy_(nGrad,[Zero],0,Temp,1)
 *                                                                      *
 ************************************************************************
@@ -226,7 +223,6 @@
 *
       iOff=0
       Do iSym = 0, nSym-1
-         iDlt=ipDMLT(1)+iOff-1
          kS=1+nSkal_Valence*iSym ! note diff wrt declaration of iBDsh
          Do j=1,nBas(iSym)
             jsh=Cho_Irange(j,iBDsh(kS),nSkal_Valence,.true.)
@@ -535,8 +531,6 @@
                   End If
                End Do
             End Do
-            nHrrTb(iAng,jAng,1)=nHrrab
-            nHrrTb(jAng,iAng,1)=nHrrab
          End Do
       End Do
 *                                                                      *

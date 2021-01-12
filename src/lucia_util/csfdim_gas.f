@@ -265,14 +265,11 @@ C
         MXDT =   MAX(MXDT,NPCMCNF(ITP) )
         MXPTBL = MAX(NPCMCNF(ITP)*IOPEN,MXPTBL)
       END DO
-C. local memory for CSFDET
-      LCSFDT = MXPTBL + MAXOP
 C. Memory needed to store ICONF array
       LCONF = 0
-      LDET = 0
       ILCNF = 0
 *
-      LDET = NSD
+C     LDET = NSD
       LLCONF = 0
       ILLCNF = 0
       DO IOPEN = 0, MAXOP

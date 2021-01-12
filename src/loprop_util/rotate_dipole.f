@@ -20,9 +20,9 @@
 * The three dipole components for the bond
 c      Print *,'Test 0'
 c      Call xFlush(6)
-      x_my=rMP(ij,1,0)
-      y_my=rMP(ij,2,0)
-      z_my=rMP(ij,3,0)
+C??      x_my=rMP(ij,1,0)
+C??      y_my=rMP(ij,2,0)
+C??      z_my=rMP(ij,3,0)
 * Vector from ii to jj.
       x_R =   EC(1,ii) - EC(1,jj)
       y_R =   EC(2,ii) - EC(2,jj)

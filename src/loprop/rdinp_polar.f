@@ -18,11 +18,11 @@
       Implicit Real*8 (a-h,o-z)
 *
 *---- Define local variables
-      Character*180 Key, Line, BLIne
+      Character*180 Key, Line
       Character*180 Get_Ln
       Character*12  Opt_Method
       External Get_Ln
-      Logical lTtl, NoField, Standard, UserDen, PrintDen, SubtractDen
+      Logical NoField, Standard, UserDen, PrintDen, SubtractDen
       Logical Restart, Found, TDensity, XHole, Diffuse(3)
       Logical LIonize
       Dimension dLimmo(2)
@@ -31,7 +31,6 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-      BLine=' '
       Delta=0.001D00
       Call Get_iScalar('Highest Mltpl',lMax)
       MpProp_Level = lMax
@@ -72,7 +71,6 @@
       Rewind(LuSpool)
       Call RdNLst(LuSpool,'LoProp')
 *
-      lTtl=.False.
   999 Continue
       Key = Get_Ln(LuSpool)
       Line = Key

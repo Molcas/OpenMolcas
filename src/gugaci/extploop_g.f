@@ -43,16 +43,12 @@
 #include "lpextmode_h.fh"
 #include "intsort_h.fh"
 
-      intpos=intind_abkk(lri)
-      intspace=intspace_abkk(lri)
       ivalue=0
 
 !G2G4b
       if ( logic_g2g4a ) then
         w0lp=w0_plp*w0g2a
         w1lp=w1_plp*w1g2a
-        ww0lp=w0_plp*w0g4a
-        ww1lp=w1_plp*w1g4a
 
 
       do lmb=1,ng_sm
@@ -346,8 +342,6 @@ C
 #include "lpextmode_h.fh"
 #include "intsort_h.fh"
 
-      intpos=intind_abkk(lri)
-      intspace=intspace_abkk(lri)
       ivalue=0
 !G1415
       if ( logic_g1415 ) then
@@ -384,7 +378,7 @@ C IS H*C CALCULATIONS, ???
 
 !G2G4b
       if ( logic_g2g4a ) then
-        w0lp=w0_plp*w0g2a
+c       w0lp=w0_plp*w0g2a
         w1lp=w1_plp*w1g2a
 
 C       valuelptmp1=w0lp
@@ -417,7 +411,6 @@ C       ww1lp=-valuelptmp1*2.d0
       endif
 
 
-      w0lp=w0_plp*w0g36a
       w1lp=w1_plp*w1g36a
 
       do lmb=1,ng_sm
@@ -898,7 +891,6 @@ C       ww1lp=-valuelptmp1*2.d0
 
       ismnodes=ilsm
       ismnoded=irsm
-      ismsd=mul_tab(ismnodes,ismnoded)
       indl=0 !?
       if(iltype.eq.2)indl= 1+ismnodes
       if(iltype.eq.3)indl= 9+ismnodes

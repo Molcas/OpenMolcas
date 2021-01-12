@@ -19,13 +19,13 @@ c                value of status is rank-independent
 c if action="S" copy data from masterto all processes
 #ifdef _MOLCAS_MPP_
       subroutine check_parallel_data(x,n,status,action)
+      use Para_Info, only: MyRank, nProcs
       implicit none
       integer :: n
       real *8 :: x(n)
       logical :: status
       integer :: itemp,ns,j,i,k,irank
       character :: action
-#include "para_info.fh"
 #include "WrkSpc.fh"
       status=.true.
       if (nProcs.eq.1) return

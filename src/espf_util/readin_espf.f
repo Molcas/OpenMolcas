@@ -225,7 +225,6 @@
                   XF(5:7,iChg) = XF(5:7,iChg)/Angstrom
                End If
             End Do
-            ESelf = SelfEn(nChg)
             Convert = .False.
          Else
             Do iAt = 1, natom
@@ -444,7 +443,6 @@ ctmp
                   End If
                End If
             End Do
-            If (.not.(DoTinker.Or.DoGromacs)) ESelf = SelfEn(nChg)
             Convert = .False.
          Else
             Do iAt = 1, natom

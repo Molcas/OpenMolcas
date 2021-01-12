@@ -62,7 +62,6 @@
 *----------------------------------------------------------------------*
 *
       Do iD = 1, nD
-         iCase = iD - 1
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
          Write (6,*) 'n1,n2,nOO,nOV=',n1,n2,nOO,nOV

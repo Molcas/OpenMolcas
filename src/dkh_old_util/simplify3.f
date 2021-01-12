@@ -57,7 +57,6 @@ c
 c
       logical dkhscfflg
       integer j,k,l,m,ilow
-      intrinsic DABS
  240  continue
       ilow=1
       do 10 j=0,dkhorder

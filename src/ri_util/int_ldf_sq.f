@@ -32,14 +32,6 @@
 *
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 *
-* some dummy assignments to avoid compiler warnings about unused
-* variables.
-*
-      If (nSym.gt.0.and.nSkal.gt.0) Then
-         iDummy_2  = itOffs(0,0,0)
-         iDummy_3  = iShell(1)
-      End If
-*
 * check that shells have not been re-ordered
 *
       If (MapOrg(1).ne.1 .or. MapOrg(2).ne.2 .or.
@@ -88,10 +80,13 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_integer_array(iShell)
          Call Unused_logical(Shijij)
          Call Unused_logical(IJeqKL)
          Call Unused_real_array(SOInt)
          Call Unused_integer(nSOint)
          Call Unused_integer_array(iSOSym)
+         Call Unused_integer(nSkal)
+         Call Unused_integer_array(itOffs)
       End If
       End

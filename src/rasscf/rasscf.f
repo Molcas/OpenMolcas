@@ -66,6 +66,9 @@
 
       use orthonormalization, only : ON_scheme
       use print_RDMs_NECI_format, only: printRDMs_NECI
+#ifdef _HDF5_
+      use mh5, only: mh5_put_attr, mh5_put_dset_array_real
+#endif
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -101,7 +104,9 @@
 
       Logical DSCF
       Logical lTemp, lOPTO
+#ifdef _FDE_
       Character*8 label
+#endif
       Character*80 Line
       Character*1 CTHRE, CTHRSX, CTHRTE
       Logical DoQmat,DoActive, l_casdft
@@ -170,7 +175,6 @@
       IfVB=0
       If (ProgName(1:5).eq.'casvb') IfVB=2
 * Default option switches and values, and initial data.
-      EAV1=0.0d0
       THMAX=0.0d0
       Call RasScf_Init()
       Call Seward_Init()
@@ -1174,7 +1178,9 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           Call RdOne(iRc,iOpt,'OneHam',iComp,Work(iTmp1),iSyLbl)
           If ( iRc.ne.0 ) then
            Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
+#ifdef _FDE_
            Write(LF,*) 'Label = ',Label
+#endif
            Write(LF,*) 'iRc = ',iRc
            Call Abend
           End if
@@ -1403,13 +1409,13 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
               IROT   = MAXLOC(dmrg_energy%num_sweeps,nroots)
               maxtrW = MAXVAL(dmrg_energy%max_truncW)
               maxtrR = MAXLOC(dmrg_energy%max_truncW,nroots)
-#endif
          Write(LF,'(6X,I3,I3,I4,E12.2,I4,I5,F15.8,E12.2,A1,E9.2,A1,'//
      &   '2I4,I2,E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I7,A1,I2.2,A1,I2.2)')
      &        ITER,ITERCI,IROT,maxtrW,maxtrR,
      &        ITERSX,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,
      &        ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,
      &        SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
+#endif
             else
             Write(LF,'(6X,I3,I4,I5,I5,F15.8,E12.2,A1,E10.2,A1,2I4,I2,'//
      &          'E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
@@ -1805,7 +1811,7 @@ c Clean-close as much as you can the CASDFT stuff...
          Do jRoot=2,lRoots
 *           Read and reorder the left CI vector
             Call DDafile(JOBIPH,2,Work(iTmp),nConf,jDisk)
-            Call Reord2(NAC,NACTEL,LSYM,1,
+            Call Reord2(NAC,NACTEL,STSYM,1,
      &                  iWork(KICONF(1)),iWork(KCFTP),
      &                  Work(iTmp),Work(iVecL),iWork(ivkcnf))
             C_Pointer=iVecL
@@ -1813,7 +1819,7 @@ c Clean-close as much as you can the CASDFT stuff...
             Do kRoot=1,jRoot-1
 *              Read and reorder the right CI vector
                Call DDafile(JOBIPH,2,Work(iTmp),nConf,kDisk)
-               Call Reord2(NAC,NACTEL,LSYM,1,
+               Call Reord2(NAC,NACTEL,STSYM,1,
      &                     iWork(KICONF(1)),iWork(KCFTP),
      &                     Work(iTmp),Work(iVecR),iWork(ivkcnf))
 *              Compute TDM and store in h5 file

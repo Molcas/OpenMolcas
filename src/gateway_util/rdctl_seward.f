@@ -20,8 +20,7 @@
       use Real_Spherical, only: Sphere
       use fortran_strings, only : str
       use External_Centers
-      use Symmetry_Info, only: Symmetry_Info_Back, Symmetry_Info_Setup,
-     &                         iSkip, nIrrep
+      use Symmetry_Info, only: Symmetry_Info_Setup, iSkip, nIrrep
       use Temporary_Parameters
       use Integral_Parameters
       use Sizes_of_Seward, Only: S
@@ -35,10 +34,13 @@
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif
+      Use Para_Info, Only: MyRank
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
       External NucExp
 #include "Molcas.fh"
-#include "para_info.fh"
 *
 #include "angtp.fh"
 #include "constants.fh"
@@ -59,14 +61,13 @@
 #include "embpotdata.fh"
 #endif
 #include "relae.fh"
-#include "periodic_table.fh"
       Common /AMFn/ iAMFn
 *
       Real*8 Lambda
       Character Key*180, KWord*180, Oper(3)*3, BSLbl*80, Fname*256,
      &          DefNm*13, Ref(2)*80, ChSkip*80, AngTyp(0:iTabMx)*1,
      &          dbas*(LENIN),filename*180, KeepBasis*256, KeepGroup*180,
-     &          Previous_Command*12, BSLbl_Dummy*80, CtrLDK(10)*(LENIN),
+     &          Previous_Command*12, CtrLDK(10)*(LENIN),
      &          Directory*256, BasLib*256,ExtBasDir*256
       Character(LEN=72):: Header(2)=['','']
       Character(LEN=80):: Title(10)=['','','','','','','','','','']
@@ -82,7 +83,7 @@
       Logical do1CCD
       Logical:: CSPF=.False.
       Logical APThr_UsrDef, Write_BasLib
-      Integer Cho_MolWgh, StayAlone, BasisTypes(4), BasisTypes_Save(4),
+      Integer Cho_MolWgh, BasisTypes(4), BasisTypes_Save(4),
      &        iGeoInfo(2), iOpt_XYZ, RC
       Parameter (Cho_CutInt = 1.0D-40, Cho_ThrInt = 1.0D-40,
      &           Cho_MolWgh = 2)
@@ -111,14 +112,16 @@
       Logical DoneCoord
       Logical NoZMAT
       Logical ForceZMAT
-      Logical XYZdirect
       Logical NoDKroll
       Logical DoTinker
       Logical DoGromacs
       Logical OriginSet
       Logical FragSet
       Logical HyperParSet
-      Logical WriteZMat, geoInput, oldZmat,zConstraints
+      Logical WriteZMat
+#ifdef _HAVE_EXTRA_
+      Logical geoInput, oldZmat, zConstraints
+#endif
       Logical EFgiven
       Logical Invert
       Real*8 HypParam(3), RandVect(3)
@@ -126,7 +129,7 @@
 *
       Logical DoEMPC, Basis_test, lECP, lPP
       Logical :: lDMS=.FALSE., lOAM=.FALSE., lOMQ=.False.,
-     &           lAMP=.False., lXF=.False., lFAIEMP=.False.
+     &           lXF=.False., lFAIEMP=.False.
       Common /EmbPCharg/ DoEMPC
 *
 #ifdef _GROMACS_
@@ -142,7 +145,6 @@
       Data WellCff/.35D0,0.25D0,5.2D0/
       Data WellExp/4.0D0,3.0D0,2.0D0/
       Data WellRad/-1.22D0,-3.20D0,-6.20D0/
-      Data StayAlone/0/
 *
 #include "angstr.fh"
       Data DefNm/'basis_library'/
@@ -177,7 +179,6 @@
 *                                                                      *
       Call WhichMolcas(Basis_lib)
       If (Basis_lib(1:1).ne.' ') Then
-         StayAlone=1
          ib=index(Basis_lib,' ')-1
          if(ib.lt.1)
      &   Call SysAbendMsg('rdCtl','Too long PATH to MOLCAS',' ')
@@ -217,8 +218,6 @@
       LuRdSave=-1
 *
       nTemp=0
-      ipRTmp=ip_Dummy
-      ipITmp=ip_iDummy
       lMltpl=.False.
 *
       CholeskyWasSet=.False.
@@ -237,13 +236,16 @@
       KeepGroup='FULL'
       NoZMAT=.false.
       ForceZMAT=.false.
-      XYZDirect=.false.
       DoTinker = .False.
       DoGromacs = .False.
       origin_input = .False.
+#ifdef _HAVE_EXTRA_
       geoInput = .False.
-      ZConstraints = .False.
       OldZmat = .False.
+      isHold=-1
+      nCoord=0
+      ZConstraints = .False.
+#endif
       WriteZMat = .False.
       nFragment = 0
       iFrag = 0
@@ -275,10 +277,8 @@
       ScaleFactor=1.0d0
       lSTDINP=0
       iCoord=0
-      nCoord=0
       iBSSE=-1
       SymThr=0.01D0
-      isHold=-1
       nTtl=0
 *
       imix=0
@@ -307,7 +307,6 @@
       End If
 *
       iDNG=0
-      nDKfull = 0
       iAMFn = 0   ! usual AMFI
       BasisTypes(:)=0
       KeepBasis=' '
@@ -830,7 +829,6 @@ c     Call Quit_OnUserError()
       i2=iCLast(Key,80)
       nc = 80-(i2-i1+1)
       nc2=nc/2
-      nc3=(nc+1)/2
       Title(nTtl)=''
       Title(nTtl)(nc2+1:nc2+i2-i1+1)=Key(i1:i2)
       Go To 9988
@@ -906,7 +904,6 @@ c     Call Quit_OnUserError()
       Call StdSewInput(LuRd,ifnr,mdc,iShll,BasisTypes,
      &                 STDINP,lSTDINP,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
-      XYZdirect=.true.
 *      If (SymmSet) Then
 *         Call WarningMessage(2,
 *     &                 'SYMMETRY keyword is not compatible with XYZ')
@@ -1014,7 +1011,9 @@ c Simplistic validity check for value
          Call WarningMessage(2,'COORD keyword is not found')
          Call Quit_OnUserError()
       End If
+#ifdef _HAVE_EXTRA_
       isHold=0
+#endif
       GWInput=.True.
       goto 998
 *                                                                      *
@@ -1027,7 +1026,9 @@ c Simplistic validity check for value
          Call WarningMessage(2,'COORD keyword is not found')
          Call Quit_OnUserError()
       End If
+#ifdef _HAVE_EXTRA_
       isHold=1
+#endif
       GWInput=.True.
       goto 998
 *                                                                      *
@@ -1136,7 +1137,6 @@ c Simplistic validity check for value
       Call ICopy(4,BasisTypes,1,BasisTypes_save,1)
       If (BSLbl(1:2).eq.'X.'.and.Index(BSLbl,'INLINE').eq.0.and.
      &    Index(BSLbl,'RYDBERG').eq.0) Then
-         BSLbl_Dummy=BSLbl
          BSLbl='X.ANO-RCC.'
          Do i=11,80
            BSLbl(i:i)='.'
@@ -1687,7 +1687,9 @@ c Simplistic validity check for value
 *             specified in XFIEld
 *
  974  DoEmPC=.True.
+#ifdef _HAVE_EXTRA_
       isHold=1 ! avoid coordinate moving
+#endif
       GWInput=.True.
       Go To 998
 *                                                                      *
@@ -2234,8 +2236,7 @@ c Simplistic validity check for value
 *                                                                      *
 *     Angular momentum products
 *
- 9951 lAMP = .True.
-      GWInput=.True.
+ 9951 GWInput=.True.
       If (Run_Mode.eq.S_Mode.and.GWInput) Go To 9989
       Call mma_allocate(AMP_Center,3,Label='AMP_Center')
       KWord = Get_Ln(LuRd)
@@ -3341,7 +3342,9 @@ c
 ***** HYPE *************************************************************
 *                                                                      *
  8016 KWord = Get_Ln(LuRd)
+#ifdef _HAVE_EXTRA_
       geoInput = .true.
+#endif
       writeZmat = .true.
       Call Get_F(1,HypParam,3)
       GWinput = .True.
@@ -3350,8 +3353,10 @@ c
 *                                                                      *
 ***** ZCON *************************************************************
 *                                                                      *
- 8017 ZConstraints = .true.
-      writeZMat = .true.
+ 8017 writeZMat = .true.
+#ifdef _HAVE_EXTRA_
+      ZConstraints = .true.
+#endif
       GWinput = .True.
       Go To 998
 *                                                                      *
@@ -3383,7 +3388,9 @@ c
 ***** OLDZ *************************************************************
 *                                                                      *
  8021 GWinput = .True.
+#ifdef _HAVE_EXTRA_
       oldZmat = .True.
+#endif
       Go To 998
 *                                                                      *
 ***** OPTH *************************************************************
@@ -3406,7 +3413,10 @@ c
 *                                                                      *
 ***** GEO  *************************************************************
 *                                                                      *
- 8024 geoInput = .true.
+ 8024 Continue
+#ifdef _HAVE_EXTRA_
+      geoInput = .true.
+#endif
       writeZMat = .true.
 *     Parameters for the gridsize is set to default-values if geo is
 *     used instead of hyper
@@ -4049,7 +4059,9 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       End If
 *
       If (NoDKroll) DKroll=.false.
+#ifdef _HAVE_EXTRA_
       If (DoEMPC) isHold=1
+#endif
 *
       If ((lECP.or.lPP).and.lAMFI.and..Not.Expert) Then
          Call WarningMessage(2,
@@ -4641,9 +4653,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Subroutine LDF_CheckConfig()
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit None
 #include "localdf.fh"
-#include "para_info.fh"
       ! Debug write of unconstrained coefficients:
       ! 1) makes no sense for unconstrained LDF => reset
       ! 2) not implemented in parallel => error

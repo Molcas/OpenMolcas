@@ -28,12 +28,10 @@
 #include "Molcas.fh"
       Character Labels*8, Type*6, Temp*120,
      &          Line*120, Format*8, filnam*16
-      Logical lWrite, lNew
+      Logical lNew
       Integer, Allocatable:: Ind(:,:)
       Real*8, Allocatable:: xyz(:,:), Temp2(:,:), Mass(:,:)
 *
-      lWrite = .True.
-      Lu=6
       nTemp=Len(Temp)
       Write (Format,'(A,I3.3,A)') '(F',nTemp,'.0)'
 *

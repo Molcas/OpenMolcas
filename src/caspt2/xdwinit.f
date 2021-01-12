@@ -156,7 +156,7 @@
         if (IPRGLB.ge.VERBOSE) then
           write(6,'(1x,a,i3)')
      &    ' The CI coefficients of rotated model state nr. ',MSTATE(J)
-          call PRWF_CP2(LSYM,NCONF,WORK(LCIXMS),CITHR)
+          call PRWF_CP2(STSYM,NCONF,WORK(LCIXMS),CITHR)
         end if
       end do
 

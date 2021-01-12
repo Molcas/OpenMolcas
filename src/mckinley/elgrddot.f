@@ -44,9 +44,7 @@
 *     Statement function for Cartesian index
 *
       nElem(i) = (i+1)*(i+2)/2
-
 *
-      iprint=0
       ABeq(1) = A(1).eq.B(1)
       ABeq(2) = A(2).eq.B(2)
       ABeq(3) = A(3).eq.B(3)

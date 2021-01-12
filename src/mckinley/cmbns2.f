@@ -45,7 +45,6 @@ c     iRout = 134
 c     iPrint = nPrint(iRout)
       iStb(0)=iu
       iStb(1)=iv
-      iQ = 1
 *     Call GetMem(' Enter CmbnS2','LIST','REAL',iDum,iDum)
 *
       exp32 = -Three/Two

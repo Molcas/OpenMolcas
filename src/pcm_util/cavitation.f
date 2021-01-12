@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Cavitation(DoDeriv,ToAng,nAt,nS,nTs,GCavP,VMol,TAbs,
-     &                      TCE,RSolv,Sphere,Tessera,iSphe)
+     &                      RSolv,Sphere,Tessera,iSphe)
       Implicit Real*8 (A-H,O-Z)
       Logical DoDeriv
 C
@@ -37,7 +37,7 @@ C
         Work(ip_EA-1+iS) = Work(ip_EA-1+iS) + Tessera(4,iTs)
       End Do
 *
-      Call Cavitation_(nAt,nS,VMol,TAbs,TCE,RSolv,GCavP,Work(ip_CavS),
+      Call Cavitation_(nAt,nS,VMol,TAbs,RSolv,GCavP,Work(ip_CavS),
      &                 Work(ip_dCav),Sphere,Work(ip_EA),Work(ip_dEA),
      &                 DoDeriv)
 *
@@ -53,7 +53,7 @@ C
 *
       Return
       End
-      Subroutine Cavitation_(NAtoms,NSph,VMol,TAbs,TCE,RSolv,
+      Subroutine Cavitation_(NAtoms,NSph,VMol,TAbs,RSolv,
      $  GCavP,PCvSph,dCav,Sphere,Ae,dAe,DoDeriv)
       Implicit Real*8 (A-H,O-Z)
       Logical DoDeriv
@@ -71,7 +71,6 @@ C
       PI     = Four * ATan(One)
       TPI    = Two  * PI
       FPI    = Two  * TPI
-      DiSolv = Two  * RSolv
 C
 C     Cavitation Energy:  R.A. Pierotti, Chem.Rev. 76,717,(1976).
 C
@@ -86,8 +85,6 @@ C
       RT    = GC*TAbs/F1000
       YP    = DENum*FPI*RSolv**3/Three
       YM    = YP/(One-YP)
-      DYP   = -TCE*YP
-      DYM   = -TCE*YM/(One-YP)
 C
 C     Loop on spheres.
 C
@@ -95,7 +92,6 @@ C
       Do 50 ISph = 1, NSph
         RSph = Sphere(4,ISph)
         R    = RSph/RSolv
-        DR   = TCE*R/Three
 C
 C       Pierotti's cavitation free energy for the single sphere.
 C

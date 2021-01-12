@@ -52,8 +52,8 @@ C        0 -- successful execution
 C        1 -- decomposition failed
 C        2 -- memory has been out of bounds
 C
+      USE Para_Info, ONLY: nProcs, Is_Real_Par
 #include "implicit.fh"
-#include "cho_para_info.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choptr.fh"

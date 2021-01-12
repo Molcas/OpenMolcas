@@ -36,8 +36,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      LuWr=6
-*
       nCnttp_Valence=0
       Do iCnttp = 1, nCnttp
          If (dbsc(iCnttp)%Aux) Exit

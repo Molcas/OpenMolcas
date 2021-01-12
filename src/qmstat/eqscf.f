@@ -87,14 +87,8 @@
       Endif
       DiFac=-(Diel-1)/(Diel+1)
       Expran=0
-      Expre=0
-      ggsum=0
-      HighS=0
-      corr=0
       iHowMSampUT=0
       iHowMSampIN=0
-      iD=1
-      Adisp=Disp(1,2)
       nBaseC=nBas_C(1)
       nBaseQ=nBas(1)
       iTri=(iOrb(1)*(iOrb(1)+1))/2
@@ -228,7 +222,6 @@ c          write(6,*)'ipAOSum',ipAOSum
       ncParm=ncPart-(nCent*icNum)
       nClas=nPart-iCNum
       indma=npart*npol
-      iGG=nPart*nPol
       iCi=(iQ_Atoms*(iQ_Atoms+1))/2
 *----------------------------------------------------------------------*
 * Substitue classical waters for quantum molecule.                     *
@@ -248,7 +241,6 @@ c          write(6,*)'ipAOSum',ipAOSum
 *                                                                      *
 *----------------------------------------------------------------------*
       iSnurr=0  !How many steps taken totally.
-      nSiffiB=0  !A number for blocking.
 *
 *---- The Macrosteps.
 *

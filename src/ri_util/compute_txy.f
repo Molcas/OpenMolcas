@@ -31,9 +31,6 @@
       Real*8 DM1(nDM,nAuxVec),
      &       Txy(nTxy,nAuxVec),Diag(nDM,nAuxVec),
      &       DMtmp(nDM*(nDM+1)/2)
-      Logical debug
-      debug=.true.
-      debug=.false.
 *
       nCumAct(0)=0
       Do i=1,nIrrep-1

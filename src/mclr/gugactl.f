@@ -164,7 +164,6 @@
       End If
       if(nconf.ne.1) NCONF=NCSF(State_Sym)
 *
-      NILNDW=NWALK
       NICASE=NWALK*NIPWLK
       Call mma_allocate(ICASE,NICASE,Label='ICASE')
       Call MKCLIST_MCLR

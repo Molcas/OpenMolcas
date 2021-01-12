@@ -142,7 +142,6 @@ C
 C.. Loop over configurations and generate determinants in compact form
 C
       ICNF = 0
-      IDT  = 0
       JDTABS = 0
       IPSFAC=0 ! Removes a compiler error
       ISGNAB=0 ! Removes a compiler error
@@ -379,7 +378,6 @@ C     that no CSF<->SD coefficents is in core
       ISSM   = lSym
       ICSPC  = 1
       ISSPC  = 1
-      XNDET   = XISPSM(IsSM,Ispc)
       NEL    = NELCI(ISPC)
       IATP   = IASTFI(ISPC)
       IBTP   = IBSTFI(ISPC)
@@ -1168,7 +1166,6 @@ C          END IF
             CALL IWRTMA(IIOP,1,NOP,1,NOP)
           END IF
 C        RAS  CONSTRAINTS
-         IOKAY=1
            IEL1 = IEL1C
            IEL3 = IEL3C
 C..        CHECK RAS1 and RAS3
@@ -1770,7 +1767,6 @@ C. No more active configurations , so
             CALL IWRTMA(IIOP,1,NOP,1,NOP)
           END IF
 C        RAS  CONSTRAINTS
-         IOKAY=1
            IEL1 = IEL1C
            IEL3 = IEL3C
 C..        CHECK RAS1 and RAS3

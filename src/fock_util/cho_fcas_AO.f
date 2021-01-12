@@ -54,7 +54,10 @@ C
       Integer   ipPorb,ipFA,ipFI
       Integer   ipDLT(2),ipFLT(2),ipDab(2),ipFab(2)
       Integer   nForb(8),nIorb(8),nAorb(8),nPorb(8),nnA(8,8),nChM(8)
-      Logical   Debug,timings,DoRead,DoReord,DoActive,DoQmat
+#ifdef _DEBUGPRINT_
+      Logical   Debug
+#endif
+      Logical   timings,DoRead,DoReord,DoActive,DoQmat
       Character*50 CFmt
       Character*11 SECNAM
       Parameter (SECNAM = 'CHO_FCAS_AO')
@@ -82,12 +85,8 @@ C
 ************************************************************************
 
 #ifdef _DEBUGPRINT_
-c      Debug=.true.
       Debug=.false.! to avoid double printing in CASSCF-debug
-#else
-      Debug=.false.
 #endif
-
 
       DoRead  = .false.
       DoReord = .false.
@@ -842,7 +841,6 @@ C --- free memory
 
 c Print the Fock-matrix
 #ifdef _DEBUGPRINT_
-
       if(Debug) then !to avoid double printing in CASSCF-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM

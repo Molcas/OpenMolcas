@@ -105,7 +105,6 @@
       End If
       If(.not. DynExtPot) Then
         If (ipOldMltp .ne. ip_Dummy) Call Free_Work(ipOldMltp)
-        iReturn=0
         Return
       End If
 *
@@ -186,7 +185,6 @@
             sum4 = sum4+(Work(ipMltp+iMlt+2)-Work(ipOldMltp+iMlt+2))**2
             End If
          End Do
-         rms1 = sqrt(sum1/nMult)
          rms2 = sqrt(sum2/nMult)
          rms3 = sqrt(sum3/nMult)
          rms4 = sqrt(sum4/nMult)
@@ -261,6 +259,5 @@
       Call GetMem('IsMM for atoms','Free','Inte',ipIsMM,natom)
       Call GetMem('AtomCoord','Free','Real',ipCord,3*natom)
 *
-      iReturn=0
       Return
       End

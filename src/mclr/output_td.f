@@ -157,8 +157,8 @@
             idis=iRHSCIDisp(idisp)
             irc=ipin(iprp1)
             Call dDaFile(LuTemp,2,W(iprp1)%Vec,iLen,iDis)
-            ii=ipin(ipsp)
-            jj=ipin(iprp1)
+            irc=ipin(ipsp)
+            irc=ipin(iprp1)
             Do i=1,nCI
              W(ipsp)%Vec(i)=-W(ipsp)%Vec(i)-W(iprp1)%Vec(i)
             End Do

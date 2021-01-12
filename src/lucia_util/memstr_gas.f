@@ -42,8 +42,6 @@
 #include "gasstr.fh"
 #include "stinf.fh"
 #include "crun.fh"
-* Some dummy initializtions
-      NTEST = 0
 *
 *. Start of string information
 *

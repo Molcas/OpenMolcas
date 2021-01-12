@@ -95,7 +95,7 @@ C
 C
 C     CALCULATE RELATIVISTIC ENERGY AND MOMENTUM
 C
-      SR=sqrt(2.D0*EW(I))
+*     SR=sqrt(2.D0*EW(I))
       TT(I)=EW(I)
       IF (RATIO.GT.0.02D0) GOTO 11
       TV1=EW(I)

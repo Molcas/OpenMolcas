@@ -13,10 +13,10 @@ c
 c
 c       docasny drajver o3v3 procesov
 c
+        use Para_Info, only: nProcs
         implicit none
 #include "chcc1.fh"
 #include "chcc_parcc.fh"
-#include "para_info.fh"
 #include "o3v3.fh"
 #include "wrk.fh"
 c

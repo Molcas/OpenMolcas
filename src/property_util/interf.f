@@ -25,9 +25,6 @@
       Character*80 Note
       Dimension Ene(*)
       Dimension iDum(7,8)
-*
-* Local print level:
-      IPRLEV=IPRLOC(7)
 *                                                                      *
 ************************************************************************
 *                                                                      *

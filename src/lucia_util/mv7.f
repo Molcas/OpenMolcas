@@ -42,7 +42,6 @@
 #include "glbbas.fh"
 #include "oper.fh"
       COMMON/CMXCJ/MXCJ,MAXK1_MX,LSCMAX_MX
-      IDUM = 0
 *
       IF(ICISTR.EQ.1) THEN
         WRITE(6,*) ' MV7 does not work for ICISTR = 1'
@@ -58,12 +57,6 @@
 *
       NOCTPA = NOCTYP(IATP)
       NOCTPB = NOCTYP(IBTP)
-*. Offset for supergroups
-      IOCTPA = IBSPGPFTP(IATP)
-      IOCTPB = IBSPGPFTP(IBTP)
-*
-      NAEL = NELEC(IATP)
-      NBEL = NELEC(IBTP)
 *. Arrays giving allowed type combinations
       CALL GETMEM('SIOIO ','ALLO','INTE',KSIOIO,NOCTPA*NOCTPB)
       CALL IAIBCM(ISSPC,iWORK(KSIOIO))
@@ -112,17 +105,7 @@ C     WRITE(6,*) ' ISSM and ICSM in MV7 =', ISSM,ICSM
      &               0,ISIMSYM)
       CALL GETMEM('SIOIO ','FREE','INTE',KSIOIO,NOCTPA*NOCTPB)
       CALL GETMEM('SBLTP ','FREE','INTE',KSBLTP,NSMST)
-*. Number of BLOCKS
-        NBLOCK = IFRMR(iWORK(KLSI1BT),1,NBATCH)
-     &         + IFRMR(iWORK(KLSLBT),1,NBATCH) - 1
-C?      WRITE(6,*) ' Number of blocks ', NBLOCK
 
-      IF(I12.EQ.2) THEN
-        IDOH2 = 1
-      ELSE
-        IDOH2 = 0
-      END IF
-*
       IF(ICISTR.EQ.1) THEN
        LLUC = 0
        LLUHC = 0

@@ -157,7 +157,7 @@ c Avoid unused argument warnings
       Real*8, Allocatable :: EVal(:), EVec(:,:), Diag(:,:), HU(:,:)
       Real*8 H(nH,nH)
 *
-      Lu=6
+*     Lu=6
 *
       Call mma_allocate(EVal,nH*(nH+1)/2,label='EVal')
       Call mma_allocate(EVec,nH,nH,label='EVec')

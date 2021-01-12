@@ -52,7 +52,7 @@ c
 c
 c     help variables
 c
-       integer a,b,c,bc,adda,lenght,iaddr
+       integer a,b,c,bc,adda,length,iaddr
 c
 c*    if there are no beta virtuals - goto write section
        if (nvb(symq)*nvb(symr)*nvb(syms).eq.0) then
@@ -76,10 +76,10 @@ c
 c
 c*    write section
 c
- 200    lenght=dima*dimbc
-       if (lenght.gt.0) then
+ 200    length=dima*dimbc
+       if (length.gt.0) then
        iaddr=daddr(lunt3)
-       call ddafile (lunt3,1,r(1,1),lenght,iaddr)
+       call ddafile (lunt3,1,r(1,1),length,iaddr)
        end if
 
        return
@@ -121,7 +121,7 @@ c
 c
 c     help variables
 c
-       integer a,b,c,adda,addb,addc,lenght,iaddr
+       integer a,b,c,adda,addb,addc,length,iaddr
 c
 c*    if there are no beta virtuals - skip
        if (nvb(symq)*nvb(symr)*nvb(syms).eq.0) then
@@ -146,10 +146,10 @@ c
 c
 c*    write section
 c
-        lenght=dima*dimb*dimc
-       if (lenght.gt.0) then
+        length=dima*dimb*dimc
+       if (length.gt.0) then
        iaddr=daddr(lunt3)
-       call ddafile (lunt3,1,r(1,1,1),lenght,iaddr)
+       call ddafile (lunt3,1,r(1,1,1),length,iaddr)
        end if
 c
        return
@@ -176,7 +176,7 @@ c
 c
 c     help variables
 c
-       integer lenght,iri,possri
+       integer length,iri,possri
        integer posst
        integer symi,i,iaddr,iindex,iPossPack
 c
@@ -206,9 +206,9 @@ c1.2        def possition of of this block in R1
             possri=mapdri(iri,1)
 c
 c1.3        read integrals into proper possition
-            lenght=mapdri(iri,2)
-            if (lenght.gt.0) then
-            call ddafile (lunt3,2,wrk(possri),lenght,iaddr)
+            length=mapdri(iri,2)
+            if (length.gt.0) then
+            call ddafile (lunt3,2,wrk(possri),length,iaddr)
             end if
 c
           end do
@@ -225,14 +225,14 @@ c2.2      write maps
           call idafile (lunt3,1,mapiri,512,iaddr)
 c
 c2.3      def actual length of Ri
-          lenght=0
+          length=0
           do iri=1,mapdri(0,5)
-          lenght=lenght+mapdri(iri,2)
+          length=length+mapdri(iri,2)
           end do
-c         lenght=mapdri(iri,1)+mapdri(iri,2)-mapdri(1,1)
+c         length=mapdri(iri,1)+mapdri(iri,2)-mapdri(1,1)
 c
 c2.4          write Ri as one block
-          call ddafile (lunt3,1,wrk(possri0),lenght,iaddr)
+          call ddafile (lunt3,1,wrk(possri0),length,iaddr)
 c
 c2.5          save updated address as a new packed (final) possition
 c         for next i
@@ -351,7 +351,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        mapd(i,2)=nhelp1
 c
 c     def sym p,q
@@ -387,7 +387,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        if ((typ.eq.1).and.(sp.eq.sq)) then
        mapd(i,2)=nhelp1*(nhelp1-1)/2
        else
@@ -463,7 +463,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        if ((typ.eq.1).and.(sp.eq.sq)) then
        mapd(i,2)=nhelp1*(nhelp1-1)*nhelp3/2
        else if ((typ.eq.2).and.(sq.eq.sr)) then
@@ -550,7 +550,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        if ((typ.eq.1).and.(sp.eq.sq)) then
        mapd(i,2)=nhelp1*(nhelp2-1)*nhelp3*nhelp4/2
        else if ((typ.eq.2).and.(sq.eq.sr)) then

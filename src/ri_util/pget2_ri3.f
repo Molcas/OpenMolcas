@@ -43,8 +43,7 @@
       Logical Shijij
 *     Local Array
       Integer jSym(0:7), kSym(0:7), lSym(0:7), nAct(0:7)
-      Integer iTwoj(0:7),nCumnnP(0:7),nCumnnP2(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
+      Integer nCumnnP(0:7),nCumnnP2(0:7)
 #include "ymnij.fh"
 *                                                                      *
 ************************************************************************
@@ -55,8 +54,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 39
-      iPrint = nPrint(iRout)
 #ifdef _DEBUGPRINT_
       iPrint=99
       If (iPrint.ge.99) Then
@@ -346,13 +343,9 @@
                      Do iVec=1,nAVec
                        iMO1=1
                        iMO2=1
-                       iVec_=iVec
-                       fact=1.0d0
                        If (iVec.eq.2) iMO2=2
-                       If (iVec.eq.3) fact=2.0d0
                        If (iVec.eq.4) Then
                          iMO1=2
-                         iVec_=2
                        EndIf
 *
                        Do jAOj = 0, jBas-1

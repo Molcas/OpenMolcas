@@ -55,7 +55,6 @@ c      Character*120 Lines(17)
         levelprint=IPRINTLEVEL(levelprint)
       endif
       if(iRun.eq.1) then
-      iRout=1
       Call SetTim
 *
 c      Call bXML('GRID_IT')

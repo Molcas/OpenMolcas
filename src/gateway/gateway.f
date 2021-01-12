@@ -42,7 +42,6 @@
 #include "rctfld.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-#include "vrsn_gateway.fh"
       Character xLblCnt(MxAtom)*(LENIN)
       Parameter (nMamn=MaxBfn+MaxBfn_Aux)
       Character*(LENIN8), Allocatable :: Mamn(:)
@@ -185,9 +184,6 @@ C     Call Gateway_banner()
       Call mma_allocate(DCh,nNuc)
       Call mma_allocate(DCh_Eff,nNuc)
       Call mma_allocate(nStab,nNuc)
-      iDCo = 1
-      iDCh = 1
-      iDChE= 1
       mdc = 0
       iNuc = 0
       Do iCnttp = 1, nCnttp

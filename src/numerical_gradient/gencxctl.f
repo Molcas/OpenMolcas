@@ -36,14 +36,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*
-      Lu=6
-*
-      iRout = 32
-      iPrint=nPrint(iRout)
-*                                                                      *
-************************************************************************
-*                                                                      *
 *-----Process the input
 *
       LuSpool=21
@@ -56,10 +48,6 @@
       Numerical = .False. ! Just to define it, value is irrelevant here!
 *
       Call Close_LuSpool(LuSpool)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      jPrint=nPrint(iRout)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -134,7 +122,6 @@
 *     eliminate naturally translational and rotational degrees
 *     (3N-6) but also eliminate constrained degrees (3N-6-m)
 *
-      nDisp = mInt-nLambda
       Call mma_allocate(du,mInt,Label='du')
 *
 *     Loop only over displacement which do not change the constraint.

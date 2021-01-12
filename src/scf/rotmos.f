@@ -84,7 +84,6 @@
             nOF=nOrb(iSym)-nFro(iSym)
             nVrt=nOrb(iSym)-nOcc(iSym,iD)
             nOccmF=nOcc(iSym,iD)-nFro(iSym)
-            nOF2=nOF*nOF
             nOFnBa=nOF*nBas(iSym)
             iCMOpt=iCMOpt+nBas(iSym)*nFro(iSym)
 *

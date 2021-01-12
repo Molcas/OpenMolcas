@@ -10,6 +10,5 @@
 ************************************************************************
 C Cholesky parallel info: additional information if running FAKE parallel,
 C which seems to be a special Cholesky parallel mode for e.g. debugging.
-#include "para_info.fh"
       Logical           Cho_Real_Par
       Common / CPILOG / Cho_Real_Par

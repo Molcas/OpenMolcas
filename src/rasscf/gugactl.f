@@ -109,7 +109,7 @@ C
 C     INITIALIZE GUGA TABLES:
 C
       CALL MKGUGA(NSM,IPRLEV)
-      NCONF=NCSF(LSYM)
+      NCONF=NCSF(STSYM)
       If ( NAC.eq.0 ) NCONF=1
 
 100   Continue

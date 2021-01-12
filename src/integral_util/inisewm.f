@@ -13,14 +13,12 @@
       character*(*) prgnam
       character*16 pgnm_local
 #include "unixinfo.fh"
-#include "para_info.fh"
       Logical DoRys
 
 c      ProgName=prgnam
       pgnm_local=prgnam
       call locase(pgnm_local)
 *
-      info=0
       If(pgnm_local.eq.'seward') then
       else if(pgnm_local.eq.'scf') then
         DoRys=.true.

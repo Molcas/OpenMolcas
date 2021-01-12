@@ -10,6 +10,10 @@
 ************************************************************************
       SUBROUTINE READCI(ISTATE,ISGS,ICIS,NCI,CI)
       use rassi_global_arrays, only: JBNUM, LROOT
+#ifdef _HDF5_
+      USE mh5, ONLY: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
+     &               mh5_fetch_attr, mh5_fetch_dset_array_real
+#endif
       IMPLICIT NONE
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -23,7 +27,6 @@
 #include "Struct.fh"
 #include "SysDef.fh"
 #ifdef _HDF5_
-#  include "mh5.fh"
       integer :: refwfn_id
       integer :: root2state(mxroot), IDXCI
 #endif

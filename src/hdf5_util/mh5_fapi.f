@@ -90,6 +90,10 @@
       end interface
       integer :: ierr
       ierr = mh5c_close_file(lu)
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
 *     check if a file is in the HDF5 format
@@ -164,6 +168,10 @@
       end interface
       integer :: ierr
       ierr = mh5c_close_group(id)
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
 *     check for existence of dataset/attribute by id,
@@ -397,6 +405,10 @@
       end interface
 
       ierr = mh5c_put_attr_scalar_int(dset_id, value)
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
       subroutine mh5_put_attr_scalar_real (dset_id, value)
@@ -417,6 +429,10 @@
       end interface
 
       ierr = mh5c_put_attr_scalar_real(dset_id, value)
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
       subroutine mh5_put_attr_scalar_str (dset_id, value)
@@ -437,6 +453,10 @@
       end interface
 
       ierr = mh5c_put_attr_scalar_str(dset_id, value)
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
 
@@ -458,6 +478,10 @@
       end interface
 
       ierr = mh5c_get_attr_scalar_int(dset_id, value)
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
       subroutine mh5_get_attr_scalar_real (dset_id, value)
@@ -478,6 +502,10 @@
       end interface
 
       ierr = mh5c_get_attr_scalar_real(dset_id, value)
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
       subroutine mh5_get_attr_scalar_str (dset_id, value)
@@ -498,6 +526,10 @@
       end interface
 
       ierr = mh5c_get_attr_scalar_str(dset_id, value)
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
       function mh5_create_attr_array_int (lu, name, rank, dims)
@@ -960,6 +992,10 @@
       end interface
 
       ierr = mh5c_put_dset_scalar_int(dset_id, value)
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
       subroutine mh5_put_dset_scalar_real (dset_id, value)
@@ -980,6 +1016,10 @@
       end interface
 
       ierr = mh5c_put_dset_scalar_real(dset_id, value)
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
       subroutine mh5_put_dset_scalar_str (dset_id, value)
@@ -1000,6 +1040,10 @@
       end interface
 
       ierr = mh5c_put_dset_scalar_str(dset_id, value)
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
 
@@ -1021,6 +1065,10 @@
       end interface
 
       ierr = mh5c_get_dset_scalar_int(dset_id, value)
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
       subroutine mh5_get_dset_scalar_real (dset_id, value)
@@ -1041,6 +1089,10 @@
       end interface
 
       ierr = mh5c_get_dset_scalar_real(dset_id, value)
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
       subroutine mh5_get_dset_scalar_str (dset_id, value)
@@ -1061,6 +1113,10 @@
       end interface
 
       ierr = mh5c_get_dset_scalar_str(dset_id, value)
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
       function mh5_create_dset_array_int (lu, name, rank, dims, dyn)
@@ -1245,6 +1301,10 @@
       else
         ierr = mh5c_put_dset_array_int_full(dset_id, buffer)
       end if
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
       subroutine mh5_put_dset_array_real (dset_id, buffer, exts, offs)
@@ -1282,6 +1342,10 @@
       else
         ierr = mh5c_put_dset_array_real_full(dset_id, buffer)
       end if
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
       subroutine mh5_put_dset_array_str (dset_id, buffer, exts, offs)
@@ -1319,6 +1383,10 @@
       else
         ierr = mh5c_put_dset_array_str_full(dset_id, buffer)
       end if
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
 
@@ -1357,6 +1425,10 @@
       else
         ierr = mh5c_get_dset_array_int_full(dset_id, buffer)
       end if
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
       subroutine mh5_get_dset_array_real (dset_id, buffer, exts, offs)
@@ -1394,6 +1466,10 @@
       else
         ierr = mh5c_get_dset_array_real_full(dset_id, buffer)
       end if
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
       subroutine mh5_get_dset_array_str (dset_id, buffer, exts, offs)
@@ -1431,6 +1507,10 @@
       else
         ierr = mh5c_get_dset_array_str_full(dset_id, buffer)
       end if
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
       subroutine mh5_extend_dset_array(dset_id, dims)
@@ -1450,9 +1530,7 @@
       end interface
 
       ierr = mh5c_extend_dset_array(dset_id, dims)
-      if (ierr .lt. 0) then
-        call abend
-      end if
+      if (ierr < 0) call abend
       end subroutine
 
       subroutine mh5_get_dset_array_dims(dset_id, dims)
@@ -1472,9 +1550,7 @@
       end interface
 
       ierr = mh5c_get_dset_array_dims(dset_id, dims)
-      if (ierr .lt. 0) then
-        call abend
-      end if
+      if (ierr < 0) call abend
       end subroutine
 
 * Convenience wrappers: 'init' and 'fetch'
@@ -1554,6 +1630,10 @@
       dset_id = mh5_create_dset_array_int(lu, name, rank, dims, isdyn)
       ierr = mh5c_put_dset_array_int_full(dset_id, buffer)
       call mh5_close_dset(dset_id)
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
       subroutine mh5_init_dset_array_real(lu, name, rank, dims, buffer,
@@ -1591,9 +1671,13 @@
       logical :: isdyn
       isdyn = .false.
       if (present(dyn)) isdyn = dyn
-      dset_id = mh5_create_dset_array_real(lu, name, rank, dims, dyn)
+      dset_id = mh5_create_dset_array_real(lu, name, rank, dims, isdyn)
       ierr = mh5c_put_dset_array_real_full(dset_id, buffer)
       call mh5_close_dset(dset_id)
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
       subroutine mh5_init_dset_array_str(
@@ -1638,6 +1722,10 @@
      &                                    isdyn)
       ierr = mh5c_put_dset_array_str_full(dset_id, buffer)
       call mh5_close_dset(dset_id)
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(ierr)
+#endif
       end subroutine
 
 * fetch: open, get, close

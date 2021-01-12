@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine chpcmpinit_cvb()
       implicit real*8 (a-h,o-z)
@@ -35,7 +36,8 @@
       function recinpcmp_cvb(ifield)
       implicit real*8 (a-h,o-z)
       logical recinpcmp_cvb
-#include "ext_cvb.fh"
+c ... Files/Hamiltonian available ...
+      logical, external :: valid_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"

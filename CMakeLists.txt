@@ -23,7 +23,7 @@
 project (OpenMolcas Fortran C)
 
 cmake_minimum_required (VERSION 3.12.0)
-#set (CMAKE_VERBOSE_MAKEFILE true)
+#set (CMAKE_VERBOSE_MAKEFILE TRUE)
 if (POLICY CMP0042)
   cmake_policy (SET CMP0042 NEW)
 endif ()
@@ -131,12 +131,14 @@ option (TOOLS "Compile supported tools." OFF)
 
 option (BUILD_TESTING "Build the unit_tests." ON)
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_definitions (_ADDITIONAL_RUNTIME_CHECK_)
+if (";Debug;Garble;" MATCHES ";${CMAKE_BUILD_TYPE};")
+  add_compile_definitions (_ADDITIONAL_RUNTIME_CHECK_)
 endif ()
 
-if (";Debug;Garble;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};" OR BIGOT)
-    add_compile_definitions (_WARNING_WORKAROUND_)
+if (";Debug;Garble;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};" OR
+    CMAKE_Fortran_COMPILER_ID STREQUAL "NAG" OR
+    BIGOT)
+  add_compile_definitions (_WARNING_WORKAROUND_)
 endif ()
 
 
@@ -531,15 +533,15 @@ message ("-- ADDRMODE: ${ADDRMODE}")
 # platform settings
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
   add_definitions (-D_LINUX_)
-  if ((${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86") OR
-      (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i686"))
+  if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86" OR
+      ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i686")
     set (PLATFORM "LINUX")
   elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
     set (PLATFORM "LINUX64")
   elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "ia64")
     set (PLATFORM "LINUX64_IA")
-  elseif ((${CMAKE_SYSTEM_PROCESSOR} STREQUAL "ppc_64") OR
-          (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "ppc64le"))
+  elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "ppc_64" OR
+          ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "ppc64le")
     set (PLATFORM "PPC64")
   endif ()
 elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")

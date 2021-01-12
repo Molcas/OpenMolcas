@@ -45,8 +45,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 9
-      iPrint = nPrint(iRout)
       SLine='Computing 2-electron integrals'
       Call StatusLine(' Seward:',SLine)
 *                                                                      *
@@ -77,7 +75,6 @@
 *                                                                      *
       Thize=Zero               ! Not used for conventional integrals
       PreSch=.True.            ! Not used for conventional integrals
-      Disc_Mx=Zero             ! Not used for conventional integrals
 *
       Disc=Zero
       Dix_Mx=Zero
