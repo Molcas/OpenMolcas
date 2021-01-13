@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 2015, Giovanni Li Manni                                *
 *               2019, Oskar Weser                                      *
+*               2021, Werner Dobrautz                                  *
 ************************************************************************
 
       module fciqmc_make_inp

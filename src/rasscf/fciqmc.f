@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 2014, Giovanni Li Manni                                *
 *               2019, Oskar Weser                                      *
+*               2021, Werner Dobrautz                                  *
 ************************************************************************
       module fciqmc
 #ifdef _MOLCAS_MPP_
@@ -39,7 +40,7 @@
       use CI_solver_util, only: wait_and_read, RDM_to_runfile
       use fciqmc_read_RDM, only: read_neci_RDM
 
-      use generic_CI, only: CI_solver_t
+      use generic_CI, only: CI_solver_t, unused
 
       implicit none
       save
