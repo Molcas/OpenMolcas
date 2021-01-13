@@ -48,138 +48,139 @@ The following is a list of people who have contributed at some point to the
 code of OpenMolcas. They are hereby acknowledged and collectively identified as
 "The OpenMolcas Authors".
 
-Christian Ander  
-Kerstin Andersson  
-János G. Ángyán  
-Imaad Ansari  
-Francesco Aquilante  
-Jochen Autschbach  
-Jie J. Bao  
-Maria Barysz  
-Stefano Battaglia  
-Eugeniusz Bednarz  
-Nelson H. F. Beebe  
-Anders Bernhardsson  
-Margareta R. A. Blomberg  
-Piotr Borowski  
-Jonas Boström  
-Per Boussard  
-John Burkardt  
-Yannick Carissan  
-Liviu Chibotaru  
-Christophe Chipot  
-Aron Cohen  
-David L. Cooper  
-Maurizio Cossi  
-Joel Creutzberg  
-Oleh Danyliv  
-Mickaël G. Delcey  
-Ajitha Devarajan  
-Luca De Vico  
-Michael Diedenhofen  
-Sijia S. Dong  
-Thomas Dresselhaus  
-Daniel Fairhead  
-Ignacio Fdez. Galván  
-Nicolas Ferré  
-Timo Fleig  
-Leon Freitag  
-Luis Manuel Frutos  
-Markus P. Fülscher  
-Alexander Gaenko  
-Laura Gagliardi  
-Walter Gautschi  
-Giovanni Ghigo  
-Coen de Graaf  
-Gene H. Golub  
-Sergey Gusarov  
-Daniel Hagberg  
-Jun-ya Hasegawa  
-Matthew R. Hermes  
-José Manuel Hermida-Ramón  
-Bernd Artur Heß  
-Asbjørn Holt  
-Chad E. Hoyer  
-Denis Jelovina  
-Marcus Johansson  
-Erik Källman  
-Gunnar Karlström  
-Stefan Knecht  
-Jesper Wisborg Krogh  
-Teodoro Laino  
-Giovanni Li Manni  
-Roland Lindh  
-Johan Lorentzon  
-Dongxia Ma  
-Yingjin Ma  
-Per Åke Malmqvist  
-Neil Martinsen-Burrell  
-Andy May  
-Manuela Merchán  
-Samuel Mikes  
-Abdul Rehaman Moughal Shahi  
-Thomas Müller  
-Takahito Nakajima  
-Naoki Nakatani  
-Pavel Neogrády  
-Jesper Norell  
-Anders Öhrn  
-Jeppe Olsen  
-Markus Oppel  
-Thomas Bondo Pedersen  
-Daoling Peng  
-Kurt Pfingst  
-Quan Phung  
-Michal Pitoňák  
-Felix Plasser  
-Christian Pomelli  
-Ben Pritchard  
-Juraj Raab  
-Gerardo Raggi  
-Markus Reiher  
-H. Rieger  
-Björn O. Roos  
-Ulf Ryde  
-Pawel Salek  
-Andrew M. Sand  
-Michael A. Saunders  
-Igor Schapiro  
-Bernd Schimmelpfennig  
-Martin Schütz  
-Thais Scott  
-Luis Seijo  
-Luis Serrano-Andrés  
-Kamal Sharkas  
-Grigory A. Shamov  
-Prachi Sharma  
-Per E. M. Siegbahn  
-Pär Söderhjelm  
-Lasse Kragh Sørensen  
-Jonna Stålring  
-Hermann Stoll  
-Bingbing Suo  
-Ben Swerts  
-Akio Takatsuka  
-Thorstein Thorsteinsson  
-Takashi Tsuchiya  
-Liviu Ungur  
-Morgane Vacher  
-Alessio Valentini  
-Valérie Vallet  
-Steven Vancoillie  
-Valera Veryazov  
-Victor P. Vysotskiy  
-Ulf Wahlgren  
-Yubin Wang  
-Mark A. Watson  
-Hans-Joachim Werner  
-Oskar Weser  
-Per-Olof Widmark  
-Małgorzata Wierzbowska  
-Alexander Wolf  
-Sebastian Wouters  
-Felipe Zapata  
-Alexander Zech  
-Yan Zhao  
-J. Patrick Zobel  
+Christian Ander
+Kerstin Andersson
+János G. Ángyán
+Imaad Ansari
+Francesco Aquilante
+Jochen Autschbach
+Jie J. Bao
+Maria Barysz
+Stefano Battaglia
+Eugeniusz Bednarz
+Nelson H. F. Beebe
+Anders Bernhardsson
+Margareta R. A. Blomberg
+Piotr Borowski
+Jonas Boström
+Per Boussard
+John Burkardt
+Yannick Carissan
+Liviu Chibotaru
+Christophe Chipot
+Aron Cohen
+David L. Cooper
+Maurizio Cossi
+Joel Creutzberg
+Oleh Danyliv
+Mickaël G. Delcey
+Ajitha Devarajan
+Luca De Vico
+Michael Diedenhofen
+Sijia S. Dong
+Werner Dobrautz
+Thomas Dresselhaus
+Daniel Fairhead
+Ignacio Fdez. Galván
+Nicolas Ferré
+Timo Fleig
+Leon Freitag
+Luis Manuel Frutos
+Markus P. Fülscher
+Alexander Gaenko
+Laura Gagliardi
+Walter Gautschi
+Giovanni Ghigo
+Coen de Graaf
+Gene H. Golub
+Sergey Gusarov
+Daniel Hagberg
+Jun-ya Hasegawa
+Matthew R. Hermes
+José Manuel Hermida-Ramón
+Bernd Artur Heß
+Asbjørn Holt
+Chad E. Hoyer
+Denis Jelovina
+Marcus Johansson
+Erik Källman
+Gunnar Karlström
+Stefan Knecht
+Jesper Wisborg Krogh
+Teodoro Laino
+Giovanni Li Manni
+Roland Lindh
+Johan Lorentzon
+Dongxia Ma
+Yingjin Ma
+Per Åke Malmqvist
+Neil Martinsen-Burrell
+Andy May
+Manuela Merchán
+Samuel Mikes
+Abdul Rehaman Moughal Shahi
+Thomas Müller
+Takahito Nakajima
+Naoki Nakatani
+Pavel Neogrády
+Jesper Norell
+Anders Öhrn
+Jeppe Olsen
+Markus Oppel
+Thomas Bondo Pedersen
+Daoling Peng
+Kurt Pfingst
+Quan Phung
+Michal Pitoňák
+Felix Plasser
+Christian Pomelli
+Ben Pritchard
+Juraj Raab
+Gerardo Raggi
+Markus Reiher
+H. Rieger
+Björn O. Roos
+Ulf Ryde
+Pawel Salek
+Andrew M. Sand
+Michael A. Saunders
+Igor Schapiro
+Bernd Schimmelpfennig
+Martin Schütz
+Thais Scott
+Luis Seijo
+Luis Serrano-Andrés
+Kamal Sharkas
+Grigory A. Shamov
+Prachi Sharma
+Per E. M. Siegbahn
+Pär Söderhjelm
+Lasse Kragh Sørensen
+Jonna Stålring
+Hermann Stoll
+Bingbing Suo
+Ben Swerts
+Akio Takatsuka
+Thorstein Thorsteinsson
+Takashi Tsuchiya
+Liviu Ungur
+Morgane Vacher
+Alessio Valentini
+Valérie Vallet
+Steven Vancoillie
+Valera Veryazov
+Victor P. Vysotskiy
+Ulf Wahlgren
+Yubin Wang
+Mark A. Watson
+Hans-Joachim Werner
+Oskar Weser
+Per-Olof Widmark
+Małgorzata Wierzbowska
+Alexander Wolf
+Sebastian Wouters
+Felipe Zapata
+Alexander Zech
+Yan Zhao
+J. Patrick Zobel
 
