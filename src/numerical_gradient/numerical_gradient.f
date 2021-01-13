@@ -168,7 +168,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
             Else If (Index(Line,'MULTIPOLE ') .ne. 0) Then
               Call Get_I1(2,nMult)
               Call mma_allocate(Mltp,nMult,Label='Mltp')
-              ipMltp = ip_of_Work(Mltp)
+              ipMltp = ip_of_Work(Mltp(1))
               Do iMlt = 1, nMult, MltOrd
                 Line = Get_Ln(IPotFl)
                 Call Get_I1(1,iAt)
