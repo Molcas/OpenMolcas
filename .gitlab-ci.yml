@@ -1,3 +1,11 @@
+# Prevent duplicate branch & MR pipelines
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS =~ /(^|,)Molcas\/OpenMolcas!\d+($|,)/'
+      when: never
+    - when: always
+
 # Some useful templates:
 # sources: list of files that require a rebuild
 # compile-jobs: rules for when to run compile jobs
@@ -26,7 +34,7 @@
     - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
       when: never
     # merge requests
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME'
+    - if: '$CI_MERGE_REQUEST_IID'
       when: on_success
     # api, trigger, web
     - if: '$CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "web"'
@@ -42,7 +50,7 @@
     - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
       when: never
     # merge requests
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME'
+    - if: '$CI_MERGE_REQUEST_IID'
       when: on_success
     # api, trigger, web
     - if: '$CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "web"'
