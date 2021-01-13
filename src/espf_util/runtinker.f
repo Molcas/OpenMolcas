@@ -68,7 +68,7 @@
           Write(ITkQMMM,1000) iRelax,MltOrd/4
         End If
         Do iAtom = 1, nAtom
-          Write(ITkQMMM,1010) Cord(:,iAtom)
+          Write(ITkQMMM,1010) Cord(:,iAtom)*Angstrom
         End Do
         If (.not.lFirst) Then
           Write(ITkQMMM,'(A)') 'Multipoles'
