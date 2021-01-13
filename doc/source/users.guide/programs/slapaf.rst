@@ -1081,7 +1081,7 @@ Optional miscellaneous keywords
               </HELP>
               </KEYWORD>
 
-Optional restricted variance optimization (RVO) :cite:`Raggi2020,FdezGalvan2020` keywords
+Optional restricted variance optimization (RVO) :cite:`Raggi2020,FdezGalvan2021` keywords
 
 .. class:: keywordlist
 
