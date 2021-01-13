@@ -45,14 +45,15 @@
      &        External_Coor_List, Do_ESPF, StandAlone, Exist, DoTinker,
      &        NMCart, DynExtPot, DoDirect, KeepOld, Reduce_Prt
       External Reduce_Prt
-      Real*8 FX(3)
+      Real*8 FX(3), rDum(1)
       Real*8, Allocatable, Dimension(:,:) :: EnergyArray, GradArray,
      &                                       OldGrads
       Real*8, Allocatable:: Grad(:), GNew(:), MMGrd(:,:)
       Integer, Allocatable:: IsMM(:)
       Real*8, Allocatable:: BMtrx(:,:), TMtrx(:,:), Coor(:,:),
      &                      Energies_Ref(:), XYZ(:,:), All(:,:),
-     &                      Disp(:), Deg(:,:)
+     &                      Disp(:), Deg(:,:), Mltp(:), C(:,:),
+     &                      Tmp2(:), Tmp(:,:)
       Integer rc, Read_Grad
       External Read_Grad
       Parameter (ToHartree = CONV_CAL_TO_J_ /
@@ -166,11 +167,12 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
               MltOrd = ibla
             Else If (Index(Line,'MULTIPOLE ') .ne. 0) Then
               Call Get_I1(2,nMult)
-              Call Allocate_Work(ipMltp,nMult)
+              Call mma_allocate(Mltp,nMult,Label='Mltp')
+              ipMltp = ip_of_Work(Mltp)
               Do iMlt = 1, nMult, MltOrd
                 Line = Get_Ln(IPotFl)
                 Call Get_I1(1,iAt)
-                Call Get_F(2,Work(ipMltp+iMlt-1),MltOrd)
+                Call Get_F(2,Mltp(iMlt),MltOrd)
               End Do
             End If
          End Do
@@ -204,7 +206,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
             If (iPL_Save .ge. 3) Call RecPrt('MM Grad:',' ',MMGrd,3,
      &                                       nAtoms)
          End If
-         If (ipMltp .ne. ip_Dummy) Call Free_Work(ipMltp)
+         If (Allocated(Mltp)) Call mma_deallocate(Mltp)
       End If
 *                                                                      *
 ************************************************************************
@@ -548,7 +550,7 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 #else
       Call Init_Tsk(id_Tsk,mDisp-2*nLambda)
 #endif
-      Call Allocate_Work(ipC,3*nAtoms)
+      Call mma_allocate(C,3,nAtoms,Label='C')
    10 Continue
 #if defined (_MOLCAS_MPP_) && !defined(_GA_)
          If (SSTMODE.eq.1) Then
@@ -566,9 +568,9 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *
 *------- Get the displaced geometry
 *
-         call dcopy_(3*nAtoms,xyz(:,iDisp),1,Work(ipC),1)
-*        Call RecPrt('Work(ipC)',' ',Work(ipC),3*nAtoms,1)
-         Call Put_Coord_New(Work(ipC),nAtoms)
+         call dcopy_(3*nAtoms,xyz(:,iDisp),1,C,1)
+*        Call RecPrt('C',' ',C,3*nAtoms,1)
+         Call Put_Coord_New(C,nAtoms)
 *
 *        Compute integrals
 *
@@ -811,7 +813,7 @@ C_MPP End Do
       Call Free_Tsk(id_Tsk)
 #endif
       Call GADSum(EnergyArray,nRoots*mDisp)
-      Call Free_Work(ipC)
+      Call mma_deallocate(C)
       Call mma_deallocate(XYZ)
 *                                                                      *
 ************************************************************************
@@ -900,15 +902,15 @@ C_MPP End Do
           End If
         End If
       End If
-      Call Allocate_Work(ipTmp2,nDisp)
+      Call mma_allocate(Tmp2,nDisp,Label='Tmp2')
       Do iR=1,nRoots
         Call Eq_Solver('N',3*nAtoms,nDisp,1,BMtrx,.True.,
-     &                 Work(ip_Dummy),OldGrads(1,iR),Work(ipTmp2))
+     &                 rDum(1),OldGrads(1,iR),Tmp2)
         Call FZero(OldGrads(1,iR),3*nAtoms)
         Call Eq_Solver('N',nDisp,nDisp,1,TMtrx,.True.,
-     &                 Work(ip_Dummy),Work(ipTmp2),OldGrads(1,iR))
+     &                 rDum(1),Tmp2,OldGrads(1,iR))
       End Do
-      Call Free_Work(ipTmp2)
+      Call mma_deallocate(Tmp2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -977,11 +979,11 @@ C_MPP End Do
 *                                                                      *
 *     Compute the gradient in Cartesian coordinates
 *
-      Call Allocate_Work(ipTmp2,nDisp)
-      Call Allocate_Work(ipTmp,3*nAtoms)
+      Call mma_allocate(Tmp2,nDisp,Label='Tmp2')
+      Call mma_allocate(Tmp,3,nAtoms,Label='Tmp')
       Do iR = 1, nRoots
-         Call FZero(Work(ipTmp2),nDisp)
-         Call FZero(Work(ipTmp),3*nAtoms)
+         Tmp2(:)=Zero
+         Tmp(:,:)=Zero
 *
 *        Transform the gradient in PCO basis to the internal coordinate
 *        format.
@@ -989,42 +991,42 @@ C_MPP End Do
          Call DGEMM_('N','N',nDisp,1,nDisp,
      &               1.0D0,TMtrx,nDisp,
      &                     GradArray(1,iR),nDisp,
-     &               0.0D0,Work(ipTmp2),nDisp)
+     &               0.0D0,Tmp2,nDisp)
 *
 *        Transform internal coordinates to Cartesian.
 *
          Call DGEMM_('N','N',3*nAtoms,1,nDisp,
      &               1.0d0,BMtrx,3*nAtoms,
-     &                     Work(ipTmp2),nDisp,
-     &               0.0d0,Work(ipTmp),3*nAtoms)
-*        Call RecPrt('Tmp',' ',Work(ipTmp),3,nAtoms)
+     &                     Tmp2,nDisp,
+     &               0.0d0,Tmp,3*nAtoms)
+*        Call RecPrt('Tmp',' ',Tmp,3,nAtoms)
 *
 *        Modify with degeneracy factors.
 *
          If (.NOT.NMCart) Then
-            Do i = 1, 3*nAtoms
-               iAtom=(i+2)/3
-               ixyz=i-(iAtom-1)*3
-               Work(ipTmp+i-1) = Work(ipTmp+i-1)/Deg(ixyz,iAtom)
+            Do iAtom = 1, nAtom
+               Do ixyz = 1, 3
+                  Tmp(ixyz,iAtom) = Tmp(ixyz,iAtom)/Deg(ixyz,iAtom)
+               End Do
             End Do
          End If
 *
 *        Add the MM contribution for MM atoms
 *
          If (nAtMM .ne. 0) Then
-            call daxpy_(3*nAtoms,One,MMGrd,1,Work(ipTmp),1)
+            call daxpy_(3*nAtoms,One,MMGrd,1,Tmp,1)
          End If
 *
 *        Apply Morokuma's scheme if needed
 *
          Call F_Inquire('QMMM',Exist)
          If (Exist .and. DoTinker) Then
-            Call LA_Morok(nAtoms,Work(ipTmp),1)
+            Call LA_Morok(nAtoms,Tmp,1)
          End If
 *
-         If (iR.eq.iRoot) Call Put_Grad(Work(ipTmp),3*nAtoms)
-         Call Add_Info('Grad',Work(ipTmp),3*nAtoms,6)
-         Call Store_grad(Work(ipTmp),3*nAtoms,iR,0,0)
+         If (iR.eq.iRoot) Call Put_Grad(Tmp,3*nAtoms)
+         Call Add_Info('Grad',Tmp,3*nAtoms,6)
+         Call Store_grad(Tmp,3*nAtoms,iR,0,0)
 *
          If (iPL.ge.2) Then
             Write (LuWr,*)
@@ -1036,9 +1038,9 @@ C_MPP End Do
             Write (LuWr,'(2x,A)')
      &                  '---------------------------------------------'
             Do iAtom = 1, nAtoms
-               TempX = Work(ipTmp+3*(iAtom-1)+0)
-               TempY = Work(ipTmp+3*(iAtom-1)+1)
-               TempZ = Work(ipTmp+3*(iAtom-1)+2)
+               TempX = Tmp(1,iAtom)
+               TempY = Tmp(2,iAtom)
+               TempZ = Tmp(3,iAtom)
                Namei = AtomLbl(iAtom)
                Write (LuWr,'(2X,A,3X,3F12.6)')
      &               Namei, TempX, TempY, TempZ
@@ -1047,8 +1049,8 @@ C_MPP End Do
      &                  '---------------------------------------------'
          End If
       End Do
-      Call Free_Work(ipTmp2)
-      Call Free_Work(ipTmp)
+      Call mma_deallocate(Tmp2)
+      Call mma_deallocate(Tmp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
