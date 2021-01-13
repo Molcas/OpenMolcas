@@ -399,7 +399,6 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
 *
 *--------   Modify the geometry
 *
-            jpXYZ = ipXYZ + (mDisp-1)*3*nAtoms
             call dcopy_(3*nAtoms,Coor,1,XYZ(:,mDisp),1)
             Sign=One
             If (Mod(iDisp,2).eq.0) Sign=-One
@@ -1004,7 +1003,7 @@ C_MPP End Do
 *        Modify with degeneracy factors.
 *
          If (.NOT.NMCart) Then
-            Do iAtom = 1, nAtom
+            Do iAtom = 1, nAtoms
                Do ixyz = 1, 3
                   Tmp(ixyz,iAtom) = Tmp(ixyz,iAtom)/Deg(ixyz,iAtom)
                End Do
