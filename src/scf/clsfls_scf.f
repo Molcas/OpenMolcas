@@ -31,6 +31,9 @@
 *                                                                      *
 ************************************************************************
 *
+#ifdef _HDF5_
+      Use mh5, Only: mh5_close_file
+#endif
       Implicit Real*8 (a-h,o-z)
 *
 #include "file.fh"
@@ -43,9 +46,6 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-#ifdef _DEBUG_
-      Call qEnter('ClsFls')
-#endif
 *
 *---  close two-electron integral file --------------------------------*
       If (.Not.DSCF .And. .Not.DoCholesky) Then
@@ -54,7 +54,6 @@
          Call ClsOrd(iRc,iOpt)
          If (iRc.ne.0) Then
             Write (6,*) 'ClsFls: Error closing ORDINT'
-            Call QTrace
             Call Abend()
          End If
       End If
@@ -74,12 +73,5 @@
 #ifdef _HDF5_
       call mh5_close_file(wfn_fileid)
 #endif
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-#ifdef _DEBUG_
-      Call qExit('ClsFls')
-#endif
-      Return
+
       End

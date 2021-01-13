@@ -34,7 +34,6 @@
       iOff(ixyz) = ixyz*(ixyz+1)*(ixyz+2)/6
       jCan(ix,iy,iz) = iOff(ix+iy+iz) + (iy+iz)*(iy+iz+1)/2 + iz + 1
 *
-*     Call QEnter('HrrMtrx')
       iPrint=5
       If (iPrint.ge.99) Then
          Call RecPrt('A',' ',A,1,3)
@@ -96,7 +95,6 @@
                Do kx = ixLow, ix+jx
                Do ky = iyLow, iy+jy
                Do kz = izLow, iz+jz
-                  le=kx+ky+kz
                   ipe=jCan(kx,ky,kz)-jOff
 *
                      ABx = AB(1,ix+jx-kx) * Binom(jx,kx-ix)
@@ -144,7 +142,6 @@
                Do kx = ixLow, ix+jx
                Do ky = iyLow, iy+jy
                Do kz = izLow, iz+jz
-                  le=kx+ky+kz
                   ipe=jCan(kx,ky,kz)-jOff
 *
                      ABx = AB(1,ix+jx-kx) * Binom(jx,kx-ix)
@@ -190,7 +187,6 @@
                Do kx = ixLow, ix+jx
                Do ky = iyLow, iy+jy
                Do kz = izLow, iz+jz
-                  le=kx+ky+kz
                   ipe=jCan(kx,ky,kz)-jOff
 *
                      ABx = AB(1,ix+jx-kx) * Binom(jx,kx-ix)
@@ -233,7 +229,6 @@
                Do kx = ixLow, ix+jx
                Do ky = iyLow, iy+jy
                Do kz = izLow, iz+jz
-                  le=kx+ky+kz
                   ipe=jCan(kx,ky,kz)-jOff
 *
                      ABx = AB(1,ix+jx-kx) * Binom(jx,kx-ix)
@@ -438,6 +433,5 @@
          Write (6,*) DDot_(np*nSph_a*nSph_b,HMtrx,1,HMtrx,1)
       End If
 *
-*     Call QExit('HrrMtrx')
       Return
       End

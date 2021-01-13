@@ -8,22 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1992, Roland Lindh                                     *
+* Copyright (C) 1992,2020, Roland Lindh                                *
 ************************************************************************
-      SubRoutine GetInf(Info_,nInfo,DoRys,nDiff,icase)
+      SubRoutine GetInf(DoRys,nDiff)
 ************************************************************************
 *                                                                      *
 * Object: to read all input information on the file INFO.              *
-*                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              OpnCom                                                  *
-*              ClsCom                                                  *
-*              RdCom                                                   *
-*              SetUp_RW                                                *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
@@ -31,10 +21,11 @@
 ************************************************************************
       use Real_Spherical
       use Her_RW
+      use External_Centers
+      use Temporary_Parameters, only: Test
+      use DKH_Info, only: DKroll
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "real.fh"
@@ -44,7 +35,6 @@
       Logical DoRys
       Integer iix(2)
       Real*8 rix(2)
-      Logical Found
 #include "SysDef.fh"
       nbyte_i = iiloc(iix(2)) - iiloc(iix(1))
       nbyte_r = idloc(rix(2)) - idloc(rix(1))
@@ -62,19 +52,15 @@
       Integer, Pointer :: p_cRF(:),p_iRF(:),p_lRF(:),p_cQ(:),p_iQ(:)
       Real*8, Pointer :: p_rRF(:),p_rQ(:)
 *
-*     Prologue
+*     Load the dynamic input area.
 *
-*     Call qEnter('GetInf')
-*
-      ioffr=0
+      Call Get_Info_Dynamic()
 *
 *     Load the static input area.
 *
-      Call Get_Info_Static(ioffr)
-*
-*     Load the dynamic input area.
-*
-      Call Get_Info_Dynamic(Info_,nInfo,ioffr,icase)
+      Call Get_Info_Static()
+*                                                                      *
+      Call External_Centers_Get()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -125,29 +111,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Load the transformation matrices
+*     Generate the transformation matrices
 *
-      If (iAngMx-1.ge.lMax) Then
-         Call qpg_dArray('SewTInfo',Found,Len2)
-         If(.not.Found .or.  Len2.eq.0) Then
-            Call SysAbendMsg('getinf','Did not find:','SewTInfo')
-         End If
-         Len=Len2
-*        mod by M.Schuetz: LenSph used to broadcast transformation
-*        matrices to servers (parallel distributed SCF)
-*        LenSph is a member of IInfo common block
-         LenSph=Len
-         If (Allocated(RSph)) Then
-             Call WarningMessage(2,'RSph already allocated!')
-             Call Quit_OnUserError()
-         End If
-         Call mma_allocate(RSph,LenSph,label='RSph')
-         Call mma_allocate( ipSph,[0,iAngMx],label='ipSph')
-         ipSph(0)=1
-         Do 2 iAng = 0, iAngMx-1
-            ipSph(iAng+1)= ipSph(iAng) + (iAng*(iAng+1)/2 + iAng + 1)**2
- 2       Continue
-         Call Get_dArray('SewTInfo',RSph(ipSph(0)),Len)
+      If (S%iAngMx-1.ge.lMax) Then
+         Call Sphere(S%iAngMx)
+         lmax_internal=S%iAngMx
       Else
          Call Sphere(lMax)
       End If
@@ -163,7 +131,7 @@
 *
 *     Setup of tables for coefficients of the Rys roots and weights.
 *
-      If (iAngMx.eq.0) nDiff=2
+      If (S%iAngMx.eq.0) nDiff=2
       If (DKroll.and.nOrdEF.gt.0) nDiff=nDiff+nOrdEF
       If (.Not.Test) Call Setup_RW(DoRys,nDiff)
 *                                                                      *
@@ -178,10 +146,7 @@
       Call Get_EFP()
 *                                                                      *
 ************************************************************************
-*                                                                      *
-*     Epilogue, end
 *
-*     Call qExit('GetInf')
       Return
       End SubRoutine GetInf_Internal
 *

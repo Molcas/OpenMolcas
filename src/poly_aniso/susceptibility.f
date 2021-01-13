@@ -24,78 +24,78 @@ c       chi*t ----------- the units are cgsemu: [ cm^3*k/mol ]
       Integer, intent(in) :: exch, nneq, neqv, iopt
       Integer, intent(in) :: neq(nneq), nss(nneq), nexch(nneq)
 
-      Real(kind=wp), intent(in) :: T(nT+nTempMagn)
-      Real(kind=wp), intent(in) :: W(exch)
-      Real(kind=wp), intent(in) :: eso(nneq,nLoc)
-      Real(kind=wp), intent(in) :: zJ
-      Real(kind=wp), intent(in) :: Tmin, Tmax
-      Real(kind=wp), intent(in) :: XTexp(nT+nTempMagn)
-      Real(kind=wp), intent(in) :: R_LG(nneq,neqv,3,3)
-      Real(kind=wp), intent(out):: chit_theta(nT+nTempMagn)
+      Real(kind=8), intent(in) :: T(nT+nTempMagn)
+      Real(kind=8), intent(in) :: W(exch)
+      Real(kind=8), intent(in) :: eso(nneq,nLoc)
+      Real(kind=8), intent(in) :: zJ
+      Real(kind=8), intent(in) :: Tmin, Tmax
+      Real(kind=8), intent(in) :: XTexp(nT+nTempMagn)
+      Real(kind=8), intent(in) :: R_LG(nneq,neqv,3,3)
+      Real(kind=8), intent(out):: chit_theta(nT+nTempMagn)
 c contributions from local excited states, computed in the XT section:
-      Real(kind=wp), intent(out):: XLM( nCenter,nTempMagn,3,3)
-      Real(kind=wp), intent(out):: ZLM( nCenter,nTempMagn)
-      Real(kind=wp), intent(out):: XRM( nCenter,nTempMagn,3,3)
-      Real(kind=wp), intent(out):: ZRM( nCenter,nTempMagn)
+      Real(kind=8), intent(out):: XLM( nCenter,nTempMagn,3,3)
+      Real(kind=8), intent(out):: ZLM( nCenter,nTempMagn)
+      Real(kind=8), intent(out):: XRM( nCenter,nTempMagn,3,3)
+      Real(kind=8), intent(out):: ZRM( nCenter,nTempMagn)
       Logical, intent(in)       :: tinput, doplot
       ! BIG matrices:
-      Complex(kind=wp), intent(in) :: dipexch(3,exch,exch)
-      Complex(kind=wp), intent(in) ::  s_exch(3,exch,exch)
-      Complex(kind=wp), intent(in) :: dipso(nneq,3,nLoc,nLoc)
-      Complex(kind=wp), intent(in) ::  s_so(nneq,3,nLoc,nLoc)
+      Complex(kind=8), intent(in) :: dipexch(3,exch,exch)
+      Complex(kind=8), intent(in) ::  s_exch(3,exch,exch)
+      Complex(kind=8), intent(in) :: dipso(nneq,3,nLoc,nLoc)
+      Complex(kind=8), intent(in) ::  s_so(nneq,3,nLoc,nLoc)
 #include "stdalloc.fh"
 
 c local variables
-      Real(kind=wp), allocatable ::     chit_tens_l(:,:,:)
+      Real(kind=8), allocatable ::     chit_tens_l(:,:,:)
 !                                       chit_tens_l( nneq,3,3)
-      Real(kind=wp), allocatable :: smu_chit_tens_l(:,:,:)
+      Real(kind=8), allocatable :: smu_chit_tens_l(:,:,:)
 !                                   smu_chit_tens_l( nneq,3,3)
-      Real(kind=wp), allocatable ::  ss_chit_tens_l(:,:,:)
+      Real(kind=8), allocatable ::  ss_chit_tens_l(:,:,:)
 !                                    ss_chit_tens_l( nneq,3,3)
-      Real(kind=wp), allocatable ::     chit_tens_lr(:,:,:)
+      Real(kind=8), allocatable ::     chit_tens_lr(:,:,:)
 !                                       chit_tens_lr(nneq,3,3)
-      Real(kind=wp), allocatable :: smu_chit_tens_lr(:,:,:)
+      Real(kind=8), allocatable :: smu_chit_tens_lr(:,:,:)
 !                                   smu_chit_tens_lr(nneq,3,3)
-      Real(kind=wp), allocatable ::  ss_chit_tens_lr(:,:,:)
+      Real(kind=8), allocatable ::  ss_chit_tens_lr(:,:,:)
 !                                    ss_chit_tens_lr(nneq,3,3)
-      Real(kind=wp), allocatable ::     chit_tens_ex(:,:)
+      Real(kind=8), allocatable ::     chit_tens_ex(:,:)
 !                                       chit_tens_ex(3,3)
-      Real(kind=wp), allocatable :: smu_chit_tens_ex(:,:)
+      Real(kind=8), allocatable :: smu_chit_tens_ex(:,:)
 !                                   smu_chit_tens_ex(3,3)
-      Real(kind=wp), allocatable ::  ss_chit_tens_ex(:,:)
+      Real(kind=8), allocatable ::  ss_chit_tens_ex(:,:)
 !                                     ss_chit_tens_ex(3,3)
-      Real(kind=wp), allocatable ::     chit_tens_tot(:,:,:)
+      Real(kind=8), allocatable ::     chit_tens_tot(:,:,:)
 !                                       chit_tens_tot(nT+nTempMagn,3,3)
-      Real(kind=wp), allocatable :: smu_chit_tens_tot(:,:)
+      Real(kind=8), allocatable :: smu_chit_tens_tot(:,:)
 !                                   smu_chit_tens_tot(3,3)
-      Real(kind=wp), allocatable ::  ss_chit_tens_tot(:,:)
+      Real(kind=8), allocatable ::  ss_chit_tens_tot(:,:)
 !                                    ss_chit_tens_tot(3,3)
-      Real(kind=wp), allocatable ::   chit_theta_tens(:,:,:)
+      Real(kind=8), allocatable ::   chit_theta_tens(:,:,:)
 !                                     chit_theta_tens(nT+nTempMagn,3,3)
-      Real(kind=wp), allocatable :: zstat_l(:)       !zstat_l( nneq)
-      Real(kind=wp), allocatable :: zstat_lr(:)      !zstat_lr(nneq)
-      Real(kind=wp), allocatable :: zstat_tot(:)
+      Real(kind=8), allocatable :: zstat_l(:)       !zstat_l( nneq)
+      Real(kind=8), allocatable :: zstat_lr(:)      !zstat_lr(nneq)
+      Real(kind=8), allocatable :: zstat_tot(:)
 !                                   zstat_tot(nT+nTempMagn)
-      Real(kind=wp), allocatable :: chit(:)          !chit(nT+nTempMagn)
-      Real(kind=wp), allocatable :: chi_theta_1(:)
+      Real(kind=8), allocatable :: chit(:)          !chit(nT+nTempMagn)
+      Real(kind=8), allocatable :: chi_theta_1(:)
 !                                   chi_theta_1(nT+nTempMagn)
-      Real(kind=wp), allocatable :: XL(:,:,:)        !XL(nCenter,3,3)
-      Real(kind=wp), allocatable :: ZL(:)            !ZL(nCenter)
-      Real(kind=wp), allocatable :: XR(:,:,:)        !XR(nCenter,3,3)
-      Real(kind=wp), allocatable :: ZR(:)            !ZR(nCenter)
-      Real(kind=wp), allocatable :: SMUR(:,:,:)      !SMUR(nCenter,3,3)
-      Real(kind=wp), allocatable :: SMUL(:,:,:)      !SMUL(nCenter,3,3)
-      Real(kind=wp), allocatable :: SSR(:,:,:)       !SSR( nCenter,3,3)
-      Real(kind=wp), allocatable :: SSL(:,:,:)       !SSL( nCenter,3,3)
-      Real(kind=wp), allocatable :: wt(:), zt(:,:)   !wt(3),zt(3,3)
-      Real(kind=wp), allocatable :: A_dir(:,:)               !A_dir(3,3)
-      Real(kind=wp), allocatable :: A_inv(:,:)               !A_inv(3,3)
-      Real(kind=wp), allocatable :: unity(:,:)               !unity(3,3)
-      Real(kind=wp) :: xxm
-      Real(kind=wp) :: zstat_ex
-      Real(kind=wp) :: boltz_k,coeff_chi
-      Real(kind=wp) :: det
-      Real(kind=wp) :: dev, Fa, Fb, Fc, Fd, Fe, Ff
+      Real(kind=8), allocatable :: XL(:,:,:)        !XL(nCenter,3,3)
+      Real(kind=8), allocatable :: ZL(:)            !ZL(nCenter)
+      Real(kind=8), allocatable :: XR(:,:,:)        !XR(nCenter,3,3)
+      Real(kind=8), allocatable :: ZR(:)            !ZR(nCenter)
+      Real(kind=8), allocatable :: SMUR(:,:,:)      !SMUR(nCenter,3,3)
+      Real(kind=8), allocatable :: SMUL(:,:,:)      !SMUL(nCenter,3,3)
+      Real(kind=8), allocatable :: SSR(:,:,:)       !SSR( nCenter,3,3)
+      Real(kind=8), allocatable :: SSL(:,:,:)       !SSL( nCenter,3,3)
+      Real(kind=8), allocatable :: wt(:), zt(:,:)   !wt(3),zt(3,3)
+      Real(kind=8), allocatable :: A_dir(:,:)               !A_dir(3,3)
+      Real(kind=8), allocatable :: A_inv(:,:)               !A_inv(3,3)
+      Real(kind=8), allocatable :: unity(:,:)               !unity(3,3)
+      Real(kind=8) :: xxm
+      Real(kind=8) :: zstat_ex
+      Real(kind=8) :: boltz_k,coeff_chi
+      Real(kind=8) :: det
+      Real(kind=8) :: dev, Fa, Fb, Fc, Fd, Fe, Ff
       external dev
       Integer       :: i,iT,jT,ic,jc
       Integer       :: j,n1,n2,im,jm
@@ -104,7 +104,6 @@ c local variables
       Character(len=50) :: label
       Real(wp), external :: dnrm2_
 
-      Call qEnter('PA_suscept')
 
       mem_local=0
       dbg=.false.
@@ -778,7 +777,6 @@ c-------------------------------------------------------------------------------
      &                  'tensor were not calculated.'
       Write(6,*)
   190 continue
-      Call qExit('PA_suscept')
       Return
       End
 

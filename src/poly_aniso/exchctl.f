@@ -42,28 +42,28 @@
       Integer, intent(in)           :: mem ! memory allocated so far
       Integer, intent(in)           :: MxRank1, MxRank2
       Integer, intent(in)           :: imaxrank(npair,2)
-      Character(1), intent(in)      :: itype(nneq)
+      Character(Len=1), intent(in)  :: itype(nneq)
 
-      Real(kind=wp), intent(in)     :: eso(nneq,nmax)
-      Real(kind=wp), intent(in)     :: Jex(npair)
-      Real(kind=wp), intent(in)     :: JAex(npair,3)
-      Real(kind=wp), intent(in)     :: JDMex(npair,3)
-      Real(kind=wp), intent(in)     :: JAex9(npair,3,3)
-      Real(kind=wp), intent(in)     ::
+      Real(kind=8), intent(in)     :: eso(nneq,nmax)
+      Real(kind=8), intent(in)     :: Jex(npair)
+      Real(kind=8), intent(in)     :: JAex(npair,3)
+      Real(kind=8), intent(in)     :: JDMex(npair,3)
+      Real(kind=8), intent(in)     :: JAex9(npair,3,3)
+      Real(kind=8), intent(in)     ::
      &                          JITOexR(nPair,MxRank1,-MxRank1:MxRank1,
      &                                        MxRank2,-MxRank2:MxRank2)
-      Real(kind=wp), intent(in)     ::
+      Real(kind=8), intent(in)     ::
      &                          JITOexI(nPair,MxRank1,-MxRank1:MxRank1,
      &                                        MxRank2,-MxRank2:MxRank2)
-      Real(kind=wp), intent(in)     :: coord(nneq,3)
-      Real(kind=wp), intent(in)     :: rot(nneq,neqv,3,3)
-      Real(kind=wp), intent(in)     :: rlg(nneq,neqv,3,3)
-      Real(kind=wp), intent(in)     :: riso(nneq,3,3)
-      Real(kind=wp), intent(in)     :: tpar
-      Real(kind=wp), intent(in)     :: upar
+      Real(kind=8), intent(in)     :: coord(nneq,3)
+      Real(kind=8), intent(in)     :: rot(nneq,neqv,3,3)
+      Real(kind=8), intent(in)     :: rlg(nneq,neqv,3,3)
+      Real(kind=8), intent(in)     :: riso(nneq,3,3)
+      Real(kind=8), intent(in)     :: tpar
+      Real(kind=8), intent(in)     :: upar
 
-      Complex(kind=wp), intent(inout)  :: SM(nneq,3,nmax,nmax)
-      Complex(kind=wp), intent(inout)  :: MM(nneq,3,nmax,nmax)
+      Complex(kind=8), intent(inout)  :: SM(nneq,3,nmax,nmax)
+      Complex(kind=8), intent(inout)  :: MM(nneq,3,nmax,nmax)
 
       Logical, intent(in)           :: AnisoLines1
       Logical, intent(in)           :: AnisoLines3
@@ -76,11 +76,11 @@
 
 
 
-      Real(kind=wp), intent(out)    :: W(exch)
+      Real(kind=8), intent(out)    :: W(exch)
 
-      Complex(kind=wp), intent(out) :: Z(exch,exch)
-      Complex(kind=wp), intent(out) :: S(3,exch,exch)
-      Complex(kind=wp), intent(out) :: M(3,exch,exch)
+      Complex(kind=8), intent(out) :: Z(exch,exch)
+      Complex(kind=8), intent(out) :: S(3,exch,exch)
+      Complex(kind=8), intent(out) :: M(3,exch,exch)
 !------------------------------------------------------------------
       ! local variables
       Integer                       :: i,j,l,lp,lb1,lb2,nb,nb1,nb2,
@@ -93,41 +93,41 @@
       Integer, allocatable          :: icoord(:) !  icoord(lmax)
       Integer, allocatable          :: nind(:,:) !  nind(lmax,2)
 
-      Real(kind=wp)                 :: vect(3)
-      Real(kind=wp)                 :: dist
-      Real(kind=wp), allocatable    :: wlin(:) ! wlin(exch)
-      Real(kind=wp), allocatable    :: wlin1(:)! wlin1(exch)
-      Real(kind=wp), allocatable    :: wlin3(:)! wlin3(exch)
-      Real(kind=wp), allocatable    :: wlin9(:)! wlin9(exch)
-      Real(kind=wp), allocatable    :: wdip(:) ! wdip(exch)
-      Real(kind=wp), allocatable    :: wkex(:) ! wkex(exch)
-      Real(kind=wp), allocatable    :: wdmo(:) ! wdmo(exch)
-      Real(kind=wp), allocatable    :: wito(:) ! wito(exch)
+      Real(kind=8)                 :: vect(3)
+      Real(kind=8)                 :: dist
+      Real(kind=8), allocatable    :: wlin(:) ! wlin(exch)
+      Real(kind=8), allocatable    :: wlin1(:)! wlin1(exch)
+      Real(kind=8), allocatable    :: wlin3(:)! wlin3(exch)
+      Real(kind=8), allocatable    :: wlin9(:)! wlin9(exch)
+      Real(kind=8), allocatable    :: wdip(:) ! wdip(exch)
+      Real(kind=8), allocatable    :: wkex(:) ! wkex(exch)
+      Real(kind=8), allocatable    :: wdmo(:) ! wdmo(exch)
+      Real(kind=8), allocatable    :: wito(:) ! wito(exch)
 
-      Complex(kind=wp), allocatable :: S1(:,:,:) ! S1(3,nmax,nmax)
-      Complex(kind=wp), allocatable :: M1(:,:,:) ! M1(3,nmax,nmax)
-      Complex(kind=wp), allocatable :: S2(:,:,:) ! S2(3,nmax,nmax)
-      Complex(kind=wp), allocatable :: M2(:,:,:) ! M2(3,nmax,nmax)
-      Complex(kind=wp), allocatable :: ZA1(:,:), ZA2(:,:)
-      Complex(kind=wp), allocatable :: SM1(:,:,:) ! SM1(3,nmax,nmax)
-      Complex(kind=wp), allocatable :: MM1(:,:,:) ! MM1(3,nmax,nmax)
-      Complex(kind=wp), allocatable :: SM2(:,:,:) ! SM2(3,nmax,nmax)
-      Complex(kind=wp), allocatable :: MM2(:,:,:) ! MM2(3,nmax,nmax)
-      Complex(kind=wp), allocatable :: HLIN1(:,:,:,:,:)
+      Complex(kind=8), allocatable :: S1(:,:,:) ! S1(3,nmax,nmax)
+      Complex(kind=8), allocatable :: M1(:,:,:) ! M1(3,nmax,nmax)
+      Complex(kind=8), allocatable :: S2(:,:,:) ! S2(3,nmax,nmax)
+      Complex(kind=8), allocatable :: M2(:,:,:) ! M2(3,nmax,nmax)
+      Complex(kind=8), allocatable :: ZA1(:,:), ZA2(:,:)
+      Complex(kind=8), allocatable :: SM1(:,:,:) ! SM1(3,nmax,nmax)
+      Complex(kind=8), allocatable :: MM1(:,:,:) ! MM1(3,nmax,nmax)
+      Complex(kind=8), allocatable :: SM2(:,:,:) ! SM2(3,nmax,nmax)
+      Complex(kind=8), allocatable :: MM2(:,:,:) ! MM2(3,nmax,nmax)
+      Complex(kind=8), allocatable :: HLIN1(:,:,:,:,:)
 !                                      HLIN1(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), allocatable :: HLIN3(:,:,:,:,:)
+      Complex(kind=8), allocatable :: HLIN3(:,:,:,:,:)
 !                                      HLIN3(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), allocatable :: HLIN9(:,:,:,:,:)
+      Complex(kind=8), allocatable :: HLIN9(:,:,:,:,:)
 !                                      HLIN9(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), allocatable :: HDIP(:,:,:,:,:)
+      Complex(kind=8), allocatable :: HDIP(:,:,:,:,:)
 !                                      HDIP(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), allocatable :: HKEX(:,:,:,:,:)
+      Complex(kind=8), allocatable :: HKEX(:,:,:,:,:)
 !                                      HKEX(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), allocatable :: HDMO(:,:,:,:,:)
+      Complex(kind=8), allocatable :: HDMO(:,:,:,:,:)
 !                                      HDMO(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), allocatable :: HITO(:,:,:,:,:)
+      Complex(kind=8), allocatable :: HITO(:,:,:,:,:)
 !                                      HITO(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), allocatable :: tmp(:,:) ! tmp(exch,exch)
+      Complex(kind=8), allocatable :: tmp(:,:) ! tmp(exch,exch)
 c two options for KE:
       Integer                       :: KEOPT
       Integer, parameter            :: exchR=8
@@ -136,27 +136,26 @@ c two options for KE:
       Integer, allocatable          :: nexchR(:)  ! nexchR(nneq)
       Integer, allocatable          :: ibasR(:,:) ! ibasR(exchR,lmax)
       Integer, allocatable          :: intcR(:)   ! intcR(lmax)
-      Real(kind=wp), allocatable    :: WR(:)  ! WR(exchR)
-      Real(kind=wp), allocatable    :: rotR(:,:,:,:)
+      Real(kind=8), allocatable    :: WR(:)  ! WR(exchR)
+      Real(kind=8), allocatable    :: rotR(:,:,:,:)
 !                                      rotR(nneq,neqv,3,3)
-      Complex(kind=wp), allocatable :: ZR(:,:) ! ZR(exchR,exchR)
-      Complex(kind=wp), allocatable :: HKEXR(:,:,:,:,:)
+      Complex(kind=8), allocatable :: ZR(:,:) ! ZR(exchR,exchR)
+      Complex(kind=8), allocatable :: HKEXR(:,:,:,:,:)
 !                                      HKEXR(npair,2,2,2,2)
-      Complex(kind=wp), allocatable :: MR(:,:,:) ! MR(3,exchR,exchR)
-      Complex(kind=wp), allocatable :: SR(:,:,:) ! SR(3,exchR,exchR)
-      Complex(kind=wp), allocatable :: SMR(:,:,:,:) ! SMR(nneq,3,2,2)
-      Complex(kind=wp), allocatable :: MMR(:,:,:,:) ! MMR(nneq,3,2,2)
-c      Complex(kind=wp) ::  JAllDip(npair,nmax,-nmax:nmax,nmax,-nmax:nmax)
-c      Complex(kind=wp) ::  JAllEx( npair,nmax,-nmax:nmax,nmax,-nmax:nmax)
-c      Real(kind=wp) ::  J1Dip(npair,3,3)
-c      Real(kind=wp) ::  J1Ex(npair,3,3)
-      Real(kind=wp)    :: mg1(3,3), mg2(3,3)
+      Complex(kind=8), allocatable :: MR(:,:,:) ! MR(3,exchR,exchR)
+      Complex(kind=8), allocatable :: SR(:,:,:) ! SR(3,exchR,exchR)
+      Complex(kind=8), allocatable :: SMR(:,:,:,:) ! SMR(nneq,3,2,2)
+      Complex(kind=8), allocatable :: MMR(:,:,:,:) ! MMR(nneq,3,2,2)
+c      Complex(kind=8) ::  JAllDip(npair,nmax,-nmax:nmax,nmax,-nmax:nmax)
+c      Complex(kind=8) ::  JAllEx( npair,nmax,-nmax:nmax,nmax,-nmax:nmax)
+c      Real(kind=8) ::  J1Dip(npair,3,3)
+c      Real(kind=8) ::  J1Ex(npair,3,3)
+      Real(kind=8)    :: mg1(3,3), mg2(3,3)
       Integer          :: CtoB, RtoB, ItoB, mem_local
       Logical          :: DBG !, testlines
-      Real(kind=wp)    :: dnrm2_
+      Real(kind=8)    :: dnrm2_
       External         :: norder, dnrm2_  !,ilaenv
 
-      Call qEnter('PA_exchctl')
       DBG=.false.
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       If(DBG) Then
@@ -1393,7 +1392,6 @@ c        End If
 c        End Do
 c      End Do
 c 199  Continue
-      Call qExit('PA_exchctl')
       Return
       End
 
@@ -1405,17 +1403,16 @@ c 199  Continue
       Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
 #include "stdalloc.fh"
       Integer, intent(in)             :: n
-      Real(kind=wp), intent(in)       :: R(3,3)
-      Real(kind=wp), intent(out)      :: mg(3,3)
-      Complex(kind=wp), intent(inout) :: S(3,n,n), M(3,n,n)
+      Real(kind=8), intent(in)       :: R(3,3)
+      Real(kind=8), intent(out)      :: mg(3,3)
+      Complex(kind=8), intent(inout) :: S(3,n,n), M(3,n,n)
       Logical                         :: dbg
       ! local data:
       Integer                         :: i
-      Complex(kind=wp), allocatable   :: Mt(:,:,:), St(:,:,:)
-!      Real(kind=wp)                   :: g(3)
-!      Complex(kind=wp), allocatable   :: Z(:,:)
+      Complex(kind=8), allocatable   :: Mt(:,:,:), St(:,:,:)
+!      Real(kind=8)                   :: g(3)
+!      Complex(kind=8), allocatable   :: Z(:,:)
 
-      Call qEnter('PA_prep_mom_exch')
 !-----------------------------------------------------------------------
       Call mma_allocate(Mt,3,n,n,'Mt')
       Call mma_allocate(St,3,n,n,'St')
@@ -1486,7 +1483,6 @@ c 199  Continue
       Call mma_deallocate(St)
 !      Call mma_deallocate(Z)
 
-      Call qExit('PA_prep_mom_exch')
 
 !-----------------------------------------------------------------------
 ! old preparation of the data for Lines exchange

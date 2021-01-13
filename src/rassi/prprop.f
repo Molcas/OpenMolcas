@@ -12,6 +12,9 @@
      &                  EigVec)
       use rassi_global_arrays, only: SODYSAMPS
       USE kVectors
+#ifdef _HDF5_
+      USE mh5, ONLY: mh5_put_dset_array_real
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
 #include "prgm.fh"
@@ -32,7 +35,6 @@
 #include "SysDef.fh"
 #include "rassiwfn.fh"
       Character*1 xyzchr(3)
-      Character*3 ASDLAB
       Character*8 EFPROP
       Character*8 PSOPROP
       Character*8 DMPPROP
@@ -74,7 +76,6 @@
       REAL*8, Allocatable:: SOPRR(:,:), SOPRI(:,:)
 
 
-      CALL QENTER(ROUTINE)
 
       AVOGADRO=CONST_AVOGADRO_
       AU2EV=CONV_AU_TO_EV_
@@ -471,15 +472,26 @@ C printing threshold
       OSTHR=1.0D-5
       OSTHR2=1.0D-5
       IF(DIPR) OSTHR = OSTHR_DIPR
-      IF(DIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR
+      IF(DIPR) WRITE(6,30) 'Dipole printing threshold changed to ',OSTHR
 ! Again to avoid total negative transition strengths
       IF(QIPR) OSTHR = OSTHR_QIPR
-      IF(QIPR) WRITE(6,*) ' Dipole threshold changed to ',OSTHR,
-     &                    ' since quadrupole threshold is given '
+      IF(QIPR) THEN
+        WRITE(6,49)  'Printing threshold changed to ',OSTHR,
+     &              'since quadrupole threshold is given '
+      END IF
       IF(QIPR) OSTHR2 = OSTHR_QIPR
-      IF(QIPR) WRITE(6,*) ' Quadrupole threshold changed to ',OSTHR2
-
+      IF(QIPR) THEN
+      WRITE(6,30) 'Quadrupole printing threshold changed to ',OSTHR2
+      END IF
       IF(QIALL) WRITE(6,*) ' Will write all quadrupole contributions '
+
+! Rotatory strength threshold
+      IF(RSPR) THEN
+        WRITE(6,30) 'Rotatory strength printing threshold changed '//
+     &             'to ',RSTHR
+      ELSE
+        RSTHR = 1.0D-07 !Default
+      END IF
 !
 !     Reducing the loop over states - good for X-rays
 !     At the moment memory is not reduced
@@ -594,16 +606,37 @@ C printing threshold
             IF(ABS(F).GE.OSTHR) THEN
               If (i_Print.eq.0) Then
                  i_Print=1
+
+! Print full COMPLEX transition dipole moment vectors?
+! J. Norell 7/5 2020
+         IF(PRDIPCOM) THEN
+
+          Call CollapseOutput(1,
+     & 'Complex transition dipole vectors (SO states):')
+          WRITE(6,'(3X,A)') '----------------------------------------'
+          IF(OSTHR.GT.0.0D0) THEN
+           WRITE(6,30)'   for osc. strength at least ',OSTHR
+           WRITE(6,*)
+          END IF
+          WRITE(6,*) '     From   To',
+     &'       Re(Dx)       Im(Dx)',
+     &'       Re(Dy)       Im(Dy)',
+     &'       Re(Dz)       Im(Dz)'
+          WRITE(6,32)
+          GOTO 137 ! Skip past "regular" print
+         END IF
+! END print COMPLEX vectors
+
          Call CollapseOutput(1,
      &                     'Dipole transition strengths (SO states):')
          WRITE(6,'(3X,A)') '----------------------------------------'
          IF(OSTHR.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR
+          WRITE(6,30)'   for osc. strength at least ',OSTHR
           WRITE(6,*)
          END IF
          If (Do_SK) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F8.4,a)')
+            WRITE(6,'(4x,a,3F10.6,a)')
      &            'Direction of the k-vector: ',
      &             (k_vector(k,iVec),k=1,3),' (a.u.)'
             WRITE(6,'(4x,a)')
@@ -615,9 +648,23 @@ C printing threshold
      &               'Total A (sec-1)'
          WRITE(6,32)
                End If
-             WRITE(6,33) ISS,JSS,F,AX,AY,AZ,A
+
+! Print full COMPLEX transition dipole moment vectors?
+137      IF(PRDIPCOM) THEN
+             WRITE(6,'(5X,I5,I5,A,A,E12.3,A,E12.3,A,E12.3,A,E12.3,A,
+     &       E12.3,A,E12.3)')
+     &       ISS,JSS,'   ',
+     &       ' ',REAL(T0(1)),' ',AIMAG(T0(1)),
+     &       ' ',REAL(T0(2)),' ',AIMAG(T0(2)),
+     &       ' ',REAL(T0(3)),' ',AIMAG(T0(3))
+        ELSE
+             WRITE(6,33) ISS,JSS,F,AX,AY,AZ,A ! "Regular" print instead
+         END IF
+! END print COMPLEX vectors
+
             END IF
             Call Add_Info('TMS(SO,Len)',[F],1,6)
+
            END IF
           END DO
          END DO
@@ -738,12 +785,12 @@ C printing threshold
      &                     'Velocity transition strengths (SO states):')
          WRITE(6,'(3X,A)') '------------------------------------------'
          IF(OSTHR.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR
+          WRITE(6,30)'   for osc. strength at least ',OSTHR
           WRITE(6,*)
          END IF
          If (Do_SK) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F8.4,a)')
+            WRITE(6,'(4x,a,3F10.6,a)')
      &            'Direction of the k-vector: ',
      &             (k_vector(k,iVec),k=1,3),' (a.u.)'
             WRITE(6,'(4x,a)')
@@ -799,7 +846,7 @@ C printing threshold
          WRITE(6,*) "length and velocity gauge "//
      &              "will be performed"
          WRITE(6,*)
-         WRITE(6,*) "All dipole oscillator differences above the "//
+         WRITE(6,49) "All dipole oscillator differences above the "//
      &              "tolerance of ",TOLERANCE," will be printed "
          WRITE(6,*)
          WRITE(6,*) "Due to basis set deficiency these oscillator "//
@@ -942,7 +989,7 @@ C printing threshold
      &                  '---------------------------------'
          END IF
          IF(OSTHR2.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR2
+          WRITE(6,30)'   for osc. strength at least ',OSTHR2
           WRITE(6,*)
          END IF
          WRITE(6,31) 'From','To','Osc. strength'
@@ -1097,7 +1144,7 @@ C printing threshold
          WRITE(6,'(3X,A)')
      &                 '--------------------------------------------'
          IF(OSTHR2.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR2
+          WRITE(6,30)'   for osc. strength at least ',OSTHR2
           WRITE(6,*)
          END IF
          WRITE(6,31) 'From','To','Osc. strength'
@@ -1235,7 +1282,7 @@ C printing threshold
 
 !       IPRDXYX=0
 !       IPRDXYY=0 ! YYX These are the same due to symmetry
-        IPRDXYZ=0 ! Not present
+!       IPRDXYZ=0 ! Not present
 
 !       IPRDXZX=0
 !       IPRDXZY=0
@@ -1283,7 +1330,7 @@ C printing threshold
            IF(ISOCMP(ISOPR).EQ.2) IPRDXXY=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRDXXZ=ISOPR
            IF(ISOCMP(ISOPR).EQ.4) IPRDYYX=ISOPR ! Changed from XYY
-           IF(ISOCMP(ISOPR).EQ.5) IPRDXYZ=ISOPR
+           !IF(ISOCMP(ISOPR).EQ.5) IPRDXYZ=ISOPR
            IF(ISOCMP(ISOPR).EQ.6) IPRDZZX=ISOPR ! Changed from XZZ
            IF(ISOCMP(ISOPR).EQ.7) IPRDYYY=ISOPR
            IF(ISOCMP(ISOPR).EQ.8) IPRDYYZ=ISOPR
@@ -1319,7 +1366,7 @@ C printing threshold
          WRITE(6,'(3X,A)') '------------------------------------'//
      &                     '---------------------------------'
          IF(OSTHR2.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR2
+          WRITE(6,30)'   for osc. strength at least ',OSTHR2
           WRITE(6,*)
          END IF
          WRITE(6,31) 'From','To','Osc. strength'
@@ -1538,17 +1585,17 @@ C printing threshold
         IPRDZY=0
         IPRDZZ=0
 ! Spin-Magnetic-Quadrupole
-        IPRSXX=0
+!       IPRSXX=0
         IPRSXY=0
         IPRSXZ=0
 
         IPRSYX=0
-        IPRSYY=0
+!       IPRSYY=0
         IPRSYZ=0
 
         IPRSZX=0
         IPRSZY=0
-        IPRSZZ=0
+!       IPRSZZ=0
 ! Electric-Dipole
         IPRDX=0
         IPRDY=0
@@ -1580,17 +1627,17 @@ C printing threshold
           ELSE IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
      &            SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
            IFANYS=1
-           IF(ISOCMP(ISOPR).EQ.1) IPRSXX=ISOPR
+           !IF(ISOCMP(ISOPR).EQ.1) IPRSXX=ISOPR
            IF(ISOCMP(ISOPR).EQ.1) IPRSXY=ISOPR
            IF(ISOCMP(ISOPR).EQ.1) IPRSXZ=ISOPR
 
            IF(ISOCMP(ISOPR).EQ.2) IPRSYX=ISOPR
-           IF(ISOCMP(ISOPR).EQ.2) IPRSYY=ISOPR
+           !IF(ISOCMP(ISOPR).EQ.2) IPRSYY=ISOPR
            IF(ISOCMP(ISOPR).EQ.2) IPRSYZ=ISOPR
 
            IF(ISOCMP(ISOPR).EQ.3) IPRSZX=ISOPR
            IF(ISOCMP(ISOPR).EQ.3) IPRSZY=ISOPR
-           IF(ISOCMP(ISOPR).EQ.3) IPRSZZ=ISOPR
+           !IF(ISOCMP(ISOPR).EQ.3) IPRSZZ=ISOPR
 
           END IF
         END DO
@@ -1657,7 +1704,7 @@ C printing threshold
          END IF
 
          IF(OSTHR2.GT.0.0D0) THEN
-          WRITE(6,*)'   for osc. strength at least ',OSTHR2
+          WRITE(6,30)'   for osc. strength at least ',OSTHR2
           WRITE(6,*)
          END IF
          WRITE(6,31) 'From','To','Osc. strength'
@@ -1963,13 +2010,14 @@ C printing threshold
      &                  '-------------------'
 !
               IF(OSTHR2.GT.0.0D0) THEN
-               WRITE(6,*)'   for osc. strength at least ',OSTHR2
+               WRITE(6,30)'   for osc. strength at least ',OSTHR2
                WRITE(6,*)
               END IF
               WRITE(6,31) 'From','To','Osc. strength'
               WRITE(6,35)
              END IF
              WRITE(6,33) ISS,JSS,F
+             Call Add_Info('TMS(SO,2nd)',[F],1,6)
             END IF
            END IF
           END DO
@@ -2004,11 +2052,8 @@ C printing threshold
         IPRQXX=0
         IPRQXY=0
         IPRQXZ=0
-        IPRQYX=0
         IPRQYY=0
         IPRQYZ=0
-        IPRQZX=0
-        IPRQZY=0
         IPRQZZ=0
 
         IFANYD=0
@@ -2190,6 +2235,11 @@ C printing threshold
      &                 '------------------------------------'//
      &                 '----------------------------------'//
      &                 '-------------------------------'
+         IF (DO_SK) THEN
+           WRITE(6,30) 'For red. rot. strength at least',RSTHR
+         ELSE
+           WRITE(6,30) 'For isotropic red. rot. strength at least',RSTHR
+         END IF
          WRITE(6,*)
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
@@ -2202,7 +2252,7 @@ C printing threshold
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F8.4)')
+            WRITE(6,'(4x,a,3F10.6)')
      &         'Direction of the k-vector: ',
      &          (k_vector(k,iVec),k=1,3)
             WRITE(6,*)
@@ -2308,7 +2358,9 @@ C printing threshold
              END IF
             END IF
 *
-            WRITE(6,33) ISS,JSS,R
+            IF (ABS(R).GT.RSTHR) THEN
+              WRITE(6,33) ISS,JSS,R
+            END IF
 !
             Call Add_Info('CD_V(SO)',[R],1,6)
            END IF
@@ -2370,11 +2422,8 @@ C printing threshold
         IPRQXX=0
         IPRQXY=0
         IPRQXZ=0
-        IPRQYX=0
         IPRQYY=0
         IPRQYZ=0
-        IPRQZX=0
-        IPRQZY=0
         IPRQZZ=0
 
         IFANYD=0
@@ -2562,6 +2611,11 @@ C printing threshold
          WRITE(6,*)
          WRITE(6,*) ' Circular Dichroism in the mixed gauge '
          WRITE(6,*) ' is NOT origin independent - check your results '
+         IF (DO_SK) THEN
+           WRITE(6,30) 'For red. rot. strength at least',RSTHR
+         ELSE
+           WRITE(6,30) 'For isotropic red. rot. strength at least',RSTHR
+         END IF
          WRITE(6,*)
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
@@ -2574,7 +2628,7 @@ C printing threshold
 *
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F8.4)')
+            WRITE(6,'(4x,a,3F10.6)')
      &         'Direction of the k-vector: ',
      &          (k_vector(k,iVec),k=1,3)
             WRITE(6,*)
@@ -2679,7 +2733,9 @@ C printing threshold
              END IF
             END IF
 *
-            WRITE(6,33) ISS,JSS,R
+            IF (ABS(R).GT.RSTHR) THEN
+              WRITE(6,33) ISS,JSS,R
+            END IF
 !
             Call Add_Info('CD_M(SO)',[R],1,6)
            END IF
@@ -2749,7 +2805,6 @@ C printing threshold
      &                  '---------------------------' //
      &                  '-------------------------------------------'//
      &                  '-------------------'
-        FMAX=0.0D0
         DO I=1,NSS
          DO J=1,NSS
           F=SODYSAMPS(I,J)*SODYSAMPS(I,J)
@@ -3846,7 +3901,7 @@ C Mapping from spin states to spin-free state and to spin:
         IF(PNAME(IPROP)(1:3).EQ.'ASD'.AND.ICOMP(IPROP).EQ.1) THEN
 
 * Get the center number
-         Read (PNAME(IPROP),'(a4,i4)') ASDLAB,ICEN
+         Read (PNAME(IPROP),'(4x,i4)') ICEN
 
       WRITE(6,*) '  ========================================='
       write(6,*) '  A(Total)-Matrix for center:',ICEN
@@ -7057,6 +7112,7 @@ C backtransformation in two steps, -phi and -theta
 
  900  CONTINUE
 
+30    FORMAT (5X,A,1X,ES15.8)
 31    FORMAT (5X,2(1X,A4),6X,A15,1X,A47,1X,A15)
 32    FORMAT (5X,95('-'))
 33    FORMAT (5X,2(1X,I4),5X,5(1X,ES15.8))
@@ -7068,6 +7124,7 @@ C backtransformation in two steps, -phi and -theta
 40    FORMAT (5X,63('-'))
 43    FORMAT (12X,A8,6(1X,ES15.8))
 44    FORMAT (20X,6(1X,A15))
+49    FORMAT (5X,A,1X,ES15.8,1X,A)
 
       RETURN
       END

@@ -16,25 +16,25 @@
 *     Driver for RctFld_                                               *
 *                                                                      *
 ************************************************************************
+      use PCM_arrays, only: MM
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Logical First, Dff, NonEq
+      Real*8, Allocatable:: Vs(:,:), QV(:,:)
 *
       nComp=(lMax+1)*(lMax+2)*(lMax+3)/6
-      Call GetMem('Vs','Allo','Real',ipVs,nComp*2)
-      Call GetMem('QV','Allo','Real',ipQV,nComp*2)
+      call mma_Allocate(Vs,nComp,2,Label='Vs')
+      call mma_Allocate(QV,nComp,2,Label='QV')
 *
       Call RctFld_(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq,
-     &             Work(ipMM),nComp,Work(ipVs),Work(ipQV))
+     &             MM,nComp,Vs,QV)
 *
-      Call GetMem('QV','Free','Real',ipQV,nComp*2)
-      Call GetMem('Vs','Free','Real',ipVs,nComp*2)
+      Call mma_deallocate(Vs)
+      Call mma_deallocate(QV)
 *
       Return
       End
@@ -63,31 +63,21 @@
 *                                                                      *
 *         -1/2 Sum(nl) E(tot,nl)M(tot,nl)                              *
 *                                                                      *
-* Called from: DrvRF                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              DCopy  (ESSL)                                           *
-*              RecPrt                                                  *
-*              MltNuc                                                  *
-*              Drv1                                                    *
-*              AppFld                                                  *
-*              DDot_  (ESSL)                                           *
-*              Drv2                                                    *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             July '92                                                 *
 *                                                                      *
 *             Modified for nonequilibrum calculations January 2002 (RL)*
 ************************************************************************
+      use Basis_Info, only: nBas
+      use External_Centers, only: XF
+      use Temporary_Parameters, only: PrPrt
+      use Real_Info, only: PotNuc
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       Real*8 h1(nh1), TwoHam(nh1), D(nh1), Origin(3)
       Character*72 Label
       Character*8 Label2
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
@@ -101,7 +91,6 @@
 *
       iRout = 1
       iPrint = nPrint(iRout)
-      Call qEnter('RctFld')
 *
       lOper(1)=1
       nOrdOp=lMax
@@ -134,7 +123,7 @@
             Call RFNuc(Origin,Q_solute(ip,1),iMax)
          End Do
 
-         if(lXF) Then
+         if(Allocated(XF)) Then
 *
 *------- Add contribution from XFIELD multipoles
 *
@@ -253,8 +242,7 @@
                   If (Origin(3).ne.Zero) iSymZ = iOr(iSymZ,1)
                End If
 *
-               iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ,
-     &                            nIrrep),nIrrep)
+               iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
                lOper(1)=iOr(lOper(1),iTemp)
             End Do
          End Do
@@ -348,7 +336,6 @@
 ************************************************************************
 *                                                                      *
 *
-      Call qExit('RctFld')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_logical(Dff)

@@ -8,11 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine cnfprint_cvb()
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
+c ... Make: up to date? ...
+      logical, external :: up2date_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -30,17 +32,19 @@
         i1 = mstacki_cvb(max(noe,noe*nconf))
         call rdioff_cvb(1,recinp,ioffs)
         call rdis_cvb(idum,1,recinp,ioffs)
-        noe1=idum(1)
+        !noe1=idum(1)
         call rdis_cvb(idum,1,recinp,ioffs)
-        nconf1=idum(1)
+        !nconf1=idum(1)
         call rdis_cvb(idum,1,recinp,ioffs)
-        kbasiscvb1=idum(1)
+        !kbasiscvb1=idum(1)
         call rdis_cvb(iw(i1),noe*nconf,recinp,ioffs)
         if(nconf.eq.0)then
           do 225 i=1,min(nel,norb)
-225       iw(i+i1-1)=1
+          iw(i+i1-1)=1
+225       continue
           do 250 i=1,nel-norb
-250       iw(i+i1-1)=2
+          iw(i+i1-1)=2
+250       continue
         endif
         nconf_off=0
         do 300 ifrag=1,nfrag
@@ -57,7 +61,8 @@
      >    nvbr_fr(ifrag)
         write(6,'(a,i6)')  '           VB determinants   :',
      >    ndetvb_fr(ifrag)
-300     nconf_off=nconf_off+nconf_fr(ifrag)
+        nconf_off=nconf_off+nconf_fr(ifrag)
+300     continue
         call mfreei_cvb(i1)
         call make_cvb('CNFPRINT')
       endif

@@ -43,11 +43,11 @@
         endif
         jlp=lopi(3,nlp)
         jrp=lopi(4,nlp)
-        do 114 idlr=1,4
+        do 115 idlr=1,4
           ml=jjl_sub(idlr,jlp)
           mr=jj_sub(idlr,jrp)
           !write(6,*) "ml,mr",ml,mr
-          if(ml.eq.0.or.mr.eq.0) goto 114
+          if(ml.eq.0.or.mr.eq.0) goto 115
           jwlp=lopi(1,nlp)
           jwrp=lopi(2,nlp)
           if(idlr.ne.1)jwlp=jwlp+iyl(idlr,jlp)
@@ -57,6 +57,7 @@
           lopj(2,lpj)=jwrp
           lopj(3,lpj)=ml
           lopj(4,lpj)=mr
+115     continue
 114   continue
       if(lpj.eq.0) goto 200
       lpi=lpj
@@ -208,7 +209,8 @@ c
       iwdl=mg3
       iwdr=mg4
       ipaeend=25
-      do ipae=1,ipaeend
+      do ipae_=1,ipaeend
+        ipae=ipae_ ! ipae is in common block, is this necessary?
         if(nu_ae(ipae).eq.0) cycle
         iwdown=iw_downwei(jpad,ipae)
         if(iwdown.eq.0) cycle
@@ -338,8 +340,6 @@ c     iwar=mg4
 #include "pl_structure_h.fh"
       dimension lopu(4,loputmp)
 !log_prod=2:directly no_formh0
-      character*16 loop_type
-      loop_type=' prod_h0 '
 c       write(*,*) 'prodab_h0 '
 
       goto(100,200,300),idb
@@ -463,9 +463,6 @@ c     iwar=mg4
 #include "pl_structure_h.fh"
       dimension lopu(4,loputmp)
 !log_prod=1:truanditional formh0
-      character*16 loop_type
-      loop_type=' prod_h0 '
-
 c       write(*,*) 'prodab_h0 '
 
       goto(100,200,300),idb

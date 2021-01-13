@@ -32,7 +32,8 @@ c -------------------------------------------------------------------
       subroutine ptrans(cmo,npam,ipam,nxpam,DSO,PSOPam,nPSOPam,
      &                  G1,nG1,G2,nG2,Cred,nC,Scr1,nS1,Scr2,nS2)
       Implicit Real*8 (a-h,o-z)
-      Integer npam(4,0:*),ipam(nxpam)
+      Integer npam(4,0:*)
+      Real*8 ipam(nxpam)
       Real*8 DSO(nDSO), PSOPam(nPSOPam), G1(nG1), G2(nG2),
      &       Cred(nC), Scr1(nS1), Scr2(nS2), Cmo(ncmo)
 #include "real.fh"
@@ -41,7 +42,6 @@ c -------------------------------------------------------------------
 c Triangular addressing without symmetry:
       i3adr(i,j)=( (max(i,j)) *( (max(i,j)) -1) )/2+min(i,j)
 *
-*     Call qEnter('PTrans')
       iRout = 251
       iPrint = nPrint(iRout)
 *     Call GetMem('List1','List','Real',iDum,iDum)
@@ -103,7 +103,6 @@ c Loop over all possible symmetry combinations.
       iocmoj=0
       ioDq=0
       do 1020 jsym=0,mirrep-1
-        jksym=ieor(jsym,ksym)
         nj=npam(2,jsym)
         jsta=jend+1
         jend=jend+nj
@@ -131,7 +130,6 @@ c Break loop if not acceptable symmetry combination.
         if(klsym.ne.ijsym) goto 1005
 c Break loop if no such symmetry block:
         if(nijkl.eq.0) goto 1005
-        ilsym=jksym
         If (iPrint.ge.99) Write (6,*) ' i,j,k,lsym=',iSym,jSym,kSym,lSym
 c Bypass transformation if no active orbitals:
         if(nxvut.eq.0) goto 300
@@ -182,7 +180,7 @@ c  scr2(l,tuv)= sum cmo(sl,x)*scr1(tuv,x)
       nskip2=npam(4,lsym)
       ntuv=nash(isym)*nash(jsym)*nash(ksym)
       do 210 l=lsta,lend
-        ioff1=iocmox+ipam(iopam4+l)
+        ioff1=iocmox+INT(ipam(iopam4+l))
         ioff2=ioff2+1
         call dcopy_(ncopy,CMO(ioff1),nskip1,Cred(ioff2),nskip2)
  210  continue
@@ -199,7 +197,7 @@ c  scr3(k,ltu)= sum cmo(rk,v)*scr2(ltu,v)
       nskip2=npam(3,ksym)
       nltu=nash(isym)*nash(jsym)*npam(4,lsym)
       do 220 k=ksta,kend
-        ioff1=iocmov+ipam(iopam3+k)
+        ioff1=iocmov+INT(ipam(iopam3+k))
         ioff2=ioff2+1
         call dcopy_(ncopy,CMO(ioff1),nskip1,Cred(ioff2),nskip2)
  220  continue
@@ -216,7 +214,7 @@ c  scr4(j,klt)= sum cmo(qj,u)*scr3(klt,u)
       nskip2=npam(2,jsym)
       nklt=nash(isym)*npam(3,ksym)*npam(4,lsym)
       do 230 j=jsta,jend
-        ioff1=iocmou+ipam(iopam2+j)
+        ioff1=iocmou+INT(ipam(iopam2+j))
         ioff2=ioff2+1
         call dcopy_(ncopy,CMO(ioff1),nskip1,Cred(ioff2),nskip2)
  230  continue
@@ -233,7 +231,7 @@ c  scr5(i,jkl)= sum cmo(pi,t)*scr4(jkl,t)
       nskip2=npam(1,isym)
       njkl=npam(2,jsym)*npam(3,ksym)*npam(4,lsym)
       do 240 i=ista,iend
-        ioff1=iocmot+ipam(iopam1+i)
+        ioff1=iocmot+INT(ipam(iopam1+i))
         ioff2=ioff2+1
         call dcopy_(ncopy,CMO(ioff1),nskip1,Cred(ioff2),nskip2)
  240  continue
@@ -268,17 +266,17 @@ c Put results into correct positions in PSOPam:
 c Add contributions from 1-el density matrix:
  300  continue
       do 340 l=lsta,lend
-       is=ipam(iopam4+l)
+       is=INT(ipam(iopam4+l))
        loff=nnpam3*(l-1)
        do 330 k=ksta,kend
-        ir=ipam(iopam3+k)
+        ir=INT(ipam(iopam3+k))
         irs=i3adr(ir,is)
         kloff=nnpam2*(k-1+loff)
         do 320 j=jsta,jend
-         iq=ipam(iopam2+j)
+         iq=INT(ipam(iopam2+j))
          jkloff=nnpam1*(j-1+kloff)
          do 310 i=ista,iend
-          ip=ipam(iopam1+i)
+          ip=INT(ipam(iopam1+i))
           ipq=i3adr(ip,iq)
           ipso=i+jkloff
           if(isym.eq.lsym) then
@@ -319,6 +317,5 @@ c End of loop over symmetry labels.
      &                     nnPam1*nnPam2,nnPam3*nnPam4)
 *
 *     Call GetMem('Exit PTrans','Check','Real',iDum,iDum)
-*     Call qExit('PTrans')
       return
       end

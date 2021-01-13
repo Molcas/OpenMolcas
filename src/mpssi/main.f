@@ -17,7 +17,7 @@
 #endif
       implicit none
       integer :: ireturn
-      character(20), parameter :: module_name = 'mpssi'
+      character(len=20), parameter :: module_name = 'mpssi'
 #ifdef _FPE_TRAP_
       Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
 #endif

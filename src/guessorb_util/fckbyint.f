@@ -24,6 +24,9 @@
 *                                                                      *
 ************************************************************************
       Subroutine FckByInt(iReturncode,StandAlone)
+#ifdef _HDF5_
+      Use mh5, Only: mh5_put_dset
+#endif
       Implicit Real*8 (a-h,o-z)
 #include "stdalloc.fh"
 #include "Molcas.fh"
@@ -77,8 +80,7 @@
       Integer nIsh(8)
       Integer nAsh(8)
 #ifdef _HDF5_
-      Character(1), Allocatable :: typestring(:)
-      Integer nZero(MxSym)
+      Character(Len=1), Allocatable :: typestring(:)
 #endif
 *----------------------------------------------------------------------*
 * Some setup                                                           *
@@ -487,7 +489,6 @@
       Call WrVec('GSSORB',Lu,'COEI',nSym,nBas,nBas,CMO,
      &           T1,Eps,IndType,Title)
 #ifdef _HDF5_
-      nZero=0
       call mma_allocate(typestring, nBasTot)
       call orb2tpstr(nSym,nBas,
      &        IndType(1,:),IndType(2,:),

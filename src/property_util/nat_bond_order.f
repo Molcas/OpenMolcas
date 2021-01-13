@@ -90,13 +90,11 @@ c      Character*(LENIN) LblCnt(MxAtom)
       Character*36 LabelNoSym
       Character*49 Label3ASym
       Character*49 Label3ANoSym
-      External Get_SuperName
-      Character*100 Get_SuperName
 
       Logical Exist, SearchedSingle, SearchedTriple, Reduce_Prt
       External Reduce_Prt
 
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -236,7 +234,7 @@ c      EndDo
 
       Call Get_Coord_All(Work(ipAll),tRealNUC)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Coordinates',' ',Work(ipAll),3,tRealNUC)
 #endif
 
@@ -247,7 +245,7 @@ c      EndDo
 *
       Call Allocate_Work(ipCM  ,tRealNUC)
       Call Get_Nuc_Charge_All(Work(ipCM), tRealNUC)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' Charges',' ',Work(ipCM),tRealNUC,1)
 #endif
 
@@ -263,7 +261,7 @@ c      EndDo
          jj = jj + 1
 110   Continue
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call ivcPrt(' Atoms',' ',iWork(ipANr),tRealNUC)
 #endif
 
@@ -297,11 +295,11 @@ c      EndDo
          Call FZero(Work(ipPInv),NBAST2)
 
          Call Get_dArray('SM',Work(ipP),NBAST2)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('SM',' ',Work(ipP),NBAST,NBAST)
 #endif
          Call MINV(Work(ipP),Work(ipPInv),ISING,DET,NBAST)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('SMInv',' ',Work(ipPInv),NBAST,NBAST)
 #endif
          Call DGeTMi(Work(ipPInv),NBAST,NBAST)
@@ -314,7 +312,7 @@ c      EndDo
       Call Allocate_iWork(ip_center,NBAST)
       Call Get_iArray('Center Index',iWork(ip_center),NBAST)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'iWork(ip_center) ='
       Do I =1, NBAST
           Write (6,*) iWork(ip_center+I-1)
@@ -336,7 +334,7 @@ c      EndDo
      &     iWork(ipNBFpA+iWork(ip_center+I-1)-1) + 1
       End Do
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'number of basis per atom iWork(ipNBFpA) ='
       Do I = 1, tNUC
           Write (6,*) iWork(ipNBFpA+I-1)
@@ -386,7 +384,7 @@ c      EndDo
         Call Abend
       End If
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) 'Original Overlap Matrix'
       Write(6,'(2X,8F12.8)')(Work(ipS_orig+J-1),J=1,iSElem)
@@ -422,7 +420,7 @@ c      EndDo
          End If
       End Do
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*)
       Write(6,*) 'Before desymmetrization'
       Call RecPrt('Overlap Matrix = ', ' ',
@@ -449,7 +447,7 @@ c      EndDo
             End IF
         End Do
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         Write(6,*) 'S_blo = '
         Do i=1,nBas2
             Write(6,*) (Work(ipS_blo +I -1))
@@ -461,7 +459,7 @@ c      EndDo
           nBasMax = Max(nBasMax,nBas(i))
         End Do
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         Write(6,*)'nBasMax = ', nBasMax
 #endif
 
@@ -484,7 +482,7 @@ c      EndDo
           End Do
       End If
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*)
       Write(6,*) 'After desymmetrization'
       Call RecPrt('S Matrix = ', ' ',
@@ -521,7 +519,7 @@ c      EndDo
 
       Call Get_dArray(Label,Work(ipTmp),nDens)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call TriPrt('Density Matrix',' ',Work(ipTmp),NBAST)
 #endif
 
@@ -539,7 +537,7 @@ c      EndDo
 
 
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('Loprop D Matrix squared = ', ' ',
      &             Work(ipDNAO), NBAST, NBAST)
 
@@ -567,7 +565,7 @@ c      EndDo
      &            Work(ipS),NBAST,
      &            0.0d0,Work(ipDS),NBAST)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('DS-NAO Matrix = ', ' ',
      &             Work(ipDS), NBAST, NBAST)
       E=Zero
@@ -639,7 +637,7 @@ c       Call Get_iScalar('nSym',nSym)
           TotEl=TotEl+Work(ipDS + (I-1) * NBAST + I -1)
       End Do
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*)
       Write(6,*) 'Number of electrons = ', TotEl
 #endif
@@ -697,7 +695,7 @@ c       Call Get_iScalar('nSym',nSym)
 93           Continue
           End Do
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
            Write (6,*)
            Call RecPrt('SubDNAO Matrix = ', ' ',
      &             Work(ipSubDNAO), nBasAtoms, nBasAtoms)
@@ -727,7 +725,7 @@ c       Call Get_iScalar('nSym',nSym)
                Return
            End If
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
            Write (6,*)
            Write (6,*) 'One atom submatrix diagonalization'
            Call RecPrt('Eigen vectors Matrix = ', ' ',
@@ -770,7 +768,7 @@ c       Call Get_iScalar('nSym',nSym)
 
       End Do
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       E=Zero
       Do I=1,NBAST
           E=E+Work(ipDS + (I-1) * NBAST + I -1)
@@ -841,7 +839,7 @@ c       Call Get_iScalar('nSym',nSym)
             isThereAtLeastABond = 1
           End If
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           Write(6,*)
           Write(6,*) 'Good rij = ', rij
           Write(6,*) 'covalent = ', covij
@@ -898,7 +896,7 @@ c       Call Get_iScalar('nSym',nSym)
 *95           Continue
           End Do
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
            Write (6,*)
             Call RecPrt('SubDNAO Matrix = ', ' ',
      &             Work(ipSubDNAO), nBasAtoms, nBasAtoms)
@@ -917,7 +915,7 @@ c       Call Get_iScalar('nSym',nSym)
                Return
            End If
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
            Write (6,*)
            Write (6,*) 'Two atoms submatrix diagonalization'
            Call RecPrt('Eigen vectors Matrix = ', ' ',
@@ -957,7 +955,7 @@ c       Call Get_iScalar('nSym',nSym)
       End Do
       Call Free_Work(ipDS_tmp)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         Call RecPrt('DS-NAO depleted Matrix = ', ' ',
      &       Work(ipDS), NBAST, NBAST)
         E=Zero
@@ -976,7 +974,7 @@ c       Call Get_iScalar('nSym',nSym)
 
       ElecNonAssgn = TotEl - TotCoreElec - TotLoneElec - TotBondElec
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*)
       Write(6,*)'Number of non assigned electrons = ', ElecNonAssgn
 #endif
@@ -1105,7 +1103,7 @@ c       Call Get_iScalar('nSym',nSym)
 *85           Continue
           End Do
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
            Write (6,*)
             Call RecPrt('SubDNAO Matrix = ', ' ',
      &             Work(ipSubDNAO), nBasAtoms, nBasAtoms)
@@ -1124,7 +1122,7 @@ c       Call Get_iScalar('nSym',nSym)
                Return
            End If
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
            Write (6,*)
             Call RecPrt('Eigen vectors Matrix = ', ' ',
      &             Work(ipSubVec), nBasAtoms, nBasAtoms)
@@ -1171,7 +1169,7 @@ c       Call Get_iScalar('nSym',nSym)
            Work(ipDS + I - 1) = Work(ipDS_tmp + I - 1)
          End Do
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('DS-NAO depleted Matrix = ', ' ',
      &        Work(ipDS), NBAST, NBAST)
          E=Zero
@@ -1276,7 +1274,7 @@ c       Call Get_iScalar('nSym',nSym)
 73         Continue
           End Do
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
            Write (6,*)
             Call RecPrt('SubDNAO Matrix = ', ' ',
      &             Work(ipSubDNAO), nBasAtoms, nBasAtoms)
@@ -1295,7 +1293,7 @@ c       Call Get_iScalar('nSym',nSym)
                Return
            End If
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
            Write (6,*)
             Call RecPrt('Eigen vectors Matrix = ', ' ',
      &             Work(ipSubVec), nBasAtoms, nBasAtoms)
@@ -1526,7 +1524,7 @@ c       Call Get_iScalar('nSym',nSym)
 #include "Molcas.fh"
 *
 
-*define _DEBUG_
+*define _DEBUGPRINT_
 
       Thrs = Threshold
       Thrs_Original = Threshold
@@ -1556,7 +1554,7 @@ c       Call Get_iScalar('nSym',nSym)
 
       If (TotElecAvail.lt.Zero) Goto 666
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*)
       Write(6,*) 'Total electrons in eigenvalues = ', TotElecAvail
       Write(6,*) 'Something has to be found = ', iStHas2bFnd
@@ -1569,7 +1567,7 @@ c       Call Get_iScalar('nSym',nSym)
 
       If (E.lt.Zero) Goto 666
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(6,*)
       Write(6,*)'Number of electrons as sum of the DS diagonal = ', E
 #endif
@@ -1604,7 +1602,7 @@ c       Call Get_iScalar('nSym',nSym)
           End If
       End Do
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (TotElecFound.gt.TotElecAvail) Then
         Write(6,*)
         Write(6,*) 'Something fishy is going on'
@@ -1661,7 +1659,7 @@ c       Call Get_iScalar('nSym',nSym)
             Work(ipWhat + iCounterTrue) = Work(ipWhat + iCounterTrue) +
      &                                     (Accumulate/2)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write(6,*)
             Write(6,*) 'NBO bond order between Atom ',
      &      iWork(ipAtomA + iCounterTrue), ' and Atom ',
@@ -1677,7 +1675,7 @@ c       Call Get_iScalar('nSym',nSym)
             iWork(ipAtomA + iCounter) = IAtom
             Work(ipWhat + iCounter) = Work(ipEiVal+I-1)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write(6,*)
             Write(6,*) 'NBO located ', Work(ipEiVal+I-1), ' electrons'
             Write(6,*) 'non bonding on atom ', iWork(ipAtomA + iCounter)
@@ -1694,7 +1692,7 @@ c       Call Get_iScalar('nSym',nSym)
             iWork(ipAtomC + iCounter) = KAtom
             Work(ipWhat + iCounter) = Work(ipEiVal+I-1)/2
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write(6,*)
             Write(6,*) 'NBO tricenter bond order between Atom ',
      &      iWork(ipAtomA + iCounter), ' and Atom ',
@@ -1720,21 +1718,21 @@ c       Call Get_iScalar('nSym',nSym)
      &            (iWork(ipGood+I-1) - 1) * nBasAtoms + J - 1)
           End Do
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           Call RecPrt('Good orbital eigenvector',' ',Work(ipScrV),
      &                  nBasAtoms, 1)
 #endif
 
           EigenNorm = DNORM2(nBasAtoms, Work(ipScrV), 1)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           Write(6,*)
           Write(6,*)'Vector euclidean norm = ', EigenNorm
 #endif
 
           Call DScal_(nBasAtoms,1/EigenNorm,Work(ipScrV),1)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           Write(6,*)
           Call RecPrt('Normalized orbital eigenvector',' ',
      &                  Work(ipScrV), nBasAtoms, 1)
@@ -1748,7 +1746,7 @@ c       Call Get_iScalar('nSym',nSym)
      &                Work(ipScrV),nBasAtoms,
      &                0.0d0,Work(ipScrM),nBasAtoms)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           Call RecPrt('Multiplied Eigenvectors',' ',Work(ipScrM),
      &                  nBasAtoms, nBasAtoms)
 
@@ -1758,7 +1756,7 @@ c       Call Get_iScalar('nSym',nSym)
 
               Call DScal_(nDimSubD,Work(ipEiVal+I-1), Work(ipScrM),1)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
               Call RecPrt('Scaled Mult eigenvector',' ',Work(ipScrM),
      &                      nBasAtoms, nBasAtoms)
 #endif
@@ -1772,7 +1770,7 @@ c       Call Get_iScalar('nSym',nSym)
             Work(ipDS+K) = Work(ipDS+K) - Work(ipScrM+J)
           End Do
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           Call RecPrt('DS-NAO depleted Matrix = ', ' ',
      &         Work(ipDS), NBAST, NBAST)
           E=Zero

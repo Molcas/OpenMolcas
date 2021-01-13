@@ -18,6 +18,9 @@
 *--------------------------------------------*
       SUBROUTINE PRPCTL
       USE PT2WFN
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -25,18 +28,14 @@
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "SysDef.fh"
-      Logical FullMlk,lSave,Do_ESPF,AddFragments
-#ifdef _MOLCAS_MPP_
-      LOGICAL Is_Real_Par
-#endif
+      Logical FullMlk,lSave,Do_ESPF
 
-      Character(8) Label
-      Character(128) FILENAME,MDNAME
-      Character(80) Note
+      Character(Len=8) Label
+      Character(Len=128) FILENAME,MDNAME
+      Character(Len=80) Note
       Integer IndType(56)
       Real*8 Dummy(2),DUM(1)
 
-      CALL QENTER('PRPCTL')
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
@@ -165,9 +164,8 @@ C Write natural orbitals as standard orbital file on LUMORB.
 
       CALL WRVEC(FILENAME,LUTMP,'COI',NSYM,NBAS,NBAS,
      &  WORK(LCNAT), WORK(LOCC),Dummy  ,IndType,Note)
-      AddFragments=.True.
       iUHF=0
-      Call Molden_Interface(iUHF,FILENAME,MDNAME,AddFragments)
+      Call Molden_Interface(iUHF,FILENAME,MDNAME)
 
 C Write natural orbitals to standard output.
       IF ( IPRGLB.GE.VERBOSE) THEN
@@ -224,13 +222,6 @@ C Write natural orbitals to standard output.
         WRITE(6,'(6X,A)') '-----------------------------------------'
       END IF
 
-* The PRPT source code gives the following formula for the
-* scratch space needed:
-      NCOMP=6
-      NTCOMP=15
-      NSCR=(NBSQT+NBAST)/2+6+4*NCOMP+(NBAST*(NBAST+1))/2
-     &      +4+2*NTCOMP*(NTCOMP+1)
-
       nDens=0
       Do i = 1, nSym
          nDens=nDens+nBas(i)*(nBas(i)+1)/2
@@ -264,6 +255,5 @@ cnf
 
  999  CONTINUE
 
-      CALL QEXIT('PRPCTL')
       RETURN
       END

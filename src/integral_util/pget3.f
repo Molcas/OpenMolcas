@@ -10,12 +10,13 @@
 *                                                                      *
 * Copyright (C) 1992, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine PGet3(PAO,ijkl,nPAO,iCmp,iShell,
+      SubRoutine PGet3(PAO,ijkl,nPAO,iCmp,
      &                 iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,
      &                 DAO,nDAO,
      &                 PAOPam,n1,n2,n3,n4,iPam,MapPam,mDim,
      &                 Cred,nCred,Scr1,nScr1,Scr2,nScr2,PMax)
 ************************************************************************
+*                                                                      *
 *  Object: to assemble the index list of the batch of the 2nd order    *
 *          density matrix.                                             *
 *                                                                      *
@@ -23,35 +24,25 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 *             Modified from PGet1, June '92                            *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO, iOffSO
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
-#include "pso.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
       Real*8 PAO(ijkl,nPAO), PAOPam(n1,n2,n3,n4), DAO(nDAO),
      &       Cred(nCred), Scr1(nScr1,2), Scr2(nScr2)
-      Integer iShell(4), iAO(4), kOp(4),
-     &          iAOst(4), nPam(4), iPam(n1+n2+n3+n4), iiBas(4),
-     &          MapPam(4,mDim), iCmp(4)
+      Integer iAO(4), kOp(4), iAOst(4), nPam(4), iiBas(4), iCmp(4)
+      Real*8 iPam(n1+n2+n3+n4), MapPam(4,mDim)
       Logical Shijij
 *
       iRout = 39
       iPrint = nPrint(iRout)
-*     Call qEnter('PGet3   ')
       If (iPrint.ge.99) Then
-         iComp = 1
          Write (6,*) ' nBases..=',iBas,jBas,kBas,lBas
       End If
 *
@@ -77,8 +68,8 @@
             Do 12 iAOi = 0, iiBas(jPam)-1
                iSOi = iSO + iAOi
                in2 = in2 + 1
-               iPam(in1+in2) = iSOi
-               MapPam(jPam,iSOi) = in2
+               iPam(in1+in2) = DBLE(iSOi)
+               MapPam(jPam,iSOi) = DBLE(in2)
  12         Continue
  11      Continue
          in1 = in1 + in2
@@ -87,13 +78,13 @@
 *     Get the scrambled 2nd order density matrix
 *
       If (LSA) Then
-      Call PTrans_sa(Work(ipCMo),nPam,iPam,n1+n2+n3+n4,
-     &            DAO,PAOPam,nPSOPam,Work(ipG1),nG1,Work(ipG2),nG2,
+      Call PTrans_sa(CMO(1,1),nPam,iPam,n1+n2+n3+n4,
+     &            DAO,PAOPam,nPSOPam,G1,nG1,G2,nG2,
      &            Cred,nCred/2,Scr1(1,1),nScr1,Scr2,nScr2,Scr1(1,2),
      &            nScr1)
       Else
-       Call PTrans(Work(ipCMo),nPam,iPam,n1+n2+n3+n4,
-     &            DAO,PAOPam,nPSOPam,Work(ipG1),nG1,Work(ipG2),nG2,
+       Call PTrans(CMO(1,1),nPam,iPam,n1+n2+n3+n4,
+     &            DAO,PAOPam,nPSOPam,G1,nG1,G2,nG2,
      &            Cred,nCred,Scr1,nScr1,Scr2,nScr2)
       End If
 *
@@ -119,16 +110,16 @@
                 nijkl = 0
                 Do 120 lAOl = 0, lBas-1
                    lSOl = lSO + lAOl
-                   k4 = MapPam(4,lSOl)
+                   k4 = INT(MapPam(4,lSOl))
                    Do 220 kAOk = 0, kBas-1
                       kSOk = kSO + kAOk
-                      k3 = MapPam(3,kSOk)
+                      k3 = INT(MapPam(3,kSOk))
                       Do 320 jAOj = 0, jBas-1
                          jSOj = jSO + jAOj
-                         k2 = MapPam(2,jSOj)
+                         k2 = INT(MapPam(2,jSOj))
                          Do 420 iAOi = 0, iBas-1
                             iSOi = iSO + iAOi
-                            k1 = MapPam(1,iSOi)
+                            k1 = INT(MapPam(1,iSOi))
                             nijkl = nijkl + 1
 *
                             PMax=Max(PMax,Abs(PAOPam(k1,k2,k3,k4)))
@@ -149,11 +140,9 @@
       End If
 *
 *     Call GetMem(' Exit PGet3','CHECK','REAL',iDum,iDum)
-*     Call qExit('PGet3')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(iShell)
          Call Unused_logical(Shijij)
       End If
       End

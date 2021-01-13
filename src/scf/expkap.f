@@ -59,8 +59,8 @@ c     Parameter (Thresh = 99999.99D99)
       Else
          Call ETaylr(kapOV,U,mynOcc)
       End If
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call NrmClc(kapOV,nOV,'ExpKap','kapOV')
 #endif
 *
@@ -189,7 +189,6 @@ C*           large, negative eigenvalue for x(T)x,
 C*           cannot proceede
 C            Write (*,*) 'ExpKap: large, negative eigenvalue for x(T)x'
 C            Write (*,*) 'dlamb2=',dlamb2
-C            Call QTrace
 C            Call Abend()
 C          End If
 C---Replaced by:-----------
@@ -201,7 +200,6 @@ C from numerical noise should be allowed (avoiding discontinuous derivatives.)
           If(dlamb2.lt.-THLDEP) then
             Write (6,*) 'ExpKap: negative eigenvalue for x(T)x'
             Write (6,*) 'dlamb2=',dlamb2
-            Call QTrace
             Call Abend()
           Else If(dlamb2.lt.0.16d0) then
             A3ii=dlamb2*(151200-dlamb2*(5040-dlamb2*(90-dlamb2)))/
@@ -459,7 +457,6 @@ c        End Do
            Write (6,*) 'ExpKap: kexp.ge.MxKp2U'
            Write (6,*) 'kexp=',kexp
            Write (6,*) 'MxKp2U=',MxKp2U
-           Call QTrace
            Call Abend()
         End If
 *       we don't use these anymore...

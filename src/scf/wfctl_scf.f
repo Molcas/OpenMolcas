@@ -85,6 +85,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      Use Interfaces_SCF, Only: TraClc_i
       Implicit Real*8 (a-h,o-z)
       External Seconds
       Real*8 Seconds
@@ -122,7 +123,6 @@
 #ifdef _MSYM_
       Real*8 msym_ctx
 #endif
-#include "interfaces_scf.fh"
       Dimension Dummy(1),iDummy(7,8)
 *
 *----------------------------------------------------------------------*
@@ -223,7 +223,6 @@
 *---  Print header to iterations
 *
       If(KSDFT.eq.'SCF'.or.One_Grid) Call PrBeg(Meth)
-      Temsav=RTemp
       AufBau_Done=.False.
 *                                                                      *
 *======================================================================*
@@ -300,7 +299,8 @@
 *                                                                      *
 *======================================================================*
 *                                                                      *
-      Do 100 iter = iterSt+1, iterSt+nIter(nIterP)
+      Do 100 iter_ = iterSt+1, iterSt+nIter(nIterP)
+         iter = iter_
          IterX=IterX+1
          WarnCfg=.false.
 *
@@ -654,7 +654,7 @@
 *           get last gradient grad(n) from LList
 *
             Call GetVec(LuGrd,iter,LLGrad,inode,Grd1,nOV*nD)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Wfctl: g(n)',' ',Grd1,1,nOV*nD)
 #endif
 *
@@ -668,7 +668,7 @@
 *           store dX(n) vector from Disp to LList
 *
             Call PutVec(Disp,nOV*nD,LuDel,iter,MemRsv,'NOOP',LLDelt)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'LuDel,LLDelt:',LuDel,LLDelt
             Call RecPrt('Wfctl: dX(n)',' ',Disp,1,nOV*nD)
 #endif
@@ -736,11 +736,6 @@
          If(iUHF.eq.0) Then
             OrbName='SCFORB'
             Note='*  intermediate SCF orbitals'
-            If(KSDFT.eq.'SCF') Then
-               iWFtype=2
-            Else
-               iWFtype=3
-            End If
 
             Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,
      &                  TrM(1,1), Dummy,OccNo(1,1), Dummy,
@@ -753,11 +748,6 @@
          Else
             OrbName='UHFORB'
             Note='*  intermediate UHF orbitals'
-            If(KSDFT.eq.'SCF') Then
-               iWFtype=4
-            Else
-               iWFtype=5
-            End If
             Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,
      &                  TrM(1,1), TrM(1,2),OccNo(1,1),OccNo(1,2),
      &                  Dummy,Dummy, iDummy,Note,3)
@@ -1039,7 +1029,7 @@
 *                                                                      *
 *     End of iteration loop
 *
- 100  Continue ! iter
+ 100  Continue ! iter_
 *                                                                      *
 *======================================================================*
 *                                                                      *

@@ -71,8 +71,6 @@
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
 
-      IREDC = -1
-
       JSYM=1
       If (NumCho(JSYM).lt.1) Then
          Write(6,*)SECNAM//'No total symmetric vectors present'
@@ -121,18 +119,14 @@ C ---
 
       if (nVrs.lt.0) then
          Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs < 0. STOP!!'
-         call qtrace()
          call abend()
       endif
 
       Call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
       if(irc.ne.0)then
         Write(6,*)SECNAM//'cho_X_setred non-zero return code. rc= ',irc
-        call qtrace()
         call abend()
       endif
-
-      IREDC=JRED
 
       nRS = nDimRS(JSYM,JRED)
 
@@ -147,7 +141,6 @@ C ---
          WRITE(6,*) 'LWORK= ',LWORK
          WRITE(6,*) 'min. mem. need= ',nRS+1
          irc = 33
-         CALL QTrace()
          CALL Abend()
          nBatch = -9999  ! dummy assignment
       End If

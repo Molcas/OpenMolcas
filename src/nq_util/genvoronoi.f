@@ -34,14 +34,14 @@
       declare_ip_atom_nr
       declare_ip_r_quad
       declare_ip_r_max
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       iROff(i,ir)=2*(ir-1)+i-1
 #endif
 *
 ************************************************************************
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'nR,L_Quad=',nR,L_Quad
 #endif
       If (L_Quad.gt.lMax_NQ) Then
@@ -241,7 +241,7 @@ C     Write (6,*)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write(6,*) 'GenRadQuad_PAM ----> GenVoronoi'
          Write(6,*) 'nR_Eff=',nR_Eff(iNQ)
          Write(6,*) 'rm : ',rm(1),rm(2)
@@ -253,7 +253,7 @@ C     Write (6,*)
          Call Quit_OnUserError()
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) ' ******** The radial grid ********'
       Write (6,*)

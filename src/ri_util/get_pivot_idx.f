@@ -11,17 +11,17 @@
 * Copyright (C) Francesco Aquilante                                    *
 ************************************************************************
       SUBROUTINE get_pivot_idx(Diag,n,m,lu_A0,lu_A,iD_A,Scr,lScr,Thr)
-***********************************************************************
+************************************************************************
 *
 *     Author:  F. Aquilante
 *
-***********************************************************************
+************************************************************************
       Implicit Real*8 (a-h,o-z)
       Integer n, m, lu_A0, lu_A, iD_A(n), lScr
       Real*8  Diag(*), Scr(lScr)
 #include "WrkSpc.fh"
 #include "warnings.fh"
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 C-tbp: check diagonal for negative entries
       n_NegInpDiag=0
       d_NegInpDiag=0.0d0

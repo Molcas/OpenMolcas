@@ -21,19 +21,6 @@
 *         prescreening. This is done for all unique pairs of centers   *
 *         generated from the symmetry unique centers A and B.          *
 *                                                                      *
-* Called from: k2loop                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              DoZeta                                                  *
-*              Rys                                                     *
-*              GetMem                                                  *
-*              RecPrt                                                  *
-*              Hrr                                                     *
-*              CrSph1                                                  *
-*              CrSph2                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -47,9 +34,6 @@
 *     External TERISq, ModU2, Cff2Dq
       External TERIS, ModU2, Cff2DS,rys2d
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
       Real*8  CoorM(3,4), CoorAC(3,2),
      &       Zeta(nZeta), ZInv(nZeta), rKapab(nZeta), P(nZeta,3),
      &       Q(3),  Work2(nWork2), Work3(nWork3)
@@ -64,8 +48,6 @@
       call dcopy_(3,[One],0,Q,1)
       la = iAnga(1)
       lb = iAnga(2)
-      iCmpa = iCmp(1)
-      jCmpb = iCmp(2)
 *
 *
 *-----Compute primitive integrals to be used in the prescreening
@@ -79,7 +61,6 @@
       mabMax=nabSz(la+lb)
       mcdMin=mabmin
       mcdMax=mabMax
-      mabcd=(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
 *
 *-----Find the proper centers to start of with the angular
 *     momentum on. If la.eq.lb there will excist an
@@ -142,4 +123,6 @@
      &            Work2,nElem(la)*nElem(lb))
 *
       Return
+* Avoid unused argument warnings
+      If (.False.) Call Unused_integer_array(iCmp)
       End

@@ -78,7 +78,7 @@ c
        nsymb2=nsym
        end if
 c
-       do 100 sb2=1,nsymb2
+       do 101 sb2=1,nsymb2
        sb12=mmul(sb1,sb2)
        sa3=sb2
        sa23=mmul(sa2,sa3)
@@ -88,13 +88,13 @@ c
        sa234=mmul(sa23,sa4)
        if ((ntest2.eq.1).and.(sb2.lt.sb3)) then
 c     Meggie out
-       goto 100
+       goto 101
        end if
 c
        sa1=mmul(ssa,sa234)
        if ((ntest1.eq.1).and.(sb1.lt.sb2)) then
 c     Meggie out
-       goto 100
+       goto 101
        end if
 c
 c1.3  def mvec,mapdc and mapdi
@@ -107,7 +107,7 @@ c     yes/no
        if ((mapda(ia,2).gt.0).and.(mapdb(ib,2).gt.0)) then
        nhelp1=1
        else
-       goto 100
+       goto 101
        end if
 c
 c     rowA
@@ -135,6 +135,7 @@ c
 c
        ix=ix+1
 c
+ 101    continue
  100    continue
        ix=ix-1
 c
@@ -291,7 +292,7 @@ c     help variables
 c
        integer nhelp1,nhelp2,nhelp4
        integer nhelp41,nhelp42
-       integer ntest1,ntest2
+       integer ntest2
        integer sa1,sa2,sa3,sb1,sb2,sa23
        integer ia,ib,iy,ix
        integer possct
@@ -306,11 +307,11 @@ c
 c1.1  define limitations - A p,q>r must be tested - ntest1
 c     - B p>q must be tested - ntest2
 c
-       if (mapda(0,6).eq.2) then
-       ntest1=1
-       else
-       ntest1=0
-       end if
+c      if (mapda(0,6).eq.2) then
+c      ntest1=1
+c      else
+c      ntest1=0
+c      end if
 c
        if (mapdb(0,6).eq.1) then
        ntest2=1
@@ -426,7 +427,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        mapd(i,2)=nhelp1
 c
 c     def sym p,q
@@ -462,7 +463,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        if ((typ.eq.1).and.(sp.eq.sq)) then
        mapd(i,2)=nhelp1*(nhelp1-1)/2
        else
@@ -494,13 +495,13 @@ c
        nsymq=nsym
        end if
 c
-       do 200 sq=1,nsymq
+       do 201 sq=1,nsymq
        spq=mmul(sp,sq)
 c
        sr=mmul(stot,spq)
        if ((typ.eq.2).and.(sq.lt.sr)) then
 c     Meggie out
-       goto 200
+       goto 201
        end if
 c
        nhelp1=dimm(typp,sp)
@@ -513,7 +514,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        if ((typ.eq.1).and.(sp.eq.sq)) then
        mapd(i,2)=nhelp1*(nhelp1-1)*nhelp3/2
        else if ((typ.eq.2).and.(sq.eq.sr)) then
@@ -531,6 +532,7 @@ c
        poss=poss+mapd(i,2)
        i=i+1
 c
+ 201    continue
  200    continue
 c
        else if (nind.eq.4) then
@@ -547,7 +549,7 @@ c
        nsymq=nsym
        end if
 c
-       do 300 sq=1,nsymq
+       do 301 sq=1,nsymq
        spq=mmul(sp,sq)
        if (typ.eq.2) then
        nsymr=sq
@@ -555,13 +557,13 @@ c
        nsymr=nsym
        end if
 c
-       do 300 sr=1,nsymr
+       do 302 sr=1,nsymr
        spqr=mmul(spq,sr)
 c
        ss=mmul(stot,spqr)
        if (((typ.eq.3).or.(typ.eq.4)).and.(sr.lt.ss)) then
 c     Meggie out
-       goto 300
+       goto 302
        end if
 c
        nhelp1=dimm(typp,sp)
@@ -575,7 +577,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        if ((typ.eq.1).and.(sp.eq.sq)) then
        mapd(i,2)=nhelp1*(nhelp2-1)*nhelp3*nhelp4/2
        else if ((typ.eq.2).and.(sq.eq.sr)) then
@@ -605,6 +607,8 @@ c
        poss=poss+mapd(i,2)
        i=i+1
 c
+ 302    continue
+ 301    continue
  300    continue
 c
        end if
@@ -666,7 +670,7 @@ c
 c
 c     help variables
 c
-       integer symp,symq,symr,iia,iib,possa,possb,nhelp,lenght
+       integer symp,symq,symr,iia,iib,possa,possb,nhelp,length
        real*8 scal
 c
        rc=0
@@ -718,11 +722,11 @@ cI.2  def parameters of B
        iib=mapib(symp,symq,symr)
        possb=mapdb(iib,1)
 c
-cI.3  lenght must be common for both A and B
-       lenght=mapda(iia,2)
+cI.3  length must be common for both A and B
+       length=mapda(iia,2)
 c
-       if (lenght.gt.0) then
-       call mr0u3wt (lenght,lenght,lenght,1,1,wrk(possa),wrk(possb),
+       if (length.gt.0) then
+       call mr0u3wt (length,length,length,1,1,wrk(possa),wrk(possb),
      &               scal)
        scalar=scalar+scal
        end if
@@ -746,11 +750,11 @@ cII.2 def parameters of B
        iib=mapib(symp,symq,1)
        possb=mapdb(iib,1)
 c
-cII.3 lenght must be common for both A and B
-       lenght=mapda(iia,2)
+cII.3 length must be common for both A and B
+       length=mapda(iia,2)
 c
-       if (lenght.gt.0) then
-       call mr0u3wt (lenght,lenght,lenght,1,1,wrk(possa),wrk(possb),
+       if (length.gt.0) then
+       call mr0u3wt (length,length,length,1,1,wrk(possa),wrk(possb),
      &               scal)
        scalar=scalar+scal
        end if
@@ -773,11 +777,11 @@ cIII.2def parameters of B
        iib=mapib(symp,1,1)
        possb=mapdb(iib,1)
 c
-cIII.3lenght must be common for both A and B
-       lenght=mapda(iia,2)
+cIII.3length must be common for both A and B
+       length=mapda(iia,2)
 c
-       if (lenght.gt.0) then
-       call mr0u3wt (lenght,lenght,lenght,1,1,wrk(possa),wrk(possb),
+       if (length.gt.0) then
+       call mr0u3wt (length,length,length,1,1,wrk(possa),wrk(possb),
      &               scal)
        scalar=scalar+scal
        end if

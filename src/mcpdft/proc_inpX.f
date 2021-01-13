@@ -8,11 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Proc_InpX(DSCF,Info,lOPTO,iRc)
+      Subroutine Proc_InpX(DSCF,lOPTO,iRc)
 
 ! module dependencies
 #ifdef module_DMRG
 !     use molcas_dmrg_interface !stknecht: Maquis-DMRG program
+#endif
+#ifdef _HDF5_
+      Use mh5, Only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
+     &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
+     &               mh5_close_file
 #endif
 
       Implicit Real*8 (A-H,O-Z)
@@ -39,8 +44,7 @@
 #include "lucia_ini.fh"
 #include "stdalloc.fh"
 #ifdef _HDF5_
-#  include "mh5.fh"
-      character(32) :: prgm
+      character(len=32) :: prgm
 #endif
 *
       Logical Do_OFemb,KEonly,OFE_first
@@ -62,8 +66,8 @@
       logical Langevin_On
       logical PCM_On
       Integer ipTemp1,ipTemp2,ipTemp3
-* (SVC) added for treatment of alter and supsym
-      Dimension iMAlter(8,2)
+!* (SVC) added for treatment of alter and supsym
+!      Dimension iMAlter(8,2)
       Integer IPRGLB_IN, IPRLOC_IN(7)
 
       Logical DoCholesky,timings,DensityCheck
@@ -88,7 +92,7 @@
       DIMENSION NFRO_L(8),NISH_L(8),NRS1_L(8),NRS2_L(8)
       DIMENSION NRS3_L(8),NSSH_L(8),NDEL_L(8)
 #ifdef _HDF5_
-      character(1), allocatable :: typestring(:)
+      character(len=1), allocatable :: typestring(:)
 #endif
 * TOC on JOBOLD (or JOBIPH)
       DIMENSION IADR19(15)
@@ -112,7 +116,7 @@
       Logical :: DoDMRG,DNG
       Character*8 emiloop
       Character*8 inGeo
-      Logical :: MustCopy
+!      Logical :: MustCopy
 
       Intrinsic INDEX,NINT,DBLE,SQRT
 C...Dongxia note for GAS:
@@ -155,7 +159,6 @@ C   No changing about read in orbital information from INPORB yet.
 *    GAS flag, means the INPUT was GAS
       iDoGas = .false.
 
-      Call qEnter('Proc_Inp')
 
       NAlter=0
       iRc=_RC_ALL_IS_WELL_
@@ -205,7 +208,7 @@ C   No changing about read in orbital information from INPORB yet.
 * How was the program called?
 *PAM 2009  For some particular types of calculations, the input is to be
 * disregarded or overridden, as follows (Roland, esp. numerical diff):
-      MustCopy=.False.
+!      MustCopy=.False.
       If(KeyEXPE) Then
        Call SetPos_m(LUInput,'EXPE',Line,iRc)
        Call ChkIfKey_m()
@@ -217,7 +220,7 @@ C   No changing about read in orbital information from INPORB yet.
          If (.Not.Is_First_Iter()) Then
            KeyCIRE=.true.
            KeyFILE=.false.
-           MustCopy=.true.
+!           MustCopy=.true.
          End If
         Else If (ProgName(1:5).eq.'casvb') Then
          IfVB=2
@@ -227,11 +230,11 @@ C   No changing about read in orbital information from INPORB yet.
         Else If (ProgName(1:11).eq.'last_energy') Then
          KeyCIRE=.true.
          KeyFILE=.false.
-         MustCopy=.true.
+!         MustCopy=.true.
         Else If (ProgName(1:18).eq.'numerical_gradient') Then
          KeyCIRE=.true.
          KeyFILE=.false.
-         MustCopy=.true.
+!         MustCopy=.true.
         End If
       End If
 *PAM2009 Also, CIRESTART would normally also imply that orbitals are
@@ -365,7 +368,6 @@ C   No changing about read in orbital information from INPORB yet.
 *          3: specifications from orbital file
       iOrbData=0
       INVEC=0
-      iHAVECI=0
 * INVEC=0, no source for orbitals (yet)
 *       1, CORE command: compute orbitals from scratch.
 *       2, read from starting orbitals file in INPORB format.
@@ -843,6 +845,10 @@ C   No changing about read in orbital information from INPORB yet.
      &     write(6,*) ' FTBLYP functional aka BLYP for MCPDFT'
          If(KSDFT(1:6).eq.'FTLSDA')
      &     write(6,*) ' FTLSDA functional aka LSDA for MCPDFT'
+         If(KSDFT(1:6).eq.'FTOPBE')
+     &     write(6,*) ' FTOPBE functional aka OPBE for MCPDFT'
+         If(KSDFT(1:5).eq.'TOPBE')
+     &     write(6,*) ' TOPBE functional aka OPBE for MCPDFT'
        End if
 CGG Calibration of A, B, C, and D coefficients in SG's NewFunctional 1
        If ( KSDFT(1:4).eq.'NEWF') Then
@@ -897,6 +903,14 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
        ReadStatus=' O.K. after reading DFCF keyword.'
 !       Write(6,*) ' Exchange energy scaling factor is ',CoefX
 !       Write(6,*) ' Correlation energy scaling factor is ',CoefR
+      End If
+*---  Process MSPD command --------------------------------------------*
+      If (DBG) Write(6,*) ' Check if Multi-state MC-PDFT case.'
+      If (KeyMSPD) Then
+       If (DBG) Write(6,*) ' MSPD keyword was used.'
+       iMSPDFT=1
+       Call SetPos_m(LUInput,'MSPD',Line,iRc)
+       Call ChkIfKey_m()
       End If
 *---  Process CION command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if CIONLY case.'
@@ -990,7 +1004,9 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
       End If
 *---  Process CIRO command --------------------------------------------*
       If (DBG) Write(6,*) ' Check for CIROOTS command.'
-      IF(KeyCIRO) Then
+*TRS - removing ciroots keyword
+*      IF(KeyCIRO) Then
+       If(.false.) Then
        If (DBG) Write(6,*) ' CIROOTS command was given.'
        Call SetPos_m(LUInput,'CIRO',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
@@ -1058,7 +1074,9 @@ CBOR.. End modification 001011
        KeyCIRE=.TRUE.
       END IF
 *---  Process RLXR command --------------------------------------------*
-      If(KeyRLXR) Then
+*TRS - remove rlxr keyword
+*      If(KeyRLXR) Then
+       If(.false.) Then
        Call SetPos_m(LUInput,'RLXR',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
        ReadStatus=' O.K. reading after keyword RLXR.'
@@ -1654,8 +1672,8 @@ CIgorS End
 * PAM Jan 2014 -- do not take POTNUC from JOBIPH; take it directly
 * from runfile, where it was stored by seward.
         iAd19=iAdr19(1)
-!        CALL WR_RASSCF_Info(JobOld,2,iAd19,NACTEL,ISPIN,NSYM,LSYM,
-        CALL WR_RASSCF_Info(JobIPH,2,iAd19,NACTEL,ISPIN,NSYM,LSYM,
+!        CALL WR_RASSCF_Info(JobOld,2,iAd19,NACTEL,ISPIN,NSYM,STSYM,
+        CALL WR_RASSCF_Info(JobIPH,2,iAd19,NACTEL,ISPIN,NSYM,STSYM,
      &                      NFRO,NISH,NASH,NDEL,NBAS,
      &                      mxSym,lJobH1,LENIN8*mxOrb,NCONF,
      &                      lJobH2,2*72,JobTit,4*18*mxTit,
@@ -1919,25 +1937,25 @@ C orbitals accordingly
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
        Line=Get_Ln(LUInput)
        ReadStatus=' Failure reading symmetry index after SYMM keyword.'
-       Read(Line,*,Err=9920) LSYM
+       Read(Line,*,Err=9920) STSYM
        ReadStatus=' O.K. reading symmetry index after SYMM keyword.'
-       If (DBG) Write(6,*) ' State symmetry index ',LSYM
+       If (DBG) Write(6,*) ' State symmetry index ',STSYM
        Call ChkIfKey_m()
-* If LSYM has not been set, normally it should be defaulted to 1.
-* Exception: if this is a high-spin OS case, these often require LSYM.ne.1:
+* If STSYM has not been set, normally it should be defaulted to 1.
+* Exception: if this is a high-spin OS case, these often require STSYM.ne.1:
        ELSE IF(KeyCIRE) Then
         If (DBG) Write(6,*) ' SYMM is taken from JOBOLD (CIRestart=T)'
        ELSE
-        LSYM=1
+        STSYM=1
         IF(ISPIN.eq.NASHT+1) THEN
          DO ISYM=1,NSYM
           NA=NASH(ISYM)
-          IF(NA.ne.2*(NA/2)) LSYM=MUL(LSYM,ISYM)
+          IF(NA.ne.2*(NA/2)) STSYM=MUL(STSYM,ISYM)
          END DO
         END IF
       END IF
-      Call put_iscalar('LSYM',LSYM)
-      If (DBG) Write(6,*)' State symmetry LSYM=',LSYM
+      Call put_iscalar('STSYM',STSYM)
+      If (DBG) Write(6,*)' State symmetry STSYM=',STSYM
 *
 * =======================================================================
 *---  Process CIRE command --------------------------------------------*
@@ -1975,14 +1993,14 @@ C orbitals accordingly
           iOffset=iOffset+nBas(iSym)
        End Do
        Call GetMem('Temp1','Free','Inte',ipTemp1,mxOrb)
-* (SVC) If both ALTER and SUPS keyword has been used, then change the IXSYM
-* arrays according to the changed orbital ordering given in ALTER.
-       Do iAlter=1,NAlter
-         iChng1=IXSYM(iMAlter(iAlter,1))
-         iChng2=IXSYM(iMAlter(iAlter,2))
-         IXSYM(iMAlter(iAlter,1))=iChng2
-         IXSYM(iMAlter(iAlter,2))=iChng1
-       End Do
+!* (SVC) If both ALTER and SUPS keyword has been used, then change the IXSYM
+!* arrays according to the changed orbital ordering given in ALTER.
+!       Do iAlter=1,NAlter
+!         iChng1=IXSYM(iMAlter(iAlter,1))
+!         iChng2=IXSYM(iMAlter(iAlter,2))
+!         IXSYM(iMAlter(iAlter,1))=iChng2
+!         IXSYM(iMAlter(iAlter,2))=iChng1
+!       End Do
        Call ChkIfKey_m()
       End If
 *
@@ -2524,11 +2542,18 @@ c       write(6,*)          '  --------------------------------------'
        DoGradPDFT=.true.
        Call SetPos_m(LUInput,'GRAD',Line,iRc)
        Call ChkIfKey_m()
+*TRS - Adding else statement to make nograd the default if the grad
+*keyword isn't used
+       Else
+       DoNoGrad=.true.
+*TRS
       End If
 *
 *---  Process NOGR command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if NOGRadient case.'
-      If (KeyNOGR) Then
+*TRS - removing nograd command
+*      If (KeyNOGR) Then
+       If (.false.) Then
        If (DBG) Write(6,*) ' NOGRadient keyword was used.'
        DoNoGrad=.true.
        Call SetPos_m(LUInput,'NOGR',Line,iRc)
@@ -2590,7 +2615,7 @@ c       write(6,*)          '  --------------------------------------'
         IGSOCCX(3,2) = NACTEL
       END IF
 *
-!Consideraations for gradients/geometry optimizations
+!Considerations for gradients/geometry optimizations
 
 *     Numerical gradients requested in GATEWAY
       Call Qpg_iScalar('DNG',DNG)
@@ -2605,42 +2630,46 @@ c       write(6,*)          '  --------------------------------------'
       If (ProgName(1:11).eq.'last_energy') DNG=.true.
 *
 *     Inside NUMERICAL_GRADIENT override input!
-      If (ProgName(1:18).eq.'numerical_gradient') Then
-         DNG=.true.
+      If (ProgName(1:18).eq.'numerical_gradient') DNG=.true.
+*
+*
+      If (DNG) Then
          DoGradPDFT=.false.
       End If
 *
 *     Check to see if we are in a Do While loop
-         Call GetEnvF('EMIL_InLoop',emiloop)
-         If (emiloop.eq.' ') emiloop='0'
-         Call GetEnvF('MOLCAS_IN_GEO',inGeo)
-         If ((emiloop(1:1).ne.'0') .and. inGeo(1:1) .ne. 'Y'
-     &       .and. .not.DNG) Then
-            DoGradPDFT=.true.
-         End If
+      Call GetEnvF('EMIL_InLoop',emiloop)
+      If (emiloop.eq.' ') emiloop='0'
+      Call GetEnvF('MOLCAS_IN_GEO',inGeo)
+      If ((emiloop(1:1).ne.'0') .and. inGeo(1:1) .ne. 'Y'
+     &    .and. .not.DNG) Then
+         DoGradPDFT=.true.
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Select default root for geometry optimization
+*TRS - Not overwriting rlxroot from sacasscf
+*      write(*,*)'irlxroot', irlxroot
+*      If (NROOTS.gt.1.and.irlxroot.eq.0)  Then
 *
-      If (NROOTS.gt.1.and.irlxroot.eq.0)  Then
 *
 *        Check if multi state SA-CASSCF
 *
-         nW = 0
-         Do iR = 1, LROOTS
-            If (WEIGHT(iR).ne.0.0D0) nW = nW + 1
-         End Do
-         If (nW.ne.1) Then
-            iRlxRoot=iroot(LROOTS)
-         Else
-            Do iR = 1, LROOTS
-               If (WEIGHT(iR).ne.0.0D0) iRlxRoot=iroot(iR)
-            End Do
-         End If
-      End If
-      If (NROOTS.eq.1.or.LROOTS.eq.1) iRlxRoot=iRoot(1)
-*                                                                      *
+*         nW = 0
+*         Do iR = 1, LROOTS
+*            If (WEIGHT(iR).ne.0.0D0) nW = nW + 1
+*         End Do
+*         If (nW.ne.1) Then
+*            iRlxRoot=iroot(LROOTS)
+*         Else
+*            Do iR = 1, LROOTS
+*               If (WEIGHT(iR).ne.0.0D0) iRlxRoot=iroot(iR)
+*            End Do
+*         End If
+*      End If
+*      If (NROOTS.eq.1.or.LROOTS.eq.1) iRlxRoot=iRoot(1)
+*   TRS                                                                   *
 ************************************************************************
 *                                                                      *
 *---  Compute IZROT. IZROT is a matrix (lower triangular over the -----*
@@ -2759,7 +2788,7 @@ C Test read failed. JOBOLD cannot be used.
      &    PCM_On()       .or.
      &    Do_OFEmb       .or.
      &    KSDFT.ne.'SCF'     )
-     &    Call IniSew(Info,DSCF.or.Langevin_On().or.PCM_On(),nDiff)
+     &    Call IniSew(DSCF.or.Langevin_On().or.PCM_On(),nDiff)
 * ===============================================================
 *
 *     Check the input data
@@ -2808,7 +2837,7 @@ C Test read failed. JOBOLD cannot be used.
       nactel_Molcas    = nactel
       ms2_Molcas       = ms2
       ispin_Molcas     = ispin
-      lsym_Molcas      = lsym
+      lsym_Molcas      = stsym
       NHOLE1_Molcas    = NHOLE1
       NELEC3_Molcas    = NELEC3
       itmax_Molcas     = itmax
@@ -2849,7 +2878,7 @@ C Test read failed. JOBOLD cannot be used.
 * ===============================================================
       IF (ICICH.EQ.1) THEN
         CALL GETMEM('UG2SG','ALLO','INTE',LUG2SG,NCONF)
-        CALL UG2SG_m(NROOTS,NCONF,NAC,NACTEL,LSYM,IPR,
+        CALL UG2SG_m(NROOTS,NCONF,NAC,NACTEL,STSYM,IPR,
      *             IWORK(KICONF(1)),IWORK(KCFTP),IWORK(LUG2SG),
      *             ICI,JCJ,CCI,MXROOT)
         CALL GETMEM('UG2SG','FREE','INTE',LUG2SG,NCONF)
@@ -2917,11 +2946,9 @@ C Test read failed. JOBOLD cannot be used.
 9000  CONTINUE
       close(989)
       If (DBG) Write(6,*)' Normal exit from PROC_INP.'
-      Call qExit('Proc_Inp')
       Return
 *---  Abnormal exit -----------------------------------------------------*
 9900  CONTINUE
       If (DBG) Write(6,*)' Abnormal exit from PROC_INP.'
-      Call qExit('Proc_Inp')
       Return
       End

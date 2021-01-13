@@ -8,24 +8,26 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       SubRoutine CISigma_sa(iispin,iCsym,iSSym,ipInt1,ipint2s,
-     &                    ipint2a,ipCI1,ipCI2,NT)
+       SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
+     &                       Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
+       use ipPage, only: W
+       use Arrays, only: KAIN1, KINT2, KINT2A, pInt1
        Implicit Real*8(a-h,o-z)
 *
 #include "Pointers.fh"
 
 #include "Input.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "genop.fh"
-#include "glbbas_mclr.fh"
-#include "lbbas1.fh"
 #include "cands.fh"
 #include "detdim.fh"
 #include "cstate_mclr.fh"
 
 #include "cicisp_mclr.fh"
-       Character NT
        integer kic(2),opout
+       Logical Have_2_el
+       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+       Real*8, Allocatable:: CIDET(:)
 *
 *      Interface Anders to Jeppe
 *      This interface initiates Jeppes common block
@@ -40,27 +42,26 @@
 *
 *      One electron integrals
 *
-       KAIN1=ipInt1
+       KAIN1=>Int1
 *
 *      Two electron integrals
 *      symmetric in perticle one and two
 *
-*
-       KINT2=ipint2s
+       KINT2=>Int2s
 *
 *      Two electron integrals
 *      anti symmetric in perticle one and two
 *
-       KINT2a=ipint2a
+       KINT2A=>Int2a
 *
        irefsm=iCSym
 *
 *      Do we have any twoelectron integrals?
 *
-       If (ipInt2s.eq.0) Then
-         i12=1
-       Else
+       If (Have_2_el) Then
          i12=2
+       Else
+         i12=1
        End If
 *
 *      Symmetry of Sigma vector
@@ -83,11 +84,11 @@
        If (ndet.eq.0) Return
        iOP=iEOr(iCSM-1,iSSm-1)+1
        If (iOp.eq.1) Then
-         Call iCopy(nSym,ipCM,1,iWork(kapin1),1)
+         Call iCopy(nSym,ipCM,1,pInt1,1)
        Else
          Do iS=1,nSym
           jS=iEor(iS-1,iOp-1)+1
-          iWork(kapin1+is-1)=ipMat(is,jS)
+          pInt1(is)=ipMat(is,jS)
          End Do
        End If
 *
@@ -97,23 +98,28 @@
        square=.false.
 *
        If (.not.page) Then
-       Call GetMem('CIDET','ALLO','REAL',ipCIDET,nDet)
-       Do i=0,nroots-1
-       call dcopy_(nCSF(iCSM),Work(ipin(ipCI1)+i*ncsf(icsm)),1,
-     &            Work(ipCIDET),1)
-       Call SigmaVec(Work(ipCIDET),Work(ipin(ipci2)+i*ncsf(issm)),kic)
-       Call DSCAL_(nCSF(iCSM),
-     &            weight(i+1),Work(ipin(ipci2)+i*ncsf(issm)),1)
-       End Do
-       Call GetMem('CIDET','FREE','REAL',ipCIDET,nDet)
-
+          Call mma_allocate(CIDET,nDet,Label='CIDET')
+          irc=ipin(ipCI1)
+          irc=ipin(ipci2)
+          Do i=0,nroots-1
+             call dcopy_(nCSF(iCSM),W(ipCI1)%Vec(1+i*ncsf(icsm)),1,
+     &                   CIDET,1)
+             Call SigmaVec(CIDET,W(ipci2)%Vec(1+i*ncsf(issm)),
+     &                     kic)
+             Call DSCAL_(nCSF(iCSM),weight(i+1),
+     &                   W(ipci2)%Vec(1+i*ncsf(issm)),1)
+          End Do
+          Call mma_deallocate(CIDET)
        Else
-        irc=ipnout(ipci2)
-        Call SigmaVec(Work(ipin1(ipCI1,ndet)),Work(ipin(ipci2)),kic)
-        irc=opout(ipci1)
+          irc=ipnout(ipci2)
+          irc=ipin1(ipCI1,ndet)
+          irc=ipin(ipci2)
+          Call SigmaVec(W(ipCI1)%Vec,W(ipci2)%Vec,kic)
+          irc=opout(ipci1)
        End If
 *
        Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_character(NT)
+#ifdef _WARNING_WORKAROUND_
+       If (.False.) Call Unused_integer(irc)
+#endif
        End

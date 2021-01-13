@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine optalf_cvb(heigval,gradp,nparm,hh,alfa,
      >  nnegeig,alfastart,alftol)
@@ -32,18 +33,22 @@ c  Norm of dX should be HH in:  dX = - (H - alpha I)   * G
       cnrmax=zero
       do 800 i=1,nnegeig
       cnrmin=cnrmin+(gradp(i)/(heigval(i)-alfmin))**2
-800   cnrmax=cnrmax+(gradp(i)/(heigval(i)-alfmax))**2
+      cnrmax=cnrmax+(gradp(i)/(heigval(i)-alfmax))**2
+800   continue
       do 801 i=nnegeig+1,nparm
       cnrmin=cnrmin+(gradp(i)/(heigval(i)+alfmin))**2
-801   cnrmax=cnrmax+(gradp(i)/(heigval(i)+alfmax))**2
+      cnrmax=cnrmax+(gradp(i)/(heigval(i)+alfmax))**2
+801   continue
       cnrmin=sqrt(cnrmin)
       cnrmax=sqrt(cnrmax)
 900   alfa=half*(alfmax+alfmin)
       cnrm=zero
       do 1000 i=1,nnegeig
-1000  cnrm=cnrm+(gradp(i)/(heigval(i)-alfa))**2
+      cnrm=cnrm+(gradp(i)/(heigval(i)-alfa))**2
+1000  continue
       do 1001 i=nnegeig+1,nparm
-1001  cnrm=cnrm+(gradp(i)/(heigval(i)+alfa))**2
+      cnrm=cnrm+(gradp(i)/(heigval(i)+alfa))**2
+1001  continue
       cnrm=sqrt(cnrm)
       if(cnrm.lt.hh)then
         alfmax=alfa

@@ -22,6 +22,7 @@ function expand(item) {
   if (!sel) { /* Do not trigger if there is selected text */
     item.css("max-height",item.data("natHeight")+20); /* Add an offset to get rid of the horizontal scrollbar) */
     item.off("click");
+    item.parent().attr("click-label","Click inside to shrink");
     item.click(function() {
       collapse($(this));
     });
@@ -33,6 +34,7 @@ function collapse(item) {
   if (!sel) { /* Do not trigger if there is selected text */
     item.css("max-height",maxHeight);
     item.off("click");
+    item.parent().attr("click-label","Click inside to expand");
     item.click(function() {
       expand($(this));
     });
@@ -83,6 +85,10 @@ function fixednav(){
       $(this).css("width","100%");
       $(this).css("z-index","1");
     });
+    $("div.content-wrapper").each(function(i) {
+      $(this).css("height",available);
+      $(this).css("overflow-y","auto");
+    });
     /* Fixed sidebar */
     $("div.sidebar").each(function(i) {
       $(this).css("position","fixed");
@@ -128,6 +134,9 @@ function fixednav(){
     $("div.footer-wrapper").each(function(i) {
       $(this).removeAttr("style");
     });
+    $("div.content-wrapper").each(function(i) {
+      $(this).removeAttr("style");
+    });
     $("div.sidebar").each(function(i) {
       $(this).removeAttr("style");
     });
@@ -156,6 +165,7 @@ $(document).ready(function() {
     var dif = $(this).data("natHeight") - $(this).height();
     if (dif > 60) { /* Do not assing events if it is not collapsed */
       $(this).css("transition-duration",Math.min(Math.max(0.5,dif/1000),3) + "s");
+      $(this).parent().attr("click-label","Click inside to expand");
       $(this).click(function() {
         expand($(this));
       });

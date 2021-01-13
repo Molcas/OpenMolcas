@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2012, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L)
+      Subroutine Mk_aCD_acCD_Shells(iCnttp,W2L)
 ************************************************************************
 *                                                                      *
 *    Objective: To generate aCD auxiliary basis sets on-the-fly.       *
@@ -20,15 +20,19 @@
 *     Author: Roland Lindh, Dept. of Chemistry - Angstrom              *
 *                                                                      *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO, nSOInf, SOAO_Info_Init,
+     &                                     SOAO_Info_Free
+      Use Basis_Info
+      Use Sizes_of_Seward, only: S
+      use RICD_Info, only: Do_acCD_Basis, Skip_High_AC, Thrshld_CD
       Implicit Real*8 (A-H,O-Z)
       External Integral_RICD
 #include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "SysDef.fh"
 #include "real.fh"
 #include "print.fh"
 #include "status.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
       Integer, Allocatable :: iList2_c(:,:), iList2_p(:,:), iD_c(:),
      &                        Con(:), ConR(:,:), Prm(:), Indkl_p(:),
@@ -37,13 +41,24 @@
      &                       Q(:), A(:), Z(:), tVp(:), tVtF(:), C(:),
      &                       Temp(:), QTmp(:), Tmp(:)
       Real*8, Allocatable :: TInt_c(:), TInt_p(:), ADiag(:)
-#ifdef _DEBUG_
+      Real*8 :: Dummy(1)=[0.0D0]
+*                                                                      *
+************************************************************************
+*                                                                      *
+*#define _DEBUGPRINT_
+*                                                                      *
+************************************************************************
+*                                                                      *
+#ifdef _DEBUGPRINT_
       Real*8, Allocatable :: H(:), U(:), tVtInv(:)
 #endif
       Logical Hit, Found, Diagonal, Keep_Basis, In_Core, W2L
       Character*80 BSLbl, Label
       Character*80 atom,type,author,basis,CGTO, Aux
-
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
       Interface
          Subroutine  Drv2El_Atomic_NoSym(Integral_RICD,ThrAO,
      &                                   iCnttp,jCnttp,
@@ -52,16 +67,17 @@
      &                                   Keep_Shell)
          External Integral_RICD
          Real*8 ThrAO
-         Integer iCnttp, jCnttp, nTInc, Lu_A, ijS_req, Keep_Shell
+         Integer iCnttp, jCnttp, nTInt, Lu_A, ijS_req, Keep_Shell
          Logical In_Core
          Real*8, Allocatable :: TInt(:), ADiag(:)
          End Subroutine
+         Subroutine Fix_Exponents(nP,mP,nC,Exp,CoeffC,CoeffP)
+         Integer nP, mP, nC
+         Real*8, Allocatable:: Exp(:), CoeffC(:,:,:), CoeffP(:,:,:)
+         End Subroutine Fix_Exponents
       End Interface
 *                                                                      *
 ************************************************************************
-*                                                                      *
-*define _DEBUG_
-*                                                                      *
 ************************************************************************
 *                                                                      *
 *---- Statement Function
@@ -70,18 +86,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
-       iPrint=49
-C      iPrint=99
-#else
-       iPrint=5
-#endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call qEnter('Mk_aCD_acCD_Shells')
-*
-      Max_Cnt=0
       ThrAO=Zero
       mData=4
       nCnttp_Start = nCnttp
@@ -102,10 +106,10 @@ C      iPrint=99
 *     Pick up the threshold for the CD procedure. Note that basis
 *     sets might have individual accuracy!
 *
-      mdc = mdciCnttp(iCnttp)
-      Thr_aCD=aCD_Thr(iCnttp)*Thrshld_CD
+      mdc = dbsc(iCnttp)%mdci
+      Thr_aCD=dbsc(iCnttp)%aCD_Thr*Thrshld_CD
 *
-      nTest= nVal_Shells(iCnttp)-1
+      nTest= dbsc(iCnttp)%nVal-1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -113,17 +117,17 @@ C      iPrint=99
 *
 *        Pick up the angular index of the highest valence shell
 *
-         If (iAtmNr(iCnttp).le.2) Then
+         If (dbsc(iCnttp)%AtmNr.le.2) Then
             iVal=0
-         Else If (iAtmNr(iCnttp).le.10) Then
+         Else If (dbsc(iCnttp)%AtmNr.le.10) Then
             iVal=1
-         Else If (iAtmNr(iCnttp).le.18) Then
+         Else If (dbsc(iCnttp)%AtmNr.le.18) Then
             iVal=1
-         Else If (iAtmNr(iCnttp).le.36) Then
+         Else If (dbsc(iCnttp)%AtmNr.le.36) Then
             iVal=2
-         Else If (iAtmNr(iCnttp).le.54) Then
+         Else If (dbsc(iCnttp)%AtmNr.le.54) Then
             iVal=2
-         Else If (iAtmNr(iCnttp).le.86) Then
+         Else If (dbsc(iCnttp)%AtmNr.le.86) Then
             iVal=3
          Else
             iVal=3
@@ -141,14 +145,14 @@ C      iPrint=99
 *                                                                      *
 *     Define some parameters to facilitate the atomic calculation
 *
-      iShell = nVal_Shells(iCnttp)
-      nShlls=iShell
+      iShell = dbsc(iCnttp)%nVal
+      S%nShlls=iShell
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Use the name of the old valence basis
 *
-      Label=Bsl_Old(iCnttp)
+      Label=dbsc(iCnttp)%Bsl_old
 *
       Hit=.True.
       Call Decode(Label,atom,1,Hit)
@@ -179,6 +183,19 @@ C      iPrint=99
       Indx=Index(Label,' ')
       BSLbl=' '
       BSLbl(1:Indx-1)=Label(1:Indx-1)
+*
+*     Make a temporary setup of the SOAO_Info arrays for the
+*     atomic auxiliary basis set.
+*     Note that the auxiliary basis set will carry an angular value
+*     which at most is twice that of valence basis set.
+*
+      mSOInf = 0
+
+      Do iAng = 0, 2*nTest
+         nCmp = (iAng+1)*(iAng+2)/2
+         mSOInf = mSOInf + nCmp
+      End Do
+      Call SOAO_Info_Init(mSOInf,1)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -198,21 +215,22 @@ C      iPrint=99
       iSO = 0
       nSO=0
       Do iAng = 0, nTest
-         iShll_ = ipVal(iCnttp) + iAng
+         iShll_ = dbsc(iCnttp)%iVal + iAng
          nCmp = (iAng+1)*(iAng+2)/2
-         If (Prjct(iShll_)) nCmp = 2*iAng+1
+         If (Shells(iShll_)%Prjct ) nCmp = 2*iAng+1
          iSO = 0
-         If (nBasis_Cntrct(iShll_).ne.0 .and.
-     &       nExp(iShll_).ne.0) Then
-            Do iCmp = 1, nCmp
-               iAO = iAO + 1
-               iAOtSO(iAO,0) = iSO + 1
-               nCont = nBasis(iShll_)
-               Do iCont = 1, nCont
-                   iSO = iSO + 1
-               End Do
-            End Do
-         End If
+         If (Shells(iShll_)%nBasis_C*Shells(iShll_)%nExp==0) Cycle
+         Do iCmp = 1, nCmp
+            iAO = iAO + 1
+            If (iAO>nSOInf) Then
+               Write (6,*) 'mk_acd_accd_shells: iAO>nSOInf (1)'
+               Write (6,*) 'iAO=',iAO
+               Write (6,*) 'nSOInf=',nSOInf
+               Call Abend()
+            End If
+            iAOtSO(iAO,0) = iSO + 1
+            iSO = iSO + Shells(iShll_)%nBasis
+         End Do
          nSO=nSO+iSO
       End Do
 *
@@ -220,8 +238,7 @@ C      iPrint=99
 *
       nPhi_All=nSO*(nSO+1)/2
       Call mma_allocate(iList2_c,mData*2,nPhi_All,label='iList2_c')
-      Call Mk_List2(iList2_c,nPhi_All,mData,nSO,iCnttp,
-     &              nTest,ipVal,Mxdbsc,Prjct,MxShll,nBasis,0)
+      Call Mk_List2(iList2_c,nPhi_All,mData,nSO,iCnttp,nTest,0)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -261,9 +278,8 @@ C      iPrint=99
       call dcopy_(nTInt_c,[1.0D0],0,Wg,1)
 *
       If (In_Core) Then
-#ifdef _DEBUG_
-         If (iPrint.ge.99)
-     &   Call RecPrt('TInt_c',' ',TInt_c,nTInt_c,nTInt_c)
+#ifdef _DEBUGPRINT_
+         Call RecPrt('TInt_c',' ',TInt_c,nTInt_c,nTInt_c)
 #endif
          Call mma_allocate(Vec,nTInt_c**2,label='Vec')
 *
@@ -276,9 +292,8 @@ C      iPrint=99
             Write (6,*) 'Mk_aCD_Shells: CD_InCore_p(c) failed!'
             Call Abend()
          End If
-#ifdef _DEBUG_
-         If (iPrint.ge.99)
-     &   Call RecPrt('Vec',' ',Vec,nTInt_c,NumCho_c)
+#ifdef _DEBUGPRINT_
+         Call RecPrt('Vec',' ',Vec,nTInt_c,NumCho_c)
 #endif
          Call mma_deallocate(TInt_c)
          Call mma_deallocate(Vec)
@@ -314,12 +329,10 @@ C      iPrint=99
          Call Abend()
       End If
 *
-#ifdef _DEBUG_
-      If (iPrint.ge.49) Then
-         Write (6,*) ' Thr_aCD:',Thr_aCD
-         Write (6,*) 'NumCho_c:',NumCho_c
-         Call iVcPrt('iD_c',' ',iD_c,NumCho_c)
-      End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' Thr_aCD:',Thr_aCD
+      Write (6,*) 'NumCho_c:',NumCho_c
+      Call iVcPrt('iD_c',' ',iD_c,NumCho_c)
 #endif
 *                                                                      *
 ************************************************************************
@@ -332,17 +345,18 @@ C      iPrint=99
          iSO = 0
          nSO_p=0
          Do iAng = 0, nTest
-            iShll_ = ipVal(iCnttp) + iAng
+            iShll_ = dbsc(iCnttp)%iVal + iAng
             nCmp = (iAng+1)*(iAng+2)/2
-            If (Prjct(iShll_)) nCmp = 2*iAng+1
+            If (Shells(iShll_)%Prjct) nCmp = 2*iAng+1
             iSO = 0
             Do iCmp = 1, nCmp
                iAO = iAO + 1
+               If (iAO>nSOInf) Then
+                  Write (6,*) 'mk_acd_accd_shells: iAO>nSOInf (2)'
+                  Call Abend()
+               End If
                iAOtSO(iAO,0) = iSO + 1
-               nCont = nExp(iShll_)
-               Do iCont = 1, nCont
-                   iSO = iSO + 1
-               End Do
+               iSO = iSO + Shells(iShll_)%nExp
             End Do
             nSO_p=nSO_p+iSO
          End Do
@@ -360,7 +374,7 @@ C      iPrint=99
 *        the p*p and d*s resulting in two independent shells with
 *        the same total angular momentum, d.
 *
-         iShll=Mx_Shll - 1
+         iShll=S%Mx_Shll - 1
 *
 *        Start now looping over the products and analys the result
 *        of the CD. Note the very peculiar loop structure over
@@ -383,28 +397,15 @@ C      iPrint=99
 *
 *           Some generic setting of information
 *
-            SODK(nCnttp)=.False.
-            Bsl(nCnttp)=Label
-            Bsl_Old(nCnttp)=Bsl(nCnttp)
-            AuxCnttp(nCnttp)=.True.
-            Charge(nCnttp)=Zero
-            pChrg(nCnttp)=pChrg(iCnttp)
-            Fixed(nCnttp)=Fixed(iCnttp)
-            nOpt(nCnttp) = 0
-            ipVal(nCnttp) = iShll+1
-            ipPrj(nCnttp) = -1
-            ipSRO(nCnttp) = -1
-            ipSOC(nCnttp) = -1
-            ipPP(nCnttp)  = -1
-            nPrj_Shells(nCnttp) = 0
-            nSRO_Shells(nCnttp) = 0
-            nSOC_Shells(nCnttp) = 0
-            nPP_Shells(nCnttp)  = 0
-            AuxCnttp(nCnttp) =.True.
-            lAux =.True.
-            ECP(nCnttp)=.False.
-            aCD_Thr(nCnttp)=aCD_Thr(iCnttp)
-            fmass(nCnttp)=fmass(iCnttp)
+            dbsc(nCnttp)%Bsl=Label
+            dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
+            dbsc(nCnttp)%pChrg=dbsc(iCnttp)%pChrg
+            dbsc(nCnttp)%Fixed=dbsc(iCnttp)%Fixed
+            dbsc(nCnttp)%Parent_iCnttp=iCnttp
+            dbsc(nCnttp)%iVal = iShll+1
+            dbsc(nCnttp)%Aux =.True.
+            dbsc(nCnttp)%aCD_Thr=dbsc(iCnttp)%aCD_Thr
+            dbsc(nCnttp)%fMass=dbsc(iCnttp)%fMass
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -413,27 +414,19 @@ C      iPrint=99
             jShll=iShll
             Do iAng = 0, iAngMax
                jAngMax=Min(iAng,iAngMin)
-               iShll_=ipVal(iCnttp)+iAng
+               iShll_=dbsc(iCnttp)%iVal+iAng
                If (iAng.eq.iAngMax) jAngMax=iAngMax
                If (iAng.lt.iAngMin) jAngMax=0
                jAngMin=iAngMin
                If (iAng.le.iAngMin) jAngMin=0
                Do jAng = jAngMin, jAngMax
-                  jShll_=ipVal(iCnttp)+jAng
+                  jShll_=dbsc(iCnttp)%iVal+jAng
 *
                   iShll = iShll + 1
-#ifdef _DEBUG_
-                  If (iAng.eq.3.and.jAng.eq.1) Then
-                     iPrint=49
-C                    iPrint=99
-                  Else
-                     iPrint= 5
-                  End If
-                  If (iPrint.ge.49) Then
-                     Write (6,*)
-                     Write (6,*) 'iAng,jAng=',iAng,jAng
-                     Write (6,*) 'iAngMax=',iAngMax
-                  End If
+#ifdef _DEBUGPRINT_
+                  Write (6,*)
+                  Write (6,*) 'iAng,jAng=',iAng,jAng
+                  Write (6,*) 'iAngMax=',iAngMax
 #endif
                   If (iShll.gt.MxShll) Then
                      Call WarningMessage(2,'Error in Mk_RICD_Shells')
@@ -453,24 +446,23 @@ C                    iPrint=99
                      ijSO = iD_c(iCho_c)
                      kAng=iList2_c(1,ijSO)
                      lAng=iList2_c(2,ijSO)
-                     Found = Found .or.
-     &                   iAng.eq.kAng .and. jAng.eq.lAng
                      If ( iAng.eq.kAng .and. jAng.eq.lAng ) Then
                         kShll=iList2_c(7,ijSO)
                         lShll=iList2_c(8,ijSO)
+                        Found=.True.
+                        Exit
                      End If
                   End Do
 *
-*                 Fake not found for shells which should explicitly be
+*                 Fake Found=.FALSE. for shells which should explicitly be
 *                 empty.
 *
                   Found = Found .and. jAng.ge.iAngMin
      &                          .and. iAng.ge.iAngMin
      &                          .and. iAng+jAng.le.Keep_Shell
                   Keep_Basis = Found .or. Keep_Basis
-#ifdef _DEBUG_
-                  If (iPrint.ge.49)
-     &            Write (6,*) 'Found,kShll,lShll=',Found,kShll,lShll
+#ifdef _DEBUGPRINT_
+                  Write (6,*) 'Found,kShll,lShll=',Found,kShll,lShll
 #endif
 *                                                                      *
 ************************************************************************
@@ -487,12 +479,12 @@ C                    iPrint=99
 *
 *                    Generate list
 *
-                     npi=nExp(iShll_)
+                     npi=Shells(iShll_)%nExp
                      nCmpi=(iAng+1)*(iAng+2)/2
-                     If (Prjct(iShll_)) nCmpi=2*iAng+1
-                     npj=nExp(jShll_)
+                     If (Shells(iShll_)%Prjct ) nCmpi=2*iAng+1
+                     npj=Shells(jShll_)%nExp
                      nCmpj=(jAng+1)*(jAng+2)/2
-                     If (Prjct(jShll_)) nCmpj=2*jAng+1
+                     If (Shells(jShll_)%Prjct ) nCmpj=2*jAng+1
                      If (iAng.eq.jAng) Then
                         nTheta_All=npi*nCmpi*(npi*nCmpi+1)/2
                      Else
@@ -504,9 +496,8 @@ C                    iPrint=99
 *
                      ijS_Req=(iAng+1)*iAng/2 + jAng + 1
 *
-                     Call Mk_List2(iList2_p,nTheta_All,mData,
-     &                             nSO_p,iCnttp, nTest,ipVal,Mxdbsc,
-     &                             Prjct,MxShll,nBasis,ijS_Req)
+                     Call Mk_List2(iList2_p,nTheta_All,mData,nSO_p,
+     &                             iCnttp, nTest,ijS_Req)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -523,9 +514,8 @@ C                    iPrint=99
                         Write (6,*) 'Out-of-core acCD not implemented!'
                         Call Abend()
                      End If
-#ifdef _DEBUG_
-                     If (iPrint.ge.99)
-     &               Call RecPrt('TInt_p','(5G20.11)',
+#ifdef _DEBUGPRINT_
+                     Call RecPrt('TInt_p','(5G20.11)',
      &                           TInt_p,nTInt_p,nTInt_p)
 #endif
                      Call Flip_Flop(.False.)
@@ -535,10 +525,7 @@ C                    iPrint=99
 ************************************************************************
 ************************************************************************
 *                                                                      *
-*
 *                 Now mimic the procedure of GetBS!
-*
-                  iStrt=ipExp(iShll)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -555,15 +542,15 @@ C                    iPrint=99
 *
 *                    Now figure out how many and which!
 *
-                     nk=nBasis_Cntrct(kShll)
-                     nl=nBasis_Cntrct(lShll)
+                     nk=Shells(kShll)%nBasis_C
+                     nl=Shells(lShll)%nBasis_C
                      If (Diagonal) Then
                         nCntrc_Max=nk*(nk+1)/2
                      Else
                         nCntrc_Max=nk*nl
                      End If
-#ifdef _DEBUG_
-                     If (iPrint.ge.49) Write (6,*) 'nCntrc_Max=',
+#ifdef _DEBUGPRINT_
+                     Write (6,*) 'nCntrc_Max=',
      &                                              nCntrc_Max
 #endif
                      Call mma_allocate(Con,nCntrc_Max,label='Con')
@@ -596,28 +583,24 @@ C                    iPrint=99
                                nCntrc=nCntrc+1
                                Con(ikl)=1
                                ConR(1,nCntrc)=ik
-#ifdef _DEBUG_
-                              If (iPrint.ge.49) Then
-                                 Write (6,*) 'iCho_c,  ijSO=',
-     &                                        iCho_c+1,ijSO
-                              End If
+#ifdef _DEBUGPRINT_
+                               Write (6,*) 'iCho_c,  ijSO=',
+     &                                      iCho_c+1,ijSO
 #endif
                                ConR(2,nCntrc)=il
                            End If
                         End If
                      End Do    !  iCho_c
-#ifdef _DEBUG_
-                     If (iPrint.ge.49) Then
-                        Write (6,*) 'nCntrc=',nCntrc
-                        Call iVcPrt('Con',' ',Con,nCntrc_Max)
-                        Call iVcPrt('ConR',' ',ConR,2*nCntrc)
-                        Write (6,*)
-                        Write (6,*) 'ConR'
-                        Write (6,'(30I3)')
-     &                        (ConR(1,i),i=1,nCntrc)
-                        Write (6,'(30I3)')
-     &                        (ConR(2,i),i=1,nCntrc)
-                     End If
+#ifdef _DEBUGPRINT_
+                     Write (6,*) 'nCntrc=',nCntrc
+                     Call iVcPrt('Con',' ',Con,nCntrc_Max)
+                     Call iVcPrt('ConR',' ',ConR,2*nCntrc)
+                     Write (6,*)
+                     Write (6,*) 'ConR'
+                     Write (6,'(30I3)')
+     &                     (ConR(1,i),i=1,nCntrc)
+                     Write (6,'(30I3)')
+     &                     (ConR(2,i),i=1,nCntrc)
 #endif
 *
                   Else
@@ -649,16 +632,15 @@ C                    iPrint=99
 *
 *                       Now figure out how many and which!
 *
-                        npk=nExp(kShll)
-                        npl=nExp(lShll)
+                        npk=Shells(kShll)%nExp
+                        npl=Shells(lShll)%nExp
                         If (Diagonal) Then
                            nPrim_Max=npk*(npk+1)/2
                         Else
                            nPrim_Max=npk*npl
                         End If
-#ifdef _DEBUG_
-                        If (iPrint.ge.49)
-     &                     Write (6,*) 'nPrim_Max:',nPrim_Max
+#ifdef _DEBUGPRINT_
+                           Write (6,*) 'nPrim_Max:',nPrim_Max
 #endif
                         Call mma_allocate(Prm,nPrim_Max,label='Prm')
                         Call IZero(Prm,nPrim_Max)
@@ -689,12 +671,10 @@ C                    iPrint=99
      &                                 iList2_p,nTheta_All,
      &                                 2*mData,iAng,jAng,npk,npl,LTP)
 *
-#ifdef _DEBUG_
-                        If (iPrint.ge.99) Then
+#ifdef _DEBUGPRINT_
                         Call RecPrt('TIntP','(5G20.10)',
      &                              TP,nPrim_Max,nPrim_Max)
                         Call iVcPrt('List_TP',' ',LTP,2*nPrim_Max)
-                        End If
 #endif
 *                       Let us now decompose and retrieve the most
 *                       important primitive products, indicies stored in
@@ -719,23 +699,18 @@ C                    iPrint=99
                            Call Abend()
                         End If
 *
-#ifdef _DEBUG_
-                        If (iPrint.ge.49) Then
+#ifdef _DEBUGPRINT_
                         Write (6,*) 'Thrshld_CD_p:',Thrshld_CD_p
                         Write (6,*) 'NumCho_p    :',NumCho_p
                         Call iVcPrt('iD_p',' ',iD_p,NumCho_p)
-                        End If
-                        If (iPrint.ge.99)
-     &                  Call RecPrt('Vec',' ',Vec,nPrim_Max,NumCho_p)
+                        Call RecPrt('Vec',' ',Vec,nPrim_Max,NumCho_p)
 #endif
                         If (NumCho_p.lt.nCntrc) Then
-                           If (iPrint.ge.6) Then
                            Write (6,*) 'W a r n i n g!'
                            Write (6,*) 'Fewer primitive functions than'
      &                               //' contracted functions!'
                            Write (6,*) 'NumCho_p=',NumCho_p
                            Write (6,*) '  nCntrc=',nCntrc
-                           End If
                            Thrshld_CD_p=Thrshld_CD_p*0.5
                            If (Thrshld_CD_p.le.1.0D-14) Then
                               Call WarningMessage(2,
@@ -759,14 +734,13 @@ C                    iPrint=99
                            Prm(ijSO)=1
                         End Do
                         nPrim=NumCho_p
+                        Call mma_allocate(Shells(iShll)%Exp,nPrim,
+     &                                    Label='ExpacCD')
+                        Shells(iShll)%nExp=nPrim
 *
-                        iEnd = iStrt + nPrim - 1
-*
-#ifdef _DEBUG_
-                        If (iPrint.ge.49) Then
+#ifdef _DEBUGPRINT_
                         Write (6,*) 'nPrim=',nPrim
                         Call iVcPrt('Prm',' ',Prm,nPrim_Max)
-                        End If
 #endif
                         Call mma_allocate(Indkl_p,nPrim_Max,
      &                                    label='Indkl_p')
@@ -779,14 +753,13 @@ C                    iPrint=99
                            iTheta = iD_p(iCho_p)
                            ik=LTP(1,iTheta)
                            il=LTP(2,iTheta)
-                           Exp_i=Work(ipExp(kShll)+ik-1)
-                           Exp_j=Work(ipExp(lShll)+il-1)
-                           Work(iStrt-1+iCho_p) = Exp_i+Exp_j
+                           Exp_i=Shells(kShll)%Exp(ik)
+                           Exp_j=Shells(lShll)%Exp(il)
+                           Shells(iShll)%Exp(iCho_p)=Exp_i+Exp_j
                         End Do
-#ifdef _DEBUG_
-                        If (iPrint.ge.49)
-     &                    Call RecPrt('SLIM Exponents',' ',
-     &                               Work(iStrt),1,nPrim)
+#ifdef _DEBUGPRINT_
+                        Call RecPrt('SLIM Exponents',' ',
+     &                             Shells(iShll)%Exp,1,nPrim)
 #endif
 *                                                                      *
 ************************************************************************
@@ -798,41 +771,43 @@ C                    iPrint=99
 *                       Put in the aCD set of exponents, i.e. all unique
 *                       sums.
 *
+                        nExpk=Shells(kShll)%nExp
+                        nExpl=Shells(lShll)%nExp
                         If (Diagonal) Then
-                           nPrim=nExp(kShll)*(nExp(kShll)+1)/2
+                           nPrim=nExpk*(nExpk+1)/2
                         Else
-                           nPrim=nExp(kShll)*nExp(lShll)
+                           nPrim=nExpk*nExpl
                         End If
-                        iEnd = iStrt + nPrim - 1
+                        Call mma_allocate(Shells(iShll)%Exp,nPrim,
+     &                                    Label='ExpaCD')
+                        Shells(iShll)%nExp=nPrim
 *
-                        iOff = iStrt - 1
-                        Do ip_Exp = 0, nExp(kShll)-1
-                           jp_Exp_Max = nExp(lShll)-1
+                        iOff = 0
+                        Do ip_Exp = 1, nExpk
+                           jp_Exp_Max = nExpl
                            If (Diagonal) jp_Exp_Max = ip_Exp
-                           Do jp_Exp = 0, jp_Exp_Max
+                           Do jp_Exp = 1, jp_Exp_Max
                               iOff = iOff + 1
-                              Work(iOff)=Work(ipExp(kShll)+ip_Exp)
-     &                                  +Work(ipExp(lShll)+jp_Exp)
+                              Shells(iShll)%Exp(iOff)=
+     &                                   Shells(kShll)%Exp(ip_Exp)
+     &                                  +Shells(lShll)%Exp(jp_Exp)
                            End Do
                         End Do
 *
-                        If (iOff.ne.iEnd) Then
+                        If (iOff.ne.nPrim) Then
                            Call WarningMessage(2,
      &                           'Error in Mk_RICD_Shells')
                            Write (6,*) 'Mk_aCD_Shell: iOff.ne.iEnd'
                            Call Abend()
                         End If
 *
-#ifdef _DEBUG_
-                        If (iPrint.ge.49) Then
+#ifdef _DEBUGPRINT_
                         If (Diagonal) Then
                            Call TriPrt('aCD Exponents',' ',
-     &                                 Work(iStrt),nExp(kShll))
+     &                                 Shells(iShll)%Exp,nExpk)
                         Else
                            Call RecPrt('aCD Exponents',' ',
-     &                                 Work(iStrt),nExp(kShll),
-     &                                             nExp(lShll))
-                        End If
+     &                                 Shells(iShll)%Exp,nExpk,nExpl)
                         End If
 #endif
                      End If
@@ -844,7 +819,7 @@ C                    iPrint=99
 *                    An empty shell
 *
                      nPrim=0
-                     iEnd = iStrt + nPrim - 1
+                     Shells(iShll)%nExp=nPrim
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -853,34 +828,28 @@ C                    iPrint=99
 ************************************************************************
 *                                                                      *
                   lAng=iAng+jAng
-                  iAngMx=Max(iAngMx,lAng)
-                  MaxPrm(lAng)=Max(MaxPrm(lAng),nPrim)
+                  S%iAngMx=Max(S%iAngMx,lAng)
+                  S%MaxPrm(lAng)=Max(S%MaxPrm(lAng),nPrim)
 *
-#ifdef _DEBUG_
-                  If (iPrint.ge.49) Then
+#ifdef _DEBUGPRINT_
                   Write (6,*)
                   Write (6,*) 'iShll=',iShll
                   Write (6,*) 'nPrim,nCntrc=',nPrim,nCntrc
                   Write (6,*) 'lAng=',lAng
-                  Write (6,*) 'MaxPrm(lAng)=',MaxPrm(lAng)
-                  End If
+                  Write (6,*) 'S%MaxPrm(lAng)=',S%MaxPrm(lAng)
 #endif
 *
-                  nExp(iShll)=nPrim
-                  nBasis_Cntrct(iShll)=nCntrc
-                  iStrt = iEnd + 1
+                  Shells(iShll)%nBasis_c=nCntrc
 *                                                                      *
 ************************************************************************
 *                                                                      *
-                  ipCff_c = iStrt
-                  ipCff_Cntrct(iShll)=iStrt
-                  iEnds = iEnd + 2*nPrim*nCntrc
-                  ipCff_Prim(iShll)=iEnds + 1
-                  ipCff_p = ipCff_Prim(iShll)
-                  iEnds = iEnds + 2*nPrim**2
-*
-                  iEnd  = iStrt + nPrim*nCntrc -1
-                  iEndc = iEnd
+                  Call mma_allocate(Shells(iShll)%Cff_c,
+     &                              nPrim,nCntrc,2,Label='Cff_c')
+                  Call mma_allocate(Shells(iShll)%pCff,
+     &                              nPrim,nCntrc,Label='pCff')
+                  Shells(iShll)%nBasis = nCntrc
+                  Call mma_allocate(Shells(iShll)%Cff_p,
+     &                              nPrim,nPrim ,2,Label='Cff_p')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -907,10 +876,12 @@ C                    iPrint=99
 *                       such terms in the fitting procedure!
 *
                         nTheta=nPrim
+                        nExpk=Shells(kShll)%nExp
+                        nExpl=Shells(lShll)%nExp
                         If (iAng.eq.jAng) Then
-                           nTheta_Full=nExp(kShll)*(nExp(kShll)+1)/2
+                           nTheta_Full=nExpk*(nExpk+1)/2
                         Else
-                           nTheta_Full=nExp(kShll)*nExp(lShll)
+                           nTheta_Full=nExpk*nExpl
                         End If
                         nPhi=nCntrc
 *
@@ -921,21 +892,16 @@ C                    iPrint=99
                         Call Mk_tVt(TInt_p,nTInt_p,
      &                              tVt,nTheta,iList2_p,2*mData,
      &                              Prm,nPrim_Max,
-     &                              iAng,jAng,nExp(kShll),nExp(lShll),
+     &                              iAng,jAng,nExpk,nExpl,
      &                              Indkl_p,nPrim_Max,
      &                              AL,nCompA,nCompB)
 *
-#ifdef _DEBUG_
-                        If (iPrint.ge.49) Then
-                           Write (6,*)
-                           Write (6,*) 'tVt(Diag)'
-                           Write (6,*)
-     &                     (tVt(i),i=1,nTheta**2,nTheta+1)
-                        End If
-                        If (iPrint.ge.99) Then
+#ifdef _DEBUGPRINT_
+                        Write (6,*)
+                        Write (6,*) 'tVt(Diag)'
+                        Write (6,*) (tVt(i),i=1,nTheta**2,nTheta+1)
                         Call RecPrt('tVt',' ',tVt,nTheta,nTheta)
                         Call iVcPrt('iD_p',' ',iD_p,NumCho_p)
-                        End If
 #endif
 *
 *                       Generate (theta'|V|theta')^{-1}
@@ -958,8 +924,7 @@ C                    iPrint=99
                               A(ijT)=tVt(ijS)
                            End Do
                         End Do
-#ifdef _DEBUG_
-                        If (iPrint.ge.99) Then
+#ifdef _DEBUGPRINT_
                         Call TriPrt('A',' ',A,nTheta)
 *
                         Call mma_allocate(H,nTri,label='H')
@@ -972,18 +937,15 @@ C                    iPrint=99
                         Call RecPrt('U',' ',U,nTheta,nTheta)
                         Call mma_deallocate(H)
                         Call mma_deallocate(U)
-                        End If
 #endif
 *
-#ifdef _DEBUG_
-                        Call mma_allocate(tVtInv,nTheta*2,
+#ifdef _DEBUGPRINT_
+                        Call mma_allocate(tVtInv,nTheta**2,
      &                                    label='tVtInv')
-                        If (iPrint.ge.49) Then
                         iSing=0
                         Det=0.0D0
                         Call MInv(tVt,tVtInv,iSing,Det,nTheta)
                         Write (6,*) 'iSing,Det=',iSing,Det
-                        End If
 #endif
                         Call mma_deallocate(tVt)
 *
@@ -994,8 +956,8 @@ C                    iPrint=99
 C                          Thrs= 1.0D-12
                            Call Inv_Cho_Factor(A(iOff_Ak),iTheta,A,Q,
      &                                         iTheta,iDum,iDum,
-     &                                         Work(ip_Dummy),0,Z,
-     &                                         Work(ip_Dummy),Thrs,
+     &                                         Dummy,0,Z,
+     &                                         Dummy,Thrs,
      &                                         Q(iOff_Qk),LinDep)
                            If (LinDep.eq.1) Then
                               Call WarningMessage(2,
@@ -1009,9 +971,8 @@ C                          Thrs= 1.0D-12
                         End Do
                         Call mma_deallocate(Z)
                         Call mma_deallocate(A)
-#ifdef _DEBUG_
-                        If (iPrint.ge.49)
-     &                  Call TriPrt('Q','(9G10.3)',Q,nTheta)
+#ifdef _DEBUGPRINT_
+                        Call TriPrt('Q','(9G10.3)',Q,nTheta)
 #endif
 *
 *                       Generate the (theta'|V|theta) matrix in the
@@ -1024,16 +985,14 @@ C                          Thrs= 1.0D-12
      &                               tVtF,nTheta,
      &                               iList2_p,2*mData,
      &                               Prm,nPrim_Max,
-     &                               iAng,jAng,nExp(kShll),nExp(lShll),
+     &                               iAng,jAng,nExpk,nExpl,
      &                               Indkl_p,nPrim_Max,
      &                               nTheta_Full,
      &                               AL,nCompA,nCompB)
                         Call mma_deallocate(AL)
-#ifdef _DEBUG_
-                        If (iPrint.ge.49)
-     &                  Call RecPrt('tVtF',' ',tVtF,nTheta,nTheta_Full)
+#ifdef _DEBUGPRINT_
+                        Call RecPrt('tVtF',' ',tVtF,nTheta,nTheta_Full)
 #endif
-*
 *
 *                       Pick up the contraction coefficients of the aCD
 *                       basis set. Be careful what this means in the
@@ -1043,24 +1002,23 @@ C                          Thrs= 1.0D-12
      &                                    label='Indkl')
                         Call Mk_Indkl(Con,Indkl,nCntrc_Max)
                         Call mma_allocate(C,nTheta_Full*nPhi,label='C')
-                        Call Mk_Coeffs(Work(ipCff(kShll)),nExp(kShll),
-     &                                 nBasis_Cntrct(kShll),
-     &                                 Work(ipCff(lShll)),nExp(lShll),
-     &                                 nBasis_Cntrct(lShll),
+                        Call Mk_Coeffs(Shells(kShll)%Cff_c(1,1,1),
+     &                                 nExpk,Shells(kShll)%nBasis_C,
+     &                                 Shells(lShll)%Cff_c(1,1,1),
+     &                                 nExpl,Shells(lShll)%nBasis_C,
      &                                 C,nTheta_Full,nPhi,
      &                                 iD_c,NumCho_c,
      &                                 iList2_c,2*mData,
      &                                 nPhi_All,
      &                                 Indkl,nCntrc_Max,
-     &                                 nBasis_Cntrct(kShll),
-     &                                 nBasis_Cntrct(lShll),
+     &                                 Shells(kShll)%nBasis_C,
+     &                                 Shells(lShll)%nBasis_C,
      &                                 iAng,jAng,
-     &                                 Work(ipCff_Prim(kShll)),
-     &                                 Work(ipCff_Prim(lShll)))
+     &                                 Shells(kShll)%Cff_p(1,1,1),
+     &                                 Shells(lShll)%Cff_p(1,1,1))
                         Call mma_deallocate(Indkl)
-#ifdef _DEBUG_
-                        If (iPrint.ge.49)
-     &                  Call RecPrt('C',' ',C,nTheta_Full,nPhi)
+#ifdef _DEBUGPRINT_
+                        Call RecPrt('C',' ',C,nTheta_Full,nPhi)
 #endif
 *
 *                       Generate the (theta'|V|phi') matrix.
@@ -1071,9 +1029,8 @@ C                          Thrs= 1.0D-12
      &                              C,nTheta_Full,
      &                              0.0d0,tVp,nTheta)
                         Call mma_deallocate(tVtF)
-#ifdef _DEBUG_
-                        If (iPrint.ge.49)
-     &                  Call RecPrt('tVp',' ',tVp,nTheta,nPhi)
+#ifdef _DEBUGPRINT_
+                        Call RecPrt('tVp',' ',tVp,nTheta,nPhi)
 #endif
                         Call mma_deallocate(C)
 *
@@ -1095,9 +1052,8 @@ C                          Thrs= 1.0D-12
                            End Do
                         End Do
                         call mma_deallocate(Q)
-#ifdef _DEBUG_
-                        If (iPrint.ge.49)
-     &                  Call RecPrt('Q',' ',Temp,nTheta,nTheta)
+#ifdef _DEBUGPRINT_
+                        Call RecPrt('Q',' ',Temp,nTheta,nTheta)
 #endif
 *
 *                       Resort the external index back to original
@@ -1111,12 +1067,13 @@ C                          Thrs= 1.0D-12
      &                                       QTmp(iTheta),nTheta)
                         End Do
                         Call mma_deallocate(Temp)
-#ifdef _DEBUG_
-                        If (iPrint.ge.99)
-     &                  Call RecPrt('Q',' ',QTmp,nTheta,nTheta)
+#ifdef _DEBUGPRINT_
+                        Call RecPrt('Q',' ',QTmp,nTheta,nTheta)
+                        Call RecPrt('tVp',' ',tVp,nTheta,nPhi)
 #endif
 *                       Q(T) tVp
                         Call mma_allocate(Scr,nTheta*nPhi,label='Scr')
+                        Scr(:)=0.0D0
                         Call DGEMM_('T','N',
      &                              nTheta,nPhi,nTheta,
      &                              1.0d0,QTmp,nTheta,
@@ -1127,12 +1084,13 @@ C                          Thrs= 1.0D-12
      &                              nTheta,nPhi,nTheta,
      &                              1.0d0,QTmp,nTheta,
      &                              Scr,nTheta,
-     &                              0.0d0,Work(iStrt),nTheta)
-#ifdef _DEBUG_
-                        If (iPrint.ge.99)
-     &                  Call RecPrt('SLIM coeffcients',' ',Work(iStrt),
+     &                              0.0d0,
+     &                              Shells(iShll)%Cff_c(1,1,1),nTheta)
+#ifdef _DEBUGPRINT_
+                        Call RecPrt('SLIM coeffcients',' ',
+     &                               Shells(iShll)%Cff_c(1,1,1),
      &                               nTheta,nPhi)
-                        If (iPrint.ge.49) Then
+                        Scr(:)=0.0D0
                         Call DGEMM_('N','N',
      &                              nTheta,nPhi,nTheta,
      &                              1.0d0,tVtInv,nTheta,
@@ -1140,7 +1098,6 @@ C                          Thrs= 1.0D-12
      &                              0.0d0,Scr,nTheta)
                         Call RecPrt('SLIM coeffcients2',' ',Scr,
      &                               nTheta,nPhi)
-                        End If
                         Call mma_deallocate(tVtInv)
 #endif
                         Call mma_deallocate(tVp)
@@ -1149,13 +1106,15 @@ C                          Thrs= 1.0D-12
 *                       the exponents.
 *
                         Call mma_allocate(Tmp,nTheta*nPhi,label='Tmp')
-                        call dcopy_(nTheta*nPhi,Work(iStrt),1,Tmp,1)
+                        call dcopy_(nTheta*nPhi,
+     &                              Shells(iShll)%Cff_c(1,1,1),1,Tmp,1)
                         Do iCho_p = 1, NumCho_p
                            iTheta_full = iD_p(iCho_p)
                            iTheta      = Indkl_p(iTheta_full)
-                           iTo   =  iStrt-1 + iCho_p
-                           call dcopy_(nPhi,Tmp(iTheta),nTheta,
-     &                                     Work(iTo),  nTheta)
+                           call dcopy_(nPhi,
+     &                                 Tmp(iTheta),nTheta,
+     &                                 Shells(iShll)%Cff_c(iCho_p,1,1),
+     &                                             nTheta)
                         End Do
                         Call mma_deallocate(Tmp)
 *
@@ -1166,15 +1125,11 @@ C                          Thrs= 1.0D-12
                            iTheta = iD_p(iCho_p)
                            ik=LTP(1,iTheta)
                            il=LTP(2,iTheta)
-                           ipCff_ik=ipCff_Prim(kShll)
-     &                             + (ik-1)*nExp(kShll)
-     &                             +ik-1
-                           ipCff_il=ipCff_Prim(lShll)
-     &                             + (il-1)*nExp(lShll)
-     &                             +il-1
-                           Fact = Work(ipCff_ik)*Work(ipCff_il)
-                           Call DScal_(nPhi,Fact,Work(iStrt-1+iCho_p),
-     &                                nTheta)
+                           Fact = Shells(kShll)%Cff_p(ik,ik,1)
+     &                          * Shells(lShll)%Cff_p(il,il,1)
+                           Call DScal_(nPhi,Fact,
+     &                            Shells(iShll)%Cff_c(iCho_p,1,1),
+     &                                 nTheta)
                         End Do
                         Call mma_deallocate(LTP)
 *
@@ -1182,9 +1137,9 @@ C                          Thrs= 1.0D-12
                         Call mma_deallocate(Indkl_p)
                         Call mma_deallocate(Scr)
                         Call mma_deallocate(QTmp)
-#ifdef _DEBUG_
-                        If (iPrint.ge.49)
-     &                  Call RecPrt('SLIM coeffcients',' ',Work(iStrt),
+#ifdef _DEBUGPRINT_
+                        Call RecPrt('SLIM coeffcients',' ',
+     &                              Shells(iShll)%Cff_c(1,1,1),
      &                              nTheta,nPhi)
 #endif
 *                                                                      *
@@ -1202,20 +1157,8 @@ C                          Thrs= 1.0D-12
                         Do iCntrc = 1, nCntrc
                            kC = ConR(1,iCntrc)
                            lC = ConR(2,iCntrc)
-#ifdef _DEBUG_
-                           If (iPrint.ge.49)
-     &                     Write (6,*) 'kC,lC=',kC,lC
-#endif
-                           ipCff_k = ipCff_Cntrct(kShll)
-     &                             + (kC-1)*nExp(kShll)
-                           ipCff_l = ipCff_Cntrct(lShll)
-     &                             + (lC-1)*nExp(lShll)
-                           ipCff_kl = iStrt + (iCntrc-1)*nPrim
-                           ipCff_kk = ipCff_Prim(kShll)
-                           ipCff_ll = ipCff_Prim(lShll)
-#ifdef _DEBUG_
-                           If (iPrint.ge.49)
-     &                     Write (6,*) 'iStrt,ikl=',iStrt,ikl
+#ifdef _DEBUGPRINT_
+                           Write (6,*) 'kC,lC=',kC,lC
 #endif
 *                                                                      *
 ************************************************************************
@@ -1224,39 +1167,48 @@ C                          Thrs= 1.0D-12
 *
                            jkl = 0
                            If (Diagonal) Then
-                              Do iExp_k = 0, nExp(kShll)-1
-                                 Coeff_kk=Work(ipCff_k+iExp_k)
-                                 Coeff_lk=Work(ipCff_l+iExp_k)
-                                 Do iExp_l = 0 , iExp_k
-                                    Coeff_ll=Work(ipCff_l+iExp_l)
-                                    Coeff_kl=Work(ipCff_k+iExp_l)
+                              Do iExp_k = 1, Shells(kShll)%nExp
+*
+                               Coeff_kk=Shells(kShll)%Cff_c(iExp_k,kC,1)
+                               Coeff_lk=Shells(lShll)%Cff_c(iExp_k,lC,1)
+
+                                 Do iExp_l = 1 , iExp_k
+
+                               Coeff_ll=Shells(lShll)%Cff_c(iExp_l,lC,1)
+                               Coeff_kl=Shells(kShll)%Cff_c(iExp_l,kC,1)
                                     Coeff_  =Coeff_ll*Coeff_kk
      &                                      +Coeff_kl*Coeff_lk
                                     If (iExp_k.eq.iExp_l) Then
                                        Coeff_  =Coeff_  *Half
                                     End If
-                                    Work(ipCff_kl+jkl)=Coeff_
                                     jkl = jkl + 1
+
+                               Shells(iShll)%Cff_c(jkl,iCntrc,1)=Coeff_
+
                                  End Do
                               End Do
                            Else
-                              Do iExp_k = 0, nExp(kShll)-1
-                                 Coeff_k =Work(ipCff_k+iExp_k)
-                                 iExp_l_Max=nExp(lShll)-1
-                                 Do iExp_l = 0 , iExp_l_Max
-                                    Coeff_l=Work(ipCff_l+iExp_l)
+                              Do iExp_k = 1, Shells(kShll)%nExp
+
+                               Coeff_k =Shells(kShll)%Cff_c(iExp_k,kC,1)
+
+                                 Do iExp_l = 1 , Shells(lShll)%nExp
+
+                               Coeff_l =Shells(lShll)%Cff_c(iExp_l,lC,1)
+
                                     Coeff_kl=Coeff_l*Coeff_k
-                                    Work(ipCff_kl+jkl)=Coeff_kl
+
                                     jkl = jkl + 1
+                              Shells(iShll)%Cff_c(jkl,iCntrc,1)=Coeff_kl
                                  End Do
                               End Do
                            End If
 *
                         End Do ! iCntrc
-#ifdef _DEBUG_
-                        If (iPrint.ge.49)
-     &                  Call RecPrt('aCD Coefficients','(6G20.12)',
-     &                              Work(iStrt),nPrim,nCntrc)
+#ifdef _DEBUGPRINT_
+                        Call RecPrt('aCD Coefficients','(6G20.12)',
+     &                              Shells(iShll)%Cff_c(1,1,1),
+     &                              nPrim,nCntrc)
 #endif
 *                                                                      *
 ************************************************************************
@@ -1265,9 +1217,8 @@ C                          Thrs= 1.0D-12
 *                                                                      *
 ************************************************************************
 *                                                                      *
-                     iOff = nPrim*nCntrc
-                     call dcopy_(nPrim*nCntrc,Work(ipCff_c),1,
-     &                                       Work(ipCff_c+iOff),1)
+                     Shells(iShll)%Cff_c(:,:,2)=
+     &                       Shells(iShll)%Cff_c(:,:,1)
 *
                      Call mma_deallocate(Con)
                      Call mma_deallocate(ConR)
@@ -1275,93 +1226,92 @@ C                          Thrs= 1.0D-12
 *
 *                    Put in unit matrix of uncontracted set
 *
-                     call dcopy_(nPrim*nPrim,[Zero],0,Work(ipCff_p),1)
-                     call dcopy_(nPrim,[One],0,Work(ipCff_p),nPrim+1)
+                     Shells(iShll)%Cff_p(:,:,1)=Zero
+                     Do i=1,nPrim
+                        Shells(iShll)%Cff_p(i,i,1)=One
+                     End Do
 *
-                     iOff = nPrim*nPrim
-                     call dcopy_(nPrim*nPrim ,Work(ipCff_p),1,
-     &                                       Work(ipCff_p+iOff),1)
-                     Call Nrmlz(Work(ipExp(iShll)),nPrim,
-     &                          Work(ipCff_p),nPrim ,lAng)
-#ifdef _DEBUG_
-                     If (iPrint.ge.99) Then
-                     Call RecPrt('uncon1',' ',Work(ipCff_p),nPrim,nPrim)
-                     Call RecPrt('uncon2',' ',Work(ipCff_p+iOff),nPrim,
-     &                                                           nPrim)
-                     End If
+                     Shells(iShll)%Cff_p(:,:,2)=
+     &                       Shells(iShll)%Cff_p(:,:,1)
+                     Call Nrmlz(Shells(iShll)%Exp,nPrim,
+     &                          Shells(iShll)%Cff_p(1,1,1),
+     &                          nPrim ,lAng)
+#ifdef _DEBUGPRINT_
+                     Call RecPrt('uncon1',' ',
+     &                            Shells(iShll)%Cff_p(:,:,1),
+     &                            nPrim,nPrim)
+                     Call RecPrt('uncon2',' ',
+     &                            Shells(iShll)%Cff_p(:,:,2),
+     &                            nPrim,nPrim)
 #endif
 *
 *                    OK let's do the correction now!
 *
-#ifdef _DEBUG_
-                     If (iPrint.ge.99) Then
+#ifdef _DEBUGPRINT_
                      Call RecPrt('Coefficients 10',' ',
-     &                            Work(ipCff_c),nPrim,nCntrc)
+     &                           Shells(iShll)%Cff_c(:,:,1),
+     &                           nPrim,nCntrc)
                      iOff = nPrim*nCntrc
                      Call RecPrt('Coefficients 20',' ',
-     &                           Work(ipCff_c+iOff),nPrim,nCntrc)
-                     End If
+     &                           Shells(iShll)%Cff_c(:,:,2),
+     &                           nPrim,nCntrc)
 #endif
                      iOff = nPrim*nCntrc
-                     Call Fix_Coeff(nPrim,nCntrc,Work(ipCff_c+iOff),
-     &                              Work(ipCff_p),'F')
-#ifdef _DEBUG_
-                     If (iPrint.ge.99) Then
+                     Call Fix_Coeff(nPrim,nCntrc,
+     &                              Shells(iShll)%Cff_c(:,:,2),
+     &                              Shells(iShll)%Cff_p(:,:,1),'F')
+#ifdef _DEBUGPRINT_
                      Call RecPrt('Coefficients 1',' ',
-     &                            Work(ipCff_c),nPrim,nCntrc)
+     &                            Shells(iShll)%Cff_c(:,:,1),
+     &                            nPrim,nCntrc)
                      iOff = nPrim*nCntrc
                      Call RecPrt('Coefficients 2','(6G20.13)',
-     &                           Work(ipCff_c+iOff),nPrim,nCntrc)
-                     End If
+     &                            Shells(iShll)%Cff_c(:,:,2),
+     &                            nPrim,nCntrc)
 #endif
 *
 *                    Now remove any primitives with all zero
 *                    coefficents!
 *
                      Call Fix_Exponents(nPrim,mPrim,nCntrc,
-     &                                  Work(ipExp(iShll)),
-     &                                  Work(ipCff_c),
-     &                                  Work(ipCff_p))
+     &                                  Shells(iShll)%Exp,
+     &                                  Shells(iShll)%Cff_c,
+     &                                  Shells(iShll)%Cff_p)
                      nPrim=mPrim
-                     nExp(iShll)=nPrim
-#ifdef _DEBUG_
-                     If (iPrint.ge.99) Then
-                     Call RecPrt('Coefficients 1',' ',Work(iStrt),
+                     Shells(iShll)%nExp=nPrim
+#ifdef _DEBUGPRINT_
+                     Call RecPrt('Coefficients 1',' ',
+     &                           Shells(iShll)%Cff_c(:,:,1),
      &                           nPrim,nCntrc)
                      iOff = nPrim*nCntrc
-                     Call RecPrt('Coefficients 2',' ',Work(iStrt+iOff),
+                     Call RecPrt('Coefficients 2',' ',
+     &                           Shells(iShll)%Cff_c(:,:,2),
      &                           nPrim,nCntrc)
-                     End If
 #endif
                   End If
 *
-                  iEnd = iEnds
-                  If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
 *
-                  nBasis(iShll)=nBasis_Cntrct(iShll)
-                  ipCff (iShll)=ipCff_Cntrct(iShll)
-                  If (jAng.eq.0) Then
-                     Transf(iShll)=Transf(kShll)
-                     Prjct(iShll)=Prjct(kShll)
+                  Shells(iShll)%nBasis=Shells(iShll)%nBasis_c
+                  If (jAng.eq.0.and.Found) Then
+                     Shells(iShll)%Transf=Shells(kShll)%Transf
+                     Shells(iShll)%Prjct =Shells(kShll)%Prjct
                   Else
-                     Transf(iShll)=.True.
-                     Prjct(iShll)=.False.
+                     Shells(iShll)%Transf=.True.
+                     Shells(iShll)%Prjct =.False.
                   End If
-                  AuxShell(iShll)=.True.
-                  ipBk(iShll)=ip_Dummy
-                  ip_Occ(iShll)=ip_Dummy
-                  ipAkl(iShll)=ip_Dummy
+                  Shells(iShll)%Aux=.True.
 *
                   If (Do_acCD_Basis.and.Found) Then
                      Call mma_deallocate(iList2_p)
                      Call mma_deallocate(TInt_p)
                   End If
+                  Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
 *
                End Do ! jAng
             End Do ! iAng
 *
-            nTot_Shells(nCnttp) = iShll-jShll
-            nVal_Shells(nCnttp) = iShll-jShll
+            dbsc(nCnttp)%nVal = iShll-jShll
+            dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -1379,17 +1329,17 @@ C                          Thrs= 1.0D-12
 *
 *              Transfer the coordinate information
 *
-               nCnt = nCntr(iCnttp)
-               nCntr(nCnttp)=nCnt
-               mdciCnttp(nCnttp)=mdc
-               ipCntr(nCnttp)=ipCntr(iCnttp)
-               nCntr(nCnttp)=nCnt
+               nCnt = dbsc(iCnttp)%nCntr
+               dbsc(nCnttp)%nCntr=nCnt
+               dbsc(nCnttp)%mdci =mdc
+*              Create a pointer to the actual coordinates
+               dbsc(nCnttp)%Coor => dbsc(iCnttp)%Coor(1:3,1:nCnt)
 *
 *              Compute the number of elements stored in the dynamic
 *              memory so far.
-               nInfo = ipExp(iShll+1) - Info
-               Mx_Shll=iShll+1
-               Mx_mdc=mdc
+               S%Mx_Shll=iShll+1
+               Max_Shells=S%Mx_Shll
+               S%Mx_mdc=mdc
 *
             Else
 *
@@ -1402,7 +1352,8 @@ C                          Thrs= 1.0D-12
 *
 *        Done for this valence basis set.
 *
-         Mx_Shll = iShll + 1
+         S%Mx_Shll = iShll + 1
+         Max_Shells=S%Mx_Shll
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1446,49 +1397,48 @@ C                          Thrs= 1.0D-12
                Write (Lu_lib,'(A)') Label
             End If
             If (jCnttp.eq.nCnttp_start+1) Then
-               Write (Lu_lib,'(F6.2,2I10)') Charge(jCnttp),
-     &               nVal_Shells(jCnttp)-1,nCnttp-nCnttp_start
+               Write (Lu_lib,'(F6.2,2I10)') dbsc(jCnttp)%Charge,
+     &               dbsc(jCnttp)%nVal-1,nCnttp-nCnttp_start
             Else
-               Write (Lu_lib,'(F6.2, I10)') Charge(jCnttp),
-     &               nVal_Shells(jCnttp)-1
+               Write (Lu_lib,'(F6.2, I10)') dbsc(jCnttp)%Charge,
+     &               dbsc(jCnttp)%nVal-1
             End If
             Write (Lu_lib,*) ' Dummy reference line.'
             Write (Lu_lib,*) ' Dummy reference line.'
-            Do iAng = 0, nVal_Shells(jCnttp)-1
-               iShll_ = ipVal(jCnttp) + iAng
+            Do iAng = 0, dbsc(jCnttp)%nVal-1
+               iShll_ = dbsc(jCnttp)%iVal + iAng
+               nExpi=Shells(iShll_)%nExp
                iSph=0
-               If (Prjct(iShll_))  iSph=1
-               If (Transf(iShll_)) iSph=iSph+2
-               Write (Lu_lib,'(3I10)') nExp(iShll_), nBasis(iShll_),
-     &                                 iSph
+               If (Shells(iShll_)%Prjct )  iSph=1
+               If (Shells(iShll_)%Transf) iSph=iSph+2
+               Write (Lu_lib,'(3I10)') nExpi, Shells(iShll_)%nBasis,iSph
 *
 *              Skip if the shell is empty.
 *
-               If (nExp(iShll_).eq.0) Cycle
+               If (nExpi.eq.0) Cycle
 *
 *              Write out the exponents
 *
                Write (Lu_lib,'( 5(1X,D20.13))')
-     &               (Work(i+ipExp(iShll_)),i=0,nExp(iShll_)-1)
+     &               (Shells(iShll_)%Exp(i),i=1,nExpi)
 *
 *              Write out the contraction coefficients
 *
-               iS=0
-               iE=nBasis(iShll_)*nExp(iShll_)-1
-               Do i = 1, nExp(iShll_)
+               Do i = 1, nExpi
                   Write (Lu_lib,'( 5(1X,D20.13))')
-     &                  (Work(j+ipCff_Cntrct(iShll_)),
-     &                j=iS,iS+iE,nExp(iShll_))
-                  iS = iS + 1
+     &                  (Shells(iShll_)%Cff_c(i,j,1),
+     &                        j=1,Shells(iShll_)%nBasis)
                End Do
 *
             End Do
          End Do
          Close(Lu_lib)
       End If
+*
+      Call SOAO_Info_Free()
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('Mk_aCD_acCD_Shells')
       Return
+*
       End

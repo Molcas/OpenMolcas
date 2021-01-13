@@ -26,9 +26,9 @@
 *          april '90                                                   *
 *                                                                      *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep
+      use SOAO_Info, only: iAOtSO, iOffSO
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "real.fh"
@@ -53,9 +53,6 @@
       ISHLSO(I)=IWORK(ip_iShlSO-1+I)
       NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
 *
-#if defined (_DEBUG_)
-      Call qEnter('IndSftC')
-#endif
       irout = 39
       jprint = nprint(irout)
       k12=0
@@ -71,11 +68,6 @@
       If (jprint.ge.99)
      &   Call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
       memSO2 = 0
-
-      If (nSOs .gt. 0) Then ! to make some compilers happy
-         iDummy_2 = iSOSym(1,1)
-      End If
-
 *
 *     allocate space to store integrals to gether with their
 *     Symmetry batch and sequence number
@@ -92,13 +84,17 @@
       Shkl = iShell(3).eq.iShell(4)
       Do 100 i1 = 1, iCmp(1)
          Do 101 j = 0, nIrrep-1
-            iSym(j) = iand(IrrCmp(inds(iShell(1))+i1),2**j)
+            ix = 0
+            If (iAOtSO(iAO(1)+i1,j)>0) ix = 2**j
+            iSym(j) = ix
 101      Continue
          jCmpMx = iCmp(2)
          If (Shij) jCmpMx = i1
          Do 200 i2 = 1, jCmpMx
             Do 201 j = 0, nIrrep-1
-               jSym(j) = iand(IrrCmp(inds(iShell(2))+i2),2**j)
+               ix = 0
+               If (iAOtSO(iAO(2)+i2,j)>0) ix = 2**j
+               jSym(j) = ix
 201         Continue
             qij = i1.eq.i2
             If (iShell(2).gt.iShell(1)) then
@@ -108,13 +104,17 @@
             End If
             Do 300 i3 = 1, iCmp(3)
                Do 301 j = 0, nIrrep-1
-                  kSym(j) = iand(IrrCmp(inds(iShell(3))+i3),2**j)
+                  ix = 0
+                  If (iAOtSO(iAO(3)+i3,j)>0) ix = 2**j
+                  kSym(j) = ix
 301            Continue
                lCmpMx = iCmp(4)
                If (Shkl) lCmpMx = i3
                Do 400 i4 = 1, lCmpMx
                   Do 401 j = 0, nIrrep-1
-                     lSym(j) = iand(IrrCmp(inds(iShell(4))+i4),2**j)
+                     ix = 0
+                     If (iAOtSO(iAO(4)+i4,j)>0) ix = 2**j
+                     lSym(j) = ix
 401               Continue
                   qkl = i3.eq.i4
                   If (iShell(4).gt.iShell(3)) then
@@ -148,9 +148,6 @@
                 End If
              End If
 *
-             iSymi=max(j1,j2)+1
-             jSymj=min(j1,j2)+1
-*
              Do 310 j3 = 0, nIrrep-1
                 If (kSym(j3).eq.0) go to 310
                 j4 = ieor(j12,j3)
@@ -178,9 +175,6 @@
                 jSO = iAOtSO(iAO(2)+i2,j2)+iAOst(2)+iOffSO(j2)
                 kSO = iAOtSO(iAO(3)+i3,j3)+iAOst(3)+iOffSO(j3)
                 lSO = iAOtSO(iAO(4)+i4,j4)+iAOst(4)+iOffSO(j4)
-*
-                kSymk=max(j3,j4)+1
-                lSyml=min(j3,j4)+1
 *
                 nijkl = 0
                 Do lSOl = lSO, lSO+lBas-1
@@ -229,8 +223,7 @@
 200      Continue
 100   Continue
 *
-#if defined (_DEBUG_)
-      Call qExit('IndSftC')
-#endif
       Return
+* Avoid unused argument warnings
+      If (.False.) Call Unused_integer_array(iSOSym)
       End

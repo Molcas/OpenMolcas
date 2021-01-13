@@ -13,40 +13,32 @@
       character*(*) prgnam
       character*16 pgnm_local
 #include "unixinfo.fh"
-#include "para_info.fh"
       Logical DoRys
 
 c      ProgName=prgnam
       pgnm_local=prgnam
       call locase(pgnm_local)
 *
-      info=0
       If(pgnm_local.eq.'seward') then
       else if(pgnm_local.eq.'scf') then
         DoRys=.true.
-        call inisew(info,DoRys,ndiff)
-      else if(pgnm_local.eq.'dtraf') then
-        DoRys=.true.
-        call inisew(info,DoRys,ndiff)
-      else if(pgnm_local.eq.'dkext') then
-        DoRys=.true.
-        call inisew(info,DoRys,ndiff)
+        call inisew(DoRys,ndiff)
       else if(pgnm_local.eq.'mltpl') then
         DoRys=.true.  ! for Schwarz prescreening
-        call inisew(info,DoRys,ndiff)
+        call inisew(DoRys,ndiff)
       else if(pgnm_local.eq.'alaska') then
         DoRys=.true.
-        call inisew(info,DoRys,ndiff)
+        call inisew(DoRys,ndiff)
       else if(pgnm_local.eq.'mckinley') then
         DoRys=.true.
-        call inisew(info,DoRys,ndiff)
+        call inisew(DoRys,ndiff)
       else if(pgnm_local.eq.'slapaf') then
       else if(pgnm_local.eq.'espf') Then
         DoRys=.true.
-        call inisew(info,DoRys,ndiff)
+        call inisew(DoRys,ndiff)
       else
         DoRys=.false.
-        call inisew(info,DoRys,ndiff)
+        call inisew(DoRys,ndiff)
       EndIf
 *
       Return

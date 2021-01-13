@@ -11,19 +11,14 @@
 * Copyright (C) 1990,1994, Roland Lindh                                *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine RysEF4(      xyz2D,nArg,mArg,nRys,neMin,neMax,nfMin,
+      SubRoutine RysEF4(xyz2D,nArg,mArg,nRys,neMin,neMax,nfMin,
      &                  nfMax,EFInt,meMin,meMax,mfMin,mfMax,
      &                  PreFct,ixe,ixf,ixye,ixyf,
      &                  nzeMin,nzeMax,nzfMin,nzfMax)
 ************************************************************************
 *                                                                      *
-*     Object: kernel routine to assemble the integrals from the Ixy    *
-*             and Iz integrals.                                        *
-*                                                                      *
-* Called from: RysEF                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
+* Object: kernel routine to assemble the integrals from the Ixy        *
+*         and Iz integrals.                                            *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             August '90                                               *
@@ -33,16 +28,13 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
-      Real*8                   xyz2D(nRys,mArg,3,0:neMax,0:nfMax),
+      Real*8 xyz2D(nRys,mArg,3,0:neMax,0:nfMax),
      &       PreFct(mArg), EFInt(nArg,meMin:meMax,mfMin:mfMax)
 *
 *     Statement function to compute canonical index
 *
       iCan(ixyz,ix,iz) = ixyz*(ixyz+1)*(ixyz+2)/6 +
      &   (ixyz-ix)*(ixyz-ix+1)/2 + iz
-*
-      iRout = 17
-      iPrint = nPrint(iRout)
 *
       iyf=ixyf-ixf
       iye=ixye-ixe

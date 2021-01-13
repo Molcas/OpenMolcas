@@ -44,6 +44,11 @@
 *                                                                      *
 ************************************************************************
 
+#ifdef _HDF5_
+      Use mh5, Only: mh5_is_hdf5, mh5_open_file_r,
+     &               mh5_fetch_dset_array_real, mh5_close_file
+#endif
+
       Implicit Real*8 (A-H,O-Z)
 
       Dimension C(*) , h0(*) , TUVX(*), iSel(*), ExplE(*), ExplV(*)
@@ -56,15 +61,11 @@
 #include "output_ras.fh"
       PARAMETER (ROUTINE='CSTART  ')
 #include "SysDef.fh"
-#ifdef _HDF5_
-#  include "mh5.fh"
-#endif
 
 c      Dimension iToc(15)
       Character*80 String
       Logical Exist
 
-      Call qEnter('CStart')
       IPRLEV=IPRLOC(3)
 
 * special case: nConf=1
@@ -75,7 +76,6 @@ C$$$        ExplE(1) = C(1)  ! Commented out by Jesper
 C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
         C(1) = 1.0d0
         Call Save_tmp_CI_vec(1,nConf,C,LuDavid)
-        Call qExit('CStart')
         Return
       End If
 
@@ -106,7 +106,6 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
             Call dVcPrt(String,' ',ExplV(1+(i-1)*nSel),l)
           End If
         End Do
-        Call qExit('CStart')
         Return
       End If
 
@@ -128,7 +127,7 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
               Do i = 1,lRoots
                 call mh5_fetch_dset_array_real(mh5id,'CI_VECTORS',
      $                  Work(iTmp1),[nconf,1],[0,i-1])
-                Call Reord2(NAC,NACTEL,LSYM,1,
+                Call Reord2(NAC,NACTEL,STSYM,1,
      &                  iWork(KICONF(1)),iWork(KCFTP),
      &                  Work(iTmp1),C,iwork(ivkcnf))
                 Call Save_CI_vec(i,nConf,C,LuDavid)
@@ -171,7 +170,7 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
           Do i = 1,lRoots
             Call DDafile(JOBOLD,2,Work(iTmp1),nConf,iDisk)
             call GetMem('kcnf','allo','inte',ivkcnf,nactel)
-            Call Reord2(NAC,NACTEL,LSYM,1,
+            Call Reord2(NAC,NACTEL,STSYM,1,
      &              iWork(KICONF(1)),iWork(KCFTP),
      &              Work(iTmp1),C,iwork(ivkcnf))
             call GetMem('kcnf','free','inte',ivkcnf,nactel)
@@ -254,7 +253,6 @@ C$$$        ExplV(1) = 1.0d0 ! Commented out by Jesper
 
       End If
 
-      Call qExit('CStart')
 
       Return
       End

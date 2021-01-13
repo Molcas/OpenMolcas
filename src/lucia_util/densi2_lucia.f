@@ -84,8 +84,7 @@ c      REAL*8 INPRDD
 *.Output
       DIMENSION RHO1(*),RHO2(*),RHO2S(*),RHO2A(*),SRHO1(*)
 *. Before I forget it :
-      CALL QENTER('DENSI')
-      IDUM = 0
+*     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'DENSI ')
       ZERO = 0.0D0
       CALL SETVEC(RHO1,ZERO ,NACOB ** 2 )
@@ -121,9 +120,6 @@ C?     WRITE(6,*) ' ISSPC ICSPC in DENSI2 ',ISSPC,ICSPC
 *. alpha and beta strings with two electrons removed
       IATPM2 = 5
       IBTPM2 = 6
-*
-      JATP = 1
-      JBTP = 2
 *. Number of supergroups
       NOCTPA = NOCTYP(IATP)
       NOCTPB = NOCTYP(IBTP)
@@ -133,9 +129,6 @@ C?     WRITE(6,*) ' ISSPC ICSPC in DENSI2 ',ISSPC,ICSPC
 *
       NAEL = NELEC(IATP)
       NBEL = NELEC(IBTP)
-*
-      ILSM = ISSM
-      IRSM = ICSM
 
 * string sym, string sym => sx sym
 * string sym, string sym => dx sym
@@ -190,7 +183,6 @@ C?    WRITE(6,*) ' DENSI2 : MAXI MAXK ', MAXI,MAXK
             MXTSOB = MAX(MXTSOB,NOBPTS(IOBTP,IOBSM))
          END DO
       END DO
-      MAXIJ = MXTSOB ** 2
 *.Local scratch arrays for blocks of C and sigma
       IF(IPRDEN.GE.2) write(6,*) ' DENSI2 : MXSB MXTSOB MXSOOB ',
      &       MXSB,MXTSOB,MXSOOB
@@ -272,8 +264,6 @@ c      ELSE
 c      END IF
       CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,iWORK(KSBLTP),iWORK(KSVST))
       CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,iWORK(KCBLTP),iWORK(KSVST))
-*.0 OOS arrayy
-      NOOS = NOCTPA*NOCTPB*NSMST
 * scratch space containing active one body
       CALL GETMEM('RHO1S ','ALLO','REAL',KRHO1S,NACOB ** 2)
 *. For natural orbitals
@@ -312,9 +302,6 @@ c      END IF
      &               iWORK(KLLBTL),iWORK(KLLEBTL),
      &               iWORK(KLI1BTL),iWORK(KLIBTL),
      &               0,ISIMSYM)
-*. Number of BLOCKS
-        NBLOCKL = IFRMR(IWORK(KLI1BTL),1,NBATCHL)
-     &         + IFRMR(IWORK(KLLBTL),1,NBATCHL) - 1
 *. Arrays for partitioning of Right  vector = C
       NTTS = MXNTTS
       CALL GETMEM('LBT_R  ','ALLO','INTE',KLLBTR ,NTTS  )
@@ -331,11 +318,6 @@ c      END IF
      &               iWORK(KLLBTR),iWORK(KLLEBTR),
      &               iWORK(KLI1BTR),iWORK(KLIBTR),
      &               0,ISIMSYM)
-*. Number of BLOCKS
-        NBLOCKR = IFRMR(IWORK(KLI1BTR),1,NBATCHR)
-     &         + IFRMR(IWORK(KLLBTR),1,NBATCHR) - 1
-C?      WRITE(6,*) ' DENSI2T :NBLOCKR =',NBLOCKR
-
 
       IF(ICISTR.EQ.1) THEN
          WRITE(6,*) ' Sorry, ICISTR = 1 is out of fashion'
@@ -483,6 +465,5 @@ c      END IF
       CALL GETMEM('IBT_R  ','FREE','INTE',KLIBTR ,8*NTTS)
       CALL GETMEM('SCLF_R ','FREE','REAL',KLSCLFCR,NTTS)
 
-      CALL QEXIT('DENSI')
       RETURN
       END

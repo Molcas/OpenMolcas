@@ -11,29 +11,14 @@
 * Copyright (C) 1990, Roland Lindh                                     *
 *               1990, IBM                                              *
 ************************************************************************
-      SubRoutine MltInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nIC,nComp,la,lb,A,RB,nHer,
-     &                  Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                  iStabM,nStabM,
-     &                  PtChrg,nGrid,iAddPot)
+      SubRoutine MltInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: to compute the multipole moments integrals with the          *
 *         Gauss-Hermite quadrature.                                    *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              SOS                                                     *
-*              DCR                                                     *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              CmbnMP                                                  *
-*              SymAdO                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
@@ -42,22 +27,19 @@
       use Her_RW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 *
 #include "rmat_option.fh"
 *
-#include "WrkSpc.fh"
 #include "oneswi.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &       Array(nZeta*nArr), Ccoor(3), TC(3), Origin(3)
-      Character*80 Label, ChOper(0:7)*3
-      Integer lOper(nComp), iStabM(0:nStabM-1), iStabO(0:7),
-     &          iDCRT(0:7), iChO(nComp)
+
+#include "int_interface.fh"
+
+*     Local variable
+      Real*8 TC(3), Origin(3)
+      Integer iStabO(0:7), iDCRT(0:7)
       Logical ABeq(3), EQ
+      Character*80 Label, ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
       Data Origin/0.0D0,0.0D0,0.0D0/
 *
@@ -67,7 +49,6 @@
 *
       iRout = 122
       iPrint = nPrint(iRout)
-*     Call qEnter('MltInt')
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
@@ -79,7 +60,6 @@
       If (NDDO.AND.
      &    .NOT.(ABeq(1).AND.ABeq(2).AND.ABeq(3))) Then
         call dcopy_(nZeta*nIC*nElem(la)*nElem(lb),[Zero],0,Final,1)
-*       Call qExit('MltInt')
         Return
       End If
 *     switch
@@ -157,8 +137,7 @@
      &                Array(ipFnl),nComp)
 *
          Call SOS(iStabO,nStabO,llOper)
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &            iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
          If (iPrint.ge.99) Then
             Write (6,*) ' m      =',nStabM
             Write (6,'(9A)') '{M}=',
@@ -175,7 +154,7 @@
 *
 *           Accumulate contributions
 *
-            nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+            nOp = NrOpr(iDCRT(lDCRT))
             Call SymAdO(Array(ipFnl),nZeta,la,lb,nComp,Final,nIC,
      &                  nOp         ,lOper,iChO,One)
          End Do
@@ -192,8 +171,7 @@
      &               lb,HerR(iHerR(nHer)),nHer,ABeq)
 *
       Call SOS(iStabO,nStabO,llOper)
-      Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &         iDCRT,nDCRT)
+      Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
       If (iPrint.ge.99) Then
          Write (6,*) ' m      =',nStabM
          Write (6,'(9A)') '{M}=',(ChOper(iStabM(ii)),ii = 0, nStabM-1)
@@ -205,9 +183,7 @@
       End If
 *
       Do lDCRT = 0, nDCRT-1
-         TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*CCoor(1)
-         TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*CCoor(2)
-         TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*CCoor(3)
+         Call OA(iDCRT(lDCRT),CCoor,TC)
 *
 *        Compute the contribution from the multipole moment operator
 *
@@ -234,7 +210,7 @@
 *
 *        Accumulate contributions
 *
-         nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+         nOp = NrOpr(iDCRT(lDCRT))
          Call SymAdO(Array(ipFnl),nZeta,la,lb,nComp,Final,nIC,
      &               nOp         ,lOper,iChO,One)
 *
@@ -259,15 +235,13 @@
       End If
 *
 *     Call GetMem(' Exit MltInt','LIST','REAL',iDum,iDum)
-*     Call qExit('MltInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Alpha)
          Call Unused_real_array(Beta)
          Call Unused_real_array(ZInv)
-         Call Unused_real(PtChrg)
-         Call Unused_integer(nGrid)
+         Call Unused_real_array(PtChrg)
          Call Unused_integer(iAddPot)
       End If
       End

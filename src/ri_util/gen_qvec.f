@@ -94,7 +94,7 @@
             Else If (kCol.gt.mB) Then
                Call dDaFile(Lu_A(iIrrep),2,Work(ip_A_l),kCol,iAddr_)
             End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Write (6,*) 'kCol=',kCol
             Call TriPrt('Am',' ',Work(ip_Am),mB)
             Call RecPrt('Al',' ',Work(ip_A_l),1,kCol)
@@ -120,7 +120,7 @@
                Write(6,*) 'Inv_Cho_Factor found linear dependence!'
                Call Abend()
             End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call TriPrt('Qm',' ',Work(ip_Qm),Min(mB,kCol))
             Call RecPrt('Ql',' ',Work(ip_Q_l),1,kCol)
 #endif

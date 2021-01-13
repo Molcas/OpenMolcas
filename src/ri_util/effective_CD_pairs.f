@@ -9,9 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Effective_CD_Pairs(ip_ij2,nij_Eff)
+      use Basis_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
-#include "itmax.fh"
-#include "info.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "WrkSpc.fh"
@@ -23,11 +23,11 @@
 *
       nSkal_Valence=0
       Do iCnttp = 1, nCnttp
-         If (.Not.AuxCnttp(iCnttp)) Then
-            Do iAng = 0, nVal_Shells(iCnttp)-1
-               iShll = ipVal(iCnttp) + iAng
-               If (.Not.AuxShell(iShll)) Then
-                  nSkal_Valence = nSkal_Valence + nCntr(iCnttp)
+         If (.Not.dbsc(iCnttp)%Aux) Then
+            Do iAng = 0, dbsc(iCnttp)%nVal-1
+               iShll = dbsc(iCnttp)%iVal + iAng
+               If (.Not.Shells(iShll)%Aux) Then
+                  nSkal_Valence = nSkal_Valence + dbsc(iCnttp)%nCntr
                End If
             End Do
          End If

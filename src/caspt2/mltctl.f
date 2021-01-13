@@ -27,12 +27,11 @@
       INTEGER LAXITY
       INTEGER  Cho_X_GetTol
       EXTERNAL Cho_X_GetTol
-      CHARACTER(8) INLAB
+      CHARACTER(LEN=8) INLAB
       DIMENSION HEFF(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE)
       real(8) U0(Nstate,Nstate)
       real(8),allocatable :: Utmp(:,:)
 
-      CALL QENTER('MLTCTL')
 
       IF(IPRGLB.GE.TERSE) THEN
         CALL CollapseOutput(1,'Multi-State CASPT2 section:')
@@ -45,8 +44,6 @@
       END IF
 
 C Write out the effective Hamiltonian, for use in e.g. RASSI:
-      IRC=-1
-      IOPT=1
       INLAB='HEFF'
       CALL put_darray(INLAB,HEFF,NSTATE**2)
 
@@ -69,9 +66,10 @@ C Analyze the effective Hamiltonian:
         DO ISTA=1,NSTATE,5
           IEND=MIN(ISTA+4,NSTATE)
           WRITE(6,*)
-          WRITE(6,'(1x,5I16)')(I,I=ISTA,IEND)
+          WRITE(6,'(1x,5I16)')(MSTATE(I),I=ISTA,IEND)
           DO J=1,NSTATE
-            WRITE(6,'(1x,I3,3X,5F16.8)')J,(HEFF(J,I),I=ISTA,IEND)
+            WRITE(6,'(1x,I3,3X,5F16.8)')
+     &            MSTATE(J),(HEFF(J,I),I=ISTA,IEND)
           END DO
         END DO
       END IF
@@ -95,11 +93,11 @@ C Use a symmetrized matrix, in triangular storage:
         DO ISTA=1,NSTATE,5
           IEND=MIN(ISTA+4,NSTATE)
           WRITE(6,*)
-          WRITE(6,'(1x,5I16)')(I,I=ISTA,IEND)
+          WRITE(6,'(1x,5I16)')(MSTATE(I),I=ISTA,IEND)
           DO I=ISTA,NSTATE
             II0=(I*(I-1))/2
             WRITE(6,'(1x,I3,3X,5F16.8)')
-     &            I,(WORK(LHTRI-1+II0+J),J=ISTA,MIN(I,IEND))
+     &            MSTATE(I),(WORK(LHTRI-1+II0+J),J=ISTA,MIN(I,IEND))
           END DO
         END DO
       END IF
@@ -175,6 +173,5 @@ C Use a symmetrized matrix, in triangular storage:
       IF(IfChol) LAXITY=Cho_X_GetTol(LAXITY)
       Call Add_Info('E_MSPT2',ENERGY,nState,LAXITY)
 
-      CALL QEXIT('MLTCTL')
       RETURN
       END

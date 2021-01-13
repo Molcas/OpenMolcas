@@ -12,7 +12,8 @@
 *               2011, Thomas Bondo Pedersen                            *
 ************************************************************************
       SUBROUTINE CHO_GET_GRAD(irc,nDen,
-     &                        ipDLT,ipDLT2,ipMSQ,ipTxy,DoExchange,lSA,
+     &                        ipDLT,ipDLT2,ipMSQ,
+     &                        Txy,nTxy,ipTxy,DoExchange,lSA,
      &                        nChOrb_,ipAorb,nAorb,DoCAS,
      &                        Estimate,Update,
      &                        V_k,U_k,Z_p_k,nnP,npos,nZpk)
@@ -104,9 +105,12 @@
 *                                                                      *
 ************************************************************************
 
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
 
-      Logical   Debug,timings,DoRead,DoExchange,DoCAS,lSA
+      Logical   timings,DoRead,DoExchange,DoCAS,lSA
       Logical   DoScreen,Estimate,Update,BatchWarn
       Integer   nDen,nChOrb_(8,5),nAorb(8),nnP(8),nIt(5)
       Integer   ipMSQ(nDen),ipAorb(8,*),ipTxy(8,8,2)
@@ -116,7 +120,7 @@
       Integer   ipIndx, ipIndik,npos(8,3)
       Integer   iSTSQ(8), iSTLT(8), iSSQ(8,8), nnA(8,8), nInd
       Real*8    tread(2),tcoul(2),tmotr(2),tscrn(2),tcasg(2),tmotr2(2)
-      Real*8    V_k(*),Z_p_k(nZpk,*), U_k(*)
+      Real*8    Txy(nTxy),V_k(*),Z_p_k(nZpk,*), U_k(*)
       Character*6  Fname
       Character*50 CFmt
       Character*12 SECNAM
@@ -137,9 +141,7 @@
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-#include "para_info.fh"
 #include "print.fh"
-      Parameter (MxShll=iTabMx*MxAtom)
       Integer iBDsh(MxShll*8)
       Common /BDshell/ iBDsh
 
@@ -192,23 +194,13 @@ ctbp &                      i + (j-1)*(nChOrb_(iSym,jDen)+1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
-c      Debug=.true.
-      Debug=.false.! to avoid double printing
-#else
-      Debug=.false.
-#endif
-
-************************************************************************
-*                                                                      *
-*     General Initializiation                                          *
+*     General Initialization                                           *
 *                                                                      *
 ************************************************************************
 
       iRout = 9
       iPrint = nPrint(iRout)
 
-      Call QEnter(SECNAM)
 
       CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
@@ -287,7 +279,9 @@ c      Debug=.true.
 **   Initialize pointers to avoid compiler warnings
 *
       ipDIAG=ip_Dummy
+#if defined (_MOLCAS_MPP_)
       ipjDIAG=ip_Dummy
+#endif
       ipDIAH=ip_Dummy
       ipAbs=ip_Dummy
       ipY=ip_Dummy
@@ -650,8 +644,10 @@ c      Debug=.true.
             JRED2 = InfVec(NumCho(jSym),2,jSym) !red set of the last
 *                                               !vec
          End If
+#if defined (_MOLCAS_MPP_)
          myJRED1=JRED1 ! first red set present on this node
-         myJRED2=JRED2 ! last  red set present on this node
+         ntv0=0
+#endif
 
 c --- entire red sets range for parallel run
          Call GAIGOP_SCAL(JRED1,'min')
@@ -661,7 +657,6 @@ c --- entire red sets range for parallel run
 ** MGD does it need to be so?
 *
          DoScreen=.True.
-         ntv0=0
          kscreen=1
 
          Do JRED=JRED1,JRED2
@@ -718,7 +713,6 @@ c            !set index arrays at iLoc
                WRITE(6,*) ' mTvec = ',mTvec
                WRITE(6,*) ' LFMAX = ',LFMAX
                irc = 33
-               CALL QTrace()
                CALL Abend()
                nBatch = -9999  ! dummy assignment
             End If
@@ -886,7 +880,6 @@ C --- Transform the densities to reduced set storage
 *
 
                   CALL FZero(Work(ipLF),LFULL*JNUM)
-                  ip_B = ipLF + LFULL*JNUM
                   CALL FZero(Work(ip_SvShp),2*nnShl)
 
                   CALL CHO_getShFull(Work(ipLrs),lread,JNUM,JSYM,
@@ -1642,7 +1635,7 @@ C --- subtraction is done in the 1st reduced set
                             If (iMO1.eq.iMO2) Then
                               CALL DGEMM_('T','N',nnP(jSym),JNUM,
      &                                         nnA(iSymx,iSymy),
-     &                               ONE,Work(ipTxy(iSymx,iSymy,iTxy)),
+     &                               ONE,Txy(ipTxy(iSymx,iSymy,iTxy)),
      &                                   nnP(jSym),
      &                                   Work(ipLxy(iSymx)),
      &                                   nnA(iSymx,iSymy),
@@ -1660,7 +1653,7 @@ C --- subtraction is done in the 1st reduced set
                                   Do k=0,nAOrb(iSymx)-1
                                     Do l=0,k
                                        temp=temp+0.5d0*
-     &                                     Work(ioff+k*(k+1)/2+l)*
+     &                                     Txy(ioff+k*(k+1)/2+l)*
      &                                    (Work(jOff+k*nAOrb(iSymx)+l)+
      &                                     Work(jOff+l*nAOrb(iSymx)+k))
                                     End Do
@@ -1833,7 +1826,6 @@ C--- have performed screening in the meanwhile
 
       irc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
       END

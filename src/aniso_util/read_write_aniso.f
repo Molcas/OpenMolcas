@@ -17,22 +17,22 @@
       Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(inout)        :: nss, nstate
       Integer, intent(out)          :: multiplicity(nstate)
-      Real(kind=wp), intent(out)    :: eso(nss), esfs(nstate)
-      Real(kind=wp), intent(out)    ::  edmom(3,nstate,nstate)
-      Real(kind=wp), intent(out)    :: angmom(3,nstate,nstate)
-      Real(kind=wp), intent(out)    ::   amfi(3,nstate,nstate)
-      Complex(kind=wp), intent(out) :: MM(3,nss,nss)
-      Complex(kind=wp), intent(out) :: MS(3,nss,nss)
-      Complex(kind=wp), intent(out) :: ML(3,nss,nss)
+      Real(kind=8), intent(out)    :: eso(nss), esfs(nstate)
+      Real(kind=8), intent(out)    ::  edmom(3,nstate,nstate)
+      Real(kind=8), intent(out)    :: angmom(3,nstate,nstate)
+      Real(kind=8), intent(out)    ::   amfi(3,nstate,nstate)
+      Complex(kind=8), intent(out) :: MM(3,nss,nss)
+      Complex(kind=8), intent(out) :: MS(3,nss,nss)
+      Complex(kind=8), intent(out) :: ML(3,nss,nss)
 !     electric dipole moment
-      Complex(kind=wp), intent(out) :: DM(3,nss,nss)
-      Complex(kind=wp), intent(out) ::   U(nss,nss)
-      Complex(kind=wp), intent(out) :: HSO(nss,nss)
-      Character(180)                :: input_file_name
+      Complex(kind=8), intent(out) :: DM(3,nss,nss)
+      Complex(kind=8), intent(out) ::   U(nss,nss)
+      Complex(kind=8), intent(out) :: HSO(nss,nss)
+      Character(Len=180)            :: input_file_name
       ! local variables:
       Integer       :: l,j,j1,j2,LuAniso,IsFreeUnit
-      Real(kind=wp) :: g_e
-      Real(kind=wp), allocatable :: tmpR(:,:), tmpI(:,:)
+      Real(kind=8) :: g_e
+      Real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
       External      :: IsFreeUnit
       logical :: DBG
 
@@ -195,15 +195,15 @@ c compatibility with the present version: of aniso_i.input file
       Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(inout)        :: nss, nstate
       Integer, intent(out)          :: multiplicity(nstate)
-      Real(kind=wp), intent(out)    :: eso(nss)
-      Complex(kind=wp), intent(out) :: MM(3,nss,nss)
-      Complex(kind=wp), intent(out) :: MS(3,nss,nss)
-      Complex(kind=wp), intent(out) :: ML(3,nss,nss)
-      Character(180)                :: input_file_name
+      Real(kind=8), intent(out)    :: eso(nss)
+      Complex(kind=8), intent(out) :: MM(3,nss,nss)
+      Complex(kind=8), intent(out) :: MS(3,nss,nss)
+      Complex(kind=8), intent(out) :: ML(3,nss,nss)
+      Character(Len=180)            :: input_file_name
       ! local variables:
       Integer       :: l,j,j1,j2,LuAniso,IsFreeUnit
-      Real(kind=wp) :: g_e
-      Real(kind=wp), allocatable :: tmpR(:,:), tmpI(:,:)
+      Real(kind=8) :: g_e
+      Real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
       External      :: IsFreeUnit
 
       g_e=2.00231930437180_wp
@@ -301,14 +301,14 @@ c      End If
       Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(inout)        :: nss, nstate, nLoc, iReturn
       ! nLoc is the maximal value of the array nss(1:nneq)
-      Real(kind=wp), intent(out)    :: eso(nLoc)
-      Complex(kind=wp), intent(out) :: MM(3,nLoc,nLoc)
-      Complex(kind=wp), intent(out) :: MS(3,nLoc,nLoc)
+      Real(kind=8), intent(out)    :: eso(nLoc)
+      Complex(kind=8), intent(out) :: MM(3,nLoc,nLoc)
+      Complex(kind=8), intent(out) :: MS(3,nLoc,nLoc)
       Character(len=180)            :: input_file_name
       ! local variables:
       Integer       :: l,j,j1,j2,LuAniso,IsFreeUnit
       Integer       :: multiplicity(nLoc)
-      Real(kind=wp), allocatable :: tmpR(:,:), tmpI(:,:)
+      Real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:)
       External      :: IsFreeUnit
 
 c   set to zero all arrays:
@@ -385,6 +385,9 @@ c        End Do
 c      End If
       Close(LuAniso)
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer_array(multiplicity)
+#endif
       End
 
 
@@ -402,15 +405,15 @@ c      End If
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: nss, nstate, multiplicity(nstate)
-      Real(kind=wp), intent(in)    :: eso(nss), esfs(nstate)
-      Real(kind=wp), intent(in)    :: angmom(3,nstate,nstate)
-      Real(kind=wp), intent(in)    ::  edmom(3,nstate,nstate)
-      Real(kind=wp), intent(in)    ::   amfi(3,nstate,nstate)
-      Complex(kind=wp), intent(in) :: MM(3,nss,nss)
-      Complex(kind=wp), intent(in) :: MS(3,nss,nss)
-      Complex(kind=wp), intent(in) :: DM(3,nss,nss)
-      Complex(kind=wp), intent(in) ::    U(nss,nss)
-      Complex(kind=wp), intent(in) ::  HSO(nss,nss)
+      Real(kind=8), intent(in)    :: eso(nss), esfs(nstate)
+      Real(kind=8), intent(in)    :: angmom(3,nstate,nstate)
+      Real(kind=8), intent(in)    ::  edmom(3,nstate,nstate)
+      Real(kind=8), intent(in)    ::   amfi(3,nstate,nstate)
+      Complex(kind=8), intent(in) :: MM(3,nss,nss)
+      Complex(kind=8), intent(in) :: MS(3,nss,nss)
+      Complex(kind=8), intent(in) :: DM(3,nss,nss)
+      Complex(kind=8), intent(in) ::    U(nss,nss)
+      Complex(kind=8), intent(in) ::  HSO(nss,nss)
       ! local stuff
       Integer                      :: l,i,j,LuAniso,IsFreeUnit
       External                     :: IsFreeUnit
@@ -482,16 +485,16 @@ c      End If
 #include "stdalloc.fh"
       Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)           :: nss
-      Real(kind=wp), intent(out)    :: eso(nss)
-      Complex(kind=wp), intent(out) :: MM(3,nss,nss)
-      Complex(kind=wp), intent(out) :: MS(3,nss,nss)
-      Complex(kind=wp), intent(out) :: ML(3,nss,nss)
-      Character(180)                :: input_file_name
+      Real(kind=8), intent(out)    :: eso(nss)
+      Complex(kind=8), intent(out) :: MM(3,nss,nss)
+      Complex(kind=8), intent(out) :: MS(3,nss,nss)
+      Complex(kind=8), intent(out) :: ML(3,nss,nss)
+      Character(Len=180)            :: input_file_name
       ! local variables:
-      Integer       :: itmp, nss_local, nstate_local
+      Integer       :: nss_local, nstate_local
       Integer       :: l,j,j1,j2,LuAniso,IsFreeUnit
-      Real(kind=wp) :: g_e
-      Real(kind=wp), allocatable :: tmpR(:,:), tmpI(:,:), tmp(:)
+      Real(kind=8) :: g_e
+      Real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:), tmp(:)
       External      :: IsFreeUnit
 !     in this subroutine nss is input data
 
@@ -523,7 +526,7 @@ c compatibility with the present version: of aniso_i.input file
       End Do
       Call mma_deallocate(tmp)
 !---------------------------------------------------------
-      read(LuAniso,*) (itmp,j=1,nstate_local)
+      read(LuAniso,*) (l,j=1,nstate_local)
 !---------------------------------------------------------
 
       Call mma_allocate(tmpR,nss_local,nss_local,'tmpR')
@@ -579,9 +582,9 @@ c compatibility with the present version: of aniso_i.input file
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: nss
-      Real(kind=wp), intent(in)    :: eso(nss)
-      Complex(kind=wp), intent(in) :: MM(3,nss,nss)
-      Complex(kind=wp), intent(in) :: MS(3,nss,nss)
+      Real(kind=8), intent(in)    :: eso(nss)
+      Complex(kind=8), intent(in) :: MM(3,nss,nss)
+      Complex(kind=8), intent(in) :: MS(3,nss,nss)
       Character(len=180), intent(in):: filename
       ! local stuff
       Integer                      :: l,i,j,LuAniso,IsFreeUnit

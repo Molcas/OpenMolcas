@@ -32,13 +32,14 @@
 *                                                                      *
 *              March 2000                                              *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iChBas
+      use Basis_Info, only: nBas
+      use Temporary_Parameters, only: PrPrt
       Implicit Real*8 (a-h,o-z)
       External EFInt,EFMem
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "rctfld.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 h1(nh1), TwoHam(nh1), D(nh1), D_tot(nh1), EF_Grid(3),
      &       Grid(3,nGrid_), DipMom(3,nGrid_), EField(4,nGrid_),
      &       DipEff(nGrid_), PolEff(nPolComp,nGrid_), CCoor(3),
@@ -46,6 +47,11 @@
      &     tmpF(4,nGrid_)
       Logical First, Dff, Save_tmp , NonEq
       Character*8 Label
+      Integer, Allocatable:: ips(:), lOper(:), kOper(:)
+      Real*8, Allocatable::  C_Coor(:,:)
+      Real*8, Allocatable:: Integrals(:)
+*
+#include "oneel_interface.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -58,7 +64,9 @@
 *     2) nuclear-electronic, constant: added to h1 once
 *     3) electronic-electronic, linearly dependent of the density: TwoHam
 *
+#ifdef _DEBUGPRINT_
       tmp_RepNuc=RepNuc
+#endif
       NonEq=.False.
       If(lRFCav) Call RctFld(h1,TwoHam,D,RepNuc,nh1,First,Dff,NonEq)
 *                                                                      *
@@ -74,23 +82,16 @@
 *     and the dipole moments on the grid (EnucDip). This scalar terms
 *     depends also on D_tot and modifies RepNuc at each iteration.
 *
-      qq0=Zero
-*
       Edip2=Zero
       Eint=Zero
       Eself=Zero
       Enucdip=Zero
       Esimple=Zero
-      iMax=1
       agsum=Zero
 
 *
       Do iGrid=1,nGrid_
-*------- Grid coordinates
-         ghx=Grid(1,iGrid)
-         ghy=Grid(2,iGrid)
-         ghz=Grid(3,iGrid)
-*------- Langevin dipol moment
+*------- Langevin dipole moment
          dx=DipMom(1,iGrid)
          dy=DipMom(2,iGrid)
          dz=DipMom(3,iGrid)
@@ -124,11 +125,11 @@
          x=ftot*DipEff(iGrid)*tk
          If (x.le.0.0000001d0) Then
             ag=Zero
-            alang=Zero
+c           alang=Zero
          Else
             ex=exp(x)
             emx=One/ex
-            alang=(ex+emx)/(ex-emx)-One/x
+c           alang=(ex+emx)/(ex-emx)-One/x
             ag=-log((ex-emx)/(Two*x))/tk
          End If
 *
@@ -154,13 +155,14 @@ c            Eself=Eself+ftot*uind+ag-Half*ftot**2*PolEff(1,iGrid)
 *
       End Do          ! iGrid
 *
-
+#ifdef _DEBUGPRINT_
       Write(6,*)'Esimple             =',Esimple
       Write(6,*)'EnucRctfld          =',RepNuc-tmp_RepNuc
       Write(6,*)'Eself               =',Eself
       Write(6,*)'Ag term             =',agsum
       Write(6,*)'Electrostatic energy=',Eint
       Write(6,*)'EnucDip (half)      =',Half*Enucdip
+#endif
 
       RepNuc = RepNuc + Eself + agsum + Eint + Half*Enucdip
 *
@@ -206,10 +208,10 @@ c     and: RepNuc = RepNuc + Eself + Half*Edip2 + Half*Enucdip
       ixyz=7
       iSyXYZ = 2**IrrFnc(ixyz)
 *
-      Call GetMem('ip    ','Allo','Inte',ip1,nComp)
-      Call GetMem('lOper ','Allo','Inte',ip2,nComp)
-      Call GetMem('kOper ','Allo','Inte',ip3,nComp)
-      Call GetMem('Ccoor ','Allo','Real',ipCc,nComp*3)
+      Call mma_allocate(ips,nComp,Label='ips')
+      Call mma_allocate(lOper,nComp,Label='lOper')
+      Call mma_allocate(kOper,nComp,Label='kOper')
+      Call mma_allocate(C_Coor,3,nComp,Label='CCoor')
 *
       Save_tmp=PrPrt
       PrPrt=.True.
@@ -217,7 +219,7 @@ c     and: RepNuc = RepNuc + Eself + Half*Edip2 + Half*Enucdip
       RepHlp=Zero
       Do iGrid = 1, nGrid_
          Write (Label,'(A,I5)') 'EF ',iGrid
-         call dcopy_(3,Grid(1,iGrid),1,Ccoor,1)
+         call dcopy_(3,Grid(1,iGrid),1,CCoor,1)
          iSymC = 1
          If (Ccoor(1).ne.Zero) iSymC = iOr(iSymC,iSymX)
          If (Ccoor(2).ne.Zero) iSymC = iOr(iSymC,iSymY)
@@ -242,20 +244,20 @@ c     and: RepNuc = RepNuc + Eself + Half*Edip2 + Half*Enucdip
                If (Mod(iz,2).ne.0) ixyz=iOr(ixyz,4)
                iSym = 2**IrrFnc(ixyz)
                If (Ccoor(iComp).ne.Zero ) iSym = iOr(iSym,1)
-               iWork(ip2+(iComp-1)) = MltLbl(iSymC,iSym,nIrrep)
-               iWork(ip3+(iComp-1)) = iChBas(iComp+1)
-               call dcopy_(3,Ccoor,1,Work(ipCc+(iComp-1)*3),1)
+               lOper(iComp) = MltLbl(iSymC,iSym)
+               kOper(iComp) = iChBas(iComp+1)
+               call dcopy_(3,Ccoor,1,C_Coor(1,iComp),1)
             End Do
          End Do
 *
          Call OneEl_Integrals(EFInt,EFMem,Label,
-     &                        iWork(ip1),iWork(ip2),nComp,Work(ipCc),
-     &                        nOrdOp,rHrmt,iWork(ip3))
+     &                        ips,lOper,nComp,C_Coor,
+     &                        nOrdOp,rHrmt,kOper,Integrals)
 *
          Eeldip=Zero
          Do iComp = 1, nComp
-            ip=iWork(ip1+(iComp-1))
-            iSmLbl = iWork(ip2+(iComp-1))
+            ip=ips(iComp)
+            iSmLbl = lOper(iComp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -263,7 +265,7 @@ c     and: RepNuc = RepNuc + Eself + Half*Edip2 + Half*Enucdip
 *
             nInt=n2Tri(iSmLbl)
             If (nInt.ne.0.and.Abs(DipMom(iComp,iGrid)).gt.1.0D-20) Then
-               Call CmpInt(Work(ip),nInt,nBas,nIrrep,iSmLbl)
+               Call CmpInt(Integrals(ip),nInt,nBas,nIrrep,iSmLbl)
                If (nInt.ne.nh1) Then
                   Call WarningMessage(2,'Ener: nInt.ne.nh1')
                   Write (6,*) 'nInt=',nInt
@@ -274,36 +276,39 @@ c     and: RepNuc = RepNuc + Eself + Half*Edip2 + Half*Enucdip
 *------------- Accumulate contribution to h1
 *
                alfa=Sig*DipMom(iComp,iGrid)
-               Call DaXpY_(nInt,alfa,Work(ip),1,h1,1)
-               EelDip=EelDip-alfa*DDot_(nh1,D_tot,1,Work(ip),1)
+               Call DaXpY_(nInt,alfa,Integrals(ip),1,h1,1)
+               EelDip=EelDip-alfa*DDot_(nh1,D_tot,1,Integrals(ip),1)
 *
             End If
 *
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---------- Deallocate memory for integral
-*
-            Call GetMem(' ','Free','Real',ip,n2Tri(iSmLbl)+4)
 *
          End Do ! iComp
+*
+*------- Deallocate memory for integral
+*
+         Call mma_deallocate(Integrals)
+*
          RepHlp=RepHlp+EelDip*half
 !        Write (6,*) 'Eeldip=',Eeldip,RepHlp
 *
       End Do    ! iGrid
       RepNuc=RepNuc+RepHlp
+#ifdef _DEBUGPRINT_
       Write(6,*)'RepHlp              =',RepHlp
+#endif
 
 *
       PrPrt=Save_tmp
 *
-      Call GetMem('Ccoor ','Free','Real',ipCc,nComp*3)
-      Call GetMem('kOper ','Free','Inte',ip3,nComp)
-      Call GetMem('lOper ','Free','Inte',ip2,nComp)
-      Call GetMem('ip    ','Free','Inte',ip1,nComp)
+      Call mma_deallocate(C_Coor)
+      Call mma_deallocate(kOper)
+      Call mma_deallocate(lOper)
+      Call mma_deallocate(ips)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call GetMem('ener','Check','Real',idum,idum)
       Return
       End

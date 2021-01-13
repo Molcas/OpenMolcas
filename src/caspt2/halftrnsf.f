@@ -52,7 +52,6 @@
 
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr)
-      Logical Debug
       Integer ipChoT(8)
       Real*8 CMO(*)
       Integer IOFFC(8),ISTART(8),NUSE(8)
@@ -75,14 +74,6 @@
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ************************************************************************
-
-#ifdef _DEBUG_
-      Debug=.true.
-#else
-      Debug=.false.
-#endif
-
-      Call qEnter('HALFTRNSF')
 
 * iLoc = 3 means 'use scratch location in reduced index arrays'
       iLoc = 3
@@ -250,7 +241,6 @@
 
       irc=0
 
-      Call qExit('HALFTRNSF')
 
       Return
       END

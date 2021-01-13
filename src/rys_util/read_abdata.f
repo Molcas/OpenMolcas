@@ -12,11 +12,11 @@
       implicit none
 #include "SysDef.fh"
 #include "abtab.fh"
-      character(*), parameter :: ABDATA_NAME = 'ABDATA'
+      character(len=*), parameter :: ABDATA_NAME = 'ABDATA'
       integer, parameter :: lu_abdata = 22
       logical :: found_abdata
 *
-      character(8) :: key
+      character(len=8) :: key
       integer :: i, itab, ipos, k, nerr
 *
       call f_Inquire(ABDATA_NAME,found_abdata)
@@ -55,4 +55,8 @@
       end do
 *
       close (lu_abdata)
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(itab)
+#endif
       end

@@ -26,7 +26,6 @@ C
 
       ITRI(I,J) = MAX(I,J)*(MAX(I,J)-3)/2 + I + J
 
-      CALL QENTER('_REOVEC')
 
 C     Set up mapping from rs1 to full storage.
 C     ----------------------------------------
@@ -65,6 +64,5 @@ C     ------------------------
 
       CALL CHO_REOVC1(IRS2F,N,LRDIM,WRK,LWRK)
 
-      CALL QEXIT('_REOVEC')
 
       END

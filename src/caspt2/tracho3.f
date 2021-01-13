@@ -29,10 +29,9 @@
       REAL*8 CMO(NBSQT)
 
       INTEGER NCES(8),ip_HTVec(8)
-      Integer, External :: Cho_IRange
       INTEGER ISTART(8),NUSE(8)
       INTEGER IC,ICASE,IRC,ILOC
-      INTEGER JSTART,JEND
+      INTEGER JSTART
       INTEGER JRED,JRED1,JRED2,JREDC,JNUM,JV1,JV2
       INTEGER IASTA,IAEND,IISTA,IIEND
       INTEGER NA,NASZ,NI,NISZ,NBUFFY,NPQ
@@ -41,12 +40,9 @@
       INTEGER ISYM,JSYM,ISYMA,ISYMB,ISYP,ISYQ
       INTEGER N,N1,N2
       INTEGER ip_buffy,ip_chspc,ip_ftspc,ip_htspc,ipnt
-      INTEGER NUMV,NV,NVECS_RED,NVTOT,NHTOFF,MUSED
-
-      REAL*8, EXTERNAL :: DDOT_
+      INTEGER NUMV,NVECS_RED,NHTOFF,MUSED
 
 **********************************************************************
-      Call QEnter('TRACHO3')
 * ======================================================================
 * This section deals with density matrices and CMO''s
 * Offsets into CMO arrays:
@@ -85,7 +81,6 @@
 * the mapping between reduced index and basis set pairs.
 * The reduced set is divided into suitable batches.
 * First vector is JSTART. Nr of vectors in r.s. is NVECS_RED.
-      JEND=JSTART+NVECS_RED-1
 
 * Determine batch length for this reduced set.
 * Make sure to use the same formula as in the creation of disk
@@ -277,11 +272,9 @@ C loop over secondary orbital index c is more efficient.
       IF (RHSDIRECT) THEN
         IP_LFT=IP_FTSPC
         DO JSYM=1,NSYM
-          NVTOT=NVTOT_CHOSYM(JSYM)
           IBSTA=NBTCHES(JSYM)+1
           IBEND=NBTCHES(JSYM)+NBTCH(JSYM)
           DO IB=IBSTA,IBEND
-            NV=NVLOC_CHOBATCH(IB)
             DO ISYQ=1,NSYM
               DO ICASE=1,4
                 NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
@@ -298,6 +291,5 @@ C loop over secondary orbital index c is more efficient.
       CALL GETMEM('HTSPC','FREE','REAL',IP_HTSPC,NHTSPC)
       CALL GETMEM('FTSPC','FREE','REAL',IP_FTSPC,NFTSPC)
 
-      Call QExit('TRACHO3')
       RETURN
       END

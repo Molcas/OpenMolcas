@@ -46,7 +46,6 @@ cvv      External LocUtil_Models
       Real*8 ERFun(2), xnr0(8)
       Integer IndT(7,8)
 
-      Call qEnter(SecNam)
 
 C     Start timing.
 C     -------------
@@ -485,7 +484,7 @@ C     ------------------
 
       iUHF=0
       Filename='MD_LOC'
-      Call Molden_Interface(iUHF,Namefile,Filename,.False.)
+      Call Molden_Interface(iUHF,Namefile,Filename)
       If (.not.Silent) Then
          Write(6,'(1X,A)') 'The MOLDEN file has been written.'
       End If
@@ -521,5 +520,4 @@ C     -------------
 C     That's it!
 C     ----------
 
-      Call qExit(SecNam)
       End

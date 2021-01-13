@@ -19,16 +19,15 @@
 *     Roland Lindh, Dept. of Theor. Chem., Lund University, Sweden     *
 *     2009                                                             *
 ************************************************************************
+      use Slapaf_Info, only: BMx
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
-#include "info_slapaf.fh"
       Real*8 V_Q(nQ), V_X(nX)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Call DGEMM_('N','N',
      &           nX,1,nQ,
-     &           1.0D0,Work(ipB),nX,
+     &           1.0D0,BMx,nX,
      &                 V_Q,nQ,
      &           0.0D0,V_X,nX)
 *                                                                      *

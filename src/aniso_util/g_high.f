@@ -21,14 +21,13 @@ c
       Integer, intent(in):: imltpl, dim, iprint
       logical, intent(in):: Do_structure_abc, GRAD
 
-      Real(kind=wp), intent(in) :: esom(dim), cryst(6), coord(3)
-      Real(kind=wp), intent(out):: gtens(3), maxes(3,3)
-      Complex(kind=wp),intent(in) :: dipsom(3,dim,dim),
+      Real(kind=8), intent(in) :: esom(dim), cryst(6), coord(3)
+      Real(kind=8), intent(out):: gtens(3), maxes(3,3)
+      Complex(kind=8),intent(in) :: dipsom(3,dim,dim),
      &                                s_som(3,dim,dim)
       ! local variables:
       Integer :: i
 
-      Call qEnter('g_high')
 C intializations
       If(Iprint>2) Then
         CALL prMom('G_HIGH:  DIPSOM(l,i,j):',dipsom,dim)
@@ -65,7 +64,6 @@ c--------------------------------------------------------------------------
      &                Do_structure_abc, cryst, coord, gtens, maxes,
      &                iprint)
 
-      Call qExit('g_high')
       Return
       End
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -84,19 +82,19 @@ C
 #include "barrier.fh"
 #include "stdalloc.fh"
       Integer, intent(in)         :: dim, iMLTPL, iprint
-      Real (kind=wp), intent(in)  :: ESOM(dim), cryst(6), coord(3)
-      Real (kind=wp), intent(out) :: gtens(3), maxes(3,3)
-      Complex (kind=wp),intent(in):: s_som(3,dim,dim), dipsom(3,dim,dim)
+      Real (kind=8), intent(in)  :: ESOM(dim), cryst(6), coord(3)
+      Real (kind=8), intent(out) :: gtens(3), maxes(3,3)
+      Complex (kind=8),intent(in):: s_som(3,dim,dim), dipsom(3,dim,dim)
       Logical, intent(in)         :: Do_structure_abc, GRAD
       ! local variables:
       Integer           :: I, L, M, J, N, I1, I2, nmax, IsFreeUnit,
      &                     LuDgrad, rc
-      Real (kind=wp)    :: ESUM, E0, CHECK_SGN2
-      Real (kind=wp)    :: knm(12,0:12)
-      Real (kind=wp), allocatable :: ELOC(:)
-      Real (kind=wp), allocatable :: axes_in_abc(:,:)
+      Real (kind=8)    :: ESUM, E0, CHECK_SGN2
+      Real (kind=8)    :: knm(12,0:12)
+      Real (kind=8), allocatable :: ELOC(:)
+      Real (kind=8), allocatable :: axes_in_abc(:,:)
 
-      Complex (kind=wp), allocatable ::
+      Complex (kind=8), allocatable ::
      &                   DIP_O(:,:), DIP_W(:,:), MUX(:,:), MUY(:,:),
      &                   MUZ(:,:), MUXZ(:,:), MUZX(:,:), HZFS(:,:),
      &                   DIP_MOW(:,:), HZFS_MONM(:,:), HZFS_MWNM(:,:),
@@ -104,7 +102,7 @@ C
      &                   DIPSO2(:,:,:), S_SO2(:,:,:),
      &                   HCF2(:,:,:,:),           !dim,3,dim,dim),
      &                   SP_DIPO(:), SP_DIPW(:)  !3), SP_DIPW(3)
-      Complex (kind=wp) :: B(3,dim,-dim:dim),
+      Complex (kind=8) :: B(3,dim,-dim:dim),
      &                     C(  dim,-dim:dim),
      &                  BNMC(3,dim,0:dim),
      &                  BNMS(3,dim,0:dim),
@@ -114,7 +112,6 @@ C
      &                  trace
       External trace, IsFreeUnit
 !----------------------------------------------------------------------
-      Call qEnter('g_high_1')
 
       Call mma_allocate(ELOC,dim,'ELOC')
       Call mma_allocate(axes_in_abc,3,3,'axes_in_abc')
@@ -281,7 +278,7 @@ C  Obtain the b3m and c3m coefficients:
             If(M==0) Then
               BNMC(l,n,m)=(0.5_wp,0.0_wp)*(B(l,n,m)+B(l,n,-m))
             Else
-              m_fact=cmplx((-1)**M,0.0_wp,kind=wp)
+              m_fact=dcmplx((-1)**M,0.0)
               BNMC(l,n,m)=   B(l,n,m) + m_fact*B(l,n,-m)
               BNMS(l,n,m)= ( B(l,n,m) - m_fact*B(l,n,-m) )*
      &                     (0.0_wp,-1.0_wp)
@@ -700,7 +697,6 @@ c
       Call mma_deallocate(SP_DIPW)
 
 
-      Call qExit('g_high_1')
 
       Return
       End

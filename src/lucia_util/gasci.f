@@ -58,11 +58,6 @@
 *. Should all parameters be tranfered to Molcas?
 c      PARAMETER (IALL = 0)
 *
-      LOGICAL IPACK
-*
-      IPACK = .FALSE.
-*
-      IDUM=0
       NTEST = 1
       NTEST = MAX(NTEST,IPRNT)
 c      MXACJ = 0
@@ -151,7 +146,6 @@ C     IF(ICLSSEL.EQ.1) THEN
       IATP = 1
       IBTP = 2
       NEL = NELFTP(IATP)+NELFTP(IBTP)
-      IWAY = 1
       ZERO_ARR(1)=0
       CALL OCCLS(         1,    NOCCLS,IOCCLS_ARR,       NEL,      NGAS,
      &           IGSOCC(1,1),IGSOCC(1,2),       0,ZERO_ARR,   NOBPT)
@@ -275,7 +269,6 @@ C?          WRITE(6,*) ' MAXA1 1', MAXA1
      &' Largest block of strings with given symmetry and type',MXSTBL
 *. Largest number of resolution strings and spectator strings
 *  that can be treated simultaneously
-      MAXI = MIN( MXINKA,MXSTBL)
       MAXK = MIN( MXINKA,MXSTBL)
 *.scratch space for projected matrices and a CI block
 *
@@ -307,7 +300,7 @@ c         END IF
 CSVC: is KVEC3 used at all before it is deallocated again?
       CALL GETMEM('KC2   ','ALLO','REAL',KVEC3,LSCR12)
       KVEC1 = KCI_POINTER
-      KVEC2 = KSIGMA_POINTER
+c     KVEC2 = KSIGMA_POINTER
       KVEC3_LENGTH = MAX(LSCR12,2*LBLOCK,KVEC3_LENGTH)
 *
 *. CI diagonal - if required
@@ -316,7 +309,6 @@ CSVC: is KVEC3 used at all before it is deallocated again?
          LUDIA = LUSC1
       END IF
       IF(.NOT.(IDIAG.EQ.2.AND.IRESTR.EQ.1)) THEN
-         ECOREP = 0.0D0
          IF(ICISTR.GE.2) IDISK(LUDIA)=0
          I12 = 2
          SHIFT = ECORE_ORIG-ECORE
@@ -346,7 +338,6 @@ c         END IF
       END IF
 
       IDUMMY=1
-      IDUM=1
       CALL GETMEM('CIOIO ','FREE','INTE',KLCIOIO,NOCTPA*NOCTPB)
       CALL GETMEM('CBLTP ','FREE','INTE',KLCBLTP,NSMST)
       CALL GETMEM('CIBT  ','FREE','INTE',KLCIBT ,8*NTTS)

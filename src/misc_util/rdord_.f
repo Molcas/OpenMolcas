@@ -58,12 +58,10 @@
 *----------------------------------------------------------------------*
 *     Start the procedure                                              *
 *----------------------------------------------------------------------*
-*     Call qEnter('RdOrd')
       rc=rc0000
 *----------------------------------------------------------------------*
 *     Pick up the file definitions                                     *
 *----------------------------------------------------------------------*
-      LuTwo=AuxTwo(isUnit)
       Open=AuxTwo(isStat)
 *----------------------------------------------------------------------*
 *     Check the file status                                            *
@@ -71,7 +69,6 @@
       If ( Open.ne.1 ) Then
         rc=rcRD10
         Write (6,*) 'RdOrd: ORDINT not opened yet!'
-        Call QTrace()
         Call Abend()
       End If
 *----------------------------------------------------------------------*
@@ -81,7 +78,6 @@
      &     TocTwo(isPkAs).lt.0 .or. TocTwo(isPkAs).gt.1      ) then
         rc=rcRD11
         Write (6,*) 'RdOrd: the packing flags are spoiled'
-        Call QTrace()
         Call Abend()
       End If
 *---------------------------------------------------------------------*
@@ -92,13 +88,11 @@
         rc=rcRD01
         Write (6,*) 'RdOrd: Wrong symmetry labels, direct product',
      &              ' is not total symmetric'
-        Call QTrace()
         Call Abend()
       End If
       If ( iSym.lt.jSym .or. kSym.lt.lSym ) then
         rc=rcRD02
         Write (6,*) 'RdOrd: invalid order of symmetry labels'
-        Call QTrace()
         Call Abend()
       End If
       ijS=jSym+iSym*(iSym-1)/2
@@ -106,7 +100,6 @@
       If ( ijS.lt.klS .and. .not.Square ) then
         rc=rcRD03
         Write (6,*) 'RdOrd: invalid combination of symmetry labels'
-        Call QTrace()
         Call Abend()
       End If
       nSym=TocTwo(isSym)
@@ -124,7 +117,6 @@
         rc=rcRD07
         Write (6,*) 'RdOrd: Requested symmetry block has not been',
      &              ' computed'
-        Call QTrace()
         Call Abend()
       End If
 *---------------------------------------------------------------------*
@@ -134,7 +126,6 @@
         rc=rcRD06
         Write (6,*) 'RdOrd: Invalid option'
         Write (6,*) 'iOpt=',iOpt
-        Call QTrace()
         Call Abend()
       End If
 *---------------------------------------------------------------------*
@@ -144,7 +135,6 @@
         rc=rcRD04
         Write (6,*) 'RdOrd: invalid buffer size'
         Write (6,*) 'lbuf=',lBuf
-        Call QTrace()
         Call Abend()
       End If
 *---------------------------------------------------------------------*
@@ -165,12 +155,10 @@
         rc=rcRD04
         Write (6,*) 'RdOrd: invalid buffer size'
         Write (6,*) 'lbuf=',lBuf
-        Call QTrace()
         Call Abend()
       End If
       If (klB.le.0) Then
          nMat=0
-*        Call qExit('RdOrd')
          Return
       Else
          nMat=(lBuf-1)/klB
@@ -196,7 +184,6 @@
         Write (6,*) 'jB=',jB
         Write (6,*) 'kB=',kB
         Write (6,*) 'lB=',lB
-        Call QTrace()
         Call Abend()
       End If
 *---------------------------------------------------------------------*
@@ -223,6 +210,5 @@
 *---------------------------------------------------------------------*
 *     exit                                                            *
 *---------------------------------------------------------------------*
-*     Call qExit('RdOrd')
       Return
       End

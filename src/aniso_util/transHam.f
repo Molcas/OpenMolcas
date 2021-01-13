@@ -17,27 +17,26 @@ c           matrices to the basis of their local pseudospins
 #include "stdalloc.fh"
 !     exchange basis of both sites
       Integer, intent(in)           :: n1, n2, iopt
-      Real(kind=wp), intent(in)     :: rot1(3,3)
-      Real(kind=wp), intent(in)     :: rot2(3,3)
-      Complex(kind=wp), intent(in)  :: MM1(3,n1,n1)
-      Complex(kind=wp), intent(in)  :: MM2(3,n2,n2)
-      Complex(kind=wp), intent(in)  :: H( n1,n1,n2,n2)
-      Complex(kind=wp), intent(out) :: HT(n1,n1,n2,n2)
-      Character(1), intent(in)      :: typ1, typ2
+      Real(kind=8), intent(in)     :: rot1(3,3)
+      Real(kind=8), intent(in)     :: rot2(3,3)
+      Complex(kind=8), intent(in)  :: MM1(3,n1,n1)
+      Complex(kind=8), intent(in)  :: MM2(3,n2,n2)
+      Complex(kind=8), intent(in)  :: H( n1,n1,n2,n2)
+      Complex(kind=8), intent(out) :: HT(n1,n1,n2,n2)
+      Character(Len=1), intent(in)  :: typ1, typ2
       ! local variables
       Integer                       :: i1,i2,j1,j2,i
-      Real(kind=wp), allocatable    :: gt1(:), gt2(:)
-      Real(kind=wp), allocatable    :: ax1(:,:), ax2(:,:)
-      Complex(kind=wp), allocatable :: M1(:,:,:),   M2(:,:,:)
-      Complex(kind=wp), allocatable :: MR1(:,:,:), MR2(:,:,:)
-      Complex(kind=wp), allocatable ::   Z1(:,:), Z2(:,:)
-      Complex(kind=wp), allocatable :: TMP1(:,:), TMP2(:,:)
-      Complex(kind=wp), allocatable :: HI(:,:,:,:) !HI(n1,n1,n2,n2)
+      Real(kind=8), allocatable    :: gt1(:), gt2(:)
+      Real(kind=8), allocatable    :: ax1(:,:), ax2(:,:)
+      Complex(kind=8), allocatable :: M1(:,:,:),   M2(:,:,:)
+      Complex(kind=8), allocatable :: MR1(:,:,:), MR2(:,:,:)
+      Complex(kind=8), allocatable ::   Z1(:,:), Z2(:,:)
+      Complex(kind=8), allocatable :: TMP1(:,:), TMP2(:,:)
+      Complex(kind=8), allocatable :: HI(:,:,:,:) !HI(n1,n1,n2,n2)
       Logical ::  DBG
 
       DBG= .false.
 
-      Call qEnter('transham')
 !-----------------------------------------------------------------------
       Call mma_allocate(gt1,3,'gt1')
       Call mma_allocate(gt2,3,'gt2')
@@ -274,6 +273,5 @@ c----------------------------------------------------------------------
          Call mma_deallocate(HI)
       End If
 
-      Call qExit('transham')
       Return
       End Subroutine transHam

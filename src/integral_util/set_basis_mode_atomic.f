@@ -9,21 +9,20 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Set_Basis_Mode_Atomic(i,j)
+      use Basis_Info, only: dbsc
 #include "Basis_Mode_Parameters.fh"
 #include "Basis_Mode.fh"
-#include "itmax.fh"
-#include "info.fh"
 *
-      If (AuxCnttp(i)) Then
+      If (dbsc(i)%Aux) Then
          Basis_Mode = Auxiliary_Mode
       Else
          Basis_Mode = Valence_Mode
       End If
 *
       Do k = i+1, j
-         If (AuxCnttp(i).neqv.AuxCnttp(k)) Then
+         If (dbsc(i)%Aux.neqv.dbsc(k)%Aux) Then
             Call WarningMessage(2,
-     &              'AuxCnttp(i).ne.AuxCnttp(k)')
+     &              'dbsc(i)%Aux.ne.dbsc(k)%Aux')
             Call Abend()
          End If
       End Do

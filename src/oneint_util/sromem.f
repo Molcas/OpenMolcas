@@ -23,46 +23,46 @@
 *                                                                      *
 ************************************************************************
 *
-#include "itmax.fh"
-#include "info.fh"
+      use Basis_Info, only: dbsc, nCnttp, Shells
 *
       nElem(i) = (i+1)*(i+2)/2
 *
       nHer = 0
       MemSRO = 0
       Do 1960 iCnttp = 1, nCnttp
-         If (.Not.ECP(iCnttp)) Go To 1960
-         Do 1966 iAng = 0, nSRO_Shells(iCnttp)-1
-            iShll = ipSRO(iCnttp) + iAng
-            If (nExp(iShll).eq.0) Go To 1966
+         If (.Not.dbsc(iCnttp)%ECP) Cycle
+         Do 1966 iAng = 0, dbsc(iCnttp)%nSRO-1
+            iShll = dbsc(iCnttp)%iSRO + iAng
+            nExpi = Shells(iShll)%nExp
+            If (nExpi.eq.0) Cycle
 *
             ip = 0
-            ip = ip + nExp(iShll)**2
+            ip = ip + nExpi**2
             nac = nElem(la)*nElem(iAng)
-            ip = ip + nExp(iShll)*nac
-            ip = ip + 3 * nExp(iShll)
-            ip = ip + nExp(iShll)
-            ip = ip + nExp(iShll)
-            ip = ip + nExp(iShll)
+            ip = ip + nExpi*nac
+            ip = ip + 3 * nExpi
+            ip = ip + nExpi
+            ip = ip + nExpi
+            ip = ip + nExpi
 *
             Call MltMmP(nH,MemMlt,la,iAng,lr)
             nHer = Max(nH,nHer)
-            MemSRO = Max(MemSRO,ip+nExp(iShll)*MemMlt)
-            ip = ip - 6 * nExp(iShll)
+            MemSRO = Max(MemSRO,ip+nExpi*MemMlt)
+            ip = ip - 6 * nExpi
 *
             ncb = nElem(iAng)*nElem(lb)
-            ip = ip + nExp(iShll)*ncb
-            ip = ip + 3 * nExp(iShll)
-            ip = ip + nExp(iShll)
-            ip = ip + nExp(iShll)
-            ip = ip + nExp(iShll)
+            ip = ip + nExpi*ncb
+            ip = ip + 3 * nExpi
+            ip = ip + nExpi
+            ip = ip + nExpi
+            ip = ip + nExpi
 *
             Call MltMmP(nH,MemMlt,iAng,lb,lr)
             nHer = Max(nH,nHer)
-            MemSRO = Max(MemSRO,ip+nExp(iShll)*MemMlt)
-            ip = ip - 6 * nExp(iShll)
+            MemSRO = Max(MemSRO,ip+nExpi*MemMlt)
+            ip = ip - 6 * nExpi
 *
-            ip = ip + Max(nExp(iShll)*nac,ncb*nExp(iShll))
+            ip = ip + Max(nExpi*nac,ncb*nExpi)
             MemSRO = Max(MemSRO,ip)
 *
  1966    Continue

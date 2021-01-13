@@ -33,9 +33,11 @@
       end
 
       subroutine init_tsk(id,n)
+#ifdef _MOLCAS_MPP_
+      use Para_Info, only: Is_Real_Par
+#endif
       implicit none
 #include "tsk.fh"
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
 #  include "mafdecls.fh"
@@ -43,7 +45,6 @@
       integer :: id, n
 
 #ifdef _debug_trace_
-      call qenter('init_tsk')
 #endif
 
       if (list_counter.eq.mxtsklst) then
@@ -73,21 +74,21 @@
 #endif
 
 #ifdef _debug_trace_
-      call qexit('init_tsk')
 #endif
       end
 
       subroutine free_tsk(id)
+#ifdef _MOLCAS_MPP_
+      use Para_Info, only: Is_Real_Par
+#endif
       implicit none
 #include "tsk.fh"
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
 #endif
       integer :: id
 
 #ifdef _debug_trace_
-      call qenter('free_tsk')
 #endif
 
       if (list_counter.eq.0) then
@@ -111,14 +112,15 @@
       list_counter = list_counter - 1
 
 #ifdef _debug_trace_
-      call qexit('free_tsk')
 #endif
       end
 
       logical function rsv_tsk(id,task)
+#ifdef _MOLCAS_MPP_
+      use Para_Info, only: Is_Real_Par
+#endif
       implicit none
 #include "tsk.fh"
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
 #endif
@@ -148,13 +150,14 @@
 * a spread of numbers just as they would do with a loop stride.
 *****************************************************************
       subroutine init_tsk_even(id,n)
+#ifdef _MOLCAS_MPP_
+      use Para_Info, only: MyRank, Is_Real_Par
+#endif
       implicit none
 #include "tsk.fh"
-#include "para_info.fh"
       integer :: id, n
 
 #ifdef _debug_trace_
-      call qenter('init_tsk_even')
 #endif
 
       if (list_counter.eq.mxtsklst) then
@@ -176,7 +179,6 @@
 #endif
 
 #ifdef _debug_trace_
-      call qexit('init_tsk_even')
 #endif
       end
 
@@ -186,7 +188,6 @@
       integer :: id
 
 #ifdef _debug_trace_
-      call qenter('free_tsk_even')
 #endif
 
       if (list_counter.eq.0) then
@@ -200,14 +201,15 @@
       list_counter = list_counter - 1
 
 #ifdef _debug_trace_
-      call qexit('free_tsk_even')
 #endif
       end
 
       logical function rsv_tsk_even(id,task)
+#ifdef _MOLCAS_MPP_
+      use Para_Info, only: nProcs, Is_Real_Par
+#endif
       implicit none
 #include "tsk.fh"
-#include "para_info.fh"
       integer :: id, task
 
 #ifdef _MOLCAS_MPP_

@@ -138,6 +138,10 @@ Optional general keywords
 
 :kword:`DESYmmetrize`
   Activates the basis set desymmetrization.
+  The output is sorted first by orbital kind ascendingly (frozen, inactive, RAS1, ...),
+  second by occupation number descendingly (2.0, 2.0, 1.x, 0.0, ...),
+  third by energy ascendingly (-3.0, -2.0, -2.0, 0.0, 1.0, ...),
+  and fourth by irrep ascendingly (1, 2, ..., 8)
 
   .. xmldoc:: <KEYWORD MODULE="EXPBAS" NAME="DESY" APPEAR="Desymmetrize basis set" LEVEL="BASIC" KIND="SINGLE">
               %%Keyword: DESY <basic>

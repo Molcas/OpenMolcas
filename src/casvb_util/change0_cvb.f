@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine change0_cvb()
 #include "rls_cvb.fh"
@@ -33,8 +34,9 @@
       end
       function lchpcmp_cvb(ltst)
       implicit real*8 (a-h,o-z)
-      logical lchpcmp_cvb,chpcmp_cvb
+      logical lchpcmp_cvb
       logical ltst
+      logical, external :: chpcmp_cvb
 
       if(ltst)then
         itst=1

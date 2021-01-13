@@ -8,19 +8,19 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      subroutine compute_txy(DM2,DM1,nDM,Txy,nTxy,nAuxVec,nIrrep,Diag,
+      subroutine compute_txy(DM1,nDM,Txy,nTxy,nAuxVec,nIrrep,Diag,
      &                       DMTmp,nAct)
 ************************************************************************
 *                                                                      *
 *     Compute the matrices needed for CD-CASSCF gradients              *
 *                                                                      *
-*     input : DM2    = 2-body density matrix                           *
+*     input : G2    = 2-body density matrix                           *
 *             nDM    = size of the one-body DM                         *
 *                                                                      *
 ************************************************************************
+      use pso_stuff, only: lsa, G2, nnP
       Implicit none
 #include "real.fh"
-#include "pso.fh"
       Integer nTxy,nAct(0:7),nCumAct(0:7),nCumAct2(0:7)
       Integer nDM,i,j,icol,iline
       Integer ista,iend,jsta,jend,ksta,kend,lsta,lend,isym,jsym,
@@ -28,12 +28,9 @@
      &        nvx,itx,itv,iuv,iux,nkl,Txy_sta,Txy_sta2
       Integer nAuxVec,iVec,nIrrep
       Real*8 Fac,Fac2,tmp
-      Real*8 DM2(nDM*(nDM+1)/2,nAuxVec),DM1(nDM,nAuxVec),
+      Real*8 DM1(nDM,nAuxVec),
      &       Txy(nTxy,nAuxVec),Diag(nDM,nAuxVec),
      &       DMtmp(nDM*(nDM+1)/2)
-      Logical debug
-      debug=.true.
-      debug=.false.
 *
       nCumAct(0)=0
       Do i=1,nIrrep-1
@@ -105,7 +102,7 @@
                        Fac2=One
                        If (it.eq.iu) Fac2=Two
 *
-                       DMTmp(ituvx2)=Fac*(Fac2*DM2(ituvx,iVec))
+                       DMTmp(ituvx2)=Fac*(Fac2*G2(ituvx,iVec))
                        If (.Not.lSA) Then
 *For SA-CASSCF, don't remove Coulomb and exchange
                          If (iSym.eq.jSym)
@@ -138,7 +135,7 @@
 *                                                                      *
 ************************************************************************
 *
-**       Diagonalize DM2
+**       Diagonalize G2
 *
            Call Cho_DZero(Txy(Txy_sta2,iVec),nkl**2)
            call dcopy_(nkl,[One],0,Txy(Txy_sta2,iVec),nkl+1)

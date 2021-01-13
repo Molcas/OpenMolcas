@@ -17,6 +17,9 @@
 *     - Fock matrix generation                                         *
 *                                                                      *
 ************************************************************************
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit Real*8 (A-H,O-Z)
       Parameter ( Zero=0.0d0 )
 
@@ -24,9 +27,6 @@
 #include "general.fh"
 #include "WrkSpc.fh"
 #include "wadr.fh"
-#if defined (_MOLCAS_MPP_)
-#include "para_info.fh"
-#endif
 
 *
       Dimension CMO(*), PUVX(*), TUVX(*)
@@ -35,7 +35,6 @@
       Integer ALGO
       Common /CHLCAS / DoCholesky,ALGO
 *
-      Call qEnter('TraCtl2')
 *
 *
 *      Call DecideOnCholesky(DoCholesky)
@@ -84,7 +83,6 @@ C  Synchronization for parallel runs is done in cho_cas_drv
 
       EndIf
 
-      Call qExit('TraCtl2')
 
       Return
       End

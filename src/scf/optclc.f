@@ -53,7 +53,7 @@
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -131,7 +131,7 @@
       Call mma_deallocate(TwoTmp)
       Call mma_deallocate(VxcTmp)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call NrmClc(Dens  (1,1,iPsLst),nBT*nD,'OptClc','D in iPsLst. ')
       Call NrmClc(TwoHam(1,1,iPsLst),nBT*nD,'OptClc','T in iPsLst. ')
       Call NrmClc(Vxc   (1,1,iPsLst),nBT*nD,'OptClc','V in iPsLst. ')

@@ -15,12 +15,12 @@ C
 C     Author: Thomas Bondo Pedersen, April 2007.
 C     Purpose: fake parallel distribution of vectors.
 C
+      Use Para_Info, Only: nProcs, Is_Real_Par
       Implicit None
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "choglob.fh"
 #include "WrkSpc.fh"
-#include "cho_para_info.fh"
 
       Character*15 SecNam
       Parameter (SecNam = 'Cho_PFake_VDist')
@@ -75,7 +75,7 @@ C     ----------------------------------------------
      &                            iSym,iV+1)
             iV = iV + nRead
          End Do
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          If (iV .ne. nV) Then
             Call Cho_Quit('Logical error in '//SecNam,103)
          End If

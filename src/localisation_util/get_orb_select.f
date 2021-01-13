@@ -11,7 +11,7 @@
       SUBROUTINE Get_Orb_Select(irc,CMO,XMO,Eorb,Smat,Saa,Name,NamAct,
      &                          nSym,nActa,mOrb,nBas,ortho,ThrSel,n_OK)
 
-***********************************************************************
+************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
       Real*8  CMO(*), XMO(*), Eorb(*), Smat(*), Saa(*), ThrSel
@@ -189,9 +189,9 @@
 
       Return
       End
-***********************************************************************
-*                                                                     *
-***********************************************************************
+************************************************************************
+*                                                                      *
+************************************************************************
       Subroutine Get_Can_Lorb(Ene,Fock,nO,nX,jOrb,Umat,iSym)
 
       Implicit Real*8 (a-h,o-z)
@@ -227,7 +227,6 @@
          ii=ip_Z+i-1
          j=jOrb(i)
          Fock(j)=Work(ii)
-         kk=ip_ZZ+i-1
       End Do
       Call GetMem('eta_ik','Free','Real',ip_eta,2*nX**2+1)
 
@@ -235,4 +234,4 @@
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(iSym)
       End
-***********************************************************************
+************************************************************************

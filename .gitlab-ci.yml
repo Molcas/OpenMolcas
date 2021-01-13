@@ -111,31 +111,33 @@ include:
       cp /license.dat . || true
     # save the CMake configuration from a variable and add extra path
     - |
+      if [ -z "${make}" ] ; then export make="make"; fi
+    - |
       echo "${cache_file}" > flags.cmake
       if [ -n "${extra}" ] ; then
         echo 'set (EXTRA "$ENV{extra}" CACHE PATH "location of molcas-extra")' >> flags.cmake
       fi
+      if [ -n "${install_path}" ] ; then
+        echo 'set (CMAKE_INSTALL_PREFIX "$ENV{install_path}" CACHE PATH "Location where OpenMolcas will be installed")' >> flags.cmake
+      else
+        export install_path="/opt/OpenMolcas"
+      fi
+      echo 'set (INSTALL_TESTS "ON" CACHE PATH "Install the test files and verify script.")' >> flags.cmake
     - cmake -C flags.cmake ..
     - |
       if [ -n "${pre_make_script}" ] ; then
         eval "${pre_make_script}"
       fi
-    - make #VERBOSE=1
-    - pymolcas verify 000 -k
-    # some clean up to reduce artifact size
-    - >
-      shopt -s globstar ; rm -rf **/CMakeFiles
-    # special post-script that may be needed in some installations
-    # (not using after_script because it would be overwritten)
-    - cd ..
+    - ${make} install
+    - cd ${install_path}
+    - ./pymolcas verify --keep 000
+  after_script:
     - |
-      if [ -n "${post_compile_script}" ] ; then
-        eval "${post_compile_script}"
-      fi
+      if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
+    - mv ${install_path} install_dir
   artifacts:
     paths:
-      - build/
-      - molcas-extra/
+      - install_dir
     expire_in: 1 day
     when: always
   <<: *compile-jobs
@@ -150,42 +152,34 @@ include:
       if [ -n "${pre_run_script}" ] ; then
         eval "${pre_run_script}"
       fi
-    # install/restore extra files that were included in the artifacts
     - |
-      if [ -n "${extra}" ] ; then
-        sbin/install_driver.sh molcas-extra/molcas.driver
-        mkdir -p ${extra}
-        cp -a molcas-extra/test ${extra}
-      fi
-    - sbin/install_pymolcas.sh build/Tools/pymolcas/pymolcas_
-    - cd build
+      if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
+    - mv install_dir ${install_path}
+    - cd ${install_path}
+    - export TINKER=${CI_PROJECT_DIR}/build/tinker/bin
     # default if no tests specified is .all
     - |
       if [ -z "${tests}" ] ; then export tests=".all" ; fi
     # run only a subset of the tests if specified
     - |
       if [ -n "${CI_NODE_INDEX}" ] ; then
-        pymolcas verify --flatlist ${tests} > filelist
+        ./pymolcas verify --flatlist ${tests} > filelist
         if ( ! which python && which python3 ) ; then
-          sed -i -e 's/env python/env python3/' ../Tools/verify/split_tests.py
-          sed -i -e 's/env python/env python3/' ../Tools/verify/get_keywords.py
+          sed -i -e 's/env python/env python3/' ${CI_PROJECT_DIR}/Tools/verify/split_tests.py
+          sed -i -e 's/env python/env python3/' ${CI_PROJECT_DIR}/Tools/verify/get_keywords.py
         fi
-        ../Tools/verify/split_tests.py filelist ${CI_NODE_TOTAL} ${CI_NODE_INDEX} > fl
-        pymolcas verify --status --postproc "\$MOLCAS_SOURCE/Tools/verify/get_keywords.py \$project.out keylist" --fromfile fl
+        ${CI_PROJECT_DIR}/Tools/verify/split_tests.py filelist ${CI_NODE_TOTAL} ${CI_NODE_INDEX} > fl
+        ./pymolcas verify --status --postproc "${CI_PROJECT_DIR}/Tools/verify/get_keywords.py \$project.out keylist" --fromfile fl
       else
-        pymolcas verify --status --postproc "\$MOLCAS_SOURCE/Tools/verify/get_keywords.py \$project.out keylist" ${tests}
-      fi
-    # special post-script that may be needed in some installations
-    # (not using after_script because it would be overwritten)
-    - |
-      if [ -n "${post_run_script}" ] ; then
-        eval "${post_run_script}"
+        ./pymolcas verify --status --postproc "${CI_PROJECT_DIR}/Tools/verify/get_keywords.py \$project.out keylist" ${tests}
       fi
   after_script:
     - |
-      cp -L build/test/result result
-      cp -Lr build/test/failed failed
-      cp -L build/test/tmp/keylist keylist
+      if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
+    - |
+      cp -L ${install_path}/test/result result
+      cp -Lr ${install_path}/test/failed failed
+      cp -L ${install_path}/test/tmp/keylist keylist
   artifacts:
     paths:
       - result
@@ -194,6 +188,69 @@ include:
     expire_in: 1 month
     when: always
   <<: *test-jobs
+
+# A release job to be scheduled
+
+create_release:
+  stage: deploy
+  image: registry.gitlab.com/gitlab-org/release-cli
+  needs:
+    # Note: the doc job defines and exports TAG
+    - job: doc
+      artifacts: true
+  script: |
+    echo "Creating release $TAG"
+  release:
+    tag_name: ${TAG}
+    description: "Automatic release from latest master"
+    ref: $CI_COMMIT_SHA
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CREATE_RELEASE'
+      when: on_success
+
+# A special job for running checks on the code
+
+checks:
+  stage: build
+  interruptible: true
+  script:
+    - |
+      if [ -n "${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" ] ; then
+        git remote add upstream "${CI_MERGE_REQUEST_PROJECT_URL}"
+        git fetch upstream
+        TARGET_BRANCH="upstream/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}"
+      else
+        TARGET_BRANCH="origin/master"
+      fi
+      TARGET_SHA=$(git show-ref -s ${TARGET_BRANCH})
+      TMPDIR=$(mktemp -d)
+      for FILE in $(git diff-index --cached --name-only ${TARGET_SHA})
+      do
+        git checkout-index --prefix=${TMPDIR}/ ${FILE} 2> /dev/null
+      done
+      echo "diff between ${CI_COMMIT_SHA} and ${TARGET_SHA}"
+    - |
+      echo
+      echo "POSSIBLE HEADER ISSUES"
+      echo "----------------------"
+      sbin/copyright -r ${TMPDIR} || FAILED=1
+    - |
+      echo
+      echo "POSSIBLE STYLE ISSUES"
+      echo "---------------------"
+      export MOLCAS=${TMPDIR}
+      sbin/check_style || FAILED=1
+    - |
+      echo
+      echo "POSSIBLE TEST ISSUES"
+      echo "--------------------"
+      export MOLCAS=${TMPDIR}
+      sbin/check_tests || FAILED=1
+    - |
+      if [ "$FAILED" == "1" ] ; then
+        false
+      fi
+  <<: *compile-jobs
 
 # A special job for compiling the tinker interface
 # By adding "tinker" as a dependency, other jobs can use it
@@ -224,6 +281,9 @@ tinker:
     # Use backup if the tinker website is down
     - >
       sed -i -e 's/wget.*/& || \\/' -e '/wget/a git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/Molcas/Mirrors/Tinker.git ; mv Tinker/${TINKERVERSION}.tar.gz .' Tools/patch2tinker/get_tinker
+    # Try to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=92318
+    - >
+      sed -i -e 's/make all/make all || make all || make all || make all || make all || make all || make all || make all || make all || make all/' Tools/patch2tinker/get_tinker
     # Apply the low-memory patch
     - |
       eval `grep TINKERVERSION= Tools/patch2tinker/get_tinker`
@@ -240,8 +300,6 @@ tinker:
       - build/
     expire_in: 1 day
   <<: *compile-jobs
-  # Due to a possible bug with gfortran-7, this fails intermittently, so retry several times
-  retry: 2
 
 # Define the actual jobs, each job has a "build" and a "test" stage,
 # the latter depends on the former.
@@ -268,6 +326,17 @@ test:options:
     - tinker
   parallel: 2
 
+build:linalg:
+  extends: .linalg
+  <<: *compile
+test:linalg:
+  extends: .linalg
+  <<: *run-tests
+  needs:
+    - build:linalg
+    - tinker
+  parallel: 2
+
 build:pgi:
   extends: .pgi
   <<: *compile
@@ -279,16 +348,16 @@ test:pgi:
     - tinker
   parallel: 2
 
-build:sun:
-  extends: .sun
-  <<: *compile
-test:sun:
-  extends: .sun
-  <<: *run-tests
-  needs:
-    - build:sun
-    - tinker
-  parallel: 2
+#build:sun:
+#  extends: .sun
+#  <<: *compile
+#test:sun:
+#  extends: .sun
+#  <<: *run-tests
+#  needs:
+#    - build:sun
+#    - tinker
+#  parallel: 2
 
 build:intel:
   extends: .intel
@@ -310,17 +379,21 @@ test:intel13:
   <<: *run-tests
   needs:
     - build:intel13
+  parallel: 2
+  tags:
+    - docker
 
-# Disable NAG, since the runner is unavailable
-#build:nag:
-#  extends: .nag
-#  <<: *compile
-#test:nag:
-#  extends: .nag
-#  <<: *run-tests
-#  needs:
-#    - build:nag
-#    - tinker
+build:nag:
+  extends: .nag
+  <<: *compile
+test:nag:
+  extends: .nag
+  <<: *run-tests
+  needs:
+    - build:nag
+  parallel: 4
+  tags:
+    - docker
 
 build:garble:
   extends: .garble

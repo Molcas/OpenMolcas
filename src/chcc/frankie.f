@@ -69,7 +69,7 @@ c
         end if
 c
 c.3 - read CMO
-        call read_mo(ipCmo,nfro,no,nv,ndel,nbas)
+        call read_mo(ipCmo,nfro,no,nv,ndel,nbas,nOrb)
 c.3 - invert the CMO matrix
         FracMem=0.0d0 ! in a parallel run set it to a sensible value
         rc=0
@@ -101,22 +101,17 @@ c
 c
 c -------------------------------------
 c
-      Subroutine read_mo (ipCmo,nfro,no,nv,ndel,nbas)
+      Subroutine read_mo (ipCmo,nfro,no,nv,ndel,nbas,nOrb)
       Implicit Real*8 (A-H,O-Z)
 
 *     declaration of calling arguments
       Integer ipCMO,lthCMO
-cmp
-        integer nfro_scf(8)
-        integer iskip,nfro
-cmp
+      integer nfro_scf(8)
+      integer nfro
 #include "real.fh"
+#include "stdalloc.fh"
 #include "WrkSpc.fh"
-
-*     declaration of local variables...
-      Logical Debug
-      Data Debug/.False./
-
+      Real*8, Allocatable:: CMO_t(:,:)
 
 #include "SysDef.fh"
 
@@ -125,18 +120,18 @@ cmp
       Call Get_iArray('nFro',nFro_scf,1)
       If (nFro_scf(1).ne.0) Then
          Write (6,*) 'Some orbitals were frozen in SCF!'
-         Call QTrace()
          Call Abend()
       End If
 c
-      Call Get_CMO(ipCMO_t,lthCMO)
+      lthCMO=nBas*nBas
+      Call mma_allocate(CMO_t,nBas,nBas,Label='CMO_t')
+      Call Get_CMO(CMO_t,lthCMO)
 c
 c - transpose MO matrix, skip the frozen occupied orbitals
 c
-        iskip=nbas*nfro
-        call mo_transp(Work(ipCMO),Work(ipCMO_t+iskip),no,nv,ndel,nbas)
+      call mo_transp(Work(ipCMO),CMO_t(:,1+nfro:nOrb),no,nv,ndel,nbas)
 c
-        Call GetMem('CMO','Free','Real',ipCMO_t,lthCMO)
+      Call mma_deallocate(CMO_t)
 c
       Return
       End
@@ -178,7 +173,7 @@ C
       Integer   rc,nIsh(*),nAsh(*),nSsh(*)
 
       Real*8    tread(2),tmotr1(2),tmotr2(2)
-      Logical   Debug,timings,DoRead
+      Logical   timings,DoRead
       Integer   nPorb(8),ipOrb(8)
       Integer   ipLpb(8)
 cmp
@@ -209,14 +204,6 @@ cmp
 ******
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
-
-#ifdef _DEBUG_
-      Debug=.true.
-#else
-      Debug=.false.
-#endif
-
-      Call QEnter(SECNAM)
 
 cmp
 cmp!<new 21/04/09
@@ -313,7 +300,6 @@ C ------------------------------------------------------------------
 
             if (nVrs.lt.0) then
                Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
-               call qtrace()
                call abend()
             endif
 
@@ -323,7 +309,6 @@ cmp!              Write(6,*)SECNAM//'cho_X_setred non-zero return code.
 cmp!     &                           rc= ',irc
               Write(6,*)SECNAM//'cho_X_setred non-zero return code.',
      &                         ' rc= ',irc
-              call qtrace()
               call abend()
             endif
 
@@ -342,7 +327,6 @@ cmp!     &                           rc= ',irc
                WRITE(6,*) 'reading ',nRS,' and transforming to ',mvec
                WRITE(6,*) 'of jsym= ',jsym,' and JRED= ',JRED
                rc = 33
-               CALL QTrace()
                CALL Abend()
                nBatch = -9999  ! dummy assignment
             End If
@@ -514,7 +498,6 @@ C --- free memory
 
       rc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
       END

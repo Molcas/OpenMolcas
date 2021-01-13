@@ -35,7 +35,10 @@ C               content in those chunks of memory will
 C               be overwritten!
 C*********************************************************
       Implicit Real*8 (a-h,o-z)
-      Logical Debug,add,timings
+#ifdef _DEBUGPRINT_
+      Logical Debug
+#endif
+      Logical add,timings
       Real*8  tread(2),tcoul(2)
       Integer ISLT(8),ipDLT(nDen),ipFLT(nDen)
       Character*12  SECNAM
@@ -63,16 +66,11 @@ C*********************************************************
       ipFr(i) = iWork(ipFab+i-1)
 ************************************************************************
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Debug=.true.
-#else
-      Debug=.false.
 #endif
 
-
       FactC = one
-
-      IREDC = -1
 
 C --- For Coulomb only, the vectors symmetry is restricted to 1
       JSYM=1
@@ -114,18 +112,14 @@ C ---
 
       if (nVrs.lt.0) then
          Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs < 0. STOP!!'
-         call qtrace()
          call abend()
       endif
 
       Call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
       if(irc.ne.0)then
         Write(6,*)SECNAM//'cho_X_setred non-zero return code. rc= ',irc
-        call qtrace()
         call abend()
       endif
-
-      IREDC=JRED
 
       nRS = nDimRS(JSYM,JRED)
 
@@ -145,7 +139,6 @@ C ---
          WRITE(6,*) 'LWORK= ',LWORK
          WRITE(6,*) 'min. mem. need= ',nRS+1
          irc = 33
-         CALL QTrace()
          CALL Abend()
          nBatch = -9999  ! dummy assignment
       End If
@@ -283,7 +276,7 @@ C --- free memory
 
 
 c Print the Fock-matrix
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(Debug) then !to avoid double printing in SCF-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM
@@ -408,7 +401,6 @@ c Print the Fock-matrix
 
          write(6,*)'Wrong input parameters. JSYM,mode = ',JSYM,mode
          irc = 66
-         Call Qtrace()
          Call abend()
 
       EndIf

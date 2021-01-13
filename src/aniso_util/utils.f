@@ -13,7 +13,7 @@
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          ::  n
-      Complex(kind=wp)             :: a(n,n)
+      Complex(kind=8)             :: a(n,n)
       !local
       Integer :: i, j
       Do j=1,n
@@ -29,7 +29,7 @@ c------------------------------------------------------------------------
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: n
-      Real(kind=wp)                :: a(n,n)
+      Real(kind=8)                :: a(n,n)
       !local
       Integer :: i, j
       Do j=1,n
@@ -45,7 +45,7 @@ c------------------------------------------------------------------------
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer                      :: n
-      Complex(kind=wp)             :: a(n)
+      Complex(kind=8)             :: a(n)
       !local
       Integer :: i
       Do i=1,n
@@ -59,7 +59,7 @@ c------------------------------------------------------------------------
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: n
-      Real(kind=wp)                :: a(n)
+      Real(kind=8)                :: a(n)
       !local
       Integer :: i
       Do i=1,n
@@ -73,7 +73,7 @@ c------------------------------------------------------------------------
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: n
-      Complex(kind=wp)             :: a(3,n,n)
+      Complex(kind=8)             :: a(3,n,n)
       !local
       Integer :: i, j, l
       Do i=1,n
@@ -90,7 +90,7 @@ c------------------------------------------------------------------------
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: n
-      Complex(kind=wp)             :: M(3,n,n)
+      Complex(kind=8)             :: M(3,n,n)
       !local
       Integer           :: i, j, l
       Character(len=1)  :: proj(3)
@@ -116,10 +116,10 @@ c------------------------------------------------------------------------
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: n
-      Complex(kind=wp)             :: M(3,n,n)
+      Complex(kind=8)             :: M(3,n,n)
       !local
       Integer           :: i, j, l
-      Real(kind=wp)     :: R
+      Real(kind=8)     :: R
       Character(len=*)  :: a
       Write(6,*)
       Write(6,'(2a)') 'print: ',a
@@ -139,7 +139,7 @@ c------------------------------------------------------------------------
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: n
-      Complex(kind=wp)             :: M(n,n)
+      Complex(kind=8)             :: M(n,n)
       !local
       Integer        :: i, j
       Character*(*) a
@@ -157,7 +157,7 @@ c------------------------------------------------------------------------
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: n
-      Real(kind=wp)                :: M(n,n)
+      Real(kind=8)                :: M(n,n)
       !local
       Integer        :: i, j
       Character*(*) a
@@ -175,7 +175,7 @@ c------------------------------------------------------------------------
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer                      :: i,j,n,k,jEnd
-      Complex(kind=wp), intent(in) :: M(n,n)
+      Complex(kind=8), intent(in) :: M(n,n)
       Character*(*)                :: a
 
 
@@ -223,7 +223,7 @@ c------------------------------------------------------------------------
       Implicit None
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer                      :: i,j,n,k,jEnd
-      Complex(kind=wp), intent(in) :: M(n,n) ! eigenvectors
+      Complex(kind=8), intent(in) :: M(n,n) ! eigenvectors
       Character*(1)                :: a
 
 
@@ -267,12 +267,12 @@ c------------------------------------------------------------------------
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: N ! dimension of the pseudospin
 !     complex parameters to print
-      Complex(kind=wp), intent(in) :: M(n,n)
+      Complex(kind=8), intent(in) :: M(n,n)
       Character*(1)                :: a
       ! local variables:
       Integer       :: k,i,j,jEnd
-      Real(kind=wp) :: Mr(n), Mi(n), Weight(n)
-      Character(1)  :: cRsign(n), cIsign(n)
+      Real(kind=8) :: Mr(n), Mi(n), Weight(n)
+      Character(Len=1)  :: cRsign(n), cIsign(n)
 
       Write(6,'(/)')
       Do j=1,n,2
@@ -341,11 +341,11 @@ c------------------------------------------------------------------------
       Integer, intent(in)          :: n    ! dimension of the pseudospin
       Integer, intent(in)          :: nlanth  ! number of the lanthanide
 !     real and imaginary CF parameters
-      Real(kind=wp), intent(in)    :: B(n,0:n), C(n,0:n)
+      Real(kind=8), intent(in)    :: B(n,0:n), C(n,0:n)
       !Logical, intent(in), optional:: print_all
       ! local variables:
       Integer       :: k,q,i
-      Real(kind=wp) :: a(6)
+      Real(kind=8) :: a(6)
 
 
       a=0.0_wp
@@ -408,7 +408,7 @@ c------------------------------------------------------------------------
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: n    ! dimension of the pseudospin
 !     real and imaginary CF parameters
-      Real(kind=wp), intent(in)    :: B(n,0:n), C(n,0:n)
+      Real(kind=8), intent(in)    :: B(n,0:n), C(n,0:n)
       Logical, intent(in)          :: print_all
       ! local variables:
       Integer       :: k,q,i
@@ -465,11 +465,11 @@ c------------------------------------------------------------------------
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: n    ! dimension of the pseudospin
 !     real and imaginary CF parameters
-      Real(kind=wp), intent(in)    :: B(n,-n:n)
+      Real(kind=8), intent(in)    :: B(n,-n:n)
       Logical, intent(in)          :: print_all
       ! local variables:
       Integer       :: k,q,i,kmax,iq
-      Real(kind=wp) :: knm(12,0:12), f
+      Real(kind=8) :: knm(12,0:12), f
 
       Call set_knm( knm )
       Write(6,'(/)')
@@ -544,14 +544,13 @@ c------------------------------------------------------------------------
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: N ! dimension of the pseudospin
 !     complex parameters to print
-      Complex(kind=wp), intent(in) :: A( (n-1), -(n-1):(n-1) )
+      Complex(kind=8), intent(in) :: A( (n-1), -(n-1):(n-1) )
       Logical, intent(in)          :: print_all
       ! local variables:
       Integer       :: k,q,i
-      Real(kind=wp) :: Ar, Ai
-      Character(1)  :: cRsign, cIsign
+      Real(kind=8) :: Ar, Ai
+      Character(Len=1)  :: cRsign, cIsign
 
-      Call qEnter('SA_PRCF')
 
       Write(6,'(/)')
       Write(6,'(100A)') ('*',i=1,80)
@@ -637,7 +636,6 @@ c------------------------------------------------------------------------
       End If
 
       Write(6,'(100A)') ('-',i=1,59),'|'
-      Call qExit('SA_PRCF')
       Return
       End Subroutine print_cfp_naoya
 
@@ -650,11 +648,11 @@ c------------------------------------------------------------------------
       Integer, Parameter           :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)          :: n    ! dimension of the pseudospin
 !     real and imaginary CF parameters, for x,y,z
-      Real(kind=wp), intent(in)    :: B(3,n,-n:n)
+      Real(kind=8), intent(in)    :: B(3,n,-n:n)
       Logical, intent(in)          :: print_all
       ! local variables:
       Integer       :: k,q,i,kmax,iq
-      Real(kind=wp) :: knm(12,0:12), f
+      Real(kind=8) :: knm(12,0:12), f
 
       Call set_knm( knm )
       Write(6,'(/)')

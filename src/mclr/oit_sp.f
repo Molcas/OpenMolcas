@@ -21,9 +21,10 @@
 
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 rkappa(nDensC), sigma(ndensC),FA(ndens2),D(*),
      &       p12(*),p11(*),rm1(*),rm2(*),Focki(*)
+      Real*8, Allocatable:: K(:), FAtemp(:), Fock(:), Q(:), Q1(:)
 *
       irec(i,j)=i+nna*(j-1)
 *
@@ -31,29 +32,28 @@
 *     sign1  Kappa**t=Sign1*Kappa
 *     sign2  <0|[Qip,H]|0>=Aip+sign2*Api
       r1=DBLE(i1)
-      r2=DBLE(i2)
       Fact=-1.0d0 ! bullshit
       reco=-1.0d0 !(k*a+reco*a*k)
       jspin=1 ! triplet
-      Call GetMem('ATemp','ALLO','REAL',ipK,ndens2)
-      Call GetMem('ATemp','ALLO','REAL',ipFA,ndens2)
-      Call GetMem('FTemp','ALLO','REAL',ipFock,ndens2)
-      Call GetMem('QTemp','ALLO','REAL',ipq,ndens2)
-      Call GetMem('QTemp','ALLO','REAL',ipq1,ndens2)
+      Call mma_allocate(K,ndens2,Label='K')
+      Call mma_allocate(FAtemp,ndens2,Label='FAtemp')
+      Call mma_allocate(Fock,ndens2,Label='Fock')
+      Call mma_allocate(Q,ndens2,Label='Q')
+      Call mma_allocate(Q1,ndens2,Label='Q1')
       call dcopy_(nmba,[0.0d0],0,rm1,1)
       call dcopy_(nmba,[0.0d0],0,rm2,1)
       call dcopy_(ndens2,[0.0d0],0,Focki,1)
-      call dcopy_(ndens2,[0.0d0],0,Work(ipQ),1)
-      call dcopy_(ndens2,[0.0d0],0,Work(ipQ1),1)
-      Call Unc(rkappa,Work(ipK),isym,r1)
+      Q(:)=0.0D0
+      Q1(:)=0.0D0
+      Call Unc(rkappa,K,isym,r1)
 
-      Call R2ElInt_SP(Work(ipK),rm1,rm2,
-     %             FockI,Work(ipFA),
+      Call R2ElInt_SP(K,rm1,rm2,
+     %             FockI,FAtemp,
      &             nDens2,iSym,ReCo,Fact,jspin,D,FA)
 *
 *
 *
-      call dcopy_(ndens2,[0.0d0],0,Work(ipFock),1)
+      call dcopy_(ndens2,[0.0d0],0,Fock,1)
 *
 *
 *     Q  = sum(jkl)=(pj|kl)d(ijkl)
@@ -62,14 +62,14 @@
 *                          __
 *     <o|E(S)  E- E(S) |o>(pb|cd)
 *            ab cd    ad
-      Call CreQ_sp(Work(ipQ),rm1,P11,isym)
-      Call DSCAL_(ndens,r3,Work(ipQ),1)
+      Call CreQ_sp(Q,rm1,P11,isym)
+      Call DSCAL_(ndens,r3,Q,1)
 
 *                             __
 *     <o|E(S)  E- E(S) |o>(pb|cd)
 *            ab cd   ad
-      Call CreQ_sp(Work(ipQ1),rm2,p12,isym)
-      call daxpy_(ndens,r4,Work(ipQ1),1,Work(ipq),1)
+      Call CreQ_sp(Q1,rm2,p12,isym)
+      call daxpy_(ndens,r4,Q1,1,Q,1)
 *
       Do iS=1,nSym
 *
@@ -78,8 +78,8 @@
 *       pi    pi
 *
        Call DaXpY_(nIsh(is)*nBas(is),-r1*2.0d0,
-     &            Work(ipFA-1+ipMat(is,is)),1,
-     &            Work(ipFock+ipMat(is,is)-1),1)
+     &            FAtemp(ipMat(is,is)),1,
+     &            Fock(ipMat(is,is)),1)
 
        Do iAsh=1,nAsh(iS)
         Do jAsh=1,nAsh(is)
@@ -94,10 +94,10 @@
 *
           Call DaXpY_(nBas(is),-r1*Dij,
      &               FockI(ipFI1),1,
-     &               Work(ipfock-1+ipF1),1)
+     &               Fock(ipF1),1)
           Call DaXpY_(nIsh(is),-Dij,
      &               FockI(ipFI1),1,
-     &               Work(ipfock-1+ipF2),nbas(is))
+     &               Fock(ipF2),nbas(is))
         End Do
        End Do
 *
@@ -106,23 +106,25 @@
 *       pa   pa   pa
 *
        Call DaXpY_(nAsh(is)*nBas(is),-r1,
-     &            Work(nbas(is)*nish(is)+ipQ+ipMat(is,is)-1),1,
-     &            Work(ipFock-1+ipMat(is,is)+nBas(is)*nIsh(is)),1)
+     &            Q(nbas(is)*nish(is)+ipMat(is,is)),1,
+     &            Fock(ipMat(is,is)+nBas(is)*nIsh(is)),1)
        Do iA=nish(is),nish(is)+nAsh(is)-1
         Call DaXpY_(nBas(is),-1.0d0,
-     &            Work(ipQ+nbas(is)*ia+ipMat(is,is)-1),1,
-     &            Work(ipFock+ipMat(is,is)-1+iA),nbas(is))
+     &            Q(nbas(is)*ia+ipMat(is,is)),1,
+     &            Fock(ipMat(is,is)+iA),nbas(is))
 
        End Do
        End Do
 *
-      Call Compress(Work(ipFock),Sigma,isym)
+      Call Compress(Fock,Sigma,isym)
 *
-      Call GetMem('QTemp','Free','REAL',ipq,ndens2)
-      Call GetMem('QTemp','Free','REAL',ipq1,ndens2)
-      Call GetMem('ATemp','FREE','REAL',ipK,ndens2)
-      Call GetMem('ATemp','FREE','REAL',ipFA,ndens2)
-      Call GetMem('FTemp','FREE','REAL',ipFock,ndens2)
+      Call mma_deallocate(Q1)
+      Call mma_deallocate(Q)
+      Call mma_deallocate(K)
+      Call mma_deallocate(FAtemp)
+      Call mma_deallocate(FOck)
 *
       return
+* Avoid unused argument warnings
+      if (.false.) call Unused_integer(i2)
       end

@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine biks_cvb(aikcof,bikcof,ikcoff,
      >  nel,kbasis,share,iprint)
@@ -28,8 +29,8 @@
      >  basis(kbasis)(1:len_trim_cvb(basis(kbasis)))
 
       do 100 nel1=0,nel
-      do 100 nalf1=0,nel
-      do 100 i2s1=0,nel
+      do 101 nalf1=0,nel
+      do 102 i2s1=0,nel
       if(ikcoff(nel1,nalf1,i2s1).ne.-1)then
         ifns=ifns_cvb(nel1,(nel1+i2s1)/2,kbasis)
         ndet=ndet_cvb(nel1,nalf1)
@@ -38,6 +39,8 @@
      >    bikcof(2+ikcoff(nel1,nalf1,i2s1)),
      >    nel1,nalf1,i2s1,ndet,ifns,kbasis,share,iprint)
       endif
+102   continue
+101   continue
 100   continue
       return
 6100  format(/,' Generate ',a,' spin functions.')

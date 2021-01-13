@@ -74,7 +74,6 @@
 *----------------------------------------------------------------------*
 *     Pick up the file definitions                                     *
 *----------------------------------------------------------------------*
-*     Call qEnter('RdOne')
       rc    = rc0000
       LuOne = AuxOne(pLu  )
       Open  = AuxOne(pOpen)
@@ -125,17 +124,14 @@
       If((iAnd(iAnd(option,sRdFst),sRdNxt)).ne.0) then
          Write (6,*) 'RdOne: Invalid option(s)'
          Write (6,*) 'option=',option
-         Call QTrace()
          Call Abend()
       Else If((iAnd(iAnd(option,sRdFst),sRdCur)).ne.0) then
          Write (6,*) 'RdOne: Invalid option(s)'
          Write (6,*) 'option=',option
-         Call QTrace()
          Call Abend()
       Else If((iAnd(iAnd(option,sRdNxt),sRdCur)).ne.0) then
          Write (6,*) 'RdOne: Invalid option(s)'
          Write (6,*) 'option=',option
-         Call QTrace()
          Call Abend()
       End If
 *----------------------------------------------------------------------*
@@ -143,10 +139,6 @@
 *----------------------------------------------------------------------*
       iDisk=0
       Call iDaFile(LuOne,2,TocOne,lToc,iDisk)
-*----------------------------------------------------------------------*
-*     Read data from ToC                                               *
-*----------------------------------------------------------------------*
-      NoGo=sRdFst+sRdNxt+sRdCur
 *----------------------------------------------------------------------*
 *     Read operators from integral records                             *
 *----------------------------------------------------------------------*
@@ -226,7 +218,7 @@
       SymLab=TocOne(pOp+LenOp*(CurrOp-1)+oSymLb)
       Len=0
       Do 510 i=1,nSym
-      Do 510 j=1,i
+      Do 511 j=1,i
          ij=MulTab(i,j)-1
          If(iAnd(2**ij,SymLab).ne.0) Then
             If(i.eq.j) Then
@@ -235,6 +227,7 @@
                Len=Len+nBas(i)*nBas(j)
             End If
          End If
+511   Continue
 510   Continue
       Data(1)=Len
       If ( IAND(option,sOpSiz).eq.0 ) Then
@@ -275,7 +268,6 @@
 *----------------------------------------------------------------------*
 *     Terminate procedure                                              *
 *----------------------------------------------------------------------*
-*     Call qExit('RdOne')
       Return
 *
 *     This is to allow type punning without an explicit interface

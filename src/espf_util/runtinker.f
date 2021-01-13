@@ -11,8 +11,11 @@
       Subroutine RunTinker(natom,ipCord,ipMltp,ipIsMM,MltOrd,
      &                     DynExtPot,iQMChg,nAtMM,StandAlone,
      &                     DoDirect)
+      Use Para_Info, Only: MyRank
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
-#include "para_info.fh"
 *
 #include "espf.fh"
 *
@@ -25,7 +28,6 @@
 1000  Format('Molcas  ',i2,2x,i2)
 1010  Format(3F15.8)
 *
-      Call qEnter('runtinker')
       iPL = iPL_espf()
       Write(ExtPotFormat,'(a4,i2,a6)') '(I4,',MxExtPotComp,'F13.8)'
 *
@@ -252,6 +254,5 @@
       Close (ITkPot)
       Call GetMem('PotInESPF','Free','Real',iESPF,natom*MxExtPotComp)
 *
-      Call QExit('runtinker')
       Return
       End

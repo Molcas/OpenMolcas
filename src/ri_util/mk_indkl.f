@@ -12,8 +12,8 @@
       Implicit Real*8 (a-h,o-z)
       Integer Indkl_OnOff(nkl), Indkl(nkl)
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call iVcPrt('Mk_Indkl: Indkl_OnOff',' ',Indkl_OnOff,nkl)
 #endif
       ikl = 0
@@ -25,7 +25,7 @@
             Indkl(jkl)=0
          End If
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call iVcPrt('Mk_Indkl: Indkl',' ',Indkl,nkl)
 #endif
 *

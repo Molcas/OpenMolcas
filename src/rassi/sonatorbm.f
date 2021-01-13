@@ -30,7 +30,7 @@
       DIMENSION IOFF(8)
       CHARACTER*8 CHARTYPE
       Dimension ROTMAT(3,3)
-      INTEGER ASS,BSS,ASF,BSF
+      INTEGER ASS,BSS
 
 
 
@@ -136,9 +136,6 @@ C WRITTEN AS IN PRPROP
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C CORRESPONDING SPIN-FREE STATES OF THE
 C REQUESTED SPIN STATES
-      ASF=IWORK(LMAPST-1+ASS)
-      BSF=IWORK(LMAPST-1+BSS)
-
       DO KSS=1,NSS
        KSF=IWORK(LMAPST-1+KSS)
        MPLETK=IWORK(LMAPSP-1+KSS)
@@ -218,7 +215,7 @@ c DIAGONAL SYMMETRY BLOCKS
             NB=NBASF(ISY)
             IF(NB.EQ.0) GOTO 100
             DO 90 J=1,NB
-              DO 90 I=1,NB
+              DO 91 I=1,NB
                 ITD=ITD+1
                 TDM=WORK(LTDMZZ-1+ITD)
                 IF(I.GE.J) THEN
@@ -234,6 +231,7 @@ c DIAGONAL SYMMETRY BLOCKS
                 END IF
                 IF(ITYPE.EQ.1) WORK(LSCR-1+IJ)=WORK(LSCR-1+IJ)+TDM
                 IF(ITYPE.EQ.3) WORK(LSCR-1+IJ)=WORK(LSCR-1+IJ)+TDM
+91            CONTINUE
 90          CONTINUE
             IOF=IOF+(NB*(NB+1))/2
 100       CONTINUE
@@ -249,19 +247,21 @@ C THEN LOOP OVER ELEMENTS OF TDMZZ
             IF(NB2.EQ.0) GOTO 200
             IF(ISY1.GT.ISY2) THEN
               DO 180 J=1,NB2
-                DO 180 I=1,NB1
+                DO 181 I=1,NB1
                   ITD=ITD+1
                   TDM=WORK(LTDMZZ-1+ITD)
                   IJ=IOFF(ISY1)+I+NB1*(J-1)
                   WORK(LSCR-1+IJ)=WORK(LSCR-1+IJ)+TDM
+181             CONTINUE
 180           CONTINUE
             ELSE
               DO 190 J=1,NB2
-                DO 190 I=1,NB1
+                DO 191 I=1,NB1
                   ITD=ITD+1
                   TDM=WORK(LTDMZZ-1+ITD)
                   IJ=IOFF(ISY2)+J+NB2*(I-1)
                   WORK(LSCR-1+IJ)=WORK(LSCR-1+IJ)-TDM
+191             CONTINUE
 190           CONTINUE
             END IF
 200       CONTINUE

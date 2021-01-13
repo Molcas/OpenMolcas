@@ -27,6 +27,11 @@
 *     SVC: Create a wavefunction file. If another .wfn file already
 *     exists, it will be overwritten.
       use refwfn
+#ifdef _HDF5_
+      use mh5, only: mh5_create_file, mh5_init_attr,
+     &               mh5_create_dset_str, mh5_create_dset_real,
+     &               mh5_put_dset, mh5_close_dset
+#endif
       implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -34,10 +39,9 @@
 #include "stdalloc.fh"
 #include "pt2_guga.fh"
 #ifdef _HDF5_
-#  include "mh5.fh"
 
       integer :: dsetid, ndmat, i
-      character(1), allocatable :: typestring(:)
+      character(len=1), allocatable :: typestring(:)
 #endif
 
       If (refwfn_active) Then
@@ -72,7 +76,7 @@
 
 *     general wavefunction attributes
         call mh5_init_attr (pt2wfn_id,'SPINMULT', iSpin)
-        call mh5_init_attr (pt2wfn_id,'LSYM', lSym)
+        call mh5_init_attr (pt2wfn_id,'LSYM', stSym)
         call mh5_init_attr (pt2wfn_id,'NACTEL', nActEl)
         call mh5_init_attr (pt2wfn_id,'NHOLE1', nHole1)
         call mh5_init_attr (pt2wfn_id,'NELEC3', nEle3)
@@ -89,7 +93,7 @@
      $        typestring)
         dsetid = mh5_create_dset_str(pt2wfn_id,
      $        'MO_TYPEINDICES', 1, [NBAST],1)
-        call mh5_init_attr(dsetid, 'description',
+        call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Type index of the molecular orbitals '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
         call mh5_put_dset(dsetid, typestring)
@@ -105,21 +109,21 @@
 *     reference energy (for each CI root)
         pt2wfn_refene = mh5_create_dset_real (pt2wfn_id,
      $        'STATE_REFWF_ENERGIES', 1, [NSTATE])
-        call mh5_init_attr(pt2wfn_refene, 'description',
+        call mh5_init_attr(pt2wfn_refene, 'DESCRIPTION',
      $        'Reference energy for each state, '//
      $        'arranged as array of [NSTATES]')
 
 *     PT2 energy (for each CI root)
         pt2wfn_energy = mh5_create_dset_real (pt2wfn_id,
      $        'STATE_PT2_ENERGIES', 1, [NSTATE])
-        call mh5_init_attr(pt2wfn_energy, 'description',
+        call mh5_init_attr(pt2wfn_energy, 'DESCRIPTION',
      $        'PT2 energy for each state, '//
      $        'arranged as array of [NSTATES]')
 
 *     molecular orbital coefficients
         pt2wfn_mocoef = mh5_create_dset_real(pt2wfn_id,
      $        'MO_VECTORS', 1, [NBSQT])
-        call mh5_init_attr(pt2wfn_mocoef, 'description',
+        call mh5_init_attr(pt2wfn_mocoef, 'DESCRIPTION',
      $        'Coefficients of the average orbitals, '//
      $        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
 
@@ -127,7 +131,7 @@
 *     (most probably empty, but left for compatibility)
         pt2wfn_occnum = mh5_create_dset_real(pt2wfn_id,
      $        'MO_OCCUPATIONS', 1, [NBAST])
-        call mh5_init_attr(pt2wfn_occnum, 'description',
+        call mh5_init_attr(pt2wfn_occnum, 'DESCRIPTION',
      $        'Occupation numbers of the average orbitals '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
 
@@ -135,14 +139,14 @@
 *     (most probably empty, but left for compatibility)
         pt2wfn_orbene = mh5_create_dset_real(pt2wfn_id,
      $        'MO_ENERGIES', 1, [NBAST])
-        call mh5_init_attr(pt2wfn_orbene, 'description',
+        call mh5_init_attr(pt2wfn_orbene, 'DESCRIPTION',
      $        'Orbital energies of the average orbitals '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
 
 *     CI data for each root
         pt2wfn_cicoef = mh5_create_dset_real(pt2wfn_id,
      $        'CI_VECTORS', 2, [nConf, NSTATE])
-        call mh5_init_attr(pt2wfn_cicoef, 'description',
+        call mh5_init_attr(pt2wfn_cicoef, 'DESCRIPTION',
      $        'Coefficients of configuration state functions '//
      $        'in Split-GUGA ordering for each STATE, '//
      $        'arranged as matrix of size [NCONF,NSTATES]')
@@ -151,7 +155,7 @@
         If (IFMSCOUP) Then
           pt2wfn_heff = mh5_create_dset_real(pt2wfn_id,
      $        'H_EFF', 2, [NSTATE, NSTATE])
-          call mh5_init_attr(pt2wfn_heff, 'description',
+          call mh5_init_attr(pt2wfn_heff, 'DESCRIPTION',
      $        'Effective (X)MS-CASPT2 Hamiltonian, '//
      $        'arranged as matrix of size [NSTATES,NSTATES]')
         End If
@@ -165,7 +169,7 @@
 
           pt2wfn_dens = mh5_create_dset_real(pt2wfn_id,
      $        'DENSITY_MATRIX', 2, [ndmat, NSTATE])
-          call mh5_init_attr(pt2wfn_dens, 'description',
+          call mh5_init_attr(pt2wfn_dens, 'DESCRIPTION',
      $        '1-body density matrix, arranged as blocks of size '//
      $        'NDMAT=sum([NORB(i)*(NORB(i)+1)/2], i=1,#irreps), '//
      $        'where NORB excludes frozen and deleted orbitals, '//
@@ -182,12 +186,14 @@
 
       subroutine pt2wfn_data
       use refwfn
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset, mh5_put_dset_array_real
+#endif
       implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "stdalloc.fh"
 #ifdef _HDF5_
-#  include "mh5.fh"
       real*8, allocatable :: BUF(:)
       integer :: ISTATE, IDISK
 
@@ -202,9 +208,9 @@
         call mma_deallocate(BUF)
 
         call mma_allocate(BUF,NCMO)
-        IDISK = 0
+        IDISK = IAD1M(1)
         CALL DDAFILE(LUONEM,2,BUF,NCMO,IDISK)
-        call mh5_put_dset_array_real(pt2wfn_mocoef,BUF)
+        call mh5_put_dset(pt2wfn_mocoef,BUF)
         call mma_deallocate(BUF)
       End If
 #endif
@@ -212,15 +218,17 @@
 
       subroutine pt2wfn_estore(Heff)
       use refwfn
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset, mh5_put_dset_array_real
+#endif
       implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
       real*8 :: Heff(nstate,nstate)
 #ifdef _HDF5_
-#  include "mh5.fh"
       If (pt2wfn_is_h5) Then
-        call mh5_put_dset_array_real(pt2wfn_energy, ENERGY)
-        call mh5_put_dset_array_real(pt2wfn_refene, REFENE)
+        call mh5_put_dset(pt2wfn_energy, ENERGY)
+        call mh5_put_dset(pt2wfn_refene, REFENE)
         If (IFMSCOUP) Then
           call mh5_put_dset_array_real(pt2wfn_heff, Heff)
         End If
@@ -234,13 +242,15 @@ c Avoid unused argument warnings
 
       subroutine pt2wfn_densstore(Dmat,nDmat)
       use refwfn
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset_array_real
+#endif
       implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
       integer :: nDmat
       real*8 :: Dmat(nDmat)
 #ifdef _HDF5_
-#  include "mh5.fh"
       If (pt2wfn_is_h5) Then
         call mh5_put_dset_array_real(pt2wfn_dens, Dmat,
      $                               [nDmat, 1], [0, JSTATE-1])
@@ -254,6 +264,7 @@ c Avoid unused argument warnings
 
       subroutine pt2wfn_close
 #ifdef _HDF5_
+      use mh5, only: mh5_close_file
       if (pt2wfn_is_h5) then
         call mh5_close_file(pt2wfn_id)
       end if

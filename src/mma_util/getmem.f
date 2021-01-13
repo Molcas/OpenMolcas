@@ -64,9 +64,6 @@
 #include "warnings.fh"
 #include "WrkSpc.fh"
 #include "mama.fh"
-#ifdef _OPENMP
-      Include 'omp_lib.h'
-#endif
 *
 *
       Character*(*) NameIn,KeyIn,TypeIn
@@ -85,7 +82,6 @@
       If ( MemCtl(ipStat).ne.ON ) then
          Call IniMem()
       End if
-      If ( MemCtl(ipQuery).eq.ON ) Call qEnter('GetMem')
 *----------------------------------------------------------------------*
 *     read default parameters from Common / MemCtl /                   *
 *----------------------------------------------------------------------*
@@ -147,7 +143,9 @@
         Else If ( Key.eq.'FREE' ) Then
           Write (6,'(A)')
      &         'MMA failed to release the memory block for further use.'
-         iRc=c_getmem(elbl,eoprcc,etyp,ip_iDummy,ip_iDummy)
+          iRc=c_getmem(elbl,eoprcc,etyp,ip_iDummy,ip_iDummy)
+        Else
+          Write (6,*)
         End If
         Go To 777
       End If
@@ -168,11 +166,9 @@
       End If
 #endif
 
-      If ( MemCtl(ipQuery).eq.ON ) Call qExit('GetMem')
       Return
 *
  777  Continue
-      Call QTrace()
       Call Quit(_RC_MEMORY_ERROR_)
 
       End
@@ -197,7 +193,7 @@
 *include "SysDef.fh"
 #include "WrkSpc.fh"
       integer :: ipos, length
-      character(*) :: vartyp
+      character(len=*) :: vartyp
       real*8, parameter ::    dgarbage(1) = [0.730432726d308]
       integer, parameter ::   igarbage(1) = [730432726]
       real*4, parameter ::    sgarbage(1) = [0.730432726e38]

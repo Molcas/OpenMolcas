@@ -15,17 +15,10 @@
      &                 B10,laa,B00,lac,B01,lcc)
 ************************************************************************
 *                                                                      *
-*     Object: to compute the 2-dimensional integrals of the Rys        *
-*             quadrature. The z components are assumed to be pre-      *
-*             conditioned with the weights of the roots of the         *
-*             Rys polynomial.                                          *
-*                                                                      *
-* Called from: Rys                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              RecPrt                                                  *
-*              QExit                                                   *
+* Object: to compute the 2-dimensional integrals of the Rys            *
+*         quadrature. The z components are assumed to be pre-          *
+*         conditioned with the weights of the roots of the             *
+*         Rys polynomial.                                              *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
@@ -36,20 +29,15 @@
 * VV: improve loop structure                                           *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 xyz2D(nArg*lRys*3,0:nabMax,0:ncdMax),
      &       PAWP(nArg*lRys*3), QCWQ(nArg*lRys*3),
      &       B10(nArg*lRys*3), B00(nArg*lRys*3), B01(nArg*lRys*3)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Character*30 Label
-#endif
-*
       iRout = 15
       iPrint = nPrint(iRout)
-#ifdef _DEBUG_
       If (iPrint.ge.59) Then
          If (nabMax.gt.0) Call RecPrt('PAWP',' ',PAWP,nArg,lRys*3)
          If (ncdMax.gt.0) Call RecPrt('QCWQ',' ',QCWQ,nArg,lRys*3)
@@ -105,7 +93,7 @@
          End Do
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Write (6,*) ' 2D-integral computed in XRys2D'
          Do 600 iab = 0, nabMax

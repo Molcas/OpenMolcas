@@ -49,7 +49,7 @@ c
 c
 c     help variables
 c
-       integer im,lenght,poss0
+       integer im,length,poss0
 c
        rc=0
 c
@@ -57,24 +57,24 @@ c1    write mapd
 c
        write (lun) mapd,mapi
 c
-c2    calculate overall lenght
+c2    calculate overall length
 c
-       lenght=0
+       length=0
 c
        do 100 im=1,mapd(0,5)
-       lenght=lenght+mapd(im,2)
+       length=length+mapd(im,2)
  100    continue
 c
 c     write mediate in one block
 c
-       if (lenght.eq.0) then
-c     RC=1 : there is nothing to write, lenght of mediate is 0
+       if (length.eq.0) then
+c     RC=1 : there is nothing to write, length of mediate is 0
        rc=1
        return
        end if
 c
        poss0=mapd(1,1)
-       call ccsort_wri (lun,lenght,wrk(poss0))
+       call ccsort_wri (lun,length,wrk(poss0))
 c
        return
        end
@@ -106,38 +106,38 @@ c
 c
 c     ----------------------------
 c
-       subroutine ccsort_rea (lun,lenght,vector)
+       subroutine ccsort_rea (lun,length,vector)
 c
-c     this routine read lenght-R8 numbers from opened unformatted file
+c     this routine read length-R8 numbers from opened unformatted file
 c     with number lun form the given possition as one record
 c
 c     lun    - Logical unit number of file, where mediate is stored (Input)
-c     lenght - # of R8 numbers to be read  (Input)
+c     length - # of R8 numbers to be read  (Input)
 c     vector - space, where numbers are stored after reading  (Output)
 
 c
-       integer lun,lenght,i
-       real*8 vector(1:lenght)
+       integer lun,length,i
+       real*8 vector(1:length)
 c
-       read (lun) (vector(i),i=1,lenght)
+       read (lun) (vector(i),i=1,length)
 c
        return
        end
 c
 c     ----------------------------
 c
-       subroutine ccsort_wri (lun,lenght,vector)
+       subroutine ccsort_wri (lun,length,vector)
 c
-c     this routine write lenght-R8 numbers to opened unformatted file
+c     this routine write length-R8 numbers to opened unformatted file
 c     with number lun at the given possition as one record
 c
 c     lun    - Logical unit number of file, where mediate will be stored (Input)
-c     lenght - # of R8 numbers to be written  (Input)
+c     length - # of R8 numbers to be written  (Input)
 c     vector - space, where numbers are stored  (Input)
 
 c
-       integer lun,lenght
-       real*8 vector(1:lenght)
+       integer lun,length
+       real*8 vector(1:length)
 c
        write (lun) vector
 c
@@ -202,7 +202,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        mapd(i,2)=nhelp1
 c
 c     def sym p,q
@@ -238,7 +238,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        if ((typ.eq.1).and.(sp.eq.sq)) then
        mapd(i,2)=nhelp1*(nhelp1-1)/2
        else
@@ -270,13 +270,13 @@ c
        nsymq=nsym
        end if
 c
-       do 200 sq=1,nsymq
+       do 201 sq=1,nsymq
        spq=mul(sp,sq)
 c
        sr=mul(stot,spq)
        if ((typ.eq.2).and.(sq.lt.sr)) then
 c     Meggie out
-       goto 200
+       goto 201
        end if
 c
        nhelp1=dimm(typp,sp)
@@ -289,7 +289,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        if ((typ.eq.1).and.(sp.eq.sq)) then
        mapd(i,2)=nhelp1*(nhelp1-1)*nhelp3/2
        else if ((typ.eq.2).and.(sq.eq.sr)) then
@@ -307,6 +307,7 @@ c
        poss=poss+mapd(i,2)
        i=i+1
 c
+ 201    continue
  200    continue
 c
        else if (nind.eq.4) then
@@ -323,7 +324,7 @@ c
        nsymq=nsym
        end if
 c
-       do 300 sq=1,nsymq
+       do 301 sq=1,nsymq
        spq=mul(sp,sq)
        if (typ.eq.2) then
        nsymr=sq
@@ -331,13 +332,13 @@ c
        nsymr=nsym
        end if
 c
-       do 300 sr=1,nsymr
+       do 302 sr=1,nsymr
        spqr=mul(spq,sr)
 c
        ss=mul(stot,spqr)
        if (((typ.eq.3).or.(typ.eq.4)).and.(sr.lt.ss)) then
 c     Meggie out
-       goto 300
+       goto 302
        end if
 c
        nhelp1=dimm(typp,sp)
@@ -351,7 +352,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        if ((typ.eq.1).and.(sp.eq.sq)) then
        mapd(i,2)=nhelp1*(nhelp2-1)*nhelp3*nhelp4/2
        else if ((typ.eq.2).and.(sq.eq.sr)) then
@@ -381,6 +382,8 @@ c
        poss=poss+mapd(i,2)
        i=i+1
 c
+ 302    continue
+ 301    continue
  300    continue
 c
        end if
@@ -448,7 +451,7 @@ c
 c
 c     help variables
 c
-       integer im,lenght,poss0
+       integer im,length,poss0
 c
        rc=0
 c
@@ -456,24 +459,24 @@ c1    write mapd
 c
       call dawrtmap (lun,mapd,mapi,rc)
 c
-c2    calculate overall lenght
+c2    calculate overall length
 c
-       lenght=0
+       length=0
 c
        do 100 im=1,mapd(0,5)
-       lenght=lenght+mapd(im,2)
+       length=length+mapd(im,2)
  100    continue
 c
 c     write mediate in one block
 c
-       if (lenght.eq.0) then
-c     RC=1 : there is nothing to write, lenght of mediate is 0
+       if (length.eq.0) then
+c     RC=1 : there is nothing to write, length of mediate is 0
        rc=1
        return
        end if
 c
        poss0=mapd(1,1)
-       call dawri (lun,lenght,wrk(poss0))
+       call dawri (lun,length,wrk(poss0))
 c
        return
        end
@@ -518,13 +521,13 @@ c
 c
 c     ----------------------------
 c
-       subroutine dawri (lun,lenght,vector)
+       subroutine dawri (lun,length,vector)
 c
-c     this routine write lenght-R8 numbers to opened unformatted file
+c     this routine write length-R8 numbers to opened unformatted file
 c     with number lun at the given possition as one record
 c
 c     lun    - Logical unit number of file, where mediate will be stored (Input)
-c     lenght - # of R8 numbers to be written  (Input)
+c     length - # of R8 numbers to be written  (Input)
 c     vector - space, where numbers are stored  (Input)
 
 c
@@ -533,8 +536,8 @@ c
 
 #include "SysDef.fh"
 c
-       integer lun,lenght
-       real*8 vector(1:lenght)
+       integer lun,length
+       real*8 vector(1:length)
 c
        if (iokey.eq.1) then
 c      Fortran IO
@@ -542,7 +545,7 @@ c      Fortran IO
 c
        else
 c      MOLCAS IO
-       call ddafile (lun,1,vector,lenght,daddr(lun))
+       call ddafile (lun,1,vector,length,daddr(lun))
        end if
 c
        return

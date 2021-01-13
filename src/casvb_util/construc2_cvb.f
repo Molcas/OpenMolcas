@@ -8,11 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine construc2_cvb(tconstr)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -32,7 +32,8 @@
       w(ivb+irepm-1)=-1d0
       call symtrizcvb_cvb(w(irepm))
       w(ivb+irepm-1)=w(ivb+irepm-1)+1d0
-100   call span1_cvb(w(irepm),1,dum,nvb,0)
+      call span1_cvb(w(irepm),1,dum,nvb,0)
+100   continue
       call span2_cvb(tconstr,nconstr,dum,nvb,0)
 
       call mfreer_cvb(irepm)

@@ -22,7 +22,6 @@
       Parameter (Error_Threshold = 1.0D-12, Delta_Threshold = 1.0D-12)
       External Error_for_t,Golden
 *
-      iDim = nij*nElem
       ij = iAtom*(iAtom-1)/2+jAtom
       iPrint_Errors   = 0
       l = lMax - 1

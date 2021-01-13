@@ -27,20 +27,24 @@
 *                                                                      *
 *              March 2000                                              *
 ************************************************************************
+      use external_centers
+      use Symmetry_Info, only: nIrrep, iChBas
+      use Basis_Info, only: nBas
+      use Temporary_Parameters, only: PrPrt
       Implicit Real*8 (a-h,o-z)
       External EFInt, EFMem
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "rctfld.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 D_Tot(nDens), Ravxyz(nCavxyz_), Cavxyz(nCavxyz_),
      &       dEF(4,nGrid_), Grid(3,nGrid_), Origin(3), CCoor(3),
      &       Cord(3,MaxAto), Z_Nuc(MaxAto),xfEF(4,nGrid_)
       Logical Save_tmp
       Character*8 Label
-      Dimension FactOp(1), lOper(1)
+      Dimension FactOp(1), l_Oper(1)
+      Integer, Allocatable:: ips(:), lOper(:), kOper(:)
+      Real*8, Allocatable::  C_Coor(:,:), Nuc(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -80,7 +84,7 @@
 *
       nOpr=1
       FactOp=One
-      lOper=1
+      l_Oper=1
 *-----Reset array for storage of multipole moment expansion
       Do iMltpl = 1, lMax
          Do ix = iMltpl, 0, -1
@@ -108,9 +112,8 @@
                   If (Origin(3).ne.Zero) iSymZ = iOr(iSymZ,1)
                End If
 *
-               iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ,
-     &                            nIrrep),nIrrep)
-               lOper=iOr(lOper,iTemp)
+               iTemp = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
+               l_Oper=iOr(l_Oper,iTemp)
             End Do
          End Do
       End Do
@@ -127,7 +130,7 @@
       End If
 *
 
-      Call Drv1_RF(FactOp,nOpr,D_tot,nh1,Origin,lOper,Cavxyz,lMax)
+      Call Drv1_RF(FactOp,nOpr,D_tot,nh1,Origin,l_Oper,Cavxyz,lMax)
 *
       If (iPrint.ge.99) Call RecPrt('Electronic Multipole Moments',
      &                              ' ',Cavxyz,1,nCavxyz_)
@@ -140,7 +143,7 @@
      &                              ' ',Cavxyz,1,nCavxyz_)
 
 
-      If(lXF) Then
+      If(Allocated(XF)) Then
          Call XFMoment(lMax,Cavxyz,Ravxyz,nCavxyz_,Origin)
       EndIf
 
@@ -176,11 +179,11 @@
       ixyz=7
       iSyXYZ = 2**IrrFnc(ixyz)
 *
-      Call GetMem('ip    ','ALLO','INTE',ip1,nComp)
-      Call GetMem('lOper ','ALLO','INTE',ip2,nComp)
-      Call GetMem('kOper ','ALLO','INTE',ip3,nComp)
-      Call GetMem('Nuc   ','ALLO','REAL',ipNuc,nComp)
-      Call GetMem('Ccoor ','ALLO','REAL',ipCc,nComp*3)
+      Call mma_allocate(ips,nComp,Label='ips')
+      Call mma_allocate(lOper,nComp,Label='lOper')
+      Call mma_allocate(kOper,nComp,Label='kOper')
+      call mma_allocate(Nuc,nComp,Label='Nuc')
+      Call mma_allocate(C_Coor,3,nComp,Label='CCoor')
 *
       Save_tmp=PrPrt
       PrPrt=.True.
@@ -212,28 +215,22 @@
                If (Mod(iz,2).ne.0) ixyz=iOr(ixyz,4)
                iSym = 2**IrrFnc(ixyz)
                If (Ccoor(iComp).ne.Zero ) iSym = iOr(iSym,1)
-               iWork(ip2+(iComp-1)) = MltLbl(iSymC,iSym,nIrrep)
-               iWork(ip3+(iComp-1)) = iChBas(iComp+1)
-               call dcopy_(3,Ccoor,1,Work(ipCc+(iComp-1)*3),1)
+               lOper(iComp) = MltLbl(iSymC,iSym)
+               kOper(iComp) = iChBas(iComp+1)
+               call dcopy_(3,Ccoor,1,C_Coor(1,iComp),1)
             End Do
          End Do
 *
 
-         Call EFNuc(Work(ipCc),Z_Nuc,Cord,MaxAto,
-     &               Work(ipNuc),nOrdOp)
+         Call EFNuc(C_Coor,Z_Nuc,Cord,MaxAto,Nuc,nOrdOp)
          Call OneEl_Property(EFInt,EFMem,Label,
-     &                       iWork(ip1),iWork(ip2),nComp,Work(ipCc),
-     &                       nOrdOp,Work(ipNuc),rHrmt,iWork(ip3),
+     &                       ips,lOper,nComp,C_Coor,
+     &                       nOrdOp,Nuc,rHrmt,kOper,
      &                       D_Tot,nDens,dEF(1,iGrid),Sig)
-c         If (iGrid.eq.1) Then
-c            Call RecPrt('CCoor',' ',CCoor,1,3)
-c            Call RecPrt('dEF_nuc  ',' ',Work(ipNuc),1,3)
-c            Call RecPrt('dEF_tot  ',' ',dEF(1,iGrid),1,3)
-c         End If
 
 *        Field contribution from XF
-         Call EFXF(Work(ipCc),Work(ipXF),nXF,nOrd_XF,iXPolType,
-     &        xfEF(1,iGrid), iWork(ipXMolnr),nXMolnr,iGrid,scal14)
+         Call EFXF(C_Coor,XF,nXF,nOrd_XF,iXPolType,
+     &        xfEF(1,iGrid),XMolnr,nXMolnr,iGrid,scal14)
 *
       End Do
 
@@ -242,11 +239,11 @@ c         End If
 
       PrPrt=Save_tmp
 *
-      Call GetMem('Ccoor ','FREE','REAL',ipCc,nComp*3)
-      Call GetMem('Nuc   ','FREE','REAL',ipNuc,nComp)
-      Call GetMem('kOper ','FREE','INTE',ip3,nComp)
-      Call GetMem('lOper ','FREE','INTE',ip2,nComp)
-      Call GetMem('ip    ','FREE','INTE',ip1,nComp)
+      Call mma_deallocate(C_Coor)
+      Call mma_deallocate(Nuc)
+      Call mma_deallocate(kOper)
+      Call mma_deallocate(lOper)
+      Call mma_deallocate(ips)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -263,8 +260,6 @@ c         End If
       End Do ! iGrid
 
 c      Call RecPrt('eperm: dEF ',' ',dEF,4,nGrid_)
-
 *
-*     Call GetMem('EPerm','Check','Real',idum,idum)
       Return
       End

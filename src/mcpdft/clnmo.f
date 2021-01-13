@@ -46,7 +46,6 @@
 
 * Prelude
 
-      Call qEnter ('Clen')
 
 * Body
 
@@ -65,7 +64,6 @@
 
 * Epilogue
 
-      Call qExit('Clen')
 
       Return
       End

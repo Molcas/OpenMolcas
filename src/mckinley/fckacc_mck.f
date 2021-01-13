@@ -45,24 +45,15 @@
 *          The density matrix is not folded if the shell indices and   *
 *          the angular indices are identical.                          *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DNrm2_  (ESSL)                                          *
-*              DGeTMO  (ESSL)                                          *
-*              DGeMV   (ESSL)                                          *
-*              FckDst                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden. February '93                            *
 ************************************************************************
+      use Basis_Info
+      use Symmetry_Info, only: nIrrep, iChTbl, iOper, iChBas
+      use SOAO_Info, only: iAOtSO
+      use Real_Spherical, only: iSphCr
+      use Real_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "disp2.fh"
       Real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), TwoHam(nDens),
@@ -79,8 +70,7 @@ c     Logical Qij, Qkl
      &        iQik, iShik, iQil, iShil, iQjk, iShjk, iQjl, iShjl,
      &        lFij, lFkl, lFik, lFjl, lFil, lFjk
       Integer iAng(4), iShell(4), iShll(4), kOp(4), kOp2(4),
-     &        iAO(4), iAOst(4),
-     &        iCmpa(4)
+     &        iAO(4), iAOst(4), iCmpa(4)
       Logical Pert(0:nIrrep-1)
       integer indgrd(3,4,0:nirrep-1),ipdisp(*)
 
@@ -95,7 +85,7 @@ c     Logical Qij, Qkl
       iOff(ixyz)  = ixyz*(ixyz+1)*(ixyz+2)/6
       xPrmt(i,j) = Prmt(iAnd(i,j))
 *
-      iprint=0
+*     iprint=0
 *
 *     Write (*,*) DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),
 *    &            DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One  ,0)
@@ -126,7 +116,6 @@ c     Logical Qij, Qkl
          Write (6,*) 'FckAcc_McK: iBas*jBas*kBas*lBas.gt.nScrt'
          Write (6,*) 'iBas,jBas,kBas,lBas,nScrt=',
      &         iBas,jBas,kBas,lBas,nScrt
-         Call QTrace
          Call Abend()
       End If
       ii = iOff(iAng(1))
@@ -183,20 +172,21 @@ c     Logical Qij, Qkl
       iShjl = iShell(2).eq.iShell(4)
       Do 100 i1 = 1, iCmp
          Do 101 j = 0, nIrrep-1
-            iSym(1,j) =
-     &        iAnd(IrrCmp(IndS(iShell(1))+i1),iTwoj(j))
+            iSym(1,j) = 0
+            If (iAOtSO(iAO(1)+i1,j)>0) iSym(1,j) = iTwoj(j)
 101      Continue
          jCmpMx = jCmp
          If (Shij) jCmpMx = i1
          iChBs = iChBas(ii+i1)
-         If (Transf(iShll(1))) iChBs = iChBas(iSphCr(ii+i1))
+         If (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))
          pEa = xPrmt(iOper(kOp(1)),iChBs)
          Do 200 i2 = 1, jCmpMx
             Do 201 j = 0, nIrrep-1
-               iSym(2,j) = iAnd(IrrCmp(IndS(iShell(2))+i2),iTwoj(j))
+               iSym(2,j) = 0
+               If (iAOtSO(iAO(2)+i2,j)>0) iSym(2,j) = iTwoj(j)
 201         Continue
             jChBs = iChBas(jj+i2)
-            If (Transf(iShll(2))) jChBs = iChBas(iSphCr(jj+i2))
+            If (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
             pRb = xPrmt(iOper(kOp(2)),jChBs)
 *           Qij = i1.eq.i2
             If (iShell(2).gt.iShell(1)) Then
@@ -206,21 +196,24 @@ c     Logical Qij, Qkl
             End If
             Do 300 i3 = 1, kCmp
                Do 301 j = 0, nIrrep-1
-                  iSym(3,j) = iAnd(IrrCmp(IndS(iShell(3))+i3),iTwoj(j))
+                  iSym(3,j) = 0
+                  If (iAOtSO(iAO(3)+i3,j)>0) iSym(3,j) = iTwoj(j)
 301            Continue
                lCmpMx = lCmp
                If (Shkl) lCmpMx = i3
                kChBs = iChBas(kk+i3)
-               If (Transf(iShll(3))) kChBs = iChBas(iSphCr(kk+i3))
+               If (Shells(iShll(3))%Transf)
+     &            kChBs = iChBas(iSphCr(kk+i3))
                pTc = xPrmt(iOper(kOp(3)),kChBs)
                Do 400 i4 = 1, lCmpMx
                   Do 401 j = 0, nIrrep-1
-                     iSym(4,j) =
-     &                 iAnd(IrrCmp(IndS(iShell(4))+i4),iTwoj(j))
+                     iSym(4,j) = 0
+                     If (iAOtSO(iAO(4)+i4,j)>0) iSym(4,j) = iTwoj(j)
 401               Continue
 *                 Qkl = i3.eq.i4
                   lChBs = iChBas(ll+i4)
-                  If (Transf(iShll(4))) lChBs = iChBas(iSphCr(ll+i4))
+                  If (Shells(iShll(4))%Transf)
+     &               lChBs = iChBas(iSphCr(ll+i4))
                   pTSd= xPrmt(iOper(kOp(4)),lChBs)
                   If (iShell(4).gt.iShell(3)) Then
                      i34 = lCmp*(i3-1) + i4
@@ -363,7 +356,6 @@ C                 Call RecPrt('Fkl',' ',FT(ipFkl1),kBas,lBas)
                   If (np.gt.nScrt) Then
                      Write (6,*) 'FckAcc_McK: np.gt.nScrt'
                      Write (6,*) 'np,nScrt=',np,nScrt
-                     Call QTrace
                      Call Abend()
                   End If
                   If (mFik+mFjl.eq.0) Go To 1210
@@ -578,48 +570,54 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
          If (pert(iIrrep)) Then
             ip=ipDisp(abs(indgrd(iCar,iCent,iIrrep)))
             rCh=xPrmt(iOper(kOp(iCent)),iChBas(1+iCar))*
-     &                rChTbl(iIrrep,kOp(iCent))
+     &                DBLE(iChTbl(iIrrep,kOp(iCent)))
             Fact=tfact*rCh
 *           Write (*,*) 'Level ij'
             If (lFij) Call FckDst(TwoHam(ip),ndens,FT(ipFij),
      &                             iBas,jBas,iCmpa(1),iCmpa(2),
      &                             kOp2(1),kOp2(2),
-     &                             iIrrep,iShell(1),iShell(2),iShij,
+     &                             iIrrep,
+     &                             iShij,
      &                             iAO(1),iAO(2),iAOst(1),iAOst(2),
      &                             fact)
 *           Write (*,*) 'Level kl'
             If (lFkl) Call FckDst(TwoHam(ip),ndens,FT(ipFkl),
      &                             kBas,lBas,iCmpa(3),iCmpa(4),
      &                             kOp2(3),kOp2(4),
-     &                             iIrrep,iShell(3),iShell(4),iShkl,
+     &                             iIrrep,
+     &                             iShkl,
      &                             iAO(3),iAO(4),iAOst(3),iAOst(4),
      &                             fact)
 *           Write (*,*) 'Level ik'
             If (lFik) Call FckDst(TwoHam(ip),ndens,FT(ipFik),
      &                             iBas,kBas,iCmpa(1),iCmpa(3),
      &                             kOp2(1),kOp2(3),
-     &                             iIrrep,iShell(1),iShell(3),iShik,
+     &                             iIrrep,
+     &                             iShik,
      &                             iAO(1),iAO(3),iAOst(1),iAOst(3),
      &                             fact)
 *           Write (*,*) 'Level jl'
             If (lFjl) Call FckDst(TwoHam(ip),ndens,FT(ipFjl),
      &                             jBas,lBas,iCmpa(2),iCmpa(4),
      &                             kOp2(2),kOp2(4),
-     &                             iIrrep,iShell(2),iShell(4),iShjl,
+     &                             iIrrep,
+     &                             iShjl,
      &                             iAO(2),iAO(4),iAOst(2),iAOst(4),
      &                             fact)
 *           Write (*,*) 'Level il'
             If (lFil) Call FckDst(TwoHam(ip),ndens,FT(ipFil),
      &                             iBas,lBas,iCmpa(1),iCmpa(4),
      &                             kOp2(1),kOp2(4),
-     &                             iIrrep,iShell(1),iShell(4),iShil,
+     &                             iIrrep,
+     &                             iShil,
      &                             iAO(1),iAO(4),iAOst(1),iAOst(4),
      &                             fact)
 *           Write (*,*) 'Level jk'
             If (lFjk) Call FckDst(TwoHam(ip),ndens,FT(ipFjk),
      &                             jBas,kBas,iCmpa(2),iCmpa(3),
      &                             kOp2(2),kOp2(3),
-     &                             iIrrep,iShell(2),iShell(3),iShjk,
+     &                             iIrrep,
+     &                             iShjk,
      &                             iAO(2),iAO(3),iAOst(2),iAOst(3),
      &                             fact)
 *           If (DDot_(3468,TwoHam,1,TwoHam,1).gt.Zero) Then
@@ -635,8 +633,6 @@ C                 Call RecPrt('Fjk',' ',FT(ipFjk1),jBas,kBas)
 *           End If
          End If
       End Do
-c     Call GetMem(' Exit FckAcc','CHECK','REAL',iDum,iDum)
-c     Call QExit('FckAcc')
       Return
       End
 #else
@@ -673,26 +669,17 @@ c     Call QExit('FckAcc')
 *          The density matrix is not folded if the shell indices and   *
 *          the angular indices are identical.                          *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DNrm2_  (ESSL)                                          *
-*              DGeTMO  (ESSL)                                          *
-*              DGeMV   (ESSL)                                          *
-*              FckDst                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden. February '93                            *
 *                                                                      *
 *     Modified July '98 in Tokyo by R. Lindh                           *
 ************************************************************************
+      use Basis_Info
+      use Symmetry_Info, only: nIrrep, iChTbl, iChBas
+      use SOAO_Info, only: iAOtSO
+      use Real_Spherical, only: iSphCr
+      use Real_Info, only: ThrInt, CutInt
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "disp2.fh"
 #include "print.fh"
@@ -709,8 +696,7 @@ c     Call QExit('FckAcc')
      &        iQik, iShik, iQil, iShil, iQjk, iShjk, iQjl, iShjl,
      &        lFij, lFkl, lFik, lFjl, lFil, lFjk
       Integer iAng(4), iShell(4), iShll(4), kOp(4), kOp2(4),
-     &        iAO(4), iAOst(4),
-     &        iCmpa(4)
+     &        iAO(4), iAOst(4), iCmpa(4)
       Logical Pert(0:nIrrep-1)
       integer indgrd(3,4,0:nirrep-1),ipdisp(*)
 *     Local Arrays
@@ -725,8 +711,8 @@ c     Character*72 Label
       xPrmt(i,j) = Prmt(iAnd(i,j))
 c     iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *
-      iRout = 38
-      iPrint = nPrint(iRout)
+*     iRout = 38
+*     iPrint = nPrint(iRout)
 *
 *     If (iPrint.ge.49) Then
 *        Write (*,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,
@@ -815,16 +801,24 @@ c     iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
       iShjl = iShell(2).eq.iShell(4)
       mijkl=iBas*jBas*kBas*lBas
       Do 100 i1 = 1, iCmp
-         iSym(1)=IrrCmp(IndS(iShell(1))+i1)
+         ix = 0
+         Do j = 0, nIrrep-1
+            If (iAOtSO(iAO(1)+i1,j)>0) ix = iOr(ix,2**j)
+         End Do
+         iSym(1)=ix
          jCmpMx = jCmp
          If (iShij) jCmpMx = i1
          iChBs = iChBas(ii+i1)
-         If (Transf(iShll(1))) iChBs = iChBas(iSphCr(ii+i1))
+         If (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))
          pEa = xPrmt(iOper(kOp(1)),iChBs)
          Do 200 i2 = 1, jCmpMx
-            iSym(2) =IrrCmp(IndS(iShell(2))+i2)
+            ix = 0
+            Do j = 0, nIrrep-1
+               If (iAOtSO(iAO(2)+i2,j)>0) ix = iOr(ix,2**j)
+            End Do
+            iSym(2)=ix
             jChBs = iChBas(jj+i2)
-            If (Transf(iShll(2))) jChBs = iChBas(iSphCr(jj+i2))
+            If (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
             pRb = xPrmt(iOper(kOp(2)),jChBs)
             If (iShell(2).gt.iShell(1)) Then
                i12 = jCmp*(i1-1) + i2
@@ -832,16 +826,26 @@ c     iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
                i12 = iCmp*(i2-1) + i1
             End If
             Do 300 i3 = 1, kCmp
-               iSym(3) =IrrCmp(IndS(iShell(3))+i3)
+               ix = 0
+               Do j = 0, nIrrep-1
+                  If (iAOtSO(iAO(3)+i3,j)>0) ix = iOr(ix,2**j)
+               End Do
+               iSym(3)=ix
                lCmpMx = lCmp
                If (iShkl) lCmpMx = i3
                kChBs = iChBas(kk+i3)
-               If (Transf(iShll(3))) kChBs = iChBas(iSphCr(kk+i3))
+               If (Shells(iShll(3))%Transf)
+     &            kChBs = iChBas(iSphCr(kk+i3))
                pTc = xPrmt(iOper(kOp(3)),kChBs)
                Do 400 i4 = 1, lCmpMx
-                  iSym(4) =IrrCmp(IndS(iShell(4))+i4)
+                  ix = 0
+                  Do j = 0, nIrrep-1
+                     If (iAOtSO(iAO(4)+i4,j)>0) ix = iOr(ix,2**j)
+                  End Do
+                  iSym(4)=ix
                   lChBs = iChBas(ll+i4)
-                  If (Transf(iShll(4))) lChBs = iChBas(iSphCr(ll+i4))
+                  If (Shells(iShll(4))%Transf)
+     &               lChBs = iChBas(iSphCr(ll+i4))
                   pTSd= xPrmt(iOper(kOp(4)),lChBs)
                   If (iShell(4).gt.iShell(3)) Then
                      i34 = lCmp*(i3-1) + i4
@@ -1118,48 +1122,54 @@ C                 Write (*,*)
          If (pert(iIrrep)) Then
             ip=ipDisp(abs(indgrd(iCar,iCent,iIrrep)))
             rCh=xPrmt(iOper(kOp(iCent)),iChBas(1+iCar))*
-     &                rChTbl(iIrrep,kOp(iCent))
+     &                DBLE(iChTbl(iIrrep,kOp(iCent)))
             Fact=tfact*rCh
 *           Write (*,*) 'Level ij'
             If (lFij) Call FckDst(TwoHam(ip),ndens,FT(ipFij),
      &                             iBas,jBas,iCmpa(1),iCmpa(2),
      &                             kOp2(1),kOp2(2),
-     &                             iIrrep,iShell(1),iShell(2),iShij,
+     &                             iIrrep,
+     &                             iShij,
      &                             iAO(1),iAO(2),iAOst(1),iAOst(2),
      &                             fact)
 *           Write (*,*) 'Level kl'
             If (lFkl) Call FckDst(TwoHam(ip),ndens,FT(ipFkl),
      &                             kBas,lBas,iCmpa(3),iCmpa(4),
      &                             kOp2(3),kOp2(4),
-     &                             iIrrep,iShell(3),iShell(4),iShkl,
+     &                             iIrrep,
+     &                             iShkl,
      &                             iAO(3),iAO(4),iAOst(3),iAOst(4),
      &                             fact)
 *           Write (*,*) 'Level ik'
             If (lFik) Call FckDst(TwoHam(ip),ndens,FT(ipFik),
      &                             iBas,kBas,iCmpa(1),iCmpa(3),
      &                             kOp2(1),kOp2(3),
-     &                             iIrrep,iShell(1),iShell(3),iShik,
+     &                             iIrrep,
+     &                             iShik,
      &                             iAO(1),iAO(3),iAOst(1),iAOst(3),
      &                             fact)
 *           Write (*,*) 'Level jl'
             If (lFjl) Call FckDst(TwoHam(ip),ndens,FT(ipFjl),
      &                             jBas,lBas,iCmpa(2),iCmpa(4),
      &                             kOp2(2),kOp2(4),
-     &                             iIrrep,iShell(2),iShell(4),iShjl,
+     &                             iIrrep,
+     &                             iShjl,
      &                             iAO(2),iAO(4),iAOst(2),iAOst(4),
      &                             fact)
 *           Write (*,*) 'Level il'
             If (lFil) Call FckDst(TwoHam(ip),ndens,FT(ipFil),
      &                             iBas,lBas,iCmpa(1),iCmpa(4),
      &                             kOp2(1),kOp2(4),
-     &                             iIrrep,iShell(1),iShell(4),iShil,
+     &                             iIrrep,
+     &                             iShil,
      &                             iAO(1),iAO(4),iAOst(1),iAOst(4),
      &                             fact)
 *           Write (*,*) 'Level jk'
             If (lFjk) Call FckDst(TwoHam(ip),ndens,FT(ipFjk),
      &                             jBas,kBas,iCmpa(2),iCmpa(3),
      &                             kOp2(2),kOp2(3),
-     &                             iIrrep,iShell(2),iShell(3),iShjk,
+     &                             iIrrep,
+     &                             iShjk,
      &                             iAO(2),iAO(3),iAOst(2),iAOst(3),
      &                             fact)
          End If

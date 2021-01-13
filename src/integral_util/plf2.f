@@ -25,14 +25,15 @@
 *  Author: Roland Lindh, IBM Almaden Research Center, San Jose, Ca     *
 *          May '90                                                     *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
+      use k2_arrays, only: Sew_Scr
+      use lw_Info
+      use REal_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "WrkSpc.fh"
 *
       Real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp)
       Integer iShell(4), iAO(4), kOp(4), iAOst(4), iSOs(4)
@@ -40,7 +41,6 @@
 *
       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *
-C     Call qEnter('PLF2')
       irout = 109
       iprint = nprint(irout)
       If (iPrint.ge.49) Then
@@ -49,8 +49,8 @@ C     Call qEnter('PLF2')
          Write (6,*) ' Sum=',r1
          Write (6,*) ' Dot=',r2
       End If
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' In Plf2: AOInt',' ',
      &                              AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
 #endif
@@ -80,7 +80,7 @@ C     Write (*,*) 'nij,mij=',nij,mij
       iAOl=iAO(4)
 *
       ijklCmp=iCmp*jCmp*kCmp*lCmp
-      Call DCopy_(ijkl*2*ijklCmp,[One],0,work(lwSyB),1)
+      Call DCopy_(ijkl*2*ijklCmp,[One],0,Sew_Scr(lwSyB),1)
 *
       Do 100 i1 = 1, iCmp
          iSOs(1)=iAOtSO(iAOi+i1,kOp(1))+iAOsti
@@ -110,23 +110,23 @@ C     Write (*,*) 'nij,mij=',nij,mij
 C                           Write (*,*) 'iSOij,iSOkl=',iSOij,iSOkl
 *
                             nUt=nUt+1
-                            work(lwInt+nUt)=Aint
+                            Sew_Scr(lwInt+nUt)=Aint
                             iBin=(iSOkl-1)/mij
 C                           Write (*,*) 'iBin=',iBin+1
-                            work(lwSyB+nUt)=DBLE(iBin+1)
-                            work(lwSqN+nUt)=DBLE((iSOkl-1-iBin*mij)
+                            Sew_Scr(lwSyB+nUt)=DBLE(iBin+1)
+                            Sew_Scr(lwSqN+nUt)=DBLE((iSOkl-1-iBin*mij)
      &                                      *nij+iSOij)
-C                           Write (*,*) 'iSq=',work(lwSqN+nUt)
+C                           Write (*,*) 'iSq=',Sew_Scr(lwSqN+nUt)
 *
                             If (iSOij.ne.iSOkl) Then
                                nUt=nUt+1
-                               work(lwInt+nUt)=Aint
+                               Sew_Scr(lwInt+nUt)=Aint
                                iBin=(iSOij-1)/mij
 C                              Write (*,*) 'iBin=',iBin+1
-                               work(lwSyB+nUt)=DBLE(iBin+1)
-                               work(lwSqN+nUt)=DBLE((iSOij-1-iBin*mij)
-     &                                         *nij+iSOkl)
-C                              Write (*,*) 'iSq=',work(lwSqN+nUt)
+                               Sew_Scr(lwSyB+nUt)=DBLE(iBin+1)
+                               Sew_Scr(lwSqN+nUt)=
+     &                               DBLE((iSOij-1-iBin*mij)*nij+iSOkl)
+C                              Write (*,*) 'iSq=',Sew_Scr(lwSqN+nUt)
                             End If
 *
 420                      Continue
@@ -141,12 +141,10 @@ C                              Write (*,*) 'iSq=',work(lwSqN+nUt)
 *
 *     pass the integral to phase 1 of the bin sorting algorithm
 *
-      Call R8PREP(nUt+1,work(lwInt))
-      Call SORT1A(nUt+1,work(lwInt),work(lwSqN),work(lwSyB))
-      NotZer=NotZer+nUt+1
+      Call R8PREP(nUt+1,Sew_Scr(lwInt))
+      Call SORT1A(nUt+1,Sew_Scr(lwInt),Sew_Scr(lwSqN),Sew_Scr(lwSyB))
       nUt=0
 *
-C     Call qExit('PLF2')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

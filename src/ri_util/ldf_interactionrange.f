@@ -26,7 +26,7 @@ C
 #include "ldf_atom_pair_info.fh"
 #include "ldf_a2ap.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*20 SecNam
       Parameter (SecNam='LDF_InteractionRange')
 #endif
@@ -52,7 +52,7 @@ C
             AB=iWork(ip+iAB)
             A_=AP_Atoms(1,AB)
             B_=AP_Atoms(2,AB)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
             If (A_.ne.A .and. B_.ne.A) Then
                Call WarningMessage(2,
      &                          SecNam//': A2AP info not properly set!')

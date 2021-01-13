@@ -38,7 +38,6 @@
          Call Allocate_Work(ipBuf1,2*nBuff)
          ipBuf2 = ipBuf1+nBuff
 *
-         nBatch=(nMem-1)/nBuff + 1
          Inc = nBuff/nB
          iAddr1=0
          Do iB = 1, nB, Inc

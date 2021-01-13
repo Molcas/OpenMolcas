@@ -11,27 +11,14 @@
 * Copyright (C) 1993, Roland Lindh                                     *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine PAM2Int(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,nIC,nComp,la,lb,A,RB,nHer,
-     &                 Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                 iStabM,nStabM)
+      SubRoutine PAM2Int(
+#define _CALLING_
+#include "int_interface.fh"
+     &                  )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of PAM integrals used in  *
 *         PAM calculations. The operator is a gaussian type function   *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DCR                                                     *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              CmbnMP                                                  *
-*              DaXpY   (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
@@ -61,21 +48,22 @@
 *             of Lund, Sweden, and Per Boussard, Dept. of Theoretical  *
 *             Physics, University of Stockholm, Sweden, October '93.   *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
       use Her_RW
+      use PAM2
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), TC(3), C(3),
-     &       Array(nZeta*nArr), Ccoor(3)
+
+#include "int_interface.fh"
+
+*     Local variables
+      Real*8 TC(3), C(3)
       Character*80 Label
       Logical ABeq(3)
-      Integer iStabM(0:nStabM-1), iDCRT(0:7), lOper(nComp),
-     &          iChO(nComp)
+      Integer iDCRT(0:7)
 *
 *-----Statement function for Cartesian index
 *
@@ -83,7 +71,6 @@
 *
       iRout = 122
       iPrint = nPrint(iRout)
-*     Call QEnter('PAM2Int')
 *     Call GetMem(' Enter PAM2Int','LIST','REAL',iDum,iDum)
 *
       nip = 1
@@ -131,35 +118,31 @@
       kdc=0
       if (kCnttpPAM.gt.1) Then
          do ikdc=1,kCnttpPAM-1
-            kdc = kdc + nCntr(ikdc)
+            kdc = kdc + dbsc(ikdc)%nCntr
          end do
       end if
 
 
-c      Do 100 kCnttp = 1, nCnttp
       kCnttp = kCnttpPAM
-         If (.Not.PAM2(kCnttp)) Go To 111
-         If (nPAM2(kCnttp).eq.-1) Go To 111
+         If (.Not.dbsc(kCnttp)%lPAM2) Go To 111
+         If (dbsc(kCnttp)%nPAM2.eq.-1) Go To 111
 *
-         Do 101 kCnt = 1, nCntr(kCnttp)
-            kxyz = ipCntr(kCnttp) + (kCnt-1)*3
-            call dcopy_(3,Work(kxyz),1,C,1)
+         Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
+            C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt), nStab(kdc+kCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab, dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
             Do 102 lDCRT = 0, nDCRT-1
-               TC(1) = iPhase(1,iDCRT(lDCRT))*C(1)
-               TC(2) = iPhase(2,iDCRT(lDCRT))*C(2)
-               TC(3) = iPhase(3,iDCRT(lDCRT))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
 *
                   Call GetMem(' Scr','ALLO','REAL',ipScr,
      &                       nZeta*nElem(la)*nElem(lb)*nComp)
                   call dcopy_(nZeta*nElem(la)*nElem(lb)*nComp,
      &                       [Zero],0,Work(ipScr),1)
-               Do 1011 iM2xp = 0, iPAMPrim - 1
-                  Gamma = Work(ipPAMexp+ iM2xp)
+               Do 1011 iM2xp = 1, iPAMPrim
+                  Gamma = PAMexp(iM2xp,1)
 
 
                   If (iPrint.ge.99) Write (6,*) ' Gamma=',Gamma
@@ -249,13 +232,13 @@ c      Do 100 kCnttp = 1, nCnttp
 *
 *-----------------Multiply result by Zeff*Const
 *
-                  Factor = -Charge(kCnttp)*Work(ipPAM2cf(kCnttp)+iM2xp)
+                  Factor = -dbsc(kCnttp)%Charge*PAMexp(iM2xp,2)
      &                   * Fact
 *
 *                 FOR DMFT calculation!!!
 *
-c                  write(6,*) ' Cff',Work(ipPAMexp+iPAMPrim+iM2xp)
-                  Factor = 1.00d0*Fact*Work(ipPAMexp+iPAMPrim+iM2xp)
+c                  write(6,*) ' Cff',PAMexp(iM2xp,2)
+                  Factor = 1.00d0*Fact*PAMexp(iM2xp,2)
                   If (iPrint.ge.99) Write (6,*) ' Factor=',Factor
                   Call DaXpY_(nZeta*nElem(la)*nElem(lb)*nComp,Factor,
      &                       Array(ipRes),1,Work(ipScr),1)
@@ -264,7 +247,7 @@ c                  write(6,*) ' Cff',Work(ipPAMexp+iPAMPrim+iM2xp)
 *
 *-----------------Accumulate contributions
 *
-            nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+            nOp = NrOpr(iDCRT(lDCRT))
             Call SymAdO(Work(ipScr),nZeta,la,lb,nComp,Final,
      &                 nIC,nOp,lOper,iChO,One)
             Call GetMem(' Scr','FREE','REAL',ipScr,
@@ -272,9 +255,7 @@ c                  write(6,*) ' Cff',Work(ipPAMexp+iPAMPrim+iM2xp)
 *
  102        Continue
  101     Continue
- 111     kdc = kdc + nCntr(kCnttp)
-*
-c 100  Continue
+ 111     kdc = kdc + dbsc(kCnttp)%nCntr
 *
 c      If (nOrdOp.eq.1) Then
       If (iPrint.ge.99) Then
@@ -289,10 +270,11 @@ c      If (nOrdOp.eq.1) Then
       End If
 *
 *     Call GetMem(' Exit PAM2Int','LIST','REAL',iDum,iDum)
-*     Call QExit('PAM2Int')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
+         Call Unused_real_array(PtChrg)
+         Call Unused_integer(iAddPot)
          Call Unused_real_array(Alpha)
          Call Unused_real_array(Beta)
          Call Unused_real_array(ZInv)

@@ -8,21 +8,41 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine RdCtl_Seward(Info,nInfo,LuRd,lOPTO,Do_OneEl,DInf,nDInf)
+      Subroutine RdCtl_Seward(LuRd,lOPTO,Do_OneEl)
+      use SW_File
+      use AMFI_Info
+      use Basis_Info
+      use Center_Info
       use Her_RW
       use Period
       use MpmC
       use EFP_Module
+      use Real_Spherical, only: Sphere
       use fortran_strings, only : str
+      use External_Centers
+      use Symmetry_Info, only: Symmetry_Info_Setup, iSkip, nIrrep
+      use Temporary_Parameters
+      use Integral_Parameters
+      use Sizes_of_Seward, Only: S
+      use Real_Info, only: ThrInt, Rtrnc, CutInt, PkAcc, Thrs, E1, E2,
+     &                     RPQMin, SadStep, Shake, kVector, CoM
+      use DKH_Info
+      use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky,
+     &                     Do_acCD_Basis, Skip_High_AC, DiagCheck,
+     &                     LocalDF, Do_nacCD_Basis, Thrshld_CD
+      use Logical_Info
 #ifndef _HAVE_EXTRA_
       use XYZ
 #endif
+      Use Para_Info, Only: MyRank
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
       External NucExp
-#include "para_info.fh"
+#include "Molcas.fh"
 *
 #include "angtp.fh"
-#include "info.fh"
 #include "constants.fh"
 #include "constants2.fh"
 #include "SysDef.fh"
@@ -41,16 +61,18 @@
 #include "embpotdata.fh"
 #endif
 #include "relae.fh"
-#include "periodic_table.fh"
       Common /AMFn/ iAMFn
-      Common /delete/ kDel(0:MxAng,MxDc)
 *
-      Real*8 DInf(nDInf), Lambda
+      Real*8 Lambda
       Character Key*180, KWord*180, Oper(3)*3, BSLbl*80, Fname*256,
-     &          DefNm*13, Ref(2)*80, ChSkip*80, AngTyp(0:MxAng)*1,
+     &          DefNm*13, Ref(2)*80, ChSkip*80, AngTyp(0:iTabMx)*1,
      &          dbas*(LENIN),filename*180, KeepBasis*256, KeepGroup*180,
-     &          Previous_Command*12, BSLbl_Dummy*80, CtrLDK(10)*(LENIN),
+     &          Previous_Command*12, CtrLDK(10)*(LENIN),
      &          Directory*256, BasLib*256,ExtBasDir*256
+      Character(LEN=72):: Header(2)=['','']
+      Character(LEN=80):: Title(10)=['','','','','','','','','','']
+      Character(LEN=14):: Vrsn='Gateway/Seward'
+      Character(LEN=512):: Align_Weights='MASS'
       Character*180 Line
       common/cgetlc/ Line
       Character*180 Get_Ln
@@ -59,19 +81,24 @@
      &        Exist,CutInt_UsrDef, ThrInt_UsrDef, MolWgh_UsrDef,
      &        CholeskyWasSet, GWInput, NoAMFI, lOPTO, Do_OneEl
       Logical do1CCD
+      Logical:: CSPF=.False.
       Logical APThr_UsrDef, Write_BasLib
-      Integer Cho_MolWgh, StayAlone, nDel(MxAng),
-     &        BasisTypes(4), BasisTypes_Save(4),
+      Integer Cho_MolWgh, BasisTypes(4), BasisTypes_Save(4),
      &        iGeoInfo(2), iOpt_XYZ, RC
       Parameter (Cho_CutInt = 1.0D-40, Cho_ThrInt = 1.0D-40,
      &           Cho_MolWgh = 2)
 *
-      Real*8 NucExp, WellCff(3),WellExp(3), WellRad(3)
-      Real*8, Allocatable :: RTmp(:,:), EFt(:,:), OAMt(:), OMQt(:),
+      Real*8 NucExp, WellCff(3), WellExp(3), WellRad(3),
+     &       OAMt(3), OMQt(3)
+      Real*8, Allocatable :: RTmp(:,:), EFt(:,:),
      &                       DMSt(:,:), OrigTrans(:,:), OrigRot(:,:,:),
      &                       mIsot(:)
-      Integer, Allocatable :: ITmp(:), nIsot(:,:)
-      Character*180 STDINP(mxAtom*2)
+      Integer, Allocatable :: ITmp(:), nIsot(:,:), iScratch(:)
+!     Temporary buffer
+      Integer, Parameter:: nBuff=10000
+      Real*8, Allocatable:: Buffer(:), Isotopes(:)
+!
+      Character*180, Allocatable :: STDINP(:)
       Character Basis_lib*256, CHAR4*4
       Character*256 Project, GeoDir, temp1, temp2
 *
@@ -85,22 +112,24 @@
       Logical DoneCoord
       Logical NoZMAT
       Logical ForceZMAT
-      Logical XYZdirect
       Logical NoDKroll
       Logical DoTinker
       Logical DoGromacs
       Logical OriginSet
       Logical FragSet
       Logical HyperParSet
-      Logical WriteZMat, geoInput, oldZmat,zConstraints
+      Logical WriteZMat
+#ifdef _HAVE_EXTRA_
+      Logical geoInput, oldZmat, zConstraints
+#endif
       Logical EFgiven
       Logical Invert
-      Real*8 HypParam(3)
-      Integer iSeed
-      Save iSeed
-      Logical Vlct_
+      Real*8 HypParam(3), RandVect(3)
+      Logical Vlct_, nmwarn, FOUND
 *
-      Logical DoEMPC
+      Logical DoEMPC, Basis_test, lECP, lPP
+      Logical :: lDMS=.FALSE., lOAM=.FALSE., lOMQ=.False.,
+     &           lXF=.False., lFAIEMP=.False.
       Common /EmbPCharg/ DoEMPC
 *
 #ifdef _GROMACS_
@@ -116,26 +145,32 @@
       Data WellCff/.35D0,0.25D0,5.2D0/
       Data WellExp/4.0D0,3.0D0,2.0D0/
       Data WellRad/-1.22D0,-3.20D0,-6.20D0/
-      Data StayAlone/0/
 *
 #include "angstr.fh"
       Data DefNm/'basis_library'/
       Data IfTest/.False./
-      Data iSeed/24619/
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+#include "getbs_interface.fh"
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
       iRout=3
       iPrint = nPrint(iRout)
-      Call qEnter('RdCtl')
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif
-*
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Do i=0,MxAng
+      Call mma_allocate(Buffer,nBuff,Label='Buffer')
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Do i=0,iTabMx
          AngTyp(i)=Angtp(i)
          Call UpCase(AngTyp(i))
       End Do
@@ -144,7 +179,6 @@
 *                                                                      *
       Call WhichMolcas(Basis_lib)
       If (Basis_lib(1:1).ne.' ') Then
-         StayAlone=1
          ib=index(Basis_lib,' ')-1
          if(ib.lt.1)
      &   Call SysAbendMsg('rdCtl','Too long PATH to MOLCAS',' ')
@@ -156,13 +190,16 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call Qpg_cArray('Align_Weights',Found,lAW)
+      If (Found) Call Get_cArray('Align_Weights',Align_Weights,512)
+*                                                                      *
+************************************************************************
+*                                                                      *
       CutInt_UsrDef=.False.
       ThrInt_UsrDef=.False.
       MolWgh_UsrDef=.False.
       APThr_UsrDef=.False.
       NoAMFI=.False.
-      Fake_ERIs=.False.
-      Cholesky=.False.
 *
       iChk_RI=0
       iChk_CH=0
@@ -171,6 +208,8 @@
 *
       isXfield=0
       CholeskyThr=-9.99d9
+*
+      Basis_Test=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -179,11 +218,7 @@
       LuRdSave=-1
 *
       nTemp=0
-      ipRTmp=ip_Dummy
-      ipITmp=ip_iDummy
       lMltpl=.False.
-*
-      nPAMFI=0
 *
       CholeskyWasSet=.False.
       do1CCD=.false.
@@ -191,7 +226,6 @@
       lTtl = .False.
       RF_read=.False.
       lSkip=.False.
-      Force_Out_of_Core=.False.
       NoDKroll=.false.
       SymmSet=.false.
       BasisSet=.false.
@@ -202,13 +236,16 @@
       KeepGroup='FULL'
       NoZMAT=.false.
       ForceZMAT=.false.
-      XYZDirect=.false.
       DoTinker = .False.
       DoGromacs = .False.
       origin_input = .False.
+#ifdef _HAVE_EXTRA_
       geoInput = .False.
-      ZConstraints = .False.
       OldZmat = .False.
+      isHold=-1
+      nCoord=0
+      ZConstraints = .False.
+#endif
       WriteZMat = .False.
       nFragment = 0
       iFrag = 0
@@ -240,10 +277,8 @@
       ScaleFactor=1.0d0
       lSTDINP=0
       iCoord=0
-      nCoord=0
       iBSSE=-1
       SymThr=0.01D0
-      isHold=-1
       nTtl=0
 *
       imix=0
@@ -252,12 +287,13 @@
       itype=0
       ExtBasDir=' '
       isxbas=0
+      nmwarn=.True.
 *
 *     Selective initialization
 *
       If (Run_Mode.eq.S_Mode) Then
-         iShll = Mx_Shll
-         mdc = Mx_mdc
+         iShll = S%Mx_Shll
+         mdc = S%Mx_mdc
       Else
          iShll = 0
          mdc = 0
@@ -267,17 +303,12 @@
             Oper(i)=' '
          End Do
          nOper=0
-      ipExp(1) = Info
-*     CLightAU = 137.036d0
-      CLightAU = CONST_C_IN_AU_
+         CLightAU = CONST_C_IN_AU_
       End If
 *
-      nDKfull = 0
+      iDNG=0
       iAMFn = 0   ! usual AMFI
-      BasisTypes(1)=0
-      BasisTypes(2)=0
-      BasisTypes(3)=0
-      BasisTypes(4)=0
+      BasisTypes(:)=0
       KeepBasis=' '
 cperiod
       lthCell = 0
@@ -340,7 +371,14 @@ cperiod
 *
 *     KeyWord directed input
 *
+      Call mma_allocate(STDINP,MxAtom*2,label='STDINP')
+*
+      nDone=0
  998  lTtl = .False.
+      If (Basis_Test.and.nDone.eq.1) Then
+         nDone=0
+         Basis_Test=.False.
+      End If
  9988 Continue
       Key = Get_Ln(LuRd)
 *
@@ -368,8 +406,9 @@ cperiod
       KWord = Key
       Call UpCase(KWord)
       Previous_Command=KWord(1:4)
-      If (KWord(1:1).eq.'*')    Go To 998
-      If (KWord.eq.BLine)       Go To 998
+      If (KWord(1:1).eq.'*') Go To 998
+      If (KWord.eq.'')    Go To 998
+      If (Basis_Test) nDone=1
 *
 *     KEYWORDs in ALPHABETIC ORDER!
 *
@@ -402,11 +441,11 @@ cperiod
       If (KWord(1:4).eq.'CLIG') Go To 9000
       If (KWord(1:4).eq.'CONS') Go To 8010
       If (KWord(1:4).eq.'COOR') Go To 6000
+      If (KWord(1:4).eq.'CSPF') Go To 9110
       If (KWord(1:4).eq.'CUTO') Go To 942
       If (KWord(1:4).eq.'DCRN') Go To 958
       If (KWord(1:4).eq.'DIAG') Go To 9087
       If (KWord(1:4).eq.'DIRE') Go To 9770
-      If (KWord(1:4).eq.'DIST') Go To 954
       If (KWord(1:4).eq.'DK1H') Go To 9001
       If (KWord(1:4).eq.'DK2H') Go To 9002
       If (KWord(1:4).eq.'DK3F') Go To 9004
@@ -491,7 +530,6 @@ cperiod
       If (KWord(1:4).eq.'OVER') Go To 41
       If (KWord(1:4).eq.'PAMF') Go To 8060
       If (KWord(1:4).eq.'PART') Go To 9763
-      If (KWord(1:4).eq.'PETI') Go To 961
       If (KWord(1:4).eq.'PKTH') Go To 9940
       If (KWord(1:4).eq.'PSOI') Go To 9023
       If (KWord(1:4).eq.'PRIN') Go To 930
@@ -541,7 +579,6 @@ c    &       KWord(4:4).eq.'C') ) Go To 657
       If (KWord(1:4).eq.'SLIM') Go To 8005
       If (KWord(1:4).eq.'SPAN') Go To 890
       If (KWord(1:4).eq.'SPRE') Go To 889
-      If (KWord(1:4).eq.'SQUA') Go To 9920
       If (KWord(1:4).eq.'STDO') Go To 9930
       If (KWord(1:4).eq.'SYMM') Go To 900
       If (KWord(1:4).eq.'SYMT') Go To 6060
@@ -577,6 +614,26 @@ c    &       KWord(4:4).eq.'C') ) Go To 657
 *
       If (KWord(1:4).eq.'END ') Go To 997
       If (lTtl) Go To 911
+*
+      If (Basis_test) Then
+*
+*        So the Basis keyword was in the native format.
+*        We have to back step until we find the command line!
+*
+         Backspace(LuRd)
+         Backspace(LuRd)
+         Read(LuRd,'(A)') Key
+         Call UpCase(Key)
+         Do While(Index(Key(1:4),'BASI').eq.0)
+              Backspace(LuRd)
+              Backspace(LuRd)
+              Read(LuRd,'(A)') Key
+              Call UpCase(Key)
+         End Do
+         Basis_test=.False.
+         nDone=0
+         Go To 9201
+      End If
       iChrct=Len(KWord)
       Last=iCLast(KWord,iChrct)
       Write (LuWr,*)
@@ -772,8 +829,8 @@ c     Call Quit_OnUserError()
       i2=iCLast(Key,80)
       nc = 80-(i2-i1+1)
       nc2=nc/2
-      nc3=(nc+1)/2
-      Title(nTtl)=BLine(1:nc2)//Key(i1:i2)//BLine(1:nc3)
+      Title(nTtl)=''
+      Title(nTtl)(nc2+1:nc2+i2-i1+1)=Key(i1:i2)
       Go To 9988
 *                                                                      *
 ****** ECPS **** or ****** AUXS ****************************************
@@ -822,21 +879,19 @@ c     Call Quit_OnUserError()
      &   iglobal,nxbas,xb_label,xb_bas,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
       GWInput=.True.
-      Call Gen_RelPointers(-(Info-1))
-      Call StdSewInput(1,nInfo,LuRd,ifnr,mdc,iShll,BasisTypes,
-     &                 STDINP,lSTDINP,iErr,DInf,nDInf)
-      Call Gen_RelPointers(Info-1)
+      Call StdSewInput(LuRd,ifnr,mdc,iShll,BasisTypes,
+     &                 STDINP,lSTDINP,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
       Go To 998
 *                                                                      *
 ****** XBAS ************************************************************
 *                                                                      *
-1924   Continue
-       call read_xbas(LuRd,iglobal,nxbas,xb_label,xb_bas,ierr)
-       GWInput=.True.
-       isxbas=1
-       if(ierr.eq.1) Call Quit_OnUserError()
-       goto 998
+1924  Continue
+      call read_xbas(LuRd,iglobal,nxbas,xb_label,xb_bas,ierr)
+      GWInput=.True.
+      isxbas=1
+      if(ierr.eq.1) Call Quit_OnUserError()
+      goto 998
 *                                                                      *
 ****** XYZ  ************************************************************
 *                                                                      *
@@ -846,12 +901,9 @@ c     Call Quit_OnUserError()
      &   iglobal,nxbas,xb_label,xb_bas,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
       GWInput=.True.
-      Call Gen_RelPointers(-(Info-1))
-      Call StdSewInput(1,nInfo,LuRd,ifnr,mdc,iShll,BasisTypes,
-     &                 STDINP,lSTDINP,iErr,DInf,nDInf)
-      Call Gen_RelPointers(Info-1)
+      Call StdSewInput(LuRd,ifnr,mdc,iShll,BasisTypes,
+     &                 STDINP,lSTDINP,iErr)
       If (iErr.ne.0) Call Quit_OnUserError()
-      XYZdirect=.true.
 *      If (SymmSet) Then
 *         Call WarningMessage(2,
 *     &                 'SYMMETRY keyword is not compatible with XYZ')
@@ -869,7 +921,8 @@ c     Call Quit_OnUserError()
 *                                                                      *
 *     Read Basis Sets & Coordinates in xyz format
 *
-6000  If (SymmSet) Then
+6000  Continue
+      If (SymmSet) Then
          Call WarningMessage(2,
      &                 'SYMMETRY keyword is not compatible with COORD')
          Call Quit_OnUserError()
@@ -901,7 +954,8 @@ c      End If
 *                                                                      *
 *     Read information for a group
 *
-6010  If (SymmSet) Then
+6010  Continue
+      If (SymmSet) Then
          Call WarningMessage(2,
      &                 'SYMMETRY keyword is not compatible with GROUP')
          Call Quit_OnUserError()
@@ -957,7 +1011,9 @@ c Simplistic validity check for value
          Call WarningMessage(2,'COORD keyword is not found')
          Call Quit_OnUserError()
       End If
+#ifdef _HAVE_EXTRA_
       isHold=0
+#endif
       GWInput=.True.
       goto 998
 *                                                                      *
@@ -970,7 +1026,9 @@ c Simplistic validity check for value
          Call WarningMessage(2,'COORD keyword is not found')
          Call Quit_OnUserError()
       End If
+#ifdef _HAVE_EXTRA_
       isHold=1
+#endif
       GWInput=.True.
       goto 998
 *                                                                      *
@@ -1020,28 +1078,37 @@ c Simplistic validity check for value
 *     Read information for a basis set
 *
  920  continue
-      If (CoordSet) then
-         GWInput=.True.
-         If (BasisSet) Then
-            KeepBasis=
-     &             KeepBasis(1:index(KeepBasis,' '))//','//Get_Ln(LuRd)
-         Else
-            KeepBasis=Get_Ln(LuRd)
-         Endif
-         BasisSet=.True.
-         temp1=KeepBasis
-         Call UpCase(temp1)
-        if (INDEX(temp1,'INLINE').ne.0) then
-       Write(LuWr,*) 'XYZ input and Inline basis set are not compatible'
-       Write(LuWr,*) 'Consult the manual how to change inline basis set'
-       Write(LuWr,*) ' into basis set library'
-         Call Quit_OnUserError()
-         endif
-         iOpt_XYZ=1
-         Goto 998
+*
+*     Check if the format is old or new style. Damn the person who used
+*     the same keword for two different styles of input and making the
+*     input require a specific order of the keyword. Comrade 55?
+*
+      Basis_Test=.True.
+*
+      GWInput=.True.
+      Key = Get_Ln(LuRd)
+      BSLbl = Key(1:80)
+      If (BasisSet) Then
+         KeepBasis=KeepBasis(1:index(KeepBasis,' '))//','//BSLbl
       Else
-         iOpt_XYZ=0
-      End If
+         KeepBasis=BSLbl
+         BasisSet=.True.
+      Endif
+      temp1=KeepBasis
+      Call UpCase(temp1)
+*     If (INDEX(temp1,'INLINE').ne.0) then
+*        Write(LuWr,*)
+*    &        'XYZ input and Inline basis set are not compatible'
+*        Write(LuWr,*)
+*    &        'Consult the manual how to change inline basis set'
+*        Write(LuWr,*) ' into basis set library'
+*        Call Quit_OnUserError()
+*     End If
+      iOpt_XYZ=1
+      Goto 998
+*
+ 9201 Continue
+      iOpt_XYZ=0
       GWInput=.True.
       nCnttp = nCnttp + 1
       If (Run_Mode.eq.S_Mode) Then
@@ -1070,7 +1137,6 @@ c Simplistic validity check for value
       Call ICopy(4,BasisTypes,1,BasisTypes_save,1)
       If (BSLbl(1:2).eq.'X.'.and.Index(BSLbl,'INLINE').eq.0.and.
      &    Index(BSLbl,'RYDBERG').eq.0) Then
-         BSLbl_Dummy=BSLbl
          BSLbl='X.ANO-RCC.'
          Do i=11,80
            BSLbl(i:i)='.'
@@ -1085,7 +1151,7 @@ c Simplistic validity check for value
       If (Indx.eq.0) Then
          Fname=BasLib
          Indx = Last+1
-         Bsl(nCnttp)=BSLbl
+         dbsc(nCnttp)%Bsl=BSLbl
       Else
          Fname= BSLbl(Indx+2:Last)
          If (Fname.eq.' ') Then
@@ -1099,13 +1165,13 @@ c Simplistic validity check for value
             Fname(80:80) = ' '
             Go To 1919
          End If
-         Bsl(nCnttp)=BSLbl(1:Indx-1)
+         dbsc(nCnttp)%Bsl=BSLbl(1:Indx-1)
       End If
 *
-      n=INDEX(Bsl(nCnttp),' ')
+      n=INDEX(dbsc(nCnttp)%Bsl,' ')
       If (n.eq.0) n=81
       Do i=n,80
-        Bsl(nCnttp)(i:i)='.'
+        dbsc(nCnttp)%Bsl(i:i)='.'
       End Do
 *
       If ((Show.and.nPrint(2).ge.6) .or.
@@ -1119,39 +1185,17 @@ c Simplistic validity check for value
       End if
 *
       jShll = iShll
-      SODK(nCnttp)=.False.
-      AuxCnttp(nCnttp)=.False.
-      Bsl_Old(nCnttp)=Bsl(nCnttp)
-      mdciCnttp(nCnttp)=mdc
-      Call Gen_RelPointers(-(Info-1))
-      Call GetBS(Fname,Bsl(nCnttp),Indx-1,lAng,ipExp,
-     &           ipCff,ipCff_Cntrct,ipCff_Prim,ipFockOp,
-     &           nExp,nBasis,nBasis_Cntrct,MxShll,iShll,
-     &           MxAng,Charge(nCnttp),
-     &           iAtmNr(nCnttp),BLine,Ref, PAM2(nCnttp),
-     &           ipPAM2xp(nCnttp),ipPAM2cf(nCnttp),nPAM2(nCnttp),
-     &           FockOp(nCnttp),
-     &           ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
-     &           ipM1xp(nCnttp),ipM1cf(nCnttp),nM1(nCnttp),
-     &           ipM2xp(nCnttp),ipM2cf(nCnttp),nM2(nCnttp),ipBk,
-     &           CrRep(nCnttp),nProj,nAIMP,ipAkl,ip_Occ,iOptn,
-     &           UnNorm,nDel,
-     &            nVal,   nPrj,   nSRO,   nSOC,  nPP,
-     &           ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &           LuRd,BasisTypes,AuxCnttp(nCnttp),
-     &           nFragType(nCnttp),nFragCoor(nCnttp),nFragEner(nCnttp),
-     &           nFragDens(nCnttp),ipFragType(nCnttp),ipFragCoor(nCnttp)
-     &           ,ipFragEner(nCnttp),ipFragCoef(nCnttp),IsMM(nCnttp),
-     &           STDINP,lSTDINP,.False.,Expert,ExtBasDir,
-     &           DInf,nDInf)
-      Call Gen_RelPointers(Info-1)
+      dbsc(nCnttp)%Bsl_old=dbsc(nCnttp)%Bsl
+      dbsc(nCnttp)%mdci=mdc
+      Call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,Ref,UnNorm,LuRd,
+     &           BasisTypes,STDINP,lSTDINP,.False.,Expert,ExtBasDir)
 *
-      Do_FckInt = Do_FckInt .and. FockOp(nCnttp) .and.
-     &            iAtmNr(nCnttp).le.96
+      Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp .and.
+     &            dbsc(nCnttp)%AtmNr.le.96
 #ifdef _DEMO_
       Do_GuessOrb = .False.
 #else
-      Do_GuessOrb = Do_GuessOrb .and. iAtmNr(nCnttp).le.96
+      Do_GuessOrb = Do_GuessOrb .and. dbsc(nCnttp)%AtmNr.le.96
 #endif
 *
       If (iDummy_Basis.eq.1) Call ICopy(4,BasisTypes_Save,1,
@@ -1175,79 +1219,52 @@ c Simplistic validity check for value
 *
       If (ign.eq.0) Then
          ign=BasisTypes(4)
-      Else If (BasisTypes(4).ne.ign) Then
-         Call WarningMessage(1,
-     &     'SEWARD found basis sets of mixed nuclear charge model. '
-     &   //'The most advanced one will be used.')
+      Else If (Abs(BasisTypes(4)).ne.Abs(ign)) Then
+         If (nmwarn) Then
+            Call WarningMessage(1,
+     &        'SEWARD found basis sets of mixed nuclear charge model. '
+     &      //'The most advanced one will be used.')
+         End If
+         nmwarn=.False.
          ign=Max(ign,BasisTypes(4))
          BasisTypes(4)=ign
       End If
 *
-      If (nSOC.gt.-1) Then
-         Do l = 1, MxAng
-            kDel(l,nCnttp)=nDel(l)
-         End Do
-      End If
       If (Show.and.nPrint(2).ge.6 .and.
-     &   Ref(1).ne.BLine .and. Ref(2).ne.Bline) Then
+     &   Ref(1).ne.'' .and. Ref(2).ne.'') Then
          Write (LuWr,'(1x,a)')  'Basis Set Reference(s):'
-         If (Ref(1).ne.BLine) Write (LuWr,'(5x,a)') Ref(1)
-         If (Ref(2).ne.BLine) Write (LuWr,'(5x,a)') Ref(2)
+         If (Ref(1).ne.'') Write (LuWr,'(5x,a)') Ref(1)
+         If (Ref(2).ne.'') Write (LuWr,'(5x,a)') Ref(2)
          Write (LuWr,*)
          Write (LuWr,*)
       End If
-      lPAM2 = lPAM2 .or. PAM2(nCnttp)
-      ECP(nCnttp)=(nPP+nPrj+nSRO+nSOC+nM1(nCnttp)+nM2(nCnttp)).ne.0
-      lPP=lPP .or. nPP.ne.0
-      lECP = lECP .or. ECP(nCnttp)
-      lNoPair = lNoPair .or. NoPairL(nCnttp)
+      dbsc(nCnttp)%ECP=(dbsc(nCnttp)%nPP
+     &                 +dbsc(nCnttp)%nPrj
+     &                 +dbsc(nCnttp)%nSRO
+     &                 +dbsc(nCnttp)%nSOC
+     &                 +dbsc(nCnttp)%nM1
+     &                 +dbsc(nCnttp)%nM2) .NE. 0
 *
-      iAngMx=Max(iAngMx,lAng)
+      lAng=Max(dbsc(nCnttp)%nVal,
+     &         dbsc(nCnttp)%nSRO,
+     &         dbsc(nCnttp)%nPrj)-1
+      S%iAngMx=Max(S%iAngMx,lAng)
 *     No transformation needed for s and p shells
-      Transf(jShll+1)=.False.
-      Prjct(jShll+1)=.False.
-      Transf(jShll+2)=.False.
-      Prjct(jShll+2)=.False.
-      pChrg(nCnttp)=.False.
-      Fixed(nCnttp)=.False.
-      nOpt(nCnttp) = iOptn
-      ipVal(nCnttp) = ipVal_
-      ipPrj(nCnttp) = ipPrj_
-      ipSRO(nCnttp) = ipSRO_
-      ipSOC(nCnttp) = ipSOC_
-      ipPP(nCnttp)  = ipPP_
-      nVal_Shells(nCnttp) = nVal
-      nPrj_Shells(nCnttp) = nPrj
-      nSRO_Shells(nCnttp) = nSRO
-      nSOC_Shells(nCnttp) = nSOC
-      nPP_Shells(nCnttp)  = nPP
-      nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
-      ipCntr(nCnttp) = ipExp(iShll+1)
+      Shells(jShll+1)%Transf=.False.
+      Shells(jShll+1)%Prjct =.False.
+      Shells(jShll+2)%Transf=.False.
+      Shells(jShll+2)%Prjct =.False.
+      dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
+     &                     + dbsc(nCnttp)%nPrj
+     &                     + dbsc(nCnttp)%nSRO
+     &                     + dbsc(nCnttp)%nSOC
+     &                     + dbsc(nCnttp)%nPP
       nCnt = 0
-      lAux = lAux .or. AuxCnttp(nCnttp)
-      If (AuxCnttp(nCnttp)) Then
+      If (dbsc(nCnttp)%Aux) Then
          Do iSh = jShll+1, iShll
-            AuxShell(iSh)=.True.
+            Shells(iSh)%Aux=.True.
          End Do
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Compute the effective radius of this center
-*
-      iAng = 0
-      Thrshld_R=1.0D-08
-      Do iSh = ipVal_, ipVal_+nVal-1
-         RMax_R=Zero
-         Do iPrim = 0, nExp(iSh)-1
-            ValExp = Work(ipExp(iSh)+iPrim)
-            RMax_R = Max(RMax_R,
-     &                   Eval_RMax(ValExp,iAng,Thrshld_R))
-         End Do
-         RMax_Shll(iSh)=RMax_R
-C        Write (LuWr,*) 'RMax_R=',RMax_R
-         iAng = iAng + 1
-      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1256,8 +1273,8 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 *
       If (BasisTypes(1).eq.9) Then
          Do iSh = jShll+3, iShll
-            Prjct(iSh)=.False.
-            Transf(iSh)=.False.
+            Shells(iSh)%Transf=.False.
+            Shells(iSh)%Prjct =.False.
          End Do
       End If
 *                                                                      *
@@ -1267,10 +1284,11 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 *     This will also automatically activate finite nuclear mass
 *     correction.
 *
-      KWord=BSLbl(1:Indx-1)
+      KWord=''
+      KWord(1:Indx-1)=BSLbl(1:Indx-1)
       Call UpCase(KWord)
       If (INDEX(KWord,'MUONIC').ne.0) Then
-         fmass(nCnttp)=
+         dbsc(nCnttp)%fMass=
      &    CONST_MUON_MASS_IN_SI_ / CONST_ELECTRON_MASS_IN_SI_
          FNMC=.True.
          tDel=1.0D50
@@ -1293,34 +1311,34 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       Call UpCase(KWord)
       Call LeftAd(KWord)
       If (KWord(1:4).eq.'PSEU') Then
-         pChrg(nCnttp)=.True.
-         Fixed(nCnttp)=.True.
+         dbsc(nCnttp)%pChrg=.True.
+         dbsc(nCnttp)%Fixed=.True.
          Go To 777
       End If
       If (KWord(1:4).eq.'ACDT') Then
          KWord = Get_Ln(LuRd)
-         Call Get_F1(1,aCD_Thr(nCnttp))
+         Call Get_F1(1,dbsc(nCnttp)%aCD_Thr)
          Go To 777
       End If
       If (KWord(1:4).eq.'MUON') Then
-         fmass(nCnttp)=
+         dbsc(nCnttp)%fMass=
      &    CONST_MUON_MASS_IN_SI_ / CONST_ELECTRON_MASS_IN_SI_
          Go To 777
       End If
       If (KWord(1:4).eq.'NUCL') Then
          KWord = Get_Ln(LuRd)
-         Call Get_F1(1,ExpNuc(nCnttp))
+         Call Get_F1(1,dbsc(nCnttp)%ExpNuc)
          Go To 777
       End If
       If (KWord(1:4).eq.'FIXE') Then
-         Fixed(nCnttp)=.True.
+         dbsc(nCnttp)%Fixed=.True.
          Go To 777
       End If
       If (KWord(1:4).eq.'SPHE') Then
          If (Index(KWord,'ALL').ne.0) Then
             Do iSh = jShll+3, iShll
-               Transf(iSh)=.True.
-               Prjct(iSh)=.True.
+               Shells(iSh)%Transf=.True.
+               Shells(iSh)%Prjct =.True.
             End Do
             Go To 777
          End If
@@ -1328,8 +1346,8 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          iAng = 2
          Do iSh = jShll+3, iShll
             If (Index(KWord(ist:80),AngTyp(iAng)).ne.0) Then
-               Transf(iSh) = .True.
-               Prjct(iSh) = .True.
+               Shells(iSh)%Transf = .True.
+               Shells(iSh)%Prjct  = .True.
             End If
             iAng = iAng + 1
          End Do
@@ -1338,8 +1356,8 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       If (KWord(1:4).eq.'CART') Then
          If (Index(KWord,'ALL').ne.0) Then
             Do iSh = jShll+1, iShll
-               Transf(iSh)=.False.
-               Prjct(iSh)=.False.
+               Shells(iSh)%Transf=.False.
+               Shells(iSh)%Prjct =.False.
             End Do
             Go To 777
          End If
@@ -1347,8 +1365,8 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          iAng = 0
          Do iSh = jShll+1, iShll
             If (Index(KWord(ist:80),AngTyp(iAng)).ne.0) Then
-               Transf(iSh) = .False.
-               Prjct(iSh) = .False.
+               Shells(iSh)%Transf = .False.
+               Shells(iSh)%Prjct  = .False.
             End If
             iAng = iAng + 1
          End Do
@@ -1357,7 +1375,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       If (KWord(1:4).eq.'CONT') Then
          If (Index(KWord,'ALL').ne.0) Then
             Do iSh = jShll+1, iShll
-               Prjct(iSh)=.False.
+               Shells(iSh)%Prjct  = .False.
             End Do
             Go To 777
          End If
@@ -1365,7 +1383,7 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          iAng = 0
          Do iSh = jShll+1, iShll
             If (Index(KWord(ist:80),AngTyp(iAng)).ne.0)
-     &          Prjct(iSh) = .False.
+     &          Shells(iSh)%Prjct  = .False.
             iAng = iAng + 1
          End Do
          Go To 777
@@ -1373,18 +1391,18 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
       If (KWord(1:4).eq.'CHAR') Then
          KWord = Get_Ln(LuRd)
          Call UpCase(KWord)
-         Call Get_F1(1,Charge(nCnttp))
+         Call Get_F1(1,dbsc(nCnttp)%Charge)
          ist = index(KWord,' ')
-         If (IsMM(nCnttp).ne.0) Then
+         If (dbsc(nCnttp)%IsMM.ne.0) Then
             Call WarningMessage(1,
      &         ' Found a charge associated with a MM atom. Ignore it')
-            Charge(nCnttp) = Zero
+            dbsc(nCnttp)%Charge = Zero
          End If
          Go To 777
       End If
       If (KWord(1:4).eq.'FRAG') Then
-         pChrg(nCnttp)=.True.
-         Fixed(nCnttp)=.True.
+         dbsc(nCnttp)%pChrg=.True.
+         dbsc(nCnttp)%Fixed=.True.
          lFAIEMP=.True.
          Go To 777
       End If
@@ -1393,24 +1411,25 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
             Call WarningMessage(2,' Input error, no center specified!')
             Call Quit_OnUserError()
          End If
-         nCntr(nCnttp) = nCnt
+         dbsc(nCnttp)%nCntr = nCnt
          mdc = mdc + nCnt
-         If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll+1) + nCnt*3
-*        Compute the number of elements stored in the dynamic memory
-*        so far.
-         nInfo = ipExp(iShll+1) - Info
-* the next line seems to convince IBM XLF 6.1 to forgo its otherwise
-* crass behaviour. Who can tell why? Peter Knowles, 7/99
-         ninfo_stupid = nInfo
+!        Now allocate the array for the coordinates and copy them over.
+!        Call Allocate(dbsc(nCnttp)%Coor(1:3,1:nCnt)
+         Call mma_Allocate(dbsc(nCnttp)%Coor_Hidden,3,nCnt,
+     &                     Label='dbsc:C')
+         dbsc(nCnttp)%Coor => dbsc(nCnttp)%Coor_Hidden(:,:)
+         Call DCopy_(3*nCnt,Buffer,1,dbsc(nCnttp)%Coor,1)
+!
          Go To 998
       End If
 *
 *     Read Coordinates
 *
       nCnt = nCnt + 1
-      If (mdc+nCnt.gt.Mxdc) Then
-         Call WarningMessage(2,' RdCtl: Increase Mxdc')
-         Write (LuWr,*) '        Mxdc=',Mxdc
+      n_dc=max(mdc+nCnt,n_dc)
+      If (mdc+nCnt.gt.MxAtom) Then
+         Call WarningMessage(2,' RdCtl: Increase MxAtom')
+         Write (LuWr,*) '        MxAtom=',MxAtom
          Call Quit_OnUserError()
       End If
       iend=Index(KWord,' ')
@@ -1418,20 +1437,20 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
          Write (6,*) 'Warning: the label ', KWord(1:iEnd),
      &               ' will be truncated to ',LENIN,' characters!'
       End If
-      LblCnt(mdc+nCnt) = KWord(1:Min(LENIN,iend-1))
-      dbas=LblCnt(mdc+nCnt)(1:LENIN)
+      dc(mdc+nCnt)%LblCnt = KWord(1:Min(LENIN,iend-1))
+      dbas=dc(mdc+nCnt)%LblCnt(1:LENIN)
       Call Upcase(dbas)
       If (dbas.eq.'DBAS') Then
          RMat_On=.True.
       End If
       If (mdc+nCnt.gt.1) then
-        Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
+        Call Chk_LblCnt(dc(mdc+nCnt)%LblCnt,mdc+nCnt-1)
       endif
-      iOff=ipCntr(nCnttp)+(nCnt-1)*3
-      Call Get_F(2,Work(iOff),3)
+      iOff=1+(nCnt-1)*3
+      Call Get_F(2,Buffer(iOff),3)
       If (Index(KWord,'ANGSTROM').ne.0) Then
          Do i = 0, 2
-            Work(iOff+i) = Work(iOff+i)/angstr
+            Buffer(iOff+i) = Buffer(iOff+i)/angstr
          End Do
       End If
 *
@@ -1461,9 +1480,10 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 
                   nCnt = nCnt + 1
 
-                  If (mdc+nCnt.gt.Mxdc) Then
-                     Call WarningMessage(2,' RdCtl: Increase Mxdc')
-                     Write (LuWr,*) '        Mxdc=',Mxdc
+                  n_dc=max(mdc+nCnt,n_dc)
+                  If (mdc+nCnt.gt.MxAtom) Then
+                     Call WarningMessage(2,' RdCtl: Increase MxAtom')
+                     Write (LuWr,*) '        MxAtom=',MxAtom
                      Call Quit_OnUserError()
                   End If
 
@@ -1472,18 +1492,18 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
                      Write (6,*) 'Warning: the label ', KWord(1:iEnd),
      &               ' will be truncated to ',LENIN,' characters!'
                   End If
-                  LblCnt(mdc+nCnt) = KWord(1:Min(LENIN,iend-1))//
+                  dc(mdc+nCnt)%LblCnt = KWord(1:Min(LENIN,iend-1))//
      &              CHAR4
 
-                  Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
+                  Call Chk_LblCnt(dc(mdc+nCnt)%LblCnt,mdc+nCnt-1)
 
-                  iOff=ipCntr(nCnttp)+(nCnt-1)*3
+                  iOff=1+(nCnt-1)*3
 
 *                 Copy old coordinate  first
-                  CALL DCOPY_(3,Work(iOff0),1,Work(iOff),1)
-                  CALL DAXPY_(3,DBLE(n1),VCell(1,1),1,Work(iOff),1)
-                  CALL DAXPY_(3,DBLE(n2),VCell(1,2),1,Work(iOff),1)
-                  CALL DAXPY_(3,DBLE(n3),VCell(1,3),1,Work(iOff),1)
+                  CALL DCOPY_(3,Buffer(iOff0),1,Buffer(iOff),1)
+                  CALL DAXPY_(3,DBLE(n1),VCell(1,1),1,Buffer(iOff),1)
+                  CALL DAXPY_(3,DBLE(n2),VCell(1,2),1,Buffer(iOff),1)
+                  CALL DAXPY_(3,DBLE(n3),VCell(1,3),1,Buffer(iOff),1)
 *
   110          Continue
 *
@@ -1542,21 +1562,12 @@ C        Write (LuWr,*) 'RMax_R=',RMax_R
 *
  950  KWord = Get_Ln(LuRd)
       Call Upcase(KWord)
-      Call Get_I1(1,Max_Center)
+      Call Get_I1(1,S%Max_Center)
       Call Get_F1(2,rtrnc)
       If (Index(KWord,'ANGSTROM').ne.0)
      &    Rtrnc = Rtrnc/angstr
       GWInput=.True.
       Go To 998
-*                                                                      *
-****** MEMO ************************************************************
-*                                                                      *
-*     Screen off memory
-*
-c951  KWord = Get_Ln(LuRd)
-c     Call Get_I1(1,memhid)
-c     If (MemHid.le.0) MemHid = 1
-c     Go To 998
 *                                                                      *
 ****** DIRE ************************************************************
 *                                                                      *
@@ -1573,6 +1584,14 @@ c     Go To 998
       Do_RI=.False.
       Go To 998
 *                                                                      *
+****** CSPF ************************************************************
+*                                                                      *
+*     Turn on the use of Condon-Shortley phase factors
+*
+ 9110 CSPF=.True.
+      GWInput = Run_Mode.eq.G_Mode
+      Go To 998
+*                                                                      *
 ****** EXPE ************************************************************
 *                                                                      *
 *     Expert mode
@@ -1581,13 +1600,6 @@ c     Go To 998
       GWInput = Run_Mode.eq.G_Mode
       Call WarningMessage(1,
      &   ' EXPERT option is ON!')
-      Go To 998
-*                                                                      *
-****** DIST ************************************************************
-*                                                                      *
-*     Enable computation of integral distribution
-*
- 954  Dist = .True.
       Go To 998
 *                                                                      *
 ****** MOLC or DCRN ****************************************************
@@ -1616,14 +1628,6 @@ c     Go To 998
       MolWgh_UsrDef=.true.
       Go To 998
 *                                                                      *
-****** PETI ************************************************************
-*                                                                      *
-*     Compute integrals in SO format or petite list
-*
- 961  Petite=.True.
-      lSOInt=.False.
-      Go To 998
-*                                                                      *
 ****** RELI ************************************************************
 *                                                                      *
 *     Compute integrals for first order relativistic corrections
@@ -1638,7 +1642,7 @@ c     Go To 998
 *     Change max j quantum number for the rigid rotor analysis
 *
  971  KWord = Get_Ln(LuRd)
-      Call Get_I1(1,jMax)
+      Call Get_I1(1,S%jMax)
       Go To 998
 *                                                                      *
 ****** MULT ************************************************************
@@ -1646,7 +1650,7 @@ c     Go To 998
 *     Read order of highest multipole to be computed
 *
  972  KWord = Get_Ln(LuRd)
-      Call Get_I1(1,nMltpl)
+      Call Get_I1(1,S%nMltpl)
       Go To 998
 *                                                                      *
 ****** CENT ************************************************************
@@ -1683,7 +1687,9 @@ c     Go To 998
 *             specified in XFIEld
 *
  974  DoEmPC=.True.
+#ifdef _HAVE_EXTRA_
       isHold=1 ! avoid coordinate moving
+#endif
       GWInput=.True.
       Go To 998
 *                                                                      *
@@ -1695,9 +1701,9 @@ c     Go To 998
       GWInput=.True.
       KWord = Get_Ln(LuRd)
 *     Open external file if the line does not start with an integer
-*       Note that the "Err" signal cannot be completely trusted, since
-*       a slash (i.e., an absolute path) marks end of input and gives
-*       no error
+*     Note that the "Err" signal cannot be completely trusted, since
+*     a slash (i.e., an absolute path) marks end of input and gives
+*     no error
       LuRd_saved=LuRd
       ibla = -1
       Read(KWord,*,Err=9751) ibla
@@ -1730,14 +1736,15 @@ c     Go To 998
       Call Get_I1(3,iXPolType)
       Call Get_I1(4,nXMolnr)
       Call Get_I1(5,nReadEle)
-
+*
 *     Set defaults: ch+dip, no polarisabilities,
 *                   exclude only its own multipole,
 *                   no element read
-      if(nOrd_XF.eq.-2) nOrd_XF=1
-      if(iXPolType.eq.-2) iXPolType=0
-      if(nXMolnr.eq.-2) nXMolnr=0
-      if(nReadEle.eq.-2) nReadEle=0
+*
+      if (nOrd_XF  .eq.-2) nOrd_XF  =1
+      if (iXPolType.eq.-2) iXPolType=0
+      if (nXMolnr  .eq.-2) nXMolnr  =0
+      if (nReadEle .eq.-2) nReadEle =0
 
       If ((nOrd_XF.gt.2).or.(nOrd_XF.lt.-1)) Then
          Call WarningMessage(2,'Error! Illegal value of nOrd_XF')
@@ -1763,7 +1770,6 @@ c     Go To 998
       nData_XF=3
       Do iOrd_XF = 0, nOrd_XF
          nData_XF = nData_XF +  (iOrd_XF+1)*(iOrd_XF+2)/2
-C        nData_XF = nData_XF +  2*iOrd_XF+1
       End Do
 
       if(iXPolType.gt.0) then
@@ -1777,54 +1783,50 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
          nDataRead=nData_XF
       Endif
 *
-      lenXF=nXF*nData_XF
-      lenXMolnr=2*((nXMolnr*nXF+1)/2)/RtoI
-      lenXEle=2*((nXF+1)/2)/RtoI
-
-*---- Get pointer to the next free space in dynamic memory
-      ipXF=ipExp(iShll+1)
-      ipXMolnr_r=ipXF+lenXF
-      ipXEle_r=ipXMolnr_r+lenXMolnr
-*---- Update pointer to the next free space in dynamic memory
-      ipExp(iShll+1)=ipXEle_r+lenXEle
-      nInfo = nInfo + lenXF + lenXMolnr + lenXEle
-*
-      ipXMolnr=ip_of_iWork_d(Work(ipXMolnr_r))
-      ipXEle=ip_of_iWork_d(Work(ipXEle_r))
+      Call mma_allocate(XF,nData_XF,nXF,Label='XF')
+      Call mma_allocate(XMolnr,nXMolnr,nXF,Label='XMolnr')
+      Call mma_allocate(XEle,nXF,Label='XEle')
 *
       Call Upcase(KWord)
 *
-      ip = ipXF
       Do iXF = 1, nXF
-         iWork(ipXEle+(iXF-1))=0   ! default: no element spec.
+         XEle(iXF)=0   ! default: no element spec.
 *
-*     If reading from external file, use free format to allow
-*     long lines of input. On the other hand, comments are
-*     not allowed in external files.
-         If(LuRd.ne.LuRd_saved) then
-            Read(LuRd,*)(iWork(ipXMolnr+(iXF-1)*nXMolnr+k),
-     &           k=0,nXMolnr-1),
-     &           (iWork(ipXEle+(iXF-1)+k),k=0,nReadEle-1),
-     &           (Work(ip+k),k=0,nDataRead-1)
+*        If reading from external file, use free format to allow
+*        long lines of input. On the other hand, comments are
+*        not allowed in external files.
+*
+         If (LuRd.ne.LuRd_saved) then
+            Call mma_Allocate(iScratch,nXMolnr+nReadEle,
+     &                        Label='iScratch')
+            Read(LuRd,*)(iScratch(k),k=1,nXMolnr),
+     &                  (iScratch(nXMolnr+k),k=1,nReadEle),
+     &           (XF(k,iXF),k=1,nDataRead)
+            Do i = 1, nXMolnr
+               XMolnr(i,iXF)=iScratch(i)
+            End Do
+            Do i = 1, nReadEle
+               XEle(iXF+(i-1))=iScratch(nXMolnr+i)
+            End Do
+            Call mma_deallocate(iScratch)
          Else
             KWord = Get_Ln(LuRd)
             KWord(170:180)=' 0.0 0.0 0.0'
             Call Put_Ln(KWord)
 
-            Call Get_I(1,iWork(ipXMolnr+(iXF-1)*nXMolnr),nXMolnr)
-            Call Get_I(nXMolnr+1,iWork(ipXEle+(iXF-1)),nReadEle)
-            Call Get_F(nXMolnr+nReadEle+1,Work(ip),nDataRead)
+            Do i = 1, nXMolnr
+               Call Get_I1(i,iTemp)
+               XMolnr(i,iXF)=iTemp
+            End Do
+            Do i = 1, nReadEle
+               Call Get_I1(nXMolnr+i,iTemp)
+               XEle(iXF+(i-1))=iTemp
+            End Do
+            Call Get_F(nXMolnr+nReadEle+1,XF(1,iXF),nDataRead)
          EndIf
 *
-            Work(ip  ) = Work(ip  )*ScaleFactor
-            Work(ip+1) = Work(ip+1)*ScaleFactor
-            Work(ip+2) = Work(ip+2)*ScaleFactor
-         If (Convert) Then
-            Work(ip  ) = Work(ip  )/angstr
-            Work(ip+1) = Work(ip+1)/angstr
-            Work(ip+2) = Work(ip+2)/angstr
-         End If
-         ip = ip + nData_XF
+         XF(1:3,iXF) = XF(1:3,iXF) * ScaleFactor
+         If (Convert) XF(1:3,iXF) = XF(1:3,iXF) / angstr
 *
       End Do
 *
@@ -1833,7 +1835,9 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
          Close(LuRd)
          LuRd = LuRd_saved
       EndIf
-      if(isXfield.eq.1) goto 9755
+      If (isXfield.eq.1) Then
+         goto 9755
+      End If
       Go To 998
 *                                                                      *
 ****** DOUG ************************************************************
@@ -2048,36 +2052,30 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
  986  KWord = Get_Ln(LuRd)
       GWInput=.True.
       Call Get_I1(1,nWel)
-*---- Get pointer to the next free space in dynamic memory
-      ipWel=ipExp(iShll+1)
-      ipW = ipWel
       If (nWel.le.0) Then
 *--------Use automatic set up for well integrals
          nWel=3
+         Call mma_allocate(Wel_Info,3,nWel,Label='Wel_Info')
          Do iWel = 1, nWel
-            Work(ipW+2)=WellCff(iWel)
-            Work(ipW+1)=WellExp(iWel)
-            Work(ipW  )=WellRad(iWel)
-            ipW = ipW + 3
+            Wel_Info(3,iWel)=WellCff(iWel)
+            Wel_Info(2,iWel)=WellExp(iWel)
+            Wel_Info(1,iWel)=WellRad(iWel)
          End Do
       Else
+         Call mma_allocate(Wel_Info,3,nWel,Label='Wel_Info')
          Do iWel = 1, nWel
 *---------- Read the Coefficient, Exponent, and Radius
             KWord = Get_Ln(LuRd)
-            call Get_F1(1,Work(ipW+2))
-            call Get_F1(2,Work(ipW+1))
-            call Get_F1(3,Work(ipW  ))
+            call Get_F1(1,Wel_Info(3,iWel))
+            call Get_F1(2,Wel_Info(2,iWel))
+            call Get_F1(3,Wel_Info(1,iWel))
             Call Upcase(KWord)
             If (Index(KWord,'ANGSTROM').ne.0) Then
-               Work(ipW)=Work(ipW)/angstr
-               Work(ipW+1)=Work(ipW+1)*angstr
+               Wel_Info(1,iWel)=Wel_Info(1,iWel)/angstr
+               Wel_Info(2,iWel)=Wel_Info(2,iWel)*angstr
             End If
-            ipW = ipW + 3
          End Do
       End If
-*---- Update pointer to the next free space in dynamic memory
-      ipExp(iShll+1)=ipW
-      nInfo = nInfo + nWel*3
       Go To 998
 *                                                                      *
 ****** NODK ************************************************************
@@ -2172,17 +2170,13 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
             iOff = 0
             iFound_Label = 0
             Do iCnttp = 1, nCnttp
-               iStrt = ipCntr(iCnttp)
-               Do iCnt = iOff+1, iOff+nCntr(iCnttp)
-                  If (Key(1:iEnd) .Eq. LblCnt(iCnt)(1:iEnd)) Then
+               Do iCnt = iOff+1, iOff+dbsc(iCnttp)%nCntr
+                  If (Key(1:iEnd) .Eq. dc(iCnt)%LblCnt(1:iEnd)) Then
                      iFound_Label = 1
-                     Do I = 1,3
-                        EFt(I,iEF) = Work(iStrt+I-1)
-                     End Do
+                     EFt(1:3,iEF)=dbsc(iCnttp)%Coor(1:3,iCnt-iOff)
                   End If
-                  iStrt = iStrt + 3
                End Do
-               iOff = iOff + nCntr(iCnttp)
+               iOff = iOff + dbsc(iCnttp)%nCntr
             End Do
             If (iFound_Label .Eq. 0) Then
                Call WarningMessage(2,';'
@@ -2208,7 +2202,6 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
 *
  995  lOAM = .True.
       GWInput=.True.
-      Call mma_allocate(OAMt,3,label='OAMt')
       KWord = Get_Ln(LuRd)
       Call Upcase(KWord)
       Call Get_F(1,OAMt,3)
@@ -2226,13 +2219,12 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
  1002 lDOWNONLY = .True.
       Go To 998
 *                                                                      *
-****** OMQ *************************************************************
+****** OMQI ************************************************************
 *                                                                      *
-*     Orbital angular momentum
+*     Orbital magnetic quadrupole
 *
  999  lOMQ = .True.
       GWInput=.True.
-      Call mma_allocate(OMQt,3,label='OMQt')
       KWord = Get_Ln(LuRd)
       Call Upcase(KWord)
       Call Get_F(1,OMQt,3)
@@ -2244,18 +2236,14 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
 *                                                                      *
 *     Angular momentum products
 *
- 9951 lAMP = .True.
-      GWInput=.True.
+ 9951 GWInput=.True.
       If (Run_Mode.eq.S_Mode.and.GWInput) Go To 9989
-      ipAMP=ipExp(iShll+1)
+      Call mma_allocate(AMP_Center,3,Label='AMP_Center')
       KWord = Get_Ln(LuRd)
       Call Upcase(KWord)
-      Call Get_F(1,Work(ipAMP),3)
+      Call Get_F(1,AMP_Center,3)
       If (Index(KWord,'ANGSTROM').ne.0)
-     &     Call DScal_(3,One/angstr,
-     &       Work(ipAMP),1)
-      ipExp(iShll+1)=ipAMP+3
-      nInfo = nInfo + 3
+     &   AMP_Center(:)=(One/angstr)*AMP_Center(:)
       Go To 998
 *                                                                      *
 ****** DSHD ************************************************************
@@ -2290,18 +2278,6 @@ C        nData_XF = nData_XF +  2*iOrd_XF+1
 *     iPack=1   : do not pack 2el integrals
 *
  9910 iPack=1
-      Go To 998
-*                                                                      *
-****** SQUA ************************************************************
-*                                                                      *
-*     Set integral ordering flag
-*     Note      : this flag is only active if iWRopt=0
-*     iSquar=0  : diagonal and sub diagonal symmetry blocks of
-*                 2el integrals are stored, only (= Default)
-*     iSquar=1  : All symmetry blocks of 2el integrals with
-*                 iSym.ge.jSym and kSym.ge.lSym are stored
-*
- 9920 Write (LuWr,*) 'The SQUARE option is obsolete and is ignored!'
       Go To 998
 *                                                                      *
 ****** STDO ************************************************************
@@ -2554,7 +2530,10 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
            isnumber=0
         endif
       enddo
+*
       if(isnumber.eq.0) goto 9082
+      nRP=3*nRP
+      Call mma_allocate(RP_Centers,3,nRP/3,2,Label='RP_Centers')
 *
 **    Inline input
 *
@@ -2564,18 +2543,15 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
       Else
          Fact=One
       End If
-      nRP=3*nRP
-      ipRP1=ipExp(iShll+1)
-      nInfo=nInfo + 2*nRP
-      ipExp(iShll+1)=ipRP1 + 2*nRP
+*
+*
       KWord = Get_Ln(LuRd)
       Call Get_F1(1,E1)
-      Call Read_v(LuRd,Work(ipRP1),1,nRP,1,iErr)
-      Call DScal_(nRP,Fact,Work(ipRP1    ),1)
+      Call Read_v(LuRd,RP_Centers(1,1,1),1,nRP,1,iErr)
       KWord = Get_Ln(LuRd)
       Call Get_F1(1,E2)
-      Call Read_v(LuRd,Work(ipRP1+nRP),1,nRP,1,iErr)
-      Call DScal_(nRP,Fact,Work(ipRP1+nRP),1)
+      Call Read_v(LuRd,RP_Centers(1,1,2),1,nRP,1,iErr)
+      RP_Centers(:,:,:)=Fact*RP_Centers(:,:,:)
       GWInput = .True.
       Go To 998
 *
@@ -2622,6 +2598,8 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
       End IF
       nRP_prev=nRP
       nRP=3*nRP
+      If (.NOT.Allocated(RP_Centers))
+     &   Call mma_allocate(RP_Centers,3,nRP/3,2,Label='RP_Centers')
       KWord = Get_Ln(LuIn)
       Call UpCase(KWord)
       If (Index(KWord,'BOHR').ne.0) Then
@@ -2633,9 +2611,6 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
          LuRP=10
          LuRP=isFreeUnit(LuRP)
          call molcas_open(LuRP,'findsym.RP1')
-         ipRP1=ipExp(iShll+1)
-         nInfo=nInfo + 2*nRP
-         ipExp(iShll+1)=ipRP1 + 2*nRP
          Read(KWord,*,err=9083) E1
 *
 **  write a separate file for findsym
@@ -2648,11 +2623,10 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 #endif
          Do i=1,nRP/3
             KWord = Get_Ln(LuIn)
-            Read(KWord,*,err=9083) Key,(Work(ipRP1+3*(i-1)+j),j=0,2)
+            Read(KWord,*,err=9083) Key,(RP_Centers(j,i,1),j=1,3)
             Write(LuRP,'(A,3F20.12)') Key(1:LENIN),
-     &                   (Work(ipRP1+3*(i-1)+j)*Fact,j=0,2)
+     &                   (RP_Centers(j,i,1)*Fact,j=1,3)
          End Do
-         Call DScal_(nRP,Fact,Work(ipRP1    ),1)
          KWord = Get_Ln(LuRd)
          close(LuIn)
          close(LuRP)
@@ -2670,13 +2644,13 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
          Read(KWord,*,err=9083) E2
          Do i=1,nRP/3
             KWord = Get_Ln(LuIn)
-            Read(KWord,*,err=9083) Key,(Work(ipRP1+nRP+3*(i-1)+j),j=0,2)
+            Read(KWord,*,err=9083) Key,(RP_Centers(j,i,2),j=1,3)
             Write(LuRP,'(A,3F20.12)') Key(1:LENIN),
-     &            (Work(ipRP1+nRP+3*(i-1)+j)*Fact,j=0,2)
+     &            (RP_Centers(j,i,2)*Fact,j=1,3)
          End Do
-         Call DScal_(nRP,Fact,Work(ipRP1+nRP),1)
          close(LuRP)
       End If
+      RP_Centers(:,:,:)= Fact* RP_Centers(:,:,:)
 *
       close(LuIn)
       GWInput = Run_Mode.eq.G_Mode
@@ -2790,7 +2764,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *                                                                      *
 ***** RI   *************************************************************
 *                                                                      *
-*     Active RI approach
+*     Activate RI approach
 *
  9097 Continue
       Do_RI=.True.
@@ -2911,12 +2885,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
 *                                                                      *
 *     Local Douglas-Kroll-Hess/X2C/BSS
 *
- 658  If (SymmSet.or.nIrrep.gt.1) Then
-         Call WarningMessage(2,
-     &      'Local approach is not yet implemented with SYMMETRY')
-         Call Quit_OnUserError()
-      End If
-      LDKroll=.True.
+ 658  LDKroll=.True.
 *     GWInput=.True.
       nCtrLD=0
       radiLD=5.5d0
@@ -2947,7 +2916,7 @@ c23456789012345678901234567890123456789012345678901234567890123456789012
       k=0
       Do i=1,nAtom
         Do j=1,nCtrLD
-          if (CtrLDK(j).eq.LblCnt(i)(1:LENIN)) Then
+          if (CtrLDK(j).eq.dc(i)%LblCnt(1:LENIN)) Then
              iCtrLD(j)=i
              k=k+1
           End If
@@ -3373,7 +3342,9 @@ c
 ***** HYPE *************************************************************
 *                                                                      *
  8016 KWord = Get_Ln(LuRd)
+#ifdef _HAVE_EXTRA_
       geoInput = .true.
+#endif
       writeZmat = .true.
       Call Get_F(1,HypParam,3)
       GWinput = .True.
@@ -3382,8 +3353,10 @@ c
 *                                                                      *
 ***** ZCON *************************************************************
 *                                                                      *
- 8017 ZConstraints = .true.
-      writeZMat = .true.
+ 8017 writeZMat = .true.
+#ifdef _HAVE_EXTRA_
+      ZConstraints = .true.
+#endif
       GWinput = .True.
       Go To 998
 *                                                                      *
@@ -3415,7 +3388,9 @@ c
 ***** OLDZ *************************************************************
 *                                                                      *
  8021 GWinput = .True.
+#ifdef _HAVE_EXTRA_
       oldZmat = .True.
+#endif
       Go To 998
 *                                                                      *
 ***** OPTH *************************************************************
@@ -3438,7 +3413,10 @@ c
 *                                                                      *
 ***** GEO  *************************************************************
 *                                                                      *
- 8024 geoInput = .true.
+ 8024 Continue
+#ifdef _HAVE_EXTRA_
+      geoInput = .true.
+#endif
       writeZMat = .true.
 *     Parameters for the gridsize is set to default-values if geo is
 *     used instead of hyper
@@ -3520,7 +3498,7 @@ c
 ******* NUME ***********************************************************
 *                                                                      *
  8031 GWinput = .True.
-      Do_Numerical_Gradients=.True.
+      iDNG=1
       Go To 998
 *                                                                      *
 ******* VART ***********************************************************
@@ -3543,10 +3521,6 @@ c
       Call Upcase(KWord)
       Call Get_F1(1,Shake)
       If (Index(KWord,'ANGSTROM').ne.0) Shake = Shake/angstr
-*---- Simple way of changing the seed: add zeros or spaces to the line
-      Do i=1,Len(KWord)
-        iSeed = iSeed+iChar(KWord(i:i))
-      End Do
       Go To 998
 *                                                                      *
 ****** PAMF ************************************************************
@@ -3554,8 +3528,8 @@ c
 *     Disable AMFI for an atom type
 *
  8060 KWord = Get_Ln(LuRd)
-      nPAMFI=nPAMFI+1
-      Call Get_I1(1,iPAMFI(nPAMFI))
+      Call Get_I1(1,iAtom_Number)
+      No_AMFI(iAtom_Number)=.True.
       Go To 998
 *                                                                      *
 ******* GROM ***********************************************************
@@ -3664,7 +3638,7 @@ c
          Call WarningMessage(2,Message)
          Call Quit_OnUserError()
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(LuWr,'(/,a)') ' Link atoms (Gromacs numbering):'
       Write(LuWr,'(/,a)') '      LA     QM     MM     Scaling factor'
 #endif
@@ -3674,7 +3648,7 @@ c
          KWord = Get_Ln(LuRd)
          Call Get_I(1,DefLA(1,iLA),3)
          Call Get_F(4,FactLA(iLA),1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write(LuWr,'(i8,2i7,F19.8)') (DefLA(i,iLA),i=1,3),FactLA(iLA)
 #endif
          If (DefLA(1,iLA).LE.0) Then
@@ -3859,13 +3833,14 @@ c      endif
 #endif
          end if
          DoneCoord=.true.
-      if(isXfield.eq.1) then
-         LuRd_saved=LuRd
-         filename='findsym.xfield'
-         lXF=.True.
-         goto 9753
+         if(isXfield.eq.1) then
+            LuRd_saved=LuRd
+            filename='findsym.xfield'
+            lXF=.True.
+            goto 9753
+         endif
       endif
-      endif
+*
 9755  continue
       If (CoordSet) Then
          CoordSet=.false.
@@ -3891,24 +3866,29 @@ c      endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Call Put_lScalar('CSPF',CSPF)
+      Call Put_cArray('Align_Weights',Align_Weights,512)
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     Isotopic specifications
 *
       If (.not.Allocated(nIsot)) Call mma_allocate(nIsot,0,2)
 
       If (Run_Mode.ne.S_Mode) Then
-         Call dZero(CntMass,nCnttp)
 *        Loop over unique centers
          iUnique = 0
+         Call mma_allocate(Isotopes,nCnttp,Label='Isotopes')
          Do iCnttp = 1, nCnttp
-            nCnt = nCntr(iCnttp)
+            nCnt = dbsc(iCnttp)%nCntr
             Do iCnt = 1, nCnt
                iUnique = iUnique+1
 *              Get the mass for this center
-               dm = rMass(iAtmNr(iCnttp))
+               dm = rMass(dbsc(iCnttp)%AtmNr)
                Do j = 1, Size(nIsot, 1)
                   If (nIsot(j,1).eq.iUnique) Then
                      If (nIsot(j,2).ge.0) Then
-                        dm = rMassx(iAtmNr(iCnttp),nIsot(j,2))
+                        dm = rMassx(dbsc(iCnttp)%AtmNr,nIsot(j,2))
                      Else
                         dm = mIsot(j)
                      End If
@@ -3916,9 +3896,9 @@ c      endif
                   End If
                End Do
                If (iCnt.eq.1) Then
-                  CntMass(iCnttp) = dm
+                  dbsc(iCnttp)%CntMass = dm
                Else
-                  If (dm.ne.CntMass(iCnttp)) Then
+                  If (dm.ne.dbsc(iCnttp)%CntMass) Then
                      Call WarningMessage(2,
      &                 'Error: All centers of the same type must '//
      &                 'have the same mass')
@@ -3926,8 +3906,10 @@ c      endif
                   End If
                End If
             End Do
-         End Do
-         Call Put_dArray('Isotopes',CntMass,nCnttp)
+            Isotopes(iCnttp)=dbsc(iCnttp)%CntMass
+         End Do ! iCnttp
+         Call Put_dArray('Isotopes',Isotopes,nCnttp)
+         Call mma_deallocate(Isotopes)
 
 *        Find errors
          Do j = 1, Size(nIsot, 1)
@@ -3948,11 +3930,7 @@ c      endif
 *                                                                      *
 **    post-processing for RP-Coord
 *
-      If (lRP.and.RPset) Then
-        Call Gen_RelPointers(-(Info-1))
-        Call processRP(KeepGroup,SymThr,DInf,nDInf)
-        Call Gen_RelPointers(Info-1)
-      End If
+      If (lRP.and.RPset) Call processRP(KeepGroup,SymThr)
 *
 **
 *
@@ -3971,7 +3949,8 @@ c      endif
 *
       iPrint = nPrint(iRout)
 *
-      Mx_Shll = iShll + 1
+      S%Mx_Shll = iShll + 1
+      Max_Shells=S%Mx_Shll
 *
       If (nCnttp.eq.0) then
          Call WarningMessage(2,'Input does not contain any basis sets')
@@ -3981,12 +3960,12 @@ c      endif
          Call WarningMessage(2,'Input does not contain coordinates')
          Call Quit_OnUserError()
       End If
-      If (iAngMx.lt.0) Then
+      If (S%iAngMx.lt.0) Then
          Call WarningMessage(2,
-     &     ' There is an error somewhere in the input!;iAngMx.lt.0')
+     &     ' There is an error somewhere in the input!;S%iAngMx.lt.0')
          Call Quit_OnUserError()
       End If
-      If (iAngMx.gt.MxAng) Then
+      If (S%iAngMx.gt.iTabMx) Then
          Call WarningMessage(2,' Too High angular momentum !!!')
          Call Quit_OnUserError()
       End If
@@ -4028,6 +4007,12 @@ c      endif
          Call Abend()
       End If
 *
+      lECP = .False.
+      lPP  = .False.
+      Do i = 1, nCnttp
+         lECP = lECP .or. dbsc(i)%ECP
+         lPP  = lPP  .or. dbsc(i)%nPP.ne.0
+      End Do
       If ((lECP.or.lPP).and.DKroll.and..Not.Expert) Then
          Call WarningMessage(2,
      &               ' ECP option not compatible with Douglas-Kroll!')
@@ -4035,20 +4020,28 @@ c      endif
       End If
 *
       If (imix.eq.1) Then
-         Call WarningMessage(2,
-     &      ' input is inconsistent!;'
-     &    //'SEWARD found basis sets of mixed relativistic'
-     &    //' (or non-relativistic) types!')
-         if(.not.Expert) Call Quit_OnUserError()
+         if (Expert) then
+           Call WarningMessage(1,
+     &        ' input is inconsistent!;'
+     &      //'SEWARD found basis sets of mixed relativistic'
+     &      //' (or non-relativistic) types!;'
+     &      //'No relativistic option will be automatically enabled')
+         else
+           Call WarningMessage(2,
+     &        ' input is inconsistent!;'
+     &      //'SEWARD found basis sets of mixed relativistic'
+     &      //' (or non-relativistic) types!')
+           Call Quit_OnUserError()
+         endif
       End If
-      If (ifnr.eq.1) Then
+      If (ifnr.eq.1.and..not.Expert) Then
          If (DKroll) Then
          Call WarningMessage(1,
      *    ';you requested the DK-option for;'
      *   //'a non-relativistic basis.;'
      *   //'This request will be ignored')
          End If
-         If (.Not.Expert) DKroll=.False.
+         DKroll=.False.
       Else If (ifnr.eq.0) Then
          lAMFI=.True. .and. .NOT. NoAMFI
          If (.Not.DKroll) Then
@@ -4066,7 +4059,9 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       End If
 *
       If (NoDKroll) DKroll=.false.
+#ifdef _HAVE_EXTRA_
       If (DoEMPC) isHold=1
+#endif
 *
       If ((lECP.or.lPP).and.lAMFI.and..Not.Expert) Then
          Call WarningMessage(2,
@@ -4088,19 +4083,18 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
 *           If ExpNuc not explicitly defined use default value.
 *
-            nMass = nInt(CntMass(iCnttp)/UToAU)
-            If (ExpNuc(iCnttp).lt.Zero)
-     &          ExpNuc(iCnttp)=NucExp(iAtmNr(iCnttp),nMass)
+            nMass = nInt(dbsc(iCnttp)%CntMass/UToAU)
+            If (dbsc(iCnttp)%ExpNuc.lt.Zero)
+     &          dbsc(iCnttp)%ExpNuc=NucExp(nMass)
          Else If (Nuclear_Model.eq.mGaussian_Type) Then
 *
 *           Get parameters for the Modified Gaussian Nuclear
 *           charge distribution.
 *
-            jAtmNr=iAtmNr(iCnttp)
-            nMass = nInt(CntMass(iCnttp)/UToAU)
-            Call ModGauss(DBLE(jAtmNr),nMass,
-     &                    ExpNuc(iCnttp),
-     &                    w_mGauss(iCnttp))
+            jAtmNr=dbsc(iCnttp)%AtmNr
+            nMass = nInt(dbsc(iCnttp)%CntMass/UToAU)
+            Call ModGauss(DBLE(jAtmNr),nMass,dbsc(iCnttp)%ExpNuc,
+     &                    dbsc(iCnttp)%w_mGauss)
 *
          Else
 *
@@ -4147,7 +4141,6 @@ C           If (iRELAE.eq.-1) IRELAE=201022
                   MolWgh = Cho_MolWgh
                End If
             End If
-            If (Dist) Dist =.False.
             If (iWrOpt .eq. 2) Then
                Write(LuWr,*)
      &         'Acess II format not allowed with Cholesky!!'
@@ -4169,105 +4162,17 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _NO_F90_COMPILER_
-      If (DoFMM) Then
-         Call WarningMessage(2,
-           'ERROR: your MOLCAS version does not have the'
-     &   //' F90 code which does the FMM part.;'
-     &   //' Run the calculations without the FMM option'
-     &   //' or install MOLCAS with a F90 compiler!; ')
-         Call Quit_OnUserError()
-      End If
-#endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-      If (Run_Mode.eq.S_Mode) Go To 888
-      nIrrep = 2 ** nOper
-      iOper(0) = 0
-      Do i = 1, nOper
-         iOper(i) = 0
-         Do j = 1, 3
-          If(Oper(i)(j:j).eq.'X') iOper(i) = iOper(i) + 1
-          If(Oper(i)(j:j).eq.'Y') iOper(i) = iOper(i) + 2
-          If(Oper(i)(j:j).eq.'Z') iOper(i) = iOper(i) + 4
-         End Do
-         If (iOper(i).eq.0) Then
-            Call WarningMessage(2,
-     &               'RdCtl: Illegal symmetry operator!')
-            Write (LuWr,*) 'Oper=',Oper(i)
-            Write (LuWr,*)
-            Call Abend()
-         End If
-      End Do
-
-      If ((iXPolType.ne.0).and.(nIrrep.ne.1)) Then
-         Call WarningMessage(2,
-     &                'Polarizabilities are not compatible'
-     &              //' with symmetry.')
-         Call Quit_OnUserError()
-      EndIf
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Generate all operations of the group
-*
-      If (nOper.ge.2) Then
-         iOper(4) = iOper(3)
-         iOper(3) = iEor(iOper(1),iOper(2))
-      End If
-      If (nOper.eq.3) Then
-         iOper(5) = iEor(iOper(1),iOper(4))
-         iOper(6) = iEor(iOper(2),iOper(4))
-         iOper(7) = iEor(iOper(1),iEor(iOper(2),iOper(4)))
-      End If
-      If (lSkip) then
-         Call Put_Ln(ChSkip)
-         Call Get_I(1,iSkip,nIrrep)
-         Do_GuessOrb=.FALSE.
-      End If
-      If (nIrrep.eq.1) Then
-         Petite=.True.
-         lSOInt  =.True.
-      End If
-      Do iIrrep=0,nIrrep-2
-         Do jIrrep=iIrrep+1,nIrrep-1
-            If (iOper(iIrrep).eq.iOper(jIrrep)) Then
-              Call WarningMessage(2,
-     &                     ' The generators of the point group are'
-     &                   //' over defined, correct input!;'
-     &                   //' Abend: correct symmetry specifications!')
-               Call Quit_OnUserError()
-            End If
-         End Do
-      End Do
-*
-*     Put nIrrep and iOper on the run file to set up iPrmt
-*
-      Call Put_iScalar('NSYM',nIrrep)
-      Call Put_iArray('Symmetry operations',iOper,nIrrep)
-*
-*     Make a dummy call to iPrmt to initiate and avoid I/O recursion if
-*     the function woul be called the first time in an I/O statement.
-*
- 888  Continue
-      iDummy=iPrmt(0,0)
-*                                                                      *
-************************************************************************
-*                                                                      *
       If (Prprt) Then
          Onenly = .True.
          Vlct   = .False.
       End If
 *                                                                      *
 ************************************************************************
+************************************************************************
 *                                                                      *
 *     Post processing for FAIEMP fragment data
 *
-      Call Gen_RelPointers(-(Info-1))
-      If (lFAIEMP.and.Run_Mode.ne.S_Mode)
-     &   Call FragExpand(nInfo,LuRd,DInf,nDInf)
-      Call Gen_RelPointers(Info-1)
+      If (lFAIEMP.and.Run_Mode.ne.S_Mode) Call FragExpand(LuRd)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4278,13 +4183,13 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *
 *           Generate on-the-fly aCD or aTrue.cCD auxiliary basis sets.
 *
-            Call Mk_RICD_Shells(Info,nInfo)
+            Call Mk_RICD_Shells()
 *
          Else
 *
 *           Pick up an externally defined auxiliary basis set.
 *
-            Call Mk_RI_Shells(Info,nInfo,LuRd)
+            Call Mk_RI_Shells(LuRd)
 *
          End If
       End If
@@ -4298,12 +4203,12 @@ C           If (iRELAE.eq.-1) IRELAE=201022
       End If
 *                                                                      *
 ************************************************************************
+************************************************************************
 *                                                                      *
 *     Post processing for Well integrals
 *
-      ip = ipWel
       Do iWel = 1, nWel
-         If (Work(ip).lt.Zero) Then
+         If (Wel_Info(1,iWel).lt.Zero) Then
             If (.Not.lRF) Then
                Call WarningMessage(2,
      &                        '; Input inconsistency!; ;'
@@ -4312,18 +4217,9 @@ C           If (iRELAE.eq.-1) IRELAE=201022
      &                      //' has been specified!')
                Call Quit_OnUserError()
             End If
-            Work(ip)=rds+Abs(Work(ip))
+            Wel_Info(1,iWel)=rds+Abs(Wel_Info(1,iWel))
          End If
-         ip = ip + 3
       End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Generate labels for cartesian and spherical basis sets.
-*     Generate the transformation matrix for cartesian to sphericals
-*     and contaminants.
-*
-      Call Sphere(iAngMx)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4332,28 +4228,29 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     centers.
 *
       If (nOrdEF.ge.0.and. .NOT.(Run_Mode.eq.S_Mode)) Then
-         ipEF=ipExp(Mx_Shll)
          If (nEF.ne.0) Then
-            call dcopy_(3*nEF,EFt,1,Work(ipEF),1)
+            Call mma_allocate(EF_Centers,3,nEF,Label='EF_Centers')
+            EF_Centers(:,:) = EFt(:,:)
             Call mma_deallocate(EFt)
          Else
             nEF = 0
             Do iCnttp = 1, nCnttp
-               If (.NOT.AuxCnttp(iCnttp) .and. .NOT.FragCnttp(iCnttp))
-     &         nEF = nEF + nCntr(iCnttp)
+               If (.NOT.dbsc(iCnttp)%Aux .and. .NOT.dbsc(iCnttp)%Frag)
+     &         nEF = nEF + dbsc(iCnttp)%nCntr
             End Do
-            iEF = ipEF
+            Call mma_allocate(EF_Centers,3,nEF,Label='EF_Centers')
+*
+            iEF = 1
             Do iCnttp = 1, nCnttp
-               If (.NOT.AuxCnttp(iCnttp) .and.
-     &             .NOT.FragCnttp(iCnttp)) Then
-                  ixyz = ipCntr(iCnttp)
-                  call dcopy_(3*nCntr(iCnttp),Work(ixyz),1,Work(iEF),1)
-                  iEF = iEF + 3*nCntr(iCnttp)
+               If (.NOT.dbsc(iCnttp)%Aux .and.
+     &             .NOT.dbsc(iCnttp)%Frag) Then
+                  call dcopy_(3*dbsc(iCnttp)%nCntr,
+     &                                        dbsc(iCnttp)%Coor,1,
+     &                                        EF_Centers(1,iEF),1)
+                  iEF = iEF + dbsc(iCnttp)%nCntr
                End If
             End Do
          End If
-         ipExp(Mx_Shll) = ipEF + nEF*3
-         nInfo = nInfo + nEF*3
       End If
 *                                                                      *
 ************************************************************************
@@ -4363,45 +4260,33 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     centers.
 *
       If (lDMS.and. .NOT.(Run_Mode.eq.S_Mode)) Then
-         ipDMS=ipExp(Mx_Shll)
          If (nDMS.ne.0) Then
-            call dcopy_(3*nDMS,DMSt,1,Work(ipDMS),1)
+            Call mma_allocate(DMS_Centers,3,nDMS,Label='DMS_Centers')
+            DMS_Centers(:,:)=DMSt(:,:)
             call mma_deallocate(DMSt)
          Else
             nDMS = 0
             Do iCnttp = 1, nCnttp
-               nDMS = nDMS + nCntr(iCnttp)
+               nDMS = nDMS + dbsc(iCnttp)%nCntr
             End Do
-            ipDMS=ipExp(Mx_Shll)
-            iDMS = ipDMS
+            Call mma_allocate(DMS_Centers,3,nDMS,Label='DMS_Centers')
+            iDMS = 1
             Do iCnttp = 1, nCnttp
-               ixyz = ipCntr(iCnttp)
-               call dcopy_(3*nCntr(iCnttp),Work(ixyz),1,Work(iDMS),1)
-               iDMS = iDMS + 3*nCntr(iCnttp)
+               call dcopy_(3*dbsc(iCnttp)%nCntr,
+     &                                     dbsc(iCnttp)%Coor,1,
+     &                                     DMS_Centers(1,iDMS),1)
+               iDMS = iDMS + dbsc(iCnttp)%nCntr
             End Do
          End If
-         ipExp(Mx_Shll)=ipDMS + nDMS*3
-         nInfo = nInfo + nDMS*3
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Allocate memory for iSOff. This is the last thing to be done
-*     before unused core is release!!!!!
 *
-      If (Run_Mode.ne.S_Mode) Then
-         Max_Cnt=0
-         Do iCnttp = 1, nCnttp
-            Max_Cnt=Max(Max_Cnt,nCntr(iCnttp))
-         End Do
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     If no multipole moment integrals are requested turn also of the
 *     computation of the velocity integrals.
 *
-      If (nMltpl.eq.0) Vlct=.False.
+      If (S%nMltpl.eq.0) Vlct=.False.
 *
 *     But turn it on again if explicitly requested
 *
@@ -4411,38 +4296,166 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *     The default value of 4 is due to the mass-velocity operator
 *     which is computed by default.
 *
-      nPrp = Max(4,nMltpl)
+      nPrp = Max(4,S%nMltpl)
 *
 *     Setup of tables for coefficients of the Rys roots and weights.
 *
       nDiff=0
-      If (iAngMx.eq.0) nDiff=2
+      If (S%iAngMx.eq.0) nDiff=2
       DoRys=.True.
       If (DKroll.and.nOrdEF.gt.0) nDiff=nDiff+nOrdEF
       If (.Not.Test.and.Run_Mode.ne.S_Mode) Call SetUp_RW(DoRys,nDiff)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Fix the fock matrix fields in Info while the memory has not
-*     been fixed in size.
-*
-      Call Gen_RelPointers(-(Info-1))
-      If (Do_GuessOrb.and.Run_Mode.ne.S_Mode) Then
-         Call Fix_FockOp(1,nInfo,LuRd,DInf,nDInf)
-      End If
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     Store information for the Douglas-Kroll code.
 *
-      If (DKroll.or.NEMO) Call Fill_rInfo1(Work(Info),nInfo)
-      Call Gen_RelPointers(Info-1)
+      If (DKroll.or.NEMO) Call Fill_rInfo1()
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Compute kOffAO and lOffAO
 *
       Call Setup_OffAO()
+*                                                                      *
+************************************************************************
+*                                                                      *
+*---- Generate labels for Cartesian and spherical basis sets.
+*     Generate the transformation matrix for cartesian to sphericals
+*     and contaminants. This has to be done after adding auxiliary or
+*     fragment basis sets.
+*
+      Call Sphere(S%iAngMx)
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
+*     Set up Symmetry_Info
+*
+      Call Symmetry_Info_Setup(nOper,Oper,Max(S%iAngMx,3))
+
+      If (lSkip) then
+         Call Put_Ln(ChSkip)
+         Call Get_I(1,iSkip,nIrrep)
+         Do_GuessOrb=.FALSE.
+      End If
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
+*     Generate list of Stabilizers , Stabilizer Index
+*     and distinct cosets
+*
+      S%mCentr=0
+      S%mCentr_Aux=0
+      S%mCentr_Frag=0
+      Do iCnttp = 1, nCnttp
+         nCnt = dbsc(iCnttp)%nCntr
+         Do iCnt = 1, nCnt
+            mdc = iCnt + dbsc(iCnttp)%mdci
+            S%Mx_mdc = Max(S%Mx_mdc,mdc)
+            n_dc=max(mdc,n_dc)
+            If (mdc.gt.MxAtom) Then
+               Call WarningMessage(2,' mdc.gt.MxAtom!;'
+     &                      //' Increase MxAtom in info.fh.')
+               Write (LuWr,*) ' MxAtom=',MxAtom
+               Call Abend()
+            End If
+*
+*           The symmetry operators of the fragment's atoms should
+*           always be identical to that of the fragment's
+*           pseudocenter/placeholder
+*
+            If (dbsc(iCnttp)%Frag) Then
+*              Check the FragExpand routine!
+               If (Abs(dbsc(iCnttp)%nFragCoor)>mdc) Then
+                  Write (6,*) 'rdctl_seward: incorrect mdc index'
+                  Call Abend()
+               End If
+               iChxyz = dc(Abs(dbsc(iCnttp)%nFragCoor))%iChCnt
+            Else
+*
+*------------- To assign the character of a center we need to find
+*              the cartesian components that are permutable. We
+*              will only need to loop over the generators of the
+*              group. We will use the three first bits to indicate if
+*              the cartesian component is affected by any symmetry
+*              operation.
+*
+               iChxyz=iChAtm(dbsc(iCnttp)%Coor(:,iCnt))
+            End If
+            dc(mdc)%iChCnt = iChxyz
+            Call Stblz(iChxyz,dc(mdc)%nStab,dc(mdc)%iStab,
+     &                 nIrrep,dc(mdc)%iCoSet)
+*
+*           Perturb the initial geometry if the SHAKE keyword was given,
+*           but maintain the symmetry
+*
+            If ((Shake.gt.Zero).And.
+     &          .Not.(dbsc(iCnttp)%pChrg.Or.
+     &                dbsc(iCnttp)%Frag.Or.
+     &                dbsc(iCnttp)%Aux)) Then
+               jTmp=0
+               Do j=1,dc(mdc)%nStab-1
+                  jTmp=iOr(jTmp,dc(mdc)%iStab(j))
+               End Do
+               S%nDim=0
+               Do j=0,2
+                  If (iAnd(jTmp,2**j).eq.0) S%nDim=S%nDim+1
+               End Do
+               If (S%nDim.gt.0) Then
+                  Call Random_Vector(S%nDim,RandVect(1:S%nDim),.False.)
+                  jDim=0
+                  Do j=0,2
+                     If (iAnd(jTmp,2**j).eq.0) Then
+                        jDim=jDim+1
+                        dbsc(iCnttp)%Coor(j+1,iCnt)=
+     &                      dbsc(iCnttp)%Coor(j+1,iCnt)
+     &                     +Shake*RandVect(jDim)
+                  End If
+                  End Do
+               End If
+            End If
+            If (dbsc(iCnttp)%Frag) Then
+               S%mCentr_Frag = S%mCentr_Frag + nIrrep/dc(mdc)%nStab
+            Else If (dbsc(iCnttp)%Aux) Then
+               S%mCentr_Aux = S%mCentr_Aux + nIrrep/dc(mdc)%nStab
+            Else
+               S%mCentr = S%mCentr + nIrrep/dc(mdc)%nStab
+            End If
+         End Do
+      End Do
+      If (S%mCentr.gt.MxAtom) Then
+         Call WarningMessage(2,'RdCtl: S%mCentr.gt.MxAtom')
+         Write (6,*) 'S%mCentr=',S%mCentr
+         Write (6,*) 'Edit src/Include/Molcas.fh'
+         Write (6,*) 'Set MxAtom to the value of S%mCentr.'
+         Write (6,*) 'Recompile MOLCAS and try again!'
+         Call Abend()
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If ((SymmSet.or.nIrrep.gt.1).and.LDKroll) Then
+         Call WarningMessage(2,
+     &      'Local DKH approach is not yet implemented with SYMMETRY')
+         Call Quit_OnUserError()
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If (Do_GuessOrb.and.Run_Mode.ne.S_Mode) Call Fix_FockOp(LuRd)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If ((iXPolType.ne.0).and.(nIrrep.ne.1)) Then
+         Call WarningMessage(2,
+     &                'Polarizabilities are not compatible'
+     &              //' with symmetry.')
+         Call Quit_OnUserError()
+      EndIf
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4468,165 +4481,30 @@ C           If (iRELAE.eq.-1) IRELAE=201022
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Generate the Character table for all Irreps
-*
-*     All Irreps are one dimensional, i.e. the Character for the
-*     unit operator is 1 in all irreps.
-*     The totally symmetric representation will have the character
-*     of 1 for any given operation
-*     Now, the Irreps are due to classes of operations and will
-*     present the character of this class. In case of Abelian groups
-*     or other one dimensional groups the classes will have one
-*     and only one operation. Hence, the operations themselves can
-*     be used to present the character of the Irreps.
-*
-      Call ChTab(iOper,nIrrep,iChTbl,rChTbl,lIrrep,lBsFnc,iSigma)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Setup characteristics for cartesian basis functions.
-*     Observe that this is affected by the defined generators.
-*     In the array we will set the bit corresponding to a symop
-*     if that symop will alter the sign of the basis function.
-*
-      iSymX = 0
-      iSymY = 0
-      iSymZ = 0
-      Do i = 0, nIrrep-1
-         If (iAnd(iOper(i),1).ne.0) iSymX = 1
-         If (iAnd(iOper(i),2).ne.0) iSymY = 2
-         If (iAnd(iOper(i),4).ne.0) iSymZ = 4
-      End Do
-      iChCar(1) = iSymX
-      iChCar(2) = iSymY
-      iChCar(3) = iSymZ
-      lxyz = 0
-      Do ixyz = 0, Max(iAngMx,1)
-         Do ix = ixyz, 0, -1
-            jx = Mod(ix,2)
-            iyMax=ixyz-ix
-            Do iy = iyMax, 0 , -1
-               jy = Mod(iy,2)
-               lxyz=lxyz+1
-               iz=ixyz-ix-iy
-               jz = Mod(iz,2)
-               jxyz = jx * iSymX + jy * iSymY + jz * iSymZ
-               iChBas(lxyz) = jxyz
-            End Do
-         End Do
-      End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Generate list of Stabilizers , Stabilizer Index
-*     and distinct cosets
-*
-      mCentr=0
-      mCentr_Aux=0
-      mCentr_Frag=0
-      nOper=0
-      If (nIrrep.eq.8) nOper=3
-      If (nIrrep.eq.4) nOper=2
-      If (nIrrep.eq.2) nOper=1
-      MaxDCR = nIrrep
-      Do iCnttp = 1, nCnttp
-         nCnt = nCntr(iCnttp)
-         ixyz = ipCntr(iCnttp)
-         Do iCnt = 1, nCnt
-            mdc = iCnt + mdciCnttp(iCnttp)
-            Mx_mdc = Max(Mx_mdc,mdc)
-            If (mdc.gt.Mxdc) Then
-               Call WarningMessage(2,' mdc.gt.Mxdc!;'
-     &                      //' Increase Mxdc in info.fh.')
-               Write (LuWr,*) ' Mxdc=',Mxdc
-               Call Abend()
-            End If
-*
-*           The symmetry operators of the fragment's atoms should
-*           always be identical to that of the fragment's
-*           pseudocenter/placeholder
-*
-            If (FragCnttp(iCnttp)) Then
-*              Check the FragExpand routine!
-               iChxyz = iChCnt(nFragCoor(mdc))
-            Else
-*
-*------------- To assign the character of a center we need to find
-*              the cartesian components that are permutable. We
-*              will only need to loop over the generators of the
-*              group. We will use the three first bits to indicate if
-*              the cartesian component is affected by any symmetry
-*              operation.
-*
-               iChxyz=iChAtm(Work(ixyz),iOper,nOper,iChCar)
-            End If
-            iChCnt(mdc) = iChxyz
-            Call Stblz(iChxyz,iOper,nIrrep,nStab(mdc),jStab(0,mdc),
-     &                 MaxDCR,iCoSet(0,0,mdc))
-*
-*           Perturb the initial geometry if the SHAKE keyword was given,
-*           but maintain the symmetry
-*
-            If (Shake.gt.Zero) Then
-               jTmp=0
-               Do j=1,nStab(mdc)-1
-                  jTmp=iOr(jTmp,jStab(j,mdc))
-               End Do
-               Do j=0,2
-                  If (iAnd(jTmp,2**j).eq.0) Then
-                     Work(ixyz+j)=Work(ixyz+j)+
-     &                           Shake*(Two*Random_Molcas(iSeed)-One)
-                  End If
-               End Do
-            End If
-            ixyz = ixyz + 3
-            If (FragCnttp(iCnttp)) Then
-               mCentr_Frag = mCentr_Frag + nIrrep/nStab(mdc)
-            Else If (AuxCnttp(iCnttp)) Then
-               mCentr_Aux = mCentr_Aux + nIrrep/nStab(mdc)
-            Else
-               mCentr = mCentr + nIrrep/nStab(mdc)
-            End If
-         End Do
-      End Do
-      If (mCentr.gt.MxAtom) Then
-         Call WarningMessage(2,'RdCtl: mCentr.gt.MxAtom')
-         Write (6,*) 'mCentr=',mCentr
-         Write (6,*) 'Edit src/Include/Molcas.fh'
-         Write (6,*) 'Set MxAtom to the value of mCentr.'
-         Write (6,*) 'Recompile MOLCAS and try again!'
-         Call Abend()
-      End If
-C     Mx_mdc=mdc
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     Process the weights used for alignment and distance measurement
 *
       Call Process_Weights(iPrint)
-*                                                                      *
+*
 ************************************************************************
 *                                                                      *
 *     Set structures for TS optimization according to the Saddle
 *     method.
 *
-      Call Gen_RelPointers(-(Info-1))
       If (Run_Mode.ne.G_Mode) Then
-         Call Saddle(DInf,nDInf)
+         Call Saddle()
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *---- Read coordinates from run file (if any), ditto for external
 *     field. Do not do this in the Gateway!
 *
-         Call GeoNew(Show,DInf,nDInf)
-         If (lXF) Call GeoNew_PC(Dinf,nDInf)
+         Call GeoNew(Show)
+         If (lXF) Call GeoNew_PC()
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call Gen_GeoList(Work(Info),nInfo)
-      Call Gen_RelPointers(Info-1)
+      Call Gen_GeoList()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -4639,14 +4517,14 @@ C     Mx_mdc=mdc
       If (lMltpl) Then
          Do i = 1, nTemp
             iMltpl = ITmp(i)
-            If (iMltpl.le.nMltpl) call dcopy_(3,RTmp(1,i),1,
+            If (iMltpl.le.S%nMltpl) call dcopy_(3,RTmp(1,i),1,
      &                                         Coor_MPM(1,iMltpl+1),1)
          End Do
          Call mma_deallocate(RTmp)
          Call mma_deallocate(ITmp)
       End If
-#ifdef _DEBUG_
-       Call RecPrt(' Multipole centers',' ',Coor_MPM,3,nMltpl+1)
+#ifdef _DEBUGPRINT_
+       Call RecPrt(' Multipole centers',' ',Coor_MPM,3,S%nMltpl+1)
 #endif
 *                                                                      *
 ************************************************************************
@@ -4655,17 +4533,11 @@ C     Mx_mdc=mdc
 *     will be computed.
 *
       If (lOAM .and. .NOT.(Run_Mode.eq.S_Mode)) Then
-         ipOAM=ipExp(Mx_Shll)
-         call dcopy_(3,OAMt,1,Work(ipOAM),1)
-         Call mma_deallocate(OAMt)
-         ipExp(Mx_Shll) = ipOAM + 3
-         nInfo = nInfo + 3
-      Else If (.NOT.(Run_Mode.eq.S_Mode)) Then
-         lOAM=.True.
-         ipOAM=ipExp(Mx_Shll)
-         call dcopy_(3,CoM,1,Work(ipOAM),1)
-         ipExp(Mx_Shll) = ipOAM + 3
-         nInfo = nInfo + 3
+         Call mma_allocate(OAM_Center,3,Label='OAM_Center')
+         call dcopy_(3,OAMt,1,OAM_Center,1)
+      Else If (.NOT.allocated(OAM_Center)) Then
+         Call mma_allocate(OAM_Center,3,Label='OAM_Center')
+         call dcopy_(3,CoM,1,OAM_Center,1)
       End If
 *                                                                      *
 ************************************************************************
@@ -4674,11 +4546,8 @@ C     Mx_mdc=mdc
 *     will be computed.
 *
       If (lOMQ .and. .NOT.(Run_Mode.eq.S_Mode)) Then
-         ipOMQ=ipExp(Mx_Shll)
-         Call DCopy_(3,OMQt,1,Work(ipOMQ),1)
-         Call mma_deallocate(OMQt)
-         ipExp(Mx_Shll) = ipOMQ + 3
-         nInfo = nInfo + 3
+         Call mma_allocate(OMQ_Center,3,Label='OMQ_Center')
+         Call DCopy_(3,OMQt,1,OMQ_Center,1)
       End If
 *                                                                      *
 ************************************************************************
@@ -4702,33 +4571,26 @@ C     Mx_mdc=mdc
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Release unused core. This section should be the last section in
-*     this routine. DON'T MOVE IT!
-*
-      If (Run_Mode.ne.S_Mode) Then
-*
-         Call Allocate_Work(Info_tmp,nInfo)
-         Call dCopy_(nInfo,Work(Info),1,Work(Info_tmp),1)
-         Call Free_Work(Info)
-         Call Gen_RelPointers(-(LctInf-1))
-         Call Allocate_Work(Info,nInfo)
-         LctInf=Info
-         Call Gen_RelPointers(LctInf-1)
-         Call dCopy_(nInfo,Work(Info_tmp),1,Work(Info),1)
-         Call Free_Work(Info_tmp)
-*
-         If (iPrint.ge.99) Then
-            Write (LuWr,*) ' ****            nPrint           ****'
-            Write (LuWr,'(26(1X,10I4,/))') nPrint
-            Write (LuWr,*) ' *************************************'
-            Write (LuWr,*) ' nInfo=',nInfo
-C           Call RecPrt('Memory dump',' ',Work(Info),(nInfo+4)/5,5)
-         End If
-      End If
+      Call mma_deallocate(Buffer)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('RdCtl')
+      Call Datimx(KWord)
+      Header(1)=Title(1)(5:76)
+      Write (Header(2),'(4A)')
+     &          ' Integrals generated by ',
+     &            Vrsn,', ',KWord(1:24)
+      Call Put_cArray('Seward Title',Header(1),144)
+      If (nTtl>0) Call Put_cArray('SewardXTitle',Title(1),nTtl*80)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If (Run_Mode.eq.G_Mode) Call Put_iScalar('DNG',iDNG)
+*                                                                      *
+************************************************************************
+*                                                                      *
+*
+      Call mma_deallocate(STDINP)
       Return
 6666  Call WarningMessage(2,'Unable to read data from '//KWord)
       call Quit_OnUserError()
@@ -4791,9 +4653,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Subroutine LDF_CheckConfig()
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit None
 #include "localdf.fh"
-#include "para_info.fh"
       ! Debug write of unconstrained coefficients:
       ! 1) makes no sense for unconstrained LDF => reset
       ! 2) not implemented in parallel => error

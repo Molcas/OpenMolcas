@@ -21,6 +21,5 @@
 
       Call Start(Module_Name)
       Call rassi(ireturn)
-      Call QStat(' ')
       Call Finish(ireturn)
       end

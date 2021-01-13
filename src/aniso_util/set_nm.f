@@ -18,17 +18,16 @@ c input data:
       Integer, parameter         :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)        :: exch, ncut, encut_definition, nk,
      &                              mg, nTempMagn
-      Real(kind=wp), intent(in)  :: hmax, W(exch), encut_rate,
+      Real(kind=8), intent(in)  :: hmax, W(exch), encut_rate,
      &                              TempMagn(nTempMagn)
       Logical, intent(in)        :: dbg
 c output data:
       Integer,       intent(out) :: nM
-      Real(kind=wp), intent(out) :: EM
+      Real(kind=8), intent(out) :: EM
 c local variables:
       Integer       :: i
-      Real(kind=wp) :: diff, T_High
-      Real(kind=wp) :: boltz_k, mu_bohr
-      Call qEnter('set_nm')
+      Real(kind=8) :: diff, T_High
+      Real(kind=8) :: boltz_k, mu_bohr
 
       ! Constants:
       boltz_k=0.6950356_wp                    !   in cm^-1*K-1
@@ -102,7 +101,6 @@ c local variables:
 
 309   Continue
 
-      Call qExit('set_nm')
       Return
       End subroutine set_nm
 

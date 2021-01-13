@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine scorr2_cvb(cvbdet,dvbdet,evbdet,
      >      ssq,wvbdet,iperm)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -44,10 +44,11 @@ c! DLC
       tot=zero
       stot=zero
       do 100 mu=1,norb
-      do 100 nu=mu+1,norb
+      do 101 nu=mu+1,norb
 c  Apply s_mu x s_nu to the wavefunction
       do 200 i=1,norb
-200   iperm(i)=i
+      iperm(i)=i
+200   continue
       iperm(mu)=nu
       iperm(nu)=mu
       call fmove_cvb(cvbdet,wvbdet,ndetvb)
@@ -57,7 +58,9 @@ c  Apply s_mu x s_nu to the wavefunction
       tot=tot+sum
       stot=stot+ssum
       ssq(mu,nu)=sum
-100   ssq(nu,mu)=ssum
+      ssq(nu,mu)=ssum
+101   continue
+100   continue
       call mxprint_cvb(ssq,norb,norb,0)
       tot=tot+r3by4*dble(norb-2*norb*(norb-1)/2)
       stot=stot+r3by4*dble(norb-2*norb*(norb-1)/2)

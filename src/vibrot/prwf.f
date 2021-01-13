@@ -16,10 +16,12 @@ C
 #include "dimensions.fh"
       Parameter(nemax=nVib_Max,ndimmx=5000,lwork=nemax*ndimmx)
 #include "intinp.fh"
-      Dimension Vib(lwork)
+#include "stdalloc.fh"
+      Allocatable Vib(:)
       Dimension R(*)
 *
-      Call qEnter('PrWf_VibRot')
+
+      Call mma_allocate(Vib,lwork,label='Vib')
 
       write(6,*)
       Call CollapseOutput(1,'PRINTOUT OF VIBRATIONAL WAVE FUNCTIONS')
@@ -78,6 +80,6 @@ C End of loop over J1.
       end do
       Call CollapseOutput(0,'PRINTOUT OF VIBRATIONAL WAVE FUNCTIONS')
       write(6,*)
-      Call qExit('PrWf_VibRot')
+      Call mma_deallocate(Vib)
       return
       end

@@ -12,9 +12,9 @@
 C
 C     Purpose: print statistics from decomposition.
 C
+      USE Para_Info, ONLY: nProcs, Is_Real_Par
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "cho_para_info.fh"
 #include "choprint.fh"
 #include "choorb.fh"
 #include "choptr.fh"
@@ -43,7 +43,6 @@ C
       NDIMRS(I,J)=IWORK(ip_NDIMRS-1+NSYM*(J-1)+I)
       DSPNM(I)=WORK(ip_DSPNM-1+I)
 
-      CALL QENTER('_STAT')
 
       PARALG=CHO_DECALG.EQ.4 .OR. CHO_DECALG.EQ.5 .OR. CHO_DECALG.EQ.6
 
@@ -679,6 +678,5 @@ C     ------------------------------------------------------------
 
       END IF
 
-      CALL QEXIT('_STAT')
 
       END

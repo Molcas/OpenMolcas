@@ -67,13 +67,10 @@ C
       Integer N2
       Parameter (N2=InfVec_N2)
 
-      Logical  Cho_Rsv_Tsk
-      External Cho_Rsv_Tsk
-
       Integer  Cho_F2SP
       External Cho_F2SP
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer nBlock_Max, nnB
       Integer nTot, nTot2
       Integer myDebugInfo
@@ -110,7 +107,7 @@ C
 
       Integer i, j, k
       Integer IndRSh, iTri, nnBstRSh, InfVcT
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer iSP2F
       iSP2F(i)=iWork(ip_iSP2F-1+i)
 #endif
@@ -122,7 +119,7 @@ C
       ! Init return code
       irc=0
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       ! Check input
       If (l_NVT.lt.nSym .or. l_nBlock.lt.nSym .or.
      &    l_nV2.lt.nSym .or. l_iV12.lt.nSym .or.
@@ -195,7 +192,7 @@ C
             nSP=nSP+1
          End If
       End Do
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (nSP.ne.l_ListSP) Then
          Call Cho_Quit('SP counting error [1] in '//SecNam,103)
       End If
@@ -267,7 +264,7 @@ C
          Do jBlock=1,nBlock(iSym)
             kOffZ=ip_Z(iTri(jBlock,jBlock),iSym)-1
             Do J_inBlock=1,nV(jBlock,iSym)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                ! Check for division by zero or negative diagonal
                ! This would be a bug....
                If (abs(Work(kOffZ+iTri(J_inBlock,J_inBlock))).lt.Tol

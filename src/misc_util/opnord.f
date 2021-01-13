@@ -63,7 +63,6 @@
 **---------------------------------------------------------------------*
 *     Start procedure:                                                *
 *---------------------------------------------------------------------*
-*      If ( Query ) Call qEnter(TheName)
       rc=rc0000
 *---------------------------------------------------------------------*
 *     Check the file status                                           *
@@ -130,13 +129,11 @@
 *---- Call to GetOrd to fill nBatch etc.
 *
       If (Option.eq.0) Then
-         rc_Dummy=-1
          Call GetOrd(rd_Dummy,lDummy,iDummy,nDummy1,nDummy2)
       End If
 *
 *----------------------------------------------------------------------*
 *     normal end                                                       *
 *----------------------------------------------------------------------*
-*      If ( Query ) Call qExit(TheName)
       Return
       End

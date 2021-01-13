@@ -16,49 +16,38 @@
 * Object: to set up the handling of the 2nd order density matrix for   *
 *         the calculation of the 2-electron FAIEMP derivatives         *
 *                                                                      *
-* Called from: DrvG_FAIEMP                                             *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              OpnOne                                                  *
-*              GetMem                                                  *
-*              RdOne                                                   *
-*              PrMtrx                                                  *
-*              ClsOne                                                  *
-*              ErrOne                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Ben Swerts                                               *
 *                                                                      *
 * Based on PrepP                                                       *
-*                                                                      *
 ************************************************************************
+      use aces_stuff, only: Gamma_On
+      use pso_stuff
+      use Basis_Info
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit None
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "pso.fh"
+#include "stdalloc.fh"
 #include "etwas.fh"
-#include "aces_gamma.fh"
 #include "nac.fh"
       Integer nBas_Valence(0:7),nBT,nBVT,nFro(0:7)
       Character*8 RlxLbl,Method, KSDFT*16
       Logical lPrint
-      Integer i,iBas,iGo,iIrrep,ij,ipD1ao,ipD1ao_Var,ipD1AV,ipD2AV
-      Integer ipDLAO,ipDS1,ipDSVar1,ipLCMO,ipPLMO,ipt,ipTmp1,ipTemp
-      Integer iSpin,jBas,length,nAct,nDens_Valence,nsa,nTemp,nTst
+      Integer i,iBas,iGo,iIrrep,ij,ipt,ipTmp1
+      Integer iSpin,jBas,nAct,nDens_Valence,nsa,nTst
       Integer iRout,iPrint,iComp
       Real*8  Get_ExFac,CoefX,CoefR
       External Get_ExFac
-      Character*80 Fmt*60
+      Character*60 Fmt
+      Real*8, Allocatable:: D1AV(:)
 
 *
 *...  Prologue
       iRout = 205
       iPrint = nPrint(iRout)
       lPrint=.True.
-      Call qEnter('PrepP_FAIEMP')
       iD0Lbl=1
       iComp=1
 *
@@ -71,8 +60,8 @@
 *
 *...  Get the method label
       Call Get_cArray('Relax Method',Method,8)
-      nCMo = n2Tot
-      mCMo = n2Tot
+      nCMo = S%n2Tot
+      mCMo = S%n2Tot
       If (Method.eq. 'KS-DFT  ' .or.
      &    Method.eq. 'CASDFT  ' ) Then
          Call Get_iScalar('Multiplicity',iSpin)
@@ -185,44 +174,30 @@
 *...  density matrix in AO/SO basis
          nsa=1
          If (lsa) nsa=4
-         Call GetMem('D0   ','Allo','Real',ipD0,nDens*nsa)
-         Call GetMem('DVar ','Allo','Real',ipDVar,nDens*nsa)
-         Call FZero(Work(ipD0),nDens*nsa)
-         Call FZero(Work(ipDVar),nDens*nsa)
-         Call Get_D1ao(ipD1ao,length)
-         If ( length.ne.nDens_Valence ) Then
-            Write (6,*) 'PrepP_FAIEMP: length.ne.nDens'
-            Write (6,*) 'length=',length
-            Write (6,*) 'nDens=',nDens_Valence
-            Call Abend()
-         End If
-         call dcopy_(nDens_Valence,Work(ipD1ao),1,Work(ipD0),1)
-         Call Free_Work(ipD1ao)
+         mDens=nsa
+         Call mma_allocate(D0  ,nDens,mDens,Label='D0')
+         Call mma_allocate(DVar,nDens,mDens,Label='DVar')
+         D0  (:,:)=Zero
+         DVar(:,:)=Zero
+         Call Get_D1ao(D0,nDens)
+         Call Get_D1ao_Var(DVar,nDens)
 *
-         Call Get_D1ao_Var(ipD1ao_Var,length)
-         call dcopy_(nDens_Valence,Work(ipD1ao_Var),1,Work(ipDVar),1)
-         Call Free_Work(ipD1ao_Var)
-*
-         Call ReIndexFrag(Work(ipD0),nDens,nDens_Valence,nBas,
+         Call ReIndexFrag(D0,nDens,nDens_Valence,nBas,
      &                    nBas_Valence, nIrrep)
-         Call ReIndexFrag(Work(ipDVar),nDens,nDens_Valence,nBas,
+         Call ReIndexFrag(DVar,nDens,nDens_Valence,nBas,
      &                    nBas_Valence, nIrrep)
-         Call AddFragDens(Work(ipD0),nDens,nDens_Valence,nBas_Valence)
-         Call AddFragDens(Work(ipDVar),nDens,nDens_Valence,nBas_Valence)
+         Call AddFragDens(D0,nDens,nDens_Valence,nBas_Valence)
+         Call AddFragDens(DVar,nDens,nDens_Valence,nBas_Valence)
 *
-         Call GetMem('DS   ','Allo','Real',ipDS,nDens)
-         Call GetMem('DSVar','Allo','Real',ipDSVar,nDens)
-         Call FZero(Work(ipDS),nDens)
-         Call FZero(Work(ipDSVar),nDens)
+         Call mma_allocate(DS,nDens,Label='DS')
+         Call mma_allocate(DSVar,nDens,Label='DSVar')
+         DS(:)=Zero
+         DSVar(:)=Zero
          If(Method.eq.'UHF-SCF ' .or.
      &      Method.eq.'ROHF    ' .or.
      &      Method.eq.'Corr. WF'      ) Then
-           Call Get_D1sao(ipDS1,Length)
-           Call Get_D1sao_Var(ipDSVar1,Length)
-           call dcopy_(nDens_Valence,Work(ipDS1),1,Work(ipDS),1)
-           call dcopy_(nDens_Valence,Work(ipDSVar1),1,Work(ipDSVar),1)
-           Call Free_Work(ipDS1)
-           Call Free_Work(ipDSVar1)
+           Call Get_D1sao(DS,nDens)
+           Call Get_D1sao_Var(DSVar,nDens)
          End If
 *
 *     Unfold density matrix
@@ -232,23 +207,23 @@
          Do 11 iBas = 1, nBas(iIrrep)
             Do 12 jBas = 1, iBas-1
                ij = ij + 1
-               Work(ipD0   +ij) = Half*Work(ipD0   +ij)
-               Work(ipDVar +ij) = Half*Work(ipDVar +ij)
-               Work(ipDS   +ij) = Half*Work(ipDS   +ij)
-               Work(ipDSVar+ij) = Half*Work(ipDSVar+ij)
+               D0   (1+ij,1) = Half*D0   (1+ij,1)
+               DVar (1+ij,1) = Half*DVar (1+ij,1)
+               DS   (1+ij)   = Half*DS   (1+ij)
+               DSVar(1+ij)   = Half*DSVar(1+ij)
  12         Continue
             ij = ij + 1
  11      Continue
  10   Continue
       If (iPrint.ge.99) Then
          RlxLbl='D1AO    '
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipD0],Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],D0)
          RlxLbl='D1AO-Var'
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDVar],Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DVar)
          RlxLbl='DSAO    '
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDS],Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DS)
          RlxLbl='DSAO-Var'
-         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[ipDSVar],Work)
+         Call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DSVar)
       End If
 *
 *...  Get the MO-coefficients
@@ -260,17 +235,14 @@
             nsa=1
             If (lsa) nsa=2
          End If
-         Call GetMem('CMO','Allo','Real',ipCMO,nsa*mCMO)
-         ipCMOa=ipCMO
-         ipCMOb=ipCMO+(nsa-1)*mCMO
-         Call Get_CMO(ipTemp,nTemp)
-         call dcopy_(nTemp,Work(ipTemp),1,Work(ipCMO),1)
-         Call Free_Work(ipTemp)
+         kCMO=nsa
+         Call mma_allocate(CMO,mCMO,kCMO,Label='CMO')
+         Call Get_CMO(CMO(:,1),mCMO)
          If (iPrint.ge.99) Then
-            ipTmp1 = ipCMO
+            ipTmp1 = 1
             Do iIrrep = 0, nIrrep-1
                Call RecPrt(' CMO''s',' ',
-     &                     Work(ipTmp1),nBas_Valence(iIrrep),
+     &                     CMO(ipTmp1,1),nBas_Valence(iIrrep),
      &                     nBas_Valence(iIrrep))
                ipTmp1 = ipTmp1 + nBas_Valence(iIrrep)**2
             End Do
@@ -308,37 +280,33 @@
          nG1 = nAct*(nAct+1)/2
          nsa=1
          If (lsa) nsa=0
-         Call GetMem(' G1 ','Allo','Real',ipG1,nG1*nsa)
+         mG1=nsa
+         Call mma_allocate(G1,nG1,mG1,Label='G1')
          If (nsa.gt.0) Then
-            Call Get_D1MO(ipTemp,nTemp)
-            call dcopy_(nTemp,Work(ipTemp),1,Work(ipG1),1)
-            Call Free_Work(ipTemp)
-            If (iPrint.ge.99) Call TriPrt(' G1',' ',Work(ipG1),nAct)
+            Call Get_D1MO(G1(:,1),nG1)
+            If (iPrint.ge.99) Call TriPrt(' G1',' ',G1(:,1),nAct)
          End If
 *
 *...  Get the two body density for the active orbitals
          nG2 = nG1*(nG1+1)/2
          nsa=1
          if (lsa) nsa=2
-         Call GetMem(' G2 ','Allo','Real',ipG2,nsa*nG2)
-         Call Get_P2MO(ipTemp,nTemp)
-         call dcopy_(nTemp,Work(ipTemp),1,Work(ipG2),1)
-         Call Free_Work(ipTemp)
-         If (iPrint.ge.99) Call TriPrt(' G2',' ',Work(ipG2),nG1)
+         mG2=nsa
+         Call mma_allocate(G2,nG2,mG2,Label='G2')
+         Call Get_P2MO(G2(:,1),nG2)
+         If (iPrint.ge.99) Call TriPrt(' G2',' ',G2(1,1),nG1)
          If (lsa) Then
 
 *  CMO1 Ordinary CMO's
 *
 *  CMO2 CMO*Kappa
 *
-           Call Get_LCMO(ipLCMO,Length)
-           call dcopy_(Length,Work(ipLCMO),1,Work(ipCMO+mcmo),1)
-           Call Free_Work(ipLCMO)
+           Call Get_LCMO(CMO(:,2),mCMO)
            If (iPrint.ge.99) Then
-            ipTmp1 = ipCMO+mcmo
+            ipTmp1 = 1
             Do iIrrep = 0, nIrrep-1
                Call RecPrt('LCMO''s',' ',
-     &                     Work(ipTmp1),nBas_Valence(iIrrep),
+     &                     CMO(ipTmp1,2),nBas_Valence(iIrrep),
      &                     nBas_Valence(iIrrep))
                ipTmp1 = ipTmp1 + nBas_Valence(iIrrep)**2
             End Do
@@ -349,23 +317,13 @@
 *   P1=<i|e_pqrs|i> + sum_i <i|e_pqrs|i>+<i|e_pqrs|i>
 *   P2=sum_i <i|e_pqrs|i>
 *
-           Call Get_PLMO(ipPLMO,Length)
-           call dcopy_(Length,Work(ipPLMO),1,Work(ipG2+ng2),1)
-           Call Free_Work(ipPLMO)
-           Call Daxpy_(ng2,1.0d0,Work(ipG2+ng2),1,Work(ipG2),1)
-           If(iPrint.ge.99)Call TriPrt(' G2L',' ',Work(ipG2+ng2),nG1)
-           If(iPrint.ge.99)Call TriPrt(' G2T',' ',Work(ipG2),nG1)
+           Call Get_PLMO(G2(:,2),nG2)
+           Call Daxpy_(nG2,1.0d0,G2(:,2),1,G2(:,1),1)
+           If(iPrint.ge.99)Call TriPrt(' G2L',' ',G2(:,2),nG1)
+           If(iPrint.ge.99)Call TriPrt(' G2T',' ',G2(:,1),nG1)
 *
-           Call Get_D2AV(ipD2AV,Length)
-           If (ng2.ne.Length) Then
-              Write (6,*) 'PrepP_FAIEMP: D2AV, ng2.ne.Length!'
-              Write (6,*) 'ng2,Length=',ng2,Length
-              Call Abend()
-           End If
-           call dcopy_(Length,Work(ipD2AV),1,Work(ipG2+ng2),1)
-           Call Free_Work(ipD2AV)
-           If (iPrint.ge.99) Call TriPrt('G2A',' ',
-     &                Work(ipG2+ng2),nG2)
+           Call Get_D2AV(G2(:,2),nG2)
+           If (iPrint.ge.99) Call TriPrt('G2A',' ',G2(:,2),nG2)
 *
 *
 *  Densities are stored as:
@@ -383,40 +341,31 @@
 *       G1 = <i|e_ab|i>
 *       G2 = sum i <i|e_ab|i>
            Call Getmem('TMP','ALLO','REAL',ipt,2*ndens)
-           Call Get_D1I(Work(ipCMO),Work(ipD0+0*ndens),Work(ipT),
+           Call Get_D1I(CMO(1,1),D0(1,1),Work(ipT),
      &                nish,nBas_Valence,nIrrep)
            Call Getmem('TMP','FREE','REAL',ipt,ndens)
 
-           Call dcopy_(nDens_Valence,Work(ipDVar),1,
-     &                               Work(ipD0+1*ndens),1)
-           If (.not.isNAC) call daxpy_(ndens,-Half,Work(ipD0+0*ndens),1,
-     &                                             Work(ipD0+1*ndens),1)
-           If (iprint.gt.90)Call PrMtrx('D0',[iD0Lbl],iComp,[ipD0],Work)
+           Call dcopy_(nDens_Valence,DVar,1,D0(1,2),1)
+           If (.not.isNAC) call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
+           If (iprint.gt.90)Call PrMtrx('D0',[iD0Lbl],iComp,[1],D0)
 *
 *   This is necessary for the kap-lag
 *
-           Call Get_D1AV(ipD1AV,Length)
            nG1 = nAct*(NAct+1)/2
-           If (nG1.ne.Length) Then
-              Write (6,*) 'Prepp: D1AV, nG1.ne.Length!'
-              Write (6,*) 'nG1,Length=',nG1,Length
-              Call Abend()
-           End If
-           Call Get_D1A(Work(ipCMO),Work(ipD1AV),Work(ipD0+2*ndens),
+           Call mma_Allocate(D1AV,nG1,Label='D1AV')
+           Call Get_D1AV(D1AV,nG1)
+           Call Get_D1A(CMO(1,1),D1AV,D0(1,3),
      &                 nIrrep,nBas_Valence,nish,nash,nDens_Valence)
-           Call Free_Work(ipD1AV)
+           Call mma_deallocate(D1AV)
 *
-           Call Get_DLAO(ipDLAO,Length)
-           call dcopy_(Length,Work(ipDLAO),1,Work(ipD0+3*ndens),1)
-           Call Free_Work(ipDLAO)
+           Call Get_DLAO(D0(1,4),nDens)
          End If
-         If (iPrint.ge.99) Call TriPrt(' G2',' ',Work(ipG2),nG1)
+         If (iPrint.ge.99) Call TriPrt(' G2',' ',G2(1,1),nG1)
 *
 *...  Close 'RELAX' file
 1000     Continue
 *
 *...  Epilogue, end
-      Call qExit('PrepP_FAIEMP')
       Return
       End
 
@@ -462,10 +411,11 @@
 * Output: Updated with fragment densities at their proper positions.   *
 *                                                                      *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit None
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
       Integer nDens,nDens_Valence
       Real*8  Array(nDens)
@@ -482,13 +432,14 @@
 *
       iPrint=0
 *
-* Each fragment needs it's (symmetrized) density matrix added along the diagonal
+* Each fragment needs it''s (symmetrized) density matrix added along the diagonal
 * This density matrix first has to be constructed from the MO coefficients
 * so allocate space for the largest possible density matrix
       maxDens = 0
       Do iCnttp = 1, nCnttp
-        If(nFragType(iCnttp).gt.0) maxDens = Max(maxDens,
-     &                        nFragDens(iCnttp)*(nFragDens(iCnttp)+1)/2)
+        If (dbsc(iCnttp)%nFragType.gt.0) maxDens = Max(maxDens,
+     &                        dbsc(iCnttp)%nFragDens
+     &                      *(dbsc(iCnttp)%nFragDens+1)/2)
       End Do
       Call GetMem('FragDSO','Allo','Real',ipFragDensSO,maxDens)
 c     If(nIrrep.ne.1) Then
@@ -503,32 +454,34 @@ c     End If
         iDpos = iDpos + nBasC*(nBasC+1)/2
         mdc = 0
         Do 1000 iCnttp = 1, nCnttp
-          If(nFragType(iCnttp).le.0) Then
-            mdc = mdc + nCntr(iCnttp)
+          If(dbsc(iCnttp)%nFragType.le.0) Then
+            mdc = mdc + dbsc(iCnttp)%nCntr
             Go To 1000
           End If
 
 * construct the density matrix
           EnergyWeight = .false.
-          Call MakeDens(nFragDens(iCnttp),nFragEner(iCnttp),
-     &                  Work(ipFragCoef(iCnttp)),rDummy,EnergyWeight,
-     &                  Work(ipFragDensAO))
+          Call MakeDens(dbsc(iCnttp)%nFragDens,
+     &                  dbsc(iCnttp)%nFragEner,
+     &                  dbsc(iCnttp)%FragCoef,
+     &                  rDummy,
+     &                  EnergyWeight,Work(ipFragDensAO))
 * create the symmetry adapted version if necessary
 * (fragment densities are always calculated without symmetry)
 C         If(nIrrep.ne.1) Call SymmDens(Work(ipFragDensAO),
 C    &      Work(ipFragDensSO))
           If(iPrint.ge.99) Call TriPrt('Fragment density',' ',
-     &      Work(ipFragDensSO),nFragDens(iCnttp))
-          Do iCnt = 1, nCntr(iCnttp)
+     &      Work(ipFragDensSO),dbsc(iCnttp)%nFragDens)
+          Do iCnt = 1, dbsc(iCnttp)%nCntr
             mdc = mdc + 1
 * only add fragment densities that are active in this irrep
 * => the following procedure still has to be verified thoroughly
 *    but appears to be working
-            If(iAnd(iChCnt(mdc),iIrrep).eq.iOper(iIrrep)) Then
+            If(iAnd(dc(mdc)%iChCnt,iIrrep).eq.iOper(iIrrep)) Then
 * add it at the correct location in the large custom density matrix
               iFpos = 1
 c              ! position in fragment density matrix
-              Do i = 1, nFragDens(iCnttp)
+              Do i = 1, dbsc(iCnttp)%nFragDens
                 iDpos = iDpos + nBasC
                 Do j = 0, i-1
                   Array(iDpos + j) = Work(ipFragDensSO + iFpos + j - 1)
@@ -536,7 +489,7 @@ c              ! position in fragment density matrix
                 iDpos = iDpos + i
                 iFpos = iFpos + i
               End Do
-              nBasC = nBasC + nFragDens(iCnttp)
+              nBasC = nBasC + dbsc(iCnttp)%nFragDens
             End If
           End Do
  1000   Continue

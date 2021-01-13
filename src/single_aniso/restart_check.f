@@ -20,15 +20,15 @@ c
       Logical ::  Ifrestart
       Logical ::  GRAD
       Real    ::  rdummy
-      Character(280) :: line, tmp
-      Character(180) :: input_file_name
+      Character(Len=280) :: line, tmp
+      Character(Len=180) :: input_file_name
       Integer :: ncut,nk,mg
       Real    :: encut_rate
-      Logical :: KeyREST,KeyTEXP,KeyHEXP,KeyHINT,KeyTINT,KeyTMAG,
-     &           KeyMVEC,KeyZEEM,KeyMLTP,KeyNCUT,KeyENCU,KeyERAT,KeyGRAD
+      Logical :: KeyHEXP,KeyHINT,KeyTMAG,
+     &           KeyMVEC,KeyZEEM,KeyNCUT,KeyENCU,KeyERAT
+c     Logical :: KeyREST,KeyTEXP,KeyTINT,KeyMLTP,KeyGRAD
       Logical :: DBG
 
-      Call qEnter('SA_rest_chk')
       DBG=.false.
 
       nH=0
@@ -43,19 +43,19 @@ c
       nTempMagn=0
       Input=5
 
-      KeyREST=.false.
-      KeyTEXP=.false.
+c     KeyREST=.false.
+c     KeyTEXP=.false.
       KeyHEXP=.false.
       KeyHINT=.false.
-      KeyTINT=.false.
+c     KeyTINT=.false.
       KeyTMAG=.false.
       KeyMVEC=.false.
       KeyZEEM=.false.
-      KeyMLTP=.false.
+c     KeyMLTP=.false.
       KeyNCUT=.false.
       KeyENCU=.false.
       KeyERAT=.false.
-      KeyGRAD=.false.
+c     KeyGRAD=.false.
 
 C=========== End of default settings====================================
       REWIND(Input)
@@ -81,7 +81,7 @@ C=========== End of default settings====================================
 
       If (line(1:4).eq.'REST') Then
          Ifrestart=.true.
-         KeyREST=.true.
+c        KeyREST=.true.
          READ(Input,*) input_to_read
          input_file_name='aniso.input'
          If(DBG) WRITE(6,*) input_to_read
@@ -101,13 +101,13 @@ C=========== End of default settings====================================
       If (line(1:4).eq.'TEXP') Then
           READ(Input,*) nT
           IF(DBG) WRITE(6,*) 'restart_check: TEXP, nT=', nT
-          KeyTEXP=.true.
+c         KeyTEXP=.true.
           LINENR=LINENR+1
           Go To 100
       End If
 
       If (line(1:4).eq.'GRAD') Then
-          KeyGRAD=.true.
+c         KeyGRAD=.true.
           GRAD=.true.
           IF(DBG) WRITE(6,*) 'restart_check:  GRAD = ', GRAD
           LINENR=LINENR+1
@@ -135,7 +135,7 @@ C=========== End of default settings====================================
       If (line(1:4).eq.'TINT') Then
           READ(Input,*) rdummy, rdummy, nT
           IF(DBG) WRITE(6,*) 'restart_check: HINT, nT=', nT
-          KeyTINT=.true.
+c         KeyTINT=.true.
           LINENR=LINENR+1
           Go To 100
       End If
@@ -167,7 +167,7 @@ C=========== End of default settings====================================
       If (line(1:4).eq.'MLTP') Then
           READ(Input,*) nMult
           IF(DBG) WRITE(6,*) 'restart_check: MLTP, nMult=',nMult
-          KeyMLTP=.true.
+c         KeyMLTP=.true.
           LINENR=LINENR+1
           Go To 100
       End If
@@ -198,7 +198,7 @@ C=========== End of default settings====================================
       End If
 
 200   Continue
-      Write(6,'(5X,A)') 'NO ERORR WAS LOCATED WHILE READING INPUT'
+      Write(6,'(5X,A)') 'NO ERROR WAS LOCATED WHILE READING INPUT'
 
 c      print *,'KeyREST=',KeyREST
 c      print *,'KeyTEXP=',KeyTEXP
@@ -238,6 +238,8 @@ C------ errors ------------------------------
 
 
 190   Continue
-      Call qExit('SA_rest_chk')
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_real(rdummy)
+#endif
       End

@@ -17,17 +17,13 @@
 *                                                                      *
 * Object: to compute pseudo potential gradient integrals               *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 ************************************************************************
+      Use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: iOper
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "oneswi.fh"
 #include "print.fh"
 #include "disp.fh"
@@ -49,27 +45,24 @@
       Integer nkcrl(lproju+1,kcrs),nkcru(lproju+1,kcrs),lcr(kcrs),
      &        ncr(imax)
 *
-      Logical EQ, TstFnc, TF
+      Logical EQ
+      Logical, External :: TF
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Statement function for Cartesian index
 *
       nElem(i) = (i+1)*(i+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
 *                                                                      *
 ************************************************************************
 *                                                                      *
       iRout = 122
       iPrint = nPrint(iRout)
-*     Call qEnter('PPGrd')
 *
       nDAO=nElem(la)*nElem(lb)
       iIrrep = 0
-      iuvwx(1) = nStab(mdc)
-      iuvwx(2) = nStab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       lOp(1) = iOper(kOp(1))
       lOp(2) = iOper(kOp(2))
 *                                                                      *
@@ -114,60 +107,59 @@
 *
       If (nArray.gt.nZeta*nArr) Then
          Write (6,*) 'nArray.gt.nZeta*nArr'
-         Call QTrace()
          Call Abend()
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iComp = 1
-      kdc=0
+      kdc = 0
       Do iCnttp = 1, nCnttp
-         If (Charge(iCnttp).eq.0d0) Go To 999
-         If (nPP_Shells(iCnttp).eq.0) Go To 999
+        If (iCnttp>1) kdc = kdc + dbsc(iCnttp-1)%nCntr
+         If (dbsc(iCnttp)%Charge.eq.0d0) Cycle
+         If (dbsc(iCnttp)%nPP.eq.0) Cycle
 cAOM< Get the "true" (non SO) shells
          nPP_S=0
-         do kSh = ipPP(iCnttp), ipPP(iCnttp) + nPP_Shells(iCnttp)-1
-           ncrr=Int(Work(ipExp(kSh)))
+         do kSh = dbsc(iCnttp)%iPP,
+     &            dbsc(iCnttp)%iPP + dbsc(iCnttp)%nPP-1
+           If (Shells(kSh)%nExp.le.0) Cycle
+           ncrr=Int(Shells(kSh)%Exp(1))
            if(ncrr.le.500) nPP_S=nPP_S+1
          enddo
-         If (nPP_S.eq.0) Go To 999
+         If (nPP_S.eq.0) Cycle
 cAOM>
 *
          npot = 0
-         kShStr=ipPP(iCnttp)
-cAOM         kShEnd = kShStr + nPP_Shells(iCnttp)-1
+         kShStr=dbsc(iCnttp)%iPP
+cAOM         kShEnd = kShStr + dbsc(iCnttp)%nPP-1
          kShEnd = kShStr + nPP_S-1
-         If (nPP_Shells(iCnttp)-1.gt.lproju) Then
-            Write (6,*) 'nPP_Shells(iCnttp)-1.gt.lproju'
-CAOM            Write (6,*) 'nPP_Shells(iCnttp)=',nPP_Shells(iCnttp)
-            Write (6,*) 'nPP_Shells(iCnttp)=',nPP_S
+         If (dbsc(iCnttp)%nPP-1.gt.lproju) Then
+            Write (6,*) 'dbsc(iCnttp)%nPP-1.gt.lproju'
+CAOM            Write (6,*) 'dbsc(iCnttp)%nPP=',dbsc(iCnttp)%nPP
+            Write (6,*) 'dbsc(iCnttp)%nPP=',nPP_S
             Write (6,*) 'lproju            =',lproju
-            Call QTrace()
             Call Abend()
          End If
-CAOM         lcr(kcrs)=nPP_Shells(iCnttp)-1
+CAOM         lcr(kcrs)=dbc(iCnttp)%nPP-1
          lcr(kcrs)=nPP_S-1
          iSh=0
          iOff = 1
          Do kSh = kShStr, kShEnd
             iSh = iSh + 1
             nkcrl(iSh,kcrs)=iOff
-            nkcru(iSh,kcrs)=iOff+nExp(ksh)-1
-            iOff = iOff + nExp(kSh)
+            nkcru(iSh,kcrs)=iOff+Shells(ksh)%nExp/3-1
+            iOff = iOff + Shells(kSh)%nExp/3
             If (nPot.gt.imax) Then
                Write (6,*)' Pseudo: nPot.gt.imax'
                Write (6,*)'         nPot=',nPot
                Write (6,*)'         imax=',imax
-               Call QTrace()
                Call Abend()
             End If
-            iStrt=ipExp(kSh)
-            Do iExp = 1, nExp(kSh)
+            iStrt=1
+            Do iExp = 1, Shells(kSh)%nExp/3
                npot = npot + 1
-               ncr(npot)=Int(Work(iStrt  ))
-               zcr(npot)=    Work(iStrt+1)
-               ccr(npot)=    Work(iStrt+2)
+               ncr(npot)=Int(Shells(kSh)%Exp(iStrt  ))
+               zcr(npot)=    Shells(kSh)%Exp(iStrt+1)
+               ccr(npot)=    Shells(kSh)%Exp(iStrt+2)
                iStrt=iStrt+3
             End Do
          End Do
@@ -177,18 +169,17 @@ C        Write (*,*) 'ccr',(ccr(i),i=1,npot)
 C        Write (*,*) 'nkcrl',(nkcrl(i,1),i=1,iSh)
 C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
 *
-         Do kCnt = 1, nCntr(iCnttp)
-            ixyz = ipCntr(iCnttp) + (kCnt-1)*3
-            call dcopy_(3,Work(ixyz),1,C,1)
+         Do kCnt = 1, dbsc(iCnttp)%nCntr
+            C(1:3) = dbsc(iCnttp)%Coor(1:3,kCnt)
 *
 *-----------Find the DCR for M and S
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt) ,nStab(kdc+kCnt),iDCRT,nDCRT)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab ,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
-            iuvwx(3) = nStab(kdc+kCnt)
-            iuvwx(4) = nStab(kdc+kCnt)
+            iuvwx(3) = dc(kdc+kCnt)%nStab
+            iuvwx(4) = dc(kdc+kCnt)%nStab
             Call ICopy(6,IndGrd,1,JndGrd,1)
             Do i = 1, 3
                Do j = 1, 2
@@ -201,7 +192,7 @@ C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
                JfGrad(iCar+1,3) = .False.
                iCmp = 2**iCar
                If ( TF(kdc+kCnt,iIrrep,iCmp) .and.
-     &              .Not.pChrg(iCnttp) ) Then
+     &              .Not.dbsc(iCnttp)%pChrg ) Then
                   nDisp = nDisp + 1
                   If (Direct(nDisp)) Then
                      JndGrd(iCar+1,1) = Abs(JndGrd(iCar+1,1))
@@ -226,15 +217,13 @@ C        Write (*,*) 'nkcru',(nkcru(i,1),i=1,iSh)
                   If (JfGrad(iCar,i)) mGrad = mGrad + 1
                End Do
             End Do
-            If (mGrad.eq.0) Go To 2000
+            If (mGrad.eq.0) Cycle
 *
             Do lDCRT = 0, nDCRT-1
                lOp(3) = iDCRT(lDCRT)
                lOp(4) = lOp(3)
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
-               If (EQ(A,RB).and.EQ(A,TC)) Go To 3000
+               Call OA(iDCRT(lDCRT),C,TC)
+               If (EQ(A,RB).and.EQ(A,TC)) Cycle
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -321,23 +310,17 @@ CAOM>
 *              Distribute contributions to the gradient
 *
                Call Distg1X(Final,DAO,nZeta,nDAO,mGrad,Grad,nGrad,
-     &                     JfGrad,JndGrd,iuvwx,lOp,iChBas,MxFnc,nIrrep)
+     &                     JfGrad,JndGrd,iuvwx,lOp)
 *
- 3000          Continue
             End Do        ! lDCRT
 *                                                                      *
 ************************************************************************
 *                                                                      *
- 2000       Continue
          End Do           ! kCnt
- 999     Continue
-         kdc = kdc + nCntr(iCnttp)
       End Do              ! iCnttp
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call GetMem(' Exit PPGrd','LIST','REAL',iDum,iDum)
-*     Call qExit('PPGrd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

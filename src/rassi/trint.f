@@ -9,6 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TRINT(CMO1,CMO2,ECORE,NGAM1,FOCKMO,NGAM2,TUVX)
+#if defined (_MOLCAS_MPP_)
+      USE Para_Info, ONLY: nProcs
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
       DIMENSION KEEP(8),NBSX(8),ipAsh(2)
@@ -20,7 +23,6 @@
 #include "Files.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "para_info.fh"
       Logical IfTest,FoundTwoEls,DoCholesky
 
       Integer ALGO,Nscreen
@@ -43,9 +45,8 @@
 *  THE TUVX MATRICES ARE IN THE SAME FORMAT AS THE DENSITY MATRICES.
 *****************************************************************
 
-      Call qEnter('TRINT')
       IfTest=.False.
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
 #endif
 C THE FOLLOWING PROGRAMS USE THE ORDERED INTEGRAL FILE FOR BOTH
@@ -141,7 +142,7 @@ c --- FAO already contains the one-electron part
          Call DaXpY_(nFAO,1.0D+0,Work(ipTemp),1,FAO,1)
          Call Free_Work(ipTemp)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          ioff=1
          Do i=1,nSym
          call CHO_OUTPUT(fao(ioff),1,nBasF(i),1,nBasF(i),
@@ -165,7 +166,7 @@ c --- FAO already contains the one-electron part
          CALL GETMEM('DLT','ALLO','REAL',ipDLT,nBTri)
          CALL Fold_Mat(nSym,nBasF,DINAO,Work(ipDLT))
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 
          ioff1=0
          ioff2=0
@@ -419,7 +420,6 @@ C TRANSFORM TWO-ELECTRON INTEGRALS:
 c     Call triprt('tuvx',' ',TUVX,nasht)
 
 
-      Call qExit('TRINT')
       RETURN
 901   CONTINUE
       WRITE(6,*)' ERROR IN KEEP PARAMETERS ON ORDINT FILE.'

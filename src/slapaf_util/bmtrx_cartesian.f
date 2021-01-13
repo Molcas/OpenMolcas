@@ -8,30 +8,31 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine BMtrx_Cartesian(
-     &                 nLines,ipBMx,nAtom,nInter,ip_rInt,Coor,nDim,
-     &                 dMass,Name,nSym,iOper,Smmtrc,Degen,BSet,HSet,
-     &                 nIter,ip_drInt,Gx,Cx,mTtAtm,iAnr,nStab,jStab,
-     &                 Numerical,HWRS,Analytic_Hessian,iOptC,PrQ,mxdc,
-     &                 iCoSet,lOld,nFix,mTR,TRVec,ipEVal,ip_Hss_x,
-     &                 ip_KtB,nQQ,Redundant,nqInt,MaxItr,nWndw)
+      Subroutine BMtrx_Cartesian(nsAtom,nDimBC,nIter,mTtAtm,
+     &                           mTR,TRVec,EVal,Hss_x,nQQ,nWndw)
+      use Slapaf_Info, only: Cx, Gx, qInt, dqInt, KtB, BMx, Degen,
+     &                       AtomLbl, Smmtrc
+      use Slapaf_Parameters, only: Redundant, MaxItr, BSet, HSet, PrQ,
+     &                             lOld
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
-      Real*8 Coor(3,nAtom), dMass(nAtom), Degen(3*nAtom),
-     &       Gx(3*nAtom,nIter), Cx(3*nAtom,nIter), TRVec(nDim,mTR)
-      Character Name(nAtom)*(LENIN)
-      Integer   iOper(0:nSym-1), iAnr(nAtom),
-     &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
-      Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
-     &        Numerical, HWRS, Analytic_Hessian, PrQ, lOld
+#include "stdalloc.fh"
+      Real*8 TRVec(nDimBC,mTR)
+      Real*8 Eval(3*mTtAtm*(3*mTtAtm+1)/2)
+      Real*8 Hss_x((3*mTtAtm)**2)
+      Real*8, Allocatable:: EVec(:), Hi(:,:), iHi(:), Degen2(:)
+      Integer, Allocatable:: Ind(:)
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout=133
-      iPrint=nPrint(iRout)
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      Call RecPrt('BMtrx_Cartesian: TRVec',' ',TRVec,nDimBC,mTR)
+      Call RecPrt('BMtrx_Cartesian: Degen',' ',Degen,3,SIZE(Degen,2))
+      Call RecPrt('BMtrx_Cartesian: Hss_x',' ',Hss_x,3*mTtAtm,3*mTtAtm)
+#endif
 *
 *-----Recompute the B matrix once each macroIteration, this is
 *     not done if a numerical Hessian is computed.
@@ -41,33 +42,37 @@
 *     R E D U N D A N T  C A R T E S I A N  C O O R D S
 *
       If (Redundant) Then
-         nQQ = nDim
-         If (ip_rInt.eq.ip_Dummy) Then
-            nqInt=nQQ*MaxItr
-            Call GetMem(' qInt','Allo','Real',ip_rInt, nqInt)
-            Call GetMem('dqInt','Allo','Real',ip_drInt,nqInt)
+         nQQ = nDimBC
+         If (Allocated(qInt).and.SIZE(qInt,1)/=nQQ) Then
+            Call mma_deallocate(qInt)
+            Call mma_deallocate(dqInt)
          End If
-         Call Allocate_Work(ipEVec,nDim**2)
-         Call FZero(Work(ipEVec),nDim**2)
-         call dcopy_(nDim,[One],0,Work(ipEVec),nDim+1)
+         If (.NOT.Allocated(qInt)) Then
+            Call mma_allocate(qInt,nQQ,MaxItr,Label='qInt')
+            Call mma_allocate(dqInt,nQQ,MaxItr,Label='dqInt')
+            qInt(:,:) = Zero
+            dqInt(:,:) = Zero
+         End If
+         Call mma_allocate(EVec,nDimBC**2,Label='EVec')
+         EVec(:)=Zero
+         call dcopy_(nDimBC,[One],0,EVec,nDimBC+1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *------- Move over the eigenvectors putting to BMx
 *
-         Call Allocate_Work(ipBMx,(3*nAtom)*nQQ)
-         Call FZero(Work(ipBMx), (3*nAtom)*nQQ)
-         ipFrom = ipEVec
-         Call BPut(Work(ipFrom),nDim,Work(ipBMx),3*nAtom,Smmtrc,
-     &             nQQ,Degen)
-         If (iPrint.ge.19) Call RecPrt('In Bmtrx: B',' ',Work(ipBMx),
-     &                                 3*nAtom,nQQ)
+         Call mma_allocate(BMx,3*nsAtom,nQQ,Label='BMx')
+         BMX(:,:)=Zero
+         ipFrom = 1
+         Call BPut(EVec(ipFrom),nDimBC,BMx,3*nsAtom,Smmtrc,nQQ,Degen)
+#ifdef _DEBUGPRINT_
+         Call RecPrt('In Bmtrx: B',' ',BMx,3*nsAtom,nQQ)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         If (PrQ.and.nAtom.le.5)
-     &      Call List2('Cartesian Redundant',
-     &                 Name,Work(ipBMx),nAtom,nQQ,Smmtrc)
+         If (PrQ.and.nsAtom.le.5) Call List2('Cartesian Redundant',
+     &                                    AtomLbl,BMx,nsAtom,nQQ,Smmtrc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -77,48 +82,55 @@
 *        rotational and translations directions and to make sure that
 *        the matrix is not singular.
 *
-         Call Allocate_iWork(ipInd,nDim)
+         Call mma_allocate(Ind,nDimBC,Label='Ind')
          iInd=0
-         Do i = 1, 3*nAtom
-            If (Smmtrc(i)) Then
-               iWork(ipInd+iInd)=i
+         Do i = 1, 3*nsAtom
+            iAtom = (i+2)/3
+            ixyz = i - (iAtom-1)*3
+            If (Smmtrc(ixyz,iAtom)) Then
                iInd=iInd+1
+               Ind(iInd)=i
             End If
          End Do
 *
 *        Compute H|i>
 *
-         Call Allocate_Work(ipHi,mTR*nDim)
-         Call Allocate_Work(ipiHi,mTR)
-         Call FZero(Work(ipHi),mTR*nDim)
+         Call mma_allocate(Hi,nDimBC,mTR,Label='Hi')
+         Call mma_allocate(iHi,mTR,Label='iHi')
+         Hi(:,:)=Zero
 *
          Do j = 1, mTR
-            Do i = 1, nDim
+            Do i = 1, nDimBC
                Temp = 0.0D0
-               Do k = 1, nDim
-                  kx = iWork(ipInd+k-1)
-                  ik=(i-1)*nDim+k -1 + ip_Hss_x
+               Do k = 1, nDimBC
+                  kx = Ind(k)
+                  iAtom = (kx+2)/3
+                  ixyz = kx - (iAtom-1)*3
+                  ik=(i-1)*nDimBC+k
                   Temp = Temp
-     &                 + Work(ik) * Sqrt(Degen(kx))
+     &                 + Hss_X(ik) * Sqrt(Degen(ixyz,iAtom))
      &                 * TRVec(k,j)
                End Do
-               Work(ipHi+(j-1)*nDim+i-1) = Temp
+               Hi(i,j) = Temp
             End Do
          End Do
-*        Call RecPrt('Hi',' ',Work(ipHi),nDim,mTR)
+*        Call RecPrt('Hi',' ',Hi,nDimBC,mTR)
          Do iTR = 1, mTR
-            Work(ipiHi+iTR-1) = DDot_(nDim,TRVec(1,iTR),1,
-     &                                    Work(ipHi+(iTR-1)*nDim),1)
+            iHi(iTR) = DDot_(nDimBC,TRVec(1,iTR),1,Hi(:,iTR),1)
          End Do
-*        Call RecPrt('iHi',' ',Work(ipiHi),mTR,1)
+*        Call RecPrt('iHi',' ',iHi,mTR,1)
 *
-         Do i = 1, nDim
-            ix = iWork(ipInd+i-1)
+         Do i = 1, nDimBC
+            ix = Ind(i)
+            iAtom = (ix+2)/3
+            ixyz = ix - (iAtom-1)*3
             Do j = 1, i
-               jx = iWork(ipInd+j-1)
-               ij = (j-1)*nDim + i -1 + ip_Hss_x
-               ji = (i-1)*nDim + j -1 + ip_Hss_x
-               Temp = Half*(Work(ij)+Work(ji))
+               jx = Ind(j)
+               jAtom = (jx+2)/3
+               jxyz = jx - (jAtom-1)*3
+               ij = (j-1)*nDimBC + i
+               ji = (i-1)*nDimBC + j
+               Temp = Half*(Hss_x(ij)+Hss_x(ji))
 *define UNIT_MM
 #ifndef UNIT_MM
 *
@@ -127,23 +139,23 @@
 *
                Do iTR = 1, mTR
                   Omega = 1.0D+5
-                  Hii   = Work(ipiHi+iTR-1)
+                  Hii   = iHi(iTR)
                   Temp = Temp
-     &                 + Sqrt(Degen(ix)) * (
-     &                 - TRVec(i,iTR) * Work(ipHi+(iTR-1)*nDim+j-1)
-     &                 - Work(ipHi+(iTR-1)*nDim+i-1) * TRVec(j,iTR)
+     &                 + Sqrt(Degen(ixyz,iAtom)) * (
+     &                 - TRVec(i,iTR) * Hi(j,iTR)
+     &                 - Hi(i,iTR) * TRVec(j,iTR)
      &                 + TRVec(i,iTR) * (Omega+Hii) * TRVec(j,iTR)
-     &                                     )* Sqrt(Degen(jx))
+     &                                     )* Sqrt(Degen(jxyz,jAtom))
                End Do
 #endif
 *
-               Work(ij)=Temp
-               Work(ji)=Temp
+               Hss_X(ij)=Temp
+               Hss_X(ji)=Temp
             End Do
          End Do
-         Call Free_Work(ipiHi)
-         Call Free_Work(ipHi)
-         Call Free_iWork(ipInd)
+         Call mma_deallocate(iHi)
+         Call mma_deallocate(Hi)
+         Call mma_deallocate(Ind)
 *
 *        Clean up the gradient wrt translational and rotational
 *        component.
@@ -152,8 +164,8 @@
 *
          If (BSet) Then
 *
-*           Call RecPrt('Gx',' ',Gx(1,nIter),1,3*nAtom)
-*           Call RecPrt('TRVec',' ',TRVec,nDim,mTR)
+*           Call RecPrt('Gx',' ',Gx(:,:,nIter),1,3*nsAtom)
+*           Call RecPrt('TRVec',' ',TRVec,nDimBC,mTR)
 *
             Do iTR = 1, mTR
 *
@@ -161,24 +173,30 @@
 *
                Temp=0.0D0
                iInd=0
-               Do i = 1, 3*nAtom
-                  If (Smmtrc(i)) Then
+               Do iAtom = 1, nsAtom
+               Do j = 1, 3
+                  If (Smmtrc(j,iAtom)) Then
                      iInd=iInd+1
-                     Temp = Temp + Degen(i)*Gx(i,nIter)*TRVec(iInd,iTR)
+                     Temp = Temp + Degen(j,iAtom)*Gx(j,iAtom,nIter)
+     &                                     *TRVec(iInd,iTR)
                   End If
+               End Do
                End Do
 *
                iInd=0
-               Do i = 1, 3*nAtom
-                  If (Smmtrc(i)) Then
+               Do iAtom = 1, nsAtom
+               Do j = 1, 3
+                  If (Smmtrc(j,iAtom)) Then
                      iInd=iInd+1
-                     Gx(i,nIter) = Gx(i,nIter) - TRVec(iInd,iTR)*Temp
+                     Gx(j,iAtom,nIter) = Gx(j,iAtom,nIter)
+     &                                 - TRVec(iInd,iTR)*Temp
                   End If
+               End Do
                End Do
 *
             End Do
 *
-*           Call RecPrt('Gx',' ',Gx(1,nIter),1,3*nAtom)
+*           Call RecPrt('Gx',' ',Gx(:,:,nIter),1,3*nsAtom)
 *
          End If
 *                                                                      *
@@ -190,60 +208,70 @@
 *                                                                      *
 *     N O N - R E D U N D A N T  C A R T E S I A N  C O O R D S
 *
-         nQQ=nInter
-         If (ip_rInt.eq.ip_Dummy) Then
-            nqInt=nQQ*MaxItr
-            Call GetMem(' qInt','Allo','Real',ip_rInt, nqInt)
-            Call GetMem('dqInt','Allo','Real',ip_drInt,nqInt)
+         nQQ=nDimBC - mTR
+         If (.NOT.Allocated(qInt)) Then
+            Call mma_allocate(qInt,nQQ,MaxItr,Label='qInt')
+            Call mma_allocate(dqInt,nQQ,MaxItr,Label='dqInt')
+            qInt(:,:) = Zero
+            dqInt(:,:) = Zero
          End If
 *
 *------- Project the model Hessian with respect to rotations and
 *        translations. The eigenvalues are shifted to negative
 *        eigenvalues.
 *
-         Call Allocate_iWork(ipInd,nDim)
+         Call mma_allocate(Ind,nDimBC,Label='Ind')
          iInd=0
-         Do i = 1, 3*nAtom
-            If (Smmtrc(i)) Then
-               iWork(ipInd+iInd)=i
+         Do i = 1, 3*nsAtom
+            iAtom = (i+2)/3
+            ixyz = i - (iAtom-1)*3
+            If (Smmtrc(ixyz,iAtom)) Then
                iInd=iInd+1
+               Ind(iInd)=i
             End If
          End Do
 *
 *        Compute H|i>
 *
-         Call Allocate_Work(ipHi,mTR*nDim)
-         Call Allocate_Work(ipiHi,mTR)
-         Call FZero(Work(ipHi),mTR*nDim)
+         Call mma_allocate(Hi,nDimBC,mTR,Label='Hi')
+         Call mma_allocate(iHi,mTR,Label='iHi')
+         Hi(:,:)=Zero
 *
          Do j = 1, mTR
-            Do i = 1, nDim
+            Do i = 1, nDimBC
                Temp = 0.0D0
-               Do k = 1, nDim
-                  kx = iWork(ipInd+k-1)
-                  ik=(i-1)*nDim+k -1 + ip_Hss_x
+               Do k = 1, nDimBC
+                  kx = Ind(k)
+                  kAtom = (kx+2)/3
+                  kxyz = kx - (kAtom-1)*3
+                  ik=(i-1)*nDimBC+k
                   Temp = Temp
-     &                 + Work(ik) * Sqrt(Degen(kx))
+     &                 + Hss_X(ik) * Sqrt(Degen(kxyz,kAtom))
      &                 * TRVec(k,j)
                End Do
-               Work(ipHi+(j-1)*nDim+i-1) = Temp
+               Hi(i,j) = Temp
             End Do
          End Do
-*        Call RecPrt('Hi',' ',Work(ipHi),nDim,mTR)
          Do iTR = 1, mTR
-            Work(ipiHi+iTR-1) = DDot_(nDim,TRVec(1,iTR),1,
-     &                                    Work(ipHi+(iTR-1)*nDim),1)
+            iHi(iTR) = DDot_(nDimBC,TRVec(1,iTR),1,Hi(:,iTR),1)
          End Do
-*        Call RecPrt('iHi',' ',Work(ipiHi),mTR,1)
+#ifdef _DEBUGPRINT_
+         Call RecPrt('Hi',' ',Hi,nDimBC,mTR)
+         Call RecPrt('iHi',' ',iHi,mTR,1)
+#endif
 *
-         Do i = 1, nDim
-            ix = iWork(ipInd+i-1)
+         Do i = 1, nDimBC
+            ix = Ind(i)
+            iAtom = (ix+2)/3
+            ixyz = ix - (iAtom-1)*3
             Do j = 1, i
-               jx = iWork(ipInd+j-1)
-               ijTri=i*(i-1)/2 + j -1 + ipEVal
-               ij = (j-1)*nDim + i -1 + ip_Hss_x
-               ji = (i-1)*nDim + j -1 + ip_Hss_x
-               Work(ijTri) = Half*(Work(ij)+Work(ji))
+               jx = Ind(j)
+               jAtom = (jx+2)/3
+               jxyz = jx - (jAtom-1)*3
+               ijTri=i*(i-1)/2 + j
+               ij = (j-1)*nDimBC + i
+               ji = (i-1)*nDimBC + j
+               EVal(ijTri) = Half*(Hss_X(ij)+Hss_X(ji))
 *
 *              Here we shift the eigenvectors corresponding to tran-
 *              lations and rotations down to negative faked eigen-
@@ -251,53 +279,53 @@
 *
                Do iTR = 1, mTR
                   Omega = -DBLE(iTR)
-                  Hii   = Work(ipiHi+iTR-1)
-                  Work(ijTri) = Work(ijTri)
-     &                 + Sqrt(Degen(ix)) * (
-     &                 - TRVec(i,iTR) * Work(ipHi+(iTR-1)*nDim+j-1)
-     &                 - Work(ipHi+(iTR-1)*nDim+i-1) * TRVec(j,iTR)
+                  Hii   = iHi(iTR)
+                  Eval(ijTri) = Eval(ijTri)
+     &                 + Sqrt(Degen(ixyz,iAtom)) * (
+     &                 - TRVec(i,iTR) * Hi(j,iTR)
+     &                 - Hi(i,iTR) * TRVec(j,iTR)
      &                 + TRVec(i,iTR) * (Omega+Hii) * TRVec(j,iTR)
-     &                                     )* Sqrt(Degen(jx))
+     &                                     )* Sqrt(Degen(jxyz,jAtom))
                End Do
 *
-               Work(ij)=Work(ijTri)
-               Work(ji)=Work(ijTri)
+               Hss_X(ij)=EVal(ijTri)
+               Hss_X(ji)=EVal(ijTri)
             End Do
          End Do
-         Call Free_Work(ipiHi)
-         Call Free_Work(ipHi)
-         Call Free_iWork(ipInd)
-#ifdef _DEBUG_
+         Call mma_deallocate(iHi)
+         Call mma_deallocate(Hi)
+         Call mma_deallocate(Ind)
+#ifdef _DEBUGPRINT_
          Call TriPrt(' The Projected Model Hessian','(5G20.10)',
-     &               Work(ipEVal),nDim)
+     &               EVal,nDimBC)
          Call RecPrt(' The Projected Model Hessian','(5G20.10)',
-     &               Work(ip_Hss_x),nDim,nDim)
+     &               Hss_x,nDimBC,nDimBC)
 #endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *        Compute the eigen vectors for the Cartesian Hessian
 *
-         Call GetMem('EVec','Allo','Real',ipEVec,(3*mTtAtm)**2)
-         Call Hess_Vec(mTtAtm,Work(ipEVal),Work(ipEVec),nAtom,nDim)
+         Call mma_allocate(EVec,(3*mTtAtm)**2,Label='EVec')
+         Call Hess_Vec(mTtAtm,EVal,EVec,nsAtom,nDimBC)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *------- Move over the eigenvectors putting to BMx
 *
-         Call Allocate_Work(ipBMx,(3*nAtom)**2)
-         Call FZero(Work(ipBMx), (3*nAtom)**2)
-         ipFrom = ipEVec + mTR*nDim
-         Call BPut(Work(ipFrom),nDim,Work(ipBMx),3*nAtom,Smmtrc,
-     &             nQQ,Degen)
-         If (iPrint.ge.19) Call RecPrt('In Bmtrx: B',' ',Work(ipBMx),
-     &                                 3*nAtom,nQQ)
+         Call mma_allocate(BMx,3*nsAtom,3*nsAtom,Label='BMx')
+         BMx(:,:)=Zero
+         ipFrom = 1 + mTR*nDimBC
+         Call BPut(EVec(ipFrom),nDimBC,BMx,3*nsAtom,Smmtrc,nQQ,Degen)
+#ifdef _DEBUGPRINT_
+         Call RecPrt('In Bmtrx: B',' ',BMx,3*nsAtom,nQQ)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         If (PrQ.and.nAtom.le.5)
+         If (PrQ.and.nsAtom.le.5)
      &      Call List2('Cartesian Approximate Normal Modes',
-     &                  Name,Work(ipBMx),nAtom,nQQ,Smmtrc)
+     &                  AtomLbl,BMx,nsAtom,nQQ,Smmtrc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -307,61 +335,42 @@
 ************************************************************************
 *                                                                      *
       If (HSet.and..NOT.lOld) Then
-         Call Allocate_Work(ip_KtB,nDim*nQQ)
+         Call mma_allocate(KtB,nDimBC,nQQ,Label='KtB')
 *
-         Call Allocate_Work(ipDegen,nDim)
+         Call mma_allocate(Degen2,nDimBC,Label='Degen2')
          i=0
-         Do ix = 1, 3*nAtom
-            If (Smmtrc(ix)) Then
-               Work(ipDegen+i) = Degen(ix)
+         Do ix = 1, 3*nsAtom
+            iAtom = (ix+2)/3
+            ixyz = ix - (iAtom-1)*3
+            If (Smmtrc(ixyz,iAtom)) Then
                i = i + 1
+               Degen2(i) = Degen(ixyz,iAtom)
             End If
          End Do
 *
-         call dcopy_(nDim*nQQ,Work(ipFrom),1,Work(ip_KtB),1)
+         call dcopy_(nDimBC*nQQ,EVec(ipFrom),1,KtB,1)
          Do iInter = 1, nQQ
-            Do iDim = 1, nDim
-               ij = (iInter-1)*nDim + iDim - 1 + ip_KtB
-               Work(ij) = Work(ij) / Sqrt(Work(ipDegen+iDim-1))
+            Do iDim = 1, nDimBC
+               KtB(iDim,iInter) = KtB(iDim,iInter) / Sqrt(Degen2(iDim))
             End Do
          End Do
-         Call Free_Work(ipDegen)
-      Else
-         ip_KtB = ip_Dummy
+         Call mma_deallocate(Degen2)
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('EVec','Free','Real',ipEVec,(3*mTtAtm)**2)
+      Call mma_deallocate(EVec)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *
 *---- Compute the value and gradient vectors in the new basis.
 *
-      Call ValANM(nAtom,nQQ,nIter,Work(ipBmx),Degen,
-     &            Work(ip_rInt),Cx,'Values',iPrint,nWndw)
-      If (BSet) Call ValANM(nAtom,nQQ,nIter,Work(ipBMx),Degen,
-     &                      Work(ip_drInt),Gx,'Gradients',iPrint,nWndw)
+      Call ValANM(nsAtom,nQQ,nIter,BMx,Degen,qInt,Cx,'Values',nWndw)
+      If (BSet) Call ValANM(nsAtom,nQQ,nIter,BMx,Degen,
+     &                      dqInt,Gx,'Gradients',nWndw)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(nLines)
-         Call Unused_real_array(Coor)
-         Call Unused_real_array(dMass)
-         Call Unused_integer_array(iOper)
-         Call Unused_integer_array(iAnr)
-         Call Unused_integer_array(nStab)
-         Call Unused_integer_array(jStab)
-         Call Unused_logical(Numerical)
-         Call Unused_logical(HWRS)
-         Call Unused_logical(Analytic_Hessian)
-         Call Unused_integer(iOptC)
-         Call Unused_integer(mxdc)
-         Call Unused_integer_array(iCoSet)
-         Call Unused_integer(nFix)
-      End If
       End

@@ -10,24 +10,13 @@
 *                                                                      *
 * Copyright (C) 1993, Bernd Artur Hess                                 *
 ************************************************************************
-      SubRoutine VPInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,nIC,nComp,la,lb,A,RB,nRys,
-     &                 Array,nArr,CCoor,nOrdOp,lOper,iChO,
-     &                 iStabM,nStabM,
-     &                 PtChrg,nGrid,iAddPot)
+      SubRoutine VPInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of  pV integrals          *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : qEnter                                                  *
-*              RecPrt                                                  *
-*              Util1                                                   *
-*              DCopy  (ESSL)                                           *
-*              NSOInt                                                  *
-*              GetMem                                                  *
-*              qExit                                                   *
 *                                                                      *
 *     Author: Bernd Hess, Institut fuer Physikalische und Theoretische *
 *             Chemie, University of Bonn, Germany, April 1993          *
@@ -35,15 +24,9 @@
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake, XCff2D, XRys2D
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,nComp),
-     &       Array(nZeta*nArr)
-*
-      Integer lOper(nComp), iStabM(0:nStabM-1), iChO(nComp)
+
+#include "int_interface.fh"
 *
 *     Statement function for Cartesian index
 *
@@ -52,12 +35,13 @@
       iRout = 221
       iPrint = nPrint(iRout)
 *
-c     Call qEnter('vpint')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In vpint: Alpha','(5D20.13)',Alpha,nAlpha,1)
          Call RecPrt(' In vpint: Beta','(5D20.13)',Beta,nBeta,1)
       End If
+*
+      nRys=nHer
 *
       nip = 1
       ipB = nip
@@ -122,6 +106,5 @@ c     Call qEnter('vpint')
      &                 nElem(la)*nElem(lb))
          End Do
       End If
-c     Call qExit('vpint')
       Return
       End

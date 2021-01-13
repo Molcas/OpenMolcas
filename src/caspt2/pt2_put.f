@@ -19,7 +19,7 @@
       SUBROUTINE PT2_PUT(NSIZE,LAB,VEC)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION VEC(*)
-      CHARACTER(8) LAB1
+      CHARACTER(len=8) LAB1
       CHARACTER(len=*) LAB
 #include "rasdim.fh"
 #include "caspt2.fh"

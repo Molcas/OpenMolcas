@@ -17,6 +17,7 @@ C              at the end (no distribution is actually done, of course;
 C              the relevant vectors are simply kept on the relevant
 C              nodes).
 C
+      Use Para_Info, Only: Is_Real_Par
       Implicit None
       Logical Fake
 #include "cho_para_info.fh"
@@ -44,6 +45,7 @@ C
 
       End
       SubRoutine Cho_Init_Tsk_(ID,n)
+      Use Para_Info, Only: Is_Real_Par, Set_Do_Parallel
       Implicit None
       Integer ID, n
 #include "cho_para_info.fh"
@@ -69,6 +71,7 @@ C
 
       End
       SubRoutine Cho_Free_Tsk_(ID)
+      Use Para_Info, Only: Is_Real_Par, Set_Do_Parallel
       Implicit None
       Integer ID
 #include "cho_para_info.fh"
@@ -98,6 +101,7 @@ C
 
       End
       Logical Function Cho_Rsv_Tsk_(ID,i)
+      Use Para_Info, Only: Is_Real_Par, Set_Do_Parallel
       Implicit None
       Integer ID, i
 #include "cho_para_info.fh"

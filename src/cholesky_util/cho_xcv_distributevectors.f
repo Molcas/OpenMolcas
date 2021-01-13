@@ -68,6 +68,9 @@ C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
       End
       SubRoutine Cho_XCV_DV_P(irc,SP_BatchDim,nSP_Batch,
      &                        id_mySP,n_mySP,NVT,l_NVT)
+#if defined (_MOLCAS_MPP_) && !defined (_GA_)
+      Use Para_Info, Only: nProcs
+#endif
       Implicit None
       Integer irc
       Integer nSP_Batch
@@ -82,7 +85,6 @@ C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
 #include "WrkSpc.fh"
 #include "choprint.fh"
 #include "mafdecls.fh"
-#include "cho_para_info.fh"
       Character*12 SecNam
       Parameter (SecNam='Cho_XCV_DV_P')
 
@@ -406,7 +408,7 @@ c Avoid unused argument warnings
          End Do
          iSP1=iSP1+nSP_this_batch
       End Do
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If ((iSP1-1).ne.n_mySP) Then
          Call Cho_Quit(SecNam//': SP batch dimension error',103)
       End If

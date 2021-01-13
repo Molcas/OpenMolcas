@@ -27,19 +27,6 @@
 *          Twoham is the lower triangular of the two-electron contri-  *
 *               bution to the Fock matrix.                             *
 *                                                                      *
-* Called from: PMat                                                    *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DeDe_SCF                                                *
-*              DrvK2                                                   *
-*              StatP                                                   *
-*              GetMem                                                  *
-*              mHrr                                                    *
-*              DCopy   (ESSL)                                          *
-*              Swap                                                    *
-*              DrvTwo                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -54,52 +41,33 @@
 *             Modified by R. Lindh  @teokem.lu.se :                    *
 *             total repacking of code September '96                    *
 ************************************************************************
-
+      use k2_arrays, only: pDq, pFq
+      use IOBUF
+      use Real_Info, only: ThrInt, CutInt
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 #include "real.fh"
-#include "k2.fh"
 #include "nsd.fh"
 #include "setup.fh"
       Logical NoCoul,NoExch
-#include "IOBuf.fh"
 *
       Parameter(nTInt=1)
-      Real*8 Dens(nDens), TwoHam(nDens), TInt(nTInt)
+      Real*8, Target:: Dens(nDens), TwoHam(nDens)
+      Real*8 TInt(nTInt)
       Logical W2Disc, FstItr, Semi_Direct,Rsv_GTList,
-     &        PreSch, Density, Free_K2, Verbose, Indexation,
+     &        PreSch, Free_K2, Verbose, Indexation,
      &        DoIntegrals, DoFock, DoGrad, Triangular
-      Integer iTOffs(8,8,8),
-     &        nShi(8), nShj(8), nShk(8), nShl(8),
-     &        nShOffi(8), nShOffj(8), nShOffk(8), nShOffl(8)
-      Logical Debug
+      Integer iTOffs(8,8,8)
       Character*72 SLine
-      Dimension Ind(1,1,2)
+      Real*8, Allocatable:: TMax(:,:), DMax(:,:)
+      Integer, Allocatable:: ip_ij(:,:)
+*
+#include "dede_interface.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---- Statement functions
-*
-      TMax(i,j)=Work((j-1)*nSkal+i+ipTMax-1)
-      DMax(i,j)=Work((j-1)*nSkal+i+ipDMax-1)
-
-*                                                                      *
-************************************************************************
-*                                                                      *
-      iRout = 9
-      iPrint = nPrint(iRout)
-      Call QEnter('Drv2El')
-#ifdef _DEBUG_
-       Debug=.true.
-c       iPrint=200
-#else
-       Debug=.false.
-#endif
-*
       SLine='Computing 2-electron integrals'
       Call StatusLine(' SCF:',SLine)
 *                                                                      *
@@ -110,11 +78,8 @@ c       iPrint=200
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nInd=1
       Nr_Dens=1
       DoIntegrals=.False.
-      DoFock=.True.
-      DoGrad=.False.
       NoExch=ExFac.eq.Zero
 *                                                                      *
 ************************************************************************
@@ -136,16 +101,16 @@ c       iPrint=200
 *     canonical, i.e. the relative order of the indices are canonically
 *     ordered.
 *
-      Density=.True.       ! Use density information in prescreening.
-      Call DeDe_SCF(Dens,TwoHam,nDens,mDens,ipDq,ipFq)
-
+      Call DeDe_SCF(Dens,TwoHam,nDens,mDens)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      ThrAO=Zero           ! Do not modify CutInt
       Indexation=.False.
+      ThrAO=Zero           ! Do not modify CutInt
+      DoFock=.True.
+      DoGrad=.False.
 *
-      Call SetUp_Ints(nSkal,Indexation,ThrAO,Density,DoGrad)
+      Call SetUp_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -158,29 +123,29 @@ c       iPrint=200
 *                                                                      *
 *---  Compute entities for prescreening at shell level
 *
-      Call GetMem('TMax','Allo','Real',ipTMax,nSkal**2)
-      Call Shell_MxSchwz(nSkal,Work(ipTMax))
+      Call mma_allocate(TMax,nSkal,nSkal,Label='TMax')
+      Call Shell_MxSchwz(nSkal,TMax)
       TMax_all=Zero
       Do iS = 1, nSkal
          Do jS = 1, iS
             TMax_all=Max(TMax_all,TMax(iS,jS))
          End Do
       End Do
-      Call GetMem('DMax','Allo','Real',ipDMax,nSkal**2)
-      Call Shell_MxDens(Dens,work(ipDMax),nSkal)
+      Call mma_allocate(DMax,nSkal,nSkal,Label='DMax')
+      Call Shell_MxDens(Dens,DMax,nSkal)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Create list of non-vanishing pairs
 *
-      Call GetMem('ip_ij','Allo','Inte',ip_ij,nSkal*(nSkal+1))
+      Call mma_allocate(ip_ij,2,nSkal*(nSkal+1),Label='ip_ij')
       nij=0
       Do iS = 1, nSkal
          Do jS = 1, iS
             If (TMax_All*TMax(iS,jS).ge.CutInt) Then
                nij = nij + 1
-               iWork((nij-1)*2+ip_ij  )=iS
-               iWork((nij-1)*2+ip_ij+1)=jS
+               ip_ij(1,nij)=iS
+               ip_ij(2,nij)=jS
             End If
          End Do
       End Do
@@ -226,11 +191,11 @@ c       iPrint=200
 *     Now do a quadruple loop over shells
 *
       ijS = Int((One+sqrt(Eight*TskLw-Three))/Two)
-      iS = iWork((ijS-1)*2+ip_ij)
-      jS = iWork((ijS-1)*2+ip_ij+1)
+      iS = ip_ij(1,ijS)
+      jS = ip_ij(2,ijS)
       klS = Int(TskLw-DBLE(ijS)*(DBLE(ijS)-One)/Two)
-      kS = iWork((klS-1)*2+ip_ij)
-      lS = iWork((klS-1)*2+ip_ij+1)
+      kS = ip_ij(1,klS)
+      lS = ip_ij(2,klS)
       Count=TskLw
       If (Count-TskHi.gt.1.0D-10) Go To 12
   13  Continue
@@ -275,13 +240,11 @@ c       iPrint=200
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call Eval_Ints_New_
+         Call Eval_Ints_New_Internal
      &                  (iS,jS,kS,lS,TInt,nTInt,
-     &                   iTOffs,nShi,nShj,nShk,nShl,
-     &                   nShOffi,nShOffj,nShOffk,nShOffl,
-     &                   No_Routine,
-     &                   Work(ipDq),Work(ipFq),mDens,[ExFac],Nr_Dens,
-     &                   Ind,nInd,[NoCoul],[NoExch],
+     &                   iTOffs,No_Routine,
+     &                   pDq,pFq,mDens,[ExFac],Nr_Dens,
+     &                   [NoCoul],[NoExch],
      &                   Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                   Count,DoIntegrals,DoFock)
 
@@ -294,10 +257,10 @@ c       iPrint=200
             ijS = ijS + 1
             klS = 1
          End If
-         iS = iWork((ijS-1)*2+ip_ij  )
-         jS = iWork((ijS-1)*2+ip_ij+1)
-         kS = iWork((klS-1)*2+ip_ij  )
-         lS = iWork((klS-1)*2+ip_ij+1)
+         iS = ip_ij(1,ijS)
+         jS = ip_ij(2,ijS)
+         kS = ip_ij(1,klS)
+         lS = ip_ij(2,klS)
          Go To 13
 *
 *     Task endpoint
@@ -319,30 +282,28 @@ c       iPrint=200
       Go To 10
  11   Continue
 *     End of big task loop
-      Lu=6
       Call CWTime(TCpu2,TWall2)
       Call SavTim(1,TCpu2-TCpu1,TWall2-TWall1)
-*                                                                     *
-***********************************************************************
-*                                                                     *
-*                         E P I L O G U E                             *
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
+*                         E P I L O G U E                              *
+*                                                                      *
+************************************************************************
+*                                                                      *
       If (Semi_Direct) Call Close_SemiDSCF
       FstItr=.False.
 *
-      Call GetMem('ip_ij','Free','Inte',ip_ij,nSkal*(nSkal+1))
-      Call GetMem('DMax','Free','Real',ipDMax,nSkal**2)
-      Call GetMem('TMax','Free','Real',ipTMax,nSkal**2)
+      Call mma_deallocate(ip_ij)
+      Call mma_deallocate(DMax)
+      Call mma_deallocate(TMax)
 *
       Verbose=.False.
       Free_K2=.False. ! Call to freek2 is external to the driver.
       Call Term_Ints(Verbose,Free_K2)
 *
-      Call Free_DeDe2(Dens,TwoHam,nDens,ipDq,ipFq)
+      Call Free_DeDe(Dens,TwoHam,nDens)
 *
-      Call QExit('Drv2El')
 *
 *     Broadcast contributions to the Fock matrix
 *
@@ -360,10 +321,9 @@ CMAW end
       End
       Subroutine Init_SemiDSCF(FstItr,Thize,Cutint)
       use dEAF
+      use IOBUF
       implicit real*8 (a-h,o-z)
-#include "IOBuf.fh"
 #include "SysDef.fh"
-#include "WrkSpc.fh"
       real*8 control(4)
       Logical FstItr
 *     Write (6,*) 'Enter: Init_SemiDSCF'
@@ -393,7 +353,6 @@ C        Write (6,*) ' Initiate write @', Disk,'iBuf=',iBuf
 *------- Initiate first read ahead of time.
 *
 *        Write (6,*) 'lBuf*RtoI=',lbuf*RtoI,' rtoi=',Rtoi
-*        Call GetMem('ISemi','List','Real',iDum,iDum)
          If (OnDisk) then
 C           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
             Call dEAFread(LuTmp,control,4*RtoI,Disk)
@@ -411,12 +370,12 @@ C           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
             else if(lbufold.gt.lbuf) then
               write(6,*) 'Inconsistent buffer lengths. Old:',lbufold,
      &                   '  current:',lbuf
-              call Abend
+              call Abend()
             end if
             if(nbuf.ne.nbufold) then
               write(6,*) 'Inconsistent buffer number. Old:',nbufold,
      &                   '  current:',nbuf
-              call Abend
+              call Abend()
             end if
             if(abs(thize-thizeold).gt.1.d-10) then
               write(6,*) 'Resetting thize from',thize,' to',thizeold
@@ -425,26 +384,23 @@ C           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
             if(cutintold.gt.cutint) then
               write(6,*) 'Inconsistent Cutint. Old:',cutintold,
      &                   '  current:',cutint
-              call Abend
+              call Abend()
             end if
 c           Write (6,*) ' Initiate read @', Disk,'iBuf=',iBuf
 *           If(OnDisk) Write (6,*) ' Initial EAFARead'
-            Call dEAFARead(LuTmp,Work((iBuf-1)*lBuf+ipBuf),
-     &                               lBuf*RtoI,Disk,id)
+            Call dEAFARead(LuTmp,Buffer(1,iBuf),lBuf*RtoI,Disk,id)
          End If
       End If
 *
 *     Write (*,*) 'Exit: Init_SemiDSCF'
       Return
       End
-      Subroutine Close_SemiDSCF
-#include "IOBuf.fh"
-#include "WrkSpc.fh"
+      Subroutine Close_SemiDSCF()
+      use IOBUF
 *     Write (6,*) 'Enter: Close_SemiDSCF'
 *
 *---- If data was transfered to the I/O buffer write buffer on disc.
 *
-*     Call GetMem('CSemi','List','Real',iDum,iDum)
 C  If buffer empty force the write :
       If (iPos.EQ.1) iPos=2
       If (OnDisk) Call WLBuf
@@ -457,7 +413,7 @@ C  If buffer empty force the write :
       Return
       End
       Subroutine Mode_SemiDSCF(Wr_Mode)
-#include "IOBuf.fh"
+      use IOBUF
       Logical Wr_Mode
 *
 *     Write (6,*) 'Mode_SemiDSCF: Wr_Mode=',Wr_Mode
@@ -470,7 +426,7 @@ C  If buffer empty force the write :
       Else
          If (iStatIO.eq.Mode_Write) Then
             Write (6,*) 'Change from Write to Read mode not implemented'
-            Call Abend
+            Call Abend()
          End If
       End If
 *

@@ -18,7 +18,6 @@ C     I.LT.J.LT.K.LT.L
 #include "real_guga.fh"
 #include "integ.fh"
       COMMON/CNSTS/D0,D1,D2
-      CALL QENTER('INT1')
       LJS=IJ(L+1)+1
       LJM=IJ(L)
       ITYP=0
@@ -100,6 +99,5 @@ C     I.LT.J.LT.K.LT.L
       IF(KM.EQ.J)GO TO 132
       GO TO 142
 10    CONTINUE
-      CALL QEXIT('INT1')
       RETURN
       END

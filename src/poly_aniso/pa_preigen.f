@@ -20,13 +20,13 @@ c this function prints the energies and eigenvectors of the interaction Hamilton
       Integer, intent(in)          :: iPrint
       Integer, intent(in)          :: ibas(exch,lmax)
 !     eigenstates of all Lines interactions: 1+3+9
-      Real(kind=wp), intent(in)    :: WLIN(exch)
-      Real(kind=wp), intent(in)    :: WDIP(exch)
-      Real(kind=wp), intent(in)    :: WKEX(exch)
-      Real(kind=wp), intent(in)    :: WDMO(exch)
-      Real(kind=wp), intent(in)    :: WITO(exch)
-      Real(kind=wp), intent(in)    :: W(exch)
-      Complex(kind=wp), intent(in) :: Z(exch,exch)
+      Real(kind=8), intent(in)    :: WLIN(exch)
+      Real(kind=8), intent(in)    :: WDIP(exch)
+      Real(kind=8), intent(in)    :: WKEX(exch)
+      Real(kind=8), intent(in)    :: WDMO(exch)
+      Real(kind=8), intent(in)    :: WITO(exch)
+      Real(kind=8), intent(in)    :: W(exch)
+      Complex(kind=8), intent(in) :: Z(exch,exch)
       Logical, intent(in)          :: AnisoLines1
       Logical, intent(in)          :: AnisoLines3
       Logical, intent(in)          :: AnisoLines9
@@ -38,7 +38,6 @@ c local variables
       Integer           :: i,m,ipar,nf,j,jEnd,iss
       Character(len=80) :: fmtline
       Logical           :: dbg
-      Call qEnter('PA_preigen')
 
       Write(6,*)
       Write(6,'(100a)') (('%'),i=1,100)
@@ -630,6 +629,5 @@ ccc  eigenvectors
       End If
 
 
-      Call qExit('PA_preigen')
       Return
       End

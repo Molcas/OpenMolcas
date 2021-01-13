@@ -13,7 +13,7 @@
       Integer LuInput
 * Used for input processing
       Integer NKeys
-      Parameter (NKeys=107)
+      Parameter (NKeys=108)
 *------------------------------------------------------
 * Logical flags, to check whether a keyword has been used
 * in the input:
@@ -39,8 +39,8 @@
      &     keyRDMP, keyRSPC, keyDEFD, keyDISH, keyEXNE,
      &     keyBLOK, keySOCC, keyRGIN, keyPRSD, KeyFCID,
      &     KeyNOCA, KeySAVE, KeyEXPA, KeyH5OR, KeyH5CI,
-     &     KeyHEXS, KeyHEUR, KeyZZZZ, KeyGrad, KeyNOGR,
-     &     KeyGSOR, KeyDFCF
+     &     KeyHEXS, KeyHEUR, KeyMSPD, KeyGrad, KeyNOGR,
+     &     KeyGSOR, KeyDFCF, KeyZZZZ
 
       Common /InputFlags/ KeyAAAA,
      &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,
@@ -63,35 +63,35 @@
      &     keyRDMP, keyRSPC, keyDEFD, keyDISH, keyEXNE,
      &     keyBLOK, keySOCC, keyRGIN, keyPRSD, KeyFCID,
      &     KeyNOCA, KeySAVE, KeyEXPA, KeyH5OR, KeyH5CI,
-     &     KeyHEXS, KeyHEUR, KeyZZZZ, KeyGrad, KeyNOGR,
-     &     KeyGSOR, KeyDFCF
+     &     KeyHEXS, KeyHEUR, KeyMSPD, KeyGrad, KeyNOGR,
+     &     KeyGSOR, KeyDFCF, KeyZZZZ
 
       Equivalence(KeyAAAA,KeyFlags(0))
 *------------------------------------------------------
 * Actual keywords, note: Order matters!
       Character*4 CMD(nKeys)
-      DATA CMD / 'ALTE','ATOM','AVER','CHAR','CHOI',
-     &           'CHOL','CIMX','CION','CIRE','CIRO',
-     &           'CISE','CLEA','CORE','DELE','END ',
-     &           'FILE','FROZ','HOME','INAC','INPO',
-     &           'IPHN','ITER','JOBI','KSDF','LEVS',
-     &           'LINE','LOWD','LOWM','LUMO','MAXO',
-     &           'NACT','NEWI','NONE','NOQU','OPTO',
-     &           'ORBA','ORBL','ORBO','ORDE','OUTO',
-     &           'OUTP','PRIN','PROR','PRSP','PRWF',
-     &           'QUNE','RAS1','RAS2','RAS3','GASS',
-     &           'RFPE','CIRF','RFRO','RLXR','RASS',
-     &           'SDAV','SPIN','SUPS','SXDA','SYMM',
-     &           'THRS','TIGH','TITL','TYPE','VB  ',
-     &           'EXPE','SPLI','NUSP','ENSP','PESP',
-     &           'FOSP','MDRL','OFEM','FTHA','DFMD',
-     &           'BKAP','ALPH','FARO','DMRG','3RDM',
-     &           'NECI','NWAL','TIME','CYCL','RDMS',
-     &           'RDMP','RSPC','DEFD','DISH','EXNE',
-     &           'BLOK','SOCC','RGIN','PRSD','FCID',
-     &           'NOCA','SAVE','EXPA','H5OR','H5CI',
-     &           'HEXS','HEUR','ZZZZ','GRAD','NOGR',
-     &           'GSOR','DFCF'/
+      Parameter (CMD = ['ALTE','ATOM','AVER','CHAR','CHOI',
+     &                  'CHOL','CIMX','CION','CIRE','CIRO',
+     &                  'CISE','CLEA','CORE','DELE','END ',
+     &                  'FILE','FROZ','HOME','INAC','INPO',
+     &                  'IPHN','ITER','JOBI','KSDF','LEVS',
+     &                  'LINE','LOWD','LOWM','LUMO','MAXO',
+     &                  'NACT','NEWI','NONE','NOQU','OPTO',
+     &                  'ORBA','ORBL','ORBO','ORDE','OUTO',
+     &                  'OUTP','PRIN','PROR','PRSP','PRWF',
+     &                  'QUNE','RAS1','RAS2','RAS3','GASS',
+     &                  'RFPE','CIRF','RFRO','RLXR','RASS',
+     &                  'SDAV','SPIN','SUPS','SXDA','SYMM',
+     &                  'THRS','TIGH','TITL','TYPE','VB  ',
+     &                  'EXPE','SPLI','NUSP','ENSP','PESP',
+     &                  'FOSP','MDRL','OFEM','FTHA','DFMD',
+     &                  'BKAP','ALPH','FARO','DMRG','3RDM',
+     &                  'NECI','NWAL','TIME','CYCL','RDMS',
+     &                  'RDMP','RSPC','DEFD','DISH','EXNE',
+     &                  'BLOK','SOCC','RGIN','PRSD','FCID',
+     &                  'NOCA','SAVE','EXPA','H5OR','H5CI',
+     &                  'HEXS','HEUR','MSPD','GRAD','NOGR',
+     &                  'GSOR','DFCF','ZZZZ'])
 *------------------------------------------------------
 * Input data sets:
       Common /InputInt/ LuInput,iCI_I(mxRoot,mxRef),IROOT_I(mxRoot),

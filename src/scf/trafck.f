@@ -70,13 +70,10 @@
      &        nVrt,ii,ia
 *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-*define _SPECIAL_DEBUG_
-#ifdef _SPECIAL_DEBUG_
+#ifdef _SPECIAL_DEBUGPRINT_
       Call DebugCMOx(CMO,nCMO,nD,nBas,nOrb,nSym,'TraFck: CMO old')
 #endif
-*define _DEBUG_
-#ifdef _DEBUG_
-      Call qEnter('TraFck')
+#ifdef _DEBUGPRINT_
       Call NrmClc(Fock,nFock*nD,'TraFck','Fock')
 #endif
 *---- allocate memory for modified Fock matrix
@@ -100,8 +97,8 @@
       jEOr=1
 
       Do iSym = 1,nSym
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'iD=',iD
          Call RecPrt('TraFck: Old CMO',' ',CMO(iCMO,iD),
      &               nBas(iSym),nOrb(iSym))
@@ -244,26 +241,25 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
                     iOff = (iOcc-1)*nBas(iSym) + iCMO
                     kOcc=0
                     Tmp0=0.0D0
-                    Do jOcc = 1, nOccmF !  Loop over the new Mos
+                    Do jOcc = 1, nOccmF !  Loop over the new MOs
                        Tmp1=Abs(DDot_(nBas(iSym),COvrlp(jOcc),nOccmF,
      &                                           CMO(iOff,iD),1))
                        If (Tmp1.gt.Tmp0) Then
                           Tmp0=Tmp1
                           kOcc=jOcc
                        End If
-*
-                       If (iOcc.ne.kOcc) Then
-                          ii = iOcc + jEOr - 1
-                          kk = kOcc + jEOr - 1
-                          tmp = EOrb(ii,iD)
-                          EOrb(ii,iD) = EOrb(kk,iD)
-                          EOrb(kk,iD) = tmp
-                          kOff = (kOcc-1)*nBas(iSym) + iCMO
-                          Call DSwap_(nBas(iSym),CMO(iOff,iD),1,
-     &                                           CMO(kOff,iD),1)
-                       End If
                     End Do
 *
+                    If (iOcc.ne.kOcc) Then
+                       ii = iOcc + jEOr - 1
+                       kk = kOcc + jEOr - 1
+                       tmp = EOrb(ii,iD)
+                       EOrb(ii,iD) = EOrb(kk,iD)
+                       EOrb(kk,iD) = tmp
+                       kOff = (kOcc-1)*nBas(iSym) + iCMO
+                       Call DSwap_(nBas(iSym),CMO(iOff,iD),1,
+     &                                        CMO(kOff,iD),1)
+                    End If
                  End Do
 *
                  iDiag = 0
@@ -276,7 +272,7 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
 *             Call RecPrt('New CMO(2)',' ',CMO(iCMO,iD),nBas(iSym),
 *    &                    nOccmF)
             End If
-#ifdef _SPECIAL_DEBUG_
+#ifdef _SPECIAL_DEBUGPRINT_
             If (iD.eq.1.and.nD.eq.1) Then
                Call DebugCMOx(CMO(1,iD),nCMO,1,nBas,nOrb,nSym,
      &                        'TraFck: RHF CMO new')
@@ -346,7 +342,7 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
      &                    EigV,nVrt,
      &                    0.0d0,CMO(iptr,iD),nBas(iSym))
             End If
-#ifdef _SPECIAL_DEBUG_
+#ifdef _SPECIAL_DEBUGPRINT_
             If (iD.eq.1.and.nD.eq.1) Then
                Call DebugCMOx(CMO(1,iD),nCMO,1,nBas,nOrb,nSym,
      &                        'TraFck: RHF CMO new')
@@ -377,7 +373,7 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
      &         Call SortEig(EOrb(jEOr,iD),CMO(iCMO,iD),nOrbmF,
      &                      nBas(iSym))
             EndIf
-#ifdef _SPECIAL_DEBUG_
+#ifdef _SPECIAL_DEBUGPRINT_
             If (iD.eq.1.and.nD.eq.1) Then
                Call DebugCMOx(CMO(1,iD),nCMO,1,nBas,nOrb,nSym,
      &                        'TraFck: RHF CMO new')
@@ -404,7 +400,7 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
         iCMO=iCMO+nOrbmF*nBas(iSym)
         ioFckM=ioFckM+nBas(iSym)*(nBas(iSym)+1)/2
         jEOr=jEOr+nOrbmF
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('TraFck: New CMO',' ',CMO(jCMO,iD),
      &               nBas(iSym),nOrb(iSym))
 #endif
@@ -420,17 +416,14 @@ c         Call TriPrt(' ',' ',FckS,nOrbmF)
       Call mma_deallocate(FckS)
       Call mma_deallocate(FckM)
 *
-#ifdef _DEBUG_
-      Call qExit('TraFck')
-#endif
-#ifdef _SPECIAL_DEBUG_
+#ifdef _SPECIAL_DEBUGPRINT_
       Call DebugCMOx(CMO,nCMO,nD,nBas,nOrb,nSym,'TraFck: CMO new')
 #endif
       Call Timing(Cpu2,Tim1,Tim2,Tim3)
       TimFld(13) = TimFld(13) + (Cpu2 - Cpu1)
       Return
       End
-#ifdef _SPECIAL_DEBUG_
+#ifdef _SPECIAL_DEBUGPRINT_
       Subroutine DebugCMOx(CMO,nCMO,nD,nBas,nOrb,nSym,Label)
       Implicit Real*8 (a-h,o-z)
 #include "stdalloc.fh"

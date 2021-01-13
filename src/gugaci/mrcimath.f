@@ -14,9 +14,11 @@
       if(n.le.2) go to 200
       ij=0
       do 10 i=1,n
-      do 10 j=1,i
+      do 11 j=1,i
       ij=ij+1
-   10 z(i,j)=a(ij)
+      z(i,j)=a(ij)
+   11 continue
+   10 continue
       do 100 ip=2,n
       i=n-ip+2
       l=i-2
@@ -24,7 +26,8 @@
       g=0.0d0
       if(l.eq.0) go to 25
       do 20 k=1,l
-   20 g=g+z(i,k)*z(i,k)
+      g=g+z(i,k)*z(i,k)
+   20 continue
    25 h=g+f*f
       if(g.gt.1d-12) go to 30
       e(i)=f
@@ -41,20 +44,25 @@
       z(j,i)=z(i,j)/h
       g=0.0d0
       do 40 k=1,j
-   40 g=g+z(j,k)*z(i,k)
+      g=g+z(j,k)*z(i,k)
+   40 continue
       jn=j+1
       if(l.lt.jn) go to 60
       do 50 k=jn,l
-   50 g=g+z(k,j)*z(i,k)
+      g=g+z(k,j)*z(i,k)
+   50 continue
    60 e(j)=g/h
-   70 f=f+g*z(j,i)
+      f=f+g*z(j,i)
+   70 continue
       hh=f/(h+h)
       do 80 j=1,l
       f=z(i,j)
       g=e(j)-hh*f
       e(j)=g
-      do 80 k=1,j
-   80 z(j,k)=z(j,k)-f* e(k)-g*z(i,k)
+      do 81 k=1,j
+      z(j,k)=z(j,k)-f* e(k)-g*z(i,k)
+   81 continue
+   80 continue
    90 d(i)=h
   100 continue
       d(1)=z(1,1)
@@ -66,14 +74,19 @@
       do 120 j=1,l
       g=0.0d0
       do 110 k=1,l
-  110 g=g+z(i,k)*z(k,j)
-      do 120 k=1,l
-  120 z(k,j)=z(k,j)-g*z(k,i)
+      g=g+z(i,k)*z(k,j)
+  110 continue
+      do 121 k=1,l
+      z(k,j)=z(k,j)-g*z(k,i)
+  121 continue
+  120 continue
   130 d(i)=z(i,i)
       z(i,i)=1.0d0
-      do 150 j=1,l
+      do 151 j=1,l
       z(i,j)=0.0d0
-  150 z(j,i)=0.0d0
+      z(j,i)=0.0d0
+  151 continue
+  150 continue
       return
   200 go to (210,220),n
   210 d(1)=a(1)
@@ -95,7 +108,8 @@ c
       implicit real*8 (a-h,o-z)
       dimension z(nx,nx),d(nx),e(nx)
       do 10 i=2,n
-   10 e(i-1)=e(i)
+      e(i-1)=e(i)
+   10 continue
       e(n)=0.0d0
       b=0.0d0
       f=0.0d0
@@ -122,7 +136,8 @@ c
       if(l.eq.n)  go to 85
       ll=l+1
       do 80 i=ll,n
-   80 d(i)=d(i)-h
+      d(i)=d(i)-h
+   80 continue
    85 f=f+h
       p=d(m)
       c=1.0d0
@@ -146,10 +161,12 @@ c
       c=c/r
   100 p=c*d(i)-s*g
       d(i+1)=h+s*(c*g+s*d(i))
-      do 110 k=1,n
+      do 111 k=1,n
       h=z(k,i+1)
       z(k,i+1)=s*z(k,i)+c*h
-  110 z(k,i)=c*z(k,i)-s*h
+      z(k,i)=c*z(k,i)-s*h
+  111 continue
+  110 continue
       e(l)=s*p
       d(l)=c*p
       if(abs(e(l)).gt.b) go to 50
@@ -171,7 +188,8 @@ c
       do 170 j=1,n
       p=z(j,i)
       z(j,i)=z(j,k)
-  170 z(j,k)=p
+      z(j,k)=p
+  170 continue
   180 continue
       return
   200 write(6,250)
@@ -179,11 +197,9 @@ c
      *       'computation must stop***')
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
 #ifdef _XIANEST_
-      call qexit()
 #endif
 !     call abend
 !      stop

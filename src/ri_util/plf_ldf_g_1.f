@@ -14,8 +14,7 @@
 ************************************************************************
       Subroutine PLF_LDF_G_1(TInt,nTInt,
      &                       AOint,ijkl,iCmp,jCmp,kCmp,lCmp,
-     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp,
-     &                       iAOtSO,nAOtSO)
+     &                       iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
 ************************************************************************
 *                                                                      *
 *  object: to sift and index the petite list format integrals.         *
@@ -30,6 +29,7 @@
 *          Modified for Local DF, Thomas Bondo Pedersen, June 2010     *
 *                                                                      *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
       Implicit None
       Integer nTInt
       Real*8  TInt(nTInt)
@@ -38,13 +38,11 @@
       Integer iAO(4), iAOst(4)
       Integer iBas, jBas, kBas, lBas
       Integer kOp(4)
-      Integer nAOtSO
-      Integer iAOtSO(nAOtSO,0:7)
 #include "localdf_bas.fh"
 #include "localdf_int.fh"
 #include "WrkSpc.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*11 SecNam
       Parameter (SecNam='PLF_LDF_G_1')
 #endif
@@ -59,14 +57,14 @@
 
       Integer i, j
       Integer iShlSO, IndxG
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer iSOShl
       iSOShl(i)=iWork(ip_iSOShl-1+i)
 #endif
       iShlSO(i)=iWork(ip_iShlSO-1+i)
       IndxG(i,j)=iWork(ip_IndxG-1+l_IndxG_1*(j-1)+i)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (iSOShl(iAOtSO(iAO(1)+1,kOp(1))+iAOst(1)).ne.SHA) Then
          Call WarningMessage(2,SecNam//': Shell problem [1]')
          Call LDF_Quit(1)
@@ -122,7 +120,7 @@
          End Do
       End Do
 
-#ifndef _DEBUG_
+#ifndef _DEBUGPRINT_
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(iBas)

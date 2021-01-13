@@ -17,6 +17,7 @@ C
 C     Determine distribution of Shell Pairs according to their
 C     dimension.
 C
+      Use Para_Info, Only: MyRank, nProcs
       Implicit None
       Integer l_mySP
       Integer mySP(l_mySP)
@@ -36,7 +37,7 @@ C
       Integer i, j, k
       nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (l_mySP.lt.nnShl) Then
          Call Cho_Quit('Dimension error in Cho_XCV_Distrib_SP',103)
       End If

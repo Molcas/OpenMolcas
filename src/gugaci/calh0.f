@@ -32,7 +32,6 @@ c     character*256 filename
         goto 100
 !        return
       endif
-      ni=mod(norb_act,2)
       ipae=1
       jpae=nu_ae(ipae)
       if(jpae.eq.0) return
@@ -122,29 +121,28 @@ c     if(logic_mr) ndim_h0=irf
      *               ecih0,vcm,indx,vector2,nxh,vb1,vb2,nxb,vad0)
 c        vcm(1:mroot*ndim_h0)=vb1(1:mroot*ndim_h0)
 c save ci vector in h0 into vb2
-        numh0=nci_h0 !iw_sta(2,1)
-        vb2(1:numh0*mroot)=0.d0
-        if(logic_mr) then
-          idx1=0
-          idx2=0
-          do i=1,mroot
-            do j=1,ndim_h0
-              m=irfno(j)
-              vb2(idx1+m)=vb1(idx2+j)
-            enddo
-            idx1=idx1+numh0
-            idx2=idx2+ndim_h0
-          enddo
-        else
-          vb2(1:numh0*mroot)=vb1(1:numh0*mroot)
-        endif
+c        numh0=nci_h0 !iw_sta(2,1)
+c        vb2(1:numh0*mroot)=0.d0
+c        if(logic_mr) then
+c          idx1=0
+c          idx2=0
+c          do i=1,mroot
+c            do j=1,ndim_h0
+c              m=irfno(j)
+c              vb2(idx1+m)=vb1(idx2+j)
+c            enddo
+c            idx1=idx1+numh0
+c            idx2=idx2+ndim_h0
+c          enddo
+c        else
+c          vb2(1:numh0*mroot)=vb1(1:numh0*mroot)
+c        endif
       endif
       deallocate(vcm)
 
 400   continue
       write(6,*)
       do m=1,mroot
-        ijcm=indx(m)
         write(6,'(5x,a7,i5,f18.8)')   ' root,',m,ecih0(m)
       enddo
       write(6,*)
@@ -190,11 +188,9 @@ c      stop 888
         write(6,*) " no enough space to store h0 matrix",num
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
 #ifdef _XIANEST_
-      call qexit()
 #endif
 !       call abend
 !        stop 888
@@ -261,7 +257,7 @@ c    b1=(0,0,1.0,0,0,0...) b2=(0,0,0,0,1.0,0...)
 #include "drt_h.fh"
       data dzero/0.d0/dcrita/1.0d-6/epc/5.0d-3/
       dimension vb1(max_kspace*ndim),vad(ndim)
-      dimension th(nxh),ijb1(mroot),vb2(max_kspace*ndim)
+      dimension th(nxh),ijb1(mroot)
       vb1=0.d0
 
       do j=1,mroot
@@ -272,21 +268,20 @@ c    b1=(0,0,1.0,0,0,0...) b2=(0,0,0,0,1.0,0...)
           mief=ifrno(mjnj)
         endif
         do 60 l=1,ndim
-60      vb1(ij+l)=dzero
+        vb1(ij+l)=dzero
+60      continue
         vb1(ij+mief)=1.0d0
       enddo
 
 c=================================================================
       j=mroot
       do m=1,mroot
-        ijb2=indx(m)
         i=mjn(m)
         if(logic_mr)then
           mjnj=mjn(m)
           i=ifrno(mjnj)
         endif
         vadi=vad(i)
-        vb2(ijb2+i)=vadi
         ijh=i*(i-1)/2
         j=j+1
         ijb1(m)=indx(j)
@@ -294,14 +289,12 @@ c=================================================================
           fenmu=vadi-vad(l)
           if(abs(fenmu).lt.epc) fenmu=epc
           vb1(ijb1(m)+l)=th(ijh+l)/fenmu
-          vb2(ijb2+l)=th(ijh+l)
         enddo
         do l=i+1,ndim
           fenmu=vadi-vad(l)
           if(abs(fenmu).lt.epc) fenmu=epc
           ijh=l*(l-1)/2
           vb1(ijb1(m)+l)=th(ijh+i)/fenmu
-          vb2(ijb2+l)=th(ijh+i)
         enddo
       enddo
 
@@ -331,7 +324,7 @@ c--------------------------------------------------------------------
       common/config/ndr,nwalk(0:max_orb)
       dimension iselcsf_occ(max_innorb,max_ref)
       dimension iwalktmp(0:max_orb)
-      data dzero/0.d0/dcrita/1.0d-6/epc/5.0d-3/
+      data dzero/0.d0/
 
       call read_ml(lucidia,1,vector1,nci_dim,1)
 
@@ -397,8 +390,6 @@ c          write(6,"(16(i1))") iwalktmp(norb_dz+1:norb_dz+norb_act)
       subroutine orthnor_ab(n,av,bv,id)  !bv:basis, av:vector for orth a
       real*8 av(n),bv(n),s,ddot_,dcrita
       dcrita=1.0e-10
-      smax2=1.d10
-      smax1=0.0d0
       if(id.ne.0) goto 150
 c     orthogonization av,bv
       s=ddot_(n,av,1,bv,1)

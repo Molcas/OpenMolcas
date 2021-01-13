@@ -11,10 +11,15 @@
 
 ! This is just an encapsulation of the interface in
 ! src/Include/stdalloc.fh
+! and data in src/Include/WrkSpc.fh
 ! into a module.
 
       module stdalloc
       implicit none
+      private
+      public :: mma_allocate, mma_deallocate, mxMem
+
 #include "stdalloc.fh"
+#include "WrkSpc_min.fh"
       save
       end module stdalloc

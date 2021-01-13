@@ -28,6 +28,7 @@ C
       IL=0
 C
       LINE=LINED
+      LK=1
       DO 10 I=40,1,-1
         IF (KEYW(I:I).NE.' ') THEN
           LK=I

@@ -36,9 +36,7 @@
 *                                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qEnter('PTADD')
 *
-      One=1.0D0
       iOpt1=1
       iOpt2=2
       iComp=1
@@ -57,12 +55,10 @@
       If ( iRc.ne.0 ) Then
          Write (6,*) 'PtAdd: Error reading ONEINT'
          Write (6,'(A,A)') 'Label=',Label
-         Call QTrace()
          Call Abend()
       End If
       If (nInts+4.ne.nSize) Then
          Write (6,*) 'PtAdd: nInts+4.ne.nSize',nInts+4,nSize
-         Call QTrace
          Call Abend
       End If
       iRc=-1
@@ -108,7 +104,6 @@
       If ( iRc.ne.0 ) Then
          Write (6,*) 'PtAdd: Error writing to ONEINT'
          Write (6,'(A,A)') 'Label=',Label
-         Call QTrace()
          Call Abend()
       End If
 *     Call Put_PotNuc(H0(nInts+4))
@@ -118,6 +113,5 @@
 *     Normal Exit                                                      *
 *----------------------------------------------------------------------*
 *
-      Call qExit('PTADD')
       Return
       End

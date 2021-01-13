@@ -34,8 +34,8 @@
 *
       If (OnlyProp) Return
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Do iD = 1, nD
          Write (6,*) 'iD=',iD
          Write(6,'(a,8i5)') 'sorb: nOcc   ',(nOcc(i,iD),i=1,nSym)
@@ -63,9 +63,9 @@
          End Do
       End If
 #endif
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     First we set up the electronic occupation numbers either as
 *     by default or as specied by the user. The numbers are stored
 *     in the array Occ.
@@ -106,9 +106,9 @@
       call mma_deallocate(OccSet_e)
 *
  200  Continue
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     Here we put in the occupations from the muons
 *
 *     Here we will have to run through the orbitals and identify
@@ -201,8 +201,8 @@
             End Do ! iSym
 *
          End Do    ! iD
-*define _SPECIAL_DEBUG_
-#ifdef _SPECIAL_DEBUG_
+*define _SPECIAL_DEBUGPRINT_
+#ifdef _SPECIAL_DEBUGPRINT_
          Call DebugCMO(CMO,mBB,nD,Occ,mmB,nBas,nOrb,nSym,iFerm,
      &                 '@ the last position')
 #endif
@@ -210,9 +210,9 @@
          Call mma_deAllocate(OccTmp)
          call mma_deallocate(OccSet_m)
       End If
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     Finally we will have to resort the orbitals with respect to their
 *     occupation numbers such that the orbitals which are formally in
 *     the occupied space but who are empty are reassigned to being
@@ -224,8 +224,8 @@
 *     they are virtual.
 *
       Do iD = 1, nD
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'iD=',iD
          Write (6,*) 'nOccs(original):'
          Write (6,*) (nOcc(iSym,iD),iSym=1,nSym)
@@ -261,7 +261,7 @@
             jOff=jOff+nOrb(iSym)
             iOff=iOff+nBas(iSym)*nOrb(iSym)
          End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'iD=',iD
          Write (6,*) 'nOccs(new):'
          Write (6,*) (nOcc(iSym,iD),iSym=1,nSym)
@@ -271,9 +271,9 @@
 *     Sort such that the occupied orbitals are first in each irrep.
 *
       Call Sorb2CMOs(CMO,mBB,nD,Occ,mmB,nBas,nOrb,nSym,OrbType)
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     Recompute sizes since the nOcc array might have changed.
 *
       nOV = 0
@@ -288,11 +288,11 @@
          nOV    = nOV  + (maxnOcc-nFro(iSym))*
      &                   (nOrb(iSym)-minnOcc)
       End Do
-*                                                                     *
-***********************************************************************
-*                                                                     *
-*define _DEBUG_
-#ifdef _DEBUG_
+*                                                                      *
+************************************************************************
+*                                                                      *
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Do iD = 1, nD
          iOff=1
          jOff=1
@@ -310,7 +310,7 @@
 #endif
       Return
       End
-#ifdef _SPECIAL_DEBUG_
+#ifdef _SPECIAL_DEBUGPRINT_
       Subroutine DebugCMO(CMO,nCMO,nD,Occ,nnB,nBas,nOrb,nSym,iFerm,
      &                    Label)
       Implicit Real*8 (a-h,o-z)

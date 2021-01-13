@@ -23,16 +23,6 @@
 *                                                                      *
 *         Observe that ACInt and ACOut may overlap!!!!                 *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              Trnglr                                                  *
-*              DGEMM_  (ESSL)                                          *
-*              DGeTMO  (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -53,7 +43,6 @@
       iRout = 18
       iPrint = nPrint(iRout)
 *     iPrint=99
-*     Call qEnter('Tcrtnc')
 *
       If (iPrint.ge.19) Call WrCheck('Tcrtnc:P(AB|CD)',ACInt,
      &                                m1*m2*m3*m4*mabcd)
@@ -74,7 +63,6 @@
       ipA3=1
       nA3=nVec*lZeta         ! This is the same for the second set!
       ipA2=ipA3 + nA3
-      nA2=IncVec*n1*m2
 *
       Call TncHlf_h(Coef1,m1,n1,Coef2,m2,n2,iDum,lZeta,nVec,
      &              IncVec,ACInt,Scrtch(ipA2),Scrtch(ipA3),IndZet)
@@ -101,7 +89,6 @@
      &                                lZE*mabcd)
 *
 *     Call GetMem('Tcrtnc','CHECK','REAL',iDum,iDum)
-*     Call qExit('Tcrtnc')
       Return
       End
       Subroutine Tnchlf_h(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,
@@ -112,11 +99,6 @@
 *         matrix multiplications is segmented such that the end of the *
 *         intermediate matrix will not push the start of the same out  *
 *         from the cache.                                              *
-*                                                                      *
-* Called from: Cntrct                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
 *                                                                      *
 * Author:     Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *

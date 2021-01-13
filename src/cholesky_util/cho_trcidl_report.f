@@ -16,6 +16,7 @@ C     Thomas Bondo Pedersen, May 2010.
 C
 C     Report idle status for all processors
 C
+      Use Para_Info, Only: nProcs
       Implicit None
 #include "cholesky.fh"
 #include "choptr2.fh"
@@ -26,7 +27,7 @@ C
       Integer nIdle
       Integer ip, l
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (l_Idle.lt.1 .or. .not.Trace_Idle) Then
          Write(LuPri,'(A)')
      &   'Cho_TrcIdl_Report should not be called in this run!'
@@ -38,7 +39,7 @@ C
 #endif
 
       If (Cho_Real_Par) Then
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          If (l_Idle.lt.nProcs) Then
             Write(LuPri,'(A)')
      &      'Error detected in Cho_TrcIdl_Report: l_Idle < nProcs'

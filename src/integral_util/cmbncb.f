@@ -16,10 +16,6 @@
 *                                                                      *
 * Object: compute the gradient of the overlap matrix.                  *
 *                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91.                                             *
@@ -38,7 +34,6 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-*     Call qEnter('CmbnCB')
 *     Call GetMem(' Enter CmbnCB','LIST','REAL',iDum,iDum)
 *
       If (iPrint.ge.99) Then
@@ -47,12 +42,12 @@
       End If
       Do 10 ixa = 0, la
          iyaMax=la-ixa
-      Do 10 ixb = 0, lb
+      Do 11 ixb = 0, lb
          iybMax=lb-ixb
          Do 20 iya = 0, iyaMax
             iza = la-ixa-iya
             ipa= Ind(la,ixa,iza)
-         Do 20 iyb = 0, iybMax
+         Do 21 iyb = 0, iybMax
             izb = lb-ixb-iyb
             ipb= Ind(lb,ixb,izb)
 *
@@ -127,10 +122,11 @@
                End If
             End If
 *
+ 21      Continue
  20      Continue
+ 11   Continue
  10   Continue
 *
 *     Call GetMem(' Exit CmbnCB','LIST','REAL',iDum,iDum)
-*     Call qExit('CmbnCB')
       Return
       End

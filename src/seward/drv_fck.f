@@ -14,15 +14,14 @@
       SubRoutine Drv_Fck(Label,ip,lOper,nComp,CCoor,
      &                   nOrdOp,rNuc,rHrmt,iChO,
      &                   opmol,ipad,opnuc,iopadr,idirect,isyop,
-     &                   PtChrg,nGrid,iAddPot,DInf,nDInf)
+     &                   PtChrg,nGrid,iAddPot)
+      use PAM2
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "print.fh"
 #include "real.fh"
 #include "warnings.fh"
-      Real*8 DInf(nDInf)
       Character Label*8
       Real*8 CCoor(3,nComp), rNuc(nComp), PtChrg(nGrid)
       Integer ip(nComp), lOper(nComp), iChO(nComp), iStabO(0:7)
@@ -35,7 +34,6 @@
 *                                                                      *
       iRout = 112
       iPrint = nPrint(iRout)
-      Call qEnter('Drv_Fck')
       If (iPrint.ge.19) Then
          Write (6,*) ' In OneEl: Label', Label
          Write (6,*) ' In OneEl: nComp'
@@ -97,11 +95,11 @@
 *                                                                      *
 *---- Compute all SO integrals for all components of the operator.
 *
-      Call Drv_Fck_(Label,ip,Int1El,LenTot,lOper,nComp,CCoor,
-     &              nOrdOp,rHrmt,iChO,
-     &              opmol,opnuc,ipad,iopadr,idirect,isyop,
-     &              iStabO,nStabO,nIC,
-     &              PtChrg,nGrid,iAddPot,DInf,nDInf)
+      Call Drv_Fck_Internal(Label,ip,Int1El,LenTot,lOper,nComp,CCoor,
+     &                      nOrdOp,rHrmt,iChO,
+     &                      opmol,opnuc,ipad,iopadr,idirect,isyop,
+     &                      iStabO,nStabO,nIC,
+     &                      PtChrg,nGrid,iAddPot)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -115,7 +113,6 @@
 *                                                                      *
 *---- Write integrals to disc.
 *
-      mpp_state=1
       Do iComp = 1, nComp
          iSmLbl = lOper(iComp)
 *                                                                      *
@@ -137,7 +134,6 @@ c        Write(6,*) ' oneel *',Label,'*'
          iPAMcount=iPAMcount+1
 
          If (iRC.ne.0) then
-            Call qTrace
             Write(6,*) ' *** Error in subroutine ONEEL ***'
             Write(6,*) '     Abend in subroutine WrOne'
             Call Quit(_RC_IO_ERROR_WRITE_)
@@ -153,14 +149,12 @@ c        Write(6,*) ' oneel *',Label,'*'
 ************************************************************************
 *                                                                      *
  999  Continue
-      Call qExit('Drv_Fck')
       Return
       End
-      Subroutine Drv_Fck_(Label,ip,Int1El,LenTot,lOper,nComp,CCoor,
-     &                    nOrdOp,rHrmt,iChO,
-     &                    opmol,opnuc,ipad,iopadr,idirect,isyop,
-     &                    iStabO,nStabO,nIC,
-     &                    PtChrg,nGrid,iAddPot,DInf,nDInf)
+      Subroutine Drv_Fck_Internal(Label,ip,Int1El,LenTot,lOper,nComp,
+     &                            CCoor,nOrdOp,rHrmt,iChO,opmol,opnuc,
+     &                            ipad,iopadr,idirect,isyop,iStabO,
+     &                            nStabO,nIC,PtChrg,nGrid,iAddPot)
 ************************************************************************
 *                                                                      *
 * Object: to compute the one-electron integrals. The method employed at*
@@ -173,31 +167,6 @@ c        Write(6,*) ' oneel *',Label,'*'
 *         ny or i j) refer to primitives or basis functions and two (a *
 *         b) refer to the components of the cartesian or spherical     *
 *         harmonic gaussians.                                          *
-*                                                                      *
-* Called from: Drv1El                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              ICopy                                                   *
-*              DCopy    (ESSL)                                         *
-*              KrnlMm                                                  *
-*              ZXia                                                    *
-*              MemSO1                                                  *
-*              DCR                                                     *
-*              Inter                                                   *
-*              SetUp1                                                  *
-*              Kernel                                                  *
-*              DGeTMO   (ESSL)                                         *
-*              CarSph                                                  *
-*              SymAd1                                                  *
-*              DScal    (ESSL)                                         *
-*              SOSctt                                                  *
-*              PrMtrx                                                  *
-*              XProp                                                   *
-*              WrOne                                                   *
-*              ErrOne                                                  *
-*              Prop                                                    *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
@@ -212,17 +181,18 @@ c        Write(6,*) ' oneel *',Label,'*'
 ************************************************************************
       use Real_Spherical
       use iSD_data
+      use Basis_Info
+      use Center_Info
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "angtp.fh"
-#include "info.fh"
 #include "real.fh"
 #include "rmat_option.fh"
 #include "stdalloc.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
-      Real*8 DInf(nDInf)
       Real*8 A(3), B(3), RB(3), CCoor(3,nComp), PtChrg(nGrid)
       Character ChOper(0:7)*3, Label*8
       Integer nOp(2), ip(nComp), lOper(nComp), iChO(nComp),
@@ -240,12 +210,11 @@ c        Write(6,*) ' oneel *',Label,'*'
       iRout = 112
       iPrint = nPrint(iRout)
 *     iPrint = 99
-      Call qEnter('Drv_Fck_')
 *
 *-----Auxiliary memory allocation.
 *
-      Call mma_allocate(Zeta,m2Max)
-      Call mma_allocate(ZI,m2Max)
+      Call mma_allocate(Zeta,S%m2Max)
+      Call mma_allocate(ZI,S%m2Max)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -260,31 +229,26 @@ c        Write(6,*) ' oneel *',Label,'*'
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
          iAO    = iSD( 7,iS)
-         ixyz   = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
          iCnttp = iSD(13,iS)
-         call dcopy_(3,DInf(ixyz),1,A,1)
+         iCnt   = iSD(14,iS)
+         A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
          Do jS = iS, iS
             jShll  = iSD( 0,jS)
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
             jAO    = iSD( 7,jS)
-            jxyz   = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
             jCnttp = iSD(13,jS)
+            jCnt   = iSD(14,jS)
+            B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
-            call dcopy_(3,DInf(jxyz),1,B,1)
-*                                                                      *
 ************************************************************************
 *                                                                      *
 *           Allocate memory for SO integrals that will be generated by
@@ -293,7 +257,7 @@ c        Write(6,*) ' oneel *',Label,'*'
             nSO=0
             Do iComp = 1, nComp
                iSmLbl=lOper(iComp)
-               nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+               nSO=nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
             End Do
             If (iPrint.ge.29) Write (6,*) ' nSO=',nSO
             If (nSO.eq.0) Go To 131
@@ -309,7 +273,7 @@ c        Write(6,*) ' oneel *',Label,'*'
 *                                                                      *
 *           Allocate memory for the final integrals all in the
 *           primitive basis.
-            lFinal = nIC * MaxPrm(iAng) * MaxPrm(jAng) *
+            lFinal = nIC * S%MaxPrm(iAng) * S%MaxPrm(jAng) *
      &               nElem(iAng)*nElem(jAng)
             Call mma_allocate(Fnl,lFinal)
             Call dCopy_(lFinal,[Zero],0,Fnl,1)
@@ -319,34 +283,33 @@ c        Write(6,*) ' oneel *',Label,'*'
 *           At this point we can compute Zeta.
 *           This is now computed in the ij or ji order.
 *
-            Call ZXia(Zeta,ZI,iPrim,jPrim,DInf(iExp),DInf(jExp))
+            Call ZXia(Zeta,ZI,iPrim,jPrim,Shells(iShll)%Exp,
+     &                                    Shells(jShll)%Exp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *           Find the DCR for A and B
 *
-            Call DCR(LmbdR,iOper,nIrrep,jStab(0,mdci),
-     &               nStab(mdci),jStab(0,mdcj),
-     &               nStab(mdcj),iDCRR,nDCRR)
+            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+     &                     dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
 *
 *           Find the stabilizer for A and B
 *
-            Call Inter(jStab(0,mdci),nStab(mdci),
-     &                 jStab(0,mdcj),nStab(mdcj),
+            Call Inter(dc(mdci)%iStab,dc(mdci)%nStab,
+     &                 dc(mdcj)%iStab,dc(mdcj)%nStab,
      &                 iStabM,nStabM)
 *
-            Call DCR(LambdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &               iDCRT,nDCRT)
+            Call DCR(LambdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
             If (iPrint.ge.19) Then
                Write (6,*)
                Write (6,*) ' g      =',nIrrep
-               Write (6,*) ' u      =',nStab(mdci)
-               Write (6,'(9A)') '(U)=',(ChOper(jStab(ii,mdci)),
-     &               ii = 0, nStab(mdci)-1)
-               Write (6,*) ' v      =',nStab(mdcj)
-               Write (6,'(9A)') '(V)=',(ChOper(jStab(ii,mdcj)),
-     &               ii = 0, nStab(mdcj)-1)
+               Write (6,*) ' u      =',dc(mdci)%nStab
+               Write (6,'(9A)') '(U)=',(ChOper(dc(mdci)%iStab(ii)),
+     &               ii = 0, dc(mdci)%nStab-1)
+               Write (6,*) ' v      =',dc(mdcj)%nStab
+               Write (6,'(9A)') '(V)=',(ChOper(dc(mdcj)%iStab(ii)),
+     &               ii = 0, dc(mdcj)%nStab-1)
                Write (6,*) ' LambdaR=',LmbdR
                Write (6,*) ' r      =',nDCRR
                Write (6,'(9A)') '(R)=',(ChOper(iDCRR(ii)),
@@ -360,7 +323,7 @@ c        Write(6,*) ' oneel *',Label,'*'
 *                                                                      *
 *           Compute normalization factor
 *
-            iuv = nStab(mdci)*nStab(mdcj)
+            iuv = dc(mdci)%nStab*dc(mdcj)%nStab
             If (MolWgh.eq.1) Then
                Fact = DBLE(nStabO) / DBLE(LambdT)
             Else If (MolWgh.eq.0) Then
@@ -375,13 +338,11 @@ c        Write(6,*) ' oneel *',Label,'*'
 *                                                                      *
 *           Loops over symmetry operations acting on the basis.
 *
-            nOp(1) = NrOpr(0,iOper,nIrrep)
+            nOp(1) = NrOpr(0)
 *           Do lDCRR = 0, nDCRR-1
             Do lDCRR = 0, 0
-             RB(1) = DBLE(iPhase(1,iDCRR(lDCRR)))*B(1)
-             RB(2) = DBLE(iPhase(2,iDCRR(lDCRR)))*B(2)
-             RB(3) = DBLE(iPhase(3,iDCRR(lDCRR)))*B(3)
-             nOp(2) = NrOpr(iDCRR(lDCRR),iOper,nIrrep)
+             Call OA(iDCRR(lDCRR),B,RB)
+             nOp(2) = NrOpr(iDCRR(lDCRR))
              If (iPrint.ge.49) Write (6,'(A,3F6.2,2X,3F6.2)') '*',
      &             (A(i),i=1,3),(RB(i),i=1,3)
 *                                                                      *
@@ -390,26 +351,24 @@ c        Write(6,*) ' oneel *',Label,'*'
 *            Pick up epsilon from memory
 *
             Call FZero(Fnl,iBas*jBas*iCmp*jCmp*nIC)
-            ip_Eorb=ipFockOp(iShll)
             Do iB = 1, iBas
                Do jB = 1, iBas
                   ijB=(jB-1)*iBas+iB
                   Do iC = 1, iCmp
                      ijC=(iC-1)*iCmp+iC
-                     iFrom=ip_Eorb-1 + (jB-1)*iBas+iB
                      iTo= + (ijC-1)*iBas**2+ijB
-#ifdef _DEBUG_
-                     Write (6,*) 'ijB,ijC=',ijB,ijC
-                     Write (6,*) 'Fnl(iTo),DInf(iFrom)=',
-     &                            Fnl(iTo),DInf(iFrom)
+#ifdef _DEBUGPRINT_
+                     Write (6,*)'ijB,ijC=',ijB,ijC
+                     Write (6,*)'Fnl(iTo),Shells(iShll)%FockOp(iB,jB)=',
+     &                           Fnl(iTo),Shells(iShll)%FockOp(iB,jB)
 #endif
-                     Fnl(iTo)=DInf(iFrom)
+                     Fnl(iTo)=Shells(iShll)%FockOp(iB,jB)
                   End Do
                End Do
             End Do
-#ifdef _DEBUG_
-            Call RecPrt('EOrb',' ',DInf(ip_EOrb),iBas,1)
-            Call RecPrt('EOrb',' ',DInf(ip_EOrb),iBas,iBas)
+#ifdef _DEBUGPRINT_
+            Call RecPrt('EOrb',' ',Shells(iShll)%FockOp,iBas,1)
+            Call RecPrt('EOrb',' ',Shells(iShll)%FockOp,iBas,iBas)
             Call RecPrt('FckInt',' ',Fnl,iBas*jBas,iCmp*jCmp*nIC)
 #endif
 *                                                                      *
@@ -429,7 +388,7 @@ c        Write(6,*) ' oneel *',Label,'*'
              iIC = 1
              Do iComp = 1, nComp
               iSmLbl=lOper(iComp)
-              mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+              mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
               If (mSO.eq.0) Then
                  Do iIrrep = 0, nIrrep-1
                     If (iAnd(lOper(iComp),iTwoj(iIrrep)).ne.0)
@@ -437,7 +396,8 @@ c        Write(6,*) ' oneel *',Label,'*'
                  End Do
               Else
                  Call SymAd1(iSmLbl,iAng,jAng,iCmp,jCmp,
-     &                       iShell,jShell,iShll,jShll,Fnl,
+     &                       iShell,jShell,iShll,jShll,
+     &                       iAO,jAO,Fnl,
      &                       iBas,jBas,nIC,iIC,SO(iSOBlk),mSO,nOp)
                  iSOBlk = iSOBlk + mSO*iBas*jBas
               End If
@@ -465,7 +425,7 @@ c        Write(6,*) ' oneel *',Label,'*'
             Do iComp = 1, nComp
               iSmLbl=lOper(iComp)
               If (n2Tri(iSmLbl).ne.0) Then
-                 mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+                 mSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
               Else
                  mSO=0
               End If
@@ -491,7 +451,6 @@ c        Write(6,*) ' oneel *',Label,'*'
       Call mma_deallocate(ZI)
       Call mma_deallocate(Zeta)
 *
-      Call qExit('Drv_Fck_')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

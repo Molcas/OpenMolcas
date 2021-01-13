@@ -20,11 +20,6 @@
 *         iation the prefactor will be due to the undifferentiated     *
 *         charge densities.                                            *
 *                                                                      *
-* Called from: k2Loop                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             April '92                                                *
@@ -37,7 +32,7 @@
       Logical Mode
 *
       iRout=399
-      iPrint=nPrint(399)
+      iPrint=nPrint(iRout)
 *
       If (Mode) Then
 *--------Integrals

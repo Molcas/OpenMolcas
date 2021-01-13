@@ -53,7 +53,6 @@
       COMMON /CHOSCREEN/ Estimate,Update
       COMMON /CHOPAR/ ChFracMem
 
-      Call qEnter(ROUTINE)
 
 *----------------------------------------------------------------------*
       ProgName=Get_SuperName()
@@ -80,8 +79,7 @@ C        ICIRST=1 ! to be activated!
       End If
 
 * Initialize print levels: See output_ras.fh
-* Global logical unit numbers for standard input and standard output
-      IO=5
+* Global logical unit numbers for standard output
       LF=6
 * Externally set default print level control. Should the program be silent?
       IPRGLB_IN=iPrintLevel(-1)
@@ -281,7 +279,7 @@ C        ICIRST=1 ! to be activated!
 * default spin value (singlet)
       ISPIN=1
 * default symmetry
-      LSYM=1
+      STSYM=1
 * default number of active electrons
       NACTEL=0
 * default maximum number of holes in RAS1
@@ -374,5 +372,12 @@ CSVC: lucia timers
       tsigma = 0.0d0
       tdensi = 0.0d0
 *
+C state rotation
+      iRotPsi=0
+      iXMSP=0
+      iCMSP=0
+      ICMSIterMax=100
+      ICMSIterMin=5
+      CMSThreshold=1.0d-6
       RETURN
       END

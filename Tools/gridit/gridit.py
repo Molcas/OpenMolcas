@@ -1,7 +1,22 @@
 #!/usr/bin/env python3
+
+#***********************************************************************
+# This file is part of OpenMolcas.                                     *
+#                                                                      *
+# OpenMolcas is free software; you can redistribute it and/or modify   *
+# it under the terms of the GNU Lesser General Public License, v. 2.1. *
+# OpenMolcas is distributed in the hope that it will be useful, but it *
+# is provided "as is" and without any express or implied warranties.   *
+# For more details see the full text of the license in the file        *
+# LICENSE or in <http://www.gnu.org/licenses/>.                        *
+#                                                                      *
+# Copyright (C) 2019,2020, Oskar Weser                                 *
+#***********************************************************************
+
 """Script to automatically generate grid files from Orbfiles.
 """
 
+import sys
 import os
 from os import remove
 from os.path import join, basename, splitext, relpath
@@ -9,6 +24,11 @@ from os.path import join, basename, splitext, relpath
 import subprocess
 from subprocess import run
 import click
+
+MIN_PYTHON = (3, 6)
+if sys.version_info < MIN_PYTHON:
+    raise RuntimeError('F strings and ordered kwargs required. '
+                       'This requires at least python 3.6.')
 
 
 def create_module_input(module_name, **kwargs):
@@ -33,7 +53,7 @@ def get_currdir_path(path):
 
 
 def create_input(coord, basis, inporb, density='sparse', group=None,
-                 select=None):
+                 select=None, total=False):
     inp = create_module_input(
         'GATEWAY',
         coord=get_currdir_path(coord),
@@ -44,6 +64,8 @@ def create_input(coord, basis, inporb, density='sparse', group=None,
     gridit = {'NOLUSCUS': '', 'ASCII': '', density: ''}
     if select:
         gridit['select'] = select
+    if total:
+        gridit['total'] = ''
 
     inp += create_module_input('GRIDIT', **gridit)
     return inp
@@ -85,6 +107,8 @@ def cleanup(project):
               help=('Gridit keyword to select certain orbitals. '
                     'The default depends on the Molcas implementation. '
                     'Usually the active space is used.'))
+@click.option('--total/--no-total', '-t',default=False,
+              help='Total density computed from contributions of all orbitals.')
 @click.option('--project', '-p', default='make_grid', type=str,
               show_default=True,
               help=('Prefix for the grid calculations. '
@@ -94,9 +118,9 @@ def cleanup(project):
               help='Filepath of the Molcas driver script.')
 @click.option('--clean/--no-clean', default=True,
               help='Clean temporary files after calculation.')
-def main(coord, basis, inporb, density, group, select, project, molcas_exe, clean):
+def main(coord, basis, inporb, density, group, select, total, project, molcas_exe, clean):
     start_calc(
-        create_input(coord, basis, inporb, density, group, select),
+        create_input(coord, basis, inporb, density, group, select, total),
         f'{project}.inp', molcas_exe)
     if clean:
         cleanup(project)

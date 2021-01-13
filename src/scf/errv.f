@@ -63,6 +63,5 @@
 *
 *     Hmmm, no entry found in LList, that's strange
  555  Write (6,*) 'ErrV: no entry found in LList!'
-      Call QTrace
       Call Abend()
       End

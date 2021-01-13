@@ -47,7 +47,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
-#include "periodic_table.fh"
 #include "WrkSpc.fh"
 #include "constants2.fh"
       Character*2 Element(nAtoms)
@@ -128,17 +127,22 @@
       End
 
       Subroutine fmsym_generate_orbital_subspaces(ctx)
+#ifdef _HDF5_
+      Use mh5, Only: mh5_create_file, mh5_init_attr,
+     &               mh5_create_dset_real, mh5_create_dset_int,
+     &               mh5_create_dset_str, mh5_put_dset, mh5_close_dset,
+     &               mh5_close_file
+#endif
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #ifdef _HDF5_
-#include "mh5.fh"
       integer fileid, dsetid
 #endif
       Character*80 Title
-      Character(8), allocatable :: irrep_strings(:)
+      Character(len=8), allocatable :: irrep_strings(:)
       Integer ret
       Dimension nBas(mxSym)
       Dimension Dummy(1)
@@ -187,21 +191,21 @@
       call one2h5_fckint(fileid, nsym, nbas)
       ! mocoef
       dsetid = mh5_create_dset_real(fileid,'MO_VECTORS', 1, [nCMO])
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Coefficients of the SALCs as produced by MSYM, '//
      $        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
       call mh5_put_dset(dsetid, Work(ipCAO))
       call mh5_close_dset(dsetid)
       ! mooc
       dsetid = mh5_create_dset_real(fileid,'MO_OCCUPATIONS', 1, [nMO])
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Dummy occupation numbers '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
       call mh5_put_dset(dsetid, Work(ipOcc))
       call mh5_close_dset(dsetid)
       ! moene
       dsetid = mh5_create_dset_real(fileid,'MO_ENERGIES', 1, [nMO])
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Dummy orbital energies '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
       call mh5_put_dset(dsetid, Work(ipOcc))
@@ -209,14 +213,14 @@
       ! supsym
       dsetid = mh5_create_dset_int(fileid,
      $ 'SUPSYM_IRREP_IDS', 1, [nMO])
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Super-symmetry ids as produced by MSYM, '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
       call mh5_put_dset(dsetid, iWork(ipIrrIds))
       call mh5_close_dset(dsetid)
       dsetid = mh5_create_dset_int(fileid,
      $ 'SUPSYM_IRREP_INDICES', 1, [nMO])
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Super-symmetry indices as produced by MSYM, '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
       call mh5_put_dset(dsetid, iWork(ipIrrInd))
@@ -224,7 +228,7 @@
       ! irrep_labels
       dsetid = mh5_create_dset_str(fileid,
      $ 'SUPSYM_IRREP_LABELS', 1, [nIrr], 8)
-      call mh5_init_attr(dsetid, 'description',
+      call mh5_init_attr(dsetid, 'DESCRIPTION',
      $        'Super-symmetry labels as produced by MSYM, '//
      $        'arranged as array of size i=1,#supsym_irreps')
       call mh5_put_dset(dsetid, irrep_strings)

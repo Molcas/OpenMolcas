@@ -32,12 +32,11 @@
 #include "warnings.fh"
 #include "stdalloc.fh"
       LOGICAL IF_TRNSF
-      CHARACTER(27)  STLNE2
+      CHARACTER(LEN=27)  STLNE2
       real(8) Heff(Nstate,Nstate)
       real(8) H0(Nstate,Nstate)
       real(8) U0(Nstate,Nstate)
 
-      CALL QENTER('GRPINI')
 * ---------------------------------------------------------------------
 * Number of states in this group.
       IF (IPRGLB.EQ.DEBUG) THEN
@@ -125,19 +124,19 @@ c Modify the Fock matrix if needed
             write(6,*) 'Fock matrix couplings'
             write(6,*) '---------------------'
             write(6,*)
-            write(6,'(10X,6X,A3,I4,A3)') ' | ', Jstate, ' > '
+            write(6,'(10X,6X,A3,I4,A3)') ' | ', MSTATE(Jstate), ' > '
             do Istate=1,Nstate
               if (Istate.ne.Jstate) then
 * Compute matrix element and print it out
                 call FOPAB(WORK(LFIFA),Istate,Jstate,H0(Istate,Jstate))
                 write(6,'(A3,I4,A3,F16.8)')
-     &                  ' < ',Istate,' | ', H0(Istate,Jstate)
-* Then set it to zero becuase we are within the diagonal approximation
+     &                  ' < ',MSTATE(Istate),' | ', H0(Istate,Jstate)
+* Then set it to zero because we are within the diagonal approximation
                 H0(Istate,Jstate) = 0.0d0
               else
 * Just print out the already computed diagonal element
                 write(6,'(A3,I4,A3,F16.8)')
-     &                  ' < ',Istate,' | ', H0(Istate,Jstate)
+     &                  ' < ',MSTATE(Istate),' | ', H0(Istate,Jstate)
               end if
             end do
             write(6,*)
@@ -214,7 +213,7 @@ c Modify the Fock matrix if needed
           if (IPRGLB.ge.VERBOSE) then
             write(6,'(1x,a,i3)')
      &      ' The CI coefficients of rotated model state nr. ',MSTATE(J)
-            call PRWF_CP2(LSYM,NCONF,WORK(LCIXMS),CITHR)
+            call PRWF_CP2(STSYM,NCONF,WORK(LCIXMS),CITHR)
           end if
         end do
 
@@ -232,7 +231,7 @@ c Modify the Fock matrix if needed
 * model functions, but using the new orbitals.
 * Note that the matrices FIFA, FIMO, etc are transformed as well
 
-      call orbctl(WORK(LCMO))
+      CALL ORBCTL(WORK(LCMO))
 
 * In subroutine stini, the individual RHS, etc, arrays will be computed
 * for the states. If this is a true XMS calculation (Ngrp > 1) then
@@ -256,6 +255,5 @@ c Modify the Fock matrix if needed
 
       call getmem('LCMO','FREE','REAL',LCMO,NCMO)
 
-      CALL QEXIT('GRPINI')
       return
       end

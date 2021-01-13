@@ -27,7 +27,7 @@ C
       Integer N2
       Parameter (N2=InfVec_N2)
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Character*13 SecNam
       Parameter (SecNam='Cho_PTS_WrRst')
       Integer ip_IDV, l_IDV
@@ -45,7 +45,7 @@ C
       ! Init return code
       irc=0
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       ! check that NumCho agrees with distribution
       If (l_NVT.lt.nSym) Then
          irc=-1

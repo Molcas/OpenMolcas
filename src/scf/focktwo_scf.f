@@ -19,7 +19,7 @@
       Real*8 FSQ(*),FLT(nFlt),DSQ(*),DLT(*),X1(*),X2(*)
       Real*8 DLT_ab(*),DSQ_ab(*),FLT_ab(*),FSQ_ab(*)
       Integer ISTLT(8),ISTSQ(8),KEEP(8),NBAS(8),NFRO(8)
-      Logical Debug,myDebug
+      Logical myDebug
 c
 c This routine has been nicked from the MOTRA package. It was
 c originally written by Marcus Fuelscher, and has been slightly
@@ -44,14 +44,8 @@ c
        myDebug=.false.
        Factor=0.5D0
         if(iUHF.eq.1) Factor=1.0D0
-#ifdef _DEBUG_
-      Call qEnter('Focktwo')
-#endif
-#ifdef _DEBUG_
-      Debug=.true.
+#ifdef _BUGPRINT_
 c      myDebug=.true. ! very extensive print out
-#else
-      Debug=.false.
 #endif
       ISTSQ(1)=0
       ISTLT(1)=0
@@ -336,7 +330,7 @@ c         write (6,'(a,i5,a,f12.6)') ' >> Fsq(',K2+JB,')=',FSQ(K2+JB)
       If (iUHF.eq.1) Call GADSum(Flt_ab,nFlt)
 *
 c Print the Fock-matrix
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       WRITE(6,'(6X,A)')'TEST PRINT FROM FTWOI.'
       WRITE(6,'(6X,A)')'FROZEN FOCK MATRIX IN AO BASIS:'
       ISTLTT=1
@@ -352,9 +346,6 @@ c Print the Fock-matrix
         END IF
       END DO
       WRITE(6,'(6X,A)')'----------------------------'
-#endif
-#ifdef _DEBUG_
-      Call qExit('Focktwo')
 #endif
 
       RETURN

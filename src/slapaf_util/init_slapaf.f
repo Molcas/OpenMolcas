@@ -8,30 +8,34 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Init_SlapAf(iRow)
+      Subroutine Init_SlapAf()
+      use Symmetry_Info, only: nIrrep, iOper
+      use Slapaf_Info, only: q_nuclear, dMass, Coor, Grd, ANr, Degen,
+     &                       jStab, nStab, iCoSet, AtomLbl, Smmtrc,
+     &                       RootMap
+*     use Slapaf_Info, only: R12
+      use Slapaf_Parameters, only: nDimBC, Analytic_Hessian, MaxItr,
+     &                             Line_Search, ThrEne, ThrGrd, ThrCons,
+     &                             ThrMEP, Header, MxItr, mTtAtm
+*     use Slapaf_Parameters, only: lRP
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "info_slapaf.fh"
 #include "sbs.fh"
 #include "nadc.fh"
 #include "db.fh"
 #include "print.fh"
-      Integer   iAdd(0:7) , jPrmt(0:7)
+#include "stdalloc.fh"
+      Integer   iAdd(0:7)
+      Integer :: jPrmt(0:7)=[1,-1,-1,1,-1,1,1,-1]
       Logical Same, Do_ESPF, Exist_2, Found, Reduce_Prt
       External Reduce_Prt
-      Character *8 CMAX
+      Character(LEN=8) CMAX
       Integer Columbus
 #include "SysDef.fh"
-      Character*100 Get_SuperName, SuperName
-      External Get_SuperName
-      Data jPrmt/1,-1,-1,1,-1,1,1,-1/
+      Character(LEN=100) SuperName
+      Character(LEN=100), External:: Get_SuperName
+      Real*8, Allocatable:: xMass(:)
 *
-*     Statement function
-*
-      iPrmt(i,j) = jPrmt(iAnd(i,j))
-*
-      Call QEnter('Init')
 ************************************************************************
 ************************** StartUp section   ***************************
 ************************************************************************
@@ -54,118 +58,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      IRC=0
-      iRow=0
-      iRow_c=0
-      nBVec=0
-      lif = 0
       jPrint=10
-      lOld = .False.
-      lOld_Implicit = .False.
-      Stop  = .False.
-      lSup = .False.
-      Baker = .False.
-      Schlegel=.False.
-      FindTS=.False.
-      DDV_Schlegel=.False.
-      Curvilinear=.True.
-      Ref_Geom=.False.
-      HWRS=.True.
-      nLambda=0
-      MEP = .False.
-      rMEP= .False.
-      nMEP=MaxItr
-      Ref_Grad=.False.
-      rHidden = Zero
-      HrmFrq_Show=.False.
-      eMEPTest=.True.
-      MEP_Type='SPHERE'
-      dMEPStep=0.1D0
-      MEP_Algo='GS'
-      MEPnum=0
-      NmIter=0
-      HSet=.False.
-      BSet=.False.
-      Redundant=.False.
-      lSoft=.False.
-      rFuzz=0.5D0
-      isFalcon=.False.
-      CallLast=.True.
-      TwoRunFiles=.False.
-      TSConstraints=.False.
-      MEPCons=.False.
-      Track=.False.
-      Request_Alaska=.False.
-      Request_RASSI=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*.... Optimization method. DO NOT EVER GO BEYOND BIT 30!!!
-*
-*      iOptC=000000000 (  0) No optimization
-*   0  iOptC=000000001 (  1) Quasi Newton-Raphson
-*   1  iOptC=000000010 (  2) c1-DIIS
-*   2  iOptC=000000100 (  4) c2-DIIS
-*   3  iOptC=000001000 (  8) RS-RFO
-*   4  iOptC=00001.... ( 16) DIIS, <dx|dx>
-*   5  iOptC=00010.... ( 32) DIIS, <dx|g>
-*   6  iOptC=00100.... ( 64) DIIS, <g|g>
-*   7  iOptC=01....... (128) Minimum, if not set TS search
-*   8  iOptC=10....... (256) Optimization with constraint
-*   9  iOptC           (512) set: RS-I-RFO, unset: RS-P-RFO
-*  10  iOptC          (1024) HMF augmented with weak interactions
-*  11  iOptC          (2048) augmented HMF used for selection of
-*                           internal coordinates
-*  12  iOptC          (4096) set if FindTS
-*  13  iOptC          (8192) set if FindTS and in TS regime
-*
-      UpMeth='  RF  '
-      iOptC=8
-      iOptC=iOr(iOptC,64 )
-      iOptC=iOr(iOptC,128)
-      iOptC=iOr(iOptC,512)
-      iOptC=iOr(iOptC,1024)
-      iOptC=iOr(iOptC,2048)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Hessian update
-* 1   iOptH=00000001 (  1) Meyer (disabled)
-* 2   iOptH=00000010 (  2) BP (disabled)
-* 3   iOptH=00000100 (  4) BFGS
-* 4   iOptH=00001000 (  8) None
-* 5   iOptH=00010000 ( 16) MPS, for TS search
-* 6   iOptH=-.1..... ( 32) Not used
-* 7   iOptH=01000000 ( 64) EU, for TS search
-* 8   iOptH=10000000 (128) TS-BFGS, for TS search
-*
-      iOptH=4
-      HUpMet=' None '
-*                                                                      *
-************************************************************************
-*                                                                      *
-      RtRnc=Three
-      Max_Center=15
-      mode=-99999
-      ipAtom = -1
-      ipNSup = -1
-      lRowH  = .False.
-      lNmHss = .False.
-* --- ThermoChemistry for Numerical Hessian
-      lTherm = .False.
-      lDoubleIso = .False.
-      nUserPT= 0
-      UserP = 1.0d0
-      Do i=1, 64
-        UserT(i) = 0.0d0
-      EndDo
-      nsRot = 0
-*
-      Cubic  = .False.
-      PDH    = .True.
-      Beta = 0.30D0
-      GNrm_Threshold=0.2D0
-      CnstWght=1.0D0
       Call DecideOnESPF(Do_ESPF)
       If (Do_ESPF) Then
          ThrGrd = 0.003D0
@@ -176,16 +72,8 @@
          ThrEne = 1.0D-6
          Line_Search=.True.
       End If
+      ThrMEP = ThrGrd
       ThrCons = 1.0D10
-      Delta  = 1.0D-2
-      nWndw = 5
-      Call ICopy(mxdc,[0],0,nStab,1)
-      Call ICopy(8*mxdc,[0],0,iCoSet,1)
-      Call ICopy(8*mxdc,[0],0,jStab,1)
-      call dcopy_(3*mxdc,[Zero],0,Degen,1)
-      do 180 i = 1, 3*mxdc
-         Smmtrc(i) = .False.
- 180  Continue
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -214,35 +102,19 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      BLine = ' '
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     Get Molecular data
 *
 *...  Read the title
 *
       Call Get_cArray('Seward Title',Header,144)
 *
-*...  Read the number of irreps
-*
-      Call Get_iScalar('nSym',nSym)
-      nIrrep=nSym
-*
 *...  Read number of atoms, charges, coordinates, gradients and
 *     atom labels
 *
-      Call Get_Molecule(ipCM,ipCoor,ipGrd,AtomLbl,nsAtom,mxdc)
+      Call Get_Molecule()
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*...  Read the symmetry operators
-*
-      Call Get_iArray('Symmetry operations',iOper,nSym)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      ipNADC=ip_Dummy
       NADC=.False.
       ApproxNADC=.False.
       Call Get_iScalar('Columbus',Columbus)
@@ -263,13 +135,13 @@ C        Write (6,*) 'See if CI'
          Call Qpg_iScalar('ISPIN',Found)
          If (Found) Then
             Call Get_iScalar('ISPIN',ISPIN1)
-            Call Get_iScalar('LSYM',LSYM1)
+            Call Get_iScalar('STSYM',LSYM1)
          Else
             ISPIN1=0
             LSYM1=0
          End If
 C        Write (6,*) 'iSpin=',ISPIN1
-C        Write (6,*) 'lSym=',LSYM1
+C        Write (6,*) 'stSym=',LSYM1
 *
          Call f_Inquire('RUNFILE2',Exist_2)
 C        Write (6,*) 'Exist_2=',Exist_2
@@ -278,7 +150,7 @@ C        Write (6,*) 'Exist_2=',Exist_2
             Call Qpg_iScalar('ISPIN',Found)
             If (Found) Then
                Call Get_iScalar('ISPIN',ISPIN2)
-               Call Get_iScalar('LSYM',LSYM2)
+               Call Get_iScalar('STSYM',LSYM2)
             Else
                ISPIN2=0
                LSYM2=0
@@ -289,7 +161,7 @@ C        Write (6,*) 'Exist_2=',Exist_2
             LSYM2 = LSYM1
          End If
 C        Write (6,*) 'iSpin=',ISPIN1,ISPIN2
-C        Write (6,*) 'lSym=',LSYM1,LSYM2
+C        Write (6,*) 'stSym=',LSYM1,LSYM2
 *
 *
 *        Do not add the constraint at the NumGrad stage
@@ -308,62 +180,56 @@ C           NADC= .False. ! for debugging
 *
       Call Qpg_iArray('Root Mapping',Found,nRM)
       If (nRM.gt.0) Then
+         Call mma_allocate(RootMap,nRM,Label='RootMap')
          Call Get_iArray('Root Mapping',RootMap,nRM)
       Else
          Call Qpg_iScalar('Number of roots',Found)
          nRoots = 1
          If (Found) Call Get_iScalar('Number of roots',nRoots)
-         Call iCopy(MxRoot,[0],0,RootMap,1)
+         Call mma_allocate(RootMap,nRoots,Label='RootMap')
+         RootMap(:)=0
          Do i=1,nRoots
             RootMap(i)=i
          End Do
       End If
 *
 *...  Check if there is an analytic Hessian
-      Call Get_AnalHess(ipHess,nHess)
-      Analytic_Hessian=nHess.ne.0
-      If (Analytic_Hessian) Call Free_Work(ipHess)
+      Call qpg_dArray('Analytic Hessian',Analytic_Hessian,nHess)
+
       If (.Not.Analytic_Hessian) Then
          Call NameRun('RUNOLD')
-         Call Get_AnalHess(ipHess,nHess)
-         Analytic_Hessian=nHess.ne.0
-         If (Analytic_Hessian) Call Free_Work(ipHess)
+         Call qpg_dArray('Analytic Hessian',Analytic_Hessian,nHess)
          Call NameRun('#Pop')
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*---  Set up of symmetry and degeneracy
-*
-      Call ICopy(3,[0],0,iSym,1)
-      Do 600 iIrrep = 1, Min(4,nSym-1)
-         jIrrep = iIrrep
-         If (iIrrep.eq.3) jIrrep = 4
-         Do 601 k = 1, 3
-            If (iAnd(iOper(jIrrep),2**(k-1)).ne.0) iSym(k) = 2**(k-1)
- 601     Continue
- 600  Continue
-*                                                                      *
-************************************************************************
-*                                                                      *
 *---  Compute the number of total symmetric displacements
 *
+      Call mma_allocate(jStab ,[0,7],[1,SIZE(Coor,2)],Label='jStab ')
+      Call mma_allocate(nStab ,      [1,SIZE(Coor,2)],Label='nStab ')
+      Call mma_allocate(iCoSet,[0,7],[1,SIZE(Coor,2)],Label='iCoSet')
+      Call mma_allocate(Smmtrc,3,SIZE(Coor,2),Label='Smmtrc')
+      jStab(:,:)=0
+      nStab(:)=0
+      iCoSet(:,:)=0
+      Smmtrc(:,:)=.False.
+
       nDimbc = 0
 *...  Loop over the unique atoms
-      Do 610 isAtom = 1, nsAtom
+      Do 610 isAtom = 1, SIZE(Coor,2)
 *...     Find character of center
-         iAdr = ipCoor -1 + (isAtom-1)*3
          iChxyz=0
          Do i = 1, 3
-            If (Work(iAdr+i).ne.Zero) Then
-               Do iIrrep= 0, nSym-1
+            If (Coor(i,isAtom).ne.Zero) Then
+               Do iIrrep= 0, nIrrep-1
                   If (iAnd(2**(i-1),iOper(iIrrep)).ne.0)
      &               iChxyz=iOr(iChxyz,2**(i-1))
                End Do
             End If
          End Do
          nStb = 0
-         Do iIrrep = 0, nSym-1
+         Do iIrrep = 0, nIrrep-1
             If (iAnd(iChxyz,iOper(iIrrep)).eq.0) Then
                jStab(nStb,isAtom)=iOper(iIrrep)
                nStb = nStb + 1
@@ -371,9 +237,9 @@ C           NADC= .False. ! for debugging
          End Do
          nStab(isAtom)=nStb
 *...     Find the coset representatives
-         iCoSet(0,nsAtom) = 0      ! Put in the unit operator
+         iCoSet(0,SIZE(Coor,2)) = 0      ! Put in the unit operator
          nCoSet = 1
-         Do iIrrep = 1, nSym-1
+         Do iIrrep = 1, nIrrep-1
             itest=iAnd(iChxyz,iOper(iIrrep))
             Same=.False.
             Do jCoSet = 0, nCoSet-1
@@ -387,14 +253,14 @@ C           NADC= .False. ! for debugging
                iCoSet(nCoSet-1,isAtom) = iOper(iIrrep)
             End If
          End Do
-         If (nSym/nStb.ne.nCoSet) Then
+         If (nIrrep/nStb.ne.nCoSet) Then
             Call WarningMessage(2,' Error while doing cosets.')
             Call Abend()
          End If
          Do 611 i = 1, 3
             iComp = 2**(i-1)
             Call ICopy(nCoSet,[0],0,iAdd,1)
-            Do 640 iIrrep = 0, nSym-1
+            Do 640 iIrrep = 0, nIrrep-1
 *...           find the stabilizer index
                iTest=iAnd(iChxyz,iOper(iIrrep))
                n=-1
@@ -406,13 +272,13 @@ C           NADC= .False. ! for debugging
                   Call WarningMessage(2,' Error finding coset element')
                   Call Abend()
                End If
-               iAdd(n) = iAdd(n) + iPrmt(iOper(iIrrep),iComp)
+               iAdd(n) = iAdd(n) + jPrmt(iAnd(iOper(iIrrep),iComp))
  640        Continue
             Do 645 jCoSet = 0, nCoSet-1
                If (iAdd(jCoSet).eq.0) Go To 611
  645        Continue
             nDimbc = nDimbc + 1
-            Smmtrc(3*(isAtom-1)+i)=.True.
+            Smmtrc(i,isAtom)=.True.
  611     Continue
  610  Continue
 *                                                                      *
@@ -420,53 +286,46 @@ C           NADC= .False. ! for debugging
 *                                                                      *
 *     Transform charges to masses (C=12)
 *
-      ii = ipCM
-      Call GetMem('Mass','Allo','Real',ip_xMass,nsAtom)
-      Call Get_Mass(Work(ip_xMass),nsAtom)
-*     Call RecPrt(' Charges',' ',Work(ipCM),nsAtom,1)
-      Call GetMem('ANr','Allo','Inte',ipANr,nsAtom)
-      jj = ipANr
-      Do 110 isAtom = 1, nsAtom
-         ind = Int(Work(ii))
+      Call mma_allocate(dMass,SIZE(Coor,2),Label='dMass')
+      Call mma_allocate(xMass,SIZE(Coor,2),Label='xMass')
+      Call Get_Mass(xMass,SIZE(Coor,2))
+*     Call RecPrt(' Charges',' ',Q_nuclear,SIZE(Coor,2),1)
+      Call mma_allocate(ANr,SIZE(Coor,2),Label='ANr')
+      Do isAtom = 1, SIZE(Coor,2)
+         ind = Int(Q_nuclear(isAtom))
          If (ind.le.0) Then
-*        If (ind.eq.0) Then
-*           Work(ii) = Zero
-*        Else If (ind.eq.-1) Then
-*           Work(ii) = 1.0D99
-            Work(ii) = 1.0D-10
+            dMass(isAtom) = 1.0D-10
          Else
-            Work(ii) = Work(ip_xMass+isAtom-1)
+            dMass(isAtom) = xMass(isAtom)
          End If
-         iWork(jj)=ind
-         ii = ii + 1
-         jj = jj + 1
- 110  Continue
-      Call GetMem('Mass','Free','Real',ip_xMass,nsAtom)
+         ANr(isAtom)=ind
+      End Do
+      Call mma_deallocate(xMass)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*-----Compute the multiplicities of the cartesian coordinates.
+*-----Compute the multiplicities of the cartesian coordinates and the
+*     total number of atoms.
 *
       mTtAtm=0
-      Do 4100 isAtom = 1, nsAtom
-         iOff = 3*(isAtom-1) + ipCoor
-         mTtAtm=mTtAtm+iDeg(Work(iOff),iOper,nSym)
-         tmp = DBLE(iDeg(Work(iOff),iOper,nSym))
-         i=(isAtom-1)*3+1
-         Degen(i)=tmp
-         i=(isAtom-1)*3+2
-         Degen(i)=tmp
-         i=(isAtom-1)*3+3
-         Degen(i)=tmp
- 4100 Continue
-*     Call RecPrt('Degen',' ',Degen,1,3*nsAtom)
+      Call mma_Allocate(Degen,3,SIZE(Coor,2),Label='Degen')
+      Do isAtom = 1, SIZE(Coor,2)
+         mTtAtm=mTtAtm+iDeg(Coor(:,isAtom))
+         tmp = DBLE(iDeg(Coor(:,isAtom)))
+         Do i = 1, 3
+            Degen(i,isAtom)=tmp
+         End Do
+      End Do
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Degen',' ',Degen,3,SIZE(Coor,2))
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Call qpg_dArray('Transverse',lRP,nRP)
 *     If (lRP) Then
-*        Call Allocate_Work(ipR12,nRP)
-*        Call Get_dArray('Transverse',Work(ipR12),nRP)
+*        Call mma_allocate(R12,3,nRP/3,Label='R12')
+*        Call Get_dArray('Transverse',R12,nRP)
 *     End If
 *                                                                      *
 ************************************************************************
@@ -476,29 +335,19 @@ C           NADC= .False. ! for debugging
 *
       If (jPrint.ge.99) Call
      &     Prlist('Symmetry Distinct Nuclear Coordinates / Bohr',
-     &                   AtomLbl,nsAtom,Work(ipCoor),3,nsAtom)
-      LWrite = .False.
-      If (jPrint.ge.99) lWrite=.True.
-      Call CofMss(Work(ipCoor),Work(ipCM),iOper,nSym,
-     &            nsAtom,LWrite,cMass,iSym)
-      LWrite = .False.
+     &                   AtomLbl,SIZE(Coor,2),Coor,3,SIZE(Coor,2))
       If (jPrint.ge.99) Call
      &     PrList('Symmetry Distinct Nuclear Forces / au',
-     &                   AtomLbl,nsAtom,Work(ipGrd),3,nsAtom)
+     &                   AtomLbl,SIZE(Coor,2),Grd,3,SIZE(Coor,2))
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      ip_B=ip_Dummy
-      ip_dB=ip_Dummy
-      ip_iB=ip_iDummy
-      ip_idB=ip_iDummy
-      ip_nqB=ip_iDummy
       mB_Tot=0
       mdB_Tot=0
       mq=0
+      Force_dB=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Init')
       Return
       End

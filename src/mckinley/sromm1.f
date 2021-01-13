@@ -24,8 +24,7 @@
 *                                                                      *
 ************************************************************************
 *
-#include "itmax.fh"
-#include "info.fh"
+      use Basis_Info, only: dbsc, nCnttp, Shells
 *
       nElem(i) = (i+1)*(i+2)/2
 *
@@ -33,10 +32,11 @@
       ld=1
       MmSroG = 0
       Do 1960 iCnttp = 1, nCnttp
-         If (.Not.ECP(iCnttp)) Go To 1960
-         Do 1966 iAng = 0, nSro_Shells(iCnttp)-1
-            iShll = ipSro(iCnttp) + iAng
-            If (nExp(iShll).eq.0) Go To 1966
+         If (.Not.dbsc(iCnttp)%ECP) Go To 1960
+         Do 1966 iAng = 0, dbsc(iCnttp)%nSRO-1
+            iShll = dbsc(iCnttp)%iSRO + iAng
+            nExpi=Shells(iShll)%nExp
+            If (nExpi.eq.0) Go To 1966
 *
             ip = 0
 
@@ -44,10 +44,10 @@
             ncb = nElem(iAng)*nElem(lb)
 
             ip=ip+6*nelem(la)*nelem(lb) ! final
-            ip=ip+4*nac*nExp(ishll) ! FA1
-            ip=ip+4*ncb*nExp(ishll) !FB1
-            ip=ip+nexp(ishll)* nExp(ishll) !Tmp core
-            ip=ip+nexp(ishll) !Tmp in sro
+            ip=ip+4*nac*nExpi  ! FA1
+            ip=ip+4*ncb*nExpi  !FB1
+            ip=ip+nExpi* nExpi !Tmp core
+            ip=ip+nExpi        !Tmp in sro
 
             nHer = (la+1+iAng+1+ld)/2
             nOrder = Max(nHer,nOrder)
@@ -59,7 +59,7 @@
             icoreb=6+3*nHer*(lb+1+ld)+3*nHer*(iAng+1)+
      &           3*nHer*(lr+1)+3*(lb+1+ld)*(iAng+1)*(lr+1)+1
 
-            icores = MAX(icoreb,iacore)*nExp(ishll)
+            icores = MAX(icoreb,iacore)*nExpi
 
             MmSroG = Max(MmSroG,ip+icores)
 *

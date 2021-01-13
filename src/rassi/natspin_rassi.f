@@ -28,7 +28,6 @@
 
       DIMENSION Dummy(1),iDummy(7,8)
 
-      Call qEnter('NATSPIN')
 C ALLOCATE WORKSPACE AREAS.
       NSZZ=NBTRI
       NVEC=NBSQ
@@ -199,7 +198,6 @@ C SSORB.1, SSORB.2, ...
           ENDIF
           ISTOCC=ISTOCC+NB
         END DO
-        IFOCC=1
         LuxxVec=50
         LuxxVec=isfreeunit(LuxxVec)
         CALL WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,
@@ -217,6 +215,5 @@ C End of very long loop over eigenstates KEIG.
       CALL GETMEM('VEC2  ','FREE','REAL',LVEC2,NVEC2)
       CALL GETMEM('SCR   ','FREE','REAL',LSCR,NSCR)
       CALL GETMEM('EIG   ','FREE','REAL',LEIG,NEIG)
-      Call qExit('NATSPIN')
       RETURN
       END

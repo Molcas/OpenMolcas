@@ -39,10 +39,9 @@
 ccccccccccccccccccccccccccccccccccccccc
 c     iPrint = 99
 ccccccccccccccccccccccccccccccccccccccc
-      Call QEnter('Radlc')
       Result=Zero
 *
-***********************************************************************
+************************************************************************
 *
 *
        Do 150 ir=0,lsum
@@ -150,7 +149,7 @@ C           End If
 250     continue
 150    continue
 *
-***********************************************************************
+************************************************************************
 *
 *
       If (iPrint.ge.99) Then
@@ -159,6 +158,5 @@ C           End If
          Call RecPrt(Label,' ',Rnr(1,0),nZeta,lsum+1)
       End If
 *
-      Call QExit('Radlc')
       Return
       End

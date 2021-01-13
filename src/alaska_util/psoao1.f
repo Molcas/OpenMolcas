@@ -12,7 +12,7 @@
 *               1990, IBM                                              *
 ************************************************************************
       SubRoutine PSOAO1(nSO,MemPrm,MemMax,
-     &                            iAnga, iCmpa, iShela, iFnc,
+     &                            iAnga, iCmpa,  iAO,     iFnc,
      &                            iBas,  iBsInc, jBas,  jBsInc,
      &                            kBas,  kBsInc, lBas,  lBsInc,
      &                            iPrim, iPrInc, jPrim, jPrInc,
@@ -35,13 +35,6 @@
 *          3. Terminate run telling job max and min of additional      *
 *             memory needed to perform the calculation.                *
 *                                                                      *
-* Called from: Drvg1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Change                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -49,29 +42,25 @@
 *             of Lund, SWEDEN.                                         *
 *             Modified to first order derivatives. January '92         *
 ************************************************************************
+      use aces_stuff, only: nGamma, Gamma_On
+      use PSO_Stuff
+      use SOAO_Info, only: iAOtSO
+      use Temporary_parameters, only: force_part_c, force_part_p
+      use Sizes_of_Seward, only: S
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "lCache.fh"
 #include "pstat.fh"
-#include "pso.fh"
-#include "aces_gamma.fh"
       Integer   iAnga(4), iCmpa(4), nPam(4,0:7), iiBas(4),
-     &          iShela(4), iFnc(4)
+     &          iFnc(4), iAO(4)
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
-      Integer   iTwoj(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
 *
 *     Statement function to compute canonical index
 *
       nElem(i) = (i+1)*(i+2)/2
 *
-      iRout = 10
-      iPrint = nPrint(iRout)
-*     Call qEnter('PSOAO1')
       la = iAnga(1)
       lb = iAnga(2)
       lc = iAnga(3)
@@ -105,7 +94,6 @@
       iPrInc = iPrim
       kPrInc = kPrim
 *
-*     Call GetMem(' ','MAX ','REAL',iDum,MemMax)
  999  Continue
       QjPrim = .False.
       QlPrim = .True.
@@ -139,8 +127,7 @@
             nTmp1= 0
             Do j = 0, nIrrep-1
                Do i1 = 1, iCmpa(jPam)
-                  If (iAnd(IrrCmp(IndS(iShela(jPam))+i1),
-     &                iTwoj(j)).ne.0) Then
+                  If (iAOtSO(iAO(jPam)+i1,j)>0) Then
                       nPam(jPam,j) = nPam(jPam,j) + iiBas(jPam)
                       nTmp1= nTmp1+ iiBas(jPam)
                       iTmp1= iTmp1+ 1
@@ -160,7 +147,7 @@
          nFac = 0
          nTmp2 = 0
       End If
-      MemAux0= MemPSO + MemScr + nFac*nDim + nTmp2 + 4
+      MemAux0= MemPSO + MemScr + nFac*S%nDim + nTmp2 + 4
       If (Mem1+1+MemAux0.gt.Mem0) Then
          MaxReq=Max(MaxReq,Mem1+1+MemAux0-Mem0)
          QjPrim = .False.
@@ -182,7 +169,7 @@
             Write (6,'(2I3,L1,2I3,L1)')
      &            jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim
             Write (6,*) MemMax,Mem0,Mem1,MemAux0+1
-            Write (6,*) MemPSO,MemScr,4*nDim,nTmp2+4
+            Write (6,*) MemPSO,MemScr,4*S%nDim,nTmp2+4
             Call Abend()
          End If
          Go To 999
@@ -212,8 +199,7 @@
             nTmp1= 0
             Do j = 0, nIrrep-1
                Do i1 = 1, iCmpa(jPam)
-                  If (iAnd(IrrCmp(IndS(iShela(jPam))+i1),
-     &                iTwoj(j)).ne.0) Then
+                  If (iAOtSO(iAO(jPam)+i1,j)>0) Then
                       nTmp1= nTmp1+ iiBas(jPam)
                   End If
                End Do
@@ -337,7 +323,6 @@
       Mem0 = Mem0 - Mem3 - 1
       MinXtr = Min(MinXtr,Mem0)
 *
-      MemSum=Mem1+Mem2+Mem3
       Mem2 = Mem2 + Mem3
 *
       ipMem2 = ipMem1 + Mem1
@@ -350,7 +335,5 @@
       q2 = q2 + DBLE(jPrInc)/DBLE(jPrim)
       q3 = q3 + DBLE(kPrInc)/DBLE(kPrim)
       q4 = q4 + DBLE(lPrInc)/DBLE(lPrim)
-*     Call GetMem('PSOAO1','CHECK','REAL',iDum,iDum)
-*     Call qExit('PSOAO1')
       Return
       End

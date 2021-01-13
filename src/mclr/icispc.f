@@ -11,6 +11,7 @@
 * Copyright (C) 1990, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE ICISPC(MNRS10,MXRS30,IPRNT)
+      Use Str_Info
 *
 * Obtain internal CI spaces relevant for MRSDCI
 *       /STRINP/+/LUCINP/ = > /CICISP/
@@ -36,7 +37,6 @@
 *./LUCINP : EXTSPC is used
 #include "detdim.fh"
 *./STRINP/
-#include "strinp_mclr.fh"
 */ORBINP/
 #include "orbinp_mclr.fh"
 * ====================
@@ -55,7 +55,6 @@
 * obtained by (IEX-1) fold internal excitation , with a NAEL + DELTAA
 * alpha electrons and  NBEL + DELTAB beta electrons
 *
-*     Call qEnter('ICISPC')
 *
       NTEST = 00000
       NTEST = MAX(NTEST,IPRNT)
@@ -75,14 +74,16 @@
 * EAW
 *. Number and distribution of electrons in each space
       DO 100 IEX = 1, 3
-      DO 100 IDA = -4,2
-      DO 100 IDB = -4,2
+      DO 101 IDA = -4,2
+      DO 102 IDB = -4,2
         IF(IRCI(IEX,IDA+5,IDB+5).NE.0) THEN
            ICI = IRCI(IEX,IDA+5,IDB+5)
            NAELCI(ICI) = NELEC(IASTFI(ICI))
            NBELCI(ICI) = NELEC(IBSTFI(ICI))
            NELCI(ICI) = NAELCI(ICI)+NBELCI(ICI)
         END IF
+102   CONTINUE
+101   CONTINUE
 100   CONTINUE
 *
 *. Default max in RAS1 and min in RAS3
@@ -105,7 +106,6 @@
 1020    CONTINUE
       END IF
 *
-*     Call qExit('ICISPC')
 *
       RETURN
       END

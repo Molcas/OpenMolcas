@@ -18,12 +18,6 @@
 * Object: compute the arguments for the reduced list of integrals which*
 *         are used in prescreening.                                    *
 *                                                                      *
-* Called from: Rys                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -35,10 +29,9 @@
       Real*8 Zeta(nT), P(nT,3), rKapab(nT), T(nT), Fact(nT),
      &       ZEInv(nT)
 *
+#ifdef _DEBUGPRINT_
       iRout = 244
       iPrint = nPrint(iRout)
-*
-#ifdef _DEBUG_
       If (iPrint.ge.99) Then
          Call RecPrt(' Zeta in TERIS',' ',Zeta,nT,1)
          Call RecPrt(' P in TERIS',' ',P,nT,3)
@@ -54,7 +47,7 @@
          Fact(iT) =  rKapab(iT) **2 * Sqrt(tmp)
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt('In TERIS: Tvalue',' ',T,nT,1)
          Call RecPrt('In TERIS: Fact  ',' ',Fact,nT,1)

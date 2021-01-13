@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine intchk_cvb(iarr,nmax,nread,ifc,a,lflag)
       implicit real*8 (a-h,o-z)
@@ -32,7 +33,8 @@ c 'ALL'
         if(lflag.eq.-1)then
           nread=nmax
           do 100 i=1,nmax
-100       iarr(i)=i
+          iarr(i)=i
+100       continue
         else
           nread=0
           lf=1-lflag
@@ -63,7 +65,8 @@ c 'TO'
         endif
         do 150 i=ifrom+1,ito(1)
         nread=nread+1
-150     iarr(nread)=i
+        iarr(nread)=i
+150     continue
       else
         call int_cvb(iarr(1+nread),nmax-nread,nr,ifc)
         if(nread.gt.0)lf=lflag

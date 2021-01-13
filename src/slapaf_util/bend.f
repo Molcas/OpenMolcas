@@ -25,7 +25,6 @@
 *                                                                      *
 *
 #ifdef _TIME_
-      Call QEnter('Bend')
 #endif
 *
       mCent=2
@@ -60,13 +59,11 @@
       If (Fir.lt.1.0d-13) Then
          Fir=Zero
 #ifdef _TIME_
-         Call QExit('Bend')
 #endif
          Return
       Else If (Abs(Fir-Pi).lt.1.0d-13) Then
          Fir=Pi
 #ifdef _TIME_
-         Call QExit('Bend')
 #endif
          Return
       End If
@@ -145,7 +142,6 @@
       End If
 *
 #ifdef _TIME_
-      Call QExit('Bend')
 #endif
       Return
       End

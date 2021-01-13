@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine seths_cvb(arr,n)
       implicit real*8(a-h,o-z)
@@ -17,8 +18,10 @@
       call seth_cvb([n],1)
       lenarr=len(arr(1))
       do 100 i=1,n
-      do 100 j=1,lenarr
-100   call seth_cvb([ichar(arr(i)(j:j))],1)
+      do 101 j=1,lenarr
+      call seth_cvb([ichar(arr(i)(j:j))],1)
+101   continue
+100   continue
       return
       end
 
@@ -30,9 +33,11 @@
       n=iaux(1)
       lenarr=len(arr(1))
       do 200 i=1,n
-      do 200 j=1,lenarr
+      do 201 j=1,lenarr
       call geth_cvb(iaux,1)
       iret=iaux(1)
-200   arr(i)(j:j)=char(iret)
+      arr(i)(j:j)=char(iret)
+201   continue
+200   continue
       return
       end

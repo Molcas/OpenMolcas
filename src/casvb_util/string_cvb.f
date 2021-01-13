@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine string_cvb(arr,nmax,nread,ifc)
       implicit real*8 (a-h,o-z)
@@ -38,7 +39,8 @@ c  Treat first field differently
       call rdstring_cvb(string,ierr)
       if(ierr.gt.0)goto 1000
       arr(i)=string
-100   nread=nread+1
+      nread=nread+1
+100   continue
       goto 2000
 1000  call pushfield_cvb()
 2000  continue

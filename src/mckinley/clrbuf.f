@@ -28,25 +28,25 @@
      &                  iuvwx,IfG,n8,ltri,moip,nAcO,
      &                  rmoin,nmoin,ntemptot,Buffer,c,nop,din,dan,
      &                  new_fock)
-***********************************************************************
-*                                                                     *
-*       Called from: Twoel                                            *
-*       takes care of the integrals                                   *
-*       integrals -> fckmatrix,MO                                     *
-*       in the near feature a disk based version                      *
-*                                                                     *
-*       Calling:   CntrDens : Gets the indexes for d1                 *
-*                  MkFck : Add up the integrals on the Fock Matrix    *
-*                                                                     *
-*       Author: Anders Bernhardsson, Theoretical Chemistry,           *
-*               University of Lund, Sweden, June '95                  *
-***********************************************************************
+************************************************************************
+*                                                                      *
+*       Called from: Twoel                                             *
+*       takes care of the integrals                                    *
+*       integrals -> fckmatrix,MO                                      *
+*       in the near feature a disk based version                       *
+*                                                                      *
+*       Calling:   CntrDens : Gets the indexes for d1                  *
+*                  MkFck : Add up the integrals on the Fock Matrix     *
+*                                                                      *
+*       Author: Anders Bernhardsson, Theoretical Chemistry,            *
+*               University of Lund, Sweden, June '95                   *
+************************************************************************
       use Real_Spherical
+      use pso_stuff
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "pso.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "buffer.fh"
@@ -55,8 +55,8 @@
       Integer iAnga(4), iShll(4),iShell(4),jShell(4),
      &        jOp(6), iCmp(4),icmpa(4),
      &        nop(4),Index(3,4),iuvwx(4),
-     &        moip(0:nIrrep-1),
-     &        IndGrd(3,4,0:nIrrep-1),iAO(4),iAOst(4)
+     &        moip(0:7),
+     &        IndGrd(3,4,0:7),iAO(4),iAOst(4)
       Real*8 Dij1(mDij,nDij),Dkl1(mDkl,nDkl),
      &       Dik1(mDik,nDik),Dil1(mDil,nDil),
      &       Djk1(mDjk,nDjk),Djl1(mDjl,nDjl),

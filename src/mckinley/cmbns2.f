@@ -17,18 +17,10 @@
 *                                                                      *
 * Object: compute the 2nd derivative  of the overlap matrix.           *
 *                                                                      *
-* Called from: OvrHss                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iChTbl
       Implicit Real*8 (A-H,O-Z)
-c#include "print.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
      &       Zeta(nZeta), rKappa(nZeta), Beta(nZeta),
@@ -51,10 +43,8 @@ c#include "print.fh"
 *EAW 970912     ixyz=idLoc(DAO(1,1,1))
 c     iRout = 134
 c     iPrint = nPrint(iRout)
-c     Call qEnter('CmbnS2')
       iStb(0)=iu
       iStb(1)=iv
-      iQ = 1
 *     Call GetMem(' Enter CmbnS2','LIST','REAL',iDum,iDum)
 *
       exp32 = -Three/Two
@@ -70,14 +60,14 @@ c     End If
       Do 10 iax = 0, la
          ia(1)=iax
          iyaMax=la-ia(1)
-      Do 10 ibx = 0, lb
+      Do 11 ibx = 0, lb
          ib(1)=ibx
          iybMax=lb-ib(1)
          Do 20 iay = 0, iyaMax
             ia(2)=iay
             ia(3) = la-ia(2)-ia(1)
             ipa= Ind(la,ia(1),ia(3))
-         Do 20 iby = 0, iybMax
+         Do 21 iby = 0, iybMax
             ib(2)=iby
           ib(3) = lb-ib(2)-ib(1)
           ipb= Ind(lb,ib(1),ib(3))
@@ -162,7 +152,9 @@ c     End If
                 End If
  52         Continue
  56         Continue
+ 21      Continue
  20      Continue
+ 11   Continue
  10   Continue
 
 *
@@ -231,7 +223,6 @@ c     End If
  90   Continue
 *
 *     Call GetMem(' Exit CmbnS2','LIST','REAL',iDum,iDum)
-c     Call qExit('CmbnS2')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Beta)

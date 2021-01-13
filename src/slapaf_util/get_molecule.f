@@ -8,37 +8,31 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Get_Molecule(ipCM,ipCoor,ipGrd,AtomLbl,nsAtom,mxdc)
+      Subroutine Get_Molecule()
+      use Slapaf_Info, only: Q_nuclear, Coor, Grd, Weights, AtomLbl
       Implicit Real*8 (a-h,o-z)
 #include "sbs.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "weighting.fh"
 #include "Molcas.fh"
-      Character*(LENIN) AtomLbl(mxdc)
       Logical TransVar, RotVar, Found
       Integer Columbus
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('Get_Molecule')
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Read initial data
 *
       Call Get_iScalar('Unique atoms',nsAtom)
-      If (nsAtom.gt.mxdc) Then
-         Call WarningMessage(2,'Init: nsAtom.gt.mxdc')
-         Write (6,*) 'nsAtom,mxdc=',nsAtom,mxdc
-         Call Abend()
-      End If
 *
-      Call Allocate_Work(ipCoor,3*nsAtom)
-      Call Get_dArray('Unique Coordinates',Work(ipCoor),3*nsAtom)
+      Call mma_allocate(Coor,3,nsAtom,Label='Coor')
+      Call Get_dArray('Unique Coordinates',Coor,3*nsAtom)
 *
-      Call Allocate_Work(ipCM  ,nsAtom)
-      Call Get_dArray('Nuclear charge',Work(ipCM),nsAtom)
+      Call mma_allocate(Q_nuclear,nsAtom)
+      Call Get_dArray('Nuclear charge',Q_nuclear,nsAtom)
 *
       Call Get_iScalar('Grad ready',iGO)
       iJustGrad = iAnd(iGO, 2**0)
@@ -46,7 +40,7 @@
 ************************************************************************
 *                                                                      *
 *     Allocate gradient (it will be read later)
-*     (This should eventually be removed, as ipGrd is unused...)
+*     (This should eventually be removed, as Grd is unused...)
 *
       Call Get_iScalar('Columbus',columbus)
       If ((iJustGrad.eq.1).and.(columbus.eq.1)) Then
@@ -55,22 +49,23 @@
 *
          Call Get_iScalar('ColGradMode',iMode)
          If (iMode.eq.0) Then
-            Call Get_Grad(ipGrd,Length)
+            Call mma_allocate(Grd,3,nsAtom,Label='Grd')
+            Call Get_Grad(Grd,3*nsAtom)
          Else If (iMode.le.3) Then
             Call qpg_dArray('Grad State1',Found,Length)
             If (.not.Found .or. Length.eq.0) Then
                Call SysAbendmsg('Get_Molecule','Did not find:',
      &                          'Grad State1')
             End If
-            Call GetMem('Grad','Allo','Real',ipGrd,Length)
-            Call Get_dArray('Grad State1',Work(ipGrd),Length)
+            If ( length.ne.3*nsAtom ) Then
+               Call WarningMessage(2,'Init: length.ne.3*nsAtom')
+               Write (6,*) 'Grad'
+               Write (6,*) 'length,nsAtom=',length,nsAtom
+               Call Abend()
+            End If
+            Call mma_allocate(Grd,3,nsAtom,Label='Grd')
+            Call Get_dArray('Grad State1',Grd,3*nsAtom)
 *
-         End If
-         If ( length.ne.3*nsAtom ) Then
-            Call WarningMessage(2,'Init: length.ne.3*nsAtom')
-            Write (6,*) 'Grad'
-            Write (6,*) 'length,nsAtom=',length,nsAtom
-            Call Abend()
          End If
          iJustGrad = 0
          iGO = iOr(iGO,iJustGrad)
@@ -79,10 +74,11 @@
 *
 *        M mode
 *
-         Call GetMem('GRAD','Allo','Real',ipGrd,3*nsAtom)
-         Call FZero(Work(ipGrd),3*nsAtom)
+         Call mma_allocate(Grd,3,nsAtom,Label='Grd')
+         Grd(:,:)=Zero
       End If
 
+      Call mma_allocate(AtomLbl,nsAtom,Label='AtomLbl')
       Call Get_cArray('Unique Atom Names',AtomLbl,LENIN*nsAtom)
 *                                                                      *
 ************************************************************************
@@ -109,8 +105,8 @@
       If (Found.And.(nData.ge.nsAtom)) Then
 *        The weights array length is actually the total number of atoms,
 *        not just symmetry-unique, but the symmetry-unique ones are first
-         Call GetMem('Weights','Allo','Real',ipWeights,nData)
-         Call Get_dArray('Weights',Work(ipWeights),nData)
+         Call mma_allocate(Weights,nData,Label='Weights')
+         Call Get_dArray('Weights',Weights,nData)
       Else
          Call SysAbendMsg('Get_Molecule',
      &        'No or wrong weights were found in the RUNFILE.','')
@@ -118,6 +114,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Get_Molecule')
       Return
       End

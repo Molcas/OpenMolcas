@@ -79,12 +79,11 @@ CONTAINS
       TYPE(box_mm_paras), POINTER       :: paras_out(:)
 
       TYPE(box_mm_paras) :: tmp_paras(SIZE(paras_in))
-      INTEGER(INTK)      :: i, l_down, l_up, box(3), foo
+      INTEGER(INTK)      :: i, l_up, box(3), foo
       INTEGER(INTK)      :: tmp_map(SIZE(paras_in))
       REAL(REALK)        :: grain, grain_up
 
       ! build tmp array for unpacked paras at next level up
-      l_down = level+1
       l_up = level-1
       grain = fmm_grain(scheme,level)
       grain_up = fmm_grain(scheme,l_up)

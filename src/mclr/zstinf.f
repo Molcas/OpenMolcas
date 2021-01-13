@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE ZSTINF_MCLR(IPRNT)
+      use Str_Info
 *
 * Set up common block /STINF/ from information in /STINP/
 *
@@ -41,8 +42,6 @@
 *
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
-#include "strinp_mclr.fh"
-#include "stinf_mclr.fh"
 *
 *
       NTEST = 0000
@@ -50,7 +49,7 @@
 * ******************************************************************
 * Mappings between strings with the same type ISTTP index , +/- 1 el
 * ******************************************************************
-      Call iCopy(2*MXPSTT,[0],0,ISTAC,1)
+      ISTAC(:,:)=0
       DO 90 ITYP = 1, NSTTYP-1
         IF(NELEC(ITYP+1).EQ.NELEC(ITYP)-1) THEN
           ISTAC(ITYP,1) = ITYP+1
@@ -88,8 +87,8 @@
 * *****************************************************************
 *. Mappings between strings containing the same number of electrons
 * *****************************************************************
-      Call iCopy(MXPSTT,[0],0,INUMAP,1)
-      Call iCopy(MXPSTT,[0],0,INDMAP,1)
+      INUMAP(:)=0
+      INDMAP(:)=0
 *. Mapping to and from zero order space
 *     Note: some lines are commented out here since IARTP and IBRTP
 *           have never been defined. (R. Lindh 2006)
@@ -101,12 +100,12 @@ C     INUMAP(IBRTP(3,5)) = IBZTP
 C     IF(IBRTP(3,4).NE.0)  INUMAP(IBRTP(3,4)) = IBZTP+1
 C     IF(IBRTP(3,3).NE.0)  INUMAP(IBRTP(3,3)) = IBZTP+2
 *
-      NAEL = NELEC(IAZTP)
+C     NAEL = NELEC(IAZTP)
 C     INDMAP(IAZTP) = IARTP(3,5)
 C     IF(NAEL.GE.1) INDMAP(IAZTP+1) = IARTP(3,4)
 C     IF(NAEL.GE.2) INDMAP(IAZTP+2) = IARTP(3,3)
 *
-      NBEL = NELEC(IBZTP)
+C     NBEL = NELEC(IBZTP)
 C     INDMAP(IBZTP) = IBRTP(3,5)
 C     IF(NBEL.GE.1) INDMAP(IBZTP+1) = IBRTP(3,4)
 C     IF(NBEL.GE.2) INDMAP(IBZTP+2) = IBRTP(3,3)

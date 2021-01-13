@@ -26,7 +26,6 @@ C
       DIMENSION CSFVEC(*),DETVEC(*)
       DIMENSION DTOCMT(*),ICTSDT(*)
 
-      Call qEnter('CSDTVC')
 C
 C     To avoid compiler complaints
 C
@@ -127,7 +126,6 @@ C
         END IF
        END IF
 C
-      Call qExit('CSDTVC')
       RETURN
       END
 

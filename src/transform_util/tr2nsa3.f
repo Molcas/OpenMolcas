@@ -52,16 +52,12 @@ CPAM98     &              LMOR2,LMOS2,IAD13,ITP,ITQ,ITR,ITS
       Dimension X1(nX1),X2(nX2)
       Dimension PQRU(nPQRU),PQUS(nPQUS)
 
-      Call Qenter('tr2nsa3')
       NSYMP=NSYM*(NSYM+1)/2
       NOTU=NOCR*NOCS
       IF(ISR.EQ.ISS) NOTU=(NOCR**2+NOCR)/2
       NOUS=NOCR*NBS
       NORU=NBR*NOCS
-      icc  =NOP*NOQ*NOCR*NOCS
-      icxc1=NOP*NOCQ*NOR*NOCS
       icxc3=NOP*NOCQ*NOCR*NOS
-      icxc5=NOCP*NOQ*NOR*NOCS
       icxc7=NOCP*NOQ*NOCR*NOS
 c
 c Check for in core or out of core transformation
@@ -74,8 +70,6 @@ c      WRITE(*,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|US)',IPQMX1
        IAD1S=0
        CALL dDAFILE(LUHLF1,0,PQUS,IPQMX1,IAD1S)
       ENDIF
-      IAD1=0
-      IOUT1=0
 C     2. SORT OF PARTIALLY TRANSFORMED INTEGRALS (PQ|RU) ON UNIT LUHLF2
       IPQMX2=NBPQ
       IF(NBPQ*NORU.GT.LRUPQ) THEN
@@ -85,7 +79,6 @@ c      WRITE(*,*) 'OUT OF CORE SORT FOR INTEGRALS (PQ|RU)',IPQMX2
        CALL dDAFILE(LUHLF2,0,PQRU,IPQMX2,IAD2S)
       ENDIF
       IAD2=0
-      IOUT2=0
 *C     3. SORT OF PARTIALLY TRANSFORMED INTEGRALS (PQ|TU) ON UNIT LUHLF3
 *      IPQMX3=NBPQ
 *      IF(NBPQ*NOTU.GT.LTUPQ) THEN
@@ -294,7 +287,6 @@ c Sorting
            ITU=NOCR*(NT-1)+NU-1
            If(ISP.eq.ISR)ITU=(NT*NT-NT)/2+NU-1
            NAT=NAT+1
-        itst=LAS*ITU+NOQ*(IS-1)+NA
            PQRU(LAS*ITU+NOQ*(IS-1)+NA)=X2(NAT)
           Enddo
          Enddo
@@ -354,6 +346,5 @@ c End of Loop over t,u pair
       Endif
   200 Continue
 
-      CALL QEXIT('tr2nsa3')
       Return
       End

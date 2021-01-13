@@ -10,10 +10,10 @@
 *                                                                      *
 * Copyright (C) 1992,2007, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PGet2_RI3(iCmp,iShell,iBas,jBas,kBas,lBas,
+      SubRoutine PGet2_RI3(iCmp,iBas,jBas,kBas,lBas,
      &                  Shijij, iAO, iAOst, nijkl,PSO,nPSO,
      &                  DSO,DSSO,nDSO,ExFac,CoulFac,PMax,V_k,mV_k,
-     &                  ZpK,Thpkl,nSA,nAct)
+     &                  ZpK,nSA,nAct)
 ************************************************************************
 *  Object: to assemble the 2nd order density matrix of a SCF wave      *
 *          function from the 1st order density matrix.                 *
@@ -22,36 +22,28 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 *                                                                      *
 *             Modified for 3-center RI gradients, March 2007           *
-*                                                                      *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
+      use pso_stuff, only: lPSO, nnp, Thpkl, ipAorb
+      use Basis_Info, only: nBas, nBas_Aux
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
-#include "lundio.fh"
-#include "pso.fh"
 #include "print.fh"
 #include "exterm.fh"
       Real*8 PSO(nijkl,nPSO), DSO(nDSO,nSA), DSSO(nDSO), V_k(mV_k,nSA),
-     &       Thpkl(*),Zpk(*)
-      Integer iCmp(4), iShell(4), iAO(4), iAOst(4)
+     &       Zpk(*)
+      Integer iCmp(4), iAO(4), iAOst(4)
       Logical Shijij
 *     Local Array
       Integer jSym(0:7), kSym(0:7), lSym(0:7), nAct(0:7)
-      Integer iTwoj(0:7),nCumnnP(0:7),nCumnnP2(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
+      Integer nCumnnP(0:7),nCumnnP2(0:7)
 #include "ymnij.fh"
 *                                                                      *
 ************************************************************************
@@ -62,15 +54,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 39
-      iPrint = nPrint(iRout)
-*#define _DEBUG_
-#ifdef _DEBUG_
-      Call qEnter('PGET_RI3')
+#ifdef _DEBUGPRINT_
       iPrint=99
       If (iPrint.ge.99) Then
          iComp = 1
-         Call PrMtrx(' In PGET_RI3:DSO ',[iD0Lbl],iComp,[ipD0],Work)
+         Call PrMtrx(' In PGET_RI3:DSO ',[iD0Lbl],iComp,1,D0)
          Call RecPrt('V_K',' ',V_K,1,mV_K)
          Write (6,*)
          Write (6,*) 'Distribution of Ymnij'
@@ -117,8 +105,7 @@
       Do i2 = 1, iCmp(2)
          njSym = 0
          Do j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell(2))+i2),
-     &          iTwoj(j)).ne.0) Then
+           If (iAOtSO(iAO(2)+i2,j)>0) Then
                jSym(njSym) = j
                njSym = njSym + 1
             End If
@@ -126,8 +113,7 @@
          Do i3 = 1, iCmp(3)
             nkSym = 0
             Do 301 j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndS(iShell(3))+i3),
-     &             iTwoj(j)).ne.0) Then
+               If (iAOtSO(iAO(3)+i3,j)>0) Then
                   kSym(nkSym) = j
                   nkSym = nkSym + 1
                End If
@@ -135,8 +121,7 @@
             Do i4 = 1, iCmp(4)
                nlSym = 0
                Do 401 j = 0, nIrrep-1
-                  If (iAnd(IrrCmp(IndS(iShell(4))+i4),
-     &                 iTwoj(j)).ne.0) Then
+                  If (iAOtSO(iAO(4)+i4,j)>0) Then
                      lSym(nlSym) = j
                      nlSym = nlSym + 1
                   End If
@@ -358,13 +343,9 @@
                      Do iVec=1,nAVec
                        iMO1=1
                        iMO2=1
-                       iVec_=iVec
-                       fact=1.0d0
                        If (iVec.eq.2) iMO2=2
-                       If (iVec.eq.3) fact=2.0d0
                        If (iVec.eq.4) Then
                          iMO1=2
-                         iVec_=2
                        EndIf
 *
                        Do jAOj = 0, jBas-1
@@ -485,12 +466,11 @@
         Call Abend
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In PGET_RI3:PSO ',' ',PSO,nijkl,nPSO)
       End If
       Call GetMem(' Exit PGET_RI3','CHECK','REAL',iDum,iDum)
-      Call qExit('PGET_RI3')
 #endif
 
       Call CWTime(Cpu2,Wall2)

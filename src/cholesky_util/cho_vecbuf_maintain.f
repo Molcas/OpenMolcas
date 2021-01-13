@@ -42,7 +42,7 @@ C
       Parameter (SecNam = 'Cho_VecBuf_Maintain')
 
       Logical LocDbg
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Parameter (LocDbg = .true.)
 #else
       Parameter (LocDbg = .false.)
@@ -175,7 +175,7 @@ C           ----------------
                iOff2 = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,2)*(iVec-1) - 1
                iOff3 = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,3)*(iVec-1) - 1
                Do iRS2 = 1,nnBstR(iSym,2)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                   jRS3 = iRS3(iRS2)
                   If (jRS3.lt.1 .or. jRS3.gt.nnBstR(iSym,3)) Then
                      Call Cho_Quit('RS-2-RS map error in '//SecNam,104)
@@ -196,7 +196,7 @@ C     =====================
       Call Cho_Mem('CHVB.Read','MAX ','Real',ip_VRd,l_VRd)
       Do iSym = 1,nSym
          nDisk = NumCho(iSym) - nVec_in_Buf(iSym)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          If (nDisk .lt. 0) Then
             Call Cho_Quit('nDisk < 0 in '//SecNam,103)
          End If
@@ -265,7 +265,7 @@ C              --------------------------------------------------
                   End If
 
                   Do iRS2 = 1,nnBstR(iSym,2)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
                      jRS3 = iRS3(iRS2)
                      If (jRS3.lt.1 .or. jRS3.gt.nnBstR(iSym,3)) Then
                         Call Cho_Quit('RS-2-RS map error [2] in '

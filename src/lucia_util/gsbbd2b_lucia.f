@@ -78,8 +78,8 @@
 *
 *
 *
+      USE Para_Info, ONLY: MyRank, nProcs
       IMPLICIT REAL*8(A-H,O-Z)
-#include "para_info.fh"
 #include "WrkSpc.fh"
 #include "loff.fh"
 *. General input
@@ -100,7 +100,6 @@
 
       DIMENSION IAOC(*),JAOC(*),IBOC(*),JBOC(*)
 *
-      CALL QENTER('GSD2B')
 
       NTESTL = 000
       NTEST = MAX(NTESTL,NTESTG)
@@ -114,7 +113,6 @@
       !WRITE(6,*) ' MXPNGAS = ', MXPNGAS
       !WRITE(6,*) ' NSMOB = ', NSMOB
 
-      IROUTE = 3
 *
 *. Symmetry of allowed excitations
       IJSM = STSTSX(IASM,JASM)
@@ -133,7 +131,6 @@
 * Repeated allocation/deallocation inside ADSTN_GAS has been
 * outerlooped to here. KLOFFI added to call parameters of
 * ADSTN_GAS. PAM March 2006.
-      IDUM=1
       CALL GETMEM('KLOFFI','ALLO','REAL',KLOFFI,LOFFI)
       Call FZero(Work(KLOFFI),LOFFI)
 
@@ -143,7 +140,6 @@
         DO 1940 ISM = 1, NSMOB
           JSM = ADSXA(ISM,IJSM)
           IF(JSM.EQ.0) GOTO 1940
-          KAFRST = 1
           ntest=00 !yjma
           if(ntest.ge.1500) write(6,*) ' ISM JSM ', ISM,JSM
           IOFF = IOBPTS(ITYP,ISM)
@@ -281,7 +277,6 @@ C             COMPRS2LST(I1,XI1,N1,I2,XI2,N2,NKIN,NKOUT)
  9999 CONTINUE
 *
 *
-      CALL QEXIT('GSD2B')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN

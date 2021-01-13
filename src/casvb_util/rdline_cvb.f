@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine rdline_cvb(nfield)
       implicit real*8 (a-h,o-z)
@@ -65,13 +66,15 @@ c  Read full input line from file and make preparations :
 c  Check for "end-of-file" character sequence :
       do 300 ieof=1,neof
       ilength=len_trim_cvb(eof(ieof))
-300   if(line(1:ilength).eq.eof(ieof)(1:ilength))goto 200
+      if(line(1:ilength).eq.eof(ieof)(1:ilength))goto 200
+300   continue
 c  Comment strings (skip rest of line ) :
       indmin=lenline+1
       do 500 icom=1,ncomeol
       ind=index(line(1:lenline),comeol(icom)
      >  (1:len_trim_cvb(comeol(icom))))
-500   if(ind.ne.0)indmin=min(indmin,ind)
+      if(ind.ne.0)indmin=min(indmin,ind)
+500   continue
       lenline=len_trim_cvb(line(1:indmin-1))
       if(lenline.eq.0)goto 100
 c  Aliases :
@@ -102,7 +105,8 @@ c  Split into lines :
       nlold=nline
       nline=1
       do 700 ich=1,lenline
-700   if(ilv(ich).eq.1)nline=nline+1
+      if(ilv(ich).eq.1)nline=nline+1
+700   continue
 c  Split into fields :
       do 800 ieofield=1,neofield
       if=0
@@ -124,7 +128,8 @@ c  Eliminate field separators at end of lines:
         if(ihadchar.eq.0)ilv(ich)=0
         ilength=len_trim_cvb(eofield(ieofield))
         do 880 i=0,ilength-1
-880     line(i+ich:i+ich)=' '
+        line(i+ich:i+ich)=' '
+880     continue
         ihadchar=1
       else
         ihadchar=1
@@ -142,7 +147,8 @@ c  Also make sure line is not all empty :
       if(jline.eq.iline-1)ilinebeg=ich+1
       if(ilv(ich).eq.1)jline=jline+1
       if(jline.eq.iline+1.and.ilineend.eq.-1)ilineend=ich-1
-900   if(jline.eq.iline.and.ilv(ich).eq.2)nfield=nfield+1
+      if(jline.eq.iline.and.ilv(ich).eq.2)nfield=nfield+1
+900   continue
       if(iline.eq.1)ilinebeg=1
       if(ilineend.eq.-1)ilineend=lenline
 c  Go back and read a new line if this one is empty :
@@ -185,8 +191,9 @@ c1050  continue
         if(ich.eq.1)ifirst=1
 c  Special character strings to signify empty field ?
         do 1125 iempty=1,nempty
-1125    if(line(ifirst:jch-1).eq.empty(iempty)
+        if(line(ifirst:jch-1).eq.empty(iempty)
      >    (1:len_trim_cvb(empty(iempty))))goto 1130
+1125    continue
         if(debug)write(6,*)' Field=',line(ifirst:jch-1)
         if(ic.eq.1)then
           string=line(ifirst:jch-1)
@@ -256,7 +263,8 @@ C    >   (blankdelim.and.line(1:11).eq.'&CASVB &END')))goto 2100
 
       do 100 ich=1,len_trim_cvb(a)
       do 200 j=1,nallowed
-200   if(a(ich:ich).eq.allowedchars(j))goto 100
+      if(a(ich:ich).eq.allowedchars(j))goto 100
+200   continue
       isitanint_cvb=.false.
       return
 100   continue
@@ -273,7 +281,8 @@ C    >   (blankdelim.and.line(1:11).eq.'&CASVB &END')))goto 2100
 
       do 100 ich=1,len_trim_cvb(a)
       do 200 j=1,nallowed
-200   if(a(ich:ich).eq.allowedchars(j))goto 100
+      if(a(ich:ich).eq.allowedchars(j))goto 100
+200   continue
       isitareal_cvb=.false.
       return
 100   continue

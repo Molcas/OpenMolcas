@@ -31,14 +31,14 @@ C
 c----------------------------------------------------------------
 c   magnetization vectors:
       Integer            :: nDir,nDirZee
-      Real(kind=wp)      :: dirX(nDir), dirY(nDir), dirZ(nDir)
-      Real(kind=wp)      :: dir_weight(nDirZee,3)
+      Real(kind=8)      :: dirX(nDir), dirY(nDir), dirZ(nDir)
+      Real(kind=8)      :: dir_weight(nDirZee,3)
       Logical            :: compute_Mdir_vector, zeeman_energy
 c      common/MVL/ compute_Mdir_vector
 c      common/MZEL/ zeeman_energy
 c----------------------------------------------------------------
       Integer :: nss, nstate
-      Integer :: iprint,nt,nh,nk,mg,igsm,l,jEnd
+      Integer :: iprint,nt,nh,nk,mg,l,jEnd
       Integer :: nlanth,ndimcf,ldimcf,axisoption, i_OxStat
       Integer :: input_to_read,encut_definition,ncut,ntempmagn
       Integer :: ndirtot
@@ -47,19 +47,19 @@ c----------------------------------------------------------------
       Integer :: AngPoints
       Integer :: LUZee(nDirZee)
 
-      Real(kind=wp) :: tmin,tmax,hmin,hmax,t1,t2,zj,
+      Real(kind=8) :: tmin,tmax,hmin,hmax,t1,t2,zj,
      &                 tempmagn(nTempMagn), encut_rate
-      Real(kind=wp) :: texp(nT),chit_exp(nT)
-      Real(kind=wp) :: hexp(nH),magn_exp(nH,ntempmagn)
-      Real(kind=wp) :: zmagn(3,3),sum,tmp
-      Real(kind=wp) :: cryst(6),coord(3)
-      Real(kind=wp) :: column_check(3,3), row_check(3,3)
-      Real(kind=wp) :: check_dir_weight(nDirZee)
-      Real(kind=wp) :: zr(3,3),det_zmagn
-      Real(kind=wp) :: FindDetR
-      Real(kind=wp) :: Xfield
-      Real(kind=wp), intent(out) :: thrs
-      Real(kind=wp), intent(out) :: H_torq, T_torq
+      Real(kind=8) :: texp(nT),chit_exp(nT)
+      Real(kind=8) :: hexp(nH),magn_exp(nH,ntempmagn)
+      Real(kind=8) :: zmagn(3,3),sum,tmp
+      Real(kind=8) :: cryst(6),coord(3)
+      Real(kind=8) :: column_check(3,3), row_check(3,3)
+      Real(kind=8) :: check_dir_weight(nDirZee)
+      Real(kind=8) :: zr(3,3),det_zmagn
+      Real(kind=8) :: FindDetR
+      Real(kind=8) :: Xfield
+      Real(kind=8), intent(out) :: thrs
+      Real(kind=8), intent(out) :: H_torq, T_torq
 
       Logical :: hcheck,tcheck,poly_file
       Logical :: Ifrestart,Do_structure_abc
@@ -73,9 +73,9 @@ c----------------------------------------------------------------
       Logical, intent(out) :: m_paranoid
       Logical              :: doplot
 
-      Character(2)  :: cME,clanth(37)
-      Character(21) :: namefile_energy
-      Character(180):: input_file_name,tmpline,err_msg
+      Character(Len=2)  :: cME,clanth(37)
+      Character(Len=21) :: namefile_energy
+      Character(Len=180):: input_file_name,tmpline,err_msg
 
       External      :: FindDetR
 
@@ -89,12 +89,11 @@ c      COMMON/MAGNSUBR/ HMIN,HMAX
 c      COMMON/MAGNSUBL/ HINPUT
 
       Integer        :: I,LINENR,j
-      Character(280) :: LINE
+      Character(Len=280) :: LINE
 
 
       Logical :: DBG
 
-      Call qEnter('SA_readin')
       DBG=.false.
 C============ Some default settings=====================================
 c  variables in "mgrid.fh"
@@ -239,7 +238,6 @@ c      nTempMagn             = 1
       T1                    = 5.0_wp
       T2                    = 6.0_wp
       ZJ                    = 0.0_wp
-      IGSM                  = 1
       m_paranoid            =  .true.
       checkTMAG             =  .FALSE.
       compute_g_tensors     =  .FALSE.
@@ -374,7 +372,6 @@ C ------------------------------------------
         compute_g_tensors     =  .true.
         READ(5,*,Err=997) (NDIM(i),i=1,NMULT)
         IF(DBG) Write(6,*) 'MLTP: NDIM()=',(NDIM(i),i=1,NMULT)
-        IGSM=NDIM(1)
         LINENR=LINENR+2
         Go To 100
       End If
@@ -1308,7 +1305,7 @@ C-------------------------------------------
 
 200   continue
       If(IPRINT.gt.2) Then
-      Write(6,'(5X,A)') 'NO ERORR WAS LOCATED WHILE READING INPUT'
+      Write(6,'(5X,A)') 'NO ERROR WAS LOCATED WHILE READING INPUT'
       End If
 
 
@@ -1592,6 +1589,5 @@ C------ errors ------------------------------
 
 
  190  continue
-      Call qExit('SA_readin')
       Return
       End

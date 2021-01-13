@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine dirdiag_cvb(ddasonc,ddsol,
      >  ddres,ddres2upd,ddrestart,
@@ -121,7 +122,8 @@ c  *********************************************************************
         endif
 200     continue
       endif
-100   if(use_rhs)rhsp(ivres)=ddot_(n,c(1,ivres),1,rhs,1)
+      if(use_rhs)rhsp(ivres)=ddot_(n,c(1,ivres),1,rhs,1)
+100   continue
 
       iter=0
 c  MXITER max possible no of macro iterations, normally opt will skip
@@ -136,7 +138,8 @@ c  Ensure accurate orthogonalization :
         call schmidtd2_cvb(c,sxc,itdav-1,c(1,itdav),1,n)
         call ddproj_cvb(c(1,itdav),n)
         facn=dnrm2_(n,c(1,itdav),1)
-1300    if(abs(one-facn).lt.orththr)goto 1400
+        if(abs(one-facn).lt.orththr)goto 1400
+1300    continue
         write(6,*)' Not able to achieve orthonormality in max number',
      >    ' of attempts:',nortiter
         call abend_cvb()

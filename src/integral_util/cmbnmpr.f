@@ -12,18 +12,10 @@
 ************************************************************************
       SubRoutine CmbnMPr(Rnr,nZeta,la,lb,lr,Zeta,Final,nComp)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: MltInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: K.Pfingst                                                *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-      External gammat,gammaf
+*     External gammat,gammaf
 #include "print.fh"
 #include "real.fh"
 #include "rmat.fh"
@@ -41,17 +33,16 @@
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     iPrint = 99
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-*     Call QEnter('CmbnMP')
 *     Call GetMem(' Enter CmbnMP','LIST','REAL',iDum,iDum)
 *
       Do 10 ixa = 0, la
          iyaMax=la-ixa
-      Do 10 ixb = 0, lb
+      Do 11 ixb = 0, lb
          iybMax=lb-ixb
          Do 20 iya = 0, iyaMax
             iza = la-ixa-iya
             ipa= Ind(la,ixa,iza)
-         Do 20 iyb = 0, iybMax
+         Do 21 iyb = 0, iybMax
             izb = lb-ixb-iyb
             ipb= Ind(lb,ixb,izb)
             If (iPrint.ge.99) Then
@@ -83,11 +74,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 42             Continue
 41          Continue
 *
+21       Continue
 20       Continue
+11    Continue
 10    Continue
 *
 *     Call GetMem(' Exit CmbnMP','LIST','REAL',iDum,iDum)
-*     Call QExit('CmbnMP')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Zeta)

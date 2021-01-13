@@ -12,8 +12,9 @@
 *               1990, IBM                                              *
 ************************************************************************
       Subroutine Trnsps_Seward(ijCmp, iCmp, jCmp, iAng, jAng, iShll,
-     &           jShll, kOp, ijkl, ij, AOInt, Scrtch)
+     &                         jShll, kOp, ijkl, ij, AOInt, Scrtch)
 ************************************************************************
+*                                                                      *
 *  Object: to transpose the integrals in order to resolve the          *
 *          redundancy (faA,fbB)=(fcC,fdD). In this case both sides will*
 *          have the same DCR, i.e. (R)=(S). In this case we will only  *
@@ -29,23 +30,13 @@
 *          integrals in batch one and two. But after transposing the   *
 *          pair arguments we will achive that one to one correspondens.*
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              DGeTMI   (ESSL)                                         *
-*              DGeTMO   (ESSL)                                         *
-*              DScal    (ESSL)                                         *
-*              DCopy    (ESSL)                                         *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             May '90                                                  *
 ************************************************************************
+      use Basis_Info
+      use Real_Spherical, only: iSphCr
+      use Symmetry_Info, only: iChBas
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 AOInt(ijkl,ijCmp,ijCmp), Scrtch(ijkl,ijCmp,ijCmp)
@@ -54,9 +45,6 @@
 *
       iOff(ixyz)  = ixyz*(ixyz+1)*(ixyz+2)/6
 *
-      iRout = 67
-      iPrint = nPrint(iRout)
-*     Call qEnter('Trnsps')
 *     Call RecPrt(' In Trnsps: AOInt ',' ',AOInt,ijkl,ijCmp*ijCmp)
 *
 *     Change phase factor. This is only nessecary if T=/=E.
@@ -66,21 +54,21 @@
       jj = iOff(jAng)
       Do 10 i1 = 1, iCmp
        iChBs = iChBas(ii+i1)
-       If (Transf(iShll)) iChBs = iChBas(iSphCr(ii+i1))
+       If (Shells(iShll)%Transf) iChBs = iChBas(iSphCr(ii+i1))
        pa1T = DBLE(iPrmt(kOp,iChBs))
        Do 11 i2 = 1, jCmp
         jChBs = iChBas(jj+i2)
-        If (Transf(jShll)) jChBs = iChBas(iSphCr(jj+i2))
+        If (Shells(jShll)%Transf) jChBs = iChBas(iSphCr(jj+i2))
         pb1T = DBLE(iPrmt(kOp,jChBs))
         ij1 = iCmp*(i2-1)+i1
 *
         Do 12 i3 = 1, iCmp
          kChBs = iChBas(ii+i3)
-         If (Transf(iShll)) kChBs = iChBas(iSphCr(ii+i3))
+         If (Shells(iShll)%Transf) kChBs = iChBas(iSphCr(ii+i3))
          pa2T = DBLE(iPrmt(kOp,kChBs))
          Do 13 i4 = 1, jCmp
           lChBs = iChBas(jj+i4)
-          If (Transf(jShll)) lChBs = iChBas(iSphCr(jj+i4))
+          If (Shells(jShll)%Transf) lChBs = iChBas(iSphCr(jj+i4))
           pb2T = DBLE(iPrmt(kOp,lChBs))
           ij2 = iCmp*(i4-1)+i3
           Factor=pa1T*pb1T*pa2T*pb2T
@@ -108,6 +96,5 @@
 *
 *     Call RecPrt(' Exit Trnsps: AOInt ',' ',AOInt,ijkl,ijCmp*ijCmp)
 *     Call GetMem(' Exit Trnsps','CHECK','REAL',iDum,iDum)
-*     Call qExit('Trnsps')
       Return
       End

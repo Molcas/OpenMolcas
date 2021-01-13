@@ -40,7 +40,7 @@
 *> @param[in]     TUVX   Active 2-el integrals
 *> @param[in]     IFINAL Calculation status switch
 ************************************************************************
-      Subroutine CICtl(CMO,D,DS,P,PA,FI,D1I,D1A,TUVX,IFINAL)
+      Subroutine CICtl(CMO,D,DS,P,PA,FI,FA,D1I,D1A,TUVX,IFINAL)
 * ****************************************************************
 * history:                                                       *
 * updated to use determinant based CI-procedures                 *
@@ -55,13 +55,20 @@
       use qcmaquis_interface_cfg
       use qcmaquis_interface_wrapper
       use qcmaquis_interface_main, only: file_name_generator
+      use mh5, only: mh5_put_dset
+#endif
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset_array_real
 #endif
 
       Implicit Real* 8 (A-H,O-Z)
 
-      Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),D1I(*),D1A(*),
+      Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),
      &          TUVX(*)
       Logical Exist,Do_ESPF,l_casdft
+*JB   variables for state rotation on final states
+      Logical do_rotate
+*JB   end of variables for state rotation calculation
 
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -86,7 +93,7 @@
 #  include "raswfn.fh"
       real*8, allocatable :: density_square(:,:)
 #endif
-      Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
+#include "sxci.fh"
 
 #ifndef _DMRG_
       logical :: doDMRG = .false.
@@ -99,7 +106,6 @@
       Dimension rdum(1)
 
 *PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
-      Call qEnter('CICTL')
 C Local print level (if any)
       IPRLEV=IPRLOC(3)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -165,6 +171,8 @@ C Local print level (if any)
      &           KSDFT(1:5).eq.'TS12G'  .or.
      &           KSDFT(1:4).eq.'TPBE'    .or.
      &           KSDFT(1:5).eq.'FTPBE'   .or.
+     &           KSDFT(1:5).eq.'TOPBE'    .or.
+     &           KSDFT(1:6).eq.'FTOPBE'   .or.
      &           KSDFT(1:7).eq.'TREVPBE' .or.
      &           KSDFT(1:8).eq.'FTREVPBE'.or.
      &           KSDFT(1:6).eq.'FTLSDA'  .or.
@@ -509,8 +517,35 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
       iDisk = IADR15(4)
       jDisk = IADR15(3)
       IF (.not.DoSplitCAS) THEN
+*JB   Instead of RASSCF/RASCI energy, print out energy for rotated
+*JB   states
+       do_rotate=.False.
+       If (ifinal.eq.2) Then
+        IF(IXMSP.eq.1) THEN
+         CALL XMSRot(CMO,FI,FA)
+        End If
+        IF(ICMSP.eq.1) THEN
+         CALL XMSRot(CMO,FI,FA)
+         CALL CMSRot(TUVX)
+        END IF
+        If(IRotPsi==1) Then
+         CALL f_inquire('ROT_VEC',Do_Rotate)
+        End If
+        If(Do_Rotate) Then
+         CALL RotState()
+        Else
+         If(IRotPsi==1) Then
+          write(LF,'(6X,A,A)')'Do_Rotate.txt is not found. ',
+     &   'MCSCF states will not be rotated'
+         End If
+        End If
+*JB    End of condition 'Do_Rotate' to initialize rotated states
+       End If
+*JB    End If for ifinal=2
        Do jRoot = 1,lRoots
 * load back one CI vector at the time
+*JB      If do_rotate=.true., then we read CI vectors from Work(LRCIVec)
+*JB      Otherwise we read if from JOBIPH
          Call DDafile(JOBIPH,2,Work(LW4),nConf,iDisk)
          IF (IPRLEV.GE.DEBUG) THEN
           call DVcPrt('CI-Vec in CICTL',' ',Work(LW4),nConf )
@@ -557,7 +592,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
      &                             state = jroot,
      &                             rdm1  = .true.
      &                            )
-#ifdef _DMRG_DEBUG_
+#ifdef _DMRG_DEBUGPRINT_
            write(6,*)"==============================================="
            write(6,*)"  Set all elems in anti-symmetric 2-RDM to zero"
            write(6,*)"==============================================="
@@ -719,7 +754,8 @@ c
         Do i = 1,lRoots
           jDisk=iDisk
 * load back one CI vector at the time
-          Call DDafile(JOBIPH,2,Work(LW4),nConf,iDisk)
+*          Call DDafile(JOBIPH,2,Work(LW4),nConf,iDisk)
+           Call DDafile(JOBIPH,2,Work(LW4),nConf,iDisk)
           IF (IPRLEV.GE.DEBUG) THEN
            call DVcPrt('CI-Vec in CICTL last cycle',' ',
      &        Work(LW4),nConf)
@@ -728,7 +764,7 @@ c
           END IF
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
          if(.not.iDoGas)then
-          Call Reord2(NAC,NACTEL,LSYM,0,
+          Call Reord2(NAC,NACTEL,STSYM,0,
      &                iWork(KICONF(1)),iWork(KCFTP),
      &                Work(LW4),Work(LW11),iWork(ivkcnf))
 c        end if
@@ -777,7 +813,7 @@ C.. printout of the wave function
      c                 prwthr,' for root', i
             Write(LF,'(6X,A,F15.6)')
      c                'energy=',ener(i,iter)
-          call gasprwf(iwork(lw12),nac,nactel,lsym,iwork(kiconf(1)),
+          call gasprwf(iwork(lw12),nac,nactel,stsym,iwork(kiconf(1)),
      c                 iwork(kcftp),work(lw4),iwork(ivkcnf))
           End If
          end if
@@ -800,7 +836,7 @@ C.. printout of the wave function
           END IF
 * reorder it according to the split graph GUGA conventions
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
-          Call Reord2(NAC,NACTEL,LSYM,0,
+          Call Reord2(NAC,NACTEL,STSYM,0,
      &                iWork(KICONF(1)),iWork(KCFTP),
      &                Work(LW4),Work(LW11),iWork(ivkcnf))
           call getmem('kcnf','free','inte',ivkcnf,nactel)
@@ -831,7 +867,7 @@ C.. printout of the wave function
         Call GetMem('CIVtmp','Free','Real',LW11,nConf)
       ENDIF
 #ifdef _DMRG_
-          call mh5_put_dset_array_str
+          call mh5_put_dset
      &         (wfn_dmrg_checkpoint,dmrg_file%qcmaquis_checkpoint_file)
 #endif
 
@@ -995,6 +1031,5 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
         Call Free_Work(ipRF)
       End If
 
-      Call qExit('CICTL')
       Return
       End

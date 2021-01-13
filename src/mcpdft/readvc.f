@@ -57,6 +57,9 @@
 *                                                                      *
 ************************************************************************
 
+#ifdef _HDF5_
+      Use mh5, Only: mh5_open_file_r, mh5_fetch_dset, mh5_close_file
+#endif
       Implicit Real*8 (A-H,O-Z)
 
 *     global data declarations
@@ -71,8 +74,7 @@
 #include "warnings.fh"
 #include "wadr.fh"
 #include "casvb.fh"
-#include "raswfn.fh"
-      Common /IDSXCI/ IDXCI(mxAct),IDXSX(mxAct)
+#include "sxci.fh"
 *     calling arguments
 
       Dimension CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)
@@ -94,7 +96,6 @@ c      Integer StrnLn
 *----------------------------------------------------------------------*
 *                                                                      *
 *----------------------------------------------------------------------*
-      Call qEnter('ReadVc')
 C Local print level (if any)
       IPRLEV=IPRLOC(1)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -477,6 +478,5 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
 
 *     exit
 
-      CALL QEXIT('READVC')
       RETURN
       END

@@ -67,7 +67,6 @@
 *
       Real*8 Buf0(*)
       Save kOpt
-*     Call qEnter('OrdIn1')
 *---------------------------------------------------------------------*
 *     Fetch the unit number, disk start adress and pointers           *
 *---------------------------------------------------------------------*
@@ -145,7 +144,6 @@
 *---------------------------------------------------------------------*
 *     exit                                                            *
 *---------------------------------------------------------------------*
-*     Call qExit('OrdIn1')
       Return
 *
 *     This is to allow type punning without an explicit interface

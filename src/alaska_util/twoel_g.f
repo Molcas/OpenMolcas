@@ -27,29 +27,6 @@
 * Object: to generate the SO integrals for four fixed centers and      *
 *         fixed basis set types.                                       *
 *                                                                      *
-* Called from: Drvg1                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCR                                                     *
-*              DCopy   (ESSL)                                          *
-*              Inter                                                   *
-*              Stblzr                                                  *
-*              DesymP                                                  *
-*              Trnsps                                                  *
-*              Trns1                                                   *
-*              Phase                                                   *
-*              SphCr1                                                  *
-*              SphCr2                                                  *
-*              PrePre                                                  *
-*              Tcrtnc                                                  *
-*              Screen                                                  *
-*              Rysg1                                                   *
-*              GetMem                                                  *
-*              RecPrt                                                  *
-*              DaXpY  (ESSL)                                           *
-*              DScal  (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -57,19 +34,23 @@
 *          Lund, SWEDEN. Modified to gradients, January '92.           *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
+      use Center_Info
+      use Phase_Info
+      use Real_Info, only: ChiI2
+      use Temporary_Parameters, only: IsChi
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External TERI1, ModU2, vCff2D
+#include "Molcas.fh"
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
+      Real*8 Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1),
+     &       Data2(nEta *(nDArray+2*ncd)+nDScalar+nHmcd,nData2)
       Real*8 Coor(3,4), CoorM(3,4), CoorAC(3,2),
      &       xA(nZeta),xB(nZeta), xG(nEta), xD(nEta), Grad(nGrad),
-     &       Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1),
-     &       Data2(nEta *(nDArray+2*ncd)+nDScalar+nHmcd,nData2),
      &       Zeta(nZeta), ZInv(nZeta), P(nZeta,3),
      &       Eta (nEta),  EInv(nEta ), Q(nEta, 3),
      &       Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj),
@@ -81,11 +62,44 @@
      &        iAnga(4), iCmp(4), iShell(4), iShll(4),
      &        nOp(4), kOp(4), JndGrd(3,4), iuvwx(4)
       Logical Shijij, AeqB, CeqD, AeqC, ABeqCD,
-     &        EQ, lEmpty, IfGrad(3,4),
-     &        JfGrad(3,4), PreScr
-#ifdef _DEBUG_
+     &        IfGrad(3,4), JfGrad(3,4), PreScr
+#ifdef _DEBUGPRINT_
       Character ChOper(0:7)*3
       Data ChOper/' E ',' x ',' y ',' xy',' z ',' xz',' yz','xyz'/
+#endif
+
+      Call TwoEl_g_Internal(Data1,Data2)
+
+      Contains
+      Subroutine TwoEl_g_Internal(Data1,Data2)
+      Use Iso_C_Binding
+      Real*8, Target ::
+     &       Data1(nZeta*(nDArray+2*nab)+nDScalar+nHmab,nData1),
+     &       Data2(nEta *(nDArray+2*ncd)+nDScalar+nHmcd,nData2)
+      Integer, Pointer :: iData1(:), iData2(:)
+      Integer :: lZeta=0, lEta=0
+      Logical EQ, lEmpty
+      External EQ, lEmpty
+#ifdef _WARNING_WORKAROUND_
+*Bug in gcc 7: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94270
+      Interface
+      SubRoutine Rysg1(iAnga,nRys,nT,
+     &                 Alpha,Beta,Gamma,Delta,
+     &                 Zeta,ZInv,nZeta,Eta,EInv,nEta,
+     &                 P,lP,Q,lQ,Coori,Coora,CoorAC,
+     &                 Array,nArray,
+     &                 Tvalue,ModU2,Cff2D,
+     &                 PAO,nPAO,Grad,nGrad,IfGrad,IndGrd,kOp,iuvwx)
+      Integer :: iAnga(4),nRys,nT,nZeta,nEta,lP,lQ,nArray,nPAO,
+     &           nGrad,IndGrd(3,4),kOp(4),iuvwx(4)
+      Real*8 :: Alpha(nZeta),Beta(nZeta),Gamma(nEta),Delta(nEta),
+     &          Zeta(nZeta),ZInv(nZeta),Eta(nEta),EInv(nEta),P(lP,3),
+     &          Q(lQ,3),Coori(3,4),Coora(3,4),CoorAC(3,2),Array(nArray),
+     &          PAO(nT,nPAO),Grad(nGrad)
+      Logical :: IfGrad(3,4)
+      External :: Tvalue, ModU2, Cff2D
+      End Subroutine Rysg1
+      End Interface
 #endif
 *                                                                      *
 ************************************************************************
@@ -96,9 +110,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+#ifdef _DEBUGPRINT_
       iRout = 12
       iPrint = nPrint(iRout)
-*
+#endif
       la = iAnga(1)
       lb = iAnga(2)
       lc = iAnga(3)
@@ -115,10 +130,10 @@
       IncEta=nGamma*lPrInc
       LmbdT=0
       nijkl = iBasi*jBasj*kBask*lBasl
-      iuvwx(1) = nStab(iStb)
-      iuvwx(2) = nStab(jStb)
-      iuvwx(3) = nStab(kStb)
-      iuvwx(4) = nStab(lStb)
+      iuvwx(1) = dc(iStb)%nStab
+      iuvwx(2) = dc(jStb)%nStab
+      iuvwx(3) = dc(kStb)%nStab
+      iuvwx(4) = dc(lStb)%nStab
       mab = nElem(la)*nElem(lb)
       mcd = nElem(lc)*nElem(ld)
       iW4 = 1
@@ -151,16 +166,15 @@
          iDCRR(0)=0
          LmbdR=1
       Else
-         Call DCR(LmbdR,iOper,nIrrep,jStab(0,iStb),nStab(iStb),
-     &                                jStab(0,jStb),nStab(jStb),
-     &                                iDCRR,nDCRR)
+         Call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,
+     &                  dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Write (6,'(20A)') ' {R}=(',
      &      (ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
 #endif
-      u = DBLE(nStab(iStb))
-      v = DBLE(nStab(jStb))
+      u = DBLE(dc(iStb)%nStab)
+      v = DBLE(dc(jStb)%nStab)
 *
 *-----Find stabilizer for center A and B
 *
@@ -168,8 +182,8 @@
          lStabM=1
          iStabM(0)=0
       Else
-         Call Inter(jStab(0,iStb),nStab(iStb),
-     &              jStab(0,jStb),nStab(jStb),iStabM,lStabM)
+         Call Inter(dc(iStb)%iStab,dc(iStb)%nStab,
+     &              dc(jStb)%iStab,dc(jStb)%nStab,iStabM,lStabM)
       End If
 *                                                                      *
 ************************************************************************
@@ -185,16 +199,16 @@
          iDCRS(0)=0
          LmbdS=1
       Else
-         Call DCR(LmbdS,iOper,nIrrep,jStab(0,kStb),nStab(kStb),
-     &                               jStab(0,lStb),nStab(lStb),
+         Call DCR(LmbdS,dc(kStb)%iStab,dc(kStb)%nStab,
+     &                  dc(lStb)%iStab,dc(lStb)%nStab,
      &                               iDCRS,nDCRS)
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Write (6,'(20A)') ' {S}=(',
      &      (ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
 #endif
-      w = DBLE(nStab(kStb))
-      x = DBLE(nStab(lStb))
+      w = DBLE(dc(kStb)%nStab)
+      x = DBLE(dc(lStb)%nStab)
 *
 *-----Find stabilizer for center C and D
 *
@@ -202,8 +216,8 @@
          lStabN=1
          iStabN(0)=0
       Else
-         Call Inter(jStab(0,kStb),nStab(kStb),
-     &              jStab(0,lStb),nStab(lStb),iStabN,lStabN)
+         Call Inter(dc(kStb)%iStab,dc(kStb)%nStab,
+     &              dc(lStb)%iStab,dc(lStb)%nStab,iStabN,lStabN)
       End If
 *                                                                      *
 ************************************************************************
@@ -217,8 +231,7 @@
          iDCRT(0)=0
          LmbdT=1
       Else
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,lStabM,
-     &                               iStabN,lStabN,iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,lStabM,iStabN,lStabN,iDCRT,nDCRT)
       End If
 *                                                                      *
 ************************************************************************
@@ -238,50 +251,39 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nOp(1)=NrOpr(0,iOper,nIrrep)
-      call dcopy_(3,Coor(1,1),1,CoorM(1,1),1)
+      nOp(1)=NrOpr(0)
+      CoorM(:,1)=Coor(:,1)
       Do 100 lDCRR = 0, nDCRR-1
-         nOp(2)=NrOpr(iDCRR(lDCRR),iOper,nIrrep)
-         CoorM(1,2) = DBLE(iPhase(1,iDCRR(lDCRR)))*Coor(1,2)
-         CoorM(2,2) = DBLE(iPhase(2,iDCRR(lDCRR)))*Coor(2,2)
-         CoorM(3,2) = DBLE(iPhase(3,iDCRR(lDCRR)))*Coor(3,2)
-         AeqB = EQ(CoorM(1,1),CoorM(1,2))
+         nOp(2)=NrOpr(iDCRR(lDCRR))
+         Call OA(iDCRR(lDCRR),Coor(:,2),CoorM(:,2))
+         AeqB = EQ(CoorM(:,1),CoorM(:,2))
 *
          MxDCRS = nDCRS-1
          Do 200 lDCRS = 0, MxDCRS
-            call dcopy_(3,Coor(1,3),1,CoorM(1,3),1)
-            CoorM(1,4) = DBLE(iPhase(1,iDCRS(lDCRS)))*Coor(1,4)
-            CoorM(2,4) = DBLE(iPhase(2,iDCRS(lDCRS)))*Coor(2,4)
-            CoorM(3,4) = DBLE(iPhase(3,iDCRS(lDCRS)))*Coor(3,4)
-            CeqD = EQ(Coor(1,3),CoorM(1,4))
+            CoorM(:,3)=Coor(:,3)
+            Call OA(iDCRS(lDCRS),Coor(1:3,4),CoorM(1:3,4))
+            CeqD = EQ(Coor(:,3),CoorM(:,4))
 *
             Do 300 lDCRT = nDCRT-1, 0, -1
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (iPrint.ge.99) Write (6,'(6A)')
      &         ' R=',ChOper(iDCRR(lDCRR)),
      &         ', S=',ChOper(iDCRS(lDCRS)),
      &         ', T=',ChOper(iDCRT(lDCRT))
 #endif
 *
-               nOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
-               nOp(4) = NrOpr(iEor(iDCRT(lDCRT),iDCRS(lDCRS)),
-     &                  iOper,nIrrep)
+               nOp(3) = NrOpr(iDCRT(lDCRT))
+               iDCRTS=iEor(iDCRT(lDCRT),iDCRS(lDCRS))
+               nOp(4) = NrOpr(iDCRTS)
 *
-               CoorM(1,4) = DBLE(iPhase(1,iDCRT(lDCRT))*
-     &                      iPhase(1,iDCRS(lDCRS)))*Coor(1,4)
-               CoorM(2,4) = DBLE(iPhase(2,iDCRT(lDCRT))*
-     &                      iPhase(2,iDCRS(lDCRS)))*Coor(2,4)
-               CoorM(3,4) = DBLE(iPhase(3,iDCRT(lDCRT))*
-     &                      iPhase(3,iDCRS(lDCRS)))*Coor(3,4)
-               CoorM(1,3) = DBLE(iPhase(1,iDCRT(lDCRT)))*Coor(1,3)
-               CoorM(2,3) = DBLE(iPhase(2,iDCRT(lDCRT)))*Coor(2,3)
-               CoorM(3,3) = DBLE(iPhase(3,iDCRT(lDCRT)))*Coor(3,3)
+               Call OA(iDCRTS,Coor(:,4),CoorM(:,4))
+               Call OA(iDCRT(lDCRT),Coor(:,3),CoorM(:,3))
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (iPrint.ge.59)
      &            Call RecPrt(' CoorM in TwoEl',' ',CoorM,3,4)
 #endif
-               AeqC = EQ(CoorM(1,1),CoorM(1,3))
+               AeqC = EQ(CoorM(:,1),CoorM(:,3))
                ABeqCD = AeqB .and. CeqD .and. AeqC
 *--------------No contribution to gradient from one-center integrals
                If (ABeqCD) Go To 301
@@ -292,14 +294,8 @@
                mGrad = 0
                Do 3333 iCar = 1, 3
 *-----------------Copy to temporary arrays
-                  JfGrad(iCar,1)=IfGrad(iCar,1)
-                  JfGrad(iCar,2)=IfGrad(iCar,2)
-                  JfGrad(iCar,3)=IfGrad(iCar,3)
-                  JfGrad(iCar,4)=IfGrad(iCar,4)
-                  JndGrd(iCar,1)=IndGrd(iCar,1)
-                  JndGrd(iCar,2)=IndGrd(iCar,2)
-                  JndGrd(iCar,3)=IndGrd(iCar,3)
-                  JndGrd(iCar,4)=IndGrd(iCar,4)
+                  JfGrad(iCar,:)=IfGrad(iCar,:)
+                  JndGrd(iCar,:)=IndGrd(iCar,:)
 *-----------------In case of four differentiations use
 *                 the translational invariance to remove
 *                 one or several of them.
@@ -414,19 +410,16 @@
 *              the order as defined by the basis functions types.
 *
                If (iAnga(1).ge.iAnga(2)) Then
-                  call dcopy_(3,CoorM(1,1),1,CoorAC(1,1),1)
+                  CoorAC(:,1)=CoorM(:,1)
                Else
-                  call dcopy_(3,CoorM(1,2),1,CoorAC(1,1),1)
+                  CoorAC(:,1)=CoorM(:,2)
                End If
                If (iAnga(3).ge.iAnga(4)) Then
-                   call dcopy_(3,CoorM(1,3),1,CoorAC(1,2),1)
+                  CoorAC(:,2)=CoorM(:,3)
                Else
-                   call dcopy_(3,CoorM(1,4),1,CoorAC(1,2),1)
+                  CoorAC(:,2)=CoorM(:,4)
                End If
-               kOp(1) = nOp(1)
-               kOp(2) = nOp(2)
-               kOp(3) = nOp(3)
-               kOp(4) = nOp(4)
+               kOp(:) = nOp(:)
 
 *
 *--------------Desymmetrize the second order density matrix
@@ -434,7 +427,7 @@
 *--------------(faA fbR(B) | fcT(C) fdTS(D))ijkl
 *
                Call DesymP(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),
-     &                     Shijij,iShll,iShell,kOp,nijkl,
+     &                     Shijij,iShll,iShell,iAO,kOp,nijkl,
      &                     Aux,nAux,Wrk2(iW2),PSO,nPSO)
 *
                If (Fact.ne.One) Call DScal_(nijkl*
@@ -451,9 +444,11 @@
                Call SphCr1(Wrk2(iW2),ijklab,
      &                     Wrk2(iW3_),nWrk3_,
      &                     RSph(ipSph(lc)),nElem(lc),kCmpc,
-     &                     Transf(kShllc),Prjct(kShllc),
+     &                     Shells(kShllc)%Transf,
+     &                     Shells(kShllc)%Prjct,
      &                     RSph(ipSph(ld)),nElem(ld),lCmpd,
-     &                     Transf(lShlld),Prjct(lShlld),
+     &                     Shells(lShlld)%Transf,
+     &                     Shells(lShlld)%Prjct,
      &                     Wrk2(iW2),mcd)
                If (iW2.eq.iW4) Then
                   nW2 = nijkl*mcd*Max(iCmpa*jCmpb,mab)
@@ -467,9 +462,11 @@
                Call SphCr2(Wrk2(iW2),nijkl,mcd,
      &                     Wrk2(iW3_),nWrk3_,
      &                     RSph(ipSph(la)),nElem(la),iCmpa,
-     &                     Transf(iShlla),Prjct(iShlla),
+     &                     Shells(iShlla)%Transf,
+     &                     Shells(iShlla)%Prjct,
      &                     RSph(ipSph(lb)),nElem(lb),jCmpb,
-     &                     Transf(jShllb),Prjct(jShllb),
+     &                     Shells(jShllb)%Transf,
+     &                     Shells(jShllb)%Prjct,
      &                     Wrk2(iW4),mab)
 *
 *--------------Transpose the 2nd order density matrix
@@ -481,8 +478,8 @@
                   call dcopy_(mab*mcd*nijkl,Wrk2(iW3_),1,Wrk2(iW4),1)
                End If
 *
-               lDCR1=NrOpr(iDCRR(lDCRR),iOper,nIrrep)+1
-               lDCR2=NrOpr(iDCRS(lDCRS),iOper,nIrrep)+1
+               lDCR1=NrOpr(iDCRR(lDCRR))+1
+               lDCR2=NrOpr(iDCRS(lDCRS))+1
                ix1 = 1
                iy1 = 1
                iz1 = 1
@@ -490,10 +487,12 @@
                iy2 = iPhase(2,iDCRT(lDCRT))
                iz2 = iPhase(3,iDCRT(lDCRT))
 *
-               ipIndZ=ip_of_iWork_d(Data1(ip_IndZ(1,nZeta),lDCR1))-1
-               ipIndE=ip_of_iWork_d(Data2(ip_IndZ(1,nEta ),lDCR2))-1
-               nZeta_Tot=iWork(ipIndZ+nZeta+1)
-               nEta_Tot =iWork(ipIndE+nEta+1)
+               Call C_F_Pointer(C_Loc(Data1(ip_IndZ(1,nZeta),lDCR1)),
+     &                         iData1,[nZeta+1])
+               Call C_F_Pointer(C_Loc(Data2(ip_IndZ(1,nEta ),lDCR2)),
+     &                         iData2,[nEta +1])
+               nZeta_Tot=iData1(nZeta+1)
+               nEta_Tot =iData2(nEta +1)
 *
 *--------------Loops to partion the primitives
 *
@@ -510,9 +509,9 @@
 *-----------------Preprescreen
 *
                   Call PrePre_g(nZeta,nEta,mZeta,mEta,lZeta,lEta,
-     &                        Data1(ip_Z   (iZeta,nZeta),lDCR1),
-     &                        Data2(ip_Z   (iEta, nEta), lDCR2),
-     &                        PreScr,CutGrd)
+     &                          Data1(ip_Z   (iZeta,nZeta),lDCR1),
+     &                          Data2(ip_Z   (iEta, nEta), lDCR2),
+     &                          PreScr,CutGrd)
                   If (lZeta*lEta.eq.0) Go To 410
 *
 *-----------------Decontract the 2nd order density matrix
@@ -532,8 +531,8 @@
      &                        Coeff4,nDelta,lBasl,
      &                        Wrk2(iW4),mab*mcd,Wrk2(iW3_),nWrk3_,
      &                        Wrk2(iW2),
-     &                        iWork(ipIndZ+iZeta),mZeta,
-     &                        iWork(ipIndE+iEta ),mEta)
+     &                        iData1(iZeta:iZeta+mZeta-1),mZeta,
+     &                        iData2(iEta: iEta +mEta -1),mEta)
 *
 *-----------------Transfer k2 data and prescreen
 *
@@ -544,11 +543,11 @@
      &                        Zeta,ZInv,P,xA,xB,
      &                        Data1(iZeta,lDCR1),
      &                        nAlpha,jPrim,
-     &                        iWork(ipIndZ+iZeta),
+     &                        iData1(iZeta:iZeta+mZeta-1),
      &                        Eta, EInv,Q,xG,xD,
      &                        Data2(iEta ,lDCR2),
      &                        nGamma,lPrim,
-     &                        iWork(ipIndE+iEta ),
+     &                        iData2(iEta :iEta +mEta -1),
      &                        ix1,iy1,iz1,ix2,iy2,iz2,
      &                        CutGrd,l2DI,
      &                        Data1(iZeta+iffab ,lDCR1),
@@ -579,16 +578,15 @@ c                 Write (*,*) 'Prem=',Prem
                       Write (6,*)
      &                      'Norm of gradient contribution is huge!'
                       Write (6,*) 'Probably due to wrong coordinates.'
-                      Call QTrace()
-                      Call QExit('TwoEl')
                   End If
 *
  410           Continue
  400           Continue
+               Nullify(iData1,iData2)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (iPrint.ge.19) Call PrGrad(' In TwoEl',
-     &                     Grad,nGrad,lIrrep,ChDisp,5)
+     &                     Grad,nGrad,ChDisp,5)
 #endif
 *
  301          Continue
@@ -603,4 +601,5 @@ c Avoid unused argument warnings
          Call Unused_integer(iPrInc)
          Call Unused_integer(kPrInc)
       End If
+      End Subroutine TwoEl_g_Internal
       End

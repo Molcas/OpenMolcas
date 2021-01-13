@@ -57,17 +57,13 @@
 #include "WrkSpc.fh"
       Real*8 DeTW, CMOI(*), EOcc(*), EVir(*)
 C
-      Logical DoDens_
-      Integer ChoAlg_
       Integer nExt(8)
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "chomp2_cfg.fh"
       Dimension Grad(1)
 
-      DoDens_= DoDens
       DoDens = .false.
-      ChoAlg_= ChoAlg
       ChoAlg = 2
 *
       CALL GETMEM('DMAT','ALLO','REAL',ip_DM0,2*nBT)
@@ -357,9 +353,9 @@ c           write(6,*) ' Sum_vir: ',ddot_(nSsh(iSym),1.0d0,0,Work(ip_Z),1)
       If (nT1amTot .gt. 0) iSkip=1
       Return
       End
-***********************************************************************
-*                                                                     *
-***********************************************************************
+************************************************************************
+*                                                                      *
+************************************************************************
       SubRoutine FnoSCF_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,
      &                         ip_X,ip_Y)
 C

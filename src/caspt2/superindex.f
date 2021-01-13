@@ -36,7 +36,7 @@
 #include "caspt2.fh"
 #include "output.fh"
 #include "stdalloc.fh"
-      CHARACTER(8) CSNAME(MXCASE)
+      CHARACTER(LEN=8) CSNAME(MXCASE)
       DATA CSNAME / 'VJTU    ','VJTIP   ','VJTIM   ',
      &     'ATVX    ','AIVX    ','VJAIP   ','VJAIM   ','BVATP   ',
      &     'BVATM   ','BJATP   ','BJATM   ','BJAIP   ','BJAIM   '/
@@ -57,7 +57,6 @@
       INTEGER N,N5,N6,N7,N10,N11
       INTEGER NAT,NAU,NAV,NII,NIJ,NSA,NSB
 
-      CALL QENTER('SUPINI')
 
       CALL MMA_ALLOCATE(KTUV,NASHT,NASHT,NASHT)
       CALL MMA_ALLOCATE(MTUV,3,NASHT**3)
@@ -68,27 +67,30 @@
         NTUVES(ISYM)=ITUV
         DO 10 ISV=1,NSYM
           NAV=NASH(ISV)
-          DO 10 ISU=1,NSYM
+          DO 11 ISU=1,NSYM
             NAU=NASH(ISU)
             ISUV=MUL(ISU,ISV)
             IST=MUL(ISUV,ISYM)
             NAT=NASH(IST)
             JCOUNT=NAV*NAU*NAT
-            IF (JCOUNT.EQ.0) GOTO 10
+            IF (JCOUNT.EQ.0) GOTO 11
             ICOUNT=ICOUNT+1
             NCOUNT=NCOUNT+JCOUNT
             DO 5 IV=1,NAV
               IVQ=NAES(ISV)+IV
-              DO 5 IU=1,NAU
+              DO 6 IU=1,NAU
                 IUQ=NAES(ISU)+IU
-                DO 5 IT=1,NAT
+                DO 7 IT=1,NAT
                   ITQ=NAES(IST)+IT
                   ITUV=ITUV+1
                   KTUV(ITQ,IUQ,IVQ)=ITUV
                   MTUV(1,ITUV)=ITQ
                   MTUV(2,ITUV)=IUQ
                   MTUV(3,ITUV)=IVQ
+   7            CONTINUE
+   6          CONTINUE
    5        CONTINUE
+  11      CONTINUE
   10    CONTINUE
         NSTUV(ISYM)=ICOUNT
         NTUV(ISYM)=NCOUNT
@@ -318,7 +320,7 @@ C Inactive-Secondary pair indices:
  140  CONTINUE
       DO 150 ICASE=1,NCASES
         NSUM=0
-        DO 150 ISYM=1,NSYM
+        DO 151 ISYM=1,NSYM
           NEXCES(ISYM,ICASE)=NSUM
           N=NASUP(ISYM,ICASE)*NISUP(ISYM,ICASE)
           NEXC(ISYM,ICASE)=N
@@ -326,6 +328,7 @@ C Preliminary value for NINDEP: Nr of independent active params:
           NINDEP(ISYM,ICASE)=NASUP(ISYM,ICASE)
           IF(N.EQ.0) NINDEP(ISYM,ICASE)=0
           NSUM=NSUM+N
+ 151    CONTINUE
  150  CONTINUE
 
 CSVC: prepare tables to translate from absolute indices to
@@ -353,7 +356,6 @@ C(index,symmetry) pairs.
         END DO
       END DO
 
-      CALL QEXIT('SUPINI')
 
       RETURN
       END SUBROUTINE

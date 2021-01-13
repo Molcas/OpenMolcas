@@ -28,10 +28,10 @@
       CHARACTER(len=*) LAB
       REAL*8 VEC(*)
 
-      CHARACTER(8) LAB1
+      CHARACTER(LEN=8) LAB1
 
       INTEGER I,IAD,NSZ
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       INTEGER J
 #endif
 
@@ -49,7 +49,7 @@ C FIND DISK ADDRESS:
           NSZ=MIN(IADR10(I,2),NSIZE)
           IAD=IADR10(I,1)
           CALL DDAFILE(LUDMAT,2,VEC,NSZ,IAD)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
           WRITE(6,*) LAB1,' SUCCESSFULLY READ FROM LUDMAT.'
           WRITE(6,*)'         SIZE:',NSZ,' *8 BYTES'
           WRITE(6,*)' DISK ADDRESS:',IADR10(I,1)

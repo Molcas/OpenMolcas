@@ -77,7 +77,6 @@ C     Character*8 TmpLab,Label, Label_Add*11
 *----------------------------------------------------------------------*
 *     Pick up the file definitions                                     *
 *----------------------------------------------------------------------*
-*     Call qEnter('WrMCK')
       SymLab=iSymLab
       icpi=itob
       Comp=iComp
@@ -381,7 +380,7 @@ C           write(*,*) len
          Else
              Len=0
              Do 510 i=1,TocOne(pSym)
-              Do 510 j=1,i
+              Do 511 j=1,i
                ij=MulTab(i,j)-1
                If(iAnd(2**ij,iSymLab).ne.0) Then
                 If(i.eq.j) Then
@@ -390,6 +389,7 @@ C           write(*,*) len
                   Len=Len+TocOne(pBas-1+i)*TocOne(pBas-1+j)
                 End If
                End If
+511           Continue
 510          Continue
              If (iAnd(Option,slength).ne.0) Len=Length
          End If
@@ -446,6 +446,5 @@ C         End If
 *----------------------------------------------------------------------*
 *     Terminate procedure                                              *
 *----------------------------------------------------------------------*
-*     Call qExit('WrMck')
       Return
       End

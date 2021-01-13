@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine PCMDFck(nFck,PCMFck)
+      use PCM_arrays
       Implicit real*8 (a-h,o-z)
 #include "WrkSpc.fh"
 #include "Molcas.fh"
@@ -73,22 +74,21 @@ C
 C     Compute the potential and the electric field on tesserae
       DoPot = .True.
       DoFld = .True.
-      Call V_EF_PCM(nAtoms,nTs,DoPot,DoFld,Work(ipCoor),Work(ip_Tess),
+      Call V_EF_PCM(nAtoms,nTs,DoPot,DoFld,Work(ipCoor),PCMTess,
      &     Work(ip_V),Work(ip_EF_n),Work(ip_EF_e))
 C
 C     Compute the derivatives of the total potential on tesserae
       Call VDer_PCM(nAtoms,nTs,nS,Work(ipCoor),Work(ipChrg),
-     &     Work(ip_EF_n),Work(ip_EF_e),Work(ip_Tess),iWork(ip_ISph),
-     &     Work(ip_DTes),Work(ip_DPnt),Work(ip_DRad),Work(ip_DCntr),
-     &     Work(ip_VDer))
+     &              Work(ip_EF_n),Work(ip_EF_e),PCMTess,PCMiSph,
+     &              dTes,dPnt,dRad,dCntr,Work(ip_VDer))
 C
 C     Actually compute the PCM correction
-      Call PCM_Der_Fock(nFck,nAtoms,nTs,nS,Eps,Work(ip_Sph),
-     &     iWork(ip_ISph),iWork(ip_N),Work(ip_Tess),Work(ip_Q),
-     &     Work(ip_Qtot),Work(ip_DM),Work(ip_DerMat),
-     &     Work(ip_DTes),Work(ip_DPnt),Work(ip_DCntr),
-     &     Work(ip_V),Work(ip_VMN),Work(ip_VDer),Work(ip_VDerMN),
-     &     Work(ip_Temp1),Work(ip_Temp2),PCMFck)
+      Call PCM_Der_Fock(nFck,nAtoms,nTs,nS,Eps,PCMSph,
+     &                  PCMiSph,PCM_N,PCMTess,PCM_SQ,
+     &                  Work(ip_Qtot),PCMDM,Work(ip_DerMat),
+     &                  dTes,dPnt,dCntr,Work(ip_V),Work(ip_VMN),
+     &                  Work(ip_VDer),Work(ip_VDerMN),Work(ip_Temp1),
+     &                  Work(ip_Temp2),PCMFck)
 C
 C     Free the space
       Call GetMem('Qtot','Free','Real',ip_Qtot,nTs)
@@ -119,7 +119,6 @@ C     Free the space
 C
       FPI = Four*PI
       Diag = - 1.0694d0 * Sqrt(FPI) / Two
-      Sc_Cond = (Eps - One) / Eps
 C
       Do iTs = 1, nTs
         Qtot(iTs) = Q(1,iTs) + Q(2,iTs)
@@ -127,7 +126,7 @@ C
 C
 C     Loop over the degrees of freedom
       Do 100 iAt = 1, nAt
-        Do 100 iC = 1, 3
+        Do 101 iC = 1, 3
           Index = 3 * (iAt-1) + iC
 C
 C         Derivative of the PCM matrix for the conductor-like case
@@ -179,6 +178,7 @@ C           Sum_ij q_i [S^x S^-1]_ij V_mn^j
             EndDo
             PCMFck(iFck,Index) = PCMFck(iFck,Index) + Sum
   200     Continue
+  101   Continue
   100 Continue
 C
       Return

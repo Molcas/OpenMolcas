@@ -20,11 +20,6 @@
 *     Object: kernel routine to assemble the integrals from the Ixy    *
 *             and Iz integrals.                                        *
 *                                                                      *
-* Called from: RysEF                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             August '90                                               *
 *                                                                      *
@@ -40,9 +35,6 @@
 *
       iCan(ixyz,ix,iz) = ixyz*(ixyz+1)*(ixyz+2)/6 +
      &   (ixyz-ix)*(ixyz-ix+1)/2 + iz
-*
-      iRout = 17
-      iPrint = nPrint(iRout)
 *
       izf=nzfMax
       ize=nzeMax

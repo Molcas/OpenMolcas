@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine indxab2_cvb(indxa,indxb,nstra,nstrb,
      >  iocc,nsa,nsb)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -33,7 +33,8 @@
 400   continue
       irp=1
       do 500 ia=1,nalf
-500   irp=md2h(irp,ityp(iocc(ia)))
+      irp=md2h(irp,ityp(iocc(ia)))
+500   continue
       if(irp.ne.iisym)goto 600
       inda=inda+1
       nstra(iisym)=nstra(iisym)+1
@@ -45,7 +46,8 @@
 700   continue
       irp=1
       do 800 ib=1,nbet
-800   irp=md2h(irp,ityp(iocc(ib)))
+      irp=md2h(irp,ityp(iocc(ib)))
+800   continue
       if(irp.ne.iisym)goto 900
       indb=indb+1
       nstrb(iisym)=nstrb(iisym)+1

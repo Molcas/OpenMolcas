@@ -27,7 +27,7 @@ C SPECIAL CASE: DIAGONAL SYMMETRY BLOCKS.
           NB=NBASF(ISY)
           IF(NB.EQ.0) GOTO 100
           DO 90 J=1,NB
-            DO 90 I=1,NB
+            DO 91 I=1,NB
               ITD=ITD+1
               TDM=TDMZZ(ITD)
               WDM=WDMZZ(ITD)
@@ -44,6 +44,7 @@ C SPECIAL CASE: DIAGONAL SYMMETRY BLOCKS.
               END IF
               SCR(IJ,1)=SCR(IJ,1)+TDM
               SCR(IJ,3)=SCR(IJ,3)+WDM
+91          CONTINUE
 90        CONTINUE
           IOF=IOF+(NB*(NB+1))/2
 100     CONTINUE
@@ -59,7 +60,7 @@ C THEN LOOP OVER ELEMENTS OF TDMZZ
           IF(NB2.EQ.0) GOTO 200
           IF(ISY1.GT.ISY2) THEN
             DO 180 J=1,NB2
-              DO 180 I=1,NB1
+              DO 181 I=1,NB1
                 ITD=ITD+1
                 TDM=TDMZZ(ITD)
                 WDM=WDMZZ(ITD)
@@ -68,10 +69,11 @@ C THEN LOOP OVER ELEMENTS OF TDMZZ
                 SCR(IJ,2)=SCR(IJ,2)+TDM
                 SCR(IJ,3)=SCR(IJ,3)+WDM
                 SCR(IJ,4)=SCR(IJ,4)+WDM
+181           CONTINUE
 180         CONTINUE
           ELSE
             DO 190 J=1,NB2
-              DO 190 I=1,NB1
+              DO 191 I=1,NB1
                 ITD=ITD+1
                 TDM=TDMZZ(ITD)
                 WDM=WDMZZ(ITD)
@@ -80,6 +82,7 @@ C THEN LOOP OVER ELEMENTS OF TDMZZ
                 SCR(IJ,2)=SCR(IJ,2)-TDM
                 SCR(IJ,3)=SCR(IJ,3)+WDM
                 SCR(IJ,4)=SCR(IJ,4)-WDM
+191           CONTINUE
 190         CONTINUE
           END IF
 200     CONTINUE

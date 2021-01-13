@@ -31,7 +31,6 @@
       LOGICAL IF_TRNSF
 
       INTEGER NCES(8),ip_HTVec(8)
-      Integer, External :: Cho_IRange
       INTEGER ISTART(8),NUSE(8)
 
       REAL*8 E,ECORE1,ECORE2
@@ -39,7 +38,7 @@
       REAL*8 FACTC,FACTXA,FACTXI
 
       INTEGER I,J,IC,IA,ICASE,IRC,ILOC
-      INTEGER JSTART,JEND
+      INTEGER JSTART
       INTEGER JRED,JRED1,JRED2,JREDC,JNUM,JV1,JV2
       INTEGER IASTA,IAEND,IISTA,IIEND
       INTEGER NA,NASZ,NI,NISZ,NBUFFY,NF,NK,NW,NPQ,NRS
@@ -53,14 +52,13 @@
       INTEGER ISYM,JSYM,ISYMA,ISYMB,ISYMK,ISYMW,ISYP,ISYQ
       INTEGER N,N1,N2
       INTEGER ip_buffy,ip_chspc,ip_ftspc,ip_htspc,ip_v,ipnt
-      INTEGER NUMV,NV,NVECS_RED,NVTOT,NHTOFF,MUSED
+      INTEGER NUMV,NVECS_RED,NHTOFF,MUSED
 
       REAL*8 SCL
 
       REAL*8, EXTERNAL :: DDOT_
 
 **********************************************************************
-      Call QEnter('TRACHO2')
 * ======================================================================
 * This section deals with density matrices and CMO''s
 * Offsets into CMO arrays:
@@ -198,7 +196,7 @@ c Initialize Fock matrices in AO basis to zero:
 * the mapping between reduced index and basis set pairs.
 * The reduced set is divided into suitable batches.
 * First vector is JSTART. Nr of vectors in r.s. is NVECS_RED.
-      JEND=JSTART+NVECS_RED-1
+*      JEND=JSTART+NVECS_RED-1
 *      write(6,*)'  JRED:  JSTART,JEND:',JRED,JSTART,JEND
 
       IF(JSYM.EQ.1) THEN
@@ -520,11 +518,9 @@ C ---------------------------------------------------------------------
       IF (IF_TRNSF.AND.RHSDIRECT) THEN
         IP_LFT=IP_FTSPC
         DO JSYM=1,NSYM
-          NVTOT=NVTOT_CHOSYM(JSYM)
           IBSTA=NBTCHES(JSYM)+1
           IBEND=NBTCHES(JSYM)+NBTCH(JSYM)
           DO IB=IBSTA,IBEND
-            NV=NVLOC_CHOBATCH(IB)
             DO ISYQ=1,NSYM
               DO ICASE=1,4
                 NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
@@ -556,7 +552,7 @@ c (It is in fact an effective one-electron Hamiltonian).
 * Nuclear repulsion energy:
       ECORE=POTNUC+ECORE1+ECORE2
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        WRITE(6,'(6X,A,E20.10)') 'NUCLEAR REPULSION ENERGY:',POTNUC
        WRITE(6,'(6X,A,E20.10)') 'ONE-ELECTRON CORE ENERGY:',ECORE1
        WRITE(6,'(6X,A,E20.10)') 'TWO-ELECTRON CORE ENERGY:',ECORE2
@@ -575,7 +571,7 @@ c (It is in fact an effective one-electron Hamiltonian).
        CALL GETMEM('FTSPC','FREE','REAL',IP_FTSPC,NFTSPC)
       END IF
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         WRITE(6,'(6X,A)')'TEST PRINT FROM TRACHO2.'
         WRITE(6,'(6X,A)')
         write(6,*)' NSYM:',NSYM
@@ -618,6 +614,5 @@ c (It is in fact an effective one-electron Hamiltonian).
         END DO
 #endif
 
-      Call QExit('TRACHO2')
       RETURN
       END

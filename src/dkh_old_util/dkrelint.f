@@ -12,6 +12,10 @@
 *               2005, Markus Reiher                                    *
 ************************************************************************
       Subroutine DKRelint
+      use Basis_Info
+      use Temporary_Parameters, only: force_out_of_core
+      use DKH_Info
+      use Symmetry_Info, only: nIrrep
 c
 c     modified by A. Wolf and M. Reiher, Uni Bonn, Feb. and March 2005
 c       (extended for use of generalized arbitrary-order DKH)
@@ -19,9 +23,8 @@ c       NB: If the standard 2nd order DKH is wanted,
 c           the original routines by Hess are called!
 c
       Implicit real*8(a-h,o-z)
+#include "Molcas.fh"
 #include "warnings.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "rinfo.fh"
 #include "print.fh"
 #include "real.fh"
@@ -45,14 +48,13 @@ c
       logical dkhscfflg
       Integer snumber,tnumber,unumber,nbasp,nbaso
       Integer Get_sNumber, Get_tNumber, Get_uNumber
-      logical delflag,no_hamil,no_prop,no_s,no_u,LDKpert
+      logical no_hamil,no_prop,no_s,no_u,LDKpert
       dimension nInt(1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       iRout=77
       iPrint=nPrint(iRout)
-      Call QEnter('DKRelInt')
 *
       If(Debug)Then
         idbg=6
@@ -108,12 +110,12 @@ c
 *       The none valence type shells comes at the end. When this block
 *       is encountered stop the procedure.
 *
-        If(AuxCnttp(iCnttp) .or.
-     &      FragCnttp(iCnttp) .or.
-     &      nFragType(iCnttp).gt.0 ) Go To 999
+        If(dbsc(iCnttp)%Aux .or.
+     &     dbsc(iCnttp)%Frag .or.
+     &     dbsc(iCnttp)%nFragType.gt.0 ) Go To 999
 
 *
-        Do icnt = 1, nCntr(iCnttp)
+        Do icnt = 1, dbsc(iCnttp)%nCntr
         kC=kC+1
            Do iAngr=0,nAngr(kC)
                rI=DBLE(iAngr)+One+Half
@@ -376,13 +378,11 @@ CMR - IF THAT IS .TRUE. WE SHOULD WRITE XORDER.EQ.0
          tnumber=Get_tNumber(dkhunit4)
          unumber=Get_uNumber(dkhunit5)
 *
-         delflag=.FALSE.
          no_hamil=.false.
          no_prop=.true.
          k=0
 *
          Do L = 0, nSym-1
-            If (L.eq.nSym-1) delflag=.TRUE.
             n=nBas(L)
             iSize=n*(n+1)/2
             If (iSize.eq.0) Go To 911
@@ -611,13 +611,10 @@ C           Write (6,*) 'lOper=',lOper
 *
             Call GetMem('Core','Max','Real',iDum,Mem_Available)
 C           Write (6,*) 'Mem_Available=',Mem_Available
-            delflag=.FALSE.
             no_hamil=.true.
             no_prop=.false.
             k=0
             Do L = 0, nSym-1
-               If (L.eq.nSym-1 .and.
-     &             iProps.eq.numb_props) delflag=.TRUE.
                n=nBas(L)
                iSize=n*(n+1)/2
                If (iSize.eq.0) Go To 91
@@ -781,10 +778,8 @@ C    &                                  1.0D0,0)
 *        Loop over the symmetry blocks
 *
          epsilon=1.d-10
-         delflag=.FALSE.
          k=0
          Do L = 0, nSym-1
-            If (L.eq.nSym-1) delflag=.TRUE.
             n=nBas(L)
             iSize=n*(n+1)/2
             If (iSize.eq.0) goto 9
@@ -1031,7 +1026,6 @@ c... reset contracted basis size
       CALL GetMem('H_temp  ','FREE','REAL',iH_temp,iSizec+4)
       CALL GetMem('pVp     ','FREE','REAL',ipVp,iSizep+4)
 *
-      Call QExit('DKRelInt')
       Return
 *
  9999 Continue

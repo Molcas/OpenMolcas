@@ -1,7 +1,7 @@
 Citation for |openmolcas| and |molcas|
 ======================================
 
-The recommended citation for |openmolcas| is:
+The recommended citations for |openmolcas| are:
 
   **OpenMolcas:** Ignacio Fdez. Galván, Morgane Vacher, Ali Alavi, Celestino
   Angeli, Francesco Aquilante, Jochen Autschbach, Jie J. Bao, Sergey I. Bokarev,
@@ -18,8 +18,21 @@ The recommended citation for |openmolcas| is:
   Alessio Valentini, Steven Vancoillie, Valera Veryazov, Oskar Weser, Tomasz A.
   Wesołowski, Per-Olof Widmark, Sebastian Wouters, Alexander Zech, J. Patrick
   Zobel, Roland Lindh. "OpenMolcas: From Source Code to Insight." *Journal of
-  Chemical Theory and Computation*, **15** (2019), 5925--5964. DOI:
-  `10.1021/acs.jctc.9b00532 <https://doi.org/10.1021/acs.jctc.9b00532>`_
+  Chemical Theory and Computation*, **15** (2019), 5925--5964.
+  `doi:10.1021/acs.jctc.9b00532 <https://doi.org/10.1021/acs.jctc.9b00532>`_
+
+  **Applications:** Francesco Aquilante, Jochen Autschbach, Alberto Baiardi,
+  Stefano Battaglia, Veniamin A. Borin, Liviu F. Chibotaru, Irene Conti, Luca De
+  Vico, Mikael Delcey, Ignacio Fdez. Galván, Nicolas Ferré, Leon Freitag, Marco
+  Garavelli, Xuejun Gong, Stefan Knecht, Ernst D. Larsson, Roland Lindh, Marcus
+  Lundberg, Per Åke Malmqvist, Artur Nenov, Jesper Norell, Michael Odelius,
+  Massimo Olivucci, Thomas B. Pedersen, Laura Pedraza-González, Quan M. Phung,
+  Kristine Pierloot, Markus Reiher, Igor Schapiro, Javier Segarra-Martí,
+  Francesco Segatta, Luis Seijo, Saumik Sen, Dumitru-Claudiu Sergentu,
+  Christopher J. Stein, Liviu Ungur, Morgane Vacher, Alessio Valentini, Valera
+  Veryazov. "Modern quantum chemistry with [Open]Molcas." *The Journal of
+  Chemical Physics*, **152** (2020), 214117. `doi:10.1063/5.0004835
+  <https://10.1063/5.0004835>`_
 
 Earlier citations for |molcas| are:
 
@@ -32,29 +45,29 @@ Earlier citations for |molcas| are:
   P. Vysotskiy, O. Weingart, F. Zapata, R. Lindh. ":sc:`Molcas` 8: New
   capabilities for multiconfigurational quantum chemical calculations across the
   periodic table." *Journal of Computational Chemistry*, **37** (2016), 506--541.
-  DOI: `10.1002/jcc.24221 <https://doi.org/10.1002/jcc.24221>`_
+  `doi:10.1002/jcc.24221 <https://doi.org/10.1002/jcc.24221>`_
 
   **Cholesky infrastructure:** F. Aquilante, T. B. Pedersen, V. Veryazov, R.
   Lindh. "MOLCAS---a software for multiconfigurational quantum chemistry
   calculations." *Wiley Interdisciplinary Reviews: Computational Molecular
-  Science*, **3** (2013), 143--149. DOI: `10.1002/wcms.1117
+  Science*, **3** (2013), 143--149. `doi:10.1002/wcms.1117
   <https://doi.org/10.1002/wcms.1117>`_
 
   **Molcas 7:** F. Aquilante, L. De Vico, N. Ferré, G. Ghigo, P.-Å. Malmqvist, P.
   Neogrády, T. B. Pedersen, M. Pitoňák, M. Reiher, B. O. Roos, L. Serrano-Andrés,
   M. Urban, V. Veryazov, R. Lindh. "MOLCAS 7: The Next Generation." *Journal of
-  Computational Chemistry*, **31** (2010), 224-247. DOI: `10.1002/jcc.21318
+  Computational Chemistry*, **31** (2010), 224-247. `doi:10.1002/jcc.21318
   <https://doi.org/10.1002/jcc.21318>`_
 
   **Code development:** V. Veryazov, P.-O. Widmark, L. Serrano-Andrés, R. Lindh,
   B. O. Roos. "2MOLCAS as a development platform for quantum chemistry software."
-  *International Journal of Quantum Chemistry*, **100** (2004), 626--635. DOI:
-  `10.1002/qua.20166 <https://doi.org/10.1002/qua.20166>`_
+  *International Journal of Quantum Chemistry*, **100** (2004), 626--635.
+  `doi:10.1002/qua.20166 <https://doi.org/10.1002/qua.20166>`_
 
   **Molcas 6:** G. Karlström, R. Lindh, P.-Å. Malmqvist, B. O. Roos, U. Ryde, V.
   Veryazov, P.-O. Widmark, M. Cossi, B. Schimmelpfennig, P. Neogrády, L. Seijo.
   "MOLCAS: a program package for computational chemistry." *Computational
-  Material Science*, **28** (2003), 222-239. DOI: `10.1016/S0927-0256(03)00109-5
+  Material Science*, **28** (2003), 222-239. `doi:10.1016/S0927-0256(03)00109-5
   <https://doi.org/10.1016/S0927-0256(03)00109-5>`_
 
 The following people have contributed to the development of the
@@ -82,7 +95,7 @@ The following people have contributed to the development of the
   Abdul Rehaman Moughal Shahi, Thomas Müller, Takahito Nakajima, Naoki Nakatani,
   Pavel Neogrády, Jesper Norell, Anders Öhrn, Jeppe Olsen, Markus Oppel, Thomas
   Bondo Pedersen, Daoling Peng, Kurt Pfingst, Quan Phung, Michal Pitoňák, Felix
-  Plasser, Christian Pomelli, Ben Pritchard, Juraj Raab, Markus Reiher, H.
+  Plasser, Christian Pomelli, Ben Pritchard, Juraj Raab, Gerardo Raggi, Markus Reiher, H.
   Rieger, Björn O. Roos, Ulf Ryde, Pawel Salek, Andrew M. Sand, Michael A.
   Saunders, Igor Schapiro, Bernd Schimmelpfennig, Martin Schütz, Luis Seijo, Luis
   Serrano-Andrés, Kamal Sharkas, Grigory A. Shamov, Prachi Sharma, Per E. M.

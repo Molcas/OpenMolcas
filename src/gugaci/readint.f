@@ -21,7 +21,6 @@ c  16 apr 2007 - bsuo - revised to use molcas intergrals
       common /mcorb/ lsmorb(max_orb),noidx(8)
       REAL*8, pointer :: x(:)
       dimension xfock(max_orb*(max_orb+1)/2)
-      dimension itratoc(ntratoc)
 
 
       nintone=0
@@ -31,7 +30,6 @@ c  16 apr 2007 - bsuo - revised to use molcas intergrals
       do i=1,ng_sm
         nism   = nlsm_all(i)
         nsmint = nism*(nism+1)/2
-        itratoc(i)=nism*nism
         nmob=nmob+nlsm_bas(i)*nlsm_bas(i)
         noidx(i)=nidx
         nidx=nidx+nism
@@ -96,7 +94,6 @@ c...end of intrd_molcas
       integer :: noffset(maxrecord)
       parameter ( kbuf = ntrabuf )
       dimension norb(8),multab(8,8),maporb(max_orb),noidx(8)
-      dimension itratoc(ntratoc)
       dimension buff(kbuf)
 
       idisk=noffset(5)
@@ -212,7 +209,6 @@ c....end of readtwoeint
       common /mcorb/ lsmorb(max_orb),noidx(8)
       REAL*8, pointer :: x(:)
       dimension xfock(max_orb*(max_orb+1)/2)
-      dimension itratoc(ntratoc)
 
       nintone=0
       nmob=0
@@ -221,7 +217,6 @@ c....end of readtwoeint
       do i=1,ng_sm
         nism   = nlsm_all(i)
         nsmint = nism*(nism+1)/2
-        itratoc(i)=nism*nism
         nmob=nmob+nlsm_bas(i)*nlsm_bas(i)
         noidx(i)=nidx
         nidx=nidx+nism
@@ -310,18 +305,15 @@ c      write(6,"(10(1x,i8))") itratoc(1:10)
               if(nspqr.ne.nss) cycle
               nos=norb(nss)
 
-              ityp=0
               if(nsr.eq.nss) then
                 nbpq=(nop+nop**2)/2
                 nbrs=(nos+nos**2)/2
                 if(nsp.eq.nsr) then
 c  (ii|ii) type 1 int
                   nintb=(nbpq+nbpq**2)/2
-                  ityp=1
                 else
 c  (ii|jj) type 3 int
                   nintb=nbpq*nbrs
-                  ityp=3
                 endif
               else
                 nbpq=nop*noq
@@ -329,11 +321,9 @@ c  (ii|jj) type 3 int
                 if(nsp.eq.nsr) then
 c (ij|ij) type 2 int
                   nintb=(nbpq+nbpq**2)/2
-                  ityp=2
                 else
 c (ij|kl) type 4 int
                   nintb=nbpq*nbrs
-                  ityp=4
                 endif
               endif
 
@@ -398,17 +388,15 @@ c....end of readtwoeint
       parameter (lenin8=6+8)
       dimension ncone(64),nbas(8),norb(8),nfro(8),
      *          ndel(8)
-      dimension indx_idisk(64)
       character bsbl(maxmolcasorb)*(lenin8)
       dimension dum(1),idum(1)
 
-      indx_idisk=0
       idisk=0
       call idafile(nft,2,ncone,64,idisk)
       call ddafile(nft,2,dum,1,idisk)
       ecor=dum(1)
       call idafile(nft,2,idum,1,idisk)
-      nsym=idum(1)
+c      nsym=idum(1)
       call idafile(nft,2,nbas,8,idisk)
       call idafile(nft,2,norb,8,idisk)
       call idafile(nft,2,nfro,8,idisk)
@@ -627,10 +615,10 @@ c      write(6,'(1x,14i3)')(ncibl(i),i=1,14)
 
       numb = 1
       do 10  i = 1,norb_all-1
-        do 10  j = i+1,norb_all
+        do 11  j = i+1,norb_all
           lri=norb_number(i)
           lrj=norb_number(j)
-          if(lsm(lri).ne.lsm(lrj)) goto 10
+          if(lsm(lri).ne.lsm(lrj)) goto 11
 !          write(6,*) "lri=",lri,"lrj=",lrj
 !          write(6,*) "lsm(lri)",lsm(lri),"lsm(lrj)",lsm(lrj)
 
@@ -645,19 +633,20 @@ c    *        vint_ci(numb),vint_ci(numb+1)
             numb=numb+2*norb_all
 !20        continue
 
+11      continue
 10    continue
 !      write(6,*) "number 3 index",numb
 !      stop 777
 c=======================================================================
 c      la<lb<lc<ld
       do 30 ld = 1,norb_all-3
-        do 30 lc = ld+1,norb_all-2
+        do 31 lc = ld+1,norb_all-2
           lrd=norb_all-ld+1
           lrc=norb_all-lc+1
           msd  = lsm(lrd)
           msc  = lsm(lrc)
           mscd = mul_tab(msd,msc)
-          do 30 lb = lc+1,norb_all-1
+          do 32 lb = lc+1,norb_all-1
             lrb=norb_all-lb+1
             msb = lsm(lrb)
             msa = mul_tab(mscd,msb)
@@ -665,7 +654,7 @@ c      la<lb<lc<ld
             njkl=ld+ngw2(lc)+ngw3(lb)
             loijk_all(njkl) = numb
 
-            nolra=0
+!            nolra=0
             do 40 la = norb_all,lb+1,-1
               lra=norb_all-la+1
               if(lsm(lra).ne.msa) cycle
@@ -682,6 +671,8 @@ c     write(10,'(2x,4i6,i8,3f16.8)')la,lb,lc,ld, numb,
 c    *        vint_ci(numb),vint_ci(numb+1),vint_ci(numb+2)
               numb=numb+3
 40         continue
+32        continue
+31      continue
 30    continue
 !              stop 777
       return

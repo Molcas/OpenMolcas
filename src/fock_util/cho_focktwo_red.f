@@ -13,7 +13,7 @@
       SUBROUTINE CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
      &           FactC,FactX,ipDLT,ipDSQ,ipFLT,ipFSQ,ipNocc,MinMem)
 
-**********************************************************************
+************************************************************************
 *  Author : F. Aquilante
 *
 *  Purpose:
@@ -63,7 +63,7 @@
 *  MinMem(nSym) : minimum amount of memory required to read
 *                 a single Cholesky vector in full storage
 *
-***********************************************************************
+************************************************************************
 
       Implicit Real*8 (a-h,o-z)
 
@@ -72,7 +72,10 @@
       Integer  KSQ1(8),ISTSQ(8),ISTLT(8),iSkip(8),MinMem(*)
       Integer  ipDLT(nDen),ipDSQ(nDen),ipNocc(nDen)
       Integer  ipFLT(nDen),ipFSQ(nDen)
-      Logical  DoExchange(nDen),DoCoulomb(nDen),DoSomeX,DoSomeC,Debug
+#ifdef _DEBUGPRINT_
+      Logical  Debug
+#endif
+      Logical  DoExchange(nDen),DoCoulomb(nDen),DoSomeX,DoSomeC
       Real*8   tread(2),tcoul(2),texch(2)
       Logical  timings
 
@@ -96,12 +99,8 @@
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 **************************************************
 
-
-#ifdef _DEBUG_
-c      Debug=.true.
+#ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in SCF-debug
-#else
-      Debug=.false.
 #endif
       IREDC = -1  ! unknown reduced set in core
 
@@ -174,7 +173,6 @@ C ------------------
 C         ***QUIT*** bad initialization
          WRITE(6,*) 'Cho_FockTwo_RED: bad initialization'
          rc=99
-         CALL QTrace()
          CALL Abend()
          nVec = -9999  ! dummy assignment - avoid compiler warnings
       End If
@@ -192,7 +190,6 @@ C         ***QUIT*** insufficient memory
          WRITE(6,*) 'NumCho= ',NumCho(jsym)
          WRITE(6,*) 'jsym= ',jsym
          rc = 205
-         CALL QTrace()
          CALL Abend()
          nBatch = -9999  ! dummy assignment
       End If
@@ -233,7 +230,6 @@ C Max dimension of a read symmetry block
         Do iSym=1,nSym
            if(NBAS(iSym).gt.Nmax .and. iSkip(iSym).ne.0)then
            Nmax = NBAS(iSym)
-           iSymMax= iSym
            endif
         End Do
 
@@ -281,7 +277,7 @@ C --- Reading of the vectors is done in Reduced sets
        tread(1) = tread(1) + (TCR2 - TCR1)
        tread(2) = tread(2) + (TWR2 - TWR1)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        write(6,*) 'Batch ',iBatch,' of   ',nBatch,': NumV = ',NumV
        write(6,*) 'Total allocated :     ',kTOT,' at ',kWab
        write(6,*) 'Memory pointers KSQ1: ',(KSQ1(i),i=1,nSym)
@@ -607,8 +603,7 @@ C --- Free the memory
 
 
 c Print the Fock-matrix
-#ifdef _DEBUG_
-
+#ifdef _DEBUGPRINT_
       if(Debug) then !to avoid double printing in SCF-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM CHO_FOCKTWO_RED.'

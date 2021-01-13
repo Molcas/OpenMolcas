@@ -12,28 +12,19 @@
 ************************************************************************
       Subroutine dRho_dR_GGA(Dens,nDens,nD,dRho_dR,ndRho_dR,mGrid,
      &                       list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,
-     &                       nSym,nGrad_Eff,list_g,Maps2p,nShell,
+     &                       nGrad_Eff,list_g,
      &                       Grid_Type,Fixed_Grid,Fact,ndc,TabAOMax,T_X,
      &                       list_bas,Index,nIndex)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: Do_Batch                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.  2002 (at Todai)                        *
 ************************************************************************
       use iSD_data
+      use k2_arrays, only: DeDe, ipDijS
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "disp.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "debug.fh"
 #include "nsd.fh"
@@ -41,8 +32,7 @@
       Integer On, Off
       Parameter (On=1, Off=0)
       Integer list_s(2,nlist_s), list_g(3,nlist_s),
-     &        ipTabAO(nlist_s), Maps2p(nShell,0:nSym-1),
-     &        list_bas(2,nlist_s), Index(nIndex)
+     &        ipTabAO(nlist_s), list_bas(2,nlist_s), Index(nIndex)
       Integer Grid_Type, Fixed_Grid
       Real*8 Dens(nDens,nD), dRho_dR(ndRho_dR,mGrid,nGrad_Eff),
      &       TabAO(nTabAO), Fact(ndc**2), TabAOMax(nlist_s)
@@ -55,14 +45,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
-      Call QEnter('dRho_dR_GGA')
+#ifdef _DEBUGPRINT_
       If (Debug) Then
          Call RecPrt('dRho_dR_GGA:Dens',' ',Dens,nDens,nD)
          Write (6,*) 'mAO=',mAO
          Write (6,*) 'mGrid=',mGrid
          Write (6,*) 'nTabAO=',nTabAO
-         Write (6,*) 'nIrrep=',nIrrep
          Write (6,*) 'nlist_s=',nlist_s
          Do iList_s = 1, nList_s
             Write (6,*) 'iList_s=',iList_s
@@ -92,14 +80,10 @@
          TMax_i=TabAOMax(ilist_s)
          If (TMax_i.le.T_X) Go To 999
          iBas  = iSD( 3,iS)
-         iPrim = iSD( 5,iS)
          mdci  = iSD(10,iS)
          iShell= iSD(11,iS)
          index_i=list_bas(2,ilist_s)
 *
-         lDCRE=NrOpr(kDCRE,iOper,nIrrep)
-*
-         jNQ=Maps2p(iS,lDCRE)
          Call ICopy(3,list_g(1,ilist_s),1,IndGrd_Eff(1,1),1)
          n1 = IndGrd_Eff(1,1) + IndGrd_Eff(2,1) + IndGrd_Eff(3,1)
 *
@@ -111,15 +95,11 @@
             kDCRR = list_s(2,jlist_s)
             jCmp  = iSD( 2,jS)
             jBas  = iSD( 3,jS)
-            jPrim = iSD( 5,jS)
             mdcj  = iSD(10,jS)
             jShell= iSD(11,jS)
             jBas_Eff=list_bas(1,jlist_s)
             index_j =list_bas(2,jlist_s)
 *
-            lDCRR=NrOpr(kDCRR,iOper,nIrrep)
-*
-            kNQ=Maps2p(jS,lDCRR)
             Call ICopy(3,list_g(1,jlist_s),1,IndGrd_Eff(1,2),1)
             n2 = IndGrd_Eff(1,2) + IndGrd_Eff(2,2) + IndGrd_Eff(3,2)
             If (n1+n2.eq.0) Go To 98
@@ -131,7 +111,7 @@
             ijS=iTri(iShell,jShell)
             ipTmp=ipDijs
             Call Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ipTmp,nD)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*)
                Write (6,*) 'iS,jS=',iS,jS
@@ -146,32 +126,32 @@
             If (ilist_s.eq.jlist_s) Deg=One
 *
             iER=iEOr(kDCRE,kDCRR)
-            lDCRER=NrOpr(iER,iOper,nIrrep)
+            lDCRER=NrOpr(iER)
 *
             ip_D_a=ipDij+lDCRER*mDij
             ip_D_b=ip_D_a
             If (nD.ne.1) ip_D_b=ipDSij+lDCRER*mDij
 *
             If (nD.ne.1) Then
-               ix=iDAMax_(mDij,Work(ip_D_a),1)
-               iy=iDAMax_(mDij,Work(ip_D_b),1)
-               DMax_ij=Half*( Abs(Work(ip_D_a-1+ix))
-     &                       +Abs(Work(ip_D_b-1+iy)) )
+               ix=iDAMax_(mDij,DeDe(ip_D_a),1)
+               iy=iDAMax_(mDij,DeDe(ip_D_b),1)
+               DMax_ij=Half*( Abs(DeDe(ip_D_a-1+ix))
+     &                       +Abs(DeDe(ip_D_b-1+iy)) )
             Else
-               ix=iDAMax_(mDij,Work(ip_D_a),1)
-               DMax_ij=Abs(Work(ip_D_a-1+ix))
+               ix=iDAMax_(mDij,DeDe(ip_D_a),1)
+               DMax_ij=Abs(DeDe(ip_D_a-1+ix))
             End If
             DMax_ij=DMax_ij*Fact(ij)
             If (TMax_i*TMax_j*DMax_ij.lt.T_X) Go To 98
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*) 'dRho_dR_GGA'
                nBB = iBas*jBas
                nCC = iCmp*jCmp
                Write (6,*) 'iER,lDCRER=',iER,lDCRER
-               Call RecPrt('DAij',' ',Work(ip_D_a),nBB,nCC)
+               Call RecPrt('DAij',' ',DeDe(ip_D_a),nBB,nCC)
                If (nD.ne.1)
-     &            Call RecPrt('DBij',' ',Work(ip_D_b),nBB,nCC)
+     &            Call RecPrt('DBij',' ',DeDe(ip_D_b),nBB,nCC)
             End If
 #endif
 *
@@ -189,7 +169,7 @@
             If (nD.eq.1) Then
                If (iShell.ge.jShell) Then
                Call Do_Rho8da(dRho_dR,    mGrid,nGrad_Eff,
-     &                       Work(ip_D_a),                  mAO,
+     &                       DeDe(ip_D_a),                  mAO,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       Fact(ij)*Deg,IndGrd_Eff,
@@ -197,7 +177,7 @@
      &                       Index(index_i),Index(index_j))
                Else
                Call Do_Rho8da(dRho_dR,    mGrid,nGrad_Eff,
-     &                       Work(ip_D_a),                  mAO,
+     &                       DeDe(ip_D_a),                  mAO,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       Fact(ij)*Deg,IndGrd_Eff,
@@ -207,7 +187,7 @@
             Else
                If (iShell.ge.jShell) Then
                Call Do_Rho8d_(dRho_dR,    mGrid,nGrad_Eff,
-     &                       Work(ip_D_a),Work(ip_D_b),     mAO,
+     &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       Fact(ij)*Deg,IndGrd_Eff,
@@ -215,7 +195,7 @@
      &                       Index(index_i),Index(index_j))
                Else
                Call Do_Rho8d_(dRho_dR,    mGrid,nGrad_Eff,
-     &                       Work(ip_D_a),Work(ip_D_b),     mAO,
+     &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       Fact(ij)*Deg,IndGrd_Eff,
@@ -231,11 +211,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Call RecPrt('dRho_dR_GGA: dRho_dR',' ',dRho_dR,
      &                        ndRho_dR*mGrid,nGrad_Eff)
 *
-      Call QExit('dRho_dR_GGA')
 #else
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Dens)

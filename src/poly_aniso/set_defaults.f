@@ -35,11 +35,11 @@ c==================================================================
 c definintion of the cluster
       Integer, intent(in)  :: nneq
       Integer, intent(out) :: neq(nneq)
-      Real(kind=wp), intent(out) :: gtens_input(3,nneq)
-      Real(kind=wp), intent(out) :: D_fact(nneq)
-      Real(kind=wp), intent(out) :: EoverD_fact(nneq)
-      Real(kind=wp), intent(out) :: riso(nneq,3,3)
-      Character(1), intent(out) :: itype(nneq)
+      Real(kind=8), intent(out) :: gtens_input(3,nneq)
+      Real(kind=8), intent(out) :: D_fact(nneq)
+      Real(kind=8), intent(out) :: EoverD_fact(nneq)
+      Real(kind=8), intent(out) :: riso(nneq,3,3)
+      Character(Len=1), intent(out) :: itype(nneq)
 c definintion of exchange interaction
       Integer, intent(out) :: nexch(nneq)
 c  definition of g and D tensors
@@ -67,15 +67,15 @@ cc  options for automatic fitting of parameters:
       Logical, intent(out) :: fitM !-- not used so far
 cc  definition of data for susceptibility
       Logical, intent(out) :: tinput, compute_susceptibility
-      Real(kind=wp), intent(out) :: tmin, tmax, dltT0
+      Real(kind=8), intent(out) :: tmin, tmax, dltT0
       ! options related to XT_MoverH
-      Real(kind=wp), intent(out) :: Xfield
+      Real(kind=8), intent(out) :: Xfield
 cc  definition of data for magnetization:
       Integer, intent(in)        :: nTempMagn
-      Real(kind=wp),intent(out)  :: TempMagn(nTempMagn)
+      Real(kind=8),intent(out)  :: TempMagn(nTempMagn)
       Integer, intent(out)       :: iopt
-      Real(kind=wp), intent(out) :: dltH0, thrs
-      Real(kind=wp), intent(out) :: hmin, hmax
+      Real(kind=8), intent(out) :: dltH0, thrs
+      Real(kind=8), intent(out) :: hmin, hmax
       Logical, intent(out)       :: hinput
       Logical, intent(out)       :: compute_magnetization
       Logical, intent(out)       :: compute_Mdir_vector
@@ -87,7 +87,7 @@ c      ! options used to set up nM and EM
       Integer, intent(out)       :: encut_definition
       Integer, intent(out)       :: nK, mG ! encut_definition=1;
       Integer, intent(out)       :: ncut   ! encut_definition=2;
-      Real(kind=wp), intent(out) :: encut_rate ! encut_definition=3;
+      Real(kind=8), intent(out) :: encut_rate ! encut_definition=3;
 cc decompose exchange
       Logical, intent(out)       :: decompose_exchange
 c  magnetization torque
@@ -95,13 +95,13 @@ c  magnetization torque
       Integer, intent(out)       :: nP
       Integer, intent(out)       :: AngPoints
 c mean field parameter
-      Real(kind=wp), intent(out) :: zJ
+      Real(kind=8), intent(out) :: zJ
 c  definintion of the crystal axes:
       Logical, intent(out)       :: Do_structure_abc
 !     a, b, c, alpha, beta, gamma
-      Real(kind=wp), intent(out) :: cryst(6)
+      Real(kind=8), intent(out) :: cryst(6)
 !     Cartesian coordinates of the main metal site, or center
-      Real(kind=wp), intent(out) :: coord(3)
+      Real(kind=8), intent(out) :: coord(3)
 cc  definitions for blocking barrier
       Integer, intent(out)       :: nBlock
       Logical, intent(out)       :: compute_barrier
@@ -112,7 +112,6 @@ c------------------------------------------------------------------
 ! Local variables:
       Integer       :: i,j,l
 
-      Call qEnter('PA_set_defaults')
 c------------------------------------------------------------------
 !  at this point, the follwing variables have been already assigned
 !  their values
@@ -338,7 +337,6 @@ c  variables in "mgrid.fh"
       get_nP(3,31)=694
       get_nP(3,32)=760
 
-      Call qExit('PA_set_defaults')
 
       Return
       End Subroutine set_defaults

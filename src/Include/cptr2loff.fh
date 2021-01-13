@@ -1,0 +1,27 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+************************************************************************
+      interface cptr2loff
+        integer function d_cptr2loff(buffer)
+          real*8, target, intent(in) :: buffer
+        end function
+        integer function i_cptr2loff(buffer)
+          integer, target, intent(in) :: buffer
+        end function
+        integer function c_cptr2loff(buffer)
+          character(len=*), target, intent(in) :: buffer
+        end function
+        integer function z_cptr2loff(buffer)
+          complex*16, target, intent(in) :: buffer
+        end function
+        integer function l_cptr2loff(buffer)
+          logical, target, intent(in) :: buffer
+        end function
+      end interface

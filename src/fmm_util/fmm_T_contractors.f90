@@ -38,7 +38,7 @@ MODULE fmm_T_contractors
    REAL(REALK), POINTER, SAVE :: qlm_ptr(:,:)
 
    ! Diagnostic variables
-   CHARACTER(11), SAVE :: T_con_stat
+   CHARACTER(LEN=11), SAVE :: T_con_stat
    LOGICAL,       SAVE :: fmm_lock_T_con
 
 CONTAINS
@@ -457,8 +457,7 @@ CONTAINS
 
    SUBROUTINE fmm_T_con_FULL(T_pair)
 
-      USE fmm_T_worker, ONLY: fmm_get_FLTSQ_T_matrix, fmm_postfac_Vff,  &
-                              fmm_contract_Tq
+      USE fmm_T_worker, ONLY: fmm_get_FLTSQ_T_matrix, fmm_postfac_Vff
 
       IMPLICIT NONE
       TYPE(T_pair_single), INTENT(IN) :: T_pair

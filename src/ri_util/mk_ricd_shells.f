@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2007,2008, Roland Lindh                                *
 ************************************************************************
-      Subroutine Mk_RICD_Shells(Info,nInfo)
+      Subroutine Mk_RICD_Shells()
 ************************************************************************
 *                                                                      *
 *    Objective: To generate aCD auxiliary basis sets on-the-fly.       *
@@ -30,9 +30,11 @@
 *                                                                      *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
+      use Sizes_of_Seward, only: S
+      use RICD_Info, only: Do_acCD_Basis, Skip_High_AC, Do_nacCD_Basis,
+     &                     Thrshld_CD
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "SysDef.fh"
 #include "real.fh"
 #include "print.fh"
@@ -42,20 +44,17 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        iPrint=49
 C      iPrint=99
-#else
-       iPrint=5
 #endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qEnter('Mk_aCD_Shells')
 *
       Call StatusLine('Gateway:',
      &                ' Generating aCD or acCD auxiliary basis set')
@@ -69,24 +68,22 @@ C      iPrint=99
 *     Set up transformation matrix from Cartesian to real spherical
 *     harmonics.
 *
-      Call Sphere(iAngMx)
+      Call Sphere(S%iAngMx)
 *
 *     Setup of tables for coefficients for the Rys roots and weights.
 *
       nDiff=0
-      If (iAngMx.eq.0) nDiff=2
+      If (S%iAngMx.eq.0) nDiff=2
       DoRys=.True.
       Call SetUp_RW(DoRys,nDiff)
 *
-      iShll=Mx_Shll - 1
-      iStrt=ipExp(iShll)
       mCnttp=nCnttp
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Add the DUMMY SHELL!
 *
-      Call Mk_Dummy_Shell(Info,nInfo)
+      Call Mk_Dummy_Shell()
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -96,8 +93,8 @@ C      iPrint=99
 *     different types of aCD auxiliary basis sets, aCD and acCD.
 *
       Do 1100 iCnttp = 1, mCnttp
-         If (FragCnttp(iCnttp).or.nVal_Shells(iCnttp).eq.0) goto 1100
-#ifdef _DEBUG_
+         If (dbsc(iCnttp)%Frag.or.dbsc(iCnttp)%nVal.eq.0) goto 1100
+#ifdef _DEBUGPRINT_
          If (iPrint.ge.99)
      &   Write (6,*) 'Generating auxiliary basis set for valence basis'
      &             //':',iCnttp
@@ -110,7 +107,7 @@ C      iPrint=99
 *
          W2L=.True.
          Do jCnttp = iCnttp+1, mCnttp
-            If (Bsl_Old(iCnttp).eq.Bsl_Old(jCnttp)) Then
+            If (dbsc(iCnttp)%Bsl_old.eq.dbsc(jCnttp)%Bsl_old) Then
                W2L=.False.
                Exit
             End If
@@ -133,7 +130,7 @@ C      iPrint=99
             Skip_High_AC = .False.
 *
             kCnttp = nCnttp
-            Call Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L)
+            Call Mk_aCD_acCD_Shells(iCnttp,W2L)
             lCnttp = nCnttp
 *
 *           Now let us use the aCD auxiliary basis set to generate the
@@ -141,12 +138,12 @@ C      iPrint=99
 *
             Thrshld_CD = Thrshld_CD_Save
             Skip_High_AC = Save_Logical
-            Call Mk_nacCD_Shells(Info,nInfo,kCnttp,lCnttp)
+            Call Mk_nacCD_Shells(kCnttp,lCnttp)
 *
 *           Remove the temporary aCD auxiliary basis set
 *
             Do jCnttp = kCnttp+1, lCnttp
-               Call rm_AuxShell(Info,nInfo,jCnttp)
+               Call rm_AuxShell(jCnttp)
             End Do
 *                                                                      *
 ************************************************************************
@@ -158,20 +155,13 @@ C      iPrint=99
 *        aCD and acCD section
 *
 *
-            Call Mk_aCD_acCD_Shells(Info,nInfo,iCnttp,W2L)
+            Call Mk_aCD_acCD_Shells(iCnttp,W2L)
 *
          End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
  1100 Continue ! iCnttp
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Let us now Gram-Schmidt orthonormalize the auxiliary basis for
-*     better numerics and balance.
-*
-*     Call ReNorm()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -182,24 +172,20 @@ C      iPrint=99
 *     Cleanup the mess!
 *
       Call CloseR()
-*
-      If (Allocated(RSph)) Call mma_deallocate(RSph)
-      If (Allocated(ipSph)) Call mma_deallocate(ipSph)
+      Call Sphere_Free()
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('Mk_aCD_Shells')
       Return
       End
       Subroutine Remove_High_Exponents(iD,nD,List2,mData,nTheta_All)
+      Use Basis_Info, only: Shells
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *                                                                      *
 *     Experimental code to be used with care.                          *
 *                                                                      *
 ************************************************************************
-#include "itmax.fh"
-#include "info.fh"
       Integer iD(nD), List2(mData,nTheta_All)
       Logical Skip
 *
@@ -217,9 +203,9 @@ C      iPrint=99
          lShll = List2(8,iTheta_All)
          If (kAng.eq.lAng) Then
             l     = List2(6,iTheta_All)
-            Skip = (k.eq.1.and.l.eq.1).and.nExp(kShll).ne.1
+            Skip = (k.eq.1.and.l.eq.1).and.Shells(kShll)%nExp.ne.1
          Else
-            Skip=l.eq.1.and.nExp(lShll).ne.1
+            Skip=l.eq.1.and.Shells(lShll)%nExp.ne.1
          End If
          If (Skip) Then
             If (mD.eq.i) Then

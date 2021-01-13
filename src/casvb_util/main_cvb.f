@@ -8,11 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine main_cvb()
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
+c ... Make: up to date? ...
+      logical, external :: up2date_cvb
 #include "main_cvb.fh"
 
 #include "optze_cvb.fh"
@@ -45,7 +47,8 @@ c ----------------------------------
         if(variat.and.(.not.endvar).and.ip(6).lt.2)then
 c  Reduce output level for main variational iterations:
           do 1100 i=1,10
-1100      ip(i)=-1
+          ip(i)=-1
+1100      continue
         endif
 
         if(endvar.and..not.up2date_cvb('PRTSUM'))then

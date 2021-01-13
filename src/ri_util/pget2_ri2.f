@@ -10,9 +10,10 @@
 *                                                                      *
 * Copyright (C) 1992,2007, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PGet2_RI2(iCmp,iShell,iBas,jBas,kBas,lBas,
+      SubRoutine PGet2_RI2(iCmp,iBas,jBas,kBas,lBas,
      &                  Shijij, iAO, iAOst, nijkl,PSO,nPSO,
-     &                  ExFac,CoulFac,PMax,V_K,U_K,mV_K,Z_p_K,nSA)
+     &                  ExFac,CoulFac,PMax,V_K,mV_K,Z_p_K,nSA,
+     &                  nZ_p_k)
 ************************************************************************
 *  Object: to assemble the 2nd order density matrix of a SCF wave      *
 *          function from the 1st order density matrix.                 *
@@ -21,45 +22,36 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 *                                                                      *
 *             Modified to RI-DFT, March 2007                           *
-*                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas, nBas_Aux
+      use SOAO_Info, only: iAOtSO
+      use pso_stuff, only: nnp, lPSO, lsa, DMdiag
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
-#include "lundio.fh"
-#include "pso.fh"
 #include "print.fh"
 #include "WrkSpc.fh"
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
       Real*8 PSO(nijkl,nPSO), V_K(mV_K,nSA),Z_p_K(nZ_p_k,*)
-      Integer iCmp(4), iShell(4), iAO(4), iAOst(4)
+      Integer iCmp(4), iAO(4), iAOst(4)
       Logical Shijij, Found
 *     Local Array
       Integer jSym(0:7), lSym(0:7)
-      Integer iTwoj(0:7),CumnnP(0:7),CumnnP2(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
+      Integer CumnnP(0:7),CumnnP2(0:7)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*#define _DEBUG_
-#ifdef _DEBUG_
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       iRout = 39
       iPrint = nPrint(iRout)
       iPrint=99
-      Call qEnter('PGet2_RI2')
       Call RecPrt('V_K',' ',V_K,1,mV_K)
 #endif
 
@@ -67,7 +59,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      lOper=1
       PMax=Zero
       iSO=1
       ip_CikJ = ip_CijK
@@ -110,8 +101,7 @@
       Do i2 = 1, iCmp(2)
          njSym = 0
          Do j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell(2))+i2),
-     &         iTwoj(j)).ne.0) Then
+            If (iAOtSO(iAO(2)+i2,j)>0) Then
                jSym(njSym) = j
                njSym = njSym + 1
             End If
@@ -120,8 +110,7 @@
          Do i4 = 1, iCmp(4)
             nlSym = 0
             Do j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndS(iShell(4))+i4),
-     &             iTwoj(j)).ne.0) Then
+               If (iAOtSO(iAO(4)+i4,j)>0) Then
                   lSym(nlSym) = j
                   nlSym = nlSym + 1
                End If
@@ -183,8 +172,7 @@
       Do i2 = 1, iCmp(2)
          njSym = 0
          Do j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell(2))+i2),
-     &         iTwoj(j)).ne.0) Then
+            If (iAOtSO(iAO(2)+i2,j)>0) Then
                jSym(njSym) = j
                njSym = njSym + 1
             End If
@@ -193,8 +181,7 @@
          Do i4 = 1, iCmp(4)
             nlSym = 0
             Do j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndS(iShell(4))+i4),
-     &             iTwoj(j)).ne.0) Then
+               If (iAOtSO(iAO(4)+i4,j)>0) Then
                   lSym(nlSym) = j
                   nlSym = nlSym + 1
                End If
@@ -303,8 +290,7 @@
       Do i2 = 1, iCmp(2)
          njSym = 0
          Do j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell(2))+i2),
-     &         iTwoj(j)).ne.0) Then
+            If (iAOtSO(iAO(2)+i2,j)>0) Then
                jSym(njSym) = j
                njSym = njSym + 1
             End If
@@ -313,8 +299,7 @@
          Do i4 = 1, iCmp(4)
             nlSym = 0
             Do j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndS(iShell(4))+i4),
-     &             iTwoj(j)).ne.0) Then
+               If (iAOtSO(iAO(4)+i4,j)>0) Then
                   lSym(nlSym) = j
                   nlSym = nlSym + 1
                End If
@@ -395,7 +380,7 @@
                         jpSOl=CumnnP2(j2)+(lSOl-1)*nnP(j2)
                         Do jp=1,nnP(j2)
                           temp2=temp2+sign(1.0d0,
-     &                          Work(ipDMdiag+CumnnP(j2)+jp-1))*
+     &                          DMdiag(CumnnP(j2)+jp,1))*
      &                          Z_p_K(jpSOj+jp,1)*Z_p_K(jpSOl+jp,1)
                         End Do
                         temp=temp+temp2
@@ -427,8 +412,7 @@
       Do i2 = 1, iCmp(2)
          njSym = 0
          Do j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell(2))+i2),
-     &         iTwoj(j)).ne.0) Then
+            If (iAOtSO(iAO(2)+i2,j)>0) Then
                jSym(njSym) = j
                njSym = njSym + 1
             End If
@@ -437,8 +421,7 @@
          Do i4 = 1, iCmp(4)
             nlSym = 0
             Do j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndS(iShell(4))+i4),
-     &             iTwoj(j)).ne.0) Then
+               If (iAOtSO(iAO(4)+i4,j)>0) Then
                   lSym(nlSym) = j
                   nlSym = nlSym + 1
                End If
@@ -544,8 +527,7 @@
       Do i2 = 1, iCmp(2)
          njSym = 0
          Do j = 0, nIrrep-1
-            If (iAnd(IrrCmp(IndS(iShell(2))+i2),
-     &         iTwoj(j)).ne.0) Then
+            If (iAOtSO(iAO(2)+i2,j)>0) Then
                jSym(njSym) = j
                njSym = njSym + 1
             End If
@@ -554,8 +536,7 @@
          Do i4 = 1, iCmp(4)
             nlSym = 0
             Do j = 0, nIrrep-1
-               If (iAnd(IrrCmp(IndS(iShell(4))+i4),
-     &             iTwoj(j)).ne.0) Then
+               If (iAOtSO(iAO(4)+i4,j)>0) Then
                   lSym(nlSym) = j
                   nlSym = nlSym + 1
                End If
@@ -656,12 +637,11 @@
         Call Abend()
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In PGet2_RI2:PSO ',' ',PSO,nijkl,nPSO)
       End If
       Call GetMem(' Exit PGet2_RI2','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet2_RI2')
 #endif
 *
       Call CWTime(Cpu2,Wall2)
@@ -676,6 +656,5 @@ c Avoid unused argument warnings
          Call Unused_integer(iBas)
          Call Unused_integer(kBas)
          Call Unused_logical(Shijij)
-         Call Unused_real(U_K)
       End If
       End

@@ -23,6 +23,8 @@
 *            nBas_aux : number of aux bsfs in each irrep.
 *            nIrrep : number of irreps.
 **************************************************************************
+      use pso_stuff
+      use Para_Info, Only: Is_Real_Par
       Implicit Real*8 (a-h,o-z)
       Integer nBas_Aux(1:nIrrep), nVec(1:nIrrep)
       Character  Fname*6, Fname2*6, Name_Q*6
@@ -34,13 +36,11 @@
 #include "choptr.fh"
 #include "WrkSpc.fh"
 #include "exterm.fh"
-#include "pso.fh"
-*#define _DEBUG_
+*#define _DEBUGPRINT_
 *#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
-#include "para_info.fh"
 *
       parameter ( N2 = InfVec_N2 )
       COMMON  /CHOTIME /timings
@@ -73,7 +73,6 @@
 
 *     Loop over the first cholesky symmetry
 *
-      kCount=0
       Do jSym = 1, nIrrep
 *
 ***      Check so the symmetry contains vectors
@@ -163,7 +162,7 @@
             iAdrQ=(iFirstCho-1)*NumAux + (iJBat-1)*nJVec*NumAux
             Call dDaFile(Lu_Q,2,Work(ip_Qvector),l_Q,iAdrQ)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             Call RecPrt('Q-vectors',' ',Work(ip_QVector),
      &                  nJVec,NumAux)
 #endif
@@ -198,7 +197,7 @@
 
 
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'jSym=',jSym
          Call RecPrt('R-Vectors',' ',Work(ip_RVector),
      &               nIJ1(iSym,lSym,iSO),NumAux)

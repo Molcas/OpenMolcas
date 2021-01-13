@@ -14,17 +14,16 @@
 #include "stdalloc.fh"
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)          :: N,iprint
-      Complex(kind=wp), intent(in) :: MM(3,N,N), MS(3,N,N)
+      Complex(kind=8), intent(in) :: MM(3,N,N), MS(3,N,N)
 
       Integer                       :: I,J,L,i1,i2,iDir
-      Real(kind=wp)                 :: g_e
-      Complex(kind=wp), allocatable :: Z(:,:) ! N,N
-      Complex(kind=wp), allocatable :: AMS(:,:,:)
-      Complex(kind=wp), allocatable :: AML(:,:,:)
-      Complex(kind=wp), allocatable :: AMM(:,:,:) !(3,N,N),
-      Complex(kind=wp), allocatable :: Mf(:,:), Sf(:,:), Lf(:,:) !(3,3)
+      Real(kind=8)                 :: g_e
+      Complex(kind=8), allocatable :: Z(:,:) ! N,N
+      Complex(kind=8), allocatable :: AMS(:,:,:)
+      Complex(kind=8), allocatable :: AML(:,:,:)
+      Complex(kind=8), allocatable :: AMM(:,:,:) !(3,N,N),
+      Complex(kind=8), allocatable :: Mf(:,:), Sf(:,:), Lf(:,:) !(3,3)
 !-----------------------------------------------------------------------
-      Call qEnter('moments')
 
       g_e=2.0023193043718_wp
 
@@ -131,6 +130,5 @@
       Call mma_deallocate(Sf)
       Call mma_deallocate(Lf)
 
-      Call qExit('moments')
       Return
       End

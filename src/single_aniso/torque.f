@@ -23,46 +23,46 @@
       Logical, intent(in)          :: m_paranoid
 c ab initio data:
 !     exchange energies printed out in the previous part
-      Real(kind=wp), intent(in)    :: ESO(nss)
-      Real(kind=wp), intent(in)    :: EM, zJ, thrs
-      Real(kind=wp), intent(in)    :: H_torq, T_torq
-      Real(kind=wp), intent(in)    :: ma(3,3) ! main magnetic axes
-      Complex(kind=wp), intent(in) :: DIPM(3,nss,nss)
-      Complex(kind=wp), intent(in) ::   SM(3,nss,nss)
+      Real(kind=8), intent(in)    :: ESO(nss)
+      Real(kind=8), intent(in)    :: EM, zJ, thrs
+      Real(kind=8), intent(in)    :: H_torq, T_torq
+      Real(kind=8), intent(in)    :: ma(3,3) ! main magnetic axes
+      Complex(kind=8), intent(in) :: DIPM(3,nss,nss)
+      Complex(kind=8), intent(in) ::   SM(3,nss,nss)
 
 ! local data:
 c magnetic field strength and orientation data:
       Integer       :: nPlanes
       Parameter (nPlanes=1)
-!      Real(kind=wp) :: dlth
-      Real(kind=wp), allocatable :: W(:)
+!      Real(kind=8) :: dlth
+      Real(kind=8), allocatable :: W(:)
 !                                   W(NM) ! Zeeman exchange energies
-      Real(kind=wp)              :: ZT(1)!
+      Real(kind=8)              :: ZT(1)!
 !                                   ZT ! total statistical sum, Boltzmann distribution
-      Real(kind=wp), allocatable :: ST(:)
+      Real(kind=8), allocatable :: ST(:)
 !                                   ST(3) ! total spin magnetisation,
-      Real(kind=wp), allocatable :: MT(:) ! MT(3) ! total magnetisation
-      Real(kind=wp), allocatable :: dX(:) ! dX(AngPoints)
-      Real(kind=wp), allocatable :: dY(:) ! dY(AngPoints)
-      Real(kind=wp), allocatable :: dZ(:) ! dZ(AngPoints)
-      Real(kind=wp), allocatable :: Ang(:)  ! Ang(AngPoints)
-      Complex(kind=wp), allocatable :: M(:,:,:)
-      Complex(kind=wp), allocatable :: S(:,:,:)
+      Real(kind=8), allocatable :: MT(:) ! MT(3) ! total magnetisation
+      Real(kind=8), allocatable :: dX(:) ! dX(AngPoints)
+      Real(kind=8), allocatable :: dY(:) ! dY(AngPoints)
+      Real(kind=8), allocatable :: dZ(:) ! dZ(AngPoints)
+      Real(kind=8), allocatable :: Ang(:)  ! Ang(AngPoints)
+      Complex(kind=8), allocatable :: M(:,:,:)
+      Complex(kind=8), allocatable :: S(:,:,:)
 c magnetic torque
-!     Real(kind=wp), allocatable :: tx(:,:) ! tx(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
-      Real(kind=wp), allocatable :: ty(:)
+!     Real(kind=8), allocatable :: tx(:,:) ! tx(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
+      Real(kind=8), allocatable :: ty(:)
 !                                   ty(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
-!     Real(kind=wp), allocatable :: tz(:,:) ! tz(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
+!     Real(kind=8), allocatable :: tz(:,:) ! tz(nPlanes,AngPoints,nH,nTempMagn) ! magnetization torque
 c magnetic and spin moments (i.e. the BIG matrices):
       Character(len=99):: STLNE1, STLNE2
-      Real(kind=wp)    :: cm3tomB, g(3),mg(3,3)!,ma_inv(3,3)!,det
-      Real(kind=wp)    :: AngStep,AngRad,pi
+      Real(kind=8)    :: g(3),mg(3,3)!,ma_inv(3,3)!,det
+      Real(kind=8)    :: AngStep,AngRad,pi
       Logical          :: DBG
-      Integer          :: IM,I,J,l,mem_local,RtoB,CtoB,nH_torq,nT_torq
+      Integer          :: IM,I,J,mem_local,RtoB,CtoB,nT_torq
 
 c      Boltz_k=0.6950356000_wp   !   in cm^-1*K-1
 c      mu_Bohr=0.4668643740_wp   !   in cm-1*T-1
-      cm3tomB=0.5584938904_wp   !   in cm3 * mol-1 * T
+c      cm3tomB=0.5584938904_wp   !   in cm3 * mol-1 * T
       pi=3.1415926535897932384626433832795028841971_wp
 
       Write(6,*)
@@ -105,7 +105,6 @@ c      End Do
         Write(6,'(2X,A,i5,a)') 'The exact diagonalization of the '//
      &       'Zeeman Hamiltonian included ',NM,' exchange states.'
       End If
-      nH_torq=1
       nT_torq=1
 
 c      If (dbg) Then
@@ -195,8 +194,8 @@ c      End If
          dZ(i)=sin(AngRad)
       End Do
       If(dbg) Then
-        Write(6,'(A,I5)') 'Angular grid for Magnetization Torque, '//
-     &                    'Cartesian Component =',L
+!       Write(6,'(A,I5)') 'Angular grid for Magnetization Torque, '//
+!    &                    'Cartesian Component =',L
         Write(6,'(2x,A,4x,A,5x,3(10X,A,10x))') 'Nr.','Angle','X','Y','Z'
         Do i=1,AngPoints
           Write(6,'(I4,F10.3,3x,3F21.14)') i,Ang(i),dX(i),dY(i),dZ(i)

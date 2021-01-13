@@ -14,7 +14,7 @@
       program main
       implicit none
       integer :: ireturn
-      character(20), parameter :: module_name = 'dmrgscf'
+      character(len=20), parameter :: module_name = 'dmrgscf'
 
       call start(module_name)
       call dmrgscf(ireturn)

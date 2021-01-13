@@ -18,7 +18,7 @@ C.3-21G.....
 c1  0.71872028375833E+00 0.00000000000000E+00 0.98964830079253E+00   /Angstrom
 c2  0.10931030207276E+01 0.00000000000000E+00 -.32446057539854E+00   /Angstrom
 End Of Basis
-Basis
+Basis set
 O.3-21G.....
 O  0.00000000000000E+00 0.00000000000000E+00 -.11277333490793E+01   /Angstrom
 End Of Basis
@@ -32,8 +32,8 @@ End Of Input
  &SCF &END
 Title
  Furan (blyp)
-Charge   
- 0 
+Charge
+ 0
 KSDFT
 blyp
 End of Input
@@ -43,7 +43,7 @@ End of Input
  &SCF &END
 Title
  Furan (HF)
-Charge 
+Charge
  0
 LumOrb
 End of Input

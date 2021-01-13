@@ -62,7 +62,6 @@
       If (iRc.ne.0) Then
          Write (6,*) 'R1Intb: Error readin ONEINT'
          Write (6,'(A,A)') 'Label=',Label
-         Call QTrace
          Call Abend()
       End If
 *

@@ -10,29 +10,13 @@
 *                                                                      *
 * Copyright (C) 1993, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine SroHss(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,la,lb,A,RB,nRys,
-     &                 Array,nArr,Ccoor,nOrdOp,Hess,nHess,
-     &                 IfHss,IndHss,ifgrd,IndGrd,DAO,mdc,ndc,nOp,
-     &                 lOper,nComp,iStabM,nStabM)
+      SubRoutine SroHss(
+#define _CALLING_
+#include "hss_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of ECP integrals.         *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              ZXia                                                    *
-*              SetUp1                                                  *
-*              Mlt1                                                    *
-*              DGeTMO  (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              DGEMM_  (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
@@ -58,52 +42,50 @@
 *      ccoor : coordinates of the operator, zero for symmetric oper.   *
 *      nordop: order of the operator                                   *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
       use Real_Spherical
+      use Symmetry_Info, only: iOper
       implicit real*8 (a-h,o-z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
 #include "disp.fh"
 #include "disp2.fh"
-      real*8 zeta(nzeta), zinv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rkappa(nzeta), p(nZeta,3), A(3), RB(3),
-     &       array(narr), Ccoor(3), C(3), TC(3),Coor(3,4),
-     &       dao(nzeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2),Hess(nHess),
-     &       g2(78)
-      integer istabm(0:nstabm-1), iDCRT(0:7), lOper(nComp),
-     &          iuvwx(4), nop(2), kOp(4),mop(4),
-     &          indgrd(3,2,0:7), JndGrd(3,4,0:7),jndhss(4,3,4,3,0:7),
-     &          indhss(2,3,2,3,0:7)
-      logical  ifgrd(3,2),jfgrd(3,4),  EQ,
-     & jfhss(4,3,4,3),ifhss(2,3,2,3) ,ifg(4),tr(4)
-       nelem(ixyz) = (ixyz+1)*(ixyz+2)/2
+
+#include "hss_interface.fh"
+
+*     Local variables
+      Real*8 C(3), TC(3), Coor(3,4),  g2(78)
+      Integer iDCRT(0:7), iuvwx(4), kOp(4),mop(4),
+     &        JndGrd(3,4,0:7),jndhss(4,3,4,3,0:7)
+      logical jfgrd(3,4),  EQ, jfhss(4,3,4,3), ifg(4),tr(4)
 *
+      nelem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
-      iuvwx(1) = nstab(mdc)
-      iuvwx(2) = nstab(ndc)
+      nRys=nHer
+*
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       call icopy(2,nop,1,mop,1)
       kop(1) = ioper(nop(1))
       kop(2) = ioper(nop(2))
-      call dcopy_(3,a,1,coor(1,1),1)
-      call dcopy_(3,rb,1,coor(1,2),1)
+      call dcopy_(3,A,1,coor(1,1),1)
+      call dcopy_(3,RB,1,coor(1,2),1)
 
 *
       kdc = 0
       do 1960 kcnttp = 1, ncnttp
-         if (.not.ecp(kcnttp)) Go To 1961
-         if (nsro_shells(kcnttp).le.0) Go To 1961
-         do 1965 kcnt = 1,ncntr(kCnttp)
-            ixyz = ipcntr(kcnttp) + (kCnt-1)*3
-            call dcopy_(3,work(ixyz),1,C,1)
+         if (.not.dbsc(kcnttp)%ECP) Go To 1961
+         if (dbsc(kcnttp)%nSRO.le.0) Go To 1961
+         do 1965 kcnt = 1,dbsc(kCnttp)%nCntr
+            C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
-            call dcr(lmbdt,ioper,nIrrep,iStabM,nStabM,
-     &               jstab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
+            call dcr(lmbdt,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
             fact = dble(nstabm) / DBLE(LmbdT)
 *
-            iuvwx(3) = nstab(kdc+kCnt)
-            iuvwx(4) = nstab(kdc+kCnt)
+            iuvwx(3) = dc(kdc+kCnt)%nStab
+            iuvwx(4) = dc(kdc+kCnt)%nStab
 
 *
          do 1967 ldcrt = 0, ndcRT-1
@@ -111,34 +93,33 @@
 
             kop(3) = idcrt(ldcrT)
             kop(4) = kop(3)
-            mop(3) = nropr(kop(3),ioper,nirrep)
+            mop(3) = nropr(kop(3))
             mop(4) = mop(3)
 
-            tc(1) = DBLE(iphase(1,idCRT(lDCRT)))*C(1)
-            tc(2) = DBLE(iphase(2,idCRT(lDCRT)))*C(2)
-            tc(3) = DBLE(iphase(3,idCRT(lDCRT)))*C(3)
-            call dcopy_(3,tc,1,coor(1,3),1)
+            Call OA(iDCRT(lDCRT),C,TC)
+            call dcopy_(3,TC,1,Coor(1,3),1)
 
             if (eq(a,rb).and.eq(A,TC)) Go To 1967
             call nucind(coor,kdc+kCnt,ifgrd,ifhss,indgrd,indhss,
      &                  jfgrd,jfhss,jndgrd,jndhss,tr,ifg)
-            do 1966 iang = 0, nSRO_Shells(kCnttp)-1
-               ishll = ipsro(kcnttp) + iAng
-               if (nexp(ishll).eq.0) Go To 1966
+            do 1966 iang = 0, dbsc(kCnttp)%nSRO-1
+               ishll = dbsc(kcnttp)%iSRO + iAng
+               nExpi=Shells(iShll)%nExp
+               if (nExpi.eq.0) Go To 1966
 *
                ip = 1
                ipfin = ip
                ip = ip + nzeta*nElem(la)*nElem(lb)*21
                ipfa1 = ip
-               ip = ip + nalpha*nExp(iShll)*nElem(la)*nElem(iAng)*4
+               ip = ip + nalpha*nExpi*nElem(la)*nElem(iAng)*4
                iptmp = ip
-               ip = ip + nalpha*nExp(iShll)
+               ip = ip + nalpha*nExpi
                ipfa2 = ip
-               ip = ip + nalpha*nExp(iShll)*nElem(la)*nElem(iAng)*6
+               ip = ip + nalpha*nExpi*nElem(la)*nElem(iAng)*6
                ipfb1 = ip
-               ip = ip + nexp(iShll)*nBeta*nElem(iAng)*nElem(lb)*4
+               ip = ip + nExpi*nBeta*nElem(iAng)*nElem(lb)*4
                ipfb2 = ip
-               ip = ip + nexp(iShll)*nBeta*nElem(iAng)*nElem(lb)*6
+               ip = ip + nExpi*nBeta*nElem(iAng)*nElem(lb)*6
 
                call dcopy_(narr,[Zero],0,Array,1)
 *              <a|c>, <a'|c>, <a",c>
@@ -163,13 +144,12 @@
                Call CmbnACB2(Array(ipFa1),Array(ipFa2),Array(ipFb1),
      &                        Array(ipFb2),Array(ipFin),Fact,
      &                        nalpha,nbeta,
-     &                        Work(ipAkl(iShll)),nexp(ishll),
+     &                        Shells(iShll)%Akl,nExpi,
      &                        la,lb,iang,jfhss,Array(ipTmp),.true.)
 
 
 *              contract density
                nt=nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
-               mvec=21
                call dcopy_(78,[Zero],0,g2,1)
                Call dGeMV_('T',nT,21,
      &                    One,Array(ipFin),nT,
@@ -185,7 +165,7 @@
  1967    Continue
  1965    Continue
  1961    Continue
-         kdc = kdc + nCntr(kCnttp)
+         kdc = kdc + dbsc(kCnttp)%nCntr
  1960    Continue
          Return
 c Avoid unused argument warnings
@@ -194,9 +174,9 @@ c Avoid unused argument warnings
          Call Unused_real_array(ZInv)
          Call Unused_real_array(rKappa)
          Call Unused_real_array(P)
-         Call Unused_real(Final)
+         Call Unused_real_array(Final)
          Call Unused_integer(nRys)
          Call Unused_real_array(Ccoor)
          Call Unused_integer_array(lOper)
       End If
-         End
+      End

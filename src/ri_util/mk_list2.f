@@ -9,10 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Mk_List2(List2,nTheta_All,mData,nSO_Tot,iCnttp,nTest,
-     &                    ipVal,Mxdbsc,Prjct,MxShll,nBasis,ijS_req)
+     &                    ijS_req)
+      Use Basis_Info, only: dbsc, Shells
 #include "WrkSpc.fh"
-      Integer List2(2*mData,nTheta_All), ipVal(Mxdbsc), nBasis(MxShll)
-      Logical Prjct(MxShll), Only_DB
+      Integer List2(2*mData,nTheta_All)
+      Logical Only_DB
 *
       Call GetMem('iList','Allo','Inte',ip_iList,nSO_Tot*mData)
 *
@@ -25,12 +26,12 @@
       iiSO=0
       iSO_= 0
       Do iAng = 0, nTest
-         iShll = ipVal(iCnttp) + iAng
+         iShll = dbsc(iCnttp)%iVal + iAng
          nCmp = (iAng+1)*(iAng+2)/2
-         If (Prjct(iShll)) nCmp = 2*iAng+1
-         nSO=nCmp*nBasis(iShll)
+         If (Shells(iShll)%Prjct) nCmp = 2*iAng+1
+         nSO=nCmp*Shells(iShll)%nBasis
          Do iCmp = 1, nCmp
-            nCont = nBasis(iShll)
+            nCont = Shells(iShll)%nBasis
             Do iCont = 1, nCont
                 iSO_= iSO_+ 1
                 iWork(ip_iList+(iSO_-1)*mData  )=iAng
@@ -44,11 +45,11 @@ C        Write (6,*) 'iSO_=',iSO_
          jjSO=0
          Do jAng = 0, iAng
 C           Write (6,*) 'iAng,jAng=',iAng,jAng
-            jShll = ipVal(iCnttp) + jAng
+            jShll = dbsc(iCnttp)%iVal + jAng
             mCmp = (jAng+1)*(jAng+2)/2
-            If (Prjct(jShll)) mCmp = 2*jAng+1
+            If (Shells(jShll)%Prjct) mCmp = 2*jAng+1
 *
-            mSO=mCmp*nBasis(jShll)
+            mSO=mCmp*Shells(jShll)%nBasis
 *
             ijS=(iAng+1)*iAng/2+jAng+1
 *
@@ -88,8 +89,8 @@ C                    Write (*,*) 'iSO,jSO,ijSO=',iSO,jSO,ijSO
          iiSO=iiSO+nSO
       End Do                     ! iAng
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
          Write (6,*) 'List2'
          Write (6,*) '  iAng,  jAng,  iCmp,  jCmp, iCont, '
      &             //'jCont, iShll, jShll'

@@ -49,15 +49,14 @@
 *                                                                      *
 ************************************************************************
 *
+      use srt2
       Implicit Real*8 (A-H,O-Z)
 *
-#include "TwoDef.fh"
 #include "Molcas.fh"
 #include "TwoDat.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "srt2.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 *
 *----------------------------------------------------------------------*
@@ -72,7 +71,6 @@
 *     Turn timing ON                                                   *
 *----------------------------------------------------------------------*
 *
-      Call QEnter('Sort1B')
 *
 *----------------------------------------------------------------------*
 *     dump remaining integrals to disk                                 *
@@ -81,8 +79,7 @@
       iOpt=0 ! Always tight!
       Do iBin=1,nBin
         Do while ( nInt(iBin).gt.0 )
-          Call SaveBin(iBin,Work(ip_ValBin),iWork(ip_IndBin),
-     &                 iWork(ip_lIndx),iWork(ip_lInts),lBin,iOpt)
+          Call SaveBin(iBin,iOpt)
         End Do
       End Do
 *
@@ -90,16 +87,15 @@
 *     release the work space used to store bins                        *
 *----------------------------------------------------------------------*
 *
-      Call GETMEM('VBin','FREE','REAL',lwVBin,nBin*lBin)
-      Call GETMEM('IBin','FREE','INTE',lwIBin,nBin*lBin)
+      call mma_deallocate(lwVBin)
+      call mma_deallocate(lwIBin)
 *
-      Call GetMem('lIndx ','Free','Inte',ip_lIndx ,lBin)
-      Call GetMem('lInts ','Free','Inte',ip_lInts ,lBin)
+      call mma_deallocate(lIndx)
+      call mma_deallocate(lInts)
 *
 *----------------------------------------------------------------------*
 *     Turn timing OFF and exit                                         *
 *----------------------------------------------------------------------*
 *
-      Call QExit('Sort1B')
       Return
       End

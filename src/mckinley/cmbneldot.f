@@ -19,11 +19,6 @@
 *                                                                      *
 * Object: to compute gradient integrals for SC Reaction Fields         *
 *                                                                      *
-* Called from: RFGrd                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             Modified for reaction field calculations July '92        *
@@ -31,12 +26,11 @@
 *             Modified for trans. prob.   calculations Oct '97         *
 *             by Anders Bernhardsson                                   *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iChTbl, iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-      Integer nOp(2),indgrd(2,3,3,0:nirrep-1)
+      Integer nOp(2),indgrd(2,3,3,0:7)
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp,6),
      &       Zeta(nZeta), rKappa(nZeta), Fact(nZeta), Temp(nZeta),
      &       Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr),
@@ -59,12 +53,12 @@
 *
       Do 10 ixa = 0, la
          iyaMax=la-ixa
-      Do 10 ixb = 0, lb
+      Do 11 ixb = 0, lb
          iybMax=lb-ixb
          Do 20 iya = 0, iyaMax
             iza = la-ixa-iya
             ipa= Ind(la,ixa,iza)
-         Do 20 iyb = 0, iybMax
+         Do 21 iyb = 0, iybMax
             izb = lb-ixb-iyb
             ipb= Ind(lb,ixb,izb)
 *
@@ -249,7 +243,9 @@
                   End Do
                End Do
 *
+ 21      Continue
  20      Continue
+ 11   Continue
  10   Continue
 *
       nDAO = nZeta * (la+1)*(la+2)/2 * (lb+1)*(lb+2)/2
@@ -258,15 +254,14 @@
         Do   iCar=1,3
           Do jCar=1,3
               icomp=jcar+1
-              iGrad = Abs(IndGrd(icnt,iCar,jcar,iirrep))
                If (iCnt.eq.1) Then
                   i1 = iCar
-                  ps=rChTbl(iIrrep,nOp(1))
+                  ps=DBLE(iChTbl(iIrrep,nOp(1)))
                   ps=ps*DBLE(iPrmt( nOp(1),iChBas(1+iCar)))
                   Fct = DBLE(iStb)/DBLE(nIrrep)
                Else
                   i1 = iCar + 3
-                  ps=rChTbl(iIrrep,nOp(2))
+                  ps=DBLE(iChTbl(iIrrep,nOp(2)))
                   ps = ps*DBLE( iPrmt( nOp(2), iChBas(1+iCar) ) )
                   Fct = ps * DBLE(jStb)/DBLE(nIrrep)
               End If

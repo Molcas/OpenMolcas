@@ -45,41 +45,11 @@
 *     Temp   : Working place for F gen and n8                          *
 *     TwoHam : Final results fock matrix and MO's                      *
 *                                                                      *
-*                                                                      *
-*                                                                      *
 *     Object:      To construct the first order derivatives of the AO- *
 *     integrals and add them up to the MO derivatives and              *
 *     the Fock matrix derivatives and contract the second              *
 *     order derivatives of the AO's with the second order              *
 *     density matrix.                                                  *
-*                                                                      *
-*     Called from: Drvg2                                               *
-*                                                                      *
-*     Calling    : QEnter                                              *
-*     DCR                                                              *
-*     DCopy   (ESSL)                                                   *
-*     ICopy                                                            *
-*     LCopy                                                            *
-*     Inter                                                            *
-*     Stblzr                                                           *
-*     DesymP                                                           *
-*     Trnsps                                                           *
-*     Trns1                                                            *
-*     Phase                                                            *
-*     SphCr1                                                           *
-*     SphCr2                                                           *
-*     PrePre                                                           *
-*     Tcrtnc                                                           *
-*     Screen                                                           *
-*     Rysg2                                                            *
-*     Cntrct                                                           *
-*     CrSph                                                            *
-*     Clrbuf                                                           *
-*     RecPrt                                                           *
-*     DaXpY  (ESSL)                                                    *
-*     DScal  (ESSL)                                                    *
-*     DGetMO (ESSL)                                                    *
-*     QExit                                                            *
 *                                                                      *
 *     Authors: Roland Lindh, IBM Almaden Research Center, San Jose, CA *
 *     March '90                                                        *
@@ -117,13 +87,16 @@
 *                                                                      *
 ************************************************************************
       use Real_Spherical
+      use Basis_Info
+      use Center_Info
+      use Phase_Info
+      use Real_Info, only: CutInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External TERI1, ModU2, Cff2D
+#include "Molcas.fh"
 #include "ndarray.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "buffer.fh"
@@ -152,24 +125,68 @@
       Integer iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iStabN(0:7),
      &     iStabM(0:7),  IndGrd(3,4,0:7), iAO(4),
      &     iCmp(4), iShell(4), iShll(4),
-     &     nOp(4), iAngV(4), iAOst(4),
-     &     JndGrd(3,4,0:7),icmpi(4),
+     &     nOp(4), iAngV(4), iAOst(4),JndGrd(3,4,0:7),icmpi(4),
      &     IndZet(nAlpha*nBeta),Indeta(nGamma*nDelta), iuvwx(4),
      &     IndHss(4,3,4,3,0:7), JndHss(4,3,4,3,0:7),
      &     Index(3,4), moip(0:7)
 *
-      Logical Shijij, AeqB, CeqD, AeqC, ABeqCD,
-     &     ABeq, CDeq, EQ, lEmpty, IfGrd(3,4),
-     &     JfGrd(3,4), first,
-     &     IfHss(4,3,4,3),JfHss(4,3,4,3),IfG(4),ltri,
-     &     Tr(4),ldot,ldot2,
-     &     lgrad,n8,log,no_integrals,new_fock
+      Logical Shijij, AeqB, CeqD, AeqC, ABeqCD, ABeq, CDeq, IfGrd(3,4),
+     &        JfGrd(3,4), first,IfHss(4,3,4,3),JfHss(4,3,4,3),IfG(4),
+     &        ltri,Tr(4),ldot,ldot2,lgrad,n8,log,no_integrals,new_fock
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Statement function to compute canonical index
 *
       nElem(i) = (i+1)*(i+2)/2
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call TwoEl_mck_Internal(Data1,Data2)
+
+      Contains
+      Subroutine TwoEl_mck_Internal(Data1,Data2)
+      Use Iso_C_Binding
+      Real*8, Target :: Data1(nZeta*nDArray+nDScalar,nData1),
+     &                  Data2( nEta*nDArray+nDScalar,nData2)
+      Integer, Pointer :: iData1(:), iData2(:)
+      Integer :: lZeta=0, lEta=0
+      Logical EQ, lEmpty
+      External EQ, lEmpty
+*                                                                      *
+************************************************************************
+*                                                                      *
+*Bug in gcc 7: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94270
+#ifdef _WARNING_WORKAROUND_
+      Interface
+         SubRoutine Rysg2(iAnga,nRys,nT,
+     &                    Alpha,Beta,Gamma,Delta,
+     &                    Zeta,ZInv,nZeta,Eta,EInv,nEta,
+     &                    P,lP,Q,lQ,Coori,Coora,CoorAC,
+     &                    Array,nArray,
+     &                    Tvalue,ModU2,Cff2D,
+     &                    PAO,nPAO,Hess,nHess,IfGrd,IndGrd,
+     &                    IfHss,IndHss,nOp,iuvwx,IfG,
+     &                    mvec,Index_Out,lGrad,lHess,Tr)
+         Integer iAnga(4), nRys, nT, nZeta, nEta
+         Real*8 Alpha(nZeta), Beta(nZeta), Gamma(nEta), Delta(nEta),
+     &          Zeta(nZeta), ZInv(nZeta), Eta(nEta),   EInv(nEta)
+         Integer lP, lQ
+         Real*8 P(lP,3), Q(lQ,3), CoorAC(3,2), Coora(3,4), Coori(3,4)
+         Integer nArray
+         Real*8  Array(nArray)
+         External Tvalue, ModU2, Cff2D
+         Integer nPAO, nHess
+         Real*8 PAO(nT,nPAO), Hess(nHess)
+         Logical IfGrd(3,4), IfHss(4,3,4,3)
+         Integer IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nOp(4), iuvwx(4)
+         Logical IfG(4), lGrad, lHess, Tr(4)
+         Integer mVec, Index_Out(3,4)
+
+         End SubRoutine Rysg2
+
+      End Interface
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -185,7 +202,6 @@
       lc = iAngV(3)
       ld = iAngV(4)
       ldot2=ldot
-      iSmAng=la+lb+lc+ld
       iCmpa = iCmp(1)
       jCmpb = iCmp(2)
       kCmpc = iCmp(3)
@@ -220,17 +236,13 @@
       If (ip-1.gt.nTemp) Then
          Write (6,*) 'TwoEl_McK: ip-1.gt.nTemp'
          Write (6,*) 'ip,nTemp=',ip,nTemp
-         Call QTrace
          Call Abend()
       End If
 *
-      iuvwx(1) = nStab(iStb)
-      iuvwx(2) = nStab(jStb)
-      iuvwx(3) = nStab(kStb)
-      iuvwx(4) = nStab(lStb)
-*
-      iffab = 9
-      iffcd = 9
+      iuvwx(1) = dc(iStb)%nStab
+      iuvwx(2) = dc(jStb)%nStab
+      iuvwx(3) = dc(kStb)%nStab
+      iuvwx(4) = dc(lStb)%nStab
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -245,12 +257,12 @@
          iDCRR(0)=0
          LmbdR=1
       Else
-         Call DCR(LmbdR,iOper,nIrrep,jStab(0,iStb),nStab(iStb),
-     &                               jStab(0,jStb),nStab(jStb),
-     &                               iDCRR,nDCRR)
+         Call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,
+     &                  dc(jStb)%iStab,dc(jStb)%nStab,
+     &                  iDCRR,nDCRR)
       End If
-      u = DBLE(nStab(iStb))
-      v = DBLE(nStab(jStb))
+      u = DBLE(dc(iStb)%nStab)
+      v = DBLE(dc(jStb)%nStab)
 *
 *--------Find stabilizer for center A and B
 *
@@ -258,8 +270,8 @@
          lStabM=1
          iStabM(0)=0
       Else
-         Call Inter(jStab(0,iStb),nStab(iStb),
-     &              jStab(0,jStb),nStab(jStb),iStabM,lStabM)
+         Call Inter(dc(iStb)%iStab,dc(iStb)%nStab,
+     &              dc(jStb)%iStab,dc(jStb)%nStab,iStabM,lStabM)
       End If
 *                                                                      *
 ************************************************************************
@@ -271,12 +283,12 @@
          iDCRS(0)=0
          LmbdS=1
       Else
-         Call DCR(LmbdS,iOper,nIrrep,jStab(0,kStb),nStab(kStb),
-     &                               jStab(0,lStb),nStab(lStb),
-     &                               iDCRS,nDCRS)
+         Call DCR(LmbdS,dc(kStb)%iStab,dc(kStb)%nStab,
+     &                  dc(lStb)%iStab,dc(lStb)%nStab,
+     &                  iDCRS,nDCRS)
       End If
-      w = DBLE(nStab(kStb))
-      x = DBLE(nStab(lStb))
+      w = DBLE(dc(kStb)%nStab)
+      x = DBLE(dc(lStb)%nStab)
 *
 *-----------Find stabilizer for center C and D
 *
@@ -284,8 +296,8 @@
          lStabN=1
          iStabN(0)=0
       Else
-         Call Inter(jStab(0,kStb),nStab(kStb),
-     &              jStab(0,lStb),nStab(lStb),iStabN,lStabN)
+         Call Inter(dc(kStb)%iStab,dc(kStb)%nStab,
+     &              dc(lStb)%iStab,dc(lStb)%nStab,iStabN,lStabN)
       End If
 *                                                                      *
 ************************************************************************
@@ -299,8 +311,7 @@
          iDCRT(0)=0
          LmbdT=1
       Else
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,lStabM,
-     &                               iStabN,lStabN,iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,lStabM,iStabN,lStabN,iDCRT,nDCRT)
       End If
 *                                                                      *
 ************************************************************************
@@ -318,7 +329,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nOp(1)=NrOpr(0,iOper,nIrrep)
+      nOp(1)=NrOpr(0)
       call dcopy_(3,Coor(1,1),1,CoorM(1,1),1)
 *                                                                      *
 ************************************************************************
@@ -328,10 +339,8 @@
 ************************************************************************
 *                                                                      *
       Do 100 lDCRR = 0, nDCRR-1
-         nOp(2)=NrOpr(iDCRR(lDCRR),iOper,nIrrep)
-         CoorM(1,2) = DBLE(iPhase(1,iDCRR(lDCRR)))*Coor(1,2)
-         CoorM(2,2) = DBLE(iPhase(2,iDCRR(lDCRR)))*Coor(2,2)
-         CoorM(3,2) = DBLE(iPhase(3,iDCRR(lDCRR)))*Coor(3,2)
+         nOp(2)=NrOpr(iDCRR(lDCRR))
+         Call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
          AeqB = EQ(CoorM(1,1),CoorM(1,2))
 *                                                                      *
 ************************************************************************
@@ -342,9 +351,7 @@
 *                                                                      *
          Do 200 lDCRS = 0, nDCRS-1
             call dcopy_(3,Coor(1,3),1,CoorM(1,3),1)
-            CoorM(1,4) = DBLE(iPhase(1,iDCRS(lDCRS)))*Coor(1,4)
-            CoorM(2,4) = DBLE(iPhase(2,iDCRS(lDCRS)))*Coor(2,4)
-            CoorM(3,4) = DBLE(iPhase(3,iDCRS(lDCRS)))*Coor(3,4)
+            Call OA(iDCRS(lDCRS),Coor(1:3,4),CoorM(1:3,4))
             CeqD = EQ(Coor(1,3),CoorM(1,4))
 *                                                                      *
 ************************************************************************
@@ -355,19 +362,12 @@
 *                                                                      *
             Do 300 lDCRT = nDCRT-1, 0, -1
 
-               nOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
-               nOp(4) = NrOpr(iEor(iDCRT(lDCRT),iDCRS(lDCRS)),
-     &              iOper,nIrrep)
+               nOp(3) = NrOpr(iDCRT(lDCRT))
+               nOp(4) = NrOpr(iEor(iDCRT(lDCRT),iDCRS(lDCRS)))
 *
-               CoorM(1,4) = DBLE(iPhase(1,iDCRT(lDCRT))*
-     &              iPhase(1,iDCRS(lDCRS)))*Coor(1,4)
-               CoorM(2,4) = DBLE(iPhase(2,iDCRT(lDCRT))*
-     &              iPhase(2,iDCRS(lDCRS)))*Coor(2,4)
-               CoorM(3,4) = DBLE(iPhase(3,iDCRT(lDCRT))*
-     &              iPhase(3,iDCRS(lDCRS)))*Coor(3,4)
-               CoorM(1,3) = DBLE(iPhase(1,iDCRT(lDCRT)))*Coor(1,3)
-               CoorM(2,3) = DBLE(iPhase(2,iDCRT(lDCRT)))*Coor(2,3)
-               CoorM(3,3) = DBLE(iPhase(3,iDCRT(lDCRT)))*Coor(3,3)
+               iDCRTS=iEor(iDCRT(lDCRT),iDCRS(lDCRS))
+               Call OA(iDCRTS,Coor(1:3,4),CoorM(1:3,4))
+               Call OA(iDCRT(lDCRT),Coor(1:3,3),CoorM(1:3,3))
 *
                AeqC = EQ(CoorM(1,1),CoorM(1,3))
                ABeqCD = AeqB .and. CeqD .and. AeqC
@@ -392,15 +392,15 @@
                   call dcopy_(3,CoorM(1,4),1,CoorAC(1,2),1)
                End If
 *
-*     Calculate the desymmetrized twoelectron density matrix in
+*     Calculate the desymmetrized two-electron density matrix in
 *     cartisian AO base.
 *
                Call Timing(dum1,Time,dum2,dum3)
                If (ldot2)
      &              Call TwoDns(iAngV,iCmp,shijij,ishll,ishell,
-     &              nOp,iBasi,jBasj,kBask,lBasl,
-     &              Aux,nAux,Work2,nWork2,Work3,nWork3,work4,
-     &              nWork4,PSO,nPSO,Fact)
+     &                   iAO,nOp,iBasi,jBasj,kBask,lBasl,
+     &                   Aux,nAux,Work2,nWork2,Work3,nWork3,work4,
+     &                   nWork4,PSO,nPSO,Fact)
 *
                Call Timing(dum1,Time,dum2,dum3)
                CpuStat(nTwoDens)=CpuStat(nTwoDens)+Time
@@ -410,16 +410,18 @@
 *     Loops to partion the primitives
 *
 *----------------------------------------------------------------*
-               lDCR1=NrOpr(iDCRR(lDCRR),iOper,nIrrep)+1
-               lDCR2=NrOpr(iDCRS(lDCRS),iOper,nIrrep)+1
+               lDCR1=NrOpr(iDCRR(lDCRR))+1
+               lDCR2=NrOpr(iDCRS(lDCRS))+1
                ix2 = iPhase(1,iDCRT(lDCRT))
                iy2 = iPhase(2,iDCRT(lDCRT))
                iz2 = iPhase(3,iDCRT(lDCRT))
 *
-               ipIndZ=ip_of_iWork_d(Data1(ip_IndZ(1,nZeta),lDCR1))-1
-               ipIndE=ip_of_iWork_d(Data2(ip_IndZ(1,nEta ),lDCR2))-1
-               nZeta_Tot=iWork(ipIndZ+nZeta+1)
-               nEta_Tot =iWork(ipIndE+nEta+1)
+               Call C_F_Pointer(C_Loc(Data1(ip_IndZ(1,nZeta),lDCR1)),
+     &                         iData1,[nZeta+1])
+               Call C_F_Pointer(C_Loc(Data2(ip_IndZ(1,nEta ),lDCR2)),
+     &                         iData2,[nEta +1])
+               nZeta_Tot=iData1(nZeta+1)
+               nEta_Tot =iData2(nEta +1)
 *
                no_integrals=.true.
                first=.true.
@@ -479,8 +481,8 @@
      &                    Coeff3,nGamma,kBask,
      &                    Coeff4,nDelta,lBasl,
      &                    Work4,mab*mcd,Work3,nWork3/2,Work2,
-     &                    iWork(ipIndZ+iZeta),mZeta,
-     &                    iWork(ipIndE+iEta),mEta)
+     &                    iData1(iZeta:iZeta+mZeta-1),mZeta,
+     &                    iData2(iEta :iEta +mEta -1),mEta)
                      Call Timing(dum1,Time,dum2,dum3)
                      CPUStat(nTwoDens)=CPUStat(nTwoDens)+Time
 *
@@ -493,14 +495,14 @@
      &                    mZeta,mEta,lZeta,lEta,
      &                    Zeta,ZInv,P,xA,xB,rKab,
      &                    Data1(ip_Z(iZeta,nZeta),lDCR1),
-     &                    iWork(ipIndZ+iZeta),
+     &                    iData1(iZeta:iZeta+mZeta-1),
      &                    Data1(ip_ZtMax(nZeta),ldcr1),
      &                    Data1(ip_abMax(nZeta),ldcr1),
      &                    Data1(ip_ZetaM(nZeta),ldcr1),
      &                    nAlpha,nBeta,
      &                    Eta, EInv,Q,xG,xD,rKcd,
      &                    Data2(ip_Z(iEta,nEta),lDCR2),
-     &                    iWork(ipIndE+iEta),
+     &                    iData2(iEta :iEta +mEta -1),
      &                    Data2(ip_ZtMax(nEta),ldcr2),
      &                    Data2(ip_abMax(nEta),ldcr2),
      &                    Data2(ip_ZetaM(nEta),ldcr2),
@@ -602,7 +604,8 @@
                niag=nijkl*nElem(lb)*mcd*nGr
                Call CrSph_mck(WorkX,niag,(la+1)*(la+2)/2,
      &              RSph(ipSph(la)),la,
-     &              Transf(iShlla),Prjct(iShlla),
+     &              Shells(iShlla)%Transf,
+     &              Shells(iShlla)%Prjct,
      &              Work3,iCmpa)
                nw3=niag*iCmpa
                ip2=1+nw3
@@ -619,7 +622,8 @@
                End If
                Call CrSph_mck(Work3,niag,(lb+1)*(lb+2)/2,
      &              RSph(ipSph(lb)),lb,
-     &              Transf(jShllb),Prjct(jShllb),
+     &              Shells(jShllb)%Transf,
+     &              Shells(jShllb)%Prjct,
      &              Work3(ip2),jCmpb)
 *-----------------------------------------------------------------*
 *
@@ -630,7 +634,8 @@
                niag=nijkl*nGr*nElem(ld)*iCmpa*jCmpb
                Call CrSph_mck(Work3(ip2),niag,(lc+1)*(lc+2)/2,
      &              RSph(ipSph(lc)),lc,
-     &              Transf(kShllc),Prjct(kShllc),
+     &              Shells(kShllc)%Transf,
+     &              Shells(kShllc)%Prjct,
      &              Work3,kCmpc)
                If (niag*kCmpc.gt.nw3) Then
                   Write (6,*) 'niag*kCmpc.gt.nw3'
@@ -651,7 +656,8 @@
                End If
                Call CrSph_mck(Work3,niag,(ld+1)*(ld+2)/2,
      &              RSph(ipSph(ld)),ld,
-     &              Transf(lShlld),Prjct(lShlld),
+     &              Shells(lShlld)%Transf,
+     &              Shells(lShlld)%Prjct,
      &              Work3(ip2),lCmpd)
 *-----------------------------------------------------------------*
 *
@@ -705,6 +711,7 @@
  200     Continue
 *
  100  Continue
+      Return
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -721,4 +728,5 @@ c Avoid unused argument warnings
          Call Unused_real_array(Delta)
          Call Unused_integer(ipdens)
       End If
-      End
+      End Subroutine Twoel_Mck_Internal
+      End Subroutine Twoel_Mck

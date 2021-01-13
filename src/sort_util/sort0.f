@@ -45,7 +45,7 @@
 *                                                                      *
 *     Called from: Seward_main                                         *
 *                                                                      *
-*     Calls to : MkSrt0,MkSrt1,MkSrt2,OpnOrd,ErrOrd,IniPkR8,GetMem     *
+*     Calls to : MkSrt0,MkSrt1,MkSrt2,OpnOrd,ErrOrd,IniPkR8            *
 *                                                                      *
 *     Calling parameters: none                                         *
 *                                                                      *
@@ -58,7 +58,6 @@
 *     Srt2    : common block containing information pertinent to       *
 *               the bin sorting algorithm                              *
 *     PkCtl   : packing table                                          *
-*     WSpc    : dynamic work space                                     *
 *     iTMax   : SEWARD's definition of highest angular momentum        *
 *     Info    : SEWARD's tables of definitions                         *
 *                                                                      *
@@ -82,16 +81,17 @@
 *                                                                      *
 ************************************************************************
 *
+      use Basis_Info, only: nBas
+      use srt2
+      use Symmetry_Info, only: nIrrep, iSkip
+      use Integral_parameters, only: iPack
+      Use Real_Info, only: PkAcc
       Implicit Integer (A-Z)
 *
-#include "itmax.fh"
-#include "info.fh"
 #include "TwoDat.fh"
-#include "TwoDef.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "srt2.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 #include "warnings.fh"
       Logical PkMode
@@ -104,7 +104,6 @@
 *----------------------------------------------------------------------*
 *     start timer                                                      *
 *----------------------------------------------------------------------*
-      Call qEnter('Sort0')
 *----------------------------------------------------------------------*
 *     assume there is no vortual diak available                        *
 *----------------------------------------------------------------------*
@@ -135,7 +134,7 @@
 *     (Get total no. of irred. representations, basis dimensions ect.) *
 *----------------------------------------------------------------------*
 *
-      Call MKSRT0(iSquar,nIrrep,nBas,iSkip)
+      Call MKSRT0(0,nIrrep,nBas,iSkip)
 *
 *----------------------------------------------------------------------*
 *     Initialize the common /SRT1/, i.e.,                              *
@@ -144,19 +143,19 @@
 *     determined by the maximum number of bins (mxBin)                 *
 *----------------------------------------------------------------------*
 *
-      Call MKSRT1(IntTot)
+      Call MKSRT1()
 *
 *----------------------------------------------------------------------*
 *     allocate the space required in phase1 of the bin sort algoritm   *
 *----------------------------------------------------------------------*
 *
-      Call GETMEM('VBin','ALLO','REAL',lwVBin,nBin*lBin)
-      Call GETMEM('IBin','ALLO','INTE',lwIBin,nBin*lBin)
+      Call mma_allocate(lwVBin,lBin,nBin,Label='lwVBin')
+      Call mma_allocate(lwIBin,lBin,nBin,Label='lwIBin')
 *
-      Call GetMem('lIndx ','Allo','Inte',ip_lIndx ,lBin)
-      Call GetMem('lInts ','Allo','Inte',ip_lInts ,lBin)
-      Call GetMem('ValBin','Allo','Real',ip_ValBin,lBin)
-      Call GetMem('IndBin','Allo','Inte',ip_IndBin,lBin)
+      Call mma_allocate(lIndx,lBin,Label='lIndx')
+      Call mma_allocate(lInts,lBin,Label='lInts')
+      Call mma_allocate(ValBin,lBin,Label='ValBin')
+      Call mma_allocate(IndBin,lBin,Label='IndBin')
 *
 *----------------------------------------------------------------------*
 *     compute various offsets for each Bin and also                    *
@@ -198,6 +197,5 @@
       iDaTmp=0
       mDaTmp=0
 
-      Call qExit('Sort0')
       Return
       End

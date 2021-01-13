@@ -15,7 +15,6 @@
       Logical :: FOUND
 
 
-      Call qEnter('SA_fetchRF1')
 
       ! check the presence of the RUNFILE
       FOUND=.false.
@@ -158,7 +157,6 @@
          Write(6,'(5X,A)') 'The DIPMOM array was not found on RUNFILE'
          Write(6,'(5X,A)') 'Absorption intensities will not be computed'
       End If
-      Call qExit('SA_fetchRF1')
       Return
       End Subroutine fetch_data_RunFile_init
 
@@ -174,26 +172,25 @@
 #include "stdalloc.fh"
       Integer :: nss, nstate
       Integer :: multiplicity(nstate)
-      Real(kind=wp) :: eso(nss), esfs(nstate), angmom(3,nstate,nstate),
+      Real(kind=8) :: eso(nss), esfs(nstate), angmom(3,nstate,nstate),
      &                 eDmom(3,nstate,nstate), amfi(3,nstate,nstate)
-      Complex(kind=wp) :: MM(3,nss,nss), MS(3,nss,nss), ML(3,nss,nss)
-      Complex(kind=wp) :: DM(3,nss,nss)
-      Complex(kind=wp) :: U(nss,nss), HSO(nss,nss)
+      Complex(kind=8) :: MM(3,nss,nss), MS(3,nss,nss), ML(3,nss,nss)
+      Complex(kind=8) :: DM(3,nss,nss)
+      Complex(kind=8) :: U(nss,nss), HSO(nss,nss)
       ! local variables:
       Integer              :: njob, mxjob, iss, ibas(nstate,-50:50)
       Integer              :: i, j, i1, j1, ist, jst, mult, multI, multJ
       Integer              :: l, ipar, info
-      Real(kind=wp)        :: g_e, au2cm, thr_deg, diff
+      Real(kind=8)        :: g_e, au2cm, thr_deg, diff
       ! allocatable local arrays:
       Integer, allocatable :: mltplt(:), jbnum(:) !,lroot(:)
-      Real(kind=wp), allocatable :: tmpR(:,:), tmpI(:,:), W(:)
-      Complex(kind=wp), allocatable :: tmp(:,:)
-      Complex(kind=wp) :: Spin
+      Real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:), W(:)
+      Complex(kind=8), allocatable :: tmp(:,:)
+      Complex(kind=8) :: Spin
       External         :: Spin
       Logical          :: found_edmom, found_amfi, found_hsor,
      &                    found_hsoi
 
-      Call qEnter('SA_fetchRF2')
       g_e=2.00231930437180_wp
       au2cm=219474.6313702_wp
       ! get basic sizes:
@@ -420,7 +417,6 @@ c----- expand the spin free basis to the spin-orbit basis:
       End Do !L
       Call mma_deallocate(tmp)
 
-      Call qExit('SA_fetchRF2')
 
       Return
       End Subroutine fetch_data_RunFile_all

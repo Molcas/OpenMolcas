@@ -23,58 +23,57 @@
 *******************************************************************************
 *
       use Real_Spherical
+      use Basis_Info
       Implicit Real*8 (a-h,o-z)
 
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
+#include "real.fh"
+#include "stdalloc.fh"
       Real*8 F(*)
+      Real*8, Allocatable:: Tmp1(:), Tmp2(:)
 
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 *******************************************************************************
       ncb=nelem(lb)*nelem(iang)
-      Call Getmem('TMP1','ALLO','REAL',iptmp,
-     &             nExp(iShll)*ncb*nVecCB*nBeta)
-      Call Getmem('TMP2','ALLO','REAL',ipF,
-     &             nExp(iShll)*ncb*nVecCB*nBeta)
+      nExpi=Shells(iShll)%nExp
+      nBasisi=Shells(iShll)%nBasis
+      Call mma_allocate(TMP1,nExpi*ncb*nVecCB*nBeta,Label='Tmp1')
+      Call mma_allocate(TMP2,nExpi*ncb*nVecCB*nBeta,Label='Tmp2')
 *
 *--------------And (almost) the same thing for the righthand side, form
 *              KjCb from kjcb
 *              1) jcb,K = k,jcb * k,K
 *
       Call DGEMM_('T','N',
-     &            nBeta*ncb*nVecCB,nBasis(iShll),nExp(iShll),
-     &            1.0d0,F,nExp(iShll),
-     &            Work(ipCff(iShll)),nExp(iShll),
-     &            0.0d0,Work(ipTmp),nBeta*ncb*nVecCB)
+     &            nBeta*ncb*nVecCB,nBasisi,nExpi,
+     &            One,F,nExpi,
+     &                Shells(iShll)%pCff,nExpi,
+     &            Zero,Tmp1,nBeta*ncb*nVecCB)
 *
 *--------------2)  j,cbK -> cbK,j
 *
-      Call DgeTMo(Work(ipTmp),nBeta,nBeta,
-     &            ncb*nVecCB*nBasis(iShll),Work(ipF),
-     &            ncb*nVecCB*nBasis(iShll))
+      Call DgeTMo(Tmp1,nBeta,nBeta,
+     &            ncb*nVecCB*nBasisi,Tmp2,
+     &            ncb*nVecCB*nBasisi)
 *
 *--------------3) bKj,C = c,bKj * c,C
 *
       Call DGEMM_('T','N',
-     &            nElem(lb)*nVecCB*nBasis(iShll)*nBeta,
+     &            nElem(lb)*nVecCB*nBasisi*nBeta,
      &            (2*iAng+1),nElem(iAng),
-     &            1.0d0,Work(ipF),nElem(iAng),
-     &            RSph(ipSph(iAng)),nElem(iAng),
-     &            0.0d0,Work(ipTmp),
-     &            nElem(lb)*nVecCB*nBasis(iShll)*nBeta)
+     &            One,Tmp2,nElem(iAng),
+     &                RSph(ipSph(iAng)),nElem(iAng),
+     &            Zero,Tmp1,
+     &            nElem(lb)*nVecCB*nBasisi*nBeta)
 *
 *--------------4) b,KjC -> KjC,b
 *
-      Call DgeTMo(Work(ipTmp),nElem(lb)*nVecCB,
+      Call DgeTMo(Tmp1,nElem(lb)*nVecCB,
      &            nElem(lb)*nVecCB,
-     &            nBasis(iShll)*nBeta*(2*iAng+1),F,
-     &            nBasis(iShll)*nBeta*(2*iAng+1))
+     &            nBasisi*nBeta*(2*iAng+1),F,
+     &            nBasisi*nBeta*(2*iAng+1))
 *
-      Call Getmem('TMP1','FREE','REAL',iptmp,
-     &            nExp(iShll)*ncb*nVecCB*nBeta)
-      Call Getmem('TMP2','FREE','REAL',ipF,
-     &            nExp(iShll)*ncb*nVecCB*nBeta)
-       Return
-       End
+      Call mma_deallocate(Tmp2)
+      Call mma_deallocate(Tmp1)
+      Return
+      End

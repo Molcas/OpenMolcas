@@ -26,8 +26,6 @@
 *
       Character*4 Command
       Character*180  Line
-      Character*180 Get_LN
-      External Get_LN
 
 #ifdef _DMRG_
       External Get_ProgName
@@ -36,7 +34,6 @@
       logical qcmaquis_input
 #endif
 *
-      Call qEnter('Scan_Inp')
 
 #ifdef _DMRG_
       qcmaquis_input = .false.
@@ -162,6 +159,5 @@
       GOTO 9990
 *----------------------------------------------------
 9990  CONTINUE
-      Call qExit('Scan_Inp')
       Return
       End

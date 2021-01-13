@@ -11,7 +11,7 @@
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
        SubRoutine Read2_ns(rMO1,rMO2,FockI,FockA,
-     &                  Temp1,nTemp,Scr,Temp2,Temp3,Temp4,
+     &                  Temp1,nTemp,Temp2,Temp3,Temp4,
      &                  DI13,DI24,DI,
      &                  DA13,DA24,DA,
      &                  rkappa,idsym,
@@ -54,18 +54,17 @@
       Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
-#include "WrkSpc.fh"
-      Real*8 rkappa(nDens2),FockA(nDens2),FockI(nDens2),
-     &       Temp1(ntemp),Temp2(nDens2),
-     &       temp3(nDens2),Temp4(nDens2),
-     &       rmo1(nMba),rmo2(nmba),
-     &       CMO(nCMO),DA(nCMO),DI(nCMO),
-     &       DA24(nDens2),DI24(nDens2),
-     &       DA13(nDens2),DI13(nDens2)
+      Real*8 rkappa(*),FockA(*),FockI(*),
+     &       Temp1(ntemp),Temp2(*),
+     &       temp3(*),Temp4(*),
+     &       rmo1(*),rmo2(*),
+     &       CMO(*),DA(*),DI(*),
+     &       DA24(*),DI24(*),
+     &       DA13(*),DI13(*)
       Parameter ( half  = 0.5d0 )
       Parameter ( One   = 1.0d0 )
       Parameter ( Two   = 2.0d0 )
-      Logical lFAt,lFIT,lmot,singlet,triplet
+      Logical lFAt,lFIT,lmot,singlet
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -83,14 +82,11 @@
 ************************************************************************
 *                                                                      *
       If (jspin.eq.1) Then
-        Triplet=.true.
         Singlet=.false.
       Else If (jspin.eq.0) Then
         Singlet=.true.
-        Triplet=.false.
       Else
         Singlet=.false.
-        Triplet=.false.
         Write(6,*) 'Error jspin=/=1,0'
         Call Abend()
       End If
@@ -699,7 +695,6 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-        Call Unused_real(Scr)
         Call Unused_real_array(CMO)
       End If
       End
@@ -713,23 +708,27 @@ C
 
       IF (FORMA.EQ.'N' .AND. FORMB.EQ.'N') THEN
          Do 10 iRow=0,m-1
-         Do 10 iCol=0,n-1
+         Do 11 iCol=0,n-1
             c(iRow+iCol*ldc+1)=r*a(iRow+iCol*lda+1)+b(iRow+iCol*ldb+1)
+   11    Continue
    10    Continue
       ELSE IF (FORMA.EQ.'T' .AND. FORMB.EQ.'N') THEN
          Do 20 iRow=0,m-1
-         Do 20 iCol=0,n-1
+         Do 21 iCol=0,n-1
             c(iRow+iCol*ldc+1)=r*a(iCol+iRow*lda+1)+b(iRow+iCol*ldb+1)
+   21    Continue
    20    Continue
       ELSE IF (FORMA.EQ.'N' .AND. FORMB.EQ.'T') THEN
          Do 30 iRow=0,m-1
-         Do 30 iCol=0,n-1
+         Do 31 iCol=0,n-1
             c(iRow+iCol*ldc+1)=r*a(iRow+iCol*lda+1)+b(iCol+iRow*ldb+1)
+   31    Continue
    30    Continue
       ELSE IF (FORMA.EQ.'T' .AND. FORMB.EQ.'T') THEN
          Do 40 iRow=0,m-1
-         Do 40 iCol=0,n-1
+         Do 41 iCol=0,n-1
             c(iRow+iCol*ldc+1)=r*a(iCol+iRow*lda+1)+b(iCol+iRow*ldb+1)
+   41    Continue
    40    Continue
       ELSE
          Write(6,*) FORMA,FORMB

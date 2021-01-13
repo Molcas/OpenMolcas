@@ -15,14 +15,8 @@
      &                  rKappa,IndZt,IncZet,SkipZt,Data,IndZ,
      &                  iphX,iphY,iphZ)
 ************************************************************************
+*                                                                      *
 * Object : to compute zeta, P and kappa.                               *
-*                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
@@ -34,8 +28,6 @@
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 Alpha(nAlpha), Beta(nBeta), Zeta(nAlpha*nBeta),
@@ -47,8 +39,6 @@
 *
       iRout = 68
       iPrint = nPrint(iRout)
-*     Call qEnter('DoZ')
-*     Call GetMem(' Enter DoZ','Check','Real',iDum,iDum)
 *
 *     Transfer precomputer data
 *
@@ -84,7 +74,6 @@
          Write (6,*) ' Exit DoZ'
       End If
 *
-*     Call qExit('DoZ')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

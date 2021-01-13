@@ -11,21 +11,9 @@
 * Copyright (C) 2002, Laura Gagliardi                                  *
 *               2002, Roland Lindh                                     *
 ************************************************************************
-*
       Subroutine LoProp(ireturn)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
-*      Author:                                                         *
-*                                                                      *
-*             Laura Gagliardi, Dipartimento di Chimica Fisica,         *
+*      Author:Laura Gagliardi, Dipartimento di Chimica Fisica,         *
 *             University of Palermo, ITALY. December 2002              *
 *             Roland Lindh, Department of Chemical Physics,            *
 *             University of Lund, SWEDEN.                              *
@@ -47,15 +35,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Utility = .True.
       Utility = .False.
-#ifdef _DEBUG_
-         Call QEnter('LoProp')
-#endif
       lSave = ireturn.eq.0
       ireturn=99
 
@@ -86,8 +71,6 @@
       TDensity=.false.
       nStateI=1
       nStateF=1
-      Delta=0.001D0
-      MpProp_Level=0
       Bond_Threshold=-1.0D0
       iPlot = 0
       iPrint = 0
@@ -126,7 +109,6 @@
 *                                                                      *
 *     Compute the 1-particle density matrix
 *
-      Dlt=-Delta
       iPert = 0
       Call Get_Density_Matrix(ip_D(0),nBas1,nBas2,nBasMax,nBas,nSym,
      &                       ipP,UserDen,PrintDen,SubtractDen,SubScale,
@@ -212,8 +194,4 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
-         Call QExit('LoProp')
-#endif
-      Return
       End

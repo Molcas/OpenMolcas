@@ -10,21 +10,20 @@
 ************************************************************************
 #ifdef _HDF5_
       SUBROUTINE read_hdf5_init(file_h5,nstate,nss)
+      Use mh5, Only: mh5_open_file_r, mh5_fetch_attr, mh5_close_file
       Implicit None
 #include "stdalloc.fh"
-#include "mh5.fh"
-      Character(180),intent(in) ::    file_h5
+      Character(Len=180),intent(in) ::    file_h5
       Integer, intent(out)      ::    nstate,nss
       ! local variables:
       Integer                   ::    i,fileid
       Character                 ::    tmp*256, sFile*128
-      Character(180)            ::    tmp2
+      Character(Len=180)        ::    tmp2
       Integer, allocatable      ::    spin_mult(:)
-      Character(5)              ::    molcas_module_kind
+      Character(Len=5)          ::    molcas_module_kind
       Logical                   ::    Exist
       Logical                   ::    DBG
 
-      Call qEnter('read_hdf5_init')
       DBG=.false.
 
       WRITE (6,'(A,A)') 'Read data from rassi.h5 file ',trim(file_h5)
@@ -92,7 +91,6 @@
       ! close the file
       Call mh5_close_file(fileid)
 
-      Call qExit('read_hdf5_init')
       RETURN
       END SUBROUTINE read_hdf5_init
 
@@ -105,59 +103,60 @@
      &                         multiplicity, eso, esfs,
      &                         U, MM, MS, ML, DM, ANGMOM, EDMOM,
      &                         amfi, HSO )
+      Use mh5, Only: mh5_open_file_r, mh5_fetch_attr, mh5_exists_dset,
+     &               mh5_fetch_dset, mh5_fetch_dset_array_real,
+     &               mh5_close_file
       Implicit None
       Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
 #include "stdalloc.fh"
-#include "mh5.fh"
       Integer, intent(in)           :: nstate,nss
       Integer, intent(out)          :: multiplicity(nstate)
 
-      Real(kind=wp), intent(out)    :: esfs(nstate)
-      Real(kind=wp), intent(out)    :: eso(nss)
-      Real(kind=wp), intent(out)    ::  edmom(3,nstate,nstate)
-      Real(kind=wp), intent(out)    ::   amfi(3,nstate,nstate)
-      Real(kind=wp), intent(out)    :: angmom(3,nstate,nstate)
-      Complex(kind=wp), intent(out) :: MM(3,nss,nss)
-      Complex(kind=wp), intent(out) :: MS(3,nss,nss)
-      Complex(kind=wp), intent(out) :: ML(3,nss,nss)
+      Real(kind=8), intent(out)    :: esfs(nstate)
+      Real(kind=8), intent(out)    :: eso(nss)
+      Real(kind=8), intent(out)    ::  edmom(3,nstate,nstate)
+      Real(kind=8), intent(out)    ::   amfi(3,nstate,nstate)
+      Real(kind=8), intent(out)    :: angmom(3,nstate,nstate)
+      Complex(kind=8), intent(out) :: MM(3,nss,nss)
+      Complex(kind=8), intent(out) :: MS(3,nss,nss)
+      Complex(kind=8), intent(out) :: ML(3,nss,nss)
 !     electric dipole moment
-      Complex(kind=wp), intent(out) :: DM(3,nss,nss)
-      Complex(kind=wp), intent(out) :: U(nss,nss)
-      Complex(kind=wp), intent(out) :: HSO(nss,nss)
+      Complex(kind=8), intent(out) :: DM(3,nss,nss)
+      Complex(kind=8), intent(out) :: U(nss,nss)
+      Complex(kind=8), intent(out) :: HSO(nss,nss)
 
-      Real(kind=wp)                 :: AU2CM
-      Real(kind=wp), allocatable    :: etmp(:)
-      Real(kind=wp), allocatable    :: RR(:,:), RI(:,:)
-      Real(kind=wp), allocatable    :: AL(:,:,:)
+      Real(kind=8)                 :: AU2CM
+      Real(kind=8), allocatable    :: etmp(:)
+      Real(kind=8), allocatable    :: RR(:,:), RI(:,:)
+      Real(kind=8), allocatable    :: AL(:,:,:)
       Integer                       :: fileid,jend,INRM
-      Character(180)                :: file_h5
-      Real(kind=wp)                 :: RNRM
-      Real(kind=wp), external       :: dnrm2_, dznrm2_
-      Complex(kind=wp), external    :: spin
+      Character(Len=180)            :: file_h5
+      Real(kind=8)                 :: RNRM
+      Real(kind=8), external       :: dnrm2_, dznrm2_
+      Complex(kind=8), external    :: spin
       ! local variables:
       Integer       :: iss, ibas(nstate,-50:50)
       Integer       :: i, j, i1, j1, ist, jst, mult, multI, multJ
       Integer       :: l, ipar
-      Real(kind=wp) :: g_e
-      Complex(kind=wp), allocatable    :: tmp(:,:)
+      Real(kind=8) :: g_e
+      Complex(kind=8), allocatable    :: tmp(:,:)
 
 !      Logical :: Exist
-      Logical :: found_edmom, found_angmom, found_hso, found_amfi,
-     &           found_sos_coeff, found_eso, found_esfs, found_mult
+      Logical :: found_edmom !, found_angmom, found_hso, found_amfi,
+!     &           found_sos_coeff, found_eso, found_esfs, found_mult
       Logical :: DBG
 
-      Call qEnter('read_hdf5_all')
       DBG  =.false.
       AU2CM=219474.6313702_wp
       g_e=2.00231930437180_wp
       found_edmom=.false.
-      found_angmom=.false.
-      found_hso=.false.
-      found_amfi=.false.
-      found_sos_coeff=.false.
-      found_eso=.false.
-      found_esfs=.false.
-      found_mult=.false.
+!      found_angmom=.false.
+!      found_hso=.false.
+!      found_amfi=.false.
+!      found_sos_coeff=.false.
+!      found_eso=.false.
+!      found_esfs=.false.
+!      found_mult=.false.
 
       WRITE (6,'(A,A)') 'Read data from rassi.h5 file ',trim(file_h5)
 
@@ -171,7 +170,7 @@
 !----------------------------------------------------------------------|
       ! read spin multiplicity of each state:
 c      IF (mh5_exists_dset(fileid,'STATE_SPINMULT')) THEN
-         found_mult=.true.
+!         found_mult=.true.
          Call mh5_fetch_attr(fileid,'STATE_SPINMULT',
      &                       multiplicity(1:nstate))
          IF (DBG) WRITE (6,'(A)') 'read_hdf5_all:: multiplicity'
@@ -193,8 +192,8 @@ c      END IF
       Call mma_allocate(etmp,nstate,'etmp)')
       Call dcopy_(nstate,[0.0_wp],0,etmp,1)
       IF (mh5_exists_dset(fileid,'SFS_ENERGIES')) THEN
-         found_esfs=.true.
-         Call mh5_fetch_dset_array_real(fileid,'SFS_ENERGIES',etmp)
+!         found_esfs=.true.
+         Call mh5_fetch_dset(fileid,'SFS_ENERGIES',etmp)
          RNRM=0.0_wp
          RNRM=dnrm2_(nstate,etmp,1)
          IF ( RNRM.lt.1.0D-50 ) THEN
@@ -225,8 +224,8 @@ c      END IF
       Call mma_allocate(etmp,nss,'tmp)')
       Call dcopy_(nss,[0.0_wp],0,etmp,1)
       IF (mh5_exists_dset(fileid,'SOS_ENERGIES')) THEN
-         found_eso=.true.
-         Call mh5_fetch_dset_array_real(fileid,'SOS_ENERGIES',etmp)
+!         found_eso=.true.
+         Call mh5_fetch_dset(fileid,'SOS_ENERGIES',etmp)
          RNRM=0.0_wp
          RNRM=dnrm2_(nss,etmp,1)
          IF ( RNRM.lt.1.0D-50 ) THEN
@@ -261,7 +260,7 @@ c      END IF
 
       IF ( mh5_exists_dset(fileid,'SOS_COEFFICIENTS_REAL').and.
      &     mh5_exists_dset(fileid,'SOS_COEFFICIENTS_IMAG') ) THEN
-         found_sos_coeff=.true.
+!         found_sos_coeff=.true.
          Call mh5_fetch_dset_array_real(fileid,'SOS_COEFFICIENTS_REAL',
      &                                          RR )
          Call mh5_fetch_dset_array_real(fileid,'SOS_COEFFICIENTS_IMAG',
@@ -300,7 +299,7 @@ c      END IF
       Call mma_allocate(AL,nstate,nstate,3,'AL')
       Call dcopy_(nstate*nstate*3,[0.0_wp],0,AL,1)
       IF (mh5_exists_dset(fileid,'SFS_ANGMOM')) THEN
-         found_angmom=.true.
+!         found_angmom=.true.
          Call mh5_fetch_dset_array_real(fileid,'SFS_ANGMOM',AL)
          DO i=1,nstate
             DO j=1,nstate
@@ -374,7 +373,7 @@ c      END IF
       Call mma_allocate(AL,nstate,nstate,3,'AL')
       Call dcopy_(nstate*nstate*3,[0.0_wp],0,AL,1)
       IF (mh5_exists_dset(fileid,'SFS_AMFIINT')) THEN
-         found_amfi=.true.
+!         found_amfi=.true.
          Call mh5_fetch_dset_array_real(fileid,'SFS_AMFIINT',AL)
          DO i=1,nstate
             DO j=1,nstate
@@ -418,7 +417,7 @@ c      END IF
 
       IF ( mh5_exists_dset(fileid,'HSO_MATRIX_REAL').and.
      &     mh5_exists_dset(fileid,'HSO_MATRIX_IMAG') ) THEN
-         found_hso=.true.
+!         found_hso=.true.
          Call mh5_fetch_dset_array_real(fileid,'HSO_MATRIX_REAL',RR )
          Call mh5_fetch_dset_array_real(fileid,'HSO_MATRIX_IMAG',RI )
          ! assemble the complex matrix U:
@@ -571,7 +570,6 @@ c----- expand the spin free basis to the spin-orbit basis:
       ! close the file
       Call mh5_close_file(fileid)
 
-      Call qExit('read_hdf5_all')
       RETURN
       END SUBROUTINE read_hdf5_all
 
@@ -583,60 +581,61 @@ c----- expand the spin free basis to the spin-orbit basis:
 
       SUBROUTINE read_hdf5_poly( file_h5, nss, nstate,
      &                           eso, MM, MS,iReturn )
+      Use mh5, Only: mh5_open_file_r, mh5_fetch_attr, mh5_exists_dset,
+     &               mh5_fetch_dset, mh5_fetch_dset_array_real,
+     &               mh5_close_file
       Implicit None
       Integer, Parameter            :: wp=selected_real_kind(p=15,r=307)
 #include "stdalloc.fh"
-#include "mh5.fh"
       Integer, intent(in)           :: nstate,nss
       Integer                       :: multiplicity(nstate)
       Integer                       :: iReturn
 
-!      Real(kind=wp), intent(out)    :: esfs(nstate)
-      Real(kind=wp), intent(out)    :: eso(nss)
-!      Real(kind=wp), intent(out)    ::  edmom(3,nstate,nstate)
-!      Real(kind=wp), intent(out)    ::   amfi(3,nstate,nstate)
-      Real(kind=wp)                 :: angmom(3,nstate,nstate)
-      Complex(kind=wp)  :: MM(3,nss,nss)
-      Complex(kind=wp)  :: MS(3,nss,nss)
-!      Complex(kind=wp), intent(out) :: ML(3,nss,nss)
-!      Complex(kind=wp), intent(out) :: DM(3,nss,nss) ! electric dipole moment
-!      Complex(kind=wp)              :: U(nLoc,nLoc)
-!      Complex(kind=wp), intent(out) :: HSO(nss,nss)
+!      Real(kind=8), intent(out)    :: esfs(nstate)
+      Real(kind=8), intent(out)    :: eso(nss)
+!      Real(kind=8), intent(out)    ::  edmom(3,nstate,nstate)
+!      Real(kind=8), intent(out)    ::   amfi(3,nstate,nstate)
+      Real(kind=8)                 :: angmom(3,nstate,nstate)
+      Complex(kind=8)  :: MM(3,nss,nss)
+      Complex(kind=8)  :: MS(3,nss,nss)
+!      Complex(kind=8), intent(out) :: ML(3,nss,nss)
+!      Complex(kind=8), intent(out) :: DM(3,nss,nss) ! electric dipole moment
+!      Complex(kind=8)              :: U(nLoc,nLoc)
+!      Complex(kind=8), intent(out) :: HSO(nss,nss)
 
-      Real(kind=wp)                 :: AU2CM
-      Real(kind=wp), allocatable    :: etmp(:)
-      Real(kind=wp), allocatable    :: RR(:,:), RI(:,:)
-      Real(kind=wp), allocatable    :: AL(:,:,:)
-      Complex(kind=wp), allocatable :: U(:,:)
+      Real(kind=8)                 :: AU2CM
+      Real(kind=8), allocatable    :: etmp(:)
+      Real(kind=8), allocatable    :: RR(:,:), RI(:,:)
+      Real(kind=8), allocatable    :: AL(:,:,:)
+      Complex(kind=8), allocatable :: U(:,:)
       Integer                       :: fileid,jend,INRM
-      Character(180)                :: file_h5
-      Real(kind=wp)                 :: RNRM
-      Real(kind=wp), external       :: dnrm2_, dznrm2_
-      Complex(kind=wp), external    :: spin
+      Character(Len=180)            :: file_h5
+      Real(kind=8)                 :: RNRM
+      Real(kind=8), external       :: dnrm2_, dznrm2_
+      Complex(kind=8), external    :: spin
       ! local variables:
       Integer       :: iss, ibas(nstate,-50:50)
       Integer       :: i, j, i1, j1, ist, jst, mult, multI, multJ
       Integer       :: l, ipar
-      Real(kind=wp) :: g_e
-      Complex(kind=wp), allocatable    :: tmp(:,:)
+      Real(kind=8) :: g_e
+      Complex(kind=8), allocatable    :: tmp(:,:)
 
 !      Logical :: Exist
-      Logical :: found_edmom, found_angmom, found_hso, found_amfi,
-     &           found_sos_coeff, found_eso, found_esfs, found_mult
+!      Logical :: found_edmom, found_angmom, found_hso, found_amfi,
+!     &           found_sos_coeff, found_eso, found_esfs, found_mult
       Logical :: DBG
 
-      Call qEnter('read_hdf5_poly')
       DBG  =.false.
       AU2CM=219474.6313702_wp
       g_e=2.00231930437180_wp
-      found_edmom=.false.
-      found_angmom=.false.
-      found_hso=.false.
-      found_amfi=.false.
-      found_sos_coeff=.false.
-      found_eso=.false.
-      found_esfs=.false.
-      found_mult=.false.
+!      found_edmom=.false.
+!      found_angmom=.false.
+!      found_hso=.false.
+!      found_amfi=.false.
+!      found_sos_coeff=.false.
+!      found_eso=.false.
+!      found_esfs=.false.
+!      found_mult=.false.
       iReturn=0
 
       WRITE (6,'(A,A)') 'Read data from rassi.h5 file ',trim(file_h5)
@@ -651,7 +650,7 @@ c----- expand the spin free basis to the spin-orbit basis:
 !----------------------------------------------------------------------|
       ! read spin multiplicity of each state:
 c      IF (mh5_exists_dset(fileid,'STATE_SPINMULT')) THEN
-         found_mult=.true.
+!         found_mult=.true.
          Call mh5_fetch_attr(fileid,'STATE_SPINMULT',
      &                       multiplicity(1:nstate))
          IF (DBG) WRITE (6,'(A)') 'read_hdf5_all:: multiplicity'
@@ -705,8 +704,8 @@ c      END IF
       Call mma_allocate(etmp,nss,'tmp)')
       Call dcopy_(nss,[0.0_wp],0,etmp,1)
       IF (mh5_exists_dset(fileid,'SOS_ENERGIES')) THEN
-         found_eso=.true.
-         Call mh5_fetch_dset_array_real(fileid,'SOS_ENERGIES',etmp)
+!         found_eso=.true.
+         Call mh5_fetch_dset(fileid,'SOS_ENERGIES',etmp)
          RNRM=0.0_wp
          RNRM=dnrm2_(nss,etmp,1)
          IF ( RNRM.lt.1.0D-50 ) THEN
@@ -743,7 +742,7 @@ c      END IF
 
       IF ( mh5_exists_dset(fileid,'SOS_COEFFICIENTS_REAL').and.
      &     mh5_exists_dset(fileid,'SOS_COEFFICIENTS_IMAG') ) THEN
-         found_sos_coeff=.true.
+!         found_sos_coeff=.true.
          Call mh5_fetch_dset_array_real(fileid,'SOS_COEFFICIENTS_REAL',
      &                                          RR )
          Call mh5_fetch_dset_array_real(fileid,'SOS_COEFFICIENTS_IMAG',
@@ -782,7 +781,7 @@ c      END IF
       Call mma_allocate(AL,nstate,nstate,3,'AL')
       Call dcopy_(nstate*nstate*3,[0.0_wp],0,AL,1)
       IF (mh5_exists_dset(fileid,'SFS_ANGMOM')) THEN
-         found_angmom=.true.
+!         found_angmom=.true.
          Call mh5_fetch_dset_array_real(fileid,'SFS_ANGMOM',AL)
          DO i=1,nstate
             DO j=1,nstate
@@ -1056,7 +1055,6 @@ c----- expand the spin free basis to the spin-orbit basis:
       ! close the file
       Call mh5_close_file(fileid)
 
-      Call qExit('read_hdf5_poly')
       RETURN
       END  SUBROUTINE read_hdf5_poly
 

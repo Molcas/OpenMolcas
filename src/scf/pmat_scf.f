@@ -53,8 +53,8 @@
 #include "rctfld.fh"
 #include "file.fh"
 *
-      Real*8 Dens(nDT,nD,NumDT),OneHam(nDT)
-      Real*8, Dimension(:,:,:), Target:: TwoHam(nDT,nD,NumDT)
+      Real*8, Target:: Dens(nDT,nD,NumDT), TwoHam(nDT,nD,NumDT)
+      Real*8 OneHam(nDT)
       Real*8 XCf(nXCf,nD), E_DFT(nE_DFT), Vxc(nDT,nD,NumDT)
       Real*8 Fock(nDT,nD)
       Logical FstItr, NoCoul
@@ -74,22 +74,28 @@
       Data First /.true./
       Save First
       Real*8, Dimension(:), Allocatable:: RFfld, D
-      Real*8, Dimension(:,:), Allocatable:: DnsS, Temp
+      Real*8, Dimension(:,:), Allocatable:: DnsS
+      Real*8, Allocatable, Target:: Temp(:,:)
       Real*8, Dimension(:,:), Allocatable, Target:: Aux
       Real*8, Dimension(:,:), Pointer:: pTwoHam
       Dimension Dummy(1),iDummy(1),Dumm0(1),Dumm1(1)
 #include "SysDef.fh"
+*
+      Interface
+        SubRoutine Drv2El_dscf(Dens,TwoHam,nDens,nDisc,Thize,PreSch,
+     &                         FstItr,NoCoul,ExFac)
+        Integer nDens, nDisc
+        Real*8, Target:: Dens(nDens), TwoHam(nDens)
+        Real*8 Thize, ExFac
+        Logical NoCoul
+        Logical FstItr, PreSch
+        End Subroutine Drv2El_dscf
+      End Interface
 
-*
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-*
+
       If (PmTime) Call CWTime(xCPM1,xWPM1)
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-*define _DEBUG_
-#ifdef _DEBUG_
-      Call qEnter('PMat')
+#ifdef _DEBUGPRINT_
       Call NrmClc(TwoHam(1,1,nDens),nBT*nD,'PMat: Enter','T in nDens')
       Call NrmClc(Vxc   (1,1,nDens),nBT*nD,'PMat: Enter','T in nDens')
       Call NrmClc(TwoHam(1,1,nDens),nBT*nD,'PMat: Enter','T in iPsLst')
@@ -179,7 +185,7 @@
             Call Free_Work(ipVemb)
             Call NameRun(NamRfil)   ! switch back RUNFILE name
          End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call NrmClc(Vxc   (1,1,iPsLst),nDT*nD,'PMat','Optimal V ')
 #endif
 *
@@ -308,7 +314,7 @@
 ************************************************************************
 *                                                                      *
       Call DaXpY_(nBT*nD,One,Temp,1,TwoHam(1,1,iPsLst),1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call NrmClc(Temp,nBT*nD,'PMat_SCF','Temp')
       Call NrmClc(TwoHam(1,1,iPsLst),nBT*nD,'PMat_SCF','T in iPsLst')
 #endif
@@ -385,8 +391,7 @@
      &      / DBLE(nD)
 *
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call NrmClc(Dens  (1,1,iPsLst),nBT*nD,'PMat  ','D iPsLst  ')
       Call NrmClc(Dens  (1,1,nDens), nBT*nD,'PMat  ','D nDens   ')
       Call NrmClc(TwoHam(1,1,iPsLst),nBT*nD,'PMat  ','T iPsLst  ')
@@ -394,7 +399,6 @@
       Call NrmClc(Vxc   (1,1,iPsLst),nBT*nD,'PMat  ','V iPsLst  ')
       Call NrmClc(Vxc   (1,1,nDens), nBT*nD,'PMat  ','V nDens   ')
 *
-      Call qExit('PMat')
 #endif
       Call Timing(Cpu2,Tim1,Tim2,Tim3)
       TimFld( 5) = TimFld( 5) + (Cpu2 - Cpu1)
@@ -409,10 +413,5 @@
      &   ' (2-el contributions: ',tWF2,' seconds) <<<'
          Call xFlush(6)
       End If
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
-      End
+
+      End subroutine PMat_SCF

@@ -19,14 +19,14 @@
       Integer          :: neqv  ! neqv = MAXVAL(neq(:))
       Integer          :: nsites
       Integer          :: nexch(nneq)
-      Real(kind=wp)    :: W(N)
+      Real(kind=8)    :: W(N)
 !     assuming 10 equivalent magnetic sites, which is too much for many cases
-      Real(kind=wp)    :: R_rot(NNEQ,neqv,3,3)
-      Complex(kind=wp) :: dipexch(3,N,N)
-      Complex(kind=wp) ::  s_exch(3,N,N)
-      Complex(kind=wp) :: dipso(nneq,3,NL,NL)
-      Complex(kind=wp) ::  s_so(nneq,3,NL,NL)
-      Complex(kind=wp) :: Z(N,N)
+      Real(kind=8)    :: R_rot(NNEQ,neqv,3,3)
+      Complex(kind=8) :: dipexch(3,N,N)
+      Complex(kind=8) ::  s_exch(3,N,N)
+      Complex(kind=8) :: dipso(nneq,3,NL,NL)
+      Complex(kind=8) ::  s_so(nneq,3,NL,NL)
+      Complex(kind=8) :: Z(N,N)
 #include "stdalloc.fh"
 c local variables:
       Integer          :: L, i, j, m, k
@@ -38,28 +38,27 @@ c local variables:
       Integer          :: i1,j1,iss1,jss1,nb1,nb2,iss
       Integer          :: icoord(nsites)
       Integer          :: norder
-      Real(kind=wp)    :: gtens(3)
-      Real(kind=wp)    :: maxes(3,3)
-      Real(kind=wp)    :: st(3)
-      Real(kind=wp)    :: H
-      Real(kind=wp)    :: E_thres
-      Real(kind=wp)    :: zJ
-      Real(kind=wp)    :: g_e
-      Character(60)    :: fmtline
+      Real(kind=8)    :: gtens(3)
+      Real(kind=8)    :: maxes(3,3)
+      Real(kind=8)    :: st(3)
+      Real(kind=8)    :: H
+      Real(kind=8)    :: E_thres
+      Real(kind=8)    :: zJ
+      Real(kind=8)    :: g_e
+      Character(Len=60)    :: fmtline
       logical          :: DBG
-      Real(kind=wp),allocatable     :: WM(:)     ! WM(N)
-      Real(kind=wp), allocatable    :: MM(:,:,:) ! MM(nsites,3,N)
-      Real(kind=wp), allocatable    :: LM(:,:,:) ! LM(nsites,3,N)
-      Real(kind=wp), allocatable    :: SM(:,:,:) ! SM(nsites,3,N)
-      Real(kind=wp), allocatable    :: JM(:,:,:) ! JM(nsites,3,N)
-      Complex(kind=wp), allocatable :: ZM(:,:)  ! ZM(N,N)
-      Complex(kind=wp), allocatable :: VL(:,:)  ! VL(N,N)
-      Complex(kind=wp), allocatable :: TMP(:,:) ! TMP(N,N)
+      Real(kind=8),allocatable     :: WM(:)     ! WM(N)
+      Real(kind=8), allocatable    :: MM(:,:,:) ! MM(nsites,3,N)
+      Real(kind=8), allocatable    :: LM(:,:,:) ! LM(nsites,3,N)
+      Real(kind=8), allocatable    :: SM(:,:,:) ! SM(nsites,3,N)
+      Real(kind=8), allocatable    :: JM(:,:,:) ! JM(nsites,3,N)
+      Complex(kind=8), allocatable :: ZM(:,:)  ! ZM(N,N)
+      Complex(kind=8), allocatable :: VL(:,:)  ! VL(N,N)
+      Complex(kind=8), allocatable :: TMP(:,:) ! TMP(N,N)
       ! temporary data for ZEEM:
-      Real(kind=wp), allocatable :: RWORK(:)
-      Complex(kind=wp), allocatable :: HZEE(:), WORK(:), W_c(:)
+      Real(kind=8), allocatable :: RWORK(:)
+      Complex(kind=8), allocatable :: HZEE(:), WORK(:), W_c(:)
 c
-      Call qEnter('PA_momloc2')
       DBG=.false.
       g_e=2.0023193043718_wp
 
@@ -352,6 +351,5 @@ c  we proceed to compute expectation values for this nb1 exchange state
       Call mma_deallocate(W_c)
 
 
-      Call qExit('PA_momloc2')
       Return
       End Subroutine momloc2

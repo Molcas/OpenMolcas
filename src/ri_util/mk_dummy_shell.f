@@ -1,4 +1,4 @@
-************************************************************************
+
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -10,110 +10,92 @@
 *                                                                      *
 * Copyright (C) 2008, Roland Lindh                                     *
 ************************************************************************
-      Subroutine Mk_Dummy_Shell(Info,nInfo)
+      Subroutine Mk_Dummy_Shell()
 ************************************************************************
 *                                                                      *
 *     Add the final DUMMY SHELL!                                       *
 *                                                                      *
 * 2008 R. Lindh, Dept. of Theor. Chem., Univ. of Lund, Sweden          *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
+      use Sizes_of_Seward, only: S
       Implicit Real*8 (A-H,O-Z)
       External Integral_RICD, Integral_RI_2
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "SysDef.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iShll = Mx_Shll - 1
-      mdc = mdciCnttp(nCnttp) + nCntr(nCnttp)
+      iShll = S%Mx_Shll - 1
+      mdc = dbsc(nCnttp)%mdci + dbsc(nCnttp)%nCntr
       nCnttp = nCnttp + 1
       If (nCnttp.gt.Mxdbsc) Then
          Call WarningMessage(2,'Mk_Dummy_Shell: Increase Mxdbsc')
          Call Abend()
       End If
-      ipVal(nCnttp) = iShll + 1
-      ipPrj(nCnttp) = -1
-      ipSRO(nCnttp) = -1
-      ipSOC(nCnttp) = -1
+      dbsc(nCnttp)%iVal = iShll + 1
+      dbsc(nCnttp)%nVal = 1
+      dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
 *
-      Bsl(nCnttp)='.....RI_Dummy'
-      Charge(nCnttp)=Zero
-      iAtmNr(nCnttp)=1
-      AuxCnttp(nCnttp)=.True.
-      aCD_Thr(nCnttp)=One
-      NoPairL(nCnttp)=.False.
-      CrRep(nCnttp)=Zero
-      pChrg(nCnttp)=.False.
-      Fixed(nCnttp)=.False.
-      nOpt(nCnttp) = 0
-      nPrj_Shells(nCnttp) = 0
-      nSRO_Shells(nCnttp) = 0
-      nSOC_Shells(nCnttp) = 0
+      dbsc(nCnttp)%Bsl='.....RI_Dummy'
+      dbsc(nCnttp)%AtmNr=1
+      dbsc(nCnttp)%Aux=.True.
 *
       nPrim=1
       nCntrc=1
-      nTot_Shells(nCnttp) = 1
-      nVal_Shells(nCnttp) = 1
 *
       iShll = iShll + 1
-      AuxShell(iShll) = .True.
-      iStrt = ipExp(iShll)
-      nExp(iShll) = nPrim
-      nBasis(iShll) = nCntrc
-      nBasis_Cntrct(iShll) = nCntrc
-      ipBk(iShll) = ip_Dummy
-      ip_Occ(iShll) = ip_Dummy
-      ipAkl(iShll) = ip_Dummy
-      iEnd = iStrt + nPrim - 1
+      Shells(iShll)%Aux = .True.
+      Call mma_allocate(Shells(iShll)%Exp,nPrim,Label='ExpDummy')
+      Shells(iShll)%nExp=nPrim
+      Shells(iShll)%nBasis=nCntrc
+      Shells(iShll)%nBasis_c = nCntrc
 *     Exponent
-      Work(iStrt)=Zero
+      Shells(iShll)%Exp(1)=Zero
 *     Coefficients
-      iStrt = iEnd + 1
-      ipCff(iShll) = iStrt
-      ipCff_Cntrct(iShll) = iStrt
-      ipCff_Prim(iShll) = iStrt
-      iEnd = iStrt + nPrim*nCntrc -1
-      Work(iStrt) =One
-      Work(iEnd+1)=999999.0D0
-      call dcopy_(nPrim*nCntrc,Work(iStrt),1,Work(iEnd+1),1)
-      iEnd = iEnd + nPrim*nCntrc
-      If (iShll.lt.MxShll) ipExp(iShll+1) = iEnd + 1
+      Call mma_allocate(Shells(iShll)%Cff_c,nPrim,nCntrc,2,
+     &                  Label='Cff_c')
+      Call mma_allocate(Shells(iShll)%pCff,nPrim,nCntrc,
+     &                  Label='pCff')
+      Call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim ,2,
+     &                  Label='Cff_p')
+      Shells(iShll)%Cff_c(1,1,1)=One
+      Shells(iShll)%Cff_c(1,1,2)=One
+      Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
 *
-      Transf(iShll)=.False.
-      Prjct(iShll)=.False.
+      Shells(iShll)%Transf=.False.
+      Shells(iShll)%Prjct =.False.
 *
 *-----The coordinates
 *
-      ipCntr(nCnttp) = ipExp(iShll+1)
       nCnt = 1
-      If (mdc+nCnt.gt.Mxdc) Then
-         Call WarningMessage(2,'Mk_Dummy_Shell: Increase Mxdbsc')
+      n_dc=max(mdc+nCnt,n_dc)
+      If (mdc+nCnt.gt.MxAtom) Then
+         Call WarningMessage(2,'Mk_Dummy_Shell: Increase MxAtom')
          Call Abend()
       End If
-      mdciCnttp(nCnttp)=mdc
-      LblCnt(mdc+nCnt) = 'Origin'
-      If (mdc+nCnt.gt.1) Call ChkLbl(LblCnt(mdc+nCnt),LblCnt,mdc+nCnt-1)
-      iOff=ipCntr(nCnttp)+(nCnt-1)*3
-      Work(iOff  )=Zero
-      Work(iOff+1)=Zero
-      Work(iOff+2)=Zero
-      nCntr(nCnttp) = nCnt
+      dbsc(nCnttp)%mdci=mdc
+      dc(mdc+nCnt)%LblCnt = 'Origin'
+      If (mdc+nCnt.gt.1) Call Chk_LblCnt(dc(mdc+nCnt)%LblCnt,mdc+nCnt-1)
+      Call mma_allocate(dbsc(nCnttp)%Coor_Hidden,3,1,Label='dbsc:C')
+      dbsc(nCnttp)%Coor => dbsc(nCnttp)%Coor_Hidden(:,:)
+      dbsc(nCnttp)%Coor(1:3,1:1)=Zero
+      dbsc(nCnttp)%nCntr = nCnt
       mdc = mdc + nCnt
-      If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll+1) + nCnt*3
-*
-*     Compute the number of elements stored in the dynamic memory so
-*     far.
-*
-      nInfo = ipExp(iShll+1) - Info
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Mx_Shll=iShll+1
-      Mx_mdc=mdc
+      S%Mx_Shll=iShll+1
+      Max_Shells=S%Mx_Shll
+      S%Mx_mdc=mdc
 *
+      If (iCnttp_Dummy.ne.0) Then
+         Write (6,*) 'Mk_dummy_shell: iCnttp_Dummy'
+         Call Abend()
+      End If
       iCnttp_Dummy=nCnttp
 *                                                                      *
 ************************************************************************

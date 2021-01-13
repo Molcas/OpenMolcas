@@ -26,10 +26,7 @@
 *
       Character*4 Command
       Character*180  Line
-      Character*180 Get_LN
-      External Get_LN
 *
-      Call qEnter('Scan_Inp')
 
 * If the return code is already set to indicate an error, there will
 * be an error trace written out.
@@ -110,6 +107,5 @@
       GOTO 9990
 *----------------------------------------------------
 9990  CONTINUE
-      Call qExit('Scan_Inp')
       Return
       End

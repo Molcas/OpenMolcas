@@ -12,20 +12,19 @@
      &                 Thr)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 Bmtrx(nq,nx), Gmtrx(nq,nq), EVec(nq,nq),
      &       EVal(nq*(nq+1)/2), uMtrx(nX), Scrt(nq,nX)
       Logical g12K, Diagonal
-      Real*8 Zero_Approx
-      Parameter (Zero_Approx=0.1D-9)
+      Real*8, Parameter:: Zero_Approx=0.1D-9
+      Real*8, Allocatable:: Work(:), W(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call QEnter('ElRed')
 *
       Do i = 1, nq
          Do j = 1, nx
@@ -33,7 +32,7 @@
          End Do
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('ElRed: The B matrix','(5e21.12)',Bmtrx,nq,nx)
       Call RecPrt('ElRed: The u matrix','(5e21.12)',umtrx,nx,1)
 #endif
@@ -65,7 +64,7 @@
          Diagonal = Diagonal .and. Sum.eq.0.0D0
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('ElRed: The G Matrix (nq x nq)',
      &            '(5e21.12)',Gmtrx,nq,nq)
       Write (6,*) 'Diagonal=',Diagonal
@@ -85,7 +84,7 @@
             EVal(ijTri) = Half*(Gmtrx(i,j)+Gmtrx(j,i))
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call TriPrt('Eval prediagonalization',' ',EVal,nQ)
 #endif
 *
@@ -97,12 +96,12 @@
       If (.NOT.Diagonal) Then
          N=nQ
          LDZ=Max(1,N)
-         Call Allocate_Work(ipWork,3*N)
-         Call FZero(Work(ipWork),3*N)
-         Call Allocate_Work(ipW,N)
-         Call FZero(Work(ipW),N)
+         Call mma_allocate(Work,3*N,Label='Work')
+         Work(:)=Zero
+         Call mma_allocate(W,N,Label='W')
+         W(:)=Zero
          Info=0
-        call dspev_('V','U',N,Eval,Work(ipW),EVec,LDZ,Work(ipWork),Info)
+        call dspev_('V','U',N,Eval,W,EVec,LDZ,Work,Info)
          If (Info.ne.0) Then
             Write (6,*) 'Info.ne.0'
             Write (6,*) 'Info=',Info
@@ -111,10 +110,10 @@
          Call FZero(EVal,N*(N+1)/2)
          Do i = 1, N
             ii = i*(i+1)/2
-            EVal(ii)=Work(ipW+i-1)
+            EVal(ii)=W(i)
          End Do
-         Call Free_Work(ipW)
-         Call Free_Work(ipWork)
+         Call mma_deallocate(W)
+         Call mma_deallocate(Work)
       End If
       Call DScal_(nQ*(nQ+1)/2,-1.0D0,EVal,1)
       Call JacOrd(EVal,EVec,nQ,nQ)
@@ -123,7 +122,7 @@
          tmp=OrbPhase(EVec(1,iQ),nQ)
       End Do
       Call DScal_(nQ*(nQ+1)/2,-1.0D0,EVal,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('ElRed: Eigenvectors',' ',EVec,nQ,nQ)
       Call TriPrt('ElRed: Eigenvalues',' ',EVal,nQ)
 #endif
@@ -132,7 +131,6 @@
 *---- Remove redundant vectors and form g     K
 *
       nK = 0
-      ThrD=1.0D-13
       Do i = 1, nQ
          ii=i*(i+1)/2
          If (EVal(ii).gt.Thr) Then
@@ -143,38 +141,42 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
          If (g12K .and. Abs(EVal(i)).gt.Zero_Approx)
      &      Call DScal_(nQ,One/Sqrt(EVal(i)),EVec(1,i),1)
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('ElRed: The NonRedundant eigenvectors',
      &            '(5e21.12)',EVec,nQ,nK)
-       Call RecPrt('ElRed: eigenvalues ','(8E12.4)',
+      Call RecPrt('ElRed: eigenvalues ','(8E12.4)',
      &            EVal,1,nK)
 #endif
 *
  99   Continue
-*     Call QExit('ElRed')
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_real(tmp)
+#endif
       End
+*                                                                      *
+************************************************************************
+*                                                                      *
       Subroutine ElRed2(nq,nx,Gmtrx,EVal,EVec,nK,uMtrx,g12K,
      &                 Thr,BM,iBM,nB_Tot,nqB)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       Real*8 Gmtrx(nq,nq), EVec(nq,nq),
      &       EVal(nq*(nq+1)/2), uMtrx(nX), BM(nB_Tot)
       Integer iBM(nB_Tot), nqB(nq)
       Logical g12K, Diagonal
-      Real*8 Zero_Approx
-      Parameter (Zero_Approx=0.1D-9)
+      Real*8, Parameter:: Zero_Approx=0.1D-9
+      Real*8, Allocatable:: Work(:), W(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Call QEnter('ElRed2')
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('ElRed2: The u matrix','(5e21.12)',umtrx,nx,1)
 #endif
       If (nq.eq.0) Then
@@ -220,7 +222,7 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
          Diagonal = Diagonal .and. Sum.eq.0.0D0
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('ElRed2: The G Matrix (nq x nq)',
      &            '(5e21.12)',Gmtrx,nq,nq)
       Write (6,*) 'Diagonal=',Diagonal
@@ -240,7 +242,7 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
             EVal(ijTri) = Half*(Gmtrx(i,j)+Gmtrx(j,i))
          End Do
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call TriPrt('Eval prediagonalization',' ',EVal,nQ)
 #endif
 *
@@ -252,12 +254,12 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
       If (.NOT.Diagonal) Then
          N=nQ
          LDZ=Max(1,N)
-         Call Allocate_Work(ipWork,3*N)
-         Call FZero(Work(ipWork),3*N)
-         Call Allocate_Work(ipW,N)
-         Call FZero(Work(ipW),N)
+         Call mma_allocate(Work,3*N,Label='Work')
+         Work(:)=Zero
+         Call mma_allocate(W,N,Label='W')
+         W(:)=Zero
          Info=0
-        call dspev_('V','U',N,Eval,Work(ipW),EVec,LDZ,Work(ipWork),Info)
+         call dspev_('V','U',N,Eval,W,EVec,LDZ,Work,Info)
          If (Info.ne.0) Then
             Write (6,*) 'Info.ne.0'
             Write (6,*) 'Info=',Info
@@ -266,10 +268,10 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
          Call FZero(EVal,N*(N+1)/2)
          Do i = 1, N
             ii = i*(i+1)/2
-            EVal(ii)=Work(ipW+i-1)
+            EVal(ii)=W(i)
          End Do
-         Call Free_Work(ipW)
-         Call Free_Work(ipWork)
+         Call mma_deallocate(W)
+         Call mma_deallocate(Work)
       End If
       Call DScal_(nQ*(nQ+1)/2,-1.0D0,EVal,1)
       Call JacOrd(EVal,EVec,nQ,nQ)
@@ -278,7 +280,7 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
          tmp=OrbPhase(EVec(1,iQ),nQ)
       End Do
       Call DScal_(nQ*(nQ+1)/2,-1.0D0,EVal,1)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('ElRed2: Eigenvectors',' ',EVec,nQ,nQ)
       Call TriPrt('ElRed2: Eigenvalues',' ',EVal,nQ)
 #endif
@@ -287,7 +289,6 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
 *---- Remove redundant vectors and form g     K
 *
       nK = 0
-      ThrD=1.0D-13
       Do i = 1, nQ
          ii=i*(i+1)/2
          If (EVal(ii).gt.Thr) Then
@@ -298,7 +299,7 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
          If (g12K .and. Abs(EVal(i)).gt.Zero_Approx)
      &      Call DScal_(nQ,One/Sqrt(EVal(i)),EVec(1,i),1)
       End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call RecPrt('ElRed2: The NonRedundant eigenvectors',
      &            '(5e21.12)',EVec,nQ,nK)
        Call RecPrt('ElRed2: eigenvalues ','(8E12.4)',
@@ -306,7 +307,9 @@ c        If (g12K .and. Abs(EVal(i)).gt.Zero)
 #endif
 *
  99   Continue
-*     Call QExit('ElRed2')
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_real(tmp)
+#endif
       End
 

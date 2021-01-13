@@ -40,7 +40,10 @@
       complex*16 ArelaxPrev
 
 
-      call QENTER('Tully')
+      CIBigArrayP(:)=0.0D0
+      CIBigArrayPP(:)=0.0D0
+      V(:,:) = 0.0D0
+      TAU(:)=0.0D0
       write(6,*) ''
       write(6,*) '------------------------------------------'
       write(6,*) '            TULLY ALGORITHM'
@@ -456,15 +459,16 @@ C Persico-Granucci all in a THEN branch
 
       IF (decoherence) THEN
       EKIN=Etot-V(temproot,temproot)
-      if(EKIN.lt.0.0) then
-      write(6,*) 'WARNING! Negative Kinetic Energy. Ekin= ',EKIN,' a.u.'
-      write(6,*) 'Kinetic energy rescaled to 10 e-5.'
-      EKIN=0.00001
-      end if
+      If (EKIN.le.0.0D0) then
+         write(6,*) 'WARNING! Negative Kinetic Energy. Ekin= ',
+     &               EKIN,' a.u.'
+         write(6,*) 'Kinetic energy rescaled to 10 e-5.'
+         EKIN=0.00001D0
+      End If
       do i=1,NSTATE
        if(i.ne.temproot) then
-        TAU(i)=abs(1.0/(V(temproot,temproot)-V(i,i)))*
-     &   (1.0+DECO/EKIN)
+        TAU(i)=abs(1.0D0/(V(temproot,temproot)-V(i,i)))*
+     &   (1.0D0+DECO/EKIN)
        end if
       end do
 
@@ -477,7 +481,7 @@ C Persico-Granucci all in a THEN branch
        end do
       end do
 
-      populOS=0.0
+      populOS=0.0D0
       do i=1,NSTATE
        if(i.ne.temproot) then
         populOS=populOS+real(Amatrix(i,i))
@@ -632,7 +636,6 @@ C                           END SAVING                                 C
 C                                                                      C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-      call QEXIT('Tully')
       RETURN
 
       END

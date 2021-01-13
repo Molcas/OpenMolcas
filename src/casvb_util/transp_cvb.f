@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine transp_cvb(a,b,n1,n2)
 c  Transposes matrix A; A and B may share memory.
@@ -20,8 +21,10 @@ c  Transposes matrix A; A and B may share memory.
       iskip=-n2+i1-1
       do 100 i=1,n1
       iskip=iskip+n2
-      do 100 j=1,n2
-100   w(j+iskip)=a(i,j)
+      do 101 j=1,n2
+      w(j+iskip)=a(i,j)
+101   continue
+100   continue
       call fmove_cvb(w(i1),b,n2*n1)
       call mfreer_cvb(i1)
       return

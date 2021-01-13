@@ -39,7 +39,7 @@ C
       Integer j
       Integer ipAL
       Integer ipT
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer ip
       Integer iS
       Integer ii
@@ -83,7 +83,7 @@ C
             Do j=0,3
                cWork(ipAL+j)=cWork(ipT+j)
             End Do
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
             ip=LDF_lShell_Atom(A)-1
             Do iS=1,nS
                iShell=iWork(ip+iS)

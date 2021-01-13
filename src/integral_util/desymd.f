@@ -11,27 +11,21 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       Subroutine DesymD(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
-     &                  iShll,jShll,DAO,iBas,jBas,DSO,nDSO,nOp,FactNd)
+     &                  iShll,jShll,iAO,jAO,DAO,
+     &                  iBas,jBas,DSO,nDSO,nOp,FactNd)
 ************************************************************************
 *                                                                      *
 * Object: desymmetrize the first order density matrix.                 *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              DYaX    (ESSL)                                          *
-*              DaXpY   (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
 ************************************************************************
+      Use Basis_Info
+      use Symmetry_Info, only: nIrrep, iChTbl, iOper, iChBas
+      use SOAO_Info, only: iAOtSO
+      use Real_Spherical, only: iSphCr
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
       Real*8 DAO(iBas*jBas,iCmp,jCmp), DSO(iBas*jBas,nDSO), Prmt(0:7)
@@ -44,8 +38,6 @@
 *
       iRout = 133
       iPrint = nPrint(iRout)
-      iQ=0
-*     Call qEnter('DesymD')
       If (iPrint.ge.99) Then
          Write (6,*) ' lOper=',lOper
          Call RecPrt(' In DesymD: DSO',' ',DSO,iBas*jBas,nDSO)
@@ -58,9 +50,9 @@
       Do 100 j1 = 0, nIrrep-1
          Xa= DBLE(iChTbl(j1,nOp(1)))
          Do 200 i1 = 1, iCmp
-            If (iAnd(IrrCmp(IndS(iShell)+i1),2**j1).eq.0) Go To 200
+            If (iAOtSO(iAO+i1,j1)<0) Cycle
             iChBs = iChBas(ii+i1)
-            If (Transf(iShll)) iChBs = iChBas(iSphCr(ii+i1))
+            If (Shells(iShll)%Transf) iChBs = iChBas(iSphCr(ii+i1))
             pa = xPrmt(iOper(nOp(1)),iChBs)
 *
             Do 300 j2 = 0, j1
@@ -70,10 +62,10 @@
                jMx = jCmp
                If (iShell.eq.jShell .and. j1.eq.j2) jMx = i1
                Do 400 i2 = 1, jMx
-                  If (iAnd(IrrCmp(IndS(jShell)+i2),2**j2).eq.0)
-     &               Go To 400
+                  If (iAOtSO(jAO+i2,j2)<0) Cycle
                   jChBs = iChBas(jj+i2)
-                  If (Transf(jShll)) jChBs = iChBas(iSphCr(jj+i2))
+                  If (Shells(jShll)%Transf)
+     &                jChBs = iChBas(iSphCr(jj+i2))
 *
                   Deg=Two
                   If (j1.eq.j2 .and. iShell.eq.jShell .and.
@@ -96,8 +88,5 @@
       If (iPrint.ge.99) Then
          Call RecPrt(' In DesymD: DAO',' ',DAO,iBas*jBas,iCmp*jCmp)
       End If
-      If (iPrint.ge.99) Call GetMem(' Exit DesymD','CHECK','REAL',
-     &                              iDum,iDum)
-*     Call qExit('DesymD')
       Return
       End

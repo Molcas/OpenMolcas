@@ -17,18 +17,10 @@
 *                                                                      *
 * Object: compute the 2nd derivative  of the overlap matrix.           *
 *                                                                      *
-* Called from: OvrHss                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iChTbl
       Implicit Real*8 (A-H,O-Z)
-c#include "print.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
      &       Zeta(nZeta), rKappa(nZeta), Beta(nZeta),
      &       Rnxyz(nZeta,3,0:la+2,0:lb+2), Alpha(nZeta),
@@ -52,8 +44,6 @@ c     iRout = 134
       iStab(0)=iu
       iStab(1)=iv
 c     iPrint = nPrint(iRout)
-      iQ = 1
-c     Call qEnter('CmbnT2')
 *     Call GetMem(' Enter CmbnT2','LIST','REAL',iDum,iDum)
 *
       exp32 = -Three/Two
@@ -69,14 +59,14 @@ c     End If
       Do 10 iax = 0, la
          ia(1)=iax
          iyaMax=la-ia(1)
-      Do 10 ibx = 0, lb
+      Do 11 ibx = 0, lb
          ib(1)=ibx
          iybMax=lb-ib(1)
          Do 20 iay = 0, iyaMax
             ia(2)=iay
             ia(3) = la-ia(2)-ia(1)
             ipa= Ind(la,ia(1),ia(3))
-         Do 20 iby = 0, iybMax
+         Do 21 iby = 0, iybMax
             ib(2)=iby
           ib(3) = lb-ib(2)-ib(1)
           ipb= Ind(lb,ib(1),ib(3))
@@ -303,14 +293,14 @@ c     End If
 *
 *           Integrals like dI/dxdz
 *
-          Do 57 kCoor=1,3
+         Do 57 kCoor=1,3
             iCoor=Mod(kCoor,3)+1
             jCoor=Mod(iCoor,3)+1
             iMax=Max(iCoor,jCoor)
             jCoor=Min(iCoor,jCoor)
             iCoor=iMax
             If (IfHss(0,iCoor-1,0,jCoor-1)) Then
-                Do 35 iZeta = 1, nZeta
+               Do 35 iZeta = 1, nZeta
                   Final(iZeta,ipa,ipb,I(6,iCoor,jCoor))=rKappa(iZeta)*
      &                 ((Two*Alpha(iZeta))**2 *
      &                 ((Two*Beta(iZeta))**2*
@@ -548,10 +538,12 @@ c     End If
                   End If
                   End If
 
- 35      Continue
-         End If
- 57      Continue
- 20      Continue
+ 35            Continue
+            End If
+ 57         Continue
+ 21         Continue
+ 20         Continue
+ 11      Continue
  10      Continue
 *
 *     Trace the Hessian integrals
@@ -565,11 +557,6 @@ c     End If
       Do 100 iCnt=0,1
         Do 105  iCar=1,3
           Do 110 jCnt=0,1
-            if (iCnt.eq.jCnt) Then
-              iStop=iCar
-            Else
-              iStop=3
-            End If
             Do 115 jCar=1,3
             If (IndHss(iCnt,iCar-1,jCnt,jCar-1,iIrrep).ne.0) Then
 *
@@ -615,6 +602,5 @@ c     End If
  100  Continue
  90   Continue
 *
-c     Call qExit('CmbnT2')
       Return
       End

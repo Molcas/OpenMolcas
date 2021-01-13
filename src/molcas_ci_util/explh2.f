@@ -66,7 +66,6 @@
       DIMENSION EXPLV(*)
       DIMENSION ISEL(*)
 *
-      CALL QENTER('EXPLH')
       Call Timing(Omega_1,Swatch,Swatch,Swatch)
       IPRLEV=IPRLOC(3)
 
@@ -76,7 +75,7 @@
 *
 * ALLOCATE LOCAL MEMORY
 *
-      CALL GETMEM('IPCNF','ALLO','INTE',LW1,NCNASM(LSYM))
+      CALL GETMEM('IPCNF','ALLO','INTE',LW1,NCNASM(STSYM))
       CALL GETMEM('HONE','ALLO','REAL',LOCONE,NAC**2)
       CALL GETMEM('EXHAM','ALLO','REAL',LEXHAM,NHEX)
 *
@@ -99,8 +98,8 @@
       CALL PHPCSF(Work(LEXHAM),ISEL,iWork(LW1),
      &            MXXSEL,Work(KDTOC),
      &            iWork(KDFTP),iWork(KICONF(1)),
-     &            LSYM,Work(LOCONE),ECORE,NAC,
-     &            Work(LW2),NCNASM(LSYM),
+     &            STSYM,Work(LOCONE),ECORE,NAC,
+     &            Work(LW2),NCNASM(STSYM),
      &            (NAEL+NBEL),NAEL,NBEL,
      &            NSEL,NPCNF,DIAG,TUVX,IPRINT,ExFac,IWORK(IREOTS))
       IF ( IPRLEV.EQ.INSANE) then
@@ -110,7 +109,7 @@
       CALL GETMEM('EXHSCR','FREE','REAL',LW2,MXXWS)
       CALL GETMEM('IREOTS','FREE','INTEGER',IREOTS,NAC)
       CALL GETMEM('HONE','FREE','REAL',LOCONE,NAC**2)
-      CALL GETMEM('IPCNF','FREE','INTE',LW1,NCNASM(LSYM))
+      CALL GETMEM('IPCNF','FREE','INTE',LW1,NCNASM(STSYM))
 *
 * DIAGONALIZE THE EXPLICIT HAMILTONIAN.
 *
@@ -122,7 +121,7 @@
           EXPLV(II)=1.0D00
 10      CONTINUE
 *       CALL Jacob(Work(LEXHAM),EXPLV,NSEL,NSEL)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         CALL NIdiag(Work(LEXHAM),EXPLV,NSEL,NSEL,0)
 #else
         CALL NIdiag_new(Work(LEXHAM),EXPLV,NSEL,NSEL,0)
@@ -152,7 +151,6 @@
       Call Timing(Omega_2,Swatch,Swatch,Swatch)
       Omega_2 = Omega_2 - Omega_1
       Omega_3 = Omega_3 + Omega_2
-      CALL QEXIT('EXPLH')
 
       RETURN
       END

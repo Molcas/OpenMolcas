@@ -24,13 +24,12 @@
       Implicit None
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)          :: N, NM, L
-      Real(kind=wp), intent(in)    :: W(N), T, dX, dY, dZ, H
-      Real(kind=wp), intent(out)   :: MT, Z
-      Complex(kind=wp), intent(in) :: M(3,N,N)
+      Real(kind=8), intent(in)    :: W(N), T, dX, dY, dZ, H
+      Real(kind=8), intent(out)   :: MT, Z
+      Complex(kind=8), intent(in) :: M(3,N,N)
 
       Integer                    :: i, j
-      Real(kind=wp)              :: pB, dltw, S2, S1, mB, kB
-      Call qEnter('calcmagn2')
+      Real(kind=8)              :: pB, dltw, S2, S1, mB, kB
 c /// constants
       mB=0.4668643740_wp                  ! * in cm-1*T-1
       kB=0.69503560_wp                    !   in cm^-1*K-1
@@ -76,6 +75,5 @@ c  case when I > NM
 
       MT=MT/Z
 
-      Call qExit('calcmagn2')
       Return
       End

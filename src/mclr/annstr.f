@@ -85,9 +85,11 @@
             IPLACE = STRING(IEL,ISTRIN)
           END IF
           DO 30 I = 1, IEL-1
-   30     STRIN2(I) = STRING(I,ISTRIN)
+          STRIN2(I) = STRING(I,ISTRIN)
+   30     CONTINUE
           DO 40 I = IEL+1,NEL
-   40     STRIN2(I-1) = STRING(I,ISTRIN)
+          STRIN2(I-1) = STRING(I,ISTRIN)
+   40     CONTINUE
 *. Is new string allowed ?
           ITYPE = IOCTP2_MCLR(STRIN2,NEL-1,I1TYP)
           IF(ITYPE.NE.0) THEN

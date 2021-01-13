@@ -15,25 +15,25 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      use Center_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "disp.fh"
 #include "disp2.fh"
       Logical JfHss(4,3,4,3),IfHss(4,3,4,3),JfGrd(3,4),IfGrd(3,4),
-     &        TF,TstFnc,IfG(4),JfG(4),ldot
+     &        IfG(4),JfG(4),ldot
       Integer IndHss(4,3,4,3,0:7),JndHss(4,3,4,3,0:7),
-     &        IndGrd(3,4,0:7),JndGrd(3,4,0:7),iCo(4)
+     &        IndGrd(3,4,0:7),JndGrd(3,4,0:7)
+      Logical, External :: TF
 *define _OLD_CODE_
 #ifdef _OLD_CODE_
-      Integer iCom(0:7,0:7),iStabM(0:7), idcrr(0:7)
+      Integer iCo(4), iCom(0:7,0:7),iStabM(0:7), idcrr(0:7)
       Logical chck
+      Logical, External :: TstFnc
 #endif
 *
       Ind(i1,i2)=i1*(i1-1)/2+i2
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
 *
        nnIrrep=nIrrep
        Call lCopy(12,[.false.],0,ifgrd,1)
@@ -101,10 +101,12 @@
  4444        Continue
  3333     Continue
       End Do
+#ifdef _OLD_CODE_
       iCo(1)=mdci
       iCo(2)=mdcj
       iCo(3)=mdck
       iCo(4)=mdcl
+#endif
       Call iCopy(144*nirrep,[0],0,IndHss,1)
       Call iCopy(144*nirrep,[0],0,jndHss,1)
       Call lCopy(144,[.false.],0,IfHss,1)
@@ -118,14 +120,14 @@
 *        If turned on it should not do much of a difference.
 *
 #ifdef _OLD_CODE_
-            Call DCR(LmbdR,iOper,nIrrep,jStab(0,iCo(iAtom)),
-     &               nStab(iCo(iAtom)),jStab(0,iCo(jAtom)),
-     &               nStab(iCo(jAtom)),iDCRR,nDCRR)
+            Call DCR(LmbdR,dc(iCo(iAtom))%iStab,dc(iCo(iAtom))%nStab,
+     &                     dc(iCo(jAtom))%iStab,dc(iCo(jAtom))%nStab,
+     &                     iDCRR,nDCRR)
 *
 *-----------Find the stabilizer for A and B
 *
-            Call Inter(jStab(0,iCo(iAtom)),nStab(iCo(iAtom)),
-     &                 jStab(0,iCo(jAtom)),nStab(iCo(jAtom)),
+            Call Inter(dc(iCo(iAtom))%iStab,dc(iCo(iAtom))%nStab,
+     &                 dc(iCo(jAtom))%iStab,dc(iCo(jAtom))%nStab,
      &                 iStabM,nStabM)
 *
 *          Generate all possible (left) CoSet
@@ -174,9 +176,7 @@
                End If
                Do jCar=1,istop
                   iComp=iEOr(2**(iCar-1),2**(jCar-1))
-                  Chck=TstFnc(iOper,nIrrep,iCoM,
-     &                        nCoM,iChTbl,0,iComp,
-     &                        nStabM)
+                  Chck=TstFnc(iCoM,0,iComp,nStabM)
                   If (Chck)
      &                 IfHss(iAtom,iCar,jAtom,jCar)=.true.
                End Do

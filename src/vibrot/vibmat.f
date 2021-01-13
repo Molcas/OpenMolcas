@@ -39,7 +39,6 @@ C
       Dimension SumO(nemax),SumW(nemax),Wmax(nemax),Wmin(nemax)
       Dimension Ener(nemax)
 *
-      Call qEnter('VibMat')
 C
       Write(6,*)
       Call CollapseOutput(1,'Matrix elements of observable: '//Title)
@@ -279,6 +278,5 @@ C
 C
 C     End of calculation for this Observable.
 C
-      Call qExit('VibMat')
       Return
       End

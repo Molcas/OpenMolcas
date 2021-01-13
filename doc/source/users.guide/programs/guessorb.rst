@@ -107,11 +107,11 @@ Keywords
               Print the generated orbitals, an integer controls the output level.
               Optionally, a floating point number limits the orbitals printed to
               those with energy below the number (default 5.0 au).
-              ||
-              ||1: Only occupation numbers and orbital energies are printed.
-              ||2: As for 1 but with an additional sorted list of orbital energies.
-              ||3: As for 2 but with orbitals printed in compact format.
-              ||4: As for 3 but orbitals are printed in full format.
+
+              1 -- Only occupation numbers and orbital energies are printed.
+              2 -- As for 1 but with an additional sorted list of orbital energies.
+              3 -- As for 2 but with orbitals printed in compact format.
+              4 -- As for 3 but orbitals are printed in full format.
               </HELP>
               </KEYWORD>
 

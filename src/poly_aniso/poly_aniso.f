@@ -32,21 +32,21 @@ c  definition of the local metal sites
       Integer                       :: nLoc
       Integer, allocatable          :: nss(:), nsfs(:)
 c      Integer       :: nsfs(nneq), multiplicity(nneq,nLoc)
-      Real(kind=wp), allocatable    :: gtens_input(:,:)
+      Real(kind=8), allocatable    :: gtens_input(:,:)
 !                                      gtens_input(3,nneq)
-      Real(kind=wp), allocatable    :: D_fact(:), EoverD_fact(:)
+      Real(kind=8), allocatable    :: D_fact(:), EoverD_fact(:)
 !     definition of the main local axes in general coord system
-      Real(kind=wp), allocatable    :: riso(:,:,:)
-      Real(kind=wp), allocatable    :: R_LG( :,:,:,:)
+      Real(kind=8), allocatable    :: riso(:,:,:)
+      Real(kind=8), allocatable    :: R_LG( :,:,:,:)
 !                                      R_LG( nneq,neqv,3,3)
-      Real(kind=wp), allocatable    :: R_ROT(:,:,:,:)
+      Real(kind=8), allocatable    :: R_ROT(:,:,:,:)
 !                                      R_ROT(nneq,neqv,3,3)
 !     spin orbit energies on individual metal sites
-      Real(kind=wp), allocatable    :: eso(:,:)
-      Complex(kind=wp), allocatable :: dipso(:,:,:,:)
-      Complex(kind=wp), allocatable ::  s_so(:,:,:,:)
-      Character(1)                  :: itype(nneq)
-      Character(180)                :: namefile_aniso(nneq)
+      Real(kind=8), allocatable    :: eso(:,:)
+      Complex(kind=8), allocatable :: dipso(:,:,:,:)
+      Complex(kind=8), allocatable ::  s_so(:,:,:,:)
+      Character(Len=1)              :: itype(nneq)
+      Character(Len=180)            :: namefile_aniso(nneq)
       Logical                       :: ifHDF
       Logical                       :: DoPlot
 c  definition of the exchange:
@@ -70,29 +70,29 @@ c  definition of the exchange:
       Logical                       :: decompose_exchange
       Logical                       :: JITO_exchange
 !     Lines exchange    ( 1 parameter / interacting pair)
-      Real(kind=wp), allocatable    :: Jex(:)
+      Real(kind=8), allocatable    :: Jex(:)
 !     Anisotropic Lines ( 3 parameter / interacting pair)
-      Real(kind=wp), allocatable    :: JAex(:,:)
+      Real(kind=8), allocatable    :: JAex(:,:)
 !     Anisotropic Lines full ( 9 parameters / interacting pair)
-      Real(kind=wp), allocatable    :: JAex9(:,:,:)
+      Real(kind=8), allocatable    :: JAex9(:,:,:)
 !     Anisotropic Lines ( 3 parameter / interacting pair)
-      Real(kind=wp), allocatable    :: JDMex(:,:)
-      Real(kind=wp), allocatable    :: JITOexR(:,:,:,:,:)
-      Real(kind=wp), allocatable    :: JITOexI(:,:,:,:,:)
+      Real(kind=8), allocatable    :: JDMex(:,:)
+      Real(kind=8), allocatable    :: JITOexR(:,:,:,:,:)
+      Real(kind=8), allocatable    :: JITOexI(:,:,:,:,:)
 !     exchange spectrum
-      Real(kind=wp), allocatable    :: W(:)
+      Real(kind=8), allocatable    :: W(:)
 !     exchange eigenstates
-      Complex(kind=wp), allocatable :: Z(:,:)
-      Complex(kind=wp), allocatable :: dipexch(:,:,:)
+      Complex(kind=8), allocatable :: Z(:,:)
+      Complex(kind=8), allocatable :: dipexch(:,:,:)
 ! exchange magnetic moment
-      Complex(kind=wp), allocatable ::  s_exch(:,:,:)
+      Complex(kind=8), allocatable ::  s_exch(:,:,:)
 ! exchange spin moment
       ! options used in connection with KE
       Integer                       :: lant, multLn, KEOPT
       Logical                       :: KE
-      Real(kind=wp)                 :: tpar, upar
+      Real(kind=8)                 :: tpar, upar
       ! options used in connection with Dipol-Dipol interaction
-      Real(kind=wp), allocatable    :: MagnCoords(:,:)
+      Real(kind=8), allocatable    :: MagnCoords(:,:)
 !                                      MagnCoords(nneq,3)
 
       Integer                       :: nTempMagn
@@ -102,35 +102,35 @@ c  definition of g and D tensors
 !     multiplicity of each multiplet
       Integer, allocatable          :: nDim(:)
 !     gtensor of each multiplet
-      Real(kind=wp), allocatable    :: gtens(:,:)
+      Real(kind=8), allocatable    :: gtens(:,:)
 !     main axes of each multiplet
-      Real(kind=wp), allocatable    :: maxes(:,:,:)
+      Real(kind=8), allocatable    :: maxes(:,:,:)
 c  definition of data for susceptibility
       Integer                       :: nT
       Logical                       :: compute_susceptibility
       Logical                       :: tinput
-      Real(kind=wp)                 :: tmin, tmax, dltT0
+      Real(kind=8)                 :: tmin, tmax, dltT0
 
-      Real(kind=wp), allocatable    ::     T(:)
-      Real(kind=wp), allocatable    :: XTexp(:)
-      Real(kind=wp), allocatable    :: XT_no_field(:)
-      Real(kind=wp), allocatable    :: chit_exp(:)
-      Real(kind=wp), allocatable    :: Texp(:)
+      Real(kind=8), allocatable    ::     T(:)
+      Real(kind=8), allocatable    :: XTexp(:)
+      Real(kind=8), allocatable    :: XT_no_field(:)
+      Real(kind=8), allocatable    :: chit_exp(:)
+      Real(kind=8), allocatable    :: Texp(:)
 
-      Real(kind=wp), allocatable    :: XLM(:,:,:,:)
-      Real(kind=wp), allocatable    :: ZLM(:,:)
-      Real(kind=wp), allocatable    :: XRM(:,:,:,:)
-      Real(kind=wp), allocatable    :: ZRM(:,:)
+      Real(kind=8), allocatable    :: XLM(:,:,:,:)
+      Real(kind=8), allocatable    :: ZLM(:,:)
+      Real(kind=8), allocatable    :: XRM(:,:,:,:)
+      Real(kind=8), allocatable    :: ZRM(:,:)
       ! options related to XT_MoverH
-      Real(kind=wp)                 :: Xfield
+      Real(kind=8)                 :: Xfield
 
 c  definition of data for magnetization:
       Integer                       :: nH, nM
       Integer                       :: iopt
-      Real(kind=wp), allocatable    :: TempMagn(:)
-      Real(kind=wp), allocatable    :: Hexp(:), Mexp(:,:)
-      Real(kind=wp)                 :: thrs, em
-      Real(kind=wp)                 :: hmin, hmax, dltH0
+      Real(kind=8), allocatable    :: TempMagn(:)
+      Real(kind=8), allocatable    :: Hexp(:), Mexp(:,:)
+      Real(kind=8)                 :: thrs, em
+      Real(kind=8)                 :: hmin, hmax, dltH0
       Logical                       :: hinput
       Logical                       :: compute_magnetization
       Logical                       :: compute_Mdir_vector
@@ -142,7 +142,7 @@ c  definition of data for magnetization:
       Integer                       :: encut_definition
       Integer                       :: nK, mG ! encut_definition=1;
       Integer                       :: ncut   ! encut_definition=2;
-      Real(kind=wp)                 :: encut_rate ! encut_definition=3;
+      Real(kind=8)                 :: encut_rate ! encut_definition=3;
 
 c  magnetization torque
       Logical                       :: compute_torque
@@ -150,15 +150,15 @@ c  magnetization torque
 c  Zeeman energy and M vector
       Integer                       :: nDir, nDirZee, nDirTot
       Integer, allocatable          :: LuZee(:)
-      Real(kind=wp), allocatable    :: dirX(:), dirY(:), dirZ(:)
-      Real(kind=wp), allocatable    :: dir_weight(:,:)
+      Real(kind=8), allocatable    :: dirX(:), dirY(:), dirZ(:)
+      Real(kind=8), allocatable    :: dir_weight(:,:)
 c  definition of mean field parameter
-      Real(kind=wp)                 :: zJ
+      Real(kind=8)                 :: zJ
 c  definintion of the crystal axes:
       Logical                       :: Do_structure_abc
-      Real(kind=wp)                 :: cryst(6)
+      Real(kind=8)                 :: cryst(6)
 ! a, b, c, alpha, beta, gamma
-      Real(kind=wp)                 :: coord(3)
+      Real(kind=8)                 :: coord(3)
 ! Cartesian coordinates of the main metal site, or center
 c  definitions for blocking barrier
       Integer                       :: nBlock
@@ -166,9 +166,6 @@ c  definitions for blocking barrier
 c  options for automatic fitting of parameters:
       Logical                       :: fitCHI !-- not used so far
       Logical                       :: fitM !-- not used so far
-c  fundamental constants:
-      Real(kind=wp)                 :: boltz_k
-      Real(kind=wp)                 :: mu_bohr
 
       Integer                       :: iPrint
       Integer                       :: idim
@@ -182,18 +179,14 @@ c  fundamental constants:
 c      Integer                      :: nsta
 c      Integer                      :: icase, nmagmult
       Logical                       :: check_title
-      Character(180)                :: Title
+      Character(Len=180)            :: Title
       Logical                       :: GRAD
-      Logical                       :: lvM
       Logical                       :: dbg
-      Character(len=180)            :: fname
+      Character(Len=180)            :: fname
 
-      Call qEnter('PA_1')
       dbg=.false.
 c---------------------------------------------------------------------
       ! Constants:
-      boltz_k=0.6950356_wp                    !   in cm^-1*K-1
-      mu_bohr=0.466864374_wp                  !   in cm-1*T-1
       GRAD=.false.
 c---------------------------------------------------------------------
       ! Allocate memory for all arrays:
@@ -790,9 +783,6 @@ c---------------------------------------------------------------------
 !             MAGNETIC SUSCEPTIBILITY
 !---------------------------------------------------------------------
        If (compute_susceptibility .AND. (nT>0) ) Then
-          lvM =.false.
-          lvM = compute_magnetization .OR. (Xfield.ne.0.0_wp) .OR.
-     &          compute_torque
 
          ! set nT, T(i) and XTexp(i) arrays:
           Call set_T( nT, nTempMagn, TINPUT, TempMagn, Tmin, Tmax,
@@ -825,8 +815,9 @@ c---------------------------------------------------------------------
           If(dbg) Write(6,*) 'm_acc =',m_accurate
           If(dbg) Write(6,*) 'tinpu =',tinput
 
+          ! nm = exch
            Call XT_dMoverdH( exch, nLoc, nCenter, nneq, neqv, neq,
-     &                       nss, nexch, nTempMagn, nT, NM, iopt, mem,
+     &                       nss, nexch, nTempMagn, nT, exch, iopt, mem,
      &                       Tmin, Tmax, XTexp, eso, w, T, R_ROT,
      &                       zJ, Xfield, EM, THRS, XT_no_field,
      &                       dipso, s_so, dipexch, s_exch,
@@ -846,8 +837,9 @@ c---------------------------------------------------------------------
      &                nTempMagn, hmax, w, encut_rate, TempMagn,
      &                nM, EM, dbg )
 
+         ! nm = exch
          Call torque_pa( nneq, nCenter, neq, neqv, nLoc, exch,
-     &                nTempMagn, nH, nM, AngPoints, nexch,
+     &                nTempMagn, nH, exch, AngPoints, nexch,
      &                iopt, nss, mem,
      &                smagn, m_paranoid, m_accurate,
      &                TempMagn, w, hmin, hmax, dltH0, EM, zJ, THRS,
@@ -976,7 +968,6 @@ c---------------------------------------------------------------------
       Write(6,*)
       Write(6,'(10A)') (('-*-&-%-$-#-@-'),idim=1,10)
       Call xFlush(6)
-      Call qExit('PA_1')
 
       Return
       End

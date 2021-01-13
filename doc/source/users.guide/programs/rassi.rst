@@ -16,7 +16,6 @@
 .. xmldoc:: <MODULE NAME="RASSI">
             %%Description:
             <HELP>
-            %%Description:
             The RASSI program calculates overlaps, and matrix
             elements of one-electron operators, and of the electronic Hamiltonian,
             over a basis of RASSCF wave functions, which may each have its own
@@ -292,6 +291,10 @@ Output files
   in the input. It contains auxiliary information that is picked up
   by :program:`QmStat`.
 
+:file:`NTORB` and :file:`MD_NTO`
+  This output is only created if :kword:`NTOCalc` is given in the input. The files
+  will contain natural transition orbitals in INPORB (:file:`NTORB`) and Molden (:file:`MD_NTO`) formats.
+
   .. :file:`UNSYM`
        The derivative of the transition dipole moment desymmetrized.
 
@@ -515,7 +518,7 @@ Keywords
               Enter a positive threshold value. Spin-orbit interaction matrix
               elements over the spin components of the spin-free eigenstates
               will be printed, unless smaller than this threshold.
-              The value is given in cm-1 units. The keyword is ignored unless
+              The value is given in cm^-1 units. The keyword is ignored unless
               an SO hamiltonian is actually computed.
               </HELP>
               </KEYWORD>
@@ -786,7 +789,19 @@ Keywords
               <HELP>
               Enter the threshold for printing quadrupole intensities.
               Default is 1.0D-5.
-              Will overwrite any value choosen for dipole intensities.
+              Will overwrite any value chosen for dipole intensities.
+              </HELP>
+              </KEYWORD>
+
+:kword:`RSPR`
+  The next entry gives the threshold for printing reduced rotatory strength intensities.
+  Default is 1.0D-7.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="RSPR" APPEAR="Threshold for reduced rotatory strength intensities" KIND="REAL" MIN_VALUE="0.0" DEFAULT_VALUE="1.0D-7" LEVEL="ADVANCED">
+              %%Keyword: RSPR <advanced>
+              <HELP>
+              Enter the threshold for printing reduced rotatory strength.
+              Default is 1.0D-7.
               </HELP>
               </KEYWORD>
 
@@ -963,18 +978,21 @@ Keywords
               </KEYWORD>
 
 :kword:`EJOB`
-  The spin-free effective Hamiltonian is assumed to be diagonal, with energies
-  being read from a :file:`JOBIPH` or :file:`JOBMIX` file.
-  If this keyword is used together with :kword:`HEFF`, or if the input file is
-  an HDF5 file for which the effective Hamiltonian is automatically read, only
-  the diagonal elements will be read and off-diagonal elements will be set to zero.
-  This can be useful to use the SS-CASPT2 energies from a MS-CASTP2 calculation.
+  The spin-free effective Hamiltonian's diagonal is filled with energies
+  read from a :file:`JOBIPH` or :file:`JOBMIX` file. If an effective Hamiltonian
+  is read (using :kword:`HEFF` or reading from an HDF5 file), the diagonal
+  elements are taken from the stored Hamiltonian;
+  this can be useful for using the SS-CASPT2 energies from a MS-CASTP2 calculation.
+  The off-diagonal elements are approximated as :math:`H_{ij} \approx \frac{1}{2} S_{ij}(H_{ii}+H_{ij})`,
+  where :math:`S_{ij}` is the overlap between two states; so if the input states
+  are orthogonal, the effective Hamiltonian will be diagonal.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EJOB" APPEAR="Read energies from file" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: EJob <advanced>
               <HELP>
-              The spin-free effective Hamiltonian is assumed to be diagonal, with energies
-              being read from a JOBIPH or JOBMIX file from e.g. a multi-state CASPT2 calculation.
+              The spin-free effective Hamiltonian's diagonal is filled with energies
+              read from a JOBIPH or JOBMIX file. Off-diagonal elements are approximated
+              from overlaps and diagonal.
               </HELP>
               </KEYWORD>
 
@@ -1186,6 +1204,19 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`TRDC`
+  Prints out COMPLEX valued components of the transition dipole vector
+  for spin-orbit calculations,
+  otherwise functionally equivalent to :kword:`TRDI` and :kword:`TDMN`.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TRDC" APPEAR="Transition dipole" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: TRDC <advanced>
+              <HELP>
+              Prints out COMPLEX valued components of the transition dipole vector for spin-orbit calculations,
+              otherwise functionally equivalent to TRDI TDMN.
+              </HELP>
+              </KEYWORD>
+
 :kword:`TDMN`
   Prints out the components and the module of the transition dipole
   vector. On the next line, the minimum size, in a.u., for the dipole
@@ -1213,12 +1244,12 @@ Keywords
               </KEYWORD>
 
 :kword:`TRD2`
-  Prints the 1/2-electron (transition) densities to ASCII files.
+  Prints the 1-/2-electron (transition) densities to ASCII files.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TRD2" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: TRD2 <advanced>
               <HELP>
-              Prints the 1/2-electron (transition) densities to ASCII files.
+              Prints the 1-/2-electron (transition) densities to ASCII files.
               </HELP>
               </KEYWORD>
 
@@ -1247,13 +1278,16 @@ Keywords
               </KEYWORD>
 
 :kword:`NTOCalc`
-  Enables natural transition orbital (NTO) calculation of two states from two JobIph files (which can be identical to each other). The NTO files are printed out as :file:`$Project.PartNTO.I_J.Spin.NTOType`, which has the same format as :file:`.ScfOrb` or :file:`.RasOrb`.
+  Enables natural transition orbital (NTO) calculation of two states from two JobIph files (which can be identical to each other).
   The NTO calculations can be performed for states with different spatial symmetries.
-  :file:`I` and :file:`J` are the RASSI states between which the NTOs are calculated. One may search for ``Nr of states`` in the RASSI part of the output and the three lines after this information tell the correspondence of the RASSI states (in the line starting with ``State:``) with the actual states (in the line starting with ``Root nr:``) in each JobIph file (in the line starting with ``JobIph:``).
-  :file:`Spin` is `a` for alpha NTOs and `b` for beta NTOs. If the states for which the NTO calculation is performed are singlets, only the alpha NTOs are printed out.
-  :file:`NTOType` is `PART` for particle NTOs and `HOLE` for hole NTOs.
+  To perform an NTO calculation, two JobIph files, which by convention are named :file:`JOB001` and :file:`JOB002`, are needed. Since NTO calculations are performed usually between the ground state and an excited state, :file:`JOB001` is used to provide the information for the ground state, and :file:`JOB002` is used to provide the information for excited states. This way of storing information was chosen so that NTO calculations can be performed either for states with the same symmetry or states with different symmetries, but in the former case, if two states are obtained in a single SA-CASSCF or SA-RASSCF calculation, one may make a copy of the JobIph file to get the second JobIph file. The two states are specified in the keyword :kword:`NROF` to tell the program for which two states the NTO calculation is to be performed.
+  The NTO files are named as :file:`$Project.NTOrb.I_J.Spin.NTOType`, which has the same format as :file:`.ScfOrb` or :file:`.RasOrb`, where :file:`Spin` is `a` for alpha NTOs and `b` for beta NTOs, and where :file:`I` and :file:`J` are the RASSI states between which the NTOs are calculated, and where :file:`NTOType` is `PART` for particle NTOs and `HOLE` for hole NTOs. In addition, Molden files for the orbitals named :file:`$Project.nto.molden.I_J.Spin.NTOType` are also generated.
+  One may search for ``Nr of states`` in the RASSI part of the output and the three lines after this information tell the correspondence of the RASSI states (in the line starting with ``State:``) with the actual states (in the line starting with ``Root nr:``) in each JobIph file (in the line starting with ``JobIph:``). If the states for which the NTO calculation is performed are singlets, only the alpha NTOs are printed out.
+  For more information and examples of this method, please refer to the Minnesota OpenMolcas webpage\ [#fn1]_.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NTOC" KIND="SINGLE" LEVEL="ADVANCED" >
+  .. [#fn1] https://comp.chem.umn.edu/openmolcas/
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NTOC" APPEAR="Natural transition orbitals" KIND="SINGLE" LEVEL="ADVANCED" >
               %%Keyword: NTOC <advanced>
               <HELP>
               Enables natural transition orbital calculation from two JobIph files.

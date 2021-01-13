@@ -116,7 +116,6 @@
       Len_XAb = 0
 
       NFAB = nBas(iSym) * ( nBas(jSym) + 1 ) /2
-      Len_ABSq = nBas(iSym) * nBas(jSym)
 
 * TCV-A :
       If (TCVXist(1,iSym,jSym)) Then

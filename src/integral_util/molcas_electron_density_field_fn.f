@@ -22,26 +22,35 @@
 *     them, coordinates stored in the variable xyz).                   *
 *                                                                      *
 ************************************************************************
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
       integer(c_int) :: Molcas_ELECTRON_DENSITY_FIELD_FN
       integer(c_size_t), intent(in) :: n_pt
       real(c_double), intent(in):: xyz(3,n_pt)
       real(c_double), intent(out):: field(3,n_pt)
       type(c_ptr) :: user_field, Dummy
+      real*8, Allocatable:: D1ao(:)
+      Logical Found
 *
       Dummy=user_field
 *
 *     Pick up the one-particle density matrix.
 *
-      Call Get_D1ao(ipD1ao,nDens)
+      Call Qpg_dArray('D1ao',Found,nDens)
+      If (Found .and. nDens/=0) Then
+         Call mma_allocate(D1ao,nDens)
+         Call Get_D1ao(D1ao,nDens)
+      Else
+         Write (6,*) 'D1ao not found!'
+         Call abend()
+      End If
 *
 *     Compute the electric field at the points xyz
 *
       nCmp=3
       nOrdOp=1
-      Call Drv1_Pot(Work(ipD1ao),xyz,field,n_pt,ncmp,nordop)
+      Call Drv1_Pot(D1ao,xyz,field,n_pt,ncmp,nordop)
 *
-      Call Free_Work(ipD1ao)
+      Call mma_deallocate(D1ao)
 *
       Molcas_ELECTRON_DENSITY_FIELD_FN=EFP_RESULT_SUCCESS
 #else

@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine mfreer_cvb(ipoint)
 c  Memory allocator. Releases pointer.
@@ -23,7 +24,8 @@ c  Check if allocated using mstack :
         do 200 jfield=ifield,nfield
         ipoint_g=iaddr(jfield)-ioff_r
         if(memdebug)write(6,*)'     Release pointer :',iaddr(jfield)
-200     call getmem('casvb','FREE','REAL',ipoint_g,nword)
+        call getmem('casvb','FREE','REAL',ipoint_g,nword)
+200     continue
         nfield=ifield-1
         return
       endif
@@ -46,7 +48,8 @@ c  Check if allocated using mstack :
         do 200 jfield=ifield,nfield
         ipoint_g=iaddr(jfield)-ioff_r
         if(memdebug)write(6,*)'     Release pointer :',iaddr(jfield)
-200     call getmem('casvb','FREE','REAL',ipoint_g,nword)
+        call getmem('casvb','FREE','REAL',ipoint_g,nword)
+200     continue
         nfield=ifield-1
         return
       endif

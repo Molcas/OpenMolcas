@@ -11,28 +11,19 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       Subroutine Desym1(lOper,iAng,jAng,iCmp,jCmp,iShell,jShell,
-     &                  iShll,jShll,DAO,iBas,jBas,DSO,nDSO,nOp,FactNd,
-     &                  Scrt)
+     &                  iShll,jShll,iAO,jAO,DAO,iBas,jBas,
+     &                  DSO,nDSO,nOp,FactNd,Scrt)
 ************************************************************************
 *                                                                      *
 * Object: desymmetrize the first order density matrix.                 *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              DYaX    (ESSL)                                          *
-*              DaXpY   (ESSL)                                          *
-*              DScal   (ESSL)                                          *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iChTbl
+      use SOAO_Info, only: iAOtSO
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "real.fh"
       Real*8 DAO(iBas*jBas,iCmp,jCmp), DSO(iBas*jBas,nDSO),
@@ -41,7 +32,6 @@
 *
       iRout = 133
       iPrint = nPrint(iRout)
-*     Call QEnter('Desym1',iQ)
       If (iPrint.ge.99) Then
          Write (6,*) ' lOper=',lOper
          Call RecPrt(' In Desym1: DSO',' ',DSO,iBas*jBas,nDSO)
@@ -57,7 +47,7 @@
       Do 100 j1 = 0, nIrrep-1
          Xa= DBLE(iChTbl(j1,nOp(1)))
          Do 200 i1 = 1, iCmp
-            If (iAnd(IrrCmp(IndS(iShell)+i1),2**j1).eq.0) Go To 200
+            If (iAOtSO(iAO+i1,j1)<0) Cycle
 *
             Do 300 j2 = 0, j1
                j12 = iEor(j1,j2)
@@ -66,8 +56,7 @@
                jMx = jCmp
                If (iShell.eq.jShell .and. j1.eq.j2) jMx = i1
                Do 400 i2 = 1, jMx
-                  If (iAnd(IrrCmp(IndS(jShell)+i2),2**j2).eq.0)
-     &               Go To 400
+                  If (iAOtSO(jAO+i2,j2)<0) Cycle
                   lSO = lSO + 1
 *
                   Deg=Two
@@ -96,8 +85,6 @@
       If (iPrint.ge.99) Then
          Call RecPrt(' In Desym1: DAO',' ',DAO,iBas*jBas,iCmp*jCmp)
       End If
-*     Call GetMem(' Exit Desym1','CHECK','ALLO',iDum,iDum)
-*     Call QExit('Desym1',iQ)
       Return
 c Avoid unused argument warnings
       If (.False.) Then

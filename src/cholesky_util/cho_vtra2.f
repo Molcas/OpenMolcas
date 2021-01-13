@@ -68,7 +68,6 @@
 
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr)
-      Logical Debug
       Integer nDen,kDen
 *      Integer ipChoT(8,*),ipMOs(8,*),iSkip(*),nPorb(8,*)
       Integer ipChoT(8,*),iSkip(*)
@@ -103,14 +102,6 @@
 ******
       iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
 ************************************************************************
-
-#ifdef _DEBUG_
-      Debug=.true.
-#else
-      Debug=.false.
-#endif
-
-      Call qEnter(SECNAM)
 
 **********************************************************
 C
@@ -784,7 +775,6 @@ C     -----------------------------------
 
       irc=0
 
-      Call qExit(SECNAM)
 
       Return
       END

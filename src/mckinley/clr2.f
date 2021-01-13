@@ -14,16 +14,17 @@
      &                iaoi,iaoj,naco,ishell,
      &                temp1,temp2,temp3,temp4,temp5,temp6)
 *
+      use pso_stuff
+      use SOAO_Info, only: iAOtSO
+      use Symmetry_Info, only: nIrrep, iOper
+      use Basis_Info, only: nBas
       Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
 #include "etwas.fh"
-#include "info.fh"
 #include "buffer.fh"
 #include "disp.fh"
 #include "disp2.fh"
-#include "pso.fh"
-#include "WrkSpc.fh"
 *
       Real*8 rIn(ibas*icmp*jbas*jcmp,0:nIrrep-1,
      &       nAco*(1+naco)/2,*)
@@ -57,13 +58,12 @@
 
       ipj=ipi+naco*ibas*icmp
 
-      Call PckMo2(temp6(ipi),nAcO,ishell,icmp,iBas,jcmp,jBas,
-     &            iaoi,iaoj)
+      Call PckMo2(temp6(ipi),nAcO,icmp,iBas,jcmp,jBas,iaoi,iaoj)
       id=0
       Do mIrr=0,nIrrep-1
        iiii=0
        Do iS=0,nIrrep-1
-        js=nrOpr(ieor(ioper(is),iOper(mIrr)),ioper,nirrep)
+        js=nrOpr(ieor(ioper(is),iOper(mIrr)))
         ipp(is)=iiii
         iiii=nbas(is)*nash(js)+iiii
        End Do
@@ -79,8 +79,7 @@
            l=0
            Do lIrr=0,kIrr
             kls=iEOR(iOper(kIrr),iOper(lIrr))
-            jIrr=nropr(ieor(iEOR(iOper(iIrr),iOper(mIrr)),kls),
-     &                 ioper,nirrep)
+            jIrr=nropr(ieor(iEOR(iOper(iIrr),iOper(mIrr)),kls))
             ja=1
             Do j=0,jirr-1
              ja=ja+nAsh(j)
@@ -88,10 +87,7 @@
 *
 *           Symmetry of Q matrix
 *
-            iis=nropr(ieor(iOper(jIrr),ioper(mIrr)),
-     &                 ioper,nirrep)
-            jis=nropr(ieor(iOper(iIrr),ioper(mIrr)),
-     &                 ioper,nirrep)
+            jis=nropr(ieor(iOper(iIrr),ioper(mIrr)))
 *
             lMax=nAsh(lIrr)
             If (lIrr.eq.kirr) lmax=kash
@@ -127,7 +123,7 @@
                  if(iij.ge.kl .and. k.eq.l) fact=2.0d00
                  if(iij.lt.kl .and. ih.eq.jh) fact=2.0d00
                   If (k.ne.l) FacT=fact*2.0d0
-                 rd=Work(ipg2-1+itri(iij,kl))*fact
+                 rd=G2(itri(iij,kl),1)*fact
                  Temp4(iB,ic,i)=Temp4(ib,ic,i)+
      &                 Temp1(ib,ic,iash)*rd
                 End Do
@@ -175,7 +171,7 @@
                   if(iij.ge.kl .and. k.eq.l) fact=2.0d00
                   if(iij.lt.kl .and. ih.eq.jh) fact=2.0d00
                   If (k.ne.l) FacT=fact*2.0d0
-                  rd=Work(ipg2-1+itri(iij,kl))*fact
+                  rd=G2(itri(iij,kl),1)*fact
                   Temp5(jB,jc,i)=Temp5(jb,jc,i)+Temp3(jb,jc,iash)*rd
                  End Do
                 End Do

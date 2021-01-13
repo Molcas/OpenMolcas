@@ -8,11 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine o12ea_cvb(nparm1)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
+c ... Content of CI vectors ...
+      logical, external :: tstcnt_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -29,7 +31,8 @@ c  Find CIVBS & CIVBH :
       ivuse_h=0
       do 10 iv=1,nv
       if(tstcnt_cvb(w(lc(iv)),4))ivuse_s=iv
-10    if(tstcnt_cvb(w(lc(iv)),5))ivuse_h=iv
+      if(tstcnt_cvb(w(lc(iv)),5))ivuse_h=iv
+10    continue
       ivuse2=3
       if(ivuse_h.eq.3.or.ivuse_s.eq.3)ivuse2=2
       if(ivuse_h.eq.2.or.ivuse_s.eq.2)ivuse2=4

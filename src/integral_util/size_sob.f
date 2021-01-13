@@ -8,16 +8,18 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Size_SOb(iSD4,nSD,Petite,nSO,No_batch)
+      Subroutine Size_SOb(iSD4,nSD,nSO,No_batch)
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
       Integer iSD4(0:nSD,4)
-      Logical No_batch, Petite
+      Logical No_batch
 *
       No_batch=.False.
-      If (.Not.Petite) Then
+      If (nIrrep>1) Then
          nSO = MemSO2(iSD4( 1,1),iSD4( 1,2),iSD4( 1,3),iSD4( 1,4),
      &                iSD4( 2,1),iSD4( 2,2),iSD4( 2,3),iSD4( 2,4),
-     &                iSD4(11,1),iSD4(11,2),iSD4(11,3),iSD4(11,4))
+     &                iSD4(11,1),iSD4(11,2),iSD4(11,3),iSD4(11,4),
+     &                iSD4( 7,1),iSD4( 7,2),iSD4( 7,3),iSD4( 7,4))
          No_batch=nSO.eq.0
       Else
          nSO = 0

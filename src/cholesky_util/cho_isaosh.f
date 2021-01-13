@@ -20,7 +20,7 @@ C
       INTEGER  CHO_IRANGE
       EXTERNAL CHO_IRANGE
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_ISAOSH')
 

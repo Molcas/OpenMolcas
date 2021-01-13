@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine ReadBas(Lhigh,makemean,bonn,breit,
-     &           symmetry,sameorb,AIMP,oneonly,ncont4,
-     &           numballcart,IN,ifinite)
+     &                   symmetry,sameorb,AIMP,oneonly,ncont4,
+     &                   numballcart,IN,ifinite)
 *
 *     Suposed to read the maximum of l-values, the number of primitive and
 *     contracted functions, the exponents and contraction coefficients
@@ -20,29 +20,24 @@
 #include "param.fh"
 #include "ired.fh"
 #include "Molcas.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
+      Integer, Allocatable:: nOff(:,:)
       Character*4 Word
       Character*4 Symmetry
-      Character*15 lLimit
+#ifdef _DEBUGPRINT_
       Character*21 chCharge
-      Character*32 NofPrim
-      Character*30 AddText
-      Character*33 Nofcont
+#endif
       Character*54 Stars
       Logical MakeMean, Bonn, Breit, SameOrb, AIMP, OneOnly, IfTest
       Common /Nucleus/ Charge, Exp_Finite
       Integer OUT, iBeginIRed(8), iDelperSym(8)
       Data IfTest/.False./
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       IfTest=.True.
+      chCharge='  Charge of nucleus: '
 #endif
       OUT=6
-      Llimit  =' Max. l-value: '
-      chCharge='  Charge of nucleus: '
-      NofPrim =' Number of primitive functions: '
-      NofCont =' Number of contracted functions: '
-      AddText =' Additional functions in IRS: '
       Stars   ='******************************************************'
       Bonn    =.False.
       Breit   =.False.
@@ -132,7 +127,7 @@
      &                 '    with maximum l-values of ',Lmax
           Call Abend()
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write(OUT,'(A21,F5.2)') chCharge, Charge
 #endif
       Call InitiRed
@@ -227,9 +222,8 @@
      &              ncontrac(Lrun)
       End Do
 *
-      Call GetMem(' noff ','Allo','Inte',inoff, 2*numbofcart)
+      Call mma_allocate(nOff,numbofcart,2,Label='nOff')
 *
-      inoft=inoff+numbofcart
       Do iredrun=1,numbofsym
          nfunctperIRED(iredrun)=0
       End Do
@@ -323,12 +317,12 @@
                moffunction(ishifter+icart)=Mrun
                Loffunction(ishifter+icart)=Lrun
                IREDoffunction(ishifter+Icart)=ired
-               iwork(inoft-1+ishifter+Icart)=icart
+               nOff(ishifter+Icart,2)=icart
             End Do
          End Do
       End Do
       Do irun = 1, numbofcart
-         iwork(inoff-1+irun)=irun
+         nOff(irun,1)=irun
       End Do
       Do nsymrun=1,numbofsym
          idelpersym(nsymrun)=0
@@ -345,11 +339,11 @@
          ikeeporb=0
          numbprev=0
          Do irun=1,numbofcart
-4712        If (irun.eq.1.or.(irun.ge.2.and.iwork(inoff-1+irun).eq.
+4712        If (irun.eq.1.or.(irun.ge.2.and.noff(irun,1).eq.
      &         numbprev+1)) Then
                Lval=Loffunction(irun)
-               number=iwork(inoff-1+irun)
-               itype=iwork(inoft-1+irun)
+               number=nOff(irun,1)
+               itype=nOff(irun,2)
                If (itype.le.icore(lval)) then
                   Write(OUT,777) number,itype,lval
                   idelpersym(IREDoffunction(irun))=
@@ -389,7 +383,7 @@
       End Do
       ncont4=nmax*nmax*nmax*nmax
 *
-      Call GetMem(' noff ','free','Inte',inoff, 2*numbofcart)
+      Call mma_deallocate(nOff)
 *
       Return
 777   Format('  Orbital number ',I4,' is the ',I3,'th of L-value ',I3,

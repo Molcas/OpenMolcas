@@ -40,7 +40,7 @@
       Logical :: Found, BadFile
       Character(Len=5) :: Filename
 *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *
 * Create GRADS file if it does not exist
 *
@@ -114,7 +114,7 @@
         End If
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*) 'iRoot, iNAC, jNAC:',iRoot,iNAC,jNAC
       write(6,*) 'grads:',i_grad
       write(6,*) 'nacs:',i_nac

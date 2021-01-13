@@ -31,7 +31,7 @@ C
       INTEGER  CHO_ISUMELM
       EXTERNAL CHO_ISUMELM
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
 C     Test dimensions.
 C     ----------------
 
@@ -56,7 +56,7 @@ C     Get first address.
 C     ------------------
 
       IADR1 = INFRED(IPASS)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       IF (IADR1 .LT. 0) THEN
          WRITE(LUPRI,*) SECNAM,': negative address for reduced set ',
      &                  IPASS,': ',IADR1

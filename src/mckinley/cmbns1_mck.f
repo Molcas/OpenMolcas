@@ -12,17 +12,10 @@
 *               1995, Anders Bernhardsson                              *
 ************************************************************************
       SubRoutine CmbnS1_mck(Rnxyz,nZeta,la,lb,Zeta,rKappa,
-     &                  Final,Alpha,Beta,
-     &                  IfGrad,nOp,iChBas,MxFnc)
+     &                  Final,Alpha,Beta,IfGrad,nOp)
 ************************************************************************
 *                                                                      *
 * Object: compute the gradient of the overlap matrix.                  *
-*                                                                      *
-* Called from: OvrGrd_mck                                              *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh,                                            *
 *             Dept. of Theoretical Chemistry,                          *
@@ -40,7 +33,7 @@ c#include "print.fh"
      &       Zeta(nZeta), rKappa(nZeta), Beta(nZeta),
      &       Rnxyz(nZeta,3,0:la+1,0:lb+1), Alpha(nZeta)
       Logical IfGrad(3,2)
-      Integer  nOp(2), iChBas(MxFnc)
+      Integer  nOp(2)
 *
 *     Statement function for Cartesian index
 *
@@ -48,18 +41,15 @@ c#include "print.fh"
 *
 c     iRout = 134
 c     iPrint = nPrint(iRout)
-c     Call qEnter('CmbnS1_mck')
 *     Call GetMem(' Enter CmbnS1_mck','LIST','REAL',iDum,iDum)
 *
 *     ii = la*(la+1)*(la+2)/6
 *     jj = lb*(lb+1)*(lb+2)/6
-      iQ = 1
       exp32 = -Three/Two
       Do 25 iZeta = 1, nZeta
          rKappa(iZeta) = rKappa(iZeta) * Zeta(iZeta)**exp32
  25   Continue
 c     If (iPrint.ge.99) Then
-c     iQ = 1
 c        Call RecPrt(' In CmbnS1_mck: Zeta  ',' ',Zeta  ,1,nZeta)
 c        Call RecPrt(' In CmbnS1_mck: rKappa',' ',rKappa,1,nZeta)
 c        Call RecPrt(' In CmbnS1_mck: Alpha ',' ',Alpha ,1,nZeta)
@@ -67,12 +57,12 @@ c        Call RecPrt(' In CmbnS1_mck: Beta  ',' ',Beta  ,1,nZeta)
 c     End If
       Do 10 ixa = 0, la
          iyaMax=la-ixa
-      Do 10 ixb = 0, lb
+      Do 11 ixb = 0, lb
          iybMax=lb-ixb
          Do 20 iya = 0, iyaMax
             iza = la-ixa-iya
             ipa= Ind(la,ixa,iza)
-         Do 20 iyb = 0, iybMax
+         Do 21 iyb = 0, iybMax
             izb = lb-ixb-iyb
             ipb= Ind(lb,ixb,izb)
 *
@@ -207,15 +197,15 @@ c     End If
                End If
             End If
 *
+ 21      Continue
  20      Continue
+ 11   Continue
  10   Continue
 *
 *     Call GetMem(' Exit CmbnS1_mck','LIST','REAL',iDum,iDum)
-c     Call qExit('CmbnS1_mck')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer_array(nOp)
-         Call Unused_integer_array(iChBas)
       End If
       End

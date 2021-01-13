@@ -39,11 +39,6 @@
 *                                                                      *
 *     purpose: perform final calculations                              *
 *                                                                      *
-*     called from: SCF                                                 *
-*                                                                      *
-*     calls to:                                                        *
-*               IvoGen,PrFin,OpnRlx,ClsRlx,WrRlx,qEnter,qExit          *
-*                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
 *     written by:                                                      *
@@ -59,6 +54,10 @@
       use EFP_Module
       use EFP
 #endif
+#ifdef _HDF5_
+      Use mh5, Only: mh5_put_dset
+#endif
+      Use Interfaces_SCF, Only: dOne_SCF
       Implicit Real*8 (a-h,o-z)
 *
 #include "real.fh"
@@ -87,7 +86,6 @@
       COMMON  / ADDcorr_L   / Do_Addc
       Logical Do_Tw
       COMMON  / Tw_corr_L   / Do_Tw
-      Common /Sagit/ isSagit
 #ifdef _EFP_
       Logical EFP_On
 #endif
@@ -100,17 +98,15 @@
       Logical RF_On,Langevin_On,PCM_On
       Character*80 Note
       Character*8 What
-      Character*16 Value
       Integer IndType(7,8)
       Real*8, Dimension(:), Allocatable:: Temp, CMOn, Etan, Epsn
       Real*8, Dimension(:,:), Allocatable:: GVFck, Scrt1, Scrt2, DMat,
      &                                      EOr
 #ifdef _HDF5_
-      character(1), allocatable :: typestring(:)
+      character(Len=1), allocatable :: typestring(:)
       Integer nSSh(mxSym), nZero(mxSym)
 #endif
       Integer nFldP
-#include "interfaces_scf.fh"
       Dimension Dummy(1)
 *
 *----------------------------------------------------------------------*
@@ -118,18 +114,8 @@
 *----------------------------------------------------------------------*
 *
       Call CWTime(TCpu1,TWall1)
-#ifdef _DEBUG_
-      Call qEnter('Final')
-#endif
 *
-         call getenvf('MOLCAS_SAGIT',Value)
-         if(Value(1:1).eq.'Y'.or.Value(1:1).eq.'y') iSagit=1
-c
-         if(iSagit.eq.1) then
-             What='COEKBI'
-         Else
-             What='COEI'
-         endif
+         What='COEI'
 
       Call SorbCMOs(CMO,mBB,nD,EOrb,OccNo,mmB,nBas,nOrb,nSym)
 *
@@ -182,7 +168,6 @@ c
          If ( iRc.ne.0 ) Then
             Write (6,*) 'Final: Error writing on ONEINT'
             Write (6,'(A,A)') 'RlxLbl=',RlxLbl
-            Call QTrace
             Call Abend()
          End If
       End Do
@@ -552,8 +537,10 @@ c make a fix for energies for deleted orbitals
 *
       If (Do_OFemb) Then
           Call GetMem('FMaux','Free','Real',ipFMaux,nBT)
+#ifdef _NOT_USED_CODE_
           If (l_NDSD.gt.0)
      &        Call GetMem('NDSD','Free','Real',ip_NDSD,l_NDSD)
+#endif
       EndIf
       If (MxConstr.gt.0) Then
          If (Do_SpinAV) Call GetMem('DSc','Free','Real',ip_DSc,nBB)
@@ -562,9 +549,6 @@ c make a fix for energies for deleted orbitals
       If (EFP_On()) Then
          Call EFP_ShutDown(EFP_Instance)
       End If
-#endif
-#ifdef _DEBUG_
-      Call qExit('Final')
 #endif
 *
       Call CWTime(TCpu2,TWall2)
@@ -601,10 +585,5 @@ c make a fix for energies for deleted orbitals
       Call CollapseOutput(0,'Statistics and timing')
       Write(6,*)
       endif
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
+
       End

@@ -21,13 +21,13 @@
       Implicit None
       Integer, parameter          :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)         :: Do_option
-      Real(kind=wp), intent(inout):: xyz(3,3), abc(3,3)
-      Real(kind=wp), intent(in)   :: cryst(6), coord(3)
+      Real(kind=8), intent(inout):: xyz(3,3), abc(3,3)
+      Real(kind=8), intent(in)   :: cryst(6), coord(3)
       Integer, intent(out)        :: iReturn
       ! local variables:
       Integer       :: i
-      Real(kind=wp) :: a,b,c,al,bt,gm,cal,cbt,cgm,sal,sbt,sgm,v,pi,x,y,z
-      Real(kind=wp) :: xyz2(3,3),pX(3),pY(3),pZ(3)
+      Real(kind=8) :: a,b,c,al,bt,gm,cal,cbt,cgm,sgm,v,pi,x,y,z
+      Real(kind=8) :: xyz2(3,3),pX(3),pY(3),pZ(3)
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ! initializations
       pi  = 3.1415926535897932384626433832795028841971693993751_wp
@@ -40,8 +40,6 @@
       cal = 0.0_wp
       cbt = 0.0_wp
       cgm = 0.0_wp
-      sal = 0.0_wp
-      sbt = 0.0_wp
       sgm = 0.0_wp
       X   = 0.0_wp
       Y   = 0.0_wp
@@ -60,8 +58,6 @@
       cal = cos(al)
       cbt = cos(bt)
       cgm = cos(gm)
-      sal = sin(al)
-      sbt = sin(bt)
       sgm = sin(gm)
 
       v = sqrt(1.0_wp-cal*cal-cbt*cbt-cgm*cgm+2.0_wp*cal*cbt*cgm )

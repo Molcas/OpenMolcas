@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine projspn_cvb(bikcof,
      > nel,nalf,nbet,ndet,ifns,
@@ -34,7 +35,8 @@ c
 c Set up maximum and minimum of spin functions:
       do 2000 iorb=0,nel
       minspn(iorb)=iorb-min(iorb/2,nbet)
-2000  maxspn(iorb)=min(iorb,nalf)
+      maxspn(iorb)=min(iorb,nalf)
+2000  continue
       call weight_cvb(xspin,minspn,maxspn,nalf,nel)
 
       call imove_cvb(maxspn,nkspn,nel+1)
@@ -42,7 +44,8 @@ c Set up maximum and minimum of spin functions:
 c Set up maximum and minimum for determinants :
       do 2100 iorb=0,nel
       minalf(iorb)=max(iorb-nbet,0)
-2100  maxalf(iorb)=min(iorb,nalf)
+      maxalf(iorb)=min(iorb,nalf)
+2100  continue
       call weight_cvb(xdet,minalf,maxalf,nalf,nel)
       call imove_cvb(maxalf,nkalf,nel+1)
       call occupy_cvb(nkalf,nel,locca,lnocca)
@@ -56,7 +59,8 @@ c MAXSPN contains same elements as MAXALF
       call occupy_cvb(nkalf,nel,locswp,lnoswp)
 2400  continue
       do 2500 i=1,nalf
-2500  ialfa(i)=iwork(locswp(i))
+      ialfa(i)=iwork(locswp(i))
+2500  continue
 2600  continue
       do 2700 i=2,nalf
         if(ialfa(i).lt.ialfa(i-1))then

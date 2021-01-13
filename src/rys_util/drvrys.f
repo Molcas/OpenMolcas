@@ -24,44 +24,44 @@
      &                  NoPInts,Dij,mDij,Dkl,mDkl,Do_TnsCtl,kabcd,
      &                  Coeff1,iBasi,Coeff2,jBasj,
      &                  Coeff3,kBask,Coeff4,lBasl)
-***********************************************************************
-* Routine for the computation of primitive integrals and accumulation *
-* to the (ab|cd) or the (e0|f0) set of integrals. If the primitive    *
-* set of integrals are smaller than the set of contracted integrals   *
-* the code selects to apply the HRR recursion {e0|f0} -> {ab|cd} here *
-* before the contraction generating the (ab|cd) set of integrals, if  *
-* not the {e0|f0} set is contracted to the (e0|f0) set directly and   *
-* HRR recursion is applied outside this routine.                      *
-*                                                                     *
-* For the contraction we have that either all primitive integrals     *
-* can be computed in a single step, otherwise subsets of primitive    *
-* integrals are computed and acculumulated to the contracted set.     *
-*                                                                     *
-* The Wrk array is subdiveded into 2 or 3 blocks depending on if the  *
-* calling code iterate over subsets of primitive integrals.           *
-*                                                                     *
-* Memory blocking                                                     *
-* ===============                                                     *
-* For an interative use:                                              *
-*      iW4 points to the start of Wkr, length nWork2-mWork2           *
-*      iW2 points at nWork2-mWork+1, length mWork2                    *
-*      iW3 points at nWork2, length nWork3                            *
-*                                                                     *
-* For single iteration use:                                           *
-*      iW4 and iW2 points at the start of Wkr, length nWork2          *
-*      iW3 points at nWork2, length nWork3                            *
-*                                                                     *
-* Usage of memory                                                     *
-*      Screen: does not use Wrk                                       *
-*      Rys:    use iW2 secrtion                                       *
-*      HRR:    use the aggregated iW2 and iW3 section                 *
-*      Cntrct: use the iW2, iW3, and iW4 sections seperately          *
-*                                                                     *
-* Author: Roland Lindh                                                *
-*         Dept Chemistry - Angstrom, the Theoretical Chem. Prog.      *
-*         Uppsala University, Uppsala, Sweden                         *
-*         2015                                                        *
-***********************************************************************
+************************************************************************
+* Routine for the computation of primitive integrals and accumulation  *
+* to the (ab|cd) or the (e0|f0) set of integrals. If the primitive     *
+* set of integrals are smaller than the set of contracted integrals    *
+* the code selects to apply the HRR recursion {e0|f0} -> {ab|cd} here  *
+* before the contraction generating the (ab|cd) set of integrals, if   *
+* not the {e0|f0} set is contracted to the (e0|f0) set directly and    *
+* HRR recursion is applied outside this routine.                       *
+*                                                                      *
+* For the contraction we have that either all primitive integrals      *
+* can be computed in a single step, otherwise subsets of primitive     *
+* integrals are computed and acculumulated to the contracted set.      *
+*                                                                      *
+* The Wrk array is subdiveded into 2 or 3 blocks depending on if the   *
+* calling code iterate over subsets of primitive integrals.            *
+*                                                                      *
+* Memory blocking                                                      *
+* ===============                                                      *
+* For an interative use:                                               *
+*      iW4 points to the start of Wkr, length nWork2-mWork2            *
+*      iW2 points at nWork2-mWork+1, length mWork2                     *
+*      iW3 points at nWork2, length nWork3                             *
+*                                                                      *
+* For single iteration use:                                            *
+*      iW4 and iW2 points at the start of Wkr, length nWork2           *
+*      iW3 points at nWork2, length nWork3                             *
+*                                                                      *
+* Usage of memory                                                      *
+*      Screen: does not use Wrk                                        *
+*      Rys:    use iW2 secrtion                                        *
+*      HRR:    use the aggregated iW2 and iW3 section                  *
+*      Cntrct: use the iW2, iW3, and iW4 sections seperately           *
+*                                                                      *
+* Author: Roland Lindh                                                 *
+*         Dept Chemistry - Angstrom, the Theoretical Chem. Prog.       *
+*         Uppsala University, Uppsala, Sweden                          *
+*         2015                                                         *
+************************************************************************
       Implicit None
       External TERI,ModU2,vCff2D,vRys2D
       External ip_ZtMax, ip_abMax, ip_ZtMaxD, ip_abMaxD
@@ -86,8 +86,8 @@
 *     Local arrays
       Integer lZeta, lEta, i_Int, n1, n2, n3, n4, iW3, nWork3, nW2
       Logical Nospecial
-*define _DEBUG_
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'Enter DrvRys'
       Write (6,*) 'iZeta, nZeta, mZeta, nZeta_Tot=',
      &             iZeta, nZeta, mZeta, nZeta_Tot
@@ -204,7 +204,7 @@
      &            IndZet,lZeta,IndEta,lEta)
 *
  99   Continue
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'iW4,iW2,iW3:',iW4,iW2,iW3
       Call RecPrt('DrvRys:(e0|0f)',' ',Wrk(iW4),kabcd,
      &            iBasi*jBasj*kBask*lBasl)

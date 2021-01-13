@@ -30,7 +30,6 @@ c*************************************************
 c*************************************************
 #include "drt_h.fh"
       common /thresh/ vthreen,vthrealp,vthreresid
-      character*72  title(mxtit)
       parameter ( ncmd=9 )
       character*4 command,cmd(ncmd)
       character*72  line
@@ -43,10 +42,8 @@ c*************************************************
 #ifdef _XIANEST_
      &         '$END'/
 #endif
-      logical logic_restart
 #ifdef MOLPRO
 #else
-      call qenter("INPUT")
       call rdnlst(5,"GUGACI")
 #endif
 
@@ -83,11 +80,9 @@ c set the default convergence threshhold
       write (6,'(a,a)') 'command=',command
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
 #ifdef _XIANEST_
-      call qexit()
 #endif
 *
 *---  process title    command ----------------------------------------*
@@ -102,7 +97,6 @@ c set the default convergence threshhold
       end do
       if ( jcmd.ne.0 ) goto 20
       ntit=ntit+1
-      if ( ntit.le.mxtit ) title(ntit)=line
       goto 100
 *
 *---  process nrroot command ----------------------------------------*
@@ -151,7 +145,6 @@ c set the default convergence threshhold
 
 *---  process restart command ------------------------------------------
  800  continue
-      logic_restart=.true.
       goto 10
 
 *--- End of GUGACI input ----------------------*
@@ -162,21 +155,17 @@ c set the default convergence threshhold
 991   write (6,*) 'input: end of input file encountered'
       write (6,'(a,a)') 'last command: ',command
 #ifdef _XIANEST_
-      call qexit()
 #endif
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
 992   write (6,*) 'input: error while reading input!'
       write (6,'(a,a)') 'last command: ',command
 #ifdef _XIANEST_
-      call qexit()
 #endif
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
       end
@@ -212,7 +201,6 @@ c write date into cidrt for ci calculation
       ns_sm=idum(1)
 ! number of roots to be cal
       call idafile(ludrt,2,idum,1,idisk)
-      nroot=idum(1)
 ! number of corelation electrons
       call idafile(ludrt,2,idum,1,idisk)
       n_electron=idum(1)
@@ -305,11 +293,9 @@ c write date into cidrt for ci calculation
         write(6,*)'  input num.of orbital err! check again!'
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
 #ifdef _XIANEST_
-      call qexit()
 #endif
       endif
 

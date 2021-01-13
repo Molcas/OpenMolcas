@@ -23,7 +23,6 @@
       Data type/'Max point','Saddle point','Min point'/
       Data Vibplt/10/
 C
-      Call qEnter('Pot')
 *
       FILENAME='VIBPLT0 '
       If (Nr.ge.1 .and. Nr.lt.9) Then
@@ -187,7 +186,6 @@ C
 *
       Close(Vibplt)
 *
-      Call qExit('Pot')
       Return
 C
 C     Here for fitting of observable input
@@ -231,7 +229,6 @@ C
 *
       Close(Vibplt)
 *
-      Call qExit('Pot')
       Return
 2002  Format(/1x,'extremum points'/24x,'R(au)',9x,'Value')
 2003  Format(1x,A,2F14.6)

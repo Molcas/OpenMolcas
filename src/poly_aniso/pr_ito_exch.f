@@ -26,38 +26,39 @@
       Integer, intent(in)          :: nexch(nneq)
       Integer, intent(in)          :: neq(nneq)
       Integer, intent(in)          :: i_pair(npair,2)
-      Real(kind=wp), intent(in)    :: rot(nneq,neqv,3,3)
-      Real(kind=wp), intent(in)    :: soe(nneq,nmax)
-      Complex(kind=wp), intent(in) :: MM(nneq,3,nmax,nmax)
-      Complex(kind=wp), intent(in) :: SM(nneq,3,nmax,nmax)
-      Complex(kind=wp), intent(in) :: HLIN1(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), intent(in) :: HLIN3(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), intent(in) :: HLIN9(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), intent(in) :: HDIP(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), intent(in) :: HDMO(npair,nmax,nmax,nmax,nmax)
-      Complex(kind=wp), intent(in) :: HITO(npair,nmax,nmax,nmax,nmax)
+      Real(kind=8), intent(in)    :: rot(nneq,neqv,3,3)
+      Real(kind=8), intent(in)    :: soe(nneq,nmax)
+      Complex(kind=8), intent(in) :: MM(nneq,3,nmax,nmax)
+      Complex(kind=8), intent(in) :: SM(nneq,3,nmax,nmax)
+      Complex(kind=8), intent(in) :: HLIN1(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=8), intent(in) :: HLIN3(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=8), intent(in) :: HLIN9(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=8), intent(in) :: HDIP(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=8), intent(in) :: HDMO(npair,nmax,nmax,nmax,nmax)
+      Complex(kind=8), intent(in) :: HITO(npair,nmax,nmax,nmax,nmax)
       Logical, intent(in)          :: Dipol
       Logical, intent(in)          :: AnisoLines1
       Logical, intent(in)          :: AnisoLines3
       Logical, intent(in)          :: AnisoLines9
       Logical, intent(in)          :: DM_exchange
       Logical, intent(in)          :: JITO_exchange
-      Character(1), intent(in)     :: itype(nneq)
+      Character(Len=1), intent(in) :: itype(nneq)
       ! local variables
-      Integer       ::   i,j,l,k,lp,i1,i2,j1,j2,lb1,lb2,iopt,ibuf,
+c     Integer       ::   iopt
+      Integer       ::   i,j,l,k,lp,i1,i2,lb1,lb2,ibuf,
      &                   is1,is2,js1,js2,k1,k2,q1,q2,n1,n2,nsize
       Integer       ::   nind(lmax,2),l1(2),l2(2),l3(2),l4(2)
-      Real(kind=wp) ::   J1C(3,3), J1Cr(3,3) !, J1C_trans(3,3)
-      Complex(kind=wp), allocatable :: JN(:,:,:,:)
-      Complex(kind=wp), allocatable :: JB(:,:,:,:)
-      Complex(kind=wp), allocatable :: JS(:,:,:,:)
-      Real(kind=wp)    :: dznrm2_,RL1,RL3,RL9,RDI,RDM,RIT
-      Real(kind=wp)    :: g1(3),g2(3),mg1(3,3),mg2(3,3)
+      Real(kind=8) ::   J1C(3,3), J1Cr(3,3) !, J1C_trans(3,3)
+      Complex(kind=8), allocatable :: JN(:,:,:,:)
+      Complex(kind=8), allocatable :: JB(:,:,:,:)
+      Complex(kind=8), allocatable :: JS(:,:,:,:)
+      Real(kind=8)    :: dznrm2_,RL1,RL3,RL9,RDI,RDM,RIT
+      Real(kind=8)    :: g1(3),g2(3),mg1(3,3),mg2(3,3)
       External         :: dznrm2_
-      Real(kind=wp)    :: cm_to_MHz
+c     Real(kind=8)    :: cm_to_MHz
       logical DBG
 
-      cm_to_MHz=29979.2458_wp
+c     cm_to_MHz=29979.2458_wp
       DBG=.false.
 c some initializations:
       nind(:,:)=0
@@ -129,8 +130,8 @@ cccccccccccccccccccccccccccccccc
          lb2=i_pair(lp,2)
           i1=nind(lb1,1) ! indices of non-equivalent sites
           i2=nind(lb2,1) ! indices of non-equivalent sites
-          j1=nind(lb1,2) ! indices of equivalent sites
-          j2=nind(lb2,2) ! indices of equivalent sites
+          !j1=nind(lb1,2) ! indices of equivalent sites
+          !j2=nind(lb2,2) ! indices of equivalent sites
           If (AnisoLines1.AND.(RL1>0.0_wp)) Then
             Write(6,'(A,i5)') 'HLIN1,  interacting pair ',lp
             Do is1=1,nexch(i1)
@@ -266,15 +267,15 @@ c first rotate the magnetic moments to the general coordinate system:
         lb2=i_pair(lp,2)
         i1=nind(lb1,1) ! indices of non-equivalent sites
         i2=nind(lb2,1) ! indices of non-equivalent sites
-        j1=nind(lb1,2) ! indices of equivalent sites
-        j2=nind(lb2,2) ! indices of equivalent sites
+        !j1=nind(lb1,2) ! indices of equivalent sites
+        !j2=nind(lb2,2) ! indices of equivalent sites
 
         n1=nexch(i1)
         n2=nexch(i2)
         Write(6,'(A)') 'PART 1: Magnetic exchange is written in the '//
      &                 'coordinate systems of the LOCAL main '//
      &                 'magnetic axes of the interacting sites.'
-        iopt=1
+c       iopt=1
         Write(6,'(A)')
         Write(6,'(100A)') ('-',i=1,100)
         Write(6,'(A,i2)') 'Interacting pair',lp

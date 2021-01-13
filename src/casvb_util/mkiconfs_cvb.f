@@ -8,12 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine mkiconfs_cvb()
       implicit real*8 (a-h,o-z)
       logical need_cas
-#include "ext_cvb.fh"
+c ... Make: up to date? ...
+      logical, external :: up2date_cvb
+c ... Files/Hamiltonian available ...
+      logical, external :: valid_cvb,ifcasci_cvb,ifhamil_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -26,7 +30,6 @@
 c  ICONFS
       call rdioff_cvb(4,recinp,ioffs)
       call rdis_cvb(iw(ll(15)),nconf*noe,recinp,ioffs)
-      iskip=ll(15)-1
       return
       entry mksymelm_cvb()
       call rdioff_cvb(8,recinp,ioffs)
@@ -36,7 +39,8 @@ c  ICONFS
         write(6,'(/,a,i4,3x,a)')' Symmetry element no.',
      >    isyme,tags(isyme)
         ishft=norb*norb*(isyme-1)
-300     call mxprint_cvb(w(ishft+ls(1)),norb,norb,0)
+        call mxprint_cvb(w(ishft+ls(1)),norb,norb,0)
+300     continue
         if(nsyme.gt.0)write(6,*)' '
         call untouch_cvb('PRSYMELM')
       endif

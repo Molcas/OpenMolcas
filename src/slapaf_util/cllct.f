@@ -10,36 +10,27 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine Cllct(Strng,Vector,Value,Names,nAtom,Coor,nCntr,mCntr,
-     &                 xyz,Temp,Ind,Type,rMss,qMss,TMtrx,First,Lbl,nSym,
-     &                 lWrite,iOper,jStab,nStab,mxdc,Deg,lAtom)
+      SubRoutine Cllct(Strng,Vector,Value,nAtom,Coor,nCntr,mCntr,
+     &                 xyz,Temp,Ind,Type,qMss,TMtrx,First,Lbl,
+     &                 lWrite,Deg,lAtom)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: DefInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy  (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
 *             University of Lund, SWEDEN                               *
 *             May '91                                                  *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iOper
+      use Slapaf_Info, only: dMass, AtomLbl
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "Molcas.fh"
       Character*(*) Strng
-      Character*(LENIN) Names(nAtom), Label*(LENIN5), Name*(LENIN)
+      Character Label*(LENIN5), Name*(LENIN)
       Character Oper*3, Type*6, Lbl*8
       Real*8 Coor(3,nAtom), Vector(3,nAtom), xyz(3,nCntr+mCntr),
-     &       Temp(3,nCntr+mCntr), rMss(nAtom), qMss(nCntr+mCntr),
+     &       Temp(3,nCntr+mCntr), qMss(nCntr+mCntr),
      &       TMtrx(3,nAtom,3,(nCntr+mCntr)), Axis(3), Perp_Axis(3,2)
-      Integer   Ind(nCntr+mCntr,2), iOper(0:nSym-1), nStab(mxdc),
-     &          jStab(0:7,mxdc)
+      Integer   Ind(nCntr+mCntr,2)
       Logical First, lWrite, ldB, lWarn, lAtom(nAtom)
       Dimension Dummy(1)
 *
@@ -49,7 +40,6 @@
       lWrite = First
       lWarn  = First
       If (iPrint.gt.20) lWrite = .True.
-      Call qEnter('Cllct')
       If (iPrint.ge.99) Call RecPrt(' In Cllct: Coor',' ',
      &                               Coor,3,nAtom)
 *
@@ -78,7 +68,7 @@
 *---------- Check if operator belongs to the current point group
 *
             i = 0
-            Do 11 j = 1, nSym-1
+            Do 11 j = 1, nIrrep-1
                If (iPhase.eq.iOper(j)) i = j
  11         Continue
             If (i.eq.0) Then
@@ -108,7 +98,7 @@
 *
          jsAtom = 0
          Do 20 isAtom = 1, nAtom
-            If (Name.eq.Names(isAtom)) jsAtom = isAtom
+            If (Name.eq.AtomLbl(isAtom)) jsAtom = isAtom
  20      Continue
          If (jsAtom.eq.0) Then
             Call WarningMessage(2,'Error in Cllclt')
@@ -130,7 +120,7 @@
          If (iAnd(iPhase,1).ne.0) xyz(1,ixyz) = - xyz(1,ixyz)
          If (iAnd(iPhase,2).ne.0) xyz(2,ixyz) = - xyz(2,ixyz)
          If (iAnd(iPhase,4).ne.0) xyz(3,ixyz) = - xyz(3,ixyz)
-         If (Type.eq.'DISSOC') qMss(ixyz) = rMss(jsAtom)
+         If (Type.eq.'DISSOC') qMss(ixyz) = dMass(jsAtom)
          iFrst = iEnd + 1
  10   Continue
 *
@@ -148,45 +138,45 @@
          Temp(1,1) = One
          If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
      &          ' : x-component=',Value,'/ bohr'
-         Deg=D_Cart(Ind,nStab,jStab,mxdc,nSym)
+         Deg=D_Cart(Ind,nIrrep)
       Else If (Type.eq.'Y     ') Then
          Value = xyz(2,1)
          call dcopy_(3,[Zero],0,Temp,1)
          Temp(2,1) = One
          If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
      &          ' : y-component=',Value,'/ bohr'
-         Deg=D_Cart(Ind,nStab,jStab,mxdc,nSym)
+         Deg=D_Cart(Ind,nIrrep)
       Else If (Type.eq.'Z     ') Then
          Value = xyz(3,1)
          call dcopy_(3,[Zero],0,Temp,1)
          Temp(3,1) = One
          If (lWrite) Write (6,'(1X,A,A,2X,F10.4,A)') Lbl,
      &          ' : z-component=',Value,'/ bohr'
-         Deg=D_Cart(Ind,nStab,jStab,mxdc,nSym)
+         Deg=D_Cart(Ind,nIrrep)
       Else If (Type.eq.'STRTCH') Then
          Call Strtch(xyz,nCent,Value,Temp,lWrite,Lbl,Dummy,ldB)
-         Deg=D_Bond(Ind,Ind(1,2),nStab,jStab,mxdc,nSym)
+         Deg=D_Bond(Ind,Ind(1,2),nIrrep)
       Else If (Type.eq.'LBEND1')Then
          Call CoSys(xyz,Axis,Perp_Axis)
-         Call LBend(xyz,nCent,Value,Temp,lWrite,lWarn,Lbl,Dummy,ldB,
+         Call LBend(xyz,nCent,Value,Temp,lWrite,Lbl,Dummy,ldB,
      &              Axis,Perp_Axis(1,1),.False.)
-         Deg=D_Bend(Ind,Ind(1,2),nStab,jStab,mxdc,nSym)
+         Deg=D_Bend(Ind,Ind(1,2),nIrrep)
       Else If (Type.eq.'LBEND2')Then
          Call CoSys(xyz,Axis,Perp_Axis)
-         Call LBend(xyz,nCent,Value,Temp,lWrite,lWarn,Lbl,Dummy,ldB,
+         Call LBend(xyz,nCent,Value,Temp,lWrite,Lbl,Dummy,ldB,
      &              Axis,Perp_Axis(1,2),.True.)
-         Deg=D_Bend(Ind,Ind(1,2),nStab,jStab,mxdc,nSym)
+         Deg=D_Bend(Ind,Ind(1,2),nIrrep)
       Else If (Type.eq.'BEND  ')Then
          Call Bend(xyz,nCent,Value,Temp,lWrite,lWarn,Lbl,Dummy,ldB)
-         Deg=D_Bend(Ind,Ind(1,2),nStab,jStab,mxdc,nSym)
+         Deg=D_Bend(Ind,Ind(1,2),nIrrep)
       Else If (Type.eq.'TRSN  ')Then
          Call Trsn(xyz,nCent,Value,Temp,lWrite,lWarn,Lbl,Dummy,ldB)
-         Deg=D_Trsn(Ind,Ind(1,2),nStab,jStab,mxdc,nSym)
+         Deg=D_Trsn(Ind,Ind(1,2),nIrrep)
       Else If (Type.eq.'OUTOFP')Then
          Call OutOfP(xyz,nCent,Value,Temp,lWrite,lWarn,Lbl,Dummy,ldB)
-         Deg=D_Trsn(Ind,Ind(1,2),nStab,jStab,mxdc,nSym)
+         Deg=D_Trsn(Ind,Ind(1,2),nIrrep)
       Else If (Type.eq.'DISSOC')Then
-         Call Dissoc(xyz,nCntr,mCntr,qMss,nAtom,Value,Temp,lWrite,
+         Call Dissoc(xyz,nCntr,mCntr,qMss,Value,Temp,lWrite,
      &               Lbl,Dummy,ldB)
          Deg=One
       Else
@@ -227,7 +217,7 @@
 *--------Project away nonsymmetric displacements
 *
 *--------Restrict loop to the stabilizers of the center.
-         Do 350 iIrrep= 0, nSym-1
+         Do 350 iIrrep= 0, nIrrep-1
             If (Coor(1,jsAtom).ne.Zero.and.iAnd(iOper(iIrrep),
      &          1).ne.0) Go To 350
             If (Coor(2,jsAtom).ne.Zero.and.iAnd(iOper(iIrrep),
@@ -261,6 +251,5 @@
      &                              ' ',Vector,3,nAtom)
       End If
 *
-      Call qExit('Cllct')
       Return
       End

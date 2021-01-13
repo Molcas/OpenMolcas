@@ -22,14 +22,13 @@
 
       Integer NScreen
       Real*8  dmpk, dFKmat
-      Integer nDen, nXorb(8), nChMOs(8)
+      Integer nDen, nXorb(8)
 
 
 *****************************************************************
 *  CALCULATE AND RETURN FMAT DUE TO FROZEN ORBITALS ONLY
 *****************************************************************
 
-      Call qEnter('Cho_Fock_MoTRA')
 
       NScreen=10
       dmpK=1.0d-1
@@ -71,8 +70,6 @@
               Call AbEnd()
             endif
 
-            nChMOs(i)= NumV
-
             if ( NumV .ne. nFro(i) ) then
              write(6,'(a,a,i6,a,i6,a,i6,a,i6,a,i6)')
      &       'Warning! Cho_Fock_Motra: nr of Frozen orbitals from the ',
@@ -81,10 +78,6 @@
      &       '; Max diagonal of the density in symm. ',i,
      &       ' is equal to ',Ymax
             endif
-
-          else
-
-            nChMOs(i)= 0
 
           endif
 
@@ -115,6 +108,5 @@
          write(6,*)'Try recovery -- continue.'
       endif
 
-      Call qExit('Cho_Fock_MoTRA')
       RETURN
       END

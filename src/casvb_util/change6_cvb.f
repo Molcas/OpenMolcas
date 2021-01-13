@@ -8,12 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine change6_cvb()
       implicit real*8 (a-h,o-z)
       logical changed
-#include "ext_cvb.fh"
+c ... Change of dimensioning variables ...
+      logical, external :: chpcmp_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -85,7 +87,8 @@ c  Overlap-based Davidson optimization :
         do 1 idav=maxdav,1,-1
 c  NEED is approx req. memory :
         need=2*nvb*idav+2*nvb+idav+1000+memwrk
-1       if(need.lt.iremain)goto 2
+        if(need.lt.iremain)goto 2
+1       continue
         idav=0
         if(nvb.eq.0)then
           need=1000+memwrk
@@ -111,7 +114,8 @@ c  Energy-based Davidson optimization :
         do 11 idav=maxdav,1,-1
 c  NEED is approx req. memory :
         need=3*nvb*idav+nvb+idav*(2*idav+3)+1000+mem_applyh+memwrk
-11      if(need.lt.iremain)goto 12
+        if(need.lt.iremain)goto 12
+11      continue
         idav=0
         if(nvb.eq.0)then
           need=1000+memwrk

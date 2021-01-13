@@ -17,6 +17,9 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE DENS(IVEC,DMAT)
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par, King
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -25,10 +28,8 @@
 #include "eqsolv.fh"
 #include "WrkSpc.fh"
 #include "sigma.fh"
-#include "para_info.fh"
       DIMENSION DMAT(*)
 
-      CALL QENTER('DENS')
 C Compute total density matrix as symmetry-blocked array of
 C triangular matrices in DMAT. Size of a triangular submatrix is
 C  (NORB(ISYM)*(NORB(ISYM)+1))/2.
@@ -124,6 +125,5 @@ C so that the slaves have the same density matrix as the master.
       END IF
 #endif
 
-      CALL QEXIT('DENS')
       RETURN
       END

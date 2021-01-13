@@ -77,7 +77,6 @@ C Max dimension of a read symmetry block
         Do iSym=1,nSym
            if(NBAS(iSym).gt.Nmax .and. Moccmx(isym).ne.0 )then
            Nmax = NBAS(iSym)
-           iSymMax= iSym
            endif
         End Do
 

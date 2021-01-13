@@ -261,7 +261,6 @@ C WRITE OUT THIS SET OF NATURAL SPIN ORBITALS
 
        WRITE(6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
 
-        IFOCC=1
         LuxxVec=50
         LuxxVec=isfreeunit(LuxxVec)
 
@@ -445,7 +444,6 @@ C read in ao matrix for angmom or mltpl
       IF(ITYPE.EQ.1.OR.ITYPE.EQ.3) THEN
         ICMP=1
         CALL iRDONE(IRC,   1,'MLTPL  0',ICMP,IDUM,       ISYLAB)
-        IF (IRC.EQ.0) NSIZ=IDUM(1)
         CALL  RDONE(IRC,IOPT,'MLTPL  0',ICMP,WORK(LSANG),ISYLAB)
 
         IF ( IRC.NE.0 ) THEN
@@ -460,7 +458,6 @@ C read in ao matrix for angmom or mltpl
       ELSE IF(ITYPE.EQ.2.OR.ITYPE.EQ.4) THEN
         ICMP=3
         CALL iRDONE(IRC,   1,'ANGMOM  ',ICMP,IDUM,       ISYLAB)
-        IF (IRC.EQ.0) NSIZ=IDUM(1)
         CALL  RDONE(IRC,IOPT,'ANGMOM  ',ICMP,WORK(LSANG),ISYLAB)
 
         IF ( IRC.NE.0 ) THEN
@@ -741,7 +738,6 @@ C REAL PART
 
        WRITE(6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
 
-        IFOCC=1
         LuxxVec=50
         LuxxVec=isfreeunit(LuxxVec)
 
@@ -768,7 +764,6 @@ C IMAGINARY PART
 
        WRITE(6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
 
-        IFOCC=1
         LuxxVec=50
         LuxxVec=isfreeunit(LuxxVec)
 

@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine pvbcopy2_cvb(cfrom,cto,
      >  iapr,ixapr,ret,ic)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -27,15 +27,19 @@
         call fzero(cto,nda*ndb)
         idetvb=0
         do 100 ia=1,nda
-        do 100 ixa=ixapr(ia),ixapr(ia+1)-1
+        do 101 ixa=ixapr(ia),ixapr(ia+1)-1
         idetvb=idetvb+1
         ib=iapr(ixa)
-100     cto(ia,ib)=cfrom(ia,ib)
+        cto(ia,ib)=cfrom(ia,ib)
+101     continue
+100     continue
       elseif(ic.eq.1)then
         ret=zero
         do 200 ia=1,nda
-        do 200 ixa=ixapr(ia),ixapr(ia+1)-1
-200     ret=ret+cto(ia,iapr(ixa))*cfrom(ia,iapr(ixa))
+        do 201 ixa=ixapr(ia),ixapr(ia+1)-1
+        ret=ret+cto(ia,iapr(ixa))*cfrom(ia,iapr(ixa))
+201     continue
+200     continue
       endif
       return
       end

@@ -63,7 +63,6 @@
 
       Dimension CMO(*) , PUVX(*) , D(*) , D1A(*) , FI(*) , FA(*)
 
-      Call qEnter ('Fmat')
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
       !iPrLev=DEBUG-1
@@ -144,22 +143,23 @@ C Local print level (if any)
      & .and. KSDFT.ne.'FTLSDA'
      & .and. KSDFT.ne.'TPBE'
      & .and. KSDFT.ne.'FTPBE'
+     & .and. KSDFT.ne.'TOPBE'
+     & .and. KSDFT.ne.'FTOPBE'
      & .and. KSDFT.ne.'TBLYP'
      & .and. KSDFT.ne.'FTBLYP'
      & .and. KSDFT.ne.'TREVPBE'
      & .and. KSDFT.ne.'FTREVPBE') NewFock=0
 
-      If (NewFock.eq.0) Then
-         nBMX=0
-         Do iSym=1,nSym
-            nBMX=Max(nBMX,nBas(iSym))
-         End Do
-         Call FZero(FA,nTot1)
-!         write(6,*) 'ExFac : ', ExFac
-         Call FTwo_Drv(nSym,nBas,nAsh,nSkipX,
-     &                    Work(iTmp1),D1A,FA,nTot1,
-     &                    ExFac,nTot2,nBMX,CMO)
-      End If
+c     If (NewFock.eq.0) Then
+c        nBMX=0
+c        Do iSym=1,nSym
+c           nBMX=Max(nBMX,nBas(iSym))
+c        End Do
+c        Call FZero(FA,nTot1)
+c        Call FTwo_Drv(nSym,nBas,nAsh,nSkipX,
+c    &                    Work(iTmp1),D1A,FA,nTot1,
+c    &                    ExFac,nTot2,nBMX,CMO)
+c     End If
 
 *     Inactive-active contribution to ECAS
       VIA=dDot_(nTot1,FI,1,Work(iTmp1),1)
@@ -263,6 +263,8 @@ c**************************************************************************
      &  KSDFT(1:5).ne.'TBLYP'.and.
      &  KSDFT(1:6).ne.'FTLSDA'.and.
      &  KSDFT(1:5).ne.'FTPBE'.and.
+     &  KSDFT(1:6).ne.'FTOPBE'.and.
+     &  KSDFT(1:5).ne.'TOPBE'.and.
      &  KSDFT(1:7).ne.'TREVPBE'.and.
      &  KSDFT(1:8).ne.'FTREVPBE'.and.
      &  KSDFT(1:6).ne.'FTBLYP'.and.
@@ -426,7 +428,6 @@ c        End If
         End Do
       End If
 
-      Call qExit('Fmat')
 
       Return
       End

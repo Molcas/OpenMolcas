@@ -9,10 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine RHS_NAC(Fock)
+      use ipPage, only: W
       Implicit None
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "real.fh"
 #include "sa.fh"
 #include "detdim.fh"
@@ -20,10 +21,12 @@
 #include "cands.fh"
       Real*8 Fock(*)
       Integer ng1,ng2,i,j,k,l,ij,kl,ijkl,ij2,kl2,ijkl2
-      Integer ipG1q,ipG2q,ipG1m,ipG1r,ipG2r,ipF,ipT,iTri
-      Integer ipIn,opOut,ipnOut,nConfL,nConfR,ipL,ipR,iRC,LuDens
+      Integer iTri
+      Integer ipIn,opOut,ipnOut,nConfL,nConfR,iRC,LuDens
       Real*8 factor
       External ipIn,opOut,ipnOut
+      Real*8, Allocatable:: G1q(:), G1m(:), G1r(:), G2q(:), G2r(:),
+     &                      CIL(:), CIR(:), T(:), F(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -33,13 +36,13 @@
 *                                                                      *
       ng1=ntAsh*(ntAsh+1)/2
       ng2=ng1*(ng1+1)/2
-      Call Getmem('ONED','ALLO','REAL',ipG1q,ng1)
-      Call Getmem('TWOD','ALLO','REAL',ipG2q,ng2)
-      Call Getmem('ONED-','ALLO','REAL',ipG1m,ng1)
-      Call Allocate_Work(ipG1r,n1dens)
-      Call Allocate_Work(ipG2r,n2dens)
-      Call dcopy_(n1dens,[zero],0,work(ipG1r),1)
-      Call dcopy_(n2dens,[zero],0,work(ipG2r),1)
+      Call mma_allocate(G1q,nG1,Label='G1q')
+      Call mma_allocate(G1m,nG1,Label='G1m')
+      Call mma_allocate(G2q,nG2,Label='G2q')
+      Call mma_allocate(G1r,n1dens,Label='G1r')
+      G1r(:)=Zero
+      Call mma_allocate(G2r,n2dens,Label='G2r')
+      G2r(:)=Zero
 *
 **    Calculate one- and two-particle transition matrices
 **    from the CI vectors of the two NAC states
@@ -47,19 +50,20 @@
 *
       nConfL=Max(nconf1,nint(xispsm(1,1)))
       nConfR=Max(nconf1,nint(xispsm(1,1)))
-      Call GetMem('CIL','ALLO','REAL',ipL,nConfL)
-      Call GetMem('CIR','ALLO','REAL',ipR,nConfR)
-      Call CSF2SD(Work(ipIn(ipCI)+(NSSA(2)-1)*nconf1),Work(ipL),1)
+      Call mma_allocate(CIL,nConfL,Label='CIL')
+      Call mma_allocate(CIR,nConfR,Label='CIR')
+      irc=ipIn(ipCI)
+      Call CSF2SD(W(ipCI)%Vec(1+(NSSA(2)-1)*nconf1),CIL,1)
       iRC=opout(ipCI)
-      Call CSF2SD(Work(ipIn(ipCI)+(NSSA(1)-1)*nconf1),Work(ipR),1)
+      Call CSF2SD(W(ipCI)%Vec(1+(NSSA(1)-1)*nconf1),CIR,1)
       iRC=opout(ipCI)
       iRC=ipnout(-1)
       icsm=1
       issm=1
-      Call Densi2(2,Work(ipG1r),Work(ipG2r),
-     &              Work(ipL),Work(ipR),0,0,0,n1dens,n2dens)
-      Call GetMem('CIL','FREE','REAL',ipL,nConfL)
-      Call GetMem('CIR','FREE','REAL',ipR,nConfR)
+      Call Densi2(2,G1r,G2r,
+     &              CIL,CIR,0,0,0,n1dens,n2dens)
+      Call mma_deallocate(CIL)
+      Call mma_deallocate(CIR)
 *
 **    Symmetrize densities
 **    For the one-particle density, save the antisymmetric part too
@@ -67,23 +71,23 @@
       ij=0
       Do i=0,ntAsh-1
         Do j=0,i-1
-          Work(ipG1q+ij)=(Work(ipG1r+i*ntAsh+j)+
-     &                    Work(ipG1r+j*ntAsh+i))*Half
+          ij=ij+1
+          G1q(ij)=(G1r(1+i*ntAsh+j)+
+     &                    G1r(1+j*ntAsh+i))*Half
 *         Note that the order of subtraction depends on how the matrix
 *         will be used when contracting with derivative integrals
 *         This is found to give the correct results:
-          Work(ipG1m+ij)=(Work(ipG1r+j*ntAsh+i)-
-     &                    Work(ipG1r+i*ntAsh+j))*Half
-          ij=ij+1
+          G1m(ij)=(G1r(1+j*ntAsh+i)-
+     &                    G1r(1+i*ntAsh+j))*Half
         End Do
-        Work(ipG1q+ij)=Work(ipG1r+i*ntAsh+i)
-        Work(ipG1m+ij)=Zero
         ij=ij+1
+        G1q(ij)=G1r(1+i*ntAsh+i)
+        G1m(ij)=Zero
       End Do
 *
       Do i=1,ntAsh**2
-        j=itri(i,i)-1
-        Work(ipG2r+j)=Half*Work(ipG2r+j)
+        j=itri(i,i)
+        G2r(j)=Half*G2r(j)
       End Do
       Do i=0,ntAsh-1
         Do j=0,i-1
@@ -97,21 +101,21 @@
                 ijkl=ij*(ij+1)/2+kl
                 ij2=i*ntAsh+j
                 kl2=k*ntAsh+l
-                Work(ipG2q+ijkl)=factor*Work(ipG2r+ij2*(ij2+1)/2+kl2)
+                G2q(1+ijkl)=factor*G2r(1+ij2*(ij2+1)/2+kl2)
                 ij2=Max(j*ntAsh+i,l*ntAsh+k)
                 kl2=Min(j*ntAsh+i,l*ntAsh+k)
-                Work(ipG2q+ijkl)=Work(ipG2q+ijkl)+
-     &                           factor*Work(ipG2r+ij2*(ij2+1)/2+kl2)
+                G2q(1+ijkl)=G2q(1+ijkl)+
+     &                           factor*G2r(1+ij2*(ij2+1)/2+kl2)
                 If (k.ne.l) Then
                   ij2=i*ntAsh+j
                   kl2=l*ntAsh+k
-                  Work(ipG2q+ijkl)=Work(ipG2q+ijkl)+
-     &                             factor*Work(ipG2r+ij2*(ij2+1)/2+kl2)
+                  G2q(1+ijkl)=G2q(1+ijkl)+
+     &                             factor*G2r(1+ij2*(ij2+1)/2+kl2)
                   If (ij.ne.kl) Then
                     ij2=Max(j*ntAsh+i,k*ntAsh+l)
                     kl2=Min(j*ntAsh+i,k*ntAsh+l)
-                    Work(ipG2q+ijkl)=Work(ipG2q+ijkl)+
-     &                              factor*Work(ipG2r+ij2*(ij2+1)/2+kl2)
+                    G2q(1+ijkl)=G2q(1+ijkl)+
+     &                              factor*G2r(1+ij2*(ij2+1)/2+kl2)
                   End If
                 End If
               End If
@@ -128,11 +132,11 @@
               ijkl=ij*(ij+1)/2+kl
               ij2=i*ntAsh+i
               kl2=k*ntAsh+l
-              Work(ipG2q+ijkl)=factor*Work(ipG2r+ij2*(ij2+1)/2+kl2)
+              G2q(1+ijkl)=factor*G2r(1+ij2*(ij2+1)/2+kl2)
               If (k.ne.l) Then
                 kl2=l*ntAsh+k
-                Work(ipG2q+ijkl)=Work(ipG2q+ijkl)+
-     &                           factor*Work(ipG2r+ij2*(ij2+1)/2+kl2)
+                G2q(1+ijkl)=G2q(1+ijkl)+
+     &                           factor*G2r(1+ij2*(ij2+1)/2+kl2)
               End If
             End If
           End Do
@@ -145,18 +149,16 @@
       iRC=0
       LuDens=20
       Call DaName(LuDens,'MCLRDENS')
-      Call dDaFile(LuDens,1,Work(ipG1m),ng1,iRC)
+      Call dDaFile(LuDens,1,G1m,ng1,iRC)
       Call DaClos(LuDens)
-      Call Put_D1MO(Work(ipG1q),ng1)
-      Call Put_P2MO(Work(ipG2q),ng2)
+      Call Put_D1MO(G1q,ng1)
+      Call Put_P2MO(G2q,ng2)
 *
 **    Store transition Fock matrix
 *
-      Call Allocate_Work(ipT,nDens2)
-      Call Allocate_Work(ipF,nDens2)
       Do i=1,ntAsh
         Do j=1,ntAsh
-          Work(ipG1r+ntAsh*(j-1)+i-1)=Work(ipG1q+iTri(i,j)-1)
+          G1r(ntAsh*(j-1)+i)=G1q(iTri(i,j))
         End Do
       End Do
       Do i=1,ntAsh
@@ -172,35 +174,38 @@
               If (ij.lt.kl .and. i.eq.j) factor=Two
               ijkl=iTri(ij,kl)
               ijkl2=iTri(ij2,kl2)
-              Work(ipG2r+ijkl2-1)=factor*Work(ipG2q+ijkl-1)
+              G2r(ijkl2)=factor*G2q(ijkl)
             End Do
           End Do
         End Do
       End Do
+
 * Note: 1st arg = zero for no inactive density (TDM)
-      Call FockGen(Zero,Work(ipG1r),Work(ipG2r),Work(ipT),Fock,1)
-      Call TCMO(Work(ipT),1,-2)
+      Call mma_allocate(T,nDens2,Label='T')
+      Call mma_allocate(F,nDens2,Label='F')
+      Call FockGen(Zero,G1r,G2r,T,Fock,1)
+      Call TCMO(T,1,-2)
       ij=0
       Do k=1,nSym
         Do i=0,nBas(k)-1
           Do j=0,i-1
-            Work(ipF+ij)=Work(ipT+ipMat(k,k)-1+nBas(k)*j+i)+
-     &                   Work(ipT+ipMat(k,k)-1+nBas(k)*i+j)
             ij=ij+1
+            F(ij)=T(ipMat(k,k)+nBas(k)*j+i)+
+     &                   T(ipMat(k,k)+nBas(k)*i+j)
           End Do
-          Work(ipF+ij)=Work(ipT+ipMat(k,k)-1+nBas(k)*i+i)
           ij=ij+1
+          F(ij)=T(ipMat(k,k)+nBas(k)*i+i)
         End Do
       End Do
-      Call Put_Fock_Occ(Work(ipF),nDens2)
+      Call Put_Fock_Occ(F,nDens2)
 *
-      Call Free_Work(ipT)
-      Call Free_Work(ipF)
-      Call Free_Work(ipG1r)
-      Call Free_Work(ipG2r)
-      Call Getmem('ONED','FREE','REAL',ipG1q,ng1)
-      Call Getmem('TWOD','FREE','REAL',ipG2q,ng2)
-      Call Getmem('ONED-','FREE','REAL',ipG1m,ng1)
+      Call mma_deallocate(T)
+      Call mma_deallocate(F)
+      Call mma_deallocate(G1r)
+      Call mma_deallocate(G2r)
+      Call mma_deallocate(G2q)
+      Call mma_deallocate(G1m)
+      Call mma_deallocate(G1q)
 *
       Return
       End

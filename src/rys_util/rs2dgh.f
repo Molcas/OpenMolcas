@@ -21,13 +21,6 @@
 *                                                                      *
 * Object:To compute the gradients and the Hessians of the 2D-integrals.*
 *                                                                      *
-* Called from: Rysg2                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Exp1                                                    *
-*              DaXpY  (ESSL)                                           *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Anders Bernhardsson & Roland Lindh,                      *
 *             Dept. of Theoretical Chemistry,                          *
 *             University of Lund, SWEDEN                               *

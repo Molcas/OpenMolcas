@@ -8,13 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Get_Fock_Occ(ipFockOcc,nFockOcc)
+      Subroutine Get_Fock_Occ(FockOcc,nFockOcc)
       Implicit Real*8 (A-H,O-Z)
+      Real*8 FockOcc(nFockOcc)
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 
-      Character*24 Label
-#ifdef _DEBUG_
+      Character(LEN=24) Label
+#ifdef _DEBUGPRINT_
 #include "run_common.fh"
 #endif
       Logical      Found
@@ -27,16 +28,20 @@
 ************************************************************************
 *                                                                      *
       Label='FockOcc'
-      Call qpg_dArray(Label,Found,nFockOcc)
-      If(.not.Found .or. nFockOcc.eq.0) Then
+      Call qpg_dArray(Label,Found,mFockOcc)
+      If(.not.Found .or. mFockOcc.eq.0) Then
          Call SysAbendMsg('get_fock_occ','Did not find:',Label)
       End If
-      Call GetMem('FockOcc','Allo','Real',ipFockOcc,nFockOcc)
-      Call Get_dArray(Label,Work(ipFockOcc),nFockOcc)
+      If(mFockOcc/=nFockOcc) Then
+         Write (6,*) 'nFockOcc=',nFockOcc
+         Write (6,*) 'mFockOcc=',mFockOcc
+         Call SysAbendMsg('get_fock_occ','mFockOcc/=nFockOcc:',Label)
+      End If
+      Call Get_dArray(Label,FockOcc,nFockOcc)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(is_nSym.eq.0) then
        Call get_iScalar('nSym',nSym)
        is_nSym=1
@@ -46,11 +51,11 @@
        is_nBas=1
       endif
       Write(6,*) 'Fock occ'
-      ii=ipFockOcc
+      ii=1
       Do iIrrep = 0, nSym - 1
          If (nBas(iIrrep).gt.0) Then
             Write(6,*) 'symmetry block',iIrrep
-            Call TriPrt(' ',' ',Work(ii),nBas(iIrrep))
+            Call TriPrt(' ',' ',FockOcc(ii),nBas(iIrrep))
             ii = ii + nBas(iIrrep)*(nBas(iIrrep)+1)/2
          End If
       End Do

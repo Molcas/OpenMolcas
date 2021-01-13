@@ -19,6 +19,7 @@
      &                  ipMem1,ipMem2,
      &                  Mem1,  Mem2,  DoFock)
 ************************************************************************
+*                                                                      *
 *  Object: to partion the SO and AO block. It will go to some length   *
 *          before it will start and break up the SO block. This will   *
 *          reduce the total flop count. However, as we are breaking up *
@@ -33,13 +34,6 @@
 *          3. Terminate run telling job max and min of additional      *
 *             memory needed to perform the calculation.                *
 *                                                                      *
-* Called from: Eval_Ints                                               *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Change                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -47,11 +41,13 @@
 *                                                                      *
 *             Modified for unified Work2 and Work3 block. Febr. 2015   *
 ************************************************************************
+      use lw_Info
+      use Temporary_parameters, only: force_part_c, force_part_p
+      use Integral_Parameters, only: iWROpt
+      use RICD_Info, only: Do_RI, Cholesky
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "print.fh"
 #include "lCache.fh"
 #include "pstat.fh"
@@ -129,8 +125,6 @@
       QlBas  = .False.
       Mem0 = MemMax
 *
-      ijPrInc=iPrInc*jPrInc
-      klPrInc=kPrInc*lPrInc
       mijkl = iPrInc*jPrInc*kPrInc*lPrInc
       nijkl = iBsInc*jBsInc*kBsInc*lBsInc
 *
@@ -141,7 +135,7 @@
       kSOInt = nSO*nijkl
       Mem1 = iFact*kSOInt
       If (Mem1.eq.0) Mem1 = 1
-      If (Petite) Mem1 = 1 + (iFact-1) * nabcd*nijkl
+      If (nIrrep.eq.1) Mem1 = 1 + (iFact-1) * nabcd*nijkl
       If (Mem1+1.gt.Mem0) Then
          MaxReq=Max(MaxReq,Mem1+1-Mem0)
          QjPrim = .False.
@@ -316,6 +310,7 @@
      &               Fail)
          If (Fail) Then
             Call WarningMessage(2,' Allocation failed for Work2')
+            Write (6,*) Mem0
             Write (6,*) iPrInc,iBsInc,kPrInc,kBsInc,
      &                  jPrInc,jBsInc,lPrInc,lBsInc
             Call Abend()
@@ -326,12 +321,10 @@
 *
       ipMem2 = ipMem1 + Mem1
 *
-      MemSum=Mem1+Mem2
-*
 *     Auxiliary memory for integral packing
 *
       If (iWropt.eq.0 .and. .Not.(Cholesky.or.Do_RI)) Then
-         If (Petite) Then
+         If (nIrrep.eq.1) Then
             lPack = nabcd*nijkl
             lwInt = ipMem1
          Else

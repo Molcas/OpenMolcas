@@ -19,13 +19,6 @@
 *         The transformation is in place and the recursion             *
 *         is replaced with the indentity when applicable.              *
 *                                                                      *
-* Called from: HrrCtl                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DCopy   (ESSL)                                          *
-*              DZaXpY  (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             September '91                                            *
@@ -59,8 +52,8 @@ c     iPrint = nPrint(iRout)
          CD = C(iCar)-D(iCar)
          If (CD.eq.Zero) Then
             Do 100 ia = 0, la+lla
-            Do 100 ib = 0, lb+llb
-               If (ia+ib.gt.la+lb+Max(lla,llb)) Go To 100
+            Do 101 ib = 0, lb+llb
+               If (ia+ib.gt.la+lb+Max(lla,llb)) Go To 101
 *--------------Using the identity
                Do 200 ic = 0, lc+llc
                   Do 210 id = 0, ld+lld
@@ -71,12 +64,13 @@ c     iPrint = nPrint(iRout)
                   enddo
 210               Continue
 200            Continue
+101         Continue
 100         Continue
          Else
             If (lc.ge.ld) Then
-               Do 101 ia = 0, la+lla
-               Do 101 ib = 0, lb+llb
-                  If (ia+ib.gt.la+lb+Max(lla,llb)) Go To 101
+               Do 102 ia = 0, la+lla
+               Do 103 ib = 0, lb+llb
+                  If (ia+ib.gt.la+lb+Max(lla,llb)) Go To 103
 *-----------------Move the first row I(ic,0)
                   Do 20 ic = 0, lc+ld+Max(llc,lld)
                      jc = ic
@@ -112,12 +106,13 @@ c     iPrint = nPrint(iRout)
      &                                      Arr2(1,ia,ib,jc,jd,iCar),1)
  31                  Continue
  30               Continue
- 101           Continue
+ 103           Continue
+ 102           Continue
             Else
                CD = -CD
-               Do 102 ia = 0, la+lla
-               Do 102 ib = 0, lb+llb
-                  If (ia+ib.gt.la+lb+Max(lla,llb)) Go To 102
+               Do 104 ia = 0, la+lla
+               Do 105 ib = 0, lb+llb
+                  If (ia+ib.gt.la+lb+Max(lla,llb)) Go To 105
 *-----------------Move the first row I(0,id)
                   Do 40 id = 0, lc+ld+Max(llc,lld)
                      jd = id
@@ -153,7 +148,8 @@ c     iPrint = nPrint(iRout)
      &                                      Arr2(1,ia,ib,jc,jd,iCar),1)
  51                  Continue
  50               Continue
- 102           Continue
+ 105           Continue
+ 104           Continue
             End If
          End If
  10   Continue

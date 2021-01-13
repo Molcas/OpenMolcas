@@ -47,6 +47,7 @@
 * history: UHF- V.Veryazov 2003                                        *
 *                                                                      *
 ************************************************************************
+      Use Interfaces_SCF, Only: dOne_SCF, MinDns
       Implicit Real*8 (a-h,o-z)
       Real*8 Dens(nDT,nD,NumDT),TwoHam(nDT,nD,NumDT), Vxc(nDT,nD,NumDT),
      &       CMO(nCMO,nD),OccNo(lthO,nD), Ovrlp(nDT), XCf(nXCf,nD)
@@ -56,14 +57,13 @@
 #include "mxdm.fh"
 #include "infscf.fh"
 #include "stdalloc.fh"
-#include "interfaces_scf.fh"
 *----------------------------------------------------------------------*
 * Local variables                                                      *
 *----------------------------------------------------------------------*
 *----------------------------------------------------------------------*
 * Start                                                                *
 *----------------------------------------------------------------------*
-*define _DEBUG_
+*define _DEBUGPRINT_
 *     Call Timing(Cpu1,Tim1,Tim2,Tim3)
 *
       iter_d=iter-iter0 ! get interation index
@@ -112,7 +112,6 @@
       If (iPsLst.le.0) Then
          Write (6,*) 'DMat: iPsLst.le.0'
          Write (6,*) 'iPsLst=',iPsLst
-         Call QTrace
          Call Abend()
       End If
 *
@@ -140,7 +139,7 @@
          Call ChkTrD(nSym,nBas,nOrb,OccNo(1,iD),Dens(1,iD,iPsLst),Ovrlp)
       End Do ! iD
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Call NrmClc(Dens(1,1,iPsLst),nBT*nD,'DMat  ','D Iter    ')
 #endif
 *
@@ -187,7 +186,7 @@
       DNorm=DBLE(nD)
      &     *DDot_(nBT*nD,Dens(1,1,iPsLst),1,Dens(1,1,iPsLst),1)
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'DNorm=',DNorm
       Call NrmClc(Dens(1,1,iPsLst),nBT*nD,'DMat  ','D iPsLst  ')
       Call NrmClc(Dens(1,1,nDens), nBT*nD,'DMat  ','D nDens   ')

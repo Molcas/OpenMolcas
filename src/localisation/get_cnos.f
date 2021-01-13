@@ -26,7 +26,7 @@
       Integer nRASO(nSym), nIF(nSym)
       Real*8  xNrm
       Character Line*62
-      Integer  iOffS(0:8), indxC(16,2,8), nOcc(8)
+      Integer  iOffS(0:8), indxC(16,2,8)
       Integer  Cho_irange
       External Cho_irange
       Logical  DoneCholesky
@@ -60,7 +60,6 @@
             nSconf=2*nSconf
          End Do
          lConstr=lConstr+nConstr(iSym)
-         nOcc(iSym)=nIF(iSym)+nConstr(iSym)
          nBB=nBB+nBas(iSym)**2
          nBT=nBT+nBas(iSym)
          nBLT=nBLT+nBas(iSym)*(nBas(iSym)+1)/2
@@ -234,9 +233,9 @@
       Return
       End
 
-***********************************************************************
-*                                                                     *
-***********************************************************************
+************************************************************************
+*                                                                      *
+************************************************************************
       Subroutine Get_Etwo_act(Dma,Dmb,nBDT,nBas,nSym,Etwo)
 
       Implicit Real*8 (a-h,o-z)
@@ -249,7 +248,7 @@
       Logical Estimate, Update, timings
       COMMON /CHOSCREEN/ Estimate,Update
       COMMON  /CHOTIME /timings
-      Integer ipFLT(2), ipKLT(2), nForb(8,2), nIorb(8,2), ipPorb(2)
+      Integer ipFLT(2), ipKLT(2), nIorb(8,2), ipPorb(2)
       Integer ipDm(2)
 c      Real*8   Get_ExFac
 c      External Get_ExFac
@@ -266,17 +265,17 @@ c      Character*16 KSDFT
       ALGO=4
       NSCREEN=10
 *
-      nDMat=2
+c      nDMat=2
       nBB=0
       Do i=1,nSym
-         nForb(i,1)=0
-         nForb(i,2)=0
+c         nForb(i,1)=0
+c         nForb(i,2)=0
          nBB=nBB+nBas(i)**2
       End Do
 c      Call Get_cArray('DFT functional',KSDFT,16)
 c      ExFac=Get_ExFac(KSDFT)
 c      FactXI=1.0d0*ExFac
-      FactXI=1.0d0  ! always HF energy
+c      FactXI=1.0d0  ! always HF energy
       Call GetMem('PLTc','Allo','Real',ipPLT,nBDT)
       call dcopy_(nBDT,Dma,1,Work(ipPLT),1)
       Call daxpy_(nBDT,1.0d0,Dmb,1,Work(ipPLT),1)

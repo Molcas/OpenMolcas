@@ -16,7 +16,7 @@
       Integer ::  i, input_to_read, nH, nT, nTempMagn
       Integer ::  nDir, nDirZee, nMult
       Logical ::  ifrestart,GRAD
-      Character(180) :: input_file_name
+      Character(Len=180) :: input_file_name
       Logical :: dbg
 
 C----------------------------------------------------------------------
@@ -105,50 +105,48 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Integer                   :: i1,i2,ldim2,lDIM
       Integer                   :: AngPoints
       Integer                   :: nlanth
-      Real(kind=wp)             :: zmagn(3,3)
-      Real(kind=wp)             :: rdiff(nstate)
-      Real(kind=wp)             :: a(6),HMIN,HMAX
-      Real(kind=wp)             :: cryst(6),coord(3)
-      Real(kind=wp)             :: encut_rate,em,Boltz_k,mu_Bohr
-      Real(kind=wp)             :: zJ, thrs
+      Real(kind=8)             :: zmagn(3,3)
+      Real(kind=8)             :: rdiff(nstate)
+      Real(kind=8)             :: HMIN,HMAX
+      Real(kind=8)             :: cryst(6),coord(3)
+      Real(kind=8)             :: encut_rate,em
+      Real(kind=8)             :: zJ, thrs
       Integer, allocatable      :: multiplicity(:)
       !---g-tens-------------------
       Integer, intent(in)        :: nMult
       Integer, allocatable       :: ndim(:)
-      Real(kind=wp), allocatable :: gtens(:,:), maxes(:,:,:)
+      Real(kind=8), allocatable :: gtens(:,:), maxes(:,:,:)
       !---M-------------------
       Integer       :: nH, nTempMagn
       !---MVEC and ZEEM-------------------
       Integer       :: nDir, nDirZee
       Integer, allocatable :: LuZee(:)
-      Real(kind=wp), allocatable :: dir_weight(:,:)
-      Real(kind=wp), allocatable :: dirX(:), dirY(:), dirZ(:)
+      Real(kind=8), allocatable :: dir_weight(:,:)
+      Real(kind=8), allocatable :: dirX(:), dirY(:), dirZ(:)
       !---XT-------------------
       Integer       :: nT
-      Real(kind=wp), allocatable :: Texp(:)
-      Real(kind=wp), allocatable :: chit_exp(:)
-      Real(kind=wp) :: xfield
-      Real(kind=wp) :: tmin, tmax
+      Real(kind=8), allocatable :: Texp(:)
+      Real(kind=8), allocatable :: chit_exp(:)
+      Real(kind=8) :: xfield
+      Real(kind=8) :: tmin, tmax
       !---Oscillator strength----------
-c      Real(kind=wp) :: F, Fx,Fy,Fz, AT, Ax,Ay,Az, AF, dnrm, dE
-      Real(kind=wp) :: DZNRM2
-      External      :: DZNRM2
-      Real(kind=wp) :: H_torq, T_torq
+c      Real(kind=8) :: F, Fx,Fy,Fz, AT, Ax,Ay,Az, AF, dnrm, dE
+      Real(kind=8) :: H_torq, T_torq
       !----BIG ARRAYS------------------
-      Real(kind=wp), allocatable :: eso(:)
-      Real(kind=wp), allocatable :: esfs(:)
-      Real(kind=wp), allocatable :: t(:)
-      Real(kind=wp), allocatable :: XTexp(:)
-      Real(kind=wp), allocatable :: XT_no_field(:)
-      Real(kind=wp), allocatable :: hexp(:)
-      Real(kind=wp), allocatable :: magn_exp(:,:)
-      Real(kind=wp), allocatable :: angmom(:,:,:)
-      Real(kind=wp), allocatable ::  eDmom(:,:,:)
-      Real(kind=wp), allocatable ::   amfi(:,:,:)
-      Real(kind=wp), allocatable :: TempMagn(:)
-      Complex(kind=wp), allocatable :: MM(:,:,:), MS(:,:,:), HSO(:,:),
+      Real(kind=8), allocatable :: eso(:)
+      Real(kind=8), allocatable :: esfs(:)
+      Real(kind=8), allocatable :: t(:)
+      Real(kind=8), allocatable :: XTexp(:)
+      Real(kind=8), allocatable :: XT_no_field(:)
+      Real(kind=8), allocatable :: hexp(:)
+      Real(kind=8), allocatable :: magn_exp(:,:)
+      Real(kind=8), allocatable :: angmom(:,:,:)
+      Real(kind=8), allocatable ::  eDmom(:,:,:)
+      Real(kind=8), allocatable ::   amfi(:,:,:)
+      Real(kind=8), allocatable :: TempMagn(:)
+      Complex(kind=8), allocatable :: MM(:,:,:), MS(:,:,:), HSO(:,:),
      &                                 ML(:,:,:), DM(:,:,:), U(:,:)
-      Character(180), intent(in) :: input_file_name
+      Character(Len=180), intent(in) :: input_file_name
 
       Logical :: poly_file
       Logical :: ifrestart
@@ -169,11 +167,7 @@ c      Real(kind=wp) :: F, Fx,Fy,Fz, AT, Ax,Ay,Az, AF, dnrm, dE
       Integer :: l
       Integer                   :: nss2,nstate2
 
-      Call qEnter('SA_main1')
       DBG=.false.
-
-      Boltz_k=0.6950356_wp                    !   in cm-1*K-1
-      mu_Bohr=0.466864374_wp                  !   in cm-1*T-1
 
 c---------------------------------------------------------------------
       ! Allocate memory for all arrays:
@@ -382,7 +376,6 @@ c---------------------------------------------------------------------
       axisoption=1
       nDIMcf=1
       lDIMcf=1
-      a(:)=0.0_wp
       H_torq=0.1_wp ! in Tesla
       T_torq=2.0_wp ! in K
 C  read the input
@@ -666,7 +659,8 @@ C  read the input
 
       If (Xfield .ne. 0.0_wp ) Then
          IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Enter XT_dMoverdH_single'
-         Call XT_dMoverdH_single( nss, nTempMagn, nT, nM, Tmin, Tmax,
+         ! nM = nss
+         Call XT_dMoverdH_single( nss, nTempMagn, nT, nss, Tmin, Tmax,
      &                            XTexp, ESO, T, zJ, Xfield, EM, MM, MS,
      &                            XT_no_field, tinput, smagn, mem )
          IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Exit XT_dMoverdH_single'
@@ -676,8 +670,9 @@ C  read the input
       If( compute_torque ) Then
 
         IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Enter TORQUE'
-        Call torque( Nss, NM, AngPoints, EM, eso, mm, ms, zJ, thrs, mem,
-     &                  m_paranoid, smagn, H_torq, T_torq, zmagn, dbg)
+         ! nM = nss
+        Call torque( Nss, Nss, AngPoints, EM, eso, mm, ms, zJ, thrs,
+     &               mem, m_paranoid, smagn, H_torq, T_torq, zmagn, dbg)
         IF(DBG) Write(6,*) 'SINGLE_ANISO2::  Exit TORQUE'
 
       End If
@@ -752,7 +747,6 @@ c---------------------------------------------------------------------
          Call mma_deallocate(chit_exp)
       End If
 
-      Call qExit('SA_main1')
 
       Return
       End

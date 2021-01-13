@@ -20,13 +20,6 @@
 *             used for the HRR. The primitive integrals are generated  *
 *             from the 2D-integrals according to the Rys quadrature.   *
 *                                                                      *
-* Called from: Rys                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              RysEF0                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90.                                             *
 *                                                                      *
@@ -37,23 +30,16 @@
 *             Modified for decreased memory access January '94.        *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "TriInd.fh"
 #include "real.fh"
 #include "print.fh"
       Real*8 xyz2D(nRys,mArg,3,0:neMax,0:nfMax), PreFct(mArg),
      &       Scrtch(nRys,mArg), EFInt(nArg,meMin:meMax,mfMin:mfMax)
       Logical AeqB, CeqD
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Character*80 Label
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-      iRout = 16
-      iPrint = nPrint(iRout)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -186,7 +172,7 @@
 ************************************************************************
 *                                                                      *
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Do iab = meMin, meMax
          Do icd = mfMin, mfMax
             Write (Label,'(A,I3,A,I3,A)') ' In RysEF: [', iab, ',0|',

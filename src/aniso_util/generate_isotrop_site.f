@@ -20,35 +20,30 @@
       Integer, intent(in)           :: nLoc
       Integer, intent(inout)        :: nexch
       Integer, intent(inout)        :: nss, nsfs
-      Real(kind=wp), intent(in)     :: gtens_input(3)
-      Real(kind=wp), intent(in)     :: riso(3,3)
-      Real(kind=wp), intent(in)     :: D, EoverD ! ZFS factors
+      Real(kind=8), intent(in)     :: gtens_input(3)
+      Real(kind=8), intent(in)     :: riso(3,3)
+      Real(kind=8), intent(in)     :: D, EoverD ! ZFS factors
       ! spin-orbit energy states, starting from 0
-      Real(kind=wp), intent(out)    :: E(nExch)
-      Complex(kind=wp), intent(out) :: M(3,nExch,nExch)
-      Complex(kind=wp), intent(out) :: S(3,nExch,nExch)
+      Real(kind=8), intent(out)    :: E(nExch)
+      Complex(kind=8), intent(out) :: M(3,nExch,nExch)
+      Complex(kind=8), intent(out) :: S(3,nExch,nExch)
 
       ! local variables:
-      Integer         :: ib(-30:30), i, j, l
+      Integer         :: i, j, l
       Integer         :: info
-!      Complex(kind=wp):: spin
-      Complex(kind=wp) :: redme
-      Complex(kind=wp), allocatable :: HZFS(:,:), S2(:,:), Wc(:,:)
-      Complex(kind=wp), allocatable :: SX2(:,:), SY2(:,:), SZ2(:,:)
-      Complex(kind=wp), allocatable :: Z(:,:), tmp(:,:)
-       Complex(kind=wp), allocatable :: MTMP(:,:,:), STMP(:,:,:)
-      Real(kind=wp), allocatable    :: W(:),gtens(:),maxes(:,:)
-      Real(kind=wp)                 :: dznrm2_, RM, RS, dnrm2_
-      Real(kind=wp)                 :: g(3), ma(3,3)
+!      Complex(kind=8):: spin
+      Complex(kind=8) :: redme
+      Complex(kind=8), allocatable :: HZFS(:,:), S2(:,:), Wc(:,:)
+      Complex(kind=8), allocatable :: SX2(:,:), SY2(:,:), SZ2(:,:)
+      Complex(kind=8), allocatable :: Z(:,:), tmp(:,:)
+       Complex(kind=8), allocatable :: MTMP(:,:,:), STMP(:,:,:)
+      Real(kind=8), allocatable    :: W(:),gtens(:),maxes(:,:)
+      Real(kind=8)                 :: dznrm2_, RM, RS, dnrm2_
+      Real(kind=8)                 :: g(3), ma(3,3)
       External                      :: spin, dznrm2_, dnrm2_
       Logical                       :: dbg
       dbg=.false.
 !----------------------------------------------------------------------|
-      Call qEnter('generate_isotrop_site')
-
-      Do j=-30,30
-         ib(j)=0
-      End Do
 
       nsfs=1
       nss  = nexch
@@ -141,9 +136,19 @@
                Call zcopy_(nExch*nExch,[(0.0_wp,0.0_wp)],0,S2,1)
                Call dcopy_(nExch     , [0.0_wp],        0,W,1)
 
-               SX2(:,:)=MATMUL(S(1,:,:),S(1,:,:))
-               SY2(:,:)=MATMUL(S(2,:,:),S(2,:,:))
-               SZ2(:,:)=MATMUL(S(3,:,:),S(3,:,:))
+               Call zgemm_('C','N',nEXCH,nEXCH,nEXCH,
+     &                    (1.0_wp,0.0_wp),S(1,:,:), nEXCH,
+     &                                    S(1,:,:), nEXCH,
+     &                    (0.0_wp,0.0_wp),SX2(:,:), nEXCH )
+               Call zgemm_('C','N',nEXCH,nEXCH,nEXCH,
+     &                    (1.0_wp,0.0_wp),S(2,:,:), nEXCH,
+     &                                    S(2,:,:), nEXCH,
+     &                    (0.0_wp,0.0_wp),SY2(:,:), nEXCH )
+               Call zgemm_('C','N',nEXCH,nEXCH,nEXCH,
+     &                    (1.0_wp,0.0_wp),S(3,:,:), nEXCH,
+     &                                    S(3,:,:), nEXCH,
+     &                    (0.0_wp,0.0_wp),SZ2(:,:), nEXCH )
+
                S2(:,:)=SX2(:,:)+SY2(:,:)+SZ2(:,:)
 
                If(dbg) Call pa_prMat('GENERATE_SITE: SX2',SX2,nexch)
@@ -217,6 +222,5 @@
       End If ! nss>=2
 
 
-      Call qExit('generate_isotrop_site')
       Return
       End subroutine generate_isotrop_site

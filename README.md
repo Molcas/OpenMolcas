@@ -14,10 +14,15 @@ General Public License (LGPL). Some parts of Molcas remain under a different
 license by decision of their authors (or impossibility to reach them), and are
 therefore not included in OpenMolcas.
 
-**Latest reference**:
-"OpenMolcas: From Source Code to Insight."
-*J. Chem. Theory Comput.* **15** (2019) 5925-5964.
-DOI: [10.1021/acs.jctc.9b00532](https://doi.org/10.1021/acs.jctc.9b00532)
+**Latest references**:
+
+* "OpenMolcas: From Source Code to Insight."
+  *J. Chem. Theory Comput.* **15** (2019) 5925-5964.
+  [doi:10.1021/acs.jctc.9b00532](https://doi.org/10.1021/acs.jctc.9b00532)
+
+* "Modern quantum chemistry with [Open]Molcas."
+  *J. Chem. Phys.* **152** (2020) 214117.
+  [doi:10.1063/5.0004835](https://doi.org/10.1063/5.0004835)
 
 Installation
 ------------
@@ -101,7 +106,7 @@ freely (according to the terms of the LGPL). If you would like your
 contributions to be included in the main repository, please contact one of the
 developers, write a message in the
 [forum](https://cobalt.itc.univie.ac.at/molcasforum/index.php) or submit a
-[merge request](https://docs.gitlab.com/ee/gitlab-basics/README.html). We are
-currently only accepting [Molcas
-developers](http://www.molcas.org/cgi-bin/dev.plx) as members of the `Molcas`
-group, but everyone is welcome to send patches, suggestions and bug reports. 
+[merge
+request](https://docs.gitlab.com/ee/user/project/merge_requests/getting_started.html).
+Everyone is welcome to send patches, suggestions and bug reports, but please
+let us know if you would like to be a "developer" member of the `Molcas` group.

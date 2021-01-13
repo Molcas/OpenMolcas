@@ -41,7 +41,10 @@ C
       Integer   ipDLT(nDen),ipFLT(nDen)
       Integer   ipPorb(nDen)
       Integer   nForb(8,nDen),nIorb(8,nDen)
-      Logical   Debug,timings,DoRead
+#ifdef _DEBUGPRINT_
+      Logical   Debug
+#endif
+      Logical   timings,DoRead
       Character*50 CFmt
       Character*8 SECNAM
       Parameter (SECNAM = 'CHO_FSCF')
@@ -66,14 +69,9 @@ C
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
 
-#ifdef _DEBUG_
-c      Debug=.true.
+#ifdef _DEBUGPRINT_
       Debug=.false.! to avoid double printing in CASSCF-debug
-#else
-      Debug=.false.
 #endif
-
-      Call QEnter(SECNAM)
 
       FactCI = one
       FactXI = xone*ExFac
@@ -83,7 +81,6 @@ c      Debug=.true.
 
       If (nDen.ne.1 .and. nDen.ne.2) then
          write(6,*)SECNAM//'Invalid parameter nDen= ',nDen
-         call qtrace()
          call abend()
       EndIf
 
@@ -161,7 +158,6 @@ C ------------------------------------------------------------------
 
             if (nVrs.lt.0) then
                Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
-               call qtrace()
                call abend()
             endif
 
@@ -169,7 +165,6 @@ C ------------------------------------------------------------------
             if(irc.ne.0)then
               Write(6,*)SECNAM//'cho_X_setred non-zero return code.',
      &                        '   rc= ',irc
-              call qtrace()
               call abend()
             endif
 
@@ -196,7 +191,6 @@ C ------------------------------------------------------------------
                WRITE(6,*) 'min. mem. need= ',nRS+mTvec
                WRITE(6,*) 'jsym= ',jsym
                rc = 33
-               CALL QTrace()
                CALL Abend()
                nBatch = -9999  ! dummy assignment
             End If
@@ -327,7 +321,7 @@ C *********************** HALF-TRANSFORMATION  ****************
                   tread(1) = tread(1) + (TCR4 - TCR3)
                   tread(2) = tread(2) + (TWR4 - TWR3)
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       write(6,*) 'Half-transformation in the MO space: ',jDen
       write(6,*) 'Total allocated :     ',mTvec*nVec,' at ',ipChoT
       write(6,*) 'Mem pointers ipLab: ',((ipLab(i,j),i=1,nSym),j=1,jDen)
@@ -448,8 +442,7 @@ C --- free memory
 
 
 c Print the Fock-matrix
-#ifdef _DEBUG_
-
+#ifdef _DEBUGPRINT_
       if(Debug) then !to avoid double printing in SCF-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM
@@ -476,7 +469,6 @@ c Print the Fock-matrix
 
       rc  = 0
 
-      CAll QExit(SECNAM)
 
       Return
       END
@@ -582,7 +574,6 @@ c Offsets to symmetry block in the LT matrix
 
          write(6,*)'Wrong input parameter. mode = ',mode
          irc = 66
-         Call Qtrace()
          Call abend()
 
       EndIf

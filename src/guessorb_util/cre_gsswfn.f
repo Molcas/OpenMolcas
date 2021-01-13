@@ -11,8 +11,10 @@
       subroutine cre_gsswfn
 *     SVC: Create a wavefunction file. If another .guessorb.h5 file already
 *     exists, it will be overwritten.
-      implicit none
 #ifdef _HDF5_
+      use mh5, only: mh5_create_file, mh5_init_attr,
+     &               mh5_create_dset_real, mh5_create_dset_str
+      implicit none
 #  include "Molcas.fh"
 #  include "commgo.fh"
 #  include "gsswfn.fh"
@@ -31,7 +33,7 @@
 
 *     energy
       wfn_energy = mh5_create_dset_real (wfn_fileid,'ENERGY')
-      call mh5_init_attr(wfn_energy, 'description',
+      call mh5_init_attr(wfn_energy, 'DESCRIPTION',
      $        'Total energy (sum of orbital energies)')
 
       call mh5_init_attr (wfn_fileid,
@@ -47,33 +49,34 @@
 *     typestring
       wfn_tpidx = mh5_create_dset_str(wfn_fileid,
      $        'MO_TYPEINDICES', 1, [nBasTot], 1)
-      call mh5_init_attr(wfn_tpidx, 'description',
+      call mh5_init_attr(wfn_tpidx, 'DESCRIPTION',
      $        'Type index of the molecular orbitals '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
 *     molecular orbital coefficients
       wfn_mocoef = mh5_create_dset_real(wfn_fileid,
      $        'MO_VECTORS', 1, [nSqrTot])
-      call mh5_init_attr(wfn_mocoef, 'description',
+      call mh5_init_attr(wfn_mocoef, 'DESCRIPTION',
      $        'Coefficients of the molecular orbitals, '//
      $        'arranged as blocks of size [NBAS(i)**2], i=1,#irreps')
 *     molecular orbital occupation numbers
       wfn_occnum = mh5_create_dset_real(wfn_fileid,
      $        'MO_OCCUPATIONS', 1, [nBasTot])
-      call mh5_init_attr(wfn_occnum, 'description',
+      call mh5_init_attr(wfn_occnum, 'DESCRIPTION',
      $        'Occupation numbers of the molecular orbitals '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
 *     molecular orbital energies
       wfn_orbene = mh5_create_dset_real(wfn_fileid,
      $        'MO_ENERGIES', 1, [nBasTot])
-      call mh5_init_attr(wfn_orbene, 'description',
+      call mh5_init_attr(wfn_orbene, 'DESCRIPTION',
      $        'Orbital energies of the molecular orbitals '//
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
 #endif
       end
 
       subroutine cls_gsswfn
-      implicit none
 #ifdef _HDF5_
+      use mh5, only: mh5_close_file
+      implicit none
 #  include "gsswfn.fh"
       call mh5_close_file(wfn_fileid)
 #endif

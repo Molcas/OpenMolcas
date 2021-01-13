@@ -32,9 +32,12 @@ C      v,w,x,y:  MO-indeces belonging to (Active)
 C
 **********************************************************************
 
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
-      Integer   rc,ipLxy(8),ipScr(8,8)
+      Integer   ipLxy(8),ipScr(8,8)
       Integer   ipLpq(8,2)
       Integer   iSkip(8),kOff(8)
       Integer   ISTLT(8),ISTSQ(8),ISTK(8),ISSQ(8,8)
@@ -43,7 +46,7 @@ C
       Integer   ipAsh(2),ipAorb(8,2)
       Integer   ipMO(2),ipYk(2),ipMLk(2),ipIndsh(2),ipSk(2)
       Integer   ipMSQ(2),ipCM(2),ipY(2),ipML(2),ipIndx(2),ipSksh(2)
-      Logical   Debug,timings,DoRead,DoReord,DoScreen
+      Logical   timings,DoRead,DoReord,DoScreen
       Logical   Estimate,Update,Deco,PseudoChoMOs
       Real*8    FactCI,FactXI,dmpk
       Character*50 CFmt
@@ -63,7 +66,6 @@ C
 #include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-#include "para_info.fh"
 
       Real*8 LKThr
 
@@ -104,16 +106,6 @@ C
 ******      to store this offset array defined later on
       iOffShp(i,j) = iWork(ip_iiBstRSh+nSym*nnShl-1+nSym*(j-1)+i)
 ************************************************************************
-
-
-#ifdef _DEBUG_
-c      Debug=.true.
-      Debug=.false.! to avoid double printing in CASSCF-debug
-#else
-      Debug=.false.
-#endif
-
-      Call QEnter(SECNAM)
 
       DoReord = .false.
       IREDC = -1  ! unknown reduced set in core
@@ -474,14 +466,16 @@ C ------------------------------------------------------------------
 
          JRED1 = InfVec(1,2,jSym)  ! red set of the 1st vec
          JRED2 = InfVec(NumCho(jSym),2,jSym) !red set of the last vec
+#if defined (_MOLCAS_MPP_)
          myJRED1=JRED1 ! first red set present on this node
+         ntv0=0
+#endif
          myJRED2=JRED2 ! last  red set present on this node
 
 c --- entire red sets range for parallel run
          Call GAIGOP_SCAL(JRED1,'min')
          Call GAIGOP_SCAL(JRED2,'max')
 
-         ntv0=0
          kscreen=1
          DoScreen=.true.
 
@@ -570,7 +564,6 @@ C --- BATCH over the vectors ----------------------------
      &                        NUMV,IREDC,MUSED)
 
                If (NUMV.le.0 .or.NUMV.ne.JNUM ) then
-                  rc=77
                   RETURN
                End If
 
@@ -1036,9 +1029,6 @@ c                              Write (6,*) mx
 C ---  LJa,[k] = sum_b  L(b,Ja) * C(b)[k]
 C ---------------------------------------
 
-                  m=nBasSh(kSym,ibSh)
-                  n=nBasSh(lSym,iaSh)*JNUM
-
                                     CALL DGEMV_('T',nBasSh(kSym,ibSh),
      &                                       JNUM*nBasSh(lSym,iaSh),
      &                                    ONE,Work(ipLF+jOff*JNUM),
@@ -1446,7 +1436,6 @@ C -------------------------------------------------------------
 
 
                if (irc.ne.0) then
-                  rc = irc
                   RETURN
                endif
 
@@ -1498,7 +1487,6 @@ c                 ! switch to column-wise storage
                tintg(2) = tintg(2) + (TWINT2 - TWINT1)
 
                if (irc.ne.0) then
-                  rc = irc
                   RETURN
                endif
 
@@ -1669,8 +1657,8 @@ C--- have performed screening in the meanwhile
 
 
 c Print the Fock-matrix
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
 
 *     if(Debug) then !to avoid double printing in RASSI-debug
 
@@ -1695,10 +1683,6 @@ c Print the Fock-matrix
 *     endif
 
 #endif
-
-      rc  = 0
-
-      CAll QExit(SECNAM)
 
       Return
       END

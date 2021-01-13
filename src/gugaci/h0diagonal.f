@@ -27,7 +27,7 @@ c     *****************************************************************
       dimension eval(maxroot),vcm(ndim*mroot),eeval(maxroot)
       dimension residvb(maxroot),valpha(maxroot),deff(maxroot)
       dimension ecrita(maxroot)
-      data depc/1.0e-7/
+      data depc/1.0d-7/
 c**************************************************************
 c
 c      write(6,*) 'generate vector vb2 from matrix a and vector vb1'
@@ -163,7 +163,6 @@ c===== start  reset_basis ======================================
           do l=1,ndim
             depcc= eval(m)-vad(l)
             if(abs(depcc).lt.depc) depcc=depc
-            tt=vb1(ijmb1+l)
             vb1(ijmb1+l)=(vb2(ijm+l)-vcm(ijm+l)*eval(m))/depcc
             residvb(m)=residvb(m)+vb1(ijmb1+l)*vb1(ijmb1+l)
           enddo
@@ -252,13 +251,16 @@ c
       do 200 i=k1,k2
       iijj=i*(i-1)/2
       ij=indx(i)
-      do 200 j=1,i
+      do 201 j=1,i
       ji=indx(j)
       p(iijj+j)=0.0d0
 c--------------------------------------------------------------
-      do 200 l=1,n
+      do 202 l=1,n
 c-----------------------------------------------------------------
-200   p(iijj+j)=p(iijj+j)+vb1(ij+l)*vb2(ji+l)
+      p(iijj+j)=p(iijj+j)+vb1(ij+l)*vb2(ji+l)
+202   continue
+201   continue
+200   continue
       return
       end
 
@@ -277,11 +279,13 @@ c-----------------------------------------------------------------
 c-------------------------------------------------------------------
       do 200 i=2,n
       mn=i*(i-1)/2
-      do 200 j=k1,k2
+      do 201 j=k1,k2
       ij=indx(j)
-      do 200 l=1,i-1
+      do 202 l=1,i-1
       vb2(ij+i)=vb2(ij+i)+th(mn+l)*vb1(ij+l)
       vb2(ij+l)=vb2(ij+l)+th(mn+l)*vb1(ij+i)
+202   continue
+201   continue
 200   continue
 c-------------------------------------------------------------------
       return
@@ -302,8 +306,9 @@ c
       s=s+vb1(ij+i)*vb1(ji+i)
 130   continue
       smax1=max(smax1,abs(s))
-      do 140 i=1,n
+      do 141 i=1,n
         vb1(ji+i)=vb1(ji+i)-s*vb1(ij+i)
+141   continue
 140   continue
 
       if(smax1.lt.dcrita) goto 150
@@ -311,11 +316,9 @@ c
          write(6,*) 'dgnalization procedure is non-convergent.'
 #ifdef MOLPRO
 #else
-      call qtrace
       call abend()
 #endif
 #ifdef _XIANEST_
-      call qexit()
 #endif
 !        call abend
 !         stop
@@ -325,19 +328,19 @@ c
 c     normalization of j-th eigenvector.
 150   s=0.0d0
       do 160 i=1,n
-160   s=s+vb1(ji+i)*vb1(ji+i)
+      s=s+vb1(ji+i)*vb1(ji+i)
+160   continue
       s=sqrt(s)
       do 170 i=1,n
-170   vb1(ji+i)=vb1(ji+i)/s
+      vb1(ji+i)=vb1(ji+i)/s
+170   continue
       return
       end
 c
 
       subroutine norm_a(n,av)  !bv:basis, av:vector for orth and norm
       real*8 av(n),s,ddot_,dcrita
-      dcrita=1.0e-10
-      smax2=1.d10
-      smax1=0.0d0
+      dcrita=1.0d-10
 c     normalization of av_eigenvector.
       s=0.0d0
       s=ddot_(n,av,1,av,1)
@@ -351,10 +354,7 @@ c     normalization of av_eigenvector.
       end
 
       subroutine orth_ab(n,av,bv)  !bv:basis, av:vector for orth
-      real*8 av(n),bv(n),s,ddot_,dcrita
-      dcrita=1.0e-10
-      smax2=1.d10
-      smax1=0.0d0
+      real*8 av(n),bv(n),s,ddot_
 c     orthogonalization av,bv
       s=ddot_(n,av,1,bv,1)
 

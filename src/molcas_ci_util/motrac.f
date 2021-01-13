@@ -27,7 +27,6 @@ C
 #include "rasscf.fh"
 #include "general.fh"
       DIMENSION CMO(*),F(*),X1(*),X2(*)
-C     CALL QENTER('MOTRAC')
 C
       LMOP=1
       ISTFA=1
@@ -51,6 +50,5 @@ C
       ISTFP=ISTFP+ITRI(NB+1)
 100   CONTINUE
 C
-C     CALL QEXIT('MOTRAC')
       RETURN
       END

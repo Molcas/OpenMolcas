@@ -31,10 +31,6 @@
       Character*8 Method, Label
       Integer mBas(8)
 *
-C     Call QEnter('Comp_F')
-      iOpt1=1
-      iOpt2=2
-*
       Call Get_cArray('Relax Method',Method,8)
       Call Allocate_Work(ipC,1)
       Call Get_iScalar('nSym',i)
@@ -111,7 +107,6 @@ C     Call TriPrt('H0_temp after wrone',' ',h0_temp,nBas)
       Else
          Write (6,*) 'Method=',Method
          Write (6,*) ' Oups!'
-         Call QTrace
          Call Abend()
       End If
 *
@@ -121,14 +116,12 @@ C     Call Get_Energy(Energy)
 *
       Call WrOne(iRc,0,Label,iComp,h0,iSyLbl)
       Call Put_dScalar('PotNuc',PotNuc_Save)
-C     Call QExit('Comp_F')
       Return
 *
  99   Continue
       Write (6,*)
       Write (6,*) 'Comp_f: Wave function calculation failed!'
       Write (6,*)
-      Call QTrace()
       Call Abend()
 * Avoid unused argument warnings
       If (.False.) Call Unused_integer(nBas)

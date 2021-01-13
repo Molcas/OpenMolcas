@@ -13,40 +13,39 @@
       Integer, Parameter          :: wp=selected_real_kind(p=15,r=307)
 #include "stdalloc.fh"
       Integer, intent(in)         :: nDIMCF,iprint
-      Real(kind=wp),intent(in)    :: BC(nDIMcf,0:nDIMcf)
-      Real(kind=wp),intent(in)    :: BS(nDIMcf,0:nDIMcf)
-      Complex(kind=wp),intent(in) :: Hinit(nDIMcf,nDIMcf)
+      Real(kind=8),intent(in)    :: BC(nDIMcf,0:nDIMcf)
+      Real(kind=8),intent(in)    :: BS(nDIMcf,0:nDIMcf)
+      Complex(kind=8),intent(in) :: Hinit(nDIMcf,nDIMcf)
       Character(len=1),intent(in) :: LJ
       ! local variables:
       Integer                     :: i,j,k,n,m,ik,jEnd,nfields,info,
      &                               ikmax,ip,ir,iq
       Integer, allocatable        :: rankKQ(:) ! nDIMCF*(2*nDIMCF+1) )
       Integer, allocatable        :: projKQ(:) ! nDIMCF*(2*nDIMCF+1) )
-      Real(kind=wp)               :: Tnrm, TnrmKQ, wt
-      Real(kind=wp)               :: RnrmKQ( nDIMcf,-nDIMcf:nDIMcf )
-      Real(kind=wp), allocatable  :: ListKQ(:) ! nDIMCF*(2*nDIMCF+1) )
-      Real(kind=wp), allocatable  :: Rnrm(:) !nDIMCF)
-      Real(kind=wp), allocatable  :: Snrm(:) !nDIMCF)
-      Real(kind=wp), allocatable  :: Wk(:,:) !nDIMCF,nDIMCF)
-      Real(kind=wp), allocatable  :: Ws(:,:) !nDIMCF,nDIMCF)
-      Real(kind=wp), allocatable  :: Winit(:) !nDIMCF)
-      Real(kind=wp), external     :: dznrm2_
+      Real(kind=8)               :: Tnrm, TnrmKQ, wt
+      Real(kind=8)               :: RnrmKQ( nDIMcf,-nDIMcf:nDIMcf )
+      Real(kind=8), allocatable  :: ListKQ(:) ! nDIMCF*(2*nDIMCF+1) )
+      Real(kind=8), allocatable  :: Rnrm(:) !nDIMCF)
+      Real(kind=8), allocatable  :: Snrm(:) !nDIMCF)
+      Real(kind=8), allocatable  :: Wk(:,:) !nDIMCF,nDIMCF)
+      Real(kind=8), allocatable  :: Ws(:,:) !nDIMCF,nDIMCF)
+      Real(kind=8), allocatable  :: Winit(:) !nDIMCF)
+      Real(kind=8), external     :: dznrm2_
 
-      Complex(kind=wp)              :: zf, redME
-      Complex(kind=wp), allocatable :: O(:,:)  !nDIMCF,nDIMCF)! real ITO
-      Complex(kind=wp), allocatable :: W(:,:)  !nDIMCF,nDIMCF)! imag ITO
-      Complex(kind=wp), allocatable :: HCF(:,:,:) !nDIMCF,nDIMCF,nDIMCF)
-      Complex(kind=wp), allocatable :: HCFS(:,:,:)!nDIMCF,nDIMCF,nDIMCF)
-      Complex(kind=wp), allocatable :: Zk(:,:,:)  !nDIMCF,nDIMCF,nDIMCF)
-      Complex(kind=wp), allocatable :: Zs(:,:,:)  !nDIMCF,nDIMCF,nDIMCF)
-      Complex(kind=wp), allocatable :: Zinit(:,:) !nDIMCF,nDIMCF)
-      Complex(kind=wp), allocatable :: HKQ(:,:),Zkq(:,:)
+      Complex(kind=8)              :: zf, redME
+      Complex(kind=8), allocatable :: O(:,:)  !nDIMCF,nDIMCF)! real ITO
+      Complex(kind=8), allocatable :: W(:,:)  !nDIMCF,nDIMCF)! imag ITO
+      Complex(kind=8), allocatable :: HCF(:,:,:) !nDIMCF,nDIMCF,nDIMCF)
+      Complex(kind=8), allocatable :: HCFS(:,:,:)!nDIMCF,nDIMCF,nDIMCF)
+      Complex(kind=8), allocatable :: Zk(:,:,:)  !nDIMCF,nDIMCF,nDIMCF)
+      Complex(kind=8), allocatable :: Zs(:,:,:)  !nDIMCF,nDIMCF,nDIMCF)
+      Complex(kind=8), allocatable :: Zinit(:,:) !nDIMCF,nDIMCF)
+      Complex(kind=8), allocatable :: HKQ(:,:),Zkq(:,:)
 
-      Real(kind=wp)             :: dznrm2
+      Real(kind=8)             :: dznrm2
       External                  :: dznrm2
       Character(len=16)         :: field(8)
       Character(len=6)          :: iprog
-      Call qEnter('SA_indRank')
 !-----------------------------------------------------------------------
       Call mma_allocate(Rnrm,nDIMCF,'Rnrm')
       Call mma_allocate(Snrm,nDIMCF,'Snrm')
@@ -368,11 +367,11 @@
          wt=100_wp*ListKQ(ik)/TnrmKQ
 
          If(projKQ(ik)>=0) Then
-            Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),(E22.14,1x,A)'//
+            Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),(E22.14,1x,A),'//
      &                'F19.14,1x,A)')
      &               ir,'|',ip,'|',BC(ir,iq),'|',wt,'|'
          Else
-            Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),(E22.14,1x,A)'//
+            Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),(E22.14,1x,A),'//
      &                'F19.14,1x,A)')
      &               ir,'|',ip,'|',BS(ir,iq),'|',wt,'|'
          End If
@@ -403,7 +402,6 @@
       Call mma_deallocate(rankKQ)
       Call mma_deallocate(projKQ)
 
-      Call qExit('SA_indRank')
       Return
       End Subroutine individual_ranks
 
@@ -415,10 +413,10 @@
       Integer, Parameter          :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in)         :: N, iopt
       Integer, intent(inout)      :: rank(N), proj(N)
-      Real(kind=wp), intent(inout):: ARR(N)
+      Real(kind=8), intent(inout):: ARR(N)
       ! local
       Integer       :: i,j,ir,ip
-      Real(kind=wp) :: a
+      Real(kind=8) :: a
 !  iopt = 1   => sort in ascending order
 !  iopt = 2   => sort in descending order
 

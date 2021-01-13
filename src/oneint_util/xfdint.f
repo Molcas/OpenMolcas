@@ -10,49 +10,33 @@
 *                                                                      *
 * Copyright (C) 1995, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine XFdInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,nIC,nComp,la,lb,A,RB,nRys,
-     &                 Array,nArr,CCoor,nOrdOp,lOper,iChO,
-     &                 iStabM,nStabM,
-     &                 PtChrg,nGrid,iAddPot)
+      SubRoutine XFdInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of nuclear attraction     *
 *         integrals.                                                   *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              mHrr                                                    *
-*              DCR                                                     *
-*              Rys                                                     *
-*              Hrr                                                     *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, April '95                               *
 ************************************************************************
+      use external_centers
+      use Phase_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI, Fake, XCff2D, XRys2D
-#include "real.fh"
 #include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
+#include "real.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,nComp),
-     &       Array(nZeta*nArr)
-      Integer iStabM(0:nStabM-1), lOper(nComp)
-*-----Local arrys
+
+#include "int_interface.fh"
+
+*-----Local variables
       Real*8 C(3), TC(3), Coori(3,4), CoorAC(3,2),
      &       ZFd((iTabMx+1)*(iTabMx+2)/2), ZRFd((iTabMx+1)*(iTabMx+2)/2)
       Logical EQ, NoLoop, NoSpecial
-      Integer iAnga(4), iDCRT(0:7), iChO(nComp), iStb(0:7),
-     &          jCoSet(8,8)
+      Integer iAnga(4), iDCRT(0:7), iStb(0:7), jCoSet(8,8)
       Character ChOper(0:7)*3
       Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *
@@ -64,19 +48,12 @@ C     nElem(ixyz) = 2*ixyz+1
 *
       iRout = 151
       iPrint = nPrint(iRout)
-*     Call qEnter('XFdInt')
 *
       call dcopy_(nZeta*nElem(la)*nElem(lb)*nIC,[Zero],0,Final,1)
 *
 *---- Loop over charges and dipole moments in the external field
 *
-      nData = 3
-      Inc = 3
-      Do iOrdOp = 0, nOrdOp
-         Inc = Inc + nElem(iOrdOp)
-      End Do
-      If(iXPolType.gt.0) Inc = Inc + 6
-*
+      nData=3
       Do iOrdOp = 0, nOrdOp
 *
       iAnga(1) = la
@@ -93,7 +70,6 @@ C     nElem(ixyz) = 2*ixyz+1
       lab=(mabMax-mabMin+1)
       kab=nElem(la)*nElem(lb)
       lcd=(mcdMax-mcdMin+1)
-      kcd=nElem(iOrdOp)*nElem(0)
       labcd=lab*lcd
 *
 *     Compute FLOP's and size of work array which Hrr will use.
@@ -114,17 +90,14 @@ C     nElem(ixyz) = 2*ixyz+1
        call dcopy_(3,RB,1,CoorAC(1,1),1)
       End If
 *
-      llOper = lOper(1)
-*
 *     Loop over centers of the external field.
 *
-      ip=ipXF-1
       iDum=0
       Do iFd = 1, nXF
 *
          NoLoop=.True.
          Do jElem = 1, nElem(iOrdOp)
-            ZFd(jElem)=Work(ip+(iFd-1)*Inc+nData+jElem)
+            ZFd(jElem)=XF(nData+jElem,iFd)
 *        Divide quadrupole diagonal by 2 due to different normalisation
             if((iOrdOp.eq.2).and.
      &           (jElem.eq.1.or.jElem.eq.4.or.jElem.eq.6))
@@ -134,30 +107,18 @@ C     nElem(ixyz) = 2*ixyz+1
 *
          If (NoLoop) Go To 111
 *------- Pick up the center coordinates
-         C(1)=Work(ip+(iFd-1)*Inc+1)
-         C(2)=Work(ip+(iFd-1)*Inc+2)
-         C(3)=Work(ip+(iFd-1)*Inc+3)
+         C(1:3)=XF(1:3,iFd)
 
          If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
 *
 *------- Generate stabilizor of C
 *
-         If (nIrrep.eq.8) Then
-             nOper=3
-         Else If (nIrrep.eq.4) Then
-             nOper=2
-         Else If (nIrrep.eq.2) Then
-             nOper=1
-         Else
-             nOper=0
-         End If
-         iChxyz=iChAtm(C,iOper,nOper,iChBas(2))
-         Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+         iChxyz=iChAtm(C)
+         Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
 *--------Find the DCR for M and S
 *
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &            iStb,nStb,iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
          Fact = DBLE(nStabM) / DBLE(LmbdT)
 *
          If (iPrint.ge.99) Then
@@ -175,9 +136,7 @@ C     nElem(ixyz) = 2*ixyz+1
 
 *
          Do lDCRT = 0, nDCRT-1
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
 *
             jElem=0
             Do ix = iOrdOp, 0, -1
@@ -242,7 +201,7 @@ C     nElem(ixyz) = 2*ixyz+1
 *
 *-----------Accumulate contributions to the symmetry adapted operator
 *
-            nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+            nOp = NrOpr(iDCRT(lDCRT))
             ipI=ip1
 *
             Do i = 1, nElem(iOrdOp)
@@ -252,13 +211,14 @@ C     nElem(ixyz) = 2*ixyz+1
                ipI=ipI+nZeta*nElem(la)*nElem(lb)
             End Do
 *
-            If (iPrint.ge.99) Then
-               Write (6,*) (Fact*ZFd(i),i = 1, nElem(iOrdOp))
-               Call RecPrt('Array(ip1)',' ',Array(ip1),nZeta,
-     &                 (la+1)*(la+2)/2*(lb+1)*(lb+2)/2*nElem(iOrdOp))
-               Call RecPrt('Final',' ',Final,
-     &                 nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2*nIC)
-            End If
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+            Write (6,*) (Fact*ZFd(i),i = 1, nElem(iOrdOp))
+            Call RecPrt('Array(ip1)',' ',Array(ip1),nZeta,
+     &              (la+1)*(la+2)/2*(lb+1)*(lb+2)/2*nElem(iOrdOp))
+            Call RecPrt('Final',' ',Final,
+     &              nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2*nIC)
+#endif
 
 *
          End Do  ! End loop over DCRs
@@ -266,20 +226,17 @@ C     nElem(ixyz) = 2*ixyz+1
 111      Continue
       End Do     ! iFd
 *
-         nData = nData + nElem(iOrdOp)
+          nData = nData + nElem(iOrdOp)
       End Do     !  iOrdOp
 *
-*     Call GetMem(' Exit XFdInt','LIST','REAL',iDum,iDum)
-*     Call qExit('XFdInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Alpha)
          Call Unused_real_array(Beta)
-         Call Unused_integer(nRys)
+         Call Unused_integer(nHer)
          Call Unused_real_array(CCoor)
-         Call Unused_real(PtChrg)
-         Call Unused_integer(nGrid)
+         Call Unused_real_array(PtChrg)
          Call Unused_integer(iAddPot)
       End If
       End

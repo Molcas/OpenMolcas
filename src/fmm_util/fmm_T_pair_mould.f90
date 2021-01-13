@@ -19,7 +19,7 @@ MODULE fmm_T_pair_mould
 
    INTEGER(INTK), SAVE :: LHS_LMAX, RHS_LMAX
     ! flag to test initialisation
-   CHARACTER(11), SAVE :: fmm_init_mould
+   CHARACTER(LEN=11), SAVE :: fmm_init_mould
 
 CONTAINS
 

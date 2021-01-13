@@ -11,50 +11,33 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 *               2016, Lasse Kragh Soerensen                            *
 ************************************************************************
-      SubRoutine OAMInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,nIC,nComp,la,lb,A,RB,nHer,
-     &                  Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                  iStabM,nStabM,
-     &                  PtChrg,nGrid,iAddPot)
+      SubRoutine OAMInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of orbital angular        *
 *         momentum integrals.                                          *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              MltPrm                                                  *
-*              Util2                                                   *
-*              DCopy   (ESSL)                                          *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, February '91                            *
 *             Placed restrictions on the differentiation. Lasse '16    *
 ************************************************************************
+      use Logical_Info, only: lUPONLY, lDOWNONLY
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), TC(3),
-     &       Array(nZeta*nArr), Ccoor(3)
-      Integer iStabM(0:nStabM-1), iStabO(0:7), iDCRT(0:7),
-     &          lOper(nComp), iChO(nComp)
+
+#include "int_interface.fh"
+
+*     Local variables
+      Real*8 TC(3)
+      Integer  iStabO(0:7), iDCRT(0:7)
 *
 *     Statement function for Cartesian index
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-*
-      iRout = 210
-      iPrint = nPrint(iRout)
-*     Call qEnter('OAMInt')
 *
       nip = 1
       ipB = nip
@@ -83,8 +66,7 @@
          llOper = iOr(llOper,lOper(iComp))
  90   Continue
       Call SOS(iStabO,nStabO,llOper)
-      Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &         iDCRT,nDCRT)
+      Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
       ipOff = ipB
       Do 100 iAlpha = 1, nAlpha
@@ -93,9 +75,7 @@
  100  Continue
 *
       Do 102 lDCRT = 0, nDCRT-1
-         TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*Ccoor(1)
-         TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*Ccoor(2)
-         TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*Ccoor(3)
+         Call OA(iDCRT(lDCRT),CCoor,TC)
 *
          IF (.NOT.lDOWNONLY) THEN
             nHer = (la + (lb+1) + (nOrdOp-1) + 2) / 2
@@ -121,18 +101,16 @@
 *
 *--------Accumulate contributions
 *
-         nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+         nOp = NrOpr(iDCRT(lDCRT))
          Call SymAdO(Array(ipRes),nZeta,la,lb,nComp,Final,nIC,
      &               nOp         ,lOper,iChO,One)
 *
  102  Continue
 *
-*     Call qExit('OAMInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_real(PtChrg)
-         Call Unused_integer(nGrid)
+         Call Unused_real_array(PtChrg)
          Call Unused_integer(iAddPot)
       End If
       End

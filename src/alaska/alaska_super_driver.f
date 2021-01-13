@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Alaska_Super_Driver(iRC)
+      use Para_Info, only: nProcs
       Implicit Real*8 (a-h,o-z)
       Character*8 Method
       Logical Do_Cholesky, Numerical, Do_DF, Do_ESPF, StandAlone, Exist,
@@ -18,12 +19,12 @@
       Character*16 StdIn
       Integer Columbus
       Character(Len=16) mstate1,mstate2
+      Real*8, Allocatable:: Grad(:)
 #include "warnings.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "nac.fh"
 #include "alaska_root.fh"
-#include "para_info.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -81,10 +82,8 @@
       Call Get_iScalar('agrad',iForceAnalytical)
       If(iForceAnalytical .eq. 1) Do_Numerical_Cholesky=.False.
 *
-      ExFac=0.0D0
       If (Method.eq.'KS-DFT  '.and.Do_Numerical_Cholesky) Then
          Call Get_cArray('DFT functional',KSDFT,16)
-         ExFac=Get_ExFac(KSDFT)
 *
          If (Do_DF                 .or.                  ! RI/DF
      &       (Do_Cholesky.and.Do_1CCD.and.nSym.eq.1)      ! 1C-CD
@@ -99,7 +98,12 @@
 *
          If( (Method .eq. 'KS-DFT  ') .or.
      &       (Method .eq. 'UHF-SCF ') .or.
-     &       (Method .eq. 'RHF-SCF ') ) Then
+     &       (Method .eq. 'RHF-SCF ') .or.
+     &       (Method .eq. 'CASSCF  ') .or.
+     &       (Method .eq. 'RASSCF  ') .or.
+     &       (Method .eq. 'GASSCF  ') .or.
+     &       (Method .eq. 'DMRGSCF ') .or.
+     &       (Method .eq. 'CASSCFSA') ) Then
             Do_Numerical_Cholesky= .False.
      &
          Else If(Method.eq.'MBPT2   ' .and.nSym.eq.1) Then
@@ -119,7 +123,7 @@
       if(Method .eq. 'DMRGSCFS')then
         Call Get_iScalar('SA ready',iGo)
       end if
-*                                                                      *
+*
       If (Numerical              .OR.
      &    Do_Numerical_Cholesky  .OR.
      &    Method .eq. 'RASSCFSA' .OR.
@@ -127,7 +131,8 @@
      &  ((Method .eq. 'DMRGSCFS').and.(iGo.ne.2)) .OR.
      &    Method .eq. 'CASPT2'   .OR.
      &  ((Method .eq. 'MBPT2').and.(iMp2Prpt.ne.2)) .OR.
-     &    Method .eq. 'CCSDT'    ) Then
+     &    Method .eq. 'CCSDT'    .OR.
+     &    Method .eq. 'EXTERNAL' ) Then
          If (isNAC) Then
            Call Store_Not_Grad(0,NACstates(1),NACstates(2))
            Call WarningMessage(2,'Numerical nonadiabatic coupling not'
@@ -209,6 +214,7 @@
 *        iGo=-1 non-equivalent multi state SA-CASSCF
 *        iGo=0  equivalent multi state SA-CASSCF
 *        iGo=2  single root SA-CASSCF
+         mstate2=''
          if(iGo.ne.2)then
            Call Get_cArray('MCLR Root',mstate2,16)
          end if
@@ -312,7 +318,7 @@
             Call Finish(_RC_INVOKED_OTHER_MODULE_)
 *
            End If
-
+*                                                                      *
 ************************************************************************
 *                                                                      *
       Else If (Method.eq.'MCPDFT') Then
@@ -349,6 +355,7 @@
 *        iGo=-1 non-equivalent multi state SA-CASSCF
 *        iGo=0  equivalent multi state SA-CASSCF
 *        iGo=2  single root SA-CASSCF
+         mstate2=''
          if(iGo.ne.2)then
            Call Get_cArray('MCLR Root',mstate2,16)
          end if
@@ -516,13 +523,16 @@
 * It is done here because the gradient could have been modified by ESPF
 * and we do not want to pass the root to ESPF (yet)
 *
-      Call Get_Grad(ipGrad,nGrad)
+      Call Get_iScalar('Unique atoms',nsAtom)
+      Call mma_Allocate(Grad,3*nsAtom,Label='Grad')
+      nGrad=3*nsAtom
+      Call Get_Grad(Grad,nGrad)
       If (isNAC) Then
-        Call Store_Grad(Work(ipGrad),nGrad,0,NACstates(1),NACstates(2))
+        Call Store_Grad(Grad,nGrad,0,NACstates(1),NACstates(2))
       Else
-        Call Store_Grad(Work(ipGrad),nGrad,iRlxRoot,0,0)
+        Call Store_Grad(Grad,nGrad,iRlxRoot,0,0)
       End If
-      Call GetMem('Grad','Free','Real',ipGrad,nGrad)
+      Call mma_deallocate(Grad)
 *                                                                      *
 ************************************************************************
 *                                                                      *

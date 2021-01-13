@@ -74,7 +74,6 @@
       If (iRc.ne.0) Then
          Write (6,*) 'R1Inta: Error readin ONEINT'
          Write (6,'(A,A)') 'Label=',Label
-         Call QTrace
          Call Abend()
       End If
 #ifdef _FDE_
@@ -98,13 +97,13 @@
         If (iRc.ne.0) Then
            Write (6,*) 'R1Inta: Error readin ONEINT'
            Write (6,'(A,A)') 'Label=',Label
-           Call QTrace
            Call Abend()
         End If
        end if
       end if
 #endif
-#ifdef _DEBUG_
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       ist1Hm=1
       Write (6,*)
       Write (6,*) ' One electron Hamiltonian at start'
@@ -126,11 +125,10 @@
       If (iRc.ne.0) Then
          Write (6,*) 'R1Inta: Error readin ONEINT'
          Write (6,'(A,A)') 'Label=',Label
-         Call QTrace
          Call Abend()
       End If
       Tot_Nuc_Charge=Ovrlp(nBT+4)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       istOvl=1
       Write (6,*)
       Write (6,*) ' Overlap matrix at start'

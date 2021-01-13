@@ -9,8 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) Ben Swerts                                             *
+*               2020, Roland Lindh                                    *
 ************************************************************************
-      Subroutine FragExpand(nInfo,LuRd,DInf,nDInf)
+      Subroutine FragExpand(LuRd)
 ************************************************************************
 *                                                                      *
 *    Objective: To expand the data for the fragments and append them   *
@@ -23,96 +24,120 @@
 *     Author: Ben Swerts                                               *
 *                                                                      *
 ************************************************************************
+      Use Basis_Info
+      Use Center_Info
+      use Sizes_of_Seward, only: S
       Implicit None
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
+#include "stdalloc.fh"
 #include "real.fh"
 #include "print.fh"
-      integer     nDInf, nInfo, storageSize, LineWords
+      integer     storageSize, LineWords
       parameter(  storageSize = 200, LineWords=storageSize/8)
-      Real*8      DInf(nDInf), eqBasis(LineWords)
-      Integer     BasisTypes(4), nDel(MxAng),
-     &            LenLbl, i, LuRd, iAtom, ib, iBas, iCnttp, iCntr,
-     &            idummy, ii, Indx, iOptn, iSh, iShll, jShll,
-     &            lAng, Last, LenBSL, lSTDINP, mCnttp, mdc, nAIMP, ndc,
-     &            ninfo_stupid, nVal, nPrj, nSRO, nSOC, nPP, nProj,
-     &            StayAlone,
-     &            ipVal_, ipPrj_, ipSRO_, ipSOC_, ipPP_
+      Real*8      eqBasis(LineWords)
+      Integer     BasisTypes(4),
+     &            LenLbl, LuRd, iAtom, ib, iBas, iCnttp, iCntr,
+     &            ii, Indx, iSh, iShll, jShll,
+     &            lAng, Last, LenBSL, lSTDINP, mCnttp, mdc, ndc
       Real*8      x1, y1, z1
       Character*4  label
       Character*13 DefNm
       Character*80 Ref(2)
       Character*(storageSize) sBasis
-      Equivalence( sBasis, eqBasis)
       Character *256 Basis_lib, Fname
-      Character*180  STDINP(mxAtom*2)
+      Logical UnNorm
+#ifdef _DEBUGPRINT_
+      Integer i
+#endif
+      Character*180, Allocatable :: STDINP(:)
 * external functions and procedures
       Integer     iMostAbundantIsotope, iCLast
       Real*8      NucExp, rMass
       External    NucExp, rMass, iMostAbundantIsotope, iCLast
       Data DefNm/'basis_library'/
-
-*      Call qEnter('FragExpand')
-
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+#include "getbs_interface.fh"
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call mma_allocate(STDINP,mxAtom*2,label='STDINP')
       UnNorm = .False.
-      mdc = 0
       LenLbl=0
-      Do i = 1, nCnttp
-        mdc = Max(mdc,mdciCnttp(nCnttp)+nCntr(nCnttp))
-      End Do
-      BasisTypes(1)=0
-      BasisTypes(2)=0
-      BasisTypes(3)=0
-      BasisTypes(4)=0
-      iShll = Mx_Shll-1
+      mdc = dbsc(nCnttp)%mdci+dbsc(nCnttp)%nCntr
+      BasisTypes(:)=0
+      iShll = S%Mx_Shll-1
       lSTDINP=0
-c     write(*,*) 'nCnttp, iShll, mdc = ',nCnttp,iShll,mdc
-c     write(*,*) 'ipExp(iShll+1) = ',ipExp(iShll+1)
-*
       mCnttp = nCnttp
-      ndc = 0
-
-c      If (iPrint.gt.49) Then
-c      write(6,'(A,i6)') 'FragExpand: just before the ''Do 1000 iCnttp'''
-c      write(6,'(A,i6)') 'FragExpand:       mdc          = ',mdc
-c      write(6,'(A,i6)') 'FragExpand:    mCnttp          = ',mCnttp
-c      write(6,'(A,10i6)') 'FragExpand: mdciCnttp(nCnttp)  = ',
-c     &                                    (mdciCnttp(i),i=1,mCnttp)
-c      write(6,'(A,10i6)') 'FragExpand:     nCntr(nCnttp)  = ',
-c     &                                        (nCntr(i),i=1,mCnttp)
-c      write(6,'(A,10I6)') 'FragExpand: nFragType(nCnttp)  = ',
-c     &                                    (nFragType(i),i=1,mCnttp)
-c      write(6,'(A,10I6)') 'FragExpand: nFragCoor(nCnttp)  = ',
-c     &                                    (nFragCoor(i),i=1,mCnttp)
-c      End If
-
+#ifdef _DEBUGPRINT_
+      write(6,*) 'nCnttp, iShll, mdc = ',nCnttp,iShll,mdc
+#endif
+*
+#ifdef _DEBUGPRINT_
+       write(6,'(A,i6)')'FragExpand: just before the ''Do 1000 iCnttp'''
+       write(6,'(A,i6)') 'FragExpand:       mdc          = ',mdc
+       write(6,'(A,i6)') 'FragExpand:    mCnttp          = ',mCnttp
+       write(6,'(A)') ' dbsc(nCnttp)%mdci  '//
+     &                ' dbsc(nCnttp)%nCntr '//
+     &                ' nFragType(nCnttp)  '//
+     &                ' nFragCoor(nCnttp)  '
+       Do i = 1, mCnttp
+       write(6,'(4(3X,I6,11X))')
+     &                              dbsc(i)%mdci,
+     &                              dbsc(i)%nCntr,
+     &                              dbsc(i)%nFragType,
+     &                              dbsc(i)%nFragCoor
+       End Do
+#endif
+!
+!     Loop over distrinct basis set centers (dbsc)
+!
+      ndc = 0 ! destinct center index
       Do iCnttp = 1, mCnttp
-        If(nFragType(iCnttp).le.0) Then
-          ndc = ndc + nCntr(iCnttp)
-          Goto 1000
+!
+!       Skip if this is not a fragment dbsc to expand.
+!
+        If(dbsc(iCnttp)%nFragType.le.0) Then
+          ndc = ndc + dbsc(iCnttp)%nCntr
+          Cycle
         End If
-        Do iCntr = 1, nCntr(iCnttp)
+!
+!       Loop over the centers associated with this dbsc.
+!
+        Do iCntr = 1, dbsc(iCnttp)%nCntr
           ndc = ndc + 1
-          Do iAtom = 1, nFragCoor(iCnttp)
-* create a new basis set center
+!
+!         Loop over the fragments associated with this dbsc.
+!
+          Do iAtom = 1, dbsc(iCnttp)%nFragCoor
+*
+*           Create a new basis set center
+*
             nCnttp = nCnttp + 1
             If (nCnttp.gt.Mxdbsc) Then
               Write (6,*) ' Increase Mxdbsc'
               Call ErrTra
               Call Quit_OnUserError()
             End If
-* read the associated basis set in sBasis
-            iBas = int(DInf(ipFragCoor(iCnttp)+5*(iAtom-1)))
-            call dcopy_(LineWords,
-     &       DInf(ipFragType(iCnttp)+LineWords*(iBas-1)), 1, eqBasis, 1)
-* get the basis set directory
+*
+*           Read the associated basis set in sBasis
+*
+            iBas = int(dbsc(iCnttp)%FragCoor(1,iAtom))
+            call dcopy_(LineWords,dbsc(iCnttp)%FragType(1,iBas),1,
+     &                            eqBasis, 1)
+            sBasis = Transfer(eqBasis,sBasis) ! ???
+*
+*           Get the basis set directory
+*
             LenBSL = Len(sBasis)
             Last = iCLast(sBasis,LenBSL)
             Indx = Index(sBasis,'/')
             If(Indx.eq.0) Then
               Call WhichMolcas(Basis_lib)
               If(Basis_lib(1:1).ne.' ') then
-                StayAlone = 1
                 ib = index(Basis_lib,' ')-1
                 If(ib.lt.1) Call SysAbendMsg('fragexpand',
      &                      'Too long PATH to MOLCAS',' ')
@@ -121,7 +146,7 @@ c      End If
                 Fname=DefNm
               Endif
               Indx = Last+1
-              Bsl(nCnttp) = Trim(sBasis)
+              dbsc(nCnttp)%Bsl = Trim(sBasis)
             Else
               Fname = sBasis(Indx+2:Last)
               If (Fname.eq.' ') Then
@@ -134,101 +159,89 @@ c      End If
                 Fname(80:80) = ' '
                 Go To 1001
               End If
-              Bsl(nCnttp)=sBasis(1:Indx-1)
+              dbsc(nCnttp)%Bsl=sBasis(1:Indx-1)
             Endif
-c           write(*,*) 'Setting Bsl(',nCnttp,') to ',Bsl(nCnttp)
-c           write(*,*) 'Fname = ',Fname
-* now Fname contains the basis set directory and Bsl(nCnttp) contains
-* the basis set label
+#ifdef _DEBUGPRINT_
+            write(6,*) 'Setting Bsl(',nCnttp,') to ',dbsc(nCnttp)%Bsl
+            write(6,*) 'Fname = ',Fname
+#endif
+*           Now Fname contains the basis set directory and dbsc(.)%Bsl
+*           contains the basis set label
+*
             jShll = iShll
-            ExpNuc(nCnttp)=-One
-            SODK(nCnttp)=.False.
-            mdciCnttp(nCnttp)=mdc
-            Call GetBS(Fname,sBasis(1:Indx-1),Indx-1,lAng,ipExp,
-     &        ipCff,ipCff_Cntrct,ipCff_Prim,ipFockOp,nExp,
-     &        nBasis,nBasis_Cntrct,MxShll,iShll,MxAng,
-     &        Charge(nCnttp),iAtmNr(nCnttp),BLine,Ref,
-     &        PAM2(nCnttp),
-     &        ipPAM2xp(nCnttp),ipPAM2cf(nCnttp),nPAM2(nCnttp),
-     &        FockOp(nCnttp),
-     &        ECP(nCnttp),NoPairL(nCnttp),SODK(nCnttp),
-     &        ipM1xp(nCnttp),ipM1cf(nCnttp),nM1(nCnttp),
-     &        ipM2xp(nCnttp),ipM2cf(nCnttp),nM2(nCnttp),ipBk,
-     &        CrRep(nCnttp),nProj,nAIMP,ipAkl,ip_Occ,iOptn,
-     &        UnNorm,nDel,
-     &        nVal,   nPrj,   nSRO,   nSOC,  nPP,
-     &        ipVal_, ipPrj_, ipSRO_, ipSOC_,ipPP_,
-     &        LuRd,BasisTypes,AuxCnttp(nCnttp),
-     &        idummy,idummy,idummy,idummy,idummy,idummy,idummy,
-     &        idummy,idummy,
-     &        STDINP,lSTDINP,.False.,.true.,' ',
-     &        DInf,nDInf)
-            iAngMx=Max(iAngMx,lAng)
-            Transf(jShll+1)=.False.
-            Prjct(jShll+1)=.False.
-            Transf(jShll+2)=.False.
-            Prjct(jShll+2)=.False.
-            pChrg(nCnttp)=.False.
-            Fixed(nCnttp)=.True.
-            FockOp(nCnttp)=.False.
-            nOpt(nCnttp) = iOptn
-            ipVal(nCnttp) = ipVal_
-            ipPrj(nCnttp) = ipPrj_
-            ipSRO(nCnttp) = ipSRO_
-            ipSOC(nCnttp) = ipSOC_
-            ipPP(nCnttp)  = ipPP_
-            nVal_Shells(nCnttp) = nVal
-            nPrj_Shells(nCnttp) = nPrj
-            nSRO_Shells(nCnttp) = nSRO
-            nSOC_Shells(nCnttp) = nSOC
-            nPP_Shells(nCnttp)  = nPP
-            nTot_Shells(nCnttp) = nVal+nPrj+nSRO+nSOC+nPP
-            ipCntr(nCnttp) = ipExp(iShll+1)
-            CntMass(nCnttp) = rMass(iAtmNr(nCnttp))
+            dbsc(nCnttp)%mdci=mdc
+            Call GetBS(Fname,sBasis(1:Indx-1),iShll,Ref,
+     &                 UnNorm,LuRd,BasisTypes,STDINP,lSTDINP,
+     &                 .False.,.true.,' ')
+           lAng=Max(dbsc(nCnttp)%nVal,
+     &         dbsc(nCnttp)%nSRO,
+     &         dbsc(nCnttp)%nPrj)-1
+            S%iAngMx=Max(S%iAngMx,lAng)
+            Shells(jShll+1)%Transf=.False.
+            Shells(jShll+1)%Prjct =.False.
+            Shells(jShll+2)%Transf=.False.
+            Shells(jShll+2)%Prjct =.False.
+            dbsc(nCnttp)%Fixed=.True.
+            dbsc(nCnttp)%nShells = dbsc(nCnttp)%nVal
+     &                           + dbsc(nCnttp)%nPrj
+     &                           + dbsc(nCnttp)%nSRO
+     &                           + dbsc(nCnttp)%nSOC
+     &                           + dbsc(nCnttp)%nPP
+            dbsc(nCnttp)%CntMass = rMass(dbsc(nCnttp)%AtmNr)
             Do iSh = jShll+1,iShll
-              FragShell(iSh)=.True.
+               Shells(iSh)%Frag=.True.
             End Do
             If (INDEX(sBasis(1:Indx-1),'6-31G').ne.0) Then
               Do iSh = jShll+3, iShll
-                Prjct(iSh)=.False.
-                Transf(iSh)=.False.
+                Shells(iSh)%Prjct =.False.
+                Shells(iSh)%Transf=.False.
               End Do
             End If
-            FragCnttp(nCnttp)=.True.
+            dbsc(nCnttp)%Frag=.True.
+*
 * add the coordinates (1 atom / basis set center)
-            nCntr(nCnttp) = 1
+            dbsc(nCnttp)%nCntr = 1
+*
             mdc = mdc + 1
-            If (mdc.gt.Mxdc) Then
-              Write (6,*) ' FragExpand: Increase Mxdc'
-              Write (6,*) '        Mxdc=',Mxdc
+            n_dc=max(mdc,n_dc)
+            If (mdc.gt.MxAtom) Then
+              Write (6,*) ' FragExpand: Increase MxAtom'
+              Write (6,*) '        MxAtom=',MxAtom
               Call ErrTra
               Call Quit_OnUserError()
             End If
 * get the relative coordinates
-            x1 = DInf(ipFragCoor(iCnttp)+1+5*(iAtom-1))
-            y1 = DInf(ipFragCoor(iCnttp)+2+5*(iAtom-1))
-            z1 = DInf(ipFragCoor(iCnttp)+3+5*(iAtom-1))
+            x1 = dbsc(iCnttp)%FragCoor(2,iAtom)
+            y1 = dbsc(iCnttp)%FragCoor(3,iAtom)
+            z1 = dbsc(iCnttp)%FragCoor(4,iAtom)
 * make them absolute
-            x1 = x1 + DInf(ipCntr(iCnttp)  +3*(iCntr-1))
-            y1 = y1 + DInf(ipCntr(iCnttp)+1+3*(iCntr-1))
-            z1 = z1 + DInf(ipCntr(iCnttp)+2+3*(iCntr-1))
-c            write(6,'(a,i3,3(a,F12.7))') 'FragExpand: Center ',nCnttp,
-c     &      ' Coordinates:  x =',x1,' y=',y1,' z=',z1
+            x1 = x1 + dbsc(iCnttp)%Coor(1,iCntr)
+            y1 = y1 + dbsc(iCnttp)%Coor(2,iCntr)
+            z1 = z1 + dbsc(iCnttp)%Coor(3,iCntr)
+#ifdef _DEBUGPRINT_
+            write(6,'(a,i3,3(a,F12.7))') 'FragExpand: Center ',nCnttp,
+     &      ' Coordinates:  x =',x1,' y=',y1,' z=',z1
+#endif
 * store them
-            DInf(ipCntr(nCnttp))   = x1
-            DInf(ipCntr(nCnttp)+1) = y1
-            DInf(ipCntr(nCnttp)+2) = z1
-            If (iShll.lt.MxShll) ipExp(iShll+1) = ipExp(iShll+1)+3
+            Call mma_allocate(dbsc(nCnttp)%Coor_Hidden,3,1,
+     &                        Label='dbsc:C')
+            dbsc(nCnttp)%Coor => dbsc(nCnttp)%Coor_Hidden(:,:)
+            dbsc(nCnttp)%Coor(1,1) = x1
+            dbsc(nCnttp)%Coor(2,1) = y1
+            dbsc(nCnttp)%Coor(3,1) = z1
 * store the Mulliken charge
-            FragCharge(nCnttp) = DInf(ipFragCoor(iCnttp)+4+5*(iAtom-1))
+            dbsc(nCnttp)%FragCharge = dbsc(iCnttp)%FragCoor(5,iAtom)
 * create custom (hopefully) unique label
             LenLbl = Index(sBasis,'.') - 1
             label = sBasis(1:LenLbl)
             Do ii = LenLbl+1,4
               label(ii:ii) = '_'
             End Do
+#ifdef _DEBUGPRINT_
+            Write (6,'(2A)') 'Label=',label
+#endif
 c LENIN possible BUG
-            LblCnt(mdc) = label
+            dc(mdc)%LblCnt = label
             If(mdc.lt.10) then
               write(label,'(a3,i1)') '___',mdc
             Else If(mdc.lt.100) then
@@ -238,42 +251,52 @@ c LENIN possible BUG
             Else
               write(label,'(i4)') mdc
             End If
-c            LblCnt(mdc)(LENIN1:LENIN4) = label
-            LblCnt(mdc)(5:LENIN2) = label
-            Call ChkLbl(LblCnt(mdc),LblCnt,mdc-1)
+            dc(mdc)%LblCnt(5:LENIN2) = label
+#ifdef _DEBUGPRINT_
+            Write (6,'(2A)') 'Label=',label
+            Write (6,'(2A)') 'LblCnt(mdc)=',dc(mdc)%LblCnt
+#endif
+            Call Chk_LblCnt(dc(mdc)%LblCnt,mdc-1)
 * store a reference to the originating fragment placeholder
 * misuse nFragCoor for this purpose: it will not overwrite anything, but
 * beware of redimensioning this array to anything other than Mxdbsc
-            nFragCoor(mdc) = ndc
+* To signify this we store the negative value such that we can identify
+* the that the actual number of centers is 0 and that the corresponding
+* size of dbsc()%FragCoor is 0 and nothing else.
+            dbsc(nCnttp)%nFragCoor =  -ndc  ! DO NOT CHANGE THIS!!!!
 *
-            nInfo = ipExp(iShll+1) - 1
-            ninfo_stupid = nInfo
-            If (ExpNuc(nCnttp).lt.Zero) ExpNuc(nCnttp) =
-     &        NucExp(iAtmNr(nCnttp),
-     &        iMostAbundantIsotope(iAtmNr(nCnttp)))
-          End Do
-        End Do
- 1000 Continue
-      End Do
-*
-c      write(6,'(A,i6)') 'FragExpand: after the main DO loop'
-c      write(6,'(A,i5)') 'FragExpand:  nCnttp = ',nCnttp
-c      write(6,'(A,10i6)') 'FragExpand: mdciCnttp(nCnttp)  = ',
-c     &                                    (mdciCnttp(i),i=1,nCnttp)
-c      write(6,'(A,10i6)') 'FragExpand:     nCntr(nCnttp)  = ',
-c     &                                        (nCntr(i),i=1,nCnttp)
-c      write(6,'(A,10I6)') 'FragExpand: nFragType(nCnttp)  = ',
-c     &                                    (nFragType(i),i=1,nCnttp)
-c
-c      write(6,'(A,10I6)') 'FragExpand: nFragCoor(nCnttp)  = ',
-c     &                                    (nFragCoor(i),i=1,nCnttp)
+            If (dbsc(nCnttp)%ExpNuc.lt.Zero) dbsc(nCnttp)%ExpNuc =
+     &        NucExp(iMostAbundantIsotope(dbsc(nCnttp)%AtmNr))
+          End Do  ! iAtom
+        End Do    ! iCntr
+      End Do      ! iCnttp
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Mx_Shll=iShll+1
+#ifdef _DEBUGPRINT_
+       write(6,'(A,i6)')'FragExpand: After the ''Do 1000 iCnttp'''
+       write(6,'(A,i6)') 'FragExpand:       mdc          = ',mdc
+       write(6,'(A,i6)') 'FragExpand:    nCnttp          = ',nCnttp
+       write(6,'(A)') ' dbsc(nCnttp)%mdci  '//
+     &                ' dbsc(nCnttp)%nCntr '//
+     &                ' nFragType(nCnttp)  '//
+     &                ' nFragCoor(nCnttp)  '
+       Do i = 1, nCnttp
+       write(6,'(4(3X,I6,11X))')
+     &                              dbsc(i)%mdci,
+     &                              dbsc(i)%nCntr,
+     &                              dbsc(i)%nFragType,
+     &                              dbsc(i)%nFragCoor
+       End Do
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      Call qExit('FragExpand')
+      S%Mx_Shll=iShll+1
+      Max_Shells=S%Mx_Shll
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call mma_deallocate(STDINP)
       Return
       End

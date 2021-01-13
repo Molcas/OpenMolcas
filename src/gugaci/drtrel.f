@@ -76,7 +76,6 @@ c
       enddo
       jds=1
       jde=mxnode
-      jps=no(norb_inn)+1
       jpe=no(norb_inn+1)
 
       jp=jv
@@ -228,7 +227,6 @@ c Avoid unused argument warnings
 !     :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
 !     :    ,jv,jd(8),jt(8),js(8)
       dimension lhsm(8),locu(8,max_ref),lscu(0:8,max_ref)
-      nl_act=norb_act
       ne_act=nel-2*norb_dz
       ne_s=nint(spin*2)
       lhs=nstart_act
@@ -241,15 +239,15 @@ c Avoid unused argument warnings
       mdj=0
       do 500 nes=ne_s,ne_act,2
         do 100 l1=0,lhsm(1)
-          do 100 l2=0,lhsm(2)
-            do 100 l3=0,lhsm(3)
-              do 100 l4=0,lhsm(4)
-                do 100 l5=0,lhsm(5)
-                  do 100 l6=0,lhsm(6)
-                    do 100 l7=0,lhsm(7)
-                      do 100 l8=0,lhsm(8)
+          do 101 l2=0,lhsm(2)
+            do 102 l3=0,lhsm(3)
+              do 103 l4=0,lhsm(4)
+                do 104 l5=0,lhsm(5)
+                  do 105 l6=0,lhsm(6)
+                    do 106 l7=0,lhsm(7)
+                      do 107 l8=0,lhsm(8)
                         lpsum=l1+l2+l3+l4+l5+l6+l7+l8
-                    if(lpsum.ne.nes) goto 100
+                        if(lpsum.ne.nes) goto 107
                         mys=1
                         if(mod(l1,2).eq.1)mys=mul_tab(mys,1)
                         if(mod(l2,2).eq.1)mys=mul_tab(mys,2)
@@ -259,8 +257,8 @@ c Avoid unused argument warnings
                         if(mod(l6,2).eq.1)mys=mul_tab(mys,6)
                         if(mod(l7,2).eq.1)mys=mul_tab(mys,7)
                         if(mod(l8,2).eq.1)mys=mul_tab(mys,8)
-                        if(mys.ne.nm) goto 100
-                    mdj=mdj+1
+                        if(mys.ne.nm) goto 107
+                        mdj=mdj+1
                         lscu(0,mdj)=lpsum
                         lscu(1,mdj)=l1
                         lscu(2,mdj)=l2
@@ -270,19 +268,26 @@ c Avoid unused argument warnings
                         lscu(6,mdj)=l6
                         lscu(7,mdj)=l7
                         lscu(8,mdj)=l8
+107                   continue
+106                 continue
+105               continue
+104             continue
+103           continue
+102         continue
+101       continue
 100     continue
 500   continue
       ndj=0
       do 300 m=1,mdj
         npair=(ne_act-lscu(0,m))/2
         do 200 l1=0,lhsm(1)-lscu(1,m)
-          do 200 l2=0,lhsm(2)-lscu(2,m)
-            do 200 l3=0,lhsm(3)-lscu(3,m)
-              do 200 l4=0,lhsm(4)-lscu(4,m)
-                do 200 l5=0,lhsm(5)-lscu(5,m)
-                  do 200 l6=0,lhsm(6)-lscu(6,m)
-                    do 200 l7=0,lhsm(7)-lscu(7,m)
-                      do 200 l8=0,lhsm(8)-lscu(8,m)
+          do 201 l2=0,lhsm(2)-lscu(2,m)
+            do 202 l3=0,lhsm(3)-lscu(3,m)
+              do 203 l4=0,lhsm(4)-lscu(4,m)
+                do 204 l5=0,lhsm(5)-lscu(5,m)
+                  do 205 l6=0,lhsm(6)-lscu(6,m)
+                    do 206 l7=0,lhsm(7)-lscu(7,m)
+                      do 207 l8=0,lhsm(8)-lscu(8,m)
                         lpsum=l1+l2+l3+l4+l5+l6+l7+l8
                         if(lpsum.eq.npair) then
                           m1=l1*2+lscu(1,m)
@@ -293,7 +298,7 @@ c Avoid unused argument warnings
                           m6=l6*2+lscu(6,m)
                           m7=l7*2+lscu(7,m)
                           m8=l8*2+lscu(8,m)
-                     do 600 ldj=1,ndj
+                          do 600 ldj=1,ndj
                             if(m1.ne.locu(1,ldj)) goto 600
                             if(m2.ne.locu(2,ldj)) goto 600
                             if(m3.ne.locu(3,ldj)) goto 600
@@ -302,9 +307,9 @@ c Avoid unused argument warnings
                             if(m6.ne.locu(6,ldj)) goto 600
                             if(m7.ne.locu(7,ldj)) goto 600
                             if(m8.ne.locu(8,ldj)) goto 600
-                            goto 200
+                            goto 207
 600                       continue
-                     ndj=ndj+1
+                          ndj=ndj+1
                           locu(1,ndj)=m1
                           locu(2,ndj)=m2
                           locu(3,ndj)=m3
@@ -314,6 +319,13 @@ c Avoid unused argument warnings
                           locu(7,ndj)=m7
                           locu(8,ndj)=m8
                         endif
+207                   continue
+206                 continue
+205               continue
+204             continue
+203           continue
+202         continue
+201       continue
 200     continue
 300   continue
 
@@ -393,7 +405,6 @@ c irfno(i)=j no. i ref is no. j cfs in h0
       common/config/ndr,nwalk(0:max_orb)
       dimension iselcsf_occ(max_innorb,max_ref)
       dimension iwalktmp(max_orb)
-      logical log_exist
       icsfwlk=0
       ndimh0=nci_h0 !iw_sta(2,1)
       icount=0
@@ -404,7 +415,6 @@ c irfno(i)=j no. i ref is no. j cfs in h0
             iwalktmp(im)=nwalk(norb_all-im+1)
           enddo
 
-          log_exist=.false.
           ij=norb_dz
           do ii=1,norb_act
             ij=ij+1
@@ -424,7 +434,6 @@ c irfno(i)=j no. i ref is no. j cfs in h0
               goto 30
             endif
           enddo
-          log_exist=.true.
           icount=icount+1
           irfno(icount)=j
           ifrno(j)=icount
@@ -542,7 +551,7 @@ c...end of irfrst
 
       function min_itexcit(indjk)
       common/ref/ndj,ndjgrop,ndjmod
-      dimension indjk(4),itexcit(ndj)
+      dimension indjk(4)
 c      integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
 !    indexcit=  ir1 ir2 ir3 ir4 ir5 ir6 ir7 ir8 ......... ir15
 !--------------------------------------------------------
@@ -557,7 +566,6 @@ c      integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
 !          if(ixcit.eq.0) ixcit=3
             min_itexcit=min(min_itexcit,ixcit)
           if(min_itexcit.eq.0) return
-          itexcit(nj+lref)=ixcit
         enddo
         nj=nj+15
       enddo
@@ -569,7 +577,6 @@ c      integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
 !          if(ixcit.eq.0) ixcit=3
           min_itexcit=min(min_itexcit,ixcit)
           if(min_itexcit.eq.0) return
-          itexcit(nj+lref)=ixcit
         enddo
 !--------------------------------------------------------
       return
@@ -577,7 +584,7 @@ c      integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
 
       subroutine njexcit(idcc,indjk,locuk0,n_ref)
       common/ref/ndj,ndjgrop,ndjmod
-      dimension indjk(4),locuk0(n_ref),itexcit(n_ref)
+      dimension indjk(4),locuk0(n_ref)
       nj=0
       do ngrop=1,ndjgrop-1         !1-(ndjgrop-1) grop
         indexcit=indjk(ngrop)
@@ -588,7 +595,6 @@ c      integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
          if(idcc-locuk0(nj+lref).eq.1) ixcit=ixcit+1
          if(idcc-locuk0(nj+lref).eq.2) ixcit=ixcit+2
          if(ixcit.ge.3) ixcit=3
-         itexcit(nj+lref)=ixcit
           indjk(ngrop)=ishft(ixcit,2*(lref-1))+indjk(ngrop)
         enddo
         nj=nj+15
@@ -601,7 +607,6 @@ c      integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
          if(idcc-locuk0(nj+lref).eq.1) ixcit=ixcit+1
          if(idcc-locuk0(nj+lref).eq.2) ixcit=ixcit+2
          if(ixcit.ge.3) ixcit=3
-         itexcit(nj+lref)=ixcit
          indjk(ngrop)=ishft(ixcit,2*(lref-1))+indjk(ngrop)
        enddo
 

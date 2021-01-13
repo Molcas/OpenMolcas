@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine ThermoChem_(UserT,UserP,TotalM,TRotA,TRotB,TRotC,
-     &                 nUserPT,nsRot,iMult,nAtom,ipEVal,in_nFreq,
+     &                 nUserPT,nsRot,iMult,nAtom,EVal,in_nFreq,
      &                 lSlapaf)
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
@@ -17,7 +17,7 @@
 #include "WrkSpc.fh"
 #include "real.fh"
       Integer in_nFreq, nFreq, iMult, nUserPT, nsRot, nAtom
-      Real*8 UserT(64), UserP
+      Real*8 UserT(64), UserP, EVal(*)
       Real*8 TotalM, TRotA, TRotB, TRotC
       Real*8 Freq(MxAtom*3-6), VibT(MxAtom*3-6), dFreqI
       Real*8 Energy
@@ -55,7 +55,7 @@
       nTr2=nTr
       If(lSlapaf) nTr2=0
       Do i = 1, in_nFreq
-        dFreqI = Work(ipEVal+i-1)
+        dFreqI = EVal(i)
         If (dFreqI.GT.20.0d0) Then
           nFreq = nFreq + 1
           Freq(nFreq) = dFreqI
@@ -106,12 +106,11 @@ c Avoid unused argument warnings
 #include "real.fh"
 #include "constants.fh"
 #include "constants2.fh"
-      Real*8 Freq(nFreq), VibT(nFreq), T, P,Energy
+      Real*8 Freq(nFreq), T, P,Energy
 *
       r_k  = 1.3806580d-23 ! Boltzmann / SI
       r_J2au= 1.0D-3 / CONV_AU_TO_KJ_
       rk = r_k * r_J2au ! Bolzmann constant in a.u./ K
-      dNA  = CONST_AVOGADRO_ ! Avogadro
       dAU2kCal = 627.5095d0
       R_gas_kcal = 1.987216d-3
       q_e   = 1.0d0
@@ -207,7 +206,6 @@ c Avoid unused argument warnings
         dU_vib = 0.0d0
         dS_vib = 0.0d0
         eta = Freq(i)
-        VibT(i) = Freq(i)/rk
         If (eta.gt.Zero) Then
           ZPVE  = ZPVE  + eta/Two
           If (T.eq.Zero) Then

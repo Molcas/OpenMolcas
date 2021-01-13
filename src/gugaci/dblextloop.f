@@ -14,10 +14,8 @@
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
 
-      lptype=12
       isma=lsm_inn(lri)
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
       do iw0=1,mtype
@@ -102,11 +100,9 @@
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
 
-      lptype=8
       iwuplwei=jpad_upwei(jpad)
-      iwuprwei=jpad_upwei(jpadl)
       ilsegdownwei=iseg_downwei(ipae)
       irsegdownwei=iseg_downwei(ipael)
       isma=lsm_inn(lri)
@@ -197,9 +193,7 @@ c     :    .eq.1.and.jpad.eq.20.and.jpad.eq.jpadl) then
 c      write(6,*) "bbs_tmp"
 c      endif
 
-      lptype=11
       iwuplwei=jpad_upwei(jpad)
-      iwuprwei=jpad_upwei(jpadl)
       ilsegdownwei=iseg_downwei(ipae)
       irsegdownwei=iseg_downwei(ipael)
       do iw0=1,mtype
@@ -286,12 +280,10 @@ c      endif
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
 
-      lptype=6
       isma=lsm_inn(lri)
       iwuplwei=jpad_upwei(jpad)
-      iwuprwei=jpad_upwei(jpadl)
       ilsegdownwei=iseg_downwei(ipae)
       irsegdownwei=iseg_downwei(ipael)
       w0_sdplp=vplpnew_w0(1)
@@ -399,12 +391,10 @@ c      endif
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
 
-      lptype=7
       isma=lsm_inn(lri)
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
 
@@ -491,9 +481,7 @@ c      endif
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
 
-      lptype=10
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
       do iw0=1,mtype
@@ -580,9 +568,7 @@ c      endif
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
 
-      lptype=12
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
       do iw0=1,mtype
@@ -668,14 +654,11 @@ c      endif
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
       if(logic_grad) then
       do lrk=1,norb_dz
         if(lrp.eq.lrk) cycle
         if(lrq.eq.lrk) cycle
-        lptype=8
-        iwuplwei=jpad_upwei(jpad)
-        iwuprwei=jpad_upwei(jpadl)
         ilsegdownwei=iseg_downwei(ipae)
         irsegdownwei=iseg_downwei(ipael)
         isma=lsm_inn(lri)
@@ -705,9 +688,6 @@ c      endif
       enddo
 
       else
-        lptype=8
-        iwuplwei=jpad_upwei(jpad)
-        iwuprwei=jpad_upwei(jpadl)
         ilsegdownwei=iseg_downwei(ipae)
         irsegdownwei=iseg_downwei(ipael)
         isma=lsm_inn(lri)
@@ -744,15 +724,12 @@ c      endif
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
       if(logic_grad) then
         do lrk=1,norb_dz
           if(lrp.eq.lrk) cycle
           if(lrq.eq.lrk) cycle
-          lptype=9
           isma=lsm_inn(lri)
-          iwuplwei=jpad_upwei(jpadl)
-          iwuprwei=jpad_upwei(jpad)
           ilsegdownwei=iseg_downwei(ipael)
           irsegdownwei=iseg_downwei(ipae)
           w0_sdplp=vplp_w0(1)
@@ -781,10 +758,7 @@ c      endif
         enddo
 
       else
-        lptype=9
         isma=lsm_inn(lri)
-        iwuplwei=jpad_upwei(jpadl)
-        iwuprwei=jpad_upwei(jpad)
         ilsegdownwei=iseg_downwei(ipael)
         irsegdownwei=iseg_downwei(ipae)
         w0_sdplp=vplp_w0(1)
@@ -819,10 +793,9 @@ c      endif
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
 
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
       imlr=mul_tab(iml,imr)
@@ -926,12 +899,10 @@ c      endif
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
-      imlr=mul_tab(iml,imr)
       w0_plp=0.d0
       w1_plp=vplpnew_w1(1)
       if(logic_dh) w1_plp=vplp_w1(1)
@@ -1023,12 +994,10 @@ c      endif
 #include "pl_structure_h.fh"
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
-      imlr=mul_tab(iml,imr)
       w0_plp=0.d0
       w1_plp=vplpnew_w1(1)
       if(logic_dh) w1_plp=vplp_w1(1)
@@ -1121,7 +1090,6 @@ c      endif
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
       imlr=mul_tab(iml,imr)

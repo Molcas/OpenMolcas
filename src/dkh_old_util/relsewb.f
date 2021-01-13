@@ -23,7 +23,6 @@ C
      *EIG(N,N),SINV(N,N),REVT(N,N),AUX(N,N),OVE(N,N),
      *EW(N),E(N),AA(N),RR(N),TT(N)
 C
-*     Call qEnter('scfcli2')
 *
 *
       TOL=1.D-14
@@ -31,7 +30,8 @@ C
       CON2=PREA+PREA
       CON=1.D0/PREA
       DO 90 I=1,ISIZE
-90    BU(I)=S(I)
+      BU(I)=S(I)
+90    CONTINUE
       ii=0
       DO i=1,n
       DO j=1,i
@@ -95,7 +95,7 @@ C
 C
 C     CALCULATE RELATIVISTIC ENERGY AND MOMENTUM
 C
-      SR=sqrt(2.D0*EW(I))
+*     SR=sqrt(2.D0*EW(I))
       TT(I)=EW(I)
       IF (RATIO.GT.0.02D0) GOTO 11
       TV1=EW(I)
@@ -116,30 +116,38 @@ C---------------------------------------------------------------------
 C     CALCULATE REVERSE TRANSFORMATION
 C---------------------------------------------------------------------
       DO 3 I=1,N
-      DO 3 J=1,N
+      DO 30 J=1,N
       AUX(I,J)=0.D0
-      DO 3 K=I,N
-    3 AUX(I,J)=AUX(I,J)+SINV(I,K)*EIG(K,J)
+      DO 31 K=I,N
+      AUX(I,J)=AUX(I,J)+SINV(I,K)*EIG(K,J)
+   31 CONTINUE
+   30 CONTINUE
+    3 CONTINUE
       DO 6 I=1,N
-      DO 6 J=1,N
+      DO 60 J=1,N
       REVT(I,J)=0.D0
       DO 5 K=1,N
-    5 REVT(I,J)=REVT(I,J)+OVE(I,K)*AUX(K,J)
+      REVT(I,J)=REVT(I,J)+OVE(I,K)*AUX(K,J)
+    5 CONTINUE
+   60 CONTINUE
     6 CONTINUE
       IJ=0
       DO 8 I=1,N
-      DO 8 J=1,I
+      DO 80 J=1,I
       IJ=IJ+1
       H(IJ)=0.D0
       DO 7 K=1,N
-    7 H(IJ)=H(IJ)+REVT(I,K)*REVT(J,K)*EW(K)
+      H(IJ)=H(IJ)+REVT(I,K)*REVT(J,K)*EW(K)
+    7 CONTINUE
+   80 CONTINUE
     8 CONTINUE
 C
 C     CALCULATE KINEMATICAL FACTORS
 C
       DO 362 I=1,N
       AA(I)=sqrt((CON+E(I)) / (2.D0*E(I)))
-362   RR(I)=sqrt(CON)/(CON+E(I))
+      RR(I)=sqrt(CON)/(CON+E(I))
+362   CONTINUE
 C
 C     POTENTIAL
 C
@@ -219,7 +227,6 @@ culf
 C
 *     if(idbg.gt.0)WRITE (idbg,*) '--- EIGENVALUES OF H MATRIX ---'
 *     if(idbg.gt.0)WRITE (idbg,'(4D20.12)') EW
-*     Call qExit('scfcli2')
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_real(epsilon)

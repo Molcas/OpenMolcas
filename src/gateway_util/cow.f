@@ -12,14 +12,6 @@
 ************************************************************************
       SubRoutine CoW(Coor,CoF,W,nAtom,T)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             January '91                                              *
@@ -31,7 +23,6 @@
 *
       iRout = 140
       iPrint = nPrint(iRout)
-*     Call qEnter('CoW   ')
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In CoW: Coor',' ',Coor,3,nAtom)
@@ -57,6 +48,5 @@
          Call RecPrt(' In CoW: T',' ',[T],1,1)
       End If
 *
-*     Call qExit('CoW   ')
       Return
       End

@@ -60,7 +60,7 @@
       Real*8, Dimension(:), Allocatable:: RoM, Scratch
 *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-*define _DEBUG_
+*define _DEBUGPRINT_
 *
       Call mma_allocate(RoM,nOFS,Label='RoM')
       nSize=0
@@ -84,7 +84,6 @@
             nOF=nOrb(iSym)-nFro(iSym)
             nVrt=nOrb(iSym)-nOcc(iSym,iD)
             nOccmF=nOcc(iSym,iD)-nFro(iSym)
-            nOF2=nOF*nOF
             nOFnBa=nOF*nBas(iSym)
             iCMOpt=iCMOpt+nBas(iSym)*nFro(iSym)
 *
@@ -96,8 +95,8 @@
      &                     1.0d0,Scratch,nBas(iSym),
      &                           RoM(iSyBlpt),nOF,
      &                     0.0d0,CMO(iCMOpt,iD),nBas(iSym))
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
                Call NrmClc(Scratch,nBas(iSym)*nOrb(iSym),'RotMOs',
      &                     'Old CMOs')
                Call NrmClc(CMo(iCMOpt,iD),nBas(iSym)*nOrb(iSym),
@@ -122,8 +121,8 @@
       Call mma_deallocate(Scratch)
       Call mma_deallocate(RoM)
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call NrmClc(Delta,nDelta*nD,'RotMos','Delta')
       Call NrmClc(CMO,nCMO*nD,'RotMos','CMO')
       Call RecPrt('RotMOs: Delta',' ',Delta,nDelta,nD)

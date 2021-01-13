@@ -1,4 +1,6 @@
-#!/usr/bin/env perl
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 #***********************************************************************
 # This file is part of OpenMolcas.                                     *
 #                                                                      *
@@ -10,40 +12,37 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
 # Copyright (C) 2015, Steven Vancoillie                                *
+#               2020, Ignacio Fdez. Galván                             *
 #***********************************************************************
 #
 # ctags
 #
 # Simple wrapper to make ctags find all the source code
-# in Molcas.
+# in OpenMolcas.
 #
 # Steven Vancoillie, June 2015
+#
+# Ignacio Fdez. Galván, 2020: Translated from Perl to Python
 
-use File::Basename;
+import sys
+import os
+import subprocess as sp
 
-my $MOLCAS_DRIVER;
-$MOLCAS_DRIVER = $ENV{"MOLCAS_DRIVER"} or $MOLCAS_DRIVER = "molcas";
-my $DRIVER_base = basename($MOLCAS_DRIVER);
+thisfile = os.path.basename(__file__)
+MOLCAS_DRIVER = os.environ.get('MOLCAS_DRIVER', 'pymolcas')
+DRIVER_base = os.path.basename(MOLCAS_DRIVER)
 
-my $MOLCAS=$ENV{"MOLCAS"};
-die "MOLCAS not set, set it or use command \"$DRIVER_base ctags\"\n" unless ($MOLCAS);
-
-# check if ctags exists in our path
-my $ctags_exists = 0;
-foreach my $path (split /:/, $ENV{'PATH'}) {
-    if ( -f "$path/ctags" && -x _ ) {
-        $ctags_exists = 1;
-        last;
-    }
-}
-if ( not $ctags_exists) {
-    print "Error: ctags not available\n";
-    exit 1;
-}
+try:
+  MOLCAS = os.environ['MOLCAS']
+except KeyError:
+  sys.exit('MOLCAS not set, set it or use command {} {}'.format(DRIVER_base, thisfile))
 
 # run ctags command
-print "running ctags...";
-system("ctags -h .h.inc.fh --langmap=c:.c.h,fortran:.f.f90.inc.fh --fortran-kinds=+i+L -R @ARGV");
-print "done\n";
-
-exit 0;
+try:
+  print('running ctags...')
+  command = ['ctags', '-h', '.h.inc.fh', '--langmap=c:.c.h,fortran:.f.f90.F.F90.inc.fh', '--fortran-kinds=+i+L', '-R']
+  sp.call(command + sys.argv[1:])
+  print('done')
+except OSError:
+  print('Error: ctags not available')
+  sys.exit(1)

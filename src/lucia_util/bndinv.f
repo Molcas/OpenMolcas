@@ -21,7 +21,7 @@ C*      REAL*8 A,EL,D,SQRT,C,S,DETERP
         INDSNL=0
         IF(N.LT.2)GO TO 140
         ISL2=0
-        K000FX=2
+C       K000FX=2
         IF(ISL2.EQ.0)INDSNL=2
         IF(ISL2.EQ.1)INDSNL=1
 C       CALL SLITET(2,INDSNL)
@@ -113,17 +113,21 @@ C       PREMULTIPLY EL BY INVERTED TRIANGULAR MATRIX
         DO 118 J=1,N
         D=0.0D0
         DO 107 K=M,N
- 107    D=D+A(I,K)*EL(K,J)
+        D=D+A(I,K)*EL(K,J)
+ 107    CONTINUE
         EL(I,J)=D
  118    CONTINUE
- 120    M=M+1
+        M=M+1
+ 120    CONTINUE
 C       CALL OVERFL(K000FX)
 C       GO TO (140,123,123),K000FX
 C
 C       RECOPY EL TO A
         DO 124 I=1,N
-        DO 124 J=1,N
- 124    A(I,J)=EL(I,J)
+        DO 125 J=1,N
+        A(I,J)=EL(I,J)
+ 125    CONTINUE
+ 124    CONTINUE
         ITEST=0
 C126    IF(INDSNL.EQ.1)CALL SLITE(2)
  126    IF(INDSNL.EQ.1)ISL2=1

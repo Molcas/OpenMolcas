@@ -13,7 +13,7 @@
       SubRoutine r2elint_sp(rKappa,rMO1,rmo2,FockI,FockA,nF,
      &                   iDSym,sign,Fact,jspin,D,FA)
 *
-***********************************************************************
+************************************************************************
 *
 *     Constructs the one index transformed Fock-matrixes
 *     and (pj|kl).
@@ -22,17 +22,21 @@
 *     sign   : 1:real -1:complex
 *     jspin  : 0:singlet 1:triplet
 *
-***********************************************************************
+************************************************************************
 *
+      use Arrays, only: CMO, FIMO
       Implicit Real*8 (a-h,o-z)
 #include "Pointers.fh"
 #include "Input.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "spin.fh"
       Logical lFI,lFA,lMo
       Parameter ( One = 1.0d0 )
       Real*8 rKappa(nDens2),rMO1(nMba),rmo2(*),FockI(nDens2),
      &       FockA(nDens2),D(*),FA(*)
+      Real*8, Allocatable:: T1(:), Tmp2(:), T3(:), T4(:), DIL(:),
+     &                      DI(:), DIR(:), FI(:),
+     &                      FA2(:), DAR(:), DA(:), DAL(:)
 *
       irec(i,j)=i+nna*(j-1)
       ndens22=ndens2
@@ -46,43 +50,45 @@
        iBM=Max(iBM,nBAs(i))
       End Do
       imem=nDens22
-      Call GetMem('Temp1','ALLO','REAL',ipT1,imem)
-      Call GetMem('Temp2','ALLO','REAL',ipTmp2,nDens22)
-      Call GetMem('Temp3','ALLO','REAL',ipT3,nDens22)
-      Call GetMem('Temp4','ALLO','REAL',ipT4,nDens22)
-      Call GetMem('DIL  ','ALLO','REAL',ipDIL,nDens2)
-      Call GetMem('DI   ','ALLO','REAL',ipDI,nCMO)
-      Call GetMem('DIR  ','ALLO','REAL',ipDIR,nDens2)
-      Call GetMem('FociI','ALLO','REAL',ipFI,ndens2)
-      call dcopy_(ndens2,[0.0d0],0,FockI,1)
-      call dcopy_(ndens2,[0.0d0],0,Work(ipFI),1)
-C     Call GetMem('FockI','CHECK','REAL',ipFI,ndens2)
-      call dcopy_(ndens2,[0.0d0],0,FockA,1)
-      call dcopy_(ndens2,[0.0d0],0,Work(ipDir),1)
-      call dcopy_(ndens2,[0.0d0],0,Work(ipDil),1)
-C     Call GetMem('FockI','CHECK','REAL',ipFI,ndens2)
+      Call mma_allocate(T1,imem,Label='T1')
+      Call mma_allocate(Tmp2,nDens22,Label='Tmp2')
+      Call mma_allocate(T3,nDens22,Label='T3')
+      Call mma_allocate(T4,nDens22,Label='T4')
+      Call mma_allocate(DIL,nDens2,Label='DIL')
+      Call mma_allocate(DI,nCMO,Label='DI')
+      Call mma_allocate(DIR,nDens2,Label='DIR')
+      Call mma_allocate(FI,ndens2,Label='FI')
+
+      FockI(:)=0.0d0
+      FockA(:)=0.0d0
+      FI(:)  =0.0D0
+      DIL(:)  =0.0D0
+      DIR(:)  =0.0D0
+
       lFI=.true.
       lFa=.false.
       lMo=.false.
       If (iMethod.eq.2) Then
-         Call GetMem('DAL  ','ALLO','REAL',ipDAL,nDens2)
-         Call GetMem('DAR  ','ALLO','REAL',ipDAR,nDens2)
-         Call GetMem('DA   ','ALLO','REAL',ipDA,nCMO)
-         Call GetMem('FockA','ALLO','REAL',ipFA,nDens2)
+         Call mma_allocate(DAL,nDens2,Label='DAL')
+         Call mma_allocate(DAR,nDens2,Label='DAR')
+         Call mma_allocate(DA,nCMO,Label='DA')
+         Call mma_allocate(FA2,nDens2,Label='FA2')
          lFa=.true.
          lMo=.true.
       Else
-         ipDAL = ip_Dummy
-         ipDAR = ip_Dummy
-         ipDA  = ip_Dummy
-         ipFA  = ip_Dummy
+         Call mma_allocate(DAL,1,Label='DAL')
+         Call mma_allocate(DAR,1,Label='DAR')
+         Call mma_allocate(DA,1,Label='DA')
+         Call mma_allocate(FA2,1,Label='FA2')
       End If
+
       Do iS=1,nSym
-      Do iB=1,nIsh(iS)
-      ip=ipCM(iS)+(ib-1)*nBas(is)+ib-1
-      Work(ipDI+ip-1)=2.0d0
+         Do iB=1,nIsh(iS)
+            ip=ipCM(iS)+(ib-1)*nBas(is)+ib-1
+            DI(ip)=2.0d0
+         End Do
       End Do
-      End Do
+
       If (iMethod.eq.2) Then
        Do iS=1,nSym
         Do iB=1,nAsh(iS)
@@ -90,32 +96,28 @@ C     Call GetMem('FockI','CHECK','REAL',ipFI,ndens2)
           ip=ipCM(iS)+ib+nIsh(is)+(jB+nIsh(is)-1)*nBas(is)-1
           iA=nA(is)+ib
           jA=nA(is)+jb
-          ip2=irec(iA,jA)
-          Work(ipDA+ip-1)=D(ip2)
+            DA(ip)=D(irec(iA,jA))
          End Do
         End Do
        End Do
       End If
 
-*     iiii=ipDA
-*     ipDA=ipDI
-*     ipFAMO=ipFIMO
 *
 *     Construct {kappa,(ij|kl)} and the fock matrix contribution
 *     from one index tranformation of contracted indexes
 *
       FacR=Fact
       Call Read2_2(rmo1,rmo2,
-     &           Work(ipFI),Work(ipFA),
-     &           Work(ipT1),imem,Work(ipTmp2),
-     &           Work(ipT3),Work(ipT4),
-     &           Work(ipDIR),Work(ipDIL),
-     &           Work(ipDI),
-     &           Work(ipDAR),Work(ipDAL),
-     &           Work(ipDA),
+     &           FI,FA2,
+     &           T1,imem,Tmp2,
+     &           T3,T4,
+     &           DIR,DIL,
+     &           DI,
+     &           DAR,DAL,
+     &           DA,
      &           rkappa,idsym,Sign,Facr,jSpin,
      &           lFA,lfi,lMo,
-     &           Work(ipCMO))
+     &           CMO)
 *
 *      Calculate contribution from uncontracted indexes.
 *
@@ -124,22 +126,22 @@ C     Call GetMem('FockI','CHECK','REAL',ipFI,ndens2)
        If (nBas(iS)*nBas(jS).ne.0) Then
        Call DGEMM_('T','N',
      &             nBas(iS),nBas(jS),nBas(iS),
-     &             1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
-     &             Work(ipFI-1+ipMat(iS,jS)),nBas(iS),
+     &             1.0d0,CMO(ipCM(iS)),nBas(iS),
+     &             FI(ipMat(iS,jS)),nBas(iS),
      &             0.0d0,FockI(ipMat(iS,jS)),nBas(iS))
        Call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(iS),Sign*Facr,
-     &            Work(ipFIMO+ipCM(iS)-1),nBas(is),
+     &            FIMO(ipCM(iS)),nBas(is),
      &            rkappa(ipMat(iS,jS)),nBas(iS),
      &            One,FockI(ipMat(iS,jS)),nBas(iS))
        Call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(jS),Facr,
      &            rkappa(ipMat(iS,jS)),nBas(is),
-     &            Work(ipFIMO+ipCM(jS)-1),nBas(jS),
+     &            FIMO(ipCM(jS)),nBas(jS),
      &            One,FockI(ipMat(iS,jS)),nBas(is))
        If (iMethod.eq.2) Then
          Call DGEMM_('T','N',
      &               nBas(iS),nBas(jS),nBas(iS),
-     &               1.0d0,Work(ipCMO+ipCM(iS)-1),nBas(iS),
-     &               Work(ipFA-1+ipMat(iS,jS)),nBas(iS),
+     &               1.0d0,CMO(ipCM(iS)),nBas(iS),
+     &               FA2(ipMat(iS,jS)),nBas(iS),
      &               0.0d0,FockA(ipMat(iS,jS)),nBas(iS))
          Call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(iS),Sign*Facr,
      &            FA(ipCM(iS)),nBas(is),
@@ -152,24 +154,23 @@ C     Call GetMem('FockI','CHECK','REAL',ipFI,ndens2)
        End If
        End If
       End Do
-      If (iMethod.eq.iCASSCF) Then
-*       Call Dyax(nmba,1.0d0,Work(ipMT1),1,rmo,1)
-*       Call DaXpY_(nmba,1.0d0,Work(ipMT2),1,rmo,1)
-        Call GetMem('FockA','FREE','REAL',ipFA,nF)
-        Call GetMem('DAR  ','FREE','REAL',ipDAR,nDens2)
-        Call GetMem('DA   ','FREE','REAL',ipDA,nDens2)
-        Call GetMem('DAL  ','FREE','REAL',ipDAL,nDens2)
-      End If
-      Call GetMem('FociI','Free','REAL',ipFI,nF)
-      Call GetMem('DIR  ','FREE','REAL',ipDIR,nDens2)
-      Call GetMem('DIL  ','FREE','REAL',ipDIL,nDens22)
-      Call GetMem('DI   ','FREE','REAL',ipDI,nDens2)
-      Call GetMem('Temp4','FREE','REAL',ipT4,nDens22)
-      Call GetMem('Temp3','FREE','REAL',ipT3,nDens22)
-      Call GetMem('Temp2','FREE','REAL',ipTmp2,nDens22)
-      Call GetMem('Temp1','FREE','REAL',ipT1,imem)
+
+      Call mma_deallocate(FA2)
+      Call mma_deallocate(DA)
+      Call mma_deallocate(DAR)
+      Call mma_deallocate(DAL)
+      Call mma_deallocate(FI)
+      Call mma_deallocate(DIR)
+      Call mma_deallocate(DI)
+      Call mma_deallocate(DIL)
+      Call mma_deallocate(T4)
+      Call mma_deallocate(T3)
+      Call mma_deallocate(Tmp2)
+      Call mma_deallocate(T1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Return
+c Avoid unused argument warnings
+      IF (.FALSE.) CALL Unused_integer(nF)
       End

@@ -17,12 +17,6 @@
 *                                                                      *
 * Object:  Lyp Functional(Formula taken from Molpro Manual)            *
 *                                                                      *
-* Called from:Do_batch                                                 *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author: Per-AAke Malmquist,Department of Theoretical Chemistry  *
 *              University of LUnd, SWEDEN                              *
 *              D. Ajitha , Department of Theoretical Chemistry         *
@@ -35,7 +29,6 @@
 #include "nq_index.fh"
       Real*8 dF_dRho(ndF_dRho,mGrid),Rho(nRho,mGrid),F_xc(mGrid)
 *
-      dimension ec(0:4)
       data Cfconst / 2.8712340001881918D0 /
       data aconst,bconst,cconst,dconst
      &        /0.04918d0,0.132d0,0.2533d0,0.349d0/
@@ -46,7 +39,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QEnter('LYP')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -148,17 +140,11 @@ C     Call QEnter('LYP')
       dec34dsa=dec3dsa+dec4dsa
       dec34dsb=dec3dsb+dec4dsb
 
-      ec(0)=ec1+ec2+ec3+ec4
-      ec(1)=ec1
-      ec(2)=ec2
-      ec(3)=ec3
-      ec(4)=ec4
-
       Functional= ec1+ec2+ec3+ec4
       F_xc(iGrid)=F_xc(iGrid)+functional
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 *      dF/dRho
        dF_dRho(ipR,iGrid)=dF_dRho(ipR,iGrid)
      &                   +Coeff*(dec1dra+dec2dra+dec3dra+dec4dra)
@@ -170,14 +156,14 @@ C     Call QEnter('LYP')
 101   Continue
       End Do
 
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     iSpin=/= 1
       Else
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
       Do iGrid = 1, mGrid
       rhoa=Max(Rho_min,Rho(ipRa,iGrid))
@@ -269,17 +255,11 @@ C     Call QEnter('LYP')
       dec34dsa=dec3dsa+dec4dsa
       dec34dsb=dec3dsb+dec4dsb
 
-      ec(0)=ec1+ec2+ec3+ec4
-      ec(1)=ec1
-      ec(2)=ec2
-      ec(3)=ec3
-      ec(4)=ec4
-
       Functional= ec1+ec2+ec3+ec4
       F_xc(iGrid)=F_xc(iGrid)+functional
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 *       dF/dRhoa, dF/dRhob
         dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)
      &                   +Coeff*(dec1dra+dec2dra+dec3dra+dec4dra)
@@ -295,6 +275,5 @@ C     Call QEnter('LYP')
       End Do
       Endif
 *
-C     Call QExit('LYP')
       Return
       End

@@ -28,14 +28,12 @@ C     THE TWO-ELECTRON INTEGRAL LIST
 C
       NTUT=0
       DO 100 NT=1,NAC
-      DO 100 NU=1,NT
+      DO 101 NU=1,NT
        NT_REO = IREOST(NT)
        NU_REO = IREOST(NU)
 *
        NTU_REO = NAC*(NT_REO-1) + NU_REO
        NUT_REO = NAC*(NU_REO-1) + NT_REO
-       NTU=NAC*(NT-1)+NU
-       NUT=NAC*(NU-1)+NT
        NTUT=NTUT+1
        NTUK=(NTUT**2+NTUT)/2
        RK(NTU_REO)=WORK(LTUVX+NTUK-1)
@@ -45,6 +43,7 @@ C
        NTUJ=(NTT**2-NTT)/2+(NU**2+NU)/2
        RJ(NTU_REO)=WORK(LTUVX+NTUJ-1)
        RJ(NUT_REO)=WORK(LTUVX+NTUJ-1)
+101   CONTINUE
 100   CONTINUE
 C
 C     EXIT

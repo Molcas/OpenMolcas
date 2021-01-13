@@ -21,11 +21,6 @@
       Dimension iXStruct (nXSize)
 #include "WrkSpc.fh"
 
-
-
-      CALL QENTER(ROUTINE)
-
-      nSym  =iSGStruct(1)
       lISm  =iSGStruct(3)
       lNOCSF=iCIStruct(6)
       lIOCSF=iCIStruct(7)
@@ -48,6 +43,5 @@
      &             IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
      &             WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
 
-      CALL QEXIT(ROUTINE)
       return
       end

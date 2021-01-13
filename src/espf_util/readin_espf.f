@@ -12,10 +12,12 @@
      &                       Forces,Show_espf,ipIsMM,StandAlone,iGrdTyp,
      &                       DoTinker,DoGromacs,DynExtPot,ipMltp,natMM,
      &                       lMorok,DoDirect,ipGradCl,EnergyCl)
+      use external_centers
       Implicit Real*8 (a-h,o-z)
 *
 #include "espf.fh"
 #include "opt_mmo.fh"
+#include "stdalloc.fh"
 *
 #include "print.fh"
       Character*180 Key,Line,PotFile,UpKey
@@ -29,7 +31,6 @@
       Character*180 Get_Ln
       External Get_Ln
 *
-      Call qEnter('ReadIn')
 *
 * If some keywords are not given, what are the defauts ?
 * 3 cases:
@@ -213,21 +214,17 @@
             Call Quit_OnUserError()
          Else If (nChg.gt.0) Then
             Convert = (Index(UpKey,'ANGSTROM').ne.0)
-            Call GetMem('PtChg','ALLO','REAL',ipPC,nChg*7)
+            nXF=nChg
+            nData_XF=7
+            call mma_allocate(XF,nData_XF,nXF,Label='XF')
             Do iChg = 1, nChg
                Key = Get_Ln(LuSpool)
-               iCurr = ipPC+(iChg-1)*7
-               Call Get_F(1,Work(iCurr),7)
+               Call Get_F(1,XF(1,iChg),7)
                If (Convert) Then
-                  Work(iCurr  ) = Work(iCurr  )/Angstrom
-                  Work(iCurr+1) = Work(iCurr+1)/Angstrom
-                  Work(iCurr+2) = Work(iCurr+2)/Angstrom
-                  Work(iCurr+4) = Work(iCurr+4)*Angstrom
-                  Work(iCurr+5) = Work(iCurr+5)*Angstrom
-                  Work(iCurr+6) = Work(iCurr+6)*Angstrom
+                  XF(1:3,iChg) = XF(1:3,iChg)/Angstrom
+                  XF(5:7,iChg) = XF(5:7,iChg)/Angstrom
                End If
             End Do
-            ESelf = SelfEn(nChg,ipPC)
             Convert = .False.
          Else
             Do iAt = 1, natom
@@ -432,25 +429,20 @@ ctmp
             Call Quit_OnUserError()
          Else If (nChg.gt.0) Then
             Call Get_I1(2,nOrd_ext)
-            iShift = 4+3*nOrd_ext
             Convert = (Index(UpKey,'ANGSTROM').ne.0)
-            Call GetMem('PtChg','ALLO','REAL',ipPC,nChg*iShift)
+            nData_XF=4+3*nOrd_ext
+            nXF=nChg
+            call mma_allocate(XF,nData_XF,nXF,Label='XF')
             Do iChg = 1, nChg
                Key = Get_Ln(LuSpool)
-               iCurr = ipPC+(iChg-1)*iShift
-               Call Get_F(1,Work(iCurr),iShift)
+               Call Get_F(1,XF(1,iChg),iShift)
                If (Convert) Then
-                  Work(iCurr  ) = Work(iCurr  )/Angstrom
-                  Work(iCurr+1) = Work(iCurr+1)/Angstrom
-                  Work(iCurr+2) = Work(iCurr+2)/Angstrom
+                  XF(1:3,iChg) = XF(1:3,iChg)/Angstrom
                   If (nOrd_ext .ne. 0) Then
-                     Work(iCurr+4) = Work(iCurr+4)*Angstrom
-                     Work(iCurr+5) = Work(iCurr+5)*Angstrom
-                     Work(iCurr+6) = Work(iCurr+6)*Angstrom
+                     XF(5:7,iChg) = XF(5:7,iChg)*Angstrom
                   End If
                End If
             End Do
-            If (.not.(DoTinker.Or.DoGromacs)) ESelf = SelfEn(nChg,ipPC)
             Convert = .False.
          Else
             Do iAt = 1, natom
@@ -474,23 +466,21 @@ ctmp
 * b) external potential calculated from point charges and dipoles
 *
       If (nChg .gt. 0 .and. DoDirect) Then
-         lXF = .True.
          nXF = nChg
          nOrd_XF = nOrd_ext
          iXPolType = 0
          nXMolnr = 0
-         ipXF = ipPC
-         Call GetMem('PtChg','FREE','REAL',ipPC,nChg*(4+3*nOrd_ext))
+         Call mma_deallocate(XF)
       Else If (nChg .gt. 0) Then
          Do iAt = 1, natom
             Do iChg = 1, nChg
-               dx = Work(ipCord+(iAt-1)*3  )-Work(ipPC+(iChg-1)*7  )
-               dy = Work(ipCord+(iAt-1)*3+1)-Work(ipPC+(iChg-1)*7+1)
-               dz = Work(ipCord+(iAt-1)*3+2)-Work(ipPC+(iChg-1)*7+2)
-               qChg = Work(ipPC+(iChg-1)*7+3)
-               dpxChg = Work(ipPC+(iChg-1)*7+4)
-               dpyChg = Work(ipPC+(iChg-1)*7+5)
-               dpzChg = Work(ipPC+(iChg-1)*7+6)
+               dx = Work(ipCord+(iAt-1)*3  )-XF(1,iChg)
+               dy = Work(ipCord+(iAt-1)*3+1)-XF(2,iChg)
+               dz = Work(ipCord+(iAt-1)*3+2)-XF(3,iChg)
+               qChg = XF(4,iChg)
+               dpxChg = XF(5,iChg)
+               dpyChg = XF(6,iChg)
+               dpzChg = XF(7,iChg)
                rAtChg = sqrt(dx*dx+dy*dy+dz*dz)
 
                rAC2 = rAtChg * rAtChg
@@ -523,21 +513,21 @@ ctmp
 *      Gradient G / xx
                Work(iStart+4) = Work(iStart+4)
      &                 + qChg*(three*dx*dx-rAC2)/rAC5
-     &                 - (dpxChg*(fift*dx*dx*dx-rnine*dx*rAC2)
+     &                 - (dpxChg*(fift*dx*dx*dx-nine*dx*rAC2)
      &                  + dpyChg*(fift*dx*dx*dy-three*dy*rAC2)
      &                  + dpzChg*(fift*dx*dx*dz-three*dz*rAC2))/rAC7
 *      Gradient G / yy
                Work(iStart+5) = Work(iStart+5)
      &                 + qChg*(three*dy*dy-rAC2)/rAC5
      &                 - (dpxChg*(fift*dy*dy*dx-three*dx*rAC2)
-     &                  + dpyChg*(fift*dy*dy*dy-rnine*dy*rAC2)
+     &                  + dpyChg*(fift*dy*dy*dy-nine*dy*rAC2)
      &                  + dpzChg*(fift*dy*dy*dz-three*dz*rAC2))/rAC7
 *      Gradient G / zz
                Work(iStart+6) = Work(iStart+6)
      &                 + qChg*(three*dz*dz-rAC2)/rAC5
      &                 - (dpxChg*(fift*dz*dz*dx-three*dx*rAC2)
      &                  + dpyChg*(fift*dz*dz*dy-three*dy*rAC2)
-     &                  + dpzChg*(fift*dz*dz*dz-rnine*dz*rAC2))/rAC7
+     &                  + dpzChg*(fift*dz*dz*dz-nine*dz*rAC2))/rAC7
 *      Gradient G / xy
                Work(iStart+7) = Work(iStart+7)
      &                 + qChg*(three*dx*dy)/rAC5
@@ -558,7 +548,7 @@ ctmp
      &                  + dpzChg*(fift*dy*dz*dz-three*dz*rAC2))/rAC7
             End Do
          End Do
-         Call GetMem('PtChg','FREE','REAL',ipPC,nChg*7)
+         Call mma_deallocate(XF)
       End If
 *
 * Check the compatibility between old and new keywords
@@ -622,7 +612,6 @@ ctmp
       End Do
       Close(IPotFl)
       Write (6,*)
-      Call qExit('ReadIn')
 *
 *----------------------------------------------------------------------*
 *     Exit                                                             *

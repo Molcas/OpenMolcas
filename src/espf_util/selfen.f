@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Function SelfEn (nChg,ipPC)
+      Function SelfEn (nChg)
+      Use external_centers
       Implicit Real*8 (A-H,O-Z)
 *
 * Compute the self interaction energy of input point charges
@@ -17,22 +18,21 @@
 *
       Real*8 SelfEn
 *
-      Call qEnter('selfen')
       iPL = iPL_espf()
       E = Zero
       Do iChg = 2, nChg
-         Qi   = Work(ipPC+(iChg-1)*7+3)
-         XMui = Work(ipPC+(iChg-1)*7+4)
-         YMui = Work(ipPC+(iChg-1)*7+5)
-         ZMui = Work(ipPC+(iChg-1)*7+6)
+         Qi   = XF(4,iChg)
+         XMui = XF(5,iChg)
+         YMui = XF(6,iChg)
+         ZMui = XF(7,iChg)
          Do jChg = 1, iChg-1
-            X = Work(ipPC+(iChg-1)*7  ) - Work(ipPC+(jChg-1)*7  )
-            Y = Work(ipPC+(iChg-1)*7+1) - Work(ipPC+(jChg-1)*7+1)
-            Z = Work(ipPC+(iChg-1)*7+2) - Work(ipPC+(jChg-1)*7+2)
-            Qj   = Work(ipPC+(jChg-1)*7+3)
-            XMuj = Work(ipPC+(jChg-1)*7+4)
-            YMuj = Work(ipPC+(jChg-1)*7+5)
-            ZMuj = Work(ipPC+(jChg-1)*7+6)
+            X = XF(1,iChg) - XF(1,jChg)
+            Y = XF(2,iChg) - XF(2,jChg)
+            Z = XF(3,iChg) - XF(3,jChg)
+            Qj   = XF(4,jChg)
+            XMuj = XF(5,jChg)
+            YMuj = XF(6,jChg)
+            ZMuj = XF(7,jChg)
             R2 = X*X+Y*Y+Z*Z
             R = sqrt(R2)
             R3 = R*R2
@@ -57,6 +57,5 @@
       SelfEn = E
       If (nChg.gt.0.and.iPL.ge.2) Write(6,'(A,F16.10)')
      &    ' (For info only) Self Energy of the charges =',SelfEn
-      Call qExit('selfen')
       Return
       End

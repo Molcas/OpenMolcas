@@ -97,7 +97,6 @@ C
       ISTBM=0
       IX1=0
       ISTZ=0
-      ioffQmat=0
       E2act=0.0d0
 
       DO ISYM=1,NSYM
@@ -176,7 +175,6 @@ c --- Q(m,v) = C(a,m) * Q(a,v)
      &               0.0d0,Q(1),nOrb(iSym))
         Else
           Write(LF,*)'FOCK: illegal Cholesky parameter ALGO= ',ALGO
-          call qtrace()
           call abend()
         EndIf
 
@@ -348,7 +346,7 @@ C
 *********************************************************************************
 *     Calculate Fock matrix for occupied orbitals.
 *********************************************************************************
-      If (iFinal.eq.1) CALL FOCKOC(Q,F,CMO)
+      If (iFinal.eq.1) CALL FOCKOC(F,CMO)
 C
       If(ipFint.ne.ip_Dummy) Then
         Call GetMem('TmpPUVX','Free','Real',ipFint,nFint)

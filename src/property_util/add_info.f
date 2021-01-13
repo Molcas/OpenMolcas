@@ -26,10 +26,14 @@
 *                                                                      *
 ************************************************************************
 *
+      Use Para_Info, Only: MyRank
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par, King
+#endif
       Character*(*) Label
       Character*120 Line
       Real*8 Array(nArray)
-      Character*32 File_Name
+c     Character*32 File_Name
 c     Logical Exist
       Character*30 Junk
       Character*8 Toll
@@ -46,7 +50,6 @@ c     Logical is_error
       Character*13 GeoDataF
       Integer iGeoData,iuGeoData
       Integer nIntCoord,iDum(1)
-#include "para_info.fh"
 *------------------------------------------------
 c If this is a fake parallel run (e.g. inside the parallel loop of CASPT2_gradient,
 c then do not add info - just return immidiately
@@ -55,11 +58,10 @@ c then do not add info - just return immidiately
 #endif
 c Number - is a number of exported variables from an array.
       Number=20
-      File_Name='molcas_info'
+c     File_Name='molcas_info'
       if(iToll.eq.0) iToll=8
 *
-*     Call qEnter('Add_Info')
-      Lu_Info=99
+c     Lu_Info=99
 *
 *---------------------------------------------------------------------*
 *     Check the file status                                           *
@@ -258,6 +260,5 @@ c      write (Lu_Info,'(a,a,a,a)') '#> ', Line(1:nlabel),'/',Junk(1:ik)
 *----------------------------------------------------------------------*
 *     exit                                                             *
 *----------------------------------------------------------------------*
-*     Call qExit('Add_Info')
       Return
       End

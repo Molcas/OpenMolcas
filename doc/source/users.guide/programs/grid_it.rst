@@ -7,10 +7,6 @@
 :program:`GRID_IT`
 ==================
 
-.. warning::
-
-   This program requires a submodule
-
 .. only:: html
 
   .. contents::
@@ -239,7 +235,7 @@ Optional general keywords
               %%Tested: NONE
               <HELP>
               Direct specification of orbitals to show. Follows by
-              number of calculated grids, and pairs of integers - symmetry
+              number of calculated grids, and pairs of integers -- symmetry
               and orbital within this symmetry.
               </HELP>
               </KEYWORD>
@@ -304,7 +300,7 @@ Optional general keywords
   Followed by 2 numbers, to limit the interval of
   orbitals by one-electron energies
 
-  .. xmldoc:: <KEYWORD MODULE="GRID_IT" NAME="ERANGE" APPEAR="eRange" KIND="REALS" SIZE="2" MIN_VALUE="0" MAX_VALUE="2" LEVEL="ADVANCED" EXCLUSIVE="ORANGE,ALL">
+  .. xmldoc:: <KEYWORD MODULE="GRID_IT" NAME="ERANGE" APPEAR="eRange" KIND="REALS" SIZE="2" LEVEL="ADVANCED" EXCLUSIVE="ORANGE,ALL">
               %%Keyword: ERANge <advanced>
               %%Tested: NONE
               <HELP>
@@ -330,11 +326,11 @@ Optional general keywords
   .. :kword:`NODEnsity`
        Keyword to suppress calculation of grid for density
 
-       .. .. xmldoc:: %<KEYWORD MODULE="GRID_IT" NAME="NODENSITY" APPEAR="No Density" KIND="SINGLE" LEVEL="ADVANCED" EXCLUSIVE="TOTAL">
-                      %Keyword: NoDensity <advanced>
-                      %<HELP>
-                      %+ Keyword to suppress calculation of grid for density
-                      %</HELP>
+       .. .. xmldoc:: <KEYWORD MODULE="GRID_IT" NAME="NODENSITY" APPEAR="No Density" KIND="SINGLE" LEVEL="ADVANCED" EXCLUSIVE="TOTAL">
+                      %%Keyword: NoDensity <advanced>
+                      <HELP>
+                      Keyword to suppress calculation of grid for density
+                      </HELP>
                       </KEYWORD>
 
 :kword:`TOTAl`
@@ -419,7 +415,7 @@ Optional general keywords
               %%Tested: NONE
               <HELP>
               Keyword to set manually coordinates of a grid. Followed by number of
-              Cartesian coordinates, and on next lines - x y z coordinates of
+              Cartesian coordinates, and on next lines -- x y z coordinates of
               a grid (in a.u.)
               </HELP>
               </KEYWORD>

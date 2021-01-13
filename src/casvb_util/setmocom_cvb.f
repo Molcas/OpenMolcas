@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine setmocom_cvb()
       implicit real*8 (a-h,o-z)
@@ -33,9 +34,10 @@
 
       nact_mo=0
       do 200 i=1,8
-      do 200 j=1,nash_j(i)
+      do 201 j=1,nash_j(i)
       nact_mo=nact_mo+1
       iact_mo(nact_mo)=nbasf_mo(i)+nfro_j(i)+nish_j(i)+j
+201   continue
 200   continue
 
       if(debug)then

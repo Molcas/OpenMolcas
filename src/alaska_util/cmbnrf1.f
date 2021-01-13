@@ -12,25 +12,21 @@
 ************************************************************************
       SubRoutine CmbnRF1(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,Final,nComp,
      &                   Fact,Temp,Alpha,Beta,Grad,nGrad,DAO,IfGrad,
-     &                   IndGrd,iStab,jStab,nIrrep,kOp,iChBas,MxFnc,EF)
+     &                   IndGrd,iStab,jStab,kOp,EF)
 ************************************************************************
 *                                                                      *
 * Object: to compute gradient integrals for SC Reaction Fields         *
-*                                                                      *
-* Called from: RFGrd                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             Modified for reaction field calculations July '92        *
 *             Modified for gradient calculations May '95               *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
-      Integer IndGrd(3,2), kOp(2), iChBas(MxFnc)
+      Integer IndGrd(3,2), kOp(2)
       Logical IfGrad(3,2)
       Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp,6),
      &       Zeta(nZeta), rKappa(nZeta), Fact(nZeta), Temp(nZeta),
@@ -46,8 +42,6 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-*     Call qEnter('CmbnRF1')
-*     Call GetMem(' Enter CmbnRF1','LIST','REAL',iDum,iDum)
       If (iPrint.ge.99) Then
          Call RecPrt(' In CmbnRF1: EF',' ',EF,nComp,1)
       End If
@@ -62,12 +56,12 @@
 *
       Do 10 ixa = 0, la
          iyaMax=la-ixa
-      Do 10 ixb = 0, lb
+      Do 11 ixb = 0, lb
          iybMax=lb-ixb
          Do 20 iya = 0, iyaMax
             iza = la-ixa-iya
             ipa= Ind(la,ixa,iza)
-         Do 20 iyb = 0, iybMax
+         Do 21 iyb = 0, iybMax
             izb = lb-ixb-iyb
             ipb= Ind(lb,ixb,izb)
 *
@@ -264,7 +258,9 @@
                End Do
             End If
 *
+ 21      Continue
  20      Continue
+ 11   Continue
  10   Continue
       If (iPrint.ge.99) Then
          Call RecPrt('In CmbnRF1: DAO',' ',DAO,
@@ -306,7 +302,5 @@
          End Do     ! End loop over centers, iCn
       End Do        ! End loop over EF components, iEF
 *
-*     Call GetMem(' Exit CmbnRF1','LIST','REAL',iDum,iDum)
-*     Call qExit('CmbnRF1')
       Return
       End

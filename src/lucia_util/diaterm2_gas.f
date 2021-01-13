@@ -47,9 +47,6 @@
 *
       DIMENSION VEC(*)
 *
-      CALL QENTER('DIATR')
-      IDUM=0
-*
       NTEST = 000
       NTEST = MAX(NTEST,IPRDIA)
 *
@@ -130,7 +127,6 @@ C    &                  IBLOCK,NBLOCK,ITASK,FACTOR,I0CHK,I0BLK)
       CALL GETMEM('KLBSTR','FREE','INTE',KLBSTR,MXNSTR*NAEL)
       CALL GETMEM('KLRJKA','FREE','REAL',KLRJKA,MAXA)
 *
-      CALL QEXIT('DIATR')
 *
       IF(NTEST.GE.100) THEN
         WRITE(6,*)  ' output vector from DIATRM '

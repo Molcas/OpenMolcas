@@ -5,17 +5,17 @@
 * Keywords tested: SUBS, TINT and IIOR
 * Responsible person: Roland Lindh (180210)
 * Comments: This test that the exact operator is computed correctly in the case
-*           that the SFS Hamiltonian is not diagonal or if the states are    
+*           that the SFS Hamiltonian is not diagonal or if the states are
 *           reordered after diagonalization.
 *-------------------------------------------------------------------------------
 >>> COPY C4H6.xyz .
 >>> COPY init.RasOrb .
+>>> EXPORT MOLCAS_NEW_DEFAULTS=YES
 
 &GATEWAY
   Coord = C4H6.xyz
   Basis = ANO-RCC-VDZP
   Group = NoSym
-  RICD
 
 &SEWARD
 
@@ -28,7 +28,6 @@
   Multistate = all
   NoMultistate
   Imaginary = 0.1
-  IPEA = 0.0
 
 > Copy $Project.JobMix JOB001
 
@@ -39,8 +38,12 @@
   IIOR = 11
   SUBS = 1
   SpinOrbit
-  XVIN ; XVES ; XVSO
-  MEIN ; MEES ; MESO
+  XVIN
+  XVES
+  XVSO
+  MEIN
+  MEES
+  MESO
 
 >>>> FILE C4H6.xyz
   10

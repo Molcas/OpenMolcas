@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine gr_svb1_cvb(civecp,civbs,civb,dvbdet,
      >   grad,grad1,grad2,gradx,vec1)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -40,7 +40,8 @@ c  VEC1 dimension is MAX(NPRORB,NDETVB)
 
       do 100 i=1,npr
       vec1(i)=aa1*grad2(i)+oaa2*grad1(i)
-100   grad1(i)=two*grad1(i)
+      grad1(i)=two*grad1(i)
+100   continue
       call prgrad_cvb(vec1,npr)
 
       call make_cvb('ORBFREE')

@@ -10,10 +10,10 @@
 *                                                                      *
 * Copyright (C) 1992,2007, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PGet1_RI3(PAO,ijkl,nPAO,iCmp,iShell,
+      SubRoutine PGet1_RI3(PAO,ijkl,nPAO,iCmp,
      &                 iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,
      &                 DSO,DSSO,DSO_Var,nDSO,ExFac,CoulFac,PMax,V_K,
-     &                 U_K,mV_k,ZpK,nnP1,Thpkl,nThpkl,nSA,nAct)
+     &                 U_K,mV_k,ZpK,nnP1,nSA,nAct)
 ************************************************************************
 *  Object: to assemble the 2nd order density matrix of a SCF wave      *
 *          function from the 1st order density.                        *
@@ -22,32 +22,24 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 *                                                                      *
 *             Modified for 3-center RI gradients, March 2007           *
-*                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas
+      use SOAO_Info, only: iAOtSO
+      use pso_stuff, only: lPSO, lsa, ipAorb, Thpkl
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
-#include "pso.fh"
 #include "chomp2g_alaska.fh"
 #include "exterm.fh"
 #include "WrkSpc.fh"
       Real*8 PAO(ijkl,nPAO), DSO(nDSO,nSA), DSSO(nDSO), V_k(mV_k,nSA),
-     &       U_k(mV_k), DSO_Var(nDSO),ZpK(nnP1,mV_K,*),
-     &       Thpkl(nThpkl)
-      Integer iShell(4), iAO(4), kOp(4), iAOst(4), iCmp(4)
+     &       U_k(mV_k), DSO_Var(nDSO),ZpK(nnP1,mV_K,*)
+      Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
       Integer nj(4),jSkip(4),jp_Xli2(2),jp_Xki2(2),jp_Xki3(2),
      &        jp_Xli3(2),NumOrb(4),nAct(0:7)
       Logical Shijij,Found
@@ -61,15 +53,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 39
-      iPrint = nPrint(iRout)
-*#define _DEBUG_
-#ifdef _DEBUG_
-      Call qEnter('PGet1_RI3   ')
+#ifdef _DEBUGPRINT_
       iPrint=99
       If (iPrint.ge.99) Then
          iComp = 1
-         Call PrMtrx('DSO     ',[iD0Lbl],iComp,[ipD0],Work)
+         Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
       End If
       Write (6,*)
       Write (6,*) 'Distribution of Ymnij'
@@ -90,7 +78,6 @@
 *
       Call CWTime(Cpu1,Wall1)
 *
-      nBas0 = nBas(0)
       iOff1 = nBas(0)
       Fac = One / Four
       PMax=Zero
@@ -252,10 +239,8 @@
 *
                   Do lAOl = 0, lBas-1
                      lSOl = lSO + lAOl
-                     LTh=lAOl + (i4-1)*lBas
                      Do kAOk = 0, kBas-1
                         kSOk = kSO + kAOk
-                        Kth=kAOk+(i3-1)*kBas
 *
                         indexB = ip_BklK + (kAOk + (i3-1)*kBas)*jBas
      &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas - 1
@@ -419,10 +404,8 @@
 *
                   Do lAOl = 0, lBas-1
                      lSOl = lSO + lAOl
-                     LTh=lAOl + (i4-1)*lBas
                      Do kAOk = 0, kBas-1
                         kSOk = kSO + kAOk
-                        Kth=kAOk+(i3-1)*kBas
 *
                         indexB = ip_BklK + (kAOk + (i3-1)*kBas)*jBas
      &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas - 1
@@ -608,10 +591,8 @@
 *
                   Do lAOl = 0, lBas-1
                      lSOl = lSO + lAOl
-                     LTh=lAOl + (i4-1)*lBas
                      Do kAOk = 0, kBas-1
                         kSOk = kSO + kAOk
-                        Kth=kAOk+(i3-1)*kBas
 *
                         iThpkl=(kAOk + (i3-1)*kBas)*jBas
      &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas
@@ -902,10 +883,8 @@
 *
                   Do lAOl = 0, lBas-1
                      lSOl = lSO + lAOl
-                     LTh=lAOl + (i4-1)*lBas
                      Do kAOk = 0, kBas-1
                         kSOk = kSO + kAOk
-                        Kth=kAOk+(i3-1)*kBas
 *
                         iThpkl=(kAOk + (i3-1)*kBas)*jBas
      &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas
@@ -925,7 +904,9 @@
                            temp=CoulFac*(V_k(jSOj,1)*DSO(Indkl,2)+
      &                                   V_k(jSOj,2)*DSO(Indkl,1)+
      &                                   V_k(jSOj,3)*DSO(Indkl,4)+
-     &                                   V_k(jSOj,4)*DSO(Indkl,3))
+     &                                   V_k(jSOj,4)*DSO(Indkl,3)+
+     &                                   V_k(jSOj,1)*DSO(Indkl,5)+
+     &                                   V_k(jSOj,5)*DSO(Indkl,1))
 *
 *-----------------------Exchange contribution: B(K,m,n)
 *
@@ -1141,7 +1122,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In PGet1_RI3:PAO ',' ',PAO,ijkl,nPAO)
          Do i = 1, ijkl
@@ -1150,7 +1131,6 @@
          End Do
       End If
       Call GetMem(' Exit PGet1_RI3','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet1_RI3')
 #endif
 *                                                                      *
 ************************************************************************
@@ -1164,7 +1144,6 @@
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(iShell)
          Call Unused_logical(Shijij)
          Call Unused_integer(iBas)
          Call Unused_real_array(DSSO)

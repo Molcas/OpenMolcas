@@ -38,6 +38,7 @@
           integer, intent(in) :: blocksizes(:)
           integer :: i, L, err
 
+          if (allocated(blocks)) deallocate(blocks)
           allocate(blocks(size(blocksizes)), stat=err)
           if (err /= 0) call abort_('Allocation failed in '//
      &        'blockdiagonal_matrices::new')
@@ -120,9 +121,8 @@
         end function
 
         subroutine abort_(message)
-          character(*), intent(in) :: message
+          character(len=*), intent(in) :: message
           call WarningMessage(2, message)
-          call QTrace()
           call Abend()
         end subroutine
       end module blockdiagonal_matrices

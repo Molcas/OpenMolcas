@@ -9,6 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine No_ESPF(natom,Forces,DoTinker)
+      use Basis_Info
+      use Center_Info
+      use external_centers
+      use Temporary_Parameters, only: Primitive_pass
+      use Real_Info, only: PotNuc
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
 *
 #include "espf.fh"
@@ -19,11 +25,6 @@
       Character*180 Line,Get_Ln
       External Get_Ln
 *
-*     Statement function for Cartesian index
-*
-      nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-*
-      Call qEnter('no_espf')
       iPL = iPL_espf()
       NoLoop = .True.
 *
@@ -55,33 +56,17 @@
 1000     Format(/,' RepNuc + MM = ',F13.8,' + ',F13.8,' = ',F13.8)
       End If
 *
-      If (lXF.and.(nOrd_XF.ge.0)) Then
+      If (Allocated(XF).and.(nOrd_XF.ge.0)) Then
          write(6,*) 'Here we are!!'
 *
-c         Call Seward_Init()
          DoRys=.True.
          nDiff=0
-         Call GetInf(Info,nInfo,DoRys,nDiff,1)
+         Call GetInf(DoRys,nDiff)
          Primitive_Pass=.True.
-*
-         If (nIrrep.eq.8) Then
-            nOper=3
-         Else If (nIrrep.eq.4) Then
-            nOper=2
-         Else If (nIrrep.eq.2) Then
-            nOper=1
-         Else
-            nOper=0
-         End If
 *
 *--------Add contibution for interaction external field and nuclear
 *        charges. Here we will have charge-charge, and charge-dipole
 *        inteaction.
-*
-         Inc = 3
-         Do iOrdOp = 0, nOrd_XF
-            Inc = Inc + nElem(iOrdOp)
-         End Do
 *
          ZA = Zero
          DAx= Zero
@@ -95,34 +80,31 @@ c         Call Seward_Init()
          Qzz= Zero
 *
          PNX=Zero
-         ip = ipXF - 1
-         write(6,*) 'Work(ip + ...) = ',(Work(ip+ii),ii=1,4)
-         write(6,*) 'nCnttp = ',nCnttp
          iDum=0
          Do iFd = 1, nXF
             If (nOrd_XF.eq.0) Then
-               ZA = Work(ip+(iFd-1)*Inc+4)
+               ZA = XF(4,iFd)
                NoLoop = ZA.eq.Zero
             Else If (nOrd_XF.eq.1) Then
-               ZA = Work(ip+(iFd-1)*Inc+4)
-               DAx= Work(ip+(iFd-1)*Inc+5)
-               DAy= Work(ip+(iFd-1)*Inc+6)
-               DAz= Work(ip+(iFd-1)*Inc+7)
+               ZA = XF(4,iFd)
+               DAx= XF(5,iFd)
+               DAy= XF(6,iFd)
+               DAz= XF(7,iFd)
                NoLoop = ZA.eq.Zero  .and.
      &                  DAx.eq.Zero .and.
      &                  DAy.eq.Zero .and.
      &                  DAz.eq.Zero
             Else If (nOrd_XF.eq.2) Then
-               ZA = Work(ip+(iFd-1)*Inc+4)
-               DAx= Work(ip+(iFd-1)*Inc+5)
-               DAy= Work(ip+(iFd-1)*Inc+6)
-               DAz= Work(ip+(iFd-1)*Inc+7)
-               Qxx= Work(ip+(iFd-1)*Inc+8)
-               Qxy= Work(ip+(iFd-1)*Inc+9)
-               Qxz= Work(ip+(iFd-1)*Inc+10)
-               Qyy= Work(ip+(iFd-1)*Inc+11)
-               Qyz= Work(ip+(iFd-1)*Inc+12)
-               Qzz= Work(ip+(iFd-1)*Inc+13)
+               ZA = XF(4,iFd)
+               DAx= XF(5,iFd)
+               DAy= XF(6,iFd)
+               DAz= XF(7,iFd)
+               Qxx= XF(8,iFd)
+               Qxy= XF(9,iFd)
+               Qxz= XF(10,iFd)
+               Qyy= XF(11,iFd)
+               Qyz= XF(12,iFd)
+               Qzz= XF(13,iFd)
                NoLoop = ZA.eq.Zero  .and.
      &                  DAx.eq.Zero .and.
      &                  DAy.eq.Zero .and.
@@ -138,39 +120,31 @@ c         Call Seward_Init()
                Call Quit_OnUserError()
             End If
             If (NoLoop) Go To 102
-            A(1) = Work(ip+(iFd-1)*Inc+1)
-            A(2) = Work(ip+(iFd-1)*Inc+2)
-            A(3) = Work(ip+(iFd-1)*Inc+3)
-            iChxyz=iChAtm(A,iOper,nOper,iChBas(2))
-            Call Stblz(iChxyz,iOper,nIrrep,nStb,iStb,iDum,jCoSet)
+            A(1:3)=XF(1:3,iFd)
+            iChxyz=iChAtm(A)
+            Call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 *
             ndc = 0
             Do jCnttp = 1, nCnttp
-               ZB = Charge(jCnttp)
-               If (pChrg(jCnttp)) Go To 202
+               ZB = dbsc(jCnttp)%Charge
+               If (dbsc(jCnttp)%pChrg) Go To 202
                If (ZB.eq.Zero) Go To 202
-               If (FragCnttp(jCnttp)) Go To 202
+               If (dbsc(jCnttp)%Frag) Go To 202
                ZAZB = ZA * ZB
-               jxyz = ipCntr(jCnttp)
-               Do jCnt = 1, nCntr(jCnttp)
-                  B(1) = Work(jxyz  )
-                  B(2) = Work(jxyz+1)
-                  B(3) = Work(jxyz+2)
+               Do jCnt = 1, dbsc(jCnttp)%nCntr
+                  B(1:3)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
 *                 Find the DCR for the two centers
 *
-                  Call DCR(LmbdR,iOper,nIrrep,
-     &                     iStb,nStb,
-     &                     jStab(0,ndc+jCnt),nStab(ndc+jCnt),
+                  Call DCR(LmbdR,iStb,nStb,
+     &                     dc(ndc+jCnt)%iStab,dc(ndc+jCnt)%nStab,
      &                     iDCRR,nDCRR)
 *
                   temp0= Zero
                   temp1= Zero
                   temp2= Zero
                   Do iR = 0, nDCRR-1
-                     RB(1) = DBLE(iPhase(1,iDCRR(iR)))*B(1)
-                     RB(2) = DBLE(iPhase(2,iDCRR(iR)))*B(2)
-                     RB(3) = DBLE(iPhase(3,iDCRR(iR)))*B(3)
+                     Call OA(iDCRR(iR),B,RB)
 *                    The index A=RB is illegal.
                      If (.Not.EQ(A,RB)) Then
                         ABx=A(1)-RB(1)
@@ -179,17 +153,17 @@ c         Call Seward_Init()
                         r12 = Sqrt(ABx**2 + ABy**2 + ABz**2)
 *
                         fab=One
-                        If (ECP(jCnttp)) Then
+                        If (dbsc(jCnttp)%ECP) Then
 *--------------------------Add contribution from M1 operator
-                           Do iM1xp=0, nM1(jCnttp)-1
-                             Gamma = Work(ipM1xp(jCnttp)+iM1xp)
-                             CffM1 = Work(ipM1cf(jCnttp)+iM1xp)
+                           Do iM1xp=1, dbsc(jCnttp)%nM1
+                             Gamma = dbsc(jCnttp)%M1xp(iM1xp)
+                             CffM1 = dbsc(jCnttp)%M1cf(iM1xp)
                              fab = fab + CffM1 * Exp(-Gamma*r12**2)
                            End Do
 *--------------------------Add contribution from M2 operator
-                           Do iM2xp=0, nM2(jCnttp)-1
-                             Gamma = Work(ipM2xp(jCnttp)+iM2xp)
-                             CffM2 = Work(ipM2cf(jCnttp)+iM2xp)
+                           Do iM2xp=1, dbsc(jCnttp)%nM2
+                             Gamma = dbsc(jCnttp)%M2xp(iM2xp)
+                             CffM2 = dbsc(jCnttp)%M2cf(iM2xp)
                              fab = fab + CffM2*r12*Exp(-Gamma*r12**2)
                            End Do
                         End If
@@ -214,10 +188,9 @@ c         Call Seward_Init()
                   PNX = PNX + ( ( ZAZB*temp0 + ZB*(temp1+temp2))
      &                * DBLE(nIrrep) ) / DBLE(LmbdR)
 *
-                  jxyz = jxyz + 3
                End Do
  202           Continue
-               ndc = ndc + nCntr(jCnttp)
+               ndc = ndc + dbsc(jCnttp)%nCntr
             End Do
  102        Continue
          End Do
@@ -232,7 +205,6 @@ c         Call Seward_Init()
 *
 *     Update the 1-e integrals
 *
-      Call qExit('no_espf')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(natom)

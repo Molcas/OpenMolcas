@@ -17,7 +17,7 @@
 !>    Master module for fcidump.
 module fcidump
   use rasscf_data, only : nacpar
-  use general_data, only : nAsh, nTot, nTot1, nTot2
+  use general_data, only : nTot, nTot1, nTot2
   use fcidump_tables, only : OrbitalTable, FockTable, TwoElIntTable,&
     mma_allocate, mma_deallocate, fill_orbitals, fill_fock, fill_2ElInt
   use fcidump_transformations, only : get_orbital_E, fold_Fock
@@ -33,7 +33,7 @@ contains
   subroutine make_fcidumps(ascii_path, h5_path, orbital_energies, folded_Fock,&
                            TUVX, core_energy, permutation)
     use general_data, only : nSym, nAsh
-    character(*), intent(in) :: ascii_path, h5_path
+    character(len=*), intent(in) :: ascii_path, h5_path
     real*8, intent(in) :: orbital_energies(:), folded_Fock(:), TUVX(:), core_energy
     integer, intent(in), optional :: permutation(:)
     type(OrbitalTable) :: orbital_table
@@ -69,9 +69,9 @@ contains
     call mma_deallocate(orbital_table)
   end subroutine make_fcidumps
 
-  subroutine transform(iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO, &
+  subroutine transform(actual_iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO, &
                        F_IN, orbital_E, folded_Fock)
-    integer, intent(in) :: iter
+    integer, intent(in) :: actual_iter
     real*8, intent(in) :: DIAF(nTot),&
       CMO(nTot2),&
       D1I_AO(nTot2),&
@@ -80,7 +80,7 @@ contains
     real*8, intent(inout) :: F_IN(nTot1)
     real*8, intent(out) :: orbital_E(nTot), folded_Fock(nAcPar)
 
-    call get_orbital_E(iter, DIAF, orbital_E)
+    call get_orbital_E(actual_iter, DIAF, orbital_E)
     call fold_Fock(CMO, D1I_AO, D1A_AO, D1S_MO, F_In, folded_Fock)
   end subroutine transform
 

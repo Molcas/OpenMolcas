@@ -10,26 +10,14 @@
 *                                                                      *
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine VeInt(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,nIC,nComp,la,lb,A,RB,nHer,
-     &                 Array,nArr,Ccoor,nOrdOp,lOper,iChO,
-     &                 iStabM,nStabM,
-     &                 PtChrg,nGrid,iAddPot)
+      SubRoutine VeInt(
+#define _CALLING_
+#include "int_interface.fh"
+     &                )
 ************************************************************************
 *                                                                      *
 * Object: to compute the velocity integrals with the Gauss-Hermite     *
 *         quadrature.                                                  *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              CrtCmp                                                  *
-*              Assmbl                                                  *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              Kntc                                                    *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, Sweden, January '91                  *
@@ -37,17 +25,13 @@
       use Her_RW
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nIC),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3),
-     &       Array(nZeta*nArr), Ccoor(3)
+
+#include "int_interface.fh"
+
+*     Local variables.
       Logical ABeq(3)
-      Integer lOper(nComp), iStabM(0:nStabM-1), iStabO(0:7),
-     &          iDCRT(0:7), iChO(nComp)
+      Integer iStabO(0:7), iDCRT(0:7)
 *
 *     Statement function for Cartesian index
 *
@@ -55,7 +39,6 @@
 *
       iRout = 195
       iPrint = nPrint(iRout)
-      Call qEnter('VeInt')
       ABeq(1) = A(1).eq.RB(1)
       ABeq(2) = A(2).eq.RB(2)
       ABeq(3) = A(3).eq.RB(3)
@@ -140,29 +123,26 @@
          llOper = iOr(llOper,lOper(iComp))
  90   Continue
       Call SOS(iStabO,nStabO,llOper)
-      Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,iStabO,nStabO,
-     &         iDCRT,nDCRT)
+      Call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 *
       Do 102 lDCRT = 0, nDCRT-1
 *
 *--------Accumulate contributions
 *
-         nOp = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+         nOp = NrOpr(iDCRT(lDCRT))
          Call SymAdO(Array(ipRes),nZeta,la,lb,nComp,Final,nIC,
      &               nOp         ,lOper,iChO,One)
 *
  102  Continue
 *
 *     Call GetMem(' Exit VeInt','LIST','REAL',iDum,iDum)
-      Call qExit('VeInt')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Alpha)
          Call Unused_real_array(ZInv)
          Call Unused_integer(nOrdOp)
-         Call Unused_real(PtChrg)
-         Call Unused_integer(nGrid)
+         Call Unused_real_array(PtChrg)
          Call Unused_integer(iAddPot)
       End If
       End

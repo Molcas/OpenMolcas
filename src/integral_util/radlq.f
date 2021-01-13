@@ -37,7 +37,6 @@
 ccccccccccccccccccccccccccccccccccccccc
 c     iPrint = 99
 ccccccccccccccccccccccccccccccccccccccc
-c     Call QEnter('Radlq')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -71,6 +70,5 @@ c     Call QEnter('Radlq')
          Call RecPrt(Label,' ',Rnr(1,0),nZeta,lsum+1)
       End If
 *
-c     Call QExit('Radlq')
       Return
       End

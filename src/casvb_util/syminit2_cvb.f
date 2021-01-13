@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine syminit2_cvb(symelm,iorbrel,north,corth,
      >  irels,relorb,io,iorder,iorbs,a,b,
@@ -17,7 +18,6 @@
      >  iorts,irots,izeta)
       implicit real*8 (a-h,o-z)
       logical found
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -52,7 +52,7 @@ c  (no cycle should be complete) :
       do 10 ijrel=1,nijrel
       iorb=abs(iorbrel(1+ishift))
       jorb=abs(iorbrel(2+ishift))
-      if(iorb.eq.jorb)goto 10
+      if(iorb.eq.jorb)goto 11
       call izero(iorbs,norb)
       iorbs(iorb)=1
       iorbs(jorb)=1
@@ -60,7 +60,7 @@ c  (no cycle should be complete) :
       do 30 ijrel2=1,nijrel
       iorb2=abs(iorbrel(1+ishift2))
       jorb2=abs(iorbrel(2+ishift2))
-      if(ijrel2.eq.ijrel.or.iorb2.eq.jorb2)goto 30
+      if(ijrel2.eq.ijrel.or.iorb2.eq.jorb2)goto 31
       if(iorbs(iorb2).eq.1)then
         if(iorbs(jorb2).eq.1)then
           ncount=0
@@ -80,8 +80,10 @@ c  (no cycle should be complete) :
       elseif(iorbs(jorb2).eq.1)then
         iorbs(iorb2)=1
       endif
-30    ishift2=ishift2+3+iorbrel(3+ishift2)
-10    ishift=ishift+3+iorbrel(3+ishift)
+31    ishift2=ishift2+3+iorbrel(3+ishift2)
+30    continue
+11    ishift=ishift+3+iorbrel(3+ishift)
+10    continue
 
 c  Diagonal orbital relations :
       nciorth=0
@@ -99,7 +101,8 @@ c  Orbital conditions on IORB :
         do 200 ir=nrel,1,-1
         irel=iorbrel(ir+3+ishift)
         call mxatb_cvb(symelm(1,1,irel),b,norb,norb,norb,a)
-200     call fmove_cvb(a,b,norb*norb)
+        call fmove_cvb(a,b,norb*norb)
+200     continue
 c  Everything that hasn't got eigenvalue +1 will be orthogonalised away
 c  Unsymmetric diagonalisation :
         ifail=0
@@ -143,7 +146,8 @@ c  Off-diagonal relations :
         iorder(2,ijrel)=jorb
         irel=iorbrel(4+ishift)
       endif
-300   ishift=ishift+3+nrel
+      ishift=ishift+3+nrel
+300   continue
       nijrel=ijrel
 
 c  Orbitals with constraints should be generating orbitals if possible:
@@ -164,12 +168,13 @@ c  Orbitals with constraints should be generating orbitals if possible:
 c  Sort relations and define generating orbitals:
       do 700 i=1,norb
       iorb=iorbs(i)
-      do 700 ii=1,nijrel
+      do 701 ii=1,nijrel
       if(iorder(1,ii).eq.iorb.or.iorder(2,ii).eq.iorb)then
 c  Has IORB already been generated from KORB ? :
         do 800 j=1,i-1
         korb=iorbs(j)
-800     if(iorder(1,ii).eq.korb.or.iorder(2,ii).eq.korb)goto 700
+        if(iorder(1,ii).eq.korb.or.iorder(2,ii).eq.korb)goto 701
+800     continue
         if(iorder(1,ii).eq.iorb)then
           iorder(1,ii)=iorder(2,ii)
           iorder(2,ii)=iorb
@@ -191,7 +196,8 @@ c  JORB will be generated from IORB
 c  Is JORB involved in any other orbital relations ? :
           do 1000 j=1,i-1
           korb=iorbs(j)
-1000      if(iorder(1,jj).eq.korb.or.iorder(2,jj).eq.korb)goto 900
+          if(iorder(1,jj).eq.korb.or.iorder(2,jj).eq.korb)goto 900
+1000      continue
           found=.true.
           if(iorder(1,jj).eq.jorb)then
             iorder(1,jj)=iorder(2,jj)
@@ -205,6 +211,7 @@ c  KORB will be generated from IORB (via JORB) :
 900     continue
         if(found)goto 600
       endif
+701   continue
 700   continue
 c  Generate transformation matrix for each relation :
       do i=1,nijrel
@@ -241,7 +248,8 @@ c  Operate right-to-left :
           call mxattb_cvb(symelm(1,1,irel),relorb(1,1,ijrel),
      >      norb,norb,norb,a)
         endif
-1500    call fmove_cvb(a,relorb(1,1,ijrel),norb*norb)
+        call fmove_cvb(a,relorb(1,1,ijrel),norb*norb)
+1500    continue
       endif
 1400  continue
 1200  continue

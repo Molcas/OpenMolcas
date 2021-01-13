@@ -18,15 +18,15 @@
         save
 
         interface one_el_idx
-          module procedure array_1el_idx, tuple_1el_idx
+          module procedure array_one_el_idx, tuple_one_el_idx
+        end interface
+
+        interface two_el_idx
+          module procedure array_two_el_idx, tuple_two_el_idx
         end interface
 
         interface one_el_idx_flatten
           module procedure array_1el_idx_flatten, tuple_1el_idx_flatten
-        end interface
-
-        interface two_el_idx
-          module procedure array_2el_idx, tuple_2el_idx
         end interface
 
         interface two_el_idx_flatten
@@ -36,21 +36,21 @@
 
       contains
 
-        pure function array_1el_idx(n) result(idx)
-          integer, intent(in) :: n
-          integer :: idx(2)
-          idx(1) = ceiling(-0.5d0 + sqrt(2.0d0 * n))
-          idx(2) = n - (idx(1) - 1) * idx(1) / 2
-        end function
-
-        function tuple_1el_idx(n, i, j) result(idx)
+        pure subroutine tuple_one_el_idx(n, i, j)
           integer, intent(in) :: n
           integer, intent(out) :: i, j
-          integer :: idx(2)
-          idx = array_1el_idx(n)
-          i = idx(1)
-          j = idx(2)
-        end function
+
+          i = ceiling(-0.5d0 + sqrt(2.0d0 * n))
+          j = n - (i - 1) * i / 2
+        end subroutine
+
+        pure subroutine array_one_el_idx(n, idx)
+          integer, intent(in) :: n
+          integer, intent(out) :: idx(2)
+
+          idx(1) = ceiling(-0.5d0 + sqrt(2.0d0 * n))
+          idx(2) = n - (idx(1) - 1) * idx(1) / 2
+        end subroutine
 
         pure function array_1el_idx_flatten(idx) result(n)
           integer, intent(in) :: idx(2)
@@ -67,10 +67,9 @@
           n = q + p * (p - 1) / 2
         end function
 
-        function tuple_2el_idx(n, iorb, jorb, korb, lorb) result(idx)
+        pure subroutine tuple_two_el_idx(n, iorb, jorb, korb, lorb)
           integer, intent(in) :: n
           integer, intent(out) :: iorb, jorb, korb, lorb
-          integer :: idx(4)
 
           integer :: ijidx, klidx
 
@@ -81,15 +80,22 @@
           jorb = ijidx - (iorb - 1) * iorb / 2
           korb = ceiling(-0.5d0 + sqrt(2.0d0 * klidx))
           lorb = klidx - (korb - 1) * korb / 2
-          idx = [iorb, jorb, korb, lorb]
-        end function
+        end subroutine
 
-        function array_2el_idx(n) result(idx)
+        pure subroutine array_two_el_idx(n, idx)
           integer, intent(in) :: n
-          integer :: idx(4)
-          integer :: iorb, jorb, korb, lorb
-          idx = tuple_2el_idx(n, iorb, jorb, korb, lorb )
-        end function
+          integer, intent(out) :: idx(4)
+
+          integer :: ijidx, klidx
+
+          ijidx = ceiling(-0.5d0 + sqrt(2.0d0 * n))
+          klidx = n - (ijidx - 1) * ijidx / 2
+
+          idx(1) = ceiling(-0.5d0 + sqrt(2.0d0 * ijidx))
+          idx(2) = ijidx - (idx(1) - 1) * idx(1) / 2
+          idx(3) = ceiling(-0.5d0 + sqrt(2.0d0 * klidx))
+          idx(4) = klidx - (idx(3) - 1) * idx(3) / 2
+        end subroutine
 
         function array_2el_idx_flatten(idx) result(n)
           integer, intent(in) :: idx(4)

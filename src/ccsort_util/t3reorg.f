@@ -52,7 +52,7 @@ c
 c
 c     help variables
 c
-       integer a,b,c,bc,adda,lenght,iaddr
+       integer a,b,c,bc,adda,length,iaddr
 c
 c*    if there are no beta virtuals - goto write section
        if (nvb(symq)*nvb(symr)*nvb(syms).eq.0) then
@@ -66,18 +66,20 @@ c*    do packing
 c
        bc=0
        do 100 b=nob(symq)+1,nob(symq)+nvb(symq)
-       do 100 c=nob(syms)+1,b
+       do 101 c=nob(syms)+1,b
        bc=bc+1
-       do 100 a=1,nvb(symr)
+       do 102 a=1,nvb(symr)
        r(a,bc)=vint(b,a+adda,c)
+ 102    continue
+ 101    continue
  100    continue
 c
 c*    write section
 c
- 200    lenght=dima*dimbc
-       if (lenght.gt.0) then
+ 200    length=dima*dimbc
+       if (length.gt.0) then
        iaddr=daddr(lunt3)
-       call ddafile (lunt3,1,r(1,1),lenght,iaddr)
+       call ddafile (lunt3,1,r(1,1),length,iaddr)
        end if
 
        return
@@ -119,7 +121,7 @@ c
 c
 c     help variables
 c
-       integer a,b,c,adda,addb,addc,lenght,iaddr
+       integer a,b,c,adda,addb,addc,length,iaddr
 c
 c*    if there are no beta virtuals - skip
        if (nvb(symq)*nvb(symr)*nvb(syms).eq.0) then
@@ -135,17 +137,19 @@ c
 c*    do packing
 c
        do 100 c=1,nvb(syms)
-       do 100 b=1,nvb(symq)
-       do 100 a=1,nvb(symr)
+       do 101 b=1,nvb(symq)
+       do 102 a=1,nvb(symr)
        r(a,b,c)=vint(b+addb,a+adda,c+addc)
+ 102    continue
+ 101    continue
  100    continue
 c
 c*    write section
 c
-        lenght=dima*dimb*dimc
-       if (lenght.gt.0) then
+        length=dima*dimb*dimc
+       if (length.gt.0) then
        iaddr=daddr(lunt3)
-       call ddafile (lunt3,1,r(1,1,1),lenght,iaddr)
+       call ddafile (lunt3,1,r(1,1,1),length,iaddr)
        end if
 c
        return
@@ -172,7 +176,7 @@ c
 c
 c     help variables
 c
-       integer lenght,iri,possri
+       integer length,iri,possri
        integer posst
        integer symi,i,iaddr,iindex,iPossPack
 c
@@ -202,9 +206,9 @@ c1.2        def possition of of this block in R1
             possri=mapdri(iri,1)
 c
 c1.3        read integrals into proper possition
-            lenght=mapdri(iri,2)
-            if (lenght.gt.0) then
-            call ddafile (lunt3,2,wrk(possri),lenght,iaddr)
+            length=mapdri(iri,2)
+            if (length.gt.0) then
+            call ddafile (lunt3,2,wrk(possri),length,iaddr)
             end if
 c
           end do
@@ -221,14 +225,14 @@ c2.2      write maps
           call idafile (lunt3,1,mapiri,512,iaddr)
 c
 c2.3      def actual length of Ri
-          lenght=0
+          length=0
           do iri=1,mapdri(0,5)
-          lenght=lenght+mapdri(iri,2)
+          length=length+mapdri(iri,2)
           end do
-c         lenght=mapdri(iri,1)+mapdri(iri,2)-mapdri(1,1)
+c         length=mapdri(iri,1)+mapdri(iri,2)-mapdri(1,1)
 c
 c2.4          write Ri as one block
-          call ddafile (lunt3,1,wrk(possri0),lenght,iaddr)
+          call ddafile (lunt3,1,wrk(possri0),length,iaddr)
 c
 c2.5          save updated address as a new packed (final) possition
 c         for next i
@@ -347,7 +351,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        mapd(i,2)=nhelp1
 c
 c     def sym p,q
@@ -383,7 +387,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        if ((typ.eq.1).and.(sp.eq.sq)) then
        mapd(i,2)=nhelp1*(nhelp1-1)/2
        else
@@ -440,13 +444,13 @@ c
        nsymq=nsym
        end if
 c
-       do 200 sq=1,nsymq
+       do 201 sq=1,nsymq
        spq=mul(sp,sq)
 c
        sr=mul(stot,spq)
        if ((rsk2.eq.1).and.(sq.lt.sr)) then
 c     Meggie out
-       goto 200
+       goto 201
        end if
 c
        nhelp1=dimm(typp,sp)
@@ -459,7 +463,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        if ((typ.eq.1).and.(sp.eq.sq)) then
        mapd(i,2)=nhelp1*(nhelp1-1)*nhelp3/2
        else if ((typ.eq.2).and.(sq.eq.sr)) then
@@ -501,6 +505,7 @@ c
        poss=poss+mapd(i,2)
        i=i+1
 c
+ 201    continue
  200    continue
 c
        else if (nind.eq.4) then
@@ -517,7 +522,7 @@ c
        nsymq=nsym
        end if
 c
-       do 300 sq=1,nsymq
+       do 301 sq=1,nsymq
        spq=mul(sp,sq)
        if (typ.eq.2) then
        nsymr=sq
@@ -525,13 +530,13 @@ c
        nsymr=nsym
        end if
 c
-       do 300 sr=1,nsymr
+       do 302 sr=1,nsymr
        spqr=mul(spq,sr)
 c
        ss=mul(stot,spqr)
        if (((typ.eq.3).or.(typ.eq.4)).and.(sr.lt.ss)) then
 c     Meggie out
-       goto 300
+       goto 302
        end if
 c
        nhelp1=dimm(typp,sp)
@@ -545,7 +550,7 @@ c
 c     def possition
        mapd(i,1)=poss
 c
-c     def lenght
+c     def length
        if ((typ.eq.1).and.(sp.eq.sq)) then
        mapd(i,2)=nhelp1*(nhelp2-1)*nhelp3*nhelp4/2
        else if ((typ.eq.2).and.(sq.eq.sr)) then
@@ -575,6 +580,8 @@ c
        poss=poss+mapd(i,2)
        i=i+1
 c
+ 302    continue
+ 301    continue
  300    continue
 c
        end if

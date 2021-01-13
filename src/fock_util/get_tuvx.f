@@ -48,8 +48,6 @@
 
       iTri(i) = (i*i-i)/2
 
-      Call qEnter('Get_TUVX')
-      lSym_tmp=lSym
 *     generate offsets
       iStack = 0
       Do iSym = 1,nSym
@@ -144,8 +142,6 @@ c     &                    kAsh*lAsh+Min(ijSym-2,0)*kAsh*(lAsh-1)/2)
           End Do
         End Do
       End Do
-      LSYM=lSym_tmp
-      Call qExit('Get_TUVX')
 
       Return
       End

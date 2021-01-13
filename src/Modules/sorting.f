@@ -12,10 +12,14 @@
 ************************************************************************
 #include "compiler_features.h"
       module sorting
+        use definitions, only: wp
         implicit none
         private
         public ::
-     &    sort, argsort,  tAlgorithm, algorithms, bubble_sort_trsh
+     &    sort, argsort,  tAlgorithm, algorithms, bubble_sort_trsh, swap
+#ifndef INTERNAL_PROC_ARG
+        public :: compare_int_t
+#endif
 
 ! TODO: Should be changed to default construction in the future.
 ! As of July 2019 the Sun and PGI compiler have problems.
@@ -35,13 +39,15 @@
 ! but requires less overhead.
         integer, parameter :: bubble_sort_trsh = 20
 
+        ! Should be an abstract interface
         interface
-          logical pure function compare_int(a, b)
+          logical pure function compare_int_t(a, b)
             integer, intent(in) :: a, b
           end function
 
-          logical pure function compare_real(x, y)
-            real*8, intent(in) :: x, y
+          logical pure function compare_real_t(x, y)
+            import :: wp
+            real(wp), intent(in) :: x, y
           end function
         end interface
 
@@ -59,6 +65,9 @@
 !>    le = i <= j
 !>  end function
 !>  \endcode
+!>  The module `sorting_funcs` already contains many
+!>  widely used comparison functions.
+!>
 !>  If you want to change the sorting algorithm, you can do so on the fly.
 !>  The default is always a stable sorting algorithm.
 !>  \code{.unparsed}
@@ -75,10 +84,14 @@
 
 #ifndef INTERNAL_PROC_ARG
         integer, pointer :: mod_iV(:)
-        real*8, pointer :: mod_rV(:)
-        procedure(compare_int), pointer :: mod_comp_int
-        procedure(compare_real), pointer :: mod_comp_real
+        real(wp), pointer :: mod_rV(:)
+        procedure(compare_int_t), pointer :: mod_comp_int
+        procedure(compare_real_t), pointer :: mod_comp_real
 #endif
+
+        interface swap
+          module procedure i_swap, r_swap
+        end interface
 
         contains
 
@@ -96,7 +109,7 @@
 
         function I1D_argsort(V, compare, algorithm) result(idx)
           integer, target, intent(inout) :: V(:)
-          procedure(compare_int) :: compare
+          procedure(compare_int_t) :: compare
           type(tAlgorithm), intent(in), optional :: algorithm
           type(tAlgorithm)  :: algorithm_
           integer :: idx(lbound(V, 1):ubound(V, 1)), i
@@ -129,8 +142,8 @@
 
 
         function R1D_argsort(V, compare, algorithm) result(idx)
-          real*8, target, intent(inout) :: V(:)
-          procedure(compare_real) :: compare
+          real(wp), target, intent(inout) :: V(:)
+          procedure(compare_real_t) :: compare
           type(tAlgorithm), intent(in), optional :: algorithm
           type(tAlgorithm)  :: algorithm_
           integer :: idx(lbound(V, 1):ubound(V, 1)), i
@@ -166,13 +179,16 @@
 !>
 !>  @details
 !>  The array is sorted until f(v(i), v(i + 1)) is true for all i.
-!>  If you want to sort an array increasingly, just use
+!>  If you e.g. want to sort an array increasingly, just use
 !>  \code{.unparsed}
 !>  logical pure function le(i, j)
 !>    integer, intent(in) :: i, j
 !>    le = i <= j
 !>  end function
 !>  \endcode
+!>  The module `sorting_funcs` already contains many
+!>  widely used comparison functions.
+!>
 !>  The real power of this routine shines, when the array
 !>  is treated as an index array of other matrices or tensors.
 !>  If you want to sort a 2D-matrix according to the column sum,
@@ -201,7 +217,7 @@
 !>  @param[in] algorithm The sorting algorithm to use.
         subroutine sort(V, compare, algorithm)
           integer, intent(inout) :: V(:)
-          procedure(compare_int) :: compare
+          procedure(compare_int_t) :: compare
           type(tAlgorithm), intent(in), optional :: algorithm
           type(tAlgorithm)  :: algorithm_
           if (present(algorithm)) then
@@ -220,7 +236,7 @@
 
         subroutine bubble_sort(V, compare)
           integer, intent(inout) :: V(:)
-          procedure(compare_int) :: compare
+          procedure(compare_int_t) :: compare
 
           integer :: n, i
 
@@ -233,9 +249,15 @@
           end do
         end subroutine bubble_sort
 
-        subroutine swap(a, b)
+        subroutine i_swap(a, b)
           integer, intent(inout) :: a, b
           integer :: t
+          t = a; a = b; b = t
+        end subroutine
+
+        subroutine r_swap(a, b)
+          real(wp), intent(inout) :: a, b
+          real(wp) :: t
           t = a; a = b; b = t
         end subroutine
 
@@ -258,7 +280,7 @@
 ! The target attribute is there to prevent the compiler from
 ! assuming non overlapping memory.
           integer, target, intent(inout) :: A(:), B(:), C(:)
-          procedure(compare_int) :: compare
+          procedure(compare_int_t) :: compare
 
           integer :: i, j, k
 
@@ -288,7 +310,7 @@
 
         recursive subroutine mergesort(A, compare)
           integer, intent(inout) :: A(:)
-          procedure(compare_int) :: compare
+          procedure(compare_int_t) :: compare
 
           integer, allocatable :: work(:)
           integer :: half
@@ -300,7 +322,7 @@
 
         recursive subroutine mergesort_work(A, compare, work)
           integer, intent(inout) :: A(:)
-          procedure(compare_int) :: compare
+          procedure(compare_int_t) :: compare
           integer, intent(inout) :: work(:)
 
           integer :: half
@@ -322,7 +344,7 @@
 
         recursive subroutine quicksort(idx, compare)
           integer, intent(inout) :: idx(:)
-          procedure(compare_int) :: compare
+          procedure(compare_int_t) :: compare
 
           integer :: i, j, pivot
 

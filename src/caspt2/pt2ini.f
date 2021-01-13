@@ -27,10 +27,6 @@
 C     Cholesky
       Integer iSym, iRC
 
-      character(128) StartFile
-      COMMON /datafiles/StartFile
-
-      CALL QENTER('PT2INI')
 *
 * Probe the RunFile for some basic information
 *
@@ -48,9 +44,7 @@ C     Cholesky
 *
 *     Allocate Input struct, read and process the Input
 *
-#ifdef ALLOC_SCAL
       ALLOCATE(Input)
-#endif
       LuSpool=21
       Call SpoolInp(LuSpool)
       CALL READIN_CASPT2(LuSpool,nSym)
@@ -70,7 +64,7 @@ C     Cholesky
 * Finally read the MO and CI data from the refwfn file, and close it as
 * we have no more need for it and the same filename might be reused for
 * the pt2wfn file. We do this after input processing because we need to
-* know which roots to pick up. The MOs are stored on LUONEM, at adress
+* know which roots to pick up. The MOs are stored on LUONEM, at address
 * IAD1M(1), and the CI arrays on LUCIEX at IDCIEX.
       Call refwfn_data
       Call refwfn_close
@@ -151,7 +145,6 @@ C Initialize sizes, offsets etc used in equation solver.
       CALL GETMEM('TORB','ALLO','REAL',LTORB,NTORB)
       CALL GETMEM('TAT','ALLO','REAL',LTAT,NTAT)
 
-      CALL QEXIT('PT2INI')
       END
 
       SUBROUTINE PT2CLS
@@ -166,9 +159,6 @@ C Initialize sizes, offsets etc used in equation solver.
 #include "chocaspt2.fh"
 
       Integer iSym
-#ifndef ALLOC_SCAL
-      Integer iGrp
-#endif
 C     Cholesky return code
       INTEGER irc
 C     size of idsct array
@@ -226,22 +216,5 @@ C     Close all files:
       CALL CLSFLS_CASPT2
 
 C free input struct
-#ifdef ALLOC_SCAL
       DEALLOCATE(Input)
-#else
-      IF (ALLOCATED(Input%MultGroup%State))
-     &   DEALLOCATE(Input%MultGroup%State)
-      IF (ALLOCATED(Input%nXMulState)) DEALLOCATE(Input%nXMulState)
-      IF (ALLOCATED(Input%XMulGroup)) THEN
-        DO iGrp = 1, SIZE(Input%XMulGroup)
-          IF (ALLOCATED(Input%XMulGroup(iGrp)%State))
-     &       DEALLOCATE(Input%XMulGroup(iGrp)%State)
-          DEALLOCATE(Input%XMulGroup)
-        END DO
-      END IF
-      IF (ALLOCATED(Input%nFro)) DEALLOCATE(Input%nFro)
-      IF (ALLOCATED(Input%nDel)) DEALLOCATE(Input%nDel)
-      IF (ALLOCATED(Input%NamFro)) DEALLOCATE(Input%NamFro)
-      IF (ALLOCATED(Input%HEff)) DEALLOCATE(Input%HEff)
-#endif
       End

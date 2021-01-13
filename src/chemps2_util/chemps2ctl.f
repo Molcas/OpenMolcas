@@ -20,6 +20,7 @@
 
 #ifdef _MOLCAS_MPP_
       Use MPI
+      Use Para_Info, Only: Is_Real_Par, King
 #endif
 
       Implicit Real*8 (A-H,O-Z)
@@ -40,9 +41,6 @@
 
 #ifdef _MOLCAS_MPP_
       Integer*4 IERROR4
-      External King, Is_Real_Par
-      Logical King
-      Logical Is_Real_Par
 #endif
 
 
@@ -53,7 +51,6 @@
 #include "WrkSpc.fh"
 #include "output_ras.fh"
       Parameter (ROUTINE='CHEMPS2CTL')
-      Call qEnter(ROUTINE)
 
 ! Quan: FIXME: Do we need this?
 * Load symmetry info from RunFile
@@ -74,7 +71,7 @@
           iOrb=iOrb+1
         End Do
       End Do
-      lSymMolpro=iChMolpro(lSym)
+      lSymMolpro=iChMolpro(stSym)
 
       NRDM_ORDER=2
       If (NACTEL.EQ.1) NRDM_ORDER=1
@@ -131,7 +128,7 @@
            endif
         endif
 ! Check if checkpoint files for 3RDM exist
-        if (chemps2_lrestart.EQ.1.) then
+        if (chemps2_lrestart.EQ.1) then
            call f_inquire('CHEMCANFIE',fiedler)
            call f_inquire('CHEMCANMPS0',mps0)
            if (fiedler .and. mps0) then
@@ -569,7 +566,6 @@
       endif
 
 
-      Call qExit(ROUTINE)
 
       Return
       End

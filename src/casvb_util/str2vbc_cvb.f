@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
 c  **************************************************************
 c  ** Transformation between VB structures and VB determinants **
@@ -40,7 +41,6 @@ c  *                                                                   *
 c **********************************************************************
       subroutine str2vbc_cvb(cvb,cvbdet)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -79,14 +79,14 @@ c **********************************************************************
       call mfreer_cvb(iwrk)
       idetvb_add=idetvb_add+ndetvb_fr(ifrag)
       ioffs_cvb=ioffs_cvb+nvb_fr(ifrag)
-200   ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+      ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+200   continue
       return
 
       end
 c
       subroutine vb2strg_cvb(cvbdet,cvb)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -123,14 +123,14 @@ c
       call mfreer_cvb(iwrk)
       idetvb_add=idetvb_add+ndetvb_fr(ifrag)
       ioffs_cvb=ioffs_cvb+nvb_fr(ifrag)
-400   ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+      ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+400   continue
       return
       end
 
 
       subroutine vb2strc_cvb(cvbdet,cvb)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -169,13 +169,13 @@ c
       call mfreer_cvb(iwrk)
       idetvb_add=idetvb_add+ndetvb_fr(ifrag)
       ioffs_cvb=ioffs_cvb+nvb_fr(ifrag)
-400   ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+      ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+400   continue
       return
       end
 
       subroutine str2vbg_cvb(cvb,cvbdet)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -214,14 +214,14 @@ c
       call mfreer_cvb(iwrk)
       idetvb_add=idetvb_add+ndetvb_fr(ifrag)
       ioffs_cvb=ioffs_cvb+nvb_fr(ifrag)
-200   ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+      ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+200   continue
       return
 
       end
 
       subroutine str2vbf_cvb(cvb,cvbdet)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -260,7 +260,8 @@ c
       call mfreer_cvb(iwrk)
       idetvb_add=idetvb_add+ndetvb_fr(ifrag)
       ioffs_cvb=ioffs_cvb+nvb_fr(ifrag)
-200   ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+      ioffs_cvbdet=ioffs_cvbdet+ndetvb_fr(ifrag)
+200   continue
       return
 
       end

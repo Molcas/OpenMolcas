@@ -11,8 +11,7 @@
 * Copyright (C) 1991, Markus P. Fuelscher                              *
 *               1991, Per Ake Malmqvist                                *
 ************************************************************************
-      Subroutine SORT2A(iBin,lSrtA,SrtArr,ValBin,IndBin,l_Bin,
-     &                  IOStk,lStk,nStk)
+      Subroutine SORT2A(iBin,lSrtA,SrtArr,IOStk,lStk,nStk)
 ************************************************************************
 *                                                                      *
 *     Purpose: Reload all integral belonging to a given slice          *
@@ -45,13 +44,12 @@
 *                                                                      *
 **** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 *
+      use srt2
       Implicit Real*8 (A-H,O-Z)
 *
 #include "TwoDat.fh"
-#include "TwoDef.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "srt2.fh"
 #include "SysDef.fh"
 #include "print.fh"
 #include "PkCtl.fh"
@@ -60,7 +58,6 @@
       Dimension SrtArr(lSrtA)
       Dimension PkVBin(lStRec)
       Integer   PkIBin(lStRec)
-      Dimension ValBin(l_Bin),IndBin(l_Bin)
       Integer IOStk(lStk)
 *
 *----------------------------------------------------------------------*
@@ -99,7 +96,7 @@ C        Write (*,*) 'Mode: Dense'
 C        Write (*,*) 'Mode: Sparse'
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,*) 'Processing slice                   :',iBin
       Write (6,*) 'Actual number of non-zero integrals:', mInt(1,iBin)
@@ -119,7 +116,6 @@ C        Write (*,*) 'Mode: Sparse'
       Do while ( iDaTmp.ge.0 )
         nStk=nStk+1
         If ( nStk.gt.lStk ) then
-          iRC=001
           Write(6,*)
           Write(6,'(2X,A,I3.3,A)')
      &    '*** Error in SORT2A ***'
@@ -129,7 +125,6 @@ C        Write (*,*) 'Mode: Sparse'
           Write(6,'(2X,A,I8)') 'iBin =',iBin
           Write(6,*)
           Write(6,*) 'Action: rerun with a larger MOLCAS_MEM'
-          Call qTrace
           Call Quit(_RC_MEMORY_ERROR_)
         End If
         IOStk(nStk)=iDaTwo
@@ -145,27 +140,23 @@ C        Write (*,*) 'Mode: Sparse'
           nInts1=PkIBin(ist1-1)
           nInts2=Int(PkVBin(ist2-1))
           If ( nInts1.ne.nInts2 ) then
-            iRC=002
             Write(6,*)
             Write(6,'(2X,A,I3.3,A)')
      &      '*** Error in SORT2A ***'
             Write(6,'(2X,A)') 'An inconsistency has been deteced'
             Write(6,'(2X,A)') 'nInts1#nInts2'
             Write(6,*)
-            Call qTrace
             Call xFlush(6)
             Call Abend
           End If
           nInts=nInts1
-          If ( nInts.gt.l_Bin ) then
-            iRC=003
+          If ( nInts.gt.lBin ) then
             Write(6,*)
             Write(6,'(2X,A,I3.3,A)')
      &      '*** Error in SORT2A ***'
             Write(6,'(2X,A)') 'An inconsistency has been deteced'
-            Write(6,'(2X,A)') 'nInts>l_Bin'
+            Write(6,'(2X,A)') 'nInts>lBin'
             Write(6,*)
-            Call qTrace
             Call xFlush(6)
             Call Abend
           End If
@@ -199,7 +190,6 @@ C        Write (*,*) 'Mode: Sparse'
         iDaTwo=Int(PkVBin(1))
       End Do
       If ( iPrint.ge.99 ) Call dVcPrt('sorted ERIs',' ',SrtArr,lSrtA)
-*     Call GetMem('Sort2a','Check',' ',junk,junk)
 *
       Return
       End

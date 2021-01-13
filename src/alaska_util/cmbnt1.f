@@ -12,21 +12,13 @@
 ************************************************************************
       SubRoutine CmbnT1(Rnxyz,nZeta,la,lb,Zeta,rKappa,Final,Txyz,
      &                  Alpha,Beta,Grad,nGrad,DAO,IfGrad,IndGrd,iStab,
-     &                  jStab,nIrrep,kOp,iChBas,MxFnc)
+     &                  jStab,kOp)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: KnEGrd                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DDot_   (ESSL)                                          *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             October '91                                              *
 ************************************************************************
+      use Symmetry_Info, only: nIrrep, iChBas
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -36,7 +28,7 @@
      &       Txyz(nZeta,3,0:la+1,0:lb+1),
      &       DAO(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2)
       Logical IfGrad(3,2)
-      Integer IndGrd(3,2), kOp(2), iChBas(MxFnc)
+      Integer IndGrd(3,2), kOp(2)
 *
 *     Statement function for Cartesian index
 *
@@ -44,7 +36,6 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-*     Call QEnter('CmbnT1')
 *
 *     ii = la*(la+1)*(la+2)/6
 *     jj = lb*(lb+1)*(lb+2)/6
@@ -54,14 +45,14 @@
  25   Continue
       Do 10 ixa = 0, la
          iyaMax=la-ixa
-      Do 10 ixb = 0, lb
+      Do 11 ixb = 0, lb
          iybMax=lb-ixb
          Do 20 iya = 0, iyaMax
             iza = la-ixa-iya
             ipa= Ind(la,ixa,iza)
 *           iChBs = iChBas(ii+ipa)
 *           pa = DBLE(iPrmt(kOp(1),iChBs))
-         Do 20 iyb = 0, iybMax
+         Do 21 iyb = 0, iybMax
             izb = lb-ixb-iyb
             ipb= Ind(lb,ixb,izb)
 *           jChBs = iChBas(jj+ipb)
@@ -281,7 +272,9 @@
                End If
             End If
 *
+ 21      Continue
  20      Continue
+ 11   Continue
  10   Continue
 *
 *     Trace the gradient integrals
@@ -321,6 +314,5 @@
  100  Continue
 *
 *
-*     Call QExit('CmbnT1')
       Return
       End

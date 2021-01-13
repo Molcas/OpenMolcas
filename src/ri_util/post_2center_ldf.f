@@ -17,15 +17,6 @@
 *                                                                      *
 *  Object: driver for two-electron integrals.                          *
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Timing                                                  *
-*              Setup_Ints                                              *
-*              Eval_Ints                                               *
-*              Term_Ints                                               *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March 1990                                               *
 *                                                                      *
@@ -36,27 +27,20 @@
 *             small basis sets and large molecules. Sept. 1993         *
 *             Modified driver. Jan. 1998                               *
 *             Modified to 2-center ERIs for RI June 2005               *
-*                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas_Aux
+      use Wrj12
+      use Temporary_Parameters, only: force_out_of_core
+      use RICD_Info, only: Thrshld_CD
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
-#include "shinf.fh"
 #include "setup.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "wrj12.fh"
 #include "nsd.fh"
       Character Name_Q*6
       Integer nQvec(0:7)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      iRout = 9
-      iPrint = nPrint(iRout)
-      Call QEnter('POST2LDF')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -294,6 +278,5 @@ C    &                     Work(ipLocal_AInv),nlO,nlO)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Post2LDF')
       Return
       End

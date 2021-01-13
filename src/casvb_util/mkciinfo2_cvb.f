@@ -8,14 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine mkciinfo2_cvb(i1alf,i1bet,iafrm,ibfrm,iato,ibto,
      >  phato,phbto,
      >  xalf,xbet,xalf2,xbet2,mingrph,maxgrph,
      >  nk,locc,lunocc,inewocc,iaccm)
       implicit real*8 (a-h,o-w,y-z),integer(x)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -41,7 +41,8 @@ c Alpha loop:
       call izero(iaccm,norb)
       do 100 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nalf,0)
-100   maxgrph(iorb)=min(iorb,nalf)
+      maxgrph(iorb)=min(iorb,nalf)
+100   continue
       call weight_cvb(xalf,mingrph,maxgrph,nalf,norb)
       call imove_cvb(maxgrph,nk,norb+1)
       call occupy_cvb(nk,norb,locc,lunocc)
@@ -49,7 +50,8 @@ c Alpha loop:
 200   continue
       call izero(inewocc,norb)
       do 300 i=1,nalf
-300   inewocc(locc(i))=1
+      inewocc(locc(i))=1
+300   continue
       do 325 iel=1,norb
       if(inewocc(iel).eq.1)then
         iaccm(iel)=iaccm(iel)+1
@@ -68,7 +70,8 @@ c Beta loop:
       call izero(iaccm,norb)
       do 400 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nbet,0)
-400   maxgrph(iorb)=min(iorb,nbet)
+      maxgrph(iorb)=min(iorb,nbet)
+400   continue
       call weight_cvb(xbet,mingrph,maxgrph,nbet,norb)
       call imove_cvb(maxgrph,nk,norb+1)
       call occupy_cvb(nk,norb,locc,lunocc)
@@ -76,7 +79,8 @@ c Beta loop:
 500   continue
       call izero(inewocc,norb)
       do 600 i=1,nbet
-600   inewocc(locc(i))=1
+      inewocc(locc(i))=1
+600   continue
       do 625 iel=1,norb
       if(inewocc(iel).eq.1)then
         iaccm(iel)=iaccm(iel)+1
@@ -94,26 +98,31 @@ c Indexing arrays :
 
 c  Altered definitions of I1ALF & I1BET :
       do 700 iorb=1,norb
-      do 700 ia=1,n1a
+      do 701 ia=1,n1a
       iax=i1alf(ia,iorb)
       iaxtmp=iafrm(iorb,iax)
-700   i1alf(ia,iorb)=iaxtmp
+      i1alf(ia,iorb)=iaxtmp
+701   continue
+700   continue
       if(absym(4))then
 c  I1ALF & I1BET may share memory:
         if(iiloc(i1alf).ne.iiloc(i1bet))
      >    call imove_cvb(i1alf,i1bet,norb*n1a)
       else
         do 800 iorb=1,norb
-        do 800 ib=1,n1b
+        do 801 ib=1,n1b
         ibx=i1bet(ib,iorb)
         ibxtmp=ibfrm(iorb,ibx)
-800     i1bet(ib,iorb)=ibxtmp
+        i1bet(ib,iorb)=ibxtmp
+801     continue
+800     continue
       endif
 c More indexing arrays :
 c Second alpha loop (NALF-1):
       do 1100 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nalf-1,0)
-1100  maxgrph(iorb)=min(iorb,nalf-1)
+      maxgrph(iorb)=min(iorb,nalf-1)
+1100  continue
       call weight_cvb(xalf2,mingrph,maxgrph,nalf-1,norb)
       call imove_cvb(maxgrph,nk,norb+1)
       call occupy_cvb(nk,norb,locc,lunocc)
@@ -121,7 +130,8 @@ c Second alpha loop (NALF-1):
 1200  continue
       call izero(inewocc,norb)
       do 1300 i=1,nalf-1
-1300  inewocc(locc(i))=1
+      inewocc(locc(i))=1
+1300  continue
       do 1350 i=1,norb-nalf+1
       inewocc(lunocc(i))=1
       iato(lunocc(i),index)=indget_cvb(inewocc,nalf,norb,xalf)
@@ -139,7 +149,8 @@ c Second alpha loop (NALF-1):
 c Second beta loop (NBET-1):
       do 1400 iorb=0,norb
       mingrph(iorb)=max(iorb-norb+nbet-1,0)
-1400  maxgrph(iorb)=min(iorb,nbet-1)
+      maxgrph(iorb)=min(iorb,nbet-1)
+1400  continue
       call weight_cvb(xbet2,mingrph,maxgrph,nbet-1,norb)
       call imove_cvb(maxgrph,nk,norb+1)
       call occupy_cvb(nk,norb,locc,lunocc)
@@ -147,7 +158,8 @@ c Second beta loop (NBET-1):
 1500  continue
       call izero(inewocc,norb)
       do 1600 i=1,nbet-1
-1600  inewocc(locc(i))=1
+      inewocc(locc(i))=1
+1600  continue
       do 1650 i=1,norb-nbet+1
       inewocc(lunocc(i))=1
       ibto(lunocc(i),index)=indget_cvb(inewocc,nbet,norb,xbet)

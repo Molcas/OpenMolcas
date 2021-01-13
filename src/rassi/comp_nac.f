@@ -31,13 +31,15 @@ C On Input:                                                             C
 C             SCR:  Transition density matrice in AO basis.             C
 C                                                                       C
 C***********************************************************************C
+      Use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: nIrrep
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='COMP_NAC')
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "disp.fh"
@@ -47,14 +49,7 @@ C***********************************************************************C
       REAL*8 SCR(nSCR)
       DIMENSION IOFF(*)
       Integer IndGrd(0:7)
-      Logical TF, TstFnc
-* Statement Function
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
-
-      CALL QENTER(ROUTINE)
-
+      Logical, External :: TF
 *
 * Main Loop on all  geometrical displacements to perform
 * calculation of NonAdiabatic Couplings
@@ -67,7 +62,7 @@ C***********************************************************************C
       Nprop = 0
       Job   = Jstate
       Do ICnttp=1,nCnttp
-         Do ICnt=1,nCntr(iCnttp)
+         Do ICnt=1,dbsc(iCnttp)%nCntr
             IdCnt=IdCnt+1
             Do IdCar=1,3
                Nprop=Nprop+1
@@ -104,7 +99,6 @@ C***********************************************************************C
 * INDGRD(IIRREP) will be zero, except for those irreps, and
 * will then contain the ordering number of the displacement.
                   Do iIrrep = 0, nIrrep-1
-                     iSmLbl = 2**iIrrep
                      If ((iAnd(2**iIrrep,lOper).ne.0).and.
      &                    (MUL(iIrrep+1,isy12).eq.1))  Then
                         idisp = indgrd(iirrep)
@@ -170,8 +164,7 @@ C                                                                       C
 C***********************************************************************C
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "prgm.fh"
@@ -187,7 +180,6 @@ C***********************************************************************C
       CHARACTER*8 LABEL, STYPE
 * Subroutine Statements
 
-      CALL QENTER(ROUTINE)
 
 *
 * Reading information from MCKINT file...
@@ -280,6 +272,5 @@ C     END IF
 *
 * Now you can leave...
 *
-      CALL QEXIT(ROUTINE)
       RETURN
       END

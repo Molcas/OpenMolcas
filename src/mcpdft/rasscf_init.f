@@ -76,8 +76,7 @@ C        ICIRST=1 ! to be activated!
       End If
 
 * Initialize print levels: See output_ras.fh
-* Global logical unit numbers for standard input and standard output
-      IO=5
+* Global logical unit number for standard output
       LF=6
 * Externally set default print level control. Should the program be silent?
       IPRGLB_IN=iPrintLevel(-1)
@@ -190,7 +189,8 @@ C        ICIRST=1 ! to be activated!
 * State used in response calculation
       iPCMROOT=1
 * State to alaska
-      iRLXROOT=0
+*TRS
+*      iRLXROOT=0
 * number of roots required in CI
       NROOTS=1
 * number of roots actually used in CI-DAVIDSON
@@ -265,7 +265,7 @@ C        ICIRST=1 ! to be activated!
 * default spin value (singlet)
       ISPIN=1
 * default symmetry
-      LSYM=1
+      STSYM=1
 * default number of active electrons
       NACTEL=0
 * default maximum number of holes in RAS1

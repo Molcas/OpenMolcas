@@ -15,8 +15,6 @@
      &                   iPlot,iPrint)
        use Real_Spherical
        Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "stdalloc.fh"
 #include "status.fh"
@@ -31,13 +29,10 @@
       Integer iAnr(nAtoms),iT_Sets(nij), iWarnings(nij)
 C      Parameter (mxAtoms=500)
 *
-      If (Allocated(RSph)) Call mma_deallocate(RSph)
-      If (Allocated(ipSph)) Call mma_deallocate(ipSph)
       Call Sphere(lMax)
 *
       call dcopy_(3*nij,[Zero],0,B,1)
 *
-      iDim = nij*nElem
       Call dCopy_(nij*nElem,[Zero],0,xnrMP,1)
       ij = 0
       Do iAtom = 1, nAtoms
@@ -53,7 +48,6 @@ C      Parameter (mxAtoms=500)
          End Do
       End Do
 *
-      iPrint_Errors  = 0
       Do iAtom = 1, nAtoms
          ii = iAtom*(iAtom+1)/2
          Do jAtom = iAtom, 1, -1
@@ -122,8 +116,7 @@ C??               End If
       End Do
       call dcopy_(3*nij,B,1,EC,1)
 *
-      If (Allocated(RSph)) Call mma_deallocate(RSph)
-      If (Allocated(ipSph)) Call mma_deallocate(ipSph)
+      Call Sphere_Free()
 *
       Return
 c Avoid unused argument warnings

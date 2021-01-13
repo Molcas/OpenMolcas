@@ -11,7 +11,7 @@
       module refwfn
       Implicit None
       Logical :: refwfn_active = .False.
-      Character(128) :: refwfn_filename
+      Character(Len=128) :: refwfn_filename
       Integer :: refwfn_id
       Logical, public :: refwfn_is_h5
       Integer :: IADR15(30)
@@ -24,13 +24,13 @@
 ************************************************************************
       Subroutine refwfn_init(Filename)
 ************************************************************************
+#ifdef _HDF5_
+      Use mh5, Only: mh5_is_hdf5, mh5_open_file_r
+#endif
       Implicit None
-      Character(*) :: Filename
+      Character(Len=*) :: Filename
       Integer :: I, IAD15
 
-#ifdef _HDF5_
-#  include "mh5.fh"
-#endif
       refwfn_is_h5 = .False.
 
       ProgName = Get_ProgName()
@@ -81,10 +81,10 @@
 ************************************************************************
       Subroutine refwfn_close
 ************************************************************************
-      Implicit None
 #ifdef _HDF5_
-#  include "mh5.fh"
+      Use mh5, Only: mh5_close_file
 #endif
+      Implicit None
 
 #ifdef _HDF5_
       If (refwfn_is_h5) Then
@@ -105,13 +105,15 @@ CSVC: initialize the reference wavefunction info
 #ifdef _DMRG_
       use qcmaquis_info
 #endif
+#ifdef _HDF5_
+      Use mh5, Only: mh5_fetch_attr, mh5_exists_dset, mh5_fetch_dset
+#endif
       Implicit None
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "stdalloc.fh"
 #ifdef _HDF5_
-#  include "mh5.fh"
-      character(1), allocatable :: typestring(:)
+      character(Len=1), allocatable :: typestring(:)
 #endif
       Integer iSym, ref_nSym, ref_nBas(mxSym)
       Real*8 :: Weight(mxRoot)
@@ -128,8 +130,8 @@ CSVC: initialize the reference wavefunction info
 *        call mh5_fetch_attr (refwfn_id, 'TITLE', Title)
         call mh5_fetch_attr (refwfn_id,'SPINMULT', iSpin)
         call mh5_fetch_attr (refwfn_id,'NSYM', ref_nSym)
-        call mh5_fetch_attr (refwfn_id,'LSYM', lSym)
-        call mh5_fetch_attr (refwfn_id, 'NBAS', ref_nBas)
+        call mh5_fetch_attr (refwfn_id,'LSYM', stSym)
+        call mh5_fetch_attr (refwfn_id,'NBAS', ref_nBas)
 
         call mh5_fetch_attr (refwfn_id,'NACTEL', nActEl)
         call mh5_fetch_attr (refwfn_id,'NHOLE1', nHole1)
@@ -165,7 +167,7 @@ CSVC: initialize the reference wavefunction info
 #ifdef _DMRG_
         If(mh5_exists_dset(refwfn_id, 'QCMAQUIS_CHECKPOINT')) Then
           call qcmaquis_info_init(1,nroots,-1)
-          call mh5_fetch_dset_array_str(refwfn_id,
+          call mh5_fetch_dset(refwfn_id,
      &       'QCMAQUIS_CHECKPOINT', qcm_group_names(1)%states)
         end if
 #endif
@@ -178,7 +180,7 @@ C Another title field is read from input a little later, it is called
 C TITLE2. That one is printed out in PRINP_CASPT2.
         IAD15=IADR15(1)
         CALL WR_RASSCF_Info(refwfn_id,2,iAd15,
-     &                      NACTEL,ISPIN,REF_NSYM,LSYM,
+     &                      NACTEL,ISPIN,REF_NSYM,STSYM,
      &                      NFRO,NISH,NASH,NDEL,REF_NBAS,8,
      &                      NAME,LENIN8*MXORB,NCONF,HEADER,144,
      &                      TITLE,4*18*mxTit,POTNUC,
@@ -209,14 +211,15 @@ C TITLE2. That one is printed out in PRINP_CASPT2.
       subroutine refwfn_data
 ************************************************************************
 CSVC: initialize the reference wavefunction data
+#ifdef _HDF5_
+      Use mh5, Only: mh5_fetch_attr, mh5_fetch_dset,
+     &               mh5_fetch_dset_array_real
+#endif
       Implicit None
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "WrkSpc.fh"
-#ifdef _HDF5_
-#  include "mh5.fh"
-#endif
 
       Integer :: I, IAD15, II, IDISK, ID
 
@@ -331,8 +334,7 @@ CSVC: read the L2ACT and LEVEL arrays
 
 #ifdef _HDF5_
       If (refwfn_is_h5) Then
-        call mh5_fetch_dset_array_real(refwfn_id,
-     &         'ROOT_ENERGIES', ROOT_ENERGIES)
+        call mh5_fetch_dset(refwfn_id, 'ROOT_ENERGIES', ROOT_ENERGIES)
       Else
 #endif
 *PAM 2015: We will no longer recompute the RASSCF energies

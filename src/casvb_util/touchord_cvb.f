@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine touchord_cvb(itouch,iorder,n)
       implicit real*8(a-h,o-z)
@@ -22,7 +23,8 @@
       endif
       itchord=iorder(itouch)
       do 100 i=1,n
-100   if(iorder(i).lt.itchord.and.iorder(i).ne.0)iorder(i)=iorder(i)+1
+      if(iorder(i).lt.itchord.and.iorder(i).ne.0)iorder(i)=iorder(i)+1
+100   continue
       iorder(itouch)=1
       if(debug)write(6,*)' iorder on exit  :',iorder
       return

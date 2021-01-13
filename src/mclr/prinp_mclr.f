@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine PrInp_MCLR(iPL)
+      use Exp, only: nexp_max
 ************************************************************************
 *                                                                      *
 *     Echo input                                                       *
@@ -32,11 +33,6 @@
       Character*100  Line,BlLine,StLine
       Data XYZ / 'X','Y','Z' /
 *----------------------------------------------------------------------*
-*     Start and define the paper width                                 *
-*----------------------------------------------------------------------*
-      lPaper=110
-*     lPaper=80
-*----------------------------------------------------------------------*
 *     Initialize blank and header lines                                *
 *----------------------------------------------------------------------*
 
@@ -45,7 +41,7 @@
          BlLine(i:i)=' '
          StLine(i:i)='*'
       End Do
-      lPaper=132
+*     lPaper=132
 *     left=(lPaper-lLine)/2
       left=5
       Write(Fmt1,'(A,I3.3,A)') '(',left,'X,A)'
@@ -245,7 +241,7 @@
       Else If (PT2) Then
          Write(6,Fmt2//'A,A)') 'CALCULATING LAGRANGIAN MULTIPLIER',
      &                      ' FOR CASPT2'
-      Else If (SA) Then
+      Else If (SA.or.iMCPD) Then
          If (isNAC) Then
             Write(6,Fmt2//'A,I3,"/",I3)')'Lagrangian multipliers '//
      &                            'are calculated for states no. ',
@@ -321,7 +317,7 @@
          If (iMethod.eq.iCASSCF) Then
              Write(6,Fmt2//'A,I3)')
      &          'Linear response function is computed '//
-     &                        'for root no. = ',lRoots
+     &                        'for root no. = ',irlxroot
          Else
             Write(6,Fmt2//'A,I3)')
      &         'Linear response function is computed '//

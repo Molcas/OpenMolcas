@@ -16,29 +16,23 @@
 * Object: driver for computation of gradient with respect to the DFT   *
 *         energy.                                                      *
 *                                                                      *
-* Called from: Alaska or Drvg1                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              OneEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Chem. Phys.                       *
 *             University of Lund, SWEDEN                               *
 *             August 2002                                              *
 ************************************************************************
+      use Basis_Info, only: nBas
+      use Symmetry_Info, only: nIrrep
+      use Para_Info, only: King
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "print.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "rctfld.fh"
 #include "disp.fh"
 #include "nq_info.fh"
       Character Label*80, KSDFT*16
       Real*8 Grad(nGrad), Temp(nGrad)
-      Logical First, Dff, Do_Grad, King, l_casdft
+      Logical First, Dff, Do_Grad, l_casdft
       Character*4 DFTFOCK
       Dimension Dummy1(1),Dummy2(1),Dummy3(1),Dumm0(1),Dumm1(1)
 *                                                                      *
@@ -52,7 +46,6 @@
       DFTFOCK='SCF '
       iRout = 131
       iPrint = nPrint(iRout)
-      Call qEnter('DrvDFTg')
       LuWr=6
 *
       nDens = 0
@@ -71,6 +64,7 @@
       l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
      &           KSDFT(1:6).eq.'TLSDA5'  .or.
      &           KSDFT(1:5).eq.'TBLYP'   .or.
+     &           KSDFT(1:5).eq.'TOPBE'   .or.
      &           KSDFT(1:6).eq.'TSSBSW'  .or.
      &           KSDFT(1:5).eq.'TSSBD'  .or.
      &           KSDFT(1:5).eq.'TS12G'  .or.
@@ -79,6 +73,7 @@
      &           KSDFT(1:7).eq.'TREVPBE' .or.
      &           KSDFT(1:8).eq.'FTREVPBE'.or.
      &           KSDFT(1:6).eq.'FTLSDA'  .or.
+     &           KSDFT(1:6).eq.'FTOPBE'  .or.
      &           KSDFT(1:6).eq.'FTBLYP'
 
       If( l_casdft ) then
@@ -118,7 +113,7 @@
          jPrint=nPrint(112)
 !AMS
 !        jprint=15
-         If (jPrint.ge.15) Call PrGrad(Label,Temp,nGrad,lIrrep,ChDisp,5)
+         If (jPrint.ge.15) Call PrGrad(Label,Temp,nGrad,ChDisp,5)
          If (king()) Call DaXpY_(nGrad,One,Temp,1,Grad,1)
          If (iPrint.lt.6) Go To 777
          Write (LuWr,*)
@@ -140,6 +135,5 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call qExit('DrvDFTg')
       Return
       End

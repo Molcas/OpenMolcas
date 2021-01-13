@@ -1,11 +1,12 @@
 # Define some configuration groups (variables, tags, etc.) to be used in jobs
 # - plain: default configuration
 # - options: enable several options
+# - linalg: use a link-time linalg library and ninja
 # - pgi: use PGI compilers
 # - sun: use Oracle compilers
 # - intel: use Intel compilers (needs access to a license)
-# - intel13: use Intel 2013 compilers (specific runner)
-# - nag: use NAG Fortran compiler and Garble (specific runner, disabled)
+# - intel13: use Intel 2013 compilers (build on specific runner)
+# - nag: use NAG Fortran compiler and Garble (build on specific runner)
 # - garble: setup with Garble option and gcc compilers
 # - bounds: enable bounds checking (slow)
 # - debug: build with no optimization (no tests)
@@ -16,7 +17,6 @@
   variables:
     cache_file: |
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
@@ -32,19 +32,34 @@
       set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
       set (BUILD_STATIC_LIB "ON" CACHE STRING "build static libmolcas too")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
       set (LINALG "Runtime" CACHE STRING "runtime blas/lapack linking")
+      set (CHEMPS2 "ON" CACHE STRING "enable CheMPS2 interface")
       set (FDE "ON" CACHE STRING "enable frozen-density-embedding (FDE) interface")
-      set (GRID_IT "ON" CACHE STRING "enable public GRID_IT code")
       set (TOOLS "ON" CACHE STRING "compile Tools")
       set (MSYM "ON" CACHE STRING "enable libmsym (needs submodule)")
       set (WFA "ON" CACHE STRING "enable libwfa (needs submodule)")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
-    submodules: "External/lapack External/grid_it External/libmsym External/libwfa"
+    submodules: "External/lapack External/libmsym External/libwfa"
     MOLCAS_LINALG: "/opt/OpenBLAS/lib/libopenblas.so"
     MOLCAS_LINALG_INFO: "YES"
+  tags:
+    - docker
+
+.linalg:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-10:latest
+  variables:
+    CMAKE_GENERATOR: "Ninja"
+    make: "ninja"
+    cache_file: |
+      set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
+      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (LINALG "MKL" CACHE STRING "use MKL library")
+    CC: "gcc"
+    CXX: "g++"
+    FC: "gfortran"
+    tests: ".all"
   tags:
     - docker
 
@@ -79,16 +94,13 @@
       set (HDF5 "ON" CACHE STRING "turn on HDF5")
       set (LINALG "MKL" CACHE STRING "enable MKL")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
       # with -fsyntax-only and only_objs we create all interface files
-      set (EXTRA_FFLAGS "-fsyntax-only" CACHE STRING "extra fortran flags")
+      set (EXTRA_FFLAGS "-fsyntax-only" CACHE STRING "extra Fortran flags")
     pre_compile_script: |
       . /opt/intel/composerxe/linux/bin/compilervars.sh intel64
     pre_make_script: |
-      make only_objs
+      $${make} only_objs
       cmake -D EXTRA_FFLAGS="" .
-    pre_run_script: |
-      . /opt/intel/composerxe/linux/bin/compilervars.sh intel64
     CC: "icc"
     CXX: "icpc"
     FC: "ifort"
@@ -96,27 +108,22 @@
     - intel_license
 
 .intel13:
+  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-arch:latest
   variables:
+    install_path: "${CI_PROJECT_DIR}/install"
     cache_file: |
       set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
       set (HDF5 "OFF" CACHE STRING "turn off HDF5")
       set (LINALG "MKL" CACHE STRING "enable MKL")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
       # with -fsyntax-only and only_objs we create all interface files
-      set (EXTRA_FFLAGS "-fsyntax-only -warn notruncated_source" CACHE STRING "extra fortran flags")
+      set (EXTRA_FFLAGS "-fsyntax-only" CACHE STRING "extra Fortran flags")
     pre_compile_script: |
-      . /usr/license/intel/composer_xe_2013.1.117/bin/compilervars.sh intel64
-      export PATH=$${PWD}:$${PATH}
-      touch pymolcas
+      . /usr/local/bin/setupintel.sh
+      rm -rf ${install_path}
     pre_make_script: |
-      make only_objs
-      # notruncated_source to work around intel13 bug, which includes full path of #include'd files and then reports truncated lines
-      cmake -D EXTRA_FFLAGS="-warn notruncated_source" .
-    pre_run_script: |
-      . /usr/license/intel/composer_xe_2013.1.117/bin/compilervars.sh intel64
-      export PATH=$${PWD}:$${PATH}
-      touch pymolcas
+      $${make} only_objs
+      cmake -D EXTRA_FFLAGS="" .
     CC: "icc"
     CXX: "icpc"
     FC: "ifort"
@@ -124,25 +131,25 @@
     - intel13
 
 .nag:
+  # use this image for better compatibility with the nag runner
+  image: ${CI_REGISTRY}/molcas/dockerfiles/intel-arch:latest
   variables:
+    install_path: "${CI_PROJECT_DIR}/install"
     cache_file: |
       set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
       set (BUILD_SHARED_LIBS "OFF" CACHE STRING "static molcas lib" )
-      set (HDF5 "OFF" CACHE STRING "turn off HDF5")
+      set (HDF5_ROOT "/opt/hdf5_v1.12.0_gnu" CACHE STRING "HDF5 location") # specific for nag runner
+      set (HDF5_USE_STATIC_LIBRARIES "ON" CACHE STRING "use static HDF5")
+      set (HDF5 "ON" CACHE STRING "turn on HDF5")
       set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
+      set (EXTRA_FFLAGS "-w=obs -w=x77 -unsharedrts -gline" CACHE STRING "extra Fortran flags")
     pre_compile_script: |
-      export PATH=$${PWD}:/opt/NAG/Fortran-amd64/6.0/bin:$${PATH}
-      touch pymolcas
-    pre_run_script: |
-      export PATH=$${PWD}:/home/tester/bin/:$${PATH}
-      touch pymolcas
+      rm -rf ${install_path}
     CC: "gcc"
     CXX: "g++"
     FC: "nagfor"
-    NAG_KUSARI_FILE: "/opt/NAG/npl6a60na.key"
-    FFLAGS: "-w=obs -w=x77 -Wc,-fno-aggressive-loop-optimizations -Qpath /opt/NAG/Fortran-amd64/6.0/lib"
   tags:
-    - nag
+    - nagfor
 
 .garble:
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
@@ -150,7 +157,6 @@
     cache_file: |
       set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
       #set (BOUNDS "ON" CACHE STRING "enable bounds checking" )
       set (BUILD_SHARED_LIBS "OFF" CACHE STRING "static molcas lib" )
       set (HDF5 "OFF" CACHE STRING "turn off HDF5")
@@ -171,6 +177,7 @@
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
+    MOLCAS_TIMELIM: "1000"
   tags:
     - docker
 
@@ -181,12 +188,10 @@
       set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "no opt, debug info")
       set (BUILD_SHARED_LIBS "OFF" CACHE STRING "do not use shared libmolcas")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (DEBUG_DEFS "_BIGOT_" CACHE STRING "stricter runtime checks")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
     # only interested in compilation, so run no tests
-    # (but the test job will fail if the compilation didn't succeed)
     tests: ".none"
   tags:
     - docker
@@ -200,7 +205,7 @@
       set (QCMaquis_NAME "GitLab CI" CACHE STRING "QCMaquis name")
       set (QCMaquis_EMAIL "gitlab.ci@example.com" CACHE STRING "QCMaquis e-mail")
     pre_run_script: |
-      . ${CI_PROJECT_DIR}/build/qcmaquis/bin/qcmaquis.sh
+      . install_dir/qcmaquis/bin/qcmaquis.sh
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"

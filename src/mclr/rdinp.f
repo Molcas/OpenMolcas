@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       Subroutine RdInp_MCLR
+       Subroutine RdInp_MCLR()
 ************************************************************************
 *                                                                      *
 *     Locate input stream and read commands                            *
@@ -21,12 +21,14 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      Use Basis_Info, only: Basis_Info_Get
+      Use Center_Info, only: Center_Info_Get
+      Use Exp, only: NewPre, nexp_max
+      use negpre
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
-#include "WrkSpc.fh"
-#include "negpre.fh"
 #include "sa.fh"
       Parameter ( nCom=38 )
       Character*72 Line
@@ -43,7 +45,7 @@
      &            'RASS','DISO','CASI','SALA','NODE',
      &            'ESTE','MOUT','MASS','NAC ','$$$$',
      &            'THER','NEWC','TWOS'/
-      Dimension idum(1)
+      Integer iDum(1)
 *----------------------------------------------------------------------*
 *     Locate "start of input"                                          *
 *----------------------------------------------------------------------*
@@ -53,7 +55,9 @@
 *----------------------------------------------------------------------*
       debug=.False.
       Epsilon_Undef=.True.
-      Call Get_info_Static(iDum(1))
+      Call Basis_Info_Get()
+      Call Center_Info_Get()
+      Call Get_info_Static()
       istate=1     ! State for which the Lagrangian is calc.
       override=.false.
       If (debug) write(6,*) 'Got info.fh'
@@ -66,12 +70,10 @@
       elechess=.false.
       TimeDep=.false.
       PrCI=.false.
-      nexp_max=100
       CIthrs=0.05d0
       PrOrb=.false.
       SewLab='NONE    '
       Page=.false.
-      OEthrs=1.0d0
       ibreak=2
       nIter=200
       RASSI=.false.
@@ -79,7 +81,6 @@
       SA=.false.
       esterr=.false.
       FANCY_PRECONDITIONER=.true.
-      newpre=.true.
       save=.false.
       isotop=.true.
       Call lCopy(mxAtm*3+3,[.true.],0,lCalc,1)
@@ -319,7 +320,6 @@
       If ( iRc.ne.0 ) Then
          Write (6,*) 'RdInp: Error reading ONEINT'
          Write (6,'(A,A)') 'Label=',Label
-         Call QTrace
          Call Abend()
       End If
 *
@@ -544,10 +544,8 @@
 *----------------------------------------------------------------------*
  998  Write (6,*) 'RdInp: Error while reading input'
       Write (6,'(A,A)') 'Last command:',Line
-      Call QTrace
       Call Abend()
 999   Write (6,*) 'RdInp: Premature end of input file'
       Write (6,'(A,A)') 'Last command:',Line
-      Call QTrace
       Call Abend()
       End

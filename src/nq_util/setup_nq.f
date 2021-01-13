@@ -18,17 +18,6 @@
 *         numerical quadrature.                                        *
 * Warning: The exponents of each shell are reordered diffuse to compact*
 *                                                                      *
-* Called from: Drvnq                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Quit                                                    *
-*              Nr_Shells                                               *
-*              GetMem                                                  *
-*              DSwap                                                   *
-*              GauLeg                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh,                                            *
 *             Dept of Chemical Physics,                                *
 *             University of Lund, Sweden                               *
@@ -36,9 +25,11 @@
 ************************************************************************
       use Real_Spherical
       use iSD_data
+      use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: nIrrep, iOper
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "status.fh"
@@ -47,7 +38,7 @@
 #include "setup.fh"
 #include "grid_on_disk.fh"
 #include "print.fh"
-      Real*8 Coor(3)
+      Real*8 Coor(3), C(3)
       Logical EQ, Do_Grad, On_Top, PMode_Old
       Real*8 Alpha(2),rm(2), R_Min(0:nR_Min)
       Integer Maps2p(nShell,0:nSym-1)
@@ -73,12 +64,11 @@
 ************************************************************************
 *                                                                      *
       Call ICopy(nShell*nSym,[-99999999],0,Maps2p,1)
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
 c     Write(6,*) '********** Setup_NQ ***********'
-C     Call QEnter('Setup_NQ')
       ntotgp=0
 *                                                                      *
 ************************************************************************
@@ -108,8 +98,9 @@ C     Call QEnter('Setup_NQ')
          Call AbEnd()
       End If
       Do iShell = 1, nShell
-         ipxyz=iSD(8,iShell)
-         call dcopy_(3,Work(ipxyz),1,Coor,1)
+         iCnttp=iSD(13,iShell)
+         iCnt  =iSD(14,iShell)
+         Coor(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
          Call Process_Coor(Coor,Work(ipTempC),nAtoms,nSym,iOper)
       End Do
       Call Allocate_Work(ipCoor,3*nAtoms)
@@ -167,8 +158,9 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
       Do iShell = 1, nShell
 *
 *------- Get the Atom number
-         iANr=iAtmNr(iSD(13,iShell))
+         iANr=dbsc(iSD(13,iShell))%AtmNr
 *
+         iShll=iSD(0,iShell)   ! Get the angular momentum of ishell
          iAng=iSD(1,iShell)   ! Get the angular momentum of ishell
          iCmp=iSD(2,iShell)   ! Get the # of angular components
          nCntrc=iSD(3,iShell) !Get the # of contracted functions
@@ -182,18 +174,18 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
 *     Order the exponents diffuse to compact for the active shell      *
 *                                                                      *
 ************************************************************************
-         Call OrdExpD2C(mExp,Work(iSD(6,iShell)),nCntrc,
-     &                       Work(iSD(4,iShell)))
+         Call OrdExpD2C(mExp,Shells(iShll)%Exp,nCntrc,
+     &                       Shells(iShll)%pCff)
 *
 *-----Get the extreme exponents for the active shell.
-         A_low =Work(iSD(6,iShell)       )
-         A_high=Work(iSD(6,iShell)+mExp-1)
+         A_low =Shells(iShll)%Exp(1)
+         A_high=Shells(iShll)%Exp(mExp)
 *
-         ixyz=iSD(8,iShell)
+         iCnttp=iSD(13,iShell)
+         iCnt  =iSD(14,iShell)
+         C(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
          Do iIrrep = 0, nIrrep-1
-            Coor(1) = Work(ixyz  )*DBLE(iPhase(1,iOper(iIrrep)))
-            Coor(2) = Work(ixyz+1)*DBLE(iPhase(2,iOper(iIrrep)))
-            Coor(3) = Work(ixyz+2)*DBLE(iPhase(3,iOper(iIrrep)))
+            Call OA(iOper(iIrrep),C,Coor)
          Do iNQ=1,nNQ
             jNQ=ip_Coor(iNQ)
 *
@@ -257,11 +249,12 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
          jNQ=ip_Coor(iNQ)
          If (MBC.ne.' ') Then
             Do iS = 1, nShell
-               ipxyz=iSD(8,iS)
-               If (EQ(Work(jNQ),Work(ipxyz))) Then
+               iCnttp=iSD(13,iS)
+               iCnt  =iSD(14,iS)
+               C(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
+               If ( EQ(Work(jNQ),C) ) Then
                   mdci=iSD(10,iS)
-                  Write (6,*) 'LblCnt(mdci)=',LblCnt(mdci)
-                  If (LblCnt(mdci).eq.MBC) Then
+                  If (dc(mdci)%LblCnt.eq.MBC) Then
                      nR_tmp=nR
                      nR=INT(DBLE(nR)*2.0D0)
                      Threshold_tmp=Threshold
@@ -312,7 +305,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
          iOff = iOff + 3
       End Do
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Do_Grad) Then
       delta=1.0D-8
       Call Allocate_Work(ip_Dbg,9)
@@ -362,7 +355,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
       iOff = ipdOdx
       Do iCar = 1, 3
          Do iNQ = 1, nNQ
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
          Call RecPrt('dOdx','(3G20.10)',Work(iOff),3,3)
          Call RecPrt('dOdx(numerical)','(3G20.10)',
      &               Work(ip_dOdx(iNQ,iCar)),3,3)
@@ -372,7 +365,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
          End Do
       End Do
       End If
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
 *
 *     Check translational invariance
 *
@@ -436,16 +429,16 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
                ValExp=-One
                iSet=0
                Do iShell=1,nShell
+                  iShll =iSD(0,iShell)
                   iAng_ =iSD(1,iShell)
                   NrExp =iSD(5,iShell)
-                  ip_Exp=iSD(6,iShell)
 *                 Write (6,*) 'iAng_,iAng=',iAng_,iAng
                   If (iAng_.eq.iAng.and.NrExp.ge.1) Then
                      Do iSym = 0, nSym-1
                         iNQ_=Maps2p(iShell,iSym)
 *                       Write (6,*) 'iNQ_,iNQ=',iNQ_,iNQ
                         If (iNQ_.eq.iNQ) Then
-                           ValExp=Work(ip_Exp+NrExp-1)
+                           ValExp=Shells(iShll)%Exp(NrExp)
                            iSet=1
                         End If
                      End Do
@@ -486,7 +479,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*)
       Write (6,'(A)') ' =================================='
       Write (6,'(A)') ' =        Grid information        ='
@@ -566,7 +559,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
       nx=nx+2
       ny=ny+2
       nz=nz+2
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'x_min=',x_min,dx
       Write (6,*) 'y_min=',y_min,dy
       Write (6,*) 'z_min=',z_min,dz
@@ -577,25 +570,6 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
       Write (6,*) 'Total number of blocks=',nx*ny*nz
 #endif
       number_of_subblocks=nx*ny*nz
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Allocate memory for handling densities
-*
-      MxDij = 0
-      Do iS = 1, nShell
-         iCmp =iSD(2,iS)
-         iBas =iSD(3,iS)
-         iPrim=iSD(5,iS)
-         If (nIrrep.eq.1) Then
-            MxDij= Max(MxDij,iCmp**2+iPrim**2+1)
-         Else
-            MxDij= Max(MxDij,(iBas**2+1)*iCmp**2+iPrim**2+1)
-         End If
-      End Do
-*
-      MxDij = 6 * nIrrep * MxDij
-      Call GetMem('Dijs','Allo','Real',ipDijs,MxDij)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -723,7 +697,7 @@ C     Call RecPrt('Coor',' ',Work(ipCoor),3,nAtoms)
          If (On_Top) Then
             mdci  = iSD(10,iSh)
             kAO=iCmp*iBas*nGridMax
-            nSO=kAO*nSym/nStab(mdci)*mAO
+            nSO=kAO*nSym/dc(mdci)%nStab*mAO
          End If
 c         nMem=Max(nMem,nxyz+nAngular+nRad+nRadial+nSO)
          nMem=Max(nMem,nxyz+nAngular+nRad+nRadial,2*nSO)
@@ -792,15 +766,14 @@ C        Write (6,*) 'Grid_Status.eq.Use_Old'
       ndc2 = ndc**2
       Call GetMem('Fact','Allo','Real',ip_Fact,ndc2)
       Do mdci = 1, ndc
-         nDegi=nIrrep/nStab(mdci)
+         nDegi=nIrrep/dc(mdci)%nStab
          Do mdcj = 1, ndc
-            nDegj=nIrrep/nStab(mdcj)
+            nDegj=nIrrep/dc(mdcj)%nStab
 *
-            Call DCR(LmbdR,iOper,nIrrep,jStab(0,mdci),
-     &               nStab(mdci),jStab(0,mdcj),
-     &               nStab(mdcj),iDCRR,nDCRR)
+            Call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,
+     &                     dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
 *
-            iuv = nStab(mdci)*nStab(mdcj)
+            iuv = dc(mdci)%nStab*dc(mdcj)%nStab
             If (MolWgh.eq.1) Then
                Fact = DBLE(nIrrep) / DBLE(LmbdR)
             Else If (MolWgh.eq.0) Then
@@ -820,6 +793,5 @@ C        Write (6,*) 'Grid_Status.eq.Use_Old'
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QExit('Setup_NQ')
       Return
       End

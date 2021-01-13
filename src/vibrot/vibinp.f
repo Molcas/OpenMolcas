@@ -452,7 +452,8 @@ C
       word=line(1:4)
       Call Upcase(word)
       Do 112 i=1,ntab
-112   If(word.eq.tabinp(i)) go to 210
+      If(word.eq.tabinp(i)) go to 210
+112   Continue
       If(word.eq.'PLOT') go to 113
       nop=nop+1
       If(NOP.gt.NPIN) Then

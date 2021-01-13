@@ -11,9 +11,10 @@
       Subroutine Picky_(iBasi,iBsInc,iPrimi,iBasAO,iBasn,
      &                 jBasj,jBsInc,jPrimj,jBasAO,jBasn,
      &                 iCmpi,jCmpj,iShell,jShell,
-     &                 mDCRij,ipDij,ipDDij,mDij,nIrrep)
+     &                 mDCRij,ipDij,ipDDij,mDij,DeDe,nDeDe)
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
-#include "WrkSpc.fh"
+      Real*8 DeDe(nDeDe)
 *
       If (nIrrep.eq.1) Then
          ii1=0
@@ -49,9 +50,9 @@
          If (iBasi.eq.iBsInc.and.jBasj.eq.jBsInc) Then
             ipDDij=ipDij
          Else
-            Call Picky(Work(ipDij),i1,j1,iPrimi*jPrimj,
+            Call Picky(DeDe(ipDij),i1,j1,iPrimi*jPrimj,
      &                 iCmpi*jCmpj,mDCRij,
-     &                 i2,i2+i3-1,j2,j2+j3-1,Work(ipDDij))
+     &                 i2,i2+i3-1,j2,j2+j3-1,DeDe(ipDDij))
          End If
       End If
       mDij = (ii3*jj3+1)*iCmpi*jCmpj + iPrimi*jPrimj + 1

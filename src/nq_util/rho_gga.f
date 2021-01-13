@@ -14,23 +14,13 @@
      &                   list_s,nlist_s,TabAO,ipTabAO,mAO,nTabAO,nSym,
      &                   Fact,mdc,TabAOMax,list_bas,Index,nIndex)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: Do_Batch                                                *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN.  2000                                   *
 ************************************************************************
       use iSD_data
+      use k2_arrays, only: DeDe, ipDijS
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "debug.fh"
 #include "nq_info.fh"
@@ -50,15 +40,13 @@
 *                                                                      *
 *define _TIME_
 #ifdef _TIME_
-      Call QEnter('Rho_GGA')
 #endif
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Then
          Call RecPrt('Rho_GGA:Dens',' ',Dens,nDens,nD)
          Write (6,*) 'mAO=',mAO
          Write (6,*) 'mGrid=',mGrid
          Write (6,*) 'nTabAO=',nTabAO
-         Write (6,*) 'nIrrep=',nIrrep
          Write (6,*) 'nlist_s=',nlist_s
          Do iList_s = 1, nList_s
             Write (6,*) 'iList_s=',iList_s
@@ -102,31 +90,31 @@
          ij = (mdci-1)*mdc + mdci
 *
          iER=iEOr(kDCRE,kDCRE)
-         lDCRER=NrOpr(iER,iOper,nIrrep)
+         lDCRER=NrOpr(iER)
 *
          ip_D_a=ipDij+lDCRER*mDij
          ip_D_b=ip_D_a
          If (nD.ne.1) ip_D_b=ipDSij+lDCRER*mDij
 *
          If (nD.ne.1) Then
-            ix=iDAMax_(mDij,Work(ip_D_a),1)
-            iy=iDAMax_(mDij,Work(ip_D_b),1)
-            DMax_ii=Half*( Abs(Work(ip_D_a-1+ix))
-     &                    +Abs(Work(ip_D_b-1+iy)) )
+            ix=iDAMax_(mDij,DeDe(ip_D_a),1)
+            iy=iDAMax_(mDij,DeDe(ip_D_b),1)
+            DMax_ii=Half*( Abs(DeDe(ip_D_a-1+ix))
+     &                    +Abs(DeDe(ip_D_b-1+iy)) )
          Else
-            ix=iDAMax_(mDij,Work(ip_D_a),1)
-            DMax_ii=Abs(Work(ip_D_a-1+ix))
+            ix=iDAMax_(mDij,DeDe(ip_D_a),1)
+            DMax_ii=Abs(DeDe(ip_D_a-1+ix))
          End If
          If (TMax_i*TMax_i*DMax_ii.ge.T_X) Then
             If (nD.eq.1) Then
                Call Do_Rho8a_d(Rho,nRho,mGrid,
-     &                         Work(ip_D_a),mAO,TabAO(ipTabAO(iList_s)),
+     &                         DeDe(ip_D_a),mAO,TabAO(ipTabAO(iList_s)),
      &                         iBas,iBas_Eff,iCmp,
      &                         Fact(ij),T_X,TMax_i*TMax_i,
      &                         Index(index_i))
             Else
                Call Do_Rho8_d(Rho,nRho,mGrid,
-     &                        Work(ip_D_a),Work(ip_D_b),mAO,
+     &                        DeDe(ip_D_a),DeDe(ip_D_b),mAO,
      &                        TabAO(ipTabAO(iList_s)),
      &                        iBas,iBas_Eff,iCmp,
      &                        Fact(ij),T_X,TMax_i*TMax_i,Index(index_i))
@@ -154,7 +142,7 @@
             ijS=iTri(iShell,jShell)
             ip_Tmp=ipDijs
             Call Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ip_Tmp,nD)
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*)
                Write (6,*) 'iS,jS=',iSkal,jSkal
@@ -166,23 +154,23 @@
             ij = (mdcj-1)*mdc + mdci
 *
             iER=iEOr(kDCRE,kDCRR)
-            lDCRER=NrOpr(iER,iOper,nIrrep)
+            lDCRER=NrOpr(iER)
 *
             ip_D_a=ipDij+lDCRER*mDij
             ip_D_b=ip_D_a
             If (nD.ne.1) ip_D_b=ipDSij+lDCRER*mDij
 *
             If (nD.ne.1) Then
-               ix=iDAMax_(mDij,Work(ip_D_a),1)
-               iy=iDAMax_(mDij,Work(ip_D_b),1)
-               DMax_ij=Half*( Abs(Work(ip_D_a-1+ix))
-     &                       +Abs(Work(ip_D_b-1+iy)) )
+               ix=iDAMax_(mDij,DeDe(ip_D_a),1)
+               iy=iDAMax_(mDij,DeDe(ip_D_b),1)
+               DMax_ij=Half*( Abs(DeDe(ip_D_a-1+ix))
+     &                       +Abs(DeDe(ip_D_b-1+iy)) )
             Else
-               ix=iDAMax_(mDij,Work(ip_D_b),1)
-               DMax_ij=Abs(Work(ip_D_a-1+ix))
+               ix=iDAMax_(mDij,DeDe(ip_D_b),1)
+               DMax_ij=Abs(DeDe(ip_D_a-1+ix))
             End If
             If (TMax_i*TMax_j*DMax_ij.lt.T_X) Go To 998
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
             If (Debug) Then
                Write (6,*) 'Rho_GGA'
                nBB = iBas*jBas
@@ -190,23 +178,23 @@
                Write (6,*) 'iShell,jshell=', iShell,jshell
                Write (6,*) 'kDCRE,kDCRR=', kDCRE,kDCRR
                Write (6,*) 'iER,lDCRER=',iER,lDCRER
-               Call RecPrt('DAij',' ',Work(ip_D_a),nBB,nCC)
+               Call RecPrt('DAij',' ',DeDe(ip_D_a),nBB,nCC)
                If (nD.ne.1)
-     &            Call RecPrt('DBij',' ',Work(ip_D_b),nBB,nCC)
+     &            Call RecPrt('DBij',' ',DeDe(ip_D_b),nBB,nCC)
             End If
 #endif
 *
             If (nD.eq.1) Then
                If (iShell.ge.jShell) Then
                Call Do_Rho8a(Rho,nRho,mGrid,
-     &                       Work(ip_D_a),                  mAO,
+     &                       DeDe(ip_D_a),                  mAO,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       Fact(ij)*Two,T_X,TMax_i*TMax_j,
      &                       Index(index_i),Index(index_j))
                Else
                Call Do_Rho8a(Rho,nRho,mGrid,
-     &                       Work(ip_D_a),                  mAO,
+     &                       DeDe(ip_D_a),                  mAO,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       Fact(ij)*Two,T_X,TMax_i*TMax_j,
@@ -215,14 +203,14 @@
             Else
                If (iShell.ge.jShell) Then
                Call Do_Rho8_(Rho,nRho,mGrid,
-     &                       Work(ip_D_a),Work(ip_D_b),     mAO,
+     &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       Fact(ij)*Two,T_X,TMax_i*TMax_j,
      &                       Index(index_i),Index(index_j))
                Else
                Call Do_Rho8_(Rho,nRho,mGrid,
-     &                       Work(ip_D_a),Work(ip_D_b),     mAO,
+     &                       DeDe(ip_D_a),DeDe(ip_D_b),     mAO,
      &                       TabAO(ipTabAO(jList_s)),jBas,jBas_Eff,jCmp,
      &                       TabAO(ipTabAO(iList_s)),iBas,iBas_Eff,iCmp,
      &                       Fact(ij)*Two,T_X,TMax_i*TMax_j,
@@ -235,7 +223,7 @@
  999     Continue
       End Do                         ! ilist_s
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (Debug) Then
 c        Do iGrid=1,mGrid_Eff
 c           Write (*,*) (Rho(iRho,iGrid),iRho=1,nRho)
@@ -248,7 +236,6 @@ c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Dens)
 #endif
 #ifdef _TIME_
-      Call QExit('Rho_GGA')
 #endif
       Return
 c Avoid unused argument warnings
@@ -270,7 +257,6 @@ c Avoid unused argument warnings
 ************************************************************************
 *                                                                      *
 #ifdef _TIME_
-      Call QEnter('Do_Rho8a')
 #endif
       Do jCB_Eff = 1, jBas_Eff*jCmp
          jCB = Index_j(jCB_Eff)
@@ -303,7 +289,6 @@ c Avoid unused argument warnings
       End Do             ! jCB
 *
 #ifdef _TIME_
-      Call QExit('Do_Rho8a')
 #endif
       Return
       End
@@ -374,7 +359,6 @@ c Avoid unused argument warnings
 ************************************************************************
 *                                                                      *
 #ifdef _TIME_
-      Call QEnter('Do_Rho8a_d')
 #endif
       Do jCB_Eff = 1, iBas_Eff*iCmp
          jCB=Index_i(jCB_Eff)
@@ -421,7 +405,6 @@ c Avoid unused argument warnings
       End Do             ! jCB
 *
 #ifdef _TIME_
-      Call QExit('Do_Rho8a_d')
 #endif
       Return
       End

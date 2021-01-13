@@ -46,7 +46,6 @@
 
 * Prelude
 
-      Call qEnter ('ClnMO')
 
 * Body
 
@@ -64,7 +63,6 @@
 
 * Epilogue
 
-      Call qExit('ClnMO')
 
       Return
       End

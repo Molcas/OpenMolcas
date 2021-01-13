@@ -79,7 +79,7 @@
       num_DS_init=num_DS_init+1
 
       If(num_DS_init.gt.nTocDS) Then
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
         Do i=1,num_DS_init
           Write(6,*) iLbl_DS_inmem(i), DS_init(i), i_DS_inmem(i), CmpLab
         End Do
@@ -139,7 +139,7 @@
             Write(6,*) '*** Warning, reading temporary dScalar field'
             Write(6,*) '***   Field: ',Label
             Write(6,*) '***'
-#ifdef _BIGOT_
+#ifndef _DEVEL_
             Call AbEnd()
 #endif
          End If

@@ -31,7 +31,6 @@
 *
       Real*8 Ovlp(*), HOne(*), Kine(*), CMO(*)
 *
-      Call qEnter('Tr1Ctl')
 *
 *     Initialize LUONEMO
 *
@@ -124,7 +123,6 @@
 *
 *     Transform kinetic energy matrix
 *
-      IRC=0
       CALL GETMEM('KAO','ALLO','REAL',LWKAO,NTOT1)
       CALL GETMEM('KMO','ALLO','REAL',LWKMO,NORBTT)
       CALL GETMEM('TMP','ALLO','REAL',LWTMP,2*N2MAX)
@@ -166,6 +164,5 @@
      &                   NBAS,NORB,NFRO,NDEL,8,BSLBL,LENIN8*mxOrb)
       CALL DACLOS(LUONEMO)
 *
-      Call qExit('Tr1Ctl')
       RETURN
       END

@@ -11,14 +11,13 @@
       Subroutine decomp_aniso(A,Jiso,Jsym,Jantisym,dbg)
       Implicit None
       Integer, Parameter        :: wp=selected_real_kind(p=15,r=307)
-      Real(kind=wp), intent(in) :: A(3,3)
-      Real(kind=wp), intent(out):: Jiso, Jsym(3,3), Jantisym(3,3)
-      Real(kind=wp), external   :: real_1_trace2
+      Real(kind=8), intent(in) :: A(3,3)
+      Real(kind=8), intent(out):: Jiso, Jsym(3,3), Jantisym(3,3)
       Logical, intent(in)       :: dbg
 
       Integer :: i, j
-      Real(kind=wp) :: tmp
-      Real(kind=wp) :: Dtmp(3,3)
+      Real(kind=8) :: tmp
+      Real(kind=8) :: Dtmp(3,3)
 
       tmp=0.0_wp
       Jiso=0.0_wp

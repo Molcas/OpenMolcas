@@ -27,7 +27,7 @@ C
       Integer myRankSP(n_myRankSP)
       Integer J1, J2, iSym
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
 #include "cho_para_info.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -45,7 +45,7 @@ C
          Return ! nothing to do
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       If (n_myRankSP.lt.1 .or. n_myRankSP.gt.nnShl .or. iSym.lt.1 .or.
      &    iSym.gt.nSym .or. NVT.lt.1) Then
          irc=-1

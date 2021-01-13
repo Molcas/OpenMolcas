@@ -27,21 +27,14 @@
 *                                                                      *
 *         F(r)=rho(r)*e(rho(r),grad[rho(r)])                           *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 *             D.Ajitha:Modifying for the new Kernel outputs            *
 ************************************************************************
       use iSD_data
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
       External Do_NInt_d, Do_NInt
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
@@ -57,15 +50,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QEnter('DFT_IntX')
-*                                                                      *
-************************************************************************
-*                                                                      *
 *---- Evaluate the desired AO integrand here from the AOs, accumulate
 *     contributions to the SO integrals on the fly.
 *
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Debug=.True.
 #endif
       VMax=0.0D0
@@ -86,7 +75,7 @@ C     Call QEnter('DFT_IntX')
          mdci  = iSD(10,iSkal)
          iShell= iSD(11,iSkal)
 *
-         nOp(1) = NrOpr(kDCRE,iOper,nIrrep)
+         nOp(1) = NrOpr(kDCRE)
 *
          Do jlist_s=ilist_s,nlist_s
             jSkal = list_s(1,jlist_s)
@@ -102,9 +91,9 @@ C     Call QEnter('DFT_IntX')
             mdcj  = iSD(10,jSkal)
             jShell= iSD(11,jSkal)
 *
-            nOp(2) = NrOpr(kDCRR,iOper,nIrrep)
+            nOp(2) = NrOpr(kDCRR)
 *
-            nSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell)
+            nSO=MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
 *
             ij = (mdcj-1)*ndc + mdci
 *                                                                      *
@@ -127,7 +116,7 @@ C     Call QEnter('DFT_IntX')
 *
             Do iD = 1, iSpin
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
                If (Debug) Then
                   nAOInt_j=jBas_Eff*jCmp
                   nAOInt_i=iBas_Eff*iCmp
@@ -143,7 +132,8 @@ C     Call QEnter('DFT_IntX')
                   iIC = 1
                   Call FZero(SOTemp(1,iD),iBas*jBas*nSO)
                   Call SymAdd2(iSmLbl,iAng,jAng,iCmp,jCmp,
-     &                         iShell,jShell,iShll,jShll,AOInt(1,iD),
+     &                         iShell,jShell,iShll,jShll,
+     &                         iAO,jAO,AOInt(1,iD),
      &                         iBas,iBas_Eff,jBas,jBas_Eff,
      &                         nIC,iIC,SOTemp(1,iD),nSO,nOp,
      &                         iSkal,jSkal)
@@ -178,11 +168,10 @@ C     Call QEnter('DFT_IntX')
       End Do                        ! ilist_s
       Flop=Flop+DBLE(nGrid_Tot)
 *
-C     Call QExit('DFT_Int1')
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Debug=.False.
 #endif
-      Return
-c Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(nSym)
+#endif
       End

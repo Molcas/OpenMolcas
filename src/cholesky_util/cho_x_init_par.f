@@ -28,6 +28,9 @@ C
 C
 C     Purpose: setup for parallel DF.
 C
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: MyRank, nProcs, Is_Real_Par
+#endif
       Implicit None
       Integer irc
 
@@ -35,14 +38,13 @@ C
       Parameter (SecNam = 'Cho_X_Init_Par_DF')
 
       Logical LocDbg
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Parameter (LocDbg = .True.)
 #else
       Parameter (LocDbg = .False.)
 #endif
 
 #if defined (_MOLCAS_MPP_)
-#include "para_info.fh"
 #include "cholesky.fh"
       Integer nV(8)
       Integer iSym
@@ -102,6 +104,9 @@ C     ------------
 C
 C     Purpose: setup for parallel Cholesky.
 C
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: MyRank, nProcs, Is_Real_Par
+#endif
       Implicit None
       Integer irc
 
@@ -109,14 +114,13 @@ C
       Parameter (SecNam = 'Cho_X_Init_Par_Cho')
 
       Logical LocDbg
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Parameter (LocDbg = .True.)
 #else
       Parameter (LocDbg = .False.)
 #endif
 
 #if defined (_MOLCAS_MPP_)
-#include "para_info.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "WrkSpc.fh"
@@ -217,13 +221,12 @@ C     ------------
 
       End
       SubRoutine Cho_X_Init_Par_GenBak()
+      Use Para_Info, Only: Is_Real_Par
       Implicit None
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "chopar.fh"
 #include "WrkSpc.fh"
-
-#include "para_info.fh"
 
       If (Is_Real_Par()) Then
          l_InfVec_Bak = l_InfVec

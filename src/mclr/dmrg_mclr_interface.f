@@ -22,7 +22,7 @@
             doDMRG=.false.
             doMCLR=.false.
           else
-            read(100,"(11X,L,4X)")   doDMRG
+            read(100,"(11X,L1,4X)")  doDMRG
             read(100,"(4X,I8,4X)")nele_RGLR
             read(100,"(4X,I8,4X)") ms2_RGLR
 !>          write(6,*)doDMRG,dmrg_state%nactel,dmrg_state%ms2

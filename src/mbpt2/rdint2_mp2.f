@@ -28,7 +28,6 @@ C
 #include "SysDef.fh"
 
 C
-      Call qEnter('RdInt2')
 C
 C     READ ADDRESS RECORD ON UNIT LUINTM
 C
@@ -99,7 +98,7 @@ C
           DO 10 NT=1,NOCP
            NUM=NOCQ
            IF(NSP.EQ.NSQ) NUM=NT
-          DO 10 NU=1,NUM
+          DO 11 NU=1,NUM
            IF(IADC.NE.0) THEN
             Call GetMem('Tmp','ALLO','REAL',iTmp,LREC)
             CALL dDAFILE(LUINTM,2,WORK(iTmp),LREC,IAD13C)
@@ -146,6 +145,7 @@ C      EXCHANGE INTEGRALS ARE ALWAYS QUADRATIC IN A,B
      *             /(1X,10F10.6))
             Call GetMem('Tmp','FREE','REAL',iTmp,LRECX)
            ENDIF
+11        CONTINUE
 10        CONTINUE
 C
 C         ALL INTEGRALS FOR SYMMETRY BLOCK NSP,NSQ,NSR,NSS ARE READ
@@ -155,6 +155,5 @@ C
 103    CONTINUE
 104   CONTINUE
 C
-      Call qExit('RdInt2')
       RETURN
       END

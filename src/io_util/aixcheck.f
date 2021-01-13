@@ -18,7 +18,7 @@
 *----------------------------------------------------------------------*
       Do n = 1, MxFile
          If (CtlBlk(pStat,n).ne.0) Then
-#ifdef _BIGOT_
+#ifndef _DEVEL_
             Call SysAbendFileMsg('AixCheck',FCtlBlk(n),'Active unit.',
      &                           'Should have been closed!')
 #else
@@ -32,7 +32,7 @@
           inquire(unit=n,name=name)
             Write (6,*) 'Fortran file:', n, '(',name(1:index(name,' ')),
      *        ')  is still open!'
-#ifdef _BIGOT_
+#ifndef _DEVEL_
             Call Abend()
 #endif
          End If

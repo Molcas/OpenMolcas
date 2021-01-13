@@ -15,14 +15,13 @@
       Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
       ! input variables
       Integer, intent(in)           :: N1, N2
-      Real(kind=wp), intent(in)     :: Jex
-      Complex(kind=wp), intent(in)  :: S1(3,N1,N1)
-      Complex(kind=wp), intent(in)  :: S2(3,N2,N2)
+      Real(kind=8), intent(in)     :: Jex
+      Complex(kind=8), intent(in)  :: S1(3,N1,N1)
+      Complex(kind=8), intent(in)  :: S2(3,N2,N2)
       ! output variables
-      Complex(kind=wp), intent(out) ::  HAM( N1,N1, N2,N2 )
+      Complex(kind=8), intent(out) ::  HAM( N1,N1, N2,N2 )
       ! local variables
       Integer          :: i1,i2,j1,j2,l
-      Call qEnter('Lines_Exchange')
 
       If( (N1<=0).OR.(N2<=0) ) Return
       Call zcopy_(N1*N1*N2*N2,[(0.0_wp,0.0_wp)],0,HAM,1)
@@ -45,7 +44,6 @@
           End Do
         End Do
       End Do
-      Call qExit('Lines_Exchange')
       Return
       End Subroutine Lines_Exchange
 
@@ -57,18 +55,17 @@
       Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
       ! input variables
       Integer, intent(in)           :: N1, N2
-      Real(kind=wp), intent(in)     :: Jex(3)
-      Complex(kind=wp), intent(in)  :: S1(3,N1,N1)
-      Complex(kind=wp), intent(in)  :: S2(3,N2,N2)
+      Real(kind=8), intent(in)     :: Jex(3)
+      Complex(kind=8), intent(in)  :: S1(3,N1,N1)
+      Complex(kind=8), intent(in)  :: S2(3,N2,N2)
       ! output variables
-      Complex(kind=wp), intent(out) ::  HAM( N1,N1, N2,N2 )
+      Complex(kind=8), intent(out) ::  HAM( N1,N1, N2,N2 )
       ! local variables
       Integer          :: i1,i2,j1,j2,l
-      Complex(kind=wp) :: Jc(3)
-      Real(kind=wp)    :: dnrm2_
+      Complex(kind=8) :: Jc(3)
+      Real(kind=8)    :: dnrm2_
       External         :: dnrm2_
 
-      Call qEnter('Aniso_Lines3')
       If( (N1<=0).OR.(N2<=0) ) Return
       Call zcopy_(N1*N1*N2*N2,[(0.0_wp,0.0_wp)],0,HAM,1)
       If ( dnrm2_(3,Jex,1)==0.0_wp) Return
@@ -92,7 +89,6 @@
           End Do
         End Do
       End Do
-      Call qExit('Aniso_Lines3')
       Return
       End Subroutine Aniso_Lines_Exchange3
 
@@ -105,18 +101,17 @@
       Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
       ! input variables
       Integer, intent(in)           :: N1, N2
-      Real(kind=wp), intent(in)     :: Jex(3,3)
-      Complex(kind=wp), intent(in)  :: S1(3,N1,N1)
-      Complex(kind=wp), intent(in)  :: S2(3,N2,N2)
+      Real(kind=8), intent(in)     :: Jex(3,3)
+      Complex(kind=8), intent(in)  :: S1(3,N1,N1)
+      Complex(kind=8), intent(in)  :: S2(3,N2,N2)
       ! output variables
-      Complex(kind=wp), intent(out) ::  HAM( N1,N1, N2,N2 )
+      Complex(kind=8), intent(out) ::  HAM( N1,N1, N2,N2 )
       ! local variables
       Integer          :: i1,i2,j1,j2,l,m
-      Complex(kind=wp) :: Jc(3,3)
-      Real(kind=wp)    :: dnrm2_
+      Complex(kind=8) :: Jc(3,3)
+      Real(kind=8)    :: dnrm2_
       External         :: dnrm2_
 
-      Call qEnter('Aniso_Lines9')
       If( (N1<=0).OR.(N2<=0) ) Return
       Call zcopy_(N1*N1*N2*N2,[(0.0_wp,0.0_wp)],0,HAM,1)
       If ( dnrm2_(9,Jex,1)==0.0_wp) Return
@@ -145,7 +140,6 @@
           End Do
         End Do
       End Do
-      Call qExit('Aniso_Lines9')
       Return
       End Subroutine Aniso_Lines_Exchange9
 
@@ -158,18 +152,17 @@
       Integer, parameter            :: wp=SELECTED_REAL_KIND(p=15,r=307)
       ! input variables
       Integer, intent(in)           :: N1, N2
-      Real(kind=wp), intent(in)     :: Jex(3)
-      Complex(kind=wp), intent(in)  :: S1(3,N1,N1)
-      Complex(kind=wp), intent(in)  :: S2(3,N2,N2)
+      Real(kind=8), intent(in)     :: Jex(3)
+      Complex(kind=8), intent(in)  :: S1(3,N1,N1)
+      Complex(kind=8), intent(in)  :: S2(3,N2,N2)
       ! output variables
-      Complex(kind=wp), intent(out) ::  HAM( N1,N1, N2,N2 )
+      Complex(kind=8), intent(out) ::  HAM( N1,N1, N2,N2 )
       ! local variables
       Integer          :: i1,i2,j1,j2,l
-      Complex(kind=wp) :: X,Y,Z, Jc(3)
-      Real(kind=wp)    :: dnrm2_
+      Complex(kind=8) :: X,Y,Z, Jc(3)
+      Real(kind=8)    :: dnrm2_
       External         :: dnrm2_
 
-      Call qEnter('DM_exchange')
       If( (N1<=0).OR.(N2<=0) ) Return
       Call zcopy_(N1*N1*N2*N2,[(0.0_wp,0.0_wp)],0,HAM,1)
       If ( dnrm2_(3,Jex,1)==0.0_wp) Return
@@ -207,7 +200,6 @@
           End Do
         End Do
       End Do
-      Call qExit('DM_exchange')
       Return
       End Subroutine Dzyaloshinsky_Morya_Exchange
 
@@ -225,29 +217,28 @@
       Integer, intent(in)           :: imaxrank(2)
       Integer, intent(in)           :: MxR1, MxR2
       Integer, intent(in)           :: n1, n2
-      Real(kind=wp), intent(in)     :: JR(MxR1,-MxR1:MxR1,
+      Real(kind=8), intent(in)     :: JR(MxR1,-MxR1:MxR1,
      &                                    MxR2,-MxR2:MxR2)
-      Real(kind=wp), intent(in)     :: JI(MxR1,-MxR1:MxR1,
+      Real(kind=8), intent(in)     :: JI(MxR1,-MxR1:MxR1,
      &                                    MxR2,-MxR2:MxR2)
       ! output variables
-      Complex(kind=wp), intent(out) ::  HAM( n1,n1, n2,n2 )
+      Complex(kind=8), intent(out) ::  HAM( n1,n1, n2,n2 )
 
       ! lcoal variables:
       Integer                       :: ibuf, k1,q1,k2,q2,m1,m2,l1,l2
-      Real(kind=wp)                 :: jpar, RR, RI
-!      Real(kind=wp)                 :: rK1,rK2,rQ1,rQ2,rM1,rM2,rJ1,rJ2,
+      Real(kind=8)                 :: jpar, RR, RI
+!      Real(kind=8)                 :: rK1,rK2,rQ1,rQ2,rM1,rM2,rJ1,rJ2,
 !     &                                 CGp1,CGp2,CGm1,CGm2,CG01,CG02
-      Real(kind=wp)                :: C01,C02
-      Complex(kind=wp)             :: J(MxR1,-MxR1:MxR1,MxR2,-MxR2:MxR2)
-      Complex(kind=wp), allocatable :: O1(:,:), O2(:,:)
-      Complex(kind=wp), allocatable :: W1(:,:), W2(:,:)
-      Complex(kind=wp), allocatable :: OO(:,:,:,:), WW(:,:,:,:),
+      Real(kind=8)                :: C01,C02
+      Complex(kind=8)             :: J(MxR1,-MxR1:MxR1,MxR2,-MxR2:MxR2)
+      Complex(kind=8), allocatable :: O1(:,:), O2(:,:)
+      Complex(kind=8), allocatable :: W1(:,:), W2(:,:)
+      Complex(kind=8), allocatable :: OO(:,:,:,:), WW(:,:,:,:),
      &                                 OW(:,:,:,:), WO(:,:,:,:)
       Logical                       :: dbg
-      Real(kind=wp)                 :: dnrm2_
+      Real(kind=8)                 :: dnrm2_
       External                      :: dnrm2_
 
-      Call qEnter('JITO_Exchange_Int')
       dbg=.false.
 ! ----  initial checks
       If( (n1<=0).OR.(n2<=0) ) Return
@@ -350,6 +341,5 @@
       Call mma_deallocate(O2)
       Call mma_deallocate(W2)
 
-      Call qExit('JITO_Exchange_Int')
       Return
       End Subroutine JITO_Exchange_Int

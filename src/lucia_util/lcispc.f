@@ -42,7 +42,6 @@
 * ====================
 *
 #include "cicisp.fh"
-      CALL QENTER('LCISP')
 *
 *
 *. Number of spaces
@@ -54,9 +53,6 @@ C?    write(6,*) ' LCISPC : NICISP ', NICISP
 *
       NOCTPA =  NOCTYP(IATP)
       NOCTPB =  NOCTYP(IBTP)
-*
-      IOCTPA = IBSPGPFTP(IATP)
-      IOCTPB = IBSPGPFTP(IBTP)
 *.Local memory
       CALL GETMEM('KLBLTP','ALLO','INTE',KLBLTP,NSMST)
       KLCVST=1
@@ -158,7 +154,6 @@ C         CALL WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
       END DO
       END IF
 *
-      CALL QEXIT('LCISP')
 *
       RETURN
       END

@@ -47,7 +47,6 @@
 * ======
       DIMENSION DIAG(*)
 *
-      CALL QENTER('CI_DIA')
 *
       NTEST = 0
       NTEST = MAX(NTEST,IPRDIA)
@@ -75,7 +74,6 @@
 *
 **. Local memory
 *
-      IDUM = 0
       CALL GETMEM('KLJ   ','ALLO','REAL',KLJ   ,NTOOB**2)
       CALL GETMEM('KLK   ','ALLO','REAL',KLK   ,NTOOB**2)
       CALL GETMEM('KLSC2 ','ALLO','REAL',KLSCR2,2*NTOOB**2)
@@ -109,7 +107,6 @@
       CALL GETMEM('KLBSTR','FREE','INTE',KLBSTR,MXNSTR*NBEL)
       CALL GETMEM('KLRJKA','FREE','REAL',KLRJKA,MAXA)
 *
-      CALL QEXIT('CI_DIA')
 *
 C?    STOP ' Jeppe forced me to stop after GASDIA '
       RETURN

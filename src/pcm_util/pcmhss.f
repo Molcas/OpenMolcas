@@ -10,25 +10,14 @@
 *                                                                      *
 * Copyright (C) 1995,2001,2008, Roland Lindh                           *
 ************************************************************************
-      SubRoutine PCMHss(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                  Final,nZeta,la,lb,A,RB,nRys,
-     &                  Array,nArr,Ccoor,nOrdOp,Hess,nHess,
-     &                  IfHss,IndHss,IfGrd,IndGrd,DAO,mdc,ndc,nOp,
-     &                  lOper,nComp,iStabM,nStabM)
+      SubRoutine PCMHss(
+#define _CALLING_
+#include "hss_interface.fh"
+     &                 )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of nuclear attraction     *
 *         integrals.                                                   *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DCR                                                     *
-*              XRysg1                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden, May 1995                                *
@@ -38,29 +27,22 @@
 *             Modified to PCM Hessian February 2008, Lund by           *
 *             R. Lindh.                                                *
 ************************************************************************
+      use PCM_arrays, only: PCM_SQ, PCMTess
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, XCff2D
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "disp2.fh"
 #include "rctfld.fh"
-      Integer IndGrd(0:2,0:1,0:(nIrrep-1)),
-     &        IndHss(0:1,0:2,0:1,0:2,0:(nIrrep-1)),
-     &        nOp(2), lOper(nComp), iStabM(0:nStabM-1),
-     &        iDCRT(0:7), Index(3,4)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,nComp),
-     &       Array(nZeta*nArr), Hess(nHess),
-     &       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-      Logical IfHss(0:1,0:2,0:1,0:2), IfGrd(0:2,0:1)
-*
-*-----Local arrys
-*
+
+#include "hss_interface.fh"
+
+*     Local variables
+      Integer iDCRT(0:7), Index(3,4)
       Real*8 Coori(3,4), CoorAC(3,2), C(3), TC(3)
       Logical NoLoop, JfGrd(0:2,0:3),
      &        JfHss(0:3,0:2,0:3,0:2),
@@ -68,8 +50,6 @@
       Integer iAnga(4), iStb(0:7), JndGrd(0:2,0:3,0:7),
      &        JndHss(0:3,0:2,0:3,0:2,0:7),
      &         mOp(4), iuvwx(4)
-      Character ChOper(0:7)*3
-      Data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -88,7 +68,6 @@
 *
       iRout = 151
       iPrint = nPrint(iRout)
-      Call qEnter('PCMHss')
 *
       nip = 1
       ipA = nip
@@ -115,8 +94,8 @@
       Else
        call dcopy_(3,RB,1,CoorAC(1,1),1)
       End If
-      iuvwx(1) = nStab(mdc)
-      iuvwx(2) = nStab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       mOp(1) = nOp(1)
       mOp(2) = nOp(2)
 *
@@ -151,16 +130,14 @@
 *     Loop over the tiles
 *
       Do iTs = 1, nTs
-         q_i=Work((iTs-1)*2+ip_Q)+Work((iTs-1)*2+ip_Q+1)
+         q_i=PCM_SQ(1,iTs)+PCM_SQ(2,iTs)
          NoLoop = q_i.eq.Zero
          If (NoLoop) Go To 111
 *------- Pick up the tile coordinates
-         kxyz = ip_Tess + (iTs-1)*4
-         call dcopy_(3,Work(kxyz),1,C,1)
+         C(1:3)=PCMTess(1:3,iTs)
 
          If (iPrint.ge.99) Call RecPrt('C',' ',C,1,3)
-         Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &            iStb,nStb,iDCRT,nDCRT)
+         Call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
          Fact = -q_i*DBLE(nStabM) / DBLE(LmbdT)
 *
          Call DYaX(nZeta*nDAO,Fact,DAO,1,Array(ipDAO),1)
@@ -169,11 +146,9 @@
          iuvwx(4) = nStb
 *
          Do lDCRT = 0, nDCRT-1
-            mOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+            mOp(3) = NrOpr(iDCRT(lDCRT))
             mOp(4) = mOp(3)
-            TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-            TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-            TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+            Call OA(iDCRT(lDCRT),C,TC)
             call dcopy_(3,TC,1,CoorAC(1,2),1)
             call dcopy_(3,TC,1,Coori(1,3),1)
             call dcopy_(3,TC,1,Coori(1,4),1)
@@ -181,9 +156,9 @@
 *           Initialize JfGrd, JndGrd, JfHss, and JndHss.
 *
             Call LCopy(12,[.False.],0,JfGrd,1)
-            Call ICopy(nIrrep*4*3,[0],0,JndGrd,1)
+            Call ICopy(nSym*4*3,[0],0,JndGrd,1)
             Call LCopy(144,[.False.],0,JfHss,1)
-            Call ICopy(nIrrep*16*9,[0],0,JndHss,1)
+            Call ICopy(nSym*16*9,[0],0,JndHss,1)
 *
 *           Overwrite with information in IfGrd, IndGrd, IfHss,
 *           and IndHss. This sets up the info for the first two
@@ -193,7 +168,7 @@
             Do iAtom = 0, 1
                Do iCar  = 0, 2
                   JfGrd(iCar,iAtom) = Ifgrd(iCar,iAtom)
-                  Do iIrrep=0,nIrrep-1
+                  Do iIrrep=0,nSym-1
                      JndGrd(iCar,iAtom,iIrrep)=
      &                  Abs(IndGrd(iCar,iAtom,iIrrep))
                   End Do
@@ -201,7 +176,7 @@
                      Do jCar = 0, 2
                         JfHss(iAtom,iCar,jAtom,jCar) =
      &                    IfHss(iAtom,iCar,jAtom,jCar)
-                        Do iIrrep=0,nIrrep-1
+                        Do iIrrep=0,nSym-1
                            JndHss(iAtom,iCar,jAtom,jCar,iIrrep) =
      &                       Abs(IndHss(iAtom,iCar,jAtom,jCar,iIrrep))
                         End Do
@@ -252,12 +227,11 @@
 111      Continue
       End Do     ! End loop over centers in the external field
 *
-      Call qExit('PCMHss')
       Return
 c Avoid unused argument warnings
       If (.False.) Then
         Call Unused_real_array(Final)
-        Call Unused_integer(nRys)
+        Call Unused_integer(nHer)
         Call Unused_real_array(Ccoor)
         Call Unused_integer_array(lOper)
       End If

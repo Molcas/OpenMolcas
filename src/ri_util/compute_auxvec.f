@@ -9,16 +9,18 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Compute_AuxVec(ipVk,ipUk,ipZpk,myProc,nProc)
+      use pso_stuff
+      use Basis_Info, only: nBas, nBas_Aux
+      use Temporary_Parameters, only: force_out_of_core
+      use RICD_Info, only: Do_RI, Cholesky
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
       Integer ipVk(nProc), ipUk(nProc), ipZpk(nProc)
-#include "itmax.fh"
-#include "info.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "etwas.fh"
-#include "pso.fh"
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
       Logical Timings, DoExchange, DoCAS, Estimate, Update
@@ -26,10 +28,12 @@
       Integer nU_l(0:7), nU_t(0:7)
       Integer ipTxy(0:7,0:7,2),ipDLT2,jp_V_k
       COMMON    /CHOTIME /timings
+      Character*8 Method
 *                                                                      *
 ************************************************************************
 *                                                                      *
-
+      DoExchange=Exfac.ne.Zero
+*
       nV_ls=0
       Do i=0,nIrrep-1
          nV_l(i) = NumCho(i+1) ! local # of vecs in parallel run
@@ -70,13 +74,6 @@
       End Do
       nQvMax=nQMax*NChVMx
       Call Allocate_Work(ipScr,nQMax)
-      If(iMp2prpt.eq.2) Then
-         NChUMx=0
-         Do i=0,nIrrep-1
-            NChUMx= Max(NChVMx,nU_t(i))
-         End Do
-         nQuMax=nQMax*NChUMx
-      End If
 *
       DoCAS=lPSO
 *
@@ -101,12 +98,12 @@
 
          If(iMp2prpt .ne. 2) Then
             If (DoCAS.and.lSA) Then
-               nSA=4
+               nSA=5
                Call GetMem('Dens','Allo','Real',ipDMLT(1),nDens*nSA)
                Do i=2,nSA
                  ipDMLT(i)=ipDMLT(i-1)+nDens
                End Do
-               call dcopy_(nDens*nSA,Work(ipD0),1,Work(ipDMLT(1)),1)
+               call dcopy_(nDens*nSA,D0,1,Work(ipDMLT(1)),1)
 *Refold some density matrices
                ij = -1
                Do iIrrep = 0, nIrrep-1
@@ -115,19 +112,24 @@
                      ij = ij + 1
                      Work(ipDMLT(1)+ij)=Two*Work(ipDMLT(1)+ij)
                      Work(ipDMLT(3)+ij)=Two*Work(ipDMLT(3)+ij)
+                     Work(ipDMLT(5)+ij)=Two*Work(ipDMLT(5)+ij)
                    EndDo
                    ij = ij + 1
                  EndDo
                EndDo
             Else
-               Call Get_D1AO_Var(ipDMLT(1),nDens)
+               Call GetMem('DMLT(1)','Allo','Real',ipDMLT(1),nDens)
+               Call Get_D1AO_Var(Work(ipDMLT(1)),nDens)
             EndIf
          Else
-            Call Get_D1AO(ipDMLT(1),nDens)
+            Call GetMem('DMLT(1)','Allo','Real',ipDMLT(1),nDens)
+            Call Get_D1AO(Work(ipDMLT(1)),nDens)
          End If
 *
          If (nKdens.eq.2) Then
-            Call Get_D1SAO_Var(ipDMLT(2),nDens) ! spin-density matrix
+            Call GetMem('DMLT(2)','Allo','Real',ipDMLT(2),nDens)
+!           spin-density matrix
+            Call Get_D1SAO_Var(Work(ipDMLT(2)),nDens)
             Call daxpy_(nDens,-One,Work(ipDMLT(1)),1,
      &                              Work(ipDMLT(2)),1)
             call dscal_(nDens,-Half,Work(ipDMLT(2)),1) ! beta DMAT
@@ -140,7 +142,8 @@
          EndIf
          ipDLT2 = 1
          If(iMp2prpt.eq.2) Then
-            Call Get_D1AO_Var(ipDLT2,nDens)
+            Call GetMem('DLT2','Allo','Real',ipDLT2,nDens)
+            Call Get_D1AO_Var(Work(ipDLT2),nDens)
             Call daxpy_(nDens,-One,Work(ipDMLT(1)),1,Work(ipDLT2),1)
          Else
             ipDLT2 = ip_Dummy
@@ -152,8 +155,12 @@
 *       using Eigenvalue decomposition for non-PD matrices (SA-CASSCF) *
 *                                                                      *
 ************************************************************************
-         DoExchange=Exfac.ne.Zero
+*         DoExchange=Exfac.ne.Zero
 *
+         Call Get_cArray('Relax Method',Method,8)
+         If (Method.eq.'MCPDFT ' ) exfac=1.0d0
+         DoExchange=Exfac.ne.Zero
+
          If (DoExchange .or. DoCAS) Then
             Call GetMem('ChMOs','Allo','Real',ipChM(1),nCMO*nKdens)
             Do i=2,nKdens
@@ -322,7 +329,7 @@
                Else
                   Go To 100
                EndIf
-               ipTxy(iIrrep,jIrrep,1) = ip_Txy + iOff2+iOff
+               ipTxy(iIrrep,jIrrep,1) = 1 + iOff2+iOff
                ipTxy(jIrrep,iIrrep,1) = ipTxy(iIrrep,jIrrep,1)
                If (lSA) Then
                  ipTxy(iIrrep,jIrrep,2) = ipTxy(iIrrep,jIrrep,1)+n_Txy
@@ -344,14 +351,13 @@
             ipAOrb(iIrrep,1) = ipAOrb(0,1) + lCount
             ipAOrb(iIrrep,2) = ipAOrb(iIrrep,1)+mAO
             Do i=1,nASh(iIrrep)
-               kOff1 = ipCMO + jCount + nBas(iIrrep)*(i-1)
+               kOff1 = 1 + jCount + nBas(iIrrep)*(i-1)
                kOff2 = ipAOrb(iIrrep,1) + i - 1
-               Call dCopy_(nBas(iIrrep),Work(kOff1),1,
+               Call dCopy_(nBas(iIrrep),CMO(kOff1,1),1,
      &                               Work(kOff2),nASh(iIrrep))
                If (lSA) Then
-                 kOff1 = ipCMO + jCount + nBas(iIrrep)*(i-1)+mCMO
                  kOff2 = ipAOrb(iIrrep,2) + i - 1
-                 Call dCopy_(nBas(iIrrep),Work(kOff1),1,
+                 Call dCopy_(nBas(iIrrep),CMO(kOff1,2),1,
      &                               Work(kOff2),nASh(iIrrep))
                EndIf
             End Do
@@ -372,10 +378,11 @@
 *         dmpK=One
          Estimate=.False.
          Update=.True.
-         Call Cho_Get_Grad(irc,nKdens,ipDMlt,ipDLT2,ipChM,ipTxy,
+         Call Cho_Get_Grad(irc,nKdens,ipDMlt,ipDLT2,ipChM,
+     &                     Txy,n_Txy*nAdens,ipTxy,
      &                     DoExchange,lSA,nChOrb,ipAOrb,nAsh,
-     &                     DoCAS,Estimate,Update,Work(jp_V_k),
-     &                     Work(jp_U_k),Work(jp_Z_p_k),nnP,npos,
+     &                     DoCAS,Estimate,Update,V_k(jp_V_k,1),
+     &                     U_k(jp_U_k),Z_p_k(jp_Z_p_k,1),nnP,npos,
      &                     nZ_p_k)
 *
          If (irc.ne.0) Then
@@ -396,7 +403,8 @@
 *     For parallel run: reordering of the V_k(tilde) vector from
 *     the "node storage" to the Q-vector storage
 *MGD will probably not work for SA-CASSCF
-      If (nProc.gt.1)  Call Reord_Vk(ipVk,nProc,myProc,nV_l,nV_t,[1],1)
+      If (nProc.gt.1)  Call Reord_Vk(ipVk,nProc,myProc,nV_l,nV_t,[1],1,
+     &                               V_k)
 ************************************************************************
 *                                                                      *
 *     Second step: contract with the Q-vectors to produce V_k          *
@@ -418,19 +426,19 @@
 **    Coulomb
 *
       Do i=0,nJdens-1
-         Call Mult_Vk_Qv_s(Work(ipVk(1)+i*NumCho(1)),nV_t(0),
+         Call Mult_Vk_Qv_s(V_k(ipVk(1),1+i),nV_t(0),
      &               Work(ipQv),nQv,
      &               Work(ipScr),nQMax,nBas_Aux,nV_t(0),nIrrep,'T')
-         call dcopy_(nV_k,Work(ipScr),1,Work(ipVk(1)+i*NumCho(1)),1)
+         call dcopy_(nV_k,Work(ipScr),1,V_k(ipVk(1),1+i),1)
       End Do
 *
 **    MP2
 *
       If(iMp2prpt.eq.2) Then
-         Call Mult_Vk_Qv_s(Work(ipUk(1)),nU_t(0),Work(ipQv),nQv,
+         Call Mult_Vk_Qv_s(U_k(ipUk(1)),nU_t(0),Work(ipQv),nQv,
      &                     Work(ipScr),nQMax,nBas_Aux,nU_t(0),nIrrep,
      &                     'T')
-         call dcopy_(nV_k,Work(ipScr),1,Work(ipUk(1)),1)
+         call dcopy_(nV_k,Work(ipScr),1,U_k(ipUk(1)),1)
       End If
 *
 **    Active term
@@ -439,16 +447,16 @@
 
          Call GetMem('Zv','Allo','Real',ipZv,nZ_p_k)
 *
-         Do iAvec=0,nAvec-1
+         Do iAvec=1,nAvec
 *MGD wrong
            If (nProc.gt.1)  Call Reord_Vk(ipZpk(1),nProc,myProc,
-     &                    nV_l,nV_t,nnP,nIrrep)
+     &                    nV_l,nV_t,nnP,nIrrep,Z_p_k)
 *
-           Call Mult_Zp_Qv_s(Work(ipZpk(1)+iAvec*nZ_p_k),nZ_p_k,
+           Call Mult_Zp_Qv_s(Z_p_k(ipZpk(1),iAvec),nZ_p_k,
      &                       Work(ipQv),nQv,Work(ipZv),nZ_p_k,nV_t,nnP,
      &                       nBas_Aux,nIrrep,'T')
 *
-          call dcopy_(nZ_p_k,Work(ipZv),1,Work(ipZpk(1)+iAvec*nZ_p_k),1)
+          call dcopy_(nZ_p_k,Work(ipZv),1,Z_p_k(ipZpk(1),iAvec),1)
          End Do
          Call GetMem('Zv','Free','Real',ipZv,nZ_p_k)
       EndIf

@@ -40,7 +40,7 @@
 #include "choptr.fh"
 #include "WrkSpc.fh"
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       real*8 ddot_
       external ddot_
 #endif
@@ -166,7 +166,7 @@ C        ----------
          Call Cho_GADGOP(Work(ip_G),l_G,'+')
          iOpt = 1
          Call DDAFile(lUnit,iOpt,Work(ip_G),l_G,iDisk)
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
          Call TriPrt('G-matix',' ',Work(ip_G),NVT(iSym))
          Write(6,'(A,I2,A,1P,D16.7)')
      &   'G matrix, sym.',iSym,': Norm = ',

@@ -44,17 +44,15 @@
       REAL*8 Gamma
       REAL*8 TauUEG, Tsig, Wsig, Fsig
       REAL*8 tauu
-      REAL*8 F83, F23, F53, F1o3
-      REAL*8 F1o4, F2o3, F3o2, F4o3, F4o9, F3o5
-      REAL*8 Nine, F10, F11
+      REAL*8 F5o3, F1o3
+      REAL*8 F2o3, F3o2, F4o3, F3o5
+      REAL*8 F11
       REAL*8  Ax,  x, x2, En, Ed, E, dE, dEn, dEd
       REAL*8 dFdW, dWdT, dTdR, dTdTau, dGGAdR, dFdR
       REAL*8 dFdTau, dGGAdG
-      parameter (F1o3=1.d0/3.d0, F1o4=1.d0/4.d0, F2o3=2.d0/3.d0,
-     &             F3o2=3.d0/2.d0)
-      parameter (F4o3=4.d0/3.d0, F4o9=4.0d0/9.0d0, F3o5=3.d0/5.d0)
-      parameter (F83=8.0d0/3.0d0, F23=2.0d0/3.d0, F53=5.d0/3.d0)
-      parameter (Nine=9.0d0,F10=10.0d0, F11=11.d0)
+      parameter (F1o3=1.d0/3.d0, F2o3=2.d0/3.d0, F3o2=3.d0/2.d0)
+      parameter (F4o3=4.d0/3.d0, F3o5=3.d0/5.d0, F5o3=5.d0/3.d0)
+      parameter (F11=11.d0)
 
       if (ijzy.eq.1) then
 C     Parameters for M06-L
@@ -139,7 +137,7 @@ C     Parameters for M06-2X
          rho43 = rhoo**F4o3
          rrho = 1.0d0/rhoo       ! reciprocal of rho
          rho13 = rho43*rrho
-         rho53 = rhoo**F53
+         rho53 = rhoo**F5o3
 *
          tauu=Rho(ipTau,iGrid)
          TauUEG=F3o5*((Six*pi*pi)**F2o3)*rho53
@@ -166,7 +164,7 @@ C     Parameters for M06-2X
          dFdW=at*(      at1 + Wsig*(Two  *at2 + Wsig*(Three*at3 + Wsig*(
      &            Four *at4 + Wsig*(Five *at5 + Wsig*(Six  *at6 + Wsig*(
      &            Seven*at7 + Wsig*(Eight*at8 + Wsig*(Nine *at9 + Wsig*(
-     &            F10  *at10+ Wsig*F11*at11))))))))))
+     &            Ten  *at10+ Wsig*F11*at11))))))))))
          dWdT = Two/((One + Tsig)**2)
          dTdR = ((Six*PI*PI)**F2o3)*(rhoo**F2o3)/tauu
          dTdTau = -TauUEG/tauu**2
@@ -203,7 +201,7 @@ C     Parameters for M06-2X
          rho43 = rhoo**F4o3
          rrho = 1.0d0/rhoo       ! reciprocal of rho
          rho13 = rho43*rrho
-         rho53 = rhoo**F53
+         rho53 = rhoo**F5o3
 *
          tauu=rho(ipTaua,iGrid)
          TauUEG=F3o5*((Six*pi*pi)**F2o3)*rho53
@@ -231,7 +229,7 @@ C     Parameters for M06-2X
          dFdW=at*(      at1 + Wsig*(Two  *at2 + Wsig*(Three*at3 + Wsig*(
      &            Four *at4 + Wsig*(Five *at5 + Wsig*(Six  *at6 + Wsig*(
      &            Seven*at7 + Wsig*(Eight*at8 + Wsig*(Nine *at9 + Wsig*(
-     &            F10  *at10+ Wsig*F11*at11))))))))))
+     &            Ten  *at10+ Wsig*F11*at11))))))))))
          dWdT = Two/((One + Tsig)**2)
          dTdR = ((Six*PI*PI)**F2o3)*(rhoo**F2o3)/tauu
          dTdTau = -TauUEG/tauu**2
@@ -256,7 +254,7 @@ C     Parameters for M06-2X
          rho43 = rhoo**F4o3
          rrho = 1.0d0/rhoo       ! reciprocal of rho
          rho13 = rho43*rrho
-         rho53 = rhoo**F53
+         rho53 = rhoo**F5o3
 *
          tauu=Rho(ipTaub,iGrid)
          TauUEG=F3o5*((Six*pi*pi)**F2o3)*rho53
@@ -283,7 +281,7 @@ C     Parameters for M06-2X
          dFdW=at*(      at1 + Wsig*(Two  *at2 + Wsig*(Three*at3 + Wsig*(
      &            Four *at4 + Wsig*(Five *at5 + Wsig*(Six  *at6 + Wsig*(
      &            Seven*at7 + Wsig*(Eight*at8 + Wsig*(Nine *at9 + Wsig*(
-     &            F10  *at10+ Wsig*F11*at11))))))))))
+     &            Ten  *at10+ Wsig*F11*at11))))))))))
          dWdT = Two/((One + Tsig)**2)
          dTdR = ((Six*PI*PI)**F2o3)*(rhoo**F2o3)/tauu
          dTdTau = -TauUEG/tauu**2

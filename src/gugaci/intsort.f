@@ -167,13 +167,14 @@ c                              ----- 2 - electron integrals -----
         nint2=nint2+nintb
         nblock=nblock+1
         do 11 i=1,4
-  11    iblktb(i,nblock)=ip
+        iblktb(i,nblock)=ip
+  11    continue
         iblktb(5,nblock)=nint2
   10  continue
       do 20 ip=1,ng_sm
         npp=(nlsm_all(ip)+1)*nlsm_all(ip)/2
         irm=ip
-      do 20 ir=1,irm-1
+      do 21 ir=1,irm-1
         nrr=(nlsm_all(ir)+1)*nlsm_all(ir)/2
         nintb=npp*nrr
         nint2=nint2+nintb
@@ -183,10 +184,11 @@ c                              ----- 2 - electron integrals -----
         iblktb(3,nblock)=ir
         iblktb(4,nblock)=ir
         iblktb(5,nblock)=nint2
+  21  continue
   20  continue
       do 30 ip=1,ng_sm
         iqm=ip
-      do 30 iq=1,iqm-1
+      do 31 iq=1,iqm-1
         ipq=nlsm_all(ip)*nlsm_all(iq)
         nintb=ipq*(ipq-1)/2
         nint2=nint2+nintb
@@ -196,6 +198,7 @@ c                              ----- 2 - electron integrals -----
         iblktb(3,nblock)=ip
         iblktb(4,nblock)=iq
         iblktb(5,nblock)=nint2
+  31  continue
   30  continue
       do 40 ip=4,8
         if(nlsm_all(ip).eq.0) goto 40
@@ -569,7 +572,6 @@ c      write(10,*)'     start intind_iaqq',ii
       call determine_para_array_for_int1ind()
 
       do lri=norb_frz+1,norb_inn
-        li=lri-norb_frz
         lsmi=lsm_inn(lri)
         call int_ext_3_2_1(lri,lsmi,ii)
       enddo
@@ -614,8 +616,8 @@ c=======================================================================
 
       numb = 1
       do 10  i = 1,norb_inn-1
-        do 10  j = i+1,norb_inn
-          if(lsm_inn(i).ne.lsm_inn(j)) goto 10
+        do 11  j = i+1,norb_inn
+          if(lsm_inn(i).ne.lsm_inn(j)) goto 11
 
           nij=i+ngw2(j)
           loij(nij)=numb
@@ -626,6 +628,7 @@ c=======================================================================
 !     *        vint_ci(numb),vint_ci(numb+1)
             numb=numb+2
 20        continue
+11      continue
 10    continue
 !      write(6,*) "num_inn",numb
 !      print*, loij(1:8)
@@ -634,11 +637,11 @@ c=======================================================================
 c=======================================================================
 c      la<lb<lc<ld
       do 30 ld = 1,norb_inn-3
-        do 30 lc = ld+1,norb_inn-2
+        do 31 lc = ld+1,norb_inn-2
           msd  = lsm_inn(ld)
           msc  = lsm_inn(lc)
           mscd = mul_tab(msd,msc)
-          do 30 lb = lc+1,norb_inn-1
+          do 32 lb = lc+1,norb_inn-1
             msb = lsm_inn(lb)
             msa = mul_tab(mscd,msb)
 
@@ -649,7 +652,7 @@ c      la<lb<lc<ld
             do 40 la = norb_inn,lb+1,-1
               if(lsm_inn(la).ne.msa) cycle
               nolra=nolra+1
-              list = loijk(njkl)+3*(nolra-1)
+c              list = loijk(njkl)+3*(nolra-1)
 
 c        write(6,'(2x,4i3,2i7)')  la,lb,lc,ld,list,numb
 
@@ -660,6 +663,8 @@ c     write(10,'(2x,4i6,i8,3f16.8)')la,lb,lc,ld, numb,
 c    *        vint_ci(numb),vint_ci(numb+1),vint_ci(numb+2)
               numb=numb+3
 40          continue
+32        continue
+31      continue
 30    continue
       return
 c=======================================================================

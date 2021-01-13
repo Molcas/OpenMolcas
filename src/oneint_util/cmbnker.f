@@ -13,14 +13,6 @@
       SubRoutine CmbnKEr(Rnr,qC,Di,nZeta,la,lb,Zeta,Final,nComp,Alpha,
      &                   nAlpha,Beta,nBeta)
 ************************************************************************
-*                                                                      *
-* Object:                                                              *
-*                                                                      *
-* Called from: KnEInt                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Kurt Pfingst                                             *
 ************************************************************************
       Implicit Real*8 (A-H,O-Z)
@@ -40,18 +32,17 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-*     Call QEnter('CmbnKEr')
 *     Call GetMem(' Enter CmbnKE','LIST','REAL',iDum,iDum)
 *
       iComp = 1
       Do 10 ixa = 0, la
-      Do 10 ixb = 0, lb
+      Do 11 ixb = 0, lb
          rx1=DBLE(ixb*(ixb-1))
          n=ixa+ixb
          Do 20 iya = 0, la-ixa
             iza = la-ixa-iya
             ipa= Ind(la,ixa,iza)
-         Do 20 iyb = 0, lb-ixb
+         Do 21 iyb = 0, lb-ixb
             izb = lb-ixb-iyb
             ipb= Ind(lb,ixb,izb)
             ry1=DBLE(iyb*(iyb-1))
@@ -111,10 +102,12 @@
                ialpha=ialpha+1
 30          Continue
 *
+21       Continue
 20       Continue
+11    Continue
 10    Continue
 *
-***********************************************************************
+************************************************************************
 *
       If (iPrint.ge.99) Then
          Write (6,*) ' Result in Cmbnker1'
@@ -127,7 +120,7 @@
          End Do
       End If
 *
-***********************************************************************
+************************************************************************
 *
 *     Add Coulomb contributions for photoionization calculations
 *
@@ -135,11 +128,11 @@
 *
       If(abs(qCoul).gt.Epsq) then
       Do 210 ixa = 0, la
-      Do 210 ixb = 0, lb
+      Do 211 ixb = 0, lb
          Do 220 iya = 0, la-ixa
             iza = la-ixa-iya
             ipa= Ind(la,ixa,iza)
-         Do 220 iyb = 0, lb-ixb
+         Do 221 iyb = 0, lb-ixb
            izb = lb-ixb-iyb
            ipb= Ind(lb,ixb,izb)
            lrs=ixa+ixb+iya+iyb+iza+izb
@@ -153,10 +146,12 @@
      *      Fact * qCoul *  qC(iZeta,lrs)
 230        Continue
 *
+221      Continue
 220      Continue
+211   Continue
 210   Continue
       endif
-***********************************************************************
+************************************************************************
 *
       If (iPrint.ge.99) Then
          Write (6,*) ' Result in Cmbnker2'
@@ -169,7 +164,7 @@
          End Do
       End If
 *
-***********************************************************************
+************************************************************************
 *
 *     Add DIPOL contributions for photoionization calculations
 *
@@ -216,9 +211,8 @@
          End do
        End do
       endif
-***********************************************************************
+************************************************************************
 *
 *     Call GetMem(' Exit CmbnKE','LIST','REAL',iDum,iDum)
-*     Call QExit('CmbnKE')
       Return
       End

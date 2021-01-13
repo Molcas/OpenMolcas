@@ -8,60 +8,67 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine BMtrx(nLines,nBVec,ipBMx,nAtom,nInter,
-     &                 ip_rInt,Lbl,Coor,nDim,dMass,
-     &                 Name,nSym,iOper,Smmtrc,
-     &                 Degen,BSet,HSet,nIter,ip_drInt,
-     &                 ipShift,Gx,Cx,mTtAtm,iAnr,iOptH,User_Def,
-     &                 nStab,jStab,Curvilinear,Numerical,
-     &                 DDV_Schlegel,HWRS,Analytic_Hessian,
-     &                 iOptC,PrQ,mxdc,iCoSet,lOld,
-     &                 rHidden,nFix,nQQ,iIter,Redundant,nqInt,MaxItr,
-     &                 nWndw)
+      Subroutine BMtrx(nsAtom,Coor,nIter,mTtAtm,nWndw)
+      Use Slapaf_Info, Only: Cx, Shift, qInt, KtB, BMx, Smmtrc,
+     &                       Lbl
+      Use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC,
+     &                             User_Def, MaxItr, BSet, HSet,
+     &                             lOld, Numerical, nLambda, iRef
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
-#include "WrkSpc.fh"
-#include "print.fh"
-      Real*8 Coor(3,nAtom),  dMass(nAtom), Degen(3*nAtom),
-     &       Gx(3*nAtom,nIter), Cx(3*nAtom,nIter)
-      Character Lbl(nInter)*8,Name(nAtom)*(LENIN)
-      Integer   iOper(0:nSym-1), iAnr(nAtom),
-     &          nStab(nAtom), jStab(0:7,nAtom), iCoSet(0:7,nAtom)
-      Logical Smmtrc(3*nAtom), BSet, HSet, Redundant,
-     &        User_Def, Curvilinear, Numerical, DDV_Schlegel,
-     &        HWRS, Analytic_Hessian, PrQ, lOld
-      External Get_SuperName
-      Character*100 Get_SuperName
+#include "stdalloc.fh"
+      Real*8 Coor(3,nsAtom)
+      Character(LEN=100), External:: Get_SuperName
+      Integer, Allocatable:: TabB(:,:), TabA(:,:,:), TabAI(:,:), AN(:)
+      Real*8, Allocatable:: TR(:), TRNew(:), TROld(:), Scr2(:),
+     &                      Vec(:,:), Coor2(:,:), EVal(:), Hss_X(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+      Interface
+        Subroutine Box(Coor,nsAtom,iANr,TabB,TabA,nBonds,nMax)
+        Integer nsAtom
+        Real*8 Coor(3,nsAtom)
+        Integer iANr(nsAtom)
+        Integer, Allocatable:: TabB(:,:), TabA(:,:,:)
+        Integer nBonds, nMax
+        End Subroutine Box
+        Subroutine Hidden(Coor,AN,nHidden)
+        Real*8, Allocatable:: Coor(:,:)
+        Integer, Allocatable:: AN(:)
+        Integer nHidden
+        End Subroutine Hidden
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('BMtrx')
-      iRout=133
-      iPrint=nPrint(iRout)
+*#define _DEBUGPRINT_
+*                                                                      *
+************************************************************************
+*                                                                      *
+      nQQ = 0
 *
       Lu=6
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     iIter: point at the reference geometry, used for non-redundant
-*            internal coordinate to define the K-matrix and to generate
-*            the raw model Hessian and TR vectors.
+*     iRef: point at the reference geometry, used for non-redundant
+*           internal coordinate to define the K-matrix and to generate
+*           the raw model Hessian and TR vectors.
 *
-      If (.Not.BSet.and..Not.Numerical) Then
-         iIter = nIter-1         ! Compute cartesian Structure
-      Else If (Numerical) Then
-         iIter = 1               ! Numerical Hessian Computation
-      Else
-         iIter = nIter           ! Normal Computation
+      If (Numerical) Then
+         iRef = 1               ! Numerical Hessian Computation
+      Else If (iRef.eq.0) Then
+         If (.Not.BSet) Then
+            iRef = nIter-1      ! Compute cartesian Structure
+         Else
+            iRef = nIter        ! Normal Computation
+         End If
       End If
 *
-#ifdef _DEBUG_
-      Write (6,*) ' Actual structure from iteration',iIter
+#ifdef _DEBUGPRINT_
+      Write (6,*) ' Actual structure from iteration',iRef
       Write (6,*) ' Last structure from iteration',nIter
 #endif
 *                                                                      *
@@ -70,54 +77,46 @@
 *---- Find the translational and rotational eigenvectors for the
 *     current structure.
 *
-      Call Allocate_Work(ipTR,18*nAtom)
-      Call FZero(Work(ipTR),18*nAtom)
+      Call mma_allocate(TR,18*nsAtom,Label='TR')
+      TR(:)=Zero
 *
-      Call TRPGen(nDim,nAtom,Cx(1,iIter),Degen,nSym,iOper,Smmtrc,mTR,
-     &            dMass,.False.,Work(ipTR))
+      Call TRPGen(nDimBC,nsAtom,Cx(1,1,iRef),mTR,.False.,TR)
 *
-      Call Allocate_Work(ipTRnew,3*nAtom*mTR)
-      Call FZero(Work(ipTRnew),3*nAtom*mTR)
+      Call mma_allocate(TRnew,3*nsAtom*mTR,Label='TRNew')
+      TRNew(:)=Zero
       i = 0
-      Do ix = 1, 3*nAtom
-         If (Smmtrc(ix)) Then
+      Do ix = 1, 3*nsAtom
+         iAtom = (ix+2)/3
+         ixyz = ix - (iAtom-1)*3
+         If (Smmtrc(ixyz,iAtom)) Then
             i = i + 1
-            iOff = ipTRnew + ix - 1
-            call dcopy_(mTR,Work(ipTR+i-1),-nDim,Work(iOff),3*nAtom)
+            call dcopy_(mTR,TR(i),-nDimBC,TRNew(ix),3*nsAtom)
          End If
       End Do
-      Call Put_dArray('TR',Work(ipTRnew),3*nAtom*mTR)
-      Call Free_Work(ipTRnew)
+      Call Put_dArray('TR',TRnew,3*nsAtom*mTR)
+      Call mma_deallocate(TRnew)
 *
-*     Call RecPrt('Work(ipTR)',' ',Work(ipTR),nDim,mTR)
+*     Call RecPrt('TR',' ',TR,nDimBC,mTR)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('TabAI','Allo','Inte',ip_TabAI,2*mTtAtm)
-      Call GetMem('Vect','Allo','Real',ipVec,3*mTtAtm*nDim)
-      Call GetMem('AN','Allo','Inte',ipAN,mTtAtm)
-      Call GetMem('Coor','Allo','Real',ipCoor,3*mTtAtm)
+      Call mma_allocate(TabAI,2,mTtAtm,Label='TabAI')
+      Call mma_allocate(Vec,3*mTtAtm,nDimBC,Label='Vec')
+      Call mma_allocate(AN,mTtAtm,Label='AN')
+      Call mma_allocate(Coor2,3,mTtAtm,Label='Coor2')
 *
 *-----Generate Grand atoms list
 *
-      Call GenCoo(Cx(1,iIter),nAtom,Work(ipCoor),iOper,nSym,
-     &            mTtAtm,Work(ipVec),Smmtrc,nDim,iAnr,iWork(ipAN),
-     &            iWork(ip_TabAI),Degen)
+      Call GenCoo(Cx(1,1,iRef),nsAtom,Coor2,mTtAtm,Vec,nDimBC,AN,TabAI)
 *
 *---- Are there some hidden frozen atoms ?
 *
-      nHidden = 0
-      ipMMKept = 0
-      nMDstep = 0
-      If (rHidden.ge.Two) Call Hidden(mTtAtm,ipCoor,ipAN,nHidden,
-     &                                rHidden,nMDstep)
+      Call Hidden(Coor2,AN,nHidden)
 *
 *-----Generate bond list
 *
-      ThrB=0.0D0  ! dummy
       mTtAtm = mTtAtm+nHidden
-      Call Box(Work(ipCoor),mTtAtm,iWork(ipAN),iOptC,
-     &         ddV_Schlegel,ip_TabB,ip_TabA,nBonds,nMax,ThrB)
+      Call Box(Coor2,mTtAtm,AN,TabB,TabA,nBonds,nMax)
       mTtAtm = mTtAtm-nHidden
 *                                                                      *
 ************************************************************************
@@ -131,19 +130,16 @@
 *                                                                      *
 *---- Compute the raw Cartesian Hessian
 *
-      Call GetMem('EVal','Allo','Real',ipEVal,
-     &            (3*mTtAtm)*(3*mTtAtm+1)/2)
-      Call GetMem('scr1','Allo','Real',ip_Hss_X,(3*mTtAtm)**2)
-      Call GetMem('scr2','Allo','Real',ipScr2,(3*mTtAtm)**2)
+      Call mma_allocate(EVal,(3*mTtAtm)*(3*mTtAtm+1)/2,Label='EVal')
+      Call mma_Allocate(Hss_X,(3*mTtAtm)**2,Label='Hss_X')
+      Call mma_allocate(Scr2,(3*mTtAtm)**2,Label='Scr2')
 *
       If (HSet.or..Not.(Curvilinear.or.User_Def))
-     &   Call LNM(Work(ipCoor),mTtAtm,Work(ipEVal),Work(ip_Hss_X),
-     &            Work(ipScr2),Work(ipVec),nAtom,nDim,iWork(ipAN),
-     &            Smmtrc,Cx,Gx,nIter,iOptH,Degen, DDV_Schlegel,
-     &            Analytic_Hessian,iOptC,iWork(ip_TabB),iWork(ip_TabA),
-     &            nBonds,nMax,nHidden,nMDstep,ipMMKept,nSym)
+     &   Call LNM(Coor2,mTtAtm,EVal,Hss_X,Scr2,Vec,nsAtom,nDimBC,AN,
+     &            nIter,TabB,TabA,nBonds,nMax,nHidden)
 *
-      Call GetMem('scr2','Free','Real',ipScr2,(3*mTtAtm)**2)
+      Call mma_deallocate(Scr2)
+      Call mma_deallocate(Coor2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -167,16 +163,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call BMtrx_User_Defined(
-     &                 nLines,nBVec,ipBMx,nAtom,nInter,
-     &                 ip_rInt,Lbl,Coor,nDim,dMass,
-     &                 Name,nSym,iOper,Smmtrc,
-     &                 Degen,BSet,HSet,nIter,ip_drInt,
-     &                 Gx,Cx,mTtAtm,iAnr,
-     &                 nStab,jStab,Numerical,
-     &                 HWRS,Analytic_Hessian,
-     &                 iOptC,PrQ,mxdc,iCoSet,lOld,
-     &                 nFix,mTR,ip_KtB,nQQ,Redundant,nqInt,MaxItr)
+         Call BMtrx_User_Defined(nsAtom,Coor,nDimBC,nIter,mTR,nQQ)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -193,25 +180,20 @@
 *------- Re-generate the bonds if there were hidden atoms
 *
          If (nHidden.ne.0) Then
-            Call Box(Work(ipCoor),mTtAtm,iWork(ipAN),iOptC,
-     &               ddV_Schlegel,ip_TabB,ip_TabA,nBonds,nMax,ThrB)
+            Call Box(Coor2,mTtAtm,AN,TabB,TabA,
+     &               nBonds,nMax)
          End If
          Call BMtrx_Internal(
-     &                 nLines,ipBMx,nAtom,nInter,
-     &                 ip_rInt,Coor,nDim,dMass,
-     &                 Name,nSym,iOper,Smmtrc,
-     &                 Degen,BSet,HSet,nIter,ip_drInt,
-     &                 Gx,Cx,mTtAtm,iAnr,
-     &                 nStab,jStab,Numerical,
-     &                 HWRS,Analytic_Hessian,
-     &                 iOptC,PrQ,mxdc,iCoSet,lOld,
-     &                 nFix,iIter,mTR,Work(ipTR),ip_TabAI,
-     &                 ip_TabA,ip_TabB,nBonds,nMax,
-     &                 iIter,ip_KtB,nQQ,Redundant,nqInt,MaxItr,nWndw)
+     &                 nsAtom,nDimBC,
+     &                 nIter,
+     &                 mTtAtm,
+     &                 iRef,mTR,TR,TabAI,
+     &                 TabA,TabB,nBonds,nMax,
+     &                 iRef,nQQ,nWndw)
 *
 *------- Set the Labels for internal coordinates.
 *
-         Do i = 1, nInter
+         Do i = 1, nQQ
             Write (Lbl(i),'(A,I3.3,A)') 'nrc',i,'  '
          End Do
 *                                                                      *
@@ -221,17 +203,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call BMtrx_Cartesian(
-     &                 nLines,ipBMx,nAtom,nInter,
-     &                 ip_rInt,Coor,nDim,dMass,
-     &                 Name,nSym,iOper,Smmtrc,
-     &                 Degen,BSet,HSet,nIter,ip_drInt,
-     &                 Gx,Cx,mTtAtm,iAnr,
-     &                 nStab,jStab,Numerical,
-     &                 HWRS,Analytic_Hessian,
-     &                 iOptC,PrQ,mxdc,iCoSet,lOld,
-     &                 nFix,mTR,Work(ipTR),ipEVal,ip_Hss_X,
-     &                 ip_KtB,nQQ,Redundant,nqInt,MaxItr,nWndw)
+         Call BMtrx_Cartesian(nsAtom,nDimBC,nIter,mTtAtm,mTR,TR,EVal,
+     &                        Hss_X,nQQ,nWndw)
 *
 *------- Set the Labels for cartesian normal modes.
 *
@@ -247,29 +220,26 @@
 ************************************************************************
 *                                                                      *
       If ((BSet.and.HSet.and..NOT.lOld)) Then
-         Call Put_dArray('Hss_X',Work(ip_Hss_X),nDim**2)
-         Call Put_dArray('KtB',Work(ip_KtB),nDim*nQQ)
-         Call Free_Work(ip_KtB)
+         Call Put_dArray('Hss_X',Hss_X,nDimBC**2)
+         Call Put_dArray('KtB',KtB,nDimBC*nQQ)
+         Call mma_deallocate(KtB)
       End If
-      Call Free_Work(ip_Hss_X)
-      Call GetMem('EVal','Free','Real',ipEVal,(3*mTtAtm)*(3*mTtAtm+1)/2)
-      Call Free_iWork(ip_TabA)
-      Call Free_iWork(ip_TabB)
-      Call GetMem('Coor','Free','Real',ipCoor,3*mTtAtm)
-      Call GetMem('AN','Free','Inte',ipAN,mTtAtm)
-      Call GetMem('Vect','Free','Real',ipVec,3*mTtAtm*nDim)
-      Call GetMem('TabAI','Free','Inte',ip_TabAI,2*mTtAtm)
+      Call mma_deallocate(Hss_X)
+      Call mma_deallocate(EVal)
+      Call mma_deallocate(TabA)
+      Call mma_deallocate(TabB)
+      Call mma_deallocate(AN)
+      Call mma_deallocate(Vec)
+      Call mma_deallocate(TabAI)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *---- Compute the shift vector in the basis.
 *
       If (Bset) Then
-         Call GetMem('Shift','Allo','Real',ipShift,nQQ*nIter)
-         Call FZero(Work(ipShift),nQQ*nIter)
-         Call ShfANM(nQQ,nIter,Work(ip_rInt),Work(ipShift),iPrint)
-      Else
-         ipShift=ip_Dummy
+         Call mma_allocate(Shift,nQQ,MaxItr,Label='Shift')
+         Shift(:,:)=Zero
+         Call ShfANM(nQQ,nIter,qInt,Shift)
       End If
 *                                                                      *
 ************************************************************************
@@ -279,53 +249,65 @@
 *
       If ((nIter.eq.1.and.BSet).and.
      &    (Get_SuperName().ne.'numerical_gradient')) Then
-         Call Allocate_Work(ipBMxOld,3*nAtom*nQQ)
-         Call FZero(Work(ipBmxOld),3*nAtom*nQQ)
-         call dcopy_(3*nAtom*nQQ,Work(ipBMx),1,Work(ipBMxOld),1)
-         Call Put_dArray('BMxOld',Work(ipBMxOld),3*nAtom*nQQ)
-         Call Free_Work(ipBMxOld)
+
+         Call Put_dArray('BMxOld',BMx,3*nsAtom*nQQ)
+
          If (mTR.ne.0) Then
-            Call Allocate_Work(ipTROld,3*nAtom*mTR)
-            Call FZero(Work(ipTROld),3*nAtom*mTR)
-#ifdef _DEBUG_
-            Call RecPrt('TRVec',' ',Work(ipTR),3*nAtom,mTR)
+            Call mma_allocate(TROld,3*nsAtom*mTR,Label='TROld')
+            TROld(:)=Zero
+#ifdef _DEBUGPRINT_
+            Call RecPrt('TRVec',' ',TR,3*nsAtom,mTR)
 #endif
             i = 0
-            Do ix = 1, 3*nAtom
-               If (Smmtrc(ix)) Then
+            Do ix = 1, 3*nsAtom
+               iAtom = (ix+2)/3
+               ixyz = ix - (iAtom-1)*3
+               If (Smmtrc(ixyz,iAtom)) Then
                   i = i + 1
-                  iOff = ipTROld + ix - 1
-                  call dcopy_(mTR,Work(ipTR+i-1),-nDim,
-     &                           Work(iOff),3*nAtom)
+                  call dcopy_(mTR,TR(i),-nDimBC,TROld(ix),3*nsAtom)
                End If
             End Do
-            Call Put_dArray('TROld',Work(ipTROld),3*nAtom*mTR)
-            Call Free_Work(ipTROld)
+            Call Put_dArray('TROld',TROld,3*nsAtom*mTR)
+            Call mma_deallocate(TROld)
          End If
       End IF
 *
 *---- Print the B-matrix
 *
-#ifdef _DEBUG_
-      Call RecPrt(' The BMtrx',' ',Work(ipBMx),3*nAtom,nQQ)
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' The BMtrx',' ',BMx,3*nsAtonsAtom,nQQ)
 #endif
-      Call Free_Work(ipTR)
+      Call mma_deallocate(TR)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *.... Print out the values of the internal coordinates
 *
-      If (iPrint.ge.99) Then
-         ip = ip_rint + (nIter-1)*nInter -1
-         Write (6,*)
-         Write (6,*) ' Internal coordinates'
-         Write (6,*)
-         Write (6,'(1X,A,2X,F10.4)')
-     &         (Lbl(iInter),Work(ip+iInter),iInter=1,nQQ)
+#ifdef _DEBUGPRINT_
+      Write (6,*)
+      Write (6,*) ' Internal coordinates'
+      Write (6,*)
+      Write (6,'(1X,A,2X,F10.4)')
+     &         (Lbl(iInter),qInt(iInter,nIter),iInter=1,nQQ)
+#endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+*     Too many constraints?
+*
+      If (nLambda.gt.nQQ) Then
+         Call WarningMessage(2,'Error in RlxCtl')
+         Write (Lu,*)
+         Write (Lu,*) '********************************************'
+         Write (Lu,*) ' ERROR: nLambda.gt.nQQ'
+         Write (Lu,*) ' nLambda=',nLambda
+         Write (Lu,*) ' nQQ=',nQQ
+         Write (Lu,*) ' There are more constraints than coordinates'
+         Write (Lu,*) '********************************************'
+         Call Quit_OnUserError()
       End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('BMtrx')
       Return
       End

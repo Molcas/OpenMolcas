@@ -9,19 +9,41 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Ci_Ci(ipcid,ips2)
+      use ipPage, only: W
+      use Arrays, only: FIMO, INT2
       Implicit Real*8(A-h,o-z)
-#include "WrkSpc.fh"
-
 #include "Input.fh"
 #include "Pointers.fh"
-      Call CISigma_sa(0,state_sym,state_sym,ipFimo,k2int,
-     &                    idum,ipCId,ips2,'N')
+      Real*8 rDum(1)
+*                                                                      *
+************************************************************************
+*                                                                      *
+       Interface
+       SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
+     &                       Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
+       Integer iispin, iCsym, iSSym
+       Integer nInt1, nInt2s, nInt2a
+       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+       Integer ipCI1, ipCI2
+       Logical Have_2_el
+       End SubRoutine CISigma_sa
+       End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call CISigma_sa(0,state_sym,state_sym,FIMO,SIZE(FIMO),
+     &                Int2,SIZE(Int2),rDum,1,ipCId,ips2,.True.)
+      irc=ipin(ipCId)
+      irc=ipin(ipS2)
       Do i=0,nroots-1
          EC=(rin_ene+potnuc-ERASSCF(i+1))*Weight(i+1)
-       Call Daxpy_(ncsf(State_Sym),EC,
-     &            Work(ipin(ipCId)+i*ncsf(state_sym)),1,
-     &            Work(ipin(ipS2)+i*ncsf(state_sym)),1)
+         Call Daxpy_(ncsf(State_Sym),EC,
+     &               W(ipCId)%Vec(1+i*ncsf(state_sym)),1,
+     &               W(ipS2)%Vec(1+i*ncsf(state_sym)),1)
       End Do
-      Call DSCAL_(nroots*ncsf(state_SYM),2.0d0,Work(ipin(ipS2)),1)
+      Call DSCAL_(nroots*ncsf(state_SYM),2.0d0,W(ipS2)%Vec,1)
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       End

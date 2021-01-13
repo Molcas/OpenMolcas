@@ -9,12 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine CntMem(nHer,MemCnt,la,lb,lr)
+      use Sizes_of_Seward, only: s
       Implicit Real*8 (A-H,O-Z)
 *
-#include "itmax.fh"
-#include "info.fh"
-*
-      nHer=mCentr
+      nHer=S%mCentr
       MemCnt = 3*(la+1)*nHer +
      &         3*(lb+1)*nHer +
      &         ((la+1)*(la+2)/2) *

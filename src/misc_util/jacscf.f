@@ -34,14 +34,16 @@ c10    CONTINUE
       K=1
       NQ=NA
       DO 40 I=1,NA
-      DO 40 J=1,NA
+      DO 41 J=1,NA
 c      IF (I-J) 20,30,20
       IF (I.eq.J) goto 30
 c20    CONTINUE
       B(K)=0.0D00
-      GO TO 40
+      GO TO 42
 30    B(K)=1.0D00
-40    K=K+1
+42    K=K+1
+41    CONTINUE
+40    CONTINUE
 50    SUM=0.0D00
 c      IF (NA-1) 330,310,60
       IF (NA-1.lt.0) goto 330
@@ -59,8 +61,10 @@ c80    CONTINUE
       AMAX=ABS(A(K))
 90    TERM=A(K)*A(K)
       SUM=SUM+TERM+TERM
-100   K=K+1
-110   SUM=SUM-TERM
+      K=K+1
+100   CONTINUE
+      SUM=SUM-TERM
+110   CONTINUE
       SUM=SQRT(SUM)
       THRESH=SUM/SQRT(dble(NA))
       THRSHG=THRESH*EPSLON
@@ -86,7 +90,7 @@ c130   CONTINUE
       ID=ID+I
       IF (ABS(A(K)).GT.THRESH) GO TO 150
       KC=KC+NQ
-      GO TO 240
+      GO TO 241
 150   N=N+1
       ALPHA=(A(JD)-A(ID))/(2.*A(K))
       BETA=1.0D00/(1.0D00+ALPHA*ALPHA)
@@ -130,8 +134,10 @@ c190   CONTINUE
       A(KA)=-S*A(KB)+CC*A(KA)
       A(KB)=TEMPA
 230   CONTINUE
-240   K=K+1
-250   K=K+1
+241   K=K+1
+240   CONTINUE
+      K=K+1
+250   CONTINUE
       LOOPC=LOOPC+1
 c      IF (LOOPC-50) 260,340,340
       IF (LOOPC-50.ge.0) goto 340
@@ -151,7 +157,8 @@ c300   IF (N) 140,310,140
 310   LL=0
       DO 320 L=1,NA
       LL=LL+L
-320   C(L)=A(LL)
+      C(L)=A(LL)
+320   CONTINUE
 340   CONTINUE
 330   RETURN
       END

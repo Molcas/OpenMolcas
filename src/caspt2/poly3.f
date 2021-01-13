@@ -54,7 +54,6 @@ C PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
 
       INTEGER IPARDIV
 
-      CALL QENTER('POLY3')
 
       IF (IFF.EQ.1) THEN
 C ORBITAL ENERGIES IN CI-COUPLING ORDER:
@@ -111,7 +110,7 @@ C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
           ELSE
             WRITE(6,*)' With new orbitals, the CI array is:'
           END IF
-          CALL PRWF_CP2(LSYM,NCONF,WORK(LCI),CITHR)
+          CALL PRWF_CP2(STSYM,NCONF,WORK(LCI),CITHR)
         END IF
       ELSE
         WORK(LCI)=1.0D0
@@ -165,7 +164,6 @@ C-SVC20100903: during mkfg3, NG3 is set to the actual value
         END IF
       END IF
 
-      CALL QEXIT('POLY3')
 
       RETURN
       END

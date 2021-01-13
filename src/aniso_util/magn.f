@@ -15,21 +15,20 @@ c this Subroutine is a wrapper for various MAGN subroutines
       Implicit None
       Integer, parameter           :: wp=SELECTED_REAL_KIND(p=15,r=307)
       Integer, intent(in)          :: EXCH, N, nT
-      Real(kind=wp), intent(in)    :: X, Y, Z, H, zJ
-      Real(kind=wp), intent(in)    :: W(EXCH), T(nT)
-      Complex(kind=wp), intent(in) :: dM(3,EXCH,EXCH)
-      Complex(kind=wp), intent(in) :: sM(3,EXCH,EXCH)
+      Real(kind=8), intent(in)    :: X, Y, Z, H, zJ
+      Real(kind=8), intent(in)    :: W(EXCH), T(nT)
+      Complex(kind=8), intent(in) :: dM(3,EXCH,EXCH)
+      Complex(kind=8), intent(in) :: sM(3,EXCH,EXCH)
       Logical, intent(in)          :: sopt
 
-      Real(kind=wp), intent(out)   :: ZB(nT), WZ(N)
-      Real(kind=wp), intent(out)   :: S(3,nT), M(3,nT)
+      Real(kind=8), intent(out)   :: ZB(nT), WZ(N)
+      Real(kind=8), intent(out)   :: S(3,nT), M(3,nT)
 
-      Real(kind=wp), intent(in)    :: THRS
+      Real(kind=8), intent(in)    :: THRS
       Logical, intent(in)          :: m_paranoid
       Logical, intent(in)          :: DBG
 c local variables:
 
-      Call qEnter('MAGN')
 
       If( abs(zJ) .lt. tiny(0.0_wp) ) Then
 
@@ -57,7 +56,6 @@ c local variables:
       End If
 
 
-      Call qExit('MAGN')
 
       Return
       End subroutine magn

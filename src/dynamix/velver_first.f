@@ -26,7 +26,10 @@ C *********************************************************************
 C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 
       SUBROUTINE VelVer_First(irc)
-      USE Isotopes
+#ifdef _HDF5_
+      USE mh5, ONLY: mh5_put_dset
+#endif
+      IMPLICIT REAL*8 (a-h,o-z)
 #include "prgm.fh"
 #include "warnings.fh"
 #include "Molcas.fh"
@@ -38,7 +41,7 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
 #include "constants2.fh"
       EXTERNAL    IsFreeUnit
       INTEGER     natom,i,j,irc,file,IsFreeUnit,ipCoord
-      REAL*8      DT2,DTSQ2,Ekin,time,totimpl,RMS
+      REAL*8      DT_2,DTSQ2,Ekin,time,totimpl,RMS
 
       CHARACTER  caption*15, lastline*80, filname*80
       LOGICAL    hybrid,qmmm
@@ -49,10 +52,8 @@ C   . |  1    .    2    .    3    .    4    .    5    .    6    .    7 |  .    8
       REAL*8, ALLOCATABLE ::      Mass(:),tstxyz(:)
       CHARACTER, ALLOCATABLE ::  atom(:)*2, atom2(:)*2
       REAL*8, ALLOCATABLE ::     force2(:),xyz2(:)
-      INTEGER Iso
 *
       IF(IPRINT.EQ.INSANE) WRITE(6,*)' Entering ',ROUTINE
-      CALL QENTER(ROUTINE)
 
       WRITE(6,*)'*** First step of the Velocity Verlet algorithm ***'
 C
@@ -90,12 +91,13 @@ C
       CALL Get_Velocity(vel,3*natom)
 C
 C     Initialize the Mass variable
-      CALL Get_nAtoms_All(matom)
-      CALL Get_Mass_All(Mass,matom)
+      CALL GetMassDx(Mass,natom)
 C
 C Check if reduced dimensionality
       IF (POUT .NE. 0) THEN
-        CALL project_out(vel,force,natom)
+        CALL project_out_for(force,natom)
+      ELSEIF (PIN .NE. natom*3) THEN
+        CALL project_in_for(force,natom)
       ENDIF
 C--------------------------------------------------------------------C
 C CANONICAL ENSEMBLE
@@ -121,21 +123,14 @@ C
 C
 C     Definition of the time step
 C
-      DT2   = DT / 2.0D0
-      DTSQ2 = DT * DT2
+      DT_2  = DT / 2.0D0
+      DTSQ2 = DT * DT_2
 *
       Ekin = 0.0D0
       RMS = 0.0D0
       totimpl = 0.0D0
 *
       DO i=1, natom
-C     Determines the mass of an atom from its name
-        IF (i.GT.matom) THEN
-           CALL LeftAd(atom(i))
-           Iso=0
-           CALL Isotope(Iso,atom(i),Mass(i))
-        END IF
-C-------------------------------------------
         DO j=1, 3
 *** Root mean square deviation ****************************
           tstxyz(3*(i-1)+j) = xyz(3*(i-1)+j)
@@ -146,11 +141,18 @@ C-------------------------------------------
           RMS=RMS+(tstxyz(3*(i-1)+j)-xyz(3*(i-1)+j))**2
 ***********************************************************
           Ekin = Ekin + 5.0D-01 * Mass(i) * (vel(3*(i-1)+j) ** 2)
-          vel(3*(i-1)+j) = vel(3*(i-1)+j) + DT2 * force(3*(i-1)+j) /
+          vel(3*(i-1)+j) = vel(3*(i-1)+j) + DT_2 * force(3*(i-1)+j) /
      &       Mass(i)
           totimpl = totimpl + vel(3*(i-1)+j) * Mass(i)
         END DO
       END DO
+
+C Check if reduced dimensionality (should not be needed)
+      IF (POUT .NE. 0) THEN
+        CALL project_out_vel(vel,natom)
+      ELSEIF (PIN .NE. natom*3) THEN
+        CALL project_in_vel(vel,natom)
+      ENDIF
 
       Call Add_Info('EKin',[EKin],1,6)
 
@@ -164,7 +166,7 @@ C
          If (qmmm) Then
             Call GetMem('Coordinates','ALLO','REAL',ipCoord,3*natom)
             call dcopy_(3*natom,xyz,1,Work(ipCoord),1)
-            Call LA_Morok(natom,ipCoord,2)
+            Call LA_Morok(natom,Work(ipCoord),2)
             call dcopy_(3*natom,Work(ipCoord),1,xyz,1)
             Call Free_Work(ipCoord)
          End If
@@ -197,11 +199,11 @@ C
 C
 C     Write coordinates to output file
 C
-*#ifdef _DEBUG_
+*#ifdef _DEBUGPRINT_
 *      WRITE(6,*)' Dynamix calls 2 DxCoord.'
 *#endif
       CALL DxCoord(natom,atom,xyz,hybrid)
-*#ifdef _DEBUG_
+*#ifdef _DEBUGPRINT_
 *      WRITE(6,*)' Dynamix back from 2 DxCoord.'
 *#endif
 C
@@ -247,6 +249,5 @@ C
  404  FORMAT(6F12.7)
  405  FORMAT(5X,A22,D11.4,1X,A)
 *
-      CALL qExit(ROUTINE)
       RETURN
       END

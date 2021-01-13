@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine axexbsol2_cvb(ap,rhsp,itdav,maxdav,nfrdim1,
      >  solp,solp_res,eig,eig_res,
@@ -26,7 +27,8 @@ c  Solve linear equation in Davidson subspace.
       data zero/0d0/,one/1d0/
 
       do 100 it=1,itdav
-100   call fmove_cvb(ap(1,it),eigvec(1,it),itdav)
+      call fmove_cvb(ap(1,it),eigvec(1,it),itdav)
+100   continue
 
       if(ip.ge.3)then
         write(6,*)' AP matrix :'
@@ -65,6 +67,8 @@ c  Solve linear equation in Davidson subspace.
       else
         write(6,*)' Error in IFOLLOW with direct Fletcher!',ifollow
         call abend_cvb()
+        nnegeig=0
+        nposeig=0
       endif
 
       eigmx=-one

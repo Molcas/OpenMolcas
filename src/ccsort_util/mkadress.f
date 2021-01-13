@@ -55,12 +55,12 @@ c
 #include "reorg.fh"
 
        integer NOIPSB(106)
-       integer idispsb(106)
+c      integer idispsb(106)
 c
 c     help variables
 c
        integer sense
-       integer p,q,r,s,pa,qa,ra,sa
+       integer p,q,r,s,pa,qa,ra
        integer IND,INDT,ISPQRS,NINT,NSLM,idistemp,idishelp
        integer jlow,ilow,iup,jup,kup,lup,iold,jold,kold,lold
        integer norbp,nsi,nsj,nsk,nsl,nsij,nsijk
@@ -80,9 +80,11 @@ CFUE   idistemp=1
 CFUE   idisadd=150
 C
        do 100 NSI=1,NSYM
-       do 100 NSJ=1,NSYM
-       do 100 NSK=1,NSYM
+       do 101 NSJ=1,NSYM
+       do 102 NSK=1,NSYM
        typ(NSI,NSJ,NSK)=0
+ 102    continue
+ 101    continue
  100    continue
 c
 
@@ -175,7 +177,6 @@ c
        pa=p
        qa=q
        ra=r
-       sa=s
        typ(pa,qa,ra)=sense
        idis(pa,qa,ra)=idistemp
        np(pa,qa,ra)=1
@@ -188,7 +189,6 @@ c
        pa=r
        qa=q
        ra=p
-       sa=s
        typ(pa,qa,ra)=sense
        idis(pa,qa,ra)=idistemp
        np(pa,qa,ra)=2
@@ -201,7 +201,6 @@ c
        pa=p
        qa=s
        ra=r
-       sa=q
        typ(pa,qa,ra)=sense
        idis(pa,qa,ra)=idistemp
        np(pa,qa,ra)=1
@@ -214,7 +213,6 @@ c
        pa=r
        qa=s
        ra=p
-       sa=q
        typ(pa,qa,ra)=sense
        idis(pa,qa,ra)=idistemp
        np(pa,qa,ra)=2
@@ -227,7 +225,6 @@ c
        pa=q
        qa=p
        ra=s
-       sa=r
        typ(pa,qa,ra)=sense
        idis(pa,qa,ra)=idistemp
        np(pa,qa,ra)=3
@@ -240,7 +237,6 @@ c
        pa=s
        qa=p
        ra=q
-       sa=r
        typ(pa,qa,ra)=sense
        idis(pa,qa,ra)=idistemp
        np(pa,qa,ra)=4
@@ -253,7 +249,6 @@ c
        pa=q
        qa=r
        ra=s
-       sa=p
        typ(pa,qa,ra)=sense
        idis(pa,qa,ra)=idistemp
        np(pa,qa,ra)=3
@@ -266,7 +261,6 @@ c
        pa=s
        qa=r
        ra=q
-       sa=p
        typ(pa,qa,ra)=sense
        idis(pa,qa,ra)=idistemp
        np(pa,qa,ra)=4
@@ -275,7 +269,7 @@ c
        ns(pa,qa,ra)=1
 c
 c
-       idispsb(ispqrs)=idistemp
+c      idispsb(ispqrs)=idistemp
        idishelp=0
 C
 C     ******************************************************************

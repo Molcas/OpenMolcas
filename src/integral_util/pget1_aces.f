@@ -10,12 +10,13 @@
 *                                                                      *
 * Copyright (C) 1992,2000, Roland Lindh                                *
 ************************************************************************
-      SubRoutine PGet1_Aces(PAO,ijkl,nPAO,iCmp,iShell,
+      SubRoutine PGet1_Aces(PAO,ijkl,nPAO,iCmp,
      &                      iAO,iAOst,Shijij,iBas,jBas,kBas,lBas,kOp,
      &                      DSO,DSO_Var,DSSO,DSSO_Var,nDSO,
      &                      Gamma,nGamma,iSO2cI,nSOs,
      &                      iSO2Sh,PMax)
 ************************************************************************
+*                                                                      *
 *  Object: to assemble the 2nd order density matrix of a SCF wave      *
 *          function from the 1st order density.                        *
 *                                                                      *
@@ -26,32 +27,24 @@
 *          DSO: HF 1st order density                                   *
 *          DSO_Var: 1st order density of correlated wf.                *
 *                                                                      *
-* Called from: PGet0                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, SWEDEN.                                         *
 *             January '92.                                             *
 *                                                                      *
 *     Modified to Aces 2 by RL, July 2000, Gainesville, FL, USA        *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO
+      use pso_stuff
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
 #include "print.fh"
-#include "pso.fh"
-#include "WrkSpc.fh"
 ************ columbus interface ****************************************
 #include "columbus_gamma.fh"
       parameter (exfac=1d0)
       Real*8 PAO(ijkl,nPAO), DSO(nDSO),  DSO_Var(nDSO),
      &       Gamma(nGamma), DSSO(nDSO), DSSO_Var(nDSO)
       Integer iSO2cI(2,nSOs), iSO2Sh(nSOs)
-      Integer iShell(4), iAO(4), kOp(4), iAOst(4), iCmp(4)
+      Integer iAO(4), kOp(4), iAOst(4), iCmp(4)
       Logical Shijij
 *                                                                      *
 ************************************************************************
@@ -62,14 +55,13 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+#ifdef _DEBUGPRINT_
       iRout = 39
       iPrint = nPrint(iRout)
-#ifdef _DEBUG_
-      Call qEnter('PGet1   ')
       If (iPrint.ge.99) Then
          iComp = 1
-         Call PrMtrx('DSO     ',[iD0Lbl],iComp,[ipD0],Work)
-         Call PrMtrx('DSO_Var ',[iD0Lbl],iComp,[ipDVar],Work)
+         Call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
+         Call PrMtrx('DSO_Var ',[iD0Lbl],iComp,1,DVar)
          Write (6,*) ' nBases..=',iBas,jBas,kBas,lBas
          Write (6,*) 'iSO2Sh=',iSO2Sh
          Write (6,*) 'iSO2cI(1)',(iSO2cI(1,i),i=1,nSOs)
@@ -220,7 +212,7 @@
          Call Abend()
       End If
 *
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt(' In PGet1:PAO ',' ',PAO,ijkl,nPAO)
          Do 3333 i = 1, ijkl
@@ -229,12 +221,10 @@
  3333    Continue
       End If
       Call GetMem(' Exit PGet1','CHECK','REAL',iDum,iDum)
-      Call qExit('PGet1')
 #endif
       Return
 c Avoid unused argument warnings
       If (.False.) Then
-         Call Unused_integer_array(iShell)
          Call Unused_logical(Shijij)
       End If
       End

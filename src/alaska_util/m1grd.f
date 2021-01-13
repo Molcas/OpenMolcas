@@ -11,26 +11,15 @@
 * Copyright (C) 1993, Roland Lindh                                     *
 *               1993, Per Boussard                                     *
 ************************************************************************
-      SubRoutine M1Grd(Alpha,nAlpha,Beta, nBeta,Zeta,ZInv,rKappa,P,
-     &                 Final,nZeta,la,lb,A,RB,nRys,
-     &                 Array,nArr,Ccoor,nOrdOp,Grad,nGrad,
-     &                 IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,
-     &                 iStabM,nStabM)
+      SubRoutine M1Grd(
+#define _CALLING_
+#include "grd_interface.fh"
+     &                )
 ************************************************************************
 *                                                                      *
 * Object: kernel routine for the computation of the M1 integrals used  *
 *         ECP calculations. The operator is the nuclear attraction     *
 *         operator times a s-type gaussian function.                   *
-*                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              DCopy   (ESSL)                                          *
-*              DCR                                                     *
-*              Rysg1                                                   *
-*              GetMem                                                  *
-*              QExit                                                   *
 *                                                                      *
 *      Alpha : exponents of bra gaussians                              *
 *      nAlpha: number of primitives (exponents) of bra gaussians       *
@@ -62,35 +51,31 @@
 *                                                                      *
 *             Modified to gradients, December '93 (RL).                *
 ************************************************************************
+      use Basis_Info
+      use Center_Info
       Implicit Real*8 (A-H,O-Z)
       External TNAI1, Fake, Cff2D
+#include "Molcas.fh"
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
 #include "print.fh"
 #include "disp.fh"
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6),
-     &       Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta),
-     &       rKappa(nZeta), P(nZeta,3), A(3), RB(3), C(3),
-     &       Array(nZeta*nArr), Ccoor(3), TC(3), CoorAC(3,2),
-     &       Coori(3,4), Coora(3,4), Grad(nGrad),
-     &       DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-      Integer iStabM(0:nStabM-1), iDCRT(0:7), lOper(nComp),
-     &        iAnga(4), iuvwx(4), kOp(2), lOp(4),
-     &        IndGrd(3,2), JndGrd(3,4)
-      Logical EQ, IfGrad(3,2), JfGrad(3,4), TstFnc, TF
+
+#include "grd_interface.fh"
+
+*     Local variables
+      Real*8 C(3), TC(3), CoorAC(3,2), Coori(3,4), Coora(3,4)
+      Integer iDCRT(0:7), iAnga(4), iuvwx(4), lOp(4), JndGrd(3,4)
+      Logical EQ, JfGrad(3,4)
+      Logical, External :: TF
 *
 *     Statement function for Cartesian index
 *
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
 *
-*     Call qEnter('M1Grd')
       iRout = 193
       iPrint = nPrint(iRout)
+*
+      nRys = nHer
 *
       If (iPrint.ge.49) Then
          Call RecPrt(' In M1Grd: A',' ',A,1,3)
@@ -142,8 +127,8 @@
       Else
          call dcopy_(3,RB,1,CoorAC(1,1),1)
       End If
-      iuvwx(1) = nStab(mdc)
-      iuvwx(2) = nStab(ndc)
+      iuvwx(1) = dc(mdc)%nStab
+      iuvwx(2) = dc(ndc)%nStab
       lOp(1) = kOp(1)
       lOp(2) = kOp(2)
 *
@@ -163,23 +148,20 @@
 *
       kdc = 0
       Do 100 kCnttp = 1, nCnttp
-         If (.Not.ECP(kCnttp)) Go To 111
-         If (nM1(kCnttp).eq.0) Go To 111
-         Do 101 kCnt = 1, nCntr(kCnttp)
-            kxyz = ipCntr(kCnttp) + (kCnt-1)*3
-            call dcopy_(3,Work(kxyz),1,C,1)
+         If (.Not.dbsc(kCnttp)%ECP) Go To 111
+         If (dbsc(kCnttp)%nM1.eq.0) Go To 111
+         Do 101 kCnt = 1, dbsc(kCnttp)%nCntr
+            C(1:3)=dbsc(kCnttp)%Coor(1:3,kCnt)
 *
-            Call DCR(LmbdT,iOper,nIrrep,iStabM,nStabM,
-     &               jStab(0,kdc+kCnt),nStab(kdc+kCnt),iDCRT,nDCRT)
-            iuvwx(3) = nStab(kdc+kCnt)
-            iuvwx(4) = nStab(kdc+kCnt)
+            Call DCR(LmbdT,iStabM,nStabM,
+     &               dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
+            iuvwx(3) = dc(kdc+kCnt)%nStab
+            iuvwx(4) = dc(kdc+kCnt)%nStab
 *
             Do 102 lDCRT = 0, nDCRT-1
-               lOp(3) = NrOpr(iDCRT(lDCRT),iOper,nIrrep)
+               lOp(3) = NrOpr(iDCRT(lDCRT))
                lOp(4) = lOp(3)
-               TC(1) = DBLE(iPhase(1,iDCRT(lDCRT)))*C(1)
-               TC(2) = DBLE(iPhase(2,iDCRT(lDCRT)))*C(2)
-               TC(3) = DBLE(iPhase(3,iDCRT(lDCRT)))*C(3)
+               Call OA(iDCRT(lDCRT),C,TC)
 *--------------Branch out if one-center integral
                If (EQ(A,RB).and.EQ(A,TC)) Go To 102
                If (iPrint.ge.99) Call RecPrt(' In M1Grd: TC',' ',TC,1,3)
@@ -196,8 +178,8 @@
                call dcopy_(3,TC,1,Coora(1,3),1)
                call dcopy_(3,TC,1,Coora(1,4),1)
 *
-               Do 1011 iM1xp=0, nM1(kCnttp)-1
-                  Gamma = Work(ipM1xp(kCnttp)+iM1xp)
+               Do 1011 iM1xp=1, dbsc(kCnttp)%nM1
+                  Gamma = dbsc(kCnttp)%M1xp(iM1xp)
 *
                   Call ICopy(6,IndGrd,1,JndGrd,1)
                   Do 10 i = 1, 3
@@ -218,7 +200,7 @@
                      JndGrd(iCar+1,3) = 0
                      iCmp = 2**iCar
                      If ( TF(kdc+kCnt,iIrrep,iCmp) .and.
-     &                    .Not.pChrg(kCnttp) ) Then
+     &                    .Not.dbsc(kCnttp)%pChrg ) Then
 *-----------------------Displacement is symmetric
                         nDisp = nDisp + 1
                         If (Direct(nDisp)) Then
@@ -299,7 +281,7 @@
 *
 *-----------------Modify the density matrix with the prefactor
 *
-                  Fact = -Charge(kCnttp)*Work(ipM1cf(kCnttp)+iM1xp)*
+                  Fact = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M1cf(iM1xp)*
      &                   (DBLE(nStabM) / DBLE(LmbdT)) * Two * Pi
                   nDAO = nElem(la)*nElem(lb)
                   Do 300 iDAO = 1, nDAO
@@ -311,7 +293,7 @@
  310                 Continue
  300              Continue
                   If (iPrint.ge.99) Then
-                     Write (6,*) ' Charge=',Charge(kCnttp)
+                     Write (6,*) ' Charge=',dbsc(kCnttp)%Charge
                      Write (6,*) ' Fact=',Fact
                      Write (6,*) ' IndGrd=',IndGrd
                      Write (6,*) ' JndGrd=',JndGrd
@@ -332,12 +314,10 @@
  1011          Continue
  102        Continue
  101     Continue
- 111     kdc = kdc + nCntr(kCnttp)
+ 111     kdc = kdc + dbsc(kCnttp)%nCntr
  100  Continue
 *
 *
-*     Call GetMem(' Exit M1Grd','LIST','REAL',iDum,iDum)
-*     Call QExit('M1Grd')
       Return
 c Avoid unused argument warnings
       If (.False.) Then

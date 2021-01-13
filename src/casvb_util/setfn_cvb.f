@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine setfn_cvb(fileid,fn)
       implicit real*8(a-h,o-z)
@@ -28,7 +29,8 @@
 200   itry=itry+1
       fileid_try=DBLE(itry)
       do 300 i=1,nrec
-300   if(fileid_try.eq.fileids(i))goto 200
+      if(fileid_try.eq.fileids(i))goto 200
+300   continue
       nrec=nrec+1
       if(nrec.gt.max_rec)then
         write(6,*)' nrec > max_rec in setfn :',nrec,max_rec

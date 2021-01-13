@@ -13,16 +13,15 @@
       Implicit None
       Integer, Parameter :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in) :: N
-      Real(kind=wp), intent(in) :: R(3,3) !rotation matrix
+      Real(kind=8), intent(in) :: R(3,3) !rotation matrix
 !     initial momentum matrix
-      Complex(kind=wp), intent(in) :: MOM(3,N,N)
+      Complex(kind=8), intent(in) :: MOM(3,N,N)
 !     rotated momentum matrix
-      Complex(kind=wp), intent(out) :: MOMR(3,N,N)
+      Complex(kind=8), intent(out) :: MOMR(3,N,N)
 c  local variables
       Integer :: i,j,l,k
-      Complex(kind=wp) :: RC(3,3)
+      Complex(kind=8) :: RC(3,3)
 
-      Call qEnter('rotmom')
 c rotate the matrix
 
       Call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,MOMR,1)
@@ -30,7 +29,7 @@ c rotate the matrix
       Do l=1,3
          Do k=1,3
             RC(l,k) = (0.0_wp,0.0_wp)
-            RC(l,k) = cmplx(R(l,k),0.0_wp,kind=wp)
+            RC(l,k) = cmplx(R(l,k),0.0d0,wp)
          End Do
       End Do
 
@@ -44,7 +43,6 @@ c rotate the matrix
          End Do
       End Do
 
-      Call qExit('rotmom')
       Return
       End
 c------------------------------------------------------------------------
@@ -52,22 +50,21 @@ c------------------------------------------------------------------------
       Implicit None
       Integer, Parameter :: wp=selected_real_kind(p=15,r=307)
       Integer, intent(in) :: N
-      Real(kind=wp),intent(in) :: R(3,3) !rotation matrix
-      Complex(kind=wp),intent(in) :: MOM(3,N,N) !initial momentum matrix
+      Real(kind=8),intent(in) :: R(3,3) !rotation matrix
+      Complex(kind=8),intent(in) :: MOM(3,N,N) !initial momentum matrix
 !     rotated momentum matrix
-      Complex(kind=wp),intent(out) :: MOMR(3,N,N)
+      Complex(kind=8),intent(out) :: MOMR(3,N,N)
 c  local variables
       Integer i,j,l,k
-      Complex(kind=wp) :: RC(3,3)
+      Complex(kind=8) :: RC(3,3)
 
-      Call qEnter('rotmom2')
 c rotate the matrix
       Call zcopy_(3*N*N,[(0.0_wp,0.0_wp)],0,MOMR,1)
 
       Do l=1,3
          Do k=1,3
             RC(l,k) = (0.0_wp,0.0_wp)
-            RC(l,k) = cmplx(R(l,k),0.0_wp,kind=wp)
+            RC(l,k) = cmplx(R(l,k),0.0d0,wp)
          End Do
       End Do
 
@@ -81,7 +78,6 @@ c rotate the matrix
          End Do
       End Do
 
-      Call qExit('rotmom2')
       Return
       End
 

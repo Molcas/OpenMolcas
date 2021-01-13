@@ -20,30 +20,22 @@
 *          Hence we must take special care in order to regain the can- *
 *          onical order.                                               *
 *                                                                      *
-* Called from: Twoel                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             April '90                                                *
 ************************************************************************
+      use SOAO_Info, only: iAOtSO, iOffSO
+      use LundIO
+      use Real_Info, only: ThrInt
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
 #include "real.fh"
-#include "lundio.fh"
 #include "print.fh"
-#include "WrkSpc.fh"
       Real*8 SOInt(ijkl,nSOInt)
       Integer iCmp(4), iShell(4), iAO(4), iAOst(4)
       Logical Shijij, Shij, Shkl, Qijij, Qij, Qkl,
      &        iQij, iQkl, Wijij
 *     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-      Integer iTwoj(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
 *
       iRout = 39
       iPrint = nPrint(iRout)
@@ -62,13 +54,17 @@
       Shkl = iShell(3).eq.iShell(4)
       Do 100 i1 = 1, iCmp(1)
          Do 101 j = 0, nIrrep-1
-            iSym(j) = iAnd(IrrCmp(IndS(iShell(1))+i1),iTwoj(j))
+            ix = 0
+            If (iAOtSO(iAO(1)+i1,j)>0) ix = 2**j
+            iSym(j) = ix
 101      Continue
          jCmpMx = iCmp(2)
          If (Shij) jCmpMx = i1
          Do 200 i2 = 1, jCmpMx
             Do 201 j = 0, nIrrep-1
-               jSym(j) = iAnd(IrrCmp(IndS(iShell(2))+i2),iTwoj(j))
+               ix = 0
+               If (iAOtSO(iAO(2)+i2,j)>0) ix = 2**j
+               jSym(j) = ix
 201         Continue
             Qij = i1.eq.i2
             If (iShell(2).gt.iShell(1)) Then
@@ -78,13 +74,17 @@
             End If
             Do 300 i3 = 1, iCmp(3)
                Do 301 j = 0, nIrrep-1
-                  kSym(j) = iAnd(IrrCmp(IndS(iShell(3))+i3),iTwoj(j))
+                  ix = 0
+                  If (iAOtSO(iAO(3)+i3,j)>0) ix = 2**j
+                  kSym(j) = ix
 301            Continue
                lCmpMx = iCmp(4)
                If (Shkl) lCmpMx = i3
                Do 400 i4 = 1, lCmpMx
                   Do 401 j = 0, nIrrep-1
-                     lSym(j) = iAnd(IrrCmp(IndS(iShell(4))+i4),iTwoj(j))
+                     ix = 0
+                     If (iAOtSO(iAO(4)+i4,j)>0) ix = 2**j
+                     lSym(j) = ix
 401               Continue
                   Qkl = i3.eq.i4
                   If (iShell(4).gt.iShell(3)) Then
@@ -147,7 +147,6 @@
 *
                 MemSO2 = MemSO2 + 1
                 nkl = 0
-                fac = one
                 Do 120 lAOl = 0, lBas-1
                    lSOl = lSO + lAOl
                    Do 220 kAOk = 0, kBas-1
@@ -167,13 +166,6 @@
                          Do 420 iAOi = 0, iBas-1
                             nij = nij + 1
                             nijkl = (nkl-1)*iBas*jBas + nij
-                            If (Dist) Then
-                            iLog10=INT(
-     &                       Log10(Two*Max( Abs( SOInt(nijkl,MeMSO2) ),
-     &                              1.D-72 ) ) )
-                            iNrInt=Max(-20,Min(9,iLog10))
-                            NrInt(iNrInt) = NrInt(iNrInt) + 1
-                            End If
                             If (Abs(SOInt(nijkl,MemSO2)).gt.ThrInt) Then
                                iSOi = iSO + iAOi
                                If (iSOi.lt.jSOj .and. iQij) Go To 420
@@ -199,20 +191,17 @@
                                   kkSOkk = kSOkk
                                   llSOll = lSOll
                                End If
-                               IntTot = IntTot + 1
-                               nUt=nUt + 1
-                               Buf(nUt) = SOInt(nijkl,MemSO2)
-                               iBuf(nUt) = llSOll + kkSOkk*2**8 +
-     &                                     jjSOjj*2**16
-                               iBuf(nUt)=iOr(iShft(iiSOii,24),iBuf(nUt))
-                               If (nUt.eq.nBuf-1) Then
-                                  Call iDafile(Lu_28,1,iWork(ip_Buf),
-     &                                         lBuf,iDisk)
-                                  nUt=0
+                               Buf%nUt=Buf%nUt + 1
+                               Buf%Buf(Buf%nUt) = SOInt(nijkl,MemSO2)
+                               Buf%iBuf(Buf%nUt) = llSOll + kkSOkk*2**8
+     &                                           +  jjSOjj*2**16
+                               Buf%iBuf(Buf%nUt)=iOr( iShft(iiSOii,24),
+     &                                            Buf%iBuf(Buf%nUt) )
+                               If (Buf%nUt.eq.nBuf-1) Then
+                                  Call dDafile(Lu_28,1,Buf%Buf,lBuf,
+     &                                         iDisk)
+                                  Buf%nUt=0
                                End If
-*                              Sum = Sum + SOInt(nijkl,MemSO2)
-*                              SumAbs = SumAbs+Abs(SOInt(nijkl,MemSO2))
-*                              SumSq= SumSq + SOInt(nijkl,MemSO2)**2
                             End If
  420                     Continue
  320                  Continue
@@ -229,6 +218,5 @@
  200     Continue
  100  Continue
 *
-*     Call GetMem(' Exit IndSft','CHECK','REAL',iDum,iDum)
       Return
       End

@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine mkafter_cvb(chr1,chr2)
       implicit real*8 (a-h,o-z)
@@ -21,7 +22,8 @@
       jobj=0
       do 100 i=1,nobj
       if(charobj(i).eq.chr1)iobj=i
-100   if(charobj(i).eq.chr2)jobj=i
+      if(charobj(i).eq.chr2)jobj=i
+100   continue
       if(iobj.eq.0)then
         write(6,*)' Make object not found :',chr1
         call abend_cvb()
@@ -36,9 +38,11 @@
         call abend_cvb()
       endif
       do 200 i=ioffs(nobj+1),ioffs(iobj+1)+1,-1
-200   i_dep_on_j(i+1)=i_dep_on_j(i)
+      i_dep_on_j(i+1)=i_dep_on_j(i)
+200   continue
       i_dep_on_j(ioffs(iobj+1)+1)=jobj
       do 300 i=iobj+1,nobj+1
-300   ioffs(i)=ioffs(i)+1
+      ioffs(i)=ioffs(i)+1
+300   continue
       return
       end

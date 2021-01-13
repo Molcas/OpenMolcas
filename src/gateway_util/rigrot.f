@@ -25,24 +25,13 @@
 *               Mechanics", McGraw-Hill Book Company, New York,        *
 *               ch. 7-14, pp. 250.                                     *
 *                                                                      *
-* Called from: Input                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              DCopy  (ESSL)                                           *
-*              Jacob                                                   *
-*              DSwap  (ESSL)                                           *
-*              Order                                                   *
-*              TriPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             November '90                                             *
 ************************************************************************
+      use Sizes_of_Seward, only: S
+      use Real_Info, only: TMass, CoM, rMI, Prin, PAX
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
 #include "stdalloc.fh"
 #include "print.fh"
       Real*8 CoorIn(3,nAtm), rM(nAtm), XI(3)
@@ -56,7 +45,6 @@
       iPrint = nPrint(iRout)
       RR_Show = iPrint.ge.6
       if(iprintlevel(-1).lt.3) RR_Show=.false.
-      Call qEnter('RigRot')
 *
       If (RR_Show) Then
          Write (6,*)
@@ -200,7 +188,7 @@ C     Call Put_dArray('PAX',Pax,9)
       Write (6,'(19X,A)') ' *                                         *'
       Write (6,'(19X,A)') ' *******************************************'
       Write (6,*)
-      Write (6,'(19X,A,I3)') ' j(Max):', jMax
+      Write (6,'(19X,A,I3)') ' j(Max):', S%jMax
       Write (6,*)
       End If
 *
@@ -271,13 +259,13 @@ C     Call Put_dArray('PAX',Pax,9)
       Write (6,*)
       End If
 *
-      nEn = (jMax+1)*(jMax+2)*(jMax+3)/6
+      nEn = (S%jMax+1)*(S%jMax+2)*(S%jMax+3)/6
       Call mma_Allocate(En,nEn)
       iEn = 1
-      nHess = (2*jMax+1)*(2*jMax+2)/2
+      nHess = (2*S%jMax+1)*(2*S%jMax+2)/2
       Call mma_allocate(Hess,nHess)
-      Call mma_Allocate(Vec,2*jMax+1,2*jMax+1)
-      Do 80 j = 0, jMax
+      Call mma_Allocate(Vec,2*S%jMax+1,2*S%jMax+1)
+      Do 80 j = 0, S%jMax
          mDim = 2*j+1
          nTri = mDim*(mDim+1)/2
          call dcopy_(nTri,[Zero],0,Hess,1)
@@ -323,7 +311,7 @@ C     Call Put_dArray('PAX',Pax,9)
       Write (6,*)
       Write (6,'(19X,A)') ' Rotational energies / cm-1'
       iEn = 1
-      Do 90 j = 0, jMax
+      Do 90 j = 0, S%jMax
          Write (6,*)
          If (Linear) Then
              Write (6,'(19X,A,I2,A,F8.3)')
@@ -345,6 +333,5 @@ C     Call Put_dArray('PAX',Pax,9)
          Call CollapseOutput(0,'   Rigid rotor info:')
          Write (6,*)
       End If
-      Call qExit('RigRot')
       Return
       End

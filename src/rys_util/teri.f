@@ -18,12 +18,6 @@
 * Object: to entities for the two-electron integrals which are used in *
 *         in the Rys quadrature to evaluate these integrals.           *
 *                                                                      *
-* Called from: Rys                                                     *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              RecPrt                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 ************************************************************************
@@ -35,10 +29,8 @@
      &       rKapab(nT), rKapcd(nT),
      &       T(nT), Fact(nT), ZEInv(nT)
 *
-      iRout = 56
-*
-*define _DEBUG_
-#ifdef _DEBUG_
+*define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Call RecPrt(' Zeta in TERI',' ',Zeta,1,nT)
       Call RecPrt(' Eta in TERI',' ',Eta,1,nT)
       Call RecPrt(' P in TERI',' ',P,nT,3)
@@ -58,7 +50,7 @@
          T(iT) = Rho*PQ2
          Fact(iT) =  rKapab(iT) * rKapcd(iT) * Sqrt(tmp)
        End Do
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
        Call RecPrt('Tvalue',' ',T,1,nT)
        Call RecPrt('Fact  ',' ',Fact,1,nT)
 #endif

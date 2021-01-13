@@ -22,16 +22,6 @@
 *                                                                      *
 *          Observe that most of the time Win and Wout will overlap.    *
 *                                                                      *
-* Called from: TwoEl                                                   *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              DGEMM_   (ESSL)                                         *
-*              RecPrt                                                  *
-*              DGeTMO   (ESSL)                                         *
-*              DCopy    (ESSL)                                         *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 ************************************************************************
@@ -42,9 +32,6 @@
      &       Wout(ijkl*ncd*mab)
       Logical Tr1, Pr1, Tr2, Pr2
 *
-      iRout = 60
-      iPrint = nPrint(iRout)
-*     Call RecPrt(' In CrSph2: (ab|CD) ',' ',Win,ncd*ijkl,iCar*jCar)
       If (Tr1.and.Tr2) Then
 *        Call RecPrt(' Right contraction',' ',Coeff2,jCar,jSph)
 *        Starting with CD,IJKL,a,b transform to B,CD,IJKL,a

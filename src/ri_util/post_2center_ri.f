@@ -16,15 +16,6 @@
 *                                                                      *
 *  Object: driver for two-electron integrals.                          *
 *                                                                      *
-* Called from: Seward                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              Timing                                                  *
-*              Setup_Ints                                              *
-*              Eval_Ints                                               *
-*              Term_Ints                                               *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -35,29 +26,26 @@
 *             small basis sets and large molecules. Sept. '93          *
 *             Modified driver. Jan. '98                                *
 *             Modified to 2-center ERIs for RI June '05                *
-*                                                                      *
 ************************************************************************
+      use Basis_Info, only: nBas_Aux
+      use Wrj12
+      use Temporary_Parameters, only: force_out_of_core
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
-#include "shinf.fh"
 #include "setup.fh"
-#include "lundio.fh"
 #include "print.fh"
 #include "real.fh"
 #include "WrkSpc.fh"
-#include "wrj12.fh"
       Integer  nDmA(0:7),  nDmB(0:7)
       Logical Out_of_Core
       Character Name_Q*6
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*define _DEBUG_
+*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('Post2RI')
 *
       nScr=0
       nBfn2 = 0
@@ -277,6 +265,5 @@ c         If (iIrrep.eq.0) nB = nB - 1
 ************************************************************************
 ************************************************************************
 *                                                                      *
-      Call QExit('Post2RI')
       Return
       End

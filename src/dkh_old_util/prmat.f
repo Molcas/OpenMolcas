@@ -40,7 +40,8 @@ C
       WRITE(IUOUT,1003)J,(R(K),K=K1,K2)
       KK=KK+1
       K1=K1+KD+KK
-   20 K2=K1+KK
+      K2=K1+KK
+   20 CONTINUE
       J1=J1+NKPB
       IF(J1.GT.N) RETURN
       J2=J2+NKPB
@@ -53,8 +54,10 @@ C
       WRITE(IUOUT,1003)J,(R(K),K=K1,K2)
       KK=KK+1
       K1=K1+KK
-   30 K2=K2+KK
-   40 KD=KD+NKPB
+      K2=K2+KK
+   30 CONTINUE
+      KD=KD+NKPB
+   40 CONTINUE
    50 IF(IR.EQ.0) GO TO 70
       K1=K1S
       J2=J1+IR-1
@@ -66,7 +69,8 @@ C
       WRITE(IUOUT,1003)J,(R(K),K=K1,K2)
       KK=KK+1
       K1=K1+KD+KK
-   60 K2=K1+KK
+      K2=K1+KK
+   60 CONTINUE
    70 RETURN
    80 IBL=M/NKPB
       IR=M-IBL*NKPB
@@ -79,10 +83,12 @@ C
       K1=K2+1
       K2=K1+(NKPB-1)
       WRITE(IUOUT,1002)(K,K=K1,K2)
-      DO 90 J=1,N
+      DO 91 J=1,N
       WRITE(IUOUT,1003)J,(R(IJ),IJ=I1,I2,N)
       I1=I1+1
-   90 I2=I1+(NKPB-1)*N
+      I2=I1+(NKPB-1)*N
+   91 CONTINUE
+   90 CONTINUE
   100 IF(IR.EQ.0) GO TO 120
       I1=IBL*N*NKPB+1
       I2=I1+(IR-1)*N

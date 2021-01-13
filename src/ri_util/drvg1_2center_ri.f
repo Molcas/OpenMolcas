@@ -21,17 +21,6 @@
 *                                                                      *
 *  X_ij^K = Sum(L) R_ij_L  Q_L^K                                       *
 *                                                                      *
-*                                                                      *
-* Called from: Alaska                                                  *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              SetUp_Ints                                              *
-*              GetMem                                                  *
-*              DCopy   (ESSL)                                          *
-*              PGet0                                                   *
-*              TwoEl                                                   *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -41,24 +30,30 @@
 *             Modified for gradient calculation. January '92           *
 *             Modified for SetUp_Ints. January '00                     *
 *             Modified for 2-center RI gradients, January '07          *
-*                                                                      *
 ************************************************************************
       use k2_setup
       use iSD_data
+      use pso_stuff
+      use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
+      use Basis_Info
+      use Sizes_of_Seward, only:S
+      use Real_Info, only: CutInt
+      use RICD_Info, only: Do_RI
+      use Symmetry_Info, only: nIrrep
+      use Para_Info, only: nProcs, King
       Implicit Real*8 (A-H,O-Z)
       External Rsv_Tsk
-#include "real.fh"
 #include "itmax.fh"
-#include "info.fh"
+#include "Molcas.fh"
+#include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 #include "disp.fh"
 #include "nsd.fh"
 #include "setup.fh"
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"
-#include "pso.fh"
-#include "para_info.fh"
 *#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
@@ -67,7 +62,6 @@
       Real*8  Coor(3,4), Grad(nGrad), Temp(nGrad)
       Integer iAnga(4), iCmpa(4), iShela(4),iShlla(4),
      &        iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4)
-      Integer nHrrTb(0:iTabMx,0:iTabMx,2)
       Logical EQ, Shijij, AeqB, CeqD,
      &        DoGrad, DoFock, Indexation, FreeK2, Verbose,
      &        JfGrad(3,4), ABCDeq, No_Batch, Rsv_Tsk
@@ -87,7 +81,6 @@
 *                                                                      *
       iRout = 9
       iPrint = nPrint(iRout)
-      Call QEnter('Drvg1_2Center_RI')
 #ifdef _CD_TIMING_
       Twoel2_CPU = 0.0d0
       Twoel2_Wall = 0.0d0
@@ -100,8 +93,6 @@
       iFnc(3)=0
       iFnc(4)=0
       PMax=Zero
-      idum=0
-      idum1=0
       call dcopy_(nGrad,[Zero],0,Temp,1)
 *                                                                      *
 ************************************************************************
@@ -133,8 +124,8 @@
 ************************************************************************
 *                                                                      *
       MxPrm = 0
-      Do iAng = 0, iAngMx
-         MxPrm = Max(MxPrm,MaxPrm(iAng))
+      Do iAng = 0, S%iAngMx
+         MxPrm = Max(MxPrm,S%MaxPrm(iAng))
       End Do
       nZeta = MxPrm * MxPrm
       nEta  = MxPrm * MxPrm
@@ -261,7 +252,7 @@
 *                                                                      *
 *-----Compute FLOP's for the transfer equation.
 *
-      Do iAng = 0, iAngMx
+      Do iAng = 0, S%iAngMx
          Do jAng = 0, iAng
             nHrrab = 0
             Do i = 0, iAng+1
@@ -272,8 +263,6 @@
                   End If
                End Do
             End Do
-            nHrrTb(iAng,jAng,1)=nHrrab
-            nHrrTb(jAng,iAng,1)=nHrrab
          End Do
       End Do
 *                                                                      *
@@ -293,7 +282,7 @@
          Call Drvh1(Grad,Temp,nGrad)
 *        If (nPrint(1).ge.15)
 *    &   Call PrGrad(' Gradient excluding two-electron contribution',
-*    &               Grad,lDisp(0),lIrrep,ChDisp,iPrint)
+*    &               Grad,lDisp(0),ChDisp,iPrint)
          call dcopy_(nGrad,[Zero],0,Temp,1)
          If (Do_RI) Then
             Call Set_Basis_Mode('Auxiliary')
@@ -303,13 +292,13 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('MemMax','Max','Real',iDum,MemMax)
-      Call GetMem('MemMax','Allo','Real',ipMem1,MemMax)
+      Call mma_MaxDBLE(MemMax)
+      Call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
+      ipMem1=1
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call Get_MyRank(MyRank_)
-C     If (MyRank_.ne.0) Go To 11
+C     If (MyRank.ne.0) Go To 11
 *     big loop over individual tasks, distributed over individual nodes
    10 Continue
 *     make reservation of a task on global task list and get task range
@@ -344,7 +333,7 @@ C        End If
 ************************************************************************
 *                                                                      *
          Call Gen_iSD4(iS, jS, kS, lS,iSD,nSD,iSD4)
-         Call Size_SO_block_g(iSD4,nSD,Petite,nSO,No_batch)
+         Call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
          If (No_batch) Go To 140
 *
          Call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
@@ -381,7 +370,6 @@ C        End If
 
          Call SOAO_g(iSD4,nSD,nSO,
      &               MemPrm, MemMax,
-     &               nExp,nBasis,MxShll,
      &               iBsInc,jBsInc,kBsInc,lBsInc,
      &               iPrInc,jPrInc,kPrInc,lPrInc,
      &               ipMem1,ipMem2, Mem1,  Mem2,
@@ -396,8 +384,6 @@ C        End If
          Call Int_Parm_g(iSD4,nSD,iAnga,
      &                 iCmpa,iShlla,iShela,
      &                 iPrimi,jPrimj,kPrimk,lPriml,
-     &                 ipCffi,jpCffj,kpCffk,lpCffl,
-     &                 nExp,ipExp,ipCff,MxShll,
      &                 indij,k2ij,nDCRR,k2kl,nDCRS,
      &                 mdci,mdcj,mdck,mdcl,AeqB,CeqD,
      &                 nZeta,nEta,ipZeta,ipZI,
@@ -443,12 +429,12 @@ C        End If
 #ifdef _CD_TIMING_
            CALL CWTIME(Pget0CPU1,Pget0WALL1)
 #endif
-           Call PGet0(iCmpa,iShela,
+           Call PGet0(iCmpa,
      &                iBasn,jBasn,kBasn,lBasn,Shijij,
-     &                iAOV,iAOst,nijkl,Work(ipMem1),nSO,
+     &                iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,
      &                iFnc(1)*iBasn,iFnc(2)*jBasn,
      &                iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,
-     &                ipMem2,iS,jS,kS,lS,nQuad,PMax)
+     &                Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
 #ifdef _CD_TIMING_
            CALL CWTIME(Pget0CPU2,Pget0WALL2)
            Pget2_CPU = Pget2_CPU + Pget0CPU2-Pget0CPU1
@@ -468,15 +454,16 @@ C        End If
      &          Data_k2(k2kl),ncd,nHmcd,nDCRS,Pren,Prem,
      &          iPrimi,iPrInc,jPrimj,jPrInc,
      &          kPrimk,kPrInc,lPriml,lPrInc,
-     &          Work(ipCffi+(iBasAO-1)*iPrimi),iBasn,
-     &          Work(jpCffj+(jBasAO-1)*jPrimj),jBasn,
-     &          Work(kpCffk+(kBasAO-1)*kPrimk),kBasn,
-     &          Work(lpCffl+(lBasAO-1)*lPriml),lBasn,
-     &          Work(ipZeta),Work(ipZI),Work(ipP),nZeta,
-     &          Work(ipEta), Work(ipEI),Work(ipQ),nEta,
-     &          Work(ipxA),Work(ipxB),Work(ipxG),Work(ipxD),Temp,nGrad,
-     &          JfGrad,JndGrd,Work(ipMem1), nSO,Work(ipMem2),Mem2,
-     &          Work(ipAux),nAux,Shijij)
+     &          Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,
+     &          Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn,
+     &          Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,
+     &          Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn,
+     &          Mem_DBLE(ipZeta),Mem_DBLE(ipZI),Mem_DBLE(ipP),nZeta,
+     &          Mem_DBLE(ipEta), Mem_DBLE(ipEI),Mem_DBLE(ipQ),nEta,
+     &          Mem_DBLE(ipxA),Mem_DBLE(ipxB),
+     &          Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,
+     &          JfGrad,JndGrd,Sew_Scr(ipMem1), nSO,Sew_Scr(ipMem2),Mem2,
+     &          Aux,nAux,Shijij)
 #ifdef _CD_TIMING_
            Call CWTIME(TwoelCPU2,TwoelWall2)
            Twoel2_CPU = Twoel2_CPU + TwoelCPU2-TwoelCPU1
@@ -484,7 +471,7 @@ C        End If
 #endif
             If (iPrint.ge.15)
      &         Call PrGrad(' In Drvg1_2Center_RI: Grad',
-     &                  Temp,nGrad,lIrrep,ChDisp,iPrint)
+     &                  Temp,nGrad,ChDisp,iPrint)
 *
  430     Continue
  420     Continue
@@ -504,7 +491,7 @@ C        End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('MemMax','Free','Real',ipMem1,MemMax)
+      Call mma_deallocate(Sew_Scr)
       Call Free_Tsk(id)
       Call GetMem('ip_ij','Free','Inte',ip_ij,mij)
       Call GetMem('TMax','Free','Real',ipTMax,nTMax)
@@ -544,6 +531,5 @@ C        End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QExit('Drvg1_2Center_RI')
       Return
       End

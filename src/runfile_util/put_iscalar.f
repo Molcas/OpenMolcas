@@ -155,7 +155,7 @@
          RecLab( 48)='agrad           ' ! Forces analytical gradients
          RecLab( 49)='LDF Constraint  ' ! Constraint type for LDF
          RecLab( 50)='OptimType       ' ! Optimization type in hyper
-         RecLab( 51)='LSYM            ' ! symmetry of the CAS root(s)
+         RecLab( 51)='STSYM           ' ! symmetry of the CAS root(s)
          RecLab( 52)='RF CASSCF root  '
          RecLab( 53)='RF0CASSCF root  '
          RecLab( 54)='nCoordFiles     ' ! number of xyz-files in gateway
@@ -183,6 +183,8 @@ c         RecLab( 58)='GEO_nConnect    '
          RecLab( 72)='nEFP_Coor       '
          RecLab( 73)='Relax Original r' !oot
          RecLab( 74)='Unique centers  '
+         RecLab( 75)='nXF             '
+         RecLab( 76)='CSPF            '
 *                     1234567890123456
 *
 *        Note, when the counter here exceeds 128 update this line
@@ -230,7 +232,7 @@ c         RecLab( 58)='GEO_nConnect    '
             Write(6,*) '*** Warning, writing temporary iScalar field'
             Write(6,*) '***   Field: ',Label
             Write(6,*) '***'
-#ifdef _BIGOT_
+#ifndef _DEVEL_
             Call AbEnd()
 #endif
          End If

@@ -44,7 +44,6 @@
 *               bins and partitioning of symmetry blocks               *
 *     Srt2    : common block containing information pertinent to       *
 *               the bin sorting algorithm                              *
-*     WSpc    : dynamic work space                                     *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -60,15 +59,14 @@
 *                                                                      *
 ************************************************************************
 *
+      use srt2
       Implicit Real*8 (A-H,O-Z)
 *
-#include "TwoDef.fh"
 #include "Molcas.fh"
 #include "TwoDat.fh"
 #include "srt0.fh"
 #include "srt1.fh"
-#include "srt2.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 *
       Real*8 vInt(nUt),nSqNum(nUt),nSyBlk(nUt)
@@ -90,10 +88,8 @@
 *     Turn timing ON                                                   *
 *----------------------------------------------------------------------*
 *
-C     Call QEnter('Sort1A')
       If ( RAMD ) then
         Call SORT1C(nUt,vInt,nSqNum,nSyBlk)
-C       Call QExit('Sort1A')
         Return
       End If
 *
@@ -106,8 +102,8 @@ C       Call QExit('Sort1A')
       Do iUt=1,nUt
          iBin=INT(nSyBlk(iUt))
          next=nInt(iBin)+1
-         work(nOff1(iBin)+next)=vInt(iUt)
-         iwork(nOff2(iBin)+next)=INT(nSqNum(iUt))
+         lwVBin(next,iBin)=vInt(iUt)
+         lwIBin(next,iBin)=INT(nSqNum(iUt))
          nInt(iBin)=next
          mInt(1,iBin)=mInt(1,iBin)+1
 *
@@ -118,10 +114,7 @@ C       Call QExit('Sort1A')
 *----------------------------------------------------------------------*
 *
          If ( next.ge.(lBin-1) ) Then
-            Call SaveBin(iBin,Work(ip_ValBin),
-     &                       iWork(ip_IndBin),
-     &                       iWork(ip_lIndx),
-     &                       iWork(ip_lInts),lBin,iOpt)
+            Call SaveBin(iBin,iOpt)
          End If
       End Do
 *
@@ -129,6 +122,5 @@ C       Call QExit('Sort1A')
 *     Turn timing OFF and exit                                         *
 *----------------------------------------------------------------------*
 *
-C     Call QExit('Sort1A')
       Return
       End

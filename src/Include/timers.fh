@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-*
-* Following a list of brands of watches which are used to measure
-* times spent in various program sections
-*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!
+! Following a list of brands of watches which are used to measure
+! times spent in various program sections
+!
       Real*8          Ebel_1,   Ebel_2,   Ebel_3
       Real*8          Eterna_1, Eterna_2, Eterna_3
       Real*8          Rado_1,   Rado_2,   Rado_3
@@ -33,26 +33,26 @@
       Real*8          Oris_1,   Oris_2
       Real*8          Movado_1, Movado_2
       Real*8          Swatch
-      Common /timers/ Ebel_1,   Ebel_2,   Ebel_3,
-     &                Eterna_1, Eterna_2, Eterna_3,
-     &                Rado_1,   Rado_2,   Rado_3,
-     &                Rolex_1,  Rolex_2,  Rolex_3,
-     &                Omega_1,  Omega_2,  Omega_3,
-     &                C_Dress_1,C_Dress_2,C_Dress_3,
-     &                W_Dress_1,W_Dress_2,W_Dress_3,
-     &                C_get_Cm1,C_get_Cm2,C_get_Cm3,
-     &                W_get_Cm1,W_get_Cm2,W_get_Cm3,
-     &                Tissot_1, Tissot_2, Tissot_3,
-     &                Piaget_1, Piaget_2, Piaget_3,
-     &                Candino_1,Candino_2,Candino_3,
-     &                Fortis_1, Fortis_2, Fortis_3,
-     &                Zenith_1, Zenith_2, Zenith_3,
-     &                Gucci_1,  Gucci_2,  Gucci_3,
-     &                Alfex_1,  Alfex_2,  Alfex_3,
-     &                WTC_1,    WTC_2,    WTC_3,
-     &                Longines_1,Longines_2,Longines_3,
-     &                Oris_1,   Oris_2,
-     &                Movado_1, Movado_2,
+      Common /timers/ Ebel_1,   Ebel_2,   Ebel_3,                       &
+     &                Eterna_1, Eterna_2, Eterna_3,                     &
+     &                Rado_1,   Rado_2,   Rado_3,                       &
+     &                Rolex_1,  Rolex_2,  Rolex_3,                      &
+     &                Omega_1,  Omega_2,  Omega_3,                      &
+     &                C_Dress_1,C_Dress_2,C_Dress_3,                    &
+     &                W_Dress_1,W_Dress_2,W_Dress_3,                    &
+     &                C_get_Cm1,C_get_Cm2,C_get_Cm3,                    &
+     &                W_get_Cm1,W_get_Cm2,W_get_Cm3,                    &
+     &                Tissot_1, Tissot_2, Tissot_3,                     &
+     &                Piaget_1, Piaget_2, Piaget_3,                     &
+     &                Candino_1,Candino_2,Candino_3,                    &
+     &                Fortis_1, Fortis_2, Fortis_3,                     &
+     &                Zenith_1, Zenith_2, Zenith_3,                     &
+     &                Gucci_1,  Gucci_2,  Gucci_3,                      &
+     &                Alfex_1,  Alfex_2,  Alfex_3,                      &
+     &                WTC_1,    WTC_2,    WTC_3,                        &
+     &                Longines_1,Longines_2,Longines_3,                 &
+     &                Oris_1,   Oris_2,                                 &
+     &                Movado_1, Movado_2,                               &
      &                Swatch
       REAL*8             TSIGMA(6),TDENSI(3)
       COMMON/LUCIA_TIME/ TSIGMA,TDENSI

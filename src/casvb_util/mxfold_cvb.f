@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
 c  **************************************
 c  ** General-purpose utility routines **
@@ -21,11 +22,12 @@ c  ********************************************
       dimension a(n,n),avec(n*(n-1))
       iprm=0
       do 100 i=1,n
-      do 100 j=1,n
+      do 101 j=1,n
       if(j.ne.i)then
         iprm=iprm+1
         avec(iprm)=a(j,i)
       endif
+101   continue
 100   continue
       return
       end

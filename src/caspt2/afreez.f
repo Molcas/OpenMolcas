@@ -16,7 +16,7 @@
 *                                                                           *
 * Purpose: to select orbitals, which will be frozen in the CASPT2           *
 * calculations based on a selection of atoms controlled by the input        *
-* keyword ATOMS.                                                            *
+* keyword AFREeze.                                                          *
 * Each inactive orbital is checked for the fraction of electrons located    *
 * on the selected atoms. If smaller than a given threshold, the orbital     *
 * will be frozen.                                                           *
@@ -44,7 +44,8 @@
 #include "real.fh"
 #include "stdalloc.fh"
 *
-      CHARACTER(4) NAME(2,*),NAMFRO(*)
+      CHARACTER(LEN=LENIN8) NAME(*)
+      CHARACTER(LEN=4) NAMFRO(*)
       DIMENSION NBAS(NSYM),NFRO(NSYM),NISH(NSYM),NASH(NSYM),NSSH(NSYM),
      &          NDEL(NSYM)
       DIMENSION LABFRO(mxbas),DPQ(*)
@@ -187,7 +188,7 @@
           Do np=1,nbi
            ipp=ipp+np
            Do iname=1,lnfro
-            if(name(1,ib+np).eq.namfro(iname)) selch=selch+DPQ(ipp)
+            if(name(ib+np)(1:4).eq.namfro(iname)) selch=selch+DPQ(ipp)
            Enddo
           Enddo
           If(abs(selch).lt.thrfr) labfro(ni)=1
@@ -291,7 +292,7 @@
           Do np=1,nbi
            ipp=ipp+np
            Do iname=1,lnfro
-            if(name(1,ib+np).eq.namfro(iname)) selch=selch+DPQ(ipp)
+            if(name(ib+np)(1:4).eq.namfro(iname)) selch=selch+DPQ(ipp)
            Enddo
           Enddo
           If(abs(selch).gt.thrde) labfro(ni)=1

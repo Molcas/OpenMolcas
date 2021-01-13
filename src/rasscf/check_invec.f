@@ -11,7 +11,7 @@
 * PAM2009 Who wrote this? What purpose?
       Subroutine Check_InVec(InVec)
 #ifdef _MOLCAS_MPP_
-#include "para_info.fh"
+      Use Para_Info, Only: nProcs, Is_Real_Par
       If (.Not.Is_Real_Par()) Return
       InVec_Tot = InVec
       Call GAIGOP_SCAL(InVec_Tot,'+')
@@ -30,7 +30,9 @@
       End If
 #else
 c Avoid unused argument warnings
+#ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(InVec)
+#endif
 #endif
       Return
       End

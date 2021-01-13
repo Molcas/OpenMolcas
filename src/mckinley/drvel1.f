@@ -9,14 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Drvel1(Grad)
+      use Basis_Info
+      use Center_Info
+      use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "info.fh"
-      Logical TF,tstfnc
+      Logical, External :: TF
       Real*8 Grad(*)
-      TF(mdc,iIrrep,iComp) = TstFnc(iOper,nIrrep,iCoSet(0,0,mdc),
-     &                       nIrrep/nStab(mdc),iChTbl,iIrrep,iComp,
-     &                       nStab(mdc))
       idisp=0
       do jIrrep=0,nirrep-1
        Do Jcar=1,3
@@ -24,8 +22,8 @@
         If (jirrep.eq.iirrep) Then
          mdc=0
          Do  iCnttp = 1, nCnttp
-          ZA = Charge(iCnttp)
-          Do  iCnt = 1, nCntr(iCnttp)
+          ZA = dbsc(iCnttp)%Charge
+          Do  iCnt = 1, dbsc(iCnttp)%nCntr
            mdc=mdc+1
            Do iCar=1,3
             iComp = 2**(iCar-1)

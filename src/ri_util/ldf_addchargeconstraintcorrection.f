@@ -82,7 +82,7 @@ C
       Integer nRHS
       Integer irc
       Integer ip_S
-      Integer ip_lambda, l_lambda
+      Integer ip_lambda
 
       Real*8  eta
 
@@ -105,7 +105,6 @@ C
       nAB=nA*nB
       M=LDF_nBasAux_Pair(AB)
       If (nAB.lt.1 .or. M.lt.1) Then
-         l_lambda=0
          ip_lambda=0
          Return
       End If
@@ -289,7 +288,7 @@ C
       Logical  LDF_isLinDep
       External LDF_isLinDep
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       Integer  LDF_nBasAux_Pair
       External LDF_nBasAux_Pair
 #endif
@@ -395,7 +394,7 @@ C
          Call GetMem('iOff','Free','Inte',ip_iOff,l_iOff)
       End If
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       ! Check dimension
       ipn=ipn-1
       If (ipn.ne.LDF_nBasAux_Pair(AB) .or. ipn.ne.M) Then

@@ -17,12 +17,6 @@
 *                                                                      *
 * Object:  Lyp Functional(Formula taken from Molpro Manual)            *
 *                                                                      *
-* Called from:Do_batch                                                 *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author: Per-AAke Malmquist,Department of Theoretical Chemistry  *
 *              University of LUnd, SWEDEN                              *
 *              D. Ajitha , Department of Theoretical Chemistry         *
@@ -35,7 +29,6 @@
 #include "nq_index.fh"
       Real*8 dF_dRho(ndF_dRho,mGrid),Rho(nRho,mGrid),F_xc(mGrid)
 *
-      dimension ec(0:4)
       data Cfconst / 2.8712340001881918D0 /
       data aconst,bconst,cconst,dconst
      &        /0.04918d0,0.132d0,0.2533d0,0.349d0/
@@ -48,12 +41,6 @@
 *                                                                      *
 *     Some constants which we need...
 *
-      qCS = 2.29d0
-      SqrtPi = sqrt(Pi)
-      Pi32 = sqrt(Pi)*Pi
-      Pi2  = Pi*Pi
-      Pi52 = sqrt(Pi)*Pi2
-      SqrtTwo = sqrt(Two)
       aConst=0.049180d0
       bConst=0.1320d0
       dConst=0.3490d0
@@ -75,7 +62,6 @@
       Dns = Rho(ipR,iGrid)
       if(Dns.lt.T_X) Go To 100
       gradRho2=ddot_(3,Rho(ipdRx,iGrid),1,Rho(ipdRx,iGrid),1)
-      gradRho=sqrt(gradRho2)
       grad2Rho = Rho(ipL,iGrid)
 
       t1 = aConst*bConst
@@ -129,14 +115,14 @@
 100   Continue
       End Do
 
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     iSpin=/= 1
       Else
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
       Do iGrid = 1, mGrid
       rhoa=Max(Rho_min,Rho(ipRa,iGrid))
@@ -224,17 +210,11 @@
       dec34dsa=dec3dsa+dec4dsa
       dec34dsb=dec3dsb+dec4dsb
 
-      ec(0)=ec1+ec2+ec3+ec4
-      ec(1)=ec1
-      ec(2)=ec2
-      ec(3)=ec3
-      ec(4)=ec4
-
       Functional= ec1+ec2+ec3+ec4
       F_xc(iGrid)=F_xc(iGrid)+Coeff*functional
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
       dF_dRho(ipRa,iGrid)=dF_dRho(ipRa,iGrid)
      &                   +Coeff*(dec1dra+dec2dra+dec3dra+dec4dra)

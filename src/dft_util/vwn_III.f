@@ -19,21 +19,15 @@
 *         Ceperley-Alder solution to the uniform electron gas.         *
 *         This is the functional to use in B3LYP.                      *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              QExit                                                   *
-*                                                                      *
 *      Author:Roland Lindh, Department of Chemical Physics, University *
 *             of Lund, SWEDEN. November 2000                           *
 *             Laura Gagliardi, Dipartimento di Chimica G. Ciamician,   *
 *             University of Bologna, ITALY. October 2001               *
 ************************************************************************
+      use KSDFT_Info, only: tmpB
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "nq_index.fh"
-#include "WrkSpc.fh"
 #include "ksdft.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),F_xc(mGrid)
 *  LDA Stuff
@@ -45,7 +39,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QEnter('VWN_III')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -161,7 +154,6 @@ c      If(.False.) Then
       t21 = t20**2
       t23 = log(t21*t8)
       t24 = 0.8862747535D-2*t23
-      eP = t12+t18+t24
       t26 = t4+0.1584942279D2*t5+0.101578D3
       t27 = 1/t26
       t30 = log(0.6203504908D0*t3*t27)
@@ -173,15 +165,13 @@ c      If(.False.) Then
       t38 = t37**2
       t40 = log(t38*t27)
       t41 = 0.5334620013D-2*t40
-      eF = t31+t36+t41
-      t43 = (rho_a-rho_b)*t2
+      !t43 = (rho_a-rho_b)*t2
 
-      t44 = 1+t43
-      t45 = t44**(1.D0/3.D0)
-      t47 = 1-t43
-      t48 = t47**(1.D0/3.D0)
-      t51 = 2**(1.D0/3.D0)
-      fzz = (t45*t44+t48*t47-2)/(2*t51-2)
+      !t44 = 1+t43
+      !t45 = t44**(1.D0/3.D0)
+      !t47 = 1-t43
+      !t48 = t47**(1.D0/3.D0)
+      !t51 = 2**(1.D0/3.D0)
       t56 = rho_a-1.D0*rho_b
       t57 = t56*t2
       t58 = 1.D0+t57
@@ -237,7 +227,7 @@ c      If(.False.) Then
 
 *
          F_xc(iGrid)=F_xc(iGrid)+Coeff*vwn
-         Work(ip_tmpB+iGrid-1)=Work(ip_tmpB+iGrid-1)+Coeff*vwn
+         tmpB(iGrid)=tmpB(iGrid)+Coeff*vwn
 *
          dF_dRho(ipRa,iGrid) = dF_dRho(ipRa,iGrid)
      &                               + Coeff*dvwndra
@@ -332,6 +322,5 @@ c+++  original formula in Rydbergs -> 0.5 converts to hartree
 *                                                                      *
 ************************************************************************
 *                                                                      *
-C     Call QExit('VWN_III')
       Return
       End

@@ -108,7 +108,6 @@
       Call RdOne(iiRC,iOpt,'MLTPL  0',1,H(LW(91)),iDum)
       If (iiRC.ne.0) Then
          Write (6,*) 'Natct: Error reading overlap matrix!'
-         Call QTrace
          Call Abend
       End If
       Call Charge(nSym,nBas,Name,H(LW(87)),H(LW(90)),H(LW(91)),2,.True.,

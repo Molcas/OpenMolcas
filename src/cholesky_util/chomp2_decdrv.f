@@ -64,10 +64,9 @@ C
 C     Initializations.
 C     ----------------
 
-      Call qEnter(ThisNm)
       irc = 0
 
-#if defined (_DEBUG_)
+#if defined (_DEBUGPRINT_)
       ChkDecoMP2 = .True.
 #endif
 
@@ -89,7 +88,6 @@ C     ----------------
       If (iOption.lt.1 .or. iOption.gt.nOption) Then
          irc = -98
          Write(6,*) SecNam,': illegal input option (argument CD_Type)'
-         Call qExit(ThisNm)
          Return
       End If
       iOption_MP2CD = iOption  ! copy to include file chomp2_dec.fh
@@ -404,5 +402,4 @@ C           ---------------------------------
       End If
       Call GetMem('Flush','Flush','Real',ipErrStat,lErrStat)
       Call GetMem('ErrStat','Free','Real',ipErrStat,lErrStat)
-      Call qExit(ThisNm)
       End

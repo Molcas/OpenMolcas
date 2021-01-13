@@ -37,7 +37,6 @@
       Implicit Real*8(a-h,o-z)
 #include "Input.fh"
 #include "Pointers.fh"
-#include "WrkSpc.fh"
       Real*8 rout(*)
       Real*8 Temp1(nBa,nBa),Focki(nBa,nBa),Focka(nBa,nBa)
       Real*8 Temp2(*), Scr(*)

@@ -34,13 +34,13 @@ C
 C      CALL PRMAT(6,SMAT,N,0,'SMAT    ')
       VELIT=CLightAU
       ISIZE=N*(N+1)/2
-      TOL=1.D-14
       PREA=1/(VELIT*VELIT)
       CON2=PREA+PREA
       CON=1.D0/PREA
       MULT(1)=0
       DO 20 I=1,N
-20    MULT(I+1)=MULT(I)+I
+      MULT(I+1)=MULT(I)+I
+20    CONTINUE
 C
 C     SCHMIDT-ORTHOGONALIZE OVERLAP MATRIX
 C
@@ -70,7 +70,8 @@ C
       GOTO 12
 11    EW(I)=CON*(sqrt(1.D0+CON2*EW(I))-1.D0)
 12    CONTINUE
-4     E(I)=EW(I)+CON
+      E(I)=EW(I)+CON
+4     CONTINUE
 C---------------------------------------------------------------------
 C     CALCULATE REVERSE TRANSFORMATION
 C---------------------------------------------------------------------
@@ -78,28 +79,36 @@ C
 C     CALCULATE TRANSFORMATION MATRICES
 C
       DO 3 I=1,N
-      DO 3 J=1,N
+      DO 30 J=1,N
       AUX(I,J)=0.D0
-      DO 3 K=I,N
-    3 AUX(I,J)=AUX(I,J)+SINV(I,K)*EIG(K,J)
+      DO 31 K=I,N
+      AUX(I,J)=AUX(I,J)+SINV(I,K)*EIG(K,J)
+   31 CONTINUE
+   30 CONTINUE
+    3 CONTINUE
       DO 6 I=1,N
-      DO 6 J=1,N
+      DO 60 J=1,N
       REVT(I,J)=0.D0
       DO 5 K=1,N
-    5 REVT(I,J)=REVT(I,J)+OVE(I,K)*AUX(K,J)
+      REVT(I,J)=REVT(I,J)+OVE(I,K)*AUX(K,J)
+    5 CONTINUE
+   60 CONTINUE
     6 CONTINUE
       IJ=0
       DO 8 I=1,N
-      DO 8 J=1,I
+      DO 80 J=1,I
       IJ=IJ+1
       H(IJ)=0.D0
       DO 7 K=1,N
-    7 H(IJ)=H(IJ)+REVT(I,K)*REVT(J,K)*EW(K)
+      H(IJ)=H(IJ)+REVT(I,K)*REVT(J,K)*EW(K)
+    7 CONTINUE
+   80 CONTINUE
     8 CONTINUE
       IF(IRELMP.NE.11) THEN
       DO 362 I=1,N
       AA(I)=sqrt((CON+E(I)) / (2.D0*E(I)))
-362   RR(I)=sqrt(CON)/(CON+E(I))
+      RR(I)=sqrt(CON)/(CON+E(I))
+362   CONTINUE
       ELSE IF(IRELMP.EQ.11) THEN                          ! RESC
       DO I=1,N
         AA(I)=(sqrt(1.0D0+CON*TT(I)*2.0D0/((CON+E(I))*(CON+E(I)))))
@@ -216,7 +225,8 @@ C
 *
       CR=1/CHARGE
       DO 940 I=1,ISIZE
-940   V(I)=-V(I)*CR
+      V(I)=-V(I)*CR
+940   CONTINUE
 C@    CALL PRMAT(6,BU,N,0,'TOTAL H ')
       RETURN
       END

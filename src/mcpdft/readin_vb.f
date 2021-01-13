@@ -34,16 +34,12 @@
 #include "jobiph_j.fh"
 #include "gas.fh"
 *
-      Character*80       Blank
 *---  set INVEC -> get MOs from JOBIPH file ----------------------------*
       INVEC=3
 *---  Initialize -------------------------------------------------------*
-      Do i=1,80
-         Blank(i:i)=' '
+      Do j = 1, 18
+         Title(j) = ' '
       End Do
-         Do j = 1, 18
-            Title(j) = ' '
-         End Do
 *
 *---  Read input from standard input ----------------------------------*
 *---  process TITLE    command ----------------------------------------*
@@ -61,7 +57,7 @@
 *---  process SPIN command --------------------------------------------*
       ispin=ispin_j
 *---  process SYMM command --------------------------------------------*
-      lsym=lsym_j
+      stsym=lsym_j
 *---  process FROZ command --------------------------------------------*
       call imove_cvb(nfro_j,nfro,mxsym)
 *---  process INAC command --------------------------------------------*
@@ -75,8 +71,9 @@
 *---  process DELE command --------------------------------------------*
       call imove_cvb(ndel_j,ndel,mxsym)
 *---
-      If (nroots.gt.1.and.irlxroot.eq.0) iRlxRoot=iroot(nroots)
-      If (nroots.eq.1) iRlxRoot=0
+*TRS
+*      If (nroots.gt.1.and.irlxroot.eq.0) iRlxRoot=iroot(nroots)
+*      If (nroots.eq.1) iRlxRoot=0
 *---  complete orbital specifications ---------------------------------*
       Do iSym=1,mxsym
          NASH(ISYM)=NRS1(ISYM)+NRS2(ISYM)+NRS3(ISYM)
@@ -105,8 +102,6 @@
       DO ISYM=1,mxsym
         NAO=NASH(ISYM)
         IF(NAO.GT.1) THEN
-          NRAS1=NRS1(ISYM)
-          NRS12=NRS2(ISYM)+NRAS1
           DO NT=2,NAO
             DO NU=1,NT-1
               ITU=ITU+1

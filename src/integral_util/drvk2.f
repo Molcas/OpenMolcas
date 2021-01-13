@@ -18,18 +18,6 @@
 *          integral prescreening vector to be used with the Schwartz   *
 *          inequlity.                                                  *
 *                                                                      *
-* Called from: Drv2El or Server (DP case)                              *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              mHrr                                                    *
-*              DCopy   (ESSL)                                          *
-*              MemRys                                                  *
-*              PSOAO0                                                  *
-*              DCR                                                     *
-*              k2Loop                                                  *
-*              QExit                                                   *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             March '90                                                *
 *                                                                      *
@@ -42,25 +30,28 @@
       use k2_setup
       use iSD_data
       use k2_arrays
+      use Basis_Info
+      use Symmetry_Info, only: nIrrep, iOper
+      use Temporary_parameters, only: force_part_c
+      use Sizes_of_Seward, only: S
+      use Logical_Info, only: lSchw
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External Cmpct
 #include "real.fh"
-#include "itmax.fh"
-#include "info.fh"
-#include "WrkSpc.fh"
-#include "lundio.fh"
+#include "stdalloc.fh"
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "k2.fh"
 #include "status.fh"
 *     Local arrays
       Real*8  Coor(3,4)
       Integer   iAngV(4), iCmpV(4), iDCRR(0:7), iShllV(2)
-      Logical DoFock, force_part_save, DoGrad, ReOrder
+      Logical DoFock, force_part_save, DoGrad, ReOrder, Rls
       Character*100 Get_ProgName, ProgName
       Character*8 Method
+      Real*8, Allocatable:: HRRMtrx(:,:), Scr(:,:)
+      Real*8, Allocatable:: Knew(:), Lnew(:), Pnew(:), Qnew(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -85,19 +76,19 @@
 *                                                                      *
       iRout = 240
       iPrint = nPrint(iRout)
-      Call QEnter('Drvk2')
+*     iPrint = 99
       Call CWTime(TCpu1,TWall1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
       DoGrad_=DoGrad
       DoHess_=.False.
-      la_=iAngMx
+      la_=S%iAngMx
       mabMin_=nabSz(Max(la_,la_)-1)+1
       mabMax_=nabSz(la_+la_)
       ne_=(mabMax_-mabMin_+1)
       nHrrMtrx=ne_*nElem(la_)*nElem(la_)
-      Call GetMem('HrrMtrx','Allo','Real',ipHrrMtrx,2*nHrrMtrx)
+      call mma_allocate(HRRMtrx,nHRRMtrx,2,Label='HRRMatrix')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -105,7 +96,7 @@
 *     can be done elsewhere and then this call will simply result in
 *     a return.
 *
-      Call Allok2
+      Call Allok2()
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -116,32 +107,39 @@
       mk2 = 0
 *
 *     Allocate memory for zeta, kappa, and P.
-      ipZInv = ipZeta + m2Max
-      ipKab  = ipZInv + m2Max
-      ipP    = ipKab  + m2Max
-      ipCon  = ipP    + m2Max*3
-      ipAlpha= ipCon  + m2Max
-      ipBeta = ipAlpha+ m2Max
+      ipZInv = ipZeta + S%m2Max
+      ipKab  = ipZInv + S%m2Max
+      ipP    = ipKab  + S%m2Max
+      ipCon  = ipP    + S%m2Max*3
+      ipAlpha= ipCon  + S%m2Max
+      ipBeta = ipAlpha+ S%m2Max
       ipInd  = ipiZet
 *                                                                      *
 ************************************************************************
 *                                                                      *
       MemTmp=0
-      Do iAng = 0, iAngMx
-         MemTmp=Max(MemTmp,(MaxPrm(iAng)*nElem(iAng))**2)
+      Do iAng = 0, S%iAngMx
+         MemTmp=Max(MemTmp,(S%MaxPrm(iAng)*nElem(iAng))**2)
       End Do
-      Call GetMem('Temp1','Allo','Real',ipTmp1,MemTmp )
-      Call GetMem('Temp2','Allo','Real',ipTmp2,MemTmp )
-      Call GetMem('Temp3','Allo','Real',ipTmp3,MemTmp )
-      Call GetMem('Knew ','Allo','Real',ipKnew,m2Max  )
-      Call GetMem('Lnew ','Allo','Real',ipLnew,m2Max  )
-      Call GetMem('Pnew ','Allo','Real',ipPnew,3*m2Max)
-      Call GetMem('Qnew ','Allo','Real',ipQnew,3*m2Max)
+      Call mma_allocate(Scr,MemTmp,3,Label='Scr')
+      Call mma_allocate(Knew,S%m2Max,Label='Knew')
+      Call mma_allocate(Lnew,S%m2Max,Label='Lnew')
+      Call mma_allocate(Pnew,S%m2Max*3,Label='Pnew')
+      Call mma_allocate(Qnew,S%m2Max*3,Label='Qnew')
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('MemMax','Max','Real',iDum,MemMax)
-      Call GetMem('MemMax','Allo','Real',ipMem1,MemMax)
+      If (Allocated(Sew_Scr)) Then
+         Rls=.False.
+         MemMax=SIZE(Sew_Scr)
+C        Write (*,*) 'Drvk2: Memory already allocated:',MemMax
+      Else
+         Rls=.True.
+         Call mma_maxDBLE(MemMax)
+         Call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
+C        Write (*,*) 'Drvk2: Memory allocated:',MemMax
+      End If
+      ipMem1=1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -149,55 +147,49 @@
 *
       Do iS = 1, mSkal
          iShll  = iSD( 0,iS)
-         If (AuxShell(iShll).and.iS.ne.mSkal) Go To 100
+         If (Shells(iShll)%Aux.and.iS.ne.mSkal) Go To 100
          iAng   = iSD( 1,iS)
          iCmp   = iSD( 2,iS)
          iBas   = iSD( 3,iS)
-         iCff   = iSD( 4,iS)
          iPrim  = iSD( 5,iS)
-         iExp   = iSD( 6,iS)
-         ixyz   = iSD( 8,iS)
          mdci   = iSD(10,iS)
          iShell = iSD(11,iS)
+         iCnttp = iSD(13,iS)
+         iCnt   = iSD(14,iS)
+         Coor(1:3,1)=dbsc(iCnttp)%Coor(1:3,iCnt)
 *
-         If (ReOrder) Call OrdExpD2C(iPrim,Work(iExp),iBas,Work(iCff))
+         If (ReOrder) Call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,
+     &                                     Shells(iShll)%pCff)
 *
          iAngV(1) = iAng
          iShllV(1) = iShll
          iCmpV(1) = iCmp
-         call dcopy_(3,Work(ixyz),1,Coor(1,1),1)
          Do jS = 1, iS
             jShll  = iSD( 0,jS)
-            If (AuxShell(iShll).and..Not.AuxShell(jShll)) Go To 200
-            If (AuxShell(jShll).and.jS.eq.mSkal) Go To 200
+            If (Shells(iShll)%Aux.and..Not.Shells(jShll)%Aux) Go To 200
+            If (Shells(jShll)%Aux.and.jS.eq.mSkal) Go To 200
             jAng   = iSD( 1,jS)
             jCmp   = iSD( 2,jS)
             jBas   = iSD( 3,jS)
-            jCff   = iSD( 4,jS)
             jPrim  = iSD( 5,jS)
-            jExp   = iSD( 6,jS)
-            jxyz   = iSD( 8,jS)
             mdcj   = iSD(10,jS)
             jShell = iSD(11,jS)
+            jCnttp = iSD(13,jS)
+            jCnt   = iSD(14,jS)
+            Coor(1:3,2)=dbsc(jCnttp)%Coor(1:3,jCnt)
 *
             iAngV(2) = jAng
             iShllV(2) = jShll
             iCmpV(2) = jCmp
-            call dcopy_(3,Work(jxyz),1,Coor(1,2),1)
 *
 *           Fix for the dummy basis set
-            If (AuxShell(iShll))
-     &         call dcopy_(3,Work(jxyz),1,Coor(1,1),1)
+            If (Shells(iShll)%Aux) Coor(1:3,1)=Coor(1:3,2)
 *
             Call iCopy(2,iAngV(1),1,iAngV(3),1)
             Call ICopy(2,iCmpV(1),1,iCmpV(3),1)
 *
             iPrimi   = iPrim
             jPrimj   = jPrim
-            ipExpi   = iExp
-            jpExpj   = jExp
-            ipCffi   = iCff
-            ipCffj   = jCff
             nBasi    = iBas
             nBasj    = jBas
 *
@@ -210,8 +202,9 @@
 *
             nZeta = iPrimi * jPrimj
 *
-            Call ConMax(Work(ipCon),iPrimi,jPrimj,
-     &                  Work(ipCffi),nBasi,Work(ipCffj),nBasj)
+            Call ConMax(Mem_DBLE(ipCon),iPrimi,jPrimj,
+     &                  Shells(iShll)%pCff,nBasi,
+     &                  Shells(jShll)%pCff,nBasj)
 *
             call dcopy_(6,Coor(1,1),1,Coor(1,3),1)
             If (iPrint.ge.99) Call RecPrt(' Sym. Dist. Centers',' ',
@@ -223,7 +216,7 @@
                nDCR  =ipOffD(2,ijS)
                nDij  =ipOffD(3,ijS)
             Else
-               ipDij=ip_Dummy
+               ipDij= -1
                nDCR  =1
                nDij=1
             End If
@@ -274,7 +267,7 @@
 *
 *           Find the Double Coset Representatives for center A and B.
 *
-            Call ICopy(nIrrep,iOper,1,iDCRR,1)
+            iDCRR(0:nIrrep-1)=iOper(0:nIrrep-1)
             nDCRR=nIrrep
 *
 *           Compute all pair entities (zeta, kappa, P, and [nm|nm],
@@ -292,20 +285,20 @@
             Call k2Loop(Coor,
      &                  iAngV,iCmpV,iShllV,
      &                  iDCRR,nDCRR,Data_k2(jpk2),
-     &                  Work(ipExpi),iPrimi,
-     &                  Work(jpExpj),jPrimj,
-     &                  Work(ipAlpha),Work(ipBeta),
-     &                  Work(ipCffi),nBasi,
-     &                  Work(ipCffj),nBasj,
-     &                  Work(ipZeta),Work(ipZInv),
-     &                  Work(ipKab),Work(ipP),iWork(ipInd),
-     &                  nZeta,ijInc,Work(ipCon),
-     &                  Work(ipMem2),Mem2,Cmpct,
+     &                  Shells(iShll)%Exp,iPrimi,
+     &                  Shells(jShll)%Exp,jPrimj,
+     &                  Mem_DBLE(ipAlpha),Mem_DBLE(ipBeta),
+     &                  Shells(iShll)%pCff,nBasi,
+     &                  Shells(jShll)%pCff,nBasj,
+     &                  Mem_DBLE(ipZeta),Mem_DBLE(ipZInv),
+     &                  Mem_DBLE(ipKab),Mem_DBLE(ipP),Mem_INT(ipInd),
+     &                  nZeta,ijInc,Mem_DBLE(ipCon),
+     &                  Sew_Scr(ipMem2),Mem2,Cmpct,
      &                  nScree,mScree,mdci,mdcj,
-     &                  Work(ipDij),nDij,nDCR  ,nHm,ijCmp,DoFock,
-     &                  ipTmp1,ipTmp2,ipTmp3,
-     &                  ipKnew,ipLnew,ipPnew,ipQnew,DoGrad,
-     &                  Work(ipHrrMtrx),nHrrMtrx)
+     &                  DeDe(ipDij),nDij,nDCR  ,nHm,ijCmp,DoFock,
+     &                  Scr, MemTmp,
+     &                  Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,
+     &                  HrrMtrx,nHrrMtrx)
 *
             Indk2(1,ijS) = jpk2
             Indk2(2,ijS) = nDCRR
@@ -321,15 +314,16 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call GetMem('MemMax', 'Free','Real',ipMem1, MemMax )
-      Call GetMem(' Qnew',  'Free','Real',ipQnew, 3*m2Max)
-      Call GetMem(' Pnew',  'Free','Real',ipPnew, 3*m2Max)
-      Call GetMem(' Lnew',  'Free','Real',ipLnew, m2Max  )
-      Call GetMem(' Knew',  'Free','Real',ipKnew, m2Max  )
-      Call GetMem('Temp3',  'Free','Real',ipTmp3, MemTmp )
-      Call GetMem('Temp2',  'Free','Real',ipTmp2, MemTmp )
-      Call GetMem('Temp1',  'Free','Real',ipTmp1, MemTmp )
-      Call GetMem('HrrMtrx','Free','Real',ipHrrMtrx,nHrrMtrx)
+      If (Rls) Then
+C        Write (6,*) 'Drvk2: Release Sew_Scr'
+         Call mma_deallocate(Sew_Scr)
+      End If
+      Call mma_deallocate(Qnew)
+      Call mma_deallocate(Pnew)
+      Call mma_deallocate(Lnew)
+      Call mma_deallocate(Knew)
+      Call mma_deallocate(Scr)
+      Call mma_deallocate(HRRMtrx)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -351,7 +345,6 @@
 ************************************************************************
 *                                                                      *
 *
-      Call QExit('Drvk2')
       Call CWTime(TCpu2,TWall2)
       Call SavTim(2,TCpu2-TCpu1,TWall2-TWall1)
       k2_Status=Produced

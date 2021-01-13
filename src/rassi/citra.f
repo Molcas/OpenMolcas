@@ -53,7 +53,6 @@
       CHARACTER*8 WFTP
       DIMENSION ISGS(NSGSIZE),ICIS(NCISIZE),IXS(NXSIZE)
 
-      CALL QENTER(ROUTINE)
 
 #ifdef DEBUG_MPSSI
       write(6,*)' Entering CITRA. norm=',ddot_(NCO,CI,1,CI,1)
@@ -120,6 +119,5 @@ C The general case:
 !     write(6,'(1x,5f16.8)')(CI(I),I=1,NCO)
 
  100  CONTINUE
-      CALL QEXIT(ROUTINE)
       RETURN
       END

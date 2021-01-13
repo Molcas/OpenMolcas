@@ -103,7 +103,8 @@ c                and compute matrix norm ..........
       do 50 i = 1, n
 c
          do 40 j = k, n
-   40    norm = norm + abs(h(i,j))
+         norm = norm + abs(h(i,j))
+   40    continue
 c
          k = i
          if (i .ge. low .and. i .le. igh) go to 50
@@ -142,7 +143,8 @@ c     .......... form exceptional shift ..........
       t = t + x
 c
       do 120 i = low, en
-  120 h(i,i) = h(i,i) - x
+      h(i,i) = h(i,i) - x
+  120 continue
 c
       s = abs(h(en,na)) + abs(h(na,enm2))
       x = 0.75d0 * s
@@ -333,7 +335,8 @@ c     .......... for i=en-1 step -1 until 1 do -- ..........
             r = 0.0d0
 c
             do 610 j = m, en
-  610       r = r + h(i,j) * h(j,en)
+            r = r + h(i,j) * h(j,en)
+  610       continue
 c
             if (wi(i) .ge. 0.0d0) go to 630
             zz = w
@@ -449,7 +452,8 @@ c                vectors of isolated roots ..........
          if (i .ge. low .and. i .le. igh) go to 840
 c
          do 820 j = i, n
-  820    z(i,j) = h(i,j)
+         z(i,j) = h(i,j)
+  820    continue
 c
   840 continue
 c     .......... multiply by transformation matrix to give
@@ -459,13 +463,15 @@ c                for j=n step -1 until low do -- ..........
          j = n + low - jj
          m = min(j,igh)
 c
-         do 880 i = low, igh
+         do 881 i = low, igh
             zz = 0.0d0
 c
             do 860 k = low, m
-  860       zz = zz + z(i,k) * h(k,j)
+            zz = zz + z(i,k) * h(k,j)
+  860       continue
 c
             z(i,j) = zz
+  881    continue
   880 continue
 c
       go to 1001

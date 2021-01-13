@@ -206,7 +206,7 @@ General keywords
 :kword:`TITLe`
   One line of title card follows.
 
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="TITL" APPEAR="Title" KIND="CUSTOM" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="TITLE" APPEAR="Title" KIND="CUSTOM" LEVEL="BASIC">
               <HELP>
               Enter one optional title card.
               </HELP>
@@ -224,6 +224,13 @@ General keywords
               return code.
               </HELP>
               </KEYWORD>
+
+  .. xmldoc:: <GROUP MODULE="SEWARD" NAME="GATEWAY" APPEAR="Gateway input" KIND="BOX" LEVEL="ADVANCED">
+              <HELP>
+              When not using GATEWAY as a separate program, input for GATEWAY can be included in SEWARD.
+              </HELP>
+              <INCLUDE MODULE="GATEWAY" EXCEPT="TITLE,TEST,EXPE,VERB,PRINT" />
+              </GROUP>
 
 :kword:`ONEOnly`
   :program:`SEWARD` will not compute the two-electron integrals.
@@ -280,7 +287,7 @@ General keywords
   The decomposition threshold can be changed using keyword :kword:`THRC`.
   Default is to not decompose.
 
-  .. xmldoc:: <GROUP MODULE="SEWARD" KIND="BOX" NAME="AUX" APPEAR="CD options" LEVEL="BASIC">
+  .. xmldoc:: <GROUP MODULE="SEWARD" KIND="BOX" NAME="CDOPTIONS" APPEAR="CD options" LEVEL="BASIC">
 
   .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="CHOL" APPEAR="Cholesky" KIND="SINGLE" EXCLUSIVE="RIJ,RIJK,RIC,RICD,LOW,MEDI,HIGH" LEVEL="BASIC">
               %%Keyword: Cholesky <basic>
@@ -306,7 +313,7 @@ General keywords
   Specify decomposition threshold for Cholesky decomposition of two-electron integrals
   on the next line. Default value: 1.0d-4.
 
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="THRC" APPEAR="ThrCholesky" KIND="REAL" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="THRCHOLESKY" APPEAR="ThrCholesky" KIND="REAL" LEVEL="BASIC">
               %%Keyword: ThrCholesky <basic>
               <HELP>
               Specify decomposition threshold for Cholesky decomposition of two-electron integrals.
@@ -319,7 +326,7 @@ General keywords
   negative diagonal elements and force the program to quit; if the span factor is too large, the execution time may
   increase. Default value: 1.0d-2.
 
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="SPAN" APPEAR="Span factor" KIND="REAL" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="SPANFACTOR" APPEAR="Span factor" KIND="REAL" LEVEL="BASIC">
               %%Keyword: Span <basic>
               <HELP>
               Specify span factor (in between, but not equal to, 0 and 1) for Cholesky decomposition of two-electron integrals on the next line.
@@ -756,13 +763,16 @@ Keywords associated to one-electron integrals
               Here XX represents the order of the DKH correction to the one-electron Hamiltonian and
               yy the order of the picture-change correction. The character P denotes the parameterization
               used in the DKH procedure.
+
               The possible parametrizations P of the unitary transformation used
               in the DKH transformation supported by MOLCAS are:
-              ||(P=O) Optimum parametrization (OPT);
-              ||(P=E) Exponential parametrization (EXP);
-              ||(P=S) Square-root parametrization (SQR);
-              ||(P=M) McWeeny parametrization (MCW);
-              ||(P=C) Cayley parametrization (CAY).
+
+              (P=O) -- Optimum parametrization (OPT)
+              (P=E) -- Exponential parametrization (EXP)
+              (P=S) -- Square-root parametrization (SQR)
+              (P=M) -- McWeeny parametrization (MCW)
+              (P=C) -- Cayley parametrization (CAY)
+
               Hence, the proper keyword for the 4th order relativistically corrected one-electron
               Hamiltonian and 3rd order relativistically corrected
               property integrals in the EXP parameterization would read as R04E03. If yy is larger than XX it is set to
@@ -1212,7 +1222,7 @@ Optional keywords
 :kword:`GRID`
   It specifies the quadrature quality.
   The possible indexes that can follow are
-  COARSE, SG1GRID, FINE, ULTRAFINE
+  COARSE, SG1GRID, FINE, ULTRAFINE,
   following the Gaussian98 convention.
   Default is FINE.
 
@@ -1221,7 +1231,7 @@ Optional keywords
               <HELP>
               It specifies the quadrature quality.
               The possible indexes that can follow are
-              COARSE, SG1GRID, FINE, ULTRAFINE
+              COARSE, SG1GRID, FINE, ULTRAFINE,
               following the Gaussian98 convention.
               Default is FINE.
               </HELP>
@@ -1641,7 +1651,5 @@ report an error and exit if symmetry is used.
             <KEYWORD MODULE="SEWARD" NAME="REOR" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
             <KEYWORD MODULE="SEWARD" NAME="CHOM" KIND="INT" LEVEL="UNDOCUMENTED" />
             </GROUP>
-
-.. xmldoc:: <INCLUDE MODULE="GATEWAY" />
 
 .. xmldoc:: </MODULE>

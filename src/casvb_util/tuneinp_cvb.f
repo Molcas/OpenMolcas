@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine tuneinp_cvb()
       implicit real*8 (a-h,o-z)
@@ -72,7 +73,7 @@ c  'GRDWRNGT'
       elseif(istr.eq.8)then
 c  'EIGWRNG '
         call real_cvb(daux,1,nread,1)
-        eigwrntol=daux(1)
+        eigwrngtol=daux(1)
       elseif(istr.eq.9)then
 c  'SINGUL'
         call int_cvb(iaux,1,nread,1)

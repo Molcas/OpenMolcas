@@ -22,7 +22,10 @@ C --- F(ab) = 2 * sum_J  Lab,J * sum_gd  D(gd) * Lgd,J
 C
 C********************************************************
       Implicit Real*8 (a-h,o-z)
-      Logical Debug,add,timings
+#ifdef _DEBUGPRINT_
+      Logical Debug
+#endif
+      Logical add,timings
       Real*8  DLT(*),FLT(*)
       Real*8  tread(2),tcoul(2)
       Character*16  SECNAM
@@ -46,16 +49,12 @@ C********************************************************
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
 
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       Debug=.true.
-#else
-      Debug=.false.
 #endif
 
 
       FactC = one
-
-      IREDC = -1
 
 C --- For Coulomb only, the vectors symmetry is restricted to 1
       JSYM=1
@@ -87,18 +86,14 @@ C ---
 
       if (nVrs.lt.0) then
          Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs < 0. STOP!!'
-         call qtrace()
          call abend()
       endif
 
       Call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
       if(irc.ne.0)then
         Write(6,*)SECNAM//'cho_X_setred non-zero return code. rc= ',irc
-        call qtrace()
         call abend()
       endif
-
-      IREDC=JRED
 
       nRS = nDimRS(JSYM,JRED)
 
@@ -116,7 +111,6 @@ C ---
          WRITE(6,*) 'LWORK= ',LWORK
          WRITE(6,*) 'min. mem. need= ',nRS+1
          irc = 33
-         CALL QTrace()
          CALL Abend()
          nBatch = -9999  ! dummy assignment
       End If
@@ -135,8 +129,6 @@ C --- BATCH over the vectors in JSYM=1 ----------------------------
 
       nBatch = (nVrs-1)/nVec + 1
 
-      tmp1=0.0D0
-      tmp2=0.0D0
       DO iBatch=1,nBatch
 
          If (iBatch.eq.nBatch) Then
@@ -243,7 +235,7 @@ C --- free memory
 
 
 c Print the Fock-matrix
-#ifdef _DEBUG_
+#ifdef _DEBUGPRINT_
       if(Debug) then !to avoid double printing in SCF-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM '//SECNAM
@@ -357,7 +349,6 @@ c Offsets to symmetry block in the LT matrix
 
          write(6,*)'Wrong input parameter. mode = ',mode
          irc = 66
-         Call Qtrace()
          Call abend()
 
       EndIf

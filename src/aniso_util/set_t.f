@@ -17,14 +17,13 @@
 c input:
       Integer, intent(in)       :: nT, nTempMagn
       Logical, intent(in)       :: TINPUT
-      Real(kind=wp), intent(in) :: Tmin, Tmax, TempMagn(nTempMagn),
+      Real(kind=8), intent(in) :: Tmin, Tmax, TempMagn(nTempMagn),
      &                             Texp(nT), chit_exp(nT)
-      Real(kind=wp), intent(out):: T(nT+nTempMagn), XTexp(nT+nTempMagn)
+      Real(kind=8), intent(out):: T(nT+nTempMagn), XTexp(nT+nTempMagn)
 c local variables:
       Integer :: i
-      Real(kind=wp) :: dltt
+      Real(kind=8) :: dltt
 
-      Call qEnter('set_T')
 
       ! set nT, T(i) and XTexp(i) arrays:
       T=0.0_wp
@@ -81,6 +80,5 @@ c local variables:
         End If
       End Do
 
-      Call qExit('set_T')
       Return
       End subroutine set_T

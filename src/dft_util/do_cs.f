@@ -20,13 +20,6 @@
 *         for MC wave function (basis formuls was written by PAM,      *
 *         other by maple & GS (=/= CS!!!))                             *
 *                                                                      *
-* Called from:                                                         *
-*                                                                      *
-* Calling    : QEnter                                                  *
-*              GetMem                                                  *
-*              dDot                                                    *
-*              QExit                                                   *
-*                                                                      *
 *     Authors: Sergey Gusarov, University of Lund, SWEDEN,             *
 *              Roland Lindh,   University of Lund, SWEDEN,             *
 *              P.-A.Malmqvist, University of Lund, SWEDEN,             *
@@ -50,7 +43,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call QEnter('Do_CS')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -84,7 +76,6 @@
          Beta4 = Beta2*Beta2
          Beta5 = Beta2*Beta3
          Beta6 = Beta4*Beta2
-         Beta7 = Beta6*Beta
         dBetadRho = qCS/(3.0d0*Rho(1,iGrid)**(2.0d0/3.0d0))
         Do i=1,3
           gradBeta(i) = qCS*Rho(1+i,iGrid)/
@@ -275,7 +266,6 @@
 *
       End If
 *
-      Call QExit('Do_CS')
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real(Coeff)

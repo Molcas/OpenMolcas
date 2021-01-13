@@ -14,12 +14,27 @@
 * Compute Z - ExtPot interactions
 *
 #include "espf.fh"
+#include "stdalloc.fh"
 *
       Real*8 E,ExtNuc
+      Real*8, Allocatable:: Charge(:)
+      Logical Found
+      Integer Len
 *
-      Call QEnter('extnuc')
       iPL = iPL_espf()
 *
+      Call qpg_dArray('Effective nuclear Charge',Found,Len)
+
+      If (Found) Then
+         Call mma_allocate(Charge,Len,Label='Charge')
+         If (Len.ne.nAtom) Then
+            Write (6,*) 'ExtNuc: Len.ne.nAtom'
+            Call Abend()
+         End If
+      Else
+         Write (6,*) 'ExtNuc: Effective nuclear Charges not found.'
+         Call Abend()
+      End If
       Call Get_dArray('Effective nuclear Charge',Charge,nAtom)
 *
       E = Zero
@@ -34,6 +49,6 @@
       End If
       ExtNuc = E
 *
-      Call QExit('extnuc')
+      Call mma_deallocate(Charge)
       Return
       End
