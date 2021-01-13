@@ -204,7 +204,7 @@ if (DMRG)
 
   # Set QCMaquis download URL and path to the download script
   set (QCMaquis_URL "https://scine.ethz.ch/download/")
-  set (QCMaquis_dl_SCRIPT "${CMAKE_SOURCE_DIR}/src/qcmaquis/get_qcmaquis.sh")
+  set (QCMaquis_dl_SCRIPT "${CMAKE_SOURCE_DIR}/src/QCMaquis/get_qcmaquis.sh")
 else ()
   mark_as_advanced (FORCE DMRG_DEBUG)
 endif ()
@@ -1812,6 +1812,17 @@ endif ()
 #                                                                              #
 ################################################################################
 
+# global module directory
+#========================
+
+set (MAIN_MOD_DIR ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/mod)
+# The Intel compiler can generate automatic interfaces, in that case we want to keep them all in a single place
+if (BIGOT AND CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+  set (SINGLE_MOD_DIR ON)
+  set (MAIN_MOD_DIR ${MAIN_MOD_DIR}/_single)
+endif ()
+include_directories (${MAIN_MOD_DIR})
+
 set (extprojsdir "${OPENMOLCAS_DIR}/External")
 
 if (LINALG STREQUAL "Internal" OR LINALG STREQUAL "Runtime")
@@ -1882,27 +1893,26 @@ if (DMRG)
     add_definitions (-D_DMRG_DEBUG_)
   endif ()
 
-  set (proj ${PROJECT_SOURCE_DIR}/src/qcmaquis)
+  set (proj ${PROJECT_SOURCE_DIR}/src/QCMaquis)
   set (proj_bin ${PROJECT_BINARY_DIR}/External/qcmaquis-full)
 
-  configure_file (${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
-  ## Builds with build subdirectory outside the source tree require the second argument of add_subdirectory
+  configure_file (${proj}/CMakeLists.txt.in         ${proj_bin}/CMakeLists.txt            COPYONLY)
+  configure_file (${proj}/alps_find_hdf5.patch      ${proj_bin}/alps_find_hdf5.patch      COPYONLY)
+  configure_file (${proj}/pyalps_parse_labels.patch ${proj_bin}/pyalps_parse_labels.patch COPYONLY)
+  configure_file (${proj}/paths.patch               ${proj_bin}/paths.patch               COPYONLY)
+  configure_file (${proj}/findmaquislapack.patch    ${proj_bin}/findmaquislapack.patch    COPYONLY)
+
+  # Builds with build subdirectory outside the source tree require the second argument of add_subdirectory
   add_subdirectory (${proj_bin} ${proj_bin})
 
   get_directory_property (${DMRG_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${DMRG_INCLUDE})
   get_directory_property (${DMRG_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${DMRG_LIBRARIES})
-  include_directories (${DMRG_INCLUDE})
 
   message ("-- DMRG_INCLUDE_PATH: ${DMRG_INCLUDE}")
   message ("-- DMRG_LIBRARIES: ${DMRG_LIBRARIES}")
 
   list (APPEND EXTERNAL_LIBRARIES ${DMRG_LIBRARIES})
-  list (APPEND EXTRA_INSTALL_DIRS
-    ${PROJECT_BINARY_DIR}/qcmaquis
-    ${PROJECT_BINARY_DIR}/alps
-    ${PROJECT_BINARY_DIR}/pytools
-    ${PROJECT_BINARY_DIR}/template-files
-  )
+  list (APPEND EXTRA_INSTALL_DIRS ${PROJECT_BINARY_DIR}/qcmaquis)
 else ()
   message ("DMRG support DISABLED")
 endif ()
@@ -1914,15 +1924,14 @@ endif ()
 if (HDF5 AND HDF5_FOUND AND DMRG)
   message ("Configuring HDF5 QCMaquis support:")
 
-  set (proj ${PROJECT_SOURCE_DIR}/src/hdf5_qcm_util)
-  set (proj_bin ${PROJECT_BINARY_DIR}/External/hdf5_qcm_util)
+  set (proj ${PROJECT_SOURCE_DIR}/src/HDF5_qcm_util)
+  set (proj_bin ${PROJECT_BINARY_DIR}/External/HDF5_qcm_util)
 
   configure_file (${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
   add_subdirectory (${proj_bin} ${proj_bin})
 
   get_directory_property (${HDF5_QCM_INCLUDE} DIRECTORY ${proj_bin} DEFINITION ${HDF5_QCM_INCLUDE})
   get_directory_property (${HDF5_QCM_LIBRARIES} DIRECTORY ${proj_bin} DEFINITION ${HDF5_QCM_LIBRARIES})
-  include_directories (${HDF5_QCM_INCLUDE})
 
   message ("-- HDF5_QCM_INCLUDE_PATH: ${HDF5_QCM_INCLUDE}")
   message ("-- HDF5_QCM_LIBRARIES: ${HDF5_QCM_LIBRARIES}")
@@ -2018,12 +2027,12 @@ else ()
   message ("EFP interface DISABLED")
 endif ()
 
-# GEN1INT interface
+# Gen1Int interface
 if (GEN1INT)
-  message ("Configuring GEN1INT")
+  message ("Configuring Gen1Int:")
 
-  set (proj ${PROJECT_SOURCE_DIR}/src/gen1int_util)
-  set (proj_bin ${PROJECT_BINARY_DIR}/External/gen1int_util)
+  set (proj ${PROJECT_SOURCE_DIR}/src/Gen1Int_util)
+  set (proj_bin ${PROJECT_BINARY_DIR}/External/Gen1Int_util)
 
   configure_file (${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
   add_subdirectory (${proj_bin} ${proj_bin})
@@ -2084,10 +2093,13 @@ if (NEVPT2)
     message (FATAL_ERROR "NEVPT2 support requires enabling HDF5 too.")
   endif ()
 
+  message ("Configuring NEVPT2:")
+
   set (proj ${PROJECT_SOURCE_DIR}/src/nevpt2)
   set (proj_bin ${PROJECT_BINARY_DIR}/External/nevpt2_ext)
 
-  configure_file (${proj}/CMakeLists.txt.in ${proj_bin}/CMakeLists.txt COPYONLY)
+  configure_file (${proj}/CMakeLists.txt.in    ${proj_bin}/CMakeLists.txt       COPYONLY)
+  configure_file (${proj}/cmakelists_txt.patch ${proj_bin}/cmakelists_txt.patch COPYONLY)
 
   add_subdirectory (${proj_bin} ${proj_bin})
 
@@ -2137,20 +2149,6 @@ if (BIGOT)
   set (CMAKE_CXX_FLAGS_${BUILD_TARGET} "${CMAKE_CXX_FLAGS_${BUILD_TARGET}} ${CXXFLAGS_${CXXCID}_BIGOT}")
   set (CMAKE_C_FLAGS_${BUILD_TARGET} "${CMAKE_C_FLAGS_${BUILD_TARGET}} ${CFLAGS_${CCID}_BIGOT}")
   set (CMAKE_Fortran_FLAGS_${BUILD_TARGET} "${CMAKE_Fortran_FLAGS_${BUILD_TARGET}} ${FFLAGS_${FCID}_BIGOT}")
-  # The Intel compiler can generate automatic interfaces, in that case we want to keep them all in a single place
-  if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
-    set (SINGLE_MOD_DIR "1")
-  endif ()
-endif ()
-
-# global module directory
-#========================
-
-set (MAIN_MOD_DIR ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/mod)
-if (SINGLE_MOD_DIR)
-  include_directories (${MAIN_MOD_DIR}/_single)
-else ()
-  include_directories (${MAIN_MOD_DIR})
 endif ()
 
 ################################################################################
@@ -2407,10 +2405,33 @@ if (HDF5 AND HDF5_FOUND)
     list (APPEND ${util}_defs "_HDF5_")
   endforeach ()
   if (DMRG)
-    foreach (util
+    foreach (prog
       transform_util
     )
-      list (APPEND ${util}_defs "_HDF5_QCM_")
+      list (APPEND ${prog}_defs "_HDF5_QCM_")
+    endforeach ()
+  endif ()
+endif ()
+
+# DMRG include directories where needed
+if (DMRG)
+  foreach (prog
+    Modules
+    dmrgscf
+    mpssi
+    rasscf
+    rassi
+    wfn_util
+  )
+    list (APPEND ${prog}_incs ${DMRG_INCLUDE})
+  endforeach ()
+  if (HDF5 AND HDF5_FOUND)
+    foreach (prog
+      motra
+      transform_util
+      wfn_util
+    )
+      list (APPEND ${prog}_incs ${HDF5_QCM_INCLUDE})
     endforeach ()
   endif ()
 endif ()
@@ -2418,9 +2439,7 @@ endif ()
 if (NEVPT2)
   set (prog nevpt2)
   list (APPEND progs ${prog})
-  list (APPEND ${prog}_incs ${NEVPT2_INCLUDE})
-  #list (APPEND nevpt2_defs "_NEVPT2_") # if we have conditional compilation, we theoretically don't need this flag
-  #set (nevpt2_deps $<TARGET_OBJECTS:caspt2>) # TODO: and somehow hdf5_qcm and qcmaquis driver
+  list (APPEND ${prog}_incs ${NEVPT2_INCLUDE} ${HDF5_QCM_INCLUDE})
 endif ()
 
 # activate MSYM support
@@ -2640,6 +2659,9 @@ list (APPEND ALL_SOURCES ${source})
 if (DEFINED ${util}_defs)
   set_target_properties (mods_obj PROPERTIES COMPILE_DEFINITIONS "${${util}_defs}")
 endif ()
+foreach (inc ${${util}_incs})
+  target_include_directories (mods_obj PRIVATE ${inc})
+endforeach ()
 if (DMRG)
   if (HDF5 AND HDF5_FOUND)
     add_dependencies (mods_obj hdf5-qcm)
