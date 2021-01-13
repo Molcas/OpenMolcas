@@ -94,7 +94,7 @@ C
 #endif
 
       If (DoCheck) Then
-         Call GetMem('ChkZ','Max ','Real',ip_Mx,l_Mx)
+         Call mma_maxDBLE(l_Mx)
          If (l_Z.gt.l_Mx) Then
             irc=999
             Return

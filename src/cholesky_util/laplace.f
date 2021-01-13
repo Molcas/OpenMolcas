@@ -61,7 +61,6 @@ C
       Real*8  w(l_wt)
       Real*8  t(l_wt)
       Integer irc
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Integer mGrid
@@ -176,7 +175,8 @@ C
       Implicit None
       Real*8  Tolerance
       Logical Verbose
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
+      Real*8, Allocatable:: tmlwr(:), tmltr(:), tmlw(:), tmlt(:)
 
       Real*8   dDot_
       external ddot_
@@ -218,36 +218,34 @@ C
       l_t_ref=N
       l_w=N
       l_t=N
-      Call GetMem('tmlwr','Allo','Real',ip_w_ref,l_w_ref)
-      Call GetMem('tmltr','Allo','Real',ip_t_ref,l_t_ref)
-      Call GetMem('tmlw','Allo','Real',ip_w,l_w)
-      Call GetMem('tmlt','Allo','Real',ip_t,l_t)
+      Call mma_allocate(tmlwr,l_w_ref,Label='tmlwr')
+      Call mma_allocate(tmltr,l_t_ref,Label='tmltr')
+      Call mma_allocate(tmlw,l_w,Label='tmlw')
+      Call mma_allocate(tmlt,l_t,Label='tmlt')
 
-      Work(ip_w_ref)=0.097293042801116517
-      Work(ip_w_ref+1)=0.237233954792368945
-      Work(ip_w_ref+2)=0.407050561470959249
-      Work(ip_w_ref+3)=0.635894859784969846
-      Work(ip_w_ref+4)=0.973101625527261427
-      Work(ip_w_ref+5)=1.505487565587009913
-      Work(ip_w_ref+6)=2.419319385961121949
-      Work(ip_w_ref+7)=4.393171503147499379
+      tmlwr(1)=0.097293042801116517
+      tmlwr(2)=0.237233954792368945
+      tmlwr(3)=0.407050561470959249
+      tmlwr(4)=0.635894859784969846
+      tmlwr(5)=0.973101625527261427
+      tmlwr(6)=1.505487565587009913
+      tmlwr(7)=2.419319385961121949
+      tmlwr(8)=4.393171503147499379
 
-      Work(ip_t_ref)=0.03771106629456916
-      Work(ip_t_ref+1)=0.20333950465288628
-      Work(ip_t_ref+2)=0.52200685559948912
-      Work(ip_t_ref+3)=1.03690003666258002
-      Work(ip_t_ref+4)=1.82953857756319826
-      Work(ip_t_ref+5)=3.04727454214513793
-      Work(ip_t_ref+6)=4.96421466224179220
-      Work(ip_t_ref+7)=8.21146012481546705
+      tmltr(1)=0.03771106629456916
+      tmltr(2)=0.20333950465288628
+      tmltr(3)=0.52200685559948912
+      tmltr(4)=1.03690003666258002
+      tmltr(5)=1.82953857756319826
+      tmltr(6)=3.04727454214513793
+      tmltr(7)=4.96421466224179220
+      tmltr(8)=8.21146012481546705
 
       K_Lap=N
       Emin=xmin
       Emax=xmax
       l_wt=N
-      Call MinimaxLaplace(Verbose,K_Lap,Emin,Emax,
-     &                    l_wt,Work(ip_w),Work(ip_t),
-     &                    irc)
+      Call MinimaxLaplace(Verbose,K_Lap,Emin,Emax,l_wt,tmlw,tmlt,irc)
       If (Verbose) Then
          Write(6,'(A,I6)') 'Return code from MinimaxLaplace=',irc
          Call xFlush(6)
@@ -255,10 +253,10 @@ C
       If (irc.ne.0) Then
          irc=-1
       Else
-         Call dAXPY_(N,-1.0d0,Work(ip_w_ref),1,Work(ip_w),1)
-         Call dAXPY_(N,-1.0d0,Work(ip_t_ref),1,Work(ip_t),1)
-         RMSw=sqrt(dDot_(N,Work(ip_w),1,Work(ip_w),1)/dble(N))
-         RMSt=sqrt(dDot_(N,Work(ip_t),1,Work(ip_t),1)/dble(N))
+         Call dAXPY_(N,-1.0d0,tmlwr,1,tmlw,1)
+         Call dAXPY_(N,-1.0d0,tmltr,1,tmlt,1)
+         RMSw=sqrt(dDot_(N,tmlw,1,tmlw,1)/dble(N))
+         RMSt=sqrt(dDot_(N,tmlt,1,tmlt,1)/dble(N))
          If (Verbose) Then
             Write(6,'(A,1P,D25.16)') 'Weight RMS error=    ',RMSw
             Write(6,'(A,1P,D25.16)') 'Grid point RMS error=',RMSt
@@ -270,10 +268,10 @@ C
          If (RMSt.gt.Tol) irc=irc+2
       End If
 
-      Call GetMem('tmlt','Free','Real',ip_t,l_t)
-      Call GetMem('tmlw','Free','Real',ip_w,l_w)
-      Call GetMem('tmltr','Free','Real',ip_t_ref,l_t_ref)
-      Call GetMem('tmlwr','Free','Real',ip_w_ref,l_w_ref)
+      Call mma_deallocate(tmlt)
+      Call mma_deallocate(tmlw)
+      Call mma_deallocate(tmltr)
+      Call mma_deallocate(tmlwr)
 
       If (Verbose) Then
          Write(6,'(A,I3)') 'TestMinimaxLaplace=',irc
