@@ -288,33 +288,6 @@ foreach (BASE_DIR ${basedirs})
 endforeach ()
 list (REVERSE basedirs)
 
-# set function to find source directories
-#========================================
-
-function (find_source name)
-  foreach (src ${source_roots})
-    if (EXISTS ${PROJECT_SOURCE_DIR}/${src}/${name})
-      file (GLOB tmplist RELATIVE ${PROJECT_SOURCE_DIR}/${src}/${name} ${PROJECT_SOURCE_DIR}/${src}/${name}/*)
-      # ignore possible leftover files from previous configure+make
-      list (REMOVE_ITEM tmplist Makefile 00dependencies 00sources)
-      if (tmplist)
-        set (found "${src}/${name}")
-        break ()
-      endif ()
-    endif ()
-  endforeach ()
-  # do not overwrite existing definitions
-  if (DEFINED ${name}_src)
-    set (${name}_src "${${name}_src}" PARENT_SCOPE)
-  else ()
-    if (DEFINED found)
-      set (${name}_src "${found}" PARENT_SCOPE)
-    #else ()
-    #  message (WARNING "${name} not found, expect trouble")
-    endif ()
-  endif ()
-endfunction ()
-
 # set function to insert list
 #============================
 
@@ -1576,7 +1549,7 @@ if (CUBLAS OR NVBLAS)
       target_compile_definitions (cublas_fortran PRIVATE "CUBLAS_GFORTRAN")
     endif ()
     target_include_directories (cublas_fortran PRIVATE ${CUDA_INCLUDE_PATH})
-    list (APPEND objlibs "$<TARGET_OBJECTS:cublas_fortran>")
+    list (APPEND utils_obj cublas_fortran)
 
     # CUDA needs to link to the C++ standard library, so enable CXX here to
     # be able to use it as a linker later on for the program executables
@@ -2287,7 +2260,7 @@ list (REMOVE_ITEM progs
 
 # set the location of the sources for the utilities
 foreach (util ${utils})
-  find_source (${util})
+  find_source (${util} ${source_roots})
   if (NOT DEFINED ${util}_src)
     list (REMOVE_ITEM utils ${util})
     message (WARNING "\"${util}\" not found in source directories, skipping")
@@ -2296,7 +2269,7 @@ endforeach ()
 
 if (FDE)
   set (util embedding_util)
-  find_source (${util})
+  find_source (${util} ${source_roots})
   if (DEFINED ${util}_src)
     list (APPEND utils ${util})
   else ()
@@ -2316,7 +2289,7 @@ endif ()
 # DGA code which resides in dga_util:
 if (MPI AND NOT GA)
   set (util dga_util)
-  find_source (${util})
+  find_source (${util} ${source_roots})
   if (DEFINED ${util}_src)
     list (APPEND utils ${util})
     include_directories (${PROJECT_SOURCE_DIR}/${${util}_src})
@@ -2336,7 +2309,7 @@ endif ()
 # Add optional interface to dynamic runtime BLAS/LAPACK
 if (LINALG STREQUAL "Runtime")
   set (util delayed_util)
-  find_source (${util})
+  find_source (${util} ${source_roots})
   if (DEFINED ${util}_src)
     list (APPEND utils ${util})
   else ()
@@ -2352,7 +2325,7 @@ endif ()
 # activate HDF5 wrappers for I/O
 if (HDF5 AND HDF5_FOUND)
   set (util hdf5_util)
-  find_source (${util})
+  find_source (${util} ${source_roots})
   if (DEFINED ${util}_src)
     list (APPEND utils ${util})
     list (APPEND ${util}_incs ${HDF5_INCLUDE_DIRS})
@@ -2361,7 +2334,6 @@ if (HDF5 AND HDF5_FOUND)
   endif ()
   # additional utilities doing internal HDF5 calls
   foreach (prog
-    Modules
     aniso_util
     gateway_util
     guessorb_util
@@ -2389,7 +2361,6 @@ endif ()
 # DMRG include directories where needed
 if (DMRG)
   foreach (prog
-    Modules
     dmrgscf
     mpssi
     rasscf
@@ -2418,7 +2389,7 @@ endif ()
 # activate MSYM support
 if (MSYM AND MSYM_FOUND)
   set (util msym_util)
-  find_source (${util})
+  find_source (${util} ${source_roots})
   if (DEFINED ${util}_src)
     list (APPEND utils ${util})
   else ()
@@ -2430,7 +2401,7 @@ endif ()
 
 if (BLOCK)
   set (util block_dmrg_util)
-  find_source (${util})
+  find_source (${util} ${source_roots})
   if (DEFINED ${util}_src)
     list (APPEND utils ${util})
     list (APPEND ${util}_defs "_ENABLE_BLOCK_DMRG_")
@@ -2441,7 +2412,7 @@ endif ()
 
 if (CHEMPS2)
   set (util chemps2_util)
-  find_source (${util})
+  find_source (${util} ${source_roots})
   if (DEFINED ${util}_src)
     list (APPEND utils ${util})
     list (APPEND ${util}_incs ${HDF5_INCLUDE_DIRS})
@@ -2469,7 +2440,7 @@ list (SORT utils)
 
 # set the location of the sources for the programs
 foreach (prog ${progs})
-  find_source (${prog})
+  find_source (${prog} ${source_roots})
   if (NOT DEFINED ${prog}_src)
     list (REMOVE_ITEM progs ${prog})
     message (WARNING "\"${prog}\" not found in source directories, skipping")
@@ -2519,55 +2490,49 @@ endif ()
 list (SORT progs)
 
 # set program dependencies of super modules
-set (casvb_deps
-  $<TARGET_OBJECTS:rasscf>
+set (casvb_deplibs
+  rasscf
 )
-set (dmrgscf_deps
-  $<TARGET_OBJECTS:rasscf>
+set (dmrgscf_deplibs
+  rasscf
 )
-set (mpssi_deps
-  $<TARGET_OBJECTS:rassi>
+set (last_energy_deplibs
+  caspt2
+  ccsdt
+  chcc
+  cht3
+  false
+  mbpt2
+  mcpdft
+  motra
+  rasscf
+  scf
+  seward
 )
-set (espf_deps
-  $<TARGET_OBJECTS:seward>
-  $<TARGET_OBJECTS:alaska>
+set (loprop_deplibs
+  caspt2
+  mbpt2
+  rasscf
+  scf
 )
-set (loprop_deps
-  $<TARGET_OBJECTS:scf>
-  $<TARGET_OBJECTS:rasscf>
-  $<TARGET_OBJECTS:caspt2>
-  $<TARGET_OBJECTS:mbpt2>
+set (mpssi_deplibs
+  rassi
 )
-set (numerical_gradient_deps
-  $<TARGET_OBJECTS:seward>
-  $<TARGET_OBJECTS:scf>
-  $<TARGET_OBJECTS:rasscf>
-  $<TARGET_OBJECTS:caspt2>
-  $<TARGET_OBJECTS:mbpt2>
-  $<TARGET_OBJECTS:ccsdt>
-  $<TARGET_OBJECTS:motra>
-  $<TARGET_OBJECTS:chcc>
-  $<TARGET_OBJECTS:cht3>
-  $<TARGET_OBJECTS:mcpdft>
-  $<TARGET_OBJECTS:false>
-)
-set (last_energy_deps
-  $<TARGET_OBJECTS:seward>
-  $<TARGET_OBJECTS:scf>
-  $<TARGET_OBJECTS:rasscf>
-  $<TARGET_OBJECTS:caspt2>
-  $<TARGET_OBJECTS:mbpt2>
-  $<TARGET_OBJECTS:ccsdt>
-  $<TARGET_OBJECTS:motra>
-  $<TARGET_OBJECTS:chcc>
-  $<TARGET_OBJECTS:cht3>
-  $<TARGET_OBJECTS:mcpdft>
-  $<TARGET_OBJECTS:false>
+set (numerical_gradient_deplibs
+  caspt2
+  ccsdt
+  chcc
+  cht3
+  false
+  mbpt2
+  mcpdft
+  motra
+  rasscf
+  scf
+  seward
 )
 if (BLOCK OR DMRG)
-list (APPEND last_energy_deps
-  $<TARGET_OBJECTS:dmrgscf>
-)
+  list (APPEND last_energy_deplibs dmrgscf)
 endif ()
 
 ################################################################################
@@ -2587,7 +2552,7 @@ elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG")
   set (netlib_nowarn_flags " -w")
 endif ()
-find_source (LinAlg_internal)
+find_source (LinAlg_internal ${source_roots})
 if (netlib_nowarn_flags)
   file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f ${delayed_util_src}/*.f)
   set_property (SOURCE ${source} APPEND_STRING PROPERTY COMPILE_FLAGS ${netlib_nowarn_flags})
@@ -2623,18 +2588,14 @@ endif ()
 #                                                                              #
 ################################################################################
 
+if (BUILD_SHARED_LIBS)
+  set (CMAKE_POSITION_INDEPENDENT_CODE "TRUE")
+endif ()
+
 # first, build global modules separately, so other utils can add it as a
 # dependency using the "mods_obj" target.
-set (util "Modules")
-file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${OPENMOLCAS_DIR}/src/${util}/*.f ${OPENMOLCAS_DIR}/src/${util}/*.f90)
-add_library (mods_obj OBJECT ${source})
-list (APPEND ALL_SOURCES ${source})
-if (DEFINED ${util}_defs)
-  set_target_properties (mods_obj PROPERTIES COMPILE_DEFINITIONS "${${util}_defs}")
-endif ()
-foreach (inc ${${util}_incs})
-  target_include_directories (mods_obj PRIVATE ${inc})
-endforeach ()
+# note that mods_obj is empty at the beginning, source files will be added later
+add_library (mods_obj OBJECT)
 if (DMRG)
   if (HDF5 AND HDF5_FOUND)
     add_dependencies (mods_obj hdf5-qcm)
@@ -2653,54 +2614,28 @@ if (BUILD_SHARED_LIBS)
   set_target_properties (mods_obj PROPERTIES POSITION_INDEPENDENT_CODE "TRUE")
 endif ()
 set_target_properties (mods_obj PROPERTIES Fortran_MODULE_DIRECTORY ${MAIN_MOD_DIR})
-target_include_directories (mods_obj PRIVATE ${OPENMOLCAS_DIR}/src/${util})
-list (APPEND utils_obj mods_obj)
-list (APPEND objlibs "$<TARGET_OBJECTS:mods_obj>")
 
 # now go through utility list
 foreach (util ${utils})
-  file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${${util}_src}/*.f ${${util}_src}/*.f90 ${${util}_src}/*.c)
-  list (APPEND ALL_SOURCES ${source})
-  # ignore empty directories
-  if (NOT "${source}" STREQUAL "")
-    add_library (${util}_obj OBJECT ${source})
-    if (SINGLE_MOD_DIR)
-      set (mod_dir ${MAIN_MOD_DIR}/_single)
-    else ()
-      set (mod_dir ${MAIN_MOD_DIR}/${util})
-    endif ()
-    set_target_properties (${util}_obj PROPERTIES Fortran_MODULE_DIRECTORY ${mod_dir})
-
-    if (BUILD_SHARED_LIBS)
-      set_target_properties (${util}_obj PROPERTIES POSITION_INDEPENDENT_CODE "TRUE")
-    endif ()
-
-    # utility-specific compile definitions
-    if (DEFINED ${util}_defs)
-      set_target_properties (${util}_obj PROPERTIES COMPILE_DEFINITIONS "${${util}_defs}")
-    endif ()
-    # utility-specific include directories
-    list (APPEND ${util}_incs ${PROJECT_SOURCE_DIR}/${${util}_src} ${mod_dir})
-    foreach (inc ${${util}_incs})
-      target_include_directories (${util}_obj PRIVATE ${inc})
-    endforeach ()
-
-    add_dependencies (${util}_obj mods_obj)
-
-    list (APPEND utils_obj ${util}_obj)
-    list (APPEND objlibs "$<TARGET_OBJECTS:${util}_obj>")
-    #add_library (${util} $<TARGET_OBJECTS:${util}_obj>)
-
-    #if (EXISTS ${PROJECT_SOURCE_DIR}/${${util}_src}/custom.cmake)
-    #  include (${PROJECT_SOURCE_DIR}/${${util}_src}/custom.cmake)
-    #endif ()
+  add_subdirectory (src/${util} ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${util})
+  add_dependencies (${util}_obj mods_obj)
+  if (${util}_mods)
+    # move the module files to the mods_obj target
+    # (note COMPILE_DEFINITIONS must be on target level to properly compute dependencies)
+    pass_properties_to_target (${util}_obj mods_obj "COMPILE_DEFINITIONS")
+    pass_properties_to_files (${util}_obj "${${util}_mods}" "INCLUDE_DIRECTORIES")
+    target_sources (mods_obj PRIVATE ${${util}_mods})
   endif ()
+  list (APPEND utils_obj ${util}_obj)
+  list (APPEND ALL_SOURCES ${${util}_sources} ${${util}_mods})
 endforeach (util)
 
 # build an actual libmolcas library
-add_library (libmolcas ${objlibs})
+add_library (libmolcas "")
 set_target_properties (libmolcas PROPERTIES PREFIX "")
 set (MOLCAS_LIBRARIES "libmolcas")
+target_link_libraries (libmolcas ${utils_obj})
+target_link_libraries (libmolcas mods_obj)
 if (BUILD_SHARED_LIBS)
   # flatten namespace on Mac OS X
   if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
@@ -2708,10 +2643,12 @@ if (BUILD_SHARED_LIBS)
   endif ()
   # also create a static library!
   if (BUILD_STATIC_LIB)
-    add_library (libmolcas_static STATIC ${objlibs})
+    add_library (libmolcas_static STATIC "")
     set_target_properties (libmolcas_static PROPERTIES PREFIX "")
     set_target_properties (libmolcas_static PROPERTIES OUTPUT_NAME libmolcas)
     list (APPEND MOLCAS_LIBRARIES "libmolcas_static")
+    target_link_libraries (libmolcas_static ${utils_obj})
+    target_link_libraries (libmolcas_static mods_obj)
   endif ()
 endif ()
 
@@ -2745,92 +2682,26 @@ add_custom_target (only_objs
   DEPENDS ${utils_obj}
 )
 
-foreach (prog ${progs})
-  file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${${prog}_src}/*.f ${${prog}_src}/*.f90 ${${prog}_src}/*.F90 ${${prog}_src}/*.c)
-  list (APPEND ALL_SOURCES ${source})
-  # ignore empty programs
-  if ("${source}" STREQUAL "")
-    list (REMOVE_ITEM progs ${prog})
-  else ()
-    # FIXME: the checks below remove any main.* file, which is needed in
-    # order to be able to make a library out of the program sources. This
-    # is required for supermodules.
-    #------------------------------------------------------------------
-    foreach (lext "f" "f90" "c")
-      if (EXISTS ${PROJECT_SOURCE_DIR}/${${prog}_src}/main.${lext})
-        list (REMOVE_ITEM source ${${prog}_src}/main.${lext})
-        set (${prog}_main ${${prog}_src}/main.${lext})
-      endif ()
-    endforeach ()
-
-    if (NOT "${source}" STREQUAL "")
-      add_library (${prog} OBJECT ${source})
-      if (SINGLE_MOD_DIR)
-        set (mod_dir ${MAIN_MOD_DIR}/_single)
-      else ()
-        set (mod_dir ${MAIN_MOD_DIR}/${prog})
-      endif ()
-      set_target_properties (${prog} PROPERTIES Fortran_MODULE_DIRECTORY ${mod_dir})
-
-      # programs in "proglib" have their libraries compiled as utils
-      if (BUILD_SHARED_LIBS AND ";${proglib};" MATCHES ";${prog};")
-        set_target_properties (${prog} PROPERTIES POSITION_INDEPENDENT_CODE "TRUE")
-      endif ()
-
-      # program-specific compile definitions
-      if (DEFINED ${prog}_defs)
-        set_target_properties (${prog} PROPERTIES COMPILE_DEFINITIONS "${${prog}_defs}")
-      endif ()
-      # program-specific include directories
-      list (APPEND ${prog}_incs ${PROJECT_SOURCE_DIR}/${${prog}_src} ${mod_dir})
-      foreach (inc ${${prog}_incs})
-        target_include_directories (${prog} PRIVATE ${inc})
-      endforeach ()
-
-      add_dependencies (${prog} ${utils_obj})
-      add_dependencies (only_objs ${prog})
-    endif ()
-  endif ()
-endforeach ()
-
-# set file-specific flags
-if (BOUNDS AND (${CMAKE_Fortran_FLAGS} MATCHES "-fsanitize=address"))
-  set_property (SOURCE ${rassi_src}/prprop.f APPEND_STRING PROPERTY COMPILE_FLAGS " --param=max-vartrack-size=120000000")
-endif ()
-
 # set up proper RPATH for executables, use RUNPATH if on Linux
 set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set (CMAKE_INSTALL_RPATH_USE_LINK_PATH "TRUE")
 
+# build the standard programs
 foreach (prog ${progs})
-  # FIXME: Actual program target only depends on main file now, but if
-  # supermodules are gone, the dependency should be on ${source} instead.
-  #----------------------------------------------------------------------
-  # programs in "proglib" have their library included in libmolcas
-  if (TARGET ${prog} AND NOT ";${proglib};" MATCHES ";${prog};")
-    list (APPEND ${prog}_deps $<TARGET_OBJECTS:${prog}>)
+  list (APPEND ${prog}_deplibs libmolcas ${EXTERNAL_LIBRARIES})
+  add_subdirectory (src/${prog} ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${prog})
+  if (TARGET ${prog})
+    add_dependencies (${prog}   ${utils_obj})
+    add_dependencies (only_objs ${prog})
   endif ()
-  add_executable (${prog}.exe ${${prog}_main} ${${prog}_deps})
-  list (APPEND progs_exe ${prog}.exe)
-  if (SINGLE_MOD_DIR)
-    set_target_properties (${prog}.exe PROPERTIES Fortran_MODULE_DIRECTORY ${MAIN_MOD_DIR}/_single)
-  else ()
-    set_target_properties (${prog}.exe PROPERTIES Fortran_MODULE_DIRECTORY ${MAIN_MOD_DIR}/${prog})
-  endif ()
-  foreach (inc ${${prog}_incs})
-    target_include_directories (${prog}.exe PRIVATE ${inc})
-  endforeach ()
-
-  target_link_libraries (${prog}.exe libmolcas)
-  target_link_libraries (${prog}.exe ${EXTERNAL_LIBRARIES})
   if (EXTERNAL_PROJECTS)
     add_dependencies (${prog}.exe ${EXTERNAL_PROJECTS})
   endif ()
-
   if (CUBLAS)
     set_target_properties (${prog}.exe PROPERTIES LINKER_LANGUAGE "CXX")
   endif ()
-
+  list (APPEND progs_exe ${prog}.exe)
+  list (APPEND ALL_SOURCES ${${prog}_sources})
   list (APPEND PROGRAM_EXECUTABLES ${prog}.exe)
   if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     if (${CMAKE_SYSTEM_VERSION} STREQUAL "15.0.0")
@@ -2849,18 +2720,13 @@ endforeach (prog)
 
 # build parnell as a stand-alone executable
 set (prog parnell)
-find_source (${prog})
-if (NOT DEFINED ${prog}_src)
-  message (FATAL_ERROR "\"${prog}\" not found in source directories")
-endif ()
-file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${${prog}_src}/*.f ${${prog}_src}/*.f90 ${${prog}_src}/*.c)
-add_executable (${prog}.exe ${source})
-list (APPEND progs_exe ${prog}.exe)
-list (APPEND ALL_SOURCES ${source})
-list (APPEND PROGRAM_EXECUTABLES ${prog}.exe)
 if (MPI)
-  target_link_libraries (${prog}.exe ${MPI_C_LIBRARIES})
+  list (APPEND ${prog}_deplibs ${MPI_C_LIBRARIES})
 endif ()
+add_subdirectory (src/${prog} ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${prog})
+list (APPEND progs_exe ${prog}.exe)
+list (APPEND ALL_SOURCES ${prog}_sources)
+list (APPEND PROGRAM_EXECUTABLES ${prog}.exe)
 
 # Add custom debug flags per file:
 #   For each file, tries to find out if each definition is used and modify the file's properties
