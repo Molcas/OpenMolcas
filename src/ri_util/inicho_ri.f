@@ -31,6 +31,7 @@
 ************************************************************************
       SubRoutine IniCho_RI(nSkal,nVec_Aux,nIrrep,iTOffs,iShij,nShij)
       Use Para_Info, Only: Is_Real_Par
+      use ChoArr, only: iSP2F
       Implicit None
       Integer nSkal, nIrrep, nShij
       Integer nVec_Aux(0:nIrrep-1)
@@ -40,6 +41,7 @@
 #include "choptr.fh"
 #include "choprint.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #if defined (_MOLCAS_MPP_)
 #include "choglob.fh"
 #endif
@@ -123,10 +125,9 @@ C     pairs here.
 C     ----------------------------------------------------------------
 
       nnShl = nShij
-      l_iSP2F = nnShl
-      Call GetMem('SP2F','Allo','Inte',ip_iSP2F,l_iSP2F)
+      Call mma_allocate(iSP2F,nnShl,Label='iSP2F')
       Do ijS = 1,nnShl
-         iWork(ip_iSP2F-1+ijS) = iTri(iShij(1,ijS),iShij(2,ijS))
+         iSP2F(ijS) = iTri(iShij(1,ijS),iShij(2,ijS))
       End Do
       Skip_PreScreen = .True.
       Alloc_Bkm = .False.
@@ -259,6 +260,7 @@ C     -----------------------------------------------
       SubRoutine SetChoIndx_RI(iiBstRSh,nnBstRSh,IndRed,IndRsh,iRS2F,
      &                         I_nSym,I_nnShl,I_mmBstRT,I_3,I_2,
      &                         iShij,nShij)
+      use ChoArr, only: iSP2F
       Implicit Real*8 (a-h,o-z)
       Integer iiBstRSh(I_nSym,I_nnShl,I_3), nnBstRSh(I_nSym,I_nnShl,I_3)
       Integer IndRed(I_mmBstRT,I_3), IndRsh(I_mmBstRT)
@@ -278,7 +280,6 @@ C     -----------------------------------------------
       nBstSh(i)=iWork(ip_nBstSh-1+i)
       iBasSh(i,j)=iWork(ip_iBasSh-1+nSym*(j-1)+i)
       nBasSh(i,j)=iWork(ip_nBasSh-1+nSym*(j-1)+i)
-      iSP2F(i)=iWork(ip_iSP2F-1+i)
 
 C     nnBstRSh(iSym,iSh_ij,1) = #elements in compound sym. iSym of
 C                               shell-pair ab in 1st reduced set.

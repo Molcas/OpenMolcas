@@ -53,7 +53,7 @@
 *> @param[in]  BufFrac Fraction of memory to be used as buffer
 ************************************************************************
       Subroutine Cho_X_Init(irc,BufFrac)
-      use ChoArr, only: iSOShl
+      use ChoArr, only: iSOShl, iSP2F
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
@@ -85,7 +85,6 @@
       Data FirstCall /.true./
 
       nBstSh(i)=iWork(ip_nBstSh-1+i)
-      iSP2F(i)=iWork(ip_iSP2F-1+i)
 
 C     Register entry.
 C     ---------------
@@ -276,9 +275,8 @@ C     -------------------------------------
       Call GetMem('IndRSh','Allo','Inte',ip_IndRSh,l_IndRSh)
       Call Cho_RstD_GetInd2()
 
-      l_iSP2F = nnShl
-      Call GetMem('SP2F','Allo','Inte',ip_iSP2F,l_iSP2F)
-      Call Cho_RstD_GetInd3(iWork(ip_iSP2F),l_iSP2F)
+      Call mma_allocate(iSP2F,nnShl,Label='iSP2F')
+      Call Cho_RstD_GetInd3(iSP2F,SIZE(iSP2F))
 
 C     Allocate and read bookmarks (if available on runfile).
 C     ------------------------------------------------------
@@ -349,7 +347,7 @@ C     -------------------------------
          kOff1 = ip_nnBstRSh + nSym*nnShl*(iLoc - 1)
          kOff2 = ip_IndRed   + mmBstRT*(iLoc - 1)
          Call Cho_GetRed(iWork(ip_InfRed),iWork(kOff1),
-     &                   iWork(kOff2),iWork(ip_IndRsh),iWork(ip_iSP2F),
+     &                   iWork(kOff2),iWork(ip_IndRsh),iSP2F,
      &                   MaxRed,nSym,nnShl,mmBstRT,iRed,.false.)
          Call Cho_SetRedInd(iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),
      &                      nSym,nnShl,iLoc)

@@ -25,6 +25,7 @@ C           Thus, to be certain that enough memory is available,
 C           use LSCR = 2 x dimension of first reduced set.
 C
 C
+      use ChoArr, only: iSP2F
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
@@ -58,7 +59,7 @@ C     -----------------------------------------------
       KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(ILOC - 1)
       KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
       CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
-     &                IWORK(KOFF2),IWORK(ip_INDRSH),IWORK(ip_iSP2F),
+     &                IWORK(KOFF2),IWORK(ip_INDRSH),iSP2F,
      &                MAXRED,NSYM,NNSHL,MMBSTRT,IRED,
      &                .FALSE.)
       CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
@@ -89,7 +90,7 @@ C     ------------------------------------------------------------------
             KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
             CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
      &                      IWORK(KOFF2),IWORK(ip_INDRSH),
-     &                      IWORK(ip_iSP2F),
+     &                      iSP2F,
      &                      MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
      &                      .FALSE.)
             CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),

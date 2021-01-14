@@ -20,6 +20,7 @@ C
 C     NOTE: the scratch array SCR(LSCR) is used to read vectors from
 C           disk and should not be smaller than NNBSTR(ISYM,1)+1.
 C
+      use ChoArr, only: iSP2F
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
@@ -109,7 +110,7 @@ C        ------------------------------
          KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(ILOC - 1)
          KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
          CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
-     &                   IWORK(KOFF2),IWORK(ip_INDRSH),IWORK(ip_iSP2F),
+     &                   IWORK(KOFF2),IWORK(ip_INDRSH),iSP2F,
      &                   MAXRED,NSYM,NNSHL,MMBSTRT,IRED,
      &                   .FALSE.)
          CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),

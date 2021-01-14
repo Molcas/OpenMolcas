@@ -15,6 +15,7 @@ C              shell pair distribution (**|ISHLA ISHLB).
 C
 C     Version 1: store full shell quadruple.
 C
+      use ChoArr, only: iSP2F
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
@@ -35,7 +36,6 @@ C
       INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
       IQUAB(I,J)=IWORK(ip_IQUAB-1+MAXQUAL*(J-1)+I)
       NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
 
 #if defined (_DEBUGPRINT_)
       CALL GETMEM('INT.LEAK','MAX ','REAL',KLEAK,LLEAK)

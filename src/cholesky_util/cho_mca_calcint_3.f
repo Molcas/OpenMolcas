@@ -19,6 +19,7 @@ C                Changes from Version 2:
 C                - addressing of qualified columns
 C                - integrals returned in core (no I/O)
 C
+      use ChoArr, only: iSP2F
 #include "implicit.fh"
       DIMENSION XINT(LINT)
 #include "cholesky.fh"
@@ -37,7 +38,6 @@ C
       PARAMETER (INFINT = INF_INT, INFIN2 = INF_IN2)
 
       NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
 
 C     Initializations.
 C     ----------------

@@ -13,6 +13,7 @@
 Module ChoArr
 Implicit none
 Private
-Public:: iSOShl
+Public:: iSOShl, iSP2F
 Integer, Allocatable:: iSOShl(:)
+Integer, Allocatable:: iSP2F(:)
 End Module ChoArr

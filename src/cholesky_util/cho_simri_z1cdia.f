@@ -15,6 +15,7 @@ C              Diag is the diagonal (1st reduced set).
 C              On exit, Indx(i)=1 if diagonal i was zeroed, else
 C              Indx(i)=0 (thus, Indx must have same dimension as Diag).
 C
+      use ChoArr, only: iSP2F
       Implicit None
       Real*8  Diag(*)
       Real*8  Thr
@@ -35,9 +36,8 @@ C
       Integer Inf_SimRI
       Parameter (Inf_SimRI = 0)
 
-      Integer iSP2F, iAtomShl, iiBstRSh, nnBstRSh
+      Integer iAtomShl, iiBstRSh, nnBstRSh
       Integer i, j, k
-      iSP2F(i)=iWork(ip_iSP2F-1+i)
       iAtomShl(i)=iWork(ip_iAtomShl-1+i)
       iiBstRSh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
       nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)

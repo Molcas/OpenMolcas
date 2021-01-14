@@ -19,6 +19,7 @@ C                Changes from Version 3:
 C                - only one shell quadruple is computed (not an entire
 C                  column).
 C
+      use ChoArr, only: iSP2F
 #include "implicit.fh"
       DIMENSION XINT(LINT)
 #include "cholesky.fh"
@@ -37,8 +38,6 @@ C
       LOGICAL   LOCDBG
       PARAMETER (LOCDBG = .FALSE.)
       PARAMETER (INFINT = INF_INT, INFIN2 = INF_IN2)
-
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
 
 C     Set mapping from shell pair AB to qualified columns.
 C     ----------------------------------------------------

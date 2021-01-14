@@ -21,6 +21,7 @@ C              apart from first)
 C           3) full integral symmetry not used
 C              (only partial particle permutation symmetry)
 C
+      use ChoArr, only: iSP2F
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -34,7 +35,6 @@ C
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
       NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
 
 C     Force computation of full shell quadruple.
 C     ------------------------------------------

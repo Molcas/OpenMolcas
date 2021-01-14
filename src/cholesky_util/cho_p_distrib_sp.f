@@ -39,6 +39,7 @@ C
 C     Determine distribution of ShellPairs by dimension.
 C
       Use Para_Info, Only: MyRank, nProcs
+      use ChoArr, only: iSP2F
       Implicit None
       Integer mySP(*)
       Integer N_mySP
@@ -54,9 +55,8 @@ C
       Integer ip_Dim, l_Dim
       Integer iAB, iA, iB
 
-      Integer iSP2F, nBstSh
+      Integer nBstSh
       Integer i
-      iSP2F(i)=iWork(ip_iSP2F-1+i)
       nBstSh(i)=iWork(ip_nBstSh-1+i)
 
       If (Cho_Real_Par) Then

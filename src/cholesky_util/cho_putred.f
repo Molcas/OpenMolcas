@@ -13,6 +13,7 @@ C
 C     Purpose: write reduced set indices to disk and set address for
 C              next write.
 C
+      use ChoArr, only: iSP2F
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -30,7 +31,7 @@ C
          KOFF1 = ip_NNBSTRSH
          KOFF2 = ip_INDRED
          CALL CHO_PUTRED1(IWORK(ip_INFRED),IWORK(KOFF1),IWORK(KOFF2),
-     &                    IWORK(ip_INDRSH),IWORK(ip_iSP2F),
+     &                    IWORK(ip_INDRSH),iSP2F,
      &                    MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,1)
          IF (MAXRED .GT. 1) THEN
             IWORK(ip_INFRED+IPASS) = IWORK(ip_INFRED-1+IPASS)
@@ -40,13 +41,13 @@ C
          KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(IRED - 1)
          KOFF2 = ip_INDRED   + MMBSTRT*(IRED - 1)
          CALL CHO_PUTRED1(IWORK(ip_INFRED),IWORK(KOFF1),IWORK(KOFF2),
-     &                    IWORK(ip_INDRSH),IWORK(ip_iSP2F),
+     &                    IWORK(ip_INDRSH),iSP2F,
      &                    MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,IRED)
       ELSE
          KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(IRED - 1)
          KOFF2 = ip_INDRED   + MMBSTRT*(IRED - 1)
          CALL CHO_PUTRED1(IWORK(ip_INFRED),IWORK(KOFF1),IWORK(KOFF2),
-     &                    IWORK(ip_INDRSH),IWORK(ip_iSP2F),
+     &                    IWORK(ip_INDRSH),iSP2F,
      &                    MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,IRED)
          IWORK(ip_INFRED+IPASS) = IWORK(ip_INFRED-1+IPASS)
      &                          + NSYM*NNSHL + NNBSTRT(IRED)

@@ -16,6 +16,7 @@ C
 C     Version 2: avoid storage of full shell quadruple in interface to
 C                seward; get qualified directly!
 C
+      use ChoArr, only: iSP2F
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
@@ -34,7 +35,6 @@ C
 
       NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
       MYSP(I)=IWORK(ip_MYSP-1+I)
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
 
 #if defined (_DEBUGPRINT_)
       CALL GETMEM('INT.LEAK','MAX ','REAL',KLEAK,LLEAK)

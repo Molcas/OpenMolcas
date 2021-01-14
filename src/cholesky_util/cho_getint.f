@@ -15,6 +15,7 @@ C
 C     DIASH(ij): max. diagonal in shell pair i,j
 C     NPOTSH   : the number of shell pairs that can be qualified.
 C
+      use ChoArr, only: iSP2F
 #include "implicit.fh"
       DIMENSION DIAG(*), DIASH(*)
       INTEGER   ISYSH(*)
@@ -38,7 +39,6 @@ C
       EXTERNAL CHO_ISUMELM
 
       INTMAP(I)=IWORK(ip_INTMAP-1+I)
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
 
 C-tbp: some debugging...
 c     IF (LOCDBG) THEN

@@ -11,7 +11,7 @@
 * Copyright (C) 2004, Thomas Bondo Pedersen                            *
 ************************************************************************
       Subroutine Cho_X_Dealloc(irc)
-      use ChoArr, only: iSOShl
+      use ChoArr, only: iSOShl, iSP2F
 C
 C     T.B. Pedersen, July 2004.
 C
@@ -121,10 +121,7 @@ C     -----------
       End If
       nAlloc = nAlloc + 1
 
-      If (l_iSP2F .ne. 0) Then
-         Call GetMem('SP2F','Free','Inte',ip_iSP2F,l_iSP2F)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(iSP2F)) Call mma_deallocate(iSP2F)
 
 C     Check that #allocations agrees with choptr.fh.
 C     -----------------------------------------------

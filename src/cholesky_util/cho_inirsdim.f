@@ -12,6 +12,7 @@
 C
 C     Purpose: initialize reduced set dimension.
 C
+      use ChoArr, only: iSP2F
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -24,7 +25,7 @@ C
             KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
             CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
      &                      IWORK(KOFF2),IWORK(ip_INDRSH),
-     &                      IWORK(ip_iSP2F),
+     &                      iSP2F,
      &                      MAXRED,NSYM,NNSHL,MMBSTRT,IRS,.FALSE.)
             CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),IWORK(ip_NNBSTRSH),
      &                         NSYM,NNSHL,ILOC)

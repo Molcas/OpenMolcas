@@ -41,6 +41,9 @@ C
 C     Vectors are distributed across nodes and stored according to
 C     reduced set 1 (all of them!).
 C
+#if defined (_DEBUGPRINT_)
+      use ChoArr, only: iSP2F
+#endif
       Implicit None
       Integer irc
       Integer l_NVT
@@ -107,10 +110,6 @@ C
 
       Integer i, j, k
       Integer IndRSh, iTri, nnBstRSh, InfVcT
-#if defined (_DEBUGPRINT_)
-      Integer iSP2F
-      iSP2F(i)=iWork(ip_iSP2F-1+i)
-#endif
       IndRSh(i)=iWork(ip_IndRSh-1+i)
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
       nnBStRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)

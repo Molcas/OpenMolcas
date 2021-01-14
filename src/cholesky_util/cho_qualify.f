@@ -18,6 +18,7 @@ C              memory for storing the qualified columns.
 C              If no more columns can be qualified on exit,
 C              FULL=.true. is returned.
 C
+      use ChoArr, only: iSP2F
 #include "implicit.fh"
       DIMENSION DIAG(*)
       LOGICAL   FULL
@@ -42,7 +43,6 @@ C
       NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
       INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
       IQUAB(I,J)=IWORK(ip_IQUAB-1+MAXQUAL*(J-1)+I)
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
 
 C     Copy counter to offset array.
 C     -----------------------------

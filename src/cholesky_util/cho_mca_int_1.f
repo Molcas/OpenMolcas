@@ -17,6 +17,7 @@ C     Notes:
 C        LOCPRT: flag for printing the shell quadruple to output;
 C                output format differs depending on IFCSEW.
 C
+      use ChoArr, only: iSP2F
       IMPLICIT REAL*8 (A-H,O-Z)
       EXTERNAL Integral_WrOut_Cho
       REAL*8   XINT(LINT)
@@ -30,7 +31,6 @@ C
       PARAMETER (SECNAM = 'CHO_MCA_INT_1')
 
       ITRI(I,J) = MAX(I,J)*(MAX(I,J)-3)/2 + I + J
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
       NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
 
 C     Initializations.

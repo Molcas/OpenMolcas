@@ -14,6 +14,7 @@ C
 C     Purpose: initialization of Cholesky decomposition in MOLCAS.
 C
       use index_arrays, only: iSO2Sh
+      use ChoArr, only: iSP2F
 #include "implicit.fh"
       LOGICAL SKIP_PRESCREEN
 #include "cholesky.fh"
@@ -66,12 +67,12 @@ C     -----------------------------------------------------------------
             WRITE(LUPRI,*) 'Condition: 0 < NNSHL < ',NNSHL_TOT
             CALL CHO_QUIT('Initialization error in '//SECNAM,102)
          END IF
-         IF (l_iSP2F .NE. NNSHL) THEN
+         IF (SIZE(iSP2F) .NE. NNSHL) THEN
             WRITE(LUPRI,*) SECNAM,': flag SKIP_PRESCREEN is ',
      &                     SKIP_PRESCREEN
             WRITE(LUPRI,*) 'NNSHL is: ',NNSHL
-            WRITE(LUPRI,*) 'l_iSP2F must be equal to NNSHL, ',
-     &                     'l_iSP2F = ',l_iSP2F
+            WRITE(LUPRI,*) 'SIZE(iSP2F) must be equal to NNSHL, ',
+     &                     'SIZE(iSP2F)= ',SIZE(iSP2F)
             CALL CHO_QUIT('Initialization error in '//SECNAM,102)
          END IF
       ELSE
@@ -143,7 +144,7 @@ C     -------------------------------------------------
 
       MX2SH = -1
       DO IJSHL = 1,NNSHL
-         IJ = IWORK(ip_iSP2F-1+IJSHL)
+         IJ = iSP2F(IJSHL)
          CALL CHO_INVPCK(IJ,I,J,.TRUE.)
          IF (I .EQ. J) THEN
             NUMIJ = NBSTSH(I)*(NBSTSH(I) + 1)/2

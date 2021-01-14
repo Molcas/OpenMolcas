@@ -14,6 +14,7 @@ C     Purpose: get diagonal in first reduced set. On exit, ip_DIAG
 C              points to the diagonal in work space and flag LCONV tells
 C              if the diagonal is converged.
 C
+      use ChoArr, only: iSP2F
 #include "implicit.fh"
       LOGICAL LCONV
 #include "cholesky.fh"
@@ -73,7 +74,7 @@ C        Check reduced to full shell pair mapping with the one on disk.
 C        --------------------------------------------------------------
 
          NERR = -1
-         CALL CHO_RSTD_CHKSP2F(IWORK(ip_iSP2F),l_iSP2F,NERR)
+         CALL CHO_RSTD_CHKSP2F(iSP2F,SIZE(iSP2F),NERR)
          IF (NERR .NE. 0) THEN
             WRITE(LUPRI,*) SECNAM,': ',NERR,' errors detected in ',
      &                     'reduced-to-full shell pair mapping!'

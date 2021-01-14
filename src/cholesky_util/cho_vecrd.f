@@ -76,6 +76,7 @@ C
 C     NOTE: if no vectors can be read, JNUM=0 and MUSED=0 are returned,
 C           but execution is NOT stopped here!!!
 C
+      use ChoArr, only: iSP2F
 #include "implicit.fh"
       DIMENSION SCR(LSCR)
       LOGICAL   DOREAD
@@ -119,7 +120,7 @@ C        -----------------------------------
                   KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
                   CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
      &                            IWORK(KOFF2),IWORK(ip_INDRSH),
-     &                            IWORK(ip_iSP2F),
+     &                            iSP2F,
      &                            MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
      &                            .FALSE.)
                   CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
@@ -180,7 +181,7 @@ C        ---------------------------------------------------
                   KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
                   CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
      &                            IWORK(KOFF2),IWORK(ip_INDRSH),
-     &                            IWORK(ip_iSP2F),
+     &                            iSP2F,
      &                            MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
      &                            .FALSE.)
                   CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),

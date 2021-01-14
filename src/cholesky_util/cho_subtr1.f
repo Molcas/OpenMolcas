@@ -18,6 +18,7 @@ C              This version is I/O-driven.
 C
 C     Screening in subtraction introduced Jan. 2006, TBP.
 C
+      use ChoArr, only: iSP2F
 #include "implicit.fh"
       DIMENSION XINT(*), WRK(LWRK)
       LOGICAL   FXDMEM
@@ -293,7 +294,7 @@ C           -----------------------------------------------------
                      KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
                      CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
      &                               IWORK(KOFF2),IWORK(ip_INDRSH),
-     &                               IWORK(ip_iSP2F),
+     &                               iSP2F,
      &                               MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
      &                               .FALSE.)
                      CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),

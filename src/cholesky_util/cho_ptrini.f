@@ -83,10 +83,6 @@ C
       l_iAtomShl  = 0
       nAlloc      = nAlloc + 1
 
-      ip_iSP2F = 0
-      l_iSP2F  = 0
-      nAlloc   = nAlloc + 1
-
       irc = CHO_NALLOC - nAlloc
 
       End

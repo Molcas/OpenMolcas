@@ -40,6 +40,7 @@
 *> @param[in]  iRed reduced set on disk
 ************************************************************************
       Subroutine Cho_X_SetRed(irc,iLoc,iRed)
+      use ChoArr, only: iSP2F
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -53,7 +54,7 @@
             kOff2 = ip_IndRed   + nnBstRT(1)*(iLoc - 1)
             Call Cho_GetRed(iWork(ip_InfRed),iWork(kOff1),
      &                      iWork(kOff2),iWork(ip_IndRSh),
-     &                      iWork(ip_iSP2F),
+     &                      iSP2F,
      &                      MaxRed,nSym,nnShl,nnBstRT(1),iRed,.false.)
             Call Cho_SetRedInd(iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),
      &                         nSym,nnShl,iLoc)
