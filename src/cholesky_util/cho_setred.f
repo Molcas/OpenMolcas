@@ -14,7 +14,7 @@ C
 C     Purpose: set next reduced set. A copy of the previous set
 C              is stored in location 3.
 C
-      use ChoArr, only: iSP2F
+      use ChoArr, only: iSP2F, iAtomShl
 #include "implicit.fh"
       DIMENSION DIAG(*)
       INTEGER   INDRED(LMMBSTRT,3)
@@ -25,8 +25,6 @@ C
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_SETRED')
-
-      IATOMSHL(I)=IWORK(ip_IATOMSHL-1+I)
 
 C     Debug print.
 C     ------------

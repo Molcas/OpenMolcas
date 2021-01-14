@@ -14,7 +14,7 @@ C
 C     Purpose: shell-driven calculation of the integral diagonal and
 C              setup of the first reduced set.
 C
-      use ChoArr, only: iSP2F
+      use ChoArr, only: iSP2F, iAtomShl
 #include "implicit.fh"
       DIMENSION BUF(LENBUF), SCR(LENSCR)
       INTEGER   IBUF(4,LENBUF)
@@ -41,7 +41,6 @@ C
       IBASSH(I,J)=IWORK(ip_IBASSH-1+NSYM*(J-1)+I)
       NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)
       NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
-      IATOMSHL(I)=IWORK(ip_IATOMSHL-1+I)
 
 C     Check dimensions.
 C     -----------------
@@ -94,7 +93,7 @@ C     Calculate diagonal in loop over shell-pairs.
 C     CHO_NO2CENTER on: skip all 2-center diagonals.
 C     ----------------------------------------------
 
-      IF (CHO_NO2CENTER .AND. l_IATOMSHL.LT.NSHELL) THEN
+      IF (CHO_NO2CENTER .AND. SIZE(IATOMSHL).LT.NSHELL) THEN
          CALL CHO_QUIT(SECNAM//': iAtomShl not allocated correctly!',
      &                 103)
       END IF

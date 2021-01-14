@@ -223,7 +223,7 @@ C     --------------
 
       End
       SubRoutine Cho_PrintPointers(irc,Lunit)
-      use ChoArr, only: iSOShl, iSP2F
+      use ChoArr, only: iSOShl, iAtomShl, iSP2F
 C
 C     Purpose: print all entries in choptr.fh to Lunit.
 C
@@ -269,8 +269,7 @@ C
       nAlloc    = nAlloc + 1
       Write(Lunit,*) 'nBstSh  : ',ip_nBstSh,l_nBstSh
       nAlloc    = nAlloc + 1
-      Write(Lunit,*) 'iAtomShl: ',ip_iAtomShl,l_iAtomShl
-      nAlloc    = nAlloc + 1
+      Write(Lunit,*) 'iAtomShl: ',SIZE(iAtomShl)
       Write(Lunit,*) 'iSP2F   : ',SIZE(iSP2F)
       Write(Lunit,*)
       Call Cho_Flush(Lunit)

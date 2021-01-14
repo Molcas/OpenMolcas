@@ -17,6 +17,7 @@ C
 C     Purpose: Parallel two-step decomposition of two-electron
 C              integrals.
 C
+      use ChoArr, only: iAtomShl
       Implicit None
       Integer irc
 #include "choprint.fh"
@@ -26,6 +27,7 @@ C
 #include "chosimri.fh"
 #include "choptr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Integer ip_Err, l_Err
       Integer iSec, kDiag
@@ -261,10 +263,9 @@ C     ====================================
          Go To 1 ! flush memory and return
       End If
       If (Cho_1Center) Then
-         If (l_iAtomShl.lt.1) Then
-            l_iAtomShl=nShell
-            Call GetMem('iAtomShl','Allo','Inte',ip_iAtomShl,l_iAtomShl)
-            Call Cho_SetAtomShl(irc,iWork(ip_iAtomShl),l_iAtomShl)
+         If (.NOT.Allocated(iAtomShl)) Then
+            Call mma_allocate(iAtomShl,nShell,Label='iAtomShl')
+            Call Cho_SetAtomShl(irc,iAtomShl,SIZE(iAtomShl))
             If (irc.ne.0) Then
                Write(LuPri,'(A,A,I8)')
      &         SecNam,': Cho_SetAtomShl returned code',irc

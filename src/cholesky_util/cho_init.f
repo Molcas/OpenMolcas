@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_INIT(SKIP_PRESCREEN,ALLOCATE_BOOKMARKS)
-      use ChoArr, only: iSOShl
+      use ChoArr, only: iSOShl, iAtomShl
 C
 C     Purpose: initializations.
 C
@@ -32,6 +32,7 @@ C
 #include "chosubscr.fh"
 #include "chobkm.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       DIMENSION XXB(8)
 
@@ -272,11 +273,10 @@ C     decomposition.
 C     -----------------------------------------------------
 
       IF (CHO_1CENTER) THEN
-         l_IATOMSHL = NSHELL
-         CALL CHO_MEM('IATOMSHL','ALLO','INTE',ip_IATOMSHL,l_IATOMSHL)
+         Call mma_allocate(iAtomShl,nShell,Label='iAtomShl')
 
          IRC = -1
-         CALL CHO_SETATOMSHL(IRC,IWORK(ip_IATOMSHL),l_IATOMSHL)
+         CALL CHO_SETATOMSHL(IRC,IATOMSHL,SIZE(IATOMSHL))
          IF (IRC .NE. 0) THEN
             WRITE(LUPRI,*) SECNAM,': CHO_SETATOMSHL returned ',IRC
             CALL CHO_QUIT(SECNAM//': shell-to-atom init failed!',102)

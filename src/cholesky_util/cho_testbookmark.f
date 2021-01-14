@@ -195,19 +195,19 @@
       Write(6,'(A,I3,1X,A)') 'Test',TestNumber,PassFail
       End
       Subroutine Cho_TestBookmark_1CInit(AllocatedHere)
+      use ChoArr, only: iAtomShl
       Implicit None
       Logical AllocatedHere
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Integer irc
 
-      If (l_iAtomShl.lt.1) Then
-         l_iAtomShl=nShell
-         Call GetMem('iAtomShl','Allo','Inte',ip_iAtomShl,l_iAtomShl)
+      If (.NOT.Allocated(iAtomShl)) Then
+         Call mma_allocate(iAtomShl,nShell,Label='iAtomShl')
          irc=-1
-         Call Cho_SetAtomShl(irc,iWork(ip_iAtomShl),l_iAtomShl)
+         Call Cho_SetAtomShl(irc,iAtomShl,SIZE(iAtomShl))
          If (irc.ne.0) Then
             Write(6,'(A,I4)')
      &      'Cho_TestBookmark_1Cinit: Cho_SetAtomShl returned',irc
@@ -220,13 +220,10 @@
 
       End
       Subroutine Cho_TestBookmark_1CFinal()
+      use ChoArr, only: iAtomShl
       Implicit None
-#include "choptr.fh"
+#include "stdalloc.fh"
 
-      If (l_iAtomShl.gt.0) Then
-         Call GetMem('iAtomShl','Free','Inte',ip_iAtomShl,l_iAtomShl)
-         ip_iAtomShl=0
-         l_iAtomShl=0
-      End If
+      If (Allocated(iAtomShl)) Call mma_deallocate(iAtomShl)
 
       End

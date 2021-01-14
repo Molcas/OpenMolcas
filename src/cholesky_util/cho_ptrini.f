@@ -79,10 +79,6 @@ C
       l_nBstSh  = 0
       nAlloc    = nAlloc + 1
 
-      ip_iAtomShl = 0
-      l_iAtomShl  = 0
-      nAlloc      = nAlloc + 1
-
       irc = CHO_NALLOC - nAlloc
 
       End

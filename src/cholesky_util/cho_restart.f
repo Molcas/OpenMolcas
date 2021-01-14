@@ -16,7 +16,7 @@ C              for first reduced set must be set up before
 C              this routine is called. Reduced set 2, on the
 C              other hand, is set up here.
 C
-      use ChoArr, only: iSP2F
+      use ChoArr, only: iSP2F, iAtomShl
 #include "implicit.fh"
       DIMENSION DIAG(*), WRK(LWRK)
       LOGICAL   DSKDIA, LCONV
@@ -43,7 +43,6 @@ C
       INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
       IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
       NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      IATOMSHL(I)=IWORK(ip_IATOMSHL-1+I)
       MYSP(I)=IWORK(ip_MYSP-1+I)
       ISIMRI(I)=IWORK(ip_ISIMRI-1+I)
 
@@ -375,7 +374,7 @@ C     ----------------------------------------------------------------
          IF (NSYM .NE. 1) THEN
             CALL CHO_QUIT(SECNAM//': CHO_1CENTER on, but NSYM != 1',103)
          END IF
-         IF (l_IATOMSHL .LT. NSHELL) THEN
+         IF (SIZE(IATOMSHL) .LT. NSHELL) THEN
             CALL CHO_QUIT(SECNAM//': iAtomShl not allocated correctly!',
      &                    103)
          END IF
