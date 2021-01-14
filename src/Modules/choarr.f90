@@ -13,8 +13,9 @@
 Module ChoArr
 Implicit none
 Private
-Public:: iSOShl, nBasSh, nBstSh, iSP2F, iAtomShl
+Public:: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl
 Integer, Allocatable:: iSOShl(:)
+Integer, Allocatable:: iBasSh(:,:)
 Integer, Allocatable:: nBasSh(:,:)
 Integer, Allocatable:: nBstSh(:)
 Integer, Allocatable:: iSP2F(:)

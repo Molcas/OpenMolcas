@@ -18,7 +18,7 @@
 *
 *
 ************************************************************
-      use ChoArr, only: iSOShl, nBasSh
+      use ChoArr, only: iSOShl, iBasSh, nBasSh
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr),SvShp(*)
       Integer iShp_rs(*)
@@ -41,8 +41,6 @@
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ******
       iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
-******
-      IBASSH(I,J)=IWORK(ip_IBASSH-1+NSYM*(J-1)+I)
 ******
       ISHLSO(I)=IWORK(ip_iShlSO-1+I)
 ******

@@ -15,10 +15,10 @@ C
 #if defined (_DEBUGPRINT_)
       use ChoArr, only: nBstSh
 #endif
+      use ChoArr, only: iBasSh
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
       INTEGER  CHO_IRANGE
       EXTERNAL CHO_IRANGE
@@ -55,7 +55,6 @@ C
       END IF
 #endif
 
-      KIBASSH = ip_IBASSH + NSYM*(ISHL-1)
-      CHO_ISAOSH = CHO_IRANGE(IAO,IWORK(KIBASSH),NSYM,.FALSE.)
+      CHO_ISAOSH = CHO_IRANGE(IAO,IBASSH(1,ISHL),NSYM,.FALSE.)
 
       END

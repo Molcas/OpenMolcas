@@ -67,10 +67,6 @@ C
       l_iQuab  = 0
       nAlloc   = nAlloc + 1
 
-      ip_iBasSh = 0
-      l_iBasSh  = 0
-      nAlloc    = nAlloc + 1
-
       irc = CHO_NALLOC - nAlloc
 
       End

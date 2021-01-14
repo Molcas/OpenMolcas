@@ -13,7 +13,7 @@ C
 C     Purpose: initialization of Cholesky decomposition in MOLCAS.
 C
       use index_arrays, only: iSO2Sh
-      use ChoArr, only: iSOShl, nBasSh, nBstSh, iSP2F
+      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F
 #include "implicit.fh"
       LOGICAL SKIP_PRESCREEN
 #include "cholesky.fh"
@@ -105,8 +105,7 @@ C     ------------------------------------------------------
 C     Allocate shell based index arrays.
 C     ----------------------------------
 
-      l_IBASSH = NSYM*NSHELL
-      CALL CHO_MEM('IBASSH','ALLO','INTE',ip_IBASSH,l_IBASSH)
+      Call mma_allocate(iBasSh,nSym,nShell,Label='iBasSh')
       Call mma_allocate(nBasSh,nSym,nShell,Label='nBasSh')
       Call mma_allocate(nBstSh,nShell,Label='nBstSh')
 
@@ -126,7 +125,7 @@ C     NBSTSH(ISHL): total dimension of shell ISHL
 C     MXORSH      : max. shell dimension
 C     -----------------------------------------------------------
 
-      CALL CHO_SETSH(IWORK(ip_IBASSH),NBASSH,NBSTSH,
+      CALL CHO_SETSH(IBASSH,NBASSH,NBSTSH,
      &               IBAS,NBAS,ISOSHL,NSYM,NSHELL,NBAST)
 
       MXORSH = NBSTSH(1)
