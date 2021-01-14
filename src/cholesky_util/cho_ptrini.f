@@ -59,10 +59,6 @@ C
       l_IRS2F  = 0
       nAlloc   = nAlloc + 1
 
-      ip_iShlSO = 0
-      l_iShlSO  = 0
-      nAlloc    = nAlloc + 1
-
       ip_iQuab = 0
       l_iQuab  = 0
       nAlloc   = nAlloc + 1

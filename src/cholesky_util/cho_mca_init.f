@@ -13,7 +13,7 @@ C
 C     Purpose: initialization of Cholesky decomposition in MOLCAS.
 C
       use index_arrays, only: iSO2Sh
-      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F
+      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO
 #include "implicit.fh"
       LOGICAL SKIP_PRESCREEN
 #include "cholesky.fh"
@@ -167,9 +167,7 @@ C     -----------------------------------------------------------
 C     ISHLSO(I): index of SO I within its shell
 C     -----------------------------------------
 
-      l_iShlSO = NBAST
-      CALL CHO_MEM('ISHLSO','ALLO','INTE',ip_iShlSO,l_iShlSO)
-      CALL CHO_SETSH2(IWORK(ip_iShlSO),iSOShl,
-     &                NBSTSH,NBAST,NSHELL)
+      Call mma_allocate(iShlSO,nBasT,Label='iShlSO')
+      CALL CHO_SETSH2(iShlSO,iSOShl,NBSTSH,NBAST,NSHELL)
 
       END

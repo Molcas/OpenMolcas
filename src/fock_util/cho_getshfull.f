@@ -18,7 +18,7 @@
 *
 *
 ************************************************************
-      use ChoArr, only: iSOShl, iBasSh, nBasSh
+      use ChoArr, only: iSOShl, iShlSO, iBasSh, nBasSh
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr),SvShp(*)
       Integer iShp_rs(*)
@@ -41,8 +41,6 @@
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ******
       iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
-******
-      ISHLSO(I)=IWORK(ip_iShlSO-1+I)
 ******
       INDRSH(I)=IWORK(ip_INDRSH-1+I)
 ****** this is a trick to save memory. Memory in "location 2" is used

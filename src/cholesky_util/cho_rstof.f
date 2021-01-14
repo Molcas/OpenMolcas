@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_RSTOF(IRS2F,N,LRDIM,IRED)
-      use ChoArr, only: iSOShl, nBstSh
+      use ChoArr, only: iSOShl, iShlSO, nBstSh
 C
 C     Purpose: set up mapping between reduced set and SO indices
 C              (i.e., full storage).
@@ -22,7 +22,6 @@ C
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*9 SECNAM
       PARAMETER (SECNAM = 'CHO_RSTOF')
@@ -34,7 +33,6 @@ C
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
       ITRI(I,J) = MAX(I,J)*(MAX(I,J)-3)/2 + I + J
-      ISHLSO(I)=IWORK(ip_iShlSO-1+I)
 
       IF (N .LT. 2) THEN
          CALL CHO_QUIT('Dimension error [1] in '//SECNAM,104)

@@ -28,14 +28,13 @@
 *                                                                      *
 ************************************************************************
       use SOAO_Info, only: iAOtSO
-      use ChoArr, only: iSOShl, nBstSh
+      use ChoArr, only: iSOShl, iShlSO, nBstSh
       Implicit Real*8 (A-H,O-Z)
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "real.fh"
 #include "print.fh"
 #include "srt0.fh"
-#include "WrkSpc.fh"
 *
       Real*8 AOint(ijkl,iCmp,jCmp,kCmp,lCmp), TInt(lInt)
       Integer iShell(4), iAO(4), kOp(4),
@@ -47,7 +46,6 @@
       INTEGER ABCD, CDAB, CD, AB, A, B, C, D
 *
       iTri(i,j)=Max(i,j)*(Max(i,j)-3)/2 + i + j
-      iShlSO(i)=iWork(ip_iShlSO-1+i)
 *
       irout = 109
       jprint = nprint(irout)

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_INIT(SKIP_PRESCREEN,ALLOCATE_BOOKMARKS)
-      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iAtomShl
+      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iAtomShl, iShlSO
 C
 C     Purpose: initializations.
 C
@@ -31,7 +31,6 @@ C
 #include "chosp.fh"
 #include "chosubscr.fh"
 #include "chobkm.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       DIMENSION XXB(8)
@@ -45,7 +44,6 @@ C
       PARAMETER (GBLIM = 2.147483648D9)
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
-      ISHLSO(I)=IWORK(ip_iShlSO-1+i)
 
 
 C     Check settings for parallel runs.

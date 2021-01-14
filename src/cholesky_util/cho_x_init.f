@@ -53,7 +53,7 @@
 *> @param[in]  BufFrac Fraction of memory to be used as buffer
 ************************************************************************
       Subroutine Cho_X_Init(irc,BufFrac)
-      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F
+      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
@@ -388,10 +388,8 @@ C     ------------------------------------------------
          Mx2Sh = max(Mx2Sh,Numij)
       End Do
 
-      l_iShlSO = nBasT
-      Call GetMem('iShlSO','Allo','Inte',ip_iShlSO,l_iShlSO)
-      Call Cho_SetSh2(iWork(ip_iShlSO),iSOShl,
-     &                nBstSh,nBasT,nShell)
+      Call mma_allocate(iShlSO,nBasT,Label='iShlSO')
+      Call Cho_SetSh2(iShlSO,iSOShl,nBstSh,nBasT,nShell)
 
 C     Allocate and compute mapping RS1->Full.
 C     ---------------------------------------
