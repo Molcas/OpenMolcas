@@ -43,20 +43,20 @@
 #include "choptr.fh"
 #include "stdalloc.fh"
 
-      Integer l_Temp, l_Wrk, iReo
-      Real*8, Allocatable:: Temp(:), Wrk(:)
+      Integer l_Wrk, iReo
+      Real*8, Allocatable:: Wrk(:)
+      Integer, Allocatable:: iRS2F(:,:)
 
       irc = 0
 
       Call Get_iScalar('Cholesky Reorder',iReo)
       If (iReo .eq. 0) Then
-         l_Temp = 3*nnBstRT(1)
-         Call mma_allocate(Temp,l_Temp,Label='Temp')
+         Call mma_allocate(iRS2F,3,nnBstRT(1),Label='iRS2F')
          Call mma_maxDBLE(l_Wrk)
          Call mma_allocate(Wrk,l_Wrk,Label='Wrk')
          Call Cho_ReoVec(Temp,3,nnBstRT(1),Wrk,l_Wrk)
          Call mma_deallocate(Wrk)
-         Call mma_deallocate(Temp)
+         Call mma_deallocate(iRS2F)
          iReo = 1
          Call Put_iScalar('Cholesky Reorder',iReo)
       End If
