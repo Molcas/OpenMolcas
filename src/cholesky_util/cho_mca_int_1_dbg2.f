@@ -12,7 +12,7 @@
 C
 C     Purpose: test symmetry of integral matrix.
 C
-      use ChoArr, only: iSP2F
+      use ChoArr, only: iSP2F, nBstSh
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -31,7 +31,6 @@ C
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
       ITRI(I,J) = MAX(I,J)*(MAX(I,J)-3)/2 + I + J
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
 
       WRITE(LUPRI,*)
       WRITE(LUPRI,*)

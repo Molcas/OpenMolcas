@@ -18,6 +18,7 @@ C           1) full Cholesky vectors are read
 C           2) calculations are performed in full (no use of red. sets
 C              apart from first)
 C
+      use ChoArr, only: nBstSh
 #include "implicit.fh"
       INTEGER ISHLQ(4,NSHLQ)
       LOGICAL PRTLAB
@@ -37,7 +38,6 @@ C
       CHARACTER*8 LABEL
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
       ITRI(I,J)=MAX(I,J)*(MAX(I,J)-3)/2+I+J
 
 C     Return if nothing specified.

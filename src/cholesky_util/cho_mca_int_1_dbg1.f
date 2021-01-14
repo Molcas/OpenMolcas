@@ -14,7 +14,7 @@ C     Purpose: test diagonal, reduced set IRED. Note that the
 C              diagonal *must* be the original diagonal stored
 C              in reduced set 1.
 C
-      use ChoArr, only: iSP2F
+      use ChoArr, only: nBstSh, iSP2F
 #include "implicit.fh"
       DIMENSION DIAG(*)
 #include "cholesky.fh"
@@ -31,7 +31,6 @@ C
       NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
       INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
       INDRSH(I)=IWORK(ip_INDRSH-1+I)
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
 
       WRITE(LUPRI,*)
       WRITE(LUPRI,*)

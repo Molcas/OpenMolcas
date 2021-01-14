@@ -15,7 +15,7 @@ C              reduced set (stored at location iLoc = 2 or 3).
 C              If a non-zero code (irc) is returned, nothing has been
 C              set!!
 C
-      use ChoArr, only: iSP2F
+      use ChoArr, only: nBstSh, iSP2F
 #include "implicit.fh"
       Integer nAB(*)
 #include "cholesky.fh"
@@ -32,7 +32,6 @@ C
       IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
       nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
       iiBstRSh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      nBstSh(i)=iWork(ip_nBstSh-1+i)
       mySP(i)=iWork(ip_mySP-1+i)
 #if defined (_DEBUGPRINT_)
       IndRsh(i)=iWork(ip_IndRSh-1+i)

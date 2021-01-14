@@ -14,7 +14,7 @@ C
 C     Purpose: initialization of Cholesky decomposition in MOLCAS.
 C
       use index_arrays, only: iSO2Sh
-      use ChoArr, only: iSP2F
+      use ChoArr, only: nBstSh, iSP2F
 #include "implicit.fh"
       LOGICAL SKIP_PRESCREEN
 #include "cholesky.fh"
@@ -31,8 +31,6 @@ c     INTEGER  CHO_ISAO
 c     EXTERNAL CHO_ISAO
 c     INTEGER  CHO_ISAOSH
 c     EXTERNAL CHO_ISAOSH
-
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
 
 C     Check that the number of shells is within limits.
 C     -------------------------------------------------
@@ -112,8 +110,7 @@ C     ----------------------------------
       CALL CHO_MEM('IBASSH','ALLO','INTE',ip_IBASSH,l_IBASSH)
       l_NBASSH = NSYM*NSHELL
       CALL CHO_MEM('NBASSH','ALLO','INTE',ip_NBASSH,l_NBASSH)
-      l_NBSTSH = NSHELL
-      CALL CHO_MEM('NBSTSH','ALLO','INTE',ip_NBSTSH,l_NBSTSH)
+      Call mma_allocate(nBstSh,nShell,Label='nBstSh')
 
 C     ISOSHL(I): shell to which SO I belongs
 C     --------------------------------------
@@ -131,7 +128,7 @@ C     NBSTSH(ISHL): total dimension of shell ISHL
 C     MXORSH      : max. shell dimension
 C     -----------------------------------------------------------
 
-      CALL CHO_SETSH(IWORK(ip_IBASSH),IWORK(ip_NBASSH),IWORK(ip_NBSTSH),
+      CALL CHO_SETSH(IWORK(ip_IBASSH),IWORK(ip_NBASSH),NBSTSH,
      &               IBAS,NBAS,ISOSHL,NSYM,NSHELL,NBAST)
 
       MXORSH = NBSTSH(1)
@@ -176,6 +173,6 @@ C     -----------------------------------------
       l_iShlSO = NBAST
       CALL CHO_MEM('ISHLSO','ALLO','INTE',ip_iShlSO,l_iShlSO)
       CALL CHO_SETSH2(IWORK(ip_iShlSO),iSOShl,
-     &                IWORK(ip_NBSTSH),NBAST,NSHELL)
+     &                NBSTSH,NBAST,NSHELL)
 
       END

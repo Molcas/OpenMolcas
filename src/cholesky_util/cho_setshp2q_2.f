@@ -16,7 +16,7 @@ C              iLoc = 2 or 3).
 C              If a non-zero code (irc) is returned, nothing has been
 C              set!!
 C
-      use ChoArr, only: iSP2F
+      use ChoArr, only: iSP2F, nBstSh
 #include "implicit.fh"
       Integer nAB(*)
 #include "cholesky.fh"
@@ -26,7 +26,6 @@ C
 
       IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
       iQuAB(i,j)=iWork(ip_iQuAB-1+MaxQual*(j-1)+i)
-      nBstSh(i)=iWork(ip_nBstSh-1+i)
       IndRsh(i)=iWork(ip_IndRSh-1+i)
 
 C     Check allocations.

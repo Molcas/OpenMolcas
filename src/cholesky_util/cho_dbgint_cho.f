@@ -18,7 +18,7 @@ C              XINT (for debugging).
 C
 C     NOTE: this is *only* for debugging.
 C
-      use ChoArr, only: iSP2F
+      use ChoArr, only: nBstSh, iSP2F
 #include "implicit.fh"
       DIMENSION XINT(NCD,NAB), WRK(LWRK)
 #include "cholesky.fh"
@@ -34,7 +34,6 @@ C
       IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
       NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
       INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
 
 C     Initializations.
 C     ----------------

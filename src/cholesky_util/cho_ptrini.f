@@ -75,10 +75,6 @@ C
       l_nBasSh  = 0
       nAlloc    = nAlloc + 1
 
-      ip_nBstSh = 0
-      l_nBstSh  = 0
-      nAlloc    = nAlloc + 1
-
       irc = CHO_NALLOC - nAlloc
 
       End

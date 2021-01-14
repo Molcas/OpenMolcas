@@ -53,7 +53,7 @@
 *> @param[in]  BufFrac Fraction of memory to be used as buffer
 ************************************************************************
       Subroutine Cho_X_Init(irc,BufFrac)
-      use ChoArr, only: iSOShl, iSP2F
+      use ChoArr, only: iSOShl, nBstSh, iSP2F
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
@@ -83,8 +83,6 @@
 
       Save FirstCall
       Data FirstCall /.true./
-
-      nBstSh(i)=iWork(ip_nBstSh-1+i)
 
 C     Register entry.
 C     ---------------
@@ -370,11 +368,10 @@ C     ------------------------------------------------
 
       l_iBasSh = nSym*nShell
       l_nBasSh = nSym*nShell
-      l_nBstSh = nShell
       Call GetMem('iBasSh','Allo','Inte',ip_iBasSh,l_iBasSh)
       Call GetMem('nBasSh','Allo','Inte',ip_nBasSh,l_nBasSh)
-      Call GetMem('nBstSh','Allo','Inte',ip_nBstSh,l_nBstSh)
-      Call Cho_SetSh(iWork(ip_iBasSh),iWork(ip_nBasSh),iWork(ip_nBstSh),
+      Call mma_allocate(nBstSh,nShell,Label='nBstSh')
+      Call Cho_SetSh(iWork(ip_iBasSh),iWork(ip_nBasSh),nBstSh,
      &               iBas,nBas,iSOShl,nSym,nShell,nBasT)
 
       MxOrSh = nBstSh(1)
@@ -396,7 +393,7 @@ C     ------------------------------------------------
       l_iShlSO = nBasT
       Call GetMem('iShlSO','Allo','Inte',ip_iShlSO,l_iShlSO)
       Call Cho_SetSh2(iWork(ip_iShlSO),iSOShl,
-     &                iWork(ip_nBstSh),nBasT,nShell)
+     &                nBstSh,nBasT,nShell)
 
 C     Allocate and compute mapping RS1->Full.
 C     ---------------------------------------
