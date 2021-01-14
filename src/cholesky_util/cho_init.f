@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_INIT(SKIP_PRESCREEN,ALLOCATE_BOOKMARKS)
-      use ChoArr, only: iSOShl, nBstSh, iAtomShl
+      use ChoArr, only: iSOShl, nBasSh, nBstSh, iAtomShl
 C
 C     Purpose: initializations.
 C
@@ -47,7 +47,6 @@ C
       MULD2H(I,J)=IEOR(I-1,J-1)+1
       ISHLSO(I)=IWORK(ip_iShlSO-1+i)
       IBASSH(I,J)=IWORK(ip_IBASSH-1+NSYM*(J-1)+I)
-      NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)
 
 
 C     Check settings for parallel runs.

@@ -14,7 +14,7 @@ C
 C     Purpose: shell-driven calculation of the integral diagonal and
 C              setup of the first reduced set.
 C
-      use ChoArr, only: nBstSh, iSP2F, iAtomShl
+      use ChoArr, only: nBasSh, nBstSh, iSP2F, iAtomShl
 #include "implicit.fh"
       DIMENSION BUF(LENBUF), SCR(LENSCR)
       INTEGER   IBUF(4,LENBUF)
@@ -39,7 +39,6 @@ C
       MULD2H(I,J)=IEOR(I-1,J-1)+1
       ITRI(I,J)=MAX(I,J)*(MAX(I,J)-3)/2+I+J
       IBASSH(I,J)=IWORK(ip_IBASSH-1+NSYM*(J-1)+I)
-      NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)
 
 C     Check dimensions.
 C     -----------------

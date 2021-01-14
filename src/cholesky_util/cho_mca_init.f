@@ -9,12 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_MCA_INIT(SKIP_PRESCREEN)
-      use ChoArr, only: iSOShl
 C
 C     Purpose: initialization of Cholesky decomposition in MOLCAS.
 C
       use index_arrays, only: iSO2Sh
-      use ChoArr, only: nBstSh, iSP2F
+      use ChoArr, only: iSOShl, nBasSh, nBstSh, iSP2F
 #include "implicit.fh"
       LOGICAL SKIP_PRESCREEN
 #include "cholesky.fh"
@@ -108,8 +107,7 @@ C     ----------------------------------
 
       l_IBASSH = NSYM*NSHELL
       CALL CHO_MEM('IBASSH','ALLO','INTE',ip_IBASSH,l_IBASSH)
-      l_NBASSH = NSYM*NSHELL
-      CALL CHO_MEM('NBASSH','ALLO','INTE',ip_NBASSH,l_NBASSH)
+      Call mma_allocate(nBasSh,nSym,nShell,Label='nBasSh')
       Call mma_allocate(nBstSh,nShell,Label='nBstSh')
 
 C     ISOSHL(I): shell to which SO I belongs
@@ -128,7 +126,7 @@ C     NBSTSH(ISHL): total dimension of shell ISHL
 C     MXORSH      : max. shell dimension
 C     -----------------------------------------------------------
 
-      CALL CHO_SETSH(IWORK(ip_IBASSH),IWORK(ip_NBASSH),NBSTSH,
+      CALL CHO_SETSH(IWORK(ip_IBASSH),NBASSH,NBSTSH,
      &               IBAS,NBAS,ISOSHL,NSYM,NSHELL,NBAST)
 
       MXORSH = NBSTSH(1)

@@ -11,7 +11,7 @@
 * Copyright (C) 2004, Thomas Bondo Pedersen                            *
 ************************************************************************
       Subroutine Cho_X_Dealloc(irc)
-      use ChoArr, only: iSOShl, nBstSh, iSP2F, iAtomShl
+      use ChoArr, only: iSOShl, nBasSh, nBstSh, iSP2F, iAtomShl
 C
 C     T.B. Pedersen, July 2004.
 C
@@ -106,10 +106,7 @@ C     -----------
       End If
       nAlloc = nAlloc + 1
 
-      If (l_nBasSh .ne. 0) Then
-         Call GetMem('nBasSh','Free','Inte',ip_nBasSh,l_nBasSh)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(nBasSh)) Call mma_deallocate(nBasSh)
 
       If (Allocated(nBstSh)) Call mma_deallocate(nBstSh)
 

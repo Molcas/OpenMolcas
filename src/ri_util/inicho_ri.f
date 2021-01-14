@@ -260,7 +260,7 @@ C     -----------------------------------------------
       SubRoutine SetChoIndx_RI(iiBstRSh,nnBstRSh,IndRed,IndRsh,iRS2F,
      &                         I_nSym,I_nnShl,I_mmBstRT,I_3,I_2,
      &                         iShij,nShij)
-      use ChoArr, only: iSP2F, nBstSh
+      use ChoArr, only: iSP2F, nBasSh, nBstSh
       Implicit Real*8 (a-h,o-z)
       Integer iiBstRSh(I_nSym,I_nnShl,I_3), nnBstRSh(I_nSym,I_nnShl,I_3)
       Integer IndRed(I_mmBstRT,I_3), IndRsh(I_mmBstRT)
@@ -278,7 +278,6 @@ C     -----------------------------------------------
       MulD2h(i,j)=iEor(i-1,j-1)+1
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
       iBasSh(i,j)=iWork(ip_iBasSh-1+nSym*(j-1)+i)
-      nBasSh(i,j)=iWork(ip_nBasSh-1+nSym*(j-1)+i)
 
 C     nnBstRSh(iSym,iSh_ij,1) = #elements in compound sym. iSym of
 C                               shell-pair ab in 1st reduced set.

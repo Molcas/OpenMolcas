@@ -35,7 +35,7 @@ C      k:        MO-index   belonging to (Inactive)
 C      v,w,x,y:  MO-indeces belonging to (Active)
 C
 **********************************************************************
-
+      use ChoArr, only: nBasSh
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
@@ -95,8 +95,6 @@ C
       IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
 ******
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-******
-      NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)
 ******
       NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
 ******

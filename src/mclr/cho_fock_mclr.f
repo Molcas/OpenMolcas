@@ -18,6 +18,7 @@
 *  Author : M. G. Delcey                                               *
 *                                                                      *
 ************************************************************************
+      use ChoArr, only: nBasSh
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
       Character*13 SECNAM
@@ -47,8 +48,6 @@
       InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 ******
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-******
-      NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)
 ************************************************************************
 *
       nDen=1

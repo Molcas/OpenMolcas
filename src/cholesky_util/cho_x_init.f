@@ -53,7 +53,7 @@
 *> @param[in]  BufFrac Fraction of memory to be used as buffer
 ************************************************************************
       Subroutine Cho_X_Init(irc,BufFrac)
-      use ChoArr, only: iSOShl, nBstSh, iSP2F
+      use ChoArr, only: iSOShl, nBasSh, nBstSh, iSP2F
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
@@ -367,11 +367,10 @@ C     iShlSO: index of SO within its shell.
 C     ------------------------------------------------
 
       l_iBasSh = nSym*nShell
-      l_nBasSh = nSym*nShell
       Call GetMem('iBasSh','Allo','Inte',ip_iBasSh,l_iBasSh)
-      Call GetMem('nBasSh','Allo','Inte',ip_nBasSh,l_nBasSh)
+      Call mma_allocate(nBasSh,nSym, nShell,Label='nBasSh')
       Call mma_allocate(nBstSh,nShell,Label='nBstSh')
-      Call Cho_SetSh(iWork(ip_iBasSh),iWork(ip_nBasSh),nBstSh,
+      Call Cho_SetSh(iWork(ip_iBasSh),nBasSh,nBstSh,
      &               iBas,nBas,iSOShl,nSym,nShell,nBasT)
 
       MxOrSh = nBstSh(1)
