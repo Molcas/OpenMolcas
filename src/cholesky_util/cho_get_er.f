@@ -294,7 +294,7 @@ C --- Compute the ER-functional from its orbital components
 
 
       SUBROUTINE switch_density(iLoc,ipXLT,ipXab,kSym)
-
+      use ChoArr, only: iRS2F
       Implicit Real*8 (a-h,o-z)
       Integer  cho_isao
       External cho_isao
@@ -308,8 +308,6 @@ C --- Compute the ER-functional from its orbital components
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 ******
       IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-******
-      iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
 ************************************************************************
 
       jSym = 1 ! only total symmetric density

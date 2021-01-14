@@ -14,7 +14,7 @@
 *     Make a list of the largest such element for each shell-pair      *
 *     Store in SDG.                                                    *
 ************************************************************************
-      use ChoArr, only: iSOShl
+      use ChoArr, only: iSOShl, iRS2F
       Implicit Real*8 (a-h,o-z)
       Integer nnSkal, MxBasSh
       Real*8 SDG(nnSkal)
@@ -26,7 +26,6 @@
 *                                                                      *
 *     Statement functions
 *
-      iRS2F(i,j) = iWork(ip_iRS2F-1+2*(j-1)+i)
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 *                                                                      *
 ************************************************************************

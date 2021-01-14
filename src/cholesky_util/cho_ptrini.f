@@ -55,10 +55,6 @@ C
       l_NDIMRS  = 0
       nAlloc    = nAlloc + 1
 
-      ip_IRS2F = 0
-      l_IRS2F  = 0
-      nAlloc   = nAlloc + 1
-
       ip_iQuab = 0
       l_iQuab  = 0
       nAlloc   = nAlloc + 1

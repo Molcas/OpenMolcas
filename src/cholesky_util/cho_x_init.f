@@ -53,7 +53,8 @@
 *> @param[in]  BufFrac Fraction of memory to be used as buffer
 ************************************************************************
       Subroutine Cho_X_Init(irc,BufFrac)
-      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO
+      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO,
+     &                  iRS2F
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
@@ -394,9 +395,8 @@ C     ------------------------------------------------
 C     Allocate and compute mapping RS1->Full.
 C     ---------------------------------------
 
-      l_iRS2F = 2*nnBstRT(1)
-      Call GetMem('iRS2F','Allo','Inte',ip_iRS2F,l_iRS2F)
-      Call Cho_RSTOF(iWork(ip_iRS2F),2,nnBstRT(1),1)
+      Call mma_allocate(iRS2F,2,nnBstRT(1),Label='iRS2F')
+      Call Cho_RSTOF(iRS2F,2,nnBstRT(1),1)
 
 C     Allocate integer scratch array used for Cholesky vector I/O.
 C     ------------------------------------------------------------

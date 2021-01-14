@@ -176,12 +176,14 @@ C     --------------------------------------------------------------
       Return
       End
       SubRoutine IniCho_RI_Xtras(iTOffs,nIrrep,iShij,nShij)
+      use ChoArr, only: iRS2F
       Implicit None
       Integer nIrrep, nShij
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "choptr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Logical DoDummy
 
@@ -243,8 +245,7 @@ C     Allocate and set mapping array from 1st reduced set to full
 C     storage.
 C     -----------------------------------------------------------
 
-      l_iRS2F = 2*nnBstRT(1)
-      Call GetMem('iRS2F','Allo','Inte',ip_iRS2F,l_iRS2F)
+      Call mma_allocate(iRS2F,2,nnBstRT(1),Label='iRS2F')
 
 C     Set index arrays corresponding to full storage:
 C     iiBstRSh, nnBstRSh, IndRed, IndRSh, and iRS2F.
@@ -252,7 +253,7 @@ C     -----------------------------------------------
 
       Call SetChoIndx_RI(iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),
      &                   iWork(ip_IndRed),iWork(ip_IndRsh),
-     &                   iWork(ip_iRS2F),
+     &                   iRS2F,
      &                   nSym,nnShl,nnBstRT(1),3,2,iShij,nShij)
 
       Return

@@ -37,15 +37,13 @@
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: MyRank, nProcs
 #endif
+      use ChoArr, only: iRS2F
       Implicit Real*8 (a-h,o-z)
       Integer ip_List_rs, iSO_ab(2,*)
 
 #include "WrkSpc.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
-************************************************************************
-      iRS2F(i,j)  = iWork(ip_iRS2F-1+2*(j-1)+i)
-************************************************************************
 
       iOff=0
 

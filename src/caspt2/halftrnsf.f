@@ -49,7 +49,7 @@
 *                Can be set to -1 by the calling routine
 *
 *********************************************************
-
+      use ChoArr, only: iRS2F
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr)
       Integer ipChoT(8)
@@ -126,8 +126,8 @@
                iRab = iWork(ip_IndRed-1+2*nnBstrT(1)+kRab)
 
 * Global address:
-               iag = iWork(ip_iRS2F+2*(iRab-1)  )
-               ibg = iWork(ip_iRS2F+2*(iRab-1)+1)
+               iag = iRS2F(1,iRab)
+               ibg = iRS2F(2,iRab)
 
                iSyma = cho_isao(iag)
 
@@ -181,8 +181,8 @@
               iRab = iWork(ip_IndRed-1+2*nnBstrT(1)+kRab)
 
 * Global address:
-              iag = iWork(ip_iRS2F+2*(iRab-1)  )
-              ibg = iWork(ip_iRS2F+2*(iRab-1)+1)
+              iag = iRS2F(1,iRab)
+              ibg = iRS2F(2,iRab)
 
 * iSyma = cho_isao(iag) = symmetry block of basis function iag
               iSyma = cho_isao(iag)

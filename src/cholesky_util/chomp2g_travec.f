@@ -18,6 +18,7 @@ C     Jonas Bostrom, Feb 2010
 C
 C     Purpose: compute pq-vector from reduced set AO vector.
 C
+      use ChoArr, only: iRS2F
 #include "implicit.fh"
       Real*8 VecAO(*), VecMO(*), COrb1(*), COrb2(*)
       Real*8 Scr(lScr)
@@ -34,7 +35,6 @@ C
       Real*8 Fac(0:1)
       Data Fac /0.5D0,1.0D0/
 
-      iRS2F(i,j)=iWork(ip_iRS2F-1+2*(j-1)+i)
       IndRed(i,j)=iWork(ip_IndRed-1+nnBstrT(1)*(j-1)+i)
       MulD2h(i,j)=iEor(i-1,j-1)+1
 
