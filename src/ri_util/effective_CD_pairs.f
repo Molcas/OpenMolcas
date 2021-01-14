@@ -11,6 +11,7 @@
       Subroutine Effective_CD_Pairs(ip_ij2,nij_Eff)
       use Basis_Info
       use Symmetry_Info, only: nIrrep
+      use ChoArr, only: iSOShl
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -60,7 +61,7 @@ C     Write (*,*) 'nij3=',nij
          Call CHO_X_GET_PARDIAG(iSym,ip_List_rs,iWork(ipSO_ab+iOff))
 *
          Call Get_Auxiliary_Shells(iWork(ipSO_ab+iOff),nBas_Aux(iIrrep),
-     &                             jOff,iWork(ip_iSOShl),nVal_Tot,
+     &                             jOff,iSOShl,nVal_Tot,
      &                             iWork(ip_ij3),nij)
 *
          jOff = jOff + nBas_Aux(iIrrep)

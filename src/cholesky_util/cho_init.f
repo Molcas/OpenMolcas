@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_INIT(SKIP_PRESCREEN,ALLOCATE_BOOKMARKS)
+      use ChoArr, only: iSOShl
 C
 C     Purpose: initializations.
 C
@@ -43,7 +44,6 @@ C
       PARAMETER (GBLIM = 2.147483648D9)
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
-      ISOSHL(I)=IWORK(ip_iSOShl-1+i)
       ISHLSO(I)=IWORK(ip_iShlSO-1+i)
       IBASSH(I,J)=IWORK(ip_IBASSH-1+NSYM*(J-1)+I)
       NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)

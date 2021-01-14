@@ -28,6 +28,7 @@
 *                                                                      *
 ************************************************************************
       use SOAO_Info, only: iAOtSO
+      use ChoArr, only: iSOShl
       Implicit Real*8 (A-H,O-Z)
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -46,7 +47,6 @@
       INTEGER ABCD, CDAB, CD, AB, A, B, C, D
 *
       iTri(i,j)=Max(i,j)*(Max(i,j)-3)/2 + i + j
-      iSOShl(i)=iWork(ip_iSOShl-1+i)
       iShlSO(i)=iWork(ip_iShlSO-1+i)
       nBstSh(i)=iWork(ip_nBstSh-1+i)
 *

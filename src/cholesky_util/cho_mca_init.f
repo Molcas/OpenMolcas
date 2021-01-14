@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_MCA_INIT(SKIP_PRESCREEN)
+      use ChoArr, only: iSOShl
 C
 C     Purpose: initialization of Cholesky decomposition in MOLCAS.
 C
@@ -20,6 +21,7 @@ C
 #include "choptr.fh"
 #include "chosew.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       CHARACTER*12 SECNAM
       PARAMETER (SECNAM = 'CHO_MCA_INIT')
@@ -115,12 +117,11 @@ C     ----------------------------------
 C     ISOSHL(I): shell to which SO I belongs
 C     --------------------------------------
 
-      l_iSOShl = NBAST
-      CALL CHO_MEM('ISOSHL','ALLO','INTE',ip_iSOShl,l_iSOShl)
+      Call mma_allocate(iSOShl,NBAST,Label='iSOShl')
       DO ISYM = 1,NSYM
          DO IA = 1,NBAS(ISYM)
             I = IBAS(ISYM) + IA
-            IWORK(ip_iSOShl-1+I) = ISO2SH(I)
+            iSOShl(I) = ISO2SH(I)
          END DO
       END DO
 
@@ -130,7 +131,7 @@ C     MXORSH      : max. shell dimension
 C     -----------------------------------------------------------
 
       CALL CHO_SETSH(IWORK(ip_IBASSH),IWORK(ip_NBASSH),IWORK(ip_NBSTSH),
-     &               IBAS,NBAS,IWORK(ip_ISOSHL),NSYM,NSHELL,NBAST)
+     &               IBAS,NBAS,ISOSHL,NSYM,NSHELL,NBAST)
 
       MXORSH = NBSTSH(1)
       DO ISHL = 2,NSHELL
@@ -173,7 +174,7 @@ C     -----------------------------------------
 
       l_iShlSO = NBAST
       CALL CHO_MEM('ISHLSO','ALLO','INTE',ip_iShlSO,l_iShlSO)
-      CALL CHO_SETSH2(IWORK(ip_iShlSO),IWORK(ip_iSOShl),
+      CALL CHO_SETSH2(IWORK(ip_iShlSO),iSOShl,
      &                IWORK(ip_NBSTSH),NBAST,NSHELL)
 
       END

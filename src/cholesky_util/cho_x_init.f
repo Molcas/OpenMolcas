@@ -53,6 +53,7 @@
 *> @param[in]  BufFrac Fraction of memory to be used as buffer
 ************************************************************************
       Subroutine Cho_X_Init(irc,BufFrac)
+      use ChoArr, only: iSOShl
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
@@ -63,6 +64,7 @@
 #include "choprint.fh"
 #include "chobkm.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Character*10 SecNam
       Parameter (SecNam = 'Cho_X_Init')
@@ -207,9 +209,8 @@ C     --------------------------------------------------------
          Write(6,*) SecNam,': nBasT out of bounds: ',nBasT
          Go To 101
       End If
-      l_iSOShl = nBasT
-      Call GetMem('iSOShl','Allo','Inte',ip_iSOShl,l_iSOShl)
-      Call Get_iArray('ISOSHL',iWork(ip_iSOShl),nBasT)
+      Call mma_allocate(iSOShl,nBasT,Label='iSOShl')
+      Call Get_iArray('ISOSHL',iSOShl,nBasT)
 
       Call Get_iArray('NumCho',NumCho,nSym)
       NumChT = Cho_iSumElm(NumCho,nSym)
@@ -376,7 +377,7 @@ C     ------------------------------------------------
       Call GetMem('nBasSh','Allo','Inte',ip_nBasSh,l_nBasSh)
       Call GetMem('nBstSh','Allo','Inte',ip_nBstSh,l_nBstSh)
       Call Cho_SetSh(iWork(ip_iBasSh),iWork(ip_nBasSh),iWork(ip_nBstSh),
-     &               iBas,nBas,iWork(ip_iSOShl),nSym,nShell,nBasT)
+     &               iBas,nBas,iSOShl,nSym,nShell,nBasT)
 
       MxOrSh = nBstSh(1)
       Do iShl = 2,nShell
@@ -396,7 +397,7 @@ C     ------------------------------------------------
 
       l_iShlSO = nBasT
       Call GetMem('iShlSO','Allo','Inte',ip_iShlSO,l_iShlSO)
-      Call Cho_SetSh2(iWork(ip_iShlSO),iWork(ip_iSOShl),
+      Call Cho_SetSh2(iWork(ip_iShlSO),iSOShl,
      &                iWork(ip_nBstSh),nBasT,nShell)
 
 C     Allocate and compute mapping RS1->Full.

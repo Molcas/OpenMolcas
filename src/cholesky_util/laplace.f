@@ -189,10 +189,10 @@ C
 
       Integer K_Lap
       Integer irc
-      Integer ip_w_ref, l_w_ref
-      Integer ip_t_ref, l_t_ref
-      Integer ip_w, l_w
-      Integer ip_t, l_t
+      Integer l_w_ref
+      Integer l_t_ref
+      Integer l_w
+      Integer l_t
       Integer l_wt
 
       Real*8 Tol

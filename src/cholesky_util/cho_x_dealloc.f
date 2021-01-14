@@ -11,6 +11,7 @@
 * Copyright (C) 2004, Thomas Bondo Pedersen                            *
 ************************************************************************
       Subroutine Cho_X_Dealloc(irc)
+      use ChoArr, only: iSOShl
 C
 C     T.B. Pedersen, July 2004.
 C
@@ -23,6 +24,7 @@ C
 #include "chosew.fh"
 #include "cholq.fh"
 #include "chopar.fh"
+#include "stdalloc.fh"
 
       Character*13 SecNam
       Parameter (SecNam = 'Cho_X_Dealloc')
@@ -87,10 +89,7 @@ C     -----------
       End If
       nAlloc = nAlloc + 1
 
-      If (l_iSOShl .ne. 0) Then
-         Call GetMem('iSOShl','Free','Inte',ip_iSOShl,l_iSOShl)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(iSOShl)) Call mma_deallocate(iSOShl)
 
       If (l_iShlSO .ne. 0) Then
          Call GetMem('iShlSO','Free','Inte',ip_iShlSO,l_iShlSO)
