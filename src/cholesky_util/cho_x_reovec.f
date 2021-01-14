@@ -54,7 +54,7 @@
          Call mma_allocate(iRS2F,3,nnBstRT(1),Label='iRS2F')
          Call mma_maxDBLE(l_Wrk)
          Call mma_allocate(Wrk,l_Wrk,Label='Wrk')
-         Call Cho_ReoVec(Temp,3,nnBstRT(1),Wrk,l_Wrk)
+         Call Cho_ReoVec(iRS2F,3,nnBstRT(1),Wrk,l_Wrk)
          Call mma_deallocate(Wrk)
          Call mma_deallocate(iRS2F)
          iReo = 1
