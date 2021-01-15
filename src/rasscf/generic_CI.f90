@@ -17,6 +17,7 @@
 !> I you inherit from CI_solver_t and override the deferred methods,
 !> your initialization and cleanup will be automatically called.
 module generic_CI
+    use definitions, only: wp
     use general_data, only : ntot, ntot1, ntot2
     use rasscf_data, only : nAcPar, nAcpr2
     implicit none
@@ -78,8 +79,19 @@ module generic_CI
     contains
 
     subroutine unused(CI_solver)
-      class(CI_solver_t), intent(in) :: CI_solver
-      unused_var(CI_solver)
+        class(CI_solver_t), intent(in) :: CI_solver
+        unused_var(CI_solver)
+
+        block
+            real(wp), parameter :: PI = 4._wp * atan(1._wp)
+            write(*, *) my_cos([0._wp, 2._wp * PI])
+        end block
+
+        contains
+            real(wp) impure elemental function my_cos(x)
+                real(wp), intent(in) :: x
+                my_cos = cos(x)
+            end function
     end subroutine
 
 end module generic_CI
