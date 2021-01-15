@@ -32,7 +32,7 @@ module CC_CI_mod
     use generic_CI, only: CI_solver_t, unused
     use index_symmetry, only: one_el_idx, two_el_idx_flatten
     use CI_solver_util, only: wait_and_read, RDM_to_runfile, &
-        CleanMat
+        CleanMat, triangular_number, inv_triang_number, write_RDM
 
     implicit none
     save
@@ -288,38 +288,6 @@ contains
                 i = i + curr_line
             end do
         close(file_id)
-    end subroutine
-
-    pure integer function triangular_number(n)
-        integer, intent(in) :: n
-        triangular_number = n * (n + 1) / 2
-    end function
-
-      !> This is the inverse function of triangular_number
-    pure function inv_triang_number(n) result(res)
-        integer, intent(in) :: n
-        integer :: res
-        res = nint(-0.5_wp + sqrt(0.25_wp + real(2 * n, kind=wp)))
-    end function
-
-
-    subroutine write_RDM(RDM, i_unit)
-        real(wp), intent(in) :: RDM(:)
-        integer, intent(in) :: i_unit
-
-        integer :: io_err, curr_line, i, n_lines, j
-
-        n_lines = inv_triang_number(size(RDM))
-
-        i = 1
-        do curr_line = 1, n_lines
-            do j = i, i + curr_line - 1
-                write(i_unit, '(E25.15)', advance='no', iostat=io_err) RDM(j)
-                call verify_(io_err == 0, 'Error on writing RDM.')
-            end do
-            write(i_unit, *)
-            i = i + curr_line
-        end do
     end subroutine
 
 end module CC_CI_mod

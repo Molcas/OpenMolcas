@@ -427,16 +427,6 @@
       end if
 * Only now are such variables finally known.
 
-      If ( IPRLEV.ge.DEBUG ) then
-        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
-     &              ' ',Work(LDMAT),NAC)
-        CALL TRIPRT('Averaged one-body spin density matrix DS, RASSCF',
-     &              ' ',Work(LDSPN),NAC)
-        CALL TRIPRT('Averaged two-body density matrix, P',
-     &              ' ',WORK(LPMAT),NACPAR)
-        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
-     &              ' ',WORK(LPA),NACPAR)
-      END IF
 *
 * Allocate core space for dynamic storage of data
 *
@@ -1550,20 +1540,6 @@ cGLM some additional printout for MC-PDFT
           Write(LF,'(6X,120A1)') ('*',i=1,120)
         END IF
       end if
-
-!       If ( IPRLEV.ge.DEBUG ) then
-       CALL TRIPRT("Averaged one-body density matrix, D, in RASSCF"," ",
-     &       work(ldmat),NAC)
-       CALL TRIPRT("Averaged two-body density matrix, P"," ",
-     &       work(lpmat),NACPAR)
-       CALL TRIPRT("Averaged antisym 2-body DM PA RASSCF"," ",
-     &       work(lpa) , NACPAR)
-
-************************************************************************
-************ Priniting final RDMs in NECI format    *****************
-************************************************************************
-       Call printRDMs_NECI(Work(LDMAT),NAC,Work(LPMAT),Work(LPA),NACPAR)
-!       end if
 
 
 *

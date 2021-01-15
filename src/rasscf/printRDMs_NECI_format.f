@@ -52,12 +52,6 @@
           end if
         end do
 
-        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
-     &              ' ',DMAT,NAC)
-        CALL TRIPRT('Averaged two-body density matrix, P',
-     &              ' ',PMAT,NACPAR)
-        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
-     &              ' ',PA , NACPAR)
 
       end subroutine printRDMs_NECI
 

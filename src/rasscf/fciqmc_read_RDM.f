@@ -14,13 +14,14 @@
 ************************************************************************
 
       module fciqmc_read_RDM
+      use, intrinsic :: ieee_arithmetic, only: IEEE_Value,IEEE_QUIET_NAN
       use definitions, only: wp
       use para_info, only: myRank
       use general_data, only : nActEl
 ! Note that two_el_idx_flatten has also out parameters.
       use index_symmetry, only : two_el_idx_flatten
-      use CI_solver_util, only: CleanMat
-      use linalg_mod, only: abort_
+      use CI_solver_util, only: CleanMat, write_RDM
+      use linalg_mod, only: abort_, verify_
 
       implicit none
 
@@ -31,22 +32,21 @@
 !>  @brief
 !>    Read NECI RDM files
 !>
-!>  @author Werner Dobrautz
+!>  @author Werner Dobrautz, Oskar Weser
 !>
 !>  @details
 !>  Read the spin-free TwoRDM file written by the GUGA-NECI
 !>  implementation and transfer them to Molcas.
-!>  for now it also outputs 'fake' additional spin-dependent files
-!>  because I don't know yet how I have to handle them in the further
-!>  Molcas control flow
+!>  The spin density is set to zero, because spin projection
+!>  is not properly defined in the GUGA framework.
 
 !>  @paramin[out] DMAT Average spin-free 1 body density matrix
-!>  @paramin[out] DSPN 'fake' spin-dependent 1-RDM
+!>  @paramin[out] DSPN spin-dependent 1-RDM (set to zero)
 !>  @paramin[out] PSMAT Average spin-free 2 body density matrix
 !>  @paramin[out] PAMAT 'fake' Average antisymm. 2-dens matrix
       subroutine read_neci_GUGA_RDM(DMAT, DSPN, PSMAT, PAMAT)
       real(wp), intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
-      integer :: iUnit, isfreeunit, i, iread
+      integer :: file_id, isfreeunit, i
       logical :: tExist
       real(wp) :: RDMval
 
@@ -57,53 +57,59 @@
       end if
 
       call f_Inquire('PSMAT',tExist)
-      if (.not. tExist) call abort_('PSMAT does not exist')
+      call verify_(tExist, 'PSMAT does not exist')
       call f_Inquire('PAMAT',tExist)
-      if (.not. tExist) call abort_('PAMAT does not exist')
+      call verify_(tExist, 'PAMAT does not exist')
       call f_Inquire('DMAT',tExist)
-      if (.not. tExist) call abort_('DMAT does not exist')
+      call verify_(tExist, 'DMAT does not exist')
 
-      PSMAT(:) = 0.0_wp
-      PAMAT(:) = 0.0_wp
-      DMAT(:) = 0.0_wp
-      DSPN(:) = 0.0_wp
+      PSMAT(:) = 0.0_wp; PAMAT(:) = 0.0_wp;
+      DMAT(:) = 0.0_wp; DSPN(:) = 0.0_wp;
 
-      iUnit = IsFreeUnit(11)
-      call Molcas_Open(iUnit, 'PSMAT')
-          Rewind(iUnit)
-
-          read(iUnit, "(I6,G25.17)", iostat=iread) i, RDMval
-          do while (iread /= 0)
+      file_id = IsFreeUnit(11)
+      call Molcas_Open(file_id, 'PSMAT')
+          do while (read_line(file_id, i, RDMval))
             psmat(i) = RDMval
-            read(iUnit, "(I6,G25.17)", iostat=iread) i, RDMval
           end do
-      close(iunit)
+      close(file_id)
 
-      iUnit = IsFreeUnit(11)
-      call Molcas_Open(iUnit, 'PAMAT')
-          Rewind(iUnit)
-
-          read(iUnit, "(I6,G25.17)", iostat=iread) i, RDMval
-          do while (iread /= 0)
+      file_id = IsFreeUnit(11)
+      call Molcas_Open(file_id, 'PAMAT')
+          do while (read_line(file_id, i, RDMval))
             pamat(i) = RDMval
-            read(iUnit, "(I6,G25.17)", iostat=iread) i, RDMval
           end do
-      close(iunit)
+      close(file_id)
 
-      iUnit = IsFreeUnit(11)
-      call Molcas_Open(iUnit, 'DMAT')
-          Rewind(iUnit)
-
-          read(iUnit, "(I6,G25.17)", iostat=iread) i, RDMval
-          do while (iread /= 0)
+      file_id = IsFreeUnit(11)
+      call Molcas_Open(file_id, 'DMAT')
+          do while (read_line(file_id, i, RDMval))
             dmat(i) = RDMval
-            read(iUnit, "(I6,G25.17)", iostat=iread) i, RDMval
           end do
-      close(iunit)
+      close(file_id)
 
-
-! Clean evil non-positive semi-definite matrices. DMAT is input and output.
+! Clean evil non-positive semi-definite matrices. DMAT is intent(inout)
       call cleanMat(DMAT)
+
+      contains
+
+          logical function read_line(file_id, i, RDMval)
+              integer, intent(in) :: file_id
+              integer, intent(out) :: i
+              real(wp), intent(out) :: RDMval
+              integer :: iread
+              read(file_id, "(I6,G25.17)", iostat=iread) i, RDMval
+              if (iread > 0) then
+                  call abort_('Error in read_next')
+              else if (is_iostat_end(iread)) then
+                  ! Let's try to cause an error, if code uses undefined
+                  ! values for i and RDMval
+                  i = -(huge(i) - 1)
+                  RDMval = IEEE_VALUE(RDMval, IEEE_QUIET_NAN)
+                  read_line = .false.
+              else
+                  read_line = .true.
+              end if
+          end function
 
       end subroutine read_neci_GUGA_RDM
 

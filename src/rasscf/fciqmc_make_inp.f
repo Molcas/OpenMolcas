@@ -190,7 +190,6 @@
         write(file_id, I_fmt()) 'highlypopwrite', Highlypopwrite
         write(file_id, A_fmt()) 'hdf5-pops'
         if (tGUGA) then
-            write(file_id, A_fmt()) 'fast-guga-rdms'
             write(file_id, A_fmt()) 'print-molcas-rdms'
         else
             write(file_id, A_fmt()) 'print-spin-resolved-RDMs'
