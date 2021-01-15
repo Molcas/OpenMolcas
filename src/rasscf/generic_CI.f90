@@ -81,17 +81,6 @@ module generic_CI
     subroutine unused(CI_solver)
         class(CI_solver_t), intent(in) :: CI_solver
         unused_var(CI_solver)
-
-        block
-            real(wp), parameter :: PI = 4._wp * atan(1._wp)
-            write(*, *) my_cos([0._wp, 2._wp * PI])
-        end block
-
-        contains
-            real(wp) impure elemental function my_cos(x)
-                real(wp), intent(in) :: x
-                my_cos = cos(x)
-            end function
     end subroutine
 
 end module generic_CI
