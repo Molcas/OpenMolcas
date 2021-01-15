@@ -9,9 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2014, Giovanni Li Manni                                *
-*               2019, Oskar Weser                                      *
+*               2019-2021, Oskar Weser                                 *
 *               2021, Werner Dobrautz                                  *
 ************************************************************************
+#include "macros.fh"
       module fciqmc
 #ifdef _MOLCAS_MPP_
       use mpi
@@ -40,7 +41,7 @@
       use CI_solver_util, only: wait_and_read, RDM_to_runfile
       use fciqmc_read_RDM, only: read_neci_RDM
 
-      use generic_CI, only: CI_solver_t, unused
+      use generic_CI, only: CI_solver_t
 
       implicit none
       save
@@ -260,10 +261,10 @@
         use fciqmc_read_RDM, only : read_RDM_cleanup => cleanup
         use fcidump, only : fcidump_cleanup => cleanup
         class(fciqmc_solver_t), intent(inout) :: this
+        unused_var(this)
         call make_inp_cleanup()
         call read_RDM_cleanup()
         call fcidump_cleanup()
-        call unused(this)
       end subroutine cleanup
 
       subroutine check_options(lroots, lRf, KSDFT)

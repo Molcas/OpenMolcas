@@ -22,7 +22,7 @@ module generic_CI
     use rasscf_data, only : nAcPar, nAcpr2
     implicit none
     private
-    public :: CI_solver_t, unused
+    public :: CI_solver_t
 
     type, abstract :: CI_solver_t
     contains
@@ -77,10 +77,5 @@ module generic_CI
     end interface
 
     contains
-
-    subroutine unused(CI_solver)
-        class(CI_solver_t), intent(in) :: CI_solver
-        unused_var(CI_solver)
-    end subroutine
 
 end module generic_CI

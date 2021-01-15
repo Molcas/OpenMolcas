@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2016,2017, Giovanni Li Manni                           *
 *               2019-2021, Oskar Weser                                 *
-*               2021, Werner Dobrautz                                   *
+*               2021, Werner Dobrautz                                  *
 ************************************************************************
 
       module fciqmc_read_RDM

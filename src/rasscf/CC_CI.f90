@@ -29,7 +29,7 @@ module CC_CI_mod
          ntot, ntot1, ntot2, nAsh, nActEl
     use gas_data, only: ngssh, iDoGas
 
-    use generic_CI, only: CI_solver_t, unused
+    use generic_CI, only: CI_solver_t
     use index_symmetry, only: one_el_idx, two_el_idx_flatten
     use CI_solver_util, only: wait_and_read, RDM_to_runfile, &
         CleanMat, triangular_number, inv_triang_number, write_RDM
@@ -79,9 +79,8 @@ contains
 #endif
         character(len=*), parameter :: &
             ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
-#ifdef _WARNING_WORKAROUND_
-        call unused(this)
-#endif
+
+        unused_var(this)
 
 
 ! SOME DIRTY SETUPS
@@ -155,13 +154,13 @@ contains
     subroutine cleanup(this)
         use fcidump, only : fcidump_cleanup => cleanup
         class(CC_CI_solver_t), intent(inout) :: this
-        call unused(this)
+        unused_var(this)
         call fcidump_cleanup()
     end subroutine cleanup
 
     function construct_CC_CI_solver_t() result(res)
         type(CC_CI_solver_t) :: res
-        call unused(res)
+        unused_var(res)
 ! Due to possible size of active space arrays of nConf
 ! size need to be avoided.  For this reason set nConf to zero.
         write(6,*) ' DCC-CI activated. List of Confs might get lengthy.'
