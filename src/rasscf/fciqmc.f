@@ -139,7 +139,6 @@
      &    PSMAT(nAcpr2), PAMAT(nAcpr2)
 
       real(wp) :: NECIen
-      integer :: jRoot
       integer, allocatable :: permutation(:),
      &  GAS_spaces(:, :), GAS_particles(:, :)
       real(wp) :: orbital_E(nTot), folded_Fock(nAcPar)

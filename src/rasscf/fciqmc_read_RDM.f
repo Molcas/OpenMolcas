@@ -45,13 +45,10 @@
 !>  @paramin[out] PSMAT Average spin-free 2 body density matrix
 !>  @paramin[out] PAMAT 'fake' Average antisymm. 2-dens matrix
       subroutine read_neci_GUGA_RDM(DMAT, DSPN, PSMAT, PAMAT)
-#include "output_ras.fh"
       real(wp), intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
-      integer :: iUnit, isfreeunit, i, iread, iprlev
+      integer :: iUnit, isfreeunit, i, iread
       logical :: tExist
       real(wp) :: RDMval
-
-      iprlev = iprloc(1)
 
       if (myRank /= 0) then
           call bcast_2RDM("PSMAT")
