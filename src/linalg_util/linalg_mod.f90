@@ -234,12 +234,7 @@ contains
 
         integer :: shapeC(2)
 
-#ifdef POINTER_BOUNDS_REMAPPING
         real(wp), pointer :: ptr_A(:, :), ptr_B(:, :), ptr_C(:, :)
-#else
-        real(wp), allocatable :: ptr_A(:, :), ptr_B(:, :), ptr_C(:, :)
-        integer, save :: n = 0
-#endif
 
         if (present(transpA)) then
             transpA_ = transpA
@@ -254,36 +249,11 @@ contains
 
         shapeC = [merge(shapeA(1), shapeA(2), .not. transpA_), merge(shapeB(2), shapeB(1), .not. transpB_)]
 
-#ifdef POINTER_BOUNDS_REMAPPING
         ptr_A(1 : shapeA(1), 1 : shapeA(2)) => A(1 : product(shapeA))
         ptr_B(1 : shapeB(1), 1 : shapeB(2)) => B(1 : product(shapeB))
         ptr_C(1 : shapeC(1), 1 : shapeC(2)) => C(1 : product(shapeC))
 
         call mult(ptr_A, ptr_B, ptr_C, transpA_, transpB_)
-#else
-        ! Print a warning every 1000th call
-        if (mod(n, 10**3) == 0) then
-            call WarningMessage(1, 'The compiler does not support &
-             &pointer bounds remapping so an inefficient implementation is chosen.')
-            ! Avoid overflow when there are a lot of calls and reset to 1.
-            n = 1
-        end if
-        n = n + 1
-
-        call mma_allocate(ptr_A, shapeA(1), shapeA(2))
-        call mma_allocate(ptr_B, shapeB(1), shapeB(2))
-        call mma_allocate(ptr_C, shapeC(1), shapeC(2))
-
-        ! How ugly :-(
-        ptr_A(:, :) = reshape(A(1 : product(shapeA)), shapeA)
-        ptr_B(:, :) = reshape(B(1 : product(shapeB)), shapeB)
-        call mult(ptr_A, ptr_B, ptr_C, transpA_, transpB_)
-        C(1 : product(shapeC))  = pack(ptr_C, .true.)
-
-        call mma_deallocate(ptr_A)
-        call mma_deallocate(ptr_B)
-        call mma_deallocate(ptr_C)
-#endif
     end subroutine
 
 !>  @brief

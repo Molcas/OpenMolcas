@@ -60,10 +60,3 @@ With PGI 20 ( __PGIC__ >= 20 ) it compiles, but it appears to be buggy at runtim
 #else
 #define INTERNAL_PROC_ARG
 #endif
-
-/* Pointer bounds remapping */
-#if ( __SUNPRO_F90 )
-#undef POINTER_BOUNDS_REMAPPING
-#else
-#define POINTER_BOUNDS_REMAPPING
-#endif
