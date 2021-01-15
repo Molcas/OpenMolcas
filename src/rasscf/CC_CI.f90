@@ -79,7 +79,7 @@ contains
 #endif
         character(len=*), parameter :: &
             ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
-#ifdef WARNING_WORKAROUND_
+#ifdef _WARNING_WORKAROUND_
         call unused(this)
 #endif
 

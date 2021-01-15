@@ -28,6 +28,16 @@
 
 #endif
 
+#ifdef _WARNING_WORKAROUND_
+
+#define unused_var(x) associate(tmp => x); end associate
+
+#else
+
+#define unused_var(x)
+
+#endif
+
 ! This should be the last end if
 #endif
 

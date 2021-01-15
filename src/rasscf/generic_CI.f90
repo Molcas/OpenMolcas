@@ -11,6 +11,8 @@
 ! Copyright (C) 2020, Oskar Weser                                      *
 !***********************************************************************
 
+#include "macros.fh"
+
 !> This module defines an abstract class for CI-solvers.
 !> I you inherit from CI_solver_t and override the deferred methods,
 !> your initialization and cleanup will be automatically called.
@@ -77,9 +79,7 @@ module generic_CI
 
     subroutine unused(CI_solver)
       class(CI_solver_t), intent(in) :: CI_solver
-#ifdef _WARNING_WORKAROUND_
-      if (.false.) call CI_solver%init()
-#endif
+      unused_var(CI_solver)
     end subroutine
 
 end module generic_CI
