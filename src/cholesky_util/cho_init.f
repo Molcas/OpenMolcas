@@ -21,6 +21,7 @@ C
 C              IF (ALLOCATE_BOOKMARKS): allocate arrays needed to
 C              record bookmarks during Cholesky decomposition.
 C
+      use ChoArr, only: nDimRS
 #include "implicit.fh"
       LOGICAL SKIP_PRESCREEN
       LOGICAL ALLOCATE_BOOKMARKS
@@ -184,10 +185,9 @@ C     -----------------------------------------------------------
       ELSE
          l_INFRED = MAXRED
          l_INFVEC = MAXVEC*INFVEC_N2*NSYM
-         l_NDIMRS = NSYM*MAXRED
          CALL CHO_MEM('INFRED','ALLO','INTE',ip_INFRED,l_INFRED)
          CALL CHO_MEM('INFVEC','ALLO','INTE',ip_INFVEC,l_INFVEC)
-         CALL CHO_MEM('NDIMRS','ALLO','INTE',ip_NDIMRS,l_NDIMRS)
+         Call mma_allocate(nDimRS,NSYM,MAXRED,Label='nDimRS')
       END IF
 
 C     Allocate bookmarks (accuracy and number of Cholesky vectors).

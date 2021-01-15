@@ -54,7 +54,7 @@
 ************************************************************************
       Subroutine Cho_X_Init(irc,BufFrac)
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO,
-     &                  iRS2F
+     &                  iRS2F, nDimRS
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
@@ -338,9 +338,8 @@ C     ---------------------------------
 C     Get dimensions of reduced sets.
 C     -------------------------------
 
-      l_nDimRS = nSym*MaxRed
-      Call GetMem('nDimRS','Allo','Inte',ip_nDimRS,l_nDimRS)
-      Call iCopy(nSym,nnBstR(1,1),1,iWork(ip_nDimRS),1)
+      Call mma_allocate(nDimRS,nSym,MaxRed,Label='nDimRS')
+      Call iCopy(nSym,nnBstR(1,1),1,nDimRS,1)
       iLoc = 3
       Do iRed = 2,MaxRed
          kOff1 = ip_nnBstRSh + nSym*nnShl*(iLoc - 1)
@@ -350,8 +349,7 @@ C     -------------------------------
      &                   MaxRed,nSym,nnShl,mmBstRT,iRed,.false.)
          Call Cho_SetRedInd(iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),
      &                      nSym,nnShl,iLoc)
-         kOff3 = ip_nDimRS + nSym*(iRed - 1)
-         Call iCopy(nSym,nnBstR(1,iLoc),1,iWork(kOff3),1)
+         Call iCopy(nSym,nnBstR(1,iLoc),1,nDimRS(:,iRed),1)
       End Do
 
 C     Copy reduced set 1 to location 3.

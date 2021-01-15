@@ -13,6 +13,7 @@ C
 C     Purpose: driver for the decomposition of the two-electron integral
 C              matrix based on the reduced diagonal.
 C
+      use ChoArr, only: nDimRS
 #include "implicit.fh"
       DIMENSION DIAG(*)
 #include "cholesky.fh"
@@ -250,7 +251,7 @@ C        ---------------------
          SYNC = .FALSE.
          CALL CHO_P_SETRED(DIAG,SYNC)
          KRED = IPASS + 1
-         CALL CHO_SETRSDIM(IWORK(ip_NDIMRS),NSYM,MAXRED,KRED,IRED)
+         CALL CHO_SETRSDIM(NDIMRS,NSYM,MAXRED,KRED,IRED)
          IF (IPRINT .GE. INF_PASS) THEN
             CALL CHO_P_PRTRED(2)
             CALL CHO_FLUSH(LUPRI)

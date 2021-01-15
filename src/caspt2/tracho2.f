@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE TRACHO2(CMO,DREF,FFAO,FIAO,FAAO,IF_TRNSF)
       USE CHOVEC_IO
+      use ChoArr, only: nDimRS
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "rasdim.fh"
@@ -200,7 +201,7 @@ c Initialize Fock matrices in AO basis to zero:
 *      write(6,*)'  JRED:  JSTART,JEND:',JRED,JSTART,JEND
 
       IF(JSYM.EQ.1) THEN
-      NRS=IWORK(IP_NDIMRS-1+NSYM*(JRED-1)+JSYM)
+      NRS=NDIMRS(JSYM,JRED)
       CALL DCOPY_(NRS,[0.0D0],0,WORK(IPDF_RED),1)
       CALL full2red(Work(ipDF),Work(ipDF_Red))
       CALL DCOPY_(NRS,[0.0D0],0,WORK(IPDI_RED),1)

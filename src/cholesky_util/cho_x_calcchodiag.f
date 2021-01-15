@@ -33,6 +33,7 @@
 *> @param[out] Diag Array containing diagonal on exit
 ************************************************************************
       SUBROUTINE Cho_X_CalcChoDiag(rc,Diag)
+      use ChoArr, only: nDimRS
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc
@@ -51,8 +52,6 @@
       InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 ******
       IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
 
       Call fZero(Diag,nnBstRT(1))

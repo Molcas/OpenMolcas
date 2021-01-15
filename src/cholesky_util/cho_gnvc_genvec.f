@@ -13,6 +13,7 @@
 C
 C     Purpose: generate Cholesky vectors from raw integral columns.
 C
+      use ChoArr, only: nDimRS
 #include "implicit.fh"
       Real*8  Diag(*), xInt(lInt)
       Integer nVecRS(mSym,mPass), iVecRS(mSym,mPass)
@@ -368,7 +369,7 @@ C        -----------------------------------------------
          Call Cho_SetRed(Diag,iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),
      &                   iWork(ip_IndRed),nSym,nnBstRT(1),nnShl)
          jPass = iPass + 1
-         Call Cho_SetRSDim(iWork(ip_nDimRS),nSym,MaxRed,jPass,2)
+         Call Cho_SetRSDim(nDimRS,nSym,MaxRed,jPass,2)
          If (iPrint .ge. INF_PASS) Then
             Call Cho_PrtRed(2)
             Call Cho_Flush(Lupri)

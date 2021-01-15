@@ -40,7 +40,7 @@ C
 C
 C     Purpose: get total vector storage (in words), symmetry ISYM.
 C
-      use ChoArr, only: iSP2F
+      use ChoArr, only: nDimRS, iSP2F
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -49,12 +49,11 @@ C
       PARAMETER (N2 = INFVEC_N2)
 
       INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
-      NDIMRS(I,J)=IWORK(ip_NDIMRS-1+NSYM*(J-1)+I)
 
       IF (NUMCHO(ISYM) .LT. 1) THEN
          VCSTOR = 0.0D0
       ELSE
-         IF (l_NDIMRS .LT. 1) THEN
+         IF (.NOT.Allocated(nDimRS)) Then
             IRED = INFVEC(NUMCHO(ISYM),2,ISYM)
             JRED = 3
             KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(JRED - 1)

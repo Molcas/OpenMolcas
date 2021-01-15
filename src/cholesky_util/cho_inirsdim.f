@@ -12,7 +12,7 @@
 C
 C     Purpose: initialize reduced set dimension.
 C
-      use ChoArr, only: iSP2F
+      use ChoArr, only: nDimRS, iSP2F
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -29,17 +29,15 @@ C
      &                      MAXRED,NSYM,NNSHL,MMBSTRT,IRS,.FALSE.)
             CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),IWORK(ip_NNBSTRSH),
      &                         NSYM,NNSHL,ILOC)
-            KOFF3 = ip_NDIMRS + NSYM*(IRS - 1)
-            CALL ICOPY(NSYM,NNBSTR(1,ILOC),1,IWORK(KOFF3),1)
+            CALL ICOPY(NSYM,NNBSTR(1,ILOC),1,nDimRS(:,iRS),1)
          END DO
          NSET = XNPASS
       ELSE
-         CALL ICOPY(NSYM,NNBSTR(1,1),1,IWORK(ip_NDIMRS),1)
+         CALL ICOPY(NSYM,NNBSTR(1,1),1,nDimRS,1)
          NSET = 1
       END IF
 
       NUM   = NSYM*(MAXRED - NSET)
-      KOFF  = ip_NDIMRS + NSYM*NSET
-      CALL CHO_IZERO(IWORK(KOFF),NUM)
+      CALL CHO_IZERO(nDimRS(1,NSET+1),NUM)
 
       END

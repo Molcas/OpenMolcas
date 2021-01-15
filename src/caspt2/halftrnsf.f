@@ -49,7 +49,7 @@
 *                Can be set to -1 by the calling routine
 *
 *********************************************************
-      use ChoArr, only: iRS2F
+      use ChoArr, only: iRS2F, nDimRS
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr)
       Integer ipChoT(8)
@@ -63,7 +63,7 @@
 * Uses InfVec_N2, MAXVEC, NSYM, IIBSTR(8,3), NNBSTR(8,3), NNBSTRT(3) in
 * cholesky.fh commons /CHOLEV/, /CHORST/, /CHOSHL/
 #include "cholesky.fh"
-* Uses ip_iRS2F, ip_indred, ip_infvec, ip_ndimRS in choptr.fh common /CHMIND/
+* Uses ip_indred, ip_infvec, in choptr.fh common /CHMIND/
 #include "choptr.fh"
 * Uses ibas(8), nbas(8) in choorb.fh common /CHOORB/
 #include "choorb.fh"
@@ -115,7 +115,7 @@
          END IF
 
          kscr = NREAD
-         NREAD = NREAD + iWork(ip_nDimRS-1+nSym*(JRED-1)+JSYM)
+         NREAD = NREAD + nDimRS(JSYM,JRED)
 
          IF (JSYM.eq.1) THEN
 * L(a,b,J)=L(b,a,J); only a.ge.b stored

@@ -14,21 +14,17 @@
 #include "choptr.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
-      Integer l_nDimRS_Save
       Integer iTmp, jTmp
 
       If (Cho_Real_Par) Then
          Call Cho_P_IndxSwp()
-         l_nDimRS_Save = l_nDimRS
          Call iSwap(nSym,NumCho,1,NumCho_G,1)
          jTmp = NumChT
          NumChT = NumChT_G
-         l_nDimRS = 0
          iTmp = LuRed
          LuRed = LuRed_G
          Call Cho_Stat()
          LuRed = iTmp
-         l_nDimRS = l_nDimRS_Save
          NumChT = jTmp
          Call iSwap(nSym,NumCho,1,NumCho_G,1)
          Call Cho_P_IndxSwp()

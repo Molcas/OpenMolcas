@@ -56,7 +56,7 @@
 *                Can be set to -1 by the calling routine
 *
 *********************************************************
-      use ChoArr, only: iRS2F
+      use ChoArr, only: nDimRS, iRS2F
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr)
       Integer nDen,kDen
@@ -84,8 +84,6 @@
       InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 ******
       IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
 
 **********************************************************

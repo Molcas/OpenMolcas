@@ -16,7 +16,7 @@ C              for first reduced set must be set up before
 C              this routine is called. Reduced set 2, on the
 C              other hand, is set up here.
 C
-      use ChoArr, only: iSP2F, iAtomShl
+      use ChoArr, only: nDimRS,iSP2F, iAtomShl
 #include "implicit.fh"
       DIMENSION DIAG(*), WRK(LWRK)
       LOGICAL   DSKDIA, LCONV
@@ -218,7 +218,7 @@ C     ----------------------------------
       SYNC = .TRUE.
       CALL CHO_P_SETRED(DIAG,SYNC)
       KRED = XNPASS + 1
-      CALL CHO_SETRSDIM(IWORK(ip_NDIMRS),NSYM,MAXRED,KRED,2)
+      CALL CHO_SETRSDIM(NDIMRS,NSYM,MAXRED,KRED,2)
 
 C     Sync and analyze (histogram) updated diagonal.
 C     ----------------------------------------------

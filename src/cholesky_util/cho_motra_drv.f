@@ -18,7 +18,7 @@ C      a,b,g,d:  AO-index
 C      p,q,r,s:  MO-indeces (probably frozen/deleted are excluded)
 C
 **********************************************************************
-
+      use ChoArr, only: nDimRS
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nIsh(*),nAsh(*),nSsh(*), nFr(*), nFrVir(*)
@@ -50,9 +50,6 @@ C
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-
 ************************************************************************
 
       DoRead  = .false.

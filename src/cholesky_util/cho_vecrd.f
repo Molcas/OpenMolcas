@@ -76,7 +76,7 @@ C
 C     NOTE: if no vectors can be read, JNUM=0 and MUSED=0 are returned,
 C           but execution is NOT stopped here!!!
 C
-      use ChoArr, only: iSP2F
+      use ChoArr, only: nDimRS, iSP2F
 #include "implicit.fh"
       DIMENSION SCR(LSCR)
       LOGICAL   DOREAD
@@ -97,7 +97,6 @@ C
       PARAMETER (N2 = INFVEC_N2)
 
       INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
-      NDIMRS(I,J)=IWORK(ip_NDIMRS-1+NSYM*(J-1)+I)
 
       JRED = 0  ! fix compiler warning
 
@@ -110,7 +109,7 @@ C        -----------------------------------
          LTOT = 0
          JVEC = JVEC1 - 1
          FULL = LTOT .GE. LSCR
-         IF (l_NDIMRS .LT. 1) THEN
+         IF (.NOT.Allocated(NDIMRS)) THEN
             ILOC = 3 ! use scratch location in reduced index arrays
             DO WHILE ((JVEC.LT.IVEC2) .AND. (.NOT.FULL))
                JVEC = JVEC + 1
@@ -171,7 +170,7 @@ C        ---------------------------------------------------
          KSCR = 1
          JVEC = JVEC1 - 1
          FULL = LTOT .GE. LSCR
-         IF (l_NDIMRS .LT. 1) THEN
+         IF (.NOT.Allocated(NDIMRS)) THEN
             ILOC = 3 ! use scratch location in reduced index arrays
             DO WHILE ((JVEC.LT.IVEC2) .AND. (.NOT.FULL))
                JVEC = JVEC + 1
@@ -258,7 +257,7 @@ C     ------------
                WRITE(LUPRI,*) 'Vectors ',JVEC1,' to ',JVEC1+JNUM-1,
      &                        ' of symmetry ',ISYM,' read from unit ',
      &                        LUCHO(ISYM)
-               IF (l_NDIMRS .GT. 0) THEN
+               IF (Allocated(NDIMRS)) THEN
                   KOFFV = 1
                   DO IVEC = 1,JNUM
                      JVEC = JVEC1 + IVEC - 1

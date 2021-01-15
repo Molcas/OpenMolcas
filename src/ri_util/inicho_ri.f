@@ -176,7 +176,7 @@ C     --------------------------------------------------------------
       Return
       End
       SubRoutine IniCho_RI_Xtras(iTOffs,nIrrep,iShij,nShij)
-      use ChoArr, only: iRS2F
+      use ChoArr, only: iRS2F, nDimRS
       Implicit None
       Integer nIrrep, nShij
 #include "cholesky.fh"
@@ -237,7 +237,7 @@ C     ---------------------------------------------------------------
 
       Do i = 1,MaxRed
          Do iSym = 1,nSym
-            iWork(ip_nDimRS-1+nSym*(i-1)+iSym) = nnBstR(iSym,1)
+            nDimRS(iSym,i) = nnBstR(iSym,1)
          End Do
       End Do
 

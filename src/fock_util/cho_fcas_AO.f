@@ -40,7 +40,7 @@ C      k:        MO-index   belonging to (Frozen+Inactive)
 C      v,w,x,y:  MO-indeces belonging to (Active)
 C
 **********************************************************************
-
+      use ChoArr, only: nDimRS
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,ipLab(8,3),ipLxy(8),ipScr(8,8)
@@ -80,8 +80,6 @@ C
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
 
 #ifdef _DEBUGPRINT_

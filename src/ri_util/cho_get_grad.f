@@ -104,7 +104,7 @@
 *       Allow zero vectors on a node.                                  *
 *                                                                      *
 ************************************************************************
-      use ChoArr, only: nBasSh
+      use ChoArr, only: nBasSh, nDimRS
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: Is_Real_Par
 #endif
@@ -160,8 +160,6 @@
       InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 
       IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 
       NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
 

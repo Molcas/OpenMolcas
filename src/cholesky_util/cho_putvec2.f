@@ -15,6 +15,7 @@ C              of symmetry ISYM to file.
 C
 C     Version 2: handles several reduced set at a time.
 C
+      use ChoArr, only: nDimRS
 #include "implicit.fh"
       DIMENSION CHOVEC(*)
 #include "cholesky.fh"
@@ -32,7 +33,6 @@ C
       PARAMETER (N2 = INFVEC_N2)
 
       INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
-      NDIMRS(I,J)=IWORK(ip_NDIMRS-1+NSYM*(J-1)+I)
 
 C     Return if no vectors.
 C     ---------------------

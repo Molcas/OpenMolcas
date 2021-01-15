@@ -18,7 +18,7 @@
 *  Author : M. G. Delcey                                               *
 *                                                                      *
 ************************************************************************
-      use ChoArr, only: nBasSh
+      use ChoArr, only: nBasSh, nDimRS
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
       Character*13 SECNAM
@@ -46,8 +46,6 @@
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 ******
       InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
 *
       nDen=1

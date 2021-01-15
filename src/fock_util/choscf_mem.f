@@ -31,7 +31,7 @@
 *                 only in connection with the truth table defined
 *                 in the calling routine
 ******************************************************************
-
+      use ChoArr, only: nDimRS
       Implicit Real*8 (a-h,o-z)
       Integer nSym,nBas(nSym),MinMem(nSym),iUHF,ALGO
       Integer Moccmx(nSym),Mabmx(nSym),MxBas(nSym)
@@ -43,8 +43,6 @@
 
 **************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-**************************************************
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 **************************************************
 
 

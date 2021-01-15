@@ -42,6 +42,7 @@
 *> @param[in]     timings Switch on/off timings printout
 ************************************************************************
       SUBROUTINE CHO_get_Rij(irc,ipMO,nOcc,Rij,timings)
+      use ChoArr, only: nDimRS
       Implicit Real*8 (a-h,o-z)
       Logical timings,DoRead
       Integer nOcc(*),iOcc(8),iOcs(8),ipLib(8),iSkip(8),ipMO(*)
@@ -61,8 +62,6 @@
 
 ************************************************************************
       InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
 
       IREDC = -1

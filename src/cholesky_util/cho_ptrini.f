@@ -43,10 +43,6 @@ C
       l_NNBSTRSH  = 0
       nAlloc      = nAlloc + 1
 
-      ip_NDIMRS = 0
-      l_NDIMRS  = 0
-      nAlloc    = nAlloc + 1
-
       ip_iQuab = 0
       l_iQuab  = 0
       nAlloc   = nAlloc + 1
