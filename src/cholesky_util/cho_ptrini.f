@@ -47,10 +47,6 @@ C
       l_NNBSTRSH  = 0
       nAlloc      = nAlloc + 1
 
-      ip_INTMAP = 0
-      l_INTMAP  = 0
-      nAlloc    = nAlloc + 1
-
       ip_NDIMRS = 0
       l_NDIMRS  = 0
       nAlloc    = nAlloc + 1

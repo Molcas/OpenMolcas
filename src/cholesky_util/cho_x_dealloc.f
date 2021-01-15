@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine Cho_X_Dealloc(irc)
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl,
-     &                  iShlSO, iRS2F
+     &                  iShlSO, iRS2F, IntMap
 C
 C     T.B. Pedersen, July 2004.
 C
@@ -75,10 +75,7 @@ C     -----------
       End If
       nAlloc = nAlloc + 1
 
-      If (l_IntMap .ne. 0) Then
-         Call GetMem('IntMap','Free','Inte',ip_IntMap,l_IntMap)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(IntMap)) Call mma_deallocate(IntMap)
 
       If (l_nDimRS .ne. 0) Then
          Call GetMem('nDimRS','Free','Inte',ip_nDimRS,l_nDimRS)

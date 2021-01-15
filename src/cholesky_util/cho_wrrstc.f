@@ -14,6 +14,7 @@ C     Purpose: write decomposition restart info for integral pass IPASS.
 C
 C     NB!!!  The restart files are assumed open on entry.
 C
+      use ChoArr, only: IntMap
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -100,10 +101,11 @@ C     Write integral shell pair map to disk.
 C     --------------------------------------
 
       IOPT = 1
-      NDIM = l_INTMAP
-      IF (NDIM .GT. 0) THEN
+      NDIM=0
+      IF (Allocated(IntMap)) THEN
+         NDIM = SIZE(IntMap)
          JADR = 0
-         CALL IDAFILE(LUMAP,IOPT,IWORK(ip_INTMAP),NDIM,JADR)
+         CALL IDAFILE(LUMAP,IOPT,INTMAP,NDIM,JADR)
       END IF
 
       END

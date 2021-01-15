@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_INIT(SKIP_PRESCREEN,ALLOCATE_BOOKMARKS)
-      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iAtomShl, iShlSO
+      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iAtomShl,
+     &                  iShlSO, IntMap
 C
 C     Purpose: initializations.
 C
@@ -96,11 +97,10 @@ C     ---------------------------------------------
 
       l_IIBSTRSH = NSYM*NNSHL*3
       l_NNBSTRSH = l_IIBSTRSH
-      l_INTMAP   = NNSHL
       l_MYSP     = NNSHL
       CALL CHO_MEM('iibstrsh','ALLO','INTE',ip_IIBSTRSH,l_IIBSTRSH)
       CALL CHO_MEM('nnbstrsh','ALLO','INTE',ip_NNBSTRSH,l_NNBSTRSH)
-      CALL CHO_MEM('intmap','ALLO','INTE',ip_INTMAP,l_INTMAP)
+      Call mma_allocate(IntMap,nnShl,Label='IntMap')
       CALL CHO_MEM('mySP','ALLO','INTE',ip_MYSP,l_MYSP)
 
 C     Initialize timings etc.

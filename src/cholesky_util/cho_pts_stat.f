@@ -9,20 +9,20 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Cho_PTS_Stat()
+      use ChoArr, only: IntMap
       Implicit None
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Integer iTmp
 
-      If (l_IntMap.lt.1) Then
-         l_IntMap=nnShl
-         Call GetMem('IntMap','Allo','Inte',ip_IntMap,l_IntMap)
+      If (.NOT.Allocated(IntMap)) Then
+         Call mma_allocate(IntMap,nnShl,Label='IntMap')
          iTmp=0
-         Call IDAFile(LuMap,2,iWork(ip_IntMap),l_IntMap,iTmp)
+         Call IDAFile(LuMap,2,IntMap,nnShl,iTmp)
       End If
 
       If (Cho_Real_Par) Then
@@ -36,8 +36,6 @@
          Call Cho_Stat()
       End If
 
-      If (l_IntMap.gt.0) Then
-         Call GetMem('IntMap','Free','Inte',ip_IntMap,l_IntMap)
-      End If
+      If (Allocated(IntMap)) Call mma_deallocate(IntMap)
 
       End

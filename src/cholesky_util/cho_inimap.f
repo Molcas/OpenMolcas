@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_INIMAP()
+      use ChoArr, only: IntMap
 C
 C     Purpose: initialize integral shell pair calculation map.
 C
@@ -17,17 +18,16 @@ C
       IMPLICIT NONE
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
       INTEGER IOPT, NDIM, IADR
 
       IF (RSTCHO) THEN
          IOPT = 2
-         NDIM = l_INTMAP
+         NDIM = SIZE(INTMAP)
          IADR = 0
-         CALL IDAFILE(LUMAP,IOPT,IWORK(ip_INTMAP),NDIM,IADR)
+         CALL IDAFILE(LUMAP,IOPT,INTMAP,NDIM,IADR)
       ELSE
-         CALL CHO_IZERO(IWORK(ip_INTMAP),l_INTMAP)
+         CALL CHO_IZERO(INTMAP,SIZE(INTMAP))
       END IF
 
       END

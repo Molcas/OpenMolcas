@@ -12,17 +12,17 @@ C
 C Index array pointers for Cholesky decomposition.
 C
       INTEGER CHO_NALLOC
-      PARAMETER (CHO_NALLOC = 10) ! #allocations
+      PARAMETER (CHO_NALLOC = 9) ! #allocations
 
       INTEGER ip_INFRED, ip_INFVEC, ip_INDRED, ip_INDRSH,
-     &        ip_ISCR, ip_IIBSTRSH, ip_NNBSTRSH, ip_INTMAP,
+     &        ip_ISCR, ip_IIBSTRSH, ip_NNBSTRSH,
      &        ip_NDIMRS,  ip_IQUAB
       INTEGER l_INFRED, l_INFVEC, l_INDRED, l_INDRSH,
-     &        l_ISCR, l_IIBSTRSH, l_NNBSTRSH, l_INTMAP,
+     &        l_ISCR, l_IIBSTRSH, l_NNBSTRSH,
      &        l_NDIMRS, l_IQUAB
       COMMON / CHMIND / ip_INFRED, ip_INFVEC, ip_INDRED, ip_INDRSH,
-     &                  ip_ISCR, ip_IIBSTRSH, ip_NNBSTRSH, ip_INTMAP,
+     &                  ip_ISCR, ip_IIBSTRSH, ip_NNBSTRSH,
      &                  ip_NDIMRS, ip_IQUAB,
      &                  l_INFRED, l_INFVEC, l_INDRED, l_INDRSH,
-     &                  l_ISCR, l_IIBSTRSH, l_NNBSTRSH, l_INTMAP,
+     &                  l_ISCR, l_IIBSTRSH, l_NNBSTRSH,
      &                  l_NDIMRS, l_IQUAB
