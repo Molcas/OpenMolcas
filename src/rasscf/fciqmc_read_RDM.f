@@ -97,6 +97,7 @@
               integer, intent(out) :: i
               real(wp), intent(out) :: RDMval
               integer :: iread
+              read_line = .false.
               read(file_id, "(I6,G25.17)", iostat=iread) i, RDMval
               if (iread > 0) then
                   call abort_('Error in read_next')
@@ -105,7 +106,6 @@
                   ! values for i and RDMval
                   i = -(huge(i) - 1)
                   RDMval = IEEE_VALUE(RDMval, IEEE_QUIET_NAN)
-                  read_line = .false.
               else
                   read_line = .true.
               end if
