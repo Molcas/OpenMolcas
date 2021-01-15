@@ -30,6 +30,27 @@
       Data fift/1.5d1/
       Character*180 Get_Ln
       External Get_Ln
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,DynExtPot,
+     &                     iQMChg,nAtMM,StandAlone,DoDirect)
+      Integer, Intent(In):: nAtom
+      Real*8, Intent(In):: Cord(3,nAtom)
+      Integer, Intent(In):: ipMltp
+      Integer, Intent(In):: IsMM(nAtom)
+      Integer, Intent(In):: MltOrd
+      Logical, Intent(InOut):: DynExtPot
+      Integer, Intent(In):: iQMChg
+      Integer, Intent(InOut):: nAtMM
+      Logical, Intent(In):: StandAlone
+      Logical, Intent(In):: DoDirect
+      End Subroutine RunTinker
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
 *
 * If some keywords are not given, what are the defauts ?
@@ -381,7 +402,8 @@ ctmp
          DoTinker = DoTinker_old
          DoGromacs = DoGromacs_old
          iQMChg = 0
-         If (DoTinker) Call RunTinker(natom,ipCord,ipMltp,ipIsMM,
+         If (DoTinker) Call RunTinker(natom,Work(ipCord),ipMltp,
+     &                                iWork(ipIsMM),
      &               MltOrd,DynExtPot,iQMchg,natMM,StandAlone,DoDirect)
 #ifdef _GROMACS_
          If (DoGromacs) Call RunGromacs(natom,Work(ipCord),ipMltp,
@@ -409,7 +431,8 @@ ctmp
 * External potential read from a file
 *
       Else If (nChg .eq. -1) Then
-         If (DoTinker) Call RunTinker(natom,ipCord,ipMltp,ipIsMM,
+         If (DoTinker) Call RunTinker(natom,Work(ipCord),ipMltp,
+     &                                iWork(ipIsMM),
      &                  MltOrd,DynExtPot,iQMChg,natMM,StandAlone,
      &                  DoDirect)
 #ifdef _GROMACS_

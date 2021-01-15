@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-! Generig interfaces for HDF5
+! Generic interfaces for HDF5
 
 module mh5
 

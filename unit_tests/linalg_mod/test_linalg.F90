@@ -249,6 +249,7 @@ program test_linalg
     call random_seed(put=seed)
     call init_fruit()
     call inimem()
+    call init_linalg()
 
     call test_linalg_driver()
 

@@ -36,7 +36,11 @@ endif()
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_ROOT})
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/custom)
 
-set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod)
+if(SINGLE_MOD_DIR)
+        set(mod_dir ${MAIN_MOD_DIR})
+else()
+        set(mod_dir ${MAIN_MOD_DIR}/qcmaquis)
+endif()
 
 list(APPEND QCMaquisDriverCMakeArgs
         -DCMAKE_BUILD_TYPE=${QCM_BUILD_TYPE}
@@ -47,7 +51,7 @@ list(APPEND QCMaquisDriverCMakeArgs
         -DCMAKE_C_FLAGS=${CMake_C_FLAGS}
         -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
         -DCMAKE_INSTALL_LIBDIR=lib
-        -DCMAKE_Fortran_MODULE_DIRECTORY=${CMAKE_Fortran_MODULE_DIRECTORY}
+        -DCMAKE_Fortran_MODULE_DIRECTORY=${mod_dir}
         )
 
 ######################################
@@ -57,7 +61,6 @@ set(EP_PROJECT qcmaquis-driver)
 
 # Enabling source changes to keep ExternalProject happy
 set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
-
 
 ## Download QCMaquis driver.
 ## We use a helper download script in src/qcmaquis that passes the name and e-mail to the SCINE download server, which is a pre-requisite to download QCMaquis
@@ -77,6 +80,7 @@ ExternalProject_Add(${EP_PROJECT}
                     PREFIX ${CUSTOM_QCMaquis_LOCATION}
                     DOWNLOAD_COMMAND ${QCMaquis_dl_interface_cmd}
                     UPDATE_COMMAND ${QCMaquis_up_interface_cmd}
+                    PATCH_COMMAND patch -p0 -r - -N < ${CMAKE_CURRENT_LIST_DIR}/paths.patch || true
                     CMAKE_ARGS "${QCMaquisDriverCMakeArgs}"
                     INSTALL_DIR "${PROJECT_BINARY_DIR}"
                     LOG_DOWNLOAD 1
@@ -86,16 +90,18 @@ ExternalProject_Add(${EP_PROJECT}
 
 set (CMAKE_DISABLE_SOURCE_CHANGES ON)
 
+set(LOCAL_QCM_INSTALL_PATH ${PROJECT_BINARY_DIR}/qcmaquis)
+
 # post installation steps
 ExternalProject_Add_Step(${EP_PROJECT} install_tools DEPENDEES update
-                         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CUSTOM_QCMaquis_LOCATION}/src/${EP_PROJECT}/tools/pytools ${PROJECT_BINARY_DIR}/pytools
-                         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CUSTOM_QCMaquis_LOCATION}/src/${EP_PROJECT}/template-files ${PROJECT_BINARY_DIR}/template-files
+                         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CUSTOM_QCMaquis_LOCATION}/src/${EP_PROJECT}/tools/pytools ${LOCAL_QCM_INSTALL_PATH}/pytools
+                         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CUSTOM_QCMaquis_LOCATION}/src/${EP_PROJECT}/template-files ${LOCAL_QCM_INSTALL_PATH}/template-files
                          COMMENT "Copying QCMaquis python tools and template files"
                         )
 
 # set variables for use in parent CMakeLists.txt
 ExternalProject_Get_Property(${EP_PROJECT} install_dir)
-set(DMRG_INCLUDE ${CMAKE_Fortran_MODULE_DIRECTORY} PARENT_SCOPE)
+set(DMRG_INCLUDE ${mod_dir} PARENT_SCOPE)
 set(DMRG_LIBRARIES ${install_dir}/lib/${CMAKE_FIND_LIBRARY_PREFIXES}qcmaquis-driver-utils.a PARENT_SCOPE)
 
 
@@ -115,7 +121,7 @@ if(NOT MAQUIS_DMRG_FOUND)
                 -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
                 -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
                 -DCMAKE_CXX_FLAGS="${CMake_CXX_FLAGS} -std=c++11"
-                -DCMAKE_Fortran_MODULE_DIRECTORY=${CMAKE_Fortran_MODULE_DIRECTORY}
+                -DCMAKE_Fortran_MODULE_DIRECTORY=${mod_dir}
         )
 
         if (LINALG STREQUAL "Internal" OR LINALG STREQUAL "Runtime")
@@ -142,8 +148,6 @@ if(NOT MAQUIS_DMRG_FOUND)
                   -DBLAS_LAPACK_SELECTOR=veclib
                 )
         endif ()
-
-        set(LOCAL_QCM_INSTALL_PATH ${PROJECT_BINARY_DIR})
 
         #########################
         # Python 2 for QCMaquis #
@@ -240,17 +244,13 @@ if(NOT MAQUIS_DMRG_FOUND)
         endif()
         unset(OPENMP_FOUND)
 
-        set(extprojpathsrcpath ${CMAKE_SOURCE_DIR}/External/qcmaquis_suite)
-
-        set(extprojpath     "${LOCAL_QCM_INSTALL_PATH}/External")
+        set(extprojpath     "${PROJECT_BINARY_DIR}/External")
 
         ###############
         #    ALPS     #
         ###############
         set( EP_PROJECT      "alps"    )
         set( EP_PROJ_DIR "${extprojpath}/alps")
-
-        set(CMAKE_INSTALL_PREFIX "${LOCAL_QCM_INSTALL_PATH}/${EP_PROJECT}")
 
         set(EP_CMAKE_ARGS       "${ExternalProjectCMakeArgs}"
                                 "-DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}"
@@ -288,7 +288,7 @@ if(NOT MAQUIS_DMRG_FOUND)
                             PREFIX ${EP_PROJ_DIR}
                             URL http://alps.comp-phys.org/static/software/releases/alps-2.2.b4-src-with-boost.tar.gz
                             PATCH_COMMAND
-                              patch -p0 -r - -N < ${CMAKE_SOURCE_DIR}/src/qcmaquis/pyalps_parse_labels.patch || true && patch -r - -p0 -N < ${CMAKE_SOURCE_DIR}/src/qcmaquis/alps_find_hdf5.patch || true
+                              patch -p0 -r - -N < ${CMAKE_CURRENT_LIST_DIR}/pyalps_parse_labels.patch || true && patch -r - -p0 -N < ${CMAKE_CURRENT_LIST_DIR}/alps_find_hdf5.patch || true
                             SOURCE_DIR ${EP_PROJ_DIR}/src/${EP_PROJECT}
                             SOURCE_SUBDIR alps
                             CMAKE_ARGS ${EP_CMAKE_ARGS}
@@ -358,9 +358,13 @@ if(NOT MAQUIS_DMRG_FOUND)
         set(EP_CMAKE_ARGS       "${QCMaquisCMakeArgs}"
                                 "-DCMAKE_CXX_FLAGS:STRING=${QCMaquis_CXX_FLAGS}"
                                 "-DCMAKE_PREFIX_PATH:PATH=${ALPS_ROOT}"
-                                "-DCMAKE_INSTALL_PREFIX:STRING=${LOCAL_QCM_INSTALL_PATH}/${EP_PROJECT}"
+                                "-DCMAKE_INSTALL_PREFIX:STRING=${LOCAL_QCM_INSTALL_PATH}"
                                 "-DCMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT:BOOL=OFF"
           )
+
+        if(LINALG STREQUAL "MKL")
+                list(APPEND EP_CMAKE_ARGS "-DMKLROOT=${MKLROOT}")
+        endif()
 
         list (APPEND EP_CMAKE_ARGS
                                 " ${EP_PROJ_DIR}/src/${EP_PROJECT}/dmrg"
@@ -413,11 +417,12 @@ if(NOT MAQUIS_DMRG_FOUND)
                             PREFIX ${EP_PROJ_DIR}
                             DOWNLOAD_COMMAND ${QCMaquis_dl_cmd}
                             UPDATE_COMMAND ${QCMaquis_up_cmd}
+                            PATCH_COMMAND patch -p0 -r - -N < ${CMAKE_CURRENT_LIST_DIR}/findmaquislapack.patch || true
                             SOURCE_DIR ${EP_PROJ_DIR}/src/${EP_PROJECT}
                             SOURCE_SUBDIR dmrg
                             CMAKE_ARGS ${EP_CMAKE_ARGS}
                             CMAKE_CACHE_ARGS ${EP_CMAKE_CACHE_ARGS}
-                            INSTALL_DIR ${LOCAL_QCM_INSTALL_PATH}/${EP_PROJECT}
+                            INSTALL_DIR ${LOCAL_QCM_INSTALL_PATH}
                             LOG_DOWNLOAD 1
                             LOG_UPDATE 1
           )
@@ -439,18 +444,18 @@ if(NOT MAQUIS_DMRG_FOUND)
                 set(lib_path1 "export LIBRARY_PATH=${LOCAL_QCM_INSTALL_PATH}/alps/lib:$LIBRARY_PATH")
                 set(lib_path2 "export LD_LIBRARY_PATH=${LOCAL_QCM_INSTALL_PATH}/alps/lib:$LD_LIBRARY_PATH")
         endif()
-        ExternalProject_Add_Step(${EP_PROJECT} final_comment DEPENDEES install COMMENT " Installation of QCMaquis, ALPS and Boost was successful!\n To run QCMaquis calculations (through Molcas) you have to adjust your paths as follows:\n export PATH=${LOCAL_QCM_INSTALL_PATH}/alps/bin:${LOCAL_QCM_INSTALL_PATH}/qcmaquis/bin:$PATH\n export PYTHONPATH=${LOCAL_QCM_INSTALL_PATH}/alps/lib:${LOCAL_QCM_INSTALL_PATH}/qcmaquis/lib/python/pyeval:${LOCAL_QCM_INSTALL_PATH}/qcmaquis/lib/python:$PYTHONPATH\n ${lib_path_message} For further information on please read the documentation carefully.")
+        ExternalProject_Add_Step(${EP_PROJECT} final_comment DEPENDEES install COMMENT " Installation of QCMaquis, ALPS and Boost was successful!\n To run QCMaquis calculations (through Molcas) you have to adjust your paths as follows:\n export PATH=${LOCAL_QCM_INSTALL_PATH}/alps/bin:${LOCAL_QCM_INSTALL_PATH}/bin:$PATH\n export PYTHONPATH=${LOCAL_QCM_INSTALL_PATH}/alps/lib:${LOCAL_QCM_INSTALL_PATH}/lib/python/pyeval:${LOCAL_QCM_INSTALL_PATH}/lib/python:$PYTHONPATH\n ${lib_path_message} For further information on please read the documentation carefully.")
 
         #########################################
         # setup configuration file for the user #
         #########################################
         ExternalProject_Add_Step(${EP_PROJECT} creating_configuration_file  DEPENDEES install
-        COMMAND echo "#!/bin/bash" >  ${LOCAL_QCM_INSTALL_PATH}/qcmaquis/bin/qcmaquis.sh
-        COMMAND echo "export PATH=${LOCAL_QCM_INSTALL_PATH}/alps/bin:${LOCAL_QCM_INSTALL_PATH}/qcmaquis/bin:$PATH" >>  ${LOCAL_QCM_INSTALL_PATH}/qcmaquis/bin/qcmaquis.sh
-        COMMAND echo "export PYTHONPATH=${LOCAL_QCM_INSTALL_PATH}/alps/lib:${LOCAL_QCM_INSTALL_PATH}/qcmaquis/lib/python/pyeval:${LOCAL_QCM_INSTALL_PATH}/qcmaquis/lib/python:$PYTHONPATH" >> ${LOCAL_QCM_INSTALL_PATH}/qcmaquis/bin/qcmaquis.sh
-        COMMAND echo "${lib_path1}" >> ${LOCAL_QCM_INSTALL_PATH}/qcmaquis/bin/qcmaquis.sh
-        COMMAND echo "${lib_path2}" >> ${LOCAL_QCM_INSTALL_PATH}/qcmaquis/bin/qcmaquis.sh
-        COMMENT " Creating a sourceable configuration file for QCMaquis/Boost/ALPS runtime environment settings that can be used with\n source ${LOCAL_QCM_INSTALL_PATH}/qcmaquis/bin/qcmaquis.sh\n For further information on runtime environment settings please read the documentation carefully."
+        COMMAND echo "#!/bin/bash" >  ${LOCAL_QCM_INSTALL_PATH}/bin/qcmaquis.sh
+        COMMAND echo "export PATH=${LOCAL_QCM_INSTALL_PATH}/alps/bin:${LOCAL_QCM_INSTALL_PATH}/bin:$PATH" >>  ${LOCAL_QCM_INSTALL_PATH}/bin/qcmaquis.sh
+        COMMAND echo "export PYTHONPATH=${LOCAL_QCM_INSTALL_PATH}/alps/lib:${LOCAL_QCM_INSTALL_PATH}/lib/python/pyeval:${LOCAL_QCM_INSTALL_PATH}/lib/python:$PYTHONPATH" >> ${LOCAL_QCM_INSTALL_PATH}/bin/qcmaquis.sh
+        COMMAND echo "${lib_path1}" >> ${LOCAL_QCM_INSTALL_PATH}/bin/qcmaquis.sh
+        COMMAND echo "${lib_path2}" >> ${LOCAL_QCM_INSTALL_PATH}/bin/qcmaquis.sh
+        COMMENT " Creating a sourceable configuration file for QCMaquis/Boost/ALPS runtime environment settings that can be used with\n source ${LOCAL_QCM_INSTALL_PATH}/bin/qcmaquis.sh\n For further information on runtime environment settings please read the documentation carefully."
         )
 
         ExternalProject_Add_StepDependencies(${EP_PROJECT} build ${EP_PROJECT_A})
