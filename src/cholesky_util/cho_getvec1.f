@@ -20,7 +20,7 @@ C
 C     NOTE: the scratch array SCR(LSCR) is used to read vectors from
 C           disk and should not be smaller than NNBSTR(ISYM,1)+1.
 C
-      use ChoArr, only: iSP2F
+      use ChoArr, only: iSP2F, iScr
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
@@ -39,7 +39,6 @@ C
       PARAMETER (N2 = INFVEC_N2)
 
       INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
-      ISCR(I)=IWORK(ip_ISCR-1+I)
 
 C     Some initializations.
 C     ---------------------
@@ -183,7 +182,7 @@ C        -------------------------------------
 C        Set up mapping between reduced sets.
 C        ------------------------------------
 
-         CALL CHO_RS2RS(IWORK(ip_ISCR),l_ISCR,2,3,IRED,ISYM)
+         CALL CHO_RS2RS(ISCR,SIZE(ISCR),2,3,IRED,ISYM)
 
 C        Start batch loop.
 C        -----------------

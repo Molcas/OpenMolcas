@@ -13,13 +13,14 @@ C
 C     Purpose: allocate iScr array for reading and reordering vectors.
 C              If (DoDummy): make dummy (length 1) allocation.
 C
+      use ChoArr, only: iScr
       Implicit None
       Logical DoDummy
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      Integer iSym
+      Integer iSym, l_iScr
 
       If (DoDummy) Then
          l_iScr = 1
@@ -29,6 +30,6 @@ C
             l_iScr = max(l_iScr,nnBstR(iSym,1))
          End Do
       End If
-      Call Cho_Mem('ISCR','Allo','Inte',ip_iScr,l_iScr)
+      Call mma_allocate(iScr,l_iScr,Label='iScr')
 
       End

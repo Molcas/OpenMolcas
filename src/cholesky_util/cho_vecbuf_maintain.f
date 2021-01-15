@@ -31,6 +31,7 @@ C     Index arrays from chovecbuf.fh modified by this routine:
 C
 C     NVEC_IN_BUF() -- #vectors stored in buffer in each symmetry
 C
+      use ChoArr, only: iScr
 #include "implicit.fh"
       Logical DoTime, DoStat
 #include "cholesky.fh"
@@ -50,7 +51,6 @@ C
 
       Parameter (N2 = InfVec_N2)
 
-      iRS3(i)=iWork(ip_iScr-1+i)
       InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 
 C     Debug print.
@@ -99,7 +99,7 @@ C     ------------------------------------
 C     Check that iScr array has been allocated.
 C     -----------------------------------------
 
-      If (l_iScr .lt. 1) Then
+      If (.NOT.Allocated(iScr)) Then
          Write(Lupri,*) SecNam,': iScr array not allocated!'
          irc = 102
          Return
@@ -166,7 +166,7 @@ C           Define mapping from reduced set at location 2 to that at
 C           location 3.
 C           --------------------------------------------------------
 
-            Call Cho_RS2RS(iWork(ip_iScr),l_iScr,2,3,iRedC,iSym)
+            Call Cho_RS2RS(iScr,SIZE(iScr),2,3,iRedC,iSym)
 
 C           Reorder vectors.
 C           ----------------
@@ -176,12 +176,12 @@ C           ----------------
                iOff3 = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,3)*(iVec-1) - 1
                Do iRS2 = 1,nnBstR(iSym,2)
 #if defined (_DEBUGPRINT_)
-                  jRS3 = iRS3(iRS2)
+                  jRS3 = iScr(iRS2)
                   If (jRS3.lt.1 .or. jRS3.gt.nnBstR(iSym,3)) Then
                      Call Cho_Quit('RS-2-RS map error in '//SecNam,104)
                   End If
 #endif
-                  Work(iOff2+iRS2) = Work(iOff3+iRS3(iRS2))
+                  Work(iOff2+iRS2) = Work(iOff3+iScr(iRS2))
                End Do
             End Do
 
@@ -260,19 +260,19 @@ C              --------------------------------------------------
                   End If
 
                   If (jRed .ne. iMapC) Then
-                     Call Cho_RS2RS(iWork(ip_iScr),l_iScr,2,3,jRed,iSym)
+                     Call Cho_RS2RS(iScr,SIZE(iScr),2,3,jRed,iSym)
                      iMapC = jRed
                   End If
 
                   Do iRS2 = 1,nnBstR(iSym,2)
 #if defined (_DEBUGPRINT_)
-                     jRS3 = iRS3(iRS2)
+                     jRS3 = iScr(iRS2)
                      If (jRS3.lt.1 .or. jRS3.gt.nnBstR(iSym,3)) Then
                         Call Cho_Quit('RS-2-RS map error [2] in '
      &                                //SecNam,104)
                      End If
 #endif
-                     Work(iOff2+iRS2) = Work(iOff3+iRS3(iRS2))
+                     Work(iOff2+iRS2) = Work(iOff3+iScr(iRS2))
                   End Do
 
                   iOff2 = iOff2 + nnBstR(iSym,2)

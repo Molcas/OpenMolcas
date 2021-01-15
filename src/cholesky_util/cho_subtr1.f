@@ -18,7 +18,7 @@ C              This version is I/O-driven.
 C
 C     Screening in subtraction introduced Jan. 2006, TBP.
 C
-      use ChoArr, only: iSP2F
+      use ChoArr, only: iSP2F, iScr
 #include "implicit.fh"
       DIMENSION XINT(*), WRK(LWRK)
       LOGICAL   FXDMEM
@@ -48,7 +48,6 @@ C
       INTEGER  CHO_X_NUMRD
       EXTERNAL CHO_X_NUMRD
 
-      ISCR(I)=IWORK(ip_ISCR-1+I)
       INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
       IQUAB(I,J)=IWORK(ip_IQUAB-1+MAXQUAL*(J-1)+I)
       IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
@@ -304,7 +303,7 @@ C           -----------------------------------------------------
                   END IF
 
                   IF (JRED .NE. IMAPC) THEN
-                     CALL CHO_RS2RS(IWORK(ip_ISCR),l_ISCR,2,3,JRED,ISYM)
+                     CALL CHO_RS2RS(ISCR,SIZE(ISCR),2,3,JRED,ISYM)
                      IMAPC = JRED
                   END IF
 
