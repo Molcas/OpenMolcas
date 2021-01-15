@@ -223,8 +223,6 @@
 ******************* processing as PSRQ ***********************
 **************************************************************
         psrq = two_el_idx_flatten(p, s, r, q, ps, rq)
-        ! WD: why twice?? on purpose or bug?
-        psrq = two_el_idx_flatten(p, s, r, q, ps, rq)
 ******* Contribution to PSMAT and PAMAT:
         if (r <= q) then
           PSMAT(psrq) = PSMAT(psrq) - fac * RDMval
