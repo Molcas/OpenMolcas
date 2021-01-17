@@ -15,6 +15,7 @@ C              points to the diagonal in work space and flag LCONV tells
 C              if the diagonal is converged.
 C
       use ChoArr, only: iSP2F
+      use ChoSwp, only: nnBstRSh
 #include "implicit.fh"
       LOGICAL LCONV
 #include "cholesky.fh"
@@ -124,7 +125,7 @@ C        -------------------------------------------
          NDUMP = 0
 
          CALL CHO_CALCDIAG(WORK(KBUF),IWORK(KIBUF),LBUF,WORK(KSCR),LSCR,
-     &                     IWORK(ip_IIBSTRSH),IWORK(ip_NNBSTRSH),
+     &                     IWORK(ip_IIBSTRSH),NNBSTRSH,
      &                     NSYM,NNSHL,NDUMP)
          CALL CHO_MEM('buf','FLUSH','REAL',KREL,NEEDR)
 

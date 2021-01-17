@@ -18,6 +18,7 @@ C     Determine distribution of Shell Pairs according to their
 C     dimension.
 C
       Use Para_Info, Only: MyRank, nProcs
+      use ChoSwp, only: nnBstRSh
       Implicit None
       Integer l_mySP
       Integer mySP(l_mySP)
@@ -32,10 +33,6 @@ C
 
       Integer iSP, iNode, n, iSym
       Integer ip_Dim, l_Dim
-
-      Integer nnBstRSh
-      Integer i, j, k
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
 
 #if defined (_DEBUGPRINT_)
       If (l_mySP.lt.nnShl) Then

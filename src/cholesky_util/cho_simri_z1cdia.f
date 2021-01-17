@@ -16,6 +16,7 @@ C              On exit, Indx(i)=1 if diagonal i was zeroed, else
 C              Indx(i)=0 (thus, Indx must have same dimension as Diag).
 C
       use ChoArr, only: iSP2F, iAtomShl
+      use ChoSwp, only: nnBstRSh
       Implicit None
       Real*8  Diag(*)
       Real*8  Thr
@@ -36,10 +37,9 @@ C
       Integer Inf_SimRI
       Parameter (Inf_SimRI = 0)
 
-      Integer iiBstRSh, nnBstRSh
+      Integer iiBstRSh
       Integer i, j, k
       iiBstRSh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
 
       Call Cho_iZero(Indx,nnBstR(1,1))
 

@@ -44,6 +44,7 @@ C
 #if defined (_DEBUGPRINT_)
       use ChoArr, only: iSP2F
 #endif
+      use ChoSwp, only: iQuAB, pTemp, iQuAB_here, nnBstRSh
       Implicit None
       Integer irc
       Integer l_NVT
@@ -61,6 +62,7 @@ C
 #include "choptr.fh"
 #include "chosew.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "choprint.fh"
 
       Character*2  Unt
@@ -86,13 +88,12 @@ C
       Integer iSym, n
       Integer iSP_, iSP_1, iSP_2, iSp, nSP, nSP_Max, nSP_this_batch
       Integer ip_Int, l_Int
-      Integer kOff, kOffI, kOffZ
+      Integer kOffI, kOffZ
       Integer jBlock, kBlock
       Integer J_inBlock, K_inBlock
       Integer kI, kL, kZ
       Integer ldL, ldZ
       Integer ip_Wrk, l_Wrk
-      Integer ip_iQuAB_SAVE, l_iQuAB_SAVE
       Integer MaxQual_SAVE
       Integer ip_InfVec_T
       Integer ip_Zd, l_Zd, incZd
@@ -109,10 +110,9 @@ C
       Real*8 TotMem, TotCPU, TotWall
 
       Integer i, j, k
-      Integer IndRSh, iTri, nnBstRSh, InfVcT
+      Integer IndRSh, iTri, InfVcT
       IndRSh(i)=iWork(ip_IndRSh-1+i)
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
-      nnBStRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
       InfVcT(i,j,k)=iWork(ip_InfVec_T-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 
       ! Init return code
@@ -226,20 +226,18 @@ C
 #endif
 
       ! Re-allocate and set qualification arrays
-      ip_iQuAB_SAVE=ip_iQuAB
-      l_iQuAB_SAVE=l_iQuAB
+      pTemp => iQuAB
       MaxQual_SAVE=MaxQual
       MaxQual=NVT(1)
       Do iSym=2,nSym
          MaxQual=max(MaxQual,NVT(iSym))
       End Do
-      l_iQuAB=MaxQual*nSym
-      Call GetMem('XCViQ2','Allo','Inte',ip_iQuAB,l_iQuAB)
+      Call mma_allocate(iQuAB_here,MaxQual,nSym,Label='iQuAB_here')
+      iQuAB => iQuAB_here
       Do iSym=1,nSym
          nQual(iSym)=NVT(iSym)
-         kOff=ip_iQuAB-1+MaxQual*(iSym-1)
          Do J=1,nQual(iSym)
-            iWork(kOff+J)=InfVcT(J,1,iSym) ! parent product for vector J
+            iQuAB(J,iSym)=InfVcT(J,1,iSym) ! parent product for vector J
          End Do
       End Do
 
@@ -518,12 +516,12 @@ C
       Call GetMem('XCVOFB','Free','Inte',ip_iOff_Batch,l_iOff_Batch)
       l_iOff_Batch=0
       Call GetMem('XCVZd','Free','Real',ip_Zd,l_Zd)
-      Call GetMem('XCViQ2','Free','Inte',ip_iQuAB,l_iQuAB)
+      iQuAB => Null()
+      Call mma_deallocate(iQuAB_here)
       Call GetMem('XCVLSP','Free','Inte',ip_ListSP,l_ListSP)
 
       ! Reset qualification array pointers and MaxQual
-      ip_iQuAB=ip_iQuAB_SAVE
-      l_iQuAB=l_iQuAB_SAVE
+      iQuAB => pTemp
       MaxQual=MaxQual_SAVE
 
       ! Parallel runs: distribute vectors across nodes (store on files)

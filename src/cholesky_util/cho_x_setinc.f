@@ -211,8 +211,6 @@ C     ----------
       Call Cho_iZero(ip_LQ_Sym,8)
       Call Cho_iZero(l_LQ_Sym,8)
       Call Cho_iZero(ldLQ,8)
-      ip_iQuAB_L = 0
-      l_iQuAB_L  = 0
       ip_iQL2G = 0
       l_iQL2G  = 0
       ip_LQ = 0

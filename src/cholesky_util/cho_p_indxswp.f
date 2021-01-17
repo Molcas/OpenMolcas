@@ -17,6 +17,7 @@ C     NB: this procedure is inexpensive, as we are merely swapping
 C         pointers, not actual data (except for the statically allocated
 C         index arrays which amount to swapping 51 integers in total).
 C
+      use ChoSwp, only: nnBstRSh, nnBstRSh_G, pTemp3
       Implicit None
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -59,12 +60,9 @@ C
       l_iiBstRSh_G = l_iiBstRSh
       l_iiBstRSh = iTmp
 
-      iTmp = ip_nnBstRSh_G
-      ip_nnBstRSh_G = ip_nnBstRSh
-      ip_nnBstRSh = iTmp
-      iTmp = l_nnBstRSh_G
-      l_nnBstRSh_G = l_nnBstRSh
-      l_nnBstRSh = iTmp
+      pTemp3 => nnBstRSh_G
+      nnBstRSh_G => nnBstRSh
+      nnBstRSh = pTemp3
 
       iTmp = ip_IndRed_G
       ip_IndRed_G = ip_IndRed

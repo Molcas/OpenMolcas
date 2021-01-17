@@ -18,6 +18,7 @@ C              This version is memory-driven.
 C
 C     Screening in subtraction introduced Jan. 2006, TBP.
 C
+      use ChoSwp, only: iQuAB, nnBstRSh
 #include "implicit.fh"
       DIMENSION XINT(*), WRK(LWRK)
 #include "cholesky.fh"
@@ -38,9 +39,7 @@ C
 
       PARAMETER (XMONE = -1.0D0, ONE = 1.0D0)
 
-      IQUAB(I,J)=IWORK(ip_IQUAB-1+MAXQUAL*(J-1)+I)
       IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
       DSUBSCR(I)=WORK(ip_DSUBSCR-1+I)
       DSPNM(I)=WORK(ip_DSPNM-1+I)
 

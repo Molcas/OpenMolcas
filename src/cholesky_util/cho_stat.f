@@ -14,6 +14,7 @@ C     Purpose: print statistics from decomposition.
 C
       USE Para_Info, ONLY: nProcs, Is_Real_Par
       use ChoArr, only: nDimRS, IntMap
+      use ChoSwp, only: nnBstRSh
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
@@ -39,7 +40,6 @@ C
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
       INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
       DSPNM(I)=WORK(ip_DSPNM-1+I)
 
 

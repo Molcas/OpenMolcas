@@ -55,6 +55,7 @@
       Subroutine Cho_X_Init(irc,BufFrac)
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO,
      &                  iRS2F, nDimRS
+      use ChoSwp, only: nnBstRSh, nnBstRSh_Hidden
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
@@ -262,9 +263,10 @@ C     Allocate and initialize index arrays.
 C     -------------------------------------
 
       l_iiBstRSh = nSym*nnShl*3
-      l_nnBstRSh = nSym*nnShl*3
       Call GetMem('iiBstRSh','Allo','Inte',ip_iiBstRSh,l_iiBstRSh)
-      Call GetMem('nnBstRSh','Allo','Inte',ip_nnBstRSh,l_nnBstRSh)
+      call mma_allocate(nnBstRSh_Hidden,nSym,nnShl,3,
+     &                  Label='nnBstRSh_Hidden')
+      nnBstRSh => nnBstRSh_Hidden
       Call Cho_RstD_GetInd1()
       mmBstRT = nnBstRT(1)
 
@@ -332,7 +334,7 @@ C     -----------------------------------------------------------------
 C     Copy reduced set 1 to location 2.
 C     ---------------------------------
 
-      Call Cho_RSCopy(iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),
+      Call Cho_RSCopy(iWork(ip_iiBstRSh),nnBstRSh,
      &                iWork(ip_IndRed),1,2,nSym,nnShl,mmBstRT,3)
 
 C     Get dimensions of reduced sets.
@@ -342,12 +344,11 @@ C     -------------------------------
       Call iCopy(nSym,nnBstR(1,1),1,nDimRS,1)
       iLoc = 3
       Do iRed = 2,MaxRed
-         kOff1 = ip_nnBstRSh + nSym*nnShl*(iLoc - 1)
          kOff2 = ip_IndRed   + mmBstRT*(iLoc - 1)
-         Call Cho_GetRed(iWork(ip_InfRed),iWork(kOff1),
+         Call Cho_GetRed(iWork(ip_InfRed),nnBstRSh(:,:,iLoc),
      &                   iWork(kOff2),iWork(ip_IndRsh),iSP2F,
      &                   MaxRed,nSym,nnShl,mmBstRT,iRed,.false.)
-         Call Cho_SetRedInd(iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),
+         Call Cho_SetRedInd(iWork(ip_iiBstRSh),nnBstRSh,
      &                      nSym,nnShl,iLoc)
          Call iCopy(nSym,nnBstR(1,iLoc),1,nDimRS(:,iRed),1)
       End Do
@@ -355,7 +356,7 @@ C     -------------------------------
 C     Copy reduced set 1 to location 3.
 C     ---------------------------------
 
-      Call Cho_RSCopy(iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),
+      Call Cho_RSCopy(iWork(ip_iiBstRSh),nnBstRSh,
      &                iWork(ip_IndRed),1,3,nSym,nnShl,mmBstRT,3)
 
 C     Derive:

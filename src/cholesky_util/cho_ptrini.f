@@ -39,14 +39,6 @@ C
       l_IIBSTRSH  = 0
       nAlloc      = nAlloc + 1
 
-      ip_NNBSTRSH = 0
-      l_NNBSTRSH  = 0
-      nAlloc      = nAlloc + 1
-
-      ip_iQuab = 0
-      l_iQuab  = 0
-      nAlloc   = nAlloc + 1
-
       irc = CHO_NALLOC - nAlloc
 
       End

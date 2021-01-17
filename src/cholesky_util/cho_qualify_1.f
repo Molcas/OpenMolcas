@@ -12,6 +12,7 @@
 C
 C     Purpose: qualify diagonals ("qualify until full").
 C
+      use ChoSwp, only: iQuAB, nnBstRSh
 #include "implicit.fh"
       DIMENSION DIAG(*)
 #include "cholesky.fh"
@@ -19,7 +20,6 @@ C
 #include "WrkSpc.fh"
 
       IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
       INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
 
       IF (NNBSTRSH(ISYM,ISHLAB,2) .GT. 0) THEN
@@ -32,9 +32,7 @@ C
             J = INDRED(I,2)
             IF (DIAG(J) .GE. DIAMIN(ISYM)) THEN
                NUMQ = NUMQ + 1
-               KOFF = ip_IQUAB + MAXQUAL*(ISYM-1)
-     &              + IOFFQ(ISYM) + NUMQ - 1
-               IWORK(KOFF) = I
+               iQuAB(IOFFQ(ISYM)+NUMQ,ISYM)=I
             END IF
          END DO
          NQUAL(ISYM) = NQUAL(ISYM) + NUMQ

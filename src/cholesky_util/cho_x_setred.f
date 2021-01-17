@@ -23,7 +23,7 @@
 *> - \p nnBstRT(iLoc)      &rarr; stored in cholesky.fh
 *> - \p nnBstR(:,iLoc)     &rarr; stored in cholesky.fh
 *> - \p iiBstR(:,iLoc)     &rarr; stored in cholesky.fh
-*> - \p nnBstRSh(:,:,iLoc) &rarr; accesible via \c ip_nnBstRSh in choptr.fh
+*> - \p nnBstRSh(:,:,iLoc) &rarr; accesible via choswp.fh
 *> - \p iiBstRSh(:,:,iLoc) &rarr; accesible via \c ip_iiBstRSh in choptr.fh
 *> - \p IndRed(:,iLoc)     &rarr; accesible via \c ip_IndRed in choptr.fh
 *>
@@ -41,6 +41,7 @@
 ************************************************************************
       Subroutine Cho_X_SetRed(irc,iLoc,iRed)
       use ChoArr, only: iSP2F
+      use ChoSwp, only: nnBstRSh
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -50,13 +51,12 @@
          If (iRed.lt.1 .or. iRed.gt.MaxRed) Then
             irc = 2
          Else
-            kOff1 = ip_nnBstRSh + nSym*nnShl*(iLoc - 1)
             kOff2 = ip_IndRed   + nnBstRT(1)*(iLoc - 1)
-            Call Cho_GetRed(iWork(ip_InfRed),iWork(kOff1),
+            Call Cho_GetRed(iWork(ip_InfRed),nnBstRSh(:,:,iLoc),
      &                      iWork(kOff2),iWork(ip_IndRSh),
      &                      iSP2F,
      &                      MaxRed,nSym,nnShl,nnBstRT(1),iRed,.false.)
-            Call Cho_SetRedInd(iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),
+            Call Cho_SetRedInd(iWork(ip_iiBstRSh),nnBstRSh,
      &                         nSym,nnShl,iLoc)
             irc = 0
             If (iRed .eq. 1) Then ! set correct IndRed array

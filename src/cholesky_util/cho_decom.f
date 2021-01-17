@@ -13,6 +13,7 @@ C
 C     Purpose: calculate Cholesky vectors from qualified integral
 C              columns (from disk).
 C
+      use ChoSwp, only: iQuAB
 #include "implicit.fh"
       DIMENSION DIAG(*), WRK(LWRK)
 #include "cholesky.fh"
@@ -34,7 +35,6 @@ C
       INTEGER NUMCHO_OLD(8)
 
       INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
-      IQUAB(I,J)=IWORK(ip_IQUAB-1+MAXQUAL*(J-1)+I)
 
       LENLIN = 0  ! to avoid compiler warnings...
       IF (IPRINT .GE. INF_PROGRESS) THEN

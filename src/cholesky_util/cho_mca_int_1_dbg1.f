@@ -15,6 +15,7 @@ C              diagonal *must* be the original diagonal stored
 C              in reduced set 1.
 C
       use ChoArr, only: nBstSh, iSP2F
+      use ChoSwp, only: nnBstRSh
 #include "implicit.fh"
       DIMENSION DIAG(*)
 #include "cholesky.fh"
@@ -28,7 +29,6 @@ C
       PARAMETER (PRTINT = .FALSE.)
 
       IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
       INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
       INDRSH(I)=IWORK(ip_INDRSH-1+I)
 

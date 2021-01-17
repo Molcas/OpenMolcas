@@ -17,6 +17,7 @@ C
 C     Purpose: compute exact integral diagonal.
 C
       use ChoArr, only: iSP2F, nBstSh
+      use ChoSwp, only: nnBstRSh
       Implicit None
       Integer nDiag
       Real*8  Diag(nDiag)
@@ -35,10 +36,9 @@ C
       External Rsv_Tsk
 
       Integer i, j, k
-      Integer IndRed, iiBstRSh, nnBstRSh
+      Integer IndRed, iiBstRSh
       IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
       iiBstRSh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
 
 C     Allocate memory.
 C     ----------------

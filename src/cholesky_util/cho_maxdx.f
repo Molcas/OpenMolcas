@@ -13,13 +13,13 @@ C
 C     Purpose: get max. diagonal elements in each sym. block,
 C              qualified diagonals excluded.
 C
+      use ChoSwp, only: iQuAB
       Implicit Real*8 (a-h,o-z)
       Real*8 Diag(*), Dmax(*)
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "WrkSpc.fh"
 
-      iQuAB(i,j)=iWork(ip_iQuAB-1+MaxQual*(j-1)+i)
       IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
 
       MxQ = nQual(1)

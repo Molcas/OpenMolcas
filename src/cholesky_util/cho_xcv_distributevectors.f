@@ -71,6 +71,9 @@ C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
 #if defined (_MOLCAS_MPP_) && !defined (_GA_)
       Use Para_Info, Only: nProcs
 #endif
+#if defined (_MOLCAS_MPP_)
+      use ChoSwp, only: nnBstRSh
+#endif
       Implicit None
       Integer irc
       Integer nSP_Batch
@@ -119,9 +122,8 @@ C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
       Integer nSP_this_batch
 
       Integer i, j, k
-      Integer iiBstRsh, nnBstRSh
+      Integer iiBstRsh
       iiBStRsh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      nnBStRsh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
 
       ! Init return code
       irc=0
@@ -349,6 +351,7 @@ c Avoid unused argument warnings
 
       End
       SubRoutine Cho_XCV_DV_S(irc,SP_BatchDim,nSP_Batch,id_mySP,n_mySP)
+      use ChoSwp, only: nnBstRSh
       Implicit None
       Integer irc
       Integer nSP_Batch
@@ -376,9 +379,8 @@ c Avoid unused argument warnings
       Integer iSP_Batch, nSP_this_batch
 
       Integer i, j, k
-      Integer iiBstRsh, nnBstRSh
+      Integer iiBstRsh
       iiBStRsh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      nnBStRsh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
 
       ! Init return code
       irc=0

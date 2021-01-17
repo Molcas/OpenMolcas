@@ -13,6 +13,7 @@ C
 C     Purpose: extract elements corresponding to qualified columns of
 C              vectors on disk.
 C
+      use ChoSwp, only: nnBstRSh
       Implicit Real*8 (a-h,o-z)
       Real*8  QVec(l_QVec)
       Integer LstQSP(nQSP)
@@ -28,8 +29,6 @@ C
 
       Integer  Cho_P_LocalSP
       External Cho_P_LocalSP
-
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
 
 C     Check input.
 C     ------------

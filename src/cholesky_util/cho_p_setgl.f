@@ -15,6 +15,7 @@ C              ip_Diag points to the global diagonal. On exit, it has
 C              been reset to point to the local one, allocated and
 C              defined in this routine.
 C
+      use ChoSwp, only: nnBstRSh, nnBstRSh_G, nnBstRsh_L_Hidden
       Implicit None
       Integer ip_Diag
 #include "cholesky.fh"
@@ -23,6 +24,7 @@ C
 #include "choglob.fh"
 #include "cho_para_info.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Character*11 SecNam
       Parameter (SecNam = 'Cho_P_SetGL')
@@ -32,15 +34,13 @@ C
 
       Integer i, j, k
       Integer mySP, iL2G
-      Integer iiBstRSh_G, nnBstRSh_G
+      Integer iiBstRSh_G
       Integer IndRed_G, IndRSh_G
 
       iL2G(i)=iWork(ip_iL2G-1+i)
       mySP(i)=iWork(ip_mySP-1+i)
       iiBstRSh_G(i,j,k)=
      &            iWork(ip_iiBstRSh_G-1+nSym*nnShl_G*(k-1)+nSym*(j-1)+i)
-      nnBstRSh_G(i,j,k)=
-     &            iWork(ip_nnBstRSh_G-1+nSym*nnShl_G*(k-1)+nSym*(j-1)+i)
       IndRed_G(i,j)=iWork(ip_IndRed_G-1+mmBstRT_G*(j-1)+i)
       IndRSh_G(i)=iWork(ip_IndRSh_G-1+i)
 
@@ -72,8 +72,7 @@ C     ------------------------------
       ip_iiBstRSh_G = ip_iiBstRSh
       l_iiBstRSh_G = l_iiBstRSh
 
-      ip_nnBstRSh_G = ip_nnBstRSh
-      l_nnBstRSh_G = l_nnBstRSh
+      nnBstRSh_G => nnBstRSh
 
       ip_IndRed_G = ip_IndRed
       l_IndRed_G = l_IndRed
@@ -89,18 +88,18 @@ C     --------------------------------
 
       nnShl = n_mySP
       l_iiBstRSh = nSym*nnShl*3
-      l_nnBstRSh = l_iiBstRSh
       Call GetMem('LiiBstRSh','Allo','Inte',ip_iiBstRSh,l_iiBstRSh)
-      Call GetMem('LnnBstRSh','Allo','Inte',ip_nnBstRSh,l_nnBstRSh)
+      Call mma_allocate(nnBstRsh_L_Hidden,nSym,n_mySP,3,
+     &                  Label='nnBstRSh_L_Hidden')
+      nnBstRSh => nnBstRSh_L_Hidden
 
       Do iSP = 1,nnShl
          iShlAB = mySP(iSP)
-         k = ip_nnBstRSh + nSym*(iSP-1) - 1
          Do iSym = 1,nSym
-            iWork(k+iSym) = nnBstRSh_G(iSym,iShlAB,1)
+            nnBstRSh(iSym,iSP,1) = nnBstRSh_G(iSym,iShlAB,1)
          End Do
       End Do
-      Call Cho_SetRedInd(iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),
+      Call Cho_SetRedInd(iWork(ip_iiBstRSh),nnBstRSh,
      &                   nSym,nnShl,1)
       mmBstRT = nnBstRT(1)
 

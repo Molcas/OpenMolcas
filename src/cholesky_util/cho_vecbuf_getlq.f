@@ -13,6 +13,7 @@ C
 C     Purpose: extract elements corresponding to qualified diagonals
 C              from vectors in buffer.
 C
+      use ChoSwp, only: iQuAB
       Implicit Real*8 (a-h,o-z)
       Real*8  QVec(l_QVec)
 #include "cholesky.fh"
@@ -22,7 +23,6 @@ C
 
       Integer nVecTot(8)
 
-      iQuAB(i,j)=iWork(ip_iQuAB-1+MaxQual*(j-1)+i)
       BVec(i,j,k)=Work(ip_ChVBuf_Sym(k)-1+nnBstR(k,2)*(j-1)+i)
 
 C     Check if there is any buffer at all.

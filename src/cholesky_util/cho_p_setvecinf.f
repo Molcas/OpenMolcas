@@ -12,6 +12,7 @@
 C
 C     Purpose: set global and local info for vectors.
 C
+      use ChoSwp, only: iQuAB
       Implicit None
       Integer nVec, iSym, iPass
 #include "cholesky.fh"
@@ -24,8 +25,7 @@ C
 
       Integer iV, iVec, iAB
 
-      Integer i, j, iQuAB, IndRed
-      iQuAB(i,j)=iWork(ip_iQuAB-1+MaxQual*(j-1)+i)
+      Integer i, j, IndRed
       IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
 
       If (Cho_Real_Par) Then

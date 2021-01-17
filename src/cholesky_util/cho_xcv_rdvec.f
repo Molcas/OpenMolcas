@@ -18,6 +18,9 @@ C
 C     Purpose: Read partial Cholesky vectors J1 to J2 on disk.
 C              (Parallel two-step algorithm)
 C
+#if defined (_DEBUGPRINT_)
+      use ChoSwp, only: nnBstRSh
+#endif
       Implicit None
       Integer irc
       Integer l_Vec
@@ -33,11 +36,7 @@ C
 #include "choptr.fh"
 #include "WrkSpc.fh"
 
-      Integer n
-
-      Integer i, j, k
-      Integer nnBstRSh
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
+      Integer i, n
 #endif
 
       irc=0
@@ -95,6 +94,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C
 C     Read the vector blocks.
 C
+      use ChoSwp, only: nnBstRSh
       Implicit None
       Integer irc
       Real*8  Vec(*)
@@ -109,13 +109,9 @@ C
       Integer iOpt
       Parameter (iOpt=2)
 
-      Integer kV, n
+      Integer kV, n, i
       Integer lTot, iAdr, iAdr0
       Integer iSP
-
-      Integer i, j, k
-      Integer nnBstRSh
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
 
       irc=0
 

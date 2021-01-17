@@ -26,6 +26,7 @@ C           use LSCR = 2 x dimension of first reduced set.
 C
 C
       use ChoArr, only: iSP2F
+      use ChoSwp, only: nnBstRSh
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
@@ -56,14 +57,13 @@ C     -----------------------------------------------
 
       IRED  = INFVEC(IVEC1,2,ISYM)
       ILOC  = 3
-      KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(ILOC - 1)
       KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
-      CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
+      CALL CHO_GETRED(IWORK(ip_INFRED),nnBstRSh(:,:,ILOC),
      &                IWORK(KOFF2),IWORK(ip_INDRSH),iSP2F,
      &                MAXRED,NSYM,NNSHL,MMBSTRT,IRED,
      &                .FALSE.)
       CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                   IWORK(ip_NNBSTRSH),NSYM,NNSHL,3)
+     &                   NNBSTRSH,NSYM,NNSHL,3)
       KRED1 = 1
       KREAD = KRED1 + NNBSTR(ISYM,1)
       KEND1 = KREAD + NNBSTR(ISYM,3)
@@ -86,15 +86,14 @@ C     ------------------------------------------------------------------
          IVEC = IVEC1 + JVEC - 1
          JRED = INFVEC(IVEC,2,ISYM)
          IF (JRED .NE. IRED) THEN   ! read new reduced set
-            KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(ILOC - 1)
             KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
-            CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
+            CALL CHO_GETRED(IWORK(ip_INFRED),nnBstRSh(:,:,ILOC),
      &                      IWORK(KOFF2),IWORK(ip_INDRSH),
      &                      iSP2F,
      &                      MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
      &                      .FALSE.)
             CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                         IWORK(ip_NNBSTRSH),NSYM,NNSHL,3)
+     &                         NNBSTRSH,NSYM,NNSHL,3)
             KEND1 = KREAD + NNBSTR(ISYM,3)
             LSCR1 = LSCR  - KEND1 + 1
             IF (LSCR1 .LT. 0) THEN

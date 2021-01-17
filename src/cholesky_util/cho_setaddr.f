@@ -14,6 +14,7 @@ C     Purpose: set first disk addresses for reduced set info and
 C              vectors.
 C
       use ChoArr, only: iSP2F
+      use ChoSwp, only: nnBstRSh
 #include "implicit.fh"
       INTEGER INFRED(MRED), INFVEC(MVEC,M2,MSYM)
 #include "cholesky.fh"
@@ -35,12 +36,11 @@ C     --------------
       ELSE IF (XNPASS .GT. 0) THEN
          IRED  = 3
          IPASS = XNPASS
-         KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(IRED - 1)
          KOFF2 = ip_INDRED   + MMBSTRT*(IRED - 1)
-         CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
+         CALL CHO_GETRED(IWORK(ip_INFRED),nnBstRSh(:,:,IRED),
      &                   IWORK(KOFF2),IWORK(ip_INDRSH),iSP2F,
      &                   MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,.FALSE.)
-         CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),IWORK(ip_NNBSTRSH),
+         CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),NNBSTRSH,
      &                      NSYM,NNSHL,IRED)
          IF (IPASS .EQ. 1) THEN
             INFRED(IPASS+1) = INFRED(IPASS)
@@ -63,15 +63,15 @@ C     --------------
      &               INFVEC(NUMCHO(ISYM),4,ISYM) + NNBSTR(ISYM,IRED)
                   ELSE IF (JPASS.LE.XNPASS .AND. JPASS.GT.0) THEN
                      IPASS = JPASS
-                     KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(IRED - 1)
                      KOFF2 = ip_INDRED   + MMBSTRT*(IRED - 1)
-                     CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
+                     CALL CHO_GETRED(IWORK(ip_INFRED),
+     &                               nnBstRSh(:,:,IRED),
      &                               IWORK(KOFF2),IWORK(ip_INDRSH),
      &                               iSP2F,
      &                               MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,
      &                               .FALSE.)
                      CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                                  IWORK(ip_NNBSTRSH),
+     &                                  NNBSTRSH,
      &                                  NSYM,NNSHL,IRED)
                      INFVEC(NUMCHO(ISYM)+1,3,ISYM) =
      &               INFVEC(NUMCHO(ISYM),3,ISYM) + NNBSTR(ISYM,IRED)
@@ -94,15 +94,15 @@ C     --------------
                      CALL CHO_MEM('SetAddr','FREE','REAL',KSA,LSA)
                   ELSE IF (JPASS.LE.XNPASS .AND. JPASS.GT.0) THEN
                      IPASS = JPASS
-                     KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(IRED - 1)
                      KOFF2 = ip_INDRED   + MMBSTRT*(IRED - 1)
-                     CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
+                     CALL CHO_GETRED(IWORK(ip_INFRED),
+     &                               nnBstRSh(:,:,IRED),
      &                               IWORK(KOFF2),IWORK(ip_INDRSH),
      &                               iSP2F,
      &                               MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,
      &                               .FALSE.)
                      CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                                  IWORK(ip_NNBSTRSH),
+     &                                  NNBSTRSH,
      &                                  NSYM,NNSHL,IRED)
                      LSA = NNBSTR(ISYM,IRED)
                      CALL CHO_MEM('SetAddr','ALLO','REAL',KSA,LSA)

@@ -13,8 +13,8 @@ C Global stuff for parallel Cholesky
 C
       Integer ip_Diag_G, ip_iL2G
       Integer l_Diag_G, l_iL2G
-      Integer ip_iiBstRSh_G, ip_nnBstRSh_G
-      Integer l_iiBstRSh_G, l_nnBstRSh_G
+      Integer ip_iiBstRSh_G
+      Integer l_iiBstRSh_G
       Integer ip_IndRed_G, ip_IndRSh_G
       Integer l_IndRed_G, l_IndRSh_G
       Integer ip_InfRed_G, ip_InfVec_G
@@ -31,11 +31,11 @@ C
       Parameter (nLoc_G = 3)
 
       Common / CHOPIP / ip_Diag_G, ip_iL2G,
-     &                  ip_iiBstRSh_G, ip_nnBstRSh_G,
+     &                  ip_iiBstRSh_G,
      &                  ip_IndRed_G, ip_IndRSh_G, ip_InfRed_G,
      &                  ip_InfVec_G,
      &                  l_iL2G, l_Diag_G,
-     &                  l_iiBstRSh_G, l_nnBstRSh_G,
+     &                  l_iiBstRSh_G,
      &                  l_IndRed_G, l_IndRSh_G, l_InfRed_G,
      &                  l_InfVec_G
       Common / CHOPIS / nnShl_G, mmBstRT_G, NumChT_G

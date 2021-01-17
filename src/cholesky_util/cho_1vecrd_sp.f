@@ -19,6 +19,7 @@ C              specify -1 if not set (or unknown). On exit, iRedC
 C              identifies the reduced set for which indices are
 C              available at location iLoc. NOTE: only WA files!!
 C
+      use ChoSwp, only: nnBstRSh
       Implicit Real*8 (a-h,o-z)
       Real*8  Vec(lVec)
       Integer LstSP(nSP)
@@ -36,7 +37,6 @@ C
 
       InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
       iiBstRSh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
 
 C     Return if no vectors are available on disk.
 C     -------------------------------------------

@@ -13,6 +13,9 @@
       Subroutine Cho_X_Dealloc(irc)
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl,
      &                  iShlSO, iRS2F, IntMap, iScr, nDimRS
+      use ChoSwp, only: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden,
+     &                  nnBstRSh_Hidden, nnBstRSh,
+     &                  nnBstRSh_L_Hidden, nnBstRSh_G
 C
 C     T.B. Pedersen, July 2004.
 C
@@ -67,10 +70,9 @@ C     -----------
       End If
       nAlloc = nAlloc + 1
 
-      If (l_nnBstRSh .ne. 0) Then
-         Call GetMem('nnBstRSh','Free','Inte',ip_nnBstRSh,l_nnBstRSh)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(nnBstRSh_Hidden))
+     &    Call mma_deallocate(nnBstRSh_Hidden)
+      If (Associated(nnBstRSh)) nnBstRSh=>Null()
 
       If (Allocated(IntMap)) Call mma_deallocate(IntMap)
 
@@ -82,10 +84,8 @@ C     -----------
 
       If (Allocated(iShlSO)) Call mma_deallocate(iShlSO)
 
-      If (l_iQuab .ne. 0) Then
-         Call GetMem('iQuab','Free','Inte',ip_iQuab,l_iQuab)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(iQuAB_Hidden)) Call mma_deallocate(iQuAB_Hidden)
+      If (Associated(iQuAB)) iQuAB => Null()
 
       If (Allocated(iBasSh)) Call mma_deallocate(iBasSh)
 
@@ -136,11 +136,8 @@ C     -----------------------------------------
 C     Deallocate any used pointer in cholq.fh
 C     ----------------------------------------
 
-      If (l_iQuAB_L .ne. 0) Then
-         Call GetMem('IQUAB_L','Free','Inte',ip_iQuAB_L,l_iQuAB_L)
-         ip_iQuAB_L=0
-         l_iQuAB_L=0
-      End If
+      If (Allocated(iQuAB_L_Hidden)) Call mma_deallocate(iQuAB_L_Hidden)
+      If (Associated(iQuAB_L)) iQuAB_L => Null()
 
       If (l_iQL2G .ne. 0) Then
          Call GetMem('IQL2G','Free','Inte',ip_iQL2G,l_iQL2G)
@@ -162,6 +159,12 @@ C     -----------------------------------------
      &                                           l_InfVec_Bak)
          l_InfVec_Bak=0
       End If
+
+C     Deallocate any used pointer in cholq.fh
+C     -----------------------------------------
+      If (Allocated(nnBstRSh_L_Hidden))
+     &    Call mma_deallocate(nnBstRSh_L_Hidden)
+      If (Associated(nnBstRSh_G)) nnBstRSh_G=>Null()
 
       Return
       End

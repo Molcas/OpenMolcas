@@ -9,18 +9,17 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Cho_P_ReoQual(iQScr,IDK,nK)
+      use ChoSwp, only: iQuAB
       Implicit None
       Integer iQScr(*), IDK(*), nK(*)
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 #include "cho_para_info.fh"
 
-      Call Cho_ReoQual(iWork(ip_iQuAB),MaxQual,nSym,iQScr,IDK,nK,nQual)
+      Call Cho_ReoQual(iQuAB,MaxQual,nSym,iQScr,IDK,nK,nQual)
       If (Cho_Real_Par) Then
          Call Cho_P_QualSwp()
-         Call Cho_ReoQual(iWork(ip_iQuAB),MaxQual,nSym,iQScr,IDK,nK,
-     &                    nQual)
+         Call Cho_ReoQual(iQuAB,MaxQual,nSym,iQScr,IDK,nK,nQual)
          Call Cho_P_QualSwp()
       End If
 

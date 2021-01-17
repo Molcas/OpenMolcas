@@ -13,6 +13,7 @@ C
 C     Purpose: set max. shell pair data for selection procedure.
 C
       use ChoArr, only: iSP2F, iAtomShl
+      use ChoSwp, only: nnBstRSh
 #include "implicit.fh"
       DIMENSION DIAG(*), DIASH(*)
       INTEGER   ISYSH(*)
@@ -25,7 +26,6 @@ C
 
       INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
       IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
 
 C     Initialize the largest diagonal in each shell pair.
 C     ---------------------------------------------------

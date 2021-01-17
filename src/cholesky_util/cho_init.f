@@ -22,6 +22,7 @@ C              IF (ALLOCATE_BOOKMARKS): allocate arrays needed to
 C              record bookmarks during Cholesky decomposition.
 C
       use ChoArr, only: nDimRS
+      use ChoSwp, only: iQuAB_Hidden, iQuAB, nnBstRSh_Hidden, nnBstRSh
 #include "implicit.fh"
       LOGICAL SKIP_PRESCREEN
       LOGICAL ALLOCATE_BOOKMARKS
@@ -97,10 +98,11 @@ C     Allocate memory for reduced set index arrays.
 C     ---------------------------------------------
 
       l_IIBSTRSH = NSYM*NNSHL*3
-      l_NNBSTRSH = l_IIBSTRSH
       l_MYSP     = NNSHL
       CALL CHO_MEM('iibstrsh','ALLO','INTE',ip_IIBSTRSH,l_IIBSTRSH)
-      CALL CHO_MEM('nnbstrsh','ALLO','INTE',ip_NNBSTRSH,l_NNBSTRSH)
+      Call mma_allocate(nnBstRSh_Hidden,nSym,nnShl,3,
+     &                  Label='nnBstRSh_Hidden')
+      nnBstRSh => nnBstRSh_Hidden
       Call mma_allocate(IntMap,nnShl,Label='IntMap')
       CALL CHO_MEM('mySP','ALLO','INTE',ip_MYSP,l_MYSP)
 
@@ -282,8 +284,8 @@ C     Allocate IQUAB array for qualification.
 C     Allocate IQUAB_L array for parallel runs.
 C     -----------------------------------------
 
-      l_IQUAB = MAXQUAL*NSYM
-      CALL CHO_MEM('IQUAB','ALLO','INTE',ip_IQUAB,l_IQUAB)
+      Call mma_allocate(iQuAB_Hidden,MaxQual,nSym,Label='iQuAB_Hidden')
+      iQuAB => iQuAB_Hidden
       CALL CHO_P_INILQ(MAXQUAL,NSYM)
 
 C     Set screening mode.

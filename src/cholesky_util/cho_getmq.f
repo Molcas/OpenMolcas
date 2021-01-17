@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE Cho_GetMQ(MQ,l_MQ,List_QShp,nQShp)
-
+      use ChoSwp, only: iQuAB, nnBstRSh
       Implicit Real*8 (a-h,o-z)
 
       Real*8   MQ(l_MQ)
@@ -28,13 +28,9 @@
       External Cho_P_LocalSP, Cho_F2SP
 
 ************************************************************************
-      iQuAB(i,j)=iWork(ip_iQuAB-1+MaxQual*(j-1)+i)
-******
       IndRed(i,k) = iWork(ip_IndRed-1+nnBstRT(1)*(k-1)+i)
 ******
       IndRSh(i)=iWork(ip_IndRSh-1+i)
-******
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
 ******
       iiBstRSh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
 ******

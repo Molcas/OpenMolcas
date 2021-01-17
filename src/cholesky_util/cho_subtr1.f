@@ -19,6 +19,7 @@ C
 C     Screening in subtraction introduced Jan. 2006, TBP.
 C
       use ChoArr, only: iSP2F, iScr
+      use ChoSwp, only: iQuAB, nnBstRSh
 #include "implicit.fh"
       DIMENSION XINT(*), WRK(LWRK)
       LOGICAL   FXDMEM
@@ -49,9 +50,7 @@ C
       EXTERNAL CHO_X_NUMRD
 
       INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
-      IQUAB(I,J)=IWORK(ip_IQUAB-1+MAXQUAL*(J-1)+I)
       IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
       DSUBSCR(I)=WORK(ip_DSUBSCR-1+I)
       DSPNM(I)=WORK(ip_DSPNM-1+I)
 
@@ -289,15 +288,15 @@ C           -----------------------------------------------------
 
                   IF (JRED .NE. IREDC) THEN
                      ILOC = 3
-                     KOFF1 = ip_NNBSTRSH + NSYM*NNSHL*(ILOC - 1)
                      KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
-                     CALL CHO_GETRED(IWORK(ip_INFRED),IWORK(KOFF1),
+                     CALL CHO_GETRED(IWORK(ip_INFRED),
+     &                               nnBstRSh(:,:,ILOC),
      &                               IWORK(KOFF2),IWORK(ip_INDRSH),
      &                               iSP2F,
      &                               MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
      &                               .FALSE.)
                      CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                                  IWORK(ip_NNBSTRSH),NSYM,NNSHL,
+     &                                  NNBSTRSH,NSYM,NNSHL,
      &                                  ILOC)
                      IREDC = JRED
                   END IF

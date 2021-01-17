@@ -48,6 +48,7 @@ C
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
       use ChoArr, only: nBasSh, nDimRS
+      use ChoSwp, only: nnBstRSh
       Implicit Real*8 (a-h,o-z)
 
       Integer   ipLxy(8),ipScr(8,8),ipDIAH(1)
@@ -98,8 +99,6 @@ C
       InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 ******
       IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-******
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
 ******
       nnBfShp(j,i) = iWork(ip_nnBfShp-1+nnShl_tot*(i-1)+j)
 ******

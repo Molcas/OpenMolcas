@@ -18,6 +18,9 @@ C
 C     Purpose: write partial Cholesky vectors to disk.
 C              (Parallel two-step algorithm)
 C
+#if defined (_DEBUGPRINT_)
+      use ChoSwp, only: nnBstRSh
+#endif
       Implicit None
       Integer irc
       Integer l_Vec, l_NVT, l_myRankSP
@@ -33,10 +36,6 @@ C
 #include "WrkSpc.fh"
 
       Integer iSym, iSP, n
-
-      Integer i, j, k
-      Integer nnBstRSh
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
 
       If (l_NVT.lt.nSym .or. l_myRankSP.lt.nnShl) Then
          irc=-1
@@ -91,6 +90,7 @@ C
 C     Simply write the partial vectors to disk at the appropriate
 C     addresses on the vector files.
 C
+      use ChoSwp, only: nnBstRSh
       Implicit None
       Integer irc
       Real*8  Vec(*)
@@ -106,9 +106,8 @@ C
       Integer lTot, iAdr, iAdr0
 
       Integer i, j, k
-      Integer iiBstRSh, nnBstRSh
+      Integer iiBstRSh
       iiBstRSh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
 
       irc=0
 
@@ -133,6 +132,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C
 C     Write the vectors in blocks.
 C
+      use ChoSwp, only: nnBstRSh
       Implicit None
       Integer irc
       Real*8  Vec(*)
@@ -143,16 +143,11 @@ C
 #include "choptr.fh"
 #include "WrkSpc.fh"
 
-      Integer iOpt
-      Parameter (iOpt=1)
+      Integer, Parameter:: iOpt=1
 
-      Integer iSym, kV
+      Integer iSym, kV, j
       Integer lTot, iAdr
       Integer iSP
-
-      Integer i, j, k
-      Integer nnBstRSh
-      nnBstRSh(i,j,k)=iWork(ip_nnBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
 
       irc=0
 

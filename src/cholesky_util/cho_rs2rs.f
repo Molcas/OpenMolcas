@@ -15,6 +15,7 @@ C              IRS3 (IRED3 is the reduced set id of IRS3).
 C
 C     WARNING: for IRED3 = 1, INDRED is reset here!!!!
 C
+      use ChoSwp, only: nnBstRSh
 #include "implicit.fh"
       INTEGER IMAP(LMAP)
 #include "cholesky.fh"
@@ -25,7 +26,6 @@ C
       PARAMETER (SECNAM = 'CHO_RS2RS')
 
       IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
       INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
 
 C     Check input.

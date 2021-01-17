@@ -10,20 +10,15 @@
 !                                                                      *
 ! Copyright (C) 2021, Roland Lindh                                     *
 !***********************************************************************
-Module ChoArr
+Module ChoSwp
 Implicit none
 Private
-Public:: iSOShl, iShlSO, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl, iRS2F, IntMap, iScr, &
-         nDimRS
-Integer, Allocatable:: iSOShl(:)
-Integer, Allocatable:: iShlSO(:)
-Integer, Allocatable:: iBasSh(:,:)
-Integer, Allocatable:: nBasSh(:,:)
-Integer, Allocatable:: nBstSh(:)
-Integer, Allocatable:: iSP2F(:)
-Integer, Allocatable:: iAtomShl(:)
-Integer, Allocatable:: iRS2F(:,:)
-Integer, Allocatable:: IntMap(:)
-Integer, Allocatable:: iScr(:)
-Integer, Allocatable:: nDimRS(:,:)
-End Module ChoArr
+Public:: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden, pTemp, iQuAB_here, &
+         nnBstRSh, nnBstRSh_Hidden, nnBstRSh_G, nnBstRSh_L_Hidden, pTemp3
+
+Integer, Allocatable, Target:: iQuAB_Hidden(:,:), iQuAB_L_Hidden(:,:), iQuAB_here(:,:)
+Integer, Pointer:: iQuAB(:,:)=>Null() , iQuAB_L(:,:)=>Null(), pTemp(:,:)=>Null()
+
+Integer, Allocatable, Target:: nnBstRSh_Hidden(:,:,:), nnBstRSh_L_Hidden(:,:,:)
+Integer, Pointer:: nnBstRSh(:,:,:)=>Null(), nnBstRSh_G(:,:,:)=>Null(), pTemp3(:,:,:)=>Null()
+End Module ChoSwp

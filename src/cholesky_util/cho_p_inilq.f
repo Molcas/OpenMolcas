@@ -9,19 +9,20 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Cho_P_IniLQ(MaxQual,nSym)
+      use ChoSwp, only: iQuAB_L, iQuAB_L_Hidden
       Implicit None
       Integer MaxQual, nSym
 #include "cholq.fh"
 #include "cho_para_info.fh"
+#include "stdalloc.fh"
 
       If (Cho_Real_Par) Then
-         l_iQuAB_L = MaxQual*nSym
-         l_iQL2G = l_iQuAB_L
-         Call GetMem('iQuAB_L','Allo','Inte',ip_iQuAB_L,l_iQuAB_L)
+         Call mma_allocate(iQuAB_L_Hidden,MaxQual,nSym,
+     &                     Label='iQuAB_L_Hidden')
+         iQuAB_L => iQuAB_L_Hidden
+         l_iQL2G   = MaxQual*nSym
          Call GetMem('iQL2G','Allo','Inte',ip_iQL2G,l_iQL2G)
       Else
-         ip_iQuAB_L = -999999
-         l_iQuAB_L = 0
          ip_iQL2G = -999999
          l_iQL2G = 0
       End If

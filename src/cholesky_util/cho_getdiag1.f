@@ -12,6 +12,7 @@
 C
 C     Purpose: read diagonal in first reduced set.
 C
+      use ChoSwp, only: nnBstRSh
 #include "implicit.fh"
       DIMENSION DIAG(*), BUF(LENBUF)
       INTEGER   IBUF(4,LENBUF)
@@ -54,7 +55,7 @@ C     Also set up IRED=3 (although it should be redundant).
 C     -----------------------------------------------------
 
       DO IRS = 2,3
-         CALL CHO_RSCOPY(IWORK(ip_IIBSTRSH),IWORK(ip_NNBSTRSH),
+         CALL CHO_RSCOPY(IWORK(ip_IIBSTRSH),NNBSTRSH,
      &                   IWORK(ip_INDRED),1,IRS,NSYM,NNSHL,NNBSTRT(1),3)
       END DO
 

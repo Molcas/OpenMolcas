@@ -15,6 +15,7 @@ C              First reduced set must have been set up, which is
 C              reasonable, since it is naturally done along with the
 C              diagonal.
 C
+      use ChoSwp, only: iQuAB
 #include "implicit.fh"
       Real*8 Diag(*)
 #include "cholesky.fh"
@@ -294,7 +295,7 @@ C        ----------------------------------------------------------
                   End If
 #endif
                   nQual(iSym) = nQual(iSym) + 1
-                  iWork(kOff0+nQual(iSym)) = iiBstR(iSym,2) + kAB
+                  iQuAB(nQual(iSym),iSym) = iiBstR(iSym,2) + kAB
                End Do
             End Do
          End Do
