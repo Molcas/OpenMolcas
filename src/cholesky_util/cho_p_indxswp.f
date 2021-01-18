@@ -20,6 +20,7 @@ C
       use ChoSwp, only: nnBstRSh, nnBstRSh_G, pTemp3
       use ChoSwp, only: iiBstRSh, iiBstRSh_G
       use ChoSwp, only: IndRSh, IndRSh_G, pTemp1
+      use ChoSwp, only: InfRed, InfRed_G
       Implicit None
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -41,12 +42,9 @@ C
       Call iSwap(N,nnBstR_G,1,nnBstR,1)
       Call iSwap(3,nnBstRT_G,1,nnBstRT,1)
 
-      iTmp = ip_InfRed_G
-      ip_InfRed_G = ip_InfRed
-      ip_InfRed = iTmp
-      iTmp = l_InfRed_G
-      l_InfRed_G = l_InfRed
-      l_InfRed = iTmp
+      pTemp1 => InfRed_G
+      InfRed_G => InfRed
+      InfRed => pTemp1
 
       iTmp = ip_InfVec_G
       ip_InfVec_G = ip_InfVec

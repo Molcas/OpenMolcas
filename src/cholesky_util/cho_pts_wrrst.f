@@ -16,6 +16,7 @@ C     Thomas Bondo Pedersen, April 2010.
 C
 C     Purpose: Write restart files (parallel two-step algorithm).
 C
+      use ChoSwp, only: InfRed
       Implicit None
       Integer irc
       Integer l_NVT
@@ -116,7 +117,7 @@ C
 
       ! Set InfRed corresponding to only one reduced set
       ! (All vectors are now stored in 1st reduced set)
-      iWork(ip_InfRed)=0
+      InfRed(1)=0
       ! Set InfVec data (only disk addresses need updating)
       Call Cho_X_GetIP_InfVec(ip_InfVcT)
       kOff=ip_InfVec-1

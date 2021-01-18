@@ -13,6 +13,7 @@ C
 C     Purpose: set initial disk adresses for local as well as global
 C              reduced sets.
 C
+      use ChoSwp, only: InfRed, InfRed_G
       Implicit None
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -37,7 +38,7 @@ C        ----------------------------------------------------------
 C        Global.
 C        -------
 
-         Call Cho_P_SetAddr_2(iWork(ip_InfRed_G),iWork(ip_InfVec_G),
+         Call Cho_P_SetAddr_2(InfRed_G,iWork(ip_InfVec_G),
      &                        MaxRed,MaxVec,InfVec_N2,nSym,irc)
          If (irc .ne. 0) Then
             Write(Lupri,*) SecNam,': Cho_P_SetAddr_2 returned ',irc
@@ -49,7 +50,7 @@ C        -------
 C     Local.
 C     ------
 
-      Call Cho_SetAddr(iWork(ip_InfRed),iWork(ip_InfVec),
+      Call Cho_SetAddr(InfRed,iWork(ip_InfVec),
      &                 MaxRed,MaxVec,InfVec_N2,nSym)
 
       End

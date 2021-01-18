@@ -19,10 +19,6 @@ C
 
       nAlloc = 0  ! allocation counter
 
-      ip_INFRED = 0
-      l_INFRED  = 0
-      nAlloc    = nAlloc + 1
-
       ip_INFVEC = 0
       l_INFVEC  = 0
       nAlloc    = nAlloc + 1

@@ -16,7 +16,8 @@ Private
 Public:: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden, pTemp, iQuAB_here, &
          nnBstRSh, nnBstRSh_Hidden, nnBstRSh_G, nnBstRSh_L_Hidden, pTemp3, &
          iiBstRSh, iiBstRSh_Hidden, iiBstRSh_G, iiBstRSh_L_Hidden, &
-         IndRSh, IndRSh_Hidden, IndRSh_G, IndRSh_G_Hidden, pTemp1
+         IndRSh, IndRSh_Hidden, IndRSh_G, IndRSh_G_Hidden, pTemp1, &
+         InfRed, InfRed_Hidden, InfRed_G, InfRed_G_Hidden
 
 
 Integer, Allocatable, Target:: iQuAB_Hidden(:,:), iQuAB_L_Hidden(:,:), iQuAB_here(:,:)
@@ -28,4 +29,6 @@ Integer, Pointer:: nnBstRSh(:,:,:)=>Null(), nnBstRSh_G(:,:,:)=>Null(), pTemp3(:,
 Integer, Pointer:: iiBstRSh(:,:,:)=>Null(), iiBstRSh_G(:,:,:)=>Null()
 Integer, Pointer:: IndRSh(:), IndRSh_G(:), pTemp1(:)
 Integer, Allocatable, Target:: IndRSh_Hidden(:), IndRSh_G_Hidden(:)
+Integer, Pointer:: InfRed(:), InfRed_G(:)
+Integer, Allocatable, Target:: InfRed_Hidden(:), InfRed_G_Hidden(:)
 End Module ChoSwp

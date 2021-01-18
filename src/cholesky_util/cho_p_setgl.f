@@ -18,6 +18,7 @@ C
       use ChoSwp, only: nnBstRSh, nnBstRSh_G, nnBstRsh_L_Hidden
       use ChoSwp, only: iiBstRSh, iiBstRSh_G, iiBstRsh_L_Hidden
       use ChoSwp, only: IndRSh, IndRSh_G, IndRsh_G_Hidden
+      use ChoSwp, only: InfRed, InfRed_G, InfRed_G_Hidden
       Implicit None
       Integer ip_Diag
 #include "cholesky.fh"
@@ -61,8 +62,7 @@ C     ------------------------------
       Call iCopy(N,nnBstR,1,nnBstR_G,1)
       Call iCopy(3,nnBstRT,1,nnBstRT_G,1)
 
-      ip_InfRed_G = ip_InfRed
-      l_InfRed_G = l_InfRed
+      InfRed_G => InfRed
 
       ip_InfVec_G = ip_InfVec
       l_InfVec_G = l_InfVec
@@ -79,7 +79,9 @@ C     ------------------------------
 C     Reallocate and reset local data.
 C     --------------------------------
 
-      Call GetMem('LInfRed','Allo','Inte',ip_InfRed,l_InfRed)
+      Call mma_allocate(InfRed_G_Hidden,SIZE(InfRed),
+     &                  Label='InfRed_G_Hidden')
+      InfRed => InfRed_G_Hidden
       Call GetMem('LInfVec','Allo','Inte',ip_InfVec,l_InfVec)
 
       nnShl = n_mySP

@@ -23,7 +23,8 @@ C              record bookmarks during Cholesky decomposition.
 C
       use ChoArr, only: nDimRS
       use ChoSwp, only: iQuAB_Hidden, iQuAB, nnBstRSh_Hidden, nnBstRSh,
-     &                                       iiBstRSh_Hidden, iiBstRSh
+     &                                       iiBstRSh_Hidden, iiBstRSh,
+     &                                         InfRed_Hidden,   InfRed
 #include "implicit.fh"
       LOGICAL SKIP_PRESCREEN
       LOGICAL ALLOCATE_BOOKMARKS
@@ -187,9 +188,9 @@ C     -----------------------------------------------------------
          WRITE(LUPRI,*) SECNAM,': MAXVEC = ',MAXVEC
          CALL CHO_QUIT('MAXRED/MAXVEC error in '//SECNAM,103)
       ELSE
-         l_INFRED = MAXRED
          l_INFVEC = MAXVEC*INFVEC_N2*NSYM
-         CALL CHO_MEM('INFRED','ALLO','INTE',ip_INFRED,l_INFRED)
+         Call mma_allocate(InfRed_Hidden,MaxRed,Label='InfRed_Hidden')
+         InfRed => InfRed_Hidden
          CALL CHO_MEM('INFVEC','ALLO','INTE',ip_INFVEC,l_INFVEC)
          Call mma_allocate(nDimRS,NSYM,MAXRED,Label='nDimRS')
       END IF

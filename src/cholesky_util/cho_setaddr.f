@@ -8,15 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_SETADDR(INFRED,INFVEC,MRED,MVEC,M2,MSYM)
+      SUBROUTINE CHO_SETADDR(JNFRED,INFVEC,MRED,MVEC,M2,MSYM)
 C
 C     Purpose: set first disk addresses for reduced set info and
 C              vectors.
 C
       use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed
 #include "implicit.fh"
-      INTEGER INFRED(MRED), INFVEC(MVEC,M2,MSYM)
+      INTEGER JNFRED(MRED), INFVEC(MVEC,M2,MSYM)
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "WrkSpc.fh"
@@ -28,7 +28,7 @@ C     Set addresses.
 C     --------------
 
       IF (XNPASS .EQ. 0) THEN
-         INFRED(1) = 0
+         JNFRED(1) = 0
          DO ISYM = 1,NSYM
             INFVEC(1,3,ISYM) = 0
             INFVEC(1,4,ISYM) = 0
@@ -37,15 +37,15 @@ C     --------------
          IRED  = 3
          IPASS = XNPASS
          KOFF2 = ip_INDRED   + MMBSTRT*(IRED - 1)
-         CALL CHO_GETRED(IWORK(ip_INFRED),nnBstRSh(:,:,IRED),
+         CALL CHO_GETRED(INFRED,nnBstRSh(:,:,IRED),
      &                   IWORK(KOFF2),INDRSH,iSP2F,
      &                   MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,.FALSE.)
          CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,IRED)
          IF (IPASS .EQ. 1) THEN
-            INFRED(IPASS+1) = INFRED(IPASS)
+            JNFRED(IPASS+1) = JNFRED(IPASS)
      &                      + NSYM*NNSHL + 2*NNBSTRT(IRED) + NNSHL
          ELSE
-            INFRED(IPASS+1) = INFRED(IPASS)
+            JNFRED(IPASS+1) = JNFRED(IPASS)
      &                      + NSYM*NNSHL + NNBSTRT(IRED)
          END IF
          DO ISYM = 1,NSYM
@@ -63,10 +63,8 @@ C     --------------
                   ELSE IF (JPASS.LE.XNPASS .AND. JPASS.GT.0) THEN
                      IPASS = JPASS
                      KOFF2 = ip_INDRED   + MMBSTRT*(IRED - 1)
-                     CALL CHO_GETRED(IWORK(ip_INFRED),
-     &                               nnBstRSh(:,:,IRED),
-     &                               IWORK(KOFF2),INDRSH,
-     &                               iSP2F,
+                     CALL CHO_GETRED(INFRED,nnBstRSh(:,:,IRED),
+     &                               IWORK(KOFF2),INDRSH,iSP2F,
      &                               MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,
      &                               .FALSE.)
                      CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,
@@ -93,10 +91,8 @@ C     --------------
                   ELSE IF (JPASS.LE.XNPASS .AND. JPASS.GT.0) THEN
                      IPASS = JPASS
                      KOFF2 = ip_INDRED   + MMBSTRT*(IRED - 1)
-                     CALL CHO_GETRED(IWORK(ip_INFRED),
-     &                               nnBstRSh(:,:,IRED),
-     &                               IWORK(KOFF2),INDRSH,
-     &                               iSP2F,
+                     CALL CHO_GETRED(INFRED,nnBstRSh(:,:,IRED),
+     &                               IWORK(KOFF2),INDRSH,iSP2F,
      &                               MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,
      &                               .FALSE.)
                      CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,

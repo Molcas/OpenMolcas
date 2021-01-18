@@ -32,6 +32,7 @@
       SubRoutine IniCho_RI(nSkal,nVec_Aux,nIrrep,iTOffs,iShij,nShij)
       Use Para_Info, Only: Is_Real_Par
       use ChoArr, only: iSP2F
+      use ChoSwp, only: InfRed
       Implicit None
       Integer nSkal, nIrrep, nShij
       Integer nVec_Aux(0:nIrrep-1)
@@ -118,7 +119,7 @@ C     ------------------------------------------------------------------
       End Do
 
 C     Other initializations. Most importantly, allocate InfRed and
-C     InfVec arrays (pointers and dimensions stored in choptr.fh).
+C     InfVec arrays (defined in choswp.f90).
 C     We skip diagonal prescreening, as it has already been done.
 C     Instead, allocate and set the mapping from reduced to full shell
 C     pairs here.
@@ -158,7 +159,7 @@ C     Set start disk addresses.
 C     -------------------------
 
       XnPass = 0 ! it should be zeroed in Cho_Inp, but just in case.
-      Call Cho_SetAddr(iWork(ip_InfRed),iWork(ip_infVec),MaxRed,MaxVec,
+      Call Cho_SetAddr(InfRed,iWork(ip_infVec),MaxRed,MaxVec,
      &                 InfVec_N2,nSym)
 
 C     Set vector info.

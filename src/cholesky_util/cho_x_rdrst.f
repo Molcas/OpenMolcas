@@ -19,11 +19,13 @@ C              block. If ifail != 0 on exit, some error occurred and,
 C              most likely, some of the restart info is not
 C              defined/initialized.
 C
+      use ChoSwp, only: InfRed, InfRed_Hidden
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Character*11 SecNam
       Parameter (SecNam = 'Cho_X_RdRst')
@@ -154,13 +156,13 @@ C     --------------------------------------------
          ifail = 4
          Go To 100
       Else
-         l_InfRed = MaxRed
-         Call GetMem('InfRed','Allo','Inte',ip_InfRed,l_InfRed)
+         Call mma_allocate(InfRed_Hidden,MaxRed,Label='InfRed_Hidden')
+         InfRed => InfRed_Hidden
          iOpt = 2
-         Call iDAFile(LuRst,iOpt,iWork(ip_InfRed),l_InfRed,iAdr)
-         If (iWork(ip_InfRed) .ne. 0) Then
+         Call iDAFile(LuRst,iOpt,InfRed,SIZE(InfRed),iAdr)
+         If (InfRed(1) .ne. 0) Then
             Write(6,'(A,A,I10)')
-     &      SecNam,': disk address of 1st reduced set:',iWork(ip_InfRed)
+     &      SecNam,': disk address of 1st reduced set:',InfRed(1)
             ifail = 5
             Go To 100
          End If

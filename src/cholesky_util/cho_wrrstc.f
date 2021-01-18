@@ -15,6 +15,7 @@ C
 C     NB!!!  The restart files are assumed open on entry.
 C
       use ChoArr, only: IntMap
+      use ChoSwp, only: InfRed
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -79,7 +80,7 @@ C     ------------------
       CALL IDAFILE(LURST,IOPT,JSCR,NWR,IADR)
 
       IOPT = 1
-      CALL IDAFILE(LURST,IOPT,IWORK(ip_INFRED),IPASS,IADR)
+      CALL IDAFILE(LURST,IOPT,INFRED,IPASS,IADR)
 
       DO ISYM = 1,NSYM
          IOPT = 1

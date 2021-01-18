@@ -14,6 +14,7 @@ C     Purpose: driver for the decomposition of the two-electron integral
 C              matrix based on the reduced diagonal.
 C
       use ChoArr, only: nDimRS
+      use ChoSwp, only: InfRed
 #include "implicit.fh"
       DIMENSION DIAG(*)
 #include "cholesky.fh"
@@ -37,9 +38,6 @@ C
 
       INTEGER  CHO_P_GETMPASS
       EXTERNAL CHO_P_GETMPASS
-
-      INFRED(I)=IWORK(ip_INFRED-1+I)
-
 
 C     Start timing.
 C     -------------

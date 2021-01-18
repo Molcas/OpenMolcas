@@ -17,6 +17,7 @@ C              defined/initialized.
 C
 C     NB!!!! the restart files MUST be open on entry...
 C
+      use ChoSwp, only: InfRed
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -32,8 +33,6 @@ C
       PARAMETER (LSCR = 8)
       REAL*8  DSCR(LSCR)
       INTEGER JSCR(LSCR)
-
-      INFRED(I)=IWORK(ip_INFRED-1+I)
 
 C     Set return code.
 C     ----------------
@@ -105,15 +104,15 @@ C     ------------------------
          GO TO 100
       ELSE
          IOPT = 2
-         CALL IDAFILE(LURST,IOPT,IWORK(ip_INFRED),XNPASS,IADR)
+         CALL IDAFILE(LURST,IOPT,INFRED,XNPASS,IADR)
          IF (INFRED(1) .NE. 0) THEN
             WRITE(LUPRI,'(A,A,I10)')
-     &      SECNAM,': disk address of 1st reduced set:',IWORK(ip_INFRED)
+     &      SECNAM,': disk address of 1st reduced set:',INFRED(1)
             IFAIL = 4
             GO TO 100
          END IF
          LREST = MAXRED - XNPASS
-         IF (LREST .GT. 0) CALL CHO_IZERO(IWORK(ip_INFRED+XNPASS),LREST)
+         IF (LREST .GT. 0) CALL CHO_IZERO(INFRED(1+XNPASS),LREST)
       END IF
       DO ISYM = 1,NSYM
          IOPT = 2

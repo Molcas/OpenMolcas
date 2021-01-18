@@ -15,7 +15,7 @@ C              of symmetry block ISYM of diagonal in red. set 1.
 C              This emulates the actual procedure during decomposition.
 C
       use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed
 #include "implicit.fh"
       DIMENSION DIAG(*), WRK(LWRK)
 #include "cholesky.fh"
@@ -97,9 +97,8 @@ C           --------------------------------------------------------
      &                            NSYM,NNSHL,NNBSTRT(1),3)
                ELSE
                   KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
-                  CALL CHO_GETRED(IWORK(ip_INFRED),nnBstRSh(:,:,ILOC),
-     &                            IWORK(KOFF2),INDRSH,
-     &                            iSP2F,
+                  CALL CHO_GETRED(INFRED,nnBstRSh(:,:,ILOC),
+     &                            IWORK(KOFF2),INDRSH,iSP2F,
      &                            MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
      &                            .FALSE.)
                   CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,ILOC)

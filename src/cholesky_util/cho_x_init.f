@@ -58,6 +58,7 @@
       use ChoSwp, only: nnBstRSh, nnBstRSh_Hidden
       use ChoSwp, only: iiBstRSh, iiBstRSh_Hidden
       use ChoSwp, only:   IndRSh,   IndRSh_Hidden
+      use ChoSwp, only:   InfRed
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
@@ -348,7 +349,7 @@ C     -------------------------------
       iLoc = 3
       Do iRed = 2,MaxRed
          kOff2 = ip_IndRed   + mmBstRT*(iLoc - 1)
-         Call Cho_GetRed(iWork(ip_InfRed),nnBstRSh(:,:,iLoc),
+         Call Cho_GetRed(InfRed,nnBstRSh(:,:,iLoc),
      &                   iWork(kOff2),IndRsh,iSP2F,
      &                   MaxRed,nSym,nnShl,mmBstRT,iRed,.false.)
          Call Cho_SetRedInd(iiBstRSh,nnBstRSh,nSym,nnShl,iLoc)

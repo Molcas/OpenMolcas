@@ -19,7 +19,9 @@
      &                  iiBstRSh_Hidden, iiBstRSh,
      &                  iiBstRSh_L_Hidden, iiBstRSh_G,
      &                    IndRSh_Hidden,   IndRSh,
-     &                    IndRSh_G_Hidden,   IndRSh_G
+     &                    IndRSh_G_Hidden,   IndRSh_G,
+     &                    InfRed_Hidden,   InfRed,
+     &                    InfRed_G_Hidden,   InfRed_G
 C
 C     T.B. Pedersen, July 2004.
 C
@@ -47,10 +49,9 @@ C     ------------------------------
 C     Deallocate.
 C     -----------
 
-      If (l_InfRed .ne. 0) Then
-         Call GetMem('InfRed','Free','Inte',ip_InfRed,l_InfRed)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(InfRed_Hidden))
+     &    Call mma_deallocate(InfRed_Hidden)
+      If (Associated(InfRed)) InfRed=>Null()
 
       If (l_InfVec .ne. 0) Then
          Call GetMem('InfVec','Free','Inte',ip_InfVec,l_InfVec)
@@ -164,6 +165,10 @@ C     -----------------------------------------
 
 C     Deallocate any used pointer in cholq.fh
 C     -----------------------------------------
+
+      If (Allocated(InfRed_G_Hidden))
+     &    Call mma_deallocate(InfRed_G_Hidden)
+      If (Associated(InfRed_G)) InfRed_G=>Null()
 
       If (Allocated(IndRSh_G_Hidden))
      &    Call mma_deallocate(IndRSh_G_Hidden)

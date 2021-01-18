@@ -12,6 +12,7 @@
 C
 C     Purpose: initialize counter arrays.
 C
+      use ChoSwp, only: InfRed
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -45,7 +46,7 @@ C        ------------------------------------
 C        Initialize reduced set info.
 C        ----------------------------
 
-         CALL CHO_IZERO(IWORK(ip_INFRED),l_INFRED)
+         CALL CHO_IZERO(INFRED,SIZE(INFRED))
 
 C        Initialize global integral pass counter.
 C        ----------------------------------------
