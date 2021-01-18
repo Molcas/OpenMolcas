@@ -92,6 +92,12 @@
 
       contains
 
+          !> Read a line from GUGA NECI RDM file with
+          !> `file_id` as unit and parse it into i and RDMval.
+          !> Return true, if line was successfully read and false
+          !> if EOF reached.
+          !> Aborts if IO error happens.
+          !> **i and RDMval are undefined, if functions returns false**!
           logical function read_line(file_id, i, RDMval)
               integer, intent(in) :: file_id
               integer, intent(out) :: i
@@ -104,8 +110,8 @@
               else if (is_iostat_end(iread)) then
                   ! Let's try to cause an error, if code uses undefined
                   ! values for i and RDMval
-                  i = -(huge(i) - 1)
-                  RDMval = IEEE_VALUE(RDMval, IEEE_QUIET_NAN)
+                  i = huge(i)
+                  RDMval = huge(RDMval)
               else
                   read_line = .true.
               end if
