@@ -235,6 +235,7 @@
      &        real_path(ascii_fcidmp), real_path(input_name),
      &                  MxMem, NECIen)
             if (myrank /= 0) call chdir_('tmp_'//str(myrank))
+            previous_NECIen = NECIen
 #else
             call WarningMessage(2, 'EmbdNECI is given in input, '//
      &'so the embedded NECI should be used. Unfortunately MOLCAS was '//
@@ -250,8 +251,8 @@
      &                                  h5_fcidmp, energy_file, tGUGA)
             end if
             call wait_and_read(energy_file, NECIen)
+            previous_NECIen = NECIen
         end if
-        previous_NECIen = NECIen
         call get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT, tGUGA)
         call RDM_to_runfile(DMAT, D1S_MO, PSMAT, PAMAT)
       end subroutine run_neci

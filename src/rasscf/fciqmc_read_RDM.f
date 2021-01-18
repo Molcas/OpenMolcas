@@ -14,7 +14,6 @@
 ************************************************************************
 
       module fciqmc_read_RDM
-      use, intrinsic :: ieee_arithmetic, only: IEEE_Value,IEEE_QUIET_NAN
       use definitions, only: wp
       use para_info, only: myRank
       use general_data, only : nActEl
