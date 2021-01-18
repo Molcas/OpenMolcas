@@ -18,6 +18,7 @@ C         pointers, not actual data (except for the statically allocated
 C         index arrays which amount to swapping 51 integers in total).
 C
       use ChoSwp, only: nnBstRSh, nnBstRSh_G, pTemp3
+      use ChoSwp, only: iiBstRSh, iiBstRSh_G
       Implicit None
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -53,16 +54,13 @@ C
       l_InfVec_G = l_InfVec
       l_InfVec = iTmp
 
-      iTmp = ip_iiBstRSh_G
-      ip_iiBstRSh_G = ip_iiBstRSh
-      ip_iiBstRSh = iTmp
-      iTmp = l_iiBstRSh_G
-      l_iiBstRSh_G = l_iiBstRSh
-      l_iiBstRSh = iTmp
+      pTemp3 => iiBstRSh_G
+      iiBstRSh_G => iiBstRSh
+      iiBstRSh => pTemp3
 
       pTemp3 => nnBstRSh_G
       nnBstRSh_G => nnBstRSh
-      nnBstRSh = pTemp3
+      nnBstRSh => pTemp3
 
       iTmp = ip_IndRed_G
       ip_IndRed_G = ip_IndRed

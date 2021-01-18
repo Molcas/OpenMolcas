@@ -15,7 +15,7 @@ C              of symmetry block ISYM of diagonal in red. set 1.
 C              This emulates the actual procedure during decomposition.
 C
       use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh
 #include "implicit.fh"
       DIMENSION DIAG(*), WRK(LWRK)
 #include "cholesky.fh"
@@ -53,7 +53,7 @@ C     Set up rs1 indices at location ILOC.
 C     Set IREDC to identify this.
 C     ------------------------------------
 
-      CALL CHO_RSCOPY(IWORK(ip_IIBSTRSH),NNBSTRSH,
+      CALL CHO_RSCOPY(IIBSTRSH,NNBSTRSH,
      &                IWORK(ip_INDRED),1,ILOC,NSYM,NNSHL,NNBSTRT(1),3)
       IREDC = 1
 
@@ -92,7 +92,7 @@ C           --------------------------------------------------------
             JRED = INFVEC(IVEC1+JVEC-1,2,ISYM)
             IF (JRED .NE. IREDC) THEN
                IF (JRED .EQ. 1) THEN
-                  CALL CHO_RSCOPY(IWORK(ip_IIBSTRSH),NNBSTRSH,
+                  CALL CHO_RSCOPY(IIBSTRSH,NNBSTRSH,
      &                            IWORK(ip_INDRED),1,ILOC,
      &                            NSYM,NNSHL,NNBSTRT(1),3)
                ELSE
@@ -102,9 +102,7 @@ C           --------------------------------------------------------
      &                            iSP2F,
      &                            MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
      &                            .FALSE.)
-                  CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                               NNBSTRSH,NSYM,NNSHL,
-     &                               ILOC)
+                  CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,ILOC)
                END IF
                IREDC = JRED
             END IF

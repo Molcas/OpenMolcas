@@ -77,7 +77,7 @@ C     NOTE: if no vectors can be read, JNUM=0 and MUSED=0 are returned,
 C           but execution is NOT stopped here!!!
 C
       use ChoArr, only: nDimRS, iSP2F
-      use ChoSwp, only: nnBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh
 #include "implicit.fh"
       DIMENSION SCR(LSCR)
       LOGICAL   DOREAD
@@ -122,9 +122,7 @@ C        -----------------------------------
      &                            iSP2F,
      &                            MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
      &                            .FALSE.)
-                  CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                               NNBSTRSH,
-     &                               NSYM,NNSHL,ILOC)
+                  CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,ILOC)
                   IREDC = JRED
                END IF
                LTOT = LTOT + NNBSTR(ISYM,ILOC)
@@ -182,9 +180,7 @@ C        ---------------------------------------------------
      &                            iSP2F,
      &                            MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
      &                            .FALSE.)
-                  CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                               NNBSTRSH,
-     &                               NSYM,NNSHL,ILOC)
+                  CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,ILOC)
                   IREDC = JRED
                END IF
                LTOT = LTOT + NNBSTR(ISYM,ILOC)

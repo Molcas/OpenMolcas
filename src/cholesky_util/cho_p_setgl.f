@@ -16,6 +16,7 @@ C              been reset to point to the local one, allocated and
 C              defined in this routine.
 C
       use ChoSwp, only: nnBstRSh, nnBstRSh_G, nnBstRsh_L_Hidden
+      use ChoSwp, only: iiBstRSh, iiBstRSh_G, iiBstRsh_L_Hidden
       Implicit None
       Integer ip_Diag
 #include "cholesky.fh"
@@ -32,15 +33,12 @@ C
       Integer N, iSP, iSym, iShlAB, i1, i2, irc
       Integer l_LDiag
 
-      Integer i, j, k
+      Integer i, j
       Integer mySP, iL2G
-      Integer iiBstRSh_G
       Integer IndRed_G, IndRSh_G
 
       iL2G(i)=iWork(ip_iL2G-1+i)
       mySP(i)=iWork(ip_mySP-1+i)
-      iiBstRSh_G(i,j,k)=
-     &            iWork(ip_iiBstRSh_G-1+nSym*nnShl_G*(k-1)+nSym*(j-1)+i)
       IndRed_G(i,j)=iWork(ip_IndRed_G-1+mmBstRT_G*(j-1)+i)
       IndRSh_G(i)=iWork(ip_IndRSh_G-1+i)
 
@@ -69,8 +67,7 @@ C     ------------------------------
       ip_InfVec_G = ip_InfVec
       l_InfVec_G = l_InfVec
 
-      ip_iiBstRSh_G = ip_iiBstRSh
-      l_iiBstRSh_G = l_iiBstRSh
+      iiBstRSh_G => iiBstRSh
 
       nnBstRSh_G => nnBstRSh
 
@@ -87,8 +84,9 @@ C     --------------------------------
       Call GetMem('LInfVec','Allo','Inte',ip_InfVec,l_InfVec)
 
       nnShl = n_mySP
-      l_iiBstRSh = nSym*nnShl*3
-      Call GetMem('LiiBstRSh','Allo','Inte',ip_iiBstRSh,l_iiBstRSh)
+      Call mma_allocate(iiBstRsh_L_Hidden,nSym,n_mySP,3,
+     &                  Label='iiBstRSh_L_Hidden')
+      iiBstRSh => iiBstRSh_L_Hidden
       Call mma_allocate(nnBstRsh_L_Hidden,nSym,n_mySP,3,
      &                  Label='nnBstRSh_L_Hidden')
       nnBstRSh => nnBstRSh_L_Hidden
@@ -99,8 +97,7 @@ C     --------------------------------
             nnBstRSh(iSym,iSP,1) = nnBstRSh_G(iSym,iShlAB,1)
          End Do
       End Do
-      Call Cho_SetRedInd(iWork(ip_iiBstRSh),nnBstRSh,
-     &                   nSym,nnShl,1)
+      Call Cho_SetRedInd(iiBstRSh,nnBstRSh,nSym,nnShl,1)
       mmBstRT = nnBstRT(1)
 
       l_IndRed = mmBstRT*3

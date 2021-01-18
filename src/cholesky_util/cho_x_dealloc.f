@@ -15,7 +15,9 @@
      &                  iShlSO, iRS2F, IntMap, iScr, nDimRS
       use ChoSwp, only: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden,
      &                  nnBstRSh_Hidden, nnBstRSh,
-     &                  nnBstRSh_L_Hidden, nnBstRSh_G
+     &                  nnBstRSh_L_Hidden, nnBstRSh_G,
+     &                  iiBstRSh_Hidden, iiBstRSh,
+     &                  iiBstRSh_L_Hidden, iiBstRSh_G
 C
 C     T.B. Pedersen, July 2004.
 C
@@ -65,10 +67,9 @@ C     -----------
 
       If (Allocated(iScr)) Call mma_deallocate(iScr)
 
-      If (l_iiBstRSh .ne. 0) Then
-         Call GetMem('iiBstRSh','Free','Inte',ip_iiBstRSh,l_iiBstRSh)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(iiBstRSh_Hidden))
+     &    Call mma_deallocate(iiBstRSh_Hidden)
+      If (Associated(iiBstRSh)) iiBstRSh=>Null()
 
       If (Allocated(nnBstRSh_Hidden))
      &    Call mma_deallocate(nnBstRSh_Hidden)
@@ -162,6 +163,11 @@ C     -----------------------------------------
 
 C     Deallocate any used pointer in cholq.fh
 C     -----------------------------------------
+
+      If (Allocated(iiBstRSh_L_Hidden))
+     &    Call mma_deallocate(iiBstRSh_L_Hidden)
+      If (Associated(iiBstRSh_G)) iiBstRSh_G=>Null()
+
       If (Allocated(nnBstRSh_L_Hidden))
      &    Call mma_deallocate(nnBstRSh_L_Hidden)
       If (Associated(nnBstRSh_G)) nnBstRSh_G=>Null()

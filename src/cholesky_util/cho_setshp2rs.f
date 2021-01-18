@@ -16,7 +16,7 @@ C              If a non-zero code (irc) is returned, nothing has been
 C              set!!
 C
       use ChoArr, only: nBstSh, iSP2F
-      use ChoSwp, only: nnBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh
 #include "implicit.fh"
       Integer nAB(*)
 #include "cholesky.fh"
@@ -31,7 +31,6 @@ C
 #endif
 
       IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
-      iiBstRSh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
       mySP(i)=iWork(ip_mySP-1+i)
 #if defined (_DEBUGPRINT_)
       IndRsh(i)=iWork(ip_IndRSh-1+i)

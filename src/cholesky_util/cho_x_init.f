@@ -56,6 +56,7 @@
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO,
      &                  iRS2F, nDimRS
       use ChoSwp, only: nnBstRSh, nnBstRSh_Hidden
+      use ChoSwp, only: iiBstRSh, iiBstRSh_Hidden
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
@@ -262,8 +263,9 @@ C     ----------------------------------------------------
 C     Allocate and initialize index arrays.
 C     -------------------------------------
 
-      l_iiBstRSh = nSym*nnShl*3
-      Call GetMem('iiBstRSh','Allo','Inte',ip_iiBstRSh,l_iiBstRSh)
+      call mma_allocate(iiBstRSh_Hidden,nSym,nnShl,3,
+     &                  Label='iiBstRSh_Hidden')
+      iiBstRSh => iiBstRSh_Hidden
       call mma_allocate(nnBstRSh_Hidden,nSym,nnShl,3,
      &                  Label='nnBstRSh_Hidden')
       nnBstRSh => nnBstRSh_Hidden
@@ -334,7 +336,7 @@ C     -----------------------------------------------------------------
 C     Copy reduced set 1 to location 2.
 C     ---------------------------------
 
-      Call Cho_RSCopy(iWork(ip_iiBstRSh),nnBstRSh,
+      Call Cho_RSCopy(iiBstRSh,nnBstRSh,
      &                iWork(ip_IndRed),1,2,nSym,nnShl,mmBstRT,3)
 
 C     Get dimensions of reduced sets.
@@ -348,15 +350,14 @@ C     -------------------------------
          Call Cho_GetRed(iWork(ip_InfRed),nnBstRSh(:,:,iLoc),
      &                   iWork(kOff2),iWork(ip_IndRsh),iSP2F,
      &                   MaxRed,nSym,nnShl,mmBstRT,iRed,.false.)
-         Call Cho_SetRedInd(iWork(ip_iiBstRSh),nnBstRSh,
-     &                      nSym,nnShl,iLoc)
+         Call Cho_SetRedInd(iiBstRSh,nnBstRSh,nSym,nnShl,iLoc)
          Call iCopy(nSym,nnBstR(1,iLoc),1,nDimRS(:,iRed),1)
       End Do
 
 C     Copy reduced set 1 to location 3.
 C     ---------------------------------
 
-      Call Cho_RSCopy(iWork(ip_iiBstRSh),nnBstRSh,
+      Call Cho_RSCopy(iiBstRSh,nnBstRSh,
      &                iWork(ip_IndRed),1,3,nSym,nnShl,mmBstRT,3)
 
 C     Derive:

@@ -225,7 +225,7 @@ C     --------------
       SubRoutine Cho_PrintPointers(irc,Lunit)
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iAtomShl, iSP2F,
      &                  iShlSO, iRS2F, IntMap, iScr, nDimRS
-      use ChoSwp, only: iQuAB, nnBstRSh
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
 C
 C     Purpose: print all entries in choptr.fh to Lunit.
 C
@@ -249,8 +249,7 @@ C
       Write(Lunit,*) 'IndRSh  : ',ip_IndRsh,l_IndRsh
       nAlloc    = nAlloc + 1
       Write(Lunit,*) 'iScr    : ',SIZE(iScr)
-      Write(Lunit,*) 'iiBstRSh: ',ip_iiBstRSh,l_iiBstRSh
-      nAlloc    = nAlloc + 1
+      Write(Lunit,*) 'iiBstRSh: ',SIZE(iiBstRSh)
       Write(Lunit,*) 'nnBstRSh: ',SIZE(nnBstRSh)
       Write(Lunit,*) 'IntMap  : ',SIZE(IntMap)
       Write(Lunit,*) 'nDimRS  : ',SIZE(nDimRS)

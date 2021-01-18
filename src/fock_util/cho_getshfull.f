@@ -19,6 +19,7 @@
 *
 ************************************************************
       use ChoArr, only: iSOShl, iShlSO, iBasSh, nBasSh, iRS2F, nDimRS
+      use ChoSwp, only: iiBstRSh
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr),SvShp(*)
       Integer iShp_rs(*)
@@ -41,7 +42,7 @@
       INDRSH(I)=IWORK(ip_INDRSH-1+I)
 ****** this is a trick to save memory. Memory in "location 2" is used
 ******      to store some offset arrays
-      iOffShp(i,j) = iWork(ip_iiBstRSh+nSym*nnShl-1+nSym*(j-1)+i)
+      iOffShp(i,j) = iiBstRSh(i,j,2)
 ************************************************************************
 
 **********************************************************

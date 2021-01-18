@@ -90,7 +90,7 @@ C
 C     Simply write the partial vectors to disk at the appropriate
 C     addresses on the vector files.
 C
-      use ChoSwp, only: nnBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh
       Implicit None
       Integer irc
       Real*8  Vec(*)
@@ -103,11 +103,7 @@ C
       Parameter (iOpt=1)
 
       Integer iSym, kV
-      Integer lTot, iAdr, iAdr0
-
-      Integer i, j, k
-      Integer iiBstRSh
-      iiBstRSh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
+      Integer lTot, iAdr, iAdr0, j
 
       irc=0
 

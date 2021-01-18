@@ -17,7 +17,7 @@ C              this routine is called. Reduced set 2, on the
 C              other hand, is set up here.
 C
       use ChoArr, only: nDimRS,iSP2F, iAtomShl
-      use ChoSwp, only: nnBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh
 #include "implicit.fh"
       DIMENSION DIAG(*), WRK(LWRK)
       LOGICAL   DSKDIA, LCONV
@@ -42,7 +42,6 @@ C
 
       INDRSH(I)=IWORK(ip_INDRSH-1+I)
       INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
-      IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
       MYSP(I)=IWORK(ip_MYSP-1+I)
       ISIMRI(I)=IWORK(ip_ISIMRI-1+I)
 
@@ -75,7 +74,7 @@ C     -------------------------------
 C     Copy reduced set 1 to 2.
 C     ------------------------
 
-      CALL CHO_RSCOPY(IWORK(ip_IIBSTRSH),NNBSTRSH,
+      CALL CHO_RSCOPY(IIBSTRSH,NNBSTRSH,
      &                IWORK(ip_INDRED),1,2,NSYM,NNSHL,NNBSTRT(1),3)
 
       IMXAB  = 0

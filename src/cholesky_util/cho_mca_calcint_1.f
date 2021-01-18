@@ -16,7 +16,7 @@ C
 C     Version 1: store full shell quadruple.
 C
       use ChoArr, only: nBstSh, iSP2F
-      use ChoSwp, only: iQuAB, nnBstRSh
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
@@ -32,7 +32,6 @@ C
 
       INTEGER NAB(8)
 
-      IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
       INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
 
 #if defined (_DEBUGPRINT_)

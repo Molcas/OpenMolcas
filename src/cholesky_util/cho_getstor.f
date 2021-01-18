@@ -41,7 +41,7 @@ C
 C     Purpose: get total vector storage (in words), symmetry ISYM.
 C
       use ChoArr, only: nDimRS, iSP2F
-      use ChoSwp, only: nnBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -62,8 +62,7 @@ C
      &                      IWORK(KOFF2),IWORK(ip_INDRSH),
      &                      iSP2F,
      &                      MAXRED,NSYM,NNSHL,MMBSTRT,IRED,.FALSE.)
-            CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),NNBSTRSH,
-     &                         NSYM,NNSHL,JRED)
+            CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,JRED)
             VCSTOR = DBLE(INFVEC(NUMCHO(ISYM),4,ISYM))
      &             + DBLE(NNBSTR(ISYM,JRED))
          ELSE

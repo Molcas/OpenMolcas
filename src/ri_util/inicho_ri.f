@@ -177,7 +177,7 @@ C     --------------------------------------------------------------
       End
       SubRoutine IniCho_RI_Xtras(iTOffs,nIrrep,iShij,nShij)
       use ChoArr, only: iRS2F, nDimRS
-      use ChoSwp, only: nnBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh
       Implicit None
       Integer nIrrep, nShij
 #include "cholesky.fh"
@@ -252,7 +252,7 @@ C     Set index arrays corresponding to full storage:
 C     iiBstRSh, nnBstRSh, IndRed, IndRSh, and iRS2F.
 C     -----------------------------------------------
 
-      Call SetChoIndx_RI(iWork(ip_iiBstRSh),nnBstRSh,
+      Call SetChoIndx_RI(iiBstRSh,nnBstRSh,
      &                   iWork(ip_IndRed),iWork(ip_IndRsh),
      &                   iRS2F,
      &                   nSym,nnShl,nnBstRT(1),3,2,iShij,nShij)

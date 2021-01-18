@@ -19,7 +19,7 @@ C
 C     Screening in subtraction introduced Jan. 2006, TBP.
 C
       use ChoArr, only: iSP2F, iScr
-      use ChoSwp, only: iQuAB, nnBstRSh
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
 #include "implicit.fh"
       DIMENSION XINT(*), WRK(LWRK)
       LOGICAL   FXDMEM
@@ -50,7 +50,6 @@ C
       EXTERNAL CHO_X_NUMRD
 
       INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
-      IIBSTRSH(I,J,K)=IWORK(ip_IIBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
       DSUBSCR(I)=WORK(ip_DSUBSCR-1+I)
       DSPNM(I)=WORK(ip_DSPNM-1+I)
 
@@ -295,8 +294,7 @@ C           -----------------------------------------------------
      &                               iSP2F,
      &                               MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
      &                               .FALSE.)
-                     CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                                  NNBSTRSH,NSYM,NNSHL,
+                     CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,
      &                                  ILOC)
                      IREDC = JRED
                   END IF

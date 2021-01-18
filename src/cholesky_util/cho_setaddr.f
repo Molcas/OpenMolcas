@@ -14,7 +14,7 @@ C     Purpose: set first disk addresses for reduced set info and
 C              vectors.
 C
       use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh
 #include "implicit.fh"
       INTEGER INFRED(MRED), INFVEC(MVEC,M2,MSYM)
 #include "cholesky.fh"
@@ -40,8 +40,7 @@ C     --------------
          CALL CHO_GETRED(IWORK(ip_INFRED),nnBstRSh(:,:,IRED),
      &                   IWORK(KOFF2),IWORK(ip_INDRSH),iSP2F,
      &                   MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,.FALSE.)
-         CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),NNBSTRSH,
-     &                      NSYM,NNSHL,IRED)
+         CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,IRED)
          IF (IPASS .EQ. 1) THEN
             INFRED(IPASS+1) = INFRED(IPASS)
      &                      + NSYM*NNSHL + 2*NNBSTRT(IRED) + NNSHL
@@ -70,9 +69,8 @@ C     --------------
      &                               iSP2F,
      &                               MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,
      &                               .FALSE.)
-                     CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                                  NNBSTRSH,
-     &                                  NSYM,NNSHL,IRED)
+                     CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,
+     &                                  IRED)
                      INFVEC(NUMCHO(ISYM)+1,3,ISYM) =
      &               INFVEC(NUMCHO(ISYM),3,ISYM) + NNBSTR(ISYM,IRED)
                      INFVEC(NUMCHO(ISYM)+1,4,ISYM) =
@@ -101,9 +99,8 @@ C     --------------
      &                               iSP2F,
      &                               MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,
      &                               .FALSE.)
-                     CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                                  NNBSTRSH,
-     &                                  NSYM,NNSHL,IRED)
+                     CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,
+     &                                  IRED)
                      LSA = NNBSTR(ISYM,IRED)
                      CALL CHO_MEM('SetAddr','ALLO','REAL',KSA,LSA)
                      IOPT = 2

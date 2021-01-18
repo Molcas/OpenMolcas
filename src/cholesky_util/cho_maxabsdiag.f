@@ -101,7 +101,7 @@ C     Specialization for 1-Center approximation: only find max for
 C     1-center diagonals.
 C
       use ChoArr, only: iSP2F, iAtomShl
-      use ChoSwp, only: nnBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh
 #include "implicit.fh"
       Real*8 Diag(*)
 #include "cholesky.fh"
@@ -119,7 +119,6 @@ C
 #endif
 
       IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
-      iiBstRSh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
 
       If (iLoc .eq. 1) Then
          Do iSym = 1,nSym

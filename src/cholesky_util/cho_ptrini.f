@@ -35,10 +35,6 @@ C
       l_INDRSH  = 0
       nAlloc    = nAlloc + 1
 
-      ip_IIBSTRSH = 0
-      l_IIBSTRSH  = 0
-      nAlloc      = nAlloc + 1
-
       irc = CHO_NALLOC - nAlloc
 
       End

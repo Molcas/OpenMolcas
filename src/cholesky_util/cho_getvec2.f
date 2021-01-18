@@ -24,7 +24,7 @@ C           disk and should not be smaller than NNBSTR(ISYM,1)+1,
 C           preferably more.
 C
       use ChoArr, only: iSP2F, iScr
-      use ChoSwp, only: nnBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
@@ -130,8 +130,7 @@ C              ---------------------------------------------------
      &                            iSP2F,
      &                            MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
      &                            .FALSE.)
-                  CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                               NNBSTRSH,NSYM,NNSHL,3)
+                  CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,3)
                   IREDC = JRED
                END IF
 

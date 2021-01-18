@@ -26,7 +26,7 @@ C           use LSCR = 2 x dimension of first reduced set.
 C
 C
       use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
@@ -62,8 +62,7 @@ C     -----------------------------------------------
      &                IWORK(KOFF2),IWORK(ip_INDRSH),iSP2F,
      &                MAXRED,NSYM,NNSHL,MMBSTRT,IRED,
      &                .FALSE.)
-      CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                   NNBSTRSH,NSYM,NNSHL,3)
+      CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,3)
       KRED1 = 1
       KREAD = KRED1 + NNBSTR(ISYM,1)
       KEND1 = KREAD + NNBSTR(ISYM,3)
@@ -92,8 +91,7 @@ C     ------------------------------------------------------------------
      &                      iSP2F,
      &                      MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
      &                      .FALSE.)
-            CALL CHO_SETREDIND(IWORK(ip_IIBSTRSH),
-     &                         NNBSTRSH,NSYM,NNSHL,3)
+            CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,3)
             KEND1 = KREAD + NNBSTR(ISYM,3)
             LSCR1 = LSCR  - KEND1 + 1
             IF (LSCR1 .LT. 0) THEN

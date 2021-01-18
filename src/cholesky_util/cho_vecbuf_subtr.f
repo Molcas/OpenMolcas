@@ -16,7 +16,7 @@ C
 C     DoTime: time as vector subtraction.
 C     DpStat: update statistics info (#calls to dGeMM).
 C
-      use ChoSwp, only: iQuAB, nnBstRSh
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
 #include "implicit.fh"
       Real*8  xInt(*), Wrk(lWrk)
       Logical DoTime, DoStat
@@ -39,7 +39,6 @@ C
 
       Parameter (xMOne = -1.0d0, One = 1.0d0)
 
-      iiBstRSh(i,j,k)=iWork(ip_iiBstRSh-1+nSym*nnShl*(k-1)+nSym*(j-1)+i)
       DSubScr(i)=Work(ip_DSubScr-1+i)
       DSPNm(i)=Work(ip_DSPNm-1+i)
 
