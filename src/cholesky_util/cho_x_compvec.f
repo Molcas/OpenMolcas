@@ -44,7 +44,7 @@ C
 #if defined (_DEBUGPRINT_)
       use ChoArr, only: iSP2F
 #endif
-      use ChoSwp, only: iQuAB, pTemp, iQuAB_here, nnBstRSh
+      use ChoSwp, only: iQuAB, pTemp, iQuAB_here, nnBstRSh, IndRSh
       Implicit None
       Integer irc
       Integer l_NVT
@@ -110,8 +110,7 @@ C
       Real*8 TotMem, TotCPU, TotWall
 
       Integer i, j, k
-      Integer IndRSh, iTri, InfVcT
-      IndRSh(i)=iWork(ip_IndRSh-1+i)
+      Integer iTri, InfVcT
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
       InfVcT(i,j,k)=iWork(ip_InfVec_T-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 

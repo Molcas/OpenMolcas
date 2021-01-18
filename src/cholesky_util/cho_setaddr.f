@@ -14,7 +14,7 @@ C     Purpose: set first disk addresses for reduced set info and
 C              vectors.
 C
       use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh
 #include "implicit.fh"
       INTEGER INFRED(MRED), INFVEC(MVEC,M2,MSYM)
 #include "cholesky.fh"
@@ -38,7 +38,7 @@ C     --------------
          IPASS = XNPASS
          KOFF2 = ip_INDRED   + MMBSTRT*(IRED - 1)
          CALL CHO_GETRED(IWORK(ip_INFRED),nnBstRSh(:,:,IRED),
-     &                   IWORK(KOFF2),IWORK(ip_INDRSH),iSP2F,
+     &                   IWORK(KOFF2),INDRSH,iSP2F,
      &                   MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,.FALSE.)
          CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,IRED)
          IF (IPASS .EQ. 1) THEN
@@ -65,7 +65,7 @@ C     --------------
                      KOFF2 = ip_INDRED   + MMBSTRT*(IRED - 1)
                      CALL CHO_GETRED(IWORK(ip_INFRED),
      &                               nnBstRSh(:,:,IRED),
-     &                               IWORK(KOFF2),IWORK(ip_INDRSH),
+     &                               IWORK(KOFF2),INDRSH,
      &                               iSP2F,
      &                               MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,
      &                               .FALSE.)
@@ -95,7 +95,7 @@ C     --------------
                      KOFF2 = ip_INDRED   + MMBSTRT*(IRED - 1)
                      CALL CHO_GETRED(IWORK(ip_INFRED),
      &                               nnBstRSh(:,:,IRED),
-     &                               IWORK(KOFF2),IWORK(ip_INDRSH),
+     &                               IWORK(KOFF2),INDRSH,
      &                               iSP2F,
      &                               MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,
      &                               .FALSE.)

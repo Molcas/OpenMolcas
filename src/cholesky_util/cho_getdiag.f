@@ -15,7 +15,7 @@ C              points to the diagonal in work space and flag LCONV tells
 C              if the diagonal is converged.
 C
       use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRSh_Hidden
 #include "implicit.fh"
       LOGICAL LCONV
 #include "cholesky.fh"
@@ -26,6 +26,7 @@ C
 #include "choptr2.fh"
 #include "chosimri.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       CHARACTER*11 SECNAM
       PARAMETER (SECNAM = 'CHO_GETDIAG')
@@ -62,9 +63,10 @@ C        ---------------------------------------------
 
          MMBSTRT  = NNBSTRT(1)
          l_INDRED = NNBSTRT(1)*3
-         l_INDRSH = NNBSTRT(1)
          CALL CHO_MEM('indred','ALLO','INTE',ip_INDRED,l_INDRED)
-         CALL CHO_MEM('indrsh','ALLO','INTE',ip_INDRSH,l_INDRSH)
+         Call mma_allocate(IndRSh_Hidden,NNBSTRT(1),
+     &                     Label='IndRSh_Hidden')
+         IndRSh => IndRSh_Hidden
 
 C        Read mapping arrays.
 C        --------------------
@@ -134,9 +136,10 @@ C        ---------------------------------------------------------
 
          MMBSTRT  = NNBSTRT(1)
          l_INDRED = NNBSTRT(1)*3
-         l_INDRSH = NNBSTRT(1)
          CALL CHO_MEM('indred','ALLO','INTE',ip_INDRED,l_INDRED)
-         CALL CHO_MEM('indrsh','ALLO','INTE',ip_INDRSH,l_INDRSH)
+         Call mma_allocate(IndRSh_Hidden,NNBSTRT(1),
+     &                     Label='IndRSh_Hidden')
+         IndRSh => IndRSh_Hidden
          CALL CHO_MEM('dia','ALLO','REAL',KDIAG,NNBSTRT(1))
 
          NEEDR = LBUF

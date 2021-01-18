@@ -178,6 +178,7 @@ C     --------------------------------------------------------------
       SubRoutine IniCho_RI_Xtras(iTOffs,nIrrep,iShij,nShij)
       use ChoArr, only: iRS2F, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh
+      use ChoSwp, only:   IndRSh,   IndRSh_Hidden
       Implicit None
       Integer nIrrep, nShij
 #include "cholesky.fh"
@@ -222,9 +223,9 @@ C     Allocate index arrays for reduced sets: IndRed and IndRsh.
 C     ----------------------------------------------------------
 
       l_IndRed=nnBstRT(1)*3
-      l_IndRSh=nnBstRT(1)
       Call GetMem('indred','Allo','Inte',ip_IndRed,l_IndRed)
-      Call GetMem('indrsh','Allo','Inte',ip_IndRSh,l_IndRSh)
+      Call mma_allocate(IndRSh_Hidden,nnBstRT(1),Label='IndRSh_Hidden')
+      IndRSh => IndRSh_Hidden
 
 C     Allocate iScr array used by reading routines.
 C     ---------------------------------------------
@@ -253,8 +254,7 @@ C     iiBstRSh, nnBstRSh, IndRed, IndRSh, and iRS2F.
 C     -----------------------------------------------
 
       Call SetChoIndx_RI(iiBstRSh,nnBstRSh,
-     &                   iWork(ip_IndRed),iWork(ip_IndRsh),
-     &                   iRS2F,
+     &                   iWork(ip_IndRed),IndRsh,iRS2F,
      &                   nSym,nnShl,nnBstRT(1),3,2,iShij,nShij)
 
       Return

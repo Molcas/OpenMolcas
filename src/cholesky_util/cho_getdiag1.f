@@ -12,7 +12,7 @@
 C
 C     Purpose: read diagonal in first reduced set.
 C
-      use ChoSwp, only: nnBstRSh, iiBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh
 #include "implicit.fh"
       DIMENSION DIAG(*), BUF(LENBUF)
       INTEGER   IBUF(4,LENBUF)
@@ -40,13 +40,13 @@ C     ------------------------
          CALL CHO_IODIAG(DIAG,IOPT)
       ELSE
          CALL CHO_DZERO(DIAG,NNBSTRT(1))
-         CALL CHO_IZERO(IWORK(ip_INDRSH),NNBSTRT(1))
+         CALL CHO_IZERO(INDRSH,NNBSTRT(1))
          CALL CHO_IZERO(IWORK(ip_INDRED),NNBSTRT(1))
          CALL CHO_RDDBUF(DIAG,BUF,IBUF,
-     &                   IWORK(ip_INDRSH),IWORK(ip_INDRED),
+     &                   INDRSH,IWORK(ip_INDRED),
      &                   LENBUF,MMBSTRT,NDUMP)
          CALL CHO_GADGOP(DIAG,NNBSTRT(1),'+')
-         CALL CHO_GAIGOP(IWORK(ip_INDRSH),NNBSTRT(1),'+')
+         CALL CHO_GAIGOP(INDRSH,NNBSTRT(1),'+')
          CALL CHO_GAIGOP(IWORK(ip_INDRED),NNBSTRT(1),'+')
       END IF
 

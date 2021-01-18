@@ -17,6 +17,9 @@ C              set!!
 C
       use ChoArr, only: nBstSh, iSP2F
       use ChoSwp, only: nnBstRSh, iiBstRSh
+#if defined (_DEBUGPRINT_)
+      use ChoSwp, only: IndRSh
+#endif
 #include "implicit.fh"
       Integer nAB(*)
 #include "cholesky.fh"
@@ -33,9 +36,6 @@ C
       IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
       mySP(i)=iWork(ip_mySP-1+i)
       iOff_Batch(i,j)=iWork(ip_iOff_Batch-1+nSym*(j-1)+i)
-#if defined (_DEBUGPRINT_)
-      IndRsh(i)=iWork(ip_IndRSh-1+i)
-#endif
 
 C     Check allocations.
 C     ------------------

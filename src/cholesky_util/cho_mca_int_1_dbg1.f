@@ -15,7 +15,7 @@ C              diagonal *must* be the original diagonal stored
 C              in reduced set 1.
 C
       use ChoArr, only: nBstSh, iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh
 #include "implicit.fh"
       DIMENSION DIAG(*)
 #include "cholesky.fh"
@@ -29,7 +29,6 @@ C
       PARAMETER (PRTINT = .FALSE.)
 
       INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
-      INDRSH(I)=IWORK(ip_INDRSH-1+I)
 
       WRITE(LUPRI,*)
       WRITE(LUPRI,*)

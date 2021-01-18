@@ -41,7 +41,7 @@
 ************************************************************************
       Subroutine Cho_X_SetRed(irc,iLoc,iRed)
       use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -53,8 +53,7 @@
          Else
             kOff2 = ip_IndRed   + nnBstRT(1)*(iLoc - 1)
             Call Cho_GetRed(iWork(ip_InfRed),nnBstRSh(:,:,iLoc),
-     &                      iWork(kOff2),iWork(ip_IndRSh),
-     &                      iSP2F,
+     &                      iWork(kOff2),IndRSh,iSP2F,
      &                      MaxRed,nSym,nnShl,nnBstRT(1),iRed,.false.)
             Call Cho_SetRedInd(iiBstRSh,nnBstRSh,nSym,nnShl,iLoc)
             irc = 0

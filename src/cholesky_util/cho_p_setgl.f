@@ -17,6 +17,7 @@ C              defined in this routine.
 C
       use ChoSwp, only: nnBstRSh, nnBstRSh_G, nnBstRsh_L_Hidden
       use ChoSwp, only: iiBstRSh, iiBstRSh_G, iiBstRsh_L_Hidden
+      use ChoSwp, only: IndRSh, IndRSh_G, IndRsh_G_Hidden
       Implicit None
       Integer ip_Diag
 #include "cholesky.fh"
@@ -35,12 +36,11 @@ C
 
       Integer i, j
       Integer mySP, iL2G
-      Integer IndRed_G, IndRSh_G
+      Integer IndRed_G
 
       iL2G(i)=iWork(ip_iL2G-1+i)
       mySP(i)=iWork(ip_mySP-1+i)
       IndRed_G(i,j)=iWork(ip_IndRed_G-1+mmBstRT_G*(j-1)+i)
-      IndRSh_G(i)=iWork(ip_IndRSh_G-1+i)
 
 C     If not parallel, return.
 C     ------------------------
@@ -74,8 +74,7 @@ C     ------------------------------
       ip_IndRed_G = ip_IndRed
       l_IndRed_G = l_IndRed
 
-      ip_IndRsh_G = ip_IndRsh
-      l_IndRsh_G = l_IndRsh
+      IndRSh_G => IndRSh
 
 C     Reallocate and reset local data.
 C     --------------------------------
@@ -101,10 +100,11 @@ C     --------------------------------
       mmBstRT = nnBstRT(1)
 
       l_IndRed = mmBstRT*3
-      l_IndRsh = mmBstRT
       l_iL2G = mmBstRT
       Call GetMem('LIndRed','Allo','Inte',ip_IndRed,l_IndRed)
-      Call GetMem('LIndRSh','Allo','Inte',ip_IndRSh,l_IndRSh)
+      Call mma_allocate(IndRSh_G_Hidden,mmBstRT,
+     &                  Label='IndRSh_G_Hidden')
+      IndRSh => IndRSh_G_Hidden
       Call GetMem('iL2G','Allo','Inte',ip_iL2G,l_iL2G)
 
       N = 0
@@ -115,7 +115,7 @@ C     --------------------------------
             i2 = i1 + nnBstRSh_G(iSym,iShlAB,1) - 1
             Do i = i1,i2
                iWork(ip_IndRed+N) = IndRed_G(i,1)
-               iWork(ip_IndRSh+N) = IndRSh_G(i)
+               IndRSh(N+1) = IndRSh_G(i)
                iWork(ip_iL2G+N) = i
                N = N + 1
             End Do

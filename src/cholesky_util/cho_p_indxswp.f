@@ -19,6 +19,7 @@ C         index arrays which amount to swapping 51 integers in total).
 C
       use ChoSwp, only: nnBstRSh, nnBstRSh_G, pTemp3
       use ChoSwp, only: iiBstRSh, iiBstRSh_G
+      use ChoSwp, only: IndRSh, IndRSh_G, pTemp1
       Implicit None
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -69,11 +70,8 @@ C
       l_IndRed_G = l_IndRed
       l_IndRed = iTmp
 
-      iTmp = ip_IndRSh_G
-      ip_IndRSh_G = ip_IndRSh
-      ip_IndRSh = iTmp
-      iTmp = l_IndRSh_G
-      l_IndRSh_G = l_IndRSh
-      l_IndRSh = iTmp
+      pTemp1 => IndRSh_G
+      IndRSh_G => IndRSh
+      IndRSh => pTemp1
 
       End

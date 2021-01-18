@@ -14,6 +14,7 @@ C
 C     Purpose: compute integrals for NumPass integral passes starting at
 C              pass iPass1.
 C
+      use ChoSwp, only: IndRSh
 #include "implicit.fh"
       Real*8  xInt(lInt)
       Integer nVecRS(mSym,mPass), iVecRS(mSym,mPass), ListSP(mmShl)
@@ -30,7 +31,6 @@ C
       External Cho_F2SP
 
       InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-      IndRSh(i)=iWork(ip_IndRSh-1+i)
 
 C     Initialization and input check.
 C     -------------------------------

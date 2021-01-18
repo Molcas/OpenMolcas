@@ -17,7 +17,7 @@ C              this routine is called. Reduced set 2, on the
 C              other hand, is set up here.
 C
       use ChoArr, only: nDimRS,iSP2F, iAtomShl
-      use ChoSwp, only: nnBstRSh, iiBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh
 #include "implicit.fh"
       DIMENSION DIAG(*), WRK(LWRK)
       LOGICAL   DSKDIA, LCONV
@@ -40,7 +40,6 @@ C
 
       PARAMETER (XMONE = -1.0D0, ZERO = 0.0D0)
 
-      INDRSH(I)=IWORK(ip_INDRSH-1+I)
       INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
       MYSP(I)=IWORK(ip_MYSP-1+I)
       ISIMRI(I)=IWORK(ip_ISIMRI-1+I)

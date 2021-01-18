@@ -57,6 +57,7 @@
      &                  iRS2F, nDimRS
       use ChoSwp, only: nnBstRSh, nnBstRSh_Hidden
       use ChoSwp, only: iiBstRSh, iiBstRSh_Hidden
+      use ChoSwp, only:   IndRSh,   IndRSh_Hidden
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
@@ -273,9 +274,9 @@ C     -------------------------------------
       mmBstRT = nnBstRT(1)
 
       l_IndRed = nnBstRT(1)*3
-      l_IndRSh = nnBstRT(1)
       Call GetMem('IndRed','Allo','Inte',ip_IndRed,l_IndRed)
-      Call GetMem('IndRSh','Allo','Inte',ip_IndRSh,l_IndRSh)
+      Call mma_allocate(IndRSh_Hidden,nnBstRT(1),Label='IndRSh_Hidden')
+      IndRSh => IndRSh_Hidden
       Call Cho_RstD_GetInd2()
 
       Call mma_allocate(iSP2F,nnShl,Label='iSP2F')
@@ -348,7 +349,7 @@ C     -------------------------------
       Do iRed = 2,MaxRed
          kOff2 = ip_IndRed   + mmBstRT*(iLoc - 1)
          Call Cho_GetRed(iWork(ip_InfRed),nnBstRSh(:,:,iLoc),
-     &                   iWork(kOff2),iWork(ip_IndRsh),iSP2F,
+     &                   iWork(kOff2),IndRsh,iSP2F,
      &                   MaxRed,nSym,nnShl,mmBstRT,iRed,.false.)
          Call Cho_SetRedInd(iiBstRSh,nnBstRSh,nSym,nnShl,iLoc)
          Call iCopy(nSym,nnBstR(1,iLoc),1,nDimRS(:,iRed),1)
