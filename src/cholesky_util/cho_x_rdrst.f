@@ -186,14 +186,11 @@ C     ------------------
             If (NumCho(iSym) .lt. 1) Then
                Call Cho_iZero(InfVec(:,:,iSym),MaxVec*InfVec_N2)
             Else
+               InfVec(:,:,iSym) = 0
                Do j = 1,SIZE(InfVec,2)
                   iOpt = 2
-                  Call iDAFile(LuRst,iOpt,InfVec(1,j,iSym),NumCho(iSym),
+                  Call iDAFile(LuRst,iOpt,InfVec(:,j,iSym),NumCho(iSym),
      &                         iAdr)
-                  nRest = MaxVec - NumCho(iSym)
-                  If (nRest .gt. 0) Then
-                     Call Cho_iZero(InfVec(1+NumCho(iSym),j,iSym),nRest)
-                  End If
                End Do
             End If
          End If

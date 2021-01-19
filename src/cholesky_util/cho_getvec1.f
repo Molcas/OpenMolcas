@@ -35,6 +35,24 @@ C
       PARAMETER (LOCDBG = .FALSE.)
 
       INTEGER IOFF(0:1)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      INTERFACE
+      SUBROUTINE CHO_GETRED(INFRED,NNBSTRSH,INDRED,INDRSH,ISP2F,
+     &                      MRED,MSYM,MMSHL,LMMBSTRT,
+     &                      IPASS,LRSH)
+      INTEGER MRED,MSYM,MMSHL,LMMBSTRT,IPASS
+      INTEGER INFRED(MRED)
+      INTEGER NNBSTRSH(MSYM,MMSHL), INDRED(LMMBSTRT), INDRSH(LMMBSTRT)
+      INTEGER ISP2F(MMSHL)
+      LOGICAL LRSH
+      END SUBROUTINE CHO_GETRED
+      END INTERFACE
+*                                                                      *
+************************************************************************
+*                                                                      *
+
 
 C     Some initializations.
 C     ---------------------
@@ -103,7 +121,7 @@ C        Read reduced set index arrays.
 C        ------------------------------
 
          CALL CHO_GETRED(INFRED,nnBstRSh(:,:,ILOC),
-     &                   IndRed(1,ILOC),INDRSH,iSP2F,
+     &                   IndRed(:,ILOC),INDRSH,iSP2F,
      &                   MAXRED,NSYM,NNSHL,MMBSTRT,IRED,
      &                   .FALSE.)
          CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,3)
