@@ -13,8 +13,7 @@ C
 C     Purpose: set first disk addresses for reduced set info and
 C              vectors.
 C
-      use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, IndRed
+      use ChoSwp, only: nnBstRSh, iiBstRSh
 #include "implicit.fh"
       INTEGER JNFRED(MRED), INFVEC(MVEC,M2,MSYM)
 #include "cholesky.fh"
@@ -35,9 +34,7 @@ C     --------------
       ELSE IF (XNPASS .GT. 0) THEN
          IRED  = 3
          IPASS = XNPASS
-         CALL CHO_GETRED(INFRED,nnBstRSh(:,:,IRED),
-     &                   IndRed(:,IRED),INDRSH,iSP2F,
-     &                   MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,.FALSE.)
+         CALL CHO_GETRED(IPASS,IRED,.FALSE.)
          CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,IRED)
          IF (IPASS .EQ. 1) THEN
             JNFRED(IPASS+1) = JNFRED(IPASS)
@@ -60,10 +57,7 @@ C     --------------
      &               INFVEC(NUMCHO(ISYM),4,ISYM) + NNBSTR(ISYM,IRED)
                   ELSE IF (JPASS.LE.XNPASS .AND. JPASS.GT.0) THEN
                      IPASS = JPASS
-                     CALL CHO_GETRED(INFRED,nnBstRSh(:,:,IRED),
-     &                               IndRed(:,IRED),INDRSH,iSP2F,
-     &                               MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,
-     &                               .FALSE.)
+                     CALL CHO_GETRED(IPASS,IRED,.FALSE.)
                      CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,
      &                                  IRED)
                      INFVEC(NUMCHO(ISYM)+1,3,ISYM) =
@@ -87,10 +81,7 @@ C     --------------
                      CALL CHO_MEM('SetAddr','FREE','REAL',KSA,LSA)
                   ELSE IF (JPASS.LE.XNPASS .AND. JPASS.GT.0) THEN
                      IPASS = JPASS
-                     CALL CHO_GETRED(INFRED,nnBstRSh(:,:,IRED),
-     &                               IndRed(:,IRED),INDRSH,iSP2F,
-     &                               MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,
-     &                               .FALSE.)
+                     CALL CHO_GETRED(IPASS,IRED,.FALSE.)
                      CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,
      &                                  IRED)
                      LSA = NNBSTR(ISYM,IRED)

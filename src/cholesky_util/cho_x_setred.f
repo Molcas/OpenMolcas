@@ -40,8 +40,7 @@
 *> @param[in]  iRed reduced set on disk
 ************************************************************************
       Subroutine Cho_X_SetRed(irc,iLoc,iRed)
-      use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, IndRed
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
 #include "implicit.fh"
 #include "cholesky.fh"
 
@@ -49,13 +48,11 @@
          If (iRed.lt.1 .or. iRed.gt.MaxRed) Then
             irc = 2
          Else
-            Call Cho_GetRed(InfRed,nnBstRSh(:,:,iLoc),
-     &                      IndRed(:,iLoc),IndRSh,iSP2F,
-     &                      MaxRed,nSym,nnShl,nnBstRT(1),iRed,.false.)
+            Call Cho_GetRed(iRed,iLoc,.false.)
             Call Cho_SetRedInd(iiBstRSh,nnBstRSh,nSym,nnShl,iLoc)
             irc = 0
             If (iRed .eq. 1) Then ! set correct IndRed array
-               Do iab = 1,nnBstRT(1)
+               Do iab = 1,SIZE(IndRed,1)
                   IndRed(iab,iLoc) = iab
                End Do
             End If

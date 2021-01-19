@@ -25,9 +25,7 @@ C           Thus, to be certain that enough memory is available,
 C           use LSCR = 2 x dimension of first reduced set.
 C
 C
-      use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, InfVec,
-     &                  IndRed
+      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
@@ -40,24 +38,6 @@ C
 
       LOGICAL LOCDBG
       PARAMETER (LOCDBG = .FALSE.)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      INTERFACE
-      SUBROUTINE CHO_GETRED(INFRED,NNBSTRSH,INDRED,INDRSH,ISP2F,
-     &                      MRED,MSYM,MMSHL,LMMBSTRT,
-     &                      IPASS,LRSH)
-      INTEGER MRED,MSYM,MMSHL,LMMBSTRT,IPASS
-      INTEGER INFRED(MRED)
-      INTEGER NNBSTRSH(MSYM,MMSHL), INDRED(LMMBSTRT), INDRSH(LMMBSTRT)
-      INTEGER ISP2F(MMSHL)
-      LOGICAL LRSH
-      END SUBROUTINE CHO_GETRED
-      END INTERFACE
-*                                                                      *
-************************************************************************
-*                                                                      *
-
 
 C     Initialize output array.
 C     ------------------------
@@ -69,10 +49,7 @@ C     -----------------------------------------------
 
       IRED  = INFVEC(IVEC1,2,ISYM)
       ILOC  = 3
-      CALL CHO_GETRED(INFRED,nnBstRSh(:,:,ILOC),
-     &                IndRed(:,ILOC),INDRSH,iSP2F,
-     &                MAXRED,NSYM,NNSHL,MMBSTRT,IRED,
-     &                .FALSE.)
+      CALL CHO_GETRED(IRED,ILOC,.FALSE.)
       CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,3)
       KRED1 = 1
       KREAD = KRED1 + NNBSTR(ISYM,1)
@@ -96,10 +73,7 @@ C     ------------------------------------------------------------------
          IVEC = IVEC1 + JVEC - 1
          JRED = INFVEC(IVEC,2,ISYM)
          IF (JRED .NE. IRED) THEN   ! read new reduced set
-            CALL CHO_GETRED(INFRED,nnBstRSh(:,:,ILOC),
-     &                      IndRed(:,ILOC),INDRSH,iSP2F,
-     &                      MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
-     &                      .FALSE.)
+            CALL CHO_GETRED(IndRed(:,ILOC),MMBSTRT,JRED,ILOC,.FALSE.)
             CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,3)
             KEND1 = KREAD + NNBSTR(ISYM,3)
             LSCR1 = LSCR  - KEND1 + 1

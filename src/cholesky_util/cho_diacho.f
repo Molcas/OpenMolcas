@@ -14,9 +14,7 @@ C     Purpose: update (i.e. subtract contributions from vectors on disk)
 C              of symmetry block ISYM of diagonal in red. set 1.
 C              This emulates the actual procedure during decomposition.
 C
-      use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, InfVec,
-     &                  IndRed
+      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
 #include "implicit.fh"
       DIMENSION DIAG(*), WRK(LWRK)
 #include "cholesky.fh"
@@ -91,10 +89,7 @@ C           --------------------------------------------------------
                   CALL CHO_RSCOPY(IIBSTRSH,NNBSTRSH,INDRED,1,ILOC,
      &                            NSYM,NNSHL,NNBSTRT(1),3)
                ELSE
-                  CALL CHO_GETRED(INFRED,nnBstRSh(:,:,ILOC),
-     &                            IndRed(1,ILOC),INDRSH,iSP2F,
-     &                            MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
-     &                            .FALSE.)
+                  CALL CHO_GETRED(JRED,ILOC,.FALSE.)
                   CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,ILOC)
                END IF
                IREDC = JRED

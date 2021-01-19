@@ -20,9 +20,8 @@ C
 C     NOTE: the scratch array SCR(LSCR) is used to read vectors from
 C           disk and should not be smaller than NNBSTR(ISYM,1)+1.
 C
-      use ChoArr, only: iSP2F, iScr
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, InfVec,
-     &                  IndRed
+      use ChoArr, only: iScr
+      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
@@ -35,24 +34,6 @@ C
       PARAMETER (LOCDBG = .FALSE.)
 
       INTEGER IOFF(0:1)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      INTERFACE
-      SUBROUTINE CHO_GETRED(INFRED,NNBSTRSH,INDRED,INDRSH,ISP2F,
-     &                      MRED,MSYM,MMSHL,LMMBSTRT,
-     &                      IPASS,LRSH)
-      INTEGER MRED,MSYM,MMSHL,LMMBSTRT,IPASS
-      INTEGER INFRED(MRED)
-      INTEGER NNBSTRSH(MSYM,MMSHL), INDRED(LMMBSTRT), INDRSH(LMMBSTRT)
-      INTEGER ISP2F(MMSHL)
-      LOGICAL LRSH
-      END SUBROUTINE CHO_GETRED
-      END INTERFACE
-*                                                                      *
-************************************************************************
-*                                                                      *
-
 
 C     Some initializations.
 C     ---------------------
@@ -120,10 +101,7 @@ C        -------------------
 C        Read reduced set index arrays.
 C        ------------------------------
 
-         CALL CHO_GETRED(INFRED,nnBstRSh(:,:,ILOC),
-     &                   IndRed(:,ILOC),INDRSH,iSP2F,
-     &                   MAXRED,NSYM,NNSHL,MMBSTRT,IRED,
-     &                   .FALSE.)
+         CALL CHO_GETRED(IRED,ILOC,.FALSE.)
          CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,3)
 
 C        If reduced sets are identical, simply read the vectors

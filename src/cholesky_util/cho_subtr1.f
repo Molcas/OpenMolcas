@@ -18,9 +18,8 @@ C              This version is I/O-driven.
 C
 C     Screening in subtraction introduced Jan. 2006, TBP.
 C
-      use ChoArr, only: iSP2F, iScr
-      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, InfRed,
-     &                  InfVec, IndRed
+      use ChoArr, only: iScr
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, InfVec
 #include "implicit.fh"
       DIMENSION XINT(*), WRK(LWRK)
       LOGICAL   FXDMEM
@@ -284,10 +283,7 @@ C           -----------------------------------------------------
 
                   IF (JRED .NE. IREDC) THEN
                      ILOC = 3
-                     CALL CHO_GETRED(INFRED,nnBstRSh(:,:,ILOC),
-     &                               IndRed(:,ILOC),INDRSH,iSP2F,
-     &                               MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
-     &                               .FALSE.)
+                     CALL CHO_GETRED(JRED,ILOC,.FALSE.)
                      CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,
      &                                  ILOC)
                      IREDC = JRED

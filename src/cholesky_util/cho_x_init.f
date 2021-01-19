@@ -59,7 +59,6 @@
       use ChoSwp, only: iiBstRSh, iiBstRSh_Hidden
       use ChoSwp, only:   IndRSh,   IndRSh_Hidden
       use ChoSwp, only:   IndRed,   IndRed_Hidden
-      use ChoSwp, only:   InfRed
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
@@ -349,9 +348,7 @@ C     -------------------------------
       Call iCopy(nSym,nnBstR(1,1),1,nDimRS,1)
       iLoc = 3
       Do iRed = 2,MaxRed
-         Call Cho_GetRed(InfRed,nnBstRSh(:,:,iLoc),
-     &                   IndRed(:,iLoc),IndRsh,iSP2F,
-     &                   MaxRed,nSym,nnShl,mmBstRT,iRed,.false.)
+         Call Cho_GetRed(iRed,iLoc,.false.)
          Call Cho_SetRedInd(iiBstRSh,nnBstRSh,nSym,nnShl,iLoc)
          Call iCopy(nSym,nnBstR(1,iLoc),1,nDimRS(:,iRed),1)
       End Do

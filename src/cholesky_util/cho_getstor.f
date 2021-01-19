@@ -40,37 +40,18 @@ C
 C
 C     Purpose: get total vector storage (in words), symmetry ISYM.
 C
-      use ChoArr, only: nDimRS, iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, InfVec,
-     &                  IndRed
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec
 #include "implicit.fh"
 #include "cholesky.fh"
-*                                                                      *
-************************************************************************
-*                                                                      *
-      INTERFACE
-      SUBROUTINE CHO_GETRED(INFRED,NNBSTRSH,INDRED,INDRSH,ISP2F,
-     &                      MRED,MSYM,MMSHL,LMMBSTRT,
-     &                      IPASS,LRSH)
-      INTEGER MRED,MSYM,MMSHL,LMMBSTRT,IPASS
-      INTEGER INFRED(MRED)
-      INTEGER NNBSTRSH(MSYM,MMSHL), INDRED(LMMBSTRT), INDRSH(LMMBSTRT)
-      INTEGER ISP2F(MMSHL)
-      LOGICAL LRSH
-      END SUBROUTINE CHO_GETRED
-      END INTERFACE
-*                                                                      *
-************************************************************************
-*                                                                      *
+
       IF (NUMCHO(ISYM) .LT. 1) THEN
          VCSTOR = 0.0D0
       ELSE
          IF (.NOT.Allocated(nDimRS)) Then
             IRED = INFVEC(NUMCHO(ISYM),2,ISYM)
             JRED = 3
-            CALL CHO_GETRED(INFRED,nnBstRSh(:,:,JRED),
-     &                      IndRed(:,JRED),INDRSH,iSP2F,
-     &                      MAXRED,NSYM,NNSHL,MMBSTRT,IRED,.FALSE.)
+            CALL CHO_GETRED(IRED,JRED,.FALSE.)
             CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,JRED)
             VCSTOR = DBLE(INFVEC(NUMCHO(ISYM),4,ISYM))
      &             + DBLE(NNBSTR(ISYM,JRED))
