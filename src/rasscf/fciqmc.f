@@ -205,7 +205,7 @@
       end subroutine fciqmc_ctl
 
 
-      subroutine defrun_neci(DoEmbdNECI, fake_run,
+      subroutine run_neci(DoEmbdNECI, fake_run,
      &      ascii_fcidmp, h5_fcidmp,
      &      reuse_pops,
      &      NECIen, D1S_MO, DMAT, PSMAT, PAMAT, tGUGA,
