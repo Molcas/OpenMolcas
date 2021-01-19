@@ -156,7 +156,7 @@ contains
         K = K_1
 
         ASSERT(wp == r8)
-        call dgemm_(merge('T', 'N', transpA_), merge('T', 'N',transpB_), &
+        call dgemm_(merge('T', 'N', transpA_), merge('T', 'N', transpB_), &
                     M, N, K, 1._wp, A, size(A, 1), B, size(B, 1), &
                     0._wp, C, size(C, 1))
     end subroutine

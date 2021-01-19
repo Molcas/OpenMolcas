@@ -1,0 +1,19 @@
+--- CMakeLists.txt.orig	2020-10-12 12:19:42.008903350 +0200
++++ CMakeLists.txt	2020-10-12 12:20:33.484636125 +0200
+@@ -140,7 +140,7 @@
+ endif(ENABLE_OPENMP)
+
+ if(ENABLE_INTEL_MKL)
+-	set (MKLROOT $ENV{MKLROOT} CACHE PATH "MKL root directory" FORCE)
++	set (MKLROOT $ENV{MKLROOT} CACHE PATH "MKL root directory")
+ 	message ("-- using Intel Math Kernel Library (MKL)")
+ # 	mark_as_advanced (CLEAR MKLROOT)
+         if (MKLROOT STREQUAL "")
+@@ -261,7 +261,6 @@
+
+     if(ENABLE_MOLCAS)
+        set (proj_bin ${MOLCAS_BUILD_DIR}/External/qcmaquis-full/src/qcmaquis-driver-build/)
+-       set (DMRG_INCLUDE ${MOLCAS_BUILD_DIR}/mod)
+        set (DMRG_LIBRARIES qcmaquis-driver-utils)
+        link_directories (${proj_bin})
+        include_directories (${DMRG_INCLUDE})

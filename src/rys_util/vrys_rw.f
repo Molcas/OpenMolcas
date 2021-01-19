@@ -9,8 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Module vRys_RW
-      Integer MaxRys
-      Parameter(MaxRys=9)
+      Integer, Parameter :: MaxRys=9
       Real*8, Dimension(:), Allocatable :: TMax, ddx, x0
       Real*8, Dimension(:), Allocatable :: HerR2, HerW2, Cff
       Integer, Dimension(:), Allocatable :: Map

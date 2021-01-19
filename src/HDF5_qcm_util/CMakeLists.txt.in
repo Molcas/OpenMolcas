@@ -30,7 +30,11 @@ endif()
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_ROOT})
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/custom)
 
-set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod)
+if(SINGLE_MOD_DIR)
+  set(mod_dir ${MAIN_MOD_DIR})
+else()
+  set(mod_dir ${MAIN_MOD_DIR}/hdf5_qcm_util)
+endif()
 
 list(APPEND HDF5_QCMCMakeArgs
   -DCMAKE_BUILD_TYPE=${HDF5_QCM_BUILD_TYPE}
@@ -41,7 +45,7 @@ list(APPEND HDF5_QCMCMakeArgs
   -DCMAKE_C_FLAGS=${CMake_C_FLAGS}
   -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
   -DCMAKE_INSTALL_LIBDIR=lib
-  -DCMAKE_Fortran_MODULE_DIRECTORY=${CMAKE_Fortran_MODULE_DIRECTORY}
+  -DCMAKE_Fortran_MODULE_DIRECTORY=${mod_dir}
   )
 
 ######################################
@@ -75,5 +79,5 @@ set (CMAKE_DISABLE_SOURCE_CHANGES ON)
 
 # set variables for use in parent CMakeLists.txt
 ExternalProject_Get_Property(${EP_PROJECT} install_dir)
-set(HDF5_QCM_INCLUDE ${CMAKE_Fortran_MODULE_DIRECTORY} PARENT_SCOPE)
+set(HDF5_QCM_INCLUDE ${mod_dir} PARENT_SCOPE)
 set(HDF5_QCM_LIBRARIES ${install_dir}/lib/${CMAKE_FIND_LIBRARY_PREFIXES}HDF5interface.a PARENT_SCOPE)
