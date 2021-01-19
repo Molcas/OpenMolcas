@@ -21,7 +21,10 @@
      &                    IndRSh_Hidden,   IndRSh,
      &                    IndRSh_G_Hidden,   IndRSh_G,
      &                    InfRed_Hidden,   InfRed,
-     &                    InfRed_G_Hidden,   InfRed_G
+     &                    InfRed_G_Hidden,   InfRed_G,
+     &                    InfVec_Hidden,   InfVec,
+     &                    InfVec_G_Hidden,   InfVec_G,
+     &                    InfVec_Bak
 C
 C     T.B. Pedersen, July 2004.
 C
@@ -53,10 +56,9 @@ C     -----------
      &    Call mma_deallocate(InfRed_Hidden)
       If (Associated(InfRed)) InfRed=>Null()
 
-      If (l_InfVec .ne. 0) Then
-         Call GetMem('InfVec','Free','Inte',ip_InfVec,l_InfVec)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(InfVec_Hidden))
+     &    Call mma_deallocate(InfVec_Hidden)
+      If (Associated(InfVec)) InfVec=>Null()
 
       If (l_IndRed .ne. 0) Then
          Call GetMem('IndRed','Free','Inte',ip_IndRed,l_IndRed)
@@ -157,14 +159,14 @@ C     ----------------------------------------
 C     Deallocate any used pointer in chopar.fh
 C     -----------------------------------------
 
-      If (l_InfVec_Bak .gt. 0) Then
-         Call GetMem('InfVec_Bak','Free','Inte',ip_InfVec_Bak,
-     &                                           l_InfVec_Bak)
-         l_InfVec_Bak=0
-      End If
+      If (Allocated(InfVec_Bak)) Call mma_deallocate(InfVec_Bak)
 
 C     Deallocate any used pointer in cholq.fh
 C     -----------------------------------------
+
+      If (Allocated(InfVec_G_Hidden))
+     &    Call mma_deallocate(InfVec_G_Hidden)
+      If (Associated(InfVec_G)) InfVec_G=>Null()
 
       If (Allocated(InfRed_G_Hidden))
      &    Call mma_deallocate(InfRed_G_Hidden)

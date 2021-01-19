@@ -32,7 +32,7 @@
       SubRoutine IniCho_RI(nSkal,nVec_Aux,nIrrep,iTOffs,iShij,nShij)
       Use Para_Info, Only: Is_Real_Par
       use ChoArr, only: iSP2F
-      use ChoSwp, only: InfRed
+      use ChoSwp, only: InfRed, InfVec
       Implicit None
       Integer nSkal, nIrrep, nShij
       Integer nVec_Aux(0:nIrrep-1)
@@ -159,8 +159,7 @@ C     Set start disk addresses.
 C     -------------------------
 
       XnPass = 0 ! it should be zeroed in Cho_Inp, but just in case.
-      Call Cho_SetAddr(InfRed,iWork(ip_infVec),MaxRed,MaxVec,
-     &                 InfVec_N2,nSym)
+      Call Cho_SetAddr(InfRed,InfVec,MaxRed,MaxVec,SIZE(InfVec,2),nSym)
 
 C     Set vector info.
 C     Parent diagonal is set equal to the vector number, parent pass
@@ -169,7 +168,7 @@ C     --------------------------------------------------------------
 
       Do iSym = 1,nSym
          Do iVec = 1,NumCho(iSym)
-            Call Cho_SetVecInf(iWork(ip_InfVec),MaxVec,InfVec_N2,nSym,
+            Call Cho_SetVecInf(InfVec,MaxVec,SIZE(InfVec,2),nSym,
      &                         iVec,iSym,iVec,1,1)
          End Do
       End Do

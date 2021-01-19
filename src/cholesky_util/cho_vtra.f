@@ -57,6 +57,7 @@
 *
 *********************************************************
       use ChoArr, only: nDimRS, iRS2F
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr)
       Integer nDen,kDen
@@ -76,12 +77,8 @@
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
-      Parameter (N2 = InfVec_N2)
-
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-******
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 ******
       IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
 ************************************************************************

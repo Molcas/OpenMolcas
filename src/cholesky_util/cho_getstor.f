@@ -41,15 +41,11 @@ C
 C     Purpose: get total vector storage (in words), symmetry ISYM.
 C
       use ChoArr, only: nDimRS, iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, InfVec
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "WrkSpc.fh"
-
-      PARAMETER (N2 = INFVEC_N2)
-
-      INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
 
       IF (NUMCHO(ISYM) .LT. 1) THEN
          VCSTOR = 0.0D0

@@ -43,6 +43,7 @@
 ************************************************************************
       SUBROUTINE CHO_get_Rij(irc,ipMO,nOcc,Rij,timings)
       use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
       Logical timings,DoRead
       Integer nOcc(*),iOcc(8),iOcs(8),ipLib(8),iSkip(8),ipMO(*)
@@ -57,12 +58,6 @@
 #include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-
-      parameter ( N2 = InfVec_N2 )
-
-************************************************************************
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-************************************************************************
 
       IREDC = -1
 

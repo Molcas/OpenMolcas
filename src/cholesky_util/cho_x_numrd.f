@@ -34,15 +34,13 @@
 ************************************************************************
       Integer Function Cho_X_NumRd(iVec1,iSym,iRedC,Mem)
       use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "WrkSpc.fh"
 
-      Parameter (N2 = InfVec_N2)
       Integer iRed
-
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 
       If (iSym.lt.1 .or. iSym.gt.nSym) Then
          Cho_X_NumRd = -1

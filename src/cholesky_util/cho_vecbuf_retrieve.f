@@ -31,6 +31,7 @@ C           respective reduced sets (thus, should only be used with
 C           RUN_MODE = RUN_EXTERNAL).
 C
       use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
       Real*8 Vec(lVec)
 #include "cholesky.fh"
@@ -50,9 +51,6 @@ C
 #else
       Parameter (LocDbg = .false.)
 #endif
-
-      Parameter (N2 = InfVec_N2)
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 
 C     Initialize.
 C     -----------

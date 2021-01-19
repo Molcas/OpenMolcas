@@ -33,6 +33,7 @@ C
 C     On exit, the Z vector blocks are stored in memory according
 C     to ip_Z.
 C
+      use ChoSwp, only: InfVec
       Implicit None
       Integer irc
       Integer l_NVT
@@ -55,7 +56,6 @@ C
       Integer iSym
       Integer iLoc, iRedC, iRed
       Integer ip_Flush, l_Flush
-      Integer ip_InfVec_T
       Integer ip_iRS2RS, l_iRS2RS
       Integer ip_Wrk, l_Wrk
       Integer idRS2RS, KK1, nVRead, mUsed, kOffV
@@ -81,13 +81,23 @@ C
       Parameter (Tol=1.0d-14)
 #endif
 
-      Integer N2, i, j, k, InfVcT, InfVec, iRS2RS, iTri
-      Parameter (N2 = InfVec_N2)
-      InfVcT(i,j,k)=iWork(ip_InfVec_T-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
+      Integer, Pointer:: InfVct(:,:,:)
+
+      Integer i, j, k, iRS2RS, iTri
+
       iRS2RS(i)=iWork(ip_iRS2RS-1+i)
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
-
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine Cho_X_GetIP_InfVec(InfVcT)
+      Integer, Pointer:: InfVct(:,:,:)
+      End Subroutine Cho_X_GetIP_InfVec
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 C     Set return code.
 C     ----------------
 
@@ -197,7 +207,7 @@ C     Get pointer to InfVec array for all vectors.
 C     Needed for parallel runs.
 C     --------------------------------------------
 
-      Call Cho_X_GetIP_InfVec(ip_InfVec_T)
+      Call Cho_X_GetIP_InfVec(InfVcT)
 
 C     Copy rs1 to location 2.
 C     -----------------------
@@ -416,7 +426,6 @@ C
       Character*18 SecNam
       Parameter (SecNam='Cho_CheckDiagFromZ')
 
-      Integer ip_InfVcT
       Integer ip_D, l_D
       Integer iSym
       Integer jBlock, kblock
@@ -427,17 +436,26 @@ C
       Integer nTot
 
       Real*8 Dmax, Damax, Dmin, Damin
+      Integer, Pointer:: InfVct(:,:,:)
 
-      Integer N
-      Parameter (N=InfVec_N2)
+      Integer i, j
+      Integer iTri
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine Cho_X_GetIP_InfVec(InfVcT)
+      Integer, Pointer:: InfVct(:,:,:)
+      End Subroutine Cho_X_GetIP_InfVec
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 
-      Integer i, j, k
-      Integer InfVcT, iTri
-      InfVcT(i,j,k)=iWork(ip_InfVcT-1+MaxVec*N*(k-1)+MaxVec*(j-1)+i)
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
 
       ! Get pointer to global InfVec array
-      Call Cho_X_getIP_InfVec(ip_InfVcT)
+      Call Cho_X_getIP_InfVec(InfVcT)
 
       ! Allocate memory for exact integral diagonal
       l_D=nnBstRT(1)

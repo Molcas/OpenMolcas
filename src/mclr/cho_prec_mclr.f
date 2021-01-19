@@ -26,6 +26,7 @@
 *                                                                      *
 ************************************************************************
       use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(*)
 #include "warnings.fh"
@@ -44,7 +45,6 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
       Character*50 CFmt
-      parameter ( N2 = InfVec_N2 )
       parameter (zero = 0.0D0, one = 1.0D0, xone=-1.0D0)
       Character*6 mode
       Logical DoRead,taskleft
@@ -57,8 +57,6 @@
 ************************************************************************
 *                                                                      *
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-******
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 *                                                                      *
 ************************************************************************
 *                                                                      *

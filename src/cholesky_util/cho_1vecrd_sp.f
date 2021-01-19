@@ -19,13 +19,12 @@ C              specify -1 if not set (or unknown). On exit, iRedC
 C              identifies the reduced set for which indices are
 C              available at location iLoc. NOTE: only WA files!!
 C
-      use ChoSwp, only: nnBstRSh, iiBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec
       Implicit Real*8 (a-h,o-z)
       Real*8  Vec(lVec)
       Integer LstSP(nSP)
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
       Character*13 SecNam
       Parameter (SecNam = 'Cho_1VecRd_SP')
@@ -34,8 +33,6 @@ C
 
       Integer  Cho_P_LocalSP
       External Cho_P_LocalSP
-
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 
 C     Return if no vectors are available on disk.
 C     -------------------------------------------

@@ -26,7 +26,7 @@ C           use LSCR = 2 x dimension of first reduced set.
 C
 C
       use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, InfVec
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
@@ -42,9 +42,6 @@ C
       LOGICAL LOCDBG
       PARAMETER (LOCDBG = .FALSE.)
 
-      PARAMETER (N2 = INFVEC_N2)
-
-      INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
       INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
 
 C     Initialize output array.

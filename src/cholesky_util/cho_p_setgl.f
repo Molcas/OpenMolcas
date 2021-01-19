@@ -19,6 +19,7 @@ C
       use ChoSwp, only: iiBstRSh, iiBstRSh_G, iiBstRsh_L_Hidden
       use ChoSwp, only: IndRSh, IndRSh_G, IndRsh_G_Hidden
       use ChoSwp, only: InfRed, InfRed_G, InfRed_G_Hidden
+      use ChoSwp, only: InfVec, InfVec_G, InfVec_G_Hidden
       Implicit None
       Integer ip_Diag
 #include "cholesky.fh"
@@ -64,8 +65,7 @@ C     ------------------------------
 
       InfRed_G => InfRed
 
-      ip_InfVec_G = ip_InfVec
-      l_InfVec_G = l_InfVec
+      InfVec_G => InfVec
 
       iiBstRSh_G => iiBstRSh
 
@@ -82,7 +82,10 @@ C     --------------------------------
       Call mma_allocate(InfRed_G_Hidden,SIZE(InfRed),
      &                  Label='InfRed_G_Hidden')
       InfRed => InfRed_G_Hidden
-      Call GetMem('LInfVec','Allo','Inte',ip_InfVec,l_InfVec)
+
+      Call mma_allocate(InfVec_G_Hidden,SIZE(InfVec,1),SIZE(InfVec,2),
+     &                  SIZE(InfVec,3),Label='InfVec_G_Hidden')
+      InfVec => InfVec_G_Hidden
 
       nnShl = n_mySP
       Call mma_allocate(iiBstRsh_L_Hidden,nSym,n_mySP,3,

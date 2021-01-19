@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE TRACHO3(CMO)
       USE CHOVEC_IO
+      use ChoSwp, only: InfVec
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "rasdim.fh"
@@ -39,7 +40,7 @@
       INTEGER IP_LFT,IP_LHT
       INTEGER ISYM,JSYM,ISYMA,ISYMB,ISYP,ISYQ
       INTEGER N,N1,N2
-      INTEGER ip_buffy,ip_chspc,ip_ftspc,ip_htspc,ipnt
+      INTEGER ip_buffy,ip_chspc,ip_ftspc,ip_htspc
       INTEGER NUMV,NVECS_RED,NHTOFF,MUSED
 
 **********************************************************************
@@ -65,9 +66,9 @@
 
       IF(NUMCHO_PT2(JSYM).EQ.0) GOTO 1000
 
-      ipnt=ip_InfVec+MaxVec_PT2*(1+InfVec_N2_PT2*(jSym-1))
-      JRED1=iWork(ipnt)
-      JRED2=iWork(ipnt-1+NumCho_PT2(jSym))
+      JRED1=InfVec(1,2,jSym)
+      JRED2=InfVec(NumCho_PT2(jSym),2,jSym)
+*     write(6,*)'tracho3:  JRED1,JRED2:',JRED1,JRED2
 
 * Loop over JRED
       DO JRED=JRED1,JRED2

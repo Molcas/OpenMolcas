@@ -22,6 +22,7 @@ C --- F(ab) = 2 * sum_J  Lab,J * sum_gd  D(gd) * Lgd,J
 C
 C********************************************************
       use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
 #ifdef _DEBUGPRINT_
       Logical Debug
@@ -41,12 +42,6 @@ C********************************************************
 #include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-
-      parameter ( N2 = InfVec_N2 )
-
-************************************************************************
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-************************************************************************
 
 #ifdef _DEBUGPRINT_
       Debug=.true.

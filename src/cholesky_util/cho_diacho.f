@@ -15,7 +15,7 @@ C              of symmetry block ISYM of diagonal in red. set 1.
 C              This emulates the actual procedure during decomposition.
 C
       use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, InfVec
 #include "implicit.fh"
       DIMENSION DIAG(*), WRK(LWRK)
 #include "cholesky.fh"
@@ -30,7 +30,6 @@ C
       PARAMETER (N2 = INFVEC_N2)
       PARAMETER (ZERO = 0.0D0)
 
-      INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
       INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
 
 C     Return if nothing to do.

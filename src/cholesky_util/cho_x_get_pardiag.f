@@ -20,7 +20,7 @@
 *
 *        ip_List_rs : pointer to the portion of InfVec corresponding
 *                     to loc=1 and JSym, thus
-*                     ip_InfVec+MaxVec*InfVec_N2*(jSym-1)
+*                     ip_of_iWork(InfVec(1,1,jSym)
 *
 *        ia=iSO_ab(1,numcho(jSym))  contains the index of the basis "a"
 *                                   within its symm. block.

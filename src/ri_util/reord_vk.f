@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE Reord_Vk(ip_V_k,nProcs,myProc,nV_k,nV_t,nA,jSym,Array)
+      use ChoSwp, only: InfVec
       Implicit None
       Integer nProcs, myProc, nV_k(*), nV_t(*), nA(*), jSym
       Integer ip_V_k(nProcs)
@@ -18,13 +19,6 @@
 #include "WrkSpc.fh"
 *
       Integer ipScr, ik, ifr, ito, nAV_t, jOff, kOff, iSym
-*
-      Integer N2
-      Parameter (N2 = InfVec_N2)
-      Integer InfVec, i, j, k
-*********************************************************************
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-*********************************************************************
 *
       nAV_t=0
       Do iSym=1,jSym

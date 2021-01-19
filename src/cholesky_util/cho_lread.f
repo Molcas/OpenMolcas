@@ -13,17 +13,13 @@ C
 C     Purpose: return a reasonable scratch space dimension for reading
 C              previous vectors using cho_getvec.
 C
+      use ChoSwp, only: InfVec
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
       INTEGER MNVECRS1
       PARAMETER (MNVECRS1 = 5)
-
-      PARAMETER (N2 = INFVEC_N2)
-
-      INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
 
       IF (CHO_IOVEC .EQ. 1) THEN
          IF (NVECRS1(ISYM).LT.1 .AND. NUMCHO(ISYM).GT.0) THEN

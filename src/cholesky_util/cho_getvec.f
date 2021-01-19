@@ -18,6 +18,7 @@ C              reading is taken from input (via cholesky.fh header
 C              file).
 C
       use ChoArr, only: iScr
+      use ChoSwp, only: InfVec
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
@@ -32,10 +33,6 @@ C
 
       LOGICAL LOCDBG
       PARAMETER (LOCDBG = .FALSE.)
-
-      PARAMETER (N2 = INFVEC_N2)
-
-      INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
 
 C     Return if no vectors requested.
 C     -------------------------------

@@ -24,7 +24,7 @@ C           disk and should not be smaller than NNBSTR(ISYM,1)+1,
 C           preferably more.
 C
       use ChoArr, only: iSP2F, iScr
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, InfVec
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
@@ -39,10 +39,6 @@ C
       PARAMETER (LOCDBG = .FALSE.)
 
       INTEGER IOFF(0:1)
-
-      PARAMETER (N2 = INFVEC_N2)
-
-      INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
 
 C     Some initializations.
 C     ---------------------

@@ -66,19 +66,19 @@ C
 C     Set mapping from local to global vector index (needed in parallel
 C     RI gradient code).
 C
+      use ChoSwp, only: InfVec
       Implicit None
       Integer iVec_Global, iVec_Local, J_s, J_e, iSym
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "WrkSpc.fh"
 
-      Integer kOff, iOff, nVec, iVec
+      Integer iOff, nVec, iVec
 
-      kOff = ip_InfVec-2+MaxVec*(InfVec_N2*(iSym-1)+4)+iVec_Local
       iOff = iVec_Global + J_s - 2
       nVec = J_e - J_s + 1
       Do iVec = 1,nVec
-         iWork(kOff+iVec) = iOff + iVec
+         InfVec(iVec_Local-1+iVec,5,iSym) = iOff + iVec
       End Do
 
       End

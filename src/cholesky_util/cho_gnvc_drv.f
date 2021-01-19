@@ -15,7 +15,7 @@ C              First reduced set must have been set up, which is
 C              reasonable, since it is naturally done along with the
 C              diagonal.
 C
-      use ChoSwp, only: iQuAB
+      use ChoSwp, only: iQuAB, InfVec
 #include "implicit.fh"
       Real*8 Diag(*)
 #include "cholesky.fh"
@@ -33,9 +33,6 @@ C
       Integer ip_mapRS2RS, l_mapRS2RS
       Common / GnVcMp / ip_mapRS2RS(8), l_mapRS2RS(8)
 
-      Parameter (N2 = InfVec_N2)
-
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
       nVecRS(i,j)=iWork(ip_nVecRS-1+nSym*(j-1)+i)
       iVecRS(i,j)=iWork(ip_iVecRS-1+nSym*(j-1)+i)
       mapRS2RS(i,j)=iWork(ip_mapRS2RS(i)-1+j)

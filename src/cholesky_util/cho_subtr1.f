@@ -19,7 +19,8 @@ C
 C     Screening in subtraction introduced Jan. 2006, TBP.
 C
       use ChoArr, only: iSP2F, iScr
-      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, InfRed
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, InfRed,
+     &                  InfVec
 #include "implicit.fh"
       DIMENSION XINT(*), WRK(LWRK)
       LOGICAL   FXDMEM
@@ -37,8 +38,6 @@ C
       LOGICAL LOCDBG
       PARAMETER (LOCDBG = .FALSE.)
 
-      PARAMETER (N2 = INFVEC_N2)
-
       INTEGER IOFF(0:1), IVSTAT(2,2)
 
       DIMENSION TIMLOC(2,3)
@@ -49,7 +48,6 @@ C
       INTEGER  CHO_X_NUMRD
       EXTERNAL CHO_X_NUMRD
 
-      INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
       DSUBSCR(I)=WORK(ip_DSUBSCR-1+I)
       DSPNM(I)=WORK(ip_DSPNM-1+I)
 

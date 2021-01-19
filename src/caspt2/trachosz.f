@@ -13,6 +13,7 @@
       SUBROUTINE TRACHOSZ
       USE CHOVEC_IO
       USE Para_Info, ONLY: nProcs
+      use ChoSwp, only: InfVec
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "rasdim.fh"
@@ -30,14 +31,13 @@
       INTEGER IB,IBSTA,IBEND,IBATCH_TOT,NBATCH,NV
       INTEGER ICASE,ISYMA,ISYMB,ISYQ,JSYM,NPB,NPQ
       INTEGER JRED,JRED1,JRED2,JSTART
-      INTEGER IDISK,IPNT
+      INTEGER IDISK
       INTEGER MXFTARR,MXHTARR
       INTEGER MXSPC
       INTEGER NVACT,NVACC,NVECS_RED
 **********************************************************************
 *  Author : P. A. Malmqvist
 **********************************************************************
-
 
 * ======================================================================
 * Determine sectioning size to use for the full-transformed MO vectors
@@ -82,9 +82,8 @@ CSVC: MPI workaround: collected chovecs should not exceed 2GB
         NBTCHES(JSYM)=IBATCH_TOT
         NBTCH(JSYM)=0
         IF(NUMCHO_PT2(JSYM).LE.0) CYCLE
-        ipnt=ip_InfVec+MaxVec_PT2*(1+InfVec_N2_PT2*(jSym-1))
-        JRED1=iWork(ipnt)
-        JRED2=iWork(ipnt-1+NumCho_PT2(jSym))
+        JRED1=InfVec(1,2,jSym)
+        JRED2=InfVec(NumCho_PT2(jSym),2,jSym)
 * Loop over the reduced sets:
         DO JRED=JRED1,JRED2
           CALL Cho_X_nVecRS(JRED,JSYM,JSTART,NVECS_RED)
@@ -144,9 +143,9 @@ CSVC: take the global sum of the individual maxima
       IBATCH_TOT=0
       DO JSYM=1,NSYM
         IF(NUMCHO_PT2(JSYM).LE.0) CYCLE
-        ipnt=ip_InfVec+MaxVec_PT2*(1+InfVec_N2_PT2*(jSym-1))
-        JRED1=iWork(ipnt)
-        JRED2=iWork(ipnt-1+NumCho_PT2(jSym))
+        JRED1=InfVec(1,2,jSym)
+        JRED2=InfVec(NumCho_PT2(jSym),2,jSym)
+
         DO JRED=JRED1,JRED2
           CALL Cho_X_nVecRS(JRED,JSYM,JSTART,NVECS_RED)
 * It happens that a reduced set is empty:

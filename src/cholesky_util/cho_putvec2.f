@@ -16,6 +16,7 @@ C
 C     Version 2: handles several reduced set at a time.
 C
       use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
 #include "implicit.fh"
       DIMENSION CHOVEC(*)
 #include "cholesky.fh"
@@ -29,10 +30,6 @@ C
 
       LOGICAL LOCDBG
       PARAMETER (LOCDBG = .FALSE.)
-
-      PARAMETER (N2 = INFVEC_N2)
-
-      INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
 
 C     Return if no vectors.
 C     ---------------------
@@ -113,14 +110,14 @@ C     --------------------------------
          DO IVEC = 1,NUMVEC-1
             JVEC = IVEC1 + IVEC - 1
             JRED = INFVEC(JVEC,2,ISYM)
-            IWORK(ip_INFVEC+MAXVEC*N2*(ISYM-1)+MAXVEC*2+JVEC) =
+            INFVEC(JVEC+1,3,ISYM) =
      &      INFVEC(JVEC,3,ISYM) + NDIMRS(ISYM,JRED)
          END DO
          IVEC = NUMVEC
          JVEC = IVEC1 + IVEC - 1
          IF (JVEC .LT. MAXVEC) THEN
             JRED = INFVEC(JVEC,2,ISYM)
-            IWORK(ip_INFVEC+MAXVEC*N2*(ISYM-1)+MAXVEC*2+JVEC) =
+            INFVEC(JVEC+1,3,ISYM) =
      &      INFVEC(JVEC,3,ISYM) + NDIMRS(ISYM,JRED)
          END IF
       ELSE IF (CHO_ADRVEC .EQ. 2) THEN
@@ -132,7 +129,7 @@ C     --------------------------------
             LTOT = NDIMRS(ISYM,JRED)
             IADR = INFVEC(JVEC,3,ISYM)
             CALL DDAFILE(LUCHO(ISYM),IOPT,CHOVEC(KOFF),LTOT,IADR)
-            IWORK(ip_INFVEC+MAXVEC*N2*(ISYM-1)+MAXVEC*2+JVEC) = IADR
+            INFVEC(JVEC+1,3,ISYM) = IADR
             KOFF = KOFF + LTOT
          END DO
          IVEC = NUMVEC
@@ -142,7 +139,7 @@ C     --------------------------------
          IADR = INFVEC(JVEC,3,ISYM)
          CALL DDAFILE(LUCHO(ISYM),IOPT,CHOVEC(KOFF),LTOT,IADR)
          IF (JVEC .LT. MAXVEC) THEN
-            IWORK(ip_INFVEC+MAXVEC*N2*(ISYM-1)+MAXVEC*2+JVEC) = IADR
+            INFVEC(JVEC+1,3,ISYM) = IADR
          END IF
       ELSE
          CALL CHO_QUIT('CHO_ADRVEC out of bounds in '//SECNAM,102)

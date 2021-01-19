@@ -19,6 +19,7 @@
 *                                                                      *
 ************************************************************************
       use ChoArr, only: nBasSh, nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
       Character*13 SECNAM
@@ -32,7 +33,6 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
       Real*8 DA(*), G2(*), JA(*), KA(*), FkA(*), CMO(*), CVa(nVB,2)
-      parameter ( N2 = InfVec_N2 )
       parameter (zero = 0.0D0, one = 1.0D0, xone=-1.0D0)
       parameter (FactCI = -2.0D0, FactXI = 0.5D0)
       Character*6 mode
@@ -44,8 +44,6 @@
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 ************************************************************************
 *
       nDen=1

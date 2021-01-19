@@ -69,9 +69,6 @@ C
       Character*13 SecNam
       Parameter (SecNam='Cho_X_CompVec')
 
-      Integer N2
-      Parameter (N2=InfVec_N2)
-
       Integer  Cho_F2SP
       External Cho_F2SP
 
@@ -95,7 +92,7 @@ C
       Integer ldL, ldZ
       Integer ip_Wrk, l_Wrk
       Integer MaxQual_SAVE
-      Integer ip_InfVec_T
+      Integer, Pointer:: InfVcT(:,:,:)
       Integer ip_Zd, l_Zd, incZd
       Integer kZd
       Integer ip_Tmp, l_Tmp
@@ -110,9 +107,20 @@ C
       Real*8 TotMem, TotCPU, TotWall
 
       Integer i, j, k
-      Integer iTri, InfVcT
+      Integer iTri
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine Cho_X_GetIP_InfVec(InfVcT)
+      Integer, Pointer:: InfVct(:,:,:)
+      End Subroutine Cho_X_GetIP_InfVec
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
+
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
-      InfVcT(i,j,k)=iWork(ip_InfVec_T-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 
       ! Init return code
       irc=0
@@ -147,7 +155,7 @@ C
       End If
 
       ! Get pointer to InfVec array for all vectors
-      Call Cho_X_GetIP_InfVec(ip_InfVec_T)
+      Call Cho_X_GetIP_InfVec(InfVcT)
 
       ! Copy reduced set 1 to location 2.
       ! I.e. make rs1 the "current" reduced set.

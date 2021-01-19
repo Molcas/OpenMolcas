@@ -12,6 +12,7 @@
       use Basis_Info
       use Symmetry_Info, only: nIrrep
       use ChoArr, only: iSOShl
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -57,7 +58,7 @@ C     Write (*,*) 'nij3=',nij
       nSym=nIrrep
       Do iSym = 1, nSym
          iIrrep=iSym-1
-         ip_List_rs=ip_InfVec+MaxVec*InfVec_N2*(iSym-1)
+         ip_List_rs=ip_of_iWork(InfVec(1,1,iSym))
          Call CHO_X_GET_PARDIAG(iSym,ip_List_rs,iWork(ipSO_ab+iOff))
 *
          Call Get_Auxiliary_Shells(iWork(ipSO_ab+iOff),nBas_Aux(iIrrep),

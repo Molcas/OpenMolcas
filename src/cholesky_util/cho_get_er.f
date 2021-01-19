@@ -49,6 +49,7 @@
 ************************************************************************
       SUBROUTINE CHO_get_ER(irc,CMO,nOcc,ER,W,timings)
       use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
       Logical timings
       Integer nOcc(*),iOcc(8),isMO(8)
@@ -65,10 +66,6 @@
 #include "WrkSpc.fh"
 
       parameter ( N2 = InfVec_N2 )
-
-************************************************************************
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-************************************************************************
 
       JSYM=1
       If (NumCho(JSYM).lt.1) Then

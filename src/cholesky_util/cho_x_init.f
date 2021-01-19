@@ -505,13 +505,14 @@ C              InfVec(i,5,iSym) = i
 C              The routine does nothing in case of parallel DF.
 C
       Use Para_Info, Only: Is_Real_Par
+      use ChoSwp, only: InfVec
       Implicit None
       Logical isDF
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "WrkSpc.fh"
 
-      Integer kOff, iSym, i
+      Integer iSym, i
       Logical doDefine
 
 C Define in case of
@@ -523,9 +524,8 @@ C Do NOT define for parallel DF.
      &           (Is_Real_Par() .and. .not.isDF)
       If (doDefine) Then
          Do iSym = 1,nSym
-            kOff = ip_InfVec - 1 + MaxVec*InfVec_N2*(iSym-1) + MaxVec*4
             Do i = 1,NumCho(iSym)
-               iWork(kOff+i) = i
+               InfVec(i,5,iSym) = i
             End Do
          End Do
       End If

@@ -33,6 +33,7 @@
 ************************************************************************
       SUBROUTINE CHO_get_VJ(irc,ipDLT,VJ,Mvec,timings)
       use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
       Logical timings
       Integer ipDLT, Mvec
@@ -50,12 +51,6 @@
 #include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-
-      parameter ( N2 = InfVec_N2 )
-
-************************************************************************
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-************************************************************************
 
       JSYM=1
 

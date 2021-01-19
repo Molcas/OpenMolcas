@@ -24,7 +24,8 @@ C
       use ChoArr, only: nDimRS
       use ChoSwp, only: iQuAB_Hidden, iQuAB, nnBstRSh_Hidden, nnBstRSh,
      &                                       iiBstRSh_Hidden, iiBstRSh,
-     &                                         InfRed_Hidden,   InfRed
+     &                                         InfRed_Hidden,   InfRed,
+     &                                         InfVec_Hidden,   InfVec
 #include "implicit.fh"
       LOGICAL SKIP_PRESCREEN
       LOGICAL ALLOCATE_BOOKMARKS
@@ -188,10 +189,11 @@ C     -----------------------------------------------------------
          WRITE(LUPRI,*) SECNAM,': MAXVEC = ',MAXVEC
          CALL CHO_QUIT('MAXRED/MAXVEC error in '//SECNAM,103)
       ELSE
-         l_INFVEC = MAXVEC*INFVEC_N2*NSYM
          Call mma_allocate(InfRed_Hidden,MaxRed,Label='InfRed_Hidden')
          InfRed => InfRed_Hidden
-         CALL CHO_MEM('INFVEC','ALLO','INTE',ip_INFVEC,l_INFVEC)
+         Call mma_allocate(InfVec_Hidden,MaxVec,INFVEC_N2,nSym,
+     &                     Label='InfVec_Hidden')
+         InfVec => InfVec_Hidden
          Call mma_allocate(nDimRS,NSYM,MAXRED,Label='nDimRS')
       END IF
 

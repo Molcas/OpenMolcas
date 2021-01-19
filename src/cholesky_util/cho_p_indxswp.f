@@ -21,6 +21,7 @@ C
       use ChoSwp, only: iiBstRSh, iiBstRSh_G
       use ChoSwp, only: IndRSh, IndRSh_G, pTemp1
       use ChoSwp, only: InfRed, InfRed_G
+      use ChoSwp, only: InfVec, InfVec_G
       Implicit None
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -46,12 +47,9 @@ C
       InfRed_G => InfRed
       InfRed => pTemp1
 
-      iTmp = ip_InfVec_G
-      ip_InfVec_G = ip_InfVec
-      ip_InfVec = iTmp
-      iTmp = l_InfVec_G
-      l_InfVec_G = l_InfVec
-      l_InfVec = iTmp
+      pTemp3 => InfVec_G
+      InfVec_G => InfVec
+      InfVec => pTemp3
 
       pTemp3 => iiBstRSh_G
       iiBstRSh_G => iiBstRSh

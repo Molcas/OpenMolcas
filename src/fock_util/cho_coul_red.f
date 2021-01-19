@@ -35,6 +35,7 @@ C               content in those chunks of memory will
 C               be overwritten!
 C*********************************************************
       use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
 #ifdef _DEBUGPRINT_
       Logical Debug
@@ -55,11 +56,7 @@ C*********************************************************
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
-      parameter ( N2 = InfVec_N2 )
-
 ************************************************************************
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
       ipDr(i) = iWork(ipDab+i-1)
 ******
       ipFr(i) = iWork(ipFab+i-1)

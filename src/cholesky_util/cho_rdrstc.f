@@ -17,7 +17,7 @@ C              defined/initialized.
 C
 C     NB!!!! the restart files MUST be open on entry...
 C
-      use ChoSwp, only: InfRed
+      use ChoSwp, only: InfRed, InfVec
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -125,20 +125,16 @@ C     ------------------------
             IFAIL = 5
             GO TO 100
          ELSE IF (NUMCHO(ISYM) .EQ. 0) THEN
-            NDIM = MAXVEC*INFVEC_N2
-            KOFF = ip_INFVEC + NDIM*(ISYM-1)
-            CALL CHO_IZERO(IWORK(KOFF),NDIM)
+            CALL CHO_IZERO(INFVEC(:,:,ISYM),
+     &                     SIZE(INFVEC,1)*SIZE(INFVEC,2))
          ELSE
-            DO J = 1,INFVEC_N2
+            DO J = 1,SIZE(INFVEC,2)
                IOPT = 2
-               KOFF = ip_INFVEC + MAXVEC*INFVEC_N2*(ISYM-1)
-     &              + MAXVEC*(J-1)
-               CALL IDAFILE(LURST,IOPT,IWORK(KOFF),NUMCHO(ISYM),IADR)
+               CALL IDAFILE(LURST,IOPT,INFVEC(1,J,ISYM),NUMCHO(ISYM),
+     &                      IADR)
                LREST = MAXVEC - NUMCHO(ISYM)
                IF (LREST .GT. 0) THEN
-                  KOFF = ip_INFVEC + MAXVEC*INFVEC_N2*(ISYM-1)
-     &                 + MAXVEC*(J-1) + NUMCHO(ISYM)
-                  CALL CHO_IZERO(IWORK(KOFF),LREST)
+                  CALL CHO_IZERO(InfVec(1+NUMCHO(ISYM),J,ISYM),LREST)
                END IF
             END DO
          END IF

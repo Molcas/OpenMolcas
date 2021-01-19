@@ -19,6 +19,7 @@ C              Cholesky vectors are computed. I.e., whether they are
 C              one-center or two-center diagonals. Does not work with
 C              symmetry!
 C
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "cholesky.fh"
@@ -42,9 +43,7 @@ C
       Integer iClass(4)
       integer nPseudo
 
-      Parameter (N2 = InfVec_N2)
 
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
       nBas_Start(i)=iWork(ip_nBas_Start-1+i)
       nBas_per_Atom(i)=iWork(ip_nBas_per_Atom-1+i)
       iBF2Atom(i)=iWork(ip_iBF2Atom-1+i)

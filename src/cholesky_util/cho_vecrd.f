@@ -77,7 +77,7 @@ C     NOTE: if no vectors can be read, JNUM=0 and MUSED=0 are returned,
 C           but execution is NOT stopped here!!!
 C
       use ChoArr, only: nDimRS, iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, InfVec
 #include "implicit.fh"
       DIMENSION SCR(LSCR)
       LOGICAL   DOREAD
@@ -94,10 +94,6 @@ C
       PARAMETER (LOCDBG = .FALSE.)
 
       LOGICAL FULL
-
-      PARAMETER (N2 = INFVEC_N2)
-
-      INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
 
       JRED = 0  ! fix compiler warning
 

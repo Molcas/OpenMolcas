@@ -20,6 +20,7 @@ C              most likely, some of the restart info is not
 C              defined/initialized.
 C
       use ChoSwp, only: InfRed, InfRed_Hidden
+      use ChoSwp, only: InfVec, InfVec_Hidden
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
@@ -139,8 +140,9 @@ C     --------------------------------------
 C     Allocate InfVec array.
 C     ----------------------
 
-      l_InfVec = MaxVec*InfVec_N2*nSym
-      Call GetMem('InfVec','Allo','Inte',ip_InfVec,l_InfVec)
+      Call mma_allocate(InfVec_Hidden,MaxVec,InfVec_N2,nSym,
+     &                  Label='InfVec_Hidden')
+      InfVec => InfVec_Hidden
 
 C     Allocate and initialize (read) InfRed array.
 C     --------------------------------------------
@@ -184,19 +186,15 @@ C     ------------------
             Go To 100
          Else
             If (NumCho(iSym) .lt. 1) Then
-               kOff = ip_InfVec + MaxVec*InfVec_N2*(iSym-1)
-               Call Cho_iZero(iWork(kOff),MaxVec*InfVec_N2)
+               Call Cho_iZero(InfVec(:,:,iSym),MaxVec*InfVec_N2)
             Else
-               Do j = 1,InfVec_N2
+               Do j = 1,SIZE(InfVec,2)
                   iOpt = 2
-                  kOff = ip_InfVec + MaxVec*InfVec_N2*(iSym-1)
-     &                 + MaxVec*(j-1)
-                  Call iDAFile(LuRst,iOpt,iWork(kOff),NumCho(iSym),iAdr)
+                  Call iDAFile(LuRst,iOpt,InfVec(1,j,iSym),NumCho(iSym),
+     &                         iAdr)
                   nRest = MaxVec - NumCho(iSym)
                   If (nRest .gt. 0) Then
-                     kOff = ip_InfVec + MaxVec*InfVec_N2*(iSym-1)
-     &                    + MaxVec*(j-1) + NumCho(iSym)
-                     Call Cho_iZero(iWork(kOff),nRest)
+                     Call Cho_iZero(InfVec(1+NumCho(iSym),j,iSym),nRest)
                   End If
                End Do
             End If

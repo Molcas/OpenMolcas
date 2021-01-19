@@ -33,6 +33,7 @@
 *> @param[out] irc Return code
 ************************************************************************
       SubRoutine Cho_X_CalculateGMat(irc)
+      use ChoSwp, only: InfVec
       Implicit Real*8 (A-H,O-Z)
       Character*(6) FileName
 
@@ -46,10 +47,19 @@
 #endif
 
       Logical isDF
-
-      Parameter (N2 = InfVec_N2)
-      InfVcT(i,j,k)=iWork(ip_InfVec_T-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
+      Integer, Pointer:: InfVcT(:,:,:)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      SubRoutine Cho_CGM_InfVec(InfVcT,NVT,n)
+      Integer, Pointer:: InfVcT(:,:,:)
+      Integer :: n, NVT(n)
+      End SubRoutine Cho_CGM_InfVec
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
       NVT(i)=iWork(ip_NVT-1+i)
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
       iRS2RS(i)=iWork(ip_iRS2RS-1+i)
@@ -86,7 +96,7 @@ C     ----------------------------------------------------------------
 
       l_NVT = nSym
       Call GetMem('NVT','Allo','Inte',ip_NVT,l_NVT)
-      Call Cho_CGM_InfVec(ip_InfVec_T,iWork(ip_NVT),l_NVT)
+      Call Cho_CGM_InfVec(InfVcT,iWork(ip_NVT),l_NVT)
 
 C     Copy rs1 to location 2.
 C     -----------------------
@@ -192,13 +202,25 @@ C     -----------------------------------
 C
 C**********************************************************************C
 C
-      SubRoutine Cho_CGM_InfVec(ip_InfVec_T,NVT,n)
+      SubRoutine Cho_CGM_InfVec(InfVcT,NVT,n)
       Implicit None
-      Integer ip_InfVec_T
+      Integer, Pointer:: InfVcT(:,:,:)
       Integer n
       Integer NVT(n)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine Cho_X_GetIP_InfVec(InfVcT)
+      Integer, Pointer:: InfVct(:,:,:)
+      End Subroutine Cho_X_GetIP_InfVec
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 
-      Call Cho_X_GetIP_InfVec(ip_InfVec_T)
+
+      Call Cho_X_GetIP_InfVec(InfVcT)
       Call Cho_X_GetTotV(NVT,n)
 
       End

@@ -32,6 +32,7 @@ C
 C     NVEC_IN_BUF() -- #vectors stored in buffer in each symmetry
 C
       use ChoArr, only: iScr
+      use ChoSwp, only: InfVec
 #include "implicit.fh"
       Logical DoTime, DoStat
 #include "cholesky.fh"
@@ -48,10 +49,6 @@ C
 #else
       Parameter (LocDbg = .false.)
 #endif
-
-      Parameter (N2 = InfVec_N2)
-
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 
 C     Debug print.
 C     ------------

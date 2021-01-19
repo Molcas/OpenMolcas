@@ -269,8 +269,6 @@ C     chopar.fh.
 C     -----------
 
       Call Cho_iZero(NumCho_Bak,8)
-      ip_InfVec_Bak = 0
-      l_InfVec_Bak = 0
 
 C     cho_para_info.fh.
 C     ------------------

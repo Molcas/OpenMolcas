@@ -50,6 +50,7 @@
 *
 *********************************************************
       use ChoArr, only: iRS2F, nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr)
       Integer ipChoT(8)
@@ -60,16 +61,14 @@
       Integer  cho_isao
       External cho_isao
 
-* Uses InfVec_N2, MAXVEC, NSYM, IIBSTR(8,3), NNBSTR(8,3), NNBSTRT(3) in
+* Uses MAXVEC, NSYM, IIBSTR(8,3), NNBSTR(8,3), NNBSTRT(3) in
 * cholesky.fh commons /CHOLEV/, /CHORST/, /CHOSHL/
 #include "cholesky.fh"
-* Uses ip_indred, ip_infvec, in choptr.fh common /CHMIND/
+* Uses ip_indred in choptr.fh common /CHMIND/
 #include "choptr.fh"
 * Uses ibas(8), nbas(8) in choorb.fh common /CHOORB/
 #include "choorb.fh"
 #include "WrkSpc.fh"
-
-      Parameter (N2 = InfVec_N2)
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
@@ -98,7 +97,7 @@
 * JVTRNS=Cholesky vector to be transformed.
          JVTRNS=JVEC1-1+JVEC
 * JRED: Which reduced set does it belong to:
-         JRED = iWork(ip_InfVec-1+JVTRNS+MaxVec*(1+N2*(JSYM-1)))
+         JRED = InfVec(JVTRNS,2,JSYM)
 
 * Is it the same still?
          IF (JRED .NE. JREDC) THEN

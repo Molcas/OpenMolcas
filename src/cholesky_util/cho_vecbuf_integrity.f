@@ -20,6 +20,7 @@ C     Enable integrity check of buffer: allocate and store norm and sum
 C     of each vector in the buffer.
 C
       use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit None
       Integer irc
 #include "cholesky.fh"
@@ -36,13 +37,6 @@ C
       Integer jVec
       Integer jRed
       Integer ipV
-
-      Integer N2
-      Parameter (N2=InfVec_N2)
-
-      Integer i, j, k
-      Integer InfVec
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 
       ! Set return code
       irc=0
@@ -183,6 +177,7 @@ C     vectors in the buffer and compare these values to the table
 C     generated at buffer initialization.
 C
       use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit None
       Real*8  Tol
       Logical Report
@@ -196,18 +191,14 @@ C
       Real*8   dDot_, Cho_dSumElm
       external ddot_, Cho_dSumElm
 
-      Integer N2
-      Parameter (N2=InfVec_N2)
 
       Real*8 Nrm, Sm
 
       Integer nErr, iSym, jVec, jRed, n, ipV
 
-      Integer i, j, k
-      Integer InfVec
+      Integer i, j
       Real*8  RefNrm
       Real*8  RefSm
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
       RefNrm(i,j)=Work(ip_ChVBfI_Sym(j)+2*(i-1))
       RefSm(i,j)=Work(ip_ChVBfI_Sym(j)+2*(i-1)+1)
 
@@ -328,6 +319,7 @@ C     Txt is printed along with the reference values (for
 C     identification).
 C
       use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit None
       Character*(*) Txt
 #include "WrkSpc.fh"
@@ -335,16 +327,12 @@ C
 #include "cholesky.fh"
 #include "chovecbuf.fh"
 
-      Integer N2
-      Parameter (N2=InfVec_N2)
 
       Integer iSym, jVec, jRed, nDim
 
-      Integer i, j, k
-      Integer InfVec
+      Integer i, j
       Real*8  RefNrm
       Real*8  RefSm
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
       RefNrm(i,j)=Work(ip_ChVBfI_Sym(j)+2*(i-1))
       RefSm(i,j)=Work(ip_ChVBfI_Sym(j)+2*(i-1)+1)
 

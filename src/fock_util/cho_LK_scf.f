@@ -31,7 +31,7 @@ C      k:        MO-index   belonging to (Frozen+Inactive)
 C
 **********************************************************************
       use ChoArr, only: nBasSh, nDimRS
-      use ChoSwp, only: nnBstRSh, iiBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
@@ -65,7 +65,6 @@ C
 #include "choorb.fh"
 #include "WrkSpc.fh"
 #include "warnings.fh"
-      parameter ( N2 = InfVec_N2 )
       Logical add
       Character*6 mode
       Integer  Cho_F2SP
@@ -81,8 +80,6 @@ C
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
 ******
       IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
 ******
@@ -1520,8 +1517,6 @@ c Print the Fock-matrix
 #include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-
-      parameter ( N2 = InfVec_N2 )
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1

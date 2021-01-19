@@ -15,7 +15,7 @@ C
 C     NB!!!  The restart files are assumed open on entry.
 C
       use ChoArr, only: IntMap
-      use ChoSwp, only: InfRed
+      use ChoSwp, only: InfRed, InfVec
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -88,12 +88,10 @@ C     ------------------
          JSCR(1) = NUMCHO(ISYM)
          CALL IDAFILE(LURST,IOPT,JSCR,NWR,IADR)
          IF (NUMCHO(ISYM) .GT. 0) THEN
-            DO J = 1,INFVEC_N2
+            DO J = 1,SIZE(INFVEC,2)
                IOPT = 1
                NTOT = NUMCHO(ISYM)
-               KOFF = ip_INFVEC + MAXVEC*INFVEC_N2*(ISYM-1)
-     &              + MAXVEC*(J-1)
-               CALL IDAFILE(LURST,IOPT,IWORK(KOFF),NTOT,IADR)
+               CALL IDAFILE(LURST,IOPT,InfVec(1,J,ISYM),NTOT,IADR)
             END DO
          END IF
       END DO
