@@ -90,7 +90,7 @@ C     ------------------
             DO J = 1,SIZE(INFVEC,2)
                IOPT = 1
                NTOT = NUMCHO(ISYM)
-               CALL IDAFILE(LURST,IOPT,InfVec(1,J,ISYM),NTOT,IADR)
+               CALL IDAFILE(LURST,IOPT,InfVec(:,J,ISYM),NTOT,IADR)
             END DO
          END IF
       END DO
