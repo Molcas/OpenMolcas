@@ -16,6 +16,7 @@ C              if the diagonal is converged.
 C
       use ChoArr, only: iSP2F
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRSh_Hidden
+      use ChoSwp, only:                     IndRed, IndRed_Hidden
 #include "implicit.fh"
       LOGICAL LCONV
 #include "cholesky.fh"
@@ -62,8 +63,11 @@ C        Allocate mapping arrays between reduced sets.
 C        ---------------------------------------------
 
          MMBSTRT  = NNBSTRT(1)
-         l_INDRED = NNBSTRT(1)*3
-         CALL CHO_MEM('indred','ALLO','INTE',ip_INDRED,l_INDRED)
+
+         Call mma_allocate(IndRed_Hidden,NNBSTRT(1),3,
+     &                     Label='IndRed_Hidden')
+         IndRed => IndRed_Hidden
+
          Call mma_allocate(IndRSh_Hidden,NNBSTRT(1),
      &                     Label='IndRSh_Hidden')
          IndRSh => IndRSh_Hidden
@@ -135,8 +139,9 @@ C        Reallocate buffer.
 C        ---------------------------------------------------------
 
          MMBSTRT  = NNBSTRT(1)
-         l_INDRED = NNBSTRT(1)*3
-         CALL CHO_MEM('indred','ALLO','INTE',ip_INDRED,l_INDRED)
+         Call mma_allocate(IndRed_Hidden,NNBSTRT(1),3,
+     &                     Label='IndRed_Hidden')
+         IndRed => IndRed_Hidden
          Call mma_allocate(IndRSh_Hidden,NNBSTRT(1),
      &                     Label='IndRSh_Hidden')
          IndRSh => IndRSh_Hidden

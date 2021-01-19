@@ -17,15 +17,13 @@ C              If a non-zero code (irc) is returned, nothing has been
 C              set!!
 C
       use ChoArr, only: iSP2F, nBstSh
-      use ChoSwp, only: iQuAB, IndRSh
+      use ChoSwp, only: iQuAB, IndRSh, IndRed
 #include "implicit.fh"
       Integer nAB(*)
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "chosew.fh"
 #include "WrkSpc.fh"
-
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
 
 C     Check allocations.
 C     ------------------

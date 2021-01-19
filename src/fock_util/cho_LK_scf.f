@@ -31,7 +31,7 @@ C      k:        MO-index   belonging to (Frozen+Inactive)
 C
 **********************************************************************
       use ChoArr, only: nBasSh, nDimRS
-      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec
+      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
@@ -80,8 +80,6 @@ C
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
 ******
       nnBfShp(j,i) = iWork(ip_nnBfShp-1+nnShl_tot*(i-1)+j)
 ******
@@ -1506,6 +1504,7 @@ c Print the Fock-matrix
       SUBROUTINE play_sto(irc,iLoc,nDen,JSYM,ISLT,ISSQ,
      &                        ipXLT,ipXab,mode,add)
       use ChoArr, only: iRS2F
+      use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
       Integer  ISLT(8),ISSQ(8,8),cho_isao,nDen
       External cho_isao
@@ -1522,8 +1521,6 @@ c Print the Fock-matrix
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
 ************************************************************************
 
 

@@ -24,13 +24,13 @@ C           disk and should not be smaller than NNBSTR(ISYM,1)+1,
 C           preferably more.
 C
       use ChoArr, only: iSP2F, iScr
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, InfVec
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, InfVec,
+     &                  IndRed
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*11 SECNAM
       PARAMETER (SECNAM = 'CHO_GETVEC2')
@@ -120,9 +120,8 @@ C              Read index arrays for this reduced set (if needed).
 C              ---------------------------------------------------
 
                IF (JRED .NE. IREDC) THEN
-                  KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
                   CALL CHO_GETRED(INFRED,nnBstRSh(:,:,ILOC),
-     &                            IWORK(KOFF2),INDRSH,iSP2F,
+     &                            IndRed(1,ILOC),INDRSH,iSP2F,
      &                            MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
      &                            .FALSE.)
                   CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,3)

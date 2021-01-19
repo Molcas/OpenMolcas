@@ -14,7 +14,7 @@ C     Purpose: set first disk addresses for reduced set info and
 C              vectors.
 C
       use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, IndRed
 #include "implicit.fh"
       INTEGER JNFRED(MRED), INFVEC(MVEC,M2,MSYM)
 #include "cholesky.fh"
@@ -36,9 +36,8 @@ C     --------------
       ELSE IF (XNPASS .GT. 0) THEN
          IRED  = 3
          IPASS = XNPASS
-         KOFF2 = ip_INDRED   + MMBSTRT*(IRED - 1)
          CALL CHO_GETRED(INFRED,nnBstRSh(:,:,IRED),
-     &                   IWORK(KOFF2),INDRSH,iSP2F,
+     &                   IndRed(:,IRED),INDRSH,iSP2F,
      &                   MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,.FALSE.)
          CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,IRED)
          IF (IPASS .EQ. 1) THEN
@@ -62,9 +61,8 @@ C     --------------
      &               INFVEC(NUMCHO(ISYM),4,ISYM) + NNBSTR(ISYM,IRED)
                   ELSE IF (JPASS.LE.XNPASS .AND. JPASS.GT.0) THEN
                      IPASS = JPASS
-                     KOFF2 = ip_INDRED   + MMBSTRT*(IRED - 1)
                      CALL CHO_GETRED(INFRED,nnBstRSh(:,:,IRED),
-     &                               IWORK(KOFF2),INDRSH,iSP2F,
+     &                               IndRed(:,IRED),INDRSH,iSP2F,
      &                               MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,
      &                               .FALSE.)
                      CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,
@@ -90,9 +88,8 @@ C     --------------
                      CALL CHO_MEM('SetAddr','FREE','REAL',KSA,LSA)
                   ELSE IF (JPASS.LE.XNPASS .AND. JPASS.GT.0) THEN
                      IPASS = JPASS
-                     KOFF2 = ip_INDRED   + MMBSTRT*(IRED - 1)
                      CALL CHO_GETRED(INFRED,nnBstRSh(:,:,IRED),
-     &                               IWORK(KOFF2),INDRSH,iSP2F,
+     &                               IndRed(:,IRED),INDRSH,iSP2F,
      &                               MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,
      &                               .FALSE.)
                      CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,

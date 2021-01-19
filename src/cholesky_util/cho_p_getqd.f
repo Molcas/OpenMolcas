@@ -13,7 +13,7 @@ C
 C     Purpose: copy qualified diagonal elements from global diagonal to
 C              array QD.
 C
-      use ChoSwp, only: iQuAB
+      use ChoSwp, only: iQuAB, IndRed_G
       Implicit None
       Real*8 QD(*)
 #include "cholesky.fh"
@@ -22,9 +22,6 @@ C
 #include "WrkSpc.fh"
 
       Integer kQD, kD, iSym, iQ, iAB
-      Integer IndRed_G, i, j
-
-      IndRed_G(i,j)=iWork(ip_IndRed_G-1+mmBstRT_G*(j-1)+i)
 
       kQD = 0
       kD = ip_Diag_G - 1

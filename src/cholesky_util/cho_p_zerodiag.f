@@ -19,7 +19,7 @@ C
 C     NB! If you wish to test the entire local diagonal (i.e. not just
 C         the qualified), use Cho_P_ZeroDiag_Rst instead.
 C
-      use ChoSwp, only: iQuAB_L
+      use ChoSwp, only: iQuAB_L, IndRed
       Implicit None
       Real*8  Diag(*)
       Integer iSym, iABG
@@ -32,9 +32,8 @@ C
 
       Integer iQ, iAB, jAB, kAB
 
-      Integer i, j
-      Integer IndRed, iL2G
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
+      Integer i
+      Integer iL2G
       iL2G(i)=iWork(ip_iL2G-1+i)
 
       If (Cho_Real_Par) Then

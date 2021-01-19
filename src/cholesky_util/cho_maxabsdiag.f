@@ -13,11 +13,11 @@ C
 C     Purpose: set max. abs. DIAG (reduced set IRED) in each symmetry, and
 C              return the global max. abs. in DGMAX.
 C
+      use ChoSwp, only: IndRed
 #include "implicit.fh"
       DIMENSION DIAG(*)
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*14 SECNAM
       PARAMETER (SECNAM = 'CHO_MAXABSDIAG')
@@ -30,8 +30,6 @@ C
 #else
       PARAMETER (LOCDBG = .FALSE.)
 #endif
-
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
 
       IF (CHO_1CENTER) THEN ! specialization for 1-center approximation
          CALL CHO_MAXABSDIAG_1C(DIAG,IRED,DGMAX)
@@ -101,12 +99,11 @@ C     Specialization for 1-Center approximation: only find max for
 C     1-center diagonals.
 C
       use ChoArr, only: iSP2F, iAtomShl
-      use ChoSwp, only: nnBstRSh, iiBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
 #include "implicit.fh"
       Real*8 Diag(*)
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
       Character*17 SecNam
       Parameter (SecNam = 'Cho_MaxAbsDiag_1C')
@@ -117,8 +114,6 @@ C
 #else
       Parameter (LocDbg = .false.)
 #endif
-
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
 
       If (iLoc .eq. 1) Then
          Do iSym = 1,nSym

@@ -14,18 +14,15 @@ C     Purpose: return index in reduced set IRED (1,2,3) of
 C              element LAB in shell pair ISHLAB (sym. ISYMAB).
 C              If not included in this reduced set, 0 is returned.
 C
-      use ChoSwp, only: nnBstRSh, iiBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*8 SECNAM
       PARAMETER (SECNAM = 'CHO_RS2F')
 
       INTEGER K, K2
-
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
 
       CHO_RS2F = 0
 

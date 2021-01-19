@@ -19,7 +19,7 @@
 *
 ************************************************************
       use ChoArr, only: iSOShl, iShlSO, iBasSh, nBasSh, iRS2F, nDimRS
-      use ChoSwp, only: iiBstRSh, IndRSh
+      use ChoSwp, only: iiBstRSh, IndRSh, IndRed
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr),SvShp(*)
       Integer iShp_rs(*)
@@ -36,8 +36,6 @@
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
 ****** this is a trick to save memory. Memory in "location 2" is used
 ******      to store some offset arrays
       iOffShp(i,j) = iiBstRSh(i,j,2)

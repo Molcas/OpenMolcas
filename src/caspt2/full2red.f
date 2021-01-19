@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE full2red(XLT,Xab)
       use ChoArr, only: iRS2F
+      use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
       Integer  ISLT(8),cho_isao
       External cho_isao
@@ -18,7 +19,6 @@
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 
 * Select table column for use with caspt2:
       iLoc=3
@@ -35,7 +35,7 @@ c Offsets to symmetry block in the LT matrix
 
       Do jRab=1,nnBstR(jSym,iLoc)
          kRab = iiBstr(jSym,iLoc) + jRab
-         iRab = iWork(ip_IndRed-1+nnBstrT(1)*(iLoc-1)+kRab)
+         iRab = IndRed(kRab,iLoc)
          iag   = iRS2F(1,iRab)
          ibg   = iRS2F(2,iRab)
          iSyma = cho_isao(iag)
@@ -54,6 +54,7 @@ c Offsets to symmetry block in the LT matrix
       End
       SUBROUTINE red2full(XLT,Xab)
       use ChoArr, only: iRS2F
+      use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
       Integer  ISLT(8),cho_isao
       External cho_isao
@@ -62,7 +63,6 @@ c Offsets to symmetry block in the LT matrix
 #include "cholesky.fh"
 #include "choptr.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 
 * Select table column for use with caspt2:
       iLoc=3
@@ -78,7 +78,7 @@ c Offsets to symmetry block in the LT matrix
 
       Do jRab=1,nnBstR(jSym,iLoc)
          kRab = iiBstr(jSym,iLoc) + jRab
-         iRab = iWork(ip_IndRed-1+nnBstrT(1)*(iLoc-1)+kRab)
+         iRab = IndRed(kRab,iLoc)
          iag   = iRS2F(1,iRab)
          ibg   = iRS2F(2,iRab)
          iSyma = cho_isao(iag)

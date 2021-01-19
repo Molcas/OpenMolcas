@@ -16,7 +16,7 @@ C              If a non-zero code (irc) is returned, nothing has been
 C              set!!
 C
       use ChoArr, only: nBstSh, iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
 #if defined (_DEBUGPRINT_)
       use ChoSwp, only: IndRSh
 #endif
@@ -33,7 +33,6 @@ C
       Parameter (SecNam = 'Cho_SetShP2RS')
 #endif
 
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
       mySP(i)=iWork(ip_mySP-1+i)
 
 C     Check allocations.

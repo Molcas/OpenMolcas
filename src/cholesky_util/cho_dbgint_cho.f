@@ -19,20 +19,17 @@ C
 C     NOTE: this is *only* for debugging.
 C
       use ChoArr, only: nBstSh, iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
 #include "implicit.fh"
       DIMENSION XINT(NCD,NAB), WRK(LWRK)
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*14 SECNAM
       PARAMETER (SECNAM = 'CHO_DBGINT_CHO')
 
       INTEGER  CHO_LREAD
       EXTERNAL CHO_LREAD
-
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
 
 C     Initializations.
 C     ----------------

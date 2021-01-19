@@ -13,14 +13,13 @@ C
 C     Purpose: calculate Cholesky vectors from qualified integral
 C              columns (from disk).
 C
-      use ChoSwp, only: iQuAB, InfVec
+      use ChoSwp, only: iQuAB, InfVec, IndRed
 #include "implicit.fh"
       DIMENSION DIAG(*), WRK(LWRK)
 #include "cholesky.fh"
 #include "chovecbuf.fh"
 #include "choprint.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*9 SECNAM
       PARAMETER (SECNAM = 'CHO_DECOM')
@@ -33,8 +32,6 @@ C
       LOGICAL LAST
 
       INTEGER NUMCHO_OLD(8)
-
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
 
       LENLIN = 0  ! to avoid compiler warnings...
       IF (IPRINT .GE. INF_PROGRESS) THEN

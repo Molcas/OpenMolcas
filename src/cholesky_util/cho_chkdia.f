@@ -21,6 +21,7 @@ C     -- also: a) zero negative diagonals < THRNEG (from cholesky.fh)
 C              b) screen diagonal if requested (flag SCDIAG from cholesky.fh)
 C              c) Keep track of most negative zeroed diagonal.
 C
+      use ChoSwp, only: IndRed
 #include "implicit.fh"
       DIMENSION DIAG(*)
 #include "cholesky.fh"
@@ -31,8 +32,6 @@ C
       PARAMETER (SECNAM = 'CHO_CHKDIA')
 
       PARAMETER (ZERO = 0.0D0)
-
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
 
 C     Initialization.
 C     ---------------

@@ -259,6 +259,7 @@ c Print the Fock-matrix
 
       SUBROUTINE switch_sto(irc,iLoc,ipXLT,ipXab,mode,add)
       use ChoArr, only: iRS2F
+      use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
       Integer  ISLT(8),cho_isao
       External cho_isao
@@ -272,8 +273,6 @@ c Print the Fock-matrix
 
 ************************************************************************
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
 ************************************************************************
 
 

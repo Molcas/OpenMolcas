@@ -15,12 +15,12 @@ C              of symmetry block ISYM of diagonal in red. set 1.
 C              This emulates the actual procedure during decomposition.
 C
       use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, InfVec
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, InfVec,
+     &                  IndRed
 #include "implicit.fh"
       DIMENSION DIAG(*), WRK(LWRK)
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_DIACHO')
@@ -29,8 +29,6 @@ C
 
       PARAMETER (N2 = INFVEC_N2)
       PARAMETER (ZERO = 0.0D0)
-
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
 
 C     Return if nothing to do.
 C     ------------------------
@@ -53,7 +51,7 @@ C     Set IREDC to identify this.
 C     ------------------------------------
 
       CALL CHO_RSCOPY(IIBSTRSH,NNBSTRSH,
-     &                IWORK(ip_INDRED),1,ILOC,NSYM,NNSHL,NNBSTRT(1),3)
+     &                INDRED,1,ILOC,NSYM,NNSHL,NNBSTRT(1),3)
       IREDC = 1
 
 C     Start read buffer batch loop.
@@ -91,13 +89,11 @@ C           --------------------------------------------------------
             JRED = INFVEC(IVEC1+JVEC-1,2,ISYM)
             IF (JRED .NE. IREDC) THEN
                IF (JRED .EQ. 1) THEN
-                  CALL CHO_RSCOPY(IIBSTRSH,NNBSTRSH,
-     &                            IWORK(ip_INDRED),1,ILOC,
+                  CALL CHO_RSCOPY(IIBSTRSH,NNBSTRSH,INDRED,1,ILOC,
      &                            NSYM,NNSHL,NNBSTRT(1),3)
                ELSE
-                  KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
                   CALL CHO_GETRED(INFRED,nnBstRSh(:,:,ILOC),
-     &                            IWORK(KOFF2),INDRSH,iSP2F,
+     &                            IndRed(1,ILOC),INDRSH,iSP2F,
      &                            MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
      &                            .FALSE.)
                   CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,ILOC)

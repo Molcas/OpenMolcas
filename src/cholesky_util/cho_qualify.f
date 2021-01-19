@@ -19,13 +19,12 @@ C              If no more columns can be qualified on exit,
 C              FULL=.true. is returned.
 C
       use ChoArr, only: iSP2F
-      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
 #include "implicit.fh"
       DIMENSION DIAG(*)
       LOGICAL   FULL
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
       INTEGER  CHO_IDOT
       EXTERNAL CHO_IDOT
@@ -39,8 +38,6 @@ C
 #else
       PARAMETER (LOCDBG = .FALSE.)
 #endif
-
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
 
 C     Copy counter to offset array.
 C     -----------------------------

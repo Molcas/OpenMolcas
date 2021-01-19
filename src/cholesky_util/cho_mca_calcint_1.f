@@ -16,7 +16,7 @@ C
 C     Version 1: store full shell quadruple.
 C
       use ChoArr, only: nBstSh, iSP2F
-      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
@@ -31,8 +31,6 @@ C
       PARAMETER (INFINT = INF_INT, INFIN2 = INF_IN2)
 
       INTEGER NAB(8)
-
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
 
 #if defined (_DEBUGPRINT_)
       CALL GETMEM('INT.LEAK','MAX ','REAL',KLEAK,LLEAK)

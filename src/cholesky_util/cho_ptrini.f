@@ -15,14 +15,7 @@ C
       IMPLICIT NONE
       Integer irc
 #include "choptr.fh"
-      Integer nAlloc
 
-      nAlloc = 0  ! allocation counter
-
-      ip_INDRED = 0
-      l_INDRED  = 0
-      nAlloc    = nAlloc + 1
-
-      irc = CHO_NALLOC - nAlloc
+      irc = CHO_NALLOC
 
       End

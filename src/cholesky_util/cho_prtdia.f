@@ -14,18 +14,15 @@ C     Purpose: print requested symmetry block(s) of diagonal in
 C              first (IRED=1) or current (IRED=2) reduced set.
 C
       use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRed
 #include "implicit.fh"
       DIMENSION DIAG(*)
       INTEGER   ISYLST(NSYLST)
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_PRTDIA')
-
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
 
 C     Check dimension of symmetry list.
 C     ---------------------------------

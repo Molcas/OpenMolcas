@@ -34,7 +34,7 @@
 ************************************************************************
       SUBROUTINE Cho_X_CalcChoDiag(rc,Diag)
       use ChoArr, only: nDimRS
-      use ChoSwp, only: InfVec
+      use ChoSwp, only: InfVec, IndRed
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc
@@ -46,10 +46,6 @@
 #include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-
-************************************************************************
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-************************************************************************
 
       Call fZero(Diag,nnBstRT(1))
 

@@ -12,14 +12,11 @@
 C
 C     Purpose: qualify diagonals ("qualify until full").
 C
-      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
 #include "implicit.fh"
       DIMENSION DIAG(*)
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
-
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
 
       IF (NNBSTRSH(ISYM,ISHLAB,2) .GT. 0) THEN
          I  = IIBSTR(ISYM,2) + IIBSTRSH(ISYM,ISHLAB,2)

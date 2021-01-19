@@ -24,6 +24,8 @@
      &                    InfRed_G_Hidden,   InfRed_G,
      &                    InfVec_Hidden,   InfVec,
      &                    InfVec_G_Hidden,   InfVec_G,
+     &                    IndRed_Hidden,   IndRed,
+     &                    IndRed_G_Hidden,   IndRed_G,
      &                    InfVec_Bak
 C
 C     T.B. Pedersen, July 2004.
@@ -60,10 +62,9 @@ C     -----------
      &    Call mma_deallocate(InfVec_Hidden)
       If (Associated(InfVec)) InfVec=>Null()
 
-      If (l_IndRed .ne. 0) Then
-         Call GetMem('IndRed','Free','Inte',ip_IndRed,l_IndRed)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(IndRed_Hidden))
+     &    Call mma_deallocate(IndRed_Hidden)
+      If (Associated(IndRed)) IndRed=>Null()
 
       If (Allocated(IndRSh_Hidden))
      &    Call mma_deallocate(IndRSh_Hidden)
@@ -167,6 +168,10 @@ C     -----------------------------------------
       If (Allocated(InfVec_G_Hidden))
      &    Call mma_deallocate(InfVec_G_Hidden)
       If (Associated(InfVec_G)) InfVec_G=>Null()
+
+      If (Allocated(IndRed_G_Hidden))
+     &    Call mma_deallocate(IndRed_G_Hidden)
+      If (Associated(IndRed_G)) IndRed_G=>Null()
 
       If (Allocated(InfRed_G_Hidden))
      &    Call mma_deallocate(InfRed_G_Hidden)

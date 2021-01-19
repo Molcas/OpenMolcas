@@ -23,7 +23,7 @@ C     iQL2G(iQ,iSym)  : iWork(ip_iQL2G-1+MaxQual*(iSym-1)+iQ)
 C                       returns index of the qualified in the global
 C                       list.
 C
-      use ChoSwp, only: iQuAB, iQuAB_L
+      use ChoSwp, only: iQuAB, iQuAB_L, IndRed, IndRed_G
       Implicit None
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -34,9 +34,7 @@ C
 
       Integer iSym, nQL, kOff2, iQ, iQG, i2, i, j, k
 
-      Integer IndRed_G, IndRed, iL2G
-      IndRed_G(i,j)=iWork(ip_IndRed_G-1+mmBstRT_G*(j-1)+i)
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
+      Integer iL2G
       iL2G(i)=iWork(ip_iL2G-1+i)
 
       If (.not.Cho_Real_Par) Return ! not truely parallel...

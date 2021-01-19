@@ -29,30 +29,22 @@ C
 
       End
       Integer Function Cho_IndxParentDiag_P(iQ,iSym)
-      use ChoSwp, only: iQuAB
+      use ChoSwp, only: iQuAB, IndRed_G
       Implicit None
       Integer iQ, iSym
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 #include "choglob.fh"
 
-      Integer i, j, IndRed
-      IndRed(i,j)=iWork(ip_IndRed_G-1+mmBstRT_G*(j-1)+i)
-
-      Cho_IndxParentDiag_P = IndRed(iQuAB(iQ,iSym),2)
+      Cho_IndxParentDiag_P = IndRed_G(iQuAB(iQ,iSym),2)
 
       End
       Integer Function Cho_IndxParentDiag_S(iQ,iSym)
-      use ChoSwp, only: iQuAB
+      use ChoSwp, only: iQuAB, IndRed
       Implicit None
       Integer iQ, iSym
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
-
-      Integer i, j, IndRed
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
 
       Cho_IndxParentDiag_S = IndRed(iQuAB(iQ,iSym),2)
 

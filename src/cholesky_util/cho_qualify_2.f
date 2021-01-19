@@ -12,17 +12,14 @@
 C
 C     Purpose: qualify diagonals ("qualify until full, then largest").
 C
-      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
 #include "implicit.fh"
       DIMENSION DIAG(*)
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*13 SECNAM
       PARAMETER (SECNAM = 'CHO_QUALIFY_2')
-
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
 
       NDIM = NNBSTRSH(ISYM,ISHLAB,2)
       IF (NDIM .GT. 0) THEN

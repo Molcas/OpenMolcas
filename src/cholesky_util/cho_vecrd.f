@@ -77,13 +77,13 @@ C     NOTE: if no vectors can be read, JNUM=0 and MUSED=0 are returned,
 C           but execution is NOT stopped here!!!
 C
       use ChoArr, only: nDimRS, iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, InfVec
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, InfVec,
+     &                  IndRed
 #include "implicit.fh"
       DIMENSION SCR(LSCR)
       LOGICAL   DOREAD
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
       external ddot_
 
@@ -112,9 +112,8 @@ C        -----------------------------------
                JVEC = JVEC + 1
                JRED = INFVEC(JVEC,2,ISYM)
                IF (JRED .NE. IREDC) THEN
-                  KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
                   CALL CHO_GETRED(INFRED,nnBstRSh(:,:,ILOC),
-     &                            IWORK(KOFF2),INDRSH,iSP2F,
+     &                            IndRed(:,ILOC),INDRSH,iSP2F,
      &                            MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
      &                            .FALSE.)
                   CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,ILOC)
@@ -169,9 +168,8 @@ C        ---------------------------------------------------
                JVEC = JVEC + 1
                JRED = INFVEC(JVEC,2,ISYM)
                IF (JRED .NE. IREDC) THEN
-                  KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
                   CALL CHO_GETRED(INFRED,nnBstRSh(:,:,ILOC),
-     &                            IWORK(KOFF2),INDRSH,iSP2F,
+     &                            IndRed(:,ILOC),INDRSH,iSP2F,
      &                            MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
      &                            .FALSE.)
                   CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,ILOC)

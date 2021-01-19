@@ -15,6 +15,7 @@ C              must be available at (global) index array location 2.
 C
       use ChoSwp, only: nnBstRSh, nnBstRSh_G
       use ChoSwp, only: iiBstRSh, iiBstRSh_G
+      use ChoSwp, only:   IndRed,   IndRed_G
       Implicit None
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -28,16 +29,11 @@ C
       Integer irc, iC, nDim
       Integer i, j, k, i0, k0, l, ll
       Integer iSym, iSP, iShlAB
-      Integer kOff
 
       Integer iL2G, mySP
-      Integer IndRed
-      Integer IndRed_G
 
       iL2G(i)=iWork(ip_iL2G-1+i)
       mySP(i)=iWork(ip_mySP-1+i)
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
-      IndRed_G(i,j)=iWork(ip_IndRed_G-1+mmBstRT_G*(j-1)+i)
 
 
 C     Copy current local reduced set (at location 2) to location 3.
@@ -53,7 +49,7 @@ C     Re-initialize local reduced set indices at location 2.
 C     ------------------------------------------------------
 
       nDim = nSym*nnShl
-      Call Cho_iZero(iWork(ip_IndRed+mmBstRT),mmBstRT)
+      IndRed(:,2)=0
       Call Cho_iZero(iiBstRSh(:,:,2),nDim)
       Call Cho_iZero(nnBstRSh(:,:,2),nDim)
       Call Cho_iZero(iiBstR(1,2),nSym)
@@ -78,7 +74,6 @@ C     -------------------------------------------------------------
 C     Set local IndRed to point to local 1st reduced set.
 C     ---------------------------------------------------
 
-      kOff = ip_IndRed + mmBstRT - 1
       iC = 0
       Do iSym = 1,nSym
          Do iSP = 1,nnShl
@@ -94,7 +89,7 @@ C     ---------------------------------------------------
                   ll = IndRed(k0+k,3)
                   l = iL2G(ll)
                   If (l .eq. j) Then
-                     iWork(kOff+iC) = ll
+                     IndRed(iC,2) = ll
                      k = nnBstRSh(iSym,iSP,3) ! break while loop
                   End If
                End Do

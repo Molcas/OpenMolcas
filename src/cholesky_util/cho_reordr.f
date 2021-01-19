@@ -50,7 +50,7 @@
 *
 *********************************************************
       use ChoArr, only: nDimRS, iRS2F
-      use ChoSwp, only: InfVec
+      use ChoSwp, only: InfVec, IndRed
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr)
       Integer ipChoV(*),iSkip(*)
@@ -67,8 +67,6 @@
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
 ************************************************************************
 
 **********************************************************

@@ -17,18 +17,15 @@ C              diagonals (in the order in which they were qualified).
 C              The qualified index array iQuAB (pointer in choptr.fh)
 C              is assumed to refer to index arrays at location jLoc>1.
 C
-      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh
+      use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, IndRed
       Implicit Real*8 (a-h,o-z)
       Integer iQuAB2(*)
       Integer LstSP(nSP)
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
       Integer  Cho_P_LocalSP, Cho_F2SP
       External Cho_P_LocalSP, Cho_F2SP
-
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
 
       iC = 0
       jShlAB_Ref = -1

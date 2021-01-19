@@ -179,6 +179,7 @@ C     --------------------------------------------------------------
       use ChoArr, only: iRS2F, nDimRS
       use ChoSwp, only: nnBstRSh, iiBstRSh
       use ChoSwp, only:   IndRSh,   IndRSh_Hidden
+      use ChoSwp, only:   IndRed,   IndRed_Hidden
       Implicit None
       Integer nIrrep, nShij
 #include "cholesky.fh"
@@ -222,8 +223,9 @@ C     -------------------------------------------------------
 C     Allocate index arrays for reduced sets: IndRed and IndRsh.
 C     ----------------------------------------------------------
 
-      l_IndRed=nnBstRT(1)*3
-      Call GetMem('indred','Allo','Inte',ip_IndRed,l_IndRed)
+      Call mma_allocate(IndRed_Hidden,nnBstRT(1),3,
+     &                  Label='IndRed_Hidden')
+      IndRed => IndRed_Hidden
       Call mma_allocate(IndRSh_Hidden,nnBstRT(1),Label='IndRSh_Hidden')
       IndRSh => IndRSh_Hidden
 
@@ -254,7 +256,7 @@ C     iiBstRSh, nnBstRSh, IndRed, IndRSh, and iRS2F.
 C     -----------------------------------------------
 
       Call SetChoIndx_RI(iiBstRSh,nnBstRSh,
-     &                   iWork(ip_IndRed),IndRsh,iRS2F,
+     &                   IndRed,IndRsh,iRS2F,
      &                   nSym,nnShl,nnBstRT(1),3,2,iShij,nShij)
 
       Return

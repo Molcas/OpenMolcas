@@ -12,7 +12,7 @@
 *               2007, Per Ake Malmqvist                                *
 ************************************************************************
       SUBROUTINE HALFTRNSF(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,
-     &        JREDC,CMO,ISTART,NUSE,ipChoT)
+     &                     JREDC,CMO,ISTART,NUSE,ipChoT)
 *********************************************************
 *   Author: F. Aquilante as subroutine cho_vtra
 *   Modified PAM 2007: Use ordinary CMO array without restructuring
@@ -50,7 +50,7 @@
 *
 *********************************************************
       use ChoArr, only: iRS2F, nDimRS
-      use ChoSwp, only: InfVec
+      use ChoSwp, only: InfVec, IndRed
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr)
       Integer ipChoT(8)
@@ -64,7 +64,6 @@
 * Uses MAXVEC, NSYM, IIBSTR(8,3), NNBSTR(8,3), NNBSTRT(3) in
 * cholesky.fh commons /CHOLEV/, /CHORST/, /CHOSHL/
 #include "cholesky.fh"
-* Uses ip_indred in choptr.fh common /CHMIND/
 #include "choptr.fh"
 * Uses ibas(8), nbas(8) in choorb.fh common /CHOORB/
 #include "choorb.fh"
@@ -122,7 +121,7 @@
             Do jRab=1,nnBstR(jSym,iLoc)
 
                kRab = iiBstr(jSym,iLoc) + jRab
-               iRab = iWork(ip_IndRed-1+2*nnBstrT(1)+kRab)
+               iRab = IndRed(kRab,3)
 
 * Global address:
                iag = iRS2F(1,iRab)
@@ -177,7 +176,7 @@
            Do jRab=1,nnBstR(jSym,iLoc)
 
               kRab = iiBstr(jSym,iLoc) + jRab
-              iRab = iWork(ip_IndRed-1+2*nnBstrT(1)+kRab)
+              iRab = IndRed(kRab,3)
 
 * Global address:
               iag = iRS2F(1,iRab)

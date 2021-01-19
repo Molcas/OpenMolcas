@@ -12,14 +12,13 @@
 C
 C     Purpose: read diagonal in first reduced set.
 C
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRed
 #include "implicit.fh"
       DIMENSION DIAG(*), BUF(LENBUF)
       INTEGER   IBUF(4,LENBUF)
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*12 SECNAM
       PARAMETER (SECNAM = 'CHO_GETDIAG1')
@@ -41,13 +40,12 @@ C     ------------------------
       ELSE
          CALL CHO_DZERO(DIAG,NNBSTRT(1))
          CALL CHO_IZERO(INDRSH,NNBSTRT(1))
-         CALL CHO_IZERO(IWORK(ip_INDRED),NNBSTRT(1))
-         CALL CHO_RDDBUF(DIAG,BUF,IBUF,
-     &                   INDRSH,IWORK(ip_INDRED),
+         CALL CHO_IZERO(INDRED,NNBSTRT(1))
+         CALL CHO_RDDBUF(DIAG,BUF,IBUF,INDRSH,INDRED,
      &                   LENBUF,MMBSTRT,NDUMP)
          CALL CHO_GADGOP(DIAG,NNBSTRT(1),'+')
          CALL CHO_GAIGOP(INDRSH,NNBSTRT(1),'+')
-         CALL CHO_GAIGOP(IWORK(ip_INDRED),NNBSTRT(1),'+')
+         CALL CHO_GAIGOP(INDRED,NNBSTRT(1),'+')
       END IF
 
 C     Copy info to current reduced set (IRED=2).
@@ -56,7 +54,7 @@ C     -----------------------------------------------------
 
       DO IRS = 2,3
          CALL CHO_RSCOPY(IIBSTRSH,NNBSTRSH,
-     &                   IWORK(ip_INDRED),1,IRS,NSYM,NNSHL,NNBSTRT(1),3)
+     &                   INDRED,1,IRS,NSYM,NNSHL,NNBSTRT(1),3)
       END DO
 
 C     Print.

@@ -58,6 +58,7 @@
       use ChoSwp, only: nnBstRSh, nnBstRSh_Hidden
       use ChoSwp, only: iiBstRSh, iiBstRSh_Hidden
       use ChoSwp, only:   IndRSh,   IndRSh_Hidden
+      use ChoSwp, only:   IndRed,   IndRed_Hidden
       use ChoSwp, only:   InfRed
 #include "implicit.fh"
 #include "choorb.fh"
@@ -274,8 +275,9 @@ C     -------------------------------------
       Call Cho_RstD_GetInd1()
       mmBstRT = nnBstRT(1)
 
-      l_IndRed = nnBstRT(1)*3
-      Call GetMem('IndRed','Allo','Inte',ip_IndRed,l_IndRed)
+      Call mma_allocate(IndRed_Hidden,nnBstRT(1),3,
+     &                  Label='IndRed_Hidden')
+      IndRed => IndRed_Hidden
       Call mma_allocate(IndRSh_Hidden,nnBstRT(1),Label='IndRSh_Hidden')
       IndRSh => IndRSh_Hidden
       Call Cho_RstD_GetInd2()
@@ -339,7 +341,7 @@ C     Copy reduced set 1 to location 2.
 C     ---------------------------------
 
       Call Cho_RSCopy(iiBstRSh,nnBstRSh,
-     &                iWork(ip_IndRed),1,2,nSym,nnShl,mmBstRT,3)
+     &                IndRed,1,2,nSym,nnShl,mmBstRT,3)
 
 C     Get dimensions of reduced sets.
 C     -------------------------------
@@ -348,9 +350,8 @@ C     -------------------------------
       Call iCopy(nSym,nnBstR(1,1),1,nDimRS,1)
       iLoc = 3
       Do iRed = 2,MaxRed
-         kOff2 = ip_IndRed   + mmBstRT*(iLoc - 1)
          Call Cho_GetRed(InfRed,nnBstRSh(:,:,iLoc),
-     &                   iWork(kOff2),IndRsh,iSP2F,
+     &                   IndRed(:,iLoc),IndRsh,iSP2F,
      &                   MaxRed,nSym,nnShl,mmBstRT,iRed,.false.)
          Call Cho_SetRedInd(iiBstRSh,nnBstRSh,nSym,nnShl,iLoc)
          Call iCopy(nSym,nnBstR(1,iLoc),1,nDimRS(:,iRed),1)
@@ -360,7 +361,7 @@ C     Copy reduced set 1 to location 3.
 C     ---------------------------------
 
       Call Cho_RSCopy(iiBstRSh,nnBstRSh,
-     &                iWork(ip_IndRed),1,3,nSym,nnShl,mmBstRT,3)
+     &                IndRed,1,3,nSym,nnShl,mmBstRT,3)
 
 C     Derive:
 C     nBasSh: #basis functions in sym. block of shell.

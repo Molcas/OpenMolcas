@@ -226,16 +226,13 @@ C     --------------
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iAtomShl, iSP2F,
      &                  iShlSO, iRS2F, IntMap, iScr, nDimRS
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, InfRed,
-     &                  InfVec
+     &                  InfVec, IndRed
 C
-C     Purpose: print all entries in choptr.fh to Lunit.
+C     Purpose: print all entries in choarr.f90 and choswp.f90
 C
       Implicit None
       Integer irc, Lunit
 #include "choptr.fh"
-      Integer nAlloc
-
-      nAlloc = 0  ! allocation counter
 
       Write(Lunit,*) '*** Contents of choptr.fh:'
       Write(Lunit,*) '    (dimension)'
@@ -243,8 +240,7 @@ C
       Call Cho_Flush(Lunit)
       Write(Lunit,*) 'InfRed  : ',SIZE(InfRed)
       Write(Lunit,*) 'InfVec  : ',SIZE(InfVec)
-      Write(Lunit,*) 'IndRed  : ',ip_IndRed,l_IndRed
-      nAlloc    = nAlloc + 1
+      Write(Lunit,*) 'IndRed  : ',SIZE(IndRed)
       Write(Lunit,*) 'IndRSh  : ',SIZE(IndRsh)
       Write(Lunit,*) 'iScr    : ',SIZE(iScr)
       Write(Lunit,*) 'iiBstRSh: ',SIZE(iiBstRSh)
@@ -263,6 +259,6 @@ C
       Write(Lunit,*)
       Call Cho_Flush(Lunit)
 
-      irc = CHO_NALLOC - nAlloc
+      irc = 0
 
       End

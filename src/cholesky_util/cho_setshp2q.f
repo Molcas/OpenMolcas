@@ -17,7 +17,7 @@ C              If a non-zero code (irc) is returned, nothing has been
 C              set!!
 C
       use ChoArr, only: iSP2F, nBstSh
-      use ChoSwp, only: iQuAB
+      use ChoSwp, only: iQuAB, IndRed
 #if defined (_DEBUGPRINT_)
       use ChoSwp, only: IndRSh
 #endif
@@ -32,8 +32,6 @@ C
       Character*12 SecNam
       Parameter (SecNam = 'Cho_SetShP2Q')
 #endif
-
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
 
 C     Check allocations.
 C     ------------------

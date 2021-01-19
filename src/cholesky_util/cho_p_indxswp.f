@@ -22,6 +22,7 @@ C
       use ChoSwp, only: IndRSh, IndRSh_G, pTemp1
       use ChoSwp, only: InfRed, InfRed_G
       use ChoSwp, only: InfVec, InfVec_G
+      use ChoSwp, only: IndRed, IndRed_G, pTemp
       Implicit None
 #include "cholesky.fh"
 #include "choptr.fh"
@@ -59,12 +60,9 @@ C
       nnBstRSh_G => nnBstRSh
       nnBstRSh => pTemp3
 
-      iTmp = ip_IndRed_G
-      ip_IndRed_G = ip_IndRed
-      ip_IndRed = iTmp
-      iTmp = l_IndRed_G
-      l_IndRed_G = l_IndRed
-      l_IndRed = iTmp
+      pTemp => IndRed_G
+      IndRed_G => IndRed
+      IndRed => pTemp
 
       pTemp1 => IndRSh_G
       IndRSh_G => IndRSh

@@ -32,14 +32,13 @@
 *> @param[in]  jRS location of reduced set
 ************************************************************************
       Subroutine Cho_X_RSSwap(irc,iRS,jRS)
-      use ChoSwp, only: iiBstRSh, nnBstRSh
+      use ChoSwp, only: iiBstRSh, nnBstRSh, IndRed
       Implicit None
       Integer irc, iRS, jRS
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
-      Integer N, iOff, jOff, iTemp
+      Integer N, iTemp
 
       If (iRS.lt.1 .or. iRS.gt.3 .or. jRS.lt.1 .or. jRS.gt.3) Then
          irc = 1
@@ -50,9 +49,7 @@
             Call iSwap(N,nnBstRsh(:,:,iRS),1,nnBstRSh(:,:,jRS),1)
             Call iSwap(nSym,iiBstR(1,iRS),1,iiBstR(1,jRS),1)
             Call iSwap(nSym,nnBstR(1,iRS),1,nnBstR(1,jRS),1)
-            iOff = ip_IndRed + nnBstRT(1)*(iRs-1)
-            jOff = ip_IndRed + nnBstRT(1)*(jRs-1)
-            Call iSwap(nnBstRT(1),iWork(iOff),1,iWork(jOff),1)
+            Call iSwap(nnBstRT(1),IndRed(:,iRs),1,IndRed(:,jRs),1)
             iTemp = nnBstRT(iRS)
             nnBstRT(iRS) = nnBstRT(jRS)
             nnBstRT(jRS) = iTemp

@@ -12,21 +12,17 @@
 C
 C     Purpose: set global and local info for vectors.
 C
-      use ChoSwp, only: iQuAB, InfVec
+      use ChoSwp, only: iQuAB, InfVec, IndRed
       Implicit None
       Integer nVec, iSym, iPass
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 #include "cho_para_info.fh"
 #include "choglob.fh"
       Integer  Cho_P_IndxParentDiag
       External Cho_P_IndxParentDiag
 
       Integer iV, iVec, iAB
-
-      Integer i, j, IndRed
-      IndRed(i,j)=iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
 
       If (Cho_Real_Par) Then
 C Set global vector information (by swapping index arrays)

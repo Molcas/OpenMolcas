@@ -20,6 +20,7 @@ C
       use ChoSwp, only: IndRSh, IndRSh_G, IndRsh_G_Hidden
       use ChoSwp, only: InfRed, InfRed_G, InfRed_G_Hidden
       use ChoSwp, only: InfVec, InfVec_G, InfVec_G_Hidden
+      use ChoSwp, only: IndRed, IndRed_G, IndRed_G_Hidden
       Implicit None
       Integer ip_Diag
 #include "cholesky.fh"
@@ -36,13 +37,11 @@ C
       Integer N, iSP, iSym, iShlAB, i1, i2, irc
       Integer l_LDiag
 
-      Integer i, j
+      Integer i
       Integer mySP, iL2G
-      Integer IndRed_G
 
       iL2G(i)=iWork(ip_iL2G-1+i)
       mySP(i)=iWork(ip_mySP-1+i)
-      IndRed_G(i,j)=iWork(ip_IndRed_G-1+mmBstRT_G*(j-1)+i)
 
 C     If not parallel, return.
 C     ------------------------
@@ -71,8 +70,7 @@ C     ------------------------------
 
       nnBstRSh_G => nnBstRSh
 
-      ip_IndRed_G = ip_IndRed
-      l_IndRed_G = l_IndRed
+      IndRed_G => IndRed
 
       IndRSh_G => IndRSh
 
@@ -104,12 +102,13 @@ C     --------------------------------
       Call Cho_SetRedInd(iiBstRSh,nnBstRSh,nSym,nnShl,1)
       mmBstRT = nnBstRT(1)
 
-      l_IndRed = mmBstRT*3
-      l_iL2G = mmBstRT
-      Call GetMem('LIndRed','Allo','Inte',ip_IndRed,l_IndRed)
+      Call mma_allocate(IndRed_G_Hidden,mmBstRT,3,
+     &                  Label='IndRed_G_Hidden')
+      IndRed => IndRed_G_Hidden
       Call mma_allocate(IndRSh_G_Hidden,mmBstRT,
      &                  Label='IndRSh_G_Hidden')
       IndRSh => IndRSh_G_Hidden
+      l_iL2G = mmBstRT
       Call GetMem('iL2G','Allo','Inte',ip_iL2G,l_iL2G)
 
       N = 0
@@ -119,7 +118,7 @@ C     --------------------------------
             i1 = iiBstR_G(iSym,1) + iiBstRSh_G(iSym,iShlAB,1) + 1
             i2 = i1 + nnBstRSh_G(iSym,iShlAB,1) - 1
             Do i = i1,i2
-               iWork(ip_IndRed+N) = IndRed_G(i,1)
+               IndRed(N+1,1) = IndRed_G(i,1)
                IndRSh(N+1) = IndRSh_G(i)
                iWork(ip_iL2G+N) = i
                N = N + 1

@@ -12,8 +12,4 @@ C
 C Index array pointers for Cholesky decomposition.
 C
       INTEGER CHO_NALLOC
-      PARAMETER (CHO_NALLOC = 1) ! #allocations
-
-      INTEGER ip_INDRED
-      INTEGER l_INDRED
-      COMMON / CHMIND / ip_INDRED, l_INDRED
+      PARAMETER (CHO_NALLOC = 0) ! #allocations

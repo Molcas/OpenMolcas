@@ -26,13 +26,13 @@ C           use LSCR = 2 x dimension of first reduced set.
 C
 C
       use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, InfVec
+      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, InfVec,
+     &                  IndRed
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
 #include "cholesky.fh"
 #include "choptr.fh"
-#include "WrkSpc.fh"
 
       external ddot_
 
@@ -41,8 +41,6 @@ C
 
       LOGICAL LOCDBG
       PARAMETER (LOCDBG = .FALSE.)
-
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
 
 C     Initialize output array.
 C     ------------------------
@@ -54,9 +52,8 @@ C     -----------------------------------------------
 
       IRED  = INFVEC(IVEC1,2,ISYM)
       ILOC  = 3
-      KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
       CALL CHO_GETRED(INFRED,nnBstRSh(:,:,ILOC),
-     &                IWORK(KOFF2),INDRSH,iSP2F,
+     &                IndRed(1,ILOC),INDRSH,iSP2F,
      &                MAXRED,NSYM,NNSHL,MMBSTRT,IRED,
      &                .FALSE.)
       CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,3)
@@ -82,9 +79,8 @@ C     ------------------------------------------------------------------
          IVEC = IVEC1 + JVEC - 1
          JRED = INFVEC(IVEC,2,ISYM)
          IF (JRED .NE. IRED) THEN   ! read new reduced set
-            KOFF2 = ip_INDRED   + MMBSTRT*(ILOC - 1)
             CALL CHO_GETRED(INFRED,nnBstRSh(:,:,ILOC),
-     &                      IWORK(KOFF2),INDRSH,iSP2F,
+     &                      IndRed(1,ILOC),INDRSH,iSP2F,
      &                      MAXRED,NSYM,NNSHL,MMBSTRT,JRED,
      &                      .FALSE.)
             CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,3)
