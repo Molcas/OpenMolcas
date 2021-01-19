@@ -205,7 +205,7 @@
       end subroutine fciqmc_ctl
 
 
-      subroutine run_neci(DoEmbdNECI, fake_run,
+      subroutine defrun_neci(DoEmbdNECI, fake_run,
      &      ascii_fcidmp, h5_fcidmp,
      &      reuse_pops,
      &      NECIen, D1S_MO, DMAT, PSMAT, PAMAT, tGUGA,
@@ -223,6 +223,12 @@
         character(len=*), parameter :: input_name = 'FCINP',
      &    energy_file = 'NEWCYCLE'
 
+#ifdef _WARNING_WORKAROUND_
+        ! there are wrong maybe-unitialized warnings otherwise.
+        ! (unitialized codepaths lead to abortion).
+        NECIen = huge(NECIen)
+#endif
+
         if (fake_run) then
           NECIen = previous_NECIen
         else if (DoEmbdNECI) then
@@ -231,11 +237,10 @@
 #ifdef _NECI_
             write(6,*) 'NECI called automatically within Molcas!'
             if (myrank /= 0) call chdir_('..')
-            call necimain(
-     &        real_path(ascii_fcidmp), real_path(input_name),
-     &                  MxMem, NECIen)
+            call necimain(real_path(ascii_fcidmp),
+     &                    real_path(input_name),
+     &                    MxMem, NECIen)
             if (myrank /= 0) call chdir_('tmp_'//str(myrank))
-            previous_NECIen = NECIen
 #else
             call WarningMessage(2, 'EmbdNECI is given in input, '//
      &'so the embedded NECI should be used. Unfortunately MOLCAS was '//
@@ -251,8 +256,8 @@
      &                                  h5_fcidmp, energy_file, tGUGA)
             end if
             call wait_and_read(energy_file, NECIen)
-            previous_NECIen = NECIen
         end if
+        previous_NECIen = NECIen
         call get_neci_RDM(D1S_MO, DMAT, PSMAT, PAMAT, tGUGA)
         call RDM_to_runfile(DMAT, D1S_MO, PSMAT, PAMAT)
       end subroutine run_neci
