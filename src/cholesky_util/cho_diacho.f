@@ -20,7 +20,6 @@ C
 #include "implicit.fh"
       DIMENSION DIAG(*), WRK(LWRK)
 #include "cholesky.fh"
-#include "choptr.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_DIACHO')

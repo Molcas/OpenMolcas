@@ -21,7 +21,6 @@ C
 #include "implicit.fh"
       Integer nAB(*)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "chosew.fh"
 #include "WrkSpc.fh"
 

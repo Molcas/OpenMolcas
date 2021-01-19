@@ -17,7 +17,6 @@ C
       use ChoSwp, only: InfVec, InfVec_G
       Implicit None
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "cho_para_info.fh"
 #include "choglob.fh"
 

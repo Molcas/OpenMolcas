@@ -64,7 +64,6 @@
 * Uses MAXVEC, NSYM, IIBSTR(8,3), NNBSTR(8,3), NNBSTRT(3) in
 * cholesky.fh commons /CHOLEV/, /CHORST/, /CHOSHL/
 #include "cholesky.fh"
-#include "choptr.fh"
 * Uses ibas(8), nbas(8) in choorb.fh common /CHOORB/
 #include "choorb.fh"
 #include "WrkSpc.fh"

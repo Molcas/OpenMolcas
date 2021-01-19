@@ -15,7 +15,6 @@
       Integer ip_V_k(nProcs)
       Real*8 Array(*)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 *
       Integer ipScr, ik, ifr, ito, nAV_t, jOff, kOff, iSym

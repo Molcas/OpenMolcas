@@ -12,7 +12,6 @@
       use ChoArr, only: IntMap
       Implicit None
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
 #include "stdalloc.fh"

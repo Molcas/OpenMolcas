@@ -40,7 +40,6 @@
      &                            tforma(2),tforma2(2),tMO(2)
       Logical timings
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"

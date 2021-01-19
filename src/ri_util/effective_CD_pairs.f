@@ -15,7 +15,6 @@
       use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 *                                                                      *
 ************************************************************************

@@ -40,7 +40,6 @@
       Implicit None
       Integer irc
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "stdalloc.fh"
 
       Integer l_Wrk, iReo

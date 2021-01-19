@@ -16,7 +16,6 @@ C
 #include "implicit.fh"
       DIMENSION DIAG(*)
 #include "cholesky.fh"
-#include "choptr.fh"
 
       IF (NNBSTRSH(ISYM,ISHLAB,2) .GT. 0) THEN
          I  = IIBSTR(ISYM,2) + IIBSTRSH(ISYM,ISHLAB,2)

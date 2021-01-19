@@ -43,7 +43,6 @@
 
 #include "WrkSpc.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 
       iOff=0
 

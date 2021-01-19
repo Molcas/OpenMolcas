@@ -34,7 +34,6 @@
       Parameter (SECNAM = 'MULT_RIJK_QKL')
       Logical timings
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 #include "exterm.fh"
 *#define _DEBUGPRINT_

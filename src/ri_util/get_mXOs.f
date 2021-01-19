@@ -14,7 +14,6 @@
       Integer kOrb, nOcc(nIrrep), nSkal
       Real*8 XO(locc,nSkal,nIrrep)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "exterm.fh"
 #include "WrkSpc.fh"

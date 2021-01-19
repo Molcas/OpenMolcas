@@ -24,7 +24,6 @@ C
       DIMENSION DIAG(*)
       LOGICAL   FULL
 #include "cholesky.fh"
-#include "choptr.fh"
 
       INTEGER  CHO_IDOT
       EXTERNAL CHO_IDOT

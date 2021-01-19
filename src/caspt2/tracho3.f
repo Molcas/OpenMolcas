@@ -20,7 +20,6 @@
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
-#include "choptr.fh"
 #include "choglob.fh"
 #include "WrkSpc.fh"
 #include "output.fh"

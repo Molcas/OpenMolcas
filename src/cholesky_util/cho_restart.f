@@ -22,7 +22,6 @@ C
       DIMENSION DIAG(*), WRK(LWRK)
       LOGICAL   DSKDIA, LCONV
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choptr2.fh"
 #include "choprint.fh"
 #include "chosimri.fh"

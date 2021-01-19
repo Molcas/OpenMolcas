@@ -33,8 +33,6 @@ C
 #if defined (_DEBUGPRINT_)
 #include "cho_para_info.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       Integer i, n
 #endif
@@ -103,8 +101,6 @@ C
       Integer NVT
       Integer J1, J2, iSym
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       Integer iOpt
       Parameter (iOpt=2)

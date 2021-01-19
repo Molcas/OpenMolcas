@@ -199,7 +199,6 @@
       Implicit None
       Logical AllocatedHere
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "stdalloc.fh"
 
       Integer irc

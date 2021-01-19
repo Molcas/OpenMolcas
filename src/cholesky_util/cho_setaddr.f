@@ -18,7 +18,6 @@ C
 #include "implicit.fh"
       INTEGER JNFRED(MRED), INFVEC(MVEC,M2,MSYM)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       CHARACTER*11 SECNAM

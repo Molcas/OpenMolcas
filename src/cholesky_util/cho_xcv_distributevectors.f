@@ -84,7 +84,6 @@ C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
       Integer NVT(l_NVT)
 #if defined (_MOLCAS_MPP_)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 #include "choprint.fh"
 #include "mafdecls.fh"
@@ -355,7 +354,6 @@ c Avoid unused argument warnings
       Integer n_mySP
       Integer id_mySP(n_mySP)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 #include "choprint.fh"
 

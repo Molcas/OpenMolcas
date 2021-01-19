@@ -36,7 +36,6 @@
       Implicit None
       Integer irc, iRS, jRS
 #include "cholesky.fh"
-#include "choptr.fh"
 
       Integer N, iTemp
 

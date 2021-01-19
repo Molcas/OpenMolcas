@@ -19,7 +19,6 @@ C
 #include "implicit.fh"
       DIMENSION DIAG(*)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       CHARACTER*18 SECNAM

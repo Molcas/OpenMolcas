@@ -17,7 +17,6 @@ C
 #include "implicit.fh"
       DIMENSION DIAG(*)
 #include "cholesky.fh"
-#include "choptr.fh"
 
       CHARACTER*14 SECNAM
       PARAMETER (SECNAM = 'CHO_MAXABSDIAG')
@@ -103,7 +102,6 @@ C
 #include "implicit.fh"
       Real*8 Diag(*)
 #include "cholesky.fh"
-#include "choptr.fh"
 
       Character*17 SecNam
       Parameter (SecNam = 'Cho_MaxAbsDiag_1C')

@@ -25,7 +25,6 @@ C
       Integer irc
 #include "cholesky.fh"
 #include "chovecbuf.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 #include "choprint.fh"
 
@@ -182,7 +181,6 @@ C
       Real*8  Tol
       Logical Report
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "chovecbuf.fh"
 #include "WrkSpc.fh"
 
@@ -323,7 +321,6 @@ C
       Implicit None
       Character*(*) Txt
 #include "WrkSpc.fh"
-#include "choptr.fh"
 #include "cholesky.fh"
 #include "chovecbuf.fh"
 

@@ -24,7 +24,6 @@ C
       Implicit None
       Integer iSP
 #include "chosp.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Integer jSP

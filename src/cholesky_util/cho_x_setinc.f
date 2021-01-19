@@ -18,7 +18,6 @@ C     Purpose: define all entries in include files
 C              choprint.fh
 C              choorb.fh
 C              cholesky.fh
-C              choptr.fh
 C              choptr2.fh
 C              chosew.fh
 C              cholq.fh
@@ -224,12 +223,6 @@ C     ------------------------------------
       n_mySP=0
       ip_Idle=0
       l_Idle=0
-
-C     Zero memory pointers in choptr.fh.
-C     -----------------------------------
-
-      Call Cho_PtrIni(irc)
-      If (irc .ne. 0) Return
 
 C     chovecbuf.fh.
 C     --------------

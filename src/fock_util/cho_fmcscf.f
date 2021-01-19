@@ -67,7 +67,6 @@ C
       parameter (zero = 0.0D0, one = 1.0D0)
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
@@ -788,7 +787,6 @@ c Print the Fock-matrix
       Character*6 mode
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 

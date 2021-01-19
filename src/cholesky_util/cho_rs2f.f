@@ -17,7 +17,6 @@ C
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 
       CHARACTER*8 SECNAM
       PARAMETER (SECNAM = 'CHO_RS2F')

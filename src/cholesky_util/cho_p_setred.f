@@ -22,7 +22,6 @@ C
       Real*8  Diag(*)
       Logical Sync
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"

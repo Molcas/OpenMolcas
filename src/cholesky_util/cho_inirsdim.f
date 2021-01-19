@@ -16,7 +16,6 @@ C
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, IndRed
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 
       IF (RSTCHO) THEN
          ILOC = 3

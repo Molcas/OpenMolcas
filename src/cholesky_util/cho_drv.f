@@ -56,7 +56,6 @@ C
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr.fh"
 #include "chosubscr.fh"
 #include "WrkSpc.fh"
 

@@ -23,7 +23,6 @@ C
       DIMENSION XINT(*), WRK(LWRK)
 #include "cholesky.fh"
 #include "chovecbuf.fh"
-#include "choptr.fh"
 #include "chosubscr.fh"
 #include "cholq.fh"
 #include "WrkSpc.fh"

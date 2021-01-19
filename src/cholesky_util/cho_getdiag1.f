@@ -18,7 +18,6 @@ C
       INTEGER   IBUF(4,LENBUF)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr.fh"
 
       CHARACTER*12 SECNAM
       PARAMETER (SECNAM = 'CHO_GETDIAG1')

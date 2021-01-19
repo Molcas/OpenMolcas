@@ -16,7 +16,6 @@ C
       Implicit None
       Logical WriteBookmarks
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "choini.fh"
 #include "chobkm.fh"

@@ -20,7 +20,6 @@ C
       Real*8 Diag(*)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Character*12 SecNam
@@ -275,7 +274,6 @@ C        ----------------------------------------------------------
          iPass2 = iPass1 + NumPass - 1
          Do jPass = iPass1,iPass2
             Do iSym = 1,nSym
-               kOff0 = ip_iQuAB - 1 + MaxQual*(iSym-1)
                iV1 = iVecRS(iSym,jPass)
                iV2 = iV1 + nVecRS(iSym,jPass) - 1
                Do iV = iV1,iV2

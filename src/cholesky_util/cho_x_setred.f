@@ -44,7 +44,6 @@
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, InfRed, IndRed
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 
       If (iLoc.eq.2 .or. iLoc.eq.3) Then
          If (iRed.lt.1 .or. iRed.gt.MaxRed) Then

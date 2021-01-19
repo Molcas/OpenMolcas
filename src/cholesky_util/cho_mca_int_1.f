@@ -24,7 +24,6 @@ C
       LOGICAL  LOCPRT
 #include "itmax.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       CHARACTER*13 SECNAM

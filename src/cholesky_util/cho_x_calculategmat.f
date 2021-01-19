@@ -38,7 +38,6 @@
       Character*(6) FileName
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
 #if defined (_DEBUGPRINT_)

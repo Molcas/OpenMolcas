@@ -37,7 +37,6 @@ C
       Logical DoTime, DoStat
 #include "cholesky.fh"
 #include "chovecbuf.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Character*19 SecNam

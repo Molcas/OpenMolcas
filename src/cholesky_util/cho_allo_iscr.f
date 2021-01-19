@@ -17,7 +17,6 @@ C
       Implicit None
       Logical DoDummy
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "stdalloc.fh"
 
       Integer iSym, l_iScr

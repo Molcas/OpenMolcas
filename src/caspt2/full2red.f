@@ -17,7 +17,6 @@
       Dimension XLT(*)
       Dimension Xab(*)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 
 * Select table column for use with caspt2:
@@ -61,7 +60,6 @@ c Offsets to symmetry block in the LT matrix
       Dimension XLT(*)
       Dimension Xab(*)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 
 * Select table column for use with caspt2:

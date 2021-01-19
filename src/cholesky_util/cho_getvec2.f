@@ -30,7 +30,6 @@ C
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
 #include "cholesky.fh"
-#include "choptr.fh"
 
       CHARACTER*11 SECNAM
       PARAMETER (SECNAM = 'CHO_GETVEC2')

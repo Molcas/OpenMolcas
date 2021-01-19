@@ -21,7 +21,6 @@ C
       INTEGER IRS2F(N,LRDIM)
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "choptr.fh"
 
       CHARACTER*9 SECNAM
       PARAMETER (SECNAM = 'CHO_RSTOF')

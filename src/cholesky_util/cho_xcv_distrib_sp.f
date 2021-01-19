@@ -25,7 +25,6 @@ C
       Integer N_mySP
 #include "cho_para_info.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Integer  Cho_iFindSmallest

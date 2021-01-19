@@ -14,7 +14,7 @@ C     Purpose: set mapping from qualified diagonals of symmetry iSym to
 C              reduced set indexed by arrays at location iLoc>1,
 C              counting only shell pairs that contain qualified
 C              diagonals (in the order in which they were qualified).
-C              The qualified index array iQuAB (pointer in choptr.fh)
+C              The qualified index array iQuAB (pointer in choswp.f90)
 C              is assumed to refer to index arrays at location jLoc>1.
 C
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, IndRed
@@ -22,7 +22,6 @@ C
       Integer iQuAB2(*)
       Integer LstSP(nSP)
 #include "cholesky.fh"
-#include "choptr.fh"
 
       Integer  Cho_P_LocalSP, Cho_F2SP
       External Cho_P_LocalSP, Cho_F2SP

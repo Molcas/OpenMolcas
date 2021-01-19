@@ -21,7 +21,6 @@ C
 #include "cho_para_info.fh"
 #include "cholesky.fh"
 #include "choglob.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Integer kDG, i, j

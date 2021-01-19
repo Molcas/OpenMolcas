@@ -16,7 +16,6 @@ C
       Implicit None
       Integer nVec, iSym, iPass
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "cho_para_info.fh"
 #include "choglob.fh"
       Integer  Cho_P_IndxParentDiag

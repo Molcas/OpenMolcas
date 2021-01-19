@@ -59,7 +59,6 @@ C
       Integer ip_Z(l_Z1,l_Z2)
       Logical Free_Z
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "chosew.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"

@@ -16,7 +16,6 @@ C
 #include "implicit.fh"
       DIMENSION DIAG(*)
 #include "cholesky.fh"
-#include "choptr.fh"
 
       CHARACTER*13 SECNAM
       PARAMETER (SECNAM = 'CHO_QUALIFY_2')

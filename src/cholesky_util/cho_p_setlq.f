@@ -26,7 +26,6 @@ C
       use ChoSwp, only: iQuAB, iQuAB_L, IndRed, IndRed_G
       Implicit None
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "cholq.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"

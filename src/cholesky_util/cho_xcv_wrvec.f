@@ -32,8 +32,6 @@ C
 
 #if defined (_DEBUGPRINT_)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       Integer iSym, iSP, n
 
@@ -96,8 +94,6 @@ C
       Real*8  Vec(*)
       Integer iSP
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       Integer iOpt
       Parameter (iOpt=1)
@@ -136,8 +132,6 @@ C
       Integer myRankSP(*)
       Integer SP
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       Integer, Parameter:: iOpt=1
 

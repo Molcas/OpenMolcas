@@ -22,7 +22,6 @@ C
       Integer nDiag
       Real*8  Diag(nDiag)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Integer ip0, ip_Scr, l_Scr

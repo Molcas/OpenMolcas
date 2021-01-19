@@ -24,12 +24,9 @@ C
       Real*8  Vec(lVec)
       Integer LstSP(nSP)
 #include "cholesky.fh"
-#include "choptr.fh"
 
       Character*13 SecNam
       Parameter (SecNam = 'Cho_1VecRd_SP')
-
-      Parameter (N2 = InfVec_N2)
 
       Integer  Cho_P_LocalSP
       External Cho_P_LocalSP

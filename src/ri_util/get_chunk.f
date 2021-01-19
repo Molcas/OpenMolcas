@@ -70,7 +70,6 @@ C
       Implicit None
       Integer iVec_Global, iVec_Local, J_s, J_e, iSym
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Integer iOff, nVec, iVec

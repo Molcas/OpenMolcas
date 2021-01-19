@@ -12,7 +12,6 @@
       use ChoSwp, only: iQuAB, iQuAB_L, pTemp
       Implicit None
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "cholq.fh"
 
       Integer i, scr

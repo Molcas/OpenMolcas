@@ -17,7 +17,6 @@ C
       use ChoSwp, only: nnBstRSh, IndRSh, InfRed, IndRed
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_PUTRED')

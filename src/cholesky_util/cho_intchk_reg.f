@@ -17,8 +17,6 @@ C
 #include "implicit.fh"
       CHARACTER*8 LABEL
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*14 SECNAM
       PARAMETER (SECNAM = 'CHO_INTCHK_REG')

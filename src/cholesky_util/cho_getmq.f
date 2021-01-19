@@ -17,7 +17,6 @@
 
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Character*9  SecNam

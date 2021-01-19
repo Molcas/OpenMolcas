@@ -32,7 +32,6 @@ C
 #include "choorb.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr.fh"
 #include "choptr2.fh"
 #include "chosp.fh"
 #include "chosubscr.fh"

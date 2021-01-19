@@ -71,7 +71,6 @@ C
       parameter (FactCI = -2.0D0, FactXI = 0.5D0)
       parameter (zero = 0.0D0, one = 1.0D0, xone=-1.0D0)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 

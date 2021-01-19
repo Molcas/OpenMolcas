@@ -35,7 +35,6 @@ C
       Implicit Real*8 (a-h,o-z)
       Real*8 Vec(lVec)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "chovecbuf.fh"
 #include "WrkSpc.fh"
 

@@ -133,7 +133,6 @@
 #include "itmax.fh"
 #include "Molcas.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 #include "exterm.fh"

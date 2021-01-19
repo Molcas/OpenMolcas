@@ -15,7 +15,6 @@ C
       use ChoSwp, only: nnBstRSh, iiBstRSh
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 
 C     Read info.
 C     ----------

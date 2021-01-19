@@ -23,7 +23,6 @@ C
 #include "chovecbuf.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-#include "choptr.fh"
 #include "choptr2.fh"
 #include "chosimri.fh"
 #include "WrkSpc.fh"

@@ -61,7 +61,6 @@
       parameter (zero = 0.0d0, half = 0.5d0, two = 2.0d0)
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
@@ -297,7 +296,6 @@ C --- Compute the ER-functional from its orbital components
       External cho_isao
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 

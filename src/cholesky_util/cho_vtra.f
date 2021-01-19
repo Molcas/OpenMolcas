@@ -73,7 +73,6 @@
       Data Fac /0.5D0,1.0D0/
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 

@@ -20,8 +20,6 @@ C
 #include "implicit.fh"
       DIMENSION CHOVEC(*)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       external ddot_
 

@@ -123,7 +123,6 @@ C
 
 #if defined (_MOLCAS_MPP_)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Integer nV(8)
@@ -219,9 +218,7 @@ C     ------------
       use ChoSwp, only: InfVec, InfVec_Bak
       Implicit None
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "chopar.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       NumCho_Bak(:)=0

@@ -55,7 +55,6 @@
       parameter (zero = 0.0d0, one = 1.0d0, DoRead = .false.)
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 

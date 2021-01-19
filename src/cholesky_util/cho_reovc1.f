@@ -18,7 +18,6 @@ C
       DIMENSION WRK(LWRK)
 #include "cholesky.fh"
 #include "choreo.fh"
-#include "choptr.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_REOVC1')

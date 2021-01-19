@@ -21,8 +21,6 @@ C
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_RDRSTC')
@@ -104,6 +102,7 @@ C     ------------------------
          GO TO 100
       ELSE
          IOPT = 2
+         INFRED(:) = 0
          CALL IDAFILE(LURST,IOPT,INFRED,XNPASS,IADR)
          IF (INFRED(1) .NE. 0) THEN
             WRITE(LUPRI,'(A,A,I10)')
@@ -111,9 +110,8 @@ C     ------------------------
             IFAIL = 4
             GO TO 100
          END IF
-         LREST = MAXRED - XNPASS
-         IF (LREST .GT. 0) CALL CHO_IZERO(INFRED(1+XNPASS),LREST)
       END IF
+
       DO ISYM = 1,NSYM
          IOPT = 2
          NRD  = 1
@@ -125,17 +123,13 @@ C     ------------------------
             IFAIL = 5
             GO TO 100
          ELSE IF (NUMCHO(ISYM) .EQ. 0) THEN
-            CALL CHO_IZERO(INFVEC(:,:,ISYM),
-     &                     SIZE(INFVEC,1)*SIZE(INFVEC,2))
+            INFVEC(:,:,ISYM) = 0
          ELSE
+            INFVEC(:,:,ISYM) = 0
             DO J = 1,SIZE(INFVEC,2)
                IOPT = 2
                CALL IDAFILE(LURST,IOPT,INFVEC(1,J,ISYM),NUMCHO(ISYM),
      &                      IADR)
-               LREST = MAXVEC - NUMCHO(ISYM)
-               IF (LREST .GT. 0) THEN
-                  CALL CHO_IZERO(InfVec(1+NUMCHO(ISYM),J,ISYM),LREST)
-               END IF
             END DO
          END IF
       END DO

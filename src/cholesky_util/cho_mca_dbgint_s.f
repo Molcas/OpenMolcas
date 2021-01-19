@@ -25,7 +25,6 @@ C
       LOGICAL PRTLAB
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       CHARACTER*16 SECNAM

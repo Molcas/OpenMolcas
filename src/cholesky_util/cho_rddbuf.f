@@ -21,7 +21,6 @@ C
       INTEGER   IBUF(4,LENBUF)
       INTEGER   INDRSH(LMMBSTRT), INDRED(LMMBSTRT,3)
 #include "cholesky.fh"
-#include "choptr.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_RDDBUF')

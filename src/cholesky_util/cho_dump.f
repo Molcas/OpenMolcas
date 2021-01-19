@@ -17,7 +17,6 @@ C
 C     Purpose: print all entries in include files
 C              choorb.fh
 C              cholesky.fh
-C              choptr.fh
 C              chosubscr.fh
 C
 C     On input, Lunit is the logical unit to print to...
@@ -204,7 +203,7 @@ C     -------------
       Write(Lunit,*) 'Frac_ChVBuf: ',Frac_ChVBuf
       Call Cho_Flush(Lunit)
 
-C     choptr.fh.
+C     choswp.f90 and choarr.f90
 C     -----------
 
       Call Cho_PrintPointers(irc,Lunit)
@@ -232,9 +231,8 @@ C     Purpose: print all entries in choarr.f90 and choswp.f90
 C
       Implicit None
       Integer irc, Lunit
-#include "choptr.fh"
 
-      Write(Lunit,*) '*** Contents of choptr.fh:'
+      Write(Lunit,*) '*** Contents of choarr.f90 and choswp.f90:'
       Write(Lunit,*) '    (dimension)'
       Write(Lunit,*)
       Call Cho_Flush(Lunit)

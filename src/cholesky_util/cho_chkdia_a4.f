@@ -26,8 +26,6 @@ C
       Integer iSym, nNeg, nNegT, nConv
       Real*8  xM, yM, zM
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       Character*13 SecNam
       Parameter (SecNam = 'Cho_ChkDia_A4')

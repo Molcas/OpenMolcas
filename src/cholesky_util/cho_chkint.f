@@ -17,7 +17,6 @@ C
       DIMENSION XINT(*), DIAG(*)
       LOGICAL   REPORT
 #include "cholesky.fh"
-#include "choptr.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_CHKINT')

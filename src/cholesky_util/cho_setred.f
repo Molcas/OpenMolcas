@@ -20,7 +20,6 @@ C
       INTEGER   INDRED(LMMBSTRT,3)
       INTEGER   IIBSTRSH(MSYM,MMSHL,3), NNBSTRSH(MSYM,MMSHL,3)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       CHARACTER*10 SECNAM

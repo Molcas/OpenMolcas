@@ -22,7 +22,6 @@ C
       INTEGER   LSTQSP(NPOTSH)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr.fh"
 #include "stdalloc.fh"
 
       CHARACTER*10 SECNAM

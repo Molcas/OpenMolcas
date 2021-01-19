@@ -15,7 +15,6 @@ C
       use ChoSwp, only: IndRSh, IndRed
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 
       LEN0 = NSYM*NNSHL
       LEN1 = NNBSTRT(1)

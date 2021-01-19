@@ -24,7 +24,7 @@
 *> density fitting (DF or RI) runs.
 *> Index arrays are allocated and initialized.
 *> All information is stored in the include files
-*> cholesky.fh, choorb.fh, and choptr.fh.
+*> cholesky.fh, choorb.fh, choarr.f90, and choswp.f90.
 *>
 *> \p BufFrac is the fraction of total available memory that will be
 *> allocated as Cholesky vector buffer. For example, \p BufFrac = ``0.35``
@@ -63,7 +63,6 @@
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choptr2.fh"
 #include "chosp.fh"
 #include "choini.fh"
@@ -129,7 +128,7 @@ C     --------------------------------------
       End If
 
 C     Define all entries in include files choorb.fh, cholesky.fh,
-C     choprint.fh, and choptr.fh.
+C     and choprint.fh.
 C     -------------------------------------------------------------
 
       Call Cho_X_SetInc(irc)
@@ -510,8 +509,6 @@ C
       Implicit None
       Logical isDF
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       Integer iSym, i
       Logical doDefine

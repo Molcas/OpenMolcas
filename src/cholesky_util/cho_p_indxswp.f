@@ -25,9 +25,7 @@ C
       use ChoSwp, only: IndRed, IndRed_G, pTemp
       Implicit None
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choglob.fh"
-#include "WrkSpc.fh"
 
       Integer iTmp, N
 

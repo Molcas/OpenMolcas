@@ -19,7 +19,6 @@ C
       Integer LstQSP(nQSP)
       Integer iV1(mSym), nV(mSym)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Character*16 SecNam

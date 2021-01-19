@@ -35,7 +35,6 @@ C              On exit, irc=0 signals sucessful completion.
 C
       Implicit None
       Integer irc
-#include "choptr.fh"
 #include "chosew.fh"
 #include "cholq.fh"
 #include "chopar.fh"
@@ -44,12 +43,7 @@ C
       Character*13 SecNam
       Parameter (SecNam = 'Cho_X_Dealloc')
 
-      Integer nAlloc
-
-C     Initialize allocation counter.
-C     ------------------------------
-
-      nAlloc = 0
+      irc=0
 
 C     Deallocate.
 C     -----------
@@ -102,27 +96,6 @@ C     -----------
       If (Allocated(iAtomShl)) Call mma_deallocate(iAtomShl)
 
       If (Allocated(iSP2F)) Call mma_deallocate(iSP2F)
-
-C     Check that #allocations agrees with choptr.fh.
-C     -----------------------------------------------
-
-      irc = CHO_NALLOC - nAlloc
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,' is out of sync with choptr.fh !!!'
-         Write(6,*) '(Note that this is due to a programming error...)'
-         Return
-      End If
-
-C     Zero entire common block.
-C     -------------------------
-
-      Call Cho_PtrIni(irc)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': Cho_PtrIni is out of sync ',
-     &              'with choptr.fh !!!'
-         Write(6,*) '(Note that this is due to a programming error...)'
-         Return
-      End If
 
 C     Deallocate any used pointer in chosew.fh
 C     -----------------------------------------

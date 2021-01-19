@@ -21,7 +21,6 @@
 #include "caspt2.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
-#include "choptr.fh"
 #include "choglob.fh"
 #include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_

@@ -25,7 +25,6 @@ C
       Real*8  COrb1(*), COrb2(*), Diag(*), Wrk(lWrk)
       Logical DoDiag
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "chomp2.fh"
 #include "chomp2g.fh"
 #include "WrkSpc.fh"

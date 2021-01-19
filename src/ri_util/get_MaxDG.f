@@ -19,7 +19,6 @@
       Integer nnSkal, MxBasSh
       Real*8 SDG(nnSkal)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 *                                                                      *
 ************************************************************************

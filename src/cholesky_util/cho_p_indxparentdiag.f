@@ -33,7 +33,6 @@ C
       Implicit None
       Integer iQ, iSym
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choglob.fh"
 
       Cho_IndxParentDiag_P = IndRed_G(iQuAB(iQ,iSym),2)
@@ -44,7 +43,6 @@ C
       Implicit None
       Integer iQ, iSym
 #include "cholesky.fh"
-#include "choptr.fh"
 
       Cho_IndxParentDiag_S = IndRed(iQuAB(iQ,iSym),2)
 

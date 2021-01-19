@@ -22,7 +22,6 @@ C
       Integer l_NVT
       Integer NVT(l_NVT)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Integer N2

@@ -13,7 +13,6 @@
       Implicit None
       Integer iQScr(*), IDK(*), nK(*)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "cho_para_info.fh"
 
       Call Cho_ReoQual(iQuAB,MaxQual,nSym,iQScr,IDK,nK,nQual)

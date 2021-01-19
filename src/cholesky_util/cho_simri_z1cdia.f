@@ -23,8 +23,6 @@ C
       Integer Indx(*)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       Integer iShlAB, iShlA, iShlB
       Integer iAB1, iAB2, iAB

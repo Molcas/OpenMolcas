@@ -24,8 +24,6 @@ C
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Character*11 SecNam

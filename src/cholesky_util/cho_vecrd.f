@@ -83,7 +83,6 @@ C
       DIMENSION SCR(LSCR)
       LOGICAL   DOREAD
 #include "cholesky.fh"
-#include "choptr.fh"
 
       external ddot_
 

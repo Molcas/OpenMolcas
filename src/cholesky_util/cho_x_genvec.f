@@ -14,7 +14,6 @@
       Integer irc
       Real*8  Diag(*)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 

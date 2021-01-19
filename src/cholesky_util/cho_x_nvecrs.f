@@ -38,7 +38,6 @@
       Implicit None
       Integer iRed, iSym, iVec, nVec
 #include "cholesky.fh"
-#include "choptr.fh"
 
       Character*12 SecNam
       Parameter (SecNam = 'Cho_X_nVecRS')

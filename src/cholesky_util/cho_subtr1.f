@@ -27,7 +27,6 @@ C
 #include "cholesky.fh"
 #include "chovecbuf.fh"
 #include "choprint.fh"
-#include "choptr.fh"
 #include "chosubscr.fh"
 #include "cholq.fh"
 #include "WrkSpc.fh"

@@ -18,7 +18,6 @@ C
       use ChoArr, only: iBasSh
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 
       INTEGER  CHO_IRANGE
       EXTERNAL CHO_IRANGE

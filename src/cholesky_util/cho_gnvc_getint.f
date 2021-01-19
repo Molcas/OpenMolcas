@@ -19,7 +19,6 @@ C
       Real*8  xInt(lInt)
       Integer nVecRS(mSym,mPass), iVecRS(mSym,mPass), ListSP(mmShl)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Character*15 SecNam

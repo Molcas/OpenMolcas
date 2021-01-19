@@ -14,7 +14,6 @@
       Real*8 Vec(lVec,nVec)
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       MulD2h(i,j)=iEor(i-1,j-1)+1

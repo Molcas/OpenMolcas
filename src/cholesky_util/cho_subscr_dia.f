@@ -25,7 +25,6 @@ C
       Dimension ChoVec(*)
       Character*(*) DSPNorm
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "chosubscr.fh"
 #include "WrkSpc.fh"
 

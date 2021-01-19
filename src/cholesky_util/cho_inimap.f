@@ -17,7 +17,6 @@ C     NB!!!!! file is assumed open (restart only)
 C
       IMPLICIT NONE
 #include "cholesky.fh"
-#include "choptr.fh"
 
       INTEGER IOPT, NDIM, IADR
 

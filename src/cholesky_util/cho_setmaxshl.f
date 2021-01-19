@@ -18,7 +18,6 @@ C
       DIMENSION DIAG(*), DIASH(*)
       INTEGER   ISYSH(*)
 #include "cholesky.fh"
-#include "choptr.fh"
 
       CHARACTER*13 SECNAM
       PARAMETER (SECNAM = 'CHO_SETMAXSHL')

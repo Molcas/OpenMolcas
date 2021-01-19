@@ -25,7 +25,6 @@ C
 #include "chosew.fh"
 #include "chosubscr.fh"
 #include "chosimri.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 

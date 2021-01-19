@@ -19,7 +19,6 @@ C
       use ChoSwp, only: InfVec, InfVec_Bak
       Implicit None
       Integer, Pointer:: InfVct(:,:,:)
-#include "choptr.fh"
 #include "chopar.fh"
 #if defined (_MOLCAS_MPP_)
 #include "cho_para_info.fh"

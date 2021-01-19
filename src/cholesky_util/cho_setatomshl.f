@@ -19,7 +19,6 @@ C
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Character*14 SecNam

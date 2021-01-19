@@ -19,7 +19,6 @@ C
 #include "implicit.fh"
       INTEGER IMAP(LMAP)
 #include "cholesky.fh"
-#include "choptr.fh"
 
       CHARACTER*9 SECNAM
       PARAMETER (SECNAM = 'CHO_RS2RS')

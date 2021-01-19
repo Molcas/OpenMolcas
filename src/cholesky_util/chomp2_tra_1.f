@@ -24,7 +24,6 @@ C
       Real*8  COcc(*), CVir(*), Diag(*), Wrk(lWrk)
       Logical DoDiag
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "chomp2.fh"
 
       Character*12 SecNam

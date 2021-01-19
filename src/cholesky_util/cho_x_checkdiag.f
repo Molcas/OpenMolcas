@@ -236,7 +236,6 @@ C     --------------
 #include "Molcas.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "choptr.fh"
       Character*(LENIN8)  Name(maxbfn)
       Character*(LENIN)  ctmp1, ctmp2
       Real*8 Err(4)

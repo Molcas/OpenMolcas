@@ -45,7 +45,6 @@ C
      &                  IndRed
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 
       IF (NUMCHO(ISYM) .LT. 1) THEN
          VCSTOR = 0.0D0

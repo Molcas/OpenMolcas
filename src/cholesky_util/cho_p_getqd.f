@@ -17,7 +17,6 @@ C
       Implicit None
       Real*8 QD(*)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choglob.fh"
 #include "WrkSpc.fh"
 

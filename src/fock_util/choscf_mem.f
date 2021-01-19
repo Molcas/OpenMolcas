@@ -39,7 +39,6 @@
       Integer ipNocc(*)
 
 #include "WrkSpc.fh"
-#include "choptr.fh"
 
 **************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1

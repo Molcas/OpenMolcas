@@ -21,7 +21,6 @@ C
       Integer iSym, iABG
 #include "cho_para_info.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choglob.fh"
 #include "WrkSpc.fh"
 

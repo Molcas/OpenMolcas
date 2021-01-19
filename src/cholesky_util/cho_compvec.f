@@ -21,7 +21,6 @@ C
       Implicit Real*8 (a-h,o-z)
       Real*8 Diag(*), xInt(*), VecK(*), QDiag(*), Wrk(lWrk)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choprint.fh"
 
       Character*11 SecNam

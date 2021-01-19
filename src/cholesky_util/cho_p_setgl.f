@@ -24,7 +24,6 @@ C
       Implicit None
       Integer ip_Diag
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choptr2.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"

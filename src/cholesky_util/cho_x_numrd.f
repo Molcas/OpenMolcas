@@ -37,8 +37,6 @@
       use ChoSwp, only: InfVec
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       Integer iRed
 

@@ -17,8 +17,6 @@ C
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 #include "cho_para_info.fh"
 
       external ddot_

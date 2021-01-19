@@ -19,7 +19,6 @@ C
 #include "cholesky.fh"
 #include "chovecbuf.fh"
 #include "choprint.fh"
-#include "choptr.fh"
 
       CHARACTER*9 SECNAM
       PARAMETER (SECNAM = 'CHO_DECOM')

@@ -17,7 +17,6 @@ C
       Implicit Real*8 (a-h,o-z)
       Real*8 Diag(*), Dmax(*)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "stdalloc.fh"
       Real*8, Allocatable:: ExQ(:)
 

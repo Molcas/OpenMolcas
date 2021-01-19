@@ -18,7 +18,6 @@ C
       Real*8  QVec(l_QVec)
 #include "cholesky.fh"
 #include "chovecbuf.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Integer nVecTot(8)

@@ -21,7 +21,6 @@ C
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr.fh"
 #include "choptr2.fh"
 #include "WrkSpc.fh"
 

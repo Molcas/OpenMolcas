@@ -18,7 +18,6 @@ C
       use ChoSwp, only:   IndRed,   IndRed_G
       Implicit None
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choptr2.fh"
 #include "choglob.fh"
 #include "WrkSpc.fh"

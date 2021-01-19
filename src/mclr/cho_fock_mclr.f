@@ -28,7 +28,6 @@
       Integer   ipAorb(8,2),LuAChoVec(8)
       Integer   nAsh(8),nIsh(8)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"

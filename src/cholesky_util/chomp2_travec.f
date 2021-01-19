@@ -25,7 +25,6 @@ C
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
-#include "choptr.fh"
 
       Character*13 SecNam
       Parameter (SecNam = 'ChoMP2_TraVec')

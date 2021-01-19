@@ -20,7 +20,6 @@ C
       Integer nVecRS(mSym,mPass), iVecRS(mSym,mPass)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Character*15 SecNam

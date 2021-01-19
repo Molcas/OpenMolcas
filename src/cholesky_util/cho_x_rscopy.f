@@ -34,7 +34,6 @@
       use ChoSwp, only: nnBstRsh, iiBstRSh, IndRed
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 
       If (iRS.lt.1 .or. iRS.gt.3 .or. jRS.lt.1 .or. jRS.gt.3) Then
          irc = 1

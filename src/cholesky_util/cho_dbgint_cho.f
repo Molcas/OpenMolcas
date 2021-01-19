@@ -23,7 +23,6 @@ C
 #include "implicit.fh"
       DIMENSION XINT(NCD,NAB), WRK(LWRK)
 #include "cholesky.fh"
-#include "choptr.fh"
 
       CHARACTER*14 SECNAM
       PARAMETER (SECNAM = 'CHO_DBGINT_CHO')

@@ -16,7 +16,6 @@ C
       use ChoSwp, only: InfVec
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 
       INTEGER MNVECRS1
       PARAMETER (MNVECRS1 = 5)

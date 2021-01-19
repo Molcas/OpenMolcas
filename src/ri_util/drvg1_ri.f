@@ -32,7 +32,6 @@
 #include "disp.fh"
 #include "print.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "real.fh"

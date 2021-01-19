@@ -69,7 +69,6 @@ C
       parameter (zero = 0.0D0, one = 1.0D0, two = 2.0d0)
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 

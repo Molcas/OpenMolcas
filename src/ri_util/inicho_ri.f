@@ -39,7 +39,6 @@
       Integer iTOffs(3,nIrrep)
       Integer iShij(2,nShij)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choprint.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
@@ -184,7 +183,6 @@ C     --------------------------------------------------------------
       Integer nIrrep, nShij
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
@@ -271,7 +269,6 @@ C     -----------------------------------------------
       Integer iRS2F(I_2,I_mmBstRT), iShij(2,nShij)
 #include "choorb.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Integer  Cho_iSAOSh

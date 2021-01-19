@@ -24,7 +24,6 @@ C
 #include "Molcas.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Character*19 SecNam
