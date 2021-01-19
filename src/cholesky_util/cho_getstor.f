@@ -45,7 +45,23 @@ C
      &                  IndRed
 #include "implicit.fh"
 #include "cholesky.fh"
-
+*                                                                      *
+************************************************************************
+*                                                                      *
+      INTERFACE
+      SUBROUTINE CHO_GETRED(INFRED,NNBSTRSH,INDRED,INDRSH,ISP2F,
+     &                      MRED,MSYM,MMSHL,LMMBSTRT,
+     &                      IPASS,LRSH)
+      INTEGER MRED,MSYM,MMSHL,LMMBSTRT,IPASS
+      INTEGER INFRED(MRED)
+      INTEGER NNBSTRSH(MSYM,MMSHL), INDRED(LMMBSTRT), INDRSH(LMMBSTRT)
+      INTEGER ISP2F(MMSHL)
+      LOGICAL LRSH
+      END SUBROUTINE CHO_GETRED
+      END INTERFACE
+*                                                                      *
+************************************************************************
+*                                                                      *
       IF (NUMCHO(ISYM) .LT. 1) THEN
          VCSTOR = 0.0D0
       ELSE
@@ -53,7 +69,7 @@ C
             IRED = INFVEC(NUMCHO(ISYM),2,ISYM)
             JRED = 3
             CALL CHO_GETRED(INFRED,nnBstRSh(:,:,JRED),
-     &                      IndRed(1,JRED),INDRSH,iSP2F,
+     &                      IndRed(:,JRED),INDRSH,iSP2F,
      &                      MAXRED,NSYM,NNSHL,MMBSTRT,IRED,.FALSE.)
             CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,JRED)
             VCSTOR = DBLE(INFVEC(NUMCHO(ISYM),4,ISYM))

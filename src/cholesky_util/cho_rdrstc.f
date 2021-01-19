@@ -128,7 +128,7 @@ C     ------------------------
             INFVEC(:,:,ISYM) = 0
             DO J = 1,SIZE(INFVEC,2)
                IOPT = 2
-               CALL IDAFILE(LURST,IOPT,INFVEC(1,J,ISYM),NUMCHO(ISYM),
+               CALL IDAFILE(LURST,IOPT,INFVEC(:,J,ISYM),NUMCHO(ISYM),
      &                      IADR)
             END DO
          END IF
