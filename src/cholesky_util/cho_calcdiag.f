@@ -281,7 +281,7 @@ C     ----------------------------------------------
 C     Read through the file to get first reduced set.
 C     -----------------------------------------------
 
-      CALL CHO_IZERO(NNBSTRSH(1,1,1),NSYM*NNSHL)
+      CALL CHO_IZERO(NNBSTRSH(:,:,1),NSYM*NNSHL)
 
       REWIND(IUNIT)
       REWIND(JUNIT)
@@ -353,7 +353,7 @@ C     -----------------------------------------------
          END DO
       END IF
 
-      CALL CHO_GAIGOP(NNBSTRSH(1,1,1),NSYM*NNSHL,'+') ! sync
+      CALL CHO_GAIGOP(NNBSTRSH(:,:,1),NSYM*NNSHL,'+') ! sync
       CALL CHO_SETREDIND(1)
 
       END

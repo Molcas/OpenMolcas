@@ -51,8 +51,8 @@ C     ------------------------------------------------------
       IndRed(:,2)=0
       Call Cho_iZero(iiBstRSh(:,:,2),nDim)
       Call Cho_iZero(nnBstRSh(:,:,2),nDim)
-      Call Cho_iZero(iiBstR(1,2),nSym)
-      Call Cho_iZero(nnBstR(1,2),nSym)
+      Call Cho_iZero(iiBstR(:,2),nSym)
+      Call Cho_iZero(nnBstR(:,2),nSym)
       nnBstRT(2) = 0
 
 C     Set local nnBstRSh counter at location 2.
