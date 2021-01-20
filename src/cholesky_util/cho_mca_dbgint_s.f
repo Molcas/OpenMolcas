@@ -19,7 +19,6 @@ C           2) calculations are performed in full (no use of red. sets
 C              apart from first)
 C
       use ChoArr, only: nBstSh
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
 #include "implicit.fh"
       INTEGER ISHLQ(4,NSHLQ)
       LOGICAL PRTLAB
@@ -68,8 +67,7 @@ C     ----------------
 C     Make first reduced set the current reduced set.
 C     -----------------------------------------------
 
-      CALL CHO_RSCOPY(IIBSTRSH,NNBSTRSH,
-     &                INDRED,1,2,NSYM,NNSHL,MMBSTRT,3)
+      CALL CHO_RSCOPY(1,2)
 
 C     Allocate memory for largest integral quadruple.
 C     -----------------------------------------------

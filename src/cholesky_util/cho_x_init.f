@@ -338,8 +338,7 @@ C     -----------------------------------------------------------------
 C     Copy reduced set 1 to location 2.
 C     ---------------------------------
 
-      Call Cho_RSCopy(iiBstRSh,nnBstRSh,
-     &                IndRed,1,2,nSym,nnShl,mmBstRT,3)
+      Call Cho_RSCopy(1,2)
 
 C     Get dimensions of reduced sets.
 C     -------------------------------
@@ -356,8 +355,7 @@ C     -------------------------------
 C     Copy reduced set 1 to location 3.
 C     ---------------------------------
 
-      Call Cho_RSCopy(iiBstRSh,nnBstRSh,
-     &                IndRed,1,3,nSym,nnShl,mmBstRT,3)
+      Call Cho_RSCopy(1,3)
 
 C     Derive:
 C     nBasSh: #basis functions in sym. block of shell.

@@ -71,8 +71,7 @@ C     -------------------------------
 C     Copy reduced set 1 to 2.
 C     ------------------------
 
-      CALL CHO_RSCOPY(IIBSTRSH,NNBSTRSH,
-     &                INDRED,1,2,NSYM,NNSHL,NNBSTRT(1),3)
+      CALL CHO_RSCOPY(1,2)
 
       IMXAB  = 0
       IMNAB  = 0

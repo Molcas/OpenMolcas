@@ -14,7 +14,7 @@ C     Purpose: update (i.e. subtract contributions from vectors on disk)
 C              of symmetry block ISYM of diagonal in red. set 1.
 C              This emulates the actual procedure during decomposition.
 C
-      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
+      use ChoSwp, only: InfVec, IndRed
 #include "implicit.fh"
       DIMENSION DIAG(*), WRK(LWRK)
 #include "cholesky.fh"
@@ -47,8 +47,7 @@ C     Set up rs1 indices at location ILOC.
 C     Set IREDC to identify this.
 C     ------------------------------------
 
-      CALL CHO_RSCOPY(IIBSTRSH,NNBSTRSH,
-     &                INDRED,1,ILOC,NSYM,NNSHL,NNBSTRT(1),3)
+      CALL CHO_RSCOPY(1,ILOC)
       IREDC = 1
 
 C     Start read buffer batch loop.
@@ -86,8 +85,7 @@ C           --------------------------------------------------------
             JRED = INFVEC(IVEC1+JVEC-1,2,ISYM)
             IF (JRED .NE. IREDC) THEN
                IF (JRED .EQ. 1) THEN
-                  CALL CHO_RSCOPY(IIBSTRSH,NNBSTRSH,INDRED,1,ILOC,
-     &                            NSYM,NNSHL,NNBSTRT(1),3)
+                  CALL CHO_RSCOPY(1,ILOC)
                ELSE
                   CALL CHO_GETRED(JRED,ILOC,.FALSE.)
                   CALL CHO_SETREDIND(ILOC)

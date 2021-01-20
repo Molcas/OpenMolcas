@@ -22,7 +22,6 @@ C           3) full integral symmetry not used
 C              (only partial particle permutation symmetry)
 C
       use ChoArr, only: nBstSh, iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
@@ -58,8 +57,7 @@ C     ----------------
 C     Make first reduced set the current reduced set.
 C     -----------------------------------------------
 
-      CALL CHO_RSCOPY(IIBSTRSH,NNBSTRSH,
-     &                INDRED,1,2,NSYM,NNSHL,MMBSTRT,3)
+      CALL CHO_RSCOPY(1,2)
 
 C     Allocate memory for largest integral quadruple.
 C     -----------------------------------------------

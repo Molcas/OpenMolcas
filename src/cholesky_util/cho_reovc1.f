@@ -12,7 +12,6 @@
 C
 C     Purpose: reorder Cholesky vectors on disk to full storage.
 C
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
 #include "implicit.fh"
       INTEGER   IRS2F(N,LRDIM)
       DIMENSION WRK(LWRK)
@@ -38,8 +37,7 @@ C     -----------------------
 C     Make rs1 the "current" reduced set (for reading).
 C     -------------------------------------------------
 
-      CALL CHO_RSCOPY(IIBSTRSH,NNBSTRSH,
-     &                INDRED,1,2,NSYM,NNSHL,NNBSTRT(1),3)
+      CALL CHO_RSCOPY(1,2)
 
 C     Loop over Cholesky vector symmetries.
 C     -------------------------------------

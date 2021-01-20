@@ -31,15 +31,13 @@
 *> @param[in]  jRS location of target reduced set
 ************************************************************************
       Subroutine Cho_X_RSCopy(irc,iRS,jRS)
-      use ChoSwp, only: nnBstRsh, iiBstRSh, IndRed
-#include "implicit.fh"
-#include "cholesky.fh"
+      Implicit None
+      Integer irc,iRS,jRS
 
       If (iRS.lt.1 .or. iRS.gt.3 .or. jRS.lt.1 .or. jRS.gt.3) Then
          irc = 1
       Else
-         Call Cho_RSCopy(iiBstRSh,nnBStRSh,
-     &                   IndRed,iRS,jRS,nSym,nnShl,nnBstRT(1),3)
+         Call Cho_RSCopy(iRS,jRS)
          irc = 0
       End If
 
