@@ -132,6 +132,7 @@ C
       Logical isSerial
 
       Integer IDV, myInfV
+      Integer i, j, k
 
       IDV(i)=iWork(ip_IDV-1+i)
       myInfV(i)=iWork(ip_myInfV-1+i)
@@ -167,7 +168,7 @@ C     -----------------------------------------------------
             If (nV(iSym) .gt. 0) Then
                l_myInfV = nV(iSym)
                Call GetMem('myInfV','Allo','Inte',ip_myInfV,l_myInfV)
-               Do j = 1,N2
+               Do j = 1,SIZE(InfVec,2)
                   If (j .ne. 3) Then
                      k = ip_myInfV - 1
                      Do i = 1,nV(iSym)

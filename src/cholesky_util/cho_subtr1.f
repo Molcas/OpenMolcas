@@ -284,8 +284,7 @@ C           -----------------------------------------------------
                   IF (JRED .NE. IREDC) THEN
                      ILOC = 3
                      CALL CHO_GETRED(JRED,ILOC,.FALSE.)
-                     CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,
-     &                                  ILOC)
+                     CALL CHO_SETREDIND(ILOC)
                      IREDC = JRED
                   END IF
 

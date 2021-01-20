@@ -68,7 +68,7 @@ C     -----------------------------------------
 C     Set remaining reduced set indices (excl. IndRed), location 2.
 C     -------------------------------------------------------------
 
-      Call Cho_SetRedInd(iiBstRSh,nnBstRSh,nSym,nnShl,2)
+      Call Cho_SetRedInd(2)
 
 C     Set local IndRed to point to local 1st reduced set.
 C     ---------------------------------------------------

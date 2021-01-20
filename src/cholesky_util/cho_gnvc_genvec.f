@@ -14,7 +14,7 @@ C
 C     Purpose: generate Cholesky vectors from raw integral columns.
 C
       use ChoArr, only: nDimRS
-      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
+      use ChoSwp, only: InfVec, IndRed
 #include "implicit.fh"
       Real*8  Diag(*), xInt(lInt)
       Integer nVecRS(mSym,mPass), iVecRS(mSym,mPass)
@@ -361,8 +361,7 @@ C        Set next (iPass+1) reduced set at location 2.
 C        Reduced set iPass1 is now stored at location 3.
 C        -----------------------------------------------
 
-         Call Cho_SetRed(Diag,iiBstRSh,nnBstRSh,
-     &                   IndRed,nSym,nnBstRT(1),nnShl)
+         Call Cho_SetRed(Diag,IndRed,nnBstRT(1))
          jPass = iPass + 1
          Call Cho_SetRSDim(nDimRS,nSym,MaxRed,jPass,2)
          If (iPrint .ge. INF_PASS) Then

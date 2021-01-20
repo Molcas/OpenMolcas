@@ -8,17 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_CALCDIAG(BUF,IBUF,LENBUF,SCR,LENSCR,
-     &                        IIBSTRSH,NNBSTRSH,MSYM,MMSHL,NDUMP)
+      SUBROUTINE CHO_CALCDIAG(BUF,IBUF,LENBUF,SCR,LENSCR,NDUMP)
 C
 C     Purpose: shell-driven calculation of the integral diagonal and
 C              setup of the first reduced set.
 C
       use ChoArr, only: iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl
+      use ChoSwp, only: nnBstRSh
 #include "implicit.fh"
       DIMENSION BUF(LENBUF), SCR(LENSCR)
       INTEGER   IBUF(4,LENBUF)
-      INTEGER   IIBSTRSH(MSYM,MMSHL,3), NNBSTRSH(MSYM,MMSHL,3)
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
@@ -355,7 +354,7 @@ C     -----------------------------------------------
       END IF
 
       CALL CHO_GAIGOP(NNBSTRSH(1,1,1),NSYM*NNSHL,'+') ! sync
-      CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,1)
+      CALL CHO_SETREDIND(1)
 
       END
       Subroutine UpdateMostNegative(n,X,Val)

@@ -115,6 +115,8 @@ C     Number of 'ga_get' has been remarkably reduced by using the stripped mode
       Integer J0, J1, J2
 #if !defined(_GA_)
       Integer Jst,Jen
+#else
+      Integer i, j
 #endif
       Integer iSP, iSP_, iSP1, iSP2
       Integer iSP_Batch

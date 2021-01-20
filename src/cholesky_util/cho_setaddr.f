@@ -13,7 +13,6 @@ C
 C     Purpose: set first disk addresses for reduced set info and
 C              vectors.
 C
-      use ChoSwp, only: nnBstRSh, iiBstRSh
 #include "implicit.fh"
       INTEGER JNFRED(MRED), INFVEC(MVEC,M2,MSYM)
 #include "cholesky.fh"
@@ -35,7 +34,7 @@ C     --------------
          IRED  = 3
          IPASS = XNPASS
          CALL CHO_GETRED(IPASS,IRED,.FALSE.)
-         CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,IRED)
+         CALL CHO_SETREDIND(IRED)
          IF (IPASS .EQ. 1) THEN
             JNFRED(IPASS+1) = JNFRED(IPASS)
      &                      + NSYM*NNSHL + 2*NNBSTRT(IRED) + NNSHL
@@ -58,8 +57,7 @@ C     --------------
                   ELSE IF (JPASS.LE.XNPASS .AND. JPASS.GT.0) THEN
                      IPASS = JPASS
                      CALL CHO_GETRED(IPASS,IRED,.FALSE.)
-                     CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,
-     &                                  IRED)
+                     CALL CHO_SETREDIND(IRED)
                      INFVEC(NUMCHO(ISYM)+1,3,ISYM) =
      &               INFVEC(NUMCHO(ISYM),3,ISYM) + NNBSTR(ISYM,IRED)
                      INFVEC(NUMCHO(ISYM)+1,4,ISYM) =
@@ -82,8 +80,7 @@ C     --------------
                   ELSE IF (JPASS.LE.XNPASS .AND. JPASS.GT.0) THEN
                      IPASS = JPASS
                      CALL CHO_GETRED(IPASS,IRED,.FALSE.)
-                     CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,
-     &                                  IRED)
+                     CALL CHO_SETREDIND(IRED)
                      LSA = NNBSTR(ISYM,IRED)
                      CALL CHO_MEM('SetAddr','ALLO','REAL',KSA,LSA)
                      IOPT = 2

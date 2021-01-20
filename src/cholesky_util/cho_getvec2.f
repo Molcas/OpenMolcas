@@ -24,7 +24,7 @@ C           disk and should not be smaller than NNBSTR(ISYM,1)+1,
 C           preferably more.
 C
       use ChoArr, only: iScr
-      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec
+      use ChoSwp, only: InfVec
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
@@ -119,7 +119,7 @@ C              ---------------------------------------------------
 
                IF (JRED .NE. IREDC) THEN
                   CALL CHO_GETRED(JRED,ILOC,.FALSE.)
-                  CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,3)
+                  CALL CHO_SETREDIND(ILOC)
                   IREDC = JRED
                END IF
 

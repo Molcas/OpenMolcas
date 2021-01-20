@@ -43,6 +43,7 @@ C
       Parameter (SecNam = 'Cho_VecBuf_Maintain')
 
       Logical LocDbg
+*#define _DEBUGPRINT_
 #if defined (_DEBUGPRINT_)
       Parameter (LocDbg = .true.)
 #else
@@ -53,15 +54,16 @@ C     Debug print.
 C     ------------
 
       If (LocDbg) Then
+         Write(Lupri,*)
          Write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
          Write(Lupri,*) 'iRed = ',iRed
          Write(Lupri,*) 'l_ChVBuf  = ',l_ChVBuf,
      &                  '   ip_ChVBuf = ',ip_ChVBuf
-         Write(Lupri,'(A,8I8)') 'l_ChVBuf_Sym : ',
+         Write(Lupri,'(A,8I16)') 'l_ChVBuf_Sym : ',
      &                          (l_ChVBuf_Sym(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,8I8)') 'ip_ChVBuf_Sym: ',
+         Write(Lupri,'(A,8I16)') 'ip_ChVBuf_Sym: ',
      &                          (ip_ChVBuf_Sym(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,8I8)') 'nVec_in_Buf  : ',
+         Write(Lupri,'(A,8I16)') 'nVec_in_Buf  : ',
      &                          (nVec_in_Buf(iSym),iSym=1,nSym)
       End If
 
@@ -173,7 +175,14 @@ C           ----------------
                Do iRS2 = 1,nnBstR(iSym,2)
 #if defined (_DEBUGPRINT_)
                   jRS3 = iScr(iRS2)
+                  If (iRS2.lt.1 .or. iRS2.gt.SIZE(iScr)) Then
+                     Write(LuPri,*) 'iRS2=',iRS2
+                     Write(LuPri,*) 'SIZE(iScr)=',SIZE(iScr)
+                     Call Cho_Quit('RS-2-RS map error in '//SecNam,104)
+                  End If
                   If (jRS3.lt.1 .or. jRS3.gt.nnBstR(iSym,3)) Then
+                     Write(LuPri,*) 'jRS3=',JRS3
+                     Write(LuPri,*) 'nnBstR(iSym,3)=',nnBstR(iSym,3)
                      Call Cho_Quit('RS-2-RS map error in '//SecNam,104)
                   End If
 #endif

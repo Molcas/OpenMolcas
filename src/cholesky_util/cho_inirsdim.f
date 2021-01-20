@@ -13,7 +13,6 @@ C
 C     Purpose: initialize reduced set dimension.
 C
       use ChoArr, only: nDimRS
-      use ChoSwp, only: nnBstRSh, iiBstRSh
 #include "implicit.fh"
 #include "cholesky.fh"
 
@@ -21,7 +20,7 @@ C
          ILOC = 3
          DO IRS = 1,XNPASS
             CALL CHO_GETRED(IRS,ILOC,.FALSE.)
-            CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,ILOC)
+            CALL CHO_SETREDIND(ILOC)
             CALL ICOPY(NSYM,NNBSTR(:,ILOC),1,nDimRS(:,iRS),1)
          END DO
          NSET = XNPASS

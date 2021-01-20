@@ -21,7 +21,7 @@ C     NOTE: the scratch array SCR(LSCR) is used to read vectors from
 C           disk and should not be smaller than NNBSTR(ISYM,1)+1.
 C
       use ChoArr, only: iScr
-      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec
+      use ChoSwp, only: InfVec
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
@@ -102,7 +102,7 @@ C        Read reduced set index arrays.
 C        ------------------------------
 
          CALL CHO_GETRED(IRED,ILOC,.FALSE.)
-         CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,3)
+         CALL CHO_SETREDIND(ILOC)
 
 C        If reduced sets are identical, simply read the vectors
 C        directly into CHOVEC array and go to next reduced set.

@@ -349,7 +349,7 @@ C     -------------------------------
       iLoc = 3
       Do iRed = 2,MaxRed
          Call Cho_GetRed(iRed,iLoc,.false.)
-         Call Cho_SetRedInd(iiBstRSh,nnBstRSh,nSym,nnShl,iLoc)
+         Call Cho_SetRedInd(iLoc)
          Call iCopy(nSym,nnBstR(1,iLoc),1,nDimRS(:,iRed),1)
       End Do
 

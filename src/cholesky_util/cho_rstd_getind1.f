@@ -12,7 +12,7 @@
 C
 C     Purpose: read and set some index arrays for diagonal restart.
 C
-      use ChoSwp, only: nnBstRSh, iiBstRSh
+      use ChoSwp, only: nnBstRSh
 #include "implicit.fh"
 #include "cholesky.fh"
 
@@ -28,6 +28,6 @@ C     Set up IIBSTRSH etc.
 C     --------------------
 
       IRED = 1
-      CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,IRED)
+      CALL CHO_SETREDIND(IRED)
 
       END

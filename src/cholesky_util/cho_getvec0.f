@@ -25,7 +25,7 @@ C           Thus, to be certain that enough memory is available,
 C           use LSCR = 2 x dimension of first reduced set.
 C
 C
-      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
+      use ChoSwp, only: InfVec, IndRed
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
@@ -50,7 +50,7 @@ C     -----------------------------------------------
       IRED  = INFVEC(IVEC1,2,ISYM)
       ILOC  = 3
       CALL CHO_GETRED(IRED,ILOC,.FALSE.)
-      CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,3)
+      CALL CHO_SETREDIND(3)
       KRED1 = 1
       KREAD = KRED1 + NNBSTR(ISYM,1)
       KEND1 = KREAD + NNBSTR(ISYM,3)
@@ -73,8 +73,8 @@ C     ------------------------------------------------------------------
          IVEC = IVEC1 + JVEC - 1
          JRED = INFVEC(IVEC,2,ISYM)
          IF (JRED .NE. IRED) THEN   ! read new reduced set
-            CALL CHO_GETRED(IndRed(:,ILOC),MMBSTRT,JRED,ILOC,.FALSE.)
-            CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,3)
+            CALL CHO_GETRED(JRED,ILOC,.FALSE.)
+            CALL CHO_SETREDIND(3)
             KEND1 = KREAD + NNBSTR(ISYM,3)
             LSCR1 = LSCR  - KEND1 + 1
             IF (LSCR1 .LT. 0) THEN

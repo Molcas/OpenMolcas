@@ -90,7 +90,7 @@ C           --------------------------------------------------------
      &                            NSYM,NNSHL,NNBSTRT(1),3)
                ELSE
                   CALL CHO_GETRED(JRED,ILOC,.FALSE.)
-                  CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,NSYM,NNSHL,ILOC)
+                  CALL CHO_SETREDIND(ILOC)
                END IF
                IREDC = JRED
             END IF

@@ -27,18 +27,20 @@ C
          WRITE(LUPRI,*) SECNAM,': please increase max. allowed!'
          CALL CHO_QUIT('Too many integral passes in '//SECNAM,104)
       ELSE IF (IPASS .EQ. 1) THEN
-         CALL CHO_PUTRED1(INFRED,nnBstRSh,IndRed(1,1),INDRSH,iSP2F,
-     &                    MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,1)
+         CALL CHO_PUTRED1(INFRED,nnBstRSh(:,:,1),IndRed(:,1),INDRSH,
+     &                    iSP2F,MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,1)
          IF (MAXRED .GT. 1) THEN
             INFRED(IPASS+1) = INFRED(IPASS)
      &                      + NSYM*NNSHL + 2*NNBSTRT(1) + NNSHL
          END IF
       ELSE IF (IPASS .EQ. MAXRED) THEN
-         CALL CHO_PUTRED1(INFRED,nnBstRSh,IndRed(1,IRED),INDRSH,iSP2F,
-     &                    MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,IRED)
+         CALL CHO_PUTRED1(INFRED,nnBstRSh(:,:,IRED),IndRed(:,IRED),
+     &                    INDRSH,
+     &                    iSP2F,MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,IRED)
       ELSE
-         CALL CHO_PUTRED1(INFRED,nnBstRSh,IndRed(1,IRED),INDRSH,iSP2F,
-     &                    MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,IRED)
+         CALL CHO_PUTRED1(INFRED,nnBstRSh(:,:,IRED),IndRed(:,IRED),
+     &                    INDRSH,
+     &                   iSP2F,MAXRED,NSYM,NNSHL,MMBSTRT,IPASS,IRED)
          INFRED(IPASS+1) = INFRED(IPASS)
      &                   + NSYM*NNSHL + NNBSTRT(IRED)
       END IF

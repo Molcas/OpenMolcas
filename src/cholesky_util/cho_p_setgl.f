@@ -98,7 +98,7 @@ C     --------------------------------
             nnBstRSh(iSym,iSP,1) = nnBstRSh_G(iSym,iShlAB,1)
          End Do
       End Do
-      Call Cho_SetRedInd(iiBstRSh,nnBstRSh,nSym,nnShl,1)
+      Call Cho_SetRedInd(1)
       mmBstRT = nnBstRT(1)
 
       Call mma_allocate(IndRed_G_Hidden,mmBstRT,3,

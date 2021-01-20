@@ -15,8 +15,8 @@ C              points to the diagonal in work space and flag LCONV tells
 C              if the diagonal is converged.
 C
       use ChoArr, only: iSP2F
-      use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRSh_Hidden
-      use ChoSwp, only:                     IndRed, IndRed_Hidden
+      use ChoSwp, only: IndRSh, IndRSh_Hidden
+      use ChoSwp, only: IndRed, IndRed_Hidden
 #include "implicit.fh"
       LOGICAL LCONV
 #include "cholesky.fh"
@@ -130,7 +130,7 @@ C        -------------------------------------------
          NDUMP = 0
 
          CALL CHO_CALCDIAG(WORK(KBUF),IWORK(KIBUF),LBUF,WORK(KSCR),LSCR,
-     &                     IIBSTRSH,NNBSTRSH,NSYM,NNSHL,NDUMP)
+     &                     NDUMP)
          CALL CHO_MEM('buf','FLUSH','REAL',KREL,NEEDR)
 
 C        Allocate diagonal and mapping array between reduced sets.

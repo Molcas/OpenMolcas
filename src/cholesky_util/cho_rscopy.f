@@ -22,16 +22,16 @@ C
       INTEGER IAB
 #include "cholesky.fh"
 
-      CALL ICOPY(MSYM*MMSHL,IIBSTRSH(1,1,IRS1),1,IIBSTRSH(1,1,IRS2),1)
-      CALL ICOPY(MSYM*MMSHL,NNBSTRSH(1,1,IRS1),1,NNBSTRSH(1,1,IRS2),1)
-      CALL ICOPY(MSYM,IIBSTR(1,IRS1),1,IIBSTR(1,IRS2),1)
-      CALL ICOPY(MSYM,NNBSTR(1,IRS1),1,NNBSTR(1,IRS2),1)
+      nnBstRSh(:,:,IRS2) = nnBstRSh(:,:,IRS1)
+      iiBstRSh(:,:,IRS2) = iiBstRSh(:,:,IRS1)
+      iiBstR    (1:MSYM,IRS2) = iiBstR    (1:MSYM,IRS1)
+      nnBstR    (1:MSYM,IRS2) = nnBstR    (1:MSYM,IRS1)
       IF (IRS1 .EQ. 1) THEN
-         DO IAB = 1,MMBSTRT
+         DO IAB = 1,SIZE(INDRED)
             INDRED(IAB,IRS2) = IAB
          END DO
       ELSE
-         CALL ICOPY(MMBSTRT,INDRED(1,IRS1),1,INDRED(1,IRS2),1)
+         IndRed(:,iRS2) = IndRed(:,iRS1)
       END IF
       NNBSTRT(IRS2) = NNBSTRT(IRS1)
 
