@@ -86,7 +86,9 @@
           end do
       close(file_id)
 
-! Clean evil non-positive semi-definite matrices. DMAT is intent(inout)
+      ! Clean evil non-positive semi-definite matrices,
+      ! by clamping the occupation numbers between 0 and 2.
+      ! DMAT is intent(inout)
       call cleanMat(DMAT)
 
       contains
