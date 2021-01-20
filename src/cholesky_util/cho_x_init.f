@@ -210,6 +210,7 @@ C     --------------------------------------------------------
          Write(6,*) SecNam,': nBasT out of bounds: ',nBasT
          Go To 101
       End If
+      Write (6,*) 'yyyyyy'
       Call mma_allocate(iSOShl,nBasT,Label='iSOShl')
       Call Get_iArray('ISOSHL',iSOShl,nBasT)
 

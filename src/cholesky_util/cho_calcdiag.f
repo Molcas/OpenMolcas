@@ -281,7 +281,7 @@ C     ----------------------------------------------
 C     Read through the file to get first reduced set.
 C     -----------------------------------------------
 
-      CALL CHO_IZERO(NNBSTRSH(:,:,1),NSYM*NNSHL)
+      nnBstRSh(:,:,1) = 0
 
       REWIND(IUNIT)
       REWIND(JUNIT)
