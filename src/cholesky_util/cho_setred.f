@@ -8,16 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_SETRED(DIAG,INDRED,LMMBSTRT)
+      SUBROUTINE CHO_SETRED(DIAG)
 C
 C     Purpose: set next reduced set. A copy of the previous set
 C              is stored in location 3.
 C
       use ChoArr, only: iSP2F, iAtomShl
-      use ChoSwp, only: iiBstRSh, nnBstRSh
+      use ChoSwp, only: IndRed, iiBstRSh, nnBstRSh
 #include "implicit.fh"
-      DIMENSION DIAG(*)
-      INTEGER   INDRED(LMMBSTRT,3)
+      Real*8 DIAG(*)
 #include "cholesky.fh"
 #include "WrkSpc.fh"
 
@@ -25,7 +24,7 @@ C
       PARAMETER (SECNAM = 'CHO_SETRED')
 
       MSYM = SIZE(iiBstRSh,1)
-      MMSHL= SIZE(iiBstRSh,2)
+
 C     Debug print.
 C     ------------
 

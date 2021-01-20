@@ -361,7 +361,7 @@ C        Set next (iPass+1) reduced set at location 2.
 C        Reduced set iPass1 is now stored at location 3.
 C        -----------------------------------------------
 
-         Call Cho_SetRed(Diag,IndRed,nnBstRT(1))
+         Call Cho_SetRed(Diag)
          jPass = iPass + 1
          Call Cho_SetRSDim(nDimRS,nSym,MaxRed,jPass,2)
          If (iPrint .ge. INF_PASS) Then

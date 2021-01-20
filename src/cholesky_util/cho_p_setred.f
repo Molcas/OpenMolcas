@@ -17,7 +17,6 @@ C              Diag is the local diagonal, whereas ip_Diag_G (stored in
 C              choglob.fh) points to the global diagonal in Work.
 C              Note that Diag is not referenced if Sync=.False.
 C
-      use ChoSwp, only: IndRed
       Implicit None
       Real*8  Diag(*)
       Logical Sync
@@ -44,7 +43,7 @@ C        and local index arrays (and then swap back, of course).
 C        -----------------------------------------------------------
 
          Call Cho_P_IndxSwp()
-         Call Cho_SetRed(Work(ip_Diag_G),IndRed,mmBstRT)
+         Call Cho_SetRed(Work(ip_Diag_G))
          Call Cho_P_IndxSwp()
 
 C        Set next local reduced set.
@@ -54,7 +53,7 @@ C        ---------------------------
 
       Else
 
-         Call Cho_SetRed(Diag,IndRed,mmBstRT)
+         Call Cho_SetRed(Diag)
 
       End If
 
