@@ -524,7 +524,7 @@ C     ===============
       If (irc .ne. 0) Then
          Write(LuPri,*) SecNam,': Cho_X_CheckDiag returned code ',irc
          irc = 1
-         Go To 1 ! flush memory and return
+         Go To 1 ! release memory and return
       End If
       If (Work(ip_Err+1) .gt. ThrCom) Then
          Write(LuPri,'(/,A)')
@@ -534,7 +534,7 @@ C     ===============
          Write(LuPri,'(3X,A,1P,D15.6)')
      &   'Decomposition threshold....',ThrCom
          irc=1
-         Go To 1 ! flush memory and return
+         Go To 1 ! release memory and return
       End If
       Call GetMem('DiaErr','Free','Real',ip_Err,l_Err)
       If (iPrint .ge. Inf_Timing) Then

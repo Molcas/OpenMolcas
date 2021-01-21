@@ -64,8 +64,8 @@ C     released by flushing back to and including this allocation.
 C     ----------------------------------------------------------------
 
       CALL CHO_P_GETGSP(NGSP)
-      CALL CHO_MEM('DIASH','ALLO','REAL',KDIASH,NGSP)
-      CALL CHO_MEM('ISYSH','ALLO','INTE',KISYSH,NGSP)
+      CALL GETMEM('DIASH','ALLO','REAL',KDIASH,NGSP)
+      CALL GETMEM('ISYSH','ALLO','INTE',KISYSH,NGSP)
 
 C     Set first integral pass.
 C     ------------------------
@@ -88,7 +88,7 @@ C     Allocate shell pair list.
 C     -------------------------
 
       l_LSTQSP = MAX(NPOTSH,1)
-      CALL CHO_MEM('LSTQSP','ALLO','INTE',ip_LSTQSP,l_LSTQSP)
+      CALL GETMEM('LSTQSP','ALLO','INTE',ip_LSTQSP,l_LSTQSP)
 
 C     Loop over integral passes. Continue until convergence or
 C     until the max. number of integral passes has been reached.
@@ -312,7 +312,9 @@ C        ---------------------------
 C     Free memory for shell pair based diagonal.
 C     ------------------------------------------
 
-      CALL CHO_MEM('DIASH','FLUSH','REAL',KDIASH,NNSHL)
+      CALL GETMEM('LSTQSP','FREE','INTE',ip_LSTQSP,l_LSTQSP)
+      CALL GETMEM('ISYSH','FREE','INTE',KISYSH,NGSP)
+      CALL GETMEM('DIASH','FREE','REAL',KDIASH,NNSHL)
 
 C     Shut down the Cholesky vector buffer.
 C     -------------------------------------

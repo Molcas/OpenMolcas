@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
-*               2020, 2021, Roland Lindh                               *
+*               2020,2021, Roland Lindh                                *
 ************************************************************************
 *  Cho_X_CalculateGMat
 *
