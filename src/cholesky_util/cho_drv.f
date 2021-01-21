@@ -58,18 +58,17 @@ C
 #include "choprint.fh"
 #include "chosubscr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      LOGICAL LOCDBG
-      PARAMETER (LOCDBG = .FALSE.)
-      LOGICAL SKIP_PRESCREEN, ALLOC_BKM
-      PARAMETER (SKIP_PRESCREEN=.FALSE., ALLOC_BKM=.TRUE.)
+      LOGICAL, PARAMETER:: LOCDBG = .FALSE.
+      LOGICAL, PARAMETER:: SKIP_PRESCREEN=.FALSE., ALLOC_BKM=.TRUE.
 
       LOGICAL LCONV
 
-      CHARACTER*8 SECNAM
-      PARAMETER (SECNAM = 'CHO_DRV_')
+      CHARACTER(LEN=8), PARAMETER:: SECNAM = 'CHO_DRV_'
 
-      PARAMETER (DUMTST = 0.123456789D0, DUMTOL = 1.0D-15)
+      Real*8, PARAMETER:: DUMTST = 0.123456789D0, DUMTOL = 1.0D-15
+      Real*8, Allocatable:: Check(:)
 
 #if defined (_DEBUGPRINT_)
       CALL CHO_PRTMAXMEM('CHO_DRV_ [ENTER]')
@@ -88,9 +87,8 @@ C     ----------------
 C     Make a dummy allocation.
 C     ------------------------
 
-      l_START = 1
-      CALL CHO_MEM('DRVDUM','ALLO','REAL',ip_START,l_START)
-      WORK(ip_START) = DUMTST
+      Call mma_allocate(Check,1,Label='Check')
+      Check(1) = DUMTST
 
 C     INITIALIZATION.
 C     ===============
@@ -398,19 +396,19 @@ C     ===========
 #endif
 
 C     Close vector and reduced storage files as well as restart files.
-C     Deallocate all memory (using flush) and test bound.
+C     Deallocate all memory and test bound.
 C     Print total timing.
 C     ----------------------------------------------------------------
 
       CALL CHO_P_OPENVR(2)
 
-      TST = DUMTST - WORK(ip_START)
+      TST = DUMTST - Check(1)
       IF (ABS(TST) .GT. DUMTOL) THEN
          WRITE(LUPRI,*) SECNAM,': memory has been out of bounds!!!'
          CALL CHO_FLUSH(LUPRI)
          IRETURN = 2
       END IF
-      CALL CHO_MEM('DRVDUM','FLUS','REAL',ip_START,l_START)
+      Call mma_deallocate(Check)
 
       IF (IPRINT .GE. INF_TIMING) THEN
          CALL CHO_TIMER(TCPU1,TWALL1)

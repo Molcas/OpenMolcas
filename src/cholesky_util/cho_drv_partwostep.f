@@ -52,7 +52,6 @@ C
       Real*8 tCPU0,  tCPU1,  tC0, tC1
       Real*8 tWall0, tWall1, tW0, tW1
       Real*8 C0, C1, W0, W1
-      Real*8 DumTst, DumTol
       Real*8 Thr_PreScreen_Bak, ThrDiag_Bak, Frac_ChVBuf_Bak, SSTau_Bak
       Real*8 Thr_SimRI_Bak, Tol_DiaChk_Bak
       Real*8 TimSec_Bak(4,nSection)
@@ -71,16 +70,16 @@ C
       Logical Cho_TstScreen_Bak, RstDia_Bak, RstCho_Bak
       Logical Trace_Idle_Bak
 
-      Character*18 SecNam
-      Character*4 myName
-      Character*2 Unt
+      Character(LEN=18), Parameter:: SecNam='Cho_Drv_ParTwoStep'
+      Character(LEN=4), Parameter:: myName='DPTS'
+      Character(LEN=2) Unt
 
-      Parameter (SecNam='Cho_Drv_ParTwoStep')
-      Parameter (myName='DPTS')
-      Parameter (DumTst=0.123456789d0, DumTol=1.0d-15)
+      Real*8, Parameter:: DumTst=0.123456789d0, DumTol=1.0d-15
+      Real*8, Allocatable:: Check(:)
 
       Integer NVT, nBlock, iTri
       Integer i, j
+
       NVT(i)=iWork(ip_NVT-1+i)
       nBlock(i)=iWork(ip_nBlock-1+i)
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
@@ -98,10 +97,9 @@ C     ==============
       ! Init return code
       irc=0
 
-      ! make a dummy allocation (used to flush memory later)
-      l_Start=1
-      Call GetMem('DrvDum','Allo','Real',ip_Start,l_Start)
-      Work(ip_Start)=DumTst
+      ! make a dummy allocation
+      Call mma_allocate(Check,1,Label='Check')
+      Check(1)=DumTst
 
       ! init local variables
       kDiag = 0
@@ -252,14 +250,14 @@ C     ====================================
       If (Abs(DumTst-Work(ip_Start)) .gt. DumTol) Then
          Write(LuPri,*) SecNam,': memory has been out of bounds [1]'
          irc=2
-         Go To 1 ! flush memory and return
+         Go To 1 ! clear memory and return
       End If
       Call GetMem('DrvDum','Flus','Real',ip_Start,l_Start)
       Call Cho_X_Init(irc,0.0d0)
       If (irc .ne. 0) Then
          Write(LuPri,*) SecNam,': Cho_X_Init returned code ',irc
          irc = 1
-         Go To 1 ! flush memory and return
+         Go To 1 ! clear memory and return
       End If
       If (Cho_1Center) Then
          If (.NOT.Allocated(iAtomShl)) Then
@@ -269,7 +267,7 @@ C     ====================================
                Write(LuPri,'(A,A,I8)')
      &         SecNam,': Cho_SetAtomShl returned code',irc
                irc=1
-               Go To 1 ! flush memory and return
+               Go To 1 ! clear memory and return
             End If
          End If
       End If
@@ -390,7 +388,7 @@ C     ====================================
      &                    101)
          End If
          irc=1
-         Go To 1 ! flush memory and return
+         Go To 1 ! clear memory and return
       End If
       Call GetMem('Z','Allo','Real',ip_Z,l_Z)
       l_nBlock=nSym
@@ -446,7 +444,7 @@ C     ====================================
       If (irc .ne. 0) Then
          Write(LuPri,*) SecNam,': Cho_GetZ returned code ',irc
          irc = 1
-         Go To 1 ! flush memory and return
+         Go To 1 ! clear memory and return
       End If
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(tC1,tW1)
@@ -473,14 +471,14 @@ C     ====================================
       If (irc .ne. 0) Then
          Write(LuPri,*) SecNam,': Cho_X_CompVec returned code ',irc
          irc = 1
-         Go To 1 ! flush memory and return
+         Go To 1 ! clear memory and return
       End If
       ! Write restart files
       Call Cho_PTS_WrRst(irc,iWork(ip_NVT),l_NVT)
       If (irc .ne. 0) Then
          Write(LuPri,*) SecNam,': Cho_PTS_WrRst returned code ',irc
          irc = 1
-         Go To 1 ! flush memory and return
+         Go To 1 ! clear memory and return
       End If
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(tC1,tW1)
@@ -606,13 +604,12 @@ C     ======================
 
       ! error termination point
     1 Continue
-      ! flush memory
-      If (Abs(DumTst-Work(ip_Start)) .gt. DumTol) Then
+      ! check memory
+      If (Abs(DumTst-Check(1)) .gt. DumTol) Then
          Write(LuPri,*) SecNam,': memory has been out of bounds [2]'
          irc=2
       End If
-      Call GetMem('DrvDum','Flus','Real',ip_Start,l_Start)
-      Call GetMem('DrvDum','Free','Real',ip_Start,l_Start)
+      Call mma_deallocate(Check)
 
       ! Print total timing
       If (iPrint.ge.Inf_Timing .and. irc.eq.0) Then
