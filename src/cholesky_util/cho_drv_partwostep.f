@@ -48,6 +48,7 @@ C
       Integer MxShPr_Bak, iAlQua_Bak
       Integer N_Subtr_Bak
       Integer Mode_Screen_Bak, Cho_DecAlg_Def_Bak, ModRst_Bak
+      Integer iDum
 
       Real*8 tCPU0,  tCPU1,  tC0, tC1
       Real*8 tWall0, tWall1, tW0, tW1
@@ -609,6 +610,7 @@ C     ======================
          Write(LuPri,*) SecNam,': memory has been out of bounds [2]'
          irc=2
       End If
+      Call GETMEM('KDIAG','FREE','REAL',KDIAG,iDum)
       Call mma_deallocate(Check)
 
       ! Print total timing

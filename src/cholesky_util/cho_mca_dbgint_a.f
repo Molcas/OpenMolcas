@@ -26,9 +26,9 @@ C
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      CHARACTER*16 SECNAM
-      PARAMETER (SECNAM = 'CHO_MCA_DBGINT_A')
+      CHARACTER(LEN=16), PARAMETER:: SECNAM = 'CHO_MCA_DBGINT_A'
 
       DIMENSION XLBAS(8)
 
@@ -68,7 +68,7 @@ C     -----------------------------------------------
 C     Allocate max. memory
 C     ----------------------------------------------------------
 
-      CALL GETMEM('DBGINT.2','MAX ','REAL',KWRK,LWRK)
+      Call mma_maxDBLE(LWRK)
       CALL GETMEM('DBGINT.2','ALLO','REAL',KWRK,LWRK/2)
       CALL XSETMEM_INTS(LWRK/2)
 
@@ -181,9 +181,8 @@ C     -------------------
 C     Release all memory allocated here (and release seward memory).
 C     --------------------------------------------------------------
 
-      CALL XRLSMEM_INTS
+      CALL XRLSMEM_INTS()
       CALL GETMEM('DBGINT.2','FREE','REAL',KWRK,LWRK/2)
-      CALL GETMEM('INTDBG.3','FLUSH','REAL',KINT1,LINTMX)
       CALL GETMEM('INTDBG.4','FREE','REAL',KINT1,LINTMX)
 
 C     Check total number of comparisons.

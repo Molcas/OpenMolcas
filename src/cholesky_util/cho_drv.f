@@ -27,14 +27,14 @@ C
       If (Cho_DecAlg .eq. 5) Then ! parallel two-step algorithm
          Call Cho_Drv_ParTwoStep(iReturn)
       Else
-         Call Cho_Drv_(iReturn)
+         Call Cho_Drv_Internal(iReturn)
       End If
 
       End
 C
 C=======================================================================
 C
-      SUBROUTINE CHO_DRV_(IRETURN)
+      SUBROUTINE CHO_DRV_Internal(IRETURN)
 C
 C     Thomas Bondo Pedersen, 2003-2010.
 C
@@ -408,6 +408,7 @@ C     ----------------------------------------------------------------
          CALL CHO_FLUSH(LUPRI)
          IRETURN = 2
       END IF
+      Call GETMEM('KDIAG','FREE','REAL',KDIAG,iDUM)
       Call mma_deallocate(Check)
 
       IF (IPRINT .GE. INF_TIMING) THEN

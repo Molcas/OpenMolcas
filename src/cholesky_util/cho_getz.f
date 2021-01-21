@@ -48,13 +48,13 @@ C
       Integer ip_Z(l_Z1,l_Z2)
 #include "cholesky.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #if defined(_DEBUGPRINT_)
 #include "choprint.fh"
 #endif
 
       Integer iSym
       Integer iLoc, iRedC, iRed
-      Integer ip_Flush, l_Flush
       Integer ip_iRS2RS, l_iRS2RS
       Integer ip_Wrk, l_Wrk
       Integer idRS2RS, KK1, nVRead, mUsed, kOffV
@@ -66,18 +66,14 @@ C
       Integer  Cho_iRange
       External Cho_iRange
 
-      Character*8 SecNam
-      Parameter (SecNam='Cho_GetZ')
+      Character(LEN=8), Parameter:: SecNam='Cho_GetZ'
 
       Real*8 C0, C1, W0, W1
 
 #if defined (_DEBUGPRINT_)
       Integer nBlock_Max, nnB, n
-      Integer ip_Chk, l_Chk
-      Integer myDebugInfo
-      Parameter (myDebugInfo=100)
-      Real*8 Tol
-      Parameter (Tol=1.0d-14)
+      Integer, Parameter:: myDebugInfo=100
+      Real*8, Parameter:: Tol=1.0d-14
 #endif
 
       Integer, Pointer:: InfVct(:,:,:)
@@ -103,9 +99,6 @@ C     ----------------
       irc = 0
 
 #if defined (_DEBUGPRINT_)
-      ! Check memory boundaries
-      l_Chk=-1
-      Call GetMem('Check0','Check','Real',ip_Chk,l_Chk)
       ! Check input variables
       If (l_NVT.lt.nSym .or. l_nBlock.lt.nSym .or.
      &    l_nV2.lt.nSym .or. l_iV12.lt.nSym .or.
@@ -195,13 +188,6 @@ C     ---------------------------------
 
       iLoc=3 ! do NOT change (used implicitly by reading routine)
 
-C     Create memory pointer for flushing memory.
-C     (In case of error exit.)
-C     ------------------------------------------
-
-      l_Flush=1
-      Call GetMem('FLUSH','Allo','Inte',ip_Flush,l_Flush)
-
 C     Get pointer to InfVec array for all vectors.
 C     Needed for parallel runs.
 C     --------------------------------------------
@@ -230,7 +216,7 @@ C     --------------
 
          l_iRS2RS = nnBstR(iSym,1)
          Call GetMem('RS-TO-RS','Allo','Inte',ip_iRS2RS,l_iRS2RS)
-         Call GetMem('MX','Max ','Real',ip_Wrk,l_Wrk)
+         Call mma_maxDBLE(l_Wrk)
          Call GetMem('Wrk','Allo','Real',ip_Wrk,l_Wrk)
          Call iZero(iWork(ip_iRS2RS),l_iRS2RS)
          idRS2RS = -2
@@ -294,11 +280,6 @@ C     --------------
             End Do
             KK1=KK1+nVRead
          End Do
-#if defined (_DEBUGPRINT_)
-         ! Check memory boundaries
-         l_Chk=-1
-         Call GetMem('Check1','Check','Real',ip_Chk,l_Chk)
-#endif
          Call GetMem('Wrk','Free','Real',ip_Wrk,l_Wrk)
          Call GetMem('RS-TO-RS','Free','Inte',ip_iRS2RS,l_iRS2RS)
 
@@ -368,14 +349,10 @@ C     --------------------------------------------------------
       End If
 #endif
 
-C     Exit. If error termination, flush memory first.
+C     Exit. If error termination.
 C     -----------------------------------------------
 
     1 Continue
-      If (irc .ne. 0) Then
-         Call GetMem('FLUSH','Flush','Inte',ip_Flush,l_Flush)
-      End If
-      Call GetMem('FLUSH','Free','Inte',ip_Flush,l_Flush)
 
 #ifndef _DEBUGPRINT_
 c Avoid unused argument warnings
@@ -421,8 +398,7 @@ C
 #include "cholesky.fh"
 #include "WrkSpc.fh"
 
-      Character*18 SecNam
-      Parameter (SecNam='Cho_CheckDiagFromZ')
+      Character(LEN=18), Parameter:: SecNam='Cho_CheckDiagFromZ'
 
       Integer ip_D, l_D
       Integer iSym

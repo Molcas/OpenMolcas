@@ -110,7 +110,6 @@ C     ----------------------------------
 C     ISOSHL(I): shell to which SO I belongs
 C     --------------------------------------
 
-      Write (6,*) 'xxxxx'
       Call mma_allocate(iSOShl,NBAST,Label='iSOShl')
       DO ISYM = 1,NSYM
          DO IA = 1,NBAS(ISYM)

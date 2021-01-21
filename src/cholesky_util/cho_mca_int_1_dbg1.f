@@ -20,12 +20,11 @@ C
       DIMENSION DIAG(*)
 #include "cholesky.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      CHARACTER*18 SECNAM
-      PARAMETER (SECNAM = 'CHO_MCA_INT_1_DBG1')
+      CHARACTER(LEN=18), PARAMETER:: SECNAM = 'CHO_MCA_INT_1_DBG1'
 
-      LOGICAL PRTINT
-      PARAMETER (PRTINT = .FALSE.)
+      LOGICAL, PARAMETER:: PRTINT = .FALSE.
 
       WRITE(LUPRI,*)
       WRITE(LUPRI,*)
@@ -43,7 +42,7 @@ C     ------------------------------------------
 
       LINT1 = MX2SH*MX2SH
       CALL GETMEM('Int1.dbg1.1','ALLO','REAL',KINT,LINT1)
-      CALL GETMEM('Int1.dbg1.2','MAX ','REAL',KSEW,LSEW)
+      Call mma_maxDBLE(LSEW)
       CALL XSETMEM_INTS(LSEW)
 
       NERR = 0
@@ -208,8 +207,7 @@ C        ----------------------------------------------------
 
       END DO
 
-      CALL XRLSMEM_INTS
-      CALL GETMEM('Int1.flsh','FLUSH','REAL',KINT,LINT1)
+      CALL XRLSMEM_INTS()
       CALL GETMEM('Int1.free','FREE','REAL',KINT,LINT1)
 
       WRITE(LUPRI,*) '***END OF ',SECNAM,': #tests: ',NTST,

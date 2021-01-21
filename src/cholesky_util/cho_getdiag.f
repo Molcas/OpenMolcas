@@ -93,9 +93,10 @@ C        ---------------------
          NEEDR = 1
          NEEDI = 4*NEEDR
 
-         CALL CHO_MEM('diarst','ALLO','REAL',KDIAG,NNBSTRT(1))
-         CALL CHO_MEM('buf.2','ALLO','REAL',KBUF,NEEDR)
-         CALL CHO_MEM('ibuf.2','ALLO','INTE',KIBUF,NEEDI)
+         CALL GETMEM('diarst','ALLO','REAL',KDIAG,NNBSTRT(1))
+
+         CALL GETMEM('buf.2','ALLO','REAL',KBUF,NEEDR)
+         CALL GETMEM('ibuf.2','ALLO','INTE',KIBUF,NEEDI)
 
          KREL = KBUF
 
@@ -105,7 +106,8 @@ C        --------------
          CALL CHO_GETDIAG1(WORK(KDIAG),WORK(KBUF),IWORK(KIBUF),NEEDR,
      &                     NDUMP)
 
-         CALL CHO_MEM('buf.2','FLUSH','REAL',KREL,NEEDR)
+         CALL GETMEM('ibuf.2','FREE','INTE',KIBUF,NEEDI)
+         CALL GETMEM('buf.2','FREE','REAL',KREL,NEEDR)
 
       ELSE
 
@@ -121,8 +123,8 @@ C        -------------------------------------------
          LSCR  = MX2SH
          NEEDR = LBUF + LSCR
          NEEDI = 4*LBUF
-         CALL CHO_MEM('buf','ALLO','REAL',KREL,NEEDR)
-         CALL CHO_MEM('ibuf','ALLO','INTE',KIBUF,NEEDI)
+         CALL GETMEM('buf','ALLO','REAL',KREL,NEEDR)
+         CALL GETMEM('ibuf','ALLO','INTE',KIBUF,NEEDI)
 
          KBUF  = KREL
          KSCR  = KBUF + LBUF
@@ -131,7 +133,9 @@ C        -------------------------------------------
 
          CALL CHO_CALCDIAG(WORK(KBUF),IWORK(KIBUF),LBUF,WORK(KSCR),LSCR,
      &                     NDUMP)
-         CALL CHO_MEM('buf','FLUSH','REAL',KREL,NEEDR)
+
+         CALL GETMEM('ibuf','FREE','INTE',KIBUF,NEEDI)
+         CALL GETMEM('buf','FREE','REAL',KREL,NEEDR)
 
 C        Allocate diagonal and mapping array between reduced sets.
 C        Reallocate buffer.
@@ -148,8 +152,8 @@ C        ---------------------------------------------------------
 
          NEEDR = LBUF
          NEEDI = 4*LBUF
-         CALL CHO_MEM('buf.2','ALLO','REAL',KBUF,NEEDR)
-         CALL CHO_MEM('ibuf.2','ALLO','INTE',KIBUF,NEEDI)
+         CALL GETMEM('buf.2','ALLO','REAL',KBUF,NEEDR)
+         CALL GETMEM('ibuf.2','ALLO','INTE',KIBUF,NEEDI)
          KREL = KBUF
 
 C        Get diagonal in first reduced set.
@@ -161,7 +165,8 @@ C        ----------------------------------
 C        Deallocate back to and including buffer.
 C        ----------------------------------------
 
-         CALL CHO_MEM('buf','FLUSH','REAL',KREL,NEEDR)
+         CALL GETMEM('ibuf.2','FREE','INTE',KIBUF,NEEDI)
+         CALL GETMEM('buf','FREE','REAL',KREL,NEEDR)
 
       END IF
 
