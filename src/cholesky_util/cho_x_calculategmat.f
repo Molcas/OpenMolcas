@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) Thomas Bondo Pedersen                                  *
+*               2020, 2021, Roland Lindh                               *
 ************************************************************************
 *  Cho_X_CalculateGMat
 *
@@ -37,8 +38,9 @@
       Implicit Real*8 (A-H,O-Z)
       Character*(6) FileName
 
+#include "real.fh"
 #include "cholesky.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
 #if defined (_DEBUGPRINT_)
       real*8 ddot_
@@ -47,6 +49,8 @@
 
       Logical isDF
       Integer, Pointer:: InfVcT(:,:,:)
+      Integer, Allocatable:: NVT(:), iRS2RS(:)
+      Real*8, Allocatable:: Wrk(:), G(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -59,9 +63,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      NVT(i)=iWork(ip_NVT-1+i)
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
-      iRS2RS(i)=iWork(ip_iRS2RS-1+i)
 
 C     Set return code.
 C     ----------------
@@ -83,19 +85,12 @@ C     ---------------------------------
 
       iLoc = 3 ! do NOT change (used implicitly by reading routine)
 
-C     Create memory pointer for flushing memory.
-C     ------------------------------------------
-
-      l_Flush = 1
-      Call GetMem('FLUSH','Allo','Inte',ip_Flush,l_Flush)
-
 C     Get pointer to InfVec array for all vectors (needed for parallel
 C     runs) and the total number of vectors.
 C     ----------------------------------------------------------------
 
-      l_NVT = nSym
-      Call GetMem('NVT','Allo','Inte',ip_NVT,l_NVT)
-      Call Cho_CGM_InfVec(InfVcT,iWork(ip_NVT),l_NVT)
+      Call mma_allocate(NVT,nSym,Label='NVT')
+      Call Cho_CGM_InfVec(InfVcT,NVT,SIZE(NVT))
 
 C     Copy rs1 to location 2.
 C     -----------------------
@@ -103,7 +98,7 @@ C     -----------------------
       Call Cho_X_RSCopy(irc,1,2)
       If (irc .ne. 0) Then
          irc = 1
-         Go To 1 ! exit after deallocation
+         Go To 1 ! exit
       End If
 
 C     Calculate triangular G matrix.
@@ -122,26 +117,27 @@ C        ----------
          iDisk=0
 
          l_iRS2RS = nnBstR(iSym,1)
+         Call mma_allocate(iRS2RS,l_iRS2RS,Label="iRS2RS")
+         iRS2RS(:)=0
          l_G = NVT(iSym)*(NVT(iSym)+1)/2
-         Call GetMem('RS-TO-RS','Allo','Inte',ip_iRS2RS,l_iRS2RS)
-         Call GetMem('G','Allo','Real',ip_G,l_G)
-         Call GetMem('MX','Max ','Real',ip_Wrk,l_Wrk)
-         Call GetMem('Wrk','Allo','Real',ip_Wrk,l_Wrk)
-         Call fZero(Work(ip_G),l_G)
-         Call iZero(iWork(ip_iRS2RS),l_iRS2RS)
+         Call mma_allocate(G,l_G,Label='G')
+         Call mma_MaxDBLE(l_Wrk)
+         Call mma_allocate(Wrk,l_Wrk,Label='Wrk')
+         Wrk(:)=Zero
+         G(:)=Zero
+
          idRS2RS = -2
-         kOffG = ip_G - 1
          KK1 = 1
          Do While (KK1 .le. NumCho(iSym))
             nVRead = 0
             mUsed = 0
-            Call Cho_X_VecRd(Work(ip_Wrk),l_Wrk,KK1,NumCho(iSym),iSym,
+            Call Cho_X_VecRd(Wrk,SIZE(Wrk),KK1,NumCho(iSym),iSym,
      &                       nVRead,iRedC,mUsed)
             If (nVRead .lt. 1) Then
                irc = 2
                Go To 1 ! exit after deallocation
             End If
-            kOffV = ip_Wrk - 1
+            kOffV = 0
             Do KKK = 0,nVRead-1
                KK = KK1 + KKK
                iRed = InfVec(KK,2,iSym)
@@ -154,48 +150,43 @@ C        ----------
                   iRedC = iRed
                End If
                If (idRS2RS .ne. iRedC) Then
-                  Call Cho_RS2RS(iWork(ip_iRS2RS),l_iRS2RS,
-     &                           2,iLoc,iRedC,iSym)
+                  Call Cho_RS2RS(iRS2RS,SIZE(iRS2RS),2,iLoc,iRedC,iSym)
                   idRS2RS = iRedC
                End If
                K = InfVec(KK,5,iSym)
                Do J = K,NVT(iSym)
                   iJ = iRS2RS(InfVcT(J,1,iSym)-iiBstR(iSym,1))
-                  V_J = Work(kOffV+iJ)
+                  V_J = Wrk(kOffV+iJ)
                   Do I = K,J
                      iI = iRS2RS(InfVcT(I,1,iSym)-iiBstR(iSym,1))
-                     kG_IJ = kOffG + iTri(I,J)
-                     Work(kG_IJ) = Work(kG_IJ) + Work(kOffV+iI)*V_J
+                     kG_IJ = iTri(I,J)
+                     G(kG_IJ) = G(kG_IJ) + Wrk(kOffV+iI)*V_J
                   End Do
                End Do
                kOffV = kOffV + nnBstR(iSym,iLoc)
             End Do
             KK1 = KK1 + nVRead
          End Do
-         Call Cho_GADGOP(Work(ip_G),l_G,'+')
+         Call Cho_GADGOP(G,SIZE(G),'+')
          iOpt = 1
-         Call DDAFile(lUnit,iOpt,Work(ip_G),l_G,iDisk)
+         Call DDAFile(lUnit,iOpt,G,SIZE(G),iDisk)
 #if defined (_DEBUGPRINT_)
-         Call TriPrt('G-matix',' ',Work(ip_G),NVT(iSym))
+         Call TriPrt('G-matix',' ',G,NVT(iSym))
          Write(6,'(A,I2,A,1P,D16.7)')
      &   'G matrix, sym.',iSym,': Norm = ',
-     &   sqrt(dDot_(l_G,Work(ip_G),1,Work(ip_G),1))
+     &   sqrt(dDot_(SIZE(G),G,1,G,1))
 #endif
-         Call GetMem('Wrk','Free','Real',ip_Wrk,l_Wrk)
-         Call GetMem('G','Free','Real',ip_G,l_G)
-         Call GetMem('RS-TO-RS','Free','Inte',ip_iRS2RS,l_iRS2RS)
+         Call mma_deallocate(Wrk)
+         Call mma_deallocate(G)
+         Call mma_deallocate(iRS2RS)
 
 C        Close file
 C        ----------
          Call DAClos(lUnit)
       End Do
 
-C     Flush memory, close file, and exit.
-C     -----------------------------------
-
     1 Continue
-      Call GetMem('FLUSH','Flush','Inte',ip_Flush,l_Flush)
-      Call GetMem('FLUSH','Free','Inte',ip_Flush,l_Flush)
+      Call mma_deallocate(NVT)
 
       End
 C
@@ -217,8 +208,6 @@ C
 *                                                                      *
 ************************************************************************
 *                                                                      *
-
-
       Call Cho_X_GetIP_InfVec(InfVcT)
       Call Cho_X_GetTotV(NVT,n)
 
