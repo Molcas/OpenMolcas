@@ -30,7 +30,6 @@ C
 
       Integer ip_Err, l_Err
       Integer iSec, kDiag
-      Integer ip_Start, l_Start
       Integer BlockSize_Bak, iPrint_Bak, Cho_IOVec_Bak, N1_VecRD_Bak
       Integer N2_VecRd_Bak
       Integer Cho_DecAlg_Bak
@@ -248,12 +247,6 @@ C     ====================================
       Call Cho_P_WrDiag()
       Call Cho_Final(.True.)
       Call Cho_P_OpenVR(2)
-      If (Abs(DumTst-Work(ip_Start)) .gt. DumTol) Then
-         Write(LuPri,*) SecNam,': memory has been out of bounds [1]'
-         irc=2
-         Go To 1 ! clear memory and return
-      End If
-      Call GetMem('DrvDum','Flus','Real',ip_Start,l_Start)
       Call Cho_X_Init(irc,0.0d0)
       If (irc .ne. 0) Then
          Write(LuPri,*) SecNam,': Cho_X_Init returned code ',irc
