@@ -13,7 +13,7 @@ C
 C     Purpose: calculate Cholesky vectors from qualified integral
 C              columns (from disk).
 C
-      use ChoSwp, only: iQuAB, InfVec, IndRed
+      use ChoSwp, only: iQuAB, IndRed
 #include "implicit.fh"
       DIMENSION DIAG(*), WRK(LWRK)
 #include "cholesky.fh"
@@ -278,8 +278,7 @@ C              --------------------------------
 C              Set info for this vector.
 C              -------------------------
 
-               CALL CHO_SETVECINF(INFVEC,MAXVEC,INFVEC_N2,NSYM,
-     &                            IVEC,ISYM,IABG,IPASS,2)
+               CALL CHO_SETVECINF(IVEC,ISYM,IABG,IPASS,2)
 
 C              Print progress report.
 C              ----------------------

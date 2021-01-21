@@ -12,7 +12,7 @@
 C
 C     Purpose: set global and local info for vectors.
 C
-      use ChoSwp, only: iQuAB, InfVec, IndRed
+      use ChoSwp, only: iQuAB, IndRed
       Implicit None
       Integer nVec, iSym, iPass
 #include "cholesky.fh"
@@ -29,23 +29,20 @@ C Set global vector information (by swapping index arrays)
          Do iV = 1,nVec
             iVec = NumCho_G(iSym) + iV
             iAB = IndRed(iQuAB(iV,iSym),2)
-            Call Cho_SetVecInf(InfVec,MaxVec,SIZE(InfVec,2),nSym,
-     &                         iVec,iSym,iAB,iPass,2)
+            Call Cho_SetVecInf(iVec,iSym,iAB,iPass,2)
          End Do
          Call Cho_P_IndxSwp()
 C Set local vector information
          Do iV = 1,nVec
             iVec = NumCho_G(iSym) + iV
             iAB = Cho_P_IndxParentDiag(iV,iSym)
-            Call Cho_SetVecInf(InfVec,MaxVec,SIZE(InfVec,2),nSym,
-     &                         iVec,iSym,iAB,iPass,2)
+            Call Cho_SetVecInf(iVec,iSym,iAB,iPass,2)
          End Do
       Else
          Do iV = 1,nVec
             iVec = NumCho(iSym) + iV
             iAB = IndRed(iQuAB(iV,iSym),2)
-            Call Cho_SetVecInf(InfVec,MaxVec,SIZE(InfVec,2),nSym,
-     &                         iVec,iSym,iAB,iPass,2)
+            Call Cho_SetVecInf(iVec,iSym,iAB,iPass,2)
          End Do
       End If
 

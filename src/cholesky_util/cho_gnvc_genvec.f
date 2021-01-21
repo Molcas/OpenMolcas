@@ -236,8 +236,7 @@ C           --------------------------------------------
      &                                          xInt(kOff2),1)
                End Do
 
-               Call Cho_SetVecInf(InfVec,MaxVec,SIZE(InfVec,2),nSym,
-     &                            iVec,iSym,iAB,iPass,3)
+               Call Cho_SetVecInf(iVec,iSym,iAB,iPass,3)
 
                If (iPrint .ge. INF_PROGRESS) Then
                   iVecT = NumChT + iV
