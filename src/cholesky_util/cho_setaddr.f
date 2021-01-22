@@ -8,13 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_SETADDR(JNFRED,INFVEC,MRED,MVEC,M2,MSYM)
+      SUBROUTINE CHO_SETADDR(INFRED,INFVEC,MRED,MVEC,M2,MSYM)
 C
 C     Purpose: set first disk addresses for reduced set info and
 C              vectors.
 C
 #include "implicit.fh"
-      INTEGER JNFRED(MRED), INFVEC(MVEC,M2,MSYM)
+      INTEGER INFRED(MRED), INFVEC(MVEC,M2,MSYM)
 #include "cholesky.fh"
 #include "WrkSpc.fh"
 
@@ -25,7 +25,7 @@ C     Set addresses.
 C     --------------
 
       IF (XNPASS .EQ. 0) THEN
-         JNFRED(1) = 0
+         INFRED(1) = 0
          DO ISYM = 1,NSYM
             INFVEC(1,3,ISYM) = 0
             INFVEC(1,4,ISYM) = 0
@@ -36,10 +36,10 @@ C     --------------
          CALL CHO_GETRED(IPASS,IRED,.FALSE.)
          CALL CHO_SETREDIND(IRED)
          IF (IPASS .EQ. 1) THEN
-            JNFRED(IPASS+1) = JNFRED(IPASS)
+            INFRED(IPASS+1) = INFRED(IPASS)
      &                      + NSYM*NNSHL + 2*NNBSTRT(IRED) + NNSHL
          ELSE
-            JNFRED(IPASS+1) = JNFRED(IPASS)
+            INFRED(IPASS+1) = INFRED(IPASS)
      &                      + NSYM*NNSHL + NNBSTRT(IRED)
          END IF
          DO ISYM = 1,NSYM

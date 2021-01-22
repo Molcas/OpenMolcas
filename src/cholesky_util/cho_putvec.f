@@ -132,7 +132,7 @@ C     --------------------------------
             JVEC = IVEC1 + IVEC - 1
             IADR = INFVEC(JVEC,3,ISYM)
             CALL DDAFILE(LUCHO(ISYM),IOPT,CHOVEC(1,IVEC),LTOT,IADR)
-            INFVEC(JVEC,3,ISYM) = IADR
+            INFVEC(JVEC+1,3,ISYM) = IADR
          END DO
          IVEC = NUMVEC
          JVEC = IVEC1 + IVEC - 1
