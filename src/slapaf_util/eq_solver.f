@@ -17,8 +17,12 @@
       Real*8 B(M,*),Degen(M),dSS(*),DFC(*)
       Logical Curvilinear
       Character(LEN=1) Mode
+      Integer INFO
       Real*8 Temp(1)
       Real*8, Allocatable:: A(:), Btmp(:), Work(:)
+*                                                                      *
+************************************************************************
+*                                                                      *
 *define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
@@ -84,10 +88,11 @@
 #endif
 *
       LWork=-1
+      INFO=0
       call dgels_(Mode,M,N,NRHS,A,LDA,Btmp,LDB,Temp,LWork,INFO)
-*     Write (6,*) 'Temp,INFO=',Temp,INFO
       LWork=INT(Temp(1))
       Call mma_allocate(Work,LWork,Label='Work')
+      INFO=0
       call dgels_(Mode,M,N,NRHS,A,LDA,Btmp,LDB,Work,LWork,INFO)
       If (INFO.gt.0) Then
          Call WarningMessage(2,'Error in Eq_Solver')
