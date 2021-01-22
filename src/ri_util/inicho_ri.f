@@ -167,8 +167,7 @@ C     --------------------------------------------------------------
 
       Do iSym = 1,nSym
          Do iVec = 1,NumCho(iSym)
-            Call Cho_SetVecInf(InfVec,MaxVec,SIZE(InfVec,2),nSym,
-     &                         iVec,iSym,iVec,1,1)
+            Call Cho_SetVecInf(iVec,iSym,iVec,1,1)
          End Do
       End Do
 *
