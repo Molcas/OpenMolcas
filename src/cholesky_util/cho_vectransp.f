@@ -12,6 +12,7 @@
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: MyRank, nProcs
       use ChoSwp, only: InfVec_G, IndRed
+      use ChoArr, only: iL2G
 #endif
       Implicit Real*8 (a-h,o-z)
       Real*8   Vec(*)
@@ -50,7 +51,6 @@ CVVP:2014 DGA is here
       iDV(i) = iWork(ip_iVecR-1+i)
       nRSL(i) = iWork(ip_nRSL-1+i)
       iAdrLG(i,j) = iWork(ip_iAdrLG-1+MxRSL*(j-1)+i)
-      iL2G(i) = iWork(ip_iL2G-1+i)
 ***************************************************************
 
       If (.not.Cho_Real_Par) Then

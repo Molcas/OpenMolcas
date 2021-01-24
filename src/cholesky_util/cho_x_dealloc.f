@@ -13,7 +13,7 @@
       Subroutine Cho_X_Dealloc(irc)
 
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl,
-     &                  iShlSO, iRS2F, IntMap, iScr, nDimRS
+     &                  iShlSO, iRS2F, IntMap, iScr, nDimRS, iL2G
 
       use ChoSwp, only: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden,
      &                  nnBstRSh_Hidden, nnBstRSh,
@@ -164,5 +164,9 @@ C     -----------------------------------------
      &    Call mma_deallocate(nnBstRSh_L_Hidden)
       If (Associated(nnBstRSh_G)) nnBstRSh_G=>Null()
 
+C
+C     -----------------------------------------
+
+      If (Allocated(iL2G)) Call mma_deallocate(iL2G)
       Return
       End

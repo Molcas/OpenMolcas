@@ -24,6 +24,7 @@ C                       returns index of the qualified in the global
 C                       list.
 C
       use ChoSwp, only: iQuAB, iQuAB_L, IndRed, IndRed_G
+      use ChoArr, only: iL2G
       Implicit None
 #include "cholesky.fh"
 #include "cholq.fh"
@@ -32,9 +33,6 @@ C
 #include "WrkSpc.fh"
 
       Integer iSym, nQL, kOff2, iQ, iQG, i2, i, j, k
-
-      Integer iL2G
-      iL2G(i)=iWork(ip_iL2G-1+i)
 
       If (.not.Cho_Real_Par) Return ! not truely parallel...
 

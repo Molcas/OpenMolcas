@@ -15,6 +15,7 @@ C              and iLoc tells which memory location to use for reduced
 C              set index arrays.
 C
       use ChoSwp, only: IndRed
+      use ChoArr, only: iL2G
       Implicit None
       Real*8  Diag(*)
       Integer iLoc
@@ -25,9 +26,6 @@ C
 
       Integer kDG, i, j
       Real*8  c1, c2, w1, w2
-
-      Integer iL2G
-      iL2G(i)=iWork(ip_iL2G-1+i)
 
 C     Skip if serial run.
 C     -------------------

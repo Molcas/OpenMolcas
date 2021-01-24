@@ -16,19 +16,15 @@ C              need first to figure out if the treated diagonal element
 C              is in fact present in the local diagonal.
 C
       use ChoSwp, only: IndRed
+      use ChoArr, only: iL2G
       Implicit None
       Real*8  Diag(*)
       Integer iSym, iABG
 #include "cho_para_info.fh"
 #include "cholesky.fh"
 #include "choglob.fh"
-#include "WrkSpc.fh"
 
       Integer iAB1, iAB2, iAB, jAB, kAB
-
-      Integer i
-      Integer iL2G
-      iL2G(i)=iWork(ip_iL2G-1+i)
 
       If (Cho_Real_Par) Then
          iAB1 = iiBstR(iSym,2) + 1

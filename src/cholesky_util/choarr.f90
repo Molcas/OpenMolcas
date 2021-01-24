@@ -14,7 +14,7 @@ Module ChoArr
 Implicit none
 Private
 Public:: iSOShl, iShlSO, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl, iRS2F, IntMap, iScr, &
-         nDimRS
+         nDimRS, iL2G
 Integer, Allocatable:: iSOShl(:)
 Integer, Allocatable:: iShlSO(:)
 Integer, Allocatable:: iBasSh(:,:)
@@ -26,4 +26,5 @@ Integer, Allocatable:: iRS2F(:,:)
 Integer, Allocatable:: IntMap(:)
 Integer, Allocatable:: iScr(:)
 Integer, Allocatable:: nDimRS(:,:)
+Integer, Allocatable:: iL2G(:)
 End Module ChoArr

@@ -16,6 +16,7 @@ C
       use ChoSwp, only: nnBstRSh, nnBstRSh_G
       use ChoSwp, only: iiBstRSh, iiBstRSh_G
       use ChoSwp, only:   IndRed,   IndRed_G
+      use ChoArr, only: iL2G
       Implicit None
 #include "cholesky.fh"
 #include "choptr2.fh"
@@ -29,9 +30,8 @@ C
       Integer i, j, k, i0, k0, l, ll
       Integer iSym, iSP, iShlAB
 
-      Integer iL2G, mySP
+      Integer mySP
 
-      iL2G(i)=iWork(ip_iL2G-1+i)
       mySP(i)=iWork(ip_mySP-1+i)
 
 
