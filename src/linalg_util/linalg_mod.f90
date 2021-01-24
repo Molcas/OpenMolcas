@@ -312,6 +312,7 @@ contains
         ASSERT(symmetric(A))
 
         V(:, :) = A(:, :)
+        info_=0
         call dsyev_('V', 'L', size(V, 2), dummy, size(V, 1), dummy, &
                     query_result, do_worksize_query, info_)
 
@@ -324,6 +325,7 @@ contains
         end if
 
         call mma_allocate(work, int(query_result(1)))
+        info_=0
         call dsyev_('V', 'L', size(V, 2), V, size(V, 1), lambda, &
                     work, size(work), info_)
         call mma_deallocate(work)

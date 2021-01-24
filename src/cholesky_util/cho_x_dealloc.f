@@ -11,8 +11,10 @@
 * Copyright (C) 2004, Thomas Bondo Pedersen                            *
 ************************************************************************
       Subroutine Cho_X_Dealloc(irc)
+
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl,
      &                  iShlSO, iRS2F, IntMap, iScr, nDimRS
+
       use ChoSwp, only: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden,
      &                  nnBstRSh_Hidden, nnBstRSh,
      &                  nnBstRSh_L_Hidden, nnBstRSh_G,

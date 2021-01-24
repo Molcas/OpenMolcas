@@ -22,10 +22,8 @@ C
 
       ip_Diag_G = -iLarge
       ip_iL2G = -iLarge
-      ip_IndRed_G = -iLarge
       l_Diag_G = 0
       l_iL2G = 0
-      l_IndRed_G = 0
 
       nnShl_G = 0
       mmBstRT_G = 0
