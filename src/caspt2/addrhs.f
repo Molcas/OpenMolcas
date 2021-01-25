@@ -657,7 +657,6 @@ C Set up offset table:
       NAS=NASH(ISYM)
       NISP=NISUP(ISYM,6)
       NISM=NISUP(ISYM,7)
-      NIS=NISP+NISM
       NWP=NAS*NISP
       NWM=NAS*NISM
       NW=NWP+NWM
@@ -1059,10 +1058,8 @@ C   Allocate W with parts WP,WM
       NAS=NASH(ISYM)
       NISP=NISUP(ISYM,10)
       NISM=NISUP(ISYM,11)
-      NIS=NISP+NISM
       NWGP=NAS*NISP
       NWGM=NAS*NISM
-      NWG=NWGP+NWGM
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1368,7 +1365,6 @@ C      NBXSZJ=NINABX
              NCSZ=ICEND-ICSTA+1
              DO ILSTA=1,NL,NBXSZL
                ILEND=MIN(ILSTA-1+NBXSZL,NL)
-               NLSZ=ILEND-ILSTA+1
 
                ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
 
@@ -1465,7 +1461,6 @@ C      NBXSZJ=NINABX
              NCSZ=ICEND-ICSTA+1
              DO ILSTA=1,NL,NBXSZL
                ILEND=MIN(ILSTA-1+NBXSZL,NL)
-               NLSZ=ILEND-ILSTA+1
 
                ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
 

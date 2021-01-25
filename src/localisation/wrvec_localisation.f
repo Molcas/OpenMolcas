@@ -40,9 +40,6 @@ C
 
       Logical Write_CMO, Write_Occ, Write_EOr, Write_Ind
 
-      Integer  isFreeUnit
-      External isFreeUnit
-
       Write_CMO=index(Label,'C').ne.0
       Write_Occ=index(Label,'O').ne.0
       Write_EOr=index(Label,'E').ne.0

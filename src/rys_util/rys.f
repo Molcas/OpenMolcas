@@ -46,7 +46,7 @@ cgh - stuff for short range integrals
      &       Eta(nEta),   EInv(nEta),  Q(lQ,3), rKapcd(nEta),
      &       CoorAC(3,2), Coora(3,4), Coori(3,4), Array(nArray)
       Integer iAnga(4)
-      Logical AeqB, CeqD, AeqC, EQ, NoSpecial
+      Logical AeqB, CeqD, EQ, NoSpecial
 *
 *     Statement function for canonical index, etc.
 *
@@ -73,7 +73,6 @@ cgh - stuff for short range integrals
       ld = iAnga(4)
       AeqB = EQ(Coori(1,1),Coori(1,2))
       CeqD = EQ(Coori(1,3),Coori(1,4))
-      AeqC = EQ(Coori(1,1),Coori(1,3))
       nRys = (la+lb+lc+ld+2)/2
       nabMax = la+lb
       nabMin = Max(la,lb)

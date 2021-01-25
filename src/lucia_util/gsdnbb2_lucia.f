@@ -105,7 +105,6 @@
 *
       NTEST = 000
       NTEST = MAX(NTEST,IPRNT)
-      NTESTO= NTEST
       IF(NTEST.GE.200) THEN
         WRITE(6,*) ' =================='
         WRITE(6,*) ' GSDNBB2 :  R block '
@@ -133,7 +132,6 @@
 *
         WRITE(6,*) 'SCLFAC =',SCLFAC
       END IF
-      IACTIVE = 0
 *
       IF(IATP.EQ.JATP.AND.IASM.EQ.JASM) THEN
 *

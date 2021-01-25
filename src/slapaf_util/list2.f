@@ -31,7 +31,6 @@
       Character(LEN=4), Allocatable:: qLbl(:)
 *
       n_qLbl=3*nAtom
-      nChar=4*n_qLbl
       Call mma_allocate(qLbl,n_qLbl,Label='qLbl')
       Call List2_(Title,Lbl,gq,nAtom,nInter,Smmtrc,qLbl,n_qLbl)
       Call mma_deallocate(qLbl)
@@ -57,9 +56,6 @@
       Logical Start, Smmtrc(3*nAtom)
       character*16 filnam
       Lu=6
-*
-      iRout = 119
-      iPrint = nPrint(iRout)
 *
       Thr=0.001D+00 ! Threshold for printout.
 *

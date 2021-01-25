@@ -205,8 +205,11 @@ C
          Call dCopy_(nDim,Work(kOff),1,Col(1,i),1)
       End Do
 
-      If (lBuf .gt. 0) x = Buf(1) ! to make some compilers happy
-
+      Return
+C Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_real_array(Buf)
+      End if
       End
 C
       SubRoutine CD_Tester_Vec(iVec1,nVec,Buf,lBuf,nDim,iOpt)
@@ -278,7 +281,6 @@ C
 
       Integer i
       Real*8  xn2
-      Real*8  dble
 
       If (n .lt. 1) Then
          Err(1) =  9.876543210d15

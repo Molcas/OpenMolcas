@@ -20,6 +20,7 @@
 
 #ifdef _MOLCAS_MPP_
       Use MPI
+      Use Para_Info, Only: Is_Real_Par, King
 #endif
 
       Implicit Real*8 (A-H,O-Z)
@@ -40,9 +41,6 @@
 
 #ifdef _MOLCAS_MPP_
       Integer*4 IERROR4
-      External King, Is_Real_Par
-      Logical King
-      Logical Is_Real_Par
 #endif
 
 
@@ -73,7 +71,7 @@
           iOrb=iOrb+1
         End Do
       End Do
-      lSymMolpro=iChMolpro(lSym)
+      lSymMolpro=iChMolpro(stSym)
 
       NRDM_ORDER=2
       If (NACTEL.EQ.1) NRDM_ORDER=1

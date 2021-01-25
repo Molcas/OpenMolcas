@@ -56,15 +56,11 @@
       Integer   iAnga(4), iCmpa(4), nPam(4,0:7), iiBas(4),
      &          iFnc(4), iAO(4)
       Logical QiBas, QjBas, QkBas, QlBas, QjPrim, QlPrim, Fail
-      Integer   iTwoj(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
 *
 *     Statement function to compute canonical index
 *
       nElem(i) = (i+1)*(i+2)/2
 *
-      iRout = 10
-      iPrint = nPrint(iRout)
       la = iAnga(1)
       lb = iAnga(2)
       lc = iAnga(3)
@@ -327,7 +323,6 @@
       Mem0 = Mem0 - Mem3 - 1
       MinXtr = Min(MinXtr,Mem0)
 *
-      MemSum=Mem1+Mem2+Mem3
       Mem2 = Mem2 + Mem3
 *
       ipMem2 = ipMem1 + Mem1

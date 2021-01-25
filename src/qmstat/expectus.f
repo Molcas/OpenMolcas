@@ -40,7 +40,6 @@
         Call GetMem('DenTemp','Allo','Real',iDTmp,nDTri)
         Call GetMem('ExpVals','Allo','Real',ip_ExpVal,4*nRoots)
         Do 801, iRoot=1,nRoots
-          kaunter=0
 *
 *------ Generate density matrix for relevant root.
 *

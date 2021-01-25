@@ -204,7 +204,7 @@
             Call dGeMV_('N',nInter,nNeg,One,Vec,nInter,
      &                                  VecN,1,Zero,StepN,1)
             Call DaXpY_(nInter,One,StepN,1,dq,1)
-            dqdq_max=Sqrt(DDot_(nInter,StepN,1,StepN,1))
+*           dqdq_max=Sqrt(DDot_(nInter,StepN,1,StepN,1))
 *           write (Lu,*) 'dqdq_max=',dqdq_max
 !           Sign
             EigVal_r=-DDot_(nInter,StepN,1,GradN,1)
@@ -221,7 +221,7 @@
             End If
          Else
             EigVal_r=Zero
-            dqdq_max=Zero
+*           dqdq_max=Zero
          End If
 *
 *        write(Lu,*)
@@ -269,7 +269,7 @@
 *        Add to complete step
          Call DScal_(nInter,One/(Sqrt(A_RFO)*VecP(1+nInter)),StepP,1)
          Call DaXpY_(nInter,One,StepP,1,dq,1)
-         dqdq_min=Sqrt(DDot_(nInter,StepP,1,StepP,1))
+*        dqdq_min=Sqrt(DDot_(nInter,StepP,1,StepP,1))
 *        write (Lu,*) 'dqdq_min=',dqdq_min
          EigVal_t=-DDot_(nInter,StepP,1,GradP,1) ! Sign
          If (iPrint.ge.99) Then

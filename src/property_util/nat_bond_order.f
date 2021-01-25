@@ -90,8 +90,6 @@ c      Character*(LENIN) LblCnt(MxAtom)
       Character*36 LabelNoSym
       Character*49 Label3ASym
       Character*49 Label3ANoSym
-      External Get_SuperName
-      Character*100 Get_SuperName
 
       Logical Exist, SearchedSingle, SearchedTriple, Reduce_Prt
       External Reduce_Prt

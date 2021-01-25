@@ -9,10 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       subroutine printtim(nfld1,nfld2)
+      use Para_Info, only: nProcs
       implicit real*8 (a-h,o-z)
 #include "timtra.fh"
 #include "WrkSpc.fh"
-#include "para_info.fh"
       iout=6
       iPL=iPrintLevel(-1)
       If (iPL.le.2) Return

@@ -44,7 +44,6 @@ c     iRout = 134
       iStab(0)=iu
       iStab(1)=iv
 c     iPrint = nPrint(iRout)
-      iQ = 1
 *     Call GetMem(' Enter CmbnT2','LIST','REAL',iDum,iDum)
 *
       exp32 = -Three/Two
@@ -558,11 +557,6 @@ c     End If
       Do 100 iCnt=0,1
         Do 105  iCar=1,3
           Do 110 jCnt=0,1
-            if (iCnt.eq.jCnt) Then
-              iStop=iCar
-            Else
-              iStop=3
-            End If
             Do 115 jCar=1,3
             If (IndHss(iCnt,iCar-1,jCnt,jCar-1,iIrrep).ne.0) Then
 *

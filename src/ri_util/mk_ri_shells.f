@@ -371,9 +371,7 @@
                Call mma_allocate(Shells(iShll)%Cff_p,nPrim,nPrim,2,
      &                           Label='Cff_p')
                iEnds= iEnd
-               iEnds= iEnds
-               iEndc = iStrt - 1
-               iEnd  = iStrt - 1
+               iEnd = iStrt - 1
 *              Read contraction coefficients
 *              Observe that the matrix will have nPrim rows and
 *              nCntrc columns

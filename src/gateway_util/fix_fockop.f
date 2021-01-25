@@ -99,7 +99,6 @@
       iComp = 1
 *
       nPrp=Max(4,S%nMltpl)
-      nDiff = 0
 *
       List   (:)=0
       List_AE(:)=0
@@ -338,7 +337,6 @@
                Do iBF = 1, nBF
                   EVec(iBF,iBF)=One
                   Do jBF = 1, iBF
-                     ij    = (jBF-1)*nBF   + iBF
                      ijTri = (iBF-1)*iBF/2 + jBF
                      EVal(ijTri) = FPrim(iBF,jBF)
                   End Do
@@ -371,7 +369,6 @@
                      C_ik = C(iBF,kEVal)
                      Do jBF = 1, nBF
                         C_jk = C(jBF,kEVal)
-                        ij = (jBF-1)*nBF + iBF
                         Hm1(iBF,jBF) = Hm1(iBF,jBF)
      &                                      + C_ik * e * C_jk
                      End Do

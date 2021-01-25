@@ -16,13 +16,15 @@
 *     igaTsk:   global array handle to global task list (on return)    *
 ************************************************************************
       SubRoutine GATskL(create,nTsk,igaTsk)
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: Is_Real_Par
+#endif
       Implicit None
       Logical create
       Integer nTsk,igaTsk
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
 #  include "mafdecls.fh"
-      Logical, External :: Is_Real_Par
       Logical ok
       Integer nProcs,Chk
 *
@@ -79,7 +81,6 @@ c Avoid unused argument warnings
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
       Logical Reserved
-      Logical, External :: King
 #  ifdef _GA_
       Integer iCnt,iTsk
 *

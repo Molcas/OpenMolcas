@@ -190,7 +190,6 @@ C        Do jS = 1, iS
                If (nMax.eq.nIrrep/nStabM) Go To 439
  435         Continue
  439         Continue
-             nCoM=nIrrep/nStabM
 *
 *           Allocate memory for the elements of the Fock or 1st order
 *           denisty matrix which are associated with the current shell

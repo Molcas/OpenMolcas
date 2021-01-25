@@ -22,11 +22,11 @@
   ! local variables
   REAL (wp) :: tmin, tmax, XTmin_exp, XTmax_exp, XTmin_calc, XTmax_calc, XTmin, XTmax
   REAL (wp) :: gnuplot_version
-  INTEGER             :: file_number, istat, iT, LuPlt, LuData, file_size, StdOut, iErr
-  LOGICAL             :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
-  CHARACTER(LEN=100)  :: line1, line2, lineOut, cdummy
-  CHARACTER(LEN=100)  :: gnuplot_CMD, datafile, plotfile
-  INTEGER, EXTERNAL   :: AixRm
+  INTEGER           :: file_number, iT, LuPlt, LuData, file_size, StdOut, iErr
+  LOGICAL           :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
+  CHARACTER(LEN=100):: line1, line2, cdummy
+  CHARACTER(LEN=100):: gnuplot_CMD, datafile, plotfile
+  INTEGER, EXTERNAL :: AixRm
 
   StdOut=6
   iErr=0
@@ -67,11 +67,9 @@
   END IF
 
   ! generate the GNUPLOT script in the $WorkDir
-  lineOut=' '
   line1=' '
   line2=' '
   gnuplot_CMD=' '
-  istat=0
   file_exist=.false.
   is_file_open=.false.
   file_size=0
@@ -263,6 +261,9 @@
 
   dbg=.false.
   RETURN
+#ifdef _WARNING_WORKAROUND_
+  IF (.FALSE.) CALL UNUSED_CHARACTER(cdummy)
+#endif
   END SUBROUTINE plot_XT_with_Exp
 
 
@@ -282,6 +283,7 @@
   ! local variables
   REAL (wp) :: tmin, tmax, XTmin_calc, XTmax_calc, XTmin, XTmax
   REAL (wp) :: gnuplot_version
+<<<<<<< HEAD
   INTEGER               :: file_number, istat, iT, LuPlt, LuData, file_size, StdOut, iErr
   LOGICAL               :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
   CHARACTER(LEN=100)    :: line1, line2, lineOut, cdummy
@@ -289,6 +291,13 @@
   INTEGER, EXTERNAL     :: AixRm
   INTEGER               :: Length
   CHARACTER(LEN=1024)   :: realname_plt, realname_dat, realname_png, realname_eps, gnuplot_CMD
+=======
+  INTEGER           :: file_number, iT, LuPlt, LuData, file_size, StdOut, iErr
+  LOGICAL           :: file_exist, is_file_open, execute_gnuplot_cmd, dbg
+  CHARACTER(LEN=100):: line1, line2, cdummy
+  CHARACTER(LEN=100):: gnuplot_CMD, datafile, plotfile
+  INTEGER, EXTERNAL :: AixRm
+>>>>>>> upstream/master
 
   StdOut=6
   iErr=0
@@ -323,11 +332,9 @@
   END IF
 
   ! generate the GNUPLOT script in the $WorkDir
-  lineOut=' '
   line1=' '
   line2=' '
   gnuplot_CMD=' '
-  istat=0
   file_exist=.false.
   is_file_open=.false.
   file_size=0
@@ -558,4 +565,7 @@
   CLOSE (LuPlt)
   dbg=.false.
   RETURN
+#ifdef _WARNING_WORKAROUND_
+  IF (.FALSE.) CALL UNUSED_CHARACTER(cdummy)
+#endif
   END SUBROUTINE plot_XT_no_Exp

@@ -15,26 +15,24 @@
 module CC_CI_mod
 #ifdef _MOLCAS_MPP_
     use mpi
+    use definitions, only: MPIInt
+    use Para_Info, only: Is_Real_Par
 #endif
-    use definitions, only: MPIInt, wp
-    use filesystem, only: chdir_, getcwd_, get_errno_, strerror_, &
-     real_path
+    use definitions, only: wp
+    use Para_Info, only: MyRank
+    use filesystem, only: getcwd_, get_errno_, strerror_, real_path
     use linalg_mod, only: verify_, abort_
-    use fortran_strings, only: str
-    use stdalloc, only : mma_allocate, mma_deallocate, mxMem
 
-    use rasscf_data, only: iter, lRoots, nRoots, iRoot, EMY, &
-         S, KSDFT, rotmax, Ener, iAdr15, Weight, nAc, nAcPar, nAcPr2
-    use general_data, only: iSpin, nSym, nConf, JobIPH, &
-         ntot, ntot1, ntot2, nAsh, nBas, nActEl
-    use gugx_data, only: IfCAS
-    use gas_data, only: ngssh, iDoGas, nGAS, iGSOCCX
+    use rasscf_data, only: iter, lRoots, EMY, &
+         S, KSDFT, Ener, nAc, nAcPar, nAcPr2
+    use general_data, only: iSpin, nSym, nConf, &
+         ntot, ntot1, ntot2, nAsh, nActEl
+    use gas_data, only: ngssh, iDoGas
 
     use generic_CI, only: CI_solver_t
-    use index_symmetry, only: one_el_idx, two_el_idx, &
-        one_el_idx_flatten, two_el_idx_flatten
+    use index_symmetry, only: one_el_idx, two_el_idx_flatten
     use CI_solver_util, only: wait_and_read, RDM_to_runfile, &
-        CleanMat
+        CleanMat, triangular_number, inv_triang_number, write_RDM
 
     implicit none
     save
@@ -42,7 +40,6 @@ module CC_CI_mod
     public :: Do_CC_CI, CC_CI_solver_t, write_RDM
     logical :: Do_CC_CI = .false.
 
-#include "para_info.fh"
 #include "rctfld.fh"
 
     interface
@@ -52,18 +49,22 @@ module CC_CI_mod
     end interface
 
     type, extends(CI_solver_t) :: CC_CI_solver_t
-        contains
-        procedure, nopass :: init
-        procedure, nopass :: run => CC_CI_ctl
-        procedure, nopass :: cleanup
+    contains
+        procedure :: run => CC_CI_ctl
+        procedure :: cleanup
     end type
+
+    interface CC_CI_solver_t
+        module procedure construct_CC_CI_solver_t
+    end interface
 
 contains
 
-    subroutine CC_CI_ctl(actual_iter, CMO, DIAF, D1I_AO, D1A_AO, &
+    subroutine CC_CI_ctl(this, actual_iter, CMO, DIAF, D1I_AO, D1A_AO, &
                          TUVX, F_IN, D1S_MO, DMAT, PSMAT, PAMAT)
         use fcidump_reorder, only : get_P_GAS, get_P_inp,ReOrFlag,ReOrInp
         use fcidump, only : make_fcidumps, transform
+        class(CC_CI_solver_t), intent(in) :: this
         integer, intent(in) :: actual_iter
         real(wp), intent(in) :: &
             CMO(nTot2), DIAF(nTot), D1I_AO(nTot2), D1A_AO(nTot2), TUVX(nAcpr2)
@@ -78,6 +79,8 @@ contains
 #endif
         character(len=*), parameter :: &
             ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
+
+        unused_var(this)
 
 
 ! SOME DIRTY SETUPS
@@ -148,19 +151,23 @@ contains
     end subroutine
 
 
-    subroutine cleanup()
+    subroutine cleanup(this)
         use fcidump, only : fcidump_cleanup => cleanup
+        class(CC_CI_solver_t), intent(inout) :: this
+        unused_var(this)
         call fcidump_cleanup()
     end subroutine cleanup
 
-    subroutine init()
+    function construct_CC_CI_solver_t() result(res)
+        type(CC_CI_solver_t) :: res
+        unused_var(res)
 ! Due to possible size of active space arrays of nConf
 ! size need to be avoided.  For this reason set nConf to zero.
         write(6,*) ' DCC-CI activated. List of Confs might get lengthy.'
         write(6,*) ' Number of Configurations computed by GUGA: ', nConf
         write(6,*) ' nConf variable is set to zero to avoid JOBIPH i/o'
         nConf= 0
-    end subroutine
+    end function
 
 
     subroutine check_options(lroots, lRf, KSDFT, DoGAS)
@@ -280,38 +287,6 @@ contains
                 i = i + curr_line
             end do
         close(file_id)
-    end subroutine
-
-    pure integer function triangular_number(n)
-        integer, intent(in) :: n
-        triangular_number = n * (n + 1) / 2
-    end function
-
-      !> This is the inverse function of triangular_number
-    pure function inv_triang_number(n) result(res)
-        integer, intent(in) :: n
-        integer :: res
-        res = nint(-0.5_wp + sqrt(0.25_wp + real(2 * n, kind=wp)))
-    end function
-
-
-    subroutine write_RDM(RDM, i_unit)
-        real(wp), intent(in) :: RDM(:)
-        integer, intent(in) :: i_unit
-
-        integer :: io_err, curr_line, i, n_lines, j
-
-        n_lines = inv_triang_number(size(RDM))
-
-        i = 1
-        do curr_line = 1, n_lines
-            do j = i, i + curr_line - 1
-                write(i_unit, '(E25.15)', advance='no', iostat=io_err) RDM(j)
-                call verify_(io_err == 0, 'Error on writing RDM.')
-            end do
-            write(i_unit, *)
-            i = i + curr_line
-        end do
     end subroutine
 
 end module CC_CI_mod

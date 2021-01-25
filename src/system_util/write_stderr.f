@@ -9,9 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       subroutine write_stderr (msg)
+      use Para_Info, Only: MyRank
       implicit none
       character(len=*) :: msg
-#include "para_info.fh"
       write(0,'(a,i6,a,1x,a)')
      &  '[ process ', myrank, ']:',
      &  trim(msg)

@@ -38,7 +38,7 @@
      &          Indq(3,nB), iDCRX(0:7), iDCRY(0:7), nqB(nB),
      &          iTabBonds(3,nBonds), iTabAI(2,mAtoms),
      &          iTabAtoms(2,0:nMax,mAtoms), iBM(nB_Tot), idBM(2,ndB_Tot)
-      Logical  Process, PSPrint, MinBas, Help, Proc_dB, R_Stab_A
+      Logical  Process, Help, Proc_dB, R_Stab_A
       Character*14 Label, qLbl(nB)
       Character*3 ChOp(0:7)
 #include "Molcas.fh"
@@ -59,25 +59,15 @@
 *                                                                      *
 *
       If (nBonds.lt.3) Return
-      iRout=152
-      iPrint=nPrint(iRout)
       nqO=0
-      PSPrint=.False.
       Call FZero(Hess,144)
 #ifdef _DEBUGPRINT_
-      iPrint=99
-      If (iPrint.ge.99) PSPrint=.True.
+      iRout=152
+      iPrint=nPrint(iRout)
 #endif
 *
 *---- Loop over out-of-plane angles.
 *
-      bohr=CONST_BOHR_RADIUS_IN_SI_ * 1.0D+10
-      MinBas=.False.
-      If (MinBas) Then
-         Fact=1.3d0
-      Else
-         Fact=One
-      End If
       nCent=4
 *
 ************************************************************************
@@ -149,7 +139,7 @@
      &               iDCRR,nDCRR)
             kDCRR=iDCR(1)
 #ifdef _DEBUGPRINT_
-            If (PSPrint) Then
+            If (iPrint.ge.99) Then
                Write (6,'(10A)') 'U={',(ChOp(jStab(i,iAtom)),
      &                            i=0,nStab(iAtom)-1),'}  '
                Write (6,'(10A)') 'V={',(ChOp(jStab(i,jAtom)),
@@ -170,7 +160,7 @@
      &                 jStab(0,jAtom),nStab(jAtom),
      &                     iStabM,nStabM)
 #ifdef _DEBUGPRINT_
-            If (PSPrint) Then
+            If (iPrint.ge.99) Then
                Write (6,'(10A)') 'M={',
      &               (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
             End If
@@ -208,7 +198,6 @@
                If (kBond.eq.jBond) Go To 301
 *
                kAtom=iTabAI(1,kAtom_)
-               ik_=nsAtom*(kAtom-1)+iAtom
                kr = iTabRow(ANr(kAtom))
                Ind(2) = kAtom
                iDCR(2)=iTabAI(2,kAtom_)
@@ -244,7 +233,6 @@
                   Write (6,*) 'lAtom=', lAtom
 #endif
 *
-                  il_=nsAtom*(lAtom-1)+iAtom
                   lr = iTabRow(ANr(lAtom))
                   Ind(3) = lAtom
                   iDCR(3)=iTabAI(2,lAtom_)
@@ -290,7 +278,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   kDCRS=iEor(iDCR(2),iDCR(3))
 *
 #ifdef _DEBUGPRINT_
-                  If (PSPrint) Then
+                  If (iPrint.ge.99) Then
                      Write (6,'(10A)') 'W={',(ChOp(jStab(i,kAtom)),
      &                                  i=0,nStab(kAtom)-1),'}  '
                      Write (6,'(10A)') 'X={',(ChOp(jStab(i,lAtom)),
@@ -313,7 +301,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
      &                       iStabN,nStabN)
 *
 #ifdef _DEBUGPRINT_
-                  If (PSPrint) Then
+                  If (iPrint.ge.99) Then
                      Write (6,'(10A)') 'N={',
      &                     (ChOp(iStabN(i)),i=0,nStabN-1),'}  '
                   End If
@@ -349,7 +337,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   kDCRTS=iDCR(3)
 *
 #ifdef _DEBUGPRINT_
-                  If (PSPrint) Then
+                  If (iPrint.ge.99) Then
                      Write (6,'(10A)') 'T={',
      &                     (ChOp(iDCRT(i)),i=0,nDCRT-1),'}  '
                      Write (6,'(2A)') 'T=',ChOp(kDCRT)
@@ -377,7 +365,7 @@ C                 If (kAtom.gt.lAtom) Go To 401
                   End If
 *
 #ifdef _DEBUGPRINT_
-                  If (PSPrint) Then
+                  If (iPrint.ge.99) Then
                      Write (6,'(10A)') 'M={',
      &                     (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
                      Write (6,'(10A)') 'N={',

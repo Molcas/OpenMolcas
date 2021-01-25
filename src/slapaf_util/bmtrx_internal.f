@@ -274,7 +274,7 @@
             Call DScal_(nB,F_c(iq),BM(i),1)
             i = i + nB
          End Do
-*ifdef _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
          If (iPrint.ge.99) Then
             i = 1
             Do iq = 1, nq
@@ -283,7 +283,7 @@
                i = i + nB
             End Do
          End If
-*endif
+#endif
       End If
 *                                                                      *
 ************************************************************************

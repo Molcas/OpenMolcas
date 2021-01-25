@@ -76,7 +76,10 @@
       Integer   ipDLT(nDen),ipDSQ(nDen),ipFLT(nDen),ipFSQ(nDen)
       Integer   ipMSQ(nDen),ipNocc(nDen),MinMem(*)
       Logical DoExchange(nDen),DoCoulomb(nDen),DoSomeX,DoSomeC
-      Logical Debug,DensityCheck,Square,timings
+#ifdef _DEBUGPRINT_
+      Logical Debug
+#endif
+      Logical DensityCheck,Square,timings
       Logical REORD,DECO,ALGO
       Character*50 CFmt
       Character*11 SECNAM
@@ -102,11 +105,8 @@
 
 
 #ifdef _DEBUGPRINT_
-c      Debug=.true.
       Debug=.false.! to avoid double printing in SCF-debug
       DensityCheck=.true.
-#else
-      Debug=.false.
 #endif
       IREDC = -1  ! unknown reduced set in core
 
@@ -614,7 +614,6 @@ c     &                   Work(kLab),NBAS(ISYMD),
 c     &                   One,Work(ISFSQ),NBAS(ISYMG))
 
 c *** Compute only the LT part of the exchange matrix ***************
-               ipG=0
                ipF=0
                LVK=NUMV*NK
                DO jD=1,NBAS(iSymD)

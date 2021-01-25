@@ -19,16 +19,10 @@
       Character*19 SecNam
       Parameter (SecNam = 'BitMap_Localisation')
 
-      Integer iBas(8)
       Logical Indexation, DoF, DoG
 
-C     Define iBas.
-C     ------------
-
       nBasT   = nBas(1)
-      iBas(1) = 0
       Do iSym = 2,nSym
-         iBas(iSym) = nBasT
          nBasT = nBasT + nBas(iSym)
       End Do
 

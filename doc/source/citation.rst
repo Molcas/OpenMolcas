@@ -32,7 +32,7 @@ The recommended citations for |openmolcas| are:
   Christopher J. Stein, Liviu Ungur, Morgane Vacher, Alessio Valentini, Valera
   Veryazov. "Modern quantum chemistry with [Open]Molcas." *The Journal of
   Chemical Physics*, **152** (2020), 214117. `doi:10.1063/5.0004835
-  <https://10.1063/5.0004835>`_
+  <https://doi.org/10.1063/5.0004835>`_
 
 Earlier citations for |molcas| are:
 

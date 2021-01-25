@@ -54,7 +54,6 @@
       iRout = 112
       iPrint = nPrint(iRout)
 *
-      iIrrep = 0
       loper = 2**nIrrep-1
       nComp = (nOrdOp+1)*(nOrdOp+2)/2
       if(ncomp.ne.ncmp) then

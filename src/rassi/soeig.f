@@ -15,6 +15,7 @@
       use sorting_funcs, only : leq_r
 #ifdef _HDF5_
       use Dens2HDF5
+      use mh5, only: mh5_put_dset, mh5_put_dset_array_real
 #endif
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
@@ -48,7 +49,6 @@
       INTEGER LHTOTI,LHTOTR
       INTEGER LJ2I,LJ2R,LJXI,LJXR,LJYI,LJYR,LJZI,LJZR,LLXI,LLYI,LLZI
       INTEGER LMAPMS,LMAPSP,LMAPST,LOMGI,LOMGR
-      INTEGER LOWEST
       INTEGER MAGN
       INTEGER MPLET,MPLET1,MPLET2,MSPROJ,MSPROJ1,MSPROJ2
 
@@ -488,12 +488,10 @@ C910  CONTINUE
 
 * Find E0=lowest energy, to use for printing table:
       IF(IPGLOB.GE.TERSE) THEN
-       LOWEST=1
        E0=ENSOR(1)
        DO ISS=2,NSS
          E=ENSOR(ISS)
         IF(E.LT.E0) THEN
-         LOWEST=ISS
          E0=E
         END IF
        END DO

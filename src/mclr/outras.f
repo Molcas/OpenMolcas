@@ -50,7 +50,6 @@
 
       idisp=0
       Do iSym=1,nSym
-         rsuM=0.0d0
          Call Setup_MCLR(iSym)
          PState_SYM=iEor(State_Sym-1,iSym-1)+1
          nconfM=ncsf(PState_Sym)

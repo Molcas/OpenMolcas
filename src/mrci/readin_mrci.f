@@ -49,7 +49,6 @@
       IREST=0
       ICPF=0
       IREFCI=0
-      ISDCI=1
       ITRANS=0
       IGFAC=0
       MXVC=0
@@ -166,13 +165,11 @@
 *---  process ACPF command --------------------------------------------*
 1000  Continue
       ICPF=1
-      ISDCI=0
       Goto 10
 *
 *---  process SDCI command --------------------------------------------*
 1100  Continue
       ICPF=0
-      ISDCI=1
       Goto 10
 *
 *---  process GVAL command --------------------------------------------*

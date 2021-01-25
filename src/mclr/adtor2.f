@@ -58,21 +58,21 @@
           CALL PRSYM(RHO2,NORB**2)
         END IF
         WRITE(6,*) ' RHO2T : '
-        IF(ITYPE.EQ.1) THEN
-          IF(IOFF.EQ.KOFF) THEN
-            NROW = NI*(NI+1)/2
-          ELSE
-            NROW = NI*NK
-          END IF
-          IF(JOFF.EQ.LOFF) THEN
-            NCOL = NJ*(NJ+1)/2
-          ELSE
-            NCOL = NJ*NL
-          END IF
-        ELSE IF (ITYPE.EQ.2) THEN
-          NROW = NI*NJ
-          NCOL = NK*NL
-        END IF
+*       IF(ITYPE.EQ.1) THEN
+*         IF(IOFF.EQ.KOFF) THEN
+*           NROW = NI*(NI+1)/2
+*         ELSE
+*           NROW = NI*NK
+*         END IF
+*         IF(JOFF.EQ.LOFF) THEN
+*           NCOL = NJ*(NJ+1)/2
+*         ELSE
+*           NCOL = NJ*NL
+*         END IF
+*       ELSE IF (ITYPE.EQ.2) THEN
+*         NROW = NI*NJ
+*         NCOL = NK*NL
+*       END IF
 *       CALL WRTMAT(RHO2T,NROW,NCOL,NROW,NCOL)
       END IF
 *
@@ -142,8 +142,8 @@
           END IF
         END IF
 *
-        IJOFF = (JJOFF-1)*NORB+IIOFF
-        KLOFF = (LLOFF-1)*NORB+KKOFF
+C       IJOFF = (JJOFF-1)*NORB+IIOFF
+C       KLOFF = (LLOFF-1)*NORB+KKOFF
 C       IF(IACTIVE.EQ.1.AND.IJOFF.GE.KLOFF) THEN
         IF(IACTIVE.EQ.1) THEN
             DO II = 1, NII

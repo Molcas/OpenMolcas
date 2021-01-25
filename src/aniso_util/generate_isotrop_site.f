@@ -29,7 +29,7 @@
       Complex(kind=8), intent(out) :: S(3,nExch,nExch)
 
       ! local variables:
-      Integer         :: ib(-30:30), i, j, l
+      Integer         :: i, j, l
       Integer         :: info
 !      Complex(kind=8):: spin
       Complex(kind=8) :: redme
@@ -44,10 +44,6 @@
       Logical                       :: dbg
       dbg=.false.
 !----------------------------------------------------------------------|
-
-      Do j=-30,30
-         ib(j)=0
-      End Do
 
       nsfs=1
       nss  = nexch

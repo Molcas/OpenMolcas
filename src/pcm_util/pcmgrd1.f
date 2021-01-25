@@ -116,8 +116,6 @@
          ipBOff = ipBOff + 1
       End Do
 *
-      llOper = lOper(1)
-*
 *     Loop over the tiles
 *
 cpcm_solvent remove the loop
@@ -228,5 +226,6 @@ c Avoid unused argument warnings
         Call Unused_real_array(Final)
         Call Unused_integer(nRys)
         Call Unused_real_array(Ccoor)
+        Call Unused_integer_array(lOper)
       End If
       End

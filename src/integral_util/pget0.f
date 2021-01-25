@@ -181,7 +181,6 @@
             Call abend()
          End If
 *
-         iComp = 1
          If (nIrrep.eq.1) Then
             kOp(1) = 0
             kOp(2) = 0

@@ -49,17 +49,17 @@
       Integer iAng(4), iShell(4), kOp(4), iShll(4), iAO(4)
 *     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-      Integer iTwoj(0:7)
       Real*8 Prmt(0:7)
-      Data iTwoj/1,2,4,8,16,32,64,128/
       Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
 *
 *     Statement Function
 *
       xPrmt(i,j) = Prmt(iAnd(i,j))
 *
+#ifdef _DEBUGPRINT_
       iRout = 38
       iPrint = nPrint(iRout)
+#endif
       Shij = iShell(1).eq.iShell(2)
       Shkl = iShell(3).eq.iShell(4)
       MemSO2 = 1

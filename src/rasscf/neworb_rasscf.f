@@ -50,6 +50,9 @@ C     Calling arguments:
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
 #endif
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"

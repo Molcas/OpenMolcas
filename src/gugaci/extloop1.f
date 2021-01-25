@@ -14,7 +14,6 @@ C Jul. 3, 2009 -BSUO- External space loops
       subroutine dd_ext_plpmode(ilnodesm,irnodesm)
 #include "drt_h.fh"
 #include "lpextmode_h.fh"
-      ilrsm=mul_tab(ilnodesm,irnodesm)
       logic_g36a=.false.
       logic_g36b=.false.
       logic_g1415=.false.
@@ -219,7 +218,6 @@ C Jul. 3, 2009 -BSUO- External space loops
       iasta=ibsm_ext(isma)
       iaend=iesm_ext(isma)
 
-      jb=0
       ibdpos=NGW2(m_jd)
       ipos_intbasetmp=ipos_intbasetmp+
      *            ibdpos*num_smab+NGW2(m_jc)*3
@@ -349,7 +347,6 @@ C Jul. 3, 2009 -BSUO- External space loops
 #include "intsort_h.fh"
       common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
      *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
-      IPAE=1+ISM
       icano_nnsta=2
       icnt_base=0
       iasta=ibsm_ext(ism)
@@ -374,8 +371,6 @@ C Jul. 3, 2009 -BSUO- External space loops
 #include "intsort_h.fh"
       common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
      *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
-      IF(itype.eq.3) IPAE= 9+ism
-      IF(itype.eq.4) IPAE=17  +ism
       icano_nnsta=2
       icnt_base=0
       do ismd=1,ng_sm
@@ -385,7 +380,6 @@ C Jul. 3, 2009 -BSUO- External space loops
          idsta=id_sta
          idend=iesm_ext(ismd)
          ic_sta=ibsm_ext(ismc)
-         icsta=ic_sta
          icend=iesm_ext(ismc)
          if ( ismd.eq.ismc ) idsta=idsta+1
          do id=idsta,idend
@@ -417,9 +411,7 @@ C Jul. 3, 2009 -BSUO- External space loops
                isma=mul_tab(ism,ismd)
                call g11a11b_symaacc(isma,ismd,ic,id)
             endif
-            ib=id
             call g10_ext(ismc,ic,id)
-            ia=ic
             call g5_ext(ismd,ic,id)
             if ( ism.eq.1 ) call g9_ext(ismd,ic,id)
             icnt_base=icnt_base+icano_nn-1
@@ -610,7 +602,6 @@ C Jul. 3, 2009 -BSUO- External space loops
       iasta=ibsm_ext(isma)
       iaend=iesm_ext(isma)
 
-      jb=0
       ibdpos=NGW2(m_jd)
       ipos_intbasetmp=ipos_intbasetmp+
      *            ibdpos*num_smab+NGW2(m_jc)*3
@@ -1041,12 +1032,8 @@ C Jul. 3, 2009 -BSUO- External space loops
       w1g26b=-1.d0
 
       w0plp25=w0g25
-      w0plp25b=w0g25b
-      w1plp25b=w1g25b
       w0plp28=w0g28b
-      w1plp28=w1g28b
       w0plp26=w0g26b
-      w1plp26=w1g26b
 
       end
 
@@ -1331,7 +1318,6 @@ C              numint=(numb-1+ip2(numc))*numa
       common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
      *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
       COMMON /IAIB/ ICAN_A(MAX_ORB),ICAN_B(MTMP+MAX_ORB)
-      IPAE=1+ISM
       icano_nnsta=2
       icnt_base=0
       iasta=ibsm_ext(ism)
@@ -1360,7 +1346,6 @@ C              numint=(numb-1+ip2(numc))*numa
 #include "intsort_h.fh"
       common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
      *      m_jc,m_jd, isegsta,isegupwei,isegdownwei
-      IPAE=9+ism
       icano_nnsta=2
       icnt_base=0
       do ismd=1,ng_sm
@@ -1370,7 +1355,6 @@ C              numint=(numb-1+ip2(numc))*numa
             idsta=id_sta
             idend=iesm_ext(ismd)
             ic_sta=ibsm_ext(ismc)
-            icsta=ic_sta
             icend=iesm_ext(ismc)
             if ( ismd.eq.ismc ) idsta=idsta+1
             do id=idsta,idend
@@ -1402,9 +1386,7 @@ C              numint=(numb-1+ip2(numc))*numa
                         isma=mul_tab(ism,ismd)
                         call g11a11b_t_symaacc_G(isma,ismd,ic,id)
                   endif
-                  ib=id
                   call g36_t_ext_G(ismc,ic,id)
-                  ia=ic
                   call g5_t_ext_G(ismd,ic,id)
                   if ( ism.eq.1 ) call g9_t_ext_G(ismd,ic,id)
                   icnt_base=icnt_base+icano_nn-1
@@ -1419,8 +1401,6 @@ C              numint=(numb-1+ip2(numc))*numa
 #include "intsort_h.fh"
       common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
      *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
-      IF(itype.eq.3) IPAE= 9+ism
-      IF(itype.eq.4) IPAE=17  +ism
       icano_nnsta=2
       icnt_base=0
       do ismd=1,ng_sm
@@ -1430,7 +1410,6 @@ C              numint=(numb-1+ip2(numc))*numa
          idsta=id_sta
          idend=iesm_ext(ismd)
          ic_sta=ibsm_ext(ismc)
-         icsta=ic_sta
          icend=iesm_ext(ismc)
          if ( ismd.eq.ismc ) idsta=idsta+1
          do id=idsta,idend
@@ -1462,9 +1441,7 @@ C              numint=(numb-1+ip2(numc))*numa
                isma=mul_tab(ism,ismd)
                call g11a11b_symaacc_G(isma,ismd,ic,id)
             endif
-            ib=id
             call g10_ext_G(ismc,ic,id)
-            ia=ic
             call g5_ext_G(ismd,ic,id)
             if ( ism.eq.1 ) then
                call g9_ext_G(ismd,ic,id)
@@ -2166,7 +2143,6 @@ c Avoid unused argument warnings
       common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
      *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
 
-      ic=m_jd
       LRC=norb_number(m_jd)
 
       ibsta=ibsm_ext(ismb)
@@ -2201,7 +2177,6 @@ c Avoid unused argument warnings
       common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
      *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
 
-      ic=m_jd
       LRC=norb_number(m_jd)
       ibsta=ibsm_ext(ismb)
       ibend=iesm_ext(ismb)
@@ -2231,7 +2206,6 @@ c Avoid unused argument warnings
       common /gext_sequence/icnt_base,icano_nnsta,icano_nnend,
      *   m_jc,m_jd, isegsta,isegupwei,isegdownwei
 
-      ic=m_jd
       LRC=norb_number(m_jd)
       ibsta=ibsm_ext(ismb)
       ibend=iesm_ext(ismb)
@@ -2392,10 +2366,8 @@ c Avoid unused argument warnings
       enddo
 
       ilwei=icnt_base+iwt_orb_ext(iasta,ic+1)
-      jb=m_jc
       do ib=ic+1,ibend
          LRB=norb_number(IB)
-         jb=jb+1
         do ia=iasta,iaend
            LRA=norb_number(IA)
          !g32a

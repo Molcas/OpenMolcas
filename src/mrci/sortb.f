@@ -221,7 +221,6 @@ C EMPTY LAST BUFFERS
             NSAC=MUL(NSM(LN+NA),NSM(LN+NC))
             NSACL=MUL(NSAC,LSYM)
             IF(NSACL.NE.ISYM)GO TO 60
-            ISAC=ISAB(NA+(NC-1)*NVIRT)
             NSC=NSM(LN+NC)
             NDMAX=NVIRP(NSC)+NVIR(NSC)
             IF(NDMAX.GT.NA)NDMAX=NA

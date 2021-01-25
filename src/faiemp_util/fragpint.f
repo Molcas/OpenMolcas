@@ -70,7 +70,6 @@
 #include "print.fh"
 #include "nsd.fh"
 #include "setup.fh"
-#include "para_info.fh"
 
 #include "int_interface.fh"
 
@@ -86,19 +85,20 @@
       Data    iTwoj/1,2,4,8,16,32,64,128/
 *
       Integer i,j,ixyz,nElem,iTri,
-     &        iAng,iBas,iAO,iCmp,iCnttp,iComp,
+     &        iAng,iBas,iCnttp,iComp,
      &        iCurCenter,iCurCnttp,iCurMdc,iIC,iIrrep,iLoc,iPrim,
      &        ip,ipF1,ipF2,ipIJ,ipK1,ipK2,ipP1,ipP2,ipTmp,ipZ1,ipZ2,
-     &        ipZI1,ipZI2,iS,iSbasis,iSend,iShell,iShll,iSize,iSlocal,
-     &        iSstart,iStemp,jAng,jAO,jBas,jCmp,jCnttp,jPrim,
-     &        jS,jShell,jShll,jSize,jSlocal,lDCRT,llOper,LmbdT,
-     &        mArr,maxDensSize,mdci,mdcj,nac,ncb,nDCRT,nOp,nSkal,
+     &        ipZI1,ipZI2,iS,iSbasis,iSend,iShll,iSize,iSlocal,
+     &        iSstart,iStemp,jAng,jBas,jCnttp,jPrim,
+     &        jS,jShll,jSize,jSlocal,lDCRT,llOper,LmbdT,
+     &        mArr,maxDensSize,mdci,nac,ncb,nDCRT,nOp,nSkal,
      &        jSbasis,iCnt,jCnt
       Real*8  Fact,Factor,Xg
 * external functions:
       Integer NrOpr
-      Real*8  DNRM2_
-      External DNRM2_,NrOpr
+      External NrOpr
+c      Real*8  DNRM2_
+c      External DNRM2_
 *
 *     Statement functions
 *
@@ -190,12 +190,9 @@ c     ! The basis function index relative to the start of the fragment
       Do iS = 1, nSkal
         iShll  = iSD( 0,iS)
         iAng   = iSD( 1,iS)
-        iCmp   = iSD( 2,iS)
         iBas   = iSD( 3,iS)
         iPrim  = iSD( 5,iS)
-        iAO    = iSD( 7,iS)
         mdci   = iSD(10,iS)
-        iShell = iSD(11,iS)
         iCnttp = iSD(13,iS)
         iCnt   = iSD(14,iS)
         iSize = nElem(iAng)
@@ -204,13 +201,10 @@ c some printouts:
 #ifdef _DEBUGPRINT_
         Write(6,*) 'In FragPInt: iS=',iS,' iShll =',iShll
         Write(6,*) 'In FragPInt: iS=',iS,' iAng  =',iAng
-        Write(6,*) 'In FragPInt: iS=',iS,' iCmp  =',iCmp
         Write(6,*) 'In FragPInt: iS=',iS,' iBas  =',iBas
         Write(6,*) 'In FragPInt: iS=',iS,' iPrim =',iPrim
-        Write(6,*) 'In FragPInt: iS=',iS,' iAO   =',iAO
         Write(6,*) 'In FragPInt: iS=',iS,' ixyz  =',ixyz
         Write(6,*) 'In FragPInt: iS=',iS,' mdci  =',mdci
-        Write(6,*) 'In FragPInt: iS=',iS,' iShell=',iShell
         Write(6,*) 'In FragPInt: iS=',iS,' iCnttp=',iCnttp
         Write(6,*) 'In FragPInt: iS=',iS,' iSize =',iSize
         Write(6,*) 'In FragPInt: iS=',iS,' iCurMdc =',iCurMdc
@@ -275,8 +269,8 @@ c some printouts:
           End If
         End If
 #ifdef _DEBUGPRINT_
-       write(6,*) '  iShll,iAng,mdci,iShell,iCnttp,iCurMdc,iCurCnttp',
-     &              iShll,iAng,mdci,iShell,iCnttp,iCurMdc,iCurCnttp
+       write(6,*) '  iShll,iAng,mdci,iCnttp,iCurMdc,iCurCnttp',
+     &              iShll,iAng,mdci,iCnttp,iCurMdc,iCurCnttp
        write(6,*) '  iPrim,iBas =',iPrim,iBas
 #endif
 *                                                                      *
@@ -291,12 +285,8 @@ c some printouts:
         Do jS = iSstart, iSend
           jShll  = iSD( 0,jS)
           jAng   = iSD( 1,jS)
-          jCmp   = iSD( 2,jS)
           jBas   = iSD( 3,jS)
           jPrim  = iSD( 5,jS)
-          jAO    = iSD( 7,iS)
-          mdcj   = iSD(10,jS)
-          jShell = iSD(11,jS)
           jCnttp = iSD(13,jS)
           jCnt   = iSD(14,jS)
           jSize = nElem(jAng)
@@ -304,12 +294,8 @@ c some printouts:
 #ifdef _DEBUGPRINT_
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jShll =',jShll
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jAng  =',jAng
-        write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jCmp  =',jCmp
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jBas  =',jBas
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jPrim =',jPrim
-        write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jAO   =',jAO
-        write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' mdcj  =',mdcj
-        write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jShell=',jShell
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jCnttp=',jCnttp
         write(6,'(A,i6,A,i16)') 'In FragPInt: jS=',jS,' jSize =',jSize
 #endif
@@ -317,8 +303,8 @@ c some printouts:
           if(Shells(jShll)%Transf.and.
      &       Shells(jShll)%Prjct ) jSize = 2*jAng+1
 #ifdef _DEBUGPRINT_
-         write(6,*) '    jShll,jAng,mdcj,jShell,jCnttp =',
-     &                    jShll,jAng,mdcj,jShell,jCnttp
+         write(6,*) '    jShll,jAng,jCnttp =',
+     &                    jShll,jAng,jCnttp
          write(6,*) '    jPrim,jBas =',jPrim,jBas
 #endif
 *                                                                      *

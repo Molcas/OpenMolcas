@@ -45,9 +45,6 @@
       Do 99 i=1,k+2
          fac(i)=fac(i-1)*DBLE(i)
  99   Continue
-      iss=k
-      itt=k
-      ind=1
       Call priwel(k,alpha,beta,r0,a,gri,nZeta,isum,grin)
 *     Call RecPrt('Internal well integrals',' ',gri,nZeta,isum)
       Return

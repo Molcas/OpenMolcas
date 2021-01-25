@@ -73,7 +73,7 @@ CONTAINS
 
       IMPLICIT NONE
       TYPE(scheme_paras), INTENT(IN)  :: scheme
-      TYPE(raw_mm_data),  INTENT(OUT) :: mm_data
+      TYPE(raw_mm_data),  INTENT(INOUT) :: mm_data
 
       INTEGER(INTK) :: i
 
@@ -322,6 +322,9 @@ CONTAINS
 
       CLOSE(UNIT=LUINTM,STATUS='KEEP')
 
+#ifdef _WARNING_WORKAROUND_
+      IF (.FALSE.) CALL Unused_integer(X)
+#endif
    END SUBROUTINE fmm_read_in_raw_data
 
 !-------------------------------------------------------------------------------

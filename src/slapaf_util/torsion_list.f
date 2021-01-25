@@ -173,10 +173,10 @@
 *
          Do iNeighbor = 1, nNeighbor_j
             iAtom_ = iTabAtoms(1,iNeighbor,jAtom_)
-            nCoBond_i=nCoBond(iAtom_,mAtoms,nMax,iTabBonds,
-     &                        nBonds,iTabAtoms)
-            nFgBond_i=nFgBond(iAtom_,mAtoms,nMax,iTabBonds,
-     &                        nBonds,iTabAtoms)
+*           nCoBond_i=nCoBond(iAtom_,mAtoms,nMax,iTabBonds,
+*    &                        nBonds,iTabAtoms)
+*           nFgBond_i=nFgBond(iAtom_,mAtoms,nMax,iTabBonds,
+*    &                        nBonds,iTabAtoms)
             jBond  = iTabAtoms(2,iNeighbor,jAtom_)
             If (jBond.eq.iBond) Go To 301
             jBondType=iTabBonds(3,jBond)
@@ -259,9 +259,6 @@
                rij2=(Ref(1,1)-Ref(1,2))**2
      &             +(Ref(2,1)-Ref(2,2))**2
      &             +(Ref(3,1)-Ref(3,2))**2
-               Rab=Sqrt(rij2)
-               RabCov=(CovRadT(ANr(iAtom))
-     &               +CovRadT(ANr(jAtom)))/bohr
                r0=Zero
                Alpha=Zero
                f_Const_ij=Zero
@@ -281,10 +278,10 @@
 *
             Do lNeighbor = 1, nNeighbor_k
                lAtom_ = iTabAtoms(1,lNeighbor,kAtom_)
-               nCoBond_l=nCoBond(lAtom_,mAtoms,nMax,iTabBonds,
-     &                           nBonds,iTabAtoms)
-               nFgBond_l=nFgBond(lAtom_,mAtoms,nMax,iTabBonds,
-     &                           nBonds,iTabAtoms)
+*              nCoBond_l=nCoBond(lAtom_,mAtoms,nMax,iTabBonds,
+*    &                           nBonds,iTabAtoms)
+*              nFgBond_l=nFgBond(lAtom_,mAtoms,nMax,iTabBonds,
+*    &                           nBonds,iTabAtoms)
                lAtom = iTabAI(1,lAtom_)
                Ind(4) = lAtom
                iDCR(4) = iTabAI(2,lAtom_)
@@ -379,9 +376,6 @@
                   rkl2=(Ref(1,3)-Ref(1,4))**2
      &                +(Ref(2,3)-Ref(2,4))**2
      &                +(Ref(3,3)-Ref(3,4))**2
-                  Rcd=Sqrt(rkl2)
-                  RcdCov=(CovRadT(ANr(kAtom))
-     &                  +CovRadT(ANr(lAtom)))/bohr
                Else
                   r0=rAV(kr,lr)
                   rkl2=(Ref(1,3)-Ref(1,4))**2

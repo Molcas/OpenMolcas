@@ -64,7 +64,6 @@
 *     read until an input Line is located which starts with            *
 *     the string, Name, not before the second column                   *
 *----------------------------------------------------------------------*
-      lLine=LEN(Line)
 100   Read(iUnit,'(A)',End=900) Line
       Call LeftAd(Line)
       Call UpCase(Line)

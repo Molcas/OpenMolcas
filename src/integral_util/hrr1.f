@@ -27,8 +27,8 @@
       Ind(iy,iz) = (iy+iz)*(iy+iz+1)/2 + iz + 1
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 *
-      iRout = 99
-      iPrint = nPrint(iRout)
+*     iRout = 99
+*     iPrint = nPrint(iRout)
 *     If (iPrint.ge.99) Then
 *        Write(Label,'(A,i1,A,i1,A)') ' Source: (',na1,',',nb,'|'
 *        Call RecPrt(Label,' ',a1b,nPrim,na1b)

@@ -35,8 +35,7 @@
      &          iStabN(0:7), iChOp(0:7), Indq(3,nB), nqB(nB),
      &          iTabBonds(3,nBonds), iTabAI(2,mAtoms),
      &          iTabAtoms(2,0:nMax,mAtoms), iBM(nB_Tot),idBM(2,ndB_Tot)
-      Logical Process, PSPrint,
-     &        MinBas, Help, Proc_dB, R_Stab_A
+      Logical Process, MinBas, Help, Proc_dB, R_Stab_A
       Character*14 Label, qLbl(nB)
       Character*3 ChOp(0:7)
       Character*(LENIN4) Lbls(3)
@@ -55,23 +54,20 @@
 ************************************************************************
 *                                                                      *
       If (nBonds.lt.2) Return
+#ifdef _DEBUGPRINT_
       iRout=150
       iPrint=nPrint(iRout)
-#ifdef _DEBUGPRINT_
       iPrint=99
 #endif
 *
       nqA=0
-      PSPrint=.False.
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) PSPrint=.True.
-      If (PSPrint) Write (6,*) ' Enter Bends.'
+      If (iPrint.ge.99) Write (6,*) ' Enter Bends.'
 #endif
       Call FZero(Hess,81)
 *
 *---- Loop over bends
 *
-      bohr=CONST_BOHR_RADIUS_IN_SI_ * 1.0D+10
       MinBas=.False.
       If (MinBas) Then
          Fact=1.3d0
@@ -95,7 +91,6 @@
          Do iNeighbor = 1, nNeighbor_m
             iAtom_ = iTabAtoms(1,iNeighbor,mAtom_)
             iAtom = iTabAI(1,iAtom_)
-            nNeighbor_i = iTabAtoms(1,0,iAtom_)
             nCoBond_i=nCoBond(iAtom_,mAtoms,nMax,iTabBonds,
      &                        nBonds,iTabAtoms)
             ir = iTabRow(ANr(iAtom))
@@ -124,7 +119,6 @@
             Do jNeighbor = 1, nNeighbor_m
                jAtom_ = iTabAtoms(1,jNeighbor,mAtom_)
                jAtom = iTabAI(1,jAtom_)
-               nNeighbor_j = iTabAtoms(1,0,jAtom_)
                nCoBond_j=nCoBond(jAtom_,mAtoms,nMax,iTabBonds,
      &                           nBonds,iTabAtoms)
                If (nCoBond_i.ge.8 .and.
@@ -158,7 +152,7 @@
      &                'A(',iAtom,',',mAtom,',',jAtom,')'
 *
 #ifdef _DEBUGPRINT_
-               If (PSPrint) Then
+               If (iPrint.ge.99) Then
                   Call RecPrt('A',' ',Cx(1,iAtom,iIter),1,3)
                   Call RecPrt('B',' ',Cx(1,mAtom,iIter),1,3)
                   Call RecPrt('C',' ',Cx(1,jAtom,iIter),1,3)
@@ -177,7 +171,7 @@
                kDCRT=iDCR(3)
 *
 #ifdef _DEBUGPRINT_
-               If (PSPrint) Then
+               If (iPrint.ge.99) Then
                   Write (6,'(10A)') 'U={',
      &                  (ChOp(jStab(i,iAtom)),i=0,nStab(iAtom)-1),'}  '
                   Write (6,'(10A)') 'V={',
@@ -205,7 +199,7 @@
                End If
 *
 #ifdef _DEBUGPRINT_
-               If (PSPrint) Then
+               If (iPrint.ge.99) Then
                   Write (6,'(10A)') 'N={',
      &                  (ChOp(iStabN(i)),i=0,nStabN-1),'}  '
                End If
@@ -220,7 +214,7 @@
                kDCRR = iDCR(2)
 *
 #ifdef _DEBUGPRINT_
-               If (PSPrint) Then
+               If (iPrint.ge.99) Then
                   Write (6,'(10A)') 'R={',
      &                  (ChOp(iDCRR(i)),i=0,nDCRR-1),'}  '
                   Write (6,'(2A)') 'R=',ChOp(kDCRR)
@@ -238,7 +232,7 @@
      &                    iStabM,nStabM)
 *
 #ifdef _DEBUGPRINT_
-               If (PSPrint) Then
+               If (iPrint.ge.99) Then
                   Write (6,'(10A)') 'M={',
      &                  (ChOp(iStabM(i)),i=0,nStabM-1),'}  '
                End If
@@ -249,7 +243,8 @@
                ideg=nIrrep/nStabM
                Deg=Sqrt(DBLE(iDeg))
 #ifdef _DEBUGPRINT_
-               If (PSPrint) Write (6,*)' nIrrep,nStabM=',nIrrep,nStabM
+               If (iPrint.ge.99) Write (6,*)
+     &            ' nIrrep,nStabM=',nIrrep,nStabM
 #endif
 *
 *------------- Test if coordinate should be included
@@ -260,13 +255,9 @@
                   rim2=(Ref(1,1)-Ref(1,2))**2
      &                +(Ref(2,1)-Ref(2,2))**2
      &                +(Ref(3,1)-Ref(3,2))**2
-                  Rab=Sqrt(rim2)
-                  RabCov=CovRad(ANr(iAtom))+CovRad(ANr(mAtom))
                   rmj2=(Ref(1,2)-Ref(1,3))**2
      &                +(Ref(2,2)-Ref(2,3))**2
      &                +(Ref(3,2)-Ref(3,3))**2
-                  Rbc=Sqrt(rmj2)
-                  RbcCov=CovRad(ANr(jAtom))+CovRad(ANr(mAtom))
                   If (ir.eq.1.or.jr.eq.1) Then
                      f_Const=A_Bend(1)
                   Else

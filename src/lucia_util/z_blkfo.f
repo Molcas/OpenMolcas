@@ -56,14 +56,12 @@
       NOCTPA = NOCTYP(IATP)
       NOCTPB = NOCTYP(IBTP)
 *. Pointers to output arrays
-      NTTS = MXNTTS
       CALL GETMEM('CLBT  ','ALLO','INTE',KPCLBT ,MXNTTS)
       CALL GETMEM('CLEBT ','ALLO','INTE',KPCLEBT,MXNTTS)
       CALL GETMEM('CI1BT ','ALLO','INTE',KPCI1BT,MXNTTS)
       CALL GETMEM('CIBT  ','ALLO','INTE',KPCIBT ,8*MXNTTS)
       CALL GETMEM('CBLTP ','ALLO','INTE',KPCBLTP,NSMST)
 *.    ^ These should be preserved after exit so put mark for flushing here
-      IDUM = 0
 *. Info needed for generation of block info
       CALL GETMEM('CIOIO ','ALLO','INTE',KLCIOIO,NOCTPA*NOCTPB)
       CALL IAIBCM(ISPC,IWORK(KLCIOIO))

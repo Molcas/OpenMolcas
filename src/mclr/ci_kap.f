@@ -73,9 +73,7 @@
             Do k=1,ntash
               Do l=1,ntash
                 ij1=ntash*(i-1)+j
-                ij2=ntash*(j-1)+i
                 kl1=ntash*(k-1)+l
-                kl2=ntash*(l-1)+k
                 if(ij1.ge.kl1)then
                   if(abs(Pe(itri(ij1,kl1))).lt.1.0e-12)then
                     Pe(itri(ij1,kl1))=0.0d0
@@ -92,9 +90,7 @@
             do k=1,ndim
               do l=1,ndim
                 ij1=ndim*(i-1)+j
-                ij2=ndim*(j-1)+i
                 kl1=ndim*(k-1)+l
-                kl2=ndim*(l-1)+k
                 if(ij1.ge.kl1)then
             if(i.gt.ntash.or.j.gt.ntash.or.k.gt.ntash.or.l.gt.ntash)then
                   tmpP(itri(ij1,kl1))=0.0d0
@@ -146,6 +142,9 @@
 ! ===================================================================
 
       return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       end
 
 #ifdef _NOTUSED_

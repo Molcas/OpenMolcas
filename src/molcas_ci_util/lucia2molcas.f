@@ -42,7 +42,7 @@ C     Transfer arguments to the common blocks used by MOLCAS.
          NCSASM(I) = NCSASM_LUCIA(I)
          NCNASM(I) = NCNASM_LUCIA(I)
       ENDDO
-      If (NSEL .GT. NCSASM(LSYM)) NSEL=NCSASM(LSYM)
+      If (NSEL .GT. NCSASM(STSYM)) NSEL=NCSASM(STSYM)
 * For small calculations - Lasse/MGD
       nCSF_HEXS=nCSF_HEXS_LUCIA
       IF(N_ELIMINATED_GAS_MOLCAS.gt.0.AND.NSEL.GT.nCSF_HEXS) THEN
@@ -50,7 +50,7 @@ C     Transfer arguments to the common blocks used by MOLCAS.
       END IF
 *
 
-      If (iDimBlockA .GT. NCSASM(LSYM)) then
+      If (iDimBlockA .GT. NCSASM(STSYM)) then
           write(6,*) ''
           Write(6,*)'******************** WARNING *********************'
           Write(6,*) ' AA-Block dimension selected is bigger than the '
@@ -60,7 +60,7 @@ C     Transfer arguments to the common blocks used by MOLCAS.
           write(6,*) ' decrease  this  number  in  your input and run '
           write(6,*) ' again the calculation.'
           Write(6,'(1X,A,I5)')' AA-Block dimension selected:',iDimBlockA
-          iDimBlockA=NCSASM(LSYM)
+          iDimBlockA=NCSASM(STSYM)
           Write(6,'(1X,A,I5)')' AA-Block dimension reset:',iDimBlockA
           Write(6,*)'**************************************************'
           write(6,*) ''

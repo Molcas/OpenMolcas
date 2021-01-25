@@ -20,7 +20,6 @@
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      JMLR=1
       DO LRI=NORB_FRZ+1,NORB_DZ
         LMI=LSM_INN(LRI)
         DO LRJ=LRI+1,NORB_DZ
@@ -374,7 +373,6 @@
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      JMLR=1
       DO LRI=NORB_FRZ+1,NORB_DZ
         LMI=LSM_INN(LRI)
       DO LRJ=LRI+1,NORB_DZ
@@ -464,7 +462,6 @@
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      JMLR=MUL_TAB(JML,JMR)
       ISMA=MUL_TAB(IML,IMR)
       DO LRI=NORB_FRZ+1,NORB_DZ
         LMI=LSM_INN(LRI)
@@ -604,7 +601,6 @@
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      JMLR=MUL_TAB(JML,JMR)
       ISMA=MUL_TAB(IML,IMR)
       DO LRI=NORB_FRZ+1,NORB_DZ
         LMI=LSM_INN(LRI)
@@ -2568,7 +2564,6 @@
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      JMLR=1
       DO LRI=NORB_FRZ+1,NORB_DZ
         LMI=LSM_INN(LRI)
       DO LRJ=LRI+1,NORB_DZ
@@ -2604,7 +2599,6 @@
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      JMLR=MUL_TAB(JML,JMR)
       ISMA=MUL_TAB(IML,IMR)
         DO LRI=NORB_FRZ+1,NORB_DZ
           LMI=LSM_INN(LRI)
@@ -2660,7 +2654,6 @@
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      JMLR=MUL_TAB(JML,JMR)
       ISMA=MUL_TAB(IML,IMR)
       DO LRI=NORB_FRZ+1,NORB_DZ
         LMI=LSM_INN(LRI)

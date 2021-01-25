@@ -257,6 +257,7 @@ C
         CALL Molcas_Open(file,filname)
         DO i=1,natom
           OutLine = Get_Ln(file)
+          CALL UpCase(OutLine)
           DO j=1,3
             pcoo(p,3*(i-1)+j)=0.0D0
             CALL Get_F(j,pcoo(p,3*(i-1)+j),1)
@@ -317,6 +318,7 @@ C
         CALL Molcas_Open(file,filname)
         DO i=1,natom
           OutLine = Get_Ln(file)
+          CALL UpCase(OutLine)
           DO j=1,3
             pcoo(p,3*(i-1)+j)=0.0D0
             CALL Get_F(j,pcoo(p,3*(i-1)+j),1)
@@ -373,11 +375,12 @@ C
       filname='velocity.xyz'
       CALL Molcas_Open(file,filname)
       DO i=1,natom
-         VelLine = Get_Ln(file)
-         DO j=1,3
-            vel(3*(i-1)+j)=0.0D0
-            CALL Get_F(j,vel(3*(i-1)+j),1)
-         END DO
+        VelLine = Get_Ln(file)
+        CALL UpCase(VelLine)
+        DO j=1,3
+          vel(3*(i-1)+j)=0.0D0
+          CALL Get_F(j,vel(3*(i-1)+j),1)
+        END DO
       END DO
 *      READ(file,100)(vel(i),i=1,3*natom3)
       CLOSE(file)

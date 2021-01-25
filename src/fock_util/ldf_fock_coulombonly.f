@@ -229,6 +229,9 @@ C     ||sum_K (AB|K)*V(K)|| <= sqrt[sum_[u_A v_B] (u_A v_B | u_A v_B)]
 C                             *sqrt[sum_K (K|K)]
 C                             *sqrt[sum_K V(K)**2]
 C
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit None
       Integer IntegralOption
       Logical Timing
@@ -241,7 +244,6 @@ C
       Real*8  FactC(nD)
       Integer ip_D(nD)
       Integer ip_F(nD)
-#include "para_info.fh"
 #include "WrkSpc.fh"
 #include "localdf_bas.fh"
 #include "ldf_atom_pair_info.fh"
@@ -504,6 +506,9 @@ C              Coulomb intermediates V. Integral-driven algorithm.
 C
 C     See LDF_Fock_CoulombOnly for more details.
 C
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit None
       Logical UseExactIntegralDiagonal
       Logical Timing
@@ -522,7 +527,6 @@ C
 #include "ldf_atom_pair_info.fh"
 #include "ldf_integral_prescreening_info.fh"
 #include "ldf_a2ap.fh"
-#include "para_info.fh"
 
       Character*21 SecNam
       Parameter (SecNam='LDF_Fock_CoulombOnly_')
@@ -1253,6 +1257,9 @@ C     Note that both arrays V and F are stored locally as O(N) arrays,
 C     which should keep the communication bottleneck at a minimum as the
 C     system size grows.
 C
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit None
       Integer IntegralOption
       Real*8  tau
@@ -1267,7 +1274,6 @@ C
 #include "WrkSpc.fh"
 #include "localdf_bas.fh"
 #include "ldf_atom_pair_info.fh"
-#include "para_info.fh"
 
       Character*21 SecNam
       Parameter (SecNam='LDF_Fock_CoulombOnly0')

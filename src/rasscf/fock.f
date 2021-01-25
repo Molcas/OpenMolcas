@@ -97,7 +97,6 @@ C
       ISTBM=0
       IX1=0
       ISTZ=0
-      ioffQmat=0
       E2act=0.0d0
 
       DO ISYM=1,NSYM

@@ -141,7 +141,6 @@
       End If
 *
       call dcopy_(nDens,[0.0d0],0,Temp2,1)
-      ip=1
       Do iS=1,nSym
        Do jS=1,is
         If (nBas(is)*nBas(js).ne.0) Then

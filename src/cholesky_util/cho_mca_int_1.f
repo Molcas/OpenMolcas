@@ -39,11 +39,6 @@ C     ----------------
       CALL CHO_INVPCK(ISP2F(IJ),I,J,.TRUE.)
       CALL CHO_INVPCK(ISP2F(KL),K,L,.TRUE.)
 
-      NIJ = MAX(I,J)*(MAX(I,J)+1)/2+MIN(I,J)
-      NKL = MAX(K,L)*(MAX(K,L)+1)/2+MIN(K,L)
-      XIJ = DBLE(MAX(NIJ,NKL))
-      XKL = DBLE(MIN(NIJ,NKL))
-
       SHCD = IJ
       SHAB = KL
       SHC = I

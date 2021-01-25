@@ -41,7 +41,6 @@
       End If
 *
       tOne = One
-      ip=1
 *
 *-----Preprescanning
 *

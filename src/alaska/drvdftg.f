@@ -22,6 +22,7 @@
 ************************************************************************
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
+      use Para_Info, only: King
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "print.fh"
@@ -31,7 +32,7 @@
 #include "nq_info.fh"
       Character Label*80, KSDFT*16
       Real*8 Grad(nGrad), Temp(nGrad)
-      Logical First, Dff, Do_Grad, King, l_casdft
+      Logical First, Dff, Do_Grad, l_casdft
       Character*4 DFTFOCK
       Dimension Dummy1(1),Dummy2(1),Dummy3(1),Dumm0(1),Dumm1(1)
 *                                                                      *

@@ -17,6 +17,9 @@ C
 C     Purpose: replicate all local DF data on all nodes in a real
 C     parallel run. Do nothing in serial runs.
 C
+#if defined (_MOLCAS_MPP_)
+      Use Para_Info, Only: nProcs, Is_Real_Par
+#endif
       Implicit None
       Integer LuC_Local
       Integer irc
@@ -24,7 +27,6 @@ C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C PARALLEL CODE
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-#include "para_info.fh"
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
 #include "localdf_print.fh"

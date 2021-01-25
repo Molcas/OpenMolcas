@@ -23,11 +23,14 @@
 *       DESYM_CENTER_COORDINATES, DESYM_BASIS_FUNCTION_IDS,
 *       DESYM_MATRIX, PRIMITIVE_IDS, PRIMITIVES
 
+      use mh5, only: mh5_init_attr, mh5_create_dset_str,
+     &               mh5_create_dset_int, mh5_create_dset_real,
+     &               mh5_put_dset, mh5_put_dset_array_int,
+     &               mh5_put_dset_array_real, mh5_close_dset
       implicit none
       integer :: fileid
 #  include "Molcas.fh"
 #  include "stdalloc.fh"
-#  include "mh5.fh"
 
       integer :: natoms
       real*8, allocatable :: charges(:), coord(:,:)
@@ -206,7 +209,7 @@
         call mh5_init_attr(dsetid, 'DESCRIPTION',
      $          'Basis function IDs (desymmetrized) (c,n,l,m) '//
      $          'arranged as one [4*NBAST] block, NBAST=sum(NBAS)')
-        call mma_allocate(desym_basis_ids, 4, nbast)
+        call mma_allocate(desym_basis_ids,4,nbast)
         Call get_iArray('Desym Basis IDs',desym_basis_ids,4*nbast)
         call mh5_put_dset_array_int(dsetid,desym_basis_ids)
         call mma_deallocate(desym_basis_ids)
@@ -219,7 +222,7 @@
      $          'Symmetrization matrix for the basis functions '//
      $          'arranged as a [NBAST,NBAST] block, NBAST=sum(NBAS), '//
      $          'fast index corresponds to desymmetrized basis.')
-        call mma_allocate(desym_matrix, nbast**2)
+        call mma_allocate(desym_matrix,nbast**2)
         Call get_dArray('SM',desym_matrix,nbast**2)
         call mh5_put_dset(dsetid,desym_matrix)
         call mma_deallocate(desym_matrix)

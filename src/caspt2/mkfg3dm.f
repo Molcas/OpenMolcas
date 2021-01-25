@@ -33,6 +33,9 @@ C are required to converge CASPT2 iteration.
 C
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       SUBROUTINE MKFG3DM(IFF,G1,F1,G2,F2,G3,F3,idxG3)
+#if defined (_MOLCAS_MPP_) && !defined (_GA_)
+      USE Para_Info, ONLY: nProcs, Is_Real_Par, King
+#endif
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -40,8 +43,6 @@ C
 #include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
-
-#include "para_info.fh"
 
       INTEGER, INTENT(IN) :: IFF
       REAL*8, INTENT(OUT) :: G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
@@ -108,7 +109,7 @@ C Put in zeroes. Recognize special cases:
 
       IF(NACTEL.EQ.0) GOTO 999
 
-      NCI=NCSF(LSYM)
+      NCI=NCSF(STSYM)
 * This should not happen, but...
       IF(NCI.EQ.0) GOTO 999
 
@@ -190,7 +191,7 @@ C-SVC20100301: calculate maximum number of tasks possible
 * A *very* long loop over the symmetry of Sgm1 = E_ut Psi as segmentation.
 *
       DO issg1=1,nsym
-       isp1=mul(issg1,lsym)
+       isp1=mul(issg1,stsym)
 *      nsgm1=ncsf(issg1)
 *      CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),IWORK(LNOW),IWORK(LIOW))
 
@@ -311,7 +312,7 @@ C-sigma vectors in the buffer.
           ip1_buf(ibuf1)=ip1i
 *         lto=lbuf1+mxci*(ibuf1-1)
 *         call dcopy_(nsgm1,0.0D0,0,work(lto),1)
-*         CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,LSYM,CI,WORK(LTO),
+*         CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
 *    &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
 *    &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
 *    &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
@@ -326,7 +327,7 @@ C-SVC20100301: necessary batch of sigma vectors is now in the buffer
 *     ! The ip1 buffer could be the same on different processes
 *     ! so only compute the G1 contribution when ip3 is 1, as
 *     ! this will only be one task per buffer.
-*     if (issg1.eq.lsym.AND.ip3.eq.1) then
+*     if (issg1.eq.stsym.AND.ip3.eq.1) then
 *       do ib=1,ibuf1
 *         idx=ip1_buf(ib)
 *         itlev=idx2ij(1,idx)
@@ -368,13 +369,13 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
       iylev=idx2ij(1,ip3)
       izlev=idx2ij(2,ip3)
       isyz=mul(ism(iylev),ism(izlev))
-      issg2=mul(isyz,lsym)
+      issg2=mul(isyz,stsym)
 *     nsgm2=ncsf(issg2)
       iy=L2ACT(iylev)
       iz=L2ACT(izlev)
 *     lto=lbuf2
 *     call dcopy_(nsgm2,0.0D0,0,work(lto),1)
-*     CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,LSYM,CI,WORK(LTO),
+*     CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
 *    &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
 *    &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
 *    &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))

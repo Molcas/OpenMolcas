@@ -16,10 +16,6 @@
 *
 #include "espf.fh"
 *
-      nOrd = nMult/nAtQM
-      nMnAt = nMult*nAtQM*3
-      nGdnAt = nGrdPt*nAtQM*3
-*
 *     Various derivatives
 *
       Call GetMem('DTTT','Allo','Real',ipDTTT,nMult*nGrdPt*nAtQM*3)

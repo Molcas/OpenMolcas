@@ -400,6 +400,17 @@ Optional important keywords are:
               </HELP>
               </KEYWORD>
 
+:kword:`GUGA`
+  Use spin eigenfunctions instead of Slater determinants in the basis for the FCIQMC dynamics to target specific
+  spin states and perhaps benefit from sparsity in this basis.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="GUGA" APPEAR="GUGA" KIND="STRING" LEVEL="ADVANCED" REQUIRE="NECI">
+              %%Keyword: GUGA <advanced>
+              <HELP>
+              Use spin eigenfunctions instead of Slater determinants in the basis for the FCIQMC dynamics.
+              </HELP>
+              </KEYWORD>
+
 
 :kword:`REOR`
   The user can input a permutation by specifying the number of non

@@ -18,7 +18,7 @@
 * in the runfile                                                       *
 *                                                                      *
 ************************************************************************
-      use Basis_Info, only: nBas
+*     use Basis_Info, only: nBas
       Implicit None
 #include "stdalloc.fh"
 #include "real.fh"
@@ -26,7 +26,7 @@
       Integer nGrad
       Real*8 Grad(nGrad)
 *
-      Integer nD,nB,lOper(1)
+      Integer nD,lOper(1)
       Real*8 CCoor(3)
       Real*8, Dimension(:), Allocatable :: aDAO
       Logical Found
@@ -35,7 +35,7 @@
 
       Call DCopy_(nGrad,[Zero],0,Grad,1)
 
-      nB=nBas(0)
+*     nB=nBas(0)
       Call Qpg_dArray('D1ao-',Found,nD)
       Call mma_allocate(aDAO,nD)
       Call Get_dArray('D1ao-',aDAO,nD)

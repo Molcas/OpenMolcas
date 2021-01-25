@@ -34,9 +34,9 @@
 *
       xPrmt(i,j) = Prmt(iAnd(i,j))
 *
+#ifdef _DEBUGPRINT_
       iRout = 239
       iPrint = nPrint(iRout)
-#ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
          Call RecPrt('Accumulated gradient on entrance',
      &               ' ',Grad,nGrad,1)

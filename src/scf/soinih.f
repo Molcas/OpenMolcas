@@ -82,7 +82,9 @@
              nOccmF=nOcc(iSym,iD)-nFro(iSym)
              nOrbmF=nOrb(iSym)-nFro(iSym)
 *
+#ifdef _DEBUGPRINT_
              iHoffs_ = iHoffs
+#endif
              Do ii=ioffs,ioffs+nOccmF-1
 *
 *               loop over all virt orbitals in sym block

@@ -49,7 +49,7 @@ C
         DO ISYM=1,NSYM
           IUOFF=1+IOW(1,ISYM,MIDV)
           NUW=NOW(1,ISYM,MIDV)
-          JSYM=MUL(ISYM,LSYM)
+          JSYM=MUL(ISYM,STSYM)
           ILOFF=1+IOW(2,JSYM,MIDV)
           NLW=NOW(2,JSYM,MIDV)
           IF( NUW.EQ.0 .OR. NLW.EQ.0 ) GOTO 110

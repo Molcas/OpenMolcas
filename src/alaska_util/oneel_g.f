@@ -87,8 +87,6 @@ CNIKO      Real*8 A(3), B(3), Ccoor(3,nComp), FD(nFD),
       iPrint = nPrint(iRout)
       call dcopy_(nGrad,[Zero],0,Grad,1)
 *
-      iIrrep = 0
-*
 *     Auxiliary memory allocation.
 *
       Call mma_allocate(Zeta,S%m2Max,Label='Zeta')

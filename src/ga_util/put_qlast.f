@@ -15,7 +15,7 @@
 #include "real.fh"
 *
       if(ipTskQ.eq.0) return
-      iTCnSt_c=iTCnSt-1
+c     iTCnSt_c=iTCnSt-1
 c     Call XFlush(6)
 c     Write (*,*)
 c     Write (*,*) 'Put_QLast: '

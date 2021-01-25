@@ -18,6 +18,7 @@
       use kVectors
 #ifdef _HDF5_
       use Dens2HDF5
+      use mh5, only: mh5_put_dset_array_real
 #endif
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
@@ -46,8 +47,7 @@ C RAS state interaction.
       PARAMETER (ROUTINE='RASSI')
       Logical Fake_CMO2,CLOSEONE
       COMMON / CHO_JOBS / Fake_CMO2
-      INTEGER IRC,ISFREEUNIT
-      EXTERNAL ISFREEUNIT
+      INTEGER IRC
       Real*8, Allocatable:: USOR(:,:),
      &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),
      &                      ENERGY(:), DMAT(:), TDMZZ(:),
@@ -89,14 +89,12 @@ C elements required for the input RASSCF state pairs.
 C Needed generalized transition density matrices are computed by
 C GTDMCTL. They are written on unit LUTDM.
 C Needed matrix elements are computed by PROPER.
-      NSTATE2=NSTATE*NSTATE
       Call mma_allocate(OVLP,NSTATE,NSTATE,Label='OVLP')
       Call mma_allocate(DYSAMPS,NSTATE,NSTATE,Label='DYSAMPS')
       Call mma_allocate(EigVec,nState,nState,Label='EigVec')
       Call mma_allocate(ENERGY,nState,Label='Energy')
       Call mma_allocate(TocM,NSTATE*(NSTATE+1)/2,Label='TocM')
 
-      NPROPSZ=NSTATE*NSTATE*NPROP
       Call mma_allocate(PROP,NSTATE,NSTATE,NPROP,LABEL='Prop')
       Prop(:,:,:)=0.0D0
 *                                                                      *

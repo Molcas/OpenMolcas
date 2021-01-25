@@ -31,6 +31,7 @@
       use Basis_Info
       use Temporary_Parameters
       use RICD_Info, only: Do_RI, Cholesky
+      use Para_Info, only: nProcs, King
       Implicit Real*8 (A-H,O-Z)
       External RF_On
 #include "Molcas.fh"
@@ -44,8 +45,7 @@
 #include "columbus_gamma.fh"
 #include "nac.fh"
 #include "alaska_root.fh"
-#include "para_info.fh"
-      Logical OldTst, DoRys, RF_On, Found
+      Logical DoRys, RF_On, Found
       Character(Len=180) Label
       Real*8, Allocatable:: Grad(:), Temp(:), Tmp(:), Rlx(:,:), CSFG(:)
 
@@ -61,7 +61,6 @@
 ************************************************************************
 *                                                                      *
 *     Call Alaska_banner()
-      npelem=3
 *                                                                      *
       Call CWTime(TCpu1,TWall1)
 *                                                                      *
@@ -93,8 +92,6 @@
          End If
          Call Init_RctFld(.False.,iCharge_Ref)
       End If
-*
-      OldTst = Test
 *                                                                      *
 ************************************************************************
 *                                                                      *

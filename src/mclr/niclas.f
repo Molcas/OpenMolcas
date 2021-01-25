@@ -144,7 +144,6 @@
        End Do ! icnt
       End Do ! icnttp
 *
-      inc=6
       Label='Unsymmetrized Hessian'
       WRITE(LUT,'(A)') Label
       Write(LUT,'(A)') '*BEGIN HESSIAN'

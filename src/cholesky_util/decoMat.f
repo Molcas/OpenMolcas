@@ -25,7 +25,7 @@
 *
 * NUMV    : Number of non negative eigenvalues
       implicit none
-      integer dimens,NumV,NumVnull,rc,i,j
+      integer dimens,NumV,rc,i,j
       real*8 MAT(dimens,dimens),eigenvec(dimens,dimens)
       real*8 eigenval(dimens)
 
@@ -34,7 +34,6 @@
 
       rc = 0
       NumV = 0
-      NumVnull = 0
 
       If (dimens .lt. 1) then
        rc= -1

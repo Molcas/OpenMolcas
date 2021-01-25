@@ -58,10 +58,6 @@
       End If
       If (jPrint.ge.99) Call RecPrt(' In Plf_CD: AOInt',' ',
      &                              AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
-
-      If (Shijij) Then ! avoid compiler warnings about unused variables
-         iDummy_1 = iShell(1)
-      End If
 *
 *     Allocate space to store integrals to gether with their
 *     Symmetry batch and sequence number.
@@ -82,8 +78,6 @@
       iAOj=iAO(2)
       iAOk=iAO(3)
       iAOl=iAO(4)
-*
-      ijklCmp=iCmp*jCmp*kCmp*lCmp
 *
       Do 100 i1 = 1, iCmp
          iSOs(1)=iAOtSO(iAOi+i1,kOp(1))+iAOsti
@@ -142,4 +136,10 @@
 200      Continue
 100   Continue
 *
+      Return
+* Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_integer_array(iShell)
+         Call Unused_logical(Shijij)
+       End If
       End

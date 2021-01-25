@@ -8,13 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine input2_cvb(
      >  iorbrel,mxdimrel,ifxorb,
      >  iorts,irots,izeta,orbs,irdorbs)
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -161,7 +161,6 @@ c  Set absym and use just lowest spin value if spinbas=determinants :
         i2s_min=nel_fr(ifrag)
         do iS=1,nS_fr(ifrag)
         if(i2s_fr(iS,ifrag).ne.0)absym(1)=.false.
-        is2_min=min(i2s_min,i2s_fr(iS,ifrag))
         enddo
         if(kbasis.eq.6)then
           nS_fr(ifrag)=1

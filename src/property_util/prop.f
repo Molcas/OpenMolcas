@@ -625,4 +625,7 @@ c            End If
       If (StoreInfo) Call Add_Info(OpLab,Work(ipPrTot),maxlab,iTol)
       Call GetMem('PrTot','Free','Real',ipPrTot,maxlab)
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(icen2)
+#endif
       End

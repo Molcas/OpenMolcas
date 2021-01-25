@@ -52,14 +52,12 @@ c
 *
       Character Key*180, KWord*180,            BSLbl*80, Fname*256,
      &          DefNm*13, Ref(2)*80, dbas*4
-      Integer StayAlone,  BasisTypes(4)
+      Integer BasisTypes(4)
 *
       Character*180 Line, STDINP(mxAtom*2) ! CGGn
       Character*256 Basis_lib ! CGGd , INT2CHAR, CHAR4
-      Character*5  Symbol                 ! CGGn
 *
 CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
-      Data StayAlone/0/
 *
 #include "angstr.fh"
       Data DefNm/'basis_library'/ ! CGGd,
@@ -74,13 +72,11 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
 *                                                                      *
       Call mma_allocate(Buffer,nBuff,Label='Buffer')
       iErr=0
-      iRout=3
 *                                                                      *
 ************************************************************************
 *                                                                      *
       LuWr=6
 *
-      imix=0
       itype=0
 *
       BasisTypes(:)=0
@@ -107,7 +103,6 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       If (Indx.eq.0) Then
        call WhichMolcas(Basis_lib)
        if(Basis_lib(1:1).ne.' ') then
-         StayAlone=1
          ib=index(Basis_lib,' ')-1
          if(ib.lt.1)
      *    Call SysAbendMsg('rdCtl','Too long PATH to MOLCAS',' ')
@@ -158,7 +153,6 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
       Else
          If (BasisTypes(3).eq.1 .or. BasisTypes(3).eq.2) Then
             If (BasisTypes(3).ne.iType) Then
-               imix=1
                BasisTypes(3)=-1
             End If
             iType=BasisTypes(3)
@@ -208,7 +202,8 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
 *     Here we will have to fix that the 6-31G family of basis sets
 *     should by default be used with 6 d-functions rather than 5.
 *
-      KWord=BSLbl(1:Indx-1)
+      KWord=''
+      KWord(1:Indx-1)=BSLbl(1:Indx-1)
       Call UpCase(KWord)
       If (INDEX(KWord,'6-31G').ne.0) Then
          Do iSh = jShll+3, iShll
@@ -263,7 +258,7 @@ CGGd      Data WellRad/-1.22D0,-3.20D0,-6.20D0/
      &   Call Chk_LblCnt(dc(mdc+nCnt)%LblCnt,mdc+nCnt-1)
       iOff=1+(nCnt-1)*3
 C      print *,line
-      Read (Line,'(A5)') Symbol
+      Read (Line,*)
       Read (Line(6:),*) (Buffer(iOff+i),i=0,2) ! CGGn
       If (Index(KWord,'ANGSTROM').ne.0) Then
          Do i = 0, 2

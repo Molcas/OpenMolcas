@@ -32,6 +32,7 @@
 ************************************************************************
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
+      use Para_Info, only: King
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "print.fh"
@@ -43,7 +44,7 @@
       COMMON  / OFembed_C / OFE_KSDFT
       Character Label*80
       Real*8 Grad(nGrad), Temp(nGrad)
-      Logical Do_Grad, King
+      Logical Do_Grad
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -29,11 +29,6 @@
       Character SelectStr*120
       Character FileStr*256, FileIn*256
       Character MULLprt*80
-      Character Slash
-      Logical debug
-      Integer LineNr
-      External LineNr
-      Slash='/'
 *
       AllKeys=
      *'PRIN BINA ASCI NPOI DENS '//
@@ -48,7 +43,6 @@
      *'UMAX NOLU XFIE LUS1 LUS2 '//
      *'PLUS MINU XFMI'
 *
-      debug = .False.
 c      Do 108 i = 1, nRout
 c         nPrint(i) = 5
 c 108  Continue
@@ -629,4 +623,7 @@ c      print *,'current',tmp(iend+1:)
         end if
       end do
       return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_real(foo)
+#endif
       end function LineNr

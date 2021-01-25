@@ -89,7 +89,7 @@
 *
       real*8, parameter ::  Zero=0.0d0, One=1.0d0
       real*8 :: CASDFT_Funct, dumm(1), Emyn, energy_nad, Eone,
-     &  Erf1, Erf2, Erfhi, Erfx, Etwo, func_a, func_ab, func_b,
+     &  Erf1, Erf2, Erfx, Etwo, func_a, func_ab, func_b,
      &  potnuc_ref, rep_en, v_emb, v_nuc_ab, v_nuc_ba, dDot_
       integer :: i, iadd, ibas, icharge, iComp,
      &  ioff, iopt, ip_ndsd,
@@ -205,7 +205,6 @@ C Local print level (if any)
 *     modify the one electron Hamiltonian for reaction
 *     field calculations
       ERFX = Zero
-      ERFhi = Zero
       iCharge=Int(Tot_Charge)
 
       Call GetMem('DtmpI','Allo','Real',iTmp3,nTot1)

@@ -572,7 +572,6 @@ c      write(10,*)'     start intind_iaqq',ii
       call determine_para_array_for_int1ind()
 
       do lri=norb_frz+1,norb_inn
-        li=lri-norb_frz
         lsmi=lsm_inn(lri)
         call int_ext_3_2_1(lri,lsmi,ii)
       enddo
@@ -653,7 +652,7 @@ c      la<lb<lc<ld
             do 40 la = norb_inn,lb+1,-1
               if(lsm_inn(la).ne.msa) cycle
               nolra=nolra+1
-              list = loijk(njkl)+3*(nolra-1)
+c              list = loijk(njkl)+3*(nolra-1)
 
 c        write(6,'(2x,4i3,2i7)')  la,lb,lc,ld,list,numb
 

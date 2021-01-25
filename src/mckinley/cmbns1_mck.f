@@ -45,13 +45,11 @@ c     iPrint = nPrint(iRout)
 *
 *     ii = la*(la+1)*(la+2)/6
 *     jj = lb*(lb+1)*(lb+2)/6
-      iQ = 1
       exp32 = -Three/Two
       Do 25 iZeta = 1, nZeta
          rKappa(iZeta) = rKappa(iZeta) * Zeta(iZeta)**exp32
  25   Continue
 c     If (iPrint.ge.99) Then
-c     iQ = 1
 c        Call RecPrt(' In CmbnS1_mck: Zeta  ',' ',Zeta  ,1,nZeta)
 c        Call RecPrt(' In CmbnS1_mck: rKappa',' ',rKappa,1,nZeta)
 c        Call RecPrt(' In CmbnS1_mck: Alpha ',' ',Alpha ,1,nZeta)

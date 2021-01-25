@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE TRACHOSZ
       USE CHOVEC_IO
+      USE Para_Info, ONLY: nProcs
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "rasdim.fh"
@@ -22,7 +23,6 @@
 #include "choptr.fh"
 #include "choglob.fh"
 #include "WrkSpc.fh"
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"

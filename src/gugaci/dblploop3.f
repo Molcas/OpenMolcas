@@ -459,7 +459,6 @@
         lmi=lsm_inn(lri)
         do lrj=lri+1,norb_dz
           lmj=lsm_inn(lrj)
-          lmij=mul_tab(lmi,lmj)
           w1st3=w1_st(3)
           ni=mod(lrj-lri,2)
           if(ni.eq.0) then
@@ -949,7 +948,6 @@
         lmi=lsm_inn(lri)
         do lrj=lri+1,norb_dz
           lmj=lsm_inn(lrj)
-          lmij=mul_tab(lmi,lmj)
           w0tt1=w0_t1t1(1)
           w1tt1=w1_t1t1(1)
           ni=mod(lrj-lri,2)
@@ -1147,12 +1145,10 @@ c     enddo
 #include "intsort_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      jmlr=mul_tab(jml,jmr)
       do lri=norb_frz+1,norb_dz-1
         lmi=lsm_inn(lri)
         do lrj=lri+1,norb_dz
           lmj=lsm_inn(lrj)
-          lmij=mul_tab(lmi,lmj)
           if(jml.ne.lmi.and.jmr.ne.lmj) cycle
           w0dd1=w0_d1d1(1)
           w1dd1=w1_d1d1(1)
@@ -1801,7 +1797,6 @@ c     enddo
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      jmlr=mul_tab(jml,jmr)
       isma=mul_tab(iml,imr)
       do lri=norb_frz+1,norb_dz
         lmi=lsm_inn(lri)
@@ -1926,7 +1921,6 @@ c     enddo
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      jmlr=mul_tab(jml,jmr)
       isma=mul_tab(iml,imr)
       do lri=norb_frz+1,norb_dz
         lmi=lsm_inn(lri)
@@ -2088,7 +2082,6 @@ c     enddo
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      jmlr=mul_tab(jml,jmr)
       isma=mul_tab(iml,imr)
       do lri=norb_frz+1,norb_dz
         lmi=lsm_inn(lri)

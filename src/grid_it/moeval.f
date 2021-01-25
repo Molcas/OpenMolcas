@@ -97,18 +97,6 @@
      &                           Shells(iShll)%pCff)
             kSh=dbsc(iCnttp)%iVal+iAng
 *
-*           Compute the total number of function for this
-*           basis set, summed over all shells.
-*
-            Do jAng = 0, nTest-1
-               jShll = dbsc(iCnttp)%iVal + jAng
-               If (Shells(jShll)%Prjct ) Then
-                  jCmp = 2*jAng+1
-               Else
-                  jCmp  = nElem(jAng)
-               End If
-            End Do
-*
 *           Loop over unique centers of basis set "iCnttp"
 *
             Do iCnt = 1, nCnt
@@ -116,15 +104,6 @@
                iAO = iAOttp + (iCnt-1)*dbsc(iCnttp)%lOffAO
      &             + Shells(kSh)%kOffAO
                A(1:3)=dbsc(iCnttp)%Coor(1:3,iCnt)
-
-               Do jAng = 0, iAng-1
-                  jShll = dbsc(iCnttp)%iVal + jAng
-                  If (Shells(jShll)%Prjct ) Then
-                     jCmp = 2*jAng+1
-                  Else
-                     jCmp  = nElem(jAng)
-                  End If
-               End Do
 *
 *--------------Allocate memory for SO and AO values
 *
@@ -170,7 +149,6 @@
 *---------------- Evaluate AOs at RA
 *
                   call dcopy_(nAO,[Zero],0,Work(ipAOs),1)
-                  mTmp=1
                   Call AOEval(iAng,nCoor,CCoor,Work(ipxyz),RA,
      &                        Shells(iShll)%Transf,
      &                        RSph(ipSph(iAng)),nElem(iAng),iCmp,

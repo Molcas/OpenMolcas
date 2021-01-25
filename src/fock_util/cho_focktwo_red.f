@@ -72,7 +72,10 @@
       Integer  KSQ1(8),ISTSQ(8),ISTLT(8),iSkip(8),MinMem(*)
       Integer  ipDLT(nDen),ipDSQ(nDen),ipNocc(nDen)
       Integer  ipFLT(nDen),ipFSQ(nDen)
-      Logical  DoExchange(nDen),DoCoulomb(nDen),DoSomeX,DoSomeC,Debug
+#ifdef _DEBUGPRINT_
+      Logical  Debug
+#endif
+      Logical  DoExchange(nDen),DoCoulomb(nDen),DoSomeX,DoSomeC
       Real*8   tread(2),tcoul(2),texch(2)
       Logical  timings
 
@@ -96,12 +99,8 @@
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 **************************************************
 
-
 #ifdef _DEBUGPRINT_
-c      Debug=.true.
       Debug=.false.! to avoid double printing in SCF-debug
-#else
-      Debug=.false.
 #endif
       IREDC = -1  ! unknown reduced set in core
 
@@ -231,7 +230,6 @@ C Max dimension of a read symmetry block
         Do iSym=1,nSym
            if(NBAS(iSym).gt.Nmax .and. iSkip(iSym).ne.0)then
            Nmax = NBAS(iSym)
-           iSymMax= iSym
            endif
         End Do
 
@@ -606,7 +604,6 @@ C --- Free the memory
 
 c Print the Fock-matrix
 #ifdef _DEBUGPRINT_
-
       if(Debug) then !to avoid double printing in SCF-debug
 
       WRITE(6,'(6X,A)')'TEST PRINT FROM CHO_FOCKTWO_RED.'

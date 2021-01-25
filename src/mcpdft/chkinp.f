@@ -310,13 +310,13 @@ C Local print level (if any)
       IERR=0
       If (NSYM.ne.1 .and. NSYM.ne.2 .and. NSYM.ne.4
      &                              .and. NSYM.ne.8) IERR=1
-      If (LSYM.GT.NSYM) IERR=1
+      If (STSYM.GT.NSYM) IERR=1
       If (IERR.eq.1) Then
         Write(LF,*)
         Write(LF,*) '***************** ERROR *****************'
         Call WarningMessage(2,'Wrong symmetry.')
         Write(LF,'(1X,A,I8)')'CHKINP Error: Wrong symmetry.'
-        Write(LF,'(1X,A,I8)')'State symmetry    LSYM=',LSYM
+        Write(LF,'(1X,A,I8)')'State symmetry   STSYM=',STSYM
         Write(LF,'(1X,A,I8)')'Point group order NSYM=',NSYM
         Write(LF,*)'************************************************'
         Call Quit(_RC_INPUT_ERROR_)

@@ -25,7 +25,7 @@ function(add_unit_test Target)
 
     add_executable(${Target} ${ARGN})
 
-    target_link_libraries(${Target} fruit_molcas mods_obj molcas ${EXTERNAL_LIBRARIES})
+    target_link_libraries(${Target} fruit_molcas libmolcas ${EXTERNAL_LIBRARIES})
 
     set_target_properties(${Target}
         PROPERTIES

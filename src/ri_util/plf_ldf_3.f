@@ -58,7 +58,6 @@
 *                                                                      *
       Shkl = iShell(3).eq.iShell(4)
       iOff1 = nBas(0)
-      mm = iOff(1)
       n3C= iOff(3)
       If (iShell(4).gt.iShell(3)) Then
          Write (6,*) 'iShell(4).gt.iShell(3)'

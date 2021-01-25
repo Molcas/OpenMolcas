@@ -31,8 +31,6 @@
 #include "print.fh"
       Real*8 Win(na,nb), Wout(nb,na)
 *
-      iRout = 71
-      iPrint = nPrint(iRout)
 *     Write (*,*) ' In Trns1: na, nb, nVec, nc=',na,nb,nvec,nc
 *     Call RecPrt(' Win',' ',Win,na,nb)
       If (nc.eq.1) Then

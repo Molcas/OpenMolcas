@@ -38,14 +38,12 @@
       Integer     BasisTypes(4),
      &            LenLbl, LuRd, iAtom, ib, iBas, iCnttp, iCntr,
      &            ii, Indx, iSh, iShll, jShll,
-     &            lAng, Last, LenBSL, lSTDINP, mCnttp, mdc, ndc,
-     &            StayAlone
+     &            lAng, Last, LenBSL, lSTDINP, mCnttp, mdc, ndc
       Real*8      x1, y1, z1
       Character*4  label
       Character*13 DefNm
       Character*80 Ref(2)
       Character*(storageSize) sBasis
-      Equivalence( sBasis, eqBasis)
       Character *256 Basis_lib, Fname
       Logical UnNorm
 #ifdef _DEBUGPRINT_
@@ -130,6 +128,7 @@
             iBas = int(dbsc(iCnttp)%FragCoor(1,iAtom))
             call dcopy_(LineWords,dbsc(iCnttp)%FragType(1,iBas),1,
      &                            eqBasis, 1)
+            sBasis = Transfer(eqBasis,sBasis) ! ???
 *
 *           Get the basis set directory
 *
@@ -139,7 +138,6 @@
             If(Indx.eq.0) Then
               Call WhichMolcas(Basis_lib)
               If(Basis_lib(1:1).ne.' ') then
-                StayAlone = 1
                 ib = index(Basis_lib,' ')-1
                 If(ib.lt.1) Call SysAbendMsg('fragexpand',
      &                      'Too long PATH to MOLCAS',' ')

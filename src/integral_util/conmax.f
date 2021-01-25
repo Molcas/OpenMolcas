@@ -25,9 +25,6 @@
 #include "print.fh"
 #include "real.fh"
 *
-      iRout = 230
-      iPrint = nPrint(iRout)
-*
       Do iPrim = 1, nPrim
          Temp= Zero
 *        Do iCont = 1, nCont

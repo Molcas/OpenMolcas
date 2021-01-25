@@ -115,8 +115,6 @@
          ipBOff = ipBOff + 1
       End Do
 *
-      llOper = lOper(1)
-*
 *     Loop over the tiles
 *
       Do iTs = 1, nTs
@@ -218,7 +216,6 @@ c             skip 2 center
 *           Compute integrals with the Rys quadrature.
 *
             nT = nZeta
-            nDiff=1
             mRys=nRys
 
             Call Rysg1(iAnga,mRys,nT,
@@ -242,5 +239,6 @@ c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Final)
          Call Unused_real_array(Ccoor)
+         Call Unused_integer_array(lOper)
       End If
       End

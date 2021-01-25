@@ -28,7 +28,7 @@
 *----------------------------------------------------------------------*
 *                                                                      *
 * The KISS method is employed here. Do a scan of the energy surface    *
-* along lines paralell to the edges. Reduce the steplength gradually.  *
+* along lines parallel to the edges. Reduce the steplength gradually.  *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *

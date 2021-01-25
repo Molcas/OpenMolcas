@@ -38,7 +38,6 @@
 #include "FMM.fh"
 #include "nac.fh"
 #include "srint.fh"
-      Logical lGENINT
       Character(LEN=180) Env
 *                                                                      *
 ************************************************************************
@@ -64,7 +63,6 @@ C
 *-----LInfo
 *
       IRFLAG1=0
-      lGENINT=.False.
 *
       Call GetEnvF('MOLCAS_NEW_DEFAULTS', Env)
       Call UpCase(Env)

@@ -26,21 +26,13 @@
 ************************************************************************
 #include "real.fh"
 #include "stdalloc.fh"
-#include "WrkSpc.fh"
 #include "nadc.fh"
 #include "weighting.fh"
 #include "db.fh"
 #include "print.fh"
       Logical Cartesian, Found, TSC, Error
-      Real*8, Allocatable:: DList(:), CList(:,:), du(:), TMx(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-      Lu=6
-*
-      iRout = 32
-      iPrint=nPrint(iRout)
+      Real*8, Allocatable:: DList(:), CList(:,:), du(:), TMx(:),
+     &                      RefCoor(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -56,10 +48,6 @@
       Numerical = .False. ! Just to define it, value is irrelevant here!
 *
       Call Close_LuSpool(LuSpool)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      jPrint=nPrint(iRout)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -96,7 +84,7 @@
       CList(:,:)=Zero
       Call mma_allocate(DList,mInt,Label='DList')
       DList(:)=Zero
-      Call Allocate_Work(ip_RefCoor,SIZE(Coor))
+      call mma_allocate(RefCoor,3,SIZE(Coor,2),Label='RefCoor')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -127,14 +115,13 @@
 *     Take a copy of the current structure - the reference
 *     coordinates.
 *
-      call dcopy_(SIZE(Coor),Coor,1,Work(ip_RefCoor),1)
+      RefCoor(:,:)=Coor(:,:)
 *
 *     Loop over all displacements which are in the subspace in
 *     which we like to minimize the energy. Hence, this will
 *     eliminate naturally translational and rotational degrees
 *     (3N-6) but also eliminate constrained degrees (3N-6-m)
 *
-      nDisp = mInt-nLambda
       Call mma_allocate(du,mInt,Label='du')
 *
 *     Loop only over displacement which do not change the constraint.
@@ -144,7 +131,7 @@
 *
 *        Get a virgin copy of the reference structure
 *
-         call dcopy_(SIZE(Coor),Work(ip_RefCoor),1,Coor,1)
+        Coor(:,:)=RefCoor(:,:)
 *
 *        Compute the effective index where to find the data
 *
@@ -218,7 +205,7 @@
 *
 *     Deallocate temporary memory.
 *
-      Call Free_Work(ip_RefCoor)
+      Call mma_deallocate(RefCoor)
       Call mma_deallocate(DList)
       Call mma_deallocate(CList)
 

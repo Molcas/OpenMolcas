@@ -55,4 +55,8 @@
       end do
 *
       close (lu_abdata)
+      return
+#ifdef _WARNING_WORKAROUND_
+      if (.false.) call Unused_integer(itab)
+#endif
       end

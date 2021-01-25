@@ -46,7 +46,7 @@
       use Basis_Info, only: nBas
       use Real_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
-      Intrinsic Max, Min
+      Intrinsic Max
 #include "real.fh"
 #include "print.fh"
       Real*8 AOInt(nijkl,iCmp,jCmp,kCmp,lCmp), FMat(nDens),
@@ -62,10 +62,10 @@
 ************************************************************************
 *                                                                      *
       If (.Not.DoExch.and..Not.DoCoul) Return
+#ifdef _DEBUGPRINT_
       iRout = 38
       iPrint = nPrint(iRout)
 *
-#ifdef _DEBUGPRINT_
 *     Write (*,*) DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),
 *    &            DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One  ,0)
       If (iPrint.ge.49) Then
@@ -130,7 +130,6 @@ C     If (nijkl.ne.ibas*jbas*kbas*lbas) Call SysHalt( 'fckacc_nosym' )
          End Do
       End Do
 *
-      nkl=kBas*lBas
       nij=iBas*jBas
 *
       If (.Not.DoExch) Then
@@ -331,8 +330,8 @@ c Avoid unused argument warnings
 *
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *
-      iRout = 38
-      iPrint = nPrint(iRout)
+*     iRout = 38
+*     iPrint = nPrint(iRout)
 *
 *     Write (*,*) DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1),
 *    &            DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,One  ,0)

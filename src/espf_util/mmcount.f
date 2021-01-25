@@ -23,7 +23,6 @@
       Logical Exist
 *
       iPL = iPL_espf()
-      ipIsMM = ip_iDummy
 *
       Call Qpg_iArray('IsMM',Exist,nBla)
       If (.not.Exist) Then

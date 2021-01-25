@@ -103,9 +103,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout=140
-      iPrint=nPrint(iRout)
-*
       f_const_min_=f_const_min * 1.0D-1
       f_const=0.0D0
 *
@@ -494,7 +491,6 @@ C10      Continue
                rmj=sqrt(rmj2)
                r0mj=rAv(mr,jr)
                amj=aAv(mr,jr)
-               r=sqrt(rmj2+rmi2)
 *
 *------------- Test if zero angle
 *
@@ -831,9 +827,6 @@ C              If (kBondType.eq.vdW_Bond) Go To 222
                   Rbc=Sqrt(rjk2)/Fact
                   RbcCov=(CovRadT(iANr(jAtom))
      &                   +CovRadT(iANr(kAtom)))/bohr
-                  Rcd=Sqrt(rkl2)
-                  RcdCov=(CovRadT(iANr(kAtom))
-     &                   +CovRadT(iANr(lAtom)))/bohr
                   Diff=RbcCov-Rbc
                   If (Diff.lt.Zero) Diff=Zero
                   tij=Fact*A_Trsn(1)+A_Trsn(2)*Diff

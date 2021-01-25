@@ -367,11 +367,11 @@
          wt=100_wp*ListKQ(ik)/TnrmKQ
 
          If(projKQ(ik)>=0) Then
-            Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),(E22.14,1x,A)'//
+            Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),(E22.14,1x,A),'//
      &                'F19.14,1x,A)')
      &               ir,'|',ip,'|',BC(ir,iq),'|',wt,'|'
          Else
-            Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),(E22.14,1x,A)'//
+            Write(6,'((1x,I2,1x,A),(1x,I3,1x,A),(E22.14,1x,A),'//
      &                'F19.14,1x,A)')
      &               ir,'|',ip,'|',BS(ir,iq),'|',wt,'|'
          End If

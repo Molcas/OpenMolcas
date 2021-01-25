@@ -87,7 +87,6 @@
 *
 *           Symmetry of Q matrix
 *
-            iis=nropr(ieor(iOper(jIrr),ioper(mIrr)))
             jis=nropr(ieor(iOper(iIrr),ioper(mIrr)))
 *
             lMax=nAsh(lIrr)

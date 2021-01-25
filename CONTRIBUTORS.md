@@ -13,7 +13,7 @@ General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with OpenMolcas. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright (C) 1989-2020, The OpenMolcas Authors
+Copyright (C) 1989-2021, The OpenMolcas Authors
 
 
 NOTE: Some of the files distributed with OpenMolcas may be subject to a more
@@ -77,6 +77,7 @@ Mickaël G. Delcey
 Ajitha Devarajan  
 Luca De Vico  
 Michael Diedenhofen  
+Werner Dobrautz  
 Sijia S. Dong  
 Thomas Dresselhaus  
 Daniel Fairhead  

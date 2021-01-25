@@ -16,9 +16,6 @@
 #include "real.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"
-*
-      iRout = 1
-      iPrint = nPrint(iRout)
 *                                                                      *
 ************************************************************************
 *                                                                      *

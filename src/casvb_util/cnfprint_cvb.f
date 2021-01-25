@@ -8,11 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine cnfprint_cvb()
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
+c ... Make: up to date? ...
+      logical, external :: up2date_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"
@@ -30,11 +32,11 @@
         i1 = mstacki_cvb(max(noe,noe*nconf))
         call rdioff_cvb(1,recinp,ioffs)
         call rdis_cvb(idum,1,recinp,ioffs)
-        noe1=idum(1)
+        !noe1=idum(1)
         call rdis_cvb(idum,1,recinp,ioffs)
-        nconf1=idum(1)
+        !nconf1=idum(1)
         call rdis_cvb(idum,1,recinp,ioffs)
-        kbasiscvb1=idum(1)
+        !kbasiscvb1=idum(1)
         call rdis_cvb(iw(i1),noe*nconf,recinp,ioffs)
         if(nconf.eq.0)then
           do 225 i=1,min(nel,norb)

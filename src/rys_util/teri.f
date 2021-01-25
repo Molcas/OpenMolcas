@@ -29,8 +29,6 @@
      &       rKapab(nT), rKapcd(nT),
      &       T(nT), Fact(nT), ZEInv(nT)
 *
-      iRout = 56
-*
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call RecPrt(' Zeta in TERI',' ',Zeta,1,nT)

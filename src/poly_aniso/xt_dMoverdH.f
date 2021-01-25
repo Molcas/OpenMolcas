@@ -164,7 +164,6 @@ c      Real(kind=8)             :: dir_weight(nDirZee,3)
       Real(kind=8)              :: dHX(3)
       Real(kind=8)              :: dHY(3)
       Real(kind=8)              :: dHZ(3)
-      Real(kind=8)              :: dHW(3)
       Integer                    :: RtoB, mem_local
 
       Integer                    :: info, ibuf, ibuf1, ibuf3
@@ -429,7 +428,6 @@ cccc-------------------------------------------------------cccc
       dHX=0.0_wp
       dHY=0.0_wp
       dHZ=0.0_wp
-      dHW=0.0_wp
 
       nDirX=3
 

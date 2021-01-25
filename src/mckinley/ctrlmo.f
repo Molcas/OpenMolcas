@@ -17,12 +17,10 @@
 #include "etwas.fh"
       Integer moip(0:nIrrep-1)
 *
-      jAsh=0
-      ii=0
       iTot=0
       Do iIrrep=0,nIrrep-1
-            moip(iIrrep)=iTot
-            iTot=iTot+nAsh(iIrrep)
+         moip(iIrrep)=iTot
+         iTot=iTot+nAsh(iIrrep)
       End Do
       nACO=iTot
       Return

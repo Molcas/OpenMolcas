@@ -192,7 +192,6 @@
     CXX: "g++"
     FC: "gfortran"
     # only interested in compilation, so run no tests
-    # (but the test job will fail if the compilation didn't succeed)
     tests: ".none"
   tags:
     - docker

@@ -33,7 +33,6 @@ C      Parameter (mxAtoms=500)
 *
       call dcopy_(3*nij,[Zero],0,B,1)
 *
-      iDim = nij*nElem
       Call dCopy_(nij*nElem,[Zero],0,xnrMP,1)
       ij = 0
       Do iAtom = 1, nAtoms
@@ -49,7 +48,6 @@ C      Parameter (mxAtoms=500)
          End Do
       End Do
 *
-      iPrint_Errors  = 0
       Do iAtom = 1, nAtoms
          ii = iAtom*(iAtom+1)/2
          Do jAtom = iAtom, 1, -1
