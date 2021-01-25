@@ -14,7 +14,7 @@
 
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl,
      &                  iShlSO, iRS2F, IntMap, iScr, nDimRS, iL2G,
-     &                  iShP2RS
+     &                  iShP2RS, iShP2Q
 
       use ChoSwp, only: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden,
      &                  nnBstRSh_Hidden, nnBstRSh,
@@ -105,11 +105,7 @@ C     -----------------------------------------
 
       If (Allocated(iShP2RS)) Call mma_deallocate(iShP2RS)
 
-      If (l_iShP2Q .ne. 0) Then
-         Call GetMem('SHP2Q','Free','Inte',ip_iShP2Q,l_iShP2Q)
-         ip_iSHP2Q=0
-         l_iSHP2Q=0
-      End If
+      If (Allocated(iShP2Q )) Call mma_deallocate(iShP2Q )
 
 C     Deallocate any used pointer in cholq.fh
 C     ----------------------------------------

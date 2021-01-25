@@ -16,7 +16,7 @@ C     Thomas Bondo Pedersen, April 2010.
 C
 C     Purpose: Print integral shell quadruple (IfcSew=2 or 3).
 C
-      use ChoArr, only: iSP2F, nBstSh, iShP2RS
+      use ChoArr, only: iSP2F, nBstSh, iShP2RS, iShP2Q
       Implicit None
       Integer iSCD, iSAB
       Integer lInt
@@ -39,8 +39,6 @@ C
       Real*8 xNorm
 
       Integer i, j
-      Integer iShP2Q
-      iShP2Q(i,j)=iWork(ip_iShP2Q-1+2*(j-1)+i)
 
       ! Set row dimension
       If (IfcSew.eq.2) Then
