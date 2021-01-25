@@ -50,6 +50,7 @@ c     Write (*,*) 'T_Status=',T_Status
 #include "real.fh"
 #include "tlist.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "status.fh"
 C     save ntasks_alloc
       fint(a)=dble(int(a))
@@ -73,9 +74,9 @@ C     P  = nSkal*(nSkal+1)/2
 C       ntasks_alloc=ntasks
         Call GetMem('TskMap','ALLO','Real',ipTskM,2*nTasks)
         call dcopy_(2*nTasks,[Zero],0,Work(ipTskM),1)
-        Call GetMem('TskQ','ALLO','Real',ipTskQ,2*nTasks)
-c       Write (*,*) 'init_tlist ipTskQ @ ',ipTskQ,' nTasks=',nTasks
-        call dcopy_(2*nTasks,[Not_Used],0,Work(ipTskQ),1)
+        Call mma_allocate(TskQ,2,nTasks,Label='TskQ')
+c       Write (*,*) 'init_tlist: nTasks=',nTasks
+        TskQ(:,:)=Not_Used
         Call GetMem('TskLst','ALLO','INTE',ipTskL,nTasks*2)
         Return
       end if
@@ -139,17 +140,15 @@ c     Call RecPrt('TskM',' ',Work(ipTskM),2,nTasks)
       use TList_Mod
       Use Para_Info, Only: nProcs, Is_Real_Par
 #include "tlist.fh"
-#include "WrkSpc.fh"
 #include "status.fh"
+#include "stdalloc.fh"
 *
 c     Write (*,*) 'Free_TList, T_Status=',T_Status
       If (T_Status.ne.Active) Return
       T_Status=Inactive
 *
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
-C     Call GetMem('TskQ  ','Free','Real',ipTskQ,2*nTasks_alloc)
-C     Call GetMem('TskMap','Free','Real',ipTskM,2*nTasks_alloc)
-      Call Free_Work(ipTskQ)
+      Call mma_deallocate(TskQ)
       Call Free_Work(ipTskM)
 *
 c     Write (*,*) 'Free_TList, T_Status=',T_Status

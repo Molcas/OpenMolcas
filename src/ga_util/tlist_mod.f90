@@ -14,6 +14,7 @@ Module TList_Mod
 Real*8, Parameter:: Not_Used=-1.0D0
 Real*8 QLast(2),P,PQ
 Integer nTasks, igaTsk, iTCnSt, mTasks, iStrt_TList, iEnd_TList, iTskCan
-!Real*8, Allocatable:: TskM(:,:), TskQ(:,:)
+Real*8, Allocatable:: TskQ(:,:)
+!Real*8, Allocatable:: TskM(:,:)
 !Integer, Allocatable:: TskL(:,:)
 End Module TList_Mod

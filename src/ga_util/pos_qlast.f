@@ -16,18 +16,17 @@
       Logical Copy,NoCopy
 #include "real.fh"
 #include "tlist.fh"
-#include "WrkSpc.fh"
 #include "SysDef.fh"
 
       Data Copy/.True./, NoCopy/.False./
 *
-      if(ipTskQ.eq.0) return
+      if(.NOT.Allocated(TskQ)) return
 
-c     Write (*,'(A,4I9)') 'ipTskQ,iTCnSt_c,nTasks,iTskCan=',
-c    &                     ipTskQ,iTCnSt_c,nTasks,iTskCan
-c     Call RecPrt('TskQ',' ',Work(ipTskQ),2,nTasks)
-      Quad_ijkl=Work(ipTskQ+(iTskCan-1)*2  )
-      RST_triplet=Work(ipTskQ+(iTskCan-1)*2+1)
+c     Write (*,'(A,4I9)') 'iTCnSt_c,nTasks,iTskCan=',
+c    &                     iTCnSt_c,nTasks,iTskCan
+c     Call RecPrt('TskQ',' ',TskQ,2,nTasks)
+      Quad_ijkl  =TskQ(1,iTskCan)
+      RST_triplet=TskQ(2,iTskCan)
       If (Quad_ijkl.eq.Not_Used) Return
 *
 *---- If already at the right position return
@@ -61,7 +60,7 @@ c        Call XFlush(6)
          Write (6,'(A,2F10.1)') 'Index,1.0:  ',QLast(1),QLast(2)
          Write (6,'(A,2F10.1)') 'Looking for ',Quad_ijkl,RST_triplet
          Write (6,*) ' iTskCan,=',iTskCan
-         Call RecPrt('TskQ',' ',Work(ipTskQ),2,iTskCan)
+         Call RecPrt('TskQ',' ',TskQ,2,iTskCan)
          Write (6,*)
          Call XFlush(6)
          Call Abend

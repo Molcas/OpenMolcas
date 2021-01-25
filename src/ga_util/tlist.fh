@@ -8,5 +8,5 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Integer ipTskM, ipTskL, ipTskQ
-      Common /TList/ ipTskM, ipTskL, ipTskQ
+      Integer ipTskM, ipTskL
+      Common /TList/ ipTskM, ipTskL
