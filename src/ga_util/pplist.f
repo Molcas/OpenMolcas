@@ -13,8 +13,8 @@
       Use Para_Info, only: MyRank, nProcs, Is_Real_Par
       Implicit Real*8 (a-h,o-z)
 #include "status.fh"
-      Logical Debug
-      Data Debug/.False./
+      Logical:: Debug=.False.
+      Integer, Pointer:: TskList(:,:)
 *
       If (Debug) Then
          If (PP_Status.eq.Active) Then
@@ -34,9 +34,13 @@ c     Write (*,*) 'Init_PPList'
       iStrt_TList=0
       iEnd_TList=nTasks+1
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
-      call izero(TskL(1:nTasks),nTasks)
+
+      TskList(1:nTasks,1:2) => TskL(1:2*nTasks)
+*     call izero(TskL(1:nTasks),nTasks)
+      TskList(:,1)=0
       Do iTsk = 0, nTasks-1
-        TskL(1+iTsk)=MOD(iTsk+MyRank,nTasks)+1
+*       TskL(1+iTsk)=MOD(iTsk+MyRank,nTasks)+1
+        TskList(1+iTsk,1)=MOD(iTsk+MyRank,nTasks)+1
       End Do
 c     Write (*,*) (TskL(iTsk),iTsk = 1, nTasks)
 *
@@ -44,11 +48,14 @@ c     Write (*,*) (TskL(iTsk),iTsk = 1, nTasks)
 *     reinitiated at once.
 *
       iE = nTasks-1
-      call izero(TskL(1+nTasks:2*nTasks),nTasks)
+*     call izero(TskL(1+nTasks:2*nTasks),nTasks)
+      TskList(:,2)=0
       Do i = 0, nTasks-1
-         TskL(i+nTasks+iE) = TskL(i+1)
+*        TskL(1+nTasks+iE) = TskL(i+1)
+         TskList(1+iE,2) = TskList(i+1,1)
          iE = iE - 1
       End Do
+      TskList => Null()
 *
       QLast(1)=Not_Used
       QLast(2)=Not_Used
@@ -60,8 +67,9 @@ c     Write (*,*) (TskL(iTsk),iTsk = 1, nTasks)
       use TList_Mod
       Implicit Real*8 (a-h,o-z)
 #include "status.fh"
-      Logical Debug,Semi_Direct
-      Data Debug/.False./
+      Logical Semi_Direct
+      Logical:: Debug=.False.
+      Integer, Pointer:: TskList(:,:)
 *
 c     Write (*,*) 'ReInit_PPList'
 *
@@ -87,9 +95,11 @@ c     Write (*,*) 'ReInit_PPList'
       End If
 *
       If (Semi_Direct) Then
+         TskList(1:nTasks,1:2) => TskL(1:2*nTasks)
 *
 *---- Copy first the task indices of tasks that were exectuted
-         Call ICopy(mTasks,TskL(1+nTasks:2*nTasks),1,TskL(1:mTasks),1)
+*        Call ICopy(mTasks,TskL(1+nTasks:2*nTasks),1,TskL(1:mTasks),1)
+         Call ICopy(mTasks,TskList(:,2),1,TskList(:,1),1)
 c     Write (*,*) 'mTasks=',mTasks
 *
 *---- Now copy task indices of tasks which were not executed by this node.
@@ -99,9 +109,11 @@ c     Write (*,*) 'mTasks=',mTasks
          iCount = 1
          Do i = mTasks, nTasks-1
             If (iCount .gt. myRank) Then
-               TskL(1+i) = TskL(i+1+nTasks)
+*              TskL(1+i) = TskL(i+1+nTasks)
+               TskList(1+i,1) = TskList(i+1,2)
             Else
-               TskL(1+i) = TskL(iE+1+nTasks)
+*              TskL(1+i) = TskL(iE+1+nTasks)
+               TskList(1+i,1) = TskList(iE+1,2)
                iE = iE - 1
                iCount = iCount + 1
             Endif
@@ -110,6 +122,7 @@ c     Write (*,*) 'mTasks=',mTasks
 c        Write (*,*) (TskL(iTsk),iTsk = 1, nTasks)
 c        Write (*,*) 'mTasks=',mTasks
 *
+         TskList => Null()
       End If
 *
       iStrt_TList=0
