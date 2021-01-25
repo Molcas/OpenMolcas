@@ -9,38 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Init_TList(Triangular,P_Eff)
-      use TList_Mod
-      implicit real*8 (a-h,o-z)
-*     Logical Triangular,Alloc
-      Logical Triangular,Alloc
-#include "real.fh"
-*     Alloc=.false.
-*     Call IA_TList(Triangular,P_Eff, Alloc)
-      If (Allocated(TskL)) Return
-      Call IA_TList(Triangular,P_Eff)
-      return
-      end
-*
-      Subroutine Alloc_TList(Triangular,P_Eff)
-      implicit real*8 (a-h,o-z)
-*     Logical Triangular,Alloc
-      Logical Triangular
-#include "real.fh"
-      Return
-*     Alloc=.true.
-*     Call IA_TList(Triangular,P_Eff, Alloc)
-*     return
-      end
-*
-* removed _entry_
-*
-*     Subroutine IA_TList(Triangular,P_Eff, Alloc)
-      Subroutine IA_TList(Triangular,P_Eff)
       Use Para_Info, Only: MyRank, nProcs, Is_Real_Par
       use TList_Mod
       implicit real*8 (a-h,o-z)
       real*8  distrib,PQpTsk,TskLw,TskHi,MinPQ1,a,fint,tskmin,tskmax
-*     Logical Triangular,Alloc
       Logical Triangular
 * parameters concerning task distribution...
       Integer iDen_PQ, iDen_Tsk, MinPQ, MxnTsk
@@ -54,6 +26,7 @@
 
       fint(a)=dble(int(a))
 
+      If (Allocated(TskL)) Return
       MinPQ1= MinPQ
       MxnTsk1=MxnTsk
       iDen_PQ1=iDen_PQ
@@ -68,15 +41,11 @@ c
       nTasks = nint(Min(PQ,dble(MxnTsk1*nProcs)))
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
 *
-*     if(Alloc) then
-        Call mma_allocate(TskM,2,nTasks,Label='TskM')
-        TskM(:,:)=0
-        Call mma_allocate(TskQ,2,nTasks,Label='TskQ')
-c       Write (*,*) 'init_tlist: nTasks=',nTasks
-        TskQ(:,:)=Not_Used
-        Call mma_allocate(TskL,nTasks*2,Label='TskL')
-*       Return
-*     end if
+      Call mma_allocate(TskM,2,nTasks,Label='TskM')
+      TskM(:,:)=0
+      Call mma_allocate(TskQ,2,nTasks,Label='TskQ')
+      TskQ(:,:)=Not_Used
+      Call mma_allocate(TskL,nTasks*2,Label='TskL')
 *
       tskmin=1.d14
       tskmax=zero

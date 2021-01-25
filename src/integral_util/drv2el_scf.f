@@ -166,7 +166,6 @@
 *
       If (FstItr) Then
          Triangular=.True.
-         Call Alloc_TList(Triangular,P_Eff)
          Call Init_TList(Triangular,P_Eff)
          Call Init_PPList
          Call Init_GTList

@@ -13,7 +13,6 @@
      &                     Produced=54334555
       Integer GT_Status
       Integer k2_Status
-      Integer PP_Status
       Integer RctFld_Status
       Integer ERI_Status
       Integer Indexation_Status
@@ -21,6 +20,5 @@
       Integer NQ_Status
       Integer Seward_Status
       Common /Status_Fields/ k2_Status, RctFld_Status, GT_Status,
-     &                       PP_Status, ERI_Status,
-     &                       Indexation_Status,
+     &                       ERI_Status, Indexation_Status,
      &                       XMem_Status, NQ_Status, Seward_Status

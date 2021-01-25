@@ -12,24 +12,20 @@
       use TList_Mod
       Use Para_Info, only: MyRank, nProcs, Is_Real_Par
       Implicit Real*8 (a-h,o-z)
-#include "status.fh"
       Logical:: Debug=.False.
       Integer, Pointer:: TskList(:,:)
 *
       If (Debug) Then
-         If (PP_Status.eq.Active) Then
-            Write (6,*) 'Init_PPList: Active'
-         Else If (PP_Status.eq.InActive) Then
+         If (PP_Status) Then
             Write (6,*) 'Init_PPList: Active'
          Else
-            Write (6,*) 'Init_PPList: undefined!'
+            Write (6,*) 'Init_PPList: InActive'
          End If
       End If
-      If (PP_Status.eq.Active) Return
-      PP_Status=Active
+
+      If (PP_Status) Return
+      PP_Status=.True.
 *
-      Write (6,*) 'Init_PPList'
-      Call xflush(6)
       iTskCan=0
       mTasks=0
       iStrt_TList=0
@@ -67,26 +63,20 @@ c     Write (*,*) (TskL(iTsk),iTsk = 1, nTasks)
       Use Para_Info, only: MyRank, nProcs
       use TList_Mod
       Implicit Real*8 (a-h,o-z)
-#include "status.fh"
       Logical Semi_Direct
       Logical:: Debug=.False.
       Integer, Pointer:: TskList(:,:)
 *
-      Write (6,*) 'ReInit_PPList'
-      Call xflush(6)
-*
       If (Debug) Then
-         If (PP_Status.eq.Active) Then
-            Write (6,*) 'ReInit_PPList: Active'
-         Else If (PP_Status.eq.InActive) Then
+         If (PP_Status) Then
             Write (6,*) 'ReInit_PPList: Active'
          Else
-            Write (6,*) 'ReInit_PPList: undefined!'
+            Write (6,*) 'ReInit_PPList: InActive'
          End If
       End If
-      If (PP_Status.ne.Active) Then
+      If (.NOT.PP_Status) Then
          Write (6,*) 'ReInit_PPList: List is not active!'
-         Call Abend
+         Call Abend()
       End If
       iTskCan=0
       mTasks=iStrt_TList
@@ -139,12 +129,10 @@ c        Write (*,*) 'mTasks=',mTasks
       Subroutine Free_PPList()
       use TList_Mod
       Use Para_Info, only: nProcs, Is_Real_Par
-#include "status.fh"
 #include "stdalloc.fh"
 *
-*     If (PP_Status.ne.Active) Return
       If (.NOT.Allocated(TskL)) Return
-      PP_Status=Inactive
+      PP_Status=.False.
 *
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
       Call mma_deallocate(TskL)

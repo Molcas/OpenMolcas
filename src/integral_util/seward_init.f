@@ -114,7 +114,6 @@ C
       NDDO=.False.
 *
       GT_Status=InActive
-      PP_Status=InActive
       k2_Status=InActive
       RctFld_Status=InActive
       ERI_Status=InActive
