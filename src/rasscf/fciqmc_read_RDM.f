@@ -9,23 +9,119 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2016,2017, Giovanni Li Manni                           *
-*               2019, Oskar Weser                                      *
+*               2019-2021, Oskar Weser                                 *
+*               2021, Werner Dobrautz                                  *
 ************************************************************************
 
       module fciqmc_read_RDM
+      use definitions, only: wp
+      use para_info, only: myRank
       use general_data, only : nActEl
 ! Note that two_el_idx_flatten has also out parameters.
       use index_symmetry, only : two_el_idx_flatten
-      use CI_solver_util, only: CleanMat
+      use CI_solver_util, only: CleanMat, write_RDM
+      use linalg_mod, only: abort_, verify_
 
       implicit none
 
       private
-      public :: read_neci_RDM, cleanup
+      public :: read_neci_RDM, cleanup, read_neci_GUGA_RDM
       contains
 
 !>  @brief
 !>    Read NECI RDM files
+!>
+!>  @author Werner Dobrautz, Oskar Weser
+!>
+!>  @details
+!>  Read the spin-free TwoRDM file written by the GUGA-NECI
+!>  implementation and transfer them to Molcas.
+!>  The spin density is set to zero, because spin projection
+!>  is not properly defined in the GUGA framework.
+
+!>  @paramin[out] DMAT Average spin-free 1 body density matrix
+!>  @paramin[out] DSPN spin-dependent 1-RDM (set to zero)
+!>  @paramin[out] PSMAT Average spin-free 2 body density matrix
+!>  @paramin[out] PAMAT 'fake' Average antisymm. 2-dens matrix
+      subroutine read_neci_GUGA_RDM(DMAT, DSPN, PSMAT, PAMAT)
+      real(wp), intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
+      integer :: file_id, isfreeunit, i
+      logical :: tExist
+      real(wp) :: RDMval
+
+      if (myRank /= 0) then
+          call bcast_2RDM("PSMAT")
+          call bcast_2RDM("PAMAT")
+          call bcast_2RDM("DMAT")
+      end if
+
+      call f_Inquire('PSMAT',tExist)
+      call verify_(tExist, 'PSMAT does not exist')
+      call f_Inquire('PAMAT',tExist)
+      call verify_(tExist, 'PAMAT does not exist')
+      call f_Inquire('DMAT',tExist)
+      call verify_(tExist, 'DMAT does not exist')
+
+      PSMAT(:) = 0.0_wp; PAMAT(:) = 0.0_wp;
+      DMAT(:) = 0.0_wp; DSPN(:) = 0.0_wp;
+
+      file_id = IsFreeUnit(11)
+      call Molcas_Open(file_id, 'PSMAT')
+          do while (read_line(file_id, i, RDMval))
+            psmat(i) = RDMval
+          end do
+      close(file_id)
+
+      file_id = IsFreeUnit(11)
+      call Molcas_Open(file_id, 'PAMAT')
+          do while (read_line(file_id, i, RDMval))
+            pamat(i) = RDMval
+          end do
+      close(file_id)
+
+      file_id = IsFreeUnit(11)
+      call Molcas_Open(file_id, 'DMAT')
+          do while (read_line(file_id, i, RDMval))
+            dmat(i) = RDMval
+          end do
+      close(file_id)
+
+      ! Clean evil non-positive semi-definite matrices,
+      ! by clamping the occupation numbers between 0 and 2.
+      ! DMAT is intent(inout)
+      call cleanMat(DMAT)
+
+      contains
+
+          !> Read a line from GUGA NECI RDM file with
+          !> `file_id` as unit and parse it into i and RDMval.
+          !> Return true, if line was successfully read and false
+          !> if EOF reached.
+          !> Aborts if IO error happens.
+          !> **i and RDMval are undefined, if functions returns false**!
+          logical function read_line(file_id, i, RDMval)
+              integer, intent(in) :: file_id
+              integer, intent(out) :: i
+              real(wp), intent(out) :: RDMval
+              integer :: iread
+              read_line = .false.
+              read(file_id, "(I6,G25.17)", iostat=iread) i, RDMval
+              if (iread > 0) then
+                  call abort_('Error in read_next')
+              else if (is_iostat_end(iread)) then
+                  ! Let's try to cause an error, if code uses undefined
+                  ! values for i and RDMval
+                  i = huge(i)
+                  RDMval = huge(RDMval)
+              else
+                  read_line = .true.
+              end if
+          end function
+
+      end subroutine read_neci_GUGA_RDM
+
+!>  @brief
+!>    Start and control FCIQMC.
 !>
 !>  @author Giovanni Li Manni, Oskar Weser
 !>
@@ -44,7 +140,6 @@
 !>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
       subroutine read_neci_RDM(DMAT, DSPN, PSMAT, PAMAT)
       use Para_Info, only: MyRank
-      implicit none
 #include "output_ras.fh"
       real*8, intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
       integer :: iUnit, isfreeunit, p, q, r, s, pq, rs, ps, rq, psrq,
@@ -134,7 +229,6 @@
         if (r == s) D_alpha(pq) = D_alpha(pq) + RDMval
 ******************* processing as PSRQ ***********************
 **************************************************************
-        psrq = two_el_idx_flatten(p, s, r, q, ps, rq)
         psrq = two_el_idx_flatten(p, s, r, q, ps, rq)
 ******* Contribution to PSMAT and PAMAT:
         if (r <= q) then
@@ -368,7 +462,6 @@
 
       subroutine bcast_2RDM(InFile)
         use filesystem, only : symlink_, strerror_, get_errno_
-        implicit none
         character(len=*), intent(in) :: InFile
         character(len=1024) :: master
         integer :: lmaster1, err
@@ -380,7 +473,6 @@
 
 
       subroutine cleanup()
-        implicit none
         ! Add your deallocations here.
         ! This routine will be called when exiting rasscf.
         continue

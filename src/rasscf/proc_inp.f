@@ -26,7 +26,7 @@
       use write_orbital_files, only: OrbFiles
       use fcidump, only: DumpOnly
       use fcidump_reorder, only: ReOrInp, ReOrFlag
-      use fciqmc, only: DoEmbdNECI, DoNECI
+      use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in
       use CC_CI_mod, only: Do_CC_CI
       use orthonormalization, only : ON_scheme, ON_scheme_values
       use fciqmc_make_inp, only : trial_wavefunction, pops_trial,
@@ -2008,6 +2008,15 @@ C orbitals accordingly
      &'not compiled with embedded NECI. Please use -DNECI=ON '//
      &'for compiling or use an external NECI.')
 #endif
+        end if
+*----------------------------------------------------------------------------------------
+        if (KeyGUGA) then
+            tGUGA_in = .true.
+            if(DBG) write(6, *) 'spin-free GUGA-NECI RDMs are actived'
+            if (.not. KeyNECI) then
+              call WarningMessage(2, 'GUGA requires NECI keyword!')
+              GoTo 9930
+            end if
         end if
 *--- This block is to process the DEFINEDET -------------------
         if(KeyDEFI) then

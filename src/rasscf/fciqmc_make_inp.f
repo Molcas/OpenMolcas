@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 2015, Giovanni Li Manni                                *
 *               2019, Oskar Weser                                      *
+*               2021, Werner Dobrautz                                  *
 ************************************************************************
 
       module fciqmc_make_inp
@@ -64,25 +65,19 @@
 !>    G. Li Manni, Oskar Weser
 !>
 !>  @paramin[in] readpops  If true the readpops option for NECI is set.
-      subroutine make_inp(path, FCIDUMP_name, readpops,
-     &    GAS_spaces, GAS_particles)
+      subroutine make_inp(path, readpops, tGUGA, FCIDUMP_name,
+     &      GAS_spaces, GAS_particles)
       use general_data, only : nActEl, iSpin
       use fortran_strings, only : str
       character(len=*), intent(in) :: path
+      logical, intent(in) :: readpops, tGUGA
       character(len=*), intent(in), optional :: FCIDUMP_name
-      logical, intent(in), optional :: readpops
       integer, intent(in), optional ::
      &      GAS_spaces(:, :), GAS_particles(:, :)
-      logical :: readpops_
+
       integer :: i, isFreeUnit, file_id, indentlevel, iGAS, iSym
       integer :: nGAS, nSym
       integer, parameter :: indentstep = 4
-
-      if (present(readpops)) then
-        readpops_ = readpops
-      else
-        readpops_ = .false.
-      end if
 
       call verify_(present(GAS_spaces) .eqv. present(GAS_particles),
      &             'present(GAS_spaces) .eqv. present(GAS_particles)')
@@ -102,14 +97,23 @@
       write(file_id, A_fmt()) 'System read'
       call indent()
         write(file_id, I_fmt()) 'electrons ', nActEl
-        write(file_id,A_fmt()) 'nonuniformrandexcits 4ind-weighted-2'
+        if (tGUGA) then
+            write(file_id,A_fmt())
+     &          'nonuniformrandexcits mol_guga_weighted'
+        else
+            write(file_id,A_fmt())
+     &          'nonuniformrandexcits 4ind-weighted-2'
+        end if
         write(file_id,A_fmt()) 'nobrillouintheorem'
+        if (tGUGA) then
+          write(file_id, I_fmt()) 'guga', iSpin - 1
+        else if(iSpin /= 1) then
+          write(file_id, I_fmt()) 'spin-restrict', iSpin - 1
+        end if
         if (present(FCIDUMP_name)) then
           write(file_id,A_fmt()) 'FCIDUMP-name', FCIDUMP_name
         end if
-        if(iSpin /= 1) then
-          write(file_id, I_fmt()) 'spin-restrict', iSpin - 1
-        end if
+
         write(file_id, A_fmt()) 'freeformat'
         if (present(GAS_spaces) .and. present(GAS_particles)) then
           nGAS = size(GAS_spaces, 1)
@@ -145,8 +149,8 @@
         end if
         write(file_id, *)
         write(file_id, I_fmt()) 'totalwalkers', totalwalkers
-        write(file_id, A_fmt()) merge(' ', '(', readpops_)//'readpops'
-        write(file_id, A_fmt())merge(' ', '(',readpops_)//'walkcontgrow'
+        write(file_id, A_fmt()) merge(' ', '(', readpops)//'readpops'
+        write(file_id, A_fmt())merge(' ', '(',readpops)//'walkcontgrow'
         write(file_id, I_fmt()) 'semi-stochastic', semi_stochastic
         write(file_id, *)
         write(file_id, A_fmt()) 'methods'
@@ -165,7 +169,11 @@
         write(file_id, A_fmt()) 'allrealcoeff'
         write(file_id, R_fmt()) 'realspawncutoff', realspawncutoff
         write(file_id, A_fmt()) 'jump-shift'
-        write(file_id, A_fmt()) 'tau 0.01 search'
+        if (tGUGA) then
+            write(file_id, A_fmt()) 'hist-tau-search 0.9999'
+        else
+            write(file_id, A_fmt()) 'tau 0.01 search'
+        end if
         write(file_id, R_fmt()) 'max-tau', max_tau
         write(file_id, I_fmt()) 'maxwalkerbloom', maxwalkerbloom
         write(file_id, R_fmt()) 'memoryfacspawn', memoryfacspawn
@@ -180,8 +188,12 @@
       write(file_id, A_fmt()) 'logging'
       call indent()
         write(file_id, I_fmt()) 'highlypopwrite', Highlypopwrite
-        write(file_id, A_fmt()) 'print-spin-resolved-RDMs'
         write(file_id, A_fmt()) 'hdf5-pops'
+        if (tGUGA) then
+            write(file_id, A_fmt()) 'print-molcas-rdms'
+        else
+            write(file_id, A_fmt()) 'print-spin-resolved-RDMs'
+        end if
         write(file_id, A_fmt()) 'printonerdm'
        write(file_id,'('//str(indentlevel)//'x, A,1x,I0,1x,I0,1x,I0)')
      &     'RDMlinspace',

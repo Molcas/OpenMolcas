@@ -12,7 +12,7 @@
 !***********************************************************************
 
 module definitions
-    use iso_fortran_env, only: int32, int64, real32, real64
+    use, intrinsic :: iso_fortran_env, only: int32, int64, real32, real64
     implicit none
     private
     public :: wp, MPIInt, HDF5Int
