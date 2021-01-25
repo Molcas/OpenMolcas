@@ -9,37 +9,39 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Init_TList(Triangular,P_Eff)
+      use TList_Mod
       implicit real*8 (a-h,o-z)
+*     Logical Triangular,Alloc
       Logical Triangular,Alloc
 #include "real.fh"
-#include "status.fh"
-c     Write (*,*) 'T_Status=',T_Status
-      If (T_Status.eq.Active) return
-      T_Status=Active
-      Alloc=.false.
-      Call IA_TList(Triangular,P_Eff, Alloc)
+*     Alloc=.false.
+*     Call IA_TList(Triangular,P_Eff, Alloc)
+      If (Allocated(TskL)) Return
+      Call IA_TList(Triangular,P_Eff)
       return
       end
 *
       Subroutine Alloc_TList(Triangular,P_Eff)
       implicit real*8 (a-h,o-z)
-      Logical Triangular,Alloc
+*     Logical Triangular,Alloc
+      Logical Triangular
 #include "real.fh"
-#include "status.fh"
-      If (T_Status.eq.Active) return
-      Alloc=.true.
-      Call IA_TList(Triangular,P_Eff, Alloc)
-      return
+      Return
+*     Alloc=.true.
+*     Call IA_TList(Triangular,P_Eff, Alloc)
+*     return
       end
 *
 * removed _entry_
 *
-      Subroutine IA_TList(Triangular,P_Eff, Alloc)
+*     Subroutine IA_TList(Triangular,P_Eff, Alloc)
+      Subroutine IA_TList(Triangular,P_Eff)
       Use Para_Info, Only: MyRank, nProcs, Is_Real_Par
       use TList_Mod
       implicit real*8 (a-h,o-z)
       real*8  distrib,PQpTsk,TskLw,TskHi,MinPQ1,a,fint,tskmin,tskmax
-      Logical Triangular,Alloc
+*     Logical Triangular,Alloc
+      Logical Triangular
 * parameters concerning task distribution...
       Integer iDen_PQ, iDen_Tsk, MinPQ, MxnTsk
       Parameter ( iDen_PQ  = 2 )
@@ -49,16 +51,14 @@ c     Write (*,*) 'T_Status=',T_Status
       Parameter ( MxnTsk = 100 )
 #include "real.fh"
 #include "stdalloc.fh"
-#include "status.fh"
-C     save ntasks_alloc
+
       fint(a)=dble(int(a))
+
       MinPQ1= MinPQ
       MxnTsk1=MxnTsk
       iDen_PQ1=iDen_PQ
       iDen_Tsk1=iDen_Tsk
 c
-C     Call Nr_Shells(nSkal)
-C     P  = nSkal*(nSkal+1)/2
       P = P_Eff
       If (Triangular) Then
          PQ = P*(P+1d0)/2d0
@@ -68,16 +68,15 @@ C     P  = nSkal*(nSkal+1)/2
       nTasks = nint(Min(PQ,dble(MxnTsk1*nProcs)))
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
 *
-      if(Alloc) then
-C       ntasks_alloc=ntasks
+*     if(Alloc) then
         Call mma_allocate(TskM,2,nTasks,Label='TskM')
         TskM(:,:)=0
         Call mma_allocate(TskQ,2,nTasks,Label='TskQ')
 c       Write (*,*) 'init_tlist: nTasks=',nTasks
         TskQ(:,:)=Not_Used
         Call mma_allocate(TskL,nTasks*2,Label='TskL')
-        Return
-      end if
+*       Return
+*     end if
 *
       tskmin=1.d14
       tskmax=zero
@@ -134,20 +133,16 @@ c     Call RecPrt('TskM',' ',TskM,2,nTasks)
       Return
       End
 *
-      Subroutine Free_TList
+      Subroutine Free_TList()
       use TList_Mod
       Use Para_Info, Only: nProcs, Is_Real_Par
-#include "status.fh"
 #include "stdalloc.fh"
 *
-c     Write (*,*) 'Free_TList, T_Status=',T_Status
-      If (T_Status.ne.Active) Return
-      T_Status=Inactive
+      If (.Not.Allocated(TskQ)) Return
 *
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
       Call mma_deallocate(TskQ)
       Call mma_deallocate(TskM)
 *
-c     Write (*,*) 'Free_TList, T_Status=',T_Status
       Return
       End

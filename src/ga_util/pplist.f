@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Init_PPList
+      Subroutine Init_PPList()
       use TList_Mod
       Use Para_Info, only: MyRank, nProcs, Is_Real_Par
       Implicit Real*8 (a-h,o-z)
@@ -28,7 +28,8 @@
       If (PP_Status.eq.Active) Return
       PP_Status=Active
 *
-c     Write (*,*) 'Init_PPList'
+      Write (6,*) 'Init_PPList'
+      Call xflush(6)
       iTskCan=0
       mTasks=0
       iStrt_TList=0
@@ -71,7 +72,8 @@ c     Write (*,*) (TskL(iTsk),iTsk = 1, nTasks)
       Logical:: Debug=.False.
       Integer, Pointer:: TskList(:,:)
 *
-c     Write (*,*) 'ReInit_PPList'
+      Write (6,*) 'ReInit_PPList'
+      Call xflush(6)
 *
       If (Debug) Then
          If (PP_Status.eq.Active) Then
@@ -134,13 +136,14 @@ c        Write (*,*) 'mTasks=',mTasks
       Return
       End
 *
-      Subroutine Free_PPList
+      Subroutine Free_PPList()
       use TList_Mod
       Use Para_Info, only: nProcs, Is_Real_Par
 #include "status.fh"
 #include "stdalloc.fh"
 *
-      If (PP_Status.ne.Active) Return
+*     If (PP_Status.ne.Active) Return
+      If (.NOT.Allocated(TskL)) Return
       PP_Status=Inactive
 *
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
