@@ -111,8 +111,6 @@
          Write (Lu,'(1X,A,2X,F10.4)') (Lbl(iInter),rInt(iInter),
      &          iInter=1,nQQ)
       End If
-      nPrint_33=nPrint(33)
-      nPrint_31=nPrint(31)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -186,8 +184,6 @@
 *--------Check if the final structure is reached and get the
 *        difference between the present structure and the final.
 *
-         rOld = rMax
-         iMax_Old = iMax
          iMax = 1
          rMax = Zero
          Do i = 1, nQQ

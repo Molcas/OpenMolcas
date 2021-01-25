@@ -54,8 +54,6 @@
       Integer Index(3,4)
 
       nelem(ixyz) = (ixyz+1)*(ixyz+2)/2
-      iprint =0
-
 
       nZeta = nAlpha*nBeta
       call dcopy_(nZeta*nElem(la)*nElem(lb)*6,

@@ -38,11 +38,6 @@
       Implicit Integer (a-z)
 #include "switch.fh"
 #include "ctl.fh"
-      External Get_Progname
-      Character*100 Get_Progname
-      Integer StrnLn
-      External StrnLn
-
       Character*(*) name
       Character*256 tmp, out
       Character*80 ErrTxt

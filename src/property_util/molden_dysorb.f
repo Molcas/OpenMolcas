@@ -137,12 +137,6 @@ c      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Check_CMO=Zero
-      Check_Energy=Zero
-      Check_Occupation=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
       Call f_Inquire('RUNFILE',Exist)
       If (.Not.Exist) then
       iRC=1

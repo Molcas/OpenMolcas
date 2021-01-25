@@ -21,9 +21,8 @@
      &       MOValue(mAO*nCoor,nMOs),
      &       CMOs(nCMO)
       Integer DoIt(nMOs)
-      Integer   iOff_MO(0:7), iOff_CMO(0:7), iTwoj(0:7)
+      Integer   iOff_MO(0:7), iOff_CMO(0:7)
       Character*80 Label
-      Data iTwoj/1,2,4,8,16,32,64,128/
 *
       iRout=135
       iPrint=nPrint(iRout)

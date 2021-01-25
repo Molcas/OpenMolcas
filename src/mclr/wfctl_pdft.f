@@ -95,7 +95,6 @@
 *MGD I think this is nice when printed...
       lprint=.true.
       debug=.false.
-      idasave=0
       reco=-One
       Lu_50=50
       If (SAVE) CALL DANAME(Lu_50,'RESIDUALS')
@@ -124,7 +123,6 @@
 *
 *          Output: Commonblocks (Pointers.fh)
 *
-      nConf2=nint(xispsm(State_SYM,1))
       nConf3=nint(Max(xispsm(State_SYM,1),xispsm(State_SYM,1)))
 
       Call Setup_MCLR(iSym)
@@ -225,14 +223,12 @@
       LUTMP=87
       Call Molcas_Open(LUTMP,'TmpFock')
       nTri = 0
-      nTri2 = 0
       nOrbAct = 0
       do ksym=1,nsym
         nTri = nTri + nBas(ksym)*(nBas(ksym)+1)/2
         nOrbAct = nOrbAct + nAsh(ksym)
       end do
       nacpar = nOrbAct*(nOrbAct+1)/2
-      nTri2 = nacpar*(nacpar+1)/2
       Call mma_allocate(FMO1t,nTri,Label='FMO1t')
       Call mma_allocate(FMO1,nDens2,Label='FMO1')
       nacpar=(nnA+1)*nnA/2
@@ -277,7 +273,6 @@
       end do
       Close(LUTMP)
 
-      iprci = ipget(nconf3)
       Call CISigma_sa(0,State_sym,State_sym,FMO1,nDens2,FMO2t,
      &                SIZE(FMO2t),rdum,1,ipci,ipST,.True.)
       Call mma_deallocate(FMO2t)
@@ -742,6 +737,9 @@
 *----------------------------------------------------------------------*
 *
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       End
 
       Subroutine TimesE2_(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
@@ -802,5 +800,8 @@
       end if
 *
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       End
 

@@ -17,14 +17,12 @@
 c      write(nf2,*) 'ar_bl_dd_ext'
       logic_g49b=.true.
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
       ildownwei_segdd=iseg_downwei(ipael)
       irdownwei_segdd=iseg_downwei(ipae)
       iml0= iml
       imr0= imr
-      lptype=5
       do iw0=1,mtype
         w0_plp=vplpnew_w0(iw0)
         w1_plp=vplpnew_w1(iw0)
@@ -93,7 +91,6 @@ c      write(nf2,*) 'ar_bl_dd_ext'
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ildownwei_segdd=iseg_downwei(ipael)
       irdownwei_segdd=iseg_downwei(ipae)
 
@@ -174,16 +171,14 @@ c      write(nf2,*) 'ar_bl_dd_ext'
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
 
       logic_g1415=.false.
       logic_g2g4b=.false.
       logic_g36b=.false.
       logic_g35b=.false.
       logic_g34b=.false.
-      ilnodesm =0
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
       ildownwei_segdd=iseg_downwei(ipael)
@@ -284,14 +279,11 @@ c      write(nf2,*) 'ar_bl_dd_ext'
                   logic_g36b=.false.
                   logic_g35b=.false.
                   logic_g34b=.false.
-      data crl/1.0e-8/
+      data crl/1.0d-8/
       if(logic_grad) then
       do lrk=1,norb_dz
          if(lri.eq.lrk)   cycle
          if(lrj.eq.lrk)   cycle
-      ilnodesm =0
-      iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
       ildownwei_segdd=iseg_downwei(ipael)
@@ -320,9 +312,6 @@ c      write(nf2,*) 'ar_bl_dd_ext'
       enddo
 
       else
-      ilnodesm =0
-      iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
       ildownwei_segdd=iseg_downwei(ipael)
@@ -356,11 +345,9 @@ c      write(nf2,*) 'ar_bl_dd_ext'
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
 
-      ilnodesm =0
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
       ildownwei_segdd=iseg_downwei(ipael)
@@ -470,9 +457,7 @@ c                  logic_g2g4b=.false.
 c                  logic_g36b=.false.
 c                  logic_g35b=.false.
 c                  logic_g34b=.false.
-      ilnodesm =0
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
       ildownwei_segdd=iseg_downwei(ipael)
@@ -546,7 +531,7 @@ c                  logic_g34b=.false.
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
 
-      data crl/1.0e-8/
+      data crl/1.0d-8/
 c                  logic_g1415=.false.
 c                  logic_g2g4b=.false.
 c                  logic_g36b=.false.
@@ -557,9 +542,6 @@ c      write(nf2,*) 'drl_tt_sum'
       do lrk=1,norb_dz
          if(lri.eq.lrk)   cycle
          if(lrj.eq.lrk)   cycle
-      ilnodesm =0
-      iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
       ildownwei_segdd=iseg_downwei(ipael)
@@ -589,9 +571,6 @@ c      write(nf2,*) 'drl_tt_sum'
       enddo
 
       else
-      ilnodesm =0
-      iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
       ildownwei_segdd=iseg_downwei(ipael)
@@ -625,18 +604,16 @@ c      call lp_drl_sum_tt_calcuvalue(lri,lrj,n1415,nlp_value)
 #include "drt_h.fh"
 #include "pl_structure_h.fh"
 #include "lpextmode_h.fh"
-      data crl/1.0e-8/
+      data crl/1.0d-8/
 
 c                  logic_g1415=.false.
 c                  logic_g2g4b=.false.
 c                  logic_g36b=.false.
 c                  logic_g35b=.false.
 c                  logic_g34b=.false.
-      ilnodesm =0
       ildownwei_segdd=iseg_downwei(ipael)
       irdownwei_segdd=iseg_downwei(ipae)
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
       w1_plp=vplpnew_w1(1)
@@ -731,14 +708,11 @@ c                  logic_g34b=.false.
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
 
-      ndorb=norb_dz-lri
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       w0g36a=0.d0
       w1g36a=-1.d0
-      lptype=9
       do iw0=1,mtype
         w0_plp=vplpnew_w0(iw0)
         w1_plp=vplpnew_w1(iw0)
@@ -818,7 +792,6 @@ c                  logic_g34b=.false.
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       do iw0=1,mtype
         w0_plp=vplpnew_w0(iw0)
         w1_plp=vplpnew_w1(iw0)
@@ -898,7 +871,6 @@ c                  logic_g34b=.false.
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       do iw0=1,mtype
         w0_plp=vplpnew_w0(iw0)
         w1_plp=vplpnew_w1(iw0)
@@ -976,10 +948,8 @@ c                  logic_g34b=.false.
 #include "lpextmode_h.fh"
       dimension lpcoe(norb_dz+1:norb_inn)
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
-      lptype=1
       do iw0=1,mtype
         w0_sdplp=vplpnew_w0(iw0)
         if(logic_dh) w0_sdplp=vplp_w0(iw0)
@@ -1058,10 +1028,8 @@ c                        ipcoe=lp_arpos(iplp)
       dimension lpcoe(norb_dz+1:norb_inn)
 
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
-      lptype=1
       do iw0=1,mtype
         w0_sdplp=vplpnew_w0(iw0)
         if(logic_dh) w0_sdplp=vplp_w0(iw0)
@@ -1131,10 +1099,8 @@ c                        ipcoe=lp_arpos(iplp)
       dimension lpcoe(norb_dz+1:norb_inn)
 
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
-      lptype=1
       do iw0=1,mtype
         w0_sdplp=vplpnew_w0(iw0)
         if(logic_dh) w0_sdplp=vplp_w0(iw0)
@@ -1202,11 +1168,9 @@ c                        ipcoe=lp_arpos(iplp)
 #include "intsort_h.fh"
 #include "lpextmode_h.fh"
 
-      ndorb=norb_dz-lri
       ilsegdownwei=iseg_downwei(ipael)
       irsegdownwei=iseg_downwei(ipae)
       iwuplwei=jpad_upwei(jpadl)
-      iwuprwei=jpad_upwei(jpad)
       do iw0=1,mtype
         w0_plp=vplpnew_w0(iw0)
         w1_plp=vplpnew_w1(iw0)

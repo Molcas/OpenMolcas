@@ -8,14 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine makecivb_cvb(civec,civb,cvbdet,orbs,cvb,ic)
 c  Construct CIVB and CVBDET :
 c  IC=0 : CIVB will contain full set of structures (if PROJCAS).
 c  IC=1 : CIVB will contain only VB structures.
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
+c ... Content of CI vectors ...
+      logical, external :: tstcnt_cvb
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"

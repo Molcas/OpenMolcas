@@ -76,7 +76,6 @@ c
       enddo
       jds=1
       jde=mxnode
-      jps=no(norb_inn)+1
       jpe=no(norb_inn+1)
 
       jp=jv
@@ -228,7 +227,6 @@ c Avoid unused argument warnings
 !     :    ,jj(4,0:max_node),kk(0:max_node),no(0:max_innorb)
 !     :    ,jv,jd(8),jt(8),js(8)
       dimension lhsm(8),locu(8,max_ref),lscu(0:8,max_ref)
-      nl_act=norb_act
       ne_act=nel-2*norb_dz
       ne_s=nint(spin*2)
       lhs=nstart_act
@@ -407,7 +405,6 @@ c irfno(i)=j no. i ref is no. j cfs in h0
       common/config/ndr,nwalk(0:max_orb)
       dimension iselcsf_occ(max_innorb,max_ref)
       dimension iwalktmp(max_orb)
-      logical log_exist
       icsfwlk=0
       ndimh0=nci_h0 !iw_sta(2,1)
       icount=0
@@ -418,7 +415,6 @@ c irfno(i)=j no. i ref is no. j cfs in h0
             iwalktmp(im)=nwalk(norb_all-im+1)
           enddo
 
-          log_exist=.false.
           ij=norb_dz
           do ii=1,norb_act
             ij=ij+1
@@ -438,7 +434,6 @@ c irfno(i)=j no. i ref is no. j cfs in h0
               goto 30
             endif
           enddo
-          log_exist=.true.
           icount=icount+1
           irfno(icount)=j
           ifrno(j)=icount
@@ -556,7 +551,7 @@ c...end of irfrst
 
       function min_itexcit(indjk)
       common/ref/ndj,ndjgrop,ndjmod
-      dimension indjk(4),itexcit(ndj)
+      dimension indjk(4)
 c      integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
 !    indexcit=  ir1 ir2 ir3 ir4 ir5 ir6 ir7 ir8 ......... ir15
 !--------------------------------------------------------
@@ -571,7 +566,6 @@ c      integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
 !          if(ixcit.eq.0) ixcit=3
             min_itexcit=min(min_itexcit,ixcit)
           if(min_itexcit.eq.0) return
-          itexcit(nj+lref)=ixcit
         enddo
         nj=nj+15
       enddo
@@ -583,7 +577,6 @@ c      integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
 !          if(ixcit.eq.0) ixcit=3
           min_itexcit=min(min_itexcit,ixcit)
           if(min_itexcit.eq.0) return
-          itexcit(nj+lref)=ixcit
         enddo
 !--------------------------------------------------------
       return
@@ -591,7 +584,7 @@ c      integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
 
       subroutine njexcit(idcc,indjk,locuk0,n_ref)
       common/ref/ndj,ndjgrop,ndjmod
-      dimension indjk(4),locuk0(n_ref),itexcit(n_ref)
+      dimension indjk(4),locuk0(n_ref)
       nj=0
       do ngrop=1,ndjgrop-1         !1-(ndjgrop-1) grop
         indexcit=indjk(ngrop)
@@ -602,7 +595,6 @@ c      integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
          if(idcc-locuk0(nj+lref).eq.1) ixcit=ixcit+1
          if(idcc-locuk0(nj+lref).eq.2) ixcit=ixcit+2
          if(ixcit.ge.3) ixcit=3
-         itexcit(nj+lref)=ixcit
           indjk(ngrop)=ishft(ixcit,2*(lref-1))+indjk(ngrop)
         enddo
         nj=nj+15
@@ -615,7 +607,6 @@ c      integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
          if(idcc-locuk0(nj+lref).eq.1) ixcit=ixcit+1
          if(idcc-locuk0(nj+lref).eq.2) ixcit=ixcit+2
          if(ixcit.ge.3) ixcit=3
-         itexcit(nj+lref)=ixcit
          indjk(ngrop)=ishft(ixcit,2*(lref-1))+indjk(ngrop)
        enddo
 

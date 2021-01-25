@@ -174,7 +174,7 @@ CONTAINS
       END SELECT
 
       CALL fmm_get_J_via_raw_potentials(scheme,dens,J_matrix,energy,E_text)
-      WRITE(LUPRI,'(X,A," = ",E20.12)') E_text, energy
+      WRITE(LUPRI,'(1X,A," = ",E20.12)') E_text, energy
 
       TTOT = fmm_second()-T0
       CALL TIMTXT('>>> TIME USED in fmm_get_J_matrix', TTOT, LUPRI)

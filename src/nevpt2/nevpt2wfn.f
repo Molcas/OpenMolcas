@@ -32,6 +32,11 @@
       use nevpt2_cfg
       use info_state_energy  ! energies, effective Hamiltonian
       use info_orbital_space ! orbital specifications read from JobIph
+#ifdef _HDF5_
+      use mh5, only: mh5_create_file, mh5_init_attr,
+     &               mh5_create_dset_str, mh5_create_dset_real,
+     &               mh5_put_dset, mh5_close_dset
+#endif
       implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -40,7 +45,6 @@
 #include "pt2_guga.fh"
       logical, intent(in)       :: create_h5
 #ifdef _HDF5_
-#  include "mh5.fh"
       integer :: dsetid, i
       character(len=1), allocatable :: typestring(:)
 #endif
@@ -72,7 +76,7 @@
 
       !> general wavefunction attributes
         call mh5_init_attr (pt2wfn_id,'SPINMULT', nSpin)
-        call mh5_init_attr (pt2wfn_id,'LSYM', lSym)
+        call mh5_init_attr (pt2wfn_id,'LSYM', stSym)
         call mh5_init_attr (pt2wfn_id,'NACTEL', nr_active_electrons)
         call mh5_init_attr (pt2wfn_id,'NHOLE1', 0)
         call mh5_init_attr (pt2wfn_id,'NELEC3', 0)
@@ -184,12 +188,14 @@
 #endif
       use refwfn
       use nevpt2_cfg, only : MultGroup
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset, mh5_put_dset_array_real
+#endif
       implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "stdalloc.fh"
 #ifdef _HDF5_
-#  include "mh5.fh"
       real*8, allocatable :: BUF(:)
       integer :: IDISK
 #ifdef _DMRG_
@@ -200,7 +206,7 @@
         call mma_allocate(BUF,NCMO)
         IDISK = 0
         CALL DDAFILE(LUONEM,2,BUF,NCMO,IDISK)
-        call mh5_put_dset_array_real(pt2wfn_mocoef,BUF)
+        call mh5_put_dset(pt2wfn_mocoef,BUF)
         call mma_deallocate(BUF)
 #ifdef _DMRG_
         if(allocated(qcm_group_names))then
@@ -223,21 +229,23 @@
       use refwfn
       use nevpt2_cfg
       use info_state_energy  ! energies + effective Hamiltonian
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset, mh5_put_dset_array_real
+#endif
       implicit none
 #ifdef _HDF5_
-#  include "mh5.fh"
 
       If (pt2wfn_is_h5) Then
         !> reference energies aka DMRG-SCF energies
-        call mh5_put_dset_array_real(pt2wfn_refene, e)
-        call mh5_put_dset_array_real(pt2wfn_energy_sc, psimp)
+        call mh5_put_dset(pt2wfn_refene, e)
+        call mh5_put_dset(pt2wfn_energy_sc, psimp)
         !> effective Hamiltonian
-        call mh5_put_dset_array_real(pt2wfn_heff_sc,e2mp)
+        call mh5_put_dset_array_real(pt2wfn_heff_sc, e2mp)
         if(.not.no_pc)then
           !> single-state PC energies
-          call mh5_put_dset_array_real(pt2wfn_energy_pc, psien)
+          call mh5_put_dset(pt2wfn_energy_pc, psien)
           !> effective PC Hamiltonian
-          call mh5_put_dset_array_real(pt2wfn_heff_pc,e2en)
+          call mh5_put_dset_array_real(pt2wfn_heff_pc, e2en)
         end if
       End If
 #endif
@@ -246,6 +254,9 @@
       subroutine nevpt2wfn_close
 #ifdef _DMRG_
       use qcmaquis_info
+#endif
+#ifdef _HDF5_
+      use mh5, only: mh5_close_file
 #endif
       implicit none
 #ifdef _HDF5_

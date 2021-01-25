@@ -24,7 +24,7 @@ C
       Integer   rc,nIsh(*),nAsh(*),nSsh(*), nFr(*), nFrVir(*)
 
       Real*8    tread(2),tmotr1(2),tmotr2(2)
-      Logical   Debug,timings,DoRead
+      Logical   timings,DoRead
       Integer   nPorb(8),ipOrb(8),nPvir(8),nPocc(8)
       Integer   ipLpb(8),iSkip(8),LuLTra(4)
       Integer   kOff1(8),kOff1ij(8),kOff1ia(8),kOff1ai(8),kOff1ab(8)
@@ -54,13 +54,6 @@ C
       nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 
 ************************************************************************
-
-#ifdef _DEBUGPRINT_
-      Debug=.true.
-#else
-      Debug=.false.
-#endif
-
 
       DoRead  = .false.
       IREDC = -1  ! unknown reduced set in core

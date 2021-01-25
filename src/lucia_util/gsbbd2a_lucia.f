@@ -71,8 +71,8 @@
 *
 * Jeppe Olsen, Fall of 96
 *
+      USE Para_Info, ONLY: MyRank, nProcs
       IMPLICIT REAL*8(A-H,O-Z)
-#include "para_info.fh"
 *. General input
       INTEGER ADSXA(MXPOBS,2*MXPOBS),SXSTST(NSMSX,NSMST),
      &        STSTSX(NSMST,NSMST), SXDXSX(2*MXPOBS,4*MXPOBS)
@@ -312,7 +312,6 @@ C                   IKOFF = (IKBOFF-1+IIK-1)*NKBTC*NIBTC+1
               JOFF = IOBPTS(JTYP,JSM)
               KOFF = IOBPTS(KTYP,KSM)
               LOFF = IOBPTS(LTYP,LSM)
-              NTESTO = NTEST
 C?            IF(IOFF.EQ.3.AND.JOFF.EQ.3.AND.KOFF.EQ.4.AND.LOFF.EQ.4)
 C?   &            NTEST = 5000
                   LDUMMY = NKBTC*NIBTC

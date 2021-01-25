@@ -71,7 +71,6 @@
        METHOD='CONJ'
        IFJAC=0
        RFpert=.false.
-       CITHR=0.05D00
        NTIT=0
 c
        lunsta=21
@@ -104,7 +103,6 @@ cDIVNUO
      &                     TITLE,4*18*MXTIT,POTNUC,
      &                     LROOTS,NROOTS,IROOT,MXROOT,NRAS1,
      &                     NRAS2,NRAS3,NHOLE1,NELE3,IPT2,Weights)
-       SPIN=DBLE(ISPIN-1)/2
 c
 c     define defaults for REORG
 c
@@ -120,7 +118,6 @@ c
          ndelr(nhelp)=NDEL(nhelp)
          nfror(nhelp)=NFRO(nhelp)
        end do
-       maxsize=0
 CGG       fullprint=0
        noop=0
        iokey=1

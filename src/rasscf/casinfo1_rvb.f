@@ -10,7 +10,6 @@
 ************************************************************************
       subroutine casinfo1_rvb()
       implicit real*8 (a-h,o-z)
-#include "ext_cvb.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"

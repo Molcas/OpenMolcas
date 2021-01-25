@@ -18,7 +18,7 @@ set (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/${tooldir})
 
 foreach (prog IN ITEMS job2asc asc2job)
   add_executable (${prog}.exe ${prog}.f)
-  target_link_libraries (${prog}.exe molcas)
+  target_link_libraries (${prog}.exe libmolcas)
   target_link_libraries (${prog}.exe ${EXTERNAL_LIBRARIES})
   install (PROGRAMS
            ${EXECUTABLE_OUTPUT_PATH}/${prog}.exe

@@ -22,7 +22,7 @@
 #include "warnings.fh"
       Character*13 SECNAM
       Parameter (SECNAM = 'CHO_FOCK_MCLR')
-      Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8),kaOff(8),ipLpq(8,3)
+      Integer   ISTLT(8),ISTSQ(8),ISSQ(8,8),ipLpq(8,3)
       Integer   ipAorb(8,2),LuAChoVec(8)
       Integer   nAsh(8),nIsh(8)
 #include "cholesky.fh"
@@ -57,7 +57,6 @@
 *
       ISTLT(1)=0
       ISTSQ(1)=0
-      kAOff(1)=0
       nnA=0
       nsBB=nBas(1)**2
       DO ISYM=2,NSYM
@@ -66,7 +65,6 @@
         NBB=NBAS(ISYM-1)*(NBAS(ISYM-1)+1)/2
         ISTLT(ISYM)=ISTLT(ISYM-1)+NBB
         nnA = nnA + nAsh(iSym-1)
-        kAOff(iSym)=nnA
       End Do
       nnA = nnA + nAsh(nSym)
 *
@@ -122,8 +120,6 @@
 *
         JRED1 = InfVec(1,2,jSym)  ! red set of the 1st vec
         JRED2 = InfVec(NumCho(jSym),2,jSym) !red set of the last vec
-        myJRED1=JRED1 ! first red set present on this node
-        myJRED2=JRED2 ! last  red set present on this node
 
 c --- entire red sets range for parallel run
         Call GAIGOP_SCAL(JRED1,'min')
@@ -193,7 +189,6 @@ c         !set index arrays at iLoc
      &                     NUMV,IREDC,MUSED)
 
             If (NUMV.le.0 .or.NUMV.ne.JNUM ) then
-               rc=77
                RETURN
             End If
 *
@@ -218,10 +213,6 @@ C -------------------------------------------------------------
                 lChoa= lChoa + nAsh(k)*nBas(i)*3*JNUM
 
              End Do
-
-             iSwap = 0  ! Lvb,J are returned
-             kMOs = 1  !
-             nMOs = 1  ! Active MOs (1st set)
 *
 **  Read half-transformed cho vectors
 *

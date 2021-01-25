@@ -44,7 +44,8 @@
       Logical, intent(in)          :: JITO_exchange
       Character(Len=1), intent(in) :: itype(nneq)
       ! local variables
-      Integer       ::   i,j,l,k,lp,i1,i2,j1,j2,lb1,lb2,iopt,ibuf,
+c     Integer       ::   iopt
+      Integer       ::   i,j,l,k,lp,i1,i2,lb1,lb2,ibuf,
      &                   is1,is2,js1,js2,k1,k2,q1,q2,n1,n2,nsize
       Integer       ::   nind(lmax,2),l1(2),l2(2),l3(2),l4(2)
       Real(kind=8) ::   J1C(3,3), J1Cr(3,3) !, J1C_trans(3,3)
@@ -54,10 +55,10 @@
       Real(kind=8)    :: dznrm2_,RL1,RL3,RL9,RDI,RDM,RIT
       Real(kind=8)    :: g1(3),g2(3),mg1(3,3),mg2(3,3)
       External         :: dznrm2_
-      Real(kind=8)    :: cm_to_MHz
+c     Real(kind=8)    :: cm_to_MHz
       logical DBG
 
-      cm_to_MHz=29979.2458_wp
+c     cm_to_MHz=29979.2458_wp
       DBG=.false.
 c some initializations:
       nind(:,:)=0
@@ -129,8 +130,8 @@ cccccccccccccccccccccccccccccccc
          lb2=i_pair(lp,2)
           i1=nind(lb1,1) ! indices of non-equivalent sites
           i2=nind(lb2,1) ! indices of non-equivalent sites
-          j1=nind(lb1,2) ! indices of equivalent sites
-          j2=nind(lb2,2) ! indices of equivalent sites
+          !j1=nind(lb1,2) ! indices of equivalent sites
+          !j2=nind(lb2,2) ! indices of equivalent sites
           If (AnisoLines1.AND.(RL1>0.0_wp)) Then
             Write(6,'(A,i5)') 'HLIN1,  interacting pair ',lp
             Do is1=1,nexch(i1)
@@ -266,15 +267,15 @@ c first rotate the magnetic moments to the general coordinate system:
         lb2=i_pair(lp,2)
         i1=nind(lb1,1) ! indices of non-equivalent sites
         i2=nind(lb2,1) ! indices of non-equivalent sites
-        j1=nind(lb1,2) ! indices of equivalent sites
-        j2=nind(lb2,2) ! indices of equivalent sites
+        !j1=nind(lb1,2) ! indices of equivalent sites
+        !j2=nind(lb2,2) ! indices of equivalent sites
 
         n1=nexch(i1)
         n2=nexch(i2)
         Write(6,'(A)') 'PART 1: Magnetic exchange is written in the '//
      &                 'coordinate systems of the LOCAL main '//
      &                 'magnetic axes of the interacting sites.'
-        iopt=1
+c       iopt=1
         Write(6,'(A)')
         Write(6,'(100A)') ('-',i=1,100)
         Write(6,'(A,i2)') 'Interacting pair',lp

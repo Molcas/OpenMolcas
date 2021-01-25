@@ -47,8 +47,6 @@
 *
       DIMENSION VEC(*)
 *
-      IDUM=0
-*
       NTEST = 000
       NTEST = MAX(NTEST,IPRDIA)
 *

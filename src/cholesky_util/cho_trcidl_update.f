@@ -16,6 +16,7 @@ C     Thomas Bondo Pedersen, May 2010.
 C
 C     Update array for tracing idle processors
 C
+      Use Para_Info, Only: MyRank
       Implicit None
       Logical IAmIdle
 #include "choptr2.fh"

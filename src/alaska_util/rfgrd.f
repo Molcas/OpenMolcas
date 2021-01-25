@@ -125,7 +125,6 @@
          call dcopy_(nBeta,Beta,1,Array(ip),nAlpha)
          ip = ip + 1
       End Do
-      nCav=(nOrdOp+1)*(nOrdOp+2)*(nOrdOp+3)/6
       Call CmbnRF1(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,Final,
      &             nComp,Array(ipTemp1),Array(ipTemp2),
      &             Array(ipAlph),Array(ipBeta),Grad,nGrad,DAO,

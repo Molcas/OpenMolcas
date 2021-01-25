@@ -40,7 +40,6 @@
       Real*8, Dimension(:), Allocatable:: Tmp, Val, Matrix
       Real*8, Dimension(:,:), Allocatable:: Vec
       Logical Iterate, Restart
-      Real*8 Lambda
 *
       UpMeth='RS-RFO'
       Lu=6
@@ -188,7 +187,6 @@
 *        Compute lambda_i according to Eq. (8a)
 *
          EigVal=-DDot_(nInter,dq,1,g,1) ! note sign
-         Lambda = EigVal
 *
 *        Compute R^2 according to Eq. (8c)
 *

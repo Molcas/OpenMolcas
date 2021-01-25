@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 *
-*-- Process input to QMSTAT. All input varibles are stored in
+*-- Process input to QMSTAT. All input variables are stored in
 *   qminp.fh which in turn are initialized in qmstat_init.
 *
       Subroutine Get_Qmstat_Input(iQ_Atoms)

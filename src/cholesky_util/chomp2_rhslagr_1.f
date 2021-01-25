@@ -85,9 +85,6 @@
 *
       Do iSymBJ = 1,nSym
          iSymAI = iSymBJ
-         iSymCI = iSymBJ
-         iSymKB = iSymBJ
-         iSymKI = iSymAI
 ********************************************************************
 ****   Common code for Pab, Wab, Lagr(3) and PaB
 ********************************************************************
@@ -111,7 +108,6 @@
                      iSymA = MulD2h(iSymI,iSymAI)
                      iSymAJ = MulD2h(iSymA,iSymJ)
                      iSymBI = iSymAJ
-                     iSymKJ = iSymBI
                      iSymP = iSymA
                      LiOrb = min(LnBatOrb(iSymI,iBatch)
      &                     - nFroLeftI(iSymI),
@@ -170,21 +166,21 @@
      &                            + (nOcc(iSymP) + nVir(iSymP)
      &                            +  nFro(iSymP) + nDel(iSymP))
      &                            * (Li + nFroLeftI(iSymI) - 1) + iP
-                              Lpj =  LiPQprod(iSymP,iSymJ,jBatch)
-     &                            + (nOcc(iSymP) + nVir(iSymP)
-     &                            +  nFro(iSymP) + nDel(iSymP))
-     &                            * (Lj + nFroLeftJ(iSymJ) - 1) + iP
+*                             Lpj =  LiPQprod(iSymP,iSymJ,jBatch)
+*    &                            + (nOcc(iSymP) + nVir(iSymP)
+*    &                            +  nFro(iSymP) + nDel(iSymP))
+*    &                            * (Lj + nFroLeftJ(iSymJ) - 1) + iP
                               If(iBatch.eq.jBatch) Then
                                  ip_ipjb = LiPQRSprod(iSymBJ)
      &                                   + iTri(Lpi,Lbj)
-                                 ip_jpib = 0
+*                                ip_jpib = 0
                               Else
                                  ip_ipjb = LiPQRSprod(iSymBJ)
      &                                   + LnPQprod(iSymBJ,iBatch)
      &                                   * (Lbj-1) + Lpi
-                                 ip_jpib = LiPQRSprod(iSymBI)
-     &                                   + LnPQprod(iSymBI,iBatch)
-     &                                   * (Lpj-1) + Lbi
+*                                ip_jpib = LiPQRSprod(iSymBI)
+*    &                                   + LnPQprod(iSymBI,iBatch)
+*    &                                   * (Lpj-1) + Lbi
                               End If
                               X2 = Xaibj(ip_ipjb)
 *******************************************************************
@@ -373,11 +369,6 @@
      &                            + (nOcc(iSymP) + nVir(iSymP)
      &                            +  nFro(iSymP) + nDel(iSymP))
      &                            * (Lb+nOccLeftJ(iSymB)-1)
-     &                            + iP
-                              Lap = LiPQprod(iSymP,iSymA,iBatch)
-     &                            + (nOcc(iSymP) + nVir(iSymP)
-     &                            +  nFro(iSymP) + nDel(iSymP))
-     &                            * (La+nOccLeftI(iSymA)-1)
      &                            + iP
                               If(iBatch.eq.jBatch) Then
                                  ip_iapb = LiPQRSprod(iSymAI)

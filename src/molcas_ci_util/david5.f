@@ -126,19 +126,19 @@ C Trying to avoid writing out of bound in CSDTVC :::: JESPER :::: CHEAT
       iskipconv=1
       nnew=0
       nvec=lRoots
-      Do iterci=1,mxItr
+      Do it_ci=1,mxItr
 *-------------------------------------------------------------------
 *MGD for stability purposes recompute sigma vec from time to time
          idelta=1
-         if ((mod(iterci-1,24).eq.0)) idelta=0
+         if ((mod(it_ci-1,24).eq.0)) idelta=0
          Do mRoot=lRoots*idelta+1,lRoots+nnew
-* New CI vectors (iterci,mroot) are available.
+* New CI vectors (it_ci,mroot) are available.
 * compute new sigma vectors
             Call Load_CI_vec(mRoot,nConf,Work(iVec1),LuDavid)
             If ( iprlev.ge.DEBUG ) then
                lPrint = Min(nConf,200)
                Write (6,'(1X,A,I2,A,I2)')
-     &              'CI vector, iter =',iterci,' mRoot =',mRoot
+     &              'CI vector, iter =',it_ci,' mRoot =',mRoot
                Write (6,'(1X,A)')
      &              '(max. 200 elements)'
                Write (6,'(1X,A)')
@@ -179,7 +179,7 @@ C     Convert the CI-vector from CSF to Det. basis
               call dcopy_(nconf, work(ivec1), 1, work(kctemp),1)
               call dcopy_(ndet, [0.0d0], 0, work(ksigtemp), 1)
               CALL csdtvc(work(kctemp), work(ksigtemp), 1, work(kdtoc)
-     &           ,iwork(kicts(1)), LSym, 1)
+     &           ,iwork(kicts(1)), stSym, 1)
               call dcopy_(ndet, [0.0d0], 0, work(ksigtemp), 1)
               c_pointer = kctemp
 C     Calling Lucia to determine the sigma vector
@@ -187,7 +187,7 @@ C     Calling Lucia to determine the sigma vector
 C     Set mark so densi_master knows that the Sigma-vector exists on disk.
               iSigma_on_disk = 1
               CALL CSDTVC(work(iVec2), work(kctemp), 2, work(kdtoc),
-     &           iWork(kicts(1)), LSym, 1)
+     &           iWork(kicts(1)), stSym, 1)
 
               If ( iprlev.ge.DEBUG ) then
                 FP=DNRM2_(NCONF,WORK(IVEC2),1)
@@ -207,7 +207,7 @@ C Timings on generation of the sigma vector
                lPrint = Min(nConf,200)
                Write (6,*) ' '
                Write (6,'(1X,A,I2,A,I2)')
-     &              'sigma vector, iter =',iterci,' mRoot =',mRoot
+     &              'sigma vector, iter =',it_ci,' mRoot =',mRoot
                Write (6,'(1X,A)')
      &              '(max. 200 elements)'
                Write (6,'(1X,A)')
@@ -216,15 +216,14 @@ C Timings on generation of the sigma vector
             End If
             Call Save_Sig_vec(mRoot,nConf,Work(iVec2),LuDavid)
          End Do
-* Sigma vectors (iterci,mroot) have been computed, for mroot=1..lroots
+* Sigma vectors (it_ci,mroot) have been computed, for mroot=1..lroots
 *-------------------------------------------------------------------
 * compute Hsmall and Ssmall
 * These are Hsmall(jtrial,ktrial), where jtrial is (jter,jroot), and
 * ktrial is (kter,kroot), and similar Ssmall.
-* jtrial=1..mxKeep*lroots correspond to jter=iterci-mxKeep+1..iterci
+* jtrial=1..mxKeep*lroots correspond to jter=it_ci-mxKeep+1..it_ci
 * (Fewer, at the beginning)
 
-         jtrial = 0
          Do jRoot = 1,nvec
             Call Load_CI_vec(jRoot,nConf,Work(iVec1),LuDavid)
             Call Load_Sig_vec(jRoot,nConf,Work(iVec2),LuDavid)
@@ -277,7 +276,6 @@ C Timings on generation of the sigma vector
             Call dCopy_(nConf,[0.0d0],0,Work(iVec1),1)
             Call dCopy_(nConf,[0.0d0],0,Work(iVec2),1)
 *...      accumulate contributions
-            jtrial = 0
             Do jRoot=1,nvec
                Cik=Work(iCs-1+jRoot+(mRoot-1)*ntrial)
                Call Load_CI_vec(jRoot,nConf,Work(iVec3),LuDavid)
@@ -297,27 +295,27 @@ C Timings on generation of the sigma vector
             call daxpy_(nConf,-E0,Work(iVec1),1,Work(iVec3),1)
 *...      save current best energy and residual
             RR = dDot_(nConf,Work(iVec3),1,Work(iVec3),1)
-            CI_conv(1,mroot,iterci) = E0
-            CI_conv(2,mroot,iterci) = SQRT(RR)
+            CI_conv(1,mroot,it_ci) = E0
+            CI_conv(2,mroot,it_ci) = SQRT(RR)
 *...  print vectors
             If ( iprlev.ge.DEBUG ) then
                lPrint = Min(nConf,200)
                Write (6,'(1X,A,I2,A,I2)')
-     &              'new best CI vector, iter =',iterci,' mRoot =',mRoot
+     &              'new best CI vector, iter =',it_ci,' mRoot =',mRoot
                Write (6,'(1X,A)')
      &              '(max. 200 elements)'
                Write (6,'(1X,A)')
      &              '--------------------------------------'
                Call dVcPrt(' ',' ',Work(iVec1),lPrint)
                Write (6,'(1X,A,I2,A,I2)')
-     &           'new best sigma vector, iter =',iterci,' mRoot =',mRoot
+     &           'new best sigma vector, iter =',it_ci,' mRoot =',mRoot
                Write (6,'(1X,A)')
      &              '(max. 200 elements)'
                Write (6,'(1X,A)')
      &              '-----------------------------------------'
                Call dVcPrt(' ',' ',Work(iVec2),lPrint)
                Write (6,'(1X,A,I2,A,I2)')
-     &           'new residual vector, iter =',iterci,' mRoot =',mRoot
+     &           'new residual vector, iter =',it_ci,' mRoot =',mRoot
                Write (6,'(1X,A)')
      &              '(max. 200 elements)'
                Write (6,'(1X,A)')
@@ -342,42 +340,42 @@ C Timings on generation of the sigma vector
 *-------------------------------------------------------------------
 
 * check for convergence
-         nItr = iterci
-         If ( iterci.gt.1 ) then
-            dE = CI_conv(1,1,iterci-1) - CI_conv(1,1,iterci)
+         nItr = it_ci
+         If ( it_ci.gt.1 ) then
+            dE = CI_conv(1,1,it_ci-1) - CI_conv(1,1,it_ci)
          Else
             dE = 0.0d0
          End If
          Write(IterFile,'(1X,I4,4X,I4,4X,F18.10,4X,F14.10,4X,F14.10)')
-     &          IterCi,1,CI_conv(1,1,iterci),dE,
-     &          CI_conv(2,1,iterci)
+     &          it_ci,1,CI_conv(1,1,it_ci),dE,
+     &          CI_conv(2,1,it_ci)
          Do jRoot = 2,lRoots
-            If ( iterci.gt.1 ) then
-               dE = CI_conv(1,jroot,iterci-1) - CI_conv(1,jroot,iterci)
+            If ( it_ci.gt.1 ) then
+               dE = CI_conv(1,jroot,it_ci-1) - CI_conv(1,jroot,it_ci)
             End If
             Write(IterFile,'(9X,I4,4X,F18.10,4X,F14.10,4X,F14.10)')
-     &              jRoot,CI_conv(1,jroot,iterci),dE,
-     &              CI_conv(2,jroot,iterci)
+     &              jRoot,CI_conv(1,jroot,it_ci),dE,
+     &              CI_conv(2,jroot,it_ci)
          End Do
          If (lRoots .gt. 1) Write(IterFile,*)
          Call xFlush(IterFile)
          If ( iprlev.gt.DEBUG ) then
             Write (6,*)
             Write (6,'(1X,120A1)')('*',i=1,120)
-            Write (6,'(1X,A,I2)') 'CI iteration ',iterci
+            Write (6,'(1X,A,I2)') 'CI iteration ',it_ci
             ThrRes = Max(0.2d-6,SQRT(ThrEne))
             Write (6,'(1X,A,2F18.10)') 'ThrEne,ThrRes=',ThrEne,ThrRes
             Do jRoot = 1,lRoots
-               If ( iterci.gt.1 ) then
-                  dE =CI_conv(1,jroot,iterci-1)-CI_conv(1,jroot,iterci)
+               If ( it_ci.gt.1 ) then
+                  dE =CI_conv(1,jroot,it_ci-1)-CI_conv(1,jroot,it_ci)
                Else
                   dE = 0.0d0
                End If
                Write (6,'(1X,A,I2,A,F18.10,2(A,F14.10))')
      &          ' root ',jRoot,
-     &          ' energy =',CI_conv(1,jroot,iterci),
+     &          ' energy =',CI_conv(1,jroot,it_ci),
      &          ' dE =',dE,
-     &          ' residual =',CI_conv(2,jroot,iterci)
+     &          ' residual =',CI_conv(2,jroot,it_ci)
             End Do
             Write (6,'(1X,120A1)')('*',i=1,120)
             Write (6,*)
@@ -387,13 +385,13 @@ C Timings on generation of the sigma vector
          nconverged=0
 *Do not check for convergence of hidden roots
          Do jRoot=1,lRoots-hroots
-            If ( iterci.gt.1 ) then
-               dE = CI_conv(1,jroot,iterci-1) - CI_conv(1,jroot,iterci)
+            If ( it_ci.gt.1 ) then
+               dE = CI_conv(1,jroot,it_ci-1) - CI_conv(1,jroot,it_ci)
             Else
                dE = 0.0d0
             End If
             dE = abs(dE)
-            R  = CI_conv(2,jroot,iterci)
+            R  = CI_conv(2,jroot,it_ci)
             If ( (dE.lt.ThrEne) .and. (R.lt.ThrRes) ) Then
                iConv = iConv+1
                If (jRoot.eq.nconverged+1) nconverged=nconverged+1

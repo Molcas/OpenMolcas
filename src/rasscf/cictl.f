@@ -55,6 +55,10 @@
       use qcmaquis_interface_cfg
       use qcmaquis_interface_wrapper
       use qcmaquis_interface_main, only: file_name_generator
+      use mh5, only: mh5_put_dset
+#endif
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset_array_real
 #endif
 
       Implicit Real* 8 (A-H,O-Z)
@@ -760,7 +764,7 @@ c
           END IF
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
          if(.not.iDoGas)then
-          Call Reord2(NAC,NACTEL,LSYM,0,
+          Call Reord2(NAC,NACTEL,STSYM,0,
      &                iWork(KICONF(1)),iWork(KCFTP),
      &                Work(LW4),Work(LW11),iWork(ivkcnf))
 c        end if
@@ -809,7 +813,7 @@ C.. printout of the wave function
      c                 prwthr,' for root', i
             Write(LF,'(6X,A,F15.6)')
      c                'energy=',ener(i,iter)
-          call gasprwf(iwork(lw12),nac,nactel,lsym,iwork(kiconf(1)),
+          call gasprwf(iwork(lw12),nac,nactel,stsym,iwork(kiconf(1)),
      c                 iwork(kcftp),work(lw4),iwork(ivkcnf))
           End If
          end if
@@ -832,7 +836,7 @@ C.. printout of the wave function
           END IF
 * reorder it according to the split graph GUGA conventions
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
-          Call Reord2(NAC,NACTEL,LSYM,0,
+          Call Reord2(NAC,NACTEL,STSYM,0,
      &                iWork(KICONF(1)),iWork(KCFTP),
      &                Work(LW4),Work(LW11),iWork(ivkcnf))
           call getmem('kcnf','free','inte',ivkcnf,nactel)
@@ -863,7 +867,7 @@ C.. printout of the wave function
         Call GetMem('CIVtmp','Free','Real',LW11,nConf)
       ENDIF
 #ifdef _DMRG_
-          call mh5_put_dset_array_str
+          call mh5_put_dset
      &         (wfn_dmrg_checkpoint,dmrg_file%qcmaquis_checkpoint_file)
 #endif
 

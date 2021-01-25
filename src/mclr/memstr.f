@@ -56,7 +56,6 @@
       ITYP_Dummy=NSTTYP+1
       Allocate(Str(1:NSTTYP+1))
 
-      IIITEST = 1
       DO ITYP = 1, NSTTYP
         IF (IUNIQTP(ITYP).EQ.ITYP) THEN
         NSTRIN = NUMST3(NELEC(ITYP),NORB1,MNRS1(ITYP),MXRS1(ITYP),

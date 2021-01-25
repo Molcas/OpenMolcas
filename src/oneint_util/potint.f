@@ -42,7 +42,6 @@
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
       Call fzero(final,nZeta*nElem(la)*nElem(lb)*nIC)
-      len=nZeta*nElem(la)*nElem(lb)*nIC
 *
       iAnga(1) = la
       iAnga(2) = lb

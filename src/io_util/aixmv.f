@@ -39,10 +39,6 @@
 ************************************************************************
       Integer Function AixMv(FileName,NewName)
       Implicit Integer (a-z)
-      External Get_Progname
-      Character*100 Get_Progname
-      Integer StrnLn
-      External StrnLn
 
       Character*(*) FileName, NewName
       Character*256 out1, out2

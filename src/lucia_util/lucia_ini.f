@@ -52,7 +52,6 @@ C =======================
       NERROR = 0
       NWARN = 0
       EXTSPC = 0
-      IECHO = 0
 * No cc as default
 *. Start out with normal integrals
 c      I_USE_SIMTRH = 0
@@ -80,7 +79,6 @@ C ==============================
          nsmob = nsym_molcas
          maxml = -1
          maxl = -1
-         invcnt = -1
 *
 C ============================
 C  Number of active electrons
@@ -283,7 +281,6 @@ C ==============
 * 8 : Core orbitals, only of interest if EXTSPC .ne. 0
 *
          CALL ISETVC(NRS0SH,0,NIRREP)
-         MNHR0 = 0
 *
 * 9 : RAS 1 orbitals
 *
@@ -295,13 +292,7 @@ C ==============
 *
 * 11 : RAS 3 orbitals
 *
-      IMLCR3 = 0
          CALL ISETVC(NRSSH(1,3),0,NIRREP)
-         IF(INTSPC.EQ.2) THEN
-*. Use information from one-electron integral file to obtain
-* default
-            IMLCR3 = 1
-         END IF
 *
 * 13 : Secondary space
 *
@@ -355,9 +346,7 @@ C ==============
 *
 *. If CAS + Active have been set or RAS + Ras3 have been set,
 *. obtain for MOLCAS Interface from number of basis functions
-         IF(INTSPC.EQ.1) THEN
-            IMLCR3 = 2
-         ELSE
+         IF(INTSPC.NE.1) THEN
             CALL ISETVC(NDELSH,0,NIRREP)
          END IF
 *

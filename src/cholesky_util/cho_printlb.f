@@ -9,9 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Cho_PrintLB()
+      Use Para_Info, Only: MyRank, nProcs
       Implicit None
 #include "cholesky.fh"
-#include "cho_para_info.fh"
 #include "WrkSpc.fh"
 
       Integer ip_LB, l_LB, i

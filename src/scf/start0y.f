@@ -42,12 +42,9 @@
 * Get start orbitals.                                                  *
 *----------------------------------------------------------------------*
 *
-      iRC=0
       Call qpg_darray('SCF orbitals',found,ndata)
       If (Found) Then
          Call get_darray('SCF orbitals',CMO(1,1),ndata)
-      Else
-         iRC=-1
       End If
       Call qpg_darray('OrbE',found,ndata)
       If (Found) Then
@@ -62,8 +59,6 @@
          Call qpg_darray('SCF orbitals_ab',found,ndata)
          If(Found) Then
             Call get_darray('SCF orbitals_ab',CMO(1,2),ndata)
-         Else
-            iRC=-1
          End If
          Call qpg_darray('OrbE_ab',found,ndata)
          If(found) Then

@@ -34,6 +34,9 @@
 *  Author: F. Aquilante
 *
 ************************************************************************
+#ifdef _MOLCAS_MPP_
+      Use Para_Info, Only: MyRank, nProcs
+#endif
       Implicit Real*8 (a-h,o-z)
       Integer ip_List_rs, iSO_ab(2,*)
 
@@ -47,10 +50,8 @@
       iOff=0
 
 #ifdef _MOLCAS_MPP_
-      Call Get_nProcs(nProcs)
       Call GetMem('List','Allo','Inte',ip_List,nProcs)
       Call IZero(iWork(ip_List),nProcs)
-      Call Get_MyRank(MyRank)
       iWork(ip_List+MyRank)=NumCho(jSym)
       Call Cho_GAIGOP(iWork(ip_List),nProcs,'+')
       nTot=0

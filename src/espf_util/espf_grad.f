@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine espf_grad (natom,nAtQM,nGrdPt,ipExt,ipGrid,ipB,ipDB,
+      Subroutine espf_grad (natom,nGrdPt,ipExt,ipGrid,ipB,ipDB,
      &                      ipIsMM,ipGradCl,DoTinker,DoGromacs)
       Implicit Real*8 (A-H,O-Z)
 *
@@ -214,7 +214,6 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
          If (iWork(ipIsMM+iAt-1).eq.1) Goto 10
          iQM = iQM + 1
          Do jPnt = 1, NGrdPt
-            iCurDB = ipDB + (jPnt-1)*nAtQM*3+(iQM-1)*3
             iCurDB1 = ipDB + (jPnt-1)+((iQM-1)*3+0)*nGrdPt
             iCurDB2 = ipDB + (jPnt-1)+((iQM-1)*3+1)*nGrdPt
             iCurDB3 = ipDB + (jPnt-1)+((iQM-1)*3+2)*nGrdPt

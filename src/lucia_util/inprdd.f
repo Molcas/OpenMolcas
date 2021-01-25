@@ -44,13 +44,11 @@ C
 C
         IF( LBLK .GT. 0 ) THEN
           NBL1 = LBLK
-          NBL2 = LBLK
         ELSE IF ( LBLK .EQ. 0 ) THEN
           CALL IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
           NBL1=IDUMMY(1)
           IF( DIFVEC) THEN
             CALL IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
-            NBL2=IDUMMY(1)
           END IF
         ELSE IF ( LBLK .LT. 0 ) THEN
           CALL IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
@@ -58,7 +56,6 @@ C
           CALL IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
           IF( DIFVEC) THEN
             CALL IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
-            NBL2=IDUMMY(1)
             CALL IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
           END IF
         END IF

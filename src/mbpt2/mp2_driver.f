@@ -131,8 +131,6 @@
 *                                                                      *
       E2BJAI=Zero
       REFC=Zero
-      PE2=Zero
-      PVECL2=Zero
 *
       Wref=Zero
 *                                                                      *

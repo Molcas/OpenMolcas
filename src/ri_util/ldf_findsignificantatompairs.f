@@ -470,8 +470,8 @@ C
 
       Real*8 Dmax_All, tau
 
-      Integer  LDF_nBas_Atom, LDF_nShell_Atom, LDF_lShell_Atom
-      External LDF_nBas_Atom, LDF_nShell_Atom, LDF_lShell_Atom
+      Integer  LDF_nBas_Atom
+      External LDF_nBas_Atom
 
       Integer i
 

@@ -64,10 +64,6 @@
       If (jPrint.ge.99) Call RecPrt(' In Plf_Cho_2: AOInt',' ',
      &                              AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
 
-      If (Shijij) Then ! avoid compiler warnings about unused variables
-         iDummy_1 = iShell(1)
-      End If
-
       NUMC = NBSTSH(SHC)
       NUMD = NBSTSH(SHD)
       NUMA = NBSTSH(SHA)
@@ -104,8 +100,6 @@ C to avoid stupid compiler warnings:
       iAOj=iAO(2)
       iAOk=iAO(3)
       iAOl=iAO(4)
-*
-      ijklCmp=iCmp*jCmp*kCmp*lCmp
 *
       Do 100 i1 = 1, iCmp
          iSOs(1)=iAOtSO(iAOi+i1,kOp(1))+iAOsti
@@ -244,5 +238,10 @@ C to avoid stupid compiler warnings:
 300         Continue
 200      Continue
 100   Continue
-
+      Return
+* Avoid unused argument warnings
+      If (.False.) Then
+         Call Unused_integer_array(iShell)
+         Call Unused_logical(Shijij)
+       End If
       End

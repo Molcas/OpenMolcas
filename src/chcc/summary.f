@@ -46,6 +46,9 @@ c        Memory requirements:
 c        V1-3 - {v'ov'o}
 c        H1,2 - {v'o}
 c
+#ifdef _MOLCAS_MPP_
+        use Para_Info, only: nProcs
+#endif
         implicit none
 #include "wrk.fh"
 #include "chcc1.fh"
@@ -53,7 +56,6 @@ c
 #include "o2v4.fh"
 #include "chcc_files.fh"
 #include "chcc_parcc.fh"
-#include "para_info.fh"
 c
         integer NvGrp,LunAux,maxdim
         real*8 E1,E2,E2os

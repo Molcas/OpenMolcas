@@ -27,6 +27,11 @@
 *     SVC: Create a wavefunction file. If another .wfn file already
 *     exists, it will be overwritten.
       use refwfn
+#ifdef _HDF5_
+      use mh5, only: mh5_create_file, mh5_init_attr,
+     &               mh5_create_dset_str, mh5_create_dset_real,
+     &               mh5_put_dset, mh5_close_dset
+#endif
       implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -34,7 +39,6 @@
 #include "stdalloc.fh"
 #include "pt2_guga.fh"
 #ifdef _HDF5_
-#  include "mh5.fh"
 
       integer :: dsetid, ndmat, i
       character(len=1), allocatable :: typestring(:)
@@ -72,7 +76,7 @@
 
 *     general wavefunction attributes
         call mh5_init_attr (pt2wfn_id,'SPINMULT', iSpin)
-        call mh5_init_attr (pt2wfn_id,'LSYM', lSym)
+        call mh5_init_attr (pt2wfn_id,'LSYM', stSym)
         call mh5_init_attr (pt2wfn_id,'NACTEL', nActEl)
         call mh5_init_attr (pt2wfn_id,'NHOLE1', nHole1)
         call mh5_init_attr (pt2wfn_id,'NELEC3', nEle3)
@@ -182,12 +186,14 @@
 
       subroutine pt2wfn_data
       use refwfn
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset, mh5_put_dset_array_real
+#endif
       implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "stdalloc.fh"
 #ifdef _HDF5_
-#  include "mh5.fh"
       real*8, allocatable :: BUF(:)
       integer :: ISTATE, IDISK
 
@@ -204,7 +210,7 @@
         call mma_allocate(BUF,NCMO)
         IDISK = IAD1M(1)
         CALL DDAFILE(LUONEM,2,BUF,NCMO,IDISK)
-        call mh5_put_dset_array_real(pt2wfn_mocoef,BUF)
+        call mh5_put_dset(pt2wfn_mocoef,BUF)
         call mma_deallocate(BUF)
       End If
 #endif
@@ -212,15 +218,17 @@
 
       subroutine pt2wfn_estore(Heff)
       use refwfn
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset, mh5_put_dset_array_real
+#endif
       implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
       real*8 :: Heff(nstate,nstate)
 #ifdef _HDF5_
-#  include "mh5.fh"
       If (pt2wfn_is_h5) Then
-        call mh5_put_dset_array_real(pt2wfn_energy, ENERGY)
-        call mh5_put_dset_array_real(pt2wfn_refene, REFENE)
+        call mh5_put_dset(pt2wfn_energy, ENERGY)
+        call mh5_put_dset(pt2wfn_refene, REFENE)
         If (IFMSCOUP) Then
           call mh5_put_dset_array_real(pt2wfn_heff, Heff)
         End If
@@ -234,13 +242,15 @@ c Avoid unused argument warnings
 
       subroutine pt2wfn_densstore(Dmat,nDmat)
       use refwfn
+#ifdef _HDF5_
+      use mh5, only: mh5_put_dset_array_real
+#endif
       implicit none
 #include "rasdim.fh"
 #include "caspt2.fh"
       integer :: nDmat
       real*8 :: Dmat(nDmat)
 #ifdef _HDF5_
-#  include "mh5.fh"
       If (pt2wfn_is_h5) Then
         call mh5_put_dset_array_real(pt2wfn_dens, Dmat,
      $                               [nDmat, 1], [0, JSTATE-1])
@@ -254,6 +264,7 @@ c Avoid unused argument warnings
 
       subroutine pt2wfn_close
 #ifdef _HDF5_
+      use mh5, only: mh5_close_file
       if (pt2wfn_is_h5) then
         call mh5_close_file(pt2wfn_id)
       end if

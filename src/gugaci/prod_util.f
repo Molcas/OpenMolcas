@@ -209,7 +209,8 @@ c
       iwdl=mg3
       iwdr=mg4
       ipaeend=25
-      do ipae=1,ipaeend
+      do ipae_=1,ipaeend
+        ipae=ipae_ ! ipae is in common block, is this necessary?
         if(nu_ae(ipae).eq.0) cycle
         iwdown=iw_downwei(jpad,ipae)
         if(iwdown.eq.0) cycle
@@ -339,8 +340,6 @@ c     iwar=mg4
 #include "pl_structure_h.fh"
       dimension lopu(4,loputmp)
 !log_prod=2:directly no_formh0
-      character*16 loop_type
-      loop_type=' prod_h0 '
 c       write(*,*) 'prodab_h0 '
 
       goto(100,200,300),idb
@@ -464,9 +463,6 @@ c     iwar=mg4
 #include "pl_structure_h.fh"
       dimension lopu(4,loputmp)
 !log_prod=1:truanditional formh0
-      character*16 loop_type
-      loop_type=' prod_h0 '
-
 c       write(*,*) 'prodab_h0 '
 
       goto(100,200,300),idb

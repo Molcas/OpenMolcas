@@ -107,7 +107,6 @@ C
         MXCSFC = MAX(MXCSFC,NCSFTP(ITYP))
       END DO
 
-      IBblockV = MXPDIM-NPCSF
       call getmem('AuxDia' ,'ALLO','REAL', ipAuxD,  MXCSFC)
       call getmem('AuxGa'  ,'ALLO','REAL',ipAuxGa,  MXCSFC)
       call getmem('AuxGaTi','ALLO','REAL',ipAuxGaTi,MXCSFC)
@@ -144,8 +143,6 @@ C          |
       call cwtime(C_AlphaLoop1,W_AlphaLoop1)
       C_ComputeH_AB = 0.0d0
       W_ComputeH_AB = 0.0d0
-      C_ComputeH_BB = 0.0d0
-      W_ComputeH_BB = 0.0d0
       C_Oper = 0.0d0
       W_Oper = 0.0d0
 

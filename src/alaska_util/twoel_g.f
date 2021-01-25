@@ -110,9 +110,10 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+#ifdef _DEBUGPRINT_
       iRout = 12
       iPrint = nPrint(iRout)
-*
+#endif
       la = iAnga(1)
       lb = iAnga(2)
       lc = iAnga(3)

@@ -48,7 +48,6 @@
         WRITE(6,*) ' T_TO_NK_VEC speaking '
         WRITE(6,*) ' ISM, ISPC = ', ISM,ISPC
       END IF
-      IDUM = 0
 *. Set up block and batch structure of vector
       IATP = 1
       IBTP = 2

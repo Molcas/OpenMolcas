@@ -21,6 +21,9 @@
          Call SA_PREC2(rdia,S(1,i),W(ipci)%Vec,ERASSCF(i))
       End Do
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       End
 
       Subroutine SA_PREC2(rdia,S,CI,ENE)

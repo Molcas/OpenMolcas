@@ -22,7 +22,6 @@
       Implicit Real*8 (a-h,o-z)
       Real*8  Scr(lscr),SvShp(*)
       Integer iShp_rs(*)
-      Logical Debug
       Integer cho_isao
       External cho_isao
 
@@ -57,11 +56,6 @@
       iOffShp(i,j) = iWork(ip_iiBstRSh+nSym*nnShl-1+nSym*(j-1)+i)
 ************************************************************************
 
-#ifdef _DEBUGPRINT_
-      Debug=.true.
-#else
-      Debug=.false.
-#endif
 **********************************************************
 C
 C    From Reduced sets to full storage

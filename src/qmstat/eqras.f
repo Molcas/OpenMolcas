@@ -91,16 +91,10 @@
       Endif
       DiFac=-(Diel-1.0d0)/(Diel+1.0d0)
       Expran=0.0d0
-      Expre=0.0d0
-      ggsum=0.0d0
-      HighS=0.0d0
       iHowMSampIN=0
       iHowMSampUT=0
-      iD=1
-      Adisp=Disp(1,2)
       nBaseC=nBas_C(1)
       nBaseQ=nBas(1)
-      iTri=(iOrb(1)*(iOrb(1)+1))/2
       iTriBasQ=nBaseQ*(nBaseQ+1)/2
       iTriState=nState*(nState+1)/2
       timeCLAS=0
@@ -261,7 +255,6 @@
 *----------------------------------------------------------------------*
 
       iSnurr=0  !How many steps taken totally.
-      nSiffiB=0  !A number for blocking.
 *
 *---- The Macrosteps.
 *

@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine dev2a_2_cvb(v1,v2,cfrom,hessorb,oaa2,aa1,nprorb,
      > i1alf,i1bet,iafrm,ibfrm,iato,ibto,phato,phbto,

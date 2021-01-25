@@ -25,9 +25,6 @@
 #include "real.fh"
       REAL*8 Fm(nT,0:mHigh), T(nT)
 *
-      iRout = 53
-      iPrint = nPrint(iRout)
-*
       Call HighFm(Fm(1,mHigh),T,mHigh,nT)
 *
 *     Now use recusion formula for Fm, 0<=m<mHigh

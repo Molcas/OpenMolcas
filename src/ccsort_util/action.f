@@ -17,7 +17,7 @@ c     addpqij
 c     mkintsta
 c     expandfok
 c     addinta
-c     deflenght
+c     deflength
 c     fokupdate1
 c     fokupdate2
 c     unpackk
@@ -36,6 +36,7 @@ c
 c      work file declaration
        integer wrksize
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 c
 #include "ccsort.fh"
 #include "reorg.fh"
@@ -50,7 +51,8 @@ c
        integer p,a,posst,rc
        integer keyred,vsize,freespace,ickey,iOff_Vic,iOff
        integer t3help1,t3help2,t3help3,t3help4
-       integer ipAMMAP,ipABMAP,ipJN,ipKN,ipLN,iOff_valn
+       integer ipJN,ipKN,ipLN,iOff_valn
+       integer, allocatable :: AMMAP(:,:,:),ABMAP(:,:,:)
        real*8 foka((mbas**2+mbas)/2)
        real*8 fokb((mbas**2+mbas)/2)
 
@@ -139,8 +141,8 @@ c*    make head of INTAB file for nonsymmetrical (C1) case
        end if
 c
 c     allocate space for ammap,abmap
-       Call GetMem('AMMAP','ALLO','INTE',ipAMMAP,mbas*64)
-       Call GetMem('ABMAP','ALLO','INTE',ipABMAP,mbas*mbas*8)
+       Call mma_Allocate(AMMAP,mbas,8,8,Label='AMMAP')
+       Call mma_Allocate(ABMAP,mbas,mbas,8,Label='ABMAP')
 c
        do 1000 symp=1,nsym
 c
@@ -160,7 +162,7 @@ c
 c*    open TEMPDA2 fils for <am|rs> integrals, if there are some virtiuals
 c     in symp symmetry
        if (nvb(symp).gt.0) then
-       call mkampqmap (iWork(ipAMMAP),symp,rc)
+       call mkampqmap (AMMAP,symp,rc)
        call daopen ('TEMPDA2 ',lunda2,recl,1)
        end if
 c
@@ -176,7 +178,7 @@ c     N.B. nrec is not needed now
 c
 c*    make abmap for syma>=symb
        if (symp.ge.symq) then
-       call mkabpqmap (iWork(ipABMAP),symp,symq,rc)
+       call mkabpqmap (ABMAP,symp,symq,rc)
        end if
 c
        do 800 symr=1,nsym
@@ -269,7 +271,7 @@ c
        call exppsb (symp,symq,symr,syms,Work(iOff_valn),
      &              iWork(ipJN),iWork(ipKN),iWork(ipLN))
 c
-c     relese space for valn,jn,kn,ln
+c     release space for valn,jn,kn,ln
        Call GetMem('VALN','FREE','REAL',iOff_valn,nsize*mbas)
        Call GetMem('JN','FREE','INTE',ipJN,nsize*mbas)
        Call GetMem('KN','FREE','INTE',ipKN,nsize*mbas)
@@ -396,12 +398,10 @@ c     and pack _a_brs to direct acces file TEMPDA1 if need and symm in not C1
        if (p.gt.nob(symp)) then
        a=p-nob(symp)
        call ampack (Work(iOff),wrksize,
-     & symp,symq,symr,syms,a,Work(iOff),ndimv1,ndimv2,ndimv3,
-     & iWork(ipAMMAP))
+     & symp,symq,symr,syms,a,Work(iOff),ndimv1,ndimv2,ndimv3,AMMAP)
        if ((nsym.gt.1).and.(symp.ge.symq)) then
        call abpack (Work(iOff),wrksize,
-     & symp,symq,symr,syms,a,Work(iOff),ndimv1,ndimv2,ndimv3,
-     & iWork(ipABMAP))
+     & symp,symq,symr,syms,a,Work(iOff),ndimv1,ndimv2,ndimv3,ABMAP)
        end if
        end if
 c
@@ -432,8 +432,7 @@ c
        if ((nsym.gt.1).and.(symp.ge.symq)) then
 c*    add contributions to INTAB comming from symp,sumq and close TEMPDA1 file
 c     only for symmetrical cases; only for syma>=symb
-       call addintab (Work(iOff),wrksize,
-     & symp,symq,iWork(ipABMAP))
+       call addintab (Work(iOff),wrksize,symp,symq,ABMAP)
        close (lunda1)
        call vf ('TEMPDA1 ',lunda1)
        end if
@@ -447,8 +446,7 @@ c*    add contributions to INTA1-4 if there are some virtuals in symp symmetry
 c     and close TEMPDA2 files
 c
 c     if (nvb(symp).gt.0) then
-       call addinta (Work(iOff),wrksize,
-     & symp,iWork(ipAMMAP))
+       call addinta (Work(iOff),wrksize,symp,AMMAP)
        close (lunda2)
        call vf ('TEMPDA2 ',lunda2)
 c     end if
@@ -463,9 +461,9 @@ c*    if T3 are required, reorganize T3nam file
          end do
        end if
 c
-c        relese space for ammap,abmap
-        Call GetMem('AMMAP','FREE','INTE',ipAMMAP,mbas*64)
-        Call GetMem('ABMAP','FREE','INTE',ipABMAP,mbas*mbas*8)
+c        release space for ammap,abmap
+        Call mma_Deallocate(AMMAP)
+        Call mma_Deallocate(ABMAP)
 c
 c
 c*    close files INTA1,INTA2,INTA3 and INTA4, INTAB1
@@ -523,7 +521,7 @@ c
 c     help variables
 c
        integer symm,symp,symq,symmp
-       integer nhelp,possition,lenght
+       integer nhelp,possition,length
 c
 c*    set mapi1 to zero
 c
@@ -551,16 +549,16 @@ c
        symq=mul(syma,symmp)
        nhelp=nhelp+1
 c
-c     calc. lenght
-       lenght=noa(symm)*NORB(symp)*NORB(symq)
+c     calc. length
+       length=noa(symm)*NORB(symp)*NORB(symq)
 c
        mapd2(nhelp,1)=possition
-       mapd2(nhelp,2)=lenght
+       mapd2(nhelp,2)=length
        mapd2(nhelp,3)=symm
        mapd2(nhelp,4)=symp
        mapd2(nhelp,5)=symq
        mapd2(nhelp,6)=1
-       possition=possition+lenght
+       possition=possition+length
 c
        mapi2(symm,symp,1)=nhelp
 c
@@ -585,7 +583,7 @@ c
 c     help variables
 c
        integer symi,symj,symp,symq,sympq,sympqi
-       integer nhelp,possition,lenght
+       integer nhelp,possition,length
 c
 c*    set mapi1 to zero
 c
@@ -616,16 +614,16 @@ c
        if (symj.gt.symi) goto 102
        nhelp=nhelp+1
 c
-c     calc. lenght
-       lenght=noa(symi)*noa(symj)*NORB(symp)*NORB(symq)
+c     calc. length
+       length=noa(symi)*noa(symj)*NORB(symp)*NORB(symq)
 c
        mapd1(nhelp,1)=possition
-       mapd1(nhelp,2)=lenght
+       mapd1(nhelp,2)=length
        mapd1(nhelp,3)=symp
        mapd1(nhelp,4)=symq
        mapd1(nhelp,5)=symi
        mapd1(nhelp,6)=symj
-       possition=possition+lenght
+       possition=possition+length
 c
        mapi1(symp,symq,symi)=nhelp
 c
@@ -668,7 +666,7 @@ cT0   if symi<symj return
        return
        end if
 c
-cT1   return, if lenght is 0
+cT1   return, if length is 0
        if (mapd1(ii,2).eq.0) then
        return
        end if
@@ -707,7 +705,7 @@ c
 c     N.B. 1. work file #1 is used for <ij|pq> integrals, #2,3,4
 c     must be free. possb0 must be defined
 c     N.B. 2. this routine can be used only after definition of <ij|pq>
-c     N.B. 3. this routine use followuing help routuines:
+c     N.B. 3. this routine use followuing help routines:
 c     expandfok
 c     wrtmediate (from SYMM)
 c
@@ -907,8 +905,8 @@ c
 c     this routine do for all a in syma
 c     1- reconstruct #2 <_a,m,p,q> from TEMPDA2 file
 c     2- prepair corresponding <_am p q> (like <amef>aaaa) to #3
-c     and wrirte it to opened INTA1-4
-c     N.B.  this routine use followuing foreign routuines:
+c     and write it to opened INTA1-4
+c     N.B.  this routine use followuing foreign routines:
 c     wrtmap
 c     wri
 c
@@ -928,44 +926,44 @@ c
 c*    mapd2 and mapi2 of #2 <_a,m|p,q> are prepaired
 c
 c*    make required mapd3 and mapi3 and write them to INTA1-4
-c     define lenghts of this mediates
+c     define lengths of this mediates
 c
 c*1   to INTA1 <m,_a||ef>aaaa, <m,_a||ef>baab
        call ccsort_grc0(3,2,1,3,3,0,syma,poss30,posst,mapd3,mapi3)
-       call deflenght (mapd3,lenefaaaa)
+       call deflength (mapd3,lenefaaaa)
        call dawrtmap (luna1,mapd3,mapi3,rc)
        call ccsort_grc0(3,0,2,3,4,0,syma,poss30,posst,mapd3,mapi3)
-       call deflenght (mapd3,lenefbaab)
+       call deflength (mapd3,lenefbaab)
        call dawrtmap (luna1,mapd3,mapi3,rc)
 c
 c*2   to INTA2 <m,_a||ef>bbbb, <m,_a||ef>abab
        call ccsort_grc0(3,2,2,4,4,0,syma,poss30,posst,mapd3,mapi3)
-       call deflenght (mapd3,lenefbbbb)
+       call deflength (mapd3,lenefbbbb)
        call dawrtmap (luna2,mapd3,mapi3,rc)
        call ccsort_grc0(3,0,1,3,4,0,syma,poss30,posst,mapd3,mapi3)
-       call deflenght (mapd3,lenefabab)
+       call deflength (mapd3,lenefabab)
        call dawrtmap (luna2,mapd3,mapi3,rc)
 c
 c*3   to INTA3 <m,_a||ej>aaaa, <m,_a||ej>baab, <m,_a||ej>baba
        call ccsort_grc0(3,0,1,3,1,0,syma,poss30,posst,mapd3,mapi3)
-       call deflenght (mapd3,lenejaaaa)
+       call deflength (mapd3,lenejaaaa)
        call dawrtmap (luna3,mapd3,mapi3,rc)
        call ccsort_grc0(3,0,2,3,2,0,syma,poss30,posst,mapd3,mapi3)
-       call deflenght (mapd3,lenejbaab)
+       call deflength (mapd3,lenejbaab)
        call dawrtmap (luna3,mapd3,mapi3,rc)
        call ccsort_grc0(3,0,2,4,1,0,syma,poss30,posst,mapd3,mapi3)
-       call deflenght (mapd3,lenejbaba)
+       call deflength (mapd3,lenejbaba)
        call dawrtmap (luna3,mapd3,mapi3,rc)
 c
 c*4   to INTA4 <m,_a||ej>bbbb, <m,_a||ej>abba, <m,_a||ej>abab
        call ccsort_grc0(3,0,2,4,2,0,syma,poss30,posst,mapd3,mapi3)
-       call deflenght (mapd3,lenejbbbb)
+       call deflength (mapd3,lenejbbbb)
        call dawrtmap (luna4,mapd3,mapi3,rc)
        call ccsort_grc0(3,0,1,4,1,0,syma,poss30,posst,mapd3,mapi3)
-       call deflenght (mapd3,lenejabba)
+       call deflength (mapd3,lenejabba)
        call dawrtmap (luna4,mapd3,mapi3,rc)
        call ccsort_grc0(3,0,1,3,2,0,syma,poss30,posst,mapd3,mapi3)
-       call deflenght (mapd3,lenejabab)
+       call deflength (mapd3,lenejabab)
        call dawrtmap (luna4,mapd3,mapi3,rc)
 c
 c
@@ -975,7 +973,7 @@ c
 c
 c*    reconstruct #2 <_a,m,p,q> for given _a
        call mkampq (wrk,wrksize,
-     & a,syma,ammap)
+     & a,ammap)
 c
 c*    get contributions to INTA2 <m,_a||ef>bbbb, <m,_a||ef>abab
 c     and wtite it there
@@ -1061,19 +1059,19 @@ c
 c
 c     -------------------------
 c
-       subroutine deflenght (mapd,lenght)
+       subroutine deflength (mapd,length)
 c
-c     this routine defines lenght of mediate, described by mapd
+c     this routine defines length of mediate, described by mapd
 c
        integer mapd(0:512,1:6)
-       integer lenght
+       integer length
 c
 c     help variable
 c
        integer ii
 c
        ii=mapd(0,5)
-       lenght=mapd(ii,1)+mapd(ii,2)-mapd(1,1)
+       length=mapd(ii,1)+mapd(ii,2)-mapd(1,1)
 c
        return
        end
@@ -1369,7 +1367,7 @@ c
 c
 c     help variables
 c
-       integer nhelp,lenght,daddr,nrec
+       integer nhelp,length,daddr,nrec
 c
        integer constj
        parameter (constj=1048576)
@@ -1399,23 +1397,23 @@ c
       do nrec=1,nrectemp(i)
 c
         if (nrec.ne.nrectemp(i)) then
-        lenght=nsize
+        length=nsize
         else
-        lenght=lrectemp(i)
+        length=lrectemp(i)
         end if
 c
       if (iokey.eq.1) then
 c     Fortran IO
-      call getpp_zr (lunpublic,valh,iBuf,lenght)
+      call getpp_zr (lunpublic,valh,iBuf,length)
       else
 c     MOLCAS IO
-      call ddafile (lunpublic,2,valh,lenght,daddr)
-      call idafile (lunpublic,2,iBuf,lenght,daddr)
+      call ddafile (lunpublic,2,valh,length,daddr)
+      call idafile (lunpublic,2,iBuf,length,daddr)
       end if
 c
 c*     get indexes jh,kh,lh and value valh from packed form
 c
-      do nhelp=1,lenght
+      do nhelp=1,length
          ihelp=iBuf(nhelp)
          jh(nhelp)=int(ihelp/constj)
          ires=ihelp-constj*jh(nhelp)
@@ -1424,11 +1422,11 @@ c
       end do
 c
       if (key.eq.0) then
-      do 100 nhelp=1,lenght
+      do 100 nhelp=1,length
       vint(jh(nhelp),kh(nhelp),lh(nhelp))=valh(nhelp)
  100  continue
       else
-      do 200 nhelp=1,lenght
+      do 200 nhelp=1,length
       vint(jh(nhelp),kh(nhelp),lh(nhelp))=valh(nhelp)
       vint(lh(nhelp),kh(nhelp),jh(nhelp))=valh(nhelp)
  200  continue
@@ -1471,7 +1469,7 @@ c
 c
 c     help variables
 c
-       integer nhelp,lenght,daddr,nrec
+       integer nhelp,length,daddr,nrec
 c
        integer constj
        parameter (constj=1048576)
@@ -1479,12 +1477,8 @@ c
        parameter (constk=1024)
 c
        character*(RtoB+ItoB) pp(1:nsize),pphelp
-       character*1 p1help(1:(RtoB+ItoB))
        real*8 rhelp
        integer ihelp,ires
-       equivalence (p1help(1),pphelp)
-       equivalence (p1help(1),rhelp)
-       equivalence (p1help(1+RtoB),ihelp)
 c
 c*    set vint=0
 c
@@ -1506,24 +1500,26 @@ c
       do nrec=1,nrectemp(i)
 c
         if (nrec.ne.nrectemp(i)) then
-        lenght=nsize
+        length=nsize
         else
-        lenght=lrectemp(i)
+        length=lrectemp(i)
         end if
 c
       if (iokey.eq.1) then
 c     Fortran IO
-      call getpp_pck (lunpublic,pp,lenght)
+      call getpp_pck (lunpublic,pp,length)
       else
 c     MOLCAS IO
-      call cdafile (lunpublic,2,pp,(RtoB+ItoB)*lenght,daddr)
+      call cdafile (lunpublic,2,pp,(RtoB+ItoB)*length,daddr)
       end if
 
 c
 c*     get indexes jh,kh,lh and value valh from packed form
 c
-      do nhelp=1,lenght
+      do nhelp=1,length
       pphelp=pp(nhelp)
+      rhelp=transfer(pphelp(1:RtoB),rhelp)
+      ihelp=transfer(pphelp(RtoB+1:),ihelp)
       valh(nhelp)=rhelp
       jh(nhelp)=int(ihelp/constj)
       ires=ihelp-constj*jh(nhelp)
@@ -1532,11 +1528,11 @@ c
       end do
 c
       if (key.eq.0) then
-      do 100 nhelp=1,lenght
+      do 100 nhelp=1,length
       vint(jh(nhelp),kh(nhelp),lh(nhelp))=valh(nhelp)
  100  continue
       else
-      do 200 nhelp=1,lenght
+      do 200 nhelp=1,length
       vint(jh(nhelp),kh(nhelp),lh(nhelp))=valh(nhelp)
       vint(lh(nhelp),kh(nhelp),jh(nhelp))=valh(nhelp)
  200  continue
@@ -1557,12 +1553,12 @@ c
 c
 c     ----------------------
 c
-       subroutine getpp_zr (lunpublic,pp,ipp,lenght)
+       subroutine getpp_zr (lunpublic,pp,ipp,length)
 c
 #include "SysDef.fh"
-       integer lunpublic,lenght
-       Real*8 pp(1:lenght)
-       Integer ipp(1:lenght)
+       integer lunpublic,length
+       Real*8 pp(1:length)
+       Integer ipp(1:length)
 c
        read (lunpublic) pp,ipp
 c
@@ -1571,12 +1567,12 @@ c
 c
 c     ----------------------
 c
-       subroutine getpp_pck (lunpublic,pp,lenght)
+       subroutine getpp_pck (lunpublic,pp,length)
 c
 
 #include "SysDef.fh"
-       integer lunpublic,lenght
-       character*(RtoB+ItoB) pp(1:lenght)
+       integer lunpublic,length
+       character*(RtoB+ItoB) pp(1:length)
 c
        read (lunpublic) pp
 c
@@ -1594,7 +1590,7 @@ c
 c
 c     help variables
 c
-       integer nhelp,lenght,symp,symq,symab
+       integer nhelp,length,symp,symq,symab
        integer poss,ii,syma,symb,rc
 c
 c*    def symab
@@ -1630,15 +1626,15 @@ c
 c
        symp=ii
        symq=mul(symab,symp)
-       lenght=norb(symp)*norb(symq)
+       length=norb(symp)*norb(symq)
        mapd3(ii,1)=poss
-       mapd3(ii,2)=lenght
+       mapd3(ii,2)=length
        mapd3(ii,3)=symp
        mapd3(ii,4)=symq
        mapd3(ii,5)=1
        mapd3(ii,6)=1
        mapi3(symp,1,1)=ii
-       poss=poss+lenght
+       poss=poss+length
 c
  200    continue
 c
@@ -1666,7 +1662,7 @@ c
 c
 c     help variables
 c
-       integer poss,b,bvint,p,q,lenght
+       integer poss,b,bvint,p,q,length
 c
 c
 cT    if there are no _a_b,pq integrals in this symab,
@@ -1693,8 +1689,8 @@ c
 c
 c**   since there must be some integrals, write them to TEMPAB
 c
-       lenght=poss-poss30
-       call dawri (lunab,lenght,wrk(poss30))
+       length=poss-poss30
+       call dawri (lunab,length,wrk(poss30))
 c
  1000   continue
 c
@@ -1703,7 +1699,7 @@ c
 c
 c     -------------------------
 c
-       subroutine initwrk (lenght)
+       subroutine initwrk (length)
 c
 c      this routine calculate required size of work space and
 c      definie initial possitions of work vectors
@@ -1714,7 +1710,7 @@ c
 c     help variables
 c
        integer n
-       integer sizevint,sizev1,sizev2,sizempq,lenght,norbmax,sizeri
+       integer sizevint,sizev1,sizev2,sizempq,length,norbmax,sizeri
        integer symp,symq,symi,symj,sympq,sympqi,symm,symmp,syma
 c
 c1*   def maxzie of vint
@@ -1738,7 +1734,7 @@ c
        do 22 symi=1,nsym
        sympqi=mul(sympq,symi)
        symj=sympqi
-c      calc. lenght
+c      calc. length
        if (symj.gt.symi) then
          sizev2=sizev2+noa(symi)*noa(symj)*NORB(symp)*NORB(symq)
        else
@@ -1755,18 +1751,18 @@ c
        sizempq=0
        do 50 syma=1,nsym
 c
-       lenght=0
+       length=0
        do 30 symm=1,nsym
        do 31 symp=1,nsym
        symmp=mul(symm,symp)
        symq=mul(syma,symmp)
-c     calc. lenght
-       lenght=lenght+noa(symm)*NORB(symp)*NORB(symq)
+c     calc. length
+       length=length+noa(symm)*NORB(symp)*NORB(symq)
  31     continue
  30     continue
 c
-       if (sizempq.lt.lenght) then
-       sizempq=lenght
+       if (sizempq.lt.length) then
+       sizempq=length
        end if
 c
  50     continue
@@ -1777,10 +1773,10 @@ c
 c
        if (t3key.eq.1) then
        do 60 symi=1,nsym
-       call ccsort_t3grc0 (3,8,4,4,4,0,symi,1,lenght,mapdri,mapiri)
-       lenght=lenght-1
-       if (lenght.gt.sizeri) then
-       sizeri=lenght
+       call ccsort_t3grc0 (3,8,4,4,4,0,symi,1,length,mapdri,mapiri)
+       length=length-1
+       if (length.gt.sizeri) then
+       sizeri=length
        end if
  60     continue
        end if
@@ -1791,7 +1787,7 @@ c
        poss20=poss10+sizev1
        poss30=poss20+sizev2
        possri0=poss30+sizempq
-       lenght=possri0+sizeri-1
+       length=possri0+sizeri-1
 c
        if (fullprint.gt.1) then
        write(6,*)
@@ -1806,7 +1802,7 @@ c
        end if
 c
        if (fullprint.ge.0)
-     &     write(6,'(6X,A,I20)') 'Required WRK size-sum : ',lenght
+     &     write(6,'(6X,A,I20)') 'Required WRK size-sum : ',length
 c
        return
        end

@@ -132,7 +132,7 @@ C     -------------------------------------------------------------
          Go To 103  ! include file inconsistency detected
       End If
 
-C     Set parallel info (picked up from para_info.fh).
+C     Set parallel info (picked up from para_info).
 C     -------------------------------------------------
 
       CHO_FAKE_PAR = .False.
@@ -510,6 +510,7 @@ C     Purpose: Trivial definition of location 5 of InfVec:
 C              InfVec(i,5,iSym) = i
 C              The routine does nothing in case of parallel DF.
 C
+      Use Para_Info, Only: Is_Real_Par
       Implicit None
       Logical isDF
 #include "cholesky.fh"
@@ -518,7 +519,6 @@ C
 
       Integer kOff, iSym, i
       Logical doDefine
-#include "para_info.fh"
 
 C Define in case of
 C 1) serial Cholesky

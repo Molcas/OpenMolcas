@@ -45,8 +45,6 @@
 *
       iOff(ixyz)  = ixyz*(ixyz+1)*(ixyz+2)/6
 *
-      iRout = 67
-      iPrint = nPrint(iRout)
 *     Call RecPrt(' In Trnsps: AOInt ',' ',AOInt,ijkl,ijCmp*ijCmp)
 *
 *     Change phase factor. This is only nessecary if T=/=E.

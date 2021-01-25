@@ -9,6 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TRINT(CMO1,CMO2,ECORE,NGAM1,FOCKMO,NGAM2,TUVX)
+#if defined (_MOLCAS_MPP_)
+      USE Para_Info, ONLY: nProcs
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
       DIMENSION KEEP(8),NBSX(8),ipAsh(2)
@@ -20,7 +23,6 @@
 #include "Files.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "para_info.fh"
       Logical IfTest,FoundTwoEls,DoCholesky
 
       Integer ALGO,Nscreen

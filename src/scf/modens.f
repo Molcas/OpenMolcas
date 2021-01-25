@@ -81,7 +81,6 @@ C        Write (6,'(F16.8)') DXot(MaxBxO,CMO(1,jD),1,CMO(1,jD),1)
          iOvl = 1
          Do iSym = 1, nSym
 *
-            iiBB = nBas(iSym)*nBas(iSym)
             iiBO = nBas(iSym)*nOrb(iSym)
             iiBT = nBas(iSym)*(nBas(iSym) + 1)/2
 *

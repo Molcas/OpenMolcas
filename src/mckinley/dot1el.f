@@ -224,7 +224,6 @@ c    &         ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
                If (nMax.eq.nIrrep/nStabM) Go To 439
  435         Continue
  439         Continue
-             nCoM=nIrrep/nStabM
              Call LCopy(36,[.false.],0,IfHss,1)
              Do 400 iAtom=0,1
                Do 410 iCar=0,2

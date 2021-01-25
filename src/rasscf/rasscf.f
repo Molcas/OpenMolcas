@@ -58,14 +58,17 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use write_orbital_files, only : OrbFiles, putOrbFile
-
       use generic_CI, only: CI_solver_t
-      use fciqmc, only: DoNECI, fciqmc_solver_t
+      use fciqmc, only: DoNECI, fciqmc_solver_t, tGUGA_in
       use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
       use fcidump, only : make_fcidumps, transform, DumpOnly
+      use print_RDMs_NECI_format, only: printRDMs_NECI
 
       use orthonormalization, only : ON_scheme
       use print_RDMs_NECI_format, only: printRDMs_NECI
+#ifdef _HDF5_
+      use mh5, only: mh5_put_attr, mh5_put_dset_array_real
+#endif
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -101,7 +104,9 @@
 
       Logical DSCF
       Logical lTemp, lOPTO
+#ifdef _FDE_
       Character*8 label
+#endif
       Character*80 Line
       Character*1 CTHRE, CTHRSX, CTHRTE
       Logical DoQmat,DoActive, l_casdft
@@ -129,9 +134,8 @@
 * --------- FCIDUMP stuff:
       real*8, allocatable :: orbital_E(:), folded_Fock(:)
 * --------- End FCIDUMP stuff:
-* --------- Procedure pointers for CI-solvers
+* --------- CI-solver class
         class(CI_solver_t), allocatable :: CI_solver
-* --------- End Procedure pointers.
 
 ! actual_iter starts at 0, so iter 1A == 0, 1B == 1, 2 == 2, 3 == 3 and so on
       integer :: actual_iter
@@ -170,7 +174,6 @@
       IfVB=0
       If (ProgName(1:5).eq.'casvb') IfVB=2
 * Default option switches and values, and initial data.
-      EAV1=0.0d0
       THMAX=0.0d0
       Call RasScf_Init()
       Call Seward_Init()
@@ -261,17 +264,14 @@
 
       Call InpPri(lOpto)
 
-* Note that CI_solver subclasses can provide a final procedure
-* (some people might call it destructor). Hence the deallocation and
+* Note that CI_solver subclasses provide a cleanup procedure
+* (C++ people might call it destructor). Hence the deallocation and
 * cleanup is automatically performed, when it goes out of scope.
       if (DoNECI) then
-        allocate(fciqmc_solver_t :: CI_solver)
+        allocate(CI_solver, source=fciqmc_solver_t(tGUGA_in))
       else if (Do_CC_CI) then
-        allocate(CC_CI_solver_t :: CI_solver)
+        allocate(CI_solver, source=CC_CI_solver_t())
       end if
-
-      if (allocated(CI_solver)) call CI_solver%init()
-
 
 *
 * If this is not CASDFT make sure the DFT flag is unset
@@ -427,16 +427,6 @@
       end if
 * Only now are such variables finally known.
 
-      If ( IPRLEV.ge.DEBUG ) then
-        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
-     &              ' ',Work(LDMAT),NAC)
-        CALL TRIPRT('Averaged one-body spin density matrix DS, RASSCF',
-     &              ' ',Work(LDSPN),NAC)
-        CALL TRIPRT('Averaged two-body density matrix, P',
-     &              ' ',WORK(LPMAT),NACPAR)
-        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
-     &              ' ',WORK(LPA),NACPAR)
-      END IF
 *
 * Allocate core space for dynamic storage of data
 *
@@ -1174,7 +1164,9 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           Call RdOne(iRc,iOpt,'OneHam',iComp,Work(iTmp1),iSyLbl)
           If ( iRc.ne.0 ) then
            Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
+#ifdef _FDE_
            Write(LF,*) 'Label = ',Label
+#endif
            Write(LF,*) 'iRc = ',iRc
            Call Abend
           End if
@@ -1403,13 +1395,13 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
               IROT   = MAXLOC(dmrg_energy%num_sweeps,nroots)
               maxtrW = MAXVAL(dmrg_energy%max_truncW)
               maxtrR = MAXLOC(dmrg_energy%max_truncW,nroots)
-#endif
          Write(LF,'(6X,I3,I3,I4,E12.2,I4,I5,F15.8,E12.2,A1,E9.2,A1,'//
      &   '2I4,I2,E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I7,A1,I2.2,A1,I2.2)')
      &        ITER,ITERCI,IROT,maxtrW,maxtrR,
      &        ITERSX,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,
      &        ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,
      &        SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
+#endif
             else
             Write(LF,'(6X,I3,I4,I5,I5,F15.8,E12.2,A1,E10.2,A1,2I4,I2,'//
      &          'E10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
@@ -1548,6 +1540,7 @@ cGLM some additional printout for MC-PDFT
           Write(LF,'(6X,120A1)') ('*',i=1,120)
         END IF
       end if
+
 
 *
 * Convergence check:
@@ -1805,7 +1798,7 @@ c Clean-close as much as you can the CASDFT stuff...
          Do jRoot=2,lRoots
 *           Read and reorder the left CI vector
             Call DDafile(JOBIPH,2,Work(iTmp),nConf,jDisk)
-            Call Reord2(NAC,NACTEL,LSYM,1,
+            Call Reord2(NAC,NACTEL,STSYM,1,
      &                  iWork(KICONF(1)),iWork(KCFTP),
      &                  Work(iTmp),Work(iVecL),iWork(ivkcnf))
             C_Pointer=iVecL
@@ -1813,7 +1806,7 @@ c Clean-close as much as you can the CASDFT stuff...
             Do kRoot=1,jRoot-1
 *              Read and reorder the right CI vector
                Call DDafile(JOBIPH,2,Work(iTmp),nConf,kDisk)
-               Call Reord2(NAC,NACTEL,LSYM,1,
+               Call Reord2(NAC,NACTEL,STSYM,1,
      &                     iWork(KICONF(1)),iWork(KCFTP),
      &                     Work(iTmp),Work(iVecR),iWork(ivkcnf))
 *              Compute TDM and store in h5 file
@@ -1916,13 +1909,7 @@ c  i_root>0 gives natural spin orbitals for that root
 
 * Create output orbital files:
       Call OrbFiles(JOBIPH,IPRLEV)
-*
-************************************************************************
-************ Printing final RDMs in NECI format        *****************
-************************************************************************
-      If ( IPRLEV.ge.DEBUG ) then
-       Call printRDMs_NECI(Work(LDMAT),NAC,Work(LPMAT),Work(LPA),NACPAR)
-      End If
+
 ************************************************************************
 ******************           Closing up RASSCF       *******************
 ************************************************************************

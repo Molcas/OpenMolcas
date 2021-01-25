@@ -25,6 +25,27 @@
       Logical StandAlone,First,Do_DFT
       Logical DynExtPot,Exist,DoTinker,DoGromacs,lMorok,UpdateVMM
       Logical DoDirect
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,DynExtPot,
+     &                     iQMChg,nAtMM,StandAlone,DoDirect)
+      Integer, Intent(In):: nAtom
+      Real*8, Intent(In):: Cord(3,nAtom)
+      Integer, Intent(In):: ipMltp
+      Integer, Intent(In):: IsMM(nAtom)
+      Integer, Intent(In):: MltOrd
+      Logical, Intent(InOut):: DynExtPot
+      Integer, Intent(In):: iQMChg
+      Integer, Intent(InOut):: nAtMM
+      Logical, Intent(In):: StandAlone
+      Logical, Intent(In):: DoDirect
+      End Subroutine RunTinker
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 *
       iPL = iPrintLevel(-1)
 *
@@ -105,7 +126,6 @@
       End If
       If(.not. DynExtPot) Then
         If (ipOldMltp .ne. ip_Dummy) Call Free_Work(ipOldMltp)
-        iReturn=0
         Return
       End If
 *
@@ -186,7 +206,6 @@
             sum4 = sum4+(Work(ipMltp+iMlt+2)-Work(ipOldMltp+iMlt+2))**2
             End If
          End Do
-         rms1 = sqrt(sum1/nMult)
          rms2 = sqrt(sum2/nMult)
          rms3 = sqrt(sum3/nMult)
          rms4 = sqrt(sum4/nMult)
@@ -201,7 +220,8 @@
       End If
       iQMchg = 1
       If (First .and. Do_DFT) UpdateVMM = .True.
-      If (UpdateVMM) Call RunTinker(natom,ipCord,ipMltp,ipIsMM,MltOrd,
+      If (UpdateVMM) Call RunTinker(natom,Work(ipCord),ipMltp,
+     &                              iWork(ipIsMM),MltOrd,
      &                    DynExtPot,iQMchg,natMM,StandAlone,DoDirect)
 *
 * Read the MM electrostatic potential (and derivatives) from PotFile
@@ -261,6 +281,5 @@
       Call GetMem('IsMM for atoms','Free','Inte',ipIsMM,natom)
       Call GetMem('AtomCoord','Free','Real',ipCord,3*natom)
 *
-      iReturn=0
       Return
       End

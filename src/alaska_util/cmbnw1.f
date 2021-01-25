@@ -43,7 +43,6 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-      iQ = 1
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In CmbnW1: Zeta  ',' ',Zeta  ,1,nZeta)

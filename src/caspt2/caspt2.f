@@ -15,6 +15,9 @@
       USE SUPERINDEX
       USE INPUTDATA
       USE PT2WFN
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par, King, Set_Do_Parallel
+#endif
       IMPLICIT NONE
       INTEGER IRETURN
 *----------------------------------------------------------------------*
@@ -75,9 +78,6 @@ C
 #include "chocaspt2.fh"
 #include "stdalloc.fh"
       CHARACTER(LEN=60) STLNE2
-#ifdef _MOLCAS_MPP_
-      LOGICAL KING, Is_Real_Par
-#endif
 * Timers
       REAL*8  CPTF0, CPTF10, CPTF11, CPTF12, CPTF13, CPTF14,
      &       TIOTF0,TIOTF10,TIOTF11,TIOTF12,TIOTF13,TIOTF14,

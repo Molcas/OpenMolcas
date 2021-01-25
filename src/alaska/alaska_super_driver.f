@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Alaska_Super_Driver(iRC)
+      use Para_Info, only: nProcs
       Implicit Real*8 (a-h,o-z)
       Character*8 Method
       Logical Do_Cholesky, Numerical, Do_DF, Do_ESPF, StandAlone, Exist,
@@ -24,7 +25,6 @@
 #include "stdalloc.fh"
 #include "nac.fh"
 #include "alaska_root.fh"
-#include "para_info.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -82,10 +82,8 @@
       Call Get_iScalar('agrad',iForceAnalytical)
       If(iForceAnalytical .eq. 1) Do_Numerical_Cholesky=.False.
 *
-      ExFac=0.0D0
       If (Method.eq.'KS-DFT  '.and.Do_Numerical_Cholesky) Then
          Call Get_cArray('DFT functional',KSDFT,16)
-         ExFac=Get_ExFac(KSDFT)
 *
          If (Do_DF                 .or.                  ! RI/DF
      &       (Do_Cholesky.and.Do_1CCD.and.nSym.eq.1)      ! 1C-CD

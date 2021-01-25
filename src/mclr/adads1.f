@@ -151,7 +151,6 @@ C?    write(6,*) ' JOBSM,KSM,JKSM ',JOBSM,KSM,JKSM
       NK = KEND - KMIN + 1
       IOFF = ISSO(ICLS,ISM)
 *. Loop over iorb,jorb
-      IJEFF =  0
       IF(IJORD.EQ.0) THEN
         NIJ = NIOB* NJOB
       ELSE

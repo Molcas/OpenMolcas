@@ -12,7 +12,7 @@
      &      iglobal,nxbas,xb_label,xb_bas,iErr)
       Implicit Integer (i-n)
       Implicit Real*8 (a-h,o-z)
-      Character*48 Line, Blank
+      Character*48 Line
       Character*2  SimbA
 #include "g_zmatconv.fh"
       Logical Found
@@ -20,7 +20,6 @@
         character *(*) xb_bas(*)
       character *48 TMP
       iErr = 0
-      Blank = ' '
       nBase = 0
       icount=1
 

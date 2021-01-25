@@ -251,9 +251,14 @@
         _TYPE_, allocatable, intent(inout) :: buffer(:,:,:,:,:,:,:)
 #endif
 #include "cptr2loff.fh"
-        integer :: ntot,loffset,bufsize
+        integer :: ntot,loffset
+#ifndef _DATA_NAME_
+        integer :: bufsize
+#endif
         ntot = size(buffer)
+#ifndef _DATA_NAME_
         bufsize = storage_size(buffer) * ntot / 8
+#endif
         if (allocated(buffer)) then
           if (ntot.gt.0) then
 #if _DIMENSIONS_==1

@@ -154,9 +154,6 @@
             iER=iEOr(kDCRE,kDCRR)
             lDCRER=NrOpr(iER)
 *
-            Deg=Two
-            If (ilist_s.eq.jlist_s) Deg=One
-*
             ip_D_a=ipDij+lDCRER*mDij
             ip_D_b=ip_D_a
             If (nD.ne.1) ip_D_b=ipDSij+lDCRER*mDij

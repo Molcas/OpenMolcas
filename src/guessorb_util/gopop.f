@@ -38,7 +38,7 @@
 * Local variables                                                      *
 *----------------------------------------------------------------------*
       Real*8  TotNucChg
-      Real*8  eFermi
+*     Real*8  eFermi
       Real*8  eGap
       Real*8  OccNo
       Real*8  eLo,eHi
@@ -114,10 +114,10 @@
       Else
 *        Write(6,'(a)') 'Alpha is not MB'
          If(nAlpha.gt.0) Then
-            eFermi = (Scr(nAlpha+1)+Scr(nAlpha))/2.0d0
+*           eFermi = (Scr(nAlpha+1)+Scr(nAlpha))/2.0d0
             eGap   = (Scr(nAlpha+1)-Scr(nAlpha))
          Else
-            eFermi = 0.0D0
+*           eFermi = 0.0D0
             eGap   = 0.0D0
          End If
 *        Write(6,'(a,f12.6)') 'eFermi (alpha)  . . . . .',eFermi
@@ -180,10 +180,10 @@
       Else
 *        Write(6,'(a)') 'Beta is not MB'
          If(nBeta.gt.0) Then
-            eFermi = (Scr(nBeta+1)+Scr(nBeta))/2.0d0
+*           eFermi = (Scr(nBeta+1)+Scr(nBeta))/2.0d0
             eGap   = (Scr(nBeta+1)-Scr(nBeta))
          Else
-            eFermi = 0.0D0
+*           eFermi = 0.0D0
             eGap   = 0.0D0
          End If
 *        Write(6,'(a,f12.6)') 'eFermi (beta) . . . . . .',eFermi

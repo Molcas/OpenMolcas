@@ -302,7 +302,9 @@
 *
 *------  Select a vector.
          ee1   = 1.0D+72
+#ifdef _DEBUGPRINT_
          cDotV = 1.0D+72
+#endif
          t1    = 0.0D0
          ipBst =-99999999
          Do iVec = 1, kOptim
@@ -353,7 +355,9 @@
 *-----------   New vector much lower eigenvalue.
                ee1   = ee2
                ipBst = iVec
+#ifdef _DEBUGPRINT_
                cDotV = c2
+#endif
                t2 = t1
             Else If (ee2.le.ee1*Three) Then
 *-----------   New vector is close to the old vector.
@@ -363,7 +367,9 @@
 *--------------   New vector much better relative weight.
                   ee1   = ee2
                   ipBst = iVec
+#ifdef _DEBUGPRINT_
                   cDotV = c2
+#endif
                   t2 = t1
                Else If (t2*1.2d0.lt.t1) Then
 *--------------   Vectors are close in relative weight too!
@@ -371,7 +377,9 @@
                   If (ee2.lt.ee1) Then
                      ee1   = ee2
                      ipBst = iVec
+#ifdef _DEBUGPRINT_
                      cDotV = c2
+#endif
                      t2 = t1
                   End If
                End If

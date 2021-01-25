@@ -67,7 +67,6 @@
         Do ix=l,0,-1
           Do iy=l-ix,0,-1
             kompost=kompost+1
-            iz=l-ix-iy
             iMu=iMu+1
             iAtK=0
             Do iAt1=1,nAtoms

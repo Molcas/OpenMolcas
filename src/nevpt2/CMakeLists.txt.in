@@ -25,15 +25,19 @@ set(CUSTOM_QCMaquis_LOCATION ${PROJECT_BINARY_DIR}/External/qcmaquis-full)
 
 # QCMaquis does not know profile
 if(CMAKE_BUILD_TYPE MATCHES "profile")
-  set(NEVPT2_BUILD_TYPE "release")
+        set(NEVPT2_BUILD_TYPE "release")
 else()
-  set(NEVPT2_BUILD_TYPE ${CMAKE_BUILD_TYPE})
+        set(NEVPT2_BUILD_TYPE ${CMAKE_BUILD_TYPE})
 endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_ROOT})
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/custom)
 
-set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/mod)
+if(SINGLE_MOD_DIR)
+        set(mod_dir ${MAIN_MOD_DIR})
+else()
+        set(mod_dir ${MAIN_MOD_DIR}/nevpt2)
+endif()
 
 # enforce Intel MKL only if set for Molcas as well
 if(LINALG STREQUAL "MKL")
@@ -53,13 +57,14 @@ list(APPEND NEVPT2CMakeArgs
         -DCMAKE_C_FLAGS=${CMake_C_FLAGS}
         -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
         -DCMAKE_INSTALL_LIBDIR=lib
-        -DCMAKE_Fortran_MODULE_DIRECTORY=${CMAKE_Fortran_MODULE_DIRECTORY}
+        -DCMAKE_Fortran_MODULE_DIRECTORY=${mod_dir}
         -DENABLE_DEBUGPRINT_DMRG=OFF
         -DENABLE_DMRG=ON
         -DENABLE_OPENMP=${OPENMP}
         -DENABLE_INTEL_MKL=${ENABLE_INTEL_MKL}
         -DENABLE_MOLCAS=ON
         -DMOLCAS_BUILD_DIR=${PROJECT_BINARY_DIR}
+        -DDMRG_INCLUDE=${DMRG_INCLUDE}%${HDF5_QCM_INCLUDE}
   )
 # feel free to add more flags
 
@@ -79,12 +84,15 @@ if (QCMaquis_UPDATE)
   set (NEVPT2_up_cmd "sh" "-c" "cd ../ && rm nevpt2.tar.bz2 || true && ${QCMaquis_dl_SCRIPT} ${QCMaquis_URL} nevpt2 \'${QCMaquis_GIVEN_NAME}\' \'${QCMaquis_SURNAME}\' ${QCMaquis_EMAIL} && cd ${EP_PROJECT} && tar xvjf ../nevpt2.tar.bz2")
 endif()
 
+set (NEVPT2_pt_cmd "patch" "-p0" "-r" "-" "-N" "<" "${CMAKE_CURRENT_LIST_DIR}/cmakelists_txt.patch" "||" "true")
+
 ExternalProject_Add(${EP_PROJECT}
                     PREFIX ${CUSTOM_NEVPT2_LOCATION}
                     DOWNLOAD_COMMAND ${NEVPT2_dl_cmd}
                     UPDATE_COMMAND ${NEVPT2_up_cmd}
+                    PATCH_COMMAND ${NEVPT2_pt_cmd}
+                    LIST_SEPARATOR %
                     CMAKE_ARGS ${NEVPT2CMakeArgs}
-                    INSTALL_DIR ${PROJECT_BINARY_DIR}
                     LOG_DOWNLOAD 1
                     LOG_UPDATE 1
                     LOG_CONFIGURE 1
@@ -95,7 +103,7 @@ set (CMAKE_DISABLE_SOURCE_CHANGES ON)
 
 ExternalProject_Add_Step(${EP_PROJECT} install_tools DEPENDEES update
                    # Copy distributed 4-RDM tools
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CUSTOM_QCMaquis_LOCATION}/src/qcmaquis-driver/tools/distributed-4rdm ${PROJECT_BINARY_DIR}/Tools/distributed-4rdm
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CUSTOM_QCMaquis_LOCATION}/src/qcmaquis-driver/tools/distributed-4rdm ${PROJECT_BINARY_DIR}/qcmaquis/Tools/distributed-4rdm
                    # Copy the OpenMOLCAS tests
                    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CUSTOM_NEVPT2_LOCATION}/src/${EP_PROJECT}/test ${PROJECT_BINARY_DIR}/qcmaquis/test/
                    COMMENT "Copying tools for distributed 4-RDM calculation and tests for NEVPT2"
@@ -104,5 +112,5 @@ ExternalProject_Add_Step(${EP_PROJECT} install_tools DEPENDEES update
 # set variables for use in parent CMakeLists.txt
 ExternalProject_Get_Property(${EP_PROJECT} BINARY_DIR)
 
-set(NEVPT2_INCLUDE ${CMAKE_Fortran_MODULE_DIRECTORY} PARENT_SCOPE)
+set(NEVPT2_INCLUDE ${mod_dir} PARENT_SCOPE)
 set(NEVPT2_LIBRARIES ${BINARY_DIR}/${CMAKE_FIND_LIBRARY_PREFIXES}qdnevpt2.a ${BINARY_DIR}/${CMAKE_FIND_LIBRARY_PREFIXES}AUXLIB_F.a PARENT_SCOPE)

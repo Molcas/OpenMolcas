@@ -17,7 +17,6 @@
 *
       JSYM(L)=JSUNP(INTSYM,L)
 *
-      INUM=IRC(4)-IRC(3)
       CALL CSCALE(indx,INTSYM,C,SQ2)
       CALL CSCALE(indx,INTSYM,S,SQ2INV)
       ICHK=0

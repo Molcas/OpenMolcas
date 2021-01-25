@@ -49,7 +49,7 @@
       Implicit Real*8 (a-h,o-z)
       INTEGER   rc
       INTEGER   iSymp,iSymq,iSymr,iSyms
-      INTEGER   pq,pq2,numpq,pq1_save
+      INTEGER   pq,numpq,pq1_save
       Real*8    Xint(*)
 
 #include "RdOrd.fh"
@@ -69,7 +69,6 @@ C --- save the value of pq1 because it belongs to a Common block
       pq1_save = pq1
       pq1      = ipq1
 
-      pq2 = pq1 + numpq - 1
       If (iSymp .eq. iSymq) Then
          Npq = nBas(iSymp)*(nBas(iSymp) + 1)/2
       Else

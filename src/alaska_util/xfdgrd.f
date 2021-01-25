@@ -118,8 +118,6 @@
          ipBOff = ipBOff + 1
       End Do
 *
-      llOper = lOper(1)
-*
 *     Loop over centers of the external field.
 *
       iDum=0
@@ -246,5 +244,6 @@ c Avoid unused argument warnings
          Call Unused_integer(nRys)
          Call Unused_real_array(Ccoor)
          Call Unused_integer(nOrdOp)
+         Call Unused_integer_array(lOper)
       End If
       End

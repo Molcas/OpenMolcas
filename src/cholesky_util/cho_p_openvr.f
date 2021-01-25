@@ -13,6 +13,7 @@ C
 C     Purpose: open (iOpt=1) or close (iOpt=2) local and global storage
 C              files.
 C
+      Use Para_Info, Only: nProcs, Is_Real_Par
       Implicit None
       Integer iOpt
 #include "cholesky.fh"

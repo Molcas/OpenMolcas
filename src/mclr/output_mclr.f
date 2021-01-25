@@ -45,12 +45,13 @@
       Character(LEN=8) Label
 #ifdef _DEBUGPRINT_
       Character(LEN=20) Label2
+      Logical elec_On
 #endif
       Integer Pstate_sym,ldisp2(8),ielec(3)
       Integer iKapDisp(nDisp),isigdisp(nDisp),
      &        iCiDisp(nDisp),iCiSigDisp(nDisp),
      &        iRHSDisp(nDisp),iRHSCiDisp(nDisp)
-      Logical elec_On,converged(8),CI
+      Logical converged(8),CI
       Real*8 Pola(6)
       Real*8, Allocatable:: RHss(:)
       Real*8, Allocatable:: Kap1(:), Kap2(:), sKap(:),
@@ -182,8 +183,8 @@ C
                 idis=iRHSCIDisp(idisp)
                 irc=ipin(iprp1)
                 Call dDaFile(LuTemp,2,W(iprp1)%Vec,iLen,iDis)
-                ii=ipin(ipSp)
-                jj=ipin(iprp1)
+                irc=ipin(ipSp)
+                irc=ipin(iprp1)
                 Do i=1,nConf1
                    W(ipSp)%Vec(i)= -W(ipSp)%Vec(i)-W(iprp1)%Vec(i)
                 End Do
@@ -391,11 +392,11 @@ C
       irc=3*ndisp
       Label='DOTELGR'
       Call drdMCk(irc,iopt,LaBeL,idum,EG,idum)
-      elec_On=.true.
-      if (irc.ne.0) elec_On=.false.
-                Call GADsum(Hss,nHss)
+      Call GADsum(Hss,nHss)
       call dcopy_(nHss,Hss,1,Hess2,1)
 #ifdef _DEBUGPRINT_
+      elec_On=.true.
+      if (irc.ne.0) elec_On=.false.
       If (debug) Then
          ip=1
          Do iSym=1,nSym

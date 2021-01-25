@@ -75,4 +75,7 @@
       End if
 
       return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
       end

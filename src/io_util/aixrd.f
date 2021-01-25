@@ -98,7 +98,6 @@
              AixRd=99
              return
             endif
-            idum=iPrintLevel(3)
             Call FASTIO('STATUS')
             AixRd=AixErr(ErrTxt)
             Call SysWarnFileMsg(TheName, FCtlBlk(nFile),
@@ -109,7 +108,6 @@
              AixRd=99
              return
             endif
-            idum=iPrintLevel(3)
             Call FASTIO('STATUS')
             AixRd=eInErr
             Call SysWarnFileMsg(TheName, FCtlBlk(nFile),
@@ -127,7 +125,6 @@
              AixRd=99
              return
             endif
-         idum=iPrintLevel(3)
          Call FASTIO('STATUS')
          AixRd=AixErr(ErrTxt)
 
@@ -140,7 +137,6 @@
              AixRd=99
              return
             endif
-         idum=iPrintLevel(3)
          Call FASTIO('STATUS')
          AixRd=eEof
             Call SysQuitFileMsg(_RC_IO_ERROR_READ_,

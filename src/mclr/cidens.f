@@ -188,6 +188,9 @@
       end if
 
       Return
+#ifdef _WARNING_WORKAROUND_
+      If (.False.) Call Unused_integer(irc)
+#endif
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(iS)
       End

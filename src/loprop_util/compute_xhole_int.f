@@ -20,7 +20,7 @@
 #include "stdalloc.fh"
       Real*8, Allocatable:: D1ao(:)
       Dimension nBasLop(nSym)
-      Logical Do_Gamma, Do_Grad, On_Top, Do_Tau, Do_MO, Do_TwoEl
+!     Logical Do_Gamma, Do_Grad, On_Top, Do_Tau, Do_MO, Do_TwoEl
       Logical DSCF
       Character*4 DFTFOCK, KSDFT
       Integer nSize
@@ -40,18 +40,19 @@
       nB=nBasLop(1)     !-- number of basis functions
       nTri=nB*(nB+1)/2  !-- obvious!
       Func=Zero         !-- initialize
-      Dens=Zero         !-- initialize
-      nFckDim=1         !-- for open-shell the fock-matrix has
-                        !   two versions, but this implementation
-                        !   is not for UHF (but for CASSCF)
-      nD=1              !-- much like nFckDim
-      Do_Gamma=.false.  !-- optional stuff in DFT-theory; for our
-                        !   purpose, just scheiss.
-      Do_Grad=.false.   !-- see above.
-      On_Top=.false.    !-- see above.
-      Do_Tau=.false.    !-- see above.
-      Do_MO=.true.      !-- in our integration kernel, we need MOs.
-      Do_TwoEl=.false.  !-- scheiss in our functional.
+!IFG: uncomment when DrvNQ call fixed (see below)
+!     Dens=Zero         !-- initialize
+!     nFckDim=1         !-- for open-shell the fock-matrix has
+!                       !   two versions, but this implementation
+!                       !   is not for UHF (but for CASSCF)
+!     nD=1              !-- much like nFckDim
+!     Do_Gamma=.false.  !-- optional stuff in DFT-theory; for our
+!                       !   purpose, just scheiss.
+!     Do_Grad=.false.   !-- see above.
+!     On_Top=.false.    !-- see above.
+!     Do_Tau=.false.    !-- see above.
+!     Do_MO=.true.      !-- in our integration kernel, we need MOs.
+!     Do_TwoEl=.false.  !-- scheiss in our functional.
 
       Write(DFTFOCK,'(A)')'XHOL'  !-- Tell the routines that we wish
                                   !   to run a xhole calculation.
@@ -61,7 +62,6 @@
       Call mma_allocate(D1ao,nTri)
       nDens=nTri
       Call Get_D1ao(D1ao,nDens)!-- The density matrix.
-      ExFac=Get_ExFac(KSDFT)      !-- Zero, in fact.
       Functional_type=LDA_type    !-- Number from nq_info.fh.
       EThr=1.0d-9
       Call Put_dScalar('EThr',EThr)!-- A threshold for energy accuracy

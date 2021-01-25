@@ -94,8 +94,8 @@ c     iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 ************************************************************************
 *                                                                      *
       If (.Not.DoCoul.and..Not.DoExch) Return
-      iRout = 38
-      iPrint = nPrint(iRout)
+*     iRout = 38
+*     iPrint = nPrint(iRout)
 *
 *     If (iPrint.ge.49) Then
 *        Write (*,*) ' FckAcc:AOIn',DDot_(nijkl*iCmp*jCmp*kCmp*lCmp,

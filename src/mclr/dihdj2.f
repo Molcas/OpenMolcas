@@ -414,7 +414,6 @@
                   IF( IAB . EQ. JAB )
      &            XVAL = XVAL - 0.5D0*GTIJKL_MCLR(IORB,JORB,JORB,IORB)
 *. test
-          FAC = GTIJKL_MCLR(IORB,JORB,JORB,IORB)
   620           CONTINUE
   630         CONTINUE
   640       CONTINUE

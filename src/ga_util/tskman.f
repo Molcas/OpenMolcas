@@ -33,9 +33,11 @@
       end
 
       subroutine init_tsk(id,n)
+#ifdef _MOLCAS_MPP_
+      use Para_Info, only: Is_Real_Par
+#endif
       implicit none
 #include "tsk.fh"
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
 #  include "mafdecls.fh"
@@ -76,9 +78,11 @@
       end
 
       subroutine free_tsk(id)
+#ifdef _MOLCAS_MPP_
+      use Para_Info, only: Is_Real_Par
+#endif
       implicit none
 #include "tsk.fh"
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
 #endif
@@ -112,9 +116,11 @@
       end
 
       logical function rsv_tsk(id,task)
+#ifdef _MOLCAS_MPP_
+      use Para_Info, only: Is_Real_Par
+#endif
       implicit none
 #include "tsk.fh"
-#include "para_info.fh"
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
 #endif
@@ -144,9 +150,11 @@
 * a spread of numbers just as they would do with a loop stride.
 *****************************************************************
       subroutine init_tsk_even(id,n)
+#ifdef _MOLCAS_MPP_
+      use Para_Info, only: MyRank, Is_Real_Par
+#endif
       implicit none
 #include "tsk.fh"
-#include "para_info.fh"
       integer :: id, n
 
 #ifdef _debug_trace_
@@ -197,9 +205,11 @@
       end
 
       logical function rsv_tsk_even(id,task)
+#ifdef _MOLCAS_MPP_
+      use Para_Info, only: nProcs, Is_Real_Par
+#endif
       implicit none
 #include "tsk.fh"
-#include "para_info.fh"
       integer :: id, task
 
 #ifdef _MOLCAS_MPP_

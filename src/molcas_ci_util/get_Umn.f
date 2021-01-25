@@ -77,7 +77,6 @@ C
         MXCSFC = MAX(MXCSFC,NCSFTP(ITYP))
       END DO
 *      write(6,*) 'MXCSFC = ', MXCSFC
-      IBblockV = MXPDIM-NPCSF
       call getmem('AuxDia','ALLO','REAL',ipAuxD,MXCSFC)
       call getmem('AuxVer', 'ALLO','REAL',ipAuxV, MXCSFC*NPCSF)
       call getmem('AuxCopy','ALLO','REAL',ipAuxC, MXCSFC*NPCSF)

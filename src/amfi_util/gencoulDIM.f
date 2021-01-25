@@ -17,12 +17,6 @@ cbs   integrals for the four angular momenta l1-l4
 #include "para.fh"
 #include "param.fh"
       logical makemean,bonn,breit,sameorb
-      max1=1  !starting values for limits of precalculated
-c             ! powers of function Cfunct(X)
-      max2=1
-c
-      incont4=0
-c
 cbs   first of all, this routine determines, for which L
 cbs   values the radial integrals have to be solved
 cbs   initialize the number of blocks for the different
@@ -44,7 +38,6 @@ cbs   keep track of L-values for later purposes
       Lvalues(4)=l4
 cbs   now nanz is given the new value
       nanz=ncontrac(l1)*ncontrac(l2)*ncontrac(l3)*ncontrac(l4)
-      nprimprod=nprimit(l1)*nprimit(l2)*nprimit(l3)*nprimit(l4)
 c
 cbs   prepare the powers needed for cfunctx
 c

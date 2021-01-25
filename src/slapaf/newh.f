@@ -24,7 +24,7 @@
 #include "print.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Integer nInter, nIter, mIter, iOptH, i, iPrint, iRout, iSing
+      Integer nInter, nIter, mIter, iOptH, i, iPrint, iRout
       Real*8 dq_orig(nInter,nIter), g(nInter,mIter+1), H(nInter,nInter)
       Logical Test, DoMask
       Real*8, Dimension(:), Allocatable :: dg, gi
@@ -89,7 +89,6 @@
 *                                                                      *
 *-----Compute the update
 *
-      iSing=0
       If (Test(4)) Then
 *
 *------- No update

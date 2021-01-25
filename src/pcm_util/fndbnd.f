@@ -24,7 +24,6 @@ C     Character AtSymb*2,AppNum*3
 C     Data AtSymb, AppNum /'XX','XXX'/
  1000 Format(' Maximum number of bonds=',I3,' exceeded for atom',I4,'.')
 C
-      Len = MxBond * NAtoms
       Do 10 I = 1, 12
       Do 11 J = 1, NAtoms
         IBond(I,J) = 0

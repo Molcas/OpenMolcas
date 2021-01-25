@@ -8,12 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1996-2006, T. Thorsteinsson and D. L. Cooper           *
+* Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
+*               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine bufio_init_cvb(file_id1)
       implicit real*8 (a-h,o-z)
-      logical tstfile_cvb
-      external tstfile_cvb
+c ... Files/Hamiltonian available ...
+      logical, external :: tstfile_cvb
 #include "bufio_cvb.fh"
 #include "idbl_cvb.fh"
       dimension dnbuf(1)

@@ -38,7 +38,7 @@
 10    Continue
         Read(Lu,'(A)') TheLine
       If(TheLine.ne.'* All centers') Go To 10
-      Read(Lu,*) nCent
+      Read(Lu,*) i
 
 *Read atom centers.
       Do 15, i=1,nAt

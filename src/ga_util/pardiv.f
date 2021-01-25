@@ -9,9 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       INTEGER FUNCTION iParDiv(nMax,nMin)
-#include "para_info.fh"
 *
 #ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: nProcs, Is_Real_Par
       IF (Is_Real_Par()) THEN
         iParDiv = nMax/nProcs+1 + nMin
       ELSE

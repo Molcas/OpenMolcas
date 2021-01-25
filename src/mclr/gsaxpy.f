@@ -26,7 +26,7 @@
       DIMENSION AB(NROW,*)
 *
       IWAY = 2
-      ICRAY = 0
+C      ICRAY = 0
       IF(IWAY.EQ.1) THEN
 *. Straightforward sequence of SAXPY's
          DO 1100 J = 1, NABCOL

@@ -1,0 +1,15 @@
+--- scripts/common/cmake/FindMAQUISLapack.cmake.orig	2020-10-11 10:57:41.665412179 +0200
++++ scripts/common/cmake/FindMAQUISLapack.cmake	2020-10-11 10:56:39.753738398 +0200
+@@ -18,7 +18,11 @@
+
+ if(${BLAS_LAPACK_SELECTOR} MATCHES "mkl_sequential")
+   if(NOT DEFINED ENV{MKLROOT})
+-    message(FATAL_ERROR "ENV variable MKLROOT is required for BLAS_LAPACK_SELECTOR in MKL mode.")
++    if(DEFINED MKLROOT)
++      set(ENV{MKLROOT} ${MKLROOT})
++    else(DEFINED MKLROOT)
++      message(FATAL_ERROR "ENV variable MKLROOT is required for BLAS_LAPACK_SELECTOR in MKL mode.")
++    endif(DEFINED MKLROOT)
+   endif(NOT DEFINED ENV{MKLROOT})
+
+   if(NOT APPLE)

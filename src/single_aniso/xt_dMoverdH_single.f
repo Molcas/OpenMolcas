@@ -83,7 +83,6 @@ c standard deviation data:
       Real(kind=8) :: dHX(3)
       Real(kind=8) :: dHY(3)
       Real(kind=8) :: dHZ(3)
-      Real(kind=8) :: dHW(3)
 
       Integer       :: Info
       Real(kind=8) :: WT(3), ZT(3,3)
@@ -219,7 +218,6 @@ cccc-------------------------------------------------------cccc
       dHX=0.0_wp
       dHY=0.0_wp
       dHZ=0.0_wp
-      dHW=0.0_wp
 
       nDirX=3
 

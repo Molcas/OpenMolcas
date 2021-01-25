@@ -108,7 +108,7 @@ CONTAINS
 
       REAL(REALK)   :: arr_tmp(W_pair%lm_max)
       REAL(REALK)   :: r_mod2
-      INTEGER(INTK) :: n,m,w, lm_dim, hi, p,q, LMAX,JMAX
+      INTEGER(INTK) :: n,m, lm_dim, hi, p,q, LMAX,JMAX
       CHARACTER(LEN=1)  :: NT
 
       CALL fmm_check_W_status
@@ -127,7 +127,6 @@ CONTAINS
          IF (LMAX /= JMAX) THEN
             n = (1+JMAX)**2
             m = (1+LMAX)**2
-            w = W_pair%lm_max
             CALL fmm_contract_Wq(NT,W_matrix,WLDA,old_ptr(:,q),n,new_ptr(:,p),m)
          ELSE
             arr_tmp(:lm_dim) = old_ptr(:lm_dim,q)
@@ -265,17 +264,14 @@ CONTAINS
       TYPE(T_pair_list), INTENT(IN) :: W_pairs
 
       REAL(REALK)   :: lastlen, r_pq(3), r_pq_mod(3)
-      INTEGER(INTK) :: LMAX, n,lm_dim, i, p,q
-      CHARACTER(LEN=1)  :: NT
+      INTEGER(INTK) :: LMAX, n, i, p,q
 
       CALL fmm_check_W_status
 
-      NT = W_pairs%N_or_T
       r_pq_mod(:) = W_pairs%r_ab(:)
       lastlen = zero
       LMAX = W_pairs%RHS_LMAX
       n = (1+LMAX)**2
-      lm_dim = W_pairs%lm_max
 
       DO i = 1, SIZE(W_pairs%paras)
 

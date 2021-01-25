@@ -65,7 +65,6 @@
 *
       DO JBATCH = 1,2 ! only alpha and beta
         DO IBLOCK = I1BATCH(JBATCH),I1BATCH(JBATCH)+ LBATCH(JBATCH)-1
-          ITYPE = IBATCH(JBATCH,IBLOCK)
           DO ISPGP = 1, NSPGPFTP(JBATCH)
             IOFF = IBSPGPFTP(JBATCH)
             DO IGAS = 1, NGAS
@@ -106,7 +105,6 @@
       NBETAM1 = 0
       DO JBATCH = 1,2 ! only alpha and beta
         DO IBLOCK = I1BATCH(JBATCH),I1BATCH(JBATCH)+ LBATCH(JBATCH)-1
-          ITYPE = IBATCH(JBATCH,IBLOCK)
           DO ISPGP = 1, NSPGPFTP(JBATCH)
             IOFF = IBSPGPFTP(JBATCH)
             DO IGAS = 1, NGAS

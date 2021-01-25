@@ -20,9 +20,6 @@
       Real*8, Allocatable:: TR(:), Scrt(:), G(:), EVal(:), EVec(:),
      &                      U(:)
 *
-      iRout=135
-      iPrint = nPrint(iRout)
-*
       Call mma_allocate(TR,18*nAtom,Label='TR')
 *
 *-----Compute the symmetric translations and rotations

@@ -43,7 +43,6 @@
       NEL = NAEL + NBEL
       IOPEN = ITYP-1+MINOP
       ICLOS = (NAEL + NBEL - IOPEN) / 2
-      IOCC  = IOPEN + ICLOS
 *
 ** Spin orbital occupations of determinants of configuration
 *

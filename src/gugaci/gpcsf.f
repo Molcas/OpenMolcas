@@ -26,7 +26,6 @@ c generate and print csfs
 
       ndr=ndl
       nst=norb_all
-      ndy=norb_ext
       do l=1,norb_ext+norb_act
         nwalk(l)=0
       enddo
@@ -52,7 +51,8 @@ c generate and print csfs
       jpae=jv
       ipae=1
       jaedownwei=iseg_downwei(ipae)
-      do jpad=1,mxnode
+      do jpad_=1,mxnode
+        jpad=jpad_ ! jpad is in common block, is this necessary?
         iw_sta(jpad,ipae)=ndimsum
         if(nu_ad(jpad).eq.0) cycle
         call seg_drt()                     !   jpad_upwei(*)        = jp
@@ -68,7 +68,8 @@ c generate and print csfs
         iw_sta(1:mxnode,ipae)=ndimsum
         if(nu_ae(ipae).eq.0) cycle
         jaedownwei=iseg_downwei(ipae)
-        do jpad=1,mxnode
+        do jpad_=1,mxnode
+          jpad=jpad_ ! jpad is in common block, is this necessary?
           iw_sta(jpad,ipae)=ndimsum
           if(nu_ad(jpad).eq.0) cycle
           call seg_drt()
@@ -77,7 +78,6 @@ c generate and print csfs
           ndimsum=ndimsum+ndim*jaedownwei*iwupwei
           if(ndim .eq. 0) cycle
           call config_act()
-          ista=iw_sta(jpad,ipae)+1
         enddo
       enddo
       do im=1,8
@@ -86,7 +86,8 @@ c generate and print csfs
         iw_sta(1:mxnode,ipae)=ndimsum
         if(nu_ae(ipae).eq.0) cycle
         jaedownwei=iseg_downwei(ipae)
-        do jpad=1,mxnode
+        do jpad_=1,mxnode
+          jpad=jpad_ ! jpad is in common block, is this necessary?
           iw_sta(jpad,ipae)=ndimsum
           if(nu_ad(jpad).eq.0) cycle
           call seg_drt()
@@ -101,7 +102,8 @@ c generate and print csfs
         jpae=js(im)
         ipae=17+im
         if(nu_ae(ipae).eq.0) cycle
-        do jpad=1,mxnode
+        do jpad_=1,mxnode
+          jpad=jpad_ ! jpad is in common block, is this necessary?
           if(nu_ad(jpad).eq.0) cycle
           call seg_drt()
           if(ndim .eq. 0) cycle
@@ -192,7 +194,6 @@ c      common/ptlph/jph,jeh,jwh,th,thh
       common/ptlph/jph,jeh,jwh
 c     write(6,*)'               ***** start h-diaelm *****'
 c      write(6,*)   '   diagonal_act_d:',jpad,ipae
-      nsum=0
       do lr=norb_dz+1,norb_inn
         jp0=no(lr-1)+1
         jp1=no(lr)
@@ -231,9 +232,9 @@ c           call prodel(3,wt,jp,mpe,jw)
 !     :    ,jv,jd(8),jt(8),js(8)
 !      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-      data dzero/0.d0/
       if(norb_dbl.eq.0) return
-      do ipae=1,25
+      do ipae_=1,25
+        ipae=ipae_ ! ipae is in common block, is this necessary?
         if(nu_ae(ipae).eq.0) cycle
         iwdownv=iw_downwei(1,ipae)
         do iwa=0,iwdownv-1
@@ -251,7 +252,8 @@ c       jps=js(1)
           jpad1=jpad+24
 c         wld=wt0-voint(lr0,lr0)-vdint(lr0,lr0)
 c          wls=wld-voint(lr0,lr0)
-          do ipae=1,25
+          do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpad,ipae)
             do iwa=0,iwdownv-1
@@ -262,7 +264,8 @@ c             call prodel(1,wld,0,ipae,iwad)
           enddo
 
           if(jb_sys.gt.0) then
-            do ipae=1,25
+            do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpad1,ipae)
             do iwa=0,iwdownv-1
@@ -274,7 +277,8 @@ c             call prodel(1,wld,0,ipae,iwad)
         endif
          jpad=17+ns_sm
           iwd=just(lr0,lr0)
-          do ipae=1,25
+          do ipae_=1,25
+          ipae=ipae_ ! ipae is in common block, is this necessary?
           if(nu_ae(ipae).eq.0) cycle
           iwdownv=iw_downwei(jpad,ipae)
           do iwa=0,iwdownv-1
@@ -295,7 +299,8 @@ c           wld0=wld
         iws=just(lr0,lr)
         iwt=iws            !
 c          wld=wld0-voint(lr,lr)-vdint(lr,lr)
-          do ipae=1,25
+          do ipae_=1,25
+            ipae=ipae_ ! ipae is in common block, is this necessary?
             if(nu_ae(ipae).eq.0) cycle
             iwdownv=iw_downwei(jpat,ipae)
             do iwa=0,iwdownv-1
@@ -341,8 +346,6 @@ c             call prodel(1,wld,0,ipae,iwad)
 !     :    ,jv,jd(8),jt(8),js(8)
 !      common/sub_drt/jpad,jpae,ipae,ndim,nohy,ihy(max_wei),
 !     :     jj_sub(4,0:max_node),iy(4,0:max_node),jphy(max_node)
-      character*10 cc
-        cc=' out_800_d'
         jws0=0
       do mra=1,8
         ipae=1+mra
@@ -355,7 +358,7 @@ c             call prodel(1,wld,0,ipae,iwad)
         do la=lasta,laend
 c        jpd=jd(mra)
           jw=jw+1
-          lra=norb_all-la+1
+c         lra=norb_all-la+1
 c        wld=voint(lra,lra)
 c         call prodel(2,wld,0,ipae,jw)
           call prodel_conf(2,0,ipae,jw,la,0,2)      !d
@@ -368,7 +371,7 @@ c       jps=js(1)
       jweis=jws0
       do la=1,norb_ext
 c        jpd=jd(mra)
-        lra=norb_all-la+1
+c       lra=norb_all-la+1
         jweis=jweis+1
 c        wls=2.d0*voint(lra,lra)+vdint(lra,lra)
 c       call prodel(2,wls,0,18,jweis)
@@ -380,10 +383,10 @@ c       call prodel(2,wls,0,18,jweis)
         ipat=9+im
         ipas=17+im
         do la=2,norb_ext
-         lra=norb_all-la+1
+c        lra=norb_all-la+1
          ima=lsm(la)
          do 600 lb=1,la-1
-           lrb=norb_all-lb+1
+c          lrb=norb_all-lb+1
            imb=lsm(lb)
            mr=mul_tab(ima,imb)
            if(mr.ne.im) goto 600

@@ -145,7 +145,6 @@
 *
 * =========================================================
 *
-                  IONE = 1
                   nkStref=maxk  ! ????????
                   JLBOFF = 1
                   IF(JSM.EQ.LSM.AND.JTYP.EQ.LTYP) THEN
@@ -203,7 +202,6 @@
 *
 * =========================================================
 *
-                  IONE = 1
                   IKBOFF = 1
                   IF(ISM.EQ.KSM.AND.ITYP.EQ.KTYP) THEN
                     NIK = NI*(NI+1)/2

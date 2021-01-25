@@ -54,8 +54,6 @@
 *
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
-      iRout = 10
-      iPrint = nPrint(iRout)
 *     iQ = 1
       la = iAnga(1)
       lb = iAnga(2)
@@ -71,7 +69,6 @@
       mcdMin=nabSz(Max(lc,ld)-1)+1
       mcdMax=nabSz(lc+ld)
       mabcd=(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
-      nabcd=iCmp*jCmp*kCmp*lCmp
 *
       iBsInc = iBas
       jBsInc = jBas
@@ -243,8 +240,6 @@
       ipMem3 = ipMem2 + Mem2
       ipMem4 = ipMem2 + Mem2 - Mem4
       Mend=0
-*
-      MemSum=Mem1+Mem2+Mem3
 *
       r1 = r1 + DBLE(iBsInc)/DBLE(iBas)
       r2 = r2 + DBLE(jBsInc)/DBLE(jBas)

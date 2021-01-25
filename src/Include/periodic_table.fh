@@ -11,7 +11,7 @@
       Integer Num_Elem
       Parameter (Num_Elem=118)
       Character*2 PTab(0:Num_Elem)
-      Data PTab/
+      Parameter (PTab = [
      &      ' X',
      &      ' H','He','Li','Be',' B',' C',' N',' O',' F','Ne',
      &      'Na','Mg','Al','Si',' P',' S','Cl','Ar',' K','Ca',
@@ -25,4 +25,4 @@
      &      'Pa',' U','Np','Pu','Am','Cm','Bk','Cf','Es','Fm',
      &      'Md','No','Lr','Rf','Db','Sg','Bh','Hs','Mt','Ds',
      &      'Rg','Cn','Nh','Fl','Mc','Lv','Ts','Og'
-     &      /
+     &      ])

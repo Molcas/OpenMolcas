@@ -21,7 +21,7 @@ C*      REAL*8 A,EL,D,SQRT,C,S,DETERP
         INDSNL=0
         IF(N.LT.2)GO TO 140
         ISL2=0
-        K000FX=2
+C       K000FX=2
         IF(ISL2.EQ.0)INDSNL=2
         IF(ISL2.EQ.1)INDSNL=1
 C       CALL SLITET(2,INDSNL)

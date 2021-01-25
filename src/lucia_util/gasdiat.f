@@ -74,7 +74,6 @@
 *
 **. Local memory
 *
-      IDUM = 0
       CALL GETMEM('KLJ   ','ALLO','REAL',KLJ   ,NTOOB**2)
       CALL GETMEM('KLK   ','ALLO','REAL',KLK   ,NTOOB**2)
       CALL GETMEM('KLSC2 ','ALLO','REAL',KLSCR2,2*NTOOB**2)

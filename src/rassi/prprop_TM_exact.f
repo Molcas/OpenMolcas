@@ -15,6 +15,9 @@
       SUBROUTINE PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,JBNUM,EigVec)
       USE RASSI_AUX
       USE kVectors
+#ifdef _HDF5_
+      USE mh5, ONLY: mh5_put_dset
+#endif
 #include "compiler_features.h"
 #ifndef POINTER_REMAP
       USE ISO_C_Binding

@@ -48,7 +48,9 @@
       Character*8 Label
       Dimension dum(1),idum(1)
 *
+#ifdef _DEBUGPRINT_
       MulTab(i,j)=iEor(i-1,j-1)+1
+#endif
 *
       Call Set_Basis_Mode('Valence')
       Call Setup_iSD()

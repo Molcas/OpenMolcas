@@ -340,13 +340,6 @@ c    &                ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     FacInt : scaling factor for the integrals passed down to         *
-*              Integ_Proc                                              *
-*
-      FacInt=1.0D0
-*                                                                      *
-************************************************************************
-*                                                                      *
 *     These loops will partition the contraction loops if there is not
 *     enough memory to store the whole SO/AO-block simultaneously. The
 *     memory partitioning is determined by PSOAO0.

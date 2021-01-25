@@ -96,7 +96,6 @@ c if no input, but TypeIndex contains 123
           endif
         endif
         if(isAll.eq.1) then
-         isAuto=1
          Region(1)=-1000
          Region(2)=1000
         endif

@@ -53,8 +53,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      iRout = 39
-      iPrint = nPrint(iRout)
 #ifdef _DEBUGPRINT_
       iPrint=99
       If (iPrint.ge.99) Then
@@ -80,7 +78,6 @@
 *
       Call CWTime(Cpu1,Wall1)
 *
-      nBas0 = nBas(0)
       iOff1 = nBas(0)
       Fac = One / Four
       PMax=Zero
@@ -242,10 +239,8 @@
 *
                   Do lAOl = 0, lBas-1
                      lSOl = lSO + lAOl
-                     LTh=lAOl + (i4-1)*lBas
                      Do kAOk = 0, kBas-1
                         kSOk = kSO + kAOk
-                        Kth=kAOk+(i3-1)*kBas
 *
                         indexB = ip_BklK + (kAOk + (i3-1)*kBas)*jBas
      &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas - 1
@@ -409,10 +404,8 @@
 *
                   Do lAOl = 0, lBas-1
                      lSOl = lSO + lAOl
-                     LTh=lAOl + (i4-1)*lBas
                      Do kAOk = 0, kBas-1
                         kSOk = kSO + kAOk
-                        Kth=kAOk+(i3-1)*kBas
 *
                         indexB = ip_BklK + (kAOk + (i3-1)*kBas)*jBas
      &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas - 1
@@ -598,10 +591,8 @@
 *
                   Do lAOl = 0, lBas-1
                      lSOl = lSO + lAOl
-                     LTh=lAOl + (i4-1)*lBas
                      Do kAOk = 0, kBas-1
                         kSOk = kSO + kAOk
-                        Kth=kAOk+(i3-1)*kBas
 *
                         iThpkl=(kAOk + (i3-1)*kBas)*jBas
      &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas
@@ -892,10 +883,8 @@
 *
                   Do lAOl = 0, lBas-1
                      lSOl = lSO + lAOl
-                     LTh=lAOl + (i4-1)*lBas
                      Do kAOk = 0, kBas-1
                         kSOk = kSO + kAOk
-                        Kth=kAOk+(i3-1)*kBas
 *
                         iThpkl=(kAOk + (i3-1)*kBas)*jBas
      &                         + (lAOl + (i4-1)*lBas)*nKBas*jBas

@@ -80,7 +80,7 @@ C
       CALL GETMEM('CIVEC','ALLO','REAL',LW4,NCONF)
       IF (IPRLEV.GE.20) WRITE(6,1100) 'CIDIA',LW4
       IF (NAC. GT. 0)
-     &       CALL CIDIA_CI_UTIL(NAC,NCONF,LSYM,WORK(LW4),LW1,TUVX,
+     &       CALL CIDIA_CI_UTIL(NAC,NCONF,STSYM,WORK(LW4),LW1,TUVX,
      &                          LUDAVID)
 C
 C -------------------------------------------------------------------- C
@@ -155,8 +155,8 @@ C     LW5: CONVERGENCE PARAMETERS
             ITLIMIT=MAXJT
           END IF
 * PAM Feb 2009: New code in david5.
-*           Call David5(nAc,lSym,nDet,MAXJT,ITERCI,
-*          Call David5(nAc,lSym,nDet,ItLimit,ITERCI,
+*           Call David5(nAc,stSym,nDet,MAXJT,ITERCI,
+*          Call David5(nAc,stSym,nDet,ItLimit,ITERCI,
 *     &      Work(LW5),Threshold,LW1, TUVX,
 *     &      iWork(lSel),Work(lExplE),Work(lExplV))
 *
