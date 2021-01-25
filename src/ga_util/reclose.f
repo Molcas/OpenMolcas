@@ -15,7 +15,7 @@
 #include "timtra.fh"
 *                                                                      *
 ************************************************************************
-* Deallocate the arrays allocated by ReStart                           *
+* Deallocate the arrays allocated by StartLight                        *
 ************************************************************************
 *                                                                      *
       If (nfld_tim.ne.0)

@@ -60,3 +60,10 @@ With PGI 20 ( __PGIC__ >= 20 ) it compiles, but it appears to be buggy at runtim
 #else
 #define INTERNAL_PROC_ARG
 #endif
+
+/* Allows files with no compilable instructions */
+#if ( NAGFOR )
+#undef EMPTY_FILES
+#else
+#define EMPTY_FILES
+#endif

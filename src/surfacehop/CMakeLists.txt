@@ -9,4 +9,16 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+set (sources
+     main.F90
+     getIphInfo.F90
+     initial_surfacehop.f90
+     rdinp_surfacehop.F90
+     restart_surfacehop.F90
+     surfacehop.F90
+     surfacehop_globals.f90
+     tully.F90
+     tully_variables.f90
+)
+
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.txt)

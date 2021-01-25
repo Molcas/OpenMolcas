@@ -18,7 +18,6 @@
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
-#include "debug.fh"
 #include "ofembed.fh"
 *
 * NOT TESTED (used for OFEmbed below)

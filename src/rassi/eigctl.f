@@ -658,7 +658,7 @@ C                                                                      C
       END IF
 *
       ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
-      ! 1/c^3 (in a.u. of time ^ -1)
+      ! numerically: 2/c^3 (in a.u. of time ^ -1)
       AFACTOR = 2.0D0/CONST_C_IN_AU_**3
      &          /CONST_AU_TIME_IN_SI_
 *

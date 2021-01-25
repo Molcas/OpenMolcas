@@ -227,7 +227,6 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
          External_Coor_List=.True.
          Call Get_iScalar('No of Internal Coordinates',mInt)
          Call Get_iScalar('nLambda',nLambda)
-         nBMtrx=(3*nAtoms)*mInt
          Call mma_allocate(BMtrx,3*nAtoms,mInt,Label='BMtrx')
          Call mma_allocate(TMtrx,mInt,mInt,Label='TMtrx')
          Call Get_dArray('BMtrx',BMtrx,SIZE(BMtrx))
@@ -237,7 +236,6 @@ C     Print *,'Is_Roots_Set, nRoots, iRoot = ',Is_Roots_Set,nRoots,iRoot
          External_Coor_List=.False.
          mInt=3*nAtoms
          nLambda=0
-         nBMtrx=(3*nAtoms)**2
          Call mma_allocate(BMtrx,3*nAtoms,3*nAtoms,Label='BMtrx')
          Call mma_allocate(TMtrx,mInt,mInt,Label='TMtrx')
          BMtrx(:,:)=Zero

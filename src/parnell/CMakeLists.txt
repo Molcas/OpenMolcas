@@ -11,9 +11,26 @@
 
 include_guard (GLOBAL)
 
-get_filename_component (prog ${CMAKE_CURRENT_LIST_DIR} NAME)
+set (sources
+     main.c
+     parnell_base.c
+     parnell.c
+     parnell_cmd.c
+     parnell_collect.c
+     parnell_copy.c
+     parnell_exec.c
+     parnell_init.c
+     parnell_reduce.c
+     parnell_remove.c
+     parnell_replica.c
+     parnell_rmlist.c
+     parnell_scatter.c
+     parnell_translate.c
+     parnell_unlink.c
+     parnell_wipe.c
+)
 
-file (GLOB sources *.f *.f90 *.F *.F90 *.c)
+get_filename_component (prog ${CMAKE_CURRENT_LIST_DIR} NAME)
 
 add_executable (${prog}.exe ${sources})
 
@@ -22,5 +39,5 @@ if (DEFINED ${prog}_deplibs)
 endif ()
 
 # Info for the main project
-set (${prog}_src ${CMAKE_CURRENT_LIST_DIR})
+set (${prog}_src     ${CMAKE_CURRENT_LIST_DIR})
 set (${prog}_sources ${sources})

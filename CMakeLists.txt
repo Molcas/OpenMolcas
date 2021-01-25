@@ -131,73 +131,11 @@ if (";Debug;Garble;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};" OR
   add_compile_definitions (_WARNING_WORKAROUND_)
 endif ()
 
-
 # External projects
-option (MSYM       "Activate MSYM support (requires External/libmsym submodule)." OFF)
-option (DMRG       "Activate QCMaquis DMRG driver and library."                   OFF)
-option (DMRG_DEBUG "Enable DEBUG print in QCMaquis driver."                       OFF)
-option (MolGUI     "Enable the Molcas Graphical User Interface."                  OFF)
-
-if (DMRG)
-  mark_as_advanced (CLEAR DMRG_DEBUG)
-  # Name and e-mail required for downloading QCMaquis
-  # Try to get the real name from the system account information
-  if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-    set (QCMaquis_NAME_GET_CMD "id -F")
-  else ()
-  # should we distinguish other platforms?
-    set (QCMaquis_NAME_GET_CMD "sh" "-c" "getent passwd $USER | awk -F: '{print \$5}'")
-  endif ()
-  execute_process (
-    COMMAND ${QCMaquis_NAME_GET_CMD}
-    OUTPUT_VARIABLE QCMaquis_NAME_
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-  set (QCMaquis_NAME ${QCMaquis_NAME_} CACHE STRING "Your name (required for downloading QCMaquis)")
-
-  # Update QCMaquis flag. Off by default.
-  # QCMaquis must be updated manually, as there might be QCMaquis upstream changes even when OpenMolcas is not changed,
-  # or vice versa. Running cmake with QCMaquis_UPDATE=ON will force-update QCMaquis.
-  if (NOT QCMaquis_UPDATE)
-    set (QCMaquis_UPDATE OFF CACHE STRING "Trigger QCMaquis update" FORCE)
-  endif ()
-
-  # try to get the e-mail address from git config (TODO: is there a better option?)
-  execute_process (
-    COMMAND ${GIT} "config" "user.email"
-    OUTPUT_VARIABLE QCMaquis_EMAIL_
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-  set (QCMaquis_EMAIL ${QCMaquis_EMAIL_} CACHE STRING "Your e-mail address (required for downloading QCMaquis)")
-
-  # Prepare variables for QCMaquis: separate name and surname
-  set (QCMaquis_NAME_LIST ${QCMaquis_NAME})
-
-  separate_arguments (QCMaquis_NAME_LIST)
-  list (LENGTH QCMaquis_NAME_LIST qcm_name_len)
-  if (qcm_name_len LESS 2)
-    message (FATAL_ERROR
-             "Your name has been specified as: " ${QCMaquis_NAME} "\n"
-             "Please specify both name and surname. If you have only one name, please specify it twice.")
-  endif ()
-
-  # Separate first name from the last name
-  # Currently, only the first word is treated by QCMaquis as the first name,
-  # all the rest is considered surnames -- to accomodate multiple surnames common in the Spanish-speaking
-  # areas or suffixes as Jr., III etc. Middle names are therefore incorrectly considered parts of
-  # the last name. However, this has no influence on the QCMaquis download.
-  list (GET QCMaquis_NAME_LIST 0 QCMaquis_GIVEN_NAME)
-  list (REMOVE_AT QCMaquis_NAME_LIST 0)
-  foreach (arg ${QCMaquis_NAME_LIST})
-    set (QCMaquis_SURNAME "${QCMaquis_SURNAME} ${arg}")
-  endforeach ()
-
-  # Set QCMaquis download URL and path to the download script
-  set (QCMaquis_URL "https://scine.ethz.ch/download/")
-  set (QCMaquis_dl_SCRIPT "${CMAKE_SOURCE_DIR}/src/QCMaquis/get_qcmaquis.sh")
-else ()
-  mark_as_advanced (FORCE DMRG_DEBUG)
-endif ()
+option (MSYM       "Activate MSYM support (requires External/libmsym submodule)."                               OFF)
+option (DMRG       "Activate QCMaquis DMRG driver and library."                                                 OFF)
+option (DMRG_DEBUG "Enable DEBUG print in QCMaquis driver."                                                     OFF)
+option (MolGUI     "Enable the Molcas Graphical User Interface."                                                OFF)
 option (GEN1INT    "Enable Gen1Int library for 1-electron integrals."                                           OFF)
 option (NECI       "Activate NECI support (requires External/NECI submodule)."                                  OFF)
 option (WFA        "Activate extended wavefunction analysis (requires External/libwfa submodule)."              OFF)
@@ -583,7 +521,7 @@ set (CFLAGS_GNU_RELEASE "-O2")
 set (CFLAGS_GNU_FAST "-O2")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "GNU")
-set (FFLAGS_GNU_BASIC "-fno-aggressive-loop-optimizations") # It was needed in 4.8 later, maybe not anymore?
+set (FFLAGS_GNU_BASIC "-fno-aggressive-loop-optimizations") # Or Work is assumed to be 8 elements long
 set (FFLAGS_GNU_PREPROCESS "-cpp")
 set (FFLAGS_GNU_OPENMP "-fopenmp")
 set (FFLAGS_GNU_NO_OPENMP "-fmax-stack-var-size=1048576")
@@ -608,6 +546,9 @@ if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     set (FFLAGS_GNU_GARBLE "${FFLAGS_GNU_GARBLE} -fcheck=array-temps,do,mem,pointer,recursion")
   else ()
     set (FFLAGS_GNU_GARBLE "${FFLAGS_GNU_GARBLE} -fcheck=all,no-bounds")
+  endif ()
+  if (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "8")
+    set (FFLAGS_GNU_GARBLE "${FFLAGS_GNU_GARBLE} -finit=derived")
   endif ()
 endif ()
 
@@ -1079,6 +1020,12 @@ endif ()
 # Process options                                                              #
 #                                                                              #
 ################################################################################
+
+if ((BLOCK AND CHEMPS2) OR
+    (BLOCK AND DMRG) OR
+    (CHEMPS2 AND DMRG))
+  message (FATAL_ERROR "BLOCK, CHEMPS2 and DMRG options are not compatible.")
+endif ()
 
 # Install directory
 #==================
@@ -1663,8 +1610,8 @@ else ()
   message ("Gromacs interface DISABLED")
 endif ()
 
-# Chan group's DMRG (Block code) support
-#=======================================
+# G. Chan group's DMRG (Block code) support
+#==========================================
 
 if (BLOCK)
   mark_as_advanced (CLEAR BLOCK_DIR)
@@ -1703,8 +1650,8 @@ else ()
   message ("BLOCK interface DISABLED")
 endif ()
 
-# S.Wouters' DMRG (CheMPS2 code) support
-#=======================================
+# S. Wouters' DMRG (CheMPS2 code) support
+#========================================
 
 if (CHEMPS2)
   mark_as_advanced (CLEAR CHEMPS2_DIR)
@@ -1733,8 +1680,68 @@ else ()
   message ("CHEMPS2 interface DISABLED")
 endif ()
 
-if (BLOCK AND CHEMPS2)
-  message (FATAL_ERROR "BLOCK and CHEMPS2 options are not compatible.")
+# QCMaquis support
+#=================
+
+if (DMRG)
+  mark_as_advanced (CLEAR DMRG_DEBUG)
+  # Name and e-mail required for downloading QCMaquis
+  # Try to get the real name from the system account information
+  if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+    set (QCMaquis_NAME_GET_CMD "id -F")
+  else ()
+  # should we distinguish other platforms?
+    set (QCMaquis_NAME_GET_CMD "sh" "-c" "getent passwd $USER | awk -F: '{print \$5}'")
+  endif ()
+  execute_process (
+    COMMAND ${QCMaquis_NAME_GET_CMD}
+    OUTPUT_VARIABLE QCMaquis_NAME_
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  set (QCMaquis_NAME ${QCMaquis_NAME_} CACHE STRING "Your name (required for downloading QCMaquis)")
+
+  # Update QCMaquis flag. Off by default.
+  # QCMaquis must be updated manually, as there might be QCMaquis upstream changes even when OpenMolcas is not changed,
+  # or vice versa. Running cmake with QCMaquis_UPDATE=ON will force-update QCMaquis.
+  if (NOT QCMaquis_UPDATE)
+    set (QCMaquis_UPDATE OFF CACHE STRING "Trigger QCMaquis update" FORCE)
+  endif ()
+
+  # try to get the e-mail address from git config (TODO: is there a better option?)
+  execute_process (
+    COMMAND ${GIT} "config" "user.email"
+    OUTPUT_VARIABLE QCMaquis_EMAIL_
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  set (QCMaquis_EMAIL ${QCMaquis_EMAIL_} CACHE STRING "Your e-mail address (required for downloading QCMaquis)")
+
+  # Prepare variables for QCMaquis: separate name and surname
+  set (QCMaquis_NAME_LIST ${QCMaquis_NAME})
+
+  separate_arguments (QCMaquis_NAME_LIST)
+  list (LENGTH QCMaquis_NAME_LIST qcm_name_len)
+  if (qcm_name_len LESS 2)
+    message (FATAL_ERROR
+             "Your name has been specified as: " ${QCMaquis_NAME} "\n"
+             "Please specify both name and surname. If you have only one name, please specify it twice.")
+  endif ()
+
+  # Separate first name from the last name
+  # Currently, only the first word is treated by QCMaquis as the first name,
+  # all the rest is considered surnames -- to accomodate multiple surnames common in the Spanish-speaking
+  # areas or suffixes as Jr., III etc. Middle names are therefore incorrectly considered parts of
+  # the last name. However, this has no influence on the QCMaquis download.
+  list (GET QCMaquis_NAME_LIST 0 QCMaquis_GIVEN_NAME)
+  list (REMOVE_AT QCMaquis_NAME_LIST 0)
+  foreach (arg ${QCMaquis_NAME_LIST})
+    set (QCMaquis_SURNAME "${QCMaquis_SURNAME} ${arg}")
+  endforeach ()
+
+  # Set QCMaquis download URL and path to the download script
+  set (QCMaquis_URL "https://scine.ethz.ch/download/")
+  set (QCMaquis_dl_SCRIPT "${CMAKE_SOURCE_DIR}/src/QCMaquis/get_qcmaquis.sh")
+else ()
+  mark_as_advanced (FORCE DMRG_DEBUG)
 endif ()
 
 # GPerfTools: CPU profiling

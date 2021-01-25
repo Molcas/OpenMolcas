@@ -50,7 +50,7 @@
 
 #ifdef _DMRG_
 !     module dependencies
-      use qcmaquis_interface_wrapper
+      use qcmaquis_interface_wrapper, only: dmrg_interface_ctl
       use qcmaquis_interface_cfg
       use qcmaquis_interface_version
       use qcmaquis_interface_environment, only:

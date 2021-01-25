@@ -53,6 +53,7 @@
     CMAKE_GENERATOR: "Ninja"
     make: "ninja"
     cache_file: |
+      set (CMAKE_BUILD_TYPE "Fast" CACHE STRING "high opt")
       set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
       set (LINALG "MKL" CACHE STRING "use MKL library")

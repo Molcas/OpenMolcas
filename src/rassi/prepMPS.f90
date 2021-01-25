@@ -33,8 +33,8 @@
   !> module dependencies
 #ifdef _DMRG_
   use qcmaquis_interface_cfg
-  use qcmaquis_interface_wrapper
-  use qcmaquis_info
+  use qcmaquis_interface_wrapper, only: dmrg_interface_ctl
+  use qcmaquis_info, only: qcm_group_names
 #endif
 
   implicit none

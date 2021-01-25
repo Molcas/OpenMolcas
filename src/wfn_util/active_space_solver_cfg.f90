@@ -10,11 +10,17 @@
 !                                                                      *
 ! Copyright (C) 2017, Stefan Knecht                                    *
 !***********************************************************************
+
 module active_space_solver_cfg
 
-implicit none
+use Definitions, only: iwp
 
-character(len=8), public :: as_solver = '        '
-logical,          public :: as_solver_inp_proc = .false.
+implicit none
+private
+
+character(len=8) :: as_solver = '        '
+logical(kind=iwp) :: as_solver_inp_proc = .false.
+
+public :: as_solver, as_solver_inp_proc
 
 end module active_space_solver_cfg

@@ -28,8 +28,26 @@
 *                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 ************************************************************************
-#define _ACTUAL_
-#include "getbs_interface.fh"
+#include "compiler_features.h"
+#ifdef _IN_MODULE_
+      SubRoutine GetBS(DDname,BSLbl,iShll,Ref,UnNorm,LuRd,
+     &                 BasisTypes,STDINP,iSTDINP,L_STDINP,Expert,
+     &                 ExtBasDir)
+      Use Basis_Info
+      Implicit Real*8 (A-H,O-Z)
+#include "Molcas.fh"
+#include "itmax.fh"
+#include "real.fh"
+#include "stdalloc.fh"
+      Character*(*) DDname
+      Character(LEN=80)  BSLbl
+      Integer       iShll
+      Character(LEN=80)  Ref(2)
+      Logical       UnNorm
+      Integer       LuRd, BasisTypes(4)
+      Character(LEN=180) STDINP(MxAtom*2)
+      Logical L_STDINP, Expert
+      Character *(*) ExtBasDir
 *     Local variables
       Character(LEN=80)  MPLbl*20, Filenm, Atom, Type
       Character(LEN=256) DirName
@@ -63,7 +81,6 @@
 ************************************************************************
 *                                                                      *
       Interface
-#include "getecp_interface.fh"
          Subroutine RecPrt(Title,FmtIn,A,nRow,nCol)
          Character*(*) Title
          Character*(*) FmtIn
@@ -997,7 +1014,11 @@ c            Open(LUQRP,file='QRPLIB',form='formatted')
       If (.not.inLn3) Close(lUnit)
       Return
       End
-      Subroutine Check_Info()
-      Call Free_Work(LctInf)
-      Call Abend()
-      End Subroutine Check_Info
+
+#elif !defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+      dummy_empty_procedure(GetBS)
+
+#endif

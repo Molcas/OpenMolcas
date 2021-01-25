@@ -44,6 +44,7 @@
       use k2_arrays, only: pDq, pFq
       use IOBUF
       use Real_Info, only: ThrInt, CutInt
+      use Integral_Interfaces, only: DeDe_SCF
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
 #include "stdalloc.fh"
@@ -63,8 +64,6 @@
       Character*72 SLine
       Real*8, Allocatable:: TMax(:,:), DMax(:,:)
       Integer, Allocatable:: ip_ij(:,:)
-*
-#include "dede_interface.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -240,7 +239,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-         Call Eval_Ints_New_Internal
+         Call Eval_Ints_New_Inner
      &                  (iS,jS,kS,lS,TInt,nTInt,
      &                   iTOffs,No_Routine,
      &                   pDq,pFq,mDens,[ExFac],Nr_Dens,

@@ -32,6 +32,7 @@
       use Basis_Info
       use Sizes_of_Seward, only: S
       use Logical_Info, only: UnNorm, Do_FckInt, FNMC
+      use Gateway_Interfaces, only: GetBS
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "Molcas.fh"
@@ -59,12 +60,6 @@
       Logical Try_Again, lPP
       Real*8 A(4)
       Data DefNm/'basis_library'/
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Interface
-#include "getbs_interface.fh"
-      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *

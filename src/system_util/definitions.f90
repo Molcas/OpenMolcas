@@ -9,32 +9,56 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2020, Oskar Weser                                      *
+!               2021, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
 module definitions
-    use, intrinsic :: iso_fortran_env, only: int32, int64, real32, real64
+    use, intrinsic :: iso_fortran_env, only: int32, int64, real32, real64, output_unit
+    use, intrinsic :: iso_c_binding, only: c_sizeof
     implicit none
     private
-    public :: wp, MPIInt, HDF5Int
+    public :: wp, iwp, MPIInt, HDF5Int
     public :: int32, int64, real32, real64
     public :: i4, i8, r4, r8
+    public :: u6
+    public :: ItoB, RtoB, RtoI, CtoR
 
+    ! This is the working precision and should be preferably used.
+#ifdef _I8_
+    integer(kind=int64), parameter :: iwp = int64
+#else
+    integer(kind=int32), parameter :: iwp = int32
+#endif
+    integer(kind=iwp), parameter :: wp = real64
 
     ! This is the type of MPI arguments
     ! NOTE: If legacy integer*4 declarations are replaced with integer(MPIInt)
     !       we can support 32bit and 64bit versions.
     !       Which will require appropiate compile flags here.
-    integer, parameter :: MPIInt = int32
+    integer(kind=iwp), parameter :: MPIInt = int32
 
     ! This is the type of HDF5 arguments
     ! NOTE: If legacy integer*4 declarations are replaced with integer(HDF5Int)
     !       we can support 32bit and 64bit versions.
     !       Which will require appropiate compile flags here.
-    integer, parameter :: HDF5Int = int32
+    integer(kind=iwp), parameter :: HDF5Int = int32
 
-    ! This is the working precision and should be preferably used.
-    integer, parameter :: wp = real64
+    ! Output unit, typically 6, but it could be something else
+    integer(kind=iwp), parameter :: u6 = output_unit
 
+    ! Sizes of default tyes in bytes
+    ! ItoB : integer --> byte
+    ! RtoB : real  --> byte
+    ! RtoI : real  --> integer
+    ! CtoR : complex6 --> real
+    integer(kind=iwp) :: i_example
+    real(kind=wp) :: r_example
+    complex(kind=wp) :: c_example
+    integer(kind=iwp), parameter :: &
+        ItoB = c_sizeof(i_example), &
+        RtoB = c_sizeof(r_example), &
+        RtoI = c_sizeof(r_example)/c_sizeof(i_example), &
+        CtoR = c_sizeof(c_example)/c_sizeof(r_example)
 
     ! Although the constants from iso_fortran_env or `selected_real_kind`
     ! are preferred over non-standard real*8 etc.
@@ -48,7 +72,7 @@ module definitions
     integer*4 :: i4_example
     integer*8 :: i8_example
 
-    integer, parameter :: &
+    integer(kind=iwp), parameter :: &
         r4 = kind(r4_example), &
         r8 = kind(r8_example), &
         i4 = kind(i4_example), &
