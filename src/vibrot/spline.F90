@@ -32,8 +32,8 @@ implicit none
 integer(kind=iwp), intent(in) :: NFIT, NIN, IBOUND
 ! NEXT IS INPUT (DIMENSION BOUND) AND OUTPUT (NR OF EXTREMA).
 integer(kind=iwp), intent(inout) :: NEXT
-real(kind=wp), intent(in) :: XFIT(NFIT), YFIT(NFIT)
-real(kind=wp), intent(out) :: XINT(NIN), YINT(NIN), XEXT(NEXT), YEXT(NEXT)
+real(kind=wp), intent(in) :: XFIT(NFIT), YFIT(NFIT), XINT(NIN)
+real(kind=wp), intent(out) :: YINT(NIN), XEXT(NEXT), YEXT(NEXT)
 integer(kind=iwp), intent(out) :: IEXT(NEXT)
 real(kind=wp) :: VSUM, T0(2), A0, A1, A2, B0, B1, P, Q, S, SE, T, T1, X, Y
 real(kind=wp), allocatable :: MatA(:,:), VecB(:), VecC(:), VecD(:), VecH(:)

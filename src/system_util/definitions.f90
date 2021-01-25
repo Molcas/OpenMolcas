@@ -14,14 +14,12 @@
 
 module definitions
     use, intrinsic :: iso_fortran_env, only: int32, int64, real32, real64, output_unit
-    use, intrinsic :: iso_c_binding, only: c_sizeof
     implicit none
     private
     public :: wp, iwp, MPIInt, HDF5Int
     public :: int32, int64, real32, real64
     public :: i4, i8, r4, r8
     public :: u6
-    public :: ItoB, RtoB, RtoI, CtoR
 
     ! This is the working precision and should be preferably used.
 #ifdef _I8_
@@ -45,20 +43,6 @@ module definitions
 
     ! Output unit, typically 6, but it could be something else
     integer(kind=iwp), parameter :: u6 = output_unit
-
-    ! Sizes of default tyes in bytes
-    ! ItoB : integer --> byte
-    ! RtoB : real  --> byte
-    ! RtoI : real  --> integer
-    ! CtoR : complex6 --> real
-    integer(kind=iwp) :: i_example
-    real(kind=wp) :: r_example
-    complex(kind=wp) :: c_example
-    integer(kind=iwp), parameter :: &
-        ItoB = c_sizeof(i_example), &
-        RtoB = c_sizeof(r_example), &
-        RtoI = c_sizeof(r_example)/c_sizeof(i_example), &
-        CtoR = c_sizeof(c_example)/c_sizeof(r_example)
 
     ! Although the constants from iso_fortran_env or `selected_real_kind`
     ! are preferred over non-standard real*8 etc.

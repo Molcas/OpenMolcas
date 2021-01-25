@@ -23,7 +23,7 @@
 
 subroutine vibrotmain(ireturn)
 
-use Vibrot_globals, only: EoutO, ifPrWf, iobs, nobs, npoint, Titobs, Vibwvs, Vibwvs1, Vibwvs2
+use Vibrot_globals, only: EoutO, ifPrWf, iobs, npoint, Titobs, Vibwvs, Vibwvs1, Vibwvs2
 use Definitions, only: wp, iwp, u6
 
 implicit none

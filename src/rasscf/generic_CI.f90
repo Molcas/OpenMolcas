@@ -17,7 +17,6 @@
 !> I you inherit from CI_solver_t and override the deferred methods,
 !> your initialization and cleanup will be automatically called.
 module generic_CI
-    use definitions, only: wp
     use general_data, only : ntot, ntot1, ntot2
     use rasscf_data, only : nAcPar, nAcpr2
     implicit none

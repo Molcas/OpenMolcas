@@ -29,8 +29,8 @@ implicit none
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 !----------------------------------------------------------------------*
-character(len=*), intent(in) :: TagName, Appear, Units, Content(*)
-integer(kind=iwp), intent(in) :: nx, ny, Level
+character(len=*), intent(in) :: TagName, Appear, Units
+integer(kind=iwp), intent(in) :: Content(*), nx, ny, Level
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*

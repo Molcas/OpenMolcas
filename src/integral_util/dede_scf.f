@@ -77,7 +77,7 @@
          pFq => Twoham(:)
       End If
 
-      End
+      End Subroutine DeDe_SCF
 
 #elif !defined (EMPTY_FILES)
 

@@ -612,8 +612,9 @@ if (ncase == 1) then
   call iDafile(Vibwvs,1,iad12,100,iadvib)
   iOpt = 1
   Redm1 = Redm*sc
-  call WR_VibRot_Info1(Vibwvs,iOpt,iadvib,ntit1,J1A,J2A,lambda,n0,nvib1,Redm1,Umax,Umin,ngrid,Abs(isn1),Abs(isn2),Req,xMass1, &
-                        xMass2)
+  isn1 = abs(isn1)
+  isn2 = abs(isn2)
+  call WR_VibRot_Info1(Vibwvs,iOpt,iadvib,ntit1,J1A,J2A,lambda,n0,nvib1,Redm1,Umax,Umin,ngrid,isn1,isn2,Req,xMass1,xMass2)
   IntCh(1:4) = Atom1
   IntCh(5:8) = Atom2
   call cDaFile(Vibwvs,iOpt,Title1,10*80,iadvib)

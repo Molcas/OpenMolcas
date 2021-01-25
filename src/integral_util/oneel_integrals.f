@@ -94,7 +94,7 @@
 ************************************************************************
 *                                                                      *
       Return
-      End
+      End Subroutine OneEl_Integrals
 
 #elif !defined (EMPTY_FILES)
 

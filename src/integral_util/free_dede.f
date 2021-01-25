@@ -17,7 +17,7 @@
 #include "stdalloc.fh"
 #include "setup.fh"
 *
-      Real*8, Target:: Dens(nDens), TwoHam(nDens)
+      Real*8 :: Dens(nDens), TwoHam(nDens)
 *
       Nullify(pDq)
       Nullify(pFq)

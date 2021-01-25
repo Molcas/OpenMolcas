@@ -346,7 +346,7 @@ C        Write (6,*) 'Done'
          Call WarningMessage(2,
      &      'Abend in GetBS: Error while reading the coefficients')
          Call Quit_OnUserError()
-      End
+      End Subroutine GetECP
 
 #elif !defined (EMPTY_FILES)
 

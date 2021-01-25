@@ -23,13 +23,14 @@
 
 subroutine xml_dDump(TagName,Appear,Units,Level,Content,nx,ny)
 
-use Definitions, only: iwp
+use Definitions, only: wp, iwp
 
 implicit None
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 !----------------------------------------------------------------------*
-character(len=*), intent(in) :: TagName, Appear, Units, Content(*)
+character(len=*), intent(in) :: TagName, Appear, Units
+real(kind=wp), intent(in) :: Content(*)
 integer(kind=iwp), intent(in) :: nx, ny, Level
 !----------------------------------------------------------------------*
 !                                                                      *

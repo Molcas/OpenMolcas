@@ -19,7 +19,7 @@
       use general_data, only : nActEl
 ! Note that two_el_idx_flatten has also out parameters.
       use index_symmetry, only : two_el_idx_flatten
-      use CI_solver_util, only: CleanMat, write_RDM
+      use CI_solver_util, only: CleanMat
       use linalg_mod, only: abort_, verify_
 
       implicit none

@@ -62,10 +62,7 @@
       use fciqmc, only: DoNECI, fciqmc_solver_t, tGUGA_in
       use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
       use fcidump, only : make_fcidumps, transform, DumpOnly
-      use print_RDMs_NECI_format, only: printRDMs_NECI
-
       use orthonormalization, only : ON_scheme
-      use print_RDMs_NECI_format, only: printRDMs_NECI
 #ifdef _HDF5_
       use mh5, only: mh5_put_attr, mh5_put_dset_array_real
 #endif

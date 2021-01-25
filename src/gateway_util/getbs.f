@@ -1013,7 +1013,7 @@ c            Open(LUQRP,file='QRPLIB',form='formatted')
       lAng = Max(lAng,nProj,nAIMP)
       If (.not.inLn3) Close(lUnit)
       Return
-      End
+      End Subroutine GetBS
 
 #elif !defined (EMPTY_FILES)
 
