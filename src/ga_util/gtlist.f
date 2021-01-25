@@ -107,8 +107,8 @@
          End If
          If (MyTask.ge.1) Then
             Rsv_GTList=.True.
-            TskLw=Work(ipTskM+2*(MyTask-1))
-            TskHi=Work(ipTskM+2*(MyTask-1)+1)
+            TskLw=TskM(1,MyTask)
+            TskHi=TskM(2,MyTask)
             iTCnSt=iTCnSt+1
             iTskCan=iTskCan+1
          End If

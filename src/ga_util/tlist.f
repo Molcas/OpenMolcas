@@ -72,8 +72,8 @@ C     P  = nSkal*(nSkal+1)/2
 *
       if(Alloc) then
 C       ntasks_alloc=ntasks
-        Call GetMem('TskMap','ALLO','Real',ipTskM,2*nTasks)
-        call dcopy_(2*nTasks,[Zero],0,Work(ipTskM),1)
+        Call mma_allocate(TskM,2,nTasks,Label='TskM')
+        TskM(:,:)=0
         Call mma_allocate(TskQ,2,nTasks,Label='TskQ')
 c       Write (*,*) 'init_tlist: nTasks=',nTasks
         TskQ(:,:)=Not_Used
@@ -115,12 +115,12 @@ c       Write (*,*) 'init_tlist: nTasks=',nTasks
         End If
         Do kTsk = 1, kTskHi
           TskHi=TskHi+PQpTsk
-          Work(ipTskM+2*iTsk)=TskLw
-          Work(ipTskM+2*iTsk+1)=TskHi
+          iTsk=iTsk+1
+          TskM(1,iTsk)=TskLw
+          TskM(2,iTsk)=TskHi
           tskmin=min(tskmin,(TskHi-TskLw+one))
           tskmax=max(tskmax,(TskHi-TskLw+one))
           TskLw=TskHi+one
-          iTsk=iTsk+1
         End Do
         nTasks=nTasks-kTskHi
       If (abs(PQ).gt.1.d-10) Go To 100
@@ -132,7 +132,7 @@ c       Write (*,*) 'init_tlist: nTasks=',nTasks
       End If
       nTasks=iTsk
 *
-c     Call RecPrt('TskM',' ',Work(ipTskM),2,nTasks)
+c     Call RecPrt('TskM',' ',TskM,2,nTasks)
       Return
       End
 *
@@ -149,7 +149,7 @@ c     Write (*,*) 'Free_TList, T_Status=',T_Status
 *
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
       Call mma_deallocate(TskQ)
-      Call Free_Work(ipTskM)
+      Call mma_deallocate(TskM)
 *
 c     Write (*,*) 'Free_TList, T_Status=',T_Status
       Return
