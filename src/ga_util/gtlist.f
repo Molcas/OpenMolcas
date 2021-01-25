@@ -59,7 +59,6 @@
       Integer RsvTsk
 #endif
       Logical NewBatch
-#include "tlist.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
 *                                                                      *
@@ -88,15 +87,15 @@
 *        2) The sequence of executed batches is broken
 *
          If (iOpt.eq.0) Then
-            MyTask=RsvTsk(igaTsk,iWork(ipTskL),nTasks,nTasks,iTCnST,
+            MyTask=RsvTsk(igaTsk,TskL,nTasks,nTasks,iTCnST,
      &                    iStrt_TList,iEnd_TList)
             NewBatch = .True.
          Else If (iOpt.eq.1) Then
-            MyTask=RsvTsk(igaTsk,iWork(ipTskL),nTasks,mTasks,iTCnST,
+            MyTask=RsvTsk(igaTsk,TskL,nTasks,mTasks,iTCnST,
      &                    iStrt_TList,iEnd_TList)
             NewBatch = iStrt_TList.gt.mTasks
          Else If (iOpt.eq.2) Then
-            MyTask=RsvTsk(igaTsk,iWork(ipTskL),nTasks,nTasks,iTCnST,
+            MyTask=RsvTsk(igaTsk,TskL,nTasks,nTasks,iTCnST,
      &                    iStrt_TList,iEnd_TList)
             NewBatch = iStrt_TList.gt.mTasks .or.
      &                 iStrt_TList.ne.iTCnST

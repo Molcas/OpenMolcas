@@ -48,8 +48,6 @@ c     Write (*,*) 'T_Status=',T_Status
 * max number of tasks in tasklist per node...
       Parameter ( MxnTsk = 100 )
 #include "real.fh"
-#include "tlist.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "status.fh"
 C     save ntasks_alloc
@@ -77,7 +75,7 @@ C       ntasks_alloc=ntasks
         Call mma_allocate(TskQ,2,nTasks,Label='TskQ')
 c       Write (*,*) 'init_tlist: nTasks=',nTasks
         TskQ(:,:)=Not_Used
-        Call GetMem('TskLst','ALLO','INTE',ipTskL,nTasks*2)
+        Call mma_allocate(TskL,nTasks*2,Label='TskL')
         Return
       end if
 *
@@ -139,7 +137,6 @@ c     Call RecPrt('TskM',' ',TskM,2,nTasks)
       Subroutine Free_TList
       use TList_Mod
       Use Para_Info, Only: nProcs, Is_Real_Par
-#include "tlist.fh"
 #include "status.fh"
 #include "stdalloc.fh"
 *
