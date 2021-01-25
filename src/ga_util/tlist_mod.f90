@@ -18,4 +18,5 @@ Real*8, Allocatable:: TskQ(:,:)
 Real*8, Allocatable:: TskM(:,:)
 Integer, Allocatable, Target:: TskL(:)
 Logical:: PP_Status=.False.
+Logical:: GT_Status=.False.
 End Module TList_Mod

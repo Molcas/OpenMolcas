@@ -11,13 +11,12 @@
 ************************************************************************
 * Init_GTList
 ************************************************************************
-      Subroutine Init_GTList
+      Subroutine Init_GTList()
       use TList_Mod
       Use Para_Info, Only: nProcs, Is_Real_Par
-#include "status.fh"
 *
-      If (GT_Status.eq.Active) Return
-      GT_Status=Active
+      If (GT_Status) Return
+      GT_Status=.True.
 *
       iTCnSt = 1
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
@@ -28,14 +27,13 @@
 *
       Return
       End
-      Subroutine ReInit_GTList
+      Subroutine ReInit_GTList()
       use TList_Mod
       Use Para_Info, Only: nProcs, Is_Real_Par
-#include "status.fh"
 *
-      If (GT_Status.ne.Active) Then
+      If (.Not.GT_Status) Then
          Write (6,*) 'ReInit_GTList: List not active!'
-         Call Abend
+         Call Abend()
       End If
       iTCnSt = 1
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
@@ -125,10 +123,9 @@
       Subroutine Free_GTList
       Use Para_Info, Only: nProcs, Is_Real_Par
       use TList_Mod
-#include "status.fh"
 *
-      If (GT_Status.ne.Active) Return
-      GT_Status=Inactive
+      If (.NOT.GT_Status) Return
+      GT_Status=.False.
 *
       iTCnSt = 1
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
