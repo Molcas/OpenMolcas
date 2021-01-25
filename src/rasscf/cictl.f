@@ -867,8 +867,10 @@ C.. printout of the wave function
         Call GetMem('CIVtmp','Free','Real',LW11,nConf)
       ENDIF
 #ifdef _DMRG_
+      if(doDMRG) then
           call mh5_put_dset
      &         (wfn_dmrg_checkpoint,dmrg_file%qcmaquis_checkpoint_file)
+      end if
 #endif
 
       CALL GETMEM('CIVEC','FREE','REAL',LW4,NCONF)

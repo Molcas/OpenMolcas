@@ -58,8 +58,11 @@ target_include_directories (${util}_obj PRIVATE "${${util}_incs}")
 # add a dummy source if there are none left,
 # (CMake does not like empty targets)
 if (NOT sources)
-  file (APPEND ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${util}/dummy.f "")
-  target_sources (${util}_obj PRIVATE ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${util}/dummy.f)
+  set (dummy_file ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${util}/dummy.f90)
+  if (NOT EXISTS ${dummy_file})
+    file (WRITE ${dummy_file} "subroutine empty_dummy() ; end subroutine")
+  endif ()
+  target_sources (${util}_obj PRIVATE ${dummy_file})
 endif ()
 
 # Info for the main project

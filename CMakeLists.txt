@@ -707,9 +707,9 @@ set (FFLAGS_Intel_ILP64 "-i8 -r8 -heap-arrays")
 # build targets
 set (FFLAGS_Intel_DEBUG "-debug -traceback -warn all,nodeclarations")
 set (FFLAGS_Intel_GARBLE "-O2 -debug -traceback -warn all,nodeclarations -check all,nobounds,noarg_temp_created")
-set (FFLAGS_Intel_RELWITHDEBINFO "-O2 -debug -traceback -warn all,nodeclarations")
-set (FFLAGS_Intel_RELEASE "-O2 -traceback")
-set (FFLAGS_Intel_FAST "-fast")
+set (FFLAGS_Intel_RELWITHDEBINFO "-O2 -fno-alias -debug -traceback -warn all,nodeclarations")
+set (FFLAGS_Intel_RELEASE "-O2 -fno-alias -traceback")
+set (FFLAGS_Intel_FAST "-Ofast -fno-alias")
 
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" AND
     CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "13")
@@ -844,11 +844,15 @@ set (FFLAGS_NAG_PREPROCESS "-fpp")
 set (FFLAGS_NAG_OPENMP "-openmp")
 set (FFLAGS_NAG_ILP64 "-i8")
 # build targets
-set (FFLAGS_NAG_DEBUG "-O0 -g")
-set (FFLAGS_NAG_GARBLE "-O2 -g -nan")
+set (FFLAGS_NAG_DEBUG "-O0 -g -gline")
+set (FFLAGS_NAG_GARBLE "-O2 -g -gline -nan")
 set (FFLAGS_NAG_RELWITHDEBINFO "-O2 -g")
 set (FFLAGS_NAG_RELEASE "-O2")
 set (FFLAGS_NAG_FAST "-O4")
+
+# Add runtime checks
+# (No boundary checks because of the Work arrays)
+#set (FFLAGS_NAG_GARBLE "${FFLAGS_GNU_GARBLE} -C=alias -C=bits -C=dangling -C=do -C=intovf -C=present -C=pointer -C=recursion")
 
 # Fix for NAG compiler (similar to GNU Fortran)
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG" AND CMAKE_C_COMPILER_ID STREQUAL "GNU")
@@ -2725,19 +2729,20 @@ if (MPI)
 endif ()
 add_subdirectory (src/${prog} ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${prog})
 list (APPEND progs_exe ${prog}.exe)
-list (APPEND ALL_SOURCES ${prog}_sources)
+list (APPEND ALL_SOURCES ${${prog}_sources})
 list (APPEND PROGRAM_EXECUTABLES ${prog}.exe)
 
 # Add custom debug flags per file:
 #   For each file, tries to find out if each definition is used and modify the file's properties
 # Limitation: it will rebuild the whole target (but not the whole OpenMolcas)
 if (DEBUG_DEFS)
+  get_directory_property (subdirs SUBDIRECTORIES)
   foreach (file ${ALL_SOURCES})
     file (READ ${file} contents)
     foreach (def ${DEBUG_DEFS})
       string (REGEX MATCH ${def} result "${contents}")
       if (NOT ${result} STREQUAL "")
-        set_property (SOURCE ${file} APPEND PROPERTY COMPILE_DEFINITIONS ${def})
+        set_property (SOURCE ${file} DIRECTORY ${subdirs} APPEND PROPERTY COMPILE_DEFINITIONS ${def})
       endif ()
     endforeach ()
   endforeach ()
