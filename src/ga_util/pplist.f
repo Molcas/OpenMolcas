@@ -18,6 +18,8 @@
       Logical Debug
       Data Debug/.False./
 *
+      TskL(i,j)=iWork(ipTskL-1 + i + nTasks*(j-1))
+*
       If (Debug) Then
          If (PP_Status.eq.Active) Then
             Write (6,*) 'Init_PPList: Active'
@@ -48,7 +50,7 @@ c     Write (*,*) (iWork(ipTskL+iTsk),iTsk = 0, nTasks-1)
       iE = nTasks-1
       call izero(iWork(ipTskL+nTasks),nTasks)
       Do i = 0, nTasks-1
-         iWork(ipTskL+nTasks+iE) = iWork(ipTskL+i)
+         iWork(ipTskL+nTasks+iE) = TskL(1+i,1)
          iE = iE - 1
       End Do
 *
@@ -66,6 +68,8 @@ c     Write (*,*) (iWork(ipTskL+iTsk),iTsk = 0, nTasks-1)
 #include "status.fh"
       Logical Debug,Semi_Direct
       Data Debug/.False./
+*
+      TskL(i,j)=iWork(ipTskL-1 + i + nTasks*(j-1))
 *
 c     Write (*,*) 'ReInit_PPList'
 *
@@ -103,9 +107,9 @@ c     Write (*,*) 'mTasks=',mTasks
          iCount = 1
          Do i = mTasks, nTasks-1
             If (iCount .gt. myRank) Then
-               iWork(ipTskL+i) = iWork(ipTskL+nTasks+i)
+               iWork(ipTskL+i) = TskL(i+1,2)
             Else
-               iWork(ipTskL+i) = iWork(ipTskL+nTasks+iE)
+               iWork(ipTskL+i) = TskL(iE+1,2)
                iE = iE - 1
                iCount = iCount + 1
             Endif
