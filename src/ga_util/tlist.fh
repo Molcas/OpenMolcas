@@ -8,8 +8,5 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Real*8 Not_Used, QLast(2),P,PQ
-      Common /TList/ P, PQ, nTasks, ipTskM, ipTskL, igaTsk, iTCnSt,
-     &               mTasks, iStrt_TList, iEnd_TList, ipTskQ, iTskCan
-      Parameter (Not_Used=-1.0D0)
-      Common/QList/ QLast
+      Integer ipTskM, ipTskL, ipTskQ
+      Common /TList/ ipTskM, ipTskL, ipTskQ

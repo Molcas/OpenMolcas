@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Pos_QLast(Disc)
+      use TList_Mod
       Implicit Real*8 (a-h,o-z)
       Integer iWR(2)
       Real*8 Dummy(1)
@@ -22,10 +23,6 @@
 *
       if(ipTskQ.eq.0) return
 
-c     iTCnSt_c=iTCnSt-1
-c     Call XFlush(6)
-c     Write (*,*)
-c     Write (*,*) 'Pos_QLast'
 c     Write (*,'(A,4I9)') 'ipTskQ,iTCnSt_c,nTasks,iTskCan=',
 c    &                     ipTskQ,iTCnSt_c,nTasks,iTskCan
 c     Call RecPrt('TskQ',' ',Work(ipTskQ),2,nTasks)
@@ -36,7 +33,6 @@ c     Call RecPrt('TskQ',' ',Work(ipTskQ),2,nTasks)
 *---- If already at the right position return
 *
 c     Write (*,*) 'Pos_QLast: Going for ',Quad_ijkl,RST_triplet
-c     Call Diskat
       If (Quad_ijkl.eq.QLast(1) .and.
      &    RST_triplet.eq.QLast(2)) Return
 c     Write (*,*) 'Pos_QLast: Didn''t find tail ...'
@@ -75,16 +71,3 @@ c        Call XFlush(6)
       Call XFlush(6)
       Call Abend
       End
-c     Subroutine Diskat
-c     Implicit Real*8 (a-h,o-z)
-
-
-c     If (iStatIO.eq.Mode_Read) Then
-c        Diskx=Disk_2
-c     Else
-c        Diskx=Disk
-c     End If
-c     Write (*,*) 'Disk @ ',Diskx,' iPos @',iPos
-c     Call XFlush(6)
-c     Return
-c     End

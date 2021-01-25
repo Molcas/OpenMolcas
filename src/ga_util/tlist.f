@@ -10,13 +10,9 @@
 ************************************************************************
       Subroutine Init_TList(Triangular,P_Eff)
       implicit real*8 (a-h,o-z)
-c      real*8  distrib,PQpTsk,TskLw,TskHi,MinPQ1,a,fint,tskmin,tskmax
       Logical Triangular,Alloc
 #include "real.fh"
-#include "tlist.fh"
-#include "WrkSpc.fh"
 #include "status.fh"
-c      fint(a)=a-dmod(a,one)
 c     Write (*,*) 'T_Status=',T_Status
       If (T_Status.eq.Active) return
       T_Status=Active
@@ -27,11 +23,8 @@ c     Write (*,*) 'T_Status=',T_Status
 *
       Subroutine Alloc_TList(Triangular,P_Eff)
       implicit real*8 (a-h,o-z)
-c      real*8  distrib,PQpTsk,TskLw,TskHi,MinPQ1,a,fint,tskmin,tskmax
       Logical Triangular,Alloc
 #include "real.fh"
-#include "tlist.fh"
-#include "WrkSpc.fh"
 #include "status.fh"
       If (T_Status.eq.Active) return
       Alloc=.true.
@@ -43,6 +36,7 @@ c      real*8  distrib,PQpTsk,TskLw,TskHi,MinPQ1,a,fint,tskmin,tskmax
 *
       Subroutine IA_TList(Triangular,P_Eff, Alloc)
       Use Para_Info, Only: MyRank, nProcs, Is_Real_Par
+      use TList_Mod
       implicit real*8 (a-h,o-z)
       real*8  distrib,PQpTsk,TskLw,TskHi,MinPQ1,a,fint,tskmin,tskmax
       Logical Triangular,Alloc
@@ -72,10 +66,6 @@ C     P  = nSkal*(nSkal+1)/2
       Else
          PQ = P*P
       End If
-      if(Alloc) then
-        ipTskQ = 0
-C       ntasks_alloc = 0
-      end if
       nTasks = nint(Min(PQ,dble(MxnTsk1*nProcs)))
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
 *
@@ -146,6 +136,7 @@ c     Call RecPrt('TskM',' ',Work(ipTskM),2,nTasks)
       End
 *
       Subroutine Free_TList
+      use TList_Mod
       Use Para_Info, Only: nProcs, Is_Real_Par
 #include "tlist.fh"
 #include "WrkSpc.fh"

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Init_PPList
+      use TList_Mod
       Use Para_Info, only: MyRank, nProcs, Is_Real_Par
       Implicit Real*8 (a-h,o-z)
 #include "tlist.fh"
@@ -35,8 +36,6 @@ c     Write (*,*) 'Init_PPList'
       iStrt_TList=0
       iEnd_TList=nTasks+1
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
-chjw  now allocated by Alloc_tlist (init_tlist.f)
-chjw  Call GetMem('TskLst','ALLO','INTE',ipTskL,nTasks*2)
       call izero(iWork(ipTskL),nTasks)
       Do iTsk = 0, nTasks-1
         iWork(ipTskL+iTsk)=MOD(iTsk+MyRank,nTasks)+1
@@ -60,6 +59,7 @@ c     Write (*,*) (iWork(ipTskL+iTsk),iTsk = 0, nTasks-1)
       End
       Subroutine ReInit_PPList(Semi_Direct)
       Use Para_Info, only: MyRank, nProcs
+      use TList_Mod
       Implicit Real*8 (a-h,o-z)
 #include "tlist.fh"
 #include "WrkSpc.fh"
@@ -126,6 +126,7 @@ c        Write (*,*) 'mTasks=',mTasks
       End
 *
       Subroutine Free_PPList
+      use TList_Mod
       Use Para_Info, only: nProcs, Is_Real_Par
 #include "tlist.fh"
 #include "WrkSpc.fh"
@@ -135,7 +136,6 @@ c        Write (*,*) 'mTasks=',mTasks
       PP_Status=Inactive
 *
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
-C     Call GetMem('TskLst','Free','INTE',ipTskL,nTasks_alloc*2)
       Call Free_iWork(ipTskL)
 *
       Return

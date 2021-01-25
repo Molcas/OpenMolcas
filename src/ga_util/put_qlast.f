@@ -9,16 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Put_QLast
+      use TList_Mod
       Implicit Real*8 (a-h,o-z)
 #include "tlist.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
 *
       if(ipTskQ.eq.0) return
-c     iTCnSt_c=iTCnSt-1
-c     Call XFlush(6)
-c     Write (*,*)
-c     Write (*,*) 'Put_QLast: '
 c     Call RecPrt('TskQ',' ',Work(ipTskQ),2,nTasks)
 c     Write (*,'(A,2F10.1)') 'Last indices of the task (QLast)=',QLast
 c     Write (*,'(A,4I9)') 'ipTskQ,iTCnSt_c,nTasks,iTskCan=',
