@@ -53,6 +53,7 @@ C        1 -- decomposition failed
 C        2 -- memory has been out of bounds
 C
       USE Para_Info, ONLY: nProcs, Is_Real_Par
+      use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
@@ -126,7 +127,7 @@ C     =============
      &   '***** Starting Cholesky diagonal setup *****'
          CALL CHO_FLUSH(LUPRI)
       END IF
-      CALL CHO_GETDIAG(KDIAG,LCONV)
+      CALL CHO_GETDIAG(LCONV)
       CALL CHO_GASYNC()
       IF (IPRINT .GE. INF_TIMING) THEN
          CALL CHO_TIMER(TIMSEC(2,ISEC),TIMSEC(4,ISEC))
@@ -171,7 +172,7 @@ C     ==============
          IF (CHO_SSCREEN) THEN
             CALL CHO_SUBSCR_INIT()
          END IF
-         CALL CHO_DECDRV(WORK(KDIAG))
+         CALL CHO_DECDRV(Diag)
          CALL CHO_GASYNC()
          IF (CHO_DECALG.EQ.2) THEN
             ! generate vectors from map
@@ -185,7 +186,7 @@ C     ==============
      &                         2)
             END IF
             IRC = 0
-            CALL CHO_X_GENVEC(IRC,WORK(KDIAG))
+            CALL CHO_X_GENVEC(IRC,Diag)
             CALL CHO_GASYNC()
             IF (IRC .NE. 0) THEN
                WRITE(LUPRI,'(A,A)')
@@ -232,7 +233,7 @@ C     ===============
             CALL CHO_FLUSH(LUPRI)
          END IF
          CALL CHO_MEM('Cho.Rst','MAX ','REAL',KWRK,LWRK)
-         CALL CHO_RESTART(WORK(KDIAG),WORK(KWRK),LWRK,.TRUE.,LCONV)
+         CALL CHO_RESTART(Diag,WORK(KWRK),LWRK,.TRUE.,LCONV)
          CALL CHO_GASYNC()
          CALL CHO_MEM('Cho.Rst','FREE','REAL',KWRK,LWRK)
          IF (.NOT. LCONV) THEN
@@ -408,7 +409,11 @@ C     ----------------------------------------------------------------
          CALL CHO_FLUSH(LUPRI)
          IRETURN = 2
       END IF
-      Call GETMEM('KDIAG','FREE','REAL',KDIAG,iDUM)
+
+      If (Allocated(Diag_Hidden)) Call mma_deallocate(Diag_Hidden)
+      If (Allocated(Diag_G_Hidden)) Call mma_deallocate(Diag_G_Hidden)
+      DIag   => Null()
+      Diag_G => Null()
       Call mma_deallocate(Check)
 
       IF (IPRINT .GE. INF_TIMING) THEN

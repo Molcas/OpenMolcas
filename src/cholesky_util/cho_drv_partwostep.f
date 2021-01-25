@@ -18,6 +18,7 @@ C     Purpose: Parallel two-step decomposition of two-electron
 C              integrals.
 C
       use ChoArr, only: iAtomShl
+      use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
       Implicit None
       Integer irc
 #include "choprint.fh"
@@ -29,7 +30,7 @@ C
 #include "stdalloc.fh"
 
       Integer ip_Err, l_Err
-      Integer iSec, kDiag
+      Integer iSec
       Integer BlockSize_Bak, iPrint_Bak, Cho_IOVec_Bak, N1_VecRD_Bak
       Integer N2_VecRd_Bak
       Integer Cho_DecAlg_Bak
@@ -47,7 +48,6 @@ C
       Integer MxShPr_Bak, iAlQua_Bak
       Integer N_Subtr_Bak
       Integer Mode_Screen_Bak, Cho_DecAlg_Def_Bak, ModRst_Bak
-      Integer iDum
 
       Real*8 tCPU0,  tCPU1,  tC0, tC1
       Real*8 tWall0, tWall1, tW0, tW1
@@ -101,8 +101,6 @@ C     ==============
       Call mma_allocate(Check,1,Label='Check')
       Check(1)=DumTst
 
-      ! init local variables
-      kDiag = 0
       lConv = .False.
 
 C     Initialization.
@@ -135,7 +133,7 @@ C     =============
      &   '***** Starting Cholesky diagonal setup *****'
          Call Cho_Flush(LuPri)
       End If
-      Call Cho_GetDiag(kDiag,lConv)
+      Call Cho_GetDiag(lConv)
       Call Cho_GASync()
       If (lConv) Then
          ! restart is not possible, so it can not be converged!!
@@ -173,7 +171,7 @@ C     ====================================
       ! (more elements than vectors). The final Z vectors are obtained
       ! below (Cho_GetZ).
       Call Cho_P_SetAddr()
-      Call Cho_DecDrv(Work(kDiag))
+      Call Cho_DecDrv(Diag)
       Call Cho_GASync()
       If (iPrint .ge. Inf_Timing) Then
          Call Cho_Timer(tC1,tW1)
@@ -603,7 +601,11 @@ C     ======================
          Write(LuPri,*) SecNam,': memory has been out of bounds [2]'
          irc=2
       End If
-      Call GETMEM('KDIAG','FREE','REAL',KDIAG,iDum)
+
+      If (Allocated(Diag_Hidden)) Call mma_deallocate(Diag_Hidden)
+      If (Allocated(Diag_G_Hidden)) Call mma_deallocate(Diag_G_Hidden)
+      Diag   => Null()
+      Diag_G => Null()
       Call mma_deallocate(Check)
 
       ! Print total timing

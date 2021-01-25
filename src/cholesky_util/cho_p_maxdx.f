@@ -13,13 +13,13 @@ C
 C     Purpose: get max. diagonal elements in each sym. block,
 C              qualified diagonals excluded.
 C
+      use ChoSwp, only: Diag_G
       Implicit None
       Real*8  Diag(*)
       Logical Sync
       Real*8  Dmax(*)
 #include "cho_para_info.fh"
 #include "choglob.fh"
-#include "WrkSpc.fh"
 
       Integer iLoc
 
@@ -29,7 +29,7 @@ C
             Call Cho_P_SyncDiag(Diag,iLoc)
          End If
          Call Cho_P_IndxSwp()
-         Call Cho_MaxDX(Work(ip_Diag_G),Dmax)
+         Call Cho_MaxDX(Diag_G,Dmax)
          Call Cho_P_IndxSwp()
       Else
          Call Cho_MaxDX(Diag,Dmax)

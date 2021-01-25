@@ -19,7 +19,8 @@ Public:: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden, pTemp, iQuAB_here, &
          IndRSh, IndRSh_Hidden, IndRSh_G, IndRSh_G_Hidden, pTemp1, &
          InfRed, InfRed_Hidden, InfRed_G, InfRed_G_Hidden, &
          InfVec, InfVec_Hidden, InfVec_G, InfVec_G_Hidden, InfVec_Bak, &
-         IndRed, IndRed_Hidden, IndRed_G, IndRed_G_Hidden
+         IndRed, IndRed_Hidden, IndRed_G, IndRed_G_Hidden, &
+         Diag, Diag_Hidden, Diag_G, Diag_G_Hidden
 
 
 Integer, Allocatable, Target:: iQuAB_Hidden(:,:), iQuAB_L_Hidden(:,:), iQuAB_here(:,:)
@@ -29,13 +30,15 @@ Integer, Allocatable, Target:: nnBstRSh_Hidden(:,:,:), nnBstRSh_L_Hidden(:,:,:)
 Integer, Allocatable, Target:: iiBstRSh_Hidden(:,:,:), iiBstRSh_L_Hidden(:,:,:)
 Integer, Pointer:: nnBstRSh(:,:,:)=>Null(), nnBstRSh_G(:,:,:)=>Null(), pTemp3(:,:,:)=>Null()
 Integer, Pointer:: iiBstRSh(:,:,:)=>Null(), iiBstRSh_G(:,:,:)=>Null()
-Integer, Pointer:: IndRSh(:), IndRSh_G(:), pTemp1(:)
+Integer, Pointer:: IndRSh(:)=>Null(), IndRSh_G(:)=>Null(), pTemp1(:)=>Null()
 Integer, Allocatable, Target:: IndRSh_Hidden(:), IndRSh_G_Hidden(:)
-Integer, Pointer:: InfRed(:), InfRed_G(:)
+Integer, Pointer:: InfRed(:)=>Null(), InfRed_G(:)=>Null()
 Integer, Allocatable, Target:: InfRed_Hidden(:), InfRed_G_Hidden(:)
-Integer, Pointer:: InfVec(:,:,:), InfVec_G(:,:,:)
+Integer, Pointer:: InfVec(:,:,:)=>Null(), InfVec_G(:,:,:)=>Null()
 Integer, Allocatable, Target:: InfVec_Hidden(:,:,:), InfVec_G_Hidden(:,:,:)
 Integer, Allocatable, Target:: InfVec_Bak(:,:,:)
-Integer, Pointer:: IndRed(:,:), IndRed_G(:,:)
+Integer, Pointer:: IndRed(:,:)=>Null(), IndRed_G(:,:)=>Null()
 Integer, Allocatable, Target:: IndRed_Hidden(:,:), IndRed_G_Hidden(:,:)
+Real*8, Pointer:: Diag(:)=>Null(), Diag_G(:)=>Null()
+Real*8, Allocatable, Target:: Diag_Hidden(:), Diag_G_Hidden(:)
 End Module ChoSwp

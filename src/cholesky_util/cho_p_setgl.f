@@ -8,12 +8,18 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine Cho_P_SetGL(ip_Diag)
+      SubRoutine Cho_P_SetGL()
 C
-C     Purpose: set global and local index arrays and diagonal. On entry,
-C              ip_Diag points to the global diagonal. On exit, it has
-C              been reset to point to the local one, allocated and
-C              defined in this routine.
+C     Purpose: set global and local index arrays and diagonal.
+C              If a sequencial run:
+C                 Diag   => Diag_Hidden
+C                 Diag_G => Null()
+C              If a parallel run:
+C                 Diag   => Diag_G_Hidden
+C                 Diag_G => Diag_Hidden
+C
+C              Diag_Hidden is allocated in the calling routine, while
+C              Diag_G_Hidden is allocated here if needed.
 C
       use ChoSwp, only: nnBstRSh, nnBstRSh_G, nnBstRsh_L_Hidden
       use ChoSwp, only: iiBstRSh, iiBstRSh_G, iiBstRsh_L_Hidden
@@ -21,9 +27,9 @@ C
       use ChoSwp, only: InfRed, InfRed_G, InfRed_G_Hidden
       use ChoSwp, only: InfVec, InfVec_G, InfVec_G_Hidden
       use ChoSwp, only: IndRed, IndRed_G, IndRed_G_Hidden
+      use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
       use ChoArr, only: iL2G
       Implicit None
-      Integer ip_Diag
 #include "cholesky.fh"
 #include "choptr2.fh"
 #include "choglob.fh"
@@ -35,7 +41,6 @@ C
       Parameter (SecNam = 'Cho_P_SetGL')
 
       Integer N, iSP, iSym, iShlAB, i1, i2, irc
-      Integer l_LDiag
 
       Integer i
       Integer mySP
@@ -45,13 +50,15 @@ C
 C     If not parallel, return.
 C     ------------------------
 
-      If (.not.Cho_Real_Par) Return
+      If (.not.Cho_Real_Par) Then
+         Diag => Diag_Hidden
+         Return
+      End If
 
 C     Set global data (choglob.fh).
 C     ------------------------------
 
-      ip_Diag_G = ip_Diag
-      l_Diag_G = mmBstRT
+      Diag_G => Diag_Hidden
 
       nnShl_G = nnShl
       mmBstRT_G = mmBstRT
@@ -137,10 +144,10 @@ C     --------------------------------
 C     Allocate and set local diagonal.
 C     --------------------------------
 
-      l_LDiag = mmBstRT
-      Call GetMem('LDiag','Allo','Real',ip_Diag,l_LDiag)
+      Call mma_allocate(Diag_G_Hidden,mmBstRT,Label='Diag_G_Hidden')
+      Diag => Diag_G_Hidden
       Do i = 1,mmBstRT
-         Work(ip_Diag-1+i) = Work(ip_Diag_G-1+iL2G(i))
+         Diag(i) = Diag_G(iL2G(i))
       End Do
 
       End

@@ -17,11 +17,7 @@ C
 
       Integer N, iSym
 
-      Integer iLarge
-      Parameter (iLarge = 999999)
-
-      ip_Diag_G = -iLarge
-      l_Diag_G = 0
+      Integer, Parameter:: iLarge=999999
 
       nnShl_G = 0
       mmBstRT_G = 0

@@ -14,6 +14,7 @@ C     Purpose: analyze global diagonal (histogram). Diag is the local
 C              diagonal. If Sync=.True. the global diagonal is
 C              synchronized before analysis.
 C
+      use ChoSwp, only: Diag_G
       Implicit None
       Real*8  Diag(*)
       Logical Sync
@@ -22,7 +23,6 @@ C
       Logical Full
 #include "choglob.fh"
 #include "cho_para_info.fh"
-#include "WrkSpc.fh"
 
       Integer iLoc
 
@@ -41,7 +41,7 @@ C        serial to perform analysis of the global diagonal.
 C        ----------------------------------------------------------
 
          Call Cho_P_IndxSwp()
-         Call Cho_AnaDia(Work(ip_Diag_G),Bin1,Step,NumBin,Full)
+         Call Cho_AnaDia(Diag_G,Bin1,Step,NumBin,Full)
          Call Cho_P_IndxSwp()
 
       Else
