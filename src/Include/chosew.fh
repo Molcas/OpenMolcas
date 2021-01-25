@@ -12,10 +12,10 @@ C
 C Information needed for extracting qualified columns directly from
 C seward stored in reduced set:
 C
-      Integer ip_iShP2RS, ip_iShP2Q, ip_iOff_Batch
-      Integer l_iShP2RS,  l_iShP2Q,  l_iOff_Batch
+      Integer ip_iShP2Q, ip_iOff_Batch
+      Integer l_iShP2Q,  l_iOff_Batch
       Integer nDim_Batch
 
-      Common / ChoSew / ip_iShP2RS, ip_iShP2Q, ip_iOff_Batch,
-     &                  l_iShP2RS, l_iShP2Q, l_iOff_Batch
+      Common / ChoSew / ip_iShP2Q, ip_iOff_Batch,
+     &                  l_iShP2Q, l_iOff_Batch
       Common / ChoSwA / nDim_Batch(8)

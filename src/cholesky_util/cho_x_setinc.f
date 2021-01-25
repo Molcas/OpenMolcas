@@ -195,8 +195,6 @@ C     -------------
 C     Zero memory in pointers in chosew.fh.
 C     --------------------------------------
 
-      ip_iShP2RS = 0
-      l_iShP2RS  = 0
       ip_iShP2Q = 0
       l_iShP2Q  = 0
       ip_iOff_Batch = 0

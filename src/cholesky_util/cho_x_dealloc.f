@@ -13,7 +13,8 @@
       Subroutine Cho_X_Dealloc(irc)
 
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl,
-     &                  iShlSO, iRS2F, IntMap, iScr, nDimRS, iL2G
+     &                  iShlSO, iRS2F, IntMap, iScr, nDimRS, iL2G,
+     &                  iShP2RS
 
       use ChoSwp, only: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden,
      &                  nnBstRSh_Hidden, nnBstRSh,
@@ -102,11 +103,7 @@ C     -----------
 C     Deallocate any used pointer in chosew.fh
 C     -----------------------------------------
 
-      If (l_iShP2RS .ne. 0) Then
-         Call GetMem('SHP2RS','Free','Inte',ip_iShP2RS,l_iShP2RS)
-         ip_iShP2RS=0
-         l_iShP2RS=0
-      End If
+      If (Allocated(iShP2RS)) Call mma_deallocate(iShP2RS)
 
       If (l_iShP2Q .ne. 0) Then
          Call GetMem('SHP2Q','Free','Inte',ip_iShP2Q,l_iShP2Q)
