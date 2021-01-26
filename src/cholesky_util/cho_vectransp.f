@@ -26,6 +26,7 @@
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "mafdecls.fh"
 
       Logical LocDbg
@@ -45,8 +46,8 @@ CVVP:2014 DGA is here
       Integer   ga_local_woff,nelm,iGAL
       External  ga_local_woff,ga_create_local
 #endif
+      Integer, Allocatable:: Map(:)
 ***************************************************************
-      map(i) = iWork(ip_map-1+i)
       iDV(i) = iWork(ip_iVecR-1+i)
       nRSL(i) = iWork(ip_nRSL-1+i)
       iAdrLG(i,j) = iWork(ip_iAdrLG-1+MxRSL*(j-1)+i)
@@ -93,17 +94,16 @@ CVVP:2014 DGA is here
       l_iAdrLG=MxRSL*nProcs
       Call GetMem('iAdrLG','Allo','Inte',ip_iAdrLG,l_iAdrLG)
 
-      l_Map = nProcs
-      Call GetMem('Map','Allo','Inte',ip_Map,l_Map)
+      Call mma_allocate(Map,nProcs,Label='Map')
       nProcs_eff = 0
       iStart = 1
       myStart = 0
       Do i=1,nProcs
          If (nRSL(i) .gt. 0) Then
-            iWork(ip_Map+nProcs_eff) = iStart
+            nProcs_eff = nProcs_eff + 1
+            Map(nProcs_eff) = iStart
             If ((i-1) .eq. myRank) myStart = iStart
             iStart = iStart + nRSL(i)
-            nProcs_eff = nProcs_eff + 1
          End If
       End Do
 
@@ -123,7 +123,7 @@ CVVP:2014 DGA is here
       End If
 CVVP:2014 Local rather than Global
 #ifdef _GA_
-      ok = ga_create_irreg(mt_dbl,nRS_g,nV,'Ga_Vec',iWork(ip_Map),
+      ok = ga_create_irreg(mt_dbl,nRS_g,nV,'Ga_Vec',Map,
      &                     nProcs_eff,1,1,g_a)
 #else
       ok = ga_create_local(mt_dbl,nRS_g,nV,'Ga_Vec',g_a)
@@ -239,7 +239,7 @@ C --- write the reordered vec on disk
 
 C --- deallocations
 
-      Call GetMem('Map','Free','Inte',ip_Map,l_Map)
+      Call mma_deallocate(Map)
       Call GetMem('iAdrLG','Free','Inte',ip_iAdrLG,l_iAdrLG)
       Call GetMem('RSL','Free','Inte',ip_nRSL,l_nRSL)
       Call GetMem('VecR','Free','Real',ip_VecR,l_VecR)
