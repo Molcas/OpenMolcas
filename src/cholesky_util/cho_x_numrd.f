@@ -33,17 +33,12 @@
 *> @param[in] Mem   Memory available for read
 ************************************************************************
       Integer Function Cho_X_NumRd(iVec1,iSym,iRedC,Mem)
-
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
-      Parameter (N2 = InfVec_N2)
       Integer iRed
-
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-      nDimRS(i,j)=iWork(ip_nDimRS-1+nSym*(j-1)+i)
 
       If (iSym.lt.1 .or. iSym.gt.nSym) Then
          Cho_X_NumRd = -1
@@ -59,7 +54,7 @@
          NumRd = 0
          Need  = 0
          iVec  = iVec1 - 1
-         If (l_nDimRS .lt. 1) Then
+         If (.NOT.Allocated(nDimRS)) Then
             iLoc  = 3
             Do While (iVec.lt.NumCho(iSym) .and. Need.lt.Mem)
                iVec = iVec + 1

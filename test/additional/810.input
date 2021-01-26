@@ -7,6 +7,10 @@
 * Comments: SP calculation of analytical gradients at the MBPT2(FULL)/ANO-L-VTZP
 *           level of theory.
 *-------------------------------------------------------------------------------
+> IF ( $MOLCAS_NPROCS != 1)
+>   EXIT 36
+> ENDIF
+
 >> export MOLCAS_PRINT=VERBOSE
  &Gateway
 Title= Water, ANO-L-VTZP basis set

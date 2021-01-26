@@ -8,22 +8,26 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_GETDIAG(ip_DIAG,LCONV)
+      SUBROUTINE CHO_GETDIAG(LCONV)
 C
-C     Purpose: get diagonal in first reduced set. On exit, ip_DIAG
-C              points to the diagonal in work space and flag LCONV tells
+C     Purpose: get diagonal in first reduced set. On exit, DIAG
+C              points to the diagonal and flag LCONV tells
 C              if the diagonal is converged.
 C
+      use ChoArr, only: iSP2F
+      use ChoSwp, only: IndRSh, IndRSh_Hidden
+      use ChoSwp, only: IndRed, IndRed_Hidden
+      use ChoSwp, only: Diag, Diag_Hidden
 #include "implicit.fh"
       LOGICAL LCONV
 #include "cholesky.fh"
 #include "chovecbuf.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-#include "choptr.fh"
 #include "choptr2.fh"
 #include "chosimri.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       CHARACTER*11 SECNAM
       PARAMETER (SECNAM = 'CHO_GETDIAG')
@@ -59,10 +63,14 @@ C        Allocate mapping arrays between reduced sets.
 C        ---------------------------------------------
 
          MMBSTRT  = NNBSTRT(1)
-         l_INDRED = NNBSTRT(1)*3
-         l_INDRSH = NNBSTRT(1)
-         CALL CHO_MEM('indred','ALLO','INTE',ip_INDRED,l_INDRED)
-         CALL CHO_MEM('indrsh','ALLO','INTE',ip_INDRSH,l_INDRSH)
+
+         Call mma_allocate(IndRed_Hidden,NNBSTRT(1),3,
+     &                     Label='IndRed_Hidden')
+         IndRed => IndRed_Hidden
+
+         Call mma_allocate(IndRSh_Hidden,NNBSTRT(1),
+     &                     Label='IndRSh_Hidden')
+         IndRSh => IndRSh_Hidden
 
 C        Read mapping arrays.
 C        --------------------
@@ -73,7 +81,7 @@ C        Check reduced to full shell pair mapping with the one on disk.
 C        --------------------------------------------------------------
 
          NERR = -1
-         CALL CHO_RSTD_CHKSP2F(IWORK(ip_iSP2F),l_iSP2F,NERR)
+         CALL CHO_RSTD_CHKSP2F(iSP2F,SIZE(iSP2F),NERR)
          IF (NERR .NE. 0) THEN
             WRITE(LUPRI,*) SECNAM,': ',NERR,' errors detected in ',
      &                     'reduced-to-full shell pair mapping!'
@@ -86,19 +94,21 @@ C        ---------------------
          NEEDR = 1
          NEEDI = 4*NEEDR
 
-         CALL CHO_MEM('diarst','ALLO','REAL',KDIAG,NNBSTRT(1))
-         CALL CHO_MEM('buf.2','ALLO','REAL',KBUF,NEEDR)
-         CALL CHO_MEM('ibuf.2','ALLO','INTE',KIBUF,NEEDI)
+         CALL mma_allocate(Diag_Hidden,NNBSTRT(1),Label='Diag_Hidden')
+
+         CALL GETMEM('buf.2','ALLO','REAL',KBUF,NEEDR)
+         CALL GETMEM('ibuf.2','ALLO','INTE',KIBUF,NEEDI)
 
          KREL = KBUF
 
 C        Read diagonal.
 C        --------------
 
-         CALL CHO_GETDIAG1(WORK(KDIAG),WORK(KBUF),IWORK(KIBUF),NEEDR,
+         CALL CHO_GETDIAG1(Diag_Hidden,WORK(KBUF),IWORK(KIBUF),NEEDR,
      &                     NDUMP)
 
-         CALL CHO_MEM('buf.2','FLUSH','REAL',KREL,NEEDR)
+         CALL GETMEM('ibuf.2','FREE','INTE',KIBUF,NEEDI)
+         CALL GETMEM('buf.2','FREE','REAL',KREL,NEEDR)
 
       ELSE
 
@@ -114,8 +124,8 @@ C        -------------------------------------------
          LSCR  = MX2SH
          NEEDR = LBUF + LSCR
          NEEDI = 4*LBUF
-         CALL CHO_MEM('buf','ALLO','REAL',KREL,NEEDR)
-         CALL CHO_MEM('ibuf','ALLO','INTE',KIBUF,NEEDI)
+         CALL GETMEM('buf','ALLO','REAL',KREL,NEEDR)
+         CALL GETMEM('ibuf','ALLO','INTE',KIBUF,NEEDI)
 
          KBUF  = KREL
          KSCR  = KBUF + LBUF
@@ -123,51 +133,55 @@ C        -------------------------------------------
          NDUMP = 0
 
          CALL CHO_CALCDIAG(WORK(KBUF),IWORK(KIBUF),LBUF,WORK(KSCR),LSCR,
-     &                     IWORK(ip_IIBSTRSH),IWORK(ip_NNBSTRSH),
-     &                     NSYM,NNSHL,NDUMP)
-         CALL CHO_MEM('buf','FLUSH','REAL',KREL,NEEDR)
+     &                     NDUMP)
+
+         CALL GETMEM('ibuf','FREE','INTE',KIBUF,NEEDI)
+         CALL GETMEM('buf','FREE','REAL',KREL,NEEDR)
 
 C        Allocate diagonal and mapping array between reduced sets.
 C        Reallocate buffer.
 C        ---------------------------------------------------------
 
          MMBSTRT  = NNBSTRT(1)
-         l_INDRED = NNBSTRT(1)*3
-         l_INDRSH = NNBSTRT(1)
-         CALL CHO_MEM('indred','ALLO','INTE',ip_INDRED,l_INDRED)
-         CALL CHO_MEM('indrsh','ALLO','INTE',ip_INDRSH,l_INDRSH)
-         CALL CHO_MEM('dia','ALLO','REAL',KDIAG,NNBSTRT(1))
+         Call mma_allocate(IndRed_Hidden,NNBSTRT(1),3,
+     &                     Label='IndRed_Hidden')
+         IndRed => IndRed_Hidden
+         Call mma_allocate(IndRSh_Hidden,NNBSTRT(1),
+     &                     Label='IndRSh_Hidden')
+         IndRSh => IndRSh_Hidden
+         CALL mma_allocate(Diag_Hidden,NNBSTRT(1),Label='Diag_Hidden')
 
          NEEDR = LBUF
          NEEDI = 4*LBUF
-         CALL CHO_MEM('buf.2','ALLO','REAL',KBUF,NEEDR)
-         CALL CHO_MEM('ibuf.2','ALLO','INTE',KIBUF,NEEDI)
+         CALL GETMEM('buf.2','ALLO','REAL',KBUF,NEEDR)
+         CALL GETMEM('ibuf.2','ALLO','INTE',KIBUF,NEEDI)
          KREL = KBUF
 
 C        Get diagonal in first reduced set.
 C        ----------------------------------
 
-         CALL CHO_GETDIAG1(WORK(KDIAG),WORK(KBUF),IWORK(KIBUF),LBUF,
+         CALL CHO_GETDIAG1(Diag_Hidden,WORK(KBUF),IWORK(KIBUF),LBUF,
      &                     NDUMP)
 
 C        Deallocate back to and including buffer.
 C        ----------------------------------------
 
-         CALL CHO_MEM('buf','FLUSH','REAL',KREL,NEEDR)
+         CALL GETMEM('ibuf.2','FREE','INTE',KIBUF,NEEDI)
+         CALL GETMEM('buf','FREE','REAL',KREL,NEEDR)
 
       END IF
 
-C     Set local and global info. On exit, KDIAG points to the local
+C     Set local and global info. On exit, Diag points to the local
 C     diagonal.
 C     -------------------------------------------------------------
 
-      CALL CHO_P_SETGL(KDIAG)
+      CALL CHO_P_SETGL()
 
 C     Write local diagonal to disk.
 C     -----------------------------
 
       IOPT = 1
-      CALL CHO_IODIAG(WORK(KDIAG),IOPT)
+      CALL CHO_IODIAG(Diag,IOPT)
 
 C     Allocate memory for iscratch array for reading vectors.
 C     -------------------------------------------------------
@@ -189,7 +203,7 @@ C     ---------------------------------------------------------------
       IF (CHO_SIMRI) THEN
          l_ISIMRI = NNBSTRT(1)
          CALL CHO_MEM('ISIMRI','ALLO','INTE',ip_ISIMRI,l_ISIMRI)
-         CALL CHO_SIMRI_Z1CDIA(WORK(KDIAG),THR_SIMRI,IWORK(ip_ISIMRI))
+         CALL CHO_SIMRI_Z1CDIA(Diag,THR_SIMRI,IWORK(ip_ISIMRI))
       END IF
 
 C     Update diagonal if restart, else just do analysis.
@@ -203,9 +217,9 @@ C     --------------------------------------------------
             DO ISYM = 1,NSYM
                ISYLST(ISYM) = ISYM
             END DO
-            CALL CHO_PRTDIA(WORK(KDIAG),ISYLST,NSYM,1)
+            CALL CHO_PRTDIA(Diag,ISYLST,NSYM,1)
          END IF
-         CALL CHO_RESTART(WORK(KDIAG),WORK(KWRK),LWRK,.FALSE.,LCONV)
+         CALL CHO_RESTART(Diag,WORK(KWRK),LWRK,.FALSE.,LCONV)
          CALL CHO_MEM('Cho.Rs1','FREE','REAL',KWRK,LWRK)
          IPRTRED = 2  ! print flag for cho_prtred
       ELSE
@@ -214,18 +228,12 @@ C     --------------------------------------------------
             STEP = 1.0D-1
             NBIN = 18
             SYNC = .FALSE.
-            CALL CHO_P_ANADIA(WORK(KDIAG),SYNC,BIN1,STEP,NBIN,.TRUE.)
+            CALL CHO_P_ANADIA(Diag,SYNC,BIN1,STEP,NBIN,.TRUE.)
          END IF
          IPRTRED = 1  ! print flag for cho_prtred
       END IF
       IF (IPRINT .GE. INF_PASS) THEN
          CALL CHO_P_PRTRED(IPRTRED)
       END IF
-
-C     Return pointer to (local) diagonal.
-C     -----------------------------------
-
-      ip_DIAG = KDIAG
-
 
       END

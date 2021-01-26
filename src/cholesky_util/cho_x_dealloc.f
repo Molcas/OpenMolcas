@@ -11,6 +11,24 @@
 * Copyright (C) 2004, Thomas Bondo Pedersen                            *
 ************************************************************************
       Subroutine Cho_X_Dealloc(irc)
+
+      use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl,
+     &                  iShlSO, iRS2F, IntMap, iScr, nDimRS, iL2G
+
+      use ChoSwp, only: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden,
+     &                  nnBstRSh_Hidden, nnBstRSh,
+     &                  nnBstRSh_L_Hidden, nnBstRSh_G,
+     &                  iiBstRSh_Hidden, iiBstRSh,
+     &                  iiBstRSh_L_Hidden, iiBstRSh_G,
+     &                    IndRSh_Hidden,   IndRSh,
+     &                    IndRSh_G_Hidden,   IndRSh_G,
+     &                    InfRed_Hidden,   InfRed,
+     &                    InfRed_G_Hidden,   InfRed_G,
+     &                    InfVec_Hidden,   InfVec,
+     &                    InfVec_G_Hidden,   InfVec_G,
+     &                    IndRed_Hidden,   IndRed,
+     &                    IndRed_G_Hidden,   IndRed_G,
+     &                    InfVec_Bak
 C
 C     T.B. Pedersen, July 2004.
 C
@@ -19,134 +37,67 @@ C              On exit, irc=0 signals sucessful completion.
 C
       Implicit None
       Integer irc
-#include "choptr.fh"
 #include "chosew.fh"
 #include "cholq.fh"
 #include "chopar.fh"
+#include "stdalloc.fh"
 
       Character*13 SecNam
       Parameter (SecNam = 'Cho_X_Dealloc')
 
-      Integer nAlloc
-
-C     Initialize allocation counter.
-C     ------------------------------
-
-      nAlloc = 0
+      irc=0
 
 C     Deallocate.
 C     -----------
 
-      If (l_InfRed .ne. 0) Then
-         Call GetMem('InfRed','Free','Inte',ip_InfRed,l_InfRed)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(InfRed_Hidden))
+     &    Call mma_deallocate(InfRed_Hidden)
+      If (Associated(InfRed)) InfRed=>Null()
 
-      If (l_InfVec .ne. 0) Then
-         Call GetMem('InfVec','Free','Inte',ip_InfVec,l_InfVec)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(InfVec_Hidden))
+     &    Call mma_deallocate(InfVec_Hidden)
+      If (Associated(InfVec)) InfVec=>Null()
 
-      If (l_IndRed .ne. 0) Then
-         Call GetMem('IndRed','Free','Inte',ip_IndRed,l_IndRed)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(IndRed_Hidden))
+     &    Call mma_deallocate(IndRed_Hidden)
+      If (Associated(IndRed)) IndRed=>Null()
 
-      If (l_IndRSh .ne. 0) Then
-         Call GetMem('IndRSh','Free','Inte',ip_IndRSh,l_IndRSh)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(IndRSh_Hidden))
+     &    Call mma_deallocate(IndRSh_Hidden)
+      If (Associated(IndRSh)) IndRSh=>Null()
 
-      If (l_iScr .ne. 0) Then
-         Call GetMem('iScr','Free','Inte',ip_iScr,l_iScr)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(iScr)) Call mma_deallocate(iScr)
 
-      If (l_iiBstRSh .ne. 0) Then
-         Call GetMem('iiBstRSh','Free','Inte',ip_iiBstRSh,l_iiBstRSh)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(iiBstRSh_Hidden))
+     &    Call mma_deallocate(iiBstRSh_Hidden)
+      If (Associated(iiBstRSh)) iiBstRSh=>Null()
 
-      If (l_nnBstRSh .ne. 0) Then
-         Call GetMem('nnBstRSh','Free','Inte',ip_nnBstRSh,l_nnBstRSh)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(nnBstRSh_Hidden))
+     &    Call mma_deallocate(nnBstRSh_Hidden)
+      If (Associated(nnBstRSh)) nnBstRSh=>Null()
 
-      If (l_IntMap .ne. 0) Then
-         Call GetMem('IntMap','Free','Inte',ip_IntMap,l_IntMap)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(IntMap)) Call mma_deallocate(IntMap)
 
-      If (l_nDimRS .ne. 0) Then
-         Call GetMem('nDimRS','Free','Inte',ip_nDimRS,l_nDimRS)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(nDimRS)) Call mma_deallocate(nDimRS)
 
-      If (l_iRS2F .ne. 0) Then
-         Call GetMem('iRS2F','Free','Inte',ip_iRS2F,l_iRS2F)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(iRS2F)) Call mma_deallocate(iRS2F)
 
-      If (l_iSOShl .ne. 0) Then
-         Call GetMem('iSOShl','Free','Inte',ip_iSOShl,l_iSOShl)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(iSOShl)) Call mma_deallocate(iSOShl)
 
-      If (l_iShlSO .ne. 0) Then
-         Call GetMem('iShlSO','Free','Inte',ip_iShlSO,l_iShlSO)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(iShlSO)) Call mma_deallocate(iShlSO)
 
-      If (l_iQuab .ne. 0) Then
-         Call GetMem('iQuab','Free','Inte',ip_iQuab,l_iQuab)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(iQuAB_Hidden)) Call mma_deallocate(iQuAB_Hidden)
+      If (Associated(iQuAB)) iQuAB => Null()
 
-      If (l_iBasSh .ne. 0) Then
-         Call GetMem('iBasSh','Free','Inte',ip_iBasSh,l_iBasSh)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(iBasSh)) Call mma_deallocate(iBasSh)
 
-      If (l_nBasSh .ne. 0) Then
-         Call GetMem('nBasSh','Free','Inte',ip_nBasSh,l_nBasSh)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(nBasSh)) Call mma_deallocate(nBasSh)
 
-      If (l_nBstSh .ne. 0) Then
-         Call GetMem('nBstSh','Free','Inte',ip_nBstSh,l_nBasSh)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(nBstSh)) Call mma_deallocate(nBstSh)
 
-      If (l_iAtomShl .ne. 0) Then
-         Call GetMem('iAtomShl','Free','Inte',ip_iAtomShl,l_iAtomShl)
-      End If
-      nAlloc = nAlloc + 1
+      If (Allocated(iAtomShl)) Call mma_deallocate(iAtomShl)
 
-      If (l_iSP2F .ne. 0) Then
-         Call GetMem('SP2F','Free','Inte',ip_iSP2F,l_iSP2F)
-      End If
-      nAlloc = nAlloc + 1
-
-C     Check that #allocations agrees with choptr.fh.
-C     -----------------------------------------------
-
-      irc = CHO_NALLOC - nAlloc
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,' is out of sync with choptr.fh !!!'
-         Write(6,*) '(Note that this is due to a programming error...)'
-         Return
-      End If
-
-C     Zero entire common block.
-C     -------------------------
-
-      Call Cho_PtrIni(irc)
-      If (irc .ne. 0) Then
-         Write(6,*) SecNam,': Cho_PtrIni is out of sync ',
-     &              'with choptr.fh !!!'
-         Write(6,*) '(Note that this is due to a programming error...)'
-         Return
-      End If
+      If (Allocated(iSP2F)) Call mma_deallocate(iSP2F)
 
 C     Deallocate any used pointer in chosew.fh
 C     -----------------------------------------
@@ -166,11 +117,8 @@ C     -----------------------------------------
 C     Deallocate any used pointer in cholq.fh
 C     ----------------------------------------
 
-      If (l_iQuAB_L .ne. 0) Then
-         Call GetMem('IQUAB_L','Free','Inte',ip_iQuAB_L,l_iQuAB_L)
-         ip_iQuAB_L=0
-         l_iQuAB_L=0
-      End If
+      If (Allocated(iQuAB_L_Hidden)) Call mma_deallocate(iQuAB_L_Hidden)
+      If (Associated(iQuAB_L)) iQuAB_L => Null()
 
       If (l_iQL2G .ne. 0) Then
          Call GetMem('IQL2G','Free','Inte',ip_iQL2G,l_iQL2G)
@@ -187,11 +135,38 @@ C     ----------------------------------------
 C     Deallocate any used pointer in chopar.fh
 C     -----------------------------------------
 
-      If (l_InfVec_Bak .gt. 0) Then
-         Call GetMem('InfVec_Bak','Free','Inte',ip_InfVec_Bak,
-     &                                           l_InfVec_Bak)
-         l_InfVec_Bak=0
-      End If
+      If (Allocated(InfVec_Bak)) Call mma_deallocate(InfVec_Bak)
 
+C     Deallocate any used pointer in cholq.fh
+C     -----------------------------------------
+
+      If (Allocated(InfVec_G_Hidden))
+     &    Call mma_deallocate(InfVec_G_Hidden)
+      If (Associated(InfVec_G)) InfVec_G=>Null()
+
+      If (Allocated(IndRed_G_Hidden))
+     &    Call mma_deallocate(IndRed_G_Hidden)
+      If (Associated(IndRed_G)) IndRed_G=>Null()
+
+      If (Allocated(InfRed_G_Hidden))
+     &    Call mma_deallocate(InfRed_G_Hidden)
+      If (Associated(InfRed_G)) InfRed_G=>Null()
+
+      If (Allocated(IndRSh_G_Hidden))
+     &    Call mma_deallocate(IndRSh_G_Hidden)
+      If (Associated(IndRSh_G)) IndRSh_G=>Null()
+
+      If (Allocated(iiBstRSh_L_Hidden))
+     &    Call mma_deallocate(iiBstRSh_L_Hidden)
+      If (Associated(iiBstRSh_G)) iiBstRSh_G=>Null()
+
+      If (Allocated(nnBstRSh_L_Hidden))
+     &    Call mma_deallocate(nnBstRSh_L_Hidden)
+      If (Associated(nnBstRSh_G)) nnBstRSh_G=>Null()
+
+C
+C     -----------------------------------------
+
+      If (Allocated(iL2G)) Call mma_deallocate(iL2G)
       Return
       End

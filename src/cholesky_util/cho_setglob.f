@@ -17,25 +17,7 @@ C
 
       Integer N, iSym
 
-      Integer iLarge
-      Parameter (iLarge = 999999)
-
-      ip_Diag_G = -iLarge
-      ip_iL2G = -iLarge
-      ip_iiBstRSh_G = -iLarge
-      ip_nnBstRSh_G = -iLarge
-      ip_IndRed_G = -iLarge
-      ip_IndRSh_G = -iLarge
-      ip_InfRed_G = -iLarge
-      ip_InfVec_G = -iLarge
-      l_Diag_G = 0
-      l_iL2G = 0
-      l_iiBstRSh_G = 0
-      l_nnBstRSh_G = 0
-      l_IndRed_G = 0
-      l_IndRSh_G = 0
-      l_InfRed_G = 0
-      l_InfVec_G = 0
+      Integer, Parameter:: iLarge=999999
 
       nnShl_G = 0
       mmBstRT_G = 0

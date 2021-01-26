@@ -19,7 +19,6 @@
 #include "WrkSpc.fh"
 #include "real.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "etwas.fh"
 #include "exterm.fh"
 #include "chomp2g_alaska.fh"

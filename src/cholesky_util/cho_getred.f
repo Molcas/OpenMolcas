@@ -8,17 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_GETRED(INFRED,NNBSTRSH,INDRED,INDRSH,ISP2F,
-     &                      MRED,MSYM,MMSHL,LMMBSTRT,
-     &                      IPASS,LRSH)
+      SUBROUTINE CHO_GETRED(IPASS,ILOC,LRSH)
 C
 C     Purpose: read index arrays for current reduced set (reduced set
 C              IPASS).
 C
+      use ChoArr, only: iSP2F
+      use ChoSwp, only: nnBstRsh, InfRed, IndRSh, IndRed
 #include "implicit.fh"
-      INTEGER INFRED(MRED)
-      INTEGER NNBSTRSH(MSYM,MMSHL), INDRED(LMMBSTRT), INDRSH(LMMBSTRT)
-      INTEGER ISP2F(MMSHL)
+      INTEGER IPASS, ILOC
       LOGICAL LRSH
 #include "cholesky.fh"
 
@@ -35,19 +33,19 @@ C
 C     Test dimensions.
 C     ----------------
 
-      IF (MSYM .NE. NSYM) THEN
+      IF (SIZE(nnBstRSh,1) .NE. NSYM) THEN
          CALL CHO_QUIT('NSYM error in '//SECNAM,104)
       END IF
 
-      IF (MMSHL .NE. NNSHL) THEN
+      IF (SIZE(nnBstRsh,2) .NE. NNSHL) THEN
          CALL CHO_QUIT('NNSHL error in '//SECNAM,104)
       END IF
 
-      IF (LMMBSTRT .NE. NNBSTRT(1)) THEN
+      IF (SIZE(IndRed,1) .NE. NNBSTRT(1)) THEN
          CALL CHO_QUIT('NNBSTRT(1) error in '//SECNAM,104)
       END IF
 
-      IF ((IPASS.LT.1) .OR. (IPASS.GT.MAXRED)) THEN
+      IF ((IPASS.LT.1) .OR. (IPASS.GT.SIZE(InfRed)) THEN
          CALL CHO_QUIT('IPASS error in '//SECNAM,104)
       END IF
 #endif
@@ -75,12 +73,12 @@ C     ------------------
       IOPT = 2
       IADR = IADR1
       LTOT = NSYM*NNSHL
-      CALL IDAFILE(LURED,IOPT,NNBSTRSH(1,1),LTOT,IADR)
+      CALL IDAFILE(LURED,IOPT,NNBSTRSH(:,:,ILOC),LTOT,IADR)
       IOPT = 2
       IADR = IADR1 + NSYM*NNSHL
-      LSAV = CHO_ISUMELM(NNBSTRSH,NSYM*NNSHL)
+      LSAV = CHO_ISUMELM(NNBSTRSH(:,:,ILOC),NSYM*NNSHL)
       LTOT = LSAV
-      CALL IDAFILE(LURED,IOPT,INDRED,LTOT,IADR)
+      CALL IDAFILE(LURED,IOPT,INDRED(:,ILOC),LTOT,IADR)
       IF (LRSH .AND. IPASS.EQ.1) THEN
          IOPT = 2
          IADR = IADR1 + NSYM*NNSHL + LSAV

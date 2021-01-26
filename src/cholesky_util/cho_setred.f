@@ -8,25 +8,22 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_SETRED(DIAG,IIBSTRSH,NNBSTRSH,INDRED,
-     &                      MSYM,LMMBSTRT,MMSHL)
+      SUBROUTINE CHO_SETRED(DIAG)
 C
 C     Purpose: set next reduced set. A copy of the previous set
 C              is stored in location 3.
 C
+      use ChoArr, only: iSP2F, iAtomShl
+      use ChoSwp, only: IndRed, iiBstRSh, nnBstRSh
 #include "implicit.fh"
-      DIMENSION DIAG(*)
-      INTEGER   INDRED(LMMBSTRT,3)
-      INTEGER   IIBSTRSH(MSYM,MMSHL,3), NNBSTRSH(MSYM,MMSHL,3)
+      Real*8 DIAG(*)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_SETRED')
 
-      ISP2F(I)=IWORK(ip_iSP2F-1+I)
-      IATOMSHL(I)=IWORK(ip_IATOMSHL-1+I)
+      MSYM = SIZE(iiBstRSh,1)
 
 C     Debug print.
 C     ------------
@@ -62,17 +59,16 @@ C     ------------
 C     Copy index arrays from location 2 to location 3.
 C     ------------------------------------------------
 
-      CALL CHO_RSCOPY(IIBSTRSH,NNBSTRSH,INDRED,2,3,MSYM,MMSHL,LMMBSTRT,
-     &                3)
+      CALL CHO_RSCOPY(2,3)
 
 C     Re-initialize index arrays at location 2.
 C     -----------------------------------------
 
-      CALL CHO_IZERO(INDRED(1,2),LMMBSTRT)
-      CALL CHO_IZERO(IIBSTRSH(1,1,2),MSYM*MMSHL)
-      CALL CHO_IZERO(NNBSTRSH(1,1,2),MSYM*MMSHL)
-      CALL CHO_IZERO(IIBSTR(1,2),MSYM)
-      CALL CHO_IZERO(NNBSTR(1,2),MSYM)
+      IndRed(:,2)=0
+      iiBstRSh(:,:,2)=0
+      nnBstRSh(:,:,2)=0
+      iiBstr(1:MSYM,2)=0
+      nnBstr(1:MSYM,2)=0
       NNBSTRT(2) = 0
 
 C     Set new reduced set: mapping and SP counter.
@@ -360,7 +356,7 @@ C     --------------------------------------------
 C     Set remaining index arrays.
 C     ---------------------------
 
-      CALL CHO_SETREDIND(IIBSTRSH,NNBSTRSH,MSYM,MMSHL,2)
+      CALL CHO_SETREDIND(2)
 
 C     Debug print.
 C     ------------

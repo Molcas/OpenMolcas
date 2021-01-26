@@ -16,9 +16,9 @@ C     Author: Thomas Bondo Pedersen, April 2007.
 C     Purpose: fake parallel distribution of vectors.
 C
       Use Para_Info, Only: nProcs, Is_Real_Par
+      use ChoSwp, only: InfVec
       Implicit None
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choglob.fh"
 #include "WrkSpc.fh"
 
@@ -30,7 +30,7 @@ C
       Integer ip_Wrk, l_Wrk
       Integer ip_InfV, l_InfV
       Integer iRedC, iV, nV
-      Integer kOff, nRead
+      Integer nRead
 
       Integer i, j
       Integer InfV
@@ -80,9 +80,8 @@ C     ----------------------------------------------
             Call Cho_Quit('Logical error in '//SecNam,103)
          End If
 #endif
-         kOff = ip_InfVec - 1 + MaxVec*InfVec_N2*(iSym-1) + MaxVec*2
          Do iV = 1,nV
-            iWork(kOff+iV) = InfV(2,iV)
+            InfVec(iV,3,iSym)= InfV(2,iV)
          End Do
       End Do
 

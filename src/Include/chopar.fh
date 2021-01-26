@@ -10,6 +10,4 @@
 ************************************************************************
 C saved info for parallel runs
       Integer NumCho_Bak
-      Integer ip_InfVec_Bak, l_InfVec_Bak
-      Common / CHPARI / NumCho_Bak(8),
-     &                  ip_InfVec_Bak, l_InfVec_Bak
+      Common / CHPARI / NumCho_Bak(8)

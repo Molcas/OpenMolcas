@@ -8,13 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_SETVECINF(INFVEC,MVEC,M2,MSYM,IVEC,ISYM,IAB,IPASS,
-     &                         ILOC)
+      SUBROUTINE CHO_SETVECINF(IVEC,ISYM,IAB,IPASS,ILOC)
 C
 C     Purpose: set info for vector IVEC of sym. ISYM.
 C
+      use ChoSwp, only: InfVec
 #include "implicit.fh"
-      INTEGER INFVEC(MVEC,M2,MSYM)
 #include "cholesky.fh"
 
       CHARACTER*13 SECNAM
