@@ -18,7 +18,7 @@ C              This version is I/O-driven.
 C
 C     Screening in subtraction introduced Jan. 2006, TBP.
 C
-      use ChoArr, only: iScr
+      use ChoArr, only: iScr, LQ
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, InfVec
 #include "implicit.fh"
       DIMENSION XINT(*), WRK(LWRK)
@@ -366,17 +366,16 @@ C              ----------------------------------------------------
 
             ELSE ! unscreened subtraction
 
-               IF (L_LQ_SYM(ISYM) .GT. 0) THEN
+               IF (Associated(LQ(ISYM)%Array)) THEN
 
 C                 If the qualified block, L({ab},#J), is already in
 C                 core, use this block.
 C                 -------------------------------------------------
 
-                  LOFF = IP_LQ_SYM(ISYM) + LDLQ(ISYM)*(IVEC1_1-1)
-
                   CALL DGEMM_('N','T',NNBSTR(ISYM,2),NQUAL(ISYM),NUMV,
      &                       XMONE,WRK(KCHO1),NNBSTR(ISYM,2),
-     &                             WORK(LOFF),LDLQ(ISYM),
+     &                             LQ(ISYM)%Array(:,IVEC1_1),
+     &                             SIZE(LQ(ISYM)%Array,1),
      &                       ONE,XINT,NNBSTR(ISYM,2))
 
                ELSE

@@ -44,7 +44,7 @@ C
 #if defined (_DEBUGPRINT_)
       use ChoArr, only: iSP2F
 #endif
-      use ChoArr, only: iOff_Batch
+      use ChoArr, only: iOff_Batch, nDim_Batch
       use ChoSwp, only: iQuAB, pTemp, iQuAB_here, nnBstRSh, IndRSh
       Implicit None
       Integer irc
@@ -60,7 +60,6 @@ C
       Integer ip_Z(l_Z1,l_Z2)
       Logical Free_Z
 #include "cholesky.fh"
-#include "chosew.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "choprint.fh"

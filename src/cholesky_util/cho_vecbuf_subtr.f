@@ -17,6 +17,7 @@ C     DoTime: time as vector subtraction.
 C     DpStat: update statistics info (#calls to dGeMM).
 C
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
+      use ChoArr, only: LQ
 #include "implicit.fh"
       Real*8  xInt(*), Wrk(lWrk)
       Logical DoTime, DoStat
@@ -168,18 +169,18 @@ C           ----------------------------------------------------
 
          Else ! unscreened subtraction
 
-            If (l_LQ_Sym(iSym) .gt. 0) Then
+              If (Associated(LQ(iSym)%Array)) Then
 
 C              If the qualified block, L({ab},#J), is already in core,
 C              use this block.
 C              -------------------------------------------------------
 
                kOff = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,2)*iVec0
-               lOff = ip_LQ_Sym(iSym) + ldLQ(iSym)*iVec0
 
                Call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,
      &                    xMOne,Work(kOff),nnBstR(iSym,2),
-     &                          Work(lOff),ldLQ(iSym),
+     &                          LQ(iSym)%Array(:,iVec0+1),
+     &                          SIZE(LQ(iSym)%Array,1),
      &                    One,xInt,nnBstR(iSym,2))
 
             Else

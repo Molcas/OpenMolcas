@@ -24,7 +24,6 @@ C
 #include "implicit.fh"
       Integer nAB(8)
 #include "cholesky.fh"
-#include "chosew.fh"
 
 #if defined (_DEBUGPRINT_)
       Character*12 SecNam

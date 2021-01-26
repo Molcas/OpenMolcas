@@ -21,7 +21,6 @@ C
 #include "implicit.fh"
       Integer nAB(*)
 #include "cholesky.fh"
-#include "chosew.fh"
 
 C     Check allocations.
 C     ------------------

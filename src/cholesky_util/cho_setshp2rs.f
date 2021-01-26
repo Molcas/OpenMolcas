@@ -24,7 +24,6 @@ C
       Integer nAB(*)
 #include "cholesky.fh"
 #include "choptr2.fh"
-#include "chosew.fh"
 #include "WrkSpc.fh"
 
 #if defined (_DEBUGPRINT_)

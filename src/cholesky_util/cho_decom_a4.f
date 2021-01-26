@@ -12,6 +12,7 @@
 C
 C     Purpose: decompose qualified columns ("parallel" algorithm).
 C
+      use ChoArr, only: LQ_Tot, LQ
       Implicit Real*8 (a-h,o-z)
       Real*8  Diag(*)
       Integer LstQSP(NumSP)
@@ -20,6 +21,7 @@ C
 #include "cholq.fh"
 #include "choprint.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Character*12 SecNam
       Parameter (SecNam = 'Cho_Decom_A4')
@@ -78,16 +80,14 @@ C     ------------
 
       l_KVec = nQual(1)**2
       l_IDKVec = nQual(1)
-      l_LQ_Sym(1) = nQual(1)*NumV(1)
-      l_LQ = l_LQ_Sym(1)
+      l_LQ = nQual(1)*NumV(1)
       Do iSym = 2,nSym
          l_KVec = l_KVec + nQual(iSym)**2
          l_IDKVec = l_IDKVec + nQual(iSym)
-         l_LQ_Sym(iSym) = nQual(iSym)*NumV(iSym)
-         l_LQ = l_LQ + l_LQ_Sym(iSym)
+         l_LQ = l_LQ + nQual(iSym)*NumV(iSym)
       End Do
       l_QDiag = l_IDKVec
-      l_lQ = max(l_LQ,1) ! because there might not be any prev. vecs.
+      l_LQ = max(l_LQ,1) ! because there might not be any prev. vecs.
       Call GetMem('KVec','Allo','Real',ip_KVec,l_KVec)
       Call GetMem('IDKVec','Allo','Inte',ip_IDKVec,l_IDKVec)
       Call GetMem('QDiag','Allo','Real',ip_QDiag,l_QDiag)
@@ -97,12 +97,22 @@ C     previous Cholesky vectors (if any).
 C     ----------------------------------------------------------
 
       Call Cho_Timer(C1,W1)
-      Call GetMem('LQ','Allo','Real',ip_LQ,l_LQ)
-      ip_LQ_Sym(1) = ip_LQ
-      Do iSym = 2,nSym
-         ip_LQ_Sym(iSym) = ip_LQ_Sym(iSym-1) + l_LQ_Sym(iSym-1)
+      Call mma_allocate(LQ_Tot,l_LQ,Label='LQ_Tot')
+
+      iEn = 0
+      iSt = 1
+      Do iSym = 1,nSym
+         If (nQual(iSym)*NumV(iSym)>0) Then
+            iEn = iEn + nQual(iSym)*NumV(iSym)
+            LQ(iSym)%Array(1:nQual(iSym),1:NumV(iSym)) =>
+     &                LQ_Tot(iSt:iEn)
+            iSt = iEn + 1
+         Else
+            LQ(iSym)%Array => Null()
+         End If
       End Do
-      Call Cho_P_GetLQ(Work(ip_LQ),l_LQ,LstQSP,NumSP)
+
+      Call Cho_P_GetLQ(LQ_Tot,l_LQ,LstQSP,NumSP)
       Call Cho_Timer(C2,W2)
       tDecom(1,2) = tDecom(1,2) + C2 - C1
       tDecom(2,2) = tDecom(2,2) + W2 - W1
@@ -122,7 +132,7 @@ C     Decompose qualified diagonal block.
 C     The qualified diagonals are returned in QDiag.
 C     ----------------------------------------------
 
-      Call Cho_Dec_Qual(Diag,Work(ip_LQ),Work(ip_MQ),Work(ip_Kvec),
+      Call Cho_Dec_Qual(Diag,LQ_Tot,Work(ip_MQ),Work(ip_Kvec),
      &                  iWork(ip_IDKVec),iWork(ip_nKVec),
      &                  Work(ip_QDiag))
 
@@ -182,15 +192,14 @@ C     -----------------------------------------------
       kID = ip_IDKVec - 1
       Do iSym = 1,nSym
          Do jVec = 1,NumV(iSym)
-            kLQ = ip_LQ_Sym(iSym) + nQual(iSym)*(jVec-1) - 1
-            Call dCopy_(nQual(iSym),Work(kLQ+1),1,Work(ip_KVScr),1)
+            Call dCopy_(nQual(iSym),LQ(iSym)%Array(:,jVec),1,
+     &                              Work(ip_KVScr),1)
             Do iK = 1,nKVec(iSym)
                lK = iWork(kID+iK)
-               Work(kLQ+iK) = Work(ip_KVScr-1+lK)
+               LQ(iSym)%Array(iK,jVec) = Work(ip_KVScr-1+lK)
             End Do
          End Do
          kID = kID + nQual(iSym)
-         ldLQ(iSym) = max(nQual(iSym),1) ! leading dim of LQ
       End Do
 
       Call GetMem('KVScr','Free','Real',ip_KVScr,l_KVScr)
@@ -308,14 +317,7 @@ C        --------------------------------
 C     Deallocations.
 C     --------------
 
-      Call GetMem('LQ','Free','Real',ip_LQ,l_LQ)
-      ip_LQ = -999999
-      l_LQ = 0
-      Do iSym = 1,nSym
-         ip_LQ_Sym(iSym) = -999999
-         l_LQ_Sym(iSym) = 0
-         ldLQ(iSym) = 0
-      End Do
+      Call mma_deallocate(LQ_Tot)
       Call GetMem('QDiag','Free','Real',ip_QDiag,l_QDiag)
       Call GetMem('IDKVec','Free','Inte',ip_IDKVec,l_IDKVec)
       Call GetMem('KVec','Free','Real',ip_KVec,l_KVec)

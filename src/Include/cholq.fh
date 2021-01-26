@@ -12,13 +12,5 @@ C
 C Stuff for local qualified
 C
       Integer nQual_L
-      Integer ip_LQ_Sym
-      Integer l_LQ_Sym
-      Integer ldLQ
-      Integer ip_iQL2G, ip_LQ
-      Integer l_iQL2G, l_LQ
 
-      Common / CHOPLQ / nQual_L(8),
-     &                  ip_LQ_Sym(8), l_LQ_Sym(8), ldLQ(8),
-     &                  ip_iQL2G, ip_LQ,
-     &                  l_iQL2G, l_LQ
+      Common / CHOPLQ / nQual_L(8)

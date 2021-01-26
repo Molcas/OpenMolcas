@@ -23,7 +23,6 @@ C
       Integer irc
 #include "choprint.fh"
 #include "cholesky.fh"
-#include "chosew.fh"
 #include "chosubscr.fh"
 #include "chosimri.fh"
 #include "WrkSpc.fh"

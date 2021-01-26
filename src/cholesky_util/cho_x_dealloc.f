@@ -14,7 +14,7 @@
 
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl,
      &                  iShlSO, iRS2F, IntMap, iScr, nDimRS, iL2G,
-     &                  iShP2RS, iShP2Q
+     &                  iShP2RS, iShP2Q, iQL2G, LQ_Tot
 
       use ChoSwp, only: iQuAB, iQuAB_L, iQuAB_Hidden, iQuAB_L_Hidden,
      &                  nnBstRSh_Hidden, nnBstRSh,
@@ -38,7 +38,6 @@ C              On exit, irc=0 signals sucessful completion.
 C
       Implicit None
       Integer irc
-#include "chosew.fh"
 #include "cholq.fh"
 #include "chopar.fh"
 #include "stdalloc.fh"
@@ -113,17 +112,9 @@ C     ----------------------------------------
       If (Allocated(iQuAB_L_Hidden)) Call mma_deallocate(iQuAB_L_Hidden)
       If (Associated(iQuAB_L)) iQuAB_L => Null()
 
-      If (l_iQL2G .ne. 0) Then
-         Call GetMem('IQL2G','Free','Inte',ip_iQL2G,l_iQL2G)
-         ip_iQL2G=0
-         l_iQL2G=0
-      End If
+      If (Allocated(iQL2G )) Call mma_deallocate(iQL2G )
 
-      If (l_LQ .ne. 0) Then
-         Call GetMem('LQ','Free','Real',ip_LQ,l_LQ)
-         ip_LQ=0
-         l_LQ=0
-      End If
+      If (Allocated(LQ_Tot)) Call mma_deallocate(LQ_Tot)
 
 C     Deallocate any used pointer in chopar.fh
 C     -----------------------------------------

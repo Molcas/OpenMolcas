@@ -19,7 +19,6 @@ C
       LOGICAL SKIP_PRESCREEN
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "chosew.fh"
 #include "stdalloc.fh"
 
       CHARACTER*12 SECNAM

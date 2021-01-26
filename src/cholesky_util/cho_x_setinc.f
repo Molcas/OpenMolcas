@@ -28,6 +28,7 @@ C              chopar.fh
 C              cho_para_info.fh
 C              chobkm.fh
 C
+      use ChoArr, only: nDim_Batch
       Implicit None
       Integer irc
 #include "choorb.fh"
@@ -35,7 +36,6 @@ C
 #include "cholesky.fh"
 #include "chovecbuf.fh"
 #include "choptr2.fh"
-#include "chosew.fh"
 #include "cholq.fh"
 #include "chosubscr.fh"
 #include "chosimri.fh"
@@ -192,22 +192,12 @@ C     -------------
 
       Frac_ChVBuf = 0.0d0
 
-C     Zero memory in pointers in chosew.fh.
-C     --------------------------------------
-
-      Call Cho_iZero(nDim_Batch,8)
+      nDim_Batch(:)=0
 
 C     cholq.fh.
 C     ----------
 
       Call Cho_iZero(nQual_L,8)
-      Call Cho_iZero(ip_LQ_Sym,8)
-      Call Cho_iZero(l_LQ_Sym,8)
-      Call Cho_iZero(ldLQ,8)
-      ip_iQL2G = 0
-      l_iQL2G  = 0
-      ip_LQ = 0
-      l_LQ  = 0
 
 C     Zero memory pointers in choptr2.fh.
 C     ------------------------------------

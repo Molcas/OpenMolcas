@@ -31,7 +31,6 @@
       use ChoArr, only: iSOShl, iShlSO, nBstSh, iShP2RS, iShP2Q
       Implicit Real*8 (A-H,O-Z)
 #include "cholesky.fh"
-#include "chosew.fh"
 #include "real.fh"
 #include "print.fh"
 #include "srt0.fh"

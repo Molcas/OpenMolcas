@@ -24,7 +24,7 @@ C                       returns index of the qualified in the global
 C                       list.
 C
       use ChoSwp, only: iQuAB, iQuAB_L, IndRed, IndRed_G
-      use ChoArr, only: iL2G
+      use ChoArr, only: iL2G, iQL2G
       Implicit None
 #include "cholesky.fh"
 #include "cholq.fh"
@@ -32,15 +32,14 @@ C
 #include "cho_para_info.fh"
 #include "WrkSpc.fh"
 
-      Integer iSym, nQL, kOff2, iQ, iQG, i2, i, j, k
+      Integer iSym, nQL, iQ, iQG, i2, i, j, k
 
       If (.not.Cho_Real_Par) Return ! not truely parallel...
 
       Call Cho_iZero(iQuAB_L,SIZE(iQuAB_L))
-      Call Cho_iZero(iWork(ip_iQL2G),l_iQL2G)
+      Call Cho_iZero(iQL2G,SIZE(iQL2G))
       Do iSym = 1,nSym
          nQL = 0
-         kOff2 = ip_iQL2G   + MaxQual*(iSym-1) - 1
          Do iQ = 1,nQual(iSym)
             iQG = IndRed_G(iQuAB(iQ,iSym),2) ! addr of qual in glob. rs1
             i2 = iiBstR(iSym,2) + nnBstR(iSym,2)
@@ -52,7 +51,7 @@ C
                If (k .eq. iQG) Then ! found qual in local set
                   nQL = nQL + 1
                   iQuAB_L(nQL,iSym) = i
-                  iWork(kOff2+nQL) = iQ
+                  iQL2G(nQL,iSym) = iQ
                   i = i2 ! break while loop
                End If
             End Do
