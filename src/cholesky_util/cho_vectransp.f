@@ -46,9 +46,8 @@ CVVP:2014 DGA is here
       Integer   ga_local_woff,nelm,iGAL
       External  ga_local_woff,ga_create_local
 #endif
-      Integer, Allocatable:: Map(:), iAdrLG(:,:)
+      Integer, Allocatable:: Map(:), iAdrLG(:,:), iVecR(:)
 ***************************************************************
-      iDV(i) = iWork(ip_iVecR-1+i)
       nRSL(i) = iWork(ip_nRSL-1+i)
 ***************************************************************
 
@@ -74,9 +73,8 @@ CVVP:2014 DGA is here
       nV = Jfi - Jin + 1
       nVR = 0
 
-      l_iVecR = nV
-      Call GetMem('iVecR','Allo','Inte',ip_iVecR,l_iVecR)
-      Call cho_p_distrib_vec(Jin,Jfi,iWork(ip_iVecR),nVR)
+      call mma_allocate(iVecR,nV,Label='iVecR')
+      Call cho_p_distrib_vec(Jin,Jfi,iVecR,nVR)
       l_VecR = nRS_g*(nVR+1)
       Call GetMem('VecR','Allo','Real',ip_VecR,l_VecR)
 
@@ -147,7 +145,7 @@ CVVP:2014 the minimal latency and scalable putC call
       Jin0 = Jin - 1
       Do i=1,nVR
          iv=ip_VecR+nRS_g*(i-1)
-         jv=iDV(i) - Jin0
+         jv=iVecR(i) - Jin0
 #ifdef _GA_
          Call ga_get(g_a,1,nRS_g,jv,jv,Work(iv),nRS_g)
 #else
@@ -241,7 +239,7 @@ C --- deallocations
       Call mma_deallocate(iAdrLG)
       Call GetMem('RSL','Free','Inte',ip_nRSL,l_nRSL)
       Call GetMem('VecR','Free','Real',ip_VecR,l_VecR)
-      Call GetMem('iVecR','Free','Inte',ip_iVecR,l_iVecR)
+      Call mma_deallocate(iVecR)
 #else
       Call Cho_Quit(SecNam//
      &              ' should never be called in serial installation',
