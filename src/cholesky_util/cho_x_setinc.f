@@ -195,8 +195,6 @@ C     -------------
 C     Zero memory in pointers in chosew.fh.
 C     --------------------------------------
 
-      ip_iOff_Batch = 0
-      l_iOff_Batch  = 0
       Call Cho_iZero(nDim_Batch,8)
 
 C     cholq.fh.

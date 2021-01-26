@@ -15,7 +15,7 @@ C              Based on reduced set stored at location iLoc = 2 or 3.
 C              If a non-zero code (irc) is returned, nothing has been
 C              set!!
 C
-      use ChoArr, only: nBstSh, iSP2F, iShP2RS
+      use ChoArr, only: nBstSh, iSP2F, iShP2RS, iOff_Batch
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
 #if defined (_DEBUGPRINT_)
       use ChoSwp, only: IndRSh
@@ -33,7 +33,6 @@ C
 #endif
 
       mySP(i)=iWork(ip_mySP-1+i)
-      iOff_Batch(i,j)=iWork(ip_iOff_Batch-1+nSym*(j-1)+i)
 
 C     Check allocations.
 C     ------------------
