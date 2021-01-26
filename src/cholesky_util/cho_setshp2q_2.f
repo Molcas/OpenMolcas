@@ -32,6 +32,7 @@ C     ------------------
          NumAB = nBstSh(iShlA)*nBstSh(iShlB)
       End If
       lTst = 2*NumAB
+      l_iShP2Q = 0
       If (Allocated(iShP2Q)) l_iShP2Q=SIZE(iShP2Q)
       If (l_iShP2Q.lt.1 .or. l_iShP2Q.lt.lTst) Then
          irc = 102
