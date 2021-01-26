@@ -12,25 +12,22 @@
 C
 C     Purpose: set local qualified indices from known global qualified.
 C
-C     The local indices are stored in cholq.fh:
+C     The local indices are stored in ChoArr.f90 and ChoSwp.f90:
 C
 C     nQual_L(iSym)   : #qualified, irrep iSym (=1,2,..,nSym)
 C     iQuAB_L(iQ,iSym): address of qualified iQ of sym. iSym in current
 C                       local reduced set (i.e. reduced set at location
 C                       2). Not symmetry reduced, i.e. includes the
 C                       offset iiBstR(iSym,2).
-C     iQL2G(iQ,iSym)  : iWork(ip_iQL2G-1+MaxQual*(iSym-1)+iQ)
-C                       returns index of the qualified in the global
+C     iQL2G(iQ,iSym)  : returns index of the qualified in the global
 C                       list.
 C
       use ChoSwp, only: iQuAB, iQuAB_L, IndRed, IndRed_G
-      use ChoArr, only: iL2G, iQL2G
+      use ChoArr, only: iL2G, iQL2G, nQual_L
       Implicit None
 #include "cholesky.fh"
-#include "cholq.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
-#include "WrkSpc.fh"
 
       Integer iSym, nQL, iQ, iQG, i2, i, j, k
 

@@ -10,10 +10,9 @@
 ************************************************************************
       SubRoutine Cho_P_IniLQ(MaxQual,nSym)
       use ChoSwp, only: iQuAB_L, iQuAB_L_Hidden
-      use ChoArr, only: iQL2G
+      use ChoArr, only: iQL2G, nQual_L
       Implicit None
       Integer MaxQual, nSym
-#include "cholq.fh"
 #include "cho_para_info.fh"
 #include "stdalloc.fh"
 
@@ -24,6 +23,6 @@
          Call mma_allocate(iQL2G,MaxQual,nSym,Label='iQL2G')
       End If
 
-      Call Cho_iZero(nQual_L,8)
+      nQual_L(:)=0
 
       End

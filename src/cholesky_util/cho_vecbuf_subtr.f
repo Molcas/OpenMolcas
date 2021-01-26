@@ -24,7 +24,6 @@ C
 #include "cholesky.fh"
 #include "chovecbuf.fh"
 #include "chosubscr.fh"
-#include "cholq.fh"
 #include "WrkSpc.fh"
 
       Character*16 SecNam

@@ -27,7 +27,6 @@ C
 #include "chovecbuf.fh"
 #include "choprint.fh"
 #include "chosubscr.fh"
-#include "cholq.fh"
 #include "WrkSpc.fh"
 
       CHARACTER*10 SECNAM

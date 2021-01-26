@@ -38,7 +38,6 @@ C              On exit, irc=0 signals sucessful completion.
 C
       Implicit None
       Integer irc
-#include "cholq.fh"
 #include "chopar.fh"
 #include "stdalloc.fh"
 
@@ -99,15 +98,9 @@ C     -----------
 
       If (Allocated(iSP2F)) Call mma_deallocate(iSP2F)
 
-C     Deallocate any used pointer in chosew.fh
-C     -----------------------------------------
-
       If (Allocated(iShP2RS)) Call mma_deallocate(iShP2RS)
 
       If (Allocated(iShP2Q )) Call mma_deallocate(iShP2Q )
-
-C     Deallocate any used pointer in cholq.fh
-C     ----------------------------------------
 
       If (Allocated(iQuAB_L_Hidden)) Call mma_deallocate(iQuAB_L_Hidden)
       If (Associated(iQuAB_L)) iQuAB_L => Null()
@@ -116,13 +109,7 @@ C     ----------------------------------------
 
       If (Allocated(LQ_Tot)) Call mma_deallocate(LQ_Tot)
 
-C     Deallocate any used pointer in chopar.fh
-C     -----------------------------------------
-
       If (Allocated(InfVec_Bak)) Call mma_deallocate(InfVec_Bak)
-
-C     Deallocate any used pointer in cholq.fh
-C     -----------------------------------------
 
       If (Allocated(InfVec_G_Hidden))
      &    Call mma_deallocate(InfVec_G_Hidden)
@@ -148,9 +135,7 @@ C     -----------------------------------------
      &    Call mma_deallocate(nnBstRSh_L_Hidden)
       If (Associated(nnBstRSh_G)) nnBstRSh_G=>Null()
 
-C
-C     -----------------------------------------
-
       If (Allocated(iL2G)) Call mma_deallocate(iL2G)
+
       Return
       End

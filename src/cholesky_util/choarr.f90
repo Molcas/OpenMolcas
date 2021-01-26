@@ -14,7 +14,8 @@ Module ChoArr
 Implicit none
 Private
 Public:: iSOShl, iShlSO, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl, iRS2F, IntMap, iScr, &
-         nDimRS, iL2G, iShP2RS, iShP2Q, iOff_Batch, nDim_Batch, iQL2G, LQ, LQ_Tot
+         nDimRS, iL2G, iShP2RS, iShP2Q, iOff_Batch, nDim_Batch, iQL2G, LQ, LQ_Tot, &
+         nQual_L
 Integer, Allocatable:: iSOShl(:)
 Integer, Allocatable:: iShlSO(:)
 Integer, Allocatable:: iBasSh(:,:)
@@ -41,4 +42,6 @@ End Type rPointers
 
 Type (rPointers):: LQ(8)
 Real*8, Allocatable, Target:: LQ_Tot(:)
+
+Integer:: nQual_L(8)
 End Module ChoArr

@@ -20,15 +20,15 @@ C              choorb.fh
 C              cholesky.fh
 C              choptr2.fh
 C              chosew.fh
-C              cholq.fh
 C              chovecbuf.fh
 C              chosubscr.fh
 C              chosimri.fh
 C              chopar.fh
 C              cho_para_info.fh
 C              chobkm.fh
+C              and some in the Module choarr.f90
 C
-      use ChoArr, only: nDim_Batch
+      use ChoArr, only: nDim_Batch, nQual_L
       Implicit None
       Integer irc
 #include "choorb.fh"
@@ -36,7 +36,6 @@ C
 #include "cholesky.fh"
 #include "chovecbuf.fh"
 #include "choptr2.fh"
-#include "cholq.fh"
 #include "chosubscr.fh"
 #include "chosimri.fh"
 #include "chopar.fh"
@@ -126,7 +125,7 @@ C     -------------
       Call Cho_iZero(nnBstR,8*3)
       Call Cho_iZero(nnBstRT,3)
       mmBstRT = 0
-      Call Cho_iZero(nQual,8)
+      nQual_L(:)=0
       Call Cho_iZero(iOffQ,8)
 
       Call Cho_dZero(DiaMax,8)
@@ -194,10 +193,7 @@ C     -------------
 
       nDim_Batch(:)=0
 
-C     cholq.fh.
-C     ----------
-
-      Call Cho_iZero(nQual_L,8)
+      nQual_L(:)=0
 
 C     Zero memory pointers in choptr2.fh.
 C     ------------------------------------
