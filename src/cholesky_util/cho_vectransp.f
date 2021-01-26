@@ -46,11 +46,10 @@ CVVP:2014 DGA is here
       Integer   ga_local_woff,nelm,iGAL
       External  ga_local_woff,ga_create_local
 #endif
-      Integer, Allocatable:: Map(:)
+      Integer, Allocatable:: Map(:), iAdrLG(:,:)
 ***************************************************************
       iDV(i) = iWork(ip_iVecR-1+i)
       nRSL(i) = iWork(ip_nRSL-1+i)
-      iAdrLG(i,j) = iWork(ip_iAdrLG-1+MxRSL*(j-1)+i)
 ***************************************************************
 
       If (.not.Cho_Real_Par) Then
@@ -91,8 +90,7 @@ CVVP:2014 DGA is here
       Do i=2,nProcs
          MxRSL=max(MxRSL,nRSL(i))
       End Do
-      l_iAdrLG=MxRSL*nProcs
-      Call GetMem('iAdrLG','Allo','Inte',ip_iAdrLG,l_iAdrLG)
+      Call mma_allocate(iAdrLG,MxRSL,nProcs,Label='iAdrLG')
 
       Call mma_allocate(Map,nProcs,Label='Map')
       nProcs_eff = 0
@@ -176,14 +174,14 @@ C --- write the reordered vec on disk
       Call Cho_RS2RS(iWork(ip_mapRS2RS),l_mapRS2RS,jRed,iRed,iPass,iSym)
       Call Cho_P_IndxSwp()
 
-      Call iZero(iWork(ip_iAdrLG),l_iAdrLG)
+      iAdrLG(:,:)=0
       Do i = 1,nRS_l
          i1 = IndRed(iiBstR(iSym,iRed)+i,iRed) ! addr in local rs1
          j1 = iL2G(i1) ! addr in global rs1
          j = iWork(ip_mapRS2RS-1+j1-iiBstR_G(iSym,1)) ! addr in glob. rs
-         iWork(ip_iAdrLG-1+MxRSL*myRank+i) = j
+         iAdrLG(i,myRank+1) = j
       End Do
-      Call Cho_GAIGOP(iWork(ip_iAdrLG),l_iAdrLG,'+')
+      Call Cho_GAIGOP(iAdrLG,SIZE(iAdrLG),'+')
 
       Call GetMem('mapRS2RS','Free','Inte',ip_mapRS2RS,l_mapRS2RS)
 
@@ -240,7 +238,7 @@ C --- write the reordered vec on disk
 C --- deallocations
 
       Call mma_deallocate(Map)
-      Call GetMem('iAdrLG','Free','Inte',ip_iAdrLG,l_iAdrLG)
+      Call mma_deallocate(iAdrLG)
       Call GetMem('RSL','Free','Inte',ip_nRSL,l_nRSL)
       Call GetMem('VecR','Free','Real',ip_VecR,l_VecR)
       Call GetMem('iVecR','Free','Inte',ip_iVecR,l_iVecR)
