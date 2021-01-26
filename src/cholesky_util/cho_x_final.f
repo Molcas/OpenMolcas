@@ -24,10 +24,10 @@
 ************************************************************************
       Subroutine Cho_X_Final(irc)
       use ChoArr, only: MySP
+      use ChoBkm
       Implicit None
       Integer irc
 #include "choini.fh"
-#include "chobkm.fh"
 #include "stdalloc.fh"
 
       Character*11 SecNam
@@ -71,17 +71,13 @@ C        ------------------
          If (irc .ne. 0) Go To 1
 
          If (Allocated(MySP)) Call mma_deallocate(MySP)
-         If (l_BkmVec.gt.0) Then
-            Call GetMem('BkmVec','Free','Inte',ip_BkmVec,l_BkmVec)
-            ip_BkmVec=0
-            l_BkmVec=0
+         If (Allocated(BkmVec)) Then
+            Call mma_deallocate(BkmVec)
             nRow_BkmVec=0
             nCol_BkmVec=0
          End If
-         If (l_BkmThr.gt.0) Then
-            Call GetMem('BkmThr','Free','Real',ip_BkmThr,l_BkmThr)
-            ip_BkmThr=0
-            l_BkmThr=0
+         If (Allocated(BkmThr)) Then
+            Call mma_deallocate(BkmThr)
             nRow_BkmThr=0
             nCol_BkmThr=0
          End If

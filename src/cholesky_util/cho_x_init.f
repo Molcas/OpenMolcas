@@ -59,13 +59,13 @@
       use ChoSwp, only: iiBstRSh, iiBstRSh_Hidden
       use ChoSwp, only:   IndRSh,   IndRSh_Hidden
       use ChoSwp, only:   IndRed,   IndRed_Hidden
+      use ChoBkm
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
 #include "chosp.fh"
 #include "choini.fh"
 #include "choprint.fh"
-#include "chobkm.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
@@ -286,12 +286,8 @@ C     Allocate and read bookmarks (if available on runfile).
 C     ------------------------------------------------------
 
       If (isDF) Then
-         ip_BkmVec=0
-         l_BkmVec=0
          nRow_BkmVec=0
          nCol_BkmVec=0
-         ip_BkmThr=0
-         l_BkmThr=0
          nRow_BkmThr=0
          nCol_BkmThr=0
       Else
@@ -305,19 +301,15 @@ C     ------------------------------------------------------
          Call GetMem('BkmDim','Free','Inte',ip,l)
          If (nRow_BkmVec.gt.0 .and. nCol_BkmVec.gt.0 .and.
      &       nRow_BkmThr.gt.0 .and. nCol_BkmThr.gt.0) Then
-            l_BkmVec=nRow_BkmVec*nCol_BkmVec
-            Call GetMem('BkmVec','Allo','Inte',ip_BkmVec,l_BkmVec)
-            Call Get_iArray('Cholesky BkmVec',iWork(ip_BkmVec),l_BkmVec)
-            l_BkmThr=nRow_BkmThr*nCol_BkmThr
-            Call GetMem('BkmVec','Allo','Real',ip_BkmThr,l_BkmThr)
-            Call Get_dArray('Cholesky BkmThr',Work(ip_BkmThr),l_BkmThr)
+            Call mma_allocate(BkmVec,nRow_BkmVec,nCol_BkmVec,
+     &                        Label='BkmVec')
+            Call Get_iArray('Cholesky BkmVec',BkmVec,SIZE(BkmVec))
+            Call mma_allocate(BkmThr,nRow_BkmThr,nCol_BkmThr,
+     &                        Label='BkmThr')
+            Call Get_dArray('Cholesky BkmThr',BkmThr,SIZE(BkmThr))
          Else
-            ip_BkmVec=0
-            l_BkmVec=0
             nRow_BkmVec=0
             nCol_BkmVec=0
-            ip_BkmThr=0
-            l_BkmThr=0
             nRow_BkmThr=0
             nCol_BkmThr=0
          End If
@@ -413,7 +405,8 @@ C     Debug: test bookmarks.
 C     Note that 1C-CD flag must be available on runfile
 C     (make sure _DEBUGPRINT_ is defined also in Cho_Final().
 C     --------------------------------------------------
-      If (l_BkmVec.gt.0 .and. l_BkmThr.gt.0) Then
+
+      If (Allocated(BkmVec) .and. Allocated(BkmThr)) Then
          Call Get_iScalar('1C-CD',is1CCD)
          Call Cho_TestBookmark(irc,.True.,is1CCD.eq.1)
          If (irc.ne.0) Call Cho_Quit('Bookmark test failed!',104)

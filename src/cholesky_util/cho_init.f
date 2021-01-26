@@ -26,6 +26,7 @@ C
      &                                       iiBstRSh_Hidden, iiBstRSh,
      &                                         InfRed_Hidden,   InfRed,
      &                                         InfVec_Hidden,   InfVec
+      use ChoBkm
 #include "implicit.fh"
       LOGICAL SKIP_PRESCREEN
       LOGICAL ALLOCATE_BOOKMARKS
@@ -34,7 +35,6 @@ C
 #include "choprint.fh"
 #include "chosp.fh"
 #include "chosubscr.fh"
-#include "chobkm.fh"
 #include "stdalloc.fh"
 
       DIMENSION XXB(8)
@@ -200,31 +200,21 @@ C     -------------------------------------------------------------
 
       If (Allocate_Bookmarks) Then
          If (RSTCHO) Then
-            ip_BkmVec=0
-            l_BkmVec=0
             nRow_BkmVec=0
             nCol_BkmVec=0
-            ip_BkmThr=0
-            l_BkmThr=0
             nRow_BkmThr=0
             nCol_BkmThr=0
          Else
-            l_BkmVec=nSym*MaxRed
-            Call GetMem('BkmVec','Allo','Inte',ip_BkmVec,l_BkmVec)
+            Call mma_allocate(BkmVec,nSym,MaxRed,Label='BkmVec')
             nRow_BkmVec=nSym
             nCol_BkmVec=0
-            l_BkmThr=nSym*MaxRed
-            Call GetMem('BkmThr','Allo','Real',ip_BkmThr,l_BkmThr)
+            Call mma_allocate(BkmThr,nSym,MaxRed,Label='BkmThr')
             nRow_BkmThr=nSym
             nCol_BkmThr=0
          End If
       Else
-         ip_BkmVec=0
-         l_BkmVec=0
          nRow_BkmVec=0
          nCol_BkmVec=0
-         ip_BkmThr=0
-         l_BkmThr=0
          nRow_BkmThr=0
          nCol_BkmThr=0
       End If

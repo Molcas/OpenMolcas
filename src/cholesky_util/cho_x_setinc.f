@@ -24,10 +24,10 @@ C              chosubscr.fh
 C              chosimri.fh
 C              chopar.fh
 C              cho_para_info.fh
-C              chobkm.fh
 C              and some in the Module choarr.f90
 C
       use ChoArr, only: nDim_Batch, nQual_L, n_MySP
+      use ChoBkm
       Implicit None
       Integer irc
 #include "choorb.fh"
@@ -38,7 +38,6 @@ C
 #include "chosimri.fh"
 #include "chopar.fh"
 #include "cho_para_info.fh"
-#include "chobkm.fh"
 
       Integer iLarge
       Parameter (iLarge = 99999999)
@@ -239,15 +238,11 @@ C     ------------------
 
       Cho_Real_Par = .false.
 
-C     chobkm.fh.
+C     chobkm.f90
 C     -----------
 
-      ip_BkmVec=0
-      l_BkmVec=0
       nRow_BkmVec=0
       nCol_BkmVec=0
-      ip_BkmThr=0
-      l_BkmThr=0
       nRow_BkmThr=0
       nCol_BkmThr=0
 
