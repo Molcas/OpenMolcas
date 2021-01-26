@@ -13,15 +13,12 @@ C
 C     Purpose: return local shell pair corresponding to global shell
 C              pair iShlAB (returns 0 if not found).
 C
+      use ChoArr, only: MySP, n_MySP
       Implicit None
       Integer iShlAB
 #include "cho_para_info.fh"
-#include "choptr2.fh"
-#include "WrkSpc.fh"
 
       Integer iSP
-      Integer mySP, i
-      mySP(i)=iWork(ip_mySP-1+i)
 
       If (Cho_Real_Par) Then
          Cho_P_LocalSP = 0

@@ -24,7 +24,6 @@
 #if defined (_MOLCAS_MPP_)
 #include "cho_para_info.fh"
 #include "cholesky.fh"
-#include "cholq.fh"
 #include "choglob.fh"
 #include "WrkSpc.fh"
 #include "mafdecls.fh"

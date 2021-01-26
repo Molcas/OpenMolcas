@@ -40,12 +40,11 @@ C     -------------------
 
       End
       SubRoutine Cho_RI_XFree()
+      use ChoArr, only: MySP
       Implicit None
-#include "choptr2.fh"
+#include "stdalloc.fh"
 
-      If (l_mySP .gt. 0) Then
-         Call GetMem('mySP','Free','Inte',ip_mySP,l_mySP)
-      End If
+      If (Allocated(MySP)) Call mma_deallocate(MySP)
 
       End
       SubRoutine Cho_RI_Final(irc,nVec_RI,l_nVec_RI)

@@ -54,7 +54,7 @@
 ************************************************************************
       Subroutine Cho_X_Init(irc,BufFrac)
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO,
-     &                  iRS2F, nDimRS
+     &                  iRS2F, nDimRS, MySP, n_MySP
       use ChoSwp, only: nnBstRSh, nnBstRSh_Hidden
       use ChoSwp, only: iiBstRSh, iiBstRSh_Hidden
       use ChoSwp, only:   IndRSh,   IndRSh_Hidden
@@ -62,7 +62,6 @@
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
-#include "choptr2.fh"
 #include "chosp.fh"
 #include "choini.fh"
 #include "choprint.fh"
@@ -141,10 +140,10 @@ C     -------------------------------------------------
       CHO_FAKE_PAR = .False.
       Call Cho_ParConf(CHO_FAKE_PAR)
 
-C     Define entries in choptr2.fh.
+C     Define n_MySP
 C     ------------------------------
 
-      Call Cho_SetPtr2()
+      n_MySP = 0
 
 C     Set run mode to "external".
 C     ---------------------------
@@ -329,10 +328,9 @@ C     After the decomposition is done, it must be a trivial mapping and
 C     the user (programmer) should not worry about it at all.
 C     -----------------------------------------------------------------
 
-      l_mySP = nnShl
-      Call GetMem('mySP','Allo','Inte',ip_mySP,l_mySP)
+      Call mma_allocate(MySP,nnShl,Label='MySP')
       Do ijShl = 1,nnShl
-         iWork(ip_mySP-1+ijShl) = ijShl
+         MySP(ijShl) = ijShl
       End Do
 
 C     Copy reduced set 1 to location 2.

@@ -15,7 +15,7 @@ C              reduced set (stored at location iLoc = 2 or 3).
 C              If a non-zero code (irc) is returned, nothing has been
 C              set!!
 C
-      use ChoArr, only: nBstSh, iSP2F, iShP2RS
+      use ChoArr, only: nBstSh, iSP2F, iShP2RS, MySP
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRed
 #if defined (_DEBUGPRINT_)
       use ChoSwp, only: IndRSh
@@ -23,15 +23,11 @@ C
 #include "implicit.fh"
       Integer nAB(*)
 #include "cholesky.fh"
-#include "choptr2.fh"
-#include "WrkSpc.fh"
 
 #if defined (_DEBUGPRINT_)
       Character*13 SecNam
       Parameter (SecNam = 'Cho_SetShP2RS')
 #endif
-
-      mySP(i)=iWork(ip_mySP-1+i)
 
 C     Check allocations.
 C     ------------------

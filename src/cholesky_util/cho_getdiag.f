@@ -14,7 +14,7 @@ C     Purpose: get diagonal in first reduced set. On exit, DIAG
 C              points to the diagonal and flag LCONV tells
 C              if the diagonal is converged.
 C
-      use ChoArr, only: iSP2F
+      use ChoArr, only: iSP2F, MySP, n_MySP
       use ChoSwp, only: IndRSh, IndRSh_Hidden
       use ChoSwp, only: IndRed, IndRed_Hidden
       use ChoSwp, only: Diag, Diag_Hidden
@@ -24,7 +24,6 @@ C
 #include "chovecbuf.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-#include "choptr2.fh"
 #include "chosimri.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
@@ -46,9 +45,11 @@ C        in parallel runs).
 C        -------------------------------------------------------------
 
          N_MYSP = NNSHL
+         l_MySP=0
+         If (Allocated(MYSP)) l_MySP=SIZE(MySP)
          IF (l_MYSP .EQ. NNSHL) THEN
             DO ISP = 1,N_MYSP
-               IWORK(ip_MYSP-1+ISP) = ISP
+               MYSP(ISP) = ISP
             END DO
          ELSE
             CALL CHO_QUIT('MYSP allocation error in '//SECNAM,101)

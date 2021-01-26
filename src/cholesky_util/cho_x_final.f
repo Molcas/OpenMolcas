@@ -23,11 +23,12 @@
 *> @param[out] irc Return code
 ************************************************************************
       Subroutine Cho_X_Final(irc)
+      use ChoArr, only: MySP
       Implicit None
       Integer irc
 #include "choini.fh"
-#include "choptr2.fh"
 #include "chobkm.fh"
+#include "stdalloc.fh"
 
       Character*11 SecNam
       Parameter (SecNam = 'Cho_X_Final')
@@ -69,10 +70,7 @@ C        ------------------
          Call Cho_X_Dealloc(irc)
          If (irc .ne. 0) Go To 1
 
-         If (l_mySP .gt. 0) Then
-            Call GetMem('mySP','Free','Inte',ip_mySP,l_mySP)
-            l_mySP = 0
-         End If
+         If (Allocated(MySP)) Call mma_deallocate(MySP)
          If (l_BkmVec.gt.0) Then
             Call GetMem('BkmVec','Free','Inte',ip_BkmVec,l_BkmVec)
             ip_BkmVec=0

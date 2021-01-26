@@ -21,7 +21,7 @@ C
 C              IF (ALLOCATE_BOOKMARKS): allocate arrays needed to
 C              record bookmarks during Cholesky decomposition.
 C
-      use ChoArr, only: nDimRS
+      use ChoArr, only: nDimRS, MySP
       use ChoSwp, only: iQuAB_Hidden, iQuAB, nnBstRSh_Hidden, nnBstRSh,
      &                                       iiBstRSh_Hidden, iiBstRSh,
      &                                         InfRed_Hidden,   InfRed,
@@ -32,7 +32,6 @@ C
 #include "choorb.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "choptr2.fh"
 #include "chosp.fh"
 #include "chosubscr.fh"
 #include "chobkm.fh"
@@ -99,7 +98,6 @@ C     ------------
 C     Allocate memory for reduced set index arrays.
 C     ---------------------------------------------
 
-      l_MYSP     = NNSHL
       Call mma_allocate(iiBstRSh_Hidden,nSym,nnShl,3,
      &                  Label='iiBstRSh_Hidden')
       iiBstRSh => iiBstRSh_Hidden
@@ -107,7 +105,7 @@ C     ---------------------------------------------
      &                  Label='nnBstRSh_Hidden')
       nnBstRSh => nnBstRSh_Hidden
       Call mma_allocate(IntMap,nnShl,Label='IntMap')
-      CALL CHO_MEM('mySP','ALLO','INTE',ip_MYSP,l_MYSP)
+      Call mma_allocate(MySP,nnShl,Label='MySP')
 
 C     Initialize timings etc.
 C     -----------------------

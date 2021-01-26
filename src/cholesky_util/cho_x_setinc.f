@@ -18,7 +18,6 @@ C     Purpose: define all entries in include files
 C              choprint.fh
 C              choorb.fh
 C              cholesky.fh
-C              choptr2.fh
 C              chosew.fh
 C              chovecbuf.fh
 C              chosubscr.fh
@@ -28,14 +27,13 @@ C              cho_para_info.fh
 C              chobkm.fh
 C              and some in the Module choarr.f90
 C
-      use ChoArr, only: nDim_Batch, nQual_L
+      use ChoArr, only: nDim_Batch, nQual_L, n_MySP
       Implicit None
       Integer irc
 #include "choorb.fh"
 #include "choprint.fh"
 #include "cholesky.fh"
 #include "chovecbuf.fh"
-#include "choptr2.fh"
 #include "chosubscr.fh"
 #include "chosimri.fh"
 #include "chopar.fh"
@@ -195,14 +193,7 @@ C     -------------
 
       nQual_L(:)=0
 
-C     Zero memory pointers in choptr2.fh.
-C     ------------------------------------
-
-      ip_mySP=0
-      l_mySP=0
-      n_mySP=0
-      ip_Idle=0
-      l_Idle=0
+      n_MySP=0
 
 C     chovecbuf.fh.
 C     --------------
