@@ -8,6 +8,7 @@
 * Responsible person: P Å Malmqvist 081114
 *-------------------------------------------------------------------------------
 >> export MOLCAS_NOCHECK=MLTPL
+>> COPY init.StrOrb .
 &SEWARD
 Title
  Carbon dimer

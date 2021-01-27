@@ -11,14 +11,12 @@
 ************************************************************************
 * Init_GTList
 ************************************************************************
-      Subroutine Init_GTList
+      Subroutine Init_GTList()
+      use TList_Mod
       Use Para_Info, Only: nProcs, Is_Real_Par
-#include "tlist.fh"
-#include "WrkSpc.fh"
-#include "status.fh"
 *
-      If (GT_Status.eq.Active) Return
-      GT_Status=Active
+      If (GT_Status) Return
+      GT_Status=.True.
 *
       iTCnSt = 1
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
@@ -29,15 +27,13 @@
 *
       Return
       End
-      Subroutine ReInit_GTList
+      Subroutine ReInit_GTList()
+      use TList_Mod
       Use Para_Info, Only: nProcs, Is_Real_Par
-#include "tlist.fh"
-#include "WrkSpc.fh"
-#include "status.fh"
 *
-      If (GT_Status.ne.Active) Then
+      If (.Not.GT_Status) Then
          Write (6,*) 'ReInit_GTList: List not active!'
-         Call Abend
+         Call Abend()
       End If
       iTCnSt = 1
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
@@ -54,13 +50,13 @@
 ************************************************************************
       Logical Function Rsv_GTList(TskLw,TskHi,iOpt,NewBatch)
       Use Para_Info, Only: nProcs, Is_Real_Par
+      use TList_Mod
       Implicit Real*8 (a-h,o-z)
 #ifdef _MOLCAS_MPP_
       External RsvTsk
       Integer RsvTsk
 #endif
       Logical NewBatch
-#include "tlist.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
 *                                                                      *
@@ -89,15 +85,15 @@
 *        2) The sequence of executed batches is broken
 *
          If (iOpt.eq.0) Then
-            MyTask=RsvTsk(igaTsk,iWork(ipTskL),nTasks,nTasks,iTCnST,
+            MyTask=RsvTsk(igaTsk,TskL,nTasks,nTasks,iTCnST,
      &                    iStrt_TList,iEnd_TList)
             NewBatch = .True.
          Else If (iOpt.eq.1) Then
-            MyTask=RsvTsk(igaTsk,iWork(ipTskL),nTasks,mTasks,iTCnST,
+            MyTask=RsvTsk(igaTsk,TskL,nTasks,mTasks,iTCnST,
      &                    iStrt_TList,iEnd_TList)
             NewBatch = iStrt_TList.gt.mTasks
          Else If (iOpt.eq.2) Then
-            MyTask=RsvTsk(igaTsk,iWork(ipTskL),nTasks,nTasks,iTCnST,
+            MyTask=RsvTsk(igaTsk,TskL,nTasks,nTasks,iTCnST,
      &                    iStrt_TList,iEnd_TList)
             NewBatch = iStrt_TList.gt.mTasks .or.
      &                 iStrt_TList.ne.iTCnST
@@ -108,8 +104,8 @@
          End If
          If (MyTask.ge.1) Then
             Rsv_GTList=.True.
-            TskLw=Work(ipTskM+2*(MyTask-1))
-            TskHi=Work(ipTskM+2*(MyTask-1)+1)
+            TskLw=TskM(1,MyTask)
+            TskHi=TskM(2,MyTask)
             iTCnSt=iTCnSt+1
             iTskCan=iTskCan+1
          End If
@@ -126,12 +122,10 @@
 ************************************************************************
       Subroutine Free_GTList
       Use Para_Info, Only: nProcs, Is_Real_Par
-#include "tlist.fh"
-#include "WrkSpc.fh"
-#include "status.fh"
+      use TList_Mod
 *
-      If (GT_Status.ne.Active) Return
-      GT_Status=Inactive
+      If (.NOT.GT_Status) Return
+      GT_Status=.False.
 *
       iTCnSt = 1
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return

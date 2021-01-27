@@ -47,7 +47,6 @@ c
 c
 #include "chcc1.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 c

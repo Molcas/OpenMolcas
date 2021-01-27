@@ -167,7 +167,8 @@ C      a,b,g,d:  AO-index
 C      p,q,r,s:  MO-indeces belonging to (probably frozen excluded ?)
 C
 **********************************************************************
-
+      use ChoArr, only: nDimRS
+      use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc,nIsh(*),nAsh(*),nSsh(*)
@@ -189,7 +190,6 @@ cmp
       parameter (zero = 0.0D0, one = 1.0D0)
 
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
@@ -199,10 +199,6 @@ cmp
 
 ************************************************************************
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
-******
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
 ************************************************************************
 
 cmp

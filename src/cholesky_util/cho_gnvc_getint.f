@@ -14,23 +14,18 @@ C
 C     Purpose: compute integrals for NumPass integral passes starting at
 C              pass iPass1.
 C
+      use ChoSwp, only: IndRSh, InfVec
 #include "implicit.fh"
       Real*8  xInt(lInt)
       Integer nVecRS(mSym,mPass), iVecRS(mSym,mPass), ListSP(mmShl)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Character*15 SecNam
       Parameter (SecNam = 'Cho_GnVc_GetInt')
 
-      Parameter (N2 = InfVec_N2)
-
       Integer  Cho_F2SP
       External Cho_F2SP
-
-      InfVec(i,j,k)=iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-      IndRSh(i)=iWork(ip_IndRSh-1+i)
 
 C     Initialization and input check.
 C     -------------------------------

@@ -16,16 +16,15 @@ C     Thomas Bondo Pedersen, April 2010.
 C
 C     Purpose: Write restart files (parallel two-step algorithm).
 C
+      use ChoSwp, only: InfRed, InfVec
       Implicit None
       Integer irc
       Integer l_NVT
       Integer NVT(l_NVT)
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
 
       Integer N2
-      Parameter (N2=InfVec_N2)
 
 #if defined (_DEBUGPRINT_)
       Character*13 SecNam
@@ -35,15 +34,23 @@ C
 #endif
 
       Integer iSym
-      Integer ip_InfVcT
-      Integer iV, kOff, iAdr
+      Integer, Pointer:: InfVcT(:,:,:)
+      Integer iV, iAdr
 
-      Integer i, j, k
-      Integer InfVct
-      InfVcT(i,j,k)=iWork(ip_InfVcT-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      Subroutine Cho_X_GetIP_InfVec(InfVcT)
+      Integer, Pointer:: InfVct(:,:,:)
+      End Subroutine Cho_X_GetIP_InfVec
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
       ! Init return code
       irc=0
+      N2 = SIZE(InfVec,2)
 
 #if defined (_DEBUGPRINT_)
       ! check that NumCho agrees with distribution
@@ -116,59 +123,51 @@ C
 
       ! Set InfRed corresponding to only one reduced set
       ! (All vectors are now stored in 1st reduced set)
-      iWork(ip_InfRed)=0
+      InfRed(1)=0
       ! Set InfVec data (only disk addresses need updating)
-      Call Cho_X_GetIP_InfVec(ip_InfVcT)
-      kOff=ip_InfVec-1
+      Call Cho_X_GetIP_InfVec(InfVcT)
       Do iSym=1,nSym
          ! InfVec(iV,1,iSym): parent diagonal in rs1 of vector iV of
          ! symmetry iSym
          Do iV=1,NVT(iSym)
-            iWork(kOff+iV)=InfVcT(iV,1,iSym)
+            InfVec(iV,1,iSym) = InfVcT(iV,1,iSym)
          End Do
          Do iV=NVT(iSym)+1,MaxVec
-            iWork(kOff+iV)=0
+            InfVec(iV,1,iSym)=0
          End Do
-         kOff=kOff+MaxVec
          ! InfVec(iV,2,iSym): reduced set of vector iV of
          ! symmetry iSym (always rs1 in this implementation)
          Do iV=1,NVT(iSym)
-            iWork(kOff+iV)=1
+            InfVec(iV,2,iSym)=1
          End Do
          Do iV=NVT(iSym)+1,MaxVec
-            iWork(kOff+iV)=0
+            InfVec(iV,2,iSym)=0
          End Do
-         kOff=kOff+MaxVec
          ! InfVec(iV,3,iSym): disk address of vector iV of
          ! symmetry iSym (always rs1 in this implementation)
          ! Note: this information is for the vectors on this
          ! node ONLY!!
          iAdr=0
          Do iV=1,NumCho(iSym)
-            iWork(kOff+iV)=iAdr
+            InfVec(iV,3,iSym)=iAdr
             iAdr=iAdr+nnBstR(iSym,1)
          End Do
          Do iV=NumCho(iSym)+1,MaxVec
-            iWork(kOff+iV)=-1
+            InfVec(iV,3,iSym)=-1
          End Do
-         kOff=kOff+MaxVec
          ! InfVec(iV,4,iSym): WA disk address of vector iV of
          ! symmetry iSym (redundant? Oh yes, but used for statistics...)
          iAdr=0
          Do iV=1,NVT(iSym)
-            iWork(kOff+iV)=iAdr
+            InfVec(iV,4,iSym)=iAdr
             iAdr=iAdr+nnBstR(iSym,1)
          End Do
          Do iV=NVT(iSym)+1,MaxVec
-            iWork(kOff+iV)=-1
+            InfVec(iV,4,iSym)=-1
          End Do
-         kOff=kOff+MaxVec
          ! InfVec(iV,5,iSym): is defined automatically by Cho_X_Init
          ! No need to set it here - use a dummy value
-         Do iV=1,MaxVec
-            iWork(kOff+iV)=-1
-         End Do
-         kOff=kOff+MaxVec
+         InfVec(:,5,iSym)=-1
       End Do
 
       ! Make sure that all vector info is written

@@ -39,7 +39,7 @@ C
       Parameter (SecNam='Cho_ZMem')
 #endif
       Character*2 Unt
-      Integer iSym, ip_Mx, l_Mx
+      Integer iSym, l_Mx
       Real*8 Byte, xl_Z
       Real*8 Word(8)
 
@@ -94,7 +94,7 @@ C
 #endif
 
       If (DoCheck) Then
-         Call GetMem('ChkZ','Max ','Real',ip_Mx,l_Mx)
+         Call mma_maxDBLE(l_Mx)
          If (l_Z.gt.l_Mx) Then
             irc=999
             Return

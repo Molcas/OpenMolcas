@@ -12,18 +12,14 @@
 C
 C     Purpose: check diagonals in qualified integral columns.
 C
+      use ChoSwp, only: iQuAB, IndRed
 #include "implicit.fh"
       DIMENSION XINT(*), DIAG(*)
       LOGICAL   REPORT
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_CHKINT')
-
-      INDRED(I,J)=IWORK(ip_INDRED-1+MMBSTRT*(J-1)+I)
-      IQUAB(I,J)=IWORK(ip_IQUAB-1+MAXQUAL*(J-1)+I)
 
       NERR = 0
       DO I = 1,NQUAL(ISYM)

@@ -104,7 +104,8 @@
 *       Allow zero vectors on a node.                                  *
 *                                                                      *
 ************************************************************************
-
+      use ChoArr, only: nBasSh, nDimRS
+      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: Is_Real_Par
 #endif
@@ -132,7 +133,6 @@
 #include "itmax.fh"
 #include "Molcas.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 #include "exterm.fh"
@@ -145,7 +145,6 @@
       Integer iBDsh(MxShll*8)
       Common /BDshell/ iBDsh
 
-      parameter ( N2 = InfVec_N2 )
       Logical add
       Character*6 mode
       Integer  Cho_F2SP
@@ -156,16 +155,6 @@
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
-
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-
-      NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)
-
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
 
       ipLab(i) = iWork(ip_Lab+i-1)
 
@@ -178,7 +167,7 @@
 ** next is a trick to save memory. Memory in "location 2" is used
 ** to store this offset array defined later on
 *
-      iOffShp(i,j) = iWork(ip_iiBstRSh+nSym*nnShl-1+nSym*(j-1)+i)
+      iOffShp(i,j) = iiBstRSh(i,j,2)
 
 *
 ** Jonas 2010
@@ -592,8 +581,7 @@ ctbp &                      i + (j-1)*(nChOrb_(iSym,jDen)+1)
               iSyma=MulD2h(iSymb,Jsym)
               If (iSyma.ge.iSymb) Then
 
-               iWork(ip_iiBstRSh + nSym*nnShl - 1
-     &         + nSym*(iShp_rs(iShp)-1) + iSyma) = LFULL
+               iiBstRSh(iSyma,iShp_rs(iShp),2) = LFULL
 
                LFULL = LFULL + nBasSh(iSyma,iaSh)*nBasSh(iSymb,ibSh)
      &        + Min(1,(iaSh-ibSh))*nBasSh(iSyma,ibSh)*nBasSh(iSymb,iaSh)

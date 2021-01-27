@@ -149,15 +149,14 @@ C allocates for two arrays of the size T1
 
         it1=NUAB(1)*NOAB(1)+NUAB(2)*NOAB(2)
 
-        call GetMem('t3_ampl_t1a','Allo','Real',t1a,it1)
-        call GetMem('t3_ampl_t1b','Allo','Real',t1b,it1)
+        call GetMem('t3_t1a','Allo','Real',t1a,it1)
+        call GetMem('t3_t1b','Allo','Real',t1b,it1)
 
         call zeroma(Work(t1a),1,it1)
         call zeroma(Work(t1b),1,it1)
 
-         call GetMem('t3_ampl_t1','Allo','Real',itmp,
-     & noab(1)*nuab(1))
-         call GetMem('t3_ampl_la','Allo','Real',la,it1)
+         call GetMem('t3_t1','Allo','Real',itmp,noab(1)*nuab(1))
+         call GetMem('t3_la','Allo','Real',la,it1)
 
 cmp!    read t1 amplitudes
         if (printkey.ge.10) then
@@ -175,7 +174,7 @@ c
 
 C Remaining space can be used for the blocking in-core algorithms
 
-        Call GetMem('t3_ampl_la','Max','Real',krem,krem)
+        Call GetMem('t3_la','Max','Real',krem,krem)
 
         if (printkey.ge.10) then
            write(6,*)
@@ -733,10 +732,6 @@ c    for NUMERICAL_GRADIENTS
         Call Store_Energies(1,tccsd+ccsdt+e_ccsd+e_scf,1)
 cmp!
 
-c Slaves have finished here...
-      if (MyRank.ne.0) then
-         return
-      endif
         if (printkey.gt.1) then
         write (6,*)
         write (6,*) '--------------------------------------------------'
@@ -902,12 +897,11 @@ c Return
 cmp        call w_debug(.false.,.false.,'Triply done')
 !?      nprocs=nprocs0
 
-        call GetMem('t3_ampl_la','Free','Real',la,
+        call GetMem('t3_la','Free','Real',la,
      & NUAB(1)*NOAB(1)+NUAB(2)*NOAB(2))
-        call GetMem('t3_ampl_t1','Free','Real',itmp,
-     & noab(1)*nuab(1))
-        call GetMem('t3_ampl_t1a','Free','Real',t1a,it1)
-        call GetMem('t3_ampl_t1b','Free','Real',t1b,it1)
+        call GetMem('t3_t1','Free','Real',itmp,noab(1)*nuab(1))
+        call GetMem('t3_t1a','Free','Real',t1a,it1)
+        call GetMem('t3_t1b','Free','Real',t1b,it1)
       return
 
  9993 FORMAT(/1X,'T2-W-T3 contribution from current amplitudes ',D18.10)

@@ -497,10 +497,7 @@ C     Call Seward_Banner()
 *
 *     Epilogue
 *
-      If (nPrint(iRout).ge.6) Then
-         Call FastIO('STATUS')
-      End If
-*
+      If (nPrint(iRout).ge.6) Call FastIO('STATUS')
 *
       If (Test)  Then
          ireturn=_RC_EXIT_EXPECTED_
