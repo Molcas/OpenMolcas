@@ -58,7 +58,7 @@ C     ----------------
 C     Return if there is no buffer to maintain.
 C     -----------------------------------------
 
-      If (.NOT.Allocated(CHVBUF_T)) Then
+      If (.NOT.Allocated(CHVBUF)) Then
          If (LocDbg) Then
             Write(Lupri,*) SecNam,': returning: no buffer to maintain!'
          End If
@@ -72,7 +72,7 @@ C     ------------
          Write(Lupri,*)
          Write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
          Write(Lupri,*) 'iRed = ',iRed
-         Write(Lupri,*) 'l_ChVBuf  = ',SIZE(CHVBUF_T),
+         Write(Lupri,*) 'l_ChVBuf  = ',SIZE(CHVBUF),
      &                  '   ip_ChVBuf = ',1
          Write(Lupri,'(A,8I16)') 'l_ChVBuf_Sym : ',
      &                          (l_ChVBuf_Sym(iSym),iSym=1,nSym)
@@ -185,7 +185,7 @@ C           ----------------
                      Call Cho_Quit('RS-2-RS map error in '//SecNam,104)
                   End If
 #endif
-                  CHVBUF_T(iOff2+iRS2) = CHVBUF_T(iOff3+iScr(iRS2))
+                  CHVBUF(iOff2+iRS2) = CHVBUF(iOff3+iScr(iRS2))
                End Do
             End Do
 
@@ -276,7 +276,7 @@ C              --------------------------------------------------
      &                                //SecNam,104)
                      End If
 #endif
-                     CHVBUF_T(iOff2+iRS2) = Work(iOff3+iScr(iRS2))
+                     CHVBUF(iOff2+iRS2) = Work(iOff3+iScr(iRS2))
                   End Do
 
                   iOff2 = iOff2 + nnBstR(iSym,2)

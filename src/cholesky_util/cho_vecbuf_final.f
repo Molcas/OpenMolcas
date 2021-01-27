@@ -17,12 +17,9 @@ C
 #include "cholesky.fh"
 #include "stdalloc.fh"
 
-      If (Allocated(CHVBUF_T)) Call mma_deallocate(CHVBUF_T)
-      If (l_ChVBfI .gt. 0) Then
-         Call Cho_Mem('ChVBfI','Free','Real',ip_ChVBfI,l_ChVBfI)
-      End If
-      l_ChVBfI=0
-      ip_ChVBfI=0
+      If (Allocated(CHVBUF)) Call mma_deallocate(CHVBUF)
+      If (Allocated(CHVBFI)) Call mma_deallocate(CHVBFI)
+
       Call Cho_iZero(ip_ChVBuf_Sym,nSym)
       Call Cho_iZero(l_ChVBuf_Sym,nSym)
       Call Cho_iZero(ip_ChVBFI_Sym,nSym)

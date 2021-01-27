@@ -43,7 +43,7 @@ C     Check if buffer is allocated.
 C     Check if there are any vectors.
 C     -------------------------------
 
-      If (.NOT.Allocated(CHVBUF_T)) Then
+      If (.NOT.Allocated(CHVBUF)) Then
          If (LocDbg) Then
             Write(Lupri,*) SecNam,': returning immediately: ',
      &                     'No buffer allocated!'
@@ -66,7 +66,7 @@ C     -------------
          iV2 = NumCho(iSym)
          nRead = 0
          mUsed(iSym) = 0
-         Call Cho_VecRd1(CHVBUF_T(ip_ChVBuf_Sym(iSym)),
+         Call Cho_VecRd1(CHVBUF(ip_ChVBuf_Sym(iSym)),
      &                   l_ChVBuf_Sym(iSym),
      &                   iV1,iV2,iSym,nRead,iRedC,mUsed(iSym),DoRead)
          nVec_in_Buf(iSym) = nRead

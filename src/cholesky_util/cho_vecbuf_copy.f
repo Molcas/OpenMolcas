@@ -47,7 +47,7 @@ C     ---------------------------------------------------
          If (nCopy .gt. 0) Then
             lCopy = nnBstR(iSym,2)*nCopy
             kOff  = ip_ChVBuf_Sym(iSym) + mUsed
-            Call dCopy_(lCopy,Vec,1,CHVBUF_T(kOff),1)
+            Call dCopy_(lCopy,Vec,1,CHVBUF(kOff),1)
             nVec_in_Buf(iSym) = nVec_in_Buf(iSym) + nCopy
          End If
       End If

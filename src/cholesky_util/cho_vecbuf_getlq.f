@@ -22,12 +22,12 @@ C
 
       Integer nVecTot(8)
 
-      BVec(i,j,k)=CHVBUF_T(ip_ChVBuf_Sym(k)-1+nnBstR(k,2)*(j-1)+i)
+      BVec(i,j,k)=CHVBUF(ip_ChVBuf_Sym(k)-1+nnBstR(k,2)*(j-1)+i)
 
 C     Check if there is any buffer at all.
 C     ------------------------------------
 
-      If (.NOT.Allocated(CHVBUF_T)) Return
+      If (.NOT.Allocated(CHVBUF)) Return
 
 C     Extract from each symmetry block.
 C     ---------------------------------

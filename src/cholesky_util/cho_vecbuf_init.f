@@ -53,8 +53,6 @@ C
          Call Cho_Flush(Lupri)
       End If
 
-      l_ChVBfI=0
-      ip_ChVBfI=0
       Call iZero(l_ChVBfI_Sym,nSym)
       Call iZero(ip_ChVBfI_Sym,nSym)
 
@@ -156,7 +154,7 @@ C
             End If
             l_ChVBuf = Cho_iSumElm(l_ChVBuf_Sym,nSym)
 
-            Call mma_allocate(CHVBUF_T,l_ChVBuf,Label='CHVBUF_T')
+            Call mma_allocate(CHVBUF,l_ChVBuf,Label='CHVBUF')
 
             ip_ChVBuf_Sym(1) = 1
             Do iSym = 2,nSym
@@ -248,7 +246,7 @@ C
             Call Cho_iZero(l_ChvBuf_Sym,nSym)
             Call Cho_iZero(ip_ChvBuf_Sym,nSym)
          Else
-            Call mma_allocate(CHVBUF_T,l_ChVBuf,Label='CHVBUF_T')
+            Call mma_allocate(CHVBUF,l_ChVBuf,Label='CHVBUF')
 
             ip_ChVBuf_Sym(1) = 1
             Do iSym = 2,nSym
