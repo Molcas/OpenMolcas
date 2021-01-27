@@ -13,11 +13,11 @@ C
 C     Purpose: decompose qualified columns ("parallel" algorithm).
 C
       use ChoArr, only: LQ_Tot, LQ
+      use ChoVecBuf
       Implicit Real*8 (a-h,o-z)
       Real*8  Diag(*)
       Integer LstQSP(NumSP)
 #include "cholesky.fh"
-#include "chovecbuf.fh"
 #include "choprint.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"

@@ -13,9 +13,9 @@ C
 C     Purpose: print allocation information of Cholesky vector buffer to
 C              unit Lupri (if Lupri<1 nothing is printed).
 C
+      use ChoVecBuf
       Implicit None
       Integer Lupri, nSym
-#include "chovecbuf.fh"
 
       Character*16 SecNam
       Parameter (SecNam = 'Cho_VecBuf_Print')

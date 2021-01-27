@@ -18,11 +18,11 @@ C     DpStat: update statistics info (#calls to dGeMM).
 C
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
       use ChoArr, only: LQ
+      use ChoVecBuf
 #include "implicit.fh"
       Real*8  xInt(*), Wrk(lWrk)
       Logical DoTime, DoStat
 #include "cholesky.fh"
-#include "chovecbuf.fh"
 #include "chosubscr.fh"
 #include "WrkSpc.fh"
 

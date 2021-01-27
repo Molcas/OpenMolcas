@@ -27,16 +27,16 @@ C
 C     Return code:  irc  = 0 : success
 C                   irc != 0 : failure
 C
-C     Index arrays from chovecbuf.fh modified by this routine:
+C     Index arrays from chovecbuf.f90 modified by this routine:
 C
 C     NVEC_IN_BUF() -- #vectors stored in buffer in each symmetry
 C
       use ChoArr, only: iScr
       use ChoSwp, only: InfVec
+      use ChoVecBuf
 #include "implicit.fh"
       Logical DoTime, DoStat
 #include "cholesky.fh"
-#include "chovecbuf.fh"
 #include "WrkSpc.fh"
 
       Character*19 SecNam

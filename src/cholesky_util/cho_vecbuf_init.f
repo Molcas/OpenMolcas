@@ -20,11 +20,11 @@ C                                     i.e. vectors are available on
 C                                     disk.
 C              (RUN_MODE stored in cholesky.fh)
 C
+      use ChoVecBuf
       Implicit None
       Real*8  Frac
       Integer lVec(*)
 #include "cholesky.fh"
-#include "chovecbuf.fh"
 
       Character*15 SecNam
       Parameter (SecNam = 'Cho_VecBuf_Init')
@@ -76,12 +76,12 @@ C
 C     Purpose: allocate and initialize vector buffer.
 C              (Internal run mode.)
 C
+      use ChoVecBuf
       Implicit None
       Real*8  Frac
       Integer lVec(*)
       Logical LocDbg
 #include "cholesky.fh"
-#include "chovecbuf.fh"
 
       Character*17 SecNam
       Parameter (SecNam = 'Cho_VecBuf_Init_I')
@@ -185,11 +185,11 @@ C
 C     Purpose: allocate and initialize vector buffer.
 C              (External run mode.)
 C
+      use ChoVecBuf
       Implicit None
       Real*8  Frac
       Logical LocDbg
 #include "cholesky.fh"
-#include "chovecbuf.fh"
 
       Character*17 SecNam
       Parameter (SecNam = 'Cho_VecBuf_Init_X')

@@ -18,10 +18,10 @@ C
       use ChoSwp, only: IndRSh, IndRSh_Hidden
       use ChoSwp, only: IndRed, IndRed_Hidden
       use ChoSwp, only: Diag, Diag_Hidden
+      use ChoVecBuf
 #include "implicit.fh"
       LOGICAL LCONV
 #include "cholesky.fh"
-#include "chovecbuf.fh"
 #include "choprint.fh"
 #include "choorb.fh"
 #include "chosimri.fh"

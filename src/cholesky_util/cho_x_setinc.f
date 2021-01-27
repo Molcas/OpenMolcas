@@ -19,7 +19,7 @@ C              choprint.fh
 C              choorb.fh
 C              cholesky.fh
 C              chosew.fh
-C              chovecbuf.fh
+C              chovecbuf.f90
 C              chosubscr.fh
 C              chosimri.fh
 C              chopar.fh
@@ -28,12 +28,12 @@ C              and some in the Module choarr.f90
 C
       use ChoArr, only: nDim_Batch, nQual_L, n_MySP
       use ChoBkm
+      use ChoVecBuf
       Implicit None
       Integer irc
 #include "choorb.fh"
 #include "choprint.fh"
 #include "cholesky.fh"
-#include "chovecbuf.fh"
 #include "chosubscr.fh"
 #include "chosimri.fh"
 #include "chopar.fh"
@@ -194,7 +194,7 @@ C     -------------
 
       n_MySP=0
 
-C     chovecbuf.fh.
+C     chovecbuf.f90.
 C     --------------
 
       ip_ChVBuf = 0

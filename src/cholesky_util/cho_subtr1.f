@@ -20,11 +20,11 @@ C     Screening in subtraction introduced Jan. 2006, TBP.
 C
       use ChoArr, only: iScr, LQ
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, InfVec
+      use ChoVecBuf
 #include "implicit.fh"
       DIMENSION XINT(*), WRK(LWRK)
       LOGICAL   FXDMEM
 #include "cholesky.fh"
-#include "chovecbuf.fh"
 #include "choprint.fh"
 #include "chosubscr.fh"
 #include "WrkSpc.fh"

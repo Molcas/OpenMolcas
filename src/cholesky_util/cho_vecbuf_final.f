@@ -12,9 +12,9 @@
 C
 C     Purpose: deallocate and finalize vector buffer.
 C
+      use ChoVecBuf
       Implicit None
 #include "cholesky.fh"
-#include "chovecbuf.fh"
 
       If (l_ChVBuf .gt. 0) Then
          Call Cho_Mem('CHVBUF','Free','Real',ip_ChVBuf,l_ChVBuf)

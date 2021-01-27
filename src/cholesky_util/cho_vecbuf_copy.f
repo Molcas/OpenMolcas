@@ -16,11 +16,11 @@ C              is the number of vectors in array Vec.
 C         NB!  It is important that the vector counter NumCho does NOT
 C              include the nVec vectors in array Vec.
 C
+      use ChoVecBuf
       Implicit None
       Real*8  Vec(*)
       Integer nVec, iSym
 #include "cholesky.fh"
-#include "chovecbuf.fh"
 #include "WrkSpc.fh"
 
       Integer mUsed, Left, nCopy, lCopy, kOff

@@ -19,9 +19,9 @@ C     Thomas Bondo Pedersen, June 2006.
 C
 C     Purpose: read vectors from disk into buffer.
 C
+      use ChoVecBuf
       Implicit None
 #include "cholesky.fh"
-#include "chovecbuf.fh"
 #include "WrkSpc.fh"
 
       Character*15 SecNam
