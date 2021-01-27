@@ -99,7 +99,6 @@ C
       Logical Enough
 
       Integer, External:: Cho_iSumElm
-      Integer, External:: ip_of_Work
 
       If (LocDbg) Then
          Write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
@@ -159,7 +158,7 @@ C
 
             Call mma_allocate(CHVBUF_T,l_ChVBuf,Label='CHVBUF_T')
 
-            ip_ChVBuf_Sym(1) = ip_of_Work(CHVBUF_T(1))
+            ip_ChVBuf_Sym(1) = 1
             Do iSym = 2,nSym
                ip_ChVBuf_Sym(iSym) = ip_ChVBuf_Sym(iSym-1)
      &                             + l_ChVBuf_Sym(iSym-1)
@@ -172,7 +171,7 @@ C
       If (LocDbg) Then
          Call Cho_Word2Byte(l_ChVBuf,8,x,Unt)
          Write(Lupri,*) 'Memory allocated for buffer: ',l_ChVBuf,
-     &                  '(',x,Unt,') at ',ip_ChVBuf_Sym(1)
+     &                  '(',x,Unt,') at ',1
          Write(Lupri,'(A,8I8)') 'l_ChVBuf_Sym : ',
      &                          (l_ChVBuf_Sym(iSym),iSym=1,nSym)
          Write(Lupri,'(A,8I8)') 'ip_ChVBuf_Sym: ',
@@ -211,7 +210,6 @@ C
       Character*2 Unt
       Real*8 Byte
 
-      Integer, External:: ip_of_Work
       Integer:: l_ChVBuf=0
 
       If (LocDbg) Then
@@ -252,7 +250,7 @@ C
          Else
             Call mma_allocate(CHVBUF_T,l_ChVBuf,Label='CHVBUF_T')
 
-            ip_ChVBuf_Sym(1) = ip_of_Work(CHVBUF_T(1))
+            ip_ChVBuf_Sym(1) = 1
             Do iSym = 2,nSym
                ip_ChVBuf_Sym(iSym) = ip_ChVBuf_Sym(iSym-1)
      &                             + l_ChVBuf_Sym(iSym-1)
@@ -273,7 +271,7 @@ C
          End If
          Call Cho_Word2Byte(l_ChVBuf,8,Byte,Unt)
          Write(Lupri,*) 'Memory allocated for buffer: ',l_ChVBuf,
-     &                  '(',Byte,Unt,')  at ',ip_ChVBuf_Sym(1)
+     &                  '(',Byte,Unt,')  at ',1
          Write(Lupri,'(A,8I8)') 'l_ChVBuf_Sym : ',
      &                          (l_ChVBuf_Sym(iSym),iSym=1,nSym)
          Write(Lupri,'(A,8I8)') 'ip_ChVBuf_Sym: ',

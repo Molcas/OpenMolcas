@@ -13,11 +13,6 @@
 !
 Module ChoVecBuf
 
-Type rPointers
-  Real*8, Pointer:: A(:,:)
-End Type rPointers
-
-Type (rPointers):: CHVBUF(8)
 Real*8, Allocatable, Target:: CHVBUF_T(:)
 
 INTEGER ip_CHVBFI, l_CHVBFI

@@ -76,8 +76,8 @@ C
             Do jVec=1,nVec_in_Buf(iSym)
                jRed=InfVec(jVec,2,iSym)
                Work(ip)=sqrt(dDot_(nDimRS(iSym,jRed),
-     &                            Work(ipV),1,Work(ipV),1))
-               Work(ip+1)=Cho_dSumElm(Work(ipV),nDimRS(iSym,jRed))
+     &                            CHVBUF_T(ipV),1,CHVBUF_T(ipV),1))
+               Work(ip+1)=Cho_dSumElm(CHVBUF_T(ipV),nDimRS(iSym,jRed))
                ipV=ipV+nDimRS(iSym,jRed)
                ip=ip+2
             End Do
@@ -210,8 +210,8 @@ C
                Do jVec=1,nVec_in_Buf(iSym)
                   jRed=InfVec(jVec,2,iSym)
                   n=nDimRS(iSym,jRed)
-                  Nrm=sqrt(dDot_(n,Work(ipV),1,Work(ipV),1))
-                  Sm=Cho_dSumElm(Work(ipV),n)
+                  Nrm=sqrt(dDot_(n,CHVBUF_T(ipV),1,CHVBUF_T(ipV),1))
+                  Sm=Cho_dSumElm(CHVBUF_T(ipV),n)
                   OK=abs(Nrm-RefNrm(jVec,iSym)).lt.Tol .and.
      &               abs(Sm-RefSm(jVec,iSym)).lt.Tol
                   If (.not.OK) Then

@@ -66,7 +66,8 @@ C     -------------
          iV2 = NumCho(iSym)
          nRead = 0
          mUsed(iSym) = 0
-         Call Cho_VecRd1(Work(ip_ChVBuf_Sym(iSym)),l_ChVBuf_Sym(iSym),
+         Call Cho_VecRd1(CHVBUF_T(ip_ChVBuf_Sym(iSym)),
+     &                   l_ChVBuf_Sym(iSym),
      &                   iV1,iV2,iSym,nRead,iRedC,mUsed(iSym),DoRead)
          nVec_in_Buf(iSym) = nRead
       End Do

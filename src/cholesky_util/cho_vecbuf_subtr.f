@@ -133,7 +133,7 @@ C           ---------------------------------------------------------
                kOffB = ip0 + nnBstR(iSym,2)*(jVec+iVec0-1)
                Do iAB = 1,nQual(iSym)
                   jAB = iQuAB(iAB,iSym) - iiBstR(iSym,2)
-                  Wrk(jVec+NumV*(iAB-1)) = Work(kOffB+iQuAB(iAB,iSym))
+                  Wrk(jVec+NumV*(iAB-1)) = CHVBUF_T(kOffB+jAB)
                End Do
             End Do
 
@@ -143,7 +143,7 @@ C           for each ab in {ab}.
 C           ----------------------------------------------------
 
             ip0 = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,2)*iVec0
-            Call Cho_SubScr_Dia(Work(ip0),NumV,iSym,2,SSNorm)
+            Call Cho_SubScr_Dia(CHVBUF_T(ip0),NumV,iSym,2,SSNorm)
             Do iAB = 1,nQual(iSym)
                Do iShGD = 1,nnShl
                   nGD = nnBstRSh(iSym,iShGD,2)
@@ -158,7 +158,7 @@ C           ----------------------------------------------------
                         kOff3 = nnBstR(iSym,2)*(iAB-1)
      &                        + iiBstRSh(iSym,iShGD,2) + 1
                         Call dGeMV_('N',nGD,NumV,
-     &                             xMOne,Work(kOff1),nnBstR(iSym,2),
+     &                             xMOne,CHVBUF_T(kOff1),nnBstR(iSym,2),
      &                             Wrk(kOff2),1,One,xInt(kOff3),1)
                      End If
                   End If
@@ -176,7 +176,7 @@ C              -------------------------------------------------------
                kOff = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,2)*iVec0
 
                Call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,
-     &                    xMOne,Work(kOff),nnBstR(iSym,2),
+     &                    xMOne,CHVBUF_T(kOff),nnBstR(iSym,2),
      &                          LQ(iSym)%Array(:,iVec0+1),
      &                          SIZE(LQ(iSym)%Array,1),
      &                    One,xInt,nnBstR(iSym,2))
@@ -193,7 +193,7 @@ C              ---------------------------------------------------------
                   kOffA = nQual(iSym)*(jVec-1)
                   kOffB = ip0 + nnBstR(iSym,2)*(jVec-1)
                   Do iAB = 1,nQual(iSym)
-                     Wrk(kOffA+iAB) = Work(kOffB+iQuAB(iAB,iSym))
+                     Wrk(kOffA+iAB) = CHVBUF_T(kOffB+iQuAB(iAB,iSym))
                   End Do
                End Do
 
@@ -204,7 +204,7 @@ C              ----------------------------------------------------
                kOff = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,2)*iVec0
 
                Call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,
-     &                    xMOne,Work(kOff),nnBstR(iSym,2),
+     &                    xMOne,CHVBUF_T(kOff),nnBstR(iSym,2),
      &                          Wrk,nQual(iSym),
      &                    One,xInt,nnBstR(iSym,2))
 

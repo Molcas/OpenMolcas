@@ -154,7 +154,7 @@ C     ----------------------
                End Do
             End If
          End If
-         Call dCopy_(lTot,Work(kB),1,Vec,1)
+         Call dCopy_(lTot,CHVBUF_T(kB),1,Vec,1)
          ! Check copy operation (may fail if molcas is compiled for
          ! 64 bit but linked to a 32 bit blas library)
          ! Note: check is not done unless it is enabled when the buffer

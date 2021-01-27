@@ -73,7 +73,7 @@ C     ------------
          Write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
          Write(Lupri,*) 'iRed = ',iRed
          Write(Lupri,*) 'l_ChVBuf  = ',SIZE(CHVBUF_T),
-     &                  '   ip_ChVBuf = ',ip_ChVBuf_Sym(1)
+     &                  '   ip_ChVBuf = ',1
          Write(Lupri,'(A,8I16)') 'l_ChVBuf_Sym : ',
      &                          (l_ChVBuf_Sym(iSym),iSym=1,nSym)
          Write(Lupri,'(A,8I16)') 'ip_ChVBuf_Sym: ',
@@ -185,7 +185,7 @@ C           ----------------
                      Call Cho_Quit('RS-2-RS map error in '//SecNam,104)
                   End If
 #endif
-                  Work(iOff2+iRS2) = Work(iOff3+iScr(iRS2))
+                  CHVBUF_T(iOff2+iRS2) = CHVBUF_T(iOff3+iScr(iRS2))
                End Do
             End Do
 
@@ -276,7 +276,7 @@ C              --------------------------------------------------
      &                                //SecNam,104)
                      End If
 #endif
-                     Work(iOff2+iRS2) = Work(iOff3+iScr(iRS2))
+                     CHVBUF_T(iOff2+iRS2) = Work(iOff3+iScr(iRS2))
                   End Do
 
                   iOff2 = iOff2 + nnBstR(iSym,2)

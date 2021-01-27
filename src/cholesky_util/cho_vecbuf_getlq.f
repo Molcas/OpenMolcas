@@ -22,7 +22,7 @@ C
 
       Integer nVecTot(8)
 
-      BVec(i,j,k)=Work(ip_ChVBuf_Sym(k)-1+nnBstR(k,2)*(j-1)+i)
+      BVec(i,j,k)=CHVBUF_T(ip_ChVBuf_Sym(k)-1+nnBstR(k,2)*(j-1)+i)
 
 C     Check if there is any buffer at all.
 C     ------------------------------------
