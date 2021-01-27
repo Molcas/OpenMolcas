@@ -17,12 +17,12 @@ C              in the "current" reduced set. The algorithm used for
 C              reading is taken from input (via cholesky.fh header
 C              file).
 C
+      use ChoArr, only: iScr
+      use ChoSwp, only: InfVec
 #include "implicit.fh"
       DIMENSION CHOVEC(LENVEC,NUMVEC)
       DIMENSION SCR(LSCR)
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       external ddot_
 
@@ -31,10 +31,6 @@ C
 
       LOGICAL LOCDBG
       PARAMETER (LOCDBG = .FALSE.)
-
-      PARAMETER (N2 = INFVEC_N2)
-
-      INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
 
 C     Return if no vectors requested.
 C     -------------------------------
@@ -83,9 +79,9 @@ C     --------------------------------------------------------------
          END IF
          IF (CHO_IOVEC.EQ.1 .OR. CHO_IOVEC.EQ.2 .OR. CHO_IOVEC.EQ.3 .OR.
      &       CHO_IOVEC.EQ.4) THEN
-            IF (l_ISCR .LT. NNBSTR(ISYM,2)) THEN
+            IF (SIZE(ISCR) .LT. NNBSTR(ISYM,2)) THEN
                WRITE(LUPRI,*) SECNAM,': insufficient iscratch:'
-               WRITE(LUPRI,*) SECNAM,': l_ISCR = ',l_ISCR
+               WRITE(LUPRI,*) SECNAM,': SIZE(ISCR) = ',SIZE(ISCR)
                IFAIL = IFAIL + 1
             END IF
          END IF

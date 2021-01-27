@@ -23,9 +23,9 @@
 *> - \p nnBstRT(iLoc)      &rarr; stored in cholesky.fh
 *> - \p nnBstR(:,iLoc)     &rarr; stored in cholesky.fh
 *> - \p iiBstR(:,iLoc)     &rarr; stored in cholesky.fh
-*> - \p nnBstRSh(:,:,iLoc) &rarr; accesible via \c ip_nnBstRSh in choptr.fh
-*> - \p iiBstRSh(:,:,iLoc) &rarr; accesible via \c ip_iiBstRSh in choptr.fh
-*> - \p IndRed(:,iLoc)     &rarr; accesible via \c ip_IndRed in choptr.fh
+*> - \p nnBstRSh(:,:,iLoc) &rarr; accesible via choswp.f90
+*> - \p iiBstRSh(:,:,iLoc) &rarr; accesible via choswp.f90
+*> - \p IndRed(:,iLoc)     &rarr; accesible via choswp.f90
 *>
 *> On succesful completion, \p irc = ``0`` is returned.
 *> Note that the only allowed \p iLoc values are ``2`` and ``3``; any other
@@ -40,29 +40,20 @@
 *> @param[in]  iRed reduced set on disk
 ************************************************************************
       Subroutine Cho_X_SetRed(irc,iLoc,iRed)
+      use ChoSwp, only: IndRed
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 
       If (iLoc.eq.2 .or. iLoc.eq.3) Then
          If (iRed.lt.1 .or. iRed.gt.MaxRed) Then
             irc = 2
          Else
-            kOff1 = ip_nnBstRSh + nSym*nnShl*(iLoc - 1)
-            kOff2 = ip_IndRed   + nnBstRT(1)*(iLoc - 1)
-            Call Cho_GetRed(iWork(ip_InfRed),iWork(kOff1),
-     &                      iWork(kOff2),iWork(ip_IndRSh),
-     &                      iWork(ip_iSP2F),
-     &                      MaxRed,nSym,nnShl,nnBstRT(1),iRed,.false.)
-            Call Cho_SetRedInd(iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),
-     &                         nSym,nnShl,iLoc)
+            Call Cho_GetRed(iRed,iLoc,.false.)
+            Call Cho_SetRedInd(iLoc)
             irc = 0
             If (iRed .eq. 1) Then ! set correct IndRed array
-               kOff2 = kOff2 - 1
-               Do iab = 1,nnBstRT(1)
-                  kOff = kOff2 + iab
-                  iWork(kOff) = iab
+               Do iab = 1,SIZE(IndRed,1)
+                  IndRed(iab,iLoc) = iab
                End Do
             End If
          End If

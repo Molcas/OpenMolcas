@@ -18,16 +18,16 @@ C           1) full Cholesky vectors are read
 C           2) calculations are performed in full (no use of red. sets
 C              apart from first)
 C
+      use ChoArr, only: nBstSh
 #include "implicit.fh"
       INTEGER ISHLQ(4,NSHLQ)
       LOGICAL PRTLAB
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "choptr.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
-      CHARACTER*16 SECNAM
-      PARAMETER (SECNAM = 'CHO_MCA_DBGINT_S')
+      CHARACTER(LEN=16), PARAMETER:: SECNAM = 'CHO_MCA_DBGINT_S'
 
       INTEGER  CHO_F2SP
       EXTERNAL CHO_F2SP
@@ -37,7 +37,6 @@ C
       CHARACTER*8 LABEL
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
-      NBSTSH(I)=IWORK(ip_NBSTSH-1+I)
       ITRI(I,J)=MAX(I,J)*(MAX(I,J)-3)/2+I+J
 
 C     Return if nothing specified.
@@ -68,8 +67,7 @@ C     ----------------
 C     Make first reduced set the current reduced set.
 C     -----------------------------------------------
 
-      CALL CHO_RSCOPY(IWORK(ip_IIBSTRSH),IWORK(ip_NNBSTRSH),
-     &                IWORK(ip_INDRED),1,2,NSYM,NNSHL,MMBSTRT,3)
+      CALL CHO_RSCOPY(1,2)
 
 C     Allocate memory for largest integral quadruple.
 C     -----------------------------------------------
@@ -80,7 +78,7 @@ C     -----------------------------------------------
 C     Allocate max. memory
 C     ----------------------------------------------------------
 
-      CALL GETMEM('DBGINT.2','MAX ','REAL',KWRK,LWRK)
+      Call mma_maxDBLE(LWRK)
       CALL GETMEM('DBGINT.2','ALLO','REAL',KWRK,LWRK/2)
       CALL XSETMEM_INTS(LWRK/2)
 
@@ -196,7 +194,6 @@ C     --------------------------------------------------------------
 
       CALL XRLSMEM_INTS
       CALL GETMEM('DBGINT.2','FREE','REAL',KWRK,LWRK/2)
-      CALL GETMEM('INTDBG.3','FLUSH','REAL',KINT1,LINTMX)
       CALL GETMEM('INTDBG.4','FREE','REAL',KINT1,LINTMX)
 
 C     Check total number of comparisons.

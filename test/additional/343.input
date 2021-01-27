@@ -10,6 +10,10 @@
 * Comments: Solvent orbitals are stored in input-directory.
 *-------------------------------------------------------------------------------
 
+> IF ( $MOLCAS_NPROCS != 1)
+>   EXIT 36
+> ENDIF
+
 * SOLVENT SECTION: USE ORBITALS IN test592. *
 >export Molcas_Solvent=$Project.Water
 >export Molcas_SolvDir=$WorkDir

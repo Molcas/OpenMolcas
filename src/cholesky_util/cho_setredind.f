@@ -8,13 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE CHO_SETREDIND(IIBSTRSH,NNBSTRSH,MSYM,MMSHL,IRED)
+      SUBROUTINE CHO_SETREDIND(IRED)
 C
 C     Purpose: set index arrays for reduced set IRED. The counter
 C              array NNBSTRSH must be set on entry.
 C
+      use ChoSwp, only: iiBstRSh, nnBstRSh
 #include "implicit.fh"
-      INTEGER IIBSTRSH(MSYM,MMSHL,3), NNBSTRSH(MSYM,MMSHL,3)
 #include "cholesky.fh"
 
       CHARACTER*13 SECNAM
@@ -23,6 +23,8 @@ C
       J = IRED
 
 #if defined (_DEBUGPRINT_)
+      MSYM = SIZE(iiBstRSh,1)
+      MMSHL= SIZE(iiBstRSh,2)
       IF ((NNSHL.NE.MMSHL) .OR. (NSYM.NE.MSYM))
      & CALL CHO_QUIT('[1] Dimension error in '//SECNAM,104)
       IF ((J.LT.1) .OR. (J.GT.3))

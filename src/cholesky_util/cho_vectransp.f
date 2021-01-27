@@ -11,6 +11,8 @@
       SUBROUTINE Cho_VecTransp(Vec,Jin,Jfi,iSym,iRed,iPass)
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: MyRank, nProcs
+      use ChoSwp, only: InfVec_G, IndRed
+      use ChoArr, only: iL2G
 #endif
       Implicit Real*8 (a-h,o-z)
       Real*8   Vec(*)
@@ -22,7 +24,6 @@
 #if defined (_MOLCAS_MPP_)
 #include "cho_para_info.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "cholq.fh"
 #include "choglob.fh"
 #include "WrkSpc.fh"
@@ -35,7 +36,6 @@
       Parameter (LocDbg = .false.)
 #endif
 
-      Parameter (N2 = InfVec_N2)
 
       External  ga_create_irreg, ga_destroy
       Logical   ga_create_irreg, ga_destroy, ok
@@ -51,10 +51,6 @@ CVVP:2014 DGA is here
       iDV(i) = iWork(ip_iVecR-1+i)
       nRSL(i) = iWork(ip_nRSL-1+i)
       iAdrLG(i,j) = iWork(ip_iAdrLG-1+MxRSL*(j-1)+i)
-      IndRed(i,j) = iWork(ip_IndRed-1+mmBstRT*(j-1)+i)
-      InfVec_G(i,j,k)=
-     & iWork(ip_InfVec_G-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-      iL2G(i) = iWork(ip_iL2G-1+i)
 ***************************************************************
 
       If (.not.Cho_Real_Par) Then
@@ -231,9 +227,7 @@ C --- write the reordered vec on disk
          Do iVec = 1,nVR
             jVec = iVec1 + iVec - 1
             If (jVec .lt. MaxVec) Then
-               iWork(ip_InfVec_G+MaxVec*N2*(iSym-1)+MaxVec*2+jVec) =
-     &         iWork(ip_InfVec_G+MaxVec*N2*(iSym-1)+MaxVec*2+jVec-1)
-     &         + nRS_g
+               InfVec_G(jVec+1,3,iSym)= InfVec_G(jVec,3,iSym) + nRS_g
             End If
          End Do
          LastV = myNumCho(iSym) + nVR

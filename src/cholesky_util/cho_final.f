@@ -9,13 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE CHO_FINAL(WriteBookmarks)
+      use ChoArr, only: iSOShl
 C
 C     Purpose: Cholesky finalizations.
 C
       Implicit None
       Logical WriteBookmarks
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "choini.fh"
 #include "chobkm.fh"
@@ -33,7 +33,7 @@ C     ------------------------------------------------------------
 
       CALL CHO_P_GETGV(NUMV,NSYM)
       CALL PUT_IARRAY('NUMCHO',NUMV,NSYM)
-      CALL PUT_IARRAY('iSOShl',IWORK(ip_ISOSHL),NBAST)
+      CALL PUT_IARRAY('iSOShl',ISOSHL,NBAST)
       CALL PUT_DSCALAR('Cholesky Threshold',THRCOM)
 #if defined (_DEBUGPRINT_)
       ! This is needed in order for bookmark tests in cho_x_init to work

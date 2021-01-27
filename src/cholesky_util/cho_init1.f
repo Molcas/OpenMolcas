@@ -12,10 +12,9 @@
 C
 C     Purpose: initialize counter arrays.
 C
+      use ChoSwp, only: InfRed, InfVec
 #include "implicit.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
 
@@ -38,14 +37,14 @@ C        -------------------------
 C        Initialize vector info and counters.
 C        ------------------------------------
 
-         CALL CHO_IZERO(IWORK(ip_INFVEC),l_INFVEC)
+         CALL CHO_IZERO(INFVEC,SIZE(INFVEC))
          CALL CHO_IZERO(NUMCHO,NSYM)
          NUMCHT = 0
 
 C        Initialize reduced set info.
 C        ----------------------------
 
-         CALL CHO_IZERO(IWORK(ip_INFRED),l_INFRED)
+         CALL CHO_IZERO(INFRED,SIZE(INFRED))
 
 C        Initialize global integral pass counter.
 C        ----------------------------------------

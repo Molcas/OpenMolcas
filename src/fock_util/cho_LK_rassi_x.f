@@ -31,7 +31,8 @@ C      k:        MO-index   belonging to (Inactive)
 C      v,w,x,y:  MO-indeces belonging to (Active)
 C
 **********************************************************************
-
+      use ChoArr, only: nBasSh, nDimRS
+      use ChoSwp, only: nnBstRSh, iiBstRSh, InfVec, IndRed
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
@@ -63,13 +64,11 @@ C
 
 #include "rassi.fh"
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
 
       Real*8 LKThr
 
-      parameter ( N2 = InfVec_N2 )
       Character*6 mode
       Integer   Cho_F2SP
       External  Cho_F2SP
@@ -83,16 +82,6 @@ C
 ******
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 ******
-      InfVec(i,j,k) = iWork(ip_InfVec-1+MaxVec*N2*(k-1)+MaxVec*(j-1)+i)
-******
-      IndRed(i,k) = iWork(ip_IndRed-1+nnBstrT(1)*(k-1)+i)
-******
-      nDimRS(i,j) = iWork(ip_nDimRS-1+nSym*(j-1)+i)
-******
-      NBASSH(I,J)=IWORK(ip_NBASSH-1+NSYM*(J-1)+I)
-******
-      NNBSTRSH(I,J,K)=IWORK(ip_NNBSTRSH-1+NSYM*NNSHL*(K-1)+NSYM*(J-1)+I)
-******
       nnBfShp(j,i) = iWork(ip_nnBfShp-1+nShell**2*(i-1)+j)
 ******
       ipLab(i,j) = iWork(ip_Lab+nShell*(j-1)+i-1)
@@ -104,7 +93,7 @@ C
       SvShp(i) = Work(ip_SvShp+i-1)
 ****** next is a trick to save memory. Memory in "location 2" is used
 ******      to store this offset array defined later on
-      iOffShp(i,j) = iWork(ip_iiBstRSh+nSym*nnShl-1+nSym*(j-1)+i)
+      iOffShp(i,j) = iiBstRSh(i,j,2)
 ************************************************************************
 
       DoReord = .false.
@@ -392,8 +381,7 @@ C *** Compute Shell pair Offsets   iOffShp(iSyma,iShp)
 
              If (iSyma.ge.iSymb) Then
 
-              iWork(ip_iiBstRSh + nSym*nnShl - 1
-     &        + nSym*(iShp_rs(iShp)-1) + iSyma) = LFULL
+              iiBstRsh(iSyma,iShp_rs(iShp),2) = LFULL
 
                 LFULL = LFULL + nBasSh(iSyma,iaSh)*nBasSh(iSymb,ibSh)
      &       + Min(1,(iaSh-ibSh))*nBasSh(iSyma,ibSh)*nBasSh(iSymb,iaSh)

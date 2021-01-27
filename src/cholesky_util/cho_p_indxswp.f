@@ -17,11 +17,15 @@ C     NB: this procedure is inexpensive, as we are merely swapping
 C         pointers, not actual data (except for the statically allocated
 C         index arrays which amount to swapping 51 integers in total).
 C
+      use ChoSwp, only: nnBstRSh, nnBstRSh_G, pTemp3
+      use ChoSwp, only: iiBstRSh, iiBstRSh_G
+      use ChoSwp, only: IndRSh, IndRSh_G, pTemp1
+      use ChoSwp, only: InfRed, InfRed_G
+      use ChoSwp, only: InfVec, InfVec_G
+      use ChoSwp, only: IndRed, IndRed_G, pTemp
       Implicit None
 #include "cholesky.fh"
-#include "choptr.fh"
 #include "choglob.fh"
-#include "WrkSpc.fh"
 
       Integer iTmp, N
 
@@ -38,46 +42,28 @@ C
       Call iSwap(N,nnBstR_G,1,nnBstR,1)
       Call iSwap(3,nnBstRT_G,1,nnBstRT,1)
 
-      iTmp = ip_InfRed_G
-      ip_InfRed_G = ip_InfRed
-      ip_InfRed = iTmp
-      iTmp = l_InfRed_G
-      l_InfRed_G = l_InfRed
-      l_InfRed = iTmp
+      pTemp1 => InfRed_G
+      InfRed_G => InfRed
+      InfRed => pTemp1
 
-      iTmp = ip_InfVec_G
-      ip_InfVec_G = ip_InfVec
-      ip_InfVec = iTmp
-      iTmp = l_InfVec_G
-      l_InfVec_G = l_InfVec
-      l_InfVec = iTmp
+      pTemp3 => InfVec_G
+      InfVec_G => InfVec
+      InfVec => pTemp3
 
-      iTmp = ip_iiBstRSh_G
-      ip_iiBstRSh_G = ip_iiBstRSh
-      ip_iiBstRSh = iTmp
-      iTmp = l_iiBstRSh_G
-      l_iiBstRSh_G = l_iiBstRSh
-      l_iiBstRSh = iTmp
+      pTemp3 => iiBstRSh_G
+      iiBstRSh_G => iiBstRSh
+      iiBstRSh => pTemp3
 
-      iTmp = ip_nnBstRSh_G
-      ip_nnBstRSh_G = ip_nnBstRSh
-      ip_nnBstRSh = iTmp
-      iTmp = l_nnBstRSh_G
-      l_nnBstRSh_G = l_nnBstRSh
-      l_nnBstRSh = iTmp
+      pTemp3 => nnBstRSh_G
+      nnBstRSh_G => nnBstRSh
+      nnBstRSh => pTemp3
 
-      iTmp = ip_IndRed_G
-      ip_IndRed_G = ip_IndRed
-      ip_IndRed = iTmp
-      iTmp = l_IndRed_G
-      l_IndRed_G = l_IndRed
-      l_IndRed = iTmp
+      pTemp => IndRed_G
+      IndRed_G => IndRed
+      IndRed => pTemp
 
-      iTmp = ip_IndRSh_G
-      ip_IndRSh_G = ip_IndRSh
-      ip_IndRSh = iTmp
-      iTmp = l_IndRSh_G
-      l_IndRSh_G = l_IndRSh
-      l_IndRSh = iTmp
+      pTemp1 => IndRSh_G
+      IndRSh_G => IndRSh
+      IndRSh => pTemp1
 
       End

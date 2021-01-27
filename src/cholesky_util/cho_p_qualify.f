@@ -22,6 +22,7 @@ C              FULL=.true. is returned. On entry, Diag is the local
 C              diagonal. The global diagonal is synchronized if
 C              Sync=.True. on entry.
 C
+      use ChoSwp, only: Diag_G
       Implicit None
       Real*8  Diag(*)
       Logical Sync, Full
@@ -29,7 +30,6 @@ C
 #include "cholesky.fh"
 #include "cho_para_info.fh"
 #include "choglob.fh"
-#include "WrkSpc.fh"
 
       Integer iLoc
 
@@ -56,7 +56,7 @@ C             qualified (and this is absolutely essential!). However,
 C             one might find a more clever way of ensuring this....
 
          Call Cho_P_IndxSwp()
-         Call Cho_Qualify(Work(ip_Diag_G),iShlAB,iSyMax,Mem,Full)
+         Call Cho_Qualify(Diag_G,iShlAB,iSyMax,Mem,Full)
          Call Cho_P_IndxSwp()
 
       Else

@@ -97,7 +97,7 @@
 *                                                                      *
       Call WrInp_SCF(SIntTh)
 
-      Call Cre_SCFWfn
+      Call Cre_SCFWfn()
 
       FstItr=.True.
 
@@ -108,14 +108,14 @@
 *     so that iPsLst is right in case of nIter==0
       If (nIter(nIterP).eq.0) iter0=-1
       Call Final()
-      If (DSCF) Call Free_TLists
+      If (DSCF) Call Free_TLists()
 *
       Call CWTime(TCPU2,TWall2)
       Call SavTim(4,TCPU2-TCPU1,TWall2-TWall1)
 *
       Call GMFree()
-      Call ClsFls_SCF
-      If (Semi_Direct) Call xRlsMem_Ints
+      Call ClsFls_SCF()
+      If (Semi_Direct) Call xRlsMem_Ints()
 *
 *     Call MolDen Interface
 *
@@ -282,25 +282,6 @@ c     MemRsv=6*nBT
        Write (6,*)
       Return
       End
-#ifdef _NOTUSED_
-*----------------------------------------------------------------------*
-      Subroutine Init_TLists
-      Implicit Real*8 (a-h,o-z)
-*     Include 'mxdm.fh'
-#include <mxdm.fh>
-
-      Logical Triangular
-*
-      If (DSCF) Then
-         Triangular=.True.
-         Call Init_TList(Triangular)
-         Call Init_PPList
-         Call Init_GTList
-      End If
-*
-      Return
-      End
-#endif
 *----------------------------------------------------------------------*
       Subroutine Free_TLists
       Implicit Real*8 (a-h,o-z)
@@ -308,10 +289,11 @@ c     MemRsv=6*nBT
 #include "mxdm.fh"
 #include "infscf.fh"
 *
+      Write (6,*) 'Free_TLists:',DSCF
       If (DSCF) Then
-         Call Free_TList
-         Call Free_PPList
-         Call Free_GTList
+         Call Free_TList()
+         Call Free_PPList()
+         Call Free_GTList()
       End If
 *
       Return

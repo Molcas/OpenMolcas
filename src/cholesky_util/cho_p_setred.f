@@ -13,16 +13,15 @@ C
 C     Purpose: set next reduced set after synchronizing the global
 C              diagonal (if requested through flag Sync).
 C              Global as well as local reduced sets are set.
-C              Diag is the local diagonal, whereas ip_Diag_G (stored in
-C              choglob.fh) points to the global diagonal in Work.
+C              Diag is the local diagonal, whereas Diag_G (defined in
+C              choswp.f90) points to the global diagonal.
 C              Note that Diag is not referenced if Sync=.False.
 C
+      use ChoSwp, only: Diag_G
       Implicit None
       Real*8  Diag(*)
       Logical Sync
 #include "cholesky.fh"
-#include "choptr.fh"
-#include "WrkSpc.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
 
@@ -44,9 +43,7 @@ C        and local index arrays (and then swap back, of course).
 C        -----------------------------------------------------------
 
          Call Cho_P_IndxSwp()
-         Call Cho_SetRed(Work(ip_Diag_G),
-     &                   iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),
-     &                   iWork(ip_IndRed),nSym,mmBstRT,nnShl)
+         Call Cho_SetRed(Diag_G)
          Call Cho_P_IndxSwp()
 
 C        Set next local reduced set.
@@ -56,9 +53,7 @@ C        ---------------------------
 
       Else
 
-         Call Cho_SetRed(Diag,
-     &                   iWork(ip_iiBstRSh),iWork(ip_nnBstRSh),
-     &                   iWork(ip_IndRed),nSym,mmBstRT,nnShl)
+         Call Cho_SetRed(Diag)
 
       End If
 
