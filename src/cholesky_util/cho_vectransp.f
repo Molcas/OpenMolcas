@@ -46,9 +46,8 @@ CVVP:2014 DGA is here
       Integer   ga_local_woff,nelm,iGAL
       External  ga_local_woff,ga_create_local
 #endif
-      Integer, Allocatable:: Map(:), iAdrLG(:,:), iVecR(:)
-***************************************************************
-      nRSL(i) = iWork(ip_nRSL-1+i)
+      Integer, Allocatable:: Map(:), iAdrLG(:,:), iVecR(:),
+     &                       nRSL(:), MapRS2RS(:)
 ***************************************************************
 
       If (.not.Cho_Real_Par) Then
@@ -78,11 +77,10 @@ CVVP:2014 DGA is here
       l_VecR = nRS_g*(nVR+1)
       Call GetMem('VecR','Allo','Real',ip_VecR,l_VecR)
 
-      l_nRSL=nProcs
-      Call GetMem('RSL','Allo','Inte',ip_nRSL,l_nRSL)
-      Call iZero(iWork(ip_nRSL),nProcs)
-      iWork(ip_nRSL+MyRank) = nRS_l  ! MyRank starts from 0
-      Call Cho_GAIGOP(iWork(ip_nRSL),nProcs,'+')
+      Call mma_allocate(nRSL,nProcs,Label='nRSL')
+      nRSL(:)=0
+      nRSL(1+MyRank) = nRS_l  ! MyRank starts from 0
+      Call Cho_GAIGOP(nRSL,nProcs,'+')
 
       MxRSL=nRSL(1)
       Do i=2,nProcs
@@ -167,21 +165,21 @@ C --- write the reordered vec on disk
      &                 ': Non-zero return code from Cho_X_RSCopy',
      &                 104)
       End If
-      l_mapRS2RS = nnBstR(iSym,1)
-      Call GetMem('mapRS2RS','Allo','Inte',ip_mapRS2RS,l_mapRS2RS)
-      Call Cho_RS2RS(iWork(ip_mapRS2RS),l_mapRS2RS,jRed,iRed,iPass,iSym)
+
+      Call mma_allocate(MapRS2RS,nnBstR(iSym,1),Label='MapRS2RS')
+      Call Cho_RS2RS(mapRS2RS,SIZE(mapRS2RS),jRed,iRed,iPass,iSym)
       Call Cho_P_IndxSwp()
 
       iAdrLG(:,:)=0
       Do i = 1,nRS_l
          i1 = IndRed(iiBstR(iSym,iRed)+i,iRed) ! addr in local rs1
          j1 = iL2G(i1) ! addr in global rs1
-         j = iWork(ip_mapRS2RS-1+j1-iiBstR_G(iSym,1)) ! addr in glob. rs
+         j = mapRS2RS(j1-iiBstR_G(iSym,1)) ! addr in glob. rs
          iAdrLG(i,myRank+1) = j
       End Do
       Call Cho_GAIGOP(iAdrLG,SIZE(iAdrLG),'+')
 
-      Call GetMem('mapRS2RS','Free','Inte',ip_mapRS2RS,l_mapRS2RS)
+      Call mma_deallocate(MapRS2RS)
 
       If (LocDbg) Then
          iCount=0
@@ -237,7 +235,7 @@ C --- deallocations
 
       Call mma_deallocate(Map)
       Call mma_deallocate(iAdrLG)
-      Call GetMem('RSL','Free','Inte',ip_nRSL,l_nRSL)
+      Call mma_deallocate(nRSL)
       Call GetMem('VecR','Free','Real',ip_VecR,l_VecR)
       Call mma_deallocate(iVecR)
 #else
