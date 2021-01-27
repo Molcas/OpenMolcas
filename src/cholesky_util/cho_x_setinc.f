@@ -197,7 +197,6 @@ C     -------------
 C     chovecbuf.f90.
 C     --------------
 
-      ip_ChVBuf = 0
       ip_ChVBfI = 0
       l_ChvBfI  = 0
       Call Cho_iZero(ip_ChVBuf_Sym,8)

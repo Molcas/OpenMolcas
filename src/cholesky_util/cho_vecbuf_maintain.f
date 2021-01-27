@@ -73,7 +73,7 @@ C     ------------
          Write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
          Write(Lupri,*) 'iRed = ',iRed
          Write(Lupri,*) 'l_ChVBuf  = ',SIZE(CHVBUF_T),
-     &                  '   ip_ChVBuf = ',ip_ChVBuf
+     &                  '   ip_ChVBuf = ',ip_ChVBuf_Sym(1)
          Write(Lupri,'(A,8I16)') 'l_ChVBuf_Sym : ',
      &                          (l_ChVBuf_Sym(iSym),iSym=1,nSym)
          Write(Lupri,'(A,8I16)') 'ip_ChVBuf_Sym: ',

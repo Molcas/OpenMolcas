@@ -25,6 +25,7 @@ C
       Real*8  Frac
       Integer lVec(*)
 #include "cholesky.fh"
+#include "stdalloc.fh"
 
       Character*15 SecNam
       Parameter (SecNam = 'Cho_VecBuf_Init')
@@ -37,11 +38,11 @@ C
 #endif
 
       Character*2 Unt
-      Integer ip_Max, l_Max, MF
+      Integer l_Max, MF
       Real*8  xMF
 
       If (LocDbg) Then
-         Call Cho_Mem('GetMax','GetM','Real',ip_Max,l_Max)
+         Call mma_maxDBLE(l_max)
          Write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
          Write(Lupri,*) 'Memory fraction requested for buffer: ',Frac
          Call Cho_Word2Byte(l_Max,8,xMF,Unt)
@@ -91,7 +92,7 @@ C
       Real*8 xMemMax(8), x
 
       Integer lVecTot
-      Integer ip_Max, l_Max
+      Integer l_Max
       Integer iSym, MemEach, MemLeft
       Integer:: l_ChVBuf=0
 
@@ -121,7 +122,6 @@ C
       End Do
 
       If (Frac.le.0.0d0 .or. Frac.gt.1.0d0 .or. lVecTot.lt.1) Then
-         ip_ChVBuf = 0
          Call Cho_iZero(ip_ChVBuf_Sym,nSym)
          Call Cho_iZero(l_ChVBuf_Sym,nSym)
       Else
@@ -129,7 +129,6 @@ C
          l_ChVBuf = INT(Frac*DBLE(l_Max))
          If (l_ChVBuf.lt.nSym .or. l_ChVBuf.lt.lVecTot) Then
             l_ChVBuf  = 0
-            ip_ChVBuf = 0
             Call Cho_iZero(ip_ChVBuf_Sym,nSym)
             Call Cho_iZero(l_ChVBuf_Sym,nSym)
          Else
@@ -159,9 +158,8 @@ C
             l_ChVBuf = Cho_iSumElm(l_ChVBuf_Sym,nSym)
 
             Call mma_allocate(CHVBUF_T,l_ChVBuf,Label='CHVBUF_T')
-            ip_ChVBuf=ip_of_Work(CHVBUF_T(1))
 
-            ip_ChVBuf_Sym(1) = ip_ChVBuf
+            ip_ChVBuf_Sym(1) = ip_of_Work(CHVBUF_T(1))
             Do iSym = 2,nSym
                ip_ChVBuf_Sym(iSym) = ip_ChVBuf_Sym(iSym-1)
      &                             + l_ChVBuf_Sym(iSym-1)
@@ -174,7 +172,7 @@ C
       If (LocDbg) Then
          Call Cho_Word2Byte(l_ChVBuf,8,x,Unt)
          Write(Lupri,*) 'Memory allocated for buffer: ',l_ChVBuf,
-     &                  '(',x,Unt,') at ',ip_ChVBuf
+     &                  '(',x,Unt,') at ',ip_ChVBuf_Sym(1)
          Write(Lupri,'(A,8I8)') 'l_ChVBuf_Sym : ',
      &                          (l_ChVBuf_Sym(iSym),iSym=1,nSym)
          Write(Lupri,'(A,8I8)') 'ip_ChVBuf_Sym: ',
@@ -201,7 +199,7 @@ C
       Integer, External:: Cho_iSumElm
 
       Logical DoRead
-      Integer i, iSym, ip_Max, l_Max, Left, jNum, iRedC, mUsed
+      Integer i, iSym, l_Max, Left, jNum, iRedC, mUsed
 
       Integer, Parameter:: lScr = 1
       Real*8 Scr(lScr)
@@ -214,7 +212,7 @@ C
       Real*8 Byte
 
       Integer, External:: ip_of_Work
-      Integer l_ChVBuf
+      Integer:: l_ChVBuf=0
 
       If (LocDbg) Then
          Do i = 1,lScr
@@ -231,12 +229,10 @@ C
       End If
 
       If (Frac.le.0.0d0 .or. Frac.gt.1.0d0) Then
-         l_ChVBuf  = 0
-         ip_ChVBuf = 0
          Call Cho_iZero(l_ChvBuf_Sym,nSym)
          Call Cho_iZero(ip_ChvBuf_Sym,nSym)
       Else
-         Call Cho_Mem('GetMax','GetM','Real',ip_Max,l_Max)
+         call mma_maxDBLE(l_max)
          Left = INT(Frac*DBLE(l_Max))
          iRedC = -1
          DoRead = .false.
@@ -251,14 +247,12 @@ C
          l_ChVBuf = Cho_iSumElm(l_ChVBuf_Sym,nSym)
          If (l_ChVBuf .lt. 1) Then
             l_ChVBuf  = 0
-            ip_ChVBuf = 0
             Call Cho_iZero(l_ChvBuf_Sym,nSym)
             Call Cho_iZero(ip_ChvBuf_Sym,nSym)
          Else
             Call mma_allocate(CHVBUF_T,l_ChVBuf,Label='CHVBUF_T')
-            ip_ChVBuf=ip_of_Work(CHVBUF_T(1))
 
-            ip_ChVBuf_Sym(1) = ip_ChVBuf
+            ip_ChVBuf_Sym(1) = ip_of_Work(CHVBUF_T(1))
             Do iSym = 2,nSym
                ip_ChVBuf_Sym(iSym) = ip_ChVBuf_Sym(iSym-1)
      &                             + l_ChVBuf_Sym(iSym-1)
@@ -279,7 +273,7 @@ C
          End If
          Call Cho_Word2Byte(l_ChVBuf,8,Byte,Unt)
          Write(Lupri,*) 'Memory allocated for buffer: ',l_ChVBuf,
-     &                  '(',Byte,Unt,')  at ',ip_ChVBuf
+     &                  '(',Byte,Unt,')  at ',ip_ChVBuf_Sym(1)
          Write(Lupri,'(A,8I8)') 'l_ChVBuf_Sym : ',
      &                          (l_ChVBuf_Sym(iSym),iSym=1,nSym)
          Write(Lupri,'(A,8I8)') 'ip_ChVBuf_Sym: ',
