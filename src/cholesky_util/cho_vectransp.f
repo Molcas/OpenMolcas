@@ -25,9 +25,12 @@
 #include "cho_para_info.fh"
 #include "cholesky.fh"
 #include "choglob.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 #include "mafdecls.fh"
+
+#ifndef _GA_
+#include "WrkSpc.fh"
+#endif
 
       Logical LocDbg
 #if defined (_DEBUGPRINT_)
@@ -48,6 +51,7 @@ CVVP:2014 DGA is here
 #endif
       Integer, Allocatable:: Map(:), iAdrLG(:,:), iVecR(:),
      &                       nRSL(:), MapRS2RS(:)
+      Real*8, Allocatable:: VecR(:,:)
 ***************************************************************
 
       If (.not.Cho_Real_Par) Then
@@ -74,8 +78,7 @@ CVVP:2014 DGA is here
 
       call mma_allocate(iVecR,nV,Label='iVecR')
       Call cho_p_distrib_vec(Jin,Jfi,iVecR,nVR)
-      l_VecR = nRS_g*(nVR+1)
-      Call GetMem('VecR','Allo','Real',ip_VecR,l_VecR)
+      Call mma_allocate(VecR,nRS_g,nVR+1,Label='VecR')
 
       Call mma_allocate(nRSL,nProcs,Label='nRSL')
       nRSL(:)=0
@@ -142,13 +145,12 @@ CVVP:2014 the minimal latency and scalable putC call
 #endif
       Jin0 = Jin - 1
       Do i=1,nVR
-         iv=ip_VecR+nRS_g*(i-1)
          jv=iVecR(i) - Jin0
 #ifdef _GA_
-         Call ga_get(g_a,1,nRS_g,jv,jv,Work(iv),nRS_g)
+         Call ga_get(g_a,1,nRS_g,jv,jv,VecR(:,i),nRS_g)
 #else
 CVVP:2014 the minimal latency and scalable getC call
-         Call ga_getc(g_a,1,nRS_g,jv,jv,Work(iv),nRS_g)
+         Call ga_getc(g_a,1,nRS_g,jv,jv,VecR(:,i),nRS_g)
 #endif
       End Do
 
@@ -195,13 +197,11 @@ C --- write the reordered vec on disk
 
       iScr=ip_VecR+NRS_g*nVR
       Do j=1,nVR
-         iv=ip_VecR+nRS_g*(j-1)
-         Call dCopy_(nRS_g,Work(iv),1,Work(iScr),1)
+         Call dCopy_(nRS_g,VecR(:,j),1,VecR(:,nVr+1),1)
          iCount=0
-         iv=iv-1
          Do iNode=1,nProcs
             Do iRSL=1,nRSL(iNode)
-               Work(iv+iAdrLG(iRSL,iNode))=Work(iScr+iCount)
+               VecR(iAdrLG(iRSL,iNode),j)=VecR(1+iCount,nVR+1)
                iCount=iCount+1
             End Do
          End Do
@@ -215,7 +215,7 @@ C --- write the reordered vec on disk
          If (lTot .gt. 0) Then
             iOpt=1
             iAdr=InfVec_G(iVec1,3,iSym)
-            Call dDAfile(LuCho_G(iSym),iOpt,Work(ip_VecR),lTot,iAdr)
+            Call dDAfile(LuCho_G(iSym),iOpt,VecR,lTot,iAdr)
          End If
          Do iVec = 1,nVR
             jVec = iVec1 + iVec - 1
@@ -236,7 +236,7 @@ C --- deallocations
       Call mma_deallocate(Map)
       Call mma_deallocate(iAdrLG)
       Call mma_deallocate(nRSL)
-      Call GetMem('VecR','Free','Real',ip_VecR,l_VecR)
+      Call mma_deallocate(VecR)
       Call mma_deallocate(iVecR)
 #else
       Call Cho_Quit(SecNam//
