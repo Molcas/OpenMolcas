@@ -82,6 +82,7 @@ C
       Integer lVec(*)
       Logical LocDbg
 #include "cholesky.fh"
+#include "stdalloc.fh"
 
       Character*17 SecNam
       Parameter (SecNam = 'Cho_VecBuf_Init_I')
@@ -95,8 +96,8 @@ C
 
       Logical Enough
 
-      Integer  Cho_iSumElm
-      External Cho_iSumElm
+      Integer, External:: Cho_iSumElm
+      Integer, External:: ip_of_Work
 
       If (LocDbg) Then
          Write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
@@ -124,7 +125,7 @@ C
          Call Cho_iZero(ip_ChVBuf_Sym,nSym)
          Call Cho_iZero(l_ChVBuf_Sym,nSym)
       Else
-         Call Cho_Mem('GetMax','GetM','Real',ip_Max,l_Max)
+         call mma_MaxDBLE(l_Max)
          l_ChVBuf = INT(Frac*DBLE(l_Max))
          If (l_ChVBuf.lt.nSym .or. l_ChVBuf.lt.lVecTot) Then
             l_ChVBuf  = 0
@@ -156,7 +157,10 @@ C
                End Do
             End If
             l_ChVBuf = Cho_iSumElm(l_ChVBuf_Sym,nSym)
-            Call Cho_Mem('CHVBUF','Allo','Real',ip_ChVBuf,l_ChVBuf)
+
+            Call mma_allocate(CHVBUF_T,l_ChVBuf,Label='CHVBUF_T')
+            ip_ChVBuf=ip_of_Work(CHVBUF_T(1))
+
             ip_ChVBuf_Sym(1) = ip_ChVBuf
             Do iSym = 2,nSym
                ip_ChVBuf_Sym(iSym) = ip_ChVBuf_Sym(iSym-1)
@@ -190,26 +194,26 @@ C
       Real*8  Frac
       Logical LocDbg
 #include "cholesky.fh"
+#include "stdalloc.fh"
 
-      Character*17 SecNam
-      Parameter (SecNam = 'Cho_VecBuf_Init_X')
+      Character(LEN=17), Parameter:: SecNam = 'Cho_VecBuf_Init_X'
 
-      Integer  Cho_iSumElm
-      External Cho_iSumElm
+      Integer, External:: Cho_iSumElm
 
       Logical DoRead
       Integer i, iSym, ip_Max, l_Max, Left, jNum, iRedC, mUsed
 
-      Integer lScr
-      Parameter (lScr = 1)
+      Integer, Parameter:: lScr = 1
       Real*8 Scr(lScr)
 
       Integer nErr
-      Real*8 Scr_Check, Tol, Diff
-      Parameter (Scr_Check = 1.23456789d0, Tol = 1.0d-15)
+      Real*8  Diff
+      Real*8, Parameter:: Scr_Check = 1.23456789d0, Tol = 1.0d-15
 
       Character*2 Unt
       Real*8 Byte
+
+      Integer, External:: ip_of_Work
 
       If (LocDbg) Then
          Do i = 1,lScr
@@ -250,7 +254,9 @@ C
             Call Cho_iZero(l_ChvBuf_Sym,nSym)
             Call Cho_iZero(ip_ChvBuf_Sym,nSym)
          Else
-            Call Cho_Mem('CHVBUF','Allo','Real',ip_ChVBuf,l_ChVBuf)
+            Call mma_allocate(CHVBUF_T,l_ChVBuf,Label='CHVBUF_T')
+            ip_ChVBuf=ip_of_Work(CHVBUF_T(1))
+
             ip_ChVBuf_Sym(1) = ip_ChVBuf
             Do iSym = 2,nSym
                ip_ChVBuf_Sym(iSym) = ip_ChVBuf_Sym(iSym-1)

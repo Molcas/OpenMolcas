@@ -15,10 +15,9 @@ C
       use ChoVecBuf
       Implicit None
 #include "cholesky.fh"
+#include "stdalloc.fh"
 
-      If (l_ChVBuf .gt. 0) Then
-         Call Cho_Mem('CHVBUF','Free','Real',ip_ChVBuf,l_ChVBuf)
-      End If
+      If (Allocated(CHVBUF_T)) Call mma_deallocate(CHVBUF_T)
       l_ChVBuf=0
       ip_ChVBuf=0
       If (l_ChVBfI .gt. 0) Then
