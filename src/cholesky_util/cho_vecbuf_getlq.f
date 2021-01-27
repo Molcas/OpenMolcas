@@ -18,7 +18,6 @@ C
       Implicit Real*8 (a-h,o-z)
       Real*8  QVec(l_QVec)
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 
       Integer nVecTot(8)
 

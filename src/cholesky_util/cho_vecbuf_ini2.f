@@ -22,7 +22,6 @@ C
       use ChoVecBuf
       Implicit None
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 
       Character*15 SecNam
       Parameter (SecNam = 'Cho_VecBuf_Ini2')

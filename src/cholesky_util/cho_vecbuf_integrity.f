@@ -25,7 +25,6 @@ C
       Implicit None
       Integer irc
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 #include "choprint.fh"
 #include "stdalloc.fh"
 
@@ -38,7 +37,6 @@ C
       Integer jRed
       Integer ipV
       Integer l_ChVBfI
-      Integer, External:: ip_of_Work
 
       ! Set return code
       irc=0
@@ -68,7 +66,7 @@ C
       End Do
       If (l_ChVBfI.gt.0) Then
          Call mma_allocate(CHVBFI,l_ChVBfI,Label='CHVBFI')
-         ip=ip_of_Work(CHVBFI)
+         ip=1
          Do iSym=1,nSym
             ip_ChVBfI_Sym(iSym)=ip
             ip=ip+l_ChVBfI_Sym(iSym)
@@ -78,9 +76,9 @@ C
             ip=ip_ChvBfI_Sym(iSym)
             Do jVec=1,nVec_in_Buf(iSym)
                jRed=InfVec(jVec,2,iSym)
-               Work(ip)=sqrt(dDot_(nDimRS(iSym,jRed),
+               CHVBFI(ip)=sqrt(dDot_(nDimRS(iSym,jRed),
      &                            CHVBUF(ipV),1,CHVBUF(ipV),1))
-               Work(ip+1)=Cho_dSumElm(CHVBUF(ipV),nDimRS(iSym,jRed))
+               CHVBFI(ip+1)=Cho_dSumElm(CHVBUF(ipV),nDimRS(iSym,jRed))
                ipV=ipV+nDimRS(iSym,jRed)
                ip=ip+2
             End Do
@@ -183,7 +181,6 @@ C
       Real*8  Tol
       Logical Report
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 
       Logical OK
 
@@ -198,8 +195,8 @@ C
       Integer i, j
       Real*8  RefNrm
       Real*8  RefSm
-      RefNrm(i,j)=Work(ip_ChVBfI_Sym(j)+2*(i-1))
-      RefSm(i,j)=Work(ip_ChVBfI_Sym(j)+2*(i-1)+1)
+      RefNrm(i,j)=CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1))
+      RefSm(i,j)=CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1)+1)
 
       nErr=0
       If (Allocated(CHVBUF) .and. Allocated(CHVBFI) .and.
@@ -270,7 +267,6 @@ C
       Integer J1
       Integer iSym
       Integer irc
-#include "WrkSpc.fh"
 
       Real*8   dDot_, Cho_dSumElm
       external ddot_, Cho_dSumElm
@@ -288,8 +284,8 @@ C
       Integer k, l
       Real*8  RefNorm
       Real*8  RefSum
-      RefNorm(k,l)=Work(ip_ChVBfI_Sym(l)+2*(k-1))
-      RefSum(k,l)=Work(ip_ChVBfI_Sym(l)+2*(k-1)+1)
+      RefNorm(k,l)=CHVBFI(ip_ChVBfI_Sym(l)+2*(k-1))
+      RefSum(k,l)=CHVBFI(ip_ChVBfI_Sym(l)+2*(k-1)+1)
 
       irc=0
       If (Allocated(CHVBFI)) Then
@@ -322,7 +318,6 @@ C
       use ChoVecBuf
       Implicit None
       Character*(*) Txt
-#include "WrkSpc.fh"
 #include "cholesky.fh"
 
 
@@ -331,8 +326,8 @@ C
       Integer i, j
       Real*8  RefNrm
       Real*8  RefSm
-      RefNrm(i,j)=Work(ip_ChVBfI_Sym(j)+2*(i-1))
-      RefSm(i,j)=Work(ip_ChVBfI_Sym(j)+2*(i-1)+1)
+      RefNrm(i,j)=CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1))
+      RefSm(i,j)=CHVBFI(ip_ChVBfI_Sym(j)+2*(i-1)+1)
 
       If (.NOT.Allocated(nDimRS)) Then
          Call Cho_Quit(

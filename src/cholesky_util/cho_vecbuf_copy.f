@@ -21,7 +21,6 @@ C
       Real*8  Vec(*)
       Integer nVec, iSym
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 
       Integer mUsed, Left, nCopy, lCopy, kOff
 
