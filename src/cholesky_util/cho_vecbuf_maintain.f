@@ -50,23 +50,6 @@ C
       Parameter (LocDbg = .false.)
 #endif
 
-C     Debug print.
-C     ------------
-
-      If (LocDbg) Then
-         Write(Lupri,*)
-         Write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
-         Write(Lupri,*) 'iRed = ',iRed
-         Write(Lupri,*) 'l_ChVBuf  = ',l_ChVBuf,
-     &                  '   ip_ChVBuf = ',ip_ChVBuf
-         Write(Lupri,'(A,8I16)') 'l_ChVBuf_Sym : ',
-     &                          (l_ChVBuf_Sym(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,8I16)') 'ip_ChVBuf_Sym: ',
-     &                          (ip_ChVBuf_Sym(iSym),iSym=1,nSym)
-         Write(Lupri,'(A,8I16)') 'nVec_in_Buf  : ',
-     &                          (nVec_in_Buf(iSym),iSym=1,nSym)
-      End If
-
 C     Set return code.
 C     ----------------
 
@@ -75,12 +58,28 @@ C     ----------------
 C     Return if there is no buffer to maintain.
 C     -----------------------------------------
 
-      If (l_ChVBuf .lt. 1) Then
+      If (.NOT.Allocated(CHVBUF_T)) Then
          If (LocDbg) Then
             Write(Lupri,*) SecNam,': returning: no buffer to maintain!'
-            Write(Lupri,*) SecNam,': l_ChVBuf = ',l_ChVBuf
          End If
          Return
+      End If
+
+C     Debug print.
+C     ------------
+
+      If (LocDbg) Then
+         Write(Lupri,*)
+         Write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
+         Write(Lupri,*) 'iRed = ',iRed
+         Write(Lupri,*) 'l_ChVBuf  = ',SIZE(CHVBUF_T),
+     &                  '   ip_ChVBuf = ',ip_ChVBuf
+         Write(Lupri,'(A,8I16)') 'l_ChVBuf_Sym : ',
+     &                          (l_ChVBuf_Sym(iSym),iSym=1,nSym)
+         Write(Lupri,'(A,8I16)') 'ip_ChVBuf_Sym: ',
+     &                          (ip_ChVBuf_Sym(iSym),iSym=1,nSym)
+         Write(Lupri,'(A,8I16)') 'nVec_in_Buf  : ',
+     &                          (nVec_in_Buf(iSym),iSym=1,nSym)
       End If
 
 C     If there are no vectors yet, return.

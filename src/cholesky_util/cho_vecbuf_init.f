@@ -93,6 +93,7 @@ C
       Integer lVecTot
       Integer ip_Max, l_Max
       Integer iSym, MemEach, MemLeft
+      Integer:: l_ChVBuf=0
 
       Logical Enough
 
@@ -120,7 +121,6 @@ C
       End Do
 
       If (Frac.le.0.0d0 .or. Frac.gt.1.0d0 .or. lVecTot.lt.1) Then
-         l_ChVBuf  = 0
          ip_ChVBuf = 0
          Call Cho_iZero(ip_ChVBuf_Sym,nSym)
          Call Cho_iZero(l_ChVBuf_Sym,nSym)
@@ -214,6 +214,7 @@ C
       Real*8 Byte
 
       Integer, External:: ip_of_Work
+      Integer l_ChVBuf
 
       If (LocDbg) Then
          Do i = 1,lScr

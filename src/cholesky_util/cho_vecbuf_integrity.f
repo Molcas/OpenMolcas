@@ -46,7 +46,7 @@ C
       If (RUN_MODE.NE.RUN_EXTERNAL) Return
 
       ! Return if no buffer is allocated
-      If (l_ChVBuf.lt.1) Return
+      If (.NOT.Allocated(CHVBUF_T)) Return
 
       ! Return if already enabled
       If (l_ChVBfI.gt.0) Return
@@ -201,7 +201,7 @@ C
       RefSm(i,j)=Work(ip_ChVBfI_Sym(j)+2*(i-1)+1)
 
       nErr=0
-      If (l_ChVBuf.gt.0 .and. l_ChVBfI.gt.0 .and.
+      If (Allocated(CHVBUF_T) .and. l_ChVBfI.gt.0 .and.
      &    Allocated(nDimRS)) Then
          Do iSym=1,nSym
             If (nVec_in_Buf(iSym).gt.0 .and.

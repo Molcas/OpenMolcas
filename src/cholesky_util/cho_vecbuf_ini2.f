@@ -43,7 +43,7 @@ C     Check if buffer is allocated.
 C     Check if there are any vectors.
 C     -------------------------------
 
-      If (l_ChVBuf .lt. 1) Then
+      If (.NOT.Allocated(CHVBUF_T)) Then
          If (LocDbg) Then
             Write(Lupri,*) SecNam,': returning immediately: ',
      &                     'No buffer allocated!'

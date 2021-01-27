@@ -128,13 +128,12 @@ C           Copy out sub-blocks corresponding to qualified diagonals:
 C           L(#J,{ab})
 C           ---------------------------------------------------------
 
-            ip0 = ip_ChVBuf_Sym(iSym) - 1 - iiBstR(iSym,2)
-     &          + nnBstR(iSym,2)*iVec0
+            ip0 = ip_ChVBuf_Sym(iSym) - 1
             Do jVec = 1,NumV
-               kOffA = jVec
-               kOffB = ip0 + nnBstR(iSym,2)*(jVec-1)
+               kOffB = ip0 + nnBstR(iSym,2)*(jVec+iVec0-1)
                Do iAB = 1,nQual(iSym)
-                  Wrk(kOffA+NumV*(iAB-1)) = Work(kOffB+iQuAB(iAB,iSym))
+                  jAB = iQuAB(iAB,iSym) - iiBstR(iSym,2)
+                  Wrk(jVec+NumV*(iAB-1)) = Work(kOffB+iQuAB(iAB,iSym))
                End Do
             End Do
 

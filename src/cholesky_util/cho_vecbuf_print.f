@@ -37,8 +37,9 @@ C
      &   'Dimension, sym.',iSym,': ',l_ChVBuf_Sym(iSym),
      &   ' 8-byte words (',xGb,' ',Unt,')'
       End Do
-      Call Cho_Word2Byte(l_ChVBuf,8,xGb,Unt)
+      Call Cho_Word2Byte(SIZE(ChVBuf_T),8,xGb,Unt)
       Write(Lupri,'(/,A,I10,A,F8.2,A,A,A)')
-     & 'Total dimension  : ',l_ChVBuf,' 8-byte words (',xGb,' ',Unt,')'
+     & 'Total dimension  : ',SIZE(ChVBuf_T),' 8-byte words (',xGb,' ',
+     & Unt,')'
 
       End

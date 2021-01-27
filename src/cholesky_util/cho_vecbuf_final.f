@@ -18,7 +18,6 @@ C
 #include "stdalloc.fh"
 
       If (Allocated(CHVBUF_T)) Call mma_deallocate(CHVBUF_T)
-      l_ChVBuf=0
       ip_ChVBuf=0
       If (l_ChVBfI .gt. 0) Then
          Call Cho_Mem('ChVBfI','Free','Real',ip_ChVBfI,l_ChVBfI)

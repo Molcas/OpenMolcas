@@ -27,7 +27,7 @@ C
 C     Check if there is any buffer at all.
 C     ------------------------------------
 
-      If (l_ChVBuf .lt. 1) Return
+      If (.NOT.Allocated(CHVBUF_T)) Return
 
 C     Extract from each symmetry block.
 C     ---------------------------------

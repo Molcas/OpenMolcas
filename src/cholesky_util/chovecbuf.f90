@@ -20,12 +20,12 @@ End Type rPointers
 Type (rPointers):: CHVBUF(8)
 Real*8, Allocatable, Target:: CHVBUF_T(:)
 
-INTEGER ip_CHVBUF, l_CHVBUF
+INTEGER ip_CHVBUF
 INTEGER ip_CHVBFI, l_CHVBFI
 INTEGER ip_CHVBUF_SYM, l_CHVBUF_SYM
 INTEGER ip_CHVBFI_SYM, l_CHVBFI_SYM
 
-COMMON / CHVBUF / ip_CHVBUF, l_CHVBUF, ip_CHVBFI, l_CHVBFI, &
+COMMON / CHVBUF / ip_CHVBUF, ip_CHVBFI, l_CHVBFI, &
                   ip_CHVBUF_SYM(8), l_CHVBUF_SYM(8), &
                   ip_CHVBFI_SYM(8), l_CHVBFI_SYM(8), &
                   NVEC_IN_BUF(8)
