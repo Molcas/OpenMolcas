@@ -11,20 +11,20 @@
 
 set (sources
      main.F90
-     dminv.f90
-     pot.f90
-     prwf.f90
-     simpsn.f90
-     sort_pot.f90
-     spectc.f90
+     dminv.F90
+     pot.F90
+     prwf.F90
+     simpsn.F90
+     sort_pot.F90
+     spectc.F90
      spline.F90
-     vibinp.f90
-     vibmat.f90
+     vibinp.F90
+     vibmat.F90
      vibrot.F90
-     vibrotmain.f90
-     vibrot_globals.f90
-     vibtrm.f90
-     wr_vibrot_info1.f90
+     vibrotmain.F90
+     vibrot_globals.F90
+     vibtrm.F90
+     wr_vibrot_info1.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.txt)

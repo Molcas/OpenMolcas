@@ -11,7 +11,7 @@
 
 set (sources
      main.F90
-     msym.f90
+     msym.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.txt)

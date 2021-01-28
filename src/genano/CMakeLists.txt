@@ -11,28 +11,28 @@
 
 set (sources
      main.F90
-     check_genano.f90
-     cpovlp.f90
-     figcls.f90
-     figopn.f90
-     figprt.f90
-     free_genano.f90
-     genano.f90
+     check_genano.F90
+     cpovlp.F90
+     figcls.F90
+     figopn.F90
+     figprt.F90
+     free_genano.F90
+     genano.F90
      genano_globals.F90
-     init_genano.f90
-     inpctl_genano.f90
-     mkano.f90
-     mktype.f90
-     nophase.f90
-     prhead.f90
-     proj1.f90
-     proj2.f90
-     rdcmo.f90
-     sort_genano.f90
-     sphave.f90
-     updens.f90
-     uporb.f90
-     zlcase.f90
+     init_genano.F90
+     inpctl_genano.F90
+     mkano.F90
+     mktype.F90
+     nophase.F90
+     prhead.F90
+     proj1.F90
+     proj2.F90
+     rdcmo.F90
+     sort_genano.F90
+     sphave.F90
+     updens.F90
+     uporb.F90
+     zlcase.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.txt)

@@ -12,13 +12,13 @@
 set (sources
      main.F90
      getIphInfo.F90
-     initial_surfacehop.f90
+     initial_surfacehop.F90
      rdinp_surfacehop.F90
      restart_surfacehop.F90
      surfacehop.F90
-     surfacehop_globals.f90
+     surfacehop_globals.F90
      tully.F90
-     tully_variables.f90
+     tully_variables.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.txt)

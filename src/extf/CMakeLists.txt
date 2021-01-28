@@ -11,7 +11,7 @@
 
 set (sources
      main.F90
-     extf.f90
+     extf.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.txt)
