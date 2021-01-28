@@ -42,6 +42,7 @@ C
       Character(LEN=19), Parameter:: SecNam = 'Cho_VecBuf_Maintain'
 
       Real*8, Pointer:: V2(:,:)=>Null(), V3(:,:)=>Null()
+
       Integer iS, iE, lRow, lCol
       Real*8, Allocatable:: VRd(:)
 
@@ -258,8 +259,15 @@ C              Reorder the vectors and store in buffer in current
 C              reduced set.
 C              --------------------------------------------------
 
-               iOff2 = ip_ChVBuf_Sym(iSym)
-     &               + nnBstR(iSym,2)*nVec_in_Buf(iSym) - 1
+               lRow = nnBstR(iSym,2)
+               lCol = nVec_in_Buf(iSym)+nVRd
+               iS = ip_ChVBuf_Sym(iSym)
+               iE = iS - 1 + lRow*lCol
+
+               V2(1:lRow,1:lCol) => CHVBUF(iS:iE)
+
+*              iOff2 = ip_ChVBuf_Sym(iSym)
+*    &               + nnBstR(iSym,2)*nVec_in_Buf(iSym) - 1
                iOff3 = 0
                Do kVec = 1,nVRd
 
@@ -289,10 +297,11 @@ C              --------------------------------------------------
      &                                //SecNam,104)
                      End If
 #endif
-                     CHVBUF(iOff2+iRS2) = Vrd(iOff3+jRS3)
+*                    CHVBUF(iOff2+iRS2) = Vrd(iOff3+jRS3)
+                     V2(iRS2,jVec) = Vrd(iOff3+jRS3)
                   End Do
 
-                  iOff2 = iOff2 + nnBstR(iSym,2)
+*                 iOff2 = iOff2 + nnBstR(iSym,2)
                   iOff3 = iOff3 + nnBstR(iSym,3)
 
                End Do
