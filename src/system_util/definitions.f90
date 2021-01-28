@@ -21,7 +21,8 @@ module definitions
     public :: i4, i8, r4, r8
     public :: u6
 
-    ! This is the working precision and should be preferably used.
+    ! This is the working precision and should be preferably used
+    ! (we assume logical kinds are the same as integer kinds).
 #ifdef _I8_
     integer(kind=int64), parameter :: iwp = int64
 #else
