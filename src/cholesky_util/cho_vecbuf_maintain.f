@@ -266,8 +266,6 @@ C              --------------------------------------------------
 
                V2(1:lRow,1:lCol) => CHVBUF(iS:iE)
 
-*              iOff2 = ip_ChVBuf_Sym(iSym)
-*    &               + nnBstR(iSym,2)*nVec_in_Buf(iSym) - 1
                iOff3 = 0
                Do kVec = 1,nVRd
 
@@ -297,11 +295,9 @@ C              --------------------------------------------------
      &                                //SecNam,104)
                      End If
 #endif
-*                    CHVBUF(iOff2+iRS2) = Vrd(iOff3+jRS3)
-                     V2(iRS2,jVec) = Vrd(iOff3+jRS3)
+                     V2(iRS2,jVec) = VRd(iOff3+jRS3)
                   End Do
 
-*                 iOff2 = iOff2 + nnBstR(iSym,2)
                   iOff3 = iOff3 + nnBstR(iSym,3)
 
                End Do
