@@ -135,12 +135,9 @@ C           Copy out sub-blocks corresponding to qualified diagonals:
 C           L(#J,{ab})
 C           ---------------------------------------------------------
 
-*           ip0 = ip_ChVBuf_Sym(iSym) - 1
             Do jVec = 1,NumV
-*              kOffB = ip0 + nnBstR(iSym,2)*(jVec+iVec0-1)
                Do iAB = 1,nQual(iSym)
                   jAB = iQuAB(iAB,iSym) - iiBstR(iSym,2)
-*                 Wrk(jVec+NumV*(iAB-1)) = CHVBUF(kOffB+jAB)
                   Wrk(jVec+NumV*(iAB-1)) = V(jAB,jVec+iVec0)
                End Do
             End Do
@@ -150,9 +147,8 @@ C           (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L(#J,{ab})
 C           for each ab in {ab}.
 C           ----------------------------------------------------
 
-*           ip0 = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,2)*iVec0
-*           Call Cho_SubScr_Dia(CHVBUF(ip0),NumV,iSym,2,SSNorm)
             Call Cho_SubScr_Dia(V(1,iVec0+1),NumV,iSym,2,SSNorm)
+
             Do iAB = 1,nQual(iSym)
                Do iShGD = 1,nnShl
                   nGD = nnBstRSh(iSym,iShGD,2)
@@ -163,12 +159,10 @@ C           ----------------------------------------------------
                   Tst = sqrt(DSPNm(iShGD)*DSubScr(jAB))
                   If (Tst<=SSTau) Cycle
                   xDon = xDon + 1.0d0
-*                 kOff1 = ip0 + iGD
                   kOff2 = NumV*(iAB-1) + 1
                   kOff3 = nnBstR(iSym,2)*(iAB-1)
      &                  + iiBstRSh(iSym,iShGD,2) + 1
                   Call dGeMV_('N',nGD,NumV,
-*    &                       xMOne,CHVBUF(kOff1),nnBstR(iSym,2),
      &                       xMOne,V(1+iGD,iVec0+1),nnBstR(iSym,2),
      &                       Wrk(kOff2),1,One,xInt(kOff3),1)
                End Do
@@ -182,10 +176,11 @@ C              If the qualified block, L({ab},#J), is already in core,
 C              use this block.
 C              -------------------------------------------------------
 
-               kOff = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,2)*iVec0
+*              kOff = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,2)*iVec0
 
                Call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,
-     &                    xMOne,CHVBUF(kOff),nnBstR(iSym,2),
+*    &                    xMOne,CHVBUF(kOff),nnBstR(iSym,2),
+     &                    xMOne,V(1,iVec0+1),nnBstR(iSym,2),
      &                          LQ(iSym)%Array(:,iVec0+1),
      &                          SIZE(LQ(iSym)%Array,1),
      &                    One,xInt,nnBstR(iSym,2))
@@ -196,11 +191,10 @@ C              Copy out sub-blocks corresponding to qualified diagonals:
 C              L({ab},#J).
 C              ---------------------------------------------------------
 
-               ip0 = ip_ChVBuf_Sym(iSym) - 1 - iiBstR(iSym,2)
-     &             + nnBstR(iSym,2)*iVec0
+               ip0 = ip_ChVBuf_Sym(iSym) - iiBstR(iSym,2) - 1
                Do jVec = 1,NumV
                   kOffA = nQual(iSym)*(jVec-1)
-                  kOffB = ip0 + nnBstR(iSym,2)*(jVec-1)
+                  kOffB = ip0 + nnBstR(iSym,2)*(jVec+iVec0-1)
                   Do iAB = 1,nQual(iSym)
                      Wrk(kOffA+iAB) = CHVBUF(kOffB+iQuAB(iAB,iSym))
                   End Do
@@ -213,7 +207,8 @@ C              ----------------------------------------------------
                kOff = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,2)*iVec0
 
                Call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,
-     &                    xMOne,CHVBUF(kOff),nnBstR(iSym,2),
+*    &                    xMOne,CHVBUF(kOff),nnBstR(iSym,2),
+     &                    xMOne,V(1,iVec0+1),nnBstR(iSym,2),
      &                          Wrk,nQual(iSym),
      &                    One,xInt,nnBstR(iSym,2))
 
