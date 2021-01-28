@@ -148,6 +148,27 @@
       set (EXTRA_FFLAGS "-w=obs -w=x77 -unsharedrts" CACHE STRING "extra Fortran flags")
     pre_compile_script: |
       rm -rf ${install_path}
+    pre_make_script: |
+      mkdir -p ${install_path}
+      $${make} 2>&1 | tee nag.log
+      # Remove CMake and NAG version lines
+      sed -E '/^Scanning dependencies of target [^ ]*/d ; /^\[ *[0-9]+*%\].*/d ; /^\[?NAG Fortran Compiler.*/d' nag.log > nag2.log ; mv nag2.log nag.log
+      # Wrap lines that start with a space
+      sed -E ':a ; $!N ; s/\n\s+/ / ; ta ; P ; D' nag.log > nag2.log ; mv nag2.log nag.log
+      # Remove ignored warnings
+      sed -E '/WrkSpc\.fh.*EQUIVALENCE/d ; /(was not compiled with the -i8 option)/d' nag.log > nag2.log ; mv nag2.log nag.log
+      cp nag.log ${install_path}
+      # Fail if any warning remains
+      if [ "$$(wc -l < nag.log)" == "0" ] ; then
+        true
+      else
+        echo "***************************************"
+        echo "* Compilation finished with warnings! *"
+        echo "***************************************"
+        cat nag.log
+        echo "***************************************"
+        false
+      fi
     CC: "gcc"
     CXX: "g++"
     FC: "nagfor"
