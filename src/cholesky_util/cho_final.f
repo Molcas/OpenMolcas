@@ -13,7 +13,8 @@
 C
 C     Purpose: Cholesky finalizations.
 C
-      use ChoBkm
+      use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,
+     &                   nRow_BkmThr, nCol_BkmThr
       Implicit None
       Logical WriteBookmarks
 #include "cholesky.fh"

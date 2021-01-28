@@ -27,7 +27,8 @@ C              cho_para_info.fh
 C              and some in the Module choarr.f90
 C
       use ChoArr, only: nDim_Batch, nQual_L, n_MySP
-      use ChoBkm
+      use ChoBkm, only:  nRow_BkmVec, nCol_BkmVec,
+     &                   nRow_BkmThr, nCol_BkmThr
       use ChoVecBuf, only: ip_CHVBUF_SYM, l_CHVBUF_SYM,
      &                     ip_CHVBFI_SYM, l_CHVBFI_SYM,
      &                     nVec_in_Buf

@@ -38,7 +38,7 @@
 *> @param[out] irc   Return code
 ************************************************************************
       Subroutine Cho_X_Bookmark(Thr,mSym,nVec,delta,irc)
-      use ChoBkm
+      use ChoBkm, only: BkmVec, BkmThr, nRow_BkmThr
       Implicit None
       Real*8  Thr
       Integer mSym

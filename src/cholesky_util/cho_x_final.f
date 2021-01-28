@@ -24,7 +24,8 @@
 ************************************************************************
       Subroutine Cho_X_Final(irc)
       use ChoArr, only: MySP
-      use ChoBkm
+      use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,
+     &                   nRow_BkmThr, nCol_BkmThr
       Implicit None
       Integer irc
 #include "choini.fh"

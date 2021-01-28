@@ -26,7 +26,8 @@ C
      &                                       iiBstRSh_Hidden, iiBstRSh,
      &                                         InfRed_Hidden,   InfRed,
      &                                         InfVec_Hidden,   InfVec
-      use ChoBkm
+      use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,
+     &                   nRow_BkmThr, nCol_BkmThr
       use ChoSubScr, only: Cho_SScreen, SSTau
 #include "implicit.fh"
       LOGICAL SKIP_PRESCREEN

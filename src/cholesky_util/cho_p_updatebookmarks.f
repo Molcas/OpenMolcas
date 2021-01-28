@@ -21,7 +21,7 @@ C
 C     Note: it is assumed that array DiaMax and number of Cholesky
 C     vectors are properly updated before calling this routine.
 C
-      use ChoBkm
+      use ChoBkm, only: BkmVec, BkmThr, nCol_BkmVec, nCol_BkmThr
       Implicit None
       Integer iRS
 #include "cho_para_info.fh"

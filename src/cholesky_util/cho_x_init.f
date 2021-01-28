@@ -59,7 +59,8 @@
       use ChoSwp, only: iiBstRSh, iiBstRSh_Hidden
       use ChoSwp, only:   IndRSh,   IndRSh_Hidden
       use ChoSwp, only:   IndRed,   IndRed_Hidden
-      use ChoBkm
+      use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,
+     &                   nRow_BkmThr, nCol_BkmThr
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
