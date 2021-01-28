@@ -162,7 +162,7 @@ C           (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L(#J,{ab})
 C           for each ab in {ab}.
 C           ----------------------------------------------------
 
-            Call Cho_SubScr_Dia(V(1,iVec0+1),NumV,iSym,2,SSNorm)
+            Call Cho_SubScr_Dia(V(:,iVec0+1),NumV,iSym,2,SSNorm)
 
             Do iAB = 1,nQual(iSym)
                Do iShGD = 1,nnShl
