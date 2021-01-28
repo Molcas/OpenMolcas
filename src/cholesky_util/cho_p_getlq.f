@@ -18,6 +18,19 @@
 
       Character*11 SecNam
       Parameter (SecNam = 'Cho_P_GetLQ')
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      SubRoutine Cho_GetLQ(QVec,l_QVec,LstQSP,nQSP)
+      Integer l_QVec, nQSP
+      Real*8, Target::  QVec(l_Qvec)
+      Integer LstQSP(nQSP)
+      End SubRoutine Cho_GetLQ
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 
 C --- In parallel:
 C --- This code only works if MxShpr is set to 1
