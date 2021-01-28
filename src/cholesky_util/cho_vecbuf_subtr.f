@@ -147,21 +147,19 @@ C           ----------------------------------------------------
             Do iAB = 1,nQual(iSym)
                Do iShGD = 1,nnShl
                   nGD = nnBstRSh(iSym,iShGD,2)
-                  If (nGD .gt. 0) Then
-                     xTot = xTot + 1.0d0
-                     jAB = iQuab(iAB,iSym) - iiBstR(iSym,2)
-                     Tst = sqrt(DSPNm(iShGD)*DSubScr(jAB))
-                     If (Tst .gt. SSTau) Then
-                        xDon = xDon + 1.0d0
-                        kOff1 = ip0 + iiBstRSh(iSym,iShGD,2)
-                        kOff2 = NumV*(iAB-1) + 1
-                        kOff3 = nnBstR(iSym,2)*(iAB-1)
-     &                        + iiBstRSh(iSym,iShGD,2) + 1
-                        Call dGeMV_('N',nGD,NumV,
-     &                             xMOne,CHVBUF(kOff1),nnBstR(iSym,2),
-     &                             Wrk(kOff2),1,One,xInt(kOff3),1)
-                     End If
-                  End If
+                  If (nGD < 1 ) Cycle
+                  xTot = xTot + 1.0d0
+                  jAB = iQuab(iAB,iSym) - iiBstR(iSym,2)
+                  Tst = sqrt(DSPNm(iShGD)*DSubScr(jAB))
+                  If (Tst<=SSTau) Cycle
+                  xDon = xDon + 1.0d0
+                  kOff1 = ip0 + iiBstRSh(iSym,iShGD,2)
+                  kOff2 = NumV*(iAB-1) + 1
+                  kOff3 = nnBstR(iSym,2)*(iAB-1)
+     &                  + iiBstRSh(iSym,iShGD,2) + 1
+                  Call dGeMV_('N',nGD,NumV,
+     &                       xMOne,CHVBUF(kOff1),nnBstR(iSym,2),
+     &                       Wrk(kOff2),1,One,xInt(kOff3),1)
                End Do
             End Do
 

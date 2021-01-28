@@ -37,12 +37,14 @@ C
 #include "implicit.fh"
       Logical DoTime, DoStat
 #include "cholesky.fh"
-#include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Character(LEN=19), Parameter:: SecNam = 'Cho_VecBuf_Maintain'
 
       Real*8, Pointer:: V2(:,:)=>Null(), V3(:,:)=>Null()
       Integer iS, iE, lRow, lCol
+      Real*8, Allocatable:: VRd(:)
+
 *#define _DEBUGPRINT_
 #if defined (_DEBUGPRINT_)
       Logical, Parameter:: LocDbg = .true.
@@ -179,8 +181,6 @@ C           ----------------
             V3(1:lRow,1:lCol) => CHVBUF(iS:iE)
 
             Do iVec = 1,nVec_in_Buf(iSym)
-*              iOff2 = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,2)*(iVec-1) - 1
-*              iOff3 = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,3)*(iVec-1) - 1
                Do iRS2 = 1,nnBstR(iSym,2)
                   jRS3 = iScr(iRS2)
 #if defined (_DEBUGPRINT_)
@@ -195,7 +195,6 @@ C           ----------------
                      Call Cho_Quit('RS-2-RS map error in '//SecNam,104)
                   End If
 #endif
-*                 CHVBUF(iOff2+iRS2) = CHVBUF(iOff3+iScr(iRS2))
                   V2(iRS2,iVec) = V3(jRS3,iVec)
                End Do
             End Do
@@ -210,7 +209,8 @@ C     =====================
 
       nSys = 0 ! #calls to reading routine (counter)
 
-      Call Cho_Mem('CHVB.Read','MAX ','Real',ip_VRd,l_VRd)
+      Call mma_maxDBLE(l_VRd)
+      Call mma_allocate(VRd,l_VRd,Label='VRd')
       Do iSym = 1,nSym
          nDisk = NumCho(iSym) - nVec_in_Buf(iSym)
 #if defined (_DEBUGPRINT_)
@@ -246,7 +246,7 @@ C              -------------
 
                nVRd  = 0
                mUsed = 0
-               Call Cho_VecRd(Work(ip_VRd),l_VRd,iVec,iVec2,iSym,nVRd,
+               Call Cho_VecRd(VRd,l_VRd,iVec,iVec2,iSym,nVRd,
      &                        iRedC,mUsed)
                If (nVRd .lt. 1) Then
                   Call Cho_Quit('Insufficient memory for read in '
@@ -260,7 +260,7 @@ C              --------------------------------------------------
 
                iOff2 = ip_ChVBuf_Sym(iSym)
      &               + nnBstR(iSym,2)*nVec_in_Buf(iSym) - 1
-               iOff3 = ip_VRd - 1
+               iOff3 = 0
                Do kVec = 1,nVRd
 
                   jVec = iVec + kVec - 1
@@ -289,7 +289,7 @@ C              --------------------------------------------------
      &                                //SecNam,104)
                      End If
 #endif
-                     CHVBUF(iOff2+iRS2) = Work(iOff3+iScr(iRS2))
+                     CHVBUF(iOff2+iRS2) = Vrd(iOff3+iScr(iRS2))
                   End Do
 
                   iOff2 = iOff2 + nnBstR(iSym,2)
@@ -307,7 +307,7 @@ C              ----------------
 
          End If
       End Do
-      Call Cho_Mem('CHVB.Read','Free','Real',ip_VRd,l_VRd)
+      Call mma_deallocate(VRd)
 
 C     Update global timing.
 C     ---------------------
