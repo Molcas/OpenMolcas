@@ -23,11 +23,23 @@ C
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-      Character*12 SecNam
-      Parameter (SecNam = 'Cho_Decom_A4')
+      Character(LEN=12), Parameter:: SecNam = 'Cho_Decom_A4'
 
       Integer NumCho_Old(8), nQual_Old(8)
       Integer NumV(8)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      SubRoutine Cho_P_GetLQ(QVec,l_QVec,LstQSP,nQSP)
+      Integer l_QVec, nQSP
+      Real*8, Target::  QVec(l_Qvec)
+      Integer LstQSP(nQSP)
+      End SubRoutine Cho_P_GetLQ
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 
       nKVec(i)=iWork(ip_nKVec-1+i)
 
