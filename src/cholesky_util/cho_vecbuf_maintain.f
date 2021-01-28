@@ -282,14 +282,14 @@ C              --------------------------------------------------
                   End If
 
                   Do iRS2 = 1,nnBstR(iSym,2)
-#if defined (_DEBUGPRINT_)
                      jRS3 = iScr(iRS2)
+#if defined (_DEBUGPRINT_)
                      If (jRS3.lt.1 .or. jRS3.gt.nnBstR(iSym,3)) Then
                         Call Cho_Quit('RS-2-RS map error [2] in '
      &                                //SecNam,104)
                      End If
 #endif
-                     CHVBUF(iOff2+iRS2) = Vrd(iOff3+iScr(iRS2))
+                     CHVBUF(iOff2+iRS2) = Vrd(iOff3+jRS3)
                   End Do
 
                   iOff2 = iOff2 + nnBstR(iSym,2)

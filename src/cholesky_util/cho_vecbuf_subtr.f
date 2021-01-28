@@ -20,23 +20,23 @@ C
       use ChoArr, only: LQ
       use ChoVecBuf
 #include "implicit.fh"
-      Real*8  xInt(*), Wrk(lWrk)
+      Real*8, Target::  xInt(*), Wrk(lWrk)
       Logical DoTime, DoStat
 #include "cholesky.fh"
 #include "chosubscr.fh"
 #include "WrkSpc.fh"
 
-      Character*16 SecNam
-      Parameter (SecNam = 'Cho_VecBuf_Subtr')
+      Character(LEN=16), Parameter:: SecNam = 'Cho_VecBuf_Subtr'
 
-      Logical LocDbg
 #if defined (_DEBUGPRINT_)
-      Parameter (LocDbg = .true.)
+      Logical, Parameter:: LocDbg = .true.
 #else
-      Parameter (LocDbg = .false.)
+      Logical, Parameter:: LocDbg = .false.
 #endif
 
-      Parameter (xMOne = -1.0d0, One = 1.0d0)
+      Real*8, Parameter:: xMOne = -1.0d0, One = 1.0d0
+
+      Real*8, Pointer:: V(:,:)
 
       DSubScr(i)=Work(ip_DSubScr-1+i)
       DSPNm(i)=Work(ip_DSPNm-1+i)
@@ -117,6 +117,13 @@ C        ------------------------
          End If
 #endif
 
+         lRow = nnBstR(iSym,2)
+         lCol = iVec0 + NumV
+         iS   = ip_ChVBuf_Sym(iSym)
+         iE   = iS - 1 + lRow*lCol
+
+         V(1:lRow,1:lCol) => CHVBUF(iS:iE)
+
 C        Screened or unscreened subtraction section.
 C        The screened version uses level 2 blas, while the unscreened
 C        one employs level 3 blas.
@@ -128,12 +135,13 @@ C           Copy out sub-blocks corresponding to qualified diagonals:
 C           L(#J,{ab})
 C           ---------------------------------------------------------
 
-            ip0 = ip_ChVBuf_Sym(iSym) - 1
+*           ip0 = ip_ChVBuf_Sym(iSym) - 1
             Do jVec = 1,NumV
-               kOffB = ip0 + nnBstR(iSym,2)*(jVec+iVec0-1)
+*              kOffB = ip0 + nnBstR(iSym,2)*(jVec+iVec0-1)
                Do iAB = 1,nQual(iSym)
                   jAB = iQuAB(iAB,iSym) - iiBstR(iSym,2)
-                  Wrk(jVec+NumV*(iAB-1)) = CHVBUF(kOffB+jAB)
+*                 Wrk(jVec+NumV*(iAB-1)) = CHVBUF(kOffB+jAB)
+                  Wrk(jVec+NumV*(iAB-1)) = V(jAB,jVec+iVec0)
                End Do
             End Do
 
@@ -165,7 +173,7 @@ C           ----------------------------------------------------
 
          Else ! unscreened subtraction
 
-              If (Associated(LQ(iSym)%Array)) Then
+            If (Associated(LQ(iSym)%Array)) Then
 
 C              If the qualified block, L({ab},#J), is already in core,
 C              use this block.
@@ -209,6 +217,8 @@ C              ----------------------------------------------------
             End If
 
          End If
+
+         V=>Null()
 
       End Do
 
