@@ -19,11 +19,12 @@ C
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
       use ChoArr, only: LQ
       use ChoVecBuf
+      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
+     &                     ip_DSPNm, SSNorm
 #include "implicit.fh"
       Real*8, Target::  xInt(*), Wrk(lWrk)
       Logical DoTime, DoStat
 #include "cholesky.fh"
-#include "chosubscr.fh"
 #include "WrkSpc.fh"
 
       Character(LEN=16), Parameter:: SecNam = 'Cho_VecBuf_Subtr'
@@ -38,7 +39,6 @@ C
 
       Real*8, Pointer:: V(:,:)=>Null(), U(:,:)=>Null(), W(:,:)=>Null()
 
-      DSubScr(i)=Work(ip_DSubScr-1+i)
       DSPNm(i)=Work(ip_DSPNm-1+i)
 
 C     Return if nothing to do.

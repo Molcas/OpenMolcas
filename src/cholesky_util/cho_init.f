@@ -27,6 +27,7 @@ C
      &                                         InfRed_Hidden,   InfRed,
      &                                         InfVec_Hidden,   InfVec
       use ChoBkm
+      use ChoSubScr, only: Cho_SScreen, SSTau
 #include "implicit.fh"
       LOGICAL SKIP_PRESCREEN
       LOGICAL ALLOCATE_BOOKMARKS
@@ -34,7 +35,6 @@ C
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "chosp.fh"
-#include "chosubscr.fh"
 #include "stdalloc.fh"
 
       DIMENSION XXB(8)

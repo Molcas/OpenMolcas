@@ -21,10 +21,11 @@ C
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
       use ChoArr, only: LQ
       use ChoVecBuf
+      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
+     &                     ip_DSPNm, SSNorm
 #include "implicit.fh"
       DIMENSION XINT(*), WRK(LWRK)
 #include "cholesky.fh"
-#include "chosubscr.fh"
 #include "WrkSpc.fh"
 
       CHARACTER*10 SECNAM
@@ -38,7 +39,6 @@ C
 
       PARAMETER (XMONE = -1.0D0, ONE = 1.0D0)
 
-      DSUBSCR(I)=WORK(ip_DSUBSCR-1+I)
       DSPNM(I)=WORK(ip_DSPNM-1+I)
 
 C     Return if nothing to do.

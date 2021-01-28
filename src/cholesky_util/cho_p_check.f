@@ -17,10 +17,10 @@ C             Cholesky decomposition should be implemented later. Thus,
 C             this subroutine is, in effect, a TODO-list.
 C
       Use Para_Info, Only: nProcs, Is_Real_Par
+      use ChoSubScr, only: Cho_SScreen
       Implicit None
       Integer irc
 #include "cholesky.fh"
-#include "chosubscr.fh"
 #include "chosimri.fh"
 #include "cho_para_info.fh"
 

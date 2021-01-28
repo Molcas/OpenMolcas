@@ -15,11 +15,12 @@ C
       USE Para_Info, ONLY: nProcs, Is_Real_Par
       use ChoArr, only: nDimRS, IntMap
       use ChoSwp, only: nnBstRSh, InfVec
+      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat,
+     &                     ip_DSPNm, SSNorm
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-#include "chosubscr.fh"
 #include "WrkSpc.fh"
 
       CHARACTER*8 SECNAM

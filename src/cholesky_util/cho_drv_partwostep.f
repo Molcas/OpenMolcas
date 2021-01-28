@@ -19,11 +19,11 @@ C              integrals.
 C
       use ChoArr, only: iAtomShl, iShP2RS, iShP2Q
       use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
+      use ChoSubScr, only: Cho_SScreen, SSTau
       Implicit None
       Integer irc
 #include "choprint.fh"
 #include "cholesky.fh"
-#include "chosubscr.fh"
 #include "chosimri.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"

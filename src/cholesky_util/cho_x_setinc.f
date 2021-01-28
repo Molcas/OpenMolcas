@@ -29,12 +29,13 @@ C
       use ChoArr, only: nDim_Batch, nQual_L, n_MySP
       use ChoBkm
       use ChoVecBuf
+      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
+     &                     ip_DSPNm, l_DSPNm, SSNorm
       Implicit None
       Integer irc
 #include "choorb.fh"
 #include "choprint.fh"
 #include "cholesky.fh"
-#include "chosubscr.fh"
 #include "chosimri.fh"
 #include "chopar.fh"
 #include "cho_para_info.fh"
@@ -210,8 +211,6 @@ C     --------------
       SSTau       = 0.0d0
       SubScrStat(1) = 0.0d0
       SubScrStat(2) = 0.0d0
-      ip_DSubScr  = 0
-      l_DSubScr   = 0
       ip_DSPNm    = 0
       l_DSPNm     = 0
       SSNorm      = 'tbp'

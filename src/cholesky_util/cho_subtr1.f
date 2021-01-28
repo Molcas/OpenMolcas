@@ -21,12 +21,13 @@ C
       use ChoArr, only: iScr, LQ
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, InfVec
       use ChoVecBuf
+      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
+     &                     ip_DSPNm, SSNorm
 #include "implicit.fh"
       DIMENSION XINT(*), WRK(LWRK)
       LOGICAL   FXDMEM
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "chosubscr.fh"
 #include "WrkSpc.fh"
 
       CHARACTER*10 SECNAM
@@ -45,7 +46,6 @@ C
       INTEGER  CHO_X_NUMRD
       EXTERNAL CHO_X_NUMRD
 
-      DSUBSCR(I)=WORK(ip_DSUBSCR-1+I)
       DSPNM(I)=WORK(ip_DSPNM-1+I)
 
 C     Return if nothing to do.

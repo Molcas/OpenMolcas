@@ -21,19 +21,17 @@ C
 C              Any other norm is taken to be 'Max'.
 C
       use ChoSwp, only: nnBstRSh, iiBstRSh
+      use ChoSubScr, only: DSubScr, ip_DSPNm
 #include "implicit.fh"
       Dimension ChoVec(*)
       Character*(*) DSPNorm
 #include "cholesky.fh"
-#include "chosubscr.fh"
 #include "WrkSpc.fh"
 
       Character*14 SecNam
       Parameter (SecNam = 'Cho_SubScr_Dia')
 
       Character*3 myDSPNorm
-
-      DSubScr(i)=Work(ip_DSubScr-1+i)
 
 #if defined (_DEBUGPRINT_)
       If (iLoc.lt.1 .or. iLoc.gt.3) Then
@@ -50,7 +48,7 @@ C
 C     Initialize and check for early return.
 C     --------------------------------------
 
-      Call Cho_dZero(Work(ip_DSubScr),nnBstR(iSym,iLoc))
+      Call Cho_dZero(DSubScr,nnBstR(iSym,iLoc))
       Call Cho_dZero(Work(ip_DSPNm),nnShl)
       If (nVec.lt.1 .or. nnBstR(iSym,iLoc).lt.1) return
 
@@ -60,7 +58,7 @@ C     -----------------
       Do iVec = 1,nVec
          kOff = nnBstR(iSym,iLoc)*(iVec-1)
          Do iAB = 1,nnBstR(iSym,iLoc)
-            Work(ip_DSubScr-1+iAB) = Work(ip_DSubScr-1+iAB)
+            DSubScr(iAB) = DSubScr(iAB)
      &                             + ChoVec(kOff+iAB)*ChoVec(kOff+iAB)
          End Do
       End Do
@@ -93,7 +91,7 @@ C     --------------------------------------
             iAB2 = iAB1 + nnBstRSh(iSym,iSP,iLoc) - 1
             Do iAB = iAB1,iAB2
                Work(ip_DSPNm-1+iSP) = max(Work(ip_DSPNm-1+iSP),
-     &                                    Work(ip_DSubScr-1+iAB))
+     &                                    DSubScr(iAB))
             End Do
          End Do
       Else If (myDSPNorm .eq. 'FRO') Then
@@ -114,7 +112,7 @@ C     --------------------------------------
             iAB2 = iAB1 + nnBstRSh(iSym,iSP,iLoc) - 1
             Do iAB = iAB1,iAB2
                Work(ip_DSPNm-1+iSP) = max(Work(ip_DSPNm-1+iSP),
-     &                                    Work(ip_DSubScr-1+iAB))
+     &                                    DSubScr(iAB))
             End Do
          End Do
       End If

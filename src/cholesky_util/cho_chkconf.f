@@ -12,12 +12,12 @@
 C
 C     Purpose: check configuration, return the number of errors NCONFL.
 C
+      use ChoSubScr, only: Cho_SScreen, SSTau
       IMPLICIT NONE
       INTEGER NCONFL
       LOGICAL VERBOSE
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "chosubscr.fh"
 #include "chosimri.fh"
 #include "cho_para_info.fh"
 
