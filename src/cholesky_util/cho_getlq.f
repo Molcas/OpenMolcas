@@ -25,6 +25,18 @@ C
 
       Integer iV1(8), nV(8)
       Integer nTot, iSym
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Interface
+      SubRoutine Cho_VecBuf_GetLQ(QVec,l_QVec)
+      Integer l_QVec
+      Real*8, Target::  QVec(l_QVec)
+      End SubRoutine Cho_VecBuf_GetLQ
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
 
 C     Check input.
 C     ------------
