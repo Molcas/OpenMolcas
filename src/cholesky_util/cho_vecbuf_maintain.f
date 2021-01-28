@@ -39,15 +39,15 @@ C
 #include "cholesky.fh"
 #include "WrkSpc.fh"
 
-      Character*19 SecNam
-      Parameter (SecNam = 'Cho_VecBuf_Maintain')
+      Character(LEN=19), Parameter:: SecNam = 'Cho_VecBuf_Maintain'
 
-      Logical LocDbg
+      Real*8, Pointer:: V2(:,:)=>Null(), V3(:,:)=>Null()
+      Integer iS, iE, lRow, lCol
 *#define _DEBUGPRINT_
 #if defined (_DEBUGPRINT_)
-      Parameter (LocDbg = .true.)
+      Logical, Parameter:: LocDbg = .true.
 #else
-      Parameter (LocDbg = .false.)
+      Logical, Parameter:: LocDbg = .false.
 #endif
 
 C     Set return code.
@@ -168,12 +168,22 @@ C           --------------------------------------------------------
 C           Reorder vectors.
 C           ----------------
 
+            lRow = nnBstR(iSym,2)
+            lCol = nVec_in_Buf(iSym)
+            iS = ip_ChVBuf_Sym(iSym)
+            iE = iS - 1 + lRow*lCol
+            V2(1:lRow,1:lCol) => CHVBUF(iS:iE)
+
+            lRow = nnBstR(iSym,3)
+            iE = iS - 1 + lRow*lCol
+            V3(1:lRow,1:lCol) => CHVBUF(iS:iE)
+
             Do iVec = 1,nVec_in_Buf(iSym)
-               iOff2 = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,2)*(iVec-1) - 1
-               iOff3 = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,3)*(iVec-1) - 1
+*              iOff2 = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,2)*(iVec-1) - 1
+*              iOff3 = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,3)*(iVec-1) - 1
                Do iRS2 = 1,nnBstR(iSym,2)
-#if defined (_DEBUGPRINT_)
                   jRS3 = iScr(iRS2)
+#if defined (_DEBUGPRINT_)
                   If (iRS2.lt.1 .or. iRS2.gt.SIZE(iScr)) Then
                      Write(LuPri,*) 'iRS2=',iRS2
                      Write(LuPri,*) 'SIZE(iScr)=',SIZE(iScr)
@@ -185,12 +195,15 @@ C           ----------------
                      Call Cho_Quit('RS-2-RS map error in '//SecNam,104)
                   End If
 #endif
-                  CHVBUF(iOff2+iRS2) = CHVBUF(iOff3+iScr(iRS2))
+*                 CHVBUF(iOff2+iRS2) = CHVBUF(iOff3+iScr(iRS2))
+                  V2(iRS2,iVec) = V3(jRS3,iVec)
                End Do
             End Do
 
          End If
       End Do
+      V2=>Null()
+      V3=>Null()
 
 C     Read in more vectors.
 C     =====================

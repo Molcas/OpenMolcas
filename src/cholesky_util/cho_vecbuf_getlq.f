@@ -50,10 +50,8 @@ C     ---------------------------------
 
          If (nQual(iSym) .gt. 0) Then
             Do iVec = 1,nVec_in_Buf(iSym)
-*              kQ = kOffQ + nQual(iSym)*(iVec-1)
                Do iQ = 1,nQual(iSym)
                   iAB = iQuAB(iQ,iSym) - iiBstR(iSym,2)
-*                 QVec(kQ+iQ) = BVec(iAB,iVec)
                   Q(iQ,iVec) = BVec(iAB,iVec)
                End Do
             End Do
@@ -62,5 +60,6 @@ C     ---------------------------------
       End Do
 
       BVec => Null()
+      Q    => Null()
 
       End
