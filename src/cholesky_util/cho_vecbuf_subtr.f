@@ -20,7 +20,7 @@ C
       use ChoArr, only: LQ
       use ChoVecBuf
       use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
-     &                     ip_DSPNm, SSNorm
+     &                     DSPNm, SSNorm
 #include "implicit.fh"
       Real*8, Target::  xInt(*), Wrk(lWrk)
       Logical DoTime, DoStat
@@ -38,8 +38,6 @@ C
       Real*8, Parameter:: xMOne = -1.0d0, One = 1.0d0
 
       Real*8, Pointer:: V(:,:)=>Null(), U(:,:)=>Null(), W(:,:)=>Null()
-
-      DSPNm(i)=Work(ip_DSPNm-1+i)
 
 C     Return if nothing to do.
 C     ------------------------

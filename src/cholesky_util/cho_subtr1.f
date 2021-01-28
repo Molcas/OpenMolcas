@@ -22,7 +22,7 @@ C
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, InfVec
       use ChoVecBuf
       use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
-     &                     ip_DSPNm, SSNorm
+     &                     DSPNm, SSNorm
 #include "implicit.fh"
       DIMENSION XINT(*), WRK(LWRK)
       LOGICAL   FXDMEM
@@ -45,8 +45,6 @@ C
 
       INTEGER  CHO_X_NUMRD
       EXTERNAL CHO_X_NUMRD
-
-      DSPNM(I)=WORK(ip_DSPNM-1+I)
 
 C     Return if nothing to do.
 C     ------------------------

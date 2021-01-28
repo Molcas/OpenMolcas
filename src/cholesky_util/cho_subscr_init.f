@@ -12,7 +12,7 @@
 C
 C     Purpose: initialize screening in vector subtraction.
 C
-      use ChoSubScr, only: DSubScr, ip_DSPNm, l_DSPNm
+      use ChoSubScr, only: DSubScr, DSPNm
 #include "implicit.fh"
 #include "cholesky.fh"
 #include "stdalloc.fh"
@@ -24,7 +24,6 @@ C
       End Do
       Call mma_allocate(DSubScr,l_DSubScr,Label='DSubScr')
 
-      l_DSPNm = nnShl
-      Call Cho_Mem('DSPMx','Allo','Real',ip_DSPNm,l_DSPNm)
+      Call mma_allocate(DSPNm,nnShl,Label='DSPNm')
 
       End

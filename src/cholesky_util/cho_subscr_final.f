@@ -13,14 +13,11 @@ C
 C     Purpose: finalize (de-allocate memory) screening in vector
 C              subtraction.
 C
-      use ChoSubScr, only: DSubScr, ip_DSPNm, l_DSPNm
+      use ChoSubScr, only: DSubScr, DSPNm
       Implicit None
 #include "stdalloc.fh"
 
-      If (l_DSPNm .gt. 0) Then
-         Call Cho_Mem('DSPNm','Free','Real',ip_DSPNm,l_DSPNm)
-         l_DSPNm = 0
-      End If
+      If (Allocated(DSPNm)) Call mma_deallocate(DSPNm)
 
       If (Allocated(DSubScr)) Call mma_deallocate(DSubScr)
 

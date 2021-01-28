@@ -22,7 +22,7 @@ C
       use ChoArr, only: LQ
       use ChoVecBuf
       use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
-     &                     ip_DSPNm, SSNorm
+     &                     DSPNm, SSNorm
 #include "implicit.fh"
       DIMENSION XINT(*), WRK(LWRK)
 #include "cholesky.fh"
@@ -38,8 +38,6 @@ C
       EXTERNAL CHO_LREAD
 
       PARAMETER (XMONE = -1.0D0, ONE = 1.0D0)
-
-      DSPNM(I)=WORK(ip_DSPNM-1+I)
 
 C     Return if nothing to do.
 C     ------------------------

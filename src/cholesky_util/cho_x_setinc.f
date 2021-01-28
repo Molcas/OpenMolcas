@@ -30,7 +30,7 @@ C
       use ChoBkm
       use ChoVecBuf
       use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
-     &                     ip_DSPNm, l_DSPNm, SSNorm
+     &                     DSPNm, SSNorm
       Implicit None
       Integer irc
 #include "choorb.fh"
@@ -211,8 +211,6 @@ C     --------------
       SSTau       = 0.0d0
       SubScrStat(1) = 0.0d0
       SubScrStat(2) = 0.0d0
-      ip_DSPNm    = 0
-      l_DSPNm     = 0
       SSNorm      = 'tbp'
 
 C     chosimri.fh.

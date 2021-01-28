@@ -12,12 +12,11 @@
 Module ChoSubScr
 Implicit None
 Private
-Public:: Cho_SScreen, SSTau, SubScrStat, DSubScr, ip_DSPNm, l_DSPNm, SSNorm
+Public:: Cho_SScreen, SSTau, SubScrStat, DSubScr, DSPNm, SSNorm
 Logical Cho_SScreen
 Real*8  SSTau, SubScrStat(2)
-Integer ip_DSPNm
-Integer l_DSPNm
 Character(LEN=3) SSNorm
 
 Real*8, Allocatable:: DSubScr(:)
+Real*8, Allocatable:: DSPNm(:)
 End Module ChoSubScr

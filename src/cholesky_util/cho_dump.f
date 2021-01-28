@@ -22,7 +22,7 @@ C
 C     On input, Lunit is the logical unit to print to...
 C
       use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
-     &                     ip_DSPNm, l_DSPNm
+     &                     DSPNm
       Implicit None
       Integer irc, Lunit
 #include "choorb.fh"
@@ -219,7 +219,7 @@ C     --------------
       Write(Lunit,*) 'SSTau      : ',SSTau
       Write(Lunit,*) 'SubScrStat : ',(SubScrStat(i),i=1,2)
       Write(Lunit,*) 'DSubScr    : ',SIZE(DSubScr)
-      Write(Lunit,*) 'DSPNm      : ',ip_DSPNm,l_DSPNm
+      Write(Lunit,*) 'DSPNm      : ',SIZE(DSPNm)
 
       End
       SubRoutine Cho_PrintPointers(irc,Lunit)

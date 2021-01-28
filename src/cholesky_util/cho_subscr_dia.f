@@ -21,7 +21,7 @@ C
 C              Any other norm is taken to be 'Max'.
 C
       use ChoSwp, only: nnBstRSh, iiBstRSh
-      use ChoSubScr, only: DSubScr, ip_DSPNm
+      use ChoSubScr, only: DSubScr, DSPNm
 #include "implicit.fh"
       Dimension ChoVec(*)
       Character*(*) DSPNorm
@@ -49,7 +49,7 @@ C     Initialize and check for early return.
 C     --------------------------------------
 
       Call Cho_dZero(DSubScr,nnBstR(iSym,iLoc))
-      Call Cho_dZero(Work(ip_DSPNm),nnShl)
+      Call Cho_dZero(DSPNm,nnShl)
       If (nVec.lt.1 .or. nnBstR(iSym,iLoc).lt.1) return
 
 C     Compute diagonal.
@@ -90,8 +90,7 @@ C     --------------------------------------
             iAB1 = iiBstRSh(iSym,iSP,iLoc) + 1
             iAB2 = iAB1 + nnBstRSh(iSym,iSP,iLoc) - 1
             Do iAB = iAB1,iAB2
-               Work(ip_DSPNm-1+iSP) = max(Work(ip_DSPNm-1+iSP),
-     &                                    DSubScr(iAB))
+               DSPNm(iSP) = max(DSPNm(iSP),DSubScr(iAB))
             End Do
          End Do
       Else If (myDSPNorm .eq. 'FRO') Then
@@ -99,10 +98,9 @@ C     --------------------------------------
             iAB1 = iiBstRSh(iSym,iSP,iLoc) + 1
             iAB2 = iAB1 + nnBstRSh(iSym,iSP,iLoc) - 1
             Do iAB = iAB1,iAB2
-               Work(ip_DSPNm-1+iSP) = Work(ip_DSPNm-1+iSP)
-     &                              + DSubScr(iAB)*DSubScr(iAB)
+               DSPNm(iSP) = DSPNm(iSP) + DSubScr(iAB)*DSubScr(iAB)
             End Do
-            Work(ip_DSPNm-1+iSP) = sqrt(Work(ip_DSPNm-1+iSP))
+            DSPNm(iSP) = sqrt(DSPNm(iSP))
          End Do
       Else
          Write(Lupri,*) SecNam,': WARNING: unkown norm: ',DSPNorm
@@ -111,8 +109,7 @@ C     --------------------------------------
             iAB1 = iiBstRSh(iSym,iSP,iLoc) + 1
             iAB2 = iAB1 + nnBstRSh(iSym,iSP,iLoc) - 1
             Do iAB = iAB1,iAB2
-               Work(ip_DSPNm-1+iSP) = max(Work(ip_DSPNm-1+iSP),
-     &                                    DSubScr(iAB))
+               DSPNm(iSP) = max(DSPNm(iSP),DSubScr(iAB))
             End Do
          End Do
       End If
