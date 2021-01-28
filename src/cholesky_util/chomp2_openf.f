@@ -24,7 +24,6 @@ C
 #include "implicit.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
-#include "WrkSpc.fh"
 
       Character*12 SecNam
       Parameter (SecNam = 'ChoMP2_OpenF')

@@ -25,7 +25,6 @@ C
       DIMENSION XINT(LINT)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*17 SECNAM
       PARAMETER (SECNAM = 'CHO_MCA_CALCINT_3')

@@ -26,7 +26,6 @@ C
 #include "implicit.fh"
       DIMENSION XINT(*), WRK(LWRK)
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_SUBTR0')

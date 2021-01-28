@@ -20,7 +20,6 @@ C
       Implicit None
 #include "cholesky.fh"
 #include "choglob.fh"
-#include "WrkSpc.fh"
 
       Character*14 SecNam
       Parameter (SecNam = 'Cho_P_SetRed_L')

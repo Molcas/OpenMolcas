@@ -19,7 +19,6 @@
 #include "chomp2_cfg.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 *
       Real*8 Scr(lScr), Ap(lAp), Dens(lDens)
 

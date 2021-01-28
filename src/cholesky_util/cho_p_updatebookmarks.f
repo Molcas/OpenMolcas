@@ -27,7 +27,6 @@ C
 #include "cho_para_info.fh"
 #include "choglob.fh"
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 
       If (.NOT.Allocated(BkmVec) .or. .NOT.Allocated(BkmThr)) Return
 

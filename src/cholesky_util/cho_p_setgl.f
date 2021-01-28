@@ -33,7 +33,6 @@ C
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Character*11 SecNam

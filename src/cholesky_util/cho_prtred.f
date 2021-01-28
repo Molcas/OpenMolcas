@@ -16,7 +16,6 @@ C
 #include "implicit.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 
       DIMENSION XBAS(8), XXBAS(8)
 

@@ -24,7 +24,6 @@ C
       LOGICAL  LOCPRT
 #include "itmax.fh"
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*13 SECNAM
       PARAMETER (SECNAM = 'CHO_MCA_INT_1')

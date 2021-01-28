@@ -26,7 +26,6 @@ C
       Real*8, Target::  xInt(*), Wrk(lWrk)
       Logical DoTime, DoStat
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 
       Character(LEN=16), Parameter:: SecNam = 'Cho_VecBuf_Subtr'
 

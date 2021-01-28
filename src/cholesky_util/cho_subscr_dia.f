@@ -26,7 +26,6 @@ C
       Dimension ChoVec(*)
       Character*(*) DSPNorm
 #include "cholesky.fh"
-#include "WrkSpc.fh"
 
       Character*14 SecNam
       Parameter (SecNam = 'Cho_SubScr_Dia')

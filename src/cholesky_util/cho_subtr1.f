@@ -28,7 +28,6 @@ C
       LOGICAL   FXDMEM
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "WrkSpc.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_SUBTR1')
