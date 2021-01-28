@@ -21,15 +21,15 @@
 
 subroutine MkAno()
 
-use Genano_globals, only: MxLqn, MxBasX, nPrim, Ssym, tDSym, thr, rowise, Title, symlab
+use Genano_globals, only: MxLqn, nPrim, Ssym, tDSym, thr, rowise, Title, symlab
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: Lu, i, iLqn, ind, iPtr, j, k, l, n, nBig, nOccNo, nTri, nContr(0:MxLqn)
-real(kind=wp) :: ChkSum, p, t, OccNo(MxBasX)
-real(kind=wp), allocatable :: s(:), u(:), c(:), d(:), q(:)
+real(kind=wp) :: ChkSum, p, t
+real(kind=wp), allocatable :: s(:), u(:), c(:), d(:), q(:), OccNo(:)
 integer(kind=iwp), external :: IsFreeUnit
 
 Lu = IsFreeUnit(17)
@@ -38,6 +38,8 @@ iPtr = 1
 write(u6,*)
 call CollapseOutput(1,'   Contraction coefficients')
 write(u6,'(3x,a)')    '   ------------------------'
+
+call mma_allocate(OccNo,sum(nPrim),label='OccNo')
 
 ! Loop over angular quantum number
 
@@ -177,6 +179,7 @@ call FigOpn(Lu)
 call FigPrt(Lu,Title,MxLqn,nContr,OccNo)
 call FigCls(Lu)
 close(Lu)
+call mma_deallocate(OccNo)
 
 return
 

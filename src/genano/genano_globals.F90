@@ -82,23 +82,20 @@ private
 #define MxH 10
 #define MxI  8
 #define MxK  8
-integer(kind=iwp), parameter :: &
-  MxLqn=7, &
-  MxBasX=500, &
-  MxDsym=MxS*(MxS+1)/2 + 3*MxP*(MxP+1)/2 + 5*MxD*(MxD+1)/2 + 7*MxF*(MxF+1)/2 + 9*MxG*(MxG+1)/2 + 11*MxH*(MxH+1)/2 + &
-         13*MxI*(MxI+1)/2 + 15*MxK*(MxK+1)/2
+integer(kind=iwp), parameter :: MxLqn=7, &
+                                MxDsym=MxS*(MxS+1)/2 + 3*MxP*(MxP+1)/2 + 5*MxD*(MxD+1)/2 + 7*MxF*(MxF+1)/2 + 9*MxG*(MxG+1)/2 + &
+                                       11*MxH*(MxH+1)/2 + 13*MxI*(MxI+1)/2 + 15*MxK*(MxK+1)/2
 integer(kind=iwp) :: nPrim(0:MxLqn), nCore(0:MxLqn), nSets, kSet, nSym, nBas(1:MxSym), nDsym, iProj, iSymBk((MxLqn+1)**2), kRfSet, &
                      isUHF
-real(kind=wp) :: pDsym(MxDsym), tDsym(MxDsym), thr, Ssym(MxDsym), Cmo(MxBasX**2), Occ(MxBasX), Eps(MxBasX), wc0, wc1
-real(kind=wp), allocatable :: wSet(:)
+real(kind=wp) :: pDsym(MxDsym), tDsym(MxDsym), thr, Ssym(MxDsym), wc0, wc1
+real(kind=wp), allocatable :: wSet(:), Cmo(:), Occ(:), Cmo2(:), Occ2(:), Eps(:)
 logical(kind=iwp) :: rowise, lftdeg, rydgen
 character(len=LenIn) :: Center
 character(len=LenIn+8), allocatable :: BasName(:)
 character(len=80) :: Title
 character(len=8) :: symlab((MxLqn+1)**2)
 
-public :: MxLqn, MxBasX, nPrim, nCore, nSets, kSet, nSym, nBas, nDsym, iProj, iSymBk, kRfSet, isUHF, &
-          wSet, pDsym, tDsym, thr, Ssym, Cmo, Occ, Eps, wc0, wc1, rowise, lftdeg, rydgen, LenIn, Center, BasName, &
-          Title, symlab
+public :: MxLqn, nPrim, nCore, nSets, kSet, nSym, nBas, nDsym, iProj, iSymBk, kRfSet, isUHF, wSet, pDsym, tDsym, thr, Ssym, Cmo, &
+          Occ, Cmo2, Occ2, Eps, wc0, wc1, rowise, lftdeg, rydgen, LenIn, Center, BasName, Title, symlab
 
 end module Genano_globals

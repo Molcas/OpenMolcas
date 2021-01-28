@@ -12,11 +12,16 @@
 subroutine Free_GenANO()
 
 use stdalloc, only: mma_deallocate
-use Genano_globals, only: wSet, BasName
+use Genano_globals, only: wSet, Cmo, Occ, Cmo2, Occ2, Eps, BasName
 
 implicit none
 
 call mma_deallocate(wSet)
+call mma_deallocate(Cmo)
+call mma_deallocate(Occ)
+if (allocated(Cmo2)) call mma_deallocate(Cmo2)
+if (allocated(Occ2)) call mma_deallocate(Occ2)
+call mma_deallocate(Eps)
 call mma_deallocate(BasName)
 
 end subroutine Free_GenANO

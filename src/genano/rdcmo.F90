@@ -21,22 +21,21 @@
 
 subroutine RdCmo()
 
-use Genano_globals, only: kSet, nSym, nBas, kRfSet, isUHF, wSet, Ssym, Cmo, Occ, Eps, lftdeg, rydgen, LenIn, BasName
+use Genano_globals, only: kSet, nSym, nBas, kRfSet, isUHF, wSet, Ssym, Cmo, Occ, Cmo2, Occ2, Eps, lftdeg, rydgen, LenIn, BasName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), parameter :: log1e3=log(1.0e3_wp)
-integer(kind=iwp) :: i, iDummy(1), iErr, indx, iOrb, irc, iSym, iSymOne, iWFtype, Lu_, Lu_One, nDim
+integer(kind=iwp) :: i, iDummy(1), iErr, indx, iOrb, irc, iSym, iSymOne, iWFtype, Lu_, Lu_One, nCmo, nDim
 real(kind=wp) :: Dummy(1), eps0, eta
 character(len=6) :: OneInt, NatOrb, RunFile
 character(len=72) :: line
 
 if (isUHF == 1) then
-  ! Cmo2, Occ2 undefined?
-  !call dCopy_(MxCmo,Cmo2,1,Cmo,1)
-  !call dCopy_(MxBasX,Occ2,1,Occ,1)
+  call dCopy_(size(Cmo2),Cmo2,1,Cmo,1)
+  call dCopy_(size(Occ2),Occ2,1,Occ,1)
   return
 end if
 !-----------------------------------------------------------------------
@@ -61,8 +60,10 @@ call OpnOne(irc,0,OneInt,Lu_One)
 call get_iScalar('nSym',nSym)
 call Get_iArray('nBas',nBas,nSym)
 nDim = 0
+nCmo = 0
 do iSym=1,nSym
   nDim = nDim+nBas(iSym)
+  nCmo = nCmo+nBas(iSym)**2
 end do
 if (allocated(BasName)) call mma_deallocate(BasName)
 call mma_allocate(BasName,nDim,label='BaName')
@@ -94,6 +95,8 @@ end if
 if (kSet == kRfSet) then
   Lu_One = 2
   call OpnOne(irc,0,OneInt,Lu_One)
+  if (allocated(Cmo)) call mma_deallocate(Cmo)
+  call mma_allocate(Cmo,nCmo,label='Cmo')
   call RdOne(irc,6,'Mltpl  0',1,Cmo,iSymOne)
   call CpOvlp(Cmo,Ssym)
   call ClsOne(irc,0)
@@ -103,8 +106,16 @@ write(u6,*)
 write(u6,*) 'Reading orbital file: ',NatOrb
 Lu_ = 17
 call chk_vec_UHF(NatOrb,Lu_,isUHF)
+if (allocated(Occ)) call mma_deallocate(Occ)
+call mma_allocate(Occ,nDim,label='Occ')
+if (allocated(Eps)) call mma_deallocate(Eps)
+call mma_allocate(Eps,nDim,label='Eps')
 if (isUHF == 1) then
-  call rdvec_(NatOrb,Lu_,'CO',1,nSym,nBas,nBas,Dummy,Dummy,iWFtype)
+  if (allocated(Cmo2)) call mma_deallocate(Cmo2)
+  call mma_allocate(Cmo2,nCmo,label='Cmo2')
+  if (allocated(Occ2)) call mma_deallocate(Occ2)
+  call mma_allocate(Occ2,nDim,label='Occ2')
+  call RdVec_(NatOrb,Lu_,'CO',1,nSym,nBas,nBas,Cmo,Cmo2,Occ,Occ2,Dummy,Dummy,iDummy,line,0,iErr,iWFtype)
   write(u6,'(a)') '***'
   write(u6,'(a)') '*** rdcmo: fix reading of eps for uhf!!!'
   write(u6,'(a)') '***'
