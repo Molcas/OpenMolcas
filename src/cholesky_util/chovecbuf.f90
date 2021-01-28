@@ -12,6 +12,11 @@
 ! Information about the Cholesky vector buffer
 !
 Module ChoVecBuf
+Implicit None
+Private
+Public:: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM
+Public:: CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM
+Public:: nVec_in_Buf
 
 Real*8, Allocatable, Target:: CHVBUF(:)
 Real*8, Allocatable, Target:: CHVBFI(:)

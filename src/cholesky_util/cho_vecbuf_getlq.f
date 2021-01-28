@@ -14,7 +14,7 @@ C     Purpose: extract elements corresponding to qualified diagonals
 C              from vectors in buffer.
 C
       use ChoSwp, only: iQuAB
-      use ChoVecBuf
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, nVec_in_Buf
       Implicit Real*8 (a-h,o-z)
       Real*8, Target::  QVec(l_QVec)
 #include "cholesky.fh"

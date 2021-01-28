@@ -13,7 +13,7 @@ C
 C     Purpose: extract elements corresponding to qualified columns from
 C              the Cholesky vectors in buffer and/or on disk.
 C
-      use ChoVecBuf
+      use ChoVecBuf, only: nVec_in_Buf
       Implicit None
       Integer l_QVec, nQSP
       Real*8  QVec(l_Qvec)

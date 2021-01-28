@@ -32,7 +32,8 @@ C           RUN_MODE = RUN_EXTERNAL).
 C
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use ChoVecBuf
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
+     &                     l_CHVBFI_SYM, nVec_in_Buf
       Implicit Real*8 (a-h,o-z)
       Real*8 Vec(lVec)
 #include "cholesky.fh"

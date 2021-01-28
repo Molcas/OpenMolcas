@@ -18,7 +18,8 @@ C     DpStat: update statistics info (#calls to dGeMM).
 C
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
       use ChoArr, only: LQ
-      use ChoVecBuf
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
+     &                     nVec_in_Buf
       use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
      &                     DSPNm, SSNorm
 #include "implicit.fh"

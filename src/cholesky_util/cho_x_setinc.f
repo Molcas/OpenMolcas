@@ -28,9 +28,10 @@ C              and some in the Module choarr.f90
 C
       use ChoArr, only: nDim_Batch, nQual_L, n_MySP
       use ChoBkm
-      use ChoVecBuf
-      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
-     &                     DSPNm, SSNorm
+      use ChoVecBuf, only: ip_CHVBUF_SYM, l_CHVBUF_SYM,
+     &                     ip_CHVBFI_SYM, l_CHVBFI_SYM,
+     &                     nVec_in_Buf
+      use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, SSNorm
       Implicit None
       Integer irc
 #include "choorb.fh"

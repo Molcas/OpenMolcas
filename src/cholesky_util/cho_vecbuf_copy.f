@@ -16,7 +16,8 @@ C              is the number of vectors in array Vec.
 C         NB!  It is important that the vector counter NumCho does NOT
 C              include the nVec vectors in array Vec.
 C
-      use ChoVecBuf
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
+     &                     nVec_in_Buf
       Implicit None
       Real*8  Vec(*)
       Integer nVec, iSym

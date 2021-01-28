@@ -19,7 +19,8 @@ C     Thomas Bondo Pedersen, June 2006.
 C
 C     Purpose: read vectors from disk into buffer.
 C
-      use ChoVecBuf
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
+     &                     nVec_in_Buf
       Implicit None
 #include "cholesky.fh"
 

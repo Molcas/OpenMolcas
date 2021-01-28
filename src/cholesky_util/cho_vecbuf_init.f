@@ -20,7 +20,7 @@ C                                     i.e. vectors are available on
 C                                     disk.
 C              (RUN_MODE stored in cholesky.fh)
 C
-      use ChoVecBuf
+      use ChoVecBuf, only: ip_CHVBFI_SYM, l_CHVBFI_SYM
       Implicit None
       Real*8  Frac
       Integer lVec(*)
@@ -75,7 +75,8 @@ C
 C     Purpose: allocate and initialize vector buffer.
 C              (Internal run mode.)
 C
-      use ChoVecBuf
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
+     &                     nVec_in_Buf
       Implicit None
       Real*8  Frac
       Integer lVec(*)
@@ -184,7 +185,7 @@ C
 C     Purpose: allocate and initialize vector buffer.
 C              (External run mode.)
 C
-      use ChoVecBuf
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM
       Implicit None
       Real*8  Frac
       Logical LocDbg

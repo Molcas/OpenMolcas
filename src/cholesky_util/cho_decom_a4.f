@@ -13,7 +13,8 @@ C
 C     Purpose: decompose qualified columns ("parallel" algorithm).
 C
       use ChoArr, only: LQ_Tot, LQ
-      use ChoVecBuf
+      use ChoVecBuf, only: nVec_in_Buf
+
       Implicit Real*8 (a-h,o-z)
       Real*8  Diag(*)
       Integer LstQSP(NumSP)

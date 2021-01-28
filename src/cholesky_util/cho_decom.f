@@ -14,7 +14,7 @@ C     Purpose: calculate Cholesky vectors from qualified integral
 C              columns (from disk).
 C
       use ChoSwp, only: iQuAB, IndRed
-      use ChoVecBuf
+      use ChoVecBuf, only: nVec_in_Buf
 #include "implicit.fh"
       DIMENSION DIAG(*), WRK(LWRK)
 #include "cholesky.fh"

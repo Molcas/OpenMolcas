@@ -33,7 +33,8 @@ C     NVEC_IN_BUF() -- #vectors stored in buffer in each symmetry
 C
       use ChoArr, only: iScr
       use ChoSwp, only: InfVec
-      use ChoVecBuf
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
+     &                     nVec_in_Buf
 #include "implicit.fh"
       Logical DoTime, DoStat
 #include "cholesky.fh"

@@ -21,7 +21,9 @@ C     of each vector in the buffer.
 C
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use ChoVecBuf
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM,
+     &                     CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM,
+     &                     nVec_in_Buf
       Implicit None
       Integer irc
 #include "cholesky.fh"
@@ -176,7 +178,9 @@ C     generated at buffer initialization.
 C
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use ChoVecBuf
+      use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM,
+     &                     CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM,
+     &                     nVec_in_Buf
       Implicit None
       Real*8  Tol
       Logical Report
@@ -259,7 +263,7 @@ C     Return codes:
 C        irc=0: no differences detected.
 C        irc>0: number of vectors for which differences are detected.
 C
-      use ChoVecBuf
+      use ChoVecBuf, only: CHVBFI, ip_CHVBFI_SYM, nVec_in_Buf
       Implicit None
       Integer n
       Integer nVec
@@ -315,7 +319,7 @@ C     identification).
 C
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use ChoVecBuf
+      use ChoVecBuf, only: CHVBFI, ip_CHVBFI_SYM, nVec_in_Buf
       Implicit None
       Character*(*) Txt
 #include "cholesky.fh"

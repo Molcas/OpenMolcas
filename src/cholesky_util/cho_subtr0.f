@@ -20,7 +20,7 @@ C     Screening in subtraction introduced Jan. 2006, TBP.
 C
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh
       use ChoArr, only: LQ
-      use ChoVecBuf
+      use ChoVecBuf, only: nVec_in_Buf
       use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, DSubScr,
      &                     DSPNm, SSNorm
 #include "implicit.fh"
