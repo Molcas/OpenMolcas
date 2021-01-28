@@ -36,7 +36,7 @@ C
 
       Real*8, Parameter:: xMOne = -1.0d0, One = 1.0d0
 
-      Real*8, Pointer:: V(:,:)
+      Real*8, Pointer:: V(:,:)=>Null(), U(:,:)=>Null(), W(:,:)=>Null()
 
       DSubScr(i)=Work(ip_DSubScr-1+i)
       DSPNm(i)=Work(ip_DSPNm-1+i)
@@ -95,6 +95,16 @@ C     --------------------
          nBatch = (nVec_in_Buf(iSym)-1)/nVec + 1
       End If
 
+C     Map the integral array, xInt, onto the pointer U
+C     ------------------------------------------------
+
+      lRow = nnBstR(iSym,2)
+      lCol = nQual(iSym)
+      iS = 1
+      iE = iS - 1 + lRow*lCol
+
+      U(1:lRow,1:lCol) => xInt(iS:iE)
+
 C     Start batch loop.
 C     -----------------
 
@@ -131,6 +141,13 @@ C        ------------------------------------------------------------
 
          If (Cho_SScreen) Then
 
+            lRow = NumV
+            lCol = nQual(iSym)
+            iS   = 1
+            iE   = iS - 1 + lRow*lCol
+
+            W(1:lRow,1:lCol) => Wrk(iS:iE)
+
 C           Copy out sub-blocks corresponding to qualified diagonals:
 C           L(#J,{ab})
 C           ---------------------------------------------------------
@@ -138,7 +155,7 @@ C           ---------------------------------------------------------
             Do jVec = 1,NumV
                Do iAB = 1,nQual(iSym)
                   jAB = iQuAB(iAB,iSym) - iiBstR(iSym,2)
-                  Wrk(jVec+NumV*(iAB-1)) = V(jAB,jVec+iVec0)
+                  W(jVec,iAB) = V(jAB,jVec+iVec0)
                End Do
             End Do
 
@@ -159,12 +176,9 @@ C           ----------------------------------------------------
                   Tst = sqrt(DSPNm(iShGD)*DSubScr(jAB))
                   If (Tst<=SSTau) Cycle
                   xDon = xDon + 1.0d0
-                  kOff2 = NumV*(iAB-1) + 1
-                  kOff3 = nnBstR(iSym,2)*(iAB-1)
-     &                  + iiBstRSh(iSym,iShGD,2) + 1
                   Call dGeMV_('N',nGD,NumV,
      &                       xMOne,V(1+iGD,iVec0+1),nnBstR(iSym,2),
-     &                       Wrk(kOff2),1,One,xInt(kOff3),1)
+     &                       W(1,iAB),1,One,U(1+iGD,iAB),1)
                End Do
             End Do
 
@@ -176,27 +190,30 @@ C              If the qualified block, L({ab},#J), is already in core,
 C              use this block.
 C              -------------------------------------------------------
 
-*              kOff = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,2)*iVec0
 
                Call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,
-*    &                    xMOne,CHVBUF(kOff),nnBstR(iSym,2),
      &                    xMOne,V(1,iVec0+1),nnBstR(iSym,2),
      &                          LQ(iSym)%Array(:,iVec0+1),
      &                          SIZE(LQ(iSym)%Array,1),
-     &                    One,xInt,nnBstR(iSym,2))
+     &                    One,U,nnBstR(iSym,2))
 
             Else
+
+               lRow = nQual(iSym)
+               lCol = NumV
+               iS   = 1
+               iE   = iS - 1 + lRow*lCol
+
+               W(1:lRow,1:lCol) => WrK(iS:iE)
 
 C              Copy out sub-blocks corresponding to qualified diagonals:
 C              L({ab},#J).
 C              ---------------------------------------------------------
 
-               ip0 = ip_ChVBuf_Sym(iSym) - iiBstR(iSym,2) - 1
                Do jVec = 1,NumV
-                  kOffA = nQual(iSym)*(jVec-1)
-                  kOffB = ip0 + nnBstR(iSym,2)*(jVec+iVec0-1)
                   Do iAB = 1,nQual(iSym)
-                     Wrk(kOffA+iAB) = CHVBUF(kOffB+iQuAB(iAB,iSym))
+                     jAB = iQuAB(iAB,iSym) - iiBstR(iSym,2)
+                     W(iAB,jVec) = V(jAB,jVec+iVec0)
                   End Do
                End Do
 
@@ -204,19 +221,19 @@ C              Subtract:
 C              (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L({ab},#J)
 C              ----------------------------------------------------
 
-               kOff = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,2)*iVec0
 
                Call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,
-*    &                    xMOne,CHVBUF(kOff),nnBstR(iSym,2),
      &                    xMOne,V(1,iVec0+1),nnBstR(iSym,2),
-     &                          Wrk,nQual(iSym),
-     &                    One,xInt,nnBstR(iSym,2))
+     &                          W,nQual(iSym),
+     &                    One,U,nnBstR(iSym,2))
 
             End If
 
          End If
 
          V=>Null()
+         U=>Null()
+         W=>Null()
 
       End Do
 
