@@ -150,23 +150,26 @@ C           (gd|{ab}) <- (gd|{ab}) - sum_J L(gd,#J) * L(#J,{ab})
 C           for each ab in {ab}.
 C           ----------------------------------------------------
 
-            ip0 = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,2)*iVec0
-            Call Cho_SubScr_Dia(CHVBUF(ip0),NumV,iSym,2,SSNorm)
+*           ip0 = ip_ChVBuf_Sym(iSym) + nnBstR(iSym,2)*iVec0
+*           Call Cho_SubScr_Dia(CHVBUF(ip0),NumV,iSym,2,SSNorm)
+            Call Cho_SubScr_Dia(V(1,iVec0+1),NumV,iSym,2,SSNorm)
             Do iAB = 1,nQual(iSym)
                Do iShGD = 1,nnShl
                   nGD = nnBstRSh(iSym,iShGD,2)
                   If (nGD < 1 ) Cycle
+                  iGD = iiBstRSh(iSym,iShGD,2)
                   xTot = xTot + 1.0d0
                   jAB = iQuab(iAB,iSym) - iiBstR(iSym,2)
                   Tst = sqrt(DSPNm(iShGD)*DSubScr(jAB))
                   If (Tst<=SSTau) Cycle
                   xDon = xDon + 1.0d0
-                  kOff1 = ip0 + iiBstRSh(iSym,iShGD,2)
+*                 kOff1 = ip0 + iGD
                   kOff2 = NumV*(iAB-1) + 1
                   kOff3 = nnBstR(iSym,2)*(iAB-1)
      &                  + iiBstRSh(iSym,iShGD,2) + 1
                   Call dGeMV_('N',nGD,NumV,
-     &                       xMOne,CHVBUF(kOff1),nnBstR(iSym,2),
+*    &                       xMOne,CHVBUF(kOff1),nnBstR(iSym,2),
+     &                       xMOne,V(1+iGD,iVec0+1),nnBstR(iSym,2),
      &                       Wrk(kOff2),1,One,xInt(kOff3),1)
                End Do
             End Do
