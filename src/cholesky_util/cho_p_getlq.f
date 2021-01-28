@@ -12,7 +12,7 @@
 
       Implicit None
       Integer l_QVec, nQSP
-      Real*8  QVec(l_Qvec)
+      Real*8, Target::  QVec(l_Qvec)
       Integer LstQSP(nQSP)
 #include "cho_para_info.fh"
 
