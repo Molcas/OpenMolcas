@@ -21,18 +21,17 @@
 
 subroutine UpOrb(n,o,w,Orb,Lab)
 
-use Genano_globals, only: MxLqn, iSymBk, pDsym, Center, BasName, symlab
+use Genano_globals, only: MxLqn, iSymBk, pDsym, Center, symlab
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: n
 real(kind=wp), intent(in) :: o, w, Orb(n)
-character(len=len(BasName)), intent(in) :: Lab(n)
-integer(kind=iwp) :: i, iBas, iBlk, ind, jBas, indx((MxLqn+1)**2), jndx((MxLqn+1)**2)
+character(len=*), intent(in) :: Lab(n)
+integer(kind=iwp) :: i, iBas, iBlk, ind, jBas, indx((MxLqn+1)**2), jndx
 real(kind=wp) :: add
 
 indx(:) = 0
-jndx(:) = 0
 do iBas=1,n
   !write(u6,'(a,i5)') '     iBas:',iBas
   if (Lab(iBas)(1:len(Center)) == Center) then
@@ -47,14 +46,14 @@ do iBas=1,n
     end if
     indx(iBlk) = indx(iBlk)+1
     !write(u6,'(a,i5)') '     indx:',indx(iBlk)
-    jndx(iBlk) = 0
+    jndx = 0
     do jBas=1,iBas
       !write(u6,'(a,i5)') '       jBas:',jBas
       if (Lab(jBas)(1:len(Center)) == Center) then
         if (Lab(iBas)(len(Center)+1:) == Lab(jBas)(len(Center)+1:)) then
-          jndx(iBlk) = jndx(iBlk)+1
-          !write(u6,'(a,i5)') '     jndx:',jndx(iBlk)
-          ind = jndx(iBlk)+indx(iBlk)*(indx(iBlk)-1)/2+iSymBk(iBlk)-1
+          jndx = jndx+1
+          !write(u6,'(a,i5)') '     jndx:',jndx
+          ind = jndx+indx(iBlk)*(indx(iBlk)-1)/2+iSymBk(iBlk)-1
           !add = w*o*Cmo(iBas)*Cmo(jBas)
           add = w*o*Orb(iBas)*Orb(jBas)
           pDsym(ind) = pDsym(ind)+add

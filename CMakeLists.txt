@@ -780,16 +780,16 @@ set (FFLAGS_PGI_FAST "-fast")
 # defines NAGFOR
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "NAG")
-set (FFLAGS_NAG_BASIC "-dusty -dcfuns -kind=byte -ieee=full")
+set (FFLAGS_NAG_BASIC "-dusty -dcfuns -kind=byte")
 set (FFLAGS_NAG_PREPROCESS "-fpp")
 set (FFLAGS_NAG_OPENMP "-openmp")
 set (FFLAGS_NAG_ILP64 "-i8")
 # build targets
-set (FFLAGS_NAG_DEBUG "-O0 -g -gline")
+set (FFLAGS_NAG_DEBUG "-O0 -g -gline -ieee=full")
 set (FFLAGS_NAG_GARBLE "-O2 -g -gline -nan")
-set (FFLAGS_NAG_RELWITHDEBINFO "-O2 -g")
-set (FFLAGS_NAG_RELEASE "-O2")
-set (FFLAGS_NAG_FAST "-O4")
+set (FFLAGS_NAG_RELWITHDEBINFO "-O2 -g -ieee=full")
+set (FFLAGS_NAG_RELEASE "-O2 -ieee=full")
+set (FFLAGS_NAG_FAST "-O4 -ieee=full")
 
 # Add runtime checks
 # (No boundary checks because of the Work arrays)
@@ -802,33 +802,10 @@ endif ()
 
 # The option does not exist, or I cannot find it
 #set (FFLAGS_NAG_BIGOT "???")
-set (NAG_TRAP "-ieee=stop")
+set (NAG_TRAP "-ieee=stop") # not compatible with -ieee=full
 
 # Generate the actual flags used in the build
 #============================================
-
-# Preprocessor
-if (CMAKE_BUILD_TYPE STREQUAL "Garble")
-  add_compile_definitions (_GARBLE_ _FPE_TRAP_)
-  # Disable FPE traps for compilers that do not support IEEE Fortran modules
-  # version check for Fortran doesn't work yet, assume it is the same as the C compiler GCC version
-  if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
-      CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
-      CMAKE_C_COMPILER_VERSION VERSION_LESS "5.0")
-    remove_definitions (-D_FPE_TRAP_)
-  elseif (NOT LINALG STREQUAL "Internal")
-    message (WARNING
-             "Garble is active, but an external LINALG library is used! "
-             "The use of an external BLAS/LAPACK can result in floating point "
-             "exceptions handled by the library being trapped instead. "
-             "Please use -DLINALG=Internal for better chances for Garble to work correctly!")
-  else ()
-    message (WARNING
-             "Garble and floating point exception trapping are active! "
-             "It is possible that intended exceptions within BLAS/LAPACK crash the program. "
-             "Be warned!")
-  endif ()
-endif ()
 
 if (DMRG OR WFA)
   # C++ compiler required for DMRG and WFA projects
@@ -939,6 +916,29 @@ endforeach ()
 
 if (NOT FCID)
   message (FATAL_ERROR "unsupported Fortran compiler: ${CMAKE_Fortran_COMPILER_ID}")
+endif ()
+
+# Exception trapping
+if (CMAKE_BUILD_TYPE STREQUAL "Garble")
+  add_compile_definitions (_GARBLE_ _FPE_TRAP_)
+  # Disable FPE traps for compilers that do not support IEEE Fortran modules
+  if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
+      CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "5.0")
+    remove_definitions (-D_FPE_TRAP_)
+  elseif (NOT LINALG STREQUAL "Internal")
+    message (WARNING
+             "Garble is active, but an external LINALG library is used! "
+             "The use of an external BLAS/LAPACK can result in floating point "
+             "exceptions handled by the library being trapped instead. "
+             "Please use -DLINALG=Internal for better chances for Garble to work correctly!")
+    set (FFLAGS_${FCID}_GARBLE "${FFLAGS_${FCID}_GARBLE} ${${FCID}_TRAP}")
+  else ()
+    message (WARNING
+             "Garble and floating point exception trapping are active! "
+             "It is possible that intended exceptions within BLAS/LAPACK crash the program. "
+             "Be warned!")
+    set (FFLAGS_${FCID}_GARBLE "${FFLAGS_${FCID}_GARBLE} ${${FCID}_TRAP}")
+  endif ()
 endif ()
 
 # overwrite any CMake defaults (some are strange, so we set our own)

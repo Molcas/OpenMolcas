@@ -24,7 +24,7 @@ subroutine InpCtl_GenANO()
 use Genano_globals, only: nSets, iProj, kRfSet, nPrim, nCore, kSet, isUHF, thr, wSet, wc0, wc1, rowise, lftdeg, rydgen, Center, &
                           Title
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -38,6 +38,8 @@ RdHead = .false.
 nSets = 1
 Center = 'ANO '
 thr = 1.0e-8_wp
+wc0 = Zero
+wc1 = Zero
 kRfSet = 1
 rowise = .false.
 lftdeg = .false.

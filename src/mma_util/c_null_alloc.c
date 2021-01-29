@@ -11,7 +11,7 @@
 /*
 This function can be used to mark a Fortran allocatable array as deallocated.
 Note that it doesn't deallocate any memory, it just overwrites the array
-descriptor. It is usefull for resetting allocatable components in a derived
+descriptor. It is useful for resetting allocatable components in a derived
 type array, after the contents have been garbled.
 */
 #include <stdint.h>

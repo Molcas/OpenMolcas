@@ -21,17 +21,15 @@
 
 subroutine UpDens()
 
-use Genano_globals, only: MxLqn, nDsym, nSym, nBas, kSet, tDsym, pDsym, wSet, Cmo, Occ, Eps, thr, wc0, wc1, BasName
+use Genano_globals, only: nSym, nBas, kSet, tDsym, pDsym, wSet, Cmo, Occ, Eps, thr, wc0, wc1, BasName
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: i, iBlk, iLqn, IndCmo, IndNme, IndOcc, iOrb, iShell, iSym
+integer(kind=iwp) :: IndCmo, IndNme, IndOcc, iOrb, iSym
 real(kind=wp) :: e, o, w
 
-do i=1,nDsym
-  pDsym(i) = Zero
-end do
+pDsym(:) = Zero
 IndOcc = 1
 IndCmo = 1
 IndNme = 1
@@ -55,30 +53,28 @@ do iSym=1,nSym
   IndNme = IndNme+nBas(iSym)
 end do
 !write(u6,*) '*** Partial density matrix in UpDens ***'
-iBlk = 0
-do iLqn=0,MxLqn
-  do iShell=-iLqn,iLqn
-    iBlk = iBlk+1
-    !if (nPrim(iLqn) > 0) then
-    !  write(u6,'(a,2i5)') ' Block',iLqn,iShell
-    !  call Triprt(' ','(6f12.6)',pDsym(iSymBk(iBlk)),nPrim(iLqn))
-    !end if
-  end do
-end do
-do i=1,nDsym
-  tDsym(i) = tDsym(i)+wSet(kSet)*pDsym(i)
-end do
+!iBlk = 0
+!do iLqn=0,MxLqn
+!  do iShell=-iLqn,iLqn
+!    iBlk = iBlk+1
+!    if (nPrim(iLqn) > 0) then
+!      write(u6,'(a,2i5)') ' Block',iLqn,iShell
+!      call Triprt(' ','(6f12.6)',pDsym(iSymBk(iBlk)),nPrim(iLqn))
+!    end if
+!  end do
+!end do
+tDsym(:) = tDsym(:)+wSet(kSet)*pDsym(:)
 !write(u6,*) '*** Total density matrix in UpDens ***'
-iBlk = 0
-do iLqn=0,MxLqn
-  do iShell=-iLqn,iLqn
-    iBlk = iBlk+1
-    !if (nPrim(iLqn) > 0) then
-    !  write(u6,'(a,2i5)') ' Block',iLqn,iShell
-    !  call Triprt(' ','(6f12.6)',tDsym(iSymBk(iBlk)),nPrim(iLqn))
-    !end if
-  end do
-end do
+!iBlk = 0
+!do iLqn=0,MxLqn
+!  do iShell=-iLqn,iLqn
+!    iBlk = iBlk+1
+!    if (nPrim(iLqn) > 0) then
+!      write(u6,'(a,2i5)') ' Block',iLqn,iShell
+!      call Triprt(' ','(6f12.6)',tDsym(iSymBk(iBlk)),nPrim(iLqn))
+!    end if
+!  end do
+!end do
 
 return
 

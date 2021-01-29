@@ -96,7 +96,7 @@ do iLqn=0,MxLqn
       t = Zero
       do k=1,n
         do l=1,n
-          ind = Min(k,l)+Max(k,l)*(Max(k,l)-1)/2
+          ind = min(k,l)+max(k,l)*(max(k,l)-1)/2
           p = q(i+(k-1)*n)*tDsym(ind+iPtr-1)*q(j+(l-1)*n)
           !write(u6,'(a,f12.6)') '   p:',p
           t = t+p

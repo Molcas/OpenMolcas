@@ -110,6 +110,7 @@ if (allocated(Occ)) call mma_deallocate(Occ)
 call mma_allocate(Occ,nDim,label='Occ')
 if (allocated(Eps)) call mma_deallocate(Eps)
 call mma_allocate(Eps,nDim,label='Eps')
+Eps(:) = Zero
 if (isUHF == 1) then
   if (allocated(Cmo2)) call mma_deallocate(Cmo2)
   call mma_allocate(Cmo2,nCmo,label='Cmo2')
@@ -141,7 +142,7 @@ if (rydgen) then
   do iSym=1,nSym
     do iOrb=1,nBas(iSym)
       if (Occ(indx) < 1.0e-2_wp) then
-        eps0 = Min(eps0,Eps(indx))
+        eps0 = min(eps0,Eps(indx))
       end if
       indx = indx+1
     end do

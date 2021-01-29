@@ -23,12 +23,12 @@
 
 subroutine Check_genano()
 
-use Genano_globals, only: MxLqn, nSym, nBas, nPrim, nDsym, pDsym, Center, BasName, symlab
+use Genano_globals, only: MxLqn, nSym, nBas, nPrim, pDsym, Center, BasName, symlab
 use Constants, only: Zero
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, iBas, ind, iSym, l, icnt(0:MxLqn)
+integer(kind=iwp) :: iBas, ind, iSym, l, icnt(0:MxLqn)
 
 icnt(:) = 0
 ind = 0
@@ -53,9 +53,7 @@ do l=0,MxLqn
     call Quit_OnUserError()
   end if
 end do
-do i=1,nDsym
-  pDsym(i) = Zero
-end do
+pDsym(:) = Zero
 
 return
 
