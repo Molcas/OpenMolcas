@@ -69,7 +69,7 @@
 #ifdef _HDF5_
       use mh5, only: mh5_put_attr, mh5_put_dset_array_real
 #endif
-      use OFembed, only: Do_OFemb, ipFMaux
+      use OFembed, only: Do_OFemb, FMaux
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -1940,7 +1940,7 @@ c deallocating TUVX memory...
             Write(LF,*)' Try to recover. Calculation continues.'
          endif
          If (Do_OFemb) Then
-            Call GetMem('FMaux','Free','Real',ipFMaux,nTot1)
+            Call mma_deallocate(FMaux)
             Call OFE_print(EAV)
          EndIf
       endif

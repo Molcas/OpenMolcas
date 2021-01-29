@@ -12,10 +12,11 @@
      &                       DLT,DSQ,FLT,nFLT,
      &                       ExFac,nBSQT,nBMX,iUHF,DLT_ab,
      &                       DSQ_ab,FLT_ab,nOcc,nOcc_ab,iDummy_run)
-      use OFembed, only: Do_OFemb,OFE_first,ipFMaux
+      use OFembed, only: Do_OFemb,OFE_first,FMaux
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       Integer nSym,nBas(8), nAux(8), Keep(8)
       Integer nOcc(nSym),nOcc_ab(nSym)
       Logical DoCholesky,GenInt,DoLDF
@@ -47,9 +48,8 @@ c      write(6,*)'ExFac= ',ExFac
       If (Do_OFemb) Then ! Coul. potential from subsys B
          nFM=1
          If (iUHF.eq.1) nFM=2
-         If (OFE_first) Call GetMem('FMaux','Allo','Real',ipFMaux,nFlt)
-         Call Coul_DMB(OFE_first,nFM,Rep_EN,Work(ipFMaux),
-     &                 DLT,DLT_ab,nFlt)
+         If (OFE_first) Call mma_allocate(FMaux,nFlt,Label='FMaux')
+         Call Coul_DMB(OFE_first,nFM,Rep_EN,FMaux,DLT,DLT_ab,nFlt)
          OFE_first=.false.
       End If
 *
@@ -212,8 +212,8 @@ C zeroing the elements
       endif
 *
       If (Do_OFemb) Then ! add FM from subsystem B
-        Call DaXpY_(nFlt,One,Work(ipFMaux),1,FLT,1)
-        If (iUHF.eq.1) Call DaXpY_(nFlt,One,Work(ipFMaux),1,FLT_ab,1)
+        Call DaXpY_(nFlt,One,FMaux,1,FLT,1)
+        If (iUHF.eq.1) Call DaXpY_(nFlt,One,FMaux,1,FLT_ab,1)
       EndIf
 *
       IF ((.not.DoCholesky).or.(GenInt)) THEN

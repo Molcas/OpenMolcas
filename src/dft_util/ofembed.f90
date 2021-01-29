@@ -13,6 +13,9 @@
 Module OFembed
 Logical::  Do_OFemb=.False., KEonly=.False., OFE_first=.True.
 Character(LEN=16)::  OFE_KSDFT=''
-Integer:: ipFMaux=-666666, ip_NDSD=-696696, l_NDSD=0
+#ifdef _NOT_USED_
+Integer:: ip_NDSD=-696696, l_NDSD=0
+#endif
 Real*8:: ThrFThaw=0.0D0, Xsigma=1.0d4, dFMD=0.0D0
+Real*8, Allocatable:: FMaux(:)
 End Module OFembed

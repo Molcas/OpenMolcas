@@ -18,7 +18,7 @@
 *
 *     M.P. Fuelscher, Lund, July 1990
 *
-      use OFembed, only: Do_OFemb,OFE_first,ipFMaux
+      use OFembed, only: Do_OFemb,OFE_first,FMaux
       Implicit Real*8 (A-H,O-Z)
 *
 #include "rasdim.fh"
@@ -27,6 +27,7 @@
       Parameter (ROUTINE='SGFCIN  ')
 #include "rasscf.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "rctfld.fh"
 #include "pamint.fh"
 #include "timers.fh"
@@ -274,15 +275,14 @@ C Local print level (if any)
 *
       If (Do_OFemb) Then
          If (OFE_first) Then
+          Call mma_allocate(FMaux,nTot1,Label='FMaux')
           Call GetMem('FMaux','Allo','Real',ipFMaux,nTot1)
-          Call Coul_DMB(.true.,1,Rep_EN,Work(ipFMaux),Work(iTmp3),Dumm,
-     &                         nTot1)
+          Call Coul_DMB(.true.,1,Rep_EN,FMaux,Work(iTmp3),Dumm,nTot1)
           OFE_first=.false.
          Else
-          Call Coul_DMB(.false.,1,Rep_EN,Work(ipFMaux),Work(iTmp3),Dumm,
-     &                          nTot1)
+          Call Coul_DMB(.false.,1,Rep_EN,FMaux,Work(iTmp3),Dumm,nTot1)
          EndIf
-         Call DaXpY_(nTot1,One,Work(ipFMaux),1,Work(iTmp1),1)
+         Call DaXpY_(nTot1,One,FMaux,1,Work(iTmp1),1)
 *
          Call Get_NameRun(NamRfil) ! save the old RUNFILE name
          Call NameRun('AUXRFIL')   ! switch the RUNFILE name

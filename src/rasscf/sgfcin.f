@@ -57,7 +57,7 @@
      &    doBlockDMRG
       use general_data, only : iSpin, nActEl, nSym, nTot1,
      &    nBas, nIsh, nAsh, nFro
-      use OFEmbed, only: Do_OFemb, OFE_first, ipFMaux
+      use OFEmbed, only: Do_OFemb, OFE_first, FMaux
 
 
       implicit none
@@ -65,6 +65,7 @@
 #include "output_ras.fh"
       Parameter (ROUTINE='SGFCIN  ')
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 #include "rctfld.fh"
 #include "pamint.fh"
 #include "timers.fh"
@@ -335,15 +336,13 @@ C Local print level (if any)
 *
       If (Do_OFemb) Then
          If (OFE_first) Then
-          Call GetMem('FMaux','Allo','Real',ipFMaux,nTot1)
-          Call Coul_DMB(.true.,1,Rep_EN,Work(ipFMaux),Work(iTmp3),Dumm,
-     &                         nTot1)
+          Call mma_allocate(FMaux,nTot1,Label='FMAux')
+          Call Coul_DMB(.true.,1,Rep_EN,FMaux,Work(iTmp3),Dumm,nTot1)
           OFE_first=.false.
          Else
-          Call Coul_DMB(.false.,1,Rep_EN,Work(ipFMaux),Work(iTmp3),Dumm,
-     &                          nTot1)
+          Call Coul_DMB(.false.,1,Rep_EN,FMaux,Work(iTmp3),Dumm,nTot1)
          EndIf
-         Call DaXpY_(nTot1,One,Work(ipFMaux),1,Work(iTmp1),1)
+         Call DaXpY_(nTot1,One,FMaux,1,Work(iTmp1),1)
 *
          Call Get_NameRun(NamRfil) ! save the old RUNFILE name
          Call NameRun('AUXRFIL')   ! switch the RUNFILE name
