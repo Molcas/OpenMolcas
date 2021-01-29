@@ -58,6 +58,7 @@
       use general_data, only : iSpin, nActEl, nSym, nTot1,
      &    nBas, nIsh, nAsh, nFro
       use OFEmbed, only: Do_OFemb, OFE_first, FMaux
+      use OFEmbed, only: Rep_EN
 
 
       implicit none
@@ -83,13 +84,10 @@
 #endif
 *
       Character*16 NamRfil
-      COMMON  / OFembed_R / Rep_EN,Func_AB,Func_A,Func_B,Energy_NAD,
-     &                      V_Nuc_AB,V_Nuc_BA,V_emb
 *
       real*8, parameter ::  Zero=0.0d0, One=1.0d0
-      real*8 :: CASDFT_Funct, dumm(1), Emyn, energy_nad, Eone,
-     &  Erf1, Erf2, Erfx, Etwo, func_a, func_ab, func_b,
-     &  potnuc_ref, rep_en, v_emb, v_nuc_ab, v_nuc_ba, dDot_
+      real*8 :: CASDFT_Funct, dumm(1), Emyn, Eone,
+     &  Erf1, Erf2, Erfx, Etwo,  potnuc_ref, dDot_
       integer :: i, iadd, ibas, icharge, iComp,
      &  ioff, iopt,
      &  ipam, iprlev, iptmpfcki, ntmpfck,

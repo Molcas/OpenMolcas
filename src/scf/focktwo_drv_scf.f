@@ -13,6 +13,7 @@
      &                       ExFac,nBSQT,nBMX,iUHF,DLT_ab,
      &                       DSQ_ab,FLT_ab,nOcc,nOcc_ab,iDummy_run)
       use OFembed, only: Do_OFemb,OFE_first,FMaux
+      use OFembed, only: Rep_EN
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
@@ -28,8 +29,6 @@
 
       Common /CHOSCF / REORD,DECO,dmpk,dFKmat,ALGO,nSCREEN
       Common /CHOTIME / timings
-      COMMON  / OFembed_R / Rep_EN,Func_AB,Func_A,Func_B,Energy_NAD,
-     &                      V_Nuc_Ab,V_Nuc_BA,V_emb
 *
 
       GenInt=.false.

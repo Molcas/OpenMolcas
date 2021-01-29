@@ -41,6 +41,8 @@
 ************************************************************************
 ************************************************************************
       use OFembed, only: OFE_first, Xsigma, dFMD
+      use OFembed, only: Func_AB,Func_A,Func_B,Energy_NAD,
+     &                   V_Nuc_AB,V_Nuc_BA,V_emb
       Implicit Real*8 (a-h,o-z)
       External LSDA_emb, Checker
 #include "real.fh"
@@ -53,8 +55,6 @@
       Character*4 DFTFOCK
       Character*16 NamRfil
       Real*8 Vxc_ref(2)
-      COMMON  / OFembed_R / Rep_EN,Func_AB,Func_A,Func_B,Energy_NAD,
-     &                      V_Nuc_AB,V_Nuc_BA,V_emb
 *
 *     Real*8 Func_A_TF, Func_B_TF, Func_AB_TF, TF_NAD
       Real*8 Func_A_TF, Func_B_TF

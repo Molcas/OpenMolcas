@@ -37,6 +37,7 @@
       Use SCF_Arrays, Only: Emb
 #endif
       use OFembed, only: Do_OFemb
+      use OFembed, only: Rep_EN
       Implicit Real*8 (a-h,o-z)
 *
 * Declaration of procedure parameters
@@ -51,8 +52,6 @@
 #ifdef _FDE_
 #include "embpotdata.fh"
 #endif
-      COMMON  / OFembed_R / Rep_EN,Func_AB,Func_A,Func_B,Energy_NAD,
-     &                      V_Nuc_AB,V_Nuc_BA,V_emb
 *----------------------------------------------------------------------*
 * Start                                                                *
 *----------------------------------------------------------------------*
