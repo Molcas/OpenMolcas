@@ -18,11 +18,11 @@
 ! module dependencies
       use qcmaquis_interface_environment, only: initialize_dmrg
       use qcmaquis_interface_cfg
+      use active_space_solver_cfg, only: as_solver_inp_proc
 #ifdef _MOLCAS_MPP_
       use Para_Info, Only: nProcs
 #endif
 #endif
-      use active_space_solver_cfg
       use write_orbital_files, only: OrbFiles
       use fcidump, only: DumpOnly
       use fcidump_reorder, only: ReOrInp, ReOrFlag

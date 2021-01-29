@@ -16,6 +16,7 @@
       use PCM_arrays
       use Symmetry_Info, only: nIrrep, iChBas
       use Temporary_Parameters, only: PrPrt
+      use Integral_Interfaces, only: OneEl_Integrals
       Implicit Real*8 (A-H,O-Z)
       External PCMInt, NaMem
       Real*8 h1(nh1), TwoHam(nh1), D(nh1), Z_Nuc(MaxAto),
@@ -34,7 +35,6 @@
       Real*8 RepNuc_Save
       Common /RF/RepNuc_Save
       Dimension ip(1)
-#include "oneel_interface.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

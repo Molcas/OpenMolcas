@@ -13,7 +13,7 @@
   subroutine set_dmrg_settings()
 
 ! module dependencies
-  use active_space_solver_cfg
+  use active_space_solver_cfg, only: as_solver, as_solver_inp_proc
 
   implicit none
 

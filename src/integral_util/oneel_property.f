@@ -13,6 +13,7 @@
      &                          D_tot,nDens,Property,Sig)
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
+      use Integral_Interfaces, only: OneEl_Integrals
       Implicit Real*8 (A-H,O-Z)
       External Kernel, KrnlMm
 #include "stdalloc.fh"
@@ -22,8 +23,6 @@
       Real*8 CCoor(3,nComp), rNuc(nComp), Property(nComp), D_tot(nDens)
       Integer ip(nComp), lOper(nComp), iChO(nComp)
       Real*8, Allocatable:: Integrals(:)
-*
-#include "oneel_interface.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *

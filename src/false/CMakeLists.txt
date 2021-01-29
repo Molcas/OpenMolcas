@@ -9,4 +9,13 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+set (sources
+     main.F90
+     false_global.F90
+     false_program.F90
+     read_input.F90
+     write_data.F90
+     write_input.F90
+)
+
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.txt)

@@ -32,14 +32,10 @@
       use linalg_mod, only: abort_
       use stdalloc, only: mma_allocate, mma_deallocate
 
-      use rasscf_data, only: iter, lRoots, EMY,
-     &    S, KSDFT, rotmax, Ener, nAc, nAcPar, nAcPr2
-      use general_data, only: iSpin, nSym, nConf,
-     &    ntot, ntot1, ntot2, nAsh
-      use gas_data, only: ngssh, iDoGas, nGAS, iGSOCCX
+      use rasscf_data, only: nAcPar, nAcPr2
+      use general_data, only: nSym, nConf
 
       use CI_solver_util, only: wait_and_read, RDM_to_runfile
-      use fciqmc_read_RDM, only: read_neci_RDM
 
       use generic_CI, only: CI_solver_t
 
@@ -120,11 +116,10 @@
       subroutine fciqmc_ctl(
      &      this, actual_iter, CMO, DIAF, D1I_AO, D1A_AO,
      &      TUVX, F_IN, D1S_MO, DMAT, PSMAT, PAMAT)
-      use general_data, only : iSpin, ntot, ntot1, ntot2, nAsh, nBas
-      use rasscf_data, only : iter, lRoots, nRoots, S, KSDFT, EMY,
+      use general_data, only : iSpin, ntot, ntot1, ntot2, nAsh
+      use rasscf_data, only : iter, lRoots, S, KSDFT, EMY,
      &    rotmax, Ener, Nac, nAcPar, nAcpr2
 
-      use gugx_data, only : IfCAS
       use gas_data, only : ngssh, iDoGas, nGAS, iGSOCCX
 
       use fcidump_reorder, only : get_P_GAS, get_P_inp,ReOrFlag,ReOrInp

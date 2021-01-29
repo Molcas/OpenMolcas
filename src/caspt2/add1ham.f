@@ -23,7 +23,6 @@
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-#include "debug.fh"
 *
 * NOT TESTED (used for OFEmbed below)
 #if 0

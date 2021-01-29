@@ -13,7 +13,7 @@
   subroutine set_as_solver()
 
 ! module dependencies
-  use active_space_solver_cfg
+  use active_space_solver_cfg, only: as_solver
 #ifdef _DMRG_
   use qcmaquis_interface_cfg
 #endif

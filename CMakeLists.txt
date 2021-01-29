@@ -131,73 +131,11 @@ if (";Debug;Garble;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};" OR
   add_compile_definitions (_WARNING_WORKAROUND_)
 endif ()
 
-
 # External projects
-option (MSYM       "Activate MSYM support (requires External/libmsym submodule)." OFF)
-option (DMRG       "Activate QCMaquis DMRG driver and library."                   OFF)
-option (DMRG_DEBUG "Enable DEBUG print in QCMaquis driver."                       OFF)
-option (MolGUI     "Enable the Molcas Graphical User Interface."                  OFF)
-
-if (DMRG)
-  mark_as_advanced (CLEAR DMRG_DEBUG)
-  # Name and e-mail required for downloading QCMaquis
-  # Try to get the real name from the system account information
-  if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-    set (QCMaquis_NAME_GET_CMD "id -F")
-  else ()
-  # should we distinguish other platforms?
-    set (QCMaquis_NAME_GET_CMD "sh" "-c" "getent passwd $USER | awk -F: '{print \$5}'")
-  endif ()
-  execute_process (
-    COMMAND ${QCMaquis_NAME_GET_CMD}
-    OUTPUT_VARIABLE QCMaquis_NAME_
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-  set (QCMaquis_NAME ${QCMaquis_NAME_} CACHE STRING "Your name (required for downloading QCMaquis)")
-
-  # Update QCMaquis flag. Off by default.
-  # QCMaquis must be updated manually, as there might be QCMaquis upstream changes even when OpenMolcas is not changed,
-  # or vice versa. Running cmake with QCMaquis_UPDATE=ON will force-update QCMaquis.
-  if (NOT QCMaquis_UPDATE)
-    set (QCMaquis_UPDATE OFF CACHE STRING "Trigger QCMaquis update" FORCE)
-  endif ()
-
-  # try to get the e-mail address from git config (TODO: is there a better option?)
-  execute_process (
-    COMMAND ${GIT} "config" "user.email"
-    OUTPUT_VARIABLE QCMaquis_EMAIL_
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-  set (QCMaquis_EMAIL ${QCMaquis_EMAIL_} CACHE STRING "Your e-mail address (required for downloading QCMaquis)")
-
-  # Prepare variables for QCMaquis: separate name and surname
-  set (QCMaquis_NAME_LIST ${QCMaquis_NAME})
-
-  separate_arguments (QCMaquis_NAME_LIST)
-  list (LENGTH QCMaquis_NAME_LIST qcm_name_len)
-  if (qcm_name_len LESS 2)
-    message (FATAL_ERROR
-             "Your name has been specified as: " ${QCMaquis_NAME} "\n"
-             "Please specify both name and surname. If you have only one name, please specify it twice.")
-  endif ()
-
-  # Separate first name from the last name
-  # Currently, only the first word is treated by QCMaquis as the first name,
-  # all the rest is considered surnames -- to accomodate multiple surnames common in the Spanish-speaking
-  # areas or suffixes as Jr., III etc. Middle names are therefore incorrectly considered parts of
-  # the last name. However, this has no influence on the QCMaquis download.
-  list (GET QCMaquis_NAME_LIST 0 QCMaquis_GIVEN_NAME)
-  list (REMOVE_AT QCMaquis_NAME_LIST 0)
-  foreach (arg ${QCMaquis_NAME_LIST})
-    set (QCMaquis_SURNAME "${QCMaquis_SURNAME} ${arg}")
-  endforeach ()
-
-  # Set QCMaquis download URL and path to the download script
-  set (QCMaquis_URL "https://scine.ethz.ch/download/")
-  set (QCMaquis_dl_SCRIPT "${CMAKE_SOURCE_DIR}/src/QCMaquis/get_qcmaquis.sh")
-else ()
-  mark_as_advanced (FORCE DMRG_DEBUG)
-endif ()
+option (MSYM       "Activate MSYM support (requires External/libmsym submodule)."                               OFF)
+option (DMRG       "Activate QCMaquis DMRG driver and library."                                                 OFF)
+option (DMRG_DEBUG "Enable DEBUG print in QCMaquis driver."                                                     OFF)
+option (MolGUI     "Enable the Molcas Graphical User Interface."                                                OFF)
 option (GEN1INT    "Enable Gen1Int library for 1-electron integrals."                                           OFF)
 option (NECI       "Activate NECI support (requires External/NECI submodule)."                                  OFF)
 option (WFA        "Activate extended wavefunction analysis (requires External/libwfa submodule)."              OFF)
@@ -583,7 +521,7 @@ set (CFLAGS_GNU_RELEASE "-O2")
 set (CFLAGS_GNU_FAST "-O2")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "GNU")
-set (FFLAGS_GNU_BASIC "-fno-aggressive-loop-optimizations") # It was needed in 4.8 later, maybe not anymore?
+set (FFLAGS_GNU_BASIC "-fno-aggressive-loop-optimizations") # Or Work is assumed to be 8 elements long
 set (FFLAGS_GNU_PREPROCESS "-cpp")
 set (FFLAGS_GNU_OPENMP "-fopenmp")
 set (FFLAGS_GNU_NO_OPENMP "-fmax-stack-var-size=1048576")
@@ -608,6 +546,9 @@ if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     set (FFLAGS_GNU_GARBLE "${FFLAGS_GNU_GARBLE} -fcheck=array-temps,do,mem,pointer,recursion")
   else ()
     set (FFLAGS_GNU_GARBLE "${FFLAGS_GNU_GARBLE} -fcheck=all,no-bounds")
+  endif ()
+  if (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "8")
+    set (FFLAGS_GNU_GARBLE "${FFLAGS_GNU_GARBLE} -finit=derived")
   endif ()
 endif ()
 
@@ -707,9 +648,9 @@ set (FFLAGS_Intel_ILP64 "-i8 -r8 -heap-arrays")
 # build targets
 set (FFLAGS_Intel_DEBUG "-debug -traceback -warn all,nodeclarations")
 set (FFLAGS_Intel_GARBLE "-O2 -debug -traceback -warn all,nodeclarations -check all,nobounds,noarg_temp_created")
-set (FFLAGS_Intel_RELWITHDEBINFO "-O2 -debug -traceback -warn all,nodeclarations")
-set (FFLAGS_Intel_RELEASE "-O2 -traceback")
-set (FFLAGS_Intel_FAST "-fast")
+set (FFLAGS_Intel_RELWITHDEBINFO "-O2 -fno-alias -debug -traceback -warn all,nodeclarations")
+set (FFLAGS_Intel_RELEASE "-O2 -fno-alias -traceback")
+set (FFLAGS_Intel_FAST "-Ofast -fno-alias")
 
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" AND
     CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "13")
@@ -839,16 +780,20 @@ set (FFLAGS_PGI_FAST "-fast")
 # defines NAGFOR
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "NAG")
-set (FFLAGS_NAG_BASIC "-dusty -dcfuns -kind=byte -ieee=full")
+set (FFLAGS_NAG_BASIC "-dusty -dcfuns -kind=byte")
 set (FFLAGS_NAG_PREPROCESS "-fpp")
 set (FFLAGS_NAG_OPENMP "-openmp")
 set (FFLAGS_NAG_ILP64 "-i8")
 # build targets
-set (FFLAGS_NAG_DEBUG "-O0 -g")
-set (FFLAGS_NAG_GARBLE "-O2 -g -nan")
-set (FFLAGS_NAG_RELWITHDEBINFO "-O2 -g")
-set (FFLAGS_NAG_RELEASE "-O2")
-set (FFLAGS_NAG_FAST "-O4")
+set (FFLAGS_NAG_DEBUG "-O0 -g -gline -ieee=full")
+set (FFLAGS_NAG_GARBLE "-O2 -g -gline -nan")
+set (FFLAGS_NAG_RELWITHDEBINFO "-O2 -g -ieee=full")
+set (FFLAGS_NAG_RELEASE "-O2 -ieee=full")
+set (FFLAGS_NAG_FAST "-O4 -ieee=full")
+
+# Add runtime checks
+# (No boundary checks because of the Work arrays)
+#set (FFLAGS_NAG_GARBLE "${FFLAGS_GNU_GARBLE} -C=alias -C=bits -C=dangling -C=do -C=intovf -C=present -C=pointer -C=recursion")
 
 # Fix for NAG compiler (similar to GNU Fortran)
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG" AND CMAKE_C_COMPILER_ID STREQUAL "GNU")
@@ -857,33 +802,10 @@ endif ()
 
 # The option does not exist, or I cannot find it
 #set (FFLAGS_NAG_BIGOT "???")
-set (NAG_TRAP "-ieee=stop")
+set (NAG_TRAP "-ieee=stop") # not compatible with -ieee=full
 
 # Generate the actual flags used in the build
 #============================================
-
-# Preprocessor
-if (CMAKE_BUILD_TYPE STREQUAL "Garble")
-  add_compile_definitions (_GARBLE_ _FPE_TRAP_)
-  # Disable FPE traps for compilers that do not support IEEE Fortran modules
-  # version check for Fortran doesn't work yet, assume it is the same as the C compiler GCC version
-  if (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
-      CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
-      CMAKE_C_COMPILER_VERSION VERSION_LESS "5.0")
-    remove_definitions (-D_FPE_TRAP_)
-  elseif (NOT LINALG STREQUAL "Internal")
-    message (WARNING
-             "Garble is active, but an external LINALG library is used! "
-             "The use of an external BLAS/LAPACK can result in floating point "
-             "exceptions handled by the library being trapped instead. "
-             "Please use -DLINALG=Internal for better chances for Garble to work correctly!")
-  else ()
-    message (WARNING
-             "Garble and floating point exception trapping are active! "
-             "It is possible that intended exceptions within BLAS/LAPACK crash the program. "
-             "Be warned!")
-  endif ()
-endif ()
 
 if (DMRG OR WFA)
   # C++ compiler required for DMRG and WFA projects
@@ -996,6 +918,29 @@ if (NOT FCID)
   message (FATAL_ERROR "unsupported Fortran compiler: ${CMAKE_Fortran_COMPILER_ID}")
 endif ()
 
+# Exception trapping
+if (CMAKE_BUILD_TYPE STREQUAL "Garble")
+  add_compile_definitions (_GARBLE_ _FPE_TRAP_)
+  # Disable FPE traps for compilers that do not support IEEE Fortran modules
+  if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
+      CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "5.0")
+    remove_definitions (-D_FPE_TRAP_)
+  elseif (NOT LINALG STREQUAL "Internal")
+    message (WARNING
+             "Garble is active, but an external LINALG library is used! "
+             "The use of an external BLAS/LAPACK can result in floating point "
+             "exceptions handled by the library being trapped instead. "
+             "Please use -DLINALG=Internal for better chances for Garble to work correctly!")
+    set (FFLAGS_${FCID}_GARBLE "${FFLAGS_${FCID}_GARBLE} ${${FCID}_TRAP}")
+  else ()
+    message (WARNING
+             "Garble and floating point exception trapping are active! "
+             "It is possible that intended exceptions within BLAS/LAPACK crash the program. "
+             "Be warned!")
+    set (FFLAGS_${FCID}_GARBLE "${FFLAGS_${FCID}_GARBLE} ${${FCID}_TRAP}")
+  endif ()
+endif ()
+
 # overwrite any CMake defaults (some are strange, so we set our own)
 if (NOT CMAKE_Fortran_FLAGS_USER)
   set (CMAKE_Fortran_FLAGS_DEFAULT "$ENV{FFLAGS} ${FFLAGS_${FCID}_BASIC}"
@@ -1075,6 +1020,12 @@ endif ()
 # Process options                                                              #
 #                                                                              #
 ################################################################################
+
+if ((BLOCK AND CHEMPS2) OR
+    (BLOCK AND DMRG) OR
+    (CHEMPS2 AND DMRG))
+  message (FATAL_ERROR "BLOCK, CHEMPS2 and DMRG options are not compatible.")
+endif ()
 
 # Install directory
 #==================
@@ -1659,8 +1610,8 @@ else ()
   message ("Gromacs interface DISABLED")
 endif ()
 
-# Chan group's DMRG (Block code) support
-#=======================================
+# G. Chan group's DMRG (Block code) support
+#==========================================
 
 if (BLOCK)
   mark_as_advanced (CLEAR BLOCK_DIR)
@@ -1699,8 +1650,8 @@ else ()
   message ("BLOCK interface DISABLED")
 endif ()
 
-# S.Wouters' DMRG (CheMPS2 code) support
-#=======================================
+# S. Wouters' DMRG (CheMPS2 code) support
+#========================================
 
 if (CHEMPS2)
   mark_as_advanced (CLEAR CHEMPS2_DIR)
@@ -1729,8 +1680,68 @@ else ()
   message ("CHEMPS2 interface DISABLED")
 endif ()
 
-if (BLOCK AND CHEMPS2)
-  message (FATAL_ERROR "BLOCK and CHEMPS2 options are not compatible.")
+# QCMaquis support
+#=================
+
+if (DMRG)
+  mark_as_advanced (CLEAR DMRG_DEBUG)
+  # Name and e-mail required for downloading QCMaquis
+  # Try to get the real name from the system account information
+  if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+    set (QCMaquis_NAME_GET_CMD "id -F")
+  else ()
+  # should we distinguish other platforms?
+    set (QCMaquis_NAME_GET_CMD "sh" "-c" "getent passwd $USER | awk -F: '{print \$5}'")
+  endif ()
+  execute_process (
+    COMMAND ${QCMaquis_NAME_GET_CMD}
+    OUTPUT_VARIABLE QCMaquis_NAME_
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  set (QCMaquis_NAME ${QCMaquis_NAME_} CACHE STRING "Your name (required for downloading QCMaquis)")
+
+  # Update QCMaquis flag. Off by default.
+  # QCMaquis must be updated manually, as there might be QCMaquis upstream changes even when OpenMolcas is not changed,
+  # or vice versa. Running cmake with QCMaquis_UPDATE=ON will force-update QCMaquis.
+  if (NOT QCMaquis_UPDATE)
+    set (QCMaquis_UPDATE OFF CACHE STRING "Trigger QCMaquis update" FORCE)
+  endif ()
+
+  # try to get the e-mail address from git config (TODO: is there a better option?)
+  execute_process (
+    COMMAND ${GIT} "config" "user.email"
+    OUTPUT_VARIABLE QCMaquis_EMAIL_
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  set (QCMaquis_EMAIL ${QCMaquis_EMAIL_} CACHE STRING "Your e-mail address (required for downloading QCMaquis)")
+
+  # Prepare variables for QCMaquis: separate name and surname
+  set (QCMaquis_NAME_LIST ${QCMaquis_NAME})
+
+  separate_arguments (QCMaquis_NAME_LIST)
+  list (LENGTH QCMaquis_NAME_LIST qcm_name_len)
+  if (qcm_name_len LESS 2)
+    message (FATAL_ERROR
+             "Your name has been specified as: " ${QCMaquis_NAME} "\n"
+             "Please specify both name and surname. If you have only one name, please specify it twice.")
+  endif ()
+
+  # Separate first name from the last name
+  # Currently, only the first word is treated by QCMaquis as the first name,
+  # all the rest is considered surnames -- to accomodate multiple surnames common in the Spanish-speaking
+  # areas or suffixes as Jr., III etc. Middle names are therefore incorrectly considered parts of
+  # the last name. However, this has no influence on the QCMaquis download.
+  list (GET QCMaquis_NAME_LIST 0 QCMaquis_GIVEN_NAME)
+  list (REMOVE_AT QCMaquis_NAME_LIST 0)
+  foreach (arg ${QCMaquis_NAME_LIST})
+    set (QCMaquis_SURNAME "${QCMaquis_SURNAME} ${arg}")
+  endforeach ()
+
+  # Set QCMaquis download URL and path to the download script
+  set (QCMaquis_URL "https://scine.ethz.ch/download/")
+  set (QCMaquis_dl_SCRIPT "${CMAKE_SOURCE_DIR}/src/QCMaquis/get_qcmaquis.sh")
+else ()
+  mark_as_advanced (FORCE DMRG_DEBUG)
 endif ()
 
 # GPerfTools: CPU profiling
@@ -2725,19 +2736,20 @@ if (MPI)
 endif ()
 add_subdirectory (src/${prog} ${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/${prog})
 list (APPEND progs_exe ${prog}.exe)
-list (APPEND ALL_SOURCES ${prog}_sources)
+list (APPEND ALL_SOURCES ${${prog}_sources})
 list (APPEND PROGRAM_EXECUTABLES ${prog}.exe)
 
 # Add custom debug flags per file:
 #   For each file, tries to find out if each definition is used and modify the file's properties
 # Limitation: it will rebuild the whole target (but not the whole OpenMolcas)
 if (DEBUG_DEFS)
+  get_directory_property (subdirs SUBDIRECTORIES)
   foreach (file ${ALL_SOURCES})
     file (READ ${file} contents)
     foreach (def ${DEBUG_DEFS})
       string (REGEX MATCH ${def} result "${contents}")
       if (NOT ${result} STREQUAL "")
-        set_property (SOURCE ${file} APPEND PROPERTY COMPILE_DEFINITIONS ${def})
+        set_property (SOURCE ${file} DIRECTORY ${subdirs} APPEND PROPERTY COMPILE_DEFINITIONS ${def})
       endif ()
     endforeach ()
   endforeach ()
