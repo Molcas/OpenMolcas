@@ -32,11 +32,13 @@
       Lu=IsFreeUnit(iSeed)
       Call f_inquire('FRETHAW',ok)
       If ( .not.ok ) Then
-         open(Lu,file='FRETHAW')
+         call molcas_open(Lu,'FRETHAW')
+*        open(Lu,file='FRETHAW')
          write(Lu,'(I4,2F18.10)') 1, EneA, EneB
          Go To 99
       Else
-         open(Lu,file='FRETHAW',status='old')
+         call molcas_open(Lu,'FRETHAW')
+*        open(Lu,file='FRETHAW',status='old')
       EndIf
 *
       read(Lu,'(I4,2F18.10)') iter0, Ene(1,1), Ene(1,3)
