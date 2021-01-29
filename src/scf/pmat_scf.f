@@ -43,6 +43,7 @@
 *     history: UHF - V.Veryazov, 2003                                  *
 *                                                                      *
 ************************************************************************
+      use OFembed, only: Do_OFemb
       Implicit Real*8 (a-h,o-z)
       External EFP_On
 #include "real.fh"
@@ -64,8 +65,7 @@
       Real*8  dmpk,dFKmat
       Common /CHOSCF / REORD,DECO,dmpk,dFKmat,ALGO,NSCREEN
 *
-      Logical Do_OFemb, KEonly, OFE_first, Found, EFP_On
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
+      Logical Found, EFP_On
 *
 *---- Define local variables
       Logical First, NonEq, ltmp1, ltmp2, Do_DFT
