@@ -152,10 +152,13 @@ C Initialize sizes, offsets etc used in equation solver.
       USE SUPERINDEX
       USE INPUTDATA
       USE PT2WFN
+* NOT TESTED
+#if 0
+      use OFembed, only: FMaux
+#endif
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
-#include "ofembed.fh"
 #include "eqsolv.fh"
 #include "chocaspt2.fh"
 
@@ -181,16 +184,14 @@ C     size of idsct array
          Call setup_cho(nSym,nIsh,nAsh,nSsh,NumCho_pt2,'Free')
 * NOT TESTED
 #if 0
-         If (Done_OFemb) Then
-            Call Free_Work(ipFMaux)
-         EndIf
+         If (Allocated(FMaux)) Call mma_deallocate(FMaux)
 #endif
          ! deallocate chovec_io arrays
-         call trachosz_free
+         call trachosz_free()
       End If
 
 * Deallocate SGUGA tables:
-      CALL PCLOSE
+      CALL PCLOSE()
 
 C     Deallocate MAGEB, etc, superindex tables:
       CALL SUPFREE

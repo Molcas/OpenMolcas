@@ -66,6 +66,7 @@
 #ifdef _HDF5_
       use mh5, only: mh5_put_attr, mh5_put_dset_array_real
 #endif
+      use OFembed, only: Do_OFemb, FMaux
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -123,11 +124,7 @@
       COMMON /CHOTIME / timings
       Common /CHOLK / DoLocK,Deco,dmpk,Nscreen
 * --------- End Cholesky stuff
-      Logical Do_OFemb, KEonly, OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
       Character*8 EMILOOP
-* --------- End Orbital-Free Embedding stuff
 * --------- FCIDUMP stuff:
       real*8, allocatable :: orbital_E(:), folded_Fock(:)
 * --------- End FCIDUMP stuff:
@@ -1940,7 +1937,7 @@ c deallocating TUVX memory...
             Write(LF,*)' Try to recover. Calculation continues.'
          endif
          If (Do_OFemb) Then
-            Call GetMem('FMaux','Free','Real',ipFMaux,nTot1)
+            Call mma_deallocate(FMaux)
             Call OFE_print(EAV)
          EndIf
       endif

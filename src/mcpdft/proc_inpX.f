@@ -19,7 +19,8 @@
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
 #endif
-
+      use OFembed, only: Do_OFemb,KEonly, OFE_KSDFT,
+     &                   ThrFThaw, Xsigma, dFMD
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
@@ -46,15 +47,6 @@
 #ifdef _HDF5_
       character(len=32) :: prgm
 #endif
-*
-      Logical Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
-      Character*16  OFE_KSDFT
-      COMMON  / OFembed_C / OFE_KSDFT
-      COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
-      COMMON  / OFembed_T / ThrFThaw
-      COMMON  / OFembed_R1/ Xsigma
-      COMMON  / OFembed_R2/ dFMD
 *
       Character*180  Line
 !      Character*8 NewJobIphName
@@ -135,17 +127,6 @@ C   No changing about read in orbital information from INPORB yet.
       doGradPDFT = .false.
       doNOGRad = .false.
       DoGSOR=.false.
-
-* Orbital-free embedding
-      Do_OFemb=.false.
-      KEonly  =.false.
-      OFE_first  =.true.
-      ipFMaux = -666666
-      ip_NDSD = -696969
-      l_NDSD = 0
-      ThrFThaw = 0.0d0
-      dFMD = 0.0d0
-      Xsigma=1.0d4
 
 *    SplitCAS related variables declaration  (GLMJ)
       DoSplitCAS= .false.

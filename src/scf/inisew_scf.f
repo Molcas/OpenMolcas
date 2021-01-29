@@ -28,12 +28,11 @@
 ************************************************************************
       use Sizes_of_Seward, only: S
       use Real_Info, only: ThrInt, CutInt
+      use OFembed, only: Do_OFemb
       Implicit Real*8 (A-H,O-Z)
       External EFP_On
 #include "print.fh"
 #include "iprlv.fh"
-      Logical Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
       Logical Do_Tw
       COMMON  / Tw_corr_L   / Do_Tw
       Logical Do_Addc

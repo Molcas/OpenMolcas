@@ -22,8 +22,6 @@
      &       F_xc(mGrid),
      &       P2_ontop(nP2_ontop, mGrid),
      &       dF_dP2ontop(ndF_dP2ontop, mGrid)
-      Logical Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
 *
 ************************************************************************
 *

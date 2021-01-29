@@ -12,13 +12,12 @@
      &                    nP2_ontop,iSpin,F_xc,
      &                    dF_dRho,ndF_dRho,dF_dP2ontop,ndF_dP2ontop,T_X)
 ************************************************************************
+      use OFembed, only: dFMD
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
       Real*8 Rho(nRho,mGrid),dF_dRho(ndF_dRho,mGrid),
      &       P2_ontop(nP2_ontop,mGrid), F_xc(mGrid),
      &       dF_dP2ontop(ndF_dP2ontop,mGrid)
-*
-      COMMON  / OFembed_R2/ dFMD
 *
       CoeffA=dFMD
       Call CPBE(Rho,nRho,mGrid,dF_dRho,ndF_dRho,
