@@ -57,6 +57,7 @@
      &    doBlockDMRG
       use general_data, only : iSpin, nActEl, nSym, nTot1,
      &    nBas, nIsh, nAsh, nFro
+      use OFEmbed, only: Do_OFemb, OFE_first, ipFMaux
 
 
       implicit none
@@ -80,23 +81,20 @@
       logical :: doDMRG = .false.
 #endif
 *
-      Logical Do_OFemb, KEonly, OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
       Character*16 NamRfil
       COMMON  / OFembed_R / Rep_EN,Func_AB,Func_A,Func_B,Energy_NAD,
      &                      V_Nuc_AB,V_Nuc_BA,V_emb
-      COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
 *
       real*8, parameter ::  Zero=0.0d0, One=1.0d0
       real*8 :: CASDFT_Funct, dumm(1), Emyn, energy_nad, Eone,
      &  Erf1, Erf2, Erfx, Etwo, func_a, func_ab, func_b,
      &  potnuc_ref, rep_en, v_emb, v_nuc_ab, v_nuc_ba, dDot_
       integer :: i, iadd, ibas, icharge, iComp,
-     &  ioff, iopt, ip_ndsd,
-     &  ipam, ipfmaux, iprlev, iptmpfcki, ntmpfck,
+     &  ioff, iopt,
+     &  ipam, iprlev, iptmpfcki, ntmpfck,
      &  irc, iSyLbl,
      &  iSym, iTmp0, iTmp1, iTmp2, iTmp3, iTmp4, iTmp5, iTmp6, iTmp7,
-     &  iTmp8, iTmpx, iTmpz, iTu, j, l_ndsd, lx0, lx1, lx2, lx3,
+     &  iTmp8, iTmpx, iTmpz, iTu, j, lx0, lx1, lx2, lx3,
      &  mxna, mxnb, nAt, nst, nt, ntu, nu, nvxc
 
 C Local print level (if any)

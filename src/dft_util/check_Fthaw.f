@@ -10,9 +10,9 @@
 ************************************************************************
       Subroutine check_Fthaw(iRC)
 
+      use OFembed, only: ThrFThaw
       Implicit Real*8 (a-h,o-z)
 #include "warnings.fh"
-      COMMON  / OFembed_T / ThrFThaw
       Character*16 NamRfil
       Logical ok
       Real*8 Ene(1000,4)

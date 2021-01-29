@@ -18,6 +18,7 @@
 *
 *     M.P. Fuelscher, Lund, July 1990
 *
+      use OFembed, only: Do_OFemb,OFE_first,ipFMaux
       Implicit Real*8 (A-H,O-Z)
 *
 #include "rasdim.fh"
@@ -37,12 +38,9 @@
       Logical First, Dff, Do_DFT, Found
       Logical Do_ESPF
 *
-      Logical Do_OFemb, KEonly, OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
       Character*16 NamRfil
       COMMON  / OFembed_R / Rep_EN,Func_AB,Func_A,Func_B,Energy_NAD,
      &                      V_Nuc_AB,V_Nuc_BA,V_emb
-      COMMON  / OFembed_I / ipFMaux, ip_NDSD, l_NDSD
 *
       Parameter ( Zero=0.0d0 , One=1.0d0 )
       Dimension Dumm(1)

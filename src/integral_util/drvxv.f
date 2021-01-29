@@ -14,6 +14,7 @@
 #ifdef _EFP_
       use EFP_Module
 #endif
+      use OFembed, only: Do_OFemb, OFE_KSDFT
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "nq_info.fh"
@@ -22,11 +23,6 @@
       Real*8 D1I(nD1),D1A(nD1)
       Logical First, Dff, lRF, NonEq, Do_Grad, Do_DFT
       Dimension Grad(1),RN(1)
-*
-      Logical Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
-      Character*16  OFE_KSDFT
-      COMMON  / OFembed_C / OFE_KSDFT
 *
       Logical Do_ESPF
 #ifdef _EFP_

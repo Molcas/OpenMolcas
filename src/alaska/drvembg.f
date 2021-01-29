@@ -33,6 +33,7 @@
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
       use Para_Info, only: King
+      use OFembed, only: OFE_KSDFT
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "print.fh"
@@ -40,8 +41,6 @@
 #include "rctfld.fh"
 #include "disp.fh"
 #include "nq_info.fh"
-      Character*16  OFE_KSDFT
-      COMMON  / OFembed_C / OFE_KSDFT
       Character Label*80
       Real*8 Grad(nGrad), Temp(nGrad)
       Logical Do_Grad
@@ -114,6 +113,7 @@
 ***                                                                  ***
 ************************************************************************
 ************************************************************************
+      use OFembed, only: Xsigma, dFMD
       Implicit Real*8 (a-h,o-z)
       External LSDA_emb, Checker
 #include "real.fh"
@@ -125,10 +125,6 @@
       Character*4 DFTFOCK
       Character*16 NamRfil
       Real*8, Allocatable:: Grad_A(:), F_DFT(:,:), D_DS(:,:)
-      Logical Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_L / Do_OFemb,KEonly,OFE_first
-      COMMON  / OFembed_R1/ Xsigma
-      COMMON  / OFembed_R2/ dFMD
       Real*8, Allocatable:: Fcorr(:,:)
 *
       Debug=.False.

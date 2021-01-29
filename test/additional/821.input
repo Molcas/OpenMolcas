@@ -43,7 +43,7 @@ KSDFT
  pbe
 LumOrb
 End Of Input
->>> COPY $Project.RunFile AUXRFIL
+>>> CLONE $Project.RunFile AUXRFIL
 
 
 >>> EXPORT MOLCAS_MAXITER=20
@@ -78,7 +78,7 @@ OFEMbedding
 LuMOrb
 End Of Input
 >>> RM AUXRFIL
->>> COPY $Project.RunFile AUXRFIL
+>>> CLONE $Project.RunFile AUXRFIL
 >>> RM INPORB
 
 
@@ -113,7 +113,7 @@ Fthaw thr
 LuMOrb
 End Of Input
 >>> RM AUXRFIL
->>> COPY $Project.RunFile AUXRFIL
+>>> CLONE $Project.RunFile AUXRFIL
 >>> RM INPORB
 
 >>> ENDDO <<<<<<<<<<<<

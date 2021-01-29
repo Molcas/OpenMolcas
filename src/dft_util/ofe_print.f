@@ -10,12 +10,12 @@
 ************************************************************************
       Subroutine OFE_print(Energy_A)
 
+      use OFembed, only: dFMD
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
       Real*8 ReCharge(MxAtom)
       COMMON  / OFembed_R / Rep_EN,Func_AB,Func_A,Func_B,Energy_NAD,
      &                      V_Nuc_AB,V_Nuc_BA,V_emb
-      COMMON  / OFembed_R2/ dFMD
       Character*16 NamRfil
       Character*10 Fmt
       Integer  Cho_X_GetTol
