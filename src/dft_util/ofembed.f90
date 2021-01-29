@@ -12,7 +12,7 @@
 !***********************************************************************
 Module OFembed
 Private
-Public:: Do_OFemb, ,OFE_first, OFE_KSDFT, ThrFThaw, Xsigma, dFMD, FMaux
+Public:: Do_OFemb, KEonly, OFE_first, OFE_KSDFT, ThrFThaw, Xsigma, dFMD, FMaux
 Public::Rep_EN,Func_AB,Func_A,Func_B,Energy_NAD,V_Nuc_AB,V_Nuc_BA,V_emb
 
 Logical::  Do_OFemb=.False., KEonly=.False., OFE_first=.True.

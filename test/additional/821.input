@@ -1,4 +1,8 @@
 >>export MOLCAS_NOCHECK=MLTPL,DFT_ENERGY,SCF_ITER
+> IF ( $MOLCAS_NPROCS != 1)
+>   EXIT 36
+> ENDIF
+
 
 >> FILE h2co.xyz
 4
