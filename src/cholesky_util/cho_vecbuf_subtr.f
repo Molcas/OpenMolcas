@@ -175,8 +175,8 @@ C           ----------------------------------------------------
                   If (Tst<=SSTau) Cycle
                   xDon = xDon + 1.0d0
                   Call dGeMV_('N',nGD,NumV,
-     &                       xMOne,V(1+iGD,iVec0+1),nnBstR(iSym,2),
-     &                       W(1,iAB),1,One,U(1+iGD,iAB),1)
+     &                       xMOne,V(1+iGD:,iVec0+1),nnBstR(iSym,2),
+     &                       W(:,iAB),1,One,U(1+iGD:,iAB),1)
                End Do
             End Do
 
@@ -190,7 +190,7 @@ C              -------------------------------------------------------
 
 
                Call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,
-     &                    xMOne,V(1,iVec0+1),nnBstR(iSym,2),
+     &                    xMOne,V(:,iVec0+1),nnBstR(iSym,2),
      &                          LQ(iSym)%Array(:,iVec0+1),
      &                          SIZE(LQ(iSym)%Array,1),
      &                    One,U,nnBstR(iSym,2))
@@ -221,7 +221,7 @@ C              ----------------------------------------------------
 
 
                Call DGEMM_('N','T',nnBstR(iSym,2),nQual(iSym),NumV,
-     &                    xMOne,V(1,iVec0+1),nnBstR(iSym,2),
+     &                    xMOne,V(:,iVec0+1),nnBstR(iSym,2),
      &                          W,nQual(iSym),
      &                    One,U,nnBstR(iSym,2))
 
