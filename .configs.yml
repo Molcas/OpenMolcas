@@ -245,7 +245,6 @@
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
       set (MPI "ON" CACHE STRING "enable MPI parallelization")
       set (GA_BUILD "ON" CACHE STRING "build our own Global Arrays")
-      set (OPENMP "ON" CACHE STRING "enable OpenMP diagnostics")
       set (LINALG "OpenBLAS" CACHE STRING "use OpenBLAS library")
     CC: "gcc"
     CXX: "g++"

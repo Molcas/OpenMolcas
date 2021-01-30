@@ -1489,80 +1489,77 @@ endif ()
 #=======================
 
 if (GA AND GA_BUILD)
-  message(FATAL_ERROR "Only one of GA and GA_BUILD should be enabled.")
+  message (FATAL_ERROR "Only one of GA and GA_BUILD should be enabled.")
 endif ()
 
 # As an external project
 if (GA_BUILD)
   message ("Configuring built-in GA library:")
 
-  include(ExternalProject)
+  include (ExternalProject)
   set (EP_PROJECT GlobalArrays)
-  set (EP_INSTALL ${PROJECT_BINARY_DIR}/External/${EP_PROJECT}_install)
+  string (TOLOWER ${EP_PROJECT} lc_EP_PROJECT)
+  string (TOUPPER ${EP_PROJECT} uc_EP_PROJECT)
 
-  list (APPEND GACMakeArgs
-        -D CMAKE_INSTALL_PREFIX=${EP_INSTALL}
-        -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
-        -D ENABLE_FORTRAN=ON
-        -D ENABLE_CXX=OFF
-        -D ENABLE_TESTS=OFF
-  )
-  if (ADDRMODE EQUAL 64)
-    list (APPEND GACMakeArgs
-          -D ENABLE_I8=ON
-          -D LINALG_REQUIRED_COMPONENTS=ilp64
-    )
+  include (FetchContent)
+  set (FETCHCONTENT_QUIET OFF)
+  set (FETCHCONTENT_BASE_DIR ${PROJECT_BINARY_DIR}/External)
+  if (GA_UPDATE)
+    set (FETCHCONTENT_UPDATES_DISCONNECTED_${uc_EP_PROJECT} OFF)
   else ()
-    list (APPEND GACMakeArgs
-          -D ENABLE_I8=OFF
-          -D LINALG_REQUIRED_COMPONENTS=lp64
-    )
+    set (FETCHCONTENT_UPDATES_DISCONNECTED_${uc_EP_PROJECT} ON)
+  endif ()
+  FetchContent_Declare (${EP_PROJECT}
+                        GIT_REPOSITORY https://github.com/GlobalArrays/ga.git
+                        GIT_TAG develop
+  )
+  FetchContent_GetProperties (${EP_PROJECT})
+  FetchContent_Populate (${EP_PROJECT})
+
+  # Set CMake optios for Global Arrays
+  set (ENABLE_FORTRAN ON CACHE INTERNAL "Set for Global Arrays")
+  set (ENABLE_CXX OFF    CACHE INTERNAL "Set for Global Arrays")
+  set (ENABLE_TESTS OFF  CACHE INTERNAL "Set for Global Arrays")
+  if (ADDRMODE EQUAL 64)
+    set (ENABLE_I8 ON                     CACHE INTERNAL "Set for Global Arrays")
+    set (LINALG_REQUIRED_COMPONENTS ilp64 CACHE INTERNAL "Set for Global Arrays")
+  else ()
+    set (ENABLE_I8 OFF                    CACHE INTERNAL "Set for Global Arrays")
+    set (LINALG_REQUIRED_COMPONENTS lp64  CACHE INTERNAL "Set for Global Arrays")
   endif ()
   if (LINALG STREQUAL "MKL")
-    list (APPEND GACMakeArgs
-          -D ENABLE_BLAS=ON
-          -D LINALG_VENDOR=IntelMKL
-          -D LINALG_PREFIX=${MKLROOT}
-    )
+    set (ENABLE_BLAS ON                CACHE INTERNAL "Set for Global Arrays")
+    set (LINALG_VENDOR IntelMKL        CACHE INTERNAL "Set for Global Arrays")
+    set (LINALG_PREFIX ${MKLROOT}      CACHE INTERNAL "Set for Global Arrays")
   elseif (LINALG STREQUAL "OpenBLAS")
-    list (APPEND GACMakeArgs
-          -D ENABLE_BLAS=ON
-          -D LINALG_VENDOR=OpenBLAS
-          -D LINALG_PREFIX=${OPENBLASROOT}
-    )
+    set (ENABLE_BLAS ON                CACHE INTERNAL "Set for Global Arrays")
+    set (LINALG_VENDOR OpenBLAS        CACHE INTERNAL "Set for Global Arrays")
+    set (LINALG_PREFIX ${OPENBLASROOT} CACHE INTERNAL "Set for Global Arrays")
   elseif (";Internal;Runtime;" MATCHES ";${LINALG};")
     message (FATAL_ERROR "GA_BUILD requires an external LINALG library.")
   else ()
     message (FATAL_ERROR "GA_BUILD: unsupported LINALG: ${LINALG}")
   endif ()
 
-  if (GA_UPDATE)
-    set (GASkipUpdate OFF)
-  else ()
-    set (GASkipUpdate ON)
-  endif ()
-
-  ExternalProject_Add(${EP_PROJECT}
-                      PREFIX ${PROJECT_BINARY_DIR}/External/${EP_PROJECT}
-                      GIT_REPOSITORY https://github.com/GlobalArrays/ga.git
-                      GIT_TAG origin/develop
-                      UPDATE_DISCONNECTED ${GASkipUpdate}
-                      CMAKE_ARGS ${GACMakeArgs}
-                      LOG_DOWNLOAD 1
-                      LOG_UPDATE 1
-                      LOG_CONFIGURE 1
-                      LOG_INSTALL 1
-  )
+  add_subdirectory (${${lc_EP_PROJECT}_SOURCE_DIR} ${${lc_EP_PROJECT}_BINARY_DIR} EXCLUDE_FROM_ALL)
 
 endif ()
 
 # Global Arrays settings, non-portable!
-set(GA_FOUND FALSE)
+set (GA_FOUND FALSE)
 if (GA_BUILD AND MPI)
-  set (GA_INCLUDE_PATH ${EP_INSTALL}/include/ga)
-  link_directories(${EP_INSTALL}/lib)
+  # Since we are not "installing" the target, we have to find the include files
+  set (GA_INCLUDE_PATH
+       ${${lc_EP_PROJECT}_SOURCE_DIR}/ma
+       ${${lc_EP_PROJECT}_SOURCE_DIR}/global/src
+       ${${lc_EP_PROJECT}_SOURCE_DIR}/pario/eaf
+       ${${lc_EP_PROJECT}_BINARY_DIR}/ma
+       ${${lc_EP_PROJECT}_BINARY_DIR}/global/src
+       ${${lc_EP_PROJECT}_BINARY_DIR}/gaf2c
+  )
   set (GA_LIBRARIES ga armci)
-  set(GA_FOUND TRUE)
+  list (APPEND EXTRA_INSTALL_TARGETS ${GA_LIBRARIES})
+  set (GA_FOUND TRUE)
 elseif (GA AND MPI)
   message ("Configuring with external GA library:")
 
@@ -1611,7 +1608,7 @@ elseif (GA AND MPI)
       list (APPEND GA_LIBRARIES ${LIBIBVERBS})
     endif ()
   endif ()
-  set(GA_FOUND TRUE)
+  set (GA_FOUND TRUE)
 endif ()
 if (GA_FOUND)
   add_compile_definitions (_GA_)
@@ -2690,9 +2687,6 @@ endif ()
 # dependency using the "mods_obj" target.
 # note that mods_obj is empty at the beginning, source files will be added later
 add_library (mods_obj OBJECT)
-if (TARGET GlobalArrays)
-  add_dependencies (mods_obj GlobalArrays)
-endif ()
 if (DMRG)
   if (HDF5 AND HDF5_FOUND)
     add_dependencies (mods_obj hdf5-qcm)
