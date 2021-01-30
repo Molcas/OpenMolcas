@@ -19,10 +19,11 @@
 # Ignacio Fdez. Galván made several improvements / additions
 # Gerardo Raggi - AppleClang
 
+cmake_minimum_required (VERSION 3.12)
+cmake_policy (VERSION 3.12...3.13)
+
 project (OpenMolcas Fortran C)
 
-cmake_minimum_required (VERSION 3.12)
-cmake_policy (VERSION 3.12)
 #set (CMAKE_VERBOSE_MAKEFILE ON)
 
 include (${PROJECT_SOURCE_DIR}/cmake/cmake_helpers.cmake)
@@ -1502,17 +1503,16 @@ if (GA_BUILD)
   string (TOUPPER ${EP_PROJECT} uc_EP_PROJECT)
 
   include (FetchContent)
-  set (FETCHCONTENT_QUIET OFF)
   set (FETCHCONTENT_BASE_DIR ${PROJECT_BINARY_DIR}/External)
+  FetchContent_Declare (${EP_PROJECT}
+                        GIT_REPOSITORY https://github.com/GlobalArrays/ga.git
+                        GIT_TAG develop
+  )
   if (GA_UPDATE)
     set (FETCHCONTENT_UPDATES_DISCONNECTED_${uc_EP_PROJECT} OFF)
   else ()
     set (FETCHCONTENT_UPDATES_DISCONNECTED_${uc_EP_PROJECT} ON)
   endif ()
-  FetchContent_Declare (${EP_PROJECT}
-                        GIT_REPOSITORY https://github.com/GlobalArrays/ga.git
-                        GIT_TAG develop
-  )
   FetchContent_GetProperties (${EP_PROJECT})
   FetchContent_Populate (${EP_PROJECT})
 
