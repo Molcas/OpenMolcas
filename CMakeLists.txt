@@ -85,6 +85,13 @@ endif ()
 
 option (MPI "Enable MPI parallellization." OFF)
 option (GA "Use Global Arrays library." OFF)
+option (GA_BUILD "Build Global Arrays." OFF)
+option (GA_UPDATE "Update Global Arrays." OFF)
+if (GA_BUILD)
+  mark_as_advanced (CLEAR GA_UPDATE)
+else ()
+  mark_as_advanced (FORCE GA_UPDATE)
+endif ()
 
 option (OPENMP "Enable multi-threading." OFF)
 
@@ -460,7 +467,7 @@ endif ()
 
 if (NOT PLATFORM)
   if (DEFINED EXTRA_DIR)
-    message (WARNING "unsupported platform")
+    message (WARNING "Unsupported platform.")
   endif ()
 else ()
   message ("-- PLATFORM: ${PLATFORM}")
@@ -536,7 +543,7 @@ set (FFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
 
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
     CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "4.8")
-  message (FATAL_ERROR "At least version 4.8 is required for the GNU Fortran compiler")
+  message (FATAL_ERROR "At least version 4.8 is required for the GNU Fortran compiler.")
 endif ()
 
 # Add runtime checks
@@ -654,7 +661,7 @@ set (FFLAGS_Intel_FAST "-Ofast -fno-alias")
 
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel" AND
     CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "13")
-  message (FATAL_ERROR "At least version 13 is required for the Intel Fortran compiler")
+  message (FATAL_ERROR "At least version 13 is required for the Intel Fortran compiler.")
 endif ()
 
 # Intel versions prior to 15 used -openmp
@@ -1034,68 +1041,6 @@ if (NOT IS_ABSOLUTE "${CMAKE_INSTALL_PREFIX}")
 endif ()
 get_filename_component (CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" ABSOLUTE)
 
-# Global Arrays settings
-#=======================
-
-# Global Arrays settings, non-portable!
-if (GA AND MPI)
-  message ("Configuring with external GA library:")
-
-  find_path (GA_INCLUDE_PATH ga.h
-    PATHS ENV GAROOT
-    PATH_SUFFIXES include
-    NO_DEFAULT_PATH
-  )
-  if (NOT GA_INCLUDE_PATH)
-    message (FATAL_ERROR "GA_INCLUDE_PATH not found, make sure GAROOT environment variable is set.")
-  endif ()
-  find_library (LIBGA ga
-    PATHS ENV GAROOT
-    PATH_SUFFIXES lib
-    NO_DEFAULT_PATH
-  )
-  if (NOT LIBGA)
-    message (FATAL_ERROR "LIBGA not found, make sure GAROOT environment variable is set.")
-  else ()
-    list (APPEND GA_LIBRARIES ${LIBGA})
-  endif ()
-  find_library (LIBARMCI armci
-    PATHS ENV GAROOT
-    PATH_SUFFIXES lib
-    NO_DEFAULT_PATH
-  )
-  if (NOT LIBARMCI)
-    message (FATAL_ERROR "LIBARMCI not found, make sure GAROOT environment variable is set.")
-  else ()
-    list (APPEND GA_LIBRARIES ${LIBARMCI})
-  endif ()
-  # Hackish: try to find out if ARMCI needs IBVERBS by looking for ibv_open_device
-  execute_process (
-    COMMAND "nm" "${LIBARMCI}"
-    COMMAND "grep" "-iq" "ibv_open_device"
-    RESULT_VARIABLE FAILURE
-  )
-  if (FAILURE)
-    message ("-> no libibverbs dependency found for GA.")
-  else ()
-    message ("-> detected ibverbs dependency for GA.")
-    find_library (LIBIBVERBS ibverbs)
-    if (NOT LIBARMCI)
-      message (WARNING "LIBIBVERBS not found, but probably needed by GA.")
-    else ()
-      list (APPEND GA_LIBRARIES ${LIBIBVERBS})
-    endif ()
-  endif ()
-
-  add_compile_definitions (_GA_)
-  include_directories (${GA_INCLUDE_PATH})
-
-  message ("-- GA_INCLUDE_PATH: ${GA_INCLUDE_PATH}")
-  message ("-- GA_LIBRARIES: ${GA_LIBRARIES}")
-
-  list (APPEND EXTERNAL_LIBRARIES ${GA_LIBRARIES})
-endif ()
-
 # Parallel settings
 #==================
 
@@ -1176,7 +1121,7 @@ if (LINALG STREQUAL "MKL")
 
   # quick bypass for 32bit, don't bother with it (for now?)
   if (NOT ADDRMODE EQUAL 64)
-    message (FATAL_ERROR "Use of MKL for 32bit installation not implemented")
+    message (FATAL_ERROR "Use of MKL for 32bit installation not implemented.")
   endif ()
 
   mark_as_advanced (CLEAR MKLROOT)
@@ -1517,7 +1462,7 @@ if (CUBLAS OR NVBLAS)
     list (APPEND CUDA_LIBRARIES ${LIBCUBLAS})
   else ()
     if (NOT LINALG)
-      message (FATAL_ERROR "NVBLAS needs an external linear algebra library such as MKL or ACML")
+      message (FATAL_ERROR "NVBLAS needs an external linear algebra library such as MKL or ACML.")
     endif ()
     find_library (LIBNVBLAS nvblas
       PATHS ${CUDAROOT}
@@ -1538,6 +1483,144 @@ if (CUBLAS OR NVBLAS)
   list (APPEND EXTERNAL_LIBRARIES ${CUDA_LIBRARIES})
 else ()
   mark_as_advanced (FORCE CUDAROOT)
+endif ()
+
+# Global Arrays settings
+#=======================
+
+if (GA AND GA_BUILD)
+  message(FATAL_ERROR "Only one of GA and GA_BUILD should be enabled.")
+endif ()
+
+# As an external project
+if (GA_BUILD)
+  message ("Configuring built-in GA library:")
+
+  include(ExternalProject)
+  set (EP_PROJECT GlobalArrays)
+  set (EP_INSTALL ${PROJECT_BINARY_DIR}/External/${EP_PROJECT}_install)
+
+  list (APPEND GACMakeArgs
+        -D CMAKE_INSTALL_PREFIX=${EP_INSTALL}
+        -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+        -D ENABLE_FORTRAN=ON
+        -D ENABLE_CXX=OFF
+        -D ENABLE_TESTS=OFF
+  )
+  if (ADDRMODE EQUAL 64)
+    list (APPEND GACMakeArgs
+          -D ENABLE_I8=ON
+          -D LINALG_REQUIRED_COMPONENTS=ilp64
+    )
+  else ()
+    list (APPEND GACMakeArgs
+          -D ENABLE_I8=OFF
+          -D LINALG_REQUIRED_COMPONENTS=lp64
+    )
+  endif ()
+  if (LINALG STREQUAL "MKL")
+    list (APPEND GACMakeArgs
+          -D ENABLE_BLAS=ON
+          -D LINALG_VENDOR=IntelMKL
+          -D LINALG_PREFIX=${MKLROOT}
+    )
+  elseif (LINALG STREQUAL "OpenBLAS")
+    list (APPEND GACMakeArgs
+          -D ENABLE_BLAS=ON
+          -D LINALG_VENDOR=OpenBLAS
+          -D LINALG_PREFIX=${OPENBLASROOT}
+    )
+  elseif (";Internal;Runtime;" MATCHES ";${LINALG};")
+    message (FATAL_ERROR "GA_BUILD requires an external LINALG library.")
+  else ()
+    message (FATAL_ERROR "GA_BUILD: unsupported LINALG: ${LINALG}")
+  endif ()
+
+  if (GA_UPDATE)
+    set (GASkipUpdate OFF)
+  else ()
+    set (GASkipUpdate ON)
+  endif ()
+
+  ExternalProject_Add(${EP_PROJECT}
+                      PREFIX ${PROJECT_BINARY_DIR}/External/${EP_PROJECT}
+                      GIT_REPOSITORY https://github.com/GlobalArrays/ga.git
+                      GIT_TAG origin/develop
+                      UPDATE_DISCONNECTED ${GASkipUpdate}
+                      CMAKE_ARGS ${GACMakeArgs}
+                      LOG_DOWNLOAD 1
+                      LOG_UPDATE 1
+                      LOG_CONFIGURE 1
+                      LOG_INSTALL 1
+  )
+
+endif ()
+
+# Global Arrays settings, non-portable!
+set(GA_FOUND FALSE)
+if (GA_BUILD AND MPI)
+  set (GA_INCLUDE_PATH ${EP_INSTALL}/include/ga)
+  link_directories(${EP_INSTALL}/lib)
+  set (GA_LIBRARIES ga armci)
+  set(GA_FOUND TRUE)
+elseif (GA AND MPI)
+  message ("Configuring with external GA library:")
+
+  find_path (GA_INCLUDE_PATH ga.h
+    PATHS ENV GAROOT
+    PATH_SUFFIXES include include/ga
+    NO_DEFAULT_PATH
+  )
+  if (NOT GA_INCLUDE_PATH)
+    message (FATAL_ERROR "GA_INCLUDE_PATH not found, make sure GAROOT environment variable is set.")
+  endif ()
+  find_library (LIBGA ga
+    PATHS ENV GAROOT
+    PATH_SUFFIXES lib
+    NO_DEFAULT_PATH
+  )
+  if (NOT LIBGA)
+    message (FATAL_ERROR "LIBGA not found, make sure GAROOT environment variable is set.")
+  else ()
+    list (APPEND GA_LIBRARIES ${LIBGA})
+  endif ()
+  find_library (LIBARMCI armci
+    PATHS ENV GAROOT
+    PATH_SUFFIXES lib
+    NO_DEFAULT_PATH
+  )
+  if (NOT LIBARMCI)
+    message (FATAL_ERROR "LIBARMCI not found, make sure GAROOT environment variable is set.")
+  else ()
+    list (APPEND GA_LIBRARIES ${LIBARMCI})
+  endif ()
+  # Hackish: try to find out if ARMCI needs IBVERBS by looking for ibv_open_device
+  execute_process (
+    COMMAND "nm" "${LIBARMCI}"
+    COMMAND "grep" "-iq" "ibv_open_device"
+    RESULT_VARIABLE FAILURE
+  )
+  if (FAILURE)
+    message ("-> no libibverbs dependency found for GA.")
+  else ()
+    message ("-> detected ibverbs dependency for GA.")
+    find_library (LIBIBVERBS ibverbs)
+    if (NOT LIBARMCI)
+      message (WARNING "LIBIBVERBS not found, but probably needed by GA.")
+    else ()
+      list (APPEND GA_LIBRARIES ${LIBIBVERBS})
+    endif ()
+  endif ()
+  set(GA_FOUND TRUE)
+endif ()
+if (GA_FOUND)
+  add_compile_definitions (_GA_)
+  include_directories (${GA_INCLUDE_PATH})
+
+  message ("-- GA_INCLUDE_PATH: ${GA_INCLUDE_PATH}")
+  message ("-- GA_LIBRARIES: ${GA_LIBRARIES}")
+
+  list (APPEND EXTERNAL_LIBRARIES ${GA_LIBRARIES})
 endif ()
 
 # Gromacs
@@ -1562,7 +1645,7 @@ if (GROMACS)
   endif ()
 
   # The lib directory is set by Gromacs
-  if (DEFINED ENV{GMXLDLIB})
+  if (DEFINED ENV{GMXLDLIB} AND NOT GROMACS_DIR)
     set (GMX_LIBDIR $ENV{GMXLDLIB})
   else ()
     set (GMX_LIBDIR "${GROMACS_DIR}/lib")
@@ -1659,12 +1742,12 @@ if (CHEMPS2)
   message ("Configuring CheMPS2-DMRG support:")
 
   if (NOT HDF5)
-    message (FATAL_ERROR "CheMPS2 interface requires enabling HDF5")
+    message (FATAL_ERROR "CheMPS2 interface requires enabling HDF5.")
   endif ()
 
   find_program (CHEMPS2_EXE chemps2)
   if (NOT CHEMPS2_EXE)
-    message (WARNING "No CheMPS2 installation found, you will have to make sure it is available at run time")
+    message (WARNING "No CheMPS2 installation found, you will have to make sure it is available at run time.")
   endif ()
 
   foreach (prog
@@ -2274,7 +2357,7 @@ foreach (util ${utils})
   find_source (${util} ${source_roots})
   if (NOT DEFINED ${util}_src)
     list (REMOVE_ITEM utils ${util})
-    message (WARNING "\"${util}\" not found in source directories, skipping")
+    message (WARNING "\"${util}\" not found in source directories, skipping.")
   endif ()
 endforeach ()
 
@@ -2284,7 +2367,7 @@ if (FDE)
   if (DEFINED ${util}_src)
     list (APPEND utils ${util})
   else ()
-    message (FATAL_ERROR "\"${util}\" not found in source directories")
+    message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
   foreach (prog
     gateway_util
@@ -2298,7 +2381,7 @@ endif ()
 
 # If an external GA library is not present, we use the internal
 # DGA code which resides in dga_util:
-if (MPI AND NOT GA)
+if (MPI AND NOT GA AND NOT GA_BUILD)
   set (util dga_util)
   find_source (${util} ${source_roots})
   if (DEFINED ${util}_src)
@@ -2324,7 +2407,7 @@ if (LINALG STREQUAL "Runtime")
   if (DEFINED ${util}_src)
     list (APPEND utils ${util})
   else ()
-    message (FATAL_ERROR "\"${util}\" not found in source directories")
+    message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
   list (APPEND ${util}_incs ${internal_linalg})
 endif ()
@@ -2341,7 +2424,7 @@ if (HDF5 AND HDF5_FOUND)
     list (APPEND utils ${util})
     list (APPEND ${util}_incs ${HDF5_INCLUDE_DIRS})
   else ()
-    message (FATAL_ERROR "\"${util}\" not found in source directories")
+    message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
   # additional utilities doing internal HDF5 calls
   foreach (prog
@@ -2404,7 +2487,7 @@ if (MSYM AND MSYM_FOUND)
   if (DEFINED ${util}_src)
     list (APPEND utils ${util})
   else ()
-    message (FATAL_ERROR "\"${util}\" not found in source directories")
+    message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
   list (APPEND ${util}_incs ${MSYM_INCLUDE})
   list (APPEND progs symmetrize)
@@ -2417,7 +2500,7 @@ if (BLOCK)
     list (APPEND utils ${util})
     list (APPEND ${util}_defs "_ENABLE_BLOCK_DMRG_")
   else ()
-    message (FATAL_ERROR "\"${util}\" not found in source directories")
+    message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
 endif ()
 
@@ -2429,7 +2512,7 @@ if (CHEMPS2)
     list (APPEND ${util}_incs ${HDF5_INCLUDE_DIRS})
     list (APPEND ${util}_defs "_ENABLE_CHEMPS2_DMRG_")
   else ()
-    message (FATAL_ERROR "\"${util}\" not found in source directories")
+    message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
 endif ()
 
@@ -2454,7 +2537,7 @@ foreach (prog ${progs})
   find_source (${prog} ${source_roots})
   if (NOT DEFINED ${prog}_src)
     list (REMOVE_ITEM progs ${prog})
-    message (WARNING "\"${prog}\" not found in source directories, skipping")
+    message (WARNING "\"${prog}\" not found in source directories, skipping.")
   endif ()
 endforeach ()
 
@@ -2607,6 +2690,9 @@ endif ()
 # dependency using the "mods_obj" target.
 # note that mods_obj is empty at the beginning, source files will be added later
 add_library (mods_obj OBJECT)
+if (TARGET GlobalArrays)
+  add_dependencies (mods_obj GlobalArrays)
+endif ()
 if (DMRG)
   if (HDF5 AND HDF5_FOUND)
     add_dependencies (mods_obj hdf5-qcm)
@@ -2667,7 +2753,7 @@ endif ()
 if (LINALG STREQUAL "Internal")
   set (util "LinAlg_internal")
   if (NOT DEFINED ${util}_src)
-    message (FATAL_ERROR "\"${util}\" not found in source directories")
+    message (FATAL_ERROR "\"${util}\" not found in source directories.")
   endif ()
   foreach (lib "lapack" "blas")
     set (source ${${util}_src}/${lib}.f)
@@ -2777,7 +2863,7 @@ if (TOOLS)
           else ()
             message ("-- ${tool}: ${dir_error}")
             if ("${tool}" STREQUAL "pymolcas" AND (NOT DEFINED EXTRA_DIR))
-              message (FATAL_ERROR "Failed to configure the pymolcas driver")
+              message (FATAL_ERROR "Failed to configure the pymolcas driver.")
             endif ()
           endif ()
         else ()
@@ -2874,7 +2960,7 @@ if (DEFINED EXTRA_DIR)
     RESULT_VARIABLE INSTALL_DRIVER_RC
   )
   if (INSTALL_DRIVER_RC)
-    message (FATAL_ERROR "Failed to install the Molcas driver")
+    message (FATAL_ERROR "Failed to install the Molcas driver.")
   endif ()
 else ()
   set (MOLCAS_DRIVER "${OPENMOLCAS_DIR}/sbin/dummy.driver")
@@ -2888,7 +2974,7 @@ else ()
       message ("-- ${tool}: added to targets")
     else ()
       message ("-- ${tool}: ${dir_error}")
-      message (FATAL_ERROR "Failed to configure the pymolcas driver")
+      message (FATAL_ERROR "Failed to configure the pymolcas driver.")
     endif ()
   endif ()
   if (MolGUI)
