@@ -26,7 +26,7 @@
     - docker
 
 .options:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:testing
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "opt, debug info")
@@ -177,7 +177,7 @@
     - nagfor
 
 .garble:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:testing
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
@@ -193,7 +193,7 @@
     - docker
 
 .bounds:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:testing
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
@@ -207,7 +207,7 @@
     - docker
 
 .debug:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:testing
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "no opt, debug info")
@@ -239,12 +239,13 @@
     - docker
 
 .mpi:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:testing
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-7:latest
   variables:
     cache_file: |
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
       set (MPI "ON" CACHE STRING "enable MPI parallelization")
-      set (GA_BUILD "ON" CACHE STRING "build our own Global Arrays")
+      set (GA "ON" CACHE STRING "enable Global Arrays")
+      set (GA_BUILD "ON" CACHE STRING "build our own Global Arrays (needs submodule)")
       set (OPENMP "ON" CACHE STRING "enable OpenMP diagnostics")
       set (LINALG "OpenBLAS" CACHE STRING "use OpenBLAS library")
       set (MPI_LAUNCHER "/usr/bin/mpiexec $$MPI_FLAGS -n $$MOLCAS_NPROCS" CACHE STRING "custom MPI launcher command line")
@@ -252,6 +253,7 @@
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
+    submodules: "External/ga"
     tests: ".all"
     MPI_FLAGS: "--allow-run-as-root"
     MOLCAS_NPROCS: "2"
