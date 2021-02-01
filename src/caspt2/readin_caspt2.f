@@ -1,187 +1,197 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Steven Vancoillie                                      *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Steven Vancoillie                                      *
+!***********************************************************************
       Module InputData
       Implicit None
-CSVC: this module contains a data structure to keep all input variables.
-C Note that I use the standard 'allocate' here against the appropriate
-C Molcas practices. The reason is that these are (i) very small, and
-C (ii) there is need for allocating complex things such as derived
-C types, which are not supported with stdalloc. Hence, the infraction.
+!SVC: this module contains a data structure to keep all input variables.
+! Note that I use the standard 'allocate' here against the appropriate
+! Molcas practices. The reason is that these are (i) very small, and
+! (ii) there is need for allocating complex things such as derived
+! types, which are not supported with stdalloc. Hence, the infraction.
 
 #include "compiler_features.h"
 
       Type States
-      Integer, Allocatable :: State(:)
+        Integer, Allocatable :: State(:)
       End Type
 
       Type InputTable
-!     TITL      one line with a descriptive name
-      Character(Len=128) :: Title = ' '
-!     FILE      file to read CAS/RAS reference from
-      Character(Len=128) :: File = 'JOBIPH'
-!     MULT      the number of states, followed by the ID of each state
-      Logical :: MULT = .False.
-      Integer :: nMultState = 0
-      Type(States) :: MultGroup
-      Logical :: AllMult = .False.
-!     XMUL      extended multi-state caspt2
-      Logical :: XMUL = .False.
-      Integer :: nXMulState = 0
-      Type(States) :: XMulGroup
-      Logical :: AllXMult = .False.
-!     DWMS      use dynamical weighting to construct Fock
-      Logical :: DWMS = .False.
-      Integer :: ZETA = 50
-!     EFOC      uses rotated E_0 energies with DWMS
-      Logical :: EFOC = .False.
-!     LROO      compute only a single root, mutually exclusive
-!               with both MULT or XMUL
-      Logical :: LROO = .False.
-      Integer :: SingleRoot = 0
-!     RLXR      root for which the gradient is computed
-      Integer :: RlxRoot = -1
+!       TITL      one line with a descriptive name
+        Character(Len=128) :: Title = ' '
+!       FILE      file to read CAS/RAS reference from
+        Character(Len=128) :: File = 'JOBIPH'
+!       MULT      the number of states, followed by the ID of each state
+        Logical :: MULT = .False.
+        Integer :: nMultState = 0
+        Type(States) :: MultGroup
+        Logical :: AllMult = .False.
+!       XMUL      extended multi-state caspt2
+        Logical :: XMUL = .False.
+        Integer :: nXMulState = 0
+        Type(States) :: XMulGroup
+        Logical :: AllXMult = .False.
+!       RMUL      rotated multi-state caspt2
+        Logical :: RMUL = .False.
+        Integer :: nRMulState = 0
+        Type(States) :: RMulGroup
+        Logical :: AllRMult = .False.
+!       DWMS      use dynamical weighting to construct Fock
+        Logical :: DWMS = .False.
+        Integer :: ZETA = 50
+!       EFOC      uses rotated E_0 energies with DWMS
+        Logical :: EFOC = .False.
+!       LROO      compute only a single root, mutually exclusive
+!                 with both MULT or XMUL
+        Logical :: LROO = .False.
+        Integer :: SingleRoot = 0
+!       RLXR      root for which the gradient is computed
+        Integer :: RlxRoot = -1
 
-!     IPEA      sets the IP-EA shift
-      Logical :: IPEA = .False.
-      Real*8 :: BSHIFT = 0.0d0
+!       IPEA      sets the IP-EA shift
+        Logical :: IPEA = .False.
+        Real*8 :: BSHIFT = 0.0d0
 
-!     IMAG      size of extra 'imaginary' denominator shift
-      Real*8 :: ShiftI = 0.0d0
-!     SHIF      size of extra denominator shift
-      Real*8 :: Shift = 0.0d0
+!       IMAG      size of extra 'imaginary' denominator shift
+        Real*8 :: ShiftI = 0.0d0
+!       SHIF      size of extra denominator shift
+        Real*8 :: Shift = 0.0d0
 
-!     several freeze-delete schemes, each of these should active
-!     the general flag below, to indicate additional conversion is
-!     needed on the input orbitals
-      Logical :: modify_correlating_MOs = .False.
-!     AFRE      freeze orbitals that do not have sufficient density
-!               on specified 'active' atoms
-      Logical :: aFreeze = .False.
-      Integer :: lnFro = 0
-      Real*8 :: ThrFr = 0.0d0, ThrDe = 0.0d0
-      Character(Len=4), Allocatable :: NamFro(:)
-!     LOVC      freeze orbitals that are not localized no the active
-!               site
-      Logical :: LovCASPT2 = .False.
-      Real*8 :: Thr_Atm = 0.0d0
-!     FNOC      delete a fraction of virtual orbitals
-      Logical :: FnoCASPT2 = .False.
-      Real*8 :: VFrac = 0.0d0
-!     DOMP
-      Logical :: DoMP2 = .False.
-!     DOEN
-      Logical :: DoEnv = .False.
-!     VIRA
-      Logical :: VIRA = .False.
-!     GHOS      excludes ghost orbitals from the PT2 treatment
-      Logical :: GhostDelete = .False.
-      Real*8 :: ThrGD = 0.0d0
+!       several freeze-delete schemes, each of these should active
+!       the general flag below, to indicate additional conversion is
+!       needed on the input orbitals
+        Logical :: modify_correlating_MOs = .False.
+!       AFRE      freeze orbitals that do not have sufficient density
+!                 on specified 'active' atoms
+        Logical :: aFreeze = .False.
+        Integer :: lnFro = 0
+        Real*8 :: ThrFr = 0.0d0, ThrDe = 0.0d0
+        Character(Len=4), Allocatable :: NamFro(:)
+!       LOVC      freeze orbitals that are not localized no the active
+!                 site
+        Logical :: LovCASPT2 = .False.
+        Real*8 :: Thr_Atm = 0.0d0
+!       FNOC      delete a fraction of virtual orbitals
+        Logical :: FnoCASPT2 = .False.
+        Real*8 :: VFrac = 0.0d0
+!       DOMP
+        Logical :: DoMP2 = .False.
+!       DOEN
+        Logical :: DoEnv = .False.
+!       VIRA
+        Logical :: VIRA = .False.
+!       GHOS      excludes ghost orbitals from the PT2 treatment
+        Logical :: GhostDelete = .False.
+        Real*8 :: ThrGD = 0.0d0
 
-!     FROZ      number of frozen orbitals in each irrep
-      Logical :: FROZ = .False.
-      Integer, Allocatable :: nFro(:)
-!     DELE      number of deleted orbitals in each irrep
-      Logical :: DELE = .False.
-      Integer, Allocatable :: nDel(:)
-!     DENS      computes full density matrix from the 1st-order
-!               wavefunction
-      Logical :: DENS = .False.
-!     RFPE      make a perturbative reaction field calculation
-      Logical :: RFPert = .False.
-!     THRE      thresholds for removal of:
-!       ThrsHN    zero-norm components in the first-order perturbed
-!                 wave function
-!       ThrsHS    linear dependencies between components of the first-
-!                 order perturbed wave function
-      Logical :: THRE = .False.
-      Real*8 :: ThrsHN = 1.0d-10, ThrsHS = 1.0d-8
-!     MAXI      maximum number of iterations for solving a system of
-!               linear equations, default 20. A 0 indicates: use of
-!               the diagonal zeroth order hamiltonian
-      Integer :: maxIter = 20
-!     Conv      convergence criteria for solving a system of linear
-!               equations
-      Real*8 :: ThrConv = 1.0d-6
-!     NOMI      do not create an PM-CAS wavefunction file (JobMix)
-      Logical :: NoMix = .False.
-!     NOMU      do not perform a multistate interaction
-      Logical :: noMult = .False.
-!     ONLY      in a MS calculation, compute a single root with
-!               couplings to the other roots
-      Integer :: OnlyRoot = 0
-!     EFFE      read HEff coupling terms from the input and perform
-!               only the multistate part
-      Logical :: JMS = .False.
-      Real*8, Allocatable :: HEff(:,:)
-!     NOOR      do not print orbitals
-      Logical :: PrOrb = .True.
-!     PROP      compute properties
-!     NOPR      do not compute properties
-      Logical :: Properties = .False.
-!     transformation of reference (input) orbitals
-!     NOTR      do not transform to quasi-canonical orbitals,
-!               regardless of the state of the reference orbitals
-!     TRAN      transform to quasi-canonical orbitals, regardless
-!               of the state of the reference orbitals
-!     the default is to use transformation, unless the PT2 keyword
-!     was used in the rasscf program and the fock matrix is standard
-      Character(Len=8) :: ORBIN = 'TRANSFOR'
-!     OFEM      add orbital-free embedding potential to the hamiltonian
-      Logical :: OFEmbedding = .False.
-!     OUTP      control extent of orbital printing
-      Character(Len=8) :: OutFormat = 'DEFAULT '
-!     PRWF      print the CI coefficients above this threshold
-      Real*8 :: PrWF = 0.05d0
-!     PRSD      print the determinant expansion of CSFs
-      Logical :: PRSD = .False.
-!     NOOR      do not print any orbitals
-      Logical :: NoOrb = .False.
+!       FROZ      number of frozen orbitals in each irrep
+        Logical :: FROZ = .False.
+        Integer, Allocatable :: nFro(:)
+!       DELE      number of deleted orbitals in each irrep
+        Logical :: DELE = .False.
+        Integer, Allocatable :: nDel(:)
+!       DENS      computes full density matrix from the 1st-order
+!                 wavefunction
+        Logical :: DENS = .False.
+!       RFPE      make a perturbative reaction field calculation
+        Logical :: RFPert = .False.
+!       THRE      thresholds for removal of:
+!         ThrsHN    zero-norm components in the first-order perturbed
+!                   wave function
+!         ThrsHS    linear dependencies between components of the first-
+!                   order perturbed wave function
+        Logical :: THRE = .False.
+        Real*8 :: ThrsHN = 1.0d-10, ThrsHS = 1.0d-8
+!       MAXI      maximum number of iterations for solving a system of
+!                 linear equations, default 20. A 0 indicates: use of
+!                 the diagonal zeroth order hamiltonian
+        Integer :: maxIter = 20
+!       Conv      convergence criteria for solving a system of linear
+!                 equations
+        Real*8 :: ThrConv = 1.0d-6
+!       NOMI      do not create an PM-CAS wavefunction file (JobMix)
+        Logical :: NoMix = .False.
+!       NOMU      do not perform a multistate interaction
+        Logical :: noMult = .False.
+!       ONLY      in a MS calculation, compute a single root with
+!                 couplings to the other roots
+        Integer :: OnlyRoot = 0
+!       EFFE      read HEff coupling terms from the input and perform
+!                 only the multistate part
+        Logical :: JMS = .False.
+        Real*8, Allocatable :: HEff(:,:)
+!       NOOR      do not print orbitals
+        Logical :: PrOrb = .True.
+!       PROP      compute properties
+!       NOPR      do not compute properties
+        Logical :: Properties = .False.
+!       transformation of reference (input) orbitals
+!       NOTR      do not transform to quasi-canonical orbitals,
+!                 regardless of the state of the reference orbitals
+!       TRAN      transform to quasi-canonical orbitals, regardless
+!                 of the state of the reference orbitals
+!       the default is to use transformation, unless the PT2 keyword
+!       was used in the rasscf program and the fock matrix is standard
+        Character(Len=8) :: ORBIN = 'TRANSFOR'
+!       OFEM      add orbital-free embedding potential to hamiltonian
+        Logical :: OFEmbedding = .False.
+!       OUTP      control extent of orbital printing
+        Character(Len=8) :: OutFormat = 'DEFAULT '
+!       PRWF      print the CI coefficients above this threshold
+        Real*8 :: PrWF = 0.05d0
+!       PRSD      print the determinant expansion of CSFs
+        Logical :: PRSD = .False.
+!       NOOR      do not print any orbitals
+        Logical :: NoOrb = .False.
 
-!     UNDOCUMENTED KEYWORDS
-!     CHOL
-      Logical :: CHOL = .False.
-!     CHOI
-      Logical :: CHOI = .False.
-!     WTHR      thresholds for writing large components in the
-!               first-order perturbed wave function, 3 values that
-!               are for denominator, coefficient, and energy
-      Real*8 :: DNMTHR = 0.3d0, CMPTHR = 0.025d0, CNTTHR = 0.005d0
-!     FOCK      string representing the type of Fock matrix
-      Character(Len=8) :: FockType = 'STANDARD'
-!     HZER      string representing the type of 0-order hamiltonian
-      Character(Len=8) :: HZero = 'STANDARD'
-!     G1SE      include secondary/inactive elements of the exchange
-!               matrix in the g1 modification to the fock matrix
-      Logical :: G1SecIn = .False.
-!     RHSD      use the RHS-ondemand algorithm for the calculation of
-!               the right-hand side
-      Logical :: RHSD = .False.
-!     CUMU
-      Logical :: DoCumulant = .False.
-      End Type
+!       UNDOCUMENTED KEYWORDS
+!       CHOL
+        Logical :: CHOL = .False.
+!       CHOI
+        Logical :: CHOI = .False.
+!       WTHR      thresholds for writing large components in the
+!                 first-order perturbed wave function, 3 values that
+!                 are for denominator, coefficient, and energy
+        Real*8 :: DNMTHR = 0.3d0, CMPTHR = 0.025d0, CNTTHR = 0.005d0
+!       FOCK      string representing the type of Fock matrix
+        Character(Len=8) :: FockType = 'STANDARD'
+!       HZER      string representing the type of 0-order hamiltonian
+        Character(Len=8) :: HZero = 'STANDARD'
+!       G1SE      include secondary/inactive elements of the exchange
+!                 matrix in the g1 modification to the fock matrix
+        Logical :: G1SecIn = .False.
+!       RHSD      use the RHS-ondemand algorithm for the calculation of
+!                 the right-hand side
+        Logical :: RHSD = .False.
+!       CUMU
+        Logical :: DoCumulant = .False.
 
+      End Type ! end of type InputTable
+
+      ! Define the Input as an InputTable structure
       Type(InputTable), Allocatable :: Input
 
       Save
 
       Contains
 
+
       Subroutine Readin_CASPT2(LuIn,nSym)
-CSVC Read and store the input as independent as possible. Any sanity
-C checks not required for reading in the input should be postponed till
-C the proc_inp call (processing of input). The only variable needed here
-C is nSym, as some input lines assume knowledge of the number of irreps.
+!SVC Read and store the input as independent as possible. Any sanity
+! checks not required for reading in the input should be postponed till
+! the proc_inp call (processing of input). The only variable needed here
+! is nSym, as some input lines assume knowledge of the number of irreps.
+
       Implicit None
+
       Integer, intent(in) :: LuIn, nSym
 
       Character(Len=128) :: Line
@@ -192,84 +202,120 @@ C is nSym, as some input lines assume knowledge of the number of irreps.
       Integer :: iSplit, iError
 
       logical, external :: next_non_comment
+
 #ifdef _ENABLE_CHEMPS2_DMRG_
       logical :: dochemps2 = .false.
 #endif
 
-
-*
       Rewind(LuIn)
       Call RdNLst(LuIn,'CASPT2')
-10    Continue
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Command = Line(1:4)
-      Call UpCase(Command)
 
-CIFG Note that when multiple values are required, ExtendLine may
-C be called (0 or more times) until the READ statement gives no error
-C this allows the input to be split in lines more or less arbitrarily,
-C as if the values were read directly from the file.
+      ! TODO: replace this by a while cycle
+10    Continue
+
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
+      Command = Line(1:4)
+      call UpCase(Command)
+
+!IFG Note that when multiple values are required, ExtendLine may
+! be called (0 or more times) until the READ statement gives no error
+! this allows the input to be split in lines more or less arbitrarily,
+! as if the values were read directly from the file.
       Select Case (Command)
 
       Case('TITL')
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Read (Line,'(A128)') Input % Title
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
+      Read (Line,'(A128)') Input%Title
 
       ! File with the reference CAS/RAS wavefunction
-
       Case('FILE')
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-C Not using list-directed input (*), because then the slash means
-C end of input
-      Read(Line,'(A)',Err=9920,End=9920) Input % FILE
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
+! Not using list-directed input (*), because then the slash means
+! end of input
+      read(Line,'(A)',IOStat=iError) Input%file
+      if (iError /= 0 ) then
+        call WarningMessage(2,'I/O error when reading line.')
+        call Quit_OnUserError
+      end if
 
       ! Root selection
-
       Case('MULT')
-      Input % MULT = .True.
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+      Input%MULT = .True.
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
       Read(Line,*) Word
       Call UpCase(Word)
-      If (Word=='ALL') Then
+      ! Either compute all states
+      If (Word == 'ALL') Then
         nStates = 0
         Input%AllMult = .True.
-      Else
-        Read(Line,*,Err=9920,End=9920) nStates
-        If (nStates.le.0) Then
-          Write(6,*)' number of MULT states must be > 0, quitting!'
-          Call Quit_OnUserError
+      ! or read how many states
+      else
+        read(Line,*,IOStat=iError) nStates
+        if (iError /= 0 ) then
+          call WarningMessage(2,'I/O error when reading line.')
+          call Quit_OnUserError
+        end if
+        If (nStates <= 0) Then
+          ! Write(6,*)' number of MULT states must be > 0, quitting!'
+          call WarningMessage(2,'Number of MULT states must be > 0.')
+          call Quit_OnUserError
         End If
       End If
+      ! TODO: use mma_allocate if possible
       Allocate(Input%MultGroup%State(nStates))
       Input%nMultState = nStates
       iSplit = SCAN(Line,' ')
       Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line(iSplit:)
       iError = -1
-      Do While (iError.lt.0)
+      Do While (iError < 0)
         Read(dLine,*,IOStat=iError)
      &    (Input%MultGroup%State(i), i=1,nStates)
-        If (iError.gt.0) GoTo 9920
-        If (iError.lt.0) Then
-          If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+        If (iError > 0) then
+          call WarningMessage(2,'I/O error when reading line.')
+        end if
+        If (iError < 0) Then
+          if (.not.next_non_comment(LuIn,Line)) then
+            call WarningMessage(2,'Premature end of input file.')
+            call Quit_OnUserError
+          end if
           Call ExtendLine(dLine,Line)
         End If
       End Do
       Deallocate(dLine)
 
       Case('XMUL')
-      Input % XMUL = .True.
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+      Input%XMUL = .True.
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
       Read(Line,*) Word
       Call UpCase(Word)
-      If (Word=='ALL') Then
+      If (Word == 'ALL') Then
         nStates = 0
         Input%AllXMult = .True.
       Else
-        Read(Line,*,Err=9920,End=9920) nStates
-        If (nStates.le.0) Then
-          Write(6,*)' number of XMUL states must be > 0, quitting!'
-          Call Quit_OnUserError
+        Read(Line,*,IOStat=iError) nStates
+        if (iError /= 0 ) then
+          call WarningMessage(2,'I/O error when reading line.')
+          call Quit_OnUserError
+        end if
+        If (nStates <= 0) Then
+          call WarningMessage(2,'Number of XMUL states must be > 0.')
+          call Quit_OnUserError
         End If
       End If
       Allocate(Input%XMulGroup%State(nStates))
@@ -278,12 +324,61 @@ C end of input
       Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line(iSplit:)
       iError = -1
-      Do While (iError.lt.0)
+      Do While (iError < 0)
         Read(dLine,*,IOStat=iError)
      &      (Input%XMulGroup%State(i), i=1,nStates)
-        If (iError.gt.0) GoTo 9920
-        If (iError.lt.0) Then
-          If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+        If (iError > 0) then
+          call WarningMessage(2,'I/O error when reading line.')
+        end if
+        If (iError < 0) Then
+          if (.not.next_non_comment(LuIn,Line)) then
+            call WarningMessage(2,'Premature end of input file.')
+            call Quit_OnUserError
+          end if
+          Call ExtendLine(dLine,Line)
+        End If
+      End Do
+      Deallocate(dLine)
+
+      Case('RMUL')
+      Input%RMUL = .True.
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
+      Read(Line,*) Word
+      Call UpCase(Word)
+      If (Word=='ALL') Then
+        nStates = 0
+        Input%AllRMult = .True.
+      Else
+        Read(Line,*,IOStat=iError) nStates
+        if (iError /= 0 ) then
+          call WarningMessage(2,'I/O error when reading line.')
+          call Quit_OnUserError
+        end if
+        If (nStates <= 0) Then
+          call WarningMessage(2,'Number of RMUL states must be > 0.')
+          call Quit_OnUserError
+        End If
+      End If
+      Allocate(Input%RMulGroup%State(nStates))
+      Input%nRMulState = nStates
+      iSplit = SCAN(Line,' ')
+      Allocate(Character(Len=Len(Line)) :: dLine)
+      dLine = Line(iSplit:)
+      iError = -1
+      Do While (iError < 0)
+        Read(dLine,*,IOStat=iError)
+     &      (Input%RMulGroup%State(i), i=1,nStates)
+        If (iError > 0) then
+          call WarningMessage(2,'I/O error when reading line.')
+        end if
+        If (iError < 0) Then
+          if (.not.next_non_comment(LuIn,Line)) then
+            call WarningMessage(2,'Premature end of input file.')
+            call Quit_OnUserError
+          end if
           Call ExtendLine(dLine,Line)
         End If
       End Do
@@ -292,35 +387,65 @@ C end of input
 
       Case('DWMS')
       Input % DWMS = .True.
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Read(Line,*,Err=9920,End=9920) Input % ZETA
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
+      Read(Line,*,IOStat=iError) Input % ZETA
+      if (iError /= 0 ) then
+        call WarningMessage(2,'I/O error when reading line.')
+        call Quit_OnUserError
+      end if
 
       Case('EFOC')
       Input % EFOC = .True.
 
       Case('LROO')
       Input % LROO = .True.
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Read(Line,*,Err=9920,End=9920) Input % SingleRoot
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
+      Read(Line,*,IOStat=iError) Input % SingleRoot
+      if (iError /= 0 ) then
+        call WarningMessage(2,'I/O error when reading line.')
+        call Quit_OnUserError
+      end if
 
       Case('RLXR')
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Read(Line,*,Err=9920,End=9920) Input % RlxRoot
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
+      Read(Line,*,IOStat=iError) Input % RlxRoot
+      if (iError /= 0 ) then
+        call WarningMessage(2,'I/O error when reading line.')
+        call Quit_OnUserError
+      end if
 
       ! freeze-deleted control
 
       Case('FROZ')
       Input % FROZ = .True.
       Allocate(Input % nFro(nSYM))
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
       Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
       iError = -1
-      Do While (iError.lt.0)
+      Do While (iError < 0)
         Read(dLine,*,IOStat=iError) (Input % nFro(iSym), iSym=1,nSym)
-        If (iError.gt.0) GoTo 9920
-        If (iError.lt.0) Then
-          If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+        If (iError > 0) then
+          call WarningMessage(2,'I/O error when reading line.')
+          call Quit_OnUserError
+        end if
+        If (iError < 0) Then
+          if (.not.next_non_comment(LuIn,Line)) then
+            call WarningMessage(2,'Premature end of input file.')
+            call Quit_OnUserError
+          end if
           Call ExtendLine(dLine,Line)
         End If
       End Do
@@ -329,15 +454,24 @@ C end of input
       Case('DELE')
       Input % DELE = .True.
       Allocate(Input % nDel(nSYM))
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
       Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
       iError = -1
-      Do While (iError.lt.0)
+      Do While (iError < 0)
         Read(dLine,*,IOStat=iError) (Input % nDel(iSym), iSym=1,nSym)
-        If (iError.gt.0) GoTo 9920
-        If (iError.lt.0) Then
-          If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+        If (iError > 0) then
+          call WarningMessage(2,'I/O error when reading line.')
+          call Quit_OnUserError
+        end if
+        If (iError < 0) Then
+          if (.not.next_non_comment(LuIn,Line)) then
+            call WarningMessage(2,'Premature end of input file.')
+            call Quit_OnUserError
+          end if
           Call ExtendLine(dLine,Line)
         End If
       End Do
@@ -346,36 +480,73 @@ C end of input
       ! equation solver control
 
       Case('MAXI')
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Read(Line,*,Err=9920,End=9920) Input % maxIter
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
+      Read(Line,*,IOStat=iError) Input % maxIter
+      if (iError /= 0 ) then
+        call WarningMessage(2,'I/O error when reading line.')
+        call Quit_OnUserError
+      end if
 
       Case('CONV')
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Read(Line,*,Err=9920,End=9920) Input % ThrConv
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
+      Read(Line,*,IOStat=iError) Input % ThrConv
+      if (iError /= 0 ) then
+        call WarningMessage(2,'I/O error when reading line.')
+        call Quit_OnUserError
+      end if
 
       Case('THRE')
       Input % THRE = .True.
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
       Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
       iError = -1
-      Do While (iError.lt.0)
+      Do While (iError < 0)
         Read(dLine,*,IOStat=iError) Input % ThrsHN, Input % ThrsHS
-        If (iError.gt.0) GoTo 9920
-        If (iError.lt.0) Then
-          If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+        If (iError > 0) then
+          call WarningMessage(2,'I/O error when reading line.')
+          call Quit_OnUserError
+        end if
+        If (iError < 0) Then
+          if (.not.next_non_comment(LuIn,Line)) then
+            call WarningMessage(2,'Premature end of input file.')
+            call Quit_OnUserError
+          end if
           Call ExtendLine(dLine,Line)
         End If
       End Do
       Deallocate(dLine)
 
       Case('SHIF')
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Read(Line,*,Err=9920,End=9920) Input % Shift
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
+      Read(Line,*,IOStat=iError) Input % Shift
+      if (iError /= 0 ) then
+        call WarningMessage(2,'I/O error when reading line.')
+        call Quit_OnUserError
+      end if
 
       Case('IMAG')
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Read(Line,*,Err=9920,End=9920) Input % ShiftI
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
+      Read(Line,*,IOStat=iError) Input % ShiftI
+      if (iError /= 0 ) then
+        call WarningMessage(2,'I/O error when reading line.')
+        call Quit_OnUserError
+      end if
 
       ! environment
 
@@ -389,11 +560,21 @@ c      call Quit_OnInstError
       ! print controls
 
       Case('PRWF')
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Read(Line,*,Err=9920,End=9920) Input % PrWF
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
+      Read(Line,*,IOStat=iError) Input % PrWF
+      if (iError /= 0 ) then
+        call WarningMessage(2,'I/O error when reading line.')
+        call Quit_OnUserError
+      end if
 
       Case('OUTP')
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
       Call StdFmt(Line,Input % OutFormat)
 
       Case('NOOR')
@@ -403,16 +584,25 @@ c      call Quit_OnInstError
       Input % PRSD = .True.
 
       Case('WTHR')
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
       Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
       iError = -1
-      Do While (iError.lt.0)
+      Do While (iError < 0)
         Read(dLine,*,IOStat=iError)
      &    Input % DNMTHR, Input % CMPTHR, Input % CNTTHR
-        If (iError.gt.0) GoTo 9920
-        If (iError.lt.0) Then
-          If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+        If (iError > 0) then
+          call WarningMessage(2,'I/O error when reading line.')
+          call Quit_OnUserError
+        end if
+        If (iError < 0) Then
+          if (.not.next_non_comment(LuIn,Line)) then
+            call WarningMessage(2,'Premature end of input file.')
+            call Quit_OnUserError
+          end if
           Call ExtendLine(dLine,Line)
         End If
       End Do
@@ -436,11 +626,17 @@ c      call Quit_OnInstError
       Input % ORBIN = 'TRANSFOR'
 
       Case('FOCK')
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
       Call StdFmt(Line,Input % FockType)
 
       Case('HZER')
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
       Call StdFmt(Line,Input % HZero)
 
       Case('G1SE')
@@ -448,8 +644,15 @@ c      call Quit_OnInstError
 
       Case('IPEA')
       Input % IPEA = .True.
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Read(Line,*,Err=9920,End=9920) Input % BSHIFT
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
+      Read(Line,*,IOStat=iError) Input % BSHIFT
+      if (iError /= 0 ) then
+        call WarningMessage(2,'I/O error when reading line.')
+        call Quit_OnUserError
+      end if
 
       ! cholesky
 
@@ -466,32 +669,50 @@ c      call Quit_OnInstError
       Case('AFRE')
       Input % aFreeze = .True.
       Input % modify_correlating_MOs = .True.
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
       Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
       iError = -1
-      Do While (iError.lt.0)
+      Do While (iError < 0)
         Read(dLine,*,IOStat=iError)
      &    Input % lnFro, Input % ThrFr, Input % ThrDe
-        If (iError.gt.0) GoTo 9920
-        If (iError.lt.0) Then
-          If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+        If (iError > 0) then
+          call WarningMessage(2,'I/O error when reading line.')
+          call Quit_OnUserError
+        end if
+        If (iError < 0) Then
+          if (.not.next_non_comment(LuIn,Line)) then
+            call WarningMessage(2,'Premature end of input file.')
+            call Quit_OnUserError
+          end if
           Call ExtendLine(dLine,Line)
         End If
       End Do
       Deallocate(dLine)
       Allocate(Input % NamFro(Input % lnFro))
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
       Call UpCase(Line)
       Allocate(Character(Len=Len(Line)) :: dLine)
       dLine = Line
       iError = -1
-      Do While (iError.lt.0)
+      Do While (iError < 0)
         Read(dLine,*,IOStat=iError)
      &    (Input%NamFro(i), i=1,Input%lnFro)
-        If (iError.gt.0) GoTo 9920
-        If (iError.lt.0) Then
-          If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+        If (iError > 0) then
+          call WarningMessage(2,'I/O error when reading line.')
+          call Quit_OnUserError
+        end if
+        If (iError < 0) Then
+          if (.not.next_non_comment(LuIn,Line)) then
+            call WarningMessage(2,'Premature end of input file.')
+            call Quit_OnUserError
+          end if
           Call UpCase(Line)
           Call ExtendLine(dLine,Line)
         End If
@@ -501,14 +722,28 @@ c      call Quit_OnInstError
       Case('LOVC')
       Input % LovCASPT2 = .True.
       Input % modify_correlating_MOs = .True.
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Read(Line,*,Err=9920,End=9920) Input % thr_atm
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
+      Read(Line,*,IOStat=iError) Input % thr_atm
+      if (iError /= 0 ) then
+        call WarningMessage(2,'I/O error when reading line.')
+        call Quit_OnUserError
+      end if
 
       Case('FNOC')
       Input % FnoCASPT2 = .True.
       Input % modify_correlating_MOs = .True.
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Read(Line,*,Err=9920,End=9920) Input % vFrac
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
+      Read(Line,*,IOStat=iError) Input % vFrac
+      if (iError /= 0 ) then
+        call WarningMessage(2,'I/O error when reading line.')
+        call Quit_OnUserError
+      end if
 
       Case('DOMP')
       Input % DoMP2 = .True.
@@ -522,15 +757,29 @@ c      call Quit_OnInstError
       Case('GHOS')
       Input % GhostDelete = .True.
       Input % modify_correlating_MOs = .True.
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Read(Line,*,Err=9920,End=9920) Input % ThrGD
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
+      Read(Line,*,IOStat=iError) Input % ThrGD
+      if (iError /= 0 ) then
+        call WarningMessage(2,'I/O error when reading line.')
+        call Quit_OnUserError
+      end if
 
       Case('NOMU')
       Input % NoMult = .True.
 
       Case('ONLY')
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Read(Line,*,Err=9920,End=9920) Input % OnlyRoot
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
+      Read(Line,*,IOStat=iError) Input % OnlyRoot
+      if (iError /= 0 ) then
+        call WarningMessage(2,'I/O error when reading line.')
+        call Quit_OnUserError
+      end if
 
       Case('NOMI')
       Input % NoMix = .True.
@@ -546,7 +795,7 @@ c      call Quit_OnInstError
 !Quan: Using the same variable DoCumulant in Block
       Input % DoCumulant = .True.
       dochemps2 = .True.
-!      if (nStates.GT.1) then
+!      if (nStates > 1) then
 !       write(6,*) 'CHEMPS2> Only State Specific calculation supported'
 !Quan: FIXME: nStates not defined
 !       Call Quit_OnUserError
@@ -555,21 +804,37 @@ c      call Quit_OnInstError
 
       Case('EFFE')
       Input % JMS = .True.
-      If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
-      Read(Line,*,Err=9920,End=9920) nStates
+      if (.not.next_non_comment(LuIn,Line)) then
+        call WarningMessage(2,'Premature end of input file.')
+        call Quit_OnUserError
+      end if
+      Read(Line,*,IOStat=iError) nStates
+      if (iError /= 0 ) then
+        call WarningMessage(2,'I/O error when reading line.')
+        call Quit_OnUserError
+      end if
       Allocate(Input % HEff(nStates,nStates))
       Input % HEff = 0.0d0
       Do i=1,nStates
-        If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+        if (.not.next_non_comment(LuIn,Line)) then
+          call WarningMessage(2,'Premature end of input file.')
+          call Quit_OnUserError
+        end if
         Allocate(Character(Len=Len(Line)) :: dLine)
         dLine = Line
         iError = -1
-        Do While (iError.lt.0)
+        Do While (iError < 0)
           Read(dLine,*,IOStat=iError)
      &      (Input % HEff(i,j),j=1,nStates)
-          If (iError.gt.0) GoTo 9920
-          If (iError.lt.0) Then
-            If(.NOT.next_non_comment(LuIn,Line)) GoTo 9910
+          If (iError > 0) then
+            call WarningMessage(2,'I/O error when reading line.')
+            call Quit_OnUserError
+          end if
+          If (iError < 0) Then
+            if (.not.next_non_comment(LuIn,Line)) then
+              call WarningMessage(2,'Premature end of input file.')
+              call Quit_OnUserError
+            end if
             Call ExtendLine(dLine,Line)
           End If
         End Do
@@ -617,7 +882,7 @@ c      call Quit_OnInstError
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
 ! Check if nState>1
-      if ((dochemps2.EQV..True.) .and. (nStates.GT.1)) then
+      if ((dochemps2.EQV..True.) .and. (nStates > 1)) then
         write(6,*) 'CHEMPS2> Only State Specific calculation supported'
         Call Quit_OnUserError()
       endif
@@ -646,14 +911,15 @@ c      call Quit_OnInstError
 
       End Subroutine
 
-      Subroutine ExtendLine(DynLine,Line)
-      Implicit None
-      Character(Len=:), Allocatable, Intent(InOut) :: DynLine
-      Character(Len=*), Intent(In) :: Line
-      Character(Len=Len_Trim(DynLine)) :: Aux
-      Aux = DynLine
-      Deallocate(DynLine)
-      Allocate(Character(Len=Len(Aux)+Len(Line)+1) :: DynLine)
-      DynLine = Trim(Aux) // ' ' // Line
-      End Subroutine
+      subroutine ExtendLine(DynLine,Line)
+        Implicit None
+        Character(Len=:), Allocatable, Intent(InOut) :: DynLine
+        Character(Len=*), Intent(In) :: Line
+        Character(Len=Len_Trim(DynLine)) :: Aux
+        Aux = DynLine
+        Deallocate(DynLine)
+        Allocate(Character(Len=Len(Aux)+Len(Line)+1) :: DynLine)
+        DynLine = Trim(Aux) // ' ' // Line
+      end subroutine ExtendLine
+
       End Module
