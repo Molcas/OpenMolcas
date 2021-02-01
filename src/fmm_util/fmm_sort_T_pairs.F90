@@ -18,7 +18,7 @@ MODULE fmm_sort_T_pairs
 !     (b) T-vector component
 !     (c) T-vector modulus (ratio)
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK, T_pair_single
    IMPLICIT NONE
    PRIVATE
    ! Public procedures

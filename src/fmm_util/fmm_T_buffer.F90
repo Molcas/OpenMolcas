@@ -10,8 +10,9 @@
 !***********************************************************************
 MODULE fmm_T_buffer
 
-   USE fmm_global_paras
-   USE fmm_stats
+   USE fmm_global_paras, ONLY: INTK, T_pair_single, scheme_paras, SKIP_T_BUFFER, NULL_T_BUFFER, TREE_T_BUFFER, MULTI_T_BUFFER, &
+                               SCALE_T_BUFFER, NEAR_FIELD, TMATM_DF, TREE_LENGTH, One
+   USE fmm_stats, ONLY: stat_T_mat_builds, stat_tpack_total, fmm_init_buffer_stats
 
    IMPLICIT NONE
    PRIVATE

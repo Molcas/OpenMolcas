@@ -30,7 +30,7 @@
 
 SUBROUTINE fmm_call_get_J_matrix(ndim,nBas,dens,Fock)
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK
 !   USE fmm_interface, ONLY: fmm_get_J_matrix
 
    IMPLICIT NONE

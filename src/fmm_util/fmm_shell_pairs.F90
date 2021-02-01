@@ -10,7 +10,7 @@
 !***********************************************************************
 MODULE fmm_shell_pairs
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK, LUPRI, fmm_sh_pairs, fmm_basis, Zero, One, Half
    IMPLICIT NONE
    PRIVATE
    ! Public procedures
@@ -37,7 +37,7 @@ CONTAINS
          CALL fmm_make_shell_pairs(basis,n_pairs)  ! now store list
          sh_pairs_ptr => sh_pairs
 !FIXME add to fmm_stats
-write(6,*) 'Number of shell pairs =', SIZE(sh_pairs)
+write(LUPRI,*) 'Number of shell pairs =', SIZE(sh_pairs)
       END IF
 
    END SUBROUTINE fmm_get_shell_pairs

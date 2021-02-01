@@ -10,7 +10,7 @@
 !***********************************************************************
 MODULE fmm_multiple_T_worker
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK, One, Two, Half
 
    IMPLICIT NONE
    PRIVATE

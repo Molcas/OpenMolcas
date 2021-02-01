@@ -34,8 +34,9 @@ MODULE fmm_tree_buffer
    ! surfaces, then into lines within surfaces, and finally into
    ! unique points.
 
-   USE fmm_global_paras
-   USE fmm_stats
+   USE fmm_global_paras, ONLY: INTK, REALK, T_paras, T_pair_single, T_pair_list, DISTINCT_T_TOL, MAX_AVG_PER_NODE, &
+                               SORT_BY_RHS_MMS, START_LEN, One
+   USE fmm_stats, ONLY: stat_tpack_chunks, stat_tpack_total, stat_tpack_unique
 
    ! Public functions:
    PUBLIC :: fmm_tree_buffer_init,     &

@@ -18,7 +18,7 @@ MODULE fmm_sort_paras
 !     (b) box component
 !     (c) branch
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK, box_mm_paras, raw_mm_paras
    IMPLICIT NONE
    PRIVATE
    ! Public procedures

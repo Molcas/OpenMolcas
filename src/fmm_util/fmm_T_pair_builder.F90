@@ -10,7 +10,7 @@
 !***********************************************************************
 MODULE fmm_T_pair_builder
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, scheme_paras, gen_mm_paras, LHS_RHS_type, LHS_raw_RHS_raw, LHS_box_RHS_box
    IMPLICIT NONE
    PRIVATE
    ! Public procedures

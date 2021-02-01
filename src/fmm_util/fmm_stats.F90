@@ -10,7 +10,7 @@
 !***********************************************************************
 MODULE fmm_stats
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK, LUPRI, fmm_stats_printed, MAX_LEVEL, TOP_LEVEL
    IMPLICIT NONE
    PRIVATE
 

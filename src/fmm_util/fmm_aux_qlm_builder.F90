@@ -10,7 +10,7 @@
 !***********************************************************************
 MODULE fmm_aux_qlm_builder
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK, LUPRI, scheme_paras, raw_mm_data, USE_RAW_QLM, USE_T_SYM_QLM
    IMPLICIT NONE
    PRIVATE
    ! Public procedures

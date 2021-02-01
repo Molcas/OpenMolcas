@@ -10,8 +10,10 @@
 !***********************************************************************
 MODULE fmm_Vff_driver
 
-   USE fmm_stats
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK, LUPRI, raw_mm_data, raw_mm_paras, scheme_paras, gen_mm_paras, box_mm_paras, &
+                               LHS_raw_RHS_raw, LHS_box_RHS_box, DO_NULL, DO_FQ, DO_BQ, DO_NlogN, DO_FMM, TOP_LEVEL, FAR_FIELD, &
+                               NEAR_FIELD, Zero
+   USE fmm_stats, ONLY: stat_NF_not_FF
    USE fmm_T_contractors,  ONLY: fmm_set_T_con_ptrs,         &
                                  fmm_select_T_con,           &
                                  fmm_init_T_contractors,     &

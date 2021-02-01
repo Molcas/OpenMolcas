@@ -15,7 +15,8 @@
 
 MODULE fmm_driver
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK, LUPRI, raw_mm_data, scheme_paras, Zero, ELECTRONIC_ONLY, NUCLEAR_ONLY, ALL_MOMENTS, &
+                               GFC_FMM
    IMPLICIT NONE
    PRIVATE
    ! Public procedures
@@ -141,7 +142,7 @@ CONTAINS
 
    SUBROUTINE fmm_build_J_matrix(n_el,dens,J_matrix)
 
-      USE fmm_stats
+      USE fmm_stats, ONLY: fmm_print_stats
       USE fmm_scheme_builder, ONLY: fmm_get_scheme
 
       IMPLICIT NONE
@@ -188,7 +189,7 @@ CONTAINS
 
    SUBROUTINE fmm_get_multipole_potential(mode,dens,potential)
 
-      USE fmm_stats
+      USE fmm_stats, ONLY: fmm_print_stats
       USE fmm_scheme_builder, ONLY: fmm_get_scheme
       USE fmm_boundary,       ONLY: fmm_opt_near_field
       USE fmm_Vff_driver,     ONLY: fmm_get_Vff

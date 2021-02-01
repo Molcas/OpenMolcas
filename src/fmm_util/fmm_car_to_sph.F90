@@ -10,7 +10,7 @@
 !***********************************************************************
 MODULE fmm_car_to_sph
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK, Zero, One
    IMPLICIT NONE
    PRIVATE
    ! public procedures
@@ -72,7 +72,7 @@ CONTAINS
       SphCoef(1,2,1) = One
       SphCoef(2,3,1) = One
       SphCoef(3,1,1) = One
-      IF (LMax == 1) GO TO 100
+      IF (LMax /= 1) THEN
 !
 !      SphCoef(1,2,2) =  Sqrt3
 !      SphCoef(2,5,2) =  Sqrt3
@@ -149,7 +149,7 @@ CONTAINS
 !
 !     o p-1, p0, p+1 -> px, py, pz
 !
-  100 CONTINUE
+      END IF
       SphCoef(:,:,1) = Zero
       SphCoef(1,1,1) = One
       SphCoef(2,2,1) = One

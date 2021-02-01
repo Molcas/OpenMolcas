@@ -10,7 +10,7 @@
 !***********************************************************************
 MODULE fmm_multipole_ints
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK, LUINTM, fmm_basis, fmm_sh_pairs, fmm_prim_batch, Zero, Pi
    IMPLICIT NONE
    PRIVATE
    ! Public procedures
@@ -107,10 +107,12 @@ CONTAINS
       CHARACTER(LEN=255) :: FBuf
       INTEGER(INTK) :: Ish, Jsh, NPrim, IAnglA, IAnglB
       INTEGER(INTK) :: i, ij, nmoms
+      INTEGER(INTK), EXTERNAL :: IsFreeUnit
 
       CALL fmm_init_car_to_sph(MaxMul)
 
       FBuf = TRIM(Name)//".fmm1"
+      LUINTM = IsFreeUnit(LUINTM)
       OPEN(UNIT=LUINTM, FILE=TRIM(FBuf), STATUS='REPLACE',  &
            ACCESS='SEQUENTIAL', FORM='UNFORMATTED')
       REWIND(LUINTM)
@@ -159,6 +161,7 @@ CONTAINS
       CLOSE(UNIT=LUINTM, STATUS='KEEP')
 
       FBuf = TRIM(Name)//".fmm1header"
+      LUINTM = IsFreeUnit(LUINTM)
       OPEN(UNIT=LUINTM, FILE=TRIM(FBuf), STATUS='REPLACE',   &
            ACCESS='SEQUENTIAL', FORM='UNFORMATTED')
       WRITE(LUINTM) MaxMul, basis%nbas, nmoms

@@ -13,13 +13,13 @@
 !***********************************************************************
 
 module definitions
-    use, intrinsic :: iso_fortran_env, only: int32, int64, real32, real64, output_unit
+    use, intrinsic :: iso_fortran_env, only: int32, int64, real32, real64, input_unit, output_unit
     implicit none
     private
     public :: wp, iwp, MPIInt, HDF5Int
     public :: int32, int64, real32, real64
     public :: i4, i8, r4, r8
-    public :: u6
+    public :: u5, u6
 
     ! This is the working precision and should be preferably used
     ! (we assume logical kinds are the same as integer kinds).
@@ -42,8 +42,9 @@ module definitions
     !       Which will require appropiate compile flags here.
     integer(kind=iwp), parameter :: HDF5Int = int32
 
-    ! Output unit, typically 6, but it could be something else
-    integer(kind=iwp), parameter :: u6 = output_unit
+    ! Output and input units, typically 5 & 6, but they could be something else
+    integer(kind=iwp), parameter :: u5 = input_unit, &
+                                    u6 = output_unit
 
     ! Although the constants from iso_fortran_env or `selected_real_kind`
     ! are preferred over non-standard real*8 etc.

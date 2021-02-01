@@ -10,7 +10,7 @@
 !***********************************************************************
 MODULE fmm_T_pair_mould
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, gen_mm_paras, LHS_RHS_type, T_pair_single, scheme_paras, LHS_raw_RHS_raw, LHS_box_RHS_box, One
    IMPLICIT NONE
    PRIVATE
    ! Public procedures

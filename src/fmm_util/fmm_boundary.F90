@@ -10,7 +10,7 @@
 !***********************************************************************
 MODULE fmm_boundary
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK, LUPRI, raw_mm_paras, fmm_planes, scheme_paras, Zero, One
 
    IMPLICIT NONE
    PRIVATE

@@ -10,8 +10,8 @@
 !***********************************************************************
 MODULE fmm_multi_T_buffer
 
-   USE fmm_stats
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, T_pair_batch, T_pair_single, One
+   USE fmm_stats, ONLY: stat_tpack_chunks, stat_tpack_total
 
    IMPLICIT NONE
    PRIVATE

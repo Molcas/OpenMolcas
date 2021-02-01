@@ -10,7 +10,7 @@
 !***********************************************************************
 MODULE fmm_integral_utils
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK, fmm_basis, fmm_prim_batch, One, Two, Half
    IMPLICIT NONE
    PRIVATE
    ! Public procedures

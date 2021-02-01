@@ -10,8 +10,9 @@
 !***********************************************************************
 MODULE fmm_box_utils
 
-   USE fmm_global_paras
-   USE fmm_stats
+   USE fmm_global_paras, ONLY: INTK, REALK, scheme_paras, gen_mm_paras, LHS_RHS_TYPE, box_mm_paras, MAX_LEVEL, TOP_LEVEL, WS_MIN, &
+                               Half, Two
+   USE fmm_stats, ONLY: stat_level_saturation, stat_max_branch, stat_min_branch
    IMPLICIT NONE
    PRIVATE
    ! Public procedures

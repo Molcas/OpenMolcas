@@ -10,8 +10,9 @@
 !***********************************************************************
 MODULE fmm_W_pair_builder
 
-   USE fmm_global_paras
-   USE fmm_stats
+   USE fmm_global_paras, ONLY: INTK, REALK, scheme_paras, old_new, T_pair_single, raw_mm_data, raw_mm_paras, box_mm_data, &
+                               box_mm_paras, One
+   USE fmm_stats, ONLY: fmm_init_matrix_stats, fmm_init_buffer_stats
    USE fmm_W_contractors, ONLY: fmm_select_W_con
 
    IMPLICIT NONE

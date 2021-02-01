@@ -15,8 +15,10 @@ MODULE fmm_T_contractors
 ! Note that another module allows contraction of T-pairs to generate
 ! an energy or J-matrix directly (e.g.to exploit symmetry).
 
-   USE fmm_global_paras
-   USE fmm_stats
+   USE fmm_global_paras, ONLY: INTK, REALK, scheme_paras, T_pair_single, T_pair_list, T_pair_batch, T_CONTRACTOR_MULTI, &
+                               T_CONTRACTOR_BOUNDARY, T_CONTRACTOR_DIRECT, T_CONTRACTOR_TREE, T_CONTRACTOR_SCALE_TREE, &
+                               T_CONTRACTOR_SCALE, T_CONTRACTOR_FULL, NEAR_FIELD, DISTINCT_T_TOL, TMATM_DF, Zero, One, Half
+   USE fmm_stats, ONLY: stat_T_mat_builds, fmm_init_matrix_stats
    IMPLICIT NONE
    PRIVATE
    ! Public procedures

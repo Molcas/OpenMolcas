@@ -10,8 +10,8 @@
 !***********************************************************************
 MODULE fmm_box_builder
 
-   USE fmm_global_paras
-   USE fmm_stats
+   USE fmm_global_paras, ONLY: INTK, REALK, raw_mm_data, raw_mm_paras, scheme_paras, box_mm_data, box_mm_paras, TOP_LEVEL, Zero, One
+   USE fmm_stats, ONLY: stat_deepest_level, stat_RHS_boxes, stat_LHS_boxes
    IMPLICIT NONE
    PRIVATE
    ! Public procedures

@@ -10,8 +10,9 @@
 !***********************************************************************
 MODULE fmm_qlm_builder
 
-   USE fmm_global_paras
-   USE fmm_stats
+   USE fmm_global_paras, ONLY: INTK, REALK, LUPRI, LUINTM, fmm_counters, scheme_paras, raw_mm_data, id_node, raw_mm_paras, &
+                               ELECTRONIC_ONLY, NUCLEAR_ONLY, Zero, One
+   USE fmm_stats, ONLY: stat_n_basis, stat_raw_moms_LHS, stat_raw_moms_RHS
    IMPLICIT NONE
    PRIVATE
    ! Public procedures
@@ -136,8 +137,10 @@ CONTAINS
       IMPLICIT NONE
       INTEGER(INTK), INTENT(IN) :: LMAX_in
       INTEGER(INTK) :: LMAX !, ndim
+      INTEGER(INTK), EXTERNAL :: IsFreeUnit
 
       ! Read number of electronic moments
+      LUINTM = IsFreeUnit(LUINTM)
       OPEN (UNIT=LUINTM,FILE='multipoles.fmm1header',  &
             STATUS='OLD',ACTION='READ',FORM='UNFORMATTED')
       REWIND (LUINTM)
@@ -157,6 +160,7 @@ CONTAINS
 !      END IF
 
       ! Read number of nuclear moments or potential grid points
+      LUINTM = IsFreeUnit(LUINTM)
       OPEN (UNIT=LUINTM,FILE='multipoles.fmm2header',  &
             STATUS='OLD',ACTION='READ',FORM='UNFORMATTED')
       REWIND (LUINTM)
@@ -262,8 +266,10 @@ CONTAINS
       TYPE(raw_mm_data), INTENT(OUT) :: mm_data
       REAL(REALK)   :: PX,PY,PZ, SPH
       INTEGER(INTK) :: I,J,L,M, A,B, LM, X
+      INTEGER(INTK), EXTERNAL :: IsFreeUnit
 
       ! Read electronic multipole moments into core
+      LUINTM = IsFreeUnit(LUINTM)
       OPEN (UNIT=LUINTM,FILE='multipoles.fmm1',STATUS='OLD',  &
             ACTION='READ',FORM='UNFORMATTED')
       REWIND (LUINTM)
@@ -303,6 +309,7 @@ CONTAINS
       ! This is also used for passing the grid points when
       ! computing an arbitrary potential
       IF (n_mms%nuc == 0) RETURN
+      LUINTM = IsFreeUnit(LUINTM)
       OPEN (UNIT=LUINTM,FILE='multipoles.fmm2',STATUS='OLD',  &
             ACTION='READ',FORM='UNFORMATTED')
       REWIND (LUINTM)

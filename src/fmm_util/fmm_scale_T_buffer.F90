@@ -10,8 +10,8 @@
 !***********************************************************************
 MODULE fmm_scale_T_buffer
 
-   USE fmm_stats
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK, T_pair_batch, T_pair_single, Zero, One
+   USE fmm_stats, ONLY: stat_tpack_chunks, stat_tpack_unique, stat_tpack_total
 
    IMPLICIT NONE
    PRIVATE

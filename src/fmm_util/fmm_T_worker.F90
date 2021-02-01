@@ -10,7 +10,7 @@
 !***********************************************************************
 MODULE fmm_T_worker
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK, LUPRI, ZERO_VECT_TOL, Zero, One, Two, Half
 
    IMPLICIT NONE
    PRIVATE
@@ -124,7 +124,7 @@ CONTAINS
 
 !FIXME;
       IF (r_2 < ZERO_VECT_TOL) THEN
-         WRITE(6,'(3E25.15)') vector
+         WRITE(LUPRI,'(3E25.15)') vector
          CALL fmm_quit('Why do we try to do a zero T_vector?')
       END IF
 

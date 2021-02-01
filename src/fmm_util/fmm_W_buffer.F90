@@ -10,7 +10,7 @@
 !***********************************************************************
 MODULE fmm_W_buffer
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: T_pair_single, scheme_paras, SKIP_W_BUFFER, NULL_W_BUFFER, TREE_W_BUFFER, TREE_LENGTH
 
    IMPLICIT NONE
    PRIVATE

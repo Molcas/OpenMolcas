@@ -10,8 +10,12 @@
 !***********************************************************************
 MODULE fmm_scheme_builder
 
-   USE fmm_global_paras
-   USE fmm_stats
+   USE fmm_global_paras, ONLY: INTK, REALK, LUPRI, LURD, scheme_paras, GFC_FMM, MD4_FMM, FE_FMM, DO_NULL, DO_FQ, DO_NlogN, DO_BQ, &
+                               DO_FMM, TREE_T_BUFFER, NULL_T_BUFFER, SKIP_T_BUFFER, MULTI_T_BUFFER, SCALE_T_BUFFER, TREE_W_BUFFER, &
+                               NULL_W_BUFFER, SKIP_W_BUFFER, WS_MIN, BRFREE_DF, EXTENT_MIN_DF, PACK_LHS_DF, PACK_RHS_DF, &
+                               SORT_BY_SCALE, T_CONTRACTOR_BOUNDARY, T_CONTRACTOR_DIRECT, T_CONTRACTOR_FULL, T_CONTRACTOR_SCALE, &
+                               USE_RAW_QLM, USE_T_SYM_QLM, W_CONTRACTOR_BOUNDARY, W_CONTRACTOR_FAST, Half
+   USE fmm_stats, ONLY: stat_iteration
 
    IMPLICIT NONE
    PRIVATE
@@ -59,7 +63,7 @@ CONTAINS
       INTEGER(INTK) :: LMAX, TLMAX, ALGORITHM, FEdim, LIPN
       REAL(REALK)   :: GRAIN, DENS_SCREEN, EXTENT_MIN
 
-      INTEGER, PARAMETER :: IO = 5
+      INTEGER(INTK) :: ERROR
       NAMELIST /FMM/ LMAX, TLMAX, ALGORITHM, GRAIN, DENS_SCREEN,   &
                      EXTENT_MIN, FEdim, LIPN
 
@@ -87,12 +91,12 @@ CONTAINS
       EXTENT_MIN = EXTENT_MIN_DF
       FEdim = 10
       LIPN = 2
-      REWIND(IO)
-      READ(IO, FMM, END=9010, ERR=9000)
-      GO TO 9010
- 9000 WRITE(6,*) 'o Check NAMELIST FMM'
-      CALL Abend()
- 9010 CONTINUE
+      REWIND(LURD)
+      READ(LURD, FMM, IOSTAT=ERROR)
+      IF (ERROR > 0) THEN
+         WRITE(LUPRI,*) 'o Check NAMELIST FMM'
+         CALL Abend()
+      END IF
       scheme%algorithm = ALGORITHM
       scheme%raw_LMAX = LMAX
       scheme%trans_LMAX = TLMAX

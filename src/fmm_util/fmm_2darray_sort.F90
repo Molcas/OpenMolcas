@@ -13,7 +13,7 @@ MODULE fmm_2darray_sort
 ! Sorting module with a very simple O(N^2) insertion sort algorithm
 ! for integer 2-d arrays like (3,:) according to input key 1-3
 !
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK
    IMPLICIT NONE
    PRIVATE
    ! Public procedures

@@ -10,8 +10,22 @@
 !***********************************************************************
 MODULE fmm_global_paras
 
+   USE Constants, ONLY: Zero, One, Two, Half, Pi
+   USE Definitions, ONLY: wp, iwp, u5, u6
+
    IMPLICIT NONE
-   PUBLIC
+   PRIVATE
+   PUBLIC :: INTK, REALK, LUPRI, LURD, LUINTM, INPUT_FILE, INPUT_FILE_HEADER, fmm_stats_printed, NSPACE, Zero, One, Two, Half, Pi, &
+             ELECTRONIC_ONLY, NUCLEAR_ONLY, ALL_MOMENTS, MAX_LEVEL, TOP_LEVEL, ZERO_VECT_TOL, T_CONTRACTOR_MULTI, &
+             T_CONTRACTOR_BOUNDARY, T_CONTRACTOR_DIRECT, T_CONTRACTOR_TREE, T_CONTRACTOR_SCALE_TREE, T_CONTRACTOR_SCALE, &
+             T_CONTRACTOR_FULL, NEAR_FIELD, DISTINCT_T_TOL, TMATM_DF, MAX_AVG_PER_NODE, SORT_BY_RHS_MMS, START_LEN, SKIP_T_BUFFER, &
+             NULL_T_BUFFER, TREE_T_BUFFER, MULTI_T_BUFFER, SCALE_T_BUFFER, TREE_LENGTH, WS_MIN, W_CONTRACTOR_DIRECT, &
+             W_CONTRACTOR_X, W_CONTRACTOR_FAST, W_CONTRACTOR_BOUNDARY, SKIP_W_BUFFER, NULL_W_BUFFER, TREE_W_BUFFER, DO_FMM, DO_FQ, &
+             DO_BQ, DO_NlogN, ZERO_DIST_TOL, DO_NULL, FAR_FIELD, USE_RAW_QLM, USE_T_SYM_QLM, GFC_FMM, MD4_FMM, FE_FMM, BRFREE_DF, &
+             EXTENT_MIN_DF, PACK_LHS_DF, PACK_RHS_DF, SORT_BY_SCALE
+   PUBLIC :: scheme_paras, raw_mm_data, id_node, T_pair_single, T_pair_batch, T_pair_list, T_paras, fmm_counters, raw_mm_paras, &
+             gen_mm_paras, LHS_RHS_type, box_mm_paras, id_list, old_new, box_mm_data, LHS_raw_RHS_raw, LHS_box_RHS_box, &
+             fmm_planes, fmm_basis, fmm_prim_batch, fmm_sh_pairs
 
 !------------------------------------------------------------------------------
 
@@ -19,15 +33,16 @@ MODULE fmm_global_paras
    !   INTEGER, PARAMETER :: INTK  = SELECTED_INT_KIND(9),           &
    !                         REALK = SELECTED_REAL_KIND(XXX)
    ! Use standard integers and REAL*8 double precision floats
-   INTEGER, PARAMETER :: INTK  = KIND(1),                         &
-                         REALK = KIND(1D0)
+   INTEGER, PARAMETER :: INTK  = iwp,                             &
+                         REALK = wp
 
 !==============================================================================
 ! Program-wide global variables |
 !===============================!
 
     ! Unit numbers for IO
-   INTEGER(INTK), SAVE :: LUPRI = 6
+   INTEGER(INTK), SAVE :: LUPRI = u6
+   INTEGER(INTK), SAVE :: LURD = u5
    INTEGER(INTK), SAVE :: LUINTM = 77
     ! Interface file name (contains moments and co-ordinate data)
    CHARACTER(LEN=7),  SAVE :: INPUT_FILE = 'MM_DATA'
@@ -39,16 +54,6 @@ MODULE fmm_global_paras
 !==============================================================================
 ! Global parameters |
 !===================!
-
-   REAL(REALK), PARAMETER :: zero   = 0.0_REALK,                        &
-                             one    = 1.0_REALK,                        &
-                             two    = 2.0_REALK,                        &
-                             half   = 0.5_REALK,                        &
-                             PI     = 3.14159265358979323846264_REALK,  &
-                             ROOTPI = 1.77245385090552_REALK
-
-
-!------------------------------------------------------------------------------
 
    ! Branch-free algorithm
    LOGICAL,     PARAMETER :: BRFREE_DF = .TRUE.
@@ -173,11 +178,11 @@ MODULE fmm_global_paras
 
     ! Named parameters for memory management
    INTEGER(INTK), PARAMETER :: NMEMDIVS = 5
-   CHARACTER(LEN=7),  PARAMETER :: NSPACE(NMEMDIVS) = (/ 'raw_qlm',   &
-                                                     'raw_Vff',   &
-                                                     'box_Vff',   &
-                                                     'Vff_tmp',   &
-                                                     'box_qlm' /)
+   CHARACTER(LEN=7), PARAMETER :: NSPACE(NMEMDIVS) = (['raw_qlm', &
+                                                       'raw_Vff', &
+                                                       'box_Vff', &
+                                                       'Vff_tmp', &
+                                                       'box_qlm'])
    INTEGER(INTK), PARAMETER :: MEM_RAW_QLM = 1,        &
                                MEM_RAW_VFF = 2,        &
                                MEM_BOX_VFF = 3,        &

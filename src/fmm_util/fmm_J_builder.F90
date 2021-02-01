@@ -10,7 +10,7 @@
 !***********************************************************************
 MODULE fmm_J_builder
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK, scheme_paras, raw_mm_data, id_node, ELECTRONIC_ONLY, NUCLEAR_ONLY, ALL_MOMENTS, Half
    IMPLICIT NONE
    PRIVATE
    ! Public procedures

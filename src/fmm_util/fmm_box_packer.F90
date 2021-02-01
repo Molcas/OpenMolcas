@@ -10,7 +10,7 @@
 !***********************************************************************
 MODULE fmm_box_packer
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK, scheme_paras, raw_mm_paras, box_mm_paras
    IMPLICIT NONE
    PRIVATE
    ! Public procedures

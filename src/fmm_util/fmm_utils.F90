@@ -10,7 +10,7 @@
 !***********************************************************************
 FUNCTION fmm_second()
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK
    IMPLICIT NONE
    REAL(REALK) :: fmm_second
    INTEGER :: count, count_rate, count_max, tmp
@@ -38,7 +38,7 @@ SUBROUTINE TIMTXT(TEXTIN,TIMUSD,IUNIT)
 
 ! TIMTXT based on TIMER by TUH //900709-hjaaj
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: REALK
    IMPLICIT NONE
    CHARACTER(LEN=*) :: TEXTIN
    CHARACTER :: AHOUR*6, ASEC*8, AMIN*8
@@ -86,9 +86,10 @@ END SUBROUTINE TIMTXT
 !-------------------------------------------------------------------------------
 
 SUBROUTINE fmm_quit(msg)
+   USE fmm_global_paras, ONLY: LUPRI
    CHARACTER(LEN=*) msg
-   write(6,*) msg
-   WRITE(6,*) ">>> FATAL ERROR"
+   write(LUPRI,*) msg
+   WRITE(LUPRI,*) ">>> FATAL ERROR"
    CALL Abend()
 END SUBROUTINE fmm_quit
 
@@ -96,7 +97,7 @@ END SUBROUTINE fmm_quit
 
 SUBROUTINE fmm_matrix_norm(label,matrix,ndim)
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: REALK, LUPRI
 
    IMPLICIT NONE
    CHARACTER(LEN=*), INTENT(IN) :: label
@@ -110,7 +111,7 @@ SUBROUTINE fmm_matrix_norm(label,matrix,ndim)
    DO i = 1, ndim
       norm = norm + matrix(i)*matrix(i)
    END DO
-   WRITE(6,*) 'o fmm_matrix_norm: ', label,' = ', SQRT(norm)
+   WRITE(LUPRI,*) 'o fmm_matrix_norm: ', label,' = ', SQRT(norm)
 
 END SUBROUTINE fmm_matrix_norm
 
@@ -118,7 +119,7 @@ END SUBROUTINE fmm_matrix_norm
 
 MODULE fmm_utils
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: REALK
    IMPLICIT NONE
    PRIVATE
    ! Public procedures

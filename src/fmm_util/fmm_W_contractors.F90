@@ -22,8 +22,9 @@
 
 MODULE fmm_W_contractors
 
-   USE fmm_global_paras
-   USE fmm_stats
+   USE fmm_global_paras, ONLY: INTK, REALK, T_pair_single, T_pair_list, W_CONTRACTOR_DIRECT, W_CONTRACTOR_X, W_CONTRACTOR_FAST, &
+                               W_CONTRACTOR_BOUNDARY, ZERO_VECT_TOL, DISTINCT_T_TOL, Zero, One
+   USE fmm_stats, ONLY: stat_W_mat_builds
    IMPLICIT NONE
    PRIVATE
    ! Public procedures

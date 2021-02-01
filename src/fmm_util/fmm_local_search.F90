@@ -10,7 +10,8 @@
 !***********************************************************************
 MODULE fmm_local_search
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, id_list, id_node, scheme_paras, box_mm_data, box_mm_paras, gen_mm_paras, LHS_raw_RHS_raw, &
+                               LHS_box_RHS_box, TOP_LEVEL, DO_FMM
    USE fmm_box_utils, ONLY: fmm_parent_box, fmm_same_box, fmm_RFF_boxes
 
    IMPLICIT NONE

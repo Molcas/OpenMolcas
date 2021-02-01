@@ -10,7 +10,7 @@
 !***********************************************************************
 MODULE fmm_W_worker
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK, LUPRI, ZERO_VECT_TOL, Zero, One, Half
 
    IMPLICIT NONE
    PRIVATE
@@ -103,7 +103,7 @@ CONTAINS
       r_minus2 = one/(r_2)
 
       IF (r_2 < ZERO_VECT_TOL*ZERO_VECT_TOL) THEN
-         WRITE(6,'(3E25.15)') point
+         WRITE(LUPRI,'(3E25.15)') point
          CALL fmm_quit('ERROR: Why do we try to do zero W-vector.')
       END IF
 

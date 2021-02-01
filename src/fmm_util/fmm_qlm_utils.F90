@@ -10,8 +10,8 @@
 !***********************************************************************
 MODULE fmm_qlm_utils
 
-   USE fmm_global_paras
-   USE fmm_stats
+   USE fmm_global_paras, ONLY: INTK, REALK, raw_mm_paras, raw_mm_data, id_list, id_node, One, Two, Half
+   USE fmm_stats, ONLY: stat_pkd_moms_LHS, stat_pkd_moms_rHS, stat_screened_moms_RHS
    IMPLICIT NONE
    PRIVATE
    ! Public procedures

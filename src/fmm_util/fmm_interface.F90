@@ -10,7 +10,7 @@
 !***********************************************************************
 MODULE fmm_interface
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK, LUPRI, LUINTM, fmm_basis, fmm_sh_pairs, scheme_paras, GFC_FMM, Zero, Two, Half
    IMPLICIT NONE
    PRIVATE
    ! Public procedures
@@ -130,9 +130,11 @@ CONTAINS
       REAL(REALK)   :: J_matrix(nBas,nBas)
       REAL(REALK)   :: sq_dens(nBas,nBas)
       INTEGER(INTK) :: i,j,ij
+      INTEGER(INTK), EXTERNAL :: IsFreeUnit
 
       ! Write null header file for nuclear moments (not computed!)
       FBuf = TRIM(Name)//".fmm2header"
+      LUINTM = IsFreeUnit(LUINTM)
       OPEN(UNIT=LUINTM, FILE=TRIM(FBuf), STATUS='REPLACE',   &
            ACCESS='SEQUENTIAL', FORM='UNFORMATTED')
       WRITE(LUINTM) 0
@@ -165,7 +167,7 @@ CONTAINS
 
    SUBROUTINE fmm_get_boundary_potential(npoints,nBas,coor,dens,potential)
 
-      USE fmm_stats
+      USE fmm_stats,                ONLY: stat_points
       USE fmm_scheme_builder,       ONLY: fmm_get_scheme
       USE fmm_driver,               ONLY: fmm_get_multipole_potential
 !      USE fmm_boxed_multipole_ints, ONLY: fmm_pack_boxed_mpoles
@@ -220,9 +222,11 @@ CONTAINS
       CHARACTER(LEN=10), PARAMETER :: Name = 'multipoles'
       CHARACTER(LEN=255) :: FBuf
       INTEGER(INTK) :: i
+      INTEGER(INTK), EXTERNAL :: IsFreeUnit
 
       ! Write grid points to disk
       FBuf = TRIM(Name)//".fmm2"
+      LUINTM = IsFreeUnit(LUINTM)
       OPEN(UNIT=LUINTM, FILE=TRIM(FBuf), STATUS='REPLACE',  &
            ACCESS='SEQUENTIAL', FORM='UNFORMATTED')
       REWIND(LUINTM)
@@ -233,6 +237,7 @@ CONTAINS
 
       ! Write header file
       FBuf = TRIM(Name)//".fmm2header"
+      LUINTM = IsFreeUnit(LUINTM)
       OPEN(UNIT=LUINTM, FILE=TRIM(FBuf), STATUS='REPLACE',   &
            ACCESS='SEQUENTIAL', FORM='UNFORMATTED')
       WRITE(LUINTM) npoints
@@ -324,50 +329,50 @@ CONTAINS
       RETURN
 
       ! Print section
-      write(6,*) '------------'
-      write(6,*) 'NAtom',  NAtom
-      write(6,*) 'NShel',  NShel
-      write(6,*) 'NPrim',  NPrim
-      write(6,*) 'NBF_Car',NBF_Car
-      write(6,*) '------------'
-      write(6,*) 'Maxangl', MaxAngl
-      write(6,*) 'Maxsgm2', MaxSgm2
-      write(6,*) '------------'
-      write(6,*) 'katom:'
+      write(LUPRI,*) '------------'
+      write(LUPRI,*) 'NAtom',  NAtom
+      write(LUPRI,*) 'NShel',  NShel
+      write(LUPRI,*) 'NPrim',  NPrim
+      write(LUPRI,*) 'NBF_Car',NBF_Car
+      write(LUPRI,*) '------------'
+      write(LUPRI,*) 'Maxangl', MaxAngl
+      write(LUPRI,*) 'Maxsgm2', MaxSgm2
+      write(LUPRI,*) '------------'
+      write(LUPRI,*) 'katom:'
       do ii = 1, nshel
-         write(6,*) ii, KAtom(ii)
+         write(LUPRI,*) ii, KAtom(ii)
       end do
-      write(6,*) '------------'
-      write(6,*) 'ktype:'
+      write(LUPRI,*) '------------'
+      write(LUPRI,*) 'ktype:'
       do ii = 1, nshel
-         write(6,*) ii, KType(ii)
+         write(LUPRI,*) ii, KType(ii)
       end do
-      write(6,*) '------------'
-      write(6,*) 'kstart:'
+      write(LUPRI,*) '------------'
+      write(LUPRI,*) 'kstart:'
       do ii = 1, nshel
-         write(6,*) ii, KStart(ii)
+         write(LUPRI,*) ii, KStart(ii)
       end do
-      write(6,*) '------------'
-      write(6,*) 'kontg:'
+      write(LUPRI,*) '------------'
+      write(LUPRI,*) 'kontg:'
       do ii = 1, nshel
-         write(6,*) ii, KontG(ii)
+         write(LUPRI,*) ii, KontG(ii)
       end do
-      write(6,*) '------------'
-      write(6,*) 'kloc_car:'
+      write(LUPRI,*) '------------'
+      write(LUPRI,*) 'kloc_car:'
       do ii = 1, nshel
-         write(6,*) ii, KLoc_Car(ii)
+         write(LUPRI,*) ii, KLoc_Car(ii)
       end do
-      write(6,*) '------------'
-      write(6,*) 'expnt:'
+      write(LUPRI,*) '------------'
+      write(LUPRI,*) 'expnt:'
       do ii = 1, nprim
-       write(6,*) ii,Expnt(ii)
+       write(LUPRI,*) ii,Expnt(ii)
       end do
-      write(6,*) '------------'
-      write(6,*) 'ccoef:'
+      write(LUPRI,*) '------------'
+      write(LUPRI,*) 'ccoef:'
       do ii = 1, nprim
-       write(6,*) ii, CCoef(ii)
+       write(LUPRI,*) ii, CCoef(ii)
       end do
-      write(6,*) '------------'
+      write(LUPRI,*) '------------'
 
    END SUBROUTINE fmm_init_basis
 

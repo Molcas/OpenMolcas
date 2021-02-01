@@ -10,7 +10,8 @@
 !***********************************************************************
 MODULE fmm_T_pair_tests
 
-   USE fmm_global_paras
+   USE fmm_global_paras, ONLY: INTK, REALK, scheme_paras, gen_mm_paras, LHS_RHS_type, T_pair_single, box_mm_paras, DO_FQ, DO_BQ, &
+                               DO_NlogN, DO_FMM, ZERO_DIST_TOL, NEAR_FIELD
    USE fmm_box_utils, ONLY: fmm_NF_boxes, fmm_RFF_boxes
 
    IMPLICIT NONE
