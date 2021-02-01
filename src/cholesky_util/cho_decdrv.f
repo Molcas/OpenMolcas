@@ -20,22 +20,23 @@ C
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       INTEGER ISYLST(8)
       REAL*8  DIAMAX_SIMP(8)
 
-      CHARACTER*10 SECNAM
-      PARAMETER (SECNAM = 'CHO_DECDRV')
+      CHARACTER(LEN=10), PARAMETER:: SECNAM = 'CHO_DECDRV'
 
       CHARACTER*7 FILSEL
 
       CHARACTER*20 STRING
 
-      LOGICAL CONV, SYNC, LOCDBG
-      PARAMETER (LOCDBG = .FALSE.)
+      LOGICAL CONV, SYNC
+      LOGICAL, PARAMETER:: LOCDBG = .FALSE.
 
-      INTEGER  CHO_P_GETMPASS
-      EXTERNAL CHO_P_GETMPASS
+      INTEGER, EXTERNAL:: CHO_P_GETMPASS
+
+      Integer, Allocatable:: LSTQSP(:)
 
 C     Start timing.
 C     -------------
@@ -86,8 +87,7 @@ C     ------------------------
 C     Allocate shell pair list.
 C     -------------------------
 
-      l_LSTQSP = MAX(NPOTSH,1)
-      CALL GETMEM('LSTQSP','ALLO','INTE',ip_LSTQSP,l_LSTQSP)
+      Call mma_allocate(LSTQSP,MAX(NPOTSH,1),Label='LSTQSP')
 
 C     Loop over integral passes. Continue until convergence or
 C     until the max. number of integral passes has been reached.
@@ -181,7 +181,7 @@ C        -----------------------------------------------------------
          IF (IPRINT .GE. INF_PASS) CALL CHO_TIMER(TLINT1,WLINT1)
          NUM = 0
          CALL CHO_GETINT(DIAG,WORK(KDIASH),IWORK(KISYSH),
-     &                   IWORK(ip_LSTQSP),NPOTSH,NUM)
+     &                   LSTQSP,NPOTSH,NUM)
          CALL CHO_FLUSH(LUPRI)
          IF (IPRINT .GE. INF_PASS) CALL CHO_TIMER(TLINT2,WLINT2)
 
@@ -191,7 +191,7 @@ C        -----------------------------------------
          IF (IPRINT .GE. INF_PASS) CALL CHO_TIMER(TLDEC1,WLDEC1)
          IF (CHO_DECALG.EQ.4 .OR. CHO_DECALG.EQ.5 .OR. CHO_DECALG.EQ.6)
      &   THEN
-            CALL CHO_DECOM_A4(DIAG,IWORK(ip_LSTQSP),NUM,IPASS)
+            CALL CHO_DECOM_A4(DIAG,LSTQSP,NUM,IPASS)
          ELSE
             IF (CHO_SIMP) THEN
                CALL CHO_MAXDX(DIAG,DIAMAX_SIMP)
@@ -311,7 +311,7 @@ C        ---------------------------
 C     Free memory for shell pair based diagonal.
 C     ------------------------------------------
 
-      CALL GETMEM('LSTQSP','FREE','INTE',ip_LSTQSP,l_LSTQSP)
+      Call mma_deallocate(LSTQSP)
       CALL GETMEM('ISYSH','FREE','INTE',KISYSH,NGSP)
       CALL GETMEM('DIASH','FREE','REAL',KDIASH,NNSHL)
 
