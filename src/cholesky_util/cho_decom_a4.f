@@ -28,7 +28,7 @@ C
       Integer NumCho_Old(8), nQual_Old(8)
       Integer NumV(8), nkVec(8)
 
-      Real*8, Allocatable:: KVScr(:), MQ(:), KVec(:)
+      Real*8, Allocatable:: KVScr(:), MQ(:), KVec(:), QDiag(:)
       Integer, Allocatable:: IDKVec(:)
 *                                                                      *
 ************************************************************************
@@ -99,11 +99,10 @@ C     ------------
          l_IDKVec = l_IDKVec + nQual(iSym)
          l_LQ = l_LQ + nQual(iSym)*NumV(iSym)
       End Do
-      l_QDiag = l_IDKVec
       l_LQ = max(l_LQ,1) ! because there might not be any prev. vecs.
       Call mma_allocate(KVec,l_KVec,Label='KVec')
       Call mma_allocate(IDKVec,l_IDKVec,Label='IDKVec')
-      Call GetMem('QDiag','Allo','Real',ip_QDiag,l_QDiag)
+      Call mma_allocate(QDiag,l_IDKVec,Label='QDiag')
 
 C     Extract elements corresponding to qualified diagonals from
 C     previous Cholesky vectors (if any).
@@ -142,8 +141,7 @@ C     Decompose qualified diagonal block.
 C     The qualified diagonals are returned in QDiag.
 C     ----------------------------------------------
 
-      Call Cho_Dec_Qual(Diag,LQ_Tot,MQ,KVec,
-     &                  IDKVec,nKVec,Work(ip_QDiag))
+      Call Cho_Dec_Qual(Diag,LQ_Tot,MQ,KVec,IDKVec,nKVec,QDiag)
 
 C     Deallocate MQ.
 C     --------------
@@ -182,12 +180,12 @@ C     Reorder QDiag to IDK ordering.
 C     ------------------------------
 
       kID = 0
-      kQD = ip_QDiag - 1
+      kQD = 0
       Do iSym = 1,nSym
-         Call dCopy_(nQual(iSym),Work(kQD+1),1,KVScr,1)
+         Call dCopy_(nQual(iSym),QDiag(kQD+1),1,KVScr,1)
          Do iK = 1,nKVec(iSym)
             lK = IDKVec(kID+iK)
-            Work(kQD+iK) = KVScr(lK)
+            QDiag(kQD+iK) = KVScr(lK)
          End Do
          kQD = kQD + nQual(iSym)
          kID = kID + nQual(iSym)
@@ -232,7 +230,7 @@ C     ---------------------------------------
 
       kV = 1
       kI = 1
-      kQD = ip_QDiag
+      kQD = 1
       Do iSym = 1,nSym
 
 C        Cycle loop if nothing to do in this symmetry.
@@ -269,7 +267,7 @@ C           ----------------
 
             Call GetMem('CmpV_Max','Max ','Real',ip_Wrk1,l_Wrk1)
             Call GetMem('CmpV_Wrk','Allo','Real',ip_Wrk1,l_Wrk1)
-            Call Cho_CompVec(Diag,Work(ip_xInt),KVec(kV),Work(kQD),
+            Call Cho_CompVec(Diag,Work(ip_xInt),KVec(kV),QDiag(kQD),
      &                       Work(ip_Wrk1),l_Wrk1,iSym,iPass)
             Call GetMem('CmpV_Wrk','Free','Real',ip_Wrk1,l_Wrk1)
 
@@ -320,7 +318,7 @@ C     Deallocations.
 C     --------------
 
       Call mma_deallocate(LQ_Tot)
-      Call GetMem('QDiag','Free','Real',ip_QDiag,l_QDiag)
+      Call mma_deallocate(QDiag)
       Call mma_deallocate(IDKVec)
       Call mma_deallocate(KVec)
 
